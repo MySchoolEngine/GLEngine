@@ -5,7 +5,8 @@
 int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
-	Editor w;
+	C_Editor w;
+	w.resize(100, 100);
 	w.show();
 	return a.exec();
 }

@@ -2,18 +2,25 @@
 #define EDITOR_H
 
 #include <QtWidgets/QMainWindow>
-#include "ui_editor.h"
+#include <QTextEdit>
+#include <QCompleter>
+#include <QObject>
 
-class Editor : public QMainWindow
+class C_GLWidget;
+
+class C_Editor : public QMainWindow
 {
 	Q_OBJECT
 
 public:
-	Editor(QWidget *parent = 0);
-	~Editor();
+	C_Editor(QWidget *parent = 0);
+	~C_Editor() = default;
+
+	// there is no reason for copy now
+	C_Editor(const C_Editor &) = delete;
+	C_Editor & operator= (const C_Editor&) = delete;
 
 private:
-	Ui::EditorClass ui;
+	C_GLWidget*		m_glWidget;
 };
-
 #endif // EDITOR_H

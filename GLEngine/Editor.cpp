@@ -1,13 +1,17 @@
 #include "stdafx.h"
+
 #include "Editor.h"
+#include "GLWidget.h"
 
-Editor::Editor(QWidget *parent)
-	: QMainWindow(parent)
+#include <QMenuBar>
+#include <QMenu>
+
+//=================================================================================
+C_Editor::C_Editor(QWidget *parent)
 {
-	ui.setupUi(this);
-}
+	m_glWidget = new C_GLWidget(this);
+	this->setCentralWidget(m_glWidget);
 
-Editor::~Editor()
-{
-
+	setWindowTitle(tr("Hello GL"));
+	setMinimumSize(400, 400);
 }
