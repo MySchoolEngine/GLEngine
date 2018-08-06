@@ -113,6 +113,12 @@
     <ClCompile Include="Shaders\UniformBuffersManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Physics\Frustum.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObjects\Cameras\OrbitalCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -170,6 +176,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Shaders\UniformBuffersManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObjects\Cameras\ICamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\Frustum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObjects\Cameras\OrbitalCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

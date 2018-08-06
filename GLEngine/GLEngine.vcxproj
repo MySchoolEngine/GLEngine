@@ -169,6 +169,7 @@
     <ClCompile Include="Debug\Debug.cpp" />
     <ClCompile Include="Debug\RenderDocTools.cpp" />
     <ClCompile Include="Editor.cpp" />
+    <ClCompile Include="GameObjects\Cameras\OrbitalCamera.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_Editor.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -211,6 +212,7 @@
     <ClCompile Include="GLW\Texture\Texture2D.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Physics\AABB.cpp" />
+    <ClCompile Include="Physics\Frustum.cpp" />
     <ClCompile Include="Physics\Shapes.cpp" />
     <ClCompile Include="Shaders\ShaderCompiler.cpp" />
     <ClCompile Include="Shaders\ShaderManager.cpp" />
@@ -229,6 +231,8 @@
     <ClInclude Include="Debug\Debug.h" />
     <ClInclude Include="Debug\DebugCallbacks.h" />
     <ClInclude Include="Debug\RenderDocTools.h" />
+    <ClInclude Include="GameObjects\Cameras\ICamera.h" />
+    <ClInclude Include="GameObjects\Cameras\OrbitalCamera.h" />
     <ClInclude Include="GeneratedFiles\$(ConfigurationName)\uic\ui_editor.h" />
     <CustomBuild Include="Widgets\QWidgetRendererBase.h">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing QWidgetRendererBase.h...</Message>
@@ -293,6 +297,7 @@
     <ClInclude Include="GLW\Texture.h" />
     <ClInclude Include="GLW\Texture\Texture2D.h" />
     <ClInclude Include="Physics\AABB.h" />
+    <ClInclude Include="Physics\Frustum.h" />
     <ClInclude Include="Physics\Shapes.h" />
     <ClInclude Include="Shaders\ShaderCompiler.hpp" />
     <ClInclude Include="Shaders\ShaderManager.h" />
