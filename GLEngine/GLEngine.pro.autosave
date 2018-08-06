@@ -34,5 +34,5 @@ OBJECTS_DIR += debug
 UI_DIR += ./../bin/intermediates/GeneratedFiles/$(ConfigurationName)/uic
 RCC_DIR += ./../bin/intermediates/GeneratedFiles/$(ConfigurationName)/rcc
 include(GLEngine.pri)
-include($$QTCREATOR_SOURCES/src/qtcreatorplugin.pri)
+include($$QT_PLUGIN_PATH/designer/)
 win32:RC_FILE = GLEngine.rc

@@ -6,6 +6,8 @@
 #include <QCompleter>
 #include <QObject>
 
+#include <ui_editor.h>
+
 class C_GLWidget;
 
 class C_Editor : public QMainWindow
@@ -22,5 +24,6 @@ public:
 
 private:
 	C_GLWidget*		m_glWidget;
+	Ui::EditorClass ui;
 };
 #endif // EDITOR_H
