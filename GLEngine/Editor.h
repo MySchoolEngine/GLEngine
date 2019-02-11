@@ -1,12 +1,15 @@
 #ifndef EDITOR_H
 #define EDITOR_H
 
+
 #include <QtWidgets/QMainWindow>
 #include <QTextEdit>
 #include <QCompleter>
 #include <QObject>
 
 #include <ui_editor.h>
+
+#include <memory>
 
 class C_GLWidget;
 

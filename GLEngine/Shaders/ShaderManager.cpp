@@ -20,7 +20,6 @@
 
 //=================================================================================
 const std::string C_ShaderManager::s_ShadersFolder = "shaders/";
-ShaderCompiler C_ShaderManager::s_Compiler;
 
 //=================================================================================
 C_ShaderManager & C_ShaderManager::Instance()
@@ -125,6 +124,7 @@ std::string C_ShaderManager::ShadersStatistics() const
 C_ShaderManager::C_ShaderManager()
 	: m_Timeout(std::chrono::seconds(1))
 	, m_LastUpdate(std::chrono::system_clock::now())
+	, m_Compiler()
 {
 
 }
@@ -165,7 +165,7 @@ GLuint C_ShaderManager::LoadShader(const pugi::xml_node& node) const
 	else if (stageAttribute == "geometry") stage = GL_GEOMETRY_SHADER;
 	else if (stageAttribute == "compute") stage = GL_COMPUTE_SHADER;
 
-	if (!s_Compiler.compileShader(shader, std::string(s_ShadersFolder + std::string(node.first_child().value())).c_str(), stage, str)) {
+	if (!m_Compiler.compileShader(shader, std::string(s_ShadersFolder + std::string(node.first_child().value())).c_str(), stage, str)) {
 		std::cerr << "--Compilation error" << std::endl;
 		std::cerr << s_ShadersFolder + std::string(node.first_child().value()) << std::endl;
 		std::cerr << str << std::endl;
@@ -205,7 +205,7 @@ GLuint C_ShaderManager::LoadProgram(const std::string& name) const
 
 	GLuint program;
 	std::string str;
-	if (!s_Compiler.linkProgram(program, str, shaders)) {
+	if (!m_Compiler.linkProgram(program, str, shaders)) {
 		std::cerr << str << std::endl;
 		return false;
 	}

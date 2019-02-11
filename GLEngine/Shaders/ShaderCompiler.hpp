@@ -20,7 +20,6 @@
 #include <vector>
 
 class ShaderCompiler
-	: public QOpenGLFunctions
 {
 public:
 	//Compiles a single shader from a file

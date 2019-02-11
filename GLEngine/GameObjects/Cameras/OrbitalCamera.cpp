@@ -13,7 +13,7 @@ namespace Cameras {
 
 
 //=================================================================================
-constexpr C_OrbitalCamera::C_OrbitalCamera(glm::vec3 center)
+C_OrbitalCamera::C_OrbitalCamera(glm::vec3 center)
 	: m_Center(center)
 	, m_Zoom(10.0f)
 	, m_AngleXDeg(0.0f)

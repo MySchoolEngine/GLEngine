@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline>
+  <shader stage="vertex">basic/vertex.glsl</shader>
+  <shader stage="fragment">basic/fragment-planes-poisson.glsl</shader>
+</pipeline>

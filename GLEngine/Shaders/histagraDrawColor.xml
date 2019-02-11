@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline>
+  <shader stage="compute">computes/histagramColorDraw.glsl</shader>
+</pipeline>

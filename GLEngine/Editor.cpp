@@ -15,4 +15,6 @@ C_Editor::C_Editor(QWidget *parent)
 	//
 	//setWindowTitle(tr("Hello GL"));
 	//setMinimumSize(400, 400);
+
+
 }

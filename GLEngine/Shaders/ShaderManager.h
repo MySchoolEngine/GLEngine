@@ -79,7 +79,8 @@ private:
 	T_ShaderPtr		m_ActiveShader;
 
 	const static std::string s_ShadersFolder;
-	static ShaderCompiler s_Compiler;
+	// mutable cause of freaky qt + OpenGL constlessness
+	mutable ShaderCompiler m_Compiler;
 
 	std::chrono::system_clock::duration m_Timeout;
 	std::chrono::system_clock::time_point m_LastUpdate;

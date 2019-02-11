@@ -1,6 +1,5 @@
 #include "Frustum.h"
 
-#include <CameraManager.h>
 #include "Debug/Debug.h"
 
 namespace Shapes {

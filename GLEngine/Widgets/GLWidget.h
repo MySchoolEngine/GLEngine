@@ -1,5 +1,7 @@
 #pragma once
 
+#include <GLW/ShaderProgram.h>
+
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 
@@ -34,6 +36,7 @@ protected:
 private:
 	float m_red;
 	QPoint m_lastPos;
+	std::shared_ptr<GLW::C_ShaderProgram> m_program;
 
 	bool m_core;
 };

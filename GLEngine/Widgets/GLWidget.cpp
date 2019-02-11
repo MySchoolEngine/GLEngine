@@ -1,5 +1,7 @@
 #include "stdafx.h"
 
+#include "Shaders/ShaderManager.h"
+
 #include "Widgets/GLWidget.h"
 
 #include <algorithm>
@@ -44,6 +46,7 @@ void C_GLWidget::initializeGL()
 {
 	C_QWidgetRendererBase::initializeGL();
 	glClearColor(0, 0, 0, true ? 0 : 1);
+	m_program = C_ShaderManager::Instance().GetProgram("basic");
 
 	doneCurrent();
 
