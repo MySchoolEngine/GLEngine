@@ -1,7 +1,5 @@
 #pragma once
 
-#include <assert.h>
-
 #if !defined CORE_PLATFORM
 	#error "CORE_PLATFORM not defined"
 #endif
