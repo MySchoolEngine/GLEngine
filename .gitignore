@@ -26,6 +26,7 @@ bld/
 .vs/
 *.vcxproj
 *.sln
+*.filters
 # Uncomment if you have tasks that create the project's static files in wwwroot
 #wwwroot/
 
