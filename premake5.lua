@@ -11,4 +11,5 @@ include "premakeDefines.lua"
 IncludeDir = {}
 
 include "Core"
+include "Sandbox"
 --include "GLEngine"
