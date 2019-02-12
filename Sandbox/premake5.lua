@@ -17,9 +17,10 @@ project "Sandbox"
 	includedirs
 	{
 		"src",
+		"../Core/src"
 	}
 
-	links 
+	links
 	{ 
 		"Core"
 	}
@@ -27,6 +28,11 @@ project "Sandbox"
 	filter "system:windows"
 		cppdialect "C++17"
 		systemversion "latest"
+
+		defines
+		{
+			"CORE_PLATFORM=CORE_PLATFORM_WIN"
+		}
 
 	filter "configurations:Debug"
 		runtime "Debug"
