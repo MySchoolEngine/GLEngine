@@ -20,6 +20,7 @@ project "Core"
 	includedirs
 	{
 		"src",
+		"../%{IncludeDir.GLM}",
 	}
 
 	links 
