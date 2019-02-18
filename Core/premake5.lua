@@ -20,7 +20,7 @@ project "Core"
 	includedirs
 	{
 		"src",
-		"%{IncludeDir.GLFW}"
+		"../%{IncludeDir.GLFW}"
 	}
 
 	links 
