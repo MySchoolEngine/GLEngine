@@ -21,6 +21,7 @@ project "Core"
 	{
 		"src",
 		"../%{IncludeDir.GLFW}"
+		"../%{IncludeDir.GLM}",
 	}
 
 	links 

@@ -1,3 +1,6 @@
 [submodule "vendor/GLFW"]
 	path = vendor/GLFW
 	url = https://github.com/TheCherno/glfw
+[submodule ".\\vendor\\GLM"]
+	path = .\\vendor\\GLM
+	url = https://github.com/g-truc/glm
