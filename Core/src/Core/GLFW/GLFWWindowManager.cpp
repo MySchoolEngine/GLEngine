@@ -27,6 +27,8 @@ std::shared_ptr<I_Window> C_GLFWWindowManager::OpenNewWindow(const S_WindowInfo&
 void C_GLFWWindowManager::Update()
 {
 	std::for_each(m_Windows.begin(), m_Windows.end(), [](const std::shared_ptr<I_Window> window) {window->Update(); });
+
+	glfwPollEvents();
 }
 
 //=================================================================================

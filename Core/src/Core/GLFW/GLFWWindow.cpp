@@ -52,7 +52,6 @@ void C_GLFWWindow::Update()
 {
 	glfwMakeContextCurrent(m_Window);
 	glfwSwapBuffers(m_Window);
-	glfwPollEvents();
 }
 
 //=================================================================================
