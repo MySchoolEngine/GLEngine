@@ -17,7 +17,8 @@ project "Sandbox"
 	includedirs
 	{
 		"src",
-		"../Core/src"
+		"../Core/src",
+		"../%{IncludeDir.GLM}",
 	}
 
 	links
