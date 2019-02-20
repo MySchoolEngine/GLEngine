@@ -20,11 +20,14 @@ project "Core"
 	includedirs
 	{
 		"src",
+		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.GLM}",
 	}
 
 	links 
 	{ 
+		"GLFW",
+		"opengl32.lib",
 	}
 
 	filter "system:windows"
