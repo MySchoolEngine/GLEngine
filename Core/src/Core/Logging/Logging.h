@@ -2,8 +2,6 @@
 
 #include <Core/CoreMacros.h>
 
-#include <Core/Logging/LoggingTypes.h>
-
 #include <string>
 #include <vector>
 #include <iostream>
@@ -12,6 +10,8 @@ namespace Core {
 namespace Logging {
 
 class I_Logger;
+enum class E_Context;
+enum class E_Level;
 
 //=================================================================================
 std::ostream & operator<< (std::ostream &out, const E_Context &c);
