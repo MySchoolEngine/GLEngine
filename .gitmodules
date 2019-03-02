@@ -4,3 +4,6 @@
 [submodule "./vendor/GLM"]
 	path = ./vendor/GLM
 	url = https://github.com/g-truc/glm/
+[submodule ".\\vendor\\fmt"]
+	path = .\\vendor\\fmt
+	url = https://github.com/fmtlib/fmt

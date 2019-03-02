@@ -7,6 +7,7 @@ project "Sandbox"
 
 	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("../obj/" .. outputdir .. "/%{prj.name}")
+	debugdir ("../bin/" .. outputdir .. "/%{prj.name}")
 
 	files
 	{
@@ -19,6 +20,7 @@ project "Sandbox"
 		"src",
 		"../Core/src",
 		"../%{IncludeDir.GLM}",
+		"../vendor/fmt/include",
 	}
 
 	links

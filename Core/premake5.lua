@@ -15,6 +15,7 @@ project "Core"
 	{
 		"src/**.h",
 		"src/**.cpp",
+		"src/**.inl",
 	}
 
 	includedirs
@@ -22,6 +23,7 @@ project "Core"
 		"src",
 		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.GLM}",
+		"../vendor/fmt/include",
 	}
 
 	links 

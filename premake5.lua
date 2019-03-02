@@ -27,10 +27,17 @@ workspace "Engine"
 		"Debug",
 		"Release"
 	}
+  
+  defines{
+    "FMT_HEADER_ONLY=1",
+  }
 
 	workspace_files{
 		"vendor/GLM/util/glm.natvis"
 	}
+
+  filter "configurations:Debug"
+    defines "GL_ENGINE_DEBUG"
 
 include "premakeDefines.lua"
 
