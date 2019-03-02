@@ -1,9 +1,9 @@
 [submodule "vendor/GLFW"]
 	path = vendor/GLFW
 	url = https://github.com/TheCherno/glfw
-[submodule "./vendor/GLM"]
-	path = ./vendor/GLM
+[submodule "vendor/GLM"]
+	path = vendor/GLM
 	url = https://github.com/g-truc/glm/
-[submodule ".\\vendor\\fmt"]
-	path = .\\vendor\\fmt
+[submodule "vendor/fmt"]
+	path = vendor/fmt
 	url = https://github.com/fmtlib/fmt
