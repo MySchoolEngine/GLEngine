@@ -23,6 +23,7 @@ project "Core"
 		"src",
 		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.GLM}",
+		"../vendor/fmt/include",
 	}
 
 	links 

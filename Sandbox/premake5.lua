@@ -20,6 +20,7 @@ project "Sandbox"
 		"src",
 		"../Core/src",
 		"../%{IncludeDir.GLM}",
+		"../vendor/fmt/include",
 	}
 
 	links

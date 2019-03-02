@@ -29,7 +29,7 @@ public:
 	C_LoggingSystem& operator=(C_LoggingSystem &&) = delete;      // Move assign
 
 	template<class ...Args>
-	void Log(Args&&... args);
+	void Log(E_Level level, E_Context context, int line, const char* file, const char* fmt, Args&&... args);
 
 	void AddLogger(I_Logger* logger);
 	void RemoveLogger(I_Logger* logger);
