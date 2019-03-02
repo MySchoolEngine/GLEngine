@@ -30,6 +30,9 @@ public:
 
 	template<class ...Args>
 	void Log(Args&&... args);
+
+	void AddLogger(I_Logger* logger);
+	void RemoveLogger(I_Logger* logger);
 private:
 	C_LoggingSystem();
 	~C_LoggingSystem();

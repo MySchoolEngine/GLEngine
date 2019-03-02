@@ -8,6 +8,37 @@ namespace Core {
 namespace Logging {
 
 //=================================================================================
+C_LoggingSystem::C_LoggingSystem()
+	: m_Loggers(new std::remove_pointer<decltype(m_Loggers)>::type)
+{
+}
+
+//=================================================================================
+C_LoggingSystem& C_LoggingSystem::Instance()
+{
+	static C_LoggingSystem myInstance;
+	return myInstance;
+}
+
+//=================================================================================
+C_LoggingSystem::~C_LoggingSystem()
+{
+	delete m_Loggers;
+}
+
+//=================================================================================
+void C_LoggingSystem::AddLogger(I_Logger* logger)
+{
+	m_Loggers->emplace_back(logger);
+}
+
+//=================================================================================
+void C_LoggingSystem::RemoveLogger(I_Logger* logger)
+{
+	m_Loggers->erase(std::remove(m_Loggers->begin(), m_Loggers->end(), logger), m_Loggers->end());
+}
+
+//=================================================================================
 std::ostream & operator<< (std::ostream &out, const E_Context &c)
 {
 	const char* text = nullptr;
@@ -52,26 +83,6 @@ std::ostream & operator<< (std::ostream &out, const E_Level &c)
 	}
 	out << text;
 	return out;
-}
-
-//=================================================================================
-C_LoggingSystem& C_LoggingSystem::Instance()
-{
-	static C_LoggingSystem myInstance;
-	return myInstance;
-}
-
-//=================================================================================
-C_LoggingSystem::C_LoggingSystem()
-	: m_Loggers(new std::remove_pointer<decltype(m_Loggers)>::type)
-{
-	m_Loggers->emplace_back(new C_CoutLogger());
-}
-
-//=================================================================================
-C_LoggingSystem::~C_LoggingSystem()
-{
-	delete m_Loggers;
 }
 
 }
