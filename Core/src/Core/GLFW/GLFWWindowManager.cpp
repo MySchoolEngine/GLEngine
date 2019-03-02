@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 
 namespace Core {
+namespace GLFW {
 
 //=================================================================================
 C_GLFWWindowManager::C_GLFWWindowManager()
@@ -26,7 +27,7 @@ std::shared_ptr<I_Window> C_GLFWWindowManager::OpenNewWindow(const S_WindowInfo&
 //=================================================================================
 void C_GLFWWindowManager::Update()
 {
-	m_Windows.erase(std::remove_if(m_Windows.begin(), m_Windows.end(), [](  const decltype(m_Windows)::value_type window) {
+	m_Windows.erase(std::remove_if(m_Windows.begin(), m_Windows.end(), [](const decltype(m_Windows)::value_type window) {
 		return window->WantClose();
 	}), m_Windows.end());
 
@@ -45,7 +46,7 @@ unsigned int C_GLFWWindowManager::NumWindows() const
 void C_GLFWWindowManager::Init()
 {
 	const auto error_callback = [](int error, const char* description) {
-		CORE_LOG(E_Level::Error, E_Context::Core, "GLFW: Error(%d)", error);
+		CORE_LOG(E_Level::Error, E_Context::Core, "GLFW: #{}: {}", error, description);
 	};
 	glfwSetErrorCallback(error_callback);
 	if (!glfwInit()) {
@@ -54,4 +55,5 @@ void C_GLFWWindowManager::Init()
 	}
 }
 
+}
 }

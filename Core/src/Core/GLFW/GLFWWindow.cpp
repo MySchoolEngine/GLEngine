@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 
 namespace Core {
+namespace GLFW {
 
 //=================================================================================
 C_GLFWWindow::C_GLFWWindow()
@@ -57,15 +58,15 @@ void C_GLFWWindow::Update()
 //=================================================================================
 bool C_GLFWWindow::WantClose() const
 {
-	return glfwWindowShouldClose(m_Window);
+	return glfwWindowShouldClose(m_Window) != 0;
 }
 
 //=================================================================================
 void C_GLFWWindow::Init()
 {
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 
 	m_Window = glfwCreateWindow(640, 480, "Simple example", nullptr, nullptr);
 
@@ -92,5 +93,6 @@ void C_GLFWWindow::Destroy()
 	glfwDestroyWindow(m_Window);
 }
 
+}
 }
 

@@ -8,6 +8,7 @@
 #include <vector>
 
 namespace Core {
+namespace GLFW {
 class C_GLFWWindowManager : public I_WindowManager {
 public:
 	API_EXPORT C_GLFWWindowManager();
@@ -24,4 +25,5 @@ protected:
 private:
 	std::vector<std::shared_ptr<C_GLFWWindow>> m_Windows;
 };
+}
 }

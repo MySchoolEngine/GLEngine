@@ -5,7 +5,8 @@
 struct GLFWwindow;
 
 namespace Core {
-class API_EXPORT C_GLFWWindow : public I_Window{
+namespace GLFW {
+class API_EXPORT C_GLFWWindow : public I_Window {
 public:
 	C_GLFWWindow();
 	virtual ~C_GLFWWindow();
@@ -28,4 +29,5 @@ protected:
 
 	GLFWwindow* m_Window;
 };
+}
 }
