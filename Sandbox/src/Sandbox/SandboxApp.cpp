@@ -18,9 +18,11 @@ int main(int args, char** argv) {
 	Core::I_WindowManager* wmng = new Core::C_GLFWWindowManager();
 	wmng->OpenNewWindow(info);
 
-	while (true) {
+	while (wmng->NumWindows()) {
 		wmng->Update();
 	}
+
+	CORE_LOG(E_Level::Info, E_Context::Core, "App ended");
 
 	return 0;
 }

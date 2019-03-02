@@ -16,6 +16,7 @@ public:
 	//=============================================================
 	virtual std::shared_ptr<I_Window> OpenNewWindow(const S_WindowInfo& info) override;
 	virtual void Update() override;
+	virtual unsigned int NumWindows() const override;
 
 protected:
 	void Init();

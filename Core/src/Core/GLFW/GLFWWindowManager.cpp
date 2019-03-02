@@ -26,9 +26,19 @@ std::shared_ptr<I_Window> C_GLFWWindowManager::OpenNewWindow(const S_WindowInfo&
 //=================================================================================
 void C_GLFWWindowManager::Update()
 {
-	std::for_each(m_Windows.begin(), m_Windows.end(), [](const std::shared_ptr<I_Window> window) {window->Update(); });
+	m_Windows.erase(std::remove_if(m_Windows.begin(), m_Windows.end(), [](  const decltype(m_Windows)::value_type window) {
+		return window->WantClose();
+	}), m_Windows.end());
+
+	std::for_each(m_Windows.begin(), m_Windows.end(), [](const decltype(m_Windows)::value_type window) {window->Update(); });
 
 	glfwPollEvents();
+}
+
+//=================================================================================
+unsigned int C_GLFWWindowManager::NumWindows() const
+{
+	return static_cast<unsigned int>(m_Windows.size());
 }
 
 //=================================================================================

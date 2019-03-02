@@ -55,6 +55,12 @@ void C_GLFWWindow::Update()
 }
 
 //=================================================================================
+bool C_GLFWWindow::WantClose() const
+{
+	return glfwWindowShouldClose(m_Window);
+}
+
+//=================================================================================
 void C_GLFWWindow::Init()
 {
 

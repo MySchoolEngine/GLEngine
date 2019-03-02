@@ -19,6 +19,7 @@ public:
 	virtual glm::uvec2 GetSize() const override;
 	virtual void SetTitle(const std::string& title) override;
 	virtual void Update() override;
+	virtual bool WantClose() const override;
 
 protected:
 	void Init();
