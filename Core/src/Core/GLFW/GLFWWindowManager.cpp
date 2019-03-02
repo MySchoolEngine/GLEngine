@@ -34,8 +34,12 @@ void C_GLFWWindowManager::Update()
 //=================================================================================
 void C_GLFWWindowManager::Init()
 {
-	//glfwSetErrorCallback(error_callback);
+	const auto error_callback = [](int error, const char* description) {
+		CORE_LOG(E_Level::Error, E_Context::Core, "GLFW: Error(%d)", error);
+	};
+	glfwSetErrorCallback(error_callback);
 	if (!glfwInit()) {
+		CORE_LOG(E_Level::Error, E_Context::Core, "GLFW: Unable to init glfw. Terminating engine");
 		exit(EXIT_FAILURE);
 	}
 }

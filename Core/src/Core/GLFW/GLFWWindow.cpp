@@ -65,9 +65,17 @@ void C_GLFWWindow::Init()
 
 	if (!m_Window)
 	{
+		CORE_LOG(E_Level::Error, E_Context::Core, "GLFW: Unable to open a window. Shuting down the engine.");
 		glfwTerminate();
 		exit(EXIT_FAILURE);
 	}
+
+	const auto key_callback = [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+		CORE_LOG(E_Level::Info, E_Context::Core, "{} {}", key, scancode);
+	};
+
+	glfwSetKeyCallback(m_Window, key_callback);
+
 	glfwMakeContextCurrent(m_Window);
 	glfwSwapInterval(1);
 }
