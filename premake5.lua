@@ -32,6 +32,9 @@ workspace "Engine"
 		"vendor/GLM/util/glm.natvis"
 	}
 
+  filter "configurations:Debug"
+    defines "GL_ENGINE_DEBUG"
+
 include "premakeDefines.lua"
 
 IncludeDir = {}

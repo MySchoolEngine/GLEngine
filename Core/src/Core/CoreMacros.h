@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Core/Logging/LoggingMacros.h>
+
 #if !defined CORE_PLATFORM
 	#error "CORE_PLATFORM not defined"
 #endif
