@@ -4,9 +4,6 @@
 [submodule "./vendor/GLM"]
 	path = ./vendor/GLM
 	url = https://github.com/g-truc/glm/
-[submodule ".\\vendor\\spdlog"]
-	path = .\\vendor\\spdlog
-	url = https://github.com/gabime/spdlog
 [submodule ".\\vendor\\fmt"]
 	path = .\\vendor\\fmt
 	url = https://github.com/fmtlib/fmt
