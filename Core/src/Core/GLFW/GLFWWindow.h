@@ -23,8 +23,8 @@ public:
 	virtual bool WantClose() const override;
 
 protected:
-	void Init();
-	void Destroy();
+	virtual void Init();
+	virtual void Destroy();
 
 
 	GLFWwindow* m_Window;

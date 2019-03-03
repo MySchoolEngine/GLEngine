@@ -66,7 +66,7 @@ void C_GLFWWindow::Init()
 {
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
 	m_Window = glfwCreateWindow(640, 480, "Simple example", nullptr, nullptr);
 
@@ -76,6 +76,9 @@ void C_GLFWWindow::Init()
 		glfwTerminate();
 		exit(EXIT_FAILURE);
 	}
+
+
+	CORE_LOG(E_Level::Info, E_Context::Core, "GLFW: Window initialized.");
 
 	const auto key_callback = [](GLFWwindow* window, int key, int scancode, int action, int mods) {
 		CORE_LOG(E_Level::Info, E_Context::Core, "{} {}", key, scancode);
