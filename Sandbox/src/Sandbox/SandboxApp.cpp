@@ -15,12 +15,14 @@ int main(int args, char** argv) {
 	Core::S_WindowInfo info;
 	info.m_name = "My title";
 
-	Core::I_WindowManager* wmng = new Core::C_GLFWWindowManager();
+	Core::I_WindowManager* wmng = new Core::GLFW::C_GLFWWindowManager();
 	wmng->OpenNewWindow(info);
 
-	while (true) {
+	while (wmng->NumWindows()) {
 		wmng->Update();
 	}
+
+	CORE_LOG(E_Level::Info, E_Context::Core, "App ended");
 
 	return 0;
 }

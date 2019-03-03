@@ -8,6 +8,7 @@
 #include <vector>
 
 namespace Core {
+namespace GLFW {
 class C_GLFWWindowManager : public I_WindowManager {
 public:
 	API_EXPORT C_GLFWWindowManager();
@@ -16,6 +17,7 @@ public:
 	//=============================================================
 	virtual std::shared_ptr<I_Window> OpenNewWindow(const S_WindowInfo& info) override;
 	virtual void Update() override;
+	virtual unsigned int NumWindows() const override;
 
 protected:
 	void Init();
@@ -23,4 +25,5 @@ protected:
 private:
 	std::vector<std::shared_ptr<C_GLFWWindow>> m_Windows;
 };
+}
 }
