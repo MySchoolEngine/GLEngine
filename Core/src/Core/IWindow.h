@@ -21,8 +21,11 @@ public:
 
 	virtual void Update() = 0;
 
+	virtual void Init() = 0;
 	virtual void SetTitle(const std::string& title) = 0;
 
 	virtual bool WantClose() const = 0;
+protected:
+	virtual void Destroy() = 0;
 };
 }

@@ -2,17 +2,15 @@
 
 #include <Core/GLFW/GLFWWindow.h>
 
-
 #include <GLFW/glfw3.h>
 
 namespace Core {
 namespace GLFW {
-
 //=================================================================================
 C_GLFWWindow::C_GLFWWindow()
 	: m_Window(nullptr)
 {
-	Init();
+
 }
 
 //=================================================================================
@@ -64,10 +62,6 @@ bool C_GLFWWindow::WantClose() const
 //=================================================================================
 void C_GLFWWindow::Init()
 {
-
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-
 	m_Window = glfwCreateWindow(640, 480, "Simple example", nullptr, nullptr);
 
 	if (!m_Window)

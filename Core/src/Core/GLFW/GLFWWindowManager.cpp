@@ -2,7 +2,7 @@
 
 #include <Core/GLFW/GLFWWindowManager.h>
 
-#include <Core/GLFW/GLFWWindow.h>
+#include <Core/GLFW/GLFWoGLWindow.h>
 
 #include <GLFW/glfw3.h>
 
@@ -18,7 +18,7 @@ C_GLFWWindowManager::C_GLFWWindowManager()
 //=================================================================================
 std::shared_ptr<I_Window> C_GLFWWindowManager::OpenNewWindow(const S_WindowInfo& info)
 {
-	auto window = std::make_shared<C_GLFWWindow>();
+	auto window = std::make_shared<C_GLFWoGLWindow>();
 	window->SetTitle(info.m_name);
 	m_Windows.push_back(window);
 	return window;

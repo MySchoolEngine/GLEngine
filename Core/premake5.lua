@@ -22,6 +22,7 @@ project "Core"
 	{
 		"src",
 		"../%{IncludeDir.GLFW}",
+		"../%{IncludeDir.Glad}",
 		"../%{IncludeDir.GLM}",
 		"../vendor/fmt/include",
 	}
@@ -29,6 +30,7 @@ project "Core"
 	links 
 	{ 
 		"GLFW",
+		"Glad",
 		"opengl32.lib",
 	}
 
