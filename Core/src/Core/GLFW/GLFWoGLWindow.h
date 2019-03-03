@@ -9,12 +9,12 @@ namespace GLFW {
 
 class API_EXPORT C_GLFWoGLWindow : public C_GLFWWindow {
 public:
-	C_GLFWoGLWindow();
+	C_GLFWoGLWindow(const S_WindowInfo& wndInfo);
 	virtual ~C_GLFWoGLWindow() = default;
 	virtual void Update() override;
 
 protected:
-	virtual void Init() override;
+	virtual void Init(const S_WindowInfo& wndInfo) override;
 private:
 	float m_color = 0.0f;
 };

@@ -21,9 +21,10 @@ public:
 
 protected:
 	void Init();
+	virtual std::shared_ptr<I_WindowFactory> GetWindowFactory() const override;
 
 private:
-	std::vector<std::shared_ptr<C_GLFWWindow>> m_Windows;
+	std::vector<std::shared_ptr<I_Window>> m_Windows;
 };
 }
 }

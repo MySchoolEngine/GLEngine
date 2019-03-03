@@ -60,9 +60,9 @@ bool C_GLFWWindow::WantClose() const
 }
 
 //=================================================================================
-void C_GLFWWindow::Init()
+void C_GLFWWindow::Init(const S_WindowInfo& wndInfo)
 {
-	m_Window = glfwCreateWindow(640, 480, "Simple example", nullptr, nullptr);
+	m_Window = glfwCreateWindow(wndInfo.m_width, wndInfo.m_height, wndInfo.m_name.c_str(), nullptr, nullptr);
 
 	if (!m_Window)
 	{
