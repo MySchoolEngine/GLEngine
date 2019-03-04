@@ -45,10 +45,12 @@ IncludeDir = {}
 IncludeDir["GLFW"] = "vendor/GLFW/include"
 IncludeDir["GLM"] = "vendor/GLM"
 IncludeDir["Glad"] = "vendor/Glad/include"
-
-include "vendor/GLFW"
-include "vendor/Glad"
+group "Dependencies"
+  include "vendor/GLFW"
+  include "vendor/Glad"
+group ""
 
 include "Core"
 include "Sandbox"
+include "Renderer"
 --include "GLEngine"
