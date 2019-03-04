@@ -12,7 +12,7 @@ int main(int args, char** argv) {
 	logging.AddLogger(new Core::Logging::C_CoutLogger());
 	//logging.AddLogger(new Core::Logging::C_FileLogger("log.txt"));
 
-	Core::S_WindowInfo info;
+	Core::S_OpenGLWindowInfo info(640, 480);
 	info.m_name = "My title";
 
 	Core::I_WindowManager* wmng = new Core::GLFW::C_GLFWWindowManager();

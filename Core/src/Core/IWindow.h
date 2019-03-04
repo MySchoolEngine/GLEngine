@@ -2,6 +2,8 @@
 
 #include <Core/CoreMacros.h>
 
+#include <Core/WindowInfo.h>
+
 #include <glm/vec2.hpp>
 
 #include <string>
@@ -21,7 +23,14 @@ public:
 
 	virtual void Update() = 0;
 
-	virtual void Init() = 0;
+	/** ==============================================
+	 * @method:    Init
+	 * @fullName:  Core::I_Window::Init
+	 * @return:    void
+	 * @param: 	   const S_WindowInfo & - should be corresponding subcalss
+	 * @brief	   
+	 ** ==============================================*/
+	virtual void Init(const S_WindowInfo& wndInfo) = 0;
 	virtual void SetTitle(const std::string& title) = 0;
 
 	virtual bool WantClose() const = 0;

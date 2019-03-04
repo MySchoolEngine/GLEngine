@@ -3,6 +3,7 @@
 #include <Core/GLFW/GLFWWindowManager.h>
 
 #include <Core/GLFW/GLFWoGLWindow.h>
+#include <Core/GLFW/GLFWWindowFactory.h>
 
 #include <GLFW/glfw3.h>
 
@@ -18,8 +19,7 @@ C_GLFWWindowManager::C_GLFWWindowManager()
 //=================================================================================
 std::shared_ptr<I_Window> C_GLFWWindowManager::OpenNewWindow(const S_WindowInfo& info)
 {
-	auto window = std::make_shared<C_GLFWoGLWindow>();
-	window->SetTitle(info.m_name);
+	auto window = GetWindowFactory()->GetWindow(info);
 	m_Windows.push_back(window);
 	return window;
 }
@@ -53,6 +53,12 @@ void C_GLFWWindowManager::Init()
 		CORE_LOG(E_Level::Error, E_Context::Core, "GLFW: Unable to init glfw. Terminating engine");
 		exit(EXIT_FAILURE);
 	}
+}
+
+//=================================================================================
+std::shared_ptr<I_WindowFactory> C_GLFWWindowManager::GetWindowFactory() const
+{
+	return std::make_shared<C_GLFWWindowFactory>();
 }
 
 }

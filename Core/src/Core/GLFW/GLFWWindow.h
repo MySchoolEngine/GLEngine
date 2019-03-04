@@ -20,7 +20,7 @@ public:
 	virtual void Update() override;
 	virtual bool WantClose() const override;
 
-	virtual void Init() override;
+	virtual void Init(const S_WindowInfo& wndInfo) override;
 
 protected:
 	C_GLFWWindow();

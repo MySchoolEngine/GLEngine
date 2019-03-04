@@ -9,9 +9,9 @@ namespace Core {
 namespace GLFW {
 
 //=================================================================================
-C_GLFWoGLWindow::C_GLFWoGLWindow()
+C_GLFWoGLWindow::C_GLFWoGLWindow(const S_WindowInfo& wndInfo)
 {
-	Init();
+	Init(wndInfo);
 }
 
 //=================================================================================
@@ -27,12 +27,14 @@ void C_GLFWoGLWindow::Update()
 }
 
 //=================================================================================
-void C_GLFWoGLWindow::Init()
+void C_GLFWoGLWindow::Init(const S_WindowInfo& wndInfo)
 {
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	// TODO: add assert here
+	const auto wndInfoOGL = dynamic_cast<const S_OpenGLWindowInfo*>(&wndInfo);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, wndInfoOGL->m_MajorVersion);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, wndInfoOGL->m_MinorVersion);
 
-	C_GLFWWindow::Init();
+	C_GLFWWindow::Init(wndInfo);
 	glfwMakeContextCurrent(m_Window);
 	int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
