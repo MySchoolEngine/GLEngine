@@ -9,19 +9,21 @@ project "Core"
 	objdir ("../obj/" .. outputdir .. "/%{prj.name}")
 
 	pchheader "CoreStdafx.h"
-	pchsource "src/CoreStdafx.cpp"
+	pchsource "CoreStdafx.cpp"
 
 	files
 	{
-		"src/**.h",
-		"src/**.cpp",
-		"src/**.inl",
+		"Core/**.h",
+		"Core/**.cpp",
+		"Core/**.inl",
+		"CoreStdafx.cpp",
+		"CoreStdafx.h",
 		"premake5.lua",
 	}
 
 	includedirs
 	{
-		"src",
+		".",
 		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.Glad}",
 		"../%{IncludeDir.GLM}",

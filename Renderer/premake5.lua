@@ -10,16 +10,16 @@ project "Renderer"
 
 	files
 	{
-		"src/**.h",
-		"src/**.cpp",
-		"src/**.inl",
+		"Renderer/**.h",
+		"Renderer/**.cpp",
+		"Renderer/**.inl",
 		"premake5.lua",
 	}
 
 	includedirs
 	{
-		"src",
-		"../Entity/src",
+		".",
+		"../Entity",
 		"../vendor/fmt/include",
 	}
 

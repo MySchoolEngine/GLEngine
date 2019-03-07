@@ -13,15 +13,15 @@ project "Entity"
 
 	files
 	{
-		"src/**.h",
-		"src/**.cpp",
-		"src/**.inl",
+		"Entity/**.h",
+		"Entity/**.cpp",
+		"Entity/**.inl",
 		"premake5.lua",
 	}
 
 	includedirs
 	{
-		"src",
+		".",
 		"../%{IncludeDir.GLM}",
 		"../vendor/fmt/include",
 	}

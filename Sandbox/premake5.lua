@@ -11,17 +11,17 @@ project "Sandbox"
 
 	files
 	{
-		"src/**.h",
-		"src/**.cpp",
-		"src/**.inl",
+		"Sandbox/**.h",
+		"Sandbox/**.cpp",
+		"Sandbox/**.inl",
 		"premake5.lua",
 	}
 
 	includedirs
 	{
-		"src",
-		"../Core/src",
-		"../Renderer/src",
+		".",
+		"../Core",
+		"../Renderer",
 		"../%{IncludeDir.GLM}",
 		"../vendor/fmt/include",
 	}
