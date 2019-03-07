@@ -1,13 +1,15 @@
 include "../premakeDefines.lua"
 
-project "Sandbox"
-	kind "ConsoleApp"
+project "Entity"
+	kind "SharedLib"
 	language "C++"
 	staticruntime "off"
 
 	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("../obj/" .. outputdir .. "/%{prj.name}")
-	debugdir ("../bin/" .. outputdir .. "/%{prj.name}")
+
+	pchheader "CoreStdafx.h"
+	pchsource "src/CoreStdafx.cpp"
 
 	files
 	{
@@ -20,15 +22,8 @@ project "Sandbox"
 	includedirs
 	{
 		"src",
-		"../Core/src",
-		"../Renderer/src",
 		"../%{IncludeDir.GLM}",
 		"../vendor/fmt/include",
-	}
-
-	links
-	{ 
-		"Core"
 	}
 
 	filter "system:windows"
@@ -37,7 +32,8 @@ project "Sandbox"
 
 		defines
 		{
-			"CORE_PLATFORM=CORE_PLATFORM_WIN"
+			"CORE_PLATFORM=CORE_PLATFORM_WIN",
+			"BUILD_DLL",
 		}
 
 	filter "configurations:Debug"
