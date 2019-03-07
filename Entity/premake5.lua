@@ -1,12 +1,15 @@
 include "../premakeDefines.lua"
 
-project "Renderer"
+project "Entity"
 	kind "SharedLib"
 	language "C++"
 	staticruntime "off"
 
 	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("../obj/" .. outputdir .. "/%{prj.name}")
+
+	pchheader "CoreStdafx.h"
+	pchsource "src/CoreStdafx.cpp"
 
 	files
 	{
@@ -19,7 +22,7 @@ project "Renderer"
 	includedirs
 	{
 		"src",
-		"../Entity/src",
+		"../%{IncludeDir.GLM}",
 		"../vendor/fmt/include",
 	}
 

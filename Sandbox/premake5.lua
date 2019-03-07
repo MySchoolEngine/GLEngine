@@ -12,13 +12,16 @@ project "Sandbox"
 	files
 	{
 		"src/**.h",
-		"src/**.cpp"
+		"src/**.cpp",
+		"src/**.inl",
+		"premake5.lua",
 	}
 
 	includedirs
 	{
 		"src",
 		"../Core/src",
+		"../Renderer/src",
 		"../%{IncludeDir.GLM}",
 		"../vendor/fmt/include",
 	}
