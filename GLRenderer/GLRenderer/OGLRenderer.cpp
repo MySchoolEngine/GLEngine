@@ -6,13 +6,13 @@ namespace GLEngine {
 namespace GLRenderer {
 
 //=================================================================================
-void C_OGLRenderer::AddCommand(std::unique_ptr<Renderer::I_RenderCommand> command)
+void C_OGLRenderer::AddCommand(Renderer::I_Renderer::T_CommandPtr command)
 {
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
 //=================================================================================
-void C_OGLRenderer::AddBatch(std::unique_ptr<Renderer::I_RenderBatch> batc)
+void C_OGLRenderer::AddBatch(Renderer::I_Renderer::T_BatchPtr batc)
 {
 	throw std::logic_error("The method or operation is not implemented.");
 }

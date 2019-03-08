@@ -13,8 +13,8 @@ public:
 	//=================================================================================
 	// Renderer::I_Renderer
 	//=================================================================================
-	virtual void AddCommand(std::unique_ptr<Renderer::I_RenderCommand>) override;
-	virtual void AddBatch(std::unique_ptr<Renderer::I_RenderBatch>) override;
+	virtual void AddCommand(Renderer::I_Renderer::T_CommandPtr) override;
+	virtual void AddBatch(Renderer::I_Renderer::T_BatchPtr) override;
 
 	virtual void SortCommands() override;
 	virtual void ExtractData() override;

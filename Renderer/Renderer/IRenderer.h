@@ -23,9 +23,12 @@ class I_RenderBatch;
 // 6] render new frame
 class I_Renderer {
 public:
+	using T_CommandPtr = std::unique_ptr<I_RenderCommand>;
+	using T_BatchPtr = std::unique_ptr<I_RenderBatch>;
+
 	virtual ~I_Renderer() = default;
-	virtual void AddCommand(std::unique_ptr<I_RenderCommand>) = 0;
-	virtual void AddBatch(std::unique_ptr<I_RenderBatch>) = 0;
+	virtual void AddCommand(T_CommandPtr) = 0;
+	virtual void AddBatch(T_BatchPtr) = 0;
 
 	/** ==============================================
 	 * @method:    SortCommands
