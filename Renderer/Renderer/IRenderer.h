@@ -1,12 +1,14 @@
 #pragma once
 
+#include <Core/CoreMacros.h>
+
+#include <Renderer/IRenderBatch.h>
+#include <Renderer/IRenderCommand.h>
+
 #include <memory>
 
 namespace GLEngine {
 namespace Renderer {
-
-class I_RenderCommand;
-class I_RenderBatch;
 
 // We need some separated tasks -> game engine should give us list of all visible objects
 // or some way to ask him what is inside given frustum
@@ -21,7 +23,7 @@ class I_RenderBatch;
 // 4] commit to GPU
 // 5] check the time, if we have enough time, render thread can help with simulation, game computation etc.
 // 6] render new frame
-class I_Renderer {
+class API_EXPORT I_Renderer {
 public:
 	using T_CommandPtr = std::unique_ptr<I_RenderCommand>;
 	using T_BatchPtr = std::unique_ptr<I_RenderBatch>;

@@ -18,8 +18,7 @@ public:
 	virtual void Commit() = 0;
 	virtual E_Type GetType() const = 0;
 
-	template<class Extractor>
-	virtual std::shared_ptr<I_Resource<Extractor>> GetResource() const = 0;
+	virtual std::shared_ptr<I_Resource> GetResource() const = 0;
 };
 
 }

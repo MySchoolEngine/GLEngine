@@ -21,22 +21,19 @@ class I_RenderableComponent;
  * Contact: RohacekD@gmail.com
  * @date 	2019/03/06
  ** ==============================================*/
-template<class Extractor,	typename = std::enable_if<std::is_base_of<
-								I_Extractor<typename Extractor>, typename Extractor
-							>::value>::type
-		>
 class I_Resource {
 public:
 	virtual ~I_Resource() = default;
 
-	virtual std::shared_ptr<I_RenderableComponent> GetComponent() const = 0;
-	std::unique_ptr<I_RawGPUData> ExtractData() const
-	{
-		return Extractor::Extract(GetComponent());
-	}
+	inline std::shared_ptr<I_RenderableComponent> GetComponent() const { return m_Component; };
+	inline void SetComponent(std::shared_ptr<I_RenderableComponent> component) { m_Component = component; }
+	virtual std::unique_ptr<I_RawGPUData> ExtractData() const = 0;
 
 	virtual void Invalidate() = 0;
 	virtual bool IsValid() = 0;
+
+protected:
+	std::shared_ptr<I_RenderableComponent> m_Component;
 };
 
 // leave it here for documentation

@@ -19,6 +19,7 @@ project "Renderer"
 	includedirs
 	{
 		".",
+		"../Core",
 		"../Entity",
 		"../vendor/fmt/include",
 	}
