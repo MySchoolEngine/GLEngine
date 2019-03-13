@@ -1,9 +1,25 @@
 #include <GLRenderer/OGLRenderer.h>
 
+#include <Renderer/IRenderBatch.h>
+#include <Renderer/IRenderCommand.h>
+
 #include <stdexcept>
 
 namespace GLEngine {
 namespace GLRenderer {
+
+//=================================================================================
+C_OGLRenderer::C_OGLRenderer()
+	: m_CommandQueue(new std::remove_pointer<decltype(m_CommandQueue)>::type)
+{
+
+}
+
+//=================================================================================
+C_OGLRenderer::~C_OGLRenderer()
+{
+	delete m_CommandQueue;
+}
 
 //=================================================================================
 void C_OGLRenderer::AddCommand(Renderer::I_Renderer::T_CommandPtr command)

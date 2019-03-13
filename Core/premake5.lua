@@ -24,6 +24,8 @@ project "Core"
 	includedirs
 	{
 		".",
+		"../Renderer/",
+		"../GLRenderer/",
 		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.Glad}",
 		"../%{IncludeDir.GLM}",
@@ -35,6 +37,7 @@ project "Core"
 		"GLFW",
 		"Glad",
 		"opengl32.lib",
+		"Renderer",
 	}
 
 	filter "system:windows"

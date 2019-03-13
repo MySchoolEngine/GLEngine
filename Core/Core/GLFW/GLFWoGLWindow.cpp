@@ -2,6 +2,10 @@
 
 #include <Core/GLFW/GLFWoGLWindow.h>
 
+#include <Renderer/IRenderer.h>
+
+#include <Renderer/RendererFactory.h>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -10,6 +14,7 @@ namespace GLFW {
 
 //=================================================================================
 C_GLFWoGLWindow::C_GLFWoGLWindow(const S_WindowInfo& wndInfo)
+	: m_renderer(nullptr)
 {
 	Init(wndInfo);
 }
@@ -43,6 +48,8 @@ void C_GLFWoGLWindow::Init(const S_WindowInfo& wndInfo)
 	}
 
 	CORE_LOG(E_Level::Info, E_Context::Render, "GLFW: OpenGL window initialized");
+
+	m_renderer = GLEngine::Renderer::F_RendererFacotry::GetRenderer();
 }
 
 }

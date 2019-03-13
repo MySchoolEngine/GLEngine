@@ -20,8 +20,14 @@ project "Renderer"
 	{
 		".",
 		"../Core",
+		"../GLRenderer",
 		"../Entity",
 		"../vendor/fmt/include",
+	}
+
+	links
+	{
+		"GLRenderer",
 	}
 
 	filter "system:windows"
@@ -32,6 +38,11 @@ project "Renderer"
 		{
 			"CORE_PLATFORM=CORE_PLATFORM_WIN",
 			"BUILD_DLL",
+		}
+
+		postbuildcommands
+		{
+			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")
 		}
 
 	filter "configurations:Debug"
