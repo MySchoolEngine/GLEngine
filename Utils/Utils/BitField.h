@@ -11,6 +11,9 @@ public:
 	C_BitField() 
 		: m_Flags(0){}
 
+	C_BitField(const Enum bit)
+		: m_Flags(static_cast<value_type>(bit)){}
+
 	C_BitField(const C_BitField& other) {
 		m_Flags = other.m_Flags;
 	}
@@ -29,12 +32,44 @@ public:
 		m_Flags |= static_cast<value_type>(flag);
 	}
 
+	void SetFlags(const C_BitField& field) {
+		m_Flags &= field.GetFlags();
+	}
+
 	void ClearFlag(const Enum flag) {
 		m_Flags &= ~static_cast<value_type>(flag);
 	}
 
 	void ToggleFlag(const Enum flag) {
 		m_Flags ^= static_cast<value_type>(flag);
+	}
+
+	/*C_BitField operator|(const Enum bit) const {
+		C_BitField ret(this);
+		ret.SetFlag(bit);
+		return ret;
+	}*/
+
+	C_BitField& operator|=(const Enum bit) {
+		return (this = this | bit);
+	}
+
+	C_BitField operator| (const C_BitField bit) {
+		C_BitField ret(*this);
+		ret.SetFlags(bit);
+		return ret;
+	}
+
+	C_BitField& operator&=(const Enum bit) {
+		return (this = this & bit);
+	}
+
+	bool operator&(const Enum bit) const {
+		return CheckFlag(bit);
+	}
+
+	value_type GetFlags() const {
+		return m_Flags;
 	}
 
 protected:
