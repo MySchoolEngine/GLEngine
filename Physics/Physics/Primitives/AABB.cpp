@@ -1,8 +1,9 @@
-#include "AABB.h"
+#include <Physics/Primitives/AABB.h>
 
 #include <numeric>
 
-namespace phys {
+namespace Physics {
+namespace Primitives {
 //=================================================================================
 S_AABB::S_AABB()
 {
@@ -49,17 +50,18 @@ void S_AABB::Add(const glm::vec4& point)
 }
 
 //=================================================================================
-void S_AABB::Add(const Shapes::S_Sphere& sphere)
+void S_AABB::Add(const S_Sphere& sphere)
 {
 	throw "Needs implementation";
 }
 
 //=================================================================================
-Shapes::S_Sphere S_AABB::GetSphere() const
+S_Sphere S_AABB::GetSphere() const
 {
 	glm::vec3 center = m_Min + (m_Max - m_Min) / 2.0f;
 	float radius = glm::abs(glm::length(m_Max - center));
-	return Shapes::S_Sphere(center, radius);
+	return S_Sphere(center, radius);
 }
 
+}
 }

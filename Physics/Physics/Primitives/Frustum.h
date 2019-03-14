@@ -11,12 +11,15 @@
  
 #pragma once
 
-#include "Physics/AABB.h"
+#include <Core/CoreMacros.h>
+
+#include <Physics/Primitives/AABB.h>
 
 #include <glm/glm.hpp>
 
 
-namespace Shapes {
+namespace Physics {
+namespace Primitives {
 /** ==============================================
  * @class C_Frustum
  *
@@ -26,7 +29,7 @@ namespace Shapes {
  * Contact: RohacekD@gmail.com
  * @date 	2018/03/17
  ** ==============================================*/
-class C_Frustum {
+class API_EXPORT C_Frustum {
 public:
 	C_Frustum(const glm::vec3& position, const glm::vec3& upVectro, const glm::vec3& foreward, float near, float far, float aspect, float fov);
 	/** ==============================================
@@ -36,7 +39,7 @@ public:
 	 * @brief	   Returns AABB of whole frustum. If you want
 	 *			   AABB of subfrustum, simply change far/near plane.
 	 ** ==============================================*/
-	phys::S_AABB GetAABB() const;
+	S_AABB GetAABB() const;
 	void DebugDraw(const glm::vec3& color) const;
 	void UpdateWithMatrix(const glm::mat4& matrix);
 
@@ -59,4 +62,5 @@ private:
 	float		m_aspect;
 	float		m_fov;
 };
+}
 }

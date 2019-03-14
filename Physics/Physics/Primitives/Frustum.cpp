@@ -1,8 +1,10 @@
-#include "Frustum.h"
+#include <Physics/Primitives/Frustum.h>
 
-#include "Debug/Debug.h"
+//#include "Debug/Debug.h"
+//TODO:
 
-namespace Shapes {
+namespace Physics {
+namespace Primitives {
 
 //=================================================================================
 C_Frustum::C_Frustum(const glm::vec3& position, const glm::vec3& upVectro, const glm::vec3& foreward, float near, float far, float aspect, float fov)
@@ -16,7 +18,7 @@ C_Frustum::C_Frustum(const glm::vec3& position, const glm::vec3& upVectro, const
 {}
 
 //=================================================================================
-phys::S_AABB C_Frustum::GetAABB() const
+S_AABB C_Frustum::GetAABB() const
 {
 	glm::vec3 nearCenter = glm::vec3(m_position + (m_foreward * m_near));
 	glm::vec3 farCenter = glm::vec3(m_position + (m_foreward * m_far));
@@ -40,7 +42,7 @@ phys::S_AABB C_Frustum::GetAABB() const
 	glm::vec4 flb = glm::vec4(farCenter + (xf * left) - m_upVector * yf, 1.0f);
 	glm::vec4 frb = glm::vec4(farCenter - (xf * left) - m_upVector * yf, 1.0f);
 
-	phys::S_AABB bbox;
+	S_AABB bbox;
 	bbox.Add(nlt);
 	bbox.Add(nrt);
 	bbox.Add(nlb);
@@ -112,5 +114,5 @@ void C_Frustum::UpdateWithMatrix(const glm::mat4& matrix)
 
 	m_position = newPosition;
 }
-
+}
 }
