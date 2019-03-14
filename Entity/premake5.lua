@@ -8,9 +8,6 @@ project "Entity"
 	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("../obj/" .. outputdir .. "/%{prj.name}")
 
-	pchheader "CoreStdafx.h"
-	pchsource "src/CoreStdafx.cpp"
-
 	files
 	{
 		"Entity/**.h",
@@ -23,7 +20,15 @@ project "Entity"
 	{
 		".",
 		"../%{IncludeDir.GLM}",
+		"../Core",
+		"../Physics",
 		"../vendor/fmt/include",
+	}
+
+
+	links
+	{
+		"Physics",
 	}
 
 	filter "system:windows"
