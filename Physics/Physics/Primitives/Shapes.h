@@ -16,7 +16,7 @@
 #include <glm/glm.hpp>
 
 
-namespace GLEnglien {
+namespace GLEngine {
 namespace Physics {
 namespace Primitives {
 /** ==============================================
