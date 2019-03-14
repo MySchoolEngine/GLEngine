@@ -18,6 +18,8 @@
 #include <glm/glm.hpp>
 
 
+
+namespace GLEnglien {
 namespace Physics {
 namespace Primitives {
 /** ==============================================
@@ -62,5 +64,6 @@ private:
 	float		m_aspect;
 	float		m_fov;
 };
+}
 }
 }

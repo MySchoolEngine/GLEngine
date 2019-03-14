@@ -1,5 +1,7 @@
 #include "Shapes.h"
 
+
+namespace GLEnglien {
 namespace Physics {
 namespace Primitives {
 //=================================================================================
@@ -24,6 +26,7 @@ bool S_Sphere::IsColliding(const S_Sphere& other) const
 void S_Sphere::Transform(const glm::mat4& matrix)
 {
 	m_position = glm::vec3(matrix * glm::vec4(m_position, 1.0f));
+}
 }
 }
 }

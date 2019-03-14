@@ -6,6 +6,8 @@
 
 #include <glm/glm.hpp>
 
+
+namespace GLEnglien {
 namespace Physics {
 namespace Primitives {
 struct API_EXPORT S_AABB {
@@ -21,5 +23,6 @@ public:
 
 	S_Sphere GetSphere() const;
 };
+}
 }
 }

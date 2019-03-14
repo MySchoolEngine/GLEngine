@@ -15,6 +15,8 @@
 
 #include <glm/glm.hpp>
 
+
+namespace GLEnglien {
 namespace Physics {
 namespace Primitives {
 /** ==============================================
@@ -37,5 +39,6 @@ public:
 	glm::vec3	m_position;
 	float		m_radius;
 };
+}
 }
 }

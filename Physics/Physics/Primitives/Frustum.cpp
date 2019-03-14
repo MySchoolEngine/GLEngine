@@ -3,6 +3,8 @@
 //#include "Debug/Debug.h"
 //TODO:
 
+
+namespace GLEnglien {
 namespace Physics {
 namespace Primitives {
 
@@ -113,6 +115,7 @@ void C_Frustum::UpdateWithMatrix(const glm::mat4& matrix)
 	m_foreward = glm::vec3((matrix * glm::vec4(m_position + m_foreward, 1.0f))) - newPosition;
 
 	m_position = newPosition;
+}
 }
 }
 }

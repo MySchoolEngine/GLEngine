@@ -2,6 +2,7 @@
 
 #include <numeric>
 
+namespace GLEnglien {
 namespace Physics {
 namespace Primitives {
 //=================================================================================
@@ -63,5 +64,6 @@ S_Sphere S_AABB::GetSphere() const
 	return S_Sphere(center, radius);
 }
 
+}
 }
 }
