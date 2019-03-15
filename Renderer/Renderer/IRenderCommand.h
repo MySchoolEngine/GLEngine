@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Core/CoreMacros.h>
+
 #include <Renderer/IResource.h>
 
 #include <memory>
@@ -7,7 +9,7 @@
 namespace GLEngine {
 namespace Renderer {
 
-class I_RenderCommand {
+class API_EXPORT I_RenderCommand {
 public:
 	virtual ~I_RenderCommand() = default;
 	enum class E_Type {
