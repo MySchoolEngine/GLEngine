@@ -22,6 +22,8 @@ project "Renderer"
 		"../Core",
 		"../GLRenderer",
 		"../Entity",
+		"../Physics",
+		"../%{IncludeDir.GLM}",
 		"../vendor/fmt/include",
 	}
 
