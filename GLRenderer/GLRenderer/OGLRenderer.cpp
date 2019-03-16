@@ -1,7 +1,14 @@
 #include <GLRenderer/OGLRenderer.h>
 
+#include <Core/CoreMacros.h>
+
+#include <Utils/Logging/LoggingMacros.h>
+
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 #include <stdexcept>
 
@@ -12,7 +19,11 @@ namespace GLRenderer {
 C_OGLRenderer::C_OGLRenderer()
 	: m_CommandQueue(new std::remove_pointer<decltype(m_CommandQueue)>::type)
 {
+	int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
+	if (status == 0) {
+		CORE_LOG(E_Level::Error, E_Context::Core, "GLFW: Glad wasn't loaded properlly. Status {}", status);
+	}
 }
 
 //=================================================================================

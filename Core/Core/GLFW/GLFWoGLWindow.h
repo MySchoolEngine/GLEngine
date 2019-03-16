@@ -19,8 +19,6 @@ public:
 
 protected:
 	virtual void Init(const S_WindowInfo& wndInfo) override;
-private:
-	float m_color = 0.0f;
 	std::unique_ptr<GLEngine::Renderer::I_Renderer> m_renderer;
 };
 
