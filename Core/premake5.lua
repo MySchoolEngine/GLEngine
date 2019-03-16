@@ -25,9 +25,9 @@ project "Core"
 	{
 		".",
 		"../Renderer/",
+		"../Utils",
 		"../GLRenderer/",
 		"../%{IncludeDir.GLFW}",
-		"../%{IncludeDir.Glad}",
 		"../%{IncludeDir.GLM}",
 		"../vendor/fmt/include",
 	}
@@ -35,9 +35,8 @@ project "Core"
 	links 
 	{ 
 		"GLFW",
-		"Glad",
-		"opengl32.lib",
 		"Renderer",
+		"Utils", 
 	}
 
 	filter "system:windows"

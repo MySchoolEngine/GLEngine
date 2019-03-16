@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Logging/LoggingMacros.h>
+#include <Utils/Logging/LoggingMacros.h>
 
 #include <iostream>
 #include <memory>

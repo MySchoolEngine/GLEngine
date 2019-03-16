@@ -2,12 +2,12 @@
 
 #include <Core/CoreMacros.h>
 
-#include <Core/Logging/LoggingTypes.h>
+#include <Utils/Logging/LoggingTypes.h>
 
 #include <string>
 #include <fstream>
 
-namespace Core {
+namespace Utils {
 namespace Logging {
 
 class API_EXPORT I_Logger {

@@ -2,10 +2,10 @@
 
 #include <Core/CoreMacros.h>
 
-#include <Core/Logging/Data.h>
-#include <Core/Logging/Logging.h>
+#include <Utils/Logging/Data.h>
+#include <Utils/Logging/Logging.h>
 
-namespace Core {
+namespace Utils {
 namespace Logging {
 
 class C_Filter {

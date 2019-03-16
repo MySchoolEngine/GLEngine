@@ -1,12 +1,10 @@
 #pragma once
 
-#include <CoreStdafx.h>
-
-#include <Core/Logging/ILogger.h>
+#include <Utils/Logging/ILogger.h>
 
 #include <fmt/format.h>
 
-namespace Core {
+namespace Utils {
 namespace Logging {
 
 //=================================================================================

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Core/Logging/Logging.h>
+#include <Utils/Logging/Logging.h>
 
 #include <string>
 
-namespace Core {
+namespace Utils {
 namespace Logging {
 
 // intentionally not exported

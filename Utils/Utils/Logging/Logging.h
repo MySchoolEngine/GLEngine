@@ -6,7 +6,7 @@
 #include <vector>
 #include <iostream>
 
-namespace Core {
+namespace Utils {
 namespace Logging {
 
 class I_Logger;
@@ -44,4 +44,4 @@ private:
 }
 }
 
-#include <Core/Logging/Logging.inl>
+#include <Utils/Logging/Logging.inl>

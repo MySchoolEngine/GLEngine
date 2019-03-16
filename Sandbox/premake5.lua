@@ -22,13 +22,15 @@ project "Sandbox"
 		".",
 		"../Core",
 		"../Renderer",
+		"../Utils",
 		"../%{IncludeDir.GLM}",
 		"../vendor/fmt/include",
 	}
 
 	links
 	{ 
-		"Core"
+		"Core",
+		"Utils", 
 	}
 
 	filter "system:windows"

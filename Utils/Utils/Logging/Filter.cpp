@@ -1,10 +1,6 @@
-#include <CoreStdafx.h>
+#include <Utils/Logging/Filter.h>
 
-#include <Core/Logging/Filter.h>
-
-
-
-namespace Core {
+namespace Utils {
 namespace Logging {
 
 //=================================================================================

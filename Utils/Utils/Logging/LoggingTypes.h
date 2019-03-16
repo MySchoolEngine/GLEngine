@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Core {
+namespace Utils {
 namespace Logging {
 
 enum class E_Context {

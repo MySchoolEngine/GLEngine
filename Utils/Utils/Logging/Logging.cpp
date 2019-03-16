@@ -1,10 +1,8 @@
-#include <CoreStdafx.h>
+#include <Utils/Logging/Logging.h>
 
-#include <Core/Logging/Logging.h>
+#include <Utils/Logging/ILogger.h>
 
-#include <Core/Logging/ILogger.h>
-
-namespace Core {
+namespace Utils {
 namespace Logging {
 
 //=================================================================================
