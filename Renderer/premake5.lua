@@ -27,11 +27,6 @@ project "Renderer"
 		"../vendor/fmt/include",
 	}
 
-	links
-	{
-		"GLRenderer",
-	}
-
 	filter "system:windows"
 		cppdialect "C++17"
 		systemversion "latest"

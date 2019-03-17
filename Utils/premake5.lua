@@ -33,6 +33,11 @@ project "Utils"
 			"BUILD_DLL",
 		}
 
+		postbuildcommands
+		{
+			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")
+		}
+
 	filter "configurations:Debug"
 		runtime "Debug"
 		symbols "On"

@@ -3,28 +3,32 @@
 #include <Core/CoreMacros.h>
 
 #include <Core/IWindowManager.h>
-#include <Core/GLFW/GLFWWindow.h>
+#include <GLRenderer/GLFW/GLFWWindow.h>
 
 #include <vector>
 
-namespace Core {
+namespace GLEngine {
+namespace GLRenderer {
 namespace GLFW {
-class C_GLFWWindowManager : public I_WindowManager {
+
+class C_GLFWWindowManager : public Core::I_WindowManager {
 public:
-	API_EXPORT C_GLFWWindowManager();
+	C_GLFWWindowManager();
 	//=============================================================
 	// I_WindowManager
 	//=============================================================
-	virtual std::shared_ptr<I_Window> OpenNewWindow(const S_WindowInfo& info) override;
+	virtual std::shared_ptr<Core::I_Window> OpenNewWindow(const Core::S_WindowInfo& info) override;
 	virtual void Update() override;
 	virtual unsigned int NumWindows() const override;
 
 protected:
 	void Init();
-	virtual std::shared_ptr<I_WindowFactory> GetWindowFactory() const override;
 
 private:
-	std::vector<std::shared_ptr<I_Window>> m_Windows;
+	std::vector<std::shared_ptr<Core::I_Window>> m_Windows;
 };
+
+API_EXPORT Core::I_WindowManager* ConstructGLFWManager();
+}
 }
 }

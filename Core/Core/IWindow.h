@@ -12,11 +12,8 @@ namespace Core {
 /************************************************************************/
 /* Represents single window on screen                                   */
 /************************************************************************/
-class API_EXPORT I_Window {
+class I_Window {
 public:
-	I_Window() = default;
-	virtual ~I_Window() = default;
-
 	virtual unsigned int GetWidth() const = 0;
 	virtual unsigned int GetHeight() const = 0;
 	virtual glm::uvec2	 GetSize() const = 0;

@@ -38,6 +38,8 @@ project "GLRenderer"
 
 		"Entity",
 		"Utils",
+		"Renderer",
+		"Core",
 	}
 
 	filter "system:windows"

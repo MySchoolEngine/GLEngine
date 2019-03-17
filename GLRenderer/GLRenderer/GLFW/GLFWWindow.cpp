@@ -1,13 +1,15 @@
-#include <CoreStdafx.h>
+#include <GLRenderer/GLFW/GLFWWindow.h>
 
-#include <Core/GLFW/GLFWWindow.h>
+#include <Utils/Logging/LoggingMacros.h>
 
 #include <GLFW/glfw3.h>
 
-namespace Core {
+namespace GLEngine {
+namespace GLRenderer {
 namespace GLFW {
+
 //=================================================================================
-C_GLFWWindow::C_GLFWWindow()
+API_EXPORT C_GLFWWindow::C_GLFWWindow()
 	: m_Window(nullptr)
 {
 
@@ -60,7 +62,7 @@ bool C_GLFWWindow::WantClose() const
 }
 
 //=================================================================================
-void C_GLFWWindow::Init(const S_WindowInfo& wndInfo)
+void C_GLFWWindow::Init(const Core::S_WindowInfo& wndInfo)
 {
 	m_Window = glfwCreateWindow(wndInfo.m_width, wndInfo.m_height, wndInfo.m_name.c_str(), nullptr, nullptr);
 
@@ -90,6 +92,7 @@ void C_GLFWWindow::Destroy()
 	glfwDestroyWindow(m_Window);
 }
 
+}
 }
 }
 

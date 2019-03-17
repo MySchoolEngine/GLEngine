@@ -10,7 +10,7 @@
 namespace GLEngine {
 namespace GLRenderer {
 
-class API_EXPORT C_OGLRenderer : public Renderer::I_Renderer {
+class C_OGLRenderer : public Renderer::I_Renderer {
 public:
 	C_OGLRenderer();
 	virtual ~C_OGLRenderer() override;

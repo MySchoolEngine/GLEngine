@@ -34,8 +34,6 @@ project "Core"
 
 	links 
 	{ 
-		"GLFW",
-		"Renderer",
 		"Utils", 
 	}
 

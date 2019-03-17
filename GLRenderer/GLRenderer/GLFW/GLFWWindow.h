@@ -4,9 +4,10 @@
 
 struct GLFWwindow;
 
-namespace Core {
+namespace GLEngine {
+namespace GLRenderer {
 namespace GLFW {
-class API_EXPORT C_GLFWWindow : public I_Window {
+class API_EXPORT C_GLFWWindow : public Core::I_Window {
 public:
 	virtual ~C_GLFWWindow();
 
@@ -20,7 +21,7 @@ public:
 	virtual void Update() override;
 	virtual bool WantClose() const override;
 
-	virtual void Init(const S_WindowInfo& wndInfo) override;
+	virtual void Init(const Core::S_WindowInfo& wndInfo) override;
 
 protected:
 	C_GLFWWindow();
@@ -29,5 +30,6 @@ protected:
 
 	GLFWwindow* m_Window;
 };
+}
 }
 }

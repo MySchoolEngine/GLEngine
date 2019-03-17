@@ -11,6 +11,7 @@ struct S_WindowInfo {
 		, m_height(height) {}
 	std::string m_name;
 	unsigned int m_width, m_height;
+	std::string m_WindowClass;
 
 	enum class E_Driver {
 		OpenGL,

@@ -23,6 +23,7 @@ project "Sandbox"
 		"../Core",
 		"../Renderer",
 		"../Utils",
+		"../GLRenderer",
 		"../%{IncludeDir.GLM}",
 		"../vendor/fmt/include",
 	}
@@ -31,6 +32,7 @@ project "Sandbox"
 	{ 
 		"Core",
 		"Utils", 
+		"GLRenderer",
 	}
 
 	filter "system:windows"

@@ -1,13 +1,17 @@
-#include <CoreStdafx.h>
+#include <GLRenderer/GLFW/GLFWWindowManager.h>
 
-#include <Core/GLFW/GLFWWindowManager.h>
+#include <GLRenderer/GLFW/GLFWoGLWindow.h>
+#include <GLRenderer/GLFW/GLFWWindowFactory.h>
 
-#include <Core/GLFW/GLFWoGLWindow.h>
-#include <Core/GLFW/GLFWWindowFactory.h>
+#include <Utils/Logging/LoggingMacros.h>
 
 #include <GLFW/glfw3.h>
 
-namespace Core {
+#include <algorithm>
+#include <memory>
+
+namespace GLEngine {
+namespace GLRenderer {
 namespace GLFW {
 
 //=================================================================================
@@ -17,9 +21,9 @@ C_GLFWWindowManager::C_GLFWWindowManager()
 }
 
 //=================================================================================
-std::shared_ptr<I_Window> C_GLFWWindowManager::OpenNewWindow(const S_WindowInfo& info)
+std::shared_ptr<Core::I_Window> C_GLFWWindowManager::OpenNewWindow(const Core::S_WindowInfo& info)
 {
-	auto window = GetWindowFactory()->GetWindow(info);
+	auto window = ConstructWindow(info);
 	m_Windows.push_back(window);
 	return window;
 }
@@ -56,10 +60,11 @@ void C_GLFWWindowManager::Init()
 }
 
 //=================================================================================
-std::shared_ptr<I_WindowFactory> C_GLFWWindowManager::GetWindowFactory() const
+API_EXPORT Core::I_WindowManager* ConstructGLFWManager()
 {
-	return std::make_shared<C_GLFWWindowFactory>();
+	return new C_GLFWWindowManager();
 }
 
+}
 }
 }
