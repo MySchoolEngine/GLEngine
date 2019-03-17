@@ -1,6 +1,8 @@
 #include <GLRenderer/GLFW/GLFWWindowFactory.h>
 
 #include <GLRenderer/GLFW/GLFWoGLWindow.h>
+#include <GLRenderer/Windows/ExperimentWindow.h>
+
 
 #include <memory>
 
@@ -13,6 +15,9 @@ std::shared_ptr<Core::I_Window> C_GLFWWindowFactory::GetWindow(const Core::S_Win
 {
 	if (wndInfo.m_WindowClass == "GLFW_OGL") {
 		return std::make_shared<C_GLFWoGLWindow>(wndInfo);
+	}
+	if (wndInfo.m_WindowClass == "ExperimentWindow") {
+		return std::make_shared<Windows::C_ExplerimentWindow>(wndInfo);
 	}
 	return nullptr;
 }

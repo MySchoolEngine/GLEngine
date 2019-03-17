@@ -17,7 +17,7 @@ int main(int args, char** argv) {
 
 	Core::S_OpenGLWindowInfo info(640, 480);
 	info.m_name = "My title";
-	info.m_WindowClass = "GLFW_OGL";
+	info.m_WindowClass = "ExperimentWindow";
 	info.m_MinorVersion = 0;
 
 	Core::I_WindowManager* wmng = GLEngine::GLRenderer::GLFW::ConstructGLFWManager();
