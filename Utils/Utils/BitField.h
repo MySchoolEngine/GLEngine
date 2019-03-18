@@ -8,23 +8,21 @@ class C_BitField {
 	using value_type = typename std::underlying_type<Enum>::type;
 public:
 	template<typename = std::is_integral<typename value_type>::type>
-	C_BitField() 
-		: m_Flags(0){}
+	C_BitField()
+		: m_Flags(0) {}
 
-	C_BitField(const Enum bit)
-		: m_Flags(static_cast<value_type>(bit)){}
+	constexpr C_BitField(const Enum bit)
+		: m_Flags(static_cast<value_type>(bit)) {}
 
-	C_BitField(const C_BitField& other) {
-		m_Flags = other.m_Flags;
-	}
+	constexpr C_BitField(const C_BitField& other)
+		: m_Flags(other.m_Flags) {}
 
-	C_BitField(const C_BitField&& other) {
-		m_Flags = other.m_Flags;
-	}
+	constexpr C_BitField(const C_BitField&& other)
+		: m_Flags(other.m_Flags) {}
 
 	~C_BitField() = default;
 
-	bool CheckFlag(const Enum flag) {
+	constexpr bool CheckFlag(const Enum flag) const {
 		return !!(static_cast<value_type>(flag)&m_Flags);
 	}
 
@@ -48,7 +46,7 @@ public:
 		return (this = this | bit);
 	}
 
-	C_BitField operator| (const C_BitField bit) {
+	C_BitField operator| (const C_BitField bit) const {
 		C_BitField ret(*this);
 		ret.SetFlags(bit);
 		return ret;
@@ -71,7 +69,7 @@ protected:
 
 template<typename Enum>
 struct enable_BitField_operators {
-	static const bool enable = false;
+	static constexpr bool enable = false;
 };
 }
 
