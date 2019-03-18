@@ -1,14 +1,10 @@
-#include <CoreStdafx.h>
+#include <GLRendererStdafx.h>
 
 #include <GLRenderer/GLFW/GLFWoGLWindow.h>
 
 #include <Renderer/IRenderer.h>
 
 #include <GLRenderer/OGLRenderer.h>
-
-#include <GLFW/glfw3.h>
-
-#include <memory>
 
 namespace GLEngine {
 namespace GLRenderer {

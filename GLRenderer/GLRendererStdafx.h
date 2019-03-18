@@ -10,3 +10,7 @@
 #include <fstream>
 #include <regex>
 #include <exception>
+
+// rendering dependend things
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>

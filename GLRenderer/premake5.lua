@@ -21,6 +21,8 @@ project "GLRenderer"
 		"premake5.lua",
 	}
 
+	excludes { "**/Shaders/**" }
+
 	includedirs
 	{
 		".",

@@ -1,7 +1,6 @@
-#include <GLRenderer/Commands/GlClearColor.h>
+#include <GLRendererStdafx.h>
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <GLRenderer/Commands/GlClearColor.h>
 
 namespace GLEngine {
 namespace GLRenderer {

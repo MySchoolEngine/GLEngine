@@ -1,14 +1,9 @@
+#include <GLRendererStdafx.h>
+
 #include <GLRenderer/GLFW/GLFWWindowManager.h>
 
 #include <GLRenderer/GLFW/GLFWoGLWindow.h>
 #include <GLRenderer/GLFW/GLFWWindowFactory.h>
-
-#include <Utils/Logging/LoggingMacros.h>
-
-#include <GLFW/glfw3.h>
-
-#include <algorithm>
-#include <memory>
 
 namespace GLEngine {
 namespace GLRenderer {

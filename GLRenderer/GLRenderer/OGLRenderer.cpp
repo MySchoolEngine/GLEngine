@@ -1,14 +1,9 @@
+#include <GLRendererStdafx.h>
+
 #include <GLRenderer/OGLRenderer.h>
-
-#include <Core/CoreMacros.h>
-
-#include <Utils/Logging/LoggingMacros.h>
 
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
-
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
 #include <stdexcept>
 

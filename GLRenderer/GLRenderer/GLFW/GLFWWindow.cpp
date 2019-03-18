@@ -1,8 +1,6 @@
+#include <GLRendererStdafx.h>
+
 #include <GLRenderer/GLFW/GLFWWindow.h>
-
-#include <Utils/Logging/LoggingMacros.h>
-
-#include <GLFW/glfw3.h>
 
 namespace GLEngine {
 namespace GLRenderer {

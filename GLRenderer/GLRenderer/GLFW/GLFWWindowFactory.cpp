@@ -1,10 +1,9 @@
+#include <GLRendererStdafx.h>
+
 #include <GLRenderer/GLFW/GLFWWindowFactory.h>
 
 #include <GLRenderer/GLFW/GLFWoGLWindow.h>
 #include <GLRenderer/Windows/ExperimentWindow.h>
-
-
-#include <memory>
 
 namespace GLEngine {
 namespace GLRenderer {
