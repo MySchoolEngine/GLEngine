@@ -14,16 +14,25 @@
 #include <string>
 #include <map>
 
+namespace GLEngine {
+namespace GLRenderer {
+namespace Shaders {
 class C_ShaderPreprocessor {
 public:
-	using T_Defines = std::map<std::string, std::string>;
 	void Define(const std::string& symbol, const std::string& value);
 	std::string PreprocessFile(const std::string& src, const std::string& filepath);
-private:
-	T_Defines m_defines;
+protected:
 	void IncludesFiles(std::string& content, const std::string& filepath);
 	void ReplaceConstants(std::string& content);
 	void GetDefines(std::string& content);
 
 	bool _loadFile(const char* file, std::string& content);
+
+	using T_Defines = std::map<std::string, std::string>;
+	T_Defines m_defines;
+
+	const static std::regex s_IncludeFileName;
 };
+}
+}
+}
