@@ -32,7 +32,8 @@ void C_GLClear::Commit()
 //=================================================================================
 Renderer::I_RenderCommand::E_Type C_GLClear::GetType() const
 {
-	return Renderer::I_RenderCommand::E_Type::StateChange;
+	// it actually draws something (uniform background color)
+	return Renderer::I_RenderCommand::E_Type::DrawCall;
 }
 
 //=================================================================================
