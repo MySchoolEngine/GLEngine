@@ -9,7 +9,7 @@ project "GLRenderer"
 	objdir ("../obj/" .. outputdir .. "/%{prj.name}")
 	
 	pchheader "GLRendererStdafx.h"
-	pchsource "GLRendererCoreStdafx.cpp"
+	pchsource "GLRendererStdafx.cpp"
 
 	files
 	{
