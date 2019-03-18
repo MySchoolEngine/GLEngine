@@ -17,6 +17,7 @@
 namespace GLEngine {
 namespace GLRenderer {
 namespace Shaders {
+
 class C_ShaderPreprocessor {
 public:
 	void Define(const std::string& symbol, const std::string& value);
