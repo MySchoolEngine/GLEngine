@@ -7,12 +7,17 @@ project "GLRenderer"
 
 	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("../obj/" .. outputdir .. "/%{prj.name}")
+	
+	pchheader "GLRendererStdafx.h"
+	pchsource "GLRendererCoreStdafx.cpp"
 
 	files
 	{
 		"GLRenderer/**.h",
 		"GLRenderer/**.cpp",
 		"GLRenderer/**.inl",
+		"GLRendererStdafx.cpp",
+		"GLRendererStdafx.h",
 		"premake5.lua",
 	}
 
