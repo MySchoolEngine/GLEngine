@@ -13,31 +13,35 @@
 
 #pragma once
 
-#include "GLW/Buffers/GLBuffer.h"
+#include <GLRenderer/Buffers/GLBuffer.h>
+
+#include <glad/glad.h>
 
 #include <string>
 
-namespace GLW {
-	class C_UniformBuffer : public C_GLBuffer<GL_UNIFORM_BUFFER> {
-	public:
-		C_UniformBuffer(const std::string& blockName, unsigned int index);
-		virtual ~C_UniformBuffer();
+namespace GLEngine {
+namespace GLRenderer {
+namespace Buffers {
+class C_UniformBuffer : public C_GLBuffer<GL_UNIFORM_BUFFER> {
+public:
+	C_UniformBuffer(const std::string& blockName, unsigned int index);
+	virtual ~C_UniformBuffer();
 
-		virtual void bind() override;
+	virtual void bind() override;
 
-		virtual void UploadData() const = 0;
+	virtual void UploadData() const = 0;
 
-		void Activate(bool activate = true);
-		inline bool IsActive() const { return m_active; }
+	void Activate(bool activate = true);
+	inline bool IsActive() const { return m_active; }
 
-		const std::string& GetBlockName() const { return m_blockName; }
-		int GetBinding() const { return GetIndex(); }
+	const std::string& GetBlockName() const { return m_blockName; }
+	int GetBinding() const { return GetIndex(); }
 
-		GLuint GetIndex() const { return m_index; }
-		void SetIndex(GLuint val) { m_index = val; }
-	private:
-		GLuint m_index;
-		std::string m_blockName;
-		bool m_active;
-	};
-}
+	GLuint GetIndex() const { return m_index; }
+	void SetIndex(GLuint val) { m_index = val; }
+private:
+	GLuint m_index;
+	std::string m_blockName;
+	bool m_active;
+};
+}}}

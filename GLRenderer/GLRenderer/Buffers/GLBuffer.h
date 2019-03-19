@@ -15,6 +15,7 @@
 namespace GLEngine {
 namespace GLRenderer {
 namespace Buffers {
+
 template<GLenum TYPE>
 class C_GLBuffer {
 public:
