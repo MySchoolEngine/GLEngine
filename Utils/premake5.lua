@@ -20,7 +20,7 @@ project "Utils"
 	{
 		".",
 		"../Core",
-		"../vendor/fmt/include",
+		"../%{IncludeDir.fmt}",
 	}
 
 	filter "system:windows"

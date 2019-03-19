@@ -17,7 +17,9 @@ namespace Shaders {
 //=================================================================================
 C_ShaderProgram::C_ShaderProgram(GLuint program)
 	: m_Program(program)
-{}
+{
+	// TODO: assert(program!=0);
+}
 
 //=================================================================================
 C_ShaderProgram::~C_ShaderProgram()

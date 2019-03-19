@@ -21,8 +21,6 @@ project "GLRenderer"
 		"premake5.lua",
 	}
 
-	excludes { "**/Shaders/**" }
-
 	includedirs
 	{
 		".",
@@ -34,7 +32,8 @@ project "GLRenderer"
 		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.Glad}",
 		"../%{IncludeDir.GLM}",
-		"../vendor/fmt/include",
+		"../%{IncludeDir.pugixml}",
+		"../%{IncludeDir.fmt}",
 	}
 
 	links 
@@ -42,6 +41,7 @@ project "GLRenderer"
 		"GLFW",
 		"Glad",
 		"opengl32.lib",
+		"pugixml",
 
 		"Entity",
 		"Utils",
