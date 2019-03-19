@@ -12,23 +12,21 @@
 */
 #pragma once
 
-#include <QOpenGLExtraFunctions>
+namespace GLEngine {
+namespace GLRenderer {
+namespace Buffers {
+template<GLenum TYPE>
+class C_GLBuffer {
+public:
+	C_GLBuffer();
+	virtual ~C_GLBuffer();
 
-#include <string>
+	virtual void bind();
+	virtual void unbind();
 
-namespace GLW {
-	template<GLenum TYPE>
-	class C_GLBuffer : public QOpenGLExtraFunctions {
-	public:
-		C_GLBuffer();
-		virtual ~C_GLBuffer();
-
-		virtual void bind();
-		virtual void unbind();
-
-		constexpr GLenum GetBufferType() const noexcept;
-	protected:
-		GLuint m_id;
-	};
-}
-#include "GLW/Buffers/GLBuffer.inl"
+	constexpr GLenum GetBufferType() const noexcept;
+protected:
+	GLuint m_id;
+};
+}}}
+#include <GLRenderer/Buffers/GLBuffer.inl>
