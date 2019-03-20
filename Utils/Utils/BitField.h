@@ -60,6 +60,14 @@ public:
 		return CheckFlag(bit);
 	}
 
+	operator const Enum() const {
+		return m_Flags;
+	}
+
+	operator Enum&() {
+		return m_Flags;
+	}
+
 	value_type GetFlags() const {
 		return m_Flags;
 	}
