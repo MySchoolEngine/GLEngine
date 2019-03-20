@@ -5,18 +5,20 @@
 #include <GLRenderer/Commands/GLClear.h>
 #include <GLRenderer/Commands/GlClearColor.h>
 
-#include <GLFW/glfw3.h>
-#include <stdlib.h>
+#include <GLRenderer/Shaders/ShaderManager.h>
+#include <GLRenderer/Shaders/ShaderProgram.h>
 
 namespace GLEngine {
 namespace GLRenderer {
 namespace Windows {
 
+std::shared_ptr<Shaders::C_ShaderProgram> program;
+
 //=================================================================================
 C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	: C_GLFWoGLWindow(wndInfo)
 {
-
+	program = Shaders::C_ShaderManager::Instance().GetProgram("basic-planes");
 }
 
 //=================================================================================
