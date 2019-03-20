@@ -57,11 +57,38 @@ void S_AABB::Add(const S_Sphere& sphere)
 }
 
 //=================================================================================
+void S_AABB::updateWithTriangle(const glm::vec4* triangleVertices)
+{
+	Add(triangleVertices[0]);
+	Add(triangleVertices[1]);
+	Add(triangleVertices[2]);
+}
+
+//=================================================================================
 S_Sphere S_AABB::GetSphere() const
 {
 	glm::vec3 center = m_Min + (m_Max - m_Min) / 2.0f;
 	float radius = glm::abs(glm::length(m_Max - center));
 	return S_Sphere(center, radius);
+}
+
+//=================================================================================
+S_AABB S_AABB::getTransformedAABB(const glm::mat4 matrix) const
+{
+	S_AABB newBB;
+
+	glm::vec3 size = m_Max - m_Min;
+
+	newBB.Add(glm::vec3(matrix * glm::vec4(m_Min + glm::vec3(size.x, 0.0f, 0.0f), 1.0f)));
+	newBB.Add(glm::vec3(matrix * glm::vec4(m_Min + glm::vec3(size.x, size.y, 0.0f), 1.0f)));
+	newBB.Add(glm::vec3(matrix * glm::vec4(m_Min + glm::vec3(size.x, 0.0f, size.z), 1.0f)));
+	newBB.Add(glm::vec3(matrix * glm::vec4(m_Min + glm::vec3(0.0f, size.y, 0.0f), 1.0f)));
+	newBB.Add(glm::vec3(matrix * glm::vec4(m_Min + glm::vec3(0.0f, 0.0f, size.z), 1.0f)));
+	newBB.Add(glm::vec3(matrix * glm::vec4(m_Min + glm::vec3(0.0f, size.y, size.z), 1.0f)));
+	newBB.Add(glm::vec3(matrix * glm::vec4(m_Min, 1.0f)));
+	newBB.Add(glm::vec3(matrix * glm::vec4(m_Max, 1.0f)));
+
+	return newBB;
 }
 
 }

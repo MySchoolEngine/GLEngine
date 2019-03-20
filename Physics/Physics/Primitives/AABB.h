@@ -21,7 +21,11 @@ public:
 	void Add(const S_AABB& bbox);
 	void Add(const S_Sphere& sphere);
 
+
+	void updateWithTriangle(const glm::vec4* triangleVertices);
+
 	S_Sphere GetSphere() const;
+	S_AABB getTransformedAABB(const glm::mat4 matrix) const;
 };
 }
 }
