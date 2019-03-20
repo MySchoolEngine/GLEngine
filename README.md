@@ -1,6 +1,6 @@
 # GLEngine
 
-##Disclaimer
+## Disclaimer
 
 Project is going intentionally wrong way right now, cause I am runnign short on time in my school assignments. When I will finish my assignments I will take it back to multithreadable way.
 
