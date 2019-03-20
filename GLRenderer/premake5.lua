@@ -34,14 +34,18 @@ project "GLRenderer"
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.fmt}",
+
+		"../vendor/AssimpPrebuild/include",
 	}
 
 	links 
 	{ 
 		"GLFW",
 		"Glad",
+		"Physics",
 		"opengl32.lib",
 		"pugixml",
+		"../vendor/AssimpPrebuild/lib/assimp.lib",
 
 		"Entity",
 		"Utils",
