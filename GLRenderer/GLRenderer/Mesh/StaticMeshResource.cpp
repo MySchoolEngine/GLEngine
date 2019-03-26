@@ -68,6 +68,12 @@ bool C_StaticMeshResource::IsValid()
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
+//=================================================================================
+GLuint C_StaticMeshResource::GetVAO() const
+{
+	return m_VAO;
+}
+
 }
 }
 }

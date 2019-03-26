@@ -15,11 +15,14 @@ struct Mesh;
 class C_StaticMeshResource : public Renderer::I_Resource {
 public:
 	C_StaticMeshResource(const Mesh & mesh);
+	~C_StaticMeshResource() = default;
 
 	//=================================================================================
 	virtual std::unique_ptr<Renderer::I_RawGPUData> ExtractData() const override;
 	virtual void Invalidate() override;
 	virtual bool IsValid() override;
+
+	GLuint GetVAO() const;
 protected:
 	using T_VBO = Buffers::C_GLBuffer<GL_ARRAY_BUFFER>;
 
