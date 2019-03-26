@@ -1,8 +1,10 @@
-#include "GLW\Texture\Texture2D.h"
+#include <GLRendererStdafx.h>
+
+#include <GLRenderer/Textures/Texture2D.h>
 
 
-namespace GLW {
-	namespace Texture {
+namespace GLEngine {
+namespace GLRenderer {
+namespace Textures {
 
-	}
-}
+}}}
