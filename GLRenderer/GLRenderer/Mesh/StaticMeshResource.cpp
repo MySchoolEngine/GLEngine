@@ -17,7 +17,7 @@ C_StaticMeshResource::C_StaticMeshResource(const Mesh & mesh)
 	m_VBOs[2] = std::make_shared<T_VBO>();
 
 
-	m_triangles = static_cast<GLuint>(mesh.vertices.size());
+	m_triangles = mesh.vertices.size();
 
 	glBindVertexArray(m_VAO);
 
@@ -72,6 +72,12 @@ bool C_StaticMeshResource::IsValid()
 GLuint C_StaticMeshResource::GetVAO() const
 {
 	return m_VAO;
+}
+
+//=================================================================================
+std::size_t C_StaticMeshResource::GetNumTriangles() const
+{
+	return m_triangles;
 }
 
 }

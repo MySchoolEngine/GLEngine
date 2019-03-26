@@ -23,11 +23,12 @@ public:
 	virtual bool IsValid() override;
 
 	GLuint GetVAO() const;
+	std::size_t GetNumTriangles() const;
 protected:
 	using T_VBO = Buffers::C_GLBuffer<GL_ARRAY_BUFFER>;
 
 	GLuint m_VAO;
-	GLuint m_triangles;
+	std::size_t m_triangles;
 	std::array<std::shared_ptr<T_VBO>, 3> m_VBOs;
 };
 
