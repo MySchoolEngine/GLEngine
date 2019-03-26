@@ -28,6 +28,11 @@ class xml_node;
 
 namespace GLEngine {
 namespace GLRenderer {
+
+namespace Textures {
+class C_Texture;
+}
+
 namespace Mesh {
 
 struct Scene;
@@ -40,19 +45,20 @@ class C_Terrain;
 class C_SceneBuilder {
 public:
 	C_SceneBuilder();
-	~C_SceneBuilder();
+	~C_SceneBuilder() = default;
+
 	std::shared_ptr<C_Scene> LoadScene(const std::string& sceneDefinitionFile);
 	std::shared_ptr<C_Terrain> LoadTerrain(const pugi::xml_node& node);
 	std::shared_ptr<C_Scene> LoadModel(const pugi::xml_node& node);
 	std::shared_ptr<I_RenderNode> LoadMesh(const Mesh& mesh);
-	std::shared_ptr<GLW::C_Texture> LoadTexture(const Texture& texture) const;
+	std::shared_ptr<Textures::C_Texture> LoadTexture(const Texture& texture) const;
 private:
 	glm::vec3	ReadPositionNode(const pugi::xml_node& node) const noexcept;
 	std::string GetFolderpath(const std::string& filePath) const;
 	std::string GetFilePart(const std::string& filePath) const;
 
-	std::vector<std::shared_ptr<GLW::C_Texture>> m_textures;
-	std::shared_ptr<GLW::C_Texture> m_nullTexture;
+	std::vector<std::shared_ptr<Textures::C_Texture>> m_textures;
+	std::shared_ptr<Textures::C_Texture> m_nullTexture;
 	std::shared_ptr<Scene> m_scene;
 	std::string m_sceneFolder;
 };

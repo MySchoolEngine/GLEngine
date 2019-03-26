@@ -2,24 +2,28 @@
 
 #include <GLRenderer/MeshLoading/SceneBuilder.h>
 
+#include <GLRenderer/MeshLoading/Scene.h>
+#include <GLRenderer/MeshLoading/SceneLoader.h>
+
+#include <GLRenderer/Mesh/StaticMeshResource.h>
+
+#include <GLRenderer/Textures/Texture.h>
+
+#include <Physics/Primitives/AABB.h>
+
 // #include "render/Nodes/MeshNode.h"
 // #include "render/Nodes/RenderNode.h"
 // #include "render/Nodes/Scene.h"
 // #include "render/Nodes/Terrain.h"
 
-//#include "GLW/Texture.h"
 
 //#include "TextureLoader.hpp"
-#include <GLRenderer/MeshLoading/SceneLoader.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <GLRenderer/MeshLoading/Scene.h>
 //#include "Debug.h"
 
 #include <pugixml.hpp>
-
-#include <iostream>
 
 namespace GLEngine {
 namespace GLRenderer {
@@ -28,7 +32,7 @@ namespace Mesh {
 //=================================================================================
 C_SceneBuilder::C_SceneBuilder()
 {
-	m_nullTexture = std::make_shared<GLW::C_Texture>();
+	m_nullTexture = std::make_shared<Textures::C_Texture>();
 	m_nullTexture->StartGroupOp();
 	m_nullTexture->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 	m_nullTexture->SetWrap(GL_REPEAT, GL_REPEAT);
@@ -36,11 +40,6 @@ C_SceneBuilder::C_SceneBuilder()
 	glTexImage2D(m_nullTexture->GetTarget(), 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	m_nullTexture->SetDimensions({ 1,1 });
 	m_nullTexture->EndGroupOp();
-}
-
-//=================================================================================
-C_SceneBuilder::~C_SceneBuilder()
-{
 }
 
 //=================================================================================
@@ -56,6 +55,7 @@ C_SceneBuilder::~C_SceneBuilder()
  */
  //=================================================================================
 	// used to be rendernode
+/*
 std::shared_ptr<render::C_Scene> C_SceneBuilder::LoadScene(const std::string& sceneDefinitionFile)
 {
 	m_sceneFolder = GetFolderpath(sceneDefinitionFile);
@@ -78,10 +78,10 @@ std::shared_ptr<render::C_Scene> C_SceneBuilder::LoadScene(const std::string& sc
 		}
 	}
 
-	AABB bbox;
+	Physics::Primitives::S_AABB bbox;
 
 	for (const auto & node : *scene) {
-		bbox.updateWithAABB(node->GetActualAABB());
+		bbox.Add(node->GetActualAABB());
 	}
 	scene->SetBBox(bbox);
 
@@ -91,27 +91,29 @@ std::shared_ptr<render::C_Scene> C_SceneBuilder::LoadScene(const std::string& sc
 //=================================================================================
 std::shared_ptr<render::C_Terrain> C_SceneBuilder::LoadTerrain(const pugi::xml_node& node)
 {
-	assert(strcmp(node.name(), "terrain") == 0);
-	auto fileAtt = node.attribute("file");
+	// assert(strcmp(node.name(), "terrain") == 0);
+	// auto fileAtt = node.attribute("file");
+	// 
+	// TextureLoader tl;
+	// 
+	// Texture t;
+	// bool retval = tl.loadTexture((m_sceneFolder + "/" + node.attribute("file").as_string()).c_str(), t);
+	// 
+	// 
+	// if (!retval)
+	// {
+	// 	throw std::exception("terrain height map does not exists");
+	// }
+	// 
+	// return std::make_shared<render::C_Terrain>(node.attribute("tile-size").as_float(1.0f), t);
 
-	TextureLoader tl;
-
-	Texture t;
-	bool retval = tl.loadTexture((m_sceneFolder + "/" + node.attribute("file").as_string()).c_str(), t);
-
-
-	if (!retval)
-	{
-		throw std::exception("terrain height map does not exists");
-	}
-
-	return std::make_shared<render::C_Terrain>(node.attribute("tile-size").as_float(1.0f), t);
+	return nullptr;
 }
 
 //=================================================================================
 std::shared_ptr<C_Scene> C_SceneBuilder::LoadModel(const pugi::xml_node& node)
 {
-	std::unique_ptr<SceneLoader> sl = std::unique_ptr<SceneLoader>(new SceneLoader);
+	auto sl = std::make_unique<SceneLoader>();
 
 	std::shared_ptr<Scene> scene = std::make_shared<Scene>();
 
@@ -163,10 +165,10 @@ std::shared_ptr<C_Scene> C_SceneBuilder::LoadModel(const pugi::xml_node& node)
 
 
 
-	AABB bbox;
+	Physics::Primitives::S_AABB bbox;
 
 	for (const auto & node : *ret) {
-		bbox.updateWithAABB(node->GetActualAABB());
+		bbox.Add(node->GetActualAABB());
 	}
 	ret->SetBBox(bbox);
 
@@ -188,11 +190,12 @@ std::shared_ptr<I_RenderNode> C_SceneBuilder::LoadMesh(const Mesh& mesh)
 
 	return node;
 }
+*/
 
 //=================================================================================
-std::shared_ptr<GLW::C_Texture> C_SceneBuilder::LoadTexture(const Texture & texture) const
+std::shared_ptr<Textures::C_Texture> C_SceneBuilder::LoadTexture(const Texture & texture) const
 {
-	std::shared_ptr<GLW::C_Texture> tex = std::make_shared<GLW::C_Texture>(texture.m_name);
+	auto tex = std::make_shared<Textures::C_Texture>(texture.m_name);
 	tex->StartGroupOp();
 	glTexImage2D(GL_TEXTURE_2D,
 		0,
@@ -204,11 +207,11 @@ std::shared_ptr<GLW::C_Texture> C_SceneBuilder::LoadTexture(const Texture & text
 		GL_UNSIGNED_BYTE,
 		texture.data.get());
 	tex->SetDimensions({ texture.width, texture.height });
-	ErrorCheck();
+//	ErrorCheck();
 	tex->SetWrap(GL_REPEAT, GL_REPEAT);
 	tex->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 	glGenerateMipmap(GL_TEXTURE_2D);
-	ErrorCheck();
+//	ErrorCheck();
 
 	tex->EndGroupOp();
 
