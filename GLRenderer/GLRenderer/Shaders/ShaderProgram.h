@@ -26,8 +26,12 @@
 
 namespace GLEngine {
 namespace GLRenderer {
+
+namespace Buffers {
+class C_UniformBuffer;
+}
+
 namespace Shaders {
-//class C_UniformBuffer;
 
 class C_ShaderProgram
 {
@@ -42,7 +46,7 @@ public:
 
 	bool IsActive() const { return m_bIsActive; }
 
-	//void BindUBO(std::shared_ptr<C_UniformBuffer>);
+	void BindUBO(std::shared_ptr<Buffers::C_UniformBuffer>) const;
 
 #if _DEBUG
 	inline void SetName(const std::string& name) noexcept { m_name = name; }

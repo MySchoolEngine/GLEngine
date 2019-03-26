@@ -19,14 +19,14 @@ C_GLBuffer<TYPE>::~C_GLBuffer()
 
 //=================================================================================
 template<GLenum TYPE>
-void C_GLBuffer<TYPE>::unbind()
+void C_GLBuffer<TYPE>::unbind() const
 {
 	glBindBuffer(TYPE, 0);
 }
 
 //=================================================================================
 template<GLenum TYPE>
-void C_GLBuffer<TYPE>::bind()
+void C_GLBuffer<TYPE>::bind() const
 {
 	glBindBuffer(TYPE, m_id);
 }

@@ -14,7 +14,7 @@ C_ShaderStorageBuffer::C_ShaderStorageBuffer(int bindingPoint)
 }
 
 //=================================================================================
-void C_ShaderStorageBuffer::bind()
+void C_ShaderStorageBuffer::bind() const
 {
 	C_GLBuffer<GL_SHADER_STORAGE_BUFFER>::bind();
 	glBindBufferBase(GetBufferType(), m_BindingPoint, m_id);

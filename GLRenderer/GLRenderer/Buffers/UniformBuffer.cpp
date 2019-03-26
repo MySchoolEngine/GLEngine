@@ -16,13 +16,7 @@ C_UniformBuffer::C_UniformBuffer(const std::string& blockName, unsigned int inde
 }
 
 //=================================================================================
-C_UniformBuffer::~C_UniformBuffer()
-{
-
-}
-
-//=================================================================================
-void C_UniformBuffer::bind()
+void C_UniformBuffer::bind() const
 {
 	C_GLBuffer<GL_UNIFORM_BUFFER>::bind();
 	glBindBufferBase(GL_UNIFORM_BUFFER, GetIndex(), m_id);

@@ -22,8 +22,8 @@ public:
 	C_GLBuffer();
 	virtual ~C_GLBuffer();
 
-	virtual void bind();
-	virtual void unbind();
+	virtual void bind()		const;
+	virtual void unbind()	const;
 
 	constexpr GLenum GetBufferType() const noexcept;
 protected:

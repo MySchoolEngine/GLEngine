@@ -2,7 +2,7 @@
 
 #include <GLRenderer/Shaders/ShaderProgram.h>
 
-//#include "GLW/Buffers/UniformBuffer.h"
+#include <GLRenderer/Buffers/UniformBuffer.h>
 
 //#include "Debug/Debug.h"
 
@@ -45,14 +45,12 @@ void C_ShaderProgram::disableProgram()
 }
 
 //=================================================================================
-/*void C_ShaderProgram::BindUBO(std::shared_ptr<C_UniformBuffer> ubo)
+void C_ShaderProgram::BindUBO(std::shared_ptr<Buffers::C_UniformBuffer> ubo) const
 {
 	int uboBlockLocation = FindUniformBlockLocation(ubo->GetBlockName().c_str());
 	if (uboBlockLocation > 0) {
 		glUniformBlockBinding(m_Program, uboBlockLocation, ubo->GetBinding());
 	}
-}*/
+}
 
-}
-}
-}
+}}}

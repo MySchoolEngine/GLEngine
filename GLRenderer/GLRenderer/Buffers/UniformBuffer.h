@@ -25,9 +25,9 @@ namespace Buffers {
 class C_UniformBuffer : public C_GLBuffer<GL_UNIFORM_BUFFER> {
 public:
 	C_UniformBuffer(const std::string& blockName, unsigned int index);
-	virtual ~C_UniformBuffer();
+	virtual ~C_UniformBuffer() = default;
 
-	virtual void bind() override;
+	virtual void bind() const override;
 
 	virtual void UploadData() const = 0;
 

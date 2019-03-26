@@ -28,7 +28,7 @@ public:
 	virtual void DownloadData() = 0;
 	virtual void ClearBuffer() = 0;
 
-	virtual void bind() override;
+	virtual void bind() const override;
 	inline void SetBindingPoint(GLuint binding) noexcept { m_BindingPoint = binding; }
 private:
 	GLuint m_BindingPoint;

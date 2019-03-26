@@ -11,22 +11,27 @@
  
 #pragma once
 
-#include "GLW\Buffers\UniformBuffer.h"
+#include <GLRenderer\Buffers\UniformBuffer.h>
 
-#include <glm\detail\type_mat.hpp>
-#include <glm\detail\type_vec.hpp>
+#include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
+
+namespace GLEngine {
+namespace GLRenderer {
+namespace Buffers {
+namespace UBO {
 
 /** ==============================================
  * @class C_FrameConstantsBuffer
  *
- * @brief	Define shader values constant through whole 
+ * @brief	Define shader values constant through whole
  *			frame.
  *
  * @author 	Dominik Rohacek
  * Contact: RohacekD@gmail.com
  * @date 	2018/05/16
  ** ==============================================*/
-class C_FrameConstantsBuffer : public GLW::C_UniformBuffer {
+class C_FrameConstantsBuffer : public C_UniformBuffer {
 public:
 	C_FrameConstantsBuffer(const std::string& blockName, unsigned int index);
 
@@ -40,3 +45,4 @@ private:
 	glm::vec4 m_CameraPosition;
 	glm::mat4 m_ViewProjection;
 };
+}}}}
