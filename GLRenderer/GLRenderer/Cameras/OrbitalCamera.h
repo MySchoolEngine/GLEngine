@@ -1,53 +1,67 @@
 #pragma once
 
+#define GLM_ENABLE_EXPERIMENTAL
+
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Camera/ICamera.h"
+#include <Renderer/ICameraComponent.h>
 
+
+namespace GLEngine {
+
+namespace Physics {
+namespace Primitives {
+class C_Frustum;
+}
+}
+
+namespace GLRenderer {
+namespace Cameras {
 
 //Orbital camera
 //Using Euclidean angles (= has gimbal lock)
-class OrbitalCamera : public I_Camera
+class C_OrbitalCamera : public Renderer::I_CameraComponent
 {
 public:
-	OrbitalCamera();
+	C_OrbitalCamera();
+	~C_OrbitalCamera() = default;
 
-	virtual glm::mat4 getViewProjectionMatrix() const override;
-	virtual glm::mat4 getViewMatrix() const override;
-	virtual glm::mat4 getProjectionMatrix() const override;
-    virtual glm::vec3 getPosition() const override;
+	virtual glm::mat4 GetViewProjectionMatrix() const override;
+	virtual glm::mat4 GetProjectionMatrix() const override;
+	virtual glm::mat4 GetViewMatrix() const override;
+	virtual glm::quat GetRotation() const override;
+	virtual glm::vec3 GetDirection() const override;
+	virtual glm::vec3 GetPosition() const override;
 
-	void setupCameraView(float zoom, glm::vec3 center,  float angleXDeg, float angleYDeg);
-    void setCenterPoint(const glm::vec3& center);
+	virtual Physics::Primitives::C_Frustum GetFrustum()	const override;
+
+
+	virtual float GetAspectRatio() const;
+
+	void setupCameraView(float zoom, glm::vec3 center, float angleXDeg, float angleYDeg);
+	void setCenterPoint(const glm::vec3& center);
 	void setupCameraProjection(float nearZ, float farZ, float aspectRatio, float fovYDeg);
 	void adjustZoom(int zoom);
-	
+
 	void adjustOrientation(float dx, float dy);
-	
+
 	void update();
 
 
-	virtual float GetFar() const override { return _farZ; }
-	virtual float GetNear() const override { return _nearZ; }
+	virtual float GetFar() const { return _farZ; }
+	virtual float GetNear() const { return _nearZ; }
 
-	virtual float GetFov() const override;
+	virtual float GetFov() const;
 
-	virtual float GetAspectRatio() const override;
-
-
-	virtual bool Input(SDL_Event) override;
-
-
-	virtual glm::quat getRotation() const override;
-
+	//virtual bool Input(SDL_Event) override;
 private:
-    glm::vec3 _pos;
-    glm::vec3 _view;
-    glm::vec3 _left;
+	glm::vec3 _pos;
+	glm::vec3 _view;
+	glm::vec3 _left;
 	glm::vec3 _up;
-    glm::vec3 _center;
+	glm::vec3 _center;
 
 	float _fovy;
 	float _nearZ;
@@ -61,3 +75,4 @@ private:
 	glm::mat4 _viewMatrix;
 	glm::mat4 _projectionMatrix;
 };
+}}}
