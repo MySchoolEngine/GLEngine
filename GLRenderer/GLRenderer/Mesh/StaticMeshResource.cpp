@@ -7,6 +7,7 @@
 namespace GLEngine {
 namespace GLRenderer {
 namespace Mesh {
+
 //=================================================================================
 C_StaticMeshResource::C_StaticMeshResource(const Mesh & mesh)
 {
