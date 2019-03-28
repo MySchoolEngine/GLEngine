@@ -4,37 +4,21 @@ project "Core"
 	kind "SharedLib"
 	language "C++"
 	staticruntime "off"
+	
+	SetupProject("Core")
+	
+	PrecompiledHeaders("Core")
 
-	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("../obj/" .. outputdir .. "/%{prj.name}")
-
-	pchheader "CoreStdafx.h"
-	pchsource "CoreStdafx.cpp"
-
-	files
-	{
-		"Core/**.h",
-		"Core/**.cpp",
-		"Core/**.inl",
-		"CoreStdafx.cpp",
-		"CoreStdafx.h",
-		"premake5.lua",
-	}
+	
+	Link("Utils")
 
 	includedirs
 	{
-		".",
 		"../Renderer/",
-		"../Utils",
 		"../GLRenderer/",
 		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.GLM}",
-		"../vendor/fmt/include",
-	}
-
-	links 
-	{ 
-		"Utils", 
+		"../%{IncludeDir.fmt}",
 	}
 
 	filter "system:windows"

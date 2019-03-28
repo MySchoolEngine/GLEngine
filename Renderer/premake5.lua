@@ -4,27 +4,17 @@ project "Renderer"
 	kind "SharedLib"
 	language "C++"
 	staticruntime "off"
-
-	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("../obj/" .. outputdir .. "/%{prj.name}")
-
-	files
-	{
-		"Renderer/**.h",
-		"Renderer/**.cpp",
-		"Renderer/**.inl",
-		"premake5.lua",
-	}
+	
+	SetupProject("Renderer")
 
 	includedirs
 	{
-		".",
 		"../Core",
 		"../GLRenderer",
 		"../Entity",
 		"../Physics",
 		"../%{IncludeDir.GLM}",
-		"../vendor/fmt/include",
+		"../%{IncludeDir.fmt}",
 	}
 
 	filter "system:windows"

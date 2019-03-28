@@ -4,35 +4,20 @@ project "Sandbox"
 	kind "ConsoleApp"
 	language "C++"
 	staticruntime "off"
-
-	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("../obj/" .. outputdir .. "/%{prj.name}")
+	
+	SetupProject("Sandbox")
 	debugdir ("../bin/" .. outputdir .. "/%{prj.name}")
-
-	files
-	{
-		"Sandbox/**.h",
-		"Sandbox/**.cpp",
-		"Sandbox/**.inl",
-		"premake5.lua",
-	}
+	
+	
+	Link("Core")
+	Link("Utils")
+	Link("GLRenderer")
 
 	includedirs
 	{
-		".",
-		"../Core",
 		"../Renderer",
-		"../Utils",
-		"../GLRenderer",
 		"../%{IncludeDir.GLM}",
-		"../vendor/fmt/include",
-	}
-
-	links
-	{ 
-		"Core",
-		"Utils", 
-		"GLRenderer",
+		"../%{IncludeDir.fmt}",
 	}
 
 	filter "system:windows"

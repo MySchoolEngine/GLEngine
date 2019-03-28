@@ -16,9 +16,9 @@ project "Entity"
 	{
 		"../%{IncludeDir.GLM}",
 		"../Core",
-		"../vendor/fmt/include",
+		"../%{IncludeDir.fmt}",
 	}
-	
+
 	filter "system:windows"
 		cppdialect "C++17"
 		systemversion "latest"
@@ -27,6 +27,11 @@ project "Entity"
 		{
 			"CORE_PLATFORM=CORE_PLATFORM_WIN",
 			"BUILD_DLL",
+		}
+
+		postbuildcommands
+		{
+			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")
 		}
 
 	filter "configurations:Debug"

@@ -4,24 +4,14 @@ project "Physics"
 	kind "SharedLib"
 	language "C++"
 	staticruntime "off"
-
-	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("../obj/" .. outputdir .. "/%{prj.name}")
-
-	files
-	{
-		"Physics/**.h",
-		"Physics/**.cpp",
-		"Physics/**.inl",
-		"premake5.lua",
-	}
+	
+	SetupProject("Physics")
 
 	includedirs
 	{
-		".",
 		"../Core",
 		"../%{IncludeDir.GLM}",
-		"../vendor/fmt/include",
+		"../%{IncludeDir.fmt}",
 	}
 
 	filter "system:windows"

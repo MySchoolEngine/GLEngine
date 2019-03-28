@@ -4,21 +4,11 @@ project "Utils"
 	kind "SharedLib"
 	language "C++"
 	staticruntime "off"
-
-	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("../obj/" .. outputdir .. "/%{prj.name}")
-
-	files
-	{
-		"Utils/**.h",
-		"Utils/**.cpp",
-		"Utils/**.inl",
-		"premake5.lua",
-	}
+	
+	SetupProject("Utils")
 
 	includedirs
 	{
-		".",
 		"../Core",
 		"../%{IncludeDir.fmt}",
 	}
