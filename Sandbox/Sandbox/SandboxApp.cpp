@@ -5,6 +5,7 @@
 #include <GLRenderer/GLFW/GLFWWindow.h>
 #include <GLRenderer/GLFW/GLFWWindowManager.h>
 #include <GLRenderer/GLFW/GLFWWindowFactory.h>
+#include <GLRenderer/GLFW/OpenGLWindowInfo.h>
 
 #include <Utils/Logging/Logging.h>
 #include <Utils/Logging/ILogger.h>
@@ -15,7 +16,7 @@ int main(int args, char** argv) {
 	logging.AddLogger(new Utils::Logging::C_CoutLogger());
 	//logging.AddLogger(new Core::Logging::C_FileLogger("log.txt"));
 
-	Core::S_OpenGLWindowInfo info(640, 480);
+	GLEngine::GLRenderer::GLFW::S_OpenGLWindowInfo info(640, 480);
 	info.m_name = "My title";
 	info.m_WindowClass = "ExperimentWindow";
 	info.m_MinorVersion = 0;

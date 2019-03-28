@@ -2,6 +2,7 @@
 
 #include <GLRenderer/GLFW/GLFWoGLWindow.h>
 
+#include <GLRenderer/GLFW/OpenGLWindowInfo.h>
 #include <Renderer/IRenderer.h>
 
 #include <GLRenderer/OGLRenderer.h>
@@ -29,7 +30,7 @@ void C_GLFWoGLWindow::Update()
 void C_GLFWoGLWindow::Init(const Core::S_WindowInfo& wndInfo)
 {
 	// TODO: add assert here
-	const auto wndInfoOGL = dynamic_cast<const Core::S_OpenGLWindowInfo*>(&wndInfo);
+	const auto wndInfoOGL = dynamic_cast<const S_OpenGLWindowInfo*>(&wndInfo);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, wndInfoOGL->m_MajorVersion);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, wndInfoOGL->m_MinorVersion);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);

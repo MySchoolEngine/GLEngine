@@ -23,18 +23,6 @@ struct S_WindowInfo {
 };
 
 //=================================================================================
-struct S_OpenGLWindowInfo : public S_WindowInfo {
-	S_OpenGLWindowInfo(unsigned int width, unsigned int height)
-		: S_WindowInfo(width, height) {}
-	unsigned int m_MajorVersion = 4;
-	unsigned int m_MinorVersion = 3;
-
-	virtual E_Driver GetDriver() const override {
-		return S_WindowInfo::E_Driver::OpenGL;
-	}
-};
-
-//=================================================================================
 struct S_VulkanWindowInfo : public S_WindowInfo {
 	virtual E_Driver GetDriver() const override {
 		return S_WindowInfo::E_Driver::Vulkan;
