@@ -1,3 +1,5 @@
+#include <EntityStdafx.h>
+
 #include <Entity/World.h>
 
 #include <Physics/Primitives/Frustum.h>

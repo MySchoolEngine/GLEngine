@@ -5,32 +5,20 @@ project "Entity"
 	language "C++"
 	staticruntime "off"
 
-	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("../obj/" .. outputdir .. "/%{prj.name}")
-
-	files
-	{
-		"Entity/**.h",
-		"Entity/**.cpp",
-		"Entity/**.inl",
-		"premake5.lua",
-	}
+	SetupProject("Entity")
+	
+	PrecompiledHeaders("Entity")
+	
+	Link("Physics")
+	Link("Utils")
 
 	includedirs
 	{
-		".",
 		"../%{IncludeDir.GLM}",
 		"../Core",
-		"../Physics",
 		"../vendor/fmt/include",
 	}
-
-
-	links
-	{
-		"Physics",
-	}
-
+	
 	filter "system:windows"
 		cppdialect "C++17"
 		systemversion "latest"
