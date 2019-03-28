@@ -6,6 +6,7 @@
 
 #include <GLRenderer/Commands/GLClear.h>
 #include <GLRenderer/Commands/GlClearColor.h>
+#include <GLRenderer/Commands/GLCullFace.h>
 #include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
 
 #include <GLRenderer/Shaders/ShaderManager.h>
@@ -52,21 +53,32 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 
 
 	m_FrameConstUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>("frameConst");
+
+
+	glEnable(GL_DEPTH_TEST);
+	{
+		using namespace Commands;
+		m_renderer->AddCommand(
+			std::move(
+				std::make_unique<C_GLClearColor>(glm::vec3(0.0f, 0.0f, 0.0f))
+			)
+		);
+		m_renderer->AddCommand(
+			std::move(
+				std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::FrontAndBack)
+			)
+		);
+
+	}
 }
 
 //=================================================================================
 void C_ExplerimentWindow::Update()
 {
 	Shaders::C_ShaderManager::Instance().Update();
-	auto red = rand() % 255;
 
 	{
 		using namespace Commands;
-		m_renderer->AddCommand(
-			std::move(
-				std::make_unique<C_GLClearColor>(glm::vec3(/*static_cast<float>(red) / 255.0f*/ 0.0f, 0.0f, 0.0f))
-			)
-		);
 		m_renderer->AddCommand(
 			std::move(
 				std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Stencil)
@@ -90,8 +102,6 @@ void C_ExplerimentWindow::Update()
 	m_OrbitalCamera->adjustOrientation(0.1f, 0.1f);
 	m_OrbitalCamera->update();
 
-	glCullFace(GL_FRONT_AND_BACK);
-	glEnable(GL_DEPTH_TEST);
 	glViewport(0, 0, 640, 480);
 
 	m_FrameConstUBO->SetViewProjection(m_OrbitalCamera->GetViewProjectionMatrix());
