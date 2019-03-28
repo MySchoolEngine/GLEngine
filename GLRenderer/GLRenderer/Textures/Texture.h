@@ -13,12 +13,6 @@
 
 #pragma once
 
-#include <glm/glm.hpp>
-
-#include <glad/glad.h>
-
-#include <string>
-
 namespace GLEngine {
 namespace GLRenderer {
 namespace Textures {
