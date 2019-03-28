@@ -1,6 +1,5 @@
 #pragma once
 
-//#include "TextureLoader.hpp"
 #include <GLRenderer/MeshLoading/ModelLoader.h>
 #include <GLRenderer/MeshLoading/Scene.h>
 

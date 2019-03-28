@@ -1,5 +1,6 @@
 #include <GLRendererStdafx.h>
 
+//#include "TextureLoader.hpp"
 #include <GLRenderer/MeshLoading/SceneLoader.h>
 #include <GLRenderer/MeshLoading/ModelLoader.h>
 
