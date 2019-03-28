@@ -91,6 +91,8 @@ void C_ExplerimentWindow::Update()
 	m_OrbitalCamera->update();
 
 	glCullFace(GL_FRONT_AND_BACK);
+	glEnable(GL_DEPTH_TEST);
+	glViewport(0, 0, 640, 480);
 
 	m_FrameConstUBO->SetViewProjection(m_OrbitalCamera->GetViewProjectionMatrix());
 	m_FrameConstUBO->SetCameraPosition(glm::vec4(m_OrbitalCamera->GetPosition(), 1.0f));
