@@ -36,7 +36,10 @@ public:
 	bool IsColliding(const S_Sphere& other) const;
 	void Transform(const glm::mat4& matrix);
 
+#pragma warning(push)
+#pragma warning( disable : 4251)
 	glm::vec3	m_position;
+#pragma warning(pop)
 	float		m_radius;
 };
 }

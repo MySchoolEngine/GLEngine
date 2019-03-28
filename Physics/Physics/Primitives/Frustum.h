@@ -56,9 +56,12 @@ public:
 	float			GetFov() const { return m_fov; }
 	void			SetFov(float val) { m_fov = val; }
 private:
+#pragma warning(push)
+#pragma warning( disable : 4251)
 	glm::vec3	m_position;
 	glm::vec3	m_upVector;
 	glm::vec3	m_foreward;
+#pragma warning(pop)
 	float		m_near;
 	float		m_far;
 	float		m_aspect;
