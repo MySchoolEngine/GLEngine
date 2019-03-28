@@ -32,6 +32,7 @@ void C_GLFWoGLWindow::Init(const Core::S_WindowInfo& wndInfo)
 	const auto wndInfoOGL = dynamic_cast<const Core::S_OpenGLWindowInfo*>(&wndInfo);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, wndInfoOGL->m_MajorVersion);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, wndInfoOGL->m_MinorVersion);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	C_GLFWWindow::Init(wndInfo);
 	glfwMakeContextCurrent(m_Window);
