@@ -12,5 +12,6 @@
 #include <regex>
 #include <stack>
 #include <exception>
+#include <map>
 
 #include <glm/glm.hpp>
