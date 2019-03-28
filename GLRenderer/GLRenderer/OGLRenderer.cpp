@@ -30,7 +30,7 @@ C_OGLRenderer::~C_OGLRenderer()
 //=================================================================================
 void C_OGLRenderer::AddCommand(Renderer::I_Renderer::T_CommandPtr command)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	m_CommandQueue->emplace_back(std::move(command));
 }
 
 //=================================================================================
@@ -60,13 +60,15 @@ void C_OGLRenderer::TransformData()
 //=================================================================================
 void C_OGLRenderer::Commit() const
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	for (auto& command : (*m_CommandQueue)) {
+		command->Commit();
+	}
 }
 
 //=================================================================================
 void C_OGLRenderer::ClearCommandBuffers()
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	m_CommandQueue->clear();
 }
 
 }
