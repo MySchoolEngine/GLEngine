@@ -21,7 +21,7 @@ inline int C_ShaderProgram::FindLocation(const char* name)
 	}
 
 	if (location < 0) {
-		CORE_LOG(E_Level::Info, E_Context::Render, "Program '%s' doesn't have uniform: %s", m_name, name);
+		CORE_LOG(E_Level::Info, E_Context::Render, "Program '{}' doesn't have uniform: {}", m_name, name);
 	}
 
 	return location;
@@ -44,7 +44,7 @@ inline int C_ShaderProgram::FindLocation(const std::string& name)
 	}
 
 	if (location < 0) {
-		CORE_LOG(E_Level::Info, E_Context::Render, "Program '%s' doesn't have uniform: %s", m_name, name);
+		CORE_LOG(E_Level::Info, E_Context::Render, "Program '{}' doesn't have uniform: {}", m_name, name);
 	}
 
 	return location;

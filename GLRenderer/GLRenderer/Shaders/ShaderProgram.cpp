@@ -26,7 +26,7 @@ C_ShaderProgram::~C_ShaderProgram()
 {
 	glDeleteProgram(m_Program);
 
-	CORE_LOG(E_Level::Info, E_Context::Render, "Deleting program: %d", m_Program);
+	CORE_LOG(E_Level::Info, E_Context::Render, "Deleting program: {}", m_Program);
 	//DestructorFullCheck();
 }
 

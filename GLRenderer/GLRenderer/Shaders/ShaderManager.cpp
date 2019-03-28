@@ -60,7 +60,7 @@ void C_ShaderManager::Update()
 			}
 			catch (...)
 			{
-				CORE_LOG(E_Level::Error, E_Context::Render, "Unable to reload shader %s so we keep it outdated", program.first);
+				CORE_LOG(E_Level::Error, E_Context::Render, "Unable to reload shader {} so we keep it outdated", program.first);
 			}
 		}
 		m_LastUpdate = currentTime;
@@ -81,9 +81,9 @@ C_ShaderManager::T_ShaderPtr C_ShaderManager::GetProgram(const std::string& name
 	}
 
 	T_ShaderPtr shaderProgram = std::make_shared<C_ShaderProgram>(program);
+	shaderProgram->SetName(name);
 
-	/*C_UniformBuffersManager::Instance().ProcessUBOBindingPoints(shaderProgram);
-	shaderProgram->SetName(name);*/
+	/*C_UniformBuffersManager::Instance().ProcessUBOBindingPoints(shaderProgram);*/
 
 	m_Programs.insert({ name, shaderProgram });
 
@@ -192,7 +192,7 @@ GLuint C_ShaderManager::LoadProgram(const std::string& name) const
 	pugi::xml_document doc;
 
 	if (!LoadDoc(doc, name)) {
-		CORE_LOG(E_Level::Error, E_Context::Render, "Can't open config file for shader name: %s", name);
+		CORE_LOG(E_Level::Error, E_Context::Render, "Can't open config file for shader name: {}", name);
 		return 0;
 	}
 
