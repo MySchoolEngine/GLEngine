@@ -11,12 +11,6 @@
  
 #pragma once
 
-#include <string>
-#include <cstdarg>
-#include <sstream>
-#include <vector>
-
-
 namespace GLEngine {
 namespace GLRenderer {
 namespace Shaders {

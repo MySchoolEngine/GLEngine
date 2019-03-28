@@ -2,8 +2,6 @@
 
 #include <Renderer/IResource.h>
 
-#include <glad/glad.h>
-
 namespace GLEngine {
 namespace GLRenderer {
 namespace Shaders {

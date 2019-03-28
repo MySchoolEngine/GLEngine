@@ -4,12 +4,6 @@
 
 #include <GLRenderer/Buffers/UniformBuffer.h>
 
-//#include "Debug/Debug.h"
-
-#include <glad/glad.h>
-
-#include <iostream>
-
 namespace GLEngine {
 namespace GLRenderer {
 namespace Shaders {
@@ -27,7 +21,6 @@ C_ShaderProgram::~C_ShaderProgram()
 	glDeleteProgram(m_Program);
 
 	CORE_LOG(E_Level::Info, E_Context::Render, "Deleting program: {}", m_Program);
-	//DestructorFullCheck();
 }
 
 //=================================================================================

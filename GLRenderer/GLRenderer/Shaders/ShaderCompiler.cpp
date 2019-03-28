@@ -3,8 +3,6 @@
 #include <GLRenderer/Shaders/ShaderCompiler.h>
 #include <GLRenderer/Shaders/ShaderPreprocessor.h>
 
-//#include "Debug/Debug.h"
-
 namespace GLEngine {
 namespace GLRenderer {
 namespace Shaders {

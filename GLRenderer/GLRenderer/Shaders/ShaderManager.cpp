@@ -4,7 +4,7 @@
 
 
 #include <GLRenderer/Shaders/ShaderProgram.h>
-/*#include "Shaders/UniformBuffersManager.h"*/
+#include <GLRenderer/Buffers/UniformBuffersManager.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -18,15 +18,21 @@
 
 #include <pugixml.hpp>
 
-#include <iostream>
-#include <sstream>
-
 
 namespace GLEngine {
 namespace GLRenderer {
 namespace Shaders {
 //=================================================================================
 const std::string C_ShaderManager::s_ShadersFolder = "shaders/";
+
+//=================================================================================
+C_ShaderManager::C_ShaderManager()
+	: m_Timeout(std::chrono::seconds(1))
+	, m_LastUpdate(std::chrono::system_clock::now())
+	, m_Compiler()
+{
+
+}
 
 //=================================================================================
 C_ShaderManager & C_ShaderManager::Instance()
@@ -56,7 +62,7 @@ void C_ShaderManager::Update()
 			try
 			{
 				program.second.swap(std::make_shared<C_ShaderProgram>(LoadProgram(program.first)));
-				//C_UniformBuffersManager::Instance().ProcessUBOBindingPoints(program.second);
+				Buffers::C_UniformBuffersManager::Instance().ProcessUBOBindingPoints(program.second);
 			}
 			catch (...)
 			{
@@ -83,7 +89,7 @@ C_ShaderManager::T_ShaderPtr C_ShaderManager::GetProgram(const std::string& name
 	T_ShaderPtr shaderProgram = std::make_shared<C_ShaderProgram>(program);
 	shaderProgram->SetName(name);
 
-	/*C_UniformBuffersManager::Instance().ProcessUBOBindingPoints(shaderProgram);*/
+	Buffers::C_UniformBuffersManager::Instance().ProcessUBOBindingPoints(shaderProgram);
 
 	m_Programs.insert({ name, shaderProgram });
 
@@ -128,15 +134,6 @@ std::string C_ShaderManager::ShadersStatistics() const
 		ss << "->\tHas stages:" << std::endl;
 	}
 	return ss.str();
-}
-
-//=================================================================================
-C_ShaderManager::C_ShaderManager()
-	: m_Timeout(std::chrono::seconds(1))
-	, m_LastUpdate(std::chrono::system_clock::now())
-	, m_Compiler()
-{
-
 }
 
 //=================================================================================

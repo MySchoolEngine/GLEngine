@@ -13,8 +13,6 @@
 
 #include <GLRenderer/Shaders/ShaderCompiler.h>
 
-//#include <pugixml/pugixml.hpp>
-
 #include <map>
 #include <string>
 #include <memory>
