@@ -25,15 +25,10 @@ class I_Resource {
 public:
 	virtual ~I_Resource() = default;
 
-	inline std::shared_ptr<I_RenderableComponent> GetComponent() const { return m_Component; };
-	inline void SetComponent(std::shared_ptr<I_RenderableComponent> component) { m_Component = component; }
 	virtual std::unique_ptr<I_RawGPUData> ExtractData() const = 0;
 
 	virtual void Invalidate() = 0;
 	virtual bool IsValid() = 0;
-
-protected:
-	std::shared_ptr<I_RenderableComponent> m_Component;
 };
 
 // leave it here for documentation

@@ -20,7 +20,10 @@ project "Renderer"
 	{
 		".",
 		"../Core",
+		"../GLRenderer",
 		"../Entity",
+		"../Physics",
+		"../%{IncludeDir.GLM}",
 		"../vendor/fmt/include",
 	}
 
@@ -32,6 +35,11 @@ project "Renderer"
 		{
 			"CORE_PLATFORM=CORE_PLATFORM_WIN",
 			"BUILD_DLL",
+		}
+
+		postbuildcommands
+		{
+			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")
 		}
 
 	filter "configurations:Debug"

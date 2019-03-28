@@ -10,3 +10,6 @@
 [submodule "vendor/pugixml"]
 	path = vendor/pugixml
 	url = https://github.com/zeux/pugixml
+[submodule "vendor/Assimp"]
+	path = vendor/Assimp
+	url = https://github.com/assimp/assimp

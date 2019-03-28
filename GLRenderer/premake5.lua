@@ -7,29 +7,50 @@ project "GLRenderer"
 
 	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("../obj/" .. outputdir .. "/%{prj.name}")
+	
+	pchheader "GLRendererStdafx.h"
+	pchsource "GLRendererStdafx.cpp"
 
 	files
 	{
 		"GLRenderer/**.h",
 		"GLRenderer/**.cpp",
 		"GLRenderer/**.inl",
+		"GLRendererStdafx.cpp",
+		"GLRendererStdafx.h",
 		"premake5.lua",
 	}
 
 	includedirs
 	{
 		".",
-		"../Core",
 		"../Renderer",
+		"../Entity",
+		"../Utils",
+		"../Physics",
+		"../Core",
+		"../%{IncludeDir.GLFW}",
+		"../%{IncludeDir.Glad}",
 		"../%{IncludeDir.GLM}",
-		"../vendor/fmt/include",
+		"../%{IncludeDir.pugixml}",
+		"../%{IncludeDir.fmt}",
+
+		"../vendor/AssimpPrebuild/include",
 	}
 
 	links 
 	{ 
 		"GLFW",
 		"Glad",
+		"Physics",
 		"opengl32.lib",
+		"pugixml",
+		"../vendor/AssimpPrebuild/lib/assimp.lib",
+
+		"Entity",
+		"Utils",
+		"Renderer",
+		"Core",
 	}
 
 	filter "system:windows"
@@ -40,6 +61,11 @@ project "GLRenderer"
 		{
 			"CORE_PLATFORM=CORE_PLATFORM_WIN",
 			"BUILD_DLL",
+		}
+
+		postbuildcommands
+		{
+			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")
 		}
 
 	filter "configurations:Debug"

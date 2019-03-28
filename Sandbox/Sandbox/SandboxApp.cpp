@@ -2,20 +2,26 @@
 
 #include <Core/CoreMacros.h>
 
-#include <Core/GLFW/GLFWWindow.h>
-#include <Core/GLFW/GLFWWindowManager.h>
-#include <Core/Logging/Logging.h>
-#include <Core/Logging/ILogger.h>
+#include <GLRenderer/GLFW/GLFWWindow.h>
+#include <GLRenderer/GLFW/GLFWWindowManager.h>
+#include <GLRenderer/GLFW/GLFWWindowFactory.h>
+
+#include <Utils/Logging/Logging.h>
+#include <Utils/Logging/ILogger.h>
+#include <Utils/Logging/LoggingMacros.h>
 
 int main(int args, char** argv) {
-	auto& logging = Core::Logging::C_LoggingSystem::Instance();
-	logging.AddLogger(new Core::Logging::C_CoutLogger());
+	auto& logging = Utils::Logging::C_LoggingSystem::Instance();
+	logging.AddLogger(new Utils::Logging::C_CoutLogger());
 	//logging.AddLogger(new Core::Logging::C_FileLogger("log.txt"));
 
 	Core::S_OpenGLWindowInfo info(640, 480);
 	info.m_name = "My title";
+	info.m_WindowClass = "ExperimentWindow";
+	info.m_MinorVersion = 0;
 
-	Core::I_WindowManager* wmng = new Core::GLFW::C_GLFWWindowManager();
+	Core::I_WindowManager* wmng = GLEngine::GLRenderer::GLFW::ConstructGLFWManager();
+	wmng->AddWindowFactory(GLEngine::GLRenderer::GLFW::ConstructGLFWWindowFactory());
 	wmng->OpenNewWindow(info);
 
 	while (wmng->NumWindows()) {
