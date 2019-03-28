@@ -6,6 +6,7 @@ namespace Logging {
 enum class E_Context {
 	Core,
 	Render,
+	Entity,
 };
 
 enum class E_Level {
