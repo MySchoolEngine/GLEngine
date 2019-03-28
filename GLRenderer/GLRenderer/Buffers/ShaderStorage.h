@@ -23,7 +23,7 @@ class C_ShaderStorageBuffer
 	: public C_GLBuffer<GL_SHADER_STORAGE_BUFFER> {
 public:
 	C_ShaderStorageBuffer(int bindingPoint);
-	virtual ~C_ShaderStorageBuffer() {};
+	virtual ~C_ShaderStorageBuffer() = default;
 	virtual void UploadData() const = 0;
 	virtual void DownloadData() = 0;
 	virtual void ClearBuffer() = 0;

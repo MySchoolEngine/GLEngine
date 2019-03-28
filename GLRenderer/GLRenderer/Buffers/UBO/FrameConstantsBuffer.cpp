@@ -2,14 +2,14 @@
 
 #include <GLRenderer/Buffers/UBO/FrameConstantsBuffer.h>
 
-#include "FrameConstantsBuffer.h"
-#include "glm\gtc\type_ptr.hpp"
+#include <glm\gtc\type_ptr.hpp>
 
 
 namespace GLEngine {
 namespace GLRenderer {
 namespace Buffers {
 namespace UBO {
+
 //=================================================================================
 C_FrameConstantsBuffer::C_FrameConstantsBuffer(const std::string& blockName, unsigned int index)
 	: C_UniformBuffer(blockName, index)

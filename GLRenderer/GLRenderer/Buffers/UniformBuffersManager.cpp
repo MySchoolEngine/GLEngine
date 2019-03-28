@@ -36,7 +36,6 @@ void C_UniformBuffersManager::PrintStatistics() const
 void C_UniformBuffersManager::Clear()
 {
 	m_UBOs.clear();
-//	DestructorFullCheck();
 }
 
 //=================================================================================

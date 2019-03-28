@@ -49,7 +49,7 @@ public:
 
 	//Singleton stuff
 	C_UniformBuffersManager(C_UniformBuffersManager const&) = delete;
-	void operator=(C_UniformBuffersManager const&) = delete;
+	void operator=(C_UniformBuffersManager const&)			= delete;
 	static C_UniformBuffersManager& Instance();
 
 	void PrintStatistics() const;
