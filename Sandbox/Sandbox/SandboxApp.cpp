@@ -17,7 +17,7 @@
 
 
 
-class SandboxApp : public Core::C_Application {
+class SandboxApp : public GLEngine::Core::C_Application {
 public:
 	//=================================================================================
 	virtual void Init() override
@@ -38,14 +38,14 @@ public:
 protected:
 
 	//=================================================================================
-	virtual Core::I_WindowManager& GetWndMgr() const override
+	virtual GLEngine::Core::I_WindowManager& GetWndMgr() const override
 	{
 		return *m_WndMgr;
 	}
 private:
-	Core::I_WindowManager* m_WndMgr;
+	GLEngine::Core::I_WindowManager* m_WndMgr;
 };
 
-Core::C_Application* Core::CreateApplication() {
+GLEngine::Core::C_Application* GLEngine::Core::CreateApplication() {
 	return new SandboxApp();
 }

@@ -3,6 +3,7 @@
 #include <Core/IWindowManager.h>
 
 
+namespace GLEngine {
 namespace Core {
 
 //=================================================================================
@@ -40,4 +41,4 @@ std::shared_ptr<Core::I_Window> I_WindowManager::ConstructWindow(const S_WindowI
 	return nullptr;
 }
 
-}
+}}

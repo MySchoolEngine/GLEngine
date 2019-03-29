@@ -4,6 +4,7 @@
 
 #include <Core/IWindowManager.h>
 
+namespace GLEngine {
 namespace Core {
 
 C_Application* C_Application::s_Instance = nullptr;
@@ -30,4 +31,4 @@ void C_Application::Run()
 	}
 }
 
-}
+}}

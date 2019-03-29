@@ -1,12 +1,12 @@
 #pragma once
 
 #include <string>
-
+namespace GLEngine {
 namespace Core {
 
 //=================================================================================
 struct S_WindowInfo {
-	S_WindowInfo(unsigned int width, unsigned int height) 
+	S_WindowInfo(unsigned int width, unsigned int height)
 		: m_width(width)
 		, m_height(height) {}
 	std::string m_name;
@@ -28,5 +28,4 @@ struct S_VulkanWindowInfo : public S_WindowInfo {
 		return S_WindowInfo::E_Driver::Vulkan;
 	}
 };
-}
-
+}}

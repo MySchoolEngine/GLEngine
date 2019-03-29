@@ -8,6 +8,7 @@
 
 #include <string>
 
+namespace GLEngine {
 namespace Core {
 /************************************************************************/
 /* Represents single window on screen                                   */
@@ -25,7 +26,7 @@ public:
 	 * @fullName:  Core::I_Window::Init
 	 * @return:    void
 	 * @param: 	   const S_WindowInfo & - should be corresponding subcalss
-	 * @brief	   
+	 * @brief
 	 ** ==============================================*/
 	virtual void Init(const S_WindowInfo& wndInfo) = 0;
 	virtual void SetTitle(const std::string& title) = 0;
@@ -34,4 +35,4 @@ public:
 protected:
 	virtual void Destroy() = 0;
 };
-}
+}}

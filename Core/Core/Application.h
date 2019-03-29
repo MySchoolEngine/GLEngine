@@ -2,6 +2,7 @@
 
 #include <Core/CoreMacros.h>
 
+namespace GLEngine {
 namespace Core {
 
 class I_WindowManager;
@@ -27,4 +28,4 @@ private:
 // To be defined in CLIENT
 C_Application* CreateApplication();
 
-};
+}}
