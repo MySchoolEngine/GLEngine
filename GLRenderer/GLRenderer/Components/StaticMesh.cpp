@@ -27,7 +27,7 @@ C_StaticMesh::C_StaticMesh(std::string meshFile)
 	auto scene = std::make_shared<Mesh::Scene>();
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
-	if (!sl->addModelFromFileToScene("Models", "scene.obj", scene, modelMatrix))
+	if (!sl->addModelFromFileToScene("Models", m_meshFile.c_str(), scene, modelMatrix))
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}", "Models/scene.obj");
 		return;

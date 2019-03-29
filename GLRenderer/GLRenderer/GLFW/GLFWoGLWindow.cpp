@@ -46,6 +46,12 @@ void C_GLFWoGLWindow::Init(const Core::S_WindowInfo& wndInfo)
 	CORE_LOG(E_Level::Info, E_Context::Render, "GLFW: OpenGL window initialized");
 }
 
+//=================================================================================
+const std::unique_ptr<GLEngine::Renderer::I_Renderer>& C_GLFWoGLWindow::GetRenderer() const
+{
+	return m_renderer;
+}
+
 }
 }
 }

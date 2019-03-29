@@ -12,7 +12,7 @@ enum class E_ComponentType {
 	Graphical,
 };
 
-class I_Entity {
+class API_EXPORT I_Entity {
 public:
 	virtual ~I_Entity() = default;
 	virtual std::shared_ptr<I_Component> GetComponent(E_ComponentType type) const = 0;

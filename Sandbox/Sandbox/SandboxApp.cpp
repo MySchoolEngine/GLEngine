@@ -40,7 +40,7 @@ public:
 	//=================================================================================
 	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetActiveRenderer() const override
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		return m_MainWindow->GetRenderer();
 	}
 
 protected:
