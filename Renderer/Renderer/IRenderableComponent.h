@@ -17,5 +17,11 @@ namespace Renderer {
 
 	};
 }
+
+template<>
+class ComponenetBase<Entity::E_ComponentType::Graphical> {
+public:
+	using type = Renderer::I_RenderableComponent;
+};
 }
 
