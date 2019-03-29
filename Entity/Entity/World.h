@@ -23,6 +23,7 @@ class API_EXPORT C_World {
 public:
 	C_World();
 	~C_World();
+	std::shared_ptr<I_Entity> GetEntity(I_Entity::EntityID id) const;
 	std::vector<std::shared_ptr<I_Entity>> GetEntities(Physics::Primitives::C_Frustum frust);
 	void AddEntity(std::shared_ptr<I_Entity> entity);
 

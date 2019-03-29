@@ -15,12 +15,17 @@
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
 
 #include <GLRenderer/Components/StaticMesh.h>
+#include <Entity/IComponent.h>
 
 #include <Entity/BasicEntity.h>
 
 #include <memory>
 #include <iomanip>
 #define ErrorCheck() _glErrorCheck(__FILE__, __LINE__)
+
+
+
+
 
 //=================================================================================
 const char* glErrorCodeToString(unsigned int code) {
@@ -73,11 +78,6 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	glfwMakeContextCurrent(m_Window);
 	program = Shaders::C_ShaderManager::Instance().GetProgram("basic-planes");
 
-	m_OrbitalCamera = std::make_shared<Cameras::C_OrbitalCamera>();
-	m_OrbitalCamera->setupCameraProjection(0.1f, 2 * (10.0f), static_cast<float>(wndInfo.m_width)/ static_cast<float>(wndInfo.m_height), 90.0f);
-	m_OrbitalCamera->setupCameraView(10.0f, glm::vec3(0.0f),90,0);
-	m_OrbitalCamera->update();
-
 	m_FrameConstUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>("frameConst");
 
 	{
@@ -96,7 +96,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	}
 
 
-	SetupWorld();
+	SetupWorld(wndInfo);
 }
 
 //=================================================================================
@@ -114,29 +114,38 @@ void C_ExplerimentWindow::Update()
 		);
 	}
 
-	auto entitiesInView = m_World.GetEntities(m_OrbitalCamera->GetFrustum());
-	for (auto& entity : entitiesInView)
-	{
-		if (auto& graphicComponent = entity->GetComponent(Entity::E_ComponentType::Graphical)) {
-			auto renderable = std::static_pointer_cast<Renderer::I_RenderableComponent>(graphicComponent);
-			renderable->PerformDraw();
-		}
+	auto playerPtr = m_Player.lock();
+	if (!playerPtr) {
+		CORE_LOG(E_Level::Error, E_Context::Render, "Player expiretd!");
+		return;
+	}
+
+	auto cameraComponent = playerPtr->GetComponent<Entity::E_ComponentType::Camera>();
+	if (!cameraComponent) {
+		return;
 	}
 
 
+	auto entitiesInView = m_World.GetEntities(cameraComponent->GetFrustum());
+	for (auto& entity : entitiesInView)
+	{
+		if (auto renderable = entity->GetComponent<Entity::E_ComponentType::Graphical>()) {
+			renderable->PerformDraw();
+		}
+	}
 
 	Shaders::C_ShaderManager::Instance().ActivateShader(program);
 
 	program->SetUniform("modelMatrix", glm::mat4(1.0f));
 	program->SetUniform("modelColor", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
-	m_OrbitalCamera->adjustOrientation(0.1f, 0.1f);
-	m_OrbitalCamera->update();
+	std::static_pointer_cast<Cameras::C_OrbitalCamera>(cameraComponent)->adjustOrientation(0.1f, 0.1f);
+	std::static_pointer_cast<Cameras::C_OrbitalCamera>(cameraComponent)->update();
 
 	glViewport(0, 0, GetWidth(), GetHeight());
 
-	m_FrameConstUBO->SetViewProjection(m_OrbitalCamera->GetViewProjectionMatrix());
-	m_FrameConstUBO->SetCameraPosition(glm::vec4(m_OrbitalCamera->GetPosition(), 1.0f));
+	m_FrameConstUBO->SetViewProjection(cameraComponent->GetViewProjectionMatrix());
+	m_FrameConstUBO->SetCameraPosition(glm::vec4(cameraComponent->GetPosition(), 1.0f));
 	m_FrameConstUBO->UploadData();
 	m_FrameConstUBO->Activate(true);
 
@@ -151,11 +160,23 @@ void C_ExplerimentWindow::Update()
 }
 
 //=================================================================================
-void C_ExplerimentWindow::SetupWorld()
+void C_ExplerimentWindow::SetupWorld(const Core::S_WindowInfo& wndInfo)
 {
-	auto plane = std::make_shared<Entity::C_BasicEntity>("plane");
-	m_World.AddEntity(plane);
-	plane->AddComponent(std::make_shared<Components::C_StaticMesh>("scene.obj"));
+	{
+		auto plane = std::make_shared<Entity::C_BasicEntity>("plane");
+		m_World.AddEntity(plane);
+		plane->AddComponent(std::make_shared<Components::C_StaticMesh>("scene.obj"));
+	}
+	{
+		auto player = std::make_shared<Entity::C_BasicEntity>("player");
+		m_Player = player;
+		m_World.AddEntity(player);
+		auto playerCamera = std::make_shared<Cameras::C_OrbitalCamera>();
+		playerCamera->setupCameraProjection(0.1f, 2 * (10.0f), static_cast<float>(wndInfo.m_width) / static_cast<float>(wndInfo.m_height), 90.0f);
+		playerCamera->setupCameraView(10.0f, glm::vec3(0.0f), 90, 0);
+		playerCamera->update();
+		player->AddComponent(playerCamera);
+	}
 }
 
 }
