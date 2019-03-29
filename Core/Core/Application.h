@@ -3,6 +3,11 @@
 #include <Core/CoreMacros.h>
 
 namespace GLEngine {
+
+namespace Renderer {
+class I_Renderer;
+}
+
 namespace Core {
 
 class I_WindowManager;
@@ -18,11 +23,11 @@ public:
 
 	virtual void Init() = 0;
 
-	inline static C_Application& Get() { return *s_Instance; }
+	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetActiveRenderer() const = 0;
+
+	static C_Application& Get();
 protected:
 	virtual Core::I_WindowManager& GetWndMgr() const = 0;
-private:
-	static C_Application* s_Instance;
 };
 
 // To be defined in CLIENT

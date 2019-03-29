@@ -7,7 +7,7 @@
 namespace GLEngine {
 namespace Core {
 
-C_Application* C_Application::s_Instance = nullptr;
+C_Application* s_Instance = nullptr;
 
 //=================================================================================
 C_Application::C_Application()
@@ -29,6 +29,12 @@ void C_Application::Run()
 	while (wmng.NumWindows()) {
 		wmng.Update();
 	}
+}
+
+//=================================================================================
+GLEngine::Core::C_Application& C_Application::Get()
+{
+	return *s_Instance;
 }
 
 }}

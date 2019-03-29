@@ -32,7 +32,15 @@ public:
 
 		m_WndMgr = GLEngine::GLRenderer::GLFW::ConstructGLFWManager();
 		m_WndMgr->AddWindowFactory(GLEngine::GLRenderer::GLFW::ConstructGLFWWindowFactory());
-		m_WndMgr->OpenNewWindow(info);
+		m_MainWindow = m_WndMgr->OpenNewWindow(info);
+	}
+
+
+
+	//=================================================================================
+	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetActiveRenderer() const override
+	{
+		throw std::logic_error("The method or operation is not implemented.");
 	}
 
 protected:
@@ -44,6 +52,7 @@ protected:
 	}
 private:
 	GLEngine::Core::I_WindowManager* m_WndMgr;
+	std::shared_ptr<GLEngine::Core::I_Window> m_MainWindow;
 };
 
 GLEngine::Core::C_Application* GLEngine::Core::CreateApplication() {

@@ -7,8 +7,15 @@
 #include <glm/vec2.hpp>
 
 #include <string>
+#include <memory>
 
 namespace GLEngine {
+
+namespace Renderer {
+class I_Renderer;
+}
+
+
 namespace Core {
 /************************************************************************/
 /* Represents single window on screen                                   */
@@ -32,6 +39,8 @@ public:
 	virtual void SetTitle(const std::string& title) = 0;
 
 	virtual bool WantClose() const = 0;
+
+	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetRenderer() const = 0;
 protected:
 	virtual void Destroy() = 0;
 };
