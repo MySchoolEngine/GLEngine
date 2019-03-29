@@ -1,35 +1,51 @@
-#include <iostream>
 
-#include <Core/CoreMacros.h>
 
 #include <GLRenderer/GLFW/GLFWWindow.h>
 #include <GLRenderer/GLFW/GLFWWindowManager.h>
 #include <GLRenderer/GLFW/GLFWWindowFactory.h>
 #include <GLRenderer/GLFW/OpenGLWindowInfo.h>
 
+
 #include <Utils/Logging/Logging.h>
 #include <Utils/Logging/ILogger.h>
 #include <Utils/Logging/LoggingMacros.h>
 
-int main(int args, char** argv) {
-	auto& logging = Utils::Logging::C_LoggingSystem::Instance();
-	logging.AddLogger(new Utils::Logging::C_CoutLogger());
-	//logging.AddLogger(new Core::Logging::C_FileLogger("log.txt"));
+#include <Core/Application.h>
 
-	GLEngine::GLRenderer::GLFW::S_OpenGLWindowInfo info(640, 480);
-	info.m_name = "My title";
-	info.m_WindowClass = "ExperimentWindow";
-	info.m_MinorVersion = 0;
 
-	Core::I_WindowManager* wmng = GLEngine::GLRenderer::GLFW::ConstructGLFWManager();
-	wmng->AddWindowFactory(GLEngine::GLRenderer::GLFW::ConstructGLFWWindowFactory());
-	wmng->OpenNewWindow(info);
+#include <Core/EntryPoint.h>
 
-	while (wmng->NumWindows()) {
-		wmng->Update();
+
+
+class SandboxApp : public Core::C_Application {
+public:
+	//=================================================================================
+	virtual void Init() override
+	{
+		auto& logging = Utils::Logging::C_LoggingSystem::Instance();
+		logging.AddLogger(new Utils::Logging::C_CoutLogger());
+		//logging.AddLogger(new Core::Logging::C_FileLogger("log.txt"));
+		GLEngine::GLRenderer::GLFW::S_OpenGLWindowInfo info(640, 480);
+		info.m_name = "My title";
+		info.m_WindowClass = "ExperimentWindow";
+		info.m_MinorVersion = 0;
+
+		m_WndMgr = GLEngine::GLRenderer::GLFW::ConstructGLFWManager();
+		m_WndMgr->AddWindowFactory(GLEngine::GLRenderer::GLFW::ConstructGLFWWindowFactory());
+		m_WndMgr->OpenNewWindow(info);
 	}
 
-	CORE_LOG(E_Level::Info, E_Context::Core, "App ended");
+protected:
 
-	return 0;
+	//=================================================================================
+	virtual Core::I_WindowManager& GetWndMgr() const override
+	{
+		return *m_WndMgr;
+	}
+private:
+	Core::I_WindowManager* m_WndMgr;
+};
+
+Core::C_Application* Core::CreateApplication() {
+	return new SandboxApp();
 }
