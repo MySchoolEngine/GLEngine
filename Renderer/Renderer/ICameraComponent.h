@@ -32,6 +32,7 @@ public:
 
 template<>
 class ComponenetBase<Entity::E_ComponentType::Camera> {
+public:
 	using type = Renderer::I_CameraComponent;
 };
 }
