@@ -11,15 +11,22 @@ namespace Entity {
 //=================================================================================
 C_BasicEntity::C_BasicEntity(std::string name)
 	: m_Name(std::move(name))
+	, m_Components(new std::remove_pointer<decltype(m_Components)>::type)
 {
 	CORE_LOG(E_Level::Info, E_Context::Entity, "Entity '{}' created.", m_Name);
 }
 
 //=================================================================================
+C_BasicEntity::~C_BasicEntity()
+{
+	delete m_Components;
+}
+
+//=================================================================================
 std::shared_ptr<GLEngine::Entity::I_Component> C_BasicEntity::GetComponent(E_ComponentType type) const
 {
-	auto iter = m_Components.find(type);
-	if (iter != m_Components.end()) {
+	auto iter = m_Components->find(type);
+	if (iter != m_Components->end()) {
 		return iter->second;
 	}
 
@@ -35,7 +42,7 @@ std::string C_BasicEntity::GetName() const
 //=================================================================================
 void C_BasicEntity::AddComponent(std::shared_ptr<I_Component> component)
 {
-	m_Components.insert({ component->GetType(), component });
+	m_Components->insert({ component->GetType(), component });
 }
 
 }}
