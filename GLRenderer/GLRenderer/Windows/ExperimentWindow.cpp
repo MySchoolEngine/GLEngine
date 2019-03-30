@@ -76,7 +76,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	: C_GLFWoGLWindow(wndInfo)
 {
 	glfwMakeContextCurrent(m_Window);
-	program = Shaders::C_ShaderManager::Instance().GetProgram("basic-planes");
+	program = Shaders::C_ShaderManager::Instance().GetProgram("basic");
 
 	m_FrameConstUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>("frameConst");
 
