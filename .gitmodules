@@ -13,3 +13,6 @@
 [submodule "vendor/Assimp"]
 	path = vendor/Assimp
 	url = https://github.com/assimp/assimp
+[submodule "vendor/DevIL"]
+	path = vendor/DevIL
+	url = https://github.com/DentonW/DevIL.git
