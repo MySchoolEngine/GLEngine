@@ -21,7 +21,7 @@ C_Texture::C_Texture(const std::string & name, GLenum target)
 	:C_Texture(target)
 {
 	bind();
-	//glObjectLabel(GL_TEXTURE, m_texture, static_cast<GLsizei>(name.length()), name.c_str());
+	glObjectLabel(GL_TEXTURE, m_texture, static_cast<GLsizei>(name.length()), name.c_str());
 	unbind();
 }
 

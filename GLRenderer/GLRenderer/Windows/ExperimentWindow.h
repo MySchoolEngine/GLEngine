@@ -2,6 +2,8 @@
 
 #include <GLRenderer/GLFW/GLFWoGLWindow.h>
 
+#include <GLRenderer/Textures/Texture.h>
+
 #include <Entity/World.h>
 
 namespace GLEngine {
@@ -33,7 +35,7 @@ private:
 	Entity::C_World												m_World;
 	std::weak_ptr<Entity::I_Entity>								m_Player;
 	std::shared_ptr<Buffers::UBO::C_FrameConstantsBuffer>		m_FrameConstUBO;
-
+	Textures::C_Texture											m_texture;
 };
 }
 }
