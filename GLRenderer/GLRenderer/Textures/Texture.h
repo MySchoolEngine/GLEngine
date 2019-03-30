@@ -13,10 +13,12 @@
 
 #pragma once
 
+#include <Renderer/IResource.h>
+
 namespace GLEngine {
 namespace GLRenderer {
 namespace Textures {
-class C_Texture
+class C_Texture// : public Renderer::I_Resource
 {
 public:
 	C_Texture(GLenum target = GL_TEXTURE_2D);

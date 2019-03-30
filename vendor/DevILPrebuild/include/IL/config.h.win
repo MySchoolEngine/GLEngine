@@ -6,8 +6,6 @@
 
 // Supported images formats (IL)
 
-//#define IL_NO_EXTLIBS
-
 // #define IL_NO_BLP
 // #define IL_NO_BMP
 // #define IL_NO_CUT
@@ -51,8 +49,8 @@
 // #define IL_NO_XPM
 
 #define IL_USE_JPEGLIB_UNMODIFIED 1
-//#define IL_USE_DXTC_NVIDIA
-//#define IL_USE_DXTC_SQUISH
+#define IL_USE_DXTC_NVIDIA
+#define IL_USE_DXTC_SQUISH
 
 //#define IL_NO_GAMES
 
@@ -71,10 +69,10 @@
 #undef ILUT_USE_ALLEGRO
 
 #undef ILUT_USE_DIRECTX8
-//#define ILUT_USE_DIRECTX9
-//#define ILUT_USE_DIRECTX10
+#define ILUT_USE_DIRECTX9
+#define ILUT_USE_DIRECTX10
 #define ILUT_USE_OPENGL
-//#define ILUT_USE_SDL
+#define ILUT_USE_SDL
 #define ILUT_USE_WIN32
 
 

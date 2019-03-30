@@ -51,6 +51,7 @@ group "Dependencies"
   include "vendor/GLFW"
   include "vendor/Glad"
   include "vendor/pugixmlPremake"
+  --include "vendor/DevILPremake"
 group ""
 
 include "Core"

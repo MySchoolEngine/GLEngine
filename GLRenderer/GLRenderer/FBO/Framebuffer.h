@@ -35,6 +35,6 @@ public:
 
 private:
 	GLuint m_FBO;
-	std::map<GLenum, std::shared_ptr<C_Texture>> m_attachements;
+	std::map<GLenum, std::shared_ptr<Textures::C_Texture>> m_attachements;
 };
 }}}
