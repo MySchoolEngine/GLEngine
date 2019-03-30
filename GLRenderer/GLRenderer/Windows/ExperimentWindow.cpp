@@ -11,6 +11,10 @@
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 
+#include <GLRenderer/MeshLoading/Scene.h>
+
+#include <GLRenderer/Textures/TextureLoader.h>
+
 #include <GLRenderer/Buffers/UBO/FrameConstantsBuffer.h>
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
 
@@ -83,6 +87,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 
 	{
 		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
 		using namespace Commands;
 		m_renderer->AddCommand(
 			std::move(
@@ -91,7 +96,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 		);
 		m_renderer->AddCommand(
 			std::move(
-				std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::FrontAndBack)
+				std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Front)
 			)
 		);
 	}
@@ -136,16 +141,16 @@ void C_ExplerimentWindow::Update()
 	}
 
 
-	glActiveTexture(GL_TEXTURE1);
-	m_texture.bind();
 
 	Shaders::C_ShaderManager::Instance().ActivateShader(program);
+	glActiveTexture(GL_TEXTURE0);
+	m_texture.bind();
 
-	program->SetUniform("tex", 1);
+	program->SetUniform("tex", 0);
 	program->SetUniform("modelMatrix", glm::mat4(1.0f));
-	program->SetUniform("modelColor", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	//program->SetUniform("modelColor", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
-	std::static_pointer_cast<Cameras::C_OrbitalCamera>(cameraComponent)->adjustOrientation(0.1f, 0.1f);
+	std::static_pointer_cast<Cameras::C_OrbitalCamera>(cameraComponent)->adjustOrientation(0.1f, 0.0f);
 	std::static_pointer_cast<Cameras::C_OrbitalCamera>(cameraComponent)->update();
 
 	glViewport(0, 0, GetWidth(), GetHeight());
@@ -180,22 +185,78 @@ void C_ExplerimentWindow::SetupWorld(const Core::S_WindowInfo& wndInfo)
 		auto playerCamera = std::make_shared<Cameras::C_OrbitalCamera>();
 		playerCamera->setupCameraProjection(0.1f, 2 * (10.0f), static_cast<float>(wndInfo.m_width) / static_cast<float>(wndInfo.m_height), 90.0f);
 		playerCamera->setupCameraView(10.0f, glm::vec3(0.0f), 90, 0);
+		playerCamera->adjustOrientation(20.f, 20.f);
 		playerCamera->update();
 		player->AddComponent(playerCamera);
+	}
+	{
+		// billboard
+		Mesh::Mesh billboardMesh;
+		billboardMesh.vertices.emplace_back(0, 1, 0, 1); // 1
+		billboardMesh.vertices.emplace_back(0, 0, 0, 1); // 2
+		billboardMesh.vertices.emplace_back(1, 1, 0, 1); // 3
+		billboardMesh.vertices.emplace_back(0, 0, 0, 1); // 4 = 2
+		billboardMesh.vertices.emplace_back(1, 0, 0, 1); // 5
+		billboardMesh.vertices.emplace_back(1, 1, 0, 1); // 6 = 3
+
+		billboardMesh.normals.emplace_back(0, 0, -1);
+		billboardMesh.normals.emplace_back(0, 0, -1);
+		billboardMesh.normals.emplace_back(0, 0, -1);
+		billboardMesh.normals.emplace_back(0, 0, -1);
+		billboardMesh.normals.emplace_back(0, 0, -1);
+		billboardMesh.normals.emplace_back(0, 0, -1);
+
+		billboardMesh.texcoords.emplace_back(0, 1);
+		billboardMesh.texcoords.emplace_back(0, 0);
+		billboardMesh.texcoords.emplace_back(1, 1);
+		billboardMesh.texcoords.emplace_back(0, 0);
+		billboardMesh.texcoords.emplace_back(1, 0);
+		billboardMesh.texcoords.emplace_back(1, 1);
+
+		auto plane = std::make_shared<Entity::C_BasicEntity>("plane");
+		m_World.AddEntity(plane);
+		plane->AddComponent(std::make_shared<Components::C_StaticMesh>(billboardMesh));
+	}
+	if(false){
+		Textures::TextureLoader tl;
+		Mesh::Texture t;
+		bool retval = tl.loadTexture("Models/IMG_20151115_104149.jpg", t);
+
+		if (!retval)
+			CORE_LOG(E_Level::Error, E_Context::Render, "TExture cannot be loaded");
+
+		m_texture.StartGroupOp();
+		glTexImage2D(GL_TEXTURE_2D,
+			0,
+			GL_RGB,
+			(GLsizei)t.width,
+			(GLsizei)t.height,
+			0,
+			GL_RGBA,
+			GL_UNSIGNED_BYTE,
+			t.data.get());
+		m_texture.SetDimensions({ t.width, t.height });
+		m_texture.SetWrap(GL_REPEAT, GL_REPEAT);
+		m_texture.SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+		glGenerateMipmap(m_texture.GetTarget());
+		//	ErrorCheck();
+
+		m_texture.EndGroupOp();
 	}
 
 
 	m_texture.StartGroupOp();
 	m_texture.SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-	m_texture.SetWrap(GL_REPEAT, GL_REPEAT);
+	m_texture.SetWrap(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 	GLubyte data[] = {
-		0, 0, 0, 255,
+		0, 255, 0, 255,
 		255, 0, 0, 255,
-		0, 0, 0, 255,
 		255, 0, 0, 255,
+		0, 255, 0, 255,
 	};
 	glTexImage2D(m_texture.GetTarget(), 0, GL_RGBA, 2, 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	m_texture.SetDimensions({ 2,2 });
+	glGenerateMipmap(m_texture.GetTarget());
 	m_texture.EndGroupOp();
 }
 
