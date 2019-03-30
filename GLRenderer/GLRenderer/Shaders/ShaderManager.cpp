@@ -54,7 +54,7 @@ void C_ShaderManager::Clear()
 void C_ShaderManager::Update()
 {
 	DeactivateShader();
-#if _DEBUG
+#ifdef GL_ENGINE_DEBUG
 	const auto currentTime = std::chrono::system_clock::now();
 	if (m_LastUpdate + m_Timeout < currentTime) {
 		m_ActiveShader.reset();

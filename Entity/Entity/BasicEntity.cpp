@@ -8,18 +8,28 @@
 namespace GLEngine {
 namespace Entity {
 
+static I_Entity::EntityID maxID = 0;
+
 //=================================================================================
 C_BasicEntity::C_BasicEntity(std::string name)
 	: m_Name(std::move(name))
+	, m_Components(new std::remove_pointer<decltype(m_Components)>::type)
+	, m_ID(maxID++)
 {
 	CORE_LOG(E_Level::Info, E_Context::Entity, "Entity '{}' created.", m_Name);
 }
 
 //=================================================================================
-std::shared_ptr<GLEngine::Entity::I_Component> C_BasicEntity::GetComponent(E_ComponentType type) const
+C_BasicEntity::~C_BasicEntity()
 {
-	auto iter = m_Components.find(type);
-	if (iter != m_Components.end()) {
+	delete m_Components;
+}
+
+//=================================================================================
+T_ComponentPtr C_BasicEntity::GetComponent(E_ComponentType type) const
+{
+	auto iter = m_Components->find(type);
+	if (iter != m_Components->end()) {
 		return iter->second;
 	}
 
@@ -35,7 +45,13 @@ std::string C_BasicEntity::GetName() const
 //=================================================================================
 void C_BasicEntity::AddComponent(std::shared_ptr<I_Component> component)
 {
-	m_Components.insert({ component->GetType(), component });
+	m_Components->insert({ component->GetType(), component });
+}
+
+//=================================================================================
+GLEngine::Entity::I_Entity::EntityID C_BasicEntity::GetID() const
+{
+	return m_ID;
 }
 
 }}

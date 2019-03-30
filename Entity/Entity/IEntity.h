@@ -3,6 +3,8 @@
 #include <memory>
 #include <string>
 
+#include <Entity/IComponent.h>
+
 namespace GLEngine {
 namespace Entity {
 
@@ -10,13 +12,24 @@ class I_Component;
 
 enum class E_ComponentType {
 	Graphical,
+	Camera,
 };
 
-class I_Entity {
+class API_EXPORT I_Entity {
 public:
+	// naive GUID version
+	using EntityID = unsigned int;
 	virtual ~I_Entity() = default;
-	virtual std::shared_ptr<I_Component> GetComponent(E_ComponentType type) const = 0;
+	virtual EntityID GetID() const = 0;
+	virtual T_ComponentPtr GetComponent(E_ComponentType type) const = 0;
 	virtual std::string GetName() const = 0;
+
+	template<E_ComponentType e,
+		typename retType = ComponenetBase<e>::type,
+		typename ret = std::shared_ptr<typename retType>>
+	typename ret GetComponent() {
+		return component_cast<e>(GetComponent(e));
+	}
 };
 
 }

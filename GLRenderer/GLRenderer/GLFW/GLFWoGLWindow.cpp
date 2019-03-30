@@ -34,6 +34,9 @@ void C_GLFWoGLWindow::Init(const Core::S_WindowInfo& wndInfo)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, wndInfoOGL->m_MajorVersion);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, wndInfoOGL->m_MinorVersion);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#ifdef GL_ENGINE_DEBUG
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+#endif
 
 	C_GLFWWindow::Init(wndInfo);
 	glfwMakeContextCurrent(m_Window);
@@ -41,6 +44,12 @@ void C_GLFWoGLWindow::Init(const Core::S_WindowInfo& wndInfo)
 	m_renderer = std::make_unique<GLEngine::GLRenderer::C_OGLRenderer>();
 
 	CORE_LOG(E_Level::Info, E_Context::Render, "GLFW: OpenGL window initialized");
+}
+
+//=================================================================================
+const std::unique_ptr<GLEngine::Renderer::I_Renderer>& C_GLFWoGLWindow::GetRenderer() const
+{
+	return m_renderer;
 }
 
 }

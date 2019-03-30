@@ -16,8 +16,7 @@
 // #include "render/Nodes/Scene.h"
 // #include "render/Nodes/Terrain.h"
 
-
-//#include "TextureLoader.hpp"
+#include <GLRenderer/Textures/TextureLoader.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 

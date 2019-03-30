@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 
+namespace GLEngine {
 namespace Core {
 
 class I_Window;
@@ -34,4 +35,4 @@ protected:
 private:
 	std::vector<I_WindowFactory*>* m_Facotries;
 };
-}
+}}

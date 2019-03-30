@@ -9,12 +9,13 @@
 
 namespace GLEngine {
 namespace Renderer {
+
 class I_CameraComponent : public Entity::I_Component {
 public:
 	virtual ~I_CameraComponent() = default;
 	virtual Entity::E_ComponentType GetType() const override
 	{
-		return Entity::E_ComponentType::Graphical;
+		return Entity::E_ComponentType::Camera;
 	}
 
 
@@ -28,6 +29,12 @@ public:
 	virtual Physics::Primitives::C_Frustum GetFrustum()		const = 0;
 };
 }
+
+template<>
+class ComponenetBase<Entity::E_ComponentType::Camera> {
+public:
+	using type = Renderer::I_CameraComponent;
+};
 }
 
 

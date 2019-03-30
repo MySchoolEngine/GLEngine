@@ -12,6 +12,7 @@
 #include <regex>
 #include <stack>
 #include <exception>
+#include <map>
 
 // rendering dependend things
 #include <glad/glad.h>

@@ -7,6 +7,14 @@
 #include <glm/vec2.hpp>
 
 #include <string>
+#include <memory>
+
+namespace GLEngine {
+
+namespace Renderer {
+class I_Renderer;
+}
+
 
 namespace Core {
 /************************************************************************/
@@ -25,13 +33,15 @@ public:
 	 * @fullName:  Core::I_Window::Init
 	 * @return:    void
 	 * @param: 	   const S_WindowInfo & - should be corresponding subcalss
-	 * @brief	   
+	 * @brief
 	 ** ==============================================*/
 	virtual void Init(const S_WindowInfo& wndInfo) = 0;
 	virtual void SetTitle(const std::string& title) = 0;
 
 	virtual bool WantClose() const = 0;
+
+	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetRenderer() const = 0;
 protected:
 	virtual void Destroy() = 0;
 };
-}
+}}

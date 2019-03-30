@@ -22,6 +22,14 @@ C_World::~C_World()
 }
 
 //=================================================================================
+std::shared_ptr<GLEngine::Entity::I_Entity> C_World::GetEntity(I_Entity::EntityID id) const
+{
+	return *std::find_if(m_Entities->begin(), m_Entities->end(), [id](const std::shared_ptr<I_Entity>&entity) {
+		return entity->GetID() == id;
+	});
+}
+
+//=================================================================================
 std::vector<std::shared_ptr<I_Entity>> C_World::GetEntities(Physics::Primitives::C_Frustum frust)
 {
 	return *m_Entities;

@@ -1,6 +1,6 @@
 #include <GLRendererStdafx.h>
 
-//#include "TextureLoader.hpp"
+#include <GLRenderer/Textures/TextureLoader.h>
 #include <GLRenderer/MeshLoading/SceneLoader.h>
 #include <GLRenderer/MeshLoading/ModelLoader.h>
 
@@ -26,7 +26,7 @@ bool SceneLoader::addModelFromFileToScene(const char* filepath, const char* file
 	for (auto mesh : scene->meshes)
 		scene->bbox.Add(mesh.bbox.getTransformedAABB(mesh.modelMatrix));
 
-	/*TextureLoader tl;
+	Textures::TextureLoader tl;
 
 	for (unsigned int i = 0; i < texNames.size(); ++i)
 	{
@@ -37,7 +37,7 @@ bool SceneLoader::addModelFromFileToScene(const char* filepath, const char* file
 			return false;
 
 		scene->textures.push_back(t);
-	}*/
+	}
 
 	return true;
 }

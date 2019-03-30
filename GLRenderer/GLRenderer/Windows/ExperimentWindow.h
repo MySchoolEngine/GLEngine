@@ -2,6 +2,8 @@
 
 #include <GLRenderer/GLFW/GLFWoGLWindow.h>
 
+#include <Entity/World.h>
+
 namespace GLEngine {
 namespace GLRenderer {
 
@@ -26,9 +28,11 @@ public:
 	//=================================================================================
 	virtual void Update() override;
 private:
-	std::shared_ptr<Mesh::C_StaticMeshResource>					m_Mesh;
+	void SetupWorld(const Core::S_WindowInfo& wndInfo);
+
+	Entity::C_World												m_World;
+	std::weak_ptr<Entity::I_Entity>								m_Player;
 	std::shared_ptr<Buffers::UBO::C_FrameConstantsBuffer>		m_FrameConstUBO;
-	std::shared_ptr<Cameras::C_OrbitalCamera>					m_OrbitalCamera;
 
 };
 }
