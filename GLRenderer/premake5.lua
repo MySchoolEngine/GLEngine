@@ -34,8 +34,9 @@ project "GLRenderer"
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.fmt}",
-
+		
 		"../vendor/AssimpPrebuild/include",
+		"../vendor/DevILPrebuild/include",
 	}
 
 	links 
@@ -46,6 +47,7 @@ project "GLRenderer"
 		"opengl32.lib",
 		"pugixml",
 		"../vendor/AssimpPrebuild/lib/assimp.lib",
+		"../vendor/DevILPrebuild/lib/DevIL.lib",
 
 		"Entity",
 		"Utils",

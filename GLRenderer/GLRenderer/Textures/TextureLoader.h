@@ -1,23 +1,16 @@
 #pragma once
 
-//Selects implementation
-//Either DevIL or FreeImage
-//WARNING - there is a bug in FreeImage implementation! It returns BGRA!
-#define USE_DEVIL
+#include <GLRenderer/MeshLoading/Scene.h>
 
-#include <iostream>
-#include <cstdlib>
-
-#include <IL/il.h>
-
-#include "Scene.hpp"
-
-
+namespace GLEngine {
+namespace GLRenderer {
+namespace Textures {
 class TextureLoader
 {
 public:
-    bool loadTexture(const char* path, Texture& t);
+	bool loadTexture(const char* path, Mesh::Texture& t);
 
 private:
-    static bool _isILinitialized;
+	static bool _isILinitialized;
 };
+}}}
