@@ -39,6 +39,12 @@ project "GLRenderer"
 		"../vendor/DevILPrebuild/include",
 	}
 
+	libdirs
+	{
+		"../vendor/DevILPrebuild/lib/x64/unicode/Release/",
+		"../vendor/AssimpPrebuild/lib/",
+	}
+
 	links 
 	{ 
 		"GLFW",
@@ -47,7 +53,7 @@ project "GLRenderer"
 		"opengl32.lib",
 		"pugixml",
 		"../vendor/AssimpPrebuild/lib/assimp.lib",
-		"../vendor/DevILPrebuild/lib/DevIL.lib",
+		"../vendor/DevILPrebuild/lib/x64/unicode/Release/DevIL.lib",
 
 		"Entity",
 		"Utils",
@@ -67,7 +73,8 @@ project "GLRenderer"
 
 		postbuildcommands
 		{
-			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")
+			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
+			("{COPY} \"../vendor/DevILPrebuild/lib/x64/unicode/Release/DevIL.dll\" \"../bin/" .. outputdir .. "/Sandbox/\"")
 		}
 
 	filter "configurations:Debug"

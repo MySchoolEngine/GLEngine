@@ -46,7 +46,7 @@ bool TextureLoader::loadTexture(const char* path, Mesh::Texture& t)
 
 	if (Error != IL_NO_ERROR)
 	{
-		std::wcerr << "DevIL: Failed to load image " << path << ", error: " << Error << std::endl;
+		CORE_LOG(E_Level::Error, E_Context::Render, "DevIL: Failed to load image {}, error: {}", path, Error);
 		return false;
 	}
 
