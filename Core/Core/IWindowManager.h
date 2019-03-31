@@ -2,6 +2,9 @@
 
 #include <Core/WindowInfo.h>
 
+#include <Core/EventSystem/Layer.h>
+#include <Core/Application.h>
+
 #include <memory>
 #include <vector>
 
@@ -22,9 +25,10 @@ public:
 	virtual std::shared_ptr<I_Window> GetWindow(const S_WindowInfo&) const = 0;
 };
 
-class API_EXPORT I_WindowManager {
+//=================================================================================
+class API_EXPORT I_WindowManager : public C_Layer {
 public:
-	I_WindowManager();
+	I_WindowManager(C_Application::EventCallbackFn callback);
 	virtual ~I_WindowManager();
 	virtual std::shared_ptr<I_Window> OpenNewWindow(const S_WindowInfo& info) = 0;
 	virtual void AddWindowFactory(I_WindowFactory* wf);
@@ -32,6 +36,11 @@ public:
 	virtual unsigned int NumWindows() const = 0;
 protected:
 	std::shared_ptr<I_Window> ConstructWindow(const S_WindowInfo& info) const;
+
+#pragma warning(push)
+#pragma warning( disable : 4251)
+	Core::C_Application::EventCallbackFn m_EventCallback;
+#pragma warning(pop)
 private:
 	std::vector<I_WindowFactory*>* m_Facotries;
 };
