@@ -5,7 +5,7 @@ attribute vec3 normal;
 attribute vec2 texCoord;
 
 //per frame
-#include "include/frameConstants.glsl"
+#include "../include/frameConstants.glsl"
 
 //per model
 uniform mat4 modelMatrix;
