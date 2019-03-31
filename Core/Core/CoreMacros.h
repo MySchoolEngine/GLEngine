@@ -12,3 +12,5 @@
 		#define API_EXPORT __declspec(dllimport)
 	#endif
 #endif
+
+#define BIT(x) (1 << x)
