@@ -7,8 +7,10 @@ namespace GLEngine {
 namespace Core {
 
 //=================================================================================
-I_WindowManager::I_WindowManager()
-	: m_Facotries(new std::remove_pointer<decltype(m_Facotries)>::type)
+I_WindowManager::I_WindowManager(C_Application::EventCallbackFn callback)
+	: Core::C_Layer("WindowManager")
+	, m_EventCallback(callback)
+	, m_Facotries(new std::remove_pointer<decltype(m_Facotries)>::type)
 {
 
 }

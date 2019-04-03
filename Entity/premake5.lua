@@ -11,6 +11,7 @@ project "Entity"
 	
 	Link("Physics")
 	Link("Utils")
+	Link("Core")
 
 	includedirs
 	{

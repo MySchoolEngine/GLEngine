@@ -10,7 +10,8 @@ namespace GLRenderer {
 namespace GLFW {
 
 //=================================================================================
-C_GLFWWindowManager::C_GLFWWindowManager()
+C_GLFWWindowManager::C_GLFWWindowManager(Core::C_Application::EventCallbackFn eventCallback)
+	: Core::I_WindowManager(eventCallback)
 {
 	Init();
 }
@@ -19,6 +20,7 @@ C_GLFWWindowManager::C_GLFWWindowManager()
 std::shared_ptr<Core::I_Window> C_GLFWWindowManager::OpenNewWindow(const Core::S_WindowInfo& info)
 {
 	auto window = ConstructWindow(info);
+	window->SetEventCallback(m_EventCallback);
 	m_Windows.push_back(window);
 	return window;
 }
@@ -42,6 +44,15 @@ unsigned int C_GLFWWindowManager::NumWindows() const
 }
 
 //=================================================================================
+void C_GLFWWindowManager::OnEvent(Core::I_Event& event)
+{
+	for (auto& window : m_Windows)
+	{
+		window->OnEvent(event);
+	}
+}
+
+//=================================================================================
 void C_GLFWWindowManager::Init()
 {
 	const auto error_callback = [](int error, const char* description) {
@@ -55,9 +66,9 @@ void C_GLFWWindowManager::Init()
 }
 
 //=================================================================================
-API_EXPORT Core::I_WindowManager* ConstructGLFWManager()
+API_EXPORT Core::I_WindowManager* ConstructGLFWManager(Core::C_Application::EventCallbackFn eventCallback)
 {
-	return new C_GLFWWindowManager();
+	return new C_GLFWWindowManager(eventCallback);
 }
 
 }

@@ -2,6 +2,8 @@
 
 #include <GLRenderer/GLFW/GLFWWindow.h>
 
+#include <Core/EventSystem/Event/KeyboardEvents.h>
+
 namespace GLEngine {
 namespace GLRenderer {
 namespace GLFW {
@@ -10,7 +12,7 @@ namespace GLFW {
 API_EXPORT C_GLFWWindow::C_GLFWWindow()
 	: m_Window(nullptr)
 {
-
+	m_Data.m_GUID = GetGUID();
 }
 
 //=================================================================================
@@ -73,15 +75,25 @@ void C_GLFWWindow::Init(const Core::S_WindowInfo& wndInfo)
 
 
 	CORE_LOG(E_Level::Info, E_Context::Core, "GLFW: Window initialized.");
+	glfwSetWindowUserPointer(m_Window, &m_Data);
 
 	const auto key_callback = [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+		S_Data& data = *static_cast<S_Data*>(glfwGetWindowUserPointer(window));
 		CORE_LOG(E_Level::Info, E_Context::Core, "{} {}", key, scancode);
+		Core::C_KeyPressedEvent event(key, data.m_GUID);
+		data.m_EventCallback(event);
 	};
 
 	glfwSetKeyCallback(m_Window, key_callback);
 
 	glfwMakeContextCurrent(m_Window);
 	glfwSwapInterval(1);
+}
+
+//=================================================================================
+void C_GLFWWindow::SetEventCallback(Core::C_Application::EventCallbackFn callback)
+{
+	m_Data.m_EventCallback = callback;
 }
 
 //=================================================================================

@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 
+#include <Core/GUID.h>
 #include <Entity/IComponent.h>
 
 namespace GLEngine {
@@ -18,7 +19,7 @@ enum class E_ComponentType {
 class API_EXPORT I_Entity {
 public:
 	// naive GUID version
-	using EntityID = unsigned int;
+	using EntityID = GUID;
 	virtual ~I_Entity() = default;
 	virtual EntityID GetID() const = 0;
 	virtual T_ComponentPtr GetComponent(E_ComponentType type) const = 0;
