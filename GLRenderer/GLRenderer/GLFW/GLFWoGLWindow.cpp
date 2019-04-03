@@ -59,19 +59,6 @@ const std::unique_ptr<GLEngine::Renderer::I_Renderer>& C_GLFWoGLWindow::GetRende
 //=================================================================================
 void C_GLFWoGLWindow::OnEvent(Core::I_Event& event)
 {
-	Core::C_EventDispatcher d(event);
-	d.Dispatch<Core::C_KeyPressedEvent>(std::bind(&C_GLFWoGLWindow::OnKeyPressed, this, std::placeholders::_1));
-}
-
-//=================================================================================
-bool C_GLFWoGLWindow::OnKeyPressed(Core::C_KeyPressedEvent& event)
-{
-	CORE_LOG(E_Level::Info, E_Context::Core, "Event {}", event.GetName());
-
-	if (event.GetWindowGUID() == GetGUID()) {
-		return true;
-	}
-	return false;
 }
 
 }}}

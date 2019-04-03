@@ -18,7 +18,7 @@ public:
 	virtual void OnAttach() {}
 	virtual void OnDetach() {}
 	virtual void OnUpdate() {}
-	virtual void OnEvent(I_Event& event) {}
+	virtual void OnEvent(Core::I_Event& event) {}
 
 	inline const std::string& GetName() const { return m_DebugName; }
 protected:

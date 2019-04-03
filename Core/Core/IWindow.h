@@ -25,6 +25,7 @@ namespace Core {
 /************************************************************************/
 class API_EXPORT I_Window : public C_Layer {
 public:
+	virtual ~I_Window() = default;
 	virtual unsigned int GetWidth() const = 0;
 	virtual unsigned int GetHeight() const = 0;
 	virtual glm::uvec2	 GetSize() const = 0;

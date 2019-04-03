@@ -29,6 +29,7 @@ public:
 	template<class ... Args>
 	C_KeyPressedEvent(Args&&... args) 
 		: C_KeyEvent(std::forward<Args>(args)...) {}
+
 	EVENT_CLASS_TYPE(KeyPressed);
 };
 }}
