@@ -3,6 +3,7 @@
 #include <GLRenderer/GLFW/GLFWoGLWindow.h>
 
 #include <GLRenderer/Textures/Texture.h>
+#include <GLRenderer/Mesh/TerrainMeshResource.h>
 
 #include <Entity/World.h>
 
@@ -35,6 +36,7 @@ private:
 	Entity::C_World												m_World;
 	std::weak_ptr<Entity::I_Entity>								m_Player;
 	std::shared_ptr<Buffers::UBO::C_FrameConstantsBuffer>		m_FrameConstUBO;
+	std::shared_ptr<Mesh::C_TerrainMeshResource>				m_Terrain;
 	Textures::C_Texture											m_texture;
 };
 }
