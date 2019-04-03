@@ -12,4 +12,10 @@ C_Layer::C_Layer(const std::string& name)
 
 }
 
+//=================================================================================
+void C_Layer::SetLayerDebugName(const std::string& name)
+{
+	m_DebugName = name;
+}
+
 }}

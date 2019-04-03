@@ -21,6 +21,8 @@ public:
 	virtual void OnEvent(I_Event& event) {}
 
 	inline const std::string& GetName() const { return m_DebugName; }
+protected:
+	void SetLayerDebugName(const std::string& name);
 private:
 #pragma warning(push)
 #pragma warning( disable : 4251)

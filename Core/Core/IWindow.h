@@ -4,6 +4,7 @@
 
 #include <Core/WindowInfo.h>
 #include <Core/EventSystem/Event.h>
+#include <Core/EventSystem/Layer.h>
 
 #include <glm/vec2.hpp>
 
@@ -21,7 +22,7 @@ namespace Core {
 /************************************************************************/
 /* Represents single window on screen                                   */
 /************************************************************************/
-class API_EXPORT I_Window{
+class API_EXPORT I_Window : public C_Layer {
 public:
 	virtual unsigned int GetWidth() const = 0;
 	virtual unsigned int GetHeight() const = 0;
@@ -44,15 +45,11 @@ public:
 	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetRenderer() const = 0;
 
 	inline GUID GetGUID() const { return m_ID; }
-
-	//================================================
-	// Events - no actuall need to be C_Layer
-	//================================================
-	virtual void OnEvent(Core::I_Event& event) = 0;
 protected:
 	virtual void Destroy() = 0;
 	I_Window()
-		:m_ID(NextGUID()) {}
+		: C_Layer("window")
+		, m_ID(NextGUID()) {}
 	GUID m_ID;
 };
 }}

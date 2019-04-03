@@ -16,7 +16,7 @@ namespace GLFW {
 
 //=================================================================================
 C_GLFWoGLWindow::C_GLFWoGLWindow(const Core::S_WindowInfo& wndInfo)
-	: m_renderer(nullptr)
+	:  m_renderer(nullptr)
 {
 	Init(wndInfo);
 }
@@ -40,6 +40,7 @@ void C_GLFWoGLWindow::Init(const Core::S_WindowInfo& wndInfo)
 #ifdef GL_ENGINE_DEBUG
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 #endif
+	SetLayerDebugName(wndInfo.m_name);
 
 	C_GLFWWindow::Init(wndInfo);
 	glfwMakeContextCurrent(m_Window);
