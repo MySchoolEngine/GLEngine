@@ -2,6 +2,8 @@
 
 #include <Core/IWindow.h>
 
+#include <Core/Application.h>
+
 struct GLFWwindow;
 
 namespace GLEngine {
@@ -23,10 +25,20 @@ public:
 
 	virtual void Init(const Core::S_WindowInfo& wndInfo) override;
 
+
+	//=================================================================================
+	virtual void SetEventCallback(Core::C_Application::EventCallbackFn callback) override;
+
 protected:
 	C_GLFWWindow();
 	virtual void Destroy() override;
 
+	struct S_Data {
+		Core::C_Application::EventCallbackFn m_EventCallback;
+		GUID m_GUID;
+	};
+
+	S_Data m_Data;
 
 	GLFWwindow* m_Window;
 };

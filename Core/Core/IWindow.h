@@ -5,6 +5,7 @@
 #include <Core/WindowInfo.h>
 #include <Core/EventSystem/Event.h>
 #include <Core/EventSystem/Layer.h>
+#include <Core/Application.h>
 
 #include <glm/vec2.hpp>
 
@@ -39,6 +40,7 @@ public:
 	 ** ==============================================*/
 	virtual void Init(const S_WindowInfo& wndInfo) = 0;
 	virtual void SetTitle(const std::string& title) = 0;
+	virtual void SetEventCallback(C_Application::EventCallbackFn callback) = 0;
 
 	virtual bool WantClose() const = 0;
 

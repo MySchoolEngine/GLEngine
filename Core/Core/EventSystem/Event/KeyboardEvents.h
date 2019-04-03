@@ -26,6 +26,9 @@ protected:
 //=================================================================================
 class C_KeyPressedEvent : public C_KeyEvent {
 public:
+	template<class ... Args>
+	C_KeyPressedEvent(Args&&... args) 
+		: C_KeyEvent(std::forward<Args>(args)...) {}
 	EVENT_CLASS_TYPE(KeyPressed);
 };
 }}

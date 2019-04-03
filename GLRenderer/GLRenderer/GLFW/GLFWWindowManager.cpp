@@ -20,6 +20,7 @@ C_GLFWWindowManager::C_GLFWWindowManager(Core::C_Application::EventCallbackFn ev
 std::shared_ptr<Core::I_Window> C_GLFWWindowManager::OpenNewWindow(const Core::S_WindowInfo& info)
 {
 	auto window = ConstructWindow(info);
+	window->SetEventCallback(m_EventCallback);
 	m_Windows.push_back(window);
 	return window;
 }
