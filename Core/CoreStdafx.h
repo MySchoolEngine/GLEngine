@@ -7,3 +7,6 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <functional>
+
+#include <Core/GUID.h>

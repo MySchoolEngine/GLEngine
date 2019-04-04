@@ -8,13 +8,11 @@
 namespace GLEngine {
 namespace Entity {
 
-static I_Entity::EntityID maxID = 0;
-
 //=================================================================================
 C_BasicEntity::C_BasicEntity(std::string name)
 	: m_Name(std::move(name))
 	, m_Components(new std::remove_pointer<decltype(m_Components)>::type)
-	, m_ID(maxID++)
+	, m_ID(NextGUID())
 {
 	CORE_LOG(E_Level::Info, E_Context::Entity, "Entity '{}' created.", m_Name);
 }

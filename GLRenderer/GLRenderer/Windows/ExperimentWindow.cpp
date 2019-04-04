@@ -23,6 +23,9 @@
 
 #include <Entity/BasicEntity.h>
 
+#include <Core/EventSystem/EventDispatcher.h>
+#include <Core/EventSystem/Event/KeyboardEvents.h>
+
 #include <memory>
 #include <iomanip>
 #define ErrorCheck() _glErrorCheck(__FILE__, __LINE__)
@@ -123,13 +126,7 @@ void C_ExplerimentWindow::Update()
 		);
 	}
 
-	auto playerPtr = m_Player.lock();
-	if (!playerPtr) {
-		CORE_LOG(E_Level::Error, E_Context::Render, "Player expiretd!");
-		return;
-	}
-
-	auto cameraComponent = playerPtr->GetComponent<Entity::E_ComponentType::Camera>();
+	auto cameraComponent = GetCameraComponent();
 	if (!cameraComponent) {
 		return;
 	}
@@ -143,8 +140,11 @@ void C_ExplerimentWindow::Update()
 		}
 	}
 
-	// ----- Frame init -------
-	std::static_pointer_cast<Cameras::C_OrbitalCamera>(cameraComponent)->adjustOrientation(0.1f, 0.0f);
+	Shaders::C_ShaderManager::Instance().ActivateShader(program);
+
+	program->SetUniform("modelMatrix", glm::mat4(1.0f));
+	program->SetUniform("modelColor", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
 	std::static_pointer_cast<Cameras::C_OrbitalCamera>(cameraComponent)->update();
 
 	glViewport(0, 0, GetWidth(), GetHeight());
@@ -190,6 +190,53 @@ void C_ExplerimentWindow::Update()
 	Shaders::C_ShaderManager::Instance().DeactivateShader();
 	glfwSwapBuffers(m_Window);
 	glfwPollEvents();
+}
+
+//=================================================================================
+void C_ExplerimentWindow::OnEvent(Core::I_Event& event)
+{
+	// base can make filtering
+	T_Base::OnEvent(event);
+
+	Core::C_EventDispatcher d(event);
+	d.Dispatch<Core::C_KeyPressedEvent>(std::bind(&C_ExplerimentWindow::OnKeyPressed, this, std::placeholders::_1));
+}
+
+//=================================================================================
+bool C_ExplerimentWindow::OnKeyPressed(Core::C_KeyPressedEvent& event)
+{
+	CORE_LOG(E_Level::Info, E_Context::Render, "Heya presssed button {}", event.GetName());
+
+	if (event.GetWindowGUID() != GetGUID()) {
+		return false;
+	}
+	auto cameraComponent = GetCameraComponent();
+
+	if (!cameraComponent) {
+		return false;
+	}
+
+	auto camera = std::static_pointer_cast<Cameras::C_OrbitalCamera>(cameraComponent);
+
+	if (event.GetKeyCode() == GLFW_KEY_DOWN) {
+		camera->adjustOrientation(0.0f, -0.1f);
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_UP) {
+		camera->adjustOrientation(0.0f, 0.1f);
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_LEFT) {
+		camera->adjustOrientation(0.1f, 0.0f);
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_RIGHT) {
+		camera->adjustOrientation(-0.1f, 0.0f);
+		return true;
+	}
+
+
+	return false;
 }
 
 //=================================================================================
@@ -284,6 +331,22 @@ void C_ExplerimentWindow::SetupWorld(const Core::S_WindowInfo& wndInfo)
 
 
 	m_Terrain = std::make_shared<Mesh::C_TerrainMeshResource>();
+}
+
+//=================================================================================
+std::shared_ptr<Renderer::I_CameraComponent> C_ExplerimentWindow::GetCameraComponent() const
+{
+	auto playerPtr = m_Player.lock();
+	if (!playerPtr) {
+		CORE_LOG(E_Level::Error, E_Context::Render, "Player expiretd!");
+		return nullptr;
+	}
+
+	auto cameraComponent = playerPtr->GetComponent<Entity::E_ComponentType::Camera>();
+	if (!cameraComponent) {
+		return nullptr;
+	}
+	return cameraComponent;
 }
 
 }

@@ -7,13 +7,16 @@
 
 #include <GLRenderer/OGLRenderer.h>
 
+#include <Core/EventSystem/Event/KeyboardEvents.h>
+#include <Core/EventSystem/EventDispatcher.h>
+
 namespace GLEngine {
 namespace GLRenderer {
 namespace GLFW {
 
 //=================================================================================
 C_GLFWoGLWindow::C_GLFWoGLWindow(const Core::S_WindowInfo& wndInfo)
-	: m_renderer(nullptr)
+	:  m_renderer(nullptr)
 {
 	Init(wndInfo);
 }
@@ -37,6 +40,7 @@ void C_GLFWoGLWindow::Init(const Core::S_WindowInfo& wndInfo)
 #ifdef GL_ENGINE_DEBUG
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 #endif
+	SetLayerDebugName(wndInfo.m_name);
 
 	C_GLFWWindow::Init(wndInfo);
 	glfwMakeContextCurrent(m_Window);
@@ -52,6 +56,9 @@ const std::unique_ptr<GLEngine::Renderer::I_Renderer>& C_GLFWoGLWindow::GetRende
 	return m_renderer;
 }
 
+//=================================================================================
+void C_GLFWoGLWindow::OnEvent(Core::I_Event& event)
+{
 }
-}
-}
+
+}}}
