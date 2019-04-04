@@ -9,8 +9,6 @@
 namespace GLEngine {
 namespace Entity {
 
-class I_Component;
-
 enum class E_ComponentType {
 	Graphical,
 	Camera,

@@ -2,6 +2,8 @@
 
 #include <Entity/World.h>
 
+#include <Entity/IEntity.h>
+
 #include <Physics/Primitives/Frustum.h>
 
 
@@ -22,7 +24,7 @@ C_World::~C_World()
 }
 
 //=================================================================================
-std::shared_ptr<GLEngine::Entity::I_Entity> C_World::GetEntity(I_Entity::EntityID id) const
+std::shared_ptr<I_Entity> C_World::GetEntity(GUID id) const
 {
 	return *std::find_if(m_Entities->begin(), m_Entities->end(), [id](const std::shared_ptr<I_Entity>&entity) {
 		return entity->GetID() == id;

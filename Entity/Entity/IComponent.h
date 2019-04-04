@@ -6,6 +6,7 @@ namespace Entity {
 
 enum class E_ComponentType;
 
+//=================================================================================
 class I_Component {
 public:
 	virtual ~I_Component() = default;
@@ -16,6 +17,7 @@ public:
 // I want this accessible all around the engine
 using T_ComponentPtr = std::shared_ptr<Entity::I_Component>;
 
+//=================================================================================
 template<Entity::E_ComponentType e>
 class ComponenetBase {
 };
