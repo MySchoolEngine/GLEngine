@@ -178,13 +178,15 @@ void C_ExplerimentWindow::Update()
 	terrainProgram->SetUniform("width", (int)m_Terrain->GetWidth());
 	//terrainProgram->SetUniform("height", (int)m_Terrain->GetHeight());
 	terrainProgram->SetUniform("modelColor", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	//terrainProgram->SetUniform("screen_size", glm::vec2(640, 480));
 
 
-	glBindVertexArray(m_Terrain->GetVAO());
+	m_Terrain->BindVAO();
 	glEnable(GL_PRIMITIVE_RESTART);
 	glPrimitiveRestartIndex(0xFFFF);
+	//glPatchParameteri(GL_PATCH_VERTICES, 4);
 	glDrawElements(GL_TRIANGLE_STRIP, static_cast<GLsizei>(m_Terrain->GetNumTriangles()), GL_UNSIGNED_INT, nullptr);
-	glBindVertexArray(0);
+	m_Terrain->UnbindVAO();
 
 
 	Shaders::C_ShaderManager::Instance().DeactivateShader();

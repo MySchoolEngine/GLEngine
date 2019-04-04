@@ -10,17 +10,7 @@ namespace Mesh {
 //=================================================================================
 C_TerrainMeshResource::C_TerrainMeshResource()
 {
-	glGenVertexArrays(1, &m_VAO);
-
-	m_VBOs[0] = std::make_shared<T_VBO>();
-	m_VBOs[1] = std::make_shared<T_VBO>();
-	m_VBOs[2] = std::make_shared<T_VBO>();
-	m_VBOs[3] = std::make_shared<T_EBO>();
-
-	glBindVertexArray(m_VAO);
-
-	// bind VBO in order to use
-	m_VBOs[0]->bind();
+	m_GLVAO.bind();
 
 	static_assert(sizeof(glm::vec3) == sizeof(GLfloat) * 3, "Platform doesn't support this directly.");
 	std::vector<float> vertices(16);
@@ -61,31 +51,24 @@ C_TerrainMeshResource::C_TerrainMeshResource()
 		indices.push_back(0xFFFF);
 	}
 
-	// upload data to VBO
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(decltype(vertices)::value_type), vertices.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, 0, nullptr);
+	//indices.push_back(0);
+	//indices.push_back(1);
+	//indices.push_back(3);
+	//indices.push_back(2);
 
 
-	m_VBOs[1]->bind();
-	// upload data to VBO
-	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(decltype(normals)::value_type), normals.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+	m_GLVAO.SetBuffer<0, GL_ARRAY_BUFFER>(vertices);
+	m_GLVAO.SetBuffer<1, GL_ARRAY_BUFFER>(normals);
+	m_GLVAO.SetBuffer<2, GL_ARRAY_BUFFER>(texcoords);
+	m_GLVAO.SetBuffer<3, GL_ELEMENT_ARRAY_BUFFER>(indices);
 
-	m_VBOs[2]->bind();
-	// upload data to VBO
-	glBufferData(GL_ARRAY_BUFFER, texcoords.size() * sizeof(decltype(texcoords)::value_type), texcoords.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+	m_GLVAO.BindBuffer<3>();
 
-	m_VBOs[3]->bind();
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(decltype(indices)::value_type), indices.data(), GL_STATIC_DRAW);
+	m_GLVAO.EnableArray<0>();
+	m_GLVAO.EnableArray<1>();
+	m_GLVAO.EnableArray<2>();
 
-
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-
-	m_VBOs[2]->unbind();
-	glBindVertexArray(0);
+	m_GLVAO.unbind();
 }
 
 //=================================================================================
@@ -107,9 +90,15 @@ bool C_TerrainMeshResource::IsValid()
 }
 
 //=================================================================================
-GLuint C_TerrainMeshResource::GetVAO() const
+void C_TerrainMeshResource::BindVAO() const
 {
-	return m_VAO;
+	m_GLVAO.bind();
+}
+
+//=================================================================================
+void C_TerrainMeshResource::UnbindVAO() const
+{
+	m_GLVAO.unbind();
 }
 
 //=================================================================================

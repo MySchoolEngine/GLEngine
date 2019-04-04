@@ -18,7 +18,7 @@ C_DrawStaticMesh::C_DrawStaticMesh(std::shared_ptr<Mesh::C_StaticMeshResource> m
 //=================================================================================
 void C_DrawStaticMesh::Commit()
 {
-	glBindVertexArray(m_Mesh->GetVAO());
+	m_Mesh->BindVAO();
 	glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_Mesh->GetNumTriangles()));
 }
 

@@ -3,6 +3,7 @@
 #include <Renderer/IResource.h>
 
 #include <GLRenderer/Buffers/GLBuffer.h>
+#include <GLRenderer/VAO/VAO.h>
 
 namespace GLEngine {
 namespace GLRenderer {
@@ -17,17 +18,14 @@ public:
 	virtual void Invalidate() override;
 	virtual bool IsValid() override;
 
-	GLuint GetVAO() const;
+	void BindVAO() const;
+	void UnbindVAO() const;
 	std::size_t GetNumTriangles() const;
 	std::size_t GetWidth() const;
 	std::size_t GetHeight() const;
 protected:
-	using T_VBO = Buffers::C_GLBuffer<GL_ARRAY_BUFFER>;
-	using T_EBO = Buffers::C_GLBuffer<GL_ELEMENT_ARRAY_BUFFER>;
-
-	GLuint m_VAO;
 	std::size_t m_triangles;
-	std::array<std::shared_ptr<Buffers::I_GLBufferBase>, 4> m_VBOs;
+	VAO::C_GLVAO<4> m_GLVAO;
 };
 
 
