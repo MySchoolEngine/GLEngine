@@ -9,6 +9,11 @@
 #include <memory>
 
 namespace GLEngine {
+
+namespace Core {
+class C_KeyPressedEvent;
+}
+
 namespace GLRenderer {
 namespace GLFW {
 
@@ -19,7 +24,7 @@ public:
 	virtual void Update() override;
 
 	virtual const std::unique_ptr<Renderer::I_Renderer>& GetRenderer() const override;
-
+	virtual void OnEvent(Core::I_Event& event) override;
 protected:
 	virtual void Init(const Core::S_WindowInfo& wndInfo) override;
 	std::unique_ptr<Renderer::I_Renderer> m_renderer;

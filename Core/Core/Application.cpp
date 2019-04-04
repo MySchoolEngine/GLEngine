@@ -32,6 +32,14 @@ void C_Application::Run()
 }
 
 //=================================================================================
+void C_Application::OnEvent(I_Event& e)
+{
+	auto& wmng = GetWndMgr();
+
+	wmng.OnEvent(e);
+}
+
+//=================================================================================
 GLEngine::Core::C_Application& C_Application::Get()
 {
 	return *s_Instance;

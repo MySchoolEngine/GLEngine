@@ -5,8 +5,9 @@ project "Sandbox"
 	language "C++"
 	staticruntime "off"
 	
+	debugdir ("../data/")
 	SetupProject("Sandbox")
-	debugdir ("../bin/" .. outputdir .. "/%{prj.name}")
+	debugdir ("../data/")
 	
 	
 	Link("Core")

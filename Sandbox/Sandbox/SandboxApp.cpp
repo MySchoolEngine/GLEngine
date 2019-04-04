@@ -30,7 +30,7 @@ public:
 		info.m_WindowClass = "ExperimentWindow";
 		info.m_MinorVersion = 0;
 
-		m_WndMgr = GLEngine::GLRenderer::GLFW::ConstructGLFWManager();
+		m_WndMgr = GLEngine::GLRenderer::GLFW::ConstructGLFWManager(std::bind(&C_Application::OnEvent, this, std::placeholders::_1));
 		m_WndMgr->AddWindowFactory(GLEngine::GLRenderer::GLFW::ConstructGLFWWindowFactory());
 		m_MainWindow = m_WndMgr->OpenNewWindow(info);
 	}
