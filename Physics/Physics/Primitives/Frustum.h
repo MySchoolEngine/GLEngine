@@ -13,15 +13,15 @@
 
 #include <Core/CoreMacros.h>
 
-#include <Physics/Primitives/AABB.h>
-
 #include <glm/glm.hpp>
-
 
 
 namespace GLEngine {
 namespace Physics {
 namespace Primitives {
+
+struct S_AABB;
+
 /** ==============================================
  * @class C_Frustum
  *

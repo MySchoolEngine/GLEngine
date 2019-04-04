@@ -1,5 +1,7 @@
 #include <Physics/Primitives/AABB.h>
 
+#include <Physics/Primitives/Shapes.h>
+
 #include <numeric>
 
 namespace GLEngine {

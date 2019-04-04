@@ -2,14 +2,15 @@
 
 #include <Core/CoreMacros.h>
 
-#include <Physics/Primitives/Shapes.h>
-
 #include <glm/glm.hpp>
 
 
 namespace GLEngine {
 namespace Physics {
 namespace Primitives {
+
+struct S_Sphere;
+
 struct API_EXPORT S_AABB {
 public:
 #pragma warning(push)

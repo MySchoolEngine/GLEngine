@@ -1,5 +1,4 @@
-#include "Shapes.h"
-
+#include <Physics/Primitives/Shapes.h>
 
 namespace GLEngine {
 namespace Physics {
