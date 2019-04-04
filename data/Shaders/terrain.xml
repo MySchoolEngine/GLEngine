@@ -2,4 +2,6 @@
 <pipeline>
   <shader stage="vertex">terrain/vertex.glsl</shader>
   <shader stage="fragment">terrain/fragment.glsl</shader>
+  <shader stage="tess-control">terrain/tess-control.glsl</shader>
+  <shader stage="tess-evaluation">terrain/tess-evaluation.glsl</shader>
 </pipeline>
