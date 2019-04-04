@@ -12,6 +12,7 @@
 #include <regex>
 #include <stack>
 #include <exception>
+#include <functional>
 #include <map>
 #include <array>
 
