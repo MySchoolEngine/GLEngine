@@ -140,8 +140,13 @@ void C_ExplerimentWindow::Update()
 		}
 	}
 
+
+	glActiveTexture(GL_TEXTURE1);
+	m_texture.bind();
+
 	Shaders::C_ShaderManager::Instance().ActivateShader(program);
 
+	program->SetUniform("tex", 1);
 	program->SetUniform("modelMatrix", glm::mat4(1.0f));
 	program->SetUniform("modelColor", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
