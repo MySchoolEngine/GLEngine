@@ -77,6 +77,7 @@ std::shared_ptr<Shaders::C_ShaderProgram> program;
 //=================================================================================
 C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	: C_GLFWoGLWindow(wndInfo)
+	, m_texture("dummyTexture")
 {
 	glfwMakeContextCurrent(m_Window);
 	program = Shaders::C_ShaderManager::Instance().GetProgram("basic");
@@ -131,8 +132,13 @@ void C_ExplerimentWindow::Update()
 		}
 	}
 
+
+	glActiveTexture(GL_TEXTURE1);
+	m_texture.bind();
+
 	Shaders::C_ShaderManager::Instance().ActivateShader(program);
 
+	program->SetUniform("tex", 1);
 	program->SetUniform("modelMatrix", glm::mat4(1.0f));
 	program->SetUniform("modelColor", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
@@ -220,6 +226,20 @@ void C_ExplerimentWindow::SetupWorld(const Core::S_WindowInfo& wndInfo)
 		playerCamera->update();
 		player->AddComponent(playerCamera);
 	}
+
+
+	m_texture.StartGroupOp();
+	m_texture.SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+	m_texture.SetWrap(GL_REPEAT, GL_REPEAT);
+	GLubyte data[] = {
+		0, 0, 0, 255,
+		255, 0, 0, 255,
+		0, 0, 0, 255,
+		255, 0, 0, 255,
+	};
+	glTexImage2D(m_texture.GetTarget(), 0, GL_RGBA, 2, 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	m_texture.SetDimensions({ 2,2 });
+	m_texture.EndGroupOp();
 }
 
 //=================================================================================

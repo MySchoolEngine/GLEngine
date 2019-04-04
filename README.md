@@ -14,3 +14,9 @@ cd GLEngine
 git submodule init
 
 git submodule update
+
+## Documentation
+Most of documentation can be found here on github/in code. 
+
+Documentation of current school project is here:
+https://drive.google.com/drive/folders/1PIpnAONf181flHor8lpHo7DaqPFDL0tx
