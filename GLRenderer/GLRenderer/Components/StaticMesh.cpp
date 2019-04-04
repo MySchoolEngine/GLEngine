@@ -37,6 +37,12 @@ C_StaticMesh::C_StaticMesh(std::string meshFile)
 }
 
 //=================================================================================
+C_StaticMesh::C_StaticMesh(const Mesh::Mesh& mesh)
+{
+	m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(mesh);
+}
+
+//=================================================================================
 void C_StaticMesh::PerformDraw() const
 {
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(

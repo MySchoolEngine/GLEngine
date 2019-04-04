@@ -171,6 +171,8 @@ GLuint C_ShaderManager::LoadShader(const pugi::xml_node& node) const
 	else if (stageAttribute == "fragment") stage = GL_FRAGMENT_SHADER;
 	else if (stageAttribute == "geometry") stage = GL_GEOMETRY_SHADER;
 	else if (stageAttribute == "compute") stage = GL_COMPUTE_SHADER;
+	else if (stageAttribute == "tess-control") stage = GL_TESS_CONTROL_SHADER;
+	else if (stageAttribute == "tess-evaluation") stage = GL_TESS_EVALUATION_SHADER;
 
 	if (!m_Compiler.compileShader(shader, std::string(s_ShadersFolder + std::string(node.first_child().value())).c_str(), stage, str)) {
 		CORE_LOG(E_Level::Error, E_Context::Render, "--Compilation error");

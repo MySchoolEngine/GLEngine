@@ -6,11 +6,17 @@
 
 namespace GLEngine {
 namespace GLRenderer {
+
+namespace Mesh {
+struct Mesh;
+}
+
 namespace Components {
 
 class C_StaticMesh : public Renderer::I_RenderableComponent {
 public:
 	C_StaticMesh(std::string meshFile);
+	C_StaticMesh(const Mesh::Mesh& meshFile);
 	virtual void PerformDraw() const override;
 protected:
 	std::string										m_meshFile;

@@ -13,6 +13,7 @@
 #include <stack>
 #include <exception>
 #include <map>
+#include <array>
 
 // rendering dependend things
 #include <glad/glad.h>

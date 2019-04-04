@@ -16,14 +16,22 @@ namespace GLEngine {
 namespace GLRenderer {
 namespace Buffers {
 
+class I_GLBufferBase {
+public:
+	virtual ~I_GLBufferBase() = default;
+
+	virtual void bind()		const = 0;
+	virtual void unbind()	const = 0;
+};
+
 template<GLenum TYPE>
-class C_GLBuffer {
+class C_GLBuffer : public I_GLBufferBase{
 public:
 	C_GLBuffer();
 	virtual ~C_GLBuffer();
 
-	virtual void bind()		const;
-	virtual void unbind()	const;
+	virtual void bind()		const override;
+	virtual void unbind()	const override;
 
 	constexpr GLenum GetBufferType() const noexcept;
 protected:
