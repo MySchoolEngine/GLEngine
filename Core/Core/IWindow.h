@@ -3,14 +3,10 @@
 #include <Core/CoreMacros.h>
 
 #include <Core/WindowInfo.h>
-#include <Core/EventSystem/Event.h>
 #include <Core/EventSystem/Layer.h>
 #include <Core/Application.h>
 
 #include <glm/vec2.hpp>
-
-#include <string>
-#include <memory>
 
 namespace GLEngine {
 

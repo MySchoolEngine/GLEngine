@@ -1,6 +1,7 @@
 #include <CoreStdafx.h>
 
 #include <Core/IWindowManager.h>
+#include <Core/WindowInfo.h>
 
 
 namespace GLEngine {

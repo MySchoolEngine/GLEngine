@@ -1,7 +1,5 @@
 #pragma once
 
-#include <CoreStdafx.h>
-
 namespace GLEngine {
 
 namespace Renderer {

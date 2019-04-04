@@ -1,15 +1,12 @@
 #pragma once
 
-#include <Core/WindowInfo.h>
-
 #include <Core/EventSystem/Layer.h>
 #include <Core/Application.h>
 
-#include <memory>
-#include <vector>
-
 namespace GLEngine {
 namespace Core {
+
+struct S_WindowInfo;
 
 class I_Window;
 
