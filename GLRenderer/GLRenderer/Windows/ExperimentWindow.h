@@ -42,6 +42,8 @@ protected:
 private:
 	void SetupWorld(const Core::S_WindowInfo& wndInfo);
 
+	void SetupNoiseTex();
+
 	std::shared_ptr<Renderer::I_CameraComponent> GetCameraComponent() const;
 
 	Entity::C_World												m_World;
@@ -49,6 +51,7 @@ private:
 	std::shared_ptr<Buffers::UBO::C_FrameConstantsBuffer>		m_FrameConstUBO;
 	std::shared_ptr<Mesh::C_TerrainMeshResource>				m_Terrain;
 	Textures::C_Texture											m_texture;
+	Textures::C_Texture											m_Noise;
 };
 }
 }
