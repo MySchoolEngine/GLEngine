@@ -83,6 +83,7 @@ std::shared_ptr<Shaders::C_ShaderProgram> terrainProgram;
 C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	: C_GLFWoGLWindow(wndInfo)
 	, m_texture("dummyTexture")
+	, m_LayerStack(std::string("ExperimentalWindowLayerStack"))
 {
 	glfwMakeContextCurrent(m_Window);
 	program = Shaders::C_ShaderManager::Instance().GetProgram("basic");
