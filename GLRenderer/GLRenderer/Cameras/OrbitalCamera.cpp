@@ -5,6 +5,12 @@
 #include <Core/EventSystem/EventDispatcher.h>
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/projection.hpp>
+#include <glm/gtx/rotate_vector.hpp> 
+
+#include <glm/glm.hpp> 
+
 #include <stdexcept>
 
 namespace GLEngine {
@@ -99,6 +105,8 @@ void C_OrbitalCamera::OnEvent(Core::I_Event& event)
 //=================================================================================
 bool C_OrbitalCamera::OnKeyPressed(Core::C_KeyPressedEvent& event)
 {
+	//===============================================
+	// Rotations
 	if (event.GetKeyCode() == GLFW_KEY_DOWN) {
 		adjustOrientation(0.0f, -m_ControlSpeed);
 		return true;
@@ -115,6 +123,8 @@ bool C_OrbitalCamera::OnKeyPressed(Core::C_KeyPressedEvent& event)
 		adjustOrientation(-m_ControlSpeed, 0.0f);
 		return true;
 	}
+	//===============================================
+	// Zoom
 	if (event.GetKeyCode() == GLFW_KEY_MINUS || event.GetKeyCode()==GLFW_KEY_KP_SUBTRACT) {
 		adjustZoom(-2);
 		return true;
@@ -123,6 +133,31 @@ bool C_OrbitalCamera::OnKeyPressed(Core::C_KeyPressedEvent& event)
 		adjustZoom(+2);
 		return true;
 	}
+	//===============================================
+	// Position
+	glm::vec3 normalToPlane = glm::vec3(0.0f, 1.0f, 0.0f);
+	glm::vec3 forwardProjOnXZ = glm::normalize(_view - glm::proj(_view, normalToPlane)) * m_ControlSpeed;
+	glm::vec4 left = glm::rotate(glm::vec4(forwardProjOnXZ, 1.0f), -glm::half_pi<float>(), normalToPlane);
+	glm::vec3 leftProjOnXZ = glm::vec3(left.x, 0.0f, left.z);
+	if (event.GetKeyCode() == GLFW_KEY_W) {
+		glm::vec3 normalToPlane = glm::vec3(0.0f, 1.0f, 0.0f);
+		_center += forwardProjOnXZ;
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_S) {
+		glm::vec3 normalToPlane = glm::vec3(0.0f, 1.0f, 0.0f);
+		_center -= forwardProjOnXZ;
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_A) {
+		_center -= leftProjOnXZ;
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_D) {
+		_center += leftProjOnXZ;
+		return true;
+	}
+	return false;
 }
 
 //=================================================================================
