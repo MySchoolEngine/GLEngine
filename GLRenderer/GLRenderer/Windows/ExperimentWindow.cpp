@@ -110,6 +110,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 
 
 	SetupWorld(wndInfo);
+	m_LayerStack.PushLayer(&m_CamManager);
 }
 
 //=================================================================================
@@ -208,6 +209,8 @@ void C_ExplerimentWindow::OnEvent(Core::I_Event& event)
 
 	Core::C_EventDispatcher d(event);
 	d.Dispatch<Core::C_KeyPressedEvent>(std::bind(&C_ExplerimentWindow::OnKeyPressed, this, std::placeholders::_1));
+
+	m_LayerStack.OnEvent(event);
 }
 
 //=================================================================================
@@ -218,31 +221,6 @@ bool C_ExplerimentWindow::OnKeyPressed(Core::C_KeyPressedEvent& event)
 	if (event.GetWindowGUID() != GetGUID()) {
 		return false;
 	}
-	auto cameraComponent = GetCameraComponent();
-
-	if (!cameraComponent) {
-		return false;
-	}
-
-	auto camera = std::static_pointer_cast<Cameras::C_OrbitalCamera>(cameraComponent);
-
-	if (event.GetKeyCode() == GLFW_KEY_DOWN) {
-		camera->adjustOrientation(0.0f, -0.1f);
-		return true;
-	}
-	if (event.GetKeyCode() == GLFW_KEY_UP) {
-		camera->adjustOrientation(0.0f, 0.1f);
-		return true;
-	}
-	if (event.GetKeyCode() == GLFW_KEY_LEFT) {
-		camera->adjustOrientation(0.1f, 0.0f);
-		return true;
-	}
-	if (event.GetKeyCode() == GLFW_KEY_RIGHT) {
-		camera->adjustOrientation(-0.1f, 0.0f);
-		return true;
-	}
-
 
 	return false;
 }
@@ -266,8 +244,9 @@ void C_ExplerimentWindow::SetupWorld(const Core::S_WindowInfo& wndInfo)
 		playerCamera->adjustOrientation(20.f, 20.f);
 		playerCamera->update();
 		player->AddComponent(playerCamera);
+		m_CamManager.ActivateCamera(playerCamera);
 	}
-	if (false) {
+	{
 		// billboard
 		Mesh::Mesh billboardMesh;
 		billboardMesh.vertices.emplace_back(0, 1, 0, 1); // 1

@@ -4,6 +4,7 @@
 
 #include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/Mesh/TerrainMeshResource.h>
+#include <GLRenderer/CameraManager.h>
 
 #include <Entity/World.h>
 
@@ -52,6 +53,7 @@ private:
 	std::shared_ptr<Mesh::C_TerrainMeshResource>				m_Terrain;
 	Textures::C_Texture											m_texture;
 	Core::C_LayerStack											m_LayerStack;
+	Temporar::C_CameraManager									m_CamManager;
 };
 }
 }

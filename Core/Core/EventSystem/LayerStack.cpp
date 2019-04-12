@@ -19,7 +19,7 @@ C_LayerStack::~C_LayerStack()
 }
 
 //=================================================================================
-void C_LayerStack::PushLayer(std::shared_ptr<C_Layer> layer)
+void C_LayerStack::PushLayer(C_Layer* layer)
 {
 	m_Layers->push_back(layer);
 }

@@ -9,14 +9,14 @@ public:
 	C_LayerStack(std::string& name);
 	virtual ~C_LayerStack();
 
-	virtual void PushLayer(std::shared_ptr<C_Layer> layer);
+	virtual void PushLayer(C_Layer* layer);
 
 	//===================================================
 	// C_Layer
 	//===================================================
 	virtual void OnEvent(Core::I_Event& event) override;
 protected:
-	std::vector<std::shared_ptr<C_Layer>>* m_Layers;
+	std::vector<C_Layer*>* m_Layers;
 };
 
 }}
