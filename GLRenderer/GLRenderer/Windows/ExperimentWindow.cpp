@@ -128,7 +128,7 @@ void C_ExplerimentWindow::Update()
 		);
 	}
 
-	auto cameraComponent = GetCameraComponent();
+	auto cameraComponent = m_CamManager.GetActiveCamera();
 	if (!cameraComponent) {
 		return;
 	}
