@@ -7,9 +7,6 @@
 
 #include <GLRenderer/OGLRenderer.h>
 
-#include <Core/EventSystem/Event/KeyboardEvents.h>
-#include <Core/EventSystem/EventDispatcher.h>
-
 namespace GLEngine {
 namespace GLRenderer {
 namespace GLFW {
