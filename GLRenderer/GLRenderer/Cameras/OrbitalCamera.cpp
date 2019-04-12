@@ -13,6 +13,7 @@ namespace Cameras {
 
 //=================================================================================
 C_OrbitalCamera::C_OrbitalCamera()
+	: m_ControlSpeed(0.5f)
 {
 	_pos = _view = _up = _left = glm::vec3(0);
 	_zoom = _angleXDeg = _angleYDeg = 0.0f;
@@ -99,19 +100,27 @@ void C_OrbitalCamera::OnEvent(Core::I_Event& event)
 bool C_OrbitalCamera::OnKeyPressed(Core::C_KeyPressedEvent& event)
 {
 	if (event.GetKeyCode() == GLFW_KEY_DOWN) {
-		adjustOrientation(0.0f, -0.1f);
+		adjustOrientation(0.0f, -m_ControlSpeed);
 		return true;
 	}
 	if (event.GetKeyCode() == GLFW_KEY_UP) {
-		adjustOrientation(0.0f, 0.1f);
+		adjustOrientation(0.0f, m_ControlSpeed);
 		return true;
 	}
 	if (event.GetKeyCode() == GLFW_KEY_LEFT) {
-		adjustOrientation(0.1f, 0.0f);
+		adjustOrientation(m_ControlSpeed, 0.0f);
 		return true;
 	}
 	if (event.GetKeyCode() == GLFW_KEY_RIGHT) {
-		adjustOrientation(-0.1f, 0.0f);
+		adjustOrientation(-m_ControlSpeed, 0.0f);
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_MINUS || event.GetKeyCode()==GLFW_KEY_KP_SUBTRACT) {
+		adjustZoom(-2);
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_KP_ADD) {
+		adjustZoom(+2);
 		return true;
 	}
 }

@@ -84,5 +84,7 @@ private:
 
 	glm::mat4 _viewMatrix;
 	glm::mat4 _projectionMatrix;
+
+	float m_ControlSpeed;
 };
 }}}
