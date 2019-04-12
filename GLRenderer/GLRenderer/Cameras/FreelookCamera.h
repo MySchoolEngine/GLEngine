@@ -45,6 +45,9 @@ class CameraPathKeypoint;
 //More suitable for animations - just by calling positionCamera
 
 namespace GLEngine {
+namespace Core {
+class C_KeyPressedEvent;
+}
 
 namespace Physics {
 namespace Primitives {
@@ -110,6 +113,10 @@ public:
 
 
 
+	//=================================================================================
+	virtual void OnEvent(Core::I_Event& event) override;
+protected:
+	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
 private:
 	void CreateProjection();
 	float               _cameraMovementSpeed;

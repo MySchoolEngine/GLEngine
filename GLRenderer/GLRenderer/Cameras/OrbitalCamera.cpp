@@ -2,6 +2,9 @@
 
 #include <GLRenderer/Cameras/OrbitalCamera.h>
 
+#include <Core/EventSystem/EventDispatcher.h>
+#include <Core/EventSystem/Event/KeyboardEvents.h>
+
 #include <stdexcept>
 
 namespace GLEngine {
@@ -83,6 +86,34 @@ void C_OrbitalCamera::update()
 float C_OrbitalCamera::GetFov() const
 {
 	return _fovy;
+}
+
+//=================================================================================
+void C_OrbitalCamera::OnEvent(Core::I_Event& event)
+{
+	Core::C_EventDispatcher d(event);
+	d.Dispatch<Core::C_KeyPressedEvent>(std::bind(&C_OrbitalCamera::OnKeyPressed, this, std::placeholders::_1));
+}
+
+//=================================================================================
+bool C_OrbitalCamera::OnKeyPressed(Core::C_KeyPressedEvent& event)
+{
+	if (event.GetKeyCode() == GLFW_KEY_DOWN) {
+		adjustOrientation(0.0f, -0.1f);
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_UP) {
+		adjustOrientation(0.0f, 0.1f);
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_LEFT) {
+		adjustOrientation(0.1f, 0.0f);
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_RIGHT) {
+		adjustOrientation(-0.1f, 0.0f);
+		return true;
+	}
 }
 
 //=================================================================================

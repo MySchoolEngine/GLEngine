@@ -10,6 +10,9 @@
 #include <glm/gtx/norm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include <Core/EventSystem/EventDispatcher.h>
+#include <Core/EventSystem/Event/KeyboardEvents.h>
+
 //#include <Application.hpp>
 //#include <CameraManager.h>
 
@@ -356,4 +359,18 @@ glm::vec3 FreelookCamera::GetDirection() const
 {
 	return _view;
 }
+
+//=================================================================================
+void FreelookCamera::OnEvent(Core::I_Event& event)
+{
+	Core::C_EventDispatcher d(event);
+	d.Dispatch<Core::C_KeyPressedEvent>(std::bind(&FreelookCamera::OnKeyPressed, this, std::placeholders::_1));
+}
+
+//=================================================================================
+bool FreelookCamera::OnKeyPressed(Core::C_KeyPressedEvent& event)
+{
+	return false;
+}
+
 }}}

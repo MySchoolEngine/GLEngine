@@ -11,6 +11,10 @@
 
 namespace GLEngine {
 
+namespace Core {
+class C_KeyPressedEvent;
+}
+
 namespace Physics {
 namespace Primitives {
 class C_Frustum;
@@ -55,7 +59,13 @@ public:
 
 	virtual float GetFov() const;
 
+
+	//=================================================================================
+	virtual void OnEvent(Core::I_Event& event) override;
+
 	//virtual bool Input(SDL_Event) override;
+protected:
+	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
 private:
 	glm::vec3 _pos;
 	glm::vec3 _view;
