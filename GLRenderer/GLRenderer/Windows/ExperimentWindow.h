@@ -45,6 +45,8 @@ protected:
 private:
 	void SetupWorld(const Core::S_WindowInfo& wndInfo);
 
+	void SetupNoiseTex();
+
 	std::shared_ptr<Renderer::I_CameraComponent> GetCameraComponent() const;
 
 	Entity::C_World												m_World;
@@ -54,6 +56,7 @@ private:
 	Textures::C_Texture											m_texture;
 	Core::C_LayerStack											m_LayerStack;
 	Temporar::C_CameraManager									m_CamManager;
+	Textures::C_Texture											m_Noise;
 };
 }
 }

@@ -33,6 +33,7 @@
 
 
 
+const int dim = 64;
 
 //=================================================================================
 const char* glErrorCodeToString(unsigned int code) {
@@ -94,7 +95,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	{
 		glEnable(GL_DEPTH_TEST);
 		//glEnable(GL_CULL_FACE);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		using namespace Commands;
 		m_renderer->AddCommand(
 			std::move(
@@ -111,6 +112,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 
 	SetupWorld(wndInfo);
 	m_LayerStack.PushLayer(&m_CamManager);
+	SetupNoiseTex();
 }
 
 //=================================================================================
@@ -143,6 +145,9 @@ void C_ExplerimentWindow::Update()
 	}
 
 
+	auto& shmgr = Shaders::C_ShaderManager::Instance();
+
+
 	glActiveTexture(GL_TEXTURE1);
 	m_texture.bind();
 
@@ -161,13 +166,12 @@ void C_ExplerimentWindow::Update()
 	m_FrameConstUBO->UploadData();
 	m_FrameConstUBO->Activate(true);
 	// ----- Frame init -------
-	auto& shmgr = Shaders::C_ShaderManager::Instance();
 
 
 	// ----- rest of scene -------
 	shmgr.ActivateShader(shmgr.GetProgram("basic"));
 	glActiveTexture(GL_TEXTURE0);
-	m_texture.bind();
+	m_Noise.bind();
 
 	program->SetUniform("tex", 0);
 	program->SetUniform("modelMatrix", glm::mat4(1.0f));
@@ -249,12 +253,12 @@ void C_ExplerimentWindow::SetupWorld(const Core::S_WindowInfo& wndInfo)
 	{
 		// billboard
 		Mesh::Mesh billboardMesh;
-		billboardMesh.vertices.emplace_back(0, 1, 0, 1); // 1
+		billboardMesh.vertices.emplace_back(0, 10, 0, 1); // 1
 		billboardMesh.vertices.emplace_back(0, 0, 0, 1); // 2
-		billboardMesh.vertices.emplace_back(1, 1, 0, 1); // 3
+		billboardMesh.vertices.emplace_back(10, 10, 0, 1); // 3
 		billboardMesh.vertices.emplace_back(0, 0, 0, 1); // 4 = 2
-		billboardMesh.vertices.emplace_back(1, 0, 0, 1); // 5
-		billboardMesh.vertices.emplace_back(1, 1, 0, 1); // 6 = 3
+		billboardMesh.vertices.emplace_back(10, 0, 0, 1); // 5
+		billboardMesh.vertices.emplace_back(10, 10, 0, 1); // 6 = 3
 
 		billboardMesh.normals.emplace_back(0, 0, -1);
 		billboardMesh.normals.emplace_back(0, 0, -1);
@@ -318,6 +322,17 @@ void C_ExplerimentWindow::SetupWorld(const Core::S_WindowInfo& wndInfo)
 
 
 	m_Terrain = std::make_shared<Mesh::C_TerrainMeshResource>();
+}
+
+//=================================================================================
+void C_ExplerimentWindow::SetupNoiseTex()
+{
+	m_Noise.StartGroupOp();
+	m_Noise.SetWrap(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+	m_Noise.SetFilter(GL_NEAREST, GL_NEAREST);
+	glTexImage2D(m_Noise.GetTarget(), 0, GL_RGBA32F, dim, dim, 0, GL_RGBA, GL_FLOAT, nullptr);
+	m_Noise.SetDimensions({ dim,dim });
+	m_Noise.EndGroupOp();
 }
 
 //=================================================================================
