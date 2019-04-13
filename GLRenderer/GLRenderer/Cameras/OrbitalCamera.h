@@ -14,6 +14,7 @@ namespace GLEngine {
 namespace Core {
 class C_KeyPressedEvent;
 class C_MouseScrollEvent;
+class C_MouseButtonPressed;
 }
 
 namespace Physics {
@@ -63,11 +64,10 @@ public:
 
 	//=================================================================================
 	virtual void OnEvent(Core::I_Event& event) override;
-
-	//virtual bool Input(SDL_Event) override;
 protected:
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
 	bool OnMouseScroll(Core::C_MouseScrollEvent& event);
+	bool OnMousePress(Core::C_MouseButtonPressed& event);
 private:
 	glm::vec3 _pos;
 	glm::vec3 _view;
