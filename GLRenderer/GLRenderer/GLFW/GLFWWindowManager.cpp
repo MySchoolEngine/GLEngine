@@ -26,6 +26,16 @@ std::shared_ptr<Core::I_Window> C_GLFWWindowManager::OpenNewWindow(const Core::S
 }
 
 //=================================================================================
+std::shared_ptr<GLEngine::Core::I_Window> C_GLFWWindowManager::GetWindow(GUID guid) const
+{
+	auto it = std::find_if(m_Windows.begin(), m_Windows.end(), [&guid](const std::shared_ptr<GLEngine::Core::I_Window>& wnd) {
+		return wnd->GetGUID() == guid;
+	});
+
+	return *it;
+}
+
+//=================================================================================
 void C_GLFWWindowManager::Update()
 {
 	m_Windows.erase(std::remove_if(m_Windows.begin(), m_Windows.end(), [](const decltype(m_Windows)::value_type window) {
