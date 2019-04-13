@@ -3,10 +3,15 @@
 #include <Core/IWindow.h>
 
 #include <Core/Application.h>
+#include <GLRenderer/GLFW/GLFWInput.h>
 
 struct GLFWwindow;
 
 namespace GLEngine {
+namespace Core {
+class I_Input;
+}
+
 namespace GLRenderer {
 namespace GLFW {
 class API_EXPORT C_GLFWWindow : public Core::I_Window {
@@ -29,6 +34,10 @@ public:
 	//=================================================================================
 	virtual void SetEventCallback(Core::C_Application::EventCallbackFn callback) override;
 
+
+	//=================================================================================
+	virtual const Core::I_Input& GetInput() const override;
+
 protected:
 	C_GLFWWindow();
 	virtual void Destroy() override;
@@ -41,6 +50,7 @@ protected:
 	S_Data m_Data;
 
 	GLFWwindow* m_Window;
+	C_GLFWInput m_Input;
 };
 }
 }

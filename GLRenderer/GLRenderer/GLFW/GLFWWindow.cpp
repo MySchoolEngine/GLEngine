@@ -4,13 +4,14 @@
 
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/Event/MouseEvents.h>
+#include <Core/Input.h>
 
 namespace GLEngine {
 namespace GLRenderer {
 namespace GLFW {
 
 //=================================================================================
-API_EXPORT C_GLFWWindow::C_GLFWWindow()
+C_GLFWWindow::C_GLFWWindow()
 	: m_Window(nullptr)
 {
 	m_Data.m_GUID = GetGUID();
@@ -113,12 +114,20 @@ void C_GLFWWindow::Init(const Core::S_WindowInfo& wndInfo)
 
 	glfwMakeContextCurrent(m_Window);
 	glfwSwapInterval(1);
+
+	m_Input.SetWindow(m_Window);
 }
 
 //=================================================================================
 void C_GLFWWindow::SetEventCallback(Core::C_Application::EventCallbackFn callback)
 {
 	m_Data.m_EventCallback = callback;
+}
+
+//=================================================================================
+const Core::I_Input& C_GLFWWindow::GetInput() const
+{
+	return m_Input;
 }
 
 //=================================================================================
