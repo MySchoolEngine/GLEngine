@@ -4,6 +4,7 @@
 
 #include <Core/EventSystem/EventDispatcher.h>
 #include <Core/EventSystem/Event/KeyboardEvents.h>
+#include <Core/EventSystem/Event/MouseEvents.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/projection.hpp>
@@ -100,6 +101,7 @@ void C_OrbitalCamera::OnEvent(Core::I_Event& event)
 {
 	Core::C_EventDispatcher d(event);
 	d.Dispatch<Core::C_KeyPressedEvent>(std::bind(&C_OrbitalCamera::OnKeyPressed, this, std::placeholders::_1));
+	d.Dispatch<Core::C_MouseScrollEvent>(std::bind(&C_OrbitalCamera::OnMouseScroll, this, std::placeholders::_1));
 }
 
 //=================================================================================
@@ -158,6 +160,13 @@ bool C_OrbitalCamera::OnKeyPressed(Core::C_KeyPressedEvent& event)
 		return true;
 	}
 	return false;
+}
+
+//=================================================================================
+bool C_OrbitalCamera::OnMouseScroll(Core::C_MouseScrollEvent& event)
+{
+	adjustZoom(static_cast<int>(-event.GetYOffset()*10));
+	return true;
 }
 
 //=================================================================================

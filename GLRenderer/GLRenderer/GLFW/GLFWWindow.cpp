@@ -81,8 +81,10 @@ void C_GLFWWindow::Init(const Core::S_WindowInfo& wndInfo)
 	const auto key_callback = [](GLFWwindow* window, int key, int scancode, int action, int mods) {
 		S_Data& data = *static_cast<S_Data*>(glfwGetWindowUserPointer(window));
 		CORE_LOG(E_Level::Info, E_Context::Core, "Key: {} {}", key, scancode);
-		Core::C_KeyPressedEvent event(key, data.m_GUID);
-		data.m_EventCallback(event);
+		if (action == GLFW_PRESS) {
+			Core::C_KeyPressedEvent event(key, data.m_GUID);
+			data.m_EventCallback(event);
+		}
 	};
 
 	const auto scroll_callback = [](GLFWwindow* window, double xoffset, double yoffset) {
@@ -92,8 +94,22 @@ void C_GLFWWindow::Init(const Core::S_WindowInfo& wndInfo)
 		data.m_EventCallback(event);
 	};
 
+	const auto mouse_callback = [](GLFWwindow* window, int button, int action, int mods) {
+		S_Data& data = *static_cast<S_Data*>(glfwGetWindowUserPointer(window));
+		CORE_LOG(E_Level::Info, E_Context::Core, "Mouse button: {} {}", button, action);
+		if (action == GLFW_PRESS) {
+			Core::C_MouseButtonPressed event(button, data.m_GUID);
+			data.m_EventCallback(event);
+		}
+		else {
+			Core::C_MouseButtonReleased event(button, data.m_GUID);
+			data.m_EventCallback(event);
+		}
+	};
+
 	glfwSetKeyCallback(m_Window, key_callback);
 	glfwSetScrollCallback(m_Window, scroll_callback);
+	glfwSetMouseButtonCallback(m_Window, mouse_callback);
 
 	glfwMakeContextCurrent(m_Window);
 	glfwSwapInterval(1);
