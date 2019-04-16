@@ -8,5 +8,7 @@
 #include <string>
 #include <algorithm>
 #include <functional>
+#include <stack>
+#include <iterator>
 
 #include <Core/GUID.h>

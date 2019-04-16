@@ -11,6 +11,12 @@
 
 namespace GLEngine {
 
+namespace Core {
+class C_KeyPressedEvent;
+class C_MouseScrollEvent;
+class C_MouseButtonPressed;
+}
+
 namespace Physics {
 namespace Primitives {
 class C_Frustum;
@@ -55,7 +61,13 @@ public:
 
 	virtual float GetFov() const;
 
-	//virtual bool Input(SDL_Event) override;
+
+	//=================================================================================
+	virtual void OnEvent(Core::I_Event& event) override;
+protected:
+	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
+	bool OnMouseScroll(Core::C_MouseScrollEvent& event);
+	bool OnMousePress(Core::C_MouseButtonPressed& event);
 private:
 	glm::vec3 _pos;
 	glm::vec3 _view;
@@ -74,5 +86,7 @@ private:
 
 	glm::mat4 _viewMatrix;
 	glm::mat4 _projectionMatrix;
+
+	float m_ControlSpeed;
 };
 }}}

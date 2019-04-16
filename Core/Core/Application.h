@@ -29,7 +29,6 @@ public:
 	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetActiveRenderer() const = 0;
 
 	static C_Application& Get();
-protected:
 	virtual Core::I_WindowManager& GetWndMgr() const = 0;
 };
 
