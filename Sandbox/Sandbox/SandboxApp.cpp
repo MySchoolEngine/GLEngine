@@ -28,7 +28,7 @@ public:
 		GLEngine::GLRenderer::GLFW::S_OpenGLWindowInfo info(640, 480);
 		info.m_name = "My title";
 		info.m_WindowClass = "ExperimentWindow";
-		info.m_MinorVersion = 0;
+		info.m_MinorVersion = 4;
 
 		m_WndMgr = GLEngine::GLRenderer::GLFW::ConstructGLFWManager(std::bind(&C_Application::OnEvent, this, std::placeholders::_1));
 		m_WndMgr->AddWindowFactory(GLEngine::GLRenderer::GLFW::ConstructGLFWWindowFactory());
