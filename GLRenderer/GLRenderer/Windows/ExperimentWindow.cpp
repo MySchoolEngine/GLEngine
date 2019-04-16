@@ -33,7 +33,7 @@
 
 
 
-const int dim = 64;
+const int dim = 256;
 
 //=================================================================================
 const char* glErrorCodeToString(unsigned int code) {
@@ -77,24 +77,23 @@ namespace GLEngine {
 namespace GLRenderer {
 namespace Windows {
 
-std::shared_ptr<Shaders::C_ShaderProgram> program;
 std::shared_ptr<Shaders::C_ShaderProgram> terrainProgram;
 
 //=================================================================================
 C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	: C_GLFWoGLWindow(wndInfo)
 	, m_texture("dummyTexture")
+	, m_Noise("noise")
 	, m_LayerStack(std::string("ExperimentalWindowLayerStack"))
 {
 	glfwMakeContextCurrent(m_Window);
-	program = Shaders::C_ShaderManager::Instance().GetProgram("basic");
 	terrainProgram = Shaders::C_ShaderManager::Instance().GetProgram("terrain");
 
 	m_FrameConstUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>("frameConst");
 
 	{
 		glEnable(GL_DEPTH_TEST);
-		//glEnable(GL_CULL_FACE);
+		glEnable(GL_CULL_FACE);
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		using namespace Commands;
 		m_renderer->AddCommand(
@@ -149,13 +148,14 @@ void C_ExplerimentWindow::Update()
 
 
 	glActiveTexture(GL_TEXTURE1);
-	m_texture.bind();
+	m_Noise.bind();
 
-	Shaders::C_ShaderManager::Instance().ActivateShader(program);
+	auto basicProgram = shmgr.GetProgram("basic");
+	Shaders::C_ShaderManager::Instance().ActivateShader(basicProgram);
 
-	program->SetUniform("tex", 1);
-	program->SetUniform("modelMatrix", glm::mat4(1.0f));
-	program->SetUniform("modelColor", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	basicProgram->SetUniform("tex", 1);
+	basicProgram->SetUniform("modelMatrix", glm::mat4(1.0f));
+	//basicProgram->SetUniform("modelColor", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
 	std::static_pointer_cast<Cameras::C_OrbitalCamera>(cameraComponent)->update();
 
@@ -167,14 +167,26 @@ void C_ExplerimentWindow::Update()
 	m_FrameConstUBO->Activate(true);
 	// ----- Frame init -------
 
+	// ----- recalculate noise tex -------
+	shmgr.ActivateShader(shmgr.GetProgram("noise"));
+	shmgr.GetProgram("noise")->SetUniform("frequency", 5);
+
+
+	glMemoryBarrier(GL_ALL_BARRIER_BITS);
+	glActiveTexture(GL_TEXTURE0);
+	glBindImageTexture(0, m_Noise.GetTexture(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+
+	glDispatchCompute(dim / 16, dim / 16, 1);
+	glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
 	// ----- rest of scene -------
-	shmgr.ActivateShader(shmgr.GetProgram("basic"));
+	shmgr.ActivateShader(basicProgram);
+
 	glActiveTexture(GL_TEXTURE0);
 	m_Noise.bind();
 
-	program->SetUniform("tex", 0);
-	program->SetUniform("modelMatrix", glm::mat4(1.0f));
+	basicProgram->SetUniform("tex", 0);
+	basicProgram->SetUniform("modelMatrix", glm::mat4(1.0f));
 	//program->SetUniform("modelColor", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
 	m_renderer->Commit();
