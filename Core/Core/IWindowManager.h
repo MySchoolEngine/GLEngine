@@ -28,6 +28,7 @@ public:
 	I_WindowManager(C_Application::EventCallbackFn callback);
 	virtual ~I_WindowManager();
 	virtual std::shared_ptr<I_Window> OpenNewWindow(const S_WindowInfo& info) = 0;
+	virtual std::shared_ptr<I_Window> GetWindow(GUID guid) const = 0;
 	virtual void AddWindowFactory(I_WindowFactory* wf);
 	virtual void Update() = 0;
 	virtual unsigned int NumWindows() const = 0;

@@ -3,13 +3,15 @@
 #include <GLRenderer/GLFW/GLFWWindow.h>
 
 #include <Core/EventSystem/Event/KeyboardEvents.h>
+#include <Core/EventSystem/Event/MouseEvents.h>
+#include <Core/Input.h>
 
 namespace GLEngine {
 namespace GLRenderer {
 namespace GLFW {
 
 //=================================================================================
-API_EXPORT C_GLFWWindow::C_GLFWWindow()
+C_GLFWWindow::C_GLFWWindow()
 	: m_Window(nullptr)
 {
 	m_Data.m_GUID = GetGUID();
@@ -79,21 +81,53 @@ void C_GLFWWindow::Init(const Core::S_WindowInfo& wndInfo)
 
 	const auto key_callback = [](GLFWwindow* window, int key, int scancode, int action, int mods) {
 		S_Data& data = *static_cast<S_Data*>(glfwGetWindowUserPointer(window));
-		CORE_LOG(E_Level::Info, E_Context::Core, "{} {}", key, scancode);
-		Core::C_KeyPressedEvent event(key, data.m_GUID);
+		CORE_LOG(E_Level::Info, E_Context::Core, "Key: {} {}", key, scancode);
+		if (action == GLFW_PRESS) {
+			Core::C_KeyPressedEvent event(key, data.m_GUID);
+			data.m_EventCallback(event);
+		}
+	};
+
+	const auto scroll_callback = [](GLFWwindow* window, double xoffset, double yoffset) {
+		S_Data& data = *static_cast<S_Data*>(glfwGetWindowUserPointer(window));
+		CORE_LOG(E_Level::Info, E_Context::Core, "Scroll: {}x{}", xoffset, yoffset);
+		Core::C_MouseScrollEvent event(xoffset, yoffset, data.m_GUID);
 		data.m_EventCallback(event);
 	};
 
+	const auto mouse_callback = [](GLFWwindow* window, int button, int action, int mods) {
+		S_Data& data = *static_cast<S_Data*>(glfwGetWindowUserPointer(window));
+		CORE_LOG(E_Level::Info, E_Context::Core, "Mouse button: {} {}", button, action);
+		if (action == GLFW_PRESS) {
+			Core::C_MouseButtonPressed event(button, data.m_GUID);
+			data.m_EventCallback(event);
+		}
+		else {
+			Core::C_MouseButtonReleased event(button, data.m_GUID);
+			data.m_EventCallback(event);
+		}
+	};
+
 	glfwSetKeyCallback(m_Window, key_callback);
+	glfwSetScrollCallback(m_Window, scroll_callback);
+	glfwSetMouseButtonCallback(m_Window, mouse_callback);
 
 	glfwMakeContextCurrent(m_Window);
 	glfwSwapInterval(1);
+
+	m_Input.SetWindow(m_Window);
 }
 
 //=================================================================================
 void C_GLFWWindow::SetEventCallback(Core::C_Application::EventCallbackFn callback)
 {
 	m_Data.m_EventCallback = callback;
+}
+
+//=================================================================================
+const Core::I_Input& C_GLFWWindow::GetInput() const
+{
+	return m_Input;
 }
 
 //=================================================================================

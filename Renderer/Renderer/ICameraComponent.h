@@ -5,12 +5,16 @@
 
 #include <Physics/Primitives/Frustum.h>
 
+#include <Core/EventSystem/EventReciever.h>
+
 #include <glm/glm.hpp>
 
 namespace GLEngine {
 namespace Renderer {
 
-class I_CameraComponent : public Entity::I_Component {
+class I_CameraComponent 
+	: public Entity::I_Component
+	, public Core::I_EventReciever{
 public:
 	virtual ~I_CameraComponent() = default;
 	virtual Entity::E_ComponentType GetType() const override

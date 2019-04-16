@@ -18,6 +18,7 @@ public:
 	// I_WindowManager
 	//=============================================================
 	virtual std::shared_ptr<Core::I_Window> OpenNewWindow(const Core::S_WindowInfo& info) override;
+	virtual std::shared_ptr<Core::I_Window> GetWindow(GUID guid) const override;
 	virtual void Update() override;
 	virtual unsigned int NumWindows() const override;
 

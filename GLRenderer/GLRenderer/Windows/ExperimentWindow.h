@@ -4,8 +4,11 @@
 
 #include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/Mesh/TerrainMeshResource.h>
+#include <GLRenderer/CameraManager.h>
 
 #include <Entity/World.h>
+
+#include <Core/EventSystem/LayerStack.h>
 
 namespace GLEngine {
 
@@ -51,6 +54,8 @@ private:
 	std::shared_ptr<Buffers::UBO::C_FrameConstantsBuffer>		m_FrameConstUBO;
 	std::shared_ptr<Mesh::C_TerrainMeshResource>				m_Terrain;
 	Textures::C_Texture											m_texture;
+	Core::C_LayerStack											m_LayerStack;
+	Temporar::C_CameraManager									m_CamManager;
 	Textures::C_Texture											m_Noise;
 };
 }

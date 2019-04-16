@@ -11,6 +11,7 @@ namespace Core {
 enum class E_EventType {
 	None = 0,
 	KeyPressed, KeyReleased, KeyRepeated,
+	MouseScroll, MouseButtonReleased, MouseButtonPressed,
 	WindowClose,
 };
 

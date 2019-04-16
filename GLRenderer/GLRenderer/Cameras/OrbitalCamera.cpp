@@ -2,6 +2,21 @@
 
 #include <GLRenderer/Cameras/OrbitalCamera.h>
 
+#include <Core/Application.h>
+#include <Core/IWindowManager.h>
+#include <Core/IWindow.h>
+#include <Core/Input.h>
+#include <Core/EventSystem/EventDispatcher.h>
+#include <Core/EventSystem/Event/KeyboardEvents.h>
+#include <Core/EventSystem/Event/MouseEvents.h>
+
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/projection.hpp>
+#include <glm/gtx/rotate_vector.hpp> 
+
+#include <glm/glm.hpp> 
+
 #include <stdexcept>
 
 namespace GLEngine {
@@ -10,6 +25,7 @@ namespace Cameras {
 
 //=================================================================================
 C_OrbitalCamera::C_OrbitalCamera()
+	: m_ControlSpeed(0.5f)
 {
 	_pos = _view = _up = _left = glm::vec3(0);
 	_zoom = _angleXDeg = _angleYDeg = 0.0f;
@@ -86,24 +102,115 @@ float C_OrbitalCamera::GetFov() const
 }
 
 //=================================================================================
+void C_OrbitalCamera::OnEvent(Core::I_Event& event)
+{
+	Core::C_EventDispatcher d(event);
+	d.Dispatch<Core::C_KeyPressedEvent>(std::bind(&C_OrbitalCamera::OnKeyPressed, this, std::placeholders::_1));
+	d.Dispatch<Core::C_MouseScrollEvent>(std::bind(&C_OrbitalCamera::OnMouseScroll, this, std::placeholders::_1));
+	d.Dispatch<Core::C_MouseButtonPressed>(std::bind(&C_OrbitalCamera::OnMousePress, this, std::placeholders::_1));
+}
+
+//=================================================================================
+bool C_OrbitalCamera::OnKeyPressed(Core::C_KeyPressedEvent& event)
+{
+	//===============================================
+	// Rotations
+	if (event.GetKeyCode() == GLFW_KEY_DOWN) {
+		adjustOrientation(0.0f, -m_ControlSpeed);
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_UP) {
+		adjustOrientation(0.0f, m_ControlSpeed);
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_LEFT) {
+		adjustOrientation(m_ControlSpeed, 0.0f);
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_RIGHT) {
+		adjustOrientation(-m_ControlSpeed, 0.0f);
+		return true;
+	}
+	//===============================================
+	// Zoom
+	if (event.GetKeyCode() == GLFW_KEY_MINUS || event.GetKeyCode()==GLFW_KEY_KP_SUBTRACT) {
+		adjustZoom(-2);
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_KP_ADD) {
+		adjustZoom(+2);
+		return true;
+	}
+	//===============================================
+	// Position
+	glm::vec3 normalToPlane = glm::vec3(0.0f, 1.0f, 0.0f);
+	glm::vec3 forwardProjOnXZ = glm::normalize(_view - glm::proj(_view, normalToPlane)) * m_ControlSpeed;
+	glm::vec4 left = glm::rotate(glm::vec4(forwardProjOnXZ, 1.0f), -glm::half_pi<float>(), normalToPlane);
+	glm::vec3 leftProjOnXZ = glm::vec3(left.x, 0.0f, left.z);
+	if (event.GetKeyCode() == GLFW_KEY_W) {
+		glm::vec3 normalToPlane = glm::vec3(0.0f, 1.0f, 0.0f);
+		_center += forwardProjOnXZ;
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_S) {
+		glm::vec3 normalToPlane = glm::vec3(0.0f, 1.0f, 0.0f);
+		_center -= forwardProjOnXZ;
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_A) {
+		_center -= leftProjOnXZ;
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_D) {
+		_center += leftProjOnXZ;
+		return true;
+	}
+	return false;
+}
+
+//=================================================================================
+bool C_OrbitalCamera::OnMouseScroll(Core::C_MouseScrollEvent& event)
+{
+	adjustZoom(static_cast<int>(-event.GetYOffset()*10));
+	return true;
+}
+
+//=================================================================================
+bool C_OrbitalCamera::OnMousePress(Core::C_MouseButtonPressed& event)
+{
+	auto remapFnc = [](float low1, float high1, float low2, float high2, float value) {
+		return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
+	};
+	if (event.GetMouseButton() == 0) {
+		auto window = Core::C_Application::Get().GetWndMgr().GetWindow(event.GetWindowGUID());
+		auto screenCoord = window->GetInput().GetMousePosition();
+		auto ViewProjectionMat = GetViewProjectionMatrix();
+		auto inverseVPMat = glm::inverse(ViewProjectionMat);
+
+		float normX = remapFnc(0, window->GetWidth(), -1, 1, screenCoord.first);
+		float normY = remapFnc(0, window->GetHeight(), -1, 1, screenCoord.second);
+
+		glm::vec4 start(normX, normY, 0.99999999f, 1.0f);
+		start = inverseVPMat* start;
+
+
+		// move center
+		auto dv = _view;
+		float k = -(start.y / dv.y);
+		_center.x = start.x+k*dv.x;
+		_center.y = 0.0f;
+		_center.z = start.z + k*dv.z;
+
+		return true;
+	}
+	return false;
+}
+
+//=================================================================================
 float C_OrbitalCamera::GetAspectRatio() const
 {
 	return _aspect;
 }
-/*
-//=================================================================================
-bool C_OrbitalCamera::Input(SDL_Event event)
-{
-	switch (event.type)
-	{
-	case SDL_MOUSEWHEEL:
-		adjustZoom(event.wheel.y);
-		break;
-	default:
-		break;
-	}
-	return true;
-}*/
 
 //=================================================================================
 glm::quat C_OrbitalCamera::GetRotation() const
