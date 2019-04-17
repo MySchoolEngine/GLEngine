@@ -8,6 +8,7 @@
 #include <GLRenderer/Commands/GLEnable.h>
 #include <GLRenderer/Commands/GlClearColor.h>
 #include <GLRenderer/Commands/GLCullFace.h>
+#include <GLRenderer/Commands/GLViewport.h>
 
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
@@ -131,6 +132,11 @@ void C_ExplerimentWindow::Update()
 				std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth)
 			)
 		);
+		m_renderer->AddCommand(
+			std::move(
+				std::make_unique<C_GLViewport>(0,0, GetWidth(), GetHeight())
+			)
+		);
 	}
 
 	auto cameraComponent = m_CamManager.GetActiveCamera();
@@ -154,8 +160,6 @@ void C_ExplerimentWindow::Update()
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	auto basicProgram = shmgr.GetProgram("basic");
 	shmgr.ActivateShader(basicProgram);
-
-	glViewport(0, 0, GetWidth(), GetHeight());
 
 	m_FrameConstUBO->SetViewProjection(cameraComponent->GetViewProjectionMatrix());
 	m_FrameConstUBO->SetCameraPosition(glm::vec4(cameraComponent->GetPosition(), 1.0f));
