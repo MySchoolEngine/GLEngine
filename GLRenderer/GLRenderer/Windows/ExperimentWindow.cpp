@@ -299,8 +299,7 @@ void C_ExplerimentWindow::SetupWorld(const Core::S_WindowInfo& wndInfo)
 		m_texture.SetDimensions({ t.width, t.height });
 		m_texture.SetWrap(GL_REPEAT, GL_REPEAT);
 		m_texture.SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-		glGenerateMipmap(m_texture.GetTarget());
-		//	ErrorCheck();
+		m_texture.GenerateMipMaps();
 
 		m_texture.EndGroupOp();
 	}

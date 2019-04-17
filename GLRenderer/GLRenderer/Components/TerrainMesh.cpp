@@ -26,9 +26,10 @@ C_TerrainMesh::C_TerrainMesh()
 	m_Terrain = std::make_shared<Mesh::C_TerrainMeshResource>();
 	m_Noise.StartGroupOp();
 	m_Noise.SetWrap(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
-	m_Noise.SetFilter(GL_LINEAR, GL_LINEAR);
+	m_Noise.SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
 	glTexImage2D(m_Noise.GetTarget(), 0, GL_RGBA32F, dim, dim, 0, GL_RGBA, GL_FLOAT, nullptr);
 	m_Noise.SetDimensions({ dim,dim });
+	m_Noise.GenerateMipMaps();
 	m_Noise.EndGroupOp();
 }
 
@@ -57,6 +58,9 @@ void C_TerrainMesh::PerformDraw() const
 
 					glDispatchCompute(dim / 16, dim / 16, 1);
 					glMemoryBarrier(GL_ALL_BARRIER_BITS);
+					m_Noise.bind();
+					glGenerateMipmap(m_Noise.GetTarget());
+					m_Noise.unbind();
 				}
 			)
 		)

@@ -46,6 +46,7 @@ public:
 	void SetFilter(GLint min, GLint mag);
 	void SetTexParameter(GLenum pname, const glm::vec4& value);
 	void SetTexParameter(GLenum pname, GLint value);
+	void GenerateMipMaps();
 
 protected:
 	GLuint m_texture;

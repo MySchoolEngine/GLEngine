@@ -78,4 +78,12 @@ void C_Texture::SetTexParameter(GLenum pname, GLint value)
 	unbind();
 }
 
+//=================================================================================
+void C_Texture::GenerateMipMaps()
+{
+	bind();
+	glGenerateMipmap(m_target);
+	unbind();
+}
+
 }}}
