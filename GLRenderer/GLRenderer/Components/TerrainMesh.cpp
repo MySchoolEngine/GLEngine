@@ -38,43 +38,43 @@ void C_TerrainMesh::PerformDraw() const
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
-					[&]() {
-						auto& shmgr = Shaders::C_ShaderManager::Instance();
-						shmgr.ActivateShader(shmgr.GetProgram("noise"));
-						shmgr.GetProgram("noise")->SetUniform("frequency", m_Frequency);
-					}
-				)
+				[&]() {
+					auto& shmgr = Shaders::C_ShaderManager::Instance();
+					shmgr.ActivateShader(shmgr.GetProgram("noise"));
+					shmgr.GetProgram("noise")->SetUniform("frequency", m_Frequency);
+				}
+			)
 		)
 	);
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
-					[&]() {
-						glMemoryBarrier(GL_ALL_BARRIER_BITS);
-						glActiveTexture(GL_TEXTURE0);
-						glBindImageTexture(0, m_Noise.GetTexture(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+				[&]() {
+					glMemoryBarrier(GL_ALL_BARRIER_BITS);
+					glActiveTexture(GL_TEXTURE0);
+					glBindImageTexture(0, m_Noise.GetTexture(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
-						glDispatchCompute(dim / 16, dim / 16, 1);
-						glMemoryBarrier(GL_ALL_BARRIER_BITS);
-					}
-				)
+					glDispatchCompute(dim / 16, dim / 16, 1);
+					glMemoryBarrier(GL_ALL_BARRIER_BITS);
+				}
+			)
 		)
 	);
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
-					[&]() {
-						auto& shmgr = Shaders::C_ShaderManager::Instance();
-						shmgr.ActivateShader(shmgr.GetProgram("terrain"));
+				[&]() {
+					auto& shmgr = Shaders::C_ShaderManager::Instance();
+					shmgr.ActivateShader(shmgr.GetProgram("terrain"));
 
-						glActiveTexture(GL_TEXTURE0);
-						m_Noise.bind();
+					glActiveTexture(GL_TEXTURE0);
+					m_Noise.bind();
 
-						m_Terrain->BindVAO();
-						glDrawArrays(GL_TRIANGLES, 0, 16);
-						m_Terrain->UnbindVAO();
-					}
-				)
+					m_Terrain->BindVAO();
+					glDrawArrays(GL_TRIANGLES, 0, 16);
+					m_Terrain->UnbindVAO();
+				}
+			)
 		)
 	);
 }
