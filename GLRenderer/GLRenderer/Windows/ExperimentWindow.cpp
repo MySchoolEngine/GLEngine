@@ -216,6 +216,15 @@ bool C_ExplerimentWindow::OnKeyPressed(Core::C_KeyPressedEvent& event)
 		return true;
 	}
 
+	if (event.GetKeyCode() == GLFW_KEY_K) {
+		m_TerrainComp->IncreaseSQ();
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_L) {
+		m_TerrainComp->DecreaseSQ();
+		return true;
+	}
+
 
 	return false;
 }

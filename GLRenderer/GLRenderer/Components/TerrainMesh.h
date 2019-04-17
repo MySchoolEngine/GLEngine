@@ -17,9 +17,12 @@ public:
 	Textures::C_Texture& GetTexture() { return m_Noise; }
 	void IncreaseFreq() { m_Frequency++; }
 	void DecreaseFreq() { m_Frequency--; }
+	void IncreaseSQ() { m_SqPerLine++; }
+	void DecreaseSQ() { m_SqPerLine--; }
 protected:
 	std::shared_ptr<Mesh::C_TerrainMeshResource>				m_Terrain;
 	int						m_Frequency;
+	int						m_SqPerLine;
 	Textures::C_Texture		m_Noise;
 };
 

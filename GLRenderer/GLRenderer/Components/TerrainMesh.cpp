@@ -20,6 +20,7 @@ namespace Components {
 //=================================================================================
 C_TerrainMesh::C_TerrainMesh()
 	: m_Frequency(13)
+	, m_SqPerLine(5)
 	, m_Noise("TerrainNoise")
 {
 	m_Terrain = std::make_shared<Mesh::C_TerrainMeshResource>();
@@ -65,13 +66,17 @@ void C_TerrainMesh::PerformDraw() const
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {
 					auto& shmgr = Shaders::C_ShaderManager::Instance();
-					shmgr.ActivateShader(shmgr.GetProgram("terrain"));
+					auto shader = shmgr.GetProgram("terrain");
+					shmgr.ActivateShader(shader);
+					shader->SetUniform("tex", 0);
+					shader->SetUniform("sqPerLine", static_cast<float>(m_SqPerLine));
+					shader->SetUniform("modelMatrix", glm::mat4(1.0f));
 
 					glActiveTexture(GL_TEXTURE0);
 					m_Noise.bind();
 
 					m_Terrain->BindVAO();
-					glDrawArrays(GL_TRIANGLES, 0, 16);
+					glDrawArrays(GL_TRIANGLES, 0, 6*m_SqPerLine*m_SqPerLine);
 					m_Terrain->UnbindVAO();
 				}
 			)
