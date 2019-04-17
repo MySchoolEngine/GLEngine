@@ -26,7 +26,7 @@ C_TerrainMesh::C_TerrainMesh()
 	m_Terrain = std::make_shared<Mesh::C_TerrainMeshResource>();
 	m_Noise.StartGroupOp();
 	m_Noise.SetWrap(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
-	m_Noise.SetFilter(GL_NEAREST, GL_NEAREST);
+	m_Noise.SetFilter(GL_LINEAR, GL_LINEAR);
 	glTexImage2D(m_Noise.GetTarget(), 0, GL_RGBA32F, dim, dim, 0, GL_RGBA, GL_FLOAT, nullptr);
 	m_Noise.SetDimensions({ dim,dim });
 	m_Noise.EndGroupOp();
@@ -71,6 +71,8 @@ void C_TerrainMesh::PerformDraw() const
 					shader->SetUniform("tex", 0);
 					shader->SetUniform("sqPerLine", static_cast<float>(m_SqPerLine));
 					shader->SetUniform("modelMatrix", glm::mat4(1.0f));
+					shader->SetUniform("modelColor", glm::vec4(0.3f, 1.0f, 0.4,0.0f));
+					shader->SetUniform("hasTexture", false);
 
 					glActiveTexture(GL_TEXTURE0);
 					m_Noise.bind();
