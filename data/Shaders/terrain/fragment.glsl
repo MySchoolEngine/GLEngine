@@ -20,8 +20,10 @@ vec4 getNormal(){
     float s21 = textureOffset(tex, uv, off.zy).x;
     float s10 = textureOffset(tex, uv, off.yx).x;
     float s12 = textureOffset(tex, uv, off.yz).x;
-    vec3 va = dFdx(vec3(uv.x*5, s11, uv.y*5));
-    vec3 vb = dFdy(vec3(uv.x*5, s11, uv.y*5));
+    float avg = s11 + s01 + s21 + s10+s12;
+    avg/=5.0f;
+    vec3 va = dFdx(vec3(uv.x*5, avg, uv.y*5));
+    vec3 vb = dFdy(vec3(uv.x*5, avg, uv.y*5));
     vec4 bump = vec4( normalize(cross(va,vb)), s11 );
 
 	return vec4(normalize(cross(va,vb)),1);
