@@ -67,6 +67,9 @@ void C_TerrainMesh::PerformDraw() const
 						auto& shmgr = Shaders::C_ShaderManager::Instance();
 						shmgr.ActivateShader(shmgr.GetProgram("terrain"));
 
+						glActiveTexture(GL_TEXTURE0);
+						m_Noise.bind();
+
 						m_Terrain->BindVAO();
 						glDrawArrays(GL_TRIANGLES, 0, 16);
 						m_Terrain->UnbindVAO();
