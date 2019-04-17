@@ -30,6 +30,9 @@ C_OGLRenderer::~C_OGLRenderer()
 //=================================================================================
 void C_OGLRenderer::AddCommand(Renderer::I_Renderer::T_CommandPtr command)
 {
+	if (m_Locked) {
+		__debugbreak();
+	}
 	m_CommandQueue->emplace_back(std::move(command));
 }
 
@@ -69,6 +72,12 @@ void C_OGLRenderer::Commit() const
 void C_OGLRenderer::ClearCommandBuffers()
 {
 	m_CommandQueue->clear();
+}
+
+//=================================================================================
+void C_OGLRenderer::Lock(bool lock /*= true*/)
+{
+	m_Locked = lock;
 }
 
 }
