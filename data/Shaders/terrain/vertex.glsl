@@ -68,7 +68,7 @@ void main()
 	uv = planear;
 	planear*=patchSize;
 
-	vec4 vertexPosition = vec4(planear.x, height.x, planear.y, 1);
+	vec4 vertexPosition = vec4(planear.x, height.r, planear.y, 1);
 
     gl_Position = frame.projectionMatrix * modelMatrix * vertexPosition;
 }
