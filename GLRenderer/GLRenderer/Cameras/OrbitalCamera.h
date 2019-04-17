@@ -15,6 +15,8 @@ namespace Core {
 class C_KeyPressedEvent;
 class C_MouseScrollEvent;
 class C_MouseButtonPressed;
+class C_KeyRepeatedEvent;
+class C_KeyEvent;
 }
 
 namespace Physics {
@@ -66,8 +68,10 @@ public:
 	virtual void OnEvent(Core::I_Event& event) override;
 protected:
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
+	bool OnKeyRepeated(Core::C_KeyRepeatedEvent& event);
 	bool OnMouseScroll(Core::C_MouseScrollEvent& event);
 	bool OnMousePress(Core::C_MouseButtonPressed& event);
+	bool OnKeyEvent(Core::C_KeyEvent& event);
 private:
 	glm::vec3 _pos;
 	glm::vec3 _view;

@@ -106,17 +106,21 @@ void C_OrbitalCamera::OnEvent(Core::I_Event& event)
 {
 	Core::C_EventDispatcher d(event);
 	d.Dispatch<Core::C_KeyPressedEvent>(std::bind(&C_OrbitalCamera::OnKeyPressed, this, std::placeholders::_1));
+	d.Dispatch<Core::C_KeyRepeatedEvent>(std::bind(&C_OrbitalCamera::OnKeyRepeated, this, std::placeholders::_1));
 	d.Dispatch<Core::C_MouseScrollEvent>(std::bind(&C_OrbitalCamera::OnMouseScroll, this, std::placeholders::_1));
 	d.Dispatch<Core::C_MouseButtonPressed>(std::bind(&C_OrbitalCamera::OnMousePress, this, std::placeholders::_1));
+
 }
 
 //=================================================================================
-bool C_OrbitalCamera::OnKeyPressed(Core::C_KeyPressedEvent& event)
+bool C_OrbitalCamera::OnKeyEvent(Core::C_KeyEvent& event)
 {
+
 	//===============================================
 	// Rotations
 	if (event.GetKeyCode() == GLFW_KEY_DOWN) {
 		adjustOrientation(0.0f, -m_ControlSpeed);
+		update();
 		return true;
 	}
 	if (event.GetKeyCode() == GLFW_KEY_UP) {
@@ -131,16 +135,7 @@ bool C_OrbitalCamera::OnKeyPressed(Core::C_KeyPressedEvent& event)
 		adjustOrientation(-m_ControlSpeed, 0.0f);
 		return true;
 	}
-	//===============================================
-	// Zoom
-	if (event.GetKeyCode() == GLFW_KEY_MINUS || event.GetKeyCode()==GLFW_KEY_KP_SUBTRACT) {
-		adjustZoom(-2);
-		return true;
-	}
-	if (event.GetKeyCode() == GLFW_KEY_KP_ADD) {
-		adjustZoom(+2);
-		return true;
-	}
+
 	//===============================================
 	// Position
 	glm::vec3 normalToPlane = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -163,6 +158,35 @@ bool C_OrbitalCamera::OnKeyPressed(Core::C_KeyPressedEvent& event)
 	}
 	if (event.GetKeyCode() == GLFW_KEY_D) {
 		_center += leftProjOnXZ;
+		return true;
+	}
+	return false;
+}
+
+//=================================================================================
+bool C_OrbitalCamera::OnKeyPressed(Core::C_KeyPressedEvent& event)
+{
+	if (OnKeyEvent(event)) {
+		return true;
+	}
+
+	//===============================================
+	// Zoom
+	if (event.GetKeyCode() == GLFW_KEY_MINUS || event.GetKeyCode()==GLFW_KEY_KP_SUBTRACT) {
+		adjustZoom(-2);
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_KP_ADD) {
+		adjustZoom(+2);
+		return true;
+	}
+	return false;
+}
+
+//=================================================================================
+bool C_OrbitalCamera::OnKeyRepeated(Core::C_KeyRepeatedEvent& event)
+{
+	if (OnKeyEvent(event)) {
 		return true;
 	}
 	return false;

@@ -86,6 +86,14 @@ void C_GLFWWindow::Init(const Core::S_WindowInfo& wndInfo)
 			Core::C_KeyPressedEvent event(key, data.m_GUID);
 			data.m_EventCallback(event);
 		}
+		if (action == GLFW_REPEAT) {
+			Core::C_KeyRepeatedEvent event(key, data.m_GUID);
+			data.m_EventCallback(event);
+		}
+		if (action == GLFW_RELEASE) {
+			Core::C_KeyReleasedEvent event(key, data.m_GUID);
+			data.m_EventCallback(event);
+		}
 	};
 
 	const auto scroll_callback = [](GLFWwindow* window, double xoffset, double yoffset) {
