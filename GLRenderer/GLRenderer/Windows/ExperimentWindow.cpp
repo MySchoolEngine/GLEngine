@@ -147,21 +147,13 @@ void C_ExplerimentWindow::Update()
 		}
 	}
 
-
-	auto& shmgr = Shaders::C_ShaderManager::Instance();
-
-
-	glActiveTexture(GL_TEXTURE0);
-	m_TerrainComp->GetTexture().bind();
-
-	auto basicProgram = shmgr.GetProgram("basic");
-	Shaders::C_ShaderManager::Instance().ActivateShader(basicProgram);
-
-	basicProgram->SetUniform("tex", 0);
-	basicProgram->SetUniform("modelMatrix", glm::mat4(1.0f));
-	//basicProgram->SetUniform("modelColor", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-
 	std::static_pointer_cast<Cameras::C_OrbitalCamera>(cameraComponent)->update();
+
+
+	// ----- Frame init -------
+	auto& shmgr = Shaders::C_ShaderManager::Instance();
+	auto basicProgram = shmgr.GetProgram("basic");
+	shmgr.ActivateShader(basicProgram);
 
 	glViewport(0, 0, GetWidth(), GetHeight());
 
@@ -169,24 +161,23 @@ void C_ExplerimentWindow::Update()
 	m_FrameConstUBO->SetCameraPosition(glm::vec4(cameraComponent->GetPosition(), 1.0f));
 	m_FrameConstUBO->UploadData();
 	m_FrameConstUBO->Activate(true);
-	// ----- Frame init -------
-
-	// ----- rest of scene -------
-	shmgr.ActivateShader(basicProgram);
 
 	glActiveTexture(GL_TEXTURE0);
 	m_TerrainComp->GetTexture().bind();
 
 	basicProgram->SetUniform("tex", 0);
 	basicProgram->SetUniform("modelMatrix", glm::mat4(1.0f));
-	//program->SetUniform("modelColor", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	// ----- Frame init -------
+
+	// ----- Actual rendering --
 
 	m_renderer->Commit();
-
 	m_renderer->ClearCommandBuffers();
+	// ----- Actual rendering --
 
 
-	Shaders::C_ShaderManager::Instance().DeactivateShader();
+	m_TerrainComp->GetTexture().unbind();
+	shmgr.DeactivateShader();
 	glfwSwapBuffers(m_Window);
 	glfwPollEvents();
 }
