@@ -21,8 +21,9 @@
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
 
 #include <GLRenderer/Components/StaticMesh.h>
-#include <Entity/IComponent.h>
+#include <GLRenderer/Components/SkyBox.h>
 
+#include <Entity/IComponent.h>
 #include <Entity/BasicEntity.h>
 
 #include <Core/EventSystem/EventDispatcher.h>
@@ -277,6 +278,20 @@ void C_ExplerimentWindow::SetupWorld(const Core::S_WindowInfo& wndInfo)
 		auto plane = std::make_shared<Entity::C_BasicEntity>("plane");
 		m_World.AddEntity(plane);
 		plane->AddComponent(std::make_shared<Components::C_StaticMesh>(billboardMesh));
+	}
+	if(false){
+		using Components::C_SkyBox;
+		auto skyboxComp = std::make_shared<C_SkyBox>();
+		skyboxComp->AddTexture(C_SkyBox::E_Side::Top, std::string("SkyBoxes/mp_crimelem/criminal-element_up.tga"));
+		skyboxComp->AddTexture(C_SkyBox::E_Side::Bottom, std::string("SkyBoxes/mp_crimelem/criminal-element_dn.tga"));
+		skyboxComp->AddTexture(C_SkyBox::E_Side::Right, std::string("SkyBoxes/mp_crimelem/criminal-element_rt.tga"));
+		skyboxComp->AddTexture(C_SkyBox::E_Side::Left, std::string("SkyBoxes/mp_crimelem/criminal-element_lf.tga"));
+		skyboxComp->AddTexture(C_SkyBox::E_Side::Forward, std::string("SkyBoxes/mp_crimelem/criminal-element_ft.tga"));
+		skyboxComp->AddTexture(C_SkyBox::E_Side::Back, std::string("SkyBoxes/mp_crimelem/criminal-element_bk.tga"));
+
+		auto skybox = std::make_shared<Entity::C_BasicEntity>("SkyBox");
+		m_World.AddEntity(skybox);
+		skybox->AddComponent(skyboxComp);
 	}
 	if(false){
 		Textures::TextureLoader tl;
