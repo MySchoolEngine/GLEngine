@@ -72,6 +72,7 @@ void C_TerrainMesh::PerformDraw() const
 					auto& shmgr = Shaders::C_ShaderManager::Instance();
 					auto shader = shmgr.GetProgram("terrain");
 					shmgr.ActivateShader(shader);
+					shader->SetUniform("patchSize", 32.0f);
 					shader->SetUniform("tex", 0);
 					shader->SetUniform("sqPerLine", static_cast<float>(m_SqPerLine));
 					shader->SetUniform("modelMatrix", glm::mat4(1.0f));
