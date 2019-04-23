@@ -21,3 +21,6 @@
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
+
+// debug utils
+#include <GLRenderer/RenderDoc/RenderDocTools.h>

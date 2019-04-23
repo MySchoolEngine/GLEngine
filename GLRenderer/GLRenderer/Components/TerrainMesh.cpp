@@ -55,6 +55,7 @@ void C_TerrainMesh::PerformDraw() const
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {
+					RenderDoc::C_DebugScope s("NoiseCompute");
 					glMemoryBarrier(GL_ALL_BARRIER_BITS);
 					glActiveTexture(GL_TEXTURE0);
 					glBindImageTexture(0, m_Noise.GetTexture(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
