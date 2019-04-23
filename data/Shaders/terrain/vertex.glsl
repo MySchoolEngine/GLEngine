@@ -10,6 +10,7 @@ in vec3 normal;
 uniform mat4 modelMatrix;
 uniform sampler2D tex;
 uniform float sqPerLine;
+uniform float patchSize;
 
 out vec2 uv;
 
@@ -24,7 +25,6 @@ out vec2 uv;
 void main()
 {
 	vec2 planear;
-	float patchSize = 5;
 	float sqSize = 1 / float(sqPerLine);
 
 
