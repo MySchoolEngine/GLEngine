@@ -13,6 +13,8 @@
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 
+#include <GLRenderer/ImGui/ImGuiLayer.h>
+
 #include <GLRenderer/MeshLoading/Scene.h>
 
 #include <GLRenderer/Textures/TextureLoader.h>
@@ -112,6 +114,9 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 
 
 	SetupWorld(wndInfo);
+	m_ImGUI = new ImGui::C_ImGuiLayer(m_ID);
+	m_ImGUI->OnAttach(); // manual call for now.
+	m_LayerStack.PushLayer(m_ImGUI);
 	m_LayerStack.PushLayer(&m_CamManager);
 }
 
@@ -119,6 +124,8 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 void C_ExplerimentWindow::Update()
 {
 	Shaders::C_ShaderManager::Instance().Update();
+	m_ImGUI->FrameBegin();
+	m_ImGUI->OnUpdate();
 
 	glfwMakeContextCurrent(m_Window);
 	{
@@ -181,6 +188,13 @@ void C_ExplerimentWindow::Update()
 	m_TerrainComp[0]->GetTexture().unbind();
 
 	shmgr.DeactivateShader();
+
+	{
+		RenderDoc::C_DebugScope s("ImGUI");
+		m_ImGUI->FrameEnd();
+	}
+
+
 	glfwSwapBuffers(m_Window);
 	glfwPollEvents();
 }

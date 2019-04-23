@@ -16,3 +16,6 @@
 [submodule "vendor/DevIL"]
 	path = vendor/DevIL
 	url = https://github.com/DentonW/DevIL.git
+[submodule "vendor/ImGui"]
+	path = vendor/ImGui
+	url = https://github.com/TheCherno/imgui

@@ -34,7 +34,7 @@ std::pair<float, float> C_GLFWInput::GetMousePosition() const
 	std::pair<double, double> pos;
 	glfwGetCursorPos(m_Window, &pos.first, &pos.second);
 
-	return pos;
+	return static_cast<std::pair<float, float>>(pos);
 }
 
 //=================================================================================

@@ -211,8 +211,8 @@ bool C_OrbitalCamera::OnMousePress(Core::C_MouseButtonPressed& event)
 		auto ViewProjectionMat = GetViewProjectionMatrix();
 		auto inverseVPMat = glm::inverse(ViewProjectionMat);
 
-		float normX = remapFnc(0, window->GetWidth(), -1, 1, screenCoord.first);
-		float normY = remapFnc(0, window->GetHeight(), -1, 1, screenCoord.second);
+		float normX = remapFnc(0, static_cast<float>(window->GetWidth()), -1, 1, screenCoord.first);
+		float normY = remapFnc(0, static_cast<float>(window->GetHeight()), -1, 1, screenCoord.second);
 
 		glm::vec4 start(normX, normY, 0.99999999f, 1.0f);
 		start = inverseVPMat* start;

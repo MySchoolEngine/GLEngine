@@ -19,6 +19,10 @@ class I_CameraComponent;
 
 namespace GLRenderer {
 
+namespace ImGui {
+class C_ImGuiLayer;
+}
+
 namespace Mesh {
 class C_StaticMeshResource;
 }
@@ -63,6 +67,7 @@ private:
 	Textures::C_Texture											m_texture;
 	Core::C_LayerStack											m_LayerStack;
 	Temporar::C_CameraManager									m_CamManager;
+	ImGui::C_ImGuiLayer*										m_ImGUI;
 };
 }
 }

@@ -26,6 +26,29 @@ private:
 };
 
 //=============================================================
+class C_MouseMoved : public C_InputEvent {
+public:
+	C_MouseMoved(float posX, float posY, GUID window)
+		: C_InputEvent(window)
+		, m_PosX(posX)
+		, m_PosY(posY)
+	{}
+
+	inline float GetPosX() const { return m_PosX; }
+	inline float GetPosY() const { return m_PosY; }
+
+	virtual Utils::C_BitField<E_EventCategory> GetInputCategory() const override
+	{
+		return E_EventCategory::Mouse;
+	}
+
+	EVENT_CLASS_TYPE(MouseMoved);
+private:
+	float m_PosX;
+	float m_PosY;
+};
+
+//=============================================================
 class C_MouseButtonEvent : public C_InputEvent {
 public:
 	int GetMouseButton() const { return m_button; }
