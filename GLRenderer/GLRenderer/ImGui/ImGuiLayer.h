@@ -25,6 +25,11 @@ public:
 	virtual void OnAttach() override;
 	virtual void OnDetach() override;
 	virtual void OnUpdate() override;
+
+	void FrameBegin();
+
+	void FrameEnd();
+
 	virtual void OnEvent(Core::I_Event& event) override;
 private:
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);

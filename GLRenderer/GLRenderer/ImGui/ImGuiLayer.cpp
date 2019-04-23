@@ -82,9 +82,14 @@ void C_ImGuiLayer::OnDetach()
 //=================================================================================
 void C_ImGuiLayer::OnUpdate()
 {
+}
+
+//=================================================================================
+void C_ImGuiLayer::FrameBegin()
+{
 	auto window = Core::C_Application::Get().GetWndMgr().GetWindow(m_Window);
 	ImGuiIO& io = ::ImGui::GetIO();
-	io.DisplaySize = ImVec2(window->GetWidth(), window->GetHeight());
+	io.DisplaySize = ImVec2(static_cast<float>(window->GetWidth()), static_cast<float>(window->GetHeight()));
 
 	float time = (float)glfwGetTime();
 	io.DeltaTime = m_Time > 0.0f ? (time - m_Time) : (1.0f / 60.0f);
@@ -92,10 +97,11 @@ void C_ImGuiLayer::OnUpdate()
 
 	ImGui_ImplOpenGL3_NewFrame();
 	::ImGui::NewFrame();
+}
 
-	static bool show = true;
-	::ImGui::ShowDemoWindow(&show);
-
+//=================================================================================
+void C_ImGuiLayer::FrameEnd()
+{
 	::ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(::ImGui::GetDrawData());
 }

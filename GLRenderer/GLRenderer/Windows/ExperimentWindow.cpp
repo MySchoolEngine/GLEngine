@@ -124,6 +124,8 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 void C_ExplerimentWindow::Update()
 {
 	Shaders::C_ShaderManager::Instance().Update();
+	m_ImGUI->FrameBegin();
+	m_ImGUI->OnUpdate();
 
 	glfwMakeContextCurrent(m_Window);
 	{
@@ -189,7 +191,7 @@ void C_ExplerimentWindow::Update()
 
 	{
 		RenderDoc::C_DebugScope s("ImGUI");
-		m_ImGUI->OnUpdate();
+		m_ImGUI->FrameEnd();
 	}
 
 
