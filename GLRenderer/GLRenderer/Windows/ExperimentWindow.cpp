@@ -167,8 +167,10 @@ void C_ExplerimentWindow::Update()
 	m_FrameConstUBO->UploadData();
 	m_FrameConstUBO->Activate(true);
 
+
 	glActiveTexture(GL_TEXTURE0);
-	m_TerrainComp->GetTexture().bind();
+
+	m_TerrainComp[0]->GetTexture().bind();
 
 	basicProgram->SetUniform("tex", 0);
 	basicProgram->SetUniform("modelMatrix", glm::mat4(1.0f));
@@ -181,7 +183,8 @@ void C_ExplerimentWindow::Update()
 	// ----- Actual rendering --
 
 
-	m_TerrainComp->GetTexture().unbind();
+	m_TerrainComp[0]->GetTexture().unbind();
+
 	shmgr.DeactivateShader();
 	glfwSwapBuffers(m_Window);
 	glfwPollEvents();
@@ -209,20 +212,28 @@ bool C_ExplerimentWindow::OnKeyPressed(Core::C_KeyPressedEvent& event)
 	}
 
 	if (event.GetKeyCode() == GLFW_KEY_I) {
-		m_TerrainComp->IncreaseFreq();
+		WholeTerrain([](T_TerrainPtr terrain) {
+			terrain->IncreaseFreq();
+		});
 		return true;
 	}
 	if (event.GetKeyCode() == GLFW_KEY_O) {
-		m_TerrainComp->DecreaseFreq();
+		WholeTerrain([](T_TerrainPtr terrain) {
+			terrain->DecreaseFreq();
+		});
 		return true;
 	}
 
 	if (event.GetKeyCode() == GLFW_KEY_K) {
-		m_TerrainComp->IncreaseSQ();
+		WholeTerrain([](T_TerrainPtr terrain) {
+			terrain->IncreaseSQ();
+		});
 		return true;
 	}
 	if (event.GetKeyCode() == GLFW_KEY_L) {
-		m_TerrainComp->DecreaseSQ();
+		WholeTerrain([](T_TerrainPtr terrain) {
+			terrain->DecreaseSQ();
+		});
 		return true;
 	}
 
@@ -251,7 +262,7 @@ void C_ExplerimentWindow::SetupWorld(const Core::S_WindowInfo& wndInfo)
 		player->AddComponent(playerCamera);
 		m_CamManager.ActivateCamera(playerCamera);
 	}
-	{
+	if(false){
 		// billboard
 		Mesh::Mesh billboardMesh;
 		billboardMesh.vertices.emplace_back(0, 10, 0, 1); // 1
@@ -320,11 +331,21 @@ void C_ExplerimentWindow::SetupWorld(const Core::S_WindowInfo& wndInfo)
 	}
 
 	{
-		m_TerrainComp = std::make_shared<Components::C_TerrainMesh>();
+		auto comp = std::make_shared<Components::C_TerrainMesh>();
 
-		auto terrain = std::make_shared<Entity::C_BasicEntity>("plane");
+		auto terrain = std::make_shared<Entity::C_BasicEntity>("terrain1");
 		m_World.AddEntity(terrain);
-		terrain->AddComponent(m_TerrainComp);
+		terrain->AddComponent(comp);
+		m_TerrainComp.push_back(comp);
+	}
+	{
+		auto comp = std::make_shared<Components::C_TerrainMesh>();
+
+		auto terrain = std::make_shared<Entity::C_BasicEntity>("terrain2");
+		m_World.AddEntity(terrain);
+		terrain->AddComponent(comp);
+		comp->SetCoord(glm::ivec2(0, 1));
+		m_TerrainComp.push_back(comp);
 	}
 
 
@@ -341,6 +362,12 @@ void C_ExplerimentWindow::SetupWorld(const Core::S_WindowInfo& wndInfo)
 	m_texture.SetDimensions({ 2,2 });
 	glGenerateMipmap(m_texture.GetTarget());
 	m_texture.EndGroupOp();
+}
+
+//=================================================================================
+void C_ExplerimentWindow::WholeTerrain(std::function<void(T_TerrainPtr)> lambda)
+{
+	std::for_each(m_TerrainComp.begin(), m_TerrainComp.end(), lambda);
 }
 
 //=================================================================================

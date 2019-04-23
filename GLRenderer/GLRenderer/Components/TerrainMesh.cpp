@@ -22,6 +22,7 @@ C_TerrainMesh::C_TerrainMesh()
 	: m_Frequency(13)
 	, m_SqPerLine(5)
 	, m_Noise("TerrainNoise")
+	, m_Coord(0,0)
 {
 	m_Terrain = std::make_shared<Mesh::C_TerrainMeshResource>();
 	m_Noise.StartGroupOp();
@@ -44,6 +45,7 @@ void C_TerrainMesh::PerformDraw() const
 					auto& shmgr = Shaders::C_ShaderManager::Instance();
 					shmgr.ActivateShader(shmgr.GetProgram("noise"));
 					shmgr.GetProgram("noise")->SetUniform("frequency", m_Frequency);
+					shmgr.GetProgram("noise")->SetUniform("unicoord", m_Coord);
 				}
 			)
 		)
@@ -72,11 +74,12 @@ void C_TerrainMesh::PerformDraw() const
 					auto& shmgr = Shaders::C_ShaderManager::Instance();
 					auto shader = shmgr.GetProgram("terrain");
 					shmgr.ActivateShader(shader);
-					shader->SetUniform("patchSize", 32.0f);
+					const float patchSize = 32.0f;
+					shader->SetUniform("patchSize", patchSize);
 					shader->SetUniform("tex", 0);
 					shader->SetUniform("sqPerLine", static_cast<float>(m_SqPerLine));
-					shader->SetUniform("modelMatrix", glm::mat4(1.0f));
-					shader->SetUniform("modelColor", glm::vec4(0.3f, 1.0f, 0.4,0.0f));
+					shader->SetUniform("modelMatrix", glm::translate(glm::mat4(1.0f), glm::vec3(m_Coord.x*patchSize, 0.0f, m_Coord.y*patchSize)));
+					shader->SetUniform("modelColor", glm::vec4(0.3f, 1.0f, 0.4, 0.0f));
 					shader->SetUniform("hasTexture", false);
 
 					glActiveTexture(GL_TEXTURE0);
@@ -89,6 +92,12 @@ void C_TerrainMesh::PerformDraw() const
 			)
 		)
 	);
+}
+
+//=================================================================================
+void C_TerrainMesh::SetCoord(glm::ivec2 coord)
+{
+	m_Coord = coord;
 }
 
 }}}

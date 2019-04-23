@@ -46,15 +46,20 @@ protected:
 private:
 	void SetupWorld(const Core::S_WindowInfo& wndInfo);
 
+
+	using T_TerrainPtr = std::shared_ptr<Components::C_TerrainMesh>;
+
+
+	void WholeTerrain(std::function<void(T_TerrainPtr)> lambda);
+
 	void SetupNoiseTex();
 
 	std::shared_ptr<Renderer::I_CameraComponent> GetCameraComponent() const;
 
-
 	Entity::C_World												m_World;
 	std::weak_ptr<Entity::I_Entity>								m_Player;
 	std::shared_ptr<Buffers::UBO::C_FrameConstantsBuffer>		m_FrameConstUBO;
-	std::shared_ptr<Components::C_TerrainMesh>					m_TerrainComp;
+	std::vector<T_TerrainPtr>									m_TerrainComp;
 	Textures::C_Texture											m_texture;
 	Core::C_LayerStack											m_LayerStack;
 	Temporar::C_CameraManager									m_CamManager;
