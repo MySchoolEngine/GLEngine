@@ -146,8 +146,8 @@ bool C_ImGuiLayer::OnMouseButtonReleasedEvent(Core::C_MouseButtonReleased& e)
 bool C_ImGuiLayer::OnMouseScrolledEvent(Core::C_MouseScrollEvent& e)
 {
 	ImGuiIO& io = ::ImGui::GetIO();
-	io.MouseWheelH += e.GetXOffset();
-	io.MouseWheel += e.GetYOffset();
+	io.MouseWheelH += static_cast<float>(e.GetXOffset());
+	io.MouseWheel += static_cast<float>(e.GetYOffset());
 
 	return false;
 }
