@@ -46,6 +46,7 @@ void C_TerrainMesh::PerformDraw() const
 					shmgr.ActivateShader(shmgr.GetProgram("noise"));
 					shmgr.GetProgram("noise")->SetUniform("frequency", m_Frequency);
 					shmgr.GetProgram("noise")->SetUniform("unicoord", m_Coord);
+					shmgr.GetProgram("noise")->SetUniform("patchWidth", dim);
 				}
 			)
 		)

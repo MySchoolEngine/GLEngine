@@ -3,7 +3,7 @@
 layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 layout (binding = 0, rgba32f) writeonly uniform image2D perlinNoise;
 
-int screenWidth = 512;
+uniform int screenWidth;
 #define PI 3.14159265358979323846
 uniform int frequency;
 uniform vec2 unicoord;
