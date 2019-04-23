@@ -25,8 +25,8 @@ public:
 	C_Texture(const std::string& name, GLenum target = GL_TEXTURE_2D);
 	virtual ~C_Texture();
 
-	void bind();
-	void unbind();
+	void bind() const;
+	void unbind() const;
 
 	inline void StartGroupOp() { bind(); m_bGroupOperations = true; }
 	inline void EndGroupOp() { m_bGroupOperations = false; unbind(); }
@@ -46,6 +46,7 @@ public:
 	void SetFilter(GLint min, GLint mag);
 	void SetTexParameter(GLenum pname, const glm::vec4& value);
 	void SetTexParameter(GLenum pname, GLint value);
+	void GenerateMipMaps();
 
 protected:
 	GLuint m_texture;

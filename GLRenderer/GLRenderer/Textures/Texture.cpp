@@ -32,14 +32,14 @@ C_Texture::~C_Texture()
 }
 
 //=================================================================================
-void C_Texture::bind()
+void C_Texture::bind() const
 {
 	if (!m_bGroupOperations)
 		glBindTexture(m_target, m_texture);
 }
 
 //=================================================================================
-void C_Texture::unbind()
+void C_Texture::unbind() const
 {
 	if (!m_bGroupOperations)
 		glBindTexture(m_target, 0);
@@ -75,6 +75,14 @@ void C_Texture::SetTexParameter(GLenum pname, GLint value)
 {
 	bind();
 	glTexParameteri(m_target, pname, value);
+	unbind();
+}
+
+//=================================================================================
+void C_Texture::GenerateMipMaps()
+{
+	bind();
+	glGenerateMipmap(m_target);
 	unbind();
 }
 

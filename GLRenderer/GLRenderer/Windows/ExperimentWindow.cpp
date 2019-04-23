@@ -5,8 +5,10 @@
 #include <GLRenderer/Cameras/OrbitalCamera.h>
 
 #include <GLRenderer/Commands/GLClear.h>
+#include <GLRenderer/Commands/GLEnable.h>
 #include <GLRenderer/Commands/GlClearColor.h>
 #include <GLRenderer/Commands/GLCullFace.h>
+#include <GLRenderer/Commands/GLViewport.h>
 
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
@@ -19,8 +21,9 @@
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
 
 #include <GLRenderer/Components/StaticMesh.h>
-#include <Entity/IComponent.h>
+#include <GLRenderer/Components/SkyBox.h>
 
+#include <Entity/IComponent.h>
 #include <Entity/BasicEntity.h>
 
 #include <Core/EventSystem/EventDispatcher.h>
@@ -29,11 +32,6 @@
 #include <memory>
 #include <iomanip>
 #define ErrorCheck() _glErrorCheck(__FILE__, __LINE__)
-
-
-
-
-const int dim = 256;
 
 //=================================================================================
 const char* glErrorCodeToString(unsigned int code) {
@@ -77,25 +75,29 @@ namespace GLEngine {
 namespace GLRenderer {
 namespace Windows {
 
-std::shared_ptr<Shaders::C_ShaderProgram> terrainProgram;
-
 //=================================================================================
 C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	: C_GLFWoGLWindow(wndInfo)
 	, m_texture("dummyTexture")
-	, m_Noise("noise")
 	, m_LayerStack(std::string("ExperimentalWindowLayerStack"))
 {
 	glfwMakeContextCurrent(m_Window);
-	terrainProgram = Shaders::C_ShaderManager::Instance().GetProgram("terrain");
 
 	m_FrameConstUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>("frameConst");
 
 	{
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_CULL_FACE);
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		using namespace Commands;
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		m_renderer->AddCommand(
+			std::move(
+				std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::DEPTH_TEST)
+			)
+		);
+		m_renderer->AddCommand(
+			std::move(
+				std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::CULL_FACE)
+			)
+		);
 		m_renderer->AddCommand(
 			std::move(
 				std::make_unique<C_GLClearColor>(glm::vec3(1.0f, 1.0f, 1.0f))
@@ -111,7 +113,6 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 
 	SetupWorld(wndInfo);
 	m_LayerStack.PushLayer(&m_CamManager);
-	SetupNoiseTex();
 }
 
 //=================================================================================
@@ -125,6 +126,11 @@ void C_ExplerimentWindow::Update()
 		m_renderer->AddCommand(
 			std::move(
 				std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth)
+			)
+		);
+		m_renderer->AddCommand(
+			std::move(
+				std::make_unique<C_GLViewport>(0,0, GetWidth(), GetHeight())
 			)
 		);
 	}
@@ -143,76 +149,38 @@ void C_ExplerimentWindow::Update()
 		}
 	}
 
-
-	auto& shmgr = Shaders::C_ShaderManager::Instance();
-
-
-	glActiveTexture(GL_TEXTURE1);
-	m_Noise.bind();
-
-	auto basicProgram = shmgr.GetProgram("basic");
-	Shaders::C_ShaderManager::Instance().ActivateShader(basicProgram);
-
-	basicProgram->SetUniform("tex", 1);
-	basicProgram->SetUniform("modelMatrix", glm::mat4(1.0f));
-	//basicProgram->SetUniform("modelColor", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-
 	std::static_pointer_cast<Cameras::C_OrbitalCamera>(cameraComponent)->update();
 
-	glViewport(0, 0, GetWidth(), GetHeight());
+
+	// ----- Frame init -------
+	auto& shmgr = Shaders::C_ShaderManager::Instance();
+	auto basicProgram = shmgr.GetProgram("basic");
+	shmgr.ActivateShader(basicProgram);
 
 	m_FrameConstUBO->SetViewProjection(cameraComponent->GetViewProjectionMatrix());
 	m_FrameConstUBO->SetCameraPosition(glm::vec4(cameraComponent->GetPosition(), 1.0f));
 	m_FrameConstUBO->UploadData();
 	m_FrameConstUBO->Activate(true);
-	// ----- Frame init -------
 
-	// ----- recalculate noise tex -------
-	shmgr.ActivateShader(shmgr.GetProgram("noise"));
-	shmgr.GetProgram("noise")->SetUniform("frequency", 5);
-
-
-	glMemoryBarrier(GL_ALL_BARRIER_BITS);
-	glActiveTexture(GL_TEXTURE0);
-	glBindImageTexture(0, m_Noise.GetTexture(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-
-	glDispatchCompute(dim / 16, dim / 16, 1);
-	glMemoryBarrier(GL_ALL_BARRIER_BITS);
-
-	// ----- rest of scene -------
-	shmgr.ActivateShader(basicProgram);
 
 	glActiveTexture(GL_TEXTURE0);
-	m_Noise.bind();
+
+	m_TerrainComp[0]->GetTexture().bind();
 
 	basicProgram->SetUniform("tex", 0);
 	basicProgram->SetUniform("modelMatrix", glm::mat4(1.0f));
-	//program->SetUniform("modelColor", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	// ----- Frame init -------
+
+	// ----- Actual rendering --
 
 	m_renderer->Commit();
-
 	m_renderer->ClearCommandBuffers();
+	// ----- Actual rendering --
 
 
+	m_TerrainComp[0]->GetTexture().unbind();
 
-
-	// ----- terrain -------
-	shmgr.ActivateShader(shmgr.GetProgram("terrain"));
-	terrainProgram->SetUniform("width", (int)m_Terrain->GetWidth());
-	//terrainProgram->SetUniform("height", (int)m_Terrain->GetHeight());
-	terrainProgram->SetUniform("modelColor", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-	//terrainProgram->SetUniform("screen_size", glm::vec2(640, 480));
-
-
-	m_Terrain->BindVAO();
-	glEnable(GL_PRIMITIVE_RESTART);
-	glPrimitiveRestartIndex(0xFFFF);
-	//glPatchParameteri(GL_PATCH_VERTICES, 4);
-	glDrawElements(GL_TRIANGLE_STRIP, static_cast<GLsizei>(m_Terrain->GetNumTriangles()), GL_UNSIGNED_INT, nullptr);
-	m_Terrain->UnbindVAO();
-
-
-	Shaders::C_ShaderManager::Instance().DeactivateShader();
+	shmgr.DeactivateShader();
 	glfwSwapBuffers(m_Window);
 	glfwPollEvents();
 }
@@ -238,6 +206,33 @@ bool C_ExplerimentWindow::OnKeyPressed(Core::C_KeyPressedEvent& event)
 		return false;
 	}
 
+	if (event.GetKeyCode() == GLFW_KEY_I) {
+		WholeTerrain([](T_TerrainPtr terrain) {
+			terrain->IncreaseFreq();
+		});
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_O) {
+		WholeTerrain([](T_TerrainPtr terrain) {
+			terrain->DecreaseFreq();
+		});
+		return true;
+	}
+
+	if (event.GetKeyCode() == GLFW_KEY_K) {
+		WholeTerrain([](T_TerrainPtr terrain) {
+			terrain->IncreaseSQ();
+		});
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_L) {
+		WholeTerrain([](T_TerrainPtr terrain) {
+			terrain->DecreaseSQ();
+		});
+		return true;
+	}
+
+
 	return false;
 }
 
@@ -255,14 +250,14 @@ void C_ExplerimentWindow::SetupWorld(const Core::S_WindowInfo& wndInfo)
 		m_World.AddEntity(player);
 		float zoom = 5.0f;
 		auto playerCamera = std::make_shared<Cameras::C_OrbitalCamera>();
-		playerCamera->setupCameraProjection(0.1f, 2 * zoom, static_cast<float>(wndInfo.m_width) / static_cast<float>(wndInfo.m_height), 90.0f);
+		playerCamera->setupCameraProjection(0.1f, 2 * zoom*100, static_cast<float>(wndInfo.m_width) / static_cast<float>(wndInfo.m_height), 90.0f);
 		playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
 		playerCamera->adjustOrientation(20.f, 20.f);
 		playerCamera->update();
 		player->AddComponent(playerCamera);
 		m_CamManager.ActivateCamera(playerCamera);
 	}
-	{
+	if(false){
 		// billboard
 		Mesh::Mesh billboardMesh;
 		billboardMesh.vertices.emplace_back(0, 10, 0, 1); // 1
@@ -291,6 +286,20 @@ void C_ExplerimentWindow::SetupWorld(const Core::S_WindowInfo& wndInfo)
 		plane->AddComponent(std::make_shared<Components::C_StaticMesh>(billboardMesh));
 	}
 	if(false){
+		using Components::C_SkyBox;
+		auto skyboxComp = std::make_shared<C_SkyBox>();
+		skyboxComp->AddTexture(C_SkyBox::E_Side::Top, std::string("SkyBoxes/mp_crimelem/criminal-element_up.tga"));
+		skyboxComp->AddTexture(C_SkyBox::E_Side::Bottom, std::string("SkyBoxes/mp_crimelem/criminal-element_dn.tga"));
+		skyboxComp->AddTexture(C_SkyBox::E_Side::Right, std::string("SkyBoxes/mp_crimelem/criminal-element_rt.tga"));
+		skyboxComp->AddTexture(C_SkyBox::E_Side::Left, std::string("SkyBoxes/mp_crimelem/criminal-element_lf.tga"));
+		skyboxComp->AddTexture(C_SkyBox::E_Side::Forward, std::string("SkyBoxes/mp_crimelem/criminal-element_ft.tga"));
+		skyboxComp->AddTexture(C_SkyBox::E_Side::Back, std::string("SkyBoxes/mp_crimelem/criminal-element_bk.tga"));
+
+		auto skybox = std::make_shared<Entity::C_BasicEntity>("SkyBox");
+		m_World.AddEntity(skybox);
+		skybox->AddComponent(skyboxComp);
+	}
+	if(false){
 		Textures::TextureLoader tl;
 		Mesh::Texture t;
 		bool retval = tl.loadTexture("Models/IMG_20151115_104149.jpg", t);
@@ -311,10 +320,45 @@ void C_ExplerimentWindow::SetupWorld(const Core::S_WindowInfo& wndInfo)
 		m_texture.SetDimensions({ t.width, t.height });
 		m_texture.SetWrap(GL_REPEAT, GL_REPEAT);
 		m_texture.SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-		glGenerateMipmap(m_texture.GetTarget());
-		//	ErrorCheck();
+		m_texture.GenerateMipMaps();
 
 		m_texture.EndGroupOp();
+	}
+
+	{
+		auto comp = std::make_shared<Components::C_TerrainMesh>();
+
+		auto terrain = std::make_shared<Entity::C_BasicEntity>("terrain1");
+		m_World.AddEntity(terrain);
+		terrain->AddComponent(comp);
+		m_TerrainComp.push_back(comp);
+	}
+	{
+		auto comp = std::make_shared<Components::C_TerrainMesh>();
+
+		auto terrain = std::make_shared<Entity::C_BasicEntity>("terrain2");
+		m_World.AddEntity(terrain);
+		terrain->AddComponent(comp);
+		comp->SetCoord(glm::ivec2(0, 1));
+		m_TerrainComp.push_back(comp);
+	}
+	{
+		auto comp = std::make_shared<Components::C_TerrainMesh>();
+
+		auto terrain = std::make_shared<Entity::C_BasicEntity>("terrain3");
+		m_World.AddEntity(terrain);
+		terrain->AddComponent(comp);
+		comp->SetCoord(glm::ivec2(1, 1));
+		m_TerrainComp.push_back(comp);
+	}
+	{
+		auto comp = std::make_shared<Components::C_TerrainMesh>();
+
+		auto terrain = std::make_shared<Entity::C_BasicEntity>("terrain4");
+		m_World.AddEntity(terrain);
+		terrain->AddComponent(comp);
+		comp->SetCoord(glm::ivec2(1, 0));
+		m_TerrainComp.push_back(comp);
 	}
 
 
@@ -331,20 +375,12 @@ void C_ExplerimentWindow::SetupWorld(const Core::S_WindowInfo& wndInfo)
 	m_texture.SetDimensions({ 2,2 });
 	glGenerateMipmap(m_texture.GetTarget());
 	m_texture.EndGroupOp();
-
-
-	m_Terrain = std::make_shared<Mesh::C_TerrainMeshResource>();
 }
 
 //=================================================================================
-void C_ExplerimentWindow::SetupNoiseTex()
+void C_ExplerimentWindow::WholeTerrain(std::function<void(T_TerrainPtr)> lambda)
 {
-	m_Noise.StartGroupOp();
-	m_Noise.SetWrap(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
-	m_Noise.SetFilter(GL_NEAREST, GL_NEAREST);
-	glTexImage2D(m_Noise.GetTarget(), 0, GL_RGBA32F, dim, dim, 0, GL_RGBA, GL_FLOAT, nullptr);
-	m_Noise.SetDimensions({ dim,dim });
-	m_Noise.EndGroupOp();
+	std::for_each(m_TerrainComp.begin(), m_TerrainComp.end(), lambda);
 }
 
 //=================================================================================

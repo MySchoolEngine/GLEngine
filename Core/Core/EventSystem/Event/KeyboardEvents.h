@@ -32,4 +32,24 @@ public:
 
 	EVENT_CLASS_TYPE(KeyPressed);
 };
+
+//=================================================================================
+class C_KeyRepeatedEvent : public C_KeyEvent {
+public:
+	template<class ... Args>
+	C_KeyRepeatedEvent(Args&&... args)
+		: C_KeyEvent(std::forward<Args>(args)...) {}
+
+	EVENT_CLASS_TYPE(KeyRepeated);
+};
+
+//=================================================================================
+class C_KeyReleasedEvent : public C_KeyEvent {
+public:
+	template<class ... Args>
+	C_KeyReleasedEvent(Args&&... args)
+		: C_KeyEvent(std::forward<Args>(args)...) {}
+
+	EVENT_CLASS_TYPE(KeyReleased);
+};
 }}
