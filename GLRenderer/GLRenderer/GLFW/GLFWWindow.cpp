@@ -116,9 +116,19 @@ void C_GLFWWindow::Init(const Core::S_WindowInfo& wndInfo)
 		}
 	};
 
+
+
+	const auto mouse_moved_callback = [](GLFWwindow* window, double xPos, double yPos){
+		S_Data& data = *static_cast<S_Data*>(glfwGetWindowUserPointer(window));
+
+		Core::C_MouseMoved event((float)xPos, (float)yPos, data.m_GUID);
+		data.m_EventCallback(event);
+	};
+
 	glfwSetKeyCallback(m_Window, key_callback);
 	glfwSetScrollCallback(m_Window, scroll_callback);
 	glfwSetMouseButtonCallback(m_Window, mouse_callback);
+	glfwSetCursorPosCallback(m_Window, mouse_moved_callback);
 
 	glfwMakeContextCurrent(m_Window);
 	glfwSwapInterval(1);

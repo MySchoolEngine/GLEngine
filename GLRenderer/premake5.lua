@@ -16,6 +16,10 @@ project "GLRenderer"
 		"GLRenderer/**.h",
 		"GLRenderer/**.cpp",
 		"GLRenderer/**.inl",
+		"../%{IncludeDir.ImGui}/examples/imgui_impl_glfw.h",
+		"../%{IncludeDir.ImGui}/examples/imgui_impl_opengl3.h",
+		"../%{IncludeDir.ImGui}/examples/imgui_impl_glfw.cpp",
+		"../%{IncludeDir.ImGui}/examples/imgui_impl_opengl3.cpp",
 		"GLRendererStdafx.cpp",
 		"GLRendererStdafx.h",
 		"premake5.lua",
@@ -34,6 +38,7 @@ project "GLRenderer"
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.fmt}",
+		"../%{IncludeDir.ImGui}",
 		
 		"../vendor/AssimpPrebuild/include",
 		"../vendor/DevILPrebuild/include",
@@ -52,6 +57,7 @@ project "GLRenderer"
 		"Physics",
 		"opengl32.lib",
 		"pugixml",
+		"ImGui",
 		"../vendor/AssimpPrebuild/lib/assimp.lib",
 		"../vendor/DevILPrebuild/lib/x64/unicode/Release/DevIL.lib",
 
