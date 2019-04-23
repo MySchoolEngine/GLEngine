@@ -3,10 +3,10 @@
 layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 layout (binding = 0, rgba32f) writeonly uniform image2D perlinNoise;
 
-uniform int screenWidth;
+uniform int patchWidth;
 #define PI 3.14159265358979323846
 uniform int frequency;
-uniform vec2 unicoord;
+uniform ivec2 unicoord;
 
 //=================================================================================
 float rand(vec2 c){
@@ -14,7 +14,7 @@ float rand(vec2 c){
 }
 
 float noise(vec2 p, float freq ){
-    float unit = screenWidth/freq;
+    float unit = patchWidth/freq;
     vec2 ij = floor(p/unit);
     vec2 xy = mod(p,unit)/unit;
     //xy = 3.*xy*xy-2.*xy*xy*xy;

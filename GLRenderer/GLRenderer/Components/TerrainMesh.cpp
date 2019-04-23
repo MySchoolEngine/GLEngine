@@ -10,7 +10,7 @@
 
 #include <Core/Application.h>
 
-const int dim = 256;
+const int dim = 1024;
 
 namespace GLEngine {
 namespace GLRenderer {
@@ -45,7 +45,7 @@ void C_TerrainMesh::PerformDraw() const
 					auto& shmgr = Shaders::C_ShaderManager::Instance();
 					shmgr.ActivateShader(shmgr.GetProgram("noise"));
 					shmgr.GetProgram("noise")->SetUniform("frequency", m_Frequency);
-					shmgr.GetProgram("noise")->SetUniform("unicoord", m_Coord);
+					shmgr.GetProgram("noise")->SetUniform("unicoord", m_Coord*dim);
 					shmgr.GetProgram("noise")->SetUniform("patchWidth", dim);
 				}
 			)
@@ -75,7 +75,7 @@ void C_TerrainMesh::PerformDraw() const
 					auto& shmgr = Shaders::C_ShaderManager::Instance();
 					auto shader = shmgr.GetProgram("terrain");
 					shmgr.ActivateShader(shader);
-					const float patchSize = 32.0f;
+					const float patchSize = 8;
 					shader->SetUniform("patchSize", patchSize);
 					shader->SetUniform("tex", 0);
 					shader->SetUniform("sqPerLine", static_cast<float>(m_SqPerLine));

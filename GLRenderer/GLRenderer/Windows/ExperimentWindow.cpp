@@ -33,11 +33,6 @@
 #include <iomanip>
 #define ErrorCheck() _glErrorCheck(__FILE__, __LINE__)
 
-
-
-
-const int dim = 256;
-
 //=================================================================================
 const char* glErrorCodeToString(unsigned int code) {
 #define codeToStr(c) case c: return #c; break
@@ -255,7 +250,7 @@ void C_ExplerimentWindow::SetupWorld(const Core::S_WindowInfo& wndInfo)
 		m_World.AddEntity(player);
 		float zoom = 5.0f;
 		auto playerCamera = std::make_shared<Cameras::C_OrbitalCamera>();
-		playerCamera->setupCameraProjection(0.1f, 2 * zoom, static_cast<float>(wndInfo.m_width) / static_cast<float>(wndInfo.m_height), 90.0f);
+		playerCamera->setupCameraProjection(0.1f, 2 * zoom*100, static_cast<float>(wndInfo.m_width) / static_cast<float>(wndInfo.m_height), 90.0f);
 		playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
 		playerCamera->adjustOrientation(20.f, 20.f);
 		playerCamera->update();
@@ -345,6 +340,24 @@ void C_ExplerimentWindow::SetupWorld(const Core::S_WindowInfo& wndInfo)
 		m_World.AddEntity(terrain);
 		terrain->AddComponent(comp);
 		comp->SetCoord(glm::ivec2(0, 1));
+		m_TerrainComp.push_back(comp);
+	}
+	{
+		auto comp = std::make_shared<Components::C_TerrainMesh>();
+
+		auto terrain = std::make_shared<Entity::C_BasicEntity>("terrain3");
+		m_World.AddEntity(terrain);
+		terrain->AddComponent(comp);
+		comp->SetCoord(glm::ivec2(1, 1));
+		m_TerrainComp.push_back(comp);
+	}
+	{
+		auto comp = std::make_shared<Components::C_TerrainMesh>();
+
+		auto terrain = std::make_shared<Entity::C_BasicEntity>("terrain4");
+		m_World.AddEntity(terrain);
+		terrain->AddComponent(comp);
+		comp->SetCoord(glm::ivec2(1, 0));
 		m_TerrainComp.push_back(comp);
 	}
 
