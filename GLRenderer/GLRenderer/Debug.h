@@ -135,7 +135,7 @@ private:
 	C_DebugDraw();
 
 	VAO::C_GLVAO<2> m_VAOaabb;
-	VAO::C_GLVAO<1> m_VAOLINE;
+	VAO::C_GLVAO<1> m_VAOline;
 };
 #else
 //=================================================================================

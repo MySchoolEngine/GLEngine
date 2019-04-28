@@ -92,10 +92,10 @@ C_DebugDraw::C_DebugDraw()
 {
 	SetupAABB();
 	std::vector<glm::vec4> dummy;
-	m_VAOLINE.bind();
-	m_VAOLINE.SetBuffer<0, GL_ARRAY_BUFFER>(dummy);
-	m_VAOLINE.EnableArray<0>();
-	m_VAOLINE.unbind();
+	m_VAOline.bind();
+	m_VAOline.SetBuffer<0, GL_ARRAY_BUFFER>(dummy);
+	m_VAOline.EnableArray<0>();
+	m_VAOline.unbind();
 }
 
 //=================================================================================
@@ -115,7 +115,7 @@ void C_DebugDraw::DrawPoint(const glm::vec4 & point, const glm::vec3 & color, co
 	auto program = shdManager.GetProgram(s_DebugShaderName);
 	shdManager.ActivateShader(program);
 
-	m_VAOLINE.bind();
+	m_VAOline.bind();
 
 	glPointSize(5.0f);
 
@@ -126,7 +126,7 @@ void C_DebugDraw::DrawPoint(const glm::vec4 & point, const glm::vec3 & color, co
 
 	glDrawArrays(GL_POINTS, 0, 1);
 
-	m_VAOLINE.unbind();
+	m_VAOline.unbind();
 }
 
 //=================================================================================
@@ -167,20 +167,20 @@ void C_DebugDraw::DrawLine(const glm::vec4& pointA, const glm::vec4& pointB, con
 	auto program = Shaders::C_ShaderManager::Instance().GetProgram(s_DebugShaderName);
 	shdManager.ActivateShader(program);
 
-	m_VAOLINE.bind();
+	m_VAOline.bind();
 
 	std::vector<glm::vec4> vertices;
 	vertices.push_back(pointA);
 	vertices.push_back(pointB);
 
-	m_VAOLINE.SetBufferData<0, GL_ARRAY_BUFFER>(vertices, true);
+	m_VAOline.SetBufferData<0, GL_ARRAY_BUFFER>(vertices, true);
 
 	program->SetUniform("modelMatrix", glm::mat4(1.0f));
 	program->SetUniform("colorIN", color);
 
 	glDrawArrays(GL_LINES, 0, 2);
 
-	m_VAOLINE.unbind();
+	m_VAOline.unbind();
 }
 
 //=================================================================================
@@ -196,16 +196,16 @@ void C_DebugDraw::DrawLines(const std::vector<glm::vec4>& pairs, const glm::vec3
 	auto program = Shaders::C_ShaderManager::Instance().GetProgram(s_DebugShaderName);
 	shdManager.ActivateShader(program);
 
-	m_VAOLINE.bind();
+	m_VAOline.bind();
 
-	m_VAOLINE.SetBufferData<0, GL_ARRAY_BUFFER>(pairs, true);
+	m_VAOline.SetBufferData<0, GL_ARRAY_BUFFER>(pairs, true);
 
 	program->SetUniform("modelMatrix", glm::mat4(1.0f));
 	program->SetUniform("colorIN", color);
 	
 	glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(pairs.size()));
 
-	m_VAOLINE.unbind();
+	m_VAOline.unbind();
 }
 
 //=================================================================================
