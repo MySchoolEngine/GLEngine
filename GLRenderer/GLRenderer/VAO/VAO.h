@@ -27,14 +27,14 @@ public:
 
 	template<int INDEX, GLenum BUFFERTYPE, class T,
 			typename = T_EnableIndex<INDEX>>
-	void SetBuffer(std::vector<T> data) {
+	void SetBuffer(const std::vector<T>& data) {
 		m_Buffers[INDEX] = std::make_unique<Buffers::C_GLBuffer<BUFFERTYPE>>();
 		BindBuffer<INDEX>();
 
-		const auto typeLenght = sizeof(T);
-
-		glBufferData(BUFFERTYPE, data.size() * typeLenght, data.data(), GL_STATIC_DRAW);
+		if(data.size())
+			InnerSetBufferData<INDEX, BUFFERTYPE>(data);
 		if (BUFFERTYPE != GL_ELEMENT_ARRAY_BUFFER) {
+			const auto typeLenght = sizeof(T);
 			glVertexAttribPointer(INDEX, typeLenght / sizeof(float), GL_FLOAT, GL_FALSE, 0, nullptr);
 		}
 		m_Buffers[INDEX]->unbind();
@@ -46,6 +46,13 @@ public:
 		SetBuffer<INDEX, GL_ELEMENT_ARRAY_BUFFER>(data);
 	}
 
+	template<int INDEX, GLenum BUFFERTYPE, class T,
+		typename = T_EnableIndex<INDEX>>
+	void SetBufferData(const std::vector<T>& data, bool dynamicDraw = false) {
+		BindBuffer<INDEX>();
+		InnerSetBufferData<INDEX, BUFFERTYPE>(data, dynamicDraw);
+		m_Buffers[INDEX]->unbind();
+	}
 
 	template<int INDEX, typename = T_EnableIndex<INDEX>>
 	void BindBuffer() {
@@ -60,6 +67,16 @@ public:
 
 protected:
 	std::array<std::unique_ptr<Buffers::I_GLBufferBase>, BUFFERS> m_Buffers;
+private:
+
+
+	template<int INDEX, GLenum BUFFERTYPE, class T,
+		typename = T_EnableIndex<INDEX>>
+	void InnerSetBufferData(const std::vector<T>& data, bool dynamicDraw = false) {
+		const auto typeLenght = sizeof(T);
+		const auto usage = dynamicDraw ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
+		glBufferData(BUFFERTYPE, data.size() * typeLenght, data.data(), usage);
+	}
 };
 }}}
 #include <GLRenderer/VAO/VAO.inl>
