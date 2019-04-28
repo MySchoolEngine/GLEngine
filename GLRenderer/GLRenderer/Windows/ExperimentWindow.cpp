@@ -31,6 +31,8 @@
 #include <Core/EventSystem/EventDispatcher.h>
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 
+#include <imgui.h>
+
 #include <memory>
 #include <iomanip>
 #define ErrorCheck() _glErrorCheck(__FILE__, __LINE__)
@@ -127,6 +129,43 @@ void C_ExplerimentWindow::Update()
 	m_ImGUI->FrameBegin();
 	m_ImGUI->OnUpdate();
 
+	::ImGui::ShowDemoWindow();
+	bool my_tool_active = true;
+	::ImGui::Begin("Terrain visualizations", &my_tool_active);
+	WholeTerrain([](T_TerrainPtr terrain) {
+		::ImGui::Image((void*)terrain->GetTexture().GetTexture() , 
+		{	
+			256,
+			256
+		},
+			{ 0,1 }, { 1,0 });
+	});
+	::ImGui::End();
+
+	::ImGui::Begin("Terrain controls", &my_tool_active, ImGuiWindowFlags_MenuBar);
+	if (::ImGui::BeginMenuBar())
+	{
+		if (::ImGui::BeginMenu("File"))
+		{
+			if (::ImGui::MenuItem("Open..", "Ctrl+O")) { /* Do stuff */ }
+			if (::ImGui::MenuItem("Save", "Ctrl+S")) { /* Do stuff */ }
+			::ImGui::EndMenu();
+		}
+		::ImGui::EndMenuBar();
+	}
+	if (::ImGui::Button("Rain"))
+	{
+		// do stuff
+	}
+	bool value = m_TerrainComp[0]->UsingPerlinNoise();
+	::ImGui::Checkbox("PerlinNoise", &value);
+	WholeTerrain([&](T_TerrainPtr terrain) {
+		terrain->UsePerlinNoise(value);
+	});
+	::ImGui::End();
+
+	m_World.OnUpdate();
+
 	glfwMakeContextCurrent(m_Window);
 	{
 		using namespace Commands;
@@ -149,6 +188,19 @@ void C_ExplerimentWindow::Update()
 
 
 	auto entitiesInView = m_World.GetEntities(cameraComponent->GetFrustum());
+
+
+	my_tool_active = true;
+	::ImGui::Begin("Entities", &my_tool_active);
+	for (const auto entity : entitiesInView) {
+		bool selected = false;
+		::ImGui::Selectable(entity->GetName().c_str(), &selected);
+		if (selected) {
+			entity->OnEvent(Core::C_UserEvent("selected"));
+		}
+	}
+	::ImGui::End();
+
 	for (auto& entity : entitiesInView)
 	{
 		if (auto renderable = entity->GetComponent<Entity::E_ComponentType::Graphical>()) {

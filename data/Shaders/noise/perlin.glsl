@@ -7,6 +7,7 @@ uniform int patchWidth;
 #define PI 3.14159265358979323846
 uniform int frequency;
 uniform ivec2 unicoord;
+uniform bool  usePerlin;
 
 //=================================================================================
 float rand(vec2 c){
@@ -53,7 +54,13 @@ void main()
 	uint posX = gl_GlobalInvocationID.x;
 	uint posY = gl_GlobalInvocationID.y;
     ivec2 coord = ivec2(posX, posY);
-    float val = noise(unicoord + vec2(posX, posY), frequency);
+    float val = 0;
+    if(usePerlin){
+        val = frequency*pNoise(unicoord + vec2(posX, posY), 50);
+    }
+    else{
+        val = noise(unicoord + vec2(posX, posY), frequency);
+    }
 
 	imageStore(perlinNoise, coord, vec4(val, val, val, 1));
 }   

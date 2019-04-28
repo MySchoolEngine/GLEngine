@@ -23,6 +23,8 @@ C_TerrainMesh::C_TerrainMesh()
 	, m_SqPerLine(5)
 	, m_Noise("TerrainNoise")
 	, m_Coord(0,0)
+	, m_HasTexture(false)
+	, m_UsePerlin(false)
 {
 	m_Terrain = std::make_shared<Mesh::C_TerrainMeshResource>();
 	m_Noise.StartGroupOp();
@@ -47,6 +49,7 @@ void C_TerrainMesh::PerformDraw() const
 					shmgr.GetProgram("noise")->SetUniform("frequency", m_Frequency);
 					shmgr.GetProgram("noise")->SetUniform("unicoord", m_Coord*dim);
 					shmgr.GetProgram("noise")->SetUniform("patchWidth", dim);
+					shmgr.GetProgram("noise")->SetUniform("usePerlin", m_UsePerlin);
 				}
 			)
 		)
@@ -82,7 +85,7 @@ void C_TerrainMesh::PerformDraw() const
 					shader->SetUniform("sqPerLine", static_cast<float>(m_SqPerLine));
 					shader->SetUniform("modelMatrix", glm::translate(glm::mat4(1.0f), glm::vec3(m_Coord.x*patchSize, 0.0f, m_Coord.y*patchSize)));
 					shader->SetUniform("modelColor", glm::vec4(0.3f, 1.0f, 0.4, 0.0f));
-					shader->SetUniform("hasTexture", false);
+					shader->SetUniform("hasTexture", m_HasTexture);
 
 					glActiveTexture(GL_TEXTURE0);
 					m_Noise.bind();
@@ -100,6 +103,13 @@ void C_TerrainMesh::PerformDraw() const
 void C_TerrainMesh::SetCoord(glm::ivec2 coord)
 {
 	m_Coord = coord;
+}
+
+//=================================================================================
+void C_TerrainMesh::OnEvent(Core::I_Event& event)
+{
+	event.m_Handeld = true;
+	m_HasTexture = !m_HasTexture;
 }
 
 }}}

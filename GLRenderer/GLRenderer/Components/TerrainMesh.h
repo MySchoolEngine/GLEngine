@@ -21,12 +21,21 @@ public:
 	void DecreaseFreq() { m_Frequency--; }
 	void IncreaseSQ() { m_SqPerLine++; }
 	void DecreaseSQ() { m_SqPerLine--; }
+	void UsePerlinNoise(bool val) { m_UsePerlin = val; }
+	bool UsingPerlinNoise() const { return m_UsePerlin; }
+
+
+	//=================================================================================
+	virtual void OnEvent(Core::I_Event& event) override;
+
 protected:
 	std::shared_ptr<Mesh::C_TerrainMeshResource>				m_Terrain;
 	int						m_Frequency;
 	int						m_SqPerLine;
 	glm::ivec2				m_Coord;
 	Textures::C_Texture		m_Noise;
+	bool					m_HasTexture : 1;
+	bool					m_UsePerlin  : 1;
 };
 
 }}}
