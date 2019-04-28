@@ -134,10 +134,8 @@ private:
 
 	C_DebugDraw();
 
-	GLuint m_VAOline;
-	GLuint m_VBOline;
-
 	VAO::C_GLVAO<2> m_VAOaabb;
+	VAO::C_GLVAO<1> m_VAOLINE;
 };
 #else
 //=================================================================================

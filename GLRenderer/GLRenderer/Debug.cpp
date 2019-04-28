@@ -91,19 +91,11 @@ void C_DebugDraw::SetupAABB()
 C_DebugDraw::C_DebugDraw()
 {
 	SetupAABB();
-	glGenVertexArrays(1, &m_VAOline);
-	glBindVertexArray(m_VAOline);
-
-	glGenBuffers(1, &m_VBOline);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBOline);
-
-	glBufferData(GL_ARRAY_BUFFER, 2 * sizeof(glm::vec4), NULL, GL_DYNAMIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+	std::vector<glm::vec4> dummy;
+	m_VAOLINE.bind();
+	m_VAOLINE.SetBuffer<0, GL_ARRAY_BUFFER>(dummy);
+	m_VAOLINE.EnableArray<0>();
+	m_VAOLINE.unbind();
 }
 
 //=================================================================================
@@ -114,9 +106,6 @@ C_DebugDraw::~C_DebugDraw()
 //=================================================================================
 void C_DebugDraw::Clear()
 {
-	glDeleteBuffers(1, &m_VBOline);
-	glDeleteVertexArrays(1, &m_VAOline);
-	ErrorCheck();
 }
 
 //=================================================================================
@@ -126,26 +115,18 @@ void C_DebugDraw::DrawPoint(const glm::vec4 & point, const glm::vec3 & color, co
 	auto program = shdManager.GetProgram(s_DebugShaderName);
 	shdManager.ActivateShader(program);
 
-	glBindVertexArray(m_VAOline);
-
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBOline);
+	m_VAOLINE.bind();
 
 	glPointSize(5.0f);
-	ErrorCheck();
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4), glm::value_ptr(point), GL_DYNAMIC_DRAW);
-	ErrorCheck();
 
 	program->SetUniform("modelMatrix", modelMatrix);
 	program->SetUniform("colorIN", color);
-	ErrorCheck();
 
 	glDrawArrays(GL_POINTS, 0, 1);
-	ErrorCheck();
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	ErrorCheck();
+	m_VAOLINE.unbind();
 }
 
 //=================================================================================
@@ -186,24 +167,20 @@ void C_DebugDraw::DrawLine(const glm::vec4& pointA, const glm::vec4& pointB, con
 	auto program = Shaders::C_ShaderManager::Instance().GetProgram(s_DebugShaderName);
 	shdManager.ActivateShader(program);
 
-	glBindVertexArray(m_VAOline);
-
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBOline);
+	m_VAOLINE.bind();
 
 	std::vector<glm::vec4> vertices;
 	vertices.push_back(pointA);
 	vertices.push_back(pointB);
 
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec4), vertices.data(), GL_DYNAMIC_DRAW);
+	m_VAOLINE.SetBufferData<0, GL_ARRAY_BUFFER>(vertices, true);
 
 	program->SetUniform("modelMatrix", glm::mat4(1.0f));
 	program->SetUniform("colorIN", color);
 
 	glDrawArrays(GL_LINES, 0, 2);
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	ErrorCheck();
+	m_VAOLINE.unbind();
 }
 
 //=================================================================================
@@ -219,23 +196,16 @@ void C_DebugDraw::DrawLines(const std::vector<glm::vec4>& pairs, const glm::vec3
 	auto program = Shaders::C_ShaderManager::Instance().GetProgram(s_DebugShaderName);
 	shdManager.ActivateShader(program);
 
-	glBindVertexArray(m_VAOline);
+	m_VAOLINE.bind();
 
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBOline);
+	m_VAOLINE.SetBufferData<0, GL_ARRAY_BUFFER>(pairs, true);
 
-	ErrorCheck();
-
-	glBufferData(GL_ARRAY_BUFFER, pairs.size() * sizeof(glm::vec4), pairs.data(), GL_DYNAMIC_DRAW);
-
-	ErrorCheck();
 	program->SetUniform("modelMatrix", glm::mat4(1.0f));
 	program->SetUniform("colorIN", color);
-
+	
 	glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(pairs.size()));
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	ErrorCheck();
+	m_VAOLINE.unbind();
 }
 
 //=================================================================================
