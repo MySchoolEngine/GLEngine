@@ -13,6 +13,7 @@ enum class E_EventType {
 	KeyPressed, KeyReleased, KeyRepeated,
 	MouseScroll, MouseButtonReleased, MouseButtonPressed, MouseMoved,
 	WindowClose,
+	UserDefined,
 };
 
 //=================================================================================
@@ -23,6 +24,7 @@ enum class E_EventCategory {
 	Keyboard	= BIT(2),
 	Mouse		= BIT(3),
 	MouseButton	= BIT(4),
+	UserDefined = BIT(5),
 };
 
 //=================================================================================
@@ -46,6 +48,36 @@ public:
 	}
 
 	bool m_Handeld = false;
+};
+
+
+
+class C_UserEvent : public I_Event {
+public:
+
+	C_UserEvent(const std::string& name)
+	: m_Name(name){}
+	//=================================================================================
+	virtual E_EventType GetType() const override
+	{
+		return Core::E_EventType::UserDefined;
+	}
+
+
+	//=================================================================================
+	virtual Utils::C_BitField<E_EventCategory> GetCategories() const override
+	{
+		return Utils::C_BitField<E_EventCategory>(E_EventCategory::UserDefined);
+	}
+
+
+	//=================================================================================
+	virtual const char* GetName() const override
+	{
+		return m_Name.c_str();
+	}
+private:
+	std::string m_Name;
 };
 
 //=================================================================================
