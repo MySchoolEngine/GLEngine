@@ -18,6 +18,7 @@
 
 #include <GLRenderer/MeshLoading/Scene.h>
 
+#include <GLRenderer/VAO/VAO.h>
 
 namespace GLEngine {
 namespace GLRenderer {
@@ -132,12 +133,10 @@ private:
 	void SetupAABB();
 
 	C_DebugDraw();
-	GLuint m_IBOaabb;
-	GLuint m_VBOaabb;
-	GLuint m_VAOaabb;
 
 	GLuint m_VAOline;
 	GLuint m_VBOline;
+	VAO::C_GLVAO<2> m_VAOAABBs;
 };
 #else
 //=================================================================================

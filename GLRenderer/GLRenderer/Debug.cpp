@@ -11,6 +11,8 @@
 namespace GLEngine {
 namespace GLRenderer {
 
+const static std::string s_DebugShaderName = "basic-wireframe";
+
 //=================================================================================
 const char* glErrorCodeToString(unsigned int code) {
 #define codeToStr(c) case c: return #c; break
@@ -59,44 +61,30 @@ C_DebugDraw & C_DebugDraw::Instance()
 //=================================================================================
 void C_DebugDraw::SetupAABB()
 {
-	glGenVertexArrays(1, &m_VAOaabb);
-	ErrorCheck();
-	glBindVertexArray(m_VAOaabb);
-	ErrorCheck();
-	// Cube 1x1x1, centered on origin
-	GLfloat vertices[] = {
-		-0.5, -0.5, -0.5, 1.0,
-		0.5, -0.5, -0.5, 1.0,
-		0.5,  0.5, -0.5, 1.0,
-		-0.5,  0.5, -0.5, 1.0,
-		-0.5, -0.5,  0.5, 1.0,
-		0.5, -0.5,  0.5, 1.0,
-		0.5,  0.5,  0.5, 1.0,
-		-0.5,  0.5,  0.5, 1.0,
+	std::vector<glm::vec4> vertices = {
+		{-0.5, -0.5, -0.5, 1.0},
+		{0.5, -0.5, -0.5, 1.0},
+		{0.5,  0.5, -0.5, 1.0},
+		{-0.5,  0.5, -0.5, 1.0},
+		{-0.5, -0.5,  0.5, 1.0},
+		{0.5, -0.5,  0.5, 1.0},
+		{0.5,  0.5,  0.5, 1.0},
+		{-0.5,  0.5,  0.5, 1.0},
 	};
-	glGenBuffers(1, &m_VBOaabb);
-	ErrorCheck();
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBOaabb);
-	ErrorCheck();
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	ErrorCheck();
 
-	glEnableVertexAttribArray(0);
-	ErrorCheck();
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
-	ErrorCheck();
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	ErrorCheck();
-	GLushort elements[] = {
+	std::vector<GLushort> elements = {
 		0, 1, 2, 3,
 		4, 5, 6, 7,
 		0, 4, 1, 5, 2, 6, 3, 7
 	};
-	glGenBuffers(1, &m_IBOaabb);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBOaabb);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+
+	m_VAOAABBs.bind();
+
+	m_VAOAABBs.SetBuffer<0, GL_ARRAY_BUFFER>(vertices);
+	m_VAOAABBs.SetBuffer<1, GL_ELEMENT_ARRAY_BUFFER>(elements);
+	m_VAOAABBs.EnableArray<0>();
+
+	m_VAOAABBs.unbind();
 }
 
 //=================================================================================
@@ -127,10 +115,7 @@ C_DebugDraw::~C_DebugDraw()
 void C_DebugDraw::Clear()
 {
 	glDeleteBuffers(1, &m_VBOline);
-	glDeleteBuffers(1, &m_IBOaabb);
 	glDeleteVertexArrays(1, &m_VAOline);
-	glDeleteBuffers(1, &m_VBOaabb);
-	glDeleteVertexArrays(1, &m_VAOaabb);
 	ErrorCheck();
 }
 
@@ -138,7 +123,7 @@ void C_DebugDraw::Clear()
 void C_DebugDraw::DrawPoint(const glm::vec4 & point, const glm::vec3 & color, const glm::mat4 & modelMatrix)
 {
 	auto& shdManager = Shaders::C_ShaderManager::Instance();
-	auto program = shdManager.GetProgram("basic-wireframe");
+	auto program = shdManager.GetProgram(s_DebugShaderName);
 	shdManager.ActivateShader(program);
 
 	glBindVertexArray(m_VAOline);
@@ -173,7 +158,7 @@ void C_DebugDraw::DrawPoint(const glm::vec3 & point, const glm::vec3 & color, co
 void C_DebugDraw::DrawAABB(const Physics::Primitives::S_AABB& bbox, const glm::vec3& color /*= glm::vec3(0.0f, 0.0f, 0.0f)*/, const glm::mat4& modelMatrix /*= glm::mat4(1.0f)*/)
 {
 	auto& shdManager = Shaders::C_ShaderManager::Instance();
-	auto program = Shaders::C_ShaderManager::Instance().GetProgram("basic-wireframe");
+	auto program = Shaders::C_ShaderManager::Instance().GetProgram(s_DebugShaderName);
 	shdManager.ActivateShader(program);
 
 	glm::vec3 size = bbox.m_Max - bbox.m_Min;
@@ -184,30 +169,21 @@ void C_DebugDraw::DrawAABB(const Physics::Primitives::S_AABB& bbox, const glm::v
 	program->SetUniform("modelMatrix", modelMatrix*transform);
 	program->SetUniform("colorIN", color);
 
-	glBindVertexArray(m_VAOaabb);
+	m_VAOAABBs.bind();
+	m_VAOAABBs.BindBuffer<1>();
 
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBOaabb);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBOaabb);
-	ErrorCheck();
 	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, 0);
-	ErrorCheck();
 	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, (GLvoid*)(4 * sizeof(GLushort)));
 	glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, (GLvoid*)(8 * sizeof(GLushort)));
-	ErrorCheck();
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	ErrorCheck();
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	ErrorCheck();
+	m_VAOAABBs.unbind();
 }
 
 //=================================================================================
 void C_DebugDraw::DrawLine(const glm::vec4& pointA, const glm::vec4& pointB, const glm::vec3& color /*= glm::vec3(0.0f, 0.0f, 0.0f)*/)
 {
 	auto& shdManager = Shaders::C_ShaderManager::Instance();
-	auto program = Shaders::C_ShaderManager::Instance().GetProgram("basic-wireframe");
+	auto program = Shaders::C_ShaderManager::Instance().GetProgram(s_DebugShaderName);
 	shdManager.ActivateShader(program);
 
 	glBindVertexArray(m_VAOline);
@@ -240,7 +216,7 @@ void C_DebugDraw::DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, con
 void C_DebugDraw::DrawLines(const std::vector<glm::vec4>& pairs, const glm::vec3 & color)
 {
 	auto& shdManager = Shaders::C_ShaderManager::Instance();
-	auto program = Shaders::C_ShaderManager::Instance().GetProgram("basic-wireframe");
+	auto program = Shaders::C_ShaderManager::Instance().GetProgram(s_DebugShaderName);
 	shdManager.ActivateShader(program);
 
 	glBindVertexArray(m_VAOline);
