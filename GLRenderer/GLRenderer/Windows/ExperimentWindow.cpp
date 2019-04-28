@@ -33,47 +33,6 @@
 
 #include <imgui.h>
 
-#include <memory>
-#include <iomanip>
-#define ErrorCheck() _glErrorCheck(__FILE__, __LINE__)
-
-//=================================================================================
-const char* glErrorCodeToString(unsigned int code) {
-#define codeToStr(c) case c: return #c; break
-	switch (code)
-	{
-		codeToStr(GL_INVALID_ENUM);
-		codeToStr(GL_INVALID_VALUE);
-		codeToStr(GL_INVALID_OPERATION);
-		codeToStr(GL_STACK_OVERFLOW);
-		codeToStr(GL_STACK_UNDERFLOW);
-		codeToStr(GL_OUT_OF_MEMORY);
-	default:
-		return "bad value";
-		break;
-	}
-
-}
-
-//=================================================================================
-bool _glErrorCheck(const char* file, const int line)
-{
-	GLenum status;
-	while ((status = glGetError()) != GL_NO_ERROR) {
-		std::cout << "[" << file << ":" << line << "] Error (0x"
-			<< std::hex << std::setfill('0') << std::setw(4)
-			<< status << ":" << glErrorCodeToString(status) << "): "
-			//<< glewGetErrorString(status)
-			<< std::dec
-			<< std::endl;
-#if _DEBUG
-		__debugbreak();
-#endif
-		return true;
-	}
-	return false;
-}
-
 
 namespace GLEngine {
 namespace GLRenderer {

@@ -15,6 +15,7 @@
 #include <functional>
 #include <map>
 #include <array>
+#include <iomanip>
 
 // rendering dependend things
 #include <glad/glad.h>
@@ -24,3 +25,4 @@
 
 // debug utils
 #include <GLRenderer/RenderDoc/RenderDocTools.h>
+#include <GLRenderer/Debug.h>

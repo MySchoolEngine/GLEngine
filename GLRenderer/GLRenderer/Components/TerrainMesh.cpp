@@ -6,6 +6,8 @@
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 
+#include <Physics/Primitives/AABB.h>
+
 #include <Renderer/IRenderer.h>
 
 #include <Core/Application.h>
@@ -72,6 +74,9 @@ void C_TerrainMesh::PerformDraw() const
 			)
 		)
 	);
+
+
+	const static float patchSize = 8;
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
@@ -79,7 +84,6 @@ void C_TerrainMesh::PerformDraw() const
 					auto& shmgr = Shaders::C_ShaderManager::Instance();
 					auto shader = shmgr.GetProgram("terrain");
 					shmgr.ActivateShader(shader);
-					const float patchSize = 8;
 					shader->SetUniform("patchSize", patchSize);
 					shader->SetUniform("tex", 0);
 					shader->SetUniform("sqPerLine", static_cast<float>(m_SqPerLine));
@@ -97,6 +101,22 @@ void C_TerrainMesh::PerformDraw() const
 			)
 		)
 	);
+
+	if (m_HasTexture) {
+		Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+			std::move(
+				std::make_unique<Commands::HACK::C_LambdaCommand>(
+					[&]() {
+						auto& dd = C_DebugDraw::Instance();
+						Physics::Primitives::S_AABB aabb;
+						aabb.Add(glm::vec3(0.0f, 0.0f, 0.0f));
+						aabb.Add(glm::vec3(patchSize, 1.0f, patchSize));
+						dd.DrawAABB(aabb,glm::vec3(1.0f,0.0f,0.0f),glm::translate(glm::mat4(1.0f), glm::vec3(m_Coord.x*patchSize, 0.0f, m_Coord.y*patchSize)));
+					}
+				)
+			)
+		);
+	}
 }
 
 //=================================================================================
