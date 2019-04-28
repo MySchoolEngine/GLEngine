@@ -81,7 +81,7 @@ void C_DebugDraw::SetupAABB()
 	m_VAOaabb.bind();
 
 	m_VAOaabb.SetBuffer<0, GL_ARRAY_BUFFER>(vertices);
-	m_VAOaabb.SetBuffer<1, GL_ELEMENT_ARRAY_BUFFER>(elements);
+	m_VAOaabb.SetIndexBuffer<1>(elements);
 	m_VAOaabb.EnableArray<0>();
 
 	m_VAOaabb.unbind();
@@ -223,7 +223,6 @@ void C_DebugDraw::DrawLines(const std::vector<glm::vec4>& pairs, const glm::vec3
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBOline);
 
-	std::vector<glm::vec4> vertices;
 	ErrorCheck();
 
 	glBufferData(GL_ARRAY_BUFFER, pairs.size() * sizeof(glm::vec4), pairs.data(), GL_DYNAMIC_DRAW);

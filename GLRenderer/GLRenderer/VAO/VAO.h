@@ -40,6 +40,13 @@ public:
 		m_Buffers[INDEX]->unbind();
 	}
 
+	template<int INDEX, class T,
+		typename = T_EnableIndex<INDEX>>
+	void SetIndexBuffer(std::vector<T> data) {
+		SetBuffer<INDEX, GL_ELEMENT_ARRAY_BUFFER>(data);
+	}
+
+
 	template<int INDEX, typename = T_EnableIndex<INDEX>>
 	void BindBuffer() {
 		m_Buffers[INDEX]->bind();
