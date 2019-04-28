@@ -18,6 +18,11 @@ project "Entity"
 		"../%{IncludeDir.GLM}",
 		"../Core",
 		"../%{IncludeDir.fmt}",
+		"../%{IncludeDir.ImGui}",
+	}
+
+	links{
+		"ImGui",
 	}
 
 	filter "system:windows"

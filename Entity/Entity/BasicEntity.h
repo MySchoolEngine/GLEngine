@@ -17,6 +17,7 @@ public:
 
 	//=================================================================================
 	virtual EntityID GetID() const override;
+	virtual void OnEvent(Core::I_Event& event) override;
 
 protected:
 	EntityID m_ID;

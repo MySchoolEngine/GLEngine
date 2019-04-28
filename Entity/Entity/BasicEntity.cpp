@@ -52,4 +52,11 @@ GLEngine::Entity::I_Entity::EntityID C_BasicEntity::GetID() const
 	return m_ID;
 }
 
+//=================================================================================
+void C_BasicEntity::OnEvent(Core::I_Event& event)
+{
+	auto comp = GetComponent(Entity::E_ComponentType::Graphical);
+	comp->OnEvent(event);
+}
+
 }}

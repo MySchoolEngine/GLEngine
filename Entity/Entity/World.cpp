@@ -6,6 +6,8 @@
 
 #include <Physics/Primitives/Frustum.h>
 
+#include <imgui.h>
+
 
 namespace GLEngine {
 namespace Entity {
@@ -41,6 +43,11 @@ std::vector<std::shared_ptr<I_Entity>> C_World::GetEntities(Physics::Primitives:
 void C_World::AddEntity(std::shared_ptr<I_Entity> entity)
 {
 	m_Entities->push_back(entity);
+}
+
+//=================================================================================
+void C_World::OnUpdate()
+{
 }
 
 }

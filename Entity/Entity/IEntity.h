@@ -4,6 +4,7 @@
 #include <string>
 
 #include <Core/GUID.h>
+#include <Core/EventSystem/EventReciever.h>
 #include <Entity/IComponent.h>
 
 namespace GLEngine {
@@ -14,7 +15,7 @@ enum class E_ComponentType {
 	Camera,
 };
 
-class API_EXPORT I_Entity {
+class API_EXPORT I_Entity : public Core::I_EventReciever {
 public:
 	// naive GUID version
 	using EntityID = GUID;
