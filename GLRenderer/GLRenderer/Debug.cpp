@@ -78,13 +78,13 @@ void C_DebugDraw::SetupAABB()
 		0, 4, 1, 5, 2, 6, 3, 7
 	};
 
-	m_VAOAABBs.bind();
+	m_VAOaabb.bind();
 
-	m_VAOAABBs.SetBuffer<0, GL_ARRAY_BUFFER>(vertices);
-	m_VAOAABBs.SetBuffer<1, GL_ELEMENT_ARRAY_BUFFER>(elements);
-	m_VAOAABBs.EnableArray<0>();
+	m_VAOaabb.SetBuffer<0, GL_ARRAY_BUFFER>(vertices);
+	m_VAOaabb.SetBuffer<1, GL_ELEMENT_ARRAY_BUFFER>(elements);
+	m_VAOaabb.EnableArray<0>();
 
-	m_VAOAABBs.unbind();
+	m_VAOaabb.unbind();
 }
 
 //=================================================================================
@@ -169,14 +169,14 @@ void C_DebugDraw::DrawAABB(const Physics::Primitives::S_AABB& bbox, const glm::v
 	program->SetUniform("modelMatrix", modelMatrix*transform);
 	program->SetUniform("colorIN", color);
 
-	m_VAOAABBs.bind();
-	m_VAOAABBs.BindBuffer<1>();
+	m_VAOaabb.bind();
+	m_VAOaabb.BindBuffer<1>();
 
 	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, 0);
 	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, (GLvoid*)(4 * sizeof(GLushort)));
 	glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, (GLvoid*)(8 * sizeof(GLushort)));
 
-	m_VAOAABBs.unbind();
+	m_VAOaabb.unbind();
 }
 
 //=================================================================================

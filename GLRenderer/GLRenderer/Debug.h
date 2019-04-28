@@ -136,7 +136,8 @@ private:
 
 	GLuint m_VAOline;
 	GLuint m_VBOline;
-	VAO::C_GLVAO<2> m_VAOAABBs;
+
+	VAO::C_GLVAO<2> m_VAOaabb;
 };
 #else
 //=================================================================================
