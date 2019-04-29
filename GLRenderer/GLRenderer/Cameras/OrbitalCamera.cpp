@@ -2,6 +2,8 @@
 
 #include <GLRenderer/Cameras/OrbitalCamera.h>
 
+#include <GLRenderer/PersistentDebug.h>
+
 #include <Core/Application.h>
 #include <Core/IWindowManager.h>
 #include <Core/IWindow.h>
@@ -224,6 +226,7 @@ bool C_OrbitalCamera::OnMousePress(Core::C_MouseButtonPressed& event)
 		_center.x = start.x+k*dv.x;
 		_center.y = 0.0f;
 		_center.z = start.z + k*dv.z;
+		C_PersistentDebug::Instance().DrawLine(start, glm::vec4(_center, 1.0f), glm::vec3(0,1,0));
 
 		return true;
 	}

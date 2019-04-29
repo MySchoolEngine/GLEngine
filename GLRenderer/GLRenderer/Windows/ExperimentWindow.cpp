@@ -24,6 +24,7 @@
 
 #include <GLRenderer/Components/StaticMesh.h>
 #include <GLRenderer/Components/SkyBox.h>
+#include <GLRenderer/PersistentDebug.h>
 
 #include <Entity/IComponent.h>
 #include <Entity/BasicEntity.h>
@@ -203,6 +204,10 @@ void C_ExplerimentWindow::Update()
 	{
 		RenderDoc::C_DebugScope s("ImGUI");
 		m_ImGUI->FrameEnd();
+	}
+	{
+		RenderDoc::C_DebugScope s("Persistent debug");
+		C_PersistentDebug::Instance().DrawAll();
 	}
 
 
