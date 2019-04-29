@@ -86,6 +86,8 @@ C_ShaderManager::T_ShaderPtr C_ShaderManager::GetProgram(const std::string& name
 		return nullptr;
 	}
 
+	glObjectLabel(GL_PROGRAM, program, static_cast<GLsizei>(name.length()), name.c_str());
+
 	T_ShaderPtr shaderProgram = std::make_shared<C_ShaderProgram>(program);
 	shaderProgram->SetName(name);
 
@@ -174,12 +176,15 @@ GLuint C_ShaderManager::LoadShader(const pugi::xml_node& node) const
 	else if (stageAttribute == "tess-control") stage = GL_TESS_CONTROL_SHADER;
 	else if (stageAttribute == "tess-evaluation") stage = GL_TESS_EVALUATION_SHADER;
 
-	if (!m_Compiler.compileShader(shader, std::string(s_ShadersFolder + std::string(node.first_child().value())).c_str(), stage, str)) {
+	const std::string filename(s_ShadersFolder + std::string(node.first_child().value()));
+
+	if (!m_Compiler.compileShader(shader, filename.c_str(), stage, str)) {
 		CORE_LOG(E_Level::Error, E_Context::Render, "--Compilation error");
 		CORE_LOG(E_Level::Error, E_Context::Render, "{}", s_ShadersFolder + std::string(node.first_child().value()));
 		CORE_LOG(E_Level::Error, E_Context::Render, "{}", str);
 		return 0;
 	}
+	glObjectLabel(GL_SHADER, shader, static_cast<GLsizei>(filename.length()), filename.c_str());
 	return shader;
 }
 
