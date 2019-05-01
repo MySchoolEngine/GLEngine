@@ -85,6 +85,9 @@ void C_DebugDraw::SetupAABB()
 	m_VAOaabb.EnableArray<0>();
 
 	m_VAOaabb.unbind();
+
+	m_VAOaabb.NameArray("AABB");
+	m_VAOaabb.NameBuffer<0>("vertices");
 }
 
 //=================================================================================
@@ -116,8 +119,10 @@ void C_DebugDraw::DrawPoint(const glm::vec4 & point, const glm::vec3 & color, co
 	shdManager.ActivateShader(program);
 
 	m_VAOline.bind();
+	m_VAOline.BindBuffer<0>();
 
 	glPointSize(5.0f);
+	glEnable(GL_PROGRAM_POINT_SIZE);
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4), glm::value_ptr(point), GL_DYNAMIC_DRAW);
 

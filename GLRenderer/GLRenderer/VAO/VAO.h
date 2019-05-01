@@ -44,6 +44,7 @@ public:
 		typename = T_EnableIndex<INDEX>>
 	void SetIndexBuffer(std::vector<T> data) {
 		SetBuffer<INDEX, GL_ELEMENT_ARRAY_BUFFER>(data);
+		NameBuffer<INDEX>("indices");
 	}
 
 	template<int INDEX, GLenum BUFFERTYPE, class T,
@@ -63,6 +64,16 @@ public:
 		typename = T_EnableIndex<INDEX>>
 	void EnableArray() {
 		glEnableVertexAttribArray(INDEX);
+	}
+
+	void NameArray(const std::string& name) {
+		glObjectLabel(GL_VERTEX_ARRAY, m_id, static_cast<GLsizei>(name.length()), name.c_str());
+	}
+
+	template<int INDEX,
+		typename = T_EnableIndex<INDEX>>
+	void NameBuffer(const std::string& name) {
+		m_Buffers[INDEX]->NameBuffer(name);
 	}
 
 protected:
