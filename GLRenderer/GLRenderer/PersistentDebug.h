@@ -14,16 +14,17 @@ public:
 	static C_PersistentDebug& Instance();
 	~C_PersistentDebug() = default;
 
-	//template<class ... Args>
-	//void DrawLine(Args&&... args) {
-	//	m_Calls.push_back({ std::chrono::system_clock::now(), [=]() {
-	//		C_DebugDraw::Instance().DrawLine(std::forward<Args>(args));
-	//	} });
-	//}
+	template<class ... Args>
+	void DrawLine(Args&&... args) {
+		m_Calls.push_back({ std::chrono::system_clock::now(), [args...]()mutable {
+			C_DebugDraw::Instance().DrawLine(std::forward<Args>(args)...);
+		} });
+	}
 
-	void DrawLine(glm::vec4& A, glm::vec4& B, glm::vec3& color) {
-		m_Calls.push_back({ std::chrono::system_clock::now(), [=]() {
-			C_DebugDraw::Instance().DrawLine(A,B,color);
+	template<class ... Args>
+	void DrawPoint(Args&&... args) {
+		m_Calls.push_back({ std::chrono::system_clock::now(),[args...]()mutable {
+			C_DebugDraw::Instance().DrawPoint(std::forward<Args>(args)...);
 		} });
 	}
 
