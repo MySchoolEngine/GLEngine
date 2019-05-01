@@ -98,6 +98,12 @@ void C_OrbitalCamera::update()
 }
 
 //=================================================================================
+void C_OrbitalCamera::DebugDraw()
+{
+	C_DebugDraw::Instance().DrawPoint(_center, glm::vec3(0, 0, 1), glm::mat4(1.0f));
+}
+
+//=================================================================================
 float C_OrbitalCamera::GetFov() const
 {
 	return _fovy;
@@ -210,25 +216,51 @@ bool C_OrbitalCamera::OnMousePress(Core::C_MouseButtonPressed& event)
 	if (event.GetMouseButton() == 0) {
 		auto window = Core::C_Application::Get().GetWndMgr().GetWindow(event.GetWindowGUID());
 		auto screenCoord = window->GetInput().GetMousePosition();
-		auto ViewProjectionMat = GetViewProjectionMatrix();
-		auto inverseVPMat = glm::inverse(ViewProjectionMat);
+		// auto ViewProjectionMat = GetViewProjectionMatrix();
+		// auto inverseVPMat = glm::inverse(ViewProjectionMat);
+		// 
+		// float normX = remapFnc(0, static_cast<float>(window->GetWidth()), -1, 1, screenCoord.first);
+		// float normY = remapFnc(0, static_cast<float>(window->GetHeight()), 1, -1, screenCoord.second);
+		// 
+		// glm::vec4 start(normX, normY, _nearZ, 1.0f);
+		// start = inverseVPMat* start;
+		// 
+		// 
+		// // move center
+		// auto dv = _view;
+		// float k = -(start.y / dv.y);
+		//C_PersistentDebug::Instance().DrawLine(start, start + glm::vec4(_view, 1.0f), glm::vec3(0, 1, 0));
+		//C_PersistentDebug::Instance().DrawPoint(glm::vec4(start.x + k*dv.x, 0.0f, start.z + k*dv.z,1.0f), glm::vec3(0, 1, 0), glm::mat4(1.0f));
+		//C_PersistentDebug::Instance().DrawPoint(start, glm::vec3(1, 0, 0), glm::mat4(1.0f));
+		// _center.x = start.x+k*dv.x;
+		// _center.y = 0.0f;
+		// _center.z = start.z + k*dv.z;
 
-		float normX = remapFnc(0, static_cast<float>(window->GetWidth()), -1, 1, screenCoord.first);
-		float normY = remapFnc(0, static_cast<float>(window->GetHeight()), -1, 1, screenCoord.second);
+		float x = (2.0f * screenCoord.first) / window->GetWidth() - 1.0f;
+		float y = 1.0f - (2.0f * screenCoord.second) / window->GetHeight();
+		float z = 1.0f;
+		glm::vec3 ray_nds = glm::vec3(x, y, z);
+		glm::vec4 ray_clip = glm::vec4(ray_nds.x, ray_nds.y, -1.0, 1.0);
+		glm::vec4 ray_eye = glm::inverse(GetProjectionMatrix()) * ray_clip;
+		ray_eye = glm::vec4(ray_eye.x, ray_eye.y, -1.0, 0.0);
 
-		glm::vec4 start(normX, normY, 0.99999999f, 1.0f);
-		start = inverseVPMat* start;
+		glm::vec4 ray_wor = glm::inverse(GetViewMatrix()) * ray_eye;
+		// don't forget to normalise the vector at some point
+		ray_wor = glm::normalize(ray_wor);
+		C_PersistentDebug::Instance().DrawLine(glm::vec4(_pos, 1.0f), glm::vec4(_pos, 1.0f) + ray_wor, glm::vec3(0, 1, 0));
 
 
-		// move center
-		auto dv = _view;
-		float k = -(start.y / dv.y);
-		_center.x = start.x+k*dv.x;
-		_center.y = 0.0f;
-		_center.z = start.z + k*dv.z;
-		C_PersistentDebug::Instance().DrawLine(start, glm::vec4(_center, 1.0f), glm::vec3(0,1,0));
 
-		return true;
+		glm::vec4 planeNormal = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+		float t = -(glm::dot(glm::vec4(_pos, 1.0f),planeNormal) - 1 /*offset from origin*/) / (glm::dot(ray_wor, planeNormal));
+		if (t > 0) {
+			glm::vec4 hit = glm::vec4(_pos, 1.0f) + ray_wor*t;
+			C_PersistentDebug::Instance().DrawPoint(hit, glm::vec3(1, 0, 0), glm::mat4(1.0f));
+
+			_center = hit;
+			update();
+			return true;
+		}
 	}
 	return false;
 }

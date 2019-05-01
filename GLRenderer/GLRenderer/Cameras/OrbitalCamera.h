@@ -56,6 +56,7 @@ public:
 	void adjustOrientation(float dx, float dy);
 
 	void update();
+	void DebugDraw();
 
 
 	virtual float GetFar() const { return _farZ; }
