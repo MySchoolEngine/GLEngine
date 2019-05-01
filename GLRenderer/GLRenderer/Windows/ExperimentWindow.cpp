@@ -197,6 +197,11 @@ void C_ExplerimentWindow::Update()
 	// ----- Actual rendering --
 
 
+	{
+		RenderDoc::C_DebugScope s("CameraDebugDraw");
+		std::static_pointer_cast<Cameras::C_OrbitalCamera>(cameraComponent)->DebugDraw();
+	}
+
 	m_TerrainComp[0]->GetTexture().unbind();
 
 	shmgr.DeactivateShader();
@@ -218,6 +223,7 @@ void C_ExplerimentWindow::Update()
 //=================================================================================
 void C_ExplerimentWindow::OnEvent(Core::I_Event& event)
 {
+	RenderDoc::C_DebugScope s("OnEvent-Fail");
 	// base can make filtering
 	T_Base::OnEvent(event);
 
