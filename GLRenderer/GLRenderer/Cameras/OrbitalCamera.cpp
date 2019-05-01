@@ -216,25 +216,6 @@ bool C_OrbitalCamera::OnMousePress(Core::C_MouseButtonPressed& event)
 	if (event.GetMouseButton() == 0) {
 		auto window = Core::C_Application::Get().GetWndMgr().GetWindow(event.GetWindowGUID());
 		auto screenCoord = window->GetInput().GetMousePosition();
-		// auto ViewProjectionMat = GetViewProjectionMatrix();
-		// auto inverseVPMat = glm::inverse(ViewProjectionMat);
-		// 
-		// float normX = remapFnc(0, static_cast<float>(window->GetWidth()), -1, 1, screenCoord.first);
-		// float normY = remapFnc(0, static_cast<float>(window->GetHeight()), 1, -1, screenCoord.second);
-		// 
-		// glm::vec4 start(normX, normY, _nearZ, 1.0f);
-		// start = inverseVPMat* start;
-		// 
-		// 
-		// // move center
-		// auto dv = _view;
-		// float k = -(start.y / dv.y);
-		//C_PersistentDebug::Instance().DrawLine(start, start + glm::vec4(_view, 1.0f), glm::vec3(0, 1, 0));
-		//C_PersistentDebug::Instance().DrawPoint(glm::vec4(start.x + k*dv.x, 0.0f, start.z + k*dv.z,1.0f), glm::vec3(0, 1, 0), glm::mat4(1.0f));
-		//C_PersistentDebug::Instance().DrawPoint(start, glm::vec3(1, 0, 0), glm::mat4(1.0f));
-		// _center.x = start.x+k*dv.x;
-		// _center.y = 0.0f;
-		// _center.z = start.z + k*dv.z;
 
 		float x = (2.0f * screenCoord.first) / window->GetWidth() - 1.0f;
 		float y = 1.0f - (2.0f * screenCoord.second) / window->GetHeight();
