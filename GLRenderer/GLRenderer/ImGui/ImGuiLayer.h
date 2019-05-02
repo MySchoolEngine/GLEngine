@@ -31,6 +31,8 @@ public:
 	void FrameEnd();
 
 	virtual void OnEvent(Core::I_Event& event) override;
+
+	bool CapturingMouse() const;
 private:
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
 	bool OnMouseButtonPressedEvent(Core::C_MouseButtonPressed& e);

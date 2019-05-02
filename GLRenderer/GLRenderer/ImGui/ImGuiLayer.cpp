@@ -118,6 +118,14 @@ void C_ImGuiLayer::OnEvent(Core::I_Event& event)
 }
 
 //=================================================================================
+bool C_ImGuiLayer::CapturingMouse() const
+{
+	ImGuiIO& io = ::ImGui::GetIO();
+
+	return io.WantCaptureMouse;
+}
+
+//=================================================================================
 bool C_ImGuiLayer::OnKeyPressed(Core::C_KeyPressedEvent& event)
 {
 	ImGuiIO& io = ::ImGui::GetIO();
@@ -136,7 +144,7 @@ bool C_ImGuiLayer::OnMouseButtonPressedEvent(Core::C_MouseButtonPressed& e)
 	ImGuiIO& io = ::ImGui::GetIO();
 	io.MouseDown[e.GetMouseButton()] = true;
 
-	return io.WantCaptureMouse;
+	return CapturingMouse();
 }
 
 //=================================================================================
@@ -145,7 +153,7 @@ bool C_ImGuiLayer::OnMouseButtonReleasedEvent(Core::C_MouseButtonReleased& e)
 	ImGuiIO& io = ::ImGui::GetIO();
 	io.MouseDown[e.GetMouseButton()] = false;
 
-	return io.WantCaptureMouse;
+	return CapturingMouse();
 }
 
 //=================================================================================
@@ -155,7 +163,7 @@ bool C_ImGuiLayer::OnMouseScrolledEvent(Core::C_MouseScrollEvent& e)
 	io.MouseWheelH += static_cast<float>(e.GetXOffset());
 	io.MouseWheel += static_cast<float>(e.GetYOffset());
 
-	return io.WantCaptureMouse;
+	return CapturingMouse();
 }
 
 //=================================================================================
@@ -164,7 +172,7 @@ bool C_ImGuiLayer::OnMouseMoved(Core::C_MouseMoved& e)
 	ImGuiIO& io = ::ImGui::GetIO();
 	io.MousePos = ImVec2(e.GetPosX(), e.GetPosY());
 
-	return io.WantCaptureMouse;
+	return CapturingMouse();
 }
 
 }}}
