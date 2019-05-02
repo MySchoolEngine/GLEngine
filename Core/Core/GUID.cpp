@@ -4,7 +4,7 @@
 
 namespace GLEngine {
 
-static GUID nextGUID = 0;
+static GUID nextGUID = 1;
 
 //=================================================================================
 GUID NextGUID()
