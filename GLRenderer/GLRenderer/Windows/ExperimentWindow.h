@@ -49,6 +49,7 @@ protected:
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
 private:
 	void SetupWorld(const Core::S_WindowInfo& wndInfo);
+	void MouseSelect();
 
 
 	using T_TerrainPtr = std::shared_ptr<Components::C_TerrainMesh>;
