@@ -4,7 +4,10 @@
 
 #include <Entity/IEntity.h>
 
+#include <Physics/Primitives/Ray.h>
+#include <Physics/Primitives/Plane.h>
 #include <Physics/Primitives/Frustum.h>
+#include <Physics/Primitives/Intersection.h>
 
 #include <imgui.h>
 
@@ -28,6 +31,9 @@ C_World::~C_World()
 //=================================================================================
 std::shared_ptr<I_Entity> C_World::GetEntity(GUID id) const
 {
+	if (id == INVALID_GUID) {
+		return nullptr;
+	}
 	return *std::find_if(m_Entities->begin(), m_Entities->end(), [id](const std::shared_ptr<I_Entity>&entity) {
 		return entity->GetID() == id;
 	});
@@ -48,6 +54,23 @@ void C_World::AddEntity(std::shared_ptr<I_Entity> entity)
 //=================================================================================
 void C_World::OnUpdate()
 {
+}
+
+//=================================================================================
+Physics::Primitives::S_RayIntersection C_World::Select(Physics::Primitives::S_Ray& ray)
+{
+	{
+		using namespace Physics::Primitives;
+		S_Plane plane;
+		plane.noraml = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+		plane.originOffset = -1;
+		S_RayIntersection intersection;
+		intersection.entityId = INVALID_GUID;
+		intersection.distance = plane.Intersect(ray);
+		intersection.intersectionPoint = ray.origin + ray.direction*intersection.distance;
+		intersection.ray = ray;
+		return intersection;
+	}
 }
 
 }
