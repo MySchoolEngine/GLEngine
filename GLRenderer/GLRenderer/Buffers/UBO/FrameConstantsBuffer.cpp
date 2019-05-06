@@ -22,6 +22,7 @@ C_FrameConstantsBuffer::C_FrameConstantsBuffer(const std::string& blockName, uns
 //	ErrorCheck();
 	C_UniformBuffer::bind();
 	glBufferData(GL_UNIFORM_BUFFER, bytes, nullptr, GL_DYNAMIC_DRAW);
+	C_UniformBuffer::unbind();
 //	ErrorCheck();
 }
 
