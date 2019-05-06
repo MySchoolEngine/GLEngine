@@ -2,6 +2,9 @@
 
 #include <GLRenderer/Components/TerrainMesh.h>
 
+#include <GLRenderer/Buffers/UniformBuffersManager.h>
+#include <GLRenderer/Buffers/UBO/RainDataBuffer.h>
+
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
@@ -27,10 +30,13 @@ C_TerrainMesh::C_TerrainMesh()
 	, m_Noise("TerrainNoise")
 	, m_Coord(0, 0)
 	, m_Stats(3)
+	, m_RainData(Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<decltype(m_RainData)::element_type>("rainData", dim))
 	, m_HasTexture(false)
 	, m_UsePerlin(false)
 	, m_QueuedUpdate(false)
+	, m_QueueSimulation(false)
 {
+
 	m_Terrain = std::make_shared<Mesh::C_TerrainMeshResource>();
 	m_Noise.StartGroupOp();
 	m_Noise.SetWrap(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
@@ -46,41 +52,8 @@ C_TerrainMesh::C_TerrainMesh()
 
 //=================================================================================
 void C_TerrainMesh::PerformDraw() const
-{
-
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
-		std::move(
-			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[&]() {
-					auto& shmgr = Shaders::C_ShaderManager::Instance();
-					shmgr.ActivateShader(shmgr.GetProgram("noise"));
-					shmgr.GetProgram("noise")->SetUniform("frequency", m_Frequency);
-					shmgr.GetProgram("noise")->SetUniform("unicoord", m_Coord*dim);
-					shmgr.GetProgram("noise")->SetUniform("patchWidth", dim);
-					shmgr.GetProgram("noise")->SetUniform("usePerlin", m_UsePerlin);
-				}
-			)
-		)
-	);
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
-		std::move(
-			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[&]() {
-					RenderDoc::C_DebugScope s("NoiseCompute");
-					glMemoryBarrier(GL_ALL_BARRIER_BITS);
-					glActiveTexture(GL_TEXTURE0);
-					glBindImageTexture(0, m_Noise.GetTexture(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-
-					glDispatchCompute(dim / 16, dim / 16, 1);
-					glMemoryBarrier(GL_ALL_BARRIER_BITS);
-					m_Noise.bind();
-					glGenerateMipmap(m_Noise.GetTarget());
-					m_Noise.unbind();
-				}
-			)
-		)
-	);
-	
+{	
+	GenerateTerrain();
 	if (m_QueuedUpdate) {
 		Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 			std::move(
@@ -103,6 +76,27 @@ void C_TerrainMesh::PerformDraw() const
 		);
 	}
 
+	if (m_QueueSimulation) {
+		Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+			std::move(
+				std::make_unique<Commands::HACK::C_LambdaCommand>(
+					[&]() {
+						RenderDoc::C_DebugScope s("Terrain errosion");
+						auto& shmgr = Shaders::C_ShaderManager::Instance();
+						shmgr.ActivateShader(shmgr.GetProgram("stats"));
+						m_Stats.bind();
+						glMemoryBarrier(GL_ALL_BARRIER_BITS);
+						glActiveTexture(GL_TEXTURE0);
+						glBindImageTexture(0, m_Noise.GetTexture(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+
+						glDispatchCompute(1, 1, 1);
+						glMemoryBarrier(GL_ALL_BARRIER_BITS);
+						m_Stats.unbind();
+					}
+				)
+			)
+		);
+	}
 
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
@@ -162,6 +156,43 @@ void C_TerrainMesh::UpdateStats()
 
 	m_AABB.Add(glm::vec3(0.0f, m_Stats.min, 0.0f));
 	m_AABB.Add(glm::vec3(patchSize, m_Stats.max, patchSize));
+}
+
+//=================================================================================
+void C_TerrainMesh::GenerateTerrain() const
+{
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+		std::move(
+			std::make_unique<Commands::HACK::C_LambdaCommand>(
+				[&]() {
+					auto& shmgr = Shaders::C_ShaderManager::Instance();
+					shmgr.ActivateShader(shmgr.GetProgram("noise"));
+					shmgr.GetProgram("noise")->SetUniform("frequency", m_Frequency);
+					shmgr.GetProgram("noise")->SetUniform("unicoord", m_Coord*dim);
+					shmgr.GetProgram("noise")->SetUniform("patchWidth", dim);
+					shmgr.GetProgram("noise")->SetUniform("usePerlin", m_UsePerlin);
+				}
+			)
+		)
+	);
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+		std::move(
+			std::make_unique<Commands::HACK::C_LambdaCommand>(
+				[&]() {
+					RenderDoc::C_DebugScope s("NoiseCompute");
+					glMemoryBarrier(GL_ALL_BARRIER_BITS);
+					glActiveTexture(GL_TEXTURE0);
+					glBindImageTexture(0, m_Noise.GetTexture(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+
+					glDispatchCompute(dim / 16, dim / 16, 1);
+					glMemoryBarrier(GL_ALL_BARRIER_BITS);
+					m_Noise.bind();
+					glGenerateMipmap(m_Noise.GetTarget());
+					m_Noise.unbind();
+				}
+			)
+		)
+	);
 }
 
 //=================================================================================

@@ -14,8 +14,10 @@ struct S_AABB;
 }
 
 namespace GLRenderer {
+namespace Buffers {
 namespace UBO {
-class C_TerrainStats;
+class C_RainDataBuffer;
+}
 }
 
 namespace Components {
@@ -37,21 +39,25 @@ public:
 
 	void UpdateStats();
 
+	void GenerateTerrain() const;
+
 
 	//=================================================================================
 	virtual void OnEvent(Core::I_Event& event) override;
 
 protected:
-	std::shared_ptr<Mesh::C_TerrainMeshResource>				m_Terrain;
-	int						m_Frequency;
-	int						m_SqPerLine;
-	glm::ivec2				m_Coord;
-	Textures::C_Texture		m_Noise;
-	Physics::Primitives::S_AABB m_AABB;
-	Buffers::UBO::C_TerrainStats m_Stats;
-	bool					m_HasTexture	: 1;
-	bool					m_UsePerlin		: 1;
-	bool					m_QueuedUpdate	: 1;
+	std::shared_ptr<Mesh::C_TerrainMeshResource>		m_Terrain;
+	int								m_Frequency;
+	int								m_SqPerLine;
+	glm::ivec2						m_Coord;
+	Textures::C_Texture				m_Noise;
+	Physics::Primitives::S_AABB		m_AABB;
+	Buffers::UBO::C_TerrainStats	m_Stats;
+	std::shared_ptr<Buffers::UBO::C_RainDataBuffer>		m_RainData;
+	bool							m_HasTexture		: 1;
+	bool							m_UsePerlin			: 1;
+	bool							m_QueuedUpdate		: 1;
+	bool							m_QueueSimulation	: 1;
 };
 
 }}}

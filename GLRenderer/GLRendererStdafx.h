@@ -15,6 +15,8 @@
 #include <functional>
 #include <map>
 #include <array>
+#include <random>
+#include <chrono>
 #include <iomanip>
 
 // rendering dependend things
