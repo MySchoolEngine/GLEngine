@@ -96,6 +96,7 @@ void C_TerrainMesh::PerformDraw() const
 
 						glDispatchCompute(1, 1, 1);
 						glMemoryBarrier(GL_ALL_BARRIER_BITS);
+						m_Stats.unbind();
 					}
 				)
 			)
@@ -167,8 +168,8 @@ void C_TerrainMesh::UpdateStats()
 void C_TerrainMesh::OnEvent(Core::I_Event& event)
 {
 	event.m_Handeld = true;
-	m_QueuedUpdate = true;
 	m_HasTexture = !m_HasTexture;
+	m_QueuedUpdate = m_HasTexture;
 }
 
 }}}

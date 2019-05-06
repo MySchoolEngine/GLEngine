@@ -16,6 +16,7 @@ C_TerrainStats::C_TerrainStats(unsigned int index)
 	constexpr auto bytes = floatSize * 3;
 	bind();
 	glBufferData(GetBufferType(), bytes, nullptr, GL_DYNAMIC_DRAW);
+	unbind();
 }
 
 //=================================================================================
@@ -29,6 +30,7 @@ void C_TerrainStats::UploadData() const
 	data[2] = avg;
 
 	glUnmapBuffer(GetBufferType());
+	unbind();
 }
 
 //=================================================================================
@@ -42,6 +44,7 @@ void C_TerrainStats::DownloadData()
 	avg = data[2];
 
 	glUnmapBuffer(GetBufferType());
+	unbind();
 }
 
 //=================================================================================
@@ -52,7 +55,8 @@ void C_TerrainStats::ClearBuffer()
 	constexpr auto bytes = floatSize * 3;
 	bind();
 	glClearBufferData(GetBufferType(), GL_R32UI, GL_RED, GL_UNSIGNED_INT, nullptr);
-//	glClearBufferSubData(GetBufferType(), GL_R32UI, 0, bytes, GL_RED, GL_UNSIGNED_INT, &m_samples);
+	//	glClearBufferSubData(GetBufferType(), GL_R32UI, 0, bytes, GL_RED, GL_UNSIGNED_INT, &m_samples);
+	unbind();
 }
 
 }}}}
