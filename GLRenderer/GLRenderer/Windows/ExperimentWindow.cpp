@@ -37,6 +37,7 @@
 
 #include <imgui.h>
 
+#include <numeric>
 
 namespace GLEngine {
 namespace GLRenderer {
@@ -47,10 +48,14 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	: C_GLFWoGLWindow(wndInfo)
 	, m_texture("dummyTexture")
 	, m_LayerStack(std::string("ExperimentalWindowLayerStack"))
+	, m_ActualFrameSample(0)
+	, m_FrameSamples()
 {
 	glfwMakeContextCurrent(m_Window);
 
 	m_FrameConstUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>("frameConst");
+
+	m_FrameTimer.reset();
 
 	{
 		using namespace Commands;
@@ -126,6 +131,8 @@ void C_ExplerimentWindow::Update()
 	WholeTerrain([&](T_TerrainPtr terrain) {
 		terrain->UsePerlinNoise(value);
 	});
+	::ImGui::Text("Avg fps %f.2", std::accumulate(m_FrameSamples.begin(), m_FrameSamples.end(), 0.0f)/m_FrameSamples.size());
+	::ImGui::PlotLines("Frame Times", m_FrameSamples.data(), m_FrameSamples.size());
 	::ImGui::End();
 
 	m_World.OnUpdate();
@@ -228,6 +235,14 @@ void C_ExplerimentWindow::Update()
 
 	glfwSwapBuffers(m_Window);
 	glfwPollEvents();
+	sampleTime(float(m_FrameTimer.getElapsedTimeFromLastQueryMilliseconds()));	
+}
+
+//=================================================================================
+void C_ExplerimentWindow::sampleTime(double new_sample) {
+
+	m_FrameSamples[m_ActualFrameSample] = static_cast<float>(new_sample);
+	m_ActualFrameSample = (m_ActualFrameSample + 1) % m_FrameSamples.size();
 }
 
 //=================================================================================

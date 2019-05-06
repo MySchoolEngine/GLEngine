@@ -131,7 +131,7 @@ void C_GLFWWindow::Init(const Core::S_WindowInfo& wndInfo)
 	glfwSetCursorPosCallback(m_Window, mouse_moved_callback);
 
 	glfwMakeContextCurrent(m_Window);
-	glfwSwapInterval(1);
+	//glfwSwapInterval(1);
 
 	m_Input.SetWindow(m_Window);
 }

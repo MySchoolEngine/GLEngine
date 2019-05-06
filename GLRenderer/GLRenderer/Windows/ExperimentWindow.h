@@ -11,6 +11,8 @@
 
 #include <Core/EventSystem/LayerStack.h>
 
+#include <Utils/HighResolutionTimer.h>
+
 namespace GLEngine {
 
 namespace Renderer {
@@ -51,6 +53,7 @@ private:
 	void SetupWorld(const Core::S_WindowInfo& wndInfo);
 	void MouseSelect();
 
+	void sampleTime(double new_sample);
 
 	using T_TerrainPtr = std::shared_ptr<Components::C_TerrainMesh>;
 
@@ -69,6 +72,9 @@ private:
 	Core::C_LayerStack											m_LayerStack;
 	Temporar::C_CameraManager									m_CamManager;
 	ImGui::C_ImGuiLayer*										m_ImGUI;
+	Utils::HighResolutionTimer									m_FrameTimer;
+	int															m_ActualFrameSample;
+	std::array<float, 500>										m_FrameSamples;
 };
 }
 }
