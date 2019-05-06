@@ -131,7 +131,9 @@ void C_ExplerimentWindow::Update()
 	WholeTerrain([&](T_TerrainPtr terrain) {
 		terrain->UsePerlinNoise(value);
 	});
-	::ImGui::Text("Avg fps %f.2", std::accumulate(m_FrameSamples.begin(), m_FrameSamples.end(), 0.0f)/m_FrameSamples.size());
+	auto avgMsPerFrame = std::accumulate(m_FrameSamples.begin(), m_FrameSamples.end(), 0.0f) / m_FrameSamples.size();
+	::ImGui::Text("Avg frame time %f.2", avgMsPerFrame);
+	::ImGui::Text("Avg fps %f.2", 1000.0/ avgMsPerFrame);
 	::ImGui::PlotLines("Frame Times", m_FrameSamples.data(), m_FrameSamples.size());
 	::ImGui::End();
 
