@@ -13,8 +13,6 @@
 
 #include <GLRenderer/Buffers/GLBuffer.h>
 
-#include <vector>
-
 namespace GLEngine {
 namespace GLRenderer {
 namespace Buffers {
