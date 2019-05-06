@@ -2,11 +2,22 @@
 
 #include <Renderer/IRenderableComponent.h>
 
+#include <GLRenderer/Buffers/UBO/TerrainStats.h>
 #include <GLRenderer/Mesh/TerrainMeshResource.h>
 #include <GLRenderer/Textures/Texture.h>
 
 namespace GLEngine {
+namespace Physics {
+namespace Primitives {
+struct S_AABB;
+}
+}
+
 namespace GLRenderer {
+namespace UBO {
+class C_TerrainStats;
+}
+
 namespace Components {
 
 class C_TerrainMesh : public Renderer::I_RenderableComponent {
@@ -24,6 +35,8 @@ public:
 	void UsePerlinNoise(bool val) { m_UsePerlin = val; }
 	bool UsingPerlinNoise() const { return m_UsePerlin; }
 
+	void UpdateStats();
+
 
 	//=================================================================================
 	virtual void OnEvent(Core::I_Event& event) override;
@@ -34,8 +47,11 @@ protected:
 	int						m_SqPerLine;
 	glm::ivec2				m_Coord;
 	Textures::C_Texture		m_Noise;
-	bool					m_HasTexture : 1;
-	bool					m_UsePerlin  : 1;
+	Physics::Primitives::S_AABB m_AABB;
+	Buffers::UBO::C_TerrainStats m_Stats;
+	bool					m_HasTexture	: 1;
+	bool					m_UsePerlin		: 1;
+	bool					m_QueuedUpdate	: 1;
 };
 
 }}}

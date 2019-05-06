@@ -13,6 +13,7 @@
 #include <Core/Application.h>
 
 const int dim = 1024;
+const static float patchSize = 8;
 
 namespace GLEngine {
 namespace GLRenderer {
@@ -24,9 +25,11 @@ C_TerrainMesh::C_TerrainMesh()
 	: m_Frequency(13)
 	, m_SqPerLine(5)
 	, m_Noise("TerrainNoise")
-	, m_Coord(0,0)
+	, m_Coord(0, 0)
+	, m_Stats(3)
 	, m_HasTexture(false)
 	, m_UsePerlin(false)
+	, m_QueuedUpdate(false)
 {
 	m_Terrain = std::make_shared<Mesh::C_TerrainMeshResource>();
 	m_Noise.StartGroupOp();
@@ -36,6 +39,9 @@ C_TerrainMesh::C_TerrainMesh()
 	m_Noise.SetDimensions({ dim,dim });
 	m_Noise.GenerateMipMaps();
 	m_Noise.EndGroupOp();
+
+	m_AABB.Add(glm::vec3(0.0f, 0.0f, 0.0f));
+	m_AABB.Add(glm::vec3(patchSize, 1.0f, patchSize));
 }
 
 //=================================================================================
@@ -74,9 +80,29 @@ void C_TerrainMesh::PerformDraw() const
 			)
 		)
 	);
+	
+	if (m_QueuedUpdate) {
+		Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+			std::move(
+				std::make_unique<Commands::HACK::C_LambdaCommand>(
+					[&]() {
+						RenderDoc::C_DebugScope s("Terrain stats");
+						auto& shmgr = Shaders::C_ShaderManager::Instance();
+						shmgr.ActivateShader(shmgr.GetProgram("stats"));
+						m_Stats.bind();
+						glMemoryBarrier(GL_ALL_BARRIER_BITS);
+						glActiveTexture(GL_TEXTURE0);
+						glBindImageTexture(0, m_Noise.GetTexture(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+
+						glDispatchCompute(1, 1, 1);
+						glMemoryBarrier(GL_ALL_BARRIER_BITS);
+					}
+				)
+			)
+		);
+	}
 
 
-	const static float patchSize = 8;
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
@@ -108,10 +134,7 @@ void C_TerrainMesh::PerformDraw() const
 				std::make_unique<Commands::HACK::C_LambdaCommand>(
 					[&]() {
 						auto& dd = C_DebugDraw::Instance();
-						Physics::Primitives::S_AABB aabb;
-						aabb.Add(glm::vec3(0.0f, 0.0f, 0.0f));
-						aabb.Add(glm::vec3(patchSize, 1.0f, patchSize));
-						dd.DrawAABB(aabb,glm::vec3(1.0f,0.0f,0.0f),glm::translate(glm::mat4(1.0f), glm::vec3(m_Coord.x*patchSize, 0.0f, m_Coord.y*patchSize)));
+						dd.DrawAABB(m_AABB,glm::vec3(1.0f,0.0f,0.0f),glm::translate(glm::mat4(1.0f), glm::vec3(m_Coord.x*patchSize, 0.0f, m_Coord.y*patchSize)));
 					}
 				)
 			)
@@ -126,9 +149,25 @@ void C_TerrainMesh::SetCoord(glm::ivec2 coord)
 }
 
 //=================================================================================
+void C_TerrainMesh::UpdateStats()
+{
+	if (!m_QueuedUpdate) {
+		return;
+	}
+	m_QueuedUpdate = false;
+	using namespace Physics::Primitives;
+	m_Stats.DownloadData();
+	m_AABB = S_AABB();
+
+	m_AABB.Add(glm::vec3(0.0f, m_Stats.min, 0.0f));
+	m_AABB.Add(glm::vec3(patchSize, m_Stats.max, patchSize));
+}
+
+//=================================================================================
 void C_TerrainMesh::OnEvent(Core::I_Event& event)
 {
 	event.m_Handeld = true;
+	m_QueuedUpdate = true;
 	m_HasTexture = !m_HasTexture;
 }
 

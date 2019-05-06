@@ -218,6 +218,12 @@ void C_ExplerimentWindow::Update()
 		RenderDoc::C_DebugScope s("Persistent debug");
 		C_PersistentDebug::Instance().DrawAll();
 	}
+	{
+		RenderDoc::C_DebugScope s("Terrain stats retrieve");
+		WholeTerrain([](T_TerrainPtr terrain) {
+			terrain->UpdateStats();
+		});
+	}
 
 
 	glfwSwapBuffers(m_Window);
