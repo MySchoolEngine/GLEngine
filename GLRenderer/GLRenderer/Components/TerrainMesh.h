@@ -34,7 +34,7 @@ public:
 	void DecreaseFreq() { m_Frequency--; }
 	void IncreaseSQ() { m_SqPerLine++; }
 	void DecreaseSQ() { m_SqPerLine--; }
-	void UsePerlinNoise(bool val) { m_UsePerlin = val; }
+	void UsePerlinNoise(bool val);
 	bool UsingPerlinNoise() const { return m_UsePerlin; }
 
 	void UpdateStats();

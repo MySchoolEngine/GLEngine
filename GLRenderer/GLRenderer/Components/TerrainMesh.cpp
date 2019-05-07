@@ -50,6 +50,8 @@ C_TerrainMesh::C_TerrainMesh()
 	m_AABB.Add(glm::vec3(patchSize, 1.0f, patchSize));
 
 	GenerateTerrain();
+
+	CalculateStats();
 }
 
 //=================================================================================
@@ -124,6 +126,15 @@ void C_TerrainMesh::PerformDraw() const
 void C_TerrainMesh::SetCoord(glm::ivec2 coord)
 {
 	m_Coord = coord;
+}
+
+//=================================================================================
+void C_TerrainMesh::UsePerlinNoise(bool val)
+{
+	if (m_UsePerlin != val) {
+		m_UsePerlin = val;
+		GenerateTerrain();
+	}
 }
 
 //=================================================================================
