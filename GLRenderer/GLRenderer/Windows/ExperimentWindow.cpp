@@ -210,7 +210,6 @@ void C_ExplerimentWindow::Update()
 
 
 	glfwSwapBuffers(m_Window);
-	glfwPollEvents();
 	sampleTime(float(m_FrameTimer.getElapsedTimeFromLastQueryMilliseconds()));	
 }
 
