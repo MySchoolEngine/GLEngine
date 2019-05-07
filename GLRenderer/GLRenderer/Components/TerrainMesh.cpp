@@ -54,27 +54,9 @@ C_TerrainMesh::C_TerrainMesh()
 
 //=================================================================================
 void C_TerrainMesh::PerformDraw() const
-{	
+{
 	if (m_QueuedUpdate) {
-		Core::C_Application::Get().GetActiveRenderer()->AddCommand(
-			std::move(
-				std::make_unique<Commands::HACK::C_LambdaCommand>(
-					[&]() {
-						RenderDoc::C_DebugScope s("Terrain stats");
-						auto& shmgr = Shaders::C_ShaderManager::Instance();
-						shmgr.ActivateShader(shmgr.GetProgram("stats"));
-						m_Stats.bind();
-						glMemoryBarrier(GL_ALL_BARRIER_BITS);
-						glActiveTexture(GL_TEXTURE0);
-						glBindImageTexture(0, m_Noise.GetTexture(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-
-						glDispatchCompute(1, 1, 1);
-						glMemoryBarrier(GL_ALL_BARRIER_BITS);
-						m_Stats.unbind();
-					}
-				)
-			)
-		);
+		CalculateStats();
 	}
 
 	if (m_QueueSimulation) {
@@ -160,7 +142,7 @@ void C_TerrainMesh::UpdateStats()
 }
 
 //=================================================================================
-void C_TerrainMesh::GenerateTerrain() const
+void C_TerrainMesh::GenerateTerrain()
 {
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
@@ -190,6 +172,30 @@ void C_TerrainMesh::GenerateTerrain() const
 					m_Noise.bind();
 					glGenerateMipmap(m_Noise.GetTarget());
 					m_Noise.unbind();
+				}
+			)
+		)
+	);
+}
+
+//=================================================================================
+void C_TerrainMesh::CalculateStats() const
+{
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+		std::move(
+			std::make_unique<Commands::HACK::C_LambdaCommand>(
+				[&]() {
+					RenderDoc::C_DebugScope s("Terrain stats");
+					auto& shmgr = Shaders::C_ShaderManager::Instance();
+					shmgr.ActivateShader(shmgr.GetProgram("stats"));
+					m_Stats.bind();
+					glMemoryBarrier(GL_ALL_BARRIER_BITS);
+					glActiveTexture(GL_TEXTURE0);
+					glBindImageTexture(0, m_Noise.GetTexture(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+
+					glDispatchCompute(1, 1, 1);
+					glMemoryBarrier(GL_ALL_BARRIER_BITS);
+					m_Stats.unbind();
 				}
 			)
 		)

@@ -39,7 +39,8 @@ public:
 
 	void UpdateStats();
 
-	void GenerateTerrain() const;
+	void GenerateTerrain();
+	void CalculateStats() const;
 
 
 	//=================================================================================
