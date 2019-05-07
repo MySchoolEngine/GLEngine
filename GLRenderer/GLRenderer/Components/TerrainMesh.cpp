@@ -48,12 +48,13 @@ C_TerrainMesh::C_TerrainMesh()
 
 	m_AABB.Add(glm::vec3(0.0f, 0.0f, 0.0f));
 	m_AABB.Add(glm::vec3(patchSize, 1.0f, patchSize));
+
+	GenerateTerrain();
 }
 
 //=================================================================================
 void C_TerrainMesh::PerformDraw() const
 {	
-	GenerateTerrain();
 	if (m_QueuedUpdate) {
 		Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 			std::move(

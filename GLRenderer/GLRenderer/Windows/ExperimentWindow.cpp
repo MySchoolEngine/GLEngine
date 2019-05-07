@@ -34,6 +34,7 @@
 
 #include <Core/EventSystem/EventDispatcher.h>
 #include <Core/EventSystem/Event/KeyboardEvents.h>
+#include <Core/EventSystem/Event/AppEvent.h>
 
 #include <imgui.h>
 
@@ -57,33 +58,6 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 
 	m_FrameTimer.reset();
 
-	{
-		using namespace Commands;
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		m_renderer->AddCommand(
-			std::move(
-				std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::DEPTH_TEST)
-			)
-		);
-		m_renderer->AddCommand(
-			std::move(
-				std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::CULL_FACE)
-			)
-		);
-		m_renderer->AddCommand(
-			std::move(
-				std::make_unique<C_GLClearColor>(glm::vec3(1.0f, 1.0f, 1.0f))
-			)
-		);
-		m_renderer->AddCommand(
-			std::move(
-				std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Front)
-			)
-		);
-	}
-
-
-	SetupWorld(wndInfo);
 	m_ImGUI = new ImGui::C_ImGuiLayer(m_ID);
 	m_ImGUI->OnAttach(); // manual call for now.
 	m_LayerStack.PushLayer(m_ImGUI);
@@ -256,6 +230,7 @@ void C_ExplerimentWindow::OnEvent(Core::I_Event& event)
 
 	Core::C_EventDispatcher d(event);
 	d.Dispatch<Core::C_KeyPressedEvent>(std::bind(&C_ExplerimentWindow::OnKeyPressed, this, std::placeholders::_1));
+	d.Dispatch<Core::C_AppEvent>(std::bind(&C_ExplerimentWindow::OnAppInit, this, std::placeholders::_1));
 
 	m_LayerStack.OnEvent(event);
 }
@@ -300,7 +275,45 @@ bool C_ExplerimentWindow::OnKeyPressed(Core::C_KeyPressedEvent& event)
 }
 
 //=================================================================================
-void C_ExplerimentWindow::SetupWorld(const Core::S_WindowInfo& wndInfo)
+bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
+{
+	{
+		using namespace Commands;
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		m_renderer->AddCommand(
+			std::move(
+				std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::DEPTH_TEST)
+			)
+		);
+		m_renderer->AddCommand(
+			std::move(
+				std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::CULL_FACE)
+			)
+		);
+		m_renderer->AddCommand(
+			std::move(
+				std::make_unique<C_GLClearColor>(glm::vec3(1.0f, 1.0f, 1.0f))
+			)
+		);
+		m_renderer->AddCommand(
+			std::move(
+				std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Front)
+			)
+		);
+	}
+
+	SetupWorld();
+	return false;
+}
+
+//=================================================================================
+void C_ExplerimentWindow::Init(const Core::S_WindowInfo& wndInfo)
+{
+	GLFW::C_GLFWoGLWindow::Init(wndInfo);
+}
+
+//=================================================================================
+void C_ExplerimentWindow::SetupWorld()
 {
 	if (false) {
 		auto plane = std::make_shared<Entity::C_BasicEntity>("plane");
@@ -313,7 +326,7 @@ void C_ExplerimentWindow::SetupWorld(const Core::S_WindowInfo& wndInfo)
 		m_World.AddEntity(player);
 		float zoom = 5.0f;
 		auto playerCamera = std::make_shared<Cameras::C_OrbitalCamera>();
-		playerCamera->setupCameraProjection(0.1f, 2 * zoom*100, static_cast<float>(wndInfo.m_width) / static_cast<float>(wndInfo.m_height), 90.0f);
+		playerCamera->setupCameraProjection(0.1f, 2 * zoom*100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
 		playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
 		playerCamera->adjustOrientation(20.f, 20.f);
 		playerCamera->update();

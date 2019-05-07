@@ -15,6 +15,10 @@
 
 namespace GLEngine {
 
+namespace Core {
+class C_AppEvent;
+}
+
 namespace Renderer {
 class I_CameraComponent;
 }
@@ -46,11 +50,14 @@ public:
 
 	//=================================================================================
 	virtual void OnEvent(Core::I_Event& event) override;
+	virtual void Init(const Core::S_WindowInfo& wndInfo) override;
 
 protected:
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
+	bool OnAppInit(Core::C_AppEvent& event);
+
 private:
-	void SetupWorld(const Core::S_WindowInfo& wndInfo);
+	void SetupWorld();
 	void MouseSelect();
 
 	void sampleTime(double new_sample);
