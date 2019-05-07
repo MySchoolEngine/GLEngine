@@ -12,7 +12,7 @@ enum class E_EventType {
 	None = 0,
 	KeyPressed, KeyReleased, KeyRepeated,
 	MouseScroll, MouseButtonReleased, MouseButtonPressed, MouseMoved,
-	WindowClose,
+	AppEvent, WindowClose,
 	UserDefined,
 };
 
@@ -33,7 +33,7 @@ enum class E_EventCategory {
 								virtual E_EventType GetType() const override { return GetStaticType(); }\
 								virtual const char* GetName() const override { return #type; }
 
-#define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlags() const override { return category; }
+#define EVENT_CLASS_CATEGORY(category) virtual Utils::C_BitField<E_EventCategory> GetCategories() const override { return category; }
 
 //=================================================================================
 class API_EXPORT I_Event
