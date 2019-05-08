@@ -18,6 +18,7 @@
 #include <random>
 #include <chrono>
 #include <iomanip>
+#include <sstream>
 
 // rendering dependend things
 #include <glad/glad.h>
