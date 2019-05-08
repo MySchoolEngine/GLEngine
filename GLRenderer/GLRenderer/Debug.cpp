@@ -12,6 +12,7 @@ namespace GLEngine {
 namespace GLRenderer {
 
 const static std::string s_DebugShaderName = "basic-wireframe";
+const static std::string s_MergedShaderName = "MergedWireframes";
 
 //=================================================================================
 const char* glErrorCodeToString(unsigned int code) {
@@ -94,11 +95,15 @@ void C_DebugDraw::SetupAABB()
 C_DebugDraw::C_DebugDraw()
 {
 	SetupAABB();
-	std::vector<glm::vec4> dummy;
-	m_VAOline.bind();
-	m_VAOline.SetBuffer<0, GL_ARRAY_BUFFER>(dummy);
-	m_VAOline.EnableArray<0>();
-	m_VAOline.unbind();
+	std::vector<glm::vec4> dummy4;
+	std::vector<glm::vec3> dummy3;
+
+	m_VAOlines.bind();
+	m_VAOlines.SetBuffer<0, GL_ARRAY_BUFFER>(dummy4);
+	m_VAOlines.SetBuffer<1, GL_ARRAY_BUFFER>(dummy3);
+	m_VAOlines.EnableArray<0>();
+	m_VAOlines.EnableArray<1>();
+	m_VAOlines.unbind();
 }
 
 //=================================================================================
@@ -114,24 +119,8 @@ void C_DebugDraw::Clear()
 //=================================================================================
 void C_DebugDraw::DrawPoint(const glm::vec4 & point, const glm::vec3 & color, const glm::mat4 & modelMatrix)
 {
-	auto& shdManager = Shaders::C_ShaderManager::Instance();
-	auto program = shdManager.GetProgram(s_DebugShaderName);
-	shdManager.ActivateShader(program);
-
-	m_VAOline.bind();
-	m_VAOline.BindBuffer<0>();
-
-	glPointSize(5.0f);
-	glEnable(GL_PROGRAM_POINT_SIZE);
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4), glm::value_ptr(point), GL_DYNAMIC_DRAW);
-
-	program->SetUniform("modelMatrix", modelMatrix);
-	program->SetUniform("colorIN", color);
-
-	glDrawArrays(GL_POINTS, 0, 1);
-
-	m_VAOline.unbind();
+	m_PointsVertices.push_back(modelMatrix * point);
+	m_PointsColors.push_back(color);
 }
 
 //=================================================================================
@@ -168,24 +157,11 @@ void C_DebugDraw::DrawAABB(const Physics::Primitives::S_AABB& bbox, const glm::v
 //=================================================================================
 void C_DebugDraw::DrawLine(const glm::vec4& pointA, const glm::vec4& pointB, const glm::vec3& color /*= glm::vec3(0.0f, 0.0f, 0.0f)*/)
 {
-	auto& shdManager = Shaders::C_ShaderManager::Instance();
-	auto program = Shaders::C_ShaderManager::Instance().GetProgram(s_DebugShaderName);
-	shdManager.ActivateShader(program);
-
-	m_VAOline.bind();
-
-	std::vector<glm::vec4> vertices;
-	vertices.push_back(pointA);
-	vertices.push_back(pointB);
-
-	m_VAOline.SetBufferData<0, GL_ARRAY_BUFFER>(vertices, true);
-
-	program->SetUniform("modelMatrix", glm::mat4(1.0f));
-	program->SetUniform("colorIN", color);
-
-	glDrawArrays(GL_LINES, 0, 2);
-
-	m_VAOline.unbind();
+	m_LinesVertices.push_back(pointA);
+	m_LinesVertices.push_back(pointB);
+	// we need two copies as we have two vertices
+	m_LinesColors.push_back(color);
+	m_LinesColors.push_back(color);
 }
 
 //=================================================================================
@@ -197,20 +173,8 @@ void C_DebugDraw::DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, con
 //=================================================================================
 void C_DebugDraw::DrawLines(const std::vector<glm::vec4>& pairs, const glm::vec3 & color)
 {
-	auto& shdManager = Shaders::C_ShaderManager::Instance();
-	auto program = Shaders::C_ShaderManager::Instance().GetProgram(s_DebugShaderName);
-	shdManager.ActivateShader(program);
-
-	m_VAOline.bind();
-
-	m_VAOline.SetBufferData<0, GL_ARRAY_BUFFER>(pairs, true);
-
-	program->SetUniform("modelMatrix", glm::mat4(1.0f));
-	program->SetUniform("colorIN", color);
-	
-	glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(pairs.size()));
-
-	m_VAOline.unbind();
+	m_LinesVertices.insert(m_LinesVertices.end(), pairs.begin(), pairs.end());
+	m_LinesColors.insert(m_LinesColors.end(), pairs.size(), color);
 }
 
 //=================================================================================
@@ -222,6 +186,42 @@ void C_DebugDraw::DrawAxis(const glm::vec4 & origin, const glm::vec4 & up, const
 	DrawLine(origin, origin + forewardVec, glm::vec3(0.0f, 0.0f, 1.0f));
 	DrawLine(origin, origin + upVec, glm::vec3(0.0f, 1.0f, 0.0f));
 	DrawLine(origin, origin + rightVec, glm::vec3(1.0f, 0.0f, 0.0f));
+}
+
+//=================================================================================
+void C_DebugDraw::DrawMergedGeoms()
+{
+	auto& shdManager = Shaders::C_ShaderManager::Instance();
+	auto program = Shaders::C_ShaderManager::Instance().GetProgram(s_MergedShaderName);
+	shdManager.ActivateShader(program);
+	m_VAOlines.bind();
+	std::vector<glm::vec4> mergedVertices(m_LinesVertices);
+	std::vector<glm::vec3> mergedColors(m_LinesColors);
+	mergedVertices.insert(mergedVertices.end(), m_PointsVertices.begin(), m_PointsVertices.end());
+	mergedColors.insert(mergedColors.end(), m_PointsColors.begin(), m_PointsColors.end());
+	m_VAOlines.SetBufferData<0, GL_ARRAY_BUFFER>(mergedVertices, true);
+	m_VAOlines.SetBufferData<1, GL_ARRAY_BUFFER>(mergedColors, true);
+
+	const auto lineVertices = static_cast<GLsizei>(m_LinesVertices.size());
+	const auto pointsVertices = static_cast<GLsizei>(m_PointsVertices.size());
+	if (lineVertices > 0) {
+		glDrawArrays(GL_LINES, 0, lineVertices);
+	}
+	if (pointsVertices) {
+		glPointSize(5.0f);
+		glEnable(GL_PROGRAM_POINT_SIZE);
+		glDrawArrays(GL_POINTS, lineVertices, pointsVertices);
+	}
+
+
+	m_VAOlines.unbind();
+	shdManager.DeactivateShader();
+
+	m_LinesVertices.clear();
+	m_LinesColors.clear();
+
+	m_PointsVertices.clear();
+	m_PointsColors.clear();
 }
 
 #endif

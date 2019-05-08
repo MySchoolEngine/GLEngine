@@ -28,6 +28,7 @@
 #include <GLRenderer/Components/StaticMesh.h>
 #include <GLRenderer/Components/SkyBox.h>
 #include <GLRenderer/PersistentDebug.h>
+#include <GLRenderer/Debug.h>
 
 #include <Physics/Primitives/Ray.h>
 #include <Physics/Primitives/Intersection.h>
@@ -182,6 +183,10 @@ void C_ExplerimentWindow::Update()
 	{
 		RenderDoc::C_DebugScope s("Persistent debug");
 		C_PersistentDebug::Instance().DrawAll();
+	}
+	{
+		RenderDoc::C_DebugScope s("Merged debug");
+		C_DebugDraw::Instance().DrawMergedGeoms();
 	}
 
 

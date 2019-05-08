@@ -109,6 +109,8 @@ public:
 	void DrawLines(const std::vector<glm::vec4>& pairs, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f));
 
 	void DrawAxis(const glm::vec4& origin, const glm::vec4& up, const glm::vec4& foreward, glm::mat4& modelMatrix = glm::mat4(1.0f));
+
+	void DrawMergedGeoms();
 private:
 	/**
 	 * ==============================================
@@ -135,7 +137,14 @@ private:
 	C_DebugDraw();
 
 	VAO::C_GLVAO<2> m_VAOaabb;
-	VAO::C_GLVAO<1> m_VAOline;
+
+	VAO::C_GLVAO<2> m_VAOlines;
+
+	std::vector<glm::vec4> m_LinesVertices;
+	std::vector<glm::vec3> m_LinesColors;
+
+	std::vector<glm::vec4> m_PointsVertices;
+	std::vector<glm::vec3> m_PointsColors;
 };
 #else
 //=================================================================================
@@ -157,6 +166,8 @@ public:
 	void DrawLines(const std::vector<glm::vec4>& pairs, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f)) {};
 
 	void DrawAxis(const glm::vec4& origin, const glm::vec4& up, const glm::vec4& foreward, glm::mat4& modelMatrix = glm::mat4(1.0f)) {};
+
+	void DrawMergedGeoms() {};
 private:
 
 	C_DebugDraw() {};
