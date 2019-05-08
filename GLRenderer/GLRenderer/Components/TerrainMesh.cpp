@@ -57,10 +57,6 @@ C_TerrainMesh::C_TerrainMesh()
 //=================================================================================
 void C_TerrainMesh::PerformDraw() const
 {
-	if (m_QueuedUpdate) {
-		CalculateStats();
-	}
-
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
@@ -98,6 +94,11 @@ void C_TerrainMesh::PerformDraw() const
 			)
 		);
 	}
+
+
+	if (m_QueuedUpdate) {
+		CalculateStats();
+	}
 }
 
 //=================================================================================
@@ -107,11 +108,22 @@ void C_TerrainMesh::SetCoord(glm::ivec2 coord)
 }
 
 //=================================================================================
+void C_TerrainMesh::SetFrequncy(int freq)
+{
+	if (m_Frequency != freq) {
+		m_Frequency = freq;
+		GenerateTerrain();
+		//m_QueuedUpdate = true;
+	}
+}
+
+//=================================================================================
 void C_TerrainMesh::UsePerlinNoise(bool val)
 {
 	if (m_UsePerlin != val) {
 		m_UsePerlin = val;
 		GenerateTerrain();
+		//m_QueuedUpdate = true;
 	}
 }
 
@@ -122,12 +134,21 @@ void C_TerrainMesh::UpdateStats()
 		return;
 	}
 	m_QueuedUpdate = false;
-	using namespace Physics::Primitives;
-	m_Stats.DownloadData();
-	m_AABB = S_AABB();
 
-	m_AABB.Add(glm::vec3(0.0f, m_Stats.min, 0.0f));
-	m_AABB.Add(glm::vec3(patchSize, m_Stats.max, patchSize));
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+		std::move(
+			std::make_unique<Commands::HACK::C_LambdaCommand>(
+				[&]() {
+					using namespace Physics::Primitives;
+					m_Stats.DownloadData();
+					m_AABB = S_AABB();
+				
+					m_AABB.Add(glm::vec3(0.0f, m_Stats.min, 0.0f));
+					m_AABB.Add(glm::vec3(patchSize, m_Stats.max, patchSize));
+				}
+			)
+		)
+	);
 }
 
 //=================================================================================
@@ -152,12 +173,12 @@ void C_TerrainMesh::GenerateTerrain()
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {
 					RenderDoc::C_DebugScope s("NoiseCompute");
-					glMemoryBarrier(GL_ALL_BARRIER_BITS);
 					glActiveTexture(GL_TEXTURE0);
-					glBindImageTexture(0, m_Noise.GetTexture(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+					glBindImageTexture(0, m_Noise.GetTexture(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
 					glDispatchCompute(dim / 16, dim / 16, 1);
 					glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
 					m_Noise.bind();
 					glGenerateMipmap(m_Noise.GetTarget());
 					m_Noise.unbind();
@@ -178,12 +199,11 @@ void C_TerrainMesh::CalculateStats() const
 					auto& shmgr = Shaders::C_ShaderManager::Instance();
 					shmgr.ActivateShader(shmgr.GetProgram("stats"));
 					m_Stats.bind();
-					glMemoryBarrier(GL_ALL_BARRIER_BITS);
 					glActiveTexture(GL_TEXTURE0);
-					glBindImageTexture(0, m_Noise.GetTexture(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+					glBindImageTexture(0, m_Noise.GetTexture(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
 
 					glDispatchCompute(1, 1, 1);
-					glMemoryBarrier(GL_ALL_BARRIER_BITS);
+					glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 					m_Stats.unbind();
 				}
 			)
@@ -203,7 +223,6 @@ void C_TerrainMesh::Simulate()
 					shmgr.ActivateShader(shmgr.GetProgram("erosion"));
 					m_RainData->UploadData();
 					m_RainData->Activate(true);
-					glMemoryBarrier(GL_ALL_BARRIER_BITS);
 					glActiveTexture(GL_TEXTURE0);
 					glBindImageTexture(0, m_Noise.GetTexture(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 

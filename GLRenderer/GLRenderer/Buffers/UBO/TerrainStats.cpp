@@ -37,7 +37,7 @@ void C_TerrainStats::UploadData() const
 void C_TerrainStats::DownloadData()
 {
 	bind();
-	float* data = (float *)glMapBuffer(GetBufferType(), GL_READ_WRITE);
+	float* data = (float *)glMapBuffer(GetBufferType(), GL_READ_ONLY);
 
 	max = data[0];
 	min = data[1];

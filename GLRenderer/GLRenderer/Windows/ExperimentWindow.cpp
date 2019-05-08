@@ -9,6 +9,9 @@
 #include <GLRenderer/Commands/GlClearColor.h>
 #include <GLRenderer/Commands/GLCullFace.h>
 #include <GLRenderer/Commands/GLViewport.h>
+#include <GLRenderer/Commands/HACK/LambdaCommand.h>
+
+#include <GLRenderer/Entities/TerrainEntity.h>
 
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
@@ -72,44 +75,16 @@ void C_ExplerimentWindow::Update()
 	m_ImGUI->OnUpdate();
 	//MouseSelect();
 
-	bool my_tool_active = true;
-	::ImGui::Begin("Terrain visualizations", &my_tool_active);
-	WholeTerrain([](T_TerrainPtr terrain) {
-		::ImGui::Image((void*)terrain->GetTexture().GetTexture() , 
-		{	
-			256,
-			256
-		},
-			{ 0,1 }, { 1,0 });
-	});
-	::ImGui::End();
+	m_Terrain->Update();
+	m_Terrain->DrawControls();
 
-	::ImGui::Begin("Terrain controls", &my_tool_active, ImGuiWindowFlags_MenuBar);
-	if (::ImGui::BeginMenuBar())
-	{
-		if (::ImGui::BeginMenu("File"))
-		{
-			if (::ImGui::MenuItem("Open..", "Ctrl+O")) { /* Do stuff */ }
-			if (::ImGui::MenuItem("Save", "Ctrl+S")) { /* Do stuff */ }
-			::ImGui::EndMenu();
-		}
-		::ImGui::EndMenuBar();
-	}
-	if (::ImGui::Button("Rain"))
-	{
-		WholeTerrain([&](T_TerrainPtr terrain) {
-			terrain->Simulate();
-		});
-	}
-	bool value = m_TerrainComp[0]->UsingPerlinNoise();
-	::ImGui::Checkbox("PerlinNoise", &value);
-	WholeTerrain([&](T_TerrainPtr terrain) {
-		terrain->UsePerlinNoise(value);
-	});
-	auto avgMsPerFrame = std::accumulate(m_FrameSamples.begin(), m_FrameSamples.end(), 0.0f) / m_FrameSamples.size();
-	::ImGui::Text("Avg frame time %f.2", avgMsPerFrame);
-	::ImGui::Text("Avg fps %f.2", 1000.0/ avgMsPerFrame);
-	::ImGui::PlotLines("Frame Times", m_FrameSamples.data(), m_FrameSamples.size());
+	bool my_tool_active = true;
+
+	::ImGui::Begin("Frame stats", &my_tool_active);
+		auto avgMsPerFrame = std::accumulate(m_FrameSamples.begin(), m_FrameSamples.end(), 0.0f) / m_FrameSamples.size();
+		::ImGui::Text("Avg frame time %f.2", avgMsPerFrame);
+		::ImGui::Text("Avg fps %f.2", 1000.0/ avgMsPerFrame);
+		::ImGui::PlotLines("Frame Times", m_FrameSamples.data(), static_cast<int>(m_FrameSamples.size()));
 	::ImGui::End();
 
 	m_World.OnUpdate();
@@ -149,13 +124,6 @@ void C_ExplerimentWindow::Update()
 	}
 	::ImGui::End();
 
-	for (auto& entity : entitiesInView)
-	{
-		if (auto renderable = entity->GetComponent<Entity::E_ComponentType::Graphical>()) {
-			renderable->PerformDraw();
-		}
-	}
-
 	std::static_pointer_cast<Cameras::C_OrbitalCamera>(cameraComponent)->update();
 
 
@@ -166,16 +134,27 @@ void C_ExplerimentWindow::Update()
 
 	m_FrameConstUBO->SetViewProjection(cameraComponent->GetViewProjectionMatrix());
 	m_FrameConstUBO->SetCameraPosition(glm::vec4(cameraComponent->GetPosition(), 1.0f));
-	m_FrameConstUBO->UploadData();
-	m_FrameConstUBO->Activate(true);
+
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+		std::move(
+			std::make_unique<Commands::HACK::C_LambdaCommand>(
+				[&]() {
+					m_FrameConstUBO->UploadData();
+					m_FrameConstUBO->Activate(true);
+				}
+			)
+		)
+	);
 
 
-	glActiveTexture(GL_TEXTURE0);
 
-	m_TerrainComp[0]->GetTexture().bind();
+	for (auto& entity : entitiesInView)
+	{
+		if (auto renderable = entity->GetComponent<Entity::E_ComponentType::Graphical>()) {
+			renderable->PerformDraw();
+		}
+	}
 
-	basicProgram->SetUniform("tex", 0);
-	basicProgram->SetUniform("modelMatrix", glm::mat4(1.0f));
 	// ----- Frame init -------
 
 	// ----- Actual rendering --
@@ -190,8 +169,6 @@ void C_ExplerimentWindow::Update()
 		std::static_pointer_cast<Cameras::C_OrbitalCamera>(cameraComponent)->DebugDraw();
 	}
 
-	m_TerrainComp[0]->GetTexture().unbind();
-
 	shmgr.DeactivateShader();
 
 	{
@@ -201,12 +178,6 @@ void C_ExplerimentWindow::Update()
 	{
 		RenderDoc::C_DebugScope s("Persistent debug");
 		C_PersistentDebug::Instance().DrawAll();
-	}
-	{
-		RenderDoc::C_DebugScope s("Terrain stats retrieve");
-		WholeTerrain([](T_TerrainPtr terrain) {
-			terrain->UpdateStats();
-		});
 	}
 
 
@@ -238,37 +209,9 @@ void C_ExplerimentWindow::OnEvent(Core::I_Event& event)
 //=================================================================================
 bool C_ExplerimentWindow::OnKeyPressed(Core::C_KeyPressedEvent& event)
 {
-	CORE_LOG(E_Level::Info, E_Context::Render, "Heya presssed button {}", event.GetName());
-
-	if (event.GetWindowGUID() != GetGUID()) {
-		return false;
-	}
-
-	if (event.GetKeyCode() == GLFW_KEY_I) {
-		WholeTerrain([](T_TerrainPtr terrain) {
-			terrain->IncreaseFreq();
-		});
-		return true;
-	}
-	if (event.GetKeyCode() == GLFW_KEY_O) {
-		WholeTerrain([](T_TerrainPtr terrain) {
-			terrain->DecreaseFreq();
-		});
-		return true;
-	}
-
-	if (event.GetKeyCode() == GLFW_KEY_K) {
-		WholeTerrain([](T_TerrainPtr terrain) {
-			terrain->IncreaseSQ();
-		});
-		return true;
-	}
-	if (event.GetKeyCode() == GLFW_KEY_L) {
-		WholeTerrain([](T_TerrainPtr terrain) {
-			terrain->DecreaseSQ();
-		});
-		return true;
-	}
+	// if (event.GetWindowGUID() != GetGUID()) {
+	// 	return false;
+	// }
 
 
 	return false;
@@ -402,39 +345,12 @@ void C_ExplerimentWindow::SetupWorld()
 	}
 
 	{
-		auto comp = std::make_shared<Components::C_TerrainMesh>();
-
-		auto terrain = std::make_shared<Entity::C_BasicEntity>("terrain1");
-		m_World.AddEntity(terrain);
-		terrain->AddComponent(comp);
-		m_TerrainComp.push_back(comp);
-	}
-	{
-		auto comp = std::make_shared<Components::C_TerrainMesh>();
-
-		auto terrain = std::make_shared<Entity::C_BasicEntity>("terrain2");
-		m_World.AddEntity(terrain);
-		terrain->AddComponent(comp);
-		comp->SetCoord(glm::ivec2(0, 1));
-		m_TerrainComp.push_back(comp);
-	}
-	{
-		auto comp = std::make_shared<Components::C_TerrainMesh>();
-
-		auto terrain = std::make_shared<Entity::C_BasicEntity>("terrain3");
-		m_World.AddEntity(terrain);
-		terrain->AddComponent(comp);
-		comp->SetCoord(glm::ivec2(1, 1));
-		m_TerrainComp.push_back(comp);
-	}
-	{
-		auto comp = std::make_shared<Components::C_TerrainMesh>();
-
-		auto terrain = std::make_shared<Entity::C_BasicEntity>("terrain4");
-		m_World.AddEntity(terrain);
-		terrain->AddComponent(comp);
-		comp->SetCoord(glm::ivec2(1, 0));
-		m_TerrainComp.push_back(comp);
+		m_Terrain = std::make_shared<C_TerrainEntity>();
+		m_World.AddEntity(m_Terrain);
+		m_Terrain->AddPatch(glm::ivec2(0, 0));
+		m_Terrain->AddPatch(glm::ivec2(0, 1));
+		m_Terrain->AddPatch(glm::ivec2(1, 0));
+		m_Terrain->AddPatch(glm::ivec2(1, 1));
 	}
 
 
@@ -492,12 +408,6 @@ void C_ExplerimentWindow::MouseSelect()
 			//std::static_pointer_cast<Cameras::C_OrbitalCamera>(camera)->update();
 		}
 	}
-}
-
-//=================================================================================
-void C_ExplerimentWindow::WholeTerrain(std::function<void(T_TerrainPtr)> lambda)
-{
-	std::for_each(m_TerrainComp.begin(), m_TerrainComp.end(), lambda);
 }
 
 //=================================================================================

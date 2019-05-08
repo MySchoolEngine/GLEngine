@@ -27,13 +27,12 @@ public:
 	C_TerrainMesh();
 	virtual void PerformDraw() const override;
 	void SetCoord(glm::ivec2 coord);
+	glm::ivec2 GetCoord() const { return m_Coord; }
 
 	const Textures::C_Texture& GetTexture() const { return m_Noise; }
 	Textures::C_Texture& GetTexture() { return m_Noise; }
-	void IncreaseFreq() { m_Frequency++; }
-	void DecreaseFreq() { m_Frequency--; }
-	void IncreaseSQ() { m_SqPerLine++; }
-	void DecreaseSQ() { m_SqPerLine--; }
+	void SetSqPerLine(int count) { m_SqPerLine = count; }
+	void SetFrequncy(int freq);
 	void UsePerlinNoise(bool val);
 	bool UsingPerlinNoise() const { return m_UsePerlin; }
 

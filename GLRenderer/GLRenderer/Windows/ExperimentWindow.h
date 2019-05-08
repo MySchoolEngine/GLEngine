@@ -3,9 +3,7 @@
 #include <GLRenderer/GLFW/GLFWoGLWindow.h>
 
 #include <GLRenderer/Textures/Texture.h>
-#include <GLRenderer/Mesh/TerrainMeshResource.h>
 #include <GLRenderer/CameraManager.h>
-#include <GLRenderer/Components/TerrainMesh.h>
 
 #include <Entity/World.h>
 
@@ -39,6 +37,8 @@ class C_FrameConstantsBuffer;
 }
 }
 
+class C_TerrainEntity;
+
 namespace Windows {
 class C_ExplerimentWindow : public GLFW::C_GLFWoGLWindow {
 	using T_Base = GLFW::C_GLFWoGLWindow;
@@ -62,11 +62,6 @@ private:
 
 	void sampleTime(double new_sample);
 
-	using T_TerrainPtr = std::shared_ptr<Components::C_TerrainMesh>;
-
-
-	void WholeTerrain(std::function<void(T_TerrainPtr)> lambda);
-
 	void SetupNoiseTex();
 
 	std::shared_ptr<Renderer::I_CameraComponent> GetCameraComponent() const;
@@ -74,7 +69,7 @@ private:
 	Entity::C_World												m_World;
 	std::weak_ptr<Entity::I_Entity>								m_Player;
 	std::shared_ptr<Buffers::UBO::C_FrameConstantsBuffer>		m_FrameConstUBO;
-	std::vector<T_TerrainPtr>									m_TerrainComp;
+	std::shared_ptr<C_TerrainEntity>							m_Terrain;
 	Textures::C_Texture											m_texture;
 	Core::C_LayerStack											m_LayerStack;
 	Temporar::C_CameraManager									m_CamManager;
