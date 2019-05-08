@@ -5,16 +5,25 @@ uniform vec4 modelColor;
 uniform sampler2D tex;
 uniform bool hasTexture;
 
-in vec2 uv;
+noperspective in vec2 uv;
 
 
 out vec4 fragColor;
 
 vec4 getNormal(){
 	const vec2 size = vec2(0.3,0.0);
-	const ivec3 off = ivec3(-5,0,5);
+	const ivec3 off = ivec3(-1,0,1);
 	
 	vec4 wave = texture(tex, uv);
+	float s11 = wave.x;
+    float s01 = textureOffset(tex, uv, off.xy).x;
+    float s21 = textureOffset(tex, uv, off.zy).x;
+    float s10 = textureOffset(tex, uv, off.yx).x;
+    float s12 = textureOffset(tex, uv, off.yz).x;
+    vec3 va = normalize(vec3(size.xy,s21-s01));
+    vec3 vb = normalize(vec3(size.yx,s12-s10));
+    return vec4( cross(va,vb), 1 );
+    /*
     float s11 = wave.x;
     float s01 = textureOffset(tex, uv, off.xy).x;
     float s21 = textureOffset(tex, uv, off.zy).x;
@@ -24,9 +33,9 @@ vec4 getNormal(){
     avg/=5.0f;
     vec3 va = dFdx(vec3(uv.x*5, avg, uv.y*5));
     vec3 vb = dFdy(vec3(uv.x*5, avg, uv.y*5));
-    vec4 bump = vec4( normalize(cross(va,vb)), s11 );
+    vec4 bump = vec4( normalize(cross(va,vb)), s11 );*/
 
-	return vec4(normalize(cross(va,vb)),1);
+	//return vec4(normalize(cross(va,vb)),1);
 }
 
 //=================================================================================
