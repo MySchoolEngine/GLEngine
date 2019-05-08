@@ -13,9 +13,12 @@ namespace GLRenderer {
 C_TerrainEntity::C_TerrainEntity()
 	: m_ID(NextGUID())
 	, m_SqPerLine(5)
-	, m_Freq(13)
+	, m_Freq(5)
 	, Controls(false)
 	, Visualise(false)
+	, PerlinNoise(true)
+	, DebugDrawDroplets(false)
+	, m_Drops(100)
 {
 
 }
@@ -64,6 +67,8 @@ void C_TerrainEntity::AddPatch(T_TerrainPtr patch)
 	m_Patches.push_back(patch);
 	patch->SetSqPerLine(m_SqPerLine);
 	patch->SetFrequncy(m_Freq);
+	patch->UsePerlinNoise(PerlinNoise);
+	patch->SetNumDrops(m_Drops);
 }
 
 //=================================================================================
@@ -95,13 +100,30 @@ void C_TerrainEntity::DrawControls()
 					terrain->Simulate();
 				});
 			}
-			bool value = m_Patches[0]->UsingPerlinNoise();
-			::ImGui::Checkbox("PerlinNoise", &value);
+			::ImGui::SliderInt("Drops", &m_Drops, 1, 100);
 			WholeTerrain([&](T_TerrainPtr terrain) {
-				terrain->UsePerlinNoise(value);
+				terrain->SetNumDrops(m_Drops);
+			});
+			if (::ImGui::Button("Regenerate"))
+			{
+				WholeTerrain([&](T_TerrainPtr terrain) {
+					terrain->GenerateTerrain();
+				});
+			}
+			::ImGui::Checkbox("PerlinNoise", &PerlinNoise);
+			WholeTerrain([&](T_TerrainPtr terrain) {
+				terrain->UsePerlinNoise(PerlinNoise);
 			});
 			::ImGui::Checkbox("Visualization", &Visualise);
-			::ImGui::SliderInt("Verticies", &m_SqPerLine, 4, 16);
+			::ImGui::Checkbox("DebugDrawDroplets", &DebugDrawDroplets);
+
+			if (DebugDrawDroplets) {
+				WholeTerrain([&](T_TerrainPtr terrain) {
+					terrain->DebugDraw();
+				});
+			}
+
+			::ImGui::SliderInt("Verticies", &m_SqPerLine, 4, 64);
 			::ImGui::SliderInt("Noise frequency", &m_Freq, 4, 40);
 			WholeTerrain([&](T_TerrainPtr patch) {
 				patch->SetFrequncy(m_Freq);

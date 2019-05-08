@@ -77,7 +77,6 @@ void C_ExplerimentWindow::Update()
 	//MouseSelect();
 
 	m_Terrain->Update();
-	m_Terrain->DrawControls();
 
 	bool my_tool_active = true;
 
@@ -177,6 +176,7 @@ void C_ExplerimentWindow::Update()
 
 	{
 		RenderDoc::C_DebugScope s("ImGUI");
+		m_Terrain->DrawControls();
 		m_ImGUI->FrameEnd();
 	}
 	{
@@ -352,9 +352,9 @@ void C_ExplerimentWindow::SetupWorld()
 		m_Terrain = std::make_shared<C_TerrainEntity>();
 		m_World.AddEntity(m_Terrain);
 		m_Terrain->AddPatch(glm::ivec2(0, 0));
-		m_Terrain->AddPatch(glm::ivec2(0, 1));
-		m_Terrain->AddPatch(glm::ivec2(1, 0));
-		m_Terrain->AddPatch(glm::ivec2(1, 1));
+		m_Terrain->AddPatch(glm::ivec2(0, -1));
+		m_Terrain->AddPatch(glm::ivec2(-1, 0));
+		m_Terrain->AddPatch(glm::ivec2(-1, -1));
 	}
 
 

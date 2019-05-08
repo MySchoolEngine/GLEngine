@@ -9,6 +9,9 @@
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 
+#include <GLRenderer/PersistentDebug.h>
+#include <GLRenderer/Debug.h>
+
 #include <Physics/Primitives/AABB.h>
 
 #include <Renderer/IRenderer.h>
@@ -31,6 +34,7 @@ C_TerrainMesh::C_TerrainMesh()
 	, m_Coord(0, 0)
 	, m_Stats(3)
 	, m_RainData(Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<decltype(m_RainData)::element_type>("rainData", dim))
+	, m_NumDrops(100)
 	, m_HasTexture(false)
 	, m_UsePerlin(false)
 	, m_QueuedUpdate(false)
@@ -67,7 +71,7 @@ void C_TerrainMesh::PerformDraw() const
 					shader->SetUniform("patchSize", patchSize);
 					shader->SetUniform("tex", 0);
 					shader->SetUniform("sqPerLine", static_cast<float>(m_SqPerLine));
-					shader->SetUniform("modelMatrix", glm::translate(glm::mat4(1.0f), glm::vec3(m_Coord.x*patchSize, 0.0f, m_Coord.y*patchSize)));
+					shader->SetUniform("modelMatrix", GetModelMatrix());
 					shader->SetUniform("modelColor", glm::vec4(0.3f, 1.0f, 0.4, 0.0f));
 					shader->SetUniform("hasTexture", m_HasTexture);
 
@@ -88,7 +92,7 @@ void C_TerrainMesh::PerformDraw() const
 				std::make_unique<Commands::HACK::C_LambdaCommand>(
 					[&]() {
 						auto& dd = C_DebugDraw::Instance();
-						dd.DrawAABB(m_AABB,glm::vec3(1.0f,0.0f,0.0f),glm::translate(glm::mat4(1.0f), glm::vec3(m_Coord.x*patchSize, 0.0f, m_Coord.y*patchSize)));
+						dd.DrawAABB(m_AABB,glm::vec3(1.0f,0.0f,0.0f),GetModelMatrix());
 					}
 				)
 			)
@@ -221,6 +225,8 @@ void C_TerrainMesh::Simulate()
 					RenderDoc::C_DebugScope s("Terrain erosion");
 					auto& shmgr = Shaders::C_ShaderManager::Instance();
 					shmgr.ActivateShader(shmgr.GetProgram("erosion"));
+					shmgr.GetProgram("erosion")->SetUniform("numDrops", m_NumDrops);
+					m_RainData->GenerateDrops();
 					m_RainData->UploadData();
 					m_RainData->Activate(true);
 					glActiveTexture(GL_TEXTURE0);
@@ -236,11 +242,31 @@ void C_TerrainMesh::Simulate()
 }
 
 //=================================================================================
+void C_TerrainMesh::DebugDraw()
+{
+	auto& debug = C_DebugDraw::Instance();
+	float OnePixel = patchSize / dim;
+	for (int i = 0; i < m_NumDrops; ++i) {
+		auto dropCoord = m_RainData->m_RainDrops[i];
+		auto dropPoint = glm::vec4(dropCoord.x*OnePixel, 2, dropCoord.y*OnePixel, 1.0);
+		auto fallPoint = glm::vec4(dropCoord.x*OnePixel, -2, dropCoord.y*OnePixel, 1.0);
+		debug.DrawPoint(dropPoint, glm::vec3(0,0,1), GetModelMatrix());
+		debug.DrawLine(GetModelMatrix() * dropPoint, GetModelMatrix() *(fallPoint), glm::vec3(0, 0, 1));
+	}
+}
+
+//=================================================================================
 void C_TerrainMesh::OnEvent(Core::I_Event& event)
 {
 	event.m_Handeld = true;
 	m_HasTexture = !m_HasTexture;
 	m_QueuedUpdate = m_HasTexture;
+}
+
+//=================================================================================
+glm::mat4 C_TerrainMesh::GetModelMatrix() const
+{
+	return glm::translate(glm::mat4(1.0f), glm::vec3(m_Coord.x*patchSize, 0.0f, m_Coord.y*patchSize));
 }
 
 }}}

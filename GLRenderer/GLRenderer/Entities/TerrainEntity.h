@@ -37,9 +37,12 @@ protected:
 
 	int m_SqPerLine;
 	int m_Freq;
+	int m_Drops;
 
 	bool Controls;
 	bool Visualise;
+	bool PerlinNoise;
+	bool DebugDrawDroplets;
 };
 
 }

@@ -13,8 +13,9 @@ public:
 	virtual void UploadData() const override;
 
 	void GenerateDrops();
-private:
+
 	std::array<glm::ivec2, 100> m_RainDrops;
+private:
 	unsigned int m_TextureDimension;
 };
 

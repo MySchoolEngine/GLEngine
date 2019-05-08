@@ -33,6 +33,7 @@ public:
 	Textures::C_Texture& GetTexture() { return m_Noise; }
 	void SetSqPerLine(int count) { m_SqPerLine = count; }
 	void SetFrequncy(int freq);
+	void SetNumDrops(int num) { m_NumDrops = num; }
 	void UsePerlinNoise(bool val);
 	bool UsingPerlinNoise() const { return m_UsePerlin; }
 
@@ -41,6 +42,7 @@ public:
 	void GenerateTerrain();
 	void CalculateStats() const;
 	void Simulate();
+	void DebugDraw();
 
 
 	//=================================================================================
@@ -55,10 +57,13 @@ protected:
 	Physics::Primitives::S_AABB		m_AABB;
 	Buffers::UBO::C_TerrainStats	m_Stats;
 	std::shared_ptr<Buffers::UBO::C_RainDataBuffer>		m_RainData;
+	int								m_NumDrops;
 	bool							m_HasTexture		: 1;
 	bool							m_UsePerlin			: 1;
 	bool							m_QueuedUpdate		: 1;
 	bool							m_QueueSimulation	: 1;
+
+	glm::mat4 GetModelMatrix() const;
 };
 
 }}}
