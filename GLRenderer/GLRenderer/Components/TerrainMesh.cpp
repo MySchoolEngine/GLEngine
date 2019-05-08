@@ -61,28 +61,6 @@ void C_TerrainMesh::PerformDraw() const
 		CalculateStats();
 	}
 
-	if (m_QueueSimulation) {
-		Core::C_Application::Get().GetActiveRenderer()->AddCommand(
-			std::move(
-				std::make_unique<Commands::HACK::C_LambdaCommand>(
-					[&]() {
-						RenderDoc::C_DebugScope s("Terrain errosion");
-						auto& shmgr = Shaders::C_ShaderManager::Instance();
-						shmgr.ActivateShader(shmgr.GetProgram("stats"));
-						m_Stats.bind();
-						glMemoryBarrier(GL_ALL_BARRIER_BITS);
-						glActiveTexture(GL_TEXTURE0);
-						glBindImageTexture(0, m_Noise.GetTexture(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-
-						glDispatchCompute(1, 1, 1);
-						glMemoryBarrier(GL_ALL_BARRIER_BITS);
-						m_Stats.unbind();
-					}
-				)
-			)
-		);
-	}
-
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
@@ -207,6 +185,31 @@ void C_TerrainMesh::CalculateStats() const
 					glDispatchCompute(1, 1, 1);
 					glMemoryBarrier(GL_ALL_BARRIER_BITS);
 					m_Stats.unbind();
+				}
+			)
+		)
+	);
+}
+
+//=================================================================================
+void C_TerrainMesh::Simulate()
+{
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+		std::move(
+			std::make_unique<Commands::HACK::C_LambdaCommand>(
+				[&]() {
+					RenderDoc::C_DebugScope s("Terrain erosion");
+					auto& shmgr = Shaders::C_ShaderManager::Instance();
+					shmgr.ActivateShader(shmgr.GetProgram("erosion"));
+					m_RainData->UploadData();
+					m_RainData->Activate(true);
+					glMemoryBarrier(GL_ALL_BARRIER_BITS);
+					glActiveTexture(GL_TEXTURE0);
+					glBindImageTexture(0, m_Noise.GetTexture(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+
+					glDispatchCompute(1, 1, 1);
+					glMemoryBarrier(GL_ALL_BARRIER_BITS);
+					m_RainData->Activate(false);
 				}
 			)
 		)

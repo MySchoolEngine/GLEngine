@@ -41,6 +41,7 @@ public:
 
 	void GenerateTerrain();
 	void CalculateStats() const;
+	void Simulate();
 
 
 	//=================================================================================

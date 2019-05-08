@@ -72,7 +72,6 @@ void C_ExplerimentWindow::Update()
 	m_ImGUI->OnUpdate();
 	//MouseSelect();
 
-	::ImGui::ShowDemoWindow();
 	bool my_tool_active = true;
 	::ImGui::Begin("Terrain visualizations", &my_tool_active);
 	WholeTerrain([](T_TerrainPtr terrain) {
@@ -98,7 +97,9 @@ void C_ExplerimentWindow::Update()
 	}
 	if (::ImGui::Button("Rain"))
 	{
-		// do stuff
+		WholeTerrain([&](T_TerrainPtr terrain) {
+			terrain->Simulate();
+		});
 	}
 	bool value = m_TerrainComp[0]->UsingPerlinNoise();
 	::ImGui::Checkbox("PerlinNoise", &value);
