@@ -54,6 +54,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	, m_LayerStack(std::string("ExperimentalWindowLayerStack"))
 	, m_ActualFrameSample(0)
 	, m_FrameSamples()
+	, m_VSync(false)
 {
 	glfwMakeContextCurrent(m_Window);
 
@@ -85,7 +86,10 @@ void C_ExplerimentWindow::Update()
 		::ImGui::Text("Avg frame time %f.2", avgMsPerFrame);
 		::ImGui::Text("Avg fps %f.2", 1000.0/ avgMsPerFrame);
 		::ImGui::PlotLines("Frame Times", m_FrameSamples.data(), static_cast<int>(m_FrameSamples.size()));
+		::ImGui::Checkbox("Lock FPS", &m_VSync);
 	::ImGui::End();
+	
+	glfwSwapInterval(m_VSync?1:0);
 
 	m_World.OnUpdate();
 

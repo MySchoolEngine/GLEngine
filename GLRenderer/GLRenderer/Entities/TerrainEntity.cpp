@@ -101,7 +101,7 @@ void C_TerrainEntity::DrawControls()
 				terrain->UsePerlinNoise(value);
 			});
 			::ImGui::Checkbox("Visualization", &Visualise);
-			::ImGui::SliderInt("Vertexes", &m_SqPerLine, 4, 16);
+			::ImGui::SliderInt("Verticies", &m_SqPerLine, 4, 16);
 			::ImGui::SliderInt("Noise frequency", &m_Freq, 4, 40);
 			WholeTerrain([&](T_TerrainPtr patch) {
 				patch->SetFrequncy(m_Freq);

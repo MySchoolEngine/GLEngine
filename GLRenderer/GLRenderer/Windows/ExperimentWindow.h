@@ -77,6 +77,7 @@ private:
 	Utils::HighResolutionTimer									m_FrameTimer;
 	int															m_ActualFrameSample;
 	std::array<float, 500>										m_FrameSamples;
+	bool														m_VSync;
 };
 }
 }
