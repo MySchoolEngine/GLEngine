@@ -228,8 +228,10 @@ void C_TerrainMesh::Simulate()
 				[&]() {
 					RenderDoc::C_DebugScope s("Terrain erosion");
 					auto& shmgr = Shaders::C_ShaderManager::Instance();
-					shmgr.ActivateShader(shmgr.GetProgram("erosion"));
-					shmgr.GetProgram("erosion")->SetUniform("numDrops", m_NumDrops);
+					auto program = shmgr.GetProgram("erosion");
+					if (!program) return;
+					shmgr.ActivateShader(program);
+					program->SetUniform("numDrops", m_NumDrops);
 					m_RainData->UploadData();
 					m_RainData->Activate(true);
 					glActiveTexture(GL_TEXTURE0);
