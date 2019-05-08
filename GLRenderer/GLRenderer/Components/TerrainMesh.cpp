@@ -35,7 +35,7 @@ C_TerrainMesh::C_TerrainMesh()
 	, m_Noise("TerrainNoise")
 	, m_Coord(0, 0)
 	, m_Stats(3)
-	, m_RainData(Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<decltype(m_RainData)::element_type>("rainData", dim))
+	, m_RainData(std::make_shared<decltype(m_RainData)::element_type>("rainData", 1, dim))
 	, m_NumDrops(100)
 	, m_HasTexture(false)
 	, m_UsePerlin(false)
@@ -55,6 +55,7 @@ C_TerrainMesh::C_TerrainMesh()
 	m_AABB.Add(glm::vec3(0.0f, 0.0f, 0.0f));
 	m_AABB.Add(glm::vec3(patchSize, 1.0f, patchSize));
 
+	m_RainData->GenerateDrops();
 	GenerateTerrain();
 
 	CalculateStats();
@@ -229,7 +230,6 @@ void C_TerrainMesh::Simulate()
 					auto& shmgr = Shaders::C_ShaderManager::Instance();
 					shmgr.ActivateShader(shmgr.GetProgram("erosion"));
 					shmgr.GetProgram("erosion")->SetUniform("numDrops", m_NumDrops);
-					m_RainData->GenerateDrops();
 					m_RainData->UploadData();
 					m_RainData->Activate(true);
 					glActiveTexture(GL_TEXTURE0);
@@ -237,7 +237,10 @@ void C_TerrainMesh::Simulate()
 
 					glDispatchCompute(1, 1, 1);
 					glMemoryBarrier(GL_ALL_BARRIER_BITS);
+					m_Noise.GenerateMipMaps();
 					m_RainData->Activate(false);
+					// generate new droplets
+					m_RainData->GenerateDrops();
 				}
 			)
 		)
