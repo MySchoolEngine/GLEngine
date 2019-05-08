@@ -5,7 +5,7 @@ uniform vec4 modelColor;
 uniform sampler2D tex;
 uniform bool hasTexture;
 
-noperspective in vec2 uv;
+in vec2 uv;
 
 
 out vec4 fragColor;
