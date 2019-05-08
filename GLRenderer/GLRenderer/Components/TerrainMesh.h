@@ -64,6 +64,8 @@ protected:
 	bool							m_QueueSimulation	: 1;
 
 	glm::mat4 GetModelMatrix() const;
+
+	glm::mat4 m_ModelMatrix;
 };
 
 }}}

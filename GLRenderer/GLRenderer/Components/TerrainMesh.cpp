@@ -19,6 +19,8 @@
 #include <Core/Application.h>
 
 const int dim = 1024;
+// if you make this mutable you need to update modelMatrix whenever you 
+// mutate this value
 const static float patchSize = 8;
 
 namespace GLEngine {
@@ -109,6 +111,7 @@ void C_TerrainMesh::PerformDraw() const
 void C_TerrainMesh::SetCoord(glm::ivec2 coord)
 {
 	m_Coord = coord;
+	m_ModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(m_Coord.x*patchSize, 0.0f, m_Coord.y*patchSize));
 }
 
 //=================================================================================
@@ -250,8 +253,11 @@ void C_TerrainMesh::DebugDraw()
 		auto dropCoord = m_RainData->m_RainDrops[i];
 		auto dropPoint = glm::vec4(dropCoord.x*OnePixel, 2, dropCoord.y*OnePixel, 1.0);
 		auto fallPoint = glm::vec4(dropCoord.x*OnePixel, -2, dropCoord.y*OnePixel, 1.0);
-		debug.DrawPoint(dropPoint, glm::vec3(0,0,1), GetModelMatrix());
-		debug.DrawLine(GetModelMatrix() * dropPoint, GetModelMatrix() *(fallPoint), glm::vec3(0, 0, 1));
+		const auto modelMatrix = GetModelMatrix();
+		const auto dropPointInModelSpace = modelMatrix * dropPoint;
+
+		debug.DrawPoint(dropPointInModelSpace, glm::vec3(0,0,1));
+		debug.DrawLine(dropPointInModelSpace, modelMatrix *(fallPoint), glm::vec3(0, 0, 1));
 	}
 }
 
@@ -266,7 +272,7 @@ void C_TerrainMesh::OnEvent(Core::I_Event& event)
 //=================================================================================
 glm::mat4 C_TerrainMesh::GetModelMatrix() const
 {
-	return glm::translate(glm::mat4(1.0f), glm::vec3(m_Coord.x*patchSize, 0.0f, m_Coord.y*patchSize));
+	return m_ModelMatrix;
 }
 
 }}}
