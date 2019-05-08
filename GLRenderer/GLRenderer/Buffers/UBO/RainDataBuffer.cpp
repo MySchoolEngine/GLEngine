@@ -18,7 +18,7 @@ C_RainDataBuffer::C_RainDataBuffer(const std::string& blockName, unsigned int in
 	const auto bytes = sizeof(m_RainDrops);
 
 	C_UniformBuffer::bind();
-	glBufferData(GL_UNIFORM_BUFFER, bytes, nullptr, GL_DYNAMIC_DRAW);
+	glBufferData(GetBufferType(), bytes, nullptr, GL_DYNAMIC_DRAW);
 	C_UniformBuffer::unbind();
 }
 
@@ -26,11 +26,11 @@ C_RainDataBuffer::C_RainDataBuffer(const std::string& blockName, unsigned int in
 void C_RainDataBuffer::UploadData() const
 {
 	bind();
-	auto *data = (char *)glMapBuffer(GL_UNIFORM_BUFFER, GL_READ_WRITE);
+	auto *data = (char *)glMapBuffer(GetBufferType(), GL_WRITE_ONLY);
 
 	memcpy(data, m_RainDrops.data(), sizeof(m_RainDrops));
 
-	glUnmapBuffer(GL_UNIFORM_BUFFER);
+	glUnmapBuffer(GetBufferType());
 	unbind();
 }
 
