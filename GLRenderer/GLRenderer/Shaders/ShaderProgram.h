@@ -13,16 +13,9 @@
 
 #pragma once
 
-#include <glm/glm.hpp>
+#include <Renderer/IResource.h>
+
 #include <glm/gtc/type_ptr.hpp>
-
-#include <glad/glad.h>
-
-#include <functional>
-#include <map>
-#include <string>
-#include <vector>
-#include <memory>
 
 namespace GLEngine {
 namespace GLRenderer {
@@ -37,9 +30,6 @@ class C_ShaderProgram
 {
 public:
 	C_ShaderProgram(GLuint program);
-#if _DEBUG
-	//C_ShaderProgram(GLuint program);
-#endif
 	C_ShaderProgram& operator=(C_ShaderProgram& other) = delete;
 	C_ShaderProgram(C_ShaderProgram& rhs) = delete;
 	virtual ~C_ShaderProgram();

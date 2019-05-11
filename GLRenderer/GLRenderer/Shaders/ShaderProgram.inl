@@ -21,7 +21,7 @@ inline int C_ShaderProgram::FindLocation(const char* name)
 	}
 
 	if (location < 0) {
-		CORE_LOG(E_Level::Info, E_Context::Render, "Program '{}' doesn't have uniform: {}", m_name, name);
+		CORE_LOG(E_Level::Warning, E_Context::Render, "Program '{}' doesn't have uniform: {}", m_name, name);
 	}
 
 	return location;
@@ -44,7 +44,7 @@ inline int C_ShaderProgram::FindLocation(const std::string& name)
 	}
 
 	if (location < 0) {
-		CORE_LOG(E_Level::Info, E_Context::Render, "Program '{}' doesn't have uniform: {}", m_name, name);
+		CORE_LOG(E_Level::Warning, E_Context::Render, "Program '{}' doesn't have uniform: {}", m_name, name);
 	}
 
 	return location;
@@ -69,7 +69,6 @@ template<class N>
 void C_ShaderProgram::SetUniform(N name, const glm::mat4 & value)
 {
 	glUniformMatrix4fv(FindLocation(name), 1, GL_FALSE, glm::value_ptr(value));
-	//ErrorCheck();
 }
 
 //=================================================================================
@@ -77,7 +76,6 @@ template<class N>
 void C_ShaderProgram::SetUniform(N name, const glm::vec4 & value)
 {
 	glUniform4fv(FindLocation(name), 1, glm::value_ptr(value));
-	//ErrorCheck();
 }
 
 //=================================================================================
@@ -85,7 +83,6 @@ template<class N>
 void C_ShaderProgram::SetUniform(N name, const glm::vec3 & value)
 {
 	glUniform3fv(FindLocation(name), 1, glm::value_ptr(value));
-	//ErrorCheck();
 }
 
 //=================================================================================
@@ -93,7 +90,6 @@ template<class N>
 void C_ShaderProgram::SetUniform(N name, const glm::ivec2 & value)
 {
 	glUniform2iv(FindLocation(name), 1, glm::value_ptr(value));
-	//ErrorCheck();
 }
 
 //=================================================================================
@@ -101,7 +97,6 @@ template<class N>
 void C_ShaderProgram::SetUniform(N name, const glm::vec2 & value)
 {
 	glUniform2fv(FindLocation(name), 1, glm::value_ptr(value));
-	//ErrorCheck();
 }
 
 //=================================================================================
