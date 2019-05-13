@@ -20,7 +20,9 @@ C_TerrainEntity::C_TerrainEntity()
 	, DebugDrawDroplets(false)
 	, m_Drops(100)
 {
-
+	Visualise.SetName("Visualization");
+	PerlinNoise.SetName("Use Perlin noise");
+	DebugDrawDroplets.SetName("Debug draw");
 }
 
 //=================================================================================
@@ -67,7 +69,7 @@ void C_TerrainEntity::AddPatch(T_TerrainPtr patch)
 	m_Patches.push_back(patch);
 	patch->SetSqPerLine(m_SqPerLine);
 	patch->SetFrequncy(m_Freq);
-	patch->UsePerlinNoise(PerlinNoise);
+	patch->UsePerlinNoise(static_cast<bool>(PerlinNoise));
 	patch->SetNumDrops(m_Drops);
 }
 
@@ -110,12 +112,12 @@ void C_TerrainEntity::DrawControls()
 					terrain->GenerateTerrain();
 				});
 			}
-			::ImGui::Checkbox("PerlinNoise", &PerlinNoise);
+			PerlinNoise.Draw();
 			WholeTerrain([&](T_TerrainPtr terrain) {
-				terrain->UsePerlinNoise(PerlinNoise);
+				terrain->UsePerlinNoise(static_cast<bool>(PerlinNoise));
 			});
-			::ImGui::Checkbox("Visualization", &Visualise);
-			::ImGui::Checkbox("DebugDrawDroplets", &DebugDrawDroplets);
+			Visualise.Draw();
+			DebugDrawDroplets.Draw();
 
 			if (DebugDrawDroplets) {
 				WholeTerrain([&](T_TerrainPtr terrain) {

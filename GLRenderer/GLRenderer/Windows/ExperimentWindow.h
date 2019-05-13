@@ -4,6 +4,8 @@
 
 #include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/CameraManager.h>
+#include <GLRenderer/GUI/PlotLine.h>
+#include <GLRenderer/GUI/CheckBoxValue.h>
 
 #include <Entity/World.h>
 
@@ -75,10 +77,8 @@ private:
 	Temporar::C_CameraManager									m_CamManager;
 	ImGui::C_ImGuiLayer*										m_ImGUI;
 	Utils::HighResolutionTimer									m_FrameTimer;
-	int															m_ActualFrameSample;
-	std::array<float, 500>										m_FrameSamples;
-	bool														m_VSync;
+	GUI::C_PlotLine<500>										m_Samples;
+	GUI::C_CheckBoxValue											m_VSync;
 };
-}
-}
-}
+
+}}}

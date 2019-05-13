@@ -2,6 +2,8 @@
 
 #include <Entity/IEntity.h>
 
+#include <GLRenderer/GUI/CheckBoxValue.h>
+
 namespace GLEngine {
 namespace GLRenderer {
 
@@ -40,9 +42,9 @@ protected:
 	int m_Drops;
 
 	bool Controls;
-	bool Visualise;
-	bool PerlinNoise;
-	bool DebugDrawDroplets;
+	GUI::C_CheckBoxValue Visualise;
+	GUI::C_CheckBoxValue PerlinNoise;
+	GUI::C_CheckBoxValue DebugDrawDroplets;
 };
 
 }

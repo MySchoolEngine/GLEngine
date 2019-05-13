@@ -28,6 +28,7 @@
 #include <GLRenderer/Components/StaticMesh.h>
 #include <GLRenderer/Components/SkyBox.h>
 #include <GLRenderer/PersistentDebug.h>
+#include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/Debug.h>
 
 #include <Physics/Primitives/Ray.h>
@@ -42,8 +43,6 @@
 
 #include <imgui.h>
 
-#include <numeric>
-
 namespace GLEngine {
 namespace GLRenderer {
 namespace Windows {
@@ -53,8 +52,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	: C_GLFWoGLWindow(wndInfo)
 	, m_texture("dummyTexture")
 	, m_LayerStack(std::string("ExperimentalWindowLayerStack"))
-	, m_ActualFrameSample(0)
-	, m_FrameSamples()
+	, m_Samples("Frame Times")
 	, m_VSync(false)
 {
 	glfwMakeContextCurrent(m_Window);
@@ -67,6 +65,8 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	m_ImGUI->OnAttach(); // manual call for now.
 	m_LayerStack.PushLayer(m_ImGUI);
 	m_LayerStack.PushLayer(&m_CamManager);
+
+	m_VSync.SetName("Lock FPS");
 }
 
 //=================================================================================
@@ -82,11 +82,11 @@ void C_ExplerimentWindow::Update()
 	bool my_tool_active = true;
 
 	::ImGui::Begin("Frame stats", &my_tool_active);
-		auto avgMsPerFrame = std::accumulate(m_FrameSamples.begin(), m_FrameSamples.end(), 0.0f) / m_FrameSamples.size();
+		const auto avgMsPerFrame = m_Samples.Avg();
 		::ImGui::Text("Avg frame time %f.2", avgMsPerFrame);
 		::ImGui::Text("Avg fps %f.2", 1000.0/ avgMsPerFrame);
-		::ImGui::PlotLines("Frame Times", m_FrameSamples.data(), static_cast<int>(m_FrameSamples.size()));
-		::ImGui::Checkbox("Lock FPS", &m_VSync);
+		m_Samples.Draw();
+		m_VSync.Draw();
 	::ImGui::End();
 	
 	glfwSwapInterval(m_VSync?1:0);
@@ -177,6 +177,7 @@ void C_ExplerimentWindow::Update()
 
 	{
 		RenderDoc::C_DebugScope s("ImGUI");
+		static_cast<C_OGLRenderer*>(m_renderer.get())->DrawControls();
 		m_Terrain->DrawControls();
 		m_ImGUI->FrameEnd();
 	}
@@ -195,10 +196,9 @@ void C_ExplerimentWindow::Update()
 }
 
 //=================================================================================
-void C_ExplerimentWindow::sampleTime(double new_sample) {
-
-	m_FrameSamples[m_ActualFrameSample] = static_cast<float>(new_sample);
-	m_ActualFrameSample = (m_ActualFrameSample + 1) % m_FrameSamples.size();
+void C_ExplerimentWindow::sampleTime(double new_sample) 
+{
+	m_Samples.Sample(static_cast<float>(new_sample));
 }
 
 //=================================================================================
