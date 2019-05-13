@@ -37,7 +37,7 @@ void C_RainDataBuffer::UploadData() const
 //=================================================================================
 void C_RainDataBuffer::GenerateDrops()
 {
-	unsigned seed1 = std::chrono::system_clock::now().time_since_epoch().count();
+	unsigned seed1 = static_cast<unsigned>(std::chrono::system_clock::now().time_since_epoch().count());
 	std::default_random_engine generator(seed1);
 	std::uniform_int_distribution<int> distribution(0, m_TextureDimension);
 	for (int i = 0; i < m_RainDrops.size(); ++i) {
