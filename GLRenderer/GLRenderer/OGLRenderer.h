@@ -4,8 +4,7 @@
 
 #include <Renderer/IRenderer.h>
 
-
-#include <vector>
+#include <GLRenderer/GUI/PlotLine.h>
 
 namespace GLEngine {
 namespace GLRenderer {
@@ -31,9 +30,11 @@ public:
 	//=================================================================================
 	virtual void Lock(bool lock = true) override;
 
+	void DrawControls() const;
 private:
 	bool m_Locked = false;
-	std::vector<Renderer::I_Renderer::T_CommandPtr>* m_CommandQueue;
+	std::vector<Renderer::I_Renderer::T_CommandPtr>*	m_CommandQueue;
+	GUI::C_PlotLine<500>								m_DrawCommands;
 };
 
 }
