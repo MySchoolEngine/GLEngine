@@ -169,7 +169,7 @@ void C_TerrainMesh::GenerateTerrain()
 					auto& shmgr = Shaders::C_ShaderManager::Instance();
 					shmgr.ActivateShader(shmgr.GetProgram("noise"));
 					shmgr.GetProgram("noise")->SetUniform("frequency", m_Frequency);
-					shmgr.GetProgram("noise")->SetUniform("unicoord", m_Coord*dim);
+					shmgr.GetProgram("noise")->SetUniform("unicoord", (m_Coord*(dim-1)));
 					shmgr.GetProgram("noise")->SetUniform("patchWidth", dim);
 					shmgr.GetProgram("noise")->SetUniform("usePerlin", m_UsePerlin);
 				}

@@ -40,6 +40,7 @@ protected:
 	int m_SqPerLine;
 	int m_Freq;
 	int m_Drops;
+	int m_inputCoords[2];
 
 	bool Controls;
 	GUI::C_CheckBoxValue Visualise;

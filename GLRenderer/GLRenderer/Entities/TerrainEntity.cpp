@@ -23,6 +23,8 @@ C_TerrainEntity::C_TerrainEntity()
 	Visualise.SetName("Visualization");
 	PerlinNoise.SetName("Use Perlin noise");
 	DebugDrawDroplets.SetName("Debug draw");
+	m_inputCoords[0] = 0;
+	m_inputCoords[1] = 0;
 }
 
 //=================================================================================
@@ -131,6 +133,14 @@ void C_TerrainEntity::DrawControls()
 				patch->SetFrequncy(m_Freq);
 				patch->SetSqPerLine(m_SqPerLine);
 			});
+
+			int* arr[] = { &m_inputCoords[0],&m_inputCoords[1] };
+			::ImGui::SliderInt("X", &(m_inputCoords[0]), -10, 10);
+			::ImGui::SliderInt("Y", &(m_inputCoords[1]), -10, 10);
+			if (::ImGui::Button("Create")) {
+				AddPatch({ m_inputCoords[0],m_inputCoords[1] });
+			}
+
 			WholeTerrain([&](T_TerrainPtr patch) {
 				bool selected = false;
 				auto coord = patch->GetCoord();
