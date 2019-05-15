@@ -1,16 +1,17 @@
 #pragma once
 
 #include <GLRendererStdafx.h>
+#include <GLRenderer/GUI/GUIComponent.h>
 
 namespace GLEngine {
 namespace GLRenderer {
 namespace GUI {
 
 template<int samples>
-class C_PlotLine {
+class C_PlotLine : public I_GUIComponent{
 public:
 	C_PlotLine(std::string&& name);
-	void Draw() const;
+	virtual void Draw() const override;
 	void Sample(float sample);
 	float Avg() const;
 	float LastSample() const;
