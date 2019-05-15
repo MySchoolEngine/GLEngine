@@ -55,4 +55,18 @@ float C_PlotLine<samples>::LastSample() const
 	return m_Samples[actualSample];
 }
 
+//=================================================================================
+template<int samples>
+typename C_PlotLine<samples>::T_SamplesCIter C_PlotLine<samples>::cbegin() const
+{
+	return m_Samples.cbegin();
+}
+
+//=================================================================================
+template<int samples>
+typename C_PlotLine<samples>::T_SamplesCIter C_PlotLine<samples>::cend() const
+{
+	return m_Samples.cend();
+}
+
 }}}

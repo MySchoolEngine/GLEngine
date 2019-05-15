@@ -83,8 +83,11 @@ void C_ExplerimentWindow::Update()
 
 	::ImGui::Begin("Frame stats", &my_tool_active);
 		const auto avgMsPerFrame = m_Samples.Avg();
-		::ImGui::Text("Avg frame time %f.2", avgMsPerFrame);
-		::ImGui::Text("Avg fps %f.2", 1000.0/ avgMsPerFrame);
+		::ImGui::Text("Avg frame time %.2f", avgMsPerFrame);
+		::ImGui::Text("Avg fps %.2f", 1000.0 / avgMsPerFrame);
+		::ImGui::Text("Min/max frametime %.2f/%.2f", 
+			*std::min_element(m_Samples.cbegin(), m_Samples.cend()), 
+			*std::max_element(m_Samples.cbegin(), m_Samples.cend()));
 		m_Samples.Draw();
 		m_VSync.Draw();
 	::ImGui::End();
