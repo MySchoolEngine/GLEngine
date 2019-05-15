@@ -34,6 +34,24 @@ C_CheckBoxValue::operator bool() const
 }
 
 //=================================================================================
+bool C_CheckBoxValue::operator==(bool val) const
+{
+	return m_Value == val;
+}
+
+//=================================================================================
+bool C_CheckBoxValue::operator!=(bool val) const
+{
+	return !(*this == val);
+}
+
+//=================================================================================
+C_CheckBoxValue C_CheckBoxValue::operator!()
+{	
+	return C_CheckBoxValue(!m_Value, std::string(m_Name));
+}
+
+//=================================================================================
 bool* C_CheckBoxValue::operator&() const
 {
 	return &m_Value;

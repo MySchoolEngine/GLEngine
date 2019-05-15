@@ -6,6 +6,7 @@ namespace GLRenderer {
 namespace GUI {
 
 // This should look like bool value for user and has size of bool value
+// @todo unit testing
 class C_CheckBoxValue {
 public:
 	C_CheckBoxValue(bool value, std::string&& name = "");
@@ -15,6 +16,9 @@ public:
 
 	explicit operator bool() const;
 	bool operator=(bool val);
+	bool operator==(bool val) const;
+	bool operator!=(bool val) const;
+	C_CheckBoxValue operator!();
 	bool* operator&() const;
 private:
 	std::string m_Name;
