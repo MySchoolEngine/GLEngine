@@ -40,6 +40,30 @@ C_CheckBoxValue::operator bool() const
 }
 
 //=================================================================================
+bool C_CheckBoxValue::operator||(bool val) const
+{
+	return m_Value || val;
+}
+
+//=================================================================================
+bool C_CheckBoxValue::operator&&(bool val) const
+{
+	return m_Value && val;
+}
+
+//=================================================================================
+void C_CheckBoxValue::operator|=(bool val)
+{
+	m_Value |= val;
+}
+
+//=================================================================================
+void C_CheckBoxValue::operator&=(bool val)
+{
+	m_Value &= val;
+}
+
+//=================================================================================
 bool C_CheckBoxValue::operator==(bool val) const
 {
 	return m_Value == val;

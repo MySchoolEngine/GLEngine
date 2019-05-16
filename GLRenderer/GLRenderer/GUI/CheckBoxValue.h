@@ -17,6 +17,10 @@ public:
 
 	operator bool() const;
 	bool operator=(bool val);
+	void operator&=(bool val);
+	void operator|=(bool val);
+	bool operator||(bool val) const;
+	bool operator&&(bool val) const;
 	bool operator==(bool val) const;
 	bool operator!=(bool val) const;
 	C_CheckBoxValue operator!();
