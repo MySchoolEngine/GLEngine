@@ -28,6 +28,12 @@ void C_CheckBoxValue::SetName(std::string&& name)
 }
 
 //=================================================================================
+bool C_CheckBoxValue::GetValue() const
+{
+	return m_Value;
+}
+
+//=================================================================================
 C_CheckBoxValue::operator bool() const
 {
 	return m_Value;
