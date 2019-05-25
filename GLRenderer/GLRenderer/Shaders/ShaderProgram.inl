@@ -133,6 +133,5 @@ int C_ShaderProgram::FindUniformBlockLocation(const char* name) const
 {
 	return glGetUniformBlockIndex(m_Program, name);
 }
-}
-}
-}
+
+}}}

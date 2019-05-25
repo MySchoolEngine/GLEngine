@@ -61,7 +61,7 @@ void C_ShaderManager::Update()
 		for (auto& program : m_Programs) {
 			try
 			{
-				program.second.swap(std::make_shared<C_ShaderProgram>(LoadProgram(program.first)));
+				*(program.second) = std::move(C_ShaderProgram(LoadProgram(program.first)));
 				Buffers::C_UniformBuffersManager::Instance().ProcessUBOBindingPoints(program.second);
 			}
 			catch (...)
