@@ -92,7 +92,10 @@ void C_OGLRenderer::DrawControls() const
 	::ImGui::Begin("Renderer frame stats", &my_tool_active);
 		m_DrawCommands.Draw();
 		const auto avgDrawCommands = m_DrawCommands.Avg();
-		::ImGui::Text("Avg draw commands: %f.2", avgDrawCommands);
+		::ImGui::Text("Avg draw commands: %.2f", avgDrawCommands);
+		::ImGui::Text("Min/max %.2f/%.2f",
+			*std::min_element(m_DrawCommands.cbegin(), m_DrawCommands.cend()),
+			*std::max_element(m_DrawCommands.cbegin(), m_DrawCommands.cend()));
 	::ImGui::End();
 }
 
