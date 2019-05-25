@@ -4,6 +4,7 @@
 
 #include <GLRenderer/Buffers/UBO/TerrainStats.h>
 #include <GLRenderer/Mesh/TerrainMeshResource.h>
+#include <GLRenderer/GUI/CheckBoxValue.h>
 #include <GLRenderer/Textures/Texture.h>
 
 namespace GLEngine {
@@ -58,10 +59,11 @@ protected:
 	Buffers::UBO::C_TerrainStats	m_Stats;
 	std::shared_ptr<Buffers::UBO::C_RainDataBuffer>		m_RainData;
 	int								m_NumDrops;
-	bool							m_HasTexture		: 1;
 	bool							m_UsePerlin			: 1;
 	bool							m_QueuedUpdate		: 1;
 	bool							m_QueueSimulation	: 1;
+	bool							m_Selected; // cannot be bitfield as I use reference for this boolean
+	GUI::C_CheckBoxValue			m_HasTexture;
 
 	glm::mat4 GetModelMatrix() const;
 

@@ -9,6 +9,8 @@
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 
+#include <GLRenderer/Textures/TextureUnitManager.h>
+
 #include <GLRenderer/PersistentDebug.h>
 #include <GLRenderer/Debug.h>
 
@@ -41,6 +43,7 @@ C_TerrainMesh::C_TerrainMesh()
 	, m_UsePerlin(false)
 	, m_QueuedUpdate(false)
 	, m_QueueSimulation(false)
+	, m_Selected(false)
 {
 
 	m_Terrain = std::make_shared<Mesh::C_TerrainMeshResource>();
@@ -56,6 +59,8 @@ C_TerrainMesh::C_TerrainMesh()
 	m_AABB.Add(glm::vec3(patchSize, 1.0f, patchSize));
 
 	m_RainData->GenerateDrops();
+	m_HasTexture.SetName("Use texture");
+
 	GenerateTerrain();
 
 	CalculateStats();
@@ -64,6 +69,9 @@ C_TerrainMesh::C_TerrainMesh()
 //=================================================================================
 void C_TerrainMesh::PerformDraw() const
 {
+	auto& tm = Textures::C_TextureUnitManger::Instance();
+	tm.BindTextureToUnit(m_Noise, 0);
+
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
@@ -72,14 +80,11 @@ void C_TerrainMesh::PerformDraw() const
 					auto shader = shmgr.GetProgram("terrain");
 					shmgr.ActivateShader(shader);
 					shader->SetUniform("patchSize", patchSize);
-					shader->SetUniform("tex", 0);
+					shader->BindSampler(m_Noise, 0);
 					shader->SetUniform("sqPerLine", static_cast<float>(m_SqPerLine));
 					shader->SetUniform("modelMatrix", GetModelMatrix());
 					shader->SetUniform("modelColor", glm::vec4(0.3f, 1.0f, 0.4, 0.0f));
-					shader->SetUniform("hasTexture", m_HasTexture);
-
-					glActiveTexture(GL_TEXTURE0);
-					m_Noise.bind();
+					shader->SetUniform("hasTexture", m_HasTexture.GetValue());
 
 					m_Terrain->BindVAO();
 					glDrawArrays(GL_TRIANGLES, 0, 6*m_SqPerLine*m_SqPerLine);
@@ -89,7 +94,32 @@ void C_TerrainMesh::PerformDraw() const
 		)
 	);
 
-	if (m_HasTexture) {
+	// rim render
+	tm.BindTextureToUnit(m_Noise, 0);
+
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+		std::move(
+			std::make_unique<Commands::HACK::C_LambdaCommand>(
+				[&]() {
+					auto& shmgr = Shaders::C_ShaderManager::Instance();
+					auto shader = shmgr.GetProgram("terrain-rim");
+					shmgr.ActivateShader(shader);
+					shader->SetUniform("patchSize", patchSize);
+					shader->BindSampler(m_Noise, 0);
+					shader->SetUniform("sqPerLine", m_SqPerLine);
+					shader->SetUniform("modelMatrix", GetModelMatrix());
+					shader->SetUniform("modelColor", glm::vec4(0.3f, 1.0f, 0.4, 0.0f));
+
+					m_Terrain->BindVAO();
+					glDrawArrays(GL_TRIANGLES, 0, 6 * m_SqPerLine*4);
+					m_Terrain->UnbindVAO();
+				}
+			)
+		)
+	);
+
+
+	if (m_Selected) {
 		Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 			std::move(
 				std::make_unique<Commands::HACK::C_LambdaCommand>(
@@ -176,13 +206,15 @@ void C_TerrainMesh::GenerateTerrain()
 			)
 		)
 	);
+
+	auto& tm = Textures::C_TextureUnitManger::Instance();
+	tm.BindImageToUnit(m_Noise, 0, Textures::E_Access::Write);
+
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {
 					RenderDoc::C_DebugScope s("NoiseCompute");
-					glActiveTexture(GL_TEXTURE0);
-					glBindImageTexture(0, m_Noise.GetTexture(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
 					glDispatchCompute(dim / 16, dim / 16, 1);
 					glMemoryBarrier(GL_ALL_BARRIER_BITS);
@@ -199,6 +231,10 @@ void C_TerrainMesh::GenerateTerrain()
 //=================================================================================
 void C_TerrainMesh::CalculateStats() const
 {
+
+	auto& tm = Textures::C_TextureUnitManger::Instance();
+	tm.BindImageToUnit(m_Noise, 0, Textures::E_Access::Read);
+
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
@@ -207,8 +243,6 @@ void C_TerrainMesh::CalculateStats() const
 					auto& shmgr = Shaders::C_ShaderManager::Instance();
 					shmgr.ActivateShader(shmgr.GetProgram("stats"));
 					m_Stats.bind();
-					glActiveTexture(GL_TEXTURE0);
-					glBindImageTexture(0, m_Noise.GetTexture(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
 
 					glDispatchCompute(1, 1, 1);
 					glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
@@ -222,6 +256,9 @@ void C_TerrainMesh::CalculateStats() const
 //=================================================================================
 void C_TerrainMesh::Simulate()
 {
+	auto& tm = Textures::C_TextureUnitManger::Instance();
+	tm.BindImageToUnit(m_Noise, 0, Textures::E_Access::ReadWrite);
+
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
@@ -232,10 +269,10 @@ void C_TerrainMesh::Simulate()
 					if (!program) return;
 					shmgr.ActivateShader(program);
 					program->SetUniform("numDrops", m_NumDrops);
+					program->SetUniform("numSteps", 150);
+					program->SetUniform("inertia", 0.025f);
 					m_RainData->UploadData();
 					m_RainData->Activate(true);
-					glActiveTexture(GL_TEXTURE0);
-					glBindImageTexture(0, m_Noise.GetTexture(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
 					glDispatchCompute(1, 1, 1);
 					glMemoryBarrier(GL_ALL_BARRIER_BITS);
@@ -264,14 +301,26 @@ void C_TerrainMesh::DebugDraw()
 		debug.DrawPoint(dropPointInModelSpace, glm::vec3(0,0,1));
 		debug.DrawLine(dropPointInModelSpace, modelMatrix *(fallPoint), glm::vec3(0, 0, 1));
 	}
+
+	if (m_Selected) {
+		::ImGui::Begin("Terrain ", &m_Selected);
+			::ImGui::Image((void*)GetTexture().GetTexture(),
+			{
+				256,
+				256
+			},
+			{ 0,1 }, { 1,0 });
+			m_HasTexture.Draw();
+		::ImGui::End();
+	}
 }
 
 //=================================================================================
 void C_TerrainMesh::OnEvent(Core::I_Event& event)
 {
 	event.m_Handeld = true;
-	m_HasTexture = !m_HasTexture;
-	m_QueuedUpdate = m_HasTexture;
+	m_Selected = !m_Selected;
+	m_QueuedUpdate = m_Selected;
 }
 
 //=================================================================================
