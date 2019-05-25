@@ -1,8 +1,8 @@
 #version 430
 
 //per mesh
+layout (binding = 0) uniform sampler2D tex;
 uniform vec4 modelColor;
-uniform sampler2D tex;
 uniform bool hasTexture;
 
 in vec2 uv;
