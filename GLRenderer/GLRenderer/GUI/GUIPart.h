@@ -5,9 +5,9 @@ namespace GLEngine {
 namespace GLRenderer {
 namespace GUI {
 
-class I_GUIComponent {
+class I_GUIPart {
 public:
-	virtual ~I_GUIComponent() = default;
+	virtual ~I_GUIPart() = default;
 	virtual void Draw() const = 0;
 };
 

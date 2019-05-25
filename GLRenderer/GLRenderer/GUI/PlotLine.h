@@ -1,14 +1,14 @@
 #pragma once
 
 #include <GLRendererStdafx.h>
-#include <GLRenderer/GUI/GUIComponent.h>
+#include <GLRenderer/GUI/GUIPart.h>
 
 namespace GLEngine {
 namespace GLRenderer {
 namespace GUI {
 
 template<int samples>
-class C_PlotLine : public I_GUIComponent{
+class C_PlotLine : public I_GUIPart{
 	using T_SamplesArray = std::array<float, samples>;
 	using T_SamplesCIter = typename T_SamplesArray::const_iterator;
 public:

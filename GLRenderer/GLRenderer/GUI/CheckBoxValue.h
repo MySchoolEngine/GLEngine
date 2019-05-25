@@ -1,13 +1,13 @@
 #pragma once
 
-#include <GLRenderer/GUI/GUIComponent.h>
+#include <GLRenderer/GUI/GUIPart.h>
 
 namespace GLEngine {
 namespace GLRenderer {
 namespace GUI {
 // This should look like bool value for user and has size of bool value
 // @todo unit testing
-class C_CheckBoxValue : public I_GUIComponent {
+class C_CheckBoxValue : public I_GUIPart {
 public:
 	C_CheckBoxValue(bool value, std::string&& name = "");
 	virtual void Draw() const override;
