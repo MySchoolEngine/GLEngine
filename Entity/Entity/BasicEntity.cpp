@@ -4,6 +4,8 @@
 
 #include <Entity/IComponent.h>
 
+#include <Renderer/IDebugGUIComponent.h>
+
 
 namespace GLEngine {
 namespace Entity {
@@ -41,6 +43,21 @@ std::string C_BasicEntity::GetName() const
 }
 
 //=================================================================================
+void C_BasicEntity::Update()
+{
+
+}
+
+//=================================================================================
+void C_BasicEntity::PostUpdate()
+{
+	for (auto comp : *m_Components)
+	{
+		comp.second->PostUpdate();
+	}
+}
+
+//=================================================================================
 void C_BasicEntity::AddComponent(std::shared_ptr<I_Component> component)
 {
 	m_Components->insert({ component->GetType(), component });
@@ -55,8 +72,22 @@ GLEngine::Entity::I_Entity::EntityID C_BasicEntity::GetID() const
 //=================================================================================
 void C_BasicEntity::OnEvent(Core::I_Event& event)
 {
-	auto comp = GetComponent(Entity::E_ComponentType::Graphical);
-	comp->OnEvent(event);
+	auto debugGUI = GetComponent(Entity::E_ComponentType::DebugGUI);
+	if (debugGUI) {
+		GLEngine::component_cast<Entity::E_ComponentType::DebugGUI>(debugGUI)->Toggle();
+	}
+}
+
+//=================================================================================
+C_BasicEntity::T_ComponentIter C_BasicEntity::begin()
+{
+	return m_Components->begin();
+}
+
+//=================================================================================
+C_BasicEntity::T_ComponentIter C_BasicEntity::end()
+{
+	return m_Components->end();
 }
 
 }}

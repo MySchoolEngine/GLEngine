@@ -54,6 +54,15 @@ void C_World::AddEntity(std::shared_ptr<I_Entity> entity)
 //=================================================================================
 void C_World::OnUpdate()
 {
+	for (auto& entity : *m_Entities)
+	{
+		entity->Update();
+	}
+
+	for (auto& entity : *m_Entities)
+	{
+		entity->PostUpdate();
+	}
 }
 
 //=================================================================================

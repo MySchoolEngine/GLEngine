@@ -15,6 +15,11 @@ public:
 
 	virtual void OnEvent(Core::I_Event& event) override {}
 
+	virtual void Update() {};
+	virtual void PostUpdate() {};
+
+	// draws inside of prepared window
+	virtual void DebugDrawGUI() {};
 };
 
 }

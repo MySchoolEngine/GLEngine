@@ -13,6 +13,7 @@ namespace Entity {
 enum class E_ComponentType {
 	Graphical,
 	Camera,
+	DebugGUI,
 };
 
 class API_EXPORT I_Entity : public Core::I_EventReciever {
@@ -23,6 +24,9 @@ public:
 	virtual EntityID GetID() const = 0;
 	virtual T_ComponentPtr GetComponent(E_ComponentType type) const = 0;
 	virtual std::string GetName() const = 0;
+
+	virtual void Update() {};
+	virtual void PostUpdate() {};
 
 	template<E_ComponentType e,
 		typename retType = ComponenetBase<e>::type,
