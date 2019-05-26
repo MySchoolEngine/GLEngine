@@ -121,6 +121,16 @@ void C_OrbitalCamera::OnEvent(Core::I_Event& event)
 }
 
 //=================================================================================
+void C_OrbitalCamera::DebugDrawGUI()
+{
+	if (::ImGui::CollapsingHeader("Orbital camera")) {
+		::ImGui::SliderFloat("Y angle:", &_angleYDeg, -89.0f, 89.0f);
+		::ImGui::SliderFloat("X angle:", &_angleXDeg, 0, 360.f);
+		::ImGui::SliderFloat("Zoom:", &_zoom, 0.1f, 50.f);
+	}
+}
+
+//=================================================================================
 bool C_OrbitalCamera::OnKeyEvent(Core::C_KeyEvent& event)
 {
 

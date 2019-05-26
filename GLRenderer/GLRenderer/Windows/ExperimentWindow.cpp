@@ -31,6 +31,8 @@
 #include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/Debug.h>
 
+#include <GLRenderer/GUI/Components/GLEntityDebugComponent.h>
+
 #include <Physics/Primitives/Ray.h>
 #include <Physics/Primitives/Intersection.h>
 
@@ -286,6 +288,7 @@ void C_ExplerimentWindow::SetupWorld()
 		playerCamera->adjustOrientation(20.f, 20.f);
 		playerCamera->update();
 		player->AddComponent(playerCamera);
+		player->AddComponent(std::make_shared<GUI::C_GLEntityDebugComponent>(player));
 		m_CamManager.ActivateCamera(playerCamera);
 	}
 	if(false){

@@ -65,8 +65,13 @@ public:
 	virtual float GetFov() const;
 
 
-	//=================================================================================
+
+	//=====================================================
+	// I_Component
+	//=====================================================
 	virtual void OnEvent(Core::I_Event& event) override;
+	virtual void DebugDrawGUI() override;
+
 protected:
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
 	bool OnKeyRepeated(Core::C_KeyRepeatedEvent& event);
