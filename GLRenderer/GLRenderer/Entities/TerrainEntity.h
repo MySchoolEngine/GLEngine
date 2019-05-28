@@ -32,19 +32,29 @@ public:
 	void DrawControls();
 
 	void WholeTerrain(std::function<void(T_TerrainPtr)> lambda);
+
+	struct S_TerrainSettings {
+		int m_SqPerLine			= 32;
+		int m_Freq				= 5;
+		int m_Drops				= 100;
+		int m_NumSteps			= 90;
+		GUI::C_CheckBoxValue PerlinNoise = true;
+		float m_Evaporation		= 0.02f;
+		float m_Gravitation		= 4.0f;
+		float m_InitWater		= 1.0f;
+		float m_StartingSpeed	= 2.0f;
+		float m_Inertia			= 0.65;
+	};
 protected:
 	EntityID					m_ID;
 	std::string					m_Name;
 	std::vector<T_TerrainPtr>	m_Patches;
 
-	int m_SqPerLine;
-	int m_Freq;
-	int m_Drops;
 	int m_inputCoords[2];
 
+	S_TerrainSettings m_Settings;
 	bool Controls;
 	GUI::C_CheckBoxValue Visualise;
-	GUI::C_CheckBoxValue PerlinNoise;
 	GUI::C_CheckBoxValue DebugDrawDroplets;
 };
 

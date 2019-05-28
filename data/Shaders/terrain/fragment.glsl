@@ -4,6 +4,7 @@
 layout (binding = 0) uniform sampler2D tex;
 uniform vec4 modelColor;
 uniform bool hasTexture;
+uniform bool selected;
 
 in vec2 uv;
 
@@ -54,6 +55,10 @@ void main()
 	}
 	else{
 		MaterialDiffuseColor = modelColor;
+	}
+
+	if(selected){
+		MaterialDiffuseColor.r = texture(tex, uv).z;
 	}
 
 	cosTheta = dot(normal,normalize(sun));

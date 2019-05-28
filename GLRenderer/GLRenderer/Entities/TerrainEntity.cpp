@@ -12,16 +12,12 @@ namespace GLRenderer {
 //=================================================================================
 C_TerrainEntity::C_TerrainEntity()
 	: m_ID(NextGUID())
-	, m_SqPerLine(5)
-	, m_Freq(5)
 	, Controls(false)
 	, Visualise(false)
-	, PerlinNoise(true)
 	, DebugDrawDroplets(false)
-	, m_Drops(100)
 {
 	Visualise.SetName("Visualization");
-	PerlinNoise.SetName("Use Perlin noise");
+	m_Settings.PerlinNoise.SetName("Use Perlin noise");
 	DebugDrawDroplets.SetName("Debug draw");
 	m_inputCoords[0] = 0;
 	m_inputCoords[1] = 0;
@@ -69,16 +65,12 @@ void C_TerrainEntity::Update()
 void C_TerrainEntity::AddPatch(T_TerrainPtr patch)
 {
 	m_Patches.push_back(patch);
-	patch->SetSqPerLine(m_SqPerLine);
-	patch->SetFrequncy(m_Freq);
-	patch->UsePerlinNoise(static_cast<bool>(PerlinNoise));
-	patch->SetNumDrops(m_Drops);
 }
 
 //=================================================================================
 void C_TerrainEntity::AddPatch(glm::ivec2 coord)
 {
-	auto comp = std::make_shared<Components::C_TerrainMesh>();
+	auto comp = std::make_shared<Components::C_TerrainMesh>(&m_Settings);
 	comp->SetCoord(coord);
 	AddPatch(comp);
 }
@@ -104,20 +96,14 @@ void C_TerrainEntity::DrawControls()
 					terrain->Simulate();
 				});
 			}
-			::ImGui::SliderInt("Drops", &m_Drops, 1, 100);
-			WholeTerrain([&](T_TerrainPtr terrain) {
-				terrain->SetNumDrops(m_Drops);
-			});
+			::ImGui::SliderInt("Drops", &(m_Settings.m_Drops), 1, 100);
 			if (::ImGui::Button("Regenerate"))
 			{
 				WholeTerrain([&](T_TerrainPtr terrain) {
 					terrain->GenerateTerrain();
 				});
 			}
-			PerlinNoise.Draw();
-			WholeTerrain([&](T_TerrainPtr terrain) {
-				terrain->UsePerlinNoise(static_cast<bool>(PerlinNoise));
-			});
+			m_Settings.PerlinNoise.Draw();
 			Visualise.Draw();
 			DebugDrawDroplets.Draw();
 
@@ -127,12 +113,15 @@ void C_TerrainEntity::DrawControls()
 				});
 			}
 
-			::ImGui::SliderInt("Verticies", &m_SqPerLine, 4, 64);
-			::ImGui::SliderInt("Noise frequency", &m_Freq, 4, 40);
-			WholeTerrain([&](T_TerrainPtr patch) {
-				patch->SetFrequncy(m_Freq);
-				patch->SetSqPerLine(m_SqPerLine);
-			});
+			::ImGui::SliderInt("Verticies", &(m_Settings.m_SqPerLine), 4, 64);
+			::ImGui::SliderInt("Noise frequency", &(m_Settings.m_Freq), 4, 40);
+			::ImGui::Separator();
+			::ImGui::SliderFloat("Gravitation", &(m_Settings.m_Gravitation), 0.0, 15.0);
+			::ImGui::SliderFloat("Evaporation", &(m_Settings.m_Evaporation), 0.0, 1.0);
+			::ImGui::SliderFloat("InitWater", &(m_Settings.m_InitWater), 0.1, 5.0);
+			::ImGui::SliderFloat("InitSpeed", &(m_Settings.m_StartingSpeed), 0.0, 10.0);
+
+			::ImGui::Separator();
 
 			int* arr[] = { &m_inputCoords[0],&m_inputCoords[1] };
 			::ImGui::SliderInt("X", &(m_inputCoords[0]), -10, 10);

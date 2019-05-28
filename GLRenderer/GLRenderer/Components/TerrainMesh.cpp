@@ -31,19 +31,16 @@ namespace Components {
 
 
 //=================================================================================
-C_TerrainMesh::C_TerrainMesh()
-	: m_Frequency(13)
-	, m_SqPerLine(5)
-	, m_Noise("TerrainNoise")
+C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
+	: m_Noise("TerrainNoise")
 	, m_Coord(0, 0)
 	, m_Stats(3)
 	, m_RainData(std::make_shared<decltype(m_RainData)::element_type>("rainData", 1, dim))
-	, m_NumDrops(100)
 	, m_HasTexture(false)
-	, m_UsePerlin(false)
 	, m_QueuedUpdate(false)
 	, m_QueueSimulation(false)
 	, m_Selected(false)
+	, m_Settings(settings)
 {
 
 	m_Terrain = std::make_shared<Mesh::C_TerrainMeshResource>();
@@ -81,13 +78,14 @@ void C_TerrainMesh::PerformDraw() const
 					shmgr.ActivateShader(shader);
 					shader->SetUniform("patchSize", patchSize);
 					shader->BindSampler(m_Noise, 0);
-					shader->SetUniform("sqPerLine", static_cast<float>(m_SqPerLine));
+					shader->SetUniform("sqPerLine", static_cast<float>(m_Settings->m_SqPerLine));
 					shader->SetUniform("modelMatrix", GetModelMatrix());
 					shader->SetUniform("modelColor", glm::vec4(0.3f, 1.0f, 0.4, 0.0f));
 					shader->SetUniform("hasTexture", m_HasTexture.GetValue());
+					shader->SetUniform("selected", m_Selected);
 
 					m_Terrain->BindVAO();
-					glDrawArrays(GL_TRIANGLES, 0, 6*m_SqPerLine*m_SqPerLine);
+					glDrawArrays(GL_TRIANGLES, 0, 6* m_Settings->m_SqPerLine*m_Settings->m_SqPerLine);
 					m_Terrain->UnbindVAO();
 				}
 			)
@@ -106,12 +104,12 @@ void C_TerrainMesh::PerformDraw() const
 					shmgr.ActivateShader(shader);
 					shader->SetUniform("patchSize", patchSize);
 					shader->BindSampler(m_Noise, 0);
-					shader->SetUniform("sqPerLine", m_SqPerLine);
+					shader->SetUniform("sqPerLine", m_Settings->m_SqPerLine);
 					shader->SetUniform("modelMatrix", GetModelMatrix());
 					shader->SetUniform("modelColor", glm::vec4(0.3f, 1.0f, 0.4, 0.0f));
 
 					m_Terrain->BindVAO();
-					glDrawArrays(GL_TRIANGLES, 0, 6 * m_SqPerLine*4);
+					glDrawArrays(GL_TRIANGLES, 0, 6 * m_Settings->m_SqPerLine *4);
 					m_Terrain->UnbindVAO();
 				}
 			)
@@ -143,26 +141,6 @@ void C_TerrainMesh::SetCoord(glm::ivec2 coord)
 {
 	m_Coord = coord;
 	m_ModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(m_Coord.x*patchSize, 0.0f, m_Coord.y*patchSize));
-}
-
-//=================================================================================
-void C_TerrainMesh::SetFrequncy(int freq)
-{
-	if (m_Frequency != freq) {
-		m_Frequency = freq;
-		GenerateTerrain();
-		//m_QueuedUpdate = true;
-	}
-}
-
-//=================================================================================
-void C_TerrainMesh::UsePerlinNoise(bool val)
-{
-	if (m_UsePerlin != val) {
-		m_UsePerlin = val;
-		GenerateTerrain();
-		//m_QueuedUpdate = true;
-	}
 }
 
 //=================================================================================
@@ -198,10 +176,10 @@ void C_TerrainMesh::GenerateTerrain()
 				[&]() {
 					auto& shmgr = Shaders::C_ShaderManager::Instance();
 					shmgr.ActivateShader(shmgr.GetProgram("noise"));
-					shmgr.GetProgram("noise")->SetUniform("frequency", m_Frequency);
+					shmgr.GetProgram("noise")->SetUniform("frequency", m_Settings->m_Freq);
 					shmgr.GetProgram("noise")->SetUniform("unicoord", (m_Coord*(dim-1)));
 					shmgr.GetProgram("noise")->SetUniform("patchWidth", dim);
-					shmgr.GetProgram("noise")->SetUniform("usePerlin", m_UsePerlin);
+					shmgr.GetProgram("noise")->SetUniform("usePerlin", static_cast<bool>(m_Settings->PerlinNoise));
 				}
 			)
 		)
@@ -268,9 +246,13 @@ void C_TerrainMesh::Simulate()
 					auto program = shmgr.GetProgram("erosion");
 					if (!program) return;
 					shmgr.ActivateShader(program);
-					program->SetUniform("numDrops", m_NumDrops);
-					program->SetUniform("numSteps", 150);
-					program->SetUniform("inertia", 0.025f);
+					program->SetUniform("numDrops", m_Settings->m_Drops);
+					program->SetUniform("numSteps", m_Settings->m_NumSteps);
+					program->SetUniform("inertia", m_Settings->m_Inertia);
+					program->SetUniform("gravityForce", m_Settings->m_Gravitation);
+					program->SetUniform("evaporate", m_Settings->m_Evaporation);
+					program->SetUniform("startingSpeed", m_Settings->m_InitWater);
+					program->SetUniform("initialWater", m_Settings->m_StartingSpeed);
 					m_RainData->UploadData();
 					m_RainData->Activate(true);
 
@@ -291,7 +273,7 @@ void C_TerrainMesh::DebugDraw()
 {
 	auto& debug = C_DebugDraw::Instance();
 	float OnePixel = patchSize / dim;
-	for (int i = 0; i < m_NumDrops; ++i) {
+	for (int i = 0; i < m_Settings->m_Drops; ++i) {
 		auto dropCoord = m_RainData->m_RainDrops[i];
 		auto dropPoint = glm::vec4(dropCoord.x*OnePixel, 2, dropCoord.y*OnePixel, 1.0);
 		auto fallPoint = glm::vec4(dropCoord.x*OnePixel, -2, dropCoord.y*OnePixel, 1.0);

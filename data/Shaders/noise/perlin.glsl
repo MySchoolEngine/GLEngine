@@ -62,5 +62,5 @@ void main()
         val = noise(unicoord + vec2(posX, posY), frequency);
     }
 
-	imageStore(perlinNoise, coord, vec4(val, val, val, 1));
+	imageStore(perlinNoise, coord, vec4(val, val, 0, 1));
 }   
