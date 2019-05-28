@@ -12,6 +12,9 @@ namespace GLRenderer {
 //=================================================================================
 C_TerrainEntity::C_TerrainEntity()
 	: m_ID(NextGUID())
+	, m_SimulationRunning(false)
+	, m_Iterations(1000)
+	, m_CurrentIteration(0)
 	, Controls(false)
 	, Visualise(false)
 	, DebugDrawDroplets(false)
@@ -59,6 +62,16 @@ void C_TerrainEntity::Update()
 	WholeTerrain([](T_TerrainPtr patch) {
 		patch->UpdateStats();
 	});
+
+	if (m_SimulationRunning) {
+		WholeTerrain([&](T_TerrainPtr terrain) {
+			terrain->Simulate();
+		});
+		m_CurrentIteration++;
+		if (m_CurrentIteration >= m_Iterations) {
+			m_SimulationRunning = false;
+		}
+	}
 }
 
 //=================================================================================
@@ -90,19 +103,7 @@ void C_TerrainEntity::DrawControls()
 				}
 				::ImGui::EndMenuBar();
 			}
-			if (::ImGui::Button("Rain"))
-			{
-				WholeTerrain([&](T_TerrainPtr terrain) {
-					terrain->Simulate();
-				});
-			}
-			::ImGui::SliderInt("Drops", &(m_Settings.m_Drops), 1, 100);
-			if (::ImGui::Button("Regenerate"))
-			{
-				WholeTerrain([&](T_TerrainPtr terrain) {
-					terrain->GenerateTerrain();
-				});
-			}
+
 			m_Settings.PerlinNoise.Draw();
 			Visualise.Draw();
 			DebugDrawDroplets.Draw();
@@ -115,13 +116,50 @@ void C_TerrainEntity::DrawControls()
 
 			::ImGui::SliderInt("Verticies", &(m_Settings.m_SqPerLine), 4, 64);
 			::ImGui::SliderInt("Noise frequency", &(m_Settings.m_Freq), 4, 40);
-			::ImGui::Separator();
-			::ImGui::SliderFloat("Gravitation", &(m_Settings.m_Gravitation), 0.0, 15.0);
-			::ImGui::SliderFloat("Evaporation", &(m_Settings.m_Evaporation), 0.0, 1.0);
-			::ImGui::SliderFloat("InitWater", &(m_Settings.m_InitWater), 0.1, 5.0);
-			::ImGui::SliderFloat("InitSpeed", &(m_Settings.m_StartingSpeed), 0.0, 10.0);
 
 			::ImGui::Separator();
+			if(!m_SimulationRunning)
+			{
+				::ImGui::SliderFloat("Gravitation", &(m_Settings.m_Gravitation), 0.0f, 15.0f);
+				::ImGui::SliderFloat("Evaporation", &(m_Settings.m_Evaporation), 0.0f, 1.0f);
+				::ImGui::SliderFloat("InitWater", &(m_Settings.m_InitWater), 0.1f, 5.0f);
+				::ImGui::SliderFloat("InitSpeed", &(m_Settings.m_StartingSpeed), 0.0f, 10.0f);
+
+				if (::ImGui::Button("Simulate"))
+				{
+					m_SimulationRunning = true;
+					m_CurrentIteration = 0;
+				}
+				::ImGui::SameLine();
+				if (::ImGui::Button("Rain"))
+				{
+					WholeTerrain([&](T_TerrainPtr terrain) {
+						terrain->Simulate();
+					});
+				}
+				::ImGui::SameLine();
+				if (::ImGui::Button("Regenerate"))
+				{
+					WholeTerrain([&](T_TerrainPtr terrain) {
+						terrain->GenerateTerrain();
+					});
+				}
+
+				::ImGui::SliderInt("Iterations", &m_Iterations, 1, 1000000);
+				::ImGui::SliderInt("#Drops", &(m_Settings.m_Drops), 1, 100);
+			}
+			else {
+				::ImGui::TextColored(ImVec4(1, 0, 0, 1), "Simulating");
+				::ImGui::ProgressBar(static_cast<float>(m_CurrentIteration) / m_Iterations);
+				if (::ImGui::Button("Stop simulation"))
+				{
+					m_SimulationRunning = false;
+				}
+			}
+
+			::ImGui::Separator();
+
+			::ImGui::Text("Spawning new tiles");
 
 			int* arr[] = { &m_inputCoords[0],&m_inputCoords[1] };
 			::ImGui::SliderInt("X", &(m_inputCoords[0]), -10, 10);
@@ -129,6 +167,9 @@ void C_TerrainEntity::DrawControls()
 			if (::ImGui::Button("Create")) {
 				AddPatch({ m_inputCoords[0],m_inputCoords[1] });
 			}
+
+			ImGui::TextColored(ImVec4(1, 1, 0, 1), "Select tiles");
+			ImGui::BeginChild("Scrolling");
 
 			WholeTerrain([&](T_TerrainPtr patch) {
 				bool selected = false;
@@ -140,6 +181,7 @@ void C_TerrainEntity::DrawControls()
 					patch->OnEvent(Core::C_UserEvent("selected"));
 				}
 			});
+			ImGui::EndChild();
 		::ImGui::End();
 	}
 

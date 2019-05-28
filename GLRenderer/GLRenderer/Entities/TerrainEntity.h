@@ -43,7 +43,7 @@ public:
 		float m_Gravitation		= 4.0f;
 		float m_InitWater		= 1.0f;
 		float m_StartingSpeed	= 2.0f;
-		float m_Inertia			= 0.65;
+		float m_Inertia			= 0.65f;
 	};
 protected:
 	EntityID					m_ID;
@@ -51,6 +51,9 @@ protected:
 	std::vector<T_TerrainPtr>	m_Patches;
 
 	int m_inputCoords[2];
+	bool m_SimulationRunning;
+	int  m_Iterations;
+	int  m_CurrentIteration;
 
 	S_TerrainSettings m_Settings;
 	bool Controls;
