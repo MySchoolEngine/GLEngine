@@ -3,6 +3,7 @@
 #include <Entity/IEntity.h>
 
 #include <GLRenderer/GUI/CheckBoxValue.h>
+#include <GLRenderer/GUI/Slider.h>
 
 namespace GLEngine {
 namespace GLRenderer {
@@ -34,11 +35,12 @@ public:
 	void WholeTerrain(std::function<void(T_TerrainPtr)> lambda);
 
 	struct S_TerrainSettings {
-		int m_SqPerLine			= 32;
-		int m_Freq				= 5;
-		int m_Drops				= 100;
-		int m_NumSteps			= 90;
-		GUI::C_CheckBoxValue PerlinNoise = true;
+		GUI::C_Slider<int> m_SqPerLine	{ 32, 4, 64, "Vertices" };
+		GUI::C_Slider<int> m_Freq		{ 5, 4, 40, "Noise frequency" };
+		GUI::C_Slider<int> m_Drops		{ 100, 1, 100, "# Drops" };
+		GUI::C_Slider<int> m_NumSteps   { 90, 30, 150, "Max lifetime" };
+		GUI::C_Slider<int>	m_PatchSize	{ 8, 4, 40, "Patch size"};
+		GUI::C_CheckBoxValue PerlinNoise{ true, "Use Perlin noise" };
 		float m_Evaporation		= 0.02f;
 		float m_Gravitation		= 4.0f;
 		float m_InitWater		= 1.0f;
@@ -52,7 +54,7 @@ protected:
 
 	int m_inputCoords[2];
 	bool m_SimulationRunning;
-	int  m_Iterations;
+	GUI::C_Slider<int>  m_Iterations {1000, 1, 1000000, "Iterations"};
 	int  m_CurrentIteration;
 
 	S_TerrainSettings m_Settings;

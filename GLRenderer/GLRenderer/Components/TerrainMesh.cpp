@@ -23,7 +23,6 @@
 const int dim = 1024;
 // if you make this mutable you need to update modelMatrix whenever you 
 // mutate this value
-const static float patchSize = 8;
 
 namespace GLEngine {
 namespace GLRenderer {
@@ -53,7 +52,7 @@ C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 	m_Noise.EndGroupOp();
 
 	m_AABB.Add(glm::vec3(0.0f, 0.0f, 0.0f));
-	m_AABB.Add(glm::vec3(patchSize, 1.0f, patchSize));
+	m_AABB.Add(glm::vec3(m_Settings->m_PatchSize, 1.0f, m_Settings->m_PatchSize));
 
 	m_RainData->GenerateDrops();
 	m_HasTexture.SetName("Use texture");
@@ -76,7 +75,7 @@ void C_TerrainMesh::PerformDraw() const
 					auto& shmgr = Shaders::C_ShaderManager::Instance();
 					auto shader = shmgr.GetProgram("terrain");
 					shmgr.ActivateShader(shader);
-					shader->SetUniform("patchSize", patchSize);
+					shader->SetUniform("patchSize", static_cast<float>(m_Settings->m_PatchSize));
 					shader->BindSampler(m_Noise, 0);
 					shader->SetUniform("sqPerLine", static_cast<float>(m_Settings->m_SqPerLine));
 					shader->SetUniform("modelMatrix", GetModelMatrix());
@@ -102,9 +101,9 @@ void C_TerrainMesh::PerformDraw() const
 					auto& shmgr = Shaders::C_ShaderManager::Instance();
 					auto shader = shmgr.GetProgram("terrain-rim");
 					shmgr.ActivateShader(shader);
-					shader->SetUniform("patchSize", patchSize);
+					shader->SetUniform("patchSize", static_cast<float>(m_Settings->m_PatchSize));
 					shader->BindSampler(m_Noise, 0);
-					shader->SetUniform("sqPerLine", m_Settings->m_SqPerLine);
+					shader->SetUniform("sqPerLine", static_cast<int>(m_Settings->m_SqPerLine));
 					shader->SetUniform("modelMatrix", GetModelMatrix());
 					shader->SetUniform("modelColor", glm::vec4(0.3f, 1.0f, 0.4, 0.0f));
 
@@ -140,7 +139,9 @@ void C_TerrainMesh::PerformDraw() const
 void C_TerrainMesh::SetCoord(glm::ivec2 coord)
 {
 	m_Coord = coord;
-	m_ModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(m_Coord.x*patchSize, 0.0f, m_Coord.y*patchSize));
+	m_ModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(
+		m_Coord.x*static_cast<float>(m_Settings->m_PatchSize), 
+		0.0f, m_Coord.y*static_cast<float>(m_Settings->m_PatchSize)));
 }
 
 //=================================================================================
@@ -160,7 +161,7 @@ void C_TerrainMesh::UpdateStats()
 					m_AABB = S_AABB();
 				
 					m_AABB.Add(glm::vec3(0.0f, m_Stats.min, 0.0f));
-					m_AABB.Add(glm::vec3(patchSize, m_Stats.max, patchSize));
+					m_AABB.Add(glm::vec3(static_cast<float>(m_Settings->m_PatchSize), m_Stats.max, static_cast<float>(m_Settings->m_PatchSize)));
 				}
 			)
 		)
@@ -176,7 +177,7 @@ void C_TerrainMesh::GenerateTerrain()
 				[&]() {
 					auto& shmgr = Shaders::C_ShaderManager::Instance();
 					shmgr.ActivateShader(shmgr.GetProgram("noise"));
-					shmgr.GetProgram("noise")->SetUniform("frequency", m_Settings->m_Freq);
+					shmgr.GetProgram("noise")->SetUniform("frequency", static_cast<int>(m_Settings->m_Freq));
 					shmgr.GetProgram("noise")->SetUniform("unicoord", (m_Coord*(dim-1)));
 					shmgr.GetProgram("noise")->SetUniform("patchWidth", dim);
 					shmgr.GetProgram("noise")->SetUniform("usePerlin", static_cast<bool>(m_Settings->PerlinNoise));
@@ -246,8 +247,8 @@ void C_TerrainMesh::Simulate()
 					auto program = shmgr.GetProgram("erosion");
 					if (!program) return;
 					shmgr.ActivateShader(program);
-					program->SetUniform("numDrops", m_Settings->m_Drops);
-					program->SetUniform("numSteps", m_Settings->m_NumSteps);
+					program->SetUniform("numDrops", static_cast<int>(m_Settings->m_Drops));
+					program->SetUniform("numSteps", static_cast<int>(m_Settings->m_NumSteps));
 					program->SetUniform("inertia", m_Settings->m_Inertia);
 					program->SetUniform("gravityForce", m_Settings->m_Gravitation);
 					program->SetUniform("evaporate", m_Settings->m_Evaporation);
@@ -272,7 +273,7 @@ void C_TerrainMesh::Simulate()
 void C_TerrainMesh::DebugDraw()
 {
 	auto& debug = C_DebugDraw::Instance();
-	float OnePixel = patchSize / dim;
+	float OnePixel = static_cast<float>(m_Settings->m_PatchSize) / dim;
 	for (int i = 0; i < m_Settings->m_Drops; ++i) {
 		auto dropCoord = m_RainData->m_RainDrops[i];
 		auto dropPoint = glm::vec4(dropCoord.x*OnePixel, 2, dropCoord.y*OnePixel, 1.0);

@@ -13,14 +13,12 @@ namespace GLRenderer {
 C_TerrainEntity::C_TerrainEntity()
 	: m_ID(NextGUID())
 	, m_SimulationRunning(false)
-	, m_Iterations(1000)
 	, m_CurrentIteration(0)
 	, Controls(false)
 	, Visualise(false)
 	, DebugDrawDroplets(false)
 {
 	Visualise.SetName("Visualization");
-	m_Settings.PerlinNoise.SetName("Use Perlin noise");
 	DebugDrawDroplets.SetName("Debug draw");
 	m_inputCoords[0] = 0;
 	m_inputCoords[1] = 0;
@@ -114,8 +112,15 @@ void C_TerrainEntity::DrawControls()
 				});
 			}
 
-			::ImGui::SliderInt("Verticies", &(m_Settings.m_SqPerLine), 4, 64);
-			::ImGui::SliderInt("Noise frequency", &(m_Settings.m_Freq), 4, 40);
+			m_Settings.m_SqPerLine.Draw();
+			m_Settings.m_Freq.Draw();
+			m_Settings.m_PatchSize.Draw();
+			if (m_Settings.m_PatchSize.Changed()) {
+				WholeTerrain([&](T_TerrainPtr terrain) {
+					// hacky way how to update model matrix
+					terrain->SetCoord(terrain->GetCoord());
+				});
+			}
 
 			::ImGui::Separator();
 			if(!m_SimulationRunning)
@@ -145,8 +150,8 @@ void C_TerrainEntity::DrawControls()
 					});
 				}
 
-				::ImGui::SliderInt("Iterations", &m_Iterations, 1, 1000000);
-				::ImGui::SliderInt("#Drops", &(m_Settings.m_Drops), 1, 100);
+				m_Iterations.Draw();
+				m_Settings.m_Drops.Draw();
 			}
 			else {
 				::ImGui::TextColored(ImVec4(1, 0, 0, 1), "Simulating");
@@ -199,7 +204,6 @@ void C_TerrainEntity::DrawControls()
 		::ImGui::End();
 	}
 }
-
 
 //=================================================================================
 void C_TerrainEntity::WholeTerrain(std::function<void(T_TerrainPtr)> lambda)
