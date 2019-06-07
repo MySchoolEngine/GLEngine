@@ -35,11 +35,11 @@ public:
 	void WholeTerrain(std::function<void(T_TerrainPtr)> lambda);
 
 	struct S_TerrainSettings {
-		GUI::C_Slider<int> m_SqPerLine	{ 32, 4, 64, "Vertices" };
+		GUI::C_Slider<int> m_SqPerLine	{ 255, 4, 255, "Vertices" };
 		GUI::C_Slider<int> m_Freq		{ 5, 4, 40, "Noise frequency" };
 		GUI::C_Slider<int> m_Drops		{ 100, 1, 100, "# Drops" };
 		GUI::C_Slider<int> m_NumSteps   { 90, 30, 150, "Max lifetime" };
-		GUI::C_Slider<int>	m_PatchSize	{ 8, 4, 40, "Patch size"};
+		GUI::C_Slider<int>	m_PatchSize	{ 40, 4, 60, "Patch size"};
 		GUI::C_CheckBoxValue PerlinNoise{ true, "Use Perlin noise" };
 		float m_Evaporation		= 0.02f;
 		float m_Gravitation		= 4.0f;

@@ -129,6 +129,7 @@ void C_TerrainEntity::DrawControls()
 				::ImGui::SliderFloat("Evaporation", &(m_Settings.m_Evaporation), 0.0f, 1.0f);
 				::ImGui::SliderFloat("InitWater", &(m_Settings.m_InitWater), 0.1f, 5.0f);
 				::ImGui::SliderFloat("InitSpeed", &(m_Settings.m_StartingSpeed), 0.0f, 10.0f);
+				m_Settings.m_NumSteps.Draw();
 
 				if (::ImGui::Button("Simulate"))
 				{
