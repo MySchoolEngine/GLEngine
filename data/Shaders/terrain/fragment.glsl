@@ -15,28 +15,17 @@ vec4 getNormal(){
 	const vec2 size = vec2(0.3,0.0);
 	const ivec3 off = ivec3(-1,0,1);
 	
+
 	vec4 wave = texture(tex, uv);
 	float s11 = wave.x;
-    float s01 = textureOffset(tex, uv, off.xy).x;
-    float s21 = textureOffset(tex, uv, off.zy).x;
-    float s10 = textureOffset(tex, uv, off.yx).x;
-    float s12 = textureOffset(tex, uv, off.yz).x;
-    vec3 va = normalize(vec3(size.xy,s21-s01));
-    vec3 vb = normalize(vec3(size.yx,s12-s10));
-    return vec4( cross(va,vb), 1 );
-    /*
-    float s11 = wave.x;
-    float s01 = textureOffset(tex, uv, off.xy).x;
-    float s21 = textureOffset(tex, uv, off.zy).x;
-    float s10 = textureOffset(tex, uv, off.yx).x;
-    float s12 = textureOffset(tex, uv, off.yz).x;
-    float avg = s11 + s01 + s21 + s10+s12;
-    avg/=5.0f;
-    vec3 va = dFdx(vec3(uv.x*5, avg, uv.y*5));
-    vec3 vb = dFdy(vec3(uv.x*5, avg, uv.y*5));
-    vec4 bump = vec4( normalize(cross(va,vb)), s11 );*/
+    float NW = textureOffset(tex, uv, off.xx).x;//[-1,0]
+    float NE = textureOffset(tex, uv, off.zx).x;//[1,0]
+    float SW = textureOffset(tex, uv, off.xz).x;//[0,1]
+    float SE = textureOffset(tex, uv, off.zz).x;//[1,1]
 
-	//return vec4(normalize(cross(va,vb)),1);
+    vec3 va = normalize(vec3(size.xy,NE-NW));
+    vec3 vb = normalize(vec3(size.yx,SE-SW));
+    return vec4( cross(va,vb), 1 );
 }
 
 //=================================================================================

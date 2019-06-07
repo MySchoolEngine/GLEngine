@@ -56,11 +56,11 @@ void main()
     ivec2 coord = ivec2(posX, posY);
     float val = 0;
     if(usePerlin){
-        val = frequency*pNoise(unicoord + vec2(posX, posY), 50);
+        val = frequency*pNoise(unicoord + vec2(posX, posY), 6);
     }
     else{
         val = noise(unicoord + vec2(posX, posY), frequency);
     }
 
-	imageStore(perlinNoise, coord, vec4(val, val, 0, 1));
+	imageStore(perlinNoise, coord, vec4(val, 0, 0, 1));
 }   
