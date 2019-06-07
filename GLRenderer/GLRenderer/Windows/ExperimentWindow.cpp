@@ -79,7 +79,6 @@ void C_ExplerimentWindow::Update()
 	m_ImGUI->OnUpdate();
 	//MouseSelect();
 
-	m_Terrain->Update();
 
 	bool my_tool_active = true;
 
@@ -168,7 +167,10 @@ void C_ExplerimentWindow::Update()
 
 	// ----- Actual rendering --
 
-	m_renderer->Commit();
+	{
+		RenderDoc::C_DebugScope s("RendererCommit");
+		m_renderer->Commit();
+	}
 	m_renderer->ClearCommandBuffers();
 	// ----- Actual rendering --
 
