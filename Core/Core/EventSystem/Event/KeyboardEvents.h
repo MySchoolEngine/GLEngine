@@ -52,4 +52,26 @@ public:
 
 	EVENT_CLASS_TYPE(KeyReleased);
 };
+
+
+//=================================================================================
+class C_TextInputEvent : public C_InputEvent {
+public:
+
+	C_TextInputEvent(unsigned int codepoint, GUID window)
+		: C_InputEvent(window)
+		, m_Codepoint(codepoint) 
+	{}
+
+	inline int GetCodePoint() const { return m_Codepoint; }
+
+	EVENT_CLASS_TYPE(TextInput);
+protected:
+	unsigned int m_Codepoint;
+
+	virtual Utils::C_BitField<E_EventCategory> GetInputCategory() const override
+	{
+		return E_EventCategory::Keyboard;
+	}
+};
 }}

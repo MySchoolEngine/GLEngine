@@ -96,6 +96,12 @@ void C_GLFWWindow::Init(const Core::S_WindowInfo& wndInfo)
 		}
 	};
 
+	const auto text_callback = [](GLFWwindow* window, unsigned int codepoint) {
+		S_Data& data = *static_cast<S_Data*>(glfwGetWindowUserPointer(window));
+		Core::C_TextInputEvent event(codepoint, data.m_GUID);
+		data.m_EventCallback(event);
+	};
+
 	const auto scroll_callback = [](GLFWwindow* window, double xoffset, double yoffset) {
 		S_Data& data = *static_cast<S_Data*>(glfwGetWindowUserPointer(window));
 		CORE_LOG(E_Level::Info, E_Context::Core, "Scroll: {}x{}", xoffset, yoffset);
@@ -129,6 +135,7 @@ void C_GLFWWindow::Init(const Core::S_WindowInfo& wndInfo)
 	glfwSetScrollCallback(m_Window, scroll_callback);
 	glfwSetMouseButtonCallback(m_Window, mouse_callback);
 	glfwSetCursorPosCallback(m_Window, mouse_moved_callback);
+	glfwSetCharCallback(m_Window, text_callback);
 
 	glfwMakeContextCurrent(m_Window);
 	glfwSwapInterval(0);

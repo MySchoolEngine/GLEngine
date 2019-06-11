@@ -6,12 +6,14 @@ namespace GLEngine {
 
 namespace Core {
 class C_KeyPressedEvent;
+class C_KeyReleasedEvent;
+class C_KeyRepeatedEvent;
+class C_KeyEvent;
+class C_TextInputEvent;
 class C_MouseScrollEvent;
 class C_MouseButtonPressed;
 class C_MouseButtonReleased;
 class C_MouseMoved;
-class C_KeyRepeatedEvent;
-class C_KeyEvent;
 }
 
 namespace GLRenderer {
@@ -35,6 +37,8 @@ public:
 	bool CapturingMouse() const;
 private:
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
+	bool OnKeyReleased(Core::C_KeyReleasedEvent& event);
+	bool OnTextEvent(Core::C_TextInputEvent& event);
 	bool OnMouseButtonPressedEvent(Core::C_MouseButtonPressed& e);
 	bool OnMouseButtonReleasedEvent(Core::C_MouseButtonReleased& e);
 	bool OnMouseScrolledEvent(Core::C_MouseScrollEvent& e);
