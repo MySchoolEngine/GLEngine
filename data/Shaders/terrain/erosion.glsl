@@ -235,8 +235,8 @@ void main()
     	}
 
     	// statistics debug
-		float val = imageLoad(terrainPatch, ivec2(positionBak)).x;
-		imageStore(terrainPatch, ivec2(positionBak), vec4(val, sedimentCapacity, drop.sediment, depositB));
+		vec4 val = imageLoad(terrainPatch, ivec2(positionBak));
+		imageStore(terrainPatch, ivec2(positionBak), vec4(val.x, sedimentCapacity, val.z + drop.water, 1));
 
         drop.velocity = sqrt (max(0,drop.velocity * drop.velocity + deltaHeight * gravityForce));
         drop.water *= (1 - evaporate);

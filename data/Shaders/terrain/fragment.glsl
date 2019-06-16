@@ -28,6 +28,10 @@ vec4 getNormal(){
     return vec4( cross(va,vb), 1 );
 }
 
+float remap(float value,float  low1,float  high1,float  low2,float high2){
+	return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
+}
+
 //=================================================================================
 void main()
 {
@@ -38,12 +42,18 @@ void main()
 	vec4 MaterialDiffuseColor = vec4(1,0,0,1);
 	float cosTheta;
 
+	vec4 terrainTex = texture(tex, uv);
+	vec4 mudColor = vec4(0.5, 0.4, 0.278, 1.0);
+
 
 	if(hasTexture){
-		MaterialDiffuseColor = texture(tex, uv);
+		MaterialDiffuseColor = terrainTex;
 	}
 	else{
 		MaterialDiffuseColor = modelColor;
+		if(terrainTex.z > 5){
+			MaterialDiffuseColor = mix(MaterialDiffuseColor, mudColor, max(min(remap(terrainTex.z, 20,60,0,1),1.0), 0));
+		}
 	}
 
 	if(selected){
