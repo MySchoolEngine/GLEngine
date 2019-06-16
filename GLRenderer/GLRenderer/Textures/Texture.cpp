@@ -12,6 +12,7 @@ namespace Textures {
 C_Texture::C_Texture(GLenum target)
 	: m_bGroupOperations(false)
 	, m_target(target)
+	, m_texture(0)
 {
 	glGenTextures(1, &m_texture);
 }
@@ -26,9 +27,19 @@ C_Texture::C_Texture(const std::string & name, GLenum target)
 }
 
 //=================================================================================
+C_Texture::C_Texture(C_Texture&& t)
+{
+	m_texture = t.m_texture;
+	t.m_texture = 0;
+	m_target = t.m_target;
+	m_bGroupOperations = t.m_bGroupOperations;
+}
+
+//=================================================================================
 C_Texture::~C_Texture()
 {
-	glDeleteTextures(1, &m_texture);
+	if(m_texture!=0)
+		glDeleteTextures(1, &m_texture);
 }
 
 //=================================================================================

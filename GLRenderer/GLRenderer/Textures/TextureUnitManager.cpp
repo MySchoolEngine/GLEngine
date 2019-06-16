@@ -80,7 +80,7 @@ bool C_TextureUnitManger::IsTextureBindInAny(const C_Texture& texture) const
 //=================================================================================
 unsigned int C_TextureUnitManger::GetTextureUnit(const C_Texture& texture) const
 {
-	auto it = std::find_if(m_TextureUnits.begin(), m_TextureUnits.end(), [=](const decltype(m_TextureUnits)::value_type &it) {
+	auto it = std::find_if(m_TextureUnits.begin(), m_TextureUnits.end(), [&](const decltype(m_TextureUnits)::value_type &it) {
 		return it.second == texture.GetTexture();
 	});
 	return it->first;
@@ -154,7 +154,7 @@ bool C_TextureUnitManger::IsImageBindInAny(const C_Texture& image) const
 //=================================================================================
 unsigned int C_TextureUnitManger::GetImageUnit(const C_Texture& image) const
 {
-	auto it = std::find_if(m_ImageUnits.begin(), m_ImageUnits.end(), [=](const decltype(m_ImageUnits)::value_type &it) {
+	auto it = std::find_if(m_ImageUnits.begin(), m_ImageUnits.end(), [&](const decltype(m_ImageUnits)::value_type &it) {
 		return it.second == image.GetTexture();
 	});
 	return it->first;
