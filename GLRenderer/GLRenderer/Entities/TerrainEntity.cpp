@@ -10,13 +10,14 @@ namespace GLEngine {
 namespace GLRenderer {
 
 //=================================================================================
-C_TerrainEntity::C_TerrainEntity()
+C_TerrainEntity::C_TerrainEntity(const std::string& name)
 	: m_ID(NextGUID())
 	, m_SimulationRunning(false)
 	, m_CurrentIteration(0)
 	, Controls(false)
 	, Visualise(false)
 	, DebugDrawDroplets(false)
+	, m_Name(name)
 {
 	Visualise.SetName("Visualization");
 	DebugDrawDroplets.SetName("Debug draw");
@@ -45,7 +46,7 @@ GLEngine::T_ComponentPtr C_TerrainEntity::GetComponent(Entity::E_ComponentType t
 //=================================================================================
 std::string C_TerrainEntity::GetName() const
 {
-	return "Terrain";
+	return m_Name;
 }
 
 //=================================================================================
@@ -68,13 +69,20 @@ void C_TerrainEntity::Update()
 		m_CurrentIteration++;
 		if (m_CurrentIteration >= m_Iterations) {
 			m_SimulationRunning = false;
+			
+			std::cout << "Generation took " << m_timer.getElapsedTimeFromLastQueryMilliseconds() / 1000.0 << "s and"
+				<< m_Iterations*m_Settings.m_Drops << "have been dropped\n";
+			//CORE_LOG(E_Level::Error, E_Context::Render, "Generation took: {}s dropl", m_timer.getElapsedTimeFromLastQueryMilliseconds() / 1000.0);
 		}
 	}
+
+	DrawControls();
 }
 
 //=================================================================================
 void C_TerrainEntity::AddPatch(T_TerrainPtr patch)
 {
+	patch->SetSettings(&m_Settings);
 	m_Patches.push_back(patch);
 }
 
@@ -134,6 +142,7 @@ void C_TerrainEntity::DrawControls()
 				if (::ImGui::Button("Simulate"))
 				{
 					m_SimulationRunning = true;
+					m_timer.reset();
 					m_CurrentIteration = 0;
 				}
 				::ImGui::SameLine();

@@ -28,6 +28,9 @@ namespace Components {
 class C_TerrainMesh : public Renderer::I_RenderableComponent {
 public:
 	C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings);
+	C_TerrainMesh(Textures::C_Texture&& texture);
+
+	void SetSettings(C_TerrainEntity::S_TerrainSettings* settings);
 	virtual void PerformDraw() const override;
 	void SetCoord(glm::ivec2 coord);
 	glm::ivec2 GetCoord() const { return m_Coord; }

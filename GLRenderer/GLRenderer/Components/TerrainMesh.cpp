@@ -39,7 +39,6 @@ C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 	, m_QueuedUpdate(false)
 	, m_QueueSimulation(false)
 	, m_Selected(false)
-	, m_Settings(settings)
 {
 
 	m_Terrain = std::make_shared<Mesh::C_TerrainMeshResource>();
@@ -51,8 +50,7 @@ C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 	m_Noise.GenerateMipMaps();
 	m_Noise.EndGroupOp();
 
-	m_AABB.Add(glm::vec3(0.0f, 0.0f, 0.0f));
-	m_AABB.Add(glm::vec3(m_Settings->m_PatchSize, 1.0f, m_Settings->m_PatchSize));
+	SetSettings(settings);
 
 	m_RainData->GenerateDrops();
 	m_HasTexture.SetName("Use texture");
@@ -60,6 +58,34 @@ C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 	GenerateTerrain();
 
 	CalculateStats();
+}
+
+//=================================================================================
+C_TerrainMesh::C_TerrainMesh(Textures::C_Texture&& texture)
+	: m_Noise(std::move(texture))
+	, m_Coord(0, 0)
+	, m_Stats(3)
+	, m_RainData(std::make_shared<decltype(m_RainData)::element_type>("rainData", 1, dim))
+	, m_HasTexture(false)
+	, m_QueuedUpdate(false)
+	, m_QueueSimulation(false)
+	, m_Selected(false)
+	, m_Settings(nullptr)
+{
+	m_Terrain = std::make_shared<Mesh::C_TerrainMeshResource>();
+
+	m_RainData->GenerateDrops();
+
+	CalculateStats();
+}
+
+//=================================================================================
+void C_TerrainMesh::SetSettings(C_TerrainEntity::S_TerrainSettings* settings)
+{
+	m_Settings = settings;
+
+	m_AABB.Add(glm::vec3(0.0f, 0.0f, 0.0f));
+	m_AABB.Add(glm::vec3(m_Settings->m_PatchSize, 1.0f, m_Settings->m_PatchSize));
 }
 
 //=================================================================================

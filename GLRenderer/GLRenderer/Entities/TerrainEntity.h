@@ -5,6 +5,8 @@
 #include <GLRenderer/GUI/CheckBoxValue.h>
 #include <GLRenderer/GUI/Slider.h>
 
+#include <Utils/HighResolutionTimer.h>
+
 namespace GLEngine {
 namespace GLRenderer {
 
@@ -14,7 +16,7 @@ class C_TerrainMesh;
 
 class C_TerrainEntity : public Entity::I_Entity {
 public:
-	C_TerrainEntity();
+	C_TerrainEntity(const std::string& name = "Terrain");
 	~C_TerrainEntity() = default;
 
 	using T_TerrainPtr = std::shared_ptr<Components::C_TerrainMesh>;
@@ -36,7 +38,7 @@ public:
 
 	struct S_TerrainSettings {
 		GUI::C_Slider<int> m_SqPerLine	{ 255, 4, 255, "Vertices" };
-		GUI::C_Slider<int> m_Freq		{ 5, 4, 40, "Noise frequency" };
+		GUI::C_Slider<int> m_Freq		{ 24, 4, 40, "Noise frequency" };
 		GUI::C_Slider<int> m_Drops		{ 100, 1, 100, "# Drops" };
 		GUI::C_Slider<int> m_NumSteps   { 90, 30, 150, "Max lifetime" };
 		GUI::C_Slider<int>	m_PatchSize	{ 40, 4, 60, "Patch size"};
@@ -61,6 +63,7 @@ protected:
 	bool Controls;
 	GUI::C_CheckBoxValue Visualise;
 	GUI::C_CheckBoxValue DebugDrawDroplets;
+	Utils::HighResolutionTimer m_timer;
 };
 
 }
