@@ -8,25 +8,25 @@ namespace GLRenderer {
 namespace VAO {
 
 //=================================================================================
-I_GLVAOBae::I_GLVAOBae()
+I_GLVAOBase::I_GLVAOBase()
 {
 	glGenVertexArrays(1, &m_id);
 }
 
 //=================================================================================
-I_GLVAOBae::~I_GLVAOBae()
+I_GLVAOBase::~I_GLVAOBase()
 {
 	glDeleteVertexArrays(1, &m_id);
 }
 
 //=================================================================================
-void I_GLVAOBae::bind() const
+void I_GLVAOBase::bind() const
 {
 	glBindVertexArray(m_id);
 }
 
 //=================================================================================
-void I_GLVAOBae::unbind() const
+void I_GLVAOBase::unbind() const
 {
 	glBindVertexArray(0);
 }

@@ -8,10 +8,10 @@ namespace GLEngine {
 namespace GLRenderer {
 namespace VAO {
 
-class I_GLVAOBae {
+class I_GLVAOBase {
 public:
-	I_GLVAOBae();
-	virtual ~I_GLVAOBae();
+	I_GLVAOBase();
+	virtual ~I_GLVAOBase();
 
 	void bind()		const;
 	void unbind()	const;
@@ -20,7 +20,7 @@ protected:
 };
 
 template<int BUFFERS>
-class C_GLVAO : public I_GLVAOBae {
+class C_GLVAO : public I_GLVAOBase {
 public:
 	virtual ~C_GLVAO() = default;
 	
