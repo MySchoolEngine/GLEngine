@@ -15,9 +15,9 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/projection.hpp>
-#include <glm/gtx/rotate_vector.hpp> 
-
-#include <glm/glm.hpp> 
+#include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <stdexcept>
 
@@ -74,7 +74,13 @@ void C_OrbitalCamera::setCenterPoint(const glm::vec3& center)
 }
 
 //=================================================================================
-void C_OrbitalCamera::update()
+void C_OrbitalCamera::DebugDraw()
+{
+	C_DebugDraw::Instance().DrawPoint(_center, glm::vec3(0, 0, 1), glm::mat4(1.0f));
+}
+
+//=================================================================================
+void C_OrbitalCamera::Update()
 {
 	float radx = glm::radians(_angleXDeg);
 	float rady = glm::radians(_angleYDeg);
@@ -95,12 +101,6 @@ void C_OrbitalCamera::update()
 	*/
 	_viewMatrix = glm::lookAt(_pos, _center, _up);
 	_projectionMatrix = glm::perspective(_fovy, _aspect, GetNear(), GetFar());
-}
-
-//=================================================================================
-void C_OrbitalCamera::DebugDraw()
-{
-	C_DebugDraw::Instance().DrawPoint(_center, glm::vec3(0, 0, 1), glm::mat4(1.0f));
 }
 
 //=================================================================================
@@ -138,7 +138,7 @@ bool C_OrbitalCamera::OnKeyEvent(Core::C_KeyEvent& event)
 	// Rotations
 	if (event.GetKeyCode() == GLFW_KEY_DOWN) {
 		adjustOrientation(0.0f, -m_ControlSpeed);
-		update();
+		Update();
 		return true;
 	}
 	if (event.GetKeyCode() == GLFW_KEY_UP) {
@@ -249,7 +249,7 @@ bool C_OrbitalCamera::OnMousePress(Core::C_MouseButtonPressed& event)
 			C_PersistentDebug::Instance().DrawPoint(hit, glm::vec3(1, 0, 0), glm::mat4(1.0f));
 
 			_center = hit;
-			update();
+			Update();
 			return true;
 		}
 	}
@@ -271,7 +271,7 @@ glm::quat C_OrbitalCamera::GetRotation() const
 //=================================================================================
 glm::vec3 C_OrbitalCamera::GetDirection() const
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	return _center - GetPosition();
 }
 
 //=================================================================================
@@ -301,7 +301,7 @@ glm::vec3 C_OrbitalCamera::GetPosition() const
 //=================================================================================
 GLEngine::Physics::Primitives::C_Frustum C_OrbitalCamera::GetFrustum() const
 {
-	return GLEngine::Physics::Primitives::C_Frustum(GetPosition(), _up, _center - GetPosition(), GetNear(), GetFar(), GetAspectRatio(), GetFov());
+	return GLEngine::Physics::Primitives::C_Frustum(GetPosition(), _up, GetDirection(), GetNear(), GetFar(), GetAspectRatio(), GetFov());
 }
 
 }}}
