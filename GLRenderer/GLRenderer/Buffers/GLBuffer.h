@@ -26,6 +26,7 @@ public:
 	virtual void NameBuffer(const std::string& name) const = 0; 
 };
 
+//=================================================================================
 template<GLenum TYPE>
 class C_GLBuffer : public I_GLBufferBase{
 public:

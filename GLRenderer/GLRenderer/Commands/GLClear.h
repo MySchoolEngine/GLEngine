@@ -38,6 +38,7 @@ protected:
 
 }}}
 
+//=================================================================================
 template<>
 struct Utils::enable_BitField_operators<GLEngine::GLRenderer::Commands::C_GLClear::E_ClearBits> {
 	static constexpr bool enable = true;
