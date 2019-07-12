@@ -31,5 +31,5 @@ private:
 	mutable bool		m_Value;
 };
 
-static_assert(std::is_constructible<C_CheckBoxValue, bool>::value, "It is not convertible");
+static_assert(std::is_constructible<C_CheckBoxValue, bool>::value, "Checkbox should be convertible");
 }}}
