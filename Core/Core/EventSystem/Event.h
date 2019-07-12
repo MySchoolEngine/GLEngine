@@ -50,8 +50,7 @@ public:
 	bool m_Handeld = false;
 };
 
-
-
+//=================================================================================
 class C_UserEvent : public I_Event {
 public:
 
@@ -63,13 +62,11 @@ public:
 		return Core::E_EventType::UserDefined;
 	}
 
-
 	//=================================================================================
 	virtual Utils::C_BitField<E_EventCategory> GetCategories() const override
 	{
 		return Utils::C_BitField<E_EventCategory>(E_EventCategory::UserDefined);
 	}
-
 
 	//=================================================================================
 	virtual const char* GetName() const override
@@ -97,7 +94,8 @@ class EventCategoryBase {
 
 template<GLEngine::Core::E_EventCategory e,
 	typename retType = EventCategoryBase<e>::type>
-	constexpr retType& event_base_cast(GLEngine::Core::I_Event& comp) {
+constexpr retType& event_base_cast(GLEngine::Core::I_Event& comp)
+{
 	return static_cast<typename retType&>(comp);
 }
 

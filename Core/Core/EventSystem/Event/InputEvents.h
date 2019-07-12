@@ -17,7 +17,7 @@ public:
 		return GetInputCategory() | E_EventCategory::Input;
 	}
 
-	// window which tregged this event
+	// window which trigged this event
 	inline GUID GetWindowGUID() const {
 		return m_WindowID;
 	};
@@ -33,6 +33,7 @@ private:
 
 }
 
+//=================================================================================
 template<>
 class EventCategoryBase<Core::E_EventCategory::Input> {
 public:
