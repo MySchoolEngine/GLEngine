@@ -21,6 +21,12 @@
 #include <GLRenderer/VAO/VAO.h>
 
 namespace GLEngine {
+namespace Physics {
+namespace Primitives {
+class C_Frustum;
+}
+}
+
 namespace GLRenderer {
 
 /** ==============================================
@@ -109,6 +115,8 @@ public:
 	void DrawLines(const std::vector<glm::vec4>& pairs, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f));
 
 	void DrawAxis(const glm::vec4& origin, const glm::vec4& up, const glm::vec4& foreward, glm::mat4& modelMatrix = glm::mat4(1.0f));
+	
+	void DrawFrustum(const Physics::Primitives::C_Frustum& frust, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f));
 
 	void DrawMergedGeoms();
 private:
@@ -166,6 +174,8 @@ public:
 	void DrawLines(const std::vector<glm::vec4>& pairs, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f)) {};
 
 	void DrawAxis(const glm::vec4& origin, const glm::vec4& up, const glm::vec4& foreward, glm::mat4& modelMatrix = glm::mat4(1.0f)) {};
+
+	void DrawFrustum(const Physics::Primitives::C_Frustum& frust, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f)) {}
 
 	void DrawMergedGeoms() {};
 private:

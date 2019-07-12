@@ -42,7 +42,6 @@ public:
 	 *			   AABB of subfrustum, simply change far/near plane.
 	 ** ==============================================*/
 	S_AABB GetAABB() const;
-	void DebugDraw(const glm::vec3& color) const;
 	void UpdateWithMatrix(const glm::mat4& matrix);
 
 	const glm::vec3& GetForeward() const { return m_foreward; }
@@ -55,6 +54,8 @@ public:
 	void			SetAspect(float val) { m_aspect = val; }
 	float			GetFov() const { return m_fov; }
 	void			SetFov(float val) { m_fov = val; }
+	const glm::vec3& GetPosition() const { return m_position; }
+	const glm::vec3& GetUpVector() const { return m_upVector; }
 private:
 #pragma warning(push)
 #pragma warning( disable : 4251)
