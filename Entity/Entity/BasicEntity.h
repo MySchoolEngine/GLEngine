@@ -6,7 +6,7 @@ namespace GLEngine {
 namespace Entity {
 
 class API_EXPORT C_BasicEntity : public I_Entity {
-	using T_ComponentsContainer = std::map<E_ComponentType, std::shared_ptr<I_Component>>*;
+	using T_ComponentsContainer = std::map<E_ComponentType, T_ComponentPtr>*;
 public:
 	C_BasicEntity(std::string name);
 	virtual ~C_BasicEntity();
@@ -17,7 +17,7 @@ public:
 	virtual void PostUpdate() override;
 
 
-	void AddComponent(std::shared_ptr<I_Component> component);
+	void AddComponent(T_ComponentPtr component);
 
 	//=================================================================================
 	virtual EntityID GetID() const override;

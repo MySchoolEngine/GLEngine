@@ -58,7 +58,7 @@ void C_BasicEntity::PostUpdate()
 }
 
 //=================================================================================
-void C_BasicEntity::AddComponent(std::shared_ptr<I_Component> component)
+void C_BasicEntity::AddComponent(T_ComponentPtr component)
 {
 	m_Components->insert({ component->GetType(), component });
 }
