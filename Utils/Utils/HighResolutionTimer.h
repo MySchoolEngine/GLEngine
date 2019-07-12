@@ -7,9 +7,6 @@
 /*
  * High Resolution Timer
  */
-
-#define TIMER_NS_PER_SECOND 1000000000.0
-#define TIMER_NS_PER_MILLISECOND 1000000.0
 namespace Utils {
 class API_EXPORT HighResolutionTimer
 {

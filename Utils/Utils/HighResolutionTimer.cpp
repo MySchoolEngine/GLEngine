@@ -1,6 +1,10 @@
 #include <Utils/HighResolutionTimer.h>
 
 namespace Utils {
+
+#define TIMER_NS_PER_SECOND 1000000000.0
+#define TIMER_NS_PER_MILLISECOND 1000000.0
+
 HighResolutionTimer::HighResolutionTimer()
 {
 	reset();
