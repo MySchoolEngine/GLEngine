@@ -22,6 +22,8 @@
 
 #include <GLRenderer/MeshLoading/Scene.h>
 
+#include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
+
 #include <GLRenderer/Textures/TextureLoader.h>
 
 #include <GLRenderer/Buffers/UBO/FrameConstantsBuffer.h>
@@ -157,14 +159,14 @@ void C_ExplerimentWindow::Update()
 				Textures::C_Texture ct(m_SpawningFilename);
 
 				ct.StartGroupOp();
-				glTexImage2D(GL_TEXTURE_2D,
+				glTexImage2D(ct.GetTarget(),
 					0,
 					GL_RGB,
 					(GLsizei)1024,
 					(GLsizei)1024,
 					0,
 					GL_RGBA,
-					GL_UNSIGNED_BYTE,
+					T_TypeToGL<typename std::remove_pointer<decltype(t.data)::element_type>::type>::value,
 					t.data.get());
 				ct.SetDimensions({ 1024, 1024 });
 				ct.SetWrap(GL_REPEAT, GL_REPEAT);
@@ -187,7 +189,7 @@ void C_ExplerimentWindow::Update()
 		::ImGui::End();
 	}
 
-	std::static_pointer_cast<Cameras::C_OrbitalCamera>(cameraComponent)->update();
+	std::static_pointer_cast<Cameras::C_OrbitalCamera>(cameraComponent)->Update();
 
 
 	// ----- Frame init -------
@@ -342,7 +344,7 @@ void C_ExplerimentWindow::SetupWorld()
 		playerCamera->setupCameraProjection(0.1f, 2 * zoom*100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
 		playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
 		playerCamera->adjustOrientation(20.f, 20.f);
-		playerCamera->update();
+		playerCamera->Update();
 		player->AddComponent(playerCamera);
 		player->AddComponent(std::make_shared<GUI::C_GLEntityDebugComponent>(player));
 		m_CamManager.ActivateCamera(playerCamera);
@@ -434,9 +436,9 @@ void C_ExplerimentWindow::SetupWorld()
 		255, 0, 0, 255,
 		0, 255, 0, 255,
 	};
-	glTexImage2D(m_texture.GetTarget(), 0, GL_RGBA, 2, 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(m_texture.GetTarget(), 0, GL_RGBA, 2, 2, 0, GL_RGBA, T_TypeToGL<GLubyte>::value, data);
 	m_texture.SetDimensions({ 2,2 });
-	glGenerateMipmap(m_texture.GetTarget());
+	m_texture.GenerateMipMaps();
 	m_texture.EndGroupOp();
 }
 

@@ -2,6 +2,8 @@
 
 #include <GLRenderer/Buffers/GLBuffer.h>
 
+#include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
+
 namespace GLEngine {
 namespace GLRenderer {
 namespace VAO {
@@ -34,8 +36,8 @@ public:
 		if(data.size())
 			InnerSetBufferData<INDEX, BUFFERTYPE>(data);
 		if (BUFFERTYPE != GL_ELEMENT_ARRAY_BUFFER) {
-			const auto typeLenght = sizeof(T);
-			glVertexAttribPointer(INDEX, typeLenght / sizeof(float), GL_FLOAT, GL_FALSE, 0, nullptr);
+			constexpr auto typeLenght = sizeof(T);
+			glVertexAttribPointer(INDEX, typeLenght / sizeof(float), T_TypeToGL<T>::value, GL_FALSE, 0, nullptr);
 		}
 		m_Buffers[INDEX]->unbind();
 	}
@@ -84,7 +86,7 @@ private:
 	template<int INDEX, GLenum BUFFERTYPE, class T,
 		typename = T_EnableIndex<INDEX>>
 	void InnerSetBufferData(const std::vector<T>& data, bool dynamicDraw = false) {
-		const auto typeLenght = sizeof(T);
+		constexpr auto typeLenght = sizeof(T);
 		const auto usage = dynamicDraw ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
 		glBufferData(BUFFERTYPE, data.size() * typeLenght, data.data(), usage);
 	}

@@ -9,6 +9,8 @@
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 
+#include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
+
 #include <GLRenderer/Textures/TextureLoader.h>
 
 #include <Renderer/IRenderer.h>
@@ -44,7 +46,7 @@ void C_SkyBox::AddTexture(E_Side side, std::string& filename)
 	m_Textures.bind();
 	const glm::ivec3 coord(0, 0, static_cast<int>(side));
 	glTexSubImage3D(GL_TEXTURE_2D_ARRAY, mipMapLevel, coord.x, coord.y, coord.z, 
-		512, 512, 1, GL_RGBA, GL_UNSIGNED_BYTE, t.data.get());
+		512, 512, 1, GL_RGBA, T_TypeToGL<decltype(t.data)::element_type>::value, t.data.get());
 	m_Textures.unbind();
 }
 
