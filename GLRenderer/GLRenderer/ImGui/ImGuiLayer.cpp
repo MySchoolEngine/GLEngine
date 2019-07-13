@@ -123,10 +123,6 @@ void C_ImGuiLayer::OnEvent(Core::I_Event& event)
 bool C_ImGuiLayer::CapturingMouse() const
 {
 	ImGuiIO& io = ::ImGui::GetIO();
-
-
-
-
 	return io.WantCaptureMouse;
 }
 
