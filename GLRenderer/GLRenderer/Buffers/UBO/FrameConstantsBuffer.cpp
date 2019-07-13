@@ -19,10 +19,9 @@ C_FrameConstantsBuffer::C_FrameConstantsBuffer(const std::string& blockName, uns
 
 	const auto bytes = matSize + vecSize;
 
-//	ErrorCheck();
 	C_UniformBuffer::bind();
 	glBufferData(GL_UNIFORM_BUFFER, bytes, nullptr, GL_DYNAMIC_DRAW);
-//	ErrorCheck();
+	C_UniformBuffer::unbind();
 }
 
 //=================================================================================

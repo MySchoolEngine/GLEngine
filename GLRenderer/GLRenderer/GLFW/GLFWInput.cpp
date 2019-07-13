@@ -33,20 +33,21 @@ std::pair<float, float> C_GLFWInput::GetMousePosition() const
 {
 	std::pair<double, double> pos;
 	glfwGetCursorPos(m_Window, &pos.first, &pos.second);
+	std::pair<float, float> floatPos(static_cast<float>(pos.first), static_cast<float>(pos.second));
 
-	return static_cast<std::pair<float, float>>(pos);
+	return floatPos;
 }
 
 //=================================================================================
 float C_GLFWInput::GetMouseX() const
 {
-	return static_cast<float>(GetMousePosition().first);
+	return GetMousePosition().first;
 }
 
 //=================================================================================
 float C_GLFWInput::GetMouseY() const
 {
-	return static_cast<float>(GetMousePosition().second);
+	return GetMousePosition().second;
 }
 
 }}}

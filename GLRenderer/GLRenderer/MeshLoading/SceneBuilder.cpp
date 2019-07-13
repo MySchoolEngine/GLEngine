@@ -7,6 +7,8 @@
 
 #include <GLRenderer/Mesh/StaticMeshResource.h>
 
+#include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
+
 #include <GLRenderer/Textures/Texture.h>
 
 #include <Physics/Primitives/AABB.h>
@@ -36,7 +38,7 @@ C_SceneBuilder::C_SceneBuilder()
 	m_nullTexture->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 	m_nullTexture->SetWrap(GL_REPEAT, GL_REPEAT);
 	GLubyte data[] = { 0, 0, 0, 255 };
-	glTexImage2D(m_nullTexture->GetTarget(), 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(m_nullTexture->GetTarget(), 0, GL_RGBA, 1, 1, 0, GL_RGBA, T_TypeToGL<GLubyte>::value, data);
 	m_nullTexture->SetDimensions({ 1,1 });
 	m_nullTexture->EndGroupOp();
 }
@@ -196,20 +198,20 @@ std::shared_ptr<Textures::C_Texture> C_SceneBuilder::LoadTexture(const Texture &
 {
 	auto tex = std::make_shared<Textures::C_Texture>(texture.m_name);
 	tex->StartGroupOp();
-	glTexImage2D(GL_TEXTURE_2D,
+	glTexImage2D(tex->GetTarget(),
 		0,
 		GL_RGB,
 		(GLsizei)texture.width,
 		(GLsizei)texture.height,
 		0,
 		GL_RGBA,
-		GL_UNSIGNED_BYTE,
+		T_TypeToGL<decltype(texture.data)::element_type>::value,
 		texture.data.get());
 	tex->SetDimensions({ texture.width, texture.height });
 //	ErrorCheck();
 	tex->SetWrap(GL_REPEAT, GL_REPEAT);
 	tex->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-	glGenerateMipmap(GL_TEXTURE_2D);
+	tex->GenerateMipMaps();
 //	ErrorCheck();
 
 	tex->EndGroupOp();

@@ -2,6 +2,8 @@
 
 #include <GLRenderer/Cameras/OrbitalCamera.h>
 
+#include <GLRenderer/PersistentDebug.h>
+
 #include <Core/Application.h>
 #include <Core/IWindowManager.h>
 #include <Core/IWindow.h>
@@ -13,9 +15,9 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/projection.hpp>
-#include <glm/gtx/rotate_vector.hpp> 
-
-#include <glm/glm.hpp> 
+#include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <stdexcept>
 
@@ -72,7 +74,13 @@ void C_OrbitalCamera::setCenterPoint(const glm::vec3& center)
 }
 
 //=================================================================================
-void C_OrbitalCamera::update()
+void C_OrbitalCamera::DebugDraw()
+{
+	C_DebugDraw::Instance().DrawPoint(_center, glm::vec3(0, 0, 1), glm::mat4(1.0f));
+}
+
+//=================================================================================
+void C_OrbitalCamera::Update()
 {
 	float radx = glm::radians(_angleXDeg);
 	float rady = glm::radians(_angleYDeg);
@@ -113,6 +121,16 @@ void C_OrbitalCamera::OnEvent(Core::I_Event& event)
 }
 
 //=================================================================================
+void C_OrbitalCamera::DebugDrawGUI()
+{
+	if (::ImGui::CollapsingHeader("Orbital camera")) {
+		::ImGui::SliderFloat("Y angle:", &_angleYDeg, -89.0f, 89.0f);
+		::ImGui::SliderFloat("X angle:", &_angleXDeg, 0, 360.f);
+		::ImGui::SliderFloat("Zoom:", &_zoom, 0.1f, 50.f);
+	}
+}
+
+//=================================================================================
 bool C_OrbitalCamera::OnKeyEvent(Core::C_KeyEvent& event)
 {
 
@@ -120,7 +138,7 @@ bool C_OrbitalCamera::OnKeyEvent(Core::C_KeyEvent& event)
 	// Rotations
 	if (event.GetKeyCode() == GLFW_KEY_DOWN) {
 		adjustOrientation(0.0f, -m_ControlSpeed);
-		update();
+		Update();
 		return true;
 	}
 	if (event.GetKeyCode() == GLFW_KEY_UP) {
@@ -208,24 +226,32 @@ bool C_OrbitalCamera::OnMousePress(Core::C_MouseButtonPressed& event)
 	if (event.GetMouseButton() == 0) {
 		auto window = Core::C_Application::Get().GetWndMgr().GetWindow(event.GetWindowGUID());
 		auto screenCoord = window->GetInput().GetMousePosition();
-		auto ViewProjectionMat = GetViewProjectionMatrix();
-		auto inverseVPMat = glm::inverse(ViewProjectionMat);
 
-		float normX = remapFnc(0, static_cast<float>(window->GetWidth()), -1, 1, screenCoord.first);
-		float normY = remapFnc(0, static_cast<float>(window->GetHeight()), -1, 1, screenCoord.second);
+		float x = (2.0f * screenCoord.first) / window->GetWidth() - 1.0f;
+		float y = 1.0f - (2.0f * screenCoord.second) / window->GetHeight();
+		float z = 1.0f;
+		glm::vec3 ray_nds = glm::vec3(x, y, z);
+		glm::vec4 ray_clip = glm::vec4(ray_nds.x, ray_nds.y, -1.0, 1.0);
+		glm::vec4 ray_eye = glm::inverse(GetProjectionMatrix()) * ray_clip;
+		ray_eye = glm::vec4(ray_eye.x, ray_eye.y, -1.0, 0.0);
 
-		glm::vec4 start(normX, normY, 0.99999999f, 1.0f);
-		start = inverseVPMat* start;
+		glm::vec4 ray_wor = glm::inverse(GetViewMatrix()) * ray_eye;
+		// don't forget to normalise the vector at some point
+		ray_wor = glm::normalize(ray_wor);
+		C_PersistentDebug::Instance().DrawLine(glm::vec4(_pos, 1.0f), glm::vec4(_pos, 1.0f) + ray_wor, glm::vec3(0, 1, 0));
 
 
-		// move center
-		auto dv = _view;
-		float k = -(start.y / dv.y);
-		_center.x = start.x+k*dv.x;
-		_center.y = 0.0f;
-		_center.z = start.z + k*dv.z;
 
-		return true;
+		glm::vec4 planeNormal = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+		float t = -(glm::dot(glm::vec4(_pos, 1.0f),planeNormal) - 1 /*offset from origin*/) / (glm::dot(ray_wor, planeNormal));
+		if (t > 0) {
+			glm::vec4 hit = glm::vec4(_pos, 1.0f) + ray_wor*t;
+			C_PersistentDebug::Instance().DrawPoint(hit, glm::vec3(1, 0, 0), glm::mat4(1.0f));
+
+			_center = hit;
+			Update();
+			return true;
+		}
 	}
 	return false;
 }
@@ -245,7 +271,7 @@ glm::quat C_OrbitalCamera::GetRotation() const
 //=================================================================================
 glm::vec3 C_OrbitalCamera::GetDirection() const
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	return _center - GetPosition();
 }
 
 //=================================================================================
@@ -275,7 +301,7 @@ glm::vec3 C_OrbitalCamera::GetPosition() const
 //=================================================================================
 GLEngine::Physics::Primitives::C_Frustum C_OrbitalCamera::GetFrustum() const
 {
-	return GLEngine::Physics::Primitives::C_Frustum(GetPosition(), _up, _center - GetPosition(), GetNear(), GetFar(), GetAspectRatio(), GetFov());
+	return GLEngine::Physics::Primitives::C_Frustum(GetPosition(), _up, GetDirection(), GetNear(), GetFar(), GetAspectRatio(), GetFov());
 }
 
 }}}

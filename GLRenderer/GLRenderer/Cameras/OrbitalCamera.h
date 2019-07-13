@@ -1,11 +1,5 @@
 #pragma once
 
-#define GLM_ENABLE_EXPERIMENTAL
-
-#include <glm/glm.hpp>
-#include <glm/gtx/transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 #include <Renderer/ICameraComponent.h>
 
 
@@ -55,7 +49,8 @@ public:
 
 	void adjustOrientation(float dx, float dy);
 
-	void update();
+	void DebugDraw();
+	virtual void Update() override;
 
 
 	virtual float GetFar() const { return _farZ; }
@@ -64,8 +59,13 @@ public:
 	virtual float GetFov() const;
 
 
-	//=================================================================================
+
+	//=====================================================
+	// I_Component
+	//=====================================================
 	virtual void OnEvent(Core::I_Event& event) override;
+	virtual void DebugDrawGUI() override;
+
 protected:
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
 	bool OnKeyRepeated(Core::C_KeyRepeatedEvent& event);

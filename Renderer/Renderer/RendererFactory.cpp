@@ -1,6 +1,6 @@
 #include <Renderer/RendererFactory.h>
 
-#include <GLRenderer/OGLRenderer.h>
+//#include <GLRenderer/OGLRenderer.h>
 
 namespace GLEngine {
 namespace Renderer {

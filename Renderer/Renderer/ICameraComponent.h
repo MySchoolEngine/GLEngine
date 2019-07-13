@@ -13,8 +13,7 @@ namespace GLEngine {
 namespace Renderer {
 
 class I_CameraComponent 
-	: public Entity::I_Component
-	, public Core::I_EventReciever{
+	: public Entity::I_Component{
 public:
 	virtual ~I_CameraComponent() = default;
 	virtual Entity::E_ComponentType GetType() const override

@@ -13,11 +13,6 @@
 
 #include <GLRenderer/Shaders/ShaderCompiler.h>
 
-#include <map>
-#include <string>
-#include <memory>
-#include <chrono>
-
 namespace pugi{
 class xml_document;
 class xml_node;

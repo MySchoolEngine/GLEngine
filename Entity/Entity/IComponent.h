@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/EventSystem/EventReciever.h>
 
 namespace GLEngine {
 namespace Entity {
@@ -7,10 +8,18 @@ namespace Entity {
 enum class E_ComponentType;
 
 //=================================================================================
-class I_Component {
+class I_Component : public Core::I_EventReciever {
 public:
 	virtual ~I_Component() = default;
 	virtual E_ComponentType GetType() const = 0;
+
+	virtual void OnEvent(Core::I_Event& event) override {}
+
+	virtual void Update() {};
+	virtual void PostUpdate() {};
+
+	// draws inside of prepared window
+	virtual void DebugDrawGUI() {};
 };
 
 }

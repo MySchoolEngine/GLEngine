@@ -10,9 +10,10 @@ namespace Core {
 //=================================================================================
 enum class E_EventType {
 	None = 0,
-	KeyPressed, KeyReleased, KeyRepeated,
+	KeyPressed, KeyReleased, KeyRepeated, TextInput,
 	MouseScroll, MouseButtonReleased, MouseButtonPressed, MouseMoved,
-	WindowClose,
+	AppEvent, WindowClose,
+	UserDefined,
 };
 
 //=================================================================================
@@ -23,6 +24,7 @@ enum class E_EventCategory {
 	Keyboard	= BIT(2),
 	Mouse		= BIT(3),
 	MouseButton	= BIT(4),
+	UserDefined = BIT(5),
 };
 
 //=================================================================================
@@ -31,7 +33,7 @@ enum class E_EventCategory {
 								virtual E_EventType GetType() const override { return GetStaticType(); }\
 								virtual const char* GetName() const override { return #type; }
 
-#define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlags() const override { return category; }
+#define EVENT_CLASS_CATEGORY(category) virtual Utils::C_BitField<E_EventCategory> GetCategories() const override { return category; }
 
 //=================================================================================
 class API_EXPORT I_Event
@@ -46,6 +48,33 @@ public:
 	}
 
 	bool m_Handeld = false;
+};
+
+//=================================================================================
+class C_UserEvent : public I_Event {
+public:
+
+	C_UserEvent(const std::string& name)
+	: m_Name(name){}
+	//=================================================================================
+	virtual E_EventType GetType() const override
+	{
+		return Core::E_EventType::UserDefined;
+	}
+
+	//=================================================================================
+	virtual Utils::C_BitField<E_EventCategory> GetCategories() const override
+	{
+		return Utils::C_BitField<E_EventCategory>(E_EventCategory::UserDefined);
+	}
+
+	//=================================================================================
+	virtual const char* GetName() const override
+	{
+		return m_Name.c_str();
+	}
+private:
+	std::string m_Name;
 };
 
 //=================================================================================
@@ -65,7 +94,8 @@ class EventCategoryBase {
 
 template<GLEngine::Core::E_EventCategory e,
 	typename retType = EventCategoryBase<e>::type>
-	constexpr retType& event_base_cast(GLEngine::Core::I_Event& comp) {
+constexpr retType& event_base_cast(GLEngine::Core::I_Event& comp)
+{
 	return static_cast<typename retType&>(comp);
 }
 

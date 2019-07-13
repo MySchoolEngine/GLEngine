@@ -5,6 +5,8 @@
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
 
+#include <imgui.h>
+
 #include <stdexcept>
 
 namespace GLEngine {
@@ -13,6 +15,7 @@ namespace GLRenderer {
 //=================================================================================
 C_OGLRenderer::C_OGLRenderer()
 	: m_CommandQueue(new std::remove_pointer<decltype(m_CommandQueue)>::type)
+	, m_DrawCommands("Draw commands")
 {
 	int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
@@ -71,6 +74,7 @@ void C_OGLRenderer::Commit() const
 //=================================================================================
 void C_OGLRenderer::ClearCommandBuffers()
 {
+	m_DrawCommands.Sample(static_cast<float>(m_CommandQueue->size()));
 	m_CommandQueue->clear();
 }
 
@@ -80,6 +84,20 @@ void C_OGLRenderer::Lock(bool lock /*= true*/)
 	m_Locked = lock;
 }
 
+//=================================================================================
+void C_OGLRenderer::DrawControls() const
+{
+	bool my_tool_active = true;
+	
+	::ImGui::Begin("Renderer frame stats", &my_tool_active);
+		m_DrawCommands.Draw();
+		const auto avgDrawCommands = m_DrawCommands.Avg();
+		::ImGui::Text("Avg draw commands: %.2f", avgDrawCommands);
+		::ImGui::Text("Min/max %.2f/%.2f",
+			*std::min_element(m_DrawCommands.cbegin(), m_DrawCommands.cend()),
+			*std::max_element(m_DrawCommands.cbegin(), m_DrawCommands.cend()));
+	::ImGui::End();
 }
-}
+
+}}
 

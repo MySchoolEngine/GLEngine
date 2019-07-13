@@ -22,8 +22,11 @@ public:
 
 	virtual void bind()		const = 0;
 	virtual void unbind()	const = 0;
+
+	virtual void NameBuffer(const std::string& name) const = 0; 
 };
 
+//=================================================================================
 template<GLenum TYPE>
 class C_GLBuffer : public I_GLBufferBase{
 public:
@@ -34,6 +37,12 @@ public:
 	virtual void unbind()	const override;
 
 	constexpr GLenum GetBufferType() const noexcept;
+
+	//=================================================================================
+	virtual void NameBuffer(const std::string& name) const override {
+		glObjectLabel(GL_BUFFER, m_id, static_cast<GLsizei>(name.length()), name.c_str());
+	}
+
 protected:
 	GLuint m_id;
 };

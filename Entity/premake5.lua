@@ -17,7 +17,13 @@ project "Entity"
 	{
 		"../%{IncludeDir.GLM}",
 		"../Core",
+		"../Renderer",
 		"../%{IncludeDir.fmt}",
+		"../%{IncludeDir.ImGui}",
+	}
+
+	links{
+		"ImGui",
 	}
 
 	filter "system:windows"

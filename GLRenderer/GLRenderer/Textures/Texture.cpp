@@ -2,6 +2,10 @@
 
 #include <GLRenderer/Textures/Texture.h>
 
+#include <GLRenderer/MeshLoading/Scene.h>
+
+#include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
+
 #include <glm/gtc/type_ptr.hpp>
 
 namespace GLEngine {
@@ -12,6 +16,7 @@ namespace Textures {
 C_Texture::C_Texture(GLenum target)
 	: m_bGroupOperations(false)
 	, m_target(target)
+	, m_texture(0)
 {
 	glGenTextures(1, &m_texture);
 }
@@ -26,9 +31,19 @@ C_Texture::C_Texture(const std::string & name, GLenum target)
 }
 
 //=================================================================================
+C_Texture::C_Texture(C_Texture&& t)
+{
+	m_texture = t.m_texture;
+	t.m_texture = 0;
+	m_target = t.m_target;
+	m_bGroupOperations = t.m_bGroupOperations;
+}
+
+//=================================================================================
 C_Texture::~C_Texture()
 {
-	glDeleteTextures(1, &m_texture);
+	if(m_texture!=0)
+		glDeleteTextures(1, &m_texture);
 }
 
 //=================================================================================
@@ -84,6 +99,21 @@ void C_Texture::GenerateMipMaps()
 	bind();
 	glGenerateMipmap(m_target);
 	unbind();
+}
+
+//=================================================================================
+void C_Texture::SetTexData2D(int level, const Mesh::Texture& tex)
+{
+	SetDimensions({ tex.width, tex.height });
+	glTexImage2D(m_target,
+		level,
+		GL_RGB,
+		(GLsizei)tex.width,
+		(GLsizei)tex.height,
+		0,
+		GL_RGBA,
+		T_TypeToGL<decltype(tex.data)::element_type>::value,
+		tex.data.get());
 }
 
 }}}
