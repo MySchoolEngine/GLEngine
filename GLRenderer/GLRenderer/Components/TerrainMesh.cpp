@@ -224,9 +224,7 @@ void C_TerrainMesh::GenerateTerrain()
 					glDispatchCompute(dim / 16, dim / 16, 1);
 					glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
-					m_Noise.bind();
-					glGenerateMipmap(m_Noise.GetTarget());
-					m_Noise.unbind();
+					m_Noise.GenerateMipMaps();
 				}
 			)
 		)
