@@ -44,7 +44,7 @@ void C_Framebuffer::AttachTexture(GLenum attachement, std::shared_ptr<Textures::
 //=================================================================================
 std::shared_ptr<Textures::C_Texture> C_Framebuffer::GetAttachement(GLenum attachement)
 {
-	assert(m_attachements.find(attachement) != m_attachements.end());
+	GLE_ASSERT(m_attachements.find(attachement) != m_attachements.end(), "There is no attachement of type {}", attachement);
 	return m_attachements[attachement];
 }
 

@@ -18,7 +18,7 @@ namespace Shaders {
 C_ShaderProgram::C_ShaderProgram(GLuint program)
 	: m_Program(program)
 {
-	// TODO: assert(program!=0);
+	GLE_ASSERT(program != 0, "Invalid shader program");
 }
 
 //=================================================================================

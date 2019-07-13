@@ -41,7 +41,7 @@ void C_UniformBuffersManager::Clear()
 //=================================================================================
 void C_UniformBuffersManager::BindUBOs(const Shaders::C_ShaderProgram* program) const
 {
-	assert(program);
+	GLE_ASSERT(program, "Invalid shader program given");
 	for (const auto& ubo : m_UBOs) {
 		if (ubo->IsActive()) {
 			program->BindUBO(ubo);

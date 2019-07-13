@@ -260,7 +260,7 @@ void ModelLoader::_assignMeshMaterial(Mesh& mesh, const aiMesh* aimesh)
 //=================================================================================
 void ModelLoader::_getFacePosNormalTcoords(const aiFace* face, const aiMesh* mesh, glm::vec4* pos, glm::vec3* normal, glm::vec2* tcoords)
 {
-	assert(face->mNumIndices == VERTICES_PER_TRIANGLE);
+	GLE_ASSERT(face->mNumIndices == VERTICES_PER_TRIANGLE, "Triangle should have {} vertices", VERTICES_PER_TRIANGLE);
 
 	for(unsigned int i = 0; i< face->mNumIndices; ++i)
     {

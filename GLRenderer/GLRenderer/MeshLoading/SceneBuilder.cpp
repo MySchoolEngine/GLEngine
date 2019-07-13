@@ -222,7 +222,7 @@ std::shared_ptr<Textures::C_Texture> C_SceneBuilder::LoadTexture(const Texture &
 //=================================================================================
 glm::vec3 C_SceneBuilder::ReadPositionNode(const pugi::xml_node& node) const noexcept
 {
-	assert(!strcmp(node.name(), "position"));
+	GLE_ASSERT(!strcmp(node.name(), "position"), "There should go only nodes with position");
 	return glm::vec3(node.attribute("x").as_double(0.0f), node.attribute("y").as_double(0.0f), node.attribute("z").as_double(0.0f));
 }
 

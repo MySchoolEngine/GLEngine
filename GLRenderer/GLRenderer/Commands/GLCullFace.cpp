@@ -10,7 +10,6 @@ namespace Commands {
 C_GLCullFace::C_GLCullFace(E_FaceMode mode)
 	: m_Mode(mode)
 {
-// todo assert if mode is last
 }
 
 //=================================================================================
