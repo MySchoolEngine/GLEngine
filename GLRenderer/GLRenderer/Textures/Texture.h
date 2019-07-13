@@ -17,6 +17,10 @@
 
 namespace GLEngine {
 namespace GLRenderer {
+namespace Mesh {
+struct Texture;
+}
+
 namespace Textures {
 class C_Texture// : public Renderer::I_Resource
 {
@@ -49,6 +53,8 @@ public:
 	void SetTexParameter(GLenum pname, const glm::vec4& value);
 	void SetTexParameter(GLenum pname, GLint value);
 	void GenerateMipMaps();
+
+	void SetTexData2D(int level, const Mesh::Texture& tex);
 
 protected:
 	GLuint m_texture;

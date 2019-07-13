@@ -400,16 +400,7 @@ void C_ExplerimentWindow::SetupWorld()
 			CORE_LOG(E_Level::Error, E_Context::Render, "TExture cannot be loaded");
 
 		m_texture.StartGroupOp();
-		glTexImage2D(GL_TEXTURE_2D,
-			0,
-			GL_RGB,
-			(GLsizei)t.width,
-			(GLsizei)t.height,
-			0,
-			GL_RGBA,
-			GL_UNSIGNED_BYTE,
-			t.data.get());
-		m_texture.SetDimensions({ t.width, t.height });
+		m_texture.SetTexData2D(0, t);
 		m_texture.SetWrap(GL_REPEAT, GL_REPEAT);
 		m_texture.SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 		m_texture.GenerateMipMaps();

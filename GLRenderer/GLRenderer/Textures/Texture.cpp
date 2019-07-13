@@ -2,6 +2,10 @@
 
 #include <GLRenderer/Textures/Texture.h>
 
+#include <GLRenderer/MeshLoading/Scene.h>
+
+#include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
+
 #include <glm/gtc/type_ptr.hpp>
 
 namespace GLEngine {
@@ -95,6 +99,21 @@ void C_Texture::GenerateMipMaps()
 	bind();
 	glGenerateMipmap(m_target);
 	unbind();
+}
+
+//=================================================================================
+void C_Texture::SetTexData2D(int level, const Mesh::Texture& tex)
+{
+	SetDimensions({ tex.width, tex.height });
+	glTexImage2D(m_target,
+		level,
+		GL_RGB,
+		(GLsizei)tex.width,
+		(GLsizei)tex.height,
+		0,
+		GL_RGBA,
+		T_TypeToGL<decltype(tex.data)::element_type>::value,
+		tex.data.get());
 }
 
 }}}
