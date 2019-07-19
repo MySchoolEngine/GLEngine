@@ -2,6 +2,8 @@
 
 #include <GLRenderer/Components/SkyBox.h>
 
+#include <GLRenderer/Buffers/GLBuffer.h>
+
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 
 #include <GLRenderer/MeshLoading/Scene.h>
@@ -12,6 +14,10 @@
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 
 #include <GLRenderer/Textures/TextureLoader.h>
+#include <GLRenderer/Textures/TextureUnitManager.h>
+
+#include <GLRenderer/CameraManager.h>
+#include <Renderer/ICameraComponent.h>
 
 #include <Renderer/IRenderer.h>
 
@@ -23,17 +29,72 @@ namespace Components {
 
 //=================================================================================
 C_SkyBox::C_SkyBox()
-	: m_Textures("Skybox", GL_TEXTURE_2D_ARRAY)
+	: m_Textures("Skybox", GL_TEXTURE_CUBE_MAP)
 {
-	m_Textures.bind();
-	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, 512, 512, 6);
-	m_Textures.unbind();
+	m_Textures.SetFilter(GL_LINEAR, GL_LINEAR);
+	m_Textures.SetWrap(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+
+	std::vector<glm::vec3> vertices;
+	// left
+	vertices.push_back(glm::vec3(100.0f,  100.0f,  100.0f));
+	vertices.push_back(glm::vec3(100.0f,  100.0f, -100.0f));
+	vertices.push_back(glm::vec3(100.0f, -100.0f, -100.0f));
+	vertices.push_back(glm::vec3(100.0f, -100.0f, -100.0f));
+	vertices.push_back(glm::vec3(100.0f, -100.0f,  100.0f));
+	vertices.push_back(glm::vec3(100.0f,  100.0f,  100.0f));
+
+	// right
+	vertices.push_back(glm::vec3(-100.0f, -100.0f,  100.0f));
+	vertices.push_back(glm::vec3(-100.0f,  100.0f, -100.0f));
+	vertices.push_back(glm::vec3(-100.0f,  100.0f,  100.0f));
+	vertices.push_back(glm::vec3(-100.0f, -100.0f,  100.0f));
+	vertices.push_back(glm::vec3(-100.0f, -100.0f, -100.0f));
+	vertices.push_back(glm::vec3(-100.0f,  100.0f, -100.0f));
+	
+	// top
+	vertices.push_back(glm::vec3(-100.0f, 100.0f, -100.0f));
+	vertices.push_back(glm::vec3( 100.0f, 100.0f, -100.0f));
+	vertices.push_back(glm::vec3( 100.0f, 100.0f,  100.0f));
+	vertices.push_back(glm::vec3( 100.0f, 100.0f,  100.0f));
+	vertices.push_back(glm::vec3(-100.0f, 100.0f,  100.0f));
+	vertices.push_back(glm::vec3(-100.0f, 100.0f, -100.0f));
+
+	// bottom
+	vertices.push_back(glm::vec3(-100.0f, -100.0f, -100.0f));
+	vertices.push_back(glm::vec3(-100.0f, -100.0f,  100.0f));
+	vertices.push_back(glm::vec3( 100.0f, -100.0f, -100.0f));
+	vertices.push_back(glm::vec3( 100.0f, -100.0f, -100.0f));
+	vertices.push_back(glm::vec3(-100.0f, -100.0f,  100.0f));
+	vertices.push_back(glm::vec3( 100.0f, -100.0f,  100.0f));
+
+	//back
+	vertices.push_back(glm::vec3(-100.0f,  100.0f, 100.0f));
+	vertices.push_back(glm::vec3( 100.0f,  100.0f, 100.0f));
+	vertices.push_back(glm::vec3( 100.0f, -100.0f, 100.0f));
+	vertices.push_back(glm::vec3( 100.0f, -100.0f, 100.0f));
+	vertices.push_back(glm::vec3(-100.0f, -100.0f, 100.0f));
+	vertices.push_back(glm::vec3(-100.0f,  100.0f, 100.0f));
+
+	//front
+	vertices.push_back(glm::vec3( 100.0f,  100.0f, -100.0f));
+	vertices.push_back(glm::vec3(-100.0f,  100.0f, -100.0f));
+	vertices.push_back(glm::vec3(-100.0f, -100.0f, -100.0f));
+	vertices.push_back(glm::vec3(-100.0f, -100.0f, -100.0f));
+	vertices.push_back(glm::vec3( 100.0f, -100.0f, -100.0f));
+	vertices.push_back(glm::vec3( 100.0f,  100.0f, -100.0f));
+
+	m_VAO.bind();
+	m_VAO.SetBuffer<0, GL_ARRAY_BUFFER>(vertices);
+
+
+	m_VAO.EnableArray<0>();
+
+	m_VAO.unbind();
 }
 
 //=================================================================================
 void C_SkyBox::AddTexture(E_Side side, std::string& filename)
 {
-
 	Textures::TextureLoader tl;
 	Mesh::Texture t;
 	bool retval = tl.loadTexture(filename.c_str(), t);
@@ -44,33 +105,35 @@ void C_SkyBox::AddTexture(E_Side side, std::string& filename)
 
 	const int mipMapLevel = 0;
 	m_Textures.bind();
-	const glm::ivec3 coord(0, 0, static_cast<int>(side));
-	glTexSubImage3D(GL_TEXTURE_2D_ARRAY, mipMapLevel, coord.x, coord.y, coord.z, 
-		512, 512, 1, GL_RGBA, T_TypeToGL<decltype(t.data)::element_type>::value, t.data.get());
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + static_cast<int>(side), 0, GL_RGBA, t.width, t.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, t.data.get());
+
+	m_Textures.GenerateMipMaps();
 	m_Textures.unbind();
 }
 
 //=================================================================================
 void C_SkyBox::PerformDraw() const
 {
+	auto& tm = Textures::C_TextureUnitManger::Instance();
+	tm.BindTextureToUnit(m_Textures, 0);
+
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {
-					glActiveTexture(GL_TEXTURE0);
-					m_Textures.bind();
-					}
-				)
-		)
-	);
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
-		std::move(
-			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[&]() {
+					glDepthMask(GL_FALSE);
 					auto& shmgr = Shaders::C_ShaderManager::Instance();
 					auto shader = shmgr.GetProgram("skybox");
-					}
-				)
+					shmgr.ActivateShader(shader);
+
+					m_VAO.bind();
+					glBindTexture(GL_TEXTURE_CUBE_MAP, m_Textures.GetTexture());
+					glDrawArrays(GL_TRIANGLES, 0, 36);
+					glDepthMask(GL_TRUE);
+
+					m_VAO.unbind();
+				}
+			)
 		)
 	);
 }

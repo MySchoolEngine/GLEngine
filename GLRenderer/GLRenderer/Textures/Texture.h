@@ -49,6 +49,7 @@ public:
 	inline GLenum GetTarget() const { return m_target; }
 
 	void SetWrap(GLint wrapS, GLint wrapT);
+	void SetWrap(GLint wrapS, GLint wrapT, GLint wrapR);
 	void SetFilter(GLint min, GLint mag);
 	void SetTexParameter(GLenum pname, const glm::vec4& value);
 	void SetTexParameter(GLenum pname, GLint value);

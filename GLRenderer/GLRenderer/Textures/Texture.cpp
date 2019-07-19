@@ -70,11 +70,22 @@ void C_Texture::SetWrap(GLint wrapS, GLint wrapT)
 }
 
 //=================================================================================
+void C_Texture::SetWrap(GLint wrapS, GLint wrapT, GLint wrapR)
+{
+	bind();
+	SetTexParameter(GL_TEXTURE_WRAP_S, wrapS);
+	SetTexParameter(GL_TEXTURE_WRAP_T, wrapT);
+	SetTexParameter(GL_TEXTURE_WRAP_R, wrapR);
+	unbind();
+}
+
+//=================================================================================
 void C_Texture::SetFilter(GLint min, GLint mag)
 {
 	bind();
 	SetTexParameter(GL_TEXTURE_MIN_FILTER, min);
 	SetTexParameter(GL_TEXTURE_MAG_FILTER, mag);
+	unbind();
 }
 
 //=================================================================================

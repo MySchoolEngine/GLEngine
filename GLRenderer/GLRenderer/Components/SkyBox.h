@@ -3,6 +3,7 @@
 #include <Renderer/IRenderableComponent.h>
 
 #include <GLRenderer/Textures/Texture.h>
+#include <GLRenderer/VAO/VAO.h>
 
 namespace GLEngine {
 namespace GLRenderer {
@@ -11,12 +12,12 @@ namespace Components {
 class C_SkyBox : public Renderer::I_RenderableComponent {
 public:
 	enum class E_Side {
-		Top = 0,
-		Bottom = 1,
-		Left = 2,
-		Right = 3,
-		Forward = 4,
-		Back = 5,
+		Right = 0,
+		Left = 1,
+		Top = 2,
+		Bottom = 3,
+		Back = 4,
+		Forward = 5,
 	};
 	C_SkyBox();
 	void AddTexture(E_Side side, std::string& filename);
@@ -28,5 +29,6 @@ public:
 
 private:
 	Textures::C_Texture m_Textures;
+	VAO::C_GLVAO<1>		m_VAO;
 };
 }}}

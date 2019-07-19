@@ -377,7 +377,7 @@ void C_ExplerimentWindow::SetupWorld()
 		m_World.AddEntity(plane);
 		plane->AddComponent(std::make_shared<Components::C_StaticMesh>(billboardMesh));
 	}
-	if(false){
+	if(true){
 		using Components::C_SkyBox;
 		auto skyboxComp = std::make_shared<C_SkyBox>();
 		skyboxComp->AddTexture(C_SkyBox::E_Side::Top, std::string("SkyBoxes/mp_crimelem/criminal-element_up.tga"));
