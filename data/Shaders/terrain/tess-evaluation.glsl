@@ -16,6 +16,6 @@ void main(){
     vec4 position = mix(a, b, v);
     texcoord = position.xy;
     float height = texture(terrain, texcoord).a;
-    gl_Position = frame.projectionMatrix * vec4(texcoord, height, 1.0);
+    gl_Position = frame.viewProjectionMatrix * vec4(texcoord, height, 1.0);
     depth = gl_Position.z;
 }

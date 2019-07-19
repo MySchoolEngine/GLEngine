@@ -17,7 +17,7 @@ C_FrameConstantsBuffer::C_FrameConstantsBuffer(const std::string& blockName, uns
 	const auto matSize = sizeof(glm::mat4);
 	const auto vecSize = sizeof(glm::vec4);
 
-	const auto bytes = matSize + vecSize;
+	const auto bytes = 3*matSize + vecSize;
 
 	C_UniformBuffer::bind();
 	glBufferData(GL_UNIFORM_BUFFER, bytes, nullptr, GL_DYNAMIC_DRAW);
@@ -27,11 +27,15 @@ C_FrameConstantsBuffer::C_FrameConstantsBuffer(const std::string& blockName, uns
 //=================================================================================
 void C_FrameConstantsBuffer::UploadData() const
 {
+	const auto matSize = sizeof(glm::mat4);
+	const auto viewProjectionMat = m_ProjectionMat*m_ViewMat;
 	bind();
 	auto *data = (char *)glMapBuffer(GL_UNIFORM_BUFFER, GL_READ_WRITE);
 
-	memcpy(data, glm::value_ptr(m_ViewProjection), sizeof(decltype(m_ViewProjection)));
-	memcpy(data + sizeof(decltype(m_ViewProjection)), glm::value_ptr(m_CameraPosition), sizeof(decltype(m_CameraPosition)));
+	memcpy(data, glm::value_ptr(m_ProjectionMat), matSize);
+	memcpy(data + matSize, glm::value_ptr(m_ViewMat), matSize);
+	memcpy(data + 2*matSize, glm::value_ptr(viewProjectionMat), matSize);
+	memcpy(data + 3*matSize, glm::value_ptr(m_CameraPosition), sizeof(decltype(m_CameraPosition)));
 
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
 	unbind();

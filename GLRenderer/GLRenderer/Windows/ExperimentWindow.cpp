@@ -197,7 +197,8 @@ void C_ExplerimentWindow::Update()
 	auto basicProgram = shmgr.GetProgram("basic");
 	shmgr.ActivateShader(basicProgram);
 
-	m_FrameConstUBO->SetViewProjection(cameraComponent->GetViewProjectionMatrix());
+	m_FrameConstUBO->SetView(cameraComponent->GetViewMatrix());
+	m_FrameConstUBO->SetProjection(cameraComponent->GetProjectionMatrix());
 	m_FrameConstUBO->SetCameraPosition(glm::vec4(cameraComponent->GetPosition(), 1.0f));
 
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(

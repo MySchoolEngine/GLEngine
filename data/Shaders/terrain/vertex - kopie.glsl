@@ -59,5 +59,5 @@ void main()
 
 	vec4 vertexPosition = vec4(x, vertex, z, 1);
 
-    gl_Position = frame.projectionMatrix * vertexPosition;
+    gl_Position = frame.viewProjectionMatrix * vertexPosition;
 }

@@ -15,5 +15,5 @@ uniform mat4 viewMatrix;
 void main()
 {
 	uv = vertex;
-    gl_Position = frame.projectionMatrix * vec4(vertex, 1.0);
+    gl_Position = frame.viewProjectionMatrix * vec4(vertex, 1.0);
 }
