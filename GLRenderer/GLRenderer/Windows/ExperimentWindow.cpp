@@ -63,6 +63,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	, m_Spawning(false)
 	, m_SpawningName("")
 	, m_SpawningFilename("")
+	, m_FrameStats("Frame stats")
 {
 	glfwMakeContextCurrent(m_Window);
 
@@ -76,6 +77,17 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	m_LayerStack.PushLayer(&m_CamManager);
 
 	m_VSync.SetName("Lock FPS");
+
+	m_FrameStats.AddGUIPart(&m_Samples);
+	//m_FrameStats.AddGUIPart(&static_cast<GUI::I_GUIPart>(m_VSync));
+
+	Utils::Logging::C_LoggingSystem::Instance().AddLogger(&m_ConsoleWindow);
+}
+
+//=================================================================================
+C_ExplerimentWindow::~C_ExplerimentWindow()
+{
+	Utils::Logging::C_LoggingSystem::Instance().RemoveLogger(&m_ConsoleWindow);
 }
 
 //=================================================================================
@@ -87,18 +99,18 @@ void C_ExplerimentWindow::Update()
 	//MouseSelect();
 
 
-	bool my_tool_active = true;
-
-	::ImGui::Begin("Frame stats", &my_tool_active);
+	m_FrameStats.Begin();
 		const auto avgMsPerFrame = m_Samples.Avg();
 		::ImGui::Text("Avg frame time %.2f", avgMsPerFrame);
 		::ImGui::Text("Avg fps %.2f", 1000.0 / avgMsPerFrame);
 		::ImGui::Text("Min/max frametime %.2f/%.2f", 
 			*std::min_element(m_Samples.cbegin(), m_Samples.cend()), 
 			*std::max_element(m_Samples.cbegin(), m_Samples.cend()));
-		m_Samples.Draw();
+		m_FrameStats.DrawElements();
 		m_VSync.Draw();
-	::ImGui::End();
+	m_FrameStats.End();
+
+	m_ConsoleWindow.Draw();
 	
 	glfwSwapInterval(m_VSync?1:0);
 
@@ -128,7 +140,7 @@ void C_ExplerimentWindow::Update()
 	auto entitiesInView = m_World.GetEntities(cameraComponent->GetFrustum());
 
 
-	my_tool_active = true;
+	bool my_tool_active = true;
 	::ImGui::Begin("Entities", &my_tool_active);
 	if (::ImGui::Button("Spawn new terrain")) {
 		m_Spawning = true;

@@ -4,6 +4,8 @@
 
 #include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/CameraManager.h>
+#include <GLRenderer/GUI/Window.h>
+#include <GLRenderer/GUI/ConsoleWindow.h>
 #include <GLRenderer/GUI/PlotLine.h>
 #include <GLRenderer/GUI/CheckBoxValue.h>
 
@@ -46,7 +48,7 @@ class C_ExplerimentWindow : public GLFW::C_GLFWoGLWindow {
 	using T_Base = GLFW::C_GLFWoGLWindow;
 public:
 	C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo);
-	virtual ~C_ExplerimentWindow() = default;
+	virtual ~C_ExplerimentWindow();
 	//=================================================================================
 	virtual void Update() override;
 
@@ -78,6 +80,8 @@ private:
 	Utils::HighResolutionTimer									m_FrameTimer;
 	GUI::C_PlotLine<500>										m_Samples;
 	GUI::C_CheckBoxValue										m_VSync;
+	GUI::C_Window												m_FrameStats;
+	GUI::C_ConsoleWindow										m_ConsoleWindow;
 	bool														m_Spawning;
 	char m_SpawningName[255];
 	char m_SpawningFilename[255];
