@@ -2,9 +2,7 @@
 
 #include <GLRenderer/GUI/GUIPart.h>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace GUI {
+namespace GLEngine::GLRenderer::GUI::Input {
 // This should look like bool value for user and has size of bool value
 // @todo unit testing
 class C_CheckBoxValue : public I_GUIPart {
@@ -32,4 +30,4 @@ private:
 };
 
 static_assert(std::is_constructible<C_CheckBoxValue, bool>::value, "Checkbox should be convertible");
-}}}
+}

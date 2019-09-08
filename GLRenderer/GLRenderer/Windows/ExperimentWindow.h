@@ -7,7 +7,7 @@
 #include <GLRenderer/GUI/Window.h>
 #include <GLRenderer/GUI/ConsoleWindow.h>
 #include <GLRenderer/GUI/PlotLine.h>
-#include <GLRenderer/GUI/CheckBoxValue.h>
+#include <GLRenderer/GUI/Input/CheckBoxValue.h>
 
 #include <Entity/World.h>
 
@@ -79,7 +79,7 @@ private:
 	ImGui::C_ImGuiLayer*										m_ImGUI;
 	Utils::HighResolutionTimer									m_FrameTimer;
 	GUI::C_PlotLine<500>										m_Samples;
-	GUI::C_CheckBoxValue										m_VSync;
+	GUI::Input::C_CheckBoxValue									m_VSync;
 	GUI::C_Window												m_FrameStats;
 	GUI::C_ConsoleWindow										m_ConsoleWindow;
 	bool														m_Spawning;
