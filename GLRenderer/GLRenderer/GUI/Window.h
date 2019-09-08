@@ -16,7 +16,7 @@ public:
 
 	void Draw() const;
 
-	void DrawElements() const;
+	virtual void DrawElements() const;
 
 	void Begin() const;
 	void End() const;
