@@ -14,14 +14,12 @@
 #pragma once
 
 
-namespace GLEngine {
-namespace GLRenderer {
+namespace GLEngine::GLRenderer {
 
 namespace Textures {
 class C_Texture;
 }
 
-namespace Components {
 class C_Framebuffer {
 public:
 	C_Framebuffer();
@@ -37,4 +35,4 @@ private:
 	GLuint m_FBO;
 	std::map<GLenum, std::shared_ptr<Textures::C_Texture>> m_attachements;
 };
-}}}
+}

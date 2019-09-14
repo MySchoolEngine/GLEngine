@@ -3,16 +3,12 @@
 #include <GLRenderer/FBO/Framebuffer.h>
 #include <GLRenderer/Textures/Texture.h>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Components {
-
+namespace GLEngine::GLRenderer {
 
 //=================================================================================
 C_Framebuffer::C_Framebuffer()
 {
 	glGenFramebuffers(1, &m_FBO);
-
 }
 
 //=================================================================================
@@ -32,7 +28,7 @@ void C_Framebuffer::Unbind()
 void C_Framebuffer::AttachTexture(GLenum attachement, std::shared_ptr<Textures::C_Texture> texture)
 {
 	if (m_attachements.find(attachement) != m_attachements.end()) {
-		std::cerr << "Attaching multiple textures to one attach point in framebuffer" << std::endl;
+		CORE_LOG(E_Level::Warning, E_Context::Render, "Attaching multiple textures to one attach point in framebuffer");
 	}
 	Bind();
 	glFramebufferTexture(GL_FRAMEBUFFER, attachement, texture->GetTexture(), 0);
@@ -48,4 +44,4 @@ std::shared_ptr<Textures::C_Texture> C_Framebuffer::GetAttachement(GLenum attach
 	return m_attachements[attachement];
 }
 
-}}}
+}
