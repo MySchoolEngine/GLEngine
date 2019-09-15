@@ -12,6 +12,12 @@ C_Framebuffer::C_Framebuffer()
 }
 
 //=================================================================================
+C_Framebuffer::~C_Framebuffer()
+{
+	glDeleteBuffers(1, &m_FBO);
+}
+
+//=================================================================================
 void C_Framebuffer::Bind()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
@@ -43,5 +49,4 @@ std::shared_ptr<Textures::C_Texture> C_Framebuffer::GetAttachement(GLenum attach
 	GLE_ASSERT(m_attachements.find(attachement) != m_attachements.end(), "There is no attachement of type {}", attachement);
 	return m_attachements[attachement];
 }
-
 }
