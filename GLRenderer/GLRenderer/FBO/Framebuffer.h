@@ -22,7 +22,7 @@ class C_Texture;
 
 class C_Framebuffer {
 public:
-	C_Framebuffer();
+	C_Framebuffer(const std::string& name);
 	~C_Framebuffer();
 
 	void Bind();

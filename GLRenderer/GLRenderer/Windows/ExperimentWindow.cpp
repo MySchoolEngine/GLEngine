@@ -63,6 +63,8 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	, m_Spawning(false)
 	, m_SpawningName("")
 	, m_SpawningFilename("")
+	, m_HDRtexture("hdrTexture")
+	, m_HDRFBO("HDR")
 {
 	glfwMakeContextCurrent(m_Window);
 
@@ -319,6 +321,12 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 	}
 
 	SetupWorld();
+
+	m_HDRtexture->bind();
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, GetWidth(), GetHeight(), 0, GL_RGBA, GL_FLOAT, nullptr);
+	m_HDRtexture->unbind();
+	m_HDRFBO.AttachTexture(GL_COLOR_ATTACHMENT0, m_HDRtexture);
+
 	return false;
 }
 

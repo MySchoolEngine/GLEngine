@@ -3,6 +3,7 @@
 #include <GLRenderer/GLFW/GLFWoGLWindow.h>
 
 #include <GLRenderer/Textures/Texture.h>
+#include <GLRenderer/FBO/Framebuffer.h>
 #include <GLRenderer/CameraManager.h>
 #include <GLRenderer/GUI/PlotLine.h>
 #include <GLRenderer/GUI/CheckBoxValue.h>
@@ -14,17 +15,15 @@
 #include <Utils/HighResolutionTimer.h>
 
 namespace GLEngine {
-
 namespace Core {
 class C_AppEvent;
 }
-
 namespace Renderer {
 class I_CameraComponent;
 }
+}
 
-namespace GLRenderer {
-
+namespace GLEngine::GLRenderer {
 namespace ImGui {
 class C_ImGuiLayer;
 }
@@ -33,13 +32,12 @@ namespace Mesh {
 class C_StaticMeshResource;
 }
 
-namespace Buffers {
-namespace UBO {
+namespace Buffers::UBO {
 class C_FrameConstantsBuffer;
-}
 }
 
 class C_TerrainEntity;
+class C_Framebuffer;
 
 namespace Windows {
 class C_ExplerimentWindow : public GLFW::C_GLFWoGLWindow {
@@ -64,8 +62,6 @@ private:
 
 	void sampleTime(double new_sample);
 
-	void SetupNoiseTex();
-
 	std::shared_ptr<Renderer::I_CameraComponent> GetCameraComponent() const;
 
 	Entity::C_World												m_World;
@@ -81,6 +77,10 @@ private:
 	bool														m_Spawning;
 	char m_SpawningName[255];
 	char m_SpawningFilename[255];
+
+
+	std::shared_ptr<Textures::C_Texture>						m_HDRtexture;
+	C_Framebuffer												m_HDRFBO;
 };
 
-}}}
+}}
