@@ -2,6 +2,7 @@
 
 #include <GLRenderer/GLFW/GLFWWindow.h>
 
+#include <Core/EventSystem/Event/AppEvent.h>
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/Event/MouseEvents.h>
 #include <Core/Input.h>
@@ -122,6 +123,13 @@ void C_GLFWWindow::Init(const Core::S_WindowInfo& wndInfo)
 		}
 	};
 
+	const auto resize_window_callback = [](GLFWwindow* window, int width, int height) {
+		S_Data& data = *static_cast<S_Data*>(glfwGetWindowUserPointer(window));
+
+		Core::C_WindowResizedEvent event(width, height);
+		data.m_EventCallback(event);
+	};
+
 
 
 	const auto mouse_moved_callback = [](GLFWwindow* window, double xPos, double yPos){
@@ -136,6 +144,7 @@ void C_GLFWWindow::Init(const Core::S_WindowInfo& wndInfo)
 	glfwSetMouseButtonCallback(m_Window, mouse_callback);
 	glfwSetCursorPosCallback(m_Window, mouse_moved_callback);
 	glfwSetCharCallback(m_Window, text_callback);
+	glfwSetWindowSizeCallback(m_Window, resize_window_callback);
 
 	glfwMakeContextCurrent(m_Window);
 	glfwSwapInterval(0);

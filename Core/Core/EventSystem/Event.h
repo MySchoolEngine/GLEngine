@@ -12,7 +12,7 @@ enum class E_EventType {
 	None = 0,
 	KeyPressed, KeyReleased, KeyRepeated, TextInput,
 	MouseScroll, MouseButtonReleased, MouseButtonPressed, MouseMoved,
-	AppEvent, WindowClose,
+	AppEvent, WindowClose, WindowResized,
 	UserDefined,
 };
 
