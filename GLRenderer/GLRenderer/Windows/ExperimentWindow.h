@@ -17,6 +17,7 @@
 namespace GLEngine {
 namespace Core {
 class C_AppEvent;
+class C_WindowResizedEvent;
 }
 namespace Renderer {
 class I_CameraComponent;
@@ -34,6 +35,10 @@ class C_StaticMeshResource;
 
 namespace Buffers::UBO {
 class C_FrameConstantsBuffer;
+}
+
+namespace Components {
+class C_StaticMesh;
 }
 
 class C_TerrainEntity;
@@ -55,6 +60,7 @@ public:
 protected:
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
 	bool OnAppInit(Core::C_AppEvent& event);
+	bool OnWindowResized(Core::C_WindowResizedEvent& event);
 
 private:
 	void SetupWorld();
@@ -78,9 +84,8 @@ private:
 	char m_SpawningName[255];
 	char m_SpawningFilename[255];
 
-
-	std::shared_ptr<Textures::C_Texture>						m_HDRtexture;
 	C_Framebuffer												m_HDRFBO;
+	std::shared_ptr<Components::C_StaticMesh>					m_ScreenQuad;
 };
 
 }}

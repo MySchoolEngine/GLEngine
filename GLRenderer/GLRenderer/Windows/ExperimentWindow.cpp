@@ -12,6 +12,7 @@
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 
 #include <GLRenderer/Components/TerrainMesh.h>
+#include <GLRenderer/Components/StaticMesh.h>
 
 #include <GLRenderer/Entities/TerrainEntity.h>
 
@@ -25,6 +26,7 @@
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 
 #include <GLRenderer/Textures/TextureLoader.h>
+#include <GLRenderer/Textures/TextureUnitManager.h>
 
 #include <GLRenderer/Buffers/UBO/FrameConstantsBuffer.h>
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
@@ -63,7 +65,6 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	, m_Spawning(false)
 	, m_SpawningName("")
 	, m_SpawningFilename("")
-	, m_HDRtexture("hdrTexture")
 	, m_HDRFBO("HDR")
 {
 	glfwMakeContextCurrent(m_Window);
@@ -107,6 +108,7 @@ void C_ExplerimentWindow::Update()
 	m_World.OnUpdate();
 
 	glfwMakeContextCurrent(m_Window);
+	m_HDRFBO.Bind<E_FramebufferTarget::Draw>();
 	{
 		using namespace Commands;
 		m_renderer->AddCommand(
@@ -224,6 +226,78 @@ void C_ExplerimentWindow::Update()
 	}
 
 	// ----- Frame init -------
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+		std::move(
+			std::make_unique<Commands::HACK::C_LambdaCommand>(
+				[&]() {
+					{
+						RenderDoc::C_DebugScope s("CameraDebugDraw");
+						std::static_pointer_cast<Cameras::C_OrbitalCamera>(cameraComponent)->DebugDraw();
+					}
+
+					shmgr.DeactivateShader();
+					{
+						RenderDoc::C_DebugScope s("Persistent debug");
+						C_PersistentDebug::Instance().DrawAll();
+					}
+					{
+						RenderDoc::C_DebugScope s("Merged debug");
+						C_DebugDraw::Instance().DrawMergedGeoms();
+					}
+				}
+			)
+		)
+	);
+
+	m_HDRFBO.Unbind<E_FramebufferTarget::Draw>();
+
+	{
+		using namespace Commands;
+		m_renderer->AddCommand(
+			std::move(
+				std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth)
+			)
+		);
+		m_renderer->AddCommand(
+			std::move(
+				std::make_unique<C_GLViewport>(0, 0, GetWidth(), GetHeight())
+			)
+		);
+	}
+
+	auto HDRTexture = m_HDRFBO.GetAttachement(GL_COLOR_ATTACHMENT0);
+
+	auto& tm = Textures::C_TextureUnitManger::Instance();
+	tm.BindTextureToUnit(*(HDRTexture.get()), 0);
+
+	m_HDRFBO.Bind<E_FramebufferTarget::Read>();
+
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+		std::move(
+			std::make_unique<Commands::HACK::C_LambdaCommand>(
+				[&]() {
+					auto shader = shmgr.GetProgram("screenQuad");
+					shmgr.ActivateShader(shader);
+					shader->BindSampler(*(HDRTexture.get()), 0);
+				}
+			)
+		)
+	);
+
+	m_ScreenQuad->PerformDraw();
+	
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+		std::move(
+			std::make_unique<Commands::HACK::C_LambdaCommand>(
+				[&]() {
+					shmgr.DeactivateShader();
+				}
+			)
+		)
+	);
+
+
+	m_HDRFBO.Unbind<E_FramebufferTarget::Read>();
 
 	// ----- Actual rendering --
 
@@ -234,26 +308,10 @@ void C_ExplerimentWindow::Update()
 	m_renderer->ClearCommandBuffers();
 	// ----- Actual rendering --
 
-
-	{
-		RenderDoc::C_DebugScope s("CameraDebugDraw");
-		std::static_pointer_cast<Cameras::C_OrbitalCamera>(cameraComponent)->DebugDraw();
-	}
-
-	shmgr.DeactivateShader();
-
 	{
 		RenderDoc::C_DebugScope s("ImGUI");
 		static_cast<C_OGLRenderer*>(m_renderer.get())->DrawControls();
 		m_ImGUI->FrameEnd();
-	}
-	{
-		RenderDoc::C_DebugScope s("Persistent debug");
-		C_PersistentDebug::Instance().DrawAll();
-	}
-	{
-		RenderDoc::C_DebugScope s("Merged debug");
-		C_DebugDraw::Instance().DrawMergedGeoms();
 	}
 
 
@@ -277,6 +335,7 @@ void C_ExplerimentWindow::OnEvent(Core::I_Event& event)
 	Core::C_EventDispatcher d(event);
 	d.Dispatch<Core::C_KeyPressedEvent>(std::bind(&C_ExplerimentWindow::OnKeyPressed, this, std::placeholders::_1));
 	d.Dispatch<Core::C_AppEvent>(std::bind(&C_ExplerimentWindow::OnAppInit, this, std::placeholders::_1));
+	d.Dispatch<Core::C_WindowResizedEvent>(std::bind(&C_ExplerimentWindow::OnWindowResized, this, std::placeholders::_1));
 
 	m_LayerStack.OnEvent(event);
 }
@@ -322,12 +381,49 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 
 	SetupWorld();
 
-	m_HDRtexture->bind();
+	auto HDRTexture = std::make_shared<Textures::C_Texture>("hdrTexture");
+
+	HDRTexture->bind();
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, GetWidth(), GetHeight(), 0, GL_RGBA, GL_FLOAT, nullptr);
-	m_HDRtexture->unbind();
-	m_HDRFBO.AttachTexture(GL_COLOR_ATTACHMENT0, m_HDRtexture);
+	HDRTexture->SetFilter(GL_LINEAR, GL_LINEAR);
+	m_HDRFBO.AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
+	HDRTexture->unbind();
+
+	auto depthStencilTexture = std::make_shared<Textures::C_Texture>("hdrDepthTexture");
+
+	depthStencilTexture->bind();
+	glTexImage2D(
+		GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, GetWidth(), GetHeight(), 0,
+		GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr
+	);
+	depthStencilTexture->SetFilter(GL_LINEAR, GL_LINEAR);
+	m_HDRFBO.AttachTexture(GL_DEPTH_STENCIL_ATTACHMENT, depthStencilTexture);
+	depthStencilTexture->unbind();
+
 
 	return false;
+}
+
+//=================================================================================
+bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
+{
+	auto HDRTexture = m_HDRFBO.GetAttachement(GL_COLOR_ATTACHMENT0);
+	HDRTexture->bind();
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, event.GetWidth(), event.GetHeight(), 0, GL_RGBA, GL_FLOAT, nullptr);
+	HDRTexture->SetFilter(GL_LINEAR, GL_LINEAR);
+	HDRTexture->unbind();
+
+	auto depthStencilTexture = m_HDRFBO.GetAttachement(GL_DEPTH_STENCIL_ATTACHMENT);
+
+	depthStencilTexture->bind();
+	glTexImage2D(
+		GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, event.GetWidth(), event.GetHeight(), 0,
+		GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr
+	);
+	depthStencilTexture->SetFilter(GL_LINEAR, GL_LINEAR);
+	depthStencilTexture->unbind();
+
+	return true;
 }
 
 //=================================================================================
@@ -358,22 +454,16 @@ void C_ExplerimentWindow::SetupWorld()
 		player->AddComponent(std::make_shared<GUI::C_GLEntityDebugComponent>(player));
 		m_CamManager.ActivateCamera(playerCamera);
 	}
-	if(false){
+	{
 		// billboard
 		Mesh::Mesh billboardMesh;
-		billboardMesh.vertices.emplace_back(0, 10, 0, 1); // 1
-		billboardMesh.vertices.emplace_back(0, 0, 0, 1); // 2
-		billboardMesh.vertices.emplace_back(10, 10, 0, 1); // 3
-		billboardMesh.vertices.emplace_back(0, 0, 0, 1); // 4 = 2
-		billboardMesh.vertices.emplace_back(10, 0, 0, 1); // 5
-		billboardMesh.vertices.emplace_back(10, 10, 0, 1); // 6 = 3
+		billboardMesh.vertices.emplace_back(-1.f,  1.f, 0, 1); // 1
+		billboardMesh.vertices.emplace_back(-1.f, -1.f, 0, 1); // 2
+		billboardMesh.vertices.emplace_back( 1.0f, 1.0f, 0, 1); // 3
+		billboardMesh.vertices.emplace_back(-1.f, -1.f, 0, 1); // 4 = 2
+		billboardMesh.vertices.emplace_back( 1.f, -1.f, 0, 1); // 5
+		billboardMesh.vertices.emplace_back( 1.0f, 1.0f, 0, 1); // 6 = 3
 
-		billboardMesh.normals.emplace_back(0, 0, -1);
-		billboardMesh.normals.emplace_back(0, 0, -1);
-		billboardMesh.normals.emplace_back(0, 0, -1);
-		billboardMesh.normals.emplace_back(0, 0, -1);
-		billboardMesh.normals.emplace_back(0, 0, -1);
-		billboardMesh.normals.emplace_back(0, 0, -1);
 
 		billboardMesh.texcoords.emplace_back(0, 1);
 		billboardMesh.texcoords.emplace_back(0, 0);
@@ -382,9 +472,7 @@ void C_ExplerimentWindow::SetupWorld()
 		billboardMesh.texcoords.emplace_back(1, 0);
 		billboardMesh.texcoords.emplace_back(1, 1);
 
-		auto plane = std::make_shared<Entity::C_BasicEntity>("plane");
-		m_World.AddEntity(plane);
-		plane->AddComponent(std::make_shared<Components::C_StaticMesh>(billboardMesh));
+		m_ScreenQuad = std::make_shared<Components::C_StaticMesh>(billboardMesh);
 	}
 	if(true){
 		using Components::C_SkyBox;
