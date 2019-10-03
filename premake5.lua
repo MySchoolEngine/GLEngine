@@ -53,6 +53,7 @@ group "Dependencies"
   include "vendor/Glad"
   include "vendor/pugixmlPremake"
   include "vendor/ImGui"
+  include "vendor/projects/DevIL"
   --include "vendor/DevILPremake"
 group ""
 
