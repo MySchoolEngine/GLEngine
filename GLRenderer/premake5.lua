@@ -39,7 +39,7 @@ project "GLRenderer"
 		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.ImGui}",
-		"../vendor/DevIL/DevIL/include",
+		"../%{IncludeDir.DevIL}",
 		
 		"../vendor/AssimpPrebuild/include",
 	}
