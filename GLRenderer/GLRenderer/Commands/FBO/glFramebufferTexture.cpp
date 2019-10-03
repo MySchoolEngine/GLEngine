@@ -6,7 +6,6 @@
 
 namespace GLEngine::GLRenderer::Commands{
 
-
 //=================================================================================
 C_glFramebufferTexture::C_glFramebufferTexture(GLenum attachment, std::shared_ptr<Textures::C_Texture> texture)
 	: m_Attachement(attachment)
