@@ -3,9 +3,11 @@
 #include <GLRenderer/GLFW/GLFWoGLWindow.h>
 
 #include <GLRenderer/Textures/Texture.h>
+#include <GLRenderer/FBO/Framebuffer.h>
 #include <GLRenderer/CameraManager.h>
 #include <GLRenderer/GUI/PlotLine.h>
 #include <GLRenderer/GUI/CheckBoxValue.h>
+#include <GLRenderer/GUI/Slider.h>
 
 #include <Entity/World.h>
 
@@ -14,32 +16,29 @@
 #include <Utils/HighResolutionTimer.h>
 
 namespace GLEngine {
-
 namespace Core {
 class C_AppEvent;
+class C_WindowResizedEvent;
 }
-
 namespace Renderer {
 class I_CameraComponent;
 }
+}
 
-namespace GLRenderer {
-
+namespace GLEngine::GLRenderer {
 namespace ImGui {
 class C_ImGuiLayer;
 }
 
-namespace Mesh {
-class C_StaticMeshResource;
-}
-
-namespace Buffers {
-namespace UBO {
+namespace Buffers::UBO {
 class C_FrameConstantsBuffer;
 }
+
+namespace Components {
+class C_StaticMesh;
 }
 
-class C_TerrainEntity;
+class C_Framebuffer;
 
 namespace Windows {
 class C_ExplerimentWindow : public GLFW::C_GLFWoGLWindow {
@@ -57,14 +56,13 @@ public:
 protected:
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
 	bool OnAppInit(Core::C_AppEvent& event);
+	bool OnWindowResized(Core::C_WindowResizedEvent& event);
 
 private:
 	void SetupWorld();
 	void MouseSelect();
 
 	void sampleTime(double new_sample);
-
-	void SetupNoiseTex();
 
 	std::shared_ptr<Renderer::I_CameraComponent> GetCameraComponent() const;
 
@@ -77,10 +75,15 @@ private:
 	ImGui::C_ImGuiLayer*										m_ImGUI;
 	Utils::HighResolutionTimer									m_FrameTimer;
 	GUI::C_PlotLine<500>										m_Samples;
+	GUI::C_Slider<float>										m_GammaSlider;
+	GUI::C_Slider<float>										m_ExposureSlider;
 	GUI::C_CheckBoxValue										m_VSync;
 	bool														m_Spawning;
 	char m_SpawningName[255];
 	char m_SpawningFilename[255];
+
+	C_Framebuffer												m_HDRFBO;
+	std::shared_ptr<Components::C_StaticMesh>					m_ScreenQuad;
 };
 
-}}}
+}}

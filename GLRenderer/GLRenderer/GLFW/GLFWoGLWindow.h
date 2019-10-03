@@ -14,10 +14,9 @@ namespace Core {
 class C_KeyPressedEvent;
 }
 
-namespace GLRenderer {
-namespace GLFW {
+namespace GLRenderer::GLFW {
 
-class C_GLFWoGLWindow : public GLFW::C_GLFWWindow {
+class C_GLFWoGLWindow : public C_GLFWWindow {
 public:
 	C_GLFWoGLWindow(const Core::S_WindowInfo& wndInfo);
 	virtual ~C_GLFWoGLWindow() = default;
@@ -30,7 +29,6 @@ protected:
 	std::unique_ptr<Renderer::I_Renderer> m_renderer;
 };
 
-}
 }
 }
 
