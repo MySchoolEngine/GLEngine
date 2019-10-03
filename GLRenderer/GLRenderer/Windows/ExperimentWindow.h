@@ -7,6 +7,7 @@
 #include <GLRenderer/CameraManager.h>
 #include <GLRenderer/GUI/PlotLine.h>
 #include <GLRenderer/GUI/CheckBoxValue.h>
+#include <GLRenderer/GUI/Slider.h>
 
 #include <Entity/World.h>
 
@@ -29,10 +30,6 @@ namespace ImGui {
 class C_ImGuiLayer;
 }
 
-namespace Mesh {
-class C_StaticMeshResource;
-}
-
 namespace Buffers::UBO {
 class C_FrameConstantsBuffer;
 }
@@ -41,7 +38,6 @@ namespace Components {
 class C_StaticMesh;
 }
 
-class C_TerrainEntity;
 class C_Framebuffer;
 
 namespace Windows {
@@ -79,6 +75,8 @@ private:
 	ImGui::C_ImGuiLayer*										m_ImGUI;
 	Utils::HighResolutionTimer									m_FrameTimer;
 	GUI::C_PlotLine<500>										m_Samples;
+	GUI::C_Slider<float>										m_GammaSlider;
+	GUI::C_Slider<float>										m_ExposureSlider;
 	GUI::C_CheckBoxValue										m_VSync;
 	bool														m_Spawning;
 	char m_SpawningName[255];

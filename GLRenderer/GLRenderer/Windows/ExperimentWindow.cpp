@@ -61,6 +61,8 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	, m_texture("dummyTexture")
 	, m_LayerStack(std::string("ExperimentalWindowLayerStack"))
 	, m_Samples("Frame Times")
+	, m_GammaSlider(2.2f, 1.f,5.f, "Gamma")
+	, m_ExposureSlider(1.f, .1f, 10.f, "Exposure")
 	, m_VSync(false)
 	, m_Spawning(false)
 	, m_SpawningName("")
@@ -134,19 +136,26 @@ void C_ExplerimentWindow::Update()
 
 	my_tool_active = true;
 	::ImGui::Begin("Entities", &my_tool_active);
-	if (::ImGui::Button("Spawn new terrain")) {
-		m_Spawning = true;
-		m_SpawningName[0] = '\0';
-		m_SpawningFilename[0] = '\0';
-	}
-	for (const auto entity : entitiesInView) {
-		bool selected = false;
-		::ImGui::Selectable(entity->GetName().c_str(), &selected);
-		if (selected) {
-			entity->OnEvent(Core::C_UserEvent("selected"));
+		if (::ImGui::Button("Spawn new terrain")) {
+			m_Spawning = true;
+			m_SpawningName[0] = '\0';
+			m_SpawningFilename[0] = '\0';
 		}
-	}
+		for (const auto entity : entitiesInView) {
+			bool selected = false;
+			::ImGui::Selectable(entity->GetName().c_str(), &selected);
+			if (selected) {
+				entity->OnEvent(Core::C_UserEvent("selected"));
+			}
+		}
 	::ImGui::End();
+
+	my_tool_active = true;
+	::ImGui::Begin("HDR settings", &my_tool_active);
+		m_GammaSlider.Draw();
+		m_ExposureSlider.Draw();
+	::ImGui::End();
+
 
 	if (m_Spawning) {
 		::ImGui::Begin("Spawn terrain", &m_Spawning);
@@ -278,6 +287,8 @@ void C_ExplerimentWindow::Update()
 				[&]() {
 					auto shader = shmgr.GetProgram("screenQuad");
 					shmgr.ActivateShader(shader);
+					shader->SetUniform("gamma", m_GammaSlider.GetValue());
+					shader->SetUniform("exposure", m_ExposureSlider.GetValue());
 					shader->BindSampler(*(HDRTexture.get()), 0);
 				}
 			)
