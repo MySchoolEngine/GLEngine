@@ -60,6 +60,7 @@ project "GLRenderer"
 		"ImGui",
 		"DevIL-IL",
 		"../vendor/AssimpPrebuild/lib/assimp.lib",
+		"../vendor/projects/DevIL/bin/Debug-windows-x86_64/DevIL-IL/DevIL-IL.dll",
 
 		"Entity",
 		"Utils",
@@ -80,7 +81,7 @@ project "GLRenderer"
 		postbuildcommands
 		{
 			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
-			("{COPY} \"../vendor/bin/Debug-windows-x86_64/DevIL-IL/DevIL-IL.dll\" \"../bin/" .. outputdir .. "/Sandbox/\"")
+			("{COPY} \"../vendor/projects/DevIL/bin/Debug-windows-x86_64/DevIL-IL/DevIL-IL.dll\" \"../bin/" .. outputdir .. "/Sandbox/\"")
 		}
 
 	filter "configurations:Debug"
