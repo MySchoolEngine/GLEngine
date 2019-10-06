@@ -153,12 +153,6 @@ void C_GLFWWindow::Init(const Core::S_WindowInfo& wndInfo)
 }
 
 //=================================================================================
-void C_GLFWWindow::SetEventCallback(Core::C_Application::EventCallbackFn callback)
-{
-	m_Data.m_EventCallback = callback;
-}
-
-//=================================================================================
 const Core::I_Input& C_GLFWWindow::GetInput() const
 {
 	return m_Input;
