@@ -16,7 +16,7 @@ struct S_WindowInfo {
 	enum class E_Driver {
 		OpenGL,
 		Vulkan,
-		DirectX,
+		DirectX12,
 	};
 
 	virtual E_Driver GetDriver() const = 0;
