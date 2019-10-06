@@ -29,9 +29,12 @@ project "DX12Renderer"
 		"../Utils",
 		"../Physics",
 		"../Core",
+		"C:/Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/shared",
+		"C:/Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/um",
 		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.ImGui}",
+		"../%{IncludeDir.GLM}",
 	}
 
 	links 
@@ -44,6 +47,11 @@ project "DX12Renderer"
 		"Utils",
 		"Renderer",
 		"Core",
+
+		-- DX Stuff
+		"d3d12",
+   		"dxgi",
+   		"d3dcompiler",
 	}
 
 	filter "system:windows"
@@ -64,7 +72,9 @@ project "DX12Renderer"
 	filter "configurations:Debug"
 		runtime "Debug"
 		symbols "On"
+      	defines({ "DEBUG" })
 
 	filter "configurations:Release"
+      	defines({ "NDEBUG" })
 		runtime "Release"
 		optimize "On"
