@@ -12,3 +12,5 @@
 #include <iterator>
 
 #include <Core/GUID.h>
+
+#include <Core/CoreEnums.h>

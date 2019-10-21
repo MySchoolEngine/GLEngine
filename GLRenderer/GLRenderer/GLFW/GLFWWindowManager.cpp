@@ -19,6 +19,10 @@ C_GLFWWindowManager::C_GLFWWindowManager(Core::C_Application::EventCallbackFn ev
 //=================================================================================
 std::shared_ptr<Core::I_Window> C_GLFWWindowManager::OpenNewWindow(const Core::S_WindowInfo& info)
 {
+	if (info.GetDriver() != Core::E_Driver::OpenGL)
+	{
+		return nullptr;
+	}
 	auto window = ConstructWindow(info);
 	window->SetEventCallback(m_EventCallback);
 	m_Windows.push_back(window);
@@ -76,7 +80,7 @@ void C_GLFWWindowManager::Init()
 }
 
 //=================================================================================
-API_EXPORT Core::I_WindowManager* ConstructGLFWManager(Core::C_Application::EventCallbackFn eventCallback)
+API_EXPORT C_GLFWWindowManager* ConstructGLFWManager(Core::C_Application::EventCallbackFn eventCallback)
 {
 	return new C_GLFWWindowManager(eventCallback);
 }

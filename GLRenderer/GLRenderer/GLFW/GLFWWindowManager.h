@@ -35,5 +35,5 @@ private:
 	std::vector<std::shared_ptr<Core::I_Window>> m_Windows;
 };
 
-API_EXPORT Core::I_WindowManager* ConstructGLFWManager(Core::C_Application::EventCallbackFn eventCallback);
+API_EXPORT C_GLFWWindowManager* ConstructGLFWManager(Core::C_Application::EventCallbackFn eventCallback);
 }}}
