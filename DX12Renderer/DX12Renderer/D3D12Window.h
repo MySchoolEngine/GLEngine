@@ -10,6 +10,7 @@ namespace GLEngine::DX12Renderer {
 class API_EXPORT C_D3D12Window : public Core::I_Window {
 public:
 	C_D3D12Window(const Core::S_WindowInfo& wndInfo);
+	~C_D3D12Window();
 	//============================================================
 	// I_Window
 	//============================================================
@@ -28,6 +29,7 @@ protected:
 
 	HWND                    m_Window;
 	HINSTANCE				m_HInstance;
+	bool					m_WantClose;
 private:
 	static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 };

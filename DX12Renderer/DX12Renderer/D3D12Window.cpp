@@ -12,8 +12,15 @@ namespace GLEngine::DX12Renderer {
 C_D3D12Window::C_D3D12Window(const Core::S_WindowInfo& wndInfo)
 	: m_Window(nullptr)
 	, m_HInstance(nullptr)
+	, m_WantClose(false)
 {
 	Init(wndInfo);
+}
+
+//=================================================================================
+C_D3D12Window::~C_D3D12Window()
+{
+	Destroy();
 }
 
 //=================================================================================
@@ -44,14 +51,11 @@ const GLEngine::Core::I_Input& C_D3D12Window::GetInput() const
 void C_D3D12Window::Update()
 {
 	MSG msg = {};
-	while (msg.message != WM_QUIT)
+	// Process any messages in the queue.
+	while (PeekMessage(&msg, m_Window, 0, 0, PM_REMOVE))
 	{
-		// Process any messages in the queue.
-		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
 	}
 }
 
@@ -99,7 +103,7 @@ void C_D3D12Window::SetTitle(const std::string& title)
 //=================================================================================
 bool C_D3D12Window::WantClose() const
 {
-	return false;
+	return m_WantClose;
 }
 
 //=================================================================================
@@ -111,7 +115,7 @@ const std::unique_ptr<GLEngine::Renderer::I_Renderer>& C_D3D12Window::GetRendere
 //=================================================================================
 void C_D3D12Window::Destroy()
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	DestroyWindow(m_Window);
 }
 
 //=================================================================================
@@ -124,8 +128,13 @@ LRESULT CALLBACK C_D3D12Window::WindowProc(HWND hWnd, UINT message, WPARAM wPara
 		{
 			auto pCreateStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
 			SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams));
+			return 0;
 		}
-		return 0;
+		case WM_CLOSE:
+		{
+			window->m_WantClose = true;
+			return 0;
+		}
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);
