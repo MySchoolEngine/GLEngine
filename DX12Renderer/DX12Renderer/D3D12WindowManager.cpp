@@ -6,12 +6,15 @@
 #include <DX12Renderer/D3D12WindowFactory.h>
 #include <DX12Renderer/D3D12WindowInfo.h>
 
+#include <Renderer/IRenderer.h>
+
 namespace GLEngine::DX12Renderer {
 
 //=================================================================================
 C_D3D12WindowManager::C_D3D12WindowManager(Core::C_Application::EventCallbackFn eventCallback, HINSTANCE hInstance)
 	: Core::I_WindowManager(eventCallback)
 	, m_hInstance(hInstance)
+	, m_UpdatingWindow(nullptr)
 {
 	Init();
 }
@@ -19,6 +22,10 @@ C_D3D12WindowManager::C_D3D12WindowManager(Core::C_Application::EventCallbackFn 
 //=================================================================================
 std::shared_ptr<Core::I_Window> C_D3D12WindowManager::OpenNewWindow(const Core::S_WindowInfo& info)
 {
+	if (info.GetDriver() != Core::E_Driver::DirectX12)
+	{
+		return nullptr;
+	}
 	(dynamic_cast<S_D3D12WindowInfo*>(&const_cast<Core::S_WindowInfo&>(info)))->m_HInstance = m_hInstance;
 	auto window = ConstructWindow(info);
 	window->SetEventCallback(m_EventCallback);
@@ -43,7 +50,14 @@ void C_D3D12WindowManager::Update()
 		return window->WantClose();
 	}), m_Windows.end());
 
-	std::for_each(m_Windows.begin(), m_Windows.end(), [](const decltype(m_Windows)::value_type window) {window->Update(); });
+	std::for_each(m_Windows.begin(), m_Windows.end(), 
+		[&](const decltype(m_Windows)::value_type& window) 
+		{
+			m_UpdatingWindow = window;
+			window->Update();
+			m_UpdatingWindow = nullptr;
+		}
+	);
 }
 
 //=================================================================================
@@ -57,7 +71,9 @@ void C_D3D12WindowManager::OnEvent(Core::I_Event& event)
 {
 	for (auto& window : m_Windows)
 	{
+		m_UpdatingWindow = window;
 		window->OnEvent(event);
+		m_UpdatingWindow = nullptr;
 	}
 }
 
@@ -67,7 +83,19 @@ void C_D3D12WindowManager::Init()
 }
 
 //=================================================================================
-API_EXPORT Core::I_WindowManager* ConstructD3D12Manager(Core::C_Application::EventCallbackFn eventCallback, HINSTANCE hInstance)
+const std::unique_ptr<GLEngine::Renderer::I_Renderer>& C_D3D12WindowManager::GetActiveRenderer() const
+{
+	if (!m_UpdatingWindow)
+	{
+		return nullptr;
+	}
+	return m_UpdatingWindow->GetRenderer();
+}
+
+//=================================================================================
+// ConstructD3D12Manager
+//=================================================================================
+API_EXPORT C_D3D12WindowManager* ConstructD3D12Manager(Core::C_Application::EventCallbackFn eventCallback, HINSTANCE hInstance)
 {
 	return new C_D3D12WindowManager(eventCallback, hInstance);
 }

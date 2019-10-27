@@ -5,13 +5,12 @@
 #include <GLRenderer/GLFW/GLFWoGLWindow.h>
 #include <GLRenderer/GLFW/GLFWWindowFactory.h>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace GLFW {
+namespace GLEngine::GLRenderer::GLFW {
 
 //=================================================================================
 C_GLFWWindowManager::C_GLFWWindowManager(Core::C_Application::EventCallbackFn eventCallback)
 	: Core::I_WindowManager(eventCallback)
+	, m_UpdatingWindow(nullptr)
 {
 	Init();
 }
@@ -30,6 +29,16 @@ std::shared_ptr<Core::I_Window> C_GLFWWindowManager::OpenNewWindow(const Core::S
 }
 
 //=================================================================================
+const std::unique_ptr<Renderer::I_Renderer>& C_GLFWWindowManager::GetActiveRenderer() const
+{
+	if (!m_UpdatingWindow)
+	{
+		return nullptr;
+	}
+	return m_UpdatingWindow->GetRenderer();
+}
+
+//=================================================================================
 std::shared_ptr<GLEngine::Core::I_Window> C_GLFWWindowManager::GetWindow(GUID guid) const
 {
 	auto it = std::find_if(m_Windows.begin(), m_Windows.end(), [&guid](const std::shared_ptr<GLEngine::Core::I_Window>& wnd) {
@@ -42,11 +51,17 @@ std::shared_ptr<GLEngine::Core::I_Window> C_GLFWWindowManager::GetWindow(GUID gu
 //=================================================================================
 void C_GLFWWindowManager::Update()
 {
-	m_Windows.erase(std::remove_if(m_Windows.begin(), m_Windows.end(), [](const decltype(m_Windows)::value_type window) {
+	m_Windows.erase(std::remove_if(m_Windows.begin(), m_Windows.end(), [](const decltype(m_Windows)::value_type& window) {
 		return window->WantClose();
 	}), m_Windows.end());
 
-	std::for_each(m_Windows.begin(), m_Windows.end(), [](const decltype(m_Windows)::value_type window) {window->Update(); });
+	std::for_each(m_Windows.begin(), m_Windows.end(), 
+		[&](const decltype(m_Windows)::value_type& window) {
+			m_UpdatingWindow = window;
+			window->Update();
+			m_UpdatingWindow = nullptr;
+		}
+	);
 
 	glfwPollEvents();
 }
@@ -62,7 +77,9 @@ void C_GLFWWindowManager::OnEvent(Core::I_Event& event)
 {
 	for (auto& window : m_Windows)
 	{
+		m_UpdatingWindow = window;
 		window->OnEvent(event);
+		m_UpdatingWindow = nullptr;
 	}
 }
 
@@ -80,11 +97,11 @@ void C_GLFWWindowManager::Init()
 }
 
 //=================================================================================
+// ConstructGLFWManager
+//=================================================================================
 API_EXPORT C_GLFWWindowManager* ConstructGLFWManager(Core::C_Application::EventCallbackFn eventCallback)
 {
 	return new C_GLFWWindowManager(eventCallback);
 }
 
-}
-}
 }

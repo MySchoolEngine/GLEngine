@@ -16,14 +16,11 @@ class C_WindwoManager : public I_WindowManager
 public:
 	C_WindwoManager(C_Application::EventCallbackFn callback)
 		: I_WindowManager(callback)
+		, m_UpdatingManager(nullptr)
 	{}
 
+	//=================================================================================
 	virtual ~C_WindwoManager() = default;
-
-	// template<class T, class ...Args, typename = std::enable_if_t< std::disjunction_v<std::is_same<T, Managers>...>>>
-	// void AddManager(Args ...args) {
-	// 	m_Managers[T_IndexOfType::IndexOf<T, Managers...>()] = std::make_unique<T>(std::forward<Args>()...);
-	// }
 
 	//=================================================================================
 	template<class T, typename = std::enable_if_t< std::disjunction_v<std::is_same<T, Managers>...>>>
@@ -69,7 +66,9 @@ public:
 		{
 			if (manager)
 			{
+				m_UpdatingManager = manager.get();
 				manager->Update();
+				m_UpdatingManager = nullptr;
 			}
 		}
 	}
@@ -88,7 +87,30 @@ public:
 		return acc;
 	}
 
+
+	//=================================================================================
+	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetActiveRenderer() const override
+	{
+		return m_UpdatingManager->GetActiveRenderer();
+	}
+
+
+	//=================================================================================
+	virtual void OnEvent(Core::I_Event& event) override
+	{
+		for (const auto& manager : m_Managers)
+		{
+			if (manager)
+			{
+				m_UpdatingManager = manager.get();
+				manager->OnEvent(event);
+				m_UpdatingManager = nullptr;
+			}
+		}
+	}
+
 private:
 	std::array<std::unique_ptr<I_WindowManager>, sizeof...(Managers)> m_Managers;
+	I_WindowManager* m_UpdatingManager;
 };
 }

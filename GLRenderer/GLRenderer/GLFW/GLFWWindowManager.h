@@ -21,7 +21,7 @@ public:
 	virtual std::shared_ptr<Core::I_Window> GetWindow(GUID guid) const override;
 	virtual void Update() override;
 	virtual unsigned int NumWindows() const override;
-
+	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetActiveRenderer() const override;
 
 	//=================================================================================
 	// Core::C_Layer
@@ -33,6 +33,7 @@ protected:
 
 private:
 	std::vector<std::shared_ptr<Core::I_Window>> m_Windows;
+	std::shared_ptr<Core::I_Window> m_UpdatingWindow;
 };
 
 API_EXPORT C_GLFWWindowManager* ConstructGLFWManager(Core::C_Application::EventCallbackFn eventCallback);

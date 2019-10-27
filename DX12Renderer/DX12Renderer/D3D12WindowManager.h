@@ -18,20 +18,21 @@ public:
 	virtual std::shared_ptr<Core::I_Window> GetWindow(GUID guid) const override;
 	virtual void Update() override;
 	virtual unsigned int NumWindows() const override;
+	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetActiveRenderer() const override;
 
 
 	//=================================================================================
 	// Core::C_Layer
 	//=================================================================================
 	virtual void OnEvent(Core::I_Event& event) override;
-
 protected:
 	void Init();
 	HINSTANCE m_hInstance;
 
 private:
 	std::vector<std::shared_ptr<Core::I_Window>> m_Windows;
+	std::shared_ptr<Core::I_Window> m_UpdatingWindow;
 };
 
-API_EXPORT Core::I_WindowManager* ConstructD3D12Manager(Core::C_Application::EventCallbackFn eventCallback, HINSTANCE hInstance);
+API_EXPORT C_D3D12WindowManager* ConstructD3D12Manager(Core::C_Application::EventCallbackFn eventCallback, HINSTANCE hInstance);
 }
