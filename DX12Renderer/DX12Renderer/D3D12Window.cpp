@@ -3,6 +3,7 @@
 #include <DX12Renderer/D3D12Window.h>
 
 #include <DX12Renderer/D3D12WindowInfo.h>
+#include <DX12Renderer/D3D12Renderer.h>
 
 #include <winuser.h>
 
@@ -92,6 +93,8 @@ void C_D3D12Window::Init(const Core::S_WindowInfo& wndInfo)
 
 	ShowWindow(m_Window, TRUE);
 
+
+	m_renderer = std::make_unique<C_D3D12Renderer>();
 }
 
 //=================================================================================

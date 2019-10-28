@@ -32,5 +32,6 @@ protected:
 	bool					m_WantClose;
 private:
 	static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	std::unique_ptr<Renderer::I_Renderer> m_renderer;
 };
 }
