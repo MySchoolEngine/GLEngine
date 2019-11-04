@@ -2,6 +2,9 @@
 
 #include <Renderer/ICameraComponent.h>
 
+#include <GLRenderer/GUI/Slider.h>
+
+#include <Core/CoreMacros.h>
 
 namespace GLEngine {
 
@@ -84,9 +87,9 @@ private:
 	float _farZ;
 	float _aspect;
 
-	float _zoom;
-	float _angleXDeg;
-	float _angleYDeg;
+	GLE_DEBUG_MEMBER(GUI::C_Slider<float>, float, _zoom);
+	GLE_DEBUG_MEMBER(GUI::C_Slider<float>, float, _angleXDeg);
+	GLE_DEBUG_MEMBER(GUI::C_Slider<float>, float, _angleYDeg);
 
 	glm::mat4 _viewMatrix;
 	glm::mat4 _projectionMatrix;
