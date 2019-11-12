@@ -31,3 +31,5 @@
 // debug utils
 #include <GLRenderer/RenderDoc/RenderDocTools.h>
 #include <GLRenderer/Debug.h>
+
+#include <Core/GUID.h>
