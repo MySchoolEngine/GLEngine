@@ -8,6 +8,8 @@
 #include <GLRenderer/GUI/PlotLine.h>
 #include <GLRenderer/GUI/CheckBoxValue.h>
 #include <GLRenderer/GUI/Slider.h>
+#include <GLRenderer/GUI/GUIWindow.h>
+#include <GLRenderer/GUI/Text.h>
 
 #include <Entity/World.h>
 
@@ -66,19 +68,29 @@ private:
 
 	std::shared_ptr<Renderer::I_CameraComponent> GetCameraComponent() const;
 
-	Entity::C_World												m_World;
-	std::weak_ptr<Entity::I_Entity>								m_Player;
+	enum class E_GUITexts {
+		AvgFrametime,
+		AvgFps,
+		MinMaxFrametime,
+		Last,
+	};
+
+	Entity::C_World																					m_World;
+	std::weak_ptr<Entity::I_Entity>													m_Player;
 	std::shared_ptr<Buffers::UBO::C_FrameConstantsBuffer>		m_FrameConstUBO;
-	Textures::C_Texture											m_texture;
-	Core::C_LayerStack											m_LayerStack;
-	Temporar::C_CameraManager									m_CamManager;
-	ImGui::C_ImGuiLayer*										m_ImGUI;
-	Utils::HighResolutionTimer									m_FrameTimer;
-	GUI::C_PlotLine<500>										m_Samples;
-	GUI::C_Slider<float>										m_GammaSlider;
-	GUI::C_Slider<float>										m_ExposureSlider;
-	GUI::C_CheckBoxValue										m_VSync;
-	bool														m_Spawning;
+	Textures::C_Texture																			m_texture;
+	Core::C_LayerStack																			m_LayerStack;
+	Temporar::C_CameraManager																m_CamManager;
+	ImGui::C_ImGuiLayer*																		m_ImGUI;
+	Utils::HighResolutionTimer															m_FrameTimer;
+	GUI::C_PlotLine<500>																		m_Samples;
+	GUI::C_Slider<float>																		m_GammaSlider;
+	GUI::C_Slider<float>																		m_ExposureSlider;
+	GUI::C_CheckBoxValue																		m_VSync;
+	std::array<GUI::C_FormatedText, static_cast<int>(E_GUITexts::Last)>				m_GUITexts;
+	GUID																										m_FrameStatsGUID;
+	GUID																										m_HDRSettingsGUID;
+	bool																										m_Spawning;
 	char m_SpawningName[255];
 	char m_SpawningFilename[255];
 

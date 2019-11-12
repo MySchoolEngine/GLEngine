@@ -68,6 +68,11 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	, m_SpawningName("")
 	, m_SpawningFilename("")
 	, m_HDRFBO("HDR")
+	, m_GUITexts({{
+		("Avg frame time {:.2f}"),
+		("Avg fps {:.2f}"),
+		("Min/max frametime {:.2f}/{:.2f}")
+		}})
 {
 	glfwMakeContextCurrent(m_Window);
 
@@ -91,19 +96,13 @@ void C_ExplerimentWindow::Update()
 	m_ImGUI->OnUpdate();
 	//MouseSelect();
 
-
-	bool my_tool_active = true;
-
-	::ImGui::Begin("Frame stats", &my_tool_active);
-		const auto avgMsPerFrame = m_Samples.Avg();
-		::ImGui::Text("Avg frame time %.2f", avgMsPerFrame);
-		::ImGui::Text("Avg fps %.2f", 1000.0 / avgMsPerFrame);
-		::ImGui::Text("Min/max frametime %.2f/%.2f", 
+	const auto avgMsPerFrame = m_Samples.Avg();
+	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgFrametime)].UpdateText(m_Samples.Avg());
+	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgFps)].UpdateText(1000.f/ avgMsPerFrame);
+	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::MinMaxFrametime)]
+		.UpdateText(
 			*std::min_element(m_Samples.cbegin(), m_Samples.cend()), 
 			*std::max_element(m_Samples.cbegin(), m_Samples.cend()));
-		m_Samples.Draw();
-		m_VSync.Draw();
-	::ImGui::End();
 	
 	glfwSwapInterval(m_VSync?1:0);
 
@@ -134,7 +133,7 @@ void C_ExplerimentWindow::Update()
 	auto entitiesInView = m_World.GetEntities(cameraComponent->GetFrustum());
 
 
-	my_tool_active = true;
+	bool my_tool_active = true;
 	::ImGui::Begin("Entities", &my_tool_active);
 		if (::ImGui::Button("Spawn new terrain")) {
 			m_Spawning = true;
@@ -148,12 +147,6 @@ void C_ExplerimentWindow::Update()
 				entity->OnEvent(Core::C_UserEvent("selected"));
 			}
 		}
-	::ImGui::End();
-
-	my_tool_active = true;
-	::ImGui::Begin("HDR settings", &my_tool_active);
-		m_GammaSlider.Draw();
-		m_ExposureSlider.Draw();
 	::ImGui::End();
 
 
@@ -201,8 +194,6 @@ void C_ExplerimentWindow::Update()
 
 		::ImGui::End();
 	}
-
-	std::static_pointer_cast<Cameras::C_OrbitalCamera>(cameraComponent)->Update();
 
 
 	// ----- Frame init -------
@@ -539,6 +530,28 @@ void C_ExplerimentWindow::SetupWorld()
 	m_texture.SetDimensions({ 2,2 });
 	m_texture.GenerateMipMaps();
 	m_texture.EndGroupOp();
+
+
+
+
+	auto& guiMGR = m_ImGUI->GetGUIMgr();
+
+	m_FrameStatsGUID = guiMGR.CreateGUIWindow("Frame stats");
+	auto* frameStats = guiMGR.GetWindow(m_FrameStatsGUID);
+
+	frameStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgFrametime)]);
+	frameStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgFps)]);
+	frameStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::MinMaxFrametime)]);
+	frameStats->AddComponent(m_Samples);
+	frameStats->AddComponent(m_VSync);
+	frameStats->SetVisible(true);
+
+	m_HDRSettingsGUID = guiMGR.CreateGUIWindow("HDR Settings");
+	auto* hdrSettings = guiMGR.GetWindow(m_HDRSettingsGUID);
+
+	hdrSettings->AddComponent(m_GammaSlider);
+	hdrSettings->AddComponent(m_ExposureSlider);
+	hdrSettings->SetVisible(true);
 }
 
 //=================================================================================
