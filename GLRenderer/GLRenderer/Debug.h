@@ -21,10 +21,13 @@
 #include <GLRenderer/VAO/VAO.h>
 
 namespace GLEngine {
-namespace Physics {
-namespace Primitives {
-class C_Frustum;
+namespace Renderer::Animation {
+struct S_Joint;
+class C_Skeleton;
 }
+
+namespace Physics:: Primitives {
+class C_Frustum;
 }
 
 namespace GLRenderer {
