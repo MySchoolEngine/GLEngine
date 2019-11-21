@@ -15,14 +15,12 @@
 
 #include <Utils/HighResolutionTimer.h>
 
-namespace GLEngine {
-namespace Core {
+namespace GLEngine::Core {
 class C_AppEvent;
 class C_WindowResizedEvent;
 }
-namespace Renderer {
+namespace GLEngine::Renderer {
 class I_CameraComponent;
-}
 }
 
 namespace GLEngine::GLRenderer {
