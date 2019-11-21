@@ -32,6 +32,7 @@
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
 
 #include <GLRenderer/Components/StaticMesh.h>
+#include <GLRenderer/Components/SkeletalMesh.h>
 #include <GLRenderer/Components/SkyBox.h>
 #include <GLRenderer/PersistentDebug.h>
 #include <GLRenderer/OGLRenderer.h>
@@ -90,6 +91,8 @@ void C_ExplerimentWindow::Update()
 	m_ImGUI->FrameBegin();
 	m_ImGUI->OnUpdate();
 	//MouseSelect();
+	C_DebugDraw::Instance().DrawAxis(glm::vec4(0.f, 0.f, 0.f, 1.f), glm::vec4(0, 1.f, 0.0f, 1.f), glm::vec4(0.f, 0.f, 1.f, 1.f));
+	C_DebugDraw::Instance().DrawGrid(glm::vec4(0.f), 5);
 
 
 	bool my_tool_active = true;
@@ -141,7 +144,7 @@ void C_ExplerimentWindow::Update()
 			m_SpawningName[0] = '\0';
 			m_SpawningFilename[0] = '\0';
 		}
-		for (const auto entity : entitiesInView) {
+		for (const auto& entity : entitiesInView) {
 			bool selected = false;
 			::ImGui::Selectable(entity->GetName().c_str(), &selected);
 			if (selected) {
@@ -523,6 +526,14 @@ void C_ExplerimentWindow::SetupWorld()
 		Terrain->AddPatch(glm::ivec2(0, -1));
 		Terrain->AddPatch(glm::ivec2(-1, 0));
 		Terrain->AddPatch(glm::ivec2(-1, -1));
+	}
+
+	if (true)
+	{
+		auto skeleton = std::make_shared<Entity::C_BasicEntity>("skeleton");
+		skeleton->AddComponent(std::make_shared<Components::C_SkeletalMesh>());
+		skeleton->AddComponent(std::make_shared<GUI::C_GLEntityDebugComponent>(skeleton));
+		m_World.AddEntity(skeleton);
 	}
 
 
