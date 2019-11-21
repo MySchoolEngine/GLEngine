@@ -45,7 +45,10 @@ std::string C_BasicEntity::GetName() const
 //=================================================================================
 void C_BasicEntity::Update()
 {
-
+	for (auto& component : *m_Components)
+	{
+		component.second->Update();
+	}
 }
 
 //=================================================================================
