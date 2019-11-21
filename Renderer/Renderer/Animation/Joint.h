@@ -3,7 +3,7 @@
 
 namespace GLEngine::Renderer::Animation {
 
-struct S_Joint {
+struct API_EXPORT S_Joint {
 	S_Joint(std::size_t index, std::string name, glm::mat4 localBindTransform);
 	glm::mat4 GetAnimatedTransform() const;
 	void CalcInverseBindTransfomr(const glm::mat4& parentBindTransform);

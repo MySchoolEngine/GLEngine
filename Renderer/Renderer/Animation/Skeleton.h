@@ -7,7 +7,7 @@
 
 namespace GLEngine::Renderer::Animation{
 
-class C_Skeleton{
+class API_EXPORT C_Skeleton{
 public:
 	C_Skeleton() = default;
 
