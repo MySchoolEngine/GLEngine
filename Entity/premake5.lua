@@ -17,6 +17,7 @@ project "Entity"
 	{
 		"../%{IncludeDir.GLM}",
 		"../Core",
+		"../Utils",
 		"../Renderer",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.ImGui}",
