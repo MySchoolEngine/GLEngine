@@ -45,7 +45,7 @@ bool _glErrorCheck(const char* file, const int line)
 			// << glewGetErrorString(status)
 			<< std::dec
 			<< std::endl;
-#if _DEBUG
+#ifdef GL_ENGINE_DEBUG
 		__debugbreak();
 #endif
 		return true;
@@ -60,7 +60,8 @@ C_DebugDraw & C_DebugDraw::Instance()
 									// Instantiated on first use.
 	return instance;
 }
-#if _DEBUG
+
+#ifdef GL_ENGINE_DEBUG
 //=================================================================================
 void C_DebugDraw::SetupAABB()
 {
@@ -109,9 +110,7 @@ C_DebugDraw::C_DebugDraw()
 }
 
 //=================================================================================
-C_DebugDraw::~C_DebugDraw()
-{
-}
+C_DebugDraw::~C_DebugDraw() = default;
 
 //=================================================================================
 void C_DebugDraw::Clear()
