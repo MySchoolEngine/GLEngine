@@ -6,10 +6,15 @@ project "Renderer"
 	staticruntime "off"
 	
 	SetupProject("Renderer")
+	
+	PrecompiledHeaders("Renderer")
+	
+	Link("Utils")
 
 	includedirs
 	{
 		"../Core",
+		"../Utils",
 		"../GLRenderer",
 		"../Entity",
 		"../Physics",
