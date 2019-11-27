@@ -12,6 +12,8 @@
 
 #include <Core/Application.h>
 
+#include <pugixml.hpp>
+
 namespace GLEngine {
 namespace GLRenderer {
 namespace Components {
@@ -50,6 +52,12 @@ void C_StaticMesh::PerformDraw() const
 			std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_Mesh)
 		)
 	);
+}
+
+//=================================================================================
+std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_node& node)
+{
+	return std::make_shared<C_StaticMesh>(node.attribute("filePath").value());
 }
 
 }}}
