@@ -439,15 +439,15 @@ void C_ExplerimentWindow::Init(const Core::S_WindowInfo& wndInfo)
 //=================================================================================
 void C_ExplerimentWindow::SetupWorld()
 {
+	m_World.LoadLevel("Levels/main.xml", std::make_unique<Components::C_ComponentBuilderFactory>());
 	if (false) {
 		auto plane = std::make_shared<Entity::C_BasicEntity>("plane");
 		m_World.AddEntity(plane);
 		plane->AddComponent(std::make_shared<Components::C_StaticMesh>("scene.obj"));
 	}
 	{
-		auto player = std::make_shared<Entity::C_BasicEntity>("player");
+		auto player = std::dynamic_pointer_cast<Entity::C_BasicEntity>( m_World.GetEntity("Player"));
 		m_Player = player;
-		m_World.AddEntity(player);
 		float zoom = 5.0f;
 		auto playerCamera = std::make_shared<Cameras::C_OrbitalCamera>();
 		playerCamera->setupCameraProjection(0.1f, 2 * zoom*100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
@@ -477,26 +477,6 @@ void C_ExplerimentWindow::SetupWorld()
 		billboardMesh.texcoords.emplace_back(1, 1);
 
 		m_ScreenQuad = std::make_shared<Components::C_StaticMesh>(billboardMesh);
-	}
-	if(true){
-		Components::C_SkyBoxCompBuilder skyCB;
-
-		pugi::xml_document doc;
-
-		const std::string name("SkyBoxes/mp_crimelem.xml");
-
-		pugi::xml_parse_result result;
-		result = doc.load_file(name.c_str());
-		if (!result.status == pugi::status_ok) {
-			CORE_LOG(E_Level::Error, E_Context::Render, "Can't open config file for skybox name: {}", name);
-		}
-		else {
-			auto skyboxComp = skyCB.Build(doc.child("SkyBox"));
-
-			auto skybox = std::make_shared<Entity::C_BasicEntity>("SkyBox");
-			m_World.AddEntity(skybox);
-			skybox->AddComponent(skyboxComp);
-		}
 	}
 	if(false){
 		Textures::TextureLoader tl;

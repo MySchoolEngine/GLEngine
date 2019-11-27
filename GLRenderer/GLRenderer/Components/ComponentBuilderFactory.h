@@ -1,25 +1,13 @@
 #pragma once
 
-namespace GLEngine::Entity {
-class I_Component;
-}
-
-namespace pugi {
-class xml_node;
-}
+#include <Entity/IComponent.h>
 
 namespace GLEngine::GLRenderer::Components {
 
-class I_ComponenetBuilder
+class C_ComponentBuilderFactory : public Entity::I_ComponentBuilderFactory
 {
 public:
-	virtual std::shared_ptr<Entity::I_Component> Build(const pugi::xml_node& node) = 0;
-};
-
-class C_ComponentBuilderFactory
-{
-public:
-	static I_ComponenetBuilder* GetFactory(const std::string& name);
+	virtual std::unique_ptr<Entity::I_ComponenetBuilder> GetFactory(const std::string& name) override;
 };
 
 }

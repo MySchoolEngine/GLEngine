@@ -18,6 +18,7 @@ struct S_RayIntersection;
 namespace Entity {
 
 class I_Entity;
+class I_ComponentBuilderFactory;
 
 class ENTITY_API_EXPORT C_World {
 public:
@@ -29,6 +30,8 @@ public:
 	void AddEntity(std::shared_ptr<I_Entity> entity);
 	void OnUpdate();
 	Physics::Primitives::S_RayIntersection Select(Physics::Primitives::S_Ray& ray);
+
+	bool LoadLevel(const std::string& name, std::unique_ptr<I_ComponentBuilderFactory> cbf);
 private:
 	std::vector<std::shared_ptr<I_Entity>>* m_Entities;
 };

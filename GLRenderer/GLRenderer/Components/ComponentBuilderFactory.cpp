@@ -2,15 +2,18 @@
 
 #include <GLRenderer/Components/ComponentBuilderFactory.h>
 
+#include <GLRenderer/Components/SkyBox.h>
+
 namespace GLEngine::GLRenderer::Components {
 
 //=================================================================================
-I_ComponenetBuilder* C_ComponentBuilderFactory::GetFactory(const std::string& name)
+std::unique_ptr<Entity::I_ComponenetBuilder> C_ComponentBuilderFactory::GetFactory(const std::string& name)
 {
 	if (name == "SkyBox")
 	{
-		return nullptr;
+		return std::make_unique<C_SkyBoxCompBuilder>();
 	}
+	return nullptr;
 }
 
 }

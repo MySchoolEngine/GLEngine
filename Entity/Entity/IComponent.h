@@ -2,6 +2,10 @@
 
 #include <Core/EventSystem/EventReciever.h>
 
+namespace pugi {
+class xml_node;
+}
+
 namespace GLEngine {
 namespace Entity {
 
@@ -22,7 +26,22 @@ public:
 	virtual void DebugDrawGUI() {};
 };
 
+//=================================================================================
+class I_ComponenetBuilder
+{
+public:
+	virtual std::shared_ptr<I_Component> Build(const pugi::xml_node& node) = 0;
+};
+
+//=================================================================================
+class I_ComponentBuilderFactory
+{
+public:
+	virtual std::unique_ptr<Entity::I_ComponenetBuilder> GetFactory(const std::string& name) = 0;
+};
+
 }
+//=================================================================================
 // I want this accessible all around the engine
 using T_ComponentPtr = std::shared_ptr<Entity::I_Component>;
 

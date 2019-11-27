@@ -3,6 +3,10 @@
 #include <Entity/World.h>
 
 #include <Entity/IEntity.h>
+#include <Entity/BasicEntity.h>
+#include <Entity/IComponent.h>
+
+#include <GLRenderer/Components/ComponentBuilderFactory.h>
 
 #include <Physics/Primitives/Ray.h>
 #include <Physics/Primitives/Plane.h>
@@ -10,6 +14,8 @@
 #include <Physics/Primitives/Intersection.h>
 
 #include <imgui.h>
+
+#include <pugixml.hpp>
 
 
 namespace GLEngine {
@@ -88,6 +94,52 @@ Physics::Primitives::S_RayIntersection C_World::Select(Physics::Primitives::S_Ra
 		intersection.ray = ray;
 		return intersection;
 	}
+}
+
+//=================================================================================
+bool C_World::LoadLevel(const std::string& name, std::unique_ptr<I_ComponentBuilderFactory> cbf)
+{
+	CORE_LOG(E_Level::Info, E_Context::Core, "Loading level: {}", name);
+	delete m_Entities;
+	m_Entities = new std::remove_pointer<decltype(m_Entities)>::type;
+	pugi::xml_document doc;
+
+	pugi::xml_parse_result result;
+	result = doc.load_file(name.c_str());
+	if (!result.status == pugi::status_ok) {
+		CORE_LOG(E_Level::Error, E_Context::Core, "Can't open config file for level name: {}", name);
+		return false;
+	}
+
+	auto worldNode = doc.child("World");
+	if (!worldNode)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Core, "Invalid level name: {}", name);
+		return false;
+	}
+
+	if (auto entitiesNode = worldNode.child("Entities"))
+	{
+		for (const auto& entityNode : entitiesNode.children("Entity"))
+		{
+			auto entity = std::make_shared<Entity::C_BasicEntity>(entityNode.attribute("name").value());
+			this->AddEntity(entity);
+
+			if (auto componentsNode = entityNode.child("Components"))
+			{
+				for (const auto& componentNode : componentsNode.children())
+				{
+					auto builder = cbf->GetFactory(componentNode.name());
+					if (builder)
+					{
+						entity->AddComponent(builder->Build(componentNode));
+					}
+				}
+			}
+		}
+	}
+
+	return true;
 }
 
 }

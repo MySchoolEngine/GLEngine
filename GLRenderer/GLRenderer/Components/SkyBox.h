@@ -32,7 +32,7 @@ private:
 };
 
 //=============================================================
-class C_SkyBoxCompBuilder : public I_ComponenetBuilder
+class C_SkyBoxCompBuilder : public Entity::I_ComponenetBuilder
 {
 public:
 	virtual std::shared_ptr<Entity::I_Component> Build(const pugi::xml_node& node) override;
