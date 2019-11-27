@@ -76,7 +76,7 @@ void C_GLFWWindowManager::Init()
 }
 
 //=================================================================================
-API_EXPORT Core::I_WindowManager* ConstructGLFWManager(Core::C_Application::EventCallbackFn eventCallback)
+GL_RENDERER_API_EXPORT Core::I_WindowManager* ConstructGLFWManager(Core::C_Application::EventCallbackFn eventCallback)
 {
 	return new C_GLFWWindowManager(eventCallback);
 }

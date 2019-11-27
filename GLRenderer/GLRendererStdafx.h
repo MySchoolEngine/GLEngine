@@ -35,3 +35,6 @@
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 
 #include <Core/GUID.h>
+#include <Core/CoreMacros.h>
+
+#include <GLRenderer/GLRendererApi.h>
