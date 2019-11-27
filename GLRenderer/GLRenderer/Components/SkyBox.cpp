@@ -23,6 +23,8 @@
 
 #include <Core/Application.h>
 
+#include <pugixml.hpp>
+
 namespace GLEngine {
 namespace GLRenderer {
 namespace Components {
@@ -93,14 +95,14 @@ C_SkyBox::C_SkyBox()
 }
 
 //=================================================================================
-void C_SkyBox::AddTexture(E_Side side, std::string& filename)
+void C_SkyBox::AddTexture(E_Side side, const std::string& filename)
 {
 	Textures::TextureLoader tl;
 	Mesh::Texture t;
 	bool retval = tl.loadTexture(filename.c_str(), t);
 
 	if (!retval)
-		CORE_LOG(E_Level::Error, E_Context::Render, "TExture cannot be loaded");
+		CORE_LOG(E_Level::Error, E_Context::Render, "Texture cannot be loaded");
 
 
 	const int mipMapLevel = 0;
@@ -135,6 +137,47 @@ void C_SkyBox::PerformDraw() const
 			)
 		)
 	);
+}
+
+//=================================================================================
+// C_SkyBoxCompBuilder
+//=================================================================================
+std::shared_ptr<GLEngine::Entity::I_Component> C_SkyBoxCompBuilder::Build(const pugi::xml_node& node)
+{
+	auto skyboxComp = std::make_shared<C_SkyBox>();
+
+		if (auto side = node.child("Top"))
+		{
+			auto& attrib = side.attribute("image");
+			skyboxComp->AddTexture(C_SkyBox::E_Side::Top, attrib.value());
+		}
+		if (auto side = node.child("Bottom"))
+		{
+			auto& attrib = side.attribute("image");
+			skyboxComp->AddTexture(C_SkyBox::E_Side::Bottom, attrib.value());
+		}
+		if (auto side = node.child("Left"))
+		{
+			auto& attrib = side.attribute("image");
+			skyboxComp->AddTexture(C_SkyBox::E_Side::Left, attrib.value());
+		}
+		if (auto side = node.child("Right"))
+		{
+			auto& attrib = side.attribute("image");
+			skyboxComp->AddTexture(C_SkyBox::E_Side::Right, attrib.value());
+		}
+		if (auto side = node.child("Back"))
+		{
+			auto& attrib = side.attribute("image");
+			skyboxComp->AddTexture(C_SkyBox::E_Side::Back, attrib.value());
+		}
+		if (auto side = node.child("Forward"))
+		{
+			auto& attrib = side.attribute("image");
+			skyboxComp->AddTexture(C_SkyBox::E_Side::Forward, attrib.value());
+		}
+
+	return skyboxComp;
 }
 
 }}}

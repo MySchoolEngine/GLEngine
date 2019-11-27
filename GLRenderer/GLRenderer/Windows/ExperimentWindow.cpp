@@ -51,6 +51,8 @@
 
 #include <imgui.h>
 
+#include <pugixml.hpp>
+
 namespace GLEngine {
 namespace GLRenderer {
 namespace Windows {
@@ -477,18 +479,24 @@ void C_ExplerimentWindow::SetupWorld()
 		m_ScreenQuad = std::make_shared<Components::C_StaticMesh>(billboardMesh);
 	}
 	if(true){
-		using Components::C_SkyBox;
-		auto skyboxComp = std::make_shared<C_SkyBox>();
-		skyboxComp->AddTexture(C_SkyBox::E_Side::Top, std::string("SkyBoxes/mp_crimelem/criminal-element_up.tga"));
-		skyboxComp->AddTexture(C_SkyBox::E_Side::Bottom, std::string("SkyBoxes/mp_crimelem/criminal-element_dn.tga"));
-		skyboxComp->AddTexture(C_SkyBox::E_Side::Right, std::string("SkyBoxes/mp_crimelem/criminal-element_rt.tga"));
-		skyboxComp->AddTexture(C_SkyBox::E_Side::Left, std::string("SkyBoxes/mp_crimelem/criminal-element_lf.tga"));
-		skyboxComp->AddTexture(C_SkyBox::E_Side::Forward, std::string("SkyBoxes/mp_crimelem/criminal-element_ft.tga"));
-		skyboxComp->AddTexture(C_SkyBox::E_Side::Back, std::string("SkyBoxes/mp_crimelem/criminal-element_bk.tga"));
+		Components::C_SkyBoxCompBuilder skyCB;
 
-		auto skybox = std::make_shared<Entity::C_BasicEntity>("SkyBox");
-		m_World.AddEntity(skybox);
-		skybox->AddComponent(skyboxComp);
+		pugi::xml_document doc;
+
+		const std::string name("SkyBoxes/mp_crimelem.xml");
+
+		pugi::xml_parse_result result;
+		result = doc.load_file(name.c_str());
+		if (!result.status == pugi::status_ok) {
+			CORE_LOG(E_Level::Error, E_Context::Render, "Can't open config file for skybox name: {}", name);
+		}
+		else {
+			auto skyboxComp = skyCB.Build(doc.child("SkyBox"));
+
+			auto skybox = std::make_shared<Entity::C_BasicEntity>("SkyBox");
+			m_World.AddEntity(skybox);
+			skybox->AddComponent(skyboxComp);
+		}
 	}
 	if(false){
 		Textures::TextureLoader tl;
