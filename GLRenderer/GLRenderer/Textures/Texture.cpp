@@ -61,21 +61,21 @@ void C_Texture::unbind() const
 }
 
 //=================================================================================
-void C_Texture::SetWrap(GLint wrapS, GLint wrapT)
+void C_Texture::SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT)
 {
 	bind();
-	SetTexParameter(GL_TEXTURE_WRAP_S, wrapS);
-	SetTexParameter(GL_TEXTURE_WRAP_T, wrapT);
+	SetTexParameter(GL_TEXTURE_WRAP_S, WrapFunctionToEnum(wrapS));
+	SetTexParameter(GL_TEXTURE_WRAP_T, WrapFunctionToEnum(wrapT));
 	unbind();
 }
 
 //=================================================================================
-void C_Texture::SetWrap(GLint wrapS, GLint wrapT, GLint wrapR)
+void C_Texture::SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT, E_WrapFunction wrapR)
 {
 	bind();
-	SetTexParameter(GL_TEXTURE_WRAP_S, wrapS);
-	SetTexParameter(GL_TEXTURE_WRAP_T, wrapT);
-	SetTexParameter(GL_TEXTURE_WRAP_R, wrapR);
+	SetTexParameter(GL_TEXTURE_WRAP_S, WrapFunctionToEnum(wrapS));
+	SetTexParameter(GL_TEXTURE_WRAP_T, WrapFunctionToEnum(wrapT));
+	SetTexParameter(GL_TEXTURE_WRAP_R, WrapFunctionToEnum(wrapR));
 	unbind();
 }
 

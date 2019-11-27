@@ -175,7 +175,7 @@ void C_ExplerimentWindow::Update()
 					T_TypeToGL<typename std::remove_pointer<decltype(t.data)::element_type>::type>::value,
 					t.data.get());
 				ct.SetDimensions({ 1024, 1024 });
-				ct.SetWrap(GL_REPEAT, GL_REPEAT);
+				ct.SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
 				ct.SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 				ct.GenerateMipMaps();
 
@@ -500,7 +500,7 @@ void C_ExplerimentWindow::SetupWorld()
 
 		m_texture.StartGroupOp();
 		m_texture.SetTexData2D(0, t);
-		m_texture.SetWrap(GL_REPEAT, GL_REPEAT);
+		m_texture.SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
 		m_texture.SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 		m_texture.GenerateMipMaps();
 
@@ -519,7 +519,7 @@ void C_ExplerimentWindow::SetupWorld()
 
 	m_texture.StartGroupOp();
 	m_texture.SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-	m_texture.SetWrap(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+	m_texture.SetWrap(E_WrapFunction::ClampToEdge, E_WrapFunction::ClampToEdge);
 	GLubyte data[] = {
 		0, 255, 0, 255,
 		255, 0, 0, 255,

@@ -32,7 +32,7 @@ C_SkyBox::C_SkyBox()
 	: m_Textures("Skybox", GL_TEXTURE_CUBE_MAP)
 {
 	m_Textures.SetFilter(GL_LINEAR, GL_LINEAR);
-	m_Textures.SetWrap(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+	m_Textures.SetWrap(E_WrapFunction::ClampToEdge, E_WrapFunction::ClampToEdge, E_WrapFunction::ClampToEdge);
 
 	std::vector<glm::vec3> vertices;
 	// left

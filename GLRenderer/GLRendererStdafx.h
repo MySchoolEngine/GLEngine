@@ -32,4 +32,6 @@
 #include <GLRenderer/RenderDoc/RenderDocTools.h>
 #include <GLRenderer/Debug.h>
 
+#include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
+
 #include <Core/GUID.h>
