@@ -40,6 +40,14 @@ std::shared_ptr<I_Entity> C_World::GetEntity(GUID id) const
 }
 
 //=================================================================================
+std::shared_ptr<I_Entity> C_World::GetEntity(const std::string& name) const
+{
+	return *std::find_if(m_Entities->begin(), m_Entities->end(), [name](const std::shared_ptr<I_Entity>& entity) {
+		return entity->GetName() == name;
+		});
+}
+
+//=================================================================================
 std::vector<std::shared_ptr<I_Entity>> C_World::GetEntities(Physics::Primitives::C_Frustum frust)
 {
 	return *m_Entities;
