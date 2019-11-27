@@ -78,7 +78,6 @@ private:
 	Entity::C_World																					m_World;
 	std::weak_ptr<Entity::I_Entity>													m_Player;
 	std::shared_ptr<Buffers::UBO::C_FrameConstantsBuffer>		m_FrameConstUBO;
-	Textures::C_Texture																			m_texture;
 	Core::C_LayerStack																			m_LayerStack;
 	Temporar::C_CameraManager																m_CamManager;
 	ImGui::C_ImGuiLayer*																		m_ImGUI;

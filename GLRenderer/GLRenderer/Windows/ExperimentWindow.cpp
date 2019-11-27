@@ -60,7 +60,6 @@ namespace Windows {
 //=================================================================================
 C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	: C_GLFWoGLWindow(wndInfo)
-	, m_texture("dummyTexture")
 	, m_LayerStack(std::string("ExperimentalWindowLayerStack"))
 	, m_Samples("Frame Times")
 	, m_GammaSlider(2.2f, 1.f,5.f, "Gamma")
@@ -440,11 +439,6 @@ void C_ExplerimentWindow::Init(const Core::S_WindowInfo& wndInfo)
 void C_ExplerimentWindow::SetupWorld()
 {
 	m_World.LoadLevel("Levels/main.xml", std::make_unique<Components::C_ComponentBuilderFactory>());
-	if (false) {
-		auto plane = std::make_shared<Entity::C_BasicEntity>("plane");
-		m_World.AddEntity(plane);
-		plane->AddComponent(std::make_shared<Components::C_StaticMesh>("scene.obj"));
-	}
 	{
 		auto player = std::dynamic_pointer_cast<Entity::C_BasicEntity>( m_World.GetEntity("Player"));
 		m_Player = player;
@@ -478,22 +472,6 @@ void C_ExplerimentWindow::SetupWorld()
 
 		m_ScreenQuad = std::make_shared<Components::C_StaticMesh>(billboardMesh);
 	}
-	if(false){
-		Textures::TextureLoader tl;
-		Mesh::Texture t;
-		bool retval = tl.loadTexture("Models/IMG_20151115_104149.jpg", t);
-
-		if (!retval)
-			CORE_LOG(E_Level::Error, E_Context::Render, "TExture cannot be loaded");
-
-		m_texture.StartGroupOp();
-		m_texture.SetTexData2D(0, t);
-		m_texture.SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
-		m_texture.SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-		m_texture.GenerateMipMaps();
-
-		m_texture.EndGroupOp();
-	}
 	if(false)
 	{
 		auto Terrain = std::make_shared<C_TerrainEntity>();
@@ -503,24 +481,6 @@ void C_ExplerimentWindow::SetupWorld()
 		Terrain->AddPatch(glm::ivec2(-1, 0));
 		Terrain->AddPatch(glm::ivec2(-1, -1));
 	}
-
-
-	m_texture.StartGroupOp();
-	m_texture.SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-	m_texture.SetWrap(E_WrapFunction::ClampToEdge, E_WrapFunction::ClampToEdge);
-	GLubyte data[] = {
-		0, 255, 0, 255,
-		255, 0, 0, 255,
-		255, 0, 0, 255,
-		0, 255, 0, 255,
-	};
-	glTexImage2D(m_texture.GetTarget(), 0, GL_RGBA, 2, 2, 0, GL_RGBA, T_TypeToGL<GLubyte>::value, data);
-	m_texture.SetDimensions({ 2,2 });
-	m_texture.GenerateMipMaps();
-	m_texture.EndGroupOp();
-
-
-
 
 	auto& guiMGR = m_ImGUI->GetGUIMgr();
 
