@@ -7,7 +7,7 @@
 namespace GLEngine {
 namespace Core {
 
-class API_EXPORT I_Input {
+class I_Input {
 public:
 	virtual ~I_Input() = default;
 
