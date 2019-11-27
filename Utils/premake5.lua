@@ -20,7 +20,7 @@ project "Utils"
 		defines
 		{
 			"CORE_PLATFORM=CORE_PLATFORM_WIN",
-			"BUILD_DLL",
+			"BUILD_UTILS_DLL",
 		}
 
 		postbuildcommands
