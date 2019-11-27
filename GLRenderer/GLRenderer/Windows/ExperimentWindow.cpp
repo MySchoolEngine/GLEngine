@@ -430,12 +430,6 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 }
 
 //=================================================================================
-void C_ExplerimentWindow::Init(const Core::S_WindowInfo& wndInfo)
-{
-	GLFW::C_GLFWoGLWindow::Init(wndInfo);
-}
-
-//=================================================================================
 void C_ExplerimentWindow::SetupWorld()
 {
 	m_World.LoadLevel("Levels/main.xml", std::make_unique<Components::C_ComponentBuilderFactory>());
@@ -472,15 +466,6 @@ void C_ExplerimentWindow::SetupWorld()
 
 		m_ScreenQuad = std::make_shared<Components::C_StaticMesh>(billboardMesh);
 	}
-	if(false)
-	{
-		auto Terrain = std::make_shared<C_TerrainEntity>();
-		m_World.AddEntity(Terrain);
-		Terrain->AddPatch(glm::ivec2(0, 0));
-		Terrain->AddPatch(glm::ivec2(0, -1));
-		Terrain->AddPatch(glm::ivec2(-1, 0));
-		Terrain->AddPatch(glm::ivec2(-1, -1));
-	}
 
 	auto& guiMGR = m_ImGUI->GetGUIMgr();
 
@@ -510,7 +495,7 @@ void C_ExplerimentWindow::MouseSelect()
 	}
 
 	auto screenCoord = GetInput().GetMousePosition();
-	auto camera = GetCameraComponent();
+	auto camera = m_CamManager.GetActiveCamera();
 
 	float x = (2.0f * screenCoord.first) / GetWidth() - 1.0f;
 	float y = 1.0f - (2.0f * screenCoord.second) / GetHeight();
@@ -541,22 +526,6 @@ void C_ExplerimentWindow::MouseSelect()
 			//std::static_pointer_cast<Cameras::C_OrbitalCamera>(camera)->update();
 		}
 	}
-}
-
-//=================================================================================
-std::shared_ptr<Renderer::I_CameraComponent> C_ExplerimentWindow::GetCameraComponent() const
-{
-	auto playerPtr = m_Player.lock();
-	if (!playerPtr) {
-		CORE_LOG(E_Level::Error, E_Context::Render, "Player expiretd!");
-		return nullptr;
-	}
-
-	auto cameraComponent = playerPtr->GetComponent<Entity::E_ComponentType::Camera>();
-	if (!cameraComponent) {
-		return nullptr;
-	}
-	return cameraComponent;
 }
 
 }

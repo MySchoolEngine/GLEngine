@@ -53,7 +53,6 @@ public:
 
 	//=================================================================================
 	virtual void OnEvent(Core::I_Event& event) override;
-	virtual void Init(const Core::S_WindowInfo& wndInfo) override;
 
 protected:
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
@@ -65,8 +64,6 @@ private:
 	void MouseSelect();
 
 	void sampleTime(double new_sample);
-
-	std::shared_ptr<Renderer::I_CameraComponent> GetCameraComponent() const;
 
 	enum class E_GUITexts {
 		AvgFrametime,
