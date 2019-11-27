@@ -2,6 +2,7 @@
 
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
+#include <Entity/IComponent.h>
 
 #include <Physics/Primitives/Frustum.h>
 
