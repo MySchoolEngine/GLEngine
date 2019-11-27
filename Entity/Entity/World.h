@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/CoreMacros.h>
+#include <Entity/EntityApi.h>
 
 #include <Core/GUID.h>
 
@@ -19,7 +19,7 @@ namespace Entity {
 
 class I_Entity;
 
-class API_EXPORT C_World {
+class ENTITY_API_EXPORT C_World {
 public:
 	C_World();
 	~C_World();

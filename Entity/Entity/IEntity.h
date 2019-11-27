@@ -1,7 +1,6 @@
 #pragma once
 
-#include <memory>
-#include <string>
+#include <Entity/EntityApi.h>
 
 #include <Core/GUID.h>
 #include <Core/EventSystem/EventReciever.h>
@@ -16,7 +15,7 @@ enum class E_ComponentType {
 	DebugGUI,
 };
 
-class API_EXPORT I_Entity : public Core::I_EventReciever {
+class ENTITY_API_EXPORT I_Entity : public Core::I_EventReciever {
 public:
 	// naive GUID version
 	using EntityID = GUID;
