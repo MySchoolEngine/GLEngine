@@ -5,9 +5,11 @@
 #include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/FBO/Framebuffer.h>
 #include <GLRenderer/CameraManager.h>
+#include <GLRenderer/GUI/GUIWindow.h>
+#include <GLRenderer/GUI/ConsoleWindow.h>
 #include <GLRenderer/GUI/PlotLine.h>
-#include <GLRenderer/GUI/CheckBoxValue.h>
-#include <GLRenderer/GUI/Slider.h>
+#include <GLRenderer/GUI/Input/CheckBoxValue.h>
+#include <GLRenderer/GUI/Input/Slider.h>
 #include <GLRenderer/GUI/GUIWindow.h>
 #include <GLRenderer/GUI/Text.h>
 
@@ -47,7 +49,7 @@ class C_ExplerimentWindow : public GLFW::C_GLFWoGLWindow {
 	using T_Base = GLFW::C_GLFWoGLWindow;
 public:
 	C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo);
-	virtual ~C_ExplerimentWindow() = default;
+	virtual ~C_ExplerimentWindow();
 	//=================================================================================
 	virtual void Update() override;
 
@@ -80,11 +82,12 @@ private:
 	ImGui::C_ImGuiLayer*																		m_ImGUI;
 	Utils::HighResolutionTimer															m_FrameTimer;
 	GUI::C_PlotLine<500>																		m_Samples;
-	GUI::C_Slider<float>																		m_GammaSlider;
-	GUI::C_Slider<float>																		m_ExposureSlider;
-	GUI::C_CheckBoxValue																		m_VSync;
+	GUI::Input::C_Slider<float>															m_GammaSlider;
+	GUI::Input::C_Slider<float>															m_ExposureSlider;
+	GUI::Input::C_CheckBoxValue															m_VSync;
 	std::array<GUI::C_FormatedText, static_cast<int>(E_GUITexts::Last)>				m_GUITexts;
 	GUID																										m_FrameStatsGUID;
+	GUID																										m_ConsoleWindowGUID;
 	GUID																										m_HDRSettingsGUID;
 	bool																										m_Spawning;
 	char m_SpawningName[255];

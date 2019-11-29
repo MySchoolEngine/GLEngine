@@ -12,6 +12,7 @@ public:
 	~C_GUIManager();
 
 	GUID CreateGUIWindow(const std::string& name);
+	void AddCustomWindow(GUI::C_Window* window);
 
 	// modal windows coming
 

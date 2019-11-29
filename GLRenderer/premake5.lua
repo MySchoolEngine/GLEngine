@@ -11,11 +11,11 @@ project "GLRenderer"
 	pchheader "GLRendererStdafx.h"
 	pchsource "GLRendererStdafx.cpp"
 	
-	Links("Entity")
-	Links("Utils")
-	Links("Renderer")
-	Links("Core")
-	Links("Physics")
+	Link("Entity")
+	Link("Utils")
+	Link("Renderer")
+	Link("Core")
+	Link("Physics")
 
 	files
 	{

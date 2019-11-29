@@ -21,7 +21,6 @@ protected:
 	std::string m_FormatText;
 	std::string m_PrintString;
 };
-
 }
 
 #include <GLRenderer/GUI/Text.inl>

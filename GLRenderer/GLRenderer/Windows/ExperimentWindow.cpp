@@ -90,6 +90,9 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 }
 
 //=================================================================================
+C_ExplerimentWindow::~C_ExplerimentWindow() = default;
+
+//=================================================================================
 void C_ExplerimentWindow::Update()
 {
 	Shaders::C_ShaderManager::Instance().Update();
@@ -468,6 +471,12 @@ void C_ExplerimentWindow::SetupWorld()
 	}
 
 	auto& guiMGR = m_ImGUI->GetGUIMgr();
+
+	m_ConsoleWindowGUID = NextGUID();
+
+	auto consoleWindow = new GUI::C_ConsoleWindow(m_ConsoleWindowGUID);
+	guiMGR.AddCustomWindow(consoleWindow);
+	consoleWindow->SetVisible();
 
 	m_FrameStatsGUID = guiMGR.CreateGUIWindow("Frame stats");
 	auto* frameStats = guiMGR.GetWindow(m_FrameStatsGUID);

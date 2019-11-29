@@ -2,8 +2,8 @@
 
 #include <Entity/IEntity.h>
 
-#include <GLRenderer/GUI/CheckBoxValue.h>
-#include <GLRenderer/GUI/Slider.h>
+#include <GLRenderer/GUI/Input/CheckBoxValue.h>
+#include <GLRenderer/GUI/Input/Slider.h>
 
 #include <Utils/HighResolutionTimer.h>
 
@@ -37,12 +37,12 @@ public:
 	void WholeTerrain(std::function<void(T_TerrainPtr)> lambda);
 
 	struct S_TerrainSettings {
-		GUI::C_Slider<int> m_SqPerLine	{ 255, 4, 255, "Vertices" };
-		GUI::C_Slider<int> m_Freq		{ 24, 4, 40, "Noise frequency" };
-		GUI::C_Slider<int> m_Drops		{ 100, 1, 100, "# Drops" };
-		GUI::C_Slider<int> m_NumSteps   { 90, 30, 150, "Max lifetime" };
-		GUI::C_Slider<int>	m_PatchSize	{ 40, 4, 60, "Patch size"};
-		GUI::C_CheckBoxValue PerlinNoise{ true, "Use Perlin noise" };
+		GUI::Input::C_Slider<int> m_SqPerLine	{ 255, 4, 255, "Vertices" };
+		GUI::Input::C_Slider<int> m_Freq		{ 24, 4, 40, "Noise frequency" };
+		GUI::Input::C_Slider<int> m_Drops		{ 100, 1, 100, "# Drops" };
+		GUI::Input::C_Slider<int> m_NumSteps	{ 90, 30, 150, "Max lifetime" };
+		GUI::Input::C_Slider<int>	m_PatchSize	{ 40, 4, 60, "Patch size"};
+		GUI::Input::C_CheckBoxValue PerlinNoise	{ true, "Use Perlin noise" };
 		float m_Evaporation		= 0.02f;
 		float m_Gravitation		= 4.0f;
 		float m_InitWater		= 1.0f;
@@ -56,13 +56,13 @@ protected:
 
 	int m_inputCoords[2];
 	bool m_SimulationRunning;
-	GUI::C_Slider<int>  m_Iterations {1000, 1, 1000000, "Iterations"};
+	GUI::Input::C_Slider<int>  m_Iterations {1000, 1, 1000000, "Iterations"};
 	int  m_CurrentIteration;
 
 	S_TerrainSettings m_Settings;
 	bool Controls;
-	GUI::C_CheckBoxValue Visualise;
-	GUI::C_CheckBoxValue DebugDrawDroplets;
+	GUI::Input::C_CheckBoxValue Visualise;
+	GUI::Input::C_CheckBoxValue DebugDrawDroplets;
 	Utils::HighResolutionTimer m_timer;
 };
 

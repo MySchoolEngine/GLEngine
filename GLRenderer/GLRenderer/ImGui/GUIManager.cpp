@@ -63,4 +63,10 @@ void C_GUIManager::DestroyWindow(GUID guid)
 	m_Windwos.erase(guid);
 }
 
+//=================================================================================
+void C_GUIManager::AddCustomWindow(GUI::C_Window* window)
+{
+	m_Windwos[window->GetGuid()] = window;
+}
+
 }

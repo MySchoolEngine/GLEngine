@@ -1,11 +1,9 @@
 #include <GLRendererStdafx.h>
 
-#include <GLRenderer/GUI/Slider.h>
+#include <GLRenderer/GUI/Input/Slider.h>
 
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace GUI {
+namespace GLEngine::GLRenderer::GUI::Input {
 
 
 //=================================================================================
@@ -24,4 +22,4 @@ void C_Slider<float>::Draw() const
 	::ImGui::SliderFloat(m_Name.c_str(), &m_Value, m_Min, m_Max);
 }
 
-}}}
+}

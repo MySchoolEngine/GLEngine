@@ -18,11 +18,14 @@ public:
 	bool IsVisible() const;
 	GUID AddComponent(T_GUIPartRef component);
 	I_GUIPart* GetComponent(GUID guid) const;
+
+	GUID GetGuid() const { return m_GUID; }
 		
-private:
+protected:
 	mutable bool m_IsVisible;
 	std::string m_Name;
 	GUID m_GUID;
+private:
 	std::map<GUID, T_GUIPartRef> m_Components;
 };
 
