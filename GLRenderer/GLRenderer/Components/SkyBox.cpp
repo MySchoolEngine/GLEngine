@@ -25,9 +25,7 @@
 
 #include <pugixml.hpp>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Components {
+namespace GLEngine::GLRenderer::Components {
 
 //=================================================================================
 C_SkyBox::C_SkyBox()
@@ -38,52 +36,52 @@ C_SkyBox::C_SkyBox()
 
 	std::vector<glm::vec3> vertices;
 	// left
-	vertices.push_back(glm::vec3(100.0f,  100.0f,  100.0f));
-	vertices.push_back(glm::vec3(100.0f,  100.0f, -100.0f));
-	vertices.push_back(glm::vec3(100.0f, -100.0f, -100.0f));
-	vertices.push_back(glm::vec3(100.0f, -100.0f, -100.0f));
-	vertices.push_back(glm::vec3(100.0f, -100.0f,  100.0f));
-	vertices.push_back(glm::vec3(100.0f,  100.0f,  100.0f));
+	vertices.emplace_back(100.0f,  100.0f,  100.0f);
+	vertices.emplace_back(100.0f,  100.0f, -100.0f);
+	vertices.emplace_back(100.0f, -100.0f, -100.0f);
+	vertices.emplace_back(100.0f, -100.0f, -100.0f);
+	vertices.emplace_back(100.0f, -100.0f,  100.0f);
+	vertices.emplace_back(100.0f,  100.0f,  100.0f);
 
 	// right
-	vertices.push_back(glm::vec3(-100.0f, -100.0f,  100.0f));
-	vertices.push_back(glm::vec3(-100.0f,  100.0f, -100.0f));
-	vertices.push_back(glm::vec3(-100.0f,  100.0f,  100.0f));
-	vertices.push_back(glm::vec3(-100.0f, -100.0f,  100.0f));
-	vertices.push_back(glm::vec3(-100.0f, -100.0f, -100.0f));
-	vertices.push_back(glm::vec3(-100.0f,  100.0f, -100.0f));
+	vertices.emplace_back(-100.0f, -100.0f,  100.0f);
+	vertices.emplace_back(-100.0f,  100.0f, -100.0f);
+	vertices.emplace_back(-100.0f,  100.0f,  100.0f);
+	vertices.emplace_back(-100.0f, -100.0f,  100.0f);
+	vertices.emplace_back(-100.0f, -100.0f, -100.0f);
+	vertices.emplace_back(-100.0f,  100.0f, -100.0f);
 	
 	// top
-	vertices.push_back(glm::vec3(-100.0f, 100.0f, -100.0f));
-	vertices.push_back(glm::vec3( 100.0f, 100.0f, -100.0f));
-	vertices.push_back(glm::vec3( 100.0f, 100.0f,  100.0f));
-	vertices.push_back(glm::vec3( 100.0f, 100.0f,  100.0f));
-	vertices.push_back(glm::vec3(-100.0f, 100.0f,  100.0f));
-	vertices.push_back(glm::vec3(-100.0f, 100.0f, -100.0f));
+	vertices.emplace_back(-100.0f, 100.0f, -100.0f);
+	vertices.emplace_back( 100.0f, 100.0f, -100.0f);
+	vertices.emplace_back( 100.0f, 100.0f,  100.0f);
+	vertices.emplace_back( 100.0f, 100.0f,  100.0f);
+	vertices.emplace_back(-100.0f, 100.0f,  100.0f);
+	vertices.emplace_back(-100.0f, 100.0f, -100.0f);
 
 	// bottom
-	vertices.push_back(glm::vec3(-100.0f, -100.0f, -100.0f));
-	vertices.push_back(glm::vec3(-100.0f, -100.0f,  100.0f));
-	vertices.push_back(glm::vec3( 100.0f, -100.0f, -100.0f));
-	vertices.push_back(glm::vec3( 100.0f, -100.0f, -100.0f));
-	vertices.push_back(glm::vec3(-100.0f, -100.0f,  100.0f));
-	vertices.push_back(glm::vec3( 100.0f, -100.0f,  100.0f));
+	vertices.emplace_back(-100.0f, -100.0f, -100.0f);
+	vertices.emplace_back(-100.0f, -100.0f,  100.0f);
+	vertices.emplace_back( 100.0f, -100.0f, -100.0f);
+	vertices.emplace_back( 100.0f, -100.0f, -100.0f);
+	vertices.emplace_back(-100.0f, -100.0f,  100.0f);
+	vertices.emplace_back( 100.0f, -100.0f,  100.0f);
 
 	//back
-	vertices.push_back(glm::vec3(-100.0f,  100.0f, 100.0f));
-	vertices.push_back(glm::vec3( 100.0f,  100.0f, 100.0f));
-	vertices.push_back(glm::vec3( 100.0f, -100.0f, 100.0f));
-	vertices.push_back(glm::vec3( 100.0f, -100.0f, 100.0f));
-	vertices.push_back(glm::vec3(-100.0f, -100.0f, 100.0f));
-	vertices.push_back(glm::vec3(-100.0f,  100.0f, 100.0f));
+	vertices.emplace_back(-100.0f,  100.0f, 100.0f);
+	vertices.emplace_back( 100.0f,  100.0f, 100.0f);
+	vertices.emplace_back( 100.0f, -100.0f, 100.0f);
+	vertices.emplace_back( 100.0f, -100.0f, 100.0f);
+	vertices.emplace_back(-100.0f, -100.0f, 100.0f);
+	vertices.emplace_back(-100.0f,  100.0f, 100.0f);
 
 	//front
-	vertices.push_back(glm::vec3( 100.0f,  100.0f, -100.0f));
-	vertices.push_back(glm::vec3(-100.0f,  100.0f, -100.0f));
-	vertices.push_back(glm::vec3(-100.0f, -100.0f, -100.0f));
-	vertices.push_back(glm::vec3(-100.0f, -100.0f, -100.0f));
-	vertices.push_back(glm::vec3( 100.0f, -100.0f, -100.0f));
-	vertices.push_back(glm::vec3( 100.0f,  100.0f, -100.0f));
+	vertices.emplace_back( 100.0f,  100.0f, -100.0f);
+	vertices.emplace_back(-100.0f,  100.0f, -100.0f);
+	vertices.emplace_back(-100.0f, -100.0f, -100.0f);
+	vertices.emplace_back(-100.0f, -100.0f, -100.0f);
+	vertices.emplace_back( 100.0f, -100.0f, -100.0f);
+	vertices.emplace_back( 100.0f,  100.0f, -100.0f);
 
 	m_VAO.bind();
 	m_VAO.SetBuffer<0, GL_ARRAY_BUFFER>(vertices);
@@ -180,4 +178,4 @@ std::shared_ptr<Entity::I_Component> C_SkyBoxCompBuilder::Build(const pugi::xml_
 	return skyboxComp;
 }
 
-}}}
+}
