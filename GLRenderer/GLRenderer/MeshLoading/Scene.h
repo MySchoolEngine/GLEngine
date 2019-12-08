@@ -3,17 +3,8 @@
 #include <Physics/Primitives/Shapes.h>
 #include <Physics/Primitives/AABB.h>
 
-#include <vector>
-#include <limits>
-#include <memory>
-#include <string>
 
-#include <glm/glm.hpp>
-
-
-namespace GLEngine {
-namespace GLRenderer {
-namespace Mesh {
+namespace GLEngine::GLRenderer::Mesh {
 
 //=================================================================================
 struct Material
@@ -74,4 +65,4 @@ struct Scene
 
 	Physics::Primitives::S_AABB     bbox;
 };
-}}}
+}
