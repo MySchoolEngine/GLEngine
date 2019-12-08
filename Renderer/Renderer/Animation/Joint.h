@@ -1,9 +1,10 @@
 #pragma once
 
+#include <Renderer/RendererApi.h>
 
 namespace GLEngine::Renderer::Animation {
 
-struct API_EXPORT S_Joint {
+struct RENDERER_API_EXPORT S_Joint {
 	S_Joint(std::size_t index, std::string name, glm::mat4 localBindTransform);
 	glm::mat4 GetAnimatedTransform() const;
 	void CalcInverseBindTransfomr(const glm::mat4& parentBindTransform);
