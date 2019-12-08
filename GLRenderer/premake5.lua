@@ -10,6 +10,12 @@ project "GLRenderer"
 	
 	pchheader "GLRendererStdafx.h"
 	pchsource "GLRendererStdafx.cpp"
+	
+	Link("Entity")
+	Link("Utils")
+	Link("Renderer")
+	Link("Core")
+	Link("Physics")
 
 	files
 	{
@@ -28,11 +34,6 @@ project "GLRenderer"
 	includedirs
 	{
 		".",
-		"../Renderer",
-		"../Entity",
-		"../Utils",
-		"../Physics",
-		"../Core",
 		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.Glad}",
 		"../%{IncludeDir.GLM}",
@@ -54,18 +55,12 @@ project "GLRenderer"
 	{ 
 		"GLFW",
 		"Glad",
-		"Physics",
 		"opengl32.lib",
 		"pugixml",
 		"ImGui",
 		"DevIL-IL",
 		"../vendor/AssimpPrebuild/lib/assimp.lib",
 		"../vendor/projects/DevIL/bin/Debug-windows-x86_64/DevIL-IL/DevIL-IL.dll",
-
-		"Entity",
-		"Utils",
-		"Renderer",
-		"Core",
 	}
 
 	filter "system:windows"
@@ -75,7 +70,7 @@ project "GLRenderer"
 		defines
 		{
 			"CORE_PLATFORM=CORE_PLATFORM_WIN",
-			"BUILD_DLL",
+			"BUILD_GLRENDERER_DLL",
 		}
 
 		postbuildcommands

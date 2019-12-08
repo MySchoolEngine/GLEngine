@@ -11,7 +11,7 @@ namespace Core {
 class I_Event;
 class I_WindowManager;
 
-class API_EXPORT C_Application {
+class CORE_API_EXPORT C_Application {
 public:
 	using EventCallbackFn = std::function<void(I_Event&)>;
 

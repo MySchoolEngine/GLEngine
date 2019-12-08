@@ -11,7 +11,7 @@
  
 #pragma once
 
-#include <Core/CoreMacros.h>
+#include <Physics/PhysicsApi.h>
 
 #include <glm/glm.hpp>
 
@@ -28,7 +28,7 @@ namespace Primitives {
 * Contact:	RohacekD@gmail.com
 * @date 	2018/05/16
 ** ==============================================*/
-struct API_EXPORT S_Sphere {
+struct PHYSICS_API_EXPORT S_Sphere {
 public:
 	S_Sphere() = default;
 	S_Sphere(const glm::vec3& position, float radius);

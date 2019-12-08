@@ -43,6 +43,37 @@ template<E_FramebufferTarget framebuffer>
 struct T_FramebufferTarget;
 
 template <> struct T_FramebufferTarget<E_FramebufferTarget::Framebuffer>	{ static constexpr GLenum value = GL_FRAMEBUFFER; };
-template <> struct T_FramebufferTarget<E_FramebufferTarget::Read>			{ static constexpr GLenum value = GL_READ_FRAMEBUFFER; };
-template <> struct T_FramebufferTarget<E_FramebufferTarget::Draw>			{ static constexpr GLenum value = GL_DRAW_FRAMEBUFFER; };
+template <> struct T_FramebufferTarget<E_FramebufferTarget::Read>					{ static constexpr GLenum value = GL_READ_FRAMEBUFFER; };
+template <> struct T_FramebufferTarget<E_FramebufferTarget::Draw>					{ static constexpr GLenum value = GL_DRAW_FRAMEBUFFER; };
+
+//=================================================================================
+// Wrap functions
+enum class E_WrapFunction
+{
+	ClampToEdge,
+	ClampToBorder,
+	MirroredRepeat,
+	Repeat,
+	//MirrorClampToEdge,
+};
+
+constexpr GLenum WrapFunctionToEnum(const E_WrapFunction wrap) {
+	switch (wrap)
+	{
+	case E_WrapFunction::ClampToEdge:
+		return GL_CLAMP_TO_EDGE;
+	case E_WrapFunction::ClampToBorder:
+		return GL_CLAMP_TO_BORDER;
+	case E_WrapFunction::MirroredRepeat:
+		return GL_MIRRORED_REPEAT;
+	case E_WrapFunction::Repeat:
+		return GL_REPEAT;
+	}
+}
+
+template<E_WrapFunction wrapFunction>
+struct T_WrapFunction
+{
+	static constexpr GLenum value = WrapFunctionToEnum(wrapFunction);
+};
 }

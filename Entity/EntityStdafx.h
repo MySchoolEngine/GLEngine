@@ -15,3 +15,5 @@
 #include <map>
 
 #include <glm/glm.hpp>
+
+#include <Entity/EntityApi.h>

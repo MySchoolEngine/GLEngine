@@ -1,12 +1,10 @@
 #include <GLRendererStdafx.h>
 
-#include <GLRenderer/GUI/CheckBoxValue.h>
+#include <GLRenderer/GUI/Input/CheckBoxValue.h>
 
 
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace GUI {
+namespace GLEngine::GLRenderer::GUI::Input {
 //=================================================================================
 C_CheckBoxValue::C_CheckBoxValue(bool value, std::string&& name)
 	: m_Value(value)
@@ -93,4 +91,4 @@ bool C_CheckBoxValue::operator=(bool val)
 	return m_Value = val;
 }
 
-}}}
+}

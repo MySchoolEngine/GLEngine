@@ -2,9 +2,7 @@
 
 #include <GLRenderer/GUI/GUIPart.h>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace GUI {
+namespace GLEngine::GLRenderer::GUI::Input {
 
 // @todo unit testing
 template<typename T>
@@ -36,6 +34,6 @@ private:
 	std::string m_Name;
 };
 
-}}}
+}
 
-#include <GLRenderer/GUI/Slider.inl>
+#include <GLRenderer/GUI/Input/Slider.inl>

@@ -1,8 +1,6 @@
 #pragma once
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace GUI {
+namespace GLEngine::GLRenderer::GUI::Input {
 
 //=================================================================================
 template<class T>
@@ -107,4 +105,4 @@ bool C_Slider<T>::operator==(T val) const
 	return m_Value == val;
 }
 
-}}}
+}
