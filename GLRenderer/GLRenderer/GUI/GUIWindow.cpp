@@ -17,7 +17,24 @@ C_Window::C_Window(GUID guid, const std::string& name) : m_GUID(guid)
 //=================================================================================
 void C_Window::Draw() const
 {
-	::ImGui::Begin(m_Name.c_str(), &m_IsVisible);
+	ImGuiWindowFlags flags = 0;
+	if (!m_Menus.empty())
+	{
+		flags |= ImGuiWindowFlags_MenuBar;
+	}
+	::ImGui::Begin(m_Name.c_str(), &m_IsVisible, flags);
+	if (!m_Menus.empty())
+	{
+		if (ImGui::BeginMenuBar())
+		{
+			for (const auto& menu : m_Menus)
+			{
+				menu.second.get().Draw();
+			}
+			ImGui::EndMenuBar();
+		}
+	}
+
 	for (const auto& component : m_Components)
 	{
 		component.second.get().Draw();
@@ -54,6 +71,14 @@ I_GUIPart* C_Window::GetComponent(GUID guid) const
 		return &(it->second.get());
 	}
 	return nullptr;
+}
+
+//=================================================================================
+GUID C_Window::AddMenu(T_GUIMenu menuItem)
+{
+	GUID guid = NextGUID();
+	m_Menus.emplace(guid, menuItem);
+	return guid;
 }
 
 }

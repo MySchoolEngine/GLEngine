@@ -74,6 +74,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 		("Avg fps {:.2f}"),
 		("Min/max frametime {:.2f}/{:.2f}")
 		}})
+	, m_Windows("Windows")
 {
 	glfwMakeContextCurrent(m_Window);
 
@@ -487,13 +488,30 @@ void C_ExplerimentWindow::SetupWorld()
 	frameStats->AddComponent(m_Samples);
 	frameStats->AddComponent(m_VSync);
 	frameStats->SetVisible(true);
+	frameStats->AddMenu(m_Windows);
 
 	m_HDRSettingsGUID = guiMGR.CreateGUIWindow("HDR Settings");
 	auto* hdrSettings = guiMGR.GetWindow(m_HDRSettingsGUID);
 
 	hdrSettings->AddComponent(m_GammaSlider);
 	hdrSettings->AddComponent(m_ExposureSlider);
-	hdrSettings->SetVisible(true);
+
+
+	m_HDRWindow = std::make_unique<GUI::Menu::C_MenuItem>("HDR Settings", [HDRGuid = m_HDRSettingsGUID, ImGUI= m_ImGUI]() {
+		auto& guiMGR = ImGUI->GetGUIMgr();
+		if (auto hdrWindow = guiMGR.GetWindow(HDRGuid))
+		{
+			hdrWindow->SetVisible(true);
+		}
+		});
+	m_RendererStats = std::make_unique<GUI::Menu::C_MenuItem>("Renderer stats", [HDRGuid = m_HDRSettingsGUID, ImGUI = m_ImGUI]() {
+		auto& guiMGR = ImGUI->GetGUIMgr();
+		if (auto hdrWindow = guiMGR.GetWindow(HDRGuid))
+		{
+			hdrWindow->SetVisible(true);
+		}
+		});
+	m_Windows.AddMenuItem(*m_HDRWindow.get());
 }
 
 //=================================================================================

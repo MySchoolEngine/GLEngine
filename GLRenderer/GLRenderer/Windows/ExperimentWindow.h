@@ -12,6 +12,8 @@
 #include <GLRenderer/GUI/Input/Slider.h>
 #include <GLRenderer/GUI/GUIWindow.h>
 #include <GLRenderer/GUI/Text.h>
+#include <GLRenderer/GUI/Menu/Menu.h>
+#include <GLRenderer/GUI/Menu/MenuItem.h>
 
 #include <Entity/World.h>
 
@@ -89,6 +91,9 @@ private:
 	GUID																										m_FrameStatsGUID;
 	GUID																										m_ConsoleWindowGUID;
 	GUID																										m_HDRSettingsGUID;
+	GUI::Menu::C_Menu																				m_Windows;
+	std::unique_ptr<GUI::Menu::C_MenuItem>									m_HDRWindow;
+	std::unique_ptr<GUI::Menu::C_MenuItem>									m_RendererStats;
 	bool																										m_Spawning;
 	char m_SpawningName[255];
 	char m_SpawningFilename[255];
