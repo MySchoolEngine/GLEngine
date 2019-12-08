@@ -4,7 +4,7 @@
 
 #include <GLRenderer/Buffers/UBO/TerrainStats.h>
 #include <GLRenderer/Mesh/TerrainMeshResource.h>
-#include <GLRenderer/GUI/CheckBoxValue.h>
+#include <GLRenderer/GUI/Input/CheckBoxValue.h>
 #include <GLRenderer/Textures/Texture.h>
 
 #include <GLRenderer/Entities/TerrainEntity.h>
@@ -61,7 +61,7 @@ protected:
 	bool							m_QueuedUpdate		: 1;
 	bool							m_QueueSimulation	: 1;
 	bool							m_Selected; // cannot be bitfield as I use reference for this boolean
-	GUI::C_CheckBoxValue			m_HasTexture;
+	GUI::Input::C_CheckBoxValue		m_HasTexture;
 
 	glm::mat4 GetModelMatrix() const;
 

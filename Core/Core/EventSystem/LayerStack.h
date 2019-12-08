@@ -4,7 +4,7 @@
 
 namespace GLEngine {
 namespace Core {
-class API_EXPORT C_LayerStack : public C_Layer {
+class CORE_API_EXPORT C_LayerStack : public C_Layer {
 public:
 	C_LayerStack(std::string& name);
 	virtual ~C_LayerStack();

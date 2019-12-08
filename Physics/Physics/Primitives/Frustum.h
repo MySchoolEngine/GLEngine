@@ -11,7 +11,7 @@
  
 #pragma once
 
-#include <Core/CoreMacros.h>
+#include <Physics/PhysicsApi.h>
 
 #include <glm/glm.hpp>
 
@@ -31,7 +31,7 @@ struct S_AABB;
  * Contact: RohacekD@gmail.com
  * @date 	2018/03/17
  ** ==============================================*/
-class API_EXPORT C_Frustum {
+class PHYSICS_API_EXPORT C_Frustum {
 public:
 	C_Frustum(const glm::vec3& position, const glm::vec3& upVectro, const glm::vec3& foreward, float near, float far, float aspect, float fov);
 	/** ==============================================

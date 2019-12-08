@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/CoreMacros.h>
+#include <Utils/UtilsApi.h>
 
 #include <string>
 #include <vector>
@@ -18,7 +18,7 @@ std::ostream & operator<< (std::ostream &out, const E_Context &c);
 std::ostream & operator<< (std::ostream &out, const E_Level &c);
 
 //=================================================================================
-class API_EXPORT C_LoggingSystem final {
+class UTILS_API_EXPORT C_LoggingSystem final {
 public:
 	static C_LoggingSystem& Instance();
 

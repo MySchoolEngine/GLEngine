@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/CoreMacros.h>
+#include <Renderer/RendererApi.h>
 
 #include <Renderer/IRenderer.h>
 
@@ -9,7 +9,7 @@
 namespace GLEngine {
 namespace Renderer {
 
-class API_EXPORT F_RendererFacotry {
+class RENDERER_API_EXPORT F_RendererFacotry {
 public:
 	static std::unique_ptr<Renderer::I_Renderer> GetRenderer();
 };

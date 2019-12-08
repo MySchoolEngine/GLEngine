@@ -82,6 +82,7 @@ void C_ImGuiLayer::OnDetach()
 //=================================================================================
 void C_ImGuiLayer::OnUpdate()
 {
+	m_GUIMgr.OnUpdate();
 }
 
 //=================================================================================
@@ -124,6 +125,12 @@ bool C_ImGuiLayer::CapturingMouse() const
 {
 	ImGuiIO& io = ::ImGui::GetIO();
 	return io.WantCaptureMouse;
+}
+
+//=================================================================================
+C_GUIManager& C_ImGuiLayer::GetGUIMgr()
+{
+	return m_GUIMgr;
 }
 
 //=================================================================================

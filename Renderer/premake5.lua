@@ -24,7 +24,7 @@ project "Renderer"
 		defines
 		{
 			"CORE_PLATFORM=CORE_PLATFORM_WIN",
-			"BUILD_DLL",
+			"BUILD_RENDERER_DLL",
 		}
 
 		postbuildcommands

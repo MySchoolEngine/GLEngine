@@ -25,7 +25,7 @@ public:
 		auto& logging = Utils::Logging::C_LoggingSystem::Instance();
 		logging.AddLogger(new Utils::Logging::C_CoutLogger());
 		//logging.AddLogger(new Core::Logging::C_FileLogger("log.txt"));
-		GLEngine::GLRenderer::GLFW::S_OpenGLWindowInfo info(640, 480);
+		GLEngine::GLRenderer::GLFW::S_OpenGLWindowInfo info(1024, 768);
 		info.m_name = "My title";
 		info.m_WindowClass = "ExperimentWindow";
 		info.m_MinorVersion = 4;

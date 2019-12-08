@@ -1,110 +1,94 @@
-#pragma once
+#include <GLRendererStdafx.h>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace GUI {
+#include <GLRenderer/GUI/Input/CheckBoxValue.h>
 
+
+
+namespace GLEngine::GLRenderer::GUI::Input {
 //=================================================================================
-template<class T>
-C_Slider<T>::C_Slider(T value, T min, T max, std::string&& name /*= ""*/)
+C_CheckBoxValue::C_CheckBoxValue(bool value, std::string&& name)
 	: m_Value(value)
-	, m_Prev(value)
-	, m_Min(min)
-	, m_Max(max)
 	, m_Name(std::move(name))
 {
 
 }
 
 //=================================================================================
-template<class T>
-C_Slider<T>::operator T() const
+void C_CheckBoxValue::Draw() const
 {
-	return GetValue();
+	::ImGui::Checkbox(m_Name.c_str(), &m_Value);
 }
 
 //=================================================================================
-template<typename T>
-T* C_Slider<T>::operator&() const
-{
-	return &m_Value;
-}
-
-//=================================================================================
-template<typename T>
-bool C_Slider<T>::operator=(T val)
-{
-	m_Value = m_Prev = val;
-}
-
-//=================================================================================
-template<class T>
-T C_Slider<T>::GetValue() const
-{
-	return m_Value;
-}
-
-//=================================================================================
-template<class T>
-void C_Slider<T>::SetName(std::string&& name)
+void C_CheckBoxValue::SetName(std::string&& name)
 {
 	m_Name = std::move(name);
 }
 
 //=================================================================================
-template<class T>
-T C_Slider<T>::GetPreviousValue() const
+bool C_CheckBoxValue::GetValue() const
 {
-	return m_Prev;
+	return m_Value;
 }
 
 //=================================================================================
-template<class T>
-bool C_Slider<T>::Changed() const
+C_CheckBoxValue::operator bool() const
 {
-	return m_Prev != m_Value;
+	return m_Value;
 }
 
 //=================================================================================
-template<typename T>
-void C_Slider<T>::operator+=(T val)
+bool C_CheckBoxValue::operator||(bool val) const
 {
-	m_Value += val;
+	return m_Value || val;
 }
 
 //=================================================================================
-template<typename T>
-void C_Slider<T>::operator-=(T val)
+bool C_CheckBoxValue::operator&&(bool val) const
 {
-	m_Value -= val;
+	return m_Value && val;
 }
 
 //=================================================================================
-template<typename T>
-C_Slider<T> C_Slider<T>::operator+(T val) const
+void C_CheckBoxValue::operator|=(bool val)
 {
-	return C_Slider(m_Value + val, m_Min, m_Max);
+	m_Value |= val;
 }
 
 //=================================================================================
-template<typename T>
-C_Slider<T> C_Slider<T>::operator-(T val) const
+void C_CheckBoxValue::operator&=(bool val)
 {
-	return C_Slider(m_Value - val, m_Min, m_Max);
+	m_Value &= val;
 }
 
 //=================================================================================
-template<typename T>
-bool C_Slider<T>::operator!=(T val) const
-{
-	return m_Value != val;
-}
-
-//=================================================================================
-template<typename T>
-bool C_Slider<T>::operator==(T val) const
+bool C_CheckBoxValue::operator==(bool val) const
 {
 	return m_Value == val;
 }
 
-}}}
+//=================================================================================
+bool C_CheckBoxValue::operator!=(bool val) const
+{
+	return !(*this == val);
+}
+
+//=================================================================================
+C_CheckBoxValue C_CheckBoxValue::operator!()
+{	
+	return C_CheckBoxValue(!m_Value, std::string(m_Name));
+}
+
+//=================================================================================
+bool* C_CheckBoxValue::operator&() const
+{
+	return &m_Value;
+}
+
+//=================================================================================
+bool C_CheckBoxValue::operator=(bool val)
+{
+	return m_Value = val;
+}
+
+}

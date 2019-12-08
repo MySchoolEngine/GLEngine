@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/CoreMacros.h>
+#include <Entity/EntityApi.h>
 
 #include <Core/GUID.h>
 
@@ -18,16 +18,20 @@ struct S_RayIntersection;
 namespace Entity {
 
 class I_Entity;
+class I_ComponentBuilderFactory;
 
-class API_EXPORT C_World {
+class ENTITY_API_EXPORT C_World {
 public:
 	C_World();
 	~C_World();
 	std::shared_ptr<I_Entity> GetEntity(GUID id) const;
+	std::shared_ptr<I_Entity> GetEntity(const std::string& name) const;
 	std::vector<std::shared_ptr<I_Entity>> GetEntities(Physics::Primitives::C_Frustum frust);
 	void AddEntity(std::shared_ptr<I_Entity> entity);
 	void OnUpdate();
 	Physics::Primitives::S_RayIntersection Select(Physics::Primitives::S_Ray& ray);
+
+	bool LoadLevel(const std::string& name, std::unique_ptr<I_ComponentBuilderFactory> cbf);
 private:
 	std::vector<std::shared_ptr<I_Entity>>* m_Entities;
 };
