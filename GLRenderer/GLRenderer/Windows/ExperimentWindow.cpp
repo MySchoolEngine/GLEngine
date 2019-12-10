@@ -166,7 +166,9 @@ void C_ExplerimentWindow::Update()
 		if (::ImGui::Button("Spawn")) {
 			m_Spawning = false;
 			auto Terrain = std::make_shared<C_TerrainEntity>(m_SpawningName);
-			m_World.AddEntity(Terrain); Textures::TextureLoader tl;
+			m_World.AddEntity(Terrain); 
+			
+			Textures::TextureLoader tl;
 			Mesh::Texture t;
 			bool retval = tl.loadTexture(m_SpawningFilename, t);
 			if (retval) {
