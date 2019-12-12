@@ -59,6 +59,11 @@ project "GLRenderer"
 		"../vendor/projects/DevIL/bin/Debug-windows-x86_64/DevIL-IL/DevIL-IL.dll",
 	}
 
+	defines
+	{
+		"IMGUI_IMPL_OPENGL_LOADER_GLAD"
+	}
+
 	filter "system:windows"
 		cppdialect "C++17"
 		systemversion "latest"
