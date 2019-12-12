@@ -2,6 +2,8 @@
 
 #include <GLRenderer/ImGui/ImGuiLayer.h>
 
+#include <GLRenderer/ImGui/ImGUIImplOpengl3.h>
+
 #include <Core/Application.h>
 #include <Core/IWindowManager.h>
 #include <Core/IWindow.h>
@@ -12,7 +14,6 @@
 
 #include <imgui.h>
 #include <examples/imgui_impl_glfw.h>
-#include <examples/imgui_impl_opengl3.h>
 
 
 
