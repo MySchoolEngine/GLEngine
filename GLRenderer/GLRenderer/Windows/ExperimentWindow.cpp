@@ -13,6 +13,7 @@
 
 #include <GLRenderer/Components/TerrainMesh.h>
 #include <GLRenderer/Components/StaticMesh.h>
+#include <GLRenderer/Components/ComponentBuilderFactory.h>
 
 #include <GLRenderer/Entities/TerrainEntity.h>
 
@@ -31,8 +32,6 @@
 #include <GLRenderer/Buffers/UBO/FrameConstantsBuffer.h>
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
 
-#include <GLRenderer/Components/StaticMesh.h>
-#include <GLRenderer/Components/SkyBox.h>
 #include <GLRenderer/PersistentDebug.h>
 #include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/Debug.h>
