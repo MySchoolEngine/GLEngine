@@ -81,7 +81,7 @@ C_SkeletalMesh::C_SkeletalMesh()
 
 	std::string textureName;
 
-	if (!sl->addModelFromDAEFileToScene("Models", "model.dae", m_Mesh, textureName, modelMatrix))
+	if (!sl->addModelFromDAEFileToScene("Models", "model.dae", m_Mesh, textureName, m_Skeleton, modelMatrix))
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}", "Models/scene.obj");
 		return;
@@ -121,12 +121,6 @@ C_SkeletalMesh::C_SkeletalMesh()
 	m_Texture->GenerateMipMaps();
 
 	m_Texture->EndGroupOp();
-
-
-	m_Skeleton.m_Root = std::make_unique<Renderer::Animation::S_Joint>(0, "root", glm::translate(glm::mat4(1.0f), glm::vec3(0, 1, 0)));
-	m_Skeleton.m_Root->m_Children.emplace_back(0, "child", glm::translate(glm::mat4(1.0f), glm::vec3(0, 1, 1)));
-
-	m_Skeleton.InitializeSkeleton();
 }
 
 }

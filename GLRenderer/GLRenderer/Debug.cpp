@@ -183,10 +183,10 @@ void C_DebugDraw::DrawLines(const std::vector<glm::vec4>& pairs, const glm::vec3
 //=================================================================================
 void C_DebugDraw::DrawBone(const glm::vec3& position, const Renderer::Animation::S_Joint& joint)
 {
-	const auto locTransformation	= joint.m_LocalBindTransform;
-	const glm::vec4 boneOffset4		= glm::normalize(locTransformation * glm::vec4(0.f, 0.f, .0f, 1.f));
-	const glm::vec3 boneOffset		= glm::vec3(boneOffset4 / boneOffset4.w);
-	const glm::vec3 dest			= position + boneOffset;
+	const auto locTransformation	= glm::inverse(joint.m_InverseBindTransfomr);
+	const glm::vec4 modelDest		= glm::normalize(locTransformation * glm::vec4(0.f, 0.f, .0f, 1.f));
+	const glm::vec3 dest			= glm::vec3(modelDest / modelDest.w);
+	const glm::vec3 boneOffset		= dest - position;
 
 	const float bumpFactor = .33f;
 	const auto BumpPosition = position + boneOffset * bumpFactor;

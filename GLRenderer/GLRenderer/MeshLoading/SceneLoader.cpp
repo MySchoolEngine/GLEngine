@@ -4,6 +4,8 @@
 #include <GLRenderer/MeshLoading/SceneLoader.h>
 #include <GLRenderer/MeshLoading/ModelLoader.h>
 
+#include <Renderer/Animation/Skeleton.h>
+
 #include <pugixml.hpp>
 
 namespace GLEngine::GLRenderer::Mesh {
@@ -43,7 +45,7 @@ bool SceneLoader::addModelFromFileToScene(const char* filepath, const char* file
 }
 
 //=================================================================================
-bool SceneLoader::addModelFromDAEFileToScene(const char* filepath, const char* filename, std::shared_ptr<C_StaticMeshResource>& oMesh, std::string& textureName, const glm::mat4& transform /*= glm::mat4(1)*/)
+bool SceneLoader::addModelFromDAEFileToScene(const char* filepath, const char* filename, std::shared_ptr<C_StaticMeshResource>& oMesh, std::string& textureName, Renderer::Animation::C_Skeleton& skeleton, const glm::mat4& transform /*= glm::mat4(1)*/)
 {
 	std::string name;
 	name.append(filepath);
@@ -143,7 +145,81 @@ bool SceneLoader::addModelFromDAEFileToScene(const char* filepath, const char* f
 		}
 	}
 
+	if (auto controllerLibrary = colladaNode.child("library_controllers"))
+	{
+		if (auto skinXML = controllerLibrary.child("controller").child("skin"))
+		{
+			std::vector<Renderer::Animation::S_Joint> joints;
+			std::vector<std::string> jointNames;
+			LoadJoints(jointNames, skinXML);
+			LoadJointsInvMatrices(jointNames, joints, skinXML);
+
+			skeleton.m_Root = std::make_unique<Renderer::Animation::S_Joint>(joints[0]);
+
+			for (int i = 1; i < joints.size(); ++i) {
+				skeleton.m_Root->m_Children.emplace_back(joints[i]);
+			}
+		}
+	}
+
 	return true;
+}
+
+//=================================================================================
+void SceneLoader::LoadJoints(std::vector<std::string>& jointNames, const pugi::xml_node& skinXML) const
+{
+	for (auto xmlSource : skinXML.children("source"))
+	{
+		const std::string_view id = xmlSource.attribute("id").as_string();
+		if (id.find("joints") == id.npos)
+		{
+			continue;
+		}
+
+		if (const auto nameArray = xmlSource.child("Name_array"))
+		{
+			const std::size_t numBones = nameArray.attribute("count").as_int();
+			jointNames.reserve(numBones);
+			const std::string_view names = nameArray.child_value();
+			std::stringstream ss;
+			ss << names;
+			std::string name;
+			while (ss >> name)
+			{
+				jointNames.emplace_back(name);
+			}
+		}
+	}
+}
+
+//=================================================================================
+void SceneLoader::LoadJointsInvMatrices(const std::vector<std::string>& jointNames, std::vector<Renderer::Animation::S_Joint>& joints, const pugi::xml_node& skinXML) const
+{
+	for (auto xmlSource : skinXML.children("source"))
+	{
+		const std::string_view id = xmlSource.attribute("id").as_string();
+		if (id.find("bind_poses") == id.npos)
+		{
+			continue;
+		}
+
+		if (const auto floatArray = xmlSource.child("float_array"))
+		{
+			joints.reserve(jointNames.size());
+
+			const std::string_view matrices = floatArray.child_value();
+			std::stringstream ss;
+			ss << matrices;
+			int i  = 0;
+			for (const auto& name : jointNames)
+			{
+				float i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15;
+				ss >> i0 >> i1 >> i2 >> i3 >> i4 >> i5 >> i6 >> i7 >> i8 >> i9 >> i10 >> i11 >> i12 >> i13 >> i14 >> i15;
+				joints.emplace_back(i, name, glm::mat4(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15));
+				++i;
+			}
+		}
+	}
 }
 
 }
