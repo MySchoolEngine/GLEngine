@@ -59,7 +59,13 @@ std::shared_ptr<I_Entity> C_EntityManager::GetEntity(const std::string& name) co
 }
 
 //=================================================================================
-std::vector<std::shared_ptr<I_Entity>> C_EntityManager::GetEntities(Physics::Primitives::C_Frustum frust)
+std::vector<std::shared_ptr<I_Entity>> C_EntityManager::GetEntities(Physics::Primitives::C_Frustum frust) const
+{
+	return *m_Entities;
+}
+
+//=================================================================================
+const std::vector<std::shared_ptr<GLEngine::Entity::I_Entity>>& C_EntityManager::GetEntities() const
 {
 	return *m_Entities;
 }

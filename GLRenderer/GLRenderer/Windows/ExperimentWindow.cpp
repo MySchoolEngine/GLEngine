@@ -4,10 +4,10 @@
 
 #include <GLRenderer/Cameras/OrbitalCamera.h>
 
-#include <GLRenderer/Commands/GLClear.h>
 #include <GLRenderer/Commands/GLEnable.h>
 #include <GLRenderer/Commands/GlClearColor.h>
 #include <GLRenderer/Commands/GLCullFace.h>
+#include <GLRenderer/Commands/GLClear.h>
 #include <GLRenderer/Commands/GLViewport.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 
@@ -28,9 +28,6 @@
 
 #include <GLRenderer/Textures/TextureLoader.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
-
-#include <GLRenderer/Buffers/UBO/FrameConstantsBuffer.h>
-#include <GLRenderer/Buffers/UniformBuffersManager.h>
 
 #include <GLRenderer/PersistentDebug.h>
 #include <GLRenderer/OGLRenderer.h>
@@ -68,6 +65,8 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	, m_SpawningName("")
 	, m_SpawningFilename("")
 	, m_HDRFBO("HDR")
+	, m_World(std::make_shared<Entity::C_EntityManager>())
+	, m_MainPass(m_World)
 	, m_GUITexts({{
 		("Avg frame time {:.2f}"),
 		("Avg fps {:.2f}"),
@@ -76,8 +75,6 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	, m_Windows("Windows")
 {
 	glfwMakeContextCurrent(m_Window);
-
-	m_FrameConstUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>("frameConst");
 
 	m_FrameTimer.reset();
 
@@ -112,32 +109,15 @@ void C_ExplerimentWindow::Update()
 	
 	glfwSwapInterval(m_VSync?1:0);
 
-	m_World.OnUpdate();
+	m_World->OnUpdate();
 
 	glfwMakeContextCurrent(m_Window);
 	m_HDRFBO.Bind<E_FramebufferTarget::Draw>();
-	{
-		using namespace Commands;
-		m_renderer->AddCommand(
-			std::move(
-				std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth)
-			)
-		);
-		m_renderer->AddCommand(
-			std::move(
-				std::make_unique<C_GLViewport>(0,0, GetWidth(), GetHeight())
-			)
-		);
-	}
 
-	auto cameraComponent = m_CamManager.GetActiveCamera();
-	if (!cameraComponent) {
-		return;
-	}
+	const auto camera = m_CamManager.GetActiveCamera();
+	GLE_ASSERT(camera, "No active camera");
 
-
-	auto entitiesInView = m_World.GetEntities(cameraComponent->GetFrustum());
-
+	m_MainPass.Render(camera, GetWidth(), GetHeight());
 
 	bool my_tool_active = true;
 	::ImGui::Begin("Entities", &my_tool_active);
@@ -146,7 +126,7 @@ void C_ExplerimentWindow::Update()
 			m_SpawningName[0] = '\0';
 			m_SpawningFilename[0] = '\0';
 		}
-		for (const auto entity : entitiesInView) {
+		for (const auto entity : m_World->GetEntities()) {
 			bool selected = false;
 			::ImGui::Selectable(entity->GetName().c_str(), &selected);
 			if (selected) {
@@ -164,7 +144,7 @@ void C_ExplerimentWindow::Update()
 		if (::ImGui::Button("Spawn")) {
 			m_Spawning = false;
 			auto Terrain = std::make_shared<C_TerrainEntity>(m_SpawningName);
-			m_World.AddEntity(Terrain); Textures::TextureLoader tl;
+			m_World->AddEntity(Terrain); Textures::TextureLoader tl;
 			Mesh::Texture t;
 			bool retval = tl.loadTexture(m_SpawningFilename, t);
 			if (retval) {
@@ -207,40 +187,11 @@ void C_ExplerimentWindow::Update()
 	auto basicProgram = shmgr.GetProgram("basic");
 	shmgr.ActivateShader(basicProgram);
 
-	m_FrameConstUBO->SetView(cameraComponent->GetViewMatrix());
-	m_FrameConstUBO->SetProjection(cameraComponent->GetProjectionMatrix());
-	m_FrameConstUBO->SetCameraPosition(glm::vec4(cameraComponent->GetPosition(), 1.0f));
-
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
-		std::move(
-			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[&]() {
-					m_FrameConstUBO->UploadData();
-					m_FrameConstUBO->Activate(true);
-				}
-			)
-		)
-	);
-
-
-
-	for (auto& entity : entitiesInView)
-	{
-		if (auto renderable = entity->GetComponent<Entity::E_ComponentType::Graphical>()) {
-			renderable->PerformDraw();
-		}
-	}
-
 	// ----- Frame init -------
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {
-					{
-						RenderDoc::C_DebugScope s("CameraDebugDraw");
-						std::static_pointer_cast<Cameras::C_OrbitalCamera>(cameraComponent)->DebugDraw();
-					}
-
 					shmgr.DeactivateShader();
 					{
 						RenderDoc::C_DebugScope s("Persistent debug");
@@ -437,9 +388,9 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 //=================================================================================
 void C_ExplerimentWindow::SetupWorld()
 {
-	m_World.LoadLevel("Levels/main.xml", std::make_unique<Components::C_ComponentBuilderFactory>());
+	m_World->LoadLevel("Levels/main.xml", std::make_unique<Components::C_ComponentBuilderFactory>());
 	{
-		m_Player = m_World.GetEntity("Player");
+		m_Player = m_World->GetEntity("Player");
 
 		auto player = m_Player.lock();
 		if (player)
@@ -547,9 +498,9 @@ void C_ExplerimentWindow::MouseSelect()
 		S_Ray ray;
 		ray.origin = cameraOrigin;
 		ray.direction = ray_wor;
-		S_RayIntersection inter = m_World.Select(ray);
+		S_RayIntersection inter = m_World->Select(ray);
 		if (inter.distance > 0) {
-			auto entity = m_World.GetEntity(inter.entityId);
+			auto entity = m_World->GetEntity(inter.entityId);
 			if (entity) {
 				entity->OnEvent(Core::C_UserEvent("selected"));
 			}

@@ -14,6 +14,7 @@
 #include <GLRenderer/GUI/Text.h>
 #include <GLRenderer/GUI/Menu/Menu.h>
 #include <GLRenderer/GUI/Menu/MenuItem.h>
+#include <GLRenderer/MainPassTechnique.h>
 
 #include <Entity/EntityManager.h>
 
@@ -34,10 +35,6 @@ class I_CameraComponent;
 namespace GLEngine::GLRenderer {
 namespace ImGui {
 class C_ImGuiLayer;
-}
-
-namespace Buffers::UBO {
-class C_FrameConstantsBuffer;
 }
 
 namespace Components {
@@ -76,9 +73,8 @@ private:
 		Last,
 	};
 
-	Entity::C_EntityManager																	m_World;
+	std::shared_ptr<Entity::C_EntityManager>								m_World;
 	std::weak_ptr<Entity::I_Entity>													m_Player;
-	std::shared_ptr<Buffers::UBO::C_FrameConstantsBuffer>		m_FrameConstUBO;
 	Core::C_LayerStack																			m_LayerStack;
 	Temporar::C_CameraManager																m_CamManager;
 	ImGui::C_ImGuiLayer*																		m_ImGUI;
@@ -94,6 +90,7 @@ private:
 	GUI::Menu::C_Menu																				m_Windows;
 	std::unique_ptr<GUI::Menu::C_MenuItem>									m_HDRWindow;
 	std::unique_ptr<GUI::Menu::C_MenuItem>									m_RendererStats;
+	C_MainPassTechnique																			m_MainPass;
 	bool																										m_Spawning;
 	char m_SpawningName[255];
 	char m_SpawningFilename[255];
