@@ -15,7 +15,7 @@
 #include <GLRenderer/GUI/Menu/Menu.h>
 #include <GLRenderer/GUI/Menu/MenuItem.h>
 
-#include <Entity/World.h>
+#include <Entity/EntityManager.h>
 
 #include <Core/EventSystem/LayerStack.h>
 
@@ -76,7 +76,7 @@ private:
 		Last,
 	};
 
-	Entity::C_World																					m_World;
+	Entity::C_EntityManager																	m_World;
 	std::weak_ptr<Entity::I_Entity>													m_Player;
 	std::shared_ptr<Buffers::UBO::C_FrameConstantsBuffer>		m_FrameConstUBO;
 	Core::C_LayerStack																			m_LayerStack;
