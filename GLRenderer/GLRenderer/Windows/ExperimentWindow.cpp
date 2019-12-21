@@ -36,13 +36,13 @@
 #include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/Debug.h>
 
-#include <GLRenderer/GUI/Components/GLEntityDebugComponent.h>
-
 #include <Physics/Primitives/Ray.h>
 #include <Physics/Primitives/Intersection.h>
 
 #include <Entity/IComponent.h>
 #include <Entity/BasicEntity.h>
+
+#include <Entity/ComponentManager.h>
 
 #include <Core/EventSystem/EventDispatcher.h>
 #include <Core/EventSystem/Event/KeyboardEvents.h>
@@ -87,6 +87,8 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	m_LayerStack.PushLayer(&m_CamManager);
 
 	m_VSync.SetName("Lock FPS");
+
+	Entity::C_ComponentManager::Instance();
 }
 
 //=================================================================================
@@ -437,17 +439,20 @@ void C_ExplerimentWindow::SetupWorld()
 {
 	m_World.LoadLevel("Levels/main.xml", std::make_unique<Components::C_ComponentBuilderFactory>());
 	{
-		auto player = std::dynamic_pointer_cast<Entity::C_BasicEntity>( m_World.GetEntity("Player"));
-		m_Player = player;
-		float zoom = 5.0f;
-		auto playerCamera = std::make_shared<Cameras::C_OrbitalCamera>();
-		playerCamera->setupCameraProjection(0.1f, 2 * zoom*100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
-		playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
-		playerCamera->adjustOrientation(20.f, 20.f);
-		playerCamera->Update();
-		player->AddComponent(playerCamera);
-		player->AddComponent(std::make_shared<GUI::C_GLEntityDebugComponent>(player));
-		m_CamManager.ActivateCamera(playerCamera);
+		m_Player = m_World.GetEntity("Player");
+
+		auto player = m_Player.lock();
+		if (player)
+		{
+			float zoom = 5.0f;
+			auto playerCamera = std::make_shared<Cameras::C_OrbitalCamera>();
+			playerCamera->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
+			playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
+			playerCamera->adjustOrientation(20.f, 20.f);
+			playerCamera->Update();
+			player->AddComponent(playerCamera);
+			m_CamManager.ActivateCamera(playerCamera);
+		}
 	}
 	{
 		// billboard

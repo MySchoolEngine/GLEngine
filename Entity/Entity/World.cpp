@@ -137,7 +137,7 @@ bool C_World::LoadLevel(const std::string& name, std::unique_ptr<I_ComponentBuil
 					auto builder = cbf->GetFactory(componentNode.name());
 					if (builder)
 					{
-						entity->AddComponent(builder->Build(componentNode));
+						entity->AddComponent(builder->Build(componentNode, entity));
 					}
 				}
 			}

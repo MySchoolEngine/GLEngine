@@ -8,12 +8,14 @@ namespace GUI {
 
 class C_GLDebugGUIComponent : public Renderer::I_DebugGUIComponent {
 public:
-	C_GLDebugGUIComponent(const std::string& name);
+	C_GLDebugGUIComponent(std::shared_ptr<Entity::I_Entity> owner);
 	virtual ~C_GLDebugGUIComponent() = default;
 
 	//=====================================
 	virtual void Toggle() override;
 	virtual void PostUpdate() override;
+
+	void SetTitle(std::string& title);
 
 	virtual void DrawContents() = 0;
 protected:

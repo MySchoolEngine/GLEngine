@@ -30,8 +30,9 @@ namespace GLRenderer {
 namespace Components {
 
 //=================================================================================
-C_SkyBox::C_SkyBox()
-	: m_Textures("Skybox", GL_TEXTURE_CUBE_MAP)
+C_SkyBox::C_SkyBox(std::shared_ptr<Entity::I_Entity> owner)
+	: Renderer::I_RenderableComponent(owner)
+	, m_Textures("Skybox", GL_TEXTURE_CUBE_MAP)
 {
 	m_Textures.SetFilter(GL_LINEAR, GL_LINEAR);
 	m_Textures.SetWrap(E_WrapFunction::ClampToEdge, E_WrapFunction::ClampToEdge, E_WrapFunction::ClampToEdge);
@@ -142,9 +143,9 @@ void C_SkyBox::PerformDraw() const
 //=================================================================================
 // C_SkyBoxCompBuilder
 //=================================================================================
-std::shared_ptr<Entity::I_Component> C_SkyBoxCompBuilder::Build(const pugi::xml_node& node)
+std::shared_ptr<Entity::I_Component> C_SkyBoxCompBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
 {
-	auto skyboxComp = std::make_shared<C_SkyBox>();
+	auto skyboxComp = std::make_shared<C_SkyBox>(owner);
 
 	if (auto side = node.child("Top"))
 	{
