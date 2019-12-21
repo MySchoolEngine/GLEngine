@@ -1,5 +1,7 @@
 #include <EntityStdafx.h>
 
+#include <Entity/IComponent.h>
+
 #include <Entity/IEntity.h>
 
 namespace GLEngine::Entity
