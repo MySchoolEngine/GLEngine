@@ -66,19 +66,22 @@ private:
 
 	void sampleTime(double new_sample);
 
-	enum class E_GUITexts {
-		AvgFrametime,
-		AvgFps,
-		MinMaxFrametime,
-		Last,
-	};
-
 	std::shared_ptr<Entity::C_EntityManager>								m_World;
 	std::weak_ptr<Entity::I_Entity>													m_Player;
 	Core::C_LayerStack																			m_LayerStack;
 	Temporar::C_CameraManager																m_CamManager;
 	ImGui::C_ImGuiLayer*																		m_ImGUI;
 	Utils::HighResolutionTimer															m_FrameTimer;
+
+	//===========================
+	// GUI
+	//===========================
+	enum class E_GUITexts {
+		AvgFrametime,
+		AvgFps,
+		MinMaxFrametime,
+		Last,
+	};
 	GUI::C_PlotLine<500>																		m_Samples;
 	GUI::Input::C_Slider<float>															m_GammaSlider;
 	GUI::Input::C_Slider<float>															m_ExposureSlider;
@@ -90,13 +93,18 @@ private:
 	GUI::Menu::C_Menu																				m_Windows;
 	std::unique_ptr<GUI::Menu::C_MenuItem>									m_HDRWindow;
 	std::unique_ptr<GUI::Menu::C_MenuItem>									m_RendererStats;
+
 	C_MainPassTechnique																			m_MainPass;
+
+	//===========================
+	// Terrain spawning
+	//===========================
 	bool																										m_Spawning;
 	char m_SpawningName[255];
 	char m_SpawningFilename[255];
 
-	C_Framebuffer												m_HDRFBO;
-	std::shared_ptr<Components::C_StaticMesh>					m_ScreenQuad;
+	C_Framebuffer																						m_HDRFBO;
+	std::shared_ptr<Components::C_StaticMesh>								m_ScreenQuad;
 };
 
 }}
