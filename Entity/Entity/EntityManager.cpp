@@ -129,11 +129,14 @@ bool C_EntityManager::LoadLevel(const std::string& name, std::unique_ptr<I_Compo
 		return false;
 	}
 
+	auto debugBuilder = cbf->GetFactory("debug");
+
 	if (auto entitiesNode = worldNode.child("Entities"))
 	{
 		for (const auto& entityNode : entitiesNode.children("Entity"))
 		{
 			auto entity = std::make_shared<Entity::C_BasicEntity>(entityNode.attribute("name").value());
+			entity->AddComponent(debugBuilder->Build(pugi::xml_node(), entity));
 			this->AddEntity(entity);
 
 			if (auto componentsNode = entityNode.child("Components"))
