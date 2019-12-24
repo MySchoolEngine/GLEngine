@@ -11,12 +11,10 @@ public:
 	C_GLEntityDebugComponent(std::shared_ptr<Entity::I_Entity> entity);
 	virtual ~C_GLEntityDebugComponent() = default;
 
-	void SetEntity(std::shared_ptr<Entity::C_BasicEntity> entity);
-
 	virtual void DrawContents() override;
 
 private:
-	std::shared_ptr<Entity::C_BasicEntity> m_Entity;
+	std::weak_ptr<Entity::C_BasicEntity> m_Entity;
 };
 
 class C_GUIDebugBuilder : public Entity::I_ComponenetBuilder

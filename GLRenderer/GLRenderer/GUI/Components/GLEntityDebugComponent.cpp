@@ -16,17 +16,11 @@ C_GLEntityDebugComponent::C_GLEntityDebugComponent(std::shared_ptr<Entity::I_Ent
 }
 
 //=================================================================================
-void C_GLEntityDebugComponent::SetEntity(std::shared_ptr<Entity::C_BasicEntity> entity)
-{
-	m_Entity = entity;
-}
-
-//=================================================================================
 void C_GLEntityDebugComponent::DrawContents()
 {
-	if (m_Entity)
+	if (auto entity = m_Entity.lock())
 	{
-		for (auto& component : *m_Entity) {
+		for (auto& component : *entity) {
 			component.second->DebugDrawGUI();
 		}
 	}
