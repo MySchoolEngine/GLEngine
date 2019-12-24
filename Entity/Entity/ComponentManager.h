@@ -20,7 +20,6 @@ public:
 	void operator=(C_ComponentManager const&) = delete;
 	static C_ComponentManager& Instance();
 
-protected:
 	void RegisterComponent(const T_ComponentPtr& component);
 	void UnregisterComonent(const T_ComponentPtr& component);
 private:
