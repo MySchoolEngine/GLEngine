@@ -1,6 +1,6 @@
 #include <EntityStdafx.h>
 
-#include <Entity/World.h>
+#include <Entity/EntityManager.h>
 
 #include <Entity/IEntity.h>
 #include <Entity/BasicEntity.h>
@@ -22,20 +22,20 @@ namespace GLEngine {
 namespace Entity {
 
 //=================================================================================
-C_World::C_World()
+C_EntityManager::C_EntityManager()
 	: m_Entities(new std::remove_pointer<decltype(m_Entities)>::type)
 {
 
 }
 
 //=================================================================================
-C_World::~C_World()
+C_EntityManager::~C_EntityManager()
 {
 	delete m_Entities;
 }
 
 //=================================================================================
-std::shared_ptr<I_Entity> C_World::GetEntity(GUID id) const
+std::shared_ptr<I_Entity> C_EntityManager::GetEntity(GUID id) const
 {
 	if (id == INVALID_GUID) {
 		return nullptr;
@@ -46,7 +46,7 @@ std::shared_ptr<I_Entity> C_World::GetEntity(GUID id) const
 }
 
 //=================================================================================
-std::shared_ptr<I_Entity> C_World::GetEntity(const std::string& name) const
+std::shared_ptr<I_Entity> C_EntityManager::GetEntity(const std::string& name) const
 {
 	const auto it = std::find_if(m_Entities->begin(), m_Entities->end(), [name](const std::shared_ptr<I_Entity>& entity) {
 		return entity->GetName() == name;
@@ -59,19 +59,25 @@ std::shared_ptr<I_Entity> C_World::GetEntity(const std::string& name) const
 }
 
 //=================================================================================
-std::vector<std::shared_ptr<I_Entity>> C_World::GetEntities(Physics::Primitives::C_Frustum frust)
+std::vector<std::shared_ptr<I_Entity>> C_EntityManager::GetEntities(Physics::Primitives::C_Frustum frust) const
 {
 	return *m_Entities;
 }
 
 //=================================================================================
-void C_World::AddEntity(std::shared_ptr<I_Entity> entity)
+const std::vector<std::shared_ptr<GLEngine::Entity::I_Entity>>& C_EntityManager::GetEntities() const
+{
+	return *m_Entities;
+}
+
+//=================================================================================
+void C_EntityManager::AddEntity(std::shared_ptr<I_Entity> entity)
 {
 	m_Entities->push_back(entity);
 }
 
 //=================================================================================
-void C_World::OnUpdate()
+void C_EntityManager::OnUpdate()
 {
 	for (auto& entity : *m_Entities)
 	{
@@ -85,7 +91,7 @@ void C_World::OnUpdate()
 }
 
 //=================================================================================
-Physics::Primitives::S_RayIntersection C_World::Select(Physics::Primitives::S_Ray& ray)
+Physics::Primitives::S_RayIntersection C_EntityManager::Select(Physics::Primitives::S_Ray& ray)
 {
 	{
 		using namespace Physics::Primitives;
@@ -102,7 +108,7 @@ Physics::Primitives::S_RayIntersection C_World::Select(Physics::Primitives::S_Ra
 }
 
 //=================================================================================
-bool C_World::LoadLevel(const std::string& name, std::unique_ptr<I_ComponentBuilderFactory> cbf)
+bool C_EntityManager::LoadLevel(const std::string& name, std::unique_ptr<I_ComponentBuilderFactory> cbf)
 {
 	CORE_LOG(E_Level::Info, E_Context::Core, "Loading level: {}", name);
 	delete m_Entities;
@@ -123,11 +129,14 @@ bool C_World::LoadLevel(const std::string& name, std::unique_ptr<I_ComponentBuil
 		return false;
 	}
 
+	auto debugBuilder = cbf->GetFactory("debug");
+
 	if (auto entitiesNode = worldNode.child("Entities"))
 	{
 		for (const auto& entityNode : entitiesNode.children("Entity"))
 		{
 			auto entity = std::make_shared<Entity::C_BasicEntity>(entityNode.attribute("name").value());
+			entity->AddComponent(debugBuilder->Build(pugi::xml_node(), entity));
 			this->AddEntity(entity);
 
 			if (auto componentsNode = entityNode.child("Components"))
@@ -137,7 +146,7 @@ bool C_World::LoadLevel(const std::string& name, std::unique_ptr<I_ComponentBuil
 					auto builder = cbf->GetFactory(componentNode.name());
 					if (builder)
 					{
-						entity->AddComponent(builder->Build(componentNode));
+						entity->AddComponent(builder->Build(componentNode, entity));
 					}
 				}
 			}

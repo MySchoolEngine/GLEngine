@@ -20,7 +20,8 @@ namespace Components {
 
 //=================================================================================
 C_StaticMesh::C_StaticMesh(std::string meshFile)
-	: m_meshFile(meshFile)
+	: Renderer::I_RenderableComponent(nullptr)
+	, m_meshFile(meshFile)
 	, m_Mesh(nullptr)
 {
 	// @todo lazy init
@@ -40,6 +41,7 @@ C_StaticMesh::C_StaticMesh(std::string meshFile)
 
 //=================================================================================
 C_StaticMesh::C_StaticMesh(const Mesh::Mesh& mesh)
+	: Renderer::I_RenderableComponent(nullptr)
 {
 	m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(mesh);
 }
@@ -55,7 +57,7 @@ void C_StaticMesh::PerformDraw() const
 }
 
 //=================================================================================
-std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_node& node)
+std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
 {
 	return std::make_shared<C_StaticMesh>(node.attribute("filePath").value());
 }

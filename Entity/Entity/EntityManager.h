@@ -20,13 +20,14 @@ namespace Entity {
 class I_Entity;
 class I_ComponentBuilderFactory;
 
-class ENTITY_API_EXPORT C_World {
+class ENTITY_API_EXPORT C_EntityManager {
 public:
-	C_World();
-	~C_World();
+	C_EntityManager();
+	~C_EntityManager();
 	std::shared_ptr<I_Entity> GetEntity(GUID id) const;
 	std::shared_ptr<I_Entity> GetEntity(const std::string& name) const;
-	std::vector<std::shared_ptr<I_Entity>> GetEntities(Physics::Primitives::C_Frustum frust);
+	std::vector<std::shared_ptr<I_Entity>> GetEntities(Physics::Primitives::C_Frustum frust) const;
+	const std::vector<std::shared_ptr<I_Entity>>& GetEntities() const;
 	void AddEntity(std::shared_ptr<I_Entity> entity);
 	void OnUpdate();
 	Physics::Primitives::S_RayIntersection Select(Physics::Primitives::S_Ray& ray);
