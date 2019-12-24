@@ -130,7 +130,7 @@ void C_SkyBox::PerformDraw() const
 					shmgr.ActivateShader(shader);
 
 					m_VAO.bind();
-					glBindTexture(GL_TEXTURE_CUBE_MAP, m_Textures.GetTexture());
+					m_Textures.bind();
 					glDrawArrays(GL_TRIANGLES, 0, 36);
 					glDepthFunc(GL_LESS); // set depth function back to default
 					m_VAO.unbind();
