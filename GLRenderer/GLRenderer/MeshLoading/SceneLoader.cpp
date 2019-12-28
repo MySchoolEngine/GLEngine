@@ -5,6 +5,8 @@
 #include <GLRenderer/MeshLoading/ModelLoader.h>
 
 #include <Renderer/Animation/Skeleton.h>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/transform.hpp>
 
 #include <pugixml.hpp>
 
@@ -68,6 +70,26 @@ bool SceneLoader::addModelFromDAEFileToScene(const char* filepath, const char* f
 		return false;
 	}
 
+	glm::mat4 noramlizingMatrix(1.f);
+
+	if (auto up_Axis = colladaNode.child("asset").child("up_axis"))
+	{
+		// default is Y_UP, which is also default for me
+		std::string_view upAxe = up_Axis.child_value();
+		if (upAxe == "Z_UP")
+		{
+			noramlizingMatrix = glm::rotate(-glm::half_pi<float>(), glm::vec3(1.f, .0f, .0f));
+		}
+		else if (upAxe == "Y_UP")
+		{
+			//do nothing
+		}
+		else
+		{
+			CORE_LOG(E_Level::Error, E_Context::Core, "unknown <up_axis> value: {}", upAxe);
+		}
+	}
+
 	if (auto imageLibrary = colladaNode.child("library_images").child("image").child("init_from"))
 	{
 		textureName = imageLibrary.child_value();
@@ -100,7 +122,7 @@ bool SceneLoader::addModelFromDAEFileToScene(const char* filepath, const char* f
 						float x, y, z;
 						while (ss >> x >> y >> z)
 						{
-							vertices.emplace_back(x, y, z, 1.f);
+							vertices.emplace_back(noramlizingMatrix * glm::vec4(x, y, z, 1.f));
 						}
 					}
 					else if (id.find("normals") != id.npos)
@@ -152,13 +174,15 @@ bool SceneLoader::addModelFromDAEFileToScene(const char* filepath, const char* f
 			std::vector<Renderer::Animation::S_Joint> joints;
 			std::vector<std::string> jointNames;
 			LoadJoints(jointNames, skinXML);
-			LoadJointsInvMatrices(jointNames, joints, skinXML);
+			LoadJointsInvMatrices(jointNames, joints, skinXML, noramlizingMatrix);
 
 			skeleton.m_Root = std::make_unique<Renderer::Animation::S_Joint>(joints[0]);
 
-			for (int i = 1; i < joints.size(); ++i) {
-				skeleton.m_Root->m_Children.emplace_back(joints[i]);
-			}
+			// wrong!!
+			skeleton.m_Root->m_Children.emplace_back(joints[1]);
+			skeleton.m_Root->m_Children[0].m_Children.emplace_back(joints[2]);
+			//skeleton.m_Root->m_Children.emplace_back(joints[10]);
+			//skeleton.m_Root->m_Children.emplace_back(joints[13]);
 		}
 	}
 
@@ -193,7 +217,7 @@ void SceneLoader::LoadJoints(std::vector<std::string>& jointNames, const pugi::x
 }
 
 //=================================================================================
-void SceneLoader::LoadJointsInvMatrices(const std::vector<std::string>& jointNames, std::vector<Renderer::Animation::S_Joint>& joints, const pugi::xml_node& skinXML) const
+void SceneLoader::LoadJointsInvMatrices(const std::vector<std::string>& jointNames, std::vector<Renderer::Animation::S_Joint>& joints, const pugi::xml_node& skinXML, const glm::mat4& normalizinMatrix) const
 {
 	for (auto xmlSource : skinXML.children("source"))
 	{
@@ -215,7 +239,7 @@ void SceneLoader::LoadJointsInvMatrices(const std::vector<std::string>& jointNam
 			{
 				float i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15;
 				ss >> i0 >> i1 >> i2 >> i3 >> i4 >> i5 >> i6 >> i7 >> i8 >> i9 >> i10 >> i11 >> i12 >> i13 >> i14 >> i15;
-				joints.emplace_back(i, name, glm::mat4(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15));
+				joints.emplace_back(i, name, glm::transpose(normalizinMatrix*glm::mat4(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15)));
 				++i;
 			}
 		}
