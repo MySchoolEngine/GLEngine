@@ -54,7 +54,7 @@ void C_ConsoleWindow::Draw() const
 	using levelUnderlying = std::underlying_type_t<Utils::Logging::E_Level>;
 	using contextUnderlying = std::underlying_type_t<Utils::Logging::E_Context>;
 
-	static char filterText[255] = { 0 };
+	static char m_SpawningName[255] = { 0 };
 
 	static std::unique_ptr<Utils::Logging::C_Filter> filter = std::make_unique<Utils::Logging::C_PassAllFilter>();
 
@@ -96,7 +96,7 @@ void C_ConsoleWindow::Draw() const
 	}
 
 
-	::ImGui::InputText("Filtered text", filterText, 255);
+	::ImGui::InputText("Filtered text", m_SpawningName, 255);
 
 	Utils::Logging::C_Filter* innerFilter(nullptr);
 
@@ -106,10 +106,10 @@ void C_ConsoleWindow::Draw() const
 		innerFilter = new C_NegationFilter(new C_ContextFilter(static_cast<E_Context>(selectedContextId)));
 	}
 
-	if (strlen(filterText) != 0)
+	if (strlen(m_SpawningName) != 0)
 	{
 		using namespace Utils::Logging;
-		innerFilter = new C_TextFilter(filterText, innerFilter);
+		innerFilter = new C_TextFilter(m_SpawningName, innerFilter);
 	}
 
 
