@@ -16,6 +16,8 @@
 
 #include <Renderer/IRenderer.h>
 
+#include <Utils/HighResolutionTimer.h>
+
 #include <Core/Application.h>
 
 namespace GLEngine::GLRenderer::Components {
@@ -81,11 +83,15 @@ C_SkeletalMesh::C_SkeletalMesh()
 
 	std::string textureName;
 
+	Utils::HighResolutionTimer timer;
+	timer.reset();
+
 	if (!sl->addModelFromDAEFileToScene("Models", "model.dae", m_Mesh, textureName, m_Skeleton, modelMatrix))
 	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}", "Models/scene.obj");
+		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}", "Models/model.dae");
 		return;
 	}
+	CORE_LOG(E_Level::Info, E_Context::Render, "Parsing skeleton file took {}ms", timer.getElapsedTimeFromLastQueryMilliseconds());
 
 	std::string texurePath("Models/");
 
