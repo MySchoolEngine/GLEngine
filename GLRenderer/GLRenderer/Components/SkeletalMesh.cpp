@@ -23,11 +23,11 @@ namespace GLEngine::GLRenderer::Components {
 //=================================================================================
 void C_SkeletalMesh::DebugDrawGUI()
 {
-	std::function<void(const Renderer::Animation::S_Joint)> DrawJointGUI;
+	std::function<void(const Renderer::Animation::S_Joint&)> DrawJointGUI;
 	DrawJointGUI = [&DrawJointGUI](const Renderer::Animation::S_Joint& joint)
 	{
 		if (::ImGui::CollapsingHeader(joint.m_Name.c_str())) {
-			auto& pos = joint.GetAnimatedTransform() * glm::vec4(0.f, 0.f, .0f, 1.f);
+			auto& pos = (joint.GetAnimatedTransform()) * glm::vec4(0.f, 0.f, .0f, 1.f);
 			::ImGui::Text("Original pos: [%f, %f, %f]", pos.x, pos.y, pos.z);
 			for (const auto& child : joint.m_Children)
 			{
