@@ -46,9 +46,15 @@ void C_ConsoleWindow::Draw() const
 {
 	::ImGui::Begin(m_Name.c_str(), &m_IsVisible);
 	static const char* levels[] = {"Error", "Warning", "Info", "Debug", "None"};
+	static const char* contexts[] = {"Core", "Render", "Entity", "None"};
 	static const char* current_level = levels[4];
+	static const char* current_context = contexts[3];
 	static int selectedLevelId = 4;
+	static int selectedContextId = 3;
 	using levelUnderlying = std::underlying_type_t<Utils::Logging::E_Level>;
+	using contextUnderlying = std::underlying_type_t<Utils::Logging::E_Context>;
+
+	static char filterText[255] = { 0 };
 
 	static std::unique_ptr<Utils::Logging::C_Filter> filter = std::make_unique<Utils::Logging::C_PassAllFilter>();
 
@@ -71,14 +77,53 @@ void C_ConsoleWindow::Draw() const
 	}
 
 
+	if (::ImGui::BeginCombo("##context", current_context))
+	{
+		for (int n = 0; n < sizeof(contexts) / sizeof(char*); n++)
+		{
+			bool is_selected = (current_context == contexts[n]);
+			if (ImGui::Selectable(contexts[n], is_selected))
+			{
+				current_context = contexts[n];
+				selectedContextId = n;
+			}
+			if (is_selected)
+			{
+				ImGui::SetItemDefaultFocus();
+			}
+		}
+		::ImGui::EndCombo();
+	}
+
+
+	::ImGui::InputText("Filtered text", filterText, 255);
+
+	Utils::Logging::C_Filter* innerFilter(nullptr);
+
+	if (selectedContextId != 3)
+	{
+		using namespace Utils::Logging;
+		innerFilter = new C_NegationFilter(new C_ContextFilter(static_cast<E_Context>(selectedContextId)));
+	}
+
+	if (strlen(filterText) != 0)
+	{
+		using namespace Utils::Logging;
+		innerFilter = new C_TextFilter(filterText, innerFilter);
+	}
+
 
 	if (selectedLevelId != 4) {
 		using namespace Utils::Logging;
-		filter = std::make_unique<C_NegationFilter>(new C_LevelFilter(static_cast<E_Level>(selectedLevelId)));
+		filter = std::make_unique<C_NegationFilter>(new C_LevelFilter(static_cast<E_Level>(selectedLevelId), innerFilter));
 	}
 	else
 	{
-		filter = std::make_unique<Utils::Logging::C_PassAllFilter>();
+		using namespace Utils::Logging;
+		if (!innerFilter)
+			filter = std::make_unique<Utils::Logging::C_PassAllFilter>();
+		else
+			filter = std::unique_ptr<C_Filter>(innerFilter);
 	}
 
 	::ImGui::BeginChild("Output");
