@@ -141,6 +141,7 @@ bool SceneLoader::addModelFromDAEFileToScene(const char* filepath, const char* f
 					}
 				}
 
+				// here it is possible to non-triangle polygons to arise
 				if (auto polylist = xmlMesh.child("polylist"))
 				{
 					if (auto indiceList = polylist.child("p"))
@@ -157,28 +158,56 @@ bool SceneLoader::addModelFromDAEFileToScene(const char* filepath, const char* f
 						}
 					}
 				}
+				else if (auto triangles = xmlMesh.child("triangles"))
+				{
+					CORE_LOG(E_Level::Error, E_Context::Render, "<Trianlges> not supported yet");
+				}
 			}
 
 			oMesh = std::make_shared<C_StaticMeshResource>(mesh);
 		}
 	}
 
+	std::map<std::string, Renderer::Animation::S_Joint> joints;
 	if (auto controllerLibrary = colladaNode.child("library_controllers"))
 	{
 		if (auto skinXML = controllerLibrary.child("controller").child("skin"))
 		{
-			std::vector<Renderer::Animation::S_Joint> joints;
 			std::vector<std::string> jointNames;
 			LoadJoints(jointNames, skinXML);
 			LoadJointsInvMatrices(jointNames, joints, skinXML, noramlizingMatrix);
+		}
+	}
 
-			skeleton.m_Root = std::make_unique<Renderer::Animation::S_Joint>(joints[0]);
+	if (auto visualScene = colladaNode.child("library_visual_scenes").child("visual_scene"))
+	{
+		for (auto xmlNode : visualScene.children("node"))
+		{
+			// we should take id from library_controllers
+			std::string_view id = xmlNode.attribute("id").as_string();
+			if (id == "Armature")
+			{
+				// ignore rotation/scale matrices
+				auto modelMatrix = ParseTranslation(xmlNode);
+				if (std::distance(xmlNode.children("node").begin(), xmlNode.children("node").end()) != 1)
+				{
+					CORE_LOG(E_Level::Warning, E_Context::Render, "Skeleton definition should contain only 1 root joint");
+				}
 
-			// wrong!!
-			skeleton.m_Root->m_Children.emplace_back(joints[1]);
-			skeleton.m_Root->m_Children[0].m_Children.emplace_back(joints[2]);
-			//skeleton.m_Root->m_Children.emplace_back(joints[10]);
-			//skeleton.m_Root->m_Children.emplace_back(joints[13]);
+				auto rootNode = *(xmlNode.children("node").begin());
+				std::string_view boneName = rootNode.attribute("sid").as_string();
+				const auto rootJoint = joints.find(boneName.data());
+				if (rootJoint == joints.end())
+				{
+					CORE_LOG(E_Level::Error, E_Context::Render, "Bone '{}' referenced in file '{}' doesn't exiests.", boneName, name);
+					return false;
+				}
+				skeleton.m_Root = std::make_unique<Renderer::Animation::S_Joint>(rootJoint->second);
+				if (!ParseChildrenJoints(*skeleton.m_Root.get(), rootNode, joints))
+				{
+					CORE_LOG(E_Level::Error, E_Context::Render, "Errors in joint hierarchy definition in file: {}", name);
+				}
+			}
 		}
 	}
 
@@ -213,7 +242,7 @@ void SceneLoader::LoadJoints(std::vector<std::string>& jointNames, const pugi::x
 }
 
 //=================================================================================
-void SceneLoader::LoadJointsInvMatrices(const std::vector<std::string>& jointNames, std::vector<Renderer::Animation::S_Joint>& joints, const pugi::xml_node& skinXML, const glm::mat4& normalizinMatrix) const
+void SceneLoader::LoadJointsInvMatrices(const std::vector<std::string>& jointNames, std::map<std::string, Renderer::Animation::S_Joint>& joints, const pugi::xml_node& skinXML, const glm::mat4& normalizinMatrix) const
 {
 	for (auto xmlSource : skinXML.children("source"))
 	{
@@ -225,18 +254,52 @@ void SceneLoader::LoadJointsInvMatrices(const std::vector<std::string>& jointNam
 
 		if (const auto floatArray = xmlSource.child("float_array"))
 		{
-			joints.reserve(jointNames.size());
-
 			S_FloatArray floats(floatArray);
 			int i  = 0;
 			for (const auto& name : jointNames)
 			{
 				const auto bindMatrix = glm::transpose(normalizinMatrix * floats.Get<glm::mat4>());
-				joints.emplace_back(i, name, bindMatrix);
+				joints.insert({ name, Renderer::Animation::S_Joint(i, name, bindMatrix) });
 				++i;
 			}
 		}
 	}
+}
+
+//=================================================================================
+glm::mat4 SceneLoader::ParseTranslation(const pugi::xml_node& node)
+{
+	float x, y, z;
+	if (auto translation = node.child("translate"))
+	{
+		std::stringstream ss;
+		ss << translation.child_value();
+		ss >> x >> y >> z;
+		return glm::translate(glm::mat4(1.f), { x,y,z });
+	}
+	return glm::mat4(1.f);
+}
+
+//=================================================================================
+bool SceneLoader::ParseChildrenJoints(Renderer::Animation::S_Joint& parent, const pugi::xml_node& xmlParent, const std::map<std::string, Renderer::Animation::S_Joint>& joints)
+{
+	for (const auto& node : xmlParent.children("node"))
+	{
+		std::string_view boneName = node.attribute("sid").as_string();
+		const auto joint = joints.find(boneName.data());
+		if (joint == joints.end())
+		{
+			CORE_LOG(E_Level::Error, E_Context::Render, "Bone '{}' referenced doesn't exiests.", boneName);
+			continue;
+			//return false;
+		}
+		auto& includedJoint = parent.m_Children.emplace_back(joint->second);
+		if (!ParseChildrenJoints(includedJoint, node, joints))
+		{
+			return false;
+		}
+	}
+	return true;
 }
 
 }

@@ -7,6 +7,7 @@
 #include <GLRenderer/Mesh/StaticMeshResource.h>
 
 #include <GLRenderer/Textures/Texture.h>
+#include <GLRenderer/GUI/Input/CheckBoxValue.h>
 
 namespace GLEngine::GLRenderer::Components {
 
@@ -19,8 +20,9 @@ public:
 	virtual void DebugDrawGUI() override;
 public:
 	std::shared_ptr<Mesh::C_StaticMeshResource>		m_Mesh;
-	std::shared_ptr<Textures::C_Texture>			m_Texture;
-	Renderer::Animation::C_Skeleton m_Skeleton;
+	std::shared_ptr<Textures::C_Texture>					m_Texture;
+	Renderer::Animation::C_Skeleton								m_Skeleton;
+	GUI::Input::C_CheckBoxValue										m_RenderMesh;
 };
 
 }

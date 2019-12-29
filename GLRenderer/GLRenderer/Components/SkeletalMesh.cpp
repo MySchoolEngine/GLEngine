@@ -25,6 +25,8 @@ namespace GLEngine::GLRenderer::Components {
 //=================================================================================
 void C_SkeletalMesh::DebugDrawGUI()
 {
+	m_RenderMesh.Draw();
+
 	std::function<void(const Renderer::Animation::S_Joint&)> DrawJointGUI;
 	DrawJointGUI = [&DrawJointGUI](const Renderer::Animation::S_Joint& joint)
 	{
@@ -45,6 +47,10 @@ void C_SkeletalMesh::DebugDrawGUI()
 //=================================================================================
 void C_SkeletalMesh::PerformDraw() const
 {
+	if (!m_Mesh || !m_RenderMesh)
+	{
+		return;
+	}
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
@@ -52,7 +58,7 @@ void C_SkeletalMesh::PerformDraw() const
 					auto& shmgr = Shaders::C_ShaderManager::Instance();
 					auto shader = shmgr.GetProgram("basic");
 					shmgr.ActivateShader(shader);
-
+	
 					shader->SetUniform("modelMatrix", glm::mat4(1.0f));
 				}
 			)
@@ -75,6 +81,7 @@ void C_SkeletalMesh::Update()
 
 //=================================================================================
 C_SkeletalMesh::C_SkeletalMesh()
+	: m_RenderMesh(true, "Render mesh")
 {
 	auto sl = std::make_unique<Mesh::SceneLoader>();
 
@@ -86,19 +93,24 @@ C_SkeletalMesh::C_SkeletalMesh()
 	Utils::HighResolutionTimer timer;
 	timer.reset();
 
-	if (!sl->addModelFromDAEFileToScene("Models", "model.dae", m_Mesh, textureName, m_Skeleton, modelMatrix))
+	const std::string path("Models/Frog");
+
+	if (!sl->addModelFromDAEFileToScene(path.data(), "Tree_frog.dae", m_Mesh, textureName, m_Skeleton, modelMatrix))
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}", "Models/model.dae");
 		return;
 	}
 	CORE_LOG(E_Level::Info, E_Context::Render, "Parsing skeleton file took {}ms", timer.getElapsedTimeFromLastQueryMilliseconds());
 
-	std::string texurePath("Models/");
+	std::string texurePath(path + "/");
 
 	texurePath.append(textureName);
 
 	const auto escapeSequence = texurePath.find("%20");
-	texurePath.replace(escapeSequence, 3, " ");
+	if (escapeSequence != std::string::npos)
+	{
+		texurePath.replace(escapeSequence, 3, " ");
+	}
 
 	Textures::TextureLoader tl;
 	Mesh::Texture t;
@@ -107,7 +119,6 @@ C_SkeletalMesh::C_SkeletalMesh()
 	if (!retval)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Texture '{}' cannot be loaded", textureName);
-		return;
 	}
 
 	m_Texture = std::make_shared<Textures::C_Texture>(textureName);
@@ -115,13 +126,13 @@ C_SkeletalMesh::C_SkeletalMesh()
 	glTexImage2D(m_Texture->GetTarget(),
 		0,
 		GL_RGB,
-		(GLsizei)1024,
-		(GLsizei)1024,
+		(GLsizei)t.width,
+		(GLsizei)t.height,
 		0,
 		GL_RGBA,
 		T_TypeToGL<typename std::remove_pointer<decltype(t.data)::element_type>::type>::value,
 		t.data.get());
-	m_Texture->SetDimensions({ 1024, 1024 });
+	m_Texture->SetDimensions({ t.width, t.height });
 	m_Texture->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
 	m_Texture->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 	m_Texture->GenerateMipMaps();
