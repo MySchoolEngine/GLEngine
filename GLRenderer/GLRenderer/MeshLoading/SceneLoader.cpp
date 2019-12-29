@@ -1,8 +1,10 @@
 #include <GLRendererStdafx.h>
 
-#include <GLRenderer/Textures/TextureLoader.h>
 #include <GLRenderer/MeshLoading/SceneLoader.h>
+
+#include <GLRenderer/Textures/TextureLoader.h>
 #include <GLRenderer/MeshLoading/ModelLoader.h>
+#include <GLRenderer/MeshLoading/Collada/FloatArray.h>
 
 #include <Renderer/Animation/Skeleton.h>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -109,38 +111,32 @@ bool SceneLoader::addModelFromDAEFileToScene(const char* filepath, const char* f
 			{
 				for (auto xmlSource : xmlMesh.children("source"))
 				{
-					std::string_view positionsString = xmlSource.child("float_array").child_value();
-					std::stringstream ss;
-					ss << positionsString;
-					std::string_view id = xmlSource.attribute("id").as_string();
+					S_FloatArray floats(xmlSource.child("float_array"));
 
-					auto floatCount = xmlSource.child("float_array").attribute("count").as_uint();
+					std::string_view id = xmlSource.attribute("id").as_string();
 
 					if (id.find("positions") != id.npos)
 					{
-						vertices.reserve(floatCount/3);
-						float x, y, z;
-						while (ss >> x >> y >> z)
+						vertices.reserve(floats.count<glm::vec3>());
+						while (!floats.EndOfArray())
 						{
-							vertices.emplace_back(noramlizingMatrix * glm::vec4(x, y, z, 1.f));
+							vertices.emplace_back(noramlizingMatrix * glm::vec4(floats.Get<glm::vec3>(), 1.f));
 						}
 					}
 					else if (id.find("normals") != id.npos)
 					{
-						normals.reserve(floatCount/3);
-						float x, y, z;
-						while (ss >> x >> y >> z)
+						normals.reserve(floats.count<glm::vec3>());
+						while (!floats.EndOfArray())
 						{
-							normals.emplace_back(x, y, z);
+							normals.emplace_back(floats.Get<glm::vec3>());
 						}
 					}
 					else if (id.find("map-0") != id.npos)
 					{
-						texCoords.reserve(floatCount/2);
-						float s, t;
-						while (ss >> s >> t)
+						texCoords.reserve(floats.count<glm::vec2>());
+						while (!floats.EndOfArray())
 						{
-							texCoords.emplace_back(s ,t);
+							texCoords.emplace_back(floats.Get<glm::vec2>());
 						}
 					}
 				}
@@ -231,15 +227,12 @@ void SceneLoader::LoadJointsInvMatrices(const std::vector<std::string>& jointNam
 		{
 			joints.reserve(jointNames.size());
 
-			const std::string_view matrices = floatArray.child_value();
-			std::stringstream ss;
-			ss << matrices;
+			S_FloatArray floats(floatArray);
 			int i  = 0;
 			for (const auto& name : jointNames)
 			{
-				float i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15;
-				ss >> i0 >> i1 >> i2 >> i3 >> i4 >> i5 >> i6 >> i7 >> i8 >> i9 >> i10 >> i11 >> i12 >> i13 >> i14 >> i15;
-				joints.emplace_back(i, name, glm::transpose(normalizinMatrix*glm::mat4(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15)));
+				const auto bindMatrix = glm::transpose(normalizinMatrix * floats.Get<glm::mat4>());
+				joints.emplace_back(i, name, bindMatrix);
 				++i;
 			}
 		}
