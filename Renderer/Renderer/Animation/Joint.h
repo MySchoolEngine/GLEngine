@@ -5,6 +5,7 @@
 namespace GLEngine::Renderer::Animation {
 
 struct RENDERER_API_EXPORT S_Joint {
+	S_Joint() = default;
 	S_Joint(std::size_t index, std::string name, glm::mat4 inverseBindTransform);
 	S_Joint(const S_Joint& other);
 	S_Joint(S_Joint&& other);
