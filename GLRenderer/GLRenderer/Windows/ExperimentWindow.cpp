@@ -101,7 +101,7 @@ void C_ExplerimentWindow::Update()
 	m_ImGUI->FrameBegin();
 	m_ImGUI->OnUpdate();
 	//MouseSelect();
-	C_DebugDraw::Instance().DrawAxis(glm::vec4(0.f, 0.f, 0.f, 1.f), glm::vec4(0, 1.f, 0.0f, 1.f), glm::vec4(0.f, 0.f, 1.f, 1.f));
+	C_DebugDraw::Instance().DrawAxis(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0, 1.f, 0.0f), glm::vec3(0.f, 0.f, 1.f));
 	C_DebugDraw::Instance().DrawGrid(glm::vec4(0.f), 5);
 
 	const auto avgMsPerFrame = m_Samples.Avg();
