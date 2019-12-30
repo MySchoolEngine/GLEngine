@@ -20,6 +20,12 @@ project "Renderer"
 		"../Physics",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmt}",
+		"../%{IncludeDir.pugixml}",
+	}
+
+	links 
+	{ 
+		"pugixml",
 	}
 
 	filter "system:windows"

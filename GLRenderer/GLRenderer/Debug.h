@@ -16,7 +16,7 @@
  
 #pragma once
 
-#include <GLRenderer/MeshLoading/Scene.h>
+#include <Renderer/Mesh/Scene.h>
 
 #include <GLRenderer/VAO/VAO.h>
 

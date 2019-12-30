@@ -4,7 +4,7 @@
 
 #include <GLRenderer/Mesh/StaticMeshResource.h>
 #include <GLRenderer/MeshLoading/SceneLoader.h>
-#include <GLRenderer/MeshLoading/Scene.h>
+#include <Renderer/Mesh/Scene.h>
 
 #include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
 
@@ -26,7 +26,7 @@ C_StaticMesh::C_StaticMesh(std::string meshFile)
 	// @todo lazy init
 	auto sl = std::make_unique<Mesh::SceneLoader>();
 
-	auto scene = std::make_shared<Mesh::Scene>();
+	auto scene = std::make_shared<Renderer::MeshData::Scene>();
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
 	if (!sl->addModelFromFileToScene("Models", m_meshFile.c_str(), scene, modelMatrix))
@@ -39,7 +39,7 @@ C_StaticMesh::C_StaticMesh(std::string meshFile)
 }
 
 //=================================================================================
-C_StaticMesh::C_StaticMesh(const Mesh::Mesh& mesh)
+C_StaticMesh::C_StaticMesh(const Renderer::MeshData::Mesh& mesh)
 {
 	m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(mesh);
 }

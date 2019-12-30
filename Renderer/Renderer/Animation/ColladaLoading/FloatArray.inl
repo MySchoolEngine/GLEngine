@@ -1,11 +1,11 @@
 #pragma once
 
 
-namespace GLEngine::GLRenderer::Mesh {
+namespace GLEngine::Renderer::Animation {
 
 //=================================================================================
 template<>
-float GLEngine::GLRenderer::Mesh::S_FloatArray::Get()
+float S_FloatArray::Get()
 {
 	float val;
 	m_FloatsStream >> val;
@@ -15,7 +15,7 @@ float GLEngine::GLRenderer::Mesh::S_FloatArray::Get()
 
 //=================================================================================
 template<>
-glm::vec2 GLEngine::GLRenderer::Mesh::S_FloatArray::Get()
+glm::vec2 S_FloatArray::Get()
 {
 	float f1, f2;
 	m_FloatsStream >> f1 >> f2;
@@ -25,7 +25,7 @@ glm::vec2 GLEngine::GLRenderer::Mesh::S_FloatArray::Get()
 
 //=================================================================================
 template<>
-glm::vec3 GLEngine::GLRenderer::Mesh::S_FloatArray::Get()
+glm::vec3 S_FloatArray::Get()
 {
 	float f1, f2, f3;
 	m_FloatsStream >> f1 >> f2 >> f3;
@@ -35,7 +35,7 @@ glm::vec3 GLEngine::GLRenderer::Mesh::S_FloatArray::Get()
 
 //=================================================================================
 template<>
-glm::vec4 GLEngine::GLRenderer::Mesh::S_FloatArray::Get()
+glm::vec4 S_FloatArray::Get()
 {
 	float f1, f2, f3, f4;
 	m_FloatsStream >> f1 >> f2 >> f3 >> f4;
@@ -45,7 +45,7 @@ glm::vec4 GLEngine::GLRenderer::Mesh::S_FloatArray::Get()
 
 //=================================================================================
 template<>
-glm::mat4 GLEngine::GLRenderer::Mesh::S_FloatArray::Get()
+glm::mat4 S_FloatArray::Get()
 {
 	float f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16;
 

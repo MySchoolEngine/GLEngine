@@ -18,7 +18,7 @@ namespace Textures {
 bool TextureLoader::_isILinitialized = false;
 
 //=================================================================================
-bool TextureLoader::loadTexture(const char* path, Mesh::Texture& t)
+bool TextureLoader::loadTexture(const char* path, Renderer::MeshData::Texture& t)
 {
 	if (!_isILinitialized)
 	{

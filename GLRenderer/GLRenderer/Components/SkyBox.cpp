@@ -6,7 +6,7 @@
 
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 
-#include <GLRenderer/MeshLoading/Scene.h>
+#include <Renderer/Mesh/Scene.h>
 
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
@@ -96,7 +96,7 @@ C_SkyBox::C_SkyBox()
 void C_SkyBox::AddTexture(E_Side side, const std::string& filename)
 {
 	Textures::TextureLoader tl;
-	Mesh::Texture t;
+	Renderer::MeshData::Texture t;
 	bool retval = tl.loadTexture(filename.c_str(), t);
 
 	if (!retval)

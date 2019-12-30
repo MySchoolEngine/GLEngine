@@ -5,8 +5,8 @@
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 
-#include <GLRenderer/MeshLoading/SceneLoader.h>
-#include <GLRenderer/MeshLoading/Scene.h>
+#include <Renderer/Animation/ColladaLoading/ColladaLoader.h>
+#include <Renderer/Mesh/Scene.h>
 
 #include <GLRenderer/Textures/TextureLoader.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
@@ -83,9 +83,9 @@ void C_SkeletalMesh::Update()
 C_SkeletalMesh::C_SkeletalMesh(std::string meshFile, std::string meshFolder)
 	: m_RenderMesh(true, "Render mesh")
 {
-	auto sl = std::make_unique<Mesh::SceneLoader>();
+	Renderer::Animation::C_ColladaLoader sl;
 
-	auto scene = std::make_shared<Mesh::Scene>();
+	auto scene = std::make_shared<Renderer::MeshData::Scene>();
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
 	std::string textureName;
@@ -93,11 +93,16 @@ C_SkeletalMesh::C_SkeletalMesh(std::string meshFile, std::string meshFolder)
 	Utils::HighResolutionTimer timer;
 	timer.reset();
 
-	if (!sl->addModelFromDAEFileToScene(meshFolder.data(), meshFile.data(), m_Mesh, textureName, m_Skeleton, m_Animation, modelMatrix))
+	Renderer::MeshData::Mesh mesh;
+
+	if (!sl.addModelFromDAEFileToScene(meshFolder.data(), meshFile.data(), mesh, textureName, m_Skeleton, m_Animation, modelMatrix))
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}/{}", meshFolder, meshFile);
 		return;
 	}
+
+	m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(mesh);
+
 	CORE_LOG(E_Level::Info, E_Context::Render, "Parsing skeleton file took {}ms", timer.getElapsedTimeFromLastQueryMilliseconds());
 
 	std::string texurePath(meshFolder + "/");
@@ -111,7 +116,7 @@ C_SkeletalMesh::C_SkeletalMesh(std::string meshFile, std::string meshFolder)
 	}
 
 	Textures::TextureLoader tl;
-	Mesh::Texture t;
+	Renderer::MeshData::Texture t;
 	bool retval = tl.loadTexture(texurePath.c_str(), t);
 
 	if (!retval)
@@ -121,16 +126,7 @@ C_SkeletalMesh::C_SkeletalMesh(std::string meshFile, std::string meshFolder)
 
 	m_Texture = std::make_shared<Textures::C_Texture>(textureName);
 	m_Texture->StartGroupOp();
-	glTexImage2D(m_Texture->GetTarget(),
-		0,
-		GL_RGB,
-		(GLsizei)t.width,
-		(GLsizei)t.height,
-		0,
-		GL_RGBA,
-		T_TypeToGL<typename std::remove_pointer<decltype(t.data)::element_type>::type>::value,
-		t.data.get());
-	m_Texture->SetDimensions({ t.width, t.height });
+	m_Texture->SetTexData2D(0, t);
 	m_Texture->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
 	m_Texture->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 	m_Texture->GenerateMipMaps();

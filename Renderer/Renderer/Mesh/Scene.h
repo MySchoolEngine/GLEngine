@@ -3,8 +3,12 @@
 #include <Physics/Primitives/Shapes.h>
 #include <Physics/Primitives/AABB.h>
 
+#include <vector>
+#include <string>
+#include <memory>
 
-namespace GLEngine::GLRenderer::Mesh {
+
+namespace GLEngine::Renderer::MeshData {
 
 //=================================================================================
 struct Material

@@ -5,18 +5,18 @@
 #include <GLRenderer/Mesh/StaticMeshResource.h>
 
 namespace GLEngine {
-namespace GLRenderer {
-
-namespace Mesh {
+namespace Renderer::MeshData
+{
 struct Mesh;
 }
+namespace GLRenderer {
 
 namespace Components {
 
 class C_StaticMesh : public Renderer::I_RenderableComponent {
 public:
 	C_StaticMesh(std::string meshFile);
-	C_StaticMesh(const Mesh::Mesh& meshFile);
+	C_StaticMesh(const Renderer::MeshData::Mesh& meshFile);
 	virtual void PerformDraw() const override;
 protected:
 	std::string										m_meshFile;

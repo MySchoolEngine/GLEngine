@@ -1,10 +1,10 @@
-#include <GLRendererStdafx.h>
+#include <RendererStdafx.h>
 
-#include <GLRenderer/MeshLoading/Collada/FloatArray.h>
+#include <Renderer/Animation/ColladaLoading/FloatArray.h>
 
 #include <pugixml.hpp>
 
-namespace GLEngine::GLRenderer::Mesh {
+namespace GLEngine::Renderer::Animation {
 
 //=================================================================================
 S_FloatArray::S_FloatArray(const pugi::xml_node& floatArray)

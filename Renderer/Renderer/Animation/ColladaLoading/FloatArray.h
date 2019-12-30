@@ -5,7 +5,7 @@ namespace pugi
 class xml_node;
 }
 
-namespace GLEngine::GLRenderer::Mesh {
+namespace GLEngine::Renderer::Animation {
 
 struct S_FloatArray
 {
@@ -45,4 +45,4 @@ private:
 
 }
 
-#include <GLRenderer/MeshLoading/Collada/FloatArray.inl>
+#include <Renderer/Animation/ColladaLoading/FloatArray.inl>

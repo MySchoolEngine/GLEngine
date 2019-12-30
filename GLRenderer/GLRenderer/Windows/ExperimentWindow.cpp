@@ -21,8 +21,6 @@
 
 #include <GLRenderer/ImGui/ImGuiLayer.h>
 
-#include <GLRenderer/MeshLoading/Scene.h>
-
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 
 #include <GLRenderer/Textures/TextureLoader.h>
@@ -39,6 +37,8 @@
 #include <GLRenderer/Debug.h>
 
 #include <GLRenderer/GUI/Components/GLEntityDebugComponent.h>
+
+#include <Renderer/Mesh/Scene.h>
 
 #include <Physics/Primitives/Ray.h>
 #include <Physics/Primitives/Intersection.h>
@@ -169,22 +169,13 @@ void C_ExplerimentWindow::Update()
 			m_World.AddEntity(Terrain); 
 			
 			Textures::TextureLoader tl;
-			Mesh::Texture t;
+			Renderer::MeshData::Texture t;
 			bool retval = tl.loadTexture(m_SpawningFilename, t);
 			if (retval) {
 				Textures::C_Texture ct(m_SpawningFilename);
 
 				ct.StartGroupOp();
-				glTexImage2D(ct.GetTarget(),
-					0,
-					GL_RGB,
-					(GLsizei)1024,
-					(GLsizei)1024,
-					0,
-					GL_RGBA,
-					T_TypeToGL<typename std::remove_pointer<decltype(t.data)::element_type>::type>::value,
-					t.data.get());
-				ct.SetDimensions({ 1024, 1024 });
+				ct.SetTexData2D(0, t);
 				ct.SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
 				ct.SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 				ct.GenerateMipMaps();
@@ -457,7 +448,7 @@ void C_ExplerimentWindow::SetupWorld()
 	}
 	{
 		// billboard
-		Mesh::Mesh billboardMesh;
+		Renderer::MeshData::Mesh billboardMesh;
 		billboardMesh.vertices.emplace_back(-1.f,  1.f, 0, 1); // 1
 		billboardMesh.vertices.emplace_back(-1.f, -1.f, 0, 1); // 2
 		billboardMesh.vertices.emplace_back( 1.0f, 1.0f, 0, 1); // 3

@@ -2,7 +2,7 @@
 
 #include <GLRenderer/Textures/Texture.h>
 
-#include <GLRenderer/MeshLoading/Scene.h>
+#include <Renderer/Mesh/Scene.h>
 
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 
@@ -113,7 +113,7 @@ void C_Texture::GenerateMipMaps()
 }
 
 //=================================================================================
-void C_Texture::SetTexData2D(int level, const Mesh::Texture& tex)
+void C_Texture::SetTexData2D(int level, const Renderer::MeshData::Texture& tex)
 {
 	SetDimensions({ tex.width, tex.height });
 	glTexImage2D(m_target,

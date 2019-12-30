@@ -2,7 +2,7 @@
 
 #include <GLRenderer/MeshLoading/SceneBuilder.h>
 
-#include <GLRenderer/MeshLoading/Scene.h>
+#include <Renderer/Mesh/Scene.h>
 #include <GLRenderer/MeshLoading/SceneLoader.h>
 
 #include <GLRenderer/Mesh/StaticMeshResource.h>
@@ -194,7 +194,7 @@ std::shared_ptr<I_RenderNode> C_SceneBuilder::LoadMesh(const Mesh& mesh)
 */
 
 //=================================================================================
-std::shared_ptr<Textures::C_Texture> C_SceneBuilder::LoadTexture(const Texture & texture) const
+std::shared_ptr<Textures::C_Texture> C_SceneBuilder::LoadTexture(const Renderer::MeshData::Texture & texture) const
 {
 	auto tex = std::make_shared<Textures::C_Texture>(texture.m_name);
 	tex->StartGroupOp();
