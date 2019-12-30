@@ -26,6 +26,7 @@ namespace GLEngine::GLRenderer::Components {
 void C_SkeletalMesh::DebugDrawGUI()
 {
 	m_RenderMesh.Draw();
+	m_AnimationProgress.Draw();
 
 	std::function<void(const Renderer::Animation::S_Joint&)> DrawJointGUI;
 	DrawJointGUI = [&DrawJointGUI](const Renderer::Animation::S_Joint& joint)
@@ -83,6 +84,7 @@ void C_SkeletalMesh::Update()
 C_SkeletalMesh::C_SkeletalMesh(std::string meshFile, std::string meshFolder)
 	: m_RenderMesh(true, "Render mesh")
 	, m_Animation(0)
+	, m_AnimationProgress(.0f, .0f, 1.f, "Animation progress")
 {
 	Renderer::Animation::C_ColladaLoader sl;
 

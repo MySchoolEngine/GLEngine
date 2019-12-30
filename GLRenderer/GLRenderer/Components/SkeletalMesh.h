@@ -8,6 +8,7 @@
 
 #include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/GUI/Input/CheckBoxValue.h>
+#include <GLRenderer/GUI/Input/Slider.h>
 
 #include <Renderer/Animation/SkeletalAnimation.h>
 
@@ -25,7 +26,8 @@ public:
 	std::shared_ptr<Textures::C_Texture>					m_Texture;
 	Renderer::Animation::C_Skeleton								m_Skeleton;
 	Renderer::Animation::C_SkeletalAnimation			m_Animation;
-	GUI::Input::C_CheckBoxValue										m_RenderMesh;
+	GUI::Input::C_CheckBoxValue										m_RenderMesh; 
+	GUI::Input::C_Slider<float>										m_AnimationProgress;
 };
 
 }
