@@ -35,48 +35,43 @@ bool S_Timestamp::operator>=(const S_Timestamp& other) const
 }
 
 //=================================================================================
-// S_SkeletalJointTransform
+// S_BoneKeyframe
 //=================================================================================
-S_SkeletalJointTransform::S_SkeletalJointTransform(const glm::mat4& matrix)
+S_BoneKeyframe::S_BoneKeyframe(const glm::mat4& matrix, S_Timestamp timestamp)
 	: m_Transform(matrix[3][0], matrix[3][1], matrix[3][2])
 	, m_Rotation(glm::quat_cast(matrix))
+	, m_Timestamp(timestamp)
 {
 
 }
 
 //=================================================================================
-// C_SkeletalAnimationKeyframe
+// C_BoneTimeline
 //=================================================================================
-C_SkeletalAnimationKeyframe::C_SkeletalAnimationKeyframe(S_Timestamp timestamp, std::size_t numBones)
-	: m_Timestamp(timestamp)
+C_BoneTimeline::C_BoneTimeline(std::size_t numTimestamps)
 {
-	m_Transforms.resize(numBones);
+	m_Timeline.resize(numTimestamps);
 }
 
 //=================================================================================
-const S_Timestamp& C_SkeletalAnimationKeyframe::GetTimestamp() const
+void C_BoneTimeline::AddBoneKeyFrame(std::size_t index, S_BoneKeyframe&& keyframe)
 {
-	return m_Timestamp;
-}
-
-//=================================================================================
-void C_SkeletalAnimationKeyframe::AddJointTransform(std::size_t index, S_SkeletalJointTransform&& transform)
-{
-	m_Transforms[index] = std::move(transform);
+	GLE_ASSERT(keyframe.m_Timestamp >= m_Timeline.back().m_Timestamp, "Adding keyframes out of order not suppoerted");
+	m_Timeline[index] = (std::move(keyframe));
 }
 
 //=================================================================================
 // C_SkeletalAnimation
 //=================================================================================
-C_SkeletalAnimation::C_SkeletalAnimation()
+C_SkeletalAnimation::C_SkeletalAnimation(std::size_t numBones)
 {
-
+	m_Timelines.resize(numBones);
 }
 
 //=================================================================================
-void C_SkeletalAnimation::AddKeyframe(C_SkeletalAnimationKeyframe&& keyframe)
+void C_SkeletalAnimation::SetBoneTimeline(std::size_t index, C_BoneTimeline&& timeline)
 {
-	GLE_ASSERT(keyframe.GetTimestamp() >= m_Keyframes.back().GetTimestamp(), "Adding keyframes out of order is not allowed now");
-	m_Keyframes.emplace_back(std::move(keyframe));
+	m_Timelines[index] = std::move(timeline);
 }
+
 }

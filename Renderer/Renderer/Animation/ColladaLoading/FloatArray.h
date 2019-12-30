@@ -9,7 +9,9 @@ namespace GLEngine::Renderer::Animation {
 
 struct S_FloatArray
 {
+	S_FloatArray() = default;
 	S_FloatArray(const pugi::xml_node& floatArray);
+	S_FloatArray& operator=(S_FloatArray&&) = default;
 	template<class T>
 	T Get() = delete;
 	template<>

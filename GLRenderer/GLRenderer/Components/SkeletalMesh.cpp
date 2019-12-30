@@ -82,6 +82,7 @@ void C_SkeletalMesh::Update()
 //=================================================================================
 C_SkeletalMesh::C_SkeletalMesh(std::string meshFile, std::string meshFolder)
 	: m_RenderMesh(true, "Render mesh")
+	, m_Animation(0)
 {
 	Renderer::Animation::C_ColladaLoader sl;
 

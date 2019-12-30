@@ -12,16 +12,18 @@
 
 #include <pugixml.hpp>
 
+#include <array>
+
 namespace GLEngine::Renderer::Animation {
 
 //=================================================================================
 bool C_ColladaLoader::addModelFromDAEFileToScene(
 	const char* filepath,
 	const char* filename,
-	Renderer::MeshData::Mesh& oMesh,
+	MeshData::Mesh& oMesh,
 	std::string& textureName,
-	Renderer::Animation::C_Skeleton& skeleton,
-	Renderer::Animation::C_SkeletalAnimation& animation,
+	C_Skeleton& skeleton,
+	C_SkeletalAnimation& animation,
 	const glm::mat4& transform /*= glm::mat4(1)*/)
 {
 	std::string name;
@@ -139,14 +141,13 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 		}
 	}
 
-	std::map<std::string, Renderer::Animation::S_Joint> joints;
+	std::map<std::string, S_Joint> joints;
 	if (auto controllerLibrary = colladaNode.child("library_controllers"))
 	{
 		if (auto skinXML = controllerLibrary.child("controller").child("skin"))
 		{
-			std::vector<std::string> jointNames;
-			LoadJoints(jointNames, skinXML);
-			LoadJointsInvMatrices(jointNames, joints, skinXML, noramlizingMatrix);
+			LoadJoints(skinXML);
+			LoadJointsInvMatrices(joints, skinXML, noramlizingMatrix);
 		}
 	}
 
@@ -173,7 +174,7 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 					CORE_LOG(E_Level::Error, E_Context::Render, "Bone '{}' referenced in file '{}' doesn't exiests.", boneName, name);
 					return false;
 				}
-				skeleton.m_Root = std::make_unique<Renderer::Animation::S_Joint>(rootJoint->second);
+				skeleton.m_Root = std::make_unique<S_Joint>(rootJoint->second);
 				if (!ParseChildrenJoints(*skeleton.m_Root.get(), rootNode, joints))
 				{
 					CORE_LOG(E_Level::Error, E_Context::Render, "Errors in joint hierarchy definition in file: {}", name);
@@ -182,11 +183,30 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 		}
 	}
 
+	if (auto animationLibrary = colladaNode.child("library_animations"))
+	{
+		animation = C_SkeletalAnimation(m_JointNames.size());
+		for (const auto& animationXML : animationLibrary.children("animation"))
+		{
+			std::string_view id = animationXML.attribute("id").as_string();
+			const auto underscoreIndex = id.find('_') + 1;
+			std::string boneIdName(id.substr(underscoreIndex, id.find("_pose_matrix") - underscoreIndex));
+			CORE_LOG(E_Level::Error, E_Context::Render, "{}", boneIdName);
+			const auto boneId = GetBoneId(boneIdName);
+			if (boneId < 0)
+			{
+				CORE_LOG(E_Level::Warning, E_Context::Render, "Referenced bone '{}' but not found", boneIdName);
+				continue;
+			}
+			animation.SetBoneTimeline(boneId, LoadBoneTimeline(animationXML));
+		}
+	}
+
 	return true;
 }
 
 //=================================================================================
-void C_ColladaLoader::LoadJoints(std::vector<std::string>& jointNames, const pugi::xml_node& skinXML) const
+void C_ColladaLoader::LoadJoints(const pugi::xml_node& skinXML)
 {
 	for (auto xmlSource : skinXML.children("source"))
 	{
@@ -199,21 +219,21 @@ void C_ColladaLoader::LoadJoints(std::vector<std::string>& jointNames, const pug
 		if (const auto nameArray = xmlSource.child("Name_array"))
 		{
 			const std::size_t numBones = nameArray.attribute("count").as_int();
-			jointNames.reserve(numBones);
+			m_JointNames.reserve(numBones);
 			const std::string_view names = nameArray.child_value();
 			std::stringstream ss;
 			ss << names;
 			std::string name;
 			while (ss >> name)
 			{
-				jointNames.emplace_back(name);
+				m_JointNames.emplace_back(name);
 			}
 		}
 	}
 }
 
 //=================================================================================
-void C_ColladaLoader::LoadJointsInvMatrices(const std::vector<std::string>& jointNames, std::map<std::string, Renderer::Animation::S_Joint>& joints, const pugi::xml_node& skinXML, const glm::mat4& normalizinMatrix) const
+void C_ColladaLoader::LoadJointsInvMatrices(std::map<std::string, S_Joint>& joints, const pugi::xml_node& skinXML, const glm::mat4& normalizinMatrix) const
 {
 	for (auto xmlSource : skinXML.children("source"))
 	{
@@ -227,10 +247,10 @@ void C_ColladaLoader::LoadJointsInvMatrices(const std::vector<std::string>& join
 		{
 			S_FloatArray floats(floatArray);
 			int i = 0;
-			for (const auto& name : jointNames)
+			for (const auto& name : m_JointNames)
 			{
 				const auto bindMatrix = glm::transpose(normalizinMatrix * floats.Get<glm::mat4>());
-				joints.insert({ name, Renderer::Animation::S_Joint(i, name, bindMatrix) });
+				joints.insert({ name, S_Joint(i, name, bindMatrix) });
 				++i;
 			}
 		}
@@ -252,7 +272,7 @@ glm::mat4 C_ColladaLoader::ParseTranslation(const pugi::xml_node& node)
 }
 
 //=================================================================================
-bool C_ColladaLoader::ParseChildrenJoints(Renderer::Animation::S_Joint& parent, const pugi::xml_node& xmlParent, const std::map<std::string, Renderer::Animation::S_Joint>& joints)
+bool C_ColladaLoader::ParseChildrenJoints(S_Joint& parent, const pugi::xml_node& xmlParent, const std::map<std::string, S_Joint>& joints)
 {
 	for (const auto& node : xmlParent.children("node"))
 	{
@@ -272,4 +292,50 @@ bool C_ColladaLoader::ParseChildrenJoints(Renderer::Animation::S_Joint& parent, 
 	}
 	return true;
 }
+
+//=================================================================================
+std::size_t C_ColladaLoader::GetBoneId(const std::string& name) const
+{
+	const auto it = std::find(m_JointNames.begin(), m_JointNames.end(), name);
+	if (it == m_JointNames.end())
+	{
+		return -1;
+	}
+	return std::distance(m_JointNames.begin(), it);
+}
+
+//=================================================================================
+void C_ColladaLoader::Reset()
+{
+	m_JointNames.clear();
+}
+
+//=================================================================================
+C_BoneTimeline C_ColladaLoader::LoadBoneTimeline(const pugi::xml_node& node) const
+{
+	std::array<S_FloatArray, 2> floatArrays;
+
+	for (const auto& sourceXml : node.children("source"))
+	{
+		std::string_view id(sourceXml.attribute("id").as_string());
+		if (id.find("input") != std::string::npos)
+		{
+			floatArrays[0] = S_FloatArray(sourceXml.child("float_array"));
+		}
+		else if (id.find("output") != std::string::npos)
+		{
+			floatArrays[1] = S_FloatArray(sourceXml.child("float_array"));
+		}
+	}
+	C_BoneTimeline timeline(floatArrays[0].count<float>());
+	std::size_t index = 0;
+	while (floatArrays[0].EndOfArray() == false)
+	{
+		timeline.AddBoneKeyFrame(index, S_BoneKeyframe(floatArrays[1].Get<glm::mat4>(), floatArrays[0].Get<float>()));
+		++index;
+	}
+
+	return timeline;
+}
+
 }

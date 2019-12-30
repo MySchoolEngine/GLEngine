@@ -14,6 +14,7 @@ namespace GLEngine::Renderer::Animation
 class C_SkeletalAnimation;
 class C_Skeleton;
 struct S_Joint;
+class C_BoneTimeline;
 }
 
 namespace GLEngine::Renderer::Animation {
@@ -24,13 +25,20 @@ public:
 
 	//filepath - the folder where the model is
 	//filename - the actual name of the file
-	bool addModelFromDAEFileToScene(const char* filepath, const char* filename, Renderer::MeshData::Mesh& mesh, std::string& textureName, Renderer::Animation::C_Skeleton& skeleton,
-		Renderer::Animation::C_SkeletalAnimation& animation, const glm::mat4& transform = glm::mat4(1));
+	bool addModelFromDAEFileToScene(const char* filepath, const char* filename, MeshData::Mesh& mesh, std::string& textureName, 
+		C_Skeleton& skeleton,
+		C_SkeletalAnimation& animation, 
+		const glm::mat4& transform = glm::mat4(1));
 private:
-	void LoadJoints(std::vector<std::string>& jointNames, const pugi::xml_node& skinXML) const;
-	void LoadJointsInvMatrices(const std::vector<std::string>& jointNames, std::map<std::string, Renderer::Animation::S_Joint>& joints, const pugi::xml_node& skinXML, const glm::mat4& normalizinMatrix) const;
+	void LoadJoints(const pugi::xml_node& skinXML);
+	void LoadJointsInvMatrices(std::map<std::string, S_Joint>& joints, const pugi::xml_node& skinXML, const glm::mat4& normalizinMatrix) const;
 	glm::mat4 ParseTranslation(const pugi::xml_node& node);
-	bool ParseChildrenJoints(Renderer::Animation::S_Joint& parent, const pugi::xml_node& xmlParent, const std::map<std::string, Renderer::Animation::S_Joint>& joints);
+	bool ParseChildrenJoints(S_Joint& parent, const pugi::xml_node& xmlParent, const std::map<std::string, S_Joint>& joints);
+
+	std::size_t GetBoneId(const std::string& name) const;
+	C_BoneTimeline LoadBoneTimeline(const pugi::xml_node& node) const;
+
+	std::vector<std::string> m_JointNames;
 };
 
 }
