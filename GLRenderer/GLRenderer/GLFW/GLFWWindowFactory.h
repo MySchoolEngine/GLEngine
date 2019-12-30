@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/CoreMacros.h>
+#include <GLRenderer/GLRendererApi.h>
 
 #include <Core/IWindowManager.h>
 
@@ -14,7 +14,7 @@ public:
 	virtual std::shared_ptr<Core::I_Window> GetWindow(const Core::S_WindowInfo&) const override;
 };
 
-API_EXPORT Core::I_WindowFactory* ConstructGLFWWindowFactory();
+GL_RENDERER_API_EXPORT Core::I_WindowFactory* ConstructGLFWWindowFactory();
 }
 }
 }

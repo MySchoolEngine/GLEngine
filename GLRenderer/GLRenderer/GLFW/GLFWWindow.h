@@ -14,7 +14,7 @@ class I_Input;
 
 namespace GLRenderer {
 namespace GLFW {
-class API_EXPORT C_GLFWWindow : public Core::I_Window {
+class C_GLFWWindow : public Core::I_Window {
 public:
 	virtual ~C_GLFWWindow();
 

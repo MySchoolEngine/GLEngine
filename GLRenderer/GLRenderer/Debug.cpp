@@ -183,10 +183,10 @@ void C_DebugDraw::DrawLines(const std::vector<glm::vec4>& pairs, const glm::vec3
 //=================================================================================
 void C_DebugDraw::DrawBone(const glm::vec3& position, const Renderer::Animation::S_Joint& joint)
 {
-	const auto locTransformation	= joint.m_LocalBindTransform;
-	const glm::vec4 boneOffset4		= glm::normalize(locTransformation * glm::vec4(0.f, 0.f, .0f, 1.f));
-	const glm::vec3 boneOffset		= glm::vec3(boneOffset4 / boneOffset4.w);
-	const glm::vec3 dest			= position + boneOffset;
+	const auto locTransformation	= glm::inverse((joint.m_InverseBindTransfomr));
+	const glm::vec4 modelDest		= (locTransformation * glm::vec4(0.f, 0.f, 0.0f, 1.f));
+	const glm::vec3 dest			= glm::vec3(modelDest / modelDest.w);
+	const glm::vec3 boneOffset		= dest - position;
 
 	const float bumpFactor = .33f;
 	const auto BumpPosition = position + boneOffset * bumpFactor;
@@ -243,18 +243,27 @@ void C_DebugDraw::DrawBone(const glm::vec3& position, const Renderer::Animation:
 //=================================================================================
 void C_DebugDraw::DrawSkeleton(const glm::vec3& root, const Renderer::Animation::C_Skeleton& skeleton)
 {
-	DrawBone(root, *skeleton.m_Root.get());
+	const auto locTransformation = glm::inverse((skeleton.m_Root->m_InverseBindTransfomr));
+	const glm::vec4 modelDest = (locTransformation * glm::vec4(0.f, 0.f, 0.0f, 1.f));
+	const glm::vec3 dest = glm::vec3(modelDest / modelDest.w);
+	const glm::vec3 boneOffset = dest - root;
+
+	for (const auto& child : skeleton.m_Root->m_Children)
+	{
+		DrawBone(root + boneOffset, child);
+	}
 }
 
 //=================================================================================
-void C_DebugDraw::DrawAxis(const glm::vec4 & origin, const glm::vec4 & up, const glm::vec4 & foreward, glm::mat4 & modelMatrix)
+void C_DebugDraw::DrawAxis(const glm::vec3& origin, const glm::vec3& up, const glm::vec3& foreward, glm::mat4 & modelMatrix)
 {
-	glm::vec4 forewardVec = glm::normalize(foreward - origin);
-	glm::vec4 upVec = glm::normalize(up - origin);
-	glm::vec4 rightVec = toVec4(glm::normalize(glm::cross(glm::vec3(upVec), glm::vec3(forewardVec))));
-	DrawLine(origin, origin + foreward, glm::vec3(0.0f, 0.0f, 1.0f));
-	DrawLine(origin, origin + up, glm::vec3(0.0f, 1.0f, 0.0f));
-	DrawLine(origin, origin + rightVec, glm::vec3(1.0f, 0.0f, 0.0f));
+	glm::vec3 forewardVec = (foreward - origin);
+	glm::vec3 upVec = glm::normalize(up - origin);
+	glm::vec3 rightVec = toVec4(glm::normalize(glm::cross(glm::vec3(up), glm::vec3(foreward))));
+	const auto originInModelSpace = modelMatrix * glm::vec4(origin, 1.0f);
+	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + foreward), 1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + up), 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + rightVec), 1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 }
 
 //=================================================================================

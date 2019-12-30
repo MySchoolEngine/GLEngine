@@ -5,7 +5,7 @@
 namespace GLEngine {
 namespace Entity {
 
-class API_EXPORT C_BasicEntity : public I_Entity {
+class ENTITY_API_EXPORT C_BasicEntity : public I_Entity {
 	using T_ComponentsContainer = std::map<E_ComponentType, T_ComponentPtr>*;
 public:
 	C_BasicEntity(std::string name);

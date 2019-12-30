@@ -9,7 +9,6 @@ project "Core"
 	
 	PrecompiledHeaders("Core")
 
-	
 	Link("Utils")
 
 	includedirs
@@ -28,7 +27,7 @@ project "Core"
 		defines
 		{
 			"CORE_PLATFORM=CORE_PLATFORM_WIN",
-			"BUILD_DLL",
+			"BUILD_CORE_DLL",
 		}
 
 		postbuildcommands

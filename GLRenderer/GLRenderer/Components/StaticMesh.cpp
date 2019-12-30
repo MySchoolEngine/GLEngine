@@ -4,13 +4,15 @@
 
 #include <GLRenderer/Mesh/StaticMeshResource.h>
 #include <GLRenderer/MeshLoading/SceneLoader.h>
-#include <GLRenderer/MeshLoading/Scene.h>
+#include <Renderer/Mesh/Scene.h>
 
 #include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
 
 #include <Renderer/IRenderer.h>
 
 #include <Core/Application.h>
+
+#include <pugixml.hpp>
 
 namespace GLEngine {
 namespace GLRenderer {
@@ -24,7 +26,7 @@ C_StaticMesh::C_StaticMesh(std::string meshFile)
 	// @todo lazy init
 	auto sl = std::make_unique<Mesh::SceneLoader>();
 
-	auto scene = std::make_shared<Mesh::Scene>();
+	auto scene = std::make_shared<Renderer::MeshData::Scene>();
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
 	if (!sl->addModelFromFileToScene("Models", m_meshFile.c_str(), scene, modelMatrix))
@@ -37,7 +39,7 @@ C_StaticMesh::C_StaticMesh(std::string meshFile)
 }
 
 //=================================================================================
-C_StaticMesh::C_StaticMesh(const Mesh::Mesh& mesh)
+C_StaticMesh::C_StaticMesh(const Renderer::MeshData::Mesh& mesh)
 {
 	m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(mesh);
 }
@@ -50,6 +52,12 @@ void C_StaticMesh::PerformDraw() const
 			std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_Mesh)
 		)
 	);
+}
+
+//=================================================================================
+std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_node& node)
+{
+	return std::make_shared<C_StaticMesh>(node.attribute("filePath").value());
 }
 
 }}}

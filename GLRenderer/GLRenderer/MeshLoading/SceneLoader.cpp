@@ -1,16 +1,17 @@
 #include <GLRendererStdafx.h>
 
-#include <GLRenderer/Textures/TextureLoader.h>
 #include <GLRenderer/MeshLoading/SceneLoader.h>
+
+#include <GLRenderer/Textures/TextureLoader.h>
 #include <GLRenderer/MeshLoading/ModelLoader.h>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Mesh {
+#include <REnderer/Mesh/Scene.h>
+
+namespace GLEngine::GLRenderer::Mesh {
 
 //=================================================================================
 bool SceneLoader::addModelFromFileToScene(const char* filepath, const char* filename, 
-											std::shared_ptr<Scene> scene, const glm::mat4& transform)
+											std::shared_ptr<Renderer::MeshData::Scene> scene, const glm::mat4& transform)
 {
 	//Load geometry first
 	ModelLoader ml;
@@ -23,15 +24,15 @@ bool SceneLoader::addModelFromFileToScene(const char* filepath, const char* file
 	if (!retval)
 		return false;
 
-	for (auto mesh : scene->meshes)
+	for (const auto& mesh : scene->meshes)
 		scene->bbox.Add(mesh.bbox.getTransformedAABB(mesh.modelMatrix));
 
 	Textures::TextureLoader tl;
 
-	for (unsigned int i = 0; i < texNames.size(); ++i)
+	for (const auto & texName : texNames)
 	{
-		Texture t;
-		retval = tl.loadTexture((std::string(filepath) + std::string("\\") + texNames[i]).c_str(), t);
+		Renderer::MeshData::Texture t;
+		retval = tl.loadTexture((std::string(filepath) + std::string("\\") + texName).c_str(), t);
 
 		if (!retval)
 			return false;
@@ -41,4 +42,5 @@ bool SceneLoader::addModelFromFileToScene(const char* filepath, const char* file
 
 	return true;
 }
-}}}
+
+}

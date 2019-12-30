@@ -27,7 +27,7 @@ ModelLoader::~ModelLoader()
 }
 
 //=================================================================================
-bool ModelLoader::addModelFromFileToScene(const char* path, std::shared_ptr<Scene> scene, std::vector< std::string >& textureRegister, glm::mat4 sceneTransform)
+bool ModelLoader::addModelFromFileToScene(const char* path, std::shared_ptr<Renderer::MeshData::Scene> scene, std::vector< std::string >& textureRegister, glm::mat4 sceneTransform)
 {
     auto loadedScene = _tryOpenFile(path);
     
@@ -52,11 +52,11 @@ void ModelLoader::Reset()
 }
 
 //=================================================================================
-void ModelLoader::_loadMaterialsFromAiscene(const aiScene* loadedScene, std::shared_ptr<Scene> scene, std::vector< std::string >& textureRegister)
+void ModelLoader::_loadMaterialsFromAiscene(const aiScene* loadedScene, std::shared_ptr<Renderer::MeshData::Scene> scene, std::vector< std::string >& textureRegister)
 {
     for(unsigned int i=0; i<loadedScene->mNumMaterials; ++i)
     {
-        Material m;
+			Renderer::MeshData::Material m;
         _getMaterialColorAttributes(loadedScene->mMaterials[i], m);
         const std::string texName = _getMaterialDiffuseTextureName(loadedScene->mMaterials[i]);
         m.textureIndex = _getTextureIndexAndAddToRegister(texName, textureRegister);
@@ -79,7 +79,7 @@ const aiScene* ModelLoader::_tryOpenFile(const char* path)
 }
 
 //=================================================================================
-void ModelLoader::_getMaterialColorAttributes(const aiMaterial* const material, Material& mat)
+void ModelLoader::_getMaterialColorAttributes(const aiMaterial* const material, Renderer::MeshData::Material& mat)
 {
     mat.ambient = _getMaterialColorComponent(material, AI_MATKEY_COLOR_AMBIENT);
 
@@ -141,7 +141,7 @@ int ModelLoader::_getTextureIndexAndAddToRegister(const std::string& name, std::
 }
 
 //=================================================================================
-void ModelLoader::_loadMeshesFromAiScene(const aiScene* loadedScene, std::shared_ptr<Scene> scene, const glm::mat4& sceneTransform)
+void ModelLoader::_loadMeshesFromAiScene(const aiScene* loadedScene, std::shared_ptr<Renderer::MeshData::Scene> scene, const glm::mat4& sceneTransform)
 {
     const aiNode* currentNode = loadedScene->mRootNode;
     glm::mat4 currentTransform = sceneTransform * _aiMatrixToGlm(loadedScene->mRootNode->mTransformation);
@@ -200,7 +200,7 @@ void ModelLoader::_getNextNodeAndTransform(const aiNode*& node, glm::mat4& trans
 }
 
 //=================================================================================
-void ModelLoader::_loadNodeMeshes(const aiNode* node, const glm::mat4& nodeTransform, aiMesh** const aiMeshes, std::vector<Mesh>& meshes)
+void ModelLoader::_loadNodeMeshes(const aiNode* node, const glm::mat4& nodeTransform, aiMesh** const aiMeshes, std::vector<Renderer::MeshData::Mesh>& meshes)
 {
     _allocateNewMeshes(node->mNumMeshes, meshes);
     
@@ -217,7 +217,7 @@ void ModelLoader::_loadNodeMeshes(const aiNode* node, const glm::mat4& nodeTrans
 }
 
 //=================================================================================
-void ModelLoader::_loadSingleMeshFromAimesh(const aiMesh* aiMesh, Mesh& mesh)
+void ModelLoader::_loadSingleMeshFromAimesh(const aiMesh* aiMesh, Renderer::MeshData::Mesh& mesh)
 {
     _allocateMesh(mesh, aiMesh->mNumFaces);
     _assignMeshMaterial(mesh, aiMesh);
@@ -237,14 +237,14 @@ void ModelLoader::_loadSingleMeshFromAimesh(const aiMesh* aiMesh, Mesh& mesh)
 }
 
 //=================================================================================
-void ModelLoader::_allocateNewMeshes(const unsigned int numNewMeshes, std::vector<Mesh>& meshes)
+void ModelLoader::_allocateNewMeshes(const unsigned int numNewMeshes, std::vector<Renderer::MeshData::Mesh>& meshes)
 {
     if(numNewMeshes)
-        meshes.insert(meshes.end(), numNewMeshes, Mesh());
+        meshes.insert(meshes.end(), numNewMeshes, Renderer::MeshData::Mesh());
 }
 
 //=================================================================================
-void ModelLoader::_allocateMesh(Mesh& mesh, const unsigned int numFaces)
+void ModelLoader::_allocateMesh(Renderer::MeshData::Mesh& mesh, const unsigned int numFaces)
 {
     mesh.vertices.resize(numFaces * VERTICES_PER_TRIANGLE);
     mesh.normals.resize(numFaces * VERTICES_PER_TRIANGLE);
@@ -252,7 +252,7 @@ void ModelLoader::_allocateMesh(Mesh& mesh, const unsigned int numFaces)
 }
 
 //=================================================================================
-void ModelLoader::_assignMeshMaterial(Mesh& mesh, const aiMesh* aimesh)
+void ModelLoader::_assignMeshMaterial(Renderer::MeshData::Mesh& mesh, const aiMesh* aimesh)
 {
     mesh.materialIndex = aimesh->mMaterialIndex + _numMaterialsPreviouslyLoaded;
 }

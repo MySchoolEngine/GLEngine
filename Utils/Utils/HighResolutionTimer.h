@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/CoreMacros.h>
+#include <Utils/UtilsApi.h>
 
 #include <chrono>
 
@@ -8,7 +8,7 @@
  * High Resolution Timer
  */
 namespace Utils {
-class API_EXPORT HighResolutionTimer
+class UTILS_API_EXPORT HighResolutionTimer
 {
 private:
 	std::chrono::high_resolution_clock::time_point _start, _stop, _last;

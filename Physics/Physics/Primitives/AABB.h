@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/CoreMacros.h>
+#include <Physics/PhysicsApi.h>
 
 #include <glm/glm.hpp>
 
@@ -11,7 +11,7 @@ namespace Primitives {
 
 struct S_Sphere;
 
-struct API_EXPORT S_AABB {
+struct PHYSICS_API_EXPORT S_AABB {
 public:
 #pragma warning(push)
 #pragma warning( disable : 4251)

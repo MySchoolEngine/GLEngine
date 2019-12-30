@@ -36,7 +36,7 @@ enum class E_EventCategory {
 #define EVENT_CLASS_CATEGORY(category) virtual Utils::C_BitField<E_EventCategory> GetCategories() const override { return category; }
 
 //=================================================================================
-class API_EXPORT I_Event
+class CORE_API_EXPORT I_Event
 {
 public:
 	virtual E_EventType GetType() const = 0;

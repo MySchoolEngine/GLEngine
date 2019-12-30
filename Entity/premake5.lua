@@ -16,15 +16,16 @@ project "Entity"
 	includedirs
 	{
 		"../%{IncludeDir.GLM}",
-		"../Core",
-		"../Utils",
 		"../Renderer",
+		"../GLRenderer",
+		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.ImGui}",
 	}
 
 	links{
 		"ImGui",
+		"pugixml",
 	}
 
 	filter "system:windows"
@@ -34,7 +35,7 @@ project "Entity"
 		defines
 		{
 			"CORE_PLATFORM=CORE_PLATFORM_WIN",
-			"BUILD_DLL",
+			"BUILD_ENTITY_DLL",
 		}
 
 		postbuildcommands

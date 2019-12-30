@@ -10,7 +10,7 @@
 namespace GLEngine {
 namespace Core {
 
-class API_EXPORT C_Layer : public I_EventReciever {
+class CORE_API_EXPORT C_Layer : public I_EventReciever {
 public:
 	C_Layer(const std::string& name);
 	virtual ~C_Layer() = default;

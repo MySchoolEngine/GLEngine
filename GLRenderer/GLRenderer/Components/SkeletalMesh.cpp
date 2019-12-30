@@ -2,16 +2,36 @@
 
 #include <GLRenderer/Components/SkeletalMesh.h>
 
+#include <GLRenderer/Shaders/ShaderManager.h>
+#include <GLRenderer/Shaders/ShaderProgram.h>
+
+#include <Renderer/Animation/ColladaLoading/ColladaLoader.h>
+#include <Renderer/Mesh/Scene.h>
+
+#include <GLRenderer/Textures/TextureLoader.h>
+#include <GLRenderer/Textures/TextureUnitManager.h>
+
+#include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
+#include <GLRenderer/Commands/HACK/LambdaCommand.h>
+
+#include <Renderer/IRenderer.h>
+
+#include <Utils/HighResolutionTimer.h>
+
+#include <Core/Application.h>
+
 namespace GLEngine::GLRenderer::Components {
 
 //=================================================================================
 void C_SkeletalMesh::DebugDrawGUI()
 {
-	std::function<void(const Renderer::Animation::S_Joint)> DrawJointGUI;
+	m_RenderMesh.Draw();
+
+	std::function<void(const Renderer::Animation::S_Joint&)> DrawJointGUI;
 	DrawJointGUI = [&DrawJointGUI](const Renderer::Animation::S_Joint& joint)
 	{
 		if (::ImGui::CollapsingHeader(joint.m_Name.c_str())) {
-			auto& pos = joint.GetAnimatedTransform() * glm::vec4(0.f, 0.f, .0f, 1.f);
+			auto& pos = (joint.GetAnimatedTransform()) * glm::vec4(0.f, 0.f, .0f, 1.f);
 			::ImGui::Text("Original pos: [%f, %f, %f]", pos.x, pos.y, pos.z);
 			for (const auto& child : joint.m_Children)
 			{
@@ -27,7 +47,30 @@ void C_SkeletalMesh::DebugDrawGUI()
 //=================================================================================
 void C_SkeletalMesh::PerformDraw() const
 {
-
+	if (!m_Mesh || !m_RenderMesh)
+	{
+		return;
+	}
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+		std::move(
+			std::make_unique<Commands::HACK::C_LambdaCommand>(
+				[&]() {
+					auto& shmgr = Shaders::C_ShaderManager::Instance();
+					auto shader = shmgr.GetProgram("basic");
+					shmgr.ActivateShader(shader);
+	
+					shader->SetUniform("modelMatrix", glm::mat4(1.0f));
+				}
+			)
+		)
+	);
+	auto& tm = Textures::C_TextureUnitManger::Instance();
+	tm.BindTextureToUnit(*m_Texture, 0);
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+		std::move(
+			std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_Mesh)
+		)
+	);
 }
 
 //=================================================================================
@@ -37,12 +80,59 @@ void C_SkeletalMesh::Update()
 }
 
 //=================================================================================
-C_SkeletalMesh::C_SkeletalMesh()
+C_SkeletalMesh::C_SkeletalMesh(std::string meshFile, std::string meshFolder)
+	: m_RenderMesh(true, "Render mesh")
+	, m_Animation(0)
 {
-	m_Skeleton.m_Root = std::make_unique<Renderer::Animation::S_Joint>(0, "root", glm::translate(glm::mat4(1.0f), glm::vec3(0, 1, 0)));
-	m_Skeleton.m_Root->m_Children.emplace_back(0, "child", glm::translate(glm::mat4(1.0f), glm::vec3(0, 1, 1)));
+	Renderer::Animation::C_ColladaLoader sl;
 
-	m_Skeleton.InitializeSkeleton();
+	auto scene = std::make_shared<Renderer::MeshData::Scene>();
+	glm::mat4 modelMatrix = glm::mat4(1.0f);
+
+	std::string textureName;
+
+	Utils::HighResolutionTimer timer;
+	timer.reset();
+
+	Renderer::MeshData::Mesh mesh;
+
+	if (!sl.addModelFromDAEFileToScene(meshFolder.data(), meshFile.data(), mesh, textureName, m_Skeleton, m_Animation, modelMatrix))
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}/{}", meshFolder, meshFile);
+		return;
+	}
+
+	m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(mesh);
+
+	CORE_LOG(E_Level::Info, E_Context::Render, "Parsing skeleton file took {}ms", timer.getElapsedTimeFromLastQueryMilliseconds());
+
+	std::string texurePath(meshFolder + "/");
+
+	texurePath.append(textureName);
+
+	const auto escapeSequence = texurePath.find("%20");
+	if (escapeSequence != std::string::npos)
+	{
+		texurePath.replace(escapeSequence, 3, " ");
+	}
+
+	Textures::TextureLoader tl;
+	Renderer::MeshData::Texture t;
+	bool retval = tl.loadTexture(texurePath.c_str(), t);
+
+	if (!retval)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "Texture '{}' cannot be loaded", textureName);
+	}
+
+	m_Texture = std::make_shared<Textures::C_Texture>(textureName);
+	m_Texture->StartGroupOp();
+	m_Texture->SetTexData2D(0, t);
+	m_Texture->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
+	m_Texture->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+	m_Texture->GenerateMipMaps();
+
+	m_Texture->EndGroupOp();
 }
 
 }

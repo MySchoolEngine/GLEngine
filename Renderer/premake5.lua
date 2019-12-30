@@ -20,6 +20,12 @@ project "Renderer"
 		"../Physics",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmt}",
+		"../%{IncludeDir.pugixml}",
+	}
+
+	links 
+	{ 
+		"pugixml",
 	}
 
 	filter "system:windows"
@@ -29,7 +35,7 @@ project "Renderer"
 		defines
 		{
 			"CORE_PLATFORM=CORE_PLATFORM_WIN",
-			"BUILD_DLL",
+			"BUILD_RENDERER_DLL",
 		}
 
 		postbuildcommands
