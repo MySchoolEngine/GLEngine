@@ -80,7 +80,7 @@ void C_SkeletalMesh::Update()
 }
 
 //=================================================================================
-C_SkeletalMesh::C_SkeletalMesh()
+C_SkeletalMesh::C_SkeletalMesh(std::string meshFile, std::string meshFolder)
 	: m_RenderMesh(true, "Render mesh")
 {
 	auto sl = std::make_unique<Mesh::SceneLoader>();
@@ -93,16 +93,14 @@ C_SkeletalMesh::C_SkeletalMesh()
 	Utils::HighResolutionTimer timer;
 	timer.reset();
 
-	const std::string path("Models/Frog");
-
-	if (!sl->addModelFromDAEFileToScene(path.data(), "Tree_frog.dae", m_Mesh, textureName, m_Skeleton, modelMatrix))
+	if (!sl->addModelFromDAEFileToScene(meshFolder.data(), meshFile.data(), m_Mesh, textureName, m_Skeleton, m_Animation, modelMatrix))
 	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}", "Models/model.dae");
+		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}/{}", meshFolder, meshFile);
 		return;
 	}
 	CORE_LOG(E_Level::Info, E_Context::Render, "Parsing skeleton file took {}ms", timer.getElapsedTimeFromLastQueryMilliseconds());
 
-	std::string texurePath(path + "/");
+	std::string texurePath(meshFolder + "/");
 
 	texurePath.append(textureName);
 

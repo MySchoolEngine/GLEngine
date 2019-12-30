@@ -490,7 +490,7 @@ void C_ExplerimentWindow::SetupWorld()
 	if (true)
 	{
 		auto skeleton = std::make_shared<Entity::C_BasicEntity>("skeleton");
-		skeleton->AddComponent(std::make_shared<Components::C_SkeletalMesh>());
+		skeleton->AddComponent(std::make_shared<Components::C_SkeletalMesh>("model.dae"));
 		skeleton->AddComponent(std::make_shared<GUI::C_GLEntityDebugComponent>(skeleton));
 		m_World.AddEntity(skeleton);
 	}
