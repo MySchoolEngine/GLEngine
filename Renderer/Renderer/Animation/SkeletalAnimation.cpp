@@ -4,7 +4,7 @@
 
 #include <Core/CoreMacros.h>
 
-namespace GLEngine::Animation {
+namespace GLEngine::Renderer::Animation {
 
 //=================================================================================
 // S_Timestamp

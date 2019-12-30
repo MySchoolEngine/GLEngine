@@ -1,8 +1,10 @@
 #pragma once
 
+#include <Renderer/RendererApi.h>
+
 #include <algorithm>
 
-namespace GLEngine::Animation {
+namespace GLEngine::Renderer::Animation {
 struct S_Timestamp
 {
 	S_Timestamp();
@@ -34,10 +36,10 @@ private:
 	S_Timestamp m_Timestamp;
 };
 
-class C_SkeletalAnimation {
+class RENDERER_API_EXPORT C_SkeletalAnimation {
 public:
 	C_SkeletalAnimation();
-	std::vector<S_SkeletalJointTransform> GetTransform(const S_Timestamp timestamp);
+	//std::vector<S_SkeletalJointTransform> GetTransform(const S_Timestamp timestamp);
 	void AddKeyframe(C_SkeletalAnimationKeyframe&& keyframe);
 private:
 	// ideally BST because intervals do not overlap

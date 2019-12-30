@@ -7,6 +7,7 @@
 #include <GLRenderer/MeshLoading/Collada/FloatArray.h>
 
 #include <Renderer/Animation/Skeleton.h>
+#include <Renderer/Animation/SkeletalAnimation.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
 
@@ -49,7 +50,14 @@ bool SceneLoader::addModelFromFileToScene(const char* filepath, const char* file
 }
 
 //=================================================================================
-bool SceneLoader::addModelFromDAEFileToScene(const char* filepath, const char* filename, std::shared_ptr<C_StaticMeshResource>& oMesh, std::string& textureName, Renderer::Animation::C_Skeleton& skeleton, const glm::mat4& transform /*= glm::mat4(1)*/)
+bool SceneLoader::addModelFromDAEFileToScene(
+	const char* filepath, 
+	const char* filename, 
+	std::shared_ptr<C_StaticMeshResource>& oMesh, 
+	std::string& textureName, 
+	Renderer::Animation::C_Skeleton& skeleton, 
+	Renderer::Animation::C_SkeletalAnimation& animation, 
+	const glm::mat4& transform /*= glm::mat4(1)*/)
 {
 	std::string name;
 	name.append(filepath);
