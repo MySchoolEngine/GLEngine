@@ -33,6 +33,7 @@ protected:
 	T_Defines m_defines;
 
 	const static std::regex s_IncludeFileName;
+	const static std::regex s_DefineRegEx;
 };
 }
 }
