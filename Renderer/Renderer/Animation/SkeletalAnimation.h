@@ -11,6 +11,8 @@ struct S_Timestamp
 	S_Timestamp(float timestamp);
 
 	bool operator>=(const S_Timestamp& other) const;
+	S_Timestamp operator-(const S_Timestamp& rhs) const;
+	float GetValue() const { return m_Timestamp; }
 private:
 	static float Clamp(float f);
 	float m_Timestamp;
@@ -20,6 +22,7 @@ struct S_BoneKeyframe
 {
 	S_BoneKeyframe() = default;
 	S_BoneKeyframe(const glm::mat4& matrix, S_Timestamp timestamp);
+	S_BoneKeyframe(const glm::vec3& transformation, const glm::quat& rotation, S_Timestamp timestamp);
 	S_Timestamp		m_Timestamp;
 	glm::vec3			m_Transform;
 	glm::quat			m_Rotation;
@@ -33,7 +36,7 @@ public:
 	C_BoneTimeline(std::size_t numTimestamps);
 
 	void AddBoneKeyFrame(std::size_t index, S_BoneKeyframe&& keyframe);
-
+	S_BoneKeyframe Sample(S_Timestamp timestamp) const;
 private:
 	// ideally BST because intervals do not overlap
 	// but we can use vector for now, as we will usually add 
@@ -45,7 +48,7 @@ private:
 class RENDERER_API_EXPORT C_SkeletalAnimation {
 public:
 	C_SkeletalAnimation(std::size_t numBones);
-	//std::vector<S_SkeletalJointTransform> GetTransform(const S_Timestamp timestamp);
+	std::vector<S_BoneKeyframe> GetTransform(const S_Timestamp timestamp) const;
 	void SetBoneTimeline(std::size_t index, C_BoneTimeline&& timeline);
 private:
 	std::vector<C_BoneTimeline> m_Timelines;
