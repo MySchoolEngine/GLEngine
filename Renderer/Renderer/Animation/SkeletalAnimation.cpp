@@ -61,6 +61,12 @@ S_BoneKeyframe::S_BoneKeyframe(const glm::vec3& transformation, const glm::quat&
 }
 
 //=================================================================================
+glm::mat4 S_BoneKeyframe::GetTransformationMatrix() const
+{
+	return glm::mat4(1.0f);
+}
+
+//=================================================================================
 // C_BoneTimeline
 //=================================================================================
 C_BoneTimeline::C_BoneTimeline(std::size_t numTimestamps)

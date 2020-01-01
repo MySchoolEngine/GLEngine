@@ -2,13 +2,15 @@
 
 #include <Renderer/RendererApi.h>
 
+#include <glm/gtc/quaternion.hpp>
+
 #include <algorithm>
 
 namespace GLEngine::Renderer::Animation {
 struct S_Timestamp
 {
 	S_Timestamp();
-	S_Timestamp(float timestamp);
+	RENDERER_API_EXPORT S_Timestamp(float timestamp);
 
 	bool operator>=(const S_Timestamp& other) const;
 	S_Timestamp operator-(const S_Timestamp& rhs) const;
@@ -23,6 +25,7 @@ struct S_BoneKeyframe
 	S_BoneKeyframe() = default;
 	S_BoneKeyframe(const glm::mat4& matrix, S_Timestamp timestamp);
 	S_BoneKeyframe(const glm::vec3& transformation, const glm::quat& rotation, S_Timestamp timestamp);
+	RENDERER_API_EXPORT glm::mat4 GetTransformationMatrix() const;
 	S_Timestamp		m_Timestamp;
 	glm::vec3			m_Transform;
 	glm::quat			m_Rotation;

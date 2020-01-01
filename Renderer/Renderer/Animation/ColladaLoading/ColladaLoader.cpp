@@ -175,6 +175,7 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 					return false;
 				}
 				skeleton.m_Root = std::make_unique<S_Joint>(rootJoint->second);
+				skeleton.m_NumBones = m_JointNames.size();
 				if (!ParseChildrenJoints(*skeleton.m_Root.get(), rootNode, joints))
 				{
 					CORE_LOG(E_Level::Error, E_Context::Render, "Errors in joint hierarchy definition in file: {}", name);

@@ -2,6 +2,9 @@
 
 #include <GLRenderer/Components/SkeletalMesh.h>
 
+#include <GLRenderer/Buffers/UBO/JointTransformsUBO.h>
+#include <GLRenderer/Buffers/UniformBuffersManager.h>
+
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 
@@ -85,6 +88,7 @@ C_SkeletalMesh::C_SkeletalMesh(std::string meshFile, std::string meshFolder)
 	: m_RenderMesh(true, "Render mesh")
 	, m_Animation(0)
 	, m_AnimationProgress(.0f, .0f, 1.f, "Animation progress")
+	, m_TransformationUBO(nullptr)
 {
 	Renderer::Animation::C_ColladaLoader sl;
 
@@ -97,6 +101,7 @@ C_SkeletalMesh::C_SkeletalMesh(std::string meshFile, std::string meshFolder)
 	timer.reset();
 
 	Renderer::MeshData::Mesh mesh;
+
 
 	if (!sl.addModelFromDAEFileToScene(meshFolder.data(), meshFile.data(), mesh, textureName, m_Skeleton, m_Animation, modelMatrix))
 	{
@@ -135,6 +140,12 @@ C_SkeletalMesh::C_SkeletalMesh(std::string meshFile, std::string meshFolder)
 	m_Texture->GenerateMipMaps();
 
 	m_Texture->EndGroupOp();
+
+	// setup joint transforms
+	auto& UBOMan = Buffers::C_UniformBuffersManager::Instance();
+	m_TransformationUBO = UBOMan.CreateUniformBuffer<Buffers::UBO::C_JointTramsformsUBO>("jointTransforms", m_Skeleton.GetNumBones());
+
+	m_TransformationUBO->SetTransforms(m_Animation.GetTransform(0.f));
 }
 
 }
