@@ -13,6 +13,7 @@ struct S_Timestamp
 	RENDERER_API_EXPORT S_Timestamp(float timestamp);
 
 	bool operator>=(const S_Timestamp& other) const;
+	bool operator>(const S_Timestamp& other) const;
 	S_Timestamp operator-(const S_Timestamp& rhs) const;
 	float GetValue() const { return m_Timestamp; }
 private:

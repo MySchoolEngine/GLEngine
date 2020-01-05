@@ -35,6 +35,12 @@ bool S_Timestamp::operator>=(const S_Timestamp& other) const
 }
 
 //=================================================================================
+bool S_Timestamp::operator>(const S_Timestamp& other) const
+{
+	return m_Timestamp > other.m_Timestamp;
+}
+
+//=================================================================================
 S_Timestamp S_Timestamp::operator-(const S_Timestamp& rhs) const
 {
 	return S_Timestamp(m_Timestamp - rhs.m_Timestamp);
@@ -84,10 +90,22 @@ void C_BoneTimeline::AddBoneKeyFrame(std::size_t index, S_BoneKeyframe&& keyfram
 //=================================================================================
 S_BoneKeyframe C_BoneTimeline::Sample(S_Timestamp timestamp) const
 {
+	GLE_ASSERT(m_Timeline.size() > 0, "There is no keyframe in the animation");
 	// find first keyframe >= to given timestamp
 	const auto& nextKeyframeIt = std::find_if(m_Timeline.begin(), m_Timeline.end(),
-		[timestamp](const S_BoneKeyframe& it) { return it.m_Timestamp >= timestamp; });
-	GLE_ASSERT(nextKeyframeIt != m_Timeline.end(), "Animation didn't found needed timestamp");
+		[timestamp](const S_BoneKeyframe& it) { return it.m_Timestamp > timestamp; });
+	// we are after last keyframe
+	if (nextKeyframeIt == m_Timeline.end())
+	{
+		return m_Timeline[m_Timeline.size() - 1];
+	}
+	// we are before keyframe
+	else if (nextKeyframeIt == m_Timeline.begin())
+	{
+		return *nextKeyframeIt;
+	}
+	// so we are in between two keyframes, so we need to interpolate
+
 	// take this and previous one and interpolate between them
 	const auto& previousKeyframe = *(nextKeyframeIt - 1);
 	const auto& nextKeyframe = *(nextKeyframeIt);
