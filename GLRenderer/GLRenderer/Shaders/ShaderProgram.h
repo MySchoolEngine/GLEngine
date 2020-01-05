@@ -66,6 +66,7 @@ public:
 	template<class N> void SetUniform(N name, const glm::vec2 & value);
 	template<class N> void SetUniform(N name, const std::vector<int> & value);
 	template<class N> void SetUniform(N name, const std::vector<float> & value);
+	template<class N> void SetUniform(N name, const std::vector<glm::mat4>& value);
 
 	template<class T> int FindLocation(T name);
 	template<> int FindLocation(const char* name);

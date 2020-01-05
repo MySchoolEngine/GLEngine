@@ -12,8 +12,11 @@ namespace GLEngine::Renderer::Animation{
 class RENDERER_API_EXPORT C_Skeleton{
 public:
 	C_Skeleton() = default;
+	std::size_t GetNumBones() const;
+	void SetNumBonse(std::size_t num);
 public:
-	std::unique_ptr<S_Joint> m_Root;
+	std::unique_ptr<S_Joint>	m_Root;
+	std::size_t								m_NumBones;
 };
 
 }

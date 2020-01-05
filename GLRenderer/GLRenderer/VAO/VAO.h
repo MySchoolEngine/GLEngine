@@ -37,7 +37,18 @@ public:
 			InnerSetBufferData<INDEX, BUFFERTYPE>(data);
 		if (BUFFERTYPE != GL_ELEMENT_ARRAY_BUFFER) {
 			constexpr auto typeLenght = sizeof(T);
-			glVertexAttribPointer(INDEX, typeLenght / sizeof(float), T_TypeToGL<T>::value, GL_FALSE, 0, nullptr);
+			if constexpr (T_GLTypeIsIntegral_v<T_TypeToGL<T>::value>)
+			{
+				glVertexAttribIPointer(INDEX, T_GLNumComponenets_v<T>, T_TypeToGL<T>::value, 0, nullptr);
+			}
+			else if (T_GLTypeIsDouble_v<T_TypeToGL<T>::value>)
+			{
+				glVertexAttribLPointer(INDEX, T_GLNumComponenets_v<T>, T_TypeToGL<T>::value, 0, nullptr);
+			}
+			else
+			{
+				glVertexAttribPointer(INDEX, T_GLNumComponenets_v<T>, T_TypeToGL<T>::value, GL_FALSE, 0, nullptr);
+			}
 		}
 		m_Buffers[INDEX]->unbind();
 	}
