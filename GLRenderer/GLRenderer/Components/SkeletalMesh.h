@@ -33,6 +33,9 @@ public:
 																								m_TransformationUBO;
 	GUI::Input::C_CheckBoxValue										m_RenderMesh; 
 	GUI::Input::C_Slider<float>										m_AnimationProgress;
+
+	VAO::C_GLVAO<5>																m_VAO;
+	std::size_t																		m_triangles;
 };
 
 }

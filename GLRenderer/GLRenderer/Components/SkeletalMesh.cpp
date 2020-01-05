@@ -51,28 +51,43 @@ void C_SkeletalMesh::DebugDrawGUI()
 //=================================================================================
 void C_SkeletalMesh::PerformDraw() const
 {
-	if (!m_Mesh || !m_RenderMesh)
+	if (!m_RenderMesh)
 	{
 		return;
 	}
+	auto& tm = Textures::C_TextureUnitManger::Instance();
+	tm.BindTextureToUnit(*m_Texture, 0);
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {
 					auto& shmgr = Shaders::C_ShaderManager::Instance();
-					auto shader = shmgr.GetProgram("basic");
+					auto shader = shmgr.GetProgram("animation");
 					shmgr.ActivateShader(shader);
 	
 					shader->SetUniform("modelMatrix", glm::mat4(1.0f));
+	
+					m_VAO.bind();
+
+					const auto& boneKeyframes = m_Animation.GetTransform(m_AnimationProgress.GetValue());
+					std::vector<glm::mat4> transofrms;
+					transofrms.resize(boneKeyframes.size());
+
+					std::transform(boneKeyframes.begin(), boneKeyframes.end(), transofrms.begin(),
+						[](const Renderer::Animation::S_BoneKeyframe& keyFrame) {
+							return keyFrame.GetTransformationMatrix();
+						});
+
+					shader->SetUniform("transforms", transofrms);
+	
+					// this wont work with my current UBO manager so that means! @todo!
+					// m_TransformationUBO->UploadData();
+					// m_TransformationUBO->Activate(true);
+	
+					glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_triangles));
+					m_VAO.unbind();
 				}
-			)
-		)
-	);
-	auto& tm = Textures::C_TextureUnitManger::Instance();
-	tm.BindTextureToUnit(*m_Texture, 0);
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
-		std::move(
-			std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_Mesh)
+				)
 		)
 	);
 }
@@ -101,6 +116,7 @@ C_SkeletalMesh::C_SkeletalMesh(std::string meshFile, std::string meshFolder)
 	timer.reset();
 
 	Renderer::MeshData::Mesh mesh;
+	Renderer::MeshData::AnimationData animData;
 
 
 	if (!sl.addModelFromDAEFileToScene(meshFolder.data(), meshFile.data(), mesh, textureName, m_Skeleton, m_Animation, modelMatrix))
@@ -109,7 +125,7 @@ C_SkeletalMesh::C_SkeletalMesh(std::string meshFile, std::string meshFolder)
 		return;
 	}
 
-	m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(mesh);
+	//m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(mesh);
 
 	CORE_LOG(E_Level::Info, E_Context::Render, "Parsing skeleton file took {}ms", timer.getElapsedTimeFromLastQueryMilliseconds());
 
@@ -146,6 +162,33 @@ C_SkeletalMesh::C_SkeletalMesh(std::string meshFile, std::string meshFolder)
 	m_TransformationUBO = UBOMan.CreateUniformBuffer<Buffers::UBO::C_JointTramsformsUBO>("jointTransforms", m_Skeleton.GetNumBones());
 
 	m_TransformationUBO->SetTransforms(m_Animation.GetTransform(0.f));
+
+	// setup VAO
+	static_assert(sizeof(glm::vec3) == sizeof(GLfloat) * 3, "Platform doesn't support this directly.");
+
+	m_triangles = mesh.vertices.size();
+	animData.jointWeights.resize(mesh.vertices.size());
+	animData.weights.resize(mesh.vertices.size());
+	for (int i = 0; i < mesh.vertices.size();++i) {
+		animData.jointWeights[i] = {1, 1, 1};
+		animData.weights[i] = { 1.f, 0.f,0.f };
+	}
+
+	m_VAO.bind();
+	m_VAO.SetBuffer<0, GL_ARRAY_BUFFER>(mesh.vertices);
+	m_VAO.SetBuffer<1, GL_ARRAY_BUFFER>(mesh.normals);
+	m_VAO.SetBuffer<2, GL_ARRAY_BUFFER>(mesh.texcoords);
+	m_VAO.SetBuffer<3, GL_ARRAY_BUFFER>(animData.jointWeights);
+	m_VAO.SetBuffer<4, GL_ARRAY_BUFFER>(animData.weights);
+
+
+	m_VAO.EnableArray<0>();
+	m_VAO.EnableArray<1>();
+	m_VAO.EnableArray<2>();
+	m_VAO.EnableArray<3>();
+	m_VAO.EnableArray<4>();
+
+	m_VAO.unbind();
 }
 
 }
