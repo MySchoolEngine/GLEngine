@@ -39,6 +39,14 @@ struct Mesh
 	std::string						m_name; // DR
 };
 
+//=================================================================================
+struct AnimationData
+{
+	std::vector<glm::ivec3> jointWeights;
+	std::vector<glm::vec3>	weights;
+};
+
+
 //Texture
 //Always R8G8B8A8 format
 //=================================================================================
