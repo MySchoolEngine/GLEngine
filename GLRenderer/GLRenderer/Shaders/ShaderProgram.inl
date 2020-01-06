@@ -121,6 +121,13 @@ void C_ShaderProgram::SetUniform(N name, const float & value)
 }
 
 //=================================================================================
+template<class N>
+void C_ShaderProgram::SetUniform(N name, const std::vector<glm::mat4>& value)
+{
+	glUniformMatrix4fv(FindLocation(name), static_cast<GLsizei>(value.size()), GL_FALSE, (GLfloat*)(value.data()));
+}
+
+//=================================================================================
 template<>
 int C_ShaderProgram::FindUniformBlockLocation(const std::string& name) const
 {

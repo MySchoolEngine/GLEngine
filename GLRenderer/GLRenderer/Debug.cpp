@@ -5,6 +5,8 @@
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 
+#include <Renderer/Animation/Skeleton.h>
+
 #include <Physics/Primitives/Frustum.h>
 
 #include <glm/gtc/type_ptr.hpp>
@@ -45,7 +47,7 @@ bool _glErrorCheck(const char* file, const int line)
 			// << glewGetErrorString(status)
 			<< std::dec
 			<< std::endl;
-#if _DEBUG
+#ifdef GL_ENGINE_DEBUG
 		__debugbreak();
 #endif
 		return true;
@@ -60,7 +62,8 @@ C_DebugDraw & C_DebugDraw::Instance()
 									// Instantiated on first use.
 	return instance;
 }
-#if _DEBUG
+
+#ifdef GL_ENGINE_DEBUG
 //=================================================================================
 void C_DebugDraw::SetupAABB()
 {
@@ -109,9 +112,7 @@ C_DebugDraw::C_DebugDraw()
 }
 
 //=================================================================================
-C_DebugDraw::~C_DebugDraw()
-{
-}
+C_DebugDraw::~C_DebugDraw() = default;
 
 //=================================================================================
 void C_DebugDraw::Clear()
@@ -180,14 +181,108 @@ void C_DebugDraw::DrawLines(const std::vector<glm::vec4>& pairs, const glm::vec3
 }
 
 //=================================================================================
-void C_DebugDraw::DrawAxis(const glm::vec4 & origin, const glm::vec4 & up, const glm::vec4 & foreward, glm::mat4 & modelMatrix)
+void C_DebugDraw::DrawBone(const glm::vec3& position, const Renderer::Animation::S_Joint& joint)
 {
-	glm::vec4 forewardVec = glm::normalize(foreward - origin);
-	glm::vec4 upVec = glm::normalize(up - origin);
-	glm::vec4 rightVec = toVec4(glm::normalize(glm::cross(glm::vec3(upVec), glm::vec3(forewardVec))));
-	DrawLine(origin, origin + forewardVec, glm::vec3(0.0f, 0.0f, 1.0f));
-	DrawLine(origin, origin + upVec, glm::vec3(0.0f, 1.0f, 0.0f));
-	DrawLine(origin, origin + rightVec, glm::vec3(1.0f, 0.0f, 0.0f));
+	const auto locTransformation	= glm::inverse((joint.m_InverseBindTransfomr));
+	const glm::vec4 modelDest		= (locTransformation * glm::vec4(0.f, 0.f, 0.0f, 1.f));
+	const glm::vec3 dest			= glm::vec3(modelDest / modelDest.w);
+	const glm::vec3 boneOffset		= dest - position;
+
+	const float bumpFactor = .33f;
+	const auto BumpPosition = position + boneOffset * bumpFactor;
+
+	glm::vec3 tangent;
+
+	auto c1 = glm::cross(boneOffset, glm::vec3(0.0, 0.0, 1.0));
+	auto c2 = glm::cross(boneOffset, glm::vec3(0.0, 1.0, 0.0));
+
+	if (glm::length(c1) > glm::length(c2))
+	{
+		tangent = c1;
+	}
+	else
+	{
+		tangent = c2;
+	}
+
+	tangent=glm::normalize(tangent);
+	const auto bitangent = glm::cross(tangent, boneOffset);
+
+	const float bumpSize = .05f;
+	const glm::vec3 Offset1 = tangent * bumpSize;
+	const glm::vec3 Offset2 = bitangent * bumpSize;
+
+
+	DrawLine(position, BumpPosition, glm::vec3(1, 1, 1));
+	DrawLine(BumpPosition, dest, glm::vec3(0, 1, 0));
+
+	// square around the bump
+	DrawLine(BumpPosition + Offset1 + Offset2, BumpPosition + Offset1 - Offset2);
+	DrawLine(BumpPosition + Offset1 + Offset2, BumpPosition - Offset1 + Offset2);
+	DrawLine(BumpPosition - Offset1 + Offset2, BumpPosition - Offset1 - Offset2);
+	DrawLine(BumpPosition + Offset1 - Offset2, BumpPosition - Offset1 - Offset2);
+
+	// pos to bump
+	DrawLine(position, BumpPosition + Offset1 + Offset2);
+	DrawLine(position, BumpPosition + Offset1 - Offset2);
+	DrawLine(position, BumpPosition - Offset1 - Offset2);
+	DrawLine(position, BumpPosition - Offset1 + Offset2);
+
+	// bump to dest
+	DrawLine(dest, BumpPosition + Offset1 + Offset2);
+	DrawLine(dest, BumpPosition + Offset1 - Offset2);
+	DrawLine(dest, BumpPosition - Offset1 - Offset2);
+	DrawLine(dest, BumpPosition - Offset1 + Offset2);
+	
+	for (const auto& child : joint.m_Children)
+	{
+		DrawBone(dest, child);
+	}
+}
+
+//=================================================================================
+void C_DebugDraw::DrawSkeleton(const glm::vec3& root, const Renderer::Animation::C_Skeleton& skeleton)
+{
+	const auto locTransformation = glm::inverse((skeleton.m_Root->m_InverseBindTransfomr));
+	const glm::vec4 modelDest = (locTransformation * glm::vec4(0.f, 0.f, 0.0f, 1.f));
+	const glm::vec3 dest = glm::vec3(modelDest / modelDest.w);
+	const glm::vec3 boneOffset = dest - root;
+
+	for (const auto& child : skeleton.m_Root->m_Children)
+	{
+		DrawBone(root + boneOffset, child);
+	}
+}
+
+//=================================================================================
+void C_DebugDraw::DrawAxis(const glm::vec3& origin, const glm::vec3& up, const glm::vec3& foreward, glm::mat4 & modelMatrix)
+{
+	glm::vec3 forewardVec = (foreward - origin);
+	glm::vec3 upVec = glm::normalize(up - origin);
+	glm::vec3 rightVec = toVec4(glm::normalize(glm::cross(glm::vec3(up), glm::vec3(foreward))));
+	const auto originInModelSpace = modelMatrix * glm::vec4(origin, 1.0f);
+	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + foreward), 1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + up), 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + rightVec), 1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+}
+
+//=================================================================================
+void C_DebugDraw::DrawGrid(const glm::vec4& origin, unsigned short linesToSide, glm::mat4& modelMatrix /*= glm::mat4(1.0f)*/)
+{
+	int limit = linesToSide;
+	// cross for center
+	DrawLine(origin + glm::vec4(-limit, 0, 0, 1.f), origin + glm::vec4(limit, 0, 0, 1.f));
+	DrawLine(origin + glm::vec4(0, 0, -limit, 1.f), origin + glm::vec4(0, 0, limit, 1.f));
+
+	for (int i = 1; i <= limit; ++i) {
+		// lines in positive direction from origin
+		DrawLine(origin + glm::vec4(-limit, 0, i, 1.f), origin + glm::vec4(limit, 0, i, 1.f));
+		DrawLine(origin + glm::vec4(i, 0, -limit, 1.f), origin + glm::vec4(i, 0, limit, 1.f));
+
+		// lines in negative direction from origin
+		DrawLine(origin + glm::vec4(-limit, 0, -i, 1.f), origin + glm::vec4(limit, 0, -i, 1.f));
+		DrawLine(origin + glm::vec4(-i, 0, -limit, 1.f), origin + glm::vec4(-i, 0, limit, 1.f));
+	}
 }
 
 //=================================================================================

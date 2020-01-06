@@ -16,15 +16,18 @@
  
 #pragma once
 
-#include <GLRenderer/MeshLoading/Scene.h>
+#include <Renderer/Mesh/Scene.h>
 
 #include <GLRenderer/VAO/VAO.h>
 
 namespace GLEngine {
-namespace Physics {
-namespace Primitives {
-class C_Frustum;
+namespace Renderer::Animation {
+struct S_Joint;
+class C_Skeleton;
 }
+
+namespace Physics:: Primitives {
+class C_Frustum;
 }
 
 namespace GLRenderer {
@@ -113,8 +116,11 @@ public:
 	void DrawLine(const glm::vec4& pointA, const glm::vec4& pointB, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f));
 	void DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f));
 	void DrawLines(const std::vector<glm::vec4>& pairs, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f));
+	void DrawBone(const glm::vec3& position, const Renderer::Animation::S_Joint& joint);
+	void DrawSkeleton(const glm::vec3& root, const Renderer::Animation::C_Skeleton& skeleton);
 
-	void DrawAxis(const glm::vec4& origin, const glm::vec4& up, const glm::vec4& foreward, glm::mat4& modelMatrix = glm::mat4(1.0f));
+	void DrawAxis(const glm::vec3& origin, const glm::vec3& up, const glm::vec3& foreward, glm::mat4& modelMatrix = glm::mat4(1.0f));
+	void DrawGrid(const glm::vec4& origin, unsigned short linesToSide, glm::mat4& modelMatrix = glm::mat4(1.0f));
 	
 	void DrawFrustum(const Physics::Primitives::C_Frustum& frust, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f));
 
@@ -172,8 +178,11 @@ public:
 	void DrawLine(const glm::vec4& pointA, const glm::vec4& pointB, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f)) {};
 	void DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f)) {};
 	void DrawLines(const std::vector<glm::vec4>& pairs, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f)) {};
+	void DrawBone(const glm::vec3& position, const Renderer::Animation::S_Joint& joint) {};
+	void DrawSkeleton(const glm::vec3& root, const Renderer::Animation::C_Skeleton& skeleton) {};
 
-	void DrawAxis(const glm::vec4& origin, const glm::vec4& up, const glm::vec4& foreward, glm::mat4& modelMatrix = glm::mat4(1.0f)) {};
+	void DrawAxis(const glm::vec3& origin, const glm::vec3& up, const glm::vec3& foreward, glm::mat4& modelMatrix = glm::mat4(1.0f)) {};
+	void DrawGrid(const glm::vec4& origin, unsigned short linesToSide, glm::mat4& modelMatrix = glm::mat4(1.0f)) {};
 
 	void DrawFrustum(const Physics::Primitives::C_Frustum& frust, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f)) {}
 

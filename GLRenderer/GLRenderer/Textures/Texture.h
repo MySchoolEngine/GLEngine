@@ -57,7 +57,7 @@ public:
 	void SetTexParameter(GLenum pname, GLint value);
 	void GenerateMipMaps();
 
-	void SetTexData2D(int level, const Mesh::Texture& tex);
+	void SetTexData2D(int level, const Renderer::MeshData::Texture& tex);
 
 protected:
 	GLuint m_texture;

@@ -60,6 +60,17 @@ protected:
 };
 
 //=================================================================================
+class UTILS_API_EXPORT C_TextFilter : public C_Filter {
+public:
+	C_TextFilter(const std::string& text, C_Filter* innerFilter = nullptr);
+	virtual ~C_TextFilter() = default;
+protected:
+	virtual bool FilterCheck(const S_Data& message) override;
+private:
+	std::string m_Text;
+};
+
+//=================================================================================
 class UTILS_API_EXPORT C_PassAllFilter : public C_Filter {
 public:
 	virtual ~C_PassAllFilter() = default;

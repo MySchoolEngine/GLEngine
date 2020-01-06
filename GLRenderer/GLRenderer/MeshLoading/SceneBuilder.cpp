@@ -2,7 +2,7 @@
 
 #include <GLRenderer/MeshLoading/SceneBuilder.h>
 
-#include <GLRenderer/MeshLoading/Scene.h>
+#include <Renderer/Mesh/Scene.h>
 #include <GLRenderer/MeshLoading/SceneLoader.h>
 
 #include <GLRenderer/Mesh/StaticMeshResource.h>
@@ -194,20 +194,11 @@ std::shared_ptr<I_RenderNode> C_SceneBuilder::LoadMesh(const Mesh& mesh)
 */
 
 //=================================================================================
-std::shared_ptr<Textures::C_Texture> C_SceneBuilder::LoadTexture(const Texture & texture) const
+std::shared_ptr<Textures::C_Texture> C_SceneBuilder::LoadTexture(const Renderer::MeshData::Texture & texture) const
 {
 	auto tex = std::make_shared<Textures::C_Texture>(texture.m_name);
 	tex->StartGroupOp();
-	glTexImage2D(tex->GetTarget(),
-		0,
-		GL_RGB,
-		(GLsizei)texture.width,
-		(GLsizei)texture.height,
-		0,
-		GL_RGBA,
-		T_TypeToGL<decltype(texture.data)::element_type>::value,
-		texture.data.get());
-	tex->SetDimensions({ texture.width, texture.height });
+	tex->SetTexData2D(0, texture);
 //	ErrorCheck();
 	tex->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
 	tex->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);

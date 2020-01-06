@@ -4,16 +4,11 @@
 #include <Physics/Primitives/AABB.h>
 
 #include <vector>
-#include <limits>
-#include <memory>
 #include <string>
+#include <memory>
 
-#include <glm/glm.hpp>
 
-
-namespace GLEngine {
-namespace GLRenderer {
-namespace Mesh {
+namespace GLEngine::Renderer::MeshData {
 
 //=================================================================================
 struct Material
@@ -43,6 +38,14 @@ struct Mesh
 	unsigned int					materialIndex;
 	std::string						m_name; // DR
 };
+
+//=================================================================================
+struct AnimationData
+{
+	std::vector<glm::ivec3> jointWeights;
+	std::vector<glm::vec3>	weights;
+};
+
 
 //Texture
 //Always R8G8B8A8 format
@@ -74,4 +77,4 @@ struct Scene
 
 	Physics::Primitives::S_AABB     bbox;
 };
-}}}
+}

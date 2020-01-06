@@ -30,9 +30,9 @@ T* C_Slider<T>::operator&() const
 
 //=================================================================================
 template<typename T>
-bool C_Slider<T>::operator=(T val)
+float C_Slider<T>::operator=(T val)
 {
-	m_Value = m_Prev = val;
+	return m_Value = m_Prev = val;
 }
 
 //=================================================================================
