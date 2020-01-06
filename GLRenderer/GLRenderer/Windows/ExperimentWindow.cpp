@@ -136,8 +136,7 @@ void C_ExplerimentWindow::Update()
 			m_SpawningName[0] = '\0';
 			m_SpawningFilename[0] = '\0';
 		}
-		for (const auto entity : m_World->GetEntities()) {
-		for (const auto& entity : entitiesInView) {
+		for (const auto& entity : m_World->GetEntities()) {
 			bool selected = false;
 			::ImGui::Selectable(entity->GetName().c_str(), &selected);
 			if (selected) {
@@ -155,7 +154,7 @@ void C_ExplerimentWindow::Update()
 		if (::ImGui::Button("Spawn")) {
 			m_Spawning = false;
 			auto Terrain = std::make_shared<C_TerrainEntity>(m_SpawningName);
-			m_World.AddEntity(Terrain); 
+			m_World->AddEntity(Terrain);
 			
 			Textures::TextureLoader tl;
 			Renderer::MeshData::Texture t;
@@ -444,9 +443,9 @@ void C_ExplerimentWindow::SetupWorld()
 	if (true)
 	{
 		auto skeleton = std::make_shared<Entity::C_BasicEntity>("skeleton");
-		skeleton->AddComponent(std::make_shared<Components::C_SkeletalMesh>("model.dae"));
+		skeleton->AddComponent(std::make_shared<Components::C_SkeletalMesh>(skeleton, "model.dae"));
 		skeleton->AddComponent(std::make_shared<GUI::C_GLEntityDebugComponent>(skeleton));
-		m_World.AddEntity(skeleton);
+		m_World->AddEntity(skeleton);
 	}
 	frameStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgFrametime)]);
 	frameStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgFps)]);

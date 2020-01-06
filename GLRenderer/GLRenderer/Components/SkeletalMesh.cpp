@@ -99,8 +99,9 @@ void C_SkeletalMesh::Update()
 }
 
 //=================================================================================
-C_SkeletalMesh::C_SkeletalMesh(std::string meshFile, std::string meshFolder)
-	: m_RenderMesh(true, "Render mesh")
+C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, std::string meshFile, std::string meshFolder)
+	: Renderer::I_RenderableComponent(owner)
+	, m_RenderMesh(true, "Render mesh")
 	, m_Animation(0)
 	, m_AnimationProgress(.0f, .0f, 1.f, "Animation progress")
 	, m_TransformationUBO(nullptr)
