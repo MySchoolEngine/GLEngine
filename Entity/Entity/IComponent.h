@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Entity/EntityApi.h>
+
 #include <Core/EventSystem/EventReciever.h>
 
 namespace pugi {
@@ -9,11 +11,14 @@ class xml_node;
 namespace GLEngine {
 namespace Entity {
 
+class I_Entity;
+
 enum class E_ComponentType;
 
 //=================================================================================
-class I_Component : public Core::I_EventReciever {
+class ENTITY_API_EXPORT I_Component : public Core::I_EventReciever {
 public:
+	I_Component(std::shared_ptr<I_Entity> owner);
 	virtual ~I_Component() = default;
 	virtual E_ComponentType GetType() const = 0;
 
@@ -24,13 +29,18 @@ public:
 
 	// draws inside of prepared window
 	virtual void DebugDrawGUI() {};
+protected:
+	std::shared_ptr<I_Entity> GetOwner() const;
+
+private:
+	std::weak_ptr<I_Entity> m_Owner;
 };
 
 //=================================================================================
 class I_ComponenetBuilder
 {
 public:
-	virtual std::shared_ptr<I_Component> Build(const pugi::xml_node& node) = 0;
+	virtual std::shared_ptr<I_Component> Build(const pugi::xml_node& node, std::shared_ptr<I_Entity> owner) = 0;
 };
 
 //=================================================================================

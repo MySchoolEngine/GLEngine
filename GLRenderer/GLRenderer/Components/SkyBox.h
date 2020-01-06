@@ -18,7 +18,7 @@ public:
 		Back = 4,
 		Forward = 5,
 	};
-	C_SkyBox();
+	C_SkyBox(std::shared_ptr<Entity::I_Entity> owner);
 	void AddTexture(E_Side side, const std::string& filename);
 
 	//==========================================
@@ -35,7 +35,7 @@ private:
 class C_SkyBoxCompBuilder : public Entity::I_ComponenetBuilder
 {
 public:
-	virtual std::shared_ptr<Entity::I_Component> Build(const pugi::xml_node& node) override;
+	virtual std::shared_ptr<Entity::I_Component> Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner) override;
 };
 
 }

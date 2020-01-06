@@ -8,8 +8,9 @@ namespace GUI {
 
 
 //=================================================================================
-C_GLDebugGUIComponent::C_GLDebugGUIComponent(const std::string& name)
-	: m_Title(name)
+C_GLDebugGUIComponent::C_GLDebugGUIComponent(std::shared_ptr<Entity::I_Entity> owner)
+	: Renderer::I_DebugGUIComponent(owner)
+	, m_Title(owner->GetName())
 	, m_Show(false)
 {
 
@@ -29,6 +30,12 @@ void C_GLDebugGUIComponent::PostUpdate()
 		DrawContents();
 		::ImGui::End();
 	}
+}
+
+//=================================================================================
+void C_GLDebugGUIComponent::SetTitle(std::string& title)
+{
+	m_Title = title;
 }
 
 }}}
