@@ -69,5 +69,59 @@ bool C_LevelFilter::FilterCheck(const S_Data& message)
 	return false;
 }
 
+//=================================================================================
+// C_PassAllFilter
+//=================================================================================
+C_TextFilter::C_TextFilter(const std::string& text, C_Filter* innerFilter /*= nullptr*/)
+	: C_Filter(innerFilter)
+	, m_Text(text)
+{
+
 }
+
+//=================================================================================
+bool C_TextFilter::FilterCheck(const S_Data& message)
+{
+	return (message.m_Text.find(m_Text) == std::string::npos);
 }
+
+//=================================================================================
+// C_PassAllFilter
+//=================================================================================
+bool C_PassAllFilter::FilterCheck(const S_Data& message)
+{
+	return false;
+}
+
+//=================================================================================
+// C_NegationFilter
+//=================================================================================
+C_NegationFilter::C_NegationFilter(C_Filter* negatedFilter, C_Filter* inner)
+	: C_Filter(inner)
+	, m_NegatedFilter(negatedFilter)
+{
+
+}
+
+//=================================================================================
+C_NegationFilter::~C_NegationFilter()
+{
+	if (m_NegatedFilter)
+	{
+		delete m_NegatedFilter;
+	}
+}
+
+//=================================================================================
+bool C_NegationFilter::Filter(const S_Data& message)
+{
+	return !C_Filter::Filter(message);
+}
+
+//=================================================================================
+bool C_NegationFilter::FilterCheck(const S_Data& message)
+{
+	return !m_NegatedFilter->Filter(message);
+}
+
+}}

@@ -191,8 +191,6 @@ GLuint C_ShaderManager::LoadShader(const pugi::xml_node& node) const
 //=================================================================================
 GLuint C_ShaderManager::LoadProgram(const std::string& name) const
 {
-	std::string filePath;
-
 	pugi::xml_document doc;
 
 	if (!LoadDoc(doc, name)) {
@@ -225,6 +223,7 @@ GLuint C_ShaderManager::LoadProgram(const std::string& name) const
 	}
 	return program;
 }
+
 }
 }
 }

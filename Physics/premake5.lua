@@ -21,7 +21,7 @@ project "Physics"
 		defines
 		{
 			"CORE_PLATFORM=CORE_PLATFORM_WIN",
-			"BUILD_DLL",
+			"BUILD_PHYSICS_DLL",
 		}
 
 		postbuildcommands

@@ -7,8 +7,7 @@
 namespace Utils {
 namespace Logging {
 
-// intentionally not exported
-struct S_Data {
+struct UTILS_API_EXPORT S_Data {
 	std::string m_Text;
 	std::string m_File;
 	int			m_Line;

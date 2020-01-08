@@ -6,7 +6,7 @@
 
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 
-#include <GLRenderer/MeshLoading/Scene.h>
+#include <Renderer/Mesh/Scene.h>
 
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
@@ -23,65 +23,66 @@
 
 #include <Core/Application.h>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Components {
+#include <pugixml.hpp>
+
+namespace GLEngine::GLRenderer::Components {
 
 //=================================================================================
-C_SkyBox::C_SkyBox()
-	: m_Textures("Skybox", GL_TEXTURE_CUBE_MAP)
+C_SkyBox::C_SkyBox(std::shared_ptr<Entity::I_Entity> owner)
+	: Renderer::I_RenderableComponent(owner)
+	, m_Textures("Skybox", GL_TEXTURE_CUBE_MAP)
 {
 	m_Textures.SetFilter(GL_LINEAR, GL_LINEAR);
-	m_Textures.SetWrap(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+	m_Textures.SetWrap(E_WrapFunction::ClampToEdge, E_WrapFunction::ClampToEdge, E_WrapFunction::ClampToEdge);
 
 	std::vector<glm::vec3> vertices;
 	// left
-	vertices.push_back(glm::vec3(100.0f,  100.0f,  100.0f));
-	vertices.push_back(glm::vec3(100.0f,  100.0f, -100.0f));
-	vertices.push_back(glm::vec3(100.0f, -100.0f, -100.0f));
-	vertices.push_back(glm::vec3(100.0f, -100.0f, -100.0f));
-	vertices.push_back(glm::vec3(100.0f, -100.0f,  100.0f));
-	vertices.push_back(glm::vec3(100.0f,  100.0f,  100.0f));
+	vertices.emplace_back(100.0f,  100.0f,  100.0f);
+	vertices.emplace_back(100.0f,  100.0f, -100.0f);
+	vertices.emplace_back(100.0f, -100.0f, -100.0f);
+	vertices.emplace_back(100.0f, -100.0f, -100.0f);
+	vertices.emplace_back(100.0f, -100.0f,  100.0f);
+	vertices.emplace_back(100.0f,  100.0f,  100.0f);
 
 	// right
-	vertices.push_back(glm::vec3(-100.0f, -100.0f,  100.0f));
-	vertices.push_back(glm::vec3(-100.0f,  100.0f, -100.0f));
-	vertices.push_back(glm::vec3(-100.0f,  100.0f,  100.0f));
-	vertices.push_back(glm::vec3(-100.0f, -100.0f,  100.0f));
-	vertices.push_back(glm::vec3(-100.0f, -100.0f, -100.0f));
-	vertices.push_back(glm::vec3(-100.0f,  100.0f, -100.0f));
+	vertices.emplace_back(-100.0f, -100.0f,  100.0f);
+	vertices.emplace_back(-100.0f,  100.0f, -100.0f);
+	vertices.emplace_back(-100.0f,  100.0f,  100.0f);
+	vertices.emplace_back(-100.0f, -100.0f,  100.0f);
+	vertices.emplace_back(-100.0f, -100.0f, -100.0f);
+	vertices.emplace_back(-100.0f,  100.0f, -100.0f);
 	
 	// top
-	vertices.push_back(glm::vec3(-100.0f, 100.0f, -100.0f));
-	vertices.push_back(glm::vec3( 100.0f, 100.0f, -100.0f));
-	vertices.push_back(glm::vec3( 100.0f, 100.0f,  100.0f));
-	vertices.push_back(glm::vec3( 100.0f, 100.0f,  100.0f));
-	vertices.push_back(glm::vec3(-100.0f, 100.0f,  100.0f));
-	vertices.push_back(glm::vec3(-100.0f, 100.0f, -100.0f));
+	vertices.emplace_back(-100.0f, 100.0f, -100.0f);
+	vertices.emplace_back( 100.0f, 100.0f, -100.0f);
+	vertices.emplace_back( 100.0f, 100.0f,  100.0f);
+	vertices.emplace_back( 100.0f, 100.0f,  100.0f);
+	vertices.emplace_back(-100.0f, 100.0f,  100.0f);
+	vertices.emplace_back(-100.0f, 100.0f, -100.0f);
 
 	// bottom
-	vertices.push_back(glm::vec3(-100.0f, -100.0f, -100.0f));
-	vertices.push_back(glm::vec3(-100.0f, -100.0f,  100.0f));
-	vertices.push_back(glm::vec3( 100.0f, -100.0f, -100.0f));
-	vertices.push_back(glm::vec3( 100.0f, -100.0f, -100.0f));
-	vertices.push_back(glm::vec3(-100.0f, -100.0f,  100.0f));
-	vertices.push_back(glm::vec3( 100.0f, -100.0f,  100.0f));
+	vertices.emplace_back(-100.0f, -100.0f, -100.0f);
+	vertices.emplace_back(-100.0f, -100.0f,  100.0f);
+	vertices.emplace_back( 100.0f, -100.0f, -100.0f);
+	vertices.emplace_back( 100.0f, -100.0f, -100.0f);
+	vertices.emplace_back(-100.0f, -100.0f,  100.0f);
+	vertices.emplace_back( 100.0f, -100.0f,  100.0f);
 
 	//back
-	vertices.push_back(glm::vec3(-100.0f,  100.0f, 100.0f));
-	vertices.push_back(glm::vec3( 100.0f,  100.0f, 100.0f));
-	vertices.push_back(glm::vec3( 100.0f, -100.0f, 100.0f));
-	vertices.push_back(glm::vec3( 100.0f, -100.0f, 100.0f));
-	vertices.push_back(glm::vec3(-100.0f, -100.0f, 100.0f));
-	vertices.push_back(glm::vec3(-100.0f,  100.0f, 100.0f));
+	vertices.emplace_back(-100.0f,  100.0f, 100.0f);
+	vertices.emplace_back( 100.0f,  100.0f, 100.0f);
+	vertices.emplace_back( 100.0f, -100.0f, 100.0f);
+	vertices.emplace_back( 100.0f, -100.0f, 100.0f);
+	vertices.emplace_back(-100.0f, -100.0f, 100.0f);
+	vertices.emplace_back(-100.0f,  100.0f, 100.0f);
 
 	//front
-	vertices.push_back(glm::vec3( 100.0f,  100.0f, -100.0f));
-	vertices.push_back(glm::vec3(-100.0f,  100.0f, -100.0f));
-	vertices.push_back(glm::vec3(-100.0f, -100.0f, -100.0f));
-	vertices.push_back(glm::vec3(-100.0f, -100.0f, -100.0f));
-	vertices.push_back(glm::vec3( 100.0f, -100.0f, -100.0f));
-	vertices.push_back(glm::vec3( 100.0f,  100.0f, -100.0f));
+	vertices.emplace_back( 100.0f,  100.0f, -100.0f);
+	vertices.emplace_back(-100.0f,  100.0f, -100.0f);
+	vertices.emplace_back(-100.0f, -100.0f, -100.0f);
+	vertices.emplace_back(-100.0f, -100.0f, -100.0f);
+	vertices.emplace_back( 100.0f, -100.0f, -100.0f);
+	vertices.emplace_back( 100.0f,  100.0f, -100.0f);
 
 	m_VAO.bind();
 	m_VAO.SetBuffer<0, GL_ARRAY_BUFFER>(vertices);
@@ -93,14 +94,14 @@ C_SkyBox::C_SkyBox()
 }
 
 //=================================================================================
-void C_SkyBox::AddTexture(E_Side side, std::string& filename)
+void C_SkyBox::AddTexture(E_Side side, const std::string& filename)
 {
 	Textures::TextureLoader tl;
-	Mesh::Texture t;
+	Renderer::MeshData::Texture t;
 	bool retval = tl.loadTexture(filename.c_str(), t);
 
 	if (!retval)
-		CORE_LOG(E_Level::Error, E_Context::Render, "TExture cannot be loaded");
+		CORE_LOG(E_Level::Error, E_Context::Render, "Texture cannot be loaded");
 
 
 	const int mipMapLevel = 0;
@@ -127,7 +128,7 @@ void C_SkyBox::PerformDraw() const
 					shmgr.ActivateShader(shader);
 
 					m_VAO.bind();
-					glBindTexture(GL_TEXTURE_CUBE_MAP, m_Textures.GetTexture());
+					m_Textures.bind();
 					glDrawArrays(GL_TRIANGLES, 0, 36);
 					glDepthFunc(GL_LESS); // set depth function back to default
 					m_VAO.unbind();
@@ -137,4 +138,45 @@ void C_SkyBox::PerformDraw() const
 	);
 }
 
-}}}
+//=================================================================================
+// C_SkyBoxCompBuilder
+//=================================================================================
+std::shared_ptr<Entity::I_Component> C_SkyBoxCompBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
+{
+	auto skyboxComp = std::make_shared<C_SkyBox>(owner);
+
+	if (auto side = node.child("Top"))
+	{
+		auto& attrib = side.attribute("image");
+		skyboxComp->AddTexture(C_SkyBox::E_Side::Top, attrib.value());
+	}
+	if (auto side = node.child("Bottom"))
+	{
+		auto& attrib = side.attribute("image");
+		skyboxComp->AddTexture(C_SkyBox::E_Side::Bottom, attrib.value());
+	}
+	if (auto side = node.child("Left"))
+	{
+		auto& attrib = side.attribute("image");
+		skyboxComp->AddTexture(C_SkyBox::E_Side::Left, attrib.value());
+	}
+	if (auto side = node.child("Right"))
+	{
+		auto& attrib = side.attribute("image");
+		skyboxComp->AddTexture(C_SkyBox::E_Side::Right, attrib.value());
+	}
+	if (auto side = node.child("Back"))
+	{
+		auto& attrib = side.attribute("image");
+		skyboxComp->AddTexture(C_SkyBox::E_Side::Back, attrib.value());
+	}
+	if (auto side = node.child("Forward"))
+	{
+		auto& attrib = side.attribute("image");
+		skyboxComp->AddTexture(C_SkyBox::E_Side::Forward, attrib.value());
+	}
+
+	return skyboxComp;
+}
+
+}

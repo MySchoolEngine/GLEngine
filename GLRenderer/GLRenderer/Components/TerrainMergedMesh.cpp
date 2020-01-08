@@ -9,7 +9,8 @@ namespace Components {
 
 //=================================================================================
 C_TerrainMergedMesh::C_TerrainMergedMesh(std::vector<std::shared_ptr<C_TerrainMesh>> meshes)
-	: m_Meshes(meshes)
+	: Renderer::I_RenderableComponent(nullptr)
+	, m_Meshes(meshes)
 {
 
 }

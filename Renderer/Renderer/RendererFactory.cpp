@@ -1,3 +1,5 @@
+#include <RendererStdafx.h>
+
 #include <Renderer/RendererFactory.h>
 
 //#include <GLRenderer/OGLRenderer.h>

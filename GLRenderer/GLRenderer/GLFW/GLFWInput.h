@@ -8,7 +8,7 @@ namespace GLEngine {
 namespace GLRenderer {
 namespace GLFW {
 
-class API_EXPORT C_GLFWInput : public Core::I_Input {
+class C_GLFWInput : public Core::I_Input {
 public:
 	C_GLFWInput();
 	virtual ~C_GLFWInput() = default;

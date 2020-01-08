@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/CoreMacros.h>
+#include <GLRenderer/GLRendererApi.h>
 
 #include <Core/IWindowManager.h>
 #include <GLRenderer/GLFW/GLFWWindow.h>
@@ -36,5 +36,5 @@ private:
 	std::shared_ptr<Core::I_Window> m_UpdatingWindow;
 };
 
-API_EXPORT C_GLFWWindowManager* ConstructGLFWManager(Core::C_Application::EventCallbackFn eventCallback);
+GL_RENDERER_API_EXPORT C_GLFWWindowManager* ConstructGLFWManager(Core::C_Application::EventCallbackFn eventCallback);
 }}}

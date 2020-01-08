@@ -21,7 +21,7 @@ class I_Input;
 /************************************************************************/
 /* Represents single window on screen                                   */
 /************************************************************************/
-class API_EXPORT I_Window : public C_Layer {
+class I_Window : public C_Layer {
 public:
 	virtual ~I_Window() = default;
 	virtual unsigned int	GetWidth() const = 0;
