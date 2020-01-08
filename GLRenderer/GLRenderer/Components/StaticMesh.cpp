@@ -41,6 +41,7 @@ C_StaticMesh::C_StaticMesh(std::string meshFile)
 
 //=================================================================================
 C_StaticMesh::C_StaticMesh(const Renderer::MeshData::Mesh& mesh)
+	: Renderer::I_RenderableComponent(nullptr)
 {
 	m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(mesh);
 }
