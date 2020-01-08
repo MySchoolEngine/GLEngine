@@ -68,11 +68,12 @@ void C_D3D12Window::Init(const Core::S_WindowInfo& wndInfo)
 
 	WNDCLASSEX windowClass = { 0 };
 	windowClass.cbSize = sizeof(WNDCLASSEX);
-	windowClass.style = CS_HREDRAW | CS_VREDRAW;
+	windowClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	windowClass.lpfnWndProc = WindowProc;
 	windowClass.hInstance = m_HInstance;
 	windowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	windowClass.lpszClassName = L"DXSampleClass";
+	windowClass.hbrBackground = nullptr;
 	RegisterClassEx(&windowClass);
 
 	RECT windowRect = { 0, 0, static_cast<LONG>(wndInfo.m_width), static_cast<LONG>(wndInfo.m_height) };
