@@ -29,7 +29,7 @@ void C_GLFWoGLWindow::Update()
 //=================================================================================
 void C_GLFWoGLWindow::Init(const Core::S_WindowInfo& wndInfo)
 {
-	GLE_ASSERT(wndInfo.GetDriver() == Core::S_WindowInfo::E_Driver::OpenGL, "This class supports only OpenGL");
+	GLE_ASSERT(wndInfo.GetDriver() == Core::E_Driver::OpenGL, "This class supports only OpenGL");
 
 	const auto wndInfoOGL = dynamic_cast<const S_OpenGLWindowInfo*>(&wndInfo);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, wndInfoOGL->m_MajorVersion);

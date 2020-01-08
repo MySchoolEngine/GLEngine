@@ -36,6 +36,12 @@ workspace "Engine"
 		"vendor/GLM/util/glm.natvis"
 	}
 
+  filter "system:windows"
+    defines {
+      "CORE_PLATFORM=CORE_PLATFORM_WIN",
+      "WIN32", 
+    }
+
   filter "configurations:Debug"
     defines "GL_ENGINE_DEBUG"
 
@@ -61,7 +67,7 @@ include "Core"
 include "Sandbox"
 include "Renderer"
 include "GLRenderer"
+include "DX12Renderer"
 include "Entity"
 include "Utils"
 include "Physics"
---include "GLEngine"
