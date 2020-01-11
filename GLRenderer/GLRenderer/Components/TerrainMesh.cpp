@@ -31,7 +31,8 @@ namespace Components {
 
 //=================================================================================
 C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
-	: m_Noise("TerrainNoise")
+	: Renderer::I_RenderableComponent(nullptr)
+	, m_Noise("TerrainNoise")
 	, m_Coord(0, 0)
 	, m_Stats(3)
 	, m_RainData(std::make_shared<decltype(m_RainData)::element_type>("rainData", 1, dim))
@@ -62,7 +63,8 @@ C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 
 //=================================================================================
 C_TerrainMesh::C_TerrainMesh(Textures::C_Texture&& texture)
-	: m_Noise(std::move(texture))
+	: Renderer::I_RenderableComponent(nullptr)
+	, m_Noise(std::move(texture))
 	, m_Coord(0, 0)
 	, m_Stats(3)
 	, m_RainData(std::make_shared<decltype(m_RainData)::element_type>("rainData", 1, dim))

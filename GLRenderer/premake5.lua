@@ -22,10 +22,6 @@ project "GLRenderer"
 		"GLRenderer/**.h",
 		"GLRenderer/**.cpp",
 		"GLRenderer/**.inl",
-		"../%{IncludeDir.ImGui}/examples/imgui_impl_glfw.h",
-		"../%{IncludeDir.ImGui}/examples/imgui_impl_opengl3.h",
-		"../%{IncludeDir.ImGui}/examples/imgui_impl_glfw.cpp",
-		"../%{IncludeDir.ImGui}/examples/imgui_impl_opengl3.cpp",
 		"GLRendererStdafx.cpp",
 		"GLRendererStdafx.h",
 		"premake5.lua",
@@ -61,6 +57,11 @@ project "GLRenderer"
 		"DevIL-IL",
 		"../vendor/AssimpPrebuild/lib/assimp.lib",
 		"../vendor/projects/DevIL/bin/Debug-windows-x86_64/DevIL-IL/DevIL-IL.dll",
+	}
+
+	defines
+	{
+		"IMGUI_IMPL_OPENGL_LOADER_GLAD"
 	}
 
 	filter "system:windows"

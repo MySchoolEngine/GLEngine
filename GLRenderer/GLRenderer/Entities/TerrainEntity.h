@@ -22,9 +22,7 @@ public:
 	using T_TerrainPtr = std::shared_ptr<Components::C_TerrainMesh>;
 
 	//=================================================================================
-	virtual EntityID GetID() const override;
 	virtual T_ComponentPtr GetComponent(Entity::E_ComponentType type) const override;
-	virtual std::string GetName() const override;
 	virtual void OnEvent(Core::I_Event& event) override;
 
 	void Update();
@@ -50,8 +48,6 @@ public:
 		float m_Inertia			= 0.65f;
 	};
 protected:
-	EntityID					m_ID;
-	std::string					m_Name;
 	std::vector<T_TerrainPtr>	m_Patches;
 
 	int m_inputCoords[2];

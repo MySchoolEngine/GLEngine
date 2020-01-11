@@ -29,6 +29,11 @@ project "Sandbox"
 		{
 			"CORE_PLATFORM=CORE_PLATFORM_WIN"
 		}
+		
+		postbuildcommands
+		{
+			("{COPY} \"../vendor/AssimpPrebuild/lib/assimp.dll\" \"../bin/" .. outputdir .. "/Sandbox/\"")
+		}
 
 	filter "configurations:Debug"
 		runtime "Debug"

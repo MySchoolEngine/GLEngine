@@ -28,6 +28,11 @@ project "Entity"
 		"pugixml",
 	}
 
+	defines
+	{
+		"MODULE_CTX=Entity"
+	}
+
 	filter "system:windows"
 		cppdialect "C++17"
 		systemversion "latest"
