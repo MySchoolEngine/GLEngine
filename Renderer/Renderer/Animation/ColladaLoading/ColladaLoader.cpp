@@ -135,7 +135,32 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 				}
 				else if (auto triangles = xmlMesh.child("triangles"))
 				{
-					CORE_LOG(E_Level::Error, E_Context::Render, "<Trianlges> not supported yet");
+					int count = 0;
+					if (const auto countAttribute = triangles.attribute("count"))
+					{
+						count = countAttribute.as_int();
+					}
+					else
+					{
+						// it's against standard, but we can recover from this error
+						// we use this information only for optimize 
+						CORE_LOG(E_Level::Warning, E_Context::Core, "<triangles> element misses required attribute count.");
+					}
+
+					if (auto indiceList = triangles.child("p"))
+					{
+						std::string_view indiceListString = indiceList.child_value();
+						std::stringstream indicesStream;
+						indicesStream << indiceListString;
+						int v, n, t0;
+						while (indicesStream >> v >> n >> t0)
+						{
+							oMesh.vertices.push_back(vertices[v]);
+							oMesh.normals.emplace_back(normals[n]);
+							oMesh.texcoords.emplace_back(texCoords[t0]);
+						}
+					}
+
 				}
 			}
 		}
@@ -295,11 +320,12 @@ bool C_ColladaLoader::ParseChildrenJoints(S_Joint& parent, const pugi::xml_node&
 }
 
 //=================================================================================
-std::size_t C_ColladaLoader::GetBoneId(const std::string& name) const
+int C_ColladaLoader::GetBoneId(const std::string& name) const
 {
 	const auto it = std::find(m_JointNames.begin(), m_JointNames.end(), name);
 	if (it == m_JointNames.end())
 	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "Unknown bone id '{}'", name);
 		return -1;
 	}
 	return std::distance(m_JointNames.begin(), it);
