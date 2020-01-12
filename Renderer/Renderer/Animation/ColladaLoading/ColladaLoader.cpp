@@ -153,6 +153,12 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 						std::stringstream indicesStream;
 						indicesStream << indiceListString;
 						int v, n, t0;
+
+						// let's save some allocations
+						oMesh.vertices.reserve(count * 3);
+						oMesh.normals.reserve(count * 3);
+						oMesh.texcoords.reserve(count * 3);
+
 						while (indicesStream >> v >> n >> t0)
 						{
 							oMesh.vertices.push_back(vertices[v]);
