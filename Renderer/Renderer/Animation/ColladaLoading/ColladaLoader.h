@@ -35,7 +35,7 @@ private:
 	glm::mat4 ParseTranslation(const pugi::xml_node& node);
 	bool ParseChildrenJoints(S_Joint& parent, const pugi::xml_node& xmlParent, const std::map<std::string, S_Joint>& joints);
 
-	int GetBoneId(const std::string& name) const;
+	int GetBoneId(const std::string_view& name) const;
 	C_BoneTimeline LoadBoneTimeline(const pugi::xml_node& node) const;
 
 	std::vector<std::string> m_JointNames;

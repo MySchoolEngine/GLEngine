@@ -135,7 +135,7 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 				}
 				else if (auto triangles = xmlMesh.child("triangles"))
 				{
-					int count = 0;
+					std::size_t count = 0;
 					if (const auto countAttribute = triangles.attribute("count"))
 					{
 						count = countAttribute.as_int();
@@ -325,7 +325,7 @@ bool C_ColladaLoader::ParseChildrenJoints(S_Joint& parent, const pugi::xml_node&
 }
 
 //=================================================================================
-int C_ColladaLoader::GetBoneId(const std::string& name) const
+int C_ColladaLoader::GetBoneId(const std::string_view& name) const
 {
 	const auto it = std::find(m_JointNames.begin(), m_JointNames.end(), name);
 	if (it == m_JointNames.end())
