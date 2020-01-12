@@ -217,7 +217,6 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 			std::string_view id = animationXML.attribute("id").as_string();
 			const auto underscoreIndex = id.find('_') + 1;
 			std::string boneIdName(id.substr(underscoreIndex, id.find("_pose_matrix") - underscoreIndex));
-			CORE_LOG(E_Level::Error, E_Context::Render, "{}", boneIdName);
 			const auto boneId = GetBoneId(boneIdName);
 			if (boneId < 0)
 			{
