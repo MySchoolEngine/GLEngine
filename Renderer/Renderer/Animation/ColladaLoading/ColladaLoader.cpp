@@ -119,6 +119,22 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 				// here it is possible to non-triangle polygons to arise
 				if (auto polylist = xmlMesh.child("polylist"))
 				{
+					std::size_t count = 0;
+					if (const auto countAttribute = polylist.attribute("count"))
+					{
+						count = countAttribute.as_int();
+					}
+					else
+					{
+						// it's against standard, but we can recover from this error
+						// we use this information only for optimize 
+						CORE_LOG(E_Level::Warning, E_Context::Core, "<triangles> element misses required attribute count.");
+					}
+
+
+					oMesh.vertices.reserve(count * 3);
+					oMesh.normals.reserve(count * 3);
+					oMesh.texcoords.reserve(count * 3);
 					if (auto indiceList = polylist.child("p"))
 					{
 						std::string_view indiceListString = indiceList.child_value();
