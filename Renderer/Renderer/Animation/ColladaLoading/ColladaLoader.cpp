@@ -24,7 +24,7 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 	std::string& textureName,
 	C_Skeleton& skeleton,
 	C_SkeletalAnimation& animation,
-	const glm::mat4& transform /*= glm::mat4(1)*/)
+	glm::mat4& transform /*= glm::mat4(1)*/)
 {
 	std::string name;
 	name.append(filepath);
@@ -193,6 +193,29 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 	{
 		if (auto skinXML = controllerLibrary.child("controller").child("skin"))
 		{
+			if (const auto BSMatrix = skinXML.child("bind_shape_matrix"))
+			{
+				std::stringstream ss(BSMatrix.child_value());
+				float f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16;
+
+				ss
+					>> f1 >> f2 >> f3 >> f4
+					>> f5 >> f6 >> f7 >> f8
+					>> f9 >> f10 >> f11 >> f12
+					>> f13 >> f14 >> f15 >> f16;
+
+				// Contains sixteen floating-point numbers representing 
+				// a four-by-four matrix in column-major order; it is 
+				//written in row-major order in the COLLADA document 
+				// for human readability
+				// thus we need transpose
+				transform = glm::transpose(glm::mat4(
+					f1, f2, f3, f4,
+					f5, f6, f7, f8,
+					f9, f10, f11, f12,
+					f13, f14, f15, f16
+				));
+			}
 			LoadJoints(skinXML);
 			LoadJointsInvMatrices(joints, skinXML, noramlizingMatrix);
 		}

@@ -65,7 +65,7 @@ void C_SkeletalMesh::PerformDraw() const
 					auto shader = shmgr.GetProgram("animation");
 					shmgr.ActivateShader(shader);
 	
-					shader->SetUniform("modelMatrix", glm::mat4(1.0f));
+					shader->SetUniform("modelMatrix", m_ModelMatrix);
 	
 					m_VAO.bind();
 
@@ -109,7 +109,6 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, std::str
 	Renderer::Animation::C_ColladaLoader sl;
 
 	auto scene = std::make_shared<Renderer::MeshData::Scene>();
-	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
 	std::string textureName;
 
@@ -120,7 +119,7 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, std::str
 	Renderer::MeshData::AnimationData animData;
 
 
-	if (!sl.addModelFromDAEFileToScene(meshFolder.data(), meshFile.data(), mesh, textureName, m_Skeleton, m_Animation, modelMatrix))
+	if (!sl.addModelFromDAEFileToScene(meshFolder.data(), meshFile.data(), mesh, textureName, m_Skeleton, m_Animation, m_ModelMatrix))
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}/{}", meshFolder, meshFile);
 		return;

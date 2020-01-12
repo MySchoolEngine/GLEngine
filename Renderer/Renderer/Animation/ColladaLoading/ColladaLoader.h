@@ -28,7 +28,7 @@ public:
 	bool addModelFromDAEFileToScene(const char* filepath, const char* filename, MeshData::Mesh& mesh, std::string& textureName, 
 		C_Skeleton& skeleton,
 		C_SkeletalAnimation& animation, 
-		const glm::mat4& transform = glm::mat4(1));
+		glm::mat4& transform = glm::mat4(1));
 private:
 	void LoadJoints(const pugi::xml_node& skinXML);
 	void LoadJointsInvMatrices(std::map<std::string, S_Joint>& joints, const pugi::xml_node& skinXML, const glm::mat4& normalizinMatrix) const;

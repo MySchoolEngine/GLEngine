@@ -35,6 +35,7 @@ public:
 
 	VAO::C_GLVAO<5>											m_VAO;
 	std::size_t												m_triangles;
+	glm::mat4												m_ModelMatrix;
 };
 
 }
