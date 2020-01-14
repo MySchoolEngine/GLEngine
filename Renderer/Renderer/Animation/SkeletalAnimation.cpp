@@ -3,6 +3,8 @@
 #include <Renderer/Animation/SkeletalAnimation.h>
 
 #include <Core/CoreMacros.h>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
 
 namespace GLEngine::Renderer::Animation {
 
@@ -69,7 +71,9 @@ S_BoneKeyframe::S_BoneKeyframe(const glm::vec3& transformation, const glm::quat&
 //=================================================================================
 glm::mat4 S_BoneKeyframe::GetTransformationMatrix() const
 {
-	return glm::mat4(1.0f);
+	glm::mat4 translation = glm::translate(glm::mat4(1.f), m_Transform);
+	glm::mat4 rotation = glm::toMat4(m_Rotation);
+	return translation * rotation;
 }
 
 //=================================================================================

@@ -11,6 +11,8 @@ struct RENDERER_API_EXPORT S_Joint {
 	S_Joint(S_Joint&& other);
 	glm::mat4 GetAnimatedTransform() const;
 
+	void ApplyPoseToJoints(std::vector<glm::mat4>& poseData, const glm::mat4& parentTransform) const;
+
 
 	std::string m_Name;
 	std::size_t m_Id;

@@ -77,6 +77,7 @@ void C_SkeletalMesh::PerformDraw() const
 						[](const Renderer::Animation::S_BoneKeyframe& keyFrame) {
 							return keyFrame.GetTransformationMatrix();
 						});
+					m_Skeleton.ApplyPoseToBones(transofrms);
 
 					shader->SetUniform("transforms", transofrms);
 	
