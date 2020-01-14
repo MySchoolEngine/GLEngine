@@ -167,18 +167,12 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, std::str
 	static_assert(sizeof(glm::vec3) == sizeof(GLfloat) * 3, "Platform doesn't support this directly.");
 
 	m_triangles = mesh.vertices.size();
-	animData.jointWeights.resize(mesh.vertices.size());
-	animData.weights.resize(mesh.vertices.size());
-	for (int i = 0; i < mesh.vertices.size();++i) {
-		animData.jointWeights[i] = {1, 1, 1};
-		animData.weights[i] = { 1.f, 0.f,0.f };
-	}
 
 	m_VAO.bind();
 	m_VAO.SetBuffer<0, GL_ARRAY_BUFFER>(mesh.vertices);
 	m_VAO.SetBuffer<1, GL_ARRAY_BUFFER>(mesh.normals);
 	m_VAO.SetBuffer<2, GL_ARRAY_BUFFER>(mesh.texcoords);
-	m_VAO.SetBuffer<3, GL_ARRAY_BUFFER>(animData.jointWeights);
+	m_VAO.SetBuffer<3, GL_ARRAY_BUFFER>(animData.jointIndices);
 	m_VAO.SetBuffer<4, GL_ARRAY_BUFFER>(animData.weights);
 
 
