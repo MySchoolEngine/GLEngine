@@ -1,6 +1,6 @@
 #version 430
 
-#define NUM_JOINTS 16
+#define NUM_JOINTS 67
 #define MAX_WEIGHTS 3
 
 attribute vec4  vertex;
