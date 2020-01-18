@@ -15,6 +15,7 @@ struct S_Timestamp
 	bool operator>=(const S_Timestamp& other) const;
 	bool operator>(const S_Timestamp& other) const;
 	S_Timestamp operator-(const S_Timestamp& rhs) const;
+	S_Timestamp operator+(const S_Timestamp& rhs) const;
 	float GetValue() const { return m_Timestamp; }
 private:
 	static float Clamp(float f);

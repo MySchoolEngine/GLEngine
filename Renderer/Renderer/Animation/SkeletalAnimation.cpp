@@ -49,6 +49,12 @@ S_Timestamp S_Timestamp::operator-(const S_Timestamp& rhs) const
 }
 
 //=================================================================================
+S_Timestamp S_Timestamp::operator+(const S_Timestamp& rhs) const
+{
+	return S_Timestamp(m_Timestamp + rhs.m_Timestamp);
+}
+
+//=================================================================================
 // S_BoneKeyframe
 //=================================================================================
 S_BoneKeyframe::S_BoneKeyframe(const glm::mat4& matrix, S_Timestamp timestamp)
