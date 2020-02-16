@@ -1,4 +1,4 @@
-﻿#include <GLRendererStdafx.h>
+#include <GLRendererStdafx.h>
 
 #include <GLRenderer/Windows/ExperimentWindow.h>
 
@@ -444,6 +444,7 @@ void C_ExplerimentWindow::SetupWorld()
 	{
 		auto skeleton = std::make_shared<Entity::C_BasicEntity>("skeleton");
 		skeleton->AddComponent(std::make_shared<Components::C_SkeletalMesh>(skeleton, "model.dae"));
+		//skeleton->AddComponent(std::make_shared<Components::C_SkeletalMesh>(skeleton, "Tree_frog.dae", "Models/Frog"));
 		skeleton->AddComponent(std::make_shared<GUI::C_GLEntityDebugComponent>(skeleton));
 		m_World->AddEntity(skeleton);
 	}
