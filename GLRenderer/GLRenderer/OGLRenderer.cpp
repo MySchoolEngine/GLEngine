@@ -5,6 +5,8 @@
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
 
+#include <GLRenderer/Debug.h>
+
 #include <imgui.h>
 
 #include <stdexcept>
@@ -16,6 +18,8 @@ namespace GLRenderer {
 C_OGLRenderer::C_OGLRenderer()
 	: m_CommandQueue(new std::remove_pointer<decltype(m_CommandQueue)>::type)
 	, m_DrawCommands("Draw commands")
+	, m_CatchErrors(false, "Catch errors")
+	, m_PreviousCatchErrorsVal(false)
 {
 	int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
@@ -76,6 +80,22 @@ void C_OGLRenderer::ClearCommandBuffers()
 {
 	m_DrawCommands.Sample(static_cast<float>(m_CommandQueue->size()));
 	m_CommandQueue->clear();
+
+
+	if (m_PreviousCatchErrorsVal != m_CatchErrors)
+	{
+		if (m_CatchErrors)
+		{
+			glEnable(GL_DEBUG_OUTPUT);
+			glDebugMessageCallback(MessageCallback, 0);
+		}
+		else
+		{
+			glDisable(GL_DEBUG_OUTPUT);
+			glDebugMessageCallback(nullptr, 0);
+		}
+		m_PreviousCatchErrorsVal = m_CatchErrors.GetValue();
+	}
 }
 
 //=================================================================================
@@ -91,6 +111,7 @@ void C_OGLRenderer::DrawControls() const
 	
 	::ImGui::Begin("Renderer frame stats", &my_tool_active);
 		m_DrawCommands.Draw();
+		m_CatchErrors.Draw();
 		const auto avgDrawCommands = m_DrawCommands.Avg();
 		::ImGui::Text("Avg draw commands: %.2f", avgDrawCommands);
 		::ImGui::Text("Min/max %.2f/%.2f",

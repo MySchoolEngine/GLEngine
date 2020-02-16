@@ -18,9 +18,10 @@ namespace GLRenderer {
 const static std::string s_DebugShaderName = "basic-wireframe";
 const static std::string s_MergedShaderName = "MergedWireframes";
 
+#define codeToStr(c) case c: return #c; break
+
 //=================================================================================
 const char* glErrorCodeToString(unsigned int code) {
-#define codeToStr(c) case c: return #c; break
 	switch (code)
 	{
 		codeToStr(GL_INVALID_ENUM);
@@ -33,7 +34,17 @@ const char* glErrorCodeToString(unsigned int code) {
 		return "bad value";
 		break;
 	}
+}
 
+//=================================================================================
+const char* glErrorTypeToString(GLenum code) {
+	switch (code)
+	{
+		codeToStr(GL_DEBUG_TYPE_ERROR);
+	default:
+		return "bad value";
+		break;
+	}
 }
 
 //=================================================================================
@@ -53,6 +64,26 @@ bool _glErrorCheck(const char* file, const int line)
 		return true;
 	}
 	return false;
+}
+
+//=================================================================================
+void GLAPIENTRY
+MessageCallback(GLenum source,
+	GLenum type,
+	GLuint id,
+	GLenum severity,
+	GLsizei length,
+	const GLchar* message,
+	const void* userParam)
+{
+	if (severity == GL_DEBUG_SEVERITY_NOTIFICATION) return;
+	if (type != GL_DEBUG_TYPE_ERROR) return;
+	CORE_LOG(E_Level::Error, E_Context::Render,"GL CALLBACK: {} type = {}, severity = 0x{:x}, message = {}",
+		(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
+		glErrorTypeToString(type), severity, message);
+#ifdef GL_ENGINE_DEBUG
+	__debugbreak();
+#endif
 }
 
 //=================================================================================

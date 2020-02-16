@@ -5,6 +5,7 @@
 #include <Renderer/IRenderer.h>
 
 #include <GLRenderer/GUI/PlotLine.h>
+#include <GLRenderer/GUI/Input/CheckBoxValue.h>
 
 namespace GLEngine {
 namespace GLRenderer {
@@ -35,6 +36,8 @@ private:
 	bool m_Locked = false;
 	std::vector<Renderer::I_Renderer::T_CommandPtr>*	m_CommandQueue;
 	GUI::C_PlotLine<500>								m_DrawCommands;
+	GUI::Input::C_CheckBoxValue					m_CatchErrors;
+	bool																m_PreviousCatchErrorsVal;
 };
 
 }
