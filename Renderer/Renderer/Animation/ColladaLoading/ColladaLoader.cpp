@@ -7,6 +7,7 @@
 
 #include <Renderer/Animation/Skeleton.h>
 #include <Renderer/Animation/SkeletalAnimation.h>
+#include <Renderer/Animation/AnimationStructures.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>

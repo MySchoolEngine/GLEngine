@@ -23,6 +23,12 @@
 
 #include <Core/Application.h>
 
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/transform.hpp>
+
+#include <GLRenderer/Debug.h>
+
 namespace GLEngine::GLRenderer::Components {
 
 //=================================================================================
@@ -65,22 +71,17 @@ void C_SkeletalMesh::PerformDraw() const
 					auto shader = shmgr.GetProgram("animation");
 					shmgr.ActivateShader(shader);
 	
-					shader->SetUniform("modelMatrix", m_ModelMatrix);
-	
+					shader->SetUniform("modelMatrix", m_ModelMatrix * glm::rotate(-glm::half_pi<float>(), glm::vec3(1.f, .0f, .0f)));
+
 					m_VAO.bind();
 
-					const auto& boneKeyframes = m_Animation.GetTransform(m_AnimationProgress.GetValue());
-					std::vector<glm::mat4> transofrms;
-					transofrms.resize(boneKeyframes.size());
+					const auto& pose = m_Animation.GetPose(m_AnimationProgress.GetValue());
+					auto transofrms = pose.GetModelSpaceTransofrms();
 
-					std::transform(boneKeyframes.begin(), boneKeyframes.end(), transofrms.begin(),
-						[](const Renderer::Animation::S_BoneKeyframe& keyFrame) {
-							return keyFrame.GetTransformationMatrix();
-						});
 					m_Skeleton.ApplyPoseToBones(transofrms);
 
 					shader->SetUniform("transforms", transofrms);
-	
+
 					// this wont work with my current UBO manager so that means! @todo!
 					// m_TransformationUBO->UploadData();
 					// m_TransformationUBO->Activate(true);
@@ -97,6 +98,11 @@ void C_SkeletalMesh::PerformDraw() const
 void C_SkeletalMesh::Update()
 {
 	C_DebugDraw::Instance().DrawSkeleton(glm::vec3(1.0f, .0f, .0f), m_Skeleton);
+	m_AnimationProgress += .01f;
+	if (m_AnimationProgress.GetValue() > 1.f)
+	{
+		m_AnimationProgress = 0.f;
+	}
 }
 
 //=================================================================================
@@ -162,7 +168,7 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, std::str
 	auto& UBOMan = Buffers::C_UniformBuffersManager::Instance();
 	m_TransformationUBO = UBOMan.CreateUniformBuffer<Buffers::UBO::C_JointTramsformsUBO>("jointTransforms", m_Skeleton.GetNumBones());
 
-	m_TransformationUBO->SetTransforms(m_Animation.GetTransform(0.f));
+	//m_TransformationUBO->SetTransforms(m_Animation.GetTransform(0.f));
 
 	// setup VAO
 	static_assert(sizeof(glm::vec3) == sizeof(GLfloat) * 3, "Platform doesn't support this directly.");
