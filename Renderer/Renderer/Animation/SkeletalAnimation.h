@@ -56,7 +56,10 @@ public:
 	std::vector<S_BoneKeyframe> GetTransform(const S_Timestamp timestamp) const;
 	void SetBoneTimeline(std::size_t index, C_BoneTimeline&& timeline);
 private:
+#pragma warning(push)
+#pragma warning( disable : 4251)
 	std::vector<C_BoneTimeline> m_Timelines;
+#pragma warning(pop)
 };
 
 }

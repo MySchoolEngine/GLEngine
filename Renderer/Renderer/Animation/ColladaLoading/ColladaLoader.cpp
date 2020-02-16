@@ -389,7 +389,7 @@ int C_ColladaLoader::GetBoneId(const std::string_view& name) const
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unknown bone id '{}'", name);
 		return -1;
 	}
-	return std::distance(m_JointNames.begin(), it);
+	return static_cast<int>(std::distance(m_JointNames.begin(), it));
 }
 
 //=================================================================================
