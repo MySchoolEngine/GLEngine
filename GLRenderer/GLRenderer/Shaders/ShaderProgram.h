@@ -84,9 +84,15 @@ public:
 	void BindSampler(const Textures::C_Texture& texture, unsigned int unit);
 	void BindSampler(const Textures::C_Texture& texture, const std::string& samplerName);
 
+#if _DEBUG
+	void SetUpdateTIme(std::chrono::system_clock::time_point);
+	std::chrono::system_clock::time_point GetLastUpdate() const;
+#endif
+
 private:
 #if _DEBUG
 	std::string m_name;
+	std::chrono::system_clock::time_point m_LastUpdate;
 #endif
 	GLuint m_Program;
 	std::map<std::size_t, GLint> m_uniformMap;

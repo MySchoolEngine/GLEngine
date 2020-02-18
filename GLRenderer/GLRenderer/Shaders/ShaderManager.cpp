@@ -178,10 +178,9 @@ GLuint C_ShaderManager::LoadShader(const pugi::xml_node& node) const
 
 	const std::string filename(s_ShadersFolder + std::string(node.first_child().value()));
 
-	if (!m_Compiler.compileShader(shader, filename.c_str(), stage, str)) {
+	if (!m_Compiler.compileShader(shader, filename.c_str(), stage)) {
 		CORE_LOG(E_Level::Error, E_Context::Render, "--Compilation error");
 		CORE_LOG(E_Level::Error, E_Context::Render, "{}", s_ShadersFolder + std::string(node.first_child().value()));
-		CORE_LOG(E_Level::Error, E_Context::Render, "{}", str);
 		return 0;
 	}
 	glObjectLabel(GL_SHADER, shader, static_cast<GLsizei>(filename.length()), filename.c_str());
@@ -200,13 +199,6 @@ GLuint C_ShaderManager::LoadProgram(const std::string& name) const
 
 	std::vector<GLuint> shaders;
 
-	//struct stat result;
-	//if (stat(name.c_str(), &result) == 0)
-	//{
-	//	auto mod_time = result.st_mtime;
-	//	
-	//}
-
 	for (auto& shader : doc.child("pipeline").children("shader")) {
 		GLuint shaderStage = LoadShader(shader);
 		if (shaderStage == 0) {
@@ -216,9 +208,7 @@ GLuint C_ShaderManager::LoadProgram(const std::string& name) const
 	}
 
 	GLuint program;
-	std::string str;
-	if (!m_Compiler.linkProgram(program, str, shaders)) {
-		std::cerr << str << std::endl;
+	if (!m_Compiler.linkProgram(program, shaders)) {
 		return false;
 	}
 	return program;
