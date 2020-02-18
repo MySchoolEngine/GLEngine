@@ -2,6 +2,8 @@
 
 #include <GLRenderer/OGLRenderer.h>
 
+#include <GLRenderer/Shaders/ShaderManager.h>
+
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
 
@@ -31,6 +33,8 @@ C_OGLRenderer::C_OGLRenderer()
 //=================================================================================
 C_OGLRenderer::~C_OGLRenderer()
 {
+	auto& shmgr = Shaders::C_ShaderManager::Instance();
+	shmgr.Clear();
 	delete m_CommandQueue;
 }
 
