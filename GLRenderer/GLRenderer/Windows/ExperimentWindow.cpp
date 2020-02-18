@@ -440,14 +440,6 @@ void C_ExplerimentWindow::SetupWorld()
 	m_FrameStatsGUID = guiMGR.CreateGUIWindow("Frame stats");
 	auto* frameStats = guiMGR.GetWindow(m_FrameStatsGUID);
 
-	if (true)
-	{
-		auto skeleton = std::make_shared<Entity::C_BasicEntity>("skeleton");
-		skeleton->AddComponent(std::make_shared<Components::C_SkeletalMesh>(skeleton, "model.dae"));
-		//skeleton->AddComponent(std::make_shared<Components::C_SkeletalMesh>(skeleton, "Tree_frog.dae", "Models/Frog"));
-		skeleton->AddComponent(std::make_shared<GUI::C_GLEntityDebugComponent>(skeleton));
-		m_World->AddEntity(skeleton);
-	}
 	frameStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgFrametime)]);
 	frameStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgFps)]);
 	frameStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::MinMaxFrametime)]);

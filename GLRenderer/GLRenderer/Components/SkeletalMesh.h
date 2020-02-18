@@ -38,4 +38,11 @@ public:
 	glm::mat4												m_ModelMatrix;
 };
 
+//=============================================================
+class C_SkeletalMeshBuilder : public Entity::I_ComponenetBuilder
+{
+public:
+	virtual std::shared_ptr<Entity::I_Component> Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner) override;
+};
+
 }

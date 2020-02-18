@@ -29,6 +29,9 @@
 
 #include <GLRenderer/Debug.h>
 
+
+#include <pugixml.hpp>
+
 namespace GLEngine::GLRenderer::Components {
 
 //=================================================================================
@@ -190,6 +193,25 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, std::str
 	m_VAO.EnableArray<4>();
 
 	m_VAO.unbind();
+}
+
+//=================================================================================
+// C_SkeletalMeshBuilder
+//=================================================================================
+std::shared_ptr<Entity::I_Component> C_SkeletalMeshBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
+{
+	if (const auto fileAttr = node.attribute("file"))
+	{
+		const auto file = fileAttr.as_string();
+
+		return std::make_shared<C_SkeletalMesh>(owner, file);
+	}
+	else
+	{
+		CORE_LOG(E_Level::Error, E_Context::Entity, "Given element <SkeletalMesh> doesn't specify file to load");
+	}
+
+	return nullptr;
 }
 
 }
