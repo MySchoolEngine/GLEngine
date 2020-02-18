@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/CoreMacros.h>
+#include <DX12Renderer/DX12RendererApi.h>
 
 #include <Core/IWindowManager.h>
 
@@ -13,5 +13,5 @@ public:
 	virtual std::shared_ptr<Core::I_Window> GetWindow(const Core::S_WindowInfo&) const override;
 };
 
-API_EXPORT Core::I_WindowFactory* ConstructD3D12WindowFactory();
+DX12_RENDERER_API_EXPORT Core::I_WindowFactory* ConstructD3D12WindowFactory();
 }

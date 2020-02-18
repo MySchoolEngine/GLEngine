@@ -7,7 +7,7 @@
 
 namespace GLEngine::DX12Renderer {
 
-class API_EXPORT C_D3D12Window : public Core::I_Window {
+class C_D3D12Window : public Core::I_Window {
 public:
 	C_D3D12Window(const Core::S_WindowInfo& wndInfo);
 	~C_D3D12Window();

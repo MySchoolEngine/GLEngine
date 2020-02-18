@@ -154,7 +154,7 @@ void C_ExplerimentWindow::Update()
 		if (::ImGui::Button("Spawn")) {
 			m_Spawning = false;
 			auto Terrain = std::make_shared<C_TerrainEntity>(m_SpawningName);
-			m_World->AddEntity(Terrain);
+			m_World->AddEntity(Terrain); 
 			
 			Textures::TextureLoader tl;
 			Renderer::MeshData::Texture t;
