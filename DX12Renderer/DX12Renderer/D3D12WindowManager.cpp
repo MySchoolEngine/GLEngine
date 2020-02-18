@@ -95,7 +95,7 @@ const std::unique_ptr<GLEngine::Renderer::I_Renderer>& C_D3D12WindowManager::Get
 //=================================================================================
 // ConstructD3D12Manager
 //=================================================================================
-API_EXPORT C_D3D12WindowManager* ConstructD3D12Manager(Core::C_Application::EventCallbackFn eventCallback, HINSTANCE hInstance)
+C_D3D12WindowManager* ConstructD3D12Manager(Core::C_Application::EventCallbackFn eventCallback, HINSTANCE hInstance)
 {
 	return new C_D3D12WindowManager(eventCallback, hInstance);
 }
