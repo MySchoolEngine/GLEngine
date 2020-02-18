@@ -42,7 +42,7 @@ struct Mesh
 //=================================================================================
 struct AnimationData
 {
-	std::vector<glm::ivec3> jointWeights;
+	std::vector<glm::ivec3> jointIndices;
 	std::vector<glm::vec3>	weights;
 };
 

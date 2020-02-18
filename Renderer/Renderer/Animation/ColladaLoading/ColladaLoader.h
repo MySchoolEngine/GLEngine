@@ -28,17 +28,22 @@ public:
 	bool addModelFromDAEFileToScene(const char* filepath, const char* filename, MeshData::Mesh& mesh, std::string& textureName, 
 		C_Skeleton& skeleton,
 		C_SkeletalAnimation& animation, 
-		const glm::mat4& transform = glm::mat4(1));
+		MeshData::AnimationData& animData,
+		glm::mat4& transform = glm::mat4(1));
 private:
+	void LoadAnimData(const pugi::xml_node& skinXML, std::vector<glm::ivec3>& jointIndices, std::vector<glm::vec3>& weights);
 	void LoadJoints(const pugi::xml_node& skinXML);
 	void LoadJointsInvMatrices(std::map<std::string, S_Joint>& joints, const pugi::xml_node& skinXML, const glm::mat4& normalizinMatrix) const;
 	glm::mat4 ParseTranslation(const pugi::xml_node& node);
 	bool ParseChildrenJoints(S_Joint& parent, const pugi::xml_node& xmlParent, const std::map<std::string, S_Joint>& joints);
 
-	std::size_t GetBoneId(const std::string& name) const;
-	C_BoneTimeline LoadBoneTimeline(const pugi::xml_node& node) const;
+	int GetBoneId(const std::string_view& name) const;
+	C_BoneTimeline LoadBoneTimeline(const pugi::xml_node& node, const glm::mat4& normalizinMatrix) const;
 
+#pragma warning(push)
+#pragma warning( disable : 4251)
 	std::vector<std::string> m_JointNames;
+#pragma warning(pop)
 };
 
 }

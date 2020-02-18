@@ -23,6 +23,15 @@
 
 #include <Core/Application.h>
 
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/transform.hpp>
+
+#include <GLRenderer/Debug.h>
+
+
+#include <pugixml.hpp>
+
 namespace GLEngine::GLRenderer::Components {
 
 //=================================================================================
@@ -65,21 +74,17 @@ void C_SkeletalMesh::PerformDraw() const
 					auto shader = shmgr.GetProgram("animation");
 					shmgr.ActivateShader(shader);
 	
-					shader->SetUniform("modelMatrix", glm::mat4(1.0f));
-	
+					shader->SetUniform("modelMatrix", m_ModelMatrix * glm::rotate(-glm::half_pi<float>(), glm::vec3(1.f, .0f, .0f)));
+
 					m_VAO.bind();
 
-					const auto& boneKeyframes = m_Animation.GetTransform(m_AnimationProgress.GetValue());
-					std::vector<glm::mat4> transofrms;
-					transofrms.resize(boneKeyframes.size());
+					const auto& pose = m_Animation.GetPose(m_AnimationProgress.GetValue());
+					auto transofrms = pose.GetModelSpaceTransofrms();
 
-					std::transform(boneKeyframes.begin(), boneKeyframes.end(), transofrms.begin(),
-						[](const Renderer::Animation::S_BoneKeyframe& keyFrame) {
-							return keyFrame.GetTransformationMatrix();
-						});
+					m_Skeleton.ApplyPoseToBones(transofrms);
 
 					shader->SetUniform("transforms", transofrms);
-	
+
 					// this wont work with my current UBO manager so that means! @todo!
 					// m_TransformationUBO->UploadData();
 					// m_TransformationUBO->Activate(true);
@@ -96,11 +101,17 @@ void C_SkeletalMesh::PerformDraw() const
 void C_SkeletalMesh::Update()
 {
 	C_DebugDraw::Instance().DrawSkeleton(glm::vec3(1.0f, .0f, .0f), m_Skeleton);
+	m_AnimationProgress += .01f;
+	if (m_AnimationProgress.GetValue() > 1.f)
+	{
+		m_AnimationProgress = 0.f;
+	}
 }
 
 //=================================================================================
-C_SkeletalMesh::C_SkeletalMesh(std::string meshFile, std::string meshFolder)
-	: m_RenderMesh(true, "Render mesh")
+C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, std::string meshFile, std::string meshFolder)
+	: Renderer::I_RenderableComponent(owner)
+	, m_RenderMesh(true, "Render mesh")
 	, m_Animation(0)
 	, m_AnimationProgress(.0f, .0f, 1.f, "Animation progress")
 	, m_TransformationUBO(nullptr)
@@ -108,7 +119,6 @@ C_SkeletalMesh::C_SkeletalMesh(std::string meshFile, std::string meshFolder)
 	Renderer::Animation::C_ColladaLoader sl;
 
 	auto scene = std::make_shared<Renderer::MeshData::Scene>();
-	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
 	std::string textureName;
 
@@ -119,7 +129,7 @@ C_SkeletalMesh::C_SkeletalMesh(std::string meshFile, std::string meshFolder)
 	Renderer::MeshData::AnimationData animData;
 
 
-	if (!sl.addModelFromDAEFileToScene(meshFolder.data(), meshFile.data(), mesh, textureName, m_Skeleton, m_Animation, modelMatrix))
+	if (!sl.addModelFromDAEFileToScene(meshFolder.data(), meshFile.data(), mesh, textureName, m_Skeleton, m_Animation, animData, m_ModelMatrix))
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}/{}", meshFolder, meshFile);
 		return;
@@ -161,24 +171,18 @@ C_SkeletalMesh::C_SkeletalMesh(std::string meshFile, std::string meshFolder)
 	auto& UBOMan = Buffers::C_UniformBuffersManager::Instance();
 	m_TransformationUBO = UBOMan.CreateUniformBuffer<Buffers::UBO::C_JointTramsformsUBO>("jointTransforms", m_Skeleton.GetNumBones());
 
-	m_TransformationUBO->SetTransforms(m_Animation.GetTransform(0.f));
+	//m_TransformationUBO->SetTransforms(m_Animation.GetTransform(0.f));
 
 	// setup VAO
 	static_assert(sizeof(glm::vec3) == sizeof(GLfloat) * 3, "Platform doesn't support this directly.");
 
 	m_triangles = mesh.vertices.size();
-	animData.jointWeights.resize(mesh.vertices.size());
-	animData.weights.resize(mesh.vertices.size());
-	for (int i = 0; i < mesh.vertices.size();++i) {
-		animData.jointWeights[i] = {1, 1, 1};
-		animData.weights[i] = { 1.f, 0.f,0.f };
-	}
 
 	m_VAO.bind();
 	m_VAO.SetBuffer<0, GL_ARRAY_BUFFER>(mesh.vertices);
 	m_VAO.SetBuffer<1, GL_ARRAY_BUFFER>(mesh.normals);
 	m_VAO.SetBuffer<2, GL_ARRAY_BUFFER>(mesh.texcoords);
-	m_VAO.SetBuffer<3, GL_ARRAY_BUFFER>(animData.jointWeights);
+	m_VAO.SetBuffer<3, GL_ARRAY_BUFFER>(animData.jointIndices);
 	m_VAO.SetBuffer<4, GL_ARRAY_BUFFER>(animData.weights);
 
 
@@ -189,6 +193,25 @@ C_SkeletalMesh::C_SkeletalMesh(std::string meshFile, std::string meshFolder)
 	m_VAO.EnableArray<4>();
 
 	m_VAO.unbind();
+}
+
+//=================================================================================
+// C_SkeletalMeshBuilder
+//=================================================================================
+std::shared_ptr<Entity::I_Component> C_SkeletalMeshBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
+{
+	if (const auto fileAttr = node.attribute("file"))
+	{
+		const auto file = fileAttr.as_string();
+
+		return std::make_shared<C_SkeletalMesh>(owner, file);
+	}
+	else
+	{
+		CORE_LOG(E_Level::Error, E_Context::Entity, "Given element <SkeletalMesh> doesn't specify file to load");
+	}
+
+	return nullptr;
 }
 
 }

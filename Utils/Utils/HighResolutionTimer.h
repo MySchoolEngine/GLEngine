@@ -11,9 +11,11 @@ namespace Utils {
 class UTILS_API_EXPORT HighResolutionTimer
 {
 private:
+#pragma warning(push)
+#pragma warning( disable : 4251)
 	std::chrono::high_resolution_clock::time_point _start, _stop, _last;
 	std::chrono::duration<double, std::nano> _duration;
-
+#pragma warning(pop)
 public:
 	HighResolutionTimer();
 	void reset();

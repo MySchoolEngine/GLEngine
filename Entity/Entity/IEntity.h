@@ -48,7 +48,10 @@ public:
 
 protected:
 	EntityID m_ID;
+#pragma warning(push)
+#pragma warning( disable : 4251)
 	std::string m_Name;
+#pragma warning(pop)
 	T_ComponentsContainer m_Components;
 };
 

@@ -41,4 +41,17 @@ glm::mat4 S_Joint::GetAnimatedTransform() const
 	return glm::inverse(m_InverseBindTransfomr);
 }
 
+//=================================================================================
+void S_Joint::ApplyPoseToJoints(std::vector<glm::mat4>& poseData, const glm::mat4& parentTransform) const
+{
+	const auto& currentLocalPose = poseData[m_Id];
+	const auto& currentPose = parentTransform*currentLocalPose;
+	for (const auto& child : m_Children)
+	{
+		child.ApplyPoseToJoints(poseData, currentPose);
+	}
+	const auto& newPose = currentPose * m_InverseBindTransfomr;
+	poseData[m_Id] = newPose;
+}
+
 }

@@ -26,7 +26,10 @@ private:
 	C_ComponentManager();
 	~C_ComponentManager();
 
+#pragma warning(push)
+#pragma warning( disable : 4251)
 	std::vector<T_ComponentPtr> m_Components;
+#pragma warning(pop)
 
 	friend class I_Component;
 };

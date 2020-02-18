@@ -33,7 +33,10 @@ protected:
 	std::shared_ptr<I_Entity> GetOwner() const;
 
 private:
+#pragma warning(push)
+#pragma warning( disable : 4251)
 	std::weak_ptr<I_Entity> m_Owner;
+#pragma warning(pop)
 };
 
 //=================================================================================
