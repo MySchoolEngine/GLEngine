@@ -34,17 +34,9 @@ bool C_ShaderCompiler::compileShader(GLuint& shader, const char* filepath, const
 
 	std::string filestr(filepath);
 
-	try
-	{
-		if (std::regex_search(filestr, m, s_reg)) {
-			C_ShaderPreprocessor preproces;
-			src = preproces.PreprocessFile(src, m[1].str());
-		}
-
-	}
-	catch (std::exception& e)
-	{
-		errorLog += e.what();
+	if (std::regex_search(filestr, m, s_reg)) {
+		C_ShaderPreprocessor preproces;
+		src = preproces.PreprocessFile(src, m[1].str());
 	}
 
 	const char* cstr = src.c_str();

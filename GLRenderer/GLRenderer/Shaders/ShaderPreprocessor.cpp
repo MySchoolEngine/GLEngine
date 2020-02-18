@@ -2,6 +2,8 @@
 
 #include <GLRenderer/Shaders/ShaderPreprocessor.h>
 
+#include <fmt/format.h>
+
 namespace GLEngine {
 namespace GLRenderer {
 namespace Shaders {
@@ -38,7 +40,7 @@ void C_ShaderPreprocessor::IncludesFiles(std::string& content, const std::string
 			result += file;
 		}
 		else {
-			throw std::exception(("Failed to open included file: " + filepath + m[2].str() + "\n").c_str());
+			CORE_LOG(E_Level::Error, E_Context::Render, "Failed to open included file: {}{}\n", filepath, m[2].str());
 		}
 		content = m.suffix().str();
 	}
