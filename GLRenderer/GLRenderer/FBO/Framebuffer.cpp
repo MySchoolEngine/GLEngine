@@ -15,7 +15,10 @@ namespace GLEngine::GLRenderer {
 C_Framebuffer::C_Framebuffer(const std::string& name)
 {
 	glGenFramebuffers(1, &m_FBO);
-	glObjectLabel(GL_FRAMEBUFFER, m_FBO, static_cast<GLsizei>(name.length()), name.c_str());
+
+	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+	glObjectLabel(GL_FRAMEBUFFER, m_FBO, static_cast<GLsizei>(name.size()), name.c_str());
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 //=================================================================================

@@ -19,7 +19,7 @@ public:
 
 	operator T() const;
 	T* operator&() const;
-	bool operator=(T val);
+	float operator=(T val);
 	bool operator==(T val) const;
 	bool operator!=(T val) const;
 	void operator-=(T val);

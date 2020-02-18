@@ -31,7 +31,7 @@ void C_BasicEntity::Update()
 //=================================================================================
 void C_BasicEntity::PostUpdate()
 {
-	for (auto comp : *m_Components)
+	for (auto& comp : *m_Components)
 	{
 		comp.second->PostUpdate();
 	}

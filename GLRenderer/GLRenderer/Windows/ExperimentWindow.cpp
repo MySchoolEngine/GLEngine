@@ -1,4 +1,4 @@
-﻿#include <GLRendererStdafx.h>
+#include <GLRendererStdafx.h>
 
 #include <GLRenderer/Windows/ExperimentWindow.h>
 
@@ -22,16 +22,24 @@
 
 #include <GLRenderer/ImGui/ImGuiLayer.h>
 
-#include <GLRenderer/MeshLoading/Scene.h>
-
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 
 #include <GLRenderer/Textures/TextureLoader.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 
+#include <GLRenderer/Buffers/UBO/FrameConstantsBuffer.h>
+#include <GLRenderer/Buffers/UniformBuffersManager.h>
+
+#include <GLRenderer/Components/StaticMesh.h>
+#include <GLRenderer/Components/SkeletalMesh.h>
+#include <GLRenderer/Components/SkyBox.h>
 #include <GLRenderer/PersistentDebug.h>
 #include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/Debug.h>
+
+#include <GLRenderer/GUI/Components/GLEntityDebugComponent.h>
+
+#include <Renderer/Mesh/Scene.h>
 
 #include <Physics/Primitives/Ray.h>
 #include <Physics/Primitives/Intersection.h>
@@ -98,6 +106,8 @@ void C_ExplerimentWindow::Update()
 	m_ImGUI->FrameBegin();
 	m_ImGUI->OnUpdate();
 	//MouseSelect();
+	C_DebugDraw::Instance().DrawAxis(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0, 1.f, 0.0f), glm::vec3(0.f, 0.f, 1.f));
+	C_DebugDraw::Instance().DrawGrid(glm::vec4(0.f), 5);
 
 	const auto avgMsPerFrame = m_Samples.Avg();
 	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgFrametime)].UpdateText(m_Samples.Avg());
@@ -126,7 +136,7 @@ void C_ExplerimentWindow::Update()
 			m_SpawningName[0] = '\0';
 			m_SpawningFilename[0] = '\0';
 		}
-		for (const auto entity : m_World->GetEntities()) {
+		for (const auto& entity : m_World->GetEntities()) {
 			bool selected = false;
 			::ImGui::Selectable(entity->GetName().c_str(), &selected);
 			if (selected) {
@@ -144,23 +154,16 @@ void C_ExplerimentWindow::Update()
 		if (::ImGui::Button("Spawn")) {
 			m_Spawning = false;
 			auto Terrain = std::make_shared<C_TerrainEntity>(m_SpawningName);
-			m_World->AddEntity(Terrain); Textures::TextureLoader tl;
-			Mesh::Texture t;
+			m_World->AddEntity(Terrain);
+			
+			Textures::TextureLoader tl;
+			Renderer::MeshData::Texture t;
 			bool retval = tl.loadTexture(m_SpawningFilename, t);
 			if (retval) {
 				Textures::C_Texture ct(m_SpawningFilename);
 
 				ct.StartGroupOp();
-				glTexImage2D(ct.GetTarget(),
-					0,
-					GL_RGB,
-					(GLsizei)1024,
-					(GLsizei)1024,
-					0,
-					GL_RGBA,
-					T_TypeToGL<typename std::remove_pointer<decltype(t.data)::element_type>::type>::value,
-					t.data.get());
-				ct.SetDimensions({ 1024, 1024 });
+				ct.SetTexData2D(0, t);
 				ct.SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
 				ct.SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 				ct.GenerateMipMaps();
@@ -407,7 +410,7 @@ void C_ExplerimentWindow::SetupWorld()
 	}
 	{
 		// billboard
-		Mesh::Mesh billboardMesh;
+		Renderer::MeshData::Mesh billboardMesh;
 		billboardMesh.vertices.emplace_back(-1.f,  1.f, 0, 1); // 1
 		billboardMesh.vertices.emplace_back(-1.f, -1.f, 0, 1); // 2
 		billboardMesh.vertices.emplace_back( 1.0f, 1.0f, 0, 1); // 3

@@ -72,6 +72,22 @@ bool C_LevelFilter::FilterCheck(const S_Data& message)
 //=================================================================================
 // C_PassAllFilter
 //=================================================================================
+C_TextFilter::C_TextFilter(const std::string& text, C_Filter* innerFilter /*= nullptr*/)
+	: C_Filter(innerFilter)
+	, m_Text(text)
+{
+
+}
+
+//=================================================================================
+bool C_TextFilter::FilterCheck(const S_Data& message)
+{
+	return (message.m_Text.find(m_Text) == std::string::npos);
+}
+
+//=================================================================================
+// C_PassAllFilter
+//=================================================================================
 bool C_PassAllFilter::FilterCheck(const S_Data& message)
 {
 	return false;

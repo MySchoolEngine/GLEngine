@@ -19,7 +19,7 @@ public:
 
 private:
 	//@todo replace with stack vector once we have 'em
-	std::array<Utils::Logging::S_Data, 40>	m_Logs;
+	std::array<Utils::Logging::S_Data, 1000>	m_Logs;
 	std::size_t								m_LastLogIndex;
 
 	static std::array<ImVec4, 4>			s_LevelColors;
