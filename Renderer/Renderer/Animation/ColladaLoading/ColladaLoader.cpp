@@ -3,9 +3,11 @@
 #include <Renderer/Animation/ColladaLoading/ColladaLoader.h>
 
 #include <Renderer/Animation/ColladaLoading/FloatArray.h>
+#include <Renderer/Animation/ColladaLoading/VCount.h>
 
 #include <Renderer/Animation/Skeleton.h>
 #include <Renderer/Animation/SkeletalAnimation.h>
+#include <Renderer/Animation/AnimationStructures.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
@@ -24,7 +26,8 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 	std::string& textureName,
 	C_Skeleton& skeleton,
 	C_SkeletalAnimation& animation,
-	const glm::mat4& transform /*= glm::mat4(1)*/)
+	MeshData::AnimationData& animData,
+	glm::mat4& transform /*= glm::mat4(1)*/)
 {
 	std::string name;
 	name.append(filepath);
@@ -70,6 +73,21 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 	if (auto imageLibrary = colladaNode.child("library_images").child("image").child("init_from"))
 	{
 		textureName = imageLibrary.child_value();
+	}
+
+	std::map<std::string, S_Joint> joints; 
+	std::vector<glm::ivec3> jointIndices;
+	std::vector<glm::vec3>	jointWeights;
+	if (auto controllerLibrary = colladaNode.child("library_controllers"))
+	{
+		if (auto skinXML = controllerLibrary.child("controller").child("skin"))
+		{
+			LoadJoints(skinXML);
+			LoadJointsInvMatrices(joints, skinXML, noramlizingMatrix);
+			animData.jointIndices.resize(oMesh.vertices.size());
+			animData.weights.resize(oMesh.vertices.size());
+			LoadAnimData(skinXML, jointIndices, jointWeights);
+		}
 	}
 
 	if (auto geomLibrary = colladaNode.child("library_geometries"))
@@ -119,6 +137,22 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 				// here it is possible to non-triangle polygons to arise
 				if (auto polylist = xmlMesh.child("polylist"))
 				{
+					std::size_t count = 0;
+					if (const auto countAttribute = polylist.attribute("count"))
+					{
+						count = countAttribute.as_int();
+					}
+					else
+					{
+						// it's against standard, but we can recover from this error
+						// we use this information only for optimize 
+						CORE_LOG(E_Level::Warning, E_Context::Core, "<triangles> element misses required attribute count.");
+					}
+
+
+					oMesh.vertices.reserve(count * 3);
+					oMesh.normals.reserve(count * 3);
+					oMesh.texcoords.reserve(count * 3);
 					if (auto indiceList = polylist.child("p"))
 					{
 						std::string_view indiceListString = indiceList.child_value();
@@ -130,23 +164,77 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 							oMesh.vertices.push_back(vertices[v]);
 							oMesh.normals.emplace_back(normals[n]);
 							oMesh.texcoords.emplace_back(texCoords[t]);
+							animData.jointIndices.emplace_back(jointIndices[v]);
+							animData.weights.emplace_back(jointWeights[v]);
 						}
 					}
 				}
 				else if (auto triangles = xmlMesh.child("triangles"))
 				{
-					CORE_LOG(E_Level::Error, E_Context::Render, "<Trianlges> not supported yet");
+					std::size_t count = 0;
+					if (const auto countAttribute = triangles.attribute("count"))
+					{
+						count = countAttribute.as_int();
+					}
+					else
+					{
+						// it's against standard, but we can recover from this error
+						// we use this information only for optimize 
+						CORE_LOG(E_Level::Warning, E_Context::Core, "<triangles> element misses required attribute count.");
+					}
+
+					if (auto indiceList = triangles.child("p"))
+					{
+						std::string_view indiceListString = indiceList.child_value();
+						std::stringstream indicesStream;
+						indicesStream << indiceListString;
+						int v, n, t0;
+
+						// let's save some allocations
+						oMesh.vertices.reserve(count * 3);
+						oMesh.normals.reserve(count * 3);
+						oMesh.texcoords.reserve(count * 3);
+
+						while (indicesStream >> v >> n >> t0)
+						{
+							oMesh.vertices.push_back(vertices[v]);
+							oMesh.normals.emplace_back(normals[n]);
+							oMesh.texcoords.emplace_back(texCoords[t0]);
+						}
+					}
+
 				}
 			}
 		}
 	}
 
-	std::map<std::string, S_Joint> joints;
 	if (auto controllerLibrary = colladaNode.child("library_controllers"))
 	{
 		if (auto skinXML = controllerLibrary.child("controller").child("skin"))
 		{
-			LoadJoints(skinXML);
+			if (const auto BSMatrix = skinXML.child("bind_shape_matrix"))
+			{
+				std::stringstream ss(BSMatrix.child_value());
+				float f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16;
+
+				ss
+					>> f1 >> f2 >> f3 >> f4
+					>> f5 >> f6 >> f7 >> f8
+					>> f9 >> f10 >> f11 >> f12
+					>> f13 >> f14 >> f15 >> f16;
+
+				// Contains sixteen floating-point numbers representing 
+				// a four-by-four matrix in column-major order; it is 
+				//written in row-major order in the COLLADA document 
+				// for human readability
+				// thus we need transpose
+				transform = glm::transpose(glm::mat4(
+					f1, f2, f3, f4,
+					f5, f6, f7, f8,
+					f9, f10, f11, f12,
+					f13, f14, f15, f16
+				));
+			}
 			LoadJointsInvMatrices(joints, skinXML, noramlizingMatrix);
 		}
 	}
@@ -192,14 +280,13 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 			std::string_view id = animationXML.attribute("id").as_string();
 			const auto underscoreIndex = id.find('_') + 1;
 			std::string boneIdName(id.substr(underscoreIndex, id.find("_pose_matrix") - underscoreIndex));
-			CORE_LOG(E_Level::Error, E_Context::Render, "{}", boneIdName);
 			const auto boneId = GetBoneId(boneIdName);
 			if (boneId < 0)
 			{
 				CORE_LOG(E_Level::Warning, E_Context::Render, "Referenced bone '{}' but not found", boneIdName);
 				continue;
 			}
-			animation.SetBoneTimeline(boneId, LoadBoneTimeline(animationXML));
+			animation.SetBoneTimeline(boneId, LoadBoneTimeline(animationXML, noramlizingMatrix));
 		}
 	}
 
@@ -295,14 +382,15 @@ bool C_ColladaLoader::ParseChildrenJoints(S_Joint& parent, const pugi::xml_node&
 }
 
 //=================================================================================
-std::size_t C_ColladaLoader::GetBoneId(const std::string& name) const
+int C_ColladaLoader::GetBoneId(const std::string_view& name) const
 {
 	const auto it = std::find(m_JointNames.begin(), m_JointNames.end(), name);
 	if (it == m_JointNames.end())
 	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "Unknown bone id '{}'", name);
 		return -1;
 	}
-	return std::distance(m_JointNames.begin(), it);
+	return static_cast<int>(std::distance(m_JointNames.begin(), it));
 }
 
 //=================================================================================
@@ -312,7 +400,7 @@ void C_ColladaLoader::Reset()
 }
 
 //=================================================================================
-C_BoneTimeline C_ColladaLoader::LoadBoneTimeline(const pugi::xml_node& node) const
+C_BoneTimeline C_ColladaLoader::LoadBoneTimeline(const pugi::xml_node& node, const glm::mat4& normalizinMatrix) const
 {
 	std::array<S_FloatArray, 2> floatArrays;
 
@@ -332,11 +420,80 @@ C_BoneTimeline C_ColladaLoader::LoadBoneTimeline(const pugi::xml_node& node) con
 	std::size_t index = 0;
 	while (floatArrays[0].EndOfArray() == false)
 	{
-		timeline.AddBoneKeyFrame(index, S_BoneKeyframe(floatArrays[1].Get<glm::mat4>(), floatArrays[0].Get<float>()));
+		timeline.AddBoneKeyFrame(index, S_BoneKeyframe(glm::transpose(floatArrays[1].Get<glm::mat4>()), floatArrays[0].Get<float>()));
 		++index;
 	}
 
 	return timeline;
+}
+
+//=================================================================================
+void C_ColladaLoader::LoadAnimData(const pugi::xml_node& skinXML, std::vector<glm::ivec3>& jointIndices, std::vector<glm::vec3>& weights)
+{
+	std::vector<float> weightsVec;
+	for (auto xmlSource : skinXML.children("source"))
+	{
+		const std::string_view id = xmlSource.attribute("id").as_string();
+		if (id.find("weights") != id.npos)
+		{
+			S_FloatArray weightsArray(xmlSource.child("float_array"));
+			weightsVec.reserve(weightsArray.count<float>());
+			while (weightsArray.EndOfArray() == false)
+			{
+				weightsVec.push_back(weightsArray.Get<float>());
+			}
+			break;
+		}
+
+
+		continue;
+	}
+
+	if (auto vertex_weights = skinXML.child("vertex_weights"))
+	{
+		C_VCount vcount(vertex_weights.child("vcount"));
+		C_VCount v(vertex_weights.child("v"));
+		std::size_t vertexIndex = 0;
+		while (vcount.EndOfArray() == false)
+		{
+			glm::ivec3 jointIndicesVec;
+			glm::vec3  jointWeights;
+			const int jointsNum = vcount.Get();
+			if (jointsNum > 3)
+			{
+				CORE_LOG(E_Level::Warning, E_Context::Render, "Only 3 joints per vertex are supported");
+			}
+			for (int i = 0; i < 3; ++i)
+			{
+				if (i >= jointsNum)
+				{
+					jointIndicesVec[i] = 0;
+					jointWeights[i] = 0.f;
+					continue;
+				}
+
+				const auto jointIndex = v.Get();
+				const auto weightIndex = v.Get();
+				const auto weight = weightsVec[weightIndex];
+
+
+				jointIndicesVec[i] = jointIndex;
+				jointWeights[i] = weight;
+			}
+			for (int i = 3; i < jointsNum; ++i)
+			{
+				v.Get();
+				v.Get();
+			}
+
+			jointWeights = glm::normalize(jointWeights);
+			jointIndices.emplace_back(jointIndicesVec);
+			weights.emplace_back(jointWeights);
+
+			++vertexIndex;
+		}
+		GLE_ASSERT(v.EndOfArray(), "This should read vhole array");
+	}
 }
 
 }

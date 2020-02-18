@@ -31,6 +31,8 @@ public:
 	virtual glm::vec3 GetPosition()				const = 0;
 
 	virtual Physics::Primitives::C_Frustum GetFrustum()		const = 0;
+protected:
+	I_CameraComponent() : Entity::I_Component(nullptr) {}
 };
 }
 
