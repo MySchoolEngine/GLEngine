@@ -2,6 +2,7 @@
 
 #include <Core/WindowInfo.h>
 
+#include <Core/CoreEnums.h>
 
 namespace GLEngine {
 namespace GLRenderer {
@@ -14,8 +15,8 @@ struct S_OpenGLWindowInfo : public Core::S_WindowInfo {
 	unsigned int m_MajorVersion = 4;
 	unsigned int m_MinorVersion = 3;
 
-	virtual E_Driver GetDriver() const override {
-		return S_WindowInfo::E_Driver::OpenGL;
+	virtual Core::E_Driver GetDriver() const override {
+		return Core::E_Driver::OpenGL;
 	}
 };
 

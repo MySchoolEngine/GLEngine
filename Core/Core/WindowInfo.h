@@ -1,6 +1,9 @@
 #pragma once
 
 #include <string>
+
+#include <Core/CoreEnums.h>
+
 namespace GLEngine {
 namespace Core {
 
@@ -13,19 +16,13 @@ struct S_WindowInfo {
 	unsigned int m_width, m_height;
 	std::string m_WindowClass;
 
-	enum class E_Driver {
-		OpenGL,
-		Vulkan,
-		DirectX,
-	};
-
 	virtual E_Driver GetDriver() const = 0;
 };
 
 //=================================================================================
 struct S_VulkanWindowInfo : public S_WindowInfo {
 	virtual E_Driver GetDriver() const override {
-		return S_WindowInfo::E_Driver::Vulkan;
+		return E_Driver::Vulkan;
 	}
 };
 }}
