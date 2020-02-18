@@ -19,7 +19,7 @@ class C_ShaderCompiler
 public:
 	//Compiles a single shader from a file
 	//errorLog - reference to a string, where error message will be stored, in case the compilation fails
-	bool compileShader(GLuint& shader, const char* filepath, const GLenum shaderType);
+	bool compileShader(GLuint& shader, const std::filesystem::path& filepath, const GLenum shaderType);
 
 	//Links shaders to a program
 	//program - reference to a program, into which the shaders will be linked
@@ -32,9 +32,7 @@ public:
 	bool linkProgram(GLuint& program, const std::vector<GLuint>& shaders);
 
 private:
-	bool _loadFile(const char* file, std::string& content);
-
-	static const std::regex s_reg;
+	bool _loadFile(const std::filesystem::path& file, std::string& content);
 };
 }
 }

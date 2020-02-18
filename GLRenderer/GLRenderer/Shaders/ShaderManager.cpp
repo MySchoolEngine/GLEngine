@@ -23,7 +23,7 @@ namespace GLEngine {
 namespace GLRenderer {
 namespace Shaders {
 //=================================================================================
-const std::string C_ShaderManager::s_ShadersFolder = "shaders/";
+const std::filesystem::path C_ShaderManager::s_ShadersFolder = "shaders/";
 
 //=================================================================================
 C_ShaderManager::C_ShaderManager()
@@ -61,7 +61,7 @@ void C_ShaderManager::Update()
 		for (auto& program : m_Programs) {
 			try
 			{
-				*(program.second) = std::move(C_ShaderProgram(LoadProgram(program.first)));
+				*(program.second) = std::move(C_ShaderProgram(LoadProgram(std::filesystem::path(program.first))));
 				Buffers::C_UniformBuffersManager::Instance().ProcessUBOBindingPoints(program.second);
 			}
 			catch (...)
@@ -139,21 +139,26 @@ std::string C_ShaderManager::ShadersStatistics() const
 }
 
 //=================================================================================
-bool C_ShaderManager::LoadDoc(pugi::xml_document & document, const std::string & filename) const
+bool C_ShaderManager::LoadDoc(pugi::xml_document & document, const std::filesystem::path& filename) const
 {
 	pugi::xml_parse_result result;
 
-	if (filename.find(".xml") != std::string::npos) {
+	if (filename.has_extension()) {
 		result = document.load_file(filename.c_str());
 		if (!result.status == pugi::status_ok) {
-			result = document.load_file((s_ShadersFolder + filename).c_str());
+			std::filesystem::path path;
+			path += s_ShadersFolder;
+			path += filename;
+			result = document.load_file(path.generic_string().c_str());
 		}
 		else {
 			return true;
 		}
 	}
 	else {
-		return LoadDoc(document, filename + ".xml");
+		auto path = filename;
+		path.replace_extension("xml");
+		return LoadDoc(document, path);
 	}
 
 	if (result.status == pugi::status_ok) return true;
@@ -176,24 +181,25 @@ GLuint C_ShaderManager::LoadShader(const pugi::xml_node& node) const
 	else if (stageAttribute == "tess-control") stage = GL_TESS_CONTROL_SHADER;
 	else if (stageAttribute == "tess-evaluation") stage = GL_TESS_EVALUATION_SHADER;
 
-	const std::string filename(s_ShadersFolder + std::string(node.first_child().value()));
+	auto filename(s_ShadersFolder);
+	filename += std::filesystem::path(node.first_child().value());
 
-	if (!m_Compiler.compileShader(shader, filename.c_str(), stage)) {
+	if (!m_Compiler.compileShader(shader, filename, stage)) {
 		CORE_LOG(E_Level::Error, E_Context::Render, "--Compilation error");
-		CORE_LOG(E_Level::Error, E_Context::Render, "{}", s_ShadersFolder + std::string(node.first_child().value()));
+		CORE_LOG(E_Level::Error, E_Context::Render, "{}", filename.generic_string());
 		return 0;
 	}
-	glObjectLabel(GL_SHADER, shader, static_cast<GLsizei>(filename.length()), filename.c_str());
+	glObjectLabel(GL_SHADER, shader, static_cast<GLsizei>(filename.generic_string().length()), filename.generic_string().c_str());
 	return shader;
 }
 
 //=================================================================================
-GLuint C_ShaderManager::LoadProgram(const std::string& name) const
+GLuint C_ShaderManager::LoadProgram(const std::filesystem::path& name) const
 {
 	pugi::xml_document doc;
 
 	if (!LoadDoc(doc, name)) {
-		CORE_LOG(E_Level::Error, E_Context::Render, "Can't open config file for shader name: {}", name);
+		CORE_LOG(E_Level::Error, E_Context::Render, "Can't open config file for shader name: {}", name.generic_string());
 		return 0;
 	}
 

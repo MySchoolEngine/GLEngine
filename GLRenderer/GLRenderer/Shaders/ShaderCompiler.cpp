@@ -6,11 +6,9 @@
 namespace GLEngine {
 namespace GLRenderer {
 namespace Shaders {
-//=================================================================================
-const std::regex C_ShaderCompiler::s_reg = std::regex(R"(^(.+\/)*(.+)\.(.+)$)");
 
 //=================================================================================
-bool C_ShaderCompiler::compileShader(GLuint& shader, const char* filepath, const GLenum shaderType)
+bool C_ShaderCompiler::compileShader(GLuint& shader, const std::filesystem::path& filepath, const GLenum shaderType)
 {
 	shader = glCreateShader(shaderType);
 	if (shader == 0)
@@ -20,23 +18,17 @@ bool C_ShaderCompiler::compileShader(GLuint& shader, const char* filepath, const
 	}
 
 	std::string src;
-
-
 	if (!_loadFile(filepath, src))
 	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Failed to open shader file: {}", std::string(filepath));
+		CORE_LOG(E_Level::Error, E_Context::Render, "Failed to open shader file: {}", filepath.generic_string());
 		return false;
 	}
 
-	std::smatch m;
-
-	std::filesystem::path filestr(filepath);
-
 	C_ShaderPreprocessor preproces;
-	src = preproces.PreprocessFile(src, filestr.parent_path().generic_string() + "/");
+	src = preproces.PreprocessFile(src, filepath.parent_path().generic_string() + "/");
 	if (!preproces.WasSuccessful())
 	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Preprocessing of file '{}' was unsuccessful", filepath);
+		CORE_LOG(E_Level::Error, E_Context::Render, "Preprocessing of file '{}' was unsuccessful", filepath.generic_string());
 		return false;
 	}
 
@@ -158,7 +150,7 @@ bool C_ShaderCompiler::linkProgram(GLuint & program, const std::vector<GLuint>& 
 }
 
 //=================================================================================
-bool C_ShaderCompiler::_loadFile(const char* file, std::string& content)
+bool C_ShaderCompiler::_loadFile(const std::filesystem::path& file, std::string& content)
 {
 	std::ifstream stream(file);
 
