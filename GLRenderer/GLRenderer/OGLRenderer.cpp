@@ -5,6 +5,7 @@
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/ImGui/GUIManager.h>
 #include <GLRenderer/GUI/GUIWindow.h>
+#include <GLRenderer/GUI/Menu/MenuItem.h>
 
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
@@ -134,6 +135,13 @@ GUID C_OGLRenderer::SetupControls(ImGui::C_GUIManager& guiMan)
 	renderStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::MinMax)]);
 
 	renderStats->AddMenu(m_Windows);
+	
+	auto& shmgr = Shaders::C_ShaderManager::Instance();
+	const auto shmgrWindwo = shmgr.SetupControls(guiMan);
+
+	m_ShaderMGR = std::make_unique<GUI::Menu::C_MenuItemOpenWindow>("Shader manager", shmgrWindwo, guiMan);
+
+	m_Windows.AddMenuItem(*m_ShaderMGR.get());
 
 	return m_Window;
 }
@@ -142,6 +150,8 @@ GUID C_OGLRenderer::SetupControls(ImGui::C_GUIManager& guiMan)
 void C_OGLRenderer::DestroyControls(ImGui::C_GUIManager& guiMan)
 {
 	guiMan.DestroyWindow(m_Window);
+	auto& shmgr = Shaders::C_ShaderManager::Instance();
+	shmgr.DestroyControls(guiMan);
 }
 
 }}

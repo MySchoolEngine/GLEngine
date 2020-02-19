@@ -13,6 +13,8 @@
 
 #include <GLRenderer/Shaders/ShaderCompiler.h>
 
+#include <GLRenderer/GUI/LambdaPart.h>
+
 namespace pugi{
 class xml_document;
 class xml_node;
@@ -20,6 +22,11 @@ class xml_node;
 
 namespace GLEngine {
 namespace GLRenderer {
+namespace ImGui
+{
+class C_GUIManager;
+}
+
 namespace Shaders {
 class C_ShaderProgram;
 
@@ -62,6 +69,9 @@ public:
 	void		DeactivateShader();
 
 	std::string ShadersStatistics() const;
+
+	GUID SetupControls(ImGui::C_GUIManager& guiMGR);
+	void DestroyControls(ImGui::C_GUIManager& guiMGR);
 private:
 	C_ShaderManager();
 
@@ -80,6 +90,9 @@ private:
 
 	std::chrono::system_clock::duration m_Timeout;
 	std::chrono::system_clock::time_point m_LastUpdate;
+
+	GUID																m_Window;
+	std::unique_ptr<GUI::C_LambdaPart>	m_ShaderList;
 };
 }
 }

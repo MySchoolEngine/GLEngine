@@ -16,6 +16,10 @@ namespace ImGui
 {
 class C_GUIManager;
 }
+namespace GUI::Menu
+{
+class C_MenuItem;
+}
 
 class C_OGLRenderer : public Renderer::I_Renderer {
 public:
@@ -55,6 +59,7 @@ private:
 	std::array<GUI::C_FormatedText, static_cast<int>(E_GUITexts::Last)>				m_GUITexts;
 	GUID																																			m_Window;
 	GUI::Menu::C_Menu																													m_Windows;
+	std::unique_ptr<GUI::Menu::C_MenuItem>																		m_ShaderMGR;
 };
 
 }

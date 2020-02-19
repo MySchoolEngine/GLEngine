@@ -5,6 +5,9 @@
 #include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
 
+#include <GLRenderer/ImGui/GUIManager.h>
+#include <GLRenderer/GUI/GUIWindow.h>
+
 #include <pugixml.hpp>
 
 
@@ -18,6 +21,7 @@ const std::filesystem::path C_ShaderManager::s_ShadersFolder = "shaders/";
 C_ShaderManager::C_ShaderManager()
 	: m_Timeout(std::chrono::seconds(1))
 	, m_LastUpdate(std::chrono::system_clock::now())
+	, m_Window(INVALID_GUID)
 {
 
 }
@@ -133,6 +137,34 @@ std::string C_ShaderManager::ShadersStatistics() const
 		ss << "->\tHas stages:" << std::endl;
 	}
 	return ss.str();
+}
+
+//=================================================================================
+GUID C_ShaderManager::SetupControls(ImGui::C_GUIManager& guiMGR)
+{
+	m_Window = guiMGR.CreateGUIWindow("Shader manager");
+	auto* shaderMan = guiMGR.GetWindow(m_Window);
+
+	m_ShaderList = std::make_unique<GUI::C_LambdaPart>([&]() {
+
+		for (const auto& program : m_Programs) {
+			bool selected = false;
+			::ImGui::Selectable(program.first.c_str(), &selected);
+			// if (selected) {
+			// 	entity->OnEvent(Core::C_UserEvent("selected"));
+			// }
+		}
+		});
+
+	shaderMan->AddComponent(*m_ShaderList.get());
+
+	return m_Window;
+}
+
+//=================================================================================
+void C_ShaderManager::DestroyControls(ImGui::C_GUIManager& guiMGR)
+{
+	guiMGR.DestroyWindow(m_Window);
 }
 
 //=================================================================================
