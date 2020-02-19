@@ -32,6 +32,10 @@ bool C_ShaderCompiler::compileShader(GLuint& shader, const std::filesystem::path
 		return false;
 	}
 
+	auto paths = preproces.GetTouchedPaths();
+	m_TouchedFiles.insert(m_TouchedFiles.end(), paths.begin(), paths.end());
+	m_TouchedFiles.emplace_back(filepath);
+
 	const char* cstr = src.c_str();
 	glShaderSource(shader, 1, &cstr, NULL);
 	glCompileShader(shader);
@@ -147,6 +151,18 @@ bool C_ShaderCompiler::linkProgram(GLuint & program, const std::vector<GLuint>& 
 	}
 
 	return true;
+}
+
+//=================================================================================
+void C_ShaderCompiler::Reset()
+{
+	m_TouchedFiles.clear();
+}
+
+//=================================================================================
+C_ShaderCompiler::T_Paths C_ShaderCompiler::GetTouchedFiles() const
+{
+	return m_TouchedFiles;
 }
 
 //=================================================================================

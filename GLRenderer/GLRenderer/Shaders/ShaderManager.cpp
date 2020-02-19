@@ -29,7 +29,6 @@ const std::filesystem::path C_ShaderManager::s_ShadersFolder = "shaders/";
 C_ShaderManager::C_ShaderManager()
 	: m_Timeout(std::chrono::seconds(1))
 	, m_LastUpdate(std::chrono::system_clock::now())
-	, m_Compiler()
 {
 
 }
@@ -59,9 +58,17 @@ void C_ShaderManager::Update()
 	if (m_LastUpdate + m_Timeout < currentTime) {
 		m_ActiveShader.reset();
 		for (auto& program : m_Programs) {
+			if (!program.second->IsExpired())
+			{
+				continue;
+			}
+
+			C_ShaderCompiler compiler;
+			CORE_LOG(E_Level::Error, E_Context::Render, "Reload {} so we keep it outdated", program.first);
 			try
 			{
-				*(program.second) = std::move(C_ShaderProgram(LoadProgram(std::filesystem::path(program.first))));
+				*(program.second) = std::move(C_ShaderProgram(LoadProgram(std::filesystem::path(program.first), compiler)));
+				program.second->SetPaths(compiler.GetTouchedFiles());
 				Buffers::C_UniformBuffersManager::Instance().ProcessUBOBindingPoints(program.second);
 			}
 			catch (...)
@@ -81,7 +88,8 @@ C_ShaderManager::T_ShaderPtr C_ShaderManager::GetProgram(const std::string& name
 		return m_Programs[name];
 	}
 
-	GLuint program = LoadProgram(name);
+	C_ShaderCompiler compiler;
+	GLuint program = LoadProgram(name, compiler);
 	if (program == 0) {
 		return nullptr;
 	}
@@ -90,6 +98,7 @@ C_ShaderManager::T_ShaderPtr C_ShaderManager::GetProgram(const std::string& name
 
 	T_ShaderPtr shaderProgram = std::make_shared<C_ShaderProgram>(program);
 	shaderProgram->SetName(name);
+	shaderProgram->SetPaths(compiler.GetTouchedFiles());
 
 	Buffers::C_UniformBuffersManager::Instance().ProcessUBOBindingPoints(shaderProgram);
 
@@ -166,7 +175,7 @@ bool C_ShaderManager::LoadDoc(pugi::xml_document & document, const std::filesyst
 }
 
 //=================================================================================
-GLuint C_ShaderManager::LoadShader(const pugi::xml_node& node) const
+GLuint C_ShaderManager::LoadShader(const pugi::xml_node& node, C_ShaderCompiler& compiler) const
 {
 	GLuint shader = 0;
 	std::string str;
@@ -184,7 +193,7 @@ GLuint C_ShaderManager::LoadShader(const pugi::xml_node& node) const
 	auto filename(s_ShadersFolder);
 	filename += std::filesystem::path(node.first_child().value());
 
-	if (!m_Compiler.compileShader(shader, filename, stage)) {
+	if (!compiler.compileShader(shader, filename, stage)) {
 		CORE_LOG(E_Level::Error, E_Context::Render, "--Compilation error");
 		CORE_LOG(E_Level::Error, E_Context::Render, "{}", filename.generic_string());
 		return 0;
@@ -194,7 +203,7 @@ GLuint C_ShaderManager::LoadShader(const pugi::xml_node& node) const
 }
 
 //=================================================================================
-GLuint C_ShaderManager::LoadProgram(const std::filesystem::path& name) const
+GLuint C_ShaderManager::LoadProgram(const std::filesystem::path& name, C_ShaderCompiler& compiler) const
 {
 	pugi::xml_document doc;
 
@@ -206,7 +215,7 @@ GLuint C_ShaderManager::LoadProgram(const std::filesystem::path& name) const
 	std::vector<GLuint> shaders;
 
 	for (auto& shader : doc.child("pipeline").children("shader")) {
-		GLuint shaderStage = LoadShader(shader);
+		GLuint shaderStage = LoadShader(shader, compiler);
 		if (shaderStage == 0) {
 			return 0;
 		}
@@ -214,7 +223,7 @@ GLuint C_ShaderManager::LoadProgram(const std::filesystem::path& name) const
 	}
 
 	GLuint program;
-	if (!m_Compiler.linkProgram(program, shaders)) {
+	if (!compiler.linkProgram(program, shaders)) {
 		return false;
 	}
 	return program;

@@ -18,7 +18,6 @@ namespace Shaders {
 C_ShaderProgram::C_ShaderProgram(GLuint program)
 	: m_Program(program)
 #if _DEBUG
-	, m_LastUpdate(std::chrono::system_clock::now())
 #endif
 {
 	GLE_ASSERT(program != 0, "Invalid shader program");
@@ -30,6 +29,7 @@ C_ShaderProgram::C_ShaderProgram(C_ShaderProgram&& rhs)
 #if _DEBUG
 	, m_name(std::move(rhs.m_name))
 	, m_LastUpdate(std::move(rhs.m_LastUpdate))
+	, m_Paths(std::move(rhs.m_Paths))
 #endif
 {
 	DestroyProgram();
@@ -43,6 +43,7 @@ void C_ShaderProgram::operator=(C_ShaderProgram&& rhs)
 #if _DEBUG
 	SetName(rhs.m_name);
 	m_LastUpdate = std::move(rhs.m_LastUpdate);
+	m_Paths = std::move(rhs.m_Paths);
 #endif
 	DestroyProgram();
 	m_Program	= rhs.m_Program;
@@ -71,15 +72,29 @@ void C_ShaderProgram::BindSampler(const Textures::C_Texture& texture, const std:
 
 #if _DEBUG
 //=================================================================================
-void C_ShaderProgram::SetUpdateTIme(std::chrono::system_clock::time_point update)
+void C_ShaderProgram::SetPaths(std::vector<std::filesystem::path>&& paths)
 {
-	m_LastUpdate = update;
+	m_Paths = std::move(paths);
+	m_LastUpdate = GetLastUpdate();
 }
 
 //=================================================================================
-std::chrono::system_clock::time_point C_ShaderProgram::GetLastUpdate() const
+bool C_ShaderProgram::IsExpired() const
 {
-	return m_LastUpdate;
+	return m_LastUpdate < GetLastUpdate();
+}
+
+//=================================================================================
+std::filesystem::file_time_type C_ShaderProgram::GetLastUpdate() const
+{
+	const auto newest = std::max_element(m_Paths.begin(), m_Paths.end(), [](const auto a, const auto b)
+		{ return std::filesystem::last_write_time(a) < std::filesystem::last_write_time(b); }
+	);
+	if (newest == m_Paths.end())
+	{
+		return m_LastUpdate;
+	}
+	return std::filesystem::last_write_time(*newest);
 }
 #endif
 

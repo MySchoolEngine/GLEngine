@@ -67,8 +67,8 @@ private:
 
 	bool LoadDoc(pugi::xml_document& document, const std::filesystem::path& filename) const;
 
-	GLuint LoadShader(const pugi::xml_node& node) const;
-	GLuint LoadProgram(const std::filesystem::path& name) const;
+	GLuint LoadShader(const pugi::xml_node& node, C_ShaderCompiler& compiler) const;
+	GLuint LoadProgram(const std::filesystem::path& name, C_ShaderCompiler& compiler) const;
 
 	using T_ProgramMap = std::map<std::string, std::shared_ptr<C_ShaderProgram>>;
 
@@ -77,7 +77,6 @@ private:
 	T_ShaderPtr		m_ActiveShader;
 
 	const static std::filesystem::path s_ShadersFolder;
-	mutable C_ShaderCompiler m_Compiler;
 
 	std::chrono::system_clock::duration m_Timeout;
 	std::chrono::system_clock::time_point m_LastUpdate;
