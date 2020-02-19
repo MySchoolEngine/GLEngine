@@ -64,7 +64,6 @@ void C_ShaderManager::Update()
 			}
 
 			C_ShaderCompiler compiler;
-			CORE_LOG(E_Level::Error, E_Context::Render, "Reload {} so we keep it outdated", program.first);
 			try
 			{
 				*(program.second) = std::move(C_ShaderProgram(LoadProgram(std::filesystem::path(program.first), compiler)));
