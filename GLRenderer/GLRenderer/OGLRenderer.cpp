@@ -3,6 +3,8 @@
 #include <GLRenderer/OGLRenderer.h>
 
 #include <GLRenderer/Shaders/ShaderManager.h>
+#include <GLRenderer/ImGui/GUIManager.h>
+#include <GLRenderer/GUI/GUIWindow.h>
 
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
@@ -22,6 +24,13 @@ C_OGLRenderer::C_OGLRenderer()
 	, m_DrawCommands("Draw commands")
 	, m_CatchErrors(false, "Catch errors")
 	, m_PreviousCatchErrorsVal(false)
+	, m_GUITexts(
+		{{
+				("Avg draw commands: {:.2f}"),
+				("Min/max {:.2f}/{:.2f}")
+			}})
+	, m_Window(INVALID_GUID)
+	, m_Windows("Windows")
 {
 	int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
@@ -84,6 +93,12 @@ void C_OGLRenderer::ClearCommandBuffers()
 {
 	m_DrawCommands.Sample(static_cast<float>(m_CommandQueue->size()));
 	m_CommandQueue->clear();
+	const auto avgDrawCommands = m_DrawCommands.Avg();
+	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgDrawCommands)].UpdateText(avgDrawCommands);
+	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::MinMax)]
+		.UpdateText(
+			*std::min_element(m_DrawCommands.cbegin(), m_DrawCommands.cend()),
+			*std::max_element(m_DrawCommands.cbegin(), m_DrawCommands.cend()));
 
 
 	if (m_PreviousCatchErrorsVal != m_CatchErrors)
@@ -109,19 +124,24 @@ void C_OGLRenderer::Lock(bool lock /*= true*/)
 }
 
 //=================================================================================
-void C_OGLRenderer::DrawControls() const
+GUID C_OGLRenderer::SetupControls(ImGui::C_GUIManager& guiMan)
 {
-	bool my_tool_active = true;
-	
-	::ImGui::Begin("Renderer frame stats", &my_tool_active);
-		m_DrawCommands.Draw();
-		m_CatchErrors.Draw();
-		const auto avgDrawCommands = m_DrawCommands.Avg();
-		::ImGui::Text("Avg draw commands: %.2f", avgDrawCommands);
-		::ImGui::Text("Min/max %.2f/%.2f",
-			*std::min_element(m_DrawCommands.cbegin(), m_DrawCommands.cend()),
-			*std::max_element(m_DrawCommands.cbegin(), m_DrawCommands.cend()));
-	::ImGui::End();
+	m_Window = guiMan.CreateGUIWindow("Renderer frame stats");
+	auto* renderStats = guiMan.GetWindow(m_Window);
+	renderStats->AddComponent(m_DrawCommands);
+	renderStats->AddComponent(m_CatchErrors);
+	renderStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgDrawCommands)]);
+	renderStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::MinMax)]);
+
+	renderStats->AddMenu(m_Windows);
+
+	return m_Window;
+}
+
+//=================================================================================
+void C_OGLRenderer::DestroyControls(ImGui::C_GUIManager& guiMan)
+{
+	guiMan.DestroyWindow(m_Window);
 }
 
 }}

@@ -14,13 +14,13 @@ C_Menu::C_Menu(const std::string& label)
 //=================================================================================
 void C_Menu::Draw() const
 {
-	if (ImGui::BeginMenu(m_Label.c_str()))
+	if (::ImGui::BeginMenu(m_Label.c_str()))
 	{
 		for (const auto& item : m_MenuItems)
 		{
 			item.second.get().Draw();
 		}
-		ImGui::EndMenu();
+		::ImGui::EndMenu();
 	}
 }
 

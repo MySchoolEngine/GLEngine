@@ -97,7 +97,9 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 }
 
 //=================================================================================
-C_ExplerimentWindow::~C_ExplerimentWindow() = default;
+C_ExplerimentWindow::~C_ExplerimentWindow() {
+	static_cast<C_OGLRenderer*>(m_renderer.get())->DestroyControls(m_ImGUI->GetGUIMgr());
+};
 
 //=================================================================================
 void C_ExplerimentWindow::Update()
@@ -272,7 +274,6 @@ void C_ExplerimentWindow::Update()
 
 	{
 		RenderDoc::C_DebugScope s("ImGUI");
-		static_cast<C_OGLRenderer*>(m_renderer.get())->DrawControls();
 		m_ImGUI->FrameEnd();
 	}
 
@@ -455,21 +456,12 @@ void C_ExplerimentWindow::SetupWorld()
 	hdrSettings->AddComponent(m_ExposureSlider);
 
 
-	m_HDRWindow = std::make_unique<GUI::Menu::C_MenuItem>("HDR Settings", [HDRGuid = m_HDRSettingsGUID, ImGUI= m_ImGUI]() {
-		auto& guiMGR = ImGUI->GetGUIMgr();
-		if (auto hdrWindow = guiMGR.GetWindow(HDRGuid))
-		{
-			hdrWindow->SetVisible(true);
-		}
-		});
-	m_RendererStats = std::make_unique<GUI::Menu::C_MenuItem>("Renderer stats", [HDRGuid = m_HDRSettingsGUID, ImGUI = m_ImGUI]() {
-		auto& guiMGR = ImGUI->GetGUIMgr();
-		if (auto hdrWindow = guiMGR.GetWindow(HDRGuid))
-		{
-			hdrWindow->SetVisible(true);
-		}
-		});
+	m_HDRWindow = std::make_unique<GUI::Menu::C_MenuItemOpenWindow>("HDR Settings", m_HDRSettingsGUID, guiMGR);
 	m_Windows.AddMenuItem(*m_HDRWindow.get());
+
+	const auto rendererWindow = static_cast<C_OGLRenderer*>(m_renderer.get())->SetupControls(guiMGR);
+	m_RendererStats = std::make_unique<GUI::Menu::C_MenuItemOpenWindow>("Renderer", rendererWindow, guiMGR);
+	m_Windows.AddMenuItem(*m_RendererStats.get());
 }
 
 //=================================================================================

@@ -6,9 +6,16 @@
 
 #include <GLRenderer/GUI/PlotLine.h>
 #include <GLRenderer/GUI/Input/CheckBoxValue.h>
+#include <GLRenderer/GUI/Text.h>
+#include <GLRenderer/GUI/Menu/Menu.h>
 
 namespace GLEngine {
 namespace GLRenderer {
+
+namespace ImGui
+{
+class C_GUIManager;
+}
 
 class C_OGLRenderer : public Renderer::I_Renderer {
 public:
@@ -31,13 +38,23 @@ public:
 	//=================================================================================
 	virtual void Lock(bool lock = true) override;
 
-	void DrawControls() const;
+	GUID SetupControls(ImGui::C_GUIManager& guiMan);
+	void DestroyControls(ImGui::C_GUIManager& guiMan);
 private:
 	bool m_Locked = false;
 	std::vector<Renderer::I_Renderer::T_CommandPtr>*	m_CommandQueue;
 	GUI::C_PlotLine<500>								m_DrawCommands;
 	GUI::Input::C_CheckBoxValue					m_CatchErrors;
 	bool																m_PreviousCatchErrorsVal;
+
+	enum class E_GUITexts {
+		AvgDrawCommands,
+		MinMax,
+		Last,
+	};
+	std::array<GUI::C_FormatedText, static_cast<int>(E_GUITexts::Last)>				m_GUITexts;
+	GUID																																			m_Window;
+	GUI::Menu::C_Menu																													m_Windows;
 };
 
 }
