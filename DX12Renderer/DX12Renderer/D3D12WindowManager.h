@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/CoreMacros.h>
+#include <DX12Renderer/DX12RendererApi.h>
 
 #include <Core/IWindowManager.h>
 
@@ -34,5 +34,5 @@ private:
 	std::shared_ptr<Core::I_Window> m_UpdatingWindow;
 };
 
-API_EXPORT C_D3D12WindowManager* ConstructD3D12Manager(Core::C_Application::EventCallbackFn eventCallback, HINSTANCE hInstance);
+DX12_RENDERER_API_EXPORT C_D3D12WindowManager* ConstructD3D12Manager(Core::C_Application::EventCallbackFn eventCallback, HINSTANCE hInstance);
 }

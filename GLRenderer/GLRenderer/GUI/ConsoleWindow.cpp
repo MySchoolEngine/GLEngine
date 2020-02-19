@@ -63,14 +63,14 @@ void C_ConsoleWindow::Draw() const
 		for (int n = 0; n < sizeof(levels)/sizeof(char*); n++)
 		{
 			bool is_selected = (current_level == levels[n]);
-			if (ImGui::Selectable(levels[n], is_selected))
+			if (::ImGui::Selectable(levels[n], is_selected))
 			{
 				current_level = levels[n];
 				selectedLevelId = n;
 			}
 			if (is_selected)
 			{
-				ImGui::SetItemDefaultFocus();
+				::ImGui::SetItemDefaultFocus();
 			}
 		}
 		::ImGui::EndCombo();
@@ -82,14 +82,14 @@ void C_ConsoleWindow::Draw() const
 		for (int n = 0; n < sizeof(contexts) / sizeof(char*); n++)
 		{
 			bool is_selected = (current_context == contexts[n]);
-			if (ImGui::Selectable(contexts[n], is_selected))
+			if (::ImGui::Selectable(contexts[n], is_selected))
 			{
 				current_context = contexts[n];
 				selectedContextId = n;
 			}
 			if (is_selected)
 			{
-				ImGui::SetItemDefaultFocus();
+				::ImGui::SetItemDefaultFocus();
 			}
 		}
 		::ImGui::EndCombo();

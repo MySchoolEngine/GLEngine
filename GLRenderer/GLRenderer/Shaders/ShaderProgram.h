@@ -84,9 +84,20 @@ public:
 	void BindSampler(const Textures::C_Texture& texture, unsigned int unit);
 	void BindSampler(const Textures::C_Texture& texture, const std::string& samplerName);
 
+#if _DEBUG
+	void SetPaths(std::vector<std::filesystem::path>&& paths);
+	bool IsExpired() const;
+#else
+	bool IsExpired() const { return false; }
+#endif
+
 private:
 #if _DEBUG
 	std::string m_name;
+	std::filesystem::file_time_type m_LastUpdate;
+	std::vector<std::filesystem::path> m_Paths;
+
+	std::filesystem::file_time_type GetLastUpdate() const;
 #endif
 	GLuint m_Program;
 	std::map<std::size_t, GLint> m_uniformMap;

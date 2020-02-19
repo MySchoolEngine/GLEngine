@@ -2,19 +2,11 @@
 
 #include <GLRenderer/Shaders/ShaderManager.h>
 
-
 #include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#ifndef WIN32
-#include <unistd.h>
-#endif
-
-#ifdef WIN32
-#define stat _stat
-#endif
+#include <GLRenderer/ImGui/GUIManager.h>
+#include <GLRenderer/GUI/GUIWindow.h>
 
 #include <pugixml.hpp>
 
@@ -23,13 +15,13 @@ namespace GLEngine {
 namespace GLRenderer {
 namespace Shaders {
 //=================================================================================
-const std::string C_ShaderManager::s_ShadersFolder = "shaders/";
+const std::filesystem::path C_ShaderManager::s_ShadersFolder = "shaders/";
 
 //=================================================================================
 C_ShaderManager::C_ShaderManager()
 	: m_Timeout(std::chrono::seconds(1))
 	, m_LastUpdate(std::chrono::system_clock::now())
-	, m_Compiler()
+	, m_Window(INVALID_GUID)
 {
 
 }
@@ -59,9 +51,16 @@ void C_ShaderManager::Update()
 	if (m_LastUpdate + m_Timeout < currentTime) {
 		m_ActiveShader.reset();
 		for (auto& program : m_Programs) {
+			if (!program.second->IsExpired())
+			{
+				continue;
+			}
+
+			C_ShaderCompiler compiler;
 			try
 			{
-				*(program.second) = std::move(C_ShaderProgram(LoadProgram(program.first)));
+				*(program.second) = std::move(C_ShaderProgram(LoadProgram(std::filesystem::path(program.first), compiler)));
+				program.second->SetPaths(compiler.GetTouchedFiles());
 				Buffers::C_UniformBuffersManager::Instance().ProcessUBOBindingPoints(program.second);
 			}
 			catch (...)
@@ -81,7 +80,8 @@ C_ShaderManager::T_ShaderPtr C_ShaderManager::GetProgram(const std::string& name
 		return m_Programs[name];
 	}
 
-	GLuint program = LoadProgram(name);
+	C_ShaderCompiler compiler;
+	GLuint program = LoadProgram(name, compiler);
 	if (program == 0) {
 		return nullptr;
 	}
@@ -90,6 +90,7 @@ C_ShaderManager::T_ShaderPtr C_ShaderManager::GetProgram(const std::string& name
 
 	T_ShaderPtr shaderProgram = std::make_shared<C_ShaderProgram>(program);
 	shaderProgram->SetName(name);
+	shaderProgram->SetPaths(compiler.GetTouchedFiles());
 
 	Buffers::C_UniformBuffersManager::Instance().ProcessUBOBindingPoints(shaderProgram);
 
@@ -139,21 +140,54 @@ std::string C_ShaderManager::ShadersStatistics() const
 }
 
 //=================================================================================
-bool C_ShaderManager::LoadDoc(pugi::xml_document & document, const std::string & filename) const
+GUID C_ShaderManager::SetupControls(ImGui::C_GUIManager& guiMGR)
+{
+	m_Window = guiMGR.CreateGUIWindow("Shader manager");
+	auto* shaderMan = guiMGR.GetWindow(m_Window);
+
+	m_ShaderList = std::make_unique<GUI::C_LambdaPart>([&]() {
+
+		for (const auto& program : m_Programs) {
+			bool selected = false;
+			::ImGui::Selectable(program.first.c_str(), &selected);
+			// if (selected) {
+			// 	entity->OnEvent(Core::C_UserEvent("selected"));
+			// }
+		}
+		});
+
+	shaderMan->AddComponent(*m_ShaderList.get());
+
+	return m_Window;
+}
+
+//=================================================================================
+void C_ShaderManager::DestroyControls(ImGui::C_GUIManager& guiMGR)
+{
+	guiMGR.DestroyWindow(m_Window);
+}
+
+//=================================================================================
+bool C_ShaderManager::LoadDoc(pugi::xml_document & document, const std::filesystem::path& filename) const
 {
 	pugi::xml_parse_result result;
 
-	if (filename.find(".xml") != std::string::npos) {
+	if (filename.has_extension()) {
 		result = document.load_file(filename.c_str());
 		if (!result.status == pugi::status_ok) {
-			result = document.load_file((s_ShadersFolder + filename).c_str());
+			std::filesystem::path path;
+			path += s_ShadersFolder;
+			path += filename;
+			result = document.load_file(path.generic_string().c_str());
 		}
 		else {
 			return true;
 		}
 	}
 	else {
-		return LoadDoc(document, filename + ".xml");
+		auto path = filename;
+		path.replace_extension("xml");
+		return LoadDoc(document, path);
 	}
 
 	if (result.status == pugi::status_ok) return true;
@@ -161,7 +195,7 @@ bool C_ShaderManager::LoadDoc(pugi::xml_document & document, const std::string &
 }
 
 //=================================================================================
-GLuint C_ShaderManager::LoadShader(const pugi::xml_node& node) const
+GLuint C_ShaderManager::LoadShader(const pugi::xml_node& node, C_ShaderCompiler& compiler) const
 {
 	GLuint shader = 0;
 	std::string str;
@@ -176,39 +210,32 @@ GLuint C_ShaderManager::LoadShader(const pugi::xml_node& node) const
 	else if (stageAttribute == "tess-control") stage = GL_TESS_CONTROL_SHADER;
 	else if (stageAttribute == "tess-evaluation") stage = GL_TESS_EVALUATION_SHADER;
 
-	const std::string filename(s_ShadersFolder + std::string(node.first_child().value()));
+	auto filename(s_ShadersFolder);
+	filename += std::filesystem::path(node.first_child().value());
 
-	if (!m_Compiler.compileShader(shader, filename.c_str(), stage, str)) {
+	if (!compiler.compileShader(shader, filename, stage)) {
 		CORE_LOG(E_Level::Error, E_Context::Render, "--Compilation error");
-		CORE_LOG(E_Level::Error, E_Context::Render, "{}", s_ShadersFolder + std::string(node.first_child().value()));
-		CORE_LOG(E_Level::Error, E_Context::Render, "{}", str);
+		CORE_LOG(E_Level::Error, E_Context::Render, "{}", filename.generic_string());
 		return 0;
 	}
-	glObjectLabel(GL_SHADER, shader, static_cast<GLsizei>(filename.length()), filename.c_str());
+	glObjectLabel(GL_SHADER, shader, static_cast<GLsizei>(filename.generic_string().length()), filename.generic_string().c_str());
 	return shader;
 }
 
 //=================================================================================
-GLuint C_ShaderManager::LoadProgram(const std::string& name) const
+GLuint C_ShaderManager::LoadProgram(const std::filesystem::path& name, C_ShaderCompiler& compiler) const
 {
 	pugi::xml_document doc;
 
 	if (!LoadDoc(doc, name)) {
-		CORE_LOG(E_Level::Error, E_Context::Render, "Can't open config file for shader name: {}", name);
+		CORE_LOG(E_Level::Error, E_Context::Render, "Can't open config file for shader name: {}", name.generic_string());
 		return 0;
 	}
 
 	std::vector<GLuint> shaders;
 
-	//struct stat result;
-	//if (stat(name.c_str(), &result) == 0)
-	//{
-	//	auto mod_time = result.st_mtime;
-	//	
-	//}
-
 	for (auto& shader : doc.child("pipeline").children("shader")) {
-		GLuint shaderStage = LoadShader(shader);
+		GLuint shaderStage = LoadShader(shader, compiler);
 		if (shaderStage == 0) {
 			return 0;
 		}
@@ -216,9 +243,7 @@ GLuint C_ShaderManager::LoadProgram(const std::string& name) const
 	}
 
 	GLuint program;
-	std::string str;
-	if (!m_Compiler.linkProgram(program, str, shaders)) {
-		std::cerr << str << std::endl;
+	if (!compiler.linkProgram(program, shaders)) {
 		return false;
 	}
 	return program;

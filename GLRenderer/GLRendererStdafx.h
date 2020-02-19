@@ -19,6 +19,7 @@
 #include <stack>
 #include <string>
 #include <sstream>
+#include <filesystem>
 
 // rendering dependend things
 #include <glad/glad.h>

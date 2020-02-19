@@ -25,13 +25,13 @@ void C_Window::Draw() const
 	::ImGui::Begin(m_Name.c_str(), &m_IsVisible, flags);
 	if (!m_Menus.empty())
 	{
-		if (ImGui::BeginMenuBar())
+		if (::ImGui::BeginMenuBar())
 		{
 			for (const auto& menu : m_Menus)
 			{
 				menu.second.get().Draw();
 			}
-			ImGui::EndMenuBar();
+			::ImGui::EndMenuBar();
 		}
 	}
 
