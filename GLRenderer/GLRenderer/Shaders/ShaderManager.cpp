@@ -2,19 +2,8 @@
 
 #include <GLRenderer/Shaders/ShaderManager.h>
 
-
 #include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#ifndef WIN32
-#include <unistd.h>
-#endif
-
-#ifdef WIN32
-#define stat _stat
-#endif
 
 #include <pugixml.hpp>
 
