@@ -36,6 +36,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 	m_FrameConstUBO->SetCameraPosition(glm::vec4(camera->GetPosition(), 1.0f));
 
 	{
+		RenderDoc::C_DebugScope s("Window prepare");
 		using namespace Commands;
 		renderer->AddCommand(
 			std::move(
