@@ -18,6 +18,11 @@ public:
 
 	//================================================================================
 	virtual void OnEvent(Core::I_Event& event) override;
+
+	void SetModelMatrix(glm::mat4& modelMatrix);
+
+private:
+	glm::mat4 m_ModelMatrix;
 };
 
 }
