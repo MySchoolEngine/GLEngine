@@ -5,6 +5,7 @@
 #include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/FBO/Framebuffer.h>
 #include <GLRenderer/CameraManager.h>
+
 #include <GLRenderer/GUI/GUIWindow.h>
 #include <GLRenderer/GUI/ConsoleWindow.h>
 #include <GLRenderer/GUI/PlotLine.h>
@@ -15,6 +16,7 @@
 #include <GLRenderer/GUI/Menu/Menu.h>
 #include <GLRenderer/GUI/Menu/MenuItem.h>
 #include <GLRenderer/MainPassTechnique.h>
+#include <GLRenderer/Mesh/StaticMeshResource.h>
 
 #include <Entity/EntityManager.h>
 
@@ -102,7 +104,7 @@ private:
 	char m_SpawningFilename[255];
 
 	C_Framebuffer																						m_HDRFBO;
-	std::shared_ptr<Components::C_StaticMesh>								m_ScreenQuad;
+	std::shared_ptr<Mesh::C_StaticMeshResource>							m_ScreenQuad;
 };
 
 }}

@@ -9,10 +9,10 @@
 #include <GLRenderer/Commands/GLCullFace.h>
 #include <GLRenderer/Commands/GLClear.h>
 #include <GLRenderer/Commands/GLViewport.h>
+#include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 
 #include <GLRenderer/Components/TerrainMesh.h>
-#include <GLRenderer/Components/StaticMesh.h>
 #include <GLRenderer/Components/ComponentBuilderFactory.h>
 
 #include <GLRenderer/Entities/TerrainEntity.h>
@@ -30,7 +30,6 @@
 #include <GLRenderer/Buffers/UBO/FrameConstantsBuffer.h>
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
 
-#include <GLRenderer/Components/StaticMesh.h>
 #include <GLRenderer/Components/SkeletalMesh.h>
 #include <GLRenderer/Components/SkyBox.h>
 #include <GLRenderer/PersistentDebug.h>
@@ -248,7 +247,11 @@ void C_ExplerimentWindow::Update()
 		)
 	);
 
-	m_ScreenQuad->PerformDraw();
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+		std::move(
+			std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_ScreenQuad)
+		)
+	);
 	
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
@@ -427,7 +430,7 @@ void C_ExplerimentWindow::SetupWorld()
 		billboardMesh.texcoords.emplace_back(1, 0);
 		billboardMesh.texcoords.emplace_back(1, 1);
 
-		m_ScreenQuad = std::make_shared<Components::C_StaticMesh>(billboardMesh);
+		m_ScreenQuad = std::make_shared<Mesh::C_StaticMeshResource>(billboardMesh);
 	}
 
 	auto& guiMGR = m_ImGUI->GetGUIMgr();
