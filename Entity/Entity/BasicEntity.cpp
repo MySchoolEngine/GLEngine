@@ -35,6 +35,7 @@ void C_BasicEntity::PostUpdate()
 	for (auto& comp : *m_Components)
 	{
 		comp.second->PostUpdate();
+		comp.second->SetModelMatrix(m_ModelMatrix);
 	}
 }
 

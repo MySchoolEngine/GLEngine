@@ -13,6 +13,8 @@
 #include <Physics/Primitives/Frustum.h>
 #include <Physics/Primitives/Intersection.h>
 
+#include <Utils/Parsing/MatrixParse.h>
+
 #include <imgui.h>
 
 #include <pugixml.hpp>
@@ -150,6 +152,8 @@ bool C_EntityManager::LoadLevel(const std::string& name, std::unique_ptr<I_Compo
 					}
 				}
 			}
+
+			entity->SetModelMatrix(Utils::Parsing::C_MatrixParser::ParseTransformation(entityNode));
 		}
 	}
 

@@ -34,7 +34,6 @@ private:
 	void LoadAnimData(const pugi::xml_node& skinXML, std::vector<glm::ivec3>& jointIndices, std::vector<glm::vec3>& weights);
 	void LoadJoints(const pugi::xml_node& skinXML);
 	void LoadJointsInvMatrices(std::map<std::string, S_Joint>& joints, const pugi::xml_node& skinXML, const glm::mat4& normalizinMatrix) const;
-	glm::mat4 ParseTranslation(const pugi::xml_node& node);
 	bool ParseChildrenJoints(S_Joint& parent, const pugi::xml_node& xmlParent, const std::map<std::string, S_Joint>& joints);
 
 	int GetBoneId(const std::string_view& name) const;
