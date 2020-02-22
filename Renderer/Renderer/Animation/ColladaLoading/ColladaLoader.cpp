@@ -9,6 +9,8 @@
 #include <Renderer/Animation/SkeletalAnimation.h>
 #include <Renderer/Animation/AnimationStructures.h>
 
+#include <Utils/Parsing/MatrixParse.h>
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
 
@@ -248,7 +250,7 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 			if (id == "Armature")
 			{
 				// ignore rotation/scale matrices
-				auto modelMatrix = ParseTranslation(xmlNode);
+				auto modelMatrix = Utils::Parsing::C_MatrixParser::ParseTransformation(xmlNode);
 				if (std::distance(xmlNode.children("node").begin(), xmlNode.children("node").end()) != 1)
 				{
 					CORE_LOG(E_Level::Warning, E_Context::Render, "Skeleton definition should contain only 1 root joint");
@@ -343,20 +345,6 @@ void C_ColladaLoader::LoadJointsInvMatrices(std::map<std::string, S_Joint>& join
 			}
 		}
 	}
-}
-
-//=================================================================================
-glm::mat4 C_ColladaLoader::ParseTranslation(const pugi::xml_node& node)
-{
-	float x, y, z;
-	if (auto translation = node.child("translate"))
-	{
-		std::stringstream ss;
-		ss << translation.child_value();
-		ss >> x >> y >> z;
-		return glm::translate(glm::mat4(1.f), { x,y,z });
-	}
-	return glm::mat4(1.f);
 }
 
 //=================================================================================

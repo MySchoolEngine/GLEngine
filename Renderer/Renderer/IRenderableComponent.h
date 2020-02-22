@@ -16,7 +16,6 @@ namespace Renderer {
 		{
 			return Entity::E_ComponentType::Graphical;
 		}
-
 	};
 }
 

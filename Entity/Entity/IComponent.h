@@ -29,12 +29,15 @@ public:
 
 	// draws inside of prepared window
 	virtual void DebugDrawGUI() {};
+	void SetModelMatrix(glm::mat4& modelMatrix) { m_ModelMatrix = modelMatrix; };
+
 protected:
 	std::shared_ptr<I_Entity> GetOwner() const;
 
-private:
 #pragma warning(push)
 #pragma warning( disable : 4251)
+	glm::mat4 m_ModelMatrix;
+private:
 	std::weak_ptr<I_Entity> m_Owner;
 #pragma warning(pop)
 };

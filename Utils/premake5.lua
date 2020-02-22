@@ -11,6 +11,13 @@ project "Utils"
 	{
 		"../Core",
 		"../%{IncludeDir.fmt}",
+		"../%{IncludeDir.GLM}",
+		"../%{IncludeDir.pugixml}",
+	}
+	
+	links 
+	{ 
+		"pugixml",
 	}
 
 	filter "system:windows"

@@ -13,6 +13,7 @@ namespace Entity {
 //=================================================================================
 C_BasicEntity::C_BasicEntity(std::string name)
 	: I_Entity(std::move(name))
+	, m_ModelMatrix(glm::mat4(1.f))
 {
 }
 
@@ -34,6 +35,7 @@ void C_BasicEntity::PostUpdate()
 	for (auto& comp : *m_Components)
 	{
 		comp.second->PostUpdate();
+		comp.second->SetModelMatrix(m_ModelMatrix);
 	}
 }
 
@@ -44,6 +46,12 @@ void C_BasicEntity::OnEvent(Core::I_Event& event)
 	if (debugGUI) {
 		GLEngine::component_cast<Entity::E_ComponentType::DebugGUI>(debugGUI)->Toggle();
 	}
+}
+
+//=================================================================================
+void C_BasicEntity::SetModelMatrix(glm::mat4& modelMatrix)
+{
+	m_ModelMatrix = modelMatrix;
 }
 
 }}
