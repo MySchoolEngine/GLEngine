@@ -36,6 +36,12 @@ workspace "Engine"
 		"vendor/GLM/util/glm.natvis"
 	}
 
+  filter "system:windows"
+    defines {
+      "CORE_PLATFORM=CORE_PLATFORM_WIN",
+      "WIN32", 
+    }
+
   filter "configurations:Debug"
     defines "GL_ENGINE_DEBUG"
 
@@ -48,19 +54,20 @@ IncludeDir["Glad"] = "vendor/Glad/include"
 IncludeDir["pugixml"] = "vendor/pugixml/src"
 IncludeDir["fmt"] = "vendor/fmt/include"
 IncludeDir["ImGui"] = "vendor/ImGui"
+IncludeDir["DevIL"] = "vendor/DevIL/DevIL/include"
 group "Dependencies"
   include "vendor/GLFW"
   include "vendor/Glad"
   include "vendor/pugixmlPremake"
   include "vendor/ImGui"
-  --include "vendor/DevILPremake"
+  include "vendor/projects/DevIL"
 group ""
 
 include "Core"
 include "Sandbox"
 include "Renderer"
 include "GLRenderer"
+include "DX12Renderer"
 include "Entity"
 include "Utils"
 include "Physics"
---include "GLEngine"

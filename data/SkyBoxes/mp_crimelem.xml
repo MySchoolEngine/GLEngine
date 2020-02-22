@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SkyBox>
+  <Top 		image="SkyBoxes/mp_crimelem/criminal-element_up.tga" />
+  <Bottom 	image="SkyBoxes/mp_crimelem/criminal-element_dn.tga" />
+  <Left 	image="SkyBoxes/mp_crimelem/criminal-element_rt.tga" />
+  <Right 	image="SkyBoxes/mp_crimelem/criminal-element_lf.tga" />
+  <Back 	image="SkyBoxes/mp_crimelem/criminal-element_ft.tga" />
+  <Forward 	image="SkyBoxes/mp_crimelem/criminal-element_bk.tga" />
+</SkyBox>

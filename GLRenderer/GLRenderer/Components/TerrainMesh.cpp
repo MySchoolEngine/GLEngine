@@ -31,7 +31,8 @@ namespace Components {
 
 //=================================================================================
 C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
-	: m_Noise("TerrainNoise")
+	: Renderer::I_RenderableComponent(nullptr)
+	, m_Noise("TerrainNoise")
 	, m_Coord(0, 0)
 	, m_Stats(3)
 	, m_RainData(std::make_shared<decltype(m_RainData)::element_type>("rainData", 1, dim))
@@ -43,7 +44,7 @@ C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 
 	m_Terrain = std::make_shared<Mesh::C_TerrainMeshResource>();
 	m_Noise.StartGroupOp();
-	m_Noise.SetWrap(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+	m_Noise.SetWrap(E_WrapFunction::ClampToEdge, E_WrapFunction::ClampToEdge);
 	m_Noise.SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
 	glTexImage2D(m_Noise.GetTarget(), 0, GL_RGBA32F, dim, dim, 0, GL_RGBA, GL_FLOAT, nullptr);
 	m_Noise.SetDimensions({ dim,dim });
@@ -62,7 +63,8 @@ C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 
 //=================================================================================
 C_TerrainMesh::C_TerrainMesh(Textures::C_Texture&& texture)
-	: m_Noise(std::move(texture))
+	: Renderer::I_RenderableComponent(nullptr)
+	, m_Noise(std::move(texture))
 	, m_Coord(0, 0)
 	, m_Stats(3)
 	, m_RainData(std::make_shared<decltype(m_RainData)::element_type>("rainData", 1, dim))

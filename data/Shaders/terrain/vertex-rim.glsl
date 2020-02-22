@@ -88,5 +88,5 @@ void main()
 		vertexPosition.y = texture(tex, texUV).r;
 	}
 
-    gl_Position = frame.projectionMatrix * modelMatrix * vertexPosition;
+    gl_Position = frame.viewProjectionMatrix * modelMatrix * vertexPosition;
 }

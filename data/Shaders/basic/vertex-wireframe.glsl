@@ -14,5 +14,5 @@ out vec3 colorOUT;
 void main()
 {
 	colorOUT = colorIN;
-    gl_Position = frame.projectionMatrix * modelMatrix * vertex;
+    gl_Position = frame.viewProjectionMatrix * modelMatrix * vertex;
 }

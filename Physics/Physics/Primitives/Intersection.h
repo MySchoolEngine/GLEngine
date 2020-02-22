@@ -12,10 +12,14 @@
 namespace GLEngine {
 namespace Physics {
 namespace Primitives {
-struct API_EXPORT S_RayIntersection {
+struct PHYSICS_API_EXPORT S_RayIntersection {
 	S_Ray		ray;
 	GUID		entityId;
+
+#pragma warning(push)
+#pragma warning( disable : 4251)
 	glm::vec4	intersectionPoint;
+#pragma warning(pop)
 	float		distance;
 };
 }

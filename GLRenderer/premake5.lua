@@ -10,16 +10,18 @@ project "GLRenderer"
 	
 	pchheader "GLRendererStdafx.h"
 	pchsource "GLRendererStdafx.cpp"
+	
+	Link("Entity")
+	Link("Utils")
+	Link("Renderer")
+	Link("Core")
+	Link("Physics")
 
 	files
 	{
 		"GLRenderer/**.h",
 		"GLRenderer/**.cpp",
 		"GLRenderer/**.inl",
-		"../%{IncludeDir.ImGui}/examples/imgui_impl_glfw.h",
-		"../%{IncludeDir.ImGui}/examples/imgui_impl_opengl3.h",
-		"../%{IncludeDir.ImGui}/examples/imgui_impl_glfw.cpp",
-		"../%{IncludeDir.ImGui}/examples/imgui_impl_opengl3.cpp",
 		"GLRendererStdafx.cpp",
 		"GLRendererStdafx.h",
 		"premake5.lua",
@@ -28,43 +30,38 @@ project "GLRenderer"
 	includedirs
 	{
 		".",
-		"../Renderer",
-		"../Entity",
-		"../Utils",
-		"../Physics",
-		"../Core",
 		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.Glad}",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.ImGui}",
+		"../%{IncludeDir.DevIL}",
 		
 		"../vendor/AssimpPrebuild/include",
-		"../vendor/DevILPrebuild/include",
 	}
 
 	libdirs
 	{
-		"../vendor/DevILPrebuild/lib/x64/unicode/Release/",
 		"../vendor/AssimpPrebuild/lib/",
+		"../vendor/bin/Debug-windows-x86_64/DevIL-IL/",
 	}
 
 	links 
 	{ 
 		"GLFW",
 		"Glad",
-		"Physics",
 		"opengl32.lib",
 		"pugixml",
 		"ImGui",
+		"DevIL-IL",
 		"../vendor/AssimpPrebuild/lib/assimp.lib",
-		"../vendor/DevILPrebuild/lib/x64/unicode/Release/DevIL.lib",
+		"../vendor/projects/DevIL/bin/Debug-windows-x86_64/DevIL-IL/DevIL-IL.dll",
+	}
 
-		"Entity",
-		"Utils",
-		"Renderer",
-		"Core",
+	defines
+	{
+		"IMGUI_IMPL_OPENGL_LOADER_GLAD"
 	}
 
 	filter "system:windows"
@@ -74,13 +71,13 @@ project "GLRenderer"
 		defines
 		{
 			"CORE_PLATFORM=CORE_PLATFORM_WIN",
-			"BUILD_DLL",
+			"BUILD_GLRENDERER_DLL",
 		}
 
 		postbuildcommands
 		{
 			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
-			("{COPY} \"../vendor/DevILPrebuild/lib/x64/unicode/Release/DevIL.dll\" \"../bin/" .. outputdir .. "/Sandbox/\"")
+			("{COPY} \"../vendor/projects/DevIL/bin/Debug-windows-x86_64/DevIL-IL/DevIL-IL.dll\" \"../bin/" .. outputdir .. "/Sandbox/\"")
 		}
 
 	filter "configurations:Debug"

@@ -13,21 +13,22 @@
 
 #pragma once
 
+#include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 
-namespace GLEngine {
-namespace GLRenderer {
+namespace GLEngine::GLRenderer {
 
 namespace Textures {
 class C_Texture;
 }
 
-namespace Components {
 class C_Framebuffer {
 public:
-	C_Framebuffer();
-	~C_Framebuffer() = default;
+	C_Framebuffer(const std::string& name);
+	~C_Framebuffer();
 
+	template<E_FramebufferTarget target = E_FramebufferTarget::Framebuffer>
 	void Bind();
+	template<E_FramebufferTarget target = E_FramebufferTarget::Framebuffer>
 	void Unbind();
 
 	void AttachTexture(GLenum attachement, std::shared_ptr<Textures::C_Texture> texture);
@@ -37,4 +38,7 @@ private:
 	GLuint m_FBO;
 	std::map<GLenum, std::shared_ptr<Textures::C_Texture>> m_attachements;
 };
-}}}
+
+}
+
+#include <GLRenderer/FBO/Framebuffer.inl>

@@ -24,5 +24,5 @@ void main()
 
 	worldCoord = modelMatrix * vertex;
 
-    gl_Position = frame.projectionMatrix * worldCoord; //tohle je reálná hloubka
+    gl_Position = frame.viewProjectionMatrix * worldCoord; //tohle je reálná hloubka
 }

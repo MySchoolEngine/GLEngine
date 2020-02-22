@@ -7,6 +7,8 @@ namespace GLEngine {
 namespace Renderer {
 	class I_RenderableComponent : public Entity::I_Component {
 	public:
+		I_RenderableComponent(std::shared_ptr<Entity::I_Entity> owner) 
+			: Entity::I_Component(owner) {}
 		virtual ~I_RenderableComponent() = default;
 
 		virtual void PerformDraw() const = 0;
@@ -14,7 +16,6 @@ namespace Renderer {
 		{
 			return Entity::E_ComponentType::Graphical;
 		}
-
 	};
 }
 

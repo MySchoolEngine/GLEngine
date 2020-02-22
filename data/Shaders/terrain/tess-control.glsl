@@ -17,7 +17,7 @@ bool offscreen(vec4 vertex){
 }
     
 vec4 project(vec4 vertex){
-    vec4 result = frame.projectionMatrix * vertex;
+    vec4 result = frame.viewProjectionMatrix * vertex;
     result /= result.w;
     return result;
 }

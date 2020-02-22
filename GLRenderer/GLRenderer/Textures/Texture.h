@@ -15,6 +15,8 @@
 
 #include <Renderer/IResource.h>
 
+#include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
+
 namespace GLEngine {
 namespace GLRenderer {
 namespace Mesh {
@@ -48,13 +50,14 @@ public:
 	inline GLuint GetTexture() const { return m_texture; }
 	inline GLenum GetTarget() const { return m_target; }
 
-	void SetWrap(GLint wrapS, GLint wrapT);
+	void SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT);
+	void SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT, E_WrapFunction wrapR);
 	void SetFilter(GLint min, GLint mag);
 	void SetTexParameter(GLenum pname, const glm::vec4& value);
 	void SetTexParameter(GLenum pname, GLint value);
 	void GenerateMipMaps();
 
-	void SetTexData2D(int level, const Mesh::Texture& tex);
+	void SetTexData2D(int level, const Renderer::MeshData::Texture& tex);
 
 protected:
 	GLuint m_texture;

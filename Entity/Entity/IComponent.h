@@ -1,15 +1,24 @@
 #pragma once
 
+#include <Entity/EntityApi.h>
+
 #include <Core/EventSystem/EventReciever.h>
+
+namespace pugi {
+class xml_node;
+}
 
 namespace GLEngine {
 namespace Entity {
 
+class I_Entity;
+
 enum class E_ComponentType;
 
 //=================================================================================
-class I_Component : public Core::I_EventReciever {
+class ENTITY_API_EXPORT I_Component : public Core::I_EventReciever {
 public:
+	I_Component(std::shared_ptr<I_Entity> owner);
 	virtual ~I_Component() = default;
 	virtual E_ComponentType GetType() const = 0;
 
@@ -20,9 +29,35 @@ public:
 
 	// draws inside of prepared window
 	virtual void DebugDrawGUI() {};
+	void SetModelMatrix(glm::mat4& modelMatrix) { m_ModelMatrix = modelMatrix; };
+
+protected:
+	std::shared_ptr<I_Entity> GetOwner() const;
+
+#pragma warning(push)
+#pragma warning( disable : 4251)
+	glm::mat4 m_ModelMatrix;
+private:
+	std::weak_ptr<I_Entity> m_Owner;
+#pragma warning(pop)
+};
+
+//=================================================================================
+class I_ComponenetBuilder
+{
+public:
+	virtual std::shared_ptr<I_Component> Build(const pugi::xml_node& node, std::shared_ptr<I_Entity> owner) = 0;
+};
+
+//=================================================================================
+class I_ComponentBuilderFactory
+{
+public:
+	virtual std::unique_ptr<Entity::I_ComponenetBuilder> GetFactory(const std::string& name) = 0;
 };
 
 }
+//=================================================================================
 // I want this accessible all around the engine
 using T_ComponentPtr = std::shared_ptr<Entity::I_Component>;
 

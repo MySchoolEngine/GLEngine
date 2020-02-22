@@ -9,12 +9,16 @@
 #include <array>
 
 namespace GLEngine {
+namespace Renderer::MeshData
+{
+struct Mesh;
+}
+
 namespace GLRenderer {
 namespace Mesh {
-struct Mesh;
 class C_StaticMeshResource : public Renderer::I_Resource {
 public:
-	C_StaticMeshResource(const Mesh & mesh);
+	C_StaticMeshResource(const Renderer::MeshData::Mesh & mesh);
 	~C_StaticMeshResource() = default;
 
 	//=================================================================================

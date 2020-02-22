@@ -17,21 +17,24 @@ namespace Shaders {
 //=================================================================================
 C_ShaderProgram::C_ShaderProgram(GLuint program)
 	: m_Program(program)
+#if _DEBUG
+#endif
 {
-	// TODO: assert(program!=0);
+	GLE_ASSERT(program != 0, "Invalid shader program");
 }
 
 //=================================================================================
 C_ShaderProgram::C_ShaderProgram(C_ShaderProgram&& rhs)
 	:  m_bIsActive(rhs.m_bIsActive)
+#if _DEBUG
+	, m_name(std::move(rhs.m_name))
+	, m_LastUpdate(std::move(rhs.m_LastUpdate))
+	, m_Paths(std::move(rhs.m_Paths))
+#endif
 {
 	DestroyProgram();
 	m_Program = rhs.m_Program;
 	rhs.m_Program = 0;
-
-#if _DEBUG
-	SetName(rhs.m_name);
-#endif
 }
 
 //=================================================================================
@@ -39,6 +42,8 @@ void C_ShaderProgram::operator=(C_ShaderProgram&& rhs)
 {
 #if _DEBUG
 	SetName(rhs.m_name);
+	m_LastUpdate = std::move(rhs.m_LastUpdate);
+	m_Paths = std::move(rhs.m_Paths);
 #endif
 	DestroyProgram();
 	m_Program	= rhs.m_Program;
@@ -64,6 +69,34 @@ void C_ShaderProgram::BindSampler(const Textures::C_Texture& texture, const std:
 {
 	BindSampler(texture, FindLocation<const std::string&>(samplerName));
 }
+
+#if _DEBUG
+//=================================================================================
+void C_ShaderProgram::SetPaths(std::vector<std::filesystem::path>&& paths)
+{
+	m_Paths = std::move(paths);
+	m_LastUpdate = GetLastUpdate();
+}
+
+//=================================================================================
+bool C_ShaderProgram::IsExpired() const
+{
+	return m_LastUpdate < GetLastUpdate();
+}
+
+//=================================================================================
+std::filesystem::file_time_type C_ShaderProgram::GetLastUpdate() const
+{
+	const auto newest = std::max_element(m_Paths.begin(), m_Paths.end(), [](const auto a, const auto b)
+		{ return std::filesystem::last_write_time(a) < std::filesystem::last_write_time(b); }
+	);
+	if (newest == m_Paths.end())
+	{
+		return m_LastUpdate;
+	}
+	return std::filesystem::last_write_time(*newest);
+}
+#endif
 
 //=================================================================================
 void C_ShaderProgram::useProgram()

@@ -2,7 +2,6 @@
 
 #include <Renderer/IResource.h>
 
-#include <GLRenderer/Buffers/GLBuffer.h>
 #include <GLRenderer/VAO/VAO.h>
 
 namespace GLEngine {

@@ -14,7 +14,7 @@ class I_Input;
 
 namespace GLRenderer {
 namespace GLFW {
-class API_EXPORT C_GLFWWindow : public Core::I_Window {
+class C_GLFWWindow : public Core::I_Window {
 public:
 	virtual ~C_GLFWWindow();
 
@@ -32,22 +32,11 @@ public:
 
 
 	//=================================================================================
-	virtual void SetEventCallback(Core::C_Application::EventCallbackFn callback) override;
-
-
-	//=================================================================================
 	virtual const Core::I_Input& GetInput() const override;
 
 protected:
 	C_GLFWWindow();
 	virtual void Destroy() override;
-
-	struct S_Data {
-		Core::C_Application::EventCallbackFn m_EventCallback;
-		GUID m_GUID;
-	};
-
-	S_Data m_Data;
 
 	GLFWwindow* m_Window;
 	C_GLFWInput m_Input;

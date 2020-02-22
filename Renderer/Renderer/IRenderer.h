@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Core/CoreMacros.h>
-
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
 
@@ -23,7 +21,7 @@ namespace Renderer {
 // 4] commit to GPU
 // 5] check the time, if we have enough time, render thread can help with simulation, game computation etc.
 // 6] render new frame
-class API_EXPORT I_Renderer {
+class I_Renderer {
 public:
 	using T_CommandPtr = std::unique_ptr<I_RenderCommand>;
 	using T_BatchPtr = std::unique_ptr<I_RenderBatch>;

@@ -70,5 +70,5 @@ void main()
 
 	vec4 vertexPosition = vec4(planear.x, height.r, planear.y, 1);
 
-    gl_Position = frame.projectionMatrix * modelMatrix * vertexPosition;
+    gl_Position = frame.viewProjectionMatrix * modelMatrix * vertexPosition;
 }

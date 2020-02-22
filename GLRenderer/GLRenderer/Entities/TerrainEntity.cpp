@@ -11,24 +11,17 @@ namespace GLRenderer {
 
 //=================================================================================
 C_TerrainEntity::C_TerrainEntity(const std::string& name)
-	: m_ID(NextGUID())
+	: I_Entity(name)
 	, m_SimulationRunning(false)
 	, m_CurrentIteration(0)
 	, Controls(false)
 	, Visualise(false)
 	, DebugDrawDroplets(false)
-	, m_Name(name)
 {
 	Visualise.SetName("Visualization");
 	DebugDrawDroplets.SetName("Debug draw");
 	m_inputCoords[0] = 0;
 	m_inputCoords[1] = 0;
-}
-
-//=================================================================================
-GLEngine::Entity::I_Entity::EntityID C_TerrainEntity::GetID() const
-{
-	return m_ID;
 }
 
 //=================================================================================
@@ -41,12 +34,6 @@ GLEngine::T_ComponentPtr C_TerrainEntity::GetComponent(Entity::E_ComponentType t
 	}
 
 	return nullptr;
-}
-
-//=================================================================================
-std::string C_TerrainEntity::GetName() const
-{
-	return m_Name;
 }
 
 //=================================================================================

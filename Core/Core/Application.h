@@ -11,7 +11,7 @@ namespace Core {
 class I_Event;
 class I_WindowManager;
 
-class API_EXPORT C_Application {
+class CORE_API_EXPORT C_Application {
 public:
 	using EventCallbackFn = std::function<void(I_Event&)>;
 
@@ -25,6 +25,9 @@ public:
 	void OnEvent(I_Event& e);
 
 	virtual void Init() = 0;
+#if CORE_PLATFORM == CORE_PLATFORM_WIN
+	virtual void Init(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {};
+#endif
 
 	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetActiveRenderer() const = 0;
 

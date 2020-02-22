@@ -19,6 +19,7 @@
 #include <stack>
 #include <string>
 #include <sstream>
+#include <filesystem>
 
 // rendering dependend things
 #include <glad/glad.h>
@@ -31,3 +32,10 @@
 // debug utils
 #include <GLRenderer/RenderDoc/RenderDocTools.h>
 #include <GLRenderer/Debug.h>
+
+#include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
+
+#include <Core/GUID.h>
+#include <Core/CoreMacros.h>
+
+#include <GLRenderer/GLRendererApi.h>

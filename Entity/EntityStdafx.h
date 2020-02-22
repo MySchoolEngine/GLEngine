@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Utils/Logging/LoggingMacros.h>
+#include <Utils/AssertionMacros.h>
 
 #include <iostream>
 #include <memory>
@@ -15,3 +16,5 @@
 #include <map>
 
 #include <glm/glm.hpp>
+
+#include <Entity/EntityApi.h>

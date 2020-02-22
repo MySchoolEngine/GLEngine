@@ -73,7 +73,7 @@ template<class T, typename ...Params>
 std::shared_ptr<T> C_UniformBuffersManager::CreateUniformBuffer(const std::string& name, Params&&... params)
 {
 	auto ubo = std::make_shared<T>(name, static_cast<unsigned int>(m_UBOs.size()), std::forward<Params>(params)...);
-	assert(ubo);
+	GLE_ASSERT(ubo, "Unable to allocate UBO {}", name);
 	m_UBOs.push_back(ubo);
 
 	return ubo;

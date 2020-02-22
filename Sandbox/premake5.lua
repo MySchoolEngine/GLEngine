@@ -1,7 +1,7 @@
 include "../premakeDefines.lua"
 
 project "Sandbox"
-	kind "ConsoleApp"
+    kind "ConsoleApp"
 	language "C++"
 	staticruntime "off"
 	
@@ -13,6 +13,7 @@ project "Sandbox"
 	Link("Core")
 	Link("Utils")
 	Link("GLRenderer")
+	Link("DX12Renderer")
 
 	includedirs
 	{
@@ -22,13 +23,9 @@ project "Sandbox"
 	}
 
 	filter "system:windows"
+    	kind "WindowedApp"
 		cppdialect "C++17"
 		systemversion "latest"
-
-		defines
-		{
-			"CORE_PLATFORM=CORE_PLATFORM_WIN"
-		}
 
 	filter "configurations:Debug"
 		runtime "Debug"

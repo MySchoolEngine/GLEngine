@@ -21,7 +21,7 @@ class I_Input;
 /************************************************************************/
 /* Represents single window on screen                                   */
 /************************************************************************/
-class API_EXPORT I_Window : public C_Layer {
+class I_Window : public C_Layer {
 public:
 	virtual ~I_Window() = default;
 	virtual unsigned int	GetWidth() const = 0;
@@ -40,7 +40,11 @@ public:
 	 ** ==============================================*/
 	virtual void Init(const S_WindowInfo& wndInfo) = 0;
 	virtual void SetTitle(const std::string& title) = 0;
-	virtual void SetEventCallback(C_Application::EventCallbackFn callback) = 0;
+	
+	inline void SetEventCallback(C_Application::EventCallbackFn callback)
+	{
+		m_Data.m_EventCallback = callback;
+	}
 
 	virtual bool WantClose() const = 0;
 
@@ -53,5 +57,13 @@ protected:
 		: C_Layer("window")
 		, m_ID(NextGUID()) {}
 	GUID m_ID;
+
+
+	struct S_Data {
+		Core::C_Application::EventCallbackFn m_EventCallback;
+		GUID m_GUID;
+	};
+
+	S_Data m_Data;
 };
 }}

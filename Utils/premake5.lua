@@ -11,6 +11,13 @@ project "Utils"
 	{
 		"../Core",
 		"../%{IncludeDir.fmt}",
+		"../%{IncludeDir.GLM}",
+		"../%{IncludeDir.pugixml}",
+	}
+	
+	links 
+	{ 
+		"pugixml",
 	}
 
 	filter "system:windows"
@@ -20,7 +27,7 @@ project "Utils"
 		defines
 		{
 			"CORE_PLATFORM=CORE_PLATFORM_WIN",
-			"BUILD_DLL",
+			"BUILD_UTILS_DLL",
 		}
 
 		postbuildcommands

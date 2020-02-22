@@ -39,10 +39,13 @@ public:
 
 	const glm::vec4& GetCameraPosition() const { return m_CameraPosition; }
 	void SetCameraPosition(const glm::vec4& val) { m_CameraPosition = val; }
-	const glm::mat4& GetViewProjection() const { return m_ViewProjection; }
-	void SetViewProjection(const glm::mat4& val) { m_ViewProjection = val; }
+	const glm::mat4& GetView() const { return m_ViewMat; }
+	void SetView(const glm::mat4& val) { m_ViewMat = val; }
+	const glm::mat4& GetProjection() const { return m_ProjectionMat; }
+	void SetProjection(const glm::mat4& val) { m_ProjectionMat = val; }
 private:
 	glm::vec4 m_CameraPosition;
-	glm::mat4 m_ViewProjection;
+	glm::mat4 m_ViewMat;
+	glm::mat4 m_ProjectionMat;
 };
 }}}}

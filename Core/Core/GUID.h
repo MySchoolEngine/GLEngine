@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/CoreMacros.h>
+#include <Core/CoreApi.h>
 
 namespace GLEngine {
 
@@ -8,6 +8,6 @@ namespace GLEngine {
 using GUID = unsigned int;
 static const GUID INVALID_GUID = 0;
 
-API_EXPORT GUID NextGUID();
+CORE_API_EXPORT GUID NextGUID();
 
 }

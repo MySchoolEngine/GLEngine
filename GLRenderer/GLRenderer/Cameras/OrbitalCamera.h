@@ -2,6 +2,9 @@
 
 #include <Renderer/ICameraComponent.h>
 
+#include <GLRenderer/GUI/Input/Slider.h>
+
+#include <Core/CoreMacros.h>
 
 namespace GLEngine {
 
@@ -13,14 +16,11 @@ class C_KeyRepeatedEvent;
 class C_KeyEvent;
 }
 
-namespace Physics {
-namespace Primitives {
+namespace Physics::Primitives {
 class C_Frustum;
 }
-}
 
-namespace GLRenderer {
-namespace Cameras {
+namespace GLRenderer::Cameras {
 
 //Orbital camera
 //Using Euclidean angles (= has gimbal lock)
@@ -84,13 +84,13 @@ private:
 	float _farZ;
 	float _aspect;
 
-	float _zoom;
-	float _angleXDeg;
-	float _angleYDeg;
+	GLE_DEBUG_MEMBER(GUI::Input::C_Slider<float>, float, _zoom);
+	GLE_DEBUG_MEMBER(GUI::Input::C_Slider<float>, float, _angleXDeg);
+	GLE_DEBUG_MEMBER(GUI::Input::C_Slider<float>, float, _angleYDeg);
 
 	glm::mat4 _viewMatrix;
 	glm::mat4 _projectionMatrix;
 
 	float m_ControlSpeed;
 };
-}}}
+}}

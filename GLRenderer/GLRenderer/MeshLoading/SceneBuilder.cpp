@@ -2,7 +2,7 @@
 
 #include <GLRenderer/MeshLoading/SceneBuilder.h>
 
-#include <GLRenderer/MeshLoading/Scene.h>
+#include <Renderer/Mesh/Scene.h>
 #include <GLRenderer/MeshLoading/SceneLoader.h>
 
 #include <GLRenderer/Mesh/StaticMeshResource.h>
@@ -36,7 +36,7 @@ C_SceneBuilder::C_SceneBuilder()
 	m_nullTexture = std::make_shared<Textures::C_Texture>();
 	m_nullTexture->StartGroupOp();
 	m_nullTexture->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-	m_nullTexture->SetWrap(GL_REPEAT, GL_REPEAT);
+	m_nullTexture->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
 	GLubyte data[] = { 0, 0, 0, 255 };
 	glTexImage2D(m_nullTexture->GetTarget(), 0, GL_RGBA, 1, 1, 0, GL_RGBA, T_TypeToGL<GLubyte>::value, data);
 	m_nullTexture->SetDimensions({ 1,1 });
@@ -194,22 +194,13 @@ std::shared_ptr<I_RenderNode> C_SceneBuilder::LoadMesh(const Mesh& mesh)
 */
 
 //=================================================================================
-std::shared_ptr<Textures::C_Texture> C_SceneBuilder::LoadTexture(const Texture & texture) const
+std::shared_ptr<Textures::C_Texture> C_SceneBuilder::LoadTexture(const Renderer::MeshData::Texture & texture) const
 {
 	auto tex = std::make_shared<Textures::C_Texture>(texture.m_name);
 	tex->StartGroupOp();
-	glTexImage2D(tex->GetTarget(),
-		0,
-		GL_RGB,
-		(GLsizei)texture.width,
-		(GLsizei)texture.height,
-		0,
-		GL_RGBA,
-		T_TypeToGL<decltype(texture.data)::element_type>::value,
-		texture.data.get());
-	tex->SetDimensions({ texture.width, texture.height });
+	tex->SetTexData2D(0, texture);
 //	ErrorCheck();
-	tex->SetWrap(GL_REPEAT, GL_REPEAT);
+	tex->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
 	tex->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 	tex->GenerateMipMaps();
 //	ErrorCheck();
@@ -222,7 +213,7 @@ std::shared_ptr<Textures::C_Texture> C_SceneBuilder::LoadTexture(const Texture &
 //=================================================================================
 glm::vec3 C_SceneBuilder::ReadPositionNode(const pugi::xml_node& node) const noexcept
 {
-	assert(!strcmp(node.name(), "position"));
+	GLE_ASSERT(!strcmp(node.name(), "position"), "There should go only nodes with position");
 	return glm::vec3(node.attribute("x").as_double(0.0f), node.attribute("y").as_double(0.0f), node.attribute("z").as_double(0.0f));
 }
 

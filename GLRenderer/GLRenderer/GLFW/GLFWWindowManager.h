@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/CoreMacros.h>
+#include <GLRenderer/GLRendererApi.h>
 
 #include <Core/IWindowManager.h>
 #include <GLRenderer/GLFW/GLFWWindow.h>
@@ -21,7 +21,7 @@ public:
 	virtual std::shared_ptr<Core::I_Window> GetWindow(GUID guid) const override;
 	virtual void Update() override;
 	virtual unsigned int NumWindows() const override;
-
+	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetActiveRenderer() const override;
 
 	//=================================================================================
 	// Core::C_Layer
@@ -33,7 +33,8 @@ protected:
 
 private:
 	std::vector<std::shared_ptr<Core::I_Window>> m_Windows;
+	std::shared_ptr<Core::I_Window> m_UpdatingWindow;
 };
 
-API_EXPORT Core::I_WindowManager* ConstructGLFWManager(Core::C_Application::EventCallbackFn eventCallback);
+GL_RENDERER_API_EXPORT C_GLFWWindowManager* ConstructGLFWManager(Core::C_Application::EventCallbackFn eventCallback);
 }}}

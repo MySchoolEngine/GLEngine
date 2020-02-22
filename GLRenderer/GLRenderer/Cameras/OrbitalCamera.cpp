@@ -28,9 +28,11 @@ namespace Cameras {
 //=================================================================================
 C_OrbitalCamera::C_OrbitalCamera()
 	: m_ControlSpeed(0.5f)
+	, GLE_DEBUG_MEMBER_CTOR_LIST((0.0f, -89.0f, 89.0f, "Y angle:"), (0.0f), _angleYDeg)
+	, GLE_DEBUG_MEMBER_CTOR_LIST((0.0f, 0, 360.f, "X angle:"), (0.0f), _angleXDeg)
+	, GLE_DEBUG_MEMBER_CTOR_LIST((0.0f, 0.1f, 50.f, "Zoom:"), (0.0f), _zoom)
 {
 	_pos = _view = _up = _left = glm::vec3(0);
-	_zoom = _angleXDeg = _angleYDeg = 0.0f;
 }
 
 //=================================================================================
@@ -57,7 +59,7 @@ void C_OrbitalCamera::adjustOrientation(float dx, float dy)
 {
 	_angleXDeg += dx;
 	_angleYDeg += dy;
-	_angleYDeg = glm::max(glm::min(_angleYDeg, 89.0f), -89.0f);
+	_angleYDeg = glm::max(glm::min(static_cast<float>(_angleYDeg), 89.0f), -89.0f);
 }
 
 //=================================================================================
@@ -82,8 +84,8 @@ void C_OrbitalCamera::DebugDraw()
 //=================================================================================
 void C_OrbitalCamera::Update()
 {
-	float radx = glm::radians(_angleXDeg);
-	float rady = glm::radians(_angleYDeg);
+	float radx = glm::radians(static_cast<float>(_angleXDeg));
+	float rady = glm::radians(static_cast<float>(_angleYDeg));
 
 	float x = _zoom * cos(rady) * cos(radx);
 	float y = _zoom * sin(rady);
@@ -123,11 +125,13 @@ void C_OrbitalCamera::OnEvent(Core::I_Event& event)
 //=================================================================================
 void C_OrbitalCamera::DebugDrawGUI()
 {
+#ifdef GL_ENGINE_DEBUG
 	if (::ImGui::CollapsingHeader("Orbital camera")) {
-		::ImGui::SliderFloat("Y angle:", &_angleYDeg, -89.0f, 89.0f);
-		::ImGui::SliderFloat("X angle:", &_angleXDeg, 0, 360.f);
-		::ImGui::SliderFloat("Zoom:", &_zoom, 0.1f, 50.f);
+		_angleYDeg.Draw();
+		_angleXDeg.Draw();
+		_zoom.Draw();
 	}
+#endif
 }
 
 //=================================================================================

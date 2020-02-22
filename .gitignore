@@ -11,6 +11,7 @@
 *.sln.docstates
 
 /OtherProjects/*
+vendor/projects/DevIL/bin-int/*
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

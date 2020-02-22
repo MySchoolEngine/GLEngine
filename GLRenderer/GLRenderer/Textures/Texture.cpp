@@ -2,7 +2,7 @@
 
 #include <GLRenderer/Textures/Texture.h>
 
-#include <GLRenderer/MeshLoading/Scene.h>
+#include <Renderer/Mesh/Scene.h>
 
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 
@@ -61,11 +61,21 @@ void C_Texture::unbind() const
 }
 
 //=================================================================================
-void C_Texture::SetWrap(GLint wrapS, GLint wrapT)
+void C_Texture::SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT)
 {
 	bind();
-	SetTexParameter(GL_TEXTURE_WRAP_S, wrapS);
-	SetTexParameter(GL_TEXTURE_WRAP_T, wrapT);
+	SetTexParameter(GL_TEXTURE_WRAP_S, WrapFunctionToEnum(wrapS));
+	SetTexParameter(GL_TEXTURE_WRAP_T, WrapFunctionToEnum(wrapT));
+	unbind();
+}
+
+//=================================================================================
+void C_Texture::SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT, E_WrapFunction wrapR)
+{
+	bind();
+	SetTexParameter(GL_TEXTURE_WRAP_S, WrapFunctionToEnum(wrapS));
+	SetTexParameter(GL_TEXTURE_WRAP_T, WrapFunctionToEnum(wrapT));
+	SetTexParameter(GL_TEXTURE_WRAP_R, WrapFunctionToEnum(wrapR));
 	unbind();
 }
 
@@ -75,6 +85,7 @@ void C_Texture::SetFilter(GLint min, GLint mag)
 	bind();
 	SetTexParameter(GL_TEXTURE_MIN_FILTER, min);
 	SetTexParameter(GL_TEXTURE_MAG_FILTER, mag);
+	unbind();
 }
 
 //=================================================================================
@@ -102,7 +113,7 @@ void C_Texture::GenerateMipMaps()
 }
 
 //=================================================================================
-void C_Texture::SetTexData2D(int level, const Mesh::Texture& tex)
+void C_Texture::SetTexData2D(int level, const Renderer::MeshData::Texture& tex)
 {
 	SetDimensions({ tex.width, tex.height });
 	glTexImage2D(m_target,

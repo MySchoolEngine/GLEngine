@@ -6,46 +6,35 @@
 namespace GLEngine {
 namespace GLRenderer {
 namespace Shaders {
-//=================================================================================
-const std::regex C_ShaderCompiler::s_reg = std::regex(R"(^(.+\/)*(.+)\.(.+)$)");
 
 //=================================================================================
-bool C_ShaderCompiler::compileShader(GLuint& shader, const char* filepath, const GLenum shaderType, std::string& errorLog)
+bool C_ShaderCompiler::compileShader(GLuint& shader, const std::filesystem::path& filepath, const GLenum shaderType)
 {
 	shader = glCreateShader(shaderType);
 	if (shader == 0)
 	{
-		errorLog = "glCreateShader failed\n";
+		CORE_LOG(E_Level::Error, E_Context::Render, "glCreateShader failed!");
 		return false;
 	}
 
 	std::string src;
-
-
 	if (!_loadFile(filepath, src))
 	{
-		std::stringstream sstr;
-		sstr << "Failed to open shader file: " << std::string(filepath) << std::endl;
-		errorLog = sstr.str();
+		CORE_LOG(E_Level::Error, E_Context::Render, "Failed to open shader file: {}", filepath.generic_string());
 		return false;
 	}
 
-	std::smatch m;
-
-	std::string filestr(filepath);
-
-	try
+	C_ShaderPreprocessor preproces;
+	src = preproces.PreprocessFile(src, filepath.parent_path().generic_string() + "/");
+	if (!preproces.WasSuccessful())
 	{
-		if (std::regex_search(filestr, m, s_reg)) {
-			C_ShaderPreprocessor preproces;
-			src = preproces.PreprocessFile(src, m[1].str());
-		}
+		CORE_LOG(E_Level::Error, E_Context::Render, "Preprocessing of file '{}' was unsuccessful", filepath.generic_string());
+		return false;
+	}
 
-	}
-	catch (std::exception& e)
-	{
-		errorLog += e.what();
-	}
+	auto paths = preproces.GetTouchedPaths();
+	m_TouchedFiles.insert(m_TouchedFiles.end(), paths.begin(), paths.end());
+	m_TouchedFiles.emplace_back(filepath);
 
 	const char* cstr = src.c_str();
 	glShaderSource(shader, 1, &cstr, NULL);
@@ -64,7 +53,7 @@ bool C_ShaderCompiler::compileShader(GLuint& shader, const char* filepath, const
 			char* log = new char[loglen];
 
 			glGetShaderInfoLog(shader, loglen, nullptr, log);
-			errorLog.append(log);
+			CORE_LOG(E_Level::Error, E_Context::Render, log);
 
 			delete[] log;
 		}
@@ -76,13 +65,13 @@ bool C_ShaderCompiler::compileShader(GLuint& shader, const char* filepath, const
 }
 
 //=================================================================================
-bool C_ShaderCompiler::linkProgram(GLuint& program, std::string& errorLog, size_t count, ...)
+bool C_ShaderCompiler::linkProgram(GLuint& program, size_t count, ...)
 {
 	program = glCreateProgram();
 
 	if (program == 0)
 	{
-		errorLog = "glCreateProgram failed!\n";
+		CORE_LOG(E_Level::Error, E_Context::Render, "glCreateProgram failed!");
 		return false;
 	}
 
@@ -110,7 +99,7 @@ bool C_ShaderCompiler::linkProgram(GLuint& program, std::string& errorLog, size_
 			char* log = new char[loglen];
 
 			glGetProgramInfoLog(program, loglen, nullptr, log);
-			errorLog.assign(log);
+			CORE_LOG(E_Level::Error, E_Context::Render, log);
 
 			delete[] log;
 		}
@@ -122,20 +111,19 @@ bool C_ShaderCompiler::linkProgram(GLuint& program, std::string& errorLog, size_
 }
 
 //=================================================================================
-bool C_ShaderCompiler::linkProgram(GLuint & program, std::string & errorLog, const std::vector<GLuint>& shaders)
+bool C_ShaderCompiler::linkProgram(GLuint & program, const std::vector<GLuint>& shaders)
 {
 	program = glCreateProgram();
 
 	if (program == 0)
 	{
-		errorLog = "glCreateProgram failed!\n";
+		CORE_LOG(E_Level::Error, E_Context::Render, "glCreateProgram failed!");
 		return false;
 	}
 
 	for (auto & shader : shaders)
 	{
 		glAttachShader(program, shader);
-		//ErrorCheck();
 	}
 
 	glLinkProgram(program);
@@ -154,7 +142,7 @@ bool C_ShaderCompiler::linkProgram(GLuint & program, std::string & errorLog, con
 			char* log = new char[loglen];
 
 			glGetProgramInfoLog(program, loglen, nullptr, log);
-			errorLog.assign(log);
+			CORE_LOG(E_Level::Error, E_Context::Render, log);
 
 			delete[] log;
 		}
@@ -166,7 +154,19 @@ bool C_ShaderCompiler::linkProgram(GLuint & program, std::string & errorLog, con
 }
 
 //=================================================================================
-bool C_ShaderCompiler::_loadFile(const char* file, std::string& content)
+void C_ShaderCompiler::Reset()
+{
+	m_TouchedFiles.clear();
+}
+
+//=================================================================================
+C_ShaderCompiler::T_Paths C_ShaderCompiler::GetTouchedFiles() const
+{
+	return m_TouchedFiles;
+}
+
+//=================================================================================
+bool C_ShaderCompiler::_loadFile(const std::filesystem::path& file, std::string& content)
 {
 	std::ifstream stream(file);
 

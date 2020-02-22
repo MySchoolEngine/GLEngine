@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Core/CoreApi.h>
+
 #include <Core/EventSystem/Layer.h>
 #include <Core/Application.h>
 
@@ -23,17 +25,18 @@ public:
 };
 
 //=================================================================================
-class API_EXPORT I_WindowManager : public C_Layer {
+class I_WindowManager : public C_Layer {
 public:
-	I_WindowManager(C_Application::EventCallbackFn callback);
-	virtual ~I_WindowManager();
+  CORE_API_EXPORT I_WindowManager(C_Application::EventCallbackFn callback);
+	CORE_API_EXPORT virtual ~I_WindowManager();
 	virtual std::shared_ptr<I_Window> OpenNewWindow(const S_WindowInfo& info) = 0;
 	virtual std::shared_ptr<I_Window> GetWindow(GUID guid) const = 0;
-	virtual void AddWindowFactory(I_WindowFactory* wf);
+	CORE_API_EXPORT virtual void AddWindowFactory(I_WindowFactory* wf);
 	virtual void Update() = 0;
 	virtual unsigned int NumWindows() const = 0;
+	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetActiveRenderer() const = 0;
 protected:
-	std::shared_ptr<I_Window> ConstructWindow(const S_WindowInfo& info) const;
+	CORE_API_EXPORT std::shared_ptr<I_Window> ConstructWindow(const S_WindowInfo& info) const;
 
 #pragma warning(push)
 #pragma warning( disable : 4251)
