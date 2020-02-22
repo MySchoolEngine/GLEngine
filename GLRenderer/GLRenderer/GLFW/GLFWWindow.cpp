@@ -67,7 +67,22 @@ bool C_GLFWWindow::WantClose() const
 //=================================================================================
 void C_GLFWWindow::Init(const Core::S_WindowInfo& wndInfo)
 {
-	m_Window = glfwCreateWindow(wndInfo.m_width, wndInfo.m_height, wndInfo.m_name.c_str(), nullptr, nullptr);
+	auto height	= static_cast<int>(wndInfo.m_height);
+	auto width	= static_cast<int>(wndInfo.m_width);
+	GLFWmonitor* primary = glfwGetPrimaryMonitor();
+
+	if (wndInfo.m_Maximalize)
+	{
+		int xpos, ypos;
+		glfwGetMonitorWorkarea(primary, &xpos, &ypos, &width, &height);
+	}
+
+	if (!wndInfo.m_Fullscreen)
+	{
+		primary = nullptr;
+	}
+
+	m_Window = glfwCreateWindow(width, height, wndInfo.m_name.c_str(), primary, nullptr);
 
 	if (!m_Window)
 	{
