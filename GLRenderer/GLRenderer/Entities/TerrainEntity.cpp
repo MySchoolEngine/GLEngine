@@ -55,10 +55,7 @@ void C_TerrainEntity::Update()
 		m_CurrentIteration++;
 		if (m_CurrentIteration >= m_Iterations) {
 			m_SimulationRunning = false;
-			
-			std::cout << "Generation took " << m_timer.getElapsedTimeFromLastQueryMilliseconds() / 1000.0 << "s and"
-				<< m_Iterations*m_Settings.m_Drops << "have been dropped\n";
-			//CORE_LOG(E_Level::Error, E_Context::Render, "Generation took: {}s dropl", m_timer.getElapsedTimeFromLastQueryMilliseconds() / 1000.0);
+			CORE_LOG(E_Level::Info, E_Context::Render, "Generation took: {}s and {} have been dropped", m_timer.getElapsedTimeFromLastQueryMilliseconds() / 1000.0, m_Iterations * m_Settings.m_Drops);
 		}
 	}
 
