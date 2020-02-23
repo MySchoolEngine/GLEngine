@@ -25,7 +25,7 @@ public:
 	virtual T_ComponentPtr GetComponent(Entity::E_ComponentType type) const override;
 	virtual void OnEvent(Core::I_Event& event) override;
 
-	void Update();
+	virtual void Update() override;
 
 	void AddPatch(T_TerrainPtr);
 	void AddPatch(glm::ivec2 coord);
@@ -50,7 +50,7 @@ public:
 protected:
 	std::vector<T_TerrainPtr>	m_Patches;
 
-	int m_inputCoords[2];
+	glm::ivec2 m_InputCoords;
 	bool m_SimulationRunning;
 	GUI::Input::C_Slider<int>  m_Iterations {1000, 1, 1000000, "Iterations"};
 	int  m_CurrentIteration;

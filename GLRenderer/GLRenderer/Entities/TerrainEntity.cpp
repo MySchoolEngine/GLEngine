@@ -20,6 +20,7 @@ C_TerrainEntity::C_TerrainEntity(const std::string& name)
 {
 	Visualise.SetName("Visualization");
 	DebugDrawDroplets.SetName("Debug draw");
+	m_InputCoords = { 0,0 };
 	m_inputCoords[0] = 0;
 	m_inputCoords[1] = 0;
 }
@@ -84,28 +85,18 @@ void C_TerrainEntity::AddPatch(glm::ivec2 coord)
 //=================================================================================
 void C_TerrainEntity::DrawControls()
 {
+
+	if (DebugDrawDroplets) {
+		WholeTerrain([&](T_TerrainPtr terrain) {
+			terrain->DebugDraw();
+			});
+	}
+
 	if (Controls) {
 		::ImGui::Begin("Terrain controls", &Controls, ImGuiWindowFlags_MenuBar);
-			if (::ImGui::BeginMenuBar())
-			{
-				if (::ImGui::BeginMenu("File"))
-				{
-					if (::ImGui::MenuItem("Open..", "Ctrl+O")) { /* Do stuff */ }
-					if (::ImGui::MenuItem("Save", "Ctrl+S")) { /* Do stuff */ }
-					::ImGui::EndMenu();
-				}
-				::ImGui::EndMenuBar();
-			}
-
 			m_Settings.PerlinNoise.Draw();
 			Visualise.Draw();
 			DebugDrawDroplets.Draw();
-
-			if (DebugDrawDroplets) {
-				WholeTerrain([&](T_TerrainPtr terrain) {
-					terrain->DebugDraw();
-				});
-			}
 
 			m_Settings.m_SqPerLine.Draw();
 			m_Settings.m_Freq.Draw();
@@ -163,11 +154,10 @@ void C_TerrainEntity::DrawControls()
 
 			::ImGui::Text("Spawning new tiles");
 
-			int* arr[] = { &m_inputCoords[0],&m_inputCoords[1] };
-			::ImGui::SliderInt("X", &(m_inputCoords[0]), -10, 10);
-			::ImGui::SliderInt("Y", &(m_inputCoords[1]), -10, 10);
+			::ImGui::SliderInt("X", &(m_InputCoords.x), -10, 10);
+			::ImGui::SliderInt("Y", &(m_InputCoords.y), -10, 10);
 			if (::ImGui::Button("Create")) {
-				AddPatch({ m_inputCoords[0],m_inputCoords[1] });
+				AddPatch(m_InputCoords);
 			}
 
 			ImGui::TextColored(ImVec4(1, 1, 0, 1), "Select tiles");
