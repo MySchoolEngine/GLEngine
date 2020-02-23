@@ -88,7 +88,7 @@ void C_TerrainEntity::DrawControls()
 	}
 
 	if (Controls) {
-		::ImGui::Begin("Terrain controls", &Controls, ImGuiWindowFlags_MenuBar);
+		::ImGui::Begin("Terrain controls", &Controls);
 			m_Settings.PerlinNoise.Draw();
 			Visualise.Draw();
 			DebugDrawDroplets.Draw();
