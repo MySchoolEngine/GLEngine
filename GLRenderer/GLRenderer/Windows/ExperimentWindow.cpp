@@ -188,8 +188,6 @@ void C_ExplerimentWindow::Update()
 
 	// ----- Frame init -------
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
-	auto basicProgram = shmgr.GetProgram("basic");
-	shmgr.ActivateShader(basicProgram);
 
 	// ----- Frame init -------
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
