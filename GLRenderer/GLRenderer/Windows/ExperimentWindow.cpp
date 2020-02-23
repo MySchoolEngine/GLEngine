@@ -241,7 +241,7 @@ void C_ExplerimentWindow::Update()
 					shmgr.ActivateShader(shader);
 					shader->SetUniform("gamma", m_GammaSlider.GetValue());
 					shader->SetUniform("exposure", m_ExposureSlider.GetValue());
-					shader->BindSampler(*(HDRTexture.get()), 0);
+					shader->SetUniform("hdrBuffer", 0);
 				}
 			)
 		)
