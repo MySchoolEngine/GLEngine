@@ -156,29 +156,36 @@ void C_ExplerimentWindow::Update()
 			m_Spawning = false;
 			auto Terrain = std::make_shared<C_TerrainEntity>(m_SpawningName);
 			m_World->AddEntity(Terrain); 
-			
-			Textures::TextureLoader tl;
-			Renderer::MeshData::Texture t;
-			bool retval = tl.loadTexture(m_SpawningFilename, t);
-			if (retval) {
-				Textures::C_Texture ct(m_SpawningFilename);
 
-				ct.StartGroupOp();
-				ct.SetTexData2D(0, t);
-				ct.SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
-				ct.SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-				ct.GenerateMipMaps();
-
-				ct.EndGroupOp();
-
-				auto patch = std::make_shared<Components::C_TerrainMesh>(std::move(ct));
-				Terrain->AddPatch(patch);
-				patch->SetCoord({ 0,0 });
-
-			}
-			else {
-				CORE_LOG(E_Level::Error, E_Context::Entity, "Given texture {} doesn't exists", m_SpawningFilename);
+			if (std::string_view(m_SpawningFilename).empty())
+			{
 				Terrain->AddPatch(glm::ivec2(0, 0));
+			}
+			else
+			{
+				Textures::TextureLoader tl;
+				Renderer::MeshData::Texture t;
+				bool retval = tl.loadTexture(m_SpawningFilename, t);
+				if (retval) {
+					Textures::C_Texture ct(m_SpawningFilename);
+
+					ct.StartGroupOp();
+					ct.SetTexData2D(0, t);
+					ct.SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
+					ct.SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+					ct.GenerateMipMaps();
+
+					ct.EndGroupOp();
+
+					auto patch = std::make_shared<Components::C_TerrainMesh>(std::move(ct));
+					Terrain->AddPatch(patch);
+					patch->SetCoord({ 0,0 });
+
+				}
+				else {
+					CORE_LOG(E_Level::Error, E_Context::Entity, "Given texture {} doesn't exists", m_SpawningFilename);
+					Terrain->AddPatch(glm::ivec2(0, 0));
+				}
 			}
 		}
 
