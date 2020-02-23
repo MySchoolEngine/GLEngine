@@ -21,8 +21,6 @@ C_TerrainEntity::C_TerrainEntity(const std::string& name)
 	Visualise.SetName("Visualization");
 	DebugDrawDroplets.SetName("Debug draw");
 	m_InputCoords = { 0,0 };
-	m_inputCoords[0] = 0;
-	m_inputCoords[1] = 0;
 }
 
 //=================================================================================
