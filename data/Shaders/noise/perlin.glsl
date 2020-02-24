@@ -1,7 +1,7 @@
 #version 430
 
 layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
-layout (binding = 0, rgba32f) writeonly uniform image2D perlinNoise;
+layout (binding = 0, r32f) writeonly uniform image2DArray perlinNoise;
 
 uniform int patchWidth;
 #define PI 3.14159265358979323846
@@ -53,7 +53,7 @@ void main()
 {
 	uint posX = gl_GlobalInvocationID.x;
 	uint posY = gl_GlobalInvocationID.y;
-    ivec2 coord = ivec2(posX, posY);
+    ivec3 coord = ivec3(posX, posY, 0);
     float val = 0;
     if(usePerlin){
         val = frequency*pNoise(unicoord + vec2(posX, posY), 6);
@@ -62,5 +62,5 @@ void main()
         val = noise(unicoord + vec2(posX, posY), frequency);
     }
 
-	imageStore(perlinNoise, coord, vec4(val, 0, 0, 1));
+	imageStore(perlinNoise, coord, vec4(val, 0, 0, 0));
 }   

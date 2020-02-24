@@ -8,11 +8,11 @@ in vec3 normal;
 
 //per model
 uniform mat4 modelMatrix;
-uniform sampler2D tex;
+uniform sampler2DArray tex;
 uniform float sqPerLine;
 uniform float patchSize;
 
-out vec2 uv;
+out vec3 uv;
 
 //terrain uniforms
 // uniform int width;
@@ -24,7 +24,7 @@ out vec2 uv;
 //=================================================================================
 void main()
 {
-	vec2 planear;
+	vec3 planear;
 	float sqSize = 1 / float(sqPerLine);
 
 
@@ -64,11 +64,13 @@ void main()
 	planear.x += sqSize*sqInLine;
 	planear.y += sqSize*line;
 
+	planear.z = 0;
+
 	vec4 height = texture(tex, planear);
 	uv = planear;
 	planear*=patchSize;
 
-	vec4 vertexPosition = vec4(planear.x, height.r, planear.y, 1);
+	vec4 vertexPosition = vec4(planear.x, height.x, planear.y, 1);
 
     gl_Position = frame.viewProjectionMatrix * modelMatrix * vertexPosition;
 }

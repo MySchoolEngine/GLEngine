@@ -32,29 +32,46 @@ namespace Components {
 //=================================================================================
 C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 	: Renderer::I_RenderableComponent(nullptr)
-	, m_Noise("TerrainNoise")
+	, m_Noise("TerrainNoise", GL_TEXTURE_2D_ARRAY)
 	, m_Coord(0, 0)
 	, m_Stats(3)
 	, m_RainData(std::make_shared<decltype(m_RainData)::element_type>("rainData", 1, dim))
-	, m_HasTexture(false)
+	, m_HasTexture(false, "Use texture")
 	, m_QueuedUpdate(false)
 	, m_QueueSimulation(false)
 	, m_Selected(false)
 {
 
 	m_Terrain = std::make_shared<Mesh::C_TerrainMeshResource>();
-	m_Noise.StartGroupOp();
-	m_Noise.SetWrap(E_WrapFunction::ClampToEdge, E_WrapFunction::ClampToEdge);
-	m_Noise.SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
-	glTexImage2D(m_Noise.GetTarget(), 0, GL_RGBA32F, dim, dim, 0, GL_RGBA, GL_FLOAT, nullptr);
-	m_Noise.SetDimensions({ dim,dim });
-	m_Noise.GenerateMipMaps();
-	m_Noise.EndGroupOp();
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+		std::move(
+			std::make_unique<Commands::HACK::C_LambdaCommand>(
+				[&]() {
+					ErrorCheck();
+					m_Noise.StartGroupOp();
+					// 0 layer - height
+					// 2 layer - amount of water
+					ErrorCheck();
+					glTexStorage3D(m_Noise.GetTarget(), 3, GL_R32F, dim, dim, 3);
+					ErrorCheck();
+					m_Noise.SetWrap(E_WrapFunction::ClampToEdge, E_WrapFunction::ClampToEdge);
+					ErrorCheck();
+					m_Noise.SetFilter(GL_LINEAR, GL_LINEAR);
+					ErrorCheck();
+
+					ErrorCheck();
+					m_Noise.SetDimensions({ dim,dim });
+					m_Noise.GenerateMipMaps();
+					m_Noise.EndGroupOp();
+					ErrorCheck();
+				}
+			)
+		)
+	);
 
 	SetSettings(settings);
 
 	m_RainData->GenerateDrops();
-	m_HasTexture.SetName("Use texture");
 
 	GenerateTerrain();
 
@@ -68,7 +85,7 @@ C_TerrainMesh::C_TerrainMesh(Textures::C_Texture&& texture)
 	, m_Coord(0, 0)
 	, m_Stats(3)
 	, m_RainData(std::make_shared<decltype(m_RainData)::element_type>("rainData", 1, dim))
-	, m_HasTexture(false)
+	, m_HasTexture(false, "Use texture")
 	, m_QueuedUpdate(false)
 	, m_QueueSimulation(false)
 	, m_Selected(false)
@@ -100,11 +117,12 @@ void C_TerrainMesh::PerformDraw() const
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {
+					ErrorCheck();
 					auto& shmgr = Shaders::C_ShaderManager::Instance();
 					auto shader = shmgr.GetProgram("terrain");
 					shmgr.ActivateShader(shader);
 					shader->SetUniform("patchSize", static_cast<float>(m_Settings->m_PatchSize));
-					shader->BindSampler(m_Noise, 0);
+					shader->SetUniform("tex", 0);
 					shader->SetUniform("sqPerLine", static_cast<float>(m_Settings->m_SqPerLine));
 					shader->SetUniform("modelMatrix", GetModelMatrix());
 					shader->SetUniform("modelColor", glm::vec4(0.3f, 1.0f, 0.4, 0.0f));
@@ -114,6 +132,7 @@ void C_TerrainMesh::PerformDraw() const
 					m_Terrain->BindVAO();
 					glDrawArrays(GL_TRIANGLES, 0, 6* m_Settings->m_SqPerLine*m_Settings->m_SqPerLine);
 					m_Terrain->UnbindVAO();
+					ErrorCheck();
 				}
 			)
 		)
@@ -126,11 +145,12 @@ void C_TerrainMesh::PerformDraw() const
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {
+					ErrorCheck();
 					auto& shmgr = Shaders::C_ShaderManager::Instance();
 					auto shader = shmgr.GetProgram("terrain-rim");
 					shmgr.ActivateShader(shader);
 					shader->SetUniform("patchSize", static_cast<float>(m_Settings->m_PatchSize));
-					shader->BindSampler(m_Noise, 0);
+					shader->SetUniform("tex", 0);
 					shader->SetUniform("sqPerLine", static_cast<int>(m_Settings->m_SqPerLine));
 					shader->SetUniform("modelMatrix", GetModelMatrix());
 					shader->SetUniform("modelColor", glm::vec4(0.3f, 1.0f, 0.4, 0.0f));
@@ -138,6 +158,9 @@ void C_TerrainMesh::PerformDraw() const
 					m_Terrain->BindVAO();
 					glDrawArrays(GL_TRIANGLES, 0, 6 * m_Settings->m_SqPerLine *4);
 					m_Terrain->UnbindVAO();
+
+					m_Noise.GenerateMipMaps();
+					ErrorCheck();
 				}
 			)
 		)
@@ -203,12 +226,14 @@ void C_TerrainMesh::GenerateTerrain()
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {
+					ErrorCheck();
 					auto& shmgr = Shaders::C_ShaderManager::Instance();
 					shmgr.ActivateShader(shmgr.GetProgram("noise"));
 					shmgr.GetProgram("noise")->SetUniform("frequency", static_cast<int>(m_Settings->m_Freq));
 					shmgr.GetProgram("noise")->SetUniform("unicoord", (m_Coord*(dim-1)));
 					shmgr.GetProgram("noise")->SetUniform("patchWidth", dim);
 					shmgr.GetProgram("noise")->SetUniform("usePerlin", static_cast<bool>(m_Settings->PerlinNoise));
+					ErrorCheck();
 				}
 			)
 		)

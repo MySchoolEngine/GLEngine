@@ -1,13 +1,12 @@
 #version 430
 
 //per mesh
-layout (binding = 0) uniform sampler2D tex;
+layout (binding = 0) uniform sampler2DArray tex;
 uniform vec4 modelColor;
 uniform bool hasTexture;
 uniform bool selected;
 
-in vec2 uv;
-
+in vec3 uv;
 
 out vec4 fragColor;
 

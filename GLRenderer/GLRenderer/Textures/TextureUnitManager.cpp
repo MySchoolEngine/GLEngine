@@ -116,7 +116,7 @@ void C_TextureUnitManger::BindImageToUnit(const C_Texture& image, unsigned int u
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&image, unit, accessRights]() {
-					glBindImageTexture(unit, image.GetTexture(), 0, GL_FALSE, 0, accessRights, GL_RGBA32F);
+					glBindImageTexture(unit, image.GetTexture(), 0, GL_TRUE, 0, accessRights, GL_R32F);
 				}
 			)
 		)
