@@ -327,7 +327,6 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 {
 	{
 		using namespace Commands;
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		m_renderer->AddCommand(
 			std::move(
 				std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::DEPTH_TEST)
