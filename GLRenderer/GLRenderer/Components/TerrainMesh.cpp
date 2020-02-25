@@ -64,7 +64,7 @@ C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 					m_Noise.GenerateMipMaps();
 					m_Noise.EndGroupOp();
 					ErrorCheck();
-				}
+				}, "Terrain - texture commands"
 			)
 		)
 	);
@@ -133,7 +133,7 @@ void C_TerrainMesh::PerformDraw() const
 					glDrawArrays(GL_TRIANGLES, 0, 6* m_Settings->m_SqPerLine*m_Settings->m_SqPerLine);
 					m_Terrain->UnbindVAO();
 					ErrorCheck();
-				}
+				}, "Terrain - draw"
 			)
 		)
 	);
@@ -161,7 +161,7 @@ void C_TerrainMesh::PerformDraw() const
 
 					m_Noise.GenerateMipMaps();
 					ErrorCheck();
-				}
+				}, "Terrain - terrain-rim"
 			)
 		)
 	);
@@ -174,7 +174,7 @@ void C_TerrainMesh::PerformDraw() const
 					[&]() {
 						auto& dd = C_DebugDraw::Instance();
 						dd.DrawAABB(m_AABB,glm::vec3(1.0f,0.0f,0.0f),GetModelMatrix());
-					}
+					}, "Terrain - Draw AABB"
 				)
 			)
 		);
@@ -213,7 +213,7 @@ void C_TerrainMesh::UpdateStats()
 				
 					m_AABB.Add(glm::vec3(0.0f, m_Stats.min, 0.0f));
 					m_AABB.Add(glm::vec3(static_cast<float>(m_Settings->m_PatchSize), m_Stats.max, static_cast<float>(m_Settings->m_PatchSize)));
-				}
+				}, "Download stats"
 			)
 		)
 	);
@@ -234,7 +234,7 @@ void C_TerrainMesh::GenerateTerrain()
 					shmgr.GetProgram("noise")->SetUniform("patchWidth", dim);
 					shmgr.GetProgram("noise")->SetUniform("usePerlin", static_cast<bool>(m_Settings->PerlinNoise));
 					ErrorCheck();
-				}
+				}, "Prepare generation of noise"
 			)
 		)
 	);
@@ -252,7 +252,7 @@ void C_TerrainMesh::GenerateTerrain()
 					glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
 					m_Noise.GenerateMipMaps();
-				}
+				}, "Dispatch noise"
 			)
 		)
 	);
@@ -277,7 +277,7 @@ void C_TerrainMesh::CalculateStats() const
 					glDispatchCompute(1, 1, 1);
 					glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 					m_Stats.unbind();
-				}
+				}, "CalculateStats"
 			)
 		)
 	);
@@ -314,7 +314,7 @@ void C_TerrainMesh::Simulate()
 					m_RainData->Activate(false);
 					// generate new droplets
 					m_RainData->GenerateDrops();
-				}
+				}, "Simulate"
 			)
 		)
 	);

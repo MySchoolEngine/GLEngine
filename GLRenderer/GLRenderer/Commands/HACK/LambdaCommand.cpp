@@ -13,8 +13,9 @@ namespace HACK {
 
 
 //=================================================================================
-C_LambdaCommand::C_LambdaCommand(std::function<void(void)> fnc)
+C_LambdaCommand::C_LambdaCommand(std::function<void(void)> fnc, std::string name)
 	: m_fnc(fnc)
+	, m_Name(name)
 {
 
 }
