@@ -50,7 +50,7 @@ C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 					ErrorCheck();
 					m_Noise.StartGroupOp();
 					// 0 layer - height
-					// 2 layer - amount of water
+					// 1 layer - amount of water
 					ErrorCheck();
 					glTexStorage3D(m_Noise.GetTarget(), 3, GL_R32F, dim, dim, 3);
 					ErrorCheck();
@@ -337,15 +337,15 @@ void C_TerrainMesh::DebugDraw()
 	}
 
 	if (m_Selected) {
-		::ImGui::Begin("Terrain ", &m_Selected);
-			::ImGui::Image((void*)GetTexture().GetTexture(),
-			{
-				256,
-				256
-			},
-			{ 0,1 }, { 1,0 });
-			m_HasTexture.Draw();
-		::ImGui::End();
+		// ::ImGui::Begin("Terrain ", &m_Selected);
+		// 	::ImGui::Image((void*)GetTexture().GetTexture(),
+		// 	{
+		// 		256,
+		// 		256
+		// 	},
+		// 	{ 0,1 }, { 1,0 });
+		// 	m_HasTexture.Draw();
+		// ::ImGui::End();
 	}
 }
 

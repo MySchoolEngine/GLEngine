@@ -35,7 +35,7 @@ public:
 	void WholeTerrain(std::function<void(T_TerrainPtr)> lambda);
 
 	struct S_TerrainSettings {
-		GUI::Input::C_Slider<int> m_SqPerLine	{ 255, 4, 255, "Vertices" };
+		GUI::Input::C_Slider<int> m_SqPerLine	{ 255, 4, 1024, "Vertices" };
 		GUI::Input::C_Slider<int> m_Freq		{ 24, 4, 40, "Noise frequency" };
 		GUI::Input::C_Slider<int> m_Drops		{ 100, 1, 100, "# Drops" };
 		GUI::Input::C_Slider<int> m_NumSteps	{ 90, 30, 150, "Max lifetime" };
