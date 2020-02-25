@@ -7,6 +7,7 @@
 #include <GLRenderer/Commands/GLClear.h>
 #include <GLRenderer/Commands/GLViewport.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
+#include <GLRenderer/Debug.h>
 
 #include <Renderer/IRenderer.h>
 #include <Renderer/IRenderableComponent.h>
@@ -20,6 +21,9 @@ namespace GLEngine::GLRenderer {
 //=================================================================================
 C_MainPassTechnique::C_MainPassTechnique(std::shared_ptr<Entity::C_EntityManager> world)
 	: m_WorldToRender(world)
+	, m_SunX(-13.f, -20.f, 20.f, "Sun X")
+	, m_SunY(15.f, -20.f, 20.f, "Sun Y")
+	, m_SunZ(-5.f, -20.f, 20.f, "Sun Z")
 {
 	m_FrameConstUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>("frameConst");
 }
@@ -34,6 +38,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 	m_FrameConstUBO->SetView(camera->GetViewMatrix());
 	m_FrameConstUBO->SetProjection(camera->GetProjectionMatrix());
 	m_FrameConstUBO->SetCameraPosition(glm::vec4(camera->GetPosition(), 1.0f));
+	m_FrameConstUBO->SetSunPosition({ m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue() });
 
 	{
 		RenderDoc::C_DebugScope s("Window prepare");
@@ -67,6 +72,14 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 			renderable->PerformDraw();
 		}
 	}
+
+	C_DebugDraw::Instance().DrawPoint({ m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue() }, {1.f, 1.f, 0.f});
+	bool my_tool_active = true;
+	::ImGui::Begin("Sun", &my_tool_active);
+		m_SunX.Draw();
+		m_SunY.Draw();
+		m_SunZ.Draw();
+	::ImGui::End();
 }
 
 }
