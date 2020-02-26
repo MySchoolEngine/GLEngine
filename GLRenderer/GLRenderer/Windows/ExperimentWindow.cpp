@@ -263,8 +263,8 @@ void C_ExplerimentWindow::Update()
 	{
 		RenderDoc::C_DebugScope s("RendererCommit");
 		m_renderer->Commit();
+		m_renderer->ClearCommandBuffers();
 	}
-	m_renderer->ClearCommandBuffers();
 	// ----- Actual rendering --
 
 	{
@@ -272,7 +272,9 @@ void C_ExplerimentWindow::Update()
 		m_ImGUI->FrameEnd();
 	}
 
-
+	// commit of final commands - from commit few lines above
+	m_renderer->Commit();
+	m_renderer->ClearCommandBuffers();
 	glfwSwapBuffers(m_Window);
 	sampleTime(float(m_FrameTimer.getElapsedTimeFromLastQueryMilliseconds()));	
 }
