@@ -234,6 +234,8 @@ void C_TerrainMesh::GenerateTerrain()
 		)
 	);
 
+
+	RenderDoc::C_DebugScope s("NoiseCompute");
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.BindImageToUnit(m_Noise, 0, Textures::E_Access::Write);
 
@@ -241,7 +243,6 @@ void C_TerrainMesh::GenerateTerrain()
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {
-					RenderDoc::C_DebugScope s("NoiseCompute");
 
 					glDispatchCompute(dim / 16, dim / 16, 1);
 					glMemoryBarrier(GL_ALL_BARRIER_BITS);
@@ -256,7 +257,7 @@ void C_TerrainMesh::GenerateTerrain()
 //=================================================================================
 void C_TerrainMesh::CalculateStats() const
 {
-
+	RenderDoc::C_DebugScope s("Terrain stats");
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.BindImageToUnit(m_Noise, 0, Textures::E_Access::Read);
 
@@ -268,7 +269,6 @@ void C_TerrainMesh::CalculateStats() const
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {
-					RenderDoc::C_DebugScope s("Terrain stats");
 					m_Stats.bind();
 
 					glDispatchCompute(1, 1, 1);
@@ -283,6 +283,7 @@ void C_TerrainMesh::CalculateStats() const
 //=================================================================================
 void C_TerrainMesh::Simulate()
 {
+	RenderDoc::C_DebugScope s("Terrain erosion");
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.BindImageToUnit(m_Noise, 0, Textures::E_Access::ReadWrite);
 
@@ -295,7 +296,6 @@ void C_TerrainMesh::Simulate()
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[this, program]() {
-					RenderDoc::C_DebugScope s("Terrain erosion");
 					program->SetUniform("numDrops", static_cast<int>(m_Settings->m_Drops));
 					program->SetUniform("numSteps", static_cast<int>(m_Settings->m_NumSteps));
 					program->SetUniform("inertia", m_Settings->m_Inertia);
