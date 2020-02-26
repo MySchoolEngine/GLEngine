@@ -196,24 +196,18 @@ void C_ExplerimentWindow::Update()
 	// ----- Frame init -------
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 
+	shmgr.DeactivateShader();
 	// ----- Frame init -------
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
-		std::move(
-			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[&]() {
-					shmgr.DeactivateShader();
-					{
-						RenderDoc::C_DebugScope s("Persistent debug");
-						C_PersistentDebug::Instance().DrawAll();
-					}
-					{
-						RenderDoc::C_DebugScope s("Merged debug");
-						C_DebugDraw::Instance().DrawMergedGeoms();
-					}
-				}
-			)
-		)
-	);
+
+	{
+		RenderDoc::C_DebugScope s("Persistent debug");
+		C_PersistentDebug::Instance().DrawAll();
+	}
+
+	{
+		RenderDoc::C_DebugScope s("Merged debug");
+		C_DebugDraw::Instance().DrawMergedGeoms();
+	}
 
 	m_HDRFBO.Unbind<E_FramebufferTarget::Draw>();
 
@@ -238,12 +232,13 @@ void C_ExplerimentWindow::Update()
 
 	m_HDRFBO.Bind<E_FramebufferTarget::Read>();
 
+	auto shader = shmgr.GetProgram("screenQuad");
+	shmgr.ActivateShader(shader);
+
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[&]() {
-					auto shader = shmgr.GetProgram("screenQuad");
-					shmgr.ActivateShader(shader);
+				[this, shader]() {
 					shader->SetUniform("gamma", m_GammaSlider.GetValue());
 					shader->SetUniform("exposure", m_ExposureSlider.GetValue());
 					shader->SetUniform("hdrBuffer", 0);
@@ -257,16 +252,8 @@ void C_ExplerimentWindow::Update()
 			std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_ScreenQuad)
 		)
 	);
-	
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
-		std::move(
-			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[&]() {
-					shmgr.DeactivateShader();
-				}
-			)
-		)
-	);
+
+	shmgr.DeactivateShader();
 
 
 	m_HDRFBO.Unbind<E_FramebufferTarget::Read>();

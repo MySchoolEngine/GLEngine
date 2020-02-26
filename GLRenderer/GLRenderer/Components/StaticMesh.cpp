@@ -64,13 +64,13 @@ void C_StaticMesh::PerformDraw() const
 		return;
 	}
 
+	auto& shmgr = Shaders::C_ShaderManager::Instance();
+	shmgr.ActivateShader(m_Shader);
+
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 					[&]() {
-
-						auto& shmgr = Shaders::C_ShaderManager::Instance();
-						shmgr.ActivateShader(m_Shader);
 						m_Shader->SetUniform("modelMatrix", m_ModelMatrix);
 					}
 				)

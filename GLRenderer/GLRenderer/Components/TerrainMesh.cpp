@@ -113,14 +113,16 @@ void C_TerrainMesh::PerformDraw() const
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.BindTextureToUnit(m_Noise, 0);
 
+
+	auto& shmgr = Shaders::C_ShaderManager::Instance();
+	auto shader = shmgr.GetProgram("terrain");
+	shmgr.ActivateShader(shader);
+
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[&]() {
+				[this, shader]() {
 					ErrorCheck();
-					auto& shmgr = Shaders::C_ShaderManager::Instance();
-					auto shader = shmgr.GetProgram("terrain");
-					shmgr.ActivateShader(shader);
 					shader->SetUniform("patchSize", static_cast<float>(m_Settings->m_PatchSize));
 					shader->SetUniform("tex", 0);
 					shader->SetUniform("sqPerLine", static_cast<float>(m_Settings->m_SqPerLine));
@@ -141,19 +143,19 @@ void C_TerrainMesh::PerformDraw() const
 	// rim render
 	tm.BindTextureToUnit(m_Noise, 0);
 
+	auto ShaderTerrainRim = shmgr.GetProgram("terrain-rim");
+	shmgr.ActivateShader(ShaderTerrainRim);
+
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[&]() {
+				[this, ShaderTerrainRim]() {
 					ErrorCheck();
-					auto& shmgr = Shaders::C_ShaderManager::Instance();
-					auto shader = shmgr.GetProgram("terrain-rim");
-					shmgr.ActivateShader(shader);
-					shader->SetUniform("patchSize", static_cast<float>(m_Settings->m_PatchSize));
-					shader->SetUniform("tex", 0);
-					shader->SetUniform("sqPerLine", static_cast<int>(m_Settings->m_SqPerLine));
-					shader->SetUniform("modelMatrix", GetModelMatrix());
-					shader->SetUniform("modelColor", glm::vec4(0.3f, 1.0f, 0.4, 0.0f));
+					ShaderTerrainRim->SetUniform("patchSize", static_cast<float>(m_Settings->m_PatchSize));
+					ShaderTerrainRim->SetUniform("tex", 0);
+					ShaderTerrainRim->SetUniform("sqPerLine", static_cast<int>(m_Settings->m_SqPerLine));
+					ShaderTerrainRim->SetUniform("modelMatrix", GetModelMatrix());
+					ShaderTerrainRim->SetUniform("modelColor", glm::vec4(0.3f, 1.0f, 0.4, 0.0f));
 
 					m_Terrain->BindVAO();
 					glDrawArrays(GL_TRIANGLES, 0, 6 * m_Settings->m_SqPerLine *4);
@@ -168,16 +170,8 @@ void C_TerrainMesh::PerformDraw() const
 
 
 	if (m_Selected) {
-		Core::C_Application::Get().GetActiveRenderer()->AddCommand(
-			std::move(
-				std::make_unique<Commands::HACK::C_LambdaCommand>(
-					[&]() {
-						auto& dd = C_DebugDraw::Instance();
-						dd.DrawAABB(m_AABB,glm::vec3(1.0f,0.0f,0.0f),GetModelMatrix());
-					}, "Terrain - Draw AABB"
-				)
-			)
-		);
+		auto& dd = C_DebugDraw::Instance();
+		dd.DrawAABB(m_AABB, glm::vec3(1.0f, 0.0f, 0.0f), GetModelMatrix());
 	}
 
 
@@ -222,18 +216,19 @@ void C_TerrainMesh::UpdateStats()
 //=================================================================================
 void C_TerrainMesh::GenerateTerrain()
 {
+
+	auto& shmgr = Shaders::C_ShaderManager::Instance();
+	auto noiseShader = shmgr.GetProgram("noise");
+	shmgr.ActivateShader(noiseShader);
+
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[&]() {
-					ErrorCheck();
-					auto& shmgr = Shaders::C_ShaderManager::Instance();
-					shmgr.ActivateShader(shmgr.GetProgram("noise"));
-					shmgr.GetProgram("noise")->SetUniform("frequency", static_cast<int>(m_Settings->m_Freq));
-					shmgr.GetProgram("noise")->SetUniform("unicoord", (m_Coord*(dim-1)));
-					shmgr.GetProgram("noise")->SetUniform("patchWidth", dim);
-					shmgr.GetProgram("noise")->SetUniform("usePerlin", static_cast<bool>(m_Settings->PerlinNoise));
-					ErrorCheck();
+				[this, noiseShader]() {
+					noiseShader->SetUniform("frequency", static_cast<int>(m_Settings->m_Freq));
+					noiseShader->SetUniform("unicoord", (m_Coord*(dim-1)));
+					noiseShader->SetUniform("patchWidth", dim);
+					noiseShader->SetUniform("usePerlin", static_cast<bool>(m_Settings->PerlinNoise));
 				}, "Prepare generation of noise"
 			)
 		)
@@ -265,13 +260,15 @@ void C_TerrainMesh::CalculateStats() const
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.BindImageToUnit(m_Noise, 0, Textures::E_Access::Read);
 
+
+	auto& shmgr = Shaders::C_ShaderManager::Instance();
+	shmgr.ActivateShader(shmgr.GetProgram("stats"));
+
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {
 					RenderDoc::C_DebugScope s("Terrain stats");
-					auto& shmgr = Shaders::C_ShaderManager::Instance();
-					shmgr.ActivateShader(shmgr.GetProgram("stats"));
 					m_Stats.bind();
 
 					glDispatchCompute(1, 1, 1);
@@ -289,15 +286,16 @@ void C_TerrainMesh::Simulate()
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.BindImageToUnit(m_Noise, 0, Textures::E_Access::ReadWrite);
 
+	auto& shmgr = Shaders::C_ShaderManager::Instance();
+	auto program = shmgr.GetProgram("erosion");
+	if (!program) return;
+	shmgr.ActivateShader(program);
+
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[&]() {
+				[this, program]() {
 					RenderDoc::C_DebugScope s("Terrain erosion");
-					auto& shmgr = Shaders::C_ShaderManager::Instance();
-					auto program = shmgr.GetProgram("erosion");
-					if (!program) return;
-					shmgr.ActivateShader(program);
 					program->SetUniform("numDrops", static_cast<int>(m_Settings->m_Drops));
 					program->SetUniform("numSteps", static_cast<int>(m_Settings->m_NumSteps));
 					program->SetUniform("inertia", m_Settings->m_Inertia);
