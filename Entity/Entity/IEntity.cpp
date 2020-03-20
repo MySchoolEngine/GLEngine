@@ -24,6 +24,8 @@ I_Entity::~I_Entity()
 		compManager.UnregisterComonent(component.second);
 		});
 	delete m_Components;
+
+	CORE_LOG(E_Level::Info, E_Context::Entity, "Entity '{}' despawn", m_Name);
 }
 
 //=================================================================================

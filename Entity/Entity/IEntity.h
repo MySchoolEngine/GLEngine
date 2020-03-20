@@ -28,6 +28,7 @@ public:
 	using EntityID = GUID;
 	EntityID GetID() const { return m_ID; }
 	virtual T_ComponentPtr GetComponent(E_ComponentType type) const;
+	virtual glm::vec3 GetPosition() const = 0;
 	const std::string& GetName() const { return m_Name; };
 
 	virtual void Update() {};
