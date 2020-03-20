@@ -47,6 +47,9 @@ public:
 		float m_StartingSpeed	= 2.0f;
 		float m_Inertia			= 0.65f;
 	};
+
+	virtual glm::vec3 GetPosition() const override;
+
 protected:
 	std::vector<T_TerrainPtr>	m_Patches;
 
