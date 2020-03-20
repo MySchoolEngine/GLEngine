@@ -11,6 +11,7 @@ namespace Entity {
 
 enum class E_ComponentType {
 	Graphical,
+	Light,
 	Camera,
 	DebugGUI,
 };
