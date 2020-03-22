@@ -45,7 +45,7 @@ public:
 	void BindUBO(std::shared_ptr<Buffers::C_UniformBuffer>) const;
 
 #if _DEBUG
-	inline void SetName(const std::string& name) noexcept { m_name = name; }
+	void SetName(const std::string& name) noexcept;
 #else
 	inline void SetName(const std::string& name) noexcept {}
 #endif
