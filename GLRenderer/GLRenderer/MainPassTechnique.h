@@ -7,6 +7,8 @@
 
 namespace GLEngine::GLRenderer {
 
+class C_LightsBuffer;
+
 namespace Buffers::UBO {
 class C_FrameConstantsBuffer;
 }
@@ -19,6 +21,7 @@ public:
 private:
 	std::shared_ptr<Entity::C_EntityManager>								m_WorldToRender;
 	std::shared_ptr<Buffers::UBO::C_FrameConstantsBuffer>		m_FrameConstUBO;
+	std::shared_ptr<C_LightsBuffer>													m_LightsUBO;
 };
 
 }

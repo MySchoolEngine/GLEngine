@@ -8,8 +8,12 @@
 #include <GLRenderer/Commands/GLViewport.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 
+#include <GLRenderer/Lights/LightsUBO.h>
+
 #include <Renderer/IRenderer.h>
 #include <Renderer/IRenderableComponent.h>
+#include <Renderer/ILight.h>
+#include <Renderer/Lights/PointLight.h>
 
 #include <Entity/IEntity.h>
 
@@ -22,6 +26,7 @@ C_MainPassTechnique::C_MainPassTechnique(std::shared_ptr<Entity::C_EntityManager
 	: m_WorldToRender(world)
 {
 	m_FrameConstUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>("frameConst");
+	m_LightsUBO			= Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<C_LightsBuffer>("lightsUni");
 }
 
 //=================================================================================
@@ -54,12 +59,27 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {
+					RenderDoc::C_DebugScope s("UBO Upload");
 					m_FrameConstUBO->UploadData();
 					m_FrameConstUBO->Activate(true);
+					m_LightsUBO->UploadData();
+					m_LightsUBO->Activate(true);
 				}
 				)
 		)
 	);
+
+	for (auto& entity : entitiesInView)
+	{
+		if (auto light = entity->GetComponent<Entity::E_ComponentType::Light>()) {
+			const auto pointLight = std::reinterpret_pointer_cast<Renderer::I_PointLight>(light);
+			if (pointLight)
+			{
+				const auto pos = pointLight->GetPosition();
+				CORE_LOG(E_Level::Info, E_Context::Render, "Point light position: {} {} {}", pos.x, pos.y, pos.z);
+			}
+		}
+	}
 
 	for (auto& entity : entitiesInView)
 	{
