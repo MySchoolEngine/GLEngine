@@ -70,7 +70,7 @@ void C_UniformBuffersManager::ProcessUBOBindingPoints(std::shared_ptr<Shaders::C
 		}
 		auto uniformBlockIndex = program->FindUniformBlockLocation<const std::string&>(ubo->GetBlockName());
 		if (uniformBlockIndex != GL_INVALID_INDEX) {
-			glUniformBlockBinding(program->GetProgram(), uniformBlockIndex, i);
+			glUniformBlockBinding(program->GetProgram(), uniformBlockIndex, ubo->GetIndex());
 		}
 		++i;
 	}
