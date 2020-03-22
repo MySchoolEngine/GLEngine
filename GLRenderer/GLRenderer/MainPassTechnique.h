@@ -9,6 +9,8 @@
 
 namespace GLEngine::GLRenderer {
 
+class C_LightsBuffer;
+
 namespace Buffers::UBO {
 class C_FrameConstantsBuffer;
 }
@@ -24,6 +26,7 @@ private:
 	GUI::Input::C_Slider<float> m_SunX;
 	GUI::Input::C_Slider<float> m_SunY;
 	GUI::Input::C_Slider<float> m_SunZ;
+	std::shared_ptr<C_LightsBuffer>													m_LightsUBO;
 };
 
 }

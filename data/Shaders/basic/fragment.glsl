@@ -10,8 +10,15 @@ in vec4 worldCoord;
 
 out vec4 fragColor;
 
+@struct pointLight;
+
+layout (std140) uniform lightsUni
+{
+	pointLight pLight;
+};
+
 //=================================================================================
 void main()
 {
-	fragColor = texture(tex, texCoordOUT);//vec4(texCoordOUT.xy, 0.0, 0.0);//MaterialDiffuseColor;
+	fragColor = vec4(1,0,0,1) / (5* distance(pLight.position, worldCoord.xyz/worldCoord.w)); texture(tex, texCoordOUT);//vec4(texCoordOUT.xy, 0.0, 0.0);//MaterialDiffuseColor;
 }

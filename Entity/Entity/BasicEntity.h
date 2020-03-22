@@ -21,6 +21,8 @@ public:
 
 	void SetModelMatrix(glm::mat4& modelMatrix);
 
+	virtual glm::vec3 GetPosition() const override;
+
 private:
 	glm::mat4 m_ModelMatrix;
 };

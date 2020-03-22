@@ -10,13 +10,13 @@ project "Renderer"
 	PrecompiledHeaders("Renderer")
 	
 	Link("Utils")
+	Link("Entity")
 
 	includedirs
 	{
 		"../Core",
 		"../Utils",
 		"../GLRenderer",
-		"../Entity",
 		"../Physics",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmt}",

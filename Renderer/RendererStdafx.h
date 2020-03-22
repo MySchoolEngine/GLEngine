@@ -18,3 +18,5 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include <Core/CoreMacros.h>
+
+#include <Renderer/RendererApi.h>
