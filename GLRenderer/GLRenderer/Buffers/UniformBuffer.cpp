@@ -11,14 +11,12 @@ namespace Buffers {
 C_UniformBuffer::C_UniformBuffer(const std::string& blockName, unsigned int index)
 	: m_blockName(blockName)
 	, m_index(static_cast<GLuint>(index))
-{
-
-}
-
-//=================================================================================
-void C_UniformBuffer::bind() const
+	, m_active(false)
 {
 	C_GLBuffer<GL_UNIFORM_BUFFER>::bind();
+	glObjectLabel(GL_BUFFER, m_id, static_cast<GLsizei>(blockName.size()), blockName.c_str());
+	C_GLBuffer<GL_UNIFORM_BUFFER>::unbind();
+
 	glBindBufferBase(GL_UNIFORM_BUFFER, GetIndex(), m_id);
 }
 

@@ -27,8 +27,6 @@ public:
 	C_UniformBuffer(const std::string& blockName, unsigned int index);
 	virtual ~C_UniformBuffer() = default;
 
-	virtual void bind() const override;
-
 	virtual void UploadData() const = 0;
 
 	void Activate(bool activate = true);

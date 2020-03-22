@@ -86,8 +86,6 @@ C_ShaderManager::T_ShaderPtr C_ShaderManager::GetProgram(const std::string& name
 		return nullptr;
 	}
 
-	glObjectLabel(GL_PROGRAM, program, static_cast<GLsizei>(name.length()), name.c_str());
-
 	T_ShaderPtr shaderProgram = std::make_shared<C_ShaderProgram>(program);
 	shaderProgram->SetName(name);
 	shaderProgram->SetPaths(compiler.GetTouchedFiles());

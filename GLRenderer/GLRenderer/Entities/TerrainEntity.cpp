@@ -208,4 +208,10 @@ void C_TerrainEntity::WholeTerrain(std::function<void(T_TerrainPtr)> lambda)
 	std::for_each(m_Patches.begin(), m_Patches.end(), lambda);
 }
 
+//=================================================================================
+glm::vec3 C_TerrainEntity::GetPosition() const
+{
+	return glm::vec3(0.f);
+}
+
 }}
