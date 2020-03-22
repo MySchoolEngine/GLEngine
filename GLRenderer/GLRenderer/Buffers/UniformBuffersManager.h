@@ -65,16 +65,18 @@ public:
 	void ProcessUBOBindingPoints(std::shared_ptr<Shaders::C_ShaderProgram> program) const;
 private:
 	C_UniformBuffersManager();
-	std::vector<T_UBOSmartPtr> m_UBOs;
+	std::vector<T_UBOSmartPtr> m_BindingPoint;
+	int m_MaxBindingPoints;
 };
 
 //=================================================================================
 template<class T, typename ...Params>
 std::shared_ptr<T> C_UniformBuffersManager::CreateUniformBuffer(const std::string& name, Params&&... params)
 {
-	auto ubo = std::make_shared<T>(name, static_cast<unsigned int>(m_UBOs.size()), std::forward<Params>(params)...);
+	GLE_ASSERT(m_BindingPoint.size() < m_MaxBindingPoints, "Too many uniform buffers");
+	auto ubo = std::make_shared<T>(name, static_cast<unsigned int>(m_BindingPoint.size()), std::forward<Params>(params)...);
 	GLE_ASSERT(ubo, "Unable to allocate UBO {}", name);
-	m_UBOs.push_back(ubo);
+	m_BindingPoint.push_back(ubo);
 
 	return ubo;
 }
