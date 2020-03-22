@@ -138,4 +138,13 @@ void C_ShaderProgram::BindUBO(std::shared_ptr<Buffers::C_UniformBuffer> ubo) con
 	}
 }
 
+#if _DEBUG
+//=================================================================================
+void C_ShaderProgram::SetName(const std::string& name) noexcept
+{
+	m_name = name;
+	glObjectLabel(GL_PROGRAM, m_Program, static_cast<GLsizei>(name.length()), name.c_str());
+}
+#endif
+
 }}}

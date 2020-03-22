@@ -25,4 +25,22 @@ glm::mat4 C_MatrixParser::ParseTransformation(const pugi::xml_node& node)
 	return glm::mat4(1.f);
 }
 
+//=================================================================================
+glm::mat4 C_MatrixParser::ParseRotations(const pugi::xml_node& node)
+{
+	glm::mat4 rot(1.0f);
+	float x, y, z, w;
+	for (auto rotate : node.children("rotate"))
+	{
+		std::stringstream ss;
+		ss << rotate.child_value();
+		ss >> x >> y >> z >> w;
+
+		rot = rot * glm::rotate(glm::radians(w), glm::vec3(x, y, z));
+
+	}
+
+	return rot;
+}
+
 }

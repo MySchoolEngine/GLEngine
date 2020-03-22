@@ -153,7 +153,9 @@ bool C_EntityManager::LoadLevel(const std::string& name, std::unique_ptr<I_Compo
 				}
 			}
 
-			entity->SetModelMatrix(Utils::Parsing::C_MatrixParser::ParseTransformation(entityNode));
+			const auto translation = Utils::Parsing::C_MatrixParser::ParseTransformation(entityNode);
+			const auto rotation = Utils::Parsing::C_MatrixParser::ParseRotations(entityNode);
+			entity->SetModelMatrix(translation * rotation);
 		}
 	}
 

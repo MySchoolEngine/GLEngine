@@ -54,4 +54,10 @@ void C_BasicEntity::SetModelMatrix(glm::mat4& modelMatrix)
 	m_ModelMatrix = modelMatrix;
 }
 
+//=================================================================================
+glm::vec3 C_BasicEntity::GetPosition() const
+{
+	return m_ModelMatrix[3];
+}
+
 }}

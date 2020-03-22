@@ -26,6 +26,7 @@ public:
 	bool WasSuccessful() const { return m_Result; }
 protected:
 	void IncludesFiles(std::string& content, const std::string& filepath);
+	void CodeGeneration(std::string& content);
 	void ReplaceConstants(std::string& content);
 	void GetDefines(std::string& content);
 
@@ -39,6 +40,7 @@ protected:
 	bool m_Result = true;
 
 	const static std::regex s_IncludeFileName;
+	const static std::regex s_GenerateStruct;
 	const static std::regex s_DefineRegEx;
 };
 }

@@ -14,8 +14,10 @@ namespace Buffers {
 
 //=================================================================================
 C_UniformBuffersManager::C_UniformBuffersManager()
+	: m_MaxBindingPoints(84) // minimum binding points according to specification
 {
-
+	glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &m_MaxBindingPoints);
+	m_BindingPoint.reserve(m_MaxBindingPoints);
 }
 
 //=================================================================================
@@ -35,14 +37,14 @@ void C_UniformBuffersManager::PrintStatistics() const
 //=================================================================================
 void C_UniformBuffersManager::Clear()
 {
-	m_UBOs.clear();
+	m_BindingPoint.clear();
 }
 
 //=================================================================================
 void C_UniformBuffersManager::BindUBOs(const Shaders::C_ShaderProgram* program) const
 {
 	GLE_ASSERT(program, "Invalid shader program given");
-	for (const auto& ubo : m_UBOs) {
+	for (const auto& ubo : m_BindingPoint) {
 		if (ubo->IsActive()) {
 			program->BindUBO(ubo);
 		}
@@ -52,7 +54,7 @@ void C_UniformBuffersManager::BindUBOs(const Shaders::C_ShaderProgram* program) 
 //=================================================================================
 C_UniformBuffersManager::T_UBOSmartPtr C_UniformBuffersManager::GetBufferByName(const std::string& name) const
 {
-	return *std::find_if(m_UBOs.begin(), m_UBOs.end(), [name](const T_UBOSmartPtr& ubo) {
+	return *std::find_if(m_BindingPoint.begin(), m_BindingPoint.end(), [name](const T_UBOSmartPtr& ubo) {
 		return name == ubo->GetBlockName();
 	});
 }
@@ -61,14 +63,14 @@ C_UniformBuffersManager::T_UBOSmartPtr C_UniformBuffersManager::GetBufferByName(
 void C_UniformBuffersManager::ProcessUBOBindingPoints(std::shared_ptr<Shaders::C_ShaderProgram> program) const
 {
 	int i = 0;
-	for (const auto & ubo : m_UBOs)
+	for (const auto & ubo : m_BindingPoint)
 	{
 		if (!ubo) {
 			continue;
 		}
 		auto uniformBlockIndex = program->FindUniformBlockLocation<const std::string&>(ubo->GetBlockName());
 		if (uniformBlockIndex != GL_INVALID_INDEX) {
-			glUniformBlockBinding(program->GetProgram(), uniformBlockIndex, i);
+			glUniformBlockBinding(program->GetProgram(), uniformBlockIndex, ubo->GetIndex());
 		}
 		++i;
 	}
