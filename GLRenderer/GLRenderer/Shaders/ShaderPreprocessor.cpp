@@ -2,6 +2,8 @@
 
 #include <GLRenderer/Shaders/ShaderPreprocessor.h>
 
+#include <GLRenderer/Shaders/Generation/ShaderTypesReflection.h>
+
 #include <fmt/format.h>
 
 namespace GLEngine {
@@ -9,7 +11,8 @@ namespace GLRenderer {
 namespace Shaders {
 
 //=================================================================================
-const std::regex C_ShaderPreprocessor::s_IncludeFileName = std::regex(R"(^(#include )\"([^\"]*)\"$)");
+const std::regex C_ShaderPreprocessor::s_IncludeFileName	= std::regex(R"(^(#include )\"([^\"]*)\"$)");
+const std::regex C_ShaderPreprocessor::s_GenerateStruct		= std::regex(R"(^(@struct )([^\"\n;\s]*))");
 const std::regex C_ShaderPreprocessor::s_DefineRegEx			= std::regex(R"(^(#define )([^\s]*)\s([^\s]+)$)");
 
 //=================================================================================
@@ -24,6 +27,8 @@ std::string C_ShaderPreprocessor::PreprocessFile(const std::string& src, const s
 	IncludesFiles(ret, filepath);
 	GetDefines(ret);
 	ReplaceConstants(ret);
+
+	CodeGeneration(ret);
 
 	return ret;
 }
@@ -50,6 +55,21 @@ void C_ShaderPreprocessor::IncludesFiles(std::string& content, const std::string
 			CORE_LOG(E_Level::Error, E_Context::Render, "Failed to open included file: {}{}\n", filepath, m[2].str());
 			m_Result = false;
 		}
+		content = m.suffix().str();
+	}
+	content = result + content;
+}
+
+//=================================================================================
+void C_ShaderPreprocessor::CodeGeneration(std::string& content)
+{
+	std::smatch m;
+	std::string result = "";
+	const auto& shaderTypes = C_ShaderTypesReflection::Instance();
+
+	while (std::regex_search(content, m, s_GenerateStruct)) {
+		result += m.prefix().str();
+		result += shaderTypes.GetStructDescription(m[2]).Generate();
 		content = m.suffix().str();
 	}
 	content = result + content;
