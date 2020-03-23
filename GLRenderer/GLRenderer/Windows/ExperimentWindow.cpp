@@ -12,10 +12,7 @@
 #include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 
-#include <GLRenderer/Components/TerrainMesh.h>
 #include <GLRenderer/Components/ComponentBuilderFactory.h>
-
-#include <GLRenderer/Entities/TerrainEntity.h>
 
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
@@ -36,6 +33,8 @@
 #include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/Debug.h>
 
+#include <GLRenderer/GUI/ConsoleWindow.h>
+#include <GLRenderer/GUI/EntitiesWindow.h>
 #include <GLRenderer/GUI/Components/GLEntityDebugComponent.h>
 
 #include <Renderer/Mesh/Scene.h>
@@ -68,9 +67,6 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	, m_GammaSlider(2.2f, 1.f,5.f, "Gamma")
 	, m_ExposureSlider(1.f, .1f, 10.f, "Exposure")
 	, m_VSync(false)
-	, m_Spawning(false)
-	, m_SpawningName("")
-	, m_SpawningFilename("")
 	, m_HDRFBO("HDR")
 	, m_World(std::make_shared<Entity::C_EntityManager>())
 	, m_MainPass(m_World)
@@ -98,6 +94,12 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 //=================================================================================
 C_ExplerimentWindow::~C_ExplerimentWindow() {
 	static_cast<C_OGLRenderer*>(m_renderer.get())->DestroyControls(m_ImGUI->GetGUIMgr());
+
+	auto& guiMGR = m_ImGUI->GetGUIMgr();
+	guiMGR.DestroyWindow(m_EntitiesWindowGUID);
+	guiMGR.DestroyWindow(m_ConsoleWindowGUID);
+	guiMGR.DestroyWindow(m_FrameStatsGUID);
+	guiMGR.DestroyWindow(m_HDRSettingsGUID);
 };
 
 //=================================================================================
@@ -129,69 +131,6 @@ void C_ExplerimentWindow::Update()
 	GLE_ASSERT(camera, "No active camera");
 
 	m_MainPass.Render(camera, GetWidth(), GetHeight());
-
-	bool my_tool_active = true;
-	::ImGui::Begin("Entities", &my_tool_active);
-		if (::ImGui::Button("Spawn new terrain")) {
-			m_Spawning = true;
-			m_SpawningName[0] = '\0';
-			m_SpawningFilename[0] = '\0';
-		}
-		for (const auto& entity : m_World->GetEntities()) {
-			bool selected = false;
-			::ImGui::Selectable(entity->GetName().c_str(), &selected);
-			if (selected) {
-				entity->OnEvent(Core::C_UserEvent("selected"));
-			}
-		}
-	::ImGui::End();
-
-
-	if (m_Spawning) {
-		::ImGui::Begin("Spawn terrain", &m_Spawning);
-		::ImGui::InputText("Terrain name", m_SpawningName, 255);
-		::ImGui::InputText("Terrain filename", m_SpawningFilename, 255);
-
-		if (::ImGui::Button("Spawn")) {
-			m_Spawning = false;
-			auto Terrain = std::make_shared<C_TerrainEntity>(m_SpawningName);
-			m_World->AddEntity(Terrain); 
-
-			if (std::string_view(m_SpawningFilename).empty())
-			{
-				Terrain->AddPatch(glm::ivec2(0, 0));
-			}
-			else
-			{
-				Textures::TextureLoader tl;
-				Renderer::MeshData::Texture t;
-				bool retval = tl.loadTexture(m_SpawningFilename, t);
-				if (retval) {
-					Textures::C_Texture ct(m_SpawningFilename);
-
-					ct.StartGroupOp();
-					ct.SetTexData2D(0, t);
-					ct.SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
-					ct.SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-					ct.GenerateMipMaps();
-
-					ct.EndGroupOp();
-
-					auto patch = std::make_shared<Components::C_TerrainMesh>(std::move(ct));
-					Terrain->AddPatch(patch);
-					patch->SetCoord({ 0,0 });
-
-				}
-				else {
-					CORE_LOG(E_Level::Error, E_Context::Entity, "Given texture {} doesn't exists", m_SpawningFilename);
-					Terrain->AddPatch(glm::ivec2(0, 0));
-				}
-			}
-		}
-
-		::ImGui::End();
-	}
-
 
 	// ----- Frame init -------
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
@@ -428,11 +367,23 @@ void C_ExplerimentWindow::SetupWorld()
 
 	auto& guiMGR = m_ImGUI->GetGUIMgr();
 
-	m_ConsoleWindowGUID = NextGUID();
+	// Console window
+	{
+		m_ConsoleWindowGUID = NextGUID();
 
-	auto consoleWindow = new GUI::C_ConsoleWindow(m_ConsoleWindowGUID);
-	guiMGR.AddCustomWindow(consoleWindow);
-	consoleWindow->SetVisible();
+		auto consoleWindow = new GUI::C_ConsoleWindow(m_ConsoleWindowGUID);
+		guiMGR.AddCustomWindow(consoleWindow);
+		consoleWindow->SetVisible();
+	}
+
+	// Entity window
+	{
+		m_EntitiesWindowGUID = NextGUID();
+
+		auto entitiesWindow = new GUI::C_EntitiesWindow(m_EntitiesWindowGUID, m_World);
+		guiMGR.AddCustomWindow(entitiesWindow);
+		entitiesWindow->SetVisible();
+	}
 
 	m_FrameStatsGUID = guiMGR.CreateGUIWindow("Frame stats");
 	auto* frameStats = guiMGR.GetWindow(m_FrameStatsGUID);
