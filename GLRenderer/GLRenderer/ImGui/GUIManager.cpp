@@ -60,6 +60,8 @@ void C_GUIManager::DestroyWindow(GUID guid)
 		return;
 	}
 
+	delete it->second;
+
 	m_Windwos.erase(guid);
 }
 
