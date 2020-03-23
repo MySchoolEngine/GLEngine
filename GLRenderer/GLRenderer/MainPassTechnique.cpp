@@ -36,6 +36,7 @@ C_MainPassTechnique::C_MainPassTechnique(std::shared_ptr<Entity::C_EntityManager
 //=================================================================================
 void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> camera, unsigned int widht, unsigned int height)
 {
+	RenderDoc::C_DebugScope s("C_MainPassTechnique::Render");
 	const auto entitiesInView = m_WorldToRender->GetEntities(camera->GetFrustum());
 
 	auto& renderer = (Core::C_Application::Get()).GetActiveRenderer();
@@ -88,10 +89,13 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 		}
 	}
 
-	for (auto& entity : entitiesInView)
 	{
-		if (auto renderable = entity->GetComponent<Entity::E_ComponentType::Graphical>()) {
-			renderable->PerformDraw();
+		RenderDoc::C_DebugScope s("Commit geometry");
+		for (auto& entity : entitiesInView)
+		{
+			if (auto renderable = entity->GetComponent<Entity::E_ComponentType::Graphical>()) {
+				renderable->PerformDraw();
+			}
 		}
 	}
 

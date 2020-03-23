@@ -197,18 +197,17 @@ void C_ExplerimentWindow::Update()
 
 	m_HDRFBO.Unbind<E_FramebufferTarget::Read>();
 
-	// ----- Actual rendering --
-
-	{
-		RenderDoc::C_DebugScope s("RendererCommit");
-		m_renderer->Commit();
-		m_renderer->ClearCommandBuffers();
-	}
-	// ----- Actual rendering --
-
 	{
 		RenderDoc::C_DebugScope s("ImGUI");
-		m_ImGUI->FrameEnd();
+		Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+			std::move(
+				std::make_unique<Commands::HACK::C_LambdaCommand>(
+					[this, shader]() {
+						m_ImGUI->FrameEnd();
+					}
+				)
+			)
+		);
 	}
 
 	// commit of final commands - from commit few lines above
