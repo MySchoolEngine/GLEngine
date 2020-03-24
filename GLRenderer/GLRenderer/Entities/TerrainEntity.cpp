@@ -102,6 +102,9 @@ void C_TerrainEntity::DrawControls()
 					terrain->SetCoord(terrain->GetCoord());
 				});
 			}
+			::ImGui::Separator();
+			::ImGui::Text("Colors");
+			m_Settings.m_TerrainColor.Draw();
 
 			::ImGui::Separator();
 			if(!m_SimulationRunning)
