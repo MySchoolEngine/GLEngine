@@ -84,7 +84,6 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 			if (pointLight)
 			{
 				const auto pos = pointLight->GetPosition();
-				CORE_LOG(E_Level::Info, E_Context::Render, "Point light position: {} {} {}", pos.x, pos.y, pos.z);
 			}
 		}
 	}
