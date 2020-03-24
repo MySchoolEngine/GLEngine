@@ -4,6 +4,7 @@ in float vertex;
 
 //per frame
 #include "../include/frameConstants.glsl"
+#include "includes/layersIndexes.glsl"
 
 //per model
 uniform mat4 modelMatrix;
@@ -11,7 +12,7 @@ uniform sampler2DArray tex;
 uniform int sqPerLine;
 uniform float patchSize;
 
-out vec4 normal;
+out vec3 normal;
 
 
 //=================================================================================
@@ -47,37 +48,38 @@ void main()
 
 	vec4 vertexPosition = vec4(0,0.0,0,1);
 
-	vec3 texUV = vec3(0,0, 0);
+	vec3 texUV = vec3(0,0,0);
 
 	if(sideIndex==0)
 	{
 		vertexPosition.x = 0.0f;
 		vertexPosition.z = sidePart*patchSize;
 		texUV = vec3(0.0, sidePart, 0);
-		normal = vec4(1.0,0,0,1.0);
+		normal = vec3(-1.0,0,0);
 	}
 	else if(sideIndex == 1)
 	{
 		vertexPosition.x = (1.0-sidePart)*patchSize;
 		vertexPosition.z = 0.0f;
 		texUV = vec3((1.0-sidePart), 0, 0);
-		normal = vec4(0,0,-1.0,1.0);
+		normal = vec3(0,0,-1.0);
 	}
 	else if(sideIndex == 3)
 	{
 		vertexPosition.x = patchSize;
 		vertexPosition.z = (1-sidePart)*patchSize;
 		texUV = vec3(patchSize, (1-sidePart), 0);
-		normal = vec4(0,0,1.0,1.0);
+		normal = vec3(1.0,0,0);
 	}
 	else
 	{
 		vertexPosition.x = sidePart*patchSize;
 		vertexPosition.z = patchSize;
 		texUV = vec3(sidePart, patchSize, 0);
-		normal = vec4(1.0,0,0,1.0);
+		normal = vec3(0,0,1);
 	}
 
+	texUV.z = heightmapLayer;
 
 	if(vertexInTriangle == 0)
 	{
