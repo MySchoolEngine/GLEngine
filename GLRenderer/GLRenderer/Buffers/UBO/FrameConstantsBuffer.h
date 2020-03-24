@@ -45,10 +45,14 @@ public:
 	void SetProjection(const glm::mat4& val) { m_ProjectionMat = val; }
 	const glm::vec3& GetSunPosition() const { return m_SunPosition; }
 	void SetSunPosition(const glm::vec3& val) { m_SunPosition = val; }
+
+	float GetAmbientStrength() const { return m_AmbientStrength; }
+	void SetAmbientStrength(float strength) { m_AmbientStrength = strength; }
 private:
 	glm::vec4 m_CameraPosition;
 	glm::mat4 m_ViewMat;
 	glm::mat4 m_ProjectionMat;
 	glm::vec3 m_SunPosition;
+	float			m_AmbientStrength;
 };
 }}}}

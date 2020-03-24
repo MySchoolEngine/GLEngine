@@ -19,15 +19,11 @@ void main()
 	float cosTheta;
 
 	cosTheta = dot(normal,normalize(frame.SunPos));
-	if(cosTheta <= 0)
-	{
-		fragColor = vec4(0, 0, 0, 1);
-		return;
-	}
+	cosTheta = max(0.0, cosTheta);
 
 	MaterialDiffuseColor = modelColor;
 
-	vec4 MaterialAmbientColor = 0.6f * MaterialDiffuseColor;
+	vec4 MaterialAmbientColor = frame.AmbientStrength * MaterialDiffuseColor;
 	MaterialDiffuseColor = MaterialAmbientColor + MaterialDiffuseColor * vec4(1.0f, 1.0f, 0.8f, 1.0f) * cosTheta;
 	fragColor = MaterialDiffuseColor;
 }

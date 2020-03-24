@@ -7,15 +7,15 @@ layout (binding = 0) uniform sampler2DArray tex;
 uniform vec4 modelColor;
 uniform bool hasTexture;
 uniform bool selected;
+uniform float patchSize;
 
 in vec3 uv;
 in vec3 FragPos;
-in vec3 OutNormal;
 
 out vec4 fragColor;
 
 vec3 getNormal(){
-	const float s = 0.01;
+	const float s = patchSize/textureSize(tex, 0).x;
 	const vec2 size = vec2(2*s,0.0);
 	const vec3 off = vec3(-s,0,s);
 
@@ -78,18 +78,14 @@ void main()
 
 
 
-	cosTheta = dot(OutNormal,normalize(frame.SunPos));
-	if(cosTheta <= 0)
-	{
-		fragColor = vec4(1, 0, 0, 1);
-		return;
-	}
+	cosTheta = dot(normal,normalize(frame.SunPos));
+	
 
 	// for faces facing away from sun
 	cosTheta = max(0.0, cosTheta);
 	//float steepnes = 1.0f - normal.y;
 
-	vec4 MaterialAmbientColor = 0f * MaterialDiffuseColor; // ambient lighting fake
+	vec4 MaterialAmbientColor = frame.AmbientStrength * MaterialDiffuseColor; // ambient lighting fake
 	MaterialDiffuseColor = MaterialAmbientColor + MaterialDiffuseColor * cosTheta;
 	// vec4 tmp = MaterialDiffuseColor * 2.0;
 
@@ -103,6 +99,6 @@ void main()
 	if(steepnes >= 0.7f){
 		fragColor = vec4(0, 0,1,1);
 	}*/
-	fragColor = vec4(OutNormal.rgb, MaterialDiffuseColor.a);//MaterialDiffuseColor;// - tmp + (tmp*0.5);//;//vec4(1,0,0, 0);
+	fragColor = vec4(normal, MaterialDiffuseColor.a);//MaterialDiffuseColor;// - tmp + (tmp*0.5);//;//vec4(1,0,0, 0);
 	fragColor = MaterialDiffuseColor;
 }
