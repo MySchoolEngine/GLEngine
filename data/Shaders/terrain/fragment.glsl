@@ -29,16 +29,6 @@ vec3 getNormal(){
     vec4 bump = vec4( cross(va,vb), s11 );
 
     return vec3(bump.x, bump.z, bump.y);
-	/* int dist = 6;
-
-	const ivec3 off = ivec3(-1,0,1) * (dist/2);
-	
-    float R = textureOffset(tex, uv, off.yz).r;//[-1,0]
-    float L = textureOffset(tex, uv, off.yx).r;//[1,0]
-    float B = textureOffset(tex, uv, off.xy).r;//[0,1]
-    float T = textureOffset(tex, uv, off.zy).r;//[1,1]
-
-    return (1.0 / float(dist*2))*vec3(float(dist/2)*(R-L),dist*2, float(dist/2)*(B-T)); */
 }
 
 //=================================================================================
@@ -53,27 +43,31 @@ void main()
 	vec3 normal = normalize(getNormal());
 	vec4 upVec = vec4(0,1,0,1);
 
-	vec4 MaterialDiffuseColor = vec4(1,0,0,1);
+	vec4 albedo = vec4(1,0,0,1);
 	float cosTheta;
 
 	vec4 terrainTex = texture(tex, uv);
 	float terrainWetness = texture(tex, vec3(uv.xy, wetnessLayer)).r;
 	vec4 mudColor = vec4(0.5, 0.4, 0.278, 1.0);
+	vec4 sunColor = vec4(.95,0.7,0.51,1);
+
+	float specularStrength = 0;
 
 
 	if(hasTexture){
-		MaterialDiffuseColor = terrainTex;
+		albedo = terrainTex;
 	}
 	else{
-		MaterialDiffuseColor = modelColor;
-		if(terrainWetness > 5){
-			MaterialDiffuseColor = mix(MaterialDiffuseColor, mudColor, max(min(remap(terrainWetness, 20,60,0,1),1.0), 0));
+		albedo = modelColor;
+		if(terrainWetness > 30){
+			albedo = mix(albedo, mudColor, max(min(remap(terrainWetness, 30,60,0,1),1.0), 0));
+			specularStrength = remap(terrainWetness, 20,100,0,0.05);
 		}
 	}
 
 	// if selected show waterpaths
 	if(selected){
-		MaterialDiffuseColor.r = texture(tex, vec3(uv.xy, wetnessLayer)).x;
+		albedo.r = texture(tex, vec3(uv.xy, wetnessLayer)).x;
 	}
 
 
@@ -85,8 +79,19 @@ void main()
 	cosTheta = max(0.0, cosTheta);
 	//float steepnes = 1.0f - normal.y;
 
-	vec4 MaterialAmbientColor = frame.AmbientStrength * MaterialDiffuseColor; // ambient lighting fake
-	MaterialDiffuseColor = MaterialAmbientColor + MaterialDiffuseColor * cosTheta;
+	vec4 MaterialAmbientColor = frame.AmbientStrength * sunColor; // ambient lighting fake
+	vec4 MaterialDiffuseColor = cosTheta*sunColor;
+
+
+
+//=================================================================================
+	vec3 viewDir = normalize(frame.CameraPosition.xyz/frame.CameraPosition.w - FragPos);
+	vec3 reflectDir = reflect(-frame.SunPos, normal);  
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 1);
+	vec4 MaterialSpecularColor = specularStrength * spec * sunColor;
+//=================================================================================
+
+
 	// vec4 tmp = MaterialDiffuseColor * 2.0;
 
 	//MaterialDiffuseColor += vec4(normal, 1);
@@ -99,6 +104,5 @@ void main()
 	if(steepnes >= 0.7f){
 		fragColor = vec4(0, 0,1,1);
 	}*/
-	fragColor = vec4(normal, MaterialDiffuseColor.a);//MaterialDiffuseColor;// - tmp + (tmp*0.5);//;//vec4(1,0,0, 0);
-	fragColor = MaterialDiffuseColor;
+	fragColor = (MaterialAmbientColor + MaterialDiffuseColor + MaterialSpecularColor) * albedo;
 }
