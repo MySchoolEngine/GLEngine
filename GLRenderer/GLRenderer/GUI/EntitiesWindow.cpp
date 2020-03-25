@@ -35,9 +35,13 @@ void C_EntitiesWindow::Draw() const
 {
 	::ImGui::Begin(m_Name.c_str(), &m_IsVisible);
 	if (::ImGui::Button("Spawn new terrain")) {
-		m_Spawning = true;
-		m_SpawningName[0] = '\0';
-		m_SpawningFilename[0] = '\0';
+		m_Spawning = false;
+		auto Terrain = std::make_shared<C_TerrainEntity>("Terrain");
+		m_World->AddEntity(Terrain);
+		Terrain->AddPatch(glm::ivec2(0, 0));
+		// m_Spawning = true;
+		// m_SpawningName[0] = '\0';
+		// m_SpawningFilename[0] = '\0';
 	}
 	for (const auto& entity : m_World->GetEntities()) {
 		bool selected = false;
