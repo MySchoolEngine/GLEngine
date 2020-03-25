@@ -176,18 +176,18 @@ void C_TerrainEntity::DrawControls()
 	}
 
 
-	if (Visualise) {
-		::ImGui::Begin("Terrain visualizations", &Visualise);
-			WholeTerrain([](T_TerrainPtr terrain) {
-				::ImGui::Image((void*)terrain->GetTexture().GetTexture(),
-				{
-					256,
-					256
-				},
-				{ 0,1 }, { 1,0 });
-			});
-		::ImGui::End();
-	}
+	// if (Visualise) {
+	// 	::ImGui::Begin("Terrain visualizations", &Visualise);
+	// 		WholeTerrain([](T_TerrainPtr terrain) {
+	// 			::ImGui::Image((void*)terrain->GetTexture().GetTexture(),
+	// 			{
+	// 				256,
+	// 				256
+	// 			},
+	// 			{ 0,1 }, { 1,0 });
+	// 		});
+	// 	::ImGui::End();
+	// }
 }
 
 //=================================================================================
