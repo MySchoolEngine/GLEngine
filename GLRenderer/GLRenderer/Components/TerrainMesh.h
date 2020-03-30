@@ -42,7 +42,6 @@ public:
 	void UpdateStats();
 
 	void GenerateTerrain();
-	void CalculateStats() const;
 	void Simulate();
 	void DebugDraw();
 

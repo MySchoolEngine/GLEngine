@@ -47,23 +47,16 @@ C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {
-					ErrorCheck();
 					m_Noise.StartGroupOp();
 					// 0 layer - height
 					// 1 layer - amount of water
-					ErrorCheck();
 					glTexStorage3D(m_Noise.GetTarget(), 3, GL_R32F, dim, dim, 3);
-					ErrorCheck();
 					m_Noise.SetWrap(E_WrapFunction::ClampToEdge, E_WrapFunction::ClampToEdge);
-					ErrorCheck();
 					m_Noise.SetFilter(GL_LINEAR, GL_LINEAR);
-					ErrorCheck();
 
-					ErrorCheck();
 					m_Noise.SetDimensions({ dim,dim });
 					m_Noise.GenerateMipMaps();
 					m_Noise.EndGroupOp();
-					ErrorCheck();
 				}, "Terrain - texture commands"
 			)
 		)
@@ -74,8 +67,6 @@ C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 	m_RainData->GenerateDrops();
 
 	GenerateTerrain();
-
-	CalculateStats();
 }
 
 //=================================================================================
@@ -94,8 +85,6 @@ C_TerrainMesh::C_TerrainMesh(Textures::C_Texture&& texture)
 	m_Terrain = std::make_shared<Mesh::C_TerrainMeshResource>();
 
 	m_RainData->GenerateDrops();
-
-	CalculateStats();
 }
 
 //=================================================================================
@@ -173,11 +162,6 @@ void C_TerrainMesh::PerformDraw() const
 		auto& dd = C_DebugDraw::Instance();
 		dd.DrawAABB(m_AABB, glm::vec3(1.0f, 0.0f, 0.0f), GetModelMatrix());
 	}
-
-
-	if (m_QueuedUpdate) {
-		CalculateStats();
-	}
 }
 
 //=================================================================================
@@ -197,10 +181,23 @@ void C_TerrainMesh::UpdateStats()
 	}
 	m_QueuedUpdate = false;
 
+	RenderDoc::C_DebugScope s("Terrain stats");
+	auto& tm = Textures::C_TextureUnitManger::Instance();
+	tm.BindImageToUnit(m_Noise, 0, Textures::E_Access::Read);
+
+
+	auto& shmgr = Shaders::C_ShaderManager::Instance();
+	shmgr.ActivateShader(shmgr.GetProgram("stats"));
+
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {
+					m_Stats.bind();
+
+					glDispatchCompute(1, 1, 1);
+					glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+					m_Stats.unbind();
 					using namespace Physics::Primitives;
 					m_Stats.DownloadData();
 					m_AABB = S_AABB();
@@ -252,32 +249,8 @@ void C_TerrainMesh::GenerateTerrain()
 			)
 		)
 	);
-}
 
-//=================================================================================
-void C_TerrainMesh::CalculateStats() const
-{
-	RenderDoc::C_DebugScope s("Terrain stats");
-	auto& tm = Textures::C_TextureUnitManger::Instance();
-	tm.BindImageToUnit(m_Noise, 0, Textures::E_Access::Read);
-
-
-	auto& shmgr = Shaders::C_ShaderManager::Instance();
-	shmgr.ActivateShader(shmgr.GetProgram("stats"));
-
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
-		std::move(
-			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[&]() {
-					m_Stats.bind();
-
-					glDispatchCompute(1, 1, 1);
-					glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-					m_Stats.unbind();
-				}, "CalculateStats"
-			)
-		)
-	);
+	m_QueuedUpdate = true;
 }
 
 //=================================================================================
