@@ -8,7 +8,8 @@ public:
 	C_ColorRBG(std::string&& name, glm::vec3 default);
 
 	virtual void Draw() const override;
-	const glm::vec3& GetValue() const { return m_Color; }
+	const glm::vec3& GetValue() const;
+	void SetValue(glm::vec3&& value);
 private:
 	std::string				m_name;
 	mutable glm::vec3	m_Color;
@@ -20,7 +21,8 @@ public:
 	C_ColorRBGA(std::string&& name, glm::vec4 default);
 
 	virtual void Draw() const override;
-	const glm::vec4& GetValue() const { return m_Color; }
+	const glm::vec4& GetValue() const;
+	void SetValue(glm::vec4&& value);
 private:
 	std::string				 m_name;
 	mutable  glm::vec4 m_Color;

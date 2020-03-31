@@ -15,6 +15,8 @@ public:
 
 	virtual void Draw() const override;
 
+	const std::string_view GetCurrentText() const;
+
 	template<class ...Args>
 	void UpdateText(Args&&... args);
 protected:
