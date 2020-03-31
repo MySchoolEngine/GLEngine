@@ -111,7 +111,6 @@ void C_TerrainMesh::PerformDraw() const
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[this, shader]() {
-					ErrorCheck();
 					shader->SetUniform("patchSize", static_cast<float>(m_Settings->m_PatchSize));
 					shader->SetUniform("tex", 0);
 					shader->SetUniform("sqPerLine", static_cast<float>(m_Settings->m_SqPerLine));
@@ -123,7 +122,6 @@ void C_TerrainMesh::PerformDraw() const
 					m_Terrain->BindVAO();
 					glDrawArrays(GL_TRIANGLES, 0, 6* m_Settings->m_SqPerLine*m_Settings->m_SqPerLine);
 					m_Terrain->UnbindVAO();
-					ErrorCheck();
 				}, "Terrain - draw"
 			)
 		)
@@ -139,7 +137,6 @@ void C_TerrainMesh::PerformDraw() const
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[this, ShaderTerrainRim]() {
-					ErrorCheck();
 					ShaderTerrainRim->SetUniform("patchSize", static_cast<float>(m_Settings->m_PatchSize));
 					ShaderTerrainRim->SetUniform("tex", 0);
 					ShaderTerrainRim->SetUniform("sqPerLine", static_cast<int>(m_Settings->m_SqPerLine));
@@ -149,9 +146,6 @@ void C_TerrainMesh::PerformDraw() const
 					m_Terrain->BindVAO();
 					glDrawArrays(GL_TRIANGLES, 0, 6 * m_Settings->m_SqPerLine *4);
 					m_Terrain->UnbindVAO();
-
-					m_Noise.GenerateMipMaps();
-					ErrorCheck();
 				}, "Terrain - terrain-rim"
 			)
 		)
