@@ -7,3 +7,4 @@ uniform frameConst{
 	vec3 SunPos;
 	float AmbientStrength;
 } frame;
+vec4 sunColor = vec4(.95,0.7,0.51,1);

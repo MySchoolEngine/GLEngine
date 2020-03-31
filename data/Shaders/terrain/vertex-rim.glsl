@@ -13,13 +13,13 @@ uniform int sqPerLine;
 uniform float patchSize;
 
 out vec3 normal;
+out vec3 FragPos;
+out vec2 uv;
 
 
 //=================================================================================
 void main()
 {
-	vec2 planear;
-
 	const int verticesPerSide = int(sqPerLine) * 6;
 
 	const int vertexOnSide = gl_VertexID % verticesPerSide;
@@ -91,4 +91,6 @@ void main()
 	}
 
     gl_Position = frame.viewProjectionMatrix * modelMatrix * vertexPosition;
+    FragPos = vec3(modelMatrix * vertexPosition);
+    uv = texUV.xy;
 }

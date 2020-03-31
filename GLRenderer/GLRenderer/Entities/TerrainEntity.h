@@ -5,6 +5,7 @@
 #include <GLRenderer/GUI/Input/CheckBoxValue.h>
 #include <GLRenderer/GUI/Input/Slider.h>
 #include <GLRenderer/GUI/Input/Color.h>
+#include <GLRenderer/GUI/Text.h>
 
 #include <Utils/HighResolutionTimer.h>
 
@@ -35,6 +36,12 @@ public:
 
 	void WholeTerrain(std::function<void(T_TerrainPtr)> lambda);
 
+	struct S_LayerSettings {
+		GUI::C_FormatedText					m_Name				{ "Layer {}" };
+		GUI::Input::C_ColorRBG			m_TerrainColor{ "Layer color", glm::vec3(0.254f, 0.6470f, 0.1921f) };
+		GUI::Input::C_Slider<float> m_Weight			{ .5f, 0.f, 1.f, "Weight" };
+	};
+
 	struct S_TerrainSettings {
 		GUI::Input::C_Slider<int> m_SqPerLine	{ 255, 4, 1024, "Vertices" };
 		GUI::Input::C_Slider<int> m_Freq		{ 24, 4, 40, "Noise frequency" };
@@ -42,7 +49,7 @@ public:
 		GUI::Input::C_Slider<int> m_NumSteps	{ 90, 30, 150, "Max lifetime" };
 		GUI::Input::C_Slider<int>	m_PatchSize	{ 40, 4, 60, "Patch size"};
 		GUI::Input::C_CheckBoxValue PerlinNoise	{ true, "Use Perlin noise" };
-		GUI::Input::C_ColorRBGA			m_TerrainColor { "Terrain color", glm::vec4(0.254f, 0.6470f, 0.1921f, 0.0f) };
+		S_LayerSettings m_Layers[2];
 		float m_Evaporation		= 0.02f;
 		float m_Gravitation		= 4.0f;
 		float m_InitWater		= 1.0f;

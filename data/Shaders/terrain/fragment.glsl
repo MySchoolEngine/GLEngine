@@ -4,7 +4,7 @@
 #include "../include/frameConstants.glsl"
 //per mesh
 layout (binding = 0) uniform sampler2DArray tex;
-uniform vec4 modelColor;
+uniform vec3 modelColor[2];
 uniform bool hasTexture;
 uniform bool selected;
 uniform float patchSize;
@@ -43,12 +43,14 @@ void main()
 	vec3 normal = normalize(getNormal());
 	vec4 upVec = vec4(0,1,0,1);
 
-	vec4 albedo = vec4(1,0,0,1);
+	vec3 albedo = vec3(1,0,0);
 	float cosTheta;
 
-	vec4 terrainTex = texture(tex, uv);
+	vec3 terrainTex = texture(tex, uv).rgb;
 	float terrainWetness = texture(tex, vec3(uv.xy, wetnessLayer)).r;
-	vec4 mudColor = vec4(0.5, 0.4, 0.278, 1.0);
+	float rockLevel = texture(tex, vec3(uv.xy, Terrain_layer1)).r;
+
+	vec3 mudColor = vec3(0.5, 0.4, 0.278);
 	vec4 sunColor = vec4(.95,0.7,0.51,1);
 
 	float specularStrength = 0;
@@ -58,7 +60,11 @@ void main()
 		albedo = terrainTex;
 	}
 	else{
-		albedo = modelColor;
+		albedo = modelColor[1];
+		if(rockLevel>=FragPos.y)
+		{
+			albedo = modelColor[0];
+		}
 		if(terrainWetness > 30){
 			albedo = mix(albedo, mudColor, max(min(remap(terrainWetness, 30,60,0,1),1.0), 0));
 			specularStrength = remap(terrainWetness, 20,100,0,0.05);
@@ -104,5 +110,5 @@ void main()
 	if(steepnes >= 0.7f){
 		fragColor = vec4(0, 0,1,1);
 	}*/
-	fragColor = (MaterialAmbientColor + MaterialDiffuseColor + MaterialSpecularColor) * albedo;
+	fragColor = (MaterialAmbientColor + MaterialDiffuseColor + MaterialSpecularColor) * vec4(albedo, 1);
 }

@@ -21,6 +21,15 @@ C_TerrainEntity::C_TerrainEntity(const std::string& name)
 	Visualise.SetName("Visualization");
 	DebugDrawDroplets.SetName("Debug draw");
 	m_InputCoords = { 0,0 };
+
+	int i = 0;
+	for (auto& layer : m_Settings.m_Layers)
+	{
+		layer.m_Name.UpdateText(i);
+		++i;
+	}
+
+	m_Settings.m_Layers->m_TerrainColor.SetValue(glm::vec3(27.f / 255.f, 42.f / 255.f, 51.f / 255.f));
 }
 
 //=================================================================================
@@ -103,8 +112,18 @@ void C_TerrainEntity::DrawControls()
 				});
 			}
 			::ImGui::Separator();
-			::ImGui::Text("Colors");
-			m_Settings.m_TerrainColor.Draw();
+
+			for (auto& layer : m_Settings.m_Layers)
+			{
+				const auto Name = layer.m_Name.GetCurrentText();
+				std::string ID("##");
+				ID.append(Name);
+				::ImGui::PushID(ID.data());
+				layer.m_Name.Draw();
+				layer.m_TerrainColor.Draw();
+				layer.m_Weight.Draw();
+				::ImGui::PopID();
+			}
 
 			::ImGui::Separator();
 			if(!m_SimulationRunning)

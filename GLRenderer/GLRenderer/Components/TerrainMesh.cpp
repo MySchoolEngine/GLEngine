@@ -50,7 +50,9 @@ C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 					m_Noise.StartGroupOp();
 					// 0 layer - height
 					// 1 layer - amount of water
-					glTexStorage3D(m_Noise.GetTarget(), 3, GL_R32F, dim, dim, 3);
+					// 2 layer - lowest layer
+					// 3 layer - second layer
+					glTexStorage3D(m_Noise.GetTarget(), 3, GL_R32F, dim, dim, 4);
 					m_Noise.SetWrap(E_WrapFunction::ClampToEdge, E_WrapFunction::ClampToEdge);
 					m_Noise.SetFilter(GL_LINEAR, GL_LINEAR);
 
@@ -115,7 +117,8 @@ void C_TerrainMesh::PerformDraw() const
 					shader->SetUniform("tex", 0);
 					shader->SetUniform("sqPerLine", static_cast<float>(m_Settings->m_SqPerLine));
 					shader->SetUniform("modelMatrix", GetModelMatrix());
-					shader->SetUniform("modelColor", m_Settings->m_TerrainColor.GetValue());
+					shader->SetUniform("modelColor[0]", m_Settings->m_Layers[0].m_TerrainColor.GetValue());
+					shader->SetUniform("modelColor[1]", m_Settings->m_Layers[1].m_TerrainColor.GetValue());
 					shader->SetUniform("hasTexture", m_HasTexture.GetValue());
 					shader->SetUniform("selected", m_Selected);
 
@@ -141,7 +144,8 @@ void C_TerrainMesh::PerformDraw() const
 					ShaderTerrainRim->SetUniform("tex", 0);
 					ShaderTerrainRim->SetUniform("sqPerLine", static_cast<int>(m_Settings->m_SqPerLine));
 					ShaderTerrainRim->SetUniform("modelMatrix", GetModelMatrix());
-					ShaderTerrainRim->SetUniform("modelColor", m_Settings->m_TerrainColor.GetValue());
+					ShaderTerrainRim->SetUniform("modelColor[0]", m_Settings->m_Layers[0].m_TerrainColor.GetValue());
+					ShaderTerrainRim->SetUniform("modelColor[1]", m_Settings->m_Layers[1].m_TerrainColor.GetValue());
 
 					m_Terrain->BindVAO();
 					glDrawArrays(GL_TRIANGLES, 0, 6 * m_Settings->m_SqPerLine *4);
