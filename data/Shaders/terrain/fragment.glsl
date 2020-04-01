@@ -51,7 +51,6 @@ void main()
 	float rockLevel = texture(tex, vec3(uv.xy, Terrain_layer1)).r;
 
 	vec3 mudColor = vec3(0.5, 0.4, 0.278);
-	vec4 sunColor = vec4(.95,0.7,0.51,1);
 
 	float specularStrength = 0;
 
