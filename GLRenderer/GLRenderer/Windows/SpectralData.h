@@ -56,6 +56,28 @@ private:
 
 	void UpdateResults();
 
+	enum class E_Sampling
+	{
+		Uniform,
+		Random,
+		Hero,
+	};
+	enum class E_RadianceColors
+	{
+		E2,
+		F4,
+		G4,
+		H4,
+		J4,
+		A1,
+	};
+
+	void SelectSampling(E_Sampling sampling);
+	void SelectColor(E_RadianceColors color);
+
+	void UpdateBackground();
+	void UpdateSampledPlots(const int samples);
+
 	Core::C_LayerStack																			m_LayerStack;
 	ImGui::C_ImGuiLayer* m_ImGUI;
 
@@ -73,23 +95,28 @@ private:
 
 
 	SpectralRendering::C_SpectralPlot			m_MultipliedReflLumi;
+	SpectralRendering::C_SpectralPlot			m_MultipliedReflLumiXYZ;
 
 	GUI::Input::C_Slider<int>							m_Samples{100, 10, 401, "Sample count"};
 
 	std::array<GUI::C_FormatedText, 6>		m_Results;
-	GUI::Input::C_Button						m_UpdateResults;
+	GUI::Input::C_Button									m_UpdateResults;
+
+	std::array<GUI::Input::C_Button, 3>		m_SamplingButtons;
+	std::array<GUI::Input::C_Button, 6>		m_ColorsButtons;
 
 	glm::mat3															m_XYZsRGB;
 
-	enum class E_RadianceColors
-	{
-		E2,
-		F4,
-		G4,
-		H4,
-		J4,
-		A1,
-	};
+	glm::vec3															m_ClearColor;
+
+	using T_SamplerMethod = std::function<SpectralRendering::C_Spectrum(const SpectralRendering::C_Spectrum&)>;
+
+	T_SamplerMethod												m_CurrentSampling;
+	GUI::C_FormatedText										m_SelectedSampling;
+
+	E_RadianceColors											m_SelectedColor;
+	GUI::C_FormatedText										m_SelectedColorString;
+
 	SpectralRendering::C_Spectrum m_Colors[6];
 };
 
