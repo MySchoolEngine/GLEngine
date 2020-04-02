@@ -24,6 +24,15 @@ C_SpectralData::C_SpectralData(const Core::S_WindowInfo& wndInfo)
 	, m_RandomlySampledPlot("Random")
 	, m_HeroSampledPlot("Hero")
 	, m_MultipliedReflLumi("Multiplied")
+	, m_Results({{
+			{"E2 A=({:.2f}, {:.2f}, {:.2f}) D65=({:.2f}, {:.2f}, {:.2f}) F11=({:.2f}, {:.2f}, {:.2f})"},
+			{"F4 A=({:.2f}, {:.2f}, {:.2f}) D65=({:.2f}, {:.2f}, {:.2f}) F11=({:.2f}, {:.2f}, {:.2f})"},
+			{"G4 A=({:.2f}, {:.2f}, {:.2f}) D65=({:.2f}, {:.2f}, {:.2f}) F11=({:.2f}, {:.2f}, {:.2f})"},
+			{"H4 A=({:.2f}, {:.2f}, {:.2f}) D65=({:.2f}, {:.2f}, {:.2f}) F11=({:.2f}, {:.2f}, {:.2f})"},
+			{"J4 A=({:.2f}, {:.2f}, {:.2f}) D65=({:.2f}, {:.2f}, {:.2f}) F11=({:.2f}, {:.2f}, {:.2f})"},
+			{"A1 A=({:.2f}, {:.2f}, {:.2f}) D65=({:.2f}, {:.2f}, {:.2f}) F11=({:.2f}, {:.2f}, {:.2f})"},
+		}})
+		, m_UpdateResults("Update results", [&]() {UpdateResults(); })
 {
 	glfwMakeContextCurrent(m_Window);
 
@@ -107,6 +116,8 @@ C_SpectralData::C_SpectralData(const Core::S_WindowInfo& wndInfo)
 		const auto sampled = m_F11CIE.SampleRandomly(m_Samples.GetValue());
 		sampled.FillData(m_RandomlySampledPlot, 0);
 	}
+
+	UpdateResults();
 }
 
 //=================================================================================
@@ -162,6 +173,15 @@ void C_SpectralData::Update()
 	::ImGui::Begin("Multiplied", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 		m_MultipliedReflLumi.Draw();
 	::ImGui::End();
+
+
+	::ImGui::Begin("Results", nullptr);
+	m_UpdateResults.Draw();
+	for (int i = 0; i < 6; ++i)
+	{
+		m_Results[i].Draw();
+	}
+	::ImGui::End();
 	
 	if (m_Samples.Changed())
 	{
@@ -172,22 +192,10 @@ void C_SpectralData::Update()
 			const auto multiplied = sampled * m_Colors[1].GetSameSamplig(sampled);
 
 			multiplied.FillData(m_MultipliedReflLumi, 0);
-
-			glm::vec3 xyz = multiplied.GetXYZ(m_MatchingFunction);
-
-			const auto rgb = m_XYZsRGB * xyz;
-			CORE_LOG(E_Level::Error, E_Context::Core, "{},{},{}", rgb.x, rgb.y, rgb.z);
 		}
 		{
 			const auto sampled = m_F11CIE.SampleRandomly(m_Samples.GetValue());
 			sampled.FillData(m_RandomlySampledPlot, 0);
-
-			const auto multiplied = sampled * m_Colors[1].GetSameSamplig(sampled);
-
-			glm::vec3 xyz = multiplied.GetXYZ(m_MatchingFunction);
-
-			const auto rgb = m_XYZsRGB * xyz;
-			CORE_LOG(E_Level::Error, E_Context::Core, "{},{},{}", rgb.x, rgb.y, rgb.z);
 		}
 	}
 
@@ -218,6 +226,44 @@ void C_SpectralData::OnEvent(Core::I_Event& event)
 bool C_SpectralData::OnAppInit(Core::C_AppEvent& event)
 {
 	return true;
+}
+
+//=================================================================================
+void C_SpectralData::UpdateResults()
+{
+	glm::vec3 a;
+	glm::vec3 d65;
+	glm::vec3 f11;
+
+	for (int i = 0; i < 6; ++i)
+	{
+		{
+			const auto sampled = m_ACIE.SampleUniformly(m_Samples.GetValue());
+
+			const auto multiplied = sampled * m_Colors[i].GetSameSamplig(sampled);
+
+			glm::vec3 xyz = multiplied.GetXYZ(m_MatchingFunction);
+			a = xyz * m_XYZsRGB;
+		}
+		{
+			const auto sampled = m_D65CIE.SampleUniformly(m_Samples.GetValue());
+
+			const auto multiplied = sampled * m_Colors[i].GetSameSamplig(sampled);
+
+			glm::vec3 xyz = multiplied.GetXYZ(m_MatchingFunction);
+			d65 = xyz * m_XYZsRGB;
+		}
+		{
+			const auto sampled = m_F11CIE.SampleUniformly(m_Samples.GetValue());
+
+			const auto multiplied = sampled * m_Colors[i].GetSameSamplig(sampled);
+
+			glm::vec3 xyz = multiplied.GetXYZ(m_MatchingFunction);
+			f11 = xyz * m_XYZsRGB;
+		}
+		
+		m_Results[i].UpdateText(a.x, a.y, a.z, d65.x, d65.y, d65.z, f11.x, f11.y, f11.z);
+	}
 }
 
 }

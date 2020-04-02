@@ -9,8 +9,9 @@
 #include <GLRenderer/GUI/GUIWindow.h>
 #include <GLRenderer/GUI/ConsoleWindow.h>
 #include <GLRenderer/GUI/PlotLine.h>
-#include <GLRenderer/GUI/Input/CheckBoxValue.h>
+#include <GLRenderer/GUI/Input/Button.h>
 #include <GLRenderer/GUI/Input/Slider.h>
+#include <GLRenderer/GUI/Text.h>
 #include <GLRenderer/GUI/GUIWindow.h>
 #include <GLRenderer/GUI/Text.h>
 #include <GLRenderer/GUI/Menu/Menu.h>
@@ -53,6 +54,8 @@ protected:
 
 private:
 
+	void UpdateResults();
+
 	Core::C_LayerStack																			m_LayerStack;
 	ImGui::C_ImGuiLayer* m_ImGUI;
 
@@ -72,6 +75,9 @@ private:
 	SpectralRendering::C_SpectralPlot			m_MultipliedReflLumi;
 
 	GUI::Input::C_Slider<int>							m_Samples{100, 10, 401, "Sample count"};
+
+	std::array<GUI::C_FormatedText, 6>		m_Results;
+	GUI::Input::C_Button						m_UpdateResults;
 
 	glm::mat3															m_XYZsRGB;
 
