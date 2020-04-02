@@ -19,3 +19,6 @@
 [submodule "vendor/ImGui"]
 	path = vendor/ImGui
 	url = https://github.com/TheCherno/imgui
+[submodule "vendor/imgui-plot"]
+	path = vendor/imgui-plot
+	url = https://github.com/soulthreads/imgui-plot
