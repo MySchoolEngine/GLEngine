@@ -36,6 +36,7 @@ project "GLRenderer"
 		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.ImGui}",
+		"../%{IncludeDir.ImGuiPlot}",
 		"../%{IncludeDir.DevIL}",
 		
 		"../vendor/AssimpPrebuild/include",
@@ -43,7 +44,7 @@ project "GLRenderer"
 
 	libdirs
 	{
-		"../vendor/AssimpPrebuild/lib/",
+		"../vendor/bin/Debug-windows-x86_64/DevIL-IL/",
 		"../vendor/bin/Debug-windows-x86_64/DevIL-IL/",
 	}
 
@@ -54,14 +55,15 @@ project "GLRenderer"
 		"opengl32.lib",
 		"pugixml",
 		"ImGui",
+		"ImGuiPlot",
 		"DevIL-IL",
-		"../vendor/AssimpPrebuild/lib/assimp.lib",
 		"../vendor/projects/DevIL/bin/Debug-windows-x86_64/DevIL-IL/DevIL-IL.dll",
 	}
-
+	
 	defines
 	{
-		"IMGUI_IMPL_OPENGL_LOADER_GLAD"
+		"IMGUI_IMPL_OPENGL_LOADER_GLAD",
+		"MODULE_CTX=Render",
 	}
 
 	filter "system:windows"

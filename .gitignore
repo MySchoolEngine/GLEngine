@@ -12,6 +12,7 @@
 
 /OtherProjects/*
 vendor/projects/DevIL/bin-int/*
+vendor/projects/ImGui-Plot/bin-int/*
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

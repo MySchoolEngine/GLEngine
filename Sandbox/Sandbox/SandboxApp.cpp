@@ -69,7 +69,7 @@ protected:
 
 	void OpenWindwos()
 	{
-		{
+		if(false){
 			using namespace GLEngine::DX12Renderer;
 
 			S_D3D12WindowInfo info(640, 480);
@@ -85,7 +85,7 @@ protected:
 
 			S_OpenGLWindowInfo info(640, 480);
 			info.m_name = "ExperimentWindow";
-			info.m_WindowClass = "ExperimentWindow";
+			info.m_WindowClass = "SpectralData";
 			info.m_MinorVersion = 4;
 
 			m_WndMgr->OpenNewWindow(info);

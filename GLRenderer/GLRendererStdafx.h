@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Utils/Logging/LoggingMacros.h>
+#include <Utils/AssertionMacros.h>
 
 #include <algorithm>
 #include <array>
@@ -28,6 +29,7 @@
 #include <glm/glm.hpp>
 
 #include <imgui.h>
+#include <imgui_plot.h>
 
 // debug utils
 #include <GLRenderer/RenderDoc/RenderDocTools.h>
