@@ -4,9 +4,11 @@
 #include <vector>
 #include <stack>
 
+#ifdef GL_ENGINE_USINGASSIMP
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#endif
 
 #include <Renderer/Mesh/Scene.h>
 
@@ -15,6 +17,7 @@
 namespace GLEngine {
 namespace GLRenderer {
 namespace Mesh {
+#ifdef GL_ENGINE_USINGASSIMP
 class ModelLoader
 {
 public:
@@ -56,4 +59,17 @@ private:
 	static unsigned int _numMaterialsPreviouslyLoaded;
 	static unsigned int _numMeshesPreviouslyLoaded;
 };
+#else
+class ModelLoader
+{
+public:
+	ModelLoader() = default;
+	~ModelLoader() = default;
+
+	bool addModelFromFileToScene(const char* path, std::shared_ptr<Renderer::MeshData::Scene> scene, std::vector< std::string >& textureNames, glm::mat4 sceneTransform = glm::mat4(1)) { return false; };
+
+	void Reset() {};
+};
+
+#endif
 }}}

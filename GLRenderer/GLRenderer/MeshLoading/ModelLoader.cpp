@@ -8,6 +8,7 @@ namespace GLEngine {
 namespace GLRenderer {
 namespace Mesh {
 
+#ifdef GL_ENGINE_USINGASSIMP
 //=================================================================================
 unsigned int ModelLoader::_numTexturesPreviouslyLoaded = 0;
 unsigned int ModelLoader::_numMaterialsPreviouslyLoaded = 0;
@@ -286,4 +287,5 @@ void ModelLoader::_getFacePosNormalTcoords(const aiFace* face, const aiMesh* mes
 		tcoords[i].y = tc.y;
     }
 }
+#endif
 }}}
