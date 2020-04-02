@@ -35,6 +35,7 @@ std::size_t C_Spectrum::GetNumSamples() const
 //=================================================================================
 void C_Spectrum::AddSample(int waveLength, float intensity)
 {
+	GL_ASSERT(waveLength >= s_LowestWavelen && waveLength <= s_HighestWavelen, "Wavelengths have to be between <{}, {}>", s_LowestWavelen, s_HighestWavelen);
 	if (std::find_if(m_Samples.begin(), m_Samples.end(), [&](const auto& it) {return it.first == waveLength;}) == m_Samples.end())
 		m_Samples.emplace_back(waveLength, intensity);
 }
@@ -57,6 +58,7 @@ void C_Spectrum::FillData(C_SpectralPlot& plot, std::size_t line) const
 //=================================================================================
 float C_Spectrum::Sample(int wavelength) const
 {
+	GL_ASSERT(wavelength >= s_LowestWavelen && wavelength <= s_HighestWavelen, "Wavelengths have to be between <{}, {}>", s_LowestWavelen, s_HighestWavelen);
 	const auto higher = std::find_if(m_Samples.begin(), m_Samples.end(), [&](const auto& it) { return it.first > wavelength; });
 	if (higher == m_Samples.end())
 	{
@@ -136,9 +138,18 @@ C_Spectrum C_Spectrum::SampleHero(std::size_t samples) const
 
 	const int heroWavelength = distribution(generator);
 
+	const int delta = std::max(static_cast<int>((s_HighestWavelen - s_LowestWavelen) / samples), 1);
+
 	C_Spectrum ret(samples);
 
+	for (int i = 0; i < samples; ++i)
+	{
+		const int sampledWavelen = (((heroWavelength + delta*i) - s_LowestWavelen) % (s_HighestWavelen - s_LowestWavelen)) + s_LowestWavelen;
 
+		ret.AddSample(sampledWavelen, Sample(sampledWavelen));
+	}
+
+	ret.SortData();
 
 	return ret;
 }

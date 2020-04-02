@@ -27,12 +27,12 @@ C_SpectralData::C_SpectralData(const Core::S_WindowInfo& wndInfo)
 	, m_MultipliedReflLumi("Multiplied")
 	, m_MultipliedReflLumiXYZ("MultipliedXYZ")
 	, m_Results({{
-			{"E2 A=({:.2f}, {:.2f}, {:.2f}) D65=({:.2f}, {:.2f}, {:.2f}) F11=({:.2f}, {:.2f}, {:.2f})"},
-			{"F4 A=({:.2f}, {:.2f}, {:.2f}) D65=({:.2f}, {:.2f}, {:.2f}) F11=({:.2f}, {:.2f}, {:.2f})"},
-			{"G4 A=({:.2f}, {:.2f}, {:.2f}) D65=({:.2f}, {:.2f}, {:.2f}) F11=({:.2f}, {:.2f}, {:.2f})"},
-			{"H4 A=({:.2f}, {:.2f}, {:.2f}) D65=({:.2f}, {:.2f}, {:.2f}) F11=({:.2f}, {:.2f}, {:.2f})"},
-			{"J4 A=({:.2f}, {:.2f}, {:.2f}) D65=({:.2f}, {:.2f}, {:.2f}) F11=({:.2f}, {:.2f}, {:.2f})"},
-			{"A1 A=({:.2f}, {:.2f}, {:.2f}) D65=({:.2f}, {:.2f}, {:.2f}) F11=({:.2f}, {:.2f}, {:.2f})"},
+			{"E2 A=({:.3f}, {:.3f}, {:.3f}) D65=({:.3f}, {:.3f}, {:.3f}) F11=({:.3f}, {:.3f}, {:.3f})"},
+			{"F4 A=({:.3f}, {:.3f}, {:.3f}) D65=({:.3f}, {:.3f}, {:.3f}) F11=({:.3f}, {:.3f}, {:.3f})"},
+			{"G4 A=({:.3f}, {:.3f}, {:.3f}) D65=({:.3f}, {:.3f}, {:.3f}) F11=({:.3f}, {:.3f}, {:.3f})"},
+			{"H4 A=({:.3f}, {:.3f}, {:.3f}) D65=({:.3f}, {:.3f}, {:.3f}) F11=({:.3f}, {:.3f}, {:.3f})"},
+			{"J4 A=({:.3f}, {:.3f}, {:.3f}) D65=({:.3f}, {:.3f}, {:.3f}) F11=({:.3f}, {:.3f}, {:.3f})"},
+			{"A1 A=({:.3f}, {:.3f}, {:.3f}) D65=({:.3f}, {:.3f}, {:.3f}) F11=({:.3f}, {:.3f}, {:.3f})"},
 		}})
 	, m_UpdateResults("Update results", [&]() {UpdateResults(); })
 	, m_SamplingButtons({{
@@ -77,6 +77,11 @@ C_SpectralData::C_SpectralData(const Core::S_WindowInfo& wndInfo)
 	m_RandomlySampledPlot.m_Color[0] = glm::vec3(1, 0, 0);
 
 	m_RandomlySampledPlot.m_yData.resize(1);
+
+	m_HeroSampledPlot.m_Color.resize(1);
+	m_HeroSampledPlot.m_Color[0] = glm::vec3(1, 0, 0);
+
+	m_HeroSampledPlot.m_yData.resize(1);
 
 	m_MultipliedReflLumi.m_Color.resize(1);
 	m_MultipliedReflLumi.m_Color[0] = glm::vec3(1, 0, 0);
@@ -197,6 +202,7 @@ void C_SpectralData::Update()
 		m_SelectedSampling.Draw();
 		m_UniformlySampledPlot.Draw();
 		m_RandomlySampledPlot.Draw();
+		m_HeroSampledPlot.Draw();
 	::ImGui::End();
 
 
@@ -362,6 +368,11 @@ void C_SpectralData::UpdateSampledPlots(const int samples)
 		const auto sampled = m_F11CIE.SampleRandomly(samples);
 
 		sampled.FillData(m_RandomlySampledPlot, 0);
+	}
+	{
+		const auto sampled = m_F11CIE.SampleHero(samples);
+
+		sampled.FillData(m_HeroSampledPlot, 0);
 	}
 
 
