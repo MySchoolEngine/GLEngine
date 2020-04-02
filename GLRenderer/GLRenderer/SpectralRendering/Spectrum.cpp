@@ -3,6 +3,7 @@
 #include <GLRenderer/SpectralRendering/Spectrum.h>
 
 #include <GLRenderer/SpectralRendering/SpectralPlot.h>
+#include <GLRenderer/SpectralRendering/MatchingFunction.h>
 
 #include <cmath>
 
@@ -161,7 +162,26 @@ C_Spectrum C_Spectrum::operator*(const C_Spectrum& other) const
 //=================================================================================
 float C_Spectrum::Integrate() const
 {
+	auto sum = 0.f;
 
+	for (auto it = m_Samples.begin() + 1; it != m_Samples.end(); ++it) {
+		auto dx = std::abs(((it - 1)->first - it->first));
+		auto h = ((it - 1)->second + (*it).second) * 0.5f;
+		sum += dx * h;
+	}
+
+	return sum;
+}
+
+//=================================================================================
+glm::vec3 C_Spectrum::GetXYZ(const C_MatchingFunction& mf) const
+{
+	const auto X = (*this * mf.m_Samples[0].GetSameSamplig(*this)).Integrate();
+	const auto Y = (*this * mf.m_Samples[1].GetSameSamplig(*this)).Integrate();
+	const auto Z = (*this * mf.m_Samples[2].GetSameSamplig(*this)).Integrate();
+
+	glm::vec3 xyz(X, Y, Z);
+	return xyz;
 }
 
 }

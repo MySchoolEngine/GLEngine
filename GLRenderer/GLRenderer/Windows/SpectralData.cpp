@@ -166,16 +166,28 @@ void C_SpectralData::Update()
 	if (m_Samples.Changed())
 	{
 		{
-			const auto sampled = m_F11CIE.SampleUniformly(m_Samples.GetValue());
+			const auto sampled = m_ACIE.SampleUniformly(m_Samples.GetValue());
 			sampled.FillData(m_UniformlySampledPlot, 0);
 
 			const auto multiplied = sampled * m_Colors[1].GetSameSamplig(sampled);
 
 			multiplied.FillData(m_MultipliedReflLumi, 0);
+
+			glm::vec3 xyz = multiplied.GetXYZ(m_MatchingFunction);
+
+			const auto rgb = m_XYZsRGB * xyz;
+			CORE_LOG(E_Level::Error, E_Context::Core, "{},{},{}", rgb.x, rgb.y, rgb.z);
 		}
 		{
 			const auto sampled = m_F11CIE.SampleRandomly(m_Samples.GetValue());
 			sampled.FillData(m_RandomlySampledPlot, 0);
+
+			const auto multiplied = sampled * m_Colors[1].GetSameSamplig(sampled);
+
+			glm::vec3 xyz = multiplied.GetXYZ(m_MatchingFunction);
+
+			const auto rgb = m_XYZsRGB * xyz;
+			CORE_LOG(E_Level::Error, E_Context::Core, "{},{},{}", rgb.x, rgb.y, rgb.z);
 		}
 	}
 

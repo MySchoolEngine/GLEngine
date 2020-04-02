@@ -17,7 +17,7 @@ public:
 	void AddSample(int waveLength, float X, float Y, float Z);
 
 	void FillData(C_SpectralPlot& plot) const;
-protected:
+public:
 	std::array<C_Spectrum, 3> m_Samples;
 };
 }

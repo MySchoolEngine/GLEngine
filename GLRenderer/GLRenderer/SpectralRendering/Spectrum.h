@@ -3,6 +3,8 @@
 namespace GLEngine::GLRenderer::SpectralRendering {
 
 class C_SpectralPlot;
+class C_MatchingFunction;
+
 
 class C_Spectrum
 {
@@ -15,6 +17,8 @@ public:
 	void AddSample(int waveLength, float intensity);
 
 	void FillData(C_SpectralPlot& plot, std::size_t line) const;
+
+	glm::vec3 GetXYZ(const C_MatchingFunction& mf) const;
 
 	float Integrate() const;
 
