@@ -41,7 +41,7 @@ public:
 	template<E_ComponentType e,
 		typename retType = ComponenetBase<e>::type,
 		typename ret = std::shared_ptr<typename retType>>
-	typename ret GetComponent() {
+	[[nodiscard]] typename ret GetComponent() {
 		return component_cast<e>(GetComponent(e));
 	}
 	//=================================================================================
