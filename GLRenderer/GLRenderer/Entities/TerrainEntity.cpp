@@ -128,10 +128,10 @@ void C_TerrainEntity::DrawControls()
 			::ImGui::Separator();
 			if(!m_SimulationRunning)
 			{
-				::ImGui::SliderFloat("Gravitation", &(m_Settings.m_Gravitation), 0.0f, 15.0f);
-				::ImGui::SliderFloat("Evaporation", &(m_Settings.m_Evaporation), 0.0f, 1.0f);
-				::ImGui::SliderFloat("InitWater", &(m_Settings.m_InitWater), 0.1f, 5.0f);
-				::ImGui::SliderFloat("InitSpeed", &(m_Settings.m_StartingSpeed), 0.0f, 10.0f);
+				m_Settings.m_Gravitation.Draw();
+				m_Settings.m_Evaporation.Draw();
+				m_Settings.m_InitWater.Draw();
+				m_Settings.m_StartingSpeed.Draw();
 				m_Settings.m_NumSteps.Draw();
 
 				if (::ImGui::Button("Simulate"))

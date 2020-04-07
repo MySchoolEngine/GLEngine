@@ -270,16 +270,15 @@ void C_TerrainMesh::Simulate()
 					program->SetUniform("numDrops", static_cast<int>(m_Settings->m_Drops));
 					program->SetUniform("numSteps", static_cast<int>(m_Settings->m_NumSteps));
 					program->SetUniform("inertia", m_Settings->m_Inertia);
-					program->SetUniform("gravityForce", m_Settings->m_Gravitation);
-					program->SetUniform("evaporate", m_Settings->m_Evaporation);
-					program->SetUniform("startingSpeed", m_Settings->m_InitWater);
-					program->SetUniform("initialWater", m_Settings->m_StartingSpeed);
+					program->SetUniform("gravityForce", static_cast<float>(m_Settings->m_Gravitation));
+					program->SetUniform("evaporate", static_cast<float>(m_Settings->m_Evaporation));
+					program->SetUniform("startingSpeed", static_cast<float>(m_Settings->m_InitWater));
+					program->SetUniform("initialWater", static_cast<float>(m_Settings->m_StartingSpeed));
 					m_RainData->UploadData();
 					m_RainData->Activate(true);
 
 					glDispatchCompute(1, 1, 1);
 					glMemoryBarrier(GL_ALL_BARRIER_BITS);
-					m_Noise.GenerateMipMaps();
 					m_RainData->Activate(false);
 					// generate new droplets
 					m_RainData->GenerateDrops();
@@ -287,6 +286,26 @@ void C_TerrainMesh::Simulate()
 			)
 		)
 	);
+
+	s = RenderDoc::C_DebugScope("collectHeightMap");
+
+	auto noiseShader = shmgr.GetProgram("collectHeightMap");
+	shmgr.ActivateShader(noiseShader);
+
+
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+		std::move(
+			std::make_unique<Commands::HACK::C_LambdaCommand>(
+				[&]() {
+
+					glDispatchCompute(dim / 16, dim / 16, 1);
+					glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
+					m_Noise.GenerateMipMaps();
+				}, "collectHeightMap"
+				)
+			)
+		);
 }
 
 //=================================================================================
