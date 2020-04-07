@@ -151,16 +151,20 @@ void DepositSediment(vec2 posf, float amountToDeposit)
   imageStore(terrainPatch, ivec3(pos+ off.zz, Terrain_LayerDirt), vec4(SE, SEc.y, SEc.z, 1));
 }
 
-void WriteWettness(vec2 posf, float amount)
+float GetWettness(vec2 posf)
 {
-    float val = imageLoad(terrainPatch, ivec3(posf, wetnessLayer)).r;
-    imageStore(terrainPatch, ivec3(posf, wetnessLayer), vec4(val + amount, 0, 0, 0));
+    return imageLoad(terrainPatch, ivec3(posf, wetnessLayer)).r;
 }
 
 void SetWettness(vec2 posf, float amount)
 {
-    float val = imageLoad(terrainPatch, ivec3(posf, wetnessLayer)).r;
-    imageStore(terrainPatch, ivec3(posf, wetnessLayer), vec4(val + amount, 0, 0, 0));
+    imageStore(terrainPatch, ivec3(posf, wetnessLayer), vec4(amount, 0, 0, 0));
+}
+
+void WriteWettness(vec2 posf, float amount)
+{
+    float val =GetWettness(posf);
+    SetWettness(posf, val + amount);
 }
 
 //=================================================================================
@@ -281,16 +285,23 @@ void main()
       }
   		else if(layer == Terrain_LayerRock)
       {
-        // eroding rock
-        ivec3 pos = ivec3(positionBak, Terrain_LayerRock);
-        vec4 heightVal = imageLoad(terrainPatch, pos);
-        float deltaSediment = amountToErode * 0.5f;
+        if(GetWettness(positionBak) > 20.f)
+        {
+          WriteWettness(positionBak, -20f);
 
-        float result = heightVal.x - deltaSediment;
-        //WriteWettness(positionBak, deltaSediment);
+          // eroding rock
+          ivec3 pos = ivec3(positionBak, Terrain_LayerRock);
+          vec4 heightVal = imageLoad(terrainPatch, pos);
+          float deltaSediment = amountToErode * 0.5f;
 
-        imageStore(terrainPatch, pos, vec4(result, heightVal.y, heightVal.z, heightVal.a));
-        drop.sediment += deltaSediment;
+          float result = heightVal.x - deltaSediment;
+          //WriteWettness(positionBak, deltaSediment);
+
+          imageStore(terrainPatch, pos, vec4(result, 0, 0, 0));
+
+          pos.z = Terrain_LayerSand;
+          imageStore(terrainPatch, pos, vec4(deltaSediment, 0, 0, 0));
+        }
       }
 
       // if current action changed top layer to stone lets clear the wetness
