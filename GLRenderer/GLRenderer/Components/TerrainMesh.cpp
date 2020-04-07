@@ -224,6 +224,8 @@ void C_TerrainMesh::GenerateTerrain()
 					noiseShader->SetUniform("unicoord", (m_Coord*(dim-1)));
 					noiseShader->SetUniform("patchWidth", dim);
 					noiseShader->SetUniform("usePerlin", static_cast<bool>(m_Settings->PerlinNoise));
+					noiseShader->SetUniform("layerWeight[0]", m_Settings->m_Layers[0].m_Weight.GetValue());
+					noiseShader->SetUniform("layerWeight[1]", m_Settings->m_Layers[1].m_Weight.GetValue());
 				}, "Prepare generation of noise"
 			)
 		)
