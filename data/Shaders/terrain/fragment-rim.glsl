@@ -24,17 +24,9 @@ void main()
 
 	cosTheta = dot(normal,normalize(frame.SunPos));
 	cosTheta = max(0.0, cosTheta);
+	int topLevel = getLayerIndex(tex, uv, FragPos.y);
 
-	const float layer1Height = texture(tex, vec3(uv, Terrain_layer1)).r;
-
-	if(layer1Height>=FragPos.y)
-	{
-		albedo = modelColor[0];
-	}
-	else
-	{
-		albedo = modelColor[1];
-	}
+	albedo = modelColor[topLevel-Terrain_layer1];
 
 	vec4 MaterialAmbientColor = frame.AmbientStrength * sunColor; // ambient lighting fake
 	vec4 MaterialDiffuseColor = cosTheta*sunColor;

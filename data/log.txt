@@ -1,0 +1,12 @@
+GLFWWindow.cpp:95(Info,Core): GLFW: Window initialized.
+GLFWoGLWindow.cpp:48(Info,Render): GLFW: OpenGL window initialized
+EntityManager.cpp:115(Info,Core): Loading level: Levels/main.xml
+IEntity.cpp:16(Info,UnknownContext): Entity 'Player' created.
+IEntity.cpp:16(Info,UnknownContext): Entity 'SkyBox' created.
+EntitiesWindow.cpp:30(Info,Render): ~C_EntitiesWindow()
+IEntity.cpp:28(Info,UnknownContext): Entity 'Player' despawn
+IEntity.cpp:28(Info,UnknownContext): Entity 'SkyBox' despawn
+ShaderProgram.cpp:128(Info,Render): Deleting program: 6
+ShaderProgram.cpp:128(Info,Render): Deleting program: 12
+ShaderProgram.cpp:128(Info,Render): Deleting program: 9
+EntryPoint.h:31(Info,Core): App ended

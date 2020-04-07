@@ -5,7 +5,6 @@
 //per mesh
 layout (binding = 0) uniform sampler2DArray tex;
 uniform vec3 modelColor[2];
-uniform bool hasTexture;
 uniform bool selected;
 uniform float patchSize;
 
@@ -46,33 +45,27 @@ void main()
 	vec3 albedo = vec3(1,0,0);
 	float cosTheta;
 
-	vec3 terrainTex = texture(tex, uv).rgb;
 	float terrainWetness = texture(tex, vec3(uv.xy, wetnessLayer)).r;
-	float rockLevel = texture(tex, vec3(uv.xy, Terrain_layer1)).r;
+	int topLevel = getTopLayerIndex(tex, uv.xy);
 
 	vec3 mudColor = vec3(0.5, 0.4, 0.278);
 
 	float specularStrength = 0;
 
 
-	if(hasTexture){
-		albedo = terrainTex;
-	}
-	else{
-		albedo = modelColor[1];
-		if(rockLevel>=FragPos.y)
+	albedo = modelColor[topLevel-Terrain_layer1];
+	if(terrainWetness > 30){
+		specularStrength = remap(terrainWetness, 20,1000,0,0.05);
+		if(topLevel == Terrain_layer2)
 		{
-			albedo = modelColor[0];
-		}
-		else if(terrainWetness > 30){
 			albedo = mix(albedo, mudColor, max(min(remap(terrainWetness, 30,60,0,1),1.0), 0));
-			specularStrength = remap(terrainWetness, 20,100,0,0.05);
 		}
 	}
 
 	// if selected show waterpaths
 	if(selected){
-		albedo.r = texture(tex, vec3(uv.xy, wetnessLayer)).x;
+		albedo.r = texture(tex, vec3(uv.xy, wetnessLayer)).x/ 100;
+		specularStrength = 0;
 	}
 
 

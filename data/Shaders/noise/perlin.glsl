@@ -59,10 +59,6 @@ void main()
     float heightAcc = 0.0;
     vec2 imageCoord = vec2(posX, posY);
 
-    float layerWeight[2];
-    layerWeight[0] = 0.7;
-    layerWeight[1] = 0.3;
-
     ivec2 randomOffset[2];
     randomOffset[0] = ivec2(0,0);
     randomOffset[1] = ivec2(1500,3000);
