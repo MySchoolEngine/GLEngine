@@ -4,7 +4,7 @@
 #include "../include/frameConstants.glsl"
 
 //per mesh
-uniform vec3 modelColor[2];
+uniform vec3 modelColor[Terrain_NumLayers];
 uniform sampler2DArray tex;
 
 in vec3 normal;

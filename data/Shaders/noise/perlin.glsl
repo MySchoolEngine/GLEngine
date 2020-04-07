@@ -10,7 +10,7 @@ uniform int patchWidth;
 uniform int frequency;
 uniform ivec2 unicoord;
 uniform bool  usePerlin;
-uniform float layerWeight[2];
+uniform float layerWeight[Terrain_NumLayers];
 
 //=================================================================================
 float rand(vec2 c){
@@ -59,9 +59,10 @@ void main()
     float heightAcc = 0.0;
     vec2 imageCoord = vec2(posX, posY);
 
-    ivec2 randomOffset[2];
+    ivec2 randomOffset[3];
     randomOffset[0] = ivec2(0,0);
     randomOffset[1] = ivec2(1500,3000);
+    randomOffset[2] = ivec2(20,3000);
 
     if(usePerlin){
         for(int layer = Terrain_layer1; layer < Terrain_layer1 + Terrain_NumLayers; ++layer)

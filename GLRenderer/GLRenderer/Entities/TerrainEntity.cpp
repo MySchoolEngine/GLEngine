@@ -26,10 +26,12 @@ C_TerrainEntity::C_TerrainEntity(const std::string& name)
 	for (auto& layer : m_Settings.m_Layers)
 	{
 		layer.m_Name.UpdateText(i);
+		layer.m_Weight = 1.f / 3.f;
 		++i;
 	}
 
-	m_Settings.m_Layers->m_TerrainColor.SetValue(glm::vec3(27.f / 255.f, 42.f / 255.f, 51.f / 255.f));
+	m_Settings.m_Layers[0].m_TerrainColor.SetValue(glm::vec3(27.f / 255.f, 42.f / 255.f, 51.f / 255.f));
+	m_Settings.m_Layers[1].m_TerrainColor.SetValue(glm::vec3(93.f / 255.f, 82.f / 255.f, 24.f / 255.f)); // yellowish color - sand
 }
 
 //=================================================================================

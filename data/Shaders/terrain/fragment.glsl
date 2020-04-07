@@ -4,7 +4,7 @@
 #include "../include/frameConstants.glsl"
 //per mesh
 layout (binding = 0) uniform sampler2DArray tex;
-uniform vec3 modelColor[2];
+uniform vec3 modelColor[Terrain_NumLayers];
 uniform bool selected;
 uniform float patchSize;
 
@@ -56,7 +56,7 @@ void main()
 	albedo = modelColor[topLevel-Terrain_layer1];
 	if(terrainWetness > 30){
 		specularStrength = remap(terrainWetness, 20,1000,0,0.05);
-		if(topLevel == Terrain_layer2)
+		if(topLevel == Terrain_layer3)
 		{
 			albedo = mix(albedo, mudColor, max(min(remap(terrainWetness, 30,60,0,1),1.0), 0));
 		}

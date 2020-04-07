@@ -50,9 +50,12 @@ C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 					m_Noise.StartGroupOp();
 					// 0 layer - height
 					// 1 layer - amount of water
-					// 2 layer - lowest layer
-					// 3 layer - second layer
-					glTexStorage3D(m_Noise.GetTarget(), 3, GL_R32F, dim, dim, 4);
+					// 2 layer - lowest layer - rock
+					// 3 layer - second layer - sand
+					// 4 layer - third layer - dirt
+					const int numSedimentLayer = 3;
+
+					glTexStorage3D(m_Noise.GetTarget(), 3, GL_R32F, dim, dim, 2 + numSedimentLayer);
 					m_Noise.SetWrap(E_WrapFunction::ClampToEdge, E_WrapFunction::ClampToEdge);
 					m_Noise.SetFilter(GL_LINEAR, GL_LINEAR);
 
@@ -119,7 +122,8 @@ void C_TerrainMesh::PerformDraw() const
 					shader->SetUniform("modelMatrix", GetModelMatrix());
 					shader->SetUniform("modelColor[0]", m_Settings->m_Layers[0].m_TerrainColor.GetValue());
 					shader->SetUniform("modelColor[1]", m_Settings->m_Layers[1].m_TerrainColor.GetValue());
-					shader->SetUniform("hasTexture", m_HasTexture.GetValue());
+					shader->SetUniform("modelColor[2]", m_Settings->m_Layers[2].m_TerrainColor.GetValue());
+					//shader->SetUniform("hasTexture", m_HasTexture.GetValue());
 					shader->SetUniform("selected", m_Selected);
 
 					m_Terrain->BindVAO();
@@ -146,6 +150,7 @@ void C_TerrainMesh::PerformDraw() const
 					ShaderTerrainRim->SetUniform("modelMatrix", GetModelMatrix());
 					ShaderTerrainRim->SetUniform("modelColor[0]", m_Settings->m_Layers[0].m_TerrainColor.GetValue());
 					ShaderTerrainRim->SetUniform("modelColor[1]", m_Settings->m_Layers[1].m_TerrainColor.GetValue());
+					ShaderTerrainRim->SetUniform("modelColor[2]", m_Settings->m_Layers[2].m_TerrainColor.GetValue());
 
 					m_Terrain->BindVAO();
 					glDrawArrays(GL_TRIANGLES, 0, 6 * m_Settings->m_SqPerLine *4);
@@ -226,6 +231,7 @@ void C_TerrainMesh::GenerateTerrain()
 					noiseShader->SetUniform("usePerlin", static_cast<bool>(m_Settings->PerlinNoise));
 					noiseShader->SetUniform("layerWeight[0]", m_Settings->m_Layers[0].m_Weight.GetValue());
 					noiseShader->SetUniform("layerWeight[1]", m_Settings->m_Layers[1].m_Weight.GetValue());
+					noiseShader->SetUniform("layerWeight[2]", m_Settings->m_Layers[2].m_Weight.GetValue());
 				}, "Prepare generation of noise"
 			)
 		)

@@ -49,7 +49,7 @@ public:
 		GUI::Input::C_Slider<int>		m_NumSteps					{ 90, 30, 150, "Max lifetime" };
 		GUI::Input::C_Slider<int>		m_PatchSize					{ 40, 4, 60, "Patch size"};
 		GUI::Input::C_CheckBoxValue PerlinNoise					{ true, "Use Perlin noise" };
-		S_LayerSettings m_Layers[2];
+		S_LayerSettings m_Layers[3];
 		GUI::Input::C_Slider<float> m_Evaporation				{ 0.02f, 0.f, 1.f, "Evaporation" };
 		GUI::Input::C_Slider<float> m_Gravitation				{ 4.0f, 0.f, 15.f, "Gravitation" };
 		GUI::Input::C_Slider<float> m_InitWater					{ 1.f, 0.1f, 5.0f, "InitWater" };
@@ -64,7 +64,7 @@ protected:
 
 	glm::ivec2 m_InputCoords;
 	bool m_SimulationRunning;
-	GUI::Input::C_Slider<int>  m_Iterations						{1000, 1, 1000000, "Iterations"};
+	GUI::Input::C_Slider<int>  m_Iterations						{1000, 1, 10000, "Iterations"};
 	int  m_CurrentIteration;
 
 	S_TerrainSettings m_Settings;
