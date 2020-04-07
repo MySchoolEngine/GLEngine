@@ -181,7 +181,7 @@ void C_TerrainMesh::UpdateStats()
 
 	RenderDoc::C_DebugScope s("Terrain stats");
 	auto& tm = Textures::C_TextureUnitManger::Instance();
-	tm.BindImageToUnit(m_Noise, 0, Textures::E_Access::Read);
+	tm.BindImageToUnit(m_Noise, 0, E_OpenGLAccess::Read);
 
 
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
@@ -224,6 +224,8 @@ void C_TerrainMesh::GenerateTerrain()
 					noiseShader->SetUniform("unicoord", (m_Coord*(dim-1)));
 					noiseShader->SetUniform("patchWidth", dim);
 					noiseShader->SetUniform("usePerlin", static_cast<bool>(m_Settings->PerlinNoise));
+					noiseShader->SetUniform("layerWeight[0]", m_Settings->m_Layers[0].m_Weight.GetValue());
+					noiseShader->SetUniform("layerWeight[1]", m_Settings->m_Layers[1].m_Weight.GetValue());
 				}, "Prepare generation of noise"
 			)
 		)
@@ -232,7 +234,7 @@ void C_TerrainMesh::GenerateTerrain()
 
 	RenderDoc::C_DebugScope s("NoiseCompute");
 	auto& tm = Textures::C_TextureUnitManger::Instance();
-	tm.BindImageToUnit(m_Noise, 0, Textures::E_Access::Write);
+	tm.BindImageToUnit(m_Noise, 0, E_OpenGLAccess::Write);
 
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
@@ -256,7 +258,7 @@ void C_TerrainMesh::Simulate()
 {
 	RenderDoc::C_DebugScope s("Terrain erosion");
 	auto& tm = Textures::C_TextureUnitManger::Instance();
-	tm.BindImageToUnit(m_Noise, 0, Textures::E_Access::ReadWrite);
+	tm.BindImageToUnit(m_Noise, 0, E_OpenGLAccess::ReadWrite);
 
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	auto program = shmgr.GetProgram("erosion");

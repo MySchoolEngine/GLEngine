@@ -10,6 +10,7 @@ uniform int patchWidth;
 uniform int frequency;
 uniform ivec2 unicoord;
 uniform bool  usePerlin;
+uniform float layerWeight[2];
 
 //=================================================================================
 float rand(vec2 c){

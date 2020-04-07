@@ -28,19 +28,19 @@ class C_OrbitalCamera : public Renderer::I_CameraComponent
 {
 public:
 	C_OrbitalCamera();
-	~C_OrbitalCamera() = default;
+	~C_OrbitalCamera();
 
-	virtual glm::mat4 GetViewProjectionMatrix() const override;
-	virtual glm::mat4 GetProjectionMatrix() const override;
-	virtual glm::mat4 GetViewMatrix() const override;
-	virtual glm::quat GetRotation() const override;
-	virtual glm::vec3 GetDirection() const override;
-	virtual glm::vec3 GetPosition() const override;
+	[[nodiscard]] virtual glm::mat4 GetViewProjectionMatrix() const override;
+	[[nodiscard]] virtual glm::mat4 GetProjectionMatrix() const override;
+	[[nodiscard]] virtual glm::mat4 GetViewMatrix() const override;
+	[[nodiscard]] virtual glm::quat GetRotation() const override;
+	[[nodiscard]] virtual glm::vec3 GetDirection() const override;
+	[[nodiscard]] virtual glm::vec3 GetPosition() const override;
 
-	virtual Physics::Primitives::C_Frustum GetFrustum()	const override;
+	[[nodiscard]] virtual Physics::Primitives::C_Frustum GetFrustum()	const override;
 
 
-	virtual float GetAspectRatio() const;
+	[[nodiscard]] float GetAspectRatio() const;
 
 	void setupCameraView(float zoom, glm::vec3 center, float angleXDeg, float angleYDeg);
 	void setCenterPoint(const glm::vec3& center);
@@ -53,10 +53,10 @@ public:
 	virtual void Update() override;
 
 
-	virtual float GetFar() const { return _farZ; }
-	virtual float GetNear() const { return _nearZ; }
+	[[nodiscard]] float GetFar() const { return _farZ; }
+	[[nodiscard]] float GetNear() const { return _nearZ; }
 
-	virtual float GetFov() const;
+	[[nodiscard]] float GetFov() const;
 
 
 
