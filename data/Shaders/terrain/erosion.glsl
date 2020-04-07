@@ -102,10 +102,10 @@ void DepositSediment(vec2 posf, float amountToDeposit)
 	float offsetInCellx = posf.x - pos.x;
 	float offsetInCelly = posf.y - pos.y;
 
-	vec4 NWc = imageLoad(terrainPatch, pos+ ivec3(off.yy, heightmapLayer));
-  vec4 NEc = imageLoad(terrainPatch, pos+ ivec3(off.yz, heightmapLayer));//[1,0]
-  vec4 SWc = imageLoad(terrainPatch, pos+ ivec3(off.zy, heightmapLayer));//[0,1]
-  vec4 SEc = imageLoad(terrainPatch, pos+ ivec3(off.zz, heightmapLayer));//[1,1]
+	vec4 NWc = imageLoad(terrainPatch, pos+ ivec3(off.yy, Terrain_layer2));
+  vec4 NEc = imageLoad(terrainPatch, pos+ ivec3(off.yz, Terrain_layer2));//[1,0]
+  vec4 SWc = imageLoad(terrainPatch, pos+ ivec3(off.zy, Terrain_layer2));//[0,1]
+  vec4 SEc = imageLoad(terrainPatch, pos+ ivec3(off.zz, Terrain_layer2));//[1,1]
 
   float NW = NWc.x;//[-1,0]
   float NE = NEc.x;//[1,0]
@@ -119,10 +119,10 @@ void DepositSediment(vec2 posf, float amountToDeposit)
   SW += partitionToDeposit * (1 - offsetInCellx) * offsetInCelly;
   SE += partitionToDeposit * offsetInCellx * offsetInCelly;
 
-  imageStore(terrainPatch, pos+ ivec3(off.yy, heightmapLayer), vec4(NW, NWc.y, NWc.z, 1));
-  imageStore(terrainPatch, pos+ ivec3(off.yz, heightmapLayer), vec4(NE, NEc.y, NEc.z, 1));
-  imageStore(terrainPatch, pos+ ivec3(off.zy, heightmapLayer), vec4(SW, SWc.y, SWc.z, 1));
-  imageStore(terrainPatch, pos+ ivec3(off.zz, heightmapLayer), vec4(SE, SEc.y, SEc.z, 1));
+  imageStore(terrainPatch, pos+ ivec3(off.yy, Terrain_layer2), vec4(NW, NWc.y, NWc.z, 1));
+  imageStore(terrainPatch, pos+ ivec3(off.yz, Terrain_layer2), vec4(NE, NEc.y, NEc.z, 1));
+  imageStore(terrainPatch, pos+ ivec3(off.zy, Terrain_layer2), vec4(SW, SWc.y, SWc.z, 1));
+  imageStore(terrainPatch, pos+ ivec3(off.zz, Terrain_layer2), vec4(SE, SEc.y, SEc.z, 1));
 }
 
 //=================================================================================
@@ -206,7 +206,7 @@ void main()
   		for(int i = 0; i< brush.length();++i)
   		{
   			float deltaToErode = amountToErode*brush[i].weight;
-  			ivec3 pos = ivec3(positionBak + brush[i].offset, heightmapLayer);
+  			ivec3 pos = ivec3(positionBak + brush[i].offset, Terrain_layer2);
 
   			vec4 heightVal =imageLoad(terrainPatch, pos); 
   			float val = heightVal.x;
