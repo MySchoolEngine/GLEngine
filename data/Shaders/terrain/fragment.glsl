@@ -64,7 +64,7 @@ void main()
 		{
 			albedo = modelColor[0];
 		}
-		if(terrainWetness > 30){
+		else if(terrainWetness > 30){
 			albedo = mix(albedo, mudColor, max(min(remap(terrainWetness, 30,60,0,1),1.0), 0));
 			specularStrength = remap(terrainWetness, 20,100,0,0.05);
 		}
