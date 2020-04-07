@@ -36,6 +36,9 @@ C_OrbitalCamera::C_OrbitalCamera()
 }
 
 //=================================================================================
+C_OrbitalCamera::~C_OrbitalCamera() = default;
+
+//=================================================================================
 void C_OrbitalCamera::setupCameraView(float zoom, glm::vec3 center, float angleXDeg, float angleYDeg)
 {
 	_zoom = zoom;
