@@ -4,6 +4,10 @@
 #define Terrain_layer2 3 // sand
 #define Terrain_layer3 4 // dirt
 
+#define Terrain_LayerRock Terrain_layer1
+#define Terrain_LayerSand Terrain_layer2
+#define Terrain_LayerDirt Terrain_layer3
+
 #define Terrain_NumLayers 3
 
 const float eps = 0.01f;

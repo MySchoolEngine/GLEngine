@@ -128,10 +128,10 @@ void DepositSediment(vec2 posf, float amountToDeposit)
 	float offsetInCellx = posf.x - pos.x;
 	float offsetInCelly = posf.y - pos.y;
 
-	vec4 NWc = imageLoad(terrainPatch, ivec3(pos+ off.yy, Terrain_layer2));
-  vec4 NEc = imageLoad(terrainPatch, ivec3(pos+ off.yz, Terrain_layer2));//[1,0]
-  vec4 SWc = imageLoad(terrainPatch, ivec3(pos+ off.zy, Terrain_layer2));//[0,1]
-  vec4 SEc = imageLoad(terrainPatch, ivec3(pos+ off.zz, Terrain_layer2));//[1,1]
+	vec4 NWc = imageLoad(terrainPatch, ivec3(pos+ off.yy, Terrain_LayerDirt));
+  vec4 NEc = imageLoad(terrainPatch, ivec3(pos+ off.yz, Terrain_LayerDirt));//[1,0]
+  vec4 SWc = imageLoad(terrainPatch, ivec3(pos+ off.zy, Terrain_LayerDirt));//[0,1]
+  vec4 SEc = imageLoad(terrainPatch, ivec3(pos+ off.zz, Terrain_LayerDirt));//[1,1]
 
   float NW = NWc.x;//[-1,0]
   float NE = NEc.x;//[1,0]
@@ -145,13 +145,19 @@ void DepositSediment(vec2 posf, float amountToDeposit)
   SW += partitionToDeposit * (1 - offsetInCellx) * offsetInCelly;
   SE += partitionToDeposit * offsetInCellx * offsetInCelly;
 
-  imageStore(terrainPatch, ivec3(pos+ off.yy, Terrain_layer2), vec4(NW, NWc.y, NWc.z, 1));
-  imageStore(terrainPatch, ivec3(pos+ off.yz, Terrain_layer2), vec4(NE, NEc.y, NEc.z, 1));
-  imageStore(terrainPatch, ivec3(pos+ off.zy, Terrain_layer2), vec4(SW, SWc.y, SWc.z, 1));
-  imageStore(terrainPatch, ivec3(pos+ off.zz, Terrain_layer2), vec4(SE, SEc.y, SEc.z, 1));
+  imageStore(terrainPatch, ivec3(pos+ off.yy, Terrain_LayerDirt), vec4(NW, NWc.y, NWc.z, 1));
+  imageStore(terrainPatch, ivec3(pos+ off.yz, Terrain_LayerDirt), vec4(NE, NEc.y, NEc.z, 1));
+  imageStore(terrainPatch, ivec3(pos+ off.zy, Terrain_LayerDirt), vec4(SW, SWc.y, SWc.z, 1));
+  imageStore(terrainPatch, ivec3(pos+ off.zz, Terrain_LayerDirt), vec4(SE, SEc.y, SEc.z, 1));
 }
 
 void WriteWettness(vec2 posf, float amount)
+{
+    float val = imageLoad(terrainPatch, ivec3(posf, wetnessLayer)).r;
+    imageStore(terrainPatch, ivec3(posf, wetnessLayer), vec4(val + amount, 0, 0, 0));
+}
+
+void SetWettness(vec2 posf, float amount)
 {
     float val = imageLoad(terrainPatch, ivec3(posf, wetnessLayer)).r;
     imageStore(terrainPatch, ivec3(posf, wetnessLayer), vec4(val + amount, 0, 0, 0));
@@ -231,12 +237,12 @@ void main()
   		const float amountToErode = min ((sedimentCapacity - drop.sediment) * erodeSpeed, -deltaHeight);
   		
       const int layer = getTopLayerIndex(ivec2(positionBak));
-      if(layer == Terrain_layer2)
+      if(layer == Terrain_LayerDirt)
       {
         for(int i = 0; i< brush.length();++i)
         {
           float deltaToErode = amountToErode*brush[i].weight;
-          ivec3 pos = ivec3(positionBak + brush[i].offset, Terrain_layer2);
+          ivec3 pos = ivec3(positionBak + brush[i].offset, Terrain_LayerDirt);
 
           float val = imageLoad(terrainPatch, pos).x; 
 
@@ -252,10 +258,31 @@ void main()
           drop.sediment += deltaSediment;
         }
       }
-  		else
+      else if(layer == Terrain_LayerSand)
+      {
+        for(int i = 0; i< brush.length();++i)
+        {
+          float deltaToErode = amountToErode*brush[i].weight;
+          ivec3 pos = ivec3(positionBak + brush[i].offset, Terrain_LayerSand);
+
+          float val = imageLoad(terrainPatch, pos).x; 
+
+          float deltaSediment = deltaToErode;
+          float result = val - deltaSediment;
+          if(val < deltaToErode)
+          {
+            deltaSediment = val;
+            result = 0.f;
+          }
+
+          imageStore(terrainPatch, pos, vec4(result, 0, 0, 0));
+          drop.sediment += deltaSediment;
+        }
+      }
+  		else if(layer == Terrain_LayerRock)
       {
         // eroding rock
-        ivec3 pos = ivec3(positionBak, Terrain_layer1);
+        ivec3 pos = ivec3(positionBak, Terrain_LayerRock);
         vec4 heightVal = imageLoad(terrainPatch, pos);
         float deltaSediment = amountToErode * 0.5f;
 
@@ -264,6 +291,12 @@ void main()
 
         imageStore(terrainPatch, pos, vec4(result, heightVal.y, heightVal.z, heightVal.a));
         drop.sediment += deltaSediment;
+      }
+
+      // if current action changed top layer to stone lets clear the wetness
+      if(layer != Terrain_LayerRock && getTopLayerIndex(ivec2(positionBak)) == Terrain_LayerRock)
+      {
+        SetWettness(positionBak, 0.0f);
       }
   	}
 
