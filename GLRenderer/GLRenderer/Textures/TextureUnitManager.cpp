@@ -7,19 +7,16 @@
 #include <GLRenderer/Commands/Textures/GLActivateTexture.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 
+#include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
+
 #include <Renderer/IRenderer.h>
 
 #include <Core/Application.h>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Textures {
+namespace GLEngine::GLRenderer::Textures {
 
 //=================================================================================
-C_TextureUnitManger::C_TextureUnitManger()
-{
-
-}
+C_TextureUnitManger::C_TextureUnitManger() = default;
 
 //=================================================================================
 C_TextureUnitManger & C_TextureUnitManger::Instance()
@@ -80,7 +77,7 @@ bool C_TextureUnitManger::IsTextureBindInAny(const C_Texture& texture) const
 //=================================================================================
 unsigned int C_TextureUnitManger::GetTextureUnit(const C_Texture& texture) const
 {
-	auto it = std::find_if(m_TextureUnits.begin(), m_TextureUnits.end(), [&](const decltype(m_TextureUnits)::value_type &it) {
+	auto it = std::find_if(m_TextureUnits.begin(), m_TextureUnits.end(), [&](const auto &it) {
 		return it.second == texture.GetTexture();
 	});
 	return it->first;
@@ -89,34 +86,19 @@ unsigned int C_TextureUnitManger::GetTextureUnit(const C_Texture& texture) const
 //=================================================================================
 // Images
 //=================================================================================
-void C_TextureUnitManger::BindImageToUnit(const C_Texture& image, unsigned int unit, E_Access access)
+void C_TextureUnitManger::BindImageToUnit(const C_Texture& image, unsigned int unit, E_OpenGLAccess access)
 {
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::C_GLActivateTexture>(unit)
 		)
 	);
-	unsigned int accessRights;
-	switch (access)
-	{
-	case GLEngine::GLRenderer::Textures::E_Access::Read:
-		accessRights = GL_READ_ONLY;
-		break;
-	case GLEngine::GLRenderer::Textures::E_Access::Write:
-		accessRights = GL_WRITE_ONLY;
-		break;
-	case GLEngine::GLRenderer::Textures::E_Access::ReadWrite:
-		accessRights = GL_READ_WRITE;
-		break;
-	default:
-		break;
-	}
 
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[&image, unit, accessRights]() {
-					glBindImageTexture(unit, image.GetTexture(), 0, GL_TRUE, 0, accessRights, GL_R32F);
+				[&image, unit, access]() {
+					glBindImageTexture(unit, image.GetTexture(), 0, GL_TRUE, 0, AccesRightsToEnum(access), GL_R32F);
 				}
 			)
 		)
@@ -154,10 +136,10 @@ bool C_TextureUnitManger::IsImageBindInAny(const C_Texture& image) const
 //=================================================================================
 unsigned int C_TextureUnitManger::GetImageUnit(const C_Texture& image) const
 {
-	auto it = std::find_if(m_ImageUnits.begin(), m_ImageUnits.end(), [&](const decltype(m_ImageUnits)::value_type &it) {
+	auto it = std::find_if(m_ImageUnits.begin(), m_ImageUnits.end(), [&](const auto &it) {
 		return it.second == image.GetTexture();
 	});
 	return it->first;
 }
 
-}}}
+}

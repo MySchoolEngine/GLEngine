@@ -128,4 +128,28 @@ struct T_WrapFunction
 {
 	static constexpr GLenum value = WrapFunctionToEnum(wrapFunction);
 };
+
+//=================================================================================
+// Wrap functions
+enum class E_OpenGLAccess : char {
+	Read,
+	Write,
+	ReadWrite,
+};
+
+constexpr GLenum AccesRightsToEnum(const E_OpenGLAccess access) {
+	switch (access)
+	{
+	case E_OpenGLAccess::Read:
+		return GL_READ_ONLY;
+		break;
+	case E_OpenGLAccess::Write:
+		return GL_WRITE_ONLY;
+		break;
+	case E_OpenGLAccess::ReadWrite:
+		return GL_READ_WRITE;
+		break;
+	}
+	return GL_INVALID_VALUE;
+}
 }

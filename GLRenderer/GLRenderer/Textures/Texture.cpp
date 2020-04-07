@@ -8,23 +8,15 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Textures {
+namespace GLEngine::GLRenderer::Textures {
 
 //=================================================================================
-C_Texture::C_Texture(GLenum target)
+C_Texture::C_Texture(const std::string& name, GLenum target)
 	: m_bGroupOperations(false)
 	, m_target(target)
 	, m_texture(0)
 {
 	glGenTextures(1, &m_texture);
-}
-
-//=================================================================================
-C_Texture::C_Texture(const std::string & name, GLenum target)
-	:C_Texture(target)
-{
 	bind();
 	glObjectLabel(GL_TEXTURE, m_texture, static_cast<GLsizei>(name.length()), name.c_str());
 	unbind();
@@ -127,4 +119,4 @@ void C_Texture::SetTexData2D(int level, const Renderer::MeshData::Texture& tex)
 		tex.data.get());
 }
 
-}}}
+}
