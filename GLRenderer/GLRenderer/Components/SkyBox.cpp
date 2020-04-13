@@ -117,14 +117,15 @@ void C_SkyBox::PerformDraw() const
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.BindTextureToUnit(m_Textures, 0);
 
+	auto& shmgr = Shaders::C_ShaderManager::Instance();
+	auto shader = shmgr.GetProgram("skybox");
+	shmgr.ActivateShader(shader);
+
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {
 					glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
-					auto& shmgr = Shaders::C_ShaderManager::Instance();
-					auto shader = shmgr.GetProgram("skybox");
-					shmgr.ActivateShader(shader);
 
 					m_VAO.bind();
 					m_Textures.bind();

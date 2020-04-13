@@ -15,6 +15,8 @@ struct S_WindowInfo {
 	std::string m_name;
 	unsigned int m_width, m_height;
 	std::string m_WindowClass;
+	bool m_Fullscreen : 1;
+	bool m_Maximalize : 1;
 
 	virtual E_Driver GetDriver() const = 0;
 };

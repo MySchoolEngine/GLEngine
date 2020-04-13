@@ -1,9 +1,15 @@
 #version 430
 
-//per mesh
-uniform vec4 modelColor;
+#include "includes/layersIndexes.glsl"
+#include "../include/frameConstants.glsl"
 
-in vec4 normal;
+//per mesh
+uniform vec3 modelColor[Terrain_NumLayers];
+uniform sampler2DArray tex;
+
+in vec3 normal;
+in vec3 FragPos;
+in vec2 uv;
 
 out vec4 fragColor;
 
@@ -13,15 +19,18 @@ void main()
 	vec4 sun = vec4(0,50,5,1);
 	vec4 upVec = vec4(0,1,0,1);
 
-	vec4 MaterialDiffuseColor = vec4(1,0,0,1);
+	vec3 albedo = vec3(1,0,0);
 	float cosTheta;
 
+	cosTheta = dot(normal,normalize(frame.SunPos));
+	cosTheta = max(0.0, cosTheta);
+	int topLevel = getLayerIndex(tex, uv, FragPos.y);
 
-	MaterialDiffuseColor = modelColor;
+	albedo = modelColor[topLevel-Terrain_layer1];
 
-	cosTheta = dot(normal,normalize(sun));
+	vec4 MaterialAmbientColor = frame.AmbientStrength * sunColor; // ambient lighting fake
+	vec4 MaterialDiffuseColor = cosTheta*sunColor;
 
-	vec4 MaterialAmbientColor = 0.6f * MaterialDiffuseColor;
-	MaterialDiffuseColor = MaterialAmbientColor + MaterialDiffuseColor * vec4(1.0f, 1.0f, 0.8f, 1.0f) * cosTheta;
-	fragColor = MaterialDiffuseColor;
+
+	fragColor = (MaterialAmbientColor + MaterialDiffuseColor) * vec4(albedo, 1);
 }

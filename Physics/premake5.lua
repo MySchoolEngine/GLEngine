@@ -24,10 +24,10 @@ project "Physics"
 			"BUILD_PHYSICS_DLL",
 		}
 
-		postbuildcommands
-		{
-			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")
-		}
+		-- postbuildcommands
+		-- {
+		-- 	("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")
+		-- }
 
 	filter "configurations:Debug"
 		runtime "Debug"

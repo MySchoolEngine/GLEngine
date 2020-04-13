@@ -87,6 +87,7 @@ protected:
 			info.m_name = "ExperimentWindow";
 			info.m_WindowClass = "ExperimentWindow";
 			info.m_MinorVersion = 4;
+			info.m_Maximalize = true;
 
 			m_WndMgr->OpenNewWindow(info);
 		}

@@ -1,5 +1,7 @@
 #version 430
 
+#include "includes/layersIndexes.glsl"
+
 in float vertex;
 in vec3 normal;
 
@@ -8,23 +10,23 @@ in vec3 normal;
 
 //per model
 uniform mat4 modelMatrix;
-uniform sampler2D tex;
+uniform sampler2DArray tex;
 uniform float sqPerLine;
 uniform float patchSize;
 
-out vec2 uv;
+out vec3 uv;
+out vec3 FragPos;
 
 //terrain uniforms
 // uniform int width;
 // uniform int height;
 
-// gl_VertexID 
-
+// gl_VertexID
 
 //=================================================================================
 void main()
 {
-	vec2 planear;
+	vec3 planear;
 	float sqSize = 1 / float(sqPerLine);
 
 
@@ -64,11 +66,15 @@ void main()
 	planear.x += sqSize*sqInLine;
 	planear.y += sqSize*line;
 
+	planear.z = heightmapLayer;
+
 	vec4 height = texture(tex, planear);
 	uv = planear;
 	planear*=patchSize;
 
-	vec4 vertexPosition = vec4(planear.x, height.r, planear.y, 1);
+	vec4 vertexPosition = vec4(planear.x, height.x, planear.y, 1);
 
     gl_Position = frame.viewProjectionMatrix * modelMatrix * vertexPosition;
+
+    FragPos = vec3(modelMatrix * vertexPosition);
 }

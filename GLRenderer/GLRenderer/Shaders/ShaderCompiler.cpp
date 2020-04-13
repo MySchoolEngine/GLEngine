@@ -53,7 +53,7 @@ bool C_ShaderCompiler::compileShader(GLuint& shader, const std::filesystem::path
 			char* log = new char[loglen];
 
 			glGetShaderInfoLog(shader, loglen, nullptr, log);
-			CORE_LOG(E_Level::Error, E_Context::Render, log);
+			CORE_LOG(E_Level::Error, E_Context::Render, "{}", log);
 
 			delete[] log;
 		}

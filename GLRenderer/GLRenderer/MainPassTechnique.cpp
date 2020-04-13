@@ -7,6 +7,7 @@
 #include <GLRenderer/Commands/GLClear.h>
 #include <GLRenderer/Commands/GLViewport.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
+#include <GLRenderer/Debug.h>
 
 #include <GLRenderer/Lights/LightsUBO.h>
 
@@ -24,6 +25,9 @@ namespace GLEngine::GLRenderer {
 //=================================================================================
 C_MainPassTechnique::C_MainPassTechnique(std::shared_ptr<Entity::C_EntityManager> world)
 	: m_WorldToRender(world)
+	, m_SunX(-13.f, -20.f, 20.f, "Sun X")
+	, m_SunY(15.f, -20.f, 20.f, "Sun Y")
+	, m_SunZ(-5.f, -20.f, 20.f, "Sun Z")
 {
 	m_FrameConstUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>("frameConst");
 	m_LightsUBO			= Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<C_LightsBuffer>("lightsUni");
@@ -32,6 +36,7 @@ C_MainPassTechnique::C_MainPassTechnique(std::shared_ptr<Entity::C_EntityManager
 //=================================================================================
 void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> camera, unsigned int widht, unsigned int height)
 {
+	RenderDoc::C_DebugScope s("C_MainPassTechnique::Render");
 	const auto entitiesInView = m_WorldToRender->GetEntities(camera->GetFrustum());
 
 	auto& renderer = (Core::C_Application::Get()).GetActiveRenderer();
@@ -39,6 +44,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 	m_FrameConstUBO->SetView(camera->GetViewMatrix());
 	m_FrameConstUBO->SetProjection(camera->GetProjectionMatrix());
 	m_FrameConstUBO->SetCameraPosition(glm::vec4(camera->GetPosition(), 1.0f));
+	m_FrameConstUBO->SetSunPosition({ m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue() });
 
 	{
 		RenderDoc::C_DebugScope s("Window prepare");
@@ -55,19 +61,21 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 		);
 	}
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
-		std::move(
-			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[&]() {
-					RenderDoc::C_DebugScope s("UBO Upload");
-					m_FrameConstUBO->UploadData();
-					m_FrameConstUBO->Activate(true);
-					m_LightsUBO->UploadData();
-					m_LightsUBO->Activate(true);
-				}
-				)
-		)
-	);
+	{
+		RenderDoc::C_DebugScope s("UBO Upload");
+		Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+			std::move(
+				std::make_unique<Commands::HACK::C_LambdaCommand>(
+					[&]() {
+						m_FrameConstUBO->UploadData();
+						m_FrameConstUBO->Activate(true);
+						m_LightsUBO->UploadData();
+						m_LightsUBO->Activate(true);
+					}
+					)
+			)
+		);
+	}
 
 	for (auto& entity : entitiesInView)
 	{
@@ -76,17 +84,27 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 			if (pointLight)
 			{
 				const auto pos = pointLight->GetPosition();
-				CORE_LOG(E_Level::Info, E_Context::Render, "Point light position: {} {} {}", pos.x, pos.y, pos.z);
 			}
 		}
 	}
 
-	for (auto& entity : entitiesInView)
 	{
-		if (auto renderable = entity->GetComponent<Entity::E_ComponentType::Graphical>()) {
-			renderable->PerformDraw();
+		RenderDoc::C_DebugScope s("Commit geometry");
+		for (auto& entity : entitiesInView)
+		{
+			if (auto renderable = entity->GetComponent<Entity::E_ComponentType::Graphical>()) {
+				renderable->PerformDraw();
+			}
 		}
 	}
+
+	C_DebugDraw::Instance().DrawPoint({ m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue() }, {1.f, 1.f, 0.f});
+	bool my_tool_active = true;
+	::ImGui::Begin("Sun", &my_tool_active);
+		m_SunX.Draw();
+		m_SunY.Draw();
+		m_SunZ.Draw();
+	::ImGui::End();
 }
 
 }

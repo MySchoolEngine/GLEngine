@@ -4,7 +4,12 @@ project "DevIL-IL"
     
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
     objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
-
+    disablewarnings 
+    { 
+        "4101", -- sstrcpy
+        "5033", -- register keyword
+        "4065", -- default but no case label 
+    }
 
     includedirs
     {

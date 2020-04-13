@@ -7,7 +7,6 @@
 #include <GLRenderer/CameraManager.h>
 
 #include <GLRenderer/GUI/GUIWindow.h>
-#include <GLRenderer/GUI/ConsoleWindow.h>
 #include <GLRenderer/GUI/PlotLine.h>
 #include <GLRenderer/GUI/Input/CheckBoxValue.h>
 #include <GLRenderer/GUI/Input/Slider.h>
@@ -89,19 +88,13 @@ private:
 	std::array<GUI::C_FormatedText, static_cast<int>(E_GUITexts::Last)>				m_GUITexts;
 	GUID																										m_FrameStatsGUID;
 	GUID																										m_ConsoleWindowGUID;
+	GUID																										m_EntitiesWindowGUID;
 	GUID																										m_HDRSettingsGUID;
 	GUI::Menu::C_Menu																				m_Windows;
 	std::unique_ptr<GUI::Menu::C_MenuItem>									m_HDRWindow;
 	std::unique_ptr<GUI::Menu::C_MenuItem>									m_RendererStats;
 
 	C_MainPassTechnique																			m_MainPass;
-
-	//===========================
-	// Terrain spawning
-	//===========================
-	bool																										m_Spawning;
-	char m_SpawningName[255];
-	char m_SpawningFilename[255];
 
 	C_Framebuffer																						m_HDRFBO;
 	std::shared_ptr<Mesh::C_StaticMeshResource>							m_ScreenQuad;

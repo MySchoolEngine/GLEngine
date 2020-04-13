@@ -34,4 +34,10 @@ C_FormatedText::C_FormatedText(const C_FormatedText& other)
 
 }
 
+//=================================================================================
+const std::string_view C_FormatedText::GetCurrentText() const
+{
+	return m_PrintString;
+}
+
 }
