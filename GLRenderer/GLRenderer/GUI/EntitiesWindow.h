@@ -18,12 +18,5 @@ public:
 	virtual void Draw() const override;
 private:
 	std::shared_ptr<Entity::C_EntityManager> m_World;
-
-	//===========================
-	// Terrain spawning
-	//===========================
-	mutable bool m_Spawning;
-	mutable char m_SpawningName[255];
-	mutable char m_SpawningFilename[255];
 };
 }
