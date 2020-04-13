@@ -55,6 +55,26 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 		);
 	}
 
+	for (auto& entity : entitiesInView)
+	{
+		if (auto light = entity->GetComponent<Entity::E_ComponentType::Light>()) {
+			const auto pointLight = std::reinterpret_pointer_cast<Renderer::I_PointLight>(light);
+			if (pointLight)
+			{
+				const auto pos = pointLight->GetPosition();
+
+				S_PointLight pl;
+				pl.m_Position = pos;
+				pl.m_Color = pointLight->GetColor();
+				pl.m_Intensity = pointLight->GetIntensity();
+
+				m_LightsUBO->SetPointLight(pl);
+
+				C_DebugDraw::Instance().DrawPoint(glm::vec4(pos, 1.0), glm::vec3(1, 1, 1));
+			}
+		}
+	}
+
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
@@ -68,18 +88,6 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				)
 		)
 	);
-
-	for (auto& entity : entitiesInView)
-	{
-		if (auto light = entity->GetComponent<Entity::E_ComponentType::Light>()) {
-			const auto pointLight = std::reinterpret_pointer_cast<Renderer::I_PointLight>(light);
-			if (pointLight)
-			{
-				const auto pos = pointLight->GetPosition();
-				CORE_LOG(E_Level::Info, E_Context::Render, "Point light position: {} {} {}", pos.x, pos.y, pos.z);
-			}
-		}
-	}
 
 	for (auto& entity : entitiesInView)
 	{

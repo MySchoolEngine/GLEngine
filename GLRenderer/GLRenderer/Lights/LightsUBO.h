@@ -10,6 +10,8 @@ public:
 	C_LightsBuffer(const std::string& blockName, unsigned int index);
 	virtual void UploadData() const override;
 
+	void SetPointLight(S_PointLight pl) { m_PointLight = pl; }
+
 private:
 	S_PointLight m_PointLight;
 };
