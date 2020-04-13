@@ -15,12 +15,12 @@
 			</Components>
 		</Entity>
 		<Entity name="halfBox">
-			<translate sid="location">0 1 0</translate>
+			<translate sid="location">0 0 0</translate>
 			<rotate>0 1 0 180</rotate>
 			<Components>
 				<staticMesh filePath="halfBox.obj" material="basic" />
 				<PointLight intensity="3.0">
-					<translate sid="location">0 1 0</translate>
+					<translate sid="location">0 0.1 0</translate>
 				</PointLight>
 			</Components>
 		</Entity>

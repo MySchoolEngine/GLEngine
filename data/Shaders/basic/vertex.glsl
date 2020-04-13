@@ -19,7 +19,7 @@ out vec4 worldCoord;
 //=================================================================================
 void main()
 {
-	normalOUT = normal;
+	normalOUT = mat3(transpose(inverse(modelMatrix))) * normal;
 	texCoordOUT = texCoord;
 
 	worldCoord = modelMatrix * vertex;
