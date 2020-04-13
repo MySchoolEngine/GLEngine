@@ -11,14 +11,9 @@
  
 #pragma once
 
-#include <Physics/PhysicsApi.h>
-
 #include <glm/glm.hpp>
 
-
-namespace GLEngine {
-namespace Physics {
-namespace Primitives {
+namespace GLEngine::Physics::Primitives {
 /** ==============================================
 * @class S_Sphere
 *
@@ -28,20 +23,28 @@ namespace Primitives {
 * Contact:	RohacekD@gmail.com
 * @date 	2018/05/16
 ** ==============================================*/
-struct PHYSICS_API_EXPORT S_Sphere {
+struct S_Sphere {
 public:
 	S_Sphere() = default;
-	S_Sphere(const glm::vec3& position, float radius);
+	constexpr S_Sphere(const glm::vec3& position, float radius)
+		: m_position(position)
+		, m_radius(radius)
+	{}
 
-	bool IsColliding(const S_Sphere& other) const;
-	void Transform(const glm::mat4& matrix);
+	[[nodiscard]] constexpr bool IsColliding(const S_Sphere& other) const
+	{
+		auto distance = glm::abs(glm::length(m_position - other.m_position));
+		if (distance < m_radius + other.m_radius) {
+			return true;
+		}
+		return false;
+	}
+	constexpr void Transform(const glm::mat4& matrix)
+	{
+		m_position = glm::vec3(matrix * glm::vec4(m_position, 1.0f));
+	}
 
-#pragma warning(push)
-#pragma warning( disable : 4251)
 	glm::vec3	m_position;
-#pragma warning(pop)
 	float		m_radius;
 };
-}
-}
 }

@@ -33,7 +33,7 @@ namespace Mesh {
 //=================================================================================
 C_SceneBuilder::C_SceneBuilder()
 {
-	m_nullTexture = std::make_shared<Textures::C_Texture>();
+	m_nullTexture = std::make_shared<Textures::C_Texture>("null-texture");
 	m_nullTexture->StartGroupOp();
 	m_nullTexture->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 	m_nullTexture->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);

@@ -12,10 +12,7 @@
 #include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 
-#include <GLRenderer/Components/TerrainMesh.h>
 #include <GLRenderer/Components/ComponentBuilderFactory.h>
-
-#include <GLRenderer/Entities/TerrainEntity.h>
 
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
@@ -36,6 +33,8 @@
 #include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/Debug.h>
 
+#include <GLRenderer/GUI/ConsoleWindow.h>
+#include <GLRenderer/GUI/EntitiesWindow.h>
 #include <GLRenderer/GUI/Components/GLEntityDebugComponent.h>
 
 #include <Renderer/Mesh/Scene.h>
@@ -65,12 +64,9 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	: C_GLFWoGLWindow(wndInfo)
 	, m_LayerStack(std::string("ExperimentalWindowLayerStack"))
 	, m_Samples("Frame Times")
-	, m_GammaSlider(2.2f, 1.f,5.f, "Gamma")
-	, m_ExposureSlider(1.f, .1f, 10.f, "Exposure")
+	, m_GammaSlider(1.2f, 1.f,5.f, "Gamma")
+	, m_ExposureSlider(1.5f, .1f, 10.f, "Exposure")
 	, m_VSync(false)
-	, m_Spawning(false)
-	, m_SpawningName("")
-	, m_SpawningFilename("")
 	, m_HDRFBO("HDR")
 	, m_World(std::make_shared<Entity::C_EntityManager>())
 	, m_MainPass(m_World)
@@ -98,6 +94,12 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 //=================================================================================
 C_ExplerimentWindow::~C_ExplerimentWindow() {
 	static_cast<C_OGLRenderer*>(m_renderer.get())->DestroyControls(m_ImGUI->GetGUIMgr());
+
+	auto& guiMGR = m_ImGUI->GetGUIMgr();
+	guiMGR.DestroyWindow(m_EntitiesWindowGUID);
+	guiMGR.DestroyWindow(m_ConsoleWindowGUID);
+	guiMGR.DestroyWindow(m_FrameStatsGUID);
+	guiMGR.DestroyWindow(m_HDRSettingsGUID);
 };
 
 //=================================================================================
@@ -130,85 +132,21 @@ void C_ExplerimentWindow::Update()
 
 	m_MainPass.Render(camera, GetWidth(), GetHeight());
 
-	bool my_tool_active = true;
-	::ImGui::Begin("Entities", &my_tool_active);
-		if (::ImGui::Button("Spawn new terrain")) {
-			m_Spawning = true;
-			m_SpawningName[0] = '\0';
-			m_SpawningFilename[0] = '\0';
-		}
-		for (const auto& entity : m_World->GetEntities()) {
-			bool selected = false;
-			::ImGui::Selectable(entity->GetName().c_str(), &selected);
-			if (selected) {
-				entity->OnEvent(Core::C_UserEvent("selected"));
-			}
-		}
-	::ImGui::End();
-
-
-	if (m_Spawning) {
-		::ImGui::Begin("Spawn terrain", &m_Spawning);
-		::ImGui::InputText("Terrain name", m_SpawningName, 255);
-		::ImGui::InputText("Terrain filename", m_SpawningFilename, 255);
-
-		if (::ImGui::Button("Spawn")) {
-			m_Spawning = false;
-			auto Terrain = std::make_shared<C_TerrainEntity>(m_SpawningName);
-			m_World->AddEntity(Terrain); 
-			
-			Textures::TextureLoader tl;
-			Renderer::MeshData::Texture t;
-			bool retval = tl.loadTexture(m_SpawningFilename, t);
-			if (retval) {
-				Textures::C_Texture ct(m_SpawningFilename);
-
-				ct.StartGroupOp();
-				ct.SetTexData2D(0, t);
-				ct.SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
-				ct.SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-				ct.GenerateMipMaps();
-
-				ct.EndGroupOp();
-
-				auto patch = std::make_shared<Components::C_TerrainMesh>(std::move(ct));
-				Terrain->AddPatch(patch);
-				patch->SetCoord({ 0,0 });
-
-			}
-			else {
-				CORE_LOG(E_Level::Error, E_Context::Entity, "Given texture {} doesn't exists", m_SpawningFilename);
-				Terrain->AddPatch(glm::ivec2(0, 0));
-			}
-		}
-
-		::ImGui::End();
-	}
-
-
 	// ----- Frame init -------
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
-	auto basicProgram = shmgr.GetProgram("basic");
-	shmgr.ActivateShader(basicProgram);
 
+	shmgr.DeactivateShader();
 	// ----- Frame init -------
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
-		std::move(
-			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[&]() {
-					shmgr.DeactivateShader();
-					{
-						RenderDoc::C_DebugScope s("Persistent debug");
-						C_PersistentDebug::Instance().DrawAll();
-					}
-					{
-						RenderDoc::C_DebugScope s("Merged debug");
-						C_DebugDraw::Instance().DrawMergedGeoms();
-					}
-				}
-			)
-		)
-	);
+
+	{
+		RenderDoc::C_DebugScope s("Persistent debug");
+		C_PersistentDebug::Instance().DrawAll();
+	}
+
+	{
+		RenderDoc::C_DebugScope s("Merged debug");
+		C_DebugDraw::Instance().DrawMergedGeoms();
+	}
 
 	m_HDRFBO.Unbind<E_FramebufferTarget::Draw>();
 
@@ -233,15 +171,16 @@ void C_ExplerimentWindow::Update()
 
 	m_HDRFBO.Bind<E_FramebufferTarget::Read>();
 
+	auto shader = shmgr.GetProgram("screenQuad");
+	shmgr.ActivateShader(shader);
+
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[&]() {
-					auto shader = shmgr.GetProgram("screenQuad");
-					shmgr.ActivateShader(shader);
+				[this, shader]() {
 					shader->SetUniform("gamma", m_GammaSlider.GetValue());
 					shader->SetUniform("exposure", m_ExposureSlider.GetValue());
-					shader->BindSampler(*(HDRTexture.get()), 0);
+					shader->SetUniform("hdrBuffer", 0);
 				}
 			)
 		)
@@ -252,35 +191,28 @@ void C_ExplerimentWindow::Update()
 			std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_ScreenQuad)
 		)
 	);
-	
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
-		std::move(
-			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[&]() {
-					shmgr.DeactivateShader();
-				}
-			)
-		)
-	);
+
+	shmgr.DeactivateShader();
 
 
 	m_HDRFBO.Unbind<E_FramebufferTarget::Read>();
 
-	// ----- Actual rendering --
-
-	{
-		RenderDoc::C_DebugScope s("RendererCommit");
-		m_renderer->Commit();
-	}
-	m_renderer->ClearCommandBuffers();
-	// ----- Actual rendering --
-
 	{
 		RenderDoc::C_DebugScope s("ImGUI");
-		m_ImGUI->FrameEnd();
+		Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+			std::move(
+				std::make_unique<Commands::HACK::C_LambdaCommand>(
+					[this, shader]() {
+						m_ImGUI->FrameEnd();
+					}
+				)
+			)
+		);
 	}
 
-
+	// commit of final commands - from commit few lines above
+	m_renderer->Commit();
+	m_renderer->ClearCommandBuffers();
 	glfwSwapBuffers(m_Window);
 	sampleTime(float(m_FrameTimer.getElapsedTimeFromLastQueryMilliseconds()));	
 }
@@ -322,7 +254,6 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 {
 	{
 		using namespace Commands;
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		m_renderer->AddCommand(
 			std::move(
 				std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::DEPTH_TEST)
@@ -435,11 +366,23 @@ void C_ExplerimentWindow::SetupWorld()
 
 	auto& guiMGR = m_ImGUI->GetGUIMgr();
 
-	m_ConsoleWindowGUID = NextGUID();
+	// Console window
+	{
+		m_ConsoleWindowGUID = NextGUID();
 
-	auto consoleWindow = new GUI::C_ConsoleWindow(m_ConsoleWindowGUID);
-	guiMGR.AddCustomWindow(consoleWindow);
-	consoleWindow->SetVisible();
+		auto consoleWindow = new GUI::C_ConsoleWindow(m_ConsoleWindowGUID);
+		guiMGR.AddCustomWindow(consoleWindow);
+		consoleWindow->SetVisible();
+	}
+
+	// Entity window
+	{
+		m_EntitiesWindowGUID = NextGUID();
+
+		auto entitiesWindow = new GUI::C_EntitiesWindow(m_EntitiesWindowGUID, m_World);
+		guiMGR.AddCustomWindow(entitiesWindow);
+		entitiesWindow->SetVisible();
+	}
 
 	m_FrameStatsGUID = guiMGR.CreateGUIWindow("Frame stats");
 	auto* frameStats = guiMGR.GetWindow(m_FrameStatsGUID);

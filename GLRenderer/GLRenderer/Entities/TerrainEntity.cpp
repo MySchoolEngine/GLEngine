@@ -20,8 +20,22 @@ C_TerrainEntity::C_TerrainEntity(const std::string& name)
 {
 	Visualise.SetName("Visualization");
 	DebugDrawDroplets.SetName("Debug draw");
-	m_inputCoords[0] = 0;
-	m_inputCoords[1] = 0;
+	m_InputCoords = { 0,0 };
+
+	int i = 0;
+	for (auto& layer : m_Settings.m_Layers)
+	{
+		layer.m_Name.UpdateText(i);
+		++i;
+	}
+
+	m_Settings.m_Layers[0].m_TerrainColor.SetValue(glm::vec3(73.f / 255.f, 111.f / 255.f, 134.f / 255.f));
+	m_Settings.m_Layers[1].m_TerrainColor.SetValue(glm::vec3(241.f / 255.f, 219.f / 255.f, 101.f / 255.f)); // yellowish color - sand
+
+	m_Settings.m_Layers[0].m_Weight = 0.727f;
+	m_Settings.m_Layers[1].m_Weight = 0.043f;
+	m_Settings.m_Layers[2].m_Weight = 0.727f;
+
 }
 
 //=================================================================================
@@ -56,10 +70,7 @@ void C_TerrainEntity::Update()
 		m_CurrentIteration++;
 		if (m_CurrentIteration >= m_Iterations) {
 			m_SimulationRunning = false;
-			
-			std::cout << "Generation took " << m_timer.getElapsedTimeFromLastQueryMilliseconds() / 1000.0 << "s and"
-				<< m_Iterations*m_Settings.m_Drops << "have been dropped\n";
-			//CORE_LOG(E_Level::Error, E_Context::Render, "Generation took: {}s dropl", m_timer.getElapsedTimeFromLastQueryMilliseconds() / 1000.0);
+			CORE_LOG(E_Level::Info, E_Context::Render, "Generation took: {}s and {} have been dropped", m_timer.getElapsedTimeFromLastQueryMilliseconds() / 1000.0, m_Iterations * m_Settings.m_Drops);
 		}
 	}
 
@@ -84,28 +95,18 @@ void C_TerrainEntity::AddPatch(glm::ivec2 coord)
 //=================================================================================
 void C_TerrainEntity::DrawControls()
 {
-	if (Controls) {
-		::ImGui::Begin("Terrain controls", &Controls, ImGuiWindowFlags_MenuBar);
-			if (::ImGui::BeginMenuBar())
-			{
-				if (::ImGui::BeginMenu("File"))
-				{
-					if (::ImGui::MenuItem("Open..", "Ctrl+O")) { /* Do stuff */ }
-					if (::ImGui::MenuItem("Save", "Ctrl+S")) { /* Do stuff */ }
-					::ImGui::EndMenu();
-				}
-				::ImGui::EndMenuBar();
-			}
 
+	if (DebugDrawDroplets) {
+		WholeTerrain([&](T_TerrainPtr terrain) {
+			terrain->DebugDraw();
+			});
+	}
+
+	if (Controls) {
+		::ImGui::Begin("Terrain controls", &Controls);
 			m_Settings.PerlinNoise.Draw();
 			Visualise.Draw();
 			DebugDrawDroplets.Draw();
-
-			if (DebugDrawDroplets) {
-				WholeTerrain([&](T_TerrainPtr terrain) {
-					terrain->DebugDraw();
-				});
-			}
 
 			m_Settings.m_SqPerLine.Draw();
 			m_Settings.m_Freq.Draw();
@@ -116,14 +117,27 @@ void C_TerrainEntity::DrawControls()
 					terrain->SetCoord(terrain->GetCoord());
 				});
 			}
+			::ImGui::Separator();
+
+			for (auto& layer : m_Settings.m_Layers)
+			{
+				const auto Name = layer.m_Name.GetCurrentText();
+				std::string ID("##");
+				ID.append(Name);
+				::ImGui::PushID(ID.data());
+				layer.m_Name.Draw();
+				layer.m_TerrainColor.Draw();
+				layer.m_Weight.Draw();
+				::ImGui::PopID();
+			}
 
 			::ImGui::Separator();
 			if(!m_SimulationRunning)
 			{
-				::ImGui::SliderFloat("Gravitation", &(m_Settings.m_Gravitation), 0.0f, 15.0f);
-				::ImGui::SliderFloat("Evaporation", &(m_Settings.m_Evaporation), 0.0f, 1.0f);
-				::ImGui::SliderFloat("InitWater", &(m_Settings.m_InitWater), 0.1f, 5.0f);
-				::ImGui::SliderFloat("InitSpeed", &(m_Settings.m_StartingSpeed), 0.0f, 10.0f);
+				m_Settings.m_Gravitation.Draw();
+				m_Settings.m_Evaporation.Draw();
+				m_Settings.m_InitWater.Draw();
+				m_Settings.m_StartingSpeed.Draw();
 				m_Settings.m_NumSteps.Draw();
 
 				if (::ImGui::Button("Simulate"))
@@ -163,11 +177,10 @@ void C_TerrainEntity::DrawControls()
 
 			::ImGui::Text("Spawning new tiles");
 
-			int* arr[] = { &m_inputCoords[0],&m_inputCoords[1] };
-			::ImGui::SliderInt("X", &(m_inputCoords[0]), -10, 10);
-			::ImGui::SliderInt("Y", &(m_inputCoords[1]), -10, 10);
+			::ImGui::SliderInt("X", &(m_InputCoords.x), -10, 10);
+			::ImGui::SliderInt("Y", &(m_InputCoords.y), -10, 10);
 			if (::ImGui::Button("Create")) {
-				AddPatch({ m_inputCoords[0],m_inputCoords[1] });
+				AddPatch(m_InputCoords);
 			}
 
 			ImGui::TextColored(ImVec4(1, 1, 0, 1), "Select tiles");
@@ -188,18 +201,18 @@ void C_TerrainEntity::DrawControls()
 	}
 
 
-	if (Visualise) {
-		::ImGui::Begin("Terrain visualizations", &Visualise);
-			WholeTerrain([](T_TerrainPtr terrain) {
-				::ImGui::Image((void*)terrain->GetTexture().GetTexture(),
-				{
-					256,
-					256
-				},
-				{ 0,1 }, { 1,0 });
-			});
-		::ImGui::End();
-	}
+	// if (Visualise) {
+	// 	::ImGui::Begin("Terrain visualizations", &Visualise);
+	// 		WholeTerrain([](T_TerrainPtr terrain) {
+	// 			::ImGui::Image((void*)terrain->GetTexture().GetTexture(),
+	// 			{
+	// 				256,
+	// 				256
+	// 			},
+	// 			{ 0,1 }, { 1,0 });
+	// 		});
+	// 	::ImGui::End();
+	// }
 }
 
 //=================================================================================

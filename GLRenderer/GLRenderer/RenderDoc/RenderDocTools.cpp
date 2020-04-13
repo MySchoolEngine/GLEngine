@@ -1,6 +1,11 @@
 #include <GLRendererStdafx.h>
 
 #include <GLRenderer/RenderDoc/RenderDocTools.h>
+#include <GLRenderer/Commands/HACK/LambdaCommand.h>
+
+#include <Renderer/IRenderer.h>
+
+#include <Core/Application.h>
 
 namespace GLEngine {
 namespace GLRenderer {
@@ -9,13 +14,29 @@ namespace RenderDoc {
 //=================================================================================
 C_DebugScope::C_DebugScope(const std::string& groupName)
 {
-	glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, static_cast<GLsizei>(groupName.length()), groupName.c_str());
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+		std::move(
+			std::make_unique<Commands::HACK::C_LambdaCommand>(
+				[groupName]() {
+					glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, static_cast<GLsizei>(groupName.length()), groupName.c_str());
+				}
+				)
+		)
+	);
 }
 
 //=================================================================================
 C_DebugScope::~C_DebugScope()
 {
-	glPopDebugGroup();
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+		std::move(
+			std::make_unique<Commands::HACK::C_LambdaCommand>(
+				[]() {
+					glPopDebugGroup();
+				}
+			)
+		)
+	);
 }
 
 }}}

@@ -2,5 +2,7 @@
 
 #include <GLRenderer/ImGui/ImGUIImplOpengl3.h>
 
-#define IMGUI_IMPL_OPENGL_LOADER_GLAD
+#pragma warning(push)
+#pragma warning(disable:4996) //strcpy - functions and others
 #include <examples/imgui_impl_opengl3.cpp>
+#pragma warning(pop)

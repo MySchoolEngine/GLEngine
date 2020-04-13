@@ -66,14 +66,15 @@ void C_SkeletalMesh::PerformDraw() const
 	}
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.BindTextureToUnit(*m_Texture, 0);
+
+	auto& shmgr = Shaders::C_ShaderManager::Instance();
+	auto shader = shmgr.GetProgram("animation");
+	shmgr.ActivateShader(shader);
+
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {
-					auto& shmgr = Shaders::C_ShaderManager::Instance();
-					auto shader = shmgr.GetProgram("animation");
-					shmgr.ActivateShader(shader);
-	
 					shader->SetUniform("modelMatrix", m_ModelMatrix * glm::rotate(-glm::half_pi<float>(), glm::vec3(1.f, .0f, .0f)));
 
 					m_VAO.bind();

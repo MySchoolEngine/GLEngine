@@ -8,7 +8,7 @@ namespace Entity {
 /**
  * This class should now do only the "dirty" work of updating components etc
  */
-class ENTITY_API_EXPORT C_BasicEntity : public I_Entity {
+class C_BasicEntity : public I_Entity {
 public:
 	C_BasicEntity(std::string name);
 	virtual ~C_BasicEntity();

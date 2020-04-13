@@ -11,9 +11,7 @@
 #include <IL/il.h>
 
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Textures {
+namespace GLEngine::GLRenderer::Textures {
 //=================================================================================
 bool TextureLoader::_isILinitialized = false;
 
@@ -71,4 +69,4 @@ bool TextureLoader::loadTexture(const char* path, Renderer::MeshData::Texture& t
 	return true;
 }
 
-}}}
+}

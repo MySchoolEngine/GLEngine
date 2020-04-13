@@ -15,7 +15,6 @@ project "GLRenderer"
 	Link("Utils")
 	Link("Renderer")
 	Link("Core")
-	Link("Physics")
 
 	files
 	{
@@ -30,6 +29,7 @@ project "GLRenderer"
 	includedirs
 	{
 		".",
+		"../Physics",
 		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.Glad}",
 		"../%{IncludeDir.GLM}",

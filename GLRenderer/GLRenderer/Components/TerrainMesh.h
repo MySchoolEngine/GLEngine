@@ -42,7 +42,6 @@ public:
 	void UpdateStats();
 
 	void GenerateTerrain();
-	void CalculateStats() const;
 	void Simulate();
 	void DebugDraw();
 
@@ -53,7 +52,7 @@ public:
 protected:
 	std::shared_ptr<Mesh::C_TerrainMeshResource>		m_Terrain;
 	glm::ivec2						m_Coord;
-	Textures::C_Texture				m_Noise;
+	mutable Textures::C_Texture				m_Noise;
 	Physics::Primitives::S_AABB		m_AABB;
 	Buffers::UBO::C_TerrainStats	m_Stats;
 	std::shared_ptr<Buffers::UBO::C_RainDataBuffer>		m_RainData;

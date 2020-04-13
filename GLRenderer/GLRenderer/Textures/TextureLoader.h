@@ -2,9 +2,7 @@
 
 #include <Renderer/Mesh/Scene.h>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Textures {
+namespace GLEngine::GLRenderer::Textures {
 class TextureLoader
 {
 public:
@@ -13,4 +11,4 @@ public:
 private:
 	static bool _isILinitialized;
 };
-}}}
+}

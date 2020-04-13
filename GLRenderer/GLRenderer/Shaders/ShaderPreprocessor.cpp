@@ -101,7 +101,7 @@ void C_ShaderPreprocessor::ReplaceConstants(std::string& content) {
 			content.replace(index, define.first.length(), define.second);
 
 			/* Advance index forward so the next iteration doesn't pick it up as well. */
-			index += define.first.length();
+			index += define.second.length();
 		}
 	}
 }

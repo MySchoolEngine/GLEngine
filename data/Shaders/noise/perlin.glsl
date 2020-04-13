@@ -1,13 +1,16 @@
 #version 430
 
+#include "../terrain/includes/layersIndexes.glsl"
+
 layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
-layout (binding = 0, rgba32f) writeonly uniform image2D perlinNoise;
+layout (binding = 0, r32f) writeonly uniform image2DArray perlinNoise;
 
 uniform int patchWidth;
 #define PI 3.14159265358979323846
 uniform int frequency;
 uniform ivec2 unicoord;
 uniform bool  usePerlin;
+uniform float layerWeight[Terrain_NumLayers];
 
 //=================================================================================
 float rand(vec2 c){
@@ -53,14 +56,31 @@ void main()
 {
 	uint posX = gl_GlobalInvocationID.x;
 	uint posY = gl_GlobalInvocationID.y;
-    ivec2 coord = ivec2(posX, posY);
-    float val = 0;
+    float heightAcc = 0.0;
+    vec2 imageCoord = vec2(posX, posY);
+
+    ivec2 randomOffset[3];
+    randomOffset[0] = ivec2(0,0);
+    randomOffset[1] = ivec2(1500,3000);
+    randomOffset[2] = ivec2(20,3000);
+
     if(usePerlin){
-        val = frequency*pNoise(unicoord + vec2(posX, posY), 6);
+        for(int layer = Terrain_layer1; layer < Terrain_layer1 + Terrain_NumLayers; ++layer)
+        {
+            const ivec3 coord = ivec3(imageCoord, layer);
+            float val = frequency*pNoise(randomOffset[layer - Terrain_layer1] + unicoord + imageCoord, 6);
+            val*= layerWeight[layer - Terrain_layer1];
+
+            imageStore(perlinNoise, coord, vec4(val, 0, 0, 0));
+            heightAcc+=val;
+        }
     }
     else{
-        val = noise(unicoord + vec2(posX, posY), frequency);
+        // broken now
+        float val = noise(unicoord + vec2(posX, posY), frequency);
     }
 
-	imageStore(perlinNoise, coord, vec4(val, 0, 0, 1));
-}   
+    ivec3 coord = ivec3(imageCoord, heightmapLayer);
+    imageStore(perlinNoise, coord, vec4(heightAcc, 0, 0, 0));
+    imageStore(perlinNoise, ivec3(posX, posY, wetnessLayer), vec4(0, 0, 0, 0));
+}
