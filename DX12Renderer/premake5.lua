@@ -39,7 +39,6 @@ project "DX12Renderer"
 
 	links 
 	{ 
-		"Physics",
 		"pugixml",
 		"ImGui",
 

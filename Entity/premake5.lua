@@ -9,7 +9,6 @@ project "Entity"
 	
 	PrecompiledHeaders("Entity")
 	
-	Link("Physics")
 	Link("Utils")
 	Link("Core")
 
@@ -18,6 +17,7 @@ project "Entity"
 		"../%{IncludeDir.GLM}",
 		"../Renderer",
 		"../GLRenderer",
+		"../Physics",
 		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.ImGui}",
