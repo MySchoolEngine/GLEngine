@@ -91,8 +91,6 @@ private:
 	GUID																										m_EntitiesWindowGUID;
 	GUID																										m_HDRSettingsGUID;
 	GUI::Menu::C_Menu																				m_Windows;
-	std::unique_ptr<GUI::Menu::C_MenuItem>									m_HDRWindow;
-	std::unique_ptr<GUI::Menu::C_MenuItem>									m_RendererStats;
 
 	C_MainPassTechnique																			m_MainPass;
 

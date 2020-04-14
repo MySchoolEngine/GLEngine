@@ -139,9 +139,7 @@ GUID C_OGLRenderer::SetupControls(ImGui::C_GUIManager& guiMan)
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	const auto shmgrWindwo = shmgr.SetupControls(guiMan);
 
-	m_ShaderMGR = std::make_unique<GUI::Menu::C_MenuItemOpenWindow>("Shader manager", shmgrWindwo, guiMan);
-
-	m_Windows.AddMenuItem(*m_ShaderMGR.get());
+	m_Windows.AddMenuItem(guiMan.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Shader manager", shmgrWindwo, guiMan));
 
 	return m_Window;
 }

@@ -402,12 +402,10 @@ void C_ExplerimentWindow::SetupWorld()
 	hdrSettings->AddComponent(m_ExposureSlider);
 
 
-	m_HDRWindow = std::make_unique<GUI::Menu::C_MenuItemOpenWindow>("HDR Settings", m_HDRSettingsGUID, guiMGR);
-	m_Windows.AddMenuItem(*m_HDRWindow.get());
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("HDR Settings", m_HDRSettingsGUID, guiMGR));
 
 	const auto rendererWindow = static_cast<C_OGLRenderer*>(m_renderer.get())->SetupControls(guiMGR);
-	m_RendererStats = std::make_unique<GUI::Menu::C_MenuItemOpenWindow>("Renderer", rendererWindow, guiMGR);
-	m_Windows.AddMenuItem(*m_RendererStats.get());
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Renderer", rendererWindow, guiMGR));
 }
 
 //=================================================================================
