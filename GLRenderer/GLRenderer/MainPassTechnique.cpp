@@ -97,10 +97,13 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 		);
 	}
 
-	for (auto& entity : entitiesInView)
 	{
-		if (auto renderable = entity->GetComponent<Entity::E_ComponentType::Graphical>()) {
-			renderable->PerformDraw();
+		RenderDoc::C_DebugScope s("Commit geometry");
+		for (auto& entity : entitiesInView)
+		{
+			if (auto renderable = entity->GetComponent<Entity::E_ComponentType::Graphical>()) {
+				renderable->PerformDraw();
+			}
 		}
 	}
 
