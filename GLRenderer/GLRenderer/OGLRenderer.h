@@ -59,7 +59,6 @@ private:
 	std::array<GUI::C_FormatedText, static_cast<int>(E_GUITexts::Last)>				m_GUITexts;
 	GUID																																			m_Window;
 	GUI::Menu::C_Menu																													m_Windows;
-	std::unique_ptr<GUI::Menu::C_MenuItem>																		m_ShaderMGR;
 };
 
 }

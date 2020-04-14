@@ -1,6 +1,9 @@
 #pragma once
 
 namespace GLEngine::GLRenderer::GUI {
+namespace Menu {
+	class C_MenuItem;
+}
 class C_Window;
 }
 
@@ -21,8 +24,14 @@ public:
 	void DestroyWindow(GUID guid);
 	void OnUpdate();
 
+	template<class T, class ... Args>
+	std::reference_wrapper<GUI::Menu::C_MenuItem> CreateMenuItem(Args&&... args);
 private:
-	std::unordered_map<GUID, GUI::C_Window*> m_Windwos;
+	std::unordered_map<GUID, GUI::C_Window*>						m_Windwos;
+	std::vector<std::unique_ptr<GUI::Menu::C_MenuItem>>	m_MenuItems;
 };
+
 }
+
+#include <GLRenderer/ImGui/GUIManager.inl>
 
