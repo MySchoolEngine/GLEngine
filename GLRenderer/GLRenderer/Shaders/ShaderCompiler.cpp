@@ -3,9 +3,15 @@
 #include <GLRenderer/Shaders/ShaderCompiler.h>
 #include <GLRenderer/Shaders/ShaderPreprocessor.h>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Shaders {
+#include <fstream>
+
+namespace GLEngine::GLRenderer::Shaders {
+//=================================================================================
+C_ShaderCompiler::C_ShaderCompiler(bool preprocessorOutput /*= false*/)
+	: m_PreprocessorOutput(preprocessorOutput)
+{
+
+}
 
 //=================================================================================
 bool C_ShaderCompiler::compileShader(GLuint& shader, const std::filesystem::path& filepath, const GLenum shaderType)
@@ -26,6 +32,28 @@ bool C_ShaderCompiler::compileShader(GLuint& shader, const std::filesystem::path
 
 	C_ShaderPreprocessor preproces;
 	src = preproces.PreprocessFile(src, filepath.parent_path().generic_string() + "/");
+	if (m_PreprocessorOutput)
+	{
+		std::ofstream debugOutput;
+		const std::filesystem::path debugPath("obj/" + filepath.generic_string() + ".o");
+		const auto debugDirectory = debugPath.parent_path();
+		if (!std::filesystem::exists(debugDirectory))
+		{
+			if (!std::filesystem::create_directories(debugDirectory))
+			{
+				CORE_LOG(E_Level::Error, E_Context::Render, "Cannot create debug output directory");
+			}
+		}
+		debugOutput.open(debugPath);
+		if (!debugOutput.is_open())
+		{
+			CORE_LOG(E_Level::Error, E_Context::Render, "Cannot open file for debug output");
+		}
+		debugOutput << src;
+		debugOutput.flush();
+		debugOutput.close();
+	}
+
 	if (!preproces.WasSuccessful())
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Preprocessing of file '{}' was unsuccessful", filepath.generic_string());
@@ -178,6 +206,4 @@ bool C_ShaderCompiler::_loadFile(const std::filesystem::path& file, std::string&
 	return true;
 }
 
-}
-}
 }

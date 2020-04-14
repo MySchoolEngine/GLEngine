@@ -4,6 +4,8 @@
 # Ignore imgui ini files
 *imgui.ini
 
+data/obj*
+
 # User-specific files
 *.suo
 *.user
