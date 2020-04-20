@@ -4,7 +4,7 @@
 # Ignore imgui ini files
 *imgui.ini
 
-data/obj*
+data/obj/*
 
 # User-specific files
 *.suo
@@ -62,7 +62,6 @@ artifacts/
 *_i.h
 *.ilk
 *.meta
-*.obj
 *.pch
 *.pdb
 *.pgc
