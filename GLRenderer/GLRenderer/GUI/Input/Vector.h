@@ -30,16 +30,11 @@ protected:
 class C_Vec3 final : public C_Vector<glm::vec3>
 {
 public:
-	C_Vec3(std::string&& name, glm::vec3 default)
-		: C_Vector(std::move(name), default){}
+	C_Vec3(std::string&& name, glm::vec3 default);
 
 	void Draw() const override;
 
-	C_Vec3& operator=(const glm::vec3& value)
-	{
-		m_Value = value;
-		return *this;
-	}
+	C_Vec3& operator=(const glm::vec3& value);
 };
 
 }
