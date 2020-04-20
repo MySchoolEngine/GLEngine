@@ -12,7 +12,7 @@ struct S_RayIntersection {
 	S_Ray		ray;
 	GUID		entityId;
 
-	glm::vec4	intersectionPoint;
+	glm::vec3	intersectionPoint;
 	float		distance;
 };
 }
