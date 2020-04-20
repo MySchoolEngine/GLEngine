@@ -61,11 +61,12 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 		);
 	}
 
+	std::size_t pointLightIndex = 0;
 	for (auto& entity : entitiesInView)
 	{
 		if (auto light = entity->GetComponent<Entity::E_ComponentType::Light>()) {
 			const auto pointLight = std::reinterpret_pointer_cast<Renderer::I_PointLight>(light);
-			if (pointLight)
+			if (pointLight && pointLightIndex < m_LightsUBO->PointLightsLimit())
 			{
 				const auto pos = pointLight->GetPosition();
 
@@ -74,7 +75,8 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				pl.m_Color = pointLight->GetColor();
 				pl.m_Intensity = pointLight->GetIntensity();
 
-				m_LightsUBO->SetPointLight(pl);
+				m_LightsUBO->SetPointLight(pl, pointLightIndex);
+				++pointLightIndex;
 
 				C_DebugDraw::Instance().DrawPoint(glm::vec4(pos, 1.0), glm::vec3(1, 1, 1));
 			}

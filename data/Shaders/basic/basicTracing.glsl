@@ -1,5 +1,7 @@
 #version 430
 
+#define NUM_POINTLIGHT 10
+
 #include "../include/frameConstants.glsl"
 #include "../include/tracing.glsl"
 
@@ -17,7 +19,7 @@ out vec4 fragColor;
 
 layout (std140) uniform lightsUni
 {
-	pointLight pLight;
+	pointLight pLight[NUM_POINTLIGHT];
 };
 
 float ambientStrength = 0.1;
@@ -52,7 +54,7 @@ void main()
 
 	float ambientStrength = 0.1;
 	float specularStrength = 0.5;
-    vec3 ambient = ambientStrength * pLight.color;
+    vec3 ambient = ambientStrength * pLight[0].color;
 
 	vec3 norm = normalize(normalOUT);
 
@@ -73,13 +75,13 @@ void main()
 	{	
 		vec3 lightDir = normalize(ray.dir);  
 		float diff = max(dot(norm, lightDir), 0.0);
-		vec3 diffuse = diff * pLight.color/(distSq);
+		vec3 diffuse = diff * pLight[0].color/(distSq);
 
 		vec3 viewDir = normalize(viewPos - FragPos);
 		vec3 reflectDir = reflect(-lightDir, norm);  
 
 		float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64);
-		vec3 specular = specularStrength * spec * pLight.color /(distSq);  
+		vec3 specular = specularStrength * spec * pLight[0].color /(distSq);  
 
 		result += (ambient + diffuse + specular) * modelColor;
 
@@ -88,7 +90,10 @@ void main()
 		result += ambientStrength * modelColor;
 	}
 
-	result+= CalculatePointLight(pLight, norm);
+	for(int i = 0; i< NUM_POINTLIGHT;++i)
+	{
+		result+= CalculatePointLight(pLight[i], norm);
+	}
 
 
 	fragColor = vec4(result, 1.0);

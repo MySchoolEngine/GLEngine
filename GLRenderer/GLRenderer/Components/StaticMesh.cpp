@@ -16,6 +16,8 @@
 
 #include <Core/Application.h>
 
+#include <Utils/Parsing/ColorParsing.h>
+
 #include <pugixml.hpp>
 
 namespace GLEngine {
@@ -109,11 +111,7 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 
 	if (auto colorChild = node.child("color"))
 	{
-		std::stringstream ss;
-		ss << colorChild.child_value();
-		float r, b, g;
-		ss >> r >> b >> g;
-		staticMesh->SetColor(glm::vec3(r, b, g));
+		staticMesh->SetColor(Utils::Parsing::C_ColorParser::ParseColorRGB(node));
 	}
 
 	return staticMesh;

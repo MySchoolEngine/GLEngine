@@ -3,6 +3,7 @@
 #include <Renderer/Lights/PointLight.h>
 
 #include <Utils/Parsing/MatrixParse.h>
+#include <Utils/Parsing/ColorParsing.h>
 
 namespace GLEngine::Renderer {
 
@@ -60,6 +61,11 @@ std::shared_ptr<Entity::I_Component> C_PointLightCompBuilder::Build(const pugi::
 	if (const auto intensityAttr = node.attribute("intensity"))
 	{
 		pointLight->m_Intensity = intensityAttr.as_float();
+	}
+
+	if (node.child("color"))
+	{
+		pointLight->m_Color = Utils::Parsing::C_ColorParser::ParseColorRGB(node);
 	}
 
 	return pointLight;
