@@ -10,9 +10,11 @@ public:
 	C_LightsBuffer(const std::string& blockName, unsigned int index);
 	virtual void UploadData() const override;
 
-	void SetPointLight(S_PointLight pl) { m_PointLight = pl; }
+	void SetPointLight(S_PointLight pl, std::size_t index) { m_PointLight[index] = pl; }
+
+	std::size_t PointLightsLimit() const { return m_PointLight.max_size(); }
 
 private:
-	S_PointLight m_PointLight;
+	std::array<S_PointLight, 10> m_PointLight;
 };
 }

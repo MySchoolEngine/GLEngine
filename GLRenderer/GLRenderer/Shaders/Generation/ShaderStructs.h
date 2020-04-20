@@ -27,10 +27,11 @@ private:
 };
 
 //=================================================================================
+template<class Derived>
 class I_GLSLStruct
 {
 public:
-	virtual C_StructDescriptor GetDescription() const = 0;
-	virtual std::string GetName() const = 0;
+	C_StructDescriptor GetDescription() const { return static_cast<const Derived*>(this)->GetDescriptionImpl(); };
+	std::string GetName() const { return static_cast<const Derived*>(this)->GetNameImpl(); };
 };
 }
