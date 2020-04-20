@@ -4,7 +4,7 @@
 
 //per mesh
 uniform sampler2D tex;
-uniform vec4 modelColor;
+uniform vec3 modelColor;
 
 in vec3 normalOUT;
 in vec2 texCoordOUT;
@@ -22,8 +22,6 @@ layout (std140) uniform lightsUni
 //=================================================================================
 void main()
 {
-	vec3 objectColor = vec3(1,0,0);
-
 	float ambientStrength = 0.1;
 	float specularStrength = 0.5;
     vec3 ambient = ambientStrength * pLight.color;
@@ -43,6 +41,6 @@ void main()
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64);
 	vec3 specular = specularStrength * spec * pLight.color;  
 
-	vec3 result = (ambient + diffuse + specular) * objectColor;
+	vec3 result = (ambient + diffuse + specular) * modelColor;
 	fragColor = vec4(result, 1.0);
 }
