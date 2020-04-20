@@ -4,7 +4,9 @@
 		<Entity name="Player" />
 		<Entity name="halfBox">
 			<Components>
-				<staticMesh filePath="plane.obj" material="basicTracing" />
+				<staticMesh filePath="plane.obj" material="basicTracing">
+					<color>0.14 0.14 0.14</color>
+				</staticMesh>
 			</Components>
 		</Entity>
 
