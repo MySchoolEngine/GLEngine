@@ -78,7 +78,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				m_LightsUBO->SetPointLight(pl, pointLightIndex);
 				++pointLightIndex;
 
-				C_DebugDraw::Instance().DrawPoint(glm::vec4(pos, 1.0), glm::vec3(1, 1, 1));
+				C_DebugDraw::Instance().DrawPoint(glm::vec4(pos, 1.0), pointLight->GetColor());
 			}
 		}
 	}
