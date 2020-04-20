@@ -40,8 +40,8 @@ vec3 CalculatePointLight(pointLight light, vec3 norm)
 	vec3 viewDir = normalize(viewPos - FragPos);
 	vec3 reflectDir = reflect(-lightDir, norm);  
 
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64);
-	vec3 specular = specularStrength * spec * light.color;  
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 256);
+	vec3 specular = specularStrength * spec * light.color * light.intensity;  
 
 	return (ambient + diffuse + specular) * modelColor;
 }
@@ -80,8 +80,8 @@ void main()
 		vec3 viewDir = normalize(viewPos - FragPos);
 		vec3 reflectDir = reflect(-lightDir, norm);  
 
-		float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64);
-		vec3 specular = specularStrength * spec * pLight[0].color /(distSq);  
+		float spec = pow(max(dot(viewDir, reflectDir), 0.0), 512);
+		vec3 specular = specularStrength * spec * pLight[0].color * pLight[0].intensity /(distSq);  
 
 		result += (ambient + diffuse + specular) * modelColor;
 
