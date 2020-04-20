@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<World>
+	<Entities>
+		<Entity name="Player" />
+		<Entity name="halfBox">
+			<Components>
+				<staticMesh filePath="plane.obj" material="basicTracing" />
+				<PointLight intensity="3.0">
+					<translate sid="location">0 1 0</translate>
+				</PointLight>
+			</Components>
+		</Entity>
+		<Entity name="light">
+			<translate sid="location">0 0 -3</translate>
+			<rotate>1 0 0 90</rotate>
+			<Components>
+				<staticMesh filePath="plane.obj" material="basic">
+					<color>1 1 1</color>
+				</staticMesh>
+			</Components>
+		</Entity>
+	</Entities>
+</World>
