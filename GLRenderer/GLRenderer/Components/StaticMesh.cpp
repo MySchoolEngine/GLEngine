@@ -8,6 +8,7 @@
 #include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/Textures/TextureLoader.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
+#include <GLRenderer/Textures/TextureManager.h>
 
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 
@@ -64,18 +65,23 @@ void C_StaticMesh::PerformDraw() const
 {
 	if (!m_Mesh || !m_Shader)
 	{
-		//CORE_LOG(E_Level::Error, E_Context::Render, "Static mesh uncomplete");
+		CORE_LOG(E_Level::Error, E_Context::Render, "Static mesh uncomplete");
 		return;
 	}
 
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	shmgr.ActivateShader(m_Shader);
 
-	if (m_RoughnessMap)
-	{
-		auto& tm = Textures::C_TextureUnitManger::Instance();
+	auto& tm = Textures::C_TextureUnitManger::Instance();
+
+	if (m_RoughnessMap) {
 		tm.BindTextureToUnit(*m_RoughnessMap, 0);
+	}
+	if (m_ColorMap) {
 		tm.BindTextureToUnit(*m_ColorMap, 1);
+	}
+	if (m_NormalMap) {
+		tm.BindTextureToUnit(*m_NormalMap, 2);
 	}
 
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
@@ -89,6 +95,8 @@ void C_StaticMesh::PerformDraw() const
 						m_Shader->SetUniform("useRoughnessMap", m_RoughnessMap != nullptr);
 						m_Shader->SetUniform("colorMap", 1);
 						m_Shader->SetUniform("useColorMap", m_RoughnessMap != nullptr);
+						m_Shader->SetUniform("normalMap", 2);
+						m_Shader->SetUniform("useNormalMap", m_RoughnessMap != nullptr);
 					}
 				)
 		)
@@ -139,79 +147,53 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 		staticMesh->m_Roughness = val;
 	}
 
+
+	auto& tmgr = Textures::C_TextureManager::Instance();
+
 	if (auto roughnessMap = node.child("roughnessMap"))
 	{
-		Textures::TextureLoader tl;
-		Renderer::MeshData::Texture t;
-		bool retval = tl.loadTexture(roughnessMap.child_value(), t);
-		if (retval)
+		staticMesh->m_RoughnessMap = tmgr.GetTexture(roughnessMap.child_value());
+		if (staticMesh->m_RoughnessMap)
 		{
 			staticMesh->m_Roughness = 1.0f;
 
-
-			staticMesh->m_RoughnessMap = std::make_shared<Textures::C_Texture>(roughnessMap.child_value());
 			staticMesh->m_RoughnessMap->StartGroupOp();
-			staticMesh->m_RoughnessMap->SetTexData2D(0, t);
 			staticMesh->m_RoughnessMap->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
 			staticMesh->m_RoughnessMap->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 			staticMesh->m_RoughnessMap->GenerateMipMaps();
 
 			staticMesh->m_RoughnessMap->EndGroupOp();
 		}
-		else
-		{
-			CORE_LOG(E_Level::Error, E_Context::Render, "Static mesh '{}' is not able to load texture '{}'", node.attribute("filePath").value(), roughnessMap.child_value());
-		}
 	}
 
 	if (auto colorMap = node.child("colorMap"))
 	{
-		Textures::TextureLoader tl;
-		Renderer::MeshData::Texture t;
-		bool retval = tl.loadTexture(colorMap.child_value(), t);
-		if (retval)
+		staticMesh->m_ColorMap = tmgr.GetTexture(colorMap.child_value());
+		if (staticMesh->m_ColorMap)
 		{
 			staticMesh->SetColor(glm::vec3(1.0f));
 
-
-			staticMesh->m_ColorMap = std::make_shared<Textures::C_Texture>(colorMap.child_value());
 			staticMesh->m_ColorMap->StartGroupOp();
-			staticMesh->m_ColorMap->SetTexData2D(0, t);
 			staticMesh->m_ColorMap->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
 			staticMesh->m_ColorMap->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 			staticMesh->m_ColorMap->GenerateMipMaps();
 
 			staticMesh->m_ColorMap->EndGroupOp();
-		}
-		else
-		{
-			CORE_LOG(E_Level::Error, E_Context::Render, "Static mesh '{}' is not able to load texture '{}'", node.attribute("filePath").value(), colorMap.child_value());
 		}
 	}
 
 
-	if (auto colorMap = node.child("normalMap"))
+	if (auto normalMap = node.child("normalMap"))
 	{
-		Textures::TextureLoader tl;
-		Renderer::MeshData::Texture t;
-		bool retval = tl.loadTexture(colorMap.child_value(), t);
-		if (retval)
+		staticMesh->m_NormalMap = tmgr.GetTexture(normalMap.child_value());
+		if (staticMesh->m_NormalMap)
 		{
-			staticMesh->SetColor(glm::vec3(1.0f));
+			staticMesh->m_NormalMap->StartGroupOp();
+			staticMesh->m_NormalMap->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
+			staticMesh->m_NormalMap->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+			staticMesh->m_NormalMap->GenerateMipMaps();
 
-
-			staticMesh->m_ColorMap = std::make_shared<Textures::C_Texture>(colorMap.child_value());
-			staticMesh->m_ColorMap->StartGroupOp();
-			staticMesh->m_ColorMap->SetTexData2D(0, t);
-			staticMesh->m_ColorMap->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
-			staticMesh->m_ColorMap->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-			staticMesh->m_ColorMap->GenerateMipMaps();
-
-			staticMesh->m_ColorMap->EndGroupOp();
-		}
-		else
-		{
-			CORE_LOG(E_Level::Error, E_Context::Render, "Static mesh '{}' is not able to load texture '{}'", node.attribute("filePath").value(), colorMap.child_value());
+			staticMesh->m_NormalMap->EndGroupOp();
 		}
 	}
 
