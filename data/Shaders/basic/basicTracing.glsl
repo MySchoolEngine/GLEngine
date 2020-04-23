@@ -10,15 +10,18 @@
 uniform sampler2D tex;
 uniform sampler2D roughnessMap;
 uniform sampler2D colorMap;
+uniform sampler2D normalMap;
 uniform vec3 modelColor;
 uniform float roughness;
 
 uniform bool useRoughnessMap;
 uniform bool useColorMap;
+uniform bool useNormalMap;
 
 in vec3 normalOUT;
 in vec2 texCoordOUT;
 in vec4 worldCoord;
+in mat3 TBN;
 
 out vec4 fragColor;
 
@@ -76,6 +79,21 @@ vec3 CalculatePointLight(pointLight light, vec3 norm)
 	return (Kd*usedColor/PI + spec) * light.color * NdotL;
 }
 
+vec3 GetNormal()
+{
+	if(!useNormalMap)
+	{
+		return normalize(normalOUT);
+	}
+
+	vec3 normalMapSample = texture(normalMap, texCoordOUT).xyz;
+    normalMapSample = 2.0 * normalMapSample - vec3(1.0, 1.0, 1.0);
+    
+    vec3 normal = TBN * normalMapSample;
+    normal = normalize(normal);
+    return NewNormal;
+}
+
 //=================================================================================
 void main()
 {
@@ -92,7 +110,7 @@ void main()
     	usedColor = texture(colorMap, texCoordOUT).xyz;
     }
 
-	vec3 norm = normalize(normalOUT);
+	const vec3 norm = GetNormal();
 
 	vec3 omegaIn = FragPos - viewPos;
 	Ray ray;

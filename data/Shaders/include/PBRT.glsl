@@ -11,7 +11,7 @@ float DistributionGGX(vec3 normal, vec3 halfVector, float roughness)
 {
     float a      = roughness*roughness;
     float a2     = a*a;
-    float NdotH  = max(dot(normal, halfVector), 0.0);
+    float NdotH  = max(dot(normal, halfVector), 0.001);
     float NdotH2 = NdotH*NdotH;
 	
     float num   = a2;
@@ -42,8 +42,8 @@ float GeometrySchlickGGX(float NdotV, float roughness)
 
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 {
-    float NdotV = max(dot(N, V), 0.0);
-    float NdotL = max(dot(N, L), 0.0);
+    float NdotV = max(dot(N, V), 0.001);
+    float NdotL = max(dot(N, L), 0.001);
     float ggx2  = GeometrySchlickGGX(NdotV, roughness);
     float ggx1  = GeometrySchlickGGX(NdotL, roughness);
 	
