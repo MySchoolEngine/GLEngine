@@ -30,6 +30,7 @@ public:
 	C_Texture(const std::string& name, GLenum target = GL_TEXTURE_2D);
 	C_Texture(const C_Texture&) = delete;
 	C_Texture(C_Texture&& t);
+	void operator=(C_Texture&& rhs);
 	virtual ~C_Texture();
 
 	void bind() const;
@@ -57,8 +58,9 @@ public:
 	void GenerateMipMaps();
 
 	void SetTexData2D(int level, const Renderer::MeshData::Texture& tex);
-
 protected:
+	void Clean();
+
 	GLuint			m_texture;
 	GLenum			m_target;
 	glm::uvec2	m_Dimensions;

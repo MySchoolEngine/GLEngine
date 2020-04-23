@@ -25,6 +25,12 @@ C_Texture::C_Texture(const std::string& name, GLenum target)
 //=================================================================================
 C_Texture::C_Texture(C_Texture&& t)
 {
+	if (&t == this)
+	{
+		return;
+	}
+	Clean();
+
 	m_texture = t.m_texture;
 	t.m_texture = 0;
 	m_target = t.m_target;
@@ -32,10 +38,32 @@ C_Texture::C_Texture(C_Texture&& t)
 }
 
 //=================================================================================
+void C_Texture::operator=(C_Texture&& rhs)
+{
+	if (&rhs == this)
+	{
+		return;
+	}
+	Clean();
+
+	m_texture = rhs.m_texture;
+	rhs.m_texture = 0;
+	m_target = rhs.m_target;
+	m_bGroupOperations = rhs.m_bGroupOperations;
+}
+
+//=================================================================================
 C_Texture::~C_Texture()
 {
-	if(m_texture!=0)
+	Clean();
+}
+
+//=================================================================================
+void C_Texture::Clean()
+{
+	if (m_texture != 0)
 		glDeleteTextures(1, &m_texture);
+	m_texture = 0;
 }
 
 //=================================================================================
