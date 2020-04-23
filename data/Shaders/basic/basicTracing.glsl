@@ -41,17 +41,32 @@ vec3 usedColor;
 // should be ok ish for dielectrics
 const float R0 = 0.04;
 
+vec3 BRDF(const vec3 norm, const vec3 omegaIn, const vec3 omegaOut, const vec3 lightColor, const float roughness)
+{
+	//cook-torrance brdf
+	const vec3 halfVec = HalfVector(omegaOut, omegaIn);
+	const float cosTheta = max(dot(norm, omegaIn),0.0);
+	const float NDF = DistributionGGX(norm, halfVec, roughness);
+	const float G   = GeometrySmith(norm, omegaIn, omegaOut, roughness);
+	const float F   = fresnelApprox(cosTheta, R0);
+
+	vec3 Ks = vec3(F, F, F);
+	vec3 Kd = vec3(1.0) - Ks;
+
+	float denominator = 4.0 * max(dot(norm, omegaIn), 0.0) * max(dot(norm, omegaOut), 0.0);
+
+
+	float spec = NDF * F * G/max(denominator, 0.001);
+
+    float NdotL = max(dot(norm, omegaOut), 0.0); 
+	return (Kd*usedColor/PI + spec) * lightColor * NdotL;
+}
+
 vec3 CalculatePointLight(pointLight light, vec3 norm)
 {
-    vec3 ambient = ambientStrength * light.color;
-
-	vec3 lightDir = normalize(light.position - FragPos);  
-	
-	float diff = max(dot(norm, lightDir), 0.0);
-	vec3 diffuse = diff * light.color;
+	vec3 lightDir = normalize(light.position - FragPos);
 
 	vec3 viewDir = normalize(viewPos - FragPos);
-	vec3 reflectDir = reflect(-lightDir, norm); 
 
 	float roughnessVal = roughness;
 	if(useRoughnessMap)
@@ -59,24 +74,7 @@ vec3 CalculatePointLight(pointLight light, vec3 norm)
 		roughnessVal = texture(roughnessMap, texCoordOUT).x;
 	}
 
-
-	//cook-torrance brdf
-	const vec3 halfVec = HalfVector(lightDir, viewDir);
-	const float cosTheta = max(dot(norm, viewDir),0.0);
-	const float NDF = DistributionGGX(norm, halfVec, roughnessVal);
-	const float G   = GeometrySmith(norm, viewDir, lightDir, roughnessVal);
-	const float F   = fresnelApprox(cosTheta, R0);
-
-	vec3 Ks = vec3(F, F, F);
-	vec3 Kd = vec3(1.0) - Ks;
-
-	float denominator = 4.0 * max(dot(norm, viewDir), 0.0) * max(dot(norm, lightDir), 0.0);
-
-
-	float spec = NDF * F * G/max(denominator, 0.001);
-
-    float NdotL = max(dot(norm, lightDir), 0.0); 
-	return (Kd*usedColor/PI + spec) * light.color * NdotL;
+	return BRDF(norm, viewDir, lightDir, light.color, roughnessVal);
 }
 
 vec3 GetNormal()
@@ -88,10 +86,10 @@ vec3 GetNormal()
 
 	vec3 normalMapSample = texture(normalMap, texCoordOUT).xyz;
     normalMapSample = 2.0 * normalMapSample - vec3(1.0, 1.0, 1.0);
-    
+
     vec3 normal = TBN * normalMapSample;
     normal = normalize(normal);
-    return NewNormal;
+    return normal;
 }
 
 //=================================================================================
