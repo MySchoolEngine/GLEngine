@@ -36,6 +36,7 @@ C_ShaderManager & C_ShaderManager::Instance()
 //=================================================================================
 void C_ShaderManager::Clear()
 {
+	CORE_LOG(E_Level::Info, E_Context::Render, "{}", ShadersStatistics());
 	std::cout << ShadersStatistics();
 	m_Programs.clear();
 	m_ActiveShader.reset();
