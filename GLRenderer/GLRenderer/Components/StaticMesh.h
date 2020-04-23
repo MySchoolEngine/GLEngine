@@ -40,6 +40,7 @@ protected:
 	GUI::Input::C_Slider<float>											m_Roughness{ 0.f, 0.f, 1.f, "Roughness" };
 	std::shared_ptr<Textures::C_Texture>						m_RoughnessMap = nullptr;
 	std::shared_ptr<Textures::C_Texture>						m_ColorMap = nullptr;
+	std::shared_ptr<Textures::C_Texture>						m_NormalMap = nullptr;
 
 	friend class C_StaticMeshBuilder;
 };
