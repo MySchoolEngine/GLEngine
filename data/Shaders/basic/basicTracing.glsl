@@ -38,6 +38,34 @@ vec3 viewPos;
 vec3 FragPos;
 vec3 usedColor;
 
+
+
+float GetRoughness(const vec2 uv)
+{
+	float roughnessVal = roughness;
+	if(useRoughnessMap)
+	{
+		roughnessVal = texture(roughnessMap, texCoordOUT).x;
+	}
+	return roughnessVal;
+}
+
+vec3 GetNormal()
+{
+	if(!useNormalMap)
+	{
+		return normalize(normalOUT);
+	}
+
+	vec3 normalMapSample = texture(normalMap, texCoordOUT).xyz;
+    normalMapSample = 2.0 * normalMapSample - vec3(1.0, 1.0, 1.0);
+
+    vec3 normal = TBN * normalMapSample;
+    normal = normalize(normal);
+    return normal;
+}
+
+
 // should be ok ish for dielectrics
 const float R0 = 0.04;
 
@@ -64,32 +92,14 @@ vec3 BRDF(const vec3 norm, const vec3 omegaIn, const vec3 omegaOut, const vec3 l
 
 vec3 CalculatePointLight(pointLight light, vec3 norm)
 {
+	// TODO: light intensity
 	vec3 lightDir = normalize(light.position - FragPos);
 
 	vec3 viewDir = normalize(viewPos - FragPos);
 
-	float roughnessVal = roughness;
-	if(useRoughnessMap)
-	{
-		roughnessVal = texture(roughnessMap, texCoordOUT).x;
-	}
+	float roughnessVal = GetRoughness(texCoordOUT);
 
 	return BRDF(norm, viewDir, lightDir, light.color, roughnessVal);
-}
-
-vec3 GetNormal()
-{
-	if(!useNormalMap)
-	{
-		return normalize(normalOUT);
-	}
-
-	vec3 normalMapSample = texture(normalMap, texCoordOUT).xyz;
-    normalMapSample = 2.0 * normalMapSample - vec3(1.0, 1.0, 1.0);
-
-    vec3 normal = TBN * normalMapSample;
-    normal = normalize(normal);
-    return normal;
 }
 
 //=================================================================================
@@ -122,29 +132,20 @@ void main()
 	vec3 result = vec3(0,0,0);
 
 	float t = 0;
-	float distSq;
-	if(RayDiscIntersect(ray, disc, t, distSq) && false)
+	float distSq; // distance from the middle of a disc
+	if(RayDiscIntersect(ray, disc, t, distSq))
 	{	
-		vec3 lightDir = normalize(ray.dir);  
-		float diff = max(dot(norm, lightDir), 0.0);
-		vec3 diffuse = diff * pLight[0].color/(distSq);
+		vec3 omegaOut = normalize(ray.dir);
+		vec3 viewDir = normalize(-omegaIn);
 
-		vec3 viewDir = normalize(viewPos - FragPos);
-		vec3 reflectDir = reflect(-lightDir, norm);  
+		float roughnessVal = GetRoughness(texCoordOUT);
 
-		float spec = pow(max(dot(viewDir, reflectDir), 0.0), 512);
-		vec3 specular = specularStrength * spec * pLight[0].color * pLight[0].intensity /(distSq);  
-
-		result += (ambient + diffuse + specular) * usedColor;
-
-	}
-	else{
-		//result += ambientStrength * modelColor;
+		result += BRDF(norm, viewDir, omegaOut, pLight[0].color, roughnessVal);
 	}
 
 	for(int i = 0; i< NUM_POINTLIGHT;++i)
 	{
-		result+= CalculatePointLight(pLight[i], norm);
+		result += CalculatePointLight(pLight[i], norm);
 	}
 
 
