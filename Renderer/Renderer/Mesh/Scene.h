@@ -32,6 +32,8 @@ struct Mesh
 	std::vector<glm::vec4> vertices;
 	std::vector<glm::vec3> normals;
 	std::vector<glm::vec2> texcoords;
+	std::vector<glm::vec3> tangent;
+	std::vector<glm::vec3> bitangent;
 
 	Physics::Primitives::S_AABB     bbox;
 	glm::mat4						modelMatrix;
