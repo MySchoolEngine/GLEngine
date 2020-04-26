@@ -281,19 +281,22 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 	auto HDRTexture = std::make_shared<Textures::C_Texture>("hdrTexture");
 
 	HDRTexture->bind();
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, GetWidth(), GetHeight(), 0, GL_RGBA, GL_FLOAT, nullptr);
+	// HDRTexture setup 
+	HDRTexture->SetDimensions({ GetWidth(), GetHeight() });
+	HDRTexture->SetInternalFormat(GL_RGBA16F);
 	HDRTexture->SetFilter(GL_LINEAR, GL_LINEAR);
+	// ~HDRTexture setup 
 	m_HDRFBO.AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
 	HDRTexture->unbind();
 
 	auto depthStencilTexture = std::make_shared<Textures::C_Texture>("hdrDepthTexture");
 
 	depthStencilTexture->bind();
-	glTexImage2D(
-		GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, GetWidth(), GetHeight(), 0,
-		GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr
-	);
+	// depthStencilTexture setup 
+	depthStencilTexture->SetDimensions({ GetWidth(), GetHeight() });
+	depthStencilTexture->SetInternalFormat(GL_DEPTH24_STENCIL8);
 	depthStencilTexture->SetFilter(GL_LINEAR, GL_LINEAR);
+	// ~depthStencilTexture setup 
 	m_HDRFBO.AttachTexture(GL_DEPTH_STENCIL_ATTACHMENT, depthStencilTexture);
 	depthStencilTexture->unbind();
 
@@ -306,17 +309,16 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 {
 	auto HDRTexture = m_HDRFBO.GetAttachement(GL_COLOR_ATTACHMENT0);
 	HDRTexture->bind();
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, event.GetWidth(), event.GetHeight(), 0, GL_RGBA, GL_FLOAT, nullptr);
+	HDRTexture->SetDimensions({ event.GetWidth(), event.GetHeight() });
+	HDRTexture->SetInternalFormat(GL_RGBA16F);
 	HDRTexture->SetFilter(GL_LINEAR, GL_LINEAR);
 	HDRTexture->unbind();
 
 	auto depthStencilTexture = m_HDRFBO.GetAttachement(GL_DEPTH_STENCIL_ATTACHMENT);
 
 	depthStencilTexture->bind();
-	glTexImage2D(
-		GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, event.GetWidth(), event.GetHeight(), 0,
-		GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr
-	);
+	depthStencilTexture->SetDimensions({ event.GetWidth(), event.GetHeight() });
+	depthStencilTexture->SetInternalFormat(GL_DEPTH24_STENCIL8);
 	depthStencilTexture->SetFilter(GL_LINEAR, GL_LINEAR);
 	depthStencilTexture->unbind();
 

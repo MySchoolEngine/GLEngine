@@ -147,4 +147,17 @@ void C_Texture::SetTexData2D(int level, const Renderer::MeshData::Texture& tex)
 		tex.data.get());
 }
 
+//=================================================================================
+void C_Texture::SetInternalFormat(GLint internalFormat)
+{
+	glTexImage2D(m_target,
+		0,
+		internalFormat,
+		GetWidth(),
+		GetHeight(),
+		0,
+		GL_RGBA,
+		GL_FLOAT, nullptr);
+}
+
 }
