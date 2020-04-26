@@ -26,11 +26,19 @@ public:
 	[[nodiscard]] GUID SetupControls(ImGui::C_GUIManager& guiMGR);
 	void DestroyControls(ImGui::C_GUIManager& guiMGR);
 
+
+	[[nodiscard]] T_TexturePtr GetErrorTexture();
+	// 1x1 px white texture
+	[[nodiscard]] T_TexturePtr GetIdentityTexture();
 private:
 	C_TextureManager();
 
 	using T_TextureMap = std::map<std::string, T_TexturePtr>;
 	T_TextureMap	m_Textures;
+
+	T_TexturePtr m_ErrorTexture;
+	T_TexturePtr m_IdentityTexture;
+	static std::filesystem::path s_ErrorTextureFile;
 
 	void ReloadTexture(const std::string& name, T_TexturePtr& texture);
 

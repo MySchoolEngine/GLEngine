@@ -9,6 +9,7 @@
 #include <GLRenderer/GUI/GUIWindow.h>
 
 namespace GLEngine::GLRenderer::Textures {
+std::filesystem::path C_TextureManager::s_ErrorTextureFile = "Models/Error.bmp";
 
 //=================================================================================
 C_TextureManager::C_TextureManager()
@@ -101,6 +102,36 @@ void C_TextureManager::ReloadTexture(const std::string& name, T_TexturePtr& text
 	texture->bind();
 	texture->SetTexData2D(0, t);
 	texture->unbind();
+}
+
+//=================================================================================
+C_TextureManager::T_TexturePtr C_TextureManager::GetErrorTexture()
+{
+	if (!m_ErrorTexture)
+	{
+		m_ErrorTexture = GetTexture(s_ErrorTextureFile.generic_string());
+	}
+	return m_ErrorTexture;
+}
+
+//=================================================================================
+C_TextureManager::T_TexturePtr C_TextureManager::GetIdentityTexture()
+{
+	if (!m_IdentityTexture)
+	{
+		m_IdentityTexture = std::make_shared<C_Texture>("Identity texture");
+		Renderer::MeshData::Texture t;
+		t.height = t.width = 1;
+		t.data = std::shared_ptr<unsigned char>(new unsigned char[4 * t.width * t.height]);
+		t.data.get()[0] = 255;
+		t.data.get()[1] = 255;
+		t.data.get()[2] = 255;
+		t.data.get()[3] = 0;
+		m_IdentityTexture->bind();
+		m_IdentityTexture->SetTexData2D(0, t);
+		m_IdentityTexture->unbind();
+	}
+	return m_IdentityTexture;
 }
 
 }
