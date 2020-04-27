@@ -58,7 +58,7 @@ public:
 	void GenerateMipMaps();
 
 	void SetTexData2D(int level, const Renderer::MeshData::Texture& tex);
-	void SetInternalFormat(GLint internalFormat);
+	void SetInternalFormat(GLint internalFormat, GLint format, GLenum type);
 protected:
 	void Clean();
 

@@ -38,6 +38,7 @@
 #include <GLRenderer/GUI/Components/GLEntityDebugComponent.h>
 
 #include <Renderer/Mesh/Scene.h>
+#include <Renderer/Lights/AreaLight.h>
 
 #include <Physics/Primitives/Ray.h>
 #include <Physics/Primitives/Intersection.h>
@@ -110,7 +111,6 @@ void C_ExplerimentWindow::Update()
 	m_ImGUI->OnUpdate();
 	//MouseSelect();
 	C_DebugDraw::Instance().DrawAxis(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0, 1.f, 0.0f), glm::vec3(0.f, 0.f, 1.f));
-	C_DebugDraw::Instance().DrawGrid(glm::vec4(0.f), 5);
 
 	const auto avgMsPerFrame = m_Samples.Avg();
 	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgFrametime)].UpdateText(m_Samples.Avg());
@@ -266,7 +266,7 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 		);
 		m_renderer->AddCommand(
 			std::move(
-				std::make_unique<C_GLClearColor>(glm::vec3(1.0f, 1.0f, 1.0f))
+				std::make_unique<C_GLClearColor>(glm::vec3(0.0f, 0.0f, 0.0f))
 			)
 		);
 		m_renderer->AddCommand(
@@ -283,7 +283,7 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 	HDRTexture->bind();
 	// HDRTexture setup 
 	HDRTexture->SetDimensions({ GetWidth(), GetHeight() });
-	HDRTexture->SetInternalFormat(GL_RGBA16F);
+	HDRTexture->SetInternalFormat(GL_RGBA16F, GL_RGBA, GL_FLOAT);
 	HDRTexture->SetFilter(GL_LINEAR, GL_LINEAR);
 	// ~HDRTexture setup 
 	m_HDRFBO.AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
@@ -294,7 +294,7 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 	depthStencilTexture->bind();
 	// depthStencilTexture setup 
 	depthStencilTexture->SetDimensions({ GetWidth(), GetHeight() });
-	depthStencilTexture->SetInternalFormat(GL_DEPTH24_STENCIL8);
+	depthStencilTexture->SetInternalFormat(GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8);
 	depthStencilTexture->SetFilter(GL_LINEAR, GL_LINEAR);
 	// ~depthStencilTexture setup 
 	m_HDRFBO.AttachTexture(GL_DEPTH_STENCIL_ATTACHMENT, depthStencilTexture);
@@ -310,7 +310,7 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 	auto HDRTexture = m_HDRFBO.GetAttachement(GL_COLOR_ATTACHMENT0);
 	HDRTexture->bind();
 	HDRTexture->SetDimensions({ event.GetWidth(), event.GetHeight() });
-	HDRTexture->SetInternalFormat(GL_RGBA16F);
+	HDRTexture->SetInternalFormat(GL_RGBA16F, GL_RGBA, GL_FLOAT);
 	HDRTexture->SetFilter(GL_LINEAR, GL_LINEAR);
 	HDRTexture->unbind();
 
@@ -318,7 +318,7 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 
 	depthStencilTexture->bind();
 	depthStencilTexture->SetDimensions({ event.GetWidth(), event.GetHeight() });
-	depthStencilTexture->SetInternalFormat(GL_DEPTH24_STENCIL8);
+	depthStencilTexture->SetInternalFormat(GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8);
 	depthStencilTexture->SetFilter(GL_LINEAR, GL_LINEAR);
 	depthStencilTexture->unbind();
 
@@ -328,7 +328,7 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 //=================================================================================
 void C_ExplerimentWindow::SetupWorld()
 {
-	m_World->LoadLevel("Levels/main.xml", std::make_unique<Components::C_ComponentBuilderFactory>());
+	m_World->LoadLevel("Levels/dark.xml", std::make_unique<Components::C_ComponentBuilderFactory>());
 	{
 		m_Player = m_World->GetEntity("Player");
 
@@ -343,6 +343,10 @@ void C_ExplerimentWindow::SetupWorld()
 			playerCamera->Update();
 			player->AddComponent(playerCamera);
 			m_CamManager.ActivateCamera(playerCamera);
+
+			// area light
+			auto arealight = std::make_shared<Renderer::C_AreaLight>(player);
+			player->AddComponent(arealight);
 		}
 	}
 	{
