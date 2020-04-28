@@ -70,6 +70,7 @@ void C_StaticMesh::PerformDraw() const
 	}
 
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
+	auto& tmgr = Textures::C_TextureManager::Instance();
 	shmgr.ActivateShader(m_Shader);
 
 	auto& tm = Textures::C_TextureUnitManger::Instance();
@@ -77,11 +78,23 @@ void C_StaticMesh::PerformDraw() const
 	if (m_RoughnessMap) {
 		tm.BindTextureToUnit(*m_RoughnessMap, 0);
 	}
+	else
+	{
+		tm.BindTextureToUnit(*(tmgr.GetIdentityTexture()), 0);
+	}
 	if (m_ColorMap) {
 		tm.BindTextureToUnit(*m_ColorMap, 1);
 	}
+	else
+	{
+		tm.BindTextureToUnit(*(tmgr.GetIdentityTexture()), 1);
+	}
 	if (m_NormalMap) {
 		tm.BindTextureToUnit(*m_NormalMap, 2);
+	}
+	else
+	{
+		tm.BindTextureToUnit(*(tmgr.GetIdentityTexture()), 2);
 	}
 
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
@@ -92,11 +105,9 @@ void C_StaticMesh::PerformDraw() const
 						m_Shader->SetUniform("modelColor", m_Color.GetValue());
 						m_Shader->SetUniform("roughness", m_Roughness.GetValue());
 						m_Shader->SetUniform("roughnessMap", 0);
-						m_Shader->SetUniform("useRoughnessMap", m_RoughnessMap != nullptr);
 						m_Shader->SetUniform("colorMap", 1);
-						m_Shader->SetUniform("useColorMap", m_ColorMap != nullptr);
 						m_Shader->SetUniform("normalMap", 2);
-						m_Shader->SetUniform("useNormalMap", m_NormalMap != nullptr);
+						m_Shader->SetUniform("useNormalMap", m_NormalMap!=nullptr);
 					}
 				)
 		)
@@ -172,12 +183,12 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 		if (staticMesh->m_ColorMap)
 		{
 			staticMesh->SetColor(glm::vec3(1.0f));
-
+		
 			staticMesh->m_ColorMap->StartGroupOp();
 			staticMesh->m_ColorMap->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
 			staticMesh->m_ColorMap->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 			staticMesh->m_ColorMap->GenerateMipMaps();
-
+		
 			staticMesh->m_ColorMap->EndGroupOp();
 		}
 	}

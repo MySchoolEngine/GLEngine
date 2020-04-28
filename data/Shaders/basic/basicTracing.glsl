@@ -14,8 +14,6 @@ uniform sampler2D normalMap;
 uniform vec3 modelColor;
 uniform float roughness;
 
-uniform bool useRoughnessMap;
-uniform bool useColorMap;
 uniform bool useNormalMap;
 
 in vec3 normalOUT;
@@ -43,10 +41,7 @@ vec3 usedColor;
 float GetRoughness(const vec2 uv)
 {
 	float roughnessVal = roughness;
-	if(useRoughnessMap)
-	{
-		roughnessVal = texture(roughnessMap, texCoordOUT).x;
-	}
+	roughnessVal *= texture(roughnessMap, texCoordOUT).x;
 	return roughnessVal;
 }
 
@@ -54,7 +49,8 @@ vec3 GetNormal()
 {
 	if(!useNormalMap)
 	{
-		return normalize(normalOUT);
+	vec3 norm = normalize(normalOUT);
+	return norm;
 	}
 
 	vec3 normalMapSample = texture(normalMap, texCoordOUT).xyz;
@@ -113,10 +109,7 @@ void main()
     vec3 ambient = ambientStrength * pLight[0].color;
 
     usedColor=modelColor;
-    if(useColorMap)
-    {
-    	usedColor = texture(colorMap, texCoordOUT).xyz;
-    }
+	usedColor *= texture(colorMap, texCoordOUT).xyz;
 
 	const vec3 norm = GetNormal();
 
