@@ -13,10 +13,12 @@
 
 #include <Renderer/IRenderer.h>
 #include <Renderer/IRenderableComponent.h>
+#include <Renderer/ICameraComponent.h>
 #include <Renderer/ILight.h>
 #include <Renderer/Lights/PointLight.h>
 
 #include <Entity/IEntity.h>
+#include <Entity/EntityManager.h>
 
 #include <Core/Application.h>
 
