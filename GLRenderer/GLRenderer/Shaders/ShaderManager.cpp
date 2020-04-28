@@ -78,7 +78,9 @@ C_ShaderManager::T_ShaderPtr C_ShaderManager::GetProgram(const std::string& name
 
 	T_ShaderPtr shaderProgram = std::make_shared<C_ShaderProgram>(program);
 	shaderProgram->SetName(name);
+#if _DEBUG
 	shaderProgram->SetPaths(compiler.GetTouchedFiles());
+#endif
 
 	Buffers::C_UniformBuffersManager::Instance().ProcessUBOBindingPoints(shaderProgram);
 
@@ -245,7 +247,9 @@ void C_ShaderManager::ReloadProgram(const std::string& programName, std::shared_
 	try
 	{
 		*(program) = std::move(C_ShaderProgram(LoadProgram(std::filesystem::path(programName), compiler)));
+#if _DEBUG
 		program->SetPaths(compiler.GetTouchedFiles());
+#endif
 		Buffers::C_UniformBuffersManager::Instance().ProcessUBOBindingPoints(program);
 	}
 	catch (...)
