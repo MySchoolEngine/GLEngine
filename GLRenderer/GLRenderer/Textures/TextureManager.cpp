@@ -54,6 +54,22 @@ C_TextureManager::T_TexturePtr C_TextureManager::GetTexture(const std::string& n
 }
 
 //=================================================================================
+C_TextureManager::T_TexturePtr C_TextureManager::CreateEmptyTexture(const std::string& name)
+{
+	auto it = m_Textures.find(name);
+	if (it != m_Textures.end())
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "Texture with name '{}' already exists.", name);
+		return nullptr;
+	}
+
+	auto texture = std::make_shared<Textures::C_Texture>(name);
+
+	m_Textures[name] = texture;
+	return texture;
+}
+
+//=================================================================================
 void C_TextureManager::Clear()
 {
 	m_Textures.clear();
