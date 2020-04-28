@@ -2,14 +2,19 @@
 <World>
 	<Entities>
 		<Entity name="Player" />
-		<Entity name="halfBox">
+		<Entity name="floor">
 			<Components>
 				<staticMesh filePath="plane.obj" material="basicTracing">
-					<color>0.14 0.14 0.14</color>
 					<colorMap>Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp</colorMap>
-					<roughness>1.0</roughness>
 					<roughnessMap>Models\Bricks01\REGULAR\1K\Bricks01_ROUGHNESS_1K.bmp</roughnessMap>
 					<normalMap>Models\Bricks01\REGULAR\1K\Bricks01_NRM_1K.bmp</normalMap>
+				</staticMesh>
+			</Components>
+		</Entity>
+		<Entity name="sphere">
+			<Components>
+				<staticMesh filePath="sphere.obj" material="basicTracing">
+					<color>0.0 0.0 1.0</color>
 				</staticMesh>
 			</Components>
 		</Entity>
@@ -28,7 +33,7 @@
 			<Components>
 				<PointLight intensity="30.0">
 					<translate sid="location">0 1 0</translate>
-					<color>0.4 0.3 0.1</color>
+					<!-- <color>0.4 0.3 0.1</color> -->
 				</PointLight>
 			</Components>
 		</Entity>
