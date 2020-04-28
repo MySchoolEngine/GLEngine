@@ -7,15 +7,18 @@
 
 namespace GLEngine::Renderer {
 
+//=============================================================
 class I_PointLight : public I_Light
 {
 public:
 	I_PointLight(std::shared_ptr<Entity::I_Entity> owner);
+	virtual ~I_PointLight();
 	virtual glm::vec3 GetPosition() const = 0;
 	virtual float GetIntensity() const = 0;
 	virtual glm::vec3 GetColor() const = 0;
 };
 
+//=============================================================
 class C_PointLight : public I_PointLight {
 public:
 	C_PointLight(std::shared_ptr<Entity::I_Entity> owner);
@@ -24,6 +27,12 @@ public:
 	virtual glm::vec3 GetPosition() const override;
 	virtual float GetIntensity() const override;
 	virtual glm::vec3 GetColor() const override;
+
+
+
+	//================================================================
+	// I_Light
+	Physics::Primitives::C_Frustum GetShadingFrustum() const override;
 
 private:
 	float			m_Intensity;

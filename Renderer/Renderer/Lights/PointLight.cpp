@@ -15,6 +15,9 @@ I_PointLight::I_PointLight(std::shared_ptr<Entity::I_Entity> owner)
 }
 
 //=================================================================================
+I_PointLight::~I_PointLight() = default;
+
+//=================================================================================
 // C_PointLight
 //=================================================================================
 C_PointLight::C_PointLight(std::shared_ptr<Entity::I_Entity> owner) 
@@ -50,6 +53,12 @@ float C_PointLight::GetIntensity() const
 glm::vec3 C_PointLight::GetColor() const
 {
 	return m_Color;
+}
+
+//=================================================================================
+Physics::Primitives::C_Frustum C_PointLight::GetShadingFrustum() const
+{
+	return Physics::Primitives::C_Frustum(GetPosition(), GetPosition(), GetPosition(), 1.f ,1.f, 1.f, 1.f);
 }
 
 //=================================================================================
