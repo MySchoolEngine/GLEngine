@@ -20,7 +20,6 @@ public:
 	virtual std::shared_ptr<Renderer::I_Resource> GetResource() const override;
 
 private:
-	E_FramebufferTarget m_Target;
 	GLuint				m_FBO;
 };
 
