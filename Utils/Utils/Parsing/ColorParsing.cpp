@@ -18,7 +18,7 @@ glm::vec3 C_ColorParser::ParseColorRGB(const pugi::xml_node& node)
 	{
 		std::stringstream ss;
 		ss << colorChild.child_value();
-		ss >> ret.r >> ret.b >> ret.g;
+		ss >> ret.r >> ret.g >> ret.b;
 	}
 
 	return ret;
