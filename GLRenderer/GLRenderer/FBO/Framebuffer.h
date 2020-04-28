@@ -31,11 +31,19 @@ public:
 	template<E_FramebufferTarget target = E_FramebufferTarget::Framebuffer>
 	void Unbind();
 
+	template<E_FramebufferTarget target = E_FramebufferTarget::Framebuffer>
 	void AttachTexture(GLenum attachement, std::shared_ptr<Textures::C_Texture> texture);
 	std::shared_ptr<Textures::C_Texture> GetAttachement(GLenum attachement);
 
+	template<E_FramebufferTarget target = E_FramebufferTarget::Framebuffer>
+  [[nodiscard]] std::future<bool> CheckCompleteness() const;
+
+	bool NeedCheck() const;
+	void SetChecked();
+
 private:
-	GLuint m_FBO;
+	GLuint	m_FBO;
+	bool		m_DirtyFlag;
 	std::map<GLenum, std::shared_ptr<Textures::C_Texture>> m_attachements;
 };
 
