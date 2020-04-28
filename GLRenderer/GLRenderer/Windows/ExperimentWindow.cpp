@@ -33,12 +33,13 @@
 #include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/Debug.h>
 
+#include <GLRenderer/Lights/GLAreaLight.h>
+
 #include <GLRenderer/GUI/ConsoleWindow.h>
 #include <GLRenderer/GUI/EntitiesWindow.h>
 #include <GLRenderer/GUI/Components/GLEntityDebugComponent.h>
 
 #include <Renderer/Mesh/Scene.h>
-#include <Renderer/Lights/AreaLight.h>
 
 #include <Physics/Primitives/Ray.h>
 #include <Physics/Primitives/Intersection.h>
@@ -71,6 +72,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	, m_HDRFBO("HDR")
 	, m_World(std::make_shared<Entity::C_EntityManager>())
 	, m_MainPass(m_World)
+	, m_ShadowPass(nullptr)
 	, m_GUITexts({{
 		("Avg frame time {:.2f}"),
 		("Avg fps {:.2f}"),
@@ -125,6 +127,13 @@ void C_ExplerimentWindow::Update()
 	m_World->OnUpdate();
 
 	glfwMakeContextCurrent(m_Window);
+
+	m_ShadowPass->Render();
+	
+	
+	m_renderer->Commit();
+	m_renderer->ClearCommandBuffers();
+
 	m_HDRFBO.Bind<E_FramebufferTarget::Draw>();
 
 	const auto camera = m_CamManager.GetActiveCamera();
@@ -345,8 +354,10 @@ void C_ExplerimentWindow::SetupWorld()
 			m_CamManager.ActivateCamera(playerCamera);
 
 			// area light
-			auto arealight = std::make_shared<Renderer::C_AreaLight>(player);
+			auto arealight = std::make_shared<C_GLAreaLight>(player);
 			player->AddComponent(arealight);
+
+			m_ShadowPass = std::make_shared<C_ShadowMapTechnique>(m_World, std::static_pointer_cast<Renderer::I_Light>( arealight));
 		}
 	}
 	{

@@ -15,6 +15,7 @@
 #include <GLRenderer/GUI/Menu/Menu.h>
 #include <GLRenderer/GUI/Menu/MenuItem.h>
 #include <GLRenderer/MainPassTechnique.h>
+#include <GLRenderer/ShadowMapPass.h>
 #include <GLRenderer/Mesh/StaticMeshResource.h>
 
 #include <Entity/EntityManager.h>
@@ -93,6 +94,7 @@ private:
 	GUI::Menu::C_Menu																				m_Windows;
 
 	C_MainPassTechnique																			m_MainPass;
+	std::shared_ptr<C_ShadowMapTechnique>										m_ShadowPass;
 
 	C_Framebuffer																						m_HDRFBO;
 	std::shared_ptr<Mesh::C_StaticMeshResource>							m_ScreenQuad;

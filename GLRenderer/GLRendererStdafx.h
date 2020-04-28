@@ -19,6 +19,7 @@
 #include <string>
 #include <sstream>
 #include <filesystem>
+#include <future>
 
 // rendering dependend things
 #include <glad/glad.h>
