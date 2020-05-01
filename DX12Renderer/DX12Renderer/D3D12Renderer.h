@@ -23,6 +23,10 @@ public:
 	virtual void Commit() const override;
 	virtual void ClearCommandBuffers() override;
 
+
+	//=================================================================================
+	Renderer::E_PassType GetCurrentPassType() const override;
+
 private:
 	bool m_Locked = false;
 	std::vector<Renderer::I_Renderer::T_CommandPtr>* m_CommandQueue;

@@ -8,6 +8,12 @@
 namespace GLEngine {
 namespace Renderer {
 
+enum class E_PassType
+{
+	ShadowPass,
+	FinalPass
+};
+
 // We need some separated tasks -> game engine should give us list of all visible objects
 // or some way to ask him what is inside given frustum
 // than we need to be able to collect data to internal structures
@@ -68,6 +74,9 @@ public:
 	* @brief	   Should be called at the end of frame.
 	** ==============================================*/
 	virtual void ClearCommandBuffers() = 0;
+
+	virtual E_PassType GetCurrentPassType() const = 0;
+	virtual void SetCurrentPassType(Renderer::E_PassType type) {}
 };
 
 }

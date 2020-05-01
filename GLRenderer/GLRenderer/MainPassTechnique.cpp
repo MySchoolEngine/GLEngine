@@ -42,6 +42,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 	const auto entitiesInView = m_WorldToRender->GetEntities(camera->GetFrustum());
 
 	auto& renderer = (Core::C_Application::Get()).GetActiveRenderer();
+	renderer->SetCurrentPassType(Renderer::E_PassType::FinalPass);
 
 	m_FrameConstUBO->SetView(camera->GetViewMatrix());
 	m_FrameConstUBO->SetProjection(camera->GetProjectionMatrix());

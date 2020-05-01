@@ -63,6 +63,7 @@ void C_ShadowMapTechnique::Render()
 	const auto frustum = m_Light->GetShadingFrustum();
 	C_DebugDraw::Instance().DrawFrustum(m_Light->GetShadingFrustum(), glm::vec3(1, 1, 1));
 	auto& renderer = (Core::C_Application::Get()).GetActiveRenderer();
+	renderer->SetCurrentPassType(Renderer::E_PassType::ShadowPass);
 
 	const auto areaLigh = std::dynamic_pointer_cast<C_GLAreaLight>(m_Light);
 	if (!areaLigh)

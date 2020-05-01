@@ -26,6 +26,7 @@ C_OGLRenderer::C_OGLRenderer()
 	, m_DrawCommands("Draw commands")
 	, m_CatchErrors(false, "Catch errors")
 	, m_PreviousCatchErrorsVal(false)
+	, m_CurrentPass(Renderer::E_PassType::FinalPass)
 	, m_GUITexts(
 		{{
 				("Avg draw commands: {:.2f}"),
@@ -160,6 +161,18 @@ void C_OGLRenderer::DestroyControls(ImGui::C_GUIManager& guiMan)
 
 	auto& tmgr = Textures::C_TextureManager::Instance();
 	tmgr.DestroyControls(guiMan);
+}
+
+//=================================================================================
+Renderer::E_PassType C_OGLRenderer::GetCurrentPassType() const
+{
+	return m_CurrentPass;
+}
+
+//=================================================================================
+void C_OGLRenderer::SetCurrentPassType(Renderer::E_PassType type)
+{
+	m_CurrentPass = type;
 }
 
 }}
