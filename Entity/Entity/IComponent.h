@@ -20,7 +20,7 @@ class ENTITY_API_EXPORT I_Component : public Core::I_EventReciever {
 public:
 	I_Component(std::shared_ptr<I_Entity> owner);
 	virtual ~I_Component() = default;
-	virtual E_ComponentType GetType() const = 0;
+	[[nodiscard]] virtual E_ComponentType GetType() const = 0;
 
 	virtual void OnEvent(Core::I_Event& event) override {}
 
@@ -29,7 +29,7 @@ public:
 
 	// draws inside of prepared window
 	virtual void DebugDrawGUI() {};
-	void SetModelMatrix(glm::mat4& modelMatrix) { m_ModelMatrix = modelMatrix; };
+	void SetModelMatrix(const glm::mat4& modelMatrix) { m_ModelMatrix = modelMatrix; };
 
 protected:
 	std::shared_ptr<I_Entity> GetOwner() const;
