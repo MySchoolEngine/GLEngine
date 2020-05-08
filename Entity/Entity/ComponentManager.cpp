@@ -11,7 +11,7 @@ C_ComponentManager::~C_ComponentManager()
 {
 	for (const auto& it : m_Components)
 	{
-		GL_ASSERT(it.use_count() == 1, "Component still in use during engine destruciton!");
+		GLE_ASSERT(it.use_count() == 1, "Component still in use during engine destruciton!");
 	}
 	// clear it anyway
 	m_Components.clear();
@@ -29,7 +29,7 @@ C_ComponentManager& C_ComponentManager::Instance()
 void C_ComponentManager::RegisterComponent(const T_ComponentPtr& component)
 {
 	// @todo: unit test this
-	GL_ASSERT(std::find(m_Components.begin(), m_Components.end(), component) == m_Components.end(),
+	GLE_ASSERT(std::find(m_Components.begin(), m_Components.end(), component) == m_Components.end(),
 		"Component already registered");
 	m_Components.push_back(component);
 }
@@ -38,7 +38,7 @@ void C_ComponentManager::RegisterComponent(const T_ComponentPtr& component)
 void C_ComponentManager::UnregisterComonent(const T_ComponentPtr& component)
 {
 	// @todo: unit test this
-	GL_ASSERT(std::find(m_Components.begin(), m_Components.end(), component) != m_Components.end(),
+	GLE_ASSERT(std::find(m_Components.begin(), m_Components.end(), component) != m_Components.end(),
 		"Component already registered");
 	m_Components.erase(std::remove(m_Components.begin(), m_Components.end(), component));
 }
