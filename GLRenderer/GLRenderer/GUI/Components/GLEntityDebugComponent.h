@@ -8,7 +8,7 @@ namespace GLEngine::GLRenderer::GUI {
 
 class C_GLEntityDebugComponent : public C_GLDebugGUIComponent {
 public:
-	C_GLEntityDebugComponent(std::shared_ptr<Entity::I_Entity> entity);
+	explicit C_GLEntityDebugComponent(std::shared_ptr<Entity::I_Entity> entity);
 	virtual ~C_GLEntityDebugComponent() = default;
 
 	virtual void DrawContents() override;

@@ -11,7 +11,7 @@ class C_ConsoleWindow
 	, public Utils::Logging::I_Logger
 {
 public:
-	C_ConsoleWindow(GUID guid);
+	explicit C_ConsoleWindow(GUID guid);
 	virtual ~C_ConsoleWindow();
 
 	virtual void Log(Utils::Logging::E_Level level, Utils::Logging::E_Context context, int line, const char* file, const std::string& text) override;

@@ -15,7 +15,7 @@ public:
 	virtual void Toggle() override;
 	virtual void PostUpdate() override;
 
-	void SetTitle(std::string& title);
+	void SetTitle(const std::string& title);
 
 	virtual void DrawContents() = 0;
 protected:

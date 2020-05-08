@@ -5,7 +5,7 @@
 namespace GLEngine::GLRenderer::GUI {
 
 //=================================================================================
-C_FormatedText::C_FormatedText(std::string formatText)
+C_FormatedText::C_FormatedText(const std::string& formatText)
 	: m_FormatText(formatText)
 	, m_PrintString(formatText)
 {
