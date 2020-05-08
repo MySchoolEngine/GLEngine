@@ -25,7 +25,7 @@ public:
 	[[nodiscard]] std::string Generate() const;
 
 	template<class T, class MemType>
-	void Push(std::string name, MemType T::* member);
+	void Push(std::string_view name, MemType T::* member);
 private:
 	void Push(S_MemberDescriptor description);
 
@@ -35,7 +35,7 @@ private:
 
 //=================================================================================
 template<class T, class MemType>
-void C_StructDescriptor::Push(std::string name, MemType T::* member)
+void C_StructDescriptor::Push(std::string_view name, MemType T::* member)
 {
 	Push(S_MemberDescriptor(name, T_TypeToGLSL_v<MemType>));
 }
