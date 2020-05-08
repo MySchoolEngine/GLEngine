@@ -34,6 +34,7 @@
 #include <GLRenderer/Debug.h>
 
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
+#include <GLRenderer/Helpers/GLSLTypeHelpers.h>
 
 #include <Core/GUID.h>
 #include <Core/CoreMacros.h>
