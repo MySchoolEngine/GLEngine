@@ -23,7 +23,7 @@ class C_Texture;
 
 class C_Framebuffer {
 public:
-	C_Framebuffer(const std::string& name);
+	explicit C_Framebuffer(const std::string& name);
 	~C_Framebuffer();
 
 	template<E_FramebufferTarget target = E_FramebufferTarget::Framebuffer>
@@ -33,12 +33,12 @@ public:
 
 	template<E_FramebufferTarget target = E_FramebufferTarget::Framebuffer>
 	void AttachTexture(GLenum attachement, std::shared_ptr<Textures::C_Texture> texture);
-	std::shared_ptr<Textures::C_Texture> GetAttachement(GLenum attachement);
+	[[nodiscard]] std::shared_ptr<Textures::C_Texture> GetAttachement(GLenum attachement);
 
 	template<E_FramebufferTarget target = E_FramebufferTarget::Framebuffer>
   [[nodiscard]] std::future<bool> CheckCompleteness() const;
 
-	bool NeedCheck() const;
+	[[nodiscard]] bool NeedCheck() const;
 	void SetChecked();
 
 private:

@@ -14,9 +14,8 @@ unsigned int ModelLoader::_numMeshesPreviouslyLoaded = 0;
 
 //=================================================================================
 ModelLoader::ModelLoader()
-{
-	_importer = std::make_unique<Assimp::Importer>();
-}
+	: _importer(std::make_unique<Assimp::Importer>())
+{ }
 
 //=================================================================================
 ModelLoader::~ModelLoader() = default;

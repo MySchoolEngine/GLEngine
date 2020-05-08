@@ -10,6 +10,9 @@ namespace UBO {
 //=================================================================================
 C_TerrainStats::C_TerrainStats(unsigned int index)
 	: C_ShaderStorageBuffer(index)
+	, min(std::numeric_limits<float>::min())
+	, max(std::numeric_limits<float>::min())
+	, avg(0.f)
 {
 	constexpr auto floatSize = sizeof(float);
 
@@ -52,7 +55,6 @@ void C_TerrainStats::ClearBuffer()
 {
 	constexpr auto floatSize = sizeof(float);
 
-	constexpr auto bytes = floatSize * 3;
 	bind();
 	glClearBufferData(GetBufferType(), GL_R32UI, GL_RED, GL_UNSIGNED_INT, nullptr);
 	//	glClearBufferSubData(GetBufferType(), GL_R32UI, 0, bytes, GL_RED, GL_UNSIGNED_INT, &m_samples);

@@ -23,7 +23,7 @@ class C_FrameConstantsBuffer;
 
 class C_MainPassTechnique {
 public:
-	C_MainPassTechnique(std::shared_ptr<Entity::C_EntityManager> world);
+	explicit C_MainPassTechnique(std::shared_ptr<Entity::C_EntityManager> world);
 	void Render(std::shared_ptr<Renderer::I_CameraComponent> camera, unsigned int widht, unsigned int height);
 
 private:
