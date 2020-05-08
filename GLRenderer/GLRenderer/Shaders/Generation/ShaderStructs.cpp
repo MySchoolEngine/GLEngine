@@ -7,14 +7,6 @@ namespace GLEngine::GLRenderer::Shaders {
 //=================================================================================
 // C_MemberDescriptor
 //=================================================================================
-constexpr S_MemberDescriptor::S_MemberDescriptor(std::string_view name, std::string_view type)
-	: m_Name(name)
-	, m_Type(type)
-{
-
-}
-
-//=================================================================================
 std::string S_MemberDescriptor::Generate() const
 {
 	return std::string(m_Type) + '\t' + std::string(m_Name) + ";";

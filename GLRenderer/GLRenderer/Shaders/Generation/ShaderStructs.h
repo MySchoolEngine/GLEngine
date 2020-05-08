@@ -6,7 +6,11 @@ namespace GLEngine::GLRenderer::Shaders {
 class S_MemberDescriptor
 {
 public:
-	constexpr S_MemberDescriptor(std::string_view name, std::string_view type);
+	constexpr S_MemberDescriptor(std::string_view name, std::string_view type)
+		: m_Name(name)
+		, m_Type(type)
+	{}
+
 	[[nodiscard]] std::string Generate() const;
 
 	std::string_view	m_Name;
