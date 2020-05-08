@@ -53,8 +53,6 @@ void C_TerrainStats::DownloadData()
 //=================================================================================
 void C_TerrainStats::ClearBuffer()
 {
-	constexpr auto floatSize = sizeof(float);
-
 	bind();
 	glClearBufferData(GetBufferType(), GL_R32UI, GL_RED, GL_UNSIGNED_INT, nullptr);
 	//	glClearBufferSubData(GetBufferType(), GL_R32UI, 0, bytes, GL_RED, GL_UNSIGNED_INT, &m_samples);

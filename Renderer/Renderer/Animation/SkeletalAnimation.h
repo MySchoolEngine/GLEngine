@@ -4,10 +4,7 @@
 
 #include <Renderer/Animation/AnimationStructures.h>
 
-#include <Renderer/Animation/IPose.h>
 #include <Renderer/Animation/Pose.h>
-
-#include <algorithm>
 
 namespace GLEngine::Renderer::Animation {
 

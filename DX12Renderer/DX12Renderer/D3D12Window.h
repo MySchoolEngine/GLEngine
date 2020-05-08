@@ -9,20 +9,20 @@ namespace GLEngine::DX12Renderer {
 
 class C_D3D12Window : public Core::I_Window {
 public:
-	C_D3D12Window(const Core::S_WindowInfo& wndInfo);
+	explicit C_D3D12Window(const Core::S_WindowInfo& wndInfo);
 	~C_D3D12Window();
 	//============================================================
 	// I_Window
 	//============================================================
-	virtual unsigned int GetWidth() const override;
-	virtual unsigned int GetHeight() const override;
-	virtual glm::uvec2 GetSize() const override;
-	virtual const Core::I_Input& GetInput() const override;
+	[[nodiscard]] virtual unsigned int GetWidth() const override;
+	[[nodiscard]] virtual unsigned int GetHeight() const override;
+	[[nodiscard]] virtual glm::uvec2 GetSize() const override;
+	[[nodiscard]] virtual const Core::I_Input& GetInput() const override;
 	virtual void Update() override;
 	virtual void Init(const Core::S_WindowInfo& wndInfo) override;
 	virtual void SetTitle(const std::string& title) override;
-	virtual bool WantClose() const override;
-	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetRenderer() const override;
+	[[nodiscard]] virtual bool WantClose() const override;
+	[[nodiscard]] virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetRenderer() const override;
 
 protected:
 	virtual void Destroy() override;

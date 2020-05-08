@@ -8,7 +8,7 @@ namespace GLEngine::Renderer::Animation {
 
 struct S_Timestamp
 {
-	explicit S_Timestamp();
+	S_Timestamp();
 	RENDERER_API_EXPORT S_Timestamp(float timestamp);
 
 	[[nodiscard]] bool operator>=(const S_Timestamp& other) const;
@@ -23,7 +23,7 @@ private:
 
 struct S_BoneKeyframe
 {
-	explicit S_BoneKeyframe() = default;
+	S_BoneKeyframe() = default;
 	S_BoneKeyframe(const glm::mat4& matrix, S_Timestamp timestamp);
 	S_BoneKeyframe(const glm::vec3& transformation, const glm::quat& rotation, S_Timestamp timestamp);
 	RENDERER_API_EXPORT glm::mat4 GetTransformationMatrix() const;
@@ -37,7 +37,7 @@ class C_BoneTimeline
 {
 public:
 	C_BoneTimeline() = default;
-	C_BoneTimeline(std::size_t numTimestamps);
+	explicit C_BoneTimeline(std::size_t numTimestamps);
 
 	void AddBoneKeyFrame(std::size_t index, S_BoneKeyframe&& keyframe);
 	[[nodiscard]] S_BoneKeyframe Sample(S_Timestamp timestamp) const;
