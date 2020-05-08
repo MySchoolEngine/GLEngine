@@ -11,7 +11,7 @@ namespace Commands {
 // @todo: Not a final state
 class C_GLUseProgram : public Renderer::I_RenderCommand {
 public:
-	C_GLUseProgram(GLuint program);
+	explicit C_GLUseProgram(GLuint program);
 
 	//===========================================
 	// Renderer::I_RenderCommand

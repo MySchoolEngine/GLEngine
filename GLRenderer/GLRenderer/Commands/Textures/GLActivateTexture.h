@@ -10,7 +10,7 @@ namespace Commands {
 
 class C_GLActivateTexture final : public Renderer::I_RenderCommand {
 public:
-	C_GLActivateTexture(unsigned int unit);
+	explicit C_GLActivateTexture(unsigned int unit);
 
 	//=================================================================================
 	virtual void Commit() override;

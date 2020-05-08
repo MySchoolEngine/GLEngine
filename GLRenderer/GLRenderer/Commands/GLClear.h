@@ -19,8 +19,8 @@ public:
 		Stencil = 8,
 	};
 
-	C_GLClear(E_ClearBits bits);
-	C_GLClear(Utils::C_BitField<E_ClearBits>  bits);
+	explicit C_GLClear(E_ClearBits bits);
+	explicit C_GLClear(Utils::C_BitField<E_ClearBits>  bits);
 
 	//===========================================
 	// Renderer::I_RenderCommand

@@ -18,7 +18,7 @@ public:
 		PRIMITIVE_RESTART = GL_PRIMITIVE_RESTART,
 	};
 
-	C_GLEnable(E_GLEnableValues value);
+	explicit C_GLEnable(E_GLEnableValues value);
 
 	//===========================================
 	// Renderer::I_RenderCommand
