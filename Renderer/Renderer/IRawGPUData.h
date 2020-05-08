@@ -21,7 +21,7 @@ class I_Resource;
  ** ==============================================*/
 class I_RawGPUData {
 public:
-	I_RawGPUData(std::shared_ptr<I_Resource> res)
+	explicit I_RawGPUData(std::shared_ptr<I_Resource> res)
 		: m_Resource(res) {}
 	virtual ~I_RawGPUData() = default;
 	/** ==============================================
@@ -31,7 +31,7 @@ public:
 	 *			   takes after extraction.
 	 ** ==============================================*/
 	virtual std::size_t Size() const = 0;
-	std::shared_ptr<I_Resource> GetResource() const { return m_Resource; }
+	[[nodiscard]] std::shared_ptr<I_Resource> GetResource() const { return m_Resource; }
 
 protected:
 	std::shared_ptr<I_Resource> m_Resource;

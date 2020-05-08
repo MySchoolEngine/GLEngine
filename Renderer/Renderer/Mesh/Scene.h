@@ -55,10 +55,10 @@ struct AnimationData
 struct Texture
 {
 	Texture()
-	{
-		width = height = 0;
-		data = nullptr;
-	}
+		: width(0)
+		, height(0)
+		, data(nullptr)
+	{}
 
 	unsigned int width;
 	unsigned int height;

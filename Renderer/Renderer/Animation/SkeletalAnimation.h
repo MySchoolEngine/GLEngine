@@ -14,8 +14,8 @@ namespace GLEngine::Renderer::Animation {
 // for each bone, we want individual timeline
 class RENDERER_API_EXPORT C_SkeletalAnimation {
 public:
-	C_SkeletalAnimation(std::size_t numBones);
-	C_Pose GetPose(const S_Timestamp timestamp) const;
+	explicit C_SkeletalAnimation(std::size_t numBones);
+	[[nodiscard]] C_Pose GetPose(const S_Timestamp timestamp) const;
 	void SetBoneTimeline(std::size_t index, C_BoneTimeline&& timeline);
 private:
 #pragma warning(push)

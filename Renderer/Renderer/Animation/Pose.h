@@ -13,11 +13,11 @@ namespace GLEngine::Renderer::Animation {
 class C_Pose : public I_Pose
 {
 public:
-	C_Pose(std::vector<S_BoneKeyframe>&& keyframe);
+	explicit C_Pose(std::vector<S_BoneKeyframe>&& keyframe);
 
-	virtual const glm::mat4 GetModelSpaceTransform(int boneID) const override;
+	[[nodiscard]] virtual const glm::mat4 GetModelSpaceTransform(int boneID) const override;
 	virtual void SetModelSpaceTransform(const glm::mat4& transform, int boneID) override;
-	virtual std::vector<glm::mat4> GetModelSpaceTransofrms() const override;
+	[[nodiscard]] virtual std::vector<glm::mat4> GetModelSpaceTransofrms() const override;
 private:
 	std::vector<S_BoneKeyframe> m_keyFrame;
 };
