@@ -21,7 +21,7 @@ public:
 class C_StructDescriptor
 {
 public:
-	C_StructDescriptor(std::string_view name);
+	explicit C_StructDescriptor(std::string_view name);
 	[[nodiscard]] std::string Generate() const;
 
 	template<class T, class MemType>

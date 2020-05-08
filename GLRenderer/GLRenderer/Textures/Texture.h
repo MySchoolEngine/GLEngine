@@ -27,7 +27,7 @@ namespace Textures {
 class C_Texture// : public Renderer::I_Resource
 {
 public:
-	C_Texture(const std::string& name, GLenum target = GL_TEXTURE_2D);
+	explicit C_Texture(const std::string& name, GLenum target = GL_TEXTURE_2D);
 	C_Texture(const C_Texture&) = delete;
 	C_Texture(C_Texture&& t);
 	void operator=(C_Texture&& rhs);

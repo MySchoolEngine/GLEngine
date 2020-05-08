@@ -23,7 +23,6 @@ public:
 	std::size_t GetWidth() const;
 	std::size_t GetHeight() const;
 protected:
-	std::size_t m_triangles;
 	VAO::C_GLVAO<0> m_GLVAO;
 };
 

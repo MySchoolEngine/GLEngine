@@ -337,7 +337,12 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 //=================================================================================
 void C_ExplerimentWindow::SetupWorld()
 {
-	m_World->LoadLevel("Levels/dark.xml", std::make_unique<Components::C_ComponentBuilderFactory>());
+	if (!m_World->LoadLevel("Levels/dark.xml", std::make_unique<Components::C_ComponentBuilderFactory>()))
+	{
+		CORE_LOG(E_Level::Warning, E_Context::Render, "Level not loaded");
+		return;
+	}
+
 	{
 		m_Player = m_World->GetEntity("Player");
 

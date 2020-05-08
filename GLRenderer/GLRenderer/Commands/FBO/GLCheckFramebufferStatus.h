@@ -9,7 +9,7 @@ namespace GLEngine::GLRenderer::Commands {
 template<E_FramebufferTarget framebuffer>
 class C_GLCheckFramebufferStatus : public Renderer::I_RenderCommand {
 public:
-	C_GLCheckFramebufferStatus(std::promise<bool>&& prom);
+	explicit C_GLCheckFramebufferStatus(std::promise<bool>&& prom);
 
 	//=================================================================================
 	// Renderer::I_RenderCommand

@@ -18,8 +18,8 @@ public:
 		Back = 4,
 		Forward = 5,
 	};
-	C_SkyBox(std::shared_ptr<Entity::I_Entity> owner);
-	void AddTexture(E_Side side, const std::string& filename);
+	explicit C_SkyBox(std::shared_ptr<Entity::I_Entity> owner);
+	void AddTexture(E_Side side, const std::filesystem::path& filename);
 
 	//==========================================
 	// Renderer::I_RenderableComponent
