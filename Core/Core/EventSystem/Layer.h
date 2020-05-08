@@ -12,7 +12,7 @@ namespace Core {
 
 class CORE_API_EXPORT C_Layer : public I_EventReciever {
 public:
-	C_Layer(const std::string& name);
+	explicit C_Layer(const std::string& name);
 	virtual ~C_Layer() = default;
 
 
