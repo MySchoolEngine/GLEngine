@@ -7,9 +7,9 @@ namespace GLEngine::Renderer {
 //=================================================================================
 C_AreaLight::C_AreaLight(std::shared_ptr<Entity::I_Entity> owner)
 	: Renderer::I_Light(owner)
-	, m_Position(0.f, 1.f, -3.f)
-	, m_Normal(glm::normalize(glm::vec3(-1.f, -1.f, 1.0)))
-	, m_UpVector(0.f, 1.f, 0.f)
+	, m_Position(0.f, 0.f, -3.f)
+	, m_Normal(glm::normalize(glm::vec3(0, -1.0, 1.0)))
+	, m_UpVector(glm::normalize(glm::vec3(0, 1.0, 1.0)))
 	, m_Height(10.f)
 	, m_Width(10.f) {}
 

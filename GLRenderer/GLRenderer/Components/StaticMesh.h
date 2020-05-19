@@ -36,6 +36,7 @@ protected:
 	std::string																			m_meshFile;
 	std::shared_ptr<Mesh::C_StaticMeshResource>			m_Mesh;
 	std::shared_ptr<Shaders::C_ShaderProgram>				m_Shader;
+	std::shared_ptr<Shaders::C_ShaderProgram>				m_ShadowPassShader;
 	GUI::Input::C_ColorRBG													m_Color{ "Model color", glm::vec3(1, 0, 0) };
 	GUI::Input::C_Slider<float>											m_Roughness{ 0.f, 0.f, 1.f, "Roughness" };
 	std::shared_ptr<Textures::C_Texture>						m_RoughnessMap = nullptr;

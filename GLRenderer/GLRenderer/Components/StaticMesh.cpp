@@ -65,13 +65,22 @@ void C_StaticMesh::PerformDraw() const
 {
 	if (!m_Mesh || !m_Shader)
 	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Static mesh uncomplete");
+		//CORE_LOG(E_Level::Error, E_Context::Render, "Static mesh uncomplete");
 		return;
 	}
+	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
+
 
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	auto& tmgr = Textures::C_TextureManager::Instance();
-	shmgr.ActivateShader(m_Shader);
+	if (renderer->GetCurrentPassType() == Renderer::E_PassType::ShadowPass && m_ShadowPassShader)
+	{
+		shmgr.ActivateShader(m_ShadowPassShader);
+	}
+	else
+	{
+		shmgr.ActivateShader(m_Shader);
+	}
 
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 
@@ -97,7 +106,7 @@ void C_StaticMesh::PerformDraw() const
 		tm.BindTextureToUnit(*(tmgr.GetIdentityTexture()), 2);
 	}
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+	renderer->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 					[&]() {
@@ -107,6 +116,7 @@ void C_StaticMesh::PerformDraw() const
 						m_Shader->SetUniform("roughnessMap", 0);
 						m_Shader->SetUniform("colorMap", 1);
 						m_Shader->SetUniform("normalMap", 2);
+						m_Shader->SetUniform("shadowMap[0]", 5);
 						m_Shader->SetUniform("useNormalMap", m_NormalMap!=nullptr);
 					}
 				)
@@ -114,7 +124,7 @@ void C_StaticMesh::PerformDraw() const
 	);
 
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+	renderer->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_Mesh)
 		)
@@ -143,6 +153,16 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 	}
 
 	auto staticMesh = std::make_shared<C_StaticMesh>(node.attribute("filePath").value(), material);
+
+	if (auto shadowPassAttr = node.attribute("shadowPassShader"))
+	{
+		auto& shmgr = Shaders::C_ShaderManager::Instance();
+		auto shadowPassShader = shmgr.GetProgram(shadowPassAttr.as_string());
+		if (shadowPassShader)
+		{
+			staticMesh->m_ShadowPassShader = shadowPassShader;
+		}
+	}
 
 	if (auto colorChild = node.child("color"))
 	{

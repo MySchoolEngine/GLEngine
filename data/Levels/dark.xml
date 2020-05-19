@@ -13,8 +13,9 @@
 		</Entity>
 		<Entity name="sphere">
 			<Components>
-				<staticMesh filePath="sphere.obj" material="basicTracing">
+				<staticMesh filePath="sphere.obj" material="basicTracing" shadowPassShader="shadowPass">
 					<color>0.0 0.0 1.0</color>
+					<roughness>0.83</roughness>
 				</staticMesh>
 			</Components>
 		</Entity>
@@ -24,7 +25,7 @@
 			<Components>
 				<staticMesh filePath="plane.obj" material="basicTracing">
 					<color>0.14 0.14 0.14</color>
-					<roughness>0.001</roughness>
+					<roughness>0.01</roughness>
 				</staticMesh>
 			</Components>
 		</Entity>
@@ -33,7 +34,7 @@
 			<Components>
 				<PointLight intensity="30.0">
 					<translate sid="location">0 1 0</translate>
-					<!-- <color>0.4 0.3 0.1</color> -->
+					<color>0.4 0.3 0.1</color>
 				</PointLight>
 			</Components>
 		</Entity>

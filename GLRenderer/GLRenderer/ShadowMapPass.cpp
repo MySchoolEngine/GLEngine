@@ -6,6 +6,7 @@
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
 #include <GLRenderer/Commands/GLClear.h>
 #include <GLRenderer/Commands/GLViewport.h>
+#include <GLRenderer/Commands/GLCullFace.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/Lights/GLAreaLight.h>
 
@@ -60,12 +61,11 @@ C_ShadowMapTechnique::C_ShadowMapTechnique(std::shared_ptr<Entity::C_EntityManag
 void C_ShadowMapTechnique::Render()
 {
 	RenderDoc::C_DebugScope s("C_ShadowMapTechnique::Render");
-	const auto frustum = m_Light->GetShadingFrustum();
-	C_DebugDraw::Instance().DrawFrustum(m_Light->GetShadingFrustum(), glm::vec3(1, 1, 1));
 	auto& renderer = (Core::C_Application::Get()).GetActiveRenderer();
 	renderer->SetCurrentPassType(Renderer::E_PassType::ShadowPass);
 
 	const auto areaLigh = std::dynamic_pointer_cast<C_GLAreaLight>(m_Light);
+	const auto frustum = areaLigh->GetShadingFrustum();
 	if (!areaLigh)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Wrong type of light");
@@ -118,6 +118,11 @@ void C_ShadowMapTechnique::Render()
 				std::make_unique<C_GLViewport>(0, 0, 512, 512)
 			)
 		);
+		renderer->AddCommand(
+			std::move(
+				std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Back)
+			)
+		);
 	}
 
 	{
@@ -146,6 +151,15 @@ void C_ShadowMapTechnique::Render()
 		}
 	}
 	m_ShadowPassFBO.Unbind<E_FramebufferTarget::Draw>();
+
+	{
+		using namespace Commands;
+		renderer->AddCommand(
+			std::move(
+				std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Front)
+			)
+		);
+	}
 }
 
 }

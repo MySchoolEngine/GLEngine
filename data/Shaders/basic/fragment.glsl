@@ -16,7 +16,8 @@ out vec4 fragColor;
 
 layout (std140) uniform lightsUni
 {
-	pointLight pLight;
+	pointLight pLight[NUM_POINTLIGHT];
+	areaLight  pAreaLight;
 };
 
 //=================================================================================

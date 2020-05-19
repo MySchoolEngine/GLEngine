@@ -4,9 +4,11 @@
 
 #include <GLRenderer/Buffers/UBO/FrameConstantsBuffer.h>
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
+#include <GLRenderer/Lights/GLAreaLight.h>
 #include <GLRenderer/Commands/GLClear.h>
 #include <GLRenderer/Commands/GLViewport.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
+#include <GLRenderer/Textures/TextureUnitManager.h>
 #include <GLRenderer/Debug.h>
 
 #include <GLRenderer/Lights/LightsUBO.h>
@@ -21,6 +23,8 @@
 #include <Entity/EntityManager.h>
 
 #include <Core/Application.h>
+
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace GLEngine::GLRenderer {
 
@@ -65,6 +69,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 	}
 
 	std::size_t pointLightIndex = 0;
+	std::size_t areaLightIndex = 0;
 	for (auto& entity : entitiesInView)
 	{
 		if (auto light = entity->GetComponent<Entity::E_ComponentType::Light>()) {
@@ -83,12 +88,37 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 
 				C_DebugDraw::Instance().DrawPoint(glm::vec4(pos, 1.0), pointLight->GetColor());
 			}
+
+			const auto areaLight = std::dynamic_pointer_cast<C_GLAreaLight>(light);
+			if (areaLight && areaLightIndex < m_LightsUBO->AreaLightsLimit())
+			{
+				auto& tm = Textures::C_TextureUnitManger::Instance();
+				tm.BindTextureToUnit(*areaLight->GetShadowMap(), 5 + static_cast<unsigned int>(areaLightIndex));
+				const auto frustum = areaLight->GetShadingFrustum();
+
+
+				const auto left = glm::normalize(glm::cross(frustum.GetForeward(), frustum.GetUpVector()));
+				const auto pos = frustum.GetPosition();
+				const auto up = frustum.GetUpVector();
+				const auto width = areaLight->GetWidth() / 2.0f;
+				const auto height = areaLight->GetHeight() / 2.0f;
+
+				C_DebugDraw::Instance().DrawAxis(pos, frustum.GetUpVector(), frustum.GetForeward());
+				S_AreaLight light;
+				light.m_LightMat = glm::ortho(-width, width, -height, height, frustum.GetNear(), frustum.GetFar()) * glm::lookAt(pos, pos + frustum.GetForeward(), up);
+				light.m_Pos = pos;
+				light.m_ShadowMap = areaLightIndex;
+				light.m_Radius = areaLight->GetHeight();
+				light.m_Normal = frustum.GetForeward();
+				m_LightsUBO->SetAreaLight(light, areaLightIndex);
+				++areaLightIndex;
+			}
 		}
 	}
 
 	{
 		RenderDoc::C_DebugScope s("UBO Upload");
-		Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+		renderer->AddCommand(
 			std::move(
 				std::make_unique<Commands::HACK::C_LambdaCommand>(
 					[&]() {

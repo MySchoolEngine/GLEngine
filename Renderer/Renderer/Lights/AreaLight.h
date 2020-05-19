@@ -17,11 +17,11 @@ public:
 
 	//================================================================
 	// I_Light
-	[[nodiscard]] Physics::Primitives::C_Frustum GetShadingFrustum() const override;
+	[[nodiscard]] virtual Physics::Primitives::C_Frustum GetShadingFrustum() const override;
 	[[nodiscard]] float GetWidth() const { return m_Width; }
 	[[nodiscard]] float GetHeight() const { return m_Height; }
 
-private:
+protected:
 #pragma warning(push)
 #pragma warning(disable:4251)
 	glm::vec3 m_Position;
