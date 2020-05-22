@@ -42,4 +42,20 @@ void C_GLAreaLight::DebugDrawGUI()
 	}
 }
 
+//=================================================================================
+void C_GLAreaLight::DebugDraw() const
+{
+	const auto dirX = glm::cross(m_Normal, m_UpVector);
+	const auto width = std::sqrt(GetWidth() / 2.0f);
+	const auto height = std::sqrt(GetHeight() / 2.0f);
+
+	C_DebugDraw::Instance().DrawLine(m_Pos.GetValue(), m_Pos.GetValue() + m_Normal, glm::vec3(1.f, 1.f, 0.f));
+
+	C_DebugDraw::Instance().DrawLine(m_Pos.GetValue() + m_UpVector * height + dirX * width, m_Pos.GetValue() + m_UpVector * height - dirX * width, glm::vec3(1.f, 1.f, 0.f));
+	C_DebugDraw::Instance().DrawLine(m_Pos.GetValue() - m_UpVector * height + dirX * width, m_Pos.GetValue() - m_UpVector * height - dirX * width, glm::vec3(1.f, 1.f, 0.f));
+
+	C_DebugDraw::Instance().DrawLine(m_Pos.GetValue() - m_UpVector * height + dirX * width, m_Pos.GetValue() + m_UpVector * height + dirX * width, glm::vec3(1.f, 1.f, 0.f));
+	C_DebugDraw::Instance().DrawLine(m_Pos.GetValue() - m_UpVector * height - dirX * width, m_Pos.GetValue() + m_UpVector * height - dirX * width, glm::vec3(1.f, 1.f, 0.f));
+}
+
 }

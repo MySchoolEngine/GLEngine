@@ -20,6 +20,8 @@ public:
 	Physics::Primitives::C_Frustum GetShadingFrustum() const override;
 	virtual void DebugDrawGUI() override;
 
+	void DebugDraw() const;
+
 private:
 	std::shared_ptr<Textures::C_Texture> m_ShadowMap;
 	GUI::Input::C_Vec3 m_Pos;
