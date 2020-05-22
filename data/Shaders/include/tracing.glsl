@@ -10,6 +10,15 @@ struct Plane
 	vec3 center;
 };
 
+struct Rect
+{
+	Plane plane;
+	vec3 DirX;
+	float width;
+	vec3 DirY;
+	float height;
+};
+
 struct Disc
 {
 	Plane plane;
