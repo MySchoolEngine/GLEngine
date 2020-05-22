@@ -100,8 +100,8 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				const auto left = glm::normalize(glm::cross(frustum.GetForeward(), frustum.GetUpVector()));
 				const auto pos = frustum.GetPosition();
 				const auto up = frustum.GetUpVector();
-				const auto width = std::sqrt(areaLight->GetWidth() / 2.0f);
-				const auto height = std::sqrt(areaLight->GetHeight() / 2.0f);
+				const auto width = areaLight->GetWidth() / 2.0f;
+				const auto height = areaLight->GetHeight() / 2.0f;
 
 				const auto dirX = glm::cross(frustum.GetForeward(), up);
 
@@ -109,10 +109,13 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				light.m_LightMat = glm::ortho(-width, width, -height, height, frustum.GetNear(), frustum.GetFar()) * glm::lookAt(pos, pos + frustum.GetForeward(), up);
 				light.m_Pos = pos;
 				light.m_ShadowMap = areaLightIndex;
-				light.m_Radius = height;
+				light.m_Width = width;
+				light.m_Height = height;
 				light.m_Normal = frustum.GetForeward();
 				light.m_DirY = up;
 				light.m_DirX = dirX;
+				light.m_Color = areaLight->DiffuseColour();
+				light.m_SpecularColor = areaLight->SpecularColour();
 
 				C_DebugDraw::Instance().DrawAxis(pos, frustum.GetUpVector(), frustum.GetForeward());
 				areaLight->DebugDraw();
