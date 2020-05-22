@@ -43,14 +43,13 @@ vec3 FragPos;
 vec3 usedColor;
 
 
-void ClipQuadToHorizon(inout vec3 L[5], out int n)
+void ClipQuadToHorizon(inout vec3 L[5], out int n, out int config)
 {
     // detect clipping config
-    int config = 0;
-    if (L[0].y > 0.0) config += 1;
-    if (L[1].y > 0.0) config += 2;
-    if (L[2].y > 0.0) config += 4;
-    if (L[3].y > 0.0) config += 8;
+    if (L[0].z > 0.0) config += 1;
+    if (L[1].z > 0.0) config += 2;
+    if (L[2].z > 0.0) config += 4;
+    if (L[3].z > 0.0) config += 8;
 
     // clip
     n = 0;
@@ -62,26 +61,26 @@ void ClipQuadToHorizon(inout vec3 L[5], out int n)
     else if (config == 1) // V1 clip V2 V3 V4
     {
         n = 3;
-        L[1] = -L[1].y * L[0] + L[0].y * L[1];
-        L[2] = -L[3].y * L[0] + L[0].y * L[3];
+        L[1] = -L[1].z * L[0] + L[0].z * L[1];
+        L[2] = -L[3].z * L[0] + L[0].z * L[3];
     }
     else if (config == 2) // V2 clip V1 V3 V4
     {
         n = 3;
-        L[0] = -L[0].y * L[1] + L[1].y * L[0];
-        L[2] = -L[2].y * L[1] + L[1].y * L[2];
+        L[0] = -L[0].z * L[1] + L[1].z * L[0];
+        L[2] = -L[2].z * L[1] + L[1].z * L[2];
     }
     else if (config == 3) // V1 V2 clip V3 V4
     {
         n = 4;
-        L[2] = -L[2].y * L[1] + L[1].y * L[2];
-        L[3] = -L[3].y * L[0] + L[0].y * L[3];
+        L[2] = -L[2].z * L[1] + L[1].z * L[2];
+        L[3] = -L[3].z * L[0] + L[0].z * L[3];
     }
     else if (config == 4) // V3 clip V1 V2 V4
     {
         n = 3;
-        L[0] = -L[3].y * L[2] + L[2].y * L[3];
-        L[1] = -L[1].y * L[2] + L[2].y * L[1];
+        L[0] = -L[3].z * L[2] + L[2].z * L[3];
+        L[1] = -L[1].z * L[2] + L[2].z * L[1];
     }
     else if (config == 5) // V1 V3 clip V2 V4) impossible
     {
@@ -90,27 +89,27 @@ void ClipQuadToHorizon(inout vec3 L[5], out int n)
     else if (config == 6) // V2 V3 clip V1 V4
     {
         n = 4;
-        L[0] = -L[0].y * L[1] + L[1].y * L[0];
-        L[3] = -L[3].y * L[2] + L[2].y * L[3];
+        L[0] = -L[0].z * L[1] + L[1].z * L[0];
+        L[3] = -L[3].z * L[2] + L[2].z * L[3];
     }
     else if (config == 7) // V1 V2 V3 clip V4
     {
         n = 5;
-        L[4] = -L[3].y * L[0] + L[0].y * L[3];
-        L[3] = -L[3].y * L[2] + L[2].y * L[3];
+        L[4] = -L[3].z * L[0] + L[0].z * L[3];
+        L[3] = -L[3].z * L[2] + L[2].z * L[3];
     }
     else if (config == 8) // V4 clip V1 V2 V3
     {
         n = 3;
-        L[0] = -L[0].y * L[3] + L[3].y * L[0];
-        L[1] = -L[2].y * L[3] + L[3].y * L[2];
+        L[0] = -L[0].z * L[3] + L[3].z * L[0];
+        L[1] = -L[2].z * L[3] + L[3].z * L[2];
         L[2] =  L[3];
     }
     else if (config == 9) // V1 V4 clip V2 V3
     {
         n = 4;
-        L[1] = -L[1].y * L[0] + L[0].y * L[1];
-        L[2] = -L[2].y * L[3] + L[3].y * L[2];
+        L[1] = -L[1].z * L[0] + L[0].z * L[1];
+        L[2] = -L[2].z * L[3] + L[3].z * L[2];
     }
     else if (config == 10) // V2 V4 clip V1 V3) impossible
     {
@@ -120,28 +119,28 @@ void ClipQuadToHorizon(inout vec3 L[5], out int n)
     {
         n = 5;
         L[4] = L[3];
-        L[3] = -L[2].y * L[3] + L[3].y * L[2];
-        L[2] = -L[2].y * L[1] + L[1].y * L[2];
+        L[3] = -L[2].z * L[3] + L[3].z * L[2];
+        L[2] = -L[2].z * L[1] + L[1].z * L[2];
     }
     else if (config == 12) // V3 V4 clip V1 V2
     {
         n = 4;
-        L[1] = -L[1].y * L[2] + L[2].y * L[1];
-        L[0] = -L[0].y * L[3] + L[3].y * L[0];
+        L[1] = -L[1].z * L[2] + L[2].z * L[1];
+        L[0] = -L[0].z * L[3] + L[3].z * L[0];
     }
     else if (config == 13) // V1 V3 V4 clip V2
     {
         n = 5;
         L[4] = L[3];
         L[3] = L[2];
-        L[2] = -L[1].y * L[2] + L[2].y * L[1];
-        L[1] = -L[1].y * L[0] + L[0].y * L[1];
+        L[2] = -L[1].z * L[2] + L[2].z * L[1];
+        L[1] = -L[1].z * L[0] + L[0].z * L[1];
     }
     else if (config == 14) // V2 V3 V4 clip V1
     {
         n = 5;
-        L[4] = -L[0].y * L[3] + L[3].y * L[0];
-        L[0] = -L[0].y * L[1] + L[1].y * L[0];
+        L[4] = -L[0].z * L[3] + L[3].z * L[0];
+        L[0] = -L[0].z * L[1] + L[1].z * L[0];
     }
     else if (config == 15) // V1 V2 V3 V4
     {
@@ -168,8 +167,8 @@ vec3 GetNormal()
 {
 	if(!useNormalMap)
 	{
-	vec3 norm = normalize(normalOUT);
-	return norm;
+    	vec3 norm = normalize(normalOUT);
+    	return norm;
 	}
 
 	vec3 normalMapSample = texture(normalMap, texCoordOUT).xyz;
@@ -177,6 +176,7 @@ vec3 GetNormal()
 
     vec3 normal = TBN * normalMapSample;
     normal = normalize(normal);
+    normal.z = -normal.z;
     return normal;
 }
 
@@ -233,17 +233,19 @@ vec3 CalculatePointLight(pointLight light, vec3 norm)
 	return BRDF(norm, viewDir, lightDir, light.color, roughnessVal);
 }
 
-void InitRectPoints(areaLight light, Disc lightPlane, out vec3 points[4])
+//=================================================================================
+void InitRectPoints(const Rect lightRect, out vec3 points[4])
 {
-    vec3 ex = light.DirX*sqrt(lightPlane.radiusSq);
-    vec3 ey = light.DirY*sqrt(lightPlane.radiusSq);
+    vec3 ex = lightRect.DirX*sqrt(lightRect.width);
+    vec3 ey = lightRect.DirY*sqrt(lightRect.height);
 
-    points[0] = lightPlane.plane.center - ex - ey;
-    points[1] = lightPlane.plane.center + ex - ey;
-    points[2] = lightPlane.plane.center + ex + ey;
-    points[3] = lightPlane.plane.center - ex + ey;
+    points[0] = lightRect.plane.center - ex - ey;
+    points[1] = lightRect.plane.center + ex - ey;
+    points[2] = lightRect.plane.center + ex + ey;
+    points[3] = lightRect.plane.center - ex + ey;
 }
 
+//=================================================================================
 float IntegrateEdge(vec3 v1, vec3 v2)
 {
     float cosTheta = dot(v1, v2);
@@ -253,22 +255,9 @@ float IntegrateEdge(vec3 v1, vec3 v2)
     return res;
 }
 
-//=================================================================================
-vec3 CalculatAreaLight(const areaLight light, const vec3 N, const vec3 V, const vec3 position, const Disc lightDisc)
+vec3 LTC(const mat3 RefFrame, mat3 Minv, const vec3 points[4], const vec3 position)
 {
-    // construct orthonormal basis around N
-    vec3 T1, T2;
-    T1 = normalize(V - N*dot(V, N));
-    T2 = cross(N, T1);
-
-    mat3 Minv = mat3(1.f);
-
-    // rotate area light in (T1, T2, N) basis
-    Minv = Minv * transpose(transpose(mat3(T1, T2, N)));
-
-    vec3 points[4];
-    InitRectPoints(light, lightDisc, points);
-
+    Minv = RefFrame * Minv;
     vec3 L[5];
     L[0] = Minv * (points[0] - position);
     L[1] = Minv * (points[1] - position);
@@ -276,7 +265,8 @@ vec3 CalculatAreaLight(const areaLight light, const vec3 N, const vec3 V, const 
     L[3] = Minv * (points[3] - position);
 
     int n;
-    ClipQuadToHorizon(L, n);
+    int config = 0;
+    ClipQuadToHorizon(L, n, config);
 
     if(n==0)
         return vec3(0.0,0.0,0.0);
@@ -309,6 +299,37 @@ vec3 CalculatAreaLight(const areaLight light, const vec3 N, const vec3 V, const 
 }
 
 //=================================================================================
+vec3 CalculatAreaLight(const areaLight light, const vec3 N, const vec3 V, const vec3 position)
+{
+    Rect rect;
+    rect.plane.normal = vec4(pAreaLight.Normal, 1.f);
+    rect.plane.center = pAreaLight.Position;
+    rect.DirX = pAreaLight.DirX;
+    rect.width = pAreaLight.Width;
+    rect.DirY = pAreaLight.DirY;
+    rect.height = pAreaLight.Height;
+
+    // construct orthonormal basis around N
+    vec3 T1, T2;
+    T1 = normalize(V - N*dot(V, N));
+    T2 = cross(N, T1);
+
+    mat3 Minv = mat3(1.f);
+
+    const mat3 RefFrame = transpose(mat3(T1, T2, N));
+
+    vec3 points[4];
+    InitRectPoints(rect, points);
+
+    vec3 diff = LTC(RefFrame, Minv, points, position);
+    vec3 Lo_i = pAreaLight.Intensity * diff * pAreaLight.Color;
+
+    Lo_i /= 2.0*PI;
+
+    return Lo_i * usedColor;
+}
+
+//=================================================================================
 void main()
 {
     viewPos = frame.CameraPosition.xyz/frame.CameraPosition.w;
@@ -322,11 +343,7 @@ void main()
 	vec3 omegaIn = FragPos - viewPos;
 	Ray ray;
 	ray.origin = FragPos;
-	ray.dir = reflect(omegaIn,norm);
-	Disc disc;
-	disc.plane.normal = vec4(pAreaLight.Normal, 1.f);
-	disc.plane.center = pAreaLight.Position;
-	disc.radiusSq = pAreaLight.Radius;
+	ray.dir = reflect(omegaIn,norm);;
 
 	vec3 result = vec3(0,0,0);
 
@@ -336,12 +353,12 @@ void main()
 
     vec3 omegaOut = normalize(ray.dir);
     vec3 viewDir = normalize(-omegaIn);
-    float roughnessVal = GetRoughness(texCoordOUT);
+    //float roughnessVal = GetRoughness(texCoordOUT);
 
-    if(!isInShadow(lightSpacePos, shadowMap[pAreaLight.ShadowMap]))
-        result += CalculatAreaLight(pAreaLight, norm, viewDir, FragPos, disc);
+    //if(!isInShadow(lightSpacePos, shadowMap[pAreaLight.ShadowMap]))
+        result += CalculatAreaLight(pAreaLight, norm, viewDir, FragPos);
 
-	if(true) for(int i = 0; i< NUM_POINTLIGHT;++i)
+	if(false) for(int i = 0; i< NUM_POINTLIGHT;++i)
 	{
 		result += CalculatePointLight(pLight[i], norm);
 	}
