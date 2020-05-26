@@ -50,6 +50,7 @@ include "premakeDefines.lua"
 IncludeDir = {}
 IncludeDir["GLFW"] = "vendor/GLFW/include"
 IncludeDir["GLM"] = "vendor/GLM"
+IncludeDir["GLI"] = "vendor/gli"
 IncludeDir["Glad"] = "vendor/Glad/include"
 IncludeDir["pugixml"] = "vendor/pugixml/src"
 IncludeDir["fmt"] = "vendor/fmt/include"
