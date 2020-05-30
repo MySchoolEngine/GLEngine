@@ -18,8 +18,8 @@ public:
 	//================================================================
 	// I_Light
 	[[nodiscard]] virtual Physics::Primitives::C_Frustum GetShadingFrustum() const override;
-	[[nodiscard]] float GetWidth() const { return m_Width; }
-	[[nodiscard]] float GetHeight() const { return m_Height; }
+	[[nodiscard]] virtual float GetWidth() const { return m_Width; }
+	[[nodiscard]] virtual float GetHeight() const { return m_Height; }
 
 protected:
 #pragma warning(push)
