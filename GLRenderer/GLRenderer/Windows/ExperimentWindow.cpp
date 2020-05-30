@@ -128,7 +128,7 @@ void C_ExplerimentWindow::Update()
 
 	glfwMakeContextCurrent(m_Window);
 
-	m_ShadowPass->Render();
+	//m_ShadowPass->Render();
 	
 	
 	m_renderer->Commit();
