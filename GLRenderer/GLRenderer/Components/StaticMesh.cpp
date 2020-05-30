@@ -116,7 +116,7 @@ void C_StaticMesh::PerformDraw() const
 						m_Shader->SetUniform("roughnessMap", 0);
 						m_Shader->SetUniform("colorMap", 1);
 						m_Shader->SetUniform("normalMap", 2);
-						m_Shader->SetUniform("shadowMap[0]", 5);
+						//m_Shader->SetUniform("shadowMap[0]", 5);
 						m_Shader->SetUniform("useNormalMap", m_NormalMap!=nullptr);
 					}
 				)
