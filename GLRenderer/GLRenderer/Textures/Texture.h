@@ -68,8 +68,8 @@ protected:
 
 	GLuint			m_texture;
 	GLenum			m_target;
-	glm::uvec2	m_Dimensions;
-	bool				m_bGroupOperations : 1;
-	std::uint64_t m_Handle;
+	glm::uvec2		m_Dimensions;
+	bool			m_bGroupOperations : 1;
+	std::uint64_t	m_Handle;
 };
 }}}

@@ -4,7 +4,12 @@
 
 #include <Renderer/Mesh/Scene.h>
 
+#include <GLRenderer/Commands/Textures/GLMakeTextureHandleResident.h>
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
+
+#include <Renderer/IRenderer.h>
+
+#include <Core/Application.h>
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -180,10 +185,11 @@ std::uint64_t C_Texture::GetHandle() const
 //=================================================================================
 void C_Texture::MakeHandleResident(bool val)
 {
-	if (val)
-		glMakeTextureHandleResidentARB(m_Handle);
-	else
-		glMakeTextureHandleNonResidentARB(m_Handle);
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+		std::move(
+			std::make_unique<Commands::C_GLMakeTextureHandleResident>(m_Handle, val)
+		)
+	);
 }
 
 }
