@@ -50,6 +50,10 @@ public:
 	[[nodiscard]] inline GLuint GetTexture() const { return m_texture; }
 	[[nodiscard]] inline GLenum GetTarget() const { return m_target; }
 
+	[[nodiscard]] std::uint64_t CreateHandle();
+	[[nodiscard]] std::uint64_t GetHandle() const;
+	void MakeHandleResident(bool val = true);
+
 	void SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT);
 	void SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT, E_WrapFunction wrapR);
 	void SetFilter(GLint min, GLint mag);
@@ -66,5 +70,6 @@ protected:
 	GLenum			m_target;
 	glm::uvec2	m_Dimensions;
 	bool				m_bGroupOperations : 1;
+	std::uint64_t m_Handle;
 };
 }}}

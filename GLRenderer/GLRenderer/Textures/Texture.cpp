@@ -160,4 +160,26 @@ void C_Texture::SetInternalFormat(GLint internalFormat, GLint format, GLenum typ
 		type, nullptr);
 }
 
+//=================================================================================
+std::uint64_t C_Texture::CreateHandle()
+{
+	m_Handle = glGetTextureHandleARB(m_texture);
+	return GetHandle();
+}
+
+//=================================================================================
+std::uint64_t C_Texture::GetHandle() const
+{
+	return m_Handle;
+}
+
+//=================================================================================
+void C_Texture::MakeHandleResident(bool val)
+{
+	if (val)
+		glMakeTextureHandleResidentARB(m_Handle);
+	else
+		glMakeTextureHandleNonResidentARB(m_Handle);
+}
+
 }
