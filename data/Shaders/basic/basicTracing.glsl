@@ -1,4 +1,5 @@
 #version 430
+#extension GL_ARB_bindless_texture : require
 
 #define NUM_POINTLIGHT 10
 #define NUM_AREALIGHT 4
@@ -6,6 +7,12 @@
 #include "../include/frameConstants.glsl"
 #include "../include/tracing.glsl"
 #include "../include/PBRT.glsl"
+
+
+const float LUT_SIZE  = 64.0;
+const float LUT_SCALE = (LUT_SIZE - 1.0)/LUT_SIZE;
+const float LUT_BIAS  = 0.5/LUT_SIZE;
+
 
 //per mesh
 uniform sampler2D tex;
@@ -23,7 +30,6 @@ in vec3 normalOUT;
 in vec2 texCoordOUT;
 in vec4 worldCoord;
 in mat3 TBN;
-in vec4 lightSpacePos;
 
 out vec4 fragColor;
 
@@ -33,7 +39,9 @@ out vec4 fragColor;
 layout (std140) uniform lightsUni
 {
 	pointLight pLight[NUM_POINTLIGHT];
-	areaLight  pAreaLight;
+	areaLight  pAreaLight[NUM_AREALIGHT];
+    sampler2D  ltc;
+    sampler2D  ltcMag;
 };
 
 float ambientStrength = 0.1;
@@ -146,7 +154,7 @@ void ClipQuadToHorizon(inout vec3 L[5], out int n, out int config)
     {
         n = 4;
     }
-    
+
     if (n == 3)
         L[3] = L[0];
     if (n == 4)
@@ -255,9 +263,12 @@ float IntegrateEdge(vec3 v1, vec3 v2)
     return res;
 }
 
-vec3 LTC(const mat3 RefFrame, mat3 Minv, const vec3 points[4], const vec3 position)
+vec3 LTC(const mat3 RefFrame, mat3 Minv, const vec3 points[4], const vec3 position, const vec3 lightNormal)
 {
-    Minv = RefFrame * Minv;
+    vec3 dir = points[0].xyz - position;
+    bool behind = (dot(dir, lightNormal) < 0.0);
+
+    Minv = Minv * RefFrame;
     vec3 L[5];
     L[0] = Minv * (points[0] - position);
     L[1] = Minv * (points[1] - position);
@@ -279,10 +290,9 @@ vec3 LTC(const mat3 RefFrame, mat3 Minv, const vec3 points[4], const vec3 positi
     L[3] = normalize(L[3]);
     L[4] = normalize(L[4]);
 
+    //const float sum = len*scale;
+    float sum = 0.f;
     // integrate
-    float sum = 0.0;
-
-
     sum += IntegrateEdge(L[0], L[1]);
     sum += IntegrateEdge(L[1], L[2]);
     sum += IntegrateEdge(L[2], L[3]);
@@ -291,38 +301,53 @@ vec3 LTC(const mat3 RefFrame, mat3 Minv, const vec3 points[4], const vec3 positi
     if (n == 5)
         sum += IntegrateEdge(L[4], L[0]);
 
-    sum = twoSided ? abs(sum) : max(0.0, sum);
 
-    vec3 Lo_i = vec3(sum, sum, sum);
-
-    return Lo_i;
+    return vec3(sum, sum, sum);
 }
 
 //=================================================================================
 vec3 CalculatAreaLight(const areaLight light, const vec3 N, const vec3 V, const vec3 position)
 {
     Rect rect;
-    rect.plane.normal = vec4(pAreaLight.Normal, 1.f);
-    rect.plane.center = pAreaLight.Position;
-    rect.DirX = pAreaLight.DirX;
-    rect.width = pAreaLight.Width;
-    rect.DirY = pAreaLight.DirY;
-    rect.height = pAreaLight.Height;
+    rect.plane.normal = vec4(light.Normal, 1.f);
+    rect.plane.center = light.Position;
+    rect.DirX = light.DirX;
+    rect.width = light.Width;
+    rect.DirY = light.DirY;
+    rect.height = light.Height;
 
     // construct orthonormal basis around N
     vec3 T1, T2;
     T1 = normalize(V - N*dot(V, N));
     T2 = cross(N, T1);
 
-    mat3 Minv = mat3(1.f);
-
     const mat3 RefFrame = transpose(mat3(T1, T2, N));
 
     vec3 points[4];
     InitRectPoints(rect, points);
 
-    vec3 diff = LTC(RefFrame, Minv, points, position);
-    vec3 Lo_i = pAreaLight.Intensity * diff * pAreaLight.Color;
+
+    float roughness = GetRoughness(texCoordOUT);
+
+
+    float theta = acos(dot(N, V));
+    vec2 uv = vec2(roughness, theta/(0.5*PI));
+    uv = uv*LUT_SCALE + LUT_BIAS;
+
+    vec4 t = texture2D(ltc, uv);
+    vec4 t2 = texture2D(ltcMag, uv);
+
+    vec3 diff = LTC(RefFrame, mat3(1.f), points, position, light.Normal);
+
+
+    const mat3 Minv = mat3(
+            vec3(t.x, 0, t.y),
+            vec3(  0,  1,    0),
+            vec3(t.z, 0, t.w)
+        );
+    vec3 spec = LTC(RefFrame, Minv, points, position, light.Normal);
+    spec *= light.Specular*t2.x + (1.0 - light.Specular)*t2.y;
+    vec3 Lo_i = 3*light.Intensity * (spec + diff * light.Color);
 
     Lo_i /= 2.0*PI;
 
@@ -353,10 +378,9 @@ void main()
 
     vec3 omegaOut = normalize(ray.dir);
     vec3 viewDir = normalize(-omegaIn);
-    //float roughnessVal = GetRoughness(texCoordOUT);
 
-    //if(!isInShadow(lightSpacePos, shadowMap[pAreaLight.ShadowMap]))
-        result += CalculatAreaLight(pAreaLight, norm, viewDir, FragPos);
+    //if(!isInShadow(lightSpacePos, shadowMap[pAreaLight[0].ShadowMap]))
+        result += CalculatAreaLight(pAreaLight[0], norm, viewDir, FragPos);
 
 	if(false) for(int i = 0; i< NUM_POINTLIGHT;++i)
 	{
