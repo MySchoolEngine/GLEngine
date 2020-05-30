@@ -2,6 +2,9 @@
 
 #include <GLRenderer/Lights/LightsUBO.h>
 
+#include <GLRenderer/Textures/TextureLoader.h>
+#include <GLRenderer/Textures/Texture.h>
+
 
 namespace GLEngine::GLRenderer {
 
@@ -14,22 +17,48 @@ C_LightsBuffer::C_LightsBuffer(const std::string& blockName, unsigned int index)
 	constexpr auto areaLightSize = sizeof(m_AreaLight);
 
 	C_UniformBuffer::bind();
-	glBufferData(GL_UNIFORM_BUFFER, pointLightSize + areaLightSize, &(m_PointLight[0].m_Position), GL_DYNAMIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, pointLightSize + areaLightSize + sizeof(std::uint64_t)*2, &(m_PointLight[0].m_Position), GL_DYNAMIC_DRAW);
 	C_UniformBuffer::unbind();
+	ErrorCheck();
+
+	Textures::TextureLoader tl;
+
+	m_LTCFittingTexture = tl.LoadAndInitTexture("Images\\ltc_1.dds");
+	if (!m_LTCFittingTexture)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "Cannot load ltc mat");
+		return;
+	}
+	m_LTCFittingTexture->bind();
+	m_LTCFittingSchemeHandle = m_LTCFittingTexture->CreateHandle();
+	m_LTCFittingTexture->unbind();
+
+
+	m_LTCMagTexture = tl.LoadAndInitTexture("Images\\ltc_2.dds");
+	if (!m_LTCMagTexture)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "Cannot load ltc mat");
+		return;
+	}
+	m_LTCMagTexture->bind();
+	m_LTCMagSchemeHandle = m_LTCMagTexture->CreateHandle();
+	m_LTCMagTexture->unbind();
 }
 
 //=================================================================================
 void C_LightsBuffer::UploadData() const
 {
 	bind();
-
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(m_PointLight) + sizeof(m_AreaLight), &(m_PointLight[0].m_Position));
-	// auto* data = (char*)glMapBuffer(GL_UNIFORM_BUFFER, GL_READ_WRITE);
-	// 
-	// memcpy(data, &m_PointLight, sizeof(m_PointLight));
-	// 
-	// glUnmapBuffer(GL_UNIFORM_BUFFER);
+	constexpr auto size = sizeof(m_PointLight) + sizeof(m_AreaLight) + sizeof(std::uint64_t)*2;
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, size, &(m_PointLight[0].m_Position));
 	unbind();
+}
+
+//=================================================================================
+void C_LightsBuffer::MakeHandlesResident(bool val /*= true*/)
+{
+	m_LTCFittingTexture->MakeHandleResident(val);
+	m_LTCMagTexture->MakeHandleResident(val);
 }
 
 }

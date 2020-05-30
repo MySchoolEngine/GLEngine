@@ -133,6 +133,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 					[&]() {
 						m_FrameConstUBO->UploadData();
 						m_FrameConstUBO->Activate(true);
+						m_LightsUBO->MakeHandlesResident();
 						m_LightsUBO->UploadData();
 						m_LightsUBO->Activate(true);
 					}
@@ -149,6 +150,19 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				renderable->PerformDraw();
 			}
 		}
+	}
+
+	{
+		RenderDoc::C_DebugScope s("Clean");
+		renderer->AddCommand(
+			std::move(
+				std::make_unique<Commands::HACK::C_LambdaCommand>(
+					[&]() {
+						m_LightsUBO->MakeHandlesResident(false);
+					}
+				)
+			)
+		);
 	}
 
 	C_DebugDraw::Instance().DrawPoint({ m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue() }, {1.f, 1.f, 0.f});
