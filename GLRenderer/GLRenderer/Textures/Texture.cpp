@@ -35,6 +35,8 @@ C_Texture::C_Texture(C_Texture&& t)
 	t.m_texture = 0;
 	m_target = t.m_target;
 	m_bGroupOperations = t.m_bGroupOperations;
+	m_Handle = t.m_Handle;
+	m_Dimensions = t.m_Dimensions;
 }
 
 //=================================================================================
@@ -50,6 +52,8 @@ void C_Texture::operator=(C_Texture&& rhs)
 	rhs.m_texture = 0;
 	m_target = rhs.m_target;
 	m_bGroupOperations = rhs.m_bGroupOperations;
+	m_Handle = rhs.m_Handle;
+	m_Dimensions = rhs.m_Dimensions;
 }
 
 //=================================================================================
