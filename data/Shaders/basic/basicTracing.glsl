@@ -54,10 +54,10 @@ vec3 usedColor;
 void ClipQuadToHorizon(inout vec3 L[5], out int n, out int config)
 {
     // detect clipping config
-    if (L[0].z > 0.0) config += 1;
-    if (L[1].z > 0.0) config += 2;
-    if (L[2].z > 0.0) config += 4;
-    if (L[3].z > 0.0) config += 8;
+    if (L[0].z > 0.0) config += 1; // bottom left
+    if (L[1].z > 0.0) config += 2; // bottom right
+    if (L[2].z > 0.0) config += 4; // top right
+    if (L[3].z > 0.0) config += 8; // top left
 
     // clip
     n = 0;
@@ -247,22 +247,31 @@ void InitRectPoints(const Rect lightRect, out vec3 points[4])
     vec3 ex = lightRect.DirX*sqrt(lightRect.width);
     vec3 ey = lightRect.DirY*sqrt(lightRect.height);
 
-    points[0] = lightRect.plane.center - ex - ey;
-    points[1] = lightRect.plane.center + ex - ey;
-    points[2] = lightRect.plane.center + ex + ey;
-    points[3] = lightRect.plane.center - ex + ey;
+    points[0] = lightRect.plane.center - ex - ey; // bottom left
+    points[1] = lightRect.plane.center + ex - ey; // bottom right
+    points[2] = lightRect.plane.center + ex + ey; // top right
+    points[3] = lightRect.plane.center - ex + ey; // top left
+
+
+    // for triangle:
+    // points[2] = lightRect.plane.center + ey;
+    // points[3] = lightRect.plane.center + ey;
 }
 
 //=================================================================================
-float IntegrateEdge(vec3 v1, vec3 v2)
+float IntegrateEdge(const vec3 v1, const vec3 v2)
 {
-    float cosTheta = dot(v1, v2);
-    float theta = acos(cosTheta);    
-    float res = cross(v1, v2).z * ((theta > 0.001) ? theta/sin(theta) : 1.0);
+    // eq 11 part inside the sum
+    // we can simplify denominator cause |v1| = |v2| = 1 and |v1 x v2| = |v1||v2|sin(theta)
+    // when theta = 0 than theta/sin(theta) = 0/0 thou it is undefined
+    const float cosTheta = dot(v1, v2);
+    const float theta = acos(cosTheta);    
+    const float res = cross(v1, v2).z * ((theta > 0.001) ? theta/sin(theta) : 0.0);
 
     return res;
 }
 
+//=================================================================================
 vec3 LTC(const mat3 RefFrame, mat3 Minv, const vec3 points[4], const vec3 position, const vec3 lightNormal)
 {
     vec3 dir = points[0].xyz - position;
@@ -291,6 +300,7 @@ vec3 LTC(const mat3 RefFrame, mat3 Minv, const vec3 points[4], const vec3 positi
     L[4] = normalize(L[4]);
 
     //const float sum = len*scale;
+    // this is sum from eq. 11
     float sum = 0.f;
     // integrate
     sum += IntegrateEdge(L[0], L[1]);
@@ -347,9 +357,9 @@ vec3 CalculatAreaLight(const areaLight light, const vec3 N, const vec3 V, const 
         );
     vec3 spec = LTC(RefFrame, Minv, points, position, light.Normal);
     spec *= light.Specular*t2.x + (1.0 - light.Specular)*t2.y;
-    vec3 Lo_i = 3*light.Intensity * (spec + diff * light.Color);
+    vec3 Lo_i = light.Intensity * (spec + diff * light.Color);
 
-    Lo_i /= 2.0*PI;
+    Lo_i /= 2.0*PI;  // eq 11 of the papper 1/2pi * rest calcualted mainly in integrateEdge
 
     return Lo_i * usedColor;
 }
