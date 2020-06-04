@@ -3,7 +3,6 @@
 #include <GLRenderer/Commands/FBO/GLBindFramebuffer.h>
 #include <GLRenderer/Commands/FBO/glFramebufferTexture.h>
 #include <GLRenderer/Commands/FBO/GLCheckFramebufferStatus.h>
-#include <GLRenderer/Commands/HACK/LambdaCommand.h>
 
 namespace GLEngine::GLRenderer {
 //=================================================================================
