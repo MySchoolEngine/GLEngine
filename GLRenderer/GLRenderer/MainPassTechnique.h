@@ -1,11 +1,17 @@
 #pragma once
 
-#include <Renderer/ICameraComponent.h>
-
 #include <GLRenderer/GUI/Input/Slider.h>
 
-#include <Entity/IEntity.h>
-#include <Entity/EntityManager.h>
+
+namespace GLEngine::Entity
+{
+class C_EntityManager;
+}
+
+namespace GLEngine::Renderer
+{
+class I_CameraComponent;
+}
 
 namespace GLEngine::GLRenderer {
 
@@ -17,7 +23,7 @@ class C_FrameConstantsBuffer;
 
 class C_MainPassTechnique {
 public:
-	C_MainPassTechnique(std::shared_ptr<Entity::C_EntityManager> world);
+	explicit C_MainPassTechnique(std::shared_ptr<Entity::C_EntityManager> world);
 	void Render(std::shared_ptr<Renderer::I_CameraComponent> camera, unsigned int widht, unsigned int height);
 
 private:

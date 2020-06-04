@@ -33,7 +33,7 @@ void C_GLDebugGUIComponent::PostUpdate()
 }
 
 //=================================================================================
-void C_GLDebugGUIComponent::SetTitle(std::string& title)
+void C_GLDebugGUIComponent::SetTitle(const std::string& title)
 {
 	m_Title = title;
 }

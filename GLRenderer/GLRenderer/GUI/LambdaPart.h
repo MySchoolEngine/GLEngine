@@ -5,7 +5,7 @@
 namespace GLEngine::GLRenderer::GUI {
 class C_LambdaPart : public I_GUIPart {
 public:
-	C_LambdaPart(std::function<void()> lambda);
+	explicit C_LambdaPart(std::function<void()> lambda);
 	virtual void Draw() const override;
 private:
 	std::function<void()> m_Lambda;

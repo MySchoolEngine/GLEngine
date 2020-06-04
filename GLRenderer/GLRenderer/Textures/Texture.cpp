@@ -4,7 +4,12 @@
 
 #include <Renderer/Mesh/Scene.h>
 
+#include <GLRenderer/Commands/Textures/GLMakeTextureHandleResident.h>
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
+
+#include <Renderer/IRenderer.h>
+
+#include <Core/Application.h>
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -25,17 +30,49 @@ C_Texture::C_Texture(const std::string& name, GLenum target)
 //=================================================================================
 C_Texture::C_Texture(C_Texture&& t)
 {
+	if (&t == this)
+	{
+		return;
+	}
+	Clean();
+
 	m_texture = t.m_texture;
 	t.m_texture = 0;
 	m_target = t.m_target;
 	m_bGroupOperations = t.m_bGroupOperations;
+	m_Handle = t.m_Handle;
+	m_Dimensions = t.m_Dimensions;
+}
+
+//=================================================================================
+void C_Texture::operator=(C_Texture&& rhs)
+{
+	if (&rhs == this)
+	{
+		return;
+	}
+	Clean();
+
+	m_texture = rhs.m_texture;
+	rhs.m_texture = 0;
+	m_target = rhs.m_target;
+	m_bGroupOperations = rhs.m_bGroupOperations;
+	m_Handle = rhs.m_Handle;
+	m_Dimensions = rhs.m_Dimensions;
 }
 
 //=================================================================================
 C_Texture::~C_Texture()
 {
-	if(m_texture!=0)
+	Clean();
+}
+
+//=================================================================================
+void C_Texture::Clean()
+{
+	if (m_texture != 0)
 		glDeleteTextures(1, &m_texture);
+	m_texture = 0;
 }
 
 //=================================================================================
@@ -117,6 +154,42 @@ void C_Texture::SetTexData2D(int level, const Renderer::MeshData::Texture& tex)
 		GL_RGBA,
 		T_TypeToGL<decltype(tex.data)::element_type>::value,
 		tex.data.get());
+}
+
+//=================================================================================
+void C_Texture::SetInternalFormat(GLint internalFormat, GLint format, GLenum type)
+{
+	glTexImage2D(m_target,
+		0,
+		internalFormat,
+		GetWidth(),
+		GetHeight(),
+		0,
+		format,
+		type, nullptr);
+}
+
+//=================================================================================
+std::uint64_t C_Texture::CreateHandle()
+{
+	m_Handle = glGetTextureHandleARB(m_texture);
+	return GetHandle();
+}
+
+//=================================================================================
+std::uint64_t C_Texture::GetHandle() const
+{
+	return m_Handle;
+}
+
+//=================================================================================
+void C_Texture::MakeHandleResident(bool val)
+{
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+		std::move(
+			std::make_unique<Commands::C_GLMakeTextureHandleResident>(m_Handle, val)
+		)
+	);
 }
 
 }

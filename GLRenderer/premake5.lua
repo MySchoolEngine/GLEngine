@@ -33,6 +33,7 @@ project "GLRenderer"
 		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.Glad}",
 		"../%{IncludeDir.GLM}",
+		"../%{IncludeDir.GLI}",
 		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.ImGui}",
@@ -77,7 +78,8 @@ project "GLRenderer"
 		postbuildcommands
 		{
 			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
-			("{COPY} \"../vendor/projects/DevIL/bin/Debug-windows-x86_64/DevIL-IL/DevIL-IL.dll\" \"../bin/" .. outputdir .. "/Sandbox/\"")
+			("{COPY} \"../vendor/projects/DevIL/bin/Debug-windows-x86_64/DevIL-IL/DevIL-IL.dll\" \"../bin/" .. outputdir .. "/Sandbox/\""),
+			("{COPY} \"../vendor/AssimpPrebuild/lib/*\" \"../bin/" .. outputdir .. "/Sandbox/\"")
 		}
 
 	filter "configurations:Debug"

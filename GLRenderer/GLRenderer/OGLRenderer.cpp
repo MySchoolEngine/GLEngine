@@ -3,6 +3,7 @@
 #include <GLRenderer/OGLRenderer.h>
 
 #include <GLRenderer/Shaders/ShaderManager.h>
+#include <GLRenderer/Textures/TextureManager.h>
 #include <GLRenderer/ImGui/GUIManager.h>
 #include <GLRenderer/GUI/GUIWindow.h>
 #include <GLRenderer/GUI/Menu/MenuItem.h>
@@ -25,6 +26,7 @@ C_OGLRenderer::C_OGLRenderer()
 	, m_DrawCommands("Draw commands")
 	, m_CatchErrors(false, "Catch errors")
 	, m_PreviousCatchErrorsVal(false)
+	, m_CurrentPass(Renderer::E_PassType::FinalPass)
 	, m_GUITexts(
 		{{
 				("Avg draw commands: {:.2f}"),
@@ -45,6 +47,8 @@ C_OGLRenderer::~C_OGLRenderer()
 {
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	shmgr.Clear();
+	auto& tmgr = Textures::C_TextureManager::Instance();
+	tmgr.Clear();
 	delete m_CommandQueue;
 }
 
@@ -137,11 +141,13 @@ GUID C_OGLRenderer::SetupControls(ImGui::C_GUIManager& guiMan)
 	renderStats->AddMenu(m_Windows);
 	
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
-	const auto shmgrWindwo = shmgr.SetupControls(guiMan);
+	const auto shmgrWindow = shmgr.SetupControls(guiMan);
 
-	m_ShaderMGR = std::make_unique<GUI::Menu::C_MenuItemOpenWindow>("Shader manager", shmgrWindwo, guiMan);
+	auto& tmgr = Textures::C_TextureManager::Instance();
+	const auto tmgrWindow = tmgr.SetupControls(guiMan);
 
-	m_Windows.AddMenuItem(*m_ShaderMGR.get());
+	m_Windows.AddMenuItem(guiMan.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Shader manager", shmgrWindow, guiMan));
+	m_Windows.AddMenuItem(guiMan.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Texture manager", tmgrWindow, guiMan));
 
 	return m_Window;
 }
@@ -152,6 +158,21 @@ void C_OGLRenderer::DestroyControls(ImGui::C_GUIManager& guiMan)
 	guiMan.DestroyWindow(m_Window);
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	shmgr.DestroyControls(guiMan);
+
+	auto& tmgr = Textures::C_TextureManager::Instance();
+	tmgr.DestroyControls(guiMan);
+}
+
+//=================================================================================
+Renderer::E_PassType C_OGLRenderer::GetCurrentPassType() const
+{
+	return m_CurrentPass;
+}
+
+//=================================================================================
+void C_OGLRenderer::SetCurrentPassType(Renderer::E_PassType type)
+{
+	m_CurrentPass = type;
 }
 
 }}

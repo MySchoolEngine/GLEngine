@@ -44,12 +44,18 @@ public:
 
 	GUID SetupControls(ImGui::C_GUIManager& guiMan);
 	void DestroyControls(ImGui::C_GUIManager& guiMan);
+
+	//=================================================================================
+	virtual Renderer::E_PassType GetCurrentPassType() const override;
+	virtual void SetCurrentPassType(Renderer::E_PassType type) override;
+
 private:
 	bool m_Locked = false;
 	std::vector<Renderer::I_Renderer::T_CommandPtr>*	m_CommandQueue;
 	GUI::C_PlotLine<500>								m_DrawCommands;
 	GUI::Input::C_CheckBoxValue					m_CatchErrors;
 	bool																m_PreviousCatchErrorsVal;
+	Renderer::E_PassType								m_CurrentPass;
 
 	enum class E_GUITexts {
 		AvgDrawCommands,
@@ -59,7 +65,6 @@ private:
 	std::array<GUI::C_FormatedText, static_cast<int>(E_GUITexts::Last)>				m_GUITexts;
 	GUID																																			m_Window;
 	GUI::Menu::C_Menu																													m_Windows;
-	std::unique_ptr<GUI::Menu::C_MenuItem>																		m_ShaderMGR;
 };
 
 }

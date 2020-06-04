@@ -49,7 +49,7 @@ void C_BasicEntity::OnEvent(Core::I_Event& event)
 }
 
 //=================================================================================
-void C_BasicEntity::SetModelMatrix(glm::mat4& modelMatrix)
+void C_BasicEntity::SetModelMatrix(const glm::mat4& modelMatrix)
 {
 	m_ModelMatrix = modelMatrix;
 }

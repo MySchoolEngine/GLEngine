@@ -11,17 +11,17 @@ namespace GLFW {
 class C_GLFWInput : public Core::I_Input {
 public:
 	C_GLFWInput();
-	virtual ~C_GLFWInput() = default;
+	virtual ~C_GLFWInput();
 
 	void SetWindow(GLFWwindow* window) { m_Window = window; }
 	//==========================================================
 	// Core::I_Input
 	//==========================================================
-	virtual bool IsKeyPressed(int keycode) const override;
-	virtual bool IsMosueButtonPresse(int key) const override;
-	virtual std::pair<float, float> GetMousePosition() const override;
-	virtual float GetMouseX() const override;
-	virtual float GetMouseY() const override;
+	[[nodiscard]] virtual bool IsKeyPressed(int keycode) const override;
+	[[nodiscard]] virtual bool IsMosueButtonPresse(int key) const override;
+	[[nodiscard]] virtual std::pair<float, float> GetMousePosition() const override;
+	[[nodiscard]] virtual float GetMouseX() const override;
+	[[nodiscard]] virtual float GetMouseY() const override;
 
 protected:
 	GLFWwindow* m_Window;

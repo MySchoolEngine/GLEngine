@@ -16,7 +16,7 @@ namespace GUI {
 // @todo unit testing
 class C_Image : public I_GUIPart {
 public:
-	C_Image(std::shared_ptr<Textures::C_Texture>& texture);
+	explicit C_Image(const std::shared_ptr<Textures::C_Texture>& texture);
 	virtual void Draw() const override;
 private:
 	std::shared_ptr<Textures::C_Texture> m_texture;

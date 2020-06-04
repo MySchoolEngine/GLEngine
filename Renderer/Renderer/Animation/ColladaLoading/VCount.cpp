@@ -8,7 +8,7 @@ namespace GLEngine::Renderer::Animation {
 
 
 //=================================================================================
-C_VCount::C_VCount(pugi::xml_node& vcount)
+C_VCount::C_VCount(const pugi::xml_node& vcount)
 {
 	const std::string_view ints = vcount.child_value();
 	m_IntStream << ints;

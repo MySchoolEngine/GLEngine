@@ -6,6 +6,9 @@
 #include <GLRenderer/MeshLoading/SceneLoader.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
+#include <GLRenderer/Textures/TextureLoader.h>
+#include <GLRenderer/Textures/TextureUnitManager.h>
+#include <GLRenderer/Textures/TextureManager.h>
 
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 
@@ -15,6 +18,8 @@
 #include <Renderer/Mesh/Scene.h>
 
 #include <Core/Application.h>
+
+#include <Utils/Parsing/ColorParsing.h>
 
 #include <pugixml.hpp>
 
@@ -60,29 +65,82 @@ void C_StaticMesh::PerformDraw() const
 {
 	if (!m_Mesh || !m_Shader)
 	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Static mesh uncomplete");
+		//CORE_LOG(E_Level::Error, E_Context::Render, "Static mesh uncomplete");
 		return;
 	}
+	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
+
 
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
-	shmgr.ActivateShader(m_Shader);
+	auto& tmgr = Textures::C_TextureManager::Instance();
+	if (renderer->GetCurrentPassType() == Renderer::E_PassType::ShadowPass && m_ShadowPassShader)
+	{
+		shmgr.ActivateShader(m_ShadowPassShader);
+	}
+	else
+	{
+		shmgr.ActivateShader(m_Shader);
+	}
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+	auto& tm = Textures::C_TextureUnitManger::Instance();
+
+	if (m_RoughnessMap) {
+		tm.BindTextureToUnit(*m_RoughnessMap, 0);
+	}
+	else
+	{
+		tm.BindTextureToUnit(*(tmgr.GetIdentityTexture()), 0);
+	}
+	if (m_ColorMap) {
+		tm.BindTextureToUnit(*m_ColorMap, 1);
+	}
+	else
+	{
+		tm.BindTextureToUnit(*(tmgr.GetIdentityTexture()), 1);
+	}
+	if (m_NormalMap) {
+		tm.BindTextureToUnit(*m_NormalMap, 2);
+	}
+	else
+	{
+		tm.BindTextureToUnit(*(tmgr.GetIdentityTexture()), 2);
+	}
+
+	renderer->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 					[&]() {
 						m_Shader->SetUniform("modelMatrix", m_ModelMatrix);
+						m_Shader->SetUniform("modelColor", m_Color.GetValue());
+						m_Shader->SetUniform("roughness", m_Roughness.GetValue());
+						m_Shader->SetUniform("roughnessMap", 0);
+						m_Shader->SetUniform("colorMap", 1);
+						m_Shader->SetUniform("normalMap", 2);
+						//m_Shader->SetUniform("shadowMap[0]", 5);
+						m_Shader->SetUniform("useNormalMap", m_NormalMap!=nullptr);
 					}
 				)
 		)
 	);
 
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+	renderer->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_Mesh)
 		)
 	);
+}
+
+//=================================================================================
+void C_StaticMesh::DebugDrawGUI()
+{
+	if (::ImGui::CollapsingHeader("Static mesh")) {
+		m_Color.Draw();
+		if (!m_RoughnessMap)
+		{
+			m_Roughness.Draw();
+		}
+	}
 }
 
 //=================================================================================
@@ -94,7 +152,83 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 		material = materialAttr.value();
 	}
 
-	return std::make_shared<C_StaticMesh>(node.attribute("filePath").value(), material);
+	auto staticMesh = std::make_shared<C_StaticMesh>(node.attribute("filePath").value(), material);
+
+	if (auto shadowPassAttr = node.attribute("shadowPassShader"))
+	{
+		auto& shmgr = Shaders::C_ShaderManager::Instance();
+		auto shadowPassShader = shmgr.GetProgram(shadowPassAttr.as_string());
+		if (shadowPassShader)
+		{
+			staticMesh->m_ShadowPassShader = shadowPassShader;
+		}
+	}
+
+	if (auto colorChild = node.child("color"))
+	{
+		staticMesh->SetColor(Utils::Parsing::C_ColorParser::ParseColorRGB(node));
+	}
+
+	if (auto roughness = node.child("roughness"))
+	{
+		std::stringstream ss;
+		ss << roughness.child_value();
+		float val;
+		ss >> val;
+		staticMesh->m_Roughness = val;
+	}
+
+
+	auto& tmgr = Textures::C_TextureManager::Instance();
+
+	if (auto roughnessMap = node.child("roughnessMap"))
+	{
+		staticMesh->m_RoughnessMap = tmgr.GetTexture(roughnessMap.child_value());
+		if (staticMesh->m_RoughnessMap)
+		{
+			staticMesh->m_Roughness = 1.0f;
+
+			staticMesh->m_RoughnessMap->StartGroupOp();
+			staticMesh->m_RoughnessMap->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
+			staticMesh->m_RoughnessMap->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+			staticMesh->m_RoughnessMap->GenerateMipMaps();
+
+			staticMesh->m_RoughnessMap->EndGroupOp();
+		}
+	}
+
+	if (auto colorMap = node.child("colorMap"))
+	{
+		staticMesh->m_ColorMap = tmgr.GetTexture(colorMap.child_value());
+		if (staticMesh->m_ColorMap)
+		{
+			staticMesh->SetColor(glm::vec3(1.0f));
+		
+			staticMesh->m_ColorMap->StartGroupOp();
+			staticMesh->m_ColorMap->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
+			staticMesh->m_ColorMap->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+			staticMesh->m_ColorMap->GenerateMipMaps();
+		
+			staticMesh->m_ColorMap->EndGroupOp();
+		}
+	}
+
+
+	if (auto normalMap = node.child("normalMap"))
+	{
+		staticMesh->m_NormalMap = tmgr.GetTexture(normalMap.child_value());
+		if (staticMesh->m_NormalMap)
+		{
+			staticMesh->m_NormalMap->StartGroupOp();
+			staticMesh->m_NormalMap->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
+			staticMesh->m_NormalMap->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+			staticMesh->m_NormalMap->GenerateMipMaps();
+
+			staticMesh->m_NormalMap->EndGroupOp();
+		}
+	}
+
+	return staticMesh;
 }
 
 }}}

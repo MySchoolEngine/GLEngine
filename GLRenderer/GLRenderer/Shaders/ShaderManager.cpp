@@ -11,9 +11,7 @@
 #include <pugixml.hpp>
 
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Shaders {
+namespace GLEngine::GLRenderer::Shaders {
 //=================================================================================
 const std::filesystem::path C_ShaderManager::s_ShadersFolder = "shaders/";
 
@@ -22,6 +20,7 @@ C_ShaderManager::C_ShaderManager()
 	: m_Timeout(std::chrono::seconds(1))
 	, m_LastUpdate(std::chrono::system_clock::now())
 	, m_Window(INVALID_GUID)
+	, m_PreprocessorOutput(false, "Output preprocessed")
 {
 
 }
@@ -37,6 +36,7 @@ C_ShaderManager & C_ShaderManager::Instance()
 //=================================================================================
 void C_ShaderManager::Clear()
 {
+	CORE_LOG(E_Level::Info, E_Context::Render, "{}", ShadersStatistics());
 	std::cout << ShadersStatistics();
 	m_Programs.clear();
 	m_ActiveShader.reset();
@@ -56,17 +56,7 @@ void C_ShaderManager::Update()
 				continue;
 			}
 
-			C_ShaderCompiler compiler;
-			try
-			{
-				*(program.second) = std::move(C_ShaderProgram(LoadProgram(std::filesystem::path(program.first), compiler)));
-				program.second->SetPaths(compiler.GetTouchedFiles());
-				Buffers::C_UniformBuffersManager::Instance().ProcessUBOBindingPoints(program.second);
-			}
-			catch (...)
-			{
-				CORE_LOG(E_Level::Error, E_Context::Render, "Unable to reload shader {} so we keep it outdated", program.first);
-			}
+			ReloadProgram(program.first, program.second);
 		}
 		m_LastUpdate = currentTime;
 	}
@@ -80,7 +70,7 @@ C_ShaderManager::T_ShaderPtr C_ShaderManager::GetProgram(const std::string& name
 		return m_Programs[name];
 	}
 
-	C_ShaderCompiler compiler;
+	C_ShaderCompiler compiler(m_PreprocessorOutput.GetValue());
 	GLuint program = LoadProgram(name, compiler);
 	if (program == 0) {
 		return nullptr;
@@ -88,7 +78,9 @@ C_ShaderManager::T_ShaderPtr C_ShaderManager::GetProgram(const std::string& name
 
 	T_ShaderPtr shaderProgram = std::make_shared<C_ShaderProgram>(program);
 	shaderProgram->SetName(name);
+#if _DEBUG
 	shaderProgram->SetPaths(compiler.GetTouchedFiles());
+#endif
 
 	Buffers::C_UniformBuffersManager::Instance().ProcessUBOBindingPoints(shaderProgram);
 
@@ -148,12 +140,13 @@ GUID C_ShaderManager::SetupControls(ImGui::C_GUIManager& guiMGR)
 		for (const auto& program : m_Programs) {
 			bool selected = false;
 			::ImGui::Selectable(program.first.c_str(), &selected);
-			// if (selected) {
-			// 	entity->OnEvent(Core::C_UserEvent("selected"));
-			// }
+			if (selected) {
+				ReloadProgram(program.first, program.second);
+			}
 		}
 		});
 
+	shaderMan->AddComponent(m_PreprocessorOutput);
 	shaderMan->AddComponent(*m_ShaderList.get());
 
 	return m_Window;
@@ -247,6 +240,22 @@ GLuint C_ShaderManager::LoadProgram(const std::filesystem::path& name, C_ShaderC
 	return program;
 }
 
+//=================================================================================
+void C_ShaderManager::ReloadProgram(const std::string& programName, std::shared_ptr<C_ShaderProgram> program) const
+{
+	C_ShaderCompiler compiler(m_PreprocessorOutput.GetValue());
+	try
+	{
+		*(program) = std::move(C_ShaderProgram(LoadProgram(std::filesystem::path(programName), compiler)));
+#if _DEBUG
+		program->SetPaths(compiler.GetTouchedFiles());
+#endif
+		Buffers::C_UniformBuffersManager::Instance().ProcessUBOBindingPoints(program);
+	}
+	catch (...)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to reload shader {} so we keep it outdated", programName);
+	}
 }
-}
+
 }

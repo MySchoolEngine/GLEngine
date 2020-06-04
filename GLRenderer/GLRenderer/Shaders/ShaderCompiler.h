@@ -11,12 +11,11 @@
  
 #pragma once
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Shaders {
+namespace GLEngine::GLRenderer::Shaders {
 class C_ShaderCompiler
 {
 public:
+	C_ShaderCompiler(bool preprocessorOutput = false);
 	using T_Paths = std::vector<std::filesystem::path>;
 	//Compiles a single shader from a file
 	//errorLog - reference to a string, where error message will be stored, in case the compilation fails
@@ -39,7 +38,6 @@ private:
 	bool _loadFile(const std::filesystem::path& file, std::string& content);
 
 	T_Paths m_TouchedFiles;
+	bool		m_PreprocessorOutput;
 };
-}
-}
 }

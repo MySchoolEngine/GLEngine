@@ -16,7 +16,7 @@ C_AnimatedSkeleton::C_AnimatedSkeleton(std::shared_ptr<C_Skeleotn>&& skeleton)
 }
 
 //=================================================================================
-void C_AnimatedSkeleton::PlayAnimation(std::shared_ptr<C_SkeletalAnimation>& anim)
+void C_AnimatedSkeleton::PlayAnimation(const std::shared_ptr<C_SkeletalAnimation>& anim)
 {
 	m_Animation = anim;
 }

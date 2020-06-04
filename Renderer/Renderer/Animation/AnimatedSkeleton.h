@@ -12,9 +12,9 @@ class C_Skeleotn;
 class C_AnimatedSkeleton
 {
 public:
-	C_AnimatedSkeleton(std::shared_ptr<C_Skeleotn>&& skeleton);
+	explicit C_AnimatedSkeleton(std::shared_ptr<C_Skeleotn>&& skeleton);
 
-	void PlayAnimation(std::shared_ptr<C_SkeletalAnimation>& anim);
+	void PlayAnimation(const std::shared_ptr<C_SkeletalAnimation>& anim);
 	void Update(float time);
 
 private:

@@ -27,9 +27,10 @@ namespace Textures {
 class C_Texture// : public Renderer::I_Resource
 {
 public:
-	C_Texture(const std::string& name, GLenum target = GL_TEXTURE_2D);
+	explicit C_Texture(const std::string& name, GLenum target = GL_TEXTURE_2D);
 	C_Texture(const C_Texture&) = delete;
 	C_Texture(C_Texture&& t);
+	void operator=(C_Texture&& rhs);
 	virtual ~C_Texture();
 
 	void bind() const;
@@ -49,6 +50,10 @@ public:
 	[[nodiscard]] inline GLuint GetTexture() const { return m_texture; }
 	[[nodiscard]] inline GLenum GetTarget() const { return m_target; }
 
+	[[nodiscard]] std::uint64_t CreateHandle();
+	[[nodiscard]] std::uint64_t GetHandle() const;
+	void MakeHandleResident(bool val = true);
+
 	void SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT);
 	void SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT, E_WrapFunction wrapR);
 	void SetFilter(GLint min, GLint mag);
@@ -57,11 +62,14 @@ public:
 	void GenerateMipMaps();
 
 	void SetTexData2D(int level, const Renderer::MeshData::Texture& tex);
-
+	void SetInternalFormat(GLint internalFormat, GLint format, GLenum type);
 protected:
+	void Clean();
+
 	GLuint			m_texture;
 	GLenum			m_target;
-	glm::uvec2	m_Dimensions;
-	bool				m_bGroupOperations : 1;
+	glm::uvec2		m_Dimensions;
+	bool			m_bGroupOperations : 1;
+	std::uint64_t	m_Handle;
 };
 }}}

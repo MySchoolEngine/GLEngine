@@ -32,6 +32,8 @@ struct Mesh
 	std::vector<glm::vec4> vertices;
 	std::vector<glm::vec3> normals;
 	std::vector<glm::vec2> texcoords;
+	std::vector<glm::vec3> tangent;
+	std::vector<glm::vec3> bitangent;
 
 	Physics::Primitives::S_AABB     bbox;
 	glm::mat4						modelMatrix;
@@ -53,10 +55,10 @@ struct AnimationData
 struct Texture
 {
 	Texture()
-	{
-		width = height = 0;
-		data = nullptr;
-	}
+		: width(0)
+		, height(0)
+		, data(nullptr)
+	{}
 
 	unsigned int width;
 	unsigned int height;

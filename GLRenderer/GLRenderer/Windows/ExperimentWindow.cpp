@@ -33,6 +33,8 @@
 #include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/Debug.h>
 
+#include <GLRenderer/Lights/GLAreaLight.h>
+
 #include <GLRenderer/GUI/ConsoleWindow.h>
 #include <GLRenderer/GUI/EntitiesWindow.h>
 #include <GLRenderer/GUI/Components/GLEntityDebugComponent.h>
@@ -70,6 +72,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	, m_HDRFBO("HDR")
 	, m_World(std::make_shared<Entity::C_EntityManager>())
 	, m_MainPass(m_World)
+	, m_ShadowPass(nullptr)
 	, m_GUITexts({{
 		("Avg frame time {:.2f}"),
 		("Avg fps {:.2f}"),
@@ -110,7 +113,6 @@ void C_ExplerimentWindow::Update()
 	m_ImGUI->OnUpdate();
 	//MouseSelect();
 	C_DebugDraw::Instance().DrawAxis(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0, 1.f, 0.0f), glm::vec3(0.f, 0.f, 1.f));
-	C_DebugDraw::Instance().DrawGrid(glm::vec4(0.f), 5);
 
 	const auto avgMsPerFrame = m_Samples.Avg();
 	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgFrametime)].UpdateText(m_Samples.Avg());
@@ -125,6 +127,13 @@ void C_ExplerimentWindow::Update()
 	m_World->OnUpdate();
 
 	glfwMakeContextCurrent(m_Window);
+
+	//m_ShadowPass->Render();
+	
+	
+	m_renderer->Commit();
+	m_renderer->ClearCommandBuffers();
+
 	m_HDRFBO.Bind<E_FramebufferTarget::Draw>();
 
 	const auto camera = m_CamManager.GetActiveCamera();
@@ -266,7 +275,7 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 		);
 		m_renderer->AddCommand(
 			std::move(
-				std::make_unique<C_GLClearColor>(glm::vec3(1.0f, 1.0f, 1.0f))
+				std::make_unique<C_GLClearColor>(glm::vec3(0.0f, 0.0f, 0.0f))
 			)
 		);
 		m_renderer->AddCommand(
@@ -281,19 +290,22 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 	auto HDRTexture = std::make_shared<Textures::C_Texture>("hdrTexture");
 
 	HDRTexture->bind();
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, GetWidth(), GetHeight(), 0, GL_RGBA, GL_FLOAT, nullptr);
+	// HDRTexture setup 
+	HDRTexture->SetDimensions({ GetWidth(), GetHeight() });
+	HDRTexture->SetInternalFormat(GL_RGBA16F, GL_RGBA, GL_FLOAT);
 	HDRTexture->SetFilter(GL_LINEAR, GL_LINEAR);
+	// ~HDRTexture setup 
 	m_HDRFBO.AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
 	HDRTexture->unbind();
 
 	auto depthStencilTexture = std::make_shared<Textures::C_Texture>("hdrDepthTexture");
 
 	depthStencilTexture->bind();
-	glTexImage2D(
-		GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, GetWidth(), GetHeight(), 0,
-		GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr
-	);
+	// depthStencilTexture setup 
+	depthStencilTexture->SetDimensions({ GetWidth(), GetHeight() });
+	depthStencilTexture->SetInternalFormat(GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8);
 	depthStencilTexture->SetFilter(GL_LINEAR, GL_LINEAR);
+	// ~depthStencilTexture setup 
 	m_HDRFBO.AttachTexture(GL_DEPTH_STENCIL_ATTACHMENT, depthStencilTexture);
 	depthStencilTexture->unbind();
 
@@ -306,17 +318,16 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 {
 	auto HDRTexture = m_HDRFBO.GetAttachement(GL_COLOR_ATTACHMENT0);
 	HDRTexture->bind();
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, event.GetWidth(), event.GetHeight(), 0, GL_RGBA, GL_FLOAT, nullptr);
+	HDRTexture->SetDimensions({ event.GetWidth(), event.GetHeight() });
+	HDRTexture->SetInternalFormat(GL_RGBA16F, GL_RGBA, GL_FLOAT);
 	HDRTexture->SetFilter(GL_LINEAR, GL_LINEAR);
 	HDRTexture->unbind();
 
 	auto depthStencilTexture = m_HDRFBO.GetAttachement(GL_DEPTH_STENCIL_ATTACHMENT);
 
 	depthStencilTexture->bind();
-	glTexImage2D(
-		GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, event.GetWidth(), event.GetHeight(), 0,
-		GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr
-	);
+	depthStencilTexture->SetDimensions({ event.GetWidth(), event.GetHeight() });
+	depthStencilTexture->SetInternalFormat(GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8);
 	depthStencilTexture->SetFilter(GL_LINEAR, GL_LINEAR);
 	depthStencilTexture->unbind();
 
@@ -326,7 +337,12 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 //=================================================================================
 void C_ExplerimentWindow::SetupWorld()
 {
-	m_World->LoadLevel("Levels/main.xml", std::make_unique<Components::C_ComponentBuilderFactory>());
+	if (!m_World->LoadLevel("Levels/dark.xml", std::make_unique<Components::C_ComponentBuilderFactory>()))
+	{
+		CORE_LOG(E_Level::Warning, E_Context::Render, "Level not loaded");
+		return;
+	}
+
 	{
 		m_Player = m_World->GetEntity("Player");
 
@@ -341,6 +357,12 @@ void C_ExplerimentWindow::SetupWorld()
 			playerCamera->Update();
 			player->AddComponent(playerCamera);
 			m_CamManager.ActivateCamera(playerCamera);
+
+			// area light
+			auto arealight = std::make_shared<C_GLAreaLight>(player);
+			player->AddComponent(arealight);
+
+			m_ShadowPass = std::make_shared<C_ShadowMapTechnique>(m_World, std::static_pointer_cast<Renderer::I_Light>( arealight));
 		}
 	}
 	{
@@ -402,12 +424,10 @@ void C_ExplerimentWindow::SetupWorld()
 	hdrSettings->AddComponent(m_ExposureSlider);
 
 
-	m_HDRWindow = std::make_unique<GUI::Menu::C_MenuItemOpenWindow>("HDR Settings", m_HDRSettingsGUID, guiMGR);
-	m_Windows.AddMenuItem(*m_HDRWindow.get());
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("HDR Settings", m_HDRSettingsGUID, guiMGR));
 
 	const auto rendererWindow = static_cast<C_OGLRenderer*>(m_renderer.get())->SetupControls(guiMGR);
-	m_RendererStats = std::make_unique<GUI::Menu::C_MenuItemOpenWindow>("Renderer", rendererWindow, guiMGR);
-	m_Windows.AddMenuItem(*m_RendererStats.get());
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Renderer", rendererWindow, guiMGR));
 }
 
 //=================================================================================

@@ -6,8 +6,7 @@
 
 #include <imgui.h>
 
-namespace GLEngine {
-namespace GLRenderer {
+namespace GLEngine::GLRenderer {
 
 //=================================================================================
 C_TerrainEntity::C_TerrainEntity(const std::string& name)
@@ -39,7 +38,7 @@ C_TerrainEntity::C_TerrainEntity(const std::string& name)
 }
 
 //=================================================================================
-GLEngine::T_ComponentPtr C_TerrainEntity::GetComponent(Entity::E_ComponentType type) const
+T_ComponentPtr C_TerrainEntity::GetComponent(Entity::E_ComponentType type) const
 {
 	if (type == Entity::E_ComponentType::Graphical) {
 		// should be frustum culled
@@ -227,4 +226,4 @@ glm::vec3 C_TerrainEntity::GetPosition() const
 	return glm::vec3(0.f);
 }
 
-}}
+}

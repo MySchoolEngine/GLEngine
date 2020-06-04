@@ -7,7 +7,7 @@ class C_Texture;
 }
 
 namespace GLEngine::GLRenderer::Commands {
-
+template<E_FramebufferTarget framebuffer>
 class C_glFramebufferTexture : public Renderer::I_RenderCommand {
 public:
 	C_glFramebufferTexture(GLenum attachment, std::shared_ptr<Textures::C_Texture> texture);
@@ -26,3 +26,5 @@ private:
 };
 
 }
+
+#include <GLRenderer/Commands/FBO/glFramebufferTexture.inl>

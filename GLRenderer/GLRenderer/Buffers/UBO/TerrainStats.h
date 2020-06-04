@@ -10,7 +10,7 @@ namespace UBO {
 
 class C_TerrainStats : public C_ShaderStorageBuffer {
 public:
-	C_TerrainStats(unsigned int index);
+	explicit C_TerrainStats(unsigned int index);
 	~C_TerrainStats() = default;
 
 

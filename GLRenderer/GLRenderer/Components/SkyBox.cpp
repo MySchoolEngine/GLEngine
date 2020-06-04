@@ -94,11 +94,11 @@ C_SkyBox::C_SkyBox(std::shared_ptr<Entity::I_Entity> owner)
 }
 
 //=================================================================================
-void C_SkyBox::AddTexture(E_Side side, const std::string& filename)
+void C_SkyBox::AddTexture(E_Side side, const std::filesystem::path& filename)
 {
 	Textures::TextureLoader tl;
 	Renderer::MeshData::Texture t;
-	bool retval = tl.loadTexture(filename.c_str(), t);
+	bool retval = tl.loadTexture(filename.generic_string().c_str(), t);
 
 	if (!retval)
 		CORE_LOG(E_Level::Error, E_Context::Render, "Texture cannot be loaded");

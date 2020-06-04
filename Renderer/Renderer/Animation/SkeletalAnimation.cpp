@@ -31,7 +31,7 @@ C_Pose C_SkeletalAnimation::GetPose(const S_Timestamp timestamp) const
 
 		++index;
 	}
-	return ret;
+	return C_Pose(std::move(ret));
 }
 
 }

@@ -7,7 +7,7 @@
 namespace GLEngine::GLRenderer::GUI {
 class C_FormatedText : public I_GUIPart {
 public:
-	C_FormatedText(std::string formatText);
+	C_FormatedText(const std::string& formatText);
 	~C_FormatedText() = default;
 
 	C_FormatedText(const C_FormatedText&& other);
@@ -15,7 +15,7 @@ public:
 
 	virtual void Draw() const override;
 
-	const std::string_view GetCurrentText() const;
+	[[nodiscard]] const std::string_view GetCurrentText() const;
 
 	template<class ...Args>
 	void UpdateText(Args&&... args);

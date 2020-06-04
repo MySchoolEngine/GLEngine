@@ -24,7 +24,7 @@ public:
 	using T_TerrainPtr = std::shared_ptr<Components::C_TerrainMesh>;
 
 	//=================================================================================
-	virtual T_ComponentPtr GetComponent(Entity::E_ComponentType type) const override;
+	[[nodiscard]] virtual T_ComponentPtr GetComponent(Entity::E_ComponentType type) const override;
 	virtual void OnEvent(Core::I_Event& event) override;
 
 	virtual void Update() override;
@@ -57,7 +57,7 @@ public:
 		float m_Inertia			= 0.65f;
 	};
 
-	virtual glm::vec3 GetPosition() const override;
+	[[nodiscard]] virtual glm::vec3 GetPosition() const override;
 
 protected:
 	std::vector<T_TerrainPtr>	m_Patches;

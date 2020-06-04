@@ -14,6 +14,7 @@
 #include <GLRenderer/Shaders/ShaderCompiler.h>
 
 #include <GLRenderer/GUI/LambdaPart.h>
+#include <GLRenderer/GUI/Input/CheckBoxValue.h>
 
 namespace pugi{
 class xml_document;
@@ -80,6 +81,8 @@ private:
 	GLuint LoadShader(const pugi::xml_node& node, C_ShaderCompiler& compiler) const;
 	GLuint LoadProgram(const std::filesystem::path& name, C_ShaderCompiler& compiler) const;
 
+	void ReloadProgram(const std::string& programName, std::shared_ptr<C_ShaderProgram> program) const;
+
 	using T_ProgramMap = std::map<std::string, std::shared_ptr<C_ShaderProgram>>;
 
 	T_ProgramMap	m_Programs;
@@ -93,6 +96,7 @@ private:
 
 	GUID																m_Window;
 	std::unique_ptr<GUI::C_LambdaPart>	m_ShaderList;
+	GUI::Input::C_CheckBoxValue					m_PreprocessorOutput;
 };
 }
 }

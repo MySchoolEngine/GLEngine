@@ -93,7 +93,7 @@ void C_EntityManager::OnUpdate()
 }
 
 //=================================================================================
-Physics::Primitives::S_RayIntersection C_EntityManager::Select(Physics::Primitives::S_Ray& ray)
+Physics::Primitives::S_RayIntersection C_EntityManager::Select(const Physics::Primitives::S_Ray& ray)
 {
 	{
 		using namespace Physics::Primitives;

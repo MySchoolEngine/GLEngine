@@ -19,3 +19,6 @@
 [submodule "vendor/ImGui"]
 	path = vendor/ImGui
 	url = https://github.com/TheCherno/imgui
+[submodule "vendor/gli"]
+	path = vendor/gli
+	url = https://github.com/g-truc/gli

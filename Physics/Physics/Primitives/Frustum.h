@@ -28,12 +28,12 @@ namespace GLEngine::Physics::Primitives {
  ** ==============================================*/
 class C_Frustum {
 public:
-	constexpr C_Frustum(const glm::vec3& position, const glm::vec3& upVectro, const glm::vec3& foreward, float near, float far, float aspect, float fov)
+	constexpr C_Frustum(const glm::vec3& position, const glm::vec3& upVectro, const glm::vec3& foreward, float znear, float zfar, float aspect, float fov)
 		: m_position(position)
 		, m_upVector(upVectro)
 		, m_foreward(foreward)
-		, m_near(near)
-		, m_far(far)
+		, m_near(znear)
+		, m_far(zfar)
 		, m_aspect(aspect)
 		, m_fov(fov)
 	{}

@@ -15,7 +15,7 @@ public:
 		Last = FrontAndBack,
 	};
 
-	C_GLCullFace(E_FaceMode mode);
+	explicit C_GLCullFace(E_FaceMode mode);
 
 	//===========================================
 	// Renderer::I_RenderCommand

@@ -9,7 +9,7 @@ namespace GLEngine::GLRenderer::Commands {
 template<E_FramebufferTarget framebuffer>
 class C_GLBindFramebuffer : public Renderer::I_RenderCommand {
 public:
-	C_GLBindFramebuffer(GLuint FBO);
+	explicit C_GLBindFramebuffer(GLuint FBO);
 
 
 	//=================================================================================
@@ -20,7 +20,6 @@ public:
 	virtual std::shared_ptr<Renderer::I_Resource> GetResource() const override;
 
 private:
-	E_FramebufferTarget m_Target;
 	GLuint				m_FBO;
 };
 
