@@ -33,16 +33,7 @@ in mat3 TBN;
 
 out vec4 fragColor;
 
-@struct pointLight;
-@struct areaLight;
-
-layout (std140) uniform lightsUni
-{
-	pointLight pLight[NUM_POINTLIGHT];
-	areaLight  pAreaLight[NUM_AREALIGHT];
-    sampler2D  ltc;
-    sampler2D  ltcMag;
-};
+#include "../include/LightsUBO.glsl"
 
 float ambientStrength = 0.1;
 float specularStrength = 0.5;

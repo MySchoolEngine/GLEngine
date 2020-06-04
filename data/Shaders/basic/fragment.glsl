@@ -16,16 +16,7 @@ in vec4 worldCoord;
 
 out vec4 fragColor;
 
-@struct pointLight;
-@struct areaLight;
-
-layout (std140) uniform lightsUni
-{
-	pointLight pLight[NUM_POINTLIGHT];
-	areaLight  pAreaLight[NUM_AREALIGHT];
-    sampler2D  ltc;
-    sampler2D  ltcMag;
-};
+#include "../include/LightsUBO.glsl"
 
 //=================================================================================
 void main()
