@@ -138,7 +138,7 @@ C_Spectrum C_Spectrum::SampleHero(std::size_t samples) const
 
 	const int heroWavelength = distribution(generator);
 
-	const int delta = std::max(static_cast<int>((s_HighestWavelen - s_LowestWavelen) / samples), 1);
+	const auto delta = static_cast<int>(std::ceil(std::max((float(s_HighestWavelen - s_LowestWavelen)) / samples, 1.0f)));
 
 	C_Spectrum ret(samples);
 
