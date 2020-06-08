@@ -36,9 +36,9 @@ C_SpectralData::C_SpectralData(const Core::S_WindowInfo& wndInfo)
 		}})
 	, m_UpdateResults("Update results", [&]() {UpdateResults(); })
 	, m_SamplingButtons({{
-		{"Uniform sampling", [&]() { SelectSampling(E_Sampling::Uniform); }},
-		{"Random sampling", [&]() { SelectSampling(E_Sampling::Random); }},
-		{"Hero wavelength", [&]() { SelectSampling(E_Sampling::Hero); }}
+		{"Uniform sampling", [&]() { SelectSampling(E_Sampling::Uniform); UpdateSampledPlots(m_Samples.GetValue()); }},
+		{"Random sampling", [&]() { SelectSampling(E_Sampling::Random); UpdateSampledPlots(m_Samples.GetValue()); }},
+		{"Hero wavelength", [&]() { SelectSampling(E_Sampling::Hero); UpdateSampledPlots(m_Samples.GetValue()); }}
 		}})
 	, m_SelectedSampling("Selected sampling is: {}")
 	, m_ColorsButtons({{
@@ -206,6 +206,11 @@ void C_SpectralData::Update()
 	::ImGui::End();
 
 
+	::ImGui::Begin("Multiplied XYZ", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+		m_MultipliedReflLumiXYZ.Draw();
+	::ImGui::End();
+
+
 
 	::ImGui::Begin("Multiplied", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 		m_MultipliedReflLumi.Draw();
@@ -265,7 +270,7 @@ void C_SpectralData::UpdateResults()
 	for (int i = 0; i < 6; ++i)
 	{
 		{
-			const auto sampled = m_ACIE.SampleUniformly(m_Samples.GetValue());
+			const auto sampled = m_CurrentSampling(m_ACIE);
 
 			const auto multiplied = sampled * m_Colors[i].GetSameSamplig(sampled);
 
@@ -273,7 +278,7 @@ void C_SpectralData::UpdateResults()
 			a = xyz * m_XYZsRGB;
 		}
 		{
-			const auto sampled = m_D65CIE.SampleUniformly(m_Samples.GetValue());
+			const auto sampled = m_CurrentSampling(m_D65CIE);
 
 			const auto multiplied = sampled * m_Colors[i].GetSameSamplig(sampled);
 
@@ -281,7 +286,7 @@ void C_SpectralData::UpdateResults()
 			d65 = xyz * m_XYZsRGB;
 		}
 		{
-			const auto sampled = m_F11CIE.SampleUniformly(m_Samples.GetValue());
+			const auto sampled = m_CurrentSampling(m_F11CIE);
 
 			const auto multiplied = sampled * m_Colors[i].GetSameSamplig(sampled);
 
@@ -342,7 +347,8 @@ void C_SpectralData::SelectColor(E_RadianceColors color)
 	default:
 		break;
 	}
-	UpdateBackground();
+	UpdateBackground(); 
+	UpdateSampledPlots(m_Samples.GetValue());
 }
 
 //=================================================================================
@@ -381,7 +387,10 @@ void C_SpectralData::UpdateSampledPlots(const int samples)
 
 		const auto multiplied = sampled * m_Colors[static_cast<int>(m_SelectedColor)].GetSameSamplig(sampled);
 
+		m_MultipliedReflLumi.m_Color[0] = m_ReflectancePlot.m_Color[static_cast<int>(m_SelectedColor)];
+
 		multiplied.FillData(m_MultipliedReflLumi, 0);
+
 
 		const auto X = multiplied * m_MatchingFunction.m_Samples[0].GetSameSamplig(multiplied);
 		const auto Y = multiplied * m_MatchingFunction.m_Samples[1].GetSameSamplig(multiplied);
