@@ -164,26 +164,17 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 		}
 	}
 
-	if (auto colorChild = node.child("color"))
-	{
-		staticMesh->SetColor(Utils::Parsing::C_ColorParser::ParseColorRGB(node));
-	}
+	const auto materialData = Utils::Parsing::C_MaterialParser::ParseMaterialData(node);
 
-	if (auto roughness = node.child("roughness"))
-	{
-		std::stringstream ss;
-		ss << roughness.child_value();
-		float val;
-		ss >> val;
-		staticMesh->m_Roughness = val;
-	}
+	staticMesh->SetColor(materialData.m_Color);
+	staticMesh->m_Roughness = materialData.m_Roughness;
 
 
 	auto& tmgr = Textures::C_TextureManager::Instance();
 
-	if (auto roughnessMap = node.child("roughnessMap"))
+	if (!materialData.m_RoughtnessMap.empty())
 	{
-		staticMesh->m_RoughnessMap = tmgr.GetTexture(roughnessMap.child_value());
+		staticMesh->m_RoughnessMap = tmgr.GetTexture(materialData.m_RoughtnessMap);
 		if (staticMesh->m_RoughnessMap)
 		{
 			staticMesh->m_Roughness = 1.0f;
@@ -197,9 +188,9 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 		}
 	}
 
-	if (auto colorMap = node.child("colorMap"))
+	if (!materialData.m_ColorMap.empty())
 	{
-		staticMesh->m_ColorMap = tmgr.GetTexture(colorMap.child_value());
+		staticMesh->m_ColorMap = tmgr.GetTexture(materialData.m_ColorMap);
 		if (staticMesh->m_ColorMap)
 		{
 			staticMesh->SetColor(glm::vec3(1.0f));
@@ -213,10 +204,9 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 		}
 	}
 
-
-	if (auto normalMap = node.child("normalMap"))
+	if (!materialData.m_NormalMap.empty())
 	{
-		staticMesh->m_NormalMap = tmgr.GetTexture(normalMap.child_value());
+		staticMesh->m_ColorMap = tmgr.GetTexture(materialData.m_NormalMap);
 		if (staticMesh->m_NormalMap)
 		{
 			staticMesh->m_NormalMap->StartGroupOp();

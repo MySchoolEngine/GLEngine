@@ -29,6 +29,9 @@ public:
 	virtual void PerformDraw() const override;
 
 	void SetColor(glm::vec3&& color) { m_Color.SetValue(std::move(color)); }
+	void SetColor(const glm::vec3& color) { 
+		auto ccolor = color;
+		m_Color.SetValue(std::move(ccolor)); }
 	
 	void DebugDrawGUI() override;
 
