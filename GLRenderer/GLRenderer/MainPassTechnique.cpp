@@ -10,6 +10,7 @@
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 #include <GLRenderer/Debug.h>
+#include <GLRenderer/OGLRenderer.h>
 
 #include <GLRenderer/Lights/LightsUBO.h>
 
@@ -66,6 +67,18 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				std::make_unique<C_GLViewport>(0, 0, widht, height)
 			)
 		);
+		if (static_cast<C_OGLRenderer*>(renderer.get())->WantWireframe())
+		{
+			renderer->AddCommand(
+				std::move(
+					std::make_unique<Commands::HACK::C_LambdaCommand>(
+						[&]() {
+							glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+						}
+					)
+				)
+			);
+		}
 	}
 
 	std::size_t pointLightIndex = 0;
@@ -155,6 +168,19 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 	{
 		RenderDoc::C_DebugScope s("Clean");
 		m_LightsUBO->MakeHandlesResident(false);
+
+		if (static_cast<C_OGLRenderer*>(renderer.get())->WantWireframe())
+		{
+			renderer->AddCommand(
+				std::move(
+					std::make_unique<Commands::HACK::C_LambdaCommand>(
+						[&]() {
+							glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+						}
+					)
+				)
+			);
+		}
 	}
 
 	C_DebugDraw::Instance().DrawPoint({ m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue() }, {1.f, 1.f, 0.f});
