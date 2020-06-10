@@ -33,7 +33,9 @@ workspace "Engine"
 	}
 
 	workspace_files{
-		"vendor/GLM/util/glm.natvis"
+		"vendor/GLM/util/glm.natvis",
+		"premake5.lua",
+		"premakeDefines.lua",
 	}
 
 	filter "action:vs*"
