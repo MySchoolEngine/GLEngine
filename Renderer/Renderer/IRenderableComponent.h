@@ -1,11 +1,13 @@
 #pragma once
 
+#include <Renderer/RendererApi.h>
+
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
 
 namespace GLEngine {
 namespace Renderer {
-	class I_RenderableComponent : public Entity::I_Component {
+	class RENDERER_API_EXPORT I_RenderableComponent : public Entity::I_Component {
 	public:
 		I_RenderableComponent(std::shared_ptr<Entity::I_Entity> owner) 
 			: Entity::I_Component(owner) {}

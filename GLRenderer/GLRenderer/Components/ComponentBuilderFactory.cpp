@@ -5,6 +5,7 @@
 #include <GLRenderer/Components/SkyBox.h>
 #include <GLRenderer/Components/StaticMesh.h>
 #include <GLRenderer/Components/SkeletalMesh.h>
+#include <GLRenderer/Components/GLGeomComponent.h>
 #include <GLRenderer/GUI/Components/GLEntityDebugComponent.h>
 
 #include <Renderer/Lights/PointLight.h>
@@ -33,6 +34,10 @@ std::unique_ptr<Entity::I_ComponenetBuilder> C_ComponentBuilderFactory::GetFacto
 	if (name == "PointLight")
 	{
 		return std::make_unique<Renderer::C_PointLightCompBuilder>();
+	}
+	if (name == "Geometry")
+	{
+		return std::make_unique<C_GLGeomComponentBuilder>();
 	}
 	return nullptr;
 }
