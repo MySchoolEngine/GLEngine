@@ -80,7 +80,6 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 		}})
 	, m_Windows("Windows")
 {
-	CORE_LOG(E_Level::Error, E_Context::Render, "Another log!!!");
 	glfwMakeContextCurrent(m_Window);
 
 	m_FrameTimer.reset();
