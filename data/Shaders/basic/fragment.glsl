@@ -1,9 +1,6 @@
 #version 430
 #extension GL_ARB_bindless_texture : require
 
-#define NUM_POINTLIGHT 10
-#define NUM_AREALIGHT 4
-
 #include "../include/frameConstants.glsl"
 
 //per mesh
