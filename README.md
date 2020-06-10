@@ -1,8 +1,6 @@
 # GLEngine
 
-## Disclaimer
-
-This project started as OpenGL engine, which I wanted to derive from my Bachleor thesis. But right now I am aiming to easy to setup engine for my school projects with capability to setup OpenGL, Vulkan and DirectX context.
+![alt text](https://github.com/RohacekD/GLEngine/blob/master/wikidata/AreaLight.png?raw=true)
 
 ## Setup
 git clone https://github.com/RohacekD/GLEngine
