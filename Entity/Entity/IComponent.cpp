@@ -10,7 +10,7 @@ namespace GLEngine::Entity
 //=================================================================================
 I_Component::I_Component(std::shared_ptr<I_Entity> owner)
 	: m_Owner(owner)
-	, m_ModelMatrix(glm::mat4(1.0f))
+	, m_ComponentMatrix(glm::mat4(1.0f))
 {
 
 }
@@ -25,6 +25,17 @@ std::shared_ptr<I_Entity> I_Component::GetOwner() const
 	}
 	GLE_ASSERT(m_Owner.expired(), "Component has no owner.");
 	return nullptr;
+}
+
+//=================================================================================
+const glm::mat4& I_Component::GetComponentModelMatrix() const
+{
+	const auto owner = GetOwner();
+	if (owner)
+	{
+		return owner->GetModelMatrix() * m_ComponentMatrix;
+	}
+	return m_ComponentMatrix;
 }
 
 }

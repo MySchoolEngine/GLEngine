@@ -22,15 +22,16 @@ private:
 	using T_ComponentIter = std::remove_pointer<T_ComponentsContainer>::type::iterator;
 
 public:
-	I_Entity(std::string name);
+	explicit I_Entity(std::string name);
 	virtual ~I_Entity();
 
 	// naive GUID version
 	using EntityID = GUID;
-	EntityID GetID() const { return m_ID; }
-	virtual T_ComponentPtr GetComponent(E_ComponentType type) const;
-	virtual glm::vec3 GetPosition() const = 0;
-	const std::string& GetName() const { return m_Name; };
+	[[nodiscard]] EntityID GetID() const { return m_ID; }
+	[[nodiscard]] virtual T_ComponentPtr GetComponent(E_ComponentType type) const;
+	[[nodiscard]] virtual glm::vec3 GetPosition() const = 0;
+	[[nodiscard]] virtual const glm::mat4& GetModelMatrix() const = 0;
+	[[nodiscard]] const std::string& GetName() const { return m_Name; };
 
 	virtual void Update() {};
 	virtual void PostUpdate() {};
@@ -45,8 +46,8 @@ public:
 		return component_cast<e>(GetComponent(e));
 	}
 	//=================================================================================
-	virtual T_ComponentIter begin();
-	virtual T_ComponentIter end();
+	[[nodiscard]] virtual T_ComponentIter begin();
+	[[nodiscard]] virtual T_ComponentIter end();
 
 protected:
 	EntityID m_ID;

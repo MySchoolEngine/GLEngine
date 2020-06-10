@@ -24,7 +24,7 @@ namespace Components {
 
 class C_StaticMesh : public Renderer::I_RenderableComponent {
 public:
-	C_StaticMesh(std::string meshFile, std::string_view shader);
+	C_StaticMesh(std::string meshFile, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner);
 	C_StaticMesh(const Renderer::MeshData::Mesh& meshFile, std::string_view shader);
 	virtual void PerformDraw() const override;
 

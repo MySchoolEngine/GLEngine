@@ -19,7 +19,7 @@
 
 #include <Core/Application.h>
 
-#include <Utils/Parsing/ColorParsing.h>
+#include <Utils/Parsing/MaterialParser.h>
 
 #include <pugixml.hpp>
 
@@ -28,8 +28,8 @@ namespace GLRenderer {
 namespace Components {
 
 //=================================================================================
-C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader)
-	: Renderer::I_RenderableComponent(nullptr)
+C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner)
+	: Renderer::I_RenderableComponent(owner)
 	, m_meshFile(meshFile)
 	, m_Mesh(nullptr)
 {
@@ -110,7 +110,8 @@ void C_StaticMesh::PerformDraw() const
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 					[&]() {
-						m_Shader->SetUniform("modelMatrix", m_ModelMatrix);
+						const auto modelMatrix = GetComponentModelMatrix();
+						m_Shader->SetUniform("modelMatrix", modelMatrix);
 						m_Shader->SetUniform("modelColor", m_Color.GetValue());
 						m_Shader->SetUniform("roughness", m_Roughness.GetValue());
 						m_Shader->SetUniform("roughnessMap", 0);
@@ -122,7 +123,6 @@ void C_StaticMesh::PerformDraw() const
 				)
 		)
 	);
-
 
 	renderer->AddCommand(
 		std::move(
@@ -152,7 +152,7 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 		material = materialAttr.value();
 	}
 
-	auto staticMesh = std::make_shared<C_StaticMesh>(node.attribute("filePath").value(), material);
+	auto staticMesh = std::make_shared<C_StaticMesh>(node.attribute("filePath").value(), material, owner);
 
 	if (auto shadowPassAttr = node.attribute("shadowPassShader"))
 	{
