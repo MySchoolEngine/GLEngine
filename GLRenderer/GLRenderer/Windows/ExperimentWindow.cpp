@@ -69,9 +69,9 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	, m_GammaSlider(1.2f, 1.f,5.f, "Gamma")
 	, m_ExposureSlider(1.5f, .1f, 10.f, "Exposure")
 	, m_VSync(false)
-	, m_HDRFBO("HDR")
+	, m_HDRFBO(nullptr)
 	, m_World(std::make_shared<Entity::C_EntityManager>())
-	, m_MainPass(m_World)
+	, m_MainPass(nullptr)
 	, m_ShadowPass(nullptr)
 	, m_GUITexts({{
 		("Avg frame time {:.2f}"),
@@ -80,6 +80,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 		}})
 	, m_Windows("Windows")
 {
+	CORE_LOG(E_Level::Error, E_Context::Render, "Another log!!!");
 	glfwMakeContextCurrent(m_Window);
 
 	m_FrameTimer.reset();
@@ -134,12 +135,12 @@ void C_ExplerimentWindow::Update()
 	m_renderer->Commit();
 	m_renderer->ClearCommandBuffers();
 
-	m_HDRFBO.Bind<E_FramebufferTarget::Draw>();
+	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
 
 	const auto camera = m_CamManager.GetActiveCamera();
 	GLE_ASSERT(camera, "No active camera");
 
-	m_MainPass.Render(camera, GetWidth(), GetHeight());
+	m_MainPass->Render(camera, GetWidth(), GetHeight());
 
 	// ----- Frame init -------
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
@@ -157,7 +158,7 @@ void C_ExplerimentWindow::Update()
 		C_DebugDraw::Instance().DrawMergedGeoms();
 	}
 
-	m_HDRFBO.Unbind<E_FramebufferTarget::Draw>();
+	m_HDRFBO->Unbind<E_FramebufferTarget::Draw>();
 
 	{
 		using namespace Commands;
@@ -173,12 +174,12 @@ void C_ExplerimentWindow::Update()
 		);
 	}
 
-	auto HDRTexture = m_HDRFBO.GetAttachement(GL_COLOR_ATTACHMENT0);
+	auto HDRTexture = m_HDRFBO->GetAttachement(GL_COLOR_ATTACHMENT0);
 
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.BindTextureToUnit(*(HDRTexture.get()), 0);
 
-	m_HDRFBO.Bind<E_FramebufferTarget::Read>();
+	m_HDRFBO->Bind<E_FramebufferTarget::Read>();
 
 	auto shader = shmgr.GetProgram("screenQuad");
 	shmgr.ActivateShader(shader);
@@ -204,7 +205,7 @@ void C_ExplerimentWindow::Update()
 	shmgr.DeactivateShader();
 
 
-	m_HDRFBO.Unbind<E_FramebufferTarget::Read>();
+	m_HDRFBO->Unbind<E_FramebufferTarget::Read>();
 
 	{
 		RenderDoc::C_DebugScope s("ImGUI");
@@ -295,7 +296,7 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 	HDRTexture->SetInternalFormat(GL_RGBA16F, GL_RGBA, GL_FLOAT);
 	HDRTexture->SetFilter(GL_LINEAR, GL_LINEAR);
 	// ~HDRTexture setup 
-	m_HDRFBO.AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
+	m_HDRFBO->AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
 	HDRTexture->unbind();
 
 	auto depthStencilTexture = std::make_shared<Textures::C_Texture>("hdrDepthTexture");
@@ -306,7 +307,7 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 	depthStencilTexture->SetInternalFormat(GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8);
 	depthStencilTexture->SetFilter(GL_LINEAR, GL_LINEAR);
 	// ~depthStencilTexture setup 
-	m_HDRFBO.AttachTexture(GL_DEPTH_STENCIL_ATTACHMENT, depthStencilTexture);
+	m_HDRFBO->AttachTexture(GL_DEPTH_STENCIL_ATTACHMENT, depthStencilTexture);
 	depthStencilTexture->unbind();
 
 
@@ -316,14 +317,14 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 //=================================================================================
 bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 {
-	auto HDRTexture = m_HDRFBO.GetAttachement(GL_COLOR_ATTACHMENT0);
+	auto HDRTexture = m_HDRFBO->GetAttachement(GL_COLOR_ATTACHMENT0);
 	HDRTexture->bind();
 	HDRTexture->SetDimensions({ event.GetWidth(), event.GetHeight() });
 	HDRTexture->SetInternalFormat(GL_RGBA16F, GL_RGBA, GL_FLOAT);
 	HDRTexture->SetFilter(GL_LINEAR, GL_LINEAR);
 	HDRTexture->unbind();
 
-	auto depthStencilTexture = m_HDRFBO.GetAttachement(GL_DEPTH_STENCIL_ATTACHMENT);
+	auto depthStencilTexture = m_HDRFBO->GetAttachement(GL_DEPTH_STENCIL_ATTACHMENT);
 
 	depthStencilTexture->bind();
 	depthStencilTexture->SetDimensions({ event.GetWidth(), event.GetHeight() });
@@ -337,6 +338,8 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 //=================================================================================
 void C_ExplerimentWindow::SetupWorld()
 {
+	m_MainPass = std::make_unique<C_MainPassTechnique>(m_World);
+	m_HDRFBO = std::make_unique<C_Framebuffer>("HDR");
 	if (!m_World->LoadLevel("Levels/dark.xml", std::make_unique<Components::C_ComponentBuilderFactory>()))
 	{
 		CORE_LOG(E_Level::Warning, E_Context::Render, "Level not loaded");
