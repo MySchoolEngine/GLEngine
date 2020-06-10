@@ -14,6 +14,7 @@ struct MaterialData
 	std::string m_ColorMap			= "";
 	std::string m_RoughtnessMap		= "";
 	std::string m_NormalMap			= "";
+	std::string m_MaterialName		= "basic";
 };
 class UTILS_API_EXPORT C_MaterialParser
 {

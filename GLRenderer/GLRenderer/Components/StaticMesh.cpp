@@ -146,13 +146,9 @@ void C_StaticMesh::DebugDrawGUI()
 //=================================================================================
 std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
 {
-	std::string_view material = "basic";
-	if (auto materialAttr = node.attribute("material"))
-	{
-		material = materialAttr.value();
-	}
+	const auto materialData = Utils::Parsing::C_MaterialParser::ParseMaterialData(node);
 
-	auto staticMesh = std::make_shared<C_StaticMesh>(node.attribute("filePath").value(), material, owner);
+	auto staticMesh = std::make_shared<C_StaticMesh>(node.attribute("filePath").value(), materialData.m_MaterialName, owner);
 
 	if (auto shadowPassAttr = node.attribute("shadowPassShader"))
 	{
@@ -163,8 +159,6 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 			staticMesh->m_ShadowPassShader = shadowPassShader;
 		}
 	}
-
-	const auto materialData = Utils::Parsing::C_MaterialParser::ParseMaterialData(node);
 
 	staticMesh->SetColor(materialData.m_Color);
 	staticMesh->m_Roughness = materialData.m_Roughness;

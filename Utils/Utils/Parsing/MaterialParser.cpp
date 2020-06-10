@@ -10,6 +10,12 @@ namespace Utils::Parsing {
 MaterialData C_MaterialParser::ParseMaterialData(const pugi::xml_node& node)
 {
 	MaterialData data;
+
+	if (auto materialAttr = node.attribute("material"))
+	{
+		data.m_MaterialName = materialAttr.value();
+	}
+
 	if (auto colorChild = node.child("color"))
 	{
 		data.m_Color = Utils::Parsing::C_ColorParser::ParseColorRGB(node);
@@ -31,13 +37,13 @@ MaterialData C_MaterialParser::ParseMaterialData(const pugi::xml_node& node)
 
 	if (auto colorMap = node.child("colorMap"))
 	{
-		data.m_RoughtnessMap = colorMap.child_value();
+		data.m_ColorMap = colorMap.child_value();
 	}
 
 
 	if (auto normalMap = node.child("normalMap"))
 	{
-		data.m_RoughtnessMap = normalMap.child_value();
+		data.m_NormalMap = normalMap.child_value();
 	}
 
 	return data;
