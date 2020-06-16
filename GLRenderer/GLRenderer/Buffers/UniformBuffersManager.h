@@ -11,15 +11,8 @@
  
 #pragma once
 
-#include <glad/glad.h>
 
-#include <memory>
-#include <string>
-#include <vector>
-
-
-namespace GLEngine {
-namespace GLRenderer {
+namespace GLEngine::GLRenderer {
 
 namespace Shaders {
 class C_ShaderProgram;
@@ -80,4 +73,4 @@ std::shared_ptr<T> C_UniformBuffersManager::CreateUniformBuffer(const std::strin
 
 	return ubo;
 }
-}}}
+}}

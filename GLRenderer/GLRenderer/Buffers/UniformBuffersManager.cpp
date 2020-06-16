@@ -6,11 +6,7 @@
 
 #include <GLRenderer/Shaders/ShaderProgram.h>
 
-#include <algorithm>
-
-namespace GLEngine {
-namespace GLRenderer {
-namespace Buffers {
+namespace GLEngine::GLRenderer::Buffers {
 
 //=================================================================================
 C_UniformBuffersManager::C_UniformBuffersManager()
@@ -76,4 +72,4 @@ void C_UniformBuffersManager::ProcessUBOBindingPoints(std::shared_ptr<Shaders::C
 	}
 }
 
-}}}
+}

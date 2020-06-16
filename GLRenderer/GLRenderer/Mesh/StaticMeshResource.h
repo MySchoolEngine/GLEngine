@@ -4,18 +4,12 @@
 
 #include <GLRenderer/VAO/VAO.h>
 
-#include <glad/glad.h>
-
-#include <array>
-
-namespace GLEngine {
-namespace Renderer::MeshData
+namespace GLEngine::Renderer::MeshData
 {
 struct Mesh;
 }
 
-namespace GLRenderer {
-namespace Mesh {
+namespace GLEngine::GLRenderer::Mesh {
 class C_StaticMeshResource : public Renderer::I_Resource {
 public:
 	C_StaticMeshResource(const Renderer::MeshData::Mesh & mesh);
@@ -32,6 +26,4 @@ protected:
 	VAO::C_GLVAO<3> m_VAO;
 	std::size_t m_triangles;
 };
-
-
-}}}
+}
