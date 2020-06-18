@@ -30,6 +30,7 @@ workspace "Engine"
   
   defines{
     "FMT_HEADER_ONLY=1",
+    "GLENGINE_GLFW_RENDERER=VULKAN"
   }
 
 	workspace_files{
@@ -55,6 +56,9 @@ IncludeDir["pugixml"] = "vendor/pugixml/src"
 IncludeDir["fmt"] = "vendor/fmt/include"
 IncludeDir["ImGui"] = "vendor/ImGui"
 IncludeDir["DevIL"] = "vendor/DevIL/DevIL/include"
+
+VulkanSDKBase = "C:/VulkanSDK/"
+
 group "Dependencies"
   include "vendor/GLFW"
   include "vendor/Glad"
@@ -62,12 +66,16 @@ group "Dependencies"
   include "vendor/ImGui"
   include "vendor/projects/DevIL"
 group ""
+group "Renderes"
+	include "GLFWWindowManager"
+	include "DX12Renderer"
+group ""
 
 include "Core"
 include "Sandbox"
 include "Renderer"
 include "GLRenderer"
-include "DX12Renderer"
+include "VulkanRenderer"
 include "Entity"
 include "Utils"
 include "Physics"

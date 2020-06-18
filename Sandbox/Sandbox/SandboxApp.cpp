@@ -1,10 +1,19 @@
-#include <GLRenderer/GLFW/GLFWWindowManager.h>
+#include <GLFWWindowManager/GLFWWindowManager.h>
+
+#if GLENGINE_GLFW_RENDERER!=VULKAN
 #include <GLRenderer/GLFW/GLFWWindowFactory.h>
 #include <GLRenderer/GLFW/OpenGLWindowInfo.h>
+#endif
 
 #include <DX12Renderer/D3D12WindowFactory.h>
 #include <DX12Renderer/D3D12WindowManager.h>
 #include <DX12Renderer/D3D12WindowInfo.h>
+
+#if GLENGINE_GLFW_RENDERER==VULKAN
+#include <VulkanRenderer/VkWindowFactory.h>
+#include <VulkanRenderer/VkWindowManager.h>
+#include <VulkanRenderer/VkWindowInfo.h>
+#endif
 
 
 #include <Utils/Logging/Logging.h>
@@ -57,14 +66,22 @@ protected:
 		//logging.AddLogger(new Core::Logging::C_FileLogger("log.txt"));
 
 		m_WndMgr = new std::remove_pointer_t<decltype(m_WndMgr)>(std::bind(&C_Application::OnEvent, this, std::placeholders::_1));
-
+#if GLENGINE_GLFW_RENDERER!=VULKAN
 		{
 			// we can open glfw window from here
-			using namespace GLEngine::GLRenderer::GLFW;
-			auto* manager = ConstructGLFWManager(std::bind(&C_Application::OnEvent, this, std::placeholders::_1));
-			manager->AddWindowFactory(ConstructGLFWWindowFactory());
-			m_WndMgr->AddManager<C_GLFWWindowManager>(manager);
+			using namespace GLEngine::GLRenderer;
+			auto* manager = GLFW::ConstructGLGLFWManager(std::bind(&C_Application::OnEvent, this, std::placeholders::_1));
+			manager->AddWindowFactory(GLFW::ConstructGLFWWindowFactory());
+			m_WndMgr->AddManager<GLEngine::GLFWManager::C_GLFWWindowManager>(manager);
 		}
+#else
+		{
+			using namespace GLEngine::VkRenderer;
+			auto* manager = ConstructVkWManager(std::bind(&C_Application::OnEvent, this, std::placeholders::_1));
+			manager->AddWindowFactory(ConstructVkWindowFactory());
+			m_WndMgr->AddManager<GLEngine::GLFWManager::C_GLFWWindowManager>(manager);
+		}
+#endif
 	}
 
 	void OpenWindwos()
@@ -79,7 +96,7 @@ protected:
 			m_WndMgr->OpenNewWindow(info);
 		}
 
-
+#if GLENGINE_GLFW_RENDERER!=VULKAN
 		{
 			using namespace GLEngine::GLRenderer::GLFW;
 
@@ -91,6 +108,19 @@ protected:
 
 			m_WndMgr->OpenNewWindow(info);
 		}
+#else
+
+		{
+			using namespace GLEngine::VkRenderer;
+
+			S_VkWindowInfo info(640, 480);
+			info.m_name = "VkWindow";
+			info.m_WindowClass = "VkWindow";
+			info.m_Maximalize = true;
+
+			m_WndMgr->OpenNewWindow(info);
+		}
+#endif
 	}
 
 	//=================================================================================
@@ -99,7 +129,9 @@ protected:
 		return *m_WndMgr;
 	}
 private:
-	GLEngine::Core::C_WindwoManager<GLEngine::GLRenderer::GLFW::C_GLFWWindowManager, GLEngine::DX12Renderer::C_D3D12WindowManager>* m_WndMgr;
+	GLEngine::Core::C_WindwoManager<
+		GLEngine::GLFWManager::C_GLFWWindowManager,
+		GLEngine::DX12Renderer::C_D3D12WindowManager>* m_WndMgr;
 };
 
 GLEngine::Core::C_Application* GLEngine::Core::CreateApplication() {
