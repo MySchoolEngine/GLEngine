@@ -13,10 +13,6 @@ project "Core"
 
 	includedirs
 	{
-		"../Renderer/",
-		"../GLRenderer/",
-		"../DX12Renderer/",
-		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmt}",
 	}
