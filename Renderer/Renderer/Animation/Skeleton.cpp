@@ -4,6 +4,8 @@
 
 namespace GLEngine::Renderer::Animation {
 
+//=================================================================================
+C_Skeleton::C_Skeleton() = default;
 
 //=================================================================================
 std::size_t C_Skeleton::GetNumBones() const
