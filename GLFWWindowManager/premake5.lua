@@ -1,52 +1,48 @@
 include "../premakeDefines.lua"
 
-project "DX12Renderer"
-	kind "SharedLib"
+project "GLFWWindowManager"
+	kind "StaticLib"
 	language "C++"
 	staticruntime "off"
 
 	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("../obj/" .. outputdir .. "/%{prj.name}")
 	
-	pchheader "DX12RendererStdafx.h"
-	pchsource "DX12RendererStdafx.cpp"
+	pchheader "GLFWWindowManagerStdafx.h"
+	pchsource "GLFWWindowManagerStdafx.cpp"
 	
-	Link("Entity")
 	Link("Utils")
-	Link("Renderer")
 	Link("Core")
 
 	files
 	{
-		"DX12Renderer/**.h",
-		"DX12Renderer/**.cpp",
-		"DX12Renderer/**.inl",
-		"DX12RendererStdafx.cpp",
-		"DX12RendererStdafx.h",
+		"GLFWWindowManager/**.h",
+		"GLFWWindowManager/**.cpp",
+		"GLFWWindowManager/**.inl",
+		"GLFWWindowManagerStdafx.cpp",
+		"GLFWWindowManagerStdafx.h",
 		"premake5.lua",
 	}
 
 	includedirs
 	{
 		".",
-		"../Physics",
-		"C:/Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/shared",
-		"C:/Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/um",
-		"../%{IncludeDir.pugixml}",
-		"../%{IncludeDir.fmt}",
-		"../%{IncludeDir.ImGui}",
+		"../Renderer",
+		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.GLM}",
+		"../%{IncludeDir.fmt}",
 	}
 
 	links 
 	{ 
+		"GLFW",
 		"pugixml",
 		"ImGui",
+	}
 
-		-- DX Stuff
-		"d3d12",
-   		"dxgi",
-   		"d3dcompiler",
+	defines
+	{
+		"IMGUI_IMPL_OPENGL_LOADER_GLAD"
 	}
 
 	filter "system:windows"
@@ -56,7 +52,7 @@ project "DX12Renderer"
 		defines
 		{
 			"CORE_PLATFORM=CORE_PLATFORM_WIN",
-			"BUILD_DX12RENDERER_DLL",
+			"BUILD_GLFWWINDOWMANAGER_DLL",
 		}
 
 		postbuildcommands
@@ -67,9 +63,7 @@ project "DX12Renderer"
 	filter "configurations:Debug"
 		runtime "Debug"
 		symbols "On"
-      	defines({ "DEBUG" })
 
 	filter "configurations:Release"
-      	defines({ "NDEBUG" })
 		runtime "Release"
 		optimize "On"

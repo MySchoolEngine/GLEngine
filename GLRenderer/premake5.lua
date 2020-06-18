@@ -14,6 +14,7 @@ project "GLRenderer"
 	Link("Entity")
 	Link("Utils")
 	Link("Renderer")
+	Link("GLFWWindowManager")
 	Link("Core")
 
 	files

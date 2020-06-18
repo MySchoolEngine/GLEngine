@@ -19,12 +19,7 @@ C_GLFWoGLWindow::C_GLFWoGLWindow(const Core::S_WindowInfo& wndInfo)
 }
 
 //=================================================================================
-void C_GLFWoGLWindow::Update()
-{
-	glfwMakeContextCurrent(m_Window);
-	glfwSwapBuffers(m_Window);
-	glfwPollEvents();
-}
+C_GLFWoGLWindow::~C_GLFWoGLWindow() = default;
 
 //=================================================================================
 void C_GLFWoGLWindow::Init(const Core::S_WindowInfo& wndInfo)
@@ -32,18 +27,20 @@ void C_GLFWoGLWindow::Init(const Core::S_WindowInfo& wndInfo)
 	GLE_ASSERT(wndInfo.GetDriver() == Core::E_Driver::OpenGL, "This class supports only OpenGL");
 
 	const auto wndInfoOGL = dynamic_cast<const S_OpenGLWindowInfo*>(&wndInfo);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, wndInfoOGL->m_MajorVersion);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, wndInfoOGL->m_MinorVersion);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	WindowHint(GLFW_CONTEXT_VERSION_MAJOR, wndInfoOGL->m_MajorVersion);
+	WindowHint(GLFW_CONTEXT_VERSION_MINOR, wndInfoOGL->m_MinorVersion);
+	WindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #ifdef GL_ENGINE_DEBUG
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+	WindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 #endif
 	SetLayerDebugName(wndInfo.m_name);
 
 	C_GLFWWindow::Init(wndInfo);
-	glfwMakeContextCurrent(m_Window);
+	MakeCurrent();
 
 	m_renderer = std::make_unique<GLEngine::GLRenderer::C_OGLRenderer>();
+
+	const auto error = glfwGetError(NULL);
 
 	CORE_LOG(E_Level::Info, E_Context::Render, "GLFW: OpenGL window initialized");
 }
@@ -52,11 +49,6 @@ void C_GLFWoGLWindow::Init(const Core::S_WindowInfo& wndInfo)
 const std::unique_ptr<GLEngine::Renderer::I_Renderer>& C_GLFWoGLWindow::GetRenderer() const
 {
 	return m_renderer;
-}
-
-//=================================================================================
-void C_GLFWoGLWindow::OnEvent(Core::I_Event& event)
-{
 }
 
 }}}

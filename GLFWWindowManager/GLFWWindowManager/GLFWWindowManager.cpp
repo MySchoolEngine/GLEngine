@@ -1,16 +1,16 @@
-#include <GLRendererStdafx.h>
+#include <GLFWWindowManagerStdafx.h>
 
-#include <GLRenderer/GLFW/GLFWWindowManager.h>
+#include <GLFWWindowManager/GLFWWindowManager.h>
 
-#include <GLRenderer/GLFW/GLFWoGLWindow.h>
-#include <GLRenderer/GLFW/GLFWWindowFactory.h>
+#include <Renderer/IRenderer.h>
 
-namespace GLEngine::GLRenderer::GLFW {
+namespace GLEngine::GLFWManager {
 
 //=================================================================================
-C_GLFWWindowManager::C_GLFWWindowManager(Core::C_Application::EventCallbackFn eventCallback)
+C_GLFWWindowManager::C_GLFWWindowManager(Core::C_Application::EventCallbackFn eventCallback, Core::E_Driver driver)
 	: Core::I_WindowManager(eventCallback)
 	, m_UpdatingWindow(nullptr)
+	, m_Driver(driver)
 {
 	Init();
 }
@@ -18,7 +18,7 @@ C_GLFWWindowManager::C_GLFWWindowManager(Core::C_Application::EventCallbackFn ev
 //=================================================================================
 std::shared_ptr<Core::I_Window> C_GLFWWindowManager::OpenNewWindow(const Core::S_WindowInfo& info)
 {
-	if (info.GetDriver() != Core::E_Driver::OpenGL)
+	if (info.GetDriver() != m_Driver)
 	{
 		return nullptr;
 	}
@@ -94,13 +94,6 @@ void C_GLFWWindowManager::Init()
 		CORE_LOG(E_Level::Error, E_Context::Core, "GLFW: Unable to init glfw. Terminating engine");
 		exit(EXIT_FAILURE);
 	}
-}
-
-//=================================================================================
-// ConstructGLFWManager
-GL_RENDERER_API_EXPORT C_GLFWWindowManager* ConstructGLFWManager(Core::C_Application::EventCallbackFn eventCallback)
-{
-	return new C_GLFWWindowManager(eventCallback);
 }
 
 }

@@ -4,6 +4,11 @@
 
 #include <Core/IWindowManager.h>
 
+
+namespace GLEngine::GLFWManager {
+class C_GLFWWindowManager;
+}
+
 namespace GLEngine {
 namespace GLRenderer {
 namespace GLFW {
@@ -15,6 +20,8 @@ public:
 };
 
 GL_RENDERER_API_EXPORT Core::I_WindowFactory* ConstructGLFWWindowFactory();
+GL_RENDERER_API_EXPORT GLFWManager::C_GLFWWindowManager* ConstructGLGLFWManager(Core::C_Application::EventCallbackFn eventCallback);
+
 }
 }
 }
