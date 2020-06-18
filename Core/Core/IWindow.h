@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/CoreMacros.h>
+#include <Core/CoreApi.h>
 
 #include <Core/WindowInfo.h>
 #include <Core/EventSystem/Layer.h>
@@ -21,9 +22,9 @@ class I_Input;
 /************************************************************************/
 /* Represents single window on screen                                   */
 /************************************************************************/
-class I_Window : public C_Layer {
+class CORE_API_EXPORT I_Window : public C_Layer {
 public:
-	virtual ~I_Window() = default;
+	virtual ~I_Window();
 	virtual unsigned int	GetWidth() const = 0;
 	virtual unsigned int	GetHeight() const = 0;
 	virtual glm::uvec2		GetSize() const = 0;
