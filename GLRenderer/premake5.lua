@@ -66,12 +66,8 @@ project "GLRenderer"
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
-		systemversion "latest"
-
 		defines
 		{
-			"CORE_PLATFORM=CORE_PLATFORM_WIN",
 			"BUILD_GLRENDERER_DLL",
 		}
 
@@ -80,11 +76,3 @@ project "GLRenderer"
 			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
 			("{COPY} \"../vendor/projects/DevIL/bin/Debug-windows-x86_64/DevIL-IL/DevIL-IL.dll\" \"../bin/" .. outputdir .. "/Sandbox/\"")
 		}
-
-	filter "configurations:Debug"
-		runtime "Debug"
-		symbols "On"
-
-	filter "configurations:Release"
-		runtime "Release"
-		optimize "On"

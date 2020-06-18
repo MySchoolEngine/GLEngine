@@ -21,12 +21,8 @@ project "Utils"
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
-		systemversion "latest"
-
 		defines
 		{
-			"CORE_PLATFORM=CORE_PLATFORM_WIN",
 			"BUILD_UTILS_DLL",
 		}
 
@@ -34,11 +30,3 @@ project "Utils"
 		{
 			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")
 		}
-
-	filter "configurations:Debug"
-		runtime "Debug"
-		symbols "On"
-
-	filter "configurations:Release"
-		runtime "Release"
-		optimize "On"

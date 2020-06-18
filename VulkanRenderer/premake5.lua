@@ -49,12 +49,8 @@ project "VulkanRenderer"
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
-		systemversion "latest"
-
 		defines
 		{
-			"CORE_PLATFORM=CORE_PLATFORM_WIN",
 			"BUILD_VULKAN_RENDERER_DLL",
 		}
 
@@ -62,13 +58,3 @@ project "VulkanRenderer"
 		{
 			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
 		}
-
-	filter "configurations:Debug"
-		runtime "Debug"
-		symbols "On"
-      	defines({ "DEBUG" })
-
-	filter "configurations:Release"
-      	defines({ "NDEBUG" })
-		runtime "Release"
-		optimize "On"

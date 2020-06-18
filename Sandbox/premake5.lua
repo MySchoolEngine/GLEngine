@@ -14,23 +14,15 @@ project "Sandbox"
 	Link("Utils")
 	Link("GLRenderer")
 	Link("DX12Renderer")
+	Link("VulkanRenderer")
 
 	includedirs
 	{
 		"../Renderer",
+		"../GLFWWindowManager",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmt}",
 	}
 
 	filter "system:windows"
     	kind "WindowedApp"
-		cppdialect "C++17"
-		systemversion "latest"
-
-	filter "configurations:Debug"
-		runtime "Debug"
-		symbols "On"
-
-	filter "configurations:Release"
-		runtime "Release"
-		optimize "On"

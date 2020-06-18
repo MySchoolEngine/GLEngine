@@ -22,6 +22,7 @@ end)
 workspace "Engine"
 	architecture "x64"
 	startproject "Sandbox"
+	cppdialect "C++17"
 	
 	configurations{
 		"Debug",
@@ -37,14 +38,26 @@ workspace "Engine"
 		"vendor/GLM/util/glm.natvis"
 	}
 
-  filter "system:windows"
-    defines {
-      "CORE_PLATFORM=CORE_PLATFORM_WIN",
-      "WIN32", 
-    }
+	filter "system:windows"
+		systemversion "latest"
+		defines {
+			"WIN32",
+			"CORE_PLATFORM=CORE_PLATFORM_WIN",
+		}
+	
 
-  filter "configurations:Debug"
-    defines "GL_ENGINE_DEBUG"
+	filter "configurations:Debug"
+		runtime "Debug"
+		symbols "On"
+		defines { 
+			"DEBUG",
+			"GL_ENGINE_DEBUG",
+		}
+
+	filter "configurations:Release"
+		runtime "Release"
+		optimize "On"
+		defines({ "NDEBUG" })
 
 include "premakeDefines.lua"
 
