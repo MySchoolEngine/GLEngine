@@ -226,4 +226,11 @@ glm::vec3 C_TerrainEntity::GetPosition() const
 	return glm::vec3(0.f);
 }
 
+//=================================================================================
+const glm::mat4& C_TerrainEntity::GetModelMatrix() const
+{
+	const static glm::mat4 identity(1.f);
+	return identity;
+}
+
 }

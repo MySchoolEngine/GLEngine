@@ -19,7 +19,7 @@
 
 #include <Core/Application.h>
 
-#include <Utils/Parsing/ColorParsing.h>
+#include <Utils/Parsing/MaterialParser.h>
 
 #include <pugixml.hpp>
 
@@ -28,8 +28,8 @@ namespace GLRenderer {
 namespace Components {
 
 //=================================================================================
-C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader)
-	: Renderer::I_RenderableComponent(nullptr)
+C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner)
+	: Renderer::I_RenderableComponent(owner)
 	, m_meshFile(meshFile)
 	, m_Mesh(nullptr)
 {
@@ -110,7 +110,8 @@ void C_StaticMesh::PerformDraw() const
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 					[&]() {
-						m_Shader->SetUniform("modelMatrix", m_ModelMatrix);
+						const auto modelMatrix = GetComponentModelMatrix();
+						m_Shader->SetUniform("modelMatrix", modelMatrix);
 						m_Shader->SetUniform("modelColor", m_Color.GetValue());
 						m_Shader->SetUniform("roughness", m_Roughness.GetValue());
 						m_Shader->SetUniform("roughnessMap", 0);
@@ -122,7 +123,6 @@ void C_StaticMesh::PerformDraw() const
 				)
 		)
 	);
-
 
 	renderer->AddCommand(
 		std::move(
@@ -146,13 +146,9 @@ void C_StaticMesh::DebugDrawGUI()
 //=================================================================================
 std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
 {
-	std::string_view material = "basic";
-	if (auto materialAttr = node.attribute("material"))
-	{
-		material = materialAttr.value();
-	}
+	const auto materialData = Utils::Parsing::C_MaterialParser::ParseMaterialData(node);
 
-	auto staticMesh = std::make_shared<C_StaticMesh>(node.attribute("filePath").value(), material);
+	auto staticMesh = std::make_shared<C_StaticMesh>(node.attribute("filePath").value(), materialData.m_MaterialName, owner);
 
 	if (auto shadowPassAttr = node.attribute("shadowPassShader"))
 	{
@@ -164,26 +160,15 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 		}
 	}
 
-	if (auto colorChild = node.child("color"))
-	{
-		staticMesh->SetColor(Utils::Parsing::C_ColorParser::ParseColorRGB(node));
-	}
-
-	if (auto roughness = node.child("roughness"))
-	{
-		std::stringstream ss;
-		ss << roughness.child_value();
-		float val;
-		ss >> val;
-		staticMesh->m_Roughness = val;
-	}
+	staticMesh->SetColor(materialData.m_Color);
+	staticMesh->m_Roughness = materialData.m_Roughness;
 
 
 	auto& tmgr = Textures::C_TextureManager::Instance();
 
-	if (auto roughnessMap = node.child("roughnessMap"))
+	if (!materialData.m_RoughtnessMap.empty())
 	{
-		staticMesh->m_RoughnessMap = tmgr.GetTexture(roughnessMap.child_value());
+		staticMesh->m_RoughnessMap = tmgr.GetTexture(materialData.m_RoughtnessMap);
 		if (staticMesh->m_RoughnessMap)
 		{
 			staticMesh->m_Roughness = 1.0f;
@@ -197,9 +182,9 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 		}
 	}
 
-	if (auto colorMap = node.child("colorMap"))
+	if (!materialData.m_ColorMap.empty())
 	{
-		staticMesh->m_ColorMap = tmgr.GetTexture(colorMap.child_value());
+		staticMesh->m_ColorMap = tmgr.GetTexture(materialData.m_ColorMap);
 		if (staticMesh->m_ColorMap)
 		{
 			staticMesh->SetColor(glm::vec3(1.0f));
@@ -213,10 +198,9 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 		}
 	}
 
-
-	if (auto normalMap = node.child("normalMap"))
+	if (!materialData.m_NormalMap.empty())
 	{
-		staticMesh->m_NormalMap = tmgr.GetTexture(normalMap.child_value());
+		staticMesh->m_ColorMap = tmgr.GetTexture(materialData.m_NormalMap);
 		if (staticMesh->m_NormalMap)
 		{
 			staticMesh->m_NormalMap->StartGroupOp();

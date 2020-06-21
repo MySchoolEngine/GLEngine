@@ -14,6 +14,7 @@ namespace UBO {
 C_FrameConstantsBuffer::C_FrameConstantsBuffer(const std::string& blockName, unsigned int index)
 	: C_UniformBuffer(blockName, index)
 	, m_AmbientStrength(0.1f)
+	, m_Time(0.0f)
 {
 	const auto matSize = sizeof(glm::mat4);
 	const auto vecSize = sizeof(glm::vec4);
@@ -43,6 +44,7 @@ void C_FrameConstantsBuffer::UploadData() const
 	memcpy(data + 3 * matSize, glm::value_ptr(m_CameraPosition), sizeof(decltype(m_CameraPosition)));
 	memcpy(data + 3 * matSize + vecSize, glm::value_ptr(m_SunPosition), sizeof(decltype(m_SunPosition)));
 	memcpy(data + 3 * matSize + vecSize + vec3Size, &m_AmbientStrength, sizeof(decltype(m_AmbientStrength)));
+	memcpy(data + 3 * matSize + vecSize + vec3Size + sizeof(decltype(m_AmbientStrength)), &m_Time, sizeof(decltype(m_Time)));
 
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
 	unbind();

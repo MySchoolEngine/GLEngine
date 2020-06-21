@@ -16,7 +16,6 @@ out vec4 fragColor;
 
 #include "../include/LightsUBO.glsl"
 
-
 vec3 getColor(vec2 uv)
 {
 	vec3 color = modelColor;
@@ -33,6 +32,7 @@ void main()
     vec3 viewPos = frame.CameraPosition.xyz/frame.CameraPosition.w;
     vec3 FragPos = worldCoord.xyz/worldCoord.w;
 
+    vec3 color = getColor(texCoordOUT);
 
 	vec3 norm = normalize(normalOUT);
 	vec3 lightDir = normalize(pLight[0].position - FragPos);  
@@ -46,6 +46,6 @@ void main()
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64);
 	vec3 specular = specularStrength * spec * pLight[0].color;  
 
-	vec3 result = (ambient + diffuse + specular) * getColor(texCoordOUT);
-	fragColor = vec4(result, 1.0);
+	vec3 result = (ambient + diffuse + specular) * color;
+	fragColor = vec4(result, 0.5);
 }

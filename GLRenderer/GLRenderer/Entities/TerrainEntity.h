@@ -59,6 +59,10 @@ public:
 
 	[[nodiscard]] virtual glm::vec3 GetPosition() const override;
 
+
+	//=================================================================================
+	const glm::mat4& GetModelMatrix() const override;
+
 protected:
 	std::vector<T_TerrainPtr>	m_Patches;
 
