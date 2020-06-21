@@ -35,6 +35,8 @@ public:
 	
 	void DebugDrawGUI() override;
 
+	void SetColorMap(const std::shared_ptr<Textures::C_Texture>& texture) { m_ColorMap = texture; m_Color.SetValue(glm::vec3(1.0f)); }
+
 protected:
 	std::string																			m_meshFile;
 	std::shared_ptr<Mesh::C_StaticMeshResource>			m_Mesh;

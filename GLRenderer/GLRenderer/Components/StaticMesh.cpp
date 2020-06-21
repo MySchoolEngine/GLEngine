@@ -48,6 +48,20 @@ C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::s
 	m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(scene->meshes[0]);
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	m_Shader = shmgr.GetProgram(shader.data());
+
+	const auto materialIdx = scene->meshes[0].materialIndex;
+	const auto& material = scene->materials[materialIdx];
+
+	m_Color.SetValue(material.diffuse);
+
+	if (material.textureIndex >= 0)
+	{
+		auto& tmgr = Textures::C_TextureManager::Instance();
+		const auto& texure = scene->textures[material.textureIndex];
+
+		auto texturePtr = tmgr.CreateTexture(texure);
+		SetColorMap(texturePtr);
+	}
 }
 
 //=================================================================================
@@ -184,23 +198,22 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 
 	if (!materialData.m_ColorMap.empty())
 	{
-		staticMesh->m_ColorMap = tmgr.GetTexture(materialData.m_ColorMap);
-		if (staticMesh->m_ColorMap)
+		auto colorMapTexture = tmgr.GetTexture(materialData.m_ColorMap);
+		if (colorMapTexture)
 		{
-			staticMesh->SetColor(glm::vec3(1.0f));
+			colorMapTexture->StartGroupOp();
+			colorMapTexture->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
+			colorMapTexture->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+			colorMapTexture->GenerateMipMaps();
 		
-			staticMesh->m_ColorMap->StartGroupOp();
-			staticMesh->m_ColorMap->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
-			staticMesh->m_ColorMap->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-			staticMesh->m_ColorMap->GenerateMipMaps();
-		
-			staticMesh->m_ColorMap->EndGroupOp();
+			colorMapTexture->EndGroupOp();
 		}
+		staticMesh->SetColorMap(colorMapTexture);
 	}
 
 	if (!materialData.m_NormalMap.empty())
 	{
-		staticMesh->m_ColorMap = tmgr.GetTexture(materialData.m_NormalMap);
+		staticMesh->m_NormalMap = tmgr.GetTexture(materialData.m_NormalMap);
 		if (staticMesh->m_NormalMap)
 		{
 			staticMesh->m_NormalMap->StartGroupOp();
