@@ -49,11 +49,13 @@ public:
 	virtual Renderer::E_PassType GetCurrentPassType() const override;
 	virtual void SetCurrentPassType(Renderer::E_PassType type) override;
 
+	bool WantWireframe() const { return m_Wireframe.GetValue(); }
 private:
 	bool m_Locked = false;
 	std::vector<Renderer::I_Renderer::T_CommandPtr>*	m_CommandQueue;
 	GUI::C_PlotLine<500>								m_DrawCommands;
 	GUI::Input::C_CheckBoxValue					m_CatchErrors;
+	GUI::Input::C_CheckBoxValue					m_Wireframe;
 	bool																m_PreviousCatchErrorsVal;
 	Renderer::E_PassType								m_CurrentPass;
 

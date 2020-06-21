@@ -25,6 +25,7 @@ C_OGLRenderer::C_OGLRenderer()
 	: m_CommandQueue(new std::remove_pointer<decltype(m_CommandQueue)>::type)
 	, m_DrawCommands("Draw commands")
 	, m_CatchErrors(false, "Catch errors")
+	, m_Wireframe(false, "Render wireframe")
 	, m_PreviousCatchErrorsVal(false)
 	, m_CurrentPass(Renderer::E_PassType::FinalPass)
 	, m_GUITexts(
@@ -135,6 +136,7 @@ GUID C_OGLRenderer::SetupControls(ImGui::C_GUIManager& guiMan)
 	auto* renderStats = guiMan.GetWindow(m_Window);
 	renderStats->AddComponent(m_DrawCommands);
 	renderStats->AddComponent(m_CatchErrors);
+	renderStats->AddComponent(m_Wireframe);
 	renderStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgDrawCommands)]);
 	renderStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::MinMax)]);
 

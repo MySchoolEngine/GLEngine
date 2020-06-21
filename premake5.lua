@@ -28,19 +28,28 @@ workspace "Engine"
 		"Release"
 	}
   
-  defines{
-    "FMT_HEADER_ONLY=1",
-  }
-
-	workspace_files{
-		"vendor/GLM/util/glm.natvis"
+	defines{
+		"FMT_HEADER_ONLY=1",
 	}
 
-  filter "system:windows"
-    defines {
-      "CORE_PLATFORM=CORE_PLATFORM_WIN",
-      "WIN32", 
-    }
+	workspace_files{
+		"vendor/GLM/util/glm.natvis",
+		"premake5.lua",
+		"premakeDefines.lua",
+	}
+
+	filter "action:vs*"
+		defines {
+			"CORE_PLATFORM=CORE_PLATFORM_WIN",
+			"WIN32", 
+			"_GLFW_WIN32",
+			"_CRT_SECURE_NO_WARNINGS",
+		}
+
+	filter "action:gmake"
+		defines {
+			"_GLFW_X11",
+		}
 
   filter "configurations:Debug"
     defines "GL_ENGINE_DEBUG"
@@ -68,7 +77,9 @@ include "Core"
 include "Sandbox"
 include "Renderer"
 include "GLRenderer"
-include "DX12Renderer"
 include "Entity"
 include "Utils"
 include "Physics"
+
+filter "action:vs*"
+  include "DX12Renderer"

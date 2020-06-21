@@ -34,7 +34,6 @@ project "Renderer"
 
 		defines
 		{
-			"CORE_PLATFORM=CORE_PLATFORM_WIN",
 			"BUILD_RENDERER_DLL",
 		}
 

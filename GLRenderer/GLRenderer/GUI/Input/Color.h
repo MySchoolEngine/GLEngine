@@ -3,28 +3,46 @@
 #include <GLRenderer/GUI/GUIPart.h>
 
 namespace GLEngine::GLRenderer::GUI::Input {
-class C_ColorRBG : public I_GUIPart {
-public:
-	C_ColorRBG(std::string&& name, glm::vec3 default);
 
+template<class T>
+class C_ColorBase : public I_GUIPart
+{
+public:
+	C_ColorBase(std::string&& name, T def)
+		: m_name(std::move(name))
+		, m_Color(def) 
+	{}
+
+	[[nodiscard]] const T& GetValue() const { return m_Color; }
+	void SetValue(T&& value) { m_Color = value; }
+
+	void operator=(const T& val) { m_Color = value; }
+	void operator=(T&& val) { m_Color = val; }
+protected:
+	std::string	m_name;
+	mutable T	m_Color;
+};
+
+class C_ColorRBG : public C_ColorBase<glm::vec3> 
+{
+public:
+	C_ColorRBG(std::string&& name, glm::vec3 def)
+		: C_ColorBase(std::move(name), (def)) {}
 	virtual void Draw() const override;
-	const glm::vec3& GetValue() const;
-	void SetValue(glm::vec3&& value);
-private:
-	std::string				m_name;
-	mutable glm::vec3	m_Color;
+
+
+	using C_ColorBase<glm::vec3>::operator=;
 };
 
 
-class C_ColorRBGA : public I_GUIPart {
+class C_ColorRBGA : public C_ColorBase<glm::vec4> 
+{
 public:
-	C_ColorRBGA(std::string&& name, glm::vec4 default);
-
+	C_ColorRBGA(std::string&& name, glm::vec4 def)
+		: C_ColorBase(std::move(name), (def)) {}
 	virtual void Draw() const override;
-	const glm::vec4& GetValue() const;
-	void SetValue(glm::vec4&& value);
-private:
-	std::string				 m_name;
-	mutable  glm::vec4 m_Color;
+
+
+	using C_ColorBase<glm::vec4>::operator=;
 };
 }

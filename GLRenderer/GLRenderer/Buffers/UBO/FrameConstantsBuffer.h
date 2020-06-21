@@ -48,11 +48,14 @@ public:
 
 	float GetAmbientStrength() const { return m_AmbientStrength; }
 	void SetAmbientStrength(float strength) { m_AmbientStrength = strength; }
+
+	void SetFrameTime(float time) { m_Time = time; }
 private:
 	glm::vec4 m_CameraPosition;
 	glm::mat4 m_ViewMat;
 	glm::mat4 m_ProjectionMat;
 	glm::vec3 m_SunPosition;
 	float			m_AmbientStrength;
+	float			m_Time;
 };
 }}}}

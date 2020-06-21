@@ -27,7 +27,6 @@ project "Core"
 
 		defines
 		{
-			"CORE_PLATFORM=CORE_PLATFORM_WIN",
 			"BUILD_CORE_DLL",
 		}
 
