@@ -182,17 +182,17 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 
 	if (!materialData.m_RoughtnessMap.empty())
 	{
-		staticMesh->m_RoughnessMap = tmgr.GetTexture(materialData.m_RoughtnessMap);
-		if (staticMesh->m_RoughnessMap)
+		auto roughnessMap = tmgr.GetTexture(materialData.m_RoughtnessMap);
+		if (roughnessMap)
 		{
-			staticMesh->m_Roughness = 1.0f;
+			roughnessMap->StartGroupOp();
+			roughnessMap->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
+			roughnessMap->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+			roughnessMap->GenerateMipMaps();
 
-			staticMesh->m_RoughnessMap->StartGroupOp();
-			staticMesh->m_RoughnessMap->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
-			staticMesh->m_RoughnessMap->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-			staticMesh->m_RoughnessMap->GenerateMipMaps();
+			roughnessMap->EndGroupOp();
 
-			staticMesh->m_RoughnessMap->EndGroupOp();
+			staticMesh->SetRoughnessMap(roughnessMap);
 		}
 	}
 
@@ -207,8 +207,9 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 			colorMapTexture->GenerateMipMaps();
 		
 			colorMapTexture->EndGroupOp();
+
+			staticMesh->SetColorMap(colorMapTexture);
 		}
-		staticMesh->SetColorMap(colorMapTexture);
 	}
 
 	if (!materialData.m_NormalMap.empty())

@@ -36,6 +36,7 @@ public:
 	void DebugDrawGUI() override;
 
 	void SetColorMap(const std::shared_ptr<Textures::C_Texture>& texture) { m_ColorMap = texture; m_Color.SetValue(glm::vec3(1.0f)); }
+	void SetRoughnessMap(const std::shared_ptr<Textures::C_Texture>& texture) { m_RoughnessMap = texture; m_Roughness = 1.0f; }
 
 protected:
 	std::string																			m_meshFile;
