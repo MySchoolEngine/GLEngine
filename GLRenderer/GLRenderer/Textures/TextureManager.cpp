@@ -44,12 +44,19 @@ C_TextureManager::T_TexturePtr C_TextureManager::GetTexture(const std::string& n
 		return nullptr;
 	}
 
-	auto texture = std::make_shared<Textures::C_Texture>(name);
+	GLE_ASSERT(t.m_name.empty() == false, "There should be name from name: '{}'", name);
+	return CreateTexture(t);
+}
+
+//=================================================================================
+C_TextureManager::T_TexturePtr C_TextureManager::CreateTexture(const Renderer::MeshData::Texture& tex)
+{
+	auto texture = std::make_shared<Textures::C_Texture>(tex.m_name);
 	texture->bind();
-	texture->SetTexData2D(0, t);
+	texture->SetTexData2D(0, tex);
 	texture->unbind();
 
-	m_Textures[name] = texture;
+	m_Textures[tex.m_name] = texture;
 	return texture;
 }
 
