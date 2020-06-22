@@ -10,7 +10,7 @@
 namespace GLEngine::GLRenderer::Mesh {
 
 //=================================================================================
-bool SceneLoader::addModelFromFileToScene(const char* filepath, const char* filename, 
+bool SceneLoader::addModelFromFileToScene(const std::filesystem::path& filepath, const std::filesystem::path& filename,
 											std::shared_ptr<Renderer::MeshData::Scene> scene, const glm::mat4& transform)
 {
 	//Load geometry first
@@ -19,7 +19,9 @@ bool SceneLoader::addModelFromFileToScene(const char* filepath, const char* file
 	ml.Reset();
 	std::vector< std::string > texNames;
 
-	bool retval = ml.addModelFromFileToScene((std::string(filepath) + std::string("/") + std::string(filename)).c_str(), scene, texNames, transform);
+	const auto fullFilename = filepath / filename;
+
+	bool retval = ml.addModelFromFileToScene(fullFilename, scene, texNames, transform);
 
 	if (!retval)
 		return false;
@@ -29,10 +31,13 @@ bool SceneLoader::addModelFromFileToScene(const char* filepath, const char* file
 
 	Textures::TextureLoader tl;
 
+	const auto texureRoot = fullFilename.parent_path();
+
 	for (const auto & texName : texNames)
 	{
 		Renderer::MeshData::Texture t;
-		retval = tl.loadTexture((std::string(filepath) + std::string("\\") + texName).c_str(), t);
+		
+		retval = tl.loadTexture(texureRoot / texName, t);
 
 		if (!retval)
 			return false;

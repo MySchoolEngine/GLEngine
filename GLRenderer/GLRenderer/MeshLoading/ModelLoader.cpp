@@ -21,7 +21,7 @@ ModelLoader::ModelLoader()
 ModelLoader::~ModelLoader() = default;
 
 //=================================================================================
-bool ModelLoader::addModelFromFileToScene(const char* path, std::shared_ptr<Renderer::MeshData::Scene> scene, std::vector< std::string >& textureRegister, glm::mat4 sceneTransform)
+bool ModelLoader::addModelFromFileToScene(const std::filesystem::path& path, std::shared_ptr<Renderer::MeshData::Scene> scene, std::vector< std::string >& textureRegister, glm::mat4 sceneTransform)
 {
 	const auto loadedScene = _tryOpenFile(path);
 
@@ -59,13 +59,13 @@ void ModelLoader::_loadMaterialsFromAiscene(const aiScene* loadedScene, std::sha
 }
 
 //=================================================================================
-const aiScene* ModelLoader::_tryOpenFile(const char* path)
+const aiScene* ModelLoader::_tryOpenFile(const std::filesystem::path& path)
 {
-	const aiScene* s = _importer->ReadFile(path, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_RemoveRedundantMaterials | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace);
+	const aiScene* s = _importer->ReadFile(path.generic_string().c_str(), aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_RemoveRedundantMaterials | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace);
 
 	if (s == nullptr)
 	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Failed to import {}", path);
+		CORE_LOG(E_Level::Error, E_Context::Render, "Failed to import {}", path.generic_string());
 		return nullptr;
 	}
 

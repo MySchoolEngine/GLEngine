@@ -23,17 +23,17 @@ public:
 	ModelLoader();
 	~ModelLoader();
 
-	[[nodiscard]] bool addModelFromFileToScene(const char* path, std::shared_ptr<Renderer::MeshData::Scene> scene, std::vector<std::string>& textureNames, glm::mat4 sceneTransform = glm::mat4(1));
+	[[nodiscard]] bool addModelFromFileToScene(const std::filesystem::path& path, std::shared_ptr<Renderer::MeshData::Scene> scene, std::vector<std::string>& textureNames, glm::mat4 sceneTransform = glm::mat4(1));
 
 	void Reset();
 
 private:
 	std::unique_ptr<Assimp::Importer>	_importer;
 
-	std::stack<const aiNode*>					_nodeStack;
-	std::stack<glm::mat4>							_transformStack;
+	std::stack<const aiNode*>			_nodeStack;
+	std::stack<glm::mat4>				_transformStack;
 
-	const aiScene* _tryOpenFile(const char* path);
+	const aiScene* _tryOpenFile(const std::filesystem::path& path);
 
 	void        _loadMaterialsFromAiscene(const aiScene* loadedScene, std::shared_ptr<Renderer::MeshData::Scene> scene, std::vector< std::string >& textureRegister);
 	void        _getMaterialColorAttributes(const aiMaterial* material, Renderer::MeshData::Material& mat);
