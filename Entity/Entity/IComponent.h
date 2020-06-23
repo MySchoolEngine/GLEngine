@@ -31,7 +31,7 @@ public:
 	virtual void DebugDrawGUI() {};
 	//void SetModelMatrix(const glm::mat4& modelMatrix) { m_ModelMatrix = modelMatrix; };
 	void SetComponentMatrix(const glm::mat4& componentMatrix) { m_ComponentMatrix = componentMatrix; }
-	[[nodiscard]] const glm::mat4& GetComponentModelMatrix() const;
+	[[nodiscard]] const glm::mat4 GetComponentModelMatrix() const;
 
 protected:
 	std::shared_ptr<I_Entity> GetOwner() const;

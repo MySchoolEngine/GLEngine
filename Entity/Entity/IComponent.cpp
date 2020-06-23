@@ -28,7 +28,7 @@ std::shared_ptr<I_Entity> I_Component::GetOwner() const
 }
 
 //=================================================================================
-const glm::mat4& I_Component::GetComponentModelMatrix() const
+const glm::mat4 I_Component::GetComponentModelMatrix() const
 {
 	const auto owner = GetOwner();
 	if (owner)
