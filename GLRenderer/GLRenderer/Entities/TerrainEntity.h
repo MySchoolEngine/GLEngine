@@ -24,7 +24,7 @@ public:
 	using T_TerrainPtr = std::shared_ptr<Components::C_TerrainMesh>;
 
 	//=================================================================================
-	[[nodiscard]] virtual T_ComponentPtr GetComponent(Entity::E_ComponentType type) const override;
+	[[nodiscard]] virtual Entity::I_Entity::T_ComponentRange GetComponents(Entity::E_ComponentType type) const override;
 	virtual void OnEvent(Core::I_Event& event) override;
 
 	virtual void Update() override;
@@ -64,7 +64,7 @@ public:
 	const glm::mat4& GetModelMatrix() const override;
 
 protected:
-	std::vector<T_TerrainPtr>	m_Patches;
+	std::multimap<Entity::E_ComponentType, T_TerrainPtr>	m_Patches;
 
 	glm::ivec2 m_InputCoords;
 	bool m_SimulationRunning;

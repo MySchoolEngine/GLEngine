@@ -86,8 +86,9 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 	std::size_t areaLightIndex = 0;
 	for (auto& entity : entitiesInView)
 	{
-		if (auto light = entity->GetComponent<Entity::E_ComponentType::Light>()) {
-			const auto pointLight = std::dynamic_pointer_cast<Renderer::I_PointLight>(light);
+		for (const auto& lightIt : entity->GetComponents(Entity::E_ComponentType::Light))
+		{
+			const auto pointLight = std::dynamic_pointer_cast<Renderer::I_PointLight>(lightIt);
 			if (pointLight && pointLightIndex < m_LightsUBO->PointLightsLimit())
 			{
 				const auto pos = pointLight->GetPosition();
@@ -103,7 +104,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				C_DebugDraw::Instance().DrawPoint(glm::vec4(pos, 1.0), pointLight->GetColor());
 			}
 
-			const auto areaLight = std::dynamic_pointer_cast<C_GLAreaLight>(light);
+			const auto areaLight = std::dynamic_pointer_cast<C_GLAreaLight>(lightIt);
 			if (areaLight && areaLightIndex < m_LightsUBO->AreaLightsLimit())
 			{
 				auto& tm = Textures::C_TextureUnitManger::Instance();
@@ -122,7 +123,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				S_AreaLight light;
 				light.m_LightMat = glm::ortho(-width, width, -height, height, frustum.GetNear(), frustum.GetFar()) * glm::lookAt(pos, pos + frustum.GetForeward(), up);
 				light.m_Pos = pos;
-				light.m_ShadowMap = areaLightIndex;
+				light.m_ShadowMap = static_cast<int>(areaLightIndex);
 				light.m_Width = width;
 				light.m_Height = height;
 				light.m_Normal = frustum.GetForeward();
@@ -160,8 +161,10 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 		RenderDoc::C_DebugScope s("Commit geometry");
 		for (auto& entity : entitiesInView)
 		{
-			if (auto renderable = entity->GetComponent<Entity::E_ComponentType::Graphical>()) {
-				renderable->PerformDraw();
+			auto renderableComponentsRange = entity->GetComponents(Entity::E_ComponentType::Graphical);
+			for (const auto& it : renderableComponentsRange)
+			{
+				component_cast<Entity::E_ComponentType::Graphical>(it)->PerformDraw();
 			}
 		}
 	}

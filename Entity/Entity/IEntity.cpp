@@ -4,6 +4,8 @@
 
 #include <Entity/ComponentManager.h>
 
+#include <Utils/MapValueIterator.h>
+
 namespace GLEngine {
 namespace Entity {
 
@@ -29,14 +31,10 @@ I_Entity::~I_Entity()
 }
 
 //=================================================================================
-GLEngine::T_ComponentPtr I_Entity::GetComponent(E_ComponentType type) const
+I_Entity::T_ComponentRange I_Entity::GetComponents(E_ComponentType type) const
 {
-	auto iter = m_Components->find(type);
-	if (iter != m_Components->end()) {
-		return iter->second;
-	}
-
-	return nullptr;
+	auto iterLow = m_Components->equal_range(type);
+	return { Utils::MapValueIterator(std::move(iterLow.first)), Utils::MapValueIterator(std::move(iterLow.second)) };
 }
 
 //=================================================================================
