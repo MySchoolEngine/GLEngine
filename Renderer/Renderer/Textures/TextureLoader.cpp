@@ -38,7 +38,7 @@ bool TextureLoader::loadTexture(const std::filesystem::path& path, MeshData::Tex
 
 	if (Error != IL_NO_ERROR)
 	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "DevIL: Failed to load image {}, error: {}", path.generic_string(), Error);
+		CORE_LOG(E_Level::Error, E_Context::Render, "DevIL: Failed to load image {}, error: {}", path, Error);
 		t.height = t.width = 1;
 		t.m_name = "Error";
 		t.data = std::shared_ptr<unsigned char>(new unsigned char[4 * t.width * t.height]);
