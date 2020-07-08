@@ -65,8 +65,8 @@ C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::s
 }
 
 //=================================================================================
-C_StaticMesh::C_StaticMesh(const Renderer::MeshData::Mesh& mesh, std::string_view shader)
-	: Renderer::I_RenderableComponent(nullptr)
+C_StaticMesh::C_StaticMesh(const Renderer::MeshData::Mesh& mesh, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner)
+	: Renderer::I_RenderableComponent(owner)
 {
 	m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(mesh);
 

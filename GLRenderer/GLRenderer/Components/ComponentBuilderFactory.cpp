@@ -8,6 +8,8 @@
 #include <GLRenderer/Components/GLGeomComponent.h>
 #include <GLRenderer/GUI/Components/GLEntityDebugComponent.h>
 
+#include <Renderer/Mesh/Loading/SceneLoader.h>
+
 #include <Renderer/Lights/PointLight.h>
 
 namespace GLEngine::GLRenderer::Components {
@@ -40,6 +42,33 @@ std::unique_ptr<Entity::I_ComponenetBuilder> C_ComponentBuilderFactory::GetFacto
 		return std::make_unique<C_GLGeomComponentBuilder>();
 	}
 	return nullptr;
+}
+
+//=================================================================================
+void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Entity> entity, const std::filesystem::path& file)
+{
+	auto sl = std::make_unique<Renderer::Mesh::SceneLoader>();
+
+	auto scene = std::make_shared<Renderer::MeshData::Scene>();
+	glm::mat4 modelMatrix = glm::mat4(1.0f);
+
+	if (!sl->addModelFromFileToScene("Models", file, scene, modelMatrix))
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}", file);
+		return;
+	}
+	
+	for (const auto& mesh : scene->meshes)
+	{
+		const auto meshComp = std::make_shared<C_StaticMesh>(mesh, "basic", entity);
+		entity->AddComponent(meshComp);
+	}
+
+	for (const auto& light : scene->lights)
+	{
+		const auto lightComp = std::make_shared<Renderer::C_PointLight>(entity, light);
+		entity->AddComponent(lightComp);
+	}
 }
 
 }

@@ -158,6 +158,20 @@ bool C_EntityManager::LoadLevel(const std::string& name, std::unique_ptr<I_Compo
 			const auto scale = Utils::Parsing::C_MatrixParser::ParseScale(entityNode);
 			entity->SetModelMatrix(translation * rotation * scale);
 		}
+
+		for (const auto& entityNode : entitiesNode.children("ExternEntity"))
+		{
+			auto entity = std::make_shared<Entity::C_BasicEntity>(entityNode.attribute("name").value());
+			entity->AddComponent(debugBuilder->Build(pugi::xml_node(), entity));
+			AddEntity(entity);
+
+			cbf->ConstructFromFile(entity, entityNode.attribute("filePath").value());
+
+			const auto translation = Utils::Parsing::C_MatrixParser::ParseTransformation(entityNode);
+			const auto rotation = Utils::Parsing::C_MatrixParser::ParseRotations(entityNode);
+			const auto scale = Utils::Parsing::C_MatrixParser::ParseScale(entityNode);
+			entity->SetModelMatrix(translation * rotation * scale);
+		}
 	}
 
 	return true;
