@@ -32,6 +32,8 @@ bool ModelLoader::addModelFromFileToScene(const std::filesystem::path& path, std
 
 	_loadMeshesFromAiScene(loadedScene, scene, sceneTransform);
 
+	_loadLightsFromAiScene(loadedScene, scene);
+
 	_importer->FreeScene();
 
 	_numMaterialsPreviouslyLoaded += loadedScene->mNumMaterials;
@@ -132,6 +134,20 @@ int ModelLoader::_getTextureIndexAndAddToRegister(const std::string& name, std::
 
 	textureNames.push_back(name);
 	return _numTexturesPreviouslyLoaded++;
+}
+
+//=================================================================================
+void ModelLoader::_loadLightsFromAiScene(const aiScene* loadedScene, std::shared_ptr<Renderer::MeshData::Scene> scene)
+{
+	for (unsigned int i = 0; i < loadedScene->mNumLights; ++i)
+	{
+		Renderer::MeshData::Light light;
+		const auto lightSource = loadedScene->mLights[i];
+		const auto col = lightSource->mColorDiffuse;
+		light.m_Color = { col.r, col.g, col.b };
+		light.m_name = std::string(lightSource->mName.C_Str());
+		scene->lights.push_back(light);
+	}
 }
 
 //=================================================================================

@@ -48,6 +48,13 @@ struct AnimationData
 	std::vector<glm::vec3>	weights;
 };
 
+//=================================================================================
+struct Light
+{
+	std::string m_name;
+	glm::vec3	m_Color;
+
+};
 
 //Texture
 //Always R8G8B8A8 format
@@ -73,6 +80,7 @@ struct Scene
 {
 	//This is the data that interests You
 	std::vector<Mesh>				meshes;
+	std::vector<Light>				lights;
 
 	std::vector<Material>			materials;
 	std::vector<Texture>			textures;
