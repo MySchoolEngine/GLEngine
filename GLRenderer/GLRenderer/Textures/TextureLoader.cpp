@@ -67,7 +67,7 @@ bool TextureLoader::loadTexture(const std::filesystem::path& path, Renderer::Mes
 }
 
 //=================================================================================
-std::shared_ptr<GLEngine::GLRenderer::Textures::C_Texture> TextureLoader::LoadAndInitTexture(const std::filesystem::path& path)
+std::shared_ptr<GLRenderer::Textures::C_Texture> TextureLoader::LoadAndInitTexture(const std::filesystem::path& path)
 {
 	gli::texture Texture = gli::load(path.generic_string());
 	if (Texture.empty())
