@@ -6,6 +6,7 @@
 #include <GLRenderer/Components/StaticMesh.h>
 #include <GLRenderer/Components/SkeletalMesh.h>
 #include <GLRenderer/Components/GLGeomComponent.h>
+#include <GLRenderer/Textures/TextureManager.h>
 #include <GLRenderer/GUI/Components/GLEntityDebugComponent.h>
 
 #include <Renderer/Mesh/Loading/SceneLoader.h>
@@ -47,6 +48,7 @@ std::unique_ptr<Entity::I_ComponenetBuilder> C_ComponentBuilderFactory::GetFacto
 //=================================================================================
 void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Entity> entity, const std::filesystem::path& file)
 {
+	auto& tmgr = Textures::C_TextureManager::Instance();
 	auto sl = std::make_unique<Renderer::Mesh::SceneLoader>();
 
 	auto scene = std::make_shared<Renderer::MeshData::Scene>();
@@ -61,6 +63,24 @@ void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Enti
 	for (const auto& mesh : scene->meshes)
 	{
 		const auto meshComp = std::make_shared<C_StaticMesh>(mesh, "basic", entity);
+		const auto material = scene->materials[mesh.materialIndex];
+		meshComp->SetColor(material.diffuse);
+		if (material.textureIndex >= 0)
+		{
+			auto colorMapTexture = tmgr.CreateTexture(scene->textures[material.textureIndex]);
+			if (colorMapTexture)
+			{
+				colorMapTexture->StartGroupOp();
+				colorMapTexture->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
+				colorMapTexture->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+				colorMapTexture->GenerateMipMaps();
+
+				colorMapTexture->EndGroupOp();
+
+				meshComp->SetColorMap(colorMapTexture);
+			}
+		}
+
 		entity->AddComponent(meshComp);
 	}
 
