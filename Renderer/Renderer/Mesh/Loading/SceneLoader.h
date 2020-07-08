@@ -1,13 +1,12 @@
 #pragma once
 
-#include <GLRenderer/MeshLoading/ModelLoader.h>
+#include <Renderer/RendererApi.h>
+#include <Renderer/Mesh/Loading/ModelLoader.h>
 #include <Renderer/Mesh/Scene.h>
 
-#include <GLRenderer/Mesh/StaticMeshResource.h>
-
-namespace GLEngine::GLRenderer::Mesh {
+namespace GLEngine::Renderer::Mesh {
 //=================================================================================
-class SceneLoader
+class RENDERER_API_EXPORT SceneLoader
 {
 public:
 	//filepath - the folder where the model is

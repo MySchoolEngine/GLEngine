@@ -3,7 +3,6 @@
 #include <GLRenderer/Components/StaticMesh.h>
 
 #include <GLRenderer/Mesh/StaticMeshResource.h>
-#include <GLRenderer/MeshLoading/SceneLoader.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/Textures/TextureLoader.h>
@@ -14,6 +13,7 @@
 
 #include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
 
+#include <Renderer/Mesh/Loading/SceneLoader.h>
 #include <Renderer/IRenderer.h>
 #include <Renderer/Mesh/Scene.h>
 
@@ -34,7 +34,7 @@ C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::s
 	, m_Mesh(nullptr)
 {
 	// @todo lazy init
-	auto sl = std::make_unique<Mesh::SceneLoader>();
+	auto sl = std::make_unique<Renderer::Mesh::SceneLoader>();
 
 	auto scene = std::make_shared<Renderer::MeshData::Scene>();
 	glm::mat4 modelMatrix = glm::mat4(1.0f);

@@ -1,17 +1,17 @@
-#include <GLRendererStdafx.h>
+#include <RendererStdafx.h>
 
-#include <GLRenderer/MeshLoading/SceneLoader.h>
+#include <Renderer/Mesh/Loading/SceneLoader.h>
 
-#include <GLRenderer/Textures/TextureLoader.h>
-#include <GLRenderer/MeshLoading/ModelLoader.h>
+#include <Renderer/Textures/TextureLoader.h>
+#include <Renderer/Mesh/Loading/ModelLoader.h>
 
-#include <REnderer/Mesh/Scene.h>
+#include <Renderer/Mesh/Scene.h>
 
-namespace GLEngine::GLRenderer::Mesh {
+namespace GLEngine::Renderer::Mesh {
 
 //=================================================================================
 bool SceneLoader::addModelFromFileToScene(const std::filesystem::path& filepath, const std::filesystem::path& filename,
-											std::shared_ptr<Renderer::MeshData::Scene> scene, const glm::mat4& transform)
+											std::shared_ptr<MeshData::Scene> scene, const glm::mat4& transform)
 {
 	//Load geometry first
 	ModelLoader ml;

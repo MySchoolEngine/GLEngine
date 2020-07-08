@@ -2,8 +2,6 @@
 
 #include <Renderer/Mesh/Scene.h>
 
-#include <assimp/postprocess.h>
-
 #define VERTICES_PER_TRIANGLE 3
 
 struct aiNode;
@@ -11,12 +9,13 @@ struct aiMaterial;
 struct aiScene;
 struct aiMesh;
 struct aiFace;
+
 namespace Assimp
 {
 class Importer;
 }
 
-namespace GLEngine::GLRenderer::Mesh {
+namespace GLEngine::Renderer::Mesh {
 class ModelLoader
 {
 public:
@@ -52,8 +51,6 @@ private:
 	void        _getFacePosNormalTcoords(const aiFace* face, const aiMesh* mesh, glm::vec4* pos, glm::vec3* normal, glm::vec2* tcoords, glm::vec3* ttangents, glm::vec3* tbitangents);
 	void        _allocateMesh(Renderer::MeshData::Mesh& mesh, const unsigned int numFaces);
 	void        _assignMeshMaterial(Renderer::MeshData::Mesh& mesh, const aiMesh* aimesh);
-
-	glm::mat4   _aiMatrixToGlm(const aiMatrix4x4& matrix);
 
 	static unsigned int _numTexturesPreviouslyLoaded;
 	static unsigned int _numMaterialsPreviouslyLoaded;

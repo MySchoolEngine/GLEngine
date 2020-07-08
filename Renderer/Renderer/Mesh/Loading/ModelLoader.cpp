@@ -1,11 +1,28 @@
-#include <GLRendererStdafx.h>
+#include <RendererStdafx.h>
 
-#include <GLRenderer/MeshLoading/ModelLoader.h>
+#include <Renderer/Mesh/Loading/ModelLoader.h>
 
 #include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
-namespace GLEngine::GLRenderer::Mesh {
+namespace GLEngine::Renderer::Mesh {
+
+
+//=================================================================================
+glm::mat4 _aiMatrixToGlm(const aiMatrix4x4& aiMatrix)
+{
+	aiMatrix4x4 temp = aiMatrix;
+	temp.Inverse();
+
+	glm::mat4 glmMat;
+
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+			glmMat[i][j] = temp[i][j];
+
+	return glmMat;
+}
 
 //=================================================================================
 unsigned int ModelLoader::_numTexturesPreviouslyLoaded = 0;
@@ -176,21 +193,6 @@ void ModelLoader::_pushNodeChildrenOnStacks(const aiNode* node, const glm::mat4&
 		_nodeStack.push(node->mChildren[i]);
 		_transformStack.push(nodeWorldTransform * _aiMatrixToGlm(node->mTransformation));
 	}
-}
-
-//=================================================================================
-glm::mat4 ModelLoader::_aiMatrixToGlm(const aiMatrix4x4& aiMatrix)
-{
-	aiMatrix4x4 temp = aiMatrix;
-	temp.Inverse();
-
-	glm::mat4 glmMat;
-
-	for (int i = 0; i < 4; i++)
-		for (int j = 0; j < 4; j++)
-			glmMat[i][j] = temp[i][j];
-
-	return glmMat;
 }
 
 //=================================================================================
