@@ -4,7 +4,6 @@
 #include "../include/frameConstants.glsl"
 
 //per mesh
-uniform sampler2D tex;
 uniform vec3 modelColor;
 uniform sampler2D colorMap;
 

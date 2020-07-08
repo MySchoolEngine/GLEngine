@@ -41,9 +41,9 @@ void C_BasicEntity::PostUpdate()
 //=================================================================================
 void C_BasicEntity::OnEvent(Core::I_Event& event)
 {
-	auto debugGUI = GetComponent(Entity::E_ComponentType::DebugGUI);
+	auto debugGUI = GetComponent<Entity::E_ComponentType::DebugGUI>();
 	if (debugGUI) {
-		GLEngine::component_cast<Entity::E_ComponentType::DebugGUI>(debugGUI)->Toggle();
+		debugGUI->Toggle();
 	}
 }
 

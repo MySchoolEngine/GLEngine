@@ -31,7 +31,8 @@ C_OGLRenderer::C_OGLRenderer()
 	, m_GUITexts(
 		{{
 				("Avg draw commands: {:.2f}"),
-				("Min/max {:.2f}/{:.2f}")
+				("Min/max {:.2f}/{:.2f}"),
+				("Draw calls: {}")
 			}})
 	, m_Window(INVALID_GUID)
 	, m_Windows("Windows")
@@ -98,6 +99,10 @@ void C_OGLRenderer::Commit() const
 void C_OGLRenderer::ClearCommandBuffers()
 {
 	m_DrawCommands.Sample(static_cast<float>(m_CommandQueue->size()));
+	const auto drawCallsNum = std::count_if(m_CommandQueue->begin(), m_CommandQueue->end(), [](const auto& command)
+		{
+			return command->GetType() == Renderer::I_RenderCommand::E_Type::DrawCall;
+		});
 	m_CommandQueue->clear();
 	const auto avgDrawCommands = m_DrawCommands.Avg();
 	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgDrawCommands)].UpdateText(avgDrawCommands);
@@ -105,6 +110,7 @@ void C_OGLRenderer::ClearCommandBuffers()
 		.UpdateText(
 			*std::min_element(m_DrawCommands.cbegin(), m_DrawCommands.cend()),
 			*std::max_element(m_DrawCommands.cbegin(), m_DrawCommands.cend()));
+	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::DrawCalls)].UpdateText(drawCallsNum);
 
 
 	if (m_PreviousCatchErrorsVal != m_CatchErrors)
@@ -139,6 +145,7 @@ GUID C_OGLRenderer::SetupControls(ImGui::C_GUIManager& guiMan)
 	renderStats->AddComponent(m_Wireframe);
 	renderStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgDrawCommands)]);
 	renderStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::MinMax)]);
+	renderStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::DrawCalls)]);
 
 	renderStats->AddMenu(m_Windows);
 	

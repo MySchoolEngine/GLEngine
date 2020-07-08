@@ -1,11 +1,28 @@
-#include <GLRendererStdafx.h>
+#include <RendererStdafx.h>
 
-#include <GLRenderer/MeshLoading/ModelLoader.h>
+#include <Renderer/Mesh/Loading/ModelLoader.h>
 
 #include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
-namespace GLEngine::GLRenderer::Mesh {
+namespace GLEngine::Renderer::Mesh {
+
+
+//=================================================================================
+glm::mat4 _aiMatrixToGlm(const aiMatrix4x4& aiMatrix)
+{
+	aiMatrix4x4 temp = aiMatrix;
+	temp.Inverse();
+
+	glm::mat4 glmMat;
+
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+			glmMat[i][j] = temp[i][j];
+
+	return glmMat;
+}
 
 //=================================================================================
 unsigned int ModelLoader::_numTexturesPreviouslyLoaded = 0;
@@ -21,7 +38,7 @@ ModelLoader::ModelLoader()
 ModelLoader::~ModelLoader() = default;
 
 //=================================================================================
-bool ModelLoader::addModelFromFileToScene(const char* path, std::shared_ptr<Renderer::MeshData::Scene> scene, std::vector< std::string >& textureRegister, glm::mat4 sceneTransform)
+bool ModelLoader::addModelFromFileToScene(const std::filesystem::path& path, std::shared_ptr<Renderer::MeshData::Scene> scene, std::vector< std::string >& textureRegister, glm::mat4 sceneTransform)
 {
 	const auto loadedScene = _tryOpenFile(path);
 
@@ -31,6 +48,8 @@ bool ModelLoader::addModelFromFileToScene(const char* path, std::shared_ptr<Rend
 	_loadMaterialsFromAiscene(loadedScene, scene, textureRegister);
 
 	_loadMeshesFromAiScene(loadedScene, scene, sceneTransform);
+
+	_loadLightsFromAiScene(loadedScene, scene);
 
 	_importer->FreeScene();
 
@@ -59,13 +78,13 @@ void ModelLoader::_loadMaterialsFromAiscene(const aiScene* loadedScene, std::sha
 }
 
 //=================================================================================
-const aiScene* ModelLoader::_tryOpenFile(const char* path)
+const aiScene* ModelLoader::_tryOpenFile(const std::filesystem::path& path)
 {
-	const aiScene* s = _importer->ReadFile(path, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_RemoveRedundantMaterials | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace);
+	const aiScene* s = _importer->ReadFile(path.generic_string().c_str(), aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_RemoveRedundantMaterials | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace);
 
 	if (s == nullptr)
 	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Failed to import {}", path);
+		CORE_LOG(E_Level::Error, E_Context::Render, "Failed to import {}", path.generic_string());
 		return nullptr;
 	}
 
@@ -135,6 +154,20 @@ int ModelLoader::_getTextureIndexAndAddToRegister(const std::string& name, std::
 }
 
 //=================================================================================
+void ModelLoader::_loadLightsFromAiScene(const aiScene* loadedScene, std::shared_ptr<Renderer::MeshData::Scene> scene)
+{
+	for (unsigned int i = 0; i < loadedScene->mNumLights; ++i)
+	{
+		Renderer::MeshData::Light light;
+		const auto lightSource = loadedScene->mLights[i];
+		const auto col = lightSource->mColorDiffuse;
+		light.m_Color = { col.r, col.g, col.b };
+		light.m_name = std::string(lightSource->mName.C_Str());
+		scene->lights.push_back(light);
+	}
+}
+
+//=================================================================================
 void ModelLoader::_loadMeshesFromAiScene(const aiScene* loadedScene, std::shared_ptr<Renderer::MeshData::Scene> scene, const glm::mat4& sceneTransform)
 {
 	const aiNode* currentNode = loadedScene->mRootNode;
@@ -160,21 +193,6 @@ void ModelLoader::_pushNodeChildrenOnStacks(const aiNode* node, const glm::mat4&
 		_nodeStack.push(node->mChildren[i]);
 		_transformStack.push(nodeWorldTransform * _aiMatrixToGlm(node->mTransformation));
 	}
-}
-
-//=================================================================================
-glm::mat4 ModelLoader::_aiMatrixToGlm(const aiMatrix4x4& aiMatrix)
-{
-	aiMatrix4x4 temp = aiMatrix;
-	temp.Inverse();
-
-	glm::mat4 glmMat;
-
-	for (int i = 0; i < 4; i++)
-		for (int j = 0; j < 4; j++)
-			glmMat[i][j] = temp[i][j];
-
-	return glmMat;
 }
 
 //=================================================================================

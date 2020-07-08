@@ -2,6 +2,10 @@
 
 #include <GLRenderer/GUI/LambdaPart.h>
 
+namespace GLEngien::Renderer::MeshData
+{
+struct Texture;
+}
 namespace GLEngine::GLRenderer::ImGui
 {
 class C_GUIManager;
@@ -21,6 +25,7 @@ public:
 
 	[[nodiscard]] T_TexturePtr GetTexture(const std::string& name);
 	[[nodiscard]] T_TexturePtr CreateEmptyTexture(const std::string& name);
+	[[nodiscard]] T_TexturePtr CreateTexture(const Renderer::MeshData::Texture& tex);
 
 	void Clear();
 

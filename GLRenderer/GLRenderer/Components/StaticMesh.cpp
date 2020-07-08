@@ -3,7 +3,6 @@
 #include <GLRenderer/Components/StaticMesh.h>
 
 #include <GLRenderer/Mesh/StaticMeshResource.h>
-#include <GLRenderer/MeshLoading/SceneLoader.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/Textures/TextureLoader.h>
@@ -14,6 +13,7 @@
 
 #include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
 
+#include <Renderer/Mesh/Loading/SceneLoader.h>
 #include <Renderer/IRenderer.h>
 #include <Renderer/Mesh/Scene.h>
 
@@ -34,7 +34,7 @@ C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::s
 	, m_Mesh(nullptr)
 {
 	// @todo lazy init
-	auto sl = std::make_unique<Mesh::SceneLoader>();
+	auto sl = std::make_unique<Renderer::Mesh::SceneLoader>();
 
 	auto scene = std::make_shared<Renderer::MeshData::Scene>();
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
@@ -48,11 +48,25 @@ C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::s
 	m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(scene->meshes[0]);
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	m_Shader = shmgr.GetProgram(shader.data());
+
+	const auto materialIdx = scene->meshes[0].materialIndex;
+	const auto& material = scene->materials[materialIdx];
+
+	m_Color.SetValue(material.diffuse);
+
+	if (material.textureIndex >= 0)
+	{
+		auto& tmgr = Textures::C_TextureManager::Instance();
+		const auto& texure = scene->textures[material.textureIndex];
+
+		auto texturePtr = tmgr.CreateTexture(texure);
+		SetColorMap(texturePtr);
+	}
 }
 
 //=================================================================================
-C_StaticMesh::C_StaticMesh(const Renderer::MeshData::Mesh& mesh, std::string_view shader)
-	: Renderer::I_RenderableComponent(nullptr)
+C_StaticMesh::C_StaticMesh(const Renderer::MeshData::Mesh& mesh, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner)
+	: Renderer::I_RenderableComponent(owner)
 {
 	m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(mesh);
 
@@ -168,39 +182,39 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 
 	if (!materialData.m_RoughtnessMap.empty())
 	{
-		staticMesh->m_RoughnessMap = tmgr.GetTexture(materialData.m_RoughtnessMap);
-		if (staticMesh->m_RoughnessMap)
+		auto roughnessMap = tmgr.GetTexture(materialData.m_RoughtnessMap);
+		if (roughnessMap)
 		{
-			staticMesh->m_Roughness = 1.0f;
+			roughnessMap->StartGroupOp();
+			roughnessMap->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
+			roughnessMap->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+			roughnessMap->GenerateMipMaps();
 
-			staticMesh->m_RoughnessMap->StartGroupOp();
-			staticMesh->m_RoughnessMap->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
-			staticMesh->m_RoughnessMap->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-			staticMesh->m_RoughnessMap->GenerateMipMaps();
+			roughnessMap->EndGroupOp();
 
-			staticMesh->m_RoughnessMap->EndGroupOp();
+			staticMesh->SetRoughnessMap(roughnessMap);
 		}
 	}
 
 	if (!materialData.m_ColorMap.empty())
 	{
-		staticMesh->m_ColorMap = tmgr.GetTexture(materialData.m_ColorMap);
-		if (staticMesh->m_ColorMap)
+		auto colorMapTexture = tmgr.GetTexture(materialData.m_ColorMap);
+		if (colorMapTexture)
 		{
-			staticMesh->SetColor(glm::vec3(1.0f));
+			colorMapTexture->StartGroupOp();
+			colorMapTexture->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
+			colorMapTexture->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+			colorMapTexture->GenerateMipMaps();
 		
-			staticMesh->m_ColorMap->StartGroupOp();
-			staticMesh->m_ColorMap->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
-			staticMesh->m_ColorMap->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-			staticMesh->m_ColorMap->GenerateMipMaps();
-		
-			staticMesh->m_ColorMap->EndGroupOp();
+			colorMapTexture->EndGroupOp();
+
+			staticMesh->SetColorMap(colorMapTexture);
 		}
 	}
 
 	if (!materialData.m_NormalMap.empty())
 	{
-		staticMesh->m_ColorMap = tmgr.GetTexture(materialData.m_NormalMap);
+		staticMesh->m_NormalMap = tmgr.GetTexture(materialData.m_NormalMap);
 		if (staticMesh->m_NormalMap)
 		{
 			staticMesh->m_NormalMap->StartGroupOp();

@@ -31,7 +31,7 @@ public:
 	virtual void DebugDrawGUI() {};
 	//void SetModelMatrix(const glm::mat4& modelMatrix) { m_ModelMatrix = modelMatrix; };
 	void SetComponentMatrix(const glm::mat4& componentMatrix) { m_ComponentMatrix = componentMatrix; }
-	[[nodiscard]] const glm::mat4& GetComponentModelMatrix() const;
+	[[nodiscard]] const glm::mat4 GetComponentModelMatrix() const;
 
 protected:
 	std::shared_ptr<I_Entity> GetOwner() const;
@@ -55,7 +55,8 @@ public:
 class I_ComponentBuilderFactory
 {
 public:
-	virtual std::unique_ptr<Entity::I_ComponenetBuilder> GetFactory(const std::string& name) = 0;
+	[[nodiscard]] virtual std::unique_ptr<Entity::I_ComponenetBuilder> GetFactory(const std::string& name) = 0;
+	virtual void ConstructFromFile(std::shared_ptr<I_Entity> entity, const std::filesystem::path& file) = 0;
 };
 
 }

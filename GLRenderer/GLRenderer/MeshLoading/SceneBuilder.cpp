@@ -2,14 +2,15 @@
 
 #include <GLRenderer/MeshLoading/SceneBuilder.h>
 
-#include <Renderer/Mesh/Scene.h>
-#include <GLRenderer/MeshLoading/SceneLoader.h>
+#include <Renderer/Mesh/Loading/SceneLoader.h>
 
 #include <GLRenderer/Mesh/StaticMeshResource.h>
 
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 
 #include <GLRenderer/Textures/Texture.h>
+
+#include <Renderer/Mesh/Scene.h>
 
 #include <Physics/Primitives/AABB.h>
 

@@ -26,7 +26,7 @@ bool C_ShaderCompiler::compileShader(GLuint& shader, const std::filesystem::path
 	std::string src;
 	if (!_loadFile(filepath, src))
 	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Failed to open shader file: {}", filepath.generic_string());
+		CORE_LOG(E_Level::Error, E_Context::Render, "Failed to open shader file: {}", filepath);
 		return false;
 	}
 
@@ -56,7 +56,7 @@ bool C_ShaderCompiler::compileShader(GLuint& shader, const std::filesystem::path
 
 	if (!preproces.WasSuccessful())
 	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Preprocessing of file '{}' was unsuccessful", filepath.generic_string());
+		CORE_LOG(E_Level::Error, E_Context::Render, "Preprocessing of file '{}' was unsuccessful", filepath);
 		return false;
 	}
 

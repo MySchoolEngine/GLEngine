@@ -62,6 +62,7 @@ private:
 	enum class E_GUITexts {
 		AvgDrawCommands,
 		MinMax,
+		DrawCalls,
 		Last,
 	};
 	std::array<GUI::C_FormatedText, static_cast<int>(E_GUITexts::Last)>				m_GUITexts;

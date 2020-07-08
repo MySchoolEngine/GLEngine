@@ -22,3 +22,6 @@
 [submodule "vendor/gli"]
 	path = vendor/gli
 	url = https://github.com/g-truc/gli
+[submodule "data/models/Sponza"]
+	path = data/models/Sponza
+	url = https://github.com/jimmiebergmann/Sponza

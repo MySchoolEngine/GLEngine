@@ -10,13 +10,12 @@
 
 #include <Renderer/Animation/ColladaLoading/ColladaLoader.h>
 #include <Renderer/Mesh/Scene.h>
-
-#include <GLRenderer/Textures/TextureLoader.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 
 #include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 
+#include <Renderer/Textures/TextureLoader.h>
 #include <Renderer/IRenderer.h>
 
 #include <Utils/HighResolutionTimer.h>
@@ -150,7 +149,7 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, std::str
 		texurePath.replace(escapeSequence, 3, " ");
 	}
 
-	Textures::TextureLoader tl;
+	Renderer::Textures::TextureLoader tl;
 	Renderer::MeshData::Texture t;
 	bool retval = tl.loadTexture(texurePath.c_str(), t);
 

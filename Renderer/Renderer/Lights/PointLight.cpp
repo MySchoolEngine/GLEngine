@@ -23,8 +23,19 @@ I_PointLight::~I_PointLight() = default;
 C_PointLight::C_PointLight(std::shared_ptr<Entity::I_Entity> owner) 
 	: Renderer::I_PointLight(owner)
 	, m_Intensity()
+	, m_Offset(0.0f, 0.0f, 0.0f)
 	, m_Color(1.f, 1.f, 1.f)
 {
+}
+
+//=================================================================================
+C_PointLight::C_PointLight(std::shared_ptr<Entity::I_Entity> owner, const MeshData::Light& def)
+	: Renderer::I_PointLight(owner)
+	, m_Intensity()
+	, m_Offset(0.0f, 0.0f, 0.0f)
+	, m_Color(def.m_Color)
+{
+
 }
 
 //=================================================================================

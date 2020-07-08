@@ -129,10 +129,6 @@ void C_ExplerimentWindow::Update()
 	glfwMakeContextCurrent(m_Window);
 
 	//m_ShadowPass->Render();
-	
-	
-	m_renderer->Commit();
-	m_renderer->ClearCommandBuffers();
 
 	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
 
@@ -220,6 +216,7 @@ void C_ExplerimentWindow::Update()
 	}
 
 	// commit of final commands - from commit few lines above
+	m_renderer->SortCommands();
 	m_renderer->Commit();
 	m_renderer->ClearCommandBuffers();
 	glfwSwapBuffers(m_Window);
