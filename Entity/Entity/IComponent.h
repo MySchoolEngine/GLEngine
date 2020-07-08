@@ -55,7 +55,7 @@ public:
 class I_ComponentBuilderFactory
 {
 public:
-	virtual std::unique_ptr<Entity::I_ComponenetBuilder> GetFactory(const std::string& name) = 0;
+	[[nodiscard]] virtual std::unique_ptr<Entity::I_ComponenetBuilder> GetFactory(const std::string& name) = 0;
 	virtual void ConstructFromFile(std::shared_ptr<I_Entity> entity, const std::filesystem::path& file) = 0;
 };
 
