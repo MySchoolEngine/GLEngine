@@ -92,7 +92,8 @@ void C_SkeletalMesh::PerformDraw() const
 					glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_triangles));
 					m_VAO.unbind();
 				}
-				)
+				, "SkeletalMesh - Draw"
+			)
 		)
 	);
 }

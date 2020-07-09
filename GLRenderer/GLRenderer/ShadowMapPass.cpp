@@ -133,8 +133,8 @@ void C_ShadowMapTechnique::Render()
 					[&]() {
 						m_FrameConstUBO->UploadData();
 						m_FrameConstUBO->Activate(true);
-					}
-					)
+					}, "ShadowPass UBO upload"
+				)
 			)
 		);
 	}

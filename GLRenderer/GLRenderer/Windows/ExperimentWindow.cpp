@@ -186,7 +186,7 @@ void C_ExplerimentWindow::Update()
 					shader->SetUniform("gamma", m_GammaSlider.GetValue());
 					shader->SetUniform("exposure", m_ExposureSlider.GetValue());
 					shader->SetUniform("hdrBuffer", 0);
-				}
+				}, "Update HDR"
 			)
 		)
 	);
@@ -209,7 +209,7 @@ void C_ExplerimentWindow::Update()
 				std::make_unique<Commands::HACK::C_LambdaCommand>(
 					[this, shader]() {
 						m_ImGUI->FrameEnd();
-					}
+					}, "m_ImGUI->FrameEnd"
 				)
 			)
 		);

@@ -67,6 +67,7 @@ void C_GLGeomComponent::PerformDraw() const
 					m_Shader->SetUniform("normalMap", 2);
 					m_Shader->SetUniform("useNormalMap", false);
 				}
+				, "GLGeomComponent - upload material"
 			)
 		)
 	);

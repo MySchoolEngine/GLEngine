@@ -76,6 +76,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 						[&]() {
 							glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 						}
+						, "Change polygon mode"
 					)
 				)
 			);
@@ -151,8 +152,8 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 						m_FrameConstUBO->Activate(true);
 						m_LightsUBO->UploadData();
 						m_LightsUBO->Activate(true);
-					}
-					)
+					}, "MainPass - upload UBOs"
+				)
 			)
 		);
 	}
@@ -180,7 +181,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 					std::make_unique<Commands::HACK::C_LambdaCommand>(
 						[&]() {
 							glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-						}
+						}, "Reset polygon mode"
 					)
 				)
 			);

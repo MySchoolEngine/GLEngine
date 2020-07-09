@@ -133,6 +133,7 @@ void C_SkyBox::PerformDraw() const
 					glDepthFunc(GL_LESS); // set depth function back to default
 					m_VAO.unbind();
 				}
+				, "SkyBox draw"
 			)
 		)
 	);
