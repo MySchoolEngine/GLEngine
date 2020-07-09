@@ -35,4 +35,10 @@ std::shared_ptr<Renderer::I_Resource> C_DrawStaticMesh::GetResource() const
 	return m_Mesh;
 }
 
+//=================================================================================
+std::string C_DrawStaticMesh::GetDescriptor() const
+{
+	return std::string("DrawStaticMesh");
+}
+
 }}}}

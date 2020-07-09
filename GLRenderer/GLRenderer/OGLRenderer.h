@@ -8,6 +8,7 @@
 #include <GLRenderer/GUI/Input/CheckBoxValue.h>
 #include <GLRenderer/GUI/Text.h>
 #include <GLRenderer/GUI/Menu/Menu.h>
+#include <GLRenderer/GUI/Input/Button.h>
 
 namespace GLEngine {
 namespace GLRenderer {
@@ -51,11 +52,15 @@ public:
 
 	bool WantWireframe() const { return m_Wireframe.GetValue(); }
 private:
+	void CaputreCommands() const;
+
 	bool m_Locked = false;
 	std::vector<Renderer::I_Renderer::T_CommandPtr>*	m_CommandQueue;
 	GUI::C_PlotLine<500>								m_DrawCommands;
 	GUI::Input::C_CheckBoxValue					m_CatchErrors;
 	GUI::Input::C_CheckBoxValue					m_Wireframe;
+	GUI::Input::C_Button						m_ScreenCaptureList;
+	bool										m_OutputCommandList = false;
 	bool																m_PreviousCatchErrorsVal;
 	Renderer::E_PassType								m_CurrentPass;
 

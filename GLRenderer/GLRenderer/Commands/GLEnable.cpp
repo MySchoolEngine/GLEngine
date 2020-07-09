@@ -26,4 +26,10 @@ Renderer::I_RenderCommand::E_Type C_GLEnable::GetType() const
 	return E_Type::StateChange;
 }
 
+//=================================================================================
+std::string C_GLEnable::GetDescriptor() const
+{
+	return std::string("GLEnable");
+}
+
 }}}

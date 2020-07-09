@@ -19,6 +19,13 @@ public:
 	virtual E_Type GetType() const override;
 	virtual std::shared_ptr<Renderer::I_Resource> GetResource() const override;
 
+
+	//=================================================================================
+	[[nodiscard]] virtual std::string GetDescriptor() const override
+	{
+		return std::string("BindFramebuffer") + std::to_string(m_FBO);
+	}
+
 private:
 	GLuint				m_FBO;
 };
