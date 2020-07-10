@@ -7,15 +7,14 @@
 namespace GLEngine::Physics::Primitives {
 
 struct S_AABB {
+private:
+	constexpr static float maxFloat = std::numeric_limits<float>::infinity();
+	constexpr static float minFloat = -std::numeric_limits<float>::infinity();
 public:
 	constexpr S_AABB()
-	{
-		constexpr float maxFloat = std::numeric_limits<float>::infinity();
-		constexpr float minFloat = -std::numeric_limits<float>::infinity();
-
-		m_Min = glm::vec3(maxFloat, maxFloat, maxFloat);
-		m_Max = glm::vec3(minFloat, minFloat, minFloat);
-	}
+		: m_Min(maxFloat, maxFloat, maxFloat)
+		, m_Max(minFloat, minFloat, minFloat)
+	{}
 
 	constexpr void Add(const glm::vec3& point)
 	{
