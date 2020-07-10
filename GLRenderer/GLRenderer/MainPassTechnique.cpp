@@ -44,7 +44,9 @@ C_MainPassTechnique::C_MainPassTechnique(std::shared_ptr<Entity::C_EntityManager
 void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> camera, unsigned int widht, unsigned int height)
 {
 	RenderDoc::C_DebugScope s("C_MainPassTechnique::Render");
-	const auto entitiesInView = m_WorldToRender->GetEntities(camera->GetFrustum());
+	const auto camFrustum = camera->GetFrustum();
+	const auto camBox = camFrustum.GetAABB().GetSphere();
+	const auto entitiesInView = m_WorldToRender->GetEntities(camFrustum);
 
 	auto& renderer = (Core::C_Application::Get()).GetActiveRenderer();
 	renderer->SetCurrentPassType(Renderer::E_PassType::FinalPass);
@@ -165,7 +167,10 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 			auto renderableComponentsRange = entity->GetComponents(Entity::E_ComponentType::Graphical);
 			for (const auto& it : renderableComponentsRange)
 			{
-				component_cast<Entity::E_ComponentType::Graphical>(it)->PerformDraw();
+				const auto rendarebleComp = component_cast<Entity::E_ComponentType::Graphical>(it);
+				const auto compSphere = rendarebleComp->GetAABB().GetSphere();
+				if(compSphere.IsColliding(camBox))
+					component_cast<Entity::E_ComponentType::Graphical>(it)->PerformDraw();
 			}
 		}
 	}
