@@ -140,6 +140,12 @@ void C_SkyBox::PerformDraw() const
 }
 
 //=================================================================================
+const Physics::Primitives::S_AABB& C_SkyBox::GetAABB() const
+{
+	return m_AABB;
+}
+
+//=================================================================================
 // C_SkyBoxCompBuilder
 //=================================================================================
 std::shared_ptr<Entity::I_Component> C_SkyBoxCompBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)

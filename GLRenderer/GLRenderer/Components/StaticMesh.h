@@ -27,6 +27,7 @@ public:
 	C_StaticMesh(std::string meshFile, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner);
 	C_StaticMesh(const Renderer::MeshData::Mesh& meshFile, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner);
 	virtual void PerformDraw() const override;
+	[[nodiscard]] virtual const Physics::Primitives::S_AABB& GetAABB() const override;
 
 	void SetColor(glm::vec3&& color) { m_Color.SetValue(std::move(color)); }
 	void SetColor(const glm::vec3& color) { 
@@ -48,6 +49,7 @@ protected:
 	std::shared_ptr<Textures::C_Texture>						m_RoughnessMap = nullptr;
 	std::shared_ptr<Textures::C_Texture>						m_ColorMap = nullptr;
 	std::shared_ptr<Textures::C_Texture>						m_NormalMap = nullptr;
+	Physics::Primitives::S_AABB									m_AABB;
 
 	friend class C_StaticMeshBuilder;
 };

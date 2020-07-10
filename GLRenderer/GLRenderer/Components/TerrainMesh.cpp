@@ -354,6 +354,12 @@ void C_TerrainMesh::OnEvent(Core::I_Event& event)
 }
 
 //=================================================================================
+const GLEngine::Physics::Primitives::S_AABB& C_TerrainMesh::GetAABB() const
+{
+	return m_AABB;
+}
+
+//=================================================================================
 glm::mat4 C_TerrainMesh::GetModelMatrix() const
 {
 	return m_ModelMatrix;

@@ -45,7 +45,9 @@ C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::s
 		return;
 	}
 
+	// TODO this is unsafe way to init model
 	m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(scene->meshes[0]);
+	m_AABB = scene->meshes[0].bbox;
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	m_Shader = shmgr.GetProgram(shader.data());
 
@@ -69,6 +71,7 @@ C_StaticMesh::C_StaticMesh(const Renderer::MeshData::Mesh& mesh, std::string_vie
 	: Renderer::I_RenderableComponent(owner)
 {
 	m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(mesh);
+	m_AABB = mesh.bbox;
 
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	m_Shader = shmgr.GetProgram(shader.data());
@@ -156,6 +159,12 @@ void C_StaticMesh::DebugDrawGUI()
 			m_Roughness.Draw();
 		}
 	}
+}
+
+//=================================================================================
+const GLEngine::Physics::Primitives::S_AABB& C_StaticMesh::GetAABB() const
+{
+	return m_AABB;
 }
 
 //=================================================================================
