@@ -4,6 +4,9 @@
 
 #include <GLRenderer/PersistentDebug.h>
 
+#include <Physics/Primitives/Plane.h>
+#include <Physics/Primitives/Ray.h>
+
 #include <Core/Application.h>
 #include <Core/IWindowManager.h>
 #include <Core/IWindow.h>
@@ -225,34 +228,40 @@ bool C_OrbitalCamera::OnMouseScroll(Core::C_MouseScrollEvent& event)
 }
 
 //=================================================================================
+Physics::Primitives::S_Ray C_OrbitalCamera::GetRay(const glm::vec2& screenPos) const
+{
+	const float z = 1.0f;
+	const glm::vec3 ray_nds = glm::vec3(screenPos.x, screenPos.y, z);
+	const glm::vec4 ray_clip = glm::vec4(ray_nds.x, ray_nds.y, -1.0, 1.0);
+	glm::vec4 ray_eye = glm::inverse(GetProjectionMatrix()) * ray_clip;
+	ray_eye = glm::vec4(ray_eye.x, ray_eye.y, -1.0, 0.0);
+
+	glm::vec4 ray_wor = glm::inverse(GetViewMatrix()) * ray_eye;
+	// don't forget to normalise the vector at some point
+	ray_wor = glm::normalize(ray_wor);
+
+	const Physics::Primitives::S_Ray ray{ GetPosition(), glm::vec3(ray_wor) };
+
+	return ray;
+}
+
+//=================================================================================
 bool C_OrbitalCamera::OnMousePress(Core::C_MouseButtonPressed& event)
 {
-	auto remapFnc = [](float low1, float high1, float low2, float high2, float value) {
-		return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
-	};
 	if (event.GetMouseButton() == 0) {
-		auto window = Core::C_Application::Get().GetWndMgr().GetWindow(event.GetWindowGUID());
-		auto screenCoord = window->GetInput().GetMousePosition();
+		const auto window = Core::C_Application::Get().GetWndMgr().GetWindow(event.GetWindowGUID());
+		const auto screenCoord = window->GetInput().GetMousePosition();
 
-		float x = (2.0f * screenCoord.first) / window->GetWidth() - 1.0f;
-		float y = 1.0f - (2.0f * screenCoord.second) / window->GetHeight();
-		float z = 1.0f;
-		glm::vec3 ray_nds = glm::vec3(x, y, z);
-		glm::vec4 ray_clip = glm::vec4(ray_nds.x, ray_nds.y, -1.0, 1.0);
-		glm::vec4 ray_eye = glm::inverse(GetProjectionMatrix()) * ray_clip;
-		ray_eye = glm::vec4(ray_eye.x, ray_eye.y, -1.0, 0.0);
+		const auto clipPosition = window->ToClipSpace({ screenCoord.first, screenCoord.second });
 
-		glm::vec4 ray_wor = glm::inverse(GetViewMatrix()) * ray_eye;
-		// don't forget to normalise the vector at some point
-		ray_wor = glm::normalize(ray_wor);
-		C_PersistentDebug::Instance().DrawLine(glm::vec4(_pos, 1.0f), glm::vec4(_pos, 1.0f) + ray_wor, glm::vec3(0, 1, 0));
+		const Physics::Primitives::S_Ray ray = GetRay(clipPosition);
+		C_PersistentDebug::Instance().DrawLine(glm::vec4(_pos, 1.0f), glm::vec4(_pos, 1.0f) + glm::vec4(ray.direction, 1.0f), glm::vec3(0, 1, 0));
+		constexpr Physics::Primitives::S_Plane ground { glm::vec4(0.0f, 1.0f, 0.0f, 1.0f) , 0.f};
 
+		const auto intersect = ground.IntersectImpl(ray);
 
-
-		glm::vec4 planeNormal = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
-		float t = -(glm::dot(glm::vec4(_pos, 1.0f),planeNormal) - 1 /*offset from origin*/) / (glm::dot(ray_wor, planeNormal));
-		if (t > 0) {
-			glm::vec4 hit = glm::vec4(_pos, 1.0f) + ray_wor*t;
+		if (intersect > 0) {
+			const glm::vec4 hit = glm::vec4(_pos, 1.0f) + glm::vec4(ray.direction, 1.0f) * intersect;
 			C_PersistentDebug::Instance().DrawPoint(hit, glm::vec3(1, 0, 0), glm::mat4(1.0f));
 
 			_center = hit;

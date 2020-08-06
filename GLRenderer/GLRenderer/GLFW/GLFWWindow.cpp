@@ -171,6 +171,14 @@ const Core::I_Input& C_GLFWWindow::GetInput() const
 }
 
 //=================================================================================
+glm::vec2 C_GLFWWindow::ToClipSpace(const glm::vec2& screenCoord) const
+{
+	const float x = (2.0f * screenCoord.x) / GetWidth() - 1.0f;
+	const float y = 1.0f - (2.0f * screenCoord.y) / GetHeight();
+	return { x, y };
+}
+
+//=================================================================================
 void C_GLFWWindow::Destroy()
 {
 	glfwDestroyWindow(m_Window);

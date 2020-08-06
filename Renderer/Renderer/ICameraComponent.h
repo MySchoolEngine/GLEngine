@@ -34,6 +34,8 @@ public:
 	virtual glm::vec3 GetDirection()			const = 0;
 	virtual glm::vec3 GetPosition()				const = 0;
 
+	virtual Physics::Primitives::S_Ray GetRay(const glm::vec2& screenPos) const = 0;
+
 	virtual Physics::Primitives::C_Frustum GetFrustum()		const = 0;
 protected:
 	I_CameraComponent() : Entity::I_Component(nullptr) {}

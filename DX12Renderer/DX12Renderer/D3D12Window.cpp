@@ -144,4 +144,11 @@ LRESULT CALLBACK C_D3D12Window::WindowProc(HWND hWnd, UINT message, WPARAM wPara
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
+//=================================================================================
+glm::vec2 C_D3D12Window::ToClipSpace(const glm::vec2& screenCoord) const
+{
+	// TOOD
+	return screenCoord;
+}
+
 }

@@ -28,6 +28,11 @@ public:
 	virtual unsigned int	GetHeight() const = 0;
 	virtual glm::uvec2		GetSize() const = 0;
 	virtual const I_Input&	GetInput() const = 0;
+	/**
+	 * Transforms screen space coordinates to clip space
+	 * Clip space have (0,0) in the middle of viewport
+	 */
+	virtual glm::vec2 ToClipSpace(const glm::vec2& screenCoord) const = 0;
 
 	virtual void Update() = 0;
 

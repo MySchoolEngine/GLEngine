@@ -34,6 +34,9 @@ public:
 	//=================================================================================
 	virtual const Core::I_Input& GetInput() const override;
 
+
+	virtual glm::vec2 ToClipSpace(const glm::vec2& screenCoord) const override;
+
 protected:
 	C_GLFWWindow();
 	virtual void Destroy() override;

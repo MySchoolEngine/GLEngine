@@ -66,6 +66,9 @@ public:
 	virtual void OnEvent(Core::I_Event& event) override;
 	virtual void DebugDrawGUI() override;
 
+
+	virtual Physics::Primitives::S_Ray GetRay(const glm::vec2& screenPos) const override;
+
 protected:
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
 	bool OnKeyRepeated(Core::C_KeyRepeatedEvent& event);
