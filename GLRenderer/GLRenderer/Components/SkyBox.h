@@ -26,6 +26,10 @@ public:
 	//==========================================
 	virtual void PerformDraw() const override;
 
+	virtual Physics::Primitives::S_AABB GetAABB() const override
+	{
+		return Physics::Primitives::S_AABB();
+	}
 private:
 	Textures::C_Texture m_Textures;
 	VAO::C_GLVAO<1>			m_VAO;

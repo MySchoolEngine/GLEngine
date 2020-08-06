@@ -97,12 +97,10 @@ Physics::Primitives::S_RayIntersection C_EntityManager::Select(const Physics::Pr
 {
 	{
 		using namespace Physics::Primitives;
-		S_Plane plane;
-		plane.noraml = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
-		plane.originOffset = -1;
+		constexpr S_Plane plane{ glm::vec4(0.0f, 1.0f, 0.0f, 1.0f) , -1};
 		S_RayIntersection intersection;
 		intersection.entityId = INVALID_GUID;
-		intersection.distance = plane.Intersect(ray);
+		intersection.distance = plane.IntersectImpl(ray);
 		intersection.intersectionPoint = ray.origin + ray.direction*intersection.distance;
 		intersection.ray = ray;
 		return intersection;

@@ -17,6 +17,9 @@ public:
 	//=======================================================
 	virtual void PerformDraw() const override;
 
+
+	virtual Physics::Primitives::S_AABB GetAABB() const override;
+
 protected:
 	std::vector<std::shared_ptr<C_TerrainMesh>> m_Meshes;
 };

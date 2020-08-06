@@ -32,6 +32,9 @@ public:
 	
 	void DebugDrawGUI() override;
 
+
+	virtual Physics::Primitives::S_AABB GetAABB() const override;
+
 protected:
 	std::string																			m_meshFile;
 	std::shared_ptr<Mesh::C_StaticMeshResource>			m_Mesh;
@@ -42,6 +45,7 @@ protected:
 	std::shared_ptr<Textures::C_Texture>						m_RoughnessMap = nullptr;
 	std::shared_ptr<Textures::C_Texture>						m_ColorMap = nullptr;
 	std::shared_ptr<Textures::C_Texture>						m_NormalMap = nullptr;
+	Physics::Primitives::S_AABB											m_AABB;
 
 	friend class C_StaticMeshBuilder;
 };

@@ -49,6 +49,9 @@ public:
 	//=================================================================================
 	virtual void OnEvent(Core::I_Event& event) override;
 
+
+	virtual Physics::Primitives::S_AABB GetAABB() const override;
+
 protected:
 	std::shared_ptr<Mesh::C_TerrainMeshResource>		m_Terrain;
 	glm::ivec2						m_Coord;

@@ -40,6 +40,18 @@ GLEngine::T_ComponentPtr I_Entity::GetComponent(E_ComponentType type) const
 }
 
 //=================================================================================
+Physics::Primitives::S_AABB I_Entity::GetAABB() const
+{
+	Physics::Primitives::S_AABB aabb;
+	std::for_each(m_Components->begin(), m_Components->end(), [&aabb](const auto& component) 
+		{
+			aabb.Add(component.second->GetAABB());
+		});
+
+	return aabb;
+}
+
+//=================================================================================
 void I_Entity::AddComponent(T_ComponentPtr component)
 {
 	Entity::C_ComponentManager::Instance().RegisterComponent(component);

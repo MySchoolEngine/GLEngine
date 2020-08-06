@@ -22,6 +22,10 @@ public:
 		return Entity::E_ComponentType::Camera;
 	}
 
+	virtual Physics::Primitives::S_AABB GetAABB() const override
+	{
+		return Physics::Primitives::S_AABB();
+	}
 
 	virtual glm::mat4 GetViewProjectionMatrix() const = 0;
 	virtual glm::mat4 GetProjectionMatrix()		const = 0;

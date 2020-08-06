@@ -4,6 +4,8 @@
 
 #include <Core/EventSystem/EventReciever.h>
 
+#include <Physics/Primitives/AABB.h>
+
 namespace pugi {
 class xml_node;
 }
@@ -31,6 +33,7 @@ public:
 	virtual void DebugDrawGUI() {};
 	void SetModelMatrix(const glm::mat4& modelMatrix) { m_ModelMatrix = modelMatrix; };
 
+	virtual Physics::Primitives::S_AABB GetAABB() const = 0;
 protected:
 	std::shared_ptr<I_Entity> GetOwner() const;
 

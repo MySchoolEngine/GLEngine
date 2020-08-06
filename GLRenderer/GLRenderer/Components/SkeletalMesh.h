@@ -24,6 +24,8 @@ public:
 	virtual void Update() override;
 
 	virtual void DebugDrawGUI() override;
+
+	virtual Physics::Primitives::S_AABB GetAABB() const override;
 public:
 	std::shared_ptr<Mesh::C_StaticMeshResource>				m_Mesh;
 	std::shared_ptr<Textures::C_Texture>					m_Texture;
@@ -32,6 +34,7 @@ public:
 	std::shared_ptr<Buffers::UBO::C_JointTramsformsUBO>		m_TransformationUBO;
 	GUI::Input::C_CheckBoxValue								m_RenderMesh; 
 	GUI::Input::C_Slider<float>								m_AnimationProgress;
+	Physics::Primitives::S_AABB								m_AABB;
 
 	VAO::C_GLVAO<5>											m_VAO;
 	std::size_t												m_triangles;

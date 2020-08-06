@@ -35,6 +35,7 @@ public:
 	virtual void Update() {};
 	virtual void PostUpdate() {};
 
+	Physics::Primitives::S_AABB GetAABB() const;
 
 	void AddComponent(T_ComponentPtr component);
 
