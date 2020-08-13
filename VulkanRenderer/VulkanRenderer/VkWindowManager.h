@@ -13,22 +13,20 @@ class C_VkWindowManager : public GLFWManager::C_GLFWWindowManager {
 public:
 	C_VkWindowManager(Core::C_Application::EventCallbackFn eventCallback);
 	~C_VkWindowManager();
+
+	//=================================================================================
+	std::shared_ptr<Core::I_Window> OpenNewWindow(const Core::S_WindowInfo& info) override;
+
 protected:
 	virtual void Init() override;
 
-	bool InitDevice();
 	void SetupDebug();
 	void InitDebug();
 
 	void CheckLayersSupport();
 
-	VkInstance_T*		m_Instance;
-	VkDevice_T*			m_Device;
-	VkPhysicalDevice_T* m_GPU;
+	VkInstance_T*				m_Instance;
 	VkDebugUtilsMessengerEXT_T* m_DebugMessenger;
-
-	uint32_t m_GraphicsFamilyIndex;
-	uint32_t m_ComputeFamilyIndex;
 
 	std::vector<const char*> m_instance_layer_list;
 	std::vector<const char*> m_instance_extensions_list;

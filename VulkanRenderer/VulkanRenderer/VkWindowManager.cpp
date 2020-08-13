@@ -65,7 +65,6 @@ void C_VkWindowManager::Init()
 #ifdef GL_ENGINE_DEBUG
 	InitDebug();
 #endif
-	InitDevice();
 }
 
 //=================================================================================
@@ -75,77 +74,9 @@ C_VkWindowManager::~C_VkWindowManager()
 	GLE_ASSERT(pfnvkDestroyDebugUtilsMessengerEXT, "GLFW: havent found vkDestroyDebugUtilsMessengerEXT");
 	pfnvkDestroyDebugUtilsMessengerEXT(m_Instance, m_DebugMessenger, nullptr);
 
-	vkDestroyDevice(m_Device, nullptr);
 	vkDestroyInstance(m_Instance, nullptr);
 	m_Instance = nullptr;
 
-}
-
-//=================================================================================
-bool C_VkWindowManager::InitDevice()
-{
-	auto pfnCreateDevice = (PFN_vkCreateDevice)
-		glfwGetInstanceProcAddress(m_Instance, "vkCreateDevice");
-
-	uint32_t gpuCount = 0;
-	vkEnumeratePhysicalDevices(m_Instance, &gpuCount, nullptr);
-	GLE_ASSERT(gpuCount > 0, "No GPU detected");
-	std::vector<VkPhysicalDevice> gpus(gpuCount);
-	vkEnumeratePhysicalDevices(m_Instance, &gpuCount, gpus.data());
-	m_GPU = gpus[0];
-
-	{
-		uint32_t familyCount = 0;
-		vkGetPhysicalDeviceQueueFamilyProperties(m_GPU, &familyCount, nullptr);
-		std::vector<VkQueueFamilyProperties> familyProperties(familyCount);
-		vkGetPhysicalDeviceQueueFamilyProperties(m_GPU, &familyCount, familyProperties.data());
-
-		uint32_t i = 0;
-		bool found = false;
-		for (auto it : familyProperties)
-		{
-			if (it.queueFlags & VK_QUEUE_GRAPHICS_BIT)
-			{
-				m_GraphicsFamilyIndex = i;
-				found = true;
-			}
-			else if (it.queueFlags & VK_QUEUE_COMPUTE_BIT)
-			{
-				m_ComputeFamilyIndex = i;
-			}
-			++i;
-		}
-		if (!found)
-		{
-			GLE_ASSERT(found, "Vulkan: Not found queue supporting graphics.");
-			std::exit(EXIT_FAILURE);
-		}
-	}
-
-	float queue_priorities[]{ 1.0f };
-	VkDeviceQueueCreateInfo device_queue_create_info{};
-	device_queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-	device_queue_create_info.pNext = nullptr;
-	device_queue_create_info.flags = 0;
-	device_queue_create_info.queueFamilyIndex = m_GraphicsFamilyIndex;
-	device_queue_create_info.queueCount = 1;
-	device_queue_create_info.pQueuePriorities = queue_priorities;
-
-	VkDeviceCreateInfo device_create_info{};
-	device_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-	device_create_info.pNext = nullptr;
-	device_create_info.queueCreateInfoCount = 1;
-	device_create_info.pQueueCreateInfos = &device_queue_create_info;
-	
-
-	auto ret = pfnCreateDevice(m_GPU, &device_create_info, nullptr, &m_Device);
-	if (ret != VK_SUCCESS)
-	{
-		CORE_LOG(E_Level::Error, E_Context::Core, "Vulkan device unable to initialize. Error code: '{}'", ret);
-		std::exit(EXIT_FAILURE);
-	}
-
-	return false;
 }
 
 //=================================================================================
@@ -155,6 +86,8 @@ void C_VkWindowManager::SetupDebug()
 	m_instance_layer_list.emplace_back("VK_LAYER_KHRONOS_validation");
 
 	m_instance_extensions_list.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+	m_instance_extensions_list.emplace_back(VK_KHR_SURFACE_EXTENSION_NAME);
+	m_instance_extensions_list.emplace_back("VK_KHR_win32_surface");
 }
 
 //=================================================================================
@@ -203,6 +136,19 @@ void C_VkWindowManager::CheckLayersSupport()
 		}
 	}
 #endif
+}
+
+//=================================================================================
+std::shared_ptr<GLEngine::Core::I_Window> C_VkWindowManager::OpenNewWindow(const Core::S_WindowInfo& info)
+{
+	if (info.GetDriver() != Core::E_Driver::Vulkan)
+	{
+		return nullptr;
+	}
+	auto* vkwndInfo = (const_cast<S_VkWindowInfo*>(dynamic_cast<const S_VkWindowInfo*>(&info)));
+	vkwndInfo->m_Instance = m_Instance;
+
+	return GLFWManager::C_GLFWWindowManager::OpenNewWindow(info);
 }
 
 //=================================================================================

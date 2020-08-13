@@ -6,9 +6,10 @@
 
 namespace GLEngine::VkRenderer {
 
+// VkRenderer is tightly bound to its window now
 class C_VkRenderer : public Renderer::I_Renderer {
 public:
-	C_VkRenderer();
+	C_VkRenderer(VkInstance instance, GLFWwindow* window);
 	virtual ~C_VkRenderer() override;
 
 	//=================================================
@@ -24,7 +25,41 @@ public:
 	virtual void ClearCommandBuffers() override;
 
 private:
+	struct SwapChainSupportDetails {
+		VkSurfaceCapabilitiesKHR		capabilities;
+		std::vector<VkSurfaceFormatKHR> formats;
+		std::vector<VkPresentModeKHR>	presentModes;
+	};
+
 	bool m_Locked = false;
 	std::vector<Renderer::I_Renderer::T_CommandPtr>* m_CommandQueue;
+
+	VkInstance_T*		m_Instance;
+	VkDevice_T*			m_Device;
+	VkPhysicalDevice_T* m_GPU;
+	uint32_t			m_GraphicsFamilyIndex;
+	uint32_t			m_ComputeFamilyIndex;
+	uint32_t			m_PresentingFamilyIndex;
+	GLFWwindow*			m_Window;
+	VkSurfaceKHR_T*		m_Surface;
+
+	VkQueue m_graphicsQueue;
+	VkQueue m_presentQueue;
+
+	VkSwapchainKHR m_SwapChain;
+	std::vector<VkImage> m_SwapChainImages;
+	VkFormat	m_SwapChainImageFormat;
+	VkExtent2D	m_SwapChainExtent;
+
+	bool InitDevice();
+	bool CreateWindowSurface();
+	SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
+	VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+	VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+	VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, VkExtent2D actualExtent);
+	void createSwapChain();
+	std::vector<VkDeviceQueueCreateInfo> CreatePresentingQueueInfos();
+
 };
+
 }

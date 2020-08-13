@@ -5,6 +5,8 @@
 
 #include <GLFWWindowManager/GLFWWindow.h>
 
+struct GLFWwindow;
+
 namespace GLEngine::VkRenderer {
 
 class C_VkWindow : public GLFWManager::C_GLFWWindow {
@@ -17,5 +19,7 @@ public:
 protected:
 	virtual void Init(const Core::S_WindowInfo& wndInfo) override;
 	std::unique_ptr<Renderer::I_Renderer> m_renderer;
+
+	VkInstance_T* m_Instance;
 };
 }

@@ -5,11 +5,14 @@
 #include <VulkanRenderer/VkWindowInfo.h>
 #include <VulkanRenderer/VkRenderer.h>
 
+#include <GLFW/glfw3.h>
+
 namespace GLEngine::VkRenderer {
 
 //=================================================================================
 C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
 	: m_renderer(nullptr)
+	, m_Instance(nullptr)
 {
 	Init(wndInfo);
 }
@@ -22,15 +25,16 @@ void C_VkWindow::Init(const Core::S_WindowInfo& wndInfo)
 {
 	GLE_ASSERT(wndInfo.GetDriver() == Core::E_Driver::Vulkan, "This class supports only OpenGL");
 
-	const auto wndInfoOGL = dynamic_cast<const S_VkWindowInfo*>(&wndInfo);
+	const auto vkInfo = dynamic_cast<const S_VkWindowInfo*>(&wndInfo);
 	SetLayerDebugName(wndInfo.m_name);
+	m_Instance = vkInfo->m_Instance;
 	
 	WindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
 	C_GLFWWindow::Init(wndInfo);
 	MakeCurrent();
 
-	m_renderer = std::make_unique<VkRenderer::C_VkRenderer>();
+	m_renderer = std::make_unique<VkRenderer::C_VkRenderer>(m_Instance, m_Window);
 
 	CORE_LOG(E_Level::Info, E_Context::Render, "GLFW: Vulkan window initialized");
 }
