@@ -15,12 +15,16 @@ C_VkRenderer::C_VkRenderer(VkInstance instance, GLFWwindow* window)
 {
 	CreateWindowSurface();
 	InitDevice();
-	createSwapChain();
+	CreateSwapChain();
+	CreateImageViews();
 }
 
 //=================================================================================
 C_VkRenderer::~C_VkRenderer()
 {
+	for (auto imageView : m_SwapChainImagesViews) {
+		vkDestroyImageView(m_Device, imageView, nullptr);
+	}
 	vkDestroySwapchainKHR(m_Device, m_SwapChain, nullptr);
 	vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
 	vkDestroyDevice(m_Device, nullptr);
@@ -252,7 +256,7 @@ VkExtent2D C_VkRenderer::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabi
 }
 
 //=================================================================================
-void C_VkRenderer::createSwapChain() {
+void C_VkRenderer::CreateSwapChain() {
 	const SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(m_GPU);
 
 	const VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
@@ -314,4 +318,40 @@ void C_VkRenderer::createSwapChain() {
 	m_SwapChainImageFormat = surfaceFormat.format;
 	m_SwapChainExtent = extent;
 }
+
+//=================================================================================
+void C_VkRenderer::CreateImageViews()
+{
+	m_SwapChainImagesViews.resize(m_SwapChainImages.size());
+
+	std::size_t i = 0;
+	for (const auto& image : m_SwapChainImages)
+	{
+		VkImageViewCreateInfo createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		createInfo.image = image;
+
+		createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		createInfo.format = m_SwapChainImageFormat;
+
+		createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+		createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		createInfo.subresourceRange.baseMipLevel = 0;
+		createInfo.subresourceRange.levelCount = 1;
+		createInfo.subresourceRange.baseArrayLayer = 0;
+		createInfo.subresourceRange.layerCount = 1;
+
+		if (vkCreateImageView(m_Device, &createInfo, nullptr, &m_SwapChainImagesViews[i]) != VK_SUCCESS) {
+			CORE_LOG(E_Level::Error, E_Context::Render, "failed to create image views");
+			return;
+		}
+
+		++i;
+	}
+}
+
 }
