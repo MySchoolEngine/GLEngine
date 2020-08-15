@@ -19,6 +19,10 @@ public:
 	virtual E_Type GetType() const override;
 	virtual std::shared_ptr<Renderer::I_Resource> GetResource() const override;
 
+
+	//=================================================================================
+	[[nodiscard]] virtual std::string GetDescriptor() const override;
+
 private:
 	std::string m_Name;
 	std::function<void(void)> m_fnc;

@@ -186,7 +186,7 @@ void C_ExplerimentWindow::Update()
 					shader->SetUniform("gamma", m_GammaSlider.GetValue());
 					shader->SetUniform("exposure", m_ExposureSlider.GetValue());
 					shader->SetUniform("hdrBuffer", 0);
-				}
+				}, "Update HDR"
 			)
 		)
 	);
@@ -209,7 +209,7 @@ void C_ExplerimentWindow::Update()
 				std::make_unique<Commands::HACK::C_LambdaCommand>(
 					[this, shader]() {
 						m_ImGUI->FrameEnd();
-					}
+					}, "m_ImGUI->FrameEnd"
 				)
 			)
 		);
@@ -348,7 +348,7 @@ void C_ExplerimentWindow::SetupWorld()
 {
 	m_MainPass = std::make_unique<C_MainPassTechnique>(m_World);
 	m_HDRFBO = std::make_unique<C_Framebuffer>("HDR");
-	if (!m_World->LoadLevel("Levels/dark.xml", std::make_unique<Components::C_ComponentBuilderFactory>()))
+	if (!m_World->LoadLevel("Levels/lightsTest.xml", std::make_unique<Components::C_ComponentBuilderFactory>()))
 	{
 		CORE_LOG(E_Level::Warning, E_Context::Render, "Level not loaded");
 		return;

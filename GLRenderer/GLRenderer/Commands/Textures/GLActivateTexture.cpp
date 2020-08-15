@@ -26,4 +26,10 @@ Renderer::I_RenderCommand::E_Type C_GLActivateTexture::GetType() const
 	return E_Type::StateChange;
 }
 
+//=================================================================================
+std::string C_GLActivateTexture::GetDescriptor() const
+{
+	return std::string("ActivateTexture unit: ") + std::to_string(m_Unit);
+}
+
 }}}

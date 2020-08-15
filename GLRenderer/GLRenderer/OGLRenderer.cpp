@@ -34,6 +34,7 @@ C_OGLRenderer::C_OGLRenderer()
 				("Min/max {:.2f}/{:.2f}"),
 				("Draw calls: {}")
 			}})
+	, m_ScreenCaptureList("Capture frame commands", [&]() {m_OutputCommandList = true; })
 	, m_Window(INVALID_GUID)
 	, m_Windows("Windows")
 {
@@ -103,6 +104,11 @@ void C_OGLRenderer::ClearCommandBuffers()
 		{
 			return command->GetType() == Renderer::I_RenderCommand::E_Type::DrawCall;
 		});
+	if (m_OutputCommandList)
+	{
+		CaputreCommands();
+		m_OutputCommandList = false;
+	}
 	m_CommandQueue->clear();
 	const auto avgDrawCommands = m_DrawCommands.Avg();
 	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgDrawCommands)].UpdateText(avgDrawCommands);
@@ -157,6 +163,7 @@ GUID C_OGLRenderer::SetupControls(ImGui::C_GUIManager& guiMan)
 
 	m_Windows.AddMenuItem(guiMan.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Shader manager", shmgrWindow, guiMan));
 	m_Windows.AddMenuItem(guiMan.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Texture manager", tmgrWindow, guiMan));
+	renderStats->AddComponent(m_ScreenCaptureList);
 
 	return m_Window;
 }
@@ -182,6 +189,24 @@ Renderer::E_PassType C_OGLRenderer::GetCurrentPassType() const
 void C_OGLRenderer::SetCurrentPassType(Renderer::E_PassType type)
 {
 	m_CurrentPass = type;
+}
+
+//=================================================================================
+void C_OGLRenderer::CaputreCommands() const
+{
+	std::ofstream file;
+	const std::filesystem::path debugPath("obj/frameCommands.txt");
+	file.open(debugPath);
+
+	if (!file.is_open())
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "Cannot open file for debug output");
+	}
+	for (const auto& command : (*m_CommandQueue)) {
+		file << command->GetDescriptor() << "\n";
+	}
+	file.flush();
+	file.close();
 }
 
 }}

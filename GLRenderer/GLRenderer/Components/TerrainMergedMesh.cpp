@@ -23,4 +23,11 @@ void C_TerrainMergedMesh::PerformDraw() const
 	});
 }
 
+//=================================================================================
+const GLEngine::Physics::Primitives::S_AABB& C_TerrainMergedMesh::GetAABB() const
+{
+	// TODO TODO TODO wrong aabb
+	return m_AABB;
+}
+
 }}}

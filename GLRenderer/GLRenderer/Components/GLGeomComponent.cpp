@@ -29,6 +29,7 @@ C_GLGeomComponent::C_GLGeomComponent(std::shared_ptr<Entity::I_Entity> owner)
 void C_GLGeomComponent::SetupGeometry(const Renderer::MeshData::Mesh& mesh)
 {
 	m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(mesh);
+	m_AABB = mesh.bbox;
 }
 
 //=================================================================================
@@ -67,6 +68,7 @@ void C_GLGeomComponent::PerformDraw() const
 					m_Shader->SetUniform("normalMap", 2);
 					m_Shader->SetUniform("useNormalMap", false);
 				}
+				, "GLGeomComponent - upload material"
 			)
 		)
 	);
@@ -115,7 +117,13 @@ void C_GLGeomComponent::SetupMaterial(const Utils::Parsing::MaterialData& data)
 }
 
 //=================================================================================
-std::shared_ptr<GLEngine::Renderer::C_GeomComponent> C_GLGeomComponentBuilder::ConstructComponent(std::shared_ptr<Entity::I_Entity> owner) const
+const Physics::Primitives::S_AABB& C_GLGeomComponent::GetAABB() const
+{
+	return m_AABB;
+}
+
+//=================================================================================
+std::shared_ptr<Renderer::C_GeomComponent> C_GLGeomComponentBuilder::ConstructComponent(std::shared_ptr<Entity::I_Entity> owner) const
 {
 	return std::make_shared<C_GLGeomComponent>(owner);
 }

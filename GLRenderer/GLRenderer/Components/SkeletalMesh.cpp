@@ -92,7 +92,8 @@ void C_SkeletalMesh::PerformDraw() const
 					glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_triangles));
 					m_VAO.unbind();
 				}
-				)
+				, "SkeletalMesh - Draw"
+			)
 		)
 	);
 }
@@ -193,6 +194,15 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, std::str
 	m_VAO.EnableArray<4>();
 
 	m_VAO.unbind();
+
+	m_AABB = mesh.bbox;
+}
+
+//=================================================================================
+const Physics::Primitives::S_AABB& C_SkeletalMesh::GetAABB() const
+{
+	// TODO probably should be updated in some clever way with the animation.
+	return m_AABB;
 }
 
 //=================================================================================

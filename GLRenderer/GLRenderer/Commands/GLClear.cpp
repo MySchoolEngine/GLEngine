@@ -40,6 +40,12 @@ std::shared_ptr<Renderer::I_Resource> C_GLClear::GetResource() const
 }
 
 //=================================================================================
+std::string C_GLClear::GetDescriptor() const
+{
+	return std::string("GLClear");
+}
+
+//=================================================================================
 int C_GLClear::EnumToFlags(Utils::C_BitField<E_ClearBits>) const
 {
 	int ret = 0;

@@ -19,6 +19,10 @@ public:
 	virtual void Commit() override;
 	virtual E_Type GetType() const override;
 	virtual std::shared_ptr<Renderer::I_Resource> GetResource() const override;
+	[[nodiscard]] virtual std::string GetDescriptor() const override
+	{
+		return fmt::format("glFramebufferTexture {} {}", m_Attachement, m_Texture->GetTexture());
+	}
 
 private:
 	GLenum									m_Attachement;

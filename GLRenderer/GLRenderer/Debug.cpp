@@ -195,7 +195,7 @@ void C_DebugDraw::DrawAABB(const Physics::Primitives::S_AABB& bbox, const glm::v
 					glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, (GLvoid*)(8 * sizeof(GLushort)));
 
 					m_VAOaabb.unbind();
-				}
+				}, "Debug - DrawAABB"
 			)
 		)
 	);
@@ -421,7 +421,7 @@ void C_DebugDraw::DrawMergedGeoms()
 
 					m_PointsVertices.clear();
 					m_PointsColors.clear();
-				}
+				}, "C_DebugDraw::DrawMergedGeoms"
 			)
 		)
 	);

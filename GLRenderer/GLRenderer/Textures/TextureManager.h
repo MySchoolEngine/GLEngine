@@ -2,7 +2,7 @@
 
 #include <GLRenderer/GUI/LambdaPart.h>
 
-namespace GLEngien::Renderer::MeshData
+namespace GLEngine::Renderer::MeshData
 {
 struct Texture;
 }

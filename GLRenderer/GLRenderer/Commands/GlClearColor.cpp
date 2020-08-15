@@ -34,6 +34,12 @@ std::shared_ptr<GLEngine::Renderer::I_Resource> C_GLClearColor::GetResource() co
 	return nullptr;
 }
 
+//=================================================================================
+std::string C_GLClearColor::GetDescriptor() const
+{
+	return fmt::format("GLClearColor {}", m_Colour);
+}
+
 }
 }
 }
