@@ -2,18 +2,21 @@
 
 #include <GLRenderer/Shaders/ShaderPreprocessor.h>
 
-#include <GLRenderer/Shaders/Generation/ShaderTypesReflection.h>
-
 #include <fmt/format.h>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Shaders {
+namespace GLEngine::GLRenderer::Shaders {
 
 //=================================================================================
 const std::regex C_ShaderPreprocessor::s_IncludeFileName	= std::regex(R"(^(#include )\"([^\"]*)\"$)");
 const std::regex C_ShaderPreprocessor::s_GenerateStruct		= std::regex(R"(^(@struct )([^\"\n;\s]*))");
-const std::regex C_ShaderPreprocessor::s_DefineRegEx			= std::regex(R"(^(#define )([^\s]*)\s([^\s]+)$)");
+const std::regex C_ShaderPreprocessor::s_DefineRegEx		= std::regex(R"(^(#define )([^\s]*)\s([^\s]+)$)");
+
+//=================================================================================
+C_ShaderPreprocessor::C_ShaderPreprocessor(std::unique_ptr<Renderer::Shaders::I_CodeProvider>&& codeProvider)
+	: m_CodeProvider(std::move(codeProvider))
+{
+
+}
 
 //=================================================================================
 void C_ShaderPreprocessor::Define(const std::string& symbol, const std::string& value) {
@@ -65,11 +68,10 @@ void C_ShaderPreprocessor::CodeGeneration(std::string& content)
 {
 	std::smatch m;
 	std::string result = "";
-	const auto& shaderTypes = C_ShaderTypesReflection::Instance();
 
 	while (std::regex_search(content, m, s_GenerateStruct)) {
 		result += m.prefix().str();
-		result += shaderTypes.GetStructDescription(m[2]).Generate();
+		result += m_CodeProvider->GetStructCode(m[2]);
 		content = m.suffix().str();
 	}
 	content = result + content;
@@ -118,6 +120,5 @@ bool C_ShaderPreprocessor::_loadFile(const char* file, std::string& content)
 	content = std::string(std::istream_iterator<char>(stream >> std::noskipws), std::istream_iterator<char>());
 	return true;
 }
-}
-}
+
 }

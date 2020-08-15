@@ -11,14 +11,14 @@
  
 #pragma once
 
-#include <filesystem>
+#include <Renderer/Shaders/CodeGeneration.h>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Shaders {
+namespace GLEngine::GLRenderer::Shaders {
 
 class C_ShaderPreprocessor {
 public:
+	C_ShaderPreprocessor(std::unique_ptr<Renderer::Shaders::I_CodeProvider>&& codeProvider);
+
 	using T_Paths = std::vector<std::filesystem::path>;
 	void Define(const std::string& symbol, const std::string& value);
 	std::string PreprocessFile(const std::string& src, const std::string& filepath);
@@ -35,6 +35,8 @@ protected:
 	using T_Defines = std::map<std::string, std::string>;
 	T_Defines m_defines;
 
+	std::unique_ptr<Renderer::Shaders::I_CodeProvider> m_CodeProvider;
+
 	T_Paths m_Paths;
 
 	bool m_Result = true;
@@ -43,6 +45,4 @@ protected:
 	const static std::regex s_GenerateStruct;
 	const static std::regex s_DefineRegEx;
 };
-}
-}
 }

@@ -39,3 +39,5 @@
 #include <Core/CoreMacros.h>
 
 #include <GLRenderer/GLRendererApi.h>
+
+#include <Renderer/Definitions.h>

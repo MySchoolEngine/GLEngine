@@ -11,9 +11,7 @@
 #include <pugixml.hpp>
 
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Shaders {
+namespace GLEngine::GLRenderer::Shaders {
 //=================================================================================
 const std::filesystem::path C_ShaderManager::s_ShadersFolder = "shaders/";
 
@@ -196,22 +194,20 @@ bool C_ShaderManager::LoadDoc(pugi::xml_document & document, const std::filesyst
 GLuint C_ShaderManager::LoadShader(const pugi::xml_node& node, C_ShaderCompiler& compiler) const
 {
 	GLuint shader = 0;
-	std::string str;
 
-	std::string stageAttribute = node.attribute("stage").value();
+	const std::string_view stageAttribute = node.attribute("stage").value();
 
-	int stage = GL_VERTEX_SHADER;
-	if (stageAttribute == "vertex") stage = GL_VERTEX_SHADER;
-	else if (stageAttribute == "fragment") stage = GL_FRAGMENT_SHADER;
-	else if (stageAttribute == "geometry") stage = GL_GEOMETRY_SHADER;
-	else if (stageAttribute == "compute") stage = GL_COMPUTE_SHADER;
-	else if (stageAttribute == "tess-control") stage = GL_TESS_CONTROL_SHADER;
-	else if (stageAttribute == "tess-evaluation") stage = GL_TESS_EVALUATION_SHADER;
+	Renderer::E_ShaderStage stage = Renderer::E_ShaderStage::Vertex;
+	if (stageAttribute == "vertex") stage = Renderer::E_ShaderStage::Vertex;
+	else if (stageAttribute == "fragment") stage = Renderer::E_ShaderStage::Fragment;
+	else if (stageAttribute == "geometry") stage = Renderer::E_ShaderStage::Geometry;
+	else if (stageAttribute == "compute") stage = Renderer::E_ShaderStage::Compute;
+	else if (stageAttribute == "tess-control") stage = Renderer::E_ShaderStage::TesselationControl;
+	else if (stageAttribute == "tess-evaluation") stage = Renderer::E_ShaderStage::TesselationEvaluation;
 
-	auto filename(s_ShadersFolder);
-	filename += std::filesystem::path(node.first_child().value());
+	const auto filename = s_ShadersFolder / std::filesystem::path(node.first_child().value());
 
-	if (!compiler.compileShader(shader, filename, stage)) {
+	if (!compiler.compileShaderStage(shader, filename, stage)) {
 		CORE_LOG(E_Level::Error, E_Context::Render, "--Compilation error");
 		CORE_LOG(E_Level::Error, E_Context::Render, "{}", filename.generic_string());
 		return 0;
@@ -233,7 +229,7 @@ GLuint C_ShaderManager::LoadProgram(const std::filesystem::path& name, C_ShaderC
 	std::vector<GLuint> shaders;
 
 	for (auto& shader : doc.child("pipeline").children("shader")) {
-		GLuint shaderStage = LoadShader(shader, compiler);
+		const auto shaderStage = LoadShader(shader, compiler);
 		if (shaderStage == 0) {
 			return 0;
 		}
@@ -247,6 +243,4 @@ GLuint C_ShaderManager::LoadProgram(const std::filesystem::path& name, C_ShaderC
 	return program;
 }
 
-}
-}
 }

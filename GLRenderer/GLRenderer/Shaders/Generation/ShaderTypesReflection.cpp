@@ -19,7 +19,7 @@ C_ShaderTypesReflection::C_ShaderTypesReflection()
 }
 
 //=================================================================================
-const C_StructDescriptor C_ShaderTypesReflection::GetStructDescription(const std::string name) const
+const C_StructDescriptor C_ShaderTypesReflection::GetStructDescription(const std::string& name) const
 {
 	const auto it = m_StructReflections.find(name);
 	if (it == m_StructReflections.end())
@@ -28,6 +28,14 @@ const C_StructDescriptor C_ShaderTypesReflection::GetStructDescription(const std
 	}
 
 	return it->second;
+}
+
+//=================================================================================
+std::string C_GLCodeProvider::GetStructCode(const std::string& name) const
+{
+	const auto& shaderTypes = C_ShaderTypesReflection::Instance();
+
+	return shaderTypes.GetStructDescription(name).Generate();
 }
 
 }

@@ -2,6 +2,8 @@
 
 #include <GLRenderer/Shaders/Generation/ShaderStructs.h>
 
+#include <Renderer/Shaders/CodeGeneration.h>
+
 namespace GLEngine::GLRenderer::Shaders {
 
 class C_ShaderTypesReflection
@@ -15,11 +17,18 @@ public:
 	template<class T>
 	void Register();
 
-	const C_StructDescriptor GetStructDescription(const std::string name) const;
+	const C_StructDescriptor GetStructDescription(const std::string& name) const;
 private:
 	C_ShaderTypesReflection();
 
 	std::map<std::string, C_StructDescriptor> m_StructReflections;
+};
+
+class C_GLCodeProvider : public Renderer::Shaders::I_CodeProvider
+{
+public:
+private:
+	std::string GetStructCode(const std::string& name) const override;
 };
 
 }
