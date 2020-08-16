@@ -13,13 +13,18 @@
 
 #include <Renderer/Shaders/CodeGeneration.h>
 
-namespace GLEngine::GLRenderer::Shaders {
+#include <Renderer/RendererApi.h>
 
-class C_ShaderPreprocessor {
+namespace GLEngine::Renderer::Shaders {
+
+class RENDERER_API_EXPORT C_ShaderPreprocessor {
 public:
-	C_ShaderPreprocessor(std::unique_ptr<Renderer::Shaders::I_CodeProvider>&& codeProvider);
-
 	using T_Paths = std::vector<std::filesystem::path>;
+
+
+	C_ShaderPreprocessor(std::unique_ptr<I_CodeProvider>&& codeProvider);
+	~C_ShaderPreprocessor();
+
 	void Define(const std::string& symbol, const std::string& value);
 	std::string PreprocessFile(const std::string& src, const std::filesystem::path& filepath);
 	T_Paths GetTouchedPaths() const;
@@ -33,9 +38,11 @@ protected:
 	bool _loadFile(const std::filesystem::path& file, std::string& content);
 
 	using T_Defines = std::map<std::string, std::string>;
+#pragma warning(push)
+#pragma warning( disable : 4251)
 	T_Defines m_defines;
 
-	std::unique_ptr<Renderer::Shaders::I_CodeProvider> m_CodeProvider;
+	std::unique_ptr<I_CodeProvider> m_CodeProvider;
 
 	T_Paths m_Paths;
 
@@ -44,5 +51,6 @@ protected:
 	const static std::regex s_IncludeFileName;
 	const static std::regex s_GenerateStruct;
 	const static std::regex s_DefineRegEx;
+#pragma warning(pop)
 };
 }

@@ -1,10 +1,10 @@
-#include <GLRendererStdafx.h>
+#include <RendererStdafx.h>
 
-#include <GLRenderer/Shaders/ShaderPreprocessor.h>
+#include <Renderer/Shaders/ShaderPreprocessor.h>
 
 #include <fmt/format.h>
 
-namespace GLEngine::GLRenderer::Shaders {
+namespace GLEngine::Renderer::Shaders {
 
 //=================================================================================
 const std::regex C_ShaderPreprocessor::s_IncludeFileName	= std::regex(R"(^(#include )\"([^\"]*)\"$)");
@@ -12,11 +12,14 @@ const std::regex C_ShaderPreprocessor::s_GenerateStruct		= std::regex(R"(^(@stru
 const std::regex C_ShaderPreprocessor::s_DefineRegEx		= std::regex(R"(^(#define )([^\s]*)\s([^\s]+)$)");
 
 //=================================================================================
-C_ShaderPreprocessor::C_ShaderPreprocessor(std::unique_ptr<Renderer::Shaders::I_CodeProvider>&& codeProvider)
+C_ShaderPreprocessor::C_ShaderPreprocessor(std::unique_ptr<I_CodeProvider>&& codeProvider)
 	: m_CodeProvider(std::move(codeProvider))
 {
 
 }
+
+//=================================================================================
+C_ShaderPreprocessor::~C_ShaderPreprocessor() = default;
 
 //=================================================================================
 void C_ShaderPreprocessor::Define(const std::string& symbol, const std::string& value) {

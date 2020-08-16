@@ -1,8 +1,9 @@
 #include <GLRendererStdafx.h>
 
 #include <GLRenderer/Shaders/ShaderCompiler.h>
-#include <GLRenderer/Shaders/ShaderPreprocessor.h>
 #include <GLRenderer/Shaders/Generation/ShaderTypesReflection.h>
+
+#include <Renderer/Shaders/ShaderPreprocessor.h>
 
 #include <fstream>
 
@@ -17,7 +18,7 @@ C_ShaderCompiler::C_ShaderCompiler(bool preprocessorOutput /*= false*/)
 //=================================================================================
 bool C_ShaderCompiler::compileShaderStageInternal(T_StageHandle& stage, const std::filesystem::path& filepath, const Renderer::E_ShaderStage shaderStage, std::string& src)
 {
-	C_ShaderPreprocessor preproces(std::make_unique<C_GLCodeProvider>());
+	Renderer::Shaders::C_ShaderPreprocessor preproces(std::make_unique<C_GLCodeProvider>());
 	src = preproces.PreprocessFile(src, filepath.parent_path());
 	if (m_PreprocessorOutput)
 	{
