@@ -4,10 +4,11 @@
 
 #include <GLRenderer/Components/TerrainMergedMesh.h>
 
+#include <Utils/Range.h>
+
 #include <imgui.h>
 
-namespace GLEngine {
-namespace GLRenderer {
+namespace GLEngine::GLRenderer {
 
 //=================================================================================
 C_TerrainEntity::C_TerrainEntity(const std::string& name)
@@ -39,15 +40,10 @@ C_TerrainEntity::C_TerrainEntity(const std::string& name)
 }
 
 //=================================================================================
-GLEngine::T_ComponentPtr C_TerrainEntity::GetComponent(Entity::E_ComponentType type) const
+Entity::I_Entity::T_ComponentRange C_TerrainEntity::GetComponents(Entity::E_ComponentType type) const
 {
-	if (type == Entity::E_ComponentType::Graphical) {
-		// should be frustum culled
-		auto merged = std::make_shared<Components::C_TerrainMergedMesh>(m_Patches);
-		return merged;
-	}
-
-	return nullptr;
+	auto iterLow = m_Components->equal_range(type);
+	return { Utils::MapValueIterator(std::move(iterLow.first)), Utils::MapValueIterator(std::move(iterLow.second)) };
 }
 
 //=================================================================================
@@ -81,7 +77,7 @@ void C_TerrainEntity::Update()
 void C_TerrainEntity::AddPatch(T_TerrainPtr patch)
 {
 	patch->SetSettings(&m_Settings);
-	m_Patches.push_back(patch);
+	m_Patches.emplace(Entity::E_ComponentType::Graphical, patch);
 }
 
 //=================================================================================
@@ -218,7 +214,8 @@ void C_TerrainEntity::DrawControls()
 //=================================================================================
 void C_TerrainEntity::WholeTerrain(std::function<void(T_TerrainPtr)> lambda)
 {
-	std::for_each(m_Patches.begin(), m_Patches.end(), lambda);
+	auto range = GetComponents(Entity::E_ComponentType::Graphical);
+	std::for_each(Utils::MapValueIterator(m_Patches.begin()), Utils::MapValueIterator(m_Patches.end()), lambda);
 }
 
 //=================================================================================
@@ -227,4 +224,11 @@ glm::vec3 C_TerrainEntity::GetPosition() const
 	return glm::vec3(0.f);
 }
 
-}}
+//=================================================================================
+const glm::mat4& C_TerrainEntity::GetModelMatrix() const
+{
+	const static glm::mat4 identity(1.f);
+	return identity;
+}
+
+}

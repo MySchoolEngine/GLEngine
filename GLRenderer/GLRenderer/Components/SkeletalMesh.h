@@ -24,6 +24,8 @@ public:
 	virtual void Update() override;
 
 	virtual void DebugDrawGUI() override;
+	[[nodiscard]] virtual const Physics::Primitives::S_AABB& GetAABB() const override;
+
 public:
 	std::shared_ptr<Mesh::C_StaticMeshResource>				m_Mesh;
 	std::shared_ptr<Textures::C_Texture>					m_Texture;
@@ -36,6 +38,8 @@ public:
 	VAO::C_GLVAO<5>											m_VAO;
 	std::size_t												m_triangles;
 	glm::mat4												m_ModelMatrix;
+private:
+	Physics::Primitives::S_AABB m_AABB;
 };
 
 //=============================================================

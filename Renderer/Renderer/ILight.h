@@ -2,7 +2,10 @@
 
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
+
 #include <Renderer/RendererApi.h>
+
+#include <Physics/Primitives/Frustum.h>
 
 namespace GLEngine {
 namespace Renderer {
@@ -16,6 +19,8 @@ public:
 	{
 		return Entity::E_ComponentType::Light;
 	}
+
+	virtual Physics::Primitives::C_Frustum GetShadingFrustum() const = 0;
 };
 }
 

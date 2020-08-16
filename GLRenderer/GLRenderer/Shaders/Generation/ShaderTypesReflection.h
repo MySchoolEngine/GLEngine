@@ -12,12 +12,12 @@ public:
 	//Singleton stuff
 	C_ShaderTypesReflection(C_ShaderTypesReflection const&) = delete;
 	void operator=(C_ShaderTypesReflection const&) = delete;
-	static C_ShaderTypesReflection& Instance();
+	[[nodiscard]] static C_ShaderTypesReflection& Instance();
 
 	template<class T>
 	void Register();
 
-	const C_StructDescriptor GetStructDescription(const std::string& name) const;
+	[[nodiscard]] const C_StructDescriptor GetStructDescription(const std::string& name) const;
 private:
 	C_ShaderTypesReflection();
 

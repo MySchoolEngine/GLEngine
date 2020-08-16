@@ -10,7 +10,7 @@ namespace Entity {
  */
 class C_BasicEntity : public I_Entity {
 public:
-	C_BasicEntity(std::string name);
+	explicit C_BasicEntity(std::string name);
 	virtual ~C_BasicEntity();
 
 	virtual void Update() override;
@@ -19,7 +19,8 @@ public:
 	//================================================================================
 	virtual void OnEvent(Core::I_Event& event) override;
 
-	void SetModelMatrix(glm::mat4& modelMatrix);
+	void SetModelMatrix(const glm::mat4& modelMatrix);
+	virtual const glm::mat4& GetModelMatrix() const override;
 
 	virtual glm::vec3 GetPosition() const override;
 

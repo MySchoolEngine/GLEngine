@@ -6,6 +6,7 @@
 
 #include <string>
 #include <fstream>
+#include <filesystem>
 
 namespace Utils {
 namespace Logging {
@@ -23,7 +24,7 @@ public:
 
 class UTILS_API_EXPORT C_FileLogger : public I_Logger {
 public:
-	C_FileLogger(const std::string& filename);
+	explicit C_FileLogger(const std::filesystem::path& filename);
 	virtual ~C_FileLogger();
 	virtual void Log(E_Level level, E_Context context, int line, const char* file, const std::string& text) override;
 

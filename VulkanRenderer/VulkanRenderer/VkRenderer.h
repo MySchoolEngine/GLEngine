@@ -24,6 +24,10 @@ public:
 	virtual void Commit() const override;
 	virtual void ClearCommandBuffers() override;
 
+
+	//=================================================================================
+	virtual Renderer::E_PassType GetCurrentPassType() const override;
+
 private:
 	struct SwapChainSupportDetails {
 		VkSurfaceCapabilitiesKHR		capabilities;

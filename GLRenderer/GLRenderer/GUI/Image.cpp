@@ -10,7 +10,7 @@ namespace GLRenderer {
 namespace GUI {
 
 //=================================================================================
-C_Image::C_Image(std::shared_ptr<Textures::C_Texture>& texture)
+C_Image::C_Image(const std::shared_ptr<Textures::C_Texture>& texture)
 	: m_texture(texture)
 {
 

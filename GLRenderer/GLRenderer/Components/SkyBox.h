@@ -18,17 +18,19 @@ public:
 		Back = 4,
 		Forward = 5,
 	};
-	C_SkyBox(std::shared_ptr<Entity::I_Entity> owner);
-	void AddTexture(E_Side side, const std::string& filename);
+	explicit C_SkyBox(std::shared_ptr<Entity::I_Entity> owner);
+	void AddTexture(E_Side side, const std::filesystem::path& filename);
 
 	//==========================================
 	// Renderer::I_RenderableComponent
 	//==========================================
 	virtual void PerformDraw() const override;
+	[[nodiscard]] virtual const Physics::Primitives::S_AABB& GetAABB() const override;
 
 private:
 	Textures::C_Texture m_Textures;
 	VAO::C_GLVAO<1>			m_VAO;
+	static constexpr Physics::Primitives::S_AABB m_AABB = Physics::Primitives::S_AABB();
 };
 
 //=============================================================

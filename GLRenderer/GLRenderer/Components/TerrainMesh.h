@@ -27,17 +27,17 @@ namespace Components {
 
 class C_TerrainMesh : public Renderer::I_RenderableComponent {
 public:
-	C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings);
-	C_TerrainMesh(Textures::C_Texture&& texture);
+	explicit C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings);
+	explicit C_TerrainMesh(Textures::C_Texture&& texture);
 
 	void SetSettings(C_TerrainEntity::S_TerrainSettings* settings);
 	virtual void PerformDraw() const override;
 	void SetCoord(glm::ivec2 coord);
-	glm::ivec2 GetCoord() const { return m_Coord; }
+	[[nodiscard]] glm::ivec2 GetCoord() const { return m_Coord; }
 
-	const Textures::C_Texture& GetTexture() const { return m_Noise; }
-	Textures::C_Texture& GetTexture() { return m_Noise; }
-	bool UsingPerlinNoise() const { return m_Settings->PerlinNoise; }
+	[[nodiscard]] const Textures::C_Texture& GetTexture() const { return m_Noise; }
+	[[nodiscard]] Textures::C_Texture& GetTexture() { return m_Noise; }
+	[[nodiscard]] bool UsingPerlinNoise() const { return m_Settings->PerlinNoise; }
 
 	void UpdateStats();
 
@@ -48,6 +48,10 @@ public:
 
 	//=================================================================================
 	virtual void OnEvent(Core::I_Event& event) override;
+
+
+	//=================================================================================
+	[[nodiscard]] virtual const Physics::Primitives::S_AABB& GetAABB() const override;
 
 protected:
 	std::shared_ptr<Mesh::C_TerrainMeshResource>		m_Terrain;

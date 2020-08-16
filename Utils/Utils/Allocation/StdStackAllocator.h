@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Utils/Allocation/AllocatorUtils.h>
+#include <Utils/Allocation/Internal/AllocatorUtils.h>
 
 #include <memory>
 

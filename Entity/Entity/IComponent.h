@@ -20,7 +20,7 @@ class ENTITY_API_EXPORT I_Component : public Core::I_EventReciever {
 public:
 	I_Component(std::shared_ptr<I_Entity> owner);
 	virtual ~I_Component() = default;
-	virtual E_ComponentType GetType() const = 0;
+	[[nodiscard]] virtual E_ComponentType GetType() const = 0;
 
 	virtual void OnEvent(Core::I_Event& event) override {}
 
@@ -29,14 +29,16 @@ public:
 
 	// draws inside of prepared window
 	virtual void DebugDrawGUI() {};
-	void SetModelMatrix(glm::mat4& modelMatrix) { m_ModelMatrix = modelMatrix; };
+	//void SetModelMatrix(const glm::mat4& modelMatrix) { m_ModelMatrix = modelMatrix; };
+	void SetComponentMatrix(const glm::mat4& componentMatrix) { m_ComponentMatrix = componentMatrix; }
+	[[nodiscard]] const glm::mat4 GetComponentModelMatrix() const;
 
 protected:
 	std::shared_ptr<I_Entity> GetOwner() const;
 
 #pragma warning(push)
 #pragma warning( disable : 4251)
-	glm::mat4 m_ModelMatrix;
+	glm::mat4 m_ComponentMatrix;
 private:
 	std::weak_ptr<I_Entity> m_Owner;
 #pragma warning(pop)
@@ -53,7 +55,8 @@ public:
 class I_ComponentBuilderFactory
 {
 public:
-	virtual std::unique_ptr<Entity::I_ComponenetBuilder> GetFactory(const std::string& name) = 0;
+	[[nodiscard]] virtual std::unique_ptr<Entity::I_ComponenetBuilder> GetFactory(const std::string& name) = 0;
+	virtual void ConstructFromFile(std::shared_ptr<I_Entity> entity, const std::filesystem::path& file) = 0;
 };
 
 }

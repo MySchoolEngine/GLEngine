@@ -195,7 +195,7 @@ void C_DebugDraw::DrawAABB(const Physics::Primitives::S_AABB& bbox, const glm::v
 					glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, (GLvoid*)(8 * sizeof(GLushort)));
 
 					m_VAOaabb.unbind();
-				}
+				}, "Debug - DrawAABB"
 			)
 		)
 	);
@@ -301,8 +301,6 @@ void C_DebugDraw::DrawSkeleton(const glm::vec3& root, const Renderer::Animation:
 //=================================================================================
 void C_DebugDraw::DrawAxis(const glm::vec3& origin, const glm::vec3& up, const glm::vec3& foreward, glm::mat4 & modelMatrix)
 {
-	glm::vec3 forewardVec = (foreward - origin);
-	glm::vec3 upVec = glm::normalize(up - origin);
 	glm::vec3 rightVec = toVec4(glm::normalize(glm::cross(glm::vec3(up), glm::vec3(foreward))));
 	const auto originInModelSpace = modelMatrix * glm::vec4(origin, 1.0f);
 	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + foreward), 1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -423,7 +421,7 @@ void C_DebugDraw::DrawMergedGeoms()
 
 					m_PointsVertices.clear();
 					m_PointsColors.clear();
-				}
+				}, "C_DebugDraw::DrawMergedGeoms"
 			)
 		)
 	);

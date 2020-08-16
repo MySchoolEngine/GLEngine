@@ -4,16 +4,46 @@
 #include <GLRenderer/Shaders/ShaderPreprocessor.h>
 #include <GLRenderer/Shaders/Generation/ShaderTypesReflection.h>
 
+#include <fstream>
+
 namespace GLEngine::GLRenderer::Shaders {
+//=================================================================================
+C_ShaderCompiler::C_ShaderCompiler(bool preprocessorOutput /*= false*/)
+	: m_PreprocessorOutput(preprocessorOutput)
+{
+
+}
 
 //=================================================================================
 bool C_ShaderCompiler::compileShaderStageInternal(T_StageHandle& stage, const std::filesystem::path& filepath, const Renderer::E_ShaderStage shaderStage, std::string& src)
 {
 	C_ShaderPreprocessor preproces(std::make_unique<C_GLCodeProvider>());
 	src = preproces.PreprocessFile(src, filepath.parent_path().generic_string() + "/");
+	if (m_PreprocessorOutput)
+	{
+		std::ofstream debugOutput;
+		const std::filesystem::path debugPath("obj/" + filepath.generic_string() + ".o");
+		const auto debugDirectory = debugPath.parent_path();
+		if (!std::filesystem::exists(debugDirectory))
+		{
+			if (!std::filesystem::create_directories(debugDirectory))
+			{
+				CORE_LOG(E_Level::Error, E_Context::Render, "Cannot create debug output directory");
+			}
+		}
+		debugOutput.open(debugPath);
+		if (!debugOutput.is_open())
+		{
+			CORE_LOG(E_Level::Error, E_Context::Render, "Cannot open file for debug output");
+		}
+		debugOutput << src;
+		debugOutput.flush();
+		debugOutput.close();
+	}
+
 	if (!preproces.WasSuccessful())
 	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Preprocessing of file '{}' was unsuccessful", filepath.generic_string());
+		CORE_LOG(E_Level::Error, E_Context::Render, "Preprocessing of file '{}' was unsuccessful", filepath);
 		return false;
 	}
 
@@ -44,7 +74,7 @@ bool C_ShaderCompiler::compileShaderStageInternal(T_StageHandle& stage, const st
 			char* log = new char[loglen];
 
 			glGetShaderInfoLog(stage, loglen, nullptr, log);
-			CORE_LOG(E_Level::Error, E_Context::Render, "{}", log);
+			CORE_LOG(E_Level::Error, E_Context::Render, "\n{}", log);
 
 			delete[] log;
 		}

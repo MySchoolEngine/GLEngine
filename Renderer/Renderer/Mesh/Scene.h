@@ -32,6 +32,8 @@ struct Mesh
 	std::vector<glm::vec4> vertices;
 	std::vector<glm::vec3> normals;
 	std::vector<glm::vec2> texcoords;
+	std::vector<glm::vec3> tangent;
+	std::vector<glm::vec3> bitangent;
 
 	Physics::Primitives::S_AABB     bbox;
 	glm::mat4						modelMatrix;
@@ -46,6 +48,13 @@ struct AnimationData
 	std::vector<glm::vec3>	weights;
 };
 
+//=================================================================================
+struct Light
+{
+	std::string m_name;
+	glm::vec3	m_Color;
+
+};
 
 //Texture
 //Always R8G8B8A8 format
@@ -53,10 +62,10 @@ struct AnimationData
 struct Texture
 {
 	Texture()
-	{
-		width = height = 0;
-		data = nullptr;
-	}
+		: width(0)
+		, height(0)
+		, data(nullptr)
+	{}
 
 	unsigned int width;
 	unsigned int height;
@@ -71,6 +80,7 @@ struct Scene
 {
 	//This is the data that interests You
 	std::vector<Mesh>				meshes;
+	std::vector<Light>				lights;
 
 	std::vector<Material>			materials;
 	std::vector<Texture>			textures;

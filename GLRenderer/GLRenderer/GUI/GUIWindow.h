@@ -15,7 +15,7 @@ public:
 	C_Window(GUID guid, const std::string& name);
 	virtual ~C_Window() = default;
 
-	virtual void Draw() const;
+	virtual void Draw() const override;
 	void SetVisible(bool enable = true);
 	bool IsVisible() const;
 	GUID AddComponent(T_GUIPartRef component);

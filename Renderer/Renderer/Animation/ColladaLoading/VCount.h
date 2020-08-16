@@ -9,11 +9,11 @@ namespace GLEngine::Renderer::Animation {
 struct C_VCount
 {
 public:
-	C_VCount(pugi::xml_node& vcount);
+	explicit C_VCount(const pugi::xml_node& vcount);
 
-	int Get();
+	[[nodiscard]] int Get();
 
-	bool EndOfArray() const;
+	[[nodiscard]] bool EndOfArray() const;
 private:
 
 	std::stringstream		m_IntStream;

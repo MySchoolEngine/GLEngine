@@ -31,7 +31,7 @@ namespace RenderDoc {
  ** ==============================================*/
 class C_DebugScope {
 public:
-	C_DebugScope(const std::string& scopeName);
+	explicit C_DebugScope(const std::string& scopeName);
 	~C_DebugScope();
 };
 }}}

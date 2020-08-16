@@ -11,11 +11,11 @@ struct S_Timestamp
 	S_Timestamp();
 	RENDERER_API_EXPORT S_Timestamp(float timestamp);
 
-	bool operator>=(const S_Timestamp& other) const;
-	bool operator>(const S_Timestamp& other) const;
-	S_Timestamp operator-(const S_Timestamp& rhs) const;
-	S_Timestamp operator+(const S_Timestamp& rhs) const;
-	float GetValue() const { return m_Timestamp; }
+	[[nodiscard]] bool operator>=(const S_Timestamp& other) const;
+	[[nodiscard]] bool operator>(const S_Timestamp& other) const;
+	[[nodiscard]] S_Timestamp operator-(const S_Timestamp& rhs) const;
+	[[nodiscard]] S_Timestamp operator+(const S_Timestamp& rhs) const;
+	[[nodiscard]] float GetValue() const { return m_Timestamp; }
 private:
 	static float Clamp(float f);
 	float m_Timestamp;
@@ -37,10 +37,10 @@ class C_BoneTimeline
 {
 public:
 	C_BoneTimeline() = default;
-	C_BoneTimeline(std::size_t numTimestamps);
+	explicit C_BoneTimeline(std::size_t numTimestamps);
 
 	void AddBoneKeyFrame(std::size_t index, S_BoneKeyframe&& keyframe);
-	S_BoneKeyframe Sample(S_Timestamp timestamp) const;
+	[[nodiscard]] S_BoneKeyframe Sample(S_Timestamp timestamp) const;
 private:
 	// ideally BST because intervals do not overlap
 	// but we can use vector for now, as we will usually add 

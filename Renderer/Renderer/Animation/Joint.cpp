@@ -5,7 +5,7 @@
 namespace GLEngine::Renderer::Animation {
 
 //=================================================================================
-S_Joint::S_Joint(std::size_t index, std::string name, glm::mat4 localBindTransform) 
+S_Joint::S_Joint(std::size_t index, const std::string& name, glm::mat4 localBindTransform)
 	: m_Id(index)
 	, m_Name(name)
 	, m_InverseBindTransfomr(localBindTransform)

@@ -25,7 +25,7 @@ public:
 
 	//filepath - the folder where the model is
 	//filename - the actual name of the file
-	bool addModelFromDAEFileToScene(const char* filepath, const char* filename, MeshData::Mesh& mesh, std::string& textureName, 
+	[[nodiscard]] bool addModelFromDAEFileToScene(const char* filepath, const char* filename, MeshData::Mesh& mesh, std::string& textureName,
 		C_Skeleton& skeleton,
 		C_SkeletalAnimation& animation, 
 		MeshData::AnimationData& animData,

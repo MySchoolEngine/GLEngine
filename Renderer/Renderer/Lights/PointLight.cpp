@@ -3,6 +3,7 @@
 #include <Renderer/Lights/PointLight.h>
 
 #include <Utils/Parsing/MatrixParse.h>
+#include <Utils/Parsing/ColorParsing.h>
 
 namespace GLEngine::Renderer {
 
@@ -14,13 +15,27 @@ I_PointLight::I_PointLight(std::shared_ptr<Entity::I_Entity> owner)
 }
 
 //=================================================================================
+I_PointLight::~I_PointLight() = default;
+
+//=================================================================================
 // C_PointLight
 //=================================================================================
 C_PointLight::C_PointLight(std::shared_ptr<Entity::I_Entity> owner) 
 	: Renderer::I_PointLight(owner)
 	, m_Intensity()
+	, m_Offset(0.0f, 0.0f, 0.0f)
 	, m_Color(1.f, 1.f, 1.f)
 {
+}
+
+//=================================================================================
+C_PointLight::C_PointLight(std::shared_ptr<Entity::I_Entity> owner, const MeshData::Light& def)
+	: Renderer::I_PointLight(owner)
+	, m_Intensity()
+	, m_Offset(0.0f, 0.0f, 0.0f)
+	, m_Color(def.m_Color)
+{
+
 }
 
 //=================================================================================
@@ -52,6 +67,12 @@ glm::vec3 C_PointLight::GetColor() const
 }
 
 //=================================================================================
+Physics::Primitives::C_Frustum C_PointLight::GetShadingFrustum() const
+{
+	return Physics::Primitives::C_Frustum(GetPosition(), GetPosition(), GetPosition(), 1.f ,1.f, 1.f, 1.f);
+}
+
+//=================================================================================
 std::shared_ptr<Entity::I_Component> C_PointLightCompBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
 {
 	auto pointLight = std::make_shared<Renderer::C_PointLight>(owner);
@@ -60,6 +81,11 @@ std::shared_ptr<Entity::I_Component> C_PointLightCompBuilder::Build(const pugi::
 	if (const auto intensityAttr = node.attribute("intensity"))
 	{
 		pointLight->m_Intensity = intensityAttr.as_float();
+	}
+
+	if (node.child("color"))
+	{
+		pointLight->m_Color = Utils::Parsing::C_ColorParser::ParseColorRGB(node);
 	}
 
 	return pointLight;

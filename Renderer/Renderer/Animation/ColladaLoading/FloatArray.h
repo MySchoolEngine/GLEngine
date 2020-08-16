@@ -10,35 +10,35 @@ namespace GLEngine::Renderer::Animation {
 struct S_FloatArray
 {
 	S_FloatArray() = default;
-	S_FloatArray(const pugi::xml_node& floatArray);
+	explicit S_FloatArray(const pugi::xml_node& floatArray);
 	S_FloatArray& operator=(S_FloatArray&&) = default;
 	template<class T>
-	T Get() = delete;
+	[[nodiscard]] T Get() = delete;
 	template<>
-	float Get();
+	[[nodiscard]] float Get();
 	template<>
-	glm::vec2 Get();
+	[[nodiscard]] glm::vec2 Get();
 	template<>
-	glm::vec3 Get();
+	[[nodiscard]] glm::vec3 Get();
 	template<>
-	glm::vec4 Get();
+	[[nodiscard]] glm::vec4 Get();
 	template<>
-	glm::mat4 Get();
+	[[nodiscard]] glm::mat4 Get();
 
 	template<class T>
-	std::size_t count() const = delete;
+	[[nodiscard]] std::size_t count() const = delete;
 	template<>
-	std::size_t count<float>() const { return m_NumFloats; }
+	[[nodiscard]] std::size_t count<float>() const { return m_NumFloats; }
 	template<>
-	std::size_t count<glm::vec2>() const { return m_NumFloats/2; }
+	[[nodiscard]] std::size_t count<glm::vec2>() const { return m_NumFloats/2; }
 	template<>
-	std::size_t count<glm::vec3>() const { return m_NumFloats/3; }
+	[[nodiscard]] std::size_t count<glm::vec3>() const { return m_NumFloats/3; }
 	template<>
-	std::size_t count<glm::vec4>() const { return m_NumFloats/4; }
+	[[nodiscard]] std::size_t count<glm::vec4>() const { return m_NumFloats/4; }
 	template<>
-	std::size_t count<glm::mat4>() const { return m_NumFloats/16; }
+	[[nodiscard]] std::size_t count<glm::mat4>() const { return m_NumFloats/16; }
 
-	bool EndOfArray() const;
+	[[nodiscard]] bool EndOfArray() const;
 private:
 	std::size_t					m_Position;
 	std::size_t					m_NumFloats;

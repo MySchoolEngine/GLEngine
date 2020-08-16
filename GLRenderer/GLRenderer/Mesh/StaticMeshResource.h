@@ -23,7 +23,7 @@ public:
 	void BindVAO() const;
 	std::size_t GetNumTriangles() const;
 protected:
-	VAO::C_GLVAO<3> m_VAO;
+	VAO::C_GLVAO<5> m_VAO;
 	std::size_t m_triangles;
 };
 }

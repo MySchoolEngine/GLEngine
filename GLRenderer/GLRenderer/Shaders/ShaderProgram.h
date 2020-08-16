@@ -33,7 +33,7 @@ namespace Shaders {
 class C_ShaderProgram
 {
 public:
-	C_ShaderProgram(GLuint program);
+	explicit C_ShaderProgram(GLuint program);
 	C_ShaderProgram& operator=(C_ShaderProgram& other) = delete;
 	C_ShaderProgram(C_ShaderProgram& rhs) = delete;
 	C_ShaderProgram(C_ShaderProgram&& rhs);

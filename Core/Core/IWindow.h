@@ -56,7 +56,8 @@ protected:
 	virtual void Destroy() = 0;
 	I_Window()
 		: C_Layer("window")
-		, m_ID(NextGUID()) {}
+		, m_ID(NextGUID())
+		, m_Data({ nullptr, INVALID_GUID }) {}
 	GUID m_ID;
 
 

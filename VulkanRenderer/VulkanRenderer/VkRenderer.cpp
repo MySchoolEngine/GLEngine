@@ -354,4 +354,10 @@ void C_VkRenderer::CreateImageViews()
 	}
 }
 
+//=================================================================================
+Renderer::E_PassType C_VkRenderer::GetCurrentPassType() const
+{
+	return Renderer::E_PassType::FinalPass;
+}
+
 }

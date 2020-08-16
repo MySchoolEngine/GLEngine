@@ -12,12 +12,16 @@ namespace HACK {
 
 class C_LambdaCommand : public Renderer::I_RenderCommand {
 public:
-	C_LambdaCommand(std::function<void(void)> fnc, std::string name = "");
+	explicit C_LambdaCommand(std::function<void(void)> fnc, const std::string& name = "");
 
 	//=================================================================================
 	virtual void Commit() override;
 	virtual E_Type GetType() const override;
 	virtual std::shared_ptr<Renderer::I_Resource> GetResource() const override;
+
+
+	//=================================================================================
+	[[nodiscard]] virtual std::string GetDescriptor() const override;
 
 private:
 	std::string m_Name;

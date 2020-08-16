@@ -73,4 +73,10 @@ void C_D3D12Renderer::ClearCommandBuffers()
 	m_CommandQueue->clear();
 }
 
+//=================================================================================
+Renderer::E_PassType C_D3D12Renderer::GetCurrentPassType() const
+{
+	return Renderer::E_PassType::FinalPass;
+}
+
 }

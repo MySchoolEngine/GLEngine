@@ -3,6 +3,7 @@
 #include <GLRenderer/OGLRenderer.h>
 
 #include <GLRenderer/Shaders/ShaderManager.h>
+#include <GLRenderer/Textures/TextureManager.h>
 #include <GLRenderer/ImGui/GUIManager.h>
 #include <GLRenderer/GUI/GUIWindow.h>
 #include <GLRenderer/GUI/Menu/MenuItem.h>
@@ -24,12 +25,16 @@ C_OGLRenderer::C_OGLRenderer()
 	: m_CommandQueue(new std::remove_pointer<decltype(m_CommandQueue)>::type)
 	, m_DrawCommands("Draw commands")
 	, m_CatchErrors(false, "Catch errors")
+	, m_Wireframe(false, "Render wireframe")
 	, m_PreviousCatchErrorsVal(false)
+	, m_CurrentPass(Renderer::E_PassType::FinalPass)
 	, m_GUITexts(
 		{{
 				("Avg draw commands: {:.2f}"),
-				("Min/max {:.2f}/{:.2f}")
+				("Min/max {:.2f}/{:.2f}"),
+				("Draw calls: {}")
 			}})
+	, m_ScreenCaptureList("Capture frame commands", [&]() {m_OutputCommandList = true; })
 	, m_Window(INVALID_GUID)
 	, m_Windows("Windows")
 {
@@ -45,6 +50,8 @@ C_OGLRenderer::~C_OGLRenderer()
 {
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	shmgr.Clear();
+	auto& tmgr = Textures::C_TextureManager::Instance();
+	tmgr.Clear();
 	delete m_CommandQueue;
 }
 
@@ -93,6 +100,15 @@ void C_OGLRenderer::Commit() const
 void C_OGLRenderer::ClearCommandBuffers()
 {
 	m_DrawCommands.Sample(static_cast<float>(m_CommandQueue->size()));
+	const auto drawCallsNum = std::count_if(m_CommandQueue->begin(), m_CommandQueue->end(), [](const auto& command)
+		{
+			return command->GetType() == Renderer::I_RenderCommand::E_Type::DrawCall;
+		});
+	if (m_OutputCommandList)
+	{
+		CaputreCommands();
+		m_OutputCommandList = false;
+	}
 	m_CommandQueue->clear();
 	const auto avgDrawCommands = m_DrawCommands.Avg();
 	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgDrawCommands)].UpdateText(avgDrawCommands);
@@ -100,6 +116,7 @@ void C_OGLRenderer::ClearCommandBuffers()
 		.UpdateText(
 			*std::min_element(m_DrawCommands.cbegin(), m_DrawCommands.cend()),
 			*std::max_element(m_DrawCommands.cbegin(), m_DrawCommands.cend()));
+	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::DrawCalls)].UpdateText(drawCallsNum);
 
 
 	if (m_PreviousCatchErrorsVal != m_CatchErrors)
@@ -131,17 +148,22 @@ GUID C_OGLRenderer::SetupControls(ImGui::C_GUIManager& guiMan)
 	auto* renderStats = guiMan.GetWindow(m_Window);
 	renderStats->AddComponent(m_DrawCommands);
 	renderStats->AddComponent(m_CatchErrors);
+	renderStats->AddComponent(m_Wireframe);
 	renderStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgDrawCommands)]);
 	renderStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::MinMax)]);
+	renderStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::DrawCalls)]);
 
 	renderStats->AddMenu(m_Windows);
 	
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
-	const auto shmgrWindwo = shmgr.SetupControls(guiMan);
+	const auto shmgrWindow = shmgr.SetupControls(guiMan);
 
-	m_ShaderMGR = std::make_unique<GUI::Menu::C_MenuItemOpenWindow>("Shader manager", shmgrWindwo, guiMan);
+	auto& tmgr = Textures::C_TextureManager::Instance();
+	const auto tmgrWindow = tmgr.SetupControls(guiMan);
 
-	m_Windows.AddMenuItem(*m_ShaderMGR.get());
+	m_Windows.AddMenuItem(guiMan.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Shader manager", shmgrWindow, guiMan));
+	m_Windows.AddMenuItem(guiMan.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Texture manager", tmgrWindow, guiMan));
+	renderStats->AddComponent(m_ScreenCaptureList);
 
 	return m_Window;
 }
@@ -152,6 +174,39 @@ void C_OGLRenderer::DestroyControls(ImGui::C_GUIManager& guiMan)
 	guiMan.DestroyWindow(m_Window);
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	shmgr.DestroyControls(guiMan);
+
+	auto& tmgr = Textures::C_TextureManager::Instance();
+	tmgr.DestroyControls(guiMan);
+}
+
+//=================================================================================
+Renderer::E_PassType C_OGLRenderer::GetCurrentPassType() const
+{
+	return m_CurrentPass;
+}
+
+//=================================================================================
+void C_OGLRenderer::SetCurrentPassType(Renderer::E_PassType type)
+{
+	m_CurrentPass = type;
+}
+
+//=================================================================================
+void C_OGLRenderer::CaputreCommands() const
+{
+	std::ofstream file;
+	const std::filesystem::path debugPath("obj/frameCommands.txt");
+	file.open(debugPath);
+
+	if (!file.is_open())
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "Cannot open file for debug output");
+	}
+	for (const auto& command : (*m_CommandQueue)) {
+		file << command->GetDescriptor() << "\n";
+	}
+	file.flush();
+	file.close();
 }
 
 }}

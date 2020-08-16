@@ -1,14 +1,10 @@
 #pragma once
 
-#include <Renderer/Mesh/Scene.h>
-
 namespace GLEngine::GLRenderer::Textures {
+class C_Texture;
 class TextureLoader
 {
 public:
-	bool loadTexture(const char* path, Renderer::MeshData::Texture& t);
-
-private:
-	static bool _isILinitialized;
+	[[nodiscard]] std::shared_ptr<C_Texture> LoadAndInitTexture(const std::filesystem::path& path);
 };
 }

@@ -26,6 +26,7 @@
 #include <Core/EntryPoint.h>
 
 #include <type_traits>
+#include <filesystem>
 
 
 class SandboxApp : public GLEngine::Core::C_Application {
@@ -63,7 +64,7 @@ protected:
 	{
 		auto& logging = Utils::Logging::C_LoggingSystem::Instance();
 		logging.AddLogger(new Utils::Logging::C_CoutLogger());
-		//logging.AddLogger(new Core::Logging::C_FileLogger("log.txt"));
+		logging.AddLogger(new Utils::Logging::C_FileLogger(std::filesystem::path("log.txt")));
 
 		m_WndMgr = new std::remove_pointer_t<decltype(m_WndMgr)>(std::bind(&C_Application::OnEvent, this, std::placeholders::_1));
 #if GLENGINE_GLFW_RENDERER!=VULKAN

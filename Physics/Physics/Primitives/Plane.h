@@ -12,7 +12,7 @@ struct S_Plane {
 	float		originOffset;
 	[[nodiscard]] inline float	Intersect(const S_Ray& ray) const
 	{
-		return -(glm::dot(ray.origin, noraml) - originOffset) / (glm::dot(ray.direction, noraml));
+		return -(glm::dot(glm::vec4(ray.origin, 1.0f), noraml) - originOffset) / (glm::dot(ray.direction, glm::vec3(noraml.x, noraml.y, noraml.z)));
 	}
 };
 }

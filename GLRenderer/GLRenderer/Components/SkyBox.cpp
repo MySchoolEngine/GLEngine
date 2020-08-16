@@ -13,12 +13,12 @@
 
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 
-#include <GLRenderer/Textures/TextureLoader.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 
 #include <GLRenderer/CameraManager.h>
 #include <Renderer/ICameraComponent.h>
 
+#include <Renderer/Textures/TextureLoader.h>
 #include <Renderer/IRenderer.h>
 
 #include <Core/Application.h>
@@ -94,11 +94,11 @@ C_SkyBox::C_SkyBox(std::shared_ptr<Entity::I_Entity> owner)
 }
 
 //=================================================================================
-void C_SkyBox::AddTexture(E_Side side, const std::string& filename)
+void C_SkyBox::AddTexture(E_Side side, const std::filesystem::path& filename)
 {
-	Textures::TextureLoader tl;
+	Renderer::Textures::TextureLoader tl;
 	Renderer::MeshData::Texture t;
-	bool retval = tl.loadTexture(filename.c_str(), t);
+	bool retval = tl.loadTexture(filename, t);
 
 	if (!retval)
 		CORE_LOG(E_Level::Error, E_Context::Render, "Texture cannot be loaded");
@@ -133,9 +133,16 @@ void C_SkyBox::PerformDraw() const
 					glDepthFunc(GL_LESS); // set depth function back to default
 					m_VAO.unbind();
 				}
+				, "SkyBox draw"
 			)
 		)
 	);
+}
+
+//=================================================================================
+const Physics::Primitives::S_AABB& C_SkyBox::GetAABB() const
+{
+	return m_AABB;
 }
 
 //=================================================================================

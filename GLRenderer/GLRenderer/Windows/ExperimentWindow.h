@@ -15,6 +15,7 @@
 #include <GLRenderer/GUI/Menu/Menu.h>
 #include <GLRenderer/GUI/Menu/MenuItem.h>
 #include <GLRenderer/MainPassTechnique.h>
+#include <GLRenderer/ShadowMapPass.h>
 #include <GLRenderer/Mesh/StaticMeshResource.h>
 
 #include <Entity/EntityManager.h>
@@ -46,7 +47,7 @@ namespace Windows {
 class C_ExplerimentWindow : public GLFW::C_GLFWoGLWindow {
 	using T_Base = GLFW::C_GLFWoGLWindow;
 public:
-	C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo);
+	explicit C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo);
 	virtual ~C_ExplerimentWindow();
 	//=================================================================================
 	virtual void Update() override;
@@ -91,12 +92,11 @@ private:
 	GUID																										m_EntitiesWindowGUID;
 	GUID																										m_HDRSettingsGUID;
 	GUI::Menu::C_Menu																				m_Windows;
-	std::unique_ptr<GUI::Menu::C_MenuItem>									m_HDRWindow;
-	std::unique_ptr<GUI::Menu::C_MenuItem>									m_RendererStats;
 
-	C_MainPassTechnique																			m_MainPass;
+	std::unique_ptr<C_MainPassTechnique>																		m_MainPass;
+	std::shared_ptr<C_ShadowMapTechnique>										m_ShadowPass;
 
-	C_Framebuffer																						m_HDRFBO;
+	std::unique_ptr <C_Framebuffer>																						m_HDRFBO;
 	std::shared_ptr<Mesh::C_StaticMeshResource>							m_ScreenQuad;
 };
 

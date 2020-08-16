@@ -53,9 +53,9 @@ public:
 //=================================================================================
 class C_UserEvent : public I_Event {
 public:
-
-	C_UserEvent(const std::string& name)
+	explicit C_UserEvent(const std::string& name)
 	: m_Name(name){}
+
 	//=================================================================================
 	virtual E_EventType GetType() const override
 	{

@@ -35,16 +35,23 @@ workspace "Engine"
   }
 
 	workspace_files{
-		"vendor/GLM/util/glm.natvis"
+		"vendor/GLM/util/glm.natvis",
+		"premake5.lua",
+		"premakeDefines.lua",
 	}
 
-	filter "system:windows"
-		systemversion "latest"
+	filter "action:vs*"
 		defines {
-			"WIN32",
 			"CORE_PLATFORM=CORE_PLATFORM_WIN",
+			"WIN32", 
+			"_GLFW_WIN32",
+			"_CRT_SECURE_NO_WARNINGS",
 		}
-	
+
+	filter "action:gmake"
+		defines {
+			"_GLFW_X11",
+		}
 
 	filter "configurations:Debug"
 		runtime "Debug"
@@ -64,6 +71,7 @@ include "premakeDefines.lua"
 IncludeDir = {}
 IncludeDir["GLFW"] = "vendor/GLFW/include"
 IncludeDir["GLM"] = "vendor/GLM"
+IncludeDir["GLI"] = "vendor/gli"
 IncludeDir["Glad"] = "vendor/Glad/include"
 IncludeDir["pugixml"] = "vendor/pugixml/src"
 IncludeDir["fmt"] = "vendor/fmt/include"
@@ -92,3 +100,6 @@ include "VulkanRenderer"
 include "Entity"
 include "Utils"
 include "Physics"
+
+filter "action:vs*"
+  include "DX12Renderer"
