@@ -87,7 +87,7 @@ bool C_ShaderCompiler::compileShaderStageInternal(T_StageHandle& stage, const st
 }
 
 //=================================================================================
-bool C_ShaderCompiler::linkProgram(T_ShaderProgram& program, const std::vector<T_StageHandle>& shaders)
+bool C_ShaderCompiler::linkProgram(GLuint& program, const std::vector<std::pair<Renderer::E_ShaderStage, GLuint>>& stages)
 {
 	program = glCreateProgram();
 
@@ -97,9 +97,9 @@ bool C_ShaderCompiler::linkProgram(T_ShaderProgram& program, const std::vector<T
 		return false;
 	}
 
-	for (auto & shader : shaders)
+	for (auto & shader : stages)
 	{
-		glAttachShader(program, shader);
+		glAttachShader(program, shader.second);
 	}
 
 	glLinkProgram(program);

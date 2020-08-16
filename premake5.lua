@@ -31,7 +31,9 @@ workspace "Engine"
   
   defines{
     "FMT_HEADER_ONLY=1",
-    "GLENGINE_GLFW_RENDERER=VULKAN"
+    "GLENGINE_GLFW_RENDERER=VULKAN",
+    "VULKAN_BIN=\"C:/VulkanSDK/Bin\"",
+    "VULKAN_GLSLC=VULKAN_BIN \"/glslc.exe\""
   }
 
 	workspace_files{
@@ -90,6 +92,9 @@ group ""
 group "Renderes"
 	include "GLFWWindowManager"
 	include "DX12Renderer"
+group ""
+group "Tools"
+	include "Tools/ShaderPreprocessor"
 group ""
 
 include "Core"

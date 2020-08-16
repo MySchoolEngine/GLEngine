@@ -8,6 +8,8 @@
 #include <GLRenderer/ImGui/GUIManager.h>
 #include <GLRenderer/GUI/GUIWindow.h>
 
+#include <Renderer/Shaders/ShaderCompiling.h>
+
 #include <pugixml.hpp>
 
 
@@ -159,78 +161,15 @@ void C_ShaderManager::DestroyControls(ImGui::C_GUIManager& guiMGR)
 }
 
 //=================================================================================
-bool C_ShaderManager::LoadDoc(pugi::xml_document & document, const std::filesystem::path& filename) const
-{
-	pugi::xml_parse_result result;
-
-	if (filename.has_extension()) {
-		result = document.load_file(filename.c_str());
-		if (!result.status == pugi::status_ok) {
-			const std::filesystem::path path = s_ShadersFolder / filename;
-			result = document.load_file(path.generic_string().c_str());
-		}
-		else {
-			return true;
-		}
-	}
-	else {
-		auto path = filename;
-		path.replace_extension("xml");
-		return LoadDoc(document, path);
-	}
-
-	if (result.status == pugi::status_ok) return true;
-	return false;
-}
-
-//=================================================================================
-GLuint C_ShaderManager::LoadShader(const pugi::xml_node& node, C_ShaderCompiler& compiler) const
-{
-	GLuint shader = 0;
-
-	const std::string_view stageAttribute = node.attribute("stage").value();
-
-	Renderer::E_ShaderStage stage = Renderer::E_ShaderStage::Vertex;
-	if (stageAttribute == "vertex") stage = Renderer::E_ShaderStage::Vertex;
-	else if (stageAttribute == "fragment") stage = Renderer::E_ShaderStage::Fragment;
-	else if (stageAttribute == "geometry") stage = Renderer::E_ShaderStage::Geometry;
-	else if (stageAttribute == "compute") stage = Renderer::E_ShaderStage::Compute;
-	else if (stageAttribute == "tess-control") stage = Renderer::E_ShaderStage::TesselationControl;
-	else if (stageAttribute == "tess-evaluation") stage = Renderer::E_ShaderStage::TesselationEvaluation;
-
-	const auto filename = s_ShadersFolder / std::filesystem::path(node.first_child().value());
-
-	if (!compiler.compileShaderStage(shader, filename, stage)) {
-		CORE_LOG(E_Level::Error, E_Context::Render, "--Compilation error");
-		CORE_LOG(E_Level::Error, E_Context::Render, "{}", filename);
-		return 0;
-	}
-	glObjectLabel(GL_SHADER, shader, static_cast<GLsizei>(filename.generic_string().length()), filename.generic_string().c_str());
-	return shader;
-}
-
-//=================================================================================
 GLuint C_ShaderManager::LoadProgram(const std::filesystem::path& name, C_ShaderCompiler& compiler) const
 {
-	pugi::xml_document doc;
+	Renderer::C_ShaderLoader<GLuint> loader(compiler);
 
-	if (!LoadDoc(doc, name)) {
-		CORE_LOG(E_Level::Error, E_Context::Render, "Can't open config file for shader name: {}", name);
-		return 0;
-	}
-
-	std::vector<GLuint> shaders;
-
-	for (auto& shader : doc.child("pipeline").children("shader")) {
-		const auto shaderStage = LoadShader(shader, compiler);
-		if (shaderStage == 0) {
-			return 0;
-		}
-		shaders.push_back(shaderStage);
-	}
+	std::vector<std::pair<Renderer::E_ShaderStage, GLuint>> stages;
+	loader.LoadAllStages(name, stages);
 
 	GLuint program;
-	if (!compiler.linkProgram(program, shaders)) {
+	if (!compiler.linkProgram(program, stages)) {
 		return false;
 	}
 	return program;

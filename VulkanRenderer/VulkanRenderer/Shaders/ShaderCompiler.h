@@ -4,7 +4,7 @@
 
 namespace GLEngine::VkRenderer::Shaders {
 
-class C_ShaderCompiler : public Renderer::ShaderCompilerTrait<VkPipelineShaderStageCreateInfo, void>
+class C_ShaderCompiler : public Renderer::ShaderCompilerTrait<VkPipelineShaderStageCreateInfo>
 {
 public:
 	C_ShaderCompiler(VkDevice_T*);

@@ -15,11 +15,11 @@
 
 namespace GLEngine::GLRenderer::Shaders {
 
-class C_ShaderCompiler : public Renderer::ShaderCompilerTrait<GLuint, GLuint>
+class C_ShaderCompiler : public Renderer::ShaderCompilerTrait<GLuint>
 {
 public:
 	C_ShaderCompiler(bool preprocessorOutput = false);
-	bool linkProgram(T_ShaderProgram& program, const std::vector<T_StageHandle>& shaders);
+	bool linkProgram(GLuint& program, const std::vector<std::pair<Renderer::E_ShaderStage, GLuint>>& stages);
 
 	bool		m_PreprocessorOutput;
 protected:
