@@ -2,25 +2,7 @@
 
 #include <Utils/Logging/LoggingMacros.h>
 
-#include <algorithm>
-#include <array>
-#include <chrono>
-#include <exception>
-#include <functional>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <memory>
-#include <map>
-#include <set>
-#include <numeric>
-#include <vector>
-#include <random>
-#include <regex>
-#include <stack>
-#include <string>
-#include <sstream>
-#include <filesystem>
+#include <Utils/STLAfx.h>
 
 // rendering dependend things
 #define GLFW_INCLUDE_VULKAN
@@ -36,3 +18,5 @@
 #include <VulkanRenderer/VkRendererApi.h>
 
 #include <vulkan/vulkan.h>
+
+#include <VulkanRenderer/VulkanTypesHelpers.h>
