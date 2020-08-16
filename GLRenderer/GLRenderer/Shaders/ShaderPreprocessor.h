@@ -21,16 +21,16 @@ public:
 
 	using T_Paths = std::vector<std::filesystem::path>;
 	void Define(const std::string& symbol, const std::string& value);
-	std::string PreprocessFile(const std::string& src, const std::string& filepath);
+	std::string PreprocessFile(const std::string& src, const std::filesystem::path& filepath);
 	T_Paths GetTouchedPaths() const;
 	bool WasSuccessful() const { return m_Result; }
 protected:
-	void IncludesFiles(std::string& content, const std::string& filepath);
+	void IncludesFiles(std::string& content, const std::filesystem::path& filepath);
 	void CodeGeneration(std::string& content);
 	void ReplaceConstants(std::string& content);
 	void GetDefines(std::string& content);
 
-	bool _loadFile(const char* file, std::string& content);
+	bool _loadFile(const std::filesystem::path& file, std::string& content);
 
 	using T_Defines = std::map<std::string, std::string>;
 	T_Defines m_defines;

@@ -24,7 +24,7 @@ void C_ShaderPreprocessor::Define(const std::string& symbol, const std::string& 
 }
 
 //=================================================================================
-std::string C_ShaderPreprocessor::PreprocessFile(const std::string& src, const std::string& filepath)
+std::string C_ShaderPreprocessor::PreprocessFile(const std::string& src, const std::filesystem::path& filepath)
 {
 	std::string ret = src;
 	IncludesFiles(ret, filepath);
@@ -43,19 +43,20 @@ C_ShaderPreprocessor::T_Paths C_ShaderPreprocessor::GetTouchedPaths() const
 }
 
 //=================================================================================
-void C_ShaderPreprocessor::IncludesFiles(std::string& content, const std::string& filepath) {
+void C_ShaderPreprocessor::IncludesFiles(std::string& content, const std::filesystem::path& folderPath) {
 	std::smatch m;
 	std::string result = "";
 
 	while (std::regex_search(content, m, s_IncludeFileName)) {
 		result += m.prefix().str();
 		std::string file;
-		if (_loadFile((filepath + m[2].str()).c_str(), file)) {
+		const auto filePath = folderPath / std::filesystem::path(m[2].str());
+		if (_loadFile(filePath, file)) {
 			result += file;
-			m_Paths.emplace_back((filepath + m[2].str()));
+			m_Paths.emplace_back(filePath);
 		}
 		else {
-			CORE_LOG(E_Level::Error, E_Context::Render, "Failed to open included file: {}{}\n", filepath, m[2].str());
+			CORE_LOG(E_Level::Error, E_Context::Render, "Failed to open included file: {}\n", filePath);
 			m_Result = false;
 		}
 		content = m.suffix().str();
@@ -110,7 +111,7 @@ void C_ShaderPreprocessor::ReplaceConstants(std::string& content) {
 
 //=================================================================================
 // taken from Ing. Josef Kobrtek's sources
-bool C_ShaderPreprocessor::_loadFile(const char* file, std::string& content)
+bool C_ShaderPreprocessor::_loadFile(const std::filesystem::path& file, std::string& content)
 {
 	std::ifstream stream(file);
 

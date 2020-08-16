@@ -18,7 +18,7 @@ C_ShaderCompiler::C_ShaderCompiler(bool preprocessorOutput /*= false*/)
 bool C_ShaderCompiler::compileShaderStageInternal(T_StageHandle& stage, const std::filesystem::path& filepath, const Renderer::E_ShaderStage shaderStage, std::string& src)
 {
 	C_ShaderPreprocessor preproces(std::make_unique<C_GLCodeProvider>());
-	src = preproces.PreprocessFile(src, filepath.parent_path().generic_string() + "/");
+	src = preproces.PreprocessFile(src, filepath.parent_path());
 	if (m_PreprocessorOutput)
 	{
 		std::ofstream debugOutput;
