@@ -26,10 +26,10 @@ bool twoSided = false;
 
 uniform bool useNormalMap;
 
-in vec3 normalOUT;
-in vec2 texCoordOUT;
-in vec4 worldCoord;
-in mat3 TBN;
+layout(location = 0) in vec3 normalOUT;
+layout(location = 1) in vec2 texCoordOUT;
+layout(location = 2) in vec4 worldCoord;
+layout(location = 3) in mat3 TBN;
 
 out vec4 fragColor;
 

@@ -1,11 +1,11 @@
 #version 430
 #extension GL_ARB_bindless_texture : require
 
-attribute vec4 vertex;
-attribute vec3 normal;
-attribute vec2 texCoord;
-attribute vec3 tangent;
-attribute vec3 bitangent;
+layout(location = 0) in vec4 vertex;
+layout(location = 1) in vec3 normal;
+layout(location = 2) in vec2 texCoord;
+layout(location = 3) in vec3 tangent;
+layout(location = 4) in vec3 bitangent;
 
 //per frame
 #include "../include/frameConstants.glsl"
@@ -14,10 +14,10 @@ attribute vec3 bitangent;
 uniform mat4 modelMatrix;
 
 //=================================================================================
-out vec3 normalOUT;
-out vec2 texCoordOUT;
-out vec4 worldCoord;
-out mat3 TBN;
+layout(location = 0) out vec3 normalOUT;
+layout(location = 1) out vec2 texCoordOUT;
+layout(location = 2) out vec4 worldCoord;
+layout(location = 3) out mat3 TBN;
 
 //=================================================================================
 void main()

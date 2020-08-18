@@ -7,9 +7,9 @@
 uniform vec3 modelColor;
 uniform sampler2D colorMap;
 
-in vec3 normalOUT;
-in vec2 texCoordOUT;
-in vec4 worldCoord;
+layout(location = 0) in vec3 normalOUT;
+layout(location = 1) in vec2 texCoordOUT;
+layout(location = 2) in vec4 worldCoord;
 
 out vec4 fragColor;
 

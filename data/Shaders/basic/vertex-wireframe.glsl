@@ -1,6 +1,6 @@
 #version 330
 
-in vec4 vertex;
+layout (location = 1) in vec4 vertex;
 
 //per frame
 #include "../include/frameConstants.glsl"
@@ -9,7 +9,7 @@ in vec4 vertex;
 uniform mat4 modelMatrix;
 uniform vec3 colorIN;
 
-out vec3 colorOUT;
+layout (location = 1) out vec3 colorOUT;
 
 void main()
 {
