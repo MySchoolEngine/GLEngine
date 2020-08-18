@@ -1,5 +1,7 @@
 #version 430
+#if !defined VULKAN
 #extension GL_ARB_bindless_texture : require
+#endif
 
 #include "../include/frameConstants.glsl"
 

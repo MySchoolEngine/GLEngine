@@ -1,5 +1,7 @@
 #version 430
-#extension GL_ARB_bindless_texture : require
+#if !defined VULKAN
+	#extension GL_ARB_bindless_texture : require
+#endif ////////
 
 layout(location = 0) in vec4 vertex;
 layout(location = 1) in vec3 normal;
