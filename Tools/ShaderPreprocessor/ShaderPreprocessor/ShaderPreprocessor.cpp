@@ -5,6 +5,9 @@
 
 #include <GLRenderer/Shaders/Generation/ShaderTypesReflection.h>
 
+#include <Utils/Logging/Logging.h>
+#include <Utils/Logging/ILogger.h>
+
 #include <iostream>
 #include <fstream>
 
@@ -14,6 +17,7 @@ protected:
 	bool compileShaderStageInternal(T_StageHandle& stage, const std::filesystem::path& filepath, const GLEngine::Renderer::E_ShaderStage shaderStage, std::string& content) override
 	{
 		GLEngine::Renderer::Shaders::C_ShaderPreprocessor preproces(std::make_unique<GLEngine::GLRenderer::Shaders::C_GLCodeProvider>());
+		preproces.Define("VULKAN", "1");
 		stage = preproces.PreprocessFile(content, filepath.parent_path());
 
 		return preproces.WasSuccessful();
@@ -51,8 +55,16 @@ int main(int argc, char** argv)
 
 		return 0;
 	}
-	else if (argc == 3 && std::string_view(argv[1]) == "-s")
+	else if (argc >= 3 && std::string_view(argv[1]) == "-s")
 	{
+		if (argc == 4 && std::string_view(argv[3]) == "--silent")
+		{
+		}
+		else
+		{
+			auto& logging = Utils::Logging::C_LoggingSystem::Instance();
+			logging.AddLogger(new Utils::Logging::C_CoutLogger());
+		}
 		PrepareFolder(gs_OutputFolder);
 		std::ofstream batfile(gs_OutputFolder / "compile.bat");
 

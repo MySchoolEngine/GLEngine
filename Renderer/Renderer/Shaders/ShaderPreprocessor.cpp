@@ -10,6 +10,8 @@ namespace GLEngine::Renderer::Shaders {
 const std::regex C_ShaderPreprocessor::s_IncludeFileName	= std::regex(R"(^(#include )\"([^\"]*)\"$)");
 const std::regex C_ShaderPreprocessor::s_GenerateStruct		= std::regex(R"(^(@struct )([^\"\n;\s]*))");
 const std::regex C_ShaderPreprocessor::s_DefineRegEx		= std::regex(R"(^(#define )([^\s]*)\s([^\s]+)$)");
+const std::regex C_ShaderPreprocessor::s_IfDefinedRegEx		= std::regex(R"(^(#if )(!?)(defined)\s([^\s]+)$)");
+const std::regex C_ShaderPreprocessor::s_EndIfDefinedRegEx	= std::regex(R"(^#endif$)");
 
 //=================================================================================
 C_ShaderPreprocessor::C_ShaderPreprocessor(std::unique_ptr<I_CodeProvider>&& codeProvider)
@@ -27,10 +29,18 @@ void C_ShaderPreprocessor::Define(const std::string& symbol, const std::string& 
 }
 
 //=================================================================================
+bool C_ShaderPreprocessor::IsDefined(const std::string& name) const
+{
+	return m_defines.find(name) != m_defines.end();
+}
+
+//=================================================================================
 std::string C_ShaderPreprocessor::PreprocessFile(const std::string& src, const std::filesystem::path& filepath)
 {
+	//@todo if statements works only with constants defined from outside! FIX ME
 	std::string ret = src;
 	IncludesFiles(ret, filepath);
+	ResolveIfStatements(ret);
 	GetDefines(ret);
 	ReplaceConstants(ret);
 
@@ -123,6 +133,35 @@ bool C_ShaderPreprocessor::_loadFile(const std::filesystem::path& file, std::str
 
 	content = std::string(std::istream_iterator<char>(stream >> std::noskipws), std::istream_iterator<char>());
 	return true;
+}
+
+//=================================================================================
+void C_ShaderPreprocessor::ResolveIfStatements(std::string& content)
+{
+	std::smatch m;
+	std::string result = "";
+
+	while (std::regex_search(content, m, s_IfDefinedRegEx)) {
+		result += m.prefix().str();
+		std::smatch endIfMatch;
+		std::string rest(m.suffix().str());
+		if (!std::regex_search(rest, endIfMatch, s_EndIfDefinedRegEx))
+		{
+			CORE_LOG(E_Level::Error, E_Context::Render, "No matching #endif for given #if statement.");
+
+			content = m.suffix().str();
+			continue;
+		}
+
+		const auto negation = (m[2].length() == 0);
+		if (IsDefined(m[4]) == negation)
+		{
+			// look for next endif thats obviously bug
+			result += endIfMatch.prefix().str();
+		}
+		content = endIfMatch.suffix().str();
+	}
+	content = result + content;
 }
 
 }

@@ -26,6 +26,7 @@ public:
 	~C_ShaderPreprocessor();
 
 	void Define(const std::string& symbol, const std::string& value);
+	bool IsDefined(const std::string& name) const;
 	std::string PreprocessFile(const std::string& src, const std::filesystem::path& filepath);
 	T_Paths GetTouchedPaths() const;
 	bool WasSuccessful() const { return m_Result; }
@@ -34,6 +35,8 @@ protected:
 	void CodeGeneration(std::string& content);
 	void ReplaceConstants(std::string& content);
 	void GetDefines(std::string& content);
+
+	void ResolveIfStatements(std::string& content);
 
 	bool _loadFile(const std::filesystem::path& file, std::string& content);
 
@@ -51,6 +54,8 @@ protected:
 	const static std::regex s_IncludeFileName;
 	const static std::regex s_GenerateStruct;
 	const static std::regex s_DefineRegEx;
+	const static std::regex s_IfDefinedRegEx;
+	const static std::regex s_EndIfDefinedRegEx;
 #pragma warning(pop)
 };
 }
