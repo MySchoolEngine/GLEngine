@@ -11,7 +11,7 @@ const std::regex C_ShaderPreprocessor::s_IncludeFileName	= std::regex(R"(^(#incl
 const std::regex C_ShaderPreprocessor::s_GenerateStruct		= std::regex(R"(^(@struct )([^\"\n;\s]*))");
 const std::regex C_ShaderPreprocessor::s_DefineRegEx		= std::regex(R"(^(#define )([^\s]*)\s([^\s]+)$)");
 const std::regex C_ShaderPreprocessor::s_IfDefinedRegEx		= std::regex(R"(^(#if )(!?)(defined)\s([^\s]+)$)");
-const std::regex C_ShaderPreprocessor::s_EndIfDefinedRegEx	= std::regex(R"(^#endif$)");
+const std::regex C_ShaderPreprocessor::s_EndIfDefinedRegEx	= std::regex(R"(^#endif([\s]*\/\/.*)?$)");
 
 //=================================================================================
 C_ShaderPreprocessor::C_ShaderPreprocessor(std::unique_ptr<I_CodeProvider>&& codeProvider)
