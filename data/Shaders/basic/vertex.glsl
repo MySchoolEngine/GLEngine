@@ -13,7 +13,10 @@ layout(location = 4) in vec3 bitangent;
 #include "../include/frameConstants.glsl"
 
 //per model
-uniform mat4 modelMatrix;
+layout(binding = 0) uniform modelData
+{
+	mat4 modelMatrix;
+};
 
 //=================================================================================
 layout(location = 0) out vec3 normalOUT;
