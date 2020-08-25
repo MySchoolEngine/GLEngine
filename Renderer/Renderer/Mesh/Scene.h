@@ -22,8 +22,7 @@ struct Material
 	//If negative - material has no texture
 	int textureIndex;
 
-	//Alignment to 128bit, in terms of size
-	float aligmetVariableDoNotUse1, aligmetVariableDoNotUse2;
+	std::string m_Name;
 };
 
 //=================================================================================
