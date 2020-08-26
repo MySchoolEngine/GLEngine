@@ -178,6 +178,7 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, std::str
 	static_assert(sizeof(glm::vec3) == sizeof(GLfloat) * 3, "Platform doesn't support this directly.");
 
 	m_triangles = mesh.vertices.size();
+	m_AABB = mesh.bbox;
 
 	m_VAO.bind();
 	m_VAO.SetBuffer<0, GL_ARRAY_BUFFER>(mesh.vertices);
@@ -199,9 +200,8 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, std::str
 }
 
 //=================================================================================
-const Physics::Primitives::S_AABB& C_SkeletalMesh::GetAABB() const
+GLEngine::Physics::Primitives::S_AABB C_SkeletalMesh::GetAABB() const
 {
-	// TODO probably should be updated in some clever way with the animation.
 	return m_AABB;
 }
 

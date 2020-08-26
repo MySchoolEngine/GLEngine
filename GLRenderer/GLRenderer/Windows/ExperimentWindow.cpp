@@ -451,33 +451,16 @@ void C_ExplerimentWindow::MouseSelect()
 	auto screenCoord = GetInput().GetMousePosition();
 	auto camera = m_CamManager.GetActiveCamera();
 
-	float x = (2.0f * screenCoord.first) / GetWidth() - 1.0f;
-	float y = 1.0f - (2.0f * screenCoord.second) / GetHeight();
-	float z = 1.0f;
-	glm::vec3 ray_nds = glm::vec3(x, y, z);
-	glm::vec4 ray_clip = glm::vec4(ray_nds.x, ray_nds.y, -1.0, 1.0);
-	glm::vec4 ray_eye = glm::inverse(camera->GetProjectionMatrix()) * ray_clip;
-	ray_eye = glm::vec4(ray_eye.x, ray_eye.y, -1.0, 0.0);
+	const auto clipPosition = ToClipSpace({ screenCoord.first, screenCoord.second });
 
-	glm::vec4 ray_wor = glm::inverse(camera->GetViewMatrix()) * ray_eye;
-	// don't forget to normalise the vector at some point
-	ray_wor = glm::normalize(ray_wor);
-	glm::vec4 cameraOrigin = glm::vec4(camera->GetPosition(), 1.0f);
-
-	C_PersistentDebug::Instance().DrawLine(cameraOrigin, cameraOrigin + ray_wor, glm::vec3(0, 1, 0));
-	{
-		using namespace Physics::Primitives;
-		S_Ray ray;
-		ray.origin = cameraOrigin;
-		ray.direction = ray_wor;
-		S_RayIntersection inter = m_World->Select(ray);
-		if (inter.distance > 0) {
-			auto entity = m_World->GetEntity(inter.entityId);
-			if (entity) {
-				entity->OnEvent(Core::C_UserEvent("selected"));
-			}
-			//std::static_pointer_cast<Cameras::C_OrbitalCamera>(camera)->setCenterPoint(inter.intersectionPoint);
-			//std::static_pointer_cast<Cameras::C_OrbitalCamera>(camera)->update();
+	using namespace Physics::Primitives;
+	const auto ray = camera->GetRay(clipPosition);;
+	C_PersistentDebug::Instance().DrawLine(ray.origin, ray.origin + ray.direction, glm::vec3(0, 1, 0));
+	const S_RayIntersection inter = m_World->Select(ray);
+	if (inter.distance > 0) {
+		auto entity = m_World->GetEntity(inter.entityId);
+		if (entity) {
+			entity->OnEvent(Core::C_UserEvent("selected"));
 		}
 	}
 }

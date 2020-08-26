@@ -16,6 +16,11 @@ namespace Renderer {
 			return Entity::E_ComponentType::DebugGUI;
 		}
 
+		virtual Physics::Primitives::S_AABB GetAABB() const override
+		{
+			return Physics::Primitives::S_AABB();
+		}
+
 		virtual void Toggle() = 0;
 	};
 }

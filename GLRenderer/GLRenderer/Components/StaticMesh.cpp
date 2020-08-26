@@ -162,7 +162,7 @@ void C_StaticMesh::DebugDrawGUI()
 }
 
 //=================================================================================
-const GLEngine::Physics::Primitives::S_AABB& C_StaticMesh::GetAABB() const
+GLEngine::Physics::Primitives::S_AABB C_StaticMesh::GetAABB() const
 {
 	return m_AABB;
 }

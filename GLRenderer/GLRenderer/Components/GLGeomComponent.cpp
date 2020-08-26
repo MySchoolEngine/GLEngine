@@ -117,7 +117,7 @@ void C_GLGeomComponent::SetupMaterial(const Utils::Parsing::MaterialData& data)
 }
 
 //=================================================================================
-const Physics::Primitives::S_AABB& C_GLGeomComponent::GetAABB() const
+Physics::Primitives::S_AABB C_GLGeomComponent::GetAABB() const
 {
 	return m_AABB;
 }

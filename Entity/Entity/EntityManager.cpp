@@ -95,14 +95,39 @@ void C_EntityManager::OnUpdate()
 //=================================================================================
 Physics::Primitives::S_RayIntersection C_EntityManager::Select(const Physics::Primitives::S_Ray& ray)
 {
+	std::vector<Physics::Primitives::S_RayIntersection> intersects;
+	intersects.reserve(m_Entities->size());
+	for (auto& entity : *m_Entities)
+	{
+		const auto aabb = entity->GetAABB();
+		const auto distance = aabb.IntersectImpl(ray);
+		if(distance > 0)
+		{
+			using namespace Physics::Primitives;
+			S_RayIntersection intersection;
+			intersection.entityId = entity->GetID();
+			intersection.distance = distance;
+			intersection.intersectionPoint = ray.origin + ray.direction * intersection.distance;
+			intersection.ray = ray;
+			intersects.emplace_back(std::move(intersection));
+		}
+	}
+ 	if (!intersects.empty())
 	{
 		using namespace Physics::Primitives;
-		S_Plane plane;
-		plane.noraml = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
-		plane.originOffset = -1;
+		const auto& nearest = std::min_element(intersects.begin(), intersects.end(), 
+			[](const auto& it, const auto& smallest) {
+				return it.distance < smallest.distance;
+			});
+		return *nearest;
+	}
+
+	{
+		using namespace Physics::Primitives;
+		constexpr S_Plane plane{ glm::vec4(0.0f, 1.0f, 0.0f, 1.0f) , -1};
 		S_RayIntersection intersection;
 		intersection.entityId = INVALID_GUID;
-		intersection.distance = plane.Intersect(ray);
+		intersection.distance = plane.IntersectImpl(ray);
 		intersection.intersectionPoint = ray.origin + ray.direction*intersection.distance;
 		intersection.ray = ray;
 		return intersection;

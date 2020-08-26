@@ -20,8 +20,6 @@ namespace Renderer {
 		{
 			return Entity::E_ComponentType::Graphical;
 		}
-
-		[[nodiscard]] virtual const Physics::Primitives::S_AABB& GetAABB() const = 0;
 	};
 }
 

@@ -4,6 +4,8 @@
 
 #include <Core/EventSystem/EventReciever.h>
 
+#include <Physics/Primitives/AABB.h>
+
 namespace pugi {
 class xml_node;
 }
@@ -33,6 +35,7 @@ public:
 	void SetComponentMatrix(const glm::mat4& componentMatrix) { m_ComponentMatrix = componentMatrix; }
 	[[nodiscard]] const glm::mat4 GetComponentModelMatrix() const;
 
+	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const = 0;
 protected:
 	std::shared_ptr<I_Entity> GetOwner() const;
 

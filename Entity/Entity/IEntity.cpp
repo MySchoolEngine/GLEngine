@@ -38,6 +38,18 @@ I_Entity::T_ComponentRange I_Entity::GetComponents(E_ComponentType type) const
 }
 
 //=================================================================================
+Physics::Primitives::S_AABB I_Entity::GetAABB() const
+{
+	Physics::Primitives::S_AABB aabb;
+	std::for_each(m_Components->begin(), m_Components->end(), [&aabb](const auto& component) 
+		{
+			aabb.Add(component.second->GetAABB());
+		});
+
+	return aabb;
+}
+
+//=================================================================================
 void I_Entity::AddComponent(T_ComponentPtr component)
 {
 	Entity::C_ComponentManager::Instance().RegisterComponent(component);

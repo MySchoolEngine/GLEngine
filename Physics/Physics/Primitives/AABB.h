@@ -1,20 +1,88 @@
 #pragma once
 
 #include <Physics/Primitives/Shapes.h>
+#include <Physics/Primitives/Ray.h>
+#include <Physics/Primitives/Intersectable.h>
 
 #include <glm/glm.hpp>
 
+#include <array>
+
 namespace GLEngine::Physics::Primitives {
 
-struct S_AABB {
-private:
-	constexpr static float maxFloat = std::numeric_limits<float>::infinity();
-	constexpr static float minFloat = -std::numeric_limits<float>::infinity();
+struct S_AABB : public T_Intersectable<S_AABB> {
 public:
 	constexpr S_AABB()
-		: m_Min(maxFloat, maxFloat, maxFloat)
-		, m_Max(minFloat, minFloat, minFloat)
+		: m_Min(0.0f, 0.0f, 0.0f)
+		, m_Max(0.0f, 0.0f, 0.0f)
 	{}
+
+	[[nodiscard]] inline float	IntersectImpl(const S_Ray& ray) const
+	{
+		// https://github.com/erich666/GraphicsGems/blob/master/gems/RayBox.c
+		enum class quadrantName
+		{
+			RIGHT,
+			LEFT,
+			MIDDLE
+		};
+		bool inside = true;
+		std::array<float, 3> candidatePlane;
+		std::array<float, 3> maxT;
+		quadrantName quadrant[3];
+		for (int i = 0; i < 3; ++i)
+		{
+			if (ray.origin[i] < m_Min[i])
+			{
+				quadrant[i] = quadrantName::LEFT;
+				candidatePlane[i] = m_Min[i];
+				inside = false;
+			}
+			else if (ray.origin[i] > m_Max[i])
+			{
+				quadrant[i] = quadrantName::RIGHT;
+				candidatePlane[i] = m_Max[i];
+				inside = false;
+			}
+			else
+			{
+				quadrant[i] = quadrantName::MIDDLE;
+			}
+		}
+
+		if (inside)
+		{
+			return 0.0f;
+		}
+
+		for (int i = 0; i < 3; i++)
+			if (quadrant[i] != quadrantName::MIDDLE && ray.direction[i] != 0.)
+				maxT[i] = (candidatePlane[i] - ray.origin[i]) / ray.direction[i];
+			else
+				maxT[i] = -1.;
+
+		int whichPlane = 0;
+		for (int i = 1; i < 3; i++)
+			if (maxT[whichPlane] < maxT[i])
+				whichPlane = i;
+
+		/* Check final candidate actually inside box */
+		if (maxT[whichPlane] < 0) return maxT[whichPlane];
+
+		glm::vec3 coord;
+		
+		for (int i = 0; i < 3; i++)
+			if (whichPlane != i) {
+				coord[i] = ray.origin[i] + maxT[whichPlane] * ray.direction[i];
+				if (coord[i] < m_Min[i] || coord[i] > m_Max[i])
+					return -1.f;
+			}
+			else {
+				coord[i] = candidatePlane[i];
+			}
+
+		return glm::distance(ray.origin, coord);
+	}
 
 	constexpr void Add(const glm::vec3& point)
 	{

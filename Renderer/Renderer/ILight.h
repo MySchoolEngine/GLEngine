@@ -21,6 +21,12 @@ public:
 	}
 
 	virtual Physics::Primitives::C_Frustum GetShadingFrustum() const = 0;
+
+	virtual Physics::Primitives::S_AABB GetAABB() const override
+	{
+		return Physics::Primitives::S_AABB();
+	}
+
 };
 }
 
