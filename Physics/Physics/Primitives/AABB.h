@@ -67,19 +67,21 @@ public:
 				whichPlane = i;
 
 		/* Check final candidate actually inside box */
-		return maxT[whichPlane];
+		if (maxT[whichPlane] < 0) return maxT[whichPlane];
 
-		// glm::vec3 coord;
-		// 
-		// for (int i = 0; i < 3; i++)
-		// 	if (whichPlane != i) {
-		// 		coord[i] = ray.origin[i] + maxT[whichPlane] * ray.direction[i];
-		// 		if (coord[i] < m_Min[i] || coord[i] > m_Max[i])
-		// 			return -1.f;
-		// 	}
-		// 	else {
-		// 		coord[i] = candidatePlane[i];
-		// 	}
+		glm::vec3 coord;
+		
+		for (int i = 0; i < 3; i++)
+			if (whichPlane != i) {
+				coord[i] = ray.origin[i] + maxT[whichPlane] * ray.direction[i];
+				if (coord[i] < m_Min[i] || coord[i] > m_Max[i])
+					return -1.f;
+			}
+			else {
+				coord[i] = candidatePlane[i];
+			}
+
+		return glm::distance(ray.origin, coord);
 	}
 
 	constexpr void Add(const glm::vec3& point)
