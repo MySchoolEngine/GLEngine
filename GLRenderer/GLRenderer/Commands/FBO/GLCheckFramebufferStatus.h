@@ -18,6 +18,13 @@ public:
 	virtual E_Type GetType() const override;
 	virtual std::shared_ptr<Renderer::I_Resource> GetResource() const override;
 
+
+	//=================================================================================
+	[[nodiscard]] virtual std::string GetDescriptor() const override
+	{
+		return std::string("CheckFramebufferStatus");
+	}
+
 private:
 	std::promise<bool> m_Promise;
 };

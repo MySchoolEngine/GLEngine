@@ -25,6 +25,7 @@ public:
 	// Renderer::I_RenderableComponent
 	//==========================================
 	virtual void PerformDraw() const override;
+	[[nodiscard]] virtual const Physics::Primitives::S_AABB& GetAABB() const override;
 
 	virtual Physics::Primitives::S_AABB GetAABB() const override
 	{
@@ -33,6 +34,7 @@ public:
 private:
 	Textures::C_Texture m_Textures;
 	VAO::C_GLVAO<1>			m_VAO;
+	static constexpr Physics::Primitives::S_AABB m_AABB = Physics::Primitives::S_AABB();
 };
 
 //=============================================================

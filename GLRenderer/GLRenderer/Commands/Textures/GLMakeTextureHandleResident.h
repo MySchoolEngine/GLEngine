@@ -17,6 +17,7 @@ public:
 	{
 		return nullptr;
 	}
+	[[nodiscard]] virtual std::string GetDescriptor() const override;
 
 private:
 	std::uint64_t	m_Handle;

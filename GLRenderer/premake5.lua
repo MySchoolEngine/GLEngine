@@ -37,14 +37,10 @@ project "GLRenderer"
 		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.ImGui}",
-		"../%{IncludeDir.DevIL}",
-		
-		"../vendor/AssimpPrebuild/include",
 	}
 
 	libdirs
 	{
-		"../vendor/AssimpPrebuild/lib/",
 		"../vendor/bin/Debug-windows-x86_64/DevIL-IL/",
 	}
 
@@ -56,7 +52,6 @@ project "GLRenderer"
 		"pugixml",
 		"ImGui",
 		"DevIL-IL",
-		"../vendor/AssimpPrebuild/lib/assimp.lib",
 		"../vendor/projects/DevIL/bin/Debug-windows-x86_64/DevIL-IL/DevIL-IL.dll",
 	}
 
@@ -71,7 +66,6 @@ project "GLRenderer"
 
 		defines
 		{
-			"CORE_PLATFORM=CORE_PLATFORM_WIN",
 			"BUILD_GLRENDERER_DLL",
 		}
 
@@ -79,7 +73,6 @@ project "GLRenderer"
 		{
 			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
 			("{COPY} \"../vendor/projects/DevIL/bin/Debug-windows-x86_64/DevIL-IL/DevIL-IL.dll\" \"../bin/" .. outputdir .. "/Sandbox/\""),
-			("{COPY} \"../vendor/AssimpPrebuild/lib/*\" \"../bin/" .. outputdir .. "/Sandbox/\"")
 		}
 
 	filter "configurations:Debug"

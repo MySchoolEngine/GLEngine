@@ -26,7 +26,6 @@ project "Utils"
 
 		defines
 		{
-			"CORE_PLATFORM=CORE_PLATFORM_WIN",
 			"BUILD_UTILS_DLL",
 		}
 

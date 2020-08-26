@@ -21,4 +21,10 @@ void C_GLMakeTextureHandleResident::Commit()
 		glMakeTextureHandleNonResidentARB(m_Handle);
 }
 
+//=================================================================================
+std::string C_GLMakeTextureHandleResident::GetDescriptor() const
+{
+	return std::string("GLMakeTextureHandleResident");
+}
+
 }

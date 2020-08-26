@@ -16,11 +16,13 @@ public:
 
 	//=======================================================
 	virtual void PerformDraw() const override;
+	[[nodiscard]] const Physics::Primitives::S_AABB& GetAABB() const override;
 
 
 	virtual Physics::Primitives::S_AABB GetAABB() const override;
 
 protected:
 	std::vector<std::shared_ptr<C_TerrainMesh>> m_Meshes;
+	static constexpr Physics::Primitives::S_AABB m_AABB = Physics::Primitives::S_AABB();
 };
 }}}

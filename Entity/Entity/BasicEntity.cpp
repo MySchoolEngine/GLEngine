@@ -35,16 +35,15 @@ void C_BasicEntity::PostUpdate()
 	for (auto& comp : *m_Components)
 	{
 		comp.second->PostUpdate();
-		comp.second->SetModelMatrix(m_ModelMatrix);
 	}
 }
 
 //=================================================================================
 void C_BasicEntity::OnEvent(Core::I_Event& event)
 {
-	auto debugGUI = GetComponent(Entity::E_ComponentType::DebugGUI);
+	auto debugGUI = GetComponent<Entity::E_ComponentType::DebugGUI>();
 	if (debugGUI) {
-		GLEngine::component_cast<Entity::E_ComponentType::DebugGUI>(debugGUI)->Toggle();
+		debugGUI->Toggle();
 	}
 }
 
@@ -52,6 +51,12 @@ void C_BasicEntity::OnEvent(Core::I_Event& event)
 void C_BasicEntity::SetModelMatrix(const glm::mat4& modelMatrix)
 {
 	m_ModelMatrix = modelMatrix;
+}
+
+//=================================================================================
+const glm::mat4& C_BasicEntity::GetModelMatrix() const
+{
+	return m_ModelMatrix;
 }
 
 //=================================================================================

@@ -6,6 +6,9 @@
 #include <Core/EventSystem/EventReciever.h>
 #include <Entity/IComponent.h>
 
+#include <Utils/Range.h>
+#include <Utils/MapValueIterator.h>
+
 namespace GLEngine {
 namespace Entity {
 
@@ -17,20 +20,22 @@ enum class E_ComponentType {
 };
 
 class ENTITY_API_EXPORT I_Entity : public Core::I_EventReciever {
-private:
-	using T_ComponentsContainer = std::map<E_ComponentType, T_ComponentPtr>*;
+protected:
+	using T_ComponentsContainer = std::multimap<E_ComponentType, T_ComponentPtr>*;
 	using T_ComponentIter = std::remove_pointer<T_ComponentsContainer>::type::iterator;
-
+	using T_ComponentConstIter = std::remove_pointer<T_ComponentsContainer>::type::const_iterator;
+	using T_ComponentRange = Utils::Range<Utils::MapValueIterator<T_ComponentIter>>;
 public:
-	I_Entity(std::string name);
+	explicit I_Entity(std::string name);
 	virtual ~I_Entity();
 
 	// naive GUID version
 	using EntityID = GUID;
-	EntityID GetID() const { return m_ID; }
-	virtual T_ComponentPtr GetComponent(E_ComponentType type) const;
-	virtual glm::vec3 GetPosition() const = 0;
-	const std::string& GetName() const { return m_Name; };
+	[[nodiscard]] EntityID GetID() const { return m_ID; }
+	[[nodiscard]] virtual T_ComponentRange GetComponents(E_ComponentType type) const;
+	[[nodiscard]] virtual glm::vec3 GetPosition() const = 0;
+	[[nodiscard]] virtual const glm::mat4& GetModelMatrix() const = 0;
+	[[nodiscard]] const std::string& GetName() const { return m_Name; };
 
 	virtual void Update() {};
 	virtual void PostUpdate() {};
@@ -43,11 +48,15 @@ public:
 		typename retType = ComponenetBase<e>::type,
 		typename ret = std::shared_ptr<typename retType>>
 	[[nodiscard]] typename ret GetComponent() {
-		return component_cast<e>(GetComponent(e));
+		auto range = GetComponents(e);
+		if (range.empty())
+			return nullptr;
+		auto& first = range.begin();
+		return component_cast<e>(*first);
 	}
 	//=================================================================================
-	virtual T_ComponentIter begin();
-	virtual T_ComponentIter end();
+	[[nodiscard]] virtual T_ComponentIter begin();
+	[[nodiscard]] virtual T_ComponentIter end();
 
 protected:
 	EntityID m_ID;

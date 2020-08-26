@@ -1,4 +1,7 @@
 //================================================================================
+#define NUM_POINTLIGHT 10
+#define NUM_AREALIGHT 4
+
 @struct pointLight;
 @struct areaLight;
 

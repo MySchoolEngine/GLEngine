@@ -1,14 +1,11 @@
 #version 430
 #extension GL_ARB_bindless_texture : require
 
-#define NUM_POINTLIGHT 10
-#define NUM_AREALIGHT 4
-
 #include "../include/frameConstants.glsl"
 
 //per mesh
-uniform sampler2D tex;
 uniform vec3 modelColor;
+uniform sampler2D colorMap;
 
 in vec3 normalOUT;
 in vec2 texCoordOUT;
@@ -17,6 +14,14 @@ in vec4 worldCoord;
 out vec4 fragColor;
 
 #include "../include/LightsUBO.glsl"
+
+
+vec3 getColor(vec2 uv)
+{
+	vec3 color = modelColor;
+	color *= texture(colorMap, uv).xyz;
+	return color;
+}
 
 //=================================================================================
 void main()
@@ -40,6 +45,6 @@ void main()
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64);
 	vec3 specular = specularStrength * spec * pLight[0].color;  
 
-	vec3 result = (ambient + diffuse + specular) * modelColor;
+	vec3 result = (ambient + diffuse + specular) * getColor(texCoordOUT);
 	fragColor = vec4(result, 1.0);
 }

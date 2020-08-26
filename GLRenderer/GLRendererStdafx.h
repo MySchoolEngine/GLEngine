@@ -2,24 +2,7 @@
 
 #include <Utils/Logging/LoggingMacros.h>
 
-#include <algorithm>
-#include <array>
-#include <chrono>
-#include <exception>
-#include <functional>
-#include <fstream>
-#include <iomanip>
-#include <memory>
-#include <map>
-#include <numeric>
-#include <vector>
-#include <random>
-#include <regex>
-#include <stack>
-#include <string>
-#include <sstream>
-#include <filesystem>
-#include <future>
+#include <Utils/STLAfx.h>
 
 // rendering dependend things
 #include <glad/glad.h>

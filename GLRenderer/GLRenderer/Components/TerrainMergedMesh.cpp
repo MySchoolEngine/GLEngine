@@ -26,13 +26,13 @@ void C_TerrainMergedMesh::PerformDraw() const
 //=================================================================================
 Physics::Primitives::S_AABB C_TerrainMergedMesh::GetAABB() const
 {
-	Physics::Primitives::S_AABB ret;
-	std::for_each(m_Meshes.begin(), m_Meshes.end(), [&ret](const auto& box) 
+	m_AABB = Physics::Primitives::S_AABB();
+	std::for_each(m_Meshes.begin(), m_Meshes.end(), [&m_AABB](const auto& box) 
 		{
-			ret.Add(box->GetAABB());
+			m_AABB.Add(box->GetAABB());
 		});
 
-	return ret;
+	return m_AABB;
 }
 
 }}}

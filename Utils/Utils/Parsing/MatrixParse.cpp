@@ -43,4 +43,18 @@ glm::mat4 C_MatrixParser::ParseRotations(const pugi::xml_node& node)
 	return rot;
 }
 
+//=================================================================================
+glm::mat4 C_MatrixParser::ParseScale(const pugi::xml_node& node)
+{
+	float x, y, z;
+	if (auto translation = node.child("scale"))
+	{
+		std::stringstream ss;
+		ss << translation.child_value();
+		ss >> x >> y >> z;
+		return glm::scale(glm::mat4(1.f), { x,y,z });
+	}
+	return glm::mat4(1.f);
+}
+
 }

@@ -20,6 +20,9 @@ public:
 		return nullptr;
 	}
 
+	//=================================================================================
+	[[nodiscard]] virtual std::string GetDescriptor() const override;
+
 private:
 	unsigned int m_Unit;
 };

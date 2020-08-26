@@ -354,7 +354,7 @@ void C_TerrainMesh::OnEvent(Core::I_Event& event)
 }
 
 //=================================================================================
-GLEngine::Physics::Primitives::S_AABB C_TerrainMesh::GetAABB() const
+const GLEngine::Physics::Primitives::S_AABB& C_TerrainMesh::GetAABB() const
 {
 	return m_AABB;
 }

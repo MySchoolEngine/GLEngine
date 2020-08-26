@@ -10,6 +10,7 @@
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 #include <GLRenderer/Debug.h>
+#include <GLRenderer/OGLRenderer.h>
 
 #include <GLRenderer/Lights/LightsUBO.h>
 
@@ -43,7 +44,9 @@ C_MainPassTechnique::C_MainPassTechnique(std::shared_ptr<Entity::C_EntityManager
 void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> camera, unsigned int widht, unsigned int height)
 {
 	RenderDoc::C_DebugScope s("C_MainPassTechnique::Render");
-	const auto entitiesInView = m_WorldToRender->GetEntities(camera->GetFrustum());
+	const auto camFrustum = camera->GetFrustum();
+	const auto camBox = camFrustum.GetAABB().GetSphere();
+	const auto entitiesInView = m_WorldToRender->GetEntities(camFrustum);
 
 	auto& renderer = (Core::C_Application::Get()).GetActiveRenderer();
 	renderer->SetCurrentPassType(Renderer::E_PassType::FinalPass);
@@ -52,6 +55,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 	m_FrameConstUBO->SetProjection(camera->GetProjectionMatrix());
 	m_FrameConstUBO->SetCameraPosition(glm::vec4(camera->GetPosition(), 1.0f));
 	m_FrameConstUBO->SetSunPosition({ m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue() });
+	m_FrameConstUBO->SetFrameTime(static_cast<float>(glfwGetTime()));
 
 	{
 		RenderDoc::C_DebugScope s("Window prepare");
@@ -66,14 +70,28 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				std::make_unique<C_GLViewport>(0, 0, widht, height)
 			)
 		);
+		if (static_cast<C_OGLRenderer*>(renderer.get())->WantWireframe())
+		{
+			renderer->AddCommand(
+				std::move(
+					std::make_unique<Commands::HACK::C_LambdaCommand>(
+						[&]() {
+							glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+						}
+						, "Change polygon mode"
+					)
+				)
+			);
+		}
 	}
 
 	std::size_t pointLightIndex = 0;
 	std::size_t areaLightIndex = 0;
 	for (auto& entity : entitiesInView)
 	{
-		if (auto light = entity->GetComponent<Entity::E_ComponentType::Light>()) {
-			const auto pointLight = std::dynamic_pointer_cast<Renderer::I_PointLight>(light);
+		for (const auto& lightIt : entity->GetComponents(Entity::E_ComponentType::Light))
+		{
+			const auto pointLight = std::dynamic_pointer_cast<Renderer::I_PointLight>(lightIt);
 			if (pointLight && pointLightIndex < m_LightsUBO->PointLightsLimit())
 			{
 				const auto pos = pointLight->GetPosition();
@@ -89,7 +107,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				C_DebugDraw::Instance().DrawPoint(glm::vec4(pos, 1.0), pointLight->GetColor());
 			}
 
-			const auto areaLight = std::dynamic_pointer_cast<C_GLAreaLight>(light);
+			const auto areaLight = std::dynamic_pointer_cast<C_GLAreaLight>(lightIt);
 			if (areaLight && areaLightIndex < m_LightsUBO->AreaLightsLimit())
 			{
 				auto& tm = Textures::C_TextureUnitManger::Instance();
@@ -108,7 +126,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				S_AreaLight light;
 				light.m_LightMat = glm::ortho(-width, width, -height, height, frustum.GetNear(), frustum.GetFar()) * glm::lookAt(pos, pos + frustum.GetForeward(), up);
 				light.m_Pos = pos;
-				light.m_ShadowMap = areaLightIndex;
+				light.m_ShadowMap = static_cast<int>(areaLightIndex);
 				light.m_Width = width;
 				light.m_Height = height;
 				light.m_Normal = frustum.GetForeward();
@@ -136,8 +154,8 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 						m_FrameConstUBO->Activate(true);
 						m_LightsUBO->UploadData();
 						m_LightsUBO->Activate(true);
-					}
-					)
+					}, "MainPass - upload UBOs"
+				)
 			)
 		);
 	}
@@ -146,8 +164,13 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 		RenderDoc::C_DebugScope s("Commit geometry");
 		for (auto& entity : entitiesInView)
 		{
-			if (auto renderable = entity->GetComponent<Entity::E_ComponentType::Graphical>()) {
-				renderable->PerformDraw();
+			auto renderableComponentsRange = entity->GetComponents(Entity::E_ComponentType::Graphical);
+			for (const auto& it : renderableComponentsRange)
+			{
+				const auto rendarebleComp = component_cast<Entity::E_ComponentType::Graphical>(it);
+				const auto compSphere = rendarebleComp->GetAABB().GetSphere();
+				if(compSphere.IsColliding(camBox))
+					component_cast<Entity::E_ComponentType::Graphical>(it)->PerformDraw();
 			}
 		}
 	}
@@ -155,6 +178,19 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 	{
 		RenderDoc::C_DebugScope s("Clean");
 		m_LightsUBO->MakeHandlesResident(false);
+
+		if (static_cast<C_OGLRenderer*>(renderer.get())->WantWireframe())
+		{
+			renderer->AddCommand(
+				std::move(
+					std::make_unique<Commands::HACK::C_LambdaCommand>(
+						[&]() {
+							glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+						}, "Reset polygon mode"
+					)
+				)
+			);
+		}
 	}
 
 	C_DebugDraw::Instance().DrawPoint({ m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue() }, {1.f, 1.f, 0.f});

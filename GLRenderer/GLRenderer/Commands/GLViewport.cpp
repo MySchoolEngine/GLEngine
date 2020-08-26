@@ -40,4 +40,10 @@ std::shared_ptr<Renderer::I_Resource> C_GLViewport::GetResource() const
 	return nullptr;
 }
 
+//=================================================================================
+std::string C_GLViewport::GetDescriptor() const
+{
+	return fmt::format("GLViewport pos: {} size: {}", m_coord, m_Dimensions);
+}
+
 }}}

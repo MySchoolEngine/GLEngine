@@ -32,4 +32,10 @@ std::shared_ptr<GLEngine::Renderer::I_Resource> C_GLUseProgram::GetResource() co
 	return nullptr;
 }
 
+//=================================================================================
+std::string C_GLUseProgram::GetDescriptor() const
+{
+	return fmt::format("UseProgram {}", m_Proram);
+}
+
 }}}

@@ -1,8 +1,8 @@
 # GLEngine
 
-## Disclaimer
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/0c09524c2a59475ea538d0ec615a999d)](https://app.codacy.com/gh/MySchoolEngine/GLEngine?utm_source=github.com&utm_medium=referral&utm_content=MySchoolEngine/GLEngine&utm_campaign=Badge_Grade_Dashboard)
 
-This project started as OpenGL engine, which I wanted to derive from my Bachleor thesis. But right now I am aiming to easy to setup engine for my school projects with capability to setup OpenGL, Vulkan and DirectX context.
+![alt text](https://github.com/RohacekD/GLEngine/blob/master/wikidata/AreaLight.png?raw=true)
 
 ## Setup
 git clone https://github.com/RohacekD/GLEngine
