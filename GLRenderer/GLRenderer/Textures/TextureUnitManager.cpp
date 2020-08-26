@@ -41,7 +41,7 @@ void C_TextureUnitManger::BindTextureToUnit(const C_Texture& texture, unsigned i
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&texture]() {
 					texture.bind();
-				}
+				}, fmt::format("BindTextureToUnit - {} -> {}", texture.GetTexture(), unit)
 			)
 		)
 	);
@@ -99,7 +99,7 @@ void C_TextureUnitManger::BindImageToUnit(const C_Texture& image, unsigned int u
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&image, unit, access]() {
 					glBindImageTexture(unit, image.GetTexture(), 0, GL_TRUE, 0, AccesRightsToEnum(access), GL_R32F);
-				}
+				}, fmt::format("BindImageToUnit - {} -> {}", image.GetTexture(), unit)
 			)
 		)
 	);

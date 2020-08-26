@@ -93,10 +93,10 @@ private:
 	GUID																										m_HDRSettingsGUID;
 	GUI::Menu::C_Menu																				m_Windows;
 
-	C_MainPassTechnique																			m_MainPass;
+	std::unique_ptr<C_MainPassTechnique>																		m_MainPass;
 	std::shared_ptr<C_ShadowMapTechnique>										m_ShadowPass;
 
-	C_Framebuffer																						m_HDRFBO;
+	std::unique_ptr <C_Framebuffer>																						m_HDRFBO;
 	std::shared_ptr<Mesh::C_StaticMeshResource>							m_ScreenQuad;
 };
 

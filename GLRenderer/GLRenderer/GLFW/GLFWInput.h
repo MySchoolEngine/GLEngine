@@ -19,6 +19,10 @@ public:
 	//==========================================================
 	[[nodiscard]] virtual bool IsKeyPressed(int keycode) const override;
 	[[nodiscard]] virtual bool IsMosueButtonPresse(int key) const override;
+	/**
+	 * Returns mouse position in screen space
+	 * Top left = (0,0)
+	 */
 	[[nodiscard]] virtual std::pair<float, float> GetMousePosition() const override;
 	[[nodiscard]] virtual float GetMouseX() const override;
 	[[nodiscard]] virtual float GetMouseY() const override;

@@ -16,7 +16,8 @@ public:
 		Undefined,
 	};
 	virtual void Commit() = 0;
-	virtual E_Type GetType() const = 0;
+	[[nodiscard]] virtual E_Type GetType() const = 0;
+	[[nodiscard]] virtual std::string GetDescriptor() const = 0;
 
 	virtual std::shared_ptr<I_Resource> GetResource() const = 0;
 };

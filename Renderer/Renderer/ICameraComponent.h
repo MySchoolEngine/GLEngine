@@ -22,6 +22,10 @@ public:
 		return Entity::E_ComponentType::Camera;
 	}
 
+	virtual Physics::Primitives::S_AABB GetAABB() const override
+	{
+		return Physics::Primitives::S_AABB();
+	}
 
 	virtual glm::mat4 GetViewProjectionMatrix() const = 0;
 	virtual glm::mat4 GetProjectionMatrix()		const = 0;
@@ -29,6 +33,8 @@ public:
 	virtual glm::quat GetRotation()				const = 0;
 	virtual glm::vec3 GetDirection()			const = 0;
 	virtual glm::vec3 GetPosition()				const = 0;
+
+	virtual Physics::Primitives::S_Ray GetRay(const glm::vec2& screenPos) const = 0;
 
 	virtual Physics::Primitives::C_Frustum GetFrustum()		const = 0;
 protected:

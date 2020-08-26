@@ -23,4 +23,23 @@ Physics::Primitives::C_Frustum C_AreaLight::GetShadingFrustum() const
 	return ret;
 }
 
+//=================================================================================
+Physics::Primitives::S_AABB C_AreaLight::GetAABB() const
+{
+	Physics::Primitives::S_AABB aabb;
+
+	const auto dirX = glm::cross(m_Normal, m_UpVector);
+	const auto dirY = m_UpVector;
+
+	const auto width = std::sqrt(GetWidth() / 2.0f);
+	const auto height = std::sqrt(GetHeight() / 2.0f);
+
+	aabb.Add(+ dirY * height + dirX * width);
+	aabb.Add(+ dirY * height - dirX * width);
+	aabb.Add(- dirY * height + dirX * width);
+	aabb.Add(- dirY * height - dirX * width);
+
+	return aabb;
+}
+
 }

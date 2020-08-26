@@ -24,13 +24,20 @@ namespace Components {
 
 class C_StaticMesh : public Renderer::I_RenderableComponent {
 public:
-	C_StaticMesh(std::string meshFile, std::string_view shader);
-	C_StaticMesh(const Renderer::MeshData::Mesh& meshFile, std::string_view shader);
+	C_StaticMesh(std::string meshFile, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner);
+	C_StaticMesh(const Renderer::MeshData::Mesh& meshFile, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner);
 	virtual void PerformDraw() const override;
+	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override;
 
 	void SetColor(glm::vec3&& color) { m_Color.SetValue(std::move(color)); }
+	void SetColor(const glm::vec3& color) { 
+		auto ccolor = color;
+		m_Color.SetValue(std::move(ccolor)); }
 	
 	void DebugDrawGUI() override;
+
+	void SetColorMap(const std::shared_ptr<Textures::C_Texture>& texture) { m_ColorMap = texture; m_Color.SetValue(glm::vec3(1.0f)); }
+	void SetRoughnessMap(const std::shared_ptr<Textures::C_Texture>& texture) { m_RoughnessMap = texture; m_Roughness = 1.0f; }
 
 protected:
 	std::string																			m_meshFile;
@@ -42,6 +49,7 @@ protected:
 	std::shared_ptr<Textures::C_Texture>						m_RoughnessMap = nullptr;
 	std::shared_ptr<Textures::C_Texture>						m_ColorMap = nullptr;
 	std::shared_ptr<Textures::C_Texture>						m_NormalMap = nullptr;
+	Physics::Primitives::S_AABB											m_AABB;
 
 	friend class C_StaticMeshBuilder;
 };

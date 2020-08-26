@@ -20,7 +20,6 @@ project "Physics"
 
 		defines
 		{
-			"CORE_PLATFORM=CORE_PLATFORM_WIN",
 			"BUILD_PHYSICS_DLL",
 		}
 

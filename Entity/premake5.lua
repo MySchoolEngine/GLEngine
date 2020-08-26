@@ -39,7 +39,6 @@ project "Entity"
 
 		defines
 		{
-			"CORE_PLATFORM=CORE_PLATFORM_WIN",
 			"BUILD_ENTITY_DLL",
 		}
 

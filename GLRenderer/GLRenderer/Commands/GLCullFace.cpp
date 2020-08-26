@@ -31,6 +31,12 @@ std::shared_ptr<Renderer::I_Resource> C_GLCullFace::GetResource() const
 }
 
 //=================================================================================
+std::string C_GLCullFace::GetDescriptor() const
+{
+	return "CullFace";
+}
+
+//=================================================================================
 GLenum C_GLCullFace::EnumCast(E_FaceMode mode)
 {
 	static GLenum const Translate[] = {

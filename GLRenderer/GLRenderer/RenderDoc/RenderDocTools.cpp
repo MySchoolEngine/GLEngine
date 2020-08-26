@@ -19,8 +19,8 @@ C_DebugScope::C_DebugScope(const std::string& groupName)
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[groupName]() {
 					glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, static_cast<GLsizei>(groupName.length()), groupName.c_str());
-				}
-				)
+				}, fmt::format("DebugScope begin - {}", groupName)
+			)
 		)
 	);
 }
@@ -33,7 +33,7 @@ C_DebugScope::~C_DebugScope()
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[]() {
 					glPopDebugGroup();
-				}
+				}, fmt::format("DebugScope end")
 			)
 		)
 	);

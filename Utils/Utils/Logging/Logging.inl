@@ -2,6 +2,9 @@
 
 #include <Utils/Logging/ILogger.h>
 
+#include <Utils/Logging/Formatters/filepath.h>
+#include <Utils/Logging/Formatters/GLMFormatters.h>
+
 #include <fmt/format.h>
 
 namespace Utils {

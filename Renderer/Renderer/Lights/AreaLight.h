@@ -21,6 +21,8 @@ public:
 	[[nodiscard]] virtual float GetWidth() const { return m_Width; }
 	[[nodiscard]] virtual float GetHeight() const { return m_Height; }
 
+	virtual Physics::Primitives::S_AABB GetAABB() const override;
+
 protected:
 #pragma warning(push)
 #pragma warning(disable:4251)

@@ -3,12 +3,14 @@
 #include <Renderer/ILight.h>
 #include <Renderer/RendererApi.h>
 
+#include <Renderer/Mesh/Scene.h>
+
 #include <Entity/IComponent.h>
 
 namespace GLEngine::Renderer {
 
 //=============================================================
-class I_PointLight : public I_Light
+class RENDERER_API_EXPORT I_PointLight : public I_Light
 {
 public:
 	I_PointLight(std::shared_ptr<Entity::I_Entity> owner);
@@ -19,9 +21,10 @@ public:
 };
 
 //=============================================================
-class C_PointLight : public I_PointLight {
+class RENDERER_API_EXPORT C_PointLight : public I_PointLight {
 public:
 	explicit C_PointLight(std::shared_ptr<Entity::I_Entity> owner);
+	C_PointLight(std::shared_ptr<Entity::I_Entity> owner, const MeshData::Light& def);
 	virtual ~C_PointLight();
 
 	[[nodiscard]] virtual glm::vec3 GetPosition() const override;
@@ -35,9 +38,12 @@ public:
 	[[nodiscard]] Physics::Primitives::C_Frustum GetShadingFrustum() const override;
 
 private:
-	float			m_Intensity;
-	glm::vec3 m_Color;
-	glm::vec3 m_Offset;
+#pragma warning(push)
+#pragma warning( disable : 4251)
+	float		m_Intensity;
+	glm::vec3	m_Color;
+	glm::vec3	m_Offset;
+#pragma warning(pop)
 
 	friend class C_PointLightCompBuilder;
 };

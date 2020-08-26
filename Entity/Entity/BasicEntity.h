@@ -20,6 +20,7 @@ public:
 	virtual void OnEvent(Core::I_Event& event) override;
 
 	void SetModelMatrix(const glm::mat4& modelMatrix);
+	virtual const glm::mat4& GetModelMatrix() const override;
 
 	virtual glm::vec3 GetPosition() const override;
 
