@@ -200,13 +200,6 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, std::str
 }
 
 //=================================================================================
-const Physics::Primitives::S_AABB& C_SkeletalMesh::GetAABB() const
-{
-	// TODO probably should be updated in some clever way with the animation.
-	return m_AABB;
-}
-
-//=================================================================================
 GLEngine::Physics::Primitives::S_AABB C_SkeletalMesh::GetAABB() const
 {
 	return m_AABB;

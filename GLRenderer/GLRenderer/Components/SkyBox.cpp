@@ -140,7 +140,7 @@ void C_SkyBox::PerformDraw() const
 }
 
 //=================================================================================
-const Physics::Primitives::S_AABB& C_SkyBox::GetAABB() const
+Physics::Primitives::S_AABB C_SkyBox::GetAABB() const
 {
 	return m_AABB;
 }
