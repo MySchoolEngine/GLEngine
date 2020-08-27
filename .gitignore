@@ -5,6 +5,7 @@
 *imgui.ini
 
 data/obj/*
+data/log.txt
 
 # User-specific files
 *.suo
