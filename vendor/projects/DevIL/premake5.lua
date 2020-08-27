@@ -2,8 +2,8 @@ project "DevIL-IL"
     kind "SharedLib"
     language "C++"
     
-	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-    objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+	targetdir ("../../../bin/" .. outputdir .. "/vendor/%{prj.name}")
+    objdir ("../../../obj/" .. outputdir .. "/vendor/%{prj.name}")
     disablewarnings 
     { 
         "4101", -- sstrcpy
@@ -44,6 +44,16 @@ project "DevIL-IL"
         systemversion "latest"
         cppdialect "C++17"
         staticruntime "On"
+
+        postbuildcommands
+        {
+            ("{COPY} %{cfg.buildtarget.relpath} \"../../../bin/" .. outputdir .. "/Sandbox/\"")
+        }
         
-    filter { "system:windows", "configurations:Release" }
-        buildoptions "/MT"
+    filter "configurations:Debug"
+        runtime "Debug"
+        symbols "on"
+
+    filter "configurations:Release"
+        runtime "Release"
+        optimize "on"
