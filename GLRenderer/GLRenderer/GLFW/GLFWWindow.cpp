@@ -86,7 +86,10 @@ void C_GLFWWindow::Init(const Core::S_WindowInfo& wndInfo)
 
 	if (!m_Window)
 	{
-		CORE_LOG(E_Level::Error, E_Context::Core, "GLFW: Unable to open a window. Shuting down the engine.");
+		const char* description;
+		int code = glfwGetError(&description);
+
+		CORE_LOG(E_Level::Error, E_Context::Core, "GLFW: Unable to open a window. Shuting down the engine. {}", description);
 		glfwTerminate();
 		exit(EXIT_FAILURE);
 	}
