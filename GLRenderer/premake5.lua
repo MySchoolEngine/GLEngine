@@ -39,11 +39,6 @@ project "GLRenderer"
 		"../%{IncludeDir.ImGui}",
 	}
 
-	libdirs
-	{
-		"../vendor/bin/Debug-windows-x86_64/DevIL-IL/",
-	}
-
 	links 
 	{ 
 		"GLFW",
@@ -52,7 +47,6 @@ project "GLRenderer"
 		"pugixml",
 		"ImGui",
 		"DevIL-IL",
-		"../vendor/projects/DevIL/bin/Debug-windows-x86_64/DevIL-IL/DevIL-IL.dll",
 	}
 
 	defines
@@ -72,7 +66,6 @@ project "GLRenderer"
 		postbuildcommands
 		{
 			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
-			("{COPY} \"../vendor/projects/DevIL/bin/Debug-windows-x86_64/DevIL-IL/DevIL-IL.dll\" \"../bin/" .. outputdir .. "/Sandbox/\""),
 		}
 
 	filter "configurations:Debug"
