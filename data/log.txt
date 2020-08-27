@@ -1,3 +1,5 @@
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 GLFWWindow.cpp:95(Info,Core): GLFW: Window initialized.
 GLFWoGLWindow.cpp:48(Info,Render): GLFW: OpenGL window initialized
 EntityManager.cpp:115(Info,Core): Loading level: Levels/lightsTest.xml
@@ -44034,3 +44036,7 @@ ShaderProgram.cpp:128(Info,Render): Deleting program: 12
 ShaderProgram.cpp:128(Info,Render): Deleting program: 3
 ShaderProgram.cpp:128(Info,Render): Deleting program: 9
 EntryPoint.h:31(Info,Core): App ended
+=======
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
