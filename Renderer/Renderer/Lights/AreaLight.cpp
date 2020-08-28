@@ -7,7 +7,6 @@ namespace GLEngine::Renderer {
 //=================================================================================
 C_AreaLight::C_AreaLight(std::shared_ptr<Entity::I_Entity> owner)
 	: Renderer::I_Light(owner)
-	, m_Position(0.f, 0.f, -3.f)
 	, m_Normal(glm::normalize(glm::vec3(0, -1.0, 1.0)))
 	, m_UpVector(glm::normalize(glm::vec3(0, 1.0, 1.0)))
 	, m_Height(10.f)
@@ -19,7 +18,7 @@ C_AreaLight::~C_AreaLight() = default;
 //=================================================================================
 Physics::Primitives::C_Frustum C_AreaLight::GetShadingFrustum() const
 {
-	Physics::Primitives::C_Frustum ret(m_Position, m_UpVector, m_Normal, 0.1f, 50.f, 1.0f, 0.f);
+	Physics::Primitives::C_Frustum ret(m_ComponentMatrix[3], m_UpVector, m_Normal, 0.1f, 50.f, 1.0f, 0.f);
 	return ret;
 }
 
@@ -34,10 +33,10 @@ Physics::Primitives::S_AABB C_AreaLight::GetAABB() const
 	const auto width = std::sqrt(GetWidth() / 2.0f);
 	const auto height = std::sqrt(GetHeight() / 2.0f);
 
-	aabb.Add(+ dirY * height + dirX * width);
-	aabb.Add(+ dirY * height - dirX * width);
-	aabb.Add(- dirY * height + dirX * width);
-	aabb.Add(- dirY * height - dirX * width);
+	aabb.Add(m_ComponentMatrix * (glm::vec4(+ dirY * height + dirX * width, 1.f)));
+	aabb.Add(m_ComponentMatrix * (glm::vec4(+ dirY * height - dirX * width, 1.f)));
+	aabb.Add(m_ComponentMatrix * (glm::vec4(- dirY * height + dirX * width, 1.f)));
+	aabb.Add(m_ComponentMatrix * (glm::vec4(- dirY * height - dirX * width, 1.f)));
 
 	return aabb;
 }

@@ -21,7 +21,6 @@ public:
 	//=================================================================================
 	[[nodiscard]] virtual float GetWidth() const override;
 	[[nodiscard]] virtual float GetHeight() const override;
-	[[nodiscard]] virtual Physics::Primitives::C_Frustum GetShadingFrustum() const override;
 	virtual void DebugDrawGUI() override;
 
 	void DebugDraw() const;
@@ -32,7 +31,6 @@ public:
 
 private:
 	std::shared_ptr<Textures::C_Texture> m_ShadowMap;
-	GUI::Input::C_Vec3 m_Pos;
 	GUI::Input::C_Slider<float> m_WidthSlider, m_HeightSlider;
 	GUI::Input::C_ColorRBG			m_DiffuseColor, m_SpecularColor;
 };
