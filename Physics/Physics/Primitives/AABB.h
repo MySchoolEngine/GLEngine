@@ -15,10 +15,16 @@ public:
 	constexpr S_AABB()
 		: m_Min(0.0f, 0.0f, 0.0f)
 		, m_Max(0.0f, 0.0f, 0.0f)
+		, m_Initialised(false)
 	{}
 
 	[[nodiscard]] inline float	IntersectImpl(const S_Ray& ray) const
 	{
+		if (!m_Initialised)
+		{
+			return -1.0f;
+		}
+
 		// https://github.com/erich666/GraphicsGems/blob/master/gems/RayBox.c
 		enum class quadrantName
 		{
@@ -86,6 +92,13 @@ public:
 
 	constexpr void Add(const glm::vec3& point)
 	{
+		if (!m_Initialised)
+		{
+			m_Min = m_Max = point;
+			m_Initialised = true;
+			return;
+		}
+
 		if (point.x < m_Min.x)
 			m_Min.x = point.x;
 
@@ -110,6 +123,10 @@ public:
 	}
 	constexpr void Add(const S_AABB& bbox)
 	{
+		if (!bbox.m_Initialised)
+		{
+			return;
+		}
 		Add(bbox.m_Max);
 		Add(bbox.m_Min);
 	}
@@ -139,6 +156,10 @@ public:
 	}
 	[[nodiscard]] constexpr S_AABB getTransformedAABB(const glm::mat4 matrix) const
 	{
+		if (!m_Initialised)
+		{
+			return S_AABB();
+		}
 		S_AABB newBB;
 
 		glm::vec3 size = m_Max - m_Min;
@@ -157,5 +178,6 @@ public:
 
 	glm::vec3 m_Min;
 	glm::vec3 m_Max;
+	bool			m_Initialised;
 };
 }

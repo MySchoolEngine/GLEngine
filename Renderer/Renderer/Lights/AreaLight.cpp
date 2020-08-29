@@ -33,10 +33,10 @@ Physics::Primitives::S_AABB C_AreaLight::GetAABB() const
 	const auto width = std::sqrt(GetWidth() / 2.0f);
 	const auto height = std::sqrt(GetHeight() / 2.0f);
 
-	aabb.Add(m_ComponentMatrix * (glm::vec4(+ dirY * height + dirX * width, 1.f)));
-	aabb.Add(m_ComponentMatrix * (glm::vec4(+ dirY * height - dirX * width, 1.f)));
-	aabb.Add(m_ComponentMatrix * (glm::vec4(- dirY * height + dirX * width, 1.f)));
-	aabb.Add(m_ComponentMatrix * (glm::vec4(- dirY * height - dirX * width, 1.f)));
+	aabb.Add(+ dirY * height + dirX * width);
+	aabb.Add(+ dirY * height - dirX * width);
+	aabb.Add(- dirY * height + dirX * width);
+	aabb.Add(- dirY * height - dirX * width);
 
 	return aabb;
 }
