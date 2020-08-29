@@ -15,9 +15,12 @@ class RENDERER_API_EXPORT I_PointLight : public I_Light
 public:
 	I_PointLight(std::shared_ptr<Entity::I_Entity> owner);
 	virtual ~I_PointLight();
-	virtual glm::vec3 GetPosition() const = 0;
-	virtual float GetIntensity() const = 0;
-	virtual glm::vec3 GetColor() const = 0;
+	[[nodiscard]] virtual glm::vec3 GetPosition() const = 0;
+	[[nodiscard]] virtual float GetIntensity() const = 0;
+	[[nodiscard]] virtual glm::vec3 GetColor() const = 0;
+
+	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override final;
+
 };
 
 //=============================================================
@@ -42,7 +45,6 @@ private:
 #pragma warning( disable : 4251)
 	float		m_Intensity;
 	glm::vec3	m_Color;
-	glm::vec3	m_Offset;
 #pragma warning(pop)
 
 	friend class C_PointLightCompBuilder;

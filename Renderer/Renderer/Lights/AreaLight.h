@@ -26,7 +26,6 @@ public:
 protected:
 #pragma warning(push)
 #pragma warning(disable:4251)
-	glm::vec3 m_Position;
 	glm::vec3 m_Normal;
 	glm::vec3 m_UpVector;
 #pragma warning(pop)
