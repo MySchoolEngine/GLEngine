@@ -1,12 +1,12 @@
 #pragma once
 
-#include <GLRenderer/GUI/LambdaPart.h>
+#include <GUI/LambdaPart.h>
 
 namespace GLEngine::Renderer::MeshData
 {
 struct Texture;
 }
-namespace GLEngine::GLRenderer::ImGui
+namespace GLEngine::GUI
 {
 class C_GUIManager;
 }
@@ -29,8 +29,8 @@ public:
 
 	void Clear();
 
-	[[nodiscard]] GUID SetupControls(ImGui::C_GUIManager& guiMGR);
-	void DestroyControls(ImGui::C_GUIManager& guiMGR);
+	[[nodiscard]] GUID SetupControls(GUI::C_GUIManager& guiMGR);
+	void DestroyControls(GUI::C_GUIManager& guiMGR);
 
 
 	[[nodiscard]] T_TexturePtr GetErrorTexture();

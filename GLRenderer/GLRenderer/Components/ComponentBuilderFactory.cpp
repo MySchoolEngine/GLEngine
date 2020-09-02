@@ -7,7 +7,7 @@
 #include <GLRenderer/Components/SkeletalMesh.h>
 #include <GLRenderer/Components/GLGeomComponent.h>
 #include <GLRenderer/Textures/TextureManager.h>
-#include <GLRenderer/GUI/Components/GLEntityDebugComponent.h>
+#include <GUI/Components/GLEntityDebugComponent.h>
 
 #include <Renderer/Mesh/Loading/SceneLoader.h>
 

@@ -4,8 +4,8 @@
 
 #include <GLRenderer/Textures/Texture.h>
 
-#include <GLRenderer/GUI/Input/Color.h>
-#include <GLRenderer/GUI/Input/Slider.h>
+#include <GUI/Input/Color.h>
+#include <GUI/Input/Slider.h>
 
 #include <GLRenderer/Mesh/StaticMeshResource.h>
 

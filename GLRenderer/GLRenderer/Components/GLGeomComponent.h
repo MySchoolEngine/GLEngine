@@ -4,7 +4,7 @@
 #include <GLRenderer/Textures/Texture.h>
 
 #include <Renderer/Mesh/GeomComponent.h>
-#include <GLRenderer/GUI/Input/Color.h>
+#include <GUI/Input/Color.h>
 
 namespace GLEngine::GLRenderer::Shaders
 {

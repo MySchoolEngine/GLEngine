@@ -15,6 +15,7 @@ project "GLRenderer"
 	Link("Utils")
 	Link("Renderer")
 	Link("Core")
+	Link("GUI")
 
 	files
 	{

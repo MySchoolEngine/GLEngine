@@ -35,9 +35,9 @@
 
 #include <GLRenderer/Lights/GLAreaLight.h>
 
-#include <GLRenderer/GUI/ConsoleWindow.h>
-#include <GLRenderer/GUI/EntitiesWindow.h>
-#include <GLRenderer/GUI/Components/GLEntityDebugComponent.h>
+#include <GUI/ConsoleWindow.h>
+#include <GUI/EntitiesWindow.h>
+#include <GUI/Components/GLEntityDebugComponent.h>
 
 #include <Renderer/Mesh/Scene.h>
 

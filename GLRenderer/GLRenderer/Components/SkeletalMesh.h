@@ -6,8 +6,8 @@
 #include <GLRenderer/Mesh/StaticMeshResource.h>
 
 #include <GLRenderer/Textures/Texture.h>
-#include <GLRenderer/GUI/Input/CheckBoxValue.h>
-#include <GLRenderer/GUI/Input/Slider.h>
+#include <GUI/Input/CheckBoxValue.h>
+#include <GUI/Input/Slider.h>
 
 #include <Renderer/Animation/SkeletalAnimation.h>
 

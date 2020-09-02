@@ -2,9 +2,9 @@
 
 #include <Renderer/Lights/AreaLight.h>
 
-#include <GLRenderer/GUI/Input/Vector.h>
-#include <GLRenderer/GUI/Input/Slider.h>
-#include <GLRenderer/GUI/Input/Color.h>
+#include <GUI/Input/Vector.h>
+#include <GUI/Input/Slider.h>
+#include <GUI/Input/Color.h>
 
 namespace GLEngine::GLRenderer {
 namespace Textures

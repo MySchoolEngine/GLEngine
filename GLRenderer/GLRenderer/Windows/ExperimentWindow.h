@@ -6,14 +6,14 @@
 #include <GLRenderer/FBO/Framebuffer.h>
 #include <GLRenderer/CameraManager.h>
 
-#include <GLRenderer/GUI/GUIWindow.h>
-#include <GLRenderer/GUI/PlotLine.h>
-#include <GLRenderer/GUI/Input/CheckBoxValue.h>
-#include <GLRenderer/GUI/Input/Slider.h>
-#include <GLRenderer/GUI/GUIWindow.h>
-#include <GLRenderer/GUI/Text.h>
-#include <GLRenderer/GUI/Menu/Menu.h>
-#include <GLRenderer/GUI/Menu/MenuItem.h>
+#include <GUI/GUIWindow.h>
+#include <GUI/PlotLine.h>
+#include <GUI/Input/CheckBoxValue.h>
+#include <GUI/Input/Slider.h>
+#include <GUI/GUIWindow.h>
+#include <GUI/Text.h>
+#include <GUI/Menu/Menu.h>
+#include <GUI/Menu/MenuItem.h>
 #include <GLRenderer/MainPassTechnique.h>
 #include <GLRenderer/ShadowMapPass.h>
 #include <GLRenderer/Mesh/StaticMeshResource.h>

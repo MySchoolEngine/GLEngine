@@ -129,7 +129,7 @@ bool C_ImGuiLayer::CapturingMouse() const
 }
 
 //=================================================================================
-C_GUIManager& C_ImGuiLayer::GetGUIMgr()
+GUI::C_GUIManager& C_ImGuiLayer::GetGUIMgr()
 {
 	return m_GUIMgr;
 }

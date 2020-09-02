@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GLRenderer/GUI/Input/Slider.h>
+#include <GUI/Input/Slider.h>
 
 
 namespace GLEngine::Entity

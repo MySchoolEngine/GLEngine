@@ -24,7 +24,6 @@ project "Entity"
 	}
 
 	links{
-		"ImGui",
 		"pugixml",
 	}
 

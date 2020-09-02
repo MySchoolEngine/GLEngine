@@ -2,7 +2,7 @@
 
 #include <Renderer/ICameraComponent.h>
 
-#include <GLRenderer/GUI/Input/Slider.h>
+#include <GUI/Input/Slider.h>
 
 #include <Core/CoreMacros.h>
 

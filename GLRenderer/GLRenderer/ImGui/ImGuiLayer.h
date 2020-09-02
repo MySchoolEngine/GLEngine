@@ -2,7 +2,7 @@
 
 #include <Core/EventSystem/Layer.h>
 
-#include <GLRenderer/ImGui/GUIManager.h>
+#include <GUI/GUIManager.h>
 
 namespace GLEngine {
 
@@ -38,7 +38,7 @@ public:
 
 	bool CapturingMouse() const;
 
-	C_GUIManager& GetGUIMgr();
+	GUI::C_GUIManager& GetGUIMgr();
 private:
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
 	bool OnKeyReleased(Core::C_KeyReleasedEvent& event);
@@ -49,8 +49,8 @@ private:
 	bool OnMouseMoved(Core::C_MouseMoved& e);
 
 
-	GUID					m_Window;
-	C_GUIManager	m_GUIMgr;
-	float					m_Time;
+	GUID							m_Window;
+	GUI::C_GUIManager	m_GUIMgr;
+	float							m_Time;
 };
 }}}
