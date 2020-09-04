@@ -8,6 +8,7 @@
 #include <GLRenderer/Commands/GLClear.h>
 #include <GLRenderer/Commands/GLViewport.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
+#include <GLRenderer/Materials/MaterialBuffer.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 #include <GLRenderer/Debug.h>
 #include <GLRenderer/OGLRenderer.h>
@@ -19,6 +20,7 @@
 #include <Renderer/ICameraComponent.h>
 #include <Renderer/ILight.h>
 #include <Renderer/Lights/PointLight.h>
+#include <Renderer/Materials/MaterialManager.h>
 
 #include <Entity/IEntity.h>
 #include <Entity/EntityManager.h>
@@ -36,8 +38,9 @@ C_MainPassTechnique::C_MainPassTechnique(std::shared_ptr<Entity::C_EntityManager
 	, m_SunY(15.f, -20.f, 20.f, "Sun Y")
 	, m_SunZ(-5.f, -20.f, 20.f, "Sun Z")
 {
-	m_FrameConstUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>("frameConst");
+	m_FrameConstUBO		= Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>("frameConst");
 	m_LightsUBO			= Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<C_LightsBuffer>("lightsUni");
+	m_MatterialsUBO		= Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Material::C_MaterialsBuffer>("materials");
 }
 
 //=================================================================================
@@ -143,17 +146,35 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 		}
 	}
 
+	bool materialsHaveChanged = false;
+	{
+		int i = 0;
+		Renderer::C_MaterialManager::Instance().ForEachMaterial([&matUBO = m_MatterialsUBO, &i, &materialsHaveChanged](Renderer::C_Material& material) {
+			if (material.IsChanged())
+			{
+				materialsHaveChanged = true;
+				matUBO->m_PhongMaterials[i].Update(material);
+				material.CleanChangeFlag();
+			}
+			++i;
+		});
+	}
+
+
 	{
 		RenderDoc::C_DebugScope s("UBO Upload");
 		m_LightsUBO->MakeHandlesResident();
 		renderer->AddCommand(
 			std::move(
 				std::make_unique<Commands::HACK::C_LambdaCommand>(
-					[&]() {
+					[&, materialsHaveChanged = materialsHaveChanged]() {
 						m_FrameConstUBO->UploadData();
 						m_FrameConstUBO->Activate(true);
 						m_LightsUBO->UploadData();
 						m_LightsUBO->Activate(true);
+						if(materialsHaveChanged)
+							m_MatterialsUBO->UploadData();
+						m_MatterialsUBO->Activate(true);
 					}, "MainPass - upload UBOs"
 				)
 			)

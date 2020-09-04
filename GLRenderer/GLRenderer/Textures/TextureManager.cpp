@@ -154,6 +154,9 @@ C_TextureManager::T_TexturePtr C_TextureManager::GetIdentityTexture()
 		m_IdentityTexture->bind();
 		m_IdentityTexture->SetTexData2D(0, t);
 		m_IdentityTexture->unbind();
+
+		m_IdentityTexture->CreateHandle();
+		m_IdentityTexture->MakeHandleResident(true);
 	}
 	return m_IdentityTexture;
 }
