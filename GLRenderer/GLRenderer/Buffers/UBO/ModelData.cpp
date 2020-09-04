@@ -12,7 +12,7 @@ C_ModelData::C_ModelData(const std::string& blockName, unsigned int index)
 {
 
 	C_UniformBuffer::bind();
-	glBufferData(GL_UNIFORM_BUFFER, BufferSize(), nullptr, GL_DYNAMIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, BufferSize(), nullptr, GL_STREAM_DRAW);
 	C_UniformBuffer::unbind();
 }
 
