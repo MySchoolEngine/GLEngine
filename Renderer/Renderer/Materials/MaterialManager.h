@@ -13,14 +13,14 @@ public:
 	void operator=(C_MaterialManager const&) = delete;
 	[[nodiscard]] static C_MaterialManager& Instance();
 
-	[[nodiscard]] C_Material* GetMaterial(const std::string& name);
-	[[nodiscard]] C_Material& RegisterMaterial(C_Material&& material);
+	[[nodiscard]] std::shared_ptr<C_Material> GetMaterial(const std::string& name);
+	[[nodiscard]] std::shared_ptr<C_Material> RegisterMaterial(C_Material&& material);
 
-	using T_MaterialEnumerator = std::function<void(C_Material&)>;
+	using T_MaterialEnumerator = std::function<void(std::shared_ptr<C_Material>&)>;
 	void ForEachMaterial(const T_MaterialEnumerator& fn);
 private:
 	C_MaterialManager();
 
-	std::vector<C_Material> m_Materials;
+	std::vector<std::shared_ptr<C_Material>> m_Materials;
 };
 }

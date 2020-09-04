@@ -25,5 +25,6 @@ public:
 protected:
 	VAO::C_GLVAO<5> m_VAO;
 	std::size_t m_triangles;
+	std::string m_Name;
 };
 }

@@ -19,21 +19,22 @@ C_MaterialManager& C_MaterialManager::Instance()
 }
 
 //=================================================================================
-C_Material* C_MaterialManager::GetMaterial(const std::string& name)
+std::shared_ptr<C_Material> C_MaterialManager::GetMaterial(const std::string& name)
 {
-	auto material = std::find_if(m_Materials.begin(), m_Materials.end(), [&name](const auto& mat) { return mat.GetName() == name; });
+	auto material = std::find_if(m_Materials.begin(), m_Materials.end(), [&name](const auto& mat) { return mat->GetName() == name; });
 	if (material == m_Materials.end())
 	{
 		return nullptr;
 	}
 
-	return &(*material);
+	return *material;
 }
 
 //=================================================================================
-GLEngine::Renderer::C_Material& C_MaterialManager::RegisterMaterial(C_Material&& material)
+std::shared_ptr<C_Material> C_MaterialManager::RegisterMaterial(C_Material&& material)
 {
-	m_Materials.push_back(std::move(material));
+	m_Materials.push_back(std::make_shared<C_Material>(std::move(material)));
+	m_Materials.back()->SetMaterialIndex(m_Materials.size() - 1);
 	return m_Materials.back();
 }
 

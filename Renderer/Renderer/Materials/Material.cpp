@@ -13,6 +13,7 @@ C_Material::C_Material(const std::string& name)
 	, m_NormalMap(nullptr)
 	, m_RoughnessMap(nullptr)
 	, m_Changed(true)
+	, m_MaterialIndex(-1)
 {
 
 }
@@ -26,6 +27,7 @@ C_Material::C_Material(const MeshData::Material& material)
 	, m_NormalMap(nullptr)
 	, m_RoughnessMap(nullptr)
 	, m_Changed(true)
+	, m_MaterialIndex(-1)
 {
 
 }
@@ -39,6 +41,7 @@ C_Material::C_Material(C_Material&& other)
 	, m_NormalMap(other.m_NormalMap)
 	, m_RoughnessMap(other.m_RoughnessMap)
 	, m_Changed(other.m_Changed)
+	, m_MaterialIndex(other.m_MaterialIndex)
 {
 
 }
@@ -89,6 +92,12 @@ void C_Material::SetRoughnessMap(void** texture)
 void C_Material::SetColorMap(void** texture)
 {
 	m_ColorMap = texture;
+}
+
+//=================================================================================
+int C_Material::GetMaterialIndex() const
+{
+	return m_MaterialIndex;
 }
 
 }

@@ -31,6 +31,9 @@ public:
 	const std::string& GetName() const { return m_Name; }
 	const glm::vec3& GetColor() const { return m_Color; }
 	float GetRoughness() const { return m_Roughness; }
+
+	int GetMaterialIndex() const;
+	void SetMaterialIndex(int index) { m_MaterialIndex = index; }
 private:
 	std::string m_Name;
 	glm::vec3	m_Color;
@@ -39,6 +42,6 @@ private:
 	void**		m_NormalMap;
 	void**		m_RoughnessMap;
 	bool		m_Changed : 1;
-
+	int			m_MaterialIndex;
 };
 }

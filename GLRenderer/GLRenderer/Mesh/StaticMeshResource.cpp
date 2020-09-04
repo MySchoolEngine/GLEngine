@@ -8,6 +8,7 @@ namespace GLEngine::GLRenderer::Mesh {
 
 //=================================================================================
 C_StaticMeshResource::C_StaticMeshResource(const Renderer::MeshData::Mesh & mesh)
+	: m_Name(mesh.m_name)
 {
 	static_assert(sizeof(glm::vec3) == sizeof(GLfloat) * 3, "Platform doesn't support this directly.");
 
