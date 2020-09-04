@@ -16,6 +16,7 @@ layout(location = 4) in vec3 bitangent;
 layout(binding = 0) uniform modelData
 {
 	mat4 modelMatrix;
+	int  materialIndex;
 };
 
 //=================================================================================
