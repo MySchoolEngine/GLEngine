@@ -11,6 +11,8 @@ public:
 
 	void SetModelMatrix(const glm::mat4& mat) { m_ModelMatrix = mat; }
 	void SetMaterialIndex(int index) { m_MaterialIndex = index; }
+
+	constexpr std::size_t BufferSize() const;
 private:
 	glm::mat4	m_ModelMatrix;
 	int			m_MaterialIndex;
