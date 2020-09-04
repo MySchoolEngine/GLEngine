@@ -175,6 +175,10 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 						if(materialsHaveChanged)
 							m_MatterialsUBO->UploadData();
 						m_MatterialsUBO->Activate(true);
+
+						auto modelData = Buffers::C_UniformBuffersManager::Instance().GetBufferByName("modelData");
+						modelData->UploadData();
+						modelData->Activate(true);
 					}, "MainPass - upload UBOs"
 				)
 			)

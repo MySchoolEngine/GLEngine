@@ -62,24 +62,8 @@ void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Enti
 	
 	for (const auto& mesh : scene->meshes)
 	{
-		const auto meshComp = std::make_shared<C_StaticMesh>(mesh, "basic", entity);
 		const auto material = scene->materials[mesh.materialIndex];
-		meshComp->SetColor(material.diffuse);
-		if (material.textureIndex >= 0)
-		{
-			auto colorMapTexture = tmgr.CreateTexture(scene->textures[material.textureIndex]);
-			if (colorMapTexture)
-			{
-				colorMapTexture->StartGroupOp();
-				colorMapTexture->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
-				colorMapTexture->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-				colorMapTexture->GenerateMipMaps();
-
-				colorMapTexture->EndGroupOp();
-
-				meshComp->SetColorMap(colorMapTexture);
-			}
-		}
+		const auto meshComp = std::make_shared<C_StaticMesh>(mesh, "basic", entity, &material);
 
 		entity->AddComponent(meshComp);
 	}

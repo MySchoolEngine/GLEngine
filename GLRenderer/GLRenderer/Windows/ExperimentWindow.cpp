@@ -14,6 +14,8 @@
 
 #include <GLRenderer/Components/ComponentBuilderFactory.h>
 
+#include <GLRenderer/Materials/MaterialBuffer.h>
+
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 
@@ -24,7 +26,7 @@
 #include <GLRenderer/Textures/TextureLoader.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 
-#include <GLRenderer/Buffers/UBO/FrameConstantsBuffer.h>
+#include <GLRenderer/Buffers/UBO/ModelData.h>
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
 
 #include <GLRenderer/Components/SkeletalMesh.h>
@@ -40,6 +42,7 @@
 #include <GLRenderer/GUI/Components/GLEntityDebugComponent.h>
 
 #include <Renderer/Mesh/Scene.h>
+#include <Renderer/Materials/MaterialManager.h>
 
 #include <Physics/Primitives/Ray.h>
 #include <Physics/Primitives/Intersection.h>
@@ -293,6 +296,9 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 			)
 		);
 	}
+
+	Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Material::C_MaterialsBuffer>("materials");
+	Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_ModelData>("modelData");
 
 	SetupWorld();
 

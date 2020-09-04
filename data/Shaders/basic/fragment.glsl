@@ -5,9 +5,29 @@
 
 #include "../include/frameConstants.glsl"
 
-//per mesh
-uniform vec3 modelColor;
-uniform sampler2D colorMap;
+//per model
+layout(binding = 0) uniform modelData
+{
+	mat4 modelMatrix;
+	int  materialIndex;
+};
+
+//===================================================
+@struct PhongMaterial;
+#define MAT_NUMBER 40
+
+layout (std140) uniform materials
+{
+	PhongMaterial phong[MAT_NUMBER];
+};
+
+vec3 getColor(vec2 uv, PhongMaterial material)
+{
+	vec3 color = material.modelColor;
+	color *= texture(material.colorMap, uv).xyz;
+	return color;
+}
+//===================================================
 
 layout(location = 0) in vec3 normalOUT;
 layout(location = 1) in vec2 texCoordOUT;
@@ -16,14 +36,6 @@ layout(location = 2) in vec4 worldCoord;
 out vec4 fragColor;
 
 #include "../include/LightsUBO.glsl"
-
-
-vec3 getColor(vec2 uv)
-{
-	vec3 color = modelColor;
-	color *= texture(colorMap, uv).xyz;
-	return color;
-}
 
 //=================================================================================
 void main()
@@ -47,6 +59,6 @@ void main()
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64);
 	vec3 specular = specularStrength * spec * pLight[0].color;  
 
-	vec3 result = (ambient + diffuse + specular) * getColor(texCoordOUT);
+	vec3 result = (ambient + diffuse + specular) * getColor(texCoordOUT, phong[materialIndex]);
 	fragColor = vec4(result, 1.0);
 }
