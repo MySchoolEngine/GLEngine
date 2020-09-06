@@ -15,6 +15,7 @@ public:
 
 private:
 	std::weak_ptr<Entity::C_BasicEntity> m_Entity;
+	GUI::Input::C_Vec3 m_Translation;
 };
 
 class C_GUIDebugBuilder : public Entity::I_ComponenetBuilder

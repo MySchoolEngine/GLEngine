@@ -348,7 +348,7 @@ void C_ExplerimentWindow::SetupWorld()
 {
 	m_MainPass = std::make_unique<C_MainPassTechnique>(m_World);
 	m_HDRFBO = std::make_unique<C_Framebuffer>("HDR");
-	if (!m_World->LoadLevel("Levels/lightsTest.xml", std::make_unique<Components::C_ComponentBuilderFactory>()))
+	if (!m_World->LoadLevel("Levels/dark.xml", std::make_unique<Components::C_ComponentBuilderFactory>()))
 	{
 		CORE_LOG(E_Level::Warning, E_Context::Render, "Level not loaded");
 		return;
@@ -370,8 +370,8 @@ void C_ExplerimentWindow::SetupWorld()
 			m_CamManager.ActivateCamera(playerCamera);
 
 			// area light
-			// auto arealight = std::make_shared<C_GLAreaLight>(player);
-			// player->AddComponent(arealight);
+			auto arealight = std::make_shared<C_GLAreaLight>(player);
+			player->AddComponent(arealight);
 			// 
 			// m_ShadowPass = std::make_shared<C_ShadowMapTechnique>(m_World, std::static_pointer_cast<Renderer::I_Light>( arealight));
 		}

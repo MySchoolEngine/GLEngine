@@ -18,7 +18,12 @@ C_AreaLight::~C_AreaLight() = default;
 //=================================================================================
 Physics::Primitives::C_Frustum C_AreaLight::GetShadingFrustum() const
 {
-	Physics::Primitives::C_Frustum ret(m_ComponentMatrix[3], m_UpVector, m_Normal, 0.1f, 50.f, 1.0f, 0.f);
+	auto transformMatrix = m_ComponentMatrix;
+	if (const auto entity = GetOwner())
+	{
+		transformMatrix = entity->GetModelMatrix() * transformMatrix;
+	}
+	Physics::Primitives::C_Frustum ret(transformMatrix[3], m_UpVector, m_Normal, 0.1f, 50.f, 1.0f, 0.f);
 	return ret;
 }
 
