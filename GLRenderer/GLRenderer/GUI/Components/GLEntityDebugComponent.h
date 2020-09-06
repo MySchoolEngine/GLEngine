@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GLRenderer/GUI/GLDebugGUIComponent.h>
+#include <GLRenderer/GUI/Input/Vector.h>
 
 #include <Entity/BasicEntity.h>
 
