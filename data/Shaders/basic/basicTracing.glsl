@@ -383,7 +383,7 @@ void main()
     //if(!isInShadow(lightSpacePos, shadowMap[pAreaLight[0].ShadowMap]))
         result += CalculatAreaLight(pAreaLight[0], norm, viewDir, FragPos);
 
-	if(false) for(int i = 0; i< NUM_POINTLIGHT;++i)
+	for(int i = 0; i< NUM_POINTLIGHT;++i)
 	{
 		result += CalculatePointLight(pLight[i], norm);
 	}
