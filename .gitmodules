@@ -28,3 +28,6 @@
 [submodule "vendor/ImGuiFileDialog"]
 	path = vendor/ImGuiFileDialog
 	url = https://github.com/aiekick/ImGuiFileDialog
+[submodule "vendor/ImGui"]
+	path = vendor/ImGui
+	url = https://github.com/ocornut/imgui

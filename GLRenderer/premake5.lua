@@ -15,6 +15,7 @@ project "GLRenderer"
 	Link("Utils")
 	Link("Renderer")
 	Link("Core")
+	Link("ImGuiFileDialog")
 
 	files
 	{
@@ -37,6 +38,7 @@ project "GLRenderer"
 		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.ImGui}",
+		"../%{IncludeDir.ImGuiFileDialog}",
 	}
 
 	links 
