@@ -20,6 +20,7 @@ C_Texture::C_Texture(const std::string& name, GLenum target)
 	: m_bGroupOperations(false)
 	, m_target(target)
 	, m_texture(0)
+	, m_Name(name)
 {
 	glGenTextures(1, &m_texture);
 	bind();
@@ -42,6 +43,7 @@ C_Texture::C_Texture(C_Texture&& t)
 	m_bGroupOperations = t.m_bGroupOperations;
 	m_Handle = t.m_Handle;
 	m_Dimensions = t.m_Dimensions;
+	m_Name = std::move(t.m_Name);
 }
 
 //=================================================================================
@@ -59,11 +61,13 @@ void C_Texture::operator=(C_Texture&& rhs)
 	m_bGroupOperations = rhs.m_bGroupOperations;
 	m_Handle = rhs.m_Handle;
 	m_Dimensions = rhs.m_Dimensions;
+	m_Name = std::move(rhs.m_Name);
 }
 
 //=================================================================================
 C_Texture::~C_Texture()
 {
+	CORE_LOG(E_Level::Debug, E_Context::Render, "Texture being deleted name: {}", m_Name);
 	Clean();
 }
 
