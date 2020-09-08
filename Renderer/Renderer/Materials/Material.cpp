@@ -14,6 +14,7 @@ C_Material::C_Material(const std::string& name)
 	, m_RoughnessMap(nullptr)
 	, m_Changed(true)
 	, m_MaterialIndex(-1)
+	, m_Shininess(32.f)
 {
 
 }
@@ -28,6 +29,7 @@ C_Material::C_Material(const MeshData::Material& material)
 	, m_RoughnessMap(nullptr)
 	, m_Changed(true)
 	, m_MaterialIndex(-1)
+	, m_Shininess(material.shininess)
 {
 
 }
@@ -42,6 +44,7 @@ C_Material::C_Material(C_Material&& other)
 	, m_RoughnessMap(other.m_RoughnessMap)
 	, m_Changed(other.m_Changed)
 	, m_MaterialIndex(other.m_MaterialIndex)
+	, m_Shininess(other.GetShininess())
 {
 
 }
@@ -77,7 +80,7 @@ void C_Material::SetRoughness(float roughness)
 }
 
 //=================================================================================
-void C_Material::SetNormalMap(void** texture)
+void C_Material::SetNormalMap(void* texture)
 {
 	m_NormalMap = texture;
 }
@@ -89,7 +92,7 @@ void C_Material::SetRoughnessMap(void** texture)
 }
 
 //=================================================================================
-void C_Material::SetColorMap(void** texture)
+void C_Material::SetColorMap(void* texture)
 {
 	m_ColorMap = texture;
 }
