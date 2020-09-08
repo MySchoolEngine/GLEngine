@@ -97,31 +97,6 @@ void C_StaticMesh::PerformDraw() const
 		shmgr.ActivateShader(m_Shader);
 	}
 
-	auto& tm = Textures::C_TextureUnitManger::Instance();
-
-	if (m_RoughnessMap) {
-		tm.BindTextureToUnit(*m_RoughnessMap, 0);
-	}
-	else
-	{
-		tm.BindTextureToUnit(*(tmgr.GetIdentityTexture()), 0);
-	}
-	if (m_ColorMap) {
-		tm.BindTextureToUnit(*m_ColorMap, 1);
-	}
-	else
-	{
-		tm.BindTextureToUnit(*(tmgr.GetIdentityTexture()), 1);
-	}
-	if (m_NormalMap) {
-		tm.BindTextureToUnit(*m_NormalMap, 2);
-	}
-	else
-	{
-		tm.BindTextureToUnit(*(tmgr.GetIdentityTexture()), 2);
-	}
-
-	assert(m_Material->GetMaterialIndex() >= 0);
 	renderer->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
@@ -172,6 +147,23 @@ void C_StaticMesh::SetMaterial(const Renderer::MeshData::Material& material)
 const GLEngine::Physics::Primitives::S_AABB& C_StaticMesh::GetAABB() const
 {
 	return m_AABB;
+}
+
+//=================================================================================
+void C_StaticMesh::SetColorMap(std::shared_ptr<Textures::C_Texture>& texture)
+{
+	m_ColorMap = texture;
+	m_ColorMap->CreateHandle();
+
+	m_Material->SetColorMap(static_cast<void*>(&m_ColorMap));
+}
+
+//=================================================================================
+void C_StaticMesh::SetNormalMap(std::shared_ptr<Textures::C_Texture>& texture)
+{
+	m_NormalMap = texture;
+	texture->CreateHandle();
+	m_Material->SetNormalMap(static_cast<void*>(&m_NormalMap));
 }
 
 //=================================================================================
