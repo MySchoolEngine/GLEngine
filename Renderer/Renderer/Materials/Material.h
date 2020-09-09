@@ -25,7 +25,7 @@ public:
 	void SetRoughness(float roughness);
 
 	void SetNormalMap(void* texture);
-	void SetRoughnessMap(void** texture);
+	void SetRoughnessMap(void* texture);
 	void SetColorMap(void* texture);
 	void* GetColorMap() const { return m_ColorMap; }
 	void* GetNormalMap() const { return m_NormalMap; }
@@ -45,7 +45,7 @@ private:
 	float		m_Roughness;
 	void*		m_ColorMap;
 	void*		m_NormalMap;
-	void**		m_RoughnessMap;
+	void*		m_RoughnessMap;
 	bool		m_Changed : 1;
 	int			m_MaterialIndex;
 	float		m_Shininess;

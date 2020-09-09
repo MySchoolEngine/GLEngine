@@ -86,7 +86,7 @@ void C_Material::SetNormalMap(void* texture)
 }
 
 //=================================================================================
-void C_Material::SetRoughnessMap(void** texture)
+void C_Material::SetRoughnessMap(void* texture)
 {
 	m_RoughnessMap = texture;
 }

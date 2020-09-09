@@ -167,6 +167,15 @@ void C_StaticMesh::SetNormalMap(std::shared_ptr<Textures::C_Texture>& texture)
 }
 
 //=================================================================================
+void C_StaticMesh::SetRoughnessMap(const std::shared_ptr<Textures::C_Texture>& texture)
+{
+	m_RoughnessMap = texture; 
+	m_Roughness = 1.0f;
+	texture->CreateHandle();
+	m_Material->SetRoughnessMap(static_cast<void*>(&m_RoughnessMap));
+}
+
+//=================================================================================
 std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
 {
 	const auto materialData = Utils::Parsing::C_MaterialParser::ParseMaterialData(node);
