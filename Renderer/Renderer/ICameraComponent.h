@@ -6,10 +6,6 @@
 
 #include <Physics/Primitives/Frustum.h>
 
-#include <Core/EventSystem/EventReciever.h>
-
-#include <glm/glm.hpp>
-
 namespace GLEngine {
 namespace Renderer {
 

@@ -13,9 +13,6 @@
 
 #include <GLRenderer\Buffers\UniformBuffer.h>
 
-#include <glm/vec4.hpp>
-#include <glm/mat4x4.hpp>
-
 namespace GLEngine {
 namespace GLRenderer {
 namespace Buffers {

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Renderer/Materials/Material.h>
 #include <Renderer/RendererApi.h>
 
 namespace GLEngine::Renderer
 {
+class C_Material;
 class RENDERER_API_EXPORT C_MaterialManager
 {
 public:

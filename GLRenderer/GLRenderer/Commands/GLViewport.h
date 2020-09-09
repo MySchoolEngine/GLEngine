@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Core/CoreMacros.h>
-
 #include <Renderer/IRenderCommand.h>
 
 namespace GLEngine {

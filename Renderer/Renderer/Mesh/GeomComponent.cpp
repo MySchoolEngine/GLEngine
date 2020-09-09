@@ -3,9 +3,9 @@
 #include <Renderer/Mesh/GeomComponent.h>
 #include <Renderer/Materials/MaterialManager.h>
 #include <Renderer/Materials/Material.h>
+#include <Renderer/Mesh/Geometry.h>
 
 #include <Utils/Parsing/MatrixParse.h>
-#include <Utils/Parsing/MaterialParser.h>
 
 #include <pugixml.hpp>
 
@@ -51,7 +51,7 @@ std::shared_ptr<Entity::I_Component> C_GeometryCompBuilder::Build(const pugi::xm
 	}
 	else
 	{
-		CORE_LOG(E_Level::Warning, E_Context::Render, "Geomtery componen needs type attribute");
+		CORE_LOG(E_Level::Warning, E_Context::Render, "Geomtery component needs type attribute");
 	}
 	const auto transfomr = Utils::Parsing::C_MatrixParser::ParseTransformation(node);
 	const auto rotation = Utils::Parsing::C_MatrixParser::ParseRotations(node);

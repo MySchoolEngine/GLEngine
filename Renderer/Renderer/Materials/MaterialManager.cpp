@@ -2,6 +2,8 @@
 
 #include <Renderer/Materials/MaterialManager.h>
 
+#include <Renderer/Materials/Material.h>
+
 namespace GLEngine::Renderer {
 
 //=================================================================================

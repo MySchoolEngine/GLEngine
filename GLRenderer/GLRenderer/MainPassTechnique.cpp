@@ -10,7 +10,6 @@
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/Materials/MaterialBuffer.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
-#include <GLRenderer/Debug.h>
 #include <GLRenderer/OGLRenderer.h>
 
 #include <GLRenderer/Lights/LightsUBO.h>

@@ -3,8 +3,6 @@
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
 
-#include <memory>
-
 namespace GLEngine {
 namespace Renderer {
 

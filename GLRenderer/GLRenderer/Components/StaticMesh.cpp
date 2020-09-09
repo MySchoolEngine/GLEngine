@@ -7,8 +7,7 @@
 #include <GLRenderer/Mesh/StaticMeshResource.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
-#include <GLRenderer/Textures/TextureLoader.h>
-#include <GLRenderer/Textures/TextureUnitManager.h>
+#include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/Textures/TextureManager.h>
 
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
@@ -16,6 +15,7 @@
 #include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
 
 #include <Renderer/Mesh/Loading/SceneLoader.h>
+#include <Renderer/Materials/Material.h>
 #include <Renderer/Materials/MaterialManager.h>
 #include <Renderer/IRenderer.h>
 #include <Renderer/Mesh/Scene.h>
@@ -232,15 +232,17 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 
 	if (!materialData.m_NormalMap.empty())
 	{
-		staticMesh->m_NormalMap = tmgr.GetTexture(materialData.m_NormalMap);
-		if (staticMesh->m_NormalMap)
+		auto normalMap = tmgr.GetTexture(materialData.m_NormalMap);
+		if (normalMap)
 		{
-			staticMesh->m_NormalMap->StartGroupOp();
-			staticMesh->m_NormalMap->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
-			staticMesh->m_NormalMap->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-			staticMesh->m_NormalMap->GenerateMipMaps();
+			normalMap->StartGroupOp();
+			normalMap->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
+			normalMap->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+			normalMap->GenerateMipMaps();
 
-			staticMesh->m_NormalMap->EndGroupOp();
+			normalMap->EndGroupOp();
+
+			staticMesh->SetNormalMap(normalMap);
 		}
 	}
 

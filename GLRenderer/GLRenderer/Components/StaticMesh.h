@@ -2,12 +2,8 @@
 
 #include <Renderer/IRenderableComponent.h>
 
-#include <GLRenderer/Textures/Texture.h>
-
 #include <GLRenderer/GUI/Input/Color.h>
 #include <GLRenderer/GUI/Input/Slider.h>
-
-#include <GLRenderer/Mesh/StaticMeshResource.h>
 
 namespace GLEngine {
 namespace Renderer::MeshData
@@ -23,6 +19,14 @@ namespace GLRenderer {
 namespace Shaders
 {
 class C_ShaderProgram;
+}
+namespace Textures
+{
+class C_Texture;
+}
+namespace Mesh
+{
+class C_StaticMeshResource;
 }
 
 namespace Components {
