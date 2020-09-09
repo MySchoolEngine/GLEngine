@@ -4,6 +4,7 @@
 
 #include <Renderer/IRenderableComponent.h>
 #include <Renderer/Mesh/Geometry.h>
+#include <Renderer/Materials/Material.h>
 
 #include <Entity/IComponent.h>
 
@@ -11,14 +12,17 @@
 
 namespace GLEngine::Renderer {
 
-class RENDERER_API_EXPORT C_GeomComponent : public Renderer::I_RenderableComponent
+class C_Material;
+
+class RENDERER_API_EXPORT C_GeomComponent : public I_RenderableComponent
 {
 public:
 	C_GeomComponent(std::shared_ptr<Entity::I_Entity> owner);
 	virtual ~C_GeomComponent();
 	virtual void SetupGeometry(const MeshData::Mesh& mesh) = 0;
-	virtual void SetupMaterial(const Utils::Parsing::MaterialData& data) = 0;
+	virtual void SetupMaterial(const Utils::Parsing::MaterialData& data);
 protected:
+	std::shared_ptr<C_Material> m_Material;
 };
 
 //=============================================================
