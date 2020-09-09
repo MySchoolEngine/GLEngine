@@ -43,18 +43,18 @@ void C_PhongMaterial::Update(const Renderer::C_Material& material)
 	auto* normalMap = static_cast<std::shared_ptr<Textures::C_Texture>*>(material.GetNormalMap());
 	if (color)
 	{
-		m_ColorMap = (*color)->GetHandle();
+		m_ColorMap = (*color)->CreateHandle();
 		(*color)->MakeHandleResident();
 	}
 	else
 	{
-		m_ColorMap = identity->GetHandle();
+		m_ColorMap = identity->CreateHandle();
 	}
 	m_UseNormalMap = false;
 	m_NormalMap = identity->GetHandle();
 	if (normalMap)
 	{
-		m_NormalMap = (*normalMap)->GetHandle();
+		m_NormalMap = (*normalMap)->CreateHandle();
 		(*normalMap)->MakeHandleResident();
 		m_UseNormalMap = true;
 	}
