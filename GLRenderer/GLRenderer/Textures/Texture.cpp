@@ -21,6 +21,7 @@ C_Texture::C_Texture(const std::string& name, GLenum target)
 	, m_target(target)
 	, m_texture(0)
 	, m_Name(name)
+	, m_Handle(0)
 {
 	glGenTextures(1, &m_texture);
 	bind();
@@ -176,7 +177,8 @@ void C_Texture::SetInternalFormat(GLint internalFormat, GLint format, GLenum typ
 //=================================================================================
 std::uint64_t C_Texture::CreateHandle()
 {
-	m_Handle = glGetTextureHandleARB(m_texture);
+	if(m_Handle==0)
+		m_Handle = glGetTextureHandleARB(m_texture);
 	return GetHandle();
 }
 
