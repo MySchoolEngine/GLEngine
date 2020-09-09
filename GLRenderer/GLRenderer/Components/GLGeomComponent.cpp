@@ -8,7 +8,7 @@
 #include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/Textures/TextureManager.h>
-#include <GLRenderer/Textures/TextureUnitManager.h>
+#include <GLRenderer/Mesh/StaticMeshResource.h>
 
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 
