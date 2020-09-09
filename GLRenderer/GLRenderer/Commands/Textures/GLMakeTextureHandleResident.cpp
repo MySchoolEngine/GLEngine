@@ -24,7 +24,7 @@ void C_GLMakeTextureHandleResident::Commit()
 //=================================================================================
 std::string C_GLMakeTextureHandleResident::GetDescriptor() const
 {
-	return std::string("GLMakeTextureHandleResident");
+	return fmt::format("GLMakeTextureHandleResident handle: {} makeResident: {}", m_Handle, m_MakeResident);
 }
 
 }
