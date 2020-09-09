@@ -55,7 +55,7 @@ bool _glErrorCheck(const char* file, const int line);
 * this will produce false positive warnings
 ** ==============================================*/
 #ifndef SPEEDPROFILE
-#define ErrorCheck() _glErrorCheck(__FILE__, __LINE__)
+#define ErrorCheck() _glErrorCheck(__FILENAME__, __LINE__)
 #else
 #define ErrorCheck()
 #endif
