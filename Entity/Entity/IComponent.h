@@ -39,12 +39,9 @@ public:
 protected:
 	std::shared_ptr<I_Entity> GetOwner() const;
 
-#pragma warning(push)
-#pragma warning( disable : 4251)
 	glm::mat4 m_ComponentMatrix;
 private:
 	std::weak_ptr<I_Entity> m_Owner;
-#pragma warning(pop)
 };
 
 //=================================================================================

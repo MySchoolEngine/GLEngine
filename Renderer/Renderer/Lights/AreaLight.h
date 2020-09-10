@@ -24,11 +24,8 @@ public:
 	virtual Physics::Primitives::S_AABB GetAABB() const override;
 
 protected:
-#pragma warning(push)
-#pragma warning(disable:4251)
 	glm::vec3 m_Normal;
 	glm::vec3 m_UpVector;
-#pragma warning(pop)
 	float			m_Width;
 	float			m_Height;
 };

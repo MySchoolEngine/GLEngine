@@ -31,11 +31,8 @@ public:
 	template<class T, class ... Args>
 	std::reference_wrapper<GUI::Menu::C_MenuItem> CreateMenuItem(Args&&... args);
 private:
-#pragma warning(push)
-#pragma warning( disable : 4251)
 	std::unordered_map<GUID, GUI::C_Window*>						m_Windwos;
 	std::vector<std::unique_ptr<GUI::Menu::C_MenuItem>>	m_MenuItems;
-#pragma warning(pop)
 };
 
 }

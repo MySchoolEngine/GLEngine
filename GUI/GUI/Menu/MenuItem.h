@@ -15,13 +15,9 @@ public:
 	virtual void Draw() const override;
 
 private:
-
-#pragma warning(push)
-#pragma warning( disable : 4251)
 	std::string						m_Label;
 	std::string						m_Shortcut;
 	std::function<void()> m_Callback;
-#pragma warning(pop)
 };
 
 class GUI_API_EXPORT C_MenuItemOpenWindow : public C_MenuItem

@@ -26,14 +26,11 @@ public:
 	GUID AddMenu(T_GUIMenu menuItem);
 protected:
 	mutable bool m_IsVisible;
-#pragma warning(push)
-#pragma warning( disable : 4251)
 	std::string m_Name;
 	GUID m_GUID;
 private:
 	std::map<GUID, T_GUIPartRef>	m_Components;
 	std::map<GUID, T_GUIMenu> m_Menus;
-#pragma warning(pop)
 };
 
 }

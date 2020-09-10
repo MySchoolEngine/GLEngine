@@ -41,11 +41,8 @@ public:
 	[[nodiscard]] Physics::Primitives::C_Frustum GetShadingFrustum() const override;
 
 private:
-#pragma warning(push)
-#pragma warning( disable : 4251)
 	float		m_Intensity;
 	glm::vec3	m_Color;
-#pragma warning(pop)
 
 	friend class C_PointLightCompBuilder;
 };

@@ -39,10 +39,7 @@ private:
 	int GetBoneId(const std::string_view& name) const;
 	C_BoneTimeline LoadBoneTimeline(const pugi::xml_node& node, const glm::mat4& normalizinMatrix) const;
 
-#pragma warning(push)
-#pragma warning( disable : 4251)
 	std::vector<std::string> m_JointNames;
-#pragma warning(pop)
 };
 
 }
