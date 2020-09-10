@@ -23,7 +23,7 @@ public:
 
 	// modal windows coming
 
-	C_Window* GetWindow(GUID guid) const;
+	[[nodiscard]] C_Window* GetWindow(GUID guid) const;
 
 	void DestroyWindow(GUID guid);
 	void OnUpdate();

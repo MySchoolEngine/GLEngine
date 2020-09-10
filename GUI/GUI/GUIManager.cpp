@@ -6,10 +6,7 @@
 namespace GLEngine::GUI {
 
 //=================================================================================
-C_GUIManager::C_GUIManager()
-{
-
-}
+C_GUIManager::C_GUIManager() = default;
 
 //=================================================================================
 C_GUIManager::~C_GUIManager()

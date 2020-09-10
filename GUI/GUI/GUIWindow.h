@@ -17,11 +17,11 @@ public:
 
 	virtual void Draw() const override;
 	void SetVisible(bool enable = true);
-	bool IsVisible() const;
+	[[nodiscard]] bool IsVisible() const;
 	GUID AddComponent(T_GUIPartRef component);
-	I_GUIPart* GetComponent(GUID guid) const;
+	[[nodiscard]] I_GUIPart* GetComponent(GUID guid) const;
 
-	GUID GetGuid() const { return m_GUID; }
+	[[nodiscard]] GUID GetGuid() const { return m_GUID; }
 		
 	GUID AddMenu(T_GUIMenu menuItem);
 protected:
