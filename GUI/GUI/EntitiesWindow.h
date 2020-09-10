@@ -8,7 +8,7 @@ class C_EntityManager;
 }
 
 namespace GLEngine::GUI {
-class C_EntitiesWindow
+class GUI_API_EXPORT C_EntitiesWindow
 	: public C_Window
 {
 public:

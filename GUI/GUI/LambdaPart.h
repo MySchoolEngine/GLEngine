@@ -3,7 +3,7 @@
 #include <GUI/GUIPart.h>
 
 namespace GLEngine::GUI {
-class C_LambdaPart : public I_GUIPart {
+class GUI_API_EXPORT C_LambdaPart : public I_GUIPart {
 public:
 	explicit C_LambdaPart(std::function<void()> lambda);
 	virtual void Draw() const override;

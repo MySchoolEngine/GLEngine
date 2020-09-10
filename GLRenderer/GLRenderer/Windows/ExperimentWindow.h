@@ -33,9 +33,7 @@ class I_CameraComponent;
 }
 
 namespace GLEngine::GLRenderer {
-namespace ImGui {
-class C_ImGuiLayer;
-}
+class C_GLImGUILayer;
 
 namespace Components {
 class C_StaticMesh;
@@ -70,7 +68,7 @@ private:
 	std::weak_ptr<Entity::I_Entity>													m_Player;
 	Core::C_LayerStack																			m_LayerStack;
 	Temporar::C_CameraManager																m_CamManager;
-	ImGui::C_ImGuiLayer*																		m_ImGUI;
+	C_GLImGUILayer*																					m_ImGUI;
 	Utils::HighResolutionTimer															m_FrameTimer;
 
 	//===========================

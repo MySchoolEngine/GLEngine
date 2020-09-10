@@ -1,5 +1,5 @@
 project "ImGui"
-    kind "StaticLib"
+    kind "SharedLib"
     language "C++"
     
 	targetdir ("../../../bin/" .. outputdir .. "/vendor/%{prj.name}")
@@ -16,13 +16,35 @@ project "ImGui"
         "../../ImGui/imstb_rectpack.h",
         "../../ImGui/imstb_textedit.h",
         "../../ImGui/imstb_truetype.h",
-        "../../ImGui/imgui_demo.cpp"
+        "../../ImGui/imgui_demo.cpp",
     }
-    
+
+    includedirs
+    {
+        "../../ImGui",
+        "../../../%{IncludeDir.GLFW}",  
+        "../../../%{IncludeDir.Glad}",
+    }
+    defines
+    {
+        "IMGUI_IMPL_OPENGL_LOADER_GLAD",
+    	"IMGUI_API=__declspec(dllexport)",
+        "IMGUI_IMPL_API="
+    }
+    links
+    {
+        "GLFW",
+        "Glad",
+    }
 	filter "system:windows"
         systemversion "latest"
         cppdialect "C++17"
-        staticruntime "On"
+        staticruntime "Off"
+        
+        postbuildcommands
+        {
+            ("{COPY} %{cfg.buildtarget.relpath} \"../../../bin/" .. outputdir .. "/Sandbox/\"")
+        }
         
     filter { "system:windows", "configurations:Release" }
         buildoptions "/MT"

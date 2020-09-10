@@ -24,7 +24,7 @@ private:
 #pragma warning(pop)
 };
 
-class C_MenuItemOpenWindow : public C_MenuItem
+class GUI_API_EXPORT C_MenuItemOpenWindow : public C_MenuItem
 {
 public:
 	C_MenuItemOpenWindow(const std::string& label, GUID window, const C_GUIManager& guiMGR, const std::string& shortcut = "");

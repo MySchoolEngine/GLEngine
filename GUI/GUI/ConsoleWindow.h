@@ -6,7 +6,7 @@
 #include <Utils/Logging/Data.h>
 
 namespace GLEngine::GUI {
-class C_ConsoleWindow 
+class GUI_API_EXPORT C_ConsoleWindow 
 	: public C_Window
 	, public Utils::Logging::I_Logger
 {

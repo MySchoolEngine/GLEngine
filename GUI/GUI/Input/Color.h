@@ -28,7 +28,7 @@ class C_ColorRBG : public C_ColorBase<glm::vec3>
 public:
 	C_ColorRBG(std::string&& name, glm::vec3 def)
 		: C_ColorBase(std::move(name), (def)) {}
-	virtual void Draw() const override;
+	GUI_API_EXPORT virtual void Draw() const override;
 
 
 	using C_ColorBase<glm::vec3>::operator=;
@@ -40,7 +40,7 @@ class C_ColorRBGA : public C_ColorBase<glm::vec4>
 public:
 	C_ColorRBGA(std::string&& name, glm::vec4 def)
 		: C_ColorBase(std::move(name), (def)) {}
-	virtual void Draw() const override;
+	GUI_API_EXPORT virtual void Draw() const override;
 
 
 	using C_ColorBase<glm::vec4>::operator=;

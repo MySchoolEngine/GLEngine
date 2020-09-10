@@ -55,7 +55,9 @@ project "GLRenderer"
 	-- used in ImGui\examples\imgui_impl_opengl3.cpp
 	defines
 	{
-		"IMGUI_IMPL_OPENGL_LOADER_GLAD"
+		"IMGUI_IMPL_OPENGL_LOADER_GLAD",
+		"IMGUI_API=__declspec(dllimport)",
+		"IMGUI_IMPL_API=",
 	}
 
 	filter "system:windows"

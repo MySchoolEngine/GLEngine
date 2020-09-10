@@ -17,7 +17,7 @@
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 
-#include <GLRenderer/ImGui/ImGuiLayer.h>
+#include <GLRenderer/ImGui/GLImGuiLayer.h>
 
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 
@@ -84,7 +84,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 
 	m_FrameTimer.reset();
 
-	m_ImGUI = new ImGui::C_ImGuiLayer(m_ID);
+	m_ImGUI = new C_GLImGUILayer(m_ID);
 	m_ImGUI->OnAttach(); // manual call for now.
 	m_LayerStack.PushLayer(m_ImGUI);
 	m_LayerStack.PushLayer(&m_CamManager);

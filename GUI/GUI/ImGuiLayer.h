@@ -18,9 +18,8 @@ class C_MouseButtonReleased;
 class C_MouseMoved;
 }
 
-namespace GLRenderer {
-namespace ImGui {
-class C_ImGuiLayer : public Core::C_Layer {
+namespace GUI {
+class GUI_API_EXPORT C_ImGuiLayer : public Core::C_Layer {
 public:
 	C_ImGuiLayer(GUID window);
 	virtual ~C_ImGuiLayer();
@@ -30,9 +29,9 @@ public:
 	virtual void OnDetach() override;
 	virtual void OnUpdate() override;
 
-	void FrameBegin();
+	virtual void FrameBegin();
 
-	void FrameEnd();
+	virtual void FrameEnd();
 
 	virtual void OnEvent(Core::I_Event& event) override;
 
@@ -48,9 +47,11 @@ private:
 	bool OnMouseScrolledEvent(Core::C_MouseScrollEvent& e);
 	bool OnMouseMoved(Core::C_MouseMoved& e);
 
+protected:
+	ImDrawData* GetRenderData();
 
 	GUID							m_Window;
 	GUI::C_GUIManager	m_GUIMgr;
 	float							m_Time;
 };
-}}}
+}}

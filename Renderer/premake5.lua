@@ -11,6 +11,7 @@ project "Renderer"
 	
 	Link("Utils")
 	Link("Entity")
+	Link("GUI")
 
 	includedirs
 	{

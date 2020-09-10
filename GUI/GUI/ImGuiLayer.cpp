@@ -1,8 +1,6 @@
-#include <GLRendererStdafx.h>
+#include <GUIStdafx.h>
 
-#include <GLRenderer/ImGui/ImGuiLayer.h>
-
-#include <GLRenderer/ImGui/ImGUIImplOpengl3.h>
+#include <GUI/ImGuiLayer.h>
 
 #include <Core/Application.h>
 #include <Core/IWindowManager.h>
@@ -13,28 +11,22 @@
 #include <Core/EventSystem/Event/MouseEvents.h>
 
 #include <imgui.h>
-#include <examples/imgui_impl_glfw.h>
+#include <GLFW/glfw3.h>
 
-
-
-namespace GLEngine {
-namespace GLRenderer {
-namespace ImGui {
+namespace GLEngine::GUI {
 
 
 //=================================================================================
 C_ImGuiLayer::C_ImGuiLayer(GUID window)
 	: Core::C_Layer("ImGui")
 	, m_Window(window)
+	, m_Time(0.0f)
 {
 
 }
 
 //=================================================================================
-C_ImGuiLayer::~C_ImGuiLayer()
-{
-
-}
+C_ImGuiLayer::~C_ImGuiLayer() = default;
 
 //=================================================================================
 void C_ImGuiLayer::OnAttach()
@@ -46,7 +38,6 @@ void C_ImGuiLayer::OnAttach()
 	io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
 	io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
 
-	// TEMPORARY: should eventually use Hazel key codes
 	io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;
 	io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
 	io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
@@ -69,14 +60,11 @@ void C_ImGuiLayer::OnAttach()
 	io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
 	io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
 
-	ImGui_ImplOpenGL3_Init("#version 410");
 }
 
 //=================================================================================
 void C_ImGuiLayer::OnDetach()
 {
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
 	::ImGui::DestroyContext();
 }
 
@@ -93,11 +81,6 @@ void C_ImGuiLayer::FrameBegin()
 	ImGuiIO& io = ::ImGui::GetIO();
 	io.DisplaySize = ImVec2(static_cast<float>(window->GetWidth()), static_cast<float>(window->GetHeight()));
 
-	float time = (float)glfwGetTime();
-	io.DeltaTime = m_Time > 0.0f ? (time - m_Time) : (1.0f / 60.0f);
-	m_Time = time;
-
-	ImGui_ImplOpenGL3_NewFrame();
 	::ImGui::NewFrame();
 }
 
@@ -105,7 +88,6 @@ void C_ImGuiLayer::FrameBegin()
 void C_ImGuiLayer::FrameEnd()
 {
 	::ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(::ImGui::GetDrawData());
 }
 
 //=================================================================================
@@ -141,8 +123,6 @@ bool C_ImGuiLayer::OnKeyPressed(Core::C_KeyPressedEvent& event)
 	io.KeysDown[event.GetKeyCode()] = true;
 	
 	io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
-	io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT] || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
-	io.KeyAlt = io.KeysDown[GLFW_KEY_LEFT_ALT] || io.KeysDown[GLFW_KEY_RIGHT_ALT];
 	io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
 	return io.WantCaptureKeyboard;
 }
@@ -207,4 +187,10 @@ bool C_ImGuiLayer::OnMouseMoved(Core::C_MouseMoved& e)
 	return CapturingMouse();
 }
 
-}}}
+//=================================================================================
+ImDrawData* C_ImGuiLayer::GetRenderData()
+{
+	return ::ImGui::GetDrawData();
+}
+
+}

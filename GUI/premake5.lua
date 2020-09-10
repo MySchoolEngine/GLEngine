@@ -1,7 +1,7 @@
 include "../premakeDefines.lua"
 
 project "GUI"
-	kind "StaticLib"
+	kind "SharedLib"
 	language "C++"
 
 	SetupProject("GUI")
@@ -16,6 +16,7 @@ project "GUI"
 		"../Renderer",
 		"../Core",
 		"../Physics",
+		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.ImGui}",
@@ -33,6 +34,7 @@ project "GUI"
 		defines
 		{
 			"BUILD_GUI_DLL",
+			"IMGUI_API=__declspec(dllimport)"
 		}
 
 		postbuildcommands

@@ -7,15 +7,15 @@
 namespace GLEngine::GUI {
 class C_FormatedText : public I_GUIPart {
 public:
-	C_FormatedText(const std::string& formatText);
+	GUI_API_EXPORT C_FormatedText(const std::string& formatText);
 	~C_FormatedText() = default;
 
-	C_FormatedText(const C_FormatedText&& other);
-	C_FormatedText(const C_FormatedText& other);
+	GUI_API_EXPORT C_FormatedText(const C_FormatedText&& other);
+	GUI_API_EXPORT C_FormatedText(const C_FormatedText& other);
 
 	virtual void Draw() const override;
 
-	[[nodiscard]] const std::string_view GetCurrentText() const;
+	GUI_API_EXPORT [[nodiscard]] const std::string_view GetCurrentText() const;
 
 	template<class ...Args>
 	void UpdateText(Args&&... args);

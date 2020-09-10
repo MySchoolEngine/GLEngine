@@ -5,7 +5,7 @@
 namespace GLEngine::GUI::Input {
 // This should look like bool value for user and has size of bool value
 // @todo unit testing
-class C_CheckBoxValue : public I_GUIPart {
+class GUI_API_EXPORT C_CheckBoxValue : public I_GUIPart {
 public:
 	C_CheckBoxValue(bool value, std::string&& name = "");
 	virtual void Draw() const override;

@@ -5,7 +5,7 @@
 
 namespace GLEngine::GUI::Menu {
 
-class C_Menu : public I_GUIPart {
+class GUI_API_EXPORT C_Menu : public I_GUIPart {
 public:
 	using T_GUIMenuItem = std::reference_wrapper<Menu::C_MenuItem>;
 public:
