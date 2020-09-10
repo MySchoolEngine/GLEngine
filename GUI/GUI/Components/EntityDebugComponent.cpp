@@ -1,6 +1,6 @@
 #include <GUIStdafx.h>
 
-#include <GUI/Components/GLEntityDebugComponent.h>
+#include <GUI/Components/EntityDebugComponent.h>
 
 
 namespace GLEngine::GUI {
