@@ -48,7 +48,13 @@ void C_GLAreaLight::DebugDraw() const
 	const auto width = std::sqrt(GetWidth() / 2.0f);
 	const auto height = std::sqrt(GetHeight() / 2.0f);
 
-	const auto Pos = glm::vec3(m_ComponentMatrix[3]);
+	auto transformMatrix = m_ComponentMatrix;
+	if (const auto entity = GetOwner())
+	{
+		transformMatrix = entity->GetModelMatrix() * transformMatrix;
+	}
+
+	const auto Pos = glm::vec3(transformMatrix[3]);
 
 	C_DebugDraw::Instance().DrawLine(Pos, Pos + m_Normal, glm::vec3(1.f, 1.f, 0.f));
 

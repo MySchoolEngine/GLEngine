@@ -4,7 +4,7 @@
 
 namespace GLEngine::GUI {
 
-class GUI_API_EXPORT I_GUIPart {
+class I_GUIPart {
 public:
 	virtual ~I_GUIPart() = default;
 	virtual void Draw() const = 0;
