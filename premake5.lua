@@ -38,6 +38,8 @@ workspace "Engine"
 		"premakeDefines.lua",
 	}
 
+	disablewarnings {"4251"}
+
 	filter "action:vs*"
 		defines {
 			"CORE_PLATFORM=CORE_PLATFORM_WIN",
