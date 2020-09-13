@@ -1,19 +1,18 @@
 #pragma once
 
+#include <Renderer/RendererApi.h>
+
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
-#include <Entity/IComponent.h>
 
 #include <Physics/Primitives/Frustum.h>
-
-#include <Core/EventSystem/EventReciever.h>
 
 #include <glm/glm.hpp>
 
 namespace GLEngine {
 namespace Renderer {
 
-class I_CameraComponent 
+class RENDERER_API_EXPORT I_CameraComponent 
 	: public Entity::I_Component{
 public:
 	virtual ~I_CameraComponent() = default;
@@ -48,6 +47,3 @@ public:
 	using type = Renderer::I_CameraComponent;
 };
 }
-
-
-

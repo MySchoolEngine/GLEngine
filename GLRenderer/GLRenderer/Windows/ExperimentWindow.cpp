@@ -2,8 +2,6 @@
 
 #include <GLRenderer/Windows/ExperimentWindow.h>
 
-#include <GLRenderer/Cameras/OrbitalCamera.h>
-
 #include <GLRenderer/Commands/GLEnable.h>
 #include <GLRenderer/Commands/GlClearColor.h>
 #include <GLRenderer/Commands/GLCullFace.h>
@@ -39,6 +37,7 @@
 #include <Entity/EntitiesWindow.h>
 
 #include <Renderer/Mesh/Scene.h>
+#include <Renderer/Cameras/OrbitalCamera.h>
 
 #include <Physics/Primitives/Ray.h>
 #include <Physics/Primitives/Intersection.h>
@@ -360,7 +359,7 @@ void C_ExplerimentWindow::SetupWorld()
 		if (player)
 		{
 			float zoom = 5.0f;
-			auto playerCamera = std::make_shared<Cameras::C_OrbitalCamera>();
+			auto playerCamera = std::make_shared<Renderer::Cameras::C_OrbitalCamera>();
 			playerCamera->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
 			playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
 			playerCamera->adjustOrientation(20.f, 20.f);

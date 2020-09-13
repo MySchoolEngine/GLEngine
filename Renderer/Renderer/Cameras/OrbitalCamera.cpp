@@ -1,8 +1,6 @@
-#include <GLRendererStdafx.h>
+#include <RendererStdafx.h>
 
-#include <GLRenderer/Cameras/OrbitalCamera.h>
-
-#include <GLRenderer/PersistentDebug.h>
+#include <Renderer/Cameras/OrbitalCamera.h>
 
 #include <Physics/Primitives/Plane.h>
 #include <Physics/Primitives/Ray.h>
@@ -22,11 +20,14 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+// TODO: here only for key codes.
+#include <GLFW/glfw3.h>
+
+#include <imgui.h>
+
 #include <stdexcept>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Cameras {
+namespace GLEngine::Renderer::Cameras {
 
 //=================================================================================
 C_OrbitalCamera::C_OrbitalCamera()
@@ -84,7 +85,6 @@ void C_OrbitalCamera::setCenterPoint(const glm::vec3& center)
 //=================================================================================
 void C_OrbitalCamera::DebugDraw()
 {
-	C_DebugDraw::Instance().DrawPoint(_center, glm::vec3(0, 0, 1), glm::mat4(1.0f));
 }
 
 //=================================================================================
@@ -255,14 +255,12 @@ bool C_OrbitalCamera::OnMousePress(Core::C_MouseButtonPressed& event)
 		const auto clipPosition = window->ToClipSpace({ screenCoord.first, screenCoord.second });
 
 		const Physics::Primitives::S_Ray ray = GetRay(clipPosition);
-		C_PersistentDebug::Instance().DrawLine(glm::vec4(_pos, 1.0f), glm::vec4(_pos, 1.0f) + glm::vec4(ray.direction, 1.0f), glm::vec3(0, 1, 0));
 		constexpr Physics::Primitives::S_Plane ground { glm::vec4(0.0f, 1.0f, 0.0f, 1.0f) , 0.f};
 
 		const auto intersect = ground.IntersectImpl(ray);
 
 		if (intersect > 0) {
 			const glm::vec4 hit = glm::vec4(_pos, 1.0f) + glm::vec4(ray.direction, 1.0f) * intersect;
-			C_PersistentDebug::Instance().DrawPoint(hit, glm::vec3(1, 0, 0), glm::mat4(1.0f));
 
 			_center = hit;
 			Update();
@@ -315,9 +313,9 @@ glm::vec3 C_OrbitalCamera::GetPosition() const
 }
 
 //=================================================================================
-GLEngine::Physics::Primitives::C_Frustum C_OrbitalCamera::GetFrustum() const
+Physics::Primitives::C_Frustum C_OrbitalCamera::GetFrustum() const
 {
-	return GLEngine::Physics::Primitives::C_Frustum(GetPosition(), _up, GetDirection(), GetNear(), GetFar(), GetAspectRatio(), GetFov());
+	return Physics::Primitives::C_Frustum(GetPosition(), _up, GetDirection(), GetNear(), GetFar(), GetAspectRatio(), GetFov());
 }
 
-}}}
+}

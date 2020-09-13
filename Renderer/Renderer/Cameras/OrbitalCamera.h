@@ -20,11 +20,11 @@ namespace Physics::Primitives {
 class C_Frustum;
 }
 
-namespace GLRenderer::Cameras {
+namespace Renderer::Cameras {
 
 //Orbital camera
 //Using Euclidean angles (= has gimbal lock)
-class C_OrbitalCamera : public Renderer::I_CameraComponent
+class RENDERER_API_EXPORT C_OrbitalCamera : public I_CameraComponent
 {
 public:
 	C_OrbitalCamera();
