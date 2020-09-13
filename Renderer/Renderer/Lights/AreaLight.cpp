@@ -2,6 +2,8 @@
 
 #include <Renderer/Lights/AreaLight.h>
 
+#include <imgui.h>
+
 namespace GLEngine::Renderer {
 
 //=================================================================================
@@ -9,8 +11,10 @@ C_AreaLight::C_AreaLight(std::shared_ptr<Entity::I_Entity> owner)
 	: Renderer::I_Light(owner)
 	, m_Normal(glm::normalize(glm::vec3(0, -1.0, 1.0)))
 	, m_UpVector(glm::normalize(glm::vec3(0, 1.0, 1.0)))
-	, m_Height(10.f)
-	, m_Width(10.f) {}
+	, m_WidthSlider(10.f, 0.1f, 10.f, "Width")
+	, m_HeightSlider(10.f, 0.1f, 10.f, "Height")
+	, m_DiffuseColor("Diffuse colour", glm::vec3(1.f))
+	, m_SpecularColor("Spec colour", glm::vec3(1.f)) {}
 
 //=================================================================================
 C_AreaLight::~C_AreaLight() = default;
@@ -44,6 +48,29 @@ Physics::Primitives::S_AABB C_AreaLight::GetAABB() const
 	aabb.Add(- dirY * height - dirX * width);
 
 	return aabb;
+}
+
+//=================================================================================
+void C_AreaLight::DebugDrawGUI()
+{
+	if (::ImGui::CollapsingHeader("AreaLight")) {
+		m_WidthSlider.Draw();
+		m_HeightSlider.Draw();
+		m_DiffuseColor.Draw();
+		m_SpecularColor.Draw();
+	}
+}
+
+//=================================================================================
+glm::vec3 C_AreaLight::DiffuseColour() const
+{
+	return m_DiffuseColor.GetValue();
+}
+
+//=================================================================================
+glm::vec3 C_AreaLight::SpecularColour() const
+{
+	return m_SpecularColor.GetValue();
 }
 
 }
