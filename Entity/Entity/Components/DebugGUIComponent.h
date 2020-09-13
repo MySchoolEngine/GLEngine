@@ -1,19 +1,17 @@
 #pragma once
 
-#include <Renderer/IDebugGUIComponent.h>
+#include <Entity/Components/IDebugGUIComponent.h>
 
-namespace GLEngine::GUI {
+namespace GLEngine::Entity {
 
-class C_DebugGUIComponent : public Renderer::I_DebugGUIComponent {
+class C_DebugGUIComponent : public I_DebugGUIComponent {
 public:
-	C_DebugGUIComponent(std::shared_ptr<Entity::I_Entity> owner);
+	C_DebugGUIComponent(std::shared_ptr<I_Entity> owner);
 	virtual ~C_DebugGUIComponent() = default;
 
 	//=====================================
 	virtual void Toggle() override;
 	virtual void PostUpdate() override;
-
-	void SetTitle(const std::string& title);
 
 	virtual void DrawContents() = 0;
 protected:

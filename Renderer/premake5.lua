@@ -23,6 +23,7 @@ project "Renderer"
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.DevIL}",
+		"../%{IncludeDir.ImGui}",
 
 		"../vendor/AssimpPrebuild/include",
 	}

@@ -36,8 +36,7 @@
 #include <GLRenderer/Lights/GLAreaLight.h>
 
 #include <GUI/ConsoleWindow.h>
-#include <GUI/EntitiesWindow.h>
-#include <GUI/Components/EntityDebugComponent.h>
+#include <Entity/EntitiesWindow.h>
 
 #include <Renderer/Mesh/Scene.h>
 
@@ -412,7 +411,7 @@ void C_ExplerimentWindow::SetupWorld()
 	{
 		m_EntitiesWindowGUID = NextGUID();
 
-		auto entitiesWindow = new GUI::C_EntitiesWindow(m_EntitiesWindowGUID, m_World);
+		auto entitiesWindow = new Entity::C_EntitiesWindow(m_EntitiesWindowGUID, m_World);
 		guiMGR.AddCustomWindow(entitiesWindow);
 		entitiesWindow->SetVisible();
 	}

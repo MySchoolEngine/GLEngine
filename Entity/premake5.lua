@@ -11,6 +11,7 @@ project "Entity"
 	
 	Link("Utils")
 	Link("Core")
+	Link("GUI")
 
 	includedirs
 	{
@@ -25,6 +26,7 @@ project "Entity"
 
 	links{
 		"pugixml",
+		"ImGui",
 	}
 
 	defines

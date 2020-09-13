@@ -6,10 +6,9 @@ project "GUI"
 
 	SetupProject("GUI")
 	PrecompiledHeaders("GUI")
-	
+
 	Link("Core")
 	Link("Utils")
-	Link("Entity")
 
 	includedirs
 	{

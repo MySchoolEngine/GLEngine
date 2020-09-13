@@ -1,12 +1,14 @@
-#include <GUIStdafx.h>
+#include <EntityStdafx.h>
 
-#include <GUI/DebugGUIComponent.h>
+#include <Entity/Components/DebugGUIComponent.h>
 
-namespace GLEngine::GUI {
+#include <imgui.h>
+
+namespace GLEngine::Entity {
 
 //=================================================================================
-C_DebugGUIComponent::C_DebugGUIComponent(std::shared_ptr<Entity::I_Entity> owner)
-	: Renderer::I_DebugGUIComponent(owner)
+C_DebugGUIComponent::C_DebugGUIComponent(std::shared_ptr<I_Entity> owner)
+	: I_DebugGUIComponent(owner)
 	, m_Title(owner->GetName())
 	, m_Show(false)
 {
@@ -27,12 +29,6 @@ void C_DebugGUIComponent::PostUpdate()
 			DrawContents();
 		::ImGui::End();
 	}
-}
-
-//=================================================================================
-void C_DebugGUIComponent::SetTitle(const std::string& title)
-{
-	m_Title = title;
 }
 
 }

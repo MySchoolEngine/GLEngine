@@ -1,17 +1,19 @@
-#include <GUIStdafx.h>
+#include <EntityStdafx.h>
 
-#include <GUI/Components/EntityDebugComponent.h>
+#include <Entity/Components/EntityDebugComponent.h>
 
-
-namespace GLEngine::GUI {
+namespace GLEngine::Entity {
 
 //=================================================================================
-C_EntityDebugComponent::C_EntityDebugComponent(std::shared_ptr<Entity::I_Entity> entity)
+C_EntityDebugComponent::C_EntityDebugComponent(std::shared_ptr<I_Entity> entity)
 	: C_DebugGUIComponent(entity)
-	, m_Entity(std::static_pointer_cast<Entity::C_BasicEntity>(entity))
+	, m_Entity(std::static_pointer_cast<C_BasicEntity>(entity))
 {
 
 }
+
+//=================================================================================
+C_EntityDebugComponent::~C_EntityDebugComponent() = default;
 
 //=================================================================================
 void C_EntityDebugComponent::DrawContents()
@@ -25,7 +27,7 @@ void C_EntityDebugComponent::DrawContents()
 }
 
 //=================================================================================
-std::shared_ptr<GLEngine::Entity::I_Component> C_GUIDebugBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
+std::shared_ptr<I_Component> C_GUIDebugBuilder::Build(const pugi::xml_node& node, std::shared_ptr<I_Entity> owner)
 {
 	return std::make_shared<C_EntityDebugComponent>(owner);
 }
