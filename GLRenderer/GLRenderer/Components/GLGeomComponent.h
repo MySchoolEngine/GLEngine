@@ -23,6 +23,7 @@ public:
 	void SetupGeometry(const Renderer::MeshData::Mesh& mesh) override;
 	void PerformDraw() const override;
 	void DebugDrawGUI() override;
+	virtual bool HasDebugDrawGUI() const override;
 	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override;
 
 private:

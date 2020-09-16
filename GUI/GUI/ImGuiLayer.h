@@ -4,6 +4,8 @@
 
 #include <GUI/GUIManager.h>
 
+struct ImDrawData;
+
 namespace GLEngine {
 
 namespace Core {

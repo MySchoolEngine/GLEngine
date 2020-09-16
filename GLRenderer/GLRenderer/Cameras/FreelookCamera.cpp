@@ -273,6 +273,18 @@ float FreelookCamera::GetAspectRatio() const
 	return m_aspectRatio;
 }
 
+//=================================================================================
+std::string_view FreelookCamera::GetDebugComponentName() const
+{
+	return "Freelook camera";
+}
+
+//=================================================================================
+bool FreelookCamera::HasDebugDrawGUI() const
+{
+	return false;
+}
+
 /*
 //=================================================================================
 bool FreelookCamera::Input(SDL_Event event)

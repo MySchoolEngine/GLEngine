@@ -18,6 +18,8 @@ public:
 	virtual ~C_AreaLight();
 
 	virtual void DebugDrawGUI() override;
+	virtual std::string_view GetDebugComponentName() const override; 
+	virtual bool HasDebugDrawGUI() const override;
 
 	//================================================================
 	// I_Light

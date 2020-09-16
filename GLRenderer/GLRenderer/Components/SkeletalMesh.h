@@ -24,6 +24,8 @@ public:
 	virtual void Update() override;
 
 	virtual void DebugDrawGUI() override;
+	virtual bool HasDebugDrawGUI() const override;
+	virtual std::string_view GetDebugComponentName() const override;
 	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override;
 
 public:

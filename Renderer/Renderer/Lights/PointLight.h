@@ -40,6 +40,8 @@ public:
 	// I_Light
 	[[nodiscard]] Physics::Primitives::C_Frustum GetShadingFrustum() const override;
 
+	virtual std::string_view GetDebugComponentName() const override;
+	virtual bool HasDebugDrawGUI() const override;
 private:
 	float		m_Intensity;
 	glm::vec3	m_Color;

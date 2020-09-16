@@ -21,9 +21,16 @@ void C_EntityDebugComponent::DrawContents()
 	if (auto entity = m_Entity.lock())
 	{
 		for (auto& component : *entity) {
-			component.second->DebugDrawGUI();
+			if(component.second->HasDebugDrawGUI())
+				component.second->DebugDrawComponentGUI();
 		}
 	}
+}
+
+//=================================================================================
+std::string_view C_EntityDebugComponent::GetDebugComponentName() const
+{
+	return "Debug entity component";
 }
 
 //=================================================================================

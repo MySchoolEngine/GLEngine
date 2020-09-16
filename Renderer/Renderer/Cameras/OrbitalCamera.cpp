@@ -23,8 +23,6 @@
 // TODO: here only for key codes.
 #include <GLFW/glfw3.h>
 
-#include <imgui.h>
-
 #include <stdexcept>
 
 namespace GLEngine::Renderer::Cameras {
@@ -132,18 +130,28 @@ void C_OrbitalCamera::OnEvent(Core::I_Event& event)
 void C_OrbitalCamera::DebugDrawGUI()
 {
 #ifdef GL_ENGINE_DEBUG
-	if (::ImGui::CollapsingHeader("Orbital camera")) {
-		_angleYDeg.Draw();
-		_angleXDeg.Draw();
-		_zoom.Draw();
-	}
+	_angleYDeg.Draw();
+	_angleXDeg.Draw();
+	_zoom.Draw();
 #endif
 }
 
 //=================================================================================
+std::string_view C_OrbitalCamera::GetDebugComponentName() const
+{
+	return "Orbital Camera";
+}
+
+//=================================================================================
+bool C_OrbitalCamera::HasDebugDrawGUI() const
+{
+	return true;
+}
+
+
+//=================================================================================
 bool C_OrbitalCamera::OnKeyEvent(Core::C_KeyEvent& event)
 {
-
 	//===============================================
 	// Rotations
 	if (event.GetKeyCode() == GLFW_KEY_DOWN) {
@@ -317,5 +325,4 @@ Physics::Primitives::C_Frustum C_OrbitalCamera::GetFrustum() const
 {
 	return Physics::Primitives::C_Frustum(GetPosition(), _up, GetDirection(), GetNear(), GetFar(), GetAspectRatio(), GetFov());
 }
-
 }

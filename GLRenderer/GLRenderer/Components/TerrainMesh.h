@@ -46,6 +46,8 @@ public:
 	void DebugDraw();
 
 
+	virtual std::string_view GetDebugComponentName() const override;
+	virtual bool HasDebugDrawGUI() const override;
 	//=================================================================================
 	virtual void OnEvent(Core::I_Event& event) override;
 

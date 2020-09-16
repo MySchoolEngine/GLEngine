@@ -65,6 +65,8 @@ public:
 	//=====================================================
 	virtual void OnEvent(Core::I_Event& event) override;
 	virtual void DebugDrawGUI() override;
+	virtual bool HasDebugDrawGUI() const override;
+	virtual std::string_view GetDebugComponentName() const override;
 
 
 	virtual Physics::Primitives::S_Ray GetRay(const glm::vec2& screenPos) const override;

@@ -9,6 +9,8 @@
 
 #include <Renderer/Textures/TextureLoader.h>
 
+#include <imgui.h>
+
 namespace GLEngine::GLRenderer::Textures {
 std::filesystem::path C_TextureManager::s_ErrorTextureFile = "Models/Error.bmp";
 

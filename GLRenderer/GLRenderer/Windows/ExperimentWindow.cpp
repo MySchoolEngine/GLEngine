@@ -51,8 +51,6 @@
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/Event/AppEvent.h>
 
-#include <imgui.h>
-
 #include <pugixml.hpp>
 
 namespace GLEngine {

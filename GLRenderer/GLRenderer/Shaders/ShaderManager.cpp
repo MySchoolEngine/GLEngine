@@ -10,6 +10,7 @@
 
 #include <pugixml.hpp>
 
+#include <imgui.h>
 
 namespace GLEngine::GLRenderer::Shaders {
 //=================================================================================

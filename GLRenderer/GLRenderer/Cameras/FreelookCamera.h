@@ -108,6 +108,8 @@ public:
 	virtual void  SetFov(float fov);
 	virtual float GetAspectRatio() const;
 
+	virtual std::string_view GetDebugComponentName() const override;
+	virtual bool HasDebugDrawGUI() const override;
 
 	//virtual bool Input(SDL_Event event) override;
 

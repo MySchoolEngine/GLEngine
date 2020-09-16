@@ -20,6 +20,7 @@ namespace Entity {
 		{
 			return Physics::Primitives::S_AABB();
 		}
+		virtual bool HasDebugDrawGUI() const override { return false; }
 
 		virtual void Toggle() = 0;
 	};

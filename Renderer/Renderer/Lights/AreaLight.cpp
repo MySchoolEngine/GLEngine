@@ -2,8 +2,6 @@
 
 #include <Renderer/Lights/AreaLight.h>
 
-#include <imgui.h>
-
 namespace GLEngine::Renderer {
 
 //=================================================================================
@@ -53,12 +51,22 @@ Physics::Primitives::S_AABB C_AreaLight::GetAABB() const
 //=================================================================================
 void C_AreaLight::DebugDrawGUI()
 {
-	if (::ImGui::CollapsingHeader("AreaLight")) {
-		m_WidthSlider.Draw();
-		m_HeightSlider.Draw();
-		m_DiffuseColor.Draw();
-		m_SpecularColor.Draw();
-	}
+	m_WidthSlider.Draw();
+	m_HeightSlider.Draw();
+	m_DiffuseColor.Draw();
+	m_SpecularColor.Draw();
+}
+
+//=================================================================================
+std::string_view C_AreaLight::GetDebugComponentName() const
+{
+	return "Area light";
+}
+
+//=================================================================================
+bool C_AreaLight::HasDebugDrawGUI() const
+{
+	return true;
 }
 
 //=================================================================================

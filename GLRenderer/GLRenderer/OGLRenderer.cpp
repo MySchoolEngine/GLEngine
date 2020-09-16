@@ -13,8 +13,6 @@
 
 #include <GLRenderer/Debug.h>
 
-#include <imgui.h>
-
 #include <stdexcept>
 
 namespace GLEngine {

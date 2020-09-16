@@ -13,6 +13,7 @@ public:
 
 	virtual void DrawContents() override;
 
+	virtual std::string_view GetDebugComponentName() const override;
 private:
 	std::weak_ptr<C_BasicEntity> m_Entity;
 };
