@@ -28,8 +28,9 @@
 namespace GLEngine::Renderer::Cameras {
 
 //=================================================================================
-C_OrbitalCamera::C_OrbitalCamera()
-	: m_ControlSpeed(0.5f)
+C_OrbitalCamera::C_OrbitalCamera(std::shared_ptr<Entity::I_Entity>& owner)
+	: I_CameraComponent(owner)
+	, m_ControlSpeed(0.5f)
 	, GLE_DEBUG_MEMBER_CTOR_LIST((0.0f, -89.0f, 89.0f, "Y angle:"), (0.0f), _angleYDeg)
 	, GLE_DEBUG_MEMBER_CTOR_LIST((0.0f, 0, 360.f, "X angle:"), (0.0f), _angleXDeg)
 	, GLE_DEBUG_MEMBER_CTOR_LIST((0.0f, 0.1f, 50.f, "Zoom:"), (0.0f), _zoom)
@@ -233,24 +234,6 @@ bool C_OrbitalCamera::OnMouseScroll(Core::C_MouseScrollEvent& event)
 {
 	adjustZoom(static_cast<int>(-event.GetYOffset()*10));
 	return true;
-}
-
-//=================================================================================
-Physics::Primitives::S_Ray C_OrbitalCamera::GetRay(const glm::vec2& screenPos) const
-{
-	const float z = 1.0f;
-	const glm::vec3 ray_nds = glm::vec3(screenPos.x, screenPos.y, z);
-	const glm::vec4 ray_clip = glm::vec4(ray_nds.x, ray_nds.y, -1.0, 1.0);
-	glm::vec4 ray_eye = glm::inverse(GetProjectionMatrix()) * ray_clip;
-	ray_eye = glm::vec4(ray_eye.x, ray_eye.y, -1.0, 0.0);
-
-	glm::vec4 ray_wor = glm::inverse(GetViewMatrix()) * ray_eye;
-	// don't forget to normalise the vector at some point
-	ray_wor = glm::normalize(ray_wor);
-
-	const Physics::Primitives::S_Ray ray{ GetPosition(), glm::vec3(ray_wor) };
-
-	return ray;
 }
 
 //=================================================================================

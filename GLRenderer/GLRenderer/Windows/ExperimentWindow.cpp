@@ -38,6 +38,7 @@
 
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/Cameras/OrbitalCamera.h>
+#include <Renderer/Cameras/FreelookCamera.h>
 
 #include <Physics/Primitives/Ray.h>
 #include <Physics/Primitives/Intersection.h>
@@ -357,10 +358,11 @@ void C_ExplerimentWindow::SetupWorld()
 		if (player)
 		{
 			float zoom = 5.0f;
-			auto playerCamera = std::make_shared<Renderer::Cameras::C_OrbitalCamera>();
+			auto playerCamera = std::make_shared<Renderer::Cameras::FreelookCamera>(player);
 			playerCamera->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
-			playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
-			playerCamera->adjustOrientation(20.f, 20.f);
+			playerCamera->positionCamera({ 0,1,0 }, { 0,0,1 });
+			//playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
+			//playerCamera->adjustOrientation(20.f, 20.f);
 			playerCamera->Update();
 			player->AddComponent(playerCamera);
 			m_CamManager.ActivateCamera(playerCamera);

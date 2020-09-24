@@ -27,8 +27,8 @@ namespace Renderer::Cameras {
 class RENDERER_API_EXPORT C_OrbitalCamera : public I_CameraComponent
 {
 public:
-	C_OrbitalCamera();
-	~C_OrbitalCamera();
+	C_OrbitalCamera(std::shared_ptr<Entity::I_Entity>& owner);
+	~C_OrbitalCamera(); // = default;
 
 	[[nodiscard]] virtual glm::mat4 GetViewProjectionMatrix() const override;
 	[[nodiscard]] virtual glm::mat4 GetProjectionMatrix() const override;
@@ -67,9 +67,6 @@ public:
 	virtual void DebugDrawGUI() override;
 	virtual bool HasDebugDrawGUI() const override;
 	virtual std::string_view GetDebugComponentName() const override;
-
-
-	virtual Physics::Primitives::S_Ray GetRay(const glm::vec2& screenPos) const override;
 
 protected:
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);

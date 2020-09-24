@@ -1,8 +1,6 @@
-#include <GLRendererStdafx.h>
+#include <RendererStdafx.h>
 
-#include <GLRenderer/Cameras/FreelookCamera.h>
-
-//#include "CameraPath.h"
+#include <Renderer/Cameras/FreelookCamera.h>
 
 #include <Physics/Primitives/AABB.h>
 #include <Physics/Primitives/Frustum.h>
@@ -13,27 +11,35 @@
 #include <Core/EventSystem/EventDispatcher.h>
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 
-//#include <Application.hpp>
-//#include <CameraManager.h>
+#include <GLFW/glfw3.h>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Cameras {
+namespace GLEngine::Renderer::Cameras {
 //=================================================================================
-FreelookCamera::FreelookCamera()
-//	: m_KeyLogger(10000.0f)
+FreelookCamera::FreelookCamera(std::shared_ptr<Entity::I_Entity>& owner)
+	: I_CameraComponent(owner)
+	, _cameraMovementSpeed(1)
+	, m_Flags()
+	, _yaw(0)
+	, _pitch(0)
+	, _timer()
+	, _position(glm::vec3(0))
+	, _up(glm::vec3(0, 1, 0))
+	, _left(glm::vec3(1, 0, 0))
+	, _view(glm::vec3(0, 0, 1))
+	, m_rotation()
+	, m_nearZ(0.1f)
+	, m_farZ(100.f)
+	, m_fov(90.f)
+	, m_aspectRatio(1900.f/1080.f)
+	, _viewMatrix(glm::lookAt(_position, _position + _view, _up))
+	, _projectionMatrix(glm::mat4(1.f))
 {
-	_cameraMovementSpeed = 1;
-	_yaw = _pitch = 0;
-	_flags = 0;
-	m_rotation = glm::quat();
-
-	_position = _left = _up = glm::vec3(0);
-
-	_viewMatrix = _projectionMatrix = glm::mat4(1);
-
-	//_timer.reset();
+	_timer.reset();
+	CreateProjection();
 }
+
+//=================================================================================
+FreelookCamera::~FreelookCamera() = default;
 
 //=================================================================================
 void FreelookCamera::setupCameraProjection(float nearZ, float farZ, float aspectRatio, float fovYDeg)
@@ -68,26 +74,13 @@ void FreelookCamera::adjustOrientation(float hDeg, float vDeg)
 		_pitch -= glm::two_pi<float>();
 	else if (_pitch < 0)
 		_pitch = glm::two_pi<float>() + _pitch;
-	//*/
 }
 
 //=================================================================================
 void FreelookCamera::resetButtons()
 {
-	_flags = 0;
+	m_Flags = 0;
 }
-/*
-//=================================================================================
-void FreelookCamera::LogKeyFrame()
-{
-	m_KeyLogger.LogKeyFrame(_position, _view, _up);
-}
-
-//=================================================================================
-void FreelookCamera::DumpKeyFrames() const
-{
-	m_KeyLogger.DumpKeyFrames();
-}*/
 
 //=================================================================================
 void FreelookCamera::positionCamera(const glm::vec3 &camPosition, const glm::vec3& focusPoint, const glm::vec3 &upDirection)
@@ -98,71 +91,63 @@ void FreelookCamera::positionCamera(const glm::vec3 &camPosition, const glm::vec
 
 	_left = glm::normalize(glm::cross(_up, _view));
 }
-/*
-//=================================================================================
-void FreelookCamera::positionCamera(const CameraPathKeypoint& key)
-{
-	_position = key.position;
-	_up = key.upVector;
-	_view = key.viewVector;
-}*/
-/*
+
 //=================================================================================
 void FreelookCamera::handleInputMessage(CameraMessage msg)
 {
 	switch (msg)
 	{
 	case CameraMessage::CAMERA_FORWARD_DOWN:
-		SetBit(_flags, CAMERA_FORWARD_BIT);
+		m_Flags.SetFlag(CameraDirectionFlags::CAMERA_FORWARD_BIT);
 		break;
 	case CameraMessage::CAMERA_FORWARD_UP:
-		ClearBit(_flags, CAMERA_FORWARD_BIT);
+		m_Flags.ClearFlag(CameraDirectionFlags::CAMERA_FORWARD_BIT);
 		break;
 
 	case CameraMessage::CAMERA_BACKWARD_DOWN:
-		SetBit(_flags, CAMERA_BACKWARD_BIT);
+		m_Flags.SetFlag(CameraDirectionFlags::CAMERA_BACKWARD_BIT);
 		break;
 	case CameraMessage::CAMERA_BACKWARD_UP:
-		ClearBit(_flags, CAMERA_BACKWARD_BIT);
+		m_Flags.ClearFlag(CameraDirectionFlags::CAMERA_BACKWARD_BIT);
 		break;
 
 	case CameraMessage::CAMERA_LEFT_DOWN:
-		SetBit(_flags, CAMERA_LEFT_BIT);
+		m_Flags.SetFlag(CameraDirectionFlags::CAMERA_LEFT_BIT);
 		break;
 	case CameraMessage::CAMERA_LEFT_UP:
-		ClearBit(_flags, CAMERA_LEFT_BIT);
+		m_Flags.ClearFlag(CameraDirectionFlags::CAMERA_LEFT_BIT);
 		break;
 
 	case CameraMessage::CAMERA_RIGHT_DOWN:
-		SetBit(_flags, CAMERA_RIGHT_BIT);
+		m_Flags.SetFlag(CameraDirectionFlags::CAMERA_RIGHT_BIT);
 		break;
 	case CameraMessage::CAMERA_RIGHT_UP:
-		ClearBit(_flags, CAMERA_RIGHT_BIT);
+		m_Flags.ClearFlag(CameraDirectionFlags::CAMERA_RIGHT_BIT);
 		break;
 
 	case CameraMessage::CAMERA_UP_DOWN:
-		SetBit(_flags, CAMERA_UP_BIT);
+		m_Flags.SetFlag(CameraDirectionFlags::CAMERA_UP_BIT);
 		break;
 	case CameraMessage::CAMERA_UP_UP:
-		ClearBit(_flags, CAMERA_UP_BIT);
+		m_Flags.ClearFlag(CameraDirectionFlags::CAMERA_UP_BIT);
 		break;
 
 	case CameraMessage::CAMERA_DOWN_DOWN:
-		SetBit(_flags, CAMERA_DOWN_BIT);
+		m_Flags.SetFlag(CameraDirectionFlags::CAMERA_DOWN_BIT);
 		break;
 	case CameraMessage::CAMERA_DOWN_UP:
-		ClearBit(_flags, CAMERA_DOWN_BIT);
+		m_Flags.ClearFlag(CameraDirectionFlags::CAMERA_DOWN_BIT);
 		break;
 
 	default:
 		break;
 	}
-}*/
+}
 
 //=================================================================================
-void FreelookCamera::update()
+void FreelookCamera::Update()
 {
-	/*float t = (float)_timer.getElapsedTimeFromLastQuerySeconds();
+	float t = (float)_timer.getElapsedTimeFromLastQuerySeconds();
 
 	glm::mat4 m = glm::mat4(1);
 	if (_yaw != 0 || _pitch != 0)
@@ -179,17 +164,17 @@ void FreelookCamera::update()
 	_left = glm::cross(_up, _view);
 
 	//Move camera position
-	if (IsBitSet(_flags, CAMERA_FORWARD_BIT))
+	if (m_Flags.CheckFlag(CameraDirectionFlags::CAMERA_FORWARD_BIT))
 		_position += _cameraMovementSpeed * t * _view;	//forward
-	if (IsBitSet(_flags, CAMERA_BACKWARD_BIT))
+	if (m_Flags.CheckFlag(CameraDirectionFlags::CAMERA_BACKWARD_BIT))
 		_position -= _cameraMovementSpeed * t * _view;	//back
-	if (IsBitSet(_flags, CAMERA_LEFT_BIT))
+	if (m_Flags.CheckFlag(CameraDirectionFlags::CAMERA_LEFT_BIT))
 		_position += _cameraMovementSpeed * t * _left; //left
-	if (IsBitSet(_flags, CAMERA_RIGHT_BIT))
+	if (m_Flags.CheckFlag(CameraDirectionFlags::CAMERA_RIGHT_BIT))
 		_position -= _cameraMovementSpeed * t * _left; //right
-	if (IsBitSet(_flags, CAMERA_UP_BIT))
+	if (m_Flags.CheckFlag(CameraDirectionFlags::CAMERA_UP_BIT))
 		_position += _cameraMovementSpeed * t * glm::vec3(0, 1, 0); //up
-	if (IsBitSet(_flags, CAMERA_DOWN_BIT))
+	if (m_Flags.CheckFlag(CameraDirectionFlags::CAMERA_DOWN_BIT))
 		_position -= _cameraMovementSpeed * t * glm::vec3(0, 1, 0); //down
 
 	//Update view matrix
@@ -197,7 +182,7 @@ void FreelookCamera::update()
 
 	//Reset angles
 	_pitch = 0.0f;
-	_yaw = 0.0f;*/
+	_yaw = 0.0f;
 }
 
 //=================================================================================
@@ -274,6 +259,12 @@ float FreelookCamera::GetAspectRatio() const
 }
 
 //=================================================================================
+void FreelookCamera::DebugDrawGUI()
+{
+
+}
+
+//=================================================================================
 std::string_view FreelookCamera::GetDebugComponentName() const
 {
 	return "Freelook camera";
@@ -282,49 +273,8 @@ std::string_view FreelookCamera::GetDebugComponentName() const
 //=================================================================================
 bool FreelookCamera::HasDebugDrawGUI() const
 {
-	return false;
-}
-
-/*
-//=================================================================================
-bool FreelookCamera::Input(SDL_Event event)
-{
-	switch (event.type)
-	{
-	case SDL_KEYDOWN:
-	{
-		if (event.key.keysym.sym == SDLK_w)
-			handleInputMessage(CameraMessage::CAMERA_FORWARD_DOWN);
-		else if (event.key.keysym.sym == SDLK_s)
-			handleInputMessage(CameraMessage::CAMERA_BACKWARD_DOWN);
-		else if (event.key.keysym.sym == SDLK_a)
-			handleInputMessage(CameraMessage::CAMERA_LEFT_DOWN);
-		else if (event.key.keysym.sym == SDLK_d)
-			handleInputMessage(CameraMessage::CAMERA_RIGHT_DOWN);
-		else if (event.key.keysym.sym == SDLK_m)
-			DumpKeyFrames();
-		else if (event.key.keysym.sym == SDLK_k)
-			LogKeyFrame();
-		break;
-	}
-
-	case SDL_KEYUP:
-	{
-		if (event.key.keysym.sym == SDLK_w)
-			handleInputMessage(CameraMessage::CAMERA_FORWARD_UP);
-		else if (event.key.keysym.sym == SDLK_s)
-			handleInputMessage(CameraMessage::CAMERA_BACKWARD_UP);
-		else if (event.key.keysym.sym == SDLK_a)
-			handleInputMessage(CameraMessage::CAMERA_LEFT_UP);
-		else if (event.key.keysym.sym == SDLK_d)
-			handleInputMessage(CameraMessage::CAMERA_RIGHT_UP);
-		break;
-	}
-	default:
-		break;
-	}
 	return true;
-}*/
+}
 
 //=================================================================================
 Physics::Primitives::S_AABB FreelookCamera::GetAABB() const
@@ -377,12 +327,49 @@ void FreelookCamera::OnEvent(Core::I_Event& event)
 {
 	Core::C_EventDispatcher d(event);
 	d.Dispatch<Core::C_KeyPressedEvent>(std::bind(&FreelookCamera::OnKeyPressed, this, std::placeholders::_1));
+	d.Dispatch<Core::C_KeyReleasedEvent>(std::bind(&FreelookCamera::OnKeyReleased, this, std::placeholders::_1));
 }
 
 //=================================================================================
 bool FreelookCamera::OnKeyPressed(Core::C_KeyPressedEvent& event)
 {
+	if (event.GetKeyCode() == GLFW_KEY_DOWN) {
+		handleInputMessage(CameraMessage::CAMERA_BACKWARD_DOWN);
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_UP) {
+		handleInputMessage(CameraMessage::CAMERA_FORWARD_DOWN);
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_LEFT) {
+		handleInputMessage(CameraMessage::CAMERA_LEFT_DOWN);
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_RIGHT) {
+		handleInputMessage(CameraMessage::CAMERA_RIGHT_DOWN);
+	}
 	return false;
 }
 
-}}}
+//=================================================================================
+bool FreelookCamera::OnKeyReleased(Core::C_KeyReleasedEvent& event)
+{
+	if (event.GetKeyCode() == GLFW_KEY_DOWN) {
+		handleInputMessage(CameraMessage::CAMERA_BACKWARD_UP);
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_UP) {
+		handleInputMessage(CameraMessage::CAMERA_FORWARD_UP);
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_LEFT) {
+		handleInputMessage(CameraMessage::CAMERA_LEFT_UP);
+		return true;
+	}
+	if (event.GetKeyCode() == GLFW_KEY_RIGHT) {
+		handleInputMessage(CameraMessage::CAMERA_RIGHT_UP);
+	}
+	return false;
+}
+
+}
