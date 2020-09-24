@@ -5,8 +5,7 @@
 #include <Core/EventSystem/Layer.h>
 #include <Core/Application.h>
 
-namespace GLEngine {
-namespace Core {
+namespace GLEngine::Core {
 
 struct S_WindowInfo;
 
@@ -38,11 +37,8 @@ public:
 protected:
 	CORE_API_EXPORT std::shared_ptr<I_Window> ConstructWindow(const S_WindowInfo& info) const;
 
-#pragma warning(push)
-#pragma warning( disable : 4251)
 	Core::C_Application::EventCallbackFn m_EventCallback;
-#pragma warning(pop)
 private:
 	std::vector<I_WindowFactory*>* m_Facotries;
 };
-}}
+}

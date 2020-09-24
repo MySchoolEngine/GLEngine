@@ -15,6 +15,7 @@ project "GLRenderer"
 	Link("Utils")
 	Link("Renderer")
 	Link("Core")
+	Link("GUI")
 	Link("ImGuiFileDialog")
 
 	files
@@ -51,9 +52,12 @@ project "GLRenderer"
 		"DevIL-IL",
 	}
 
+	-- used in ImGui\examples\imgui_impl_opengl3.cpp
 	defines
 	{
-		"IMGUI_IMPL_OPENGL_LOADER_GLAD"
+		"IMGUI_IMPL_OPENGL_LOADER_GLAD",
+		"IMGUI_API=__declspec(dllimport)",
+		"IMGUI_IMPL_API=",
 	}
 
 	filter "system:windows"

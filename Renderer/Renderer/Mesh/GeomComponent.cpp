@@ -16,6 +16,12 @@ C_GeomComponent::C_GeomComponent(std::shared_ptr<Entity::I_Entity> owner)
 }
 
 //=================================================================================
+std::string_view C_GeomComponent::GetDebugComponentName() const
+{
+	return "GeomComponent";
+}
+
+//=================================================================================
 C_GeomComponent::~C_GeomComponent() = default;
 
 

@@ -2,8 +2,6 @@
 
 #include <GLRenderer/Windows/ExperimentWindow.h>
 
-#include <GLRenderer/Cameras/OrbitalCamera.h>
-
 #include <GLRenderer/Commands/GLEnable.h>
 #include <GLRenderer/Commands/GlClearColor.h>
 #include <GLRenderer/Commands/GLCullFace.h>
@@ -17,7 +15,7 @@
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 
-#include <GLRenderer/ImGui/ImGuiLayer.h>
+#include <GLRenderer/ImGui/GLImGuiLayer.h>
 
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 
@@ -35,11 +33,12 @@
 
 #include <GLRenderer/Lights/GLAreaLight.h>
 
-#include <GLRenderer/GUI/ConsoleWindow.h>
-#include <GLRenderer/GUI/EntitiesWindow.h>
-#include <GLRenderer/GUI/Components/GLEntityDebugComponent.h>
+#include <GUI/ConsoleWindow.h>
+#include <Entity/EntitiesWindow.h>
 
 #include <Renderer/Mesh/Scene.h>
+#include <Renderer/Cameras/OrbitalCamera.h>
+#include <Renderer/Cameras/FreelookCamera.h>
 
 #include <Physics/Primitives/Ray.h>
 #include <Physics/Primitives/Intersection.h>
@@ -52,8 +51,6 @@
 #include <Core/EventSystem/EventDispatcher.h>
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/Event/AppEvent.h>
-
-#include <imgui.h>
 
 #include <pugixml.hpp>
 
@@ -84,7 +81,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 
 	m_FrameTimer.reset();
 
-	m_ImGUI = new ImGui::C_ImGuiLayer(m_ID);
+	m_ImGUI = new C_GLImGUILayer(m_ID);
 	m_ImGUI->OnAttach(); // manual call for now.
 	m_LayerStack.PushLayer(m_ImGUI);
 	m_LayerStack.PushLayer(&m_CamManager);
@@ -361,10 +358,11 @@ void C_ExplerimentWindow::SetupWorld()
 		if (player)
 		{
 			float zoom = 5.0f;
-			auto playerCamera = std::make_shared<Cameras::C_OrbitalCamera>();
+			auto playerCamera = std::make_shared<Renderer::Cameras::FreelookCamera>(player);
 			playerCamera->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
-			playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
-			playerCamera->adjustOrientation(20.f, 20.f);
+			playerCamera->positionCamera({ 0,1,0 }, { 0,0,1 });
+			//playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
+			//playerCamera->adjustOrientation(20.f, 20.f);
 			playerCamera->Update();
 			player->AddComponent(playerCamera);
 			m_CamManager.ActivateCamera(playerCamera);
@@ -412,7 +410,7 @@ void C_ExplerimentWindow::SetupWorld()
 	{
 		m_EntitiesWindowGUID = NextGUID();
 
-		auto entitiesWindow = new GUI::C_EntitiesWindow(m_EntitiesWindowGUID, m_World);
+		auto entitiesWindow = new Entity::C_EntitiesWindow(m_EntitiesWindowGUID, m_World);
 		guiMGR.AddCustomWindow(entitiesWindow);
 		entitiesWindow->SetVisible();
 	}

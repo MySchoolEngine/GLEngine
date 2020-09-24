@@ -16,10 +16,7 @@ public:
 	void SetNumBonse(std::size_t num);
 	void ApplyPoseToBones(std::vector<glm::mat4>& poseData) const;
 public:
-#pragma warning(push)
-#pragma warning( disable : 4251)
 	std::unique_ptr<S_Joint>	m_Root;
-#pragma warning(pop)
 	std::size_t								m_NumBones;
 };
 

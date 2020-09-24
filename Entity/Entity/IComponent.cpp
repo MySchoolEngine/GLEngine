@@ -4,6 +4,8 @@
 
 #include <Entity/IEntity.h>
 
+#include <imgui.h>
+
 namespace GLEngine::Entity
 {
 
@@ -36,6 +38,15 @@ const glm::mat4 I_Component::GetComponentModelMatrix() const
 		return owner->GetModelMatrix() * m_ComponentMatrix;
 	}
 	return m_ComponentMatrix;
+}
+
+//=================================================================================
+void I_Component::DebugDrawComponentGUI()
+{
+	if (::ImGui::CollapsingHeader(GetDebugComponentName().data()))
+	{
+		DebugDrawGUI();
+	}
 }
 
 }

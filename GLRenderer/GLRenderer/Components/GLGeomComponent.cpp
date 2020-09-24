@@ -83,9 +83,13 @@ void C_GLGeomComponent::PerformDraw() const
 //=================================================================================
 void C_GLGeomComponent::DebugDrawGUI()
 {
-	if (::ImGui::CollapsingHeader("Geom component")) {
-		m_Color.Draw();
-	}
+	m_Color.Draw();
+}
+
+//=================================================================================
+bool C_GLGeomComponent::HasDebugDrawGUI() const
+{
+	return true;
 }
 
 //=================================================================================

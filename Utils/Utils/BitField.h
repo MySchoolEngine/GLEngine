@@ -56,6 +56,12 @@ public:
 		return (this = this & bit);
 	}
 
+	C_BitField& operator=(const value_type& value)
+	{
+		m_Flags = value;
+		return *this;
+	}
+
 	bool operator&(const Enum bit) const {
 		return CheckFlag(bit);
 	}

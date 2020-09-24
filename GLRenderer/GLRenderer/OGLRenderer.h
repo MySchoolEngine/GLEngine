@@ -4,23 +4,24 @@
 
 #include <Renderer/IRenderer.h>
 
-#include <GLRenderer/GUI/PlotLine.h>
-#include <GLRenderer/GUI/Input/CheckBoxValue.h>
-#include <GLRenderer/GUI/Text.h>
-#include <GLRenderer/GUI/Menu/Menu.h>
-#include <GLRenderer/GUI/Input/Button.h>
+#include <GUI/PlotLine.h>
+#include <GUI/Input/CheckBoxValue.h>
+#include <GUI/Text.h>
+#include <GUI/Menu/Menu.h>
+#include <GUI/Input/Button.h>
 
 namespace GLEngine {
-namespace GLRenderer {
-
-namespace ImGui
+namespace GUI
 {
-class C_GUIManager;
+class C_MenuItem;
 }
+
 namespace GUI::Menu
 {
 class C_MenuItem;
 }
+
+namespace GLRenderer {
 
 class C_OGLRenderer : public Renderer::I_Renderer {
 public:
@@ -43,8 +44,8 @@ public:
 	//=================================================================================
 	virtual void Lock(bool lock = true) override;
 
-	GUID SetupControls(ImGui::C_GUIManager& guiMan);
-	void DestroyControls(ImGui::C_GUIManager& guiMan);
+	GUID SetupControls(GUI::C_GUIManager& guiMan);
+	void DestroyControls(GUI::C_GUIManager& guiMan);
 
 	//=================================================================================
 	virtual Renderer::E_PassType GetCurrentPassType() const override;

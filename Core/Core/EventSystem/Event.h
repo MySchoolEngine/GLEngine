@@ -39,6 +39,7 @@ enum class E_EventCategory {
 class CORE_API_EXPORT I_Event
 {
 public:
+	virtual ~I_Event();
 	virtual E_EventType GetType() const = 0;
 	virtual Utils::C_BitField<E_EventCategory> GetCategories() const = 0;
 	virtual const char* GetName() const = 0;
@@ -51,28 +52,14 @@ public:
 };
 
 //=================================================================================
-class C_UserEvent : public I_Event {
+class CORE_API_EXPORT C_UserEvent : public I_Event {
 public:
-	explicit C_UserEvent(const std::string& name)
-	: m_Name(name){}
+	explicit C_UserEvent(const std::string& name);
+	virtual ~C_UserEvent();
 
-	//=================================================================================
-	virtual E_EventType GetType() const override
-	{
-		return Core::E_EventType::UserDefined;
-	}
-
-	//=================================================================================
-	virtual Utils::C_BitField<E_EventCategory> GetCategories() const override
-	{
-		return Utils::C_BitField<E_EventCategory>(E_EventCategory::UserDefined);
-	}
-
-	//=================================================================================
-	virtual const char* GetName() const override
-	{
-		return m_Name.c_str();
-	}
+	virtual E_EventType GetType() const override;
+	virtual Utils::C_BitField<E_EventCategory> GetCategories() const override;
+	virtual const char* GetName() const override;
 private:
 	std::string m_Name;
 };

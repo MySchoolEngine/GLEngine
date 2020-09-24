@@ -80,6 +80,18 @@ Physics::Primitives::C_Frustum C_PointLight::GetShadingFrustum() const
 }
 
 //=================================================================================
+std::string_view C_PointLight::GetDebugComponentName() const
+{
+	return "Point light";
+}
+
+//=================================================================================
+bool C_PointLight::HasDebugDrawGUI() const
+{
+	return true;
+}
+
+//=================================================================================
 std::shared_ptr<Entity::I_Component> C_PointLightCompBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
 {
 	auto pointLight = std::make_shared<Renderer::C_PointLight>(owner);

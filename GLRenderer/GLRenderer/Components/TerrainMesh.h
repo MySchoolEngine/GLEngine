@@ -4,7 +4,7 @@
 
 #include <GLRenderer/Buffers/UBO/TerrainStats.h>
 #include <GLRenderer/Mesh/TerrainMeshResource.h>
-#include <GLRenderer/GUI/Input/CheckBoxValue.h>
+#include <GUI/Input/CheckBoxValue.h>
 #include <GLRenderer/Textures/Texture.h>
 
 #include <GLRenderer/Entities/TerrainEntity.h>
@@ -46,6 +46,8 @@ public:
 	void DebugDraw();
 
 
+	virtual std::string_view GetDebugComponentName() const override;
+	virtual bool HasDebugDrawGUI() const override;
 	//=================================================================================
 	virtual void OnEvent(Core::I_Event& event) override;
 

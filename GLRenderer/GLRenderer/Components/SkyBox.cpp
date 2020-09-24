@@ -146,6 +146,18 @@ Physics::Primitives::S_AABB C_SkyBox::GetAABB() const
 }
 
 //=================================================================================
+std::string_view C_SkyBox::GetDebugComponentName() const
+{
+	return "SkyBox";
+}
+
+//=================================================================================
+bool C_SkyBox::HasDebugDrawGUI() const
+{
+	return true;
+}
+
+//=================================================================================
 // C_SkyBoxCompBuilder
 //=================================================================================
 std::shared_ptr<Entity::I_Component> C_SkyBoxCompBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)

@@ -11,6 +11,8 @@ project "Renderer"
 	
 	Link("Utils")
 	Link("Entity")
+	Link("Core")
+	Link("GUI")
 
 	includedirs
 	{
@@ -19,6 +21,7 @@ project "Renderer"
 		"../GLRenderer",
 		"../Physics",
 		"../%{IncludeDir.GLM}",
+		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.DevIL}",

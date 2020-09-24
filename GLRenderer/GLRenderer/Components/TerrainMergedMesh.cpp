@@ -35,4 +35,16 @@ Physics::Primitives::S_AABB C_TerrainMergedMesh::GetAABB() const
 	return ret;
 }
 
+//=================================================================================
+std::string_view C_TerrainMergedMesh::GetDebugComponentName() const
+{
+	return "Terrain";
+}
+
+//=================================================================================
+bool C_TerrainMergedMesh::HasDebugDrawGUI() const
+{
+	return true;
+}
+
 }}}
