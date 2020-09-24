@@ -28,8 +28,9 @@
 
 #include <GLRenderer/Debug.h>
 
-
 #include <pugixml.hpp>
+
+#include <imgui.h>
 
 namespace GLEngine::GLRenderer::Components {
 
@@ -51,9 +52,20 @@ void C_SkeletalMesh::DebugDrawGUI()
 			}
 		}
 	};
-	if (::ImGui::CollapsingHeader("Skeleton")) {
-		DrawJointGUI(*(m_Skeleton.m_Root.get()));
-	}
+
+	DrawJointGUI(*(m_Skeleton.m_Root.get()));
+}
+
+//=================================================================================
+std::string_view C_SkeletalMesh::GetDebugComponentName() const
+{
+	return "Skeleton";
+}
+
+//=================================================================================
+bool C_SkeletalMesh::HasDebugDrawGUI() const
+{
+	return true;
 }
 
 //=================================================================================

@@ -6,14 +6,14 @@
 #include <GLRenderer/FBO/Framebuffer.h>
 #include <GLRenderer/CameraManager.h>
 
-#include <GLRenderer/GUI/GUIWindow.h>
-#include <GLRenderer/GUI/PlotLine.h>
-#include <GLRenderer/GUI/Input/CheckBoxValue.h>
-#include <GLRenderer/GUI/Input/Slider.h>
-#include <GLRenderer/GUI/GUIWindow.h>
-#include <GLRenderer/GUI/Text.h>
-#include <GLRenderer/GUI/Menu/Menu.h>
-#include <GLRenderer/GUI/Menu/MenuItem.h>
+#include <GUI/GUIWindow.h>
+#include <GUI/PlotLine.h>
+#include <GUI/Input/CheckBoxValue.h>
+#include <GUI/Input/Slider.h>
+#include <GUI/GUIWindow.h>
+#include <GUI/Text.h>
+#include <GUI/Menu/Menu.h>
+#include <GUI/Menu/MenuItem.h>
 #include <GLRenderer/MainPassTechnique.h>
 #include <GLRenderer/ShadowMapPass.h>
 #include <GLRenderer/Mesh/StaticMeshResource.h>
@@ -33,9 +33,7 @@ class I_CameraComponent;
 }
 
 namespace GLEngine::GLRenderer {
-namespace ImGui {
-class C_ImGuiLayer;
-}
+class C_GLImGUILayer;
 
 namespace Components {
 class C_StaticMesh;
@@ -70,7 +68,7 @@ private:
 	std::weak_ptr<Entity::I_Entity>													m_Player;
 	Core::C_LayerStack																			m_LayerStack;
 	Temporar::C_CameraManager																m_CamManager;
-	ImGui::C_ImGuiLayer*																		m_ImGUI;
+	C_GLImGUILayer*																					m_ImGUI;
 	Utils::HighResolutionTimer															m_FrameTimer;
 
 	//===========================

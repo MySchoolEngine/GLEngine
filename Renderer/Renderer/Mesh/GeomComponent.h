@@ -18,6 +18,8 @@ public:
 	virtual ~C_GeomComponent();
 	virtual void SetupGeometry(const MeshData::Mesh& mesh) = 0;
 	virtual void SetupMaterial(const Utils::Parsing::MaterialData& data) = 0;
+
+	virtual std::string_view GetDebugComponentName() const override;
 protected:
 };
 

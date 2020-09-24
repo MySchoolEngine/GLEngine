@@ -7,8 +7,7 @@
 
 #include <Utils/BitField.h>
 
-namespace GLEngine {
-namespace Core {
+namespace GLEngine::Core {
 
 class CORE_API_EXPORT C_Layer : public I_EventReciever {
 public:
@@ -25,10 +24,7 @@ public:
 protected:
 	void SetLayerDebugName(const std::string& name);
 private:
-#pragma warning(push)
-#pragma warning( disable : 4251)
 	std::string m_DebugName;
-#pragma  warning(pop)
 };
 
-}}
+}

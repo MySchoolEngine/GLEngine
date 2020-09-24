@@ -11,10 +11,6 @@ namespace GLEngine::GLRenderer {
 C_GLAreaLight::C_GLAreaLight(std::shared_ptr<Entity::I_Entity> owner)
 	: Renderer::C_AreaLight(owner)
 	, m_ShadowMap(Textures::C_TextureManager::Instance().CreateEmptyTexture(owner->GetName() + "_ShadowMap"))
-	, m_WidthSlider(m_Width, 0.1f, 10.f, "Width")
-	, m_HeightSlider(m_Height, 0.1f, 10.f, "Height")
-	, m_DiffuseColor("Diffuse colour", glm::vec3(1.f))
-	, m_SpecularColor("Spec colour", glm::vec3(1.f))
 {
 	m_ShadowMap->bind();
 	m_ShadowMap->SetDimensions({ 512,512 });
@@ -28,17 +24,6 @@ C_GLAreaLight::C_GLAreaLight(std::shared_ptr<Entity::I_Entity> owner)
 const std::shared_ptr<Textures::C_Texture>& C_GLAreaLight::GetShadowMap() const
 {
 	return m_ShadowMap;
-}
-
-//=================================================================================
-void C_GLAreaLight::DebugDrawGUI()
-{
-	if (::ImGui::CollapsingHeader("AreaLight")) {
-		m_WidthSlider.Draw();
-		m_HeightSlider.Draw();
-		m_DiffuseColor.Draw();
-		m_SpecularColor.Draw();
-	}
 }
 
 //=================================================================================
@@ -65,30 +50,6 @@ void C_GLAreaLight::DebugDraw() const
 
 	C_DebugDraw::Instance().DrawLine(Pos - m_UpVector * height + dirX * width, Pos + m_UpVector * height + dirX * width, glm::vec3(1.f, 1.f, 0.f));
 	C_DebugDraw::Instance().DrawLine(Pos - m_UpVector * height - dirX * width, Pos + m_UpVector * height - dirX * width, glm::vec3(1.f, 1.f, 0.f));
-}
-
-//=================================================================================
-float C_GLAreaLight::GetWidth() const
-{
-	return m_WidthSlider.GetValue();
-}
-
-//=================================================================================
-float C_GLAreaLight::GetHeight() const
-{
-	return m_HeightSlider.GetValue();
-}
-
-//=================================================================================
-glm::vec3 C_GLAreaLight::DiffuseColour() const
-{
-	return m_DiffuseColor.GetValue();
-}
-
-//=================================================================================
-glm::vec3 C_GLAreaLight::SpecularColour() const
-{
-	return m_SpecularColor.GetValue();
 }
 
 }
