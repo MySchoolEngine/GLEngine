@@ -185,6 +185,7 @@ void C_ExplerimentWindow::Update()
 					shader->SetUniform("gamma", m_GammaSlider.GetValue());
 					shader->SetUniform("exposure", m_ExposureSlider.GetValue());
 					shader->SetUniform("hdrBuffer", 0);
+					shader->SetUniform("depthBuffer", 1);
 				}, "Update HDR"
 			)
 		)
@@ -311,10 +312,11 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 	depthStencilTexture->bind();
 	// depthStencilTexture setup 
 	depthStencilTexture->SetDimensions({ GetWidth(), GetHeight() });
-	depthStencilTexture->SetInternalFormat(GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8);
+	depthStencilTexture->SetInternalFormat(GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT, GL_FLOAT);
 	depthStencilTexture->SetFilter(GL_LINEAR, GL_LINEAR);
+	// depthStencilTexture->SetTexParameter(GL_DEPTH_STENCIL_TEXTURE_MODE, GL_DEPTH_COMPONENT);
 	// ~depthStencilTexture setup 
-	m_HDRFBO->AttachTexture(GL_DEPTH_STENCIL_ATTACHMENT, depthStencilTexture);
+	m_HDRFBO->AttachTexture(GL_DEPTH_ATTACHMENT, depthStencilTexture);
 	depthStencilTexture->unbind();
 
 
