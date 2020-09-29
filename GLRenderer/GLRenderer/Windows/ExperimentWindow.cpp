@@ -167,9 +167,11 @@ void C_ExplerimentWindow::Update()
 	}
 
 	auto HDRTexture = m_HDRFBO->GetAttachement(GL_COLOR_ATTACHMENT0);
+	auto worldDepth = m_HDRFBO->GetAttachement(GL_DEPTH_ATTACHMENT);
 
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.BindTextureToUnit(*(HDRTexture.get()), 0);
+	tm.BindTextureToUnit(*(worldDepth.get()), 1);
 
 	m_HDRFBO->Bind<E_FramebufferTarget::Read>();
 
@@ -329,11 +331,11 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 	HDRTexture->SetFilter(GL_LINEAR, GL_LINEAR);
 	HDRTexture->unbind();
 
-	auto depthStencilTexture = m_HDRFBO->GetAttachement(GL_DEPTH_STENCIL_ATTACHMENT);
+	auto depthStencilTexture = m_HDRFBO->GetAttachement(GL_DEPTH_ATTACHMENT);
 
 	depthStencilTexture->bind();
 	depthStencilTexture->SetDimensions({ event.GetWidth(), event.GetHeight() });
-	depthStencilTexture->SetInternalFormat(GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8);
+	depthStencilTexture->SetInternalFormat(GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT, GL_FLOAT);
 	depthStencilTexture->SetFilter(GL_LINEAR, GL_LINEAR);
 	depthStencilTexture->unbind();
 

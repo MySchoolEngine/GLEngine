@@ -50,6 +50,8 @@ public:
 	void SetAmbientStrength(float strength) { m_AmbientStrength = strength; }
 
 	void SetFrameTime(float time) { m_Time = time; }
+	void SetNearPlane(float distance) { m_NearPlane = distance; }
+	void SetFarPlane(float distance) { m_FarPlane = distance; }
 private:
 	glm::vec4 m_CameraPosition;
 	glm::mat4 m_ViewMat;
@@ -57,5 +59,7 @@ private:
 	glm::vec3 m_SunPosition;
 	float			m_AmbientStrength;
 	float			m_Time;
+	float			m_NearPlane;
+	float			m_FarPlane;
 };
 }}}}

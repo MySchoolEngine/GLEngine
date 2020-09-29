@@ -25,6 +25,8 @@ public:
 	virtual glm::quat GetRotation()				const = 0;
 	virtual glm::vec3 GetDirection()			const = 0;
 	virtual glm::vec3 GetPosition()				const = 0;
+	[[nodiscard]] virtual float GetFar()		const = 0;
+	[[nodiscard]] virtual float GetNear()		const = 0;
 
 	Physics::Primitives::S_Ray GetRay(const glm::vec2& screenPos) const;
 

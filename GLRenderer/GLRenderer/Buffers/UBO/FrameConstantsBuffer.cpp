@@ -35,6 +35,7 @@ void C_FrameConstantsBuffer::UploadData() const
 	const auto vecSize = sizeof(glm::vec4);
 	const auto vec3Size = sizeof(glm::vec3);
 	const auto viewProjectionMat = m_ProjectionMat*m_ViewMat;
+	const auto floatSize = sizeof(float);
 	bind();
 	auto *data = (char *)glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
 
@@ -45,6 +46,8 @@ void C_FrameConstantsBuffer::UploadData() const
 	memcpy(data + 3 * matSize + vecSize, glm::value_ptr(m_SunPosition), sizeof(decltype(m_SunPosition)));
 	memcpy(data + 3 * matSize + vecSize + vec3Size, &m_AmbientStrength, sizeof(decltype(m_AmbientStrength)));
 	memcpy(data + 3 * matSize + vecSize + vec3Size + sizeof(decltype(m_AmbientStrength)), &m_Time, sizeof(decltype(m_Time)));
+	memcpy(data + 3 * matSize + vecSize + vec3Size + sizeof(decltype(m_AmbientStrength)) + floatSize, &m_NearPlane, sizeof(decltype(m_NearPlane)));
+	memcpy(data + 3 * matSize + vecSize + vec3Size + sizeof(decltype(m_AmbientStrength)) + 2*floatSize, &m_FarPlane, sizeof(decltype(m_FarPlane)));
 
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
 	unbind();

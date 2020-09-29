@@ -54,6 +54,8 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 	m_FrameConstUBO->SetView(camera->GetViewMatrix());
 	m_FrameConstUBO->SetProjection(camera->GetProjectionMatrix());
 	m_FrameConstUBO->SetCameraPosition(glm::vec4(camera->GetPosition(), 1.0f));
+	m_FrameConstUBO->SetNearPlane(camera->GetNear());
+	m_FrameConstUBO->SetFarPlane(camera->GetFar());
 	m_FrameConstUBO->SetSunPosition({ m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue() });
 	m_FrameConstUBO->SetFrameTime(static_cast<float>(glfwGetTime()));
 

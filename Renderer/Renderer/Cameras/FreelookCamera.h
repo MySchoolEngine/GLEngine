@@ -72,7 +72,7 @@ public:
 
 	virtual Physics::Primitives::C_Frustum GetFrustum()	const override;
 
-	virtual Physics::Primitives::S_AABB GetAABB() const;
+	virtual Physics::Primitives::S_AABB GetAABB() const override;
 
 	//Use these 2 function to setup the camera
 	//FOVY in degrees
@@ -93,9 +93,9 @@ public:
 	float     getMovementSpeed() const;
 
 	// from I_Camera
-	virtual float GetFar() const;
+	[[nodiscard]] virtual float GetFar() const override;
 	virtual void  SetFar(float Far);
-	virtual float GetNear() const;
+	[[nodiscard]] virtual float GetNear() const override;
 	virtual void  SetNear(float Near);
 	virtual float GetFov() const;
 	virtual void  SetFov(float fov);
