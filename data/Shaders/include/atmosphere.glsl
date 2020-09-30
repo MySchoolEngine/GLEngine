@@ -1,5 +1,5 @@
 // for 680, 550, 440
-const vec3 SeaLevelScatterCoef = vec3(5.8, 13.5, 33.1);
+const vec3 SeaLevelScatterCoef = vec3(5.8, 13.5, 33.1) * pow(10.0, -6);
 const float Hr = 1/8000; // Hr = 8 km
 const float Hm = 1/1200; // Hm = 1.2 km
 const float scatter2ExtinctionRatio = 0.9; // B^s/B^e = 0.9 according to paper, only areosols absorbs incident light
@@ -13,6 +13,11 @@ vec3 GetPlanetCenter()
 	vec3 camPosition = frame.CameraPosition.xyz/frame.CameraPosition.w;
 	camPosition.y = -earthRadius;
 	return camPosition;
+}
+
+Sphere GetAtmosphereBoundary()
+{
+	return Sphere(GetPlanetCenter(), earthRadius + atmosphereThickness);
 }
 
 float GetAltitude(vec3 point)
@@ -40,7 +45,7 @@ vec3 GetAreosolExtinctionCoef(float altitude)
 	return GetAreosolAbsorbtionCoef(altitude) / scatter2ExtinctionRatio;
 }
 
-vec3 GetTotalExtinctionCoefAlongRay(Ray r, float rayLen)
+vec3 AirMass(const Ray r, float rayLen)
 {
 	const int numSamples = 10;
 	vec3 samplingPoint = r.origin;
@@ -59,7 +64,7 @@ vec3 GetTotalExtinctionCoefAlongRay(Ray r, float rayLen)
 	return Be;
 }
 
-vec3 Transmittance(Ray r, float rayLen)
+vec3 Transmittance(const Ray r, float rayLen)
 {
-	return exp(-GetTotalExtinctionCoefAlongRay(r, rayLen));
+	return exp(-AirMass(r, rayLen));
 }

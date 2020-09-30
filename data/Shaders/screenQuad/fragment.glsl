@@ -21,23 +21,23 @@ vec2 toClipSpace(vec2 uv)
 void main()
 {
 	const vec2 centeredUV = toClipSpace(TexCoords);
-	const Ray r = GetCameraRay(centeredUV);
+	const Ray ray = GetCameraRay(centeredUV);  
 
 
     vec3 hdrColor = texture(hdrBuffer, TexCoords).rgb;
 
-	const Sphere s = Sphere(GetPlanetCenter(), earthRadius + atmosphereThickness);
+	const Sphere s = GetAtmosphereBoundary();
     vec3 intersect;
 	vec4 depth = texture(depthBuffer, TexCoords);
-    if(Intersect(r, s, intersect))
+    if(Intersect(ray, s, intersect))
     {
-    	vec4 intersectionPoint = vec4(r.origin + r.dir*intersect.z, 1.0);
+    	vec4 intersectionPoint = vec4(ray.origin + ray.dir*intersect.z, 1.0);
     	vec4 P = frame.viewProjectionMatrix * intersectionPoint;
 
     	// this means we doesn't hit the geomtery
     	if(P.z < toLinearDepth(depth.x) || toLinearDepth(depth.x) > frame.zFar)
     	{
-	   		hdrColor = exp(-GetTotalExtinctionCoefAlongRay(r, intersect.z) / 6000000);
+	   		hdrColor = AirMass(ray, intersect.z);
     	}
 	}
 

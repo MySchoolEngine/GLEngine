@@ -6,6 +6,7 @@
 
 #include "../include/frameConstants.glsl"
 #include "../include/tracing.glsl"
+#include "../include/atmosphere.glsl"
 #include "../include/PBRT.glsl"
 
 
@@ -356,6 +357,20 @@ vec3 CalculatAreaLight(const areaLight light, const vec3 N, const vec3 V, const 
 }
 
 //=================================================================================
+vec3 CalculatSunLight(const vec3 N, const vec3 V, const vec3 position)
+{
+    const Sphere s = GetAtmosphereBoundary();
+
+    float roughnessVal = GetRoughness(texCoordOUT);
+
+    const Ray r = Ray(position, normalize(frame.SunPos));
+    vec3 i;
+    Intersect(r, s, i);
+
+    return BRDF(N, V, normalize(frame.SunPos), sunColor.rgb * Transmittance(r, i.z), roughnessVal);
+}
+
+//=================================================================================
 void main()
 {
     viewPos = frame.CameraPosition.xyz/frame.CameraPosition.w;
@@ -380,6 +395,7 @@ void main()
     vec3 omegaOut = normalize(ray.dir);
     vec3 viewDir = normalize(-omegaIn);
 
+    result += CalculatSunLight(norm, viewDir, FragPos);
     //if(!isInShadow(lightSpacePos, shadowMap[pAreaLight[0].ShadowMap]))
         result += CalculatAreaLight(pAreaLight[0], norm, viewDir, FragPos);
 

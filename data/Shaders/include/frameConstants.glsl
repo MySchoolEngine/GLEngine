@@ -10,7 +10,7 @@ uniform frameConst{
 	float zNear;
 	float zFar;
 } frame;
-vec4 sunColor = vec4(.95,0.7,0.51,1);
+vec3 sunColor = vec3(1.0,0.6,0.05) * 5;
 
 float toLinearDepth(float sampledDepth)
 {

@@ -32,9 +32,9 @@ namespace GLEngine::GLRenderer {
 //=================================================================================
 C_MainPassTechnique::C_MainPassTechnique(std::shared_ptr<Entity::C_EntityManager> world)
 	: m_WorldToRender(world)
-	, m_SunX(-13.f, -20.f, 20.f, "Sun X")
-	, m_SunY(15.f, -20.f, 20.f, "Sun Y")
-	, m_SunZ(-5.f, -20.f, 20.f, "Sun Z")
+	, m_SunX(0.f, -1.f, 1.f, "Sun X")
+	, m_SunY(1.f, -1.f, 1.f, "Sun Y")
+	, m_SunZ(0.f, -1.f, 1.f, "Sun Z")
 {
 	m_FrameConstUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>("frameConst");
 	m_LightsUBO			= Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<C_LightsBuffer>("lightsUni");
