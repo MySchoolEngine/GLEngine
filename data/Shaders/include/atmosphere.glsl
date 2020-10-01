@@ -20,6 +20,12 @@ Sphere GetAtmosphereBoundary()
 	return Sphere(GetPlanetCenter(), earthRadius + atmosphereThickness);
 }
 
+Sphere GetSunSphere()
+{
+	const vec3 planetCenter = GetPlanetCenter();
+    return Sphere(planetCenter + normalize(frame.SunPos) * (earthRadius), 150000.0); 
+}
+
 float GetAltitude(vec3 point)
 {
 	return distance(point, GetPlanetCenter()) - earthRadius;
@@ -93,4 +99,28 @@ float MiePhaseFunctionXLF(float g, float angle)
 	const float k = 3.0/(16.0 * PI);
 	const float denom = (1 + g2 - 2 * g * angle);
 	return k * ((1-g2)/(2+g2)) * ((1 + angle*angle) / denom) + g * angle;
+}
+
+vec3 InScatteredLight(vec3 y, vec3 v, vec3 s)
+{
+	const float altitude = GetAltitude(y); 
+	float Mie = MiePhaseFunctionCS(0.2, dot(v, s));
+	return GetAirExtinctionCoef(GetAltitude(y)) * ReyleighPhaseFunction(dot(v, s)) + GetAreosolExtinctionCoef(GetAltitude(y)) * MiePhaseFunctionCS(1, dot(v, s));
+}
+
+vec3 GetSkyRadiance(Ray r, float rayLen)
+{
+	const Sphere sun = GetSunSphere();
+	const int numSamples = 1000;
+	vec3 samplingPoint = r.origin;
+	float stepSize = rayLen / (numSamples - 1);
+
+	vec3 radiance = vec3(0, 0, 0);
+	for ( int i = 0; i < numSamples; ++i)
+	{
+		radiance += stepSize * InScatteredLight(samplingPoint, r.dir, normalize(sun.center - samplingPoint)) * Transmittance(r, i * stepSize);
+		samplingPoint += r.dir * stepSize;
+	}
+
+	return radiance;
 }

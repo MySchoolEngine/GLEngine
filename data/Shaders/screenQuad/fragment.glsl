@@ -33,11 +33,12 @@ void main()
     {
     	vec4 intersectionPoint = vec4(ray.origin + ray.dir*intersect.z, 1.0);
     	vec4 P = frame.viewProjectionMatrix * intersectionPoint;
+        float depthAtSample = toLinearDepth(depth.x);
 
     	// this means we doesn't hit the geomtery
-    	if(P.z < toLinearDepth(depth.x) || toLinearDepth(depth.x) > frame.zFar)
+    	if(P.z < depthAtSample || depthAtSample > frame.zFar)
     	{
-	   		hdrColor = AirMass(ray, intersect.z);
+            hdrColor = GetSkyRadiance(ray, intersect.z);
     	}
 	}
 
