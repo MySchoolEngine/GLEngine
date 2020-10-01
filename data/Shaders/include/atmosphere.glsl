@@ -68,3 +68,29 @@ vec3 Transmittance(const Ray r, float rayLen)
 {
 	return exp(-AirMass(r, rayLen));
 }
+
+float ReyleighPhaseFunction(float angle)
+{
+	const float k = 3.0/(16.0 * PI);
+	return k * (1 + pow(angle, 2.0));
+}
+
+// Cornette-Shanks
+float MiePhaseFunctionCS(float g, float angle)
+{
+	const float g2 = pow(g, 2.0);
+	const float k = 3.0/(16.0 * PI);
+	const float denom = (2 + g2) * pow((1 + g2 - 2 * g * angle), 3.0/ 2.0);
+	return k * ((1- g2)*(1+ angle*angle)) / denom;
+}
+
+
+//http://www.csroc.org.tw/journal/JOC25-3/JOC25-3-2.pdf
+// Xiao-Lei Fan
+float MiePhaseFunctionXLF(float g, float angle)
+{
+	const float g2 = pow(g, 2.0);
+	const float k = 3.0/(16.0 * PI);
+	const float denom = (1 + g2 - 2 * g * angle);
+	return k * ((1-g2)/(2+g2)) * ((1 + angle*angle) / denom) + g * angle;
+}
