@@ -13,7 +13,7 @@ layout(location = 4) in vec3 bitangent;
 #include "../include/frameConstants.glsl"
 
 //per model
-layout(binding = 0) uniform modelData
+layout(binding = 2) uniform modelData
 {
 	mat4 modelMatrix;
 	int  materialIndex;
