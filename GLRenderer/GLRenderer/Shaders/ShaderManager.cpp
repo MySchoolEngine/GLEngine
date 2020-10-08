@@ -172,6 +172,7 @@ GLuint C_ShaderManager::LoadProgram(const std::filesystem::path& name, C_ShaderC
 
 	GLuint program;
 	if (!compiler.linkProgram(program, stages)) {
+		CORE_LOG(E_Level::Error, E_Context::Render, "Problem occured during load of shader pipeline: {}", name);
 		return false;
 	}
 	return program;
