@@ -50,7 +50,7 @@ private:
 
 
 	GUID					m_Window;
-	C_GUIManager	m_GUIMgr;
+	C_GUIManager			m_GUIMgr;
 	float					m_Time;
 };
 }}}

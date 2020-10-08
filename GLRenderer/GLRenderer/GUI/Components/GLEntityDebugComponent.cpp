@@ -2,6 +2,7 @@
 
 #include <GLRenderer/GUI/Components/GLEntityDebugComponent.h>
 
+#include <Entity/BasicEntity.h>
 
 namespace GLEngine {
 namespace GLRenderer {

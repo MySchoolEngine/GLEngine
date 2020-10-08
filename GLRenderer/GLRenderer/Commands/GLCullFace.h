@@ -2,9 +2,7 @@
 
 #include <Renderer/IRenderCommand.h>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Commands {
+namespace GLEngine::GLRenderer::Commands {
 
 class C_GLCullFace : public Renderer::I_RenderCommand {
 public:
@@ -31,6 +29,4 @@ protected:
 	static GLenum EnumCast(E_FaceMode);
 };
 
-}
-}
 }

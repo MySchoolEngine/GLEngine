@@ -2,7 +2,10 @@
 
 #include <GLRenderer/GUI/GLDebugGUIComponent.h>
 
-#include <Entity/BasicEntity.h>
+namespace GLEngine::Entity
+{
+class C_BasicEntity;
+}
 
 namespace GLEngine::GLRenderer::GUI {
 

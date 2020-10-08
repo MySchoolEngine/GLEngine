@@ -3,6 +3,7 @@
 #include <GLRenderer/Shaders/ShaderManager.h>
 
 #include <GLRenderer/Shaders/ShaderProgram.h>
+#include <GLRenderer/Shaders/ShaderCompiler.h>
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
 
 #include <GLRenderer/ImGui/GUIManager.h>

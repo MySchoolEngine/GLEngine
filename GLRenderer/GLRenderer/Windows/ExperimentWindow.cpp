@@ -29,11 +29,8 @@
 #include <GLRenderer/Buffers/UBO/ModelData.h>
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
 
-#include <GLRenderer/Components/SkeletalMesh.h>
-#include <GLRenderer/Components/SkyBox.h>
 #include <GLRenderer/PersistentDebug.h>
 #include <GLRenderer/OGLRenderer.h>
-#include <GLRenderer/Debug.h>
 
 #include <GLRenderer/Lights/GLAreaLight.h>
 

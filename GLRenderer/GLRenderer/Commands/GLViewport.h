@@ -2,9 +2,8 @@
 
 #include <Renderer/IRenderCommand.h>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Commands {
+
+namespace GLEngine::GLRenderer::Commands {
 class C_GLViewport : public Renderer::I_RenderCommand {
 public:
 	C_GLViewport(int x, int y, int widht, int height);
@@ -22,4 +21,4 @@ private:
 	glm::ivec2 m_coord;
 	glm::ivec2 m_Dimensions;
 };
-}}}
+}

@@ -11,8 +11,6 @@
  
 #pragma once
 
-#include <GLRenderer/Shaders/ShaderCompiler.h>
-
 #include <GLRenderer/GUI/LambdaPart.h>
 #include <GLRenderer/GUI/Input/CheckBoxValue.h>
 
@@ -30,6 +28,7 @@ class C_GUIManager;
 
 namespace Shaders {
 class C_ShaderProgram;
+class C_ShaderCompiler;
 
 // I just wanna have some statistics and also save some loading time and memory
 /** ==============================================

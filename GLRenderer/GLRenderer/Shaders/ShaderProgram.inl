@@ -1,5 +1,7 @@
 #pragma once 
 
+#include <glm/gtc/type_ptr.hpp>
+
 namespace GLEngine {
 namespace GLRenderer {
 namespace Shaders {

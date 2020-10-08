@@ -4,9 +4,8 @@
 
 #include <Utils/BitField.h>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Commands {
+
+namespace GLEngine::GLRenderer::Commands {
 
 class C_GLClear : public Renderer::I_RenderCommand {
 public:
@@ -34,7 +33,7 @@ protected:
 	Utils::C_BitField<E_ClearBits> m_Bits;
 };
 
-}}}
+}
 
 //=================================================================================
 template<>

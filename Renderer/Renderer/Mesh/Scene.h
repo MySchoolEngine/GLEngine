@@ -3,10 +3,6 @@
 #include <Physics/Primitives/Shapes.h>
 #include <Physics/Primitives/AABB.h>
 
-#include <vector>
-#include <string>
-#include <memory>
-
 
 namespace GLEngine::Renderer::MeshData {
 

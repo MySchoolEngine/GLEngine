@@ -3,16 +3,23 @@
 #include <Renderer/IRenderableComponent.h>
 #include <Renderer/Animation/Skeleton.h>
 
-#include <GLRenderer/Mesh/StaticMeshResource.h>
-
-#include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/GUI/Input/CheckBoxValue.h>
 #include <GLRenderer/GUI/Input/Slider.h>
 
 #include <Renderer/Animation/SkeletalAnimation.h>
 
-namespace GLEngine::GLRenderer::Buffers::UBO {
+namespace GLEngine::GLRenderer {
+namespace Buffers::UBO {
 class C_JointTramsformsUBO;
+}
+namespace Mesh
+{
+class C_StaticMeshResource;
+}
+namespace Textures
+{
+class C_Texture;
+}
 }
 
 namespace GLEngine::GLRenderer::Components {
