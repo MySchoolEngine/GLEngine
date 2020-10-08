@@ -20,7 +20,9 @@ public:
 	C_GeomComponent(std::shared_ptr<Entity::I_Entity> owner);
 	virtual ~C_GeomComponent();
 	virtual void SetupGeometry(const MeshData::Mesh& mesh) = 0;
-	virtual void SetupMaterial(const Utils::Parsing::MaterialData& data);
+	virtual void SetupMaterial(const Utils::Parsing::MaterialData& data) = 0;
+
+	virtual std::string_view GetDebugComponentName() const override;
 protected:
 	std::shared_ptr<C_Material> m_Material;
 };

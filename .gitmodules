@@ -16,12 +16,18 @@
 [submodule "vendor/DevIL"]
 	path = vendor/DevIL
 	url = https://github.com/DentonW/DevIL.git
-[submodule "vendor/ImGui"]
-	path = vendor/ImGui
-	url = https://github.com/TheCherno/imgui
 [submodule "vendor/gli"]
 	path = vendor/gli
 	url = https://github.com/g-truc/gli
-[submodule "data/models/Sponza"]
-	path = data/models/Sponza
+[submodule "data/Models/Sponza"]
+	path = data/Models/Sponza
 	url = https://github.com/jimmiebergmann/Sponza
+[submodule "vendor/dirent"]
+	path = vendor/dirent
+	url = https://github.com/tronkko/dirent
+[submodule "vendor/ImGuiFileDialog"]
+	path = vendor/ImGuiFileDialog
+	url = https://github.com/aiekick/ImGuiFileDialog
+[submodule "vendor/ImGui"]
+	path = vendor/ImGui
+	url = https://github.com/ocornut/imgui

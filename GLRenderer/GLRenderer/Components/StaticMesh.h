@@ -2,8 +2,8 @@
 
 #include <Renderer/IRenderableComponent.h>
 
-#include <GLRenderer/GUI/Input/Color.h>
-#include <GLRenderer/GUI/Input/Slider.h>
+#include <GUI/Input/Color.h>
+#include <GUI/Input/Slider.h>
 
 namespace GLEngine {
 namespace Renderer::MeshData
@@ -36,7 +36,7 @@ public:
 	C_StaticMesh(std::string meshFile, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner);
 	C_StaticMesh(const Renderer::MeshData::Mesh& meshFile, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner, const Renderer::MeshData::Material* material = nullptr);
 	virtual void PerformDraw() const override;
-	[[nodiscard]] virtual const Physics::Primitives::S_AABB& GetAABB() const override;
+	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override;
 
 	void SetColor(glm::vec3&& color) { m_Color.SetValue(std::move(color)); }
 	void SetColor(const glm::vec3& color) { 
@@ -44,6 +44,8 @@ public:
 		m_Color.SetValue(std::move(ccolor)); }
 	
 	void DebugDrawGUI() override;
+	virtual std::string_view GetDebugComponentName() const override;
+	virtual bool HasDebugDrawGUI() const override;
 
 	void SetColorMap(std::shared_ptr<Textures::C_Texture>& texture);
 	void SetRoughnessMap(const std::shared_ptr<Textures::C_Texture>& texture);

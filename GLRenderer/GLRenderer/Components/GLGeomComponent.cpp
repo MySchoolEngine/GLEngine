@@ -18,6 +18,8 @@
 
 #include <Core/Application.h>
 
+#include <imgui.h>
+
 namespace GLEngine::GLRenderer::Components {
 
 //=================================================================================
@@ -78,6 +80,12 @@ void C_GLGeomComponent::DebugDrawGUI()
 }
 
 //=================================================================================
+bool C_GLGeomComponent::HasDebugDrawGUI() const
+{
+	return true;
+}
+
+//=================================================================================
 void C_GLGeomComponent::SetupMaterial(const Utils::Parsing::MaterialData& data)
 {
 	C_GeomComponent::SetupMaterial(data);
@@ -106,7 +114,7 @@ void C_GLGeomComponent::SetupMaterial(const Utils::Parsing::MaterialData& data)
 }
 
 //=================================================================================
-const Physics::Primitives::S_AABB& C_GLGeomComponent::GetAABB() const
+Physics::Primitives::S_AABB C_GLGeomComponent::GetAABB() const
 {
 	return m_AABB;
 }

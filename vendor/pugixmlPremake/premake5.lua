@@ -3,6 +3,11 @@ include "../../premakeDefines.lua"
 project "pugixml"
 	kind "StaticLib"
 	language "C++"
+
+
+	targetdir ("../../bin/" .. outputdir .. "/vendor/%{prj.name}")
+	objdir ("../../obj/" .. outputdir .. "/vendor/%{prj.name}")
+
 	files { 
 		"../pugixml/src/pugixml.hpp", 
 		"../pugixml/src/pugiconfig.hpp",
@@ -14,7 +19,7 @@ project "pugixml"
 
 		postbuildcommands
 		{
-			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")
+			("{COPY} %{cfg.buildtarget.relpath} \"../../bin/" .. outputdir .. "/Sandbox/\"")
 		}
 
 	filter "configurations:Debug"

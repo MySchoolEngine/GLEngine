@@ -6,13 +6,14 @@
 #include <GLRenderer/Shaders/ShaderCompiler.h>
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
 
-#include <GLRenderer/ImGui/GUIManager.h>
-#include <GLRenderer/GUI/GUIWindow.h>
+#include <GUI/GUIManager.h>
+#include <GUI/GUIWindow.h>
 
 #include <Renderer/Shaders/ShaderCompiling.h>
 
 #include <pugixml.hpp>
 
+#include <imgui.h>
 
 namespace GLEngine::GLRenderer::Shaders {
 //=================================================================================
@@ -133,7 +134,7 @@ std::string C_ShaderManager::ShadersStatistics() const
 }
 
 //=================================================================================
-GUID C_ShaderManager::SetupControls(ImGui::C_GUIManager& guiMGR)
+GUID C_ShaderManager::SetupControls(GUI::C_GUIManager& guiMGR)
 {
 	m_Window = guiMGR.CreateGUIWindow("Shader manager");
 	auto* shaderMan = guiMGR.GetWindow(m_Window);
@@ -156,7 +157,7 @@ GUID C_ShaderManager::SetupControls(ImGui::C_GUIManager& guiMGR)
 }
 
 //=================================================================================
-void C_ShaderManager::DestroyControls(ImGui::C_GUIManager& guiMGR)
+void C_ShaderManager::DestroyControls(GUI::C_GUIManager& guiMGR)
 {
 	guiMGR.DestroyWindow(m_Window);
 }

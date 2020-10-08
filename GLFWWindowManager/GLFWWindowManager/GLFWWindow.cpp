@@ -89,7 +89,10 @@ void C_GLFWWindow::Init(const Core::S_WindowInfo& wndInfo)
 
 	if (!m_Window)
 	{
-		CORE_LOG(E_Level::Error, E_Context::Core, "GLFW: Unable to open a window. Shuting down the engine.");
+		const char* description;
+		int code = glfwGetError(&description);
+
+		CORE_LOG(E_Level::Error, E_Context::Core, "GLFW: Unable to open a window. Shuting down the engine. {}", description);
 		glfwTerminate();
 		exit(EXIT_FAILURE);
 	}
@@ -171,6 +174,14 @@ void C_GLFWWindow::Init(const Core::S_WindowInfo& wndInfo)
 const Core::I_Input& C_GLFWWindow::GetInput() const
 {
 	return m_Input;
+}
+
+//=================================================================================
+glm::vec2 C_GLFWWindow::ToClipSpace(const glm::vec2& screenCoord) const
+{
+	const float x = (2.0f * screenCoord.x) / GetWidth() - 1.0f;
+	const float y = 1.0f - (2.0f * screenCoord.y) / GetHeight();
+	return { x, y };
 }
 
 //=================================================================================

@@ -18,6 +18,12 @@ C_GeomComponent::C_GeomComponent(std::shared_ptr<Entity::I_Entity> owner)
 }
 
 //=================================================================================
+std::string_view C_GeomComponent::GetDebugComponentName() const
+{
+	return "GeomComponent";
+}
+
+//=================================================================================
 void C_GeomComponent::SetupMaterial(const Utils::Parsing::MaterialData& data)
 {
 	auto& materialManager = C_MaterialManager::Instance();

@@ -87,7 +87,7 @@ protected:
 
 	void OpenWindwos()
 	{
-		{
+		if(false){
 			using namespace GLEngine::DX12Renderer;
 
 			S_D3D12WindowInfo info(640, 480);

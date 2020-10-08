@@ -24,6 +24,9 @@ public:
 	[[nodiscard]] virtual bool WantClose() const override;
 	[[nodiscard]] virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetRenderer() const override;
 
+
+	virtual glm::vec2 ToClipSpace(const glm::vec2& screenCoord) const override;
+
 protected:
 	virtual void Destroy() override;
 

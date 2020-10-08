@@ -10,8 +10,6 @@
 
 #include <glm/glm.hpp>
 
-#include <imgui.h>
-
 // debug utils
 #include <GLRenderer/RenderDoc/RenderDocTools.h>
 #include <GLRenderer/Debug.h>

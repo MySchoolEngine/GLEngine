@@ -11,6 +11,8 @@ project "Renderer"
 	
 	Link("Utils")
 	Link("Entity")
+	Link("Core")
+	Link("GUI")
 
 	includedirs
 	{
@@ -19,6 +21,7 @@ project "Renderer"
 		"../GLRenderer",
 		"../Physics",
 		"../%{IncludeDir.GLM}",
+		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.DevIL}",
@@ -37,7 +40,6 @@ project "Renderer"
 		"pugixml",
 		"../vendor/AssimpPrebuild/lib/assimp.lib",
 		"DevIL-IL",
-		"../vendor/projects/DevIL/bin/Debug-windows-x86_64/DevIL-IL/DevIL-IL.dll",
 	}
 
 	filter "system:windows"
@@ -50,5 +52,4 @@ project "Renderer"
 		{
 			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
 			("{COPY} \"../vendor/AssimpPrebuild/lib/*\" \"../bin/" .. outputdir .. "/Sandbox/\""),
-			("{COPY} \"../vendor/projects/DevIL/bin/Debug-windows-x86_64/DevIL-IL/DevIL-IL.dll\" \"../bin/" .. outputdir .. "/Sandbox/\""),
 		}

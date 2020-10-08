@@ -9,8 +9,7 @@
 #include <Utils/Range.h>
 #include <Utils/MapValueIterator.h>
 
-namespace GLEngine {
-namespace Entity {
+namespace GLEngine::Entity {
 
 enum class E_ComponentType {
 	Graphical,
@@ -40,6 +39,7 @@ public:
 	virtual void Update() {};
 	virtual void PostUpdate() {};
 
+	Physics::Primitives::S_AABB GetAABB() const;
 
 	void AddComponent(T_ComponentPtr component);
 
@@ -59,12 +59,8 @@ public:
 
 protected:
 	EntityID m_ID;
-#pragma warning(push)
-#pragma warning( disable : 4251)
 	std::string m_Name;
-#pragma warning(pop)
 	T_ComponentsContainer m_Components;
 };
 
-}
 }

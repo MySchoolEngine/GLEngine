@@ -4,10 +4,12 @@
 
 #include <GLRenderer/Textures/Texture.h>
 
-#include <GLRenderer/ImGui/GUIManager.h>
-#include <GLRenderer/GUI/GUIWindow.h>
+#include <GUI/GUIManager.h>
+#include <GUI/GUIWindow.h>
 
 #include <Renderer/Textures/TextureLoader.h>
+
+#include <imgui.h>
 
 namespace GLEngine::GLRenderer::Textures {
 std::filesystem::path C_TextureManager::s_ErrorTextureFile = "Models/Error.bmp";
@@ -84,7 +86,7 @@ void C_TextureManager::Clear()
 }
 
 //=================================================================================
-GUID C_TextureManager::SetupControls(ImGui::C_GUIManager& guiMGR)
+GUID C_TextureManager::SetupControls(GUI::C_GUIManager& guiMGR)
 {
 	m_Window = guiMGR.CreateGUIWindow("Texture manager");
 	auto* shaderMan = guiMGR.GetWindow(m_Window);
@@ -106,7 +108,7 @@ GUID C_TextureManager::SetupControls(ImGui::C_GUIManager& guiMGR)
 }
 
 //=================================================================================
-void C_TextureManager::DestroyControls(ImGui::C_GUIManager& guiMGR)
+void C_TextureManager::DestroyControls(GUI::C_GUIManager& guiMGR)
 {
 	guiMGR.DestroyWindow(m_Window);
 }

@@ -15,6 +15,14 @@ I_PointLight::I_PointLight(std::shared_ptr<Entity::I_Entity> owner)
 }
 
 //=================================================================================
+Physics::Primitives::S_AABB I_PointLight::GetAABB() const
+{
+	Physics::Primitives::S_AABB ret;
+	ret.Add(glm::vec3(0.0f, 0.0f, 0.0f));
+	return ret;
+}
+
+//=================================================================================
 I_PointLight::~I_PointLight() = default;
 
 //=================================================================================
@@ -23,7 +31,6 @@ I_PointLight::~I_PointLight() = default;
 C_PointLight::C_PointLight(std::shared_ptr<Entity::I_Entity> owner) 
 	: Renderer::I_PointLight(owner)
 	, m_Intensity()
-	, m_Offset(0.0f, 0.0f, 0.0f)
 	, m_Color(1.f, 1.f, 1.f)
 {
 }
@@ -32,7 +39,6 @@ C_PointLight::C_PointLight(std::shared_ptr<Entity::I_Entity> owner)
 C_PointLight::C_PointLight(std::shared_ptr<Entity::I_Entity> owner, const MeshData::Light& def)
 	: Renderer::I_PointLight(owner)
 	, m_Intensity()
-	, m_Offset(0.0f, 0.0f, 0.0f)
 	, m_Color(def.m_Color)
 {
 
@@ -44,14 +50,15 @@ C_PointLight::~C_PointLight() = default;
 //=================================================================================
 glm::vec3 C_PointLight::GetPosition() const
 {
-	auto owner = GetOwner();
+	const auto owner = GetOwner();
+	auto ownerPosition = glm::vec3(0.f);
 	if (!owner)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Point light without owner");
-		return glm::vec3(0.f);
 	}
+	ownerPosition = owner->GetPosition();
 
-	return owner->GetPosition() + m_Offset;
+	return ownerPosition + glm::vec3(m_ComponentMatrix[3]);
 }
 
 //=================================================================================
@@ -73,10 +80,22 @@ Physics::Primitives::C_Frustum C_PointLight::GetShadingFrustum() const
 }
 
 //=================================================================================
+std::string_view C_PointLight::GetDebugComponentName() const
+{
+	return "Point light";
+}
+
+//=================================================================================
+bool C_PointLight::HasDebugDrawGUI() const
+{
+	return true;
+}
+
+//=================================================================================
 std::shared_ptr<Entity::I_Component> C_PointLightCompBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
 {
 	auto pointLight = std::make_shared<Renderer::C_PointLight>(owner);
-	pointLight->m_Offset = Utils::Parsing::C_MatrixParser::ParseTransformation(node)[3];
+	pointLight->m_ComponentMatrix = Utils::Parsing::C_MatrixParser::ParseTransformation(node);
 
 	if (const auto intensityAttr = node.attribute("intensity"))
 	{

@@ -11,8 +11,8 @@
  
 #pragma once
 
-#include <GLRenderer/GUI/LambdaPart.h>
-#include <GLRenderer/GUI/Input/CheckBoxValue.h>
+#include <GUI/LambdaPart.h>
+#include <GUI/Input/CheckBoxValue.h>
 
 namespace pugi{
 class xml_document;
@@ -20,11 +20,11 @@ class xml_node;
 }
 
 namespace GLEngine {
-namespace GLRenderer {
-namespace ImGui
+namespace GUI
 {
 class C_GUIManager;
 }
+namespace GLRenderer {
 
 namespace Shaders {
 class C_ShaderProgram;
@@ -70,8 +70,8 @@ public:
 
 	std::string ShadersStatistics() const;
 
-	GUID SetupControls(ImGui::C_GUIManager& guiMGR);
-	void DestroyControls(ImGui::C_GUIManager& guiMGR);
+	GUID SetupControls(GUI::C_GUIManager& guiMGR);
+	void DestroyControls(GUI::C_GUIManager& guiMGR);
 private:
 	C_ShaderManager();
 

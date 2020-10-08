@@ -11,16 +11,17 @@ namespace GLEngine {
 namespace Renderer {
 class RENDERER_API_EXPORT I_Light : public Entity::I_Component {
 public:
-	I_Light(std::shared_ptr<Entity::I_Entity> owner)
+	explicit I_Light(std::shared_ptr<Entity::I_Entity> owner)
 		: Entity::I_Component(owner) {}
 	virtual ~I_Light() = default;
 
-	virtual Entity::E_ComponentType GetType() const override
+	[[nodiscard]] virtual Entity::E_ComponentType GetType() const override
 	{
 		return Entity::E_ComponentType::Light;
 	}
 
 	virtual Physics::Primitives::C_Frustum GetShadingFrustum() const = 0;
+
 };
 }
 

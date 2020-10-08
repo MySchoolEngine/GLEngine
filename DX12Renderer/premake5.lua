@@ -34,14 +34,12 @@ project "DX12Renderer"
 		"C:/Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/um",
 		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.fmt}",
-		"../%{IncludeDir.ImGui}",
 		"../%{IncludeDir.GLM}",
 	}
 
 	links 
 	{ 
 		"pugixml",
-		"ImGui",
 
 		-- DX Stuff
 		"d3d12",

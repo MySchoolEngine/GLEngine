@@ -16,6 +16,8 @@ project "GLRenderer"
 	Link("Renderer")
 	Link("GLFWWindowManager")
 	Link("Core")
+	Link("GUI")
+	Link("ImGuiFileDialog")
 
 	files
 	{
@@ -38,11 +40,7 @@ project "GLRenderer"
 		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.ImGui}",
-	}
-
-	libdirs
-	{
-		"../vendor/bin/Debug-windows-x86_64/DevIL-IL/",
+		"../%{IncludeDir.ImGuiFileDialog}",
 	}
 
 	links 
@@ -53,12 +51,14 @@ project "GLRenderer"
 		"pugixml",
 		"ImGui",
 		"DevIL-IL",
-		"../vendor/projects/DevIL/bin/Debug-windows-x86_64/DevIL-IL/DevIL-IL.dll",
 	}
 
+	-- used in ImGui\examples\imgui_impl_opengl3.cpp
 	defines
 	{
-		"IMGUI_IMPL_OPENGL_LOADER_GLAD"
+		"IMGUI_IMPL_OPENGL_LOADER_GLAD",
+		"IMGUI_API=__declspec(dllimport)",
+		"IMGUI_IMPL_API=",
 	}
 
 	filter "system:windows"
@@ -70,5 +70,4 @@ project "GLRenderer"
 		postbuildcommands
 		{
 			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
-			("{COPY} \"../vendor/projects/DevIL/bin/Debug-windows-x86_64/DevIL-IL/DevIL-IL.dll\" \"../bin/" .. outputdir .. "/Sandbox/\""),
 		}

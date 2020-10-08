@@ -42,6 +42,8 @@ workspace "Engine"
 		"premakeDefines.lua",
 	}
 
+	disablewarnings {"4251"}
+
 	filter "action:vs*"
 		defines {
 			"CORE_PLATFORM=CORE_PLATFORM_WIN",
@@ -78,7 +80,9 @@ IncludeDir["Glad"] = "vendor/Glad/include"
 IncludeDir["pugixml"] = "vendor/pugixml/src"
 IncludeDir["fmt"] = "vendor/fmt/include"
 IncludeDir["ImGui"] = "vendor/ImGui"
+IncludeDir["ImGuiFileDialog"] = "vendor/ImGuiFileDialog"
 IncludeDir["DevIL"] = "vendor/DevIL/DevIL/include"
+IncludeDir["dirent"] = "vendor/dirent/include"
 
 VulkanSDKBase = "C:/VulkanSDK/"
 
@@ -86,8 +90,11 @@ group "Dependencies"
   include "vendor/GLFW"
   include "vendor/Glad"
   include "vendor/pugixmlPremake"
-  include "vendor/ImGui"
+  include "vendor/projects/ImGui"
+  include "vendor/projects/ImGuiFileDialog"
   include "vendor/projects/DevIL"
+  filter "action:vs*"
+  	include "vendor/projects/dirent"
 group ""
 group "Renderes"
 	include "GLFWWindowManager"
@@ -101,6 +108,7 @@ include "Core"
 include "Sandbox"
 include "Renderer"
 include "GLRenderer"
+include "GUI"
 include "VulkanRenderer"
 include "Entity"
 include "Utils"

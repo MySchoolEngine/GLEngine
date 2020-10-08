@@ -4,6 +4,8 @@
 
 #include <Core/EventSystem/EventReciever.h>
 
+#include <Physics/Primitives/AABB.h>
+
 namespace pugi {
 class xml_node;
 }
@@ -29,19 +31,21 @@ public:
 
 	// draws inside of prepared window
 	virtual void DebugDrawGUI() {};
+	void DebugDrawComponentGUI();
+	virtual bool HasDebugDrawGUI() const = 0;
+	// should return name used for component in debug
+	virtual std::string_view GetDebugComponentName() const = 0;
 	//void SetModelMatrix(const glm::mat4& modelMatrix) { m_ModelMatrix = modelMatrix; };
 	void SetComponentMatrix(const glm::mat4& componentMatrix) { m_ComponentMatrix = componentMatrix; }
 	[[nodiscard]] const glm::mat4 GetComponentModelMatrix() const;
 
+	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const = 0;
 protected:
 	std::shared_ptr<I_Entity> GetOwner() const;
 
-#pragma warning(push)
-#pragma warning( disable : 4251)
 	glm::mat4 m_ComponentMatrix;
 private:
 	std::weak_ptr<I_Entity> m_Owner;
-#pragma warning(pop)
 };
 
 //=================================================================================

@@ -2,10 +2,10 @@
 
 #include <Entity/IEntity.h>
 
-#include <GLRenderer/GUI/Input/CheckBoxValue.h>
-#include <GLRenderer/GUI/Input/Slider.h>
-#include <GLRenderer/GUI/Input/Color.h>
-#include <GLRenderer/GUI/Text.h>
+#include <GUI/Input/CheckBoxValue.h>
+#include <GUI/Input/Slider.h>
+#include <GUI/Input/Color.h>
+#include <GUI/Text.h>
 
 #include <Utils/HighResolutionTimer.h>
 

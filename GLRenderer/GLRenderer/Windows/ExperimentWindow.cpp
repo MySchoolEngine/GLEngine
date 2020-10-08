@@ -2,8 +2,6 @@
 
 #include <GLRenderer/Windows/ExperimentWindow.h>
 
-#include <GLRenderer/Cameras/OrbitalCamera.h>
-
 #include <GLRenderer/Commands/GLEnable.h>
 #include <GLRenderer/Commands/GlClearColor.h>
 #include <GLRenderer/Commands/GLCullFace.h>
@@ -19,7 +17,7 @@
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 
-#include <GLRenderer/ImGui/ImGuiLayer.h>
+#include <GLRenderer/ImGui/GLImGuiLayer.h>
 
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 
@@ -34,11 +32,12 @@
 
 #include <GLRenderer/Lights/GLAreaLight.h>
 
-#include <GLRenderer/GUI/ConsoleWindow.h>
-#include <GLRenderer/GUI/EntitiesWindow.h>
-#include <GLRenderer/GUI/Components/GLEntityDebugComponent.h>
+#include <GUI/ConsoleWindow.h>
+#include <Entity/EntitiesWindow.h>
 
 #include <Renderer/Mesh/Scene.h>
+#include <Renderer/Cameras/OrbitalCamera.h>
+#include <Renderer/Cameras/FreelookCamera.h>
 #include <Renderer/Materials/MaterialManager.h>
 
 #include <Physics/Primitives/Ray.h>
@@ -52,8 +51,6 @@
 #include <Core/EventSystem/EventDispatcher.h>
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/Event/AppEvent.h>
-
-#include <imgui.h>
 
 #include <pugixml.hpp>
 
@@ -84,7 +81,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 
 	m_FrameTimer.reset();
 
-	m_ImGUI = new ImGui::C_ImGuiLayer(m_ID);
+	m_ImGUI = new C_GLImGUILayer(m_ID);
 	m_ImGUI->OnAttach(); // manual call for now.
 	m_LayerStack.PushLayer(m_ImGUI);
 	m_LayerStack.PushLayer(&m_CamManager);
@@ -351,7 +348,7 @@ void C_ExplerimentWindow::SetupWorld()
 {
 	m_MainPass = std::make_unique<C_MainPassTechnique>(m_World);
 	m_HDRFBO = std::make_unique<C_Framebuffer>("HDR");
-	if (!m_World->LoadLevel("Levels/lightsTest.xml", std::make_unique<Components::C_ComponentBuilderFactory>()))
+	if (!m_World->LoadLevel("Levels/dark.xml", std::make_unique<Components::C_ComponentBuilderFactory>()))
 	{
 		CORE_LOG(E_Level::Warning, E_Context::Render, "Level not loaded");
 		return;
@@ -364,7 +361,7 @@ void C_ExplerimentWindow::SetupWorld()
 		if (player)
 		{
 			float zoom = 5.0f;
-			auto playerCamera = std::make_shared<Cameras::C_OrbitalCamera>();
+			auto playerCamera = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
 			playerCamera->setupCameraProjection(0.1f, 2 * zoom * 200, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
 			playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
 			playerCamera->adjustOrientation(20.f, 20.f);
@@ -375,8 +372,8 @@ void C_ExplerimentWindow::SetupWorld()
 			// area light
 			auto arealight = std::make_shared<C_GLAreaLight>(player);
 			player->AddComponent(arealight);
-
-			m_ShadowPass = std::make_shared<C_ShadowMapTechnique>(m_World, std::static_pointer_cast<Renderer::I_Light>( arealight));
+			// 
+			// m_ShadowPass = std::make_shared<C_ShadowMapTechnique>(m_World, std::static_pointer_cast<Renderer::I_Light>( arealight));
 		}
 	}
 	{
@@ -415,7 +412,7 @@ void C_ExplerimentWindow::SetupWorld()
 	{
 		m_EntitiesWindowGUID = NextGUID();
 
-		auto entitiesWindow = new GUI::C_EntitiesWindow(m_EntitiesWindowGUID, m_World);
+		auto entitiesWindow = new Entity::C_EntitiesWindow(m_EntitiesWindowGUID, m_World);
 		guiMGR.AddCustomWindow(entitiesWindow);
 		entitiesWindow->SetVisible();
 	}
@@ -454,33 +451,16 @@ void C_ExplerimentWindow::MouseSelect()
 	auto screenCoord = GetInput().GetMousePosition();
 	auto camera = m_CamManager.GetActiveCamera();
 
-	float x = (2.0f * screenCoord.first) / GetWidth() - 1.0f;
-	float y = 1.0f - (2.0f * screenCoord.second) / GetHeight();
-	float z = 1.0f;
-	glm::vec3 ray_nds = glm::vec3(x, y, z);
-	glm::vec4 ray_clip = glm::vec4(ray_nds.x, ray_nds.y, -1.0, 1.0);
-	glm::vec4 ray_eye = glm::inverse(camera->GetProjectionMatrix()) * ray_clip;
-	ray_eye = glm::vec4(ray_eye.x, ray_eye.y, -1.0, 0.0);
+	const auto clipPosition = ToClipSpace({ screenCoord.first, screenCoord.second });
 
-	glm::vec4 ray_wor = glm::inverse(camera->GetViewMatrix()) * ray_eye;
-	// don't forget to normalise the vector at some point
-	ray_wor = glm::normalize(ray_wor);
-	glm::vec4 cameraOrigin = glm::vec4(camera->GetPosition(), 1.0f);
-
-	C_PersistentDebug::Instance().DrawLine(cameraOrigin, cameraOrigin + ray_wor, glm::vec3(0, 1, 0));
-	{
-		using namespace Physics::Primitives;
-		S_Ray ray;
-		ray.origin = cameraOrigin;
-		ray.direction = ray_wor;
-		S_RayIntersection inter = m_World->Select(ray);
-		if (inter.distance > 0) {
-			auto entity = m_World->GetEntity(inter.entityId);
-			if (entity) {
-				entity->OnEvent(Core::C_UserEvent("selected"));
-			}
-			//std::static_pointer_cast<Cameras::C_OrbitalCamera>(camera)->setCenterPoint(inter.intersectionPoint);
-			//std::static_pointer_cast<Cameras::C_OrbitalCamera>(camera)->update();
+	using namespace Physics::Primitives;
+	const auto ray = camera->GetRay(clipPosition);;
+	C_PersistentDebug::Instance().DrawLine(ray.origin, ray.origin + ray.direction, glm::vec3(0, 1, 0));
+	const S_RayIntersection inter = m_World->Select(ray);
+	if (inter.distance > 0) {
+		auto entity = m_World->GetEntity(inter.entityId);
+		if (entity) {
+			entity->OnEvent(Core::C_UserEvent("selected"));
 		}
 	}
 }

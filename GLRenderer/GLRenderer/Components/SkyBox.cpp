@@ -140,9 +140,21 @@ void C_SkyBox::PerformDraw() const
 }
 
 //=================================================================================
-const Physics::Primitives::S_AABB& C_SkyBox::GetAABB() const
+Physics::Primitives::S_AABB C_SkyBox::GetAABB() const
 {
 	return m_AABB;
+}
+
+//=================================================================================
+std::string_view C_SkyBox::GetDebugComponentName() const
+{
+	return "SkyBox";
+}
+
+//=================================================================================
+bool C_SkyBox::HasDebugDrawGUI() const
+{
+	return true;
 }
 
 //=================================================================================

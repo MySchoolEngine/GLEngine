@@ -123,12 +123,10 @@ void C_StaticMesh::PerformDraw() const
 //=================================================================================
 void C_StaticMesh::DebugDrawGUI()
 {
-	if (::ImGui::CollapsingHeader("Static mesh")) {
-		m_Color.Draw();
-		if (!m_RoughnessMap)
-		{
-			m_Roughness.Draw();
-		}
+	m_Color.Draw();
+	if (!m_RoughnessMap)
+	{
+		m_Roughness.Draw();
 	}
 }
 
@@ -144,7 +142,19 @@ void C_StaticMesh::SetMaterial(const Renderer::MeshData::Material& material)
 }
 
 //=================================================================================
-const GLEngine::Physics::Primitives::S_AABB& C_StaticMesh::GetAABB() const
+std::string_view C_StaticMesh::GetDebugComponentName() const
+{
+	return "Static mesh";
+}
+
+//=================================================================================
+bool C_StaticMesh::HasDebugDrawGUI() const
+{
+	return true;
+}
+
+//=================================================================================
+GLEngine::Physics::Primitives::S_AABB C_StaticMesh::GetAABB() const
 {
 	return m_AABB;
 }

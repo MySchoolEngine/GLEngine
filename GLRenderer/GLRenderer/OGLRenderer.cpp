@@ -4,9 +4,9 @@
 
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Textures/TextureManager.h>
-#include <GLRenderer/ImGui/GUIManager.h>
-#include <GLRenderer/GUI/GUIWindow.h>
-#include <GLRenderer/GUI/Menu/MenuItem.h>
+#include <GUI/GUIManager.h>
+#include <GUI/GUIWindow.h>
+#include <GUI/Menu/MenuItem.h>
 
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
@@ -140,7 +140,7 @@ void C_OGLRenderer::Lock(bool lock /*= true*/)
 }
 
 //=================================================================================
-GUID C_OGLRenderer::SetupControls(ImGui::C_GUIManager& guiMan)
+GUID C_OGLRenderer::SetupControls(GUI::C_GUIManager& guiMan)
 {
 	m_Window = guiMan.CreateGUIWindow("Renderer frame stats");
 	auto* renderStats = guiMan.GetWindow(m_Window);
@@ -167,7 +167,7 @@ GUID C_OGLRenderer::SetupControls(ImGui::C_GUIManager& guiMan)
 }
 
 //=================================================================================
-void C_OGLRenderer::DestroyControls(ImGui::C_GUIManager& guiMan)
+void C_OGLRenderer::DestroyControls(GUI::C_GUIManager& guiMan)
 {
 	guiMan.DestroyWindow(m_Window);
 	auto& shmgr = Shaders::C_ShaderManager::Instance();

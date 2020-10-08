@@ -3,8 +3,8 @@
 #include <Renderer/IRenderableComponent.h>
 #include <Renderer/Animation/Skeleton.h>
 
-#include <GLRenderer/GUI/Input/CheckBoxValue.h>
-#include <GLRenderer/GUI/Input/Slider.h>
+#include <GUI/Input/CheckBoxValue.h>
+#include <GUI/Input/Slider.h>
 
 #include <Renderer/Animation/SkeletalAnimation.h>
 
@@ -31,7 +31,9 @@ public:
 	virtual void Update() override;
 
 	virtual void DebugDrawGUI() override;
-	[[nodiscard]] virtual const Physics::Primitives::S_AABB& GetAABB() const override;
+	virtual bool HasDebugDrawGUI() const override;
+	virtual std::string_view GetDebugComponentName() const override;
+	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override;
 
 public:
 	std::shared_ptr<Mesh::C_StaticMeshResource>				m_Mesh;
@@ -41,12 +43,11 @@ public:
 	std::shared_ptr<Buffers::UBO::C_JointTramsformsUBO>		m_TransformationUBO;
 	GUI::Input::C_CheckBoxValue								m_RenderMesh; 
 	GUI::Input::C_Slider<float>								m_AnimationProgress;
+	Physics::Primitives::S_AABB								m_AABB;
 
 	VAO::C_GLVAO<5>											m_VAO;
 	std::size_t												m_triangles;
 	glm::mat4												m_ModelMatrix;
-private:
-	Physics::Primitives::S_AABB m_AABB;
 };
 
 //=============================================================
