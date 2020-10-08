@@ -7,7 +7,7 @@
 #include "../include/materials.glsl"
 
 //per model
-layout(binding = 0) uniform modelData
+layout(binding = 3) uniform modelData
 {
 	mat4 modelMatrix;
 	int  materialIndex;
@@ -19,7 +19,7 @@ layout(location = 1) in vec2 texCoordOUT;
 layout(location = 2) in vec4 worldCoord;
 layout(location = 3) in mat3 TBN;
 
-out vec4 fragColor;
+layout(location = 0) out vec4 fragColor;
 
 #include "../include/LightsUBO.glsl"
 

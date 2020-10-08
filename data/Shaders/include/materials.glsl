@@ -2,7 +2,7 @@
 @struct PhongMaterial;
 #define MAT_NUMBER 40
 
-layout (std140) uniform materials
+layout (std140, binding = 4) uniform materials
 {
 	PhongMaterial phong[MAT_NUMBER];
 };

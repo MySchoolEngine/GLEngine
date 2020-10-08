@@ -12,7 +12,7 @@
 #include "../include/materials.glsl"
 
 //per model
-layout(binding = 0) uniform modelData
+layout(binding = 3) uniform modelData
 {
     mat4 modelMatrix;
     int  materialIndex;
