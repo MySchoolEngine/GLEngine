@@ -54,7 +54,7 @@ public:
 	}
 
 	//=================================================================================
-	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetActiveRenderer() const override
+	virtual GLEngine::Renderer::I_Renderer& GetActiveRenderer() override
 	{
 		return m_WndMgr->GetActiveRenderer();
 	}

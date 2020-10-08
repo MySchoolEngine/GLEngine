@@ -45,7 +45,7 @@ void C_GLGeomComponent::PerformDraw() const
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	shmgr.ActivateShader(m_Shader);
 
-	renderer->AddCommand(
+	renderer.AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&, matIndex = m_Material ? m_Material->GetMaterialIndex() : 0]()
@@ -64,7 +64,7 @@ void C_GLGeomComponent::PerformDraw() const
 		)
 	);
 
-	renderer->AddCommand(
+	renderer.AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_Mesh)
 		)

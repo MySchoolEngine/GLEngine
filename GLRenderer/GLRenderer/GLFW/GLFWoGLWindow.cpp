@@ -54,9 +54,9 @@ void C_GLFWoGLWindow::Init(const Core::S_WindowInfo& wndInfo)
 }
 
 //=================================================================================
-const std::unique_ptr<GLEngine::Renderer::I_Renderer>& C_GLFWoGLWindow::GetRenderer() const
+Renderer::I_Renderer& C_GLFWoGLWindow::GetRenderer()
 {
-	return m_renderer;
+	return *(m_renderer.get());
 }
 
 //=================================================================================

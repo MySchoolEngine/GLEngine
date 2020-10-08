@@ -176,7 +176,7 @@ void C_ExplerimentWindow::Update()
 	auto shader = shmgr.GetProgram("screenQuad");
 	shmgr.ActivateShader(shader);
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[this, shader]() {
@@ -188,7 +188,7 @@ void C_ExplerimentWindow::Update()
 		)
 	);
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_ScreenQuad)
 		)
@@ -201,7 +201,7 @@ void C_ExplerimentWindow::Update()
 
 	{
 		RenderDoc::C_DebugScope s("ImGUI");
-		Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+		Core::C_Application::Get().GetActiveRenderer().AddCommand(
 			std::move(
 				std::make_unique<Commands::HACK::C_LambdaCommand>(
 					[this, shader]() {

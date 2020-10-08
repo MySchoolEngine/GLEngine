@@ -51,7 +51,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 	const auto entitiesInView = m_WorldToRender->GetEntities(camFrustum);
 
 	auto& renderer = (Core::C_Application::Get()).GetActiveRenderer();
-	renderer->SetCurrentPassType(Renderer::E_PassType::FinalPass);
+	renderer.SetCurrentPassType(Renderer::E_PassType::FinalPass);
 
 	m_FrameConstUBO->SetView(camera->GetViewMatrix());
 	m_FrameConstUBO->SetProjection(camera->GetProjectionMatrix());
@@ -62,19 +62,19 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 	{
 		RenderDoc::C_DebugScope s("Window prepare");
 		using namespace Commands;
-		renderer->AddCommand(
+		renderer.AddCommand(
 			std::move(
 				std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth)
 			)
 		);
-		renderer->AddCommand(
+		renderer.AddCommand(
 			std::move(
 				std::make_unique<C_GLViewport>(0, 0, widht, height)
 			)
 		);
-		if (static_cast<C_OGLRenderer*>(renderer.get())->WantWireframe())
+		if (static_cast<C_OGLRenderer*>(&renderer)->WantWireframe())
 		{
-			renderer->AddCommand(
+			renderer.AddCommand(
 				std::move(
 					std::make_unique<Commands::HACK::C_LambdaCommand>(
 						[&]() {
@@ -163,7 +163,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 	{
 		RenderDoc::C_DebugScope s("UBO Upload");
 		m_LightsUBO->MakeHandlesResident();
-		renderer->AddCommand(
+		renderer.AddCommand(
 			std::move(
 				std::make_unique<Commands::HACK::C_LambdaCommand>(
 					[&, materialsHaveChanged = materialsHaveChanged]() {
@@ -203,9 +203,9 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 		RenderDoc::C_DebugScope s("Clean");
 		m_LightsUBO->MakeHandlesResident(false);
 
-		if (static_cast<C_OGLRenderer*>(renderer.get())->WantWireframe())
+		if (static_cast<C_OGLRenderer*>(&renderer)->WantWireframe())
 		{
-			renderer->AddCommand(
+			renderer.AddCommand(
 				std::move(
 					std::make_unique<Commands::HACK::C_LambdaCommand>(
 						[&]() {

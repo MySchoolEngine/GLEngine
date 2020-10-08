@@ -3,8 +3,7 @@
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
 
-namespace GLEngine {
-namespace Renderer {
+namespace GLEngine::Renderer {
 
 enum class E_PassType
 {
@@ -77,5 +76,4 @@ public:
 	virtual void SetCurrentPassType(Renderer::E_PassType type) {}
 };
 
-}
 }

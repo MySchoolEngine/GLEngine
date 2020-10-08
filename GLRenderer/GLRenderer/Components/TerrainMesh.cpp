@@ -43,7 +43,7 @@ C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 {
 
 	m_Terrain = std::make_shared<Mesh::C_TerrainMeshResource>();
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {
@@ -112,7 +112,7 @@ void C_TerrainMesh::PerformDraw() const
 	auto shader = shmgr.GetProgram("terrain");
 	shmgr.ActivateShader(shader);
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[this, shader]() {
@@ -140,7 +140,7 @@ void C_TerrainMesh::PerformDraw() const
 	auto ShaderTerrainRim = shmgr.GetProgram("terrain-rim");
 	shmgr.ActivateShader(ShaderTerrainRim);
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[this, ShaderTerrainRim]() {
@@ -192,7 +192,7 @@ void C_TerrainMesh::UpdateStats()
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	shmgr.ActivateShader(shmgr.GetProgram("stats"));
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {
@@ -221,7 +221,7 @@ void C_TerrainMesh::GenerateTerrain()
 	auto noiseShader = shmgr.GetProgram("noise");
 	shmgr.ActivateShader(noiseShader);
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[this, noiseShader]() {
@@ -242,7 +242,7 @@ void C_TerrainMesh::GenerateTerrain()
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.BindImageToUnit(m_Noise, 0, E_OpenGLAccess::Write);
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {
@@ -271,7 +271,7 @@ void C_TerrainMesh::Simulate()
 	if (!program) return;
 	shmgr.ActivateShader(program);
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[this, program]() {
@@ -301,7 +301,7 @@ void C_TerrainMesh::Simulate()
 	shmgr.ActivateShader(noiseShader);
 
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {

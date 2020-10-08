@@ -18,7 +18,7 @@ public:
 	virtual ~C_GLFWoGLWindow();
 	virtual void Update() override;
 
-	[[nodiscard]] virtual const std::unique_ptr<Renderer::I_Renderer>& GetRenderer() const override;
+	[[nodiscard]] virtual Renderer::I_Renderer& GetRenderer() override;
 	virtual void OnEvent(Core::I_Event& event) override;
 protected:
 	virtual void Init(const Core::S_WindowInfo& wndInfo) override;

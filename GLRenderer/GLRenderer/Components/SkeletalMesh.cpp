@@ -81,7 +81,7 @@ void C_SkeletalMesh::PerformDraw() const
 	auto shader = shmgr.GetProgram("animation");
 	shmgr.ActivateShader(shader);
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {

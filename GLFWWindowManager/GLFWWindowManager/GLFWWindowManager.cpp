@@ -29,12 +29,9 @@ std::shared_ptr<Core::I_Window> C_GLFWWindowManager::OpenNewWindow(const Core::S
 }
 
 //=================================================================================
-const std::unique_ptr<Renderer::I_Renderer>& C_GLFWWindowManager::GetActiveRenderer() const
+Renderer::I_Renderer& C_GLFWWindowManager::GetActiveRenderer()
 {
-	if (!m_UpdatingWindow)
-	{
-		return nullptr;
-	}
+	GLE_ASSERT(m_UpdatingWindow, "Getting renderer outside of update!");
 	return m_UpdatingWindow->GetRenderer();
 }
 

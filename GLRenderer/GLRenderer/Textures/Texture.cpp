@@ -191,7 +191,7 @@ std::uint64_t C_Texture::GetHandle() const
 //=================================================================================
 void C_Texture::MakeHandleResident(bool val)
 {
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(
 		std::move(
 			std::make_unique<Commands::C_GLMakeTextureHandleResident>(m_Handle, val)
 		)

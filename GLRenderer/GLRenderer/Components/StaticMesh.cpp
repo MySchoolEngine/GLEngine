@@ -88,7 +88,7 @@ void C_StaticMesh::PerformDraw() const
 
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	auto& tmgr = Textures::C_TextureManager::Instance();
-	if (renderer->GetCurrentPassType() == Renderer::E_PassType::ShadowPass && m_ShadowPassShader)
+	if (renderer.GetCurrentPassType() == Renderer::E_PassType::ShadowPass && m_ShadowPassShader)
 	{
 		shmgr.ActivateShader(m_ShadowPassShader);
 	}
@@ -97,7 +97,7 @@ void C_StaticMesh::PerformDraw() const
 		shmgr.ActivateShader(m_Shader);
 	}
 
-	renderer->AddCommand(
+	renderer.AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&, matIndex = m_Material?m_Material->GetMaterialIndex():0]() {
@@ -113,7 +113,7 @@ void C_StaticMesh::PerformDraw() const
 		)
 	);
 
-	renderer->AddCommand(
+	renderer.AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_Mesh)
 		)

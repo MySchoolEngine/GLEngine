@@ -34,15 +34,15 @@ void C_VkWindow::Init(const Core::S_WindowInfo& wndInfo)
 	C_GLFWWindow::Init(wndInfo);
 	MakeCurrent();
 
-	m_renderer = std::make_unique<VkRenderer::C_VkRenderer>(m_Instance, m_Window);
+	m_renderer = std::make_unique<C_VkRenderer>(m_Instance, m_Window);
 
 	CORE_LOG(E_Level::Info, E_Context::Render, "GLFW: Vulkan window initialized");
 }
 
 //=================================================================================
-const std::unique_ptr<Renderer::I_Renderer>& C_VkWindow::GetRenderer() const
+Renderer::I_Renderer& C_VkWindow::GetRenderer()
 {
-	return m_renderer;
+	return *(m_renderer.get());
 }
 
 }

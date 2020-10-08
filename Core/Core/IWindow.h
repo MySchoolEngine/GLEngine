@@ -54,7 +54,7 @@ public:
 
 	virtual bool WantClose() const = 0;
 
-	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetRenderer() const = 0;
+	virtual Renderer::I_Renderer& GetRenderer() = 0;
 
 	inline GUID GetGUID() const { return m_ID; }
 protected:

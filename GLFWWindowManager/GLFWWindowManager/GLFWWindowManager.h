@@ -17,7 +17,7 @@ public:
 	[[nodiscard]] virtual std::shared_ptr<Core::I_Window> GetWindow(GUID guid) const override;
 	virtual void Update() override;
 	[[nodiscard]] virtual unsigned int NumWindows() const override;
-	[[nodiscard]] virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetActiveRenderer() const override;
+	[[nodiscard]] virtual Renderer::I_Renderer& GetActiveRenderer() override;
 
 	//=================================================================================
 	// Core::C_Layer
