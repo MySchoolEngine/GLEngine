@@ -7,6 +7,10 @@
 
 struct GLFWwindow;
 
+namespace GLEngine::Core {;
+class C_WindowResizedEvent;
+}
+
 namespace GLEngine::VkRenderer {
 
 class C_VkRenderer;
@@ -18,9 +22,12 @@ public:
 
 	virtual Renderer::I_Renderer& GetRenderer() override;
 
+	virtual void OnEvent(Core::I_Event& event) override;
 protected:
 	virtual void Init(const Core::S_WindowInfo& wndInfo) override;
 	std::unique_ptr<C_VkRenderer> m_renderer;
+
+	bool OnWindowResized(Core::C_WindowResizedEvent& event);
 private:
 
 	bool CreateWindowSurface();
@@ -29,6 +36,8 @@ private:
 	VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 	VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, VkExtent2D actualExtent);
 	void CreateImageViews();
+
+	void DestroySwapchain();
 
 	VkSwapchainKHR m_SwapChain;
 	std::vector<VkImage> m_SwapChainImages;

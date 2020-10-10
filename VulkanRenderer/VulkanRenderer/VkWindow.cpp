@@ -5,6 +5,9 @@
 #include <VulkanRenderer/VkWindowInfo.h>
 #include <VulkanRenderer/VkRenderer.h>
 
+#include <Core/EventSystem/EventDispatcher.h>
+#include <Core/EventSystem/Event/AppEvent.h>
+
 #include <GLFW/glfw3.h>
 
 namespace GLEngine::VkRenderer {
@@ -27,13 +30,19 @@ C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
 //=================================================================================
 C_VkWindow::~C_VkWindow()
 {
+	DestroySwapchain();
+	vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
+	m_renderer.reset(nullptr);
+};
+
+//=================================================================================
+void C_VkWindow::DestroySwapchain()
+{
 	for (auto imageView : m_SwapChainImagesViews) {
 		vkDestroyImageView(m_renderer->GetDevice(), imageView, nullptr);
 	}
 	vkDestroySwapchainKHR(m_renderer->GetDevice(), m_SwapChain, nullptr);
-	vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
-	m_renderer.reset(nullptr);
-};
+}
 
 //=================================================================================
 void C_VkWindow::Init(const Core::S_WindowInfo& wndInfo)
@@ -190,6 +199,24 @@ void C_VkWindow::CreateImageViews()
 
 		++i;
 	}
+}
+
+//=================================================================================
+void C_VkWindow::OnEvent(Core::I_Event& event)
+{
+	// base can make filtering
+	GLFWManager::C_GLFWWindow::OnEvent(event);
+
+	Core::C_EventDispatcher d(event);
+	d.Dispatch<Core::C_WindowResizedEvent>(std::bind(&C_VkWindow::OnWindowResized, this, std::placeholders::_1));
+}
+
+//=================================================================================
+bool C_VkWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
+{
+	DestroySwapchain();
+	CreateSwapChain();
+	return true;
 }
 
 }
