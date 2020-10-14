@@ -35,6 +35,9 @@ C_MainPassTechnique::C_MainPassTechnique(std::shared_ptr<Entity::C_EntityManager
 	, m_SunX(0.f, -1.f, 1.f, "Sun X")
 	, m_SunY(1.f, -1.f, 1.f, "Sun Y")
 	, m_SunZ(0.f, -1.f, 1.f, "Sun Z")
+	, m_SunColor("Sun color", glm::vec3(1.f))
+	, m_AsymetricFactor(0.2f, 0.0f, 2.f, "Asymmetric factor")
+	, m_SunDiscMultiplier(1.f, 1.0f, 20.f, "Disc multiplier")
 {
 	m_FrameConstUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>("frameConst");
 	m_LightsUBO			= Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<C_LightsBuffer>("lightsUni");
@@ -56,8 +59,12 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 	m_FrameConstUBO->SetCameraPosition(glm::vec4(camera->GetPosition(), 1.0f));
 	m_FrameConstUBO->SetNearPlane(camera->GetNear());
 	m_FrameConstUBO->SetFarPlane(camera->GetFar());
-	m_FrameConstUBO->SetSunPosition({ m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue() });
 	m_FrameConstUBO->SetFrameTime(static_cast<float>(glfwGetTime()));
+
+	m_LightsUBO->GetSunLight().SetSunPosition({ m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue() });
+	m_LightsUBO->GetSunLight().m_SunColor = m_SunColor.GetValue();
+	m_LightsUBO->GetSunLight().m_AsymetricFactor = m_AsymetricFactor;
+	m_LightsUBO->GetSunLight().m_SunDiscMultiplier = m_SunDiscMultiplier;
 
 	{
 		RenderDoc::C_DebugScope s("Window prepare");
@@ -202,6 +209,9 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 		m_SunX.Draw();
 		m_SunY.Draw();
 		m_SunZ.Draw();
+		m_SunColor.Draw();
+		m_AsymetricFactor.Draw();
+		m_SunDiscMultiplier.Draw();
 	::ImGui::End();
 }
 

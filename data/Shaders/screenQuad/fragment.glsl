@@ -1,10 +1,13 @@
 #version 430 
+#extension GL_ARB_bindless_texture : require
+
 out vec4 FragColor;
 in vec2 TexCoords;
 
 #include "../include/frameConstants.glsl"
 #include "../include/tracing.glsl"
 #include "../include/pbrt.glsl"
+#include "../include/LightsUBO.glsl"
 #include "../include/atmosphere.glsl"
 
 uniform sampler2D hdrBuffer;
@@ -46,7 +49,7 @@ void main()
     // Exposure tone mapping
     vec3 mapped = vec3(1.0) - exp(-hdrColor * exposure);
     // Gamma correction 
-    mapped = pow(mapped, vec3(1.0 / gamma));
+    mapped = pow(hdrColor, vec3(1.0 / 2.2));
   
     FragColor = vec4(mapped, 1.0);
 

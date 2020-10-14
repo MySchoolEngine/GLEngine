@@ -31,17 +31,16 @@ Sphere GetSunSphere()
 	vec3 camPosition = frame.CameraPosition.xyz/frame.CameraPosition.w;
 	camPosition.y = 0;
 	const vec3 planetCenter = GetPlanetCenter();
-    return Sphere(camPosition + normalize(frame.SunPos) * (earthRadius), 150000.0); 
+    return Sphere(camPosition + normalize(pSunLight.position) * (earthRadius), 150000.0); 
 }
 
 vec3 GetSunColor(Ray r)
 {
-	const float sunMulti = 1;
 	const float sunBorder = asin(sunRadius / sunDistance);
-	const float angle = acos(dot(r.dir, normalize(frame.SunPos)));
-	if(angle <= sunBorder * sunMulti)
+	const float angle = acos(dot(r.dir, normalize(pSunLight.position)));
+	if(angle <= sunBorder * pSunLight.discMultiplier)
 	{
-		return vec3(1.0, 1.0, 1.0) * 13.61839144264511 * (1 - smoothstep(sunBorder, sunBorder * sunMulti, angle));
+		return pSunLight.color * 13.61839144264511 * (1 - smoothstep(sunBorder, sunBorder * pSunLight.discMultiplier, angle));
 	} 
 	return vec3(0);
 }
@@ -107,7 +106,7 @@ float MiePhaseFunctionCS(float g, float angle)
 	const float g2 = pow(g, 2.0);
 	const float k = 3.0/(16.0 * PI);
 	const float denom = (2 + g2) * pow((1 + g2 - 2 * g * angle), 3.0/ 2.0);
-	return k * ((1- g2)*(1+ angle*angle)) / denom;
+	return (k * ((1- g2)*(1+ angle*angle)) / denom);
 }
 
 
@@ -116,15 +115,15 @@ float MiePhaseFunctionCS(float g, float angle)
 float MiePhaseFunctionXLF(float g, float angle)
 {
 	const float g2 = pow(g, 2.0);
-	const float k = 3.0/(16.0 * PI);
+	const float k = 3.0/(4.0);
 	const float denom = (1 + g2 - 2 * g * angle);
-	return k * ((1-g2)/(2+g2)) * ((1 + angle*angle) / denom) + g * angle;
+	return (1 / (4 * PI)) * (k * ((1-g2)/(2+g2)) * ((1 + angle*angle) / denom) + (g*angle));
 }
 
 vec3 InScatteredLight(vec3 y, vec3 v, vec3 s)
 {
 	const float altitude = GetAltitude(y); 
-	float Mie = MiePhaseFunctionXLF(0.6, dot(v, s));
+	float Mie = MiePhaseFunctionXLF(pSunLight.asymetricFactor, dot(v, s));
 	return GetAirExtinctionCoef(GetAltitude(y)) * ReyleighPhaseFunction(dot(v, s)) + 
 		GetAreosolExtinctionCoef(GetAltitude(y)) * Mie;
 }
@@ -152,7 +151,7 @@ vec3 GetSkyRadiance(Ray r, float rayLen)
 
 		vec3 toSunTransmittance = Transmittance(toSun, intersect.z);
 
-		radiance += stepSize * InScatteredLight(samplingPoint, r.dir, normalize(sun.center - samplingPoint)) * exp(-airMassAlongARay) * toSunTransmittance * vec3(1.0, 1.0, 1.0) * 13.61839144264511; // * Transmittance(toSun, intersect.z);
+		radiance += stepSize * InScatteredLight(samplingPoint, r.dir, normalize(sun.center - samplingPoint)) * exp(-airMassAlongARay) * toSunTransmittance * pSunLight.color * 13.61839144264511; // * Transmittance(toSun, intersect.z);
 		samplingPoint += r.dir * stepSize;
 	}
 
