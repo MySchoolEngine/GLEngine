@@ -195,7 +195,8 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 		}
 	}
 
-	C_DebugDraw::Instance().DrawPoint({ m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue() }, {1.f, 1.f, 0.f});
+	C_DebugDraw::Instance().DrawPoint({ m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue() }, { 1.f, 1.f, 0.f });
+	C_DebugDraw::Instance().DrawLine({0.f, 0.f, 0.f}, { m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue() }, { 1.f, 1.f, 0.f });
 	bool my_tool_active = true;
 	::ImGui::Begin("Sun", &my_tool_active);
 		m_SunX.Draw();
