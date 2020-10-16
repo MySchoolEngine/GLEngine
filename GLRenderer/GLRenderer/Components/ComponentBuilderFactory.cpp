@@ -12,6 +12,7 @@
 #include <Renderer/Mesh/Loading/SceneLoader.h>
 
 #include <Renderer/Lights/PointLight.h>
+#include <Renderer/Lights/AreaLight.h>
 
 namespace GLEngine::GLRenderer::Components {
 
@@ -37,6 +38,10 @@ std::unique_ptr<Entity::I_ComponenetBuilder> C_ComponentBuilderFactory::GetFacto
 	if (name == "PointLight")
 	{
 		return std::make_unique<Renderer::C_PointLightCompBuilder>();
+	}
+	if (name == "AreaLight")
+	{
+		return std::make_unique<Renderer::C_AreaLightCompBuilder>();
 	}
 	if (name == "Geometry")
 	{

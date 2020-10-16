@@ -116,11 +116,15 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				C_DebugDraw::Instance().DrawPoint(glm::vec4(pos, 1.0), pointLight->GetColor());
 			}
 
-			const auto areaLight = std::dynamic_pointer_cast<C_GLAreaLight>(lightIt);
+			const auto areaLight = std::dynamic_pointer_cast<Renderer::C_AreaLight>(lightIt);
 			if (areaLight && areaLightIndex < m_LightsUBO->AreaLightsLimit())
 			{
-				auto& tm = Textures::C_TextureUnitManger::Instance();
-				tm.BindTextureToUnit(*areaLight->GetShadowMap(), 5 + static_cast<unsigned int>(areaLightIndex));
+				if (const auto glAreaLight = std::dynamic_pointer_cast<C_GLAreaLight>(lightIt))
+				{
+					auto& tm = Textures::C_TextureUnitManger::Instance();
+					tm.BindTextureToUnit(*glAreaLight->GetShadowMap(), 5 + static_cast<unsigned int>(areaLightIndex));
+					glAreaLight->DebugDraw();
+				}
 				const auto frustum = areaLight->GetShadingFrustum();
 
 
@@ -145,7 +149,6 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				light.m_SpecularColor = areaLight->SpecularColour();
 
 				C_DebugDraw::Instance().DrawAxis(pos, frustum.GetUpVector(), frustum.GetForeward());
-				areaLight->DebugDraw();
 				m_LightsUBO->SetAreaLight(light, areaLightIndex);
 				++areaLightIndex;
 			}

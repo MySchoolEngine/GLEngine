@@ -2,6 +2,9 @@
 
 #include <Renderer/Lights/AreaLight.h>
 
+#include <Utils/Parsing/MatrixParse.h>
+#include <Utils/Parsing/ColorParsing.h>
+
 namespace GLEngine::Renderer {
 
 //=================================================================================
@@ -79,6 +82,31 @@ glm::vec3 C_AreaLight::DiffuseColour() const
 glm::vec3 C_AreaLight::SpecularColour() const
 {
 	return m_SpecularColor.GetValue();
+}
+
+//=================================================================================
+std::shared_ptr<GLEngine::Entity::I_Component> C_AreaLightCompBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
+{
+	auto areaLight = std::make_shared<Renderer::C_AreaLight>(owner);
+	const auto translation	= Utils::Parsing::C_MatrixParser::ParseTransformation(node);
+	const auto rotation		= Utils::Parsing::C_MatrixParser::ParseRotations(node);
+	areaLight->SetComponentMatrix(translation);
+
+
+	if (const auto widthAttr = node.attribute("width"))
+	{
+		areaLight->m_WidthSlider = widthAttr.as_float();
+	}
+
+	if (const auto heightAttr = node.attribute("height"))
+	{
+		areaLight->m_HeightSlider = heightAttr.as_float();
+	}
+
+	areaLight->m_DiffuseColor = Utils::Parsing::C_ColorParser::ParseColorRGB(node, "diffuseColor");
+	areaLight->m_SpecularColor = Utils::Parsing::C_ColorParser::ParseColorRGB(node, "specularColor");
+
+	return areaLight;
 }
 
 }

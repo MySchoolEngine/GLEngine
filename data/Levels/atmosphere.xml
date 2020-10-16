@@ -3,7 +3,7 @@
 	<Entities>
 		<Entity name="Player" />
 		<Entity name="ground">
-			<scale>5 0 5</scale>
+			<scale>5 1 5</scale>
 			<Components>
 				<staticMesh filePath="plane.obj" material="basicTracing">
 					<colorMap>Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp</colorMap>
