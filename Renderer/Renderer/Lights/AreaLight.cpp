@@ -10,8 +10,8 @@ namespace GLEngine::Renderer {
 //=================================================================================
 C_AreaLight::C_AreaLight(std::shared_ptr<Entity::I_Entity> owner)
 	: Renderer::I_Light(owner)
-	, m_Normal(glm::normalize(glm::vec3(0, -1.0, 1.0)))
-	, m_UpVector(glm::normalize(glm::vec3(0, 1.0, 1.0)))
+	, m_Normal(glm::normalize(glm::vec3(0, 0, 1.0)))
+	, m_UpVector(glm::normalize(glm::vec3(0, 1.0, 0)))
 	, m_WidthSlider(10.f, 0.1f, 10.f, "Width")
 	, m_HeightSlider(10.f, 0.1f, 10.f, "Height")
 	, m_DiffuseColor("Diffuse colour", glm::vec3(1.f))
@@ -91,7 +91,10 @@ std::shared_ptr<GLEngine::Entity::I_Component> C_AreaLightCompBuilder::Build(con
 	const auto translation	= Utils::Parsing::C_MatrixParser::ParseTransformation(node);
 	const auto rotation		= Utils::Parsing::C_MatrixParser::ParseRotations(node);
 	areaLight->SetComponentMatrix(translation);
-
+	const auto normal	= rotation * glm::vec4(0, 0, 1.0, 1.0);
+	const auto up		= rotation * glm::vec4(0, 1.0, 0, 1.0);
+	areaLight->m_Normal = glm::normalize(glm::vec3(normal.x, normal.y, normal.z) / normal.w);
+	areaLight->m_UpVector = glm::normalize(glm::vec3(up.x, up.y, up.z) / up.w);
 
 	if (const auto widthAttr = node.attribute("width"))
 	{
