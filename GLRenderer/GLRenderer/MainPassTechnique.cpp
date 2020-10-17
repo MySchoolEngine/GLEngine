@@ -36,7 +36,7 @@ C_MainPassTechnique::C_MainPassTechnique(std::shared_ptr<Entity::C_EntityManager
 	, m_SunY(1.f, -1.f, 1.f, "Sun Y")
 	, m_SunZ(0.f, -1.f, 1.f, "Sun Z")
 	, m_SunColor("Sun color", glm::vec3(1.f))
-	, m_AsymetricFactor(0.2f, 0.0f, 2.f, "Asymmetric factor")
+	, m_AsymetricFactor(0.2f, 0.0f, 1.f, "Asymmetric factor")
 	, m_SunDiscMultiplier(1.f, 1.0f, 20.f, "Disc multiplier")
 {
 	m_FrameConstUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>("frameConst");
