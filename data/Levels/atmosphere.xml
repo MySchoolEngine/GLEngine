@@ -12,5 +12,13 @@
 				</staticMesh>
 			</Components>
 		</Entity>
+		<Entity name="occluder">
+			<translate sid="location">0 1 0</translate>
+			<Components>
+				<Geometry type="plane" subdivisions="0">
+					<color>0.4 0.3 0.1</color>
+				</Geometry>
+			</Components>
+		</Entity>
 	</Entities>
 </World>
