@@ -49,7 +49,7 @@ void main()
     // Exposure tone mapping
     vec3 mapped = vec3(1.0) - exp(-hdrColor * exposure);
     // Gamma correction 
-    mapped = pow(hdrColor, vec3(1.0 / 2.2));
+    mapped = pow(mapped, vec3(1.0 / gamma));
   
     FragColor = vec4(mapped, 1.0);
 
