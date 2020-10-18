@@ -7,6 +7,9 @@
 
 #include <Entity/IComponent.h>
 
+#include <GUI/Input/Slider.h>
+#include <GUI/Input/Color.h>
+
 namespace GLEngine::Renderer {
 
 //=============================================================
@@ -34,17 +37,16 @@ public:
 	[[nodiscard]] virtual float GetIntensity() const override;
 	[[nodiscard]] virtual glm::vec3 GetColor() const override;
 
-
-
 	//================================================================
 	// I_Light
 	[[nodiscard]] Physics::Primitives::C_Frustum GetShadingFrustum() const override;
 
 	virtual std::string_view GetDebugComponentName() const override;
 	virtual bool HasDebugDrawGUI() const override;
+	virtual void DebugDrawGUI() override;
 private:
-	float		m_Intensity;
-	glm::vec3	m_Color;
+	GUI::Input::C_Slider<float>	m_Intensity;
+	GUI::Input::C_ColorRBG		m_Color;
 
 	friend class C_PointLightCompBuilder;
 };

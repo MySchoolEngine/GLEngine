@@ -30,16 +30,16 @@ I_PointLight::~I_PointLight() = default;
 //=================================================================================
 C_PointLight::C_PointLight(std::shared_ptr<Entity::I_Entity> owner) 
 	: Renderer::I_PointLight(owner)
-	, m_Intensity()
-	, m_Color(1.f, 1.f, 1.f)
+	, m_Intensity(1.f, 0.f, 100.f, "Intensity")
+	, m_Color("Color", { 1.f, 1.f, 1.f })
 {
 }
 
 //=================================================================================
 C_PointLight::C_PointLight(std::shared_ptr<Entity::I_Entity> owner, const MeshData::Light& def)
 	: Renderer::I_PointLight(owner)
-	, m_Intensity()
-	, m_Color(def.m_Color)
+	, m_Intensity(1.f, 0.f, 100.f, "Intensity")
+	, m_Color("Color", def.m_Color)
 {
 
 }
@@ -70,7 +70,7 @@ float C_PointLight::GetIntensity() const
 //=================================================================================
 glm::vec3 C_PointLight::GetColor() const
 {
-	return m_Color;
+	return m_Color.GetValue();
 }
 
 //=================================================================================
@@ -89,6 +89,13 @@ std::string_view C_PointLight::GetDebugComponentName() const
 bool C_PointLight::HasDebugDrawGUI() const
 {
 	return true;
+}
+
+//=================================================================================
+void C_PointLight::DebugDrawGUI()
+{
+	m_Intensity.Draw();
+	m_Color.Draw();
 }
 
 //=================================================================================
