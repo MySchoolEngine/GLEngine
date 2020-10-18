@@ -10,6 +10,6 @@ namespace Utils::Parsing
 class UTILS_API_EXPORT C_ColorParser
 {
 public:
-	static glm::vec3 ParseColorRGB(const pugi::xml_node& node);
+	static glm::vec3 ParseColorRGB(const pugi::xml_node& node, const std::string_view nodeName = "color");
 };
 }

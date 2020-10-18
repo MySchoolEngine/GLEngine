@@ -6,6 +6,7 @@
 
 #include "../include/frameConstants.glsl"
 #include "../include/tracing.glsl"
+#include "../include/LightsUBO.glsl"
 #include "../include/atmosphere.glsl"
 #include "../include/PBRT.glsl"
 
@@ -33,8 +34,6 @@ in vec4 worldCoord;
 in mat3 TBN;
 
 out vec4 fragColor;
-
-#include "../include/LightsUBO.glsl"
 
 float ambientStrength = 0.1;
 float specularStrength = 0.5;
@@ -363,11 +362,11 @@ vec3 CalculatSunLight(const vec3 N, const vec3 V, const vec3 position)
 
     float roughnessVal = GetRoughness(texCoordOUT);
 
-    const Ray r = Ray(position, normalize(frame.SunPos));
+    const Ray r = Ray(position, normalize(pSunLight.position));
     vec3 i;
     Intersect(r, s, i);
 
-    return BRDF(N, V, normalize(frame.SunPos), sunColor.rgb * Transmittance(r, i.z), roughnessVal);
+    return BRDF(N, V, normalize(pSunLight.position), pSunLight.color * Transmittance(r, i.z), roughnessVal);
 }
 
 //=================================================================================
@@ -397,7 +396,7 @@ void main()
 
     result += CalculatSunLight(norm, viewDir, FragPos);
     //if(!isInShadow(lightSpacePos, shadowMap[pAreaLight[0].ShadowMap]))
-        result += CalculatAreaLight(pAreaLight[0], norm, viewDir, FragPos);
+        //result += CalculatAreaLight(pAreaLight[0], norm, viewDir, FragPos);
 
 	for(int i = 0; i< NUM_POINTLIGHT;++i)
 	{

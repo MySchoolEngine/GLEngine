@@ -372,9 +372,6 @@ void C_ExplerimentWindow::SetupWorld()
 			m_CamManager.ActivateCamera(playerCamera);
 
 			// area light
-			auto arealight = std::make_shared<C_GLAreaLight>(player);
-			player->AddComponent(arealight);
-			// 
 			// m_ShadowPass = std::make_shared<C_ShadowMapTechnique>(m_World, std::static_pointer_cast<Renderer::I_Light>( arealight));
 		}
 	}

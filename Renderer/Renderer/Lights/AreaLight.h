@@ -37,6 +37,15 @@ protected:
 	glm::vec3 m_UpVector;
 	GUI::Input::C_Slider<float> m_WidthSlider, m_HeightSlider;
 	GUI::Input::C_ColorRBG			m_DiffuseColor, m_SpecularColor;
+
+	friend class C_AreaLightCompBuilder;
+};
+
+//=============================================================
+class C_AreaLightCompBuilder : public Entity::I_ComponenetBuilder
+{
+public:
+	RENDERER_API_EXPORT virtual std::shared_ptr<Entity::I_Component> Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner) override;
 };
 
 }

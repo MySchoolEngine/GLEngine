@@ -4,13 +4,11 @@ uniform frameConst{
 	mat4 viewMatrix;
 	mat4 viewProjectionMatrix;
 	vec4 CameraPosition;
-	vec3 SunPos;
 	float AmbientStrength;
 	float Time;
 	float zNear;
 	float zFar;
 } frame;
-vec3 sunColor = vec3(1.0,0.6,0.05) * 5;
 
 float toLinearDepth(float sampledDepth)
 {

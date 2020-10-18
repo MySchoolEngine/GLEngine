@@ -4,6 +4,7 @@
 
 #include <GLRenderer\Lights\PointLightStruct.h>
 #include <GLRenderer\Lights\AreaLightStruct.h>
+#include <GLRenderer\Lights\SunLigth.h>
 
 namespace GLEngine::GLRenderer {
 namespace Textures
@@ -23,10 +24,13 @@ public:
 	void SetAreaLight(S_AreaLight light, std::size_t index) { m_AreaLight[index] = light; }
 	[[nodiscard]] std::size_t AreaLightsLimit() const { return m_AreaLight.max_size(); }
 
+	S_SunLight& GetSunLight() { return m_SunLight; }
+
 	void MakeHandlesResident(bool val = true);
 private:
 	std::array<S_PointLight, 10>	m_PointLight;
 	std::array<S_AreaLight, 4>		m_AreaLight;
+	S_SunLight						m_SunLight;
 	std::uint64_t					m_LTCFittingSchemeHandle;
 	std::uint64_t					m_LTCMagSchemeHandle;
 

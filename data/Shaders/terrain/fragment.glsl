@@ -70,23 +70,23 @@ void main()
 
 
 
-	cosTheta = dot(normal,normalize(frame.SunPos));
+	cosTheta = dot(normal,normalize(pSunLight.position));
 	
 
 	// for faces facing away from sun
 	cosTheta = max(0.0, cosTheta);
 	//float steepnes = 1.0f - normal.y;
 
-	vec4 MaterialAmbientColor = frame.AmbientStrength * sunColor; // ambient lighting fake
-	vec4 MaterialDiffuseColor = cosTheta*sunColor;
+	vec4 MaterialAmbientColor = frame.AmbientStrength * pSunLight.color; // ambient lighting fake
+	vec4 MaterialDiffuseColor = cosTheta*pSunLight.color;
 
 
 
 //=================================================================================
 	vec3 viewDir = normalize(frame.CameraPosition.xyz/frame.CameraPosition.w - FragPos);
-	vec3 reflectDir = reflect(-frame.SunPos, normal);  
+	vec3 reflectDir = reflect(-pSunLight.position, normal);  
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 1);
-	vec4 MaterialSpecularColor = specularStrength * spec * sunColor;
+	vec4 MaterialSpecularColor = specularStrength * spec * pSunLight.color;
 //=================================================================================
 
 
