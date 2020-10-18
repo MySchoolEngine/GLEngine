@@ -229,7 +229,7 @@ vec3 CalculatePointLight(pointLight light, vec3 norm)
 
 	float roughnessVal = GetRoughness(texCoordOUT);
 
-	return BRDF(norm, viewDir, lightDir, light.color, roughnessVal);
+	return BRDF(norm, viewDir, lightDir, light.color * light.intensity, roughnessVal);
 }
 
 //=================================================================================
