@@ -39,6 +39,7 @@
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/Cameras/OrbitalCamera.h>
 #include <Renderer/Cameras/FreelookCamera.h>
+#include <Renderer/Lights/SunLight.h>
 
 #include <Physics/Primitives/Ray.h>
 #include <Physics/Primitives/Intersection.h>
@@ -356,7 +357,7 @@ void C_ExplerimentWindow::SetupWorld()
 	}
 
 	{
-		m_Player = m_World->GetEntity("Player");
+		m_Player = m_World->GetOrCreateEntity("Player");
 
 		auto player = m_Player.lock();
 		if (player)
@@ -374,6 +375,10 @@ void C_ExplerimentWindow::SetupWorld()
 			// area light
 			// m_ShadowPass = std::make_shared<C_ShadowMapTechnique>(m_World, std::static_pointer_cast<Renderer::I_Light>( arealight));
 		}
+	{
+		// create default atmosphere
+		auto entity = m_World->GetOrCreateEntity("atmosphere");
+		entity->AddComponent(std::make_shared<Renderer::C_SunLight>(entity));
 	}
 	{
 		// billboard

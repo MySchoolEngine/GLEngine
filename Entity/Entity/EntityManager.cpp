@@ -5,6 +5,7 @@
 #include <Entity/IEntity.h>
 #include <Entity/BasicEntity.h>
 #include <Entity/IComponent.h>
+#include <Entity/Components/EntityDebugComponent.h>
 
 #include <GLRenderer/Components/ComponentBuilderFactory.h>
 
@@ -58,6 +59,20 @@ std::shared_ptr<I_Entity> C_EntityManager::GetEntity(const std::string& name) co
 		return nullptr;
 	}
 	return *it;
+}
+
+//=================================================================================
+std::shared_ptr<I_Entity> C_EntityManager::GetOrCreateEntity(const std::string& name)
+{
+	auto entity = GetEntity(name);
+	if (entity)
+	{
+		return entity;
+	}
+	entity = std::make_shared<C_BasicEntity>(name);
+	entity->AddComponent(std::make_shared<C_EntityDebugComponent>(entity));
+	AddEntity(entity);
+	return entity;
 }
 
 //=================================================================================

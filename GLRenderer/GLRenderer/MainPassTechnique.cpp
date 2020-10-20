@@ -19,6 +19,7 @@
 #include <Renderer/ICameraComponent.h>
 #include <Renderer/ILight.h>
 #include <Renderer/Lights/PointLight.h>
+#include <Renderer/Lights/SunLight.h>
 
 #include <Entity/IEntity.h>
 #include <Entity/EntityManager.h>
@@ -32,12 +33,6 @@ namespace GLEngine::GLRenderer {
 //=================================================================================
 C_MainPassTechnique::C_MainPassTechnique(std::shared_ptr<Entity::C_EntityManager> world)
 	: m_WorldToRender(world)
-	, m_SunX(0.f, -1.f, 1.f, "Sun X")
-	, m_SunY(1.f, -1.f, 1.f, "Sun Y")
-	, m_SunZ(0.f, -1.f, 1.f, "Sun Z")
-	, m_SunColor("Sun color", glm::vec3(1.f))
-	, m_AsymetricFactor(0.2f, 0.0f, 1.f, "Asymmetric factor")
-	, m_SunDiscMultiplier(1.f, 1.0f, 20.f, "Disc multiplier")
 {
 	m_FrameConstUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>("frameConst");
 	m_LightsUBO			= Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<C_LightsBuffer>("lightsUni");
@@ -60,11 +55,6 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 	m_FrameConstUBO->SetNearPlane(camera->GetNear());
 	m_FrameConstUBO->SetFarPlane(camera->GetFar());
 	m_FrameConstUBO->SetFrameTime(static_cast<float>(glfwGetTime()));
-
-	m_LightsUBO->GetSunLight().SetSunPosition({ m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue() });
-	m_LightsUBO->GetSunLight().m_SunColor = m_SunColor.GetValue();
-	m_LightsUBO->GetSunLight().m_AsymetricFactor = m_AsymetricFactor;
-	m_LightsUBO->GetSunLight().m_SunDiscMultiplier = m_SunDiscMultiplier;
 
 	{
 		RenderDoc::C_DebugScope s("Window prepare");
@@ -152,6 +142,18 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				m_LightsUBO->SetAreaLight(light, areaLightIndex);
 				++areaLightIndex;
 			}
+
+			const auto sunLight = std::dynamic_pointer_cast<Renderer::C_SunLight>(lightIt);
+			if (sunLight)
+			{
+				m_LightsUBO->GetSunLight().SetSunPosition(sunLight->GetSunDirection());
+				m_LightsUBO->GetSunLight().m_SunColor = sunLight->GetSunColor();
+				m_LightsUBO->GetSunLight().m_AsymetricFactor = sunLight->AtmosphereAsymetricFactor();
+				m_LightsUBO->GetSunLight().m_SunDiscMultiplier = sunLight->SunDiscMultiplier();
+
+				C_DebugDraw::Instance().DrawPoint(sunLight->GetSunDirection(), { 1.f, 1.f, 0.f });
+				C_DebugDraw::Instance().DrawLine({ 0.f, 0.f, 0.f }, sunLight->GetSunDirection(), { 1.f, 1.f, 0.f });
+			}
 		}
 	}
 
@@ -204,18 +206,6 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 			);
 		}
 	}
-
-	C_DebugDraw::Instance().DrawPoint({ m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue() }, { 1.f, 1.f, 0.f });
-	C_DebugDraw::Instance().DrawLine({0.f, 0.f, 0.f}, { m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue() }, { 1.f, 1.f, 0.f });
-	bool my_tool_active = true;
-	::ImGui::Begin("Sun", &my_tool_active);
-		m_SunX.Draw();
-		m_SunY.Draw();
-		m_SunZ.Draw();
-		m_SunColor.Draw();
-		m_AsymetricFactor.Draw();
-		m_SunDiscMultiplier.Draw();
-	::ImGui::End();
 }
 
 }

@@ -7,12 +7,10 @@
 namespace GLEngine {
 
 // forward declaration
-namespace Physics {
-namespace Primitives {
+namespace Physics::Primitives {
 class C_Frustum;
 struct S_Ray;
 struct S_RayIntersection;
-}
 }
 
 namespace Entity {
@@ -26,6 +24,7 @@ public:
 	~C_EntityManager();
 	[[nodiscard]] std::shared_ptr<I_Entity> GetEntity(GUID id) const;
 	[[nodiscard]] std::shared_ptr<I_Entity> GetEntity(const std::string& name) const;
+	[[nodiscard]] std::shared_ptr<I_Entity> GetOrCreateEntity(const std::string& name);
 	[[nodiscard]] std::vector<std::shared_ptr<I_Entity>> GetEntities(Physics::Primitives::C_Frustum frust) const;
 	[[nodiscard]] const std::vector<std::shared_ptr<I_Entity>>& GetEntities() const;
 	void AddEntity(std::shared_ptr<I_Entity> entity);
