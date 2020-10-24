@@ -11,6 +11,7 @@ C_GUIManager::C_GUIManager() = default;
 //=================================================================================
 C_GUIManager::~C_GUIManager()
 {
+	GLE_ASSERT(m_Windwos.empty(), "Some window wasn't properly deleted");
 	for (auto& it : m_Windwos)
 	{
 		delete (it.second);
