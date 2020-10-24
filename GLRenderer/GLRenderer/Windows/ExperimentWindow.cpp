@@ -156,62 +156,47 @@ void C_ExplerimentWindow::Update()
 	{
 		using namespace Commands;
 		m_renderer->AddCommand(
-			std::move(
-				std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth)
-			)
+			std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth)
 		);
 		m_renderer->AddCommand(
-			std::move(
-				std::make_unique<C_GLViewport>(0, 0, GetWidth(), GetHeight())
-			)
+			std::make_unique<C_GLViewport>(0, 0, GetWidth(), GetHeight())
 		);
 	}
 
 	auto HDRTexture = m_HDRFBO->GetAttachement(GL_COLOR_ATTACHMENT0);
 	auto worldDepth = m_HDRFBO->GetAttachement(GL_DEPTH_ATTACHMENT);
-
+	
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.BindTextureToUnit(*(HDRTexture.get()), 0);
 	tm.BindTextureToUnit(*(worldDepth.get()), 1);
-
-	m_HDRFBO->Bind<E_FramebufferTarget::Read>();
 
 	auto shader = shmgr.GetProgram("screenQuad");
 	shmgr.ActivateShader(shader);
 
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
-		std::move(
-			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[this, shader]() {
-					shader->SetUniform("gamma", m_GammaSlider.GetValue());
-					shader->SetUniform("exposure", m_ExposureSlider.GetValue());
-					shader->SetUniform("hdrBuffer", 0);
-					shader->SetUniform("depthBuffer", 1);
-				}, "Update HDR"
-			)
+		std::make_unique<Commands::HACK::C_LambdaCommand>(
+			[this, shader]() {
+				shader->SetUniform("gamma", m_GammaSlider.GetValue());
+				shader->SetUniform("exposure", m_ExposureSlider.GetValue());
+				shader->SetUniform("hdrBuffer", 0);
+				shader->SetUniform("depthBuffer", 1);
+			}, "Update HDR"
 		)
 	);
-
+	
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
-		std::move(
-			std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_ScreenQuad)
-		)
+		std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_ScreenQuad)
 	);
 
 	shmgr.DeactivateShader();
 
-
-	m_HDRFBO->Unbind<E_FramebufferTarget::Read>();
-
 	{
 		RenderDoc::C_DebugScope s("ImGUI");
 		Core::C_Application::Get().GetActiveRenderer()->AddCommand(
-			std::move(
-				std::make_unique<Commands::HACK::C_LambdaCommand>(
-					[this, shader]() {
-						m_ImGUI->FrameEnd();
-					}, "m_ImGUI->FrameEnd"
-				)
+			std::make_unique<Commands::HACK::C_LambdaCommand>(
+				[this]() {
+					m_ImGUI->FrameEnd();
+				}, "m_ImGUI->FrameEnd"
 			)
 		);
 	}
