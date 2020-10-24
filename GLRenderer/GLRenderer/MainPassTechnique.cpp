@@ -49,13 +49,6 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 	auto& renderer = (Core::C_Application::Get()).GetActiveRenderer();
 	renderer->SetCurrentPassType(Renderer::E_PassType::FinalPass);
 
-	m_FrameConstUBO->SetView(camera->GetViewMatrix());
-	m_FrameConstUBO->SetProjection(camera->GetProjectionMatrix());
-	m_FrameConstUBO->SetCameraPosition(glm::vec4(camera->GetPosition(), 1.0f));
-	m_FrameConstUBO->SetNearPlane(camera->GetNear());
-	m_FrameConstUBO->SetFarPlane(camera->GetFar());
-	m_FrameConstUBO->SetFrameTime(static_cast<float>(glfwGetTime()));
-
 	{
 		RenderDoc::C_DebugScope s("Window prepare");
 		using namespace Commands;
@@ -163,7 +156,13 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 		renderer->AddCommand(
 			std::move(
 				std::make_unique<Commands::HACK::C_LambdaCommand>(
-					[&]() {
+					[this, &camera]() {
+						m_FrameConstUBO->SetView(camera->GetViewMatrix());
+						m_FrameConstUBO->SetProjection(camera->GetProjectionMatrix());
+						m_FrameConstUBO->SetCameraPosition(glm::vec4(camera->GetPosition(), 1.0f));
+						m_FrameConstUBO->SetNearPlane(camera->GetNear());
+						m_FrameConstUBO->SetFarPlane(camera->GetFar());
+						m_FrameConstUBO->SetFrameTime(static_cast<float>(glfwGetTime()));
 						m_FrameConstUBO->UploadData();
 						m_FrameConstUBO->Activate(true);
 						m_LightsUBO->UploadData();
