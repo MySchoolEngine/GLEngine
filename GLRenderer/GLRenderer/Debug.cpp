@@ -175,30 +175,12 @@ void C_DebugDraw::DrawAABB(const Physics::Primitives::S_AABB& bbox, const glm::v
 	auto program = Shaders::C_ShaderManager::Instance().GetProgram(s_DebugShaderName);
 	shdManager.ActivateShader(program);
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
-		std::move(
-			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[this, program, bbox, color, modelMatrix]() {
-					glm::vec3 size = bbox.m_Max - bbox.m_Min;
-					glm::vec3 center = (bbox.m_Max + bbox.m_Min) / 2.0f;// glm::vec3((min_x + max_x) / 2, (min_y + max_y) / 2, (min_z + max_z) / 2);
-					glm::mat4 transform = glm::translate(glm::mat4(1), center) * glm::scale(glm::mat4(1), size);
+	glm::vec3 size = bbox.m_Max - bbox.m_Min;
+	glm::vec3 center = (bbox.m_Max + bbox.m_Min) / 2.0f;// glm::vec3((min_x + max_x) / 2, (min_y + max_y) / 2, (min_z + max_z) / 2);
+	glm::mat4 transform = glm::translate(glm::mat4(1), center) * glm::scale(glm::mat4(1), size);
 
-					/* Apply object's transformation matrix */
-					program->SetUniform("modelMatrix", modelMatrix * transform);
-					program->SetUniform("colorIN", color);
-
-					m_VAOaabb.bind();
-					m_VAOaabb.BindBuffer<1>();
-
-					glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, 0);
-					glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, (GLvoid*)(4 * sizeof(GLushort)));
-					glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, (GLvoid*)(8 * sizeof(GLushort)));
-
-					m_VAOaabb.unbind();
-				}, "Debug - DrawAABB"
-			)
-		)
-	);
+	m_AABBTransform.emplace_back(modelMatrix * transform);
+	m_AABBColor.emplace_back(color);
 }
 
 //=================================================================================
@@ -386,45 +368,78 @@ void C_DebugDraw::DrawFrustum(const Physics::Primitives::C_Frustum& frust, const
 void C_DebugDraw::DrawMergedGeoms()
 {
 	auto& shdManager = Shaders::C_ShaderManager::Instance();
-	auto program = Shaders::C_ShaderManager::Instance().GetProgram(s_MergedShaderName);
+	auto program = shdManager.GetProgram(s_MergedShaderName);
 	shdManager.ActivateShader(program);
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
-		std::move(
-			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[&]() {
-					m_VAOlines.bind();
-					std::vector<glm::vec4> mergedVertices(m_LinesVertices);
-					std::vector<glm::vec3> mergedColors(m_LinesColors);
-					mergedVertices.insert(mergedVertices.end(), m_PointsVertices.begin(), m_PointsVertices.end());
-					mergedColors.insert(mergedColors.end(), m_PointsColors.begin(), m_PointsColors.end());
-					m_VAOlines.SetBufferData<0, GL_ARRAY_BUFFER>(mergedVertices, true);
-					m_VAOlines.SetBufferData<1, GL_ARRAY_BUFFER>(mergedColors, true);
+	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
 
-					const auto lineVertices = static_cast<GLsizei>(m_LinesVertices.size());
-					const auto pointsVertices = static_cast<GLsizei>(m_PointsVertices.size());
-					if (lineVertices > 0) {
-						glDrawArrays(GL_LINES, 0, lineVertices);
-					}
-					if (pointsVertices) {
-						glPointSize(5.0f);
-						glEnable(GL_PROGRAM_POINT_SIZE);
-						glDrawArrays(GL_POINTS, lineVertices, pointsVertices);
-					}
+	renderer->AddCommand(
+		std::make_unique<Commands::HACK::C_LambdaCommand>(
+			[&]() {
+				m_VAOlines.bind();
+				std::vector<glm::vec4> mergedVertices(m_LinesVertices);
+				std::vector<glm::vec3> mergedColors(m_LinesColors);
+				mergedVertices.insert(mergedVertices.end(), m_PointsVertices.begin(), m_PointsVertices.end());
+				mergedColors.insert(mergedColors.end(), m_PointsColors.begin(), m_PointsColors.end());
+				m_VAOlines.SetBufferData<0, GL_ARRAY_BUFFER>(mergedVertices, true);
+				m_VAOlines.SetBufferData<1, GL_ARRAY_BUFFER>(mergedColors, true);
+
+				const auto lineVertices = static_cast<GLsizei>(m_LinesVertices.size());
+				const auto pointsVertices = static_cast<GLsizei>(m_PointsVertices.size());
+				if (lineVertices > 0) {
+					glDrawArrays(GL_LINES, 0, lineVertices);
+				}
+				if (pointsVertices) {
+					glPointSize(5.0f);
+					glEnable(GL_PROGRAM_POINT_SIZE);
+					glDrawArrays(GL_POINTS, lineVertices, pointsVertices);
+				}
 
 
-					m_VAOlines.unbind();
-					shdManager.DeactivateShader();
+				m_VAOlines.unbind();
 
-					m_LinesVertices.clear();
-					m_LinesColors.clear();
+				m_LinesVertices.clear();
+				m_LinesColors.clear();
 
-					m_PointsVertices.clear();
-					m_PointsColors.clear();
-				}, "C_DebugDraw::DrawMergedGeoms"
-			)
+				m_PointsVertices.clear();
+				m_PointsColors.clear();
+			}, "C_DebugDraw::DrawMergedGeoms"
 		)
 	);
+	shdManager.DeactivateShader();
+	auto AABBprogram = shdManager.GetProgram(s_DebugShaderName);
+	shdManager.ActivateShader(AABBprogram);
+
+	renderer->AddCommand(
+		std::make_unique<Commands::HACK::C_LambdaCommand>([this]() {
+			m_VAOaabb.bind();
+			m_VAOaabb.BindBuffer<1>();
+			}, "Prepare AABB"));
+
+	for (int i = 0; i < m_AABBTransform.size(); ++i) {
+		renderer->AddCommand(
+			std::make_unique<Commands::HACK::C_LambdaCommand>(
+				[this, AABBprogram, i]() {
+					AABBprogram->SetUniform("modelMatrix", m_AABBTransform[i]);
+					AABBprogram->SetUniform("colorIN", m_AABBColor[i]);
+
+					glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, 0);
+					glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, (GLvoid*)(4 * sizeof(GLushort)));
+					glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, (GLvoid*)(8 * sizeof(GLushort)));
+
+				}, "Debug - DrawAABB"
+			)
+		);
+	}
+
+	renderer->AddCommand(
+		std::make_unique<Commands::HACK::C_LambdaCommand>([this]() {
+				m_VAOaabb.unbind();
+				m_AABBTransform.clear();
+				m_AABBColor.clear();
+			}, "Clear AABB"));
+
+	shdManager.DeactivateShader();
 }
 
 #endif

@@ -168,6 +168,9 @@ private:
 
 	std::vector<glm::vec4> m_PointsVertices;
 	std::vector<glm::vec3> m_PointsColors;
+
+	std::vector<glm::mat4> m_AABBTransform;
+	std::vector<glm::vec3> m_AABBColor;
 };
 #else
 //=================================================================================
