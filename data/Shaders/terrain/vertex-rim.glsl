@@ -1,4 +1,5 @@
 #version 430
+#extension GL_ARB_bindless_texture : require
 
 in float vertex;
 
@@ -8,7 +9,7 @@ in float vertex;
 
 //per model
 uniform mat4 modelMatrix;
-uniform sampler2DArray tex;
+layout (binding = 0) uniform sampler2DArray tex;
 uniform int sqPerLine;
 uniform float patchSize;
 

@@ -1,11 +1,13 @@
 #version 430
+#extension GL_ARB_bindless_texture : require
 
 #include "includes/layersIndexes.glsl"
 #include "../include/frameConstants.glsl"
+#include "../include/LightsUBO.glsl"
 
 //per mesh
 uniform vec3 modelColor[Terrain_NumLayers];
-uniform sampler2DArray tex;
+layout (binding = 0) uniform sampler2DArray tex;
 
 in vec3 normal;
 in vec3 FragPos;
@@ -28,9 +30,9 @@ void main()
 
 	albedo = modelColor[topLevel-Terrain_layer1];
 
-	vec4 MaterialAmbientColor = frame.AmbientStrength * pSunLight.color; // ambient lighting fake
-	vec4 MaterialDiffuseColor = cosTheta*pSunLight.color;
+	vec3 MaterialAmbientColor = frame.AmbientStrength * pSunLight.color; // ambient lighting fake
+	vec3 MaterialDiffuseColor = cosTheta*pSunLight.color;
 
 
-	fragColor = (MaterialAmbientColor + MaterialDiffuseColor) * vec4(albedo, 1);
+	fragColor = vec4((MaterialAmbientColor + MaterialDiffuseColor) * albedo, 1);
 }

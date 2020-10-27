@@ -1,7 +1,9 @@
 #version 430
+#extension GL_ARB_bindless_texture : require
 
 #include "includes/layersIndexes.glsl"
 #include "../include/frameConstants.glsl"
+#include "../include/LightsUBO.glsl"
 //per mesh
 layout (binding = 0) uniform sampler2DArray tex;
 uniform vec3 modelColor[Terrain_NumLayers];
@@ -77,8 +79,8 @@ void main()
 	cosTheta = max(0.0, cosTheta);
 	//float steepnes = 1.0f - normal.y;
 
-	vec4 MaterialAmbientColor = frame.AmbientStrength * pSunLight.color; // ambient lighting fake
-	vec4 MaterialDiffuseColor = cosTheta*pSunLight.color;
+	vec3 MaterialAmbientColor = frame.AmbientStrength * pSunLight.color; // ambient lighting fake
+	vec3 MaterialDiffuseColor = cosTheta * pSunLight.color;
 
 
 
@@ -86,7 +88,7 @@ void main()
 	vec3 viewDir = normalize(frame.CameraPosition.xyz/frame.CameraPosition.w - FragPos);
 	vec3 reflectDir = reflect(-pSunLight.position, normal);  
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 1);
-	vec4 MaterialSpecularColor = specularStrength * spec * pSunLight.color;
+	vec3 MaterialSpecularColor = specularStrength * spec * pSunLight.color;
 //=================================================================================
 
 
@@ -102,5 +104,5 @@ void main()
 	if(steepnes >= 0.7f){
 		fragColor = vec4(0, 0,1,1);
 	}*/
-	fragColor = (MaterialAmbientColor + MaterialDiffuseColor + MaterialSpecularColor) * vec4(albedo, 1);
+	fragColor = vec4((MaterialAmbientColor + MaterialDiffuseColor + MaterialSpecularColor) * albedo, 1);
 }
