@@ -14,6 +14,8 @@
 #include <Renderer/Lights/PointLight.h>
 #include <Renderer/Lights/AreaLight.h>
 
+#include <Utils/Parsing/MaterialParser.h>
+
 namespace GLEngine::GLRenderer::Components {
 
 //=================================================================================
@@ -51,8 +53,11 @@ std::unique_ptr<Entity::I_ComponenetBuilder> C_ComponentBuilderFactory::GetFacto
 }
 
 //=================================================================================
-void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Entity> entity, const std::filesystem::path& file)
+void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Entity> entity, const pugi::xml_node& node)
 {
+	const std::filesystem::path file = node.attribute("filePath").value();
+	const auto materialData = Utils::Parsing::C_MaterialParser::ParseMaterialData(node);
+
 	auto& tmgr = Textures::C_TextureManager::Instance();
 	auto sl = std::make_unique<Renderer::Mesh::SceneLoader>();
 
@@ -67,7 +72,7 @@ void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Enti
 	
 	for (const auto& mesh : scene->meshes)
 	{
-		const auto meshComp = std::make_shared<C_StaticMesh>(mesh, "basic", entity);
+		const auto meshComp = std::make_shared<C_StaticMesh>(mesh, materialData.m_MaterialName, entity);
 		const auto material = scene->materials[mesh.materialIndex];
 		meshComp->SetColor(material.diffuse);
 		if (material.textureIndex >= 0)

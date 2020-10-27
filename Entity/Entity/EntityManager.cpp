@@ -205,7 +205,7 @@ bool C_EntityManager::LoadLevel(const std::string& name, std::unique_ptr<I_Compo
 			entity->AddComponent(debugBuilder->Build(pugi::xml_node(), entity));
 			AddEntity(entity);
 
-			cbf->ConstructFromFile(entity, entityNode.attribute("filePath").value());
+			cbf->ConstructFromFile(entity, entityNode);
 
 			const auto translation = Utils::Parsing::C_MatrixParser::ParseTransformation(entityNode);
 			const auto rotation = Utils::Parsing::C_MatrixParser::ParseRotations(entityNode);
