@@ -355,20 +355,7 @@ vec3 CalculatAreaLight(const areaLight light, const vec3 N, const vec3 V, const 
     return Lo_i * usedColor;
 }
 
-//=================================================================================
-vec3 CalculatSunLight(const vec3 N, const vec3 V, const vec3 position)
-{
-    const Sphere s = GetAtmosphereBoundary();
-
-    float roughnessVal = GetRoughness(texCoordOUT);
-
-    const Ray r = Ray(position, normalize(pSunLight.position));
-    vec3 i;
-    Intersect(r, s, i);
-
-    return BRDF(N, V, normalize(pSunLight.position), pSunLight.color * Transmittance(r, i.z), roughnessVal);
-}
-
+#include "../include/SunUtils.glsl"
 //=================================================================================
 void main()
 {
@@ -383,7 +370,7 @@ void main()
 	vec3 omegaIn = FragPos - viewPos;
 	Ray ray;
 	ray.origin = FragPos;
-	ray.dir = reflect(omegaIn,norm);;
+	ray.dir = reflect(omegaIn,norm);
 
 	vec3 result = vec3(0,0,0);
 
@@ -396,7 +383,7 @@ void main()
 
     result += CalculatSunLight(norm, viewDir, FragPos);
     //if(!isInShadow(lightSpacePos, shadowMap[pAreaLight[0].ShadowMap]))
-        //result += CalculatAreaLight(pAreaLight[0], norm, viewDir, FragPos);
+        result += CalculatAreaLight(pAreaLight[0], norm, viewDir, FragPos);
 
 	for(int i = 0; i< NUM_POINTLIGHT;++i)
 	{
