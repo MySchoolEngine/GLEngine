@@ -78,6 +78,7 @@ void C_TerrainEntity::AddPatch(T_TerrainPtr patch)
 {
 	patch->SetSettings(&m_Settings);
 	m_Patches.emplace(Entity::E_ComponentType::Graphical, patch);
+	AddComponent(patch);
 }
 
 //=================================================================================
