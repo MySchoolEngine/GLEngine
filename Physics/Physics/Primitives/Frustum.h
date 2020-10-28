@@ -13,7 +13,10 @@
 
 #include <Physics/Primitives/AABB.h>
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
 
 namespace GLEngine::Physics::Primitives {
 
@@ -86,6 +89,10 @@ public:
 		m_foreward = glm::vec3((matrix * glm::vec4(m_position + m_foreward, 1.0f))) - newPosition;
 
 		m_position = newPosition;
+	}
+
+	[[nodiscard]] glm::mat4 GetViewMatrix() const {
+		return glm::lookAt(GetPosition(), GetPosition() + GetForeward(), GetUpVector());
 	}
 
 	[[nodiscard]] constexpr const glm::vec3& GetForeward() const { return m_foreward; }

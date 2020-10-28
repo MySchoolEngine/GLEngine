@@ -30,6 +30,7 @@ workspace "Engine"
   
 	defines{
 		"FMT_HEADER_ONLY=1",
+		"GLM_ENABLE_EXPERIMENTAL",
 	}
 
 	workspace_files{
