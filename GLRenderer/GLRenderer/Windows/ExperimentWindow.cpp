@@ -356,18 +356,27 @@ void C_ExplerimentWindow::SetupWorld()
 		if (player)
 		{
 			float zoom = 5.0f;
-			auto playerCamera = std::make_shared<Renderer::Cameras::FreelookCamera>(player);
+			auto playerCamera = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
 			playerCamera->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
-			playerCamera->positionCamera({ 0,1,0 }, { 0,0,1 });
-			//playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
-			//playerCamera->adjustOrientation(20.f, 20.f);
+			//playerCamera->positionCamera({ 0,1,0 }, { 0,0,1 });
+			playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
+			playerCamera->adjustOrientation(0.f, 0.f);
 			playerCamera->Update();
 			player->AddComponent(playerCamera);
 			m_CamManager.ActivateCamera(playerCamera);
 
-			// area light
-			// m_ShadowPass = std::make_shared<C_ShadowMapTechnique>(m_World, std::static_pointer_cast<Renderer::I_Light>( arealight));
+			auto debugCam = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
+			debugCam->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
+			//playerCamera->positionCamera({ 0,1,0 }, { 0,0,1 });
+			debugCam->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
+			debugCam->adjustOrientation(0.f, 0.f);
+			debugCam->Update();
+			player->AddComponent(debugCam);
+			m_CamManager.SetDebugCamera(debugCam);
+
+			// m_ShadowPass = std::make_shared<C_ShadowMapTechnique>(m_World, std::static_pointer_cast<Renderer::I_Light>(arealight));
 		}
+	}
 	{
 		// create default atmosphere
 		auto entity = m_World->GetOrCreateEntity("atmosphere");
@@ -438,6 +447,9 @@ void C_ExplerimentWindow::SetupWorld()
 
 	const auto rendererWindow = static_cast<C_OGLRenderer*>(m_renderer.get())->SetupControls(guiMGR);
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Renderer", rendererWindow, guiMGR));
+
+	const auto camManager = m_CamManager.SetupControls(guiMGR);
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Camera manager", camManager, guiMGR));
 }
 
 //=================================================================================
