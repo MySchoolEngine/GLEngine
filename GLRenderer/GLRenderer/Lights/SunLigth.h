@@ -18,5 +18,7 @@ struct S_SunLight : public Shaders::I_GLSLStruct<S_SunLight>
 	float		m_SunDiscMultiplier;
 	glm::vec3	m_SunColor;
 	float		m_AsymetricFactor; // mie scattering [0,1]
+	glm::mat4	m_LightViewProjection;
+	std::uint64_t m_SunShadowMap;
 };
 }

@@ -143,6 +143,8 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				m_LightsUBO->GetSunLight().m_SunColor = sunLight->GetSunColor();
 				m_LightsUBO->GetSunLight().m_AsymetricFactor = sunLight->AtmosphereAsymetricFactor();
 				m_LightsUBO->GetSunLight().m_SunDiscMultiplier = sunLight->SunDiscMultiplier();
+				m_LightsUBO->GetSunLight().m_LightViewProjection = m_SunViewProjection;
+				m_LightsUBO->GetSunLight().m_SunShadowMap = m_SunShadowMap;
 
 				C_DebugDraw::Instance().DrawPoint(sunLight->GetSunDirection(), { 1.f, 1.f, 0.f });
 				C_DebugDraw::Instance().DrawLine({ 0.f, 0.f, 0.f }, sunLight->GetSunDirection(), { 1.f, 1.f, 0.f });
@@ -205,6 +207,18 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 			);
 		}
 	}
+}
+
+//=================================================================================
+void C_MainPassTechnique::SetSunShadowMap(std::uint64_t sunShadowMapHandle)
+{
+	m_SunShadowMap = sunShadowMapHandle;
+}
+
+//=================================================================================
+void C_MainPassTechnique::SetSunViewProjection(glm::mat4 viewProjection)
+{
+	m_SunViewProjection = viewProjection;
 }
 
 }
