@@ -83,7 +83,7 @@ Physics::Primitives::C_Frustum C_SunLight::GetShadingFrustum() const
 //=================================================================================
 Physics::Primitives::S_AABB C_SunLight::GetAABB() const
 {
-	throw Physics::Primitives::S_AABB();
+	return Physics::Primitives::S_AABB();
 }
 
 }
