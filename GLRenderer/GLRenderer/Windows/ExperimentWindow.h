@@ -16,6 +16,7 @@
 #include <GUI/Menu/MenuItem.h>
 #include <GLRenderer/MainPassTechnique.h>
 #include <GLRenderer/ShadowMapPass.h>
+#include <GLRenderer/SunShadowMapTechnique.h>
 #include <GLRenderer/Mesh/StaticMeshResource.h>
 
 #include <Entity/EntityManager.h>
@@ -93,6 +94,7 @@ private:
 
 	std::unique_ptr<C_MainPassTechnique>																		m_MainPass;
 	std::shared_ptr<C_ShadowMapTechnique>										m_ShadowPass;
+	std::shared_ptr<C_SunShadowMapTechnique> m_SunShadow;
 
 	std::unique_ptr <C_Framebuffer>																						m_HDRFBO;
 	std::shared_ptr<Mesh::C_StaticMeshResource>							m_ScreenQuad;

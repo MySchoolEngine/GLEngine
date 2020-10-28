@@ -128,11 +128,19 @@ void C_ExplerimentWindow::Update()
 
 	//m_ShadowPass->Render();
 
-	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
-
 	const auto camera = m_CamManager.GetActiveCamera();
 	GLE_ASSERT(camera, "No active camera");
 
+
+	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
+
+	{
+		// shadow pass
+		m_SunShadow->Render(*m_World.get(), camera.get());
+		m_MainPass->SetSunShadowMap(m_SunShadow->GetZBuffer()->GetHandle());
+		m_MainPass->SetSunViewProjection(m_SunShadow->GetLastViewProjection());
+	}
+	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
 	m_MainPass->Render(camera, GetWidth(), GetHeight());
 
 	// ----- Frame init -------
@@ -363,7 +371,9 @@ void C_ExplerimentWindow::SetupWorld()
 	{
 		// create default atmosphere
 		auto entity = m_World->GetOrCreateEntity("atmosphere");
-		entity->AddComponent(std::make_shared<Renderer::C_SunLight>(entity));
+		auto sunComp = std::make_shared<Renderer::C_SunLight>(entity);
+		m_SunShadow = std::make_shared<C_SunShadowMapTechnique>(sunComp);
+		entity->AddComponent(sunComp);
 	}
 	{
 		// billboard
