@@ -223,13 +223,16 @@ bool isInShadow(const vec4 lightSpaceCoord, const sampler2D shadowMap)
 vec3 CalculatePointLight(pointLight light, vec3 norm)
 {
 	// TODO: light intensity
-	vec3 lightDir = normalize(light.position - FragPos);
+    const vec3 toLight = light.position - FragPos;
+	const vec3 lightDir = normalize(toLight);
+    const float distnace = length(toLight);
+    const float attuneation = 1.0 / distnace * distnace;
 
 	vec3 viewDir = normalize(viewPos - FragPos);
 
 	float roughnessVal = GetRoughness(texCoordOUT);
 
-	return BRDF(norm, viewDir, lightDir, light.color * light.intensity, roughnessVal);
+	return BRDF(norm, viewDir, lightDir, light.color * light.intensity, roughnessVal) * attuneation;
 }
 
 //=================================================================================
