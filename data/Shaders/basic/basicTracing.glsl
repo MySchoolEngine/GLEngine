@@ -370,18 +370,13 @@ void main()
 
 	const vec3 norm = GetNormal();
 
-	vec3 omegaIn = FragPos - viewPos;
+	const vec3 omegaIn = FragPos - viewPos;
 	Ray ray;
 	ray.origin = FragPos;
 	ray.dir = reflect(omegaIn,norm);
 
 	vec3 result = vec3(0,0,0);
 
-	float t = 0;
-	float distSq; // distance from the middle of a disc
-
-
-    vec3 omegaOut = normalize(ray.dir);
     vec3 viewDir = normalize(-omegaIn);
 
     result += CalculatSunLight(norm, viewDir, FragPos);
@@ -392,7 +387,6 @@ void main()
 	{
 		result += CalculatePointLight(pLight[i], norm);
 	}
-
 
 	fragColor = vec4(result, 1.0);
 }
