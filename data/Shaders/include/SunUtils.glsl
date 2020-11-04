@@ -55,7 +55,7 @@ vec3 CalculatSunLight(const vec3 N, const vec3 V, const vec3 position)
     const float visibility = SunVisibility(position, N);
     if(visibility == 0)
     {
-        //return vec3(0,0,0); // it is in the shadow
+        return vec3(0,0,0); // it is in the shadow
     }
     const Sphere s = GetAtmosphereBoundary();
 

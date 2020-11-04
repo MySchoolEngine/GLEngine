@@ -12,6 +12,27 @@ const float atmosphereThickness = 60 * 1000; // 60km atmosphere
 const float sunRadius = 695500e3;
 // AU = 149597870700 km;
 const float sunDistance = 1496e8;
+//https://en.wikipedia.org/wiki/Sunlight
+const float sunIlluminanceConstant = 128e3; // lux
+
+//=================================================================================
+bool SunVisibility(const vec3 position)
+{
+    vec4 shadowCoords = pSunLight.viewProjection * vec4(position, 1);
+    // checking whether I am inside viewing frustum
+    if(    shadowCoords.z < -1 || shadowCoords.z > 1
+		|| shadowCoords.x < -1 || shadowCoords.x > 1
+		|| shadowCoords.y < -1 || shadowCoords.y > 1)
+    {
+    	return true;
+    }
+    shadowCoords = vec4(shadowCoords.xyz * 0.5 + 0.5, 1.0f);
+
+    float objectNearestLight = texture(pSunLight.sunShadowMap, shadowCoords.xy).r;
+
+    return shadowCoords.z > objectNearestLight;
+        
+}
 
 vec3 GetPlanetCenter()
 {
@@ -40,7 +61,7 @@ vec3 GetSunColor(Ray r)
 	const float angle = acos(dot(r.dir, normalize(pSunLight.position)));
 	if(angle <= sunBorder * pSunLight.discMultiplier)
 	{
-		return pSunLight.color * 13.61839144264511 * (1 - smoothstep(sunBorder, sunBorder * pSunLight.discMultiplier, angle));
+		return pSunLight.color * sunIlluminanceConstant * (1 - smoothstep(sunBorder, sunBorder * pSunLight.discMultiplier, angle));
 	} 
 	return vec3(0);
 }
@@ -104,20 +125,27 @@ float ReyleighPhaseFunction(float angle)
 float MiePhaseFunctionCS(float g, float angle)
 {
 	const float g2 = pow(g, 2.0);
-	const float k = 3.0/(16.0 * PI);
+	const float k = 3.0/(8.0 * PI);
 	const float denom = (2 + g2) * pow((1 + g2 - 2 * g * angle), 3.0/ 2.0);
 	return (k * ((1- g2)*(1+ angle*angle)) / denom);
 }
 
+// Henyey-Greenstein
+float MiePhaseFunctionHG(float g, float angle)
+{
+	const float g2 = pow(g, 2.0);
+	return 1.0/(4.0*PI) * ((1 - g2)/pow(1 + g2 - 2*g*angle, 3.0/2.0));
+}
 
 //http://www.csroc.org.tw/journal/JOC25-3/JOC25-3-2.pdf
 // Xiao-Lei Fan
 float MiePhaseFunctionXLF(float g, float angle)
 {
 	const float g2 = pow(g, 2.0);
-	const float k = 3.0/(4.0);
+	const float k = 3.0/2.0;
 	const float denom = (1 + g2 - 2 * g * angle);
-	return (1 / (4 * PI)) * (k * ((1-g2)/(2+g2)) * ((1 + angle*angle) / denom) + (g*angle));
+	const float result = k * ((1-g2)/(2+g2)) * ((1 + angle*angle) / denom) + g*angle;
+	return 1.0/(4.0*PI) * result;
 }
 
 vec3 InScatteredLight(vec3 y, vec3 v, vec3 s)
@@ -132,28 +160,66 @@ vec3 GetSkyRadiance(Ray r, float rayLen)
 {
 	const Sphere sun = GetSunSphere();
 	const int numSamples = 16;
+	const int numLightSamples = 10;
 	vec3 samplingPoint = r.origin;
-	float stepSize = rayLen / (numSamples - 1);
+	float stepSize = rayLen / numSamples;
 
-	vec3 airMassAlongARay = vec3(0);
+	vec3 R_airMassAlongRay = vec3(0);
+	vec3 M_airMassAlongRay = vec3(0);
+
+	vec3 R_airMassSum = vec3(0);
+	vec3 M_airMassSum = vec3(0);
+	vec3 inScattered = vec3(0);
 
 	vec3 radiance = vec3(0, 0, 0);
+
 	for ( int i = 0; i < numSamples; ++i)
 	{
 		const float altitude = GetAltitude(samplingPoint); 
 		const vec3 BeR = GetAirExtinctionCoef(altitude);
 		const vec3 BeM = GetAreosolExtinctionCoef(altitude);
-		airMassAlongARay += stepSize * (BeR + BeM);
+		R_airMassAlongRay += BeR * stepSize;
+		M_airMassAlongRay += BeM * stepSize;
 
 		vec3 intersect;
 		const Ray toSun = Ray(samplingPoint, normalize(sun.center - samplingPoint));
 		Intersect(toSun, sun, intersect);
 
-		vec3 toSunTransmittance = Transmittance(toSun, intersect.z);
 
-		radiance += stepSize * InScatteredLight(samplingPoint, r.dir, normalize(sun.center - samplingPoint)) * exp(-airMassAlongARay) * toSunTransmittance * pSunLight.color * 13.61839144264511; // * Transmittance(toSun, intersect.z);
+		if(SunVisibility(samplingPoint))
+		{
+			const float lightStepSize = intersect.z / numLightSamples;
+			vec3 R_AirMassToLight = vec3(0);
+			vec3 M_AirMassToLight = vec3(0);
+			for(int j = 0; j < numLightSamples; ++j)
+			{
+				const vec3 ligthSample = samplingPoint + toSun.dir * j * lightStepSize;
+				if(ligthSample.y <= 0)
+				{
+					//R_AirMassToLight = vec3(0);
+					//M_AirMassToLight = vec3(0);
+					//continue;
+				}
+				const float altitude = GetAltitude(ligthSample); 
+				const vec3 BeR = GetAirExtinctionCoef(altitude);
+				const vec3 BeM = GetAreosolExtinctionCoef(altitude);
+				R_AirMassToLight += BeR * lightStepSize;
+				M_AirMassToLight += BeM * lightStepSize;
+			}
+			const vec3 tau = (R_airMassAlongRay + R_AirMassToLight) + (M_airMassAlongRay + M_AirMassToLight);
+			const vec3 attuneation = exp(-tau);
+			R_airMassSum += attuneation * BeR;
+			M_airMassSum += attuneation * BeM;
+		}
 		samplingPoint += r.dir * stepSize;
 	}
 
-	return radiance + exp(-airMassAlongARay) * GetSunColor(r);// Transmittance(r, rayLen);
+	const Ray toSun = Ray(r.origin, normalize(sun.center - r.origin));
+	const float mu = dot(r.dir, toSun.dir);
+	const float PMie = MiePhaseFunctionXLF(pSunLight.asymetricFactor, mu);
+	const float PMieHG = MiePhaseFunctionHG(pSunLight.asymetricFactor, mu);
+	const float PMieCS = MiePhaseFunctionCS(pSunLight.asymetricFactor, mu);
+	const float PRay = ReyleighPhaseFunction(dot(r.dir, toSun.dir));
+
+	return (R_airMassSum * PRay + M_airMassSum * PMie) * sunIlluminanceConstant + exp(-(M_airMassAlongRay + R_airMassAlongRay)) * GetSunColor(r);
 }
