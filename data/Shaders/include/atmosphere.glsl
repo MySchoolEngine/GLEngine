@@ -60,11 +60,10 @@ Sphere GetSunSphere()
 
 vec3 GetSunColor(Ray r)
 {
-	const float sunBorder = SunAngularRadius;
 	const float angle = acos(dot(r.dir, normalize(pSunLight.position)));
-	if(angle <= sunBorder)
+	if(angle <= SunAngularRadius)
 	{
-		return pSunLight.color * sunIlluminanceConstant * (1 - smoothstep(sunBorder, sunBorder * pSunLight.discMultiplier, angle));
+		return pSunLight.color * sunIlluminanceConstant;
 	} 
 	return vec3(0);
 }
@@ -189,8 +188,8 @@ vec3 GetSkyRadiance(Ray r, float rayLen)
 		Intersect(toSun, sun, intersect);
 
 
-		if(SunVisibility(samplingPoint))
-		{
+		//if(SunVisibility(samplingPoint))
+		//{
 			const float lightStepSize = intersect.z / numLightSamples;
 			vec3 R_AirMassToLight = vec3(0);
 			vec3 M_AirMassToLight = vec3(0);
@@ -213,7 +212,7 @@ vec3 GetSkyRadiance(Ray r, float rayLen)
 			const vec3 attuneation = exp(-tau);
 			R_airMassSum += attuneation * BeR;
 			M_airMassSum += attuneation * BeM;
-		}
+		//}
 		samplingPoint += r.dir * stepSize;
 	}
 
@@ -224,5 +223,5 @@ vec3 GetSkyRadiance(Ray r, float rayLen)
 	const float PMieCS = MiePhaseFunctionCS(pSunLight.asymetricFactor, mu);
 	const float PRay = ReyleighPhaseFunction(dot(r.dir, toSun.dir));
 
-	return (R_airMassSum * PRay + M_airMassSum * PMie) * sunIlluminanceConstant + exp(-(M_airMassAlongRay + R_airMassAlongRay)) * GetSunColor(r);
+	return (R_airMassSum * PRay + M_airMassSum * PMieCS) * sunIlluminanceConstant + exp(-(M_airMassAlongRay + R_airMassAlongRay)) * GetSunColor(r);
 }
