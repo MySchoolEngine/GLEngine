@@ -13,6 +13,8 @@ const Length atmosphereThickness = 60*km; // 60km atmosphere
 const Length sunRadius = 695500*km;
 // AU = 149597870700 km;
 const Length sunDistance = 1496e5*km;
+const float SunAngularRadius = asin(sunRadius/sunDistance) * pSunLight.discMultiplier;
+const float SunAngularDiameter = SunAngularRadius*2;
 //https://en.wikipedia.org/wiki/Sunlight
 const Illuminance sunIlluminanceConstant = 128e3 * lux; // lux
 
@@ -58,9 +60,9 @@ Sphere GetSunSphere()
 
 vec3 GetSunColor(Ray r)
 {
-	const float sunBorder = asin(sunRadius / sunDistance);
+	const float sunBorder = SunAngularRadius;
 	const float angle = acos(dot(r.dir, normalize(pSunLight.position)));
-	if(angle <= sunBorder * pSunLight.discMultiplier)
+	if(angle <= sunBorder)
 	{
 		return pSunLight.color * sunIlluminanceConstant * (1 - smoothstep(sunBorder, sunBorder * pSunLight.discMultiplier, angle));
 	} 
