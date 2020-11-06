@@ -1,19 +1,20 @@
 // for 680, 550, 440
 const vec3 SeaLevelScatterCoef = vec3(5.8, 13.5, 33.1) * pow(10.0, -6);
 const vec3 SeaLevelMScatterCoef = vec3(21) * pow(10,-6);
+const vec3 SeaLevelOzoneScatterCoef = vec3(0);
 const float Hr = 1/7.994e3; // Hr = 8 km
 const float Hm = 1/1.2e3; // Hm = 1.2 km
 const float scatter2ExtinctionRatio = 0.9; // B^s/B^e = 0.9 according to paper, only areosols absorbs incident light
 
-const float earthRadius = 6378*1000; // 6378 setri se osle
-const float atmosphereThickness = 60 * 1000; // 60km atmosphere
+const Length earthRadius = 6378*km; // 6378 setri se osle
+const Length atmosphereThickness = 60*km; // 60km atmosphere
 
 // 695500 km
-const float sunRadius = 695500e3;
+const Length sunRadius = 695500*km;
 // AU = 149597870700 km;
-const float sunDistance = 1496e8;
+const Length sunDistance = 1496e5*km;
 //https://en.wikipedia.org/wiki/Sunlight
-const float sunIlluminanceConstant = 128e3; // lux
+const Illuminance sunIlluminanceConstant = 128e3 * lux; // lux
 
 //=================================================================================
 bool SunVisibility(const vec3 position)

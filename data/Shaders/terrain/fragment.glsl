@@ -1,9 +1,13 @@
 #version 430
 #extension GL_ARB_bindless_texture : require
 
+#include "../include/units.glsl"
 #include "includes/layersIndexes.glsl"
 #include "../include/frameConstants.glsl"
 #include "../include/LightsUBO.glsl"
+#include "../include/PBRT.glsl"
+#include "../include/tracing.glsl"
+#include "../include/atmosphere.glsl"
 //per mesh
 layout (binding = 0) uniform sampler2DArray tex;
 uniform vec3 modelColor[Terrain_NumLayers];

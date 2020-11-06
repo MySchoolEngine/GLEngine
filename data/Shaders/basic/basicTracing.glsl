@@ -4,6 +4,7 @@
 #define NUM_POINTLIGHT 10
 #define NUM_AREALIGHT 4
 
+#include "../include/units.glsl"
 #include "../include/frameConstants.glsl"
 #include "../include/tracing.glsl"
 #include "../include/LightsUBO.glsl"

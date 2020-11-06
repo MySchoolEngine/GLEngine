@@ -4,6 +4,7 @@
 out vec4 FragColor;
 in vec2 TexCoords;
 
+#include "../include/units.glsl"
 #include "../include/frameConstants.glsl"
 #include "../include/tracing.glsl"
 #include "../include/pbrt.glsl"
