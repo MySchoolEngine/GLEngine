@@ -14,10 +14,12 @@ jobs:
       - uses: actions/checkout@v2
       - uses: textbook/git-checkout-submodule-action@master
       - name: Download premake
-        run: wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha12/premake-5.0.0-alpha12-linux.tar.gz -O premake.tar.gz
+        run: wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-linux.tar.gz -O premake.tar.gz
       - name: Unzip premake
         run: tar -xf premake.tar.gz
       - name: Generate makefiles
         run: ./premake5 gmake2
-      - name: Build
-        run: make all
+      - name: Build debug
+        run: make config=debug
+      - name: Build release
+        run: make config=release
