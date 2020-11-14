@@ -1,0 +1,21 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+        
+jobs:
+  prepare:
+    name: preamke run
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download premake
+        run: wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha12/premake-5.0.0-alpha12-linux.tar.gz -O premake.tar.gz
+      - name: Unzip premake
+        run: tar -xf premake.tar.gz
+      - name: Generate makefiles
+        run: premake5 gmake2
+      - name: Build
+        run: make all
