@@ -7,8 +7,8 @@ on:
     branches: [ master ]
         
 jobs:
-  prepare:
-    name: preamke run
+  premake:
+    name: GCC
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -23,3 +23,9 @@ jobs:
         run: make config=debug
       - name: Build release
         run: make config=release
+  msvc:
+    name: MSVC
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: textbook/git-checkout-submodule-action@master
