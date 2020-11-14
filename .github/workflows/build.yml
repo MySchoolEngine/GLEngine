@@ -11,6 +11,7 @@ jobs:
     name: preamke run
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: Download premake
         run: wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha12/premake-5.0.0-alpha12-linux.tar.gz -O premake.tar.gz
       - name: Unzip premake
