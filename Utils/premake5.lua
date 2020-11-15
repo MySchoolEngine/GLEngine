@@ -33,9 +33,6 @@ project "Utils"
 			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")
 		}
 
-
-	filter "system:linux"
-		links { "stdc++fs" }
 	filter "configurations:Debug"
 		runtime "Debug"
 		symbols "On"

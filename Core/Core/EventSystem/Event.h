@@ -80,10 +80,10 @@ class EventCategoryBase {
 };
 
 template<GLEngine::Core::E_EventCategory e,
-	typename retType = EventCategoryBase<e>::type>
+	typename retType = typename EventCategoryBase<e>::type>
 constexpr retType& event_base_cast(GLEngine::Core::I_Event& comp)
 {
-	return static_cast<typename retType&>(comp);
+	return static_cast<retType&>(comp);
 }
 
 }

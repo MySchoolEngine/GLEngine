@@ -22,6 +22,7 @@ end)
 workspace "Engine"
 	architecture "x64"
 	startproject "Sandbox"
+	cppdialect "C++17"
 	
 	configurations{
 		"Debug",
@@ -30,6 +31,8 @@ workspace "Engine"
   
 	defines{
 		"FMT_HEADER_ONLY=1",
+		"CORE_PLATFORM_WIN=1",
+		"CORE_PLATFORM_LINUX=2"
 	}
 
 	workspace_files{
@@ -38,7 +41,8 @@ workspace "Engine"
 		"premakeDefines.lua",
 	}
 
-	filter "action:vs*"
+	filter "system:windows"
+		disablewarnings {"4251"}
 		defines {
 			"CORE_PLATFORM=CORE_PLATFORM_WIN",
 			"WIN32", 
@@ -46,12 +50,11 @@ workspace "Engine"
 			"_CRT_SECURE_NO_WARNINGS",
 		}
 
-	filter "system:windows"
-		disablewarnings {"4251"}
 	filter "system:linux"
 		defines {
 			"CORE_PLATFORM=CORE_PLATFORM_LINUX"
 		}
+		links { "stdc++fs" }
 
   filter "configurations:Debug"
     defines "GL_ENGINE_DEBUG"

@@ -21,14 +21,13 @@ project "Core"
 		"../%{IncludeDir.fmt}",
 	}
 
-	filter "system:windows"
-		cppdialect "C++17"
-		systemversion "latest"
+	defines
+	{
+		"BUILD_CORE_DLL",
+	}
 
-		defines
-		{
-			"BUILD_CORE_DLL",
-		}
+	filter "system:windows"
+		systemversion "latest"
 
 		postbuildcommands
 		{
