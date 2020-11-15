@@ -22,6 +22,9 @@ project "pugixml"
 			("{COPY} %{cfg.buildtarget.relpath} \"../../bin/" .. outputdir .. "/Sandbox/\"")
 		}
 
+	filter "system:linux"
+		pic "On"
+
 	filter "configurations:Debug"
 		runtime "Debug"
 		symbols "On"

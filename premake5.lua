@@ -38,8 +38,6 @@ workspace "Engine"
 		"premakeDefines.lua",
 	}
 
-	disablewarnings {"4251"}
-
 	filter "action:vs*"
 		defines {
 			"CORE_PLATFORM=CORE_PLATFORM_WIN",
@@ -48,9 +46,11 @@ workspace "Engine"
 			"_CRT_SECURE_NO_WARNINGS",
 		}
 
-	filter "action:gmake"
+	filter "system:windows"
+		disablewarnings {"4251"}
+	filter "system:linux"
 		defines {
-			"_GLFW_X11",
+			"CORE_PLATFORM=CORE_PLATFORM_LINUX"
 		}
 
   filter "configurations:Debug"

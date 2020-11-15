@@ -1,6 +1,8 @@
 project "ImGui"
     kind "SharedLib"
     language "C++"
+    cppdialect "C++17"
+    staticruntime "Off"
     
 	targetdir ("../../../bin/" .. outputdir .. "/vendor/%{prj.name}")
     objdir ("../../../obj/" .. outputdir .. "/vendor/%{prj.name}")
@@ -28,7 +30,6 @@ project "ImGui"
     defines
     {
         "IMGUI_IMPL_OPENGL_LOADER_GLAD",
-    	"IMGUI_API=__declspec(dllexport)",
         "IMGUI_IMPL_API="
     }
     links
@@ -38,13 +39,20 @@ project "ImGui"
     }
 	filter "system:windows"
         systemversion "latest"
-        cppdialect "C++17"
-        staticruntime "Off"
+        defines
+        {
+            "IMGUI_API=__declspec(dllexport)",
+        }
         
         postbuildcommands
         {
             ("{COPY} %{cfg.buildtarget.relpath} \"../../../bin/" .. outputdir .. "/Sandbox/\"")
         }
-        
     filter { "system:windows", "configurations:Release" }
         buildoptions "/MT"
+        
+    filter "system:linux"
+        defines
+        {
+            "IMGUI_API=__attribute__((dllexport))",
+        }

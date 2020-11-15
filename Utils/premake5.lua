@@ -4,6 +4,7 @@ project "Utils"
 	kind "SharedLib"
 	language "C++"
 	staticruntime "off"
+	cppdialect "C++17"
 	
 	SetupProject("Utils")
 
@@ -19,21 +20,22 @@ project "Utils"
 	{ 
 		"pugixml",
 	}
+	
+	defines
+	{
+		"BUILD_UTILS_DLL",
+	}
 
 	filter "system:windows"
-		cppdialect "C++17"
 		systemversion "latest"
-
-		defines
-		{
-			"BUILD_UTILS_DLL",
-		}
-
 		postbuildcommands
 		{
 			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")
 		}
 
+
+	filter "system:linux"
+		links { "stdc++fs" }
 	filter "configurations:Debug"
 		runtime "Debug"
 		symbols "On"
