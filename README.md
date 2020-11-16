@@ -1,6 +1,6 @@
 # GLEngine
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/0c09524c2a59475ea538d0ec615a999d)](https://app.codacy.com/gh/MySchoolEngine/GLEngine?utm_source=github.com&utm_medium=referral&utm_content=MySchoolEngine/GLEngine&utm_campaign=Badge_Grade_Dashboard)![Build](https://github.com/MySchoolEngine/GLEngine/workflows/build/badge.svg)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/0c09524c2a59475ea538d0ec615a999d)](https://app.codacy.com/gh/MySchoolEngine/GLEngine?utm_source=github.com&utm_medium=referral&utm_content=MySchoolEngine/GLEngine&utm_campaign=Badge_Grade_Dashboard)[![Build](https://github.com/MySchoolEngine/GLEngine/workflows/build/badge.svg)](https://github.com/MySchoolEngine/GLEngine/actions?workflow=build)
 
 
 ![alt text](https://github.com/RohacekD/GLEngine/blob/master/wikidata/AreaLight.png?raw=true)
