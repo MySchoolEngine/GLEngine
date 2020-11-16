@@ -13,7 +13,6 @@ project "GUI"
 	includedirs
 	{
 		"../Renderer",
-		"../Core",
 		"../Physics",
 		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.GLM}",
@@ -27,12 +26,8 @@ project "GUI"
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
-		systemversion "latest"
-
 		defines
 		{
-			"BUILD_GUI_DLL",
 			"IMGUI_API=__declspec(dllimport)"
 		}
 

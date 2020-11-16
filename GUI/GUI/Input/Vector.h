@@ -7,9 +7,9 @@ namespace GLEngine::GUI::Input {
 template<class T>
 class C_Vector : public I_GUIPart {
 public:
-	C_Vector(std::string&& name, T default)
+	C_Vector(std::string&& name, T val)
 		: m_name(std::move(name))
-		, m_Value(default) {}
+		, m_Value(val) {}
 
 	const T& GetValue() const
 	{
@@ -28,7 +28,7 @@ protected:
 class C_Vec3 final : public C_Vector<glm::vec3>
 {
 public:
-	C_Vec3(std::string&& name, glm::vec3 default);
+	C_Vec3(std::string&& name, glm::vec3 val);
 
 	void Draw() const override;
 
