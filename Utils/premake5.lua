@@ -5,7 +5,7 @@ project "Utils"
 	language "C++"
 	staticruntime "off"
 	cppdialect "C++17"
-	
+
 	SetupProject("Utils")
 
 	includedirs
@@ -15,12 +15,12 @@ project "Utils"
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.pugixml}",
 	}
-	
+
 	links 
 	{ 
 		"pugixml",
 	}
-	
+
 	defines
 	{
 		"BUILD_UTILS_DLL",

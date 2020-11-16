@@ -21,11 +21,6 @@ project "Core"
 		"../%{IncludeDir.fmt}",
 	}
 
-	defines
-	{
-		"BUILD_CORE_DLL",
-	}
-
 	filter "system:windows"
 		systemversion "latest"
 
