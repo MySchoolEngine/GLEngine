@@ -26,7 +26,8 @@ void C_EntitiesWindow::Draw() const
 		bool selected = false;
 		::ImGui::Selectable(entity->GetName().c_str(), &selected);
 		if (selected) {
-			entity->OnEvent(Core::C_UserEvent("selected"));
+			Core::C_UserEvent event("selected");
+			entity->OnEvent(event);
 		}
 	}
 	::ImGui::End();

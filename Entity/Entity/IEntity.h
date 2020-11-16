@@ -44,9 +44,9 @@ public:
 	void AddComponent(T_ComponentPtr component);
 
 	template<E_ComponentType e,
-		typename retType = ComponenetBase<e>::type,
-		typename ret = std::shared_ptr<typename retType>>
-	[[nodiscard]] typename ret GetComponent() {
+		typename retType = typename ComponenetBase<e>::type,
+		typename ret = std::shared_ptr<retType>>
+	[[nodiscard]] ret GetComponent() {
 		auto range = GetComponents(e);
 		if (range.empty())
 			return nullptr;
