@@ -12,9 +12,9 @@
 	#endif
 #elif __linux__
 	#ifdef BUILD_UTILS_DLL
-		#define UTILS_API_EXPORT __attribute__((dllexport))
+		#define UTILS_API_EXPORT [[gnu::dllexport]]
 	#else
-		#define UTILS_API_EXPORT __attribute__((dllimport))
+		#define UTILS_API_EXPORT [[gnu::dllimport]]
 	#endif
 #endif
 

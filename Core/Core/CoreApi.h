@@ -11,7 +11,7 @@
 		#define CORE_API_EXPORT __declspec(dllimport)
 	#endif
 #elif __linux__
-	#ifdef BUILD_UTILS_DLL
+	#ifdef BUILD_CORE_DLL
 		#define CORE_API_EXPORT __attribute__((dllexport))
 	#else
 		#define CORE_API_EXPORT __attribute__((dllimport))
