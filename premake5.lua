@@ -23,7 +23,8 @@ workspace "Engine"
 	architecture "x64"
 	startproject "Sandbox"
 	cppdialect "C++17"
-	
+	systemversion "latest"
+
 	configurations{
 		"Debug",
 		"Release"
@@ -32,7 +33,8 @@ workspace "Engine"
 	defines{
 		"FMT_HEADER_ONLY=1",
 		"CORE_PLATFORM_WIN=1",
-		"CORE_PLATFORM_LINUX=2"
+		"CORE_PLATFORM_LINUX=2",
+		"_UNICODE",
 	}
 
 	workspace_files{
