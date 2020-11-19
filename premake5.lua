@@ -82,6 +82,7 @@ group "Dependencies"
   include "vendor/projects/ImGuiFileDialog"
   include "vendor/projects/DevIL"
   include "vendor/projects/dirent"
+  include "vendor/projects/zlib"
 group ""
 
 include "Core"
