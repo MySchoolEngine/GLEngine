@@ -31,7 +31,7 @@ public:
 		, m_radius(radius)
 	{}
 
-	[[nodiscard]] constexpr bool IsColliding(const S_Sphere& other) const
+	[[nodiscard]] bool IsColliding(const S_Sphere& other) const
 	{
 		auto distance = glm::abs(glm::length(m_position - other.m_position));
 		if (distance < m_radius + other.m_radius) {
@@ -39,7 +39,7 @@ public:
 		}
 		return false;
 	}
-	constexpr void Transform(const glm::mat4& matrix)
+	void Transform(const glm::mat4& matrix)
 	{
 		m_position = glm::vec3(matrix * glm::vec4(m_position, 1.0f));
 	}

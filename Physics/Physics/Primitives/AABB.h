@@ -148,7 +148,7 @@ public:
 		Add(triangleVertices[2]);
 	}
 
-	[[nodiscard]] constexpr S_Sphere GetSphere() const
+	[[nodiscard]] S_Sphere GetSphere() const
 	{
 		glm::vec3 center = m_Min + (m_Max - m_Min) / 2.0f;
 		float radius = glm::abs(glm::length(m_Max - center));
