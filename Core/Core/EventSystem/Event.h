@@ -28,8 +28,8 @@ enum class E_EventCategory {
 };
 
 //=================================================================================
-// helpful macrso taken from TheCherno's code
-#define EVENT_CLASS_TYPE(type) static E_EventType GetStaticType() { return E_EventType::##type; }\
+// helpful macros taken from TheCherno's code
+#define EVENT_CLASS_TYPE(type) static E_EventType GetStaticType() { return E_EventType::type; }\
 								virtual E_EventType GetType() const override { return GetStaticType(); }\
 								virtual const char* GetName() const override { return #type; }
 
