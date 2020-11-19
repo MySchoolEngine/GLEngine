@@ -29,7 +29,7 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 	C_Skeleton& skeleton,
 	C_SkeletalAnimation& animation,
 	MeshData::AnimationData& animData,
-	glm::mat4& transform /*= glm::mat4(1)*/)
+	glm::mat4& transform)
 {
 	std::string name;
 	name.append(filepath);
