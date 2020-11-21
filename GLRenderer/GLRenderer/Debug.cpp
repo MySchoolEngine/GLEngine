@@ -297,7 +297,7 @@ void C_DebugDraw::DrawSkeleton(const glm::vec3& root, const Renderer::Animation:
 }
 
 //=================================================================================
-void C_DebugDraw::DrawAxis(const glm::vec3& origin, const glm::vec3& up, const glm::vec3& foreward, glm::mat4 & modelMatrix)
+void C_DebugDraw::DrawAxis(const glm::vec3& origin, const glm::vec3& up, const glm::vec3& foreward, const glm::mat4 & modelMatrix)
 {
 	glm::vec3 rightVec = toVec4(glm::normalize(glm::cross(glm::vec3(up), glm::vec3(foreward))));
 	const auto originInModelSpace = modelMatrix * glm::vec4(origin, 1.0f);
@@ -307,7 +307,7 @@ void C_DebugDraw::DrawAxis(const glm::vec3& origin, const glm::vec3& up, const g
 }
 
 //=================================================================================
-void C_DebugDraw::DrawGrid(const glm::vec4& origin, unsigned short linesToSide, glm::mat4& modelMatrix /*= glm::mat4(1.0f)*/)
+void C_DebugDraw::DrawGrid(const glm::vec4& origin, unsigned short linesToSide, const glm::mat4& modelMatrix /*= glm::mat4(1.0f)*/)
 {
 	int limit = linesToSide;
 	// cross for center

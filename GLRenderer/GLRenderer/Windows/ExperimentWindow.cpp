@@ -458,7 +458,8 @@ void C_ExplerimentWindow::MouseSelect()
 	if (inter.distance > 0) {
 		auto entity = m_World->GetEntity(inter.entityId);
 		if (entity) {
-			entity->OnEvent(Core::C_UserEvent("selected"));
+			Core::C_UserEvent event("selected");
+			entity->OnEvent(event);
 		}
 	}
 }
