@@ -14,6 +14,8 @@
 
 #include <Core/Application.h>
 
+#include <Utils/DebugBreak.h>
+
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -63,9 +65,7 @@ bool _glErrorCheck(const char* file, const int line)
 			// << glewGetErrorString(status)
 			<< std::dec
 			<< std::endl;
-#ifdef GL_ENGINE_DEBUG
-		__debugbreak();
-#endif
+		DebugBreak();
 		return true;
 	}
 	return false;
@@ -86,9 +86,7 @@ MessageCallback(GLenum source,
 	CORE_LOG(E_Level::Error, E_Context::Render,"GL CALLBACK: {} type = {}, severity = 0x{:x}, message = {}",
 		(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
 		glErrorTypeToString(type), severity, message);
-#ifdef GL_ENGINE_DEBUG
-	__debugbreak();
-#endif
+	DebugBreak();
 }
 
 //=================================================================================
