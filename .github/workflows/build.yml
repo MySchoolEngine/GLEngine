@@ -28,6 +28,9 @@ jobs:
   msvc:
     name: MSVC
     runs-on: windows-latest
+    env:
+      VS_PATH: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\
+      MSBUILD_PATH: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\
     steps:
       - uses: actions/checkout@v2
-      - uses: textbook/git-checkout-submodule-action@master
+      - uses: Mushus/checkout-submodule@v1.0.1
