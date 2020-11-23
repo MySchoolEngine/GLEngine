@@ -54,5 +54,5 @@ project "ImGui"
     filter "system:linux"
         defines
         {
-            "IMGUI_API=__attribute__((dllexport))",
+            "IMGUI_API=",
         }
