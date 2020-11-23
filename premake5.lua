@@ -80,8 +80,9 @@ group "Dependencies"
   include "vendor/projects/ImGui"
   include "vendor/projects/ImGuiFileDialog"
   include "vendor/projects/DevIL"
+if _TARGET_OS ~= "linux" then
   include "vendor/projects/dirent"
-  include "vendor/projects/zlib"
+end
 group ""
 
 include "Core"
@@ -93,5 +94,6 @@ include "Entity"
 include "Utils"
 include "Physics"
 
-filter "action:vs*"
+if _TARGET_OS ~= "linux" then
   include "DX12Renderer"
+end
