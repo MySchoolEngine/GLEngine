@@ -12,9 +12,9 @@
 	#endif
 #elif __linux__
 	#ifdef BUILD_RENDERER_DLL
-		#define RENDERER_API_EXPORT [[gnu::dllexport]]
+		#define RENDERER_API_EXPORT
 	#else
-		#define RENDERER_API_EXPORT [[gnu::dllimport]]
+		#define RENDERER_API_EXPORT
 	#endif
 #endif
 

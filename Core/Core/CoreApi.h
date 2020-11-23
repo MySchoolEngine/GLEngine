@@ -12,9 +12,9 @@
 	#endif
 #elif __linux__
 	#ifdef BUILD_CORE_DLL
-		#define CORE_API_EXPORT __attribute__((dllexport))
+		#define CORE_API_EXPORT
 	#else
-		#define CORE_API_EXPORT __attribute__((dllimport))
+		#define CORE_API_EXPORT
 	#endif
 #endif
 

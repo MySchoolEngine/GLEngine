@@ -4,6 +4,8 @@
 #include <GLRenderer/Commands/FBO/glFramebufferTexture.h>
 #include <GLRenderer/Commands/FBO/GLCheckFramebufferStatus.h>
 
+#include <Renderer/IRenderer.h>
+
 #include <Core/Application.h>
 
 namespace GLEngine::GLRenderer {

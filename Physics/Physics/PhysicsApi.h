@@ -12,9 +12,9 @@
 	#endif
 #elif __linux__
 	#ifdef BUILD_PHYSICS_DLL
-		#define PHYSICS_API_EXPORT [[gnu::dllexport]]
+		#define PHYSICS_API_EXPORT
 	#else
-		#define PHYSICS_API_EXPORT [[gnu::dllimport]]
+		#define PHYSICS_API_EXPORT
 	#endif
 #endif
 

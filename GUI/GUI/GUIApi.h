@@ -12,9 +12,9 @@
 	#endif
 #elif __linux__
 	#ifdef BUILD_GUI_DLL
-		#define GUI_API_EXPORT [[gnu::dllexport]]
+		#define GUI_API_EXPORT
 	#else
-		#define GUI_API_EXPORT [[gnu::dllimport]]
+		#define GUI_API_EXPORT
 	#endif
 #endif
 

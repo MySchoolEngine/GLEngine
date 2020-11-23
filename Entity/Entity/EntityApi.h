@@ -12,9 +12,9 @@
 	#endif
 #elif __linux__
 	#ifdef BUILD_ENTITY_DLL
-		#define ENTITY_API_EXPORT __attribute__((dllexport))
+		#define ENTITY_API_EXPORT
 	#else
-		#define ENTITY_API_EXPORT __attribute__((dllimport))
+		#define ENTITY_API_EXPORT
 	#endif
 #endif
 
