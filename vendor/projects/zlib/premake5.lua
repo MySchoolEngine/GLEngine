@@ -39,6 +39,11 @@ project "zlib"
         "../../Assimp/contrib/zlib/zutil.c",
         "./zconf.h",
     }
+
+    defines
+    {
+        "ZLIB_DLL",
+    }
     
 	filter "system:windows"
         staticruntime "On"
