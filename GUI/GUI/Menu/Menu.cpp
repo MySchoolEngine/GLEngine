@@ -5,8 +5,8 @@
 
 namespace GLEngine::GUI::Menu {
 //=================================================================================
-C_Menu::C_Menu(const std::string& label)
-	: m_Label(label)
+C_Menu::C_Menu(const std::string&& label)
+	: m_Label(std::move(label))
 {
 
 }

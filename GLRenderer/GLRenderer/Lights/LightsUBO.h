@@ -1,9 +1,9 @@
 #pragma once
 
-#include <GLRenderer\Buffers\UniformBuffer.h>
+#include <GLRenderer/Buffers/UniformBuffer.h>
 
-#include <GLRenderer\Lights\PointLightStruct.h>
-#include <GLRenderer\Lights\AreaLightStruct.h>
+#include <GLRenderer/Lights/PointLightStruct.h>
+#include <GLRenderer/Lights/AreaLightStruct.h>
 
 namespace GLEngine::GLRenderer {
 namespace Textures

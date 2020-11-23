@@ -4,6 +4,8 @@
 #include <GLRenderer/Commands/FBO/glFramebufferTexture.h>
 #include <GLRenderer/Commands/FBO/GLCheckFramebufferStatus.h>
 
+#include <Core/Application.h>
+
 namespace GLEngine::GLRenderer {
 //=================================================================================
 template<E_FramebufferTarget target /*= E_FramebufferTarget::Framebuffer*/>

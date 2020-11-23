@@ -30,13 +30,13 @@ C_OGLRenderer::C_OGLRenderer()
 	, m_CurrentPass(Renderer::E_PassType::FinalPass)
 	, m_GUITexts(
 		{{
-				("Avg draw commands: {:.2f}"),
-				("Min/max {:.2f}/{:.2f}"),
-				("Draw calls: {}")
+				GUI::C_FormatedText("Avg draw commands: {:.2f}"),
+				GUI::C_FormatedText("Min/max {:.2f}/{:.2f}"),
+				GUI::C_FormatedText("Draw calls: {}")
 			}})
 	, m_ScreenCaptureList("Capture frame commands", [&]() {m_OutputCommandList = true; })
 	, m_Window(INVALID_GUID)
-	, m_Windows("Windows")
+	, m_Windows(std::string("Windows"))
 {
 	int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 

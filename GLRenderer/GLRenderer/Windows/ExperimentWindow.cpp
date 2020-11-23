@@ -71,11 +71,11 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	, m_MainPass(nullptr)
 	, m_ShadowPass(nullptr)
 	, m_GUITexts({{
-		("Avg frame time {:.2f}"),
-		("Avg fps {:.2f}"),
-		("Min/max frametime {:.2f}/{:.2f}")
+		GUI::C_FormatedText("Avg frame time {:.2f}"),
+		GUI::C_FormatedText("Avg fps {:.2f}"),
+		GUI::C_FormatedText("Min/max frametime {:.2f}/{:.2f}")
 		}})
-	, m_Windows("Windows")
+	, m_Windows(std::string("Windows"))
 {
 	glfwMakeContextCurrent(m_Window);
 

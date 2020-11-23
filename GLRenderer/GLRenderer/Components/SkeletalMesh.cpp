@@ -37,6 +37,7 @@ namespace GLEngine::GLRenderer::Components {
 //=================================================================================
 void C_SkeletalMesh::DebugDrawGUI()
 {
+	const static auto zeroVec = glm::vec4(0.f, 0.f, .0f, 1.f);
 	m_RenderMesh.Draw();
 	m_AnimationProgress.Draw();
 
@@ -44,7 +45,7 @@ void C_SkeletalMesh::DebugDrawGUI()
 	DrawJointGUI = [&DrawJointGUI](const Renderer::Animation::S_Joint& joint)
 	{
 		if (::ImGui::CollapsingHeader(joint.m_Name.c_str())) {
-			auto& pos = (joint.GetAnimatedTransform()) * glm::vec4(0.f, 0.f, .0f, 1.f);
+			const auto& pos = (joint.GetAnimatedTransform()) * zeroVec;
 			::ImGui::Text("Original pos: [%f, %f, %f]", pos.x, pos.y, pos.z);
 			for (const auto& child : joint.m_Children)
 			{
