@@ -41,11 +41,11 @@ jobs:
       - name: Get premake5
         shell: powershell
         run: |
-          Invoke-WebRequest -Uri "https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-windows.zip" -OutFile "premake-5.0.0-alpha15-windows.zip"
-          Expand-Archive -Path premake-5.0.0-alpha15-windows.zip
+          Invoke-WebRequest -Uri "https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-windows.zip" -OutFile "premake.zip"
+          Expand-Archive -Path premake.zip
       - name: Generate solution
         shell: cmd
-        run: premake5.exe vs2019
+        run: premake\premake5.exe vs2019
       - name: Build
         shell: cmd
         run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln'
