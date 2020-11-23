@@ -31,7 +31,7 @@ bool TextureLoader::loadTexture(const std::filesystem::path& path, MeshData::Tex
 	ilGenImages(1, &image);
 	ilBindImage(image);
 
-	ilLoadImage(path.wstring().c_str());
+	ilLoadImage(path.generic_string().c_str());
 
 	ILenum Error;
 	Error = ilGetError();
