@@ -46,6 +46,9 @@ jobs:
       - name: Generate solution
         shell: cmd
         run: premake\premake5.exe vs2019
-      - name: Build
+      - name: Build release
         shell: cmd
-        run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln'
+        run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=Release'
+      - name: Build debug
+        shell: cmd
+        run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=Debug'
