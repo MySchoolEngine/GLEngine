@@ -59,7 +59,7 @@ C_OGLRenderer::~C_OGLRenderer()
 void C_OGLRenderer::AddCommand(Renderer::I_Renderer::T_CommandPtr command)
 {
 	if (m_Locked) {
-		DebugBreak();
+		GL_DebugBreak();
 	}
 	m_CommandQueue->emplace_back(std::move(command));
 }

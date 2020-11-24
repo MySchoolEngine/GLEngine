@@ -8,7 +8,7 @@
 // Asserts
 //======================================================
 #ifdef GL_ENGINE_DEBUG
-#define GLE_ASSERT(expr, message, ...) if(!(expr)) { CORE_LOG(E_Level::Error, E_Context::Core, "Assert failed: " message, ##__VA_ARGS__); DebugBreak(); }
+#define GLE_ASSERT(expr, message, ...) if(!(expr)) { CORE_LOG(E_Level::Error, E_Context::Core, "Assert failed: " message, ##__VA_ARGS__); GL_DebugBreak(); }
 #else 
 #define GLE_ASSERT(expr, message, ...) if(!(expr)) {CORE_LOG(E_Level::Error, E_Context::Core, "Assert failed: {}" message, ##__VA_ARGS__);}
 #endif

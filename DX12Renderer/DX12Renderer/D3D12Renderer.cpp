@@ -32,7 +32,7 @@ void C_D3D12Renderer::Lock(bool lock /*= true*/)
 void C_D3D12Renderer::AddCommand(T_CommandPtr command)
 {
 	if (m_Locked) {
-		DebugBreak();
+		GL_DebugBreak();
 	}
 	m_CommandQueue->emplace_back(std::move(command));
 }

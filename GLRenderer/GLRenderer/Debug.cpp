@@ -65,7 +65,7 @@ bool _glErrorCheck(const char* file, const int line)
 			// << glewGetErrorString(status)
 			<< std::dec
 			<< std::endl;
-		DebugBreak();
+		GL_DebugBreak();
 		return true;
 	}
 	return false;
@@ -86,7 +86,7 @@ MessageCallback(GLenum source,
 	CORE_LOG(E_Level::Error, E_Context::Render,"GL CALLBACK: {} type = {}, severity = 0x{:x}, message = {}",
 		(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
 		glErrorTypeToString(type), severity, message);
-	DebugBreak();
+	GL_DebugBreak();
 }
 
 //=================================================================================
