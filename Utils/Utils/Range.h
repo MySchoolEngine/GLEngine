@@ -6,8 +6,8 @@
 
 template<class iterator, class T>
 constexpr bool is_iterator_of_v =
-	std::is_same_v<typename T, decltype(std::declval<iterator>().operator*())> ||
-	std::is_convertible_v<decltype(std::declval<iterator>().operator*()), typename T>;
+	std::is_same_v<T, decltype(std::declval<iterator>().operator*())> ||
+	std::is_convertible_v<decltype(std::declval<iterator>().operator*()), T>;
 
 namespace Utils {
 /*

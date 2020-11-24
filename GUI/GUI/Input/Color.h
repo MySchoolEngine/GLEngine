@@ -16,7 +16,7 @@ public:
 	[[nodiscard]] const T& GetValue() const { return m_Color; }
 	void SetValue(T&& value) { m_Color = value; }
 
-	void operator=(const T& val) { m_Color = value; }
+	void operator=(const T& val) { m_Color = val; }
 	void operator=(T&& val) { m_Color = val; }
 protected:
 	std::string	m_name;

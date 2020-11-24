@@ -74,10 +74,10 @@ class ComponenetBase {
 };
 
 template<Entity::E_ComponentType e, 
-	typename retType = ComponenetBase<e>::type,
-	typename ret = std::shared_ptr<typename retType>>
+	typename retType = typename ComponenetBase<e>::type,
+	typename ret = std::shared_ptr<retType>>
 constexpr ret  component_cast(T_ComponentPtr comp) {
-	return std::static_pointer_cast<typename retType>(comp);
+	return std::static_pointer_cast<retType>(comp);
 }
 
 }

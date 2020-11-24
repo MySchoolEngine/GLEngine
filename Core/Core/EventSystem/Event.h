@@ -28,8 +28,8 @@ enum class E_EventCategory {
 };
 
 //=================================================================================
-// helpful macrso taken from TheCherno's code
-#define EVENT_CLASS_TYPE(type) static E_EventType GetStaticType() { return E_EventType::##type; }\
+// helpful macros taken from TheCherno's code
+#define EVENT_CLASS_TYPE(type) static E_EventType GetStaticType() { return E_EventType::type; }\
 								virtual E_EventType GetType() const override { return GetStaticType(); }\
 								virtual const char* GetName() const override { return #type; }
 
@@ -80,10 +80,10 @@ class EventCategoryBase {
 };
 
 template<GLEngine::Core::E_EventCategory e,
-	typename retType = EventCategoryBase<e>::type>
+	typename retType = typename EventCategoryBase<e>::type>
 constexpr retType& event_base_cast(GLEngine::Core::I_Event& comp)
 {
-	return static_cast<typename retType&>(comp);
+	return static_cast<retType&>(comp);
 }
 
 }

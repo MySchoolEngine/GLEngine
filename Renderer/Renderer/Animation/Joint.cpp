@@ -1,4 +1,4 @@
-#include <RendererStdAfx.h>
+#include <RendererStdafx.h>
 
 #include <Renderer/Animation/Joint.h>
 

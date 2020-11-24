@@ -79,7 +79,7 @@ public:
 		bbox.Add(frb);
 		return bbox;
 	}
-	constexpr void UpdateWithMatrix(const glm::mat4& matrix)
+	void UpdateWithMatrix(const glm::mat4& matrix)
 	{
 		auto newPosition = glm::vec3((matrix * glm::vec4(m_position, 1.0f)));
 		m_upVector = glm::vec3((matrix * glm::vec4(m_position + m_upVector, 1.0f))) - newPosition;

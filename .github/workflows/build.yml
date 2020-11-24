@@ -28,6 +28,27 @@ jobs:
   msvc:
     name: MSVC
     runs-on: windows-latest
+    env:
+      VS_PATH: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\
+      MSBUILD_PATH: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\
     steps:
       - uses: actions/checkout@v2
-      - uses: textbook/git-checkout-submodule-action@master
+      - name: Get submodules
+        shell: cmd
+        run: |
+          git submodule init
+          git submodule update
+      - name: Get premake5
+        shell: powershell
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-windows.zip" -OutFile "premake.zip"
+          Expand-Archive -Path premake.zip
+      - name: Generate solution
+        shell: cmd
+        run: premake\premake5.exe vs2019
+      - name: Build release
+        shell: cmd
+        run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=Release'
+      - name: Build debug
+        shell: cmd
+        run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=Debug'

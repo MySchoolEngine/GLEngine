@@ -22,13 +22,7 @@ project "Core"
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
 		systemversion "latest"
-
-		defines
-		{
-			"BUILD_CORE_DLL",
-		}
 
 		postbuildcommands
 		{

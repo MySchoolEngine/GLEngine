@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GUI/ImGUILayer.h>
+#include <GUI/ImGuiLayer.h>
 
 namespace GLEngine::GLRenderer {
 class C_GLImGUILayer : public GUI::C_ImGuiLayer

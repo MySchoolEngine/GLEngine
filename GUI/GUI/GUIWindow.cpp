@@ -65,7 +65,7 @@ GUID C_Window::AddComponent(C_Window::T_GUIPartRef component)
 //=================================================================================
 I_GUIPart* C_Window::GetComponent(GUID guid) const
 {
-	auto& it = m_Components.find(guid);
+	const auto& it = m_Components.find(guid);
 	if (it != m_Components.end())
 	{
 		return &(it->second.get());

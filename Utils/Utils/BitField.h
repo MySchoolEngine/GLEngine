@@ -3,11 +3,11 @@
 #include <type_traits>
 
 namespace Utils {
-template<class Enum, typename = typename std::enable_if<std::is_enum<typename Enum>::value>::type>
+template<class Enum, typename = typename std::enable_if<std::is_enum<Enum>::value>::type>
 class C_BitField {
 	using value_type = typename std::underlying_type<Enum>::type;
 public:
-	template<typename = std::is_integral<typename value_type>::type>
+	template<typename = typename std::is_integral<value_type>::type>
 	C_BitField()
 		: m_Flags(0) {}
 
@@ -90,7 +90,7 @@ struct enable_BitField_operators {
 template<typename Enum>
 typename std::enable_if<Utils::enable_BitField_operators<Enum>::enable, Utils::C_BitField<Enum>>::type
 operator|(Enum lhs, Enum rhs) {
-	Utils::C_BitField<typename Enum> field(lhs);
+	Utils::C_BitField<Enum> field(lhs);
 	field.SetFlag(rhs);
 	return field;
 }
@@ -98,7 +98,7 @@ operator|(Enum lhs, Enum rhs) {
 template<typename Enum>
 typename std::enable_if<Utils::enable_BitField_operators<Enum>::enable, Utils::C_BitField<Enum>>::type
 operator&(Enum lhs, Enum rhs) {
-	Utils::C_BitField<typename Enum> field();
+	Utils::C_BitField<Enum> field();
 	if(lhs==rhs)
 		field.SetFlag(lhs);
 	return field;

@@ -44,7 +44,7 @@ private:
 		}
 		else
 		{
-			static_assert(false, "Type not found inside a pack!");
+			static_assert(sizeof...(Types) == 0, "Type not found inside a pack!");
 		}
 	}
 };

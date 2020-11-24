@@ -15,7 +15,7 @@ C_FormatedText::C_FormatedText(const std::string& formatText)
 //=================================================================================
 void C_FormatedText::Draw() const
 {
-	::ImGui::Text(m_PrintString.c_str());
+	::ImGui::Text("%s", m_PrintString.c_str());
 }
 
 //=================================================================================

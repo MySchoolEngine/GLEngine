@@ -46,7 +46,6 @@ project "GLRenderer"
 	{ 
 		"GLFW",
 		"Glad",
-		"opengl32.lib",
 		"pugixml",
 		"ImGui",
 		"DevIL-IL",
@@ -56,7 +55,6 @@ project "GLRenderer"
 	defines
 	{
 		"IMGUI_IMPL_OPENGL_LOADER_GLAD",
-		"IMGUI_API=__declspec(dllimport)",
 		"IMGUI_IMPL_API=",
 	}
 
@@ -67,12 +65,21 @@ project "GLRenderer"
 		defines
 		{
 			"BUILD_GLRENDERER_DLL",
+			"IMGUI_API=__declspec(dllimport)",
 		}
 
 		postbuildcommands
 		{
 			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
 		}
+
+		links
+		{
+			"opengl32.lib",
+		}
+
+	filter "system:linux"
+		pic "On"
 
 	filter "configurations:Debug"
 		runtime "Debug"

@@ -1,15 +1,15 @@
 #pragma once
 
-#ifdef GL_ENGINE_DEBUG
-#include <stdio.h>
-#include <io.h>
-#include <fcntl.h>
-#include <windows.h>
-#endif
+#include <Core/EventSystem/Event/AppEvent.h>
 
 #if CORE_PLATFORM == CORE_PLATFORM_WIN
 
-#include <Core/EventSystem/Event/AppEvent.h>
+#ifdef GL_ENGINE_DEBUG
+	#include <stdio.h>
+	#include <io.h>
+	#include <fcntl.h>
+	#include <windows.h>
+#endif
 
 extern GLEngine::Core::C_Application* GLEngine::Core::CreateApplication();
 
@@ -42,7 +42,8 @@ int main(int argc, char** argv)
 	auto app = GLEngine::Core::CreateApplication();
 	app->LoadArgs(argc, argv);
 	app->Init();
-	app->OnEvent(GLEngine::Core::C_AppEvent());
+	GLEngine::Core::C_AppEvent event;
+	app->OnEvent(event);
 	app->Run();
 	CORE_LOG(E_Level::Info, E_Context::Core, "App ended");
 	delete app;
