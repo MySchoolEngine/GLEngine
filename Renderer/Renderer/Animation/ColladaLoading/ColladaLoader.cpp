@@ -16,8 +16,6 @@
 
 #include <pugixml.hpp>
 
-#include <array>
-
 namespace GLEngine::Renderer::Animation {
 
 //=================================================================================
@@ -470,8 +468,8 @@ void C_ColladaLoader::LoadAnimData(const pugi::xml_node& skinXML, std::vector<gl
 			}
 			for (int i = 3; i < jointsNum; ++i)
 			{
-				v.Get();
-				v.Get();
+				auto trash = v.Get();
+				trash = v.Get();
 			}
 
 			jointWeights = glm::normalize(jointWeights);
