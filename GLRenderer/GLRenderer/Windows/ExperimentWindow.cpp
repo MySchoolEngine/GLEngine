@@ -15,7 +15,7 @@
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 
-#include <GLRenderer/ImGui/GLImGuiLayer.h>
+#include <GLRenderer/ImGui/GLImGUILayer.h>
 
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 
