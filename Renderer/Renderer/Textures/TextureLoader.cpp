@@ -31,8 +31,11 @@ bool TextureLoader::loadTexture(const std::filesystem::path& path, MeshData::Tex
 	ilGenImages(1, &image);
 	ilBindImage(image);
 
+#if CORE_PLATFORM == CORE_PLATFORM_WIN
+	ilLoadImage(path.wstring().c_str());
+#else
 	ilLoadImage(path.generic_string().c_str());
-
+#endif
 	ILenum Error;
 	Error = ilGetError();
 

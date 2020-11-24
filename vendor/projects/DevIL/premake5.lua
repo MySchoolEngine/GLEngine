@@ -34,6 +34,11 @@ project "DevIL-IL"
         "IL_NO_TIF",
     }
     
+    removedefines
+    {
+        "_UNIFORM",
+    }
+
 	filter "system:windows"
         systemversion "latest"
         cppdialect "C++17"
