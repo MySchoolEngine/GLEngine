@@ -36,7 +36,7 @@ project "DevIL-IL"
     
     removedefines
     {
-        "_UNIFORM",
+        "_UNICODE", 
     }
 
 	filter "system:windows"
