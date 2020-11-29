@@ -73,10 +73,6 @@ private:
 };
 
 //=================================================================================
-RENDERER_TEMPLATE_EXPORT template class RENDERER_API_EXPORT C_TextureViewStorageCPU<std::uint8_t, 1>;
-RENDERER_TEMPLATE_EXPORT template class RENDERER_API_EXPORT C_TextureViewStorageCPU<std::uint8_t, 2>;
-RENDERER_TEMPLATE_EXPORT template class RENDERER_API_EXPORT C_TextureViewStorageCPU<std::uint8_t, 3>;
-RENDERER_TEMPLATE_EXPORT template class RENDERER_API_EXPORT C_TextureViewStorageCPU<std::uint8_t, 4>;
 
 //=================================================================================
 //template<class internalFormat, int elements, std::size_t width, std::size_t height>

@@ -23,7 +23,7 @@
 	*	3]	Floating point integer formats
 	*
 	*	Conversion to external format
-	*	Mostly sRGB to integral
+	*	
 	*
 	*
 	*
@@ -34,7 +34,7 @@ namespace GLEngine::Renderer
 {
 
 //=================================================================================
-class C_TextureView
+class RENDERER_API_EXPORT C_TextureView
 {
 public:
 	C_TextureView(I_TextureViewStorage* storage);
@@ -46,16 +46,16 @@ public:
 	//[[nodiscard]] T Get(const glm::vec2& uv) const;
 
 	template<class T>
-	void Set(const glm::ivec2& uv, const T r)
+	void Set(const glm::ivec2& uv, const T val, E_TextureElement element)
 	{
 		const auto dim = m_Storage->GetDimensions();
-		if (uv.x < 0 || uv.x > dim.x || uv.y < 0 || uv.y < dim.y)
+		if (uv.x < 0 || uv.x > dim.x || uv.y < 0 || uv.y > dim.y)
 		{
 			CORE_LOG(E_Level::Info, E_Context::Render, "Writing outside of texture buffer. Result would be discarded.");
 			return;
 		}
 
-		
+		m_Storage->Set(val, GetAddress(uv) + m_Storage->GetElementOffset(element));
 	}
 private:
 	[[nodiscard]] std::size_t GetAddress(const glm::ivec2& uv) const;
