@@ -64,6 +64,18 @@ C_TextureManager::T_TexturePtr C_TextureManager::CreateTexture(const Renderer::M
 }
 
 //=================================================================================
+C_TextureManager::T_TexturePtr C_TextureManager::CreateTexture(const Renderer::I_TextureViewStorage* tex, const std::string& name)
+{
+	auto texture = std::make_shared<Textures::C_Texture>(name);
+	texture->bind();
+	texture->SetTexData2D(0, tex);
+	texture->unbind();
+
+	m_Textures[name] = texture;
+	return texture;
+}
+
+//=================================================================================
 C_TextureManager::T_TexturePtr C_TextureManager::CreateEmptyTexture(const std::string& name)
 {
 	auto it = m_Textures.find(name);

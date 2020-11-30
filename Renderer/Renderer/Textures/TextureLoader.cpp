@@ -66,4 +66,47 @@ bool TextureLoader::loadTexture(const std::filesystem::path& path, MeshData::Tex
 	return true;
 }
 
+//=================================================================================
+I_TextureViewStorage* TextureLoader::loadTexture(const std::filesystem::path& path)
+{
+	if (!_isILinitialized)
+	{
+		ilInit();
+		_isILinitialized = true;
+	}
+
+	ilEnable(IL_ORIGIN_SET);
+	ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
+
+	ILuint image;
+	ilGenImages(1, &image);
+	ilBindImage(image);
+
+#if CORE_PLATFORM == CORE_PLATFORM_WIN
+	ilLoadImage(path.wstring().c_str());
+#else
+	ilLoadImage(path.generic_string().c_str());
+#endif
+	ILenum Error;
+	Error = ilGetError();
+
+	if (Error != IL_NO_ERROR)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "DevIL: Failed to load image {}, error: {}", path, Error);
+		return nullptr;
+	}
+
+	const auto width = ilGetInteger(IL_IMAGE_WIDTH);
+	const auto height = ilGetInteger(IL_IMAGE_HEIGHT);
+	auto* textureBuffer = new C_TextureViewStorageCPU<std::uint8_t>(
+		width, height,
+		static_cast<std::uint8_t>(ilGetInteger(IL_IMAGE_BYTES_PER_PIXEL)));
+
+	textureBuffer->SetData(ilGetData(), static_cast<std::size_t>(width) * height);
+
+	ilDeleteImage(image);
+
+	return textureBuffer;
+}
+
 }

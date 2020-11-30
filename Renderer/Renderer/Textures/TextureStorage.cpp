@@ -3,10 +3,7 @@
 #include <Renderer/Textures/TextureStorage.h>
 
 namespace GLEngine::Renderer {
-RENDERER_TEMPLATE_EXPORT template class RENDERER_API_EXPORT C_TextureViewStorageCPU<std::uint8_t, 1>;
-RENDERER_TEMPLATE_EXPORT template class RENDERER_API_EXPORT C_TextureViewStorageCPU<std::uint8_t, 2>;
-RENDERER_TEMPLATE_EXPORT template class RENDERER_API_EXPORT C_TextureViewStorageCPU<std::uint8_t, 3>;
-RENDERER_TEMPLATE_EXPORT template class RENDERER_API_EXPORT C_TextureViewStorageCPU<std::uint8_t, 4>;
+RENDERER_TEMPLATE_EXPORT template class RENDERER_API_EXPORT C_TextureViewStorageCPU<std::uint8_t>;
 
 //=================================================================================
 // I_TextureViewStorage
@@ -51,70 +48,71 @@ glm::ivec2 I_TextureViewStorage::GetDimensions() const
 //=================================================================================
 // C_TextureViewStorageCPU<type, int>
 //=================================================================================
-template<class internalFormat, int elements>
-C_TextureViewStorageCPU<internalFormat, elements>::C_TextureViewStorageCPU(std::size_t width, std::size_t height) 
+template<class internalFormat>
+C_TextureViewStorageCPU<internalFormat>::C_TextureViewStorageCPU(std::size_t width, std::size_t height, std::uint8_t elements)
 	: I_TextureViewStorage(width, height)
+	, m_Elements(elements)
 {
 	m_Data.resize(width * height * elements);
 }
 
 //=================================================================================
-template<class internalFormat, int elements>
-C_TextureViewStorageCPU<internalFormat, elements>::~C_TextureViewStorageCPU() = default;
+template<class internalFormat>
+C_TextureViewStorageCPU<internalFormat>::~C_TextureViewStorageCPU() = default;
 
 //=================================================================================
-template<class internalFormat, int elements>
-int C_TextureViewStorageCPU<internalFormat, elements>::GetI(std::size_t position) const
+template<class internalFormat>
+int C_TextureViewStorageCPU<internalFormat>::GetI(std::size_t position) const
 {
 	return static_cast<int>(m_Data[position]);
 }
 
 //=================================================================================
-template<class internalFormat, int elements>
-double C_TextureViewStorageCPU<internalFormat, elements>::GetD(std::size_t position) const
+template<class internalFormat>
+double C_TextureViewStorageCPU<internalFormat>::GetD(std::size_t position) const
 {
 	return static_cast<double>(m_Data[position]);
 }
 
 //=================================================================================
-template<class internalFormat, int elements>
-constexpr std::uint8_t C_TextureViewStorageCPU<internalFormat, elements>::GetNumElements() const
+template<class internalFormat>
+constexpr std::uint8_t C_TextureViewStorageCPU<internalFormat>::GetNumElements() const
 {
-	return elements;
+	return m_Elements;
 }
 
 //=================================================================================
-template<class internalFormat, int elements>
-const void* C_TextureViewStorageCPU<internalFormat, elements>::GetData() const
+template<class internalFormat>
+const void* C_TextureViewStorageCPU<internalFormat>::GetData() const
 {
 	return m_Data.data();
 }
 
 //=================================================================================
-template<class internalFormat, int elements>
-const void C_TextureViewStorageCPU<internalFormat, elements>::SetData(const void* data, std::size_t pixels)
+template<class internalFormat>
+const void C_TextureViewStorageCPU<internalFormat>::SetData(const void* data, std::size_t pixels)
 {
-	GLE_ASSERT(pixels == m_Data.size() / elements, "Larger image than buffer");
-	memcpy(m_Data.data(), data, pixels * sizeof(internalFormat) * elements);
+	GLE_ASSERT(pixels == m_Data.size() / m_Elements, "Larger image than buffer");
+	memcpy(m_Data.data(), data, pixels * sizeof(internalFormat) * m_Elements);
 }
 
 //=================================================================================
-template<class internalFormat, int elements>
-std::uint8_t C_TextureViewStorageCPU<internalFormat, elements>::GetElementOffset(E_TextureElement element) const
+template<class internalFormat>
+std::uint8_t C_TextureViewStorageCPU<internalFormat>::GetElementOffset(E_TextureElement element) const
 {
 	return static_cast<std::underlying_type_t<E_TextureElement>>(element);
 }
 
 //=================================================================================
-template<class internalFormat, int elements>
-void C_TextureViewStorageCPU<internalFormat, elements>::SetInternal(int value, std::size_t position)
+template<class internalFormat>
+void C_TextureViewStorageCPU<internalFormat>::SetInternal(int value, std::size_t position)
 {
 	m_Data[position] = static_cast<internalFormat>(value);
 }
 
 //=================================================================================
-template<class internalFormat, int elements>
-void C_TextureViewStorageCPU<internalFormat, elements>::SetInternal(double value, std::size_t position)
+template<class internalFormat>
+void C_TextureViewStorageCPU<internalFormat>::SetInternal(double value, std::size_t position)
 {
 	m_Data[position] = static_cast<internalFormat>(value);
 }

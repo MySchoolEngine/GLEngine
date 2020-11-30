@@ -48,11 +48,11 @@ protected:
 };
 
 //=================================================================================
-template<class internalFormat, int elements>
+template<class internalFormat>
 class C_TextureViewStorageCPU : public I_TextureViewStorage
 {
 public:
-	C_TextureViewStorageCPU(std::size_t width, std::size_t height);
+	C_TextureViewStorageCPU(std::size_t width, std::size_t height, std::uint8_t elements);
 	virtual ~C_TextureViewStorageCPU();
 
 	[[nodiscard]] virtual double GetD(std::size_t position) const override;
@@ -70,6 +70,7 @@ protected:
 	virtual void SetInternal(int value, std::size_t position) override;
 private:
 	std::vector<internalFormat>	m_Data;
+	std::uint8_t m_Elements;
 };
 
 //=================================================================================
