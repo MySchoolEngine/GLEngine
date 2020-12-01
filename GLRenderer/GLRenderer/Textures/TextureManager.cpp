@@ -39,16 +39,14 @@ C_TextureManager::T_TexturePtr C_TextureManager::GetTexture(const std::string& n
 	}
 
 	Renderer::Textures::TextureLoader tl;
-	Renderer::MeshData::Texture t;
-	bool retval = tl.loadTexture(name.c_str(), t);
-	if (!retval)
+	auto* buffer = tl.loadTexture(name.c_str());
+	if (!buffer)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Could not load texture '{}'", name);
 		return nullptr;
 	}
 
-	GLE_ASSERT(t.m_name.empty() == false, "There should be name from name: '{}'", name);
-	return CreateTexture(t);
+	return CreateTexture(buffer, name);
 }
 
 //=================================================================================
