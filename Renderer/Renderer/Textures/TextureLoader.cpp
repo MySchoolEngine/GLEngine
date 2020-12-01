@@ -98,9 +98,18 @@ I_TextureViewStorage* TextureLoader::loadTexture(const std::filesystem::path& pa
 
 	const auto width = ilGetInteger(IL_IMAGE_WIDTH);
 	const auto height = ilGetInteger(IL_IMAGE_HEIGHT);
-	auto* textureBuffer = new C_TextureViewStorageCPU<std::uint8_t>(
-		width, height,
-		static_cast<std::uint8_t>(ilGetInteger(IL_IMAGE_BYTES_PER_PIXEL)));
+	I_TextureViewStorage* textureBuffer = nullptr;
+	if (ilGetInteger(IL_IMAGE_BPC) == 1)
+	{
+		textureBuffer = new C_TextureViewStorageCPU<std::uint8_t>(
+			width, height,
+			static_cast<std::uint8_t>(ilGetInteger(IL_IMAGE_CHANNELS)));
+	}
+	else
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "Image have unsupported format {}", ilGetInteger(IL_IMAGE_BPC));
+		return nullptr;
+	}
 
 	textureBuffer->SetData(ilGetData(), static_cast<std::size_t>(width) * height);
 
