@@ -219,7 +219,6 @@ void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* te
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unknown number of elements: {}", tex->GetNumElements());
 		break;
 	}
-	glGenerateMipmap(m_target);
 	ErrorCheck();
 }
 
