@@ -39,14 +39,14 @@ class RENDERER_API_EXPORT C_TextureView
 public:
 	C_TextureView(I_TextureViewStorage* storage);
 	template<class T>
-	[[nodiscard]] T Get(const glm::ivec2& uv, E_TextureElement element) const;
+	[[nodiscard]] T Get(const glm::ivec2& uv, E_TextureChannel element) const;
 
 	// implement bilinear filtering
 	//template<class T>
 	//[[nodiscard]] T Get(const glm::vec2& uv) const;
 
 	template<class T>
-	void Set(const glm::ivec2& uv, const T val, E_TextureElement element)
+	void Set(const glm::ivec2& uv, const T val, E_TextureChannel element)
 	{
 		const auto dim = m_Storage->GetDimensions();
 		if (uv.x < 0 || uv.x > dim.x || uv.y < 0 || uv.y > dim.y)
@@ -55,7 +55,7 @@ public:
 			return;
 		}
 
-		m_Storage->Set(val, GetAddress(uv) + m_Storage->GetElementOffset(element));
+		m_Storage->Set(val, GetAddress(uv) + m_Storage->GetChannelOffset(element));
 	}
 private:
 	[[nodiscard]] std::size_t GetAddress(const glm::ivec2& uv) const;
@@ -64,8 +64,8 @@ private:
 };
 
 template<>
-inline std::uint8_t C_TextureView::Get<std::uint8_t>(const glm::ivec2& uv, E_TextureElement element) const
+inline std::uint8_t C_TextureView::Get<std::uint8_t>(const glm::ivec2& uv, E_TextureChannel element) const
 {
-	return m_Storage->GetI(GetAddress(uv) + m_Storage->GetElementOffset(element));
+	return m_Storage->GetI(GetAddress(uv) + m_Storage->GetChannelOffset(element));
 }
 }
