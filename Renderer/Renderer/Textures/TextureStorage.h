@@ -4,7 +4,7 @@
 
 namespace GLEngine::Renderer {
 //=================================================================================
-enum class E_TextureElement
+enum class E_TextureChannel
 {
 	Red,
 	Green,
@@ -37,7 +37,7 @@ public:
 	virtual const void SetData(const void* data, std::size_t len) = 0;
 
 	[[nodiscard]] virtual std::uint8_t GetNumElements() const = 0;
-	[[nodiscard]] virtual std::uint8_t GetElementOffset(E_TextureElement element) const = 0;
+	[[nodiscard]] virtual std::uint8_t GetChannelOffset(E_TextureChannel element) const = 0;
 
 	[[nodiscard]] glm::ivec2 GetDimensions() const;
 protected:
@@ -64,7 +64,7 @@ public:
 	virtual const void SetData(const void* data, std::size_t pixels);
 
 	// todo allow swizzle
-	[[nodiscard]] virtual std::uint8_t GetElementOffset(E_TextureElement element) const;
+	[[nodiscard]] virtual std::uint8_t GetChannelOffset(E_TextureChannel element) const;
 protected:
 	virtual void SetInternal(double value, std::size_t position) override;
 	virtual void SetInternal(int value, std::size_t position) override;

@@ -98,9 +98,9 @@ const void C_TextureViewStorageCPU<internalFormat>::SetData(const void* data, st
 
 //=================================================================================
 template<class internalFormat>
-std::uint8_t C_TextureViewStorageCPU<internalFormat>::GetElementOffset(E_TextureElement element) const
+std::uint8_t C_TextureViewStorageCPU<internalFormat>::GetChannelOffset(E_TextureChannel element) const
 {
-	return static_cast<std::underlying_type_t<E_TextureElement>>(element);
+	return static_cast<std::underlying_type_t<E_TextureChannel>>(element);
 }
 
 //=================================================================================
