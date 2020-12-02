@@ -10,6 +10,7 @@ RENDERER_TEMPLATE_EXPORT template class RENDERER_API_EXPORT C_TextureViewStorage
 //=================================================================================
 I_TextureViewStorage::I_TextureViewStorage(std::size_t width, std::size_t height) 
 	: m_Dimensions({ width, height })
+	, m_Channels({ E_TextureChannel::Red, E_TextureChannel::Green, E_TextureChannel::Blue, E_TextureChannel::Alpha })
 {
 
 }

@@ -10,6 +10,7 @@ enum class E_TextureChannel
 	Green,
 	Blue,
 	Alpha,
+	None,
 };
 
 enum class E_TextureTypes
@@ -20,6 +21,8 @@ enum class E_TextureTypes
 	Signed,
 	Floating,
 };
+
+using T_Channels = std::array<E_TextureChannel, 4>;
 
 //=================================================================================
 class RENDERER_API_EXPORT I_TextureViewStorage
@@ -40,11 +43,16 @@ public:
 	[[nodiscard]] virtual std::uint8_t GetChannelOffset(E_TextureChannel element) const = 0;
 
 	[[nodiscard]] glm::ivec2 GetDimensions() const;
+
+	// defines how channels are laid out in memory
+	[[nodiscard]] T_Channels GetChannels() const { return m_Channels; }
+	void SetChannels(T_Channels swizzle) { m_Channels = swizzle; }
 protected:
 	virtual void SetInternal(double value, std::size_t position) = 0;
 	virtual void SetInternal(int value, std::size_t position) = 0;
 
 	glm::ivec2	m_Dimensions;
+	T_Channels		m_Channels;
 };
 
 //=================================================================================

@@ -113,8 +113,37 @@ I_TextureViewStorage* TextureLoader::loadTexture(const std::filesystem::path& pa
 	}
 	else
 	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Image have unsupported format {}", ilGetInteger(IL_IMAGE_BPC));
+		CORE_LOG(E_Level::Error, E_Context::Render, "Image have unsupported bytes per channel {}", ilGetInteger(IL_IMAGE_BPC));
 		return nullptr;
+	}
+
+	switch (ilGetInteger(IL_IMAGE_FORMAT))
+	{
+	case IL_RGB:
+	{
+		textureBuffer->SetChannels({ E_TextureChannel::Red, E_TextureChannel::Green, E_TextureChannel::Blue, E_TextureChannel::None });
+		break;
+	}
+	case IL_RGBA:
+	{
+		textureBuffer->SetChannels({ E_TextureChannel::Red, E_TextureChannel::Green, E_TextureChannel::Blue, E_TextureChannel::Alpha });
+		break;
+	}
+	case IL_BGR:
+	{
+		textureBuffer->SetChannels({ E_TextureChannel::Blue, E_TextureChannel::Green, E_TextureChannel::Red, E_TextureChannel::None });
+		break;
+	}
+	case IL_BGRA:
+	{
+		textureBuffer->SetChannels({ E_TextureChannel::Blue, E_TextureChannel::Green, E_TextureChannel::Red, E_TextureChannel::Alpha });
+		break;
+	}
+	default:
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "Image have unsupported format {}", ilGetInteger(IL_IMAGE_FORMAT));
+		break;
+	}
 	}
 
 	textureBuffer->SetData(ilGetData(), static_cast<std::size_t>(width) * height);

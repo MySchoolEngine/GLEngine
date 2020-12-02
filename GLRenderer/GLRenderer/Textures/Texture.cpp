@@ -4,6 +4,7 @@
 
 #include <GLRenderer/Commands/Textures/GLMakeTextureHandleResident.h>
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
+#include <GLRenderer/Textures/TextureUtils.h>
 
 #include <Renderer/IRenderer.h>
 #include <Renderer/Textures/TextureView.h>
@@ -171,7 +172,7 @@ void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* te
 			tex->GetDimensions().x,
 			tex->GetDimensions().y,
 			0,
-			GL_RED,
+			GetFormat(tex->GetChannels()),
 			GL_UNSIGNED_BYTE,
 			tex->GetData());
 		break;
@@ -184,7 +185,7 @@ void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* te
 			tex->GetDimensions().x,
 			tex->GetDimensions().y,
 			0,
-			GL_RG,
+			GetFormat(tex->GetChannels()),
 			GL_UNSIGNED_BYTE,
 			tex->GetData());
 		break;
@@ -197,7 +198,7 @@ void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* te
 			tex->GetDimensions().x,
 			tex->GetDimensions().y,
 			0,
-			GL_RGB,
+			GetFormat(tex->GetChannels()),
 			GL_UNSIGNED_BYTE,
 			tex->GetData());
 		break;
@@ -210,7 +211,7 @@ void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* te
 			tex->GetDimensions().x,
 			tex->GetDimensions().y,
 			0,
-			GL_RGBA,
+			GetFormat(tex->GetChannels()),
 			GL_UNSIGNED_BYTE,
 			tex->GetData());
 		break;
