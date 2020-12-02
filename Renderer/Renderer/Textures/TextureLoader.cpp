@@ -99,6 +99,12 @@ I_TextureViewStorage* TextureLoader::loadTexture(const std::filesystem::path& pa
 	const auto width = ilGetInteger(IL_IMAGE_WIDTH);
 	const auto height = ilGetInteger(IL_IMAGE_HEIGHT);
 	I_TextureViewStorage* textureBuffer = nullptr;
+
+	if (ilGetInteger(IL_PALETTE_TYPE) != IL_PAL_NONE)
+	{
+		ilConvertImage(ilGetInteger(IL_PALETTE_BASE_TYPE), IL_UNSIGNED_BYTE);
+	}
+
 	if (ilGetInteger(IL_IMAGE_BPC) == 1)
 	{
 		textureBuffer = new C_TextureViewStorageCPU<std::uint8_t>(
