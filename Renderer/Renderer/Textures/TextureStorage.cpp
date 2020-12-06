@@ -3,7 +3,6 @@
 #include <Renderer/Textures/TextureStorage.h>
 
 namespace GLEngine::Renderer {
-RENDERER_TEMPLATE_EXPORT template class RENDERER_API_EXPORT C_TextureViewStorageCPU<std::uint8_t>;
 
 //=================================================================================
 // I_TextureViewStorage
@@ -118,4 +117,5 @@ void C_TextureViewStorageCPU<internalFormat>::SetInternal(double value, std::siz
 	m_Data[position] = static_cast<internalFormat>(value);
 }
 
+template class C_TextureViewStorageCPU<std::uint8_t>;
 }

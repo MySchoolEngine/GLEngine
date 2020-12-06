@@ -60,19 +60,19 @@ template<class internalFormat>
 class C_TextureViewStorageCPU : public I_TextureViewStorage
 {
 public:
-	C_TextureViewStorageCPU(std::size_t width, std::size_t height, std::uint8_t elements);
+	RENDERER_API_EXPORT C_TextureViewStorageCPU(std::size_t width, std::size_t height, std::uint8_t elements);
 	virtual ~C_TextureViewStorageCPU();
 
 	[[nodiscard]] virtual double GetD(std::size_t position) const override;
 	[[nodiscard]] virtual int GetI(std::size_t position) const override;
 
-	[[nodiscard]] virtual constexpr std::uint8_t GetNumElements() const;
+	[[nodiscard]] virtual constexpr std::uint8_t GetNumElements() const override;
 
-	[[nodiscard]] virtual const void* GetData() const;
-	virtual const void SetData(const void* data, std::size_t pixels);
+	[[nodiscard]] virtual const void* GetData() const override;
+	virtual const void SetData(const void* data, std::size_t pixels) override;
 
 	// todo allow swizzle
-	[[nodiscard]] virtual std::uint8_t GetChannelOffset(E_TextureChannel element) const;
+	[[nodiscard]] virtual std::uint8_t GetChannelOffset(E_TextureChannel element) const override;
 protected:
 	virtual void SetInternal(double value, std::size_t position) override;
 	virtual void SetInternal(int value, std::size_t position) override;
@@ -81,6 +81,7 @@ private:
 	std::uint8_t m_Elements;
 };
 
+RENDERER_TEMPLATE_EXPORT template class RENDERER_API_EXPORT C_TextureViewStorageCPU<std::uint8_t>;
 //=================================================================================
 
 //=================================================================================
