@@ -26,19 +26,19 @@ project "Renderer"
 		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.DevIL}",
 
-		"../vendor/AssimpPrebuild/include",
+		"../vendor/Assimp/include",
+		"../vendor/projects/Assimp"
 	}
 
 	libdirs
 	{
-		"../vendor/AssimpPrebuild/lib/",
 		"../vendor/bin/Debug-windows-x86_64/DevIL-IL/",
 	}
 
 	links 
 	{ 
 		"pugixml",
-		"../vendor/AssimpPrebuild/lib/assimp.lib",
+		"Assimp",
 		"DevIL-IL",
 	}
 
@@ -51,5 +51,4 @@ project "Renderer"
 		postbuildcommands
 		{
 			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
-			("{COPY} \"../vendor/AssimpPrebuild/lib/*\" \"../bin/" .. outputdir .. "/Sandbox/\""),
 		}

@@ -14,6 +14,8 @@
 
 #include <Core/Application.h>
 
+#include <Utils/DebugBreak.h>
+
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -63,9 +65,7 @@ bool _glErrorCheck(const char* file, const int line)
 			// << glewGetErrorString(status)
 			<< std::dec
 			<< std::endl;
-#ifdef GL_ENGINE_DEBUG
-		__debugbreak();
-#endif
+		GL_DebugBreak();
 		return true;
 	}
 	return false;
@@ -86,9 +86,7 @@ MessageCallback(GLenum source,
 	CORE_LOG(E_Level::Error, E_Context::Render,"GL CALLBACK: {} type = {}, severity = 0x{:x}, message = {}",
 		(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
 		glErrorTypeToString(type), severity, message);
-#ifdef GL_ENGINE_DEBUG
-	__debugbreak();
-#endif
+	GL_DebugBreak();
 }
 
 //=================================================================================
@@ -299,7 +297,7 @@ void C_DebugDraw::DrawSkeleton(const glm::vec3& root, const Renderer::Animation:
 }
 
 //=================================================================================
-void C_DebugDraw::DrawAxis(const glm::vec3& origin, const glm::vec3& up, const glm::vec3& foreward, glm::mat4 & modelMatrix)
+void C_DebugDraw::DrawAxis(const glm::vec3& origin, const glm::vec3& up, const glm::vec3& foreward, const glm::mat4 & modelMatrix)
 {
 	glm::vec3 rightVec = toVec4(glm::normalize(glm::cross(glm::vec3(up), glm::vec3(foreward))));
 	const auto originInModelSpace = modelMatrix * glm::vec4(origin, 1.0f);
@@ -309,7 +307,7 @@ void C_DebugDraw::DrawAxis(const glm::vec3& origin, const glm::vec3& up, const g
 }
 
 //=================================================================================
-void C_DebugDraw::DrawGrid(const glm::vec4& origin, unsigned short linesToSide, glm::mat4& modelMatrix /*= glm::mat4(1.0f)*/)
+void C_DebugDraw::DrawGrid(const glm::vec4& origin, unsigned short linesToSide, const glm::mat4& modelMatrix /*= glm::mat4(1.0f)*/)
 {
 	int limit = linesToSide;
 	// cross for center

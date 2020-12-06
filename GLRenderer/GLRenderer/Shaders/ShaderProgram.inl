@@ -22,9 +22,11 @@ inline int C_ShaderProgram::FindLocation(const char* name)
 		m_uniformMap[hash] = location;
 	}
 
+#if _DEBUG
 	if (location < 0) {
 		CORE_LOG(E_Level::Warning, E_Context::Render, "Program '{}' doesn't have uniform: {}", m_name, name);
 	}
+#endif
 
 	return location;
 }
@@ -45,9 +47,11 @@ inline int C_ShaderProgram::FindLocation(const std::string& name)
 		m_uniformMap[hash] = location;
 	}
 
+#if _DEBUG
 	if (location < 0) {
 		CORE_LOG(E_Level::Warning, E_Context::Render, "Program '{}' doesn't have uniform: {}", m_name, name);
 	}
+#endif
 
 	return location;
 }
@@ -175,14 +179,14 @@ void C_ShaderProgram::SetUniform(N name, const std::vector<glm::mat4>& value)
 
 //=================================================================================
 template<>
-int C_ShaderProgram::FindUniformBlockLocation(const std::string& name) const
+inline int C_ShaderProgram::FindUniformBlockLocation<const std::string&>(const std::string& name) const
 {
 	return glGetUniformBlockIndex(m_Program, name.c_str());
 }
 
 //=================================================================================
 template<>
-int C_ShaderProgram::FindUniformBlockLocation(const char* name) const
+inline int C_ShaderProgram::FindUniformBlockLocation<const char*>(const char* name) const
 {
 	return glGetUniformBlockIndex(m_Program, name);
 }

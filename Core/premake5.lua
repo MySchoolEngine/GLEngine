@@ -18,10 +18,7 @@ project "Core"
 	}
 
 	filter "system:windows"
-		defines
-		{
-			"BUILD_CORE_DLL",
-		}
+		systemversion "latest"
 
 		postbuildcommands
 		{

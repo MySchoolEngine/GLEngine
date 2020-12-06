@@ -29,7 +29,7 @@ public:
 		C_Skeleton& skeleton,
 		C_SkeletalAnimation& animation, 
 		MeshData::AnimationData& animData,
-		glm::mat4& transform = glm::mat4(1));
+		glm::mat4& transform);
 private:
 	void LoadAnimData(const pugi::xml_node& skinXML, std::vector<glm::ivec3>& jointIndices, std::vector<glm::vec3>& weights);
 	void LoadJoints(const pugi::xml_node& skinXML);

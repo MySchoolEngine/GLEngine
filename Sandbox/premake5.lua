@@ -13,7 +13,6 @@ project "Sandbox"
 	Link("Core")
 	Link("Utils")
 	Link("GLRenderer")
-	Link("DX12Renderer")
 	Link("VulkanRenderer")
 
 	includedirs
@@ -25,4 +24,22 @@ project "Sandbox"
 	}
 
 	filter "system:windows"
-    	kind "WindowedApp"
+		kind "WindowedApp"
+		cppdialect "C++17"
+		systemversion "latest"
+		Link("DX12Renderer")
+
+	filter "system:linux"
+		links
+		{
+			"X11",
+		}
+		linkoptions "-pthread"
+
+	filter "configurations:Debug"
+		runtime "Debug"
+		symbols "On"
+
+	filter "configurations:Release"
+		runtime "Release"
+		optimize "On"

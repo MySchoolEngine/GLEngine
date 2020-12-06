@@ -48,4 +48,8 @@ function SetupProject(projectName)
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("%{wks.location}/obj/" .. outputdir .. "/%{prj.name}")
 	ProjectFiles(projectName)
+	defines
+	{
+		"BUILD_"..string.upper(tostring(projectName)).."_DLL",
+	}
 end

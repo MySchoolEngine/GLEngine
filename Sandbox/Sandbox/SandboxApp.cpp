@@ -5,9 +5,11 @@
 #include <GLRenderer/GLFW/OpenGLWindowInfo.h>
 #endif
 
-#include <DX12Renderer/D3D12WindowFactory.h>
-#include <DX12Renderer/D3D12WindowManager.h>
-#include <DX12Renderer/D3D12WindowInfo.h>
+#if CORE_PLATFORM == CORE_PLATFORM_WIN
+	#include <DX12Renderer/D3D12WindowFactory.h>
+	#include <DX12Renderer/D3D12WindowManager.h>
+	#include <DX12Renderer/D3D12WindowInfo.h>
+#endif
 
 #if GLENGINE_GLFW_RENDERER==VULKAN
 #include <VulkanRenderer/VkWindowFactory.h>
@@ -41,6 +43,7 @@ public:
 	}
 
 	//=================================================================================
+#if CORE_PLATFORM == CORE_PLATFORM_WIN
 	virtual void Init(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) override
 	{
 		InitInt();
@@ -52,6 +55,7 @@ public:
 
 		OpenWindwos();
 	}
+#endif
 
 	//=================================================================================
 	virtual GLEngine::Renderer::I_Renderer& GetActiveRenderer() override
@@ -87,6 +91,7 @@ protected:
 
 	void OpenWindwos()
 	{
+#if CORE_PLATFORM == CORE_PLATFORM_WIN
 		if(false){
 			using namespace GLEngine::DX12Renderer;
 
@@ -96,6 +101,7 @@ protected:
 
 			m_WndMgr->OpenNewWindow(info);
 		}
+#endif
 
 #if GLENGINE_GLFW_RENDERER!=VULKAN
 		{
@@ -130,9 +136,11 @@ protected:
 		return *m_WndMgr;
 	}
 private:
-	GLEngine::Core::C_WindwoManager<
-		GLEngine::GLFWManager::C_GLFWWindowManager,
-		GLEngine::DX12Renderer::C_D3D12WindowManager>* m_WndMgr;
+#if CORE_PLATFORM == CORE_PLATFORM_WIN
+	GLEngine::Core::C_WindwoManager<GLEngine::GLFWManager::C_GLFWWindowManager, GLEngine::DX12Renderer::C_D3D12WindowManager>* m_WndMgr;
+#else
+	GLEngine::Core::C_WindwoManager<GLEngine::GLRenderer::GLFW::C_GLFWWindowManager>* m_WndMgr;
+#endif
 };
 
 GLEngine::Core::C_Application* GLEngine::Core::CreateApplication() {

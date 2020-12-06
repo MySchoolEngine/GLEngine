@@ -66,14 +66,10 @@ public:
 	template<class N> void SetUniform(N name, const std::vector<glm::mat4>& value);
 
 	template<class T> int FindLocation(T name);
-	template<> int FindLocation(const char* name);
-	template<> int FindLocation(const std::string& name);
 
 	//=================================================================================
 	// UBOs
 	template<class T> int FindUniformBlockLocation(T name) const;
-	template<> int FindUniformBlockLocation(const char* name) const;
-	template<> int FindUniformBlockLocation(const std::string& name) const;
 
 
 	//=================================================================================

@@ -91,7 +91,7 @@ namespace GLW {
 class C_ShaderProgram;
 }
 
-#if _DEBUG
+#if GL_ENGINE_DEBUG
 //=================================================================================
 /**
  * ==============================================
@@ -128,8 +128,8 @@ public:
 	void DrawBone(const glm::vec3& position, const Renderer::Animation::S_Joint& joint);
 	void DrawSkeleton(const glm::vec3& root, const Renderer::Animation::C_Skeleton& skeleton);
 
-	void DrawAxis(const glm::vec3& origin, const glm::vec3& up, const glm::vec3& foreward, glm::mat4& modelMatrix = glm::mat4(1.0f));
-	void DrawGrid(const glm::vec4& origin, unsigned short linesToSide, glm::mat4& modelMatrix = glm::mat4(1.0f));
+	void DrawAxis(const glm::vec3& origin, const glm::vec3& up, const glm::vec3& foreward, const glm::mat4& modelMatrix = glm::mat4(1.0f));
+	void DrawGrid(const glm::vec4& origin, unsigned short linesToSide, const glm::mat4& modelMatrix = glm::mat4(1.0f));
 	
 	void DrawFrustum(const Physics::Primitives::C_Frustum& frust, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f));
 
@@ -190,8 +190,8 @@ public:
 	void DrawBone(const glm::vec3& position, const Renderer::Animation::S_Joint& joint) {};
 	void DrawSkeleton(const glm::vec3& root, const Renderer::Animation::C_Skeleton& skeleton) {};
 
-	void DrawAxis(const glm::vec3& origin, const glm::vec3& up, const glm::vec3& foreward, glm::mat4& modelMatrix = glm::mat4(1.0f)) {};
-	void DrawGrid(const glm::vec4& origin, unsigned short linesToSide, glm::mat4& modelMatrix = glm::mat4(1.0f)) {};
+	void DrawAxis(const glm::vec3& origin, const glm::vec3& up, const glm::vec3& foreward, const glm::mat4& modelMatrix = glm::mat4(1.0f)) {};
+	void DrawGrid(const glm::vec4& origin, unsigned short linesToSide, const glm::mat4& modelMatrix = glm::mat4(1.0f)) {};
 
 	void DrawFrustum(const Physics::Primitives::C_Frustum& frust, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f)) {}
 

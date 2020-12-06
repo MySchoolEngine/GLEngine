@@ -23,14 +23,17 @@ workspace "Engine"
 	architecture "x64"
 	startproject "Sandbox"
 	cppdialect "C++17"
-	
+	systemversion "latest"
+
 	configurations{
 		"Debug",
 		"Release"
 	}
   
-  defines{
-    "FMT_HEADER_ONLY=1",
+	defines{
+		"FMT_HEADER_ONLY=1",
+		"CORE_PLATFORM_WIN=1",
+		"CORE_PLATFORM_LINUX=2",
     "GLENGINE_GLFW_RENDERER=VULKAN",
     "VULKAN_BIN=\"C:/VulkanSDK/Bin\"",
     "VULKAN_GLSLC=VULKAN_BIN \"/glslc.exe\""
@@ -42,9 +45,8 @@ workspace "Engine"
 		"premakeDefines.lua",
 	}
 
-	disablewarnings {"4251"}
-
-	filter "action:vs*"
+	filter "system:windows"
+		disablewarnings {"4251"}
 		defines {
 			"CORE_PLATFORM=CORE_PLATFORM_WIN",
 			"WIN32", 
@@ -52,10 +54,11 @@ workspace "Engine"
 			"_CRT_SECURE_NO_WARNINGS",
 		}
 
-	filter "action:gmake"
+	filter "system:linux"
 		defines {
-			"_GLFW_X11",
+			"CORE_PLATFORM=CORE_PLATFORM_LINUX"
 		}
+		links { "stdc++fs" }
 
 	filter "configurations:Debug"
 		runtime "Debug"
@@ -83,18 +86,24 @@ IncludeDir["ImGui"] = "vendor/ImGui"
 IncludeDir["ImGuiFileDialog"] = "vendor/ImGuiFileDialog"
 IncludeDir["DevIL"] = "vendor/DevIL/DevIL/include"
 IncludeDir["dirent"] = "vendor/dirent/include"
+group "Assimp"
+  include "vendor/projects/zlib"
+  include "vendor/projects/irrXML"
+  include "vendor/projects/Assimp"
+group ""
 
 VulkanSDKBase = "C:/VulkanSDK/"
 
 group "Dependencies"
   include "vendor/GLFW"
   include "vendor/Glad"
-  include "vendor/pugixmlPremake"
+  include "vendor/projects/pugixml"
   include "vendor/projects/ImGui"
   include "vendor/projects/ImGuiFileDialog"
   include "vendor/projects/DevIL"
-  filter "action:vs*"
-  	include "vendor/projects/dirent"
+if _TARGET_OS ~= "linux" then
+  include "vendor/projects/dirent"
+end
 group ""
 group "Renderes"
 	include "GLFWWindowManager"
@@ -114,5 +123,6 @@ include "Entity"
 include "Utils"
 include "Physics"
 
-filter "action:vs*"
+if _TARGET_OS ~= "linux" then
   include "DX12Renderer"
+end

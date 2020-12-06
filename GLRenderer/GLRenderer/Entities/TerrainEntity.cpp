@@ -189,7 +189,8 @@ void C_TerrainEntity::DrawControls()
 				ss << "[" << coord.x << ":" << coord.y << "]";
 				::ImGui::Selectable(ss.str().c_str(), &selected);
 				if (selected) {
-					patch->OnEvent(Core::C_UserEvent("selected"));
+					Core::C_UserEvent event("selected");
+					patch->OnEvent(event);
 				}
 			});
 			ImGui::EndChild();

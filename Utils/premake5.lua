@@ -4,7 +4,8 @@ project "Utils"
 	kind "SharedLib"
 	language "C++"
 	staticruntime "off"
-	
+	cppdialect "C++17"
+
 	SetupProject("Utils")
 
 	includedirs
@@ -14,18 +15,19 @@ project "Utils"
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.pugixml}",
 	}
-	
+
 	links 
 	{ 
 		"pugixml",
 	}
 
-	filter "system:windows"
-		defines
-		{
-			"BUILD_UTILS_DLL",
-		}
+	defines
+	{
+		"BUILD_UTILS_DLL",
+	}
 
+	filter "system:windows"
+		systemversion "latest"
 		postbuildcommands
 		{
 			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")

@@ -1,4 +1,4 @@
-#include <RendererStdAfx.h>
+#include <RendererStdafx.h>
 
 #include <Renderer/Animation/ColladaLoading/ColladaLoader.h>
 
@@ -16,8 +16,6 @@
 
 #include <pugixml.hpp>
 
-#include <array>
-
 namespace GLEngine::Renderer::Animation {
 
 //=================================================================================
@@ -29,7 +27,7 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 	C_Skeleton& skeleton,
 	C_SkeletalAnimation& animation,
 	MeshData::AnimationData& animData,
-	glm::mat4& transform /*= glm::mat4(1)*/)
+	glm::mat4& transform)
 {
 	std::string name;
 	name.append(filepath);
@@ -470,8 +468,8 @@ void C_ColladaLoader::LoadAnimData(const pugi::xml_node& skinXML, std::vector<gl
 			}
 			for (int i = 3; i < jointsNum; ++i)
 			{
-				v.Get();
-				v.Get();
+				auto trash = v.Get();
+				trash = v.Get();
 			}
 
 			jointWeights = glm::normalize(jointWeights);

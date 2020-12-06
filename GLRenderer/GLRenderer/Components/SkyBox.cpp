@@ -166,32 +166,32 @@ std::shared_ptr<Entity::I_Component> C_SkyBoxCompBuilder::Build(const pugi::xml_
 
 	if (auto side = node.child("Top"))
 	{
-		auto& attrib = side.attribute("image");
+		const auto attrib = side.attribute("image");
 		skyboxComp->AddTexture(C_SkyBox::E_Side::Top, attrib.value());
 	}
 	if (auto side = node.child("Bottom"))
 	{
-		auto& attrib = side.attribute("image");
+		const auto attrib = side.attribute("image");
 		skyboxComp->AddTexture(C_SkyBox::E_Side::Bottom, attrib.value());
 	}
 	if (auto side = node.child("Left"))
 	{
-		auto& attrib = side.attribute("image");
+		const auto attrib = side.attribute("image");
 		skyboxComp->AddTexture(C_SkyBox::E_Side::Left, attrib.value());
 	}
 	if (auto side = node.child("Right"))
 	{
-		auto& attrib = side.attribute("image");
+		const auto attrib = side.attribute("image");
 		skyboxComp->AddTexture(C_SkyBox::E_Side::Right, attrib.value());
 	}
 	if (auto side = node.child("Back"))
 	{
-		auto& attrib = side.attribute("image");
+		const auto attrib = side.attribute("image");
 		skyboxComp->AddTexture(C_SkyBox::E_Side::Back, attrib.value());
 	}
 	if (auto side = node.child("Forward"))
 	{
-		auto& attrib = side.attribute("image");
+		const auto attrib = side.attribute("image");
 		skyboxComp->AddTexture(C_SkyBox::E_Side::Forward, attrib.value());
 	}
 
