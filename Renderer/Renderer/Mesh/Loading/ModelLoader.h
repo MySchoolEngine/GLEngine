@@ -40,7 +40,6 @@ private:
 	glm::vec4   _getMaterialColorComponent(const aiMaterial* const material, const char* key, unsigned int type, unsigned int index);
 	float       _getMaterialFloatComponent(const aiMaterial* const material, const char* key, unsigned type, unsigned index);
 	std::string _getMaterialDiffuseTextureName(const aiMaterial* material);
-	std::string _getMaterialNormalTextureName(const aiMaterial* material);
 	int         _getTextureIndexAndAddToRegister(const std::string& name, std::vector< std::string >& textureNames);
 
 	void        _loadMeshesFromAiScene(const aiScene* loadedScene, std::shared_ptr<Renderer::MeshData::Scene> scene, const glm::mat4& sceneTransform);

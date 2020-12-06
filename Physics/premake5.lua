@@ -15,6 +15,9 @@ project "Physics"
 	}
 
 	filter "system:windows"
+		cppdialect "C++17"
+		systemversion "latest"
+
 		defines
 		{
 			"BUILD_PHYSICS_DLL",
@@ -24,3 +27,11 @@ project "Physics"
 		-- {
 		-- 	("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")
 		-- }
+
+	filter "configurations:Debug"
+		runtime "Debug"
+		symbols "On"
+
+	filter "configurations:Release"
+		runtime "Release"
+		optimize "On"

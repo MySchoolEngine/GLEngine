@@ -33,7 +33,7 @@ public:
 	CORE_API_EXPORT virtual void AddWindowFactory(I_WindowFactory* wf);
 	virtual void Update() = 0;
 	virtual unsigned int NumWindows() const = 0;
-	virtual Renderer::I_Renderer& GetActiveRenderer() = 0;
+	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetActiveRenderer() const = 0;
 protected:
 	CORE_API_EXPORT std::shared_ptr<I_Window> ConstructWindow(const S_WindowInfo& info) const;
 

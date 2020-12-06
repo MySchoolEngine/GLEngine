@@ -1,6 +1,10 @@
 #pragma once
 
-namespace GLEngine::GLRenderer {
+#include <GLRenderer/Debug.h>
+
+
+namespace GLEngine {
+namespace GLRenderer {
 
 class C_PersistentDebug {
 public:
@@ -45,4 +49,4 @@ private:
 	std::vector<std::pair<T_TimeStamp, std::function<void()>>> m_Calls;
 };
 
-}
+}}

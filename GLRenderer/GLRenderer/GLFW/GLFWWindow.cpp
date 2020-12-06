@@ -1,12 +1,15 @@
-#include <GLFWWindowManagerStdafx.h>
+#include <GLRendererStdafx.h>
 
-#include <GLFWWindowManager/GLFWWindow.h>
+#include <GLRenderer/GLFW/GLFWWindow.h>
 
 #include <Core/EventSystem/Event/AppEvent.h>
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/Event/MouseEvents.h>
+#include <Core/Input.h>
 
-namespace GLEngine::GLFWManager {
+namespace GLEngine {
+namespace GLRenderer {
+namespace GLFW {
 
 //=================================================================================
 C_GLFWWindow::C_GLFWWindow()
@@ -53,7 +56,6 @@ void C_GLFWWindow::Update()
 {
 	glfwMakeContextCurrent(m_Window);
 	glfwSwapBuffers(m_Window);
-	glfwPollEvents();
 }
 
 //=================================================================================
@@ -68,11 +70,6 @@ void C_GLFWWindow::Init(const Core::S_WindowInfo& wndInfo)
 	auto height	= static_cast<int>(wndInfo.m_height);
 	auto width	= static_cast<int>(wndInfo.m_width);
 	GLFWmonitor* primary = glfwGetPrimaryMonitor();
-
-	int code = glfwGetError(nullptr);
-
-	if (code != GLFW_NO_ERROR)
-		CORE_LOG(E_Level::Error, E_Context::Core, "{}", code);
 
 	if (wndInfo.m_Maximalize)
 	{
@@ -190,16 +187,7 @@ void C_GLFWWindow::Destroy()
 	glfwDestroyWindow(m_Window);
 }
 
-//=================================================================================
-void C_GLFWWindow::MakeCurrent()
-{
-	glfwMakeContextCurrent(m_Window);
+}
+}
 }
 
-//=================================================================================
-void C_GLFWWindow::WindowHint(int hint, int value)
-{
-	glfwWindowHint(hint, value);
-}
-
-}

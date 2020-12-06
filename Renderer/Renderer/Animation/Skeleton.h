@@ -11,7 +11,7 @@ namespace GLEngine::Renderer::Animation{
 
 class RENDERER_API_EXPORT C_Skeleton{
 public:
-	C_Skeleton();
+	C_Skeleton() = default;
 	[[nodiscard]] std::size_t GetNumBones() const;
 	void SetNumBonse(std::size_t num);
 	void ApplyPoseToBones(std::vector<glm::mat4>& poseData) const;

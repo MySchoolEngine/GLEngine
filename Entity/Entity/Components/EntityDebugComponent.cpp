@@ -2,8 +2,6 @@
 
 #include <Entity/Components/EntityDebugComponent.h>
 
-#include <Entity/BasicEntity.h>
-
 namespace GLEngine::Entity {
 
 //=================================================================================

@@ -1,16 +1,15 @@
 #pragma once
 
 #include <Core/CoreMacros.h>
-#include <Core/CoreApi.h>
 
 #include <utility>
 
 namespace GLEngine {
 namespace Core {
 
-class CORE_API_EXPORT I_Input {
+class I_Input {
 public:
-	virtual ~I_Input();
+	virtual ~I_Input() = default;
 
 	virtual bool IsKeyPressed(int keycode) const = 0;
 	virtual bool IsMosueButtonPresse(int key) const = 0;

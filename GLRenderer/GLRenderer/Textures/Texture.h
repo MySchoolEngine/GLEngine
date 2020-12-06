@@ -71,6 +71,5 @@ protected:
 	glm::uvec2		m_Dimensions;
 	bool			m_bGroupOperations : 1;
 	std::uint64_t	m_Handle;
-	std::string		m_Name;
 };
 }}}

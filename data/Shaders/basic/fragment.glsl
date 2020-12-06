@@ -1,38 +1,39 @@
 #version 430
-#if !defined VULKAN
 #extension GL_ARB_bindless_texture : require
-#endif
 
 #include "../include/frameConstants.glsl"
-#include "../include/materials.glsl"
 
-//per model
-layout(binding = 2) uniform modelData
-{
-	mat4 modelMatrix;
-	int  materialIndex;
-};
-//===================================================
+//per mesh
+uniform vec3 modelColor;
+uniform sampler2D colorMap;
 
-layout(location = 0) in vec3 normalOUT;
-layout(location = 1) in vec2 texCoordOUT;
-layout(location = 2) in vec4 worldCoord;
-layout(location = 3) in mat3 TBN;
+in vec3 normalOUT;
+in vec2 texCoordOUT;
+in vec4 worldCoord;
 
-layout(location = 0) out vec4 fragColor;
+out vec4 fragColor;
 
 #include "../include/LightsUBO.glsl"
+
+
+vec3 getColor(vec2 uv)
+{
+	vec3 color = modelColor;
+	color *= texture(colorMap, uv).xyz;
+	return color;
+}
 
 //=================================================================================
 void main()
 {
 	float ambientStrength = 0.1;
 	float specularStrength = 0.5;
-    //vec3 ambient = ambientStrength * pLight[0].color;
+    vec3 ambient = ambientStrength * pLight[0].color;
     vec3 viewPos = frame.CameraPosition.xyz/frame.CameraPosition.w;
     vec3 FragPos = worldCoord.xyz/worldCoord.w;
 
-	vec3 norm = GetNormal(texCoordOUT, phong[materialIndex], TBN, normalOUT);
+
+	vec3 norm = normalize(normalOUT);
 	vec3 lightDir = normalize(pLight[0].position - FragPos);  
 	
 	float diff = max(dot(norm, lightDir), 0.0);
@@ -41,9 +42,9 @@ void main()
 	vec3 viewDir = normalize(viewPos - FragPos);
 	vec3 reflectDir = reflect(-lightDir, norm);  
 
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), phong[materialIndex].Shininess);
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64);
 	vec3 specular = specularStrength * spec * pLight[0].color;  
 
-	vec3 result = (diffuse + specular) * getColor(texCoordOUT, phong[materialIndex]);
+	vec3 result = (ambient + diffuse + specular) * getColor(texCoordOUT);
 	fragColor = vec4(result, 1.0);
 }

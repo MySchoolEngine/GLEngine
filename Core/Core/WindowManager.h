@@ -89,9 +89,8 @@ public:
 
 
 	//=================================================================================
-	virtual Renderer::I_Renderer& GetActiveRenderer() override
+	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetActiveRenderer() const override
 	{
-		GLE_ASSERT(m_UpdatingManager, "Getting renderer outside of update!");
 		return m_UpdatingManager->GetActiveRenderer();
 	}
 

@@ -101,7 +101,7 @@ std::filesystem::file_time_type C_ShaderProgram::GetLastUpdate() const
 //=================================================================================
 void C_ShaderProgram::useProgram()
 {
-	Core::C_Application::Get().GetActiveRenderer().AddCommand(
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::C_GLUseProgram>(m_Program)
 		)
@@ -112,7 +112,7 @@ void C_ShaderProgram::useProgram()
 //=================================================================================
 void C_ShaderProgram::disableProgram()
 {
-	Core::C_Application::Get().GetActiveRenderer().AddCommand(
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::C_GLUseProgram>(0)
 		)

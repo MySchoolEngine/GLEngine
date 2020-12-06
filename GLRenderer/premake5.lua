@@ -14,7 +14,6 @@ project "GLRenderer"
 	Link("Entity")
 	Link("Utils")
 	Link("Renderer")
-	Link("GLFWWindowManager")
 	Link("Core")
 	Link("GUI")
 	Link("ImGuiFileDialog")
@@ -60,6 +59,9 @@ project "GLRenderer"
 	}
 
 	filter "system:windows"
+		cppdialect "C++17"
+		systemversion "latest"
+
 		defines
 		{
 			"BUILD_GLRENDERER_DLL",

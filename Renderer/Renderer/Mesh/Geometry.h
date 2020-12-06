@@ -30,17 +30,6 @@ public:
 			}
 		}
 
-		mesh.bitangent.resize(mesh.vertices.size());
-		mesh.tangent.resize(mesh.vertices.size());
-		std::fill(mesh.bitangent.begin(), mesh.bitangent.end(), glm::vec3(1.f, 0.f, 0.f));
-		std::fill(mesh.tangent.begin(), mesh.tangent.end(), glm::vec3(0.f, 0.f, 1.f));
-
-
-		mesh.bbox.Add(glm::vec3(-1.0f, 0, -1.f));
-		mesh.bbox.Add(glm::vec3(1.0f, 0, -1.f));
-		mesh.bbox.Add(glm::vec3(-1.0f, 0, 1.f));
-		mesh.bbox.Add(glm::vec3(1.0f, 0, 1.f));
-
 		return mesh;
 	}
 

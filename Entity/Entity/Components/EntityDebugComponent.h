@@ -2,10 +2,7 @@
 
 #include <Entity/Components/DebugGUIComponent.h>
 
-namespace GLEngine::Entity
-{
-class C_BasicEntity;
-}
+#include <Entity/BasicEntity.h>
 
 namespace GLEngine::Entity {
 

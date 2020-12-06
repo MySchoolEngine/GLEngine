@@ -3,6 +3,9 @@
 #include <Renderer/IExtractor.h>
 #include <Renderer/IRawGPUData.h>
 
+#include <memory>
+#include <type_traits>
+
 namespace GLEngine {
 namespace Renderer {
 

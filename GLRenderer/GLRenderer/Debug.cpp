@@ -173,7 +173,7 @@ void C_DebugDraw::DrawAABB(const Physics::Primitives::S_AABB& bbox, const glm::v
 	auto program = Shaders::C_ShaderManager::Instance().GetProgram(s_DebugShaderName);
 	shdManager.ActivateShader(program);
 
-	Core::C_Application::Get().GetActiveRenderer().AddCommand(
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[this, program, bbox, color, modelMatrix]() {
@@ -387,7 +387,7 @@ void C_DebugDraw::DrawMergedGeoms()
 	auto program = Shaders::C_ShaderManager::Instance().GetProgram(s_MergedShaderName);
 	shdManager.ActivateShader(program);
 
-	Core::C_Application::Get().GetActiveRenderer().AddCommand(
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {

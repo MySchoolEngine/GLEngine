@@ -121,7 +121,7 @@ void C_SkyBox::PerformDraw() const
 	auto shader = shmgr.GetProgram("skybox");
 	shmgr.ActivateShader(shader);
 
-	Core::C_Application::Get().GetActiveRenderer().AddCommand(
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {

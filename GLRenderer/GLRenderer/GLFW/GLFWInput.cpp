@@ -1,11 +1,22 @@
-#include <GLFWWindowManagerStdafx.h>
+#include <GLRendererStdafx.h>
 
-#include <GLFWWindowManager/GLFWInput.h>
+#include <GLRenderer/GLFW/GLFWInput.h>
 
-namespace GLEngine::GLFWManager {
+#include <GLRenderer/GLFW/GLFWWindow.h>
+
+namespace GLEngine {
+namespace GLRenderer {
+namespace GLFW {
 
 //=================================================================================
-C_GLFWInput::C_GLFWInput() = default;
+C_GLFWInput::C_GLFWInput()
+	: m_Window(nullptr)
+{
+
+}
+
+//=================================================================================
+C_GLFWInput::~C_GLFWInput() = default;
 
 //=================================================================================
 bool C_GLFWInput::IsKeyPressed(int keycode) const
@@ -43,4 +54,4 @@ float C_GLFWInput::GetMouseY() const
 	return GetMousePosition().second;
 }
 
-}
+}}}

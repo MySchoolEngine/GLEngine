@@ -3,6 +3,8 @@
 
 #include <Renderer/IRenderCommand.h>
 
+#include <memory>
+
 namespace GLEngine {
 namespace GLRenderer {
 namespace Commands {

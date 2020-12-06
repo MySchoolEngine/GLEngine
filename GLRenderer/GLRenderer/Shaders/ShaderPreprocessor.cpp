@@ -1,27 +1,19 @@
-#include <RendererStdafx.h>
+#include <GLRendererStdafx.h>
 
-#include <Renderer/Shaders/ShaderPreprocessor.h>
+#include <GLRenderer/Shaders/ShaderPreprocessor.h>
+
+#include <GLRenderer/Shaders/Generation/ShaderTypesReflection.h>
 
 #include <fmt/format.h>
 
-namespace GLEngine::Renderer::Shaders {
+namespace GLEngine {
+namespace GLRenderer {
+namespace Shaders {
 
 //=================================================================================
 const std::regex C_ShaderPreprocessor::s_IncludeFileName	= std::regex(R"(^(#include )\"([^\"]*)\"$)");
 const std::regex C_ShaderPreprocessor::s_GenerateStruct		= std::regex(R"(^(@struct )([^\"\n;\s]*))");
-const std::regex C_ShaderPreprocessor::s_DefineRegEx		= std::regex(R"(^(#define )([^\s]*)\s([^\s]+)$)");
-const std::regex C_ShaderPreprocessor::s_IfDefinedRegEx		= std::regex(R"(^(#if )(!?)(defined)\s([^\s]+)$)");
-const std::regex C_ShaderPreprocessor::s_EndIfDefinedRegEx	= std::regex(R"(^#endif([\s]*\/\/.*)?$)");
-
-//=================================================================================
-C_ShaderPreprocessor::C_ShaderPreprocessor(std::unique_ptr<I_CodeProvider>&& codeProvider)
-	: m_CodeProvider(std::move(codeProvider))
-{
-
-}
-
-//=================================================================================
-C_ShaderPreprocessor::~C_ShaderPreprocessor() = default;
+const std::regex C_ShaderPreprocessor::s_DefineRegEx			= std::regex(R"(^(#define )([^\s]*)\s([^\s]+)$)");
 
 //=================================================================================
 void C_ShaderPreprocessor::Define(const std::string& symbol, const std::string& value) {
@@ -29,18 +21,10 @@ void C_ShaderPreprocessor::Define(const std::string& symbol, const std::string& 
 }
 
 //=================================================================================
-bool C_ShaderPreprocessor::IsDefined(const std::string& name) const
+std::string C_ShaderPreprocessor::PreprocessFile(const std::string& src, const std::string& filepath)
 {
-	return m_defines.find(name) != m_defines.end();
-}
-
-//=================================================================================
-std::string C_ShaderPreprocessor::PreprocessFile(const std::string& src, const std::filesystem::path& filepath)
-{
-	//@todo if statements works only with constants defined from outside! FIX ME
 	std::string ret = src;
 	IncludesFiles(ret, filepath);
-	ResolveIfStatements(ret);
 	GetDefines(ret);
 	ReplaceConstants(ret);
 
@@ -56,20 +40,19 @@ C_ShaderPreprocessor::T_Paths C_ShaderPreprocessor::GetTouchedPaths() const
 }
 
 //=================================================================================
-void C_ShaderPreprocessor::IncludesFiles(std::string& content, const std::filesystem::path& folderPath) {
+void C_ShaderPreprocessor::IncludesFiles(std::string& content, const std::string& filepath) {
 	std::smatch m;
 	std::string result = "";
 
 	while (std::regex_search(content, m, s_IncludeFileName)) {
 		result += m.prefix().str();
 		std::string file;
-		const auto filePath = folderPath / std::filesystem::path(m[2].str());
-		if (_loadFile(filePath, file)) {
+		if (_loadFile((filepath + m[2].str()).c_str(), file)) {
 			result += file;
-			m_Paths.emplace_back(filePath);
+			m_Paths.emplace_back((filepath + m[2].str()));
 		}
 		else {
-			CORE_LOG(E_Level::Error, E_Context::Render, "Failed to open included file: {}\n", filePath);
+			CORE_LOG(E_Level::Error, E_Context::Render, "Failed to open included file: {}{}\n", filepath, m[2].str());
 			m_Result = false;
 		}
 		content = m.suffix().str();
@@ -82,10 +65,11 @@ void C_ShaderPreprocessor::CodeGeneration(std::string& content)
 {
 	std::smatch m;
 	std::string result = "";
+	const auto& shaderTypes = C_ShaderTypesReflection::Instance();
 
 	while (std::regex_search(content, m, s_GenerateStruct)) {
 		result += m.prefix().str();
-		result += m_CodeProvider->GetStructCode(m[2]);
+		result += shaderTypes.GetStructDescription(m[2]).Generate();
 		content = m.suffix().str();
 	}
 	content = result + content;
@@ -124,7 +108,7 @@ void C_ShaderPreprocessor::ReplaceConstants(std::string& content) {
 
 //=================================================================================
 // taken from Ing. Josef Kobrtek's sources
-bool C_ShaderPreprocessor::_loadFile(const std::filesystem::path& file, std::string& content)
+bool C_ShaderPreprocessor::_loadFile(const char* file, std::string& content)
 {
 	std::ifstream stream(file);
 
@@ -134,34 +118,6 @@ bool C_ShaderPreprocessor::_loadFile(const std::filesystem::path& file, std::str
 	content = std::string(std::istream_iterator<char>(stream >> std::noskipws), std::istream_iterator<char>());
 	return true;
 }
-
-//=================================================================================
-void C_ShaderPreprocessor::ResolveIfStatements(std::string& content)
-{
-	std::smatch m;
-	std::string result = "";
-
-	while (std::regex_search(content, m, s_IfDefinedRegEx)) {
-		result += m.prefix().str();
-		std::smatch endIfMatch;
-		std::string rest(m.suffix().str());
-		if (!std::regex_search(rest, endIfMatch, s_EndIfDefinedRegEx))
-		{
-			CORE_LOG(E_Level::Error, E_Context::Render, "No matching #endif for given #if statement.");
-
-			content = m.suffix().str();
-			continue;
-		}
-
-		const auto negation = (m[2].length() == 0);
-		if (IsDefined(m[4]) == negation)
-		{
-			// look for next endif thats obviously bug
-			result += endIfMatch.prefix().str();
-		}
-		content = endIfMatch.suffix().str();
-	}
-	content = result + content;
 }
-
+}
 }

@@ -4,19 +4,17 @@
 
 #include <GLRenderer/Buffers/UBO/JointTransformsUBO.h>
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
-#include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
-#include <GLRenderer/Commands/HACK/LambdaCommand.h>
 
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 
-#include <GLRenderer/Mesh/StaticMeshResource.h>
-#include <GLRenderer/Textures/TextureUnitManager.h>
-#include <GLRenderer/Textures/Texture.h>
-
-
 #include <Renderer/Animation/ColladaLoading/ColladaLoader.h>
 #include <Renderer/Mesh/Scene.h>
+#include <GLRenderer/Textures/TextureUnitManager.h>
+
+#include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
+#include <GLRenderer/Commands/HACK/LambdaCommand.h>
+
 #include <Renderer/Textures/TextureLoader.h>
 #include <Renderer/IRenderer.h>
 
@@ -24,8 +22,11 @@
 
 #include <Core/Application.h>
 
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
+
+#include <GLRenderer/Debug.h>
 
 #include <pugixml.hpp>
 
@@ -82,7 +83,7 @@ void C_SkeletalMesh::PerformDraw() const
 	auto shader = shmgr.GetProgram("animation");
 	shmgr.ActivateShader(shader);
 
-	Core::C_Application::Get().GetActiveRenderer().AddCommand(
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[&]() {

@@ -2,8 +2,9 @@
 
 #include <GLRenderer/Commands/GlClearColor.h>
 
-
-namespace GLEngine::GLRenderer::Commands {
+namespace GLEngine {
+namespace GLRenderer {
+namespace Commands {
 
 //=================================================================================
 C_GLClearColor::C_GLClearColor(glm::vec4&& color)
@@ -39,4 +40,6 @@ std::string C_GLClearColor::GetDescriptor() const
 	return fmt::format("GLClearColor {}", m_Colour);
 }
 
+}
+}
 }

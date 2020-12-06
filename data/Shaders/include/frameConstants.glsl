@@ -1,5 +1,5 @@
 //================================================================================
-layout(binding = 0) uniform frameConst{
+uniform frameConst{
 	mat4 projectionMatrix;
 	mat4 viewMatrix;
 	mat4 viewProjectionMatrix;

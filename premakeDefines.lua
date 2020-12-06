@@ -28,25 +28,17 @@ function ProjectFiles(projectName)
 end
 
 function Link(projectName)
-	includedirs("%{wks.location}/" .. projectName)
-	-- error("%{prj.location}")
-	libdirs { "%{wks.location}/bin/" .. outputdir .. "/" .. projectName }
-
+	includedirs("../" .. projectName)
 
 	links
 	{
 		projectName,
 	}
-
-	postbuildcommands
-	{
-		("{COPY} \"%{wks.location}/bin/" .. outputdir .. "/" .. projectName .. "/".. projectName ..".dll\" \"%{cfg.buildtarget.directory}\"")
-	}
 end
 
 function SetupProject(projectName)
-	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("%{wks.location}/obj/" .. outputdir .. "/%{prj.name}")
+	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("../obj/" .. outputdir .. "/%{prj.name}")
 	ProjectFiles(projectName)
 	defines
 	{

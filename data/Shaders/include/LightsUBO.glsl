@@ -5,7 +5,7 @@
 @struct pointLight;
 @struct areaLight;
 
-layout (std140, binding = 5) uniform lightsUni
+layout (std140) uniform lightsUni
 {
 	pointLight pLight[NUM_POINTLIGHT];
 	areaLight  pAreaLight[NUM_AREALIGHT];

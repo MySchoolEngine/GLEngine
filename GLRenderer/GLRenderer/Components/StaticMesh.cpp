@@ -2,12 +2,11 @@
 
 #include <GLRenderer/Components/StaticMesh.h>
 
-#include <GLRenderer/Buffers/UniformBuffersManager.h>
-#include <GLRenderer/Buffers/UBO/ModelData.h>
 #include <GLRenderer/Mesh/StaticMeshResource.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
-#include <GLRenderer/Textures/Texture.h>
+#include <GLRenderer/Textures/TextureLoader.h>
+#include <GLRenderer/Textures/TextureUnitManager.h>
 #include <GLRenderer/Textures/TextureManager.h>
 
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
@@ -15,8 +14,6 @@
 #include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
 
 #include <Renderer/Mesh/Loading/SceneLoader.h>
-#include <Renderer/Materials/Material.h>
-#include <Renderer/Materials/MaterialManager.h>
 #include <Renderer/IRenderer.h>
 #include <Renderer/Mesh/Scene.h>
 
@@ -26,14 +23,15 @@
 
 #include <pugixml.hpp>
 
-namespace GLEngine::GLRenderer::Components {
+namespace GLEngine {
+namespace GLRenderer {
+namespace Components {
 
 //=================================================================================
 C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner)
 	: Renderer::I_RenderableComponent(owner)
 	, m_meshFile(meshFile)
 	, m_Mesh(nullptr)
-	, m_Material(nullptr)
 {
 	// @todo lazy init
 	auto sl = std::make_unique<Renderer::Mesh::SceneLoader>();
@@ -46,7 +44,6 @@ C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::s
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}", m_meshFile);
 		return;
 	}
-	m_ComponentMatrix = modelMatrix;
 
 	// TODO this is unsafe way to init model
 	m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(scene->meshes[0]);
@@ -57,22 +54,27 @@ C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::s
 	const auto materialIdx = scene->meshes[0].materialIndex;
 	const auto& material = scene->materials[materialIdx];
 
-	SetMaterial(material);
+	m_Color.SetValue(material.diffuse);
+
+	if (material.textureIndex >= 0)
+	{
+		auto& tmgr = Textures::C_TextureManager::Instance();
+		const auto& texure = scene->textures[material.textureIndex];
+
+		auto texturePtr = tmgr.CreateTexture(texure);
+		SetColorMap(texturePtr);
+	}
 }
 
 //=================================================================================
-C_StaticMesh::C_StaticMesh(const Renderer::MeshData::Mesh& mesh, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner, const Renderer::MeshData::Material* material)
+C_StaticMesh::C_StaticMesh(const Renderer::MeshData::Mesh& mesh, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner)
 	: Renderer::I_RenderableComponent(owner)
-	, m_Material(nullptr)
 {
 	m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(mesh);
 	m_AABB = mesh.bbox;
 
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	m_Shader = shmgr.GetProgram(shader.data());
-
-	if (material)
-		SetMaterial(*material);
 }
 
 //=================================================================================
@@ -88,7 +90,7 @@ void C_StaticMesh::PerformDraw() const
 
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	auto& tmgr = Textures::C_TextureManager::Instance();
-	if (renderer.GetCurrentPassType() == Renderer::E_PassType::ShadowPass && m_ShadowPassShader)
+	if (renderer->GetCurrentPassType() == Renderer::E_PassType::ShadowPass && m_ShadowPassShader)
 	{
 		shmgr.ActivateShader(m_ShadowPassShader);
 	}
@@ -97,23 +99,50 @@ void C_StaticMesh::PerformDraw() const
 		shmgr.ActivateShader(m_Shader);
 	}
 
-	renderer.AddCommand(
+	auto& tm = Textures::C_TextureUnitManger::Instance();
+
+	if (m_RoughnessMap) {
+		tm.BindTextureToUnit(*m_RoughnessMap, 0);
+	}
+	else
+	{
+		tm.BindTextureToUnit(*(tmgr.GetIdentityTexture()), 0);
+	}
+	if (m_ColorMap) {
+		tm.BindTextureToUnit(*m_ColorMap, 1);
+	}
+	else
+	{
+		tm.BindTextureToUnit(*(tmgr.GetIdentityTexture()), 1);
+	}
+	if (m_NormalMap) {
+		tm.BindTextureToUnit(*m_NormalMap, 2);
+	}
+	else
+	{
+		tm.BindTextureToUnit(*(tmgr.GetIdentityTexture()), 2);
+	}
+
+	renderer->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[&, matIndex = m_Material?m_Material->GetMaterialIndex():0]() {
-					auto modelData = Buffers::C_UniformBuffersManager::Instance().GetBufferByName("modelData");
-					if (auto modelDataUbo = std::dynamic_pointer_cast<Buffers::UBO::C_ModelData>(modelData))
-					{
-						modelDataUbo->SetModelMatrix(GetComponentModelMatrix());
-						modelDataUbo->SetMaterialIndex(matIndex);
-						modelDataUbo->UploadData();
-					}
+				[&]() {
+					const auto modelMatrix = GetComponentModelMatrix();
+					m_Shader->SetUniform("modelMatrix", modelMatrix);
+					m_Shader->SetUniform("modelColor", m_Color.GetValue());
+					m_Shader->SetUniform("roughness", m_Roughness.GetValue());
+					m_Shader->SetUniform("roughnessMap", 0);
+					m_Shader->SetUniform("colorMap", 1);
+					m_Shader->SetUniform("normalMap", 2);
+					//m_Shader->SetUniform("shadowMap[0]", 5);
+					m_Shader->SetUniform("useNormalMap", m_NormalMap!=nullptr);
 				}
-				, "Per object data upload")
+				, "Static mesh material upload"
+			)
 		)
 	);
 
-	renderer.AddCommand(
+	renderer->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_Mesh)
 		)
@@ -127,17 +156,6 @@ void C_StaticMesh::DebugDrawGUI()
 	if (!m_RoughnessMap)
 	{
 		m_Roughness.Draw();
-	}
-}
-
-//=================================================================================
-void C_StaticMesh::SetMaterial(const Renderer::MeshData::Material& material)
-{
-	auto& materialManager = Renderer::C_MaterialManager::Instance();
-	m_Material = materialManager.GetMaterial(material.m_Name);
-	if (!m_Material)
-	{
-		m_Material = materialManager.RegisterMaterial(Renderer::C_Material(material));
 	}
 }
 
@@ -157,32 +175,6 @@ bool C_StaticMesh::HasDebugDrawGUI() const
 GLEngine::Physics::Primitives::S_AABB C_StaticMesh::GetAABB() const
 {
 	return m_AABB;
-}
-
-//=================================================================================
-void C_StaticMesh::SetColorMap(std::shared_ptr<Textures::C_Texture>& texture)
-{
-	m_ColorMap = texture;
-	m_ColorMap->CreateHandle();
-
-	m_Material->SetColorMap(static_cast<void*>(&m_ColorMap));
-}
-
-//=================================================================================
-void C_StaticMesh::SetNormalMap(std::shared_ptr<Textures::C_Texture>& texture)
-{
-	m_NormalMap = texture;
-	texture->CreateHandle();
-	m_Material->SetNormalMap(static_cast<void*>(&m_NormalMap));
-}
-
-//=================================================================================
-void C_StaticMesh::SetRoughnessMap(const std::shared_ptr<Textures::C_Texture>& texture)
-{
-	m_RoughnessMap = texture; 
-	m_Roughness = 1.0f;
-	texture->CreateHandle();
-	m_Material->SetRoughnessMap(static_cast<void*>(&m_RoughnessMap));
 }
 
 //=================================================================================
@@ -242,21 +234,19 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 
 	if (!materialData.m_NormalMap.empty())
 	{
-		auto normalMap = tmgr.GetTexture(materialData.m_NormalMap);
-		if (normalMap)
+		staticMesh->m_NormalMap = tmgr.GetTexture(materialData.m_NormalMap);
+		if (staticMesh->m_NormalMap)
 		{
-			normalMap->StartGroupOp();
-			normalMap->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
-			normalMap->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-			normalMap->GenerateMipMaps();
+			staticMesh->m_NormalMap->StartGroupOp();
+			staticMesh->m_NormalMap->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
+			staticMesh->m_NormalMap->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+			staticMesh->m_NormalMap->GenerateMipMaps();
 
-			normalMap->EndGroupOp();
-
-			staticMesh->SetNormalMap(normalMap);
+			staticMesh->m_NormalMap->EndGroupOp();
 		}
 	}
 
 	return staticMesh;
 }
 
-}
+}}}

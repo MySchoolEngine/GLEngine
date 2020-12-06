@@ -1,10 +1,14 @@
 #pragma once
 
+#include <Core/CoreMacros.h>
+
 #include <Renderer/IRenderCommand.h>
 
 #include <Utils/BitField.h>
 
-namespace GLEngine::GLRenderer::Commands {
+namespace GLEngine {
+namespace GLRenderer {
+namespace Commands {
 
 class C_GLEnable : public Renderer::I_RenderCommand {
 public:
@@ -35,4 +39,4 @@ protected:
 	E_GLEnableValues m_Value;
 };
 
-}
+}}}

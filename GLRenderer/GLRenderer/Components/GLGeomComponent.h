@@ -1,23 +1,17 @@
 #pragma once
 
+#include <GLRenderer/Mesh/StaticMeshResource.h>
+#include <GLRenderer/Textures/Texture.h>
+
 #include <Renderer/Mesh/GeomComponent.h>
 #include <GUI/Input/Color.h>
 
-namespace GLEngine::GLRenderer {
-namespace Shaders
+namespace GLEngine::GLRenderer::Shaders
 {
 class C_ShaderProgram;
 }
-namespace Textures
-{
-class C_Texture;
-}
-namespace Mesh
-{
-class C_StaticMeshResource;
-}
 
-namespace Components {
+namespace GLEngine::GLRenderer::Components {
 
 class C_GLGeomComponent : public Renderer::C_GeomComponent
 {
@@ -46,6 +40,6 @@ class C_GLGeomComponentBuilder : public Renderer::C_GeometryCompBuilder
 protected:
 	//=================================================================================
 	virtual std::shared_ptr<Renderer::C_GeomComponent> ConstructComponent(std::shared_ptr<Entity::I_Entity> owner) const override;
-};
 
-}}
+};
+}

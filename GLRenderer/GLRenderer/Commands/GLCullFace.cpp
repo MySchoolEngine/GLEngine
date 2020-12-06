@@ -2,8 +2,9 @@
 
 #include <GLRenderer/Commands/GLCullFace.h>
 
-
-namespace GLEngine::GLRenderer::Commands {
+namespace GLEngine {
+namespace GLRenderer {
+namespace Commands {
 
 //=================================================================================
 C_GLCullFace::C_GLCullFace(E_FaceMode mode)
@@ -50,4 +51,4 @@ GLenum C_GLCullFace::EnumCast(E_FaceMode mode)
 	return Translate[static_cast<std::underlying_type<E_FaceMode>::type>(mode)];
 }
 
-}
+}}}

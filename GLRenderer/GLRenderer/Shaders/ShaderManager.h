@@ -11,6 +11,8 @@
  
 #pragma once
 
+#include <GLRenderer/Shaders/ShaderCompiler.h>
+
 #include <GUI/LambdaPart.h>
 #include <GUI/Input/CheckBoxValue.h>
 
@@ -28,7 +30,6 @@ namespace GLRenderer {
 
 namespace Shaders {
 class C_ShaderProgram;
-class C_ShaderCompiler;
 
 // I just wanna have some statistics and also save some loading time and memory
 /** ==============================================
@@ -75,6 +76,9 @@ public:
 private:
 	C_ShaderManager();
 
+	bool LoadDoc(pugi::xml_document& document, const std::filesystem::path& filename) const;
+
+	GLuint LoadShader(const pugi::xml_node& node, C_ShaderCompiler& compiler) const;
 	GLuint LoadProgram(const std::filesystem::path& name, C_ShaderCompiler& compiler) const;
 
 	void ReloadProgram(const std::string& programName, std::shared_ptr<C_ShaderProgram> program) const;

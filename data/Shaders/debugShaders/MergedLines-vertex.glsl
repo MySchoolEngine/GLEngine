@@ -1,4 +1,4 @@
-#version 430
+#version 330
 
 in vec4 vertex;
 in vec3 Color;

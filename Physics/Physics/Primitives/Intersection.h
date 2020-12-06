@@ -4,6 +4,8 @@
 
 #include <Core/GUID.h>
 
+#include <glm/glm.hpp>
+
 
 namespace GLEngine::Physics::Primitives {
 struct S_RayIntersection {

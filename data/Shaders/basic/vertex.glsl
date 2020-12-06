@@ -1,29 +1,23 @@
 #version 430
-#if !defined VULKAN
-	#extension GL_ARB_bindless_texture : require
-#endif ////////
+#extension GL_ARB_bindless_texture : require
 
-layout(location = 0) in vec4 vertex;
-layout(location = 1) in vec3 normal;
-layout(location = 2) in vec2 texCoord;
-layout(location = 3) in vec3 tangent;
-layout(location = 4) in vec3 bitangent;
+attribute vec4 vertex;
+attribute vec3 normal;
+attribute vec2 texCoord;
+attribute vec3 tangent;
+attribute vec3 bitangent;
 
 //per frame
 #include "../include/frameConstants.glsl"
 
 //per model
-layout(binding = 2) uniform modelData
-{
-	mat4 modelMatrix;
-	int  materialIndex;
-};
+uniform mat4 modelMatrix;
 
 //=================================================================================
-layout(location = 0) out vec3 normalOUT;
-layout(location = 1) out vec2 texCoordOUT;
-layout(location = 2) out vec4 worldCoord;
-layout(location = 3) out mat3 TBN;
+out vec3 normalOUT;
+out vec2 texCoordOUT;
+out vec4 worldCoord;
+out mat3 TBN;
 
 //=================================================================================
 void main()

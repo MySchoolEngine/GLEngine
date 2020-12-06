@@ -83,9 +83,12 @@ void C_D3D12WindowManager::Init()
 }
 
 //=================================================================================
-Renderer::I_Renderer& C_D3D12WindowManager::GetActiveRenderer()
+const std::unique_ptr<GLEngine::Renderer::I_Renderer>& C_D3D12WindowManager::GetActiveRenderer() const
 {
-	GLE_ASSERT(m_UpdatingWindow, "Getting renderer outside of update!");
+	if (!m_UpdatingWindow)
+	{
+		return nullptr;
+	}
 	return m_UpdatingWindow->GetRenderer();
 }
 

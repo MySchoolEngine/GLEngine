@@ -13,12 +13,10 @@ project "Sandbox"
 	Link("Core")
 	Link("Utils")
 	Link("GLRenderer")
-	Link("VulkanRenderer")
 
 	includedirs
 	{
 		"../Renderer",
-		"../GLFWWindowManager",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmt}",
 	}

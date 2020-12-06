@@ -2,7 +2,9 @@
 
 #include <GLRenderer/Commands/GLViewport.h>
 
-namespace GLEngine::GLRenderer::Commands {
+namespace GLEngine {
+namespace GLRenderer {
+namespace Commands {
 
 //=================================================================================
 C_GLViewport::C_GLViewport(int x, int y, int widht, int height)
@@ -44,4 +46,4 @@ std::string C_GLViewport::GetDescriptor() const
 	return fmt::format("GLViewport pos: {} size: {}", m_coord, m_Dimensions);
 }
 
-}
+}}}

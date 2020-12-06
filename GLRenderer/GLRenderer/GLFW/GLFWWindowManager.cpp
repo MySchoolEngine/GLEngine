@@ -1,16 +1,16 @@
-#include <GLFWWindowManagerStdafx.h>
+#include <GLRendererStdafx.h>
 
-#include <GLFWWindowManager/GLFWWindowManager.h>
+#include <GLRenderer/GLFW/GLFWWindowManager.h>
 
-#include <Renderer/IRenderer.h>
+#include <GLRenderer/GLFW/GLFWoGLWindow.h>
+#include <GLRenderer/GLFW/GLFWWindowFactory.h>
 
-namespace GLEngine::GLFWManager {
+namespace GLEngine::GLRenderer::GLFW {
 
 //=================================================================================
-C_GLFWWindowManager::C_GLFWWindowManager(Core::C_Application::EventCallbackFn eventCallback, Core::E_Driver driver)
+C_GLFWWindowManager::C_GLFWWindowManager(Core::C_Application::EventCallbackFn eventCallback)
 	: Core::I_WindowManager(eventCallback)
 	, m_UpdatingWindow(nullptr)
-	, m_Driver(driver)
 {
 	Init();
 }
@@ -18,7 +18,7 @@ C_GLFWWindowManager::C_GLFWWindowManager(Core::C_Application::EventCallbackFn ev
 //=================================================================================
 std::shared_ptr<Core::I_Window> C_GLFWWindowManager::OpenNewWindow(const Core::S_WindowInfo& info)
 {
-	if (info.GetDriver() != m_Driver)
+	if (info.GetDriver() != Core::E_Driver::OpenGL)
 	{
 		return nullptr;
 	}
@@ -29,9 +29,12 @@ std::shared_ptr<Core::I_Window> C_GLFWWindowManager::OpenNewWindow(const Core::S
 }
 
 //=================================================================================
-Renderer::I_Renderer& C_GLFWWindowManager::GetActiveRenderer()
+const std::unique_ptr<Renderer::I_Renderer>& C_GLFWWindowManager::GetActiveRenderer() const
 {
-	GLE_ASSERT(m_UpdatingWindow, "Getting renderer outside of update!");
+	if (!m_UpdatingWindow)
+	{
+		return nullptr;
+	}
 	return m_UpdatingWindow->GetRenderer();
 }
 
@@ -91,6 +94,13 @@ void C_GLFWWindowManager::Init()
 		CORE_LOG(E_Level::Error, E_Context::Core, "GLFW: Unable to init glfw. Terminating engine");
 		exit(EXIT_FAILURE);
 	}
+}
+
+//=================================================================================
+// ConstructGLFWManager
+GL_RENDERER_API_EXPORT C_GLFWWindowManager* ConstructGLFWManager(Core::C_Application::EventCallbackFn eventCallback)
+{
+	return new C_GLFWWindowManager(eventCallback);
 }
 
 }

@@ -1,9 +1,15 @@
 #pragma once
 
+#include <Core/CoreMacros.h>
+
 #include <Renderer/IRenderCommand.h>
 
+#include <glm/vec4.hpp>
+#include <glm/vec3.hpp>
 
-namespace GLEngine::GLRenderer::Commands {
+namespace GLEngine {
+namespace GLRenderer {
+namespace Commands {
 
 class C_GLClearColor : public Renderer::I_RenderCommand {
 public:
@@ -22,4 +28,4 @@ protected:
 	glm::vec4 m_Colour;
 };
 
-}
+}}}

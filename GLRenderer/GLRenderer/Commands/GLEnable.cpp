@@ -3,7 +3,9 @@
 #include <GLRenderer/Commands/GLEnable.h>
 
 
-namespace GLEngine::GLRenderer::Commands {
+namespace GLEngine {
+namespace GLRenderer {
+namespace Commands {
 
 //=================================================================================
 C_GLEnable::C_GLEnable(E_GLEnableValues value)
@@ -30,4 +32,4 @@ std::string C_GLEnable::GetDescriptor() const
 	return std::string("GLEnable");
 }
 
-}
+}}}

@@ -15,7 +15,10 @@
 
 #include <Renderer/IResource.h>
 
-namespace GLEngine::GLRenderer {
+#include <glm/gtc/type_ptr.hpp>
+
+namespace GLEngine {
+namespace GLRenderer {
 
 namespace Buffers {
 class C_UniformBuffer;
@@ -104,5 +107,5 @@ private:
 	friend class C_ShaderManager;
 };
 
-}}
+}}}
 #include <GLRenderer/Shaders/ShaderProgram.inl>
