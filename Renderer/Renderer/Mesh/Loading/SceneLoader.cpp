@@ -29,8 +29,6 @@ bool SceneLoader::addModelFromFileToScene(const std::filesystem::path& filepath,
 	for (const auto& mesh : scene->meshes)
 		scene->bbox.Add(mesh.bbox.getTransformedAABB(mesh.modelMatrix));
 
-	Textures::TextureLoader tl;
-
 	const auto texureRoot = fullFilename.parent_path();
 
 	for (const auto & texName : texNames)
