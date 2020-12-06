@@ -5,6 +5,8 @@
 #include <examples/imgui_impl_opengl3.h>
 #include <examples/imgui_impl_glfw.h>
 
+#include <imgui.h>
+
 namespace GLEngine::GLRenderer {
 
 //=================================================================================
@@ -32,7 +34,7 @@ void C_GLImGUILayer::OnDetach()
 //=================================================================================
 void C_GLImGUILayer::FrameBegin()
 {
-	ImGuiIO& io = ::ImGui::GetIO();
+	::ImGuiIO& io = ::ImGui::GetIO();
 
 	float time = (float)glfwGetTime();
 	io.DeltaTime = m_Time > 0.0f ? (time - m_Time) : (1.0f / 60.0f);

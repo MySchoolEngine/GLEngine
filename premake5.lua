@@ -34,6 +34,9 @@ workspace "Engine"
 		"FMT_HEADER_ONLY=1",
 		"CORE_PLATFORM_WIN=1",
 		"CORE_PLATFORM_LINUX=2",
+    "GLENGINE_GLFW_RENDERER=VULKAN",
+    "VULKAN_BIN=\"C:/VulkanSDK/Bin\"",
+    "VULKAN_GLSLC=VULKAN_BIN \"/glslc.exe\"",
 	}
 
 	workspace_files{
@@ -57,8 +60,18 @@ workspace "Engine"
 		}
 		links { "stdc++fs" }
 
-  filter "configurations:Debug"
-    defines "GL_ENGINE_DEBUG"
+	filter "configurations:Debug"
+		runtime "Debug"
+		symbols "On"
+		defines { 
+			"DEBUG",
+			"GL_ENGINE_DEBUG",
+		}
+
+	filter "configurations:Release"
+		runtime "Release"
+		optimize "On"
+		defines({ "NDEBUG" })
 
 include "premakeDefines.lua"
 
@@ -73,11 +86,15 @@ IncludeDir["ImGui"] = "vendor/ImGui"
 IncludeDir["ImGuiFileDialog"] = "vendor/ImGuiFileDialog"
 IncludeDir["DevIL"] = "vendor/DevIL/DevIL/include"
 IncludeDir["dirent"] = "vendor/dirent/include"
+
 group "Assimp"
   include "vendor/projects/zlib"
   include "vendor/projects/irrXML"
   include "vendor/projects/Assimp"
 group ""
+
+VulkanSDKBase = "C:/VulkanSDK/"
+
 group "Dependencies"
   include "vendor/GLFW"
   include "vendor/Glad"
@@ -89,12 +106,20 @@ if _TARGET_OS ~= "linux" then
   include "vendor/projects/dirent"
 end
 group ""
+group "Renderes"
+	include "GLFWWindowManager"
+	include "DX12Renderer"
+group ""
+group "Tools"
+	include "Tools/ShaderPreprocessor"
+group ""
 
 include "Core"
 include "Sandbox"
 include "Renderer"
 include "GLRenderer"
 include "GUI"
+include "VulkanRenderer"
 include "Entity"
 include "Utils"
 include "Physics"

@@ -24,9 +24,9 @@ C_LambdaCommand::C_LambdaCommand(std::function<void(void)> fnc, const std::strin
 void C_LambdaCommand::Commit()
 {
 	// even though this is hack, I would like to stay sane
-	Core::C_Application::Get().GetActiveRenderer()->Lock(true);
+	Core::C_Application::Get().GetActiveRenderer().Lock(true);
 	m_fnc();
-	Core::C_Application::Get().GetActiveRenderer()->Lock(false);
+	Core::C_Application::Get().GetActiveRenderer().Lock(false);
 }
 
 //=================================================================================

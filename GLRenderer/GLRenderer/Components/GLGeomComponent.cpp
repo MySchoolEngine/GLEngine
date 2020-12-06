@@ -1,11 +1,14 @@
 #include <GLRendererStdafx.h>
 
 #include <GLRenderer/Components/GLGeomComponent.h>
+
+#include <GLRenderer/Buffers/UniformBuffersManager.h>
+#include <GLRenderer/Buffers/UBO/ModelData.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/Textures/TextureManager.h>
-#include <GLRenderer/Textures/TextureUnitManager.h>
+#include <GLRenderer/Mesh/StaticMeshResource.h>
 
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 
@@ -14,6 +17,8 @@
 #include <Renderer/IRenderer.h>
 
 #include <Core/Application.h>
+
+#include <imgui.h>
 
 namespace GLEngine::GLRenderer::Components {
 
@@ -38,42 +43,28 @@ void C_GLGeomComponent::PerformDraw() const
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
 
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
-	auto& tmgr = Textures::C_TextureManager::Instance();
-	auto& tm = Textures::C_TextureUnitManger::Instance();
-
-	tm.BindTextureToUnit(*(tmgr.GetIdentityTexture()), 0);
-	tm.BindTextureToUnit(*(tmgr.GetIdentityTexture()), 1);
-	tm.BindTextureToUnit(*(tmgr.GetIdentityTexture()), 2);
 	shmgr.ActivateShader(m_Shader);
 
-
-	if (m_ColorMap) {
-		tm.BindTextureToUnit(*m_ColorMap, 1);
-	}
-	else
-	{
-		tm.BindTextureToUnit(*(tmgr.GetIdentityTexture()), 1);
-	}
-
-	renderer->AddCommand(
+	renderer.AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[&]() {
-					const auto modelMatrix = GetComponentModelMatrix();
-					m_Shader->SetUniform("modelMatrix", modelMatrix);
-					m_Shader->SetUniform("modelColor", m_Color.GetValue());
-					m_Shader->SetUniform("roughness", 1);
-					m_Shader->SetUniform("roughnessMap", 0);
-					m_Shader->SetUniform("colorMap", 1);
-					m_Shader->SetUniform("normalMap", 2);
-					m_Shader->SetUniform("useNormalMap", false);
+				[&, matIndex = m_Material ? m_Material->GetMaterialIndex() : 0]()
+				{
+					ErrorCheck();
+					auto modelData = Buffers::C_UniformBuffersManager::Instance().GetBufferByName("modelData");
+					if (auto modelDataUbo = std::dynamic_pointer_cast<Buffers::UBO::C_ModelData>(modelData))
+					{
+						modelDataUbo->SetModelMatrix(GetComponentModelMatrix());
+						modelDataUbo->SetMaterialIndex(matIndex);
+						modelDataUbo->UploadData();
+					}ErrorCheck();
 				}
-				, "GLGeomComponent - upload material"
+				, "GLGeomComponent - upload matrice"
 			)
 		)
 	);
 
-	renderer->AddCommand(
+	renderer.AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_Mesh)
 		)
@@ -83,7 +74,9 @@ void C_GLGeomComponent::PerformDraw() const
 //=================================================================================
 void C_GLGeomComponent::DebugDrawGUI()
 {
-	m_Color.Draw();
+	if (::ImGui::CollapsingHeader("Geom component")) {
+		// todo in the future will material.Draw go here
+	}
 }
 
 //=================================================================================
@@ -95,11 +88,9 @@ bool C_GLGeomComponent::HasDebugDrawGUI() const
 //=================================================================================
 void C_GLGeomComponent::SetupMaterial(const Utils::Parsing::MaterialData& data)
 {
+	C_GeomComponent::SetupMaterial(data);
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	m_Shader = shmgr.GetProgram(data.m_MaterialName);
-
-	auto color = data.m_Color;
-	m_Color.SetValue(std::move(color));
 
 	auto& tmgr = Textures::C_TextureManager::Instance();
 
@@ -108,7 +99,7 @@ void C_GLGeomComponent::SetupMaterial(const Utils::Parsing::MaterialData& data)
 		m_ColorMap = tmgr.GetTexture(data.m_ColorMap);
 		if (m_ColorMap)
 		{
-			m_Color = glm::vec3(1.0f);
+			m_Material->SetDiffuseColor(glm::vec3(1.0f));
 
 			m_ColorMap->StartGroupOp();
 			m_ColorMap->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
@@ -116,6 +107,8 @@ void C_GLGeomComponent::SetupMaterial(const Utils::Parsing::MaterialData& data)
 			m_ColorMap->GenerateMipMaps();
 
 			m_ColorMap->EndGroupOp();
+
+			m_Material->SetColorMap(static_cast<void*>(&m_ColorMap));
 		}
 	}
 }

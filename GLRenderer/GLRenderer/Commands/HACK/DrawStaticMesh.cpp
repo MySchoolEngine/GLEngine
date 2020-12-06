@@ -38,7 +38,7 @@ std::shared_ptr<Renderer::I_Resource> C_DrawStaticMesh::GetResource() const
 //=================================================================================
 std::string C_DrawStaticMesh::GetDescriptor() const
 {
-	return std::string("DrawStaticMesh");
+	return fmt::format("DrawStaticMesh tris: {}", m_Mesh->GetNumTriangles());
 }
 
 }}}}

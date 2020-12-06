@@ -71,8 +71,14 @@ void ModelLoader::_loadMaterialsFromAiscene(const aiScene* loadedScene, std::sha
 	{
 		Renderer::MeshData::Material m;
 		_getMaterialColorAttributes(loadedScene->mMaterials[i], m);
+		aiString matName;
+		loadedScene->mMaterials[i]->Get(AI_MATKEY_NAME, matName);
+		m.m_Name = matName.C_Str();
 		const std::string texName = _getMaterialDiffuseTextureName(loadedScene->mMaterials[i]);
 		m.textureIndex = _getTextureIndexAndAddToRegister(texName, textureRegister);
+
+		const auto dispTexName = _getMaterialNormalTextureName(loadedScene->mMaterials[i]);
+		m.noramlTextureIndex = _getTextureIndexAndAddToRegister(dispTexName, textureRegister);
 		scene->materials.push_back(m);
 	}
 }
@@ -137,6 +143,19 @@ std::string ModelLoader::_getMaterialDiffuseTextureName(const aiMaterial* materi
 	{
 		aiString tpath;
 		material->GetTexture(aiTextureType_DIFFUSE, 0, &tpath);
+		return tpath.C_Str();
+	}
+
+	return "";
+}
+
+//=================================================================================
+std::string ModelLoader::_getMaterialNormalTextureName(const aiMaterial* material)
+{
+	if (material && material->GetTextureCount(aiTextureType_NORMALS) != 0)
+	{
+		aiString tpath;
+		material->GetTexture(aiTextureType_NORMALS, 0, &tpath);
 		return tpath.C_Str();
 	}
 

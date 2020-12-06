@@ -62,9 +62,8 @@ void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Enti
 	
 	for (const auto& mesh : scene->meshes)
 	{
-		const auto meshComp = std::make_shared<C_StaticMesh>(mesh, "basic", entity);
 		const auto material = scene->materials[mesh.materialIndex];
-		meshComp->SetColor(material.diffuse);
+		const auto meshComp = std::make_shared<C_StaticMesh>(mesh, "basic", entity, &material);
 		if (material.textureIndex >= 0)
 		{
 			auto colorMapTexture = tmgr.CreateTexture(scene->textures[material.textureIndex]);
@@ -78,6 +77,21 @@ void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Enti
 				colorMapTexture->EndGroupOp();
 
 				meshComp->SetColorMap(colorMapTexture);
+			}
+		}
+		if (material.noramlTextureIndex >= 0)
+		{
+			auto normalMapTexture = tmgr.CreateTexture(scene->textures[material.noramlTextureIndex]);
+			if (normalMapTexture)
+			{
+				normalMapTexture->StartGroupOp();
+				normalMapTexture->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
+				normalMapTexture->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+				normalMapTexture->GenerateMipMaps();
+
+				normalMapTexture->EndGroupOp();
+
+				meshComp->SetNormalMap(normalMapTexture);
 			}
 		}
 

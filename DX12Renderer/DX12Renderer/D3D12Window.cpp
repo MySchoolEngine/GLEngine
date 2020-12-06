@@ -111,7 +111,7 @@ bool C_D3D12Window::WantClose() const
 }
 
 //=================================================================================
-const std::unique_ptr<GLEngine::Renderer::I_Renderer>& C_D3D12Window::GetRenderer() const
+Renderer::I_Renderer& C_D3D12Window::GetRenderer()
 {
 	throw std::logic_error("The method or operation is not implemented.");
 }

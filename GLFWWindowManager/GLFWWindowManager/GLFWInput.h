@@ -4,14 +4,12 @@
 
 struct GLFWwindow;
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace GLFW {
+namespace GLEngine::GLFWManager {
 
-class C_GLFWInput : public Core::I_Input {
+class GL_GLFWWINDOWMANAGER_API_EXPORT C_GLFWInput : public Core::I_Input {
 public:
 	C_GLFWInput();
-	virtual ~C_GLFWInput();
+	virtual ~C_GLFWInput() = default;
 
 	void SetWindow(GLFWwindow* window) { m_Window = window; }
 	//==========================================================
@@ -31,4 +29,4 @@ protected:
 	GLFWwindow* m_Window;
 };
 
-}}}
+}

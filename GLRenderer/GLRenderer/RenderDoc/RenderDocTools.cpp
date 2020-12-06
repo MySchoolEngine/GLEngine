@@ -14,7 +14,7 @@ namespace RenderDoc {
 //=================================================================================
 C_DebugScope::C_DebugScope(const std::string& groupName)
 {
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[groupName]() {
@@ -28,7 +28,7 @@ C_DebugScope::C_DebugScope(const std::string& groupName)
 //=================================================================================
 C_DebugScope::~C_DebugScope()
 {
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[]() {

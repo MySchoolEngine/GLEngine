@@ -11,7 +11,7 @@
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
 
-#include <GLRenderer/Debug.h>
+#include <imgui.h>
 
 #include <Utils/DebugBreak.h>
 

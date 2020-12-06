@@ -3,10 +3,6 @@
 #include <Physics/Primitives/Shapes.h>
 #include <Physics/Primitives/AABB.h>
 
-#include <vector>
-#include <string>
-#include <memory>
-
 
 namespace GLEngine::Renderer::MeshData {
 
@@ -20,10 +16,10 @@ struct Material
 
 	//Index to a texture array
 	//If negative - material has no texture
-	int textureIndex;
+	int textureIndex = -1;
+	int noramlTextureIndex = -1;
 
-	//Alignment to 128bit, in terms of size
-	float aligmetVariableDoNotUse1, aligmetVariableDoNotUse2;
+	std::string m_Name;
 };
 
 //=================================================================================

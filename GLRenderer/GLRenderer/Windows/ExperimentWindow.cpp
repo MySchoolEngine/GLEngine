@@ -12,6 +12,8 @@
 
 #include <GLRenderer/Components/ComponentBuilderFactory.h>
 
+#include <GLRenderer/Materials/MaterialBuffer.h>
+
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 
@@ -22,14 +24,11 @@
 #include <GLRenderer/Textures/TextureLoader.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 
-#include <GLRenderer/Buffers/UBO/FrameConstantsBuffer.h>
+#include <GLRenderer/Buffers/UBO/ModelData.h>
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
 
-#include <GLRenderer/Components/SkeletalMesh.h>
-#include <GLRenderer/Components/SkyBox.h>
 #include <GLRenderer/PersistentDebug.h>
 #include <GLRenderer/OGLRenderer.h>
-#include <GLRenderer/Debug.h>
 
 #include <GLRenderer/Lights/GLAreaLight.h>
 
@@ -39,6 +38,7 @@
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/Cameras/OrbitalCamera.h>
 #include <Renderer/Cameras/FreelookCamera.h>
+#include <Renderer/Materials/MaterialManager.h>
 
 #include <Physics/Primitives/Ray.h>
 #include <Physics/Primitives/Intersection.h>
@@ -176,7 +176,7 @@ void C_ExplerimentWindow::Update()
 	auto shader = shmgr.GetProgram("screenQuad");
 	shmgr.ActivateShader(shader);
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[this, shader]() {
@@ -188,7 +188,7 @@ void C_ExplerimentWindow::Update()
 		)
 	);
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_ScreenQuad)
 		)
@@ -201,7 +201,7 @@ void C_ExplerimentWindow::Update()
 
 	{
 		RenderDoc::C_DebugScope s("ImGUI");
-		Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+		Core::C_Application::Get().GetActiveRenderer().AddCommand(
 			std::move(
 				std::make_unique<Commands::HACK::C_LambdaCommand>(
 					[this, shader]() {
@@ -291,6 +291,9 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 		);
 	}
 
+	Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Material::C_MaterialsBuffer>("materials");
+	Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_ModelData>("modelData");
+
 	SetupWorld();
 
 	auto HDRTexture = std::make_shared<Textures::C_Texture>("hdrTexture");
@@ -358,11 +361,10 @@ void C_ExplerimentWindow::SetupWorld()
 		if (player)
 		{
 			float zoom = 5.0f;
-			auto playerCamera = std::make_shared<Renderer::Cameras::FreelookCamera>(player);
-			playerCamera->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
-			playerCamera->positionCamera({ 0,1,0 }, { 0,0,1 });
-			//playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
-			//playerCamera->adjustOrientation(20.f, 20.f);
+			auto playerCamera = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
+			playerCamera->setupCameraProjection(0.1f, 2 * zoom * 200, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
+			playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
+			playerCamera->adjustOrientation(20.f, 20.f);
 			playerCamera->Update();
 			player->AddComponent(playerCamera);
 			m_CamManager.ActivateCamera(playerCamera);

@@ -13,7 +13,7 @@ namespace GLEngine::GLRenderer {
 template<E_FramebufferTarget target /*= E_FramebufferTarget::Framebuffer*/>
 void C_Framebuffer::Bind()
 {
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(
 		std::move(
 			std::make_unique<Commands::C_GLBindFramebuffer<target>>(m_FBO)
 		)
@@ -23,7 +23,7 @@ void C_Framebuffer::Bind()
 template<E_FramebufferTarget target /*= E_FramebufferTarget::Framebuffer*/>
 void C_Framebuffer::Unbind()
 {
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(
 		std::move(
 			std::make_unique<Commands::C_GLBindFramebuffer<target>>(0)
 		)
@@ -43,7 +43,7 @@ void C_Framebuffer::AttachTexture(GLenum attachement, std::shared_ptr<Textures::
 		}
 	}
 	Bind<target>();
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(
 		std::move(
 			std::make_unique<Commands::C_glFramebufferTexture<target>>(attachement, texture)
 		)
@@ -62,7 +62,7 @@ std::future<bool> GLEngine::GLRenderer::C_Framebuffer::CheckCompleteness() const
 	auto ret = retPromise.get_future();
 
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(
 		std::move(
 			std::make_unique<Commands::C_GLCheckFramebufferStatus<target>>(std::move(retPromise))
 		)

@@ -1,9 +1,11 @@
 #include <RendererStdafx.h>
 
 #include <Renderer/Mesh/GeomComponent.h>
+#include <Renderer/Materials/MaterialManager.h>
+#include <Renderer/Materials/Material.h>
+#include <Renderer/Mesh/Geometry.h>
 
 #include <Utils/Parsing/MatrixParse.h>
-#include <Utils/Parsing/MaterialParser.h>
 
 #include <pugixml.hpp>
 
@@ -19,6 +21,19 @@ C_GeomComponent::C_GeomComponent(std::shared_ptr<Entity::I_Entity> owner)
 std::string_view C_GeomComponent::GetDebugComponentName() const
 {
 	return "GeomComponent";
+}
+
+//=================================================================================
+void C_GeomComponent::SetupMaterial(const Utils::Parsing::MaterialData& data)
+{
+	auto& materialManager = C_MaterialManager::Instance();
+	m_Material = materialManager.GetMaterial("GeomComponent");
+	if (!m_Material)
+	{
+		m_Material = materialManager.RegisterMaterial(Renderer::C_Material("GeomComponent"));
+	}
+	m_Material->SetDiffuseColor(data.m_Color);
+	m_Material->SetRoughness(data.m_Roughness);
 }
 
 //=================================================================================
@@ -42,7 +57,7 @@ std::shared_ptr<Entity::I_Component> C_GeometryCompBuilder::Build(const pugi::xm
 	}
 	else
 	{
-		CORE_LOG(E_Level::Warning, E_Context::Render, "Geomtery componen needs type attribute");
+		CORE_LOG(E_Level::Warning, E_Context::Render, "Geomtery component needs type attribute");
 	}
 	const auto transfomr = Utils::Parsing::C_MatrixParser::ParseTransformation(node);
 	const auto rotation = Utils::Parsing::C_MatrixParser::ParseRotations(node);
