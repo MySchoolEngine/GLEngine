@@ -21,7 +21,7 @@ bool SceneLoader::addModelFromFileToScene(const std::filesystem::path& filepath,
 
 	const auto fullFilename = filepath / filename;
 
-	bool retval = ml.addModelFromFileToScene(fullFilename, scene, texNames, transform);
+	const bool retval = ml.addModelFromFileToScene(fullFilename, scene, texNames, transform);
 
 	if (!retval)
 		return false;
@@ -35,14 +35,7 @@ bool SceneLoader::addModelFromFileToScene(const std::filesystem::path& filepath,
 
 	for (const auto & texName : texNames)
 	{
-		Renderer::MeshData::Texture t;
-		
-		retval = tl.loadTexture(texureRoot / texName, t);
-
-		if (!retval)
-			return false;
-
-		scene->textures.push_back(t);
+		scene->textures.push_back((texureRoot / texName).generic_string());
 	}
 
 	return true;

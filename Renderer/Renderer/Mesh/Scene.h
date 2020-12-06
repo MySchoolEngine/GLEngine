@@ -83,7 +83,7 @@ struct Scene
 	std::vector<Light>				lights;
 
 	std::vector<Material>			materials;
-	std::vector<Texture>			textures;
+	std::vector<std::string>		textures;
 
 	Physics::Primitives::S_AABB     bbox;
 };

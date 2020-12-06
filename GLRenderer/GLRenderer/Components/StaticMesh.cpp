@@ -61,7 +61,7 @@ C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::s
 		auto& tmgr = Textures::C_TextureManager::Instance();
 		const auto& texure = scene->textures[material.textureIndex];
 
-		auto texturePtr = tmgr.CreateTexture(texure);
+		auto texturePtr = tmgr.GetTexture(texure);
 		SetColorMap(texturePtr);
 	}
 }
