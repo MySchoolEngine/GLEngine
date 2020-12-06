@@ -67,7 +67,7 @@ void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Enti
 		meshComp->SetColor(material.diffuse);
 		if (material.textureIndex >= 0)
 		{
-			auto colorMapTexture = tmgr.CreateTexture(scene->textures[material.textureIndex]);
+			auto colorMapTexture = tmgr.GetTexture(scene->textures[material.textureIndex]);
 			if (colorMapTexture)
 			{
 				colorMapTexture->StartGroupOp();

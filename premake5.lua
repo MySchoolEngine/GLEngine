@@ -85,6 +85,7 @@ group "Dependencies"
   include "vendor/projects/ImGui"
   include "vendor/projects/ImGuiFileDialog"
   include "vendor/projects/DevIL"
+  include "vendor/projects/libjpeg"
 if _TARGET_OS ~= "linux" then
   include "vendor/projects/dirent"
 end

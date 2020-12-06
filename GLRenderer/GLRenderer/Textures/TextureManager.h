@@ -2,6 +2,10 @@
 
 #include <GUI/LambdaPart.h>
 
+
+namespace GLEngine::Renderer {
+class I_TextureViewStorage;
+}
 namespace GLEngine::Renderer::MeshData
 {
 struct Texture;
@@ -26,6 +30,7 @@ public:
 	[[nodiscard]] T_TexturePtr GetTexture(const std::string& name);
 	[[nodiscard]] T_TexturePtr CreateEmptyTexture(const std::string& name);
 	[[nodiscard]] T_TexturePtr CreateTexture(const Renderer::MeshData::Texture& tex);
+	[[nodiscard]] T_TexturePtr CreateTexture(const Renderer::I_TextureViewStorage* tex, const std::string& name);
 
 	void Clear();
 

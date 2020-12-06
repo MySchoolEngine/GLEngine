@@ -5,7 +5,6 @@
 #include <GLRenderer/Mesh/StaticMeshResource.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
-#include <GLRenderer/Textures/TextureLoader.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 #include <GLRenderer/Textures/TextureManager.h>
 
@@ -61,7 +60,7 @@ C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::s
 		auto& tmgr = Textures::C_TextureManager::Instance();
 		const auto& texure = scene->textures[material.textureIndex];
 
-		auto texturePtr = tmgr.CreateTexture(texure);
+		auto texturePtr = tmgr.GetTexture(texure);
 		SetColorMap(texturePtr);
 	}
 }
