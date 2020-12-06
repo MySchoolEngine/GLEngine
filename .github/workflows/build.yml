@@ -13,6 +13,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: textbook/git-checkout-submodule-action@master
+      - name: update
+        run: sudo apt update
       - name: Get X11
         run: sudo apt-get install xorg-dev
       - name: Download premake
