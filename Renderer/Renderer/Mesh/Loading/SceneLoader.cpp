@@ -2,7 +2,6 @@
 
 #include <Renderer/Mesh/Loading/SceneLoader.h>
 
-#include <Renderer/Textures/TextureLoader.h>
 #include <Renderer/Mesh/Loading/ModelLoader.h>
 
 #include <Renderer/Mesh/Scene.h>
