@@ -60,7 +60,7 @@ template<class internalFormat>
 class C_TextureViewStorageCPU : public I_TextureViewStorage
 {
 public:
-	RENDERER_API_EXPORT C_TextureViewStorageCPU(std::size_t width, std::size_t height, std::uint8_t elements);
+	C_TextureViewStorageCPU(std::size_t width, std::size_t height, std::uint8_t elements);
 	virtual ~C_TextureViewStorageCPU();
 
 	[[nodiscard]] virtual double GetD(std::size_t position) const override;
@@ -81,7 +81,6 @@ private:
 	std::uint8_t m_Elements;
 };
 
-RENDERER_TEMPLATE_EXPORT template class RENDERER_API_EXPORT C_TextureViewStorageCPU<std::uint8_t>;
 //=================================================================================
 
 //=================================================================================
@@ -95,3 +94,4 @@ RENDERER_TEMPLATE_EXPORT template class RENDERER_API_EXPORT C_TextureViewStorage
 //	std::array<internalFormat, width* height* elements> m_Data;
 //};
 }
+#include <Renderer/Textures/TextureStorage.inl>
