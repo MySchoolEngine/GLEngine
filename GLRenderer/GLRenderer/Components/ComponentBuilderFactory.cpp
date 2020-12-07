@@ -66,7 +66,7 @@ void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Enti
 		const auto meshComp = std::make_shared<C_StaticMesh>(mesh, "basic", entity, &material);
 		if (material.textureIndex >= 0)
 		{
-			auto colorMapTexture = tmgr.CreateTexture(scene->textures[material.textureIndex]);
+			auto colorMapTexture = tmgr.GetTexture(scene->textures[material.textureIndex]);
 			if (colorMapTexture)
 			{
 				colorMapTexture->StartGroupOp();
@@ -81,7 +81,7 @@ void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Enti
 		}
 		if (material.noramlTextureIndex >= 0)
 		{
-			auto normalMapTexture = tmgr.CreateTexture(scene->textures[material.noramlTextureIndex]);
+			auto normalMapTexture = tmgr.GetTexture(scene->textures[material.noramlTextureIndex]);
 			if (normalMapTexture)
 			{
 				normalMapTexture->StartGroupOp();

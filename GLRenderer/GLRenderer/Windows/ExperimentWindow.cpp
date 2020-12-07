@@ -21,7 +21,6 @@
 
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 
-#include <GLRenderer/Textures/TextureLoader.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 
 #include <GLRenderer/Buffers/UBO/ModelData.h>

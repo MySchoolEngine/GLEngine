@@ -34,9 +34,9 @@ workspace "Engine"
 		"FMT_HEADER_ONLY=1",
 		"CORE_PLATFORM_WIN=1",
 		"CORE_PLATFORM_LINUX=2",
-    "GLENGINE_GLFW_RENDERER=VULKAN",
-    "VULKAN_BIN=\"C:/VulkanSDK/Bin\"",
-    "VULKAN_GLSLC=VULKAN_BIN \"/glslc.exe\""
+		"GLENGINE_GLFW_RENDERER=VULKAN",
+		"VULKAN_BIN=\"C:/VulkanSDK/Bin\"",
+		"VULKAN_GLSLC=VULKAN_BIN \"/glslc.exe\"",
   }
 
 	workspace_files{
@@ -101,6 +101,7 @@ group "Dependencies"
   include "vendor/projects/ImGui"
   include "vendor/projects/ImGuiFileDialog"
   include "vendor/projects/DevIL"
+  include "vendor/projects/libjpeg"
 if _TARGET_OS ~= "linux" then
   include "vendor/projects/dirent"
 end

@@ -18,6 +18,9 @@
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 
 namespace GLEngine {
+namespace Renderer {
+class I_TextureViewStorage;
+}
 namespace GLRenderer {
 namespace Mesh {
 struct Texture;
@@ -62,6 +65,7 @@ public:
 	void GenerateMipMaps();
 
 	void SetTexData2D(int level, const Renderer::MeshData::Texture& tex);
+	void SetTexData2D(int level, const Renderer::I_TextureViewStorage* tex);
 	void SetInternalFormat(GLint internalFormat, GLint format, GLenum type);
 protected:
 	void Clean();

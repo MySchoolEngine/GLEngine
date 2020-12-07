@@ -2,12 +2,13 @@
 
 #include <GLRenderer/Textures/Texture.h>
 
-#include <Renderer/Mesh/Scene.h>
-
 #include <GLRenderer/Commands/Textures/GLMakeTextureHandleResident.h>
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
+#include <GLRenderer/Textures/TextureUtils.h>
 
 #include <Renderer/IRenderer.h>
+#include <Renderer/Textures/TextureView.h>
+#include <Renderer/Mesh/Scene.h>
 
 #include <Core/Application.h>
 
@@ -159,6 +160,72 @@ void C_Texture::SetTexData2D(int level, const Renderer::MeshData::Texture& tex)
 		GL_RGBA,
 		T_TypeToGL<decltype(tex.data)::element_type>::value,
 		tex.data.get());
+}
+
+//=================================================================================
+void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* tex)
+{
+	ErrorCheck();
+	SetDimensions(tex->GetDimensions());
+	switch (tex->GetNumElements())
+	{
+	case 1:
+	{
+		glTexImage2D(m_target,
+			level,
+			GL_RED,
+			tex->GetDimensions().x,
+			tex->GetDimensions().y,
+			0,
+			GetFormat(tex->GetChannels()),
+			GL_UNSIGNED_BYTE,
+			tex->GetData());
+		break;
+	}
+	case 2:
+	{
+		glTexImage2D(m_target,
+			level,
+			GL_RG,
+			tex->GetDimensions().x,
+			tex->GetDimensions().y,
+			0,
+			GetFormat(tex->GetChannels()),
+			GL_UNSIGNED_BYTE,
+			tex->GetData());
+		break;
+	}
+	case 3:
+	{
+		glTexImage2D(m_target,
+			level,
+			GL_RGB,
+			tex->GetDimensions().x,
+			tex->GetDimensions().y,
+			0,
+			GetFormat(tex->GetChannels()),
+			GL_UNSIGNED_BYTE,
+			tex->GetData());
+		break;
+	}
+	case 4:
+	{
+		glTexImage2D(m_target,
+			level,
+			GL_RGBA,
+			tex->GetDimensions().x,
+			tex->GetDimensions().y,
+			0,
+			GetFormat(tex->GetChannels()),
+			GL_UNSIGNED_BYTE,
+			tex->GetData());
+		break;
+	}
+	default:
+		CORE_LOG(E_Level::Error, E_Context::Render, "Unknown number of elements: {}", tex->GetNumElements());
+		break;
+	}
+	ErrorCheck();
 }
 
 //=================================================================================
