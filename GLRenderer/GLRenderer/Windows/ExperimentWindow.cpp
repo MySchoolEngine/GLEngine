@@ -315,8 +315,7 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 
 		m_ScreenQuad = std::make_shared<Mesh::C_StaticMeshResource>(billboardMesh);
 	}
-
-	SetupWorld("Levels/dark.xml");
+	AddMandatoryWorldParts();
 
 	m_HDRFBO = std::make_unique<C_Framebuffer>("HDR");
 	auto HDRTexture = std::make_shared<Textures::C_Texture>("hdrTexture");
@@ -417,27 +416,25 @@ void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 		return;
 	}
 
+	AddMandatoryWorldParts();
+}
+
+//=================================================================================
+void C_ExplerimentWindow::AddMandatoryWorldParts()
+{
+	m_Player = m_World->GetEntity("Player");
+
+	auto player = m_Player.lock();
+	if (player)
 	{
-		m_Player = m_World->GetEntity("Player");
-
-		auto player = m_Player.lock();
-		if (player)
-		{
-			float zoom = 5.0f;
-			auto playerCamera = std::make_shared<Cameras::C_OrbitalCamera>();
-			playerCamera->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
-			playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
-			playerCamera->adjustOrientation(20.f, 20.f);
-			playerCamera->Update();
-			player->AddComponent(playerCamera);
-			m_CamManager.ActivateCamera(playerCamera);
-
-			// area light
-			// auto arealight = std::make_shared<C_GLAreaLight>(player);
-			// player->AddComponent(arealight);
-			// 
-			// m_ShadowPass = std::make_shared<C_ShadowMapTechnique>(m_World, std::static_pointer_cast<Renderer::I_Light>( arealight));
-		}
+		float zoom = 5.0f;
+		auto playerCamera = std::make_shared<Cameras::C_OrbitalCamera>();
+		playerCamera->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
+		playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
+		playerCamera->adjustOrientation(20.f, 20.f);
+		playerCamera->Update();
+		player->AddComponent(playerCamera);
+		m_CamManager.ActivateCamera(playerCamera);
 	}
 }
 

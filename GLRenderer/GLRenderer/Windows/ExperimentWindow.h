@@ -62,6 +62,7 @@ protected:
 
 private:
 	void SetupWorld(const std::filesystem::path& level);
+	void AddMandatoryWorldParts();
 	void MouseSelect();
 
 	void sampleTime(double new_sample);
