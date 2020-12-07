@@ -54,6 +54,7 @@
 #include <Core/EventSystem/Event/AppEvent.h>
 
 #include <imgui.h>
+#include <ImGuiFileDialog/ImGuiFileDialog.h>
 
 #include <pugixml.hpp>
 
@@ -293,9 +294,31 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 			)
 		);
 	}
+	m_MainPass = std::make_unique<C_MainPassTechnique>(m_World);
+	{
+		// billboard
+		Renderer::MeshData::Mesh billboardMesh;
+		billboardMesh.vertices.emplace_back(-1.f, 1.f, 0, 1); // 1
+		billboardMesh.vertices.emplace_back(-1.f, -1.f, 0, 1); // 2
+		billboardMesh.vertices.emplace_back(1.0f, 1.0f, 0, 1); // 3
+		billboardMesh.vertices.emplace_back(-1.f, -1.f, 0, 1); // 4 = 2
+		billboardMesh.vertices.emplace_back(1.f, -1.f, 0, 1); // 5
+		billboardMesh.vertices.emplace_back(1.0f, 1.0f, 0, 1); // 6 = 3
 
-	SetupWorld();
 
+		billboardMesh.texcoords.emplace_back(0, 1);
+		billboardMesh.texcoords.emplace_back(0, 0);
+		billboardMesh.texcoords.emplace_back(1, 1);
+		billboardMesh.texcoords.emplace_back(0, 0);
+		billboardMesh.texcoords.emplace_back(1, 0);
+		billboardMesh.texcoords.emplace_back(1, 1);
+
+		m_ScreenQuad = std::make_shared<Mesh::C_StaticMeshResource>(billboardMesh);
+	}
+
+	SetupWorld("Levels/dark.xml");
+
+	m_HDRFBO = std::make_unique<C_Framebuffer>("HDR");
 	auto HDRTexture = std::make_shared<Textures::C_Texture>("hdrTexture");
 
 	HDRTexture->bind();
@@ -317,85 +340,6 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 	// ~depthStencilTexture setup 
 	m_HDRFBO->AttachTexture(GL_DEPTH_STENCIL_ATTACHMENT, depthStencilTexture);
 	depthStencilTexture->unbind();
-
-
-	return false;
-}
-
-//=================================================================================
-bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
-{
-	auto HDRTexture = m_HDRFBO->GetAttachement(GL_COLOR_ATTACHMENT0);
-	HDRTexture->bind();
-	HDRTexture->SetDimensions({ event.GetWidth(), event.GetHeight() });
-	HDRTexture->SetInternalFormat(GL_RGBA16F, GL_RGBA, GL_FLOAT);
-	HDRTexture->SetFilter(GL_LINEAR, GL_LINEAR);
-	HDRTexture->unbind();
-
-	auto depthStencilTexture = m_HDRFBO->GetAttachement(GL_DEPTH_STENCIL_ATTACHMENT);
-
-	depthStencilTexture->bind();
-	depthStencilTexture->SetDimensions({ event.GetWidth(), event.GetHeight() });
-	depthStencilTexture->SetInternalFormat(GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8);
-	depthStencilTexture->SetFilter(GL_LINEAR, GL_LINEAR);
-	depthStencilTexture->unbind();
-
-	return true;
-}
-
-//=================================================================================
-void C_ExplerimentWindow::SetupWorld()
-{
-	m_MainPass = std::make_unique<C_MainPassTechnique>(m_World);
-	m_HDRFBO = std::make_unique<C_Framebuffer>("HDR");
-	if (!m_World->LoadLevel("Levels/dark.xml", std::make_unique<Components::C_ComponentBuilderFactory>()))
-	{
-		CORE_LOG(E_Level::Warning, E_Context::Render, "Level not loaded");
-		return;
-	}
-
-	{
-		m_Player = m_World->GetEntity("Player");
-
-		auto player = m_Player.lock();
-		if (player)
-		{
-			float zoom = 5.0f;
-			auto playerCamera = std::make_shared<Cameras::C_OrbitalCamera>();
-			playerCamera->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
-			playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
-			playerCamera->adjustOrientation(20.f, 20.f);
-			playerCamera->Update();
-			player->AddComponent(playerCamera);
-			m_CamManager.ActivateCamera(playerCamera);
-
-			// area light
-			auto arealight = std::make_shared<C_GLAreaLight>(player);
-			player->AddComponent(arealight);
-			// 
-			// m_ShadowPass = std::make_shared<C_ShadowMapTechnique>(m_World, std::static_pointer_cast<Renderer::I_Light>( arealight));
-		}
-	}
-	{
-		// billboard
-		Renderer::MeshData::Mesh billboardMesh;
-		billboardMesh.vertices.emplace_back(-1.f,  1.f, 0, 1); // 1
-		billboardMesh.vertices.emplace_back(-1.f, -1.f, 0, 1); // 2
-		billboardMesh.vertices.emplace_back( 1.0f, 1.0f, 0, 1); // 3
-		billboardMesh.vertices.emplace_back(-1.f, -1.f, 0, 1); // 4 = 2
-		billboardMesh.vertices.emplace_back( 1.f, -1.f, 0, 1); // 5
-		billboardMesh.vertices.emplace_back( 1.0f, 1.0f, 0, 1); // 6 = 3
-
-
-		billboardMesh.texcoords.emplace_back(0, 1);
-		billboardMesh.texcoords.emplace_back(0, 0);
-		billboardMesh.texcoords.emplace_back(1, 1);
-		billboardMesh.texcoords.emplace_back(0, 0);
-		billboardMesh.texcoords.emplace_back(1, 0);
-		billboardMesh.texcoords.emplace_back(1, 1);
-
-		m_ScreenQuad = std::make_shared<Mesh::C_StaticMeshResource>(billboardMesh);
-	}
 
 	auto& guiMGR = m_ImGUI->GetGUIMgr();
 
@@ -439,6 +383,62 @@ void C_ExplerimentWindow::SetupWorld()
 
 	const auto rendererWindow = static_cast<C_OGLRenderer*>(m_renderer.get())->SetupControls(guiMGR);
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Renderer", rendererWindow, guiMGR));
+
+	return false;
+}
+
+//=================================================================================
+bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
+{
+	auto HDRTexture = m_HDRFBO->GetAttachement(GL_COLOR_ATTACHMENT0);
+	HDRTexture->bind();
+	HDRTexture->SetDimensions({ event.GetWidth(), event.GetHeight() });
+	HDRTexture->SetInternalFormat(GL_RGBA16F, GL_RGBA, GL_FLOAT);
+	HDRTexture->SetFilter(GL_LINEAR, GL_LINEAR);
+	HDRTexture->unbind();
+
+	auto depthStencilTexture = m_HDRFBO->GetAttachement(GL_DEPTH_STENCIL_ATTACHMENT);
+
+	depthStencilTexture->bind();
+	depthStencilTexture->SetDimensions({ event.GetWidth(), event.GetHeight() });
+	depthStencilTexture->SetInternalFormat(GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8);
+	depthStencilTexture->SetFilter(GL_LINEAR, GL_LINEAR);
+	depthStencilTexture->unbind();
+
+	return true;
+}
+
+//=================================================================================
+void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
+{
+	if (!m_World->LoadLevel(level, std::make_unique<Components::C_ComponentBuilderFactory>()))
+	{
+		CORE_LOG(E_Level::Warning, E_Context::Render, "Level not loaded");
+		return;
+	}
+
+	{
+		m_Player = m_World->GetEntity("Player");
+
+		auto player = m_Player.lock();
+		if (player)
+		{
+			float zoom = 5.0f;
+			auto playerCamera = std::make_shared<Cameras::C_OrbitalCamera>();
+			playerCamera->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
+			playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
+			playerCamera->adjustOrientation(20.f, 20.f);
+			playerCamera->Update();
+			player->AddComponent(playerCamera);
+			m_CamManager.ActivateCamera(playerCamera);
+
+			// area light
+			// auto arealight = std::make_shared<C_GLAreaLight>(player);
+			// player->AddComponent(arealight);
+			// 
+			// m_ShadowPass = std::make_shared<C_ShadowMapTechnique>(m_World, std::static_pointer_cast<Renderer::I_Light>( arealight));
+		}
+	}
 }
 
 //=================================================================================
