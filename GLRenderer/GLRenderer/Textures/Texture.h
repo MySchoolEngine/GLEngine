@@ -69,9 +69,11 @@ public:
 	void SetInternalFormat(GLint internalFormat, GLint format, GLenum type);
 protected:
 	void Clean();
+	GLint GetInternalFormat() const;
 
 	GLuint			m_texture;
 	GLenum			m_target;
+	std::uint8_t	m_Channels;
 	glm::uvec2		m_Dimensions;
 	bool			m_bGroupOperations : 1;
 	std::uint64_t	m_Handle;

@@ -21,6 +21,7 @@ C_Texture::C_Texture(const std::string& name, GLenum target)
 	: m_bGroupOperations(false)
 	, m_target(target)
 	, m_texture(0)
+	, m_Channels(0)
 {
 	glGenTextures(1, &m_texture);
 	bind();
@@ -43,6 +44,7 @@ C_Texture::C_Texture(C_Texture&& t)
 	m_bGroupOperations = t.m_bGroupOperations;
 	m_Handle = t.m_Handle;
 	m_Dimensions = t.m_Dimensions;
+	m_Channels = t.m_Channels;
 }
 
 //=================================================================================
@@ -60,6 +62,7 @@ void C_Texture::operator=(C_Texture&& rhs)
 	m_bGroupOperations = rhs.m_bGroupOperations;
 	m_Handle = rhs.m_Handle;
 	m_Dimensions = rhs.m_Dimensions;
+	m_Channels = rhs.m_Channels;
 }
 
 //=================================================================================
@@ -146,6 +149,7 @@ void C_Texture::GenerateMipMaps()
 void C_Texture::SetTexData2D(int level, const Renderer::MeshData::Texture& tex)
 {
 	SetDimensions({ tex.width, tex.height });
+	m_Channels = 3;
 	glTexImage2D(m_target,
 		level,
 		GL_RGB,
@@ -160,67 +164,18 @@ void C_Texture::SetTexData2D(int level, const Renderer::MeshData::Texture& tex)
 //=================================================================================
 void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* tex)
 {
-	ErrorCheck();
 	SetDimensions(tex->GetDimensions());
-	switch (tex->GetNumElements())
-	{
-	case 1:
-	{
-		glTexImage2D(m_target,
-			level,
-			GL_RED,
-			tex->GetDimensions().x,
-			tex->GetDimensions().y,
-			0,
-			GetFormat(tex->GetChannels()),
-			GL_UNSIGNED_BYTE,
-			tex->GetData());
-		break;
-	}
-	case 2:
-	{
-		glTexImage2D(m_target,
-			level,
-			GL_RG,
-			tex->GetDimensions().x,
-			tex->GetDimensions().y,
-			0,
-			GetFormat(tex->GetChannels()),
-			GL_UNSIGNED_BYTE,
-			tex->GetData());
-		break;
-	}
-	case 3:
-	{
-		glTexImage2D(m_target,
-			level,
-			GL_RGB,
-			tex->GetDimensions().x,
-			tex->GetDimensions().y,
-			0,
-			GetFormat(tex->GetChannels()),
-			GL_UNSIGNED_BYTE,
-			tex->GetData());
-		break;
-	}
-	case 4:
-	{
-		glTexImage2D(m_target,
-			level,
-			GL_RGBA,
-			tex->GetDimensions().x,
-			tex->GetDimensions().y,
-			0,
-			GetFormat(tex->GetChannels()),
-			GL_UNSIGNED_BYTE,
-			tex->GetData());
-		break;
-	}
-	default:
-		CORE_LOG(E_Level::Error, E_Context::Render, "Unknown number of elements: {}", tex->GetNumElements());
-		break;
-	}
-	ErrorCheck();
+	m_Channels = tex->GetNumElements();
+
+	glTexImage2D(m_target,
+		level,
+		GetInternalFormat(),
+		tex->GetDimensions().x,
+		tex->GetDimensions().y,
+		0,
+		GetFormat(tex->GetChannels()),
+		GL_UNSIGNED_BYTE,
+		tex->GetData());
 }
 
 //=================================================================================
@@ -257,6 +212,22 @@ void C_Texture::MakeHandleResident(bool val)
 			std::make_unique<Commands::C_GLMakeTextureHandleResident>(m_Handle, val)
 		)
 	);
+}
+
+//=================================================================================
+//=================================================================================
+GLint C_Texture::GetInternalFormat() const
+{
+	switch (m_Channels)
+	{
+	case 1: return GL_RED;
+	case 2: return GL_RG;
+	case 3: return GL_RGB;
+	case 4: return GL_RGBA;
+	default:
+		CORE_LOG(E_Level::Error, E_Context::Render, "Unknown number of elements: {}", m_Channels);
+		break;
+	}
 }
 
 }
