@@ -10,6 +10,8 @@ project "DevIL-IL"
         "../../DevIL/DevIL/src-IL/include",
         "../../DevIL/DevIL/include/IL",
         "../../DevIL/DevIL/include",
+        "../../libjpeg/",
+        "../libjpeg/",
         ".",
     }
 
@@ -27,11 +29,15 @@ project "DevIL-IL"
         "IL_NO_EXR",
         "IL_NO_WDP",
         "IL_NO_JP2",
-        "IL_NO_JPG",
         "IL_NO_PNG",
         "IL_NO_MNG",
         "IL_NO_LCMS",
         "IL_NO_TIF",
+    }
+
+    links
+    {
+        "libjpeg",
     }
     
     removedefines
