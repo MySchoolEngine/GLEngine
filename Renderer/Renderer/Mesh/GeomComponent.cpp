@@ -31,7 +31,7 @@ std::shared_ptr<Entity::I_Component> C_GeometryCompBuilder::Build(const pugi::xm
 	auto geomComponent = ConstructComponent(owner);
 	const auto material = Utils::Parsing::C_MaterialParser::ParseMaterialData(node);
 	geomComponent->SetupMaterial(material);
-	if (const auto typeAttribute = node.attribute("type"))
+	if (/*const auto typeAttribute = */node.attribute("type"))
 	{
 		int subdivisions = 0;
 		if (const auto subdivisionsAtt = node.attribute("subdivisions"))

@@ -16,7 +16,7 @@ MaterialData C_MaterialParser::ParseMaterialData(const pugi::xml_node& node)
 		data.m_MaterialName = materialAttr.value();
 	}
 
-	if (auto colorChild = node.child("color"))
+	if (node.child("color"))
 	{
 		data.m_Color = Utils::Parsing::C_ColorParser::ParseColorRGB(node);
 	}

@@ -14,9 +14,9 @@ namespace Utils::Parsing
 //=================================================================================
 glm::mat4 C_MatrixParser::ParseTransformation(const pugi::xml_node& node)
 {
-	float x, y, z;
 	if (auto translation = node.child("translate"))
 	{
+		float x, y, z;
 		std::stringstream ss;
 		ss << translation.child_value();
 		ss >> x >> y >> z;

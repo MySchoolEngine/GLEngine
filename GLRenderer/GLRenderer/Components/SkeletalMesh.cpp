@@ -132,8 +132,6 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, std::str
 {
 	Renderer::Animation::C_ColladaLoader sl;
 
-	auto scene = std::make_shared<Renderer::MeshData::Scene>();
-
 	std::string textureName;
 
 	Utils::HighResolutionTimer timer;

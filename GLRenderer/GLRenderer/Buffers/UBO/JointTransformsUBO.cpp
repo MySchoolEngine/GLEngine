@@ -27,7 +27,6 @@ void C_JointTramsformsUBO::SetTransforms(std::vector<Renderer::Animation::S_Bone
 void C_JointTramsformsUBO::UploadData() const
 {
 	constexpr auto matSize = sizeof(glm::mat4);
-	const auto buffersize = matSize * m_JointTransforms.size();
 	bind();
 	auto* data = (char*)glMapBuffer(GL_UNIFORM_BUFFER, GL_READ_WRITE);
 
