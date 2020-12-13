@@ -1,13 +1,8 @@
 #pragma once
 
-#include <Core/CoreMacros.h>
-
 #include <Renderer/IRenderCommand.h>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Commands {
-
+namespace GLEngine::GLRenderer::Commands {
 class C_GLActivateTexture final : public Renderer::I_RenderCommand {
 public:
 	explicit C_GLActivateTexture(unsigned int unit);
@@ -27,4 +22,4 @@ private:
 	unsigned int m_Unit;
 };
 
-}}}
+}

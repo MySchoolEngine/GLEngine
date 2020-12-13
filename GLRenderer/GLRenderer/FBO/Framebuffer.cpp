@@ -5,10 +5,6 @@
 
 #include <GLRenderer/Commands/FBO/glFramebufferTexture.h>
 
-#include <Renderer/IRenderer.h>
-
-#include <Core/Application.h>
-
 namespace GLEngine::GLRenderer {
 
 //=================================================================================

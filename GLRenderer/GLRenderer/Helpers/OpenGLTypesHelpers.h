@@ -8,7 +8,7 @@ namespace GLEngine::GLRenderer {
 template<class T>
 struct T_TypeToGL;
 
-template<> struct T_TypeToGL<unsigned char> {	static constexpr GLenum value = GL_UNSIGNED_BYTE; };
+template<> struct T_TypeToGL<std::uint8_t>	{	static constexpr GLenum value = GL_UNSIGNED_BYTE; };
 template<> struct T_TypeToGL<char>			{	static constexpr GLenum value = GL_BYTE; };
 
 template<> struct T_TypeToGL<float>			{	static constexpr GLenum value = GL_FLOAT; };
@@ -121,6 +121,7 @@ constexpr GLenum WrapFunctionToEnum(const E_WrapFunction wrap) {
 	case E_WrapFunction::Repeat:
 		return GL_REPEAT;
 	}
+	return GL_INVALID_VALUE;
 }
 
 template<E_WrapFunction wrapFunction>
@@ -130,7 +131,38 @@ struct T_WrapFunction
 };
 
 //=================================================================================
-// Wrap functions
+// MinMag filters
+enum class E_OpenGLFilter : char {
+	Linear,
+	Nearest,
+	NearestMipMapNearest,
+	LinearMipMapNearest,
+	LinearMipMapLinear,
+	NearestMipMapLinear,
+};
+
+constexpr GLenum MinMagFilterToEnum(const E_OpenGLFilter filter)
+{
+	switch (filter)
+	{
+	case E_OpenGLFilter::Linear:
+		return GL_LINEAR;
+	case E_OpenGLFilter::Nearest:
+		return GL_NEAREST;
+	case E_OpenGLFilter::NearestMipMapNearest:
+		return GL_NEAREST_MIPMAP_NEAREST;
+	case E_OpenGLFilter::LinearMipMapNearest:
+		return GL_LINEAR_MIPMAP_NEAREST;
+	case E_OpenGLFilter::LinearMipMapLinear:
+		return GL_LINEAR_MIPMAP_LINEAR;
+	case E_OpenGLFilter::NearestMipMapLinear:
+		return GL_NEAREST_MIPMAP_LINEAR;
+	}
+	return GL_INVALID_VALUE;
+}
+
+//=================================================================================
+// Access rights
 enum class E_OpenGLAccess : char {
 	Read,
 	Write,
