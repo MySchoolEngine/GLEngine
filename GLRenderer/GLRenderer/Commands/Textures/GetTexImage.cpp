@@ -1,4 +1,4 @@
-#include <GLRendererStdAfx.h>
+#include <GLRendererStdafx.h>
 
 #include <GLRenderer/Commands/Textures/GetTexImage.h>
 #include <Renderer/Textures/TextureStorage.h>
