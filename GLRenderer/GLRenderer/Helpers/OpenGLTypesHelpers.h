@@ -8,7 +8,7 @@ namespace GLEngine::GLRenderer {
 template<class T>
 struct T_TypeToGL;
 
-template<> struct T_TypeToGL<unsigned char> {	static constexpr GLenum value = GL_UNSIGNED_BYTE; };
+template<> struct T_TypeToGL<std::uint8_t>	{	static constexpr GLenum value = GL_UNSIGNED_BYTE; };
 template<> struct T_TypeToGL<char>			{	static constexpr GLenum value = GL_BYTE; };
 
 template<> struct T_TypeToGL<float>			{	static constexpr GLenum value = GL_FLOAT; };
