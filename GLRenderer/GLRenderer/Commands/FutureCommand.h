@@ -62,5 +62,21 @@ protected:
 	}
 };
 
+//=================================================================================
+template<class futureT, class retT = void>
+using T_FutureCommandNonBlock = C_FutureCommand<futureT, retT, FuturePolicyNotBlocking>;
+
+template<class futureT, class retT = void>
+using T_FutureCommandCanBlock = C_FutureCommand<futureT, retT, FuturePolicyBlocking>;
+
+//=================================================================================
+#ifdef GL_ENGINE_DEBUG
+template<class futureT, class retT = void>
+using T_FutureCommand = T_FutureCommandNonBlock<futureT, retT>;
+#else
+template<class futureT, class retT = void>
+using T_FutureCommand = T_FutureCommandCanBlock<futureT, retT>;
+#endif
+
 }
 #include <GLRenderer/Commands/FutureCommand.inl>
