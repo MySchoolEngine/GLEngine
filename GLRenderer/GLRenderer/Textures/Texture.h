@@ -27,6 +27,7 @@ struct Texture;
 }
 
 namespace Textures {
+using T_TexBufferFuture = std::future<std::unique_ptr<Renderer::I_TextureViewStorage>>;
 class C_Texture// : public Renderer::I_Resource
 {
 public:
@@ -36,6 +37,7 @@ public:
 	void operator=(C_Texture&& rhs);
 	virtual ~C_Texture();
 
+	// TODO move to Commands
 	void bind() const;
 	void unbind() const;
 
@@ -52,6 +54,8 @@ public:
 	//just for now
 	[[nodiscard]] inline GLuint GetTexture() const { return m_texture; }
 	[[nodiscard]] inline GLenum GetTarget() const { return m_target; }
+
+	[[nodiscard]] T_TexBufferFuture GetTextureData() const;
 
 	[[nodiscard]] std::uint64_t CreateHandle();
 	[[nodiscard]] std::uint64_t GetHandle() const;

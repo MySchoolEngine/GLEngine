@@ -3,7 +3,9 @@
 #include <GLRenderer/Textures/Texture.h>
 
 #include <GLRenderer/Commands/Textures/GLMakeTextureHandleResident.h>
+#include <GLRenderer/Commands/Textures/GetTexImage.h>
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
+#include <GLRenderer/Helpers/TextureHelpers.h>
 #include <GLRenderer/Textures/TextureUtils.h>
 
 #include <Renderer/IRenderer.h>
@@ -174,13 +176,14 @@ void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* te
 		tex->GetDimensions().y,
 		0,
 		GetFormat(tex->GetChannels()),
-		GL_UNSIGNED_BYTE,
+		T_TypeToGL<std::uint8_t>::value, // TODO
 		tex->GetData());
 }
 
 //=================================================================================
 void C_Texture::SetInternalFormat(GLint internalFormat, GLint format, GLenum type)
 {
+	m_Channels = GetNumberOfChannels(internalFormat);
 	glTexImage2D(m_target,
 		0,
 		internalFormat,
@@ -208,13 +211,23 @@ std::uint64_t C_Texture::GetHandle() const
 void C_Texture::MakeHandleResident(bool val)
 {
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
-		std::move(
-			std::make_unique<Commands::C_GLMakeTextureHandleResident>(m_Handle, val)
-		)
+		std::make_unique<Commands::C_GLMakeTextureHandleResident>(m_Handle, val)
 	);
 }
 
 //=================================================================================
+T_TexBufferFuture C_Texture::GetTextureData() const
+{
+	std::promise<std::unique_ptr<Renderer::I_TextureViewStorage>> promise;
+	auto ret = promise.get_future();
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
+		std::make_unique<Commands::C_GetTexImage>(
+			std::move(promise), 
+			m_target, 0, GetInternalFormat(), T_TypeToGL<std::uint8_t>::value, static_cast<std::size_t>(GetWidth()), GetHeight(), m_Channels)
+	);
+	return ret;
+}
+
 //=================================================================================
 GLint C_Texture::GetInternalFormat() const
 {
