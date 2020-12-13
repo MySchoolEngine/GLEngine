@@ -63,7 +63,7 @@ public:
 
 	void SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT);
 	void SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT, E_WrapFunction wrapR);
-	void SetFilter(GLint min, GLint mag);
+	void SetFilter(E_OpenGLFilter min, E_OpenGLFilter mag);
 	void SetTexParameter(GLenum pname, const glm::vec4& value);
 	void SetTexParameter(GLenum pname, GLint value);
 	void GenerateMipMaps();

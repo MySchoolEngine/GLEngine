@@ -206,7 +206,7 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 		{
 			roughnessMap->StartGroupOp();
 			roughnessMap->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
-			roughnessMap->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+			roughnessMap->SetFilter(E_OpenGLFilter::LinearMipMapLinear, E_OpenGLFilter::Linear);
 			roughnessMap->GenerateMipMaps();
 
 			roughnessMap->EndGroupOp();
@@ -222,7 +222,7 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 		{
 			colorMapTexture->StartGroupOp();
 			colorMapTexture->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
-			colorMapTexture->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+			colorMapTexture->SetFilter(E_OpenGLFilter::LinearMipMapLinear, E_OpenGLFilter::Linear);
 			colorMapTexture->GenerateMipMaps();
 		
 			colorMapTexture->EndGroupOp();
@@ -238,7 +238,7 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 		{
 			staticMesh->m_NormalMap->StartGroupOp();
 			staticMesh->m_NormalMap->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
-			staticMesh->m_NormalMap->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+			staticMesh->m_NormalMap->SetFilter(E_OpenGLFilter::LinearMipMapLinear, E_OpenGLFilter::Linear);
 			staticMesh->m_NormalMap->GenerateMipMaps();
 
 			staticMesh->m_NormalMap->EndGroupOp();

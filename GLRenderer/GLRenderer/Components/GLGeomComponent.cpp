@@ -112,7 +112,7 @@ void C_GLGeomComponent::SetupMaterial(const Utils::Parsing::MaterialData& data)
 
 			m_ColorMap->StartGroupOp();
 			m_ColorMap->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
-			m_ColorMap->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+			m_ColorMap->SetFilter(E_OpenGLFilter::LinearMipMapLinear, E_OpenGLFilter::Linear);
 			m_ColorMap->GenerateMipMaps();
 
 			m_ColorMap->EndGroupOp();

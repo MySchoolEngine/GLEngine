@@ -115,11 +115,11 @@ void C_Texture::SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT, E_WrapFuncti
 }
 
 //=================================================================================
-void C_Texture::SetFilter(GLint min, GLint mag)
+void C_Texture::SetFilter(E_OpenGLFilter min, E_OpenGLFilter mag)
 {
 	bind();
-	SetTexParameter(GL_TEXTURE_MIN_FILTER, min);
-	SetTexParameter(GL_TEXTURE_MAG_FILTER, mag);
+	SetTexParameter(GL_TEXTURE_MIN_FILTER, MinMagFilterToEnum(min));
+	SetTexParameter(GL_TEXTURE_MAG_FILTER, MinMagFilterToEnum(mag));
 	unbind();
 }
 
@@ -241,6 +241,7 @@ GLint C_Texture::GetInternalFormat() const
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unknown number of elements: {}", m_Channels);
 		break;
 	}
+	return GL_RGBA;
 }
 
 }
