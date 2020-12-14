@@ -2,17 +2,12 @@
 
 #include <GLRenderer/Commands/Textures/GLActivateTexture.h>
 
-
-namespace GLEngine {
-namespace GLRenderer {
-namespace Commands {
+namespace GLEngine::GLRenderer::Commands {
 
 //=================================================================================
 C_GLActivateTexture::C_GLActivateTexture(unsigned int unit)
 	: m_Unit(unit)
-{
-
-}
+{}
 
 //=================================================================================
 void C_GLActivateTexture::Commit()
@@ -29,7 +24,7 @@ Renderer::I_RenderCommand::E_Type C_GLActivateTexture::GetType() const
 //=================================================================================
 std::string C_GLActivateTexture::GetDescriptor() const
 {
-	return std::string("ActivateTexture unit: ") + std::to_string(m_Unit);
+	return fmt::format("ActivateTexture unit: {}", m_Unit);
 }
 
-}}}
+}
