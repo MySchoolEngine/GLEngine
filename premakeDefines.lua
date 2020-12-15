@@ -38,10 +38,12 @@ function Link(projectName)
 		projectName,
 	}
 
+if _TARGET_OS == "windows" then
 	postbuildcommands
 	{
 		("{COPY} \"%{wks.location}/bin/" .. outputdir .. "/" .. projectName .. "/".. projectName ..".dll\" \"%{cfg.buildtarget.directory}\"")
 	}
+end
 end
 
 function SetupProject(projectName)
