@@ -108,7 +108,9 @@ end
 group ""
 group "Renderes"
 	include "GLFWWindowManager"
+if _TARGET_OS ~= "linux" then
 	include "DX12Renderer"
+end
 group ""
 group "Tools"
 	include "Tools/ShaderPreprocessor"
@@ -123,7 +125,3 @@ include "VulkanRenderer"
 include "Entity"
 include "Utils"
 include "Physics"
-
-if _TARGET_OS ~= "linux" then
-  include "DX12Renderer"
-end
