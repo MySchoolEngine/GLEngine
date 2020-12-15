@@ -215,7 +215,7 @@ void C_TerrainEntity::DrawControls()
 //=================================================================================
 void C_TerrainEntity::WholeTerrain(std::function<void(T_TerrainPtr)> lambda)
 {
-	auto range = GetComponents(Entity::E_ComponentType::Graphical);
+	//auto range = GetComponents(Entity::E_ComponentType::Graphical);
 	std::for_each(Utils::MapValueIterator(m_Patches.begin()), Utils::MapValueIterator(m_Patches.end()), lambda);
 }
 

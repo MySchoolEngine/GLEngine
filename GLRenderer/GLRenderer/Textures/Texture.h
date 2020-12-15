@@ -27,6 +27,7 @@ struct Texture;
 }
 
 namespace Textures {
+using T_TexBufferFuture = std::future<std::unique_ptr<Renderer::I_TextureViewStorage>>;
 class C_Texture// : public Renderer::I_Resource
 {
 public:
@@ -36,6 +37,7 @@ public:
 	void operator=(C_Texture&& rhs);
 	virtual ~C_Texture();
 
+	// TODO move to Commands
 	void bind() const;
 	void unbind() const;
 
@@ -53,13 +55,15 @@ public:
 	[[nodiscard]] inline GLuint GetTexture() const { return m_texture; }
 	[[nodiscard]] inline GLenum GetTarget() const { return m_target; }
 
+	[[nodiscard]] T_TexBufferFuture GetTextureData() const;
+
 	[[nodiscard]] std::uint64_t CreateHandle();
 	[[nodiscard]] std::uint64_t GetHandle() const;
 	void MakeHandleResident(bool val = true);
 
 	void SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT);
 	void SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT, E_WrapFunction wrapR);
-	void SetFilter(GLint min, GLint mag);
+	void SetFilter(E_OpenGLFilter min, E_OpenGLFilter mag);
 	void SetTexParameter(GLenum pname, const glm::vec4& value);
 	void SetTexParameter(GLenum pname, GLint value);
 	void GenerateMipMaps();
@@ -69,9 +73,11 @@ public:
 	void SetInternalFormat(GLint internalFormat, GLint format, GLenum type);
 protected:
 	void Clean();
+	GLint GetInternalFormat() const;
 
 	GLuint			m_texture;
 	GLenum			m_target;
+	std::uint8_t	m_Channels;
 	glm::uvec2		m_Dimensions;
 	bool			m_bGroupOperations : 1;
 	std::uint64_t	m_Handle;

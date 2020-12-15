@@ -180,12 +180,10 @@ bool C_OrbitalCamera::OnKeyEvent(Core::C_KeyEvent& event)
 	glm::vec4 left = glm::rotate(glm::vec4(forwardProjOnXZ, 1.0f), -glm::half_pi<float>(), normalToPlane);
 	glm::vec3 leftProjOnXZ = glm::vec3(left.x, 0.0f, left.z);
 	if (event.GetKeyCode() == GLFW_KEY_W) {
-		glm::vec3 normalToPlane = glm::vec3(0.0f, 1.0f, 0.0f);
 		_center += forwardProjOnXZ;
 		return true;
 	}
 	if (event.GetKeyCode() == GLFW_KEY_S) {
-		glm::vec3 normalToPlane = glm::vec3(0.0f, 1.0f, 0.0f);
 		_center -= forwardProjOnXZ;
 		return true;
 	}

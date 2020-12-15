@@ -36,7 +36,7 @@ C_SceneBuilder::C_SceneBuilder()
 {
 	m_nullTexture = std::make_shared<Textures::C_Texture>("null-texture");
 	m_nullTexture->StartGroupOp();
-	m_nullTexture->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+	m_nullTexture->SetFilter(E_OpenGLFilter::LinearMipMapLinear, E_OpenGLFilter::Linear);
 	m_nullTexture->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
 	GLubyte data[] = { 0, 0, 0, 255 };
 	glTexImage2D(m_nullTexture->GetTarget(), 0, GL_RGBA, 1, 1, 0, GL_RGBA, T_TypeToGL<GLubyte>::value, data);
@@ -202,7 +202,7 @@ std::shared_ptr<Textures::C_Texture> C_SceneBuilder::LoadTexture(const Renderer:
 	tex->SetTexData2D(0, texture);
 //	ErrorCheck();
 	tex->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
-	tex->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+	tex->SetFilter(E_OpenGLFilter::LinearMipMapLinear, E_OpenGLFilter::Linear);
 	tex->GenerateMipMaps();
 //	ErrorCheck();
 

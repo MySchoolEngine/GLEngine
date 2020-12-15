@@ -114,6 +114,11 @@ project "Assimp"
         
     filter "system:linux"
         pic "On"
+        disablewarnings 
+        {
+            "stringop-overflow",
+            "unused-result",
+        }
         
     filter "configurations:Debug"
         runtime "Debug"
