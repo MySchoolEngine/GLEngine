@@ -25,15 +25,15 @@ class I_Input;
 class CORE_API_EXPORT I_Window : public C_Layer {
 public:
 	virtual ~I_Window();
-	virtual unsigned int	GetWidth() const = 0;
-	virtual unsigned int	GetHeight() const = 0;
-	virtual glm::uvec2		GetSize() const = 0;
-	virtual const I_Input&	GetInput() const = 0;
+	[[nodiscard]] virtual unsigned int		GetWidth() const = 0;
+	[[nodiscard]] virtual unsigned int		GetHeight() const = 0;
+	[[nodiscard]] virtual glm::uvec2		GetSize() const = 0;
+	[[nodiscard]] virtual const I_Input&	GetInput() const = 0;
 	/**
 	 * Transforms screen space coordinates to clip space
 	 * Clip space have (0,0) in the middle of viewport
 	 */
-	virtual glm::vec2 ToClipSpace(const glm::vec2& screenCoord) const = 0;
+	[[nodiscard]] virtual glm::vec2 ToClipSpace(const glm::vec2& screenCoord) const = 0;
 
 	virtual void Update() = 0;
 
@@ -52,11 +52,11 @@ public:
 		m_Data.m_EventCallback = callback;
 	}
 
-	virtual bool WantClose() const = 0;
+	[[nodiscard]] virtual bool WantClose() const = 0;
 
-	virtual Renderer::I_Renderer& GetRenderer() = 0;
+	[[nodiscard]] virtual Renderer::I_Renderer& GetRenderer() = 0;
 
-	inline GUID GetGUID() const { return m_ID; }
+	[[nodiscard]] inline GUID GetGUID() const { return m_ID; }
 protected:
 	virtual void Destroy() = 0;
 	I_Window()

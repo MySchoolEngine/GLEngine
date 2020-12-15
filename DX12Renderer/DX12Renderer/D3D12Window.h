@@ -25,7 +25,7 @@ public:
 	[[nodiscard]] virtual Renderer::I_Renderer& GetRenderer() override;
 
 
-	virtual glm::vec2 ToClipSpace(const glm::vec2& screenCoord) const override;
+	[[nodiscard]] virtual glm::vec2 ToClipSpace(const glm::vec2& screenCoord) const override;
 
 protected:
 	virtual void Destroy() override;
