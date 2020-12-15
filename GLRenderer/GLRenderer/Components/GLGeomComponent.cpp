@@ -31,6 +31,9 @@ C_GLGeomComponent::C_GLGeomComponent(std::shared_ptr<Entity::I_Entity> owner)
 }
 
 //=================================================================================
+C_GLGeomComponent::~C_GLGeomComponent() = default;
+
+//=================================================================================
 void C_GLGeomComponent::SetupGeometry(const Renderer::MeshData::Mesh& mesh)
 {
 	m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(mesh);

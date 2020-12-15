@@ -18,6 +18,9 @@ std::shared_ptr<Core::I_Window> C_VkWindowFactory::GetWindow(const Core::S_Windo
 }
 
 //=================================================================================
+C_VkWindowFactory::C_VkWindowFactory() = default;
+
+//=================================================================================
 Core::I_WindowFactory* ConstructVkWindowFactory()
 {
 	return new C_VkWindowFactory();

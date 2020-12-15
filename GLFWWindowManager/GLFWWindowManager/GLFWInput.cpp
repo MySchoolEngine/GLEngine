@@ -8,6 +8,9 @@ namespace GLEngine::GLFWManager {
 C_GLFWInput::C_GLFWInput() = default;
 
 //=================================================================================
+C_GLFWInput::~C_GLFWInput() = default;
+
+//=================================================================================
 bool C_GLFWInput::IsKeyPressed(int keycode) const
 {
 	auto state = glfwGetKey(m_Window, keycode);

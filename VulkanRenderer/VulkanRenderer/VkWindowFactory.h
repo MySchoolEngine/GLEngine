@@ -10,7 +10,7 @@ class C_VkWindowManager;
 
 class C_VkWindowFactory final : public Core::I_WindowFactory{
 public:
-	C_VkWindowFactory() = default;
+	C_VkWindowFactory();
 	virtual std::shared_ptr<Core::I_Window> GetWindow(const Core::S_WindowInfo&) const override;
 };
 

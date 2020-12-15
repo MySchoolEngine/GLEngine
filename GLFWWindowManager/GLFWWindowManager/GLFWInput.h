@@ -9,7 +9,7 @@ namespace GLEngine::GLFWManager {
 class GL_GLFWWINDOWMANAGER_API_EXPORT C_GLFWInput : public Core::I_Input {
 public:
 	C_GLFWInput();
-	virtual ~C_GLFWInput() = default;
+	virtual ~C_GLFWInput();
 
 	void SetWindow(GLFWwindow* window) { m_Window = window; }
 	//==========================================================

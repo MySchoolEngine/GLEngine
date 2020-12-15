@@ -39,6 +39,8 @@ void C_GeomComponent::SetupMaterial(const Utils::Parsing::MaterialData& data)
 //=================================================================================
 C_GeomComponent::~C_GeomComponent() = default;
 
+//=================================================================================
+C_GeometryCompBuilder::~C_GeometryCompBuilder() = default;
 
 //=================================================================================
 std::shared_ptr<Entity::I_Component> C_GeometryCompBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)

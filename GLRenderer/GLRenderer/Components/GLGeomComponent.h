@@ -23,7 +23,7 @@ class C_GLGeomComponent : public Renderer::C_GeomComponent
 {
 public:
 	explicit C_GLGeomComponent(std::shared_ptr<Entity::I_Entity> owner);
-
+	virtual ~C_GLGeomComponent();
 	//=================================================================================
 	void SetupMaterial(const Utils::Parsing::MaterialData& data) override;
 	void SetupGeometry(const Renderer::MeshData::Mesh& mesh) override;
