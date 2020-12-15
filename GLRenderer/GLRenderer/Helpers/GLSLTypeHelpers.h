@@ -1,6 +1,10 @@
 #pragma once 
 
-#include <GLRendererStdafx.h>
+#include <glm/glm.hpp>
+
+#include <string_view>
+#include <cstdint>
+
 
 namespace GLEngine::GLRenderer {
 

@@ -39,7 +39,7 @@ class C_ShaderLoader
 public:
 	using T_ShaderStage = std::pair<E_ShaderStage, StageHandle>;
 	C_ShaderLoader(ShaderCompilerTrait<StageHandle>& compiler)
-		: m_Compiler(std::move(compiler)) {}
+		: m_Compiler(compiler) {}
 	virtual ~C_ShaderLoader() = default;
 
 	bool LoadAllStages(const std::filesystem::path& name, std::vector<T_ShaderStage>& stages)
