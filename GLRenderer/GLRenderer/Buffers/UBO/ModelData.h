@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GLRenderer\Buffers\UniformBuffer.h>
+#include <GLRenderer/Buffers/UniformBuffer.h>
 
 namespace GLEngine::GLRenderer::Buffers::UBO {
 class C_ModelData : public C_UniformBuffer {
