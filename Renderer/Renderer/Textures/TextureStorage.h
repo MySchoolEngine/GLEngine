@@ -37,6 +37,7 @@ public:
 	void Set(int value, std::size_t position);
 
 	[[nodiscard]] virtual const void* GetData() const = 0;
+	[[nodiscard]] virtual void* GetData() = 0;
 	virtual const void SetData(const void* data, std::size_t len) = 0;
 
 	[[nodiscard]] virtual std::uint8_t GetNumElements() const = 0;
@@ -69,6 +70,7 @@ public:
 	[[nodiscard]] virtual constexpr std::uint8_t GetNumElements() const override;
 
 	[[nodiscard]] virtual const void* GetData() const override;
+	[[nodiscard]] virtual void* GetData() override;
 	virtual const void SetData(const void* data, std::size_t pixels) override;
 
 	// todo allow swizzle

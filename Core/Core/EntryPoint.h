@@ -17,7 +17,12 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 {
 #ifdef GL_ENGINE_DEBUG
 	AllocConsole();
-	freopen_s((FILE**)stdout, "CONOUT$", "w", stdout);
+	const auto err = freopen_s((FILE**)stdout, "CONOUT$", "w", stdout);
+	if (err != 0)
+	{
+		FreeConsole();
+		exit(-1);
+	}
 #endif
 
 
@@ -30,6 +35,9 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	app->Run();
 	CORE_LOG(E_Level::Info, E_Context::Core, "App ended");
 	delete app;
+#ifdef GL_ENGINE_DEBUG
+	FreeConsole();
+#endif
 }
 
 #else

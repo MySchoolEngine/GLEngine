@@ -64,7 +64,9 @@ project "DevIL-IL"
     filter "system:linux"
         disablewarnings
         {
-            "conversion-null"
+            "conversion-null",
+            "register",
+            "unused-result",
         }
         
     filter "configurations:Debug"

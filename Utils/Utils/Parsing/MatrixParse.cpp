@@ -14,9 +14,9 @@ namespace Utils::Parsing
 //=================================================================================
 glm::mat4 C_MatrixParser::ParseTransformation(const pugi::xml_node& node)
 {
-	float x, y, z;
 	if (auto translation = node.child("translate"))
 	{
+		float x, y, z;
 		std::stringstream ss;
 		ss << translation.child_value();
 		ss >> x >> y >> z;
@@ -29,9 +29,9 @@ glm::mat4 C_MatrixParser::ParseTransformation(const pugi::xml_node& node)
 glm::mat4 C_MatrixParser::ParseRotations(const pugi::xml_node& node)
 {
 	glm::mat4 rot(1.0f);
-	float x, y, z, w;
 	for (auto rotate : node.children("rotate"))
 	{
+		float x, y, z, w;
 		std::stringstream ss;
 		ss << rotate.child_value();
 		ss >> x >> y >> z >> w;
@@ -46,9 +46,9 @@ glm::mat4 C_MatrixParser::ParseRotations(const pugi::xml_node& node)
 //=================================================================================
 glm::mat4 C_MatrixParser::ParseScale(const pugi::xml_node& node)
 {
-	float x, y, z;
 	if (auto translation = node.child("scale"))
 	{
+		float x, y, z;
 		std::stringstream ss;
 		ss << translation.child_value();
 		ss >> x >> y >> z;

@@ -32,7 +32,7 @@ C_SkyBox::C_SkyBox(std::shared_ptr<Entity::I_Entity> owner)
 	: Renderer::I_RenderableComponent(owner)
 	, m_Textures("Skybox", GL_TEXTURE_CUBE_MAP)
 {
-	m_Textures.SetFilter(GL_LINEAR, GL_LINEAR);
+	m_Textures.SetFilter(E_OpenGLFilter::Linear, E_OpenGLFilter::Linear);
 	m_Textures.SetWrap(E_WrapFunction::ClampToEdge, E_WrapFunction::ClampToEdge, E_WrapFunction::ClampToEdge);
 
 	std::vector<glm::vec3> vertices;
@@ -103,8 +103,6 @@ void C_SkyBox::AddTexture(E_Side side, const std::filesystem::path& filename)
 	if (!retval)
 		CORE_LOG(E_Level::Error, E_Context::Render, "Texture cannot be loaded");
 
-
-	const int mipMapLevel = 0;
 	m_Textures.bind();
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + static_cast<int>(side), 0, GL_RGBA, t.width, t.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, t.data.get());
 

@@ -3,7 +3,9 @@
 #include <GLRenderer/Textures/Texture.h>
 
 #include <GLRenderer/Commands/Textures/GLMakeTextureHandleResident.h>
+#include <GLRenderer/Commands/Textures/GetTexImage.h>
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
+#include <GLRenderer/Helpers/TextureHelpers.h>
 #include <GLRenderer/Textures/TextureUtils.h>
 
 #include <Renderer/IRenderer.h>
@@ -23,6 +25,7 @@ C_Texture::C_Texture(const std::string& name, GLenum target)
 	, m_texture(0)
 	, m_Name(name)
 	, m_Handle(0)
+	, m_Channels(0)
 {
 	glGenTextures(1, &m_texture);
 	bind();
@@ -46,6 +49,7 @@ C_Texture::C_Texture(C_Texture&& t)
 	m_Handle = t.m_Handle;
 	m_Dimensions = t.m_Dimensions;
 	m_Name = std::move(t.m_Name);
+	m_Channels = t.m_Channels;
 }
 
 //=================================================================================
@@ -64,6 +68,7 @@ void C_Texture::operator=(C_Texture&& rhs)
 	m_Handle = rhs.m_Handle;
 	m_Dimensions = rhs.m_Dimensions;
 	m_Name = std::move(rhs.m_Name);
+	m_Channels = rhs.m_Channels;
 }
 
 //=================================================================================
@@ -115,11 +120,11 @@ void C_Texture::SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT, E_WrapFuncti
 }
 
 //=================================================================================
-void C_Texture::SetFilter(GLint min, GLint mag)
+void C_Texture::SetFilter(E_OpenGLFilter min, E_OpenGLFilter mag)
 {
 	bind();
-	SetTexParameter(GL_TEXTURE_MIN_FILTER, min);
-	SetTexParameter(GL_TEXTURE_MAG_FILTER, mag);
+	SetTexParameter(GL_TEXTURE_MIN_FILTER, MinMagFilterToEnum(min));
+	SetTexParameter(GL_TEXTURE_MAG_FILTER, MinMagFilterToEnum(mag));
 	unbind();
 }
 
@@ -151,6 +156,7 @@ void C_Texture::GenerateMipMaps()
 void C_Texture::SetTexData2D(int level, const Renderer::MeshData::Texture& tex)
 {
 	SetDimensions({ tex.width, tex.height });
+	m_Channels = 3;
 	glTexImage2D(m_target,
 		level,
 		GL_RGB,
@@ -165,72 +171,24 @@ void C_Texture::SetTexData2D(int level, const Renderer::MeshData::Texture& tex)
 //=================================================================================
 void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* tex)
 {
-	ErrorCheck();
 	SetDimensions(tex->GetDimensions());
-	switch (tex->GetNumElements())
-	{
-	case 1:
-	{
-		glTexImage2D(m_target,
-			level,
-			GL_RED,
-			tex->GetDimensions().x,
-			tex->GetDimensions().y,
-			0,
-			GetFormat(tex->GetChannels()),
-			GL_UNSIGNED_BYTE,
-			tex->GetData());
-		break;
-	}
-	case 2:
-	{
-		glTexImage2D(m_target,
-			level,
-			GL_RG,
-			tex->GetDimensions().x,
-			tex->GetDimensions().y,
-			0,
-			GetFormat(tex->GetChannels()),
-			GL_UNSIGNED_BYTE,
-			tex->GetData());
-		break;
-	}
-	case 3:
-	{
-		glTexImage2D(m_target,
-			level,
-			GL_RGB,
-			tex->GetDimensions().x,
-			tex->GetDimensions().y,
-			0,
-			GetFormat(tex->GetChannels()),
-			GL_UNSIGNED_BYTE,
-			tex->GetData());
-		break;
-	}
-	case 4:
-	{
-		glTexImage2D(m_target,
-			level,
-			GL_RGBA,
-			tex->GetDimensions().x,
-			tex->GetDimensions().y,
-			0,
-			GetFormat(tex->GetChannels()),
-			GL_UNSIGNED_BYTE,
-			tex->GetData());
-		break;
-	}
-	default:
-		CORE_LOG(E_Level::Error, E_Context::Render, "Unknown number of elements: {}", tex->GetNumElements());
-		break;
-	}
-	ErrorCheck();
+	m_Channels = tex->GetNumElements();
+
+	glTexImage2D(m_target,
+		level,
+		GetInternalFormat(),
+		tex->GetDimensions().x,
+		tex->GetDimensions().y,
+		0,
+		GetFormat(tex->GetChannels()),
+		T_TypeToGL<std::uint8_t>::value, // TODO
+		tex->GetData());
 }
 
 //=================================================================================
 void C_Texture::SetInternalFormat(GLint internalFormat, GLint format, GLenum type)
 {
+	m_Channels = GetNumberOfChannels(internalFormat);
 	glTexImage2D(m_target,
 		0,
 		internalFormat,
@@ -259,10 +217,37 @@ std::uint64_t C_Texture::GetHandle() const
 void C_Texture::MakeHandleResident(bool val)
 {
 	Core::C_Application::Get().GetActiveRenderer().AddCommand(
-		std::move(
-			std::make_unique<Commands::C_GLMakeTextureHandleResident>(m_Handle, val)
-		)
+		std::make_unique<Commands::C_GLMakeTextureHandleResident>(m_Handle, val)
 	);
+}
+
+//=================================================================================
+T_TexBufferFuture C_Texture::GetTextureData() const
+{
+	std::promise<std::unique_ptr<Renderer::I_TextureViewStorage>> promise;
+	auto ret = promise.get_future();
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(
+		std::make_unique<Commands::C_GetTexImage>(
+			std::move(promise), 
+			m_target, 0, GetInternalFormat(), T_TypeToGL<std::uint8_t>::value, static_cast<std::size_t>(GetWidth()), GetHeight(), m_Channels)
+	);
+	return ret;
+}
+
+//=================================================================================
+GLint C_Texture::GetInternalFormat() const
+{
+	switch (m_Channels)
+	{
+	case 1: return GL_RED;
+	case 2: return GL_RG;
+	case 3: return GL_RGB;
+	case 4: return GL_RGBA;
+	default:
+		CORE_LOG(E_Level::Error, E_Context::Render, "Unknown number of elements: {}", m_Channels);
+		break;
+	}
+	return GL_RGBA;
 }
 
 }
