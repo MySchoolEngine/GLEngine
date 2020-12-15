@@ -5,28 +5,15 @@ project "GLFWWindowManager"
 	language "C++"
 	staticruntime "off"
 
-	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("../obj/" .. outputdir .. "/%{prj.name}")
+	SetupProject("GLFWWindowManager")
 	
-	pchheader "GLFWWindowManagerStdafx.h"
-	pchsource "GLFWWindowManagerStdafx.cpp"
+	PrecompiledHeaders("GLFWWindowManager")
 	
 	Link("Utils")
 	Link("Core")
 
-	files
-	{
-		"GLFWWindowManager/**.h",
-		"GLFWWindowManager/**.cpp",
-		"GLFWWindowManager/**.inl",
-		"GLFWWindowManagerStdafx.cpp",
-		"GLFWWindowManagerStdafx.h",
-		"premake5.lua",
-	}
-
 	includedirs
 	{
-		".",
 		"../Renderer",
 		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.GLM}",
@@ -46,11 +33,6 @@ project "GLFWWindowManager"
 	}
 
 	filter "system:windows"
-		defines
-		{
-			"BUILD_GLFWWINDOWMANAGER_DLL",
-		}
-
 		postbuildcommands
 		{
 			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
