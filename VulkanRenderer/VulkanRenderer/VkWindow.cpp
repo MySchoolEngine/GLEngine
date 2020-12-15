@@ -131,11 +131,11 @@ void C_VkWindow::CreateSwapChain() {
 //=================================================================================
 VkSurfaceFormatKHR C_VkWindow::ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
 {
-	for (const auto& availableFormat : availableFormats) {
-		if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
-			return availableFormat;
-		}
-	}
+	const auto it = std::find_if(availableFormats.begin(), availableFormats.end(), [](const auto& availableFormat) {
+		return availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+		});
+	if (it != availableFormats.end())
+		return *it;
 
 	return availableFormats[0];
 }
@@ -143,11 +143,11 @@ VkSurfaceFormatKHR C_VkWindow::ChooseSwapSurfaceFormat(const std::vector<VkSurfa
 //=================================================================================
 VkPresentModeKHR C_VkWindow::ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
 {
-	for (const auto& availablePresentMode : availablePresentModes) {
-		if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
-			return availablePresentMode;
-		}
-	}
+	const auto it = std::find_if(availablePresentModes.begin(), availablePresentModes.end(), [](const auto& availablePresentMode) {
+		return availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR;
+		});
+	if (it != availablePresentModes.end())
+		return *it;
 
 	return VK_PRESENT_MODE_FIFO_KHR;
 }

@@ -110,7 +110,7 @@ bool C_VkRenderer::InitDevice(VkSurfaceKHR surface)
 
 			VkBool32 presentSupport = false;
 			const auto ret = vkGetPhysicalDeviceSurfaceSupportKHR(m_GPU, i, surface, &presentSupport);
-			if (presentSupport) {
+			if (ret == VK_SUCCESS && presentSupport) {
 				m_PresentingFamilyIndex = i;
 			}
 			++i;
