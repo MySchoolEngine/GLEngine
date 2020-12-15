@@ -1,4 +1,4 @@
-#include <CoreStdAfx.h>
+#include <CoreStdafx.h>
 
 #include <Core/IWindow.h>
 

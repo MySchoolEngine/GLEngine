@@ -1,4 +1,4 @@
-#include <GLRendererStdAfx.h>
+#include <GLRendererStdafx.h>
 
 #include <GLRenderer/Materials/MaterialBuffer.h>
 

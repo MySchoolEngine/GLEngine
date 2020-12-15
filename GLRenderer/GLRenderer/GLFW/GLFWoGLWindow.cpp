@@ -47,8 +47,12 @@ void C_GLFWoGLWindow::Init(const Core::S_WindowInfo& wndInfo)
 	MakeCurrent();
 
 	m_renderer = std::make_unique<GLEngine::GLRenderer::C_OGLRenderer>();
-
-	const auto error = glfwGetError(NULL);
+	const char* description = nullptr;
+	const auto error = glfwGetError(&description);
+	if (error != GLFW_NO_ERROR)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "GLFW: OpenGL window init failed: {}", description);
+	}
 
 	CORE_LOG(E_Level::Info, E_Context::Render, "GLFW: OpenGL window initialized");
 }

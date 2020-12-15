@@ -1,4 +1,4 @@
-#include <GLRendererStdAfx.h>
+#include <GLRendererStdafx.h>
 
 #include <GLRenderer/Buffers/UBO/ModelData.h>
 

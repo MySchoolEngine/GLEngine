@@ -166,7 +166,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 		renderer.AddCommand(
 			std::move(
 				std::make_unique<Commands::HACK::C_LambdaCommand>(
-					[&, materialsHaveChanged = materialsHaveChanged]() {
+					[&, materialsHaveChanged]() {
 						m_FrameConstUBO->UploadData();
 						m_FrameConstUBO->Activate(true);
 						m_LightsUBO->UploadData();
