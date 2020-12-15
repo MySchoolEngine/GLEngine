@@ -86,7 +86,7 @@ void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Enti
 			{
 				normalMapTexture->StartGroupOp();
 				normalMapTexture->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
-				normalMapTexture->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+				normalMapTexture->SetFilter(E_OpenGLFilter::LinearMipMapLinear, E_OpenGLFilter::Linear);
 				normalMapTexture->GenerateMipMaps();
 
 				normalMapTexture->EndGroupOp();
