@@ -30,6 +30,8 @@
 	*	Let's start with simple part CPU side let's say GL_RGB8 format
 	*/
 
+#include <glm/gtx/type_trait.hpp>
+
 namespace GLEngine::Renderer
 {
 
@@ -57,6 +59,17 @@ public:
 
 		m_Storage->Set(val, GetAddress(uv) + m_Storage->GetChannelOffset(element));
 	}
+
+	template<class T, typename = std::enable_if_t<glm::type<T>::is_vec>>
+	void Set(const glm::ivec2& uv, T&& val)
+	{
+		// TODO set it as whole vector if storage is not swizzled
+		for (std::uint8_t i = 0; i < std::min(static_cast<std::uint8_t>(glm::type<T>::components), m_Storage->GetNumElements()); ++i)
+		{
+			Set(uv, val[i], static_cast<E_TextureChannel>(i));
+		}
+	}
+
 private:
 	[[nodiscard]] std::size_t GetAddress(const glm::ivec2& uv) const;
 
