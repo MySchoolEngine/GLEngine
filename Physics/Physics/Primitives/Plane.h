@@ -12,20 +12,24 @@ struct S_Ray;
 struct S_Plane : public T_Intersectable<S_Plane> {
 	constexpr S_Plane(glm::vec3 _normal, float offset)
 		: normal(_normal)
-		, origin(normal* offset) {}
+		, origin(normal* offset)
+		, twoSided(true) {}
 	constexpr S_Plane(glm::vec3 _normal, glm::vec3 origin)
 		: normal(_normal)
-		, origin(origin) {}
+		, origin(origin)
+		, twoSided(true) {}
 	glm::vec3	normal;
 	glm::vec3	origin;
+	bool			twoSided : 1;
 	[[nodiscard]] inline constexpr float	IntersectImpl(const S_Ray& ray) const
 	{
-		if (glm::dot(ray.direction, normal) > 0.0)
+		const auto useNormal = ((glm::dot(-ray.direction, normal) > 0) ? normal : -normal);
+		if (glm::dot(-ray.direction, useNormal) < 0.0)
 		{
 			return -1;
 		}
 
-		return (glm::dot(origin - ray.origin, normal)) / (glm::dot(ray.direction, normal));
+		return (glm::dot(origin - ray.origin, useNormal)) / (glm::dot(useNormal, ray.direction));
 	}
 };
 }
