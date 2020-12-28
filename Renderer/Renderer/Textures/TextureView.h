@@ -70,6 +70,16 @@ public:
 		}
 	}
 
+	template<class T, typename = std::enable_if_t<glm::type<T>::is_vec>>
+	T Get(const glm::ivec2& uv) const
+	{
+		T ret;
+		for (std::uint8_t i = 0; i < std::min(static_cast<std::uint8_t>(glm::type<T>::components), m_Storage->GetNumElements()); ++i)
+		{
+			ret[i] = Get<T::value_type>(uv, static_cast<E_TextureChannel>(i));
+		}
+		return ret;
+	}
 private:
 	[[nodiscard]] std::size_t GetAddress(const glm::ivec2& uv) const;
 
