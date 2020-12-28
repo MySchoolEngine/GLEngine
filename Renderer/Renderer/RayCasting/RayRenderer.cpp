@@ -48,12 +48,23 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 	const auto pointLightPosition = glm::vec3(-1, 1, -1);
 	const auto pointLightIntensity = 5.f;
 
+	const glm::vec3 lightNormal = glm::normalize(glm::vec3(0, -0.5f, -1));
+	const C_Primitive<Physics::Primitives::S_Disc> areaLight(Physics::Primitives::S_Disc(lightNormal, glm::vec3(0, 1, 2), .25f));
+	const auto areLightPower = 255.f;
+
 	for (int y = 0; y < dim.y; ++y)
 	{
 		for (int x = 0; x < dim.x; ++x)
 		{
 			const auto ray = GetRay(x, y);
 			C_RayIntersection intersect;
+
+			if (areaLight.Intersect(ray, intersect))
+			{
+				textureView.Set({ x,y }, glm::vec3{ areLightPower ,areLightPower ,areLightPower });
+				continue;
+			}
+
 			if (!m_Scene.Intersect(ray, intersect)) continue;
 
 			const auto toLight = pointLightPosition - intersect.GetIntersectionPoint();
