@@ -81,4 +81,10 @@ inline std::uint8_t C_TextureView::Get<std::uint8_t>(const glm::ivec2& uv, E_Tex
 {
 	return m_Storage->GetI(GetAddress(uv) + m_Storage->GetChannelOffset(element));
 }
+
+template<>
+inline float C_TextureView::Get<float>(const glm::ivec2& uv, E_TextureChannel element) const
+{
+	return m_Storage->GetF(GetAddress(uv) + m_Storage->GetChannelOffset(element));
+}
 }

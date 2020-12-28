@@ -27,9 +27,9 @@ int C_TextureViewStorageCPU<internalFormat>::GetI(std::size_t position) const
 
 //=================================================================================
 template<class internalFormat>
-double C_TextureViewStorageCPU<internalFormat>::GetD(std::size_t position) const
+float C_TextureViewStorageCPU<internalFormat>::GetF(std::size_t position) const
 {
-	return static_cast<double>(m_Data[position]);
+	return static_cast<float>(m_Data[position]);
 }
 
 //=================================================================================
