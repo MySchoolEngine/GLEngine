@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Utils/CompileTime/CompileTimeUtils.h>
+
 namespace GLEngine::Renderer {
 //=================================================================================
 // C_TextureViewStorageCPU<type, int>
@@ -79,5 +81,26 @@ void C_TextureViewStorageCPU<internalFormat>::SetInternal(double value, std::siz
 {
 	m_Data[position] = static_cast<internalFormat>(value);
 }
+
+//=================================================================================
+template<class internalFormat>
+E_TextureTypes C_TextureViewStorageCPU<internalFormat>::GetStorageType() const
+{
+	if (std::is_same_v<internalFormat, std::uint8_t>)
+	{
+		return E_TextureTypes::IntegralNormalized;
+	}
+	if (std::is_same_v<internalFormat, std::int8_t>)
+	{
+		return E_TextureTypes::Integral;
+	}
+	if (std::is_same_v<internalFormat, float>)
+	{
+		return E_TextureTypes::Floating;
+	}
+
+	static_assert(T_ContainsType_v<internalFormat, std::uint8_t, std::int8_t, float>, "Unsupported internal type of texture storage.");
+}
+
 
 }

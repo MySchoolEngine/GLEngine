@@ -48,3 +48,30 @@ private:
 		}
 	}
 };
+
+template<class T, class ...Types>
+struct T_ContainsType
+{
+private:
+	template<class T, class U, class ...Types>
+	static constexpr bool Contains()
+	{
+		if constexpr (std::is_same_v<T, U>)
+		{
+			return true;
+		}
+		else if constexpr (sizeof...(Types) > 0)
+		{
+			return Contains<T, Types...>();
+		}
+		else
+		{
+			return false;
+		}
+	}
+public:
+	constexpr static bool value = Contains<T, Types...>();
+};
+
+template<class T, class ...Types>
+constexpr bool T_ContainsType_v = T_ContainsType<T, Types...>::value;

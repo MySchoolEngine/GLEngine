@@ -48,7 +48,9 @@ public:
 	// defines how channels are laid out in memory
 	[[nodiscard]] T_Channels GetChannels() const { return m_Channels; }
 	void SetChannels(T_Channels swizzle) { m_Channels = swizzle; }
-	bool IsSwizzled() const;
+	[[nodiscard]] bool IsSwizzled() const;
+
+	[[nodiscard]] virtual E_TextureTypes GetStorageType() const = 0;
 protected:
 	virtual void SetInternal(double value, std::size_t position) = 0;
 	virtual void SetInternal(int value, std::size_t position) = 0;
@@ -76,6 +78,7 @@ public:
 
 	// todo allow swizzle
 	[[nodiscard]] virtual std::uint8_t GetChannelOffset(E_TextureChannel element) const override;
+	[[nodiscard]] virtual E_TextureTypes GetStorageType() const override;
 protected:
 	virtual void SetInternal(double value, std::size_t position) override;
 	virtual void SetInternal(int value, std::size_t position) override;

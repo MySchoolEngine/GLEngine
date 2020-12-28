@@ -2,6 +2,10 @@
 
 #include <GLRendererStdafx.h>
 
+#include <Core/CoreMacros.h>
+
+#include <Renderer/Textures/TextureStorage.h>
+
 namespace GLEngine::GLRenderer {
 
 //=================================================================================
@@ -29,6 +33,26 @@ template<> struct T_TypeToGL<glm::ivec1> { static constexpr GLenum value = GL_IN
 template<> struct T_TypeToGL<glm::ivec2> { static constexpr GLenum value = GL_INT; };
 template<> struct T_TypeToGL<glm::ivec3> { static constexpr GLenum value = GL_INT; };
 template<> struct T_TypeToGL<glm::ivec4> { static constexpr GLenum value = GL_INT; };
+
+//=================================================================================
+[[nodiscard]] inline GLenum GetUnderlyingType(const Renderer::I_TextureViewStorage* tex)
+{
+	if (tex->GetStorageType() == Renderer::E_TextureTypes::Floating)
+	{
+		return GL_FLOAT;
+	}
+	if (tex->GetStorageType() == Renderer::E_TextureTypes::IntegralNormalized)
+	{
+		return GL_UNSIGNED_BYTE;
+	}
+	if (tex->GetStorageType() == Renderer::E_TextureTypes::Integral)
+	{
+		return GL_BYTE;
+	}
+	GLE_ASSERT(false, "Unsupported type");
+
+	return GL_BYTE;
+}
 
 //=================================================================================
 // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glVertexAttribPointer.xhtml
