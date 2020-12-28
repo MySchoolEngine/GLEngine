@@ -21,6 +21,19 @@ public:
 	[[nodiscard]] constexpr glm::vec3 Normal() const;
 	[[nodiscard]] constexpr glm::vec3 Tangnt() const;
 	[[nodiscard]] constexpr glm::vec3 Bitangent() const;
+
+	// w is in local coords
+	[[nodiscard]] constexpr float CosTheta(const glm::vec3& w) const { return w.y; }
+	[[nodiscard]] constexpr float Cos2Theta(const glm::vec3& w) const { return w.y * w.y; }
+	[[nodiscard]] constexpr float AbsCosTheta(const glm::vec3& w) const { return std::abs(w.y); }
+
+	[[nodiscard]] float SinTheta(const glm::vec3& w) const { return std::sqrt(Sin2Theta(w)); }
+	[[nodiscard]] constexpr float Sin2Theta(const glm::vec3& w) const { return std::max(0.f, 1.f - Cos2Theta(w)); }
+
+	[[nodiscard]] float TanTheta(const glm::vec3& w) const { return SinTheta(w) / CosTheta(w); }
+	[[nodiscard]] float Tan2Theta(const glm::vec3& w) const { return Sin2Theta(w) / Cos2Theta(w); }
+
+
 private:
 	glm::vec3 X;
 	glm::vec3 Y;
