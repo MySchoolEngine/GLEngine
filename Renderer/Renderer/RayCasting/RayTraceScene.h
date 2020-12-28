@@ -71,7 +71,8 @@ private:
 
 	void FillIntersection(const Physics::Primitives::S_Plane& plane, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
 	{
-		intersection = C_RayIntersection(S_Frame(plane.normal), ray.origin + ray.direction * t, Physics::Primitives::S_Ray(ray));
+		const auto normal = (glm::dot(plane.normal, -ray.direction) > 0 ? plane.normal : -plane.normal);
+		intersection = C_RayIntersection(S_Frame(normal), ray.origin + ray.direction * t, Physics::Primitives::S_Ray(ray));
 	}
 	void FillIntersection(const Physics::Primitives::S_Disc& disc, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
 	{
