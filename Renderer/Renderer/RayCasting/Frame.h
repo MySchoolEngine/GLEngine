@@ -25,7 +25,7 @@ public:
 	// w is in local coords
 	[[nodiscard]] constexpr float CosTheta(const glm::vec3& w) const { return w.y; }
 	[[nodiscard]] constexpr float Cos2Theta(const glm::vec3& w) const { return w.y * w.y; }
-	[[nodiscard]] constexpr float AbsCosTheta(const glm::vec3& w) const { return std::abs(w.y); }
+	[[nodiscard]] float AbsCosTheta(const glm::vec3& w) const { return std::abs(w.y); }
 
 	[[nodiscard]] float SinTheta(const glm::vec3& w) const { return std::sqrt(Sin2Theta(w)); }
 	[[nodiscard]] constexpr float Sin2Theta(const glm::vec3& w) const { return std::max(0.f, 1.f - Cos2Theta(w)); }
