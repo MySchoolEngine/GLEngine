@@ -42,6 +42,7 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 
 	auto textureView = Renderer::C_TextureView(&storage);
 
+	const auto eps = 1e-5f;
 	auto min = std::numeric_limits<float>::max();
 	auto max = std::numeric_limits<float>::min();
 
@@ -67,8 +68,9 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 
 			if (!m_Scene.Intersect(ray, intersect)) continue;
 
+			const auto frame = intersect.GetFrame();
 			const auto toLight = pointLightPosition - intersect.GetIntersectionPoint();
-			const auto cosTheta = intersect.GetFrame().ToLocal(glm::normalize(toLight)).y;
+			const auto cosTheta = frame.CosTheta(frame.ToLocal(glm::normalize(toLight)));
 			const auto sample = intersect.GetMaterial()->diffuse * cosTheta * (pointLightIntensity / glm::dot(toLight, toLight));
 
 			// Light sample (Single bounce - only hard shadows)
@@ -77,10 +79,10 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 			if (!m_Scene.Intersect(lightRay, intersectLight))
 				CORE_LOG(E_Level::Debug, E_Context::Render, "Error {} {}", x, y); // please, please don't fail
 
-			if(intersectLight.GetRayLength() < glm::distance(intersect.GetIntersectionPoint(), pointLightPosition))
+			if(intersectLight.GetRayLength() < glm::distance(intersect.GetIntersectionPoint(), pointLightPosition) - eps)
 				continue;
 
-			textureView.Set({ x,y }, glm::vec3{ Map(sample.x), Map(sample.y), Map(sample.z) }); // Map due to texture format
+			textureView.Set({ x,y }, textureView.Get<glm::vec3>({ x,y }) + glm::vec3{ sample.x, sample.y, sample.z }); // Map due to texture format
 
 			// need for mapping purposes
 			min = std::min(min, sample.x);
