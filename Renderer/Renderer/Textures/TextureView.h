@@ -76,7 +76,7 @@ public:
 		T ret;
 		for (std::uint8_t i = 0; i < std::min(static_cast<std::uint8_t>(glm::type<T>::components), m_Storage->GetNumElements()); ++i)
 		{
-			ret[i] = Get<T::value_type>(uv, static_cast<E_TextureChannel>(i));
+			ret[i] = Get<typename T::value_type>(uv, static_cast<E_TextureChannel>(i));
 		}
 		return ret;
 	}
