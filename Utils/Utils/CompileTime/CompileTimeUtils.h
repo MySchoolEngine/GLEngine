@@ -53,16 +53,16 @@ template<class T, class ...Types>
 struct T_ContainsType
 {
 private:
-	template<class T, class U, class ...Types>
+	template<class T1, class U, class ...Types1>
 	static constexpr bool Contains()
 	{
-		if constexpr (std::is_same_v<T, U>)
+		if constexpr (std::is_same_v<T1, U>)
 		{
 			return true;
 		}
-		else if constexpr (sizeof...(Types) > 0)
+		else if constexpr (sizeof...(Types1) > 0)
 		{
-			return Contains<T, Types...>();
+			return Contains<T1, Types1...>();
 		}
 		else
 		{
