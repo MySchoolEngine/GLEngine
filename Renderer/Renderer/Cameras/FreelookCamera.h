@@ -63,6 +63,7 @@ public:
 	//=============================================================
 	// Renderer::I_CameraComponent
 	//=============================================================
+	virtual glm::mat4 GetScreenToworldMatrix() const override;
 	virtual glm::mat4 GetViewProjectionMatrix() const override;
 	virtual glm::mat4 GetProjectionMatrix() const override;
 	virtual glm::mat4 GetViewMatrix() const override;
@@ -144,5 +145,6 @@ private:
 
 	glm::mat4						_viewMatrix;
 	glm::mat4						_projectionMatrix;
+	glm::mat4						_ScreenToWorld;
 };
 }}
