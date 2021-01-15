@@ -35,11 +35,17 @@ void C_Window::Draw() const
 		}
 	}
 
+	DrawComponents();
+	::ImGui::End();
+}
+
+//=================================================================================
+void C_Window::DrawComponents() const
+{
 	for (const auto& component : m_Components)
 	{
 		component.second.get().Draw();
 	}
-	::ImGui::End();
 }
 
 //=================================================================================
