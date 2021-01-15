@@ -2,9 +2,14 @@
 
 #include <Renderer/RayCasting/RayRenderer.h>
 
+#include <Renderer/RayCasting/Sampling.h>
+
 #include <Renderer/ICameraComponent.h>
 #include <Renderer/Textures/TextureStorage.h>
 #include <Renderer/Textures/TextureView.h>
+
+#include <random>
+#include <chrono>
 
 namespace GLEngine::Renderer {
 
@@ -24,15 +29,25 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 	const auto high2 = 255.0;
 	const auto dim = storage.GetDimensions();
 
+	std::random_device rd;
+	std::mt19937::result_type seed = rd() ^ (
+		(std::mt19937::result_type)
+		std::chrono::duration_cast<std::chrono::seconds>(
+			std::chrono::system_clock::now().time_since_epoch()
+			).count() +
+		(std::mt19937::result_type)
+		std::chrono::duration_cast<std::chrono::microseconds>(
+			std::chrono::high_resolution_clock::now().time_since_epoch()
+			).count());
+
+	std::mt19937 gen(seed);
+	std::uniform_real_distribution<float> distrib(0, 1.f);
+
 	const auto ToClipSpace = [&](const glm::vec2& screenCoord) -> glm::vec2
 	{
 		const float x = (2.0f * screenCoord.x) / dim.x - 1.0f;
 		const float y = 1.0f - (2.0f * screenCoord.y) / dim.y;
 		return { x, y };
-	};
-	const auto Map = [&](float val)
-	{
-		return low2 + (glm::clamp(val, 0.0f, high1) - low1) * (high2 - low2) / (high1 - low1);
 	};
 
 	const auto GetRay = [&](int x, int y) {
@@ -69,18 +84,32 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 			if (!m_Scene.Intersect(ray, intersect)) continue;
 
 			const auto frame = intersect.GetFrame();
-			const auto toLight = pointLightPosition - intersect.GetIntersectionPoint();
-			const auto cosTheta = frame.CosTheta(frame.ToLocal(glm::normalize(toLight)));
-			const auto sample = intersect.GetMaterial()->diffuse * cosTheta * (pointLightIntensity / glm::dot(toLight, toLight));
+			// const auto toLight = pointLightPosition - intersect.GetIntersectionPoint();
+			// const auto cosTheta = frame.CosTheta(frame.ToLocal(glm::normalize(toLight)));
+			// const auto sample = intersect.GetMaterial()->diffuse * cosTheta * (pointLightIntensity / glm::dot(toLight, toLight));
 
 			// Light sample (Single bounce - only hard shadows)
-			C_RayIntersection intersectLight;
-			const Physics::Primitives::S_Ray lightRay{ pointLightPosition, glm::normalize(-toLight) };
-			if (!m_Scene.Intersect(lightRay, intersectLight))
-				CORE_LOG(E_Level::Debug, E_Context::Render, "Error {} {}", x, y); // please, please don't fail
+			// C_RayIntersection intersectLight;
+			// const Physics::Primitives::S_Ray lightRay{ pointLightPosition, glm::normalize(-toLight) };
+			// if (!m_Scene.Intersect(lightRay, intersectLight))
+			// 	CORE_LOG(E_Level::Debug, E_Context::Render, "Error {} {}", x, y); // please, please don't fail
 
-			if(intersectLight.GetRayLength() < glm::distance(intersect.GetIntersectionPoint(), pointLightPosition) - eps)
+			C_RayIntersection intersectLight;
+			const Physics::Primitives::S_Ray lightRay{ intersect.GetIntersectionPoint(), UniformSampleHemisphere({distrib(gen), distrib(gen)}) };
+
+			if (!areaLight.Intersect(lightRay, intersectLight))
+			{
 				continue;
+			}
+
+			C_RayIntersection geomIntersect;
+			if (m_Scene.Intersect(lightRay, geomIntersect))
+			{
+				continue;
+			}
+
+			const auto cosTheta = frame.CosTheta(frame.ToLocal(glm::normalize(lightRay.direction)));
+			const auto sample = intersect.GetMaterial()->diffuse * cosTheta * (pointLightIntensity);
 
 			textureView.Set({ x,y }, textureView.Get<glm::vec3>({ x,y }) + glm::vec3{ sample.x, sample.y, sample.z }); // Map due to texture format
 
