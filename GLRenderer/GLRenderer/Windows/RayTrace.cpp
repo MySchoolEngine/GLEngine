@@ -8,6 +8,7 @@
 #include <Renderer/IRenderer.h>
 #include <Renderer/ICameraComponent.h>
 #include <Renderer/RayCasting/RayRenderer.h>
+#include <Renderer/Textures/TextureView.h>
 
 #include <Core/Application.h>
 
@@ -52,7 +53,9 @@ void C_RayTraceWindow::RayTrace()
 //=================================================================================
 void C_RayTraceWindow::Clear()
 {
-
+	glm::vec4 color{ 0.f ,0.f ,0.f ,0.f };
+	Renderer::C_TextureView(&m_ImageStorage).ClearColor(color);
+	UploadStorage();
 }
 
 //=================================================================================
