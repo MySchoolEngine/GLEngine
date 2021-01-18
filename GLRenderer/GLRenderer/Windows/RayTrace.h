@@ -23,6 +23,7 @@ public:
 
 	void RayTrace();
 	void Clear();
+	void RunUntilStop();
 
 private:
 	virtual void DrawComponents() const override;
@@ -33,7 +34,9 @@ private:
 	Renderer::C_TextureViewStorageCPU<float>				m_ImageStorage;
 	Renderer::C_RayTraceScene												m_Scene;
 	std::future<void>																m_SignalDone;
-	bool																						m_Running;
+	int																							m_NumCycleSamples;
+	bool																						m_Running			: 1;
+	bool																						m_RunningCycle: 1;
 };
 }
 

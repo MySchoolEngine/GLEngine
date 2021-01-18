@@ -24,7 +24,9 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_Camera
 	, m_Camera(camera)
 	, m_ImageStorage(580, 480, 3)
 	, m_Image(nullptr)
+	, m_NumCycleSamples(0)
 	, m_Running(false)
+	, m_RunningCycle(false)
 {
 	m_Image = std::make_shared<Textures::C_Texture>("rayTrace");
 	auto channels = m_ImageStorage.GetChannels();
@@ -43,8 +45,31 @@ void C_RayTraceWindow::RayTrace()
 		CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
 		UploadStorage();
 		m_Running = false;
+		m_NumCycleSamples++;
 		});
 	m_Running = true;
+	m_SignalDone = rayTrace.get_future();
+	std::thread rtThread(std::move(rayTrace));
+	rtThread.detach();
+}
+
+//=================================================================================
+void C_RayTraceWindow::RunUntilStop()
+{
+	if (m_Running) return;
+	m_RunningCycle = m_Running = true;
+	std::packaged_task<void()> rayTrace([&]() {
+		Renderer::C_RayRenderer renderer(m_Scene);
+		while (m_RunningCycle)
+		{
+			Utils::HighResolutionTimer renderTime;
+			renderer.Render(*m_Camera, m_ImageStorage);
+			CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
+			UploadStorage();
+			m_NumCycleSamples++;
+		}
+		m_Running = false;
+		});
 	m_SignalDone = rayTrace.get_future();
 	std::thread rtThread(std::move(rayTrace));
 	rtThread.detach();
@@ -56,6 +81,7 @@ void C_RayTraceWindow::Clear()
 	glm::vec4 color{ 0.f ,0.f ,0.f ,0.f };
 	Renderer::C_TextureView(&m_ImageStorage).ClearColor(color);
 	UploadStorage();
+	m_NumCycleSamples = 0;
 }
 
 //=================================================================================
@@ -73,7 +99,19 @@ void C_RayTraceWindow::DrawComponents() const
 		{
 			const_cast<C_RayTraceWindow*>(this)->Clear();
 		}
+		if (ImGui::Button("Cycle"))
+		{
+			const_cast<C_RayTraceWindow*>(this)->RunUntilStop();
+		}
 	}
+	if (m_RunningCycle)
+	{
+		if (ImGui::Button("Stop"))
+		{
+			const_cast<C_RayTraceWindow*>(this)->m_RunningCycle = false;
+		}
+	}
+	ImGui::Text("Samples: %i", m_NumCycleSamples);
 }
 
 //=================================================================================
