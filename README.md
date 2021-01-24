@@ -24,6 +24,6 @@ Documentation of current school project is here:
 ## Architecure
 [![Architecture](https://github.com/RohacekD/GLEngine/blob/master/wikidata/Architecture.svg)](https://lucid.app/lucidchart/invitations/accept/d2772b03-bc43-4301-b71a-b145bfef3e73)
 
-Red lines denote wrong dependencies
-Blue lines denote opposite dependencies
-The dashed line denotes planned dependency
+* Red lines denote wrong dependencies
+* Blue lines denote opposite dependencies
+* The dashed line denotes planned dependency
