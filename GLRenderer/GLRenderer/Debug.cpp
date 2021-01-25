@@ -17,7 +17,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-namespace GLEngine { namespace GLRenderer {
+namespace GLEngine::GLRenderer {
 
 const static std::string s_DebugShaderName	= "basic-wireframe";
 const static std::string s_MergedShaderName = "MergedWireframes";
@@ -418,4 +418,4 @@ void C_DebugDraw::DrawMergedGeoms()
 }
 
 #endif
-}} // namespace GLEngine::GLRenderer
+} // namespace GLEngine::GLRenderer

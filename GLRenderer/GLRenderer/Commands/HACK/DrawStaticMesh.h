@@ -4,13 +4,13 @@
 
 #include <memory>
 
-namespace GLEngine { namespace GLRenderer {
+namespace GLEngine::GLRenderer {
 
 namespace Mesh {
 class C_StaticMeshResource;
 }
 
-namespace Commands { namespace HACK {
+namespace Commands::HACK {
 // todo: break this hacky solution into commands
 class C_DrawStaticMesh : public Renderer::I_RenderCommand {
 public:
@@ -24,5 +24,5 @@ public:
 private:
 	std::shared_ptr<Mesh::C_StaticMeshResource> m_Mesh;
 };
-}} // namespace Commands::HACK
-}} // namespace GLEngine::GLRenderer
+} // namespace Commands::HACK
+} // namespace GLEngine::GLRenderer

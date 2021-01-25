@@ -4,7 +4,7 @@
 
 #include <Renderer/Mesh/Scene.h>
 
-namespace GLEngine { namespace GLRenderer { namespace Mesh {
+namespace GLEngine::GLRenderer::Mesh {
 
 //=================================================================================
 C_StaticMeshResource::C_StaticMeshResource(const Renderer::MeshData::Mesh& mesh)
@@ -60,4 +60,4 @@ std::size_t C_StaticMeshResource::GetNumTriangles() const
 	return m_triangles;
 }
 
-}}} // namespace GLEngine::GLRenderer::Mesh
+} // namespace GLEngine::GLRenderer::Mesh

@@ -4,7 +4,7 @@
 
 #include <string>
 
-namespace GLEngine { namespace Core {
+namespace GLEngine::Core {
 
 //=================================================================================
 struct S_WindowInfo {
@@ -28,4 +28,4 @@ struct S_WindowInfo {
 struct S_VulkanWindowInfo : public S_WindowInfo {
 	virtual E_Driver GetDriver() const override { return E_Driver::Vulkan; }
 };
-}} // namespace GLEngine::Core
+} // namespace GLEngine::Core

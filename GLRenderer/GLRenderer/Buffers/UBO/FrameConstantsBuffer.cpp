@@ -5,7 +5,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
-namespace GLEngine { namespace GLRenderer { namespace Buffers { namespace UBO {
+namespace GLEngine::GLRenderer::Buffers::UBO {
 
 //=================================================================================
 C_FrameConstantsBuffer::C_FrameConstantsBuffer(const std::string& blockName, unsigned int index)
@@ -46,4 +46,4 @@ void C_FrameConstantsBuffer::UploadData() const
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
 	unbind();
 }
-}}}} // namespace GLEngine::GLRenderer::Buffers::UBO
+} // namespace GLEngine::GLRenderer::Buffers::UBO

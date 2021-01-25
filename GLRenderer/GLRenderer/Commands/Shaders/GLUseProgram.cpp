@@ -3,7 +3,7 @@
 #include <GLRenderer/Commands/Shaders/GLUseProgram.h>
 
 
-namespace GLEngine { namespace GLRenderer { namespace Commands {
+namespace GLEngine::GLRenderer::Commands {
 
 //=================================================================================
 C_GLUseProgram::C_GLUseProgram(GLuint program)
@@ -35,4 +35,4 @@ std::string C_GLUseProgram::GetDescriptor() const
 	return fmt::format("UseProgram {}", m_Proram);
 }
 
-}}} // namespace GLEngine::GLRenderer::Commands
+} // namespace GLEngine::GLRenderer::Commands

@@ -17,7 +17,7 @@
 #include <vector>
 
 
-namespace GLEngine { namespace GLRenderer {
+namespace GLEngine::GLRenderer {
 
 namespace Shaders {
 class C_ShaderProgram;
@@ -78,4 +78,4 @@ template <class T, typename... Params> std::shared_ptr<T> C_UniformBuffersManage
 	return ubo;
 }
 } // namespace Buffers
-}} // namespace GLEngine::GLRenderer
+} // namespace GLEngine::GLRenderer

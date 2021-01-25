@@ -5,7 +5,7 @@
 
 #include <memory>
 
-namespace GLEngine { namespace Renderer {
+namespace GLEngine::Renderer {
 
 enum class E_PassType
 {
@@ -78,4 +78,4 @@ public:
 	virtual void	   SetCurrentPassType(Renderer::E_PassType type) {}
 };
 
-}} // namespace GLEngine::Renderer
+} // namespace GLEngine::Renderer

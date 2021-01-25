@@ -1,11 +1,11 @@
 #pragma once
 
-#define GLM_ENABLE_EXPERIMENTAL
 #include <Renderer/ICameraComponent.h>
 
 #include <Utils/BitField.h>
 #include <Utils/HighResolutionTimer.h>
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/euler_angles.hpp>
@@ -45,10 +45,10 @@ class C_KeyPressedEvent;
 class C_KeyReleasedEvent;
 } // namespace Core
 
-namespace Physics { namespace Primitives {
+namespace Physics::Primitives {
 class C_Frustum;
 struct S_AABB;
-}} // namespace Physics::Primitives
+} // namespace Physics::Primitives
 
 namespace Renderer::Cameras {
 class RENDERER_API_EXPORT FreelookCamera : public I_CameraComponent {
@@ -68,7 +68,7 @@ public:
 
 	virtual Physics::Primitives::C_Frustum GetFrustum() const override;
 
-	virtual Physics::Primitives::S_AABB GetAABB() const;
+	virtual Physics::Primitives::S_AABB GetAABB() const override;
 
 	// Use these 2 function to setup the camera
 	// FOVY in degrees

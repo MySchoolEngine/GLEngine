@@ -12,7 +12,7 @@
  */
 #pragma once
 
-namespace GLEngine { namespace GLRenderer { namespace Buffers {
+namespace GLEngine::GLRenderer::Buffers {
 
 class I_GLBufferBase {
 public:
@@ -41,5 +41,5 @@ public:
 protected:
 	GLuint m_id;
 };
-}}} // namespace GLEngine::GLRenderer::Buffers
+} // namespace GLEngine::GLRenderer::Buffers
 #include <GLRenderer/Buffers/GLBuffer.inl>

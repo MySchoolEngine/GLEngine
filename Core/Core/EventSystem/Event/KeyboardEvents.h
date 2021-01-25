@@ -4,7 +4,7 @@
 
 #include <Core/EventSystem/Event/InputEvents.h>
 
-namespace GLEngine { namespace Core {
+namespace GLEngine::Core {
 //=================================================================================
 class C_KeyEvent : public C_InputEvent {
 public:
@@ -76,4 +76,4 @@ protected:
 
 	virtual Utils::C_BitField<E_EventCategory> GetInputCategory() const override { return E_EventCategory::Keyboard; }
 };
-}} // namespace GLEngine::Core
+} // namespace GLEngine::Core

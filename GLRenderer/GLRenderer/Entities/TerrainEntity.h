@@ -9,7 +9,7 @@
 
 #include <Utils/HighResolutionTimer.h>
 
-namespace GLEngine { namespace GLRenderer {
+namespace GLEngine::GLRenderer {
 
 namespace Components {
 class C_TerrainMesh;
@@ -77,4 +77,4 @@ protected:
 	Utils::HighResolutionTimer	m_timer;
 };
 
-}} // namespace GLEngine::GLRenderer
+} // namespace GLEngine::GLRenderer

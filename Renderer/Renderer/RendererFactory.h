@@ -5,10 +5,10 @@
 
 #include <memory>
 
-namespace GLEngine { namespace Renderer {
+namespace GLEngine::Renderer {
 
 class RENDERER_API_EXPORT F_RendererFacotry {
 public:
 	static std::unique_ptr<Renderer::I_Renderer> GetRenderer();
 };
-}} // namespace GLEngine::Renderer
+} // namespace GLEngine::Renderer

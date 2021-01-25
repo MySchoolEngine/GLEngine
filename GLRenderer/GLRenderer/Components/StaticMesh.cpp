@@ -19,7 +19,7 @@
 
 #include <pugixml.hpp>
 
-namespace GLEngine { namespace GLRenderer { namespace Components {
+namespace GLEngine::GLRenderer::Components {
 
 //=================================================================================
 C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner)
@@ -237,4 +237,4 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 	return staticMesh;
 }
 
-}}} // namespace GLEngine::GLRenderer::Components
+} // namespace GLEngine::GLRenderer::Components

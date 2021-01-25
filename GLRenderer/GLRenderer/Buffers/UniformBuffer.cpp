@@ -3,7 +3,7 @@
 #include <GLRenderer/Buffers/UniformBuffer.h>
 
 
-namespace GLEngine { namespace GLRenderer { namespace Buffers {
+namespace GLEngine::GLRenderer::Buffers {
 
 //=================================================================================
 C_UniformBuffer::C_UniformBuffer(const std::string& blockName, unsigned int index)
@@ -33,4 +33,4 @@ void C_UniformBuffer::Activate(bool activate)
 	}
 }
 
-}}} // namespace GLEngine::GLRenderer::Buffers
+} // namespace GLEngine::GLRenderer::Buffers

@@ -6,7 +6,7 @@
 
 #include <Utils/BitField.h>
 
-namespace GLEngine { namespace GLRenderer { namespace Commands {
+namespace GLEngine::GLRenderer::Commands {
 
 class C_GLEnable : public Renderer::I_RenderCommand {
 public:
@@ -38,4 +38,4 @@ protected:
 	E_GLEnableValues m_Value;
 };
 
-}}} // namespace GLEngine::GLRenderer::Commands
+} // namespace GLEngine::GLRenderer::Commands

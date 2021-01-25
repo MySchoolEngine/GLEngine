@@ -2,7 +2,7 @@
 
 #include <GLRenderer/Buffers/UBO/TerrainStats.h>
 
-namespace GLEngine { namespace GLRenderer { namespace Buffers { namespace UBO {
+namespace GLEngine::GLRenderer::Buffers::UBO {
 
 //=================================================================================
 C_TerrainStats::C_TerrainStats(unsigned int index)
@@ -56,4 +56,4 @@ void C_TerrainStats::ClearBuffer()
 	unbind();
 }
 
-}}}} // namespace GLEngine::GLRenderer::Buffers::UBO
+} // namespace GLEngine::GLRenderer::Buffers::UBO

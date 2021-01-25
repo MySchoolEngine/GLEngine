@@ -4,7 +4,7 @@
 
 #include <Core/CoreMacros.h>
 
-namespace GLEngine { namespace GLRenderer { namespace Commands {
+namespace GLEngine::GLRenderer::Commands {
 
 // @todo: Not a final state
 class C_GLUseProgram : public Renderer::I_RenderCommand {
@@ -23,4 +23,4 @@ private:
 	GLuint m_Proram;
 };
 
-}}} // namespace GLEngine::GLRenderer::Commands
+} // namespace GLEngine::GLRenderer::Commands

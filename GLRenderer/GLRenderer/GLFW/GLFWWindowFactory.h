@@ -4,7 +4,7 @@
 
 #include <Core/IWindowManager.h>
 
-namespace GLEngine { namespace GLRenderer { namespace GLFW {
+namespace GLEngine::GLRenderer::GLFW {
 
 class C_GLFWWindowFactory final : public Core::I_WindowFactory {
 public:
@@ -13,4 +13,4 @@ public:
 };
 
 GL_RENDERER_API_EXPORT Core::I_WindowFactory* ConstructGLFWWindowFactory();
-}}} // namespace GLEngine::GLRenderer::GLFW
+} // namespace GLEngine::GLRenderer::GLFW

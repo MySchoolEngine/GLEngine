@@ -6,7 +6,7 @@
 
 #include <Renderer/IRenderer.h>
 
-namespace GLEngine { namespace GLRenderer { namespace GLFW {
+namespace GLEngine::GLRenderer::GLFW {
 
 //=================================================================================
 C_GLFWoGLWindow::C_GLFWoGLWindow(const Core::S_WindowInfo& wndInfo)
@@ -56,4 +56,4 @@ void C_GLFWoGLWindow::OnEvent(Core::I_Event& event)
 {
 }
 
-}}} // namespace GLEngine::GLRenderer::GLFW
+} // namespace GLEngine::GLRenderer::GLFW

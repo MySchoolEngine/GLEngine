@@ -12,7 +12,7 @@ namespace Renderer::MeshData {
 struct Mesh;
 }
 
-namespace GLRenderer { namespace Mesh {
+namespace GLRenderer::Mesh {
 class C_StaticMeshResource : public Renderer::I_Resource {
 public:
 	C_StaticMeshResource(const Renderer::MeshData::Mesh& mesh);
@@ -32,5 +32,5 @@ protected:
 };
 
 
-}} // namespace GLRenderer::Mesh
+} // namespace GLRenderer::Mesh
 } // namespace GLEngine

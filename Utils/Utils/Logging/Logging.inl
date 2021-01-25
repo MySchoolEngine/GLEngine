@@ -6,7 +6,7 @@
 
 #include <fmt/format.h>
 
-namespace Utils { namespace Logging {
+namespace Utils::Logging {
 
 //=================================================================================
 template <class... Args> void C_LoggingSystem::Log(E_Level level, E_Context context, int line, const char* file, const char* format, Args&&... args)
@@ -15,4 +15,4 @@ template <class... Args> void C_LoggingSystem::Log(E_Level level, E_Context cont
 	std::for_each(m_Loggers->begin(), m_Loggers->end(), [&](I_Logger* logger) { logger->Log(level, context, line, file, msg); });
 }
 
-}} // namespace Utils::Logging
+} // namespace Utils::Logging

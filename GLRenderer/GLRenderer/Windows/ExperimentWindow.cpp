@@ -43,7 +43,7 @@
 
 #include <pugixml.hpp>
 
-namespace GLEngine { namespace GLRenderer { namespace Windows {
+namespace GLEngine::GLRenderer::Windows {
 
 //=================================================================================
 C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
@@ -401,4 +401,4 @@ void C_ExplerimentWindow::MouseSelect()
 	}
 }
 
-}}} // namespace GLEngine::GLRenderer::Windows
+} // namespace GLEngine::GLRenderer::Windows

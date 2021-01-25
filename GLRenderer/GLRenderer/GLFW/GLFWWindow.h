@@ -12,7 +12,7 @@ namespace Core {
 class I_Input;
 }
 
-namespace GLRenderer { namespace GLFW {
+namespace GLRenderer::GLFW {
 class C_GLFWWindow : public Core::I_Window {
 public:
 	virtual ~C_GLFWWindow();
@@ -43,5 +43,5 @@ protected:
 	GLFWwindow* m_Window;
 	C_GLFWInput m_Input;
 };
-}} // namespace GLRenderer::GLFW
+} // namespace GLRenderer::GLFW
 } // namespace GLEngine

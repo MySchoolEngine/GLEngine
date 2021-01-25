@@ -3,7 +3,7 @@
 #include <GLRenderer/Debug.h>
 
 
-namespace GLEngine { namespace GLRenderer {
+namespace GLEngine::GLRenderer {
 
 class C_PersistentDebug {
 public:
@@ -44,4 +44,4 @@ private:
 	std::vector<std::pair<T_TimeStamp, std::function<void()>>> m_Calls;
 };
 
-}} // namespace GLEngine::GLRenderer
+} // namespace GLEngine::GLRenderer

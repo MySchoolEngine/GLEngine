@@ -2,7 +2,7 @@
 
 #include <GLRenderer/Buffers/UniformBuffer.h>
 
-namespace GLEngine { namespace GLRenderer { namespace Buffers { namespace UBO {
+namespace GLEngine::GLRenderer::Buffers::UBO {
 
 class C_RainDataBuffer : public C_UniformBuffer {
 public:
@@ -17,4 +17,4 @@ private:
 	unsigned int m_TextureDimension;
 };
 
-}}}} // namespace GLEngine::GLRenderer::Buffers::UBO
+} // namespace GLEngine::GLRenderer::Buffers::UBO

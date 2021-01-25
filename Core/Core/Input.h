@@ -4,7 +4,7 @@
 
 #include <utility>
 
-namespace GLEngine { namespace Core {
+namespace GLEngine::Core {
 
 class I_Input {
 public:
@@ -17,4 +17,4 @@ public:
 	virtual float					GetMouseY() const				   = 0;
 };
 
-}} // namespace GLEngine::Core
+} // namespace GLEngine::Core

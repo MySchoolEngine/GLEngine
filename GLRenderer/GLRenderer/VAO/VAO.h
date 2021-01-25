@@ -3,7 +3,7 @@
 #include <GLRenderer/Buffers/GLBuffer.h>
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 
-namespace GLEngine { namespace GLRenderer { namespace VAO {
+namespace GLEngine::GLRenderer::VAO {
 
 class I_GLVAOBase {
 public:
@@ -81,5 +81,5 @@ private:
 		glBufferData(BUFFERTYPE, data.size() * typeLenght, data.data(), usage);
 	}
 };
-}}} // namespace GLEngine::GLRenderer::VAO
+} // namespace GLEngine::GLRenderer::VAO
 #include <GLRenderer/VAO/VAO.inl>

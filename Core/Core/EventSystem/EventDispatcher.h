@@ -9,7 +9,7 @@
 
 // strongly inspirited by Hazel
 //
-namespace GLEngine { namespace Core {
+namespace GLEngine::Core {
 
 class C_EventDispatcher {
 	template <typename T> using EventFn = std::function<bool(T&)>;
@@ -37,4 +37,4 @@ private:
 };
 
 
-}} // namespace GLEngine::Core
+} // namespace GLEngine::Core

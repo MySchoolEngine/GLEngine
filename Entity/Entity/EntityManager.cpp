@@ -19,7 +19,7 @@
 #include <imgui.h>
 
 
-namespace GLEngine { namespace Entity {
+namespace GLEngine::Entity {
 
 //=================================================================================
 C_EntityManager::C_EntityManager()
@@ -194,4 +194,4 @@ bool C_EntityManager::LoadLevel(const std::string& name, std::unique_ptr<I_Compo
 	return true;
 }
 
-}} // namespace GLEngine::Entity
+} // namespace GLEngine::Entity

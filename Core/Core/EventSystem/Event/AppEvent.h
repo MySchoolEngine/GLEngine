@@ -4,7 +4,7 @@
 
 #include <Core/EventSystem/Event.h>
 
-namespace GLEngine { namespace Core {
+namespace GLEngine::Core {
 //=============================================================
 // @todo: should also contain other events in the future
 class C_AppEvent : public I_Event {
@@ -35,4 +35,4 @@ private:
 	int m_Height;
 };
 
-}} // namespace GLEngine::Core
+} // namespace GLEngine::Core

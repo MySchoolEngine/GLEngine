@@ -3,7 +3,7 @@
 #include <Core/EventSystem/LayerStack.h>
 
 
-namespace GLEngine { namespace Core {
+namespace GLEngine::Core {
 
 //=================================================================================
 C_LayerStack::C_LayerStack(std::string&& name)
@@ -35,4 +35,4 @@ void C_LayerStack::OnEvent(Core::I_Event& event)
 	}
 }
 
-}} // namespace GLEngine::Core
+} // namespace GLEngine::Core

@@ -13,7 +13,7 @@
 
 #include <GLRenderer/Buffers/GLBuffer.h>
 
-namespace GLEngine { namespace GLRenderer { namespace Buffers {
+namespace GLEngine::GLRenderer::Buffers {
 
 class C_ShaderStorageBuffer : public C_GLBuffer<GL_SHADER_STORAGE_BUFFER> {
 public:
@@ -29,4 +29,4 @@ public:
 private:
 	GLuint m_BindingPoint;
 };
-}}} // namespace GLEngine::GLRenderer::Buffers
+} // namespace GLEngine::GLRenderer::Buffers

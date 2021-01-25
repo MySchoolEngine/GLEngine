@@ -14,7 +14,7 @@
 
 #pragma once
 
-namespace GLEngine { namespace GLRenderer { namespace RenderDoc {
+namespace GLEngine::GLRenderer::RenderDoc {
 /** ==============================================
  * @class C_DebugScope
  *
@@ -32,4 +32,4 @@ public:
 	explicit C_DebugScope(const std::string& scopeName);
 	~C_DebugScope();
 };
-}}} // namespace GLEngine::GLRenderer::RenderDoc
+} // namespace GLEngine::GLRenderer::RenderDoc

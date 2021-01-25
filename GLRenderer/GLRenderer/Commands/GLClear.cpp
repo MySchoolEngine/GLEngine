@@ -2,7 +2,7 @@
 
 #include <GLRenderer/Commands/GLClear.h>
 
-namespace GLEngine { namespace GLRenderer { namespace Commands {
+namespace GLEngine::GLRenderer::Commands {
 
 //=================================================================================
 C_GLClear::C_GLClear(E_ClearBits bits)
@@ -64,4 +64,4 @@ int C_GLClear::EnumToFlags(Utils::C_BitField<E_ClearBits>) const
 	return ret;
 }
 
-}}} // namespace GLEngine::GLRenderer::Commands
+} // namespace GLEngine::GLRenderer::Commands

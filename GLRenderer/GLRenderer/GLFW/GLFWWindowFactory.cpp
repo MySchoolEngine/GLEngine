@@ -4,7 +4,7 @@
 #include <GLRenderer/GLFW/GLFWoGLWindow.h>
 #include <GLRenderer/Windows/ExperimentWindow.h>
 
-namespace GLEngine { namespace GLRenderer { namespace GLFW {
+namespace GLEngine::GLRenderer::GLFW {
 
 //=================================================================================
 std::shared_ptr<Core::I_Window> C_GLFWWindowFactory::GetWindow(const Core::S_WindowInfo& wndInfo) const
@@ -26,4 +26,4 @@ Core::I_WindowFactory* ConstructGLFWWindowFactory()
 	return new C_GLFWWindowFactory();
 }
 
-}}} // namespace GLEngine::GLRenderer::GLFW
+} // namespace GLEngine::GLRenderer::GLFW

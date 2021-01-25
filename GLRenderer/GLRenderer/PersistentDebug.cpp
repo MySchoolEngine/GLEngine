@@ -3,7 +3,7 @@
 #include <GLRenderer/PersistentDebug.h>
 
 
-namespace GLEngine { namespace GLRenderer {
+namespace GLEngine::GLRenderer {
 
 //=================================================================================
 C_PersistentDebug& C_PersistentDebug::Instance()
@@ -13,4 +13,4 @@ C_PersistentDebug& C_PersistentDebug::Instance()
 	return instance;
 }
 
-}} // namespace GLEngine::GLRenderer
+} // namespace GLEngine::GLRenderer

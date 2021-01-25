@@ -3,7 +3,7 @@
 #include <Core/CoreEnums.h>
 #include <Core/WindowInfo.h>
 
-namespace GLEngine { namespace GLRenderer { namespace GLFW {
+namespace GLEngine::GLRenderer::GLFW {
 
 //=================================================================================
 struct S_OpenGLWindowInfo : public Core::S_WindowInfo {
@@ -17,4 +17,4 @@ struct S_OpenGLWindowInfo : public Core::S_WindowInfo {
 	virtual Core::E_Driver GetDriver() const override { return Core::E_Driver::OpenGL; }
 };
 
-}}} // namespace GLEngine::GLRenderer::GLFW
+} // namespace GLEngine::GLRenderer::GLFW

@@ -1,7 +1,5 @@
 #pragma once
 
+namespace GLEngine::Renderer {
 
-namespace GLEngine { namespace Renderer {
-
-
-}}
+}

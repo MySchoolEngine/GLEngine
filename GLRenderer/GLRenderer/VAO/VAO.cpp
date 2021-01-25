@@ -3,7 +3,7 @@
 #include <GLRenderer/VAO/VAO.h>
 
 
-namespace GLEngine { namespace GLRenderer { namespace VAO {
+namespace GLEngine::GLRenderer::VAO {
 
 //=================================================================================
 I_GLVAOBase::I_GLVAOBase()
@@ -29,4 +29,4 @@ void I_GLVAOBase::unbind() const
 	glBindVertexArray(0);
 }
 
-}}} // namespace GLEngine::GLRenderer::VAO
+} // namespace GLEngine::GLRenderer::VAO

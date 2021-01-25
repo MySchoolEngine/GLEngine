@@ -4,7 +4,7 @@
 
 struct GLFWwindow;
 
-namespace GLEngine { namespace GLRenderer { namespace GLFW {
+namespace GLEngine::GLRenderer::GLFW {
 
 class C_GLFWInput : public Core::I_Input {
 public:
@@ -29,4 +29,4 @@ protected:
 	GLFWwindow* m_Window;
 };
 
-}}} // namespace GLEngine::GLRenderer::GLFW
+} // namespace GLEngine::GLRenderer::GLFW

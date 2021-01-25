@@ -18,7 +18,7 @@
 #include <glad/glad.h>
 #include <string>
 
-namespace GLEngine { namespace GLRenderer { namespace Buffers {
+namespace GLEngine::GLRenderer::Buffers {
 class C_UniformBuffer : public C_GLBuffer<GL_UNIFORM_BUFFER> {
 public:
 	C_UniformBuffer(const std::string& blockName, unsigned int index);
@@ -40,4 +40,4 @@ private:
 	std::string m_blockName;
 	bool		m_active;
 };
-}}} // namespace GLEngine::GLRenderer::Buffers
+} // namespace GLEngine::GLRenderer::Buffers

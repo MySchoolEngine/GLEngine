@@ -23,7 +23,7 @@
 
 #include <pugixml.hpp>
 
-namespace GLEngine { namespace GLRenderer { namespace Mesh {
+namespace GLEngine::GLRenderer::Mesh {
 
 //=================================================================================
 C_SceneBuilder::C_SceneBuilder()
@@ -228,4 +228,4 @@ std::string C_SceneBuilder::GetFilePart(const std::string& filePath) const
 	return filePath.substr(found + 1, std::string::npos);
 }
 
-}}} // namespace GLEngine::GLRenderer::Mesh
+} // namespace GLEngine::GLRenderer::Mesh

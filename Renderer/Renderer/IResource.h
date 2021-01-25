@@ -6,7 +6,7 @@
 #include <memory>
 #include <type_traits>
 
-namespace GLEngine { namespace Renderer {
+namespace GLEngine::Renderer {
 
 class I_RenderableComponent;
 
@@ -38,6 +38,6 @@ public:
 	virtual bool IsValid() override { return false; };
 };*/
 
-}} // namespace GLEngine::Renderer
+} // namespace GLEngine::Renderer
 
 #include <Renderer/IResource.inl>

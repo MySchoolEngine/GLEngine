@@ -17,7 +17,7 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-namespace GLEngine { namespace GLRenderer {
+namespace GLEngine::GLRenderer {
 
 namespace Buffers {
 class C_UniformBuffer;
@@ -106,5 +106,5 @@ private:
 };
 
 } // namespace Shaders
-}} // namespace GLEngine::GLRenderer
+} // namespace GLEngine::GLRenderer
 #include <GLRenderer/Shaders/ShaderProgram.inl>

@@ -1,6 +1,6 @@
 #include <Utils/Logging/Filter.h>
 
-namespace Utils { namespace Logging {
+namespace Utils::Logging {
 
 //=================================================================================
 C_Filter::C_Filter(C_Filter* innerFilter)
@@ -123,4 +123,4 @@ bool C_NegationFilter::FilterCheck(const S_Data& message)
 	return !m_NegatedFilter->Filter(message);
 }
 
-}} // namespace Utils::Logging
+} // namespace Utils::Logging

@@ -7,7 +7,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
-namespace GLEngine { namespace GLRenderer { namespace Commands {
+namespace GLEngine::GLRenderer::Commands {
 
 class C_GLClearColor : public Renderer::I_RenderCommand {
 public:
@@ -26,4 +26,4 @@ protected:
 	glm::vec4 m_Colour;
 };
 
-}}} // namespace GLEngine::GLRenderer::Commands
+} // namespace GLEngine::GLRenderer::Commands

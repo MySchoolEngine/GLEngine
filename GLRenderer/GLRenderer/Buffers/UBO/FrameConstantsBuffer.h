@@ -16,7 +16,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/vec4.hpp>
 
-namespace GLEngine { namespace GLRenderer { namespace Buffers { namespace UBO {
+namespace GLEngine::GLRenderer::Buffers::UBO {
 
 /** ==============================================
  * @class C_FrameConstantsBuffer
@@ -56,4 +56,4 @@ private:
 	float	  m_AmbientStrength;
 	float	  m_Time;
 };
-}}}} // namespace GLEngine::GLRenderer::Buffers::UBO
+} // namespace GLEngine::GLRenderer::Buffers::UBO

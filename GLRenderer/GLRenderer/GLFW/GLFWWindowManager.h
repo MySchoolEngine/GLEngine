@@ -7,7 +7,7 @@
 
 #include <vector>
 
-namespace GLEngine { namespace GLRenderer { namespace GLFW {
+namespace GLEngine::GLRenderer::GLFW {
 
 class C_GLFWWindowManager : public Core::I_WindowManager {
 public:
@@ -35,4 +35,4 @@ private:
 };
 
 GL_RENDERER_API_EXPORT C_GLFWWindowManager* ConstructGLFWManager(Core::C_Application::EventCallbackFn eventCallback);
-}}} // namespace GLEngine::GLRenderer::GLFW
+} // namespace GLEngine::GLRenderer::GLFW

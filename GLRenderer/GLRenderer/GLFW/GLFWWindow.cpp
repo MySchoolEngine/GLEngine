@@ -7,7 +7,7 @@
 #include <Core/EventSystem/Event/MouseEvents.h>
 #include <Core/Input.h>
 
-namespace GLEngine { namespace GLRenderer { namespace GLFW {
+namespace GLEngine::GLRenderer::GLFW {
 
 //=================================================================================
 C_GLFWWindow::C_GLFWWindow()
@@ -189,4 +189,4 @@ void C_GLFWWindow::Destroy()
 	glfwDestroyWindow(m_Window);
 }
 
-}}} // namespace GLEngine::GLRenderer::GLFW
+} // namespace GLEngine::GLRenderer::GLFW

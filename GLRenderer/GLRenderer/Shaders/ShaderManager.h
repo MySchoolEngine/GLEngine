@@ -25,7 +25,7 @@ namespace GLEngine {
 namespace GUI {
 class C_GUIManager;
 }
-namespace GLRenderer { namespace Shaders {
+namespace GLRenderer::Shaders {
 class C_ShaderProgram;
 
 // I just wanna have some statistics and also save some loading time and memory
@@ -97,5 +97,5 @@ private:
 	std::unique_ptr<GUI::C_LambdaPart> m_ShaderList;
 	GUI::Input::C_CheckBoxValue		   m_PreprocessorOutput;
 };
-}} // namespace GLRenderer::Shaders
+} // namespace GLRenderer::Shaders
 } // namespace GLEngine

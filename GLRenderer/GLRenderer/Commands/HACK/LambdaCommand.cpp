@@ -6,7 +6,7 @@
 
 #include <Core/Application.h>
 
-namespace GLEngine { namespace GLRenderer { namespace Commands { namespace HACK {
+namespace GLEngine::GLRenderer::Commands::HACK {
 
 
 //=================================================================================
@@ -43,4 +43,4 @@ std::string C_LambdaCommand::GetDescriptor() const
 	return m_Name;
 }
 
-}}}} // namespace GLEngine::GLRenderer::Commands::HACK
+} // namespace GLEngine::GLRenderer::Commands::HACK

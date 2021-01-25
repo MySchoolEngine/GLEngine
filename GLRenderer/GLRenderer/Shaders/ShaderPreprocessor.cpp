@@ -5,7 +5,7 @@
 
 #include <fmt/format.h>
 
-namespace GLEngine { namespace GLRenderer { namespace Shaders {
+namespace GLEngine::GLRenderer::Shaders {
 
 //=================================================================================
 const std::regex C_ShaderPreprocessor::s_IncludeFileName = std::regex(R"(^(#include )\"([^\"]*)\"$)");
@@ -127,4 +127,4 @@ bool C_ShaderPreprocessor::_loadFile(const char* file, std::string& content)
 	content = std::string(std::istream_iterator<char>(stream >> std::noskipws), std::istream_iterator<char>());
 	return true;
 }
-}}} // namespace GLEngine::GLRenderer::Shaders
+} // namespace GLEngine::GLRenderer::Shaders

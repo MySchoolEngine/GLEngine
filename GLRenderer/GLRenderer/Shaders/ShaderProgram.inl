@@ -1,6 +1,6 @@
 #pragma once
 
-namespace GLEngine { namespace GLRenderer { namespace Shaders {
+namespace GLEngine::GLRenderer::Shaders {
 
 //=================================================================================
 template <> inline int C_ShaderProgram::FindLocation(const char* name)
@@ -178,4 +178,4 @@ template <> inline int C_ShaderProgram::FindUniformBlockLocation<const char*>(co
 	return glGetUniformBlockIndex(m_Program, name);
 }
 
-}}} // namespace GLEngine::GLRenderer::Shaders
+} // namespace GLEngine::GLRenderer::Shaders

@@ -4,7 +4,7 @@
 
 #include <Core/EventSystem/Event/InputEvents.h>
 
-namespace GLEngine { namespace Core {
+namespace GLEngine::Core {
 
 //=============================================================
 class C_MouseScrollEvent : public C_InputEvent {
@@ -89,4 +89,4 @@ public:
 	EVENT_CLASS_TYPE(MouseButtonPressed);
 };
 
-}} // namespace GLEngine::Core
+} // namespace GLEngine::Core

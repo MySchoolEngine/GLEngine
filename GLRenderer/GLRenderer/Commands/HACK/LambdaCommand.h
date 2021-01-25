@@ -5,7 +5,7 @@
 
 #include <memory>
 
-namespace GLEngine { namespace GLRenderer { namespace Commands { namespace HACK {
+namespace GLEngine::GLRenderer::Commands::HACK {
 
 class C_LambdaCommand : public Renderer::I_RenderCommand {
 public:
@@ -25,4 +25,4 @@ private:
 	std::function<void(void)> m_fnc;
 };
 
-}}}} // namespace GLEngine::GLRenderer::Commands::HACK
+} // namespace GLEngine::GLRenderer::Commands::HACK

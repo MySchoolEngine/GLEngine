@@ -2,7 +2,7 @@
 
 #include <Renderer/IResource.h>
 
-namespace GLEngine { namespace GLRenderer { namespace Shaders {
+namespace GLEngine::GLRenderer::Shaders {
 
 /** ==============================================
  * @class C_ShaderResource
@@ -25,4 +25,4 @@ public:
 private:
 };
 
-}}} // namespace GLEngine::GLRenderer::Shaders
+} // namespace GLEngine::GLRenderer::Shaders

@@ -3,7 +3,7 @@
 #include <GLRenderer/GLFW/GLFWInput.h>
 #include <GLRenderer/GLFW/GLFWWindow.h>
 
-namespace GLEngine { namespace GLRenderer { namespace GLFW {
+namespace GLEngine::GLRenderer::GLFW {
 
 //=================================================================================
 C_GLFWInput::C_GLFWInput()
@@ -50,4 +50,4 @@ float C_GLFWInput::GetMouseY() const
 	return GetMousePosition().second;
 }
 
-}}} // namespace GLEngine::GLRenderer::GLFW
+} // namespace GLEngine::GLRenderer::GLFW

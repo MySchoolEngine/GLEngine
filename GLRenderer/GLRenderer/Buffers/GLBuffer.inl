@@ -1,6 +1,6 @@
 #pragma once
 
-namespace GLEngine { namespace GLRenderer { namespace Buffers {
+namespace GLEngine::GLRenderer::Buffers {
 //=================================================================================
 template <GLenum TYPE> C_GLBuffer<TYPE>::C_GLBuffer()
 {
@@ -30,4 +30,4 @@ template <GLenum TYPE> constexpr GLenum C_GLBuffer<TYPE>::GetBufferType() const 
 {
 	return TYPE;
 }
-}}} // namespace GLEngine::GLRenderer::Buffers
+} // namespace GLEngine::GLRenderer::Buffers

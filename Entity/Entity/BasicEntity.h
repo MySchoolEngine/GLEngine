@@ -3,7 +3,7 @@
 #include <Entity/EntityApi.h>
 #include <Entity/IEntity.h>
 
-namespace GLEngine { namespace Entity {
+namespace GLEngine::Entity {
 
 /**
  * This class should now do only the "dirty" work of updating components etc
@@ -28,4 +28,4 @@ private:
 	glm::mat4 m_ModelMatrix;
 };
 
-}} // namespace GLEngine::Entity
+} // namespace GLEngine::Entity

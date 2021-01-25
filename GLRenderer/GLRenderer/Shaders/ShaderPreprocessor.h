@@ -13,7 +13,7 @@
 
 #include <filesystem>
 
-namespace GLEngine { namespace GLRenderer { namespace Shaders {
+namespace GLEngine::GLRenderer::Shaders {
 
 class C_ShaderPreprocessor {
 public:
@@ -42,4 +42,4 @@ protected:
 	const static std::regex s_GenerateStruct;
 	const static std::regex s_DefineRegEx;
 };
-}}} // namespace GLEngine::GLRenderer::Shaders
+} // namespace GLEngine::GLRenderer::Shaders

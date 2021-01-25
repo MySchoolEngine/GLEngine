@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Utils { namespace Logging {
+namespace Utils::Logging {
 
 enum class E_Context
 {
@@ -17,4 +17,4 @@ enum class E_Level
 	Debug,
 };
 
-}} // namespace Utils::Logging
+} // namespace Utils::Logging

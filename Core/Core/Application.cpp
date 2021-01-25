@@ -3,7 +3,7 @@
 #include <Core/Application.h>
 #include <Core/IWindowManager.h>
 
-namespace GLEngine { namespace Core {
+namespace GLEngine::Core {
 
 C_Application* s_Instance = nullptr;
 
@@ -43,4 +43,4 @@ GLEngine::Core::C_Application& C_Application::Get()
 	return *s_Instance;
 }
 
-}} // namespace GLEngine::Core
+} // namespace GLEngine::Core

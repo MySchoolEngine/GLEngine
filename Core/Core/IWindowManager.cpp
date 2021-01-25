@@ -4,7 +4,7 @@
 #include <Core/WindowInfo.h>
 
 
-namespace GLEngine { namespace Core {
+namespace GLEngine::Core {
 
 //=================================================================================
 I_WindowManager::I_WindowManager(C_Application::EventCallbackFn callback)
@@ -44,4 +44,4 @@ std::shared_ptr<Core::I_Window> I_WindowManager::ConstructWindow(const S_WindowI
 	return nullptr;
 }
 
-}} // namespace GLEngine::Core
+} // namespace GLEngine::Core

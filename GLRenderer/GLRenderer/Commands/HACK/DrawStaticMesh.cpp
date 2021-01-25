@@ -4,7 +4,7 @@
 #include <GLRenderer/Mesh/StaticMeshResource.h>
 
 
-namespace GLEngine { namespace GLRenderer { namespace Commands { namespace HACK {
+namespace GLEngine::GLRenderer::Commands::HACK {
 
 //=================================================================================
 C_DrawStaticMesh::C_DrawStaticMesh(std::shared_ptr<Mesh::C_StaticMeshResource> mesh)
@@ -38,4 +38,4 @@ std::string C_DrawStaticMesh::GetDescriptor() const
 	return std::string("DrawStaticMesh");
 }
 
-}}}} // namespace GLEngine::GLRenderer::Commands::HACK
+} // namespace GLEngine::GLRenderer::Commands::HACK

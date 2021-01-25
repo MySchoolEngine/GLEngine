@@ -5,7 +5,7 @@
 
 #include <Utils/MapValueIterator.h>
 
-namespace GLEngine { namespace Entity {
+namespace GLEngine::Entity {
 
 //=================================================================================
 I_Entity::I_Entity(std::string name)
@@ -65,4 +65,4 @@ I_Entity::T_ComponentIter I_Entity::end()
 	return m_Components->end();
 }
 
-}} // namespace GLEngine::Entity
+} // namespace GLEngine::Entity

@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace Utils { namespace Logging {
+namespace Utils::Logging {
 
 class I_Logger;
 enum class E_Context;
@@ -40,6 +40,6 @@ private:
 	std::vector<I_Logger*>* m_Loggers;
 };
 
-}} // namespace Utils::Logging
+} // namespace Utils::Logging
 
 #include <Utils/Logging/Logging.inl>

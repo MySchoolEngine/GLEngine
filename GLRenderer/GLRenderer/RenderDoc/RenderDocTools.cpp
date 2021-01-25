@@ -7,7 +7,7 @@
 
 #include <Core/Application.h>
 
-namespace GLEngine { namespace GLRenderer { namespace RenderDoc {
+namespace GLEngine::GLRenderer::RenderDoc {
 
 //=================================================================================
 C_DebugScope::C_DebugScope(const std::string& groupName)
@@ -24,4 +24,4 @@ C_DebugScope::~C_DebugScope()
 		std::move(std::make_unique<Commands::HACK::C_LambdaCommand>([]() { glPopDebugGroup(); }, fmt::format("DebugScope end"))));
 }
 
-}}} // namespace GLEngine::GLRenderer::RenderDoc
+} // namespace GLEngine::GLRenderer::RenderDoc

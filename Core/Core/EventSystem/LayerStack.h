@@ -2,7 +2,7 @@
 
 #include <Core/EventSystem/Layer.h>
 
-namespace GLEngine { namespace Core {
+namespace GLEngine::Core {
 class CORE_API_EXPORT C_LayerStack : public C_Layer {
 public:
 	explicit C_LayerStack(std::string&& name);
@@ -19,4 +19,4 @@ protected:
 	std::vector<C_Layer*>* m_Layers;
 };
 
-}} // namespace GLEngine::Core
+} // namespace GLEngine::Core

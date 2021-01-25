@@ -16,7 +16,7 @@
 
 #include <stdexcept>
 
-namespace GLEngine { namespace GLRenderer {
+namespace GLEngine::GLRenderer {
 
 //=================================================================================
 C_OGLRenderer::C_OGLRenderer()
@@ -202,4 +202,4 @@ void C_OGLRenderer::CaputreCommands() const
 	file.close();
 }
 
-}} // namespace GLEngine::GLRenderer
+} // namespace GLEngine::GLRenderer

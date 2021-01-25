@@ -9,7 +9,7 @@
 
 #include <Core/Application.h>
 
-namespace GLEngine { namespace GLRenderer { namespace Shaders {
+namespace GLEngine::GLRenderer::Shaders {
 
 //=================================================================================
 C_ShaderProgram::C_ShaderProgram(GLuint program)
@@ -137,4 +137,4 @@ void C_ShaderProgram::SetName(const std::string& name) noexcept
 }
 #endif
 
-}}} // namespace GLEngine::GLRenderer::Shaders
+} // namespace GLEngine::GLRenderer::Shaders

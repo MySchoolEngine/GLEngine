@@ -4,7 +4,7 @@
 
 //#include <GLRenderer/OGLRenderer.h>
 
-namespace GLEngine { namespace Renderer {
+namespace GLEngine::Renderer {
 
 //=================================================================================
 std::unique_ptr<GLEngine::Renderer::I_Renderer> F_RendererFacotry::GetRenderer()
@@ -13,4 +13,4 @@ std::unique_ptr<GLEngine::Renderer::I_Renderer> F_RendererFacotry::GetRenderer()
 	// return std::make_unique<GLRenderer::C_OGLRenderer>();
 }
 
-}} // namespace GLEngine::Renderer
+} // namespace GLEngine::Renderer
