@@ -32,7 +32,7 @@ void C_GUIManager::OnUpdate()
 //=================================================================================
 GUID C_GUIManager::CreateGUIWindow(const std::string& name)
 {
-	GUID guid = NextGUID();
+	GUID guid		= NextGUID();
 	m_Windwos[guid] = new GUI::C_Window(guid, name);
 	return guid;
 }
@@ -68,4 +68,4 @@ void C_GUIManager::AddCustomWindow(GUI::C_Window* window)
 	m_Windwos[window->GetGuid()] = window;
 }
 
-}
+} // namespace GLEngine::GUI

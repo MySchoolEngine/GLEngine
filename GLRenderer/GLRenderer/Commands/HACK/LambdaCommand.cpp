@@ -6,10 +6,7 @@
 
 #include <Core/Application.h>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Commands {
-namespace HACK {
+namespace GLEngine { namespace GLRenderer { namespace Commands { namespace HACK {
 
 
 //=================================================================================
@@ -17,7 +14,6 @@ C_LambdaCommand::C_LambdaCommand(std::function<void(void)> fnc, const std::strin
 	: m_fnc(fnc)
 	, m_Name(name)
 {
-
 }
 
 //=================================================================================
@@ -47,4 +43,4 @@ std::string C_LambdaCommand::GetDescriptor() const
 	return m_Name;
 }
 
-}}}}
+}}}} // namespace GLEngine::GLRenderer::Commands::HACK

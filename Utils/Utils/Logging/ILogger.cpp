@@ -3,8 +3,7 @@
 
 #include <iostream>
 
-namespace Utils {
-namespace Logging {
+namespace Utils { namespace Logging {
 
 //=================================================================================
 void C_CoutLogger::Log(E_Level level, E_Context context, int line, const char* file, const std::string& text)
@@ -32,5 +31,4 @@ void C_FileLogger::Log(E_Level level, E_Context context, int line, const char* f
 	(*m_file) << file << ":" << line << "(" << level << "," << context << "): " << text << "\n";
 }
 
-}
-}
+}} // namespace Utils::Logging

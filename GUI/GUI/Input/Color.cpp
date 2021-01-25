@@ -9,7 +9,7 @@ namespace GLEngine::GUI::Input {
 //=================================================================================
 void C_ColorRBG::Draw() const
 {
-	float *col;
+	float* col;
 	col = &(m_Color.x);
 	::ImGui::ColorEdit3(m_name.c_str(), col);
 }
@@ -24,4 +24,4 @@ void C_ColorRBGA::Draw() const
 	::ImGui::ColorEdit4(m_name.c_str(), col);
 }
 
-}
+} // namespace GLEngine::GUI::Input

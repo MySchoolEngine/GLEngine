@@ -1,10 +1,9 @@
 #pragma once
 
-#include <Entity/IEntity.h>
 #include <Entity/EntityApi.h>
+#include <Entity/IEntity.h>
 
-namespace GLEngine {
-namespace Entity {
+namespace GLEngine { namespace Entity {
 
 /**
  * This class should now do only the "dirty" work of updating components etc
@@ -20,7 +19,7 @@ public:
 	//================================================================================
 	virtual void OnEvent(Core::I_Event& event) override;
 
-	ENTITY_API_EXPORT void SetModelMatrix(const glm::mat4& modelMatrix);
+	ENTITY_API_EXPORT void	 SetModelMatrix(const glm::mat4& modelMatrix);
 	virtual const glm::mat4& GetModelMatrix() const override;
 
 	virtual glm::vec3 GetPosition() const override;
@@ -29,5 +28,4 @@ private:
 	glm::mat4 m_ModelMatrix;
 };
 
-}
-}
+}} // namespace GLEngine::Entity

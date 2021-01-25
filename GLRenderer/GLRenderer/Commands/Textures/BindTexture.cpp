@@ -8,7 +8,8 @@ namespace GLEngine::GLRenderer::Commands {
 C_GLBindTexture::C_GLBindTexture(GLenum target, GLuint texture)
 	: m_Target(target)
 	, m_Texture(texture)
-{}
+{
+}
 
 //=================================================================================
 void C_GLBindTexture::Commit()
@@ -34,4 +35,4 @@ C_GLBindTexture C_GLBindTexture::UnbindTarget(GLenum target)
 	return C_GLBindTexture(target, 0);
 }
 
-}
+} // namespace GLEngine::GLRenderer::Commands

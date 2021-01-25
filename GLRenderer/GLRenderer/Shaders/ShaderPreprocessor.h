@@ -2,28 +2,27 @@
  * @file 		ShaderPreprocessor.h
  * @date 		2018/05/16 21:32
  * @project 	Opengl Shadow Rendering
- * @faculty 	Faculty of Information Technology 
+ * @faculty 	Faculty of Information Technology
  * @university 	Brno University of Technology
  *
  * @author 		Dominik Rohacek
  * Contact: 	RohacekD@gmail.com
  ** ==============================================*/
- 
+
 #pragma once
 
 #include <filesystem>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Shaders {
+namespace GLEngine { namespace GLRenderer { namespace Shaders {
 
 class C_ShaderPreprocessor {
 public:
 	using T_Paths = std::vector<std::filesystem::path>;
-	void Define(const std::string& symbol, const std::string& value);
+	void		Define(const std::string& symbol, const std::string& value);
 	std::string PreprocessFile(const std::string& src, const std::string& filepath);
-	T_Paths GetTouchedPaths() const;
-	bool WasSuccessful() const { return m_Result; }
+	T_Paths		GetTouchedPaths() const;
+	bool		WasSuccessful() const { return m_Result; }
+
 protected:
 	void IncludesFiles(std::string& content, const std::string& filepath);
 	void CodeGeneration(std::string& content);
@@ -43,6 +42,4 @@ protected:
 	const static std::regex s_GenerateStruct;
 	const static std::regex s_DefineRegEx;
 };
-}
-}
-}
+}}} // namespace GLEngine::GLRenderer::Shaders

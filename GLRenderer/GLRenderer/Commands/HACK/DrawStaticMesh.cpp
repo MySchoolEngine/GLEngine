@@ -1,19 +1,16 @@
 #include <GLRendererStdafx.h>
 
 #include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
-
 #include <GLRenderer/Mesh/StaticMeshResource.h>
 
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Commands {
-namespace HACK {
+namespace GLEngine { namespace GLRenderer { namespace Commands { namespace HACK {
 
 //=================================================================================
 C_DrawStaticMesh::C_DrawStaticMesh(std::shared_ptr<Mesh::C_StaticMeshResource> mesh)
 	: m_Mesh(mesh)
-{}
+{
+}
 
 //=================================================================================
 void C_DrawStaticMesh::Commit()
@@ -41,4 +38,4 @@ std::string C_DrawStaticMesh::GetDescriptor() const
 	return std::string("DrawStaticMesh");
 }
 
-}}}}
+}}}} // namespace GLEngine::GLRenderer::Commands::HACK

@@ -2,10 +2,7 @@
 
 #include <GLRenderer/Buffers/UniformBuffer.h>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Buffers {
-namespace UBO {
+namespace GLEngine { namespace GLRenderer { namespace Buffers { namespace UBO {
 
 class C_RainDataBuffer : public C_UniformBuffer {
 public:
@@ -15,8 +12,9 @@ public:
 	void GenerateDrops();
 
 	std::array<glm::ivec2, 100> m_RainDrops;
+
 private:
 	unsigned int m_TextureDimension;
 };
 
-}}}}
+}}}} // namespace GLEngine::GLRenderer::Buffers::UBO

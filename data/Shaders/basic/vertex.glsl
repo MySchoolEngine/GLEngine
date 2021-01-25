@@ -7,10 +7,10 @@ attribute vec2 texCoord;
 attribute vec3 tangent;
 attribute vec3 bitangent;
 
-//per frame
+// per frame
 #include "../include/frameConstants.glsl"
 
-//per model
+// per model
 uniform mat4 modelMatrix;
 
 //=================================================================================
@@ -22,12 +22,12 @@ out mat3 TBN;
 //=================================================================================
 void main()
 {
-	normalOUT = mat3(transpose(inverse(modelMatrix))) * normal;
+	normalOUT	= mat3(transpose(inverse(modelMatrix))) * normal;
 	texCoordOUT = texCoord;
 
 	worldCoord = modelMatrix * vertex;
 
-	TBN = mat3 (tangent, bitangent, normal);
+	TBN = mat3(tangent, bitangent, normal);
 
-    gl_Position = frame.viewProjectionMatrix * worldCoord; //tohle je reálná hloubka
+	gl_Position = frame.viewProjectionMatrix * worldCoord; // tohle je reálná hloubka
 }

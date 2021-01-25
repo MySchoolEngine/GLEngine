@@ -1,9 +1,7 @@
+#include <Utils/Logging/ILogger.h>
 #include <Utils/Logging/Logging.h>
 
-#include <Utils/Logging/ILogger.h>
-
-namespace Utils {
-namespace Logging {
+namespace Utils { namespace Logging {
 
 //=================================================================================
 C_LoggingSystem::C_LoggingSystem()
@@ -37,7 +35,7 @@ void C_LoggingSystem::RemoveLogger(I_Logger* logger)
 }
 
 //=================================================================================
-std::ostream & operator<< (std::ostream &out, const E_Context &c)
+std::ostream& operator<<(std::ostream& out, const E_Context& c)
 {
 	const char* text = nullptr;
 	switch (c)
@@ -57,7 +55,7 @@ std::ostream & operator<< (std::ostream &out, const E_Context &c)
 }
 
 //=================================================================================
-std::ostream & operator<< (std::ostream &out, const E_Level &c)
+std::ostream& operator<<(std::ostream& out, const E_Level& c)
 {
 	const char* text = nullptr;
 	switch (c)
@@ -83,5 +81,4 @@ std::ostream & operator<< (std::ostream &out, const E_Level &c)
 	return out;
 }
 
-}
-}
+}} // namespace Utils::Logging

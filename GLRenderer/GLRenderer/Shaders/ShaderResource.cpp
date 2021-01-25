@@ -3,9 +3,7 @@
 #include <GLRenderer/Shaders/ShaderResource.h>
 
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Shaders {
+namespace GLEngine { namespace GLRenderer { namespace Shaders {
 
 //=================================================================================
 std::unique_ptr<Renderer::I_RawGPUData> C_ShaderResource::ExtractData() const
@@ -25,4 +23,4 @@ bool C_ShaderResource::IsValid()
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
-}}}
+}}} // namespace GLEngine::GLRenderer::Shaders

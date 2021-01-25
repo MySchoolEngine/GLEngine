@@ -7,11 +7,10 @@ namespace GLEngine::Renderer {
 //=================================================================================
 // I_TextureViewStorage
 //=================================================================================
-I_TextureViewStorage::I_TextureViewStorage(std::size_t width, std::size_t height) 
-	: m_Dimensions({ width, height })
-	, m_Channels({ E_TextureChannel::Red, E_TextureChannel::Green, E_TextureChannel::Blue, E_TextureChannel::Alpha })
+I_TextureViewStorage::I_TextureViewStorage(std::size_t width, std::size_t height)
+	: m_Dimensions({width, height})
+	, m_Channels({E_TextureChannel::Red, E_TextureChannel::Green, E_TextureChannel::Blue, E_TextureChannel::Alpha})
 {
-
 }
 
 //=================================================================================
@@ -44,4 +43,4 @@ glm::ivec2 I_TextureViewStorage::GetDimensions() const
 {
 	return m_Dimensions;
 }
-}
+} // namespace GLEngine::Renderer

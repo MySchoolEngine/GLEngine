@@ -2,24 +2,22 @@
  * @file 		UniformBuffersManager.h
  * @date 		2018/03/17 20:04
  * @project 	Computer Graphics Project
- * @faculty 	Faculty of Information Technology 
+ * @faculty 	Faculty of Information Technology
  * @university 	Brno University of Technology
  *
  * @author 		Dominik Rohacek
  * Contact: 	RohacekD@gmail.com
  ** ==============================================*/
- 
+
 #pragma once
 
 #include <glad/glad.h>
-
 #include <memory>
 #include <string>
 #include <vector>
 
 
-namespace GLEngine {
-namespace GLRenderer {
+namespace GLEngine { namespace GLRenderer {
 
 namespace Shaders {
 class C_ShaderProgram;
@@ -47,31 +45,30 @@ class C_UniformBuffersManager {
 public:
 	using T_UBOSmartPtr = std::shared_ptr<C_UniformBuffer>;
 
-	//Singleton stuff
+	// Singleton stuff
 	C_UniformBuffersManager(C_UniformBuffersManager const&) = delete;
-	void operator=(C_UniformBuffersManager const&)			= delete;
+	void							operator=(C_UniformBuffersManager const&) = delete;
 	static C_UniformBuffersManager& Instance();
 
 	void PrintStatistics() const;
 	void Clear();
 
-	void BindUBOs(const Shaders::C_ShaderProgram* program) const;
-	template<class T, typename ...Params>
-	std::shared_ptr<T> CreateUniformBuffer(const std::string& name, Params&&... params);
+	void													  BindUBOs(const Shaders::C_ShaderProgram* program) const;
+	template <class T, typename... Params> std::shared_ptr<T> CreateUniformBuffer(const std::string& name, Params&&... params);
 	// should be used only in debug
 	T_UBOSmartPtr GetBufferByName(const std::string& name) const;
 
 
 	void ProcessUBOBindingPoints(std::shared_ptr<Shaders::C_ShaderProgram> program) const;
+
 private:
 	C_UniformBuffersManager();
 	std::vector<T_UBOSmartPtr> m_BindingPoint;
-	int m_MaxBindingPoints;
+	int						   m_MaxBindingPoints;
 };
 
 //=================================================================================
-template<class T, typename ...Params>
-std::shared_ptr<T> C_UniformBuffersManager::CreateUniformBuffer(const std::string& name, Params&&... params)
+template <class T, typename... Params> std::shared_ptr<T> C_UniformBuffersManager::CreateUniformBuffer(const std::string& name, Params&&... params)
 {
 	GLE_ASSERT(m_BindingPoint.size() < m_MaxBindingPoints, "Too many uniform buffers");
 	auto ubo = std::make_shared<T>(name, static_cast<unsigned int>(m_BindingPoint.size()), std::forward<Params>(params)...);
@@ -80,4 +77,5 @@ std::shared_ptr<T> C_UniformBuffersManager::CreateUniformBuffer(const std::strin
 
 	return ubo;
 }
-}}}
+} // namespace Buffers
+}} // namespace GLEngine::GLRenderer

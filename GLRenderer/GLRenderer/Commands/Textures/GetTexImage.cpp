@@ -1,15 +1,20 @@
 #include <GLRendererStdafx.h>
 
 #include <GLRenderer/Commands/Textures/GetTexImage.h>
+
 #include <Renderer/Textures/TextureStorage.h>
 
 namespace GLEngine::GLRenderer::Commands {
 
 //=================================================================================
-C_GetTexImage::C_GetTexImage(
-	std::promise<std::unique_ptr<Renderer::I_TextureViewStorage>>&& prom, 
-	GLenum target, int level, GLenum format, GLenum type, 
-	std::size_t width, std::size_t height, std::uint8_t channels)
+C_GetTexImage::C_GetTexImage(std::promise<std::unique_ptr<Renderer::I_TextureViewStorage>>&& prom,
+							 GLenum															 target,
+							 int															 level,
+							 GLenum															 format,
+							 GLenum															 type,
+							 std::size_t													 width,
+							 std::size_t													 height,
+							 std::uint8_t													 channels)
 	: m_Promise(std::move(prom))
 	, m_Target(target)
 	, m_Level(level)
@@ -18,7 +23,8 @@ C_GetTexImage::C_GetTexImage(
 	, m_Width(width)
 	, m_Hegiht(height)
 	, m_Channels(channels)
-{}
+{
+}
 
 //=================================================================================
 void C_GetTexImage::Commit()
@@ -40,4 +46,4 @@ std::string C_GetTexImage::GetDescriptor() const
 	return fmt::format("GetTexImage target '{}' level '{}' format '{}' type '{}'", m_Target, m_Level, m_Format, m_Type);
 }
 
-}
+} // namespace GLEngine::GLRenderer::Commands

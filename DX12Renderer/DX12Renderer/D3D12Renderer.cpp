@@ -13,7 +13,6 @@ namespace GLEngine::DX12Renderer {
 C_D3D12Renderer::C_D3D12Renderer()
 	: m_CommandQueue(new std::remove_pointer<decltype(m_CommandQueue)>::type)
 {
-
 }
 
 //=================================================================================
@@ -31,7 +30,8 @@ void C_D3D12Renderer::Lock(bool lock /*= true*/)
 //=================================================================================
 void C_D3D12Renderer::AddCommand(T_CommandPtr command)
 {
-	if (m_Locked) {
+	if (m_Locked)
+	{
 		GL_DebugBreak();
 	}
 	m_CommandQueue->emplace_back(std::move(command));
@@ -64,7 +64,8 @@ void C_D3D12Renderer::TransformData()
 //=================================================================================
 void C_D3D12Renderer::Commit() const
 {
-	for (auto& command : (*m_CommandQueue)) {
+	for (auto& command : (*m_CommandQueue))
+	{
 		command->Commit();
 	}
 }
@@ -81,4 +82,4 @@ Renderer::E_PassType C_D3D12Renderer::GetCurrentPassType() const
 	return Renderer::E_PassType::FinalPass;
 }
 
-}
+} // namespace GLEngine::DX12Renderer

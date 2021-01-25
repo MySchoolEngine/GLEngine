@@ -9,7 +9,6 @@ C_GLMakeTextureHandleResident::C_GLMakeTextureHandleResident(std::uint64_t handl
 	: m_Handle(handle)
 	, m_MakeResident(makeResident)
 {
-
 }
 
 //=================================================================================
@@ -27,4 +26,4 @@ std::string C_GLMakeTextureHandleResident::GetDescriptor() const
 	return std::string("GLMakeTextureHandleResident");
 }
 
-}
+} // namespace GLEngine::GLRenderer::Commands

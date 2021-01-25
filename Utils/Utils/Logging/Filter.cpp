@@ -1,19 +1,18 @@
 #include <Utils/Logging/Filter.h>
 
-namespace Utils {
-namespace Logging {
+namespace Utils { namespace Logging {
 
 //=================================================================================
 C_Filter::C_Filter(C_Filter* innerFilter)
 	: m_InnerFilter(innerFilter)
 {
-
 }
 
 //=================================================================================
 C_Filter::~C_Filter()
 {
-	if (m_InnerFilter) {
+	if (m_InnerFilter)
+	{
 		delete m_InnerFilter;
 	}
 }
@@ -21,10 +20,12 @@ C_Filter::~C_Filter()
 //=================================================================================
 bool C_Filter::Filter(const S_Data& message)
 {
-	if (FilterCheck(message)) {
+	if (FilterCheck(message))
+	{
 		return false;
 	}
-	if (m_InnerFilter) {
+	if (m_InnerFilter)
+	{
 		return m_InnerFilter->Filter(message);
 	}
 
@@ -38,13 +39,13 @@ C_ContextFilter::C_ContextFilter(E_Context context, C_Filter* innerFilter /*= nu
 	: C_Filter(innerFilter)
 	, m_Context(context)
 {
-
 }
 
 //=================================================================================
 bool C_ContextFilter::FilterCheck(const S_Data& message)
 {
-	if (message.m_Context == m_Context) {
+	if (message.m_Context == m_Context)
+	{
 		return true;
 	}
 	return false;
@@ -57,13 +58,13 @@ C_LevelFilter::C_LevelFilter(E_Level Level, C_Filter* innerFilter /*= nullptr*/)
 	: C_Filter(innerFilter)
 	, m_Level(Level)
 {
-
 }
 
 //=================================================================================
 bool C_LevelFilter::FilterCheck(const S_Data& message)
 {
-	if (message.m_Level == m_Level) {
+	if (message.m_Level == m_Level)
+	{
 		return true;
 	}
 	return false;
@@ -76,7 +77,6 @@ C_TextFilter::C_TextFilter(const std::string& text, C_Filter* innerFilter /*= nu
 	: C_Filter(innerFilter)
 	, m_Text(text)
 {
-
 }
 
 //=================================================================================
@@ -100,7 +100,6 @@ C_NegationFilter::C_NegationFilter(C_Filter* negatedFilter, C_Filter* inner)
 	: C_Filter(inner)
 	, m_NegatedFilter(negatedFilter)
 {
-
 }
 
 //=================================================================================
@@ -124,4 +123,4 @@ bool C_NegationFilter::FilterCheck(const S_Data& message)
 	return !m_NegatedFilter->Filter(message);
 }
 
-}}
+}} // namespace Utils::Logging

@@ -13,8 +13,9 @@ class C_Image : public I_GUIPart {
 public:
 	explicit C_Image(const std::shared_ptr<GLRenderer::Textures::C_Texture>& texture);
 	virtual void Draw() const override;
+
 private:
 	std::shared_ptr<GLRenderer::Textures::C_Texture> m_texture;
 };
 
-}
+} // namespace GLEngine::GUI

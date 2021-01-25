@@ -7,11 +7,11 @@
 namespace GLEngine::GUI {
 
 //=================================================================================
-C_Window::C_Window(GUID guid, const std::string& name) : m_GUID(guid)
-, m_Name(name)
-, m_IsVisible(false)
+C_Window::C_Window(GUID guid, const std::string& name)
+	: m_GUID(guid)
+	, m_Name(name)
+	, m_IsVisible(false)
 {
-
 }
 
 //=================================================================================
@@ -81,4 +81,4 @@ GUID C_Window::AddMenu(T_GUIMenu menuItem)
 	return guid;
 }
 
-}
+} // namespace GLEngine::GUI

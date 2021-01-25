@@ -4,8 +4,7 @@
 
 #include <Core/EventSystem/Event/InputEvents.h>
 
-namespace GLEngine {
-namespace Core {
+namespace GLEngine { namespace Core {
 //=================================================================================
 class C_KeyEvent : public C_InputEvent {
 public:
@@ -14,21 +13,22 @@ public:
 protected:
 	C_KeyEvent(int keyCode, GUID window)
 		: C_InputEvent(window)
-		, m_KeyCode(keyCode) {}
+		, m_KeyCode(keyCode)
+	{
+	}
 	int m_KeyCode;
 
-	virtual Utils::C_BitField<E_EventCategory> GetInputCategory() const override
-	{
-		return E_EventCategory::Keyboard;
-	}
+	virtual Utils::C_BitField<E_EventCategory> GetInputCategory() const override { return E_EventCategory::Keyboard; }
 };
 
 //=================================================================================
 class C_KeyPressedEvent : public C_KeyEvent {
 public:
-	template<class ... Args>
-	C_KeyPressedEvent(Args&&... args) 
-		: C_KeyEvent(std::forward<Args>(args)...) {}
+	template <class... Args>
+	C_KeyPressedEvent(Args&&... args)
+		: C_KeyEvent(std::forward<Args>(args)...)
+	{
+	}
 
 	EVENT_CLASS_TYPE(KeyPressed);
 };
@@ -36,9 +36,11 @@ public:
 //=================================================================================
 class C_KeyRepeatedEvent : public C_KeyEvent {
 public:
-	template<class ... Args>
+	template <class... Args>
 	C_KeyRepeatedEvent(Args&&... args)
-		: C_KeyEvent(std::forward<Args>(args)...) {}
+		: C_KeyEvent(std::forward<Args>(args)...)
+	{
+	}
 
 	EVENT_CLASS_TYPE(KeyRepeated);
 };
@@ -46,9 +48,11 @@ public:
 //=================================================================================
 class C_KeyReleasedEvent : public C_KeyEvent {
 public:
-	template<class ... Args>
+	template <class... Args>
 	C_KeyReleasedEvent(Args&&... args)
-		: C_KeyEvent(std::forward<Args>(args)...) {}
+		: C_KeyEvent(std::forward<Args>(args)...)
+	{
+	}
 
 	EVENT_CLASS_TYPE(KeyReleased);
 };
@@ -57,21 +61,19 @@ public:
 //=================================================================================
 class C_TextInputEvent : public C_InputEvent {
 public:
-
 	C_TextInputEvent(unsigned int codepoint, GUID window)
 		: C_InputEvent(window)
-		, m_Codepoint(codepoint) 
-	{}
+		, m_Codepoint(codepoint)
+	{
+	}
 
 	inline int GetCodePoint() const { return m_Codepoint; }
 
 	EVENT_CLASS_TYPE(TextInput);
+
 protected:
 	unsigned int m_Codepoint;
 
-	virtual Utils::C_BitField<E_EventCategory> GetInputCategory() const override
-	{
-		return E_EventCategory::Keyboard;
-	}
+	virtual Utils::C_BitField<E_EventCategory> GetInputCategory() const override { return E_EventCategory::Keyboard; }
 };
-}}
+}} // namespace GLEngine::Core

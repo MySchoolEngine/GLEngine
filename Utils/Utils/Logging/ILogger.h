@@ -1,15 +1,13 @@
 #pragma once
 
+#include <Utils/Logging/LoggingTypes.h>
 #include <Utils/UtilsApi.h>
 
-#include <Utils/Logging/LoggingTypes.h>
-
-#include <string>
-#include <fstream>
 #include <filesystem>
+#include <fstream>
+#include <string>
 
-namespace Utils {
-namespace Logging {
+namespace Utils { namespace Logging {
 
 class UTILS_API_EXPORT I_Logger {
 public:
@@ -31,5 +29,4 @@ public:
 protected:
 	std::ofstream* m_file;
 };
-}
-}
+}} // namespace Utils::Logging

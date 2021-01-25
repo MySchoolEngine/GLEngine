@@ -1,19 +1,16 @@
 #include <GLRendererStdafx.h>
 
 #include <GLRenderer/GLFW/GLFWoGLWindow.h>
-
 #include <GLRenderer/GLFW/OpenGLWindowInfo.h>
-#include <Renderer/IRenderer.h>
-
 #include <GLRenderer/OGLRenderer.h>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace GLFW {
+#include <Renderer/IRenderer.h>
+
+namespace GLEngine { namespace GLRenderer { namespace GLFW {
 
 //=================================================================================
 C_GLFWoGLWindow::C_GLFWoGLWindow(const Core::S_WindowInfo& wndInfo)
-	:  m_renderer(nullptr)
+	: m_renderer(nullptr)
 {
 	Init(wndInfo);
 }
@@ -59,4 +56,4 @@ void C_GLFWoGLWindow::OnEvent(Core::I_Event& event)
 {
 }
 
-}}}
+}}} // namespace GLEngine::GLRenderer::GLFW

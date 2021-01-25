@@ -2,18 +2,14 @@
 
 #include <memory>
 
-namespace GLEngine {
-namespace Renderer {
+namespace GLEngine { namespace Renderer {
 
 class I_RenderableComponent;
 class I_RawGPUData;
 
-template<class Extractor>
-class I_Extractor {
+template <class Extractor> class I_Extractor {
 public:
-	static std::unique_ptr<I_RawGPUData> Extract(std::shared_ptr<I_RenderableComponent> component) {
-		return Extractor::ExtractInner(component);
-	}
+	static std::unique_ptr<I_RawGPUData> Extract(std::shared_ptr<I_RenderableComponent> component) { return Extractor::ExtractInner(component); }
 };
 
 // leave it here for documentation now
@@ -24,6 +20,4 @@ public:
 	}
 };*/
 
-}
-}
-
+}} // namespace GLEngine::Renderer

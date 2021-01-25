@@ -2,8 +2,7 @@
 
 #include <memory>
 
-namespace GLEngine {
-namespace Renderer {
+namespace GLEngine { namespace Renderer {
 
 class I_Resource;
 
@@ -22,7 +21,9 @@ class I_Resource;
 class I_RawGPUData {
 public:
 	explicit I_RawGPUData(std::shared_ptr<I_Resource> res)
-		: m_Resource(res) {}
+		: m_Resource(res)
+	{
+	}
 	virtual ~I_RawGPUData() = default;
 	/** ==============================================
 	 * @method:    Size
@@ -30,12 +31,11 @@ public:
 	 * @brief	   It is here for statistics. Should return # of bytes it
 	 *			   takes after extraction.
 	 ** ==============================================*/
-	virtual std::size_t Size() const = 0;
+	virtual std::size_t						  Size() const = 0;
 	[[nodiscard]] std::shared_ptr<I_Resource> GetResource() const { return m_Resource; }
 
 protected:
 	std::shared_ptr<I_Resource> m_Resource;
 };
 
-}
-}
+}} // namespace GLEngine::Renderer

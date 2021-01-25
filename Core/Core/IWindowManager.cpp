@@ -4,8 +4,7 @@
 #include <Core/WindowInfo.h>
 
 
-namespace GLEngine {
-namespace Core {
+namespace GLEngine { namespace Core {
 
 //=================================================================================
 I_WindowManager::I_WindowManager(C_Application::EventCallbackFn callback)
@@ -13,7 +12,6 @@ I_WindowManager::I_WindowManager(C_Application::EventCallbackFn callback)
 	, m_EventCallback(callback)
 	, m_Facotries(new std::remove_pointer<decltype(m_Facotries)>::type)
 {
-
 }
 
 //=================================================================================
@@ -35,13 +33,15 @@ void I_WindowManager::AddWindowFactory(I_WindowFactory* wf)
 //=================================================================================
 std::shared_ptr<Core::I_Window> I_WindowManager::ConstructWindow(const S_WindowInfo& info) const
 {
-	for (const auto * wf : *m_Facotries) {
+	for (const auto* wf : *m_Facotries)
+	{
 		auto window = wf->GetWindow(info);
-		if (window) {
+		if (window)
+		{
 			return window;
 		}
 	}
 	return nullptr;
 }
 
-}}
+}} // namespace GLEngine::Core

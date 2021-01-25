@@ -10,4 +10,4 @@ public:
 	virtual void Draw() const = 0;
 };
 
-}
+} // namespace GLEngine::GUI

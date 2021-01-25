@@ -1,27 +1,27 @@
-#pragma once 
+#pragma once
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Shaders {
+namespace GLEngine { namespace GLRenderer { namespace Shaders {
 
 //=================================================================================
-template<>
-inline int C_ShaderProgram::FindLocation(const char* name)
+template <> inline int C_ShaderProgram::FindLocation(const char* name)
 {
 	GLint location = -1;
-	auto hash = std::hash<std::string>{}(name);
+	auto  hash	   = std::hash<std::string>{}(name);
 
 	const auto it = m_uniformMap.find(hash);
-	if (it != m_uniformMap.end()) {
+	if (it != m_uniformMap.end())
+	{
 		location = it->second;
 	}
-	else {
-		location = glGetUniformLocation(m_Program, name);
+	else
+	{
+		location		   = glGetUniformLocation(m_Program, name);
 		m_uniformMap[hash] = location;
 	}
 
 #if _DEBUG
-	if (location < 0) {
+	if (location < 0)
+	{
 		CORE_LOG(E_Level::Warning, E_Context::Render, "Program '{}' doesn't have uniform: {}", m_name, name);
 	}
 #endif
@@ -30,23 +30,25 @@ inline int C_ShaderProgram::FindLocation(const char* name)
 }
 
 //=================================================================================
-template<>
-inline int C_ShaderProgram::FindLocation(const std::string& name)
+template <> inline int C_ShaderProgram::FindLocation(const std::string& name)
 {
 	GLint location = -1;
-	auto hash = std::hash<std::string>{}(name);
+	auto  hash	   = std::hash<std::string>{}(name);
 
 	const auto it = m_uniformMap.find(hash);
-	if (it != m_uniformMap.end()) {
+	if (it != m_uniformMap.end())
+	{
 		location = it->second;
 	}
-	else {
-		location = glGetUniformLocation(m_Program, name.c_str());
+	else
+	{
+		location		   = glGetUniformLocation(m_Program, name.c_str());
 		m_uniformMap[hash] = location;
 	}
 
 #if _DEBUG
-	if (location < 0) {
+	if (location < 0)
+	{
 		CORE_LOG(E_Level::Warning, E_Context::Render, "Program '{}' doesn't have uniform: {}", m_name, name);
 	}
 #endif
@@ -55,8 +57,7 @@ inline int C_ShaderProgram::FindLocation(const std::string& name)
 }
 
 //=================================================================================
-template<class N>
-void C_ShaderProgram::SetUniform(N name, const int & value)
+template <class N> void C_ShaderProgram::SetUniform(N name, const int& value)
 {
 	auto loc = FindLocation(name);
 	if (loc >= 0)
@@ -66,8 +67,7 @@ void C_ShaderProgram::SetUniform(N name, const int & value)
 }
 
 //=================================================================================
-template<class N>
-void C_ShaderProgram::SetUniform(N name, const bool& value)
+template <class N> void C_ShaderProgram::SetUniform(N name, const bool& value)
 {
 	auto loc = FindLocation(name);
 	if (loc >= 0)
@@ -77,8 +77,7 @@ void C_ShaderProgram::SetUniform(N name, const bool& value)
 }
 
 //=================================================================================
-template<class N>
-void C_ShaderProgram::SetUniform(N name, const glm::mat4 & value)
+template <class N> void C_ShaderProgram::SetUniform(N name, const glm::mat4& value)
 {
 	auto loc = FindLocation(name);
 	if (loc >= 0)
@@ -88,8 +87,7 @@ void C_ShaderProgram::SetUniform(N name, const glm::mat4 & value)
 }
 
 //=================================================================================
-template<class N>
-void C_ShaderProgram::SetUniform(N name, const glm::vec4 & value)
+template <class N> void C_ShaderProgram::SetUniform(N name, const glm::vec4& value)
 {
 	auto loc = FindLocation(name);
 	if (loc >= 0)
@@ -99,8 +97,7 @@ void C_ShaderProgram::SetUniform(N name, const glm::vec4 & value)
 }
 
 //=================================================================================
-template<class N>
-void C_ShaderProgram::SetUniform(N name, const glm::vec3 & value)
+template <class N> void C_ShaderProgram::SetUniform(N name, const glm::vec3& value)
 {
 	auto loc = FindLocation(name);
 	if (loc >= 0)
@@ -110,8 +107,7 @@ void C_ShaderProgram::SetUniform(N name, const glm::vec3 & value)
 }
 
 //=================================================================================
-template<class N>
-void C_ShaderProgram::SetUniform(N name, const glm::ivec2 & value)
+template <class N> void C_ShaderProgram::SetUniform(N name, const glm::ivec2& value)
 {
 	auto loc = FindLocation(name);
 	if (loc >= 0)
@@ -121,8 +117,7 @@ void C_ShaderProgram::SetUniform(N name, const glm::ivec2 & value)
 }
 
 //=================================================================================
-template<class N>
-void C_ShaderProgram::SetUniform(N name, const glm::vec2 & value)
+template <class N> void C_ShaderProgram::SetUniform(N name, const glm::vec2& value)
 {
 	auto loc = FindLocation(name);
 	if (loc >= 0)
@@ -132,8 +127,7 @@ void C_ShaderProgram::SetUniform(N name, const glm::vec2 & value)
 }
 
 //=================================================================================
-template<class N>
-void C_ShaderProgram::SetUniform(N name, const std::vector<float> & value)
+template <class N> void C_ShaderProgram::SetUniform(N name, const std::vector<float>& value)
 {
 	auto loc = FindLocation(name);
 	if (loc >= 0)
@@ -143,8 +137,7 @@ void C_ShaderProgram::SetUniform(N name, const std::vector<float> & value)
 }
 
 //=================================================================================
-template<class N>
-void C_ShaderProgram::SetUniform(N name, const std::vector<int> & value)
+template <class N> void C_ShaderProgram::SetUniform(N name, const std::vector<int>& value)
 {
 	auto loc = FindLocation(name);
 	if (loc >= 0)
@@ -154,8 +147,7 @@ void C_ShaderProgram::SetUniform(N name, const std::vector<int> & value)
 }
 
 //=================================================================================
-template<class N>
-void C_ShaderProgram::SetUniform(N name, const float & value)
+template <class N> void C_ShaderProgram::SetUniform(N name, const float& value)
 {
 	auto loc = FindLocation(name);
 	if (loc >= 0)
@@ -165,8 +157,7 @@ void C_ShaderProgram::SetUniform(N name, const float & value)
 }
 
 //=================================================================================
-template<class N>
-void C_ShaderProgram::SetUniform(N name, const std::vector<glm::mat4>& value)
+template <class N> void C_ShaderProgram::SetUniform(N name, const std::vector<glm::mat4>& value)
 {
 	auto loc = FindLocation(name);
 	if (loc >= 0)
@@ -176,17 +167,15 @@ void C_ShaderProgram::SetUniform(N name, const std::vector<glm::mat4>& value)
 }
 
 //=================================================================================
-template<>
-inline int C_ShaderProgram::FindUniformBlockLocation<const std::string&>(const std::string& name) const
+template <> inline int C_ShaderProgram::FindUniformBlockLocation<const std::string&>(const std::string& name) const
 {
 	return glGetUniformBlockIndex(m_Program, name.c_str());
 }
 
 //=================================================================================
-template<>
-inline int C_ShaderProgram::FindUniformBlockLocation<const char*>(const char* name) const
+template <> inline int C_ShaderProgram::FindUniformBlockLocation<const char*>(const char* name) const
 {
 	return glGetUniformBlockIndex(m_Program, name);
 }
 
-}}}
+}}} // namespace GLEngine::GLRenderer::Shaders

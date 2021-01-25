@@ -2,7 +2,7 @@
  * @file 		RenderDocTools.h
  * @date 		2018/03/17 19:55
  * @project 	Computer Graphics Project
- * @faculty 	Faculty of Information Technology 
+ * @faculty 	Faculty of Information Technology
  * @university 	Brno University of Technology
  *
  * @author 		Dominik Rohacek
@@ -11,12 +11,10 @@
  * @brief Helper functions for OpenGL to RenderDoc information passing.
  *
  ** ==============================================*/
- 
+
 #pragma once
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace RenderDoc {
+namespace GLEngine { namespace GLRenderer { namespace RenderDoc {
 /** ==============================================
  * @class C_DebugScope
  *
@@ -34,4 +32,4 @@ public:
 	explicit C_DebugScope(const std::string& scopeName);
 	~C_DebugScope();
 };
-}}}
+}}} // namespace GLEngine::GLRenderer::RenderDoc

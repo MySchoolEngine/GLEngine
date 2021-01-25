@@ -2,19 +2,19 @@
 
 in vec3 vertex;
 
-//per frame
+// per frame
 #include "../include/frameConstants.glsl"
 
-//per model
+// per model
 
-out vec3 uv;
+out vec3	 uv;
 uniform mat4 projMatrix;
 uniform mat4 viewMatrix;
 
 //=================================================================================
 void main()
 {
-	uv = vertex;
-	vec4 pos = frame.viewProjectionMatrix * vec4(vertex, 1.0);
-    gl_Position = pos.xyww;
+	uv			= vertex;
+	vec4 pos	= frame.viewProjectionMatrix * vec4(vertex, 1.0);
+	gl_Position = pos.xyww;
 }

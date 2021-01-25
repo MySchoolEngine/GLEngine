@@ -17,4 +17,3 @@
 		#define GL_RENDERER_API_EXPORT
 	#endif
 #endif
-

@@ -1,31 +1,28 @@
 #include <GLRendererStdafx.h>
 
-#include <GLRenderer/Components/SkeletalMesh.h>
-
 #include <GLRenderer/Buffers/UBO/JointTransformsUBO.h>
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
-
-#include <GLRenderer/Shaders/ShaderManager.h>
-#include <GLRenderer/Shaders/ShaderProgram.h>
-
 #include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
+#include <GLRenderer/Components/SkeletalMesh.h>
+#include <GLRenderer/Shaders/ShaderManager.h>
+#include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/Textures/TextureManager.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 
 #include <Renderer/Animation/ColladaLoading/ColladaLoader.h>
-#include <Renderer/Mesh/Scene.h>
 #include <Renderer/IRenderer.h>
-
-#include <Utils/HighResolutionTimer.h>
+#include <Renderer/Mesh/Scene.h>
 
 #include <Core/Application.h>
 
+#include <Utils/HighResolutionTimer.h>
+
 
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/transform.hpp>
-
 #include <GLRenderer/Debug.h>
+
+#include <glm/gtx/transform.hpp>
 
 #include <pugixml.hpp>
 
@@ -41,9 +38,9 @@ void C_SkeletalMesh::DebugDrawGUI()
 	m_AnimationProgress.Draw();
 
 	std::function<void(const Renderer::Animation::S_Joint&)> DrawJointGUI;
-	DrawJointGUI = [&DrawJointGUI](const Renderer::Animation::S_Joint& joint)
-	{
-		if (::ImGui::CollapsingHeader(joint.m_Name.c_str())) {
+	DrawJointGUI = [&DrawJointGUI](const Renderer::Animation::S_Joint& joint) {
+		if (::ImGui::CollapsingHeader(joint.m_Name.c_str()))
+		{
 			const auto& pos = (joint.GetAnimatedTransform()) * zeroVec;
 			::ImGui::Text("Original pos: [%f, %f, %f]", pos.x, pos.y, pos.z);
 			for (const auto& child : joint.m_Children)
@@ -78,36 +75,31 @@ void C_SkeletalMesh::PerformDraw() const
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.BindTextureToUnit(*m_Texture, 0);
 
-	auto& shmgr = Shaders::C_ShaderManager::Instance();
-	auto shader = shmgr.GetProgram("animation");
+	auto& shmgr	 = Shaders::C_ShaderManager::Instance();
+	auto  shader = shmgr.GetProgram("animation");
 	shmgr.ActivateShader(shader);
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
-		std::move(
-			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[&, shader]() {
-					shader->SetUniform("modelMatrix", m_ModelMatrix * glm::rotate(-glm::half_pi<float>(), glm::vec3(1.f, .0f, .0f)));
+	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+		[&, shader]() {
+			shader->SetUniform("modelMatrix", m_ModelMatrix * glm::rotate(-glm::half_pi<float>(), glm::vec3(1.f, .0f, .0f)));
 
-					m_VAO.bind();
+			m_VAO.bind();
 
-					const auto& pose = m_Animation.GetPose(m_AnimationProgress.GetValue());
-					auto transofrms = pose.GetModelSpaceTransofrms();
+			const auto& pose	   = m_Animation.GetPose(m_AnimationProgress.GetValue());
+			auto		transofrms = pose.GetModelSpaceTransofrms();
 
-					m_Skeleton.ApplyPoseToBones(transofrms);
+			m_Skeleton.ApplyPoseToBones(transofrms);
 
-					shader->SetUniform("transforms", transofrms);
+			shader->SetUniform("transforms", transofrms);
 
-					// this wont work with my current UBO manager so that means! @todo!
-					// m_TransformationUBO->UploadData();
-					// m_TransformationUBO->Activate(true);
-	
-					glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_triangles));
-					m_VAO.unbind();
-				}
-				, "SkeletalMesh - Draw"
-			)
-		)
-	);
+			// this wont work with my current UBO manager so that means! @todo!
+			// m_TransformationUBO->UploadData();
+			// m_TransformationUBO->Activate(true);
+
+			glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_triangles));
+			m_VAO.unbind();
+		},
+		"SkeletalMesh - Draw")));
 }
 
 //=================================================================================
@@ -136,7 +128,7 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, std::str
 	Utils::HighResolutionTimer timer;
 	timer.reset();
 
-	Renderer::MeshData::Mesh mesh;
+	Renderer::MeshData::Mesh		  mesh;
 	Renderer::MeshData::AnimationData animData;
 
 
@@ -146,7 +138,7 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, std::str
 		return;
 	}
 
-	//m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(mesh);
+	// m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(mesh);
 
 	CORE_LOG(E_Level::Info, E_Context::Render, "Parsing skeleton file took {}ms", timer.getElapsedTimeFromLastQueryMilliseconds());
 
@@ -161,7 +153,7 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, std::str
 	}
 
 	auto& tmgr = Textures::C_TextureManager::Instance();
-	m_Texture = tmgr.GetTexture(texurePath);
+	m_Texture  = tmgr.GetTexture(texurePath);
 	if (!m_Texture)
 		return;
 
@@ -173,16 +165,16 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, std::str
 	m_Texture->EndGroupOp();
 
 	// setup joint transforms
-	auto& UBOMan = Buffers::C_UniformBuffersManager::Instance();
+	auto& UBOMan		= Buffers::C_UniformBuffersManager::Instance();
 	m_TransformationUBO = UBOMan.CreateUniformBuffer<Buffers::UBO::C_JointTramsformsUBO>("jointTransforms", m_Skeleton.GetNumBones());
 
-	//m_TransformationUBO->SetTransforms(m_Animation.GetTransform(0.f));
+	// m_TransformationUBO->SetTransforms(m_Animation.GetTransform(0.f));
 
 	// setup VAO
 	static_assert(sizeof(glm::vec3) == sizeof(GLfloat) * 3, "Platform doesn't support this directly.");
 
 	m_triangles = mesh.vertices.size();
-	m_AABB = mesh.bbox;
+	m_AABB		= mesh.bbox;
 
 	m_VAO.bind();
 	m_VAO.SetBuffer<0, GL_ARRAY_BUFFER>(mesh.vertices);
@@ -228,4 +220,4 @@ std::shared_ptr<Entity::I_Component> C_SkeletalMeshBuilder::Build(const pugi::xm
 	return nullptr;
 }
 
-}
+} // namespace GLEngine::GLRenderer::Components

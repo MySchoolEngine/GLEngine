@@ -17,4 +17,3 @@
 		#define ENTITY_API_EXPORT
 	#endif
 #endif
-
