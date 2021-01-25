@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <type_traits>
 
 // https://stackoverflow.com/a/47020053/3243840
 constexpr int32_t basename_index(const char* const path, const int32_t index = 0, const int32_t slash_index = -1)
