@@ -17,10 +17,8 @@ C_JointTramsformsUBO::C_JointTramsformsUBO(const std::string& blockNamem, unsign
 void C_JointTramsformsUBO::SetTransforms(std::vector<Renderer::Animation::S_BoneKeyframe>&& boneKeyframes)
 {
 	GLE_ASSERT(m_JointTransforms.size() == boneKeyframes.size(), "You are setting wrong animation data to UBO for different skeleton");
-	std::transform(boneKeyframes.begin(), boneKeyframes.end(), m_JointTransforms.begin(), 
-		[](const Renderer::Animation::S_BoneKeyframe& keyFrame) {
-			return keyFrame.GetTransformationMatrix();
-		});
+	std::transform(boneKeyframes.begin(), boneKeyframes.end(), m_JointTransforms.begin(),
+				   [](const Renderer::Animation::S_BoneKeyframe& keyFrame) { return keyFrame.GetTransformationMatrix(); });
 }
 
 //=================================================================================
@@ -40,4 +38,4 @@ void C_JointTramsformsUBO::UploadData() const
 	unbind();
 }
 
-}
+} // namespace GLEngine::GLRenderer::Buffers::UBO

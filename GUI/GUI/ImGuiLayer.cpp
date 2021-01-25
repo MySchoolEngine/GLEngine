@@ -3,15 +3,14 @@
 #include <GUI/ImGuiLayer.h>
 
 #include <Core/Application.h>
-#include <Core/IWindowManager.h>
-#include <Core/IWindow.h>
-
-#include <Core/EventSystem/EventDispatcher.h>
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/Event/MouseEvents.h>
+#include <Core/EventSystem/EventDispatcher.h>
+#include <Core/IWindow.h>
+#include <Core/IWindowManager.h>
 
-#include <imgui.h>
 #include <GLFW/glfw3.h>
+#include <imgui.h>
 
 namespace GLEngine::GUI {
 
@@ -22,7 +21,6 @@ C_ImGuiLayer::C_ImGuiLayer(GUID window)
 	, m_Window(window)
 	, m_Time(0.0f)
 {
-
 }
 
 //=================================================================================
@@ -38,28 +36,27 @@ void C_ImGuiLayer::OnAttach()
 	io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
 	io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
 
-	io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;
-	io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
+	io.KeyMap[ImGuiKey_Tab]		   = GLFW_KEY_TAB;
+	io.KeyMap[ImGuiKey_LeftArrow]  = GLFW_KEY_LEFT;
 	io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
-	io.KeyMap[ImGuiKey_UpArrow] = GLFW_KEY_UP;
-	io.KeyMap[ImGuiKey_DownArrow] = GLFW_KEY_DOWN;
-	io.KeyMap[ImGuiKey_PageUp] = GLFW_KEY_PAGE_UP;
-	io.KeyMap[ImGuiKey_PageDown] = GLFW_KEY_PAGE_DOWN;
-	io.KeyMap[ImGuiKey_Home] = GLFW_KEY_HOME;
-	io.KeyMap[ImGuiKey_End] = GLFW_KEY_END;
-	io.KeyMap[ImGuiKey_Insert] = GLFW_KEY_INSERT;
-	io.KeyMap[ImGuiKey_Delete] = GLFW_KEY_DELETE;
-	io.KeyMap[ImGuiKey_Backspace] = GLFW_KEY_BACKSPACE;
-	io.KeyMap[ImGuiKey_Space] = GLFW_KEY_SPACE;
-	io.KeyMap[ImGuiKey_Enter] = GLFW_KEY_ENTER;
-	io.KeyMap[ImGuiKey_Escape] = GLFW_KEY_ESCAPE;
-	io.KeyMap[ImGuiKey_A] = GLFW_KEY_A;
-	io.KeyMap[ImGuiKey_C] = GLFW_KEY_C;
-	io.KeyMap[ImGuiKey_V] = GLFW_KEY_V;
-	io.KeyMap[ImGuiKey_X] = GLFW_KEY_X;
-	io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
-	io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
-
+	io.KeyMap[ImGuiKey_UpArrow]	   = GLFW_KEY_UP;
+	io.KeyMap[ImGuiKey_DownArrow]  = GLFW_KEY_DOWN;
+	io.KeyMap[ImGuiKey_PageUp]	   = GLFW_KEY_PAGE_UP;
+	io.KeyMap[ImGuiKey_PageDown]   = GLFW_KEY_PAGE_DOWN;
+	io.KeyMap[ImGuiKey_Home]	   = GLFW_KEY_HOME;
+	io.KeyMap[ImGuiKey_End]		   = GLFW_KEY_END;
+	io.KeyMap[ImGuiKey_Insert]	   = GLFW_KEY_INSERT;
+	io.KeyMap[ImGuiKey_Delete]	   = GLFW_KEY_DELETE;
+	io.KeyMap[ImGuiKey_Backspace]  = GLFW_KEY_BACKSPACE;
+	io.KeyMap[ImGuiKey_Space]	   = GLFW_KEY_SPACE;
+	io.KeyMap[ImGuiKey_Enter]	   = GLFW_KEY_ENTER;
+	io.KeyMap[ImGuiKey_Escape]	   = GLFW_KEY_ESCAPE;
+	io.KeyMap[ImGuiKey_A]		   = GLFW_KEY_A;
+	io.KeyMap[ImGuiKey_C]		   = GLFW_KEY_C;
+	io.KeyMap[ImGuiKey_V]		   = GLFW_KEY_V;
+	io.KeyMap[ImGuiKey_X]		   = GLFW_KEY_X;
+	io.KeyMap[ImGuiKey_Y]		   = GLFW_KEY_Y;
+	io.KeyMap[ImGuiKey_Z]		   = GLFW_KEY_Z;
 }
 
 //=================================================================================
@@ -77,9 +74,9 @@ void C_ImGuiLayer::OnUpdate()
 //=================================================================================
 void C_ImGuiLayer::FrameBegin()
 {
-	auto window = Core::C_Application::Get().GetWndMgr().GetWindow(m_Window);
-	ImGuiIO& io = ::ImGui::GetIO();
-	io.DisplaySize = ImVec2(static_cast<float>(window->GetWidth()), static_cast<float>(window->GetHeight()));
+	auto	 window = Core::C_Application::Get().GetWndMgr().GetWindow(m_Window);
+	ImGuiIO& io		= ::ImGui::GetIO();
+	io.DisplaySize	= ImVec2(static_cast<float>(window->GetWidth()), static_cast<float>(window->GetHeight()));
 
 	::ImGui::NewFrame();
 }
@@ -119,10 +116,10 @@ GUI::C_GUIManager& C_ImGuiLayer::GetGUIMgr()
 //=================================================================================
 bool C_ImGuiLayer::OnKeyPressed(Core::C_KeyPressedEvent& event)
 {
-	ImGuiIO& io = ::ImGui::GetIO();
+	ImGuiIO& io						= ::ImGui::GetIO();
 	io.KeysDown[event.GetKeyCode()] = true;
-	
-	io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
+
+	io.KeyCtrl	= io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
 	io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
 	return io.WantCaptureKeyboard;
 }
@@ -130,12 +127,12 @@ bool C_ImGuiLayer::OnKeyPressed(Core::C_KeyPressedEvent& event)
 //=================================================================================
 bool C_ImGuiLayer::OnKeyReleased(Core::C_KeyReleasedEvent& event)
 {
-	ImGuiIO& io = ::ImGui::GetIO();
+	ImGuiIO& io						= ::ImGui::GetIO();
 	io.KeysDown[event.GetKeyCode()] = false;
 
-	io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
+	io.KeyCtrl	= io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
 	io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT] || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
-	io.KeyAlt = io.KeysDown[GLFW_KEY_LEFT_ALT] || io.KeysDown[GLFW_KEY_RIGHT_ALT];
+	io.KeyAlt	= io.KeysDown[GLFW_KEY_LEFT_ALT] || io.KeysDown[GLFW_KEY_RIGHT_ALT];
 	io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
 	return io.WantCaptureKeyboard;
 }
@@ -153,7 +150,7 @@ bool C_ImGuiLayer::OnTextEvent(Core::C_TextInputEvent& event)
 //=================================================================================
 bool C_ImGuiLayer::OnMouseButtonPressedEvent(Core::C_MouseButtonPressed& e)
 {
-	ImGuiIO& io = ::ImGui::GetIO();
+	ImGuiIO& io						 = ::ImGui::GetIO();
 	io.MouseDown[e.GetMouseButton()] = true;
 
 	return CapturingMouse();
@@ -162,7 +159,7 @@ bool C_ImGuiLayer::OnMouseButtonPressedEvent(Core::C_MouseButtonPressed& e)
 //=================================================================================
 bool C_ImGuiLayer::OnMouseButtonReleasedEvent(Core::C_MouseButtonReleased& e)
 {
-	ImGuiIO& io = ::ImGui::GetIO();
+	ImGuiIO& io						 = ::ImGui::GetIO();
 	io.MouseDown[e.GetMouseButton()] = false;
 
 	return CapturingMouse();
@@ -193,4 +190,4 @@ ImDrawData* C_ImGuiLayer::GetRenderData()
 	return ::ImGui::GetDrawData();
 }
 
-}
+} // namespace GLEngine::GUI

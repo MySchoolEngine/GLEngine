@@ -14,9 +14,10 @@ public:
 	virtual void PostUpdate() override;
 
 	virtual void DrawContents() = 0;
+
 protected:
-	std::string	m_Title;
-	bool				m_Show;
+	std::string m_Title;
+	bool		m_Show;
 };
 
-}
+} // namespace GLEngine::Entity

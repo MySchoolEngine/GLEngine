@@ -19,4 +19,3 @@
 	#endif
 	#define RENDERER_TEMPLATE_EXPORT extern
 #endif
-

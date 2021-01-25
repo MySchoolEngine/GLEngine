@@ -7,7 +7,8 @@ namespace GLEngine::GLRenderer::Commands {
 //=================================================================================
 C_GLActivateTexture::C_GLActivateTexture(unsigned int unit)
 	: m_Unit(unit)
-{}
+{
+}
 
 //=================================================================================
 void C_GLActivateTexture::Commit()
@@ -27,4 +28,4 @@ std::string C_GLActivateTexture::GetDescriptor() const
 	return fmt::format("ActivateTexture unit: {}", m_Unit);
 }
 
-}
+} // namespace GLEngine::GLRenderer::Commands

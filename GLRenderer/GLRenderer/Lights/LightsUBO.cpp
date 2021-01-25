@@ -1,9 +1,8 @@
 #include <GLRendererStdafx.h>
 
 #include <GLRenderer/Lights/LightsUBO.h>
-
-#include <GLRenderer/Textures/TextureLoader.h>
 #include <GLRenderer/Textures/Texture.h>
+#include <GLRenderer/Textures/TextureLoader.h>
 
 
 namespace GLEngine::GLRenderer {
@@ -14,10 +13,10 @@ C_LightsBuffer::C_LightsBuffer(const std::string& blockName, unsigned int index)
 {
 
 	constexpr auto pointLightSize = sizeof(m_PointLight);
-	constexpr auto areaLightSize = sizeof(m_AreaLight);
+	constexpr auto areaLightSize  = sizeof(m_AreaLight);
 
 	C_UniformBuffer::bind();
-	glBufferData(GL_UNIFORM_BUFFER, pointLightSize + areaLightSize + sizeof(std::uint64_t)*2, &(m_PointLight[0].m_Position), GL_DYNAMIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, pointLightSize + areaLightSize + sizeof(std::uint64_t) * 2, &(m_PointLight[0].m_Position), GL_DYNAMIC_DRAW);
 	C_UniformBuffer::unbind();
 	ErrorCheck();
 
@@ -49,7 +48,7 @@ C_LightsBuffer::C_LightsBuffer(const std::string& blockName, unsigned int index)
 void C_LightsBuffer::UploadData() const
 {
 	bind();
-	constexpr auto size = sizeof(m_PointLight) + sizeof(m_AreaLight) + sizeof(std::uint64_t)*2;
+	constexpr auto size = sizeof(m_PointLight) + sizeof(m_AreaLight) + sizeof(std::uint64_t) * 2;
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, size, &(m_PointLight[0].m_Position));
 	unbind();
 }
@@ -61,4 +60,4 @@ void C_LightsBuffer::MakeHandlesResident(bool val /*= true*/)
 	m_LTCMagTexture->MakeHandleResident(val);
 }
 
-}
+} // namespace GLEngine::GLRenderer

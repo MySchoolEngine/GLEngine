@@ -14,14 +14,12 @@ namespace GLEngine::Renderer::Animation {
 S_Timestamp::S_Timestamp(float timestamp)
 	: m_Timestamp(S_Timestamp::Clamp(timestamp))
 {
-
 }
 
 //=================================================================================
 S_Timestamp::S_Timestamp()
 	: m_Timestamp(0.f)
 {
-
 }
 
 //=================================================================================
@@ -62,7 +60,6 @@ S_BoneKeyframe::S_BoneKeyframe(const glm::mat4& matrix, S_Timestamp timestamp)
 	, m_Rotation(glm::quat_cast(matrix))
 	, m_Timestamp(timestamp)
 {
-
 }
 
 //=================================================================================
@@ -71,14 +68,13 @@ S_BoneKeyframe::S_BoneKeyframe(const glm::vec3& transformation, const glm::quat&
 	, m_Rotation(rotation)
 	, m_Timestamp(timestamp)
 {
-
 }
 
 //=================================================================================
 glm::mat4 S_BoneKeyframe::GetTransformationMatrix() const
 {
 	glm::mat4 translation = glm::translate(glm::mat4(1.f), m_Transform);
-	glm::mat4 rotation = glm::toMat4(m_Rotation);
+	glm::mat4 rotation	  = glm::toMat4(m_Rotation);
 	return translation * rotation;
 }
 
@@ -102,8 +98,7 @@ S_BoneKeyframe C_BoneTimeline::Sample(S_Timestamp timestamp) const
 {
 	GLE_ASSERT(m_Timeline.size() > 0, "There is no keyframe in the animation");
 	// find first keyframe >= to given timestamp
-	const auto& nextKeyframeIt = std::find_if(m_Timeline.begin(), m_Timeline.end(),
-		[timestamp](const S_BoneKeyframe& it) { return it.m_Timestamp > timestamp; });
+	const auto& nextKeyframeIt = std::find_if(m_Timeline.begin(), m_Timeline.end(), [timestamp](const S_BoneKeyframe& it) { return it.m_Timestamp > timestamp; });
 	// we are after last keyframe
 	if (nextKeyframeIt == m_Timeline.end())
 	{
@@ -118,15 +113,13 @@ S_BoneKeyframe C_BoneTimeline::Sample(S_Timestamp timestamp) const
 
 	// take this and previous one and interpolate between them
 	const auto& previousKeyframe = *(nextKeyframeIt - 1);
-	const auto& nextKeyframe = *(nextKeyframeIt);
+	const auto& nextKeyframe	 = *(nextKeyframeIt);
 	// found on which point between them are we
-	const auto intervalLen = nextKeyframe.m_Timestamp - previousKeyframe.m_Timestamp;
-	const auto timeInInterval = timestamp - previousKeyframe.m_Timestamp;
+	const auto intervalLen		  = nextKeyframe.m_Timestamp - previousKeyframe.m_Timestamp;
+	const auto timeInInterval	  = timestamp - previousKeyframe.m_Timestamp;
 	const auto percentageProgress = timeInInterval.GetValue() / intervalLen.GetValue();
 	// return result
-	return S_BoneKeyframe(
-		glm::mix(previousKeyframe.m_Transform, nextKeyframe.m_Transform, percentageProgress),
-		glm::slerp(previousKeyframe.m_Rotation, nextKeyframe.m_Rotation, percentageProgress),
-		timestamp);
+	return S_BoneKeyframe(glm::mix(previousKeyframe.m_Transform, nextKeyframe.m_Transform, percentageProgress),
+						  glm::slerp(previousKeyframe.m_Rotation, nextKeyframe.m_Rotation, percentageProgress), timestamp);
 }
-}
+} // namespace GLEngine::Renderer::Animation

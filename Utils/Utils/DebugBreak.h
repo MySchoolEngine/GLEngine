@@ -8,5 +8,5 @@
 		#define GL_DebugBreak() raise(SIGTRAP)
 	#endif
 #else
-	#define  GL_DebugBreak()
+	#define GL_DebugBreak()
 #endif
