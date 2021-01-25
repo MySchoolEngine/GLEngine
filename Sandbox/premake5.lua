@@ -24,7 +24,7 @@ project "Sandbox"
 
 	includedirs
 	{
-		"."
+		".",
 		"../Renderer",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmt}",
