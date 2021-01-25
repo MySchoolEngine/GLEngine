@@ -1,4 +1,4 @@
-#include <SandboxStdAfx.h>
+#include <SandboxStdafx.h>
 
 #include <GLRenderer/GLFW/GLFWWindowManager.h>
 #include <GLRenderer/GLFW/GLFWWindowFactory.h>
