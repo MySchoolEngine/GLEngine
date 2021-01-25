@@ -9,10 +9,18 @@ project "Sandbox"
 	SetupProject("Sandbox")
 	debugdir ("../data/")
 	
+	pchheader "SandboxStdafx.h"
+	pchsource "SandboxStdafx.cpp"
 	
 	Link("Core")
 	Link("Utils")
 	Link("GLRenderer")
+
+	files
+	{
+		"SandboxStdafx.cpp",
+		"SandboxStdafx.h",
+	}
 
 	includedirs
 	{
