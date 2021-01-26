@@ -7,6 +7,47 @@ on:
     branches: [ master ]
         
 jobs:
+  build-vendor:
+   name: Build dependencies
+   runs-on: ubuntu-20.04
+   steps:
+      - uses: actions/checkout@v2
+      - uses: textbook/git-checkout-submodule-action@master
+      - name: update
+        run: sudo apt update
+      - name: Get X11
+        run: sudo apt-get install xorg-dev
+      - name: Download premake
+        run: |
+          wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-linux.tar.gz -O premake.tar.gz
+          tar -xf premake.tar.gz
+          ./premake5 gmake2
+      - name: BuildDependencies
+        run: |
+          make zlib config=release
+          make irrXML
+          make GLFW
+          make Glad
+          make pugixml
+          make ImGuiFileDialog
+          make libjpeg
+          make Assimp -j=6
+          make zlib config=release
+          make irrXML config=release
+          make GLFW config=release
+          make Glad config=release
+          make pugixml config=release
+          make ImGuiFileDialog config=release
+          make libjpeg config=release
+          make Assimp config=release -j=6
+      - name: Upload dependencies
+        uses: actions/upload-artifact@v2
+        with:
+          name: Unix-dependencies
+          path: |
+            bin/
+            obj/
+          retention-days: 15
   premake:
     name: GCC
     runs-on: ubuntu-20.04
@@ -17,12 +58,15 @@ jobs:
         run: sudo apt update
       - name: Get X11
         run: sudo apt-get install xorg-dev
-      - name: Download premake
-        run: wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-linux.tar.gz -O premake.tar.gz
-      - name: Unzip premake
-        run: tar -xf premake.tar.gz
-      - name: Generate makefiles
-        run: ./premake5 gmake2
+      - name: Download dependencies
+        uses: actions/download-artifact@v2
+        with:
+          name: Unix-dependencies
+      - name: Premake
+        run: |
+          wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-linux.tar.gz -O premake.tar.gz
+          tar -xf premake.tar.gz
+          ./premake5 gmake2
       - name: Build debug
         run: make config=debug -j6
       - name: Build release
