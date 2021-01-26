@@ -31,7 +31,7 @@ jobs:
           make pugixml
           make ImGuiFileDialog
           make libjpeg
-          make Assimp -j=6
+          make -j6 Assimp
           make zlib config=release
           make irrXML config=release
           make GLFW config=release
@@ -39,7 +39,7 @@ jobs:
           make pugixml config=release
           make ImGuiFileDialog config=release
           make libjpeg config=release
-          make Assimp config=release -j=6
+          make config=release -j6 Assimp
       - name: Upload dependencies
         uses: actions/upload-artifact@v2
         with:
