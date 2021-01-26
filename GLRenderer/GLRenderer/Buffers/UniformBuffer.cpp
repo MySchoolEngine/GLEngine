@@ -3,9 +3,7 @@
 #include <GLRenderer/Buffers/UniformBuffer.h>
 
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Buffers {
+namespace GLEngine::GLRenderer::Buffers {
 
 //=================================================================================
 C_UniformBuffer::C_UniformBuffer(const std::string& blockName, unsigned int index)
@@ -23,14 +21,16 @@ C_UniformBuffer::C_UniformBuffer(const std::string& blockName, unsigned int inde
 //=================================================================================
 void C_UniformBuffer::Activate(bool activate)
 {
-	if (activate) {
+	if (activate)
+	{
 		bind();
 		m_active = true;
 	}
-	else {
+	else
+	{
 		unbind();
 		m_active = false;
 	}
 }
 
-}}}
+} // namespace GLEngine::GLRenderer::Buffers

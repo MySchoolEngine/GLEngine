@@ -1,34 +1,30 @@
 #pragma once
 
-#include <Entity/IComponent.h>
-#include <Entity/IEntity.h>
-
 #include <Renderer/RendererApi.h>
 
 #include <Physics/Primitives/Frustum.h>
+
+#include <Entity/IComponent.h>
+#include <Entity/IEntity.h>
 
 namespace GLEngine {
 namespace Renderer {
 class RENDERER_API_EXPORT I_Light : public Entity::I_Component {
 public:
 	explicit I_Light(std::shared_ptr<Entity::I_Entity> owner)
-		: Entity::I_Component(owner) {}
+		: Entity::I_Component(owner)
+	{
+	}
 	virtual ~I_Light() = default;
 
-	[[nodiscard]] virtual Entity::E_ComponentType GetType() const override
-	{
-		return Entity::E_ComponentType::Light;
-	}
+	[[nodiscard]] virtual Entity::E_ComponentType GetType() const override { return Entity::E_ComponentType::Light; }
 
 	virtual Physics::Primitives::C_Frustum GetShadingFrustum() const = 0;
-
 };
-}
+} // namespace Renderer
 
-template<>
-class ComponenetBase<Entity::E_ComponentType::Light> {
+template <> class ComponenetBase<Entity::E_ComponentType::Light> {
 public:
 	using type = Renderer::I_Light;
 };
-}
-
+} // namespace GLEngine

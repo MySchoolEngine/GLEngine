@@ -7,11 +7,11 @@ attribute vec2 texCoord;
 attribute vec3 tangent;
 attribute vec3 bitangent;
 
-//per frame
+// per frame
 #include "../include/frameConstants.glsl"
 #include "waterSurface.glsl"
 
-//per model
+// per model
 uniform mat4 modelMatrix;
 
 //=================================================================================
@@ -23,13 +23,13 @@ out mat3 TBN;
 //=================================================================================
 void main()
 {
-	normalOUT = mat3(transpose(inverse(modelMatrix))) * waterNormal(texCoord, frame.Time);
+	normalOUT	= mat3(transpose(inverse(modelMatrix))) * waterNormal(texCoord, frame.Time);
 	texCoordOUT = texCoord;
 
-	worldCoord = modelMatrix * vertex;
+	worldCoord	 = modelMatrix * vertex;
 	worldCoord.y = waterHeight(texCoord, frame.Time);
 
-	TBN = mat3 (tangent, bitangent, normal);
+	TBN = mat3(tangent, bitangent, normal);
 
-    gl_Position = frame.viewProjectionMatrix * worldCoord; //tohle je reálná hloubka
+	gl_Position = frame.viewProjectionMatrix * worldCoord; // tohle je reálná hloubka
 }

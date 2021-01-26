@@ -1,6 +1,6 @@
 #version 430
 
-//per model
+// per model
 in vec3 colorOUT;
 
 out vec4 fragColor;

@@ -24,4 +24,4 @@ glm::vec3 C_ColorParser::ParseColorRGB(const pugi::xml_node& node)
 	return ret;
 }
 
-}
+} // namespace Utils::Parsing

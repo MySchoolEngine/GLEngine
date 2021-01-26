@@ -1,3 +1,5 @@
+#include <SandboxStdafx.h>
+
 #include <GLRenderer/GLFW/GLFWWindowManager.h>
 #include <GLRenderer/GLFW/GLFWWindowFactory.h>
 #include <GLRenderer/GLFW/OpenGLWindowInfo.h>

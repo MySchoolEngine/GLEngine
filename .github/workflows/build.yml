@@ -2,7 +2,7 @@ name: build
 
 on:
   push:
-    branches: [ master, LinuxBuildWSL ]
+    branches: [ master ]
   pull_request:
     branches: [ master ]
         
@@ -13,6 +13,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: textbook/git-checkout-submodule-action@master
+      - name: update
+        run: sudo apt update
       - name: Get X11
         run: sudo apt-get install xorg-dev
       - name: Download premake
@@ -22,9 +24,9 @@ jobs:
       - name: Generate makefiles
         run: ./premake5 gmake2
       - name: Build debug
-        run: make config=debug
+        run: make config=debug -j6
       - name: Build release
-        run: make config=release
+        run: make config=release -j6
   msvc:
     name: MSVC
     runs-on: windows-latest

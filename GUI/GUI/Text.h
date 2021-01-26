@@ -17,12 +17,12 @@ public:
 
 	GUI_API_EXPORT [[nodiscard]] const std::string_view GetCurrentText() const;
 
-	template<class ...Args>
-	void UpdateText(Args&&... args);
+	template <class... Args> void UpdateText(Args&&... args);
+
 protected:
 	std::string m_FormatText;
 	std::string m_PrintString;
 };
-}
+} // namespace GLEngine::GUI
 
 #include <GUI/Text.inl>

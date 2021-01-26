@@ -2,9 +2,7 @@
 
 #include <Renderer/IResource.h>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Shaders {
+namespace GLEngine::GLRenderer::Shaders {
 
 /** ==============================================
  * @class C_ShaderResource
@@ -21,9 +19,10 @@ public:
 
 	//=================================================================================
 	virtual std::unique_ptr<Renderer::I_RawGPUData> ExtractData() const override;
-	virtual void Invalidate() override;
-	virtual bool IsValid() override;
+	virtual void									Invalidate() override;
+	virtual bool									IsValid() override;
+
 private:
 };
 
-}}}
+} // namespace GLEngine::GLRenderer::Shaders

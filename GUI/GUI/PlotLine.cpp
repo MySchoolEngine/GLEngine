@@ -2,7 +2,6 @@
 
 #include <GUI/PlotLine.h>
 
-namespace GLEngine {
-namespace GLRenderer {
+namespace GLEngine::GLRenderer {
 
-}}
+}

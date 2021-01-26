@@ -13,21 +13,22 @@ public:
 	void SetName(std::string&& name);
 	bool GetValue() const;
 
-	operator bool() const;
-	bool operator=(bool val);
-	void operator&=(bool val);
-	void operator|=(bool val);
-	bool operator||(bool val) const;
-	bool operator&&(bool val) const;
-	bool operator==(bool val) const;
-	bool operator!=(bool val) const;
+					operator bool() const;
+	bool			operator=(bool val);
+	void			operator&=(bool val);
+	void			operator|=(bool val);
+	bool			operator||(bool val) const;
+	bool			operator&&(bool val) const;
+	bool			operator==(bool val) const;
+	bool			operator!=(bool val) const;
 	C_CheckBoxValue operator!();
-	bool* operator&() const;
+	bool*			operator&() const;
+
 private:
 	std::string m_Name;
 	// it is mutable anyway as imgui is free to change its value
-	mutable bool		m_Value;
+	mutable bool m_Value;
 };
 
 static_assert(std::is_constructible<C_CheckBoxValue, bool>::value, "Checkbox should be convertible");
-}
+} // namespace GLEngine::GUI::Input

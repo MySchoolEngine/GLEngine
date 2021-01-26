@@ -3,13 +3,11 @@
 #include <GUI/Input/Slider.h>
 
 
-namespace GLEngine::Entity
-{
+namespace GLEngine::Entity {
 class C_EntityManager;
 }
 
-namespace GLEngine::Renderer
-{
+namespace GLEngine::Renderer {
 class I_CameraComponent;
 }
 
@@ -27,12 +25,12 @@ public:
 	void Render(std::shared_ptr<Renderer::I_CameraComponent> camera, unsigned int widht, unsigned int height);
 
 private:
-	std::shared_ptr<Entity::C_EntityManager>								m_WorldToRender;
-	std::shared_ptr<Buffers::UBO::C_FrameConstantsBuffer>		m_FrameConstUBO;
-	GUI::Input::C_Slider<float> m_SunX;
-	GUI::Input::C_Slider<float> m_SunY;
-	GUI::Input::C_Slider<float> m_SunZ;
-	std::shared_ptr<C_LightsBuffer>													m_LightsUBO;
+	std::shared_ptr<Entity::C_EntityManager>			  m_WorldToRender;
+	std::shared_ptr<Buffers::UBO::C_FrameConstantsBuffer> m_FrameConstUBO;
+	GUI::Input::C_Slider<float>							  m_SunX;
+	GUI::Input::C_Slider<float>							  m_SunY;
+	GUI::Input::C_Slider<float>							  m_SunZ;
+	std::shared_ptr<C_LightsBuffer>						  m_LightsUBO;
 };
 
-}
+} // namespace GLEngine::GLRenderer
