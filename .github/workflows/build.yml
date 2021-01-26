@@ -48,8 +48,9 @@ jobs:
             bin/
             obj/
           retention-days: 15
-  premake:
+  GCC:
     name: GCC
+    needs: [build-vendor]
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
