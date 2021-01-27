@@ -11,18 +11,6 @@ jobs:
     name: GCC
     runs-on: ubuntu-20.04
     steps:
-      - name: Download artifact
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          name: Unix-dependencies
-          workflow: prebuild.yml
-          workflow_conclusion: success
-          branch: master
-      - name: check
-        run: |
-          ls
-          cd bin
-          ls
       - uses: actions/checkout@v2
       - uses: textbook/git-checkout-submodule-action@master
       - name: update
@@ -34,6 +22,13 @@ jobs:
           wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-linux.tar.gz -O premake.tar.gz
           tar -xf premake.tar.gz
           ./premake5 gmake2
+      - name: Download artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          name: Unix-dependencies
+          workflow: prebuild.yml
+          workflow_conclusion: success
+          branch: master
       - name: check2
         run: |
           ls
@@ -56,10 +51,6 @@ jobs:
         run: |
           git submodule init
           git submodule update
-      - name: Download dependencies
-        uses: actions/download-artifact@v2
-        with:
-          name: Win-dependencies
       - name: Get premake5
         shell: powershell
         run: |
@@ -68,6 +59,13 @@ jobs:
       - name: Generate solution
         shell: cmd
         run: premake\premake5.exe vs2019
+      - name: Download artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          name: Win-dependencies
+          workflow: prebuild.yml
+          workflow_conclusion: success
+          branch: master
       - name: Build release
         shell: cmd
         run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=Release'
