@@ -92,7 +92,7 @@ public:
 	void Set(const glm::vec3& direction, const T val, E_TextureChannel element)
 	{
 		const auto coord = float32x3_to_oct(direction);
-		const auto realCoord = glm::ivec2{ m_Size * (coord / 2.0f + 0.5f) };
+		const auto realCoord = glm::ivec2{ static_cast<float>(m_Size) * (coord / 2.0f + 0.5f) };
 
 		m_View->Set(realCoord, val, element);
 	}
