@@ -18,6 +18,11 @@ jobs:
           workflow: prebuild.yml
           workflow_conclusion: success
           branch: master
+      - name: check
+        run: |
+          ls
+          cd bin
+          ls
       - uses: actions/checkout@v2
       - uses: textbook/git-checkout-submodule-action@master
       - name: update
