@@ -129,7 +129,7 @@ inline glm::vec2 float32x3_to_oct(glm::vec3 v) {
 class RENDERER_API_EXPORT C_OctahedralTextureView
 {
 public:
-	C_OctahedralTextureView(C_TextureView* view, std::size_t size)
+	C_OctahedralTextureView(C_TextureView view, std::size_t size)
 		: m_View(view)
 		, m_Size(size) 
 	{}
@@ -144,7 +144,7 @@ public:
 	}
 private:
 	std::size_t		m_Size;
-	C_TextureView*	m_View;
+	C_TextureView	m_View;
 };
 
 } // namespace GLEngine::Renderer
