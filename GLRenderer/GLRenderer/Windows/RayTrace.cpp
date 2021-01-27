@@ -27,6 +27,7 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_Camera
 	, m_NumCycleSamples(0)
 	, m_Running(false)
 	, m_RunningCycle(false)
+	, m_LiveUpdate(false, "Live update")
 {
 	m_Image = std::make_shared<Textures::C_Texture>("rayTrace");
 	auto channels = m_ImageStorage.GetChannels();
@@ -87,6 +88,8 @@ void C_RayTraceWindow::Clear()
 //=================================================================================
 void C_RayTraceWindow::DrawComponents() const
 {
+	if(m_LiveUpdate && m_Running)
+		UploadStorage();
 	const auto dim = m_ImageStorage.GetDimensions();
 	ImGui::Image((void*)(intptr_t)(m_Image->GetTexture()), ImVec2(static_cast<float>(dim.x), static_cast<float>(dim.y)));
 	if (!m_Running)
@@ -108,14 +111,15 @@ void C_RayTraceWindow::DrawComponents() const
 	{
 		if (ImGui::Button("Stop"))
 		{
-			const_cast<C_RayTraceWindow*>(this)->m_RunningCycle = false;
+			const_cast<C_RayTraceWindow*>(this)->StopAll();
 		}
 	}
 	ImGui::Text("Samples: %i", m_NumCycleSamples);
+	m_LiveUpdate.Draw();
 }
 
 //=================================================================================
-void C_RayTraceWindow::UploadStorage()
+void C_RayTraceWindow::UploadStorage() const
 {
 	bool foundRenderer = false;
 	while (foundRenderer == false)
@@ -135,6 +139,18 @@ void C_RayTraceWindow::UploadStorage()
 			foundRenderer = true;
 		}
 	}
+}
+
+//=================================================================================
+void C_RayTraceWindow::StopAll()
+{
+	m_RunningCycle = false;
+}
+
+//=================================================================================
+bool C_RayTraceWindow::IsRunning() const
+{
+	return m_Running;
 }
 
 }
