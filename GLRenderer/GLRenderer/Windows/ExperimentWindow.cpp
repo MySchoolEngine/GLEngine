@@ -12,6 +12,7 @@
 #include <GLRenderer/Components/ComponentBuilderFactory.h>
 #include <GLRenderer/Components/SkeletalMesh.h>
 #include <GLRenderer/Components/SkyBox.h>
+#include <GLRenderer/Components/StaticMesh.h>
 #include <GLRenderer/Debug.h>
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 #include <GLRenderer/ImGui/GLImGUILayer.h>
@@ -22,15 +23,11 @@
 #include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 #include <GLRenderer/Windows/ExperimentWindow.h>
-
-#include <GUI/ConsoleWindow.h>
 #include <GLRenderer/Windows/RayTrace.h>
-#include <Entity/EntitiesWindow.h>
 
-#include <Renderer/Mesh/Scene.h>
-#include <Renderer/Cameras/OrbitalCamera.h>
 #include <Renderer/Cameras/FreelookCamera.h>
 #include <Renderer/Cameras/OrbitalCamera.h>
+#include <Renderer/Mesh/Geometry.h>
 #include <Renderer/Mesh/Scene.h>
 
 #include <GUI/ConsoleWindow.h>
