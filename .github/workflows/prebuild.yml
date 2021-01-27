@@ -18,10 +18,6 @@ jobs:
         run: sudo apt update
       - name: Get X11
         run: sudo apt-get install xorg-dev
-      - name: Download dependencies
-        uses: actions/download-artifact@v2
-        with:
-          name: Unix-dependencies
       - name: Premake
         run: |
           wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-linux.tar.gz -O premake.tar.gz
@@ -54,10 +50,6 @@ jobs:
         run: |
           git submodule init
           git submodule update
-      - name: Download dependencies
-        uses: actions/download-artifact@v2
-        with:
-          name: Win-dependencies
       - name: Get premake5
         shell: powershell
         run: |
