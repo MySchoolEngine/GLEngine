@@ -11,16 +11,19 @@ jobs:
     name: GCC
     runs-on: ubuntu-20.04
     steps:
+      - name: Download artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          name: Unix-dependencies
+          workflow: prebuild.yml
+          workflow_conclusion: success
+          branch: master
       - uses: actions/checkout@v2
       - uses: textbook/git-checkout-submodule-action@master
       - name: update
         run: sudo apt update
       - name: Get X11
         run: sudo apt-get install xorg-dev
-      - name: Download dependencies
-        uses: actions/download-artifact@v2
-        with:
-          name: Unix-dependencies
       - name: Premake
         run: |
           wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-linux.tar.gz -O premake.tar.gz
