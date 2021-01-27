@@ -3,6 +3,7 @@
 #include <Renderer/RayCasting/RayRenderer.h>
 
 #include <Renderer/RayCasting/Sampling.h>
+#include <Renderer/RayCasting/ReflectionModels/SpecularReflection.h>
 
 #include <Renderer/ICameraComponent.h>
 #include <Renderer/Textures/TextureStorage.h>
@@ -21,7 +22,7 @@ C_RayRenderer::C_RayRenderer(const C_RayTraceScene& scene)
 }
 
 //=================================================================================
-void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& storage) const
+void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& storage)
 {
 	const auto low1 = 0.0;
 	const auto high1 = 5.0f;
@@ -61,12 +62,12 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 	auto min = std::numeric_limits<float>::max();
 	auto max = std::numeric_limits<float>::min();
 
-	const auto pointLightPosition = glm::vec3(-1, 1, -1);
-	const auto pointLightIntensity = 5.f;
-
 	const glm::vec3 lightNormal = glm::normalize(glm::vec3(0, -0.5f, -1));
 	const C_Primitive<Physics::Primitives::S_Disc> areaLight(Physics::Primitives::S_Disc(lightNormal, glm::vec3(0, 1, 2), .25f));
+
 	const auto areLightPower = 255.f;
+	const auto IORGlass = 1.5f;
+	const C_SpecularReflection planeMaterial(1.00029f, IORGlass);
 
 	for (int y = 0; y < dim.y; ++y)
 	{
@@ -77,25 +78,25 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 
 			if (areaLight.Intersect(ray, intersect))
 			{
-				textureView.Set({ x,y }, glm::vec3{ areLightPower ,areLightPower ,areLightPower });
+				textureView.Set({ x,y }, textureView.Get<glm::vec3>({ x,y }) + glm::vec3{ areLightPower ,areLightPower ,areLightPower });
 				continue;
 			}
 
 			if (!m_Scene.Intersect(ray, intersect)) continue;
 
 			const auto frame = intersect.GetFrame();
-			// const auto toLight = pointLightPosition - intersect.GetIntersectionPoint();
-			// const auto cosTheta = frame.CosTheta(frame.ToLocal(glm::normalize(toLight)));
-			// const auto sample = intersect.GetMaterial()->diffuse * cosTheta * (pointLightIntensity / glm::dot(toLight, toLight));
-
-			// Light sample (Single bounce - only hard shadows)
-			// C_RayIntersection intersectLight;
-			// const Physics::Primitives::S_Ray lightRay{ pointLightPosition, glm::normalize(-toLight) };
-			// if (!m_Scene.Intersect(lightRay, intersectLight))
-			// 	CORE_LOG(E_Level::Debug, E_Context::Render, "Error {} {}", x, y); // please, please don't fail
 
 			C_RayIntersection intersectLight;
-			const Physics::Primitives::S_Ray lightRay{ intersect.GetIntersectionPoint(), UniformSampleHemisphere({distrib(gen), distrib(gen)}) };
+			const auto wol = frame.ToLocal(-ray.direction);
+			glm::vec3 wil;
+			float pdf;
+			planeMaterial.SampleF(-ray.direction, wil, frame, { distrib(gen), distrib(gen) }, &pdf);
+			const Physics::Primitives::S_Ray lightRay{ intersect.GetIntersectionPoint(), frame.ToWorld(wil)};
+
+			if (m_DirectionsView)
+			{
+				m_DirectionsView->Set(wil, 1.f, E_TextureChannel::Red);
+			}
 
 			if (!areaLight.Intersect(lightRay, intersectLight))
 			{
@@ -105,13 +106,35 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 			C_RayIntersection geomIntersect;
 			if (m_Scene.Intersect(lightRay, geomIntersect))
 			{
+				// light missed, here we should continue the ray
 				continue;
 			}
 
-			const auto cosTheta = frame.CosTheta(frame.ToLocal(glm::normalize(lightRay.direction)));
-			const auto sample = intersect.GetMaterial()->diffuse * cosTheta * (pointLightIntensity);
+			// here we know, that we hit light and it is not occluded
 
-			textureView.Set({ x,y }, textureView.Get<glm::vec3>({ x,y }) + glm::vec3{ sample.x, sample.y, sample.z }); // Map due to texture format
+
+			const auto lightDistance = std::powf(intersectLight.GetRayLength(), 2.f);
+			const auto cosTheta = frame.CosTheta(wil);
+
+			if (cosTheta <= 0.f)
+				continue;
+
+			const auto lightFrame = S_Frame(lightNormal);
+			const auto cosyTheta = lightFrame.CosTheta(lightFrame.ToLocal(-lightRay.direction));
+
+			if(cosyTheta<=0.f)
+				continue;
+
+			const auto illum = areLightPower * areaLight.Area() * ((cosTheta * cosyTheta) / lightDistance);
+
+			if (wil.y <= 0 || wol.y <= 0)
+				continue;
+
+			const auto diffuseComponent = intersect.GetMaterial()->diffuse / glm::pi<float>();
+
+			const auto sample = glm::vec3(diffuseComponent) * illum / pdf;
+
+			textureView.Set({ x,y }, textureView.Get<glm::vec3>({ x,y }) + sample); // Map due to texture format
 
 			// need for mapping purposes
 			min = std::min(min, sample.x);

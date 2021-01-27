@@ -18,6 +18,8 @@
 
 namespace GLEngine::GLRenderer {
 
+constexpr std::uint8_t resolution = 32;
+
 //=================================================================================
 C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_CameraComponent> camera)
 	: GUI::C_Window(guid, "Ray tracing")
@@ -28,11 +30,28 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_Camera
 	, m_Running(false)
 	, m_RunningCycle(false)
 	, m_LiveUpdate(false, "Live update")
+	, m_DirectionImage(resolution, resolution, 1)
+	, m_DirImage(nullptr)
 {
-	m_Image = std::make_shared<Textures::C_Texture>("rayTrace");
-	auto channels = m_ImageStorage.GetChannels();
-	channels[3] = Renderer::E_TextureChannel::None;
-	m_ImageStorage.SetChannels(channels);
+	{
+		m_Image		  = std::make_shared<Textures::C_Texture>("rayTrace");
+		auto channels = m_ImageStorage.GetChannels();
+		channels[3]	  = Renderer::E_TextureChannel::None;
+		m_ImageStorage.SetChannels(channels);
+	}
+
+	{
+		auto channels = m_DirectionImage.GetChannels();
+		channels[1]	  = Renderer::E_TextureChannel::None;
+		channels[2]	  = Renderer::E_TextureChannel::None;
+		channels[3]	  = Renderer::E_TextureChannel::None;
+		m_DirectionImage.SetChannels(channels);
+
+		m_DirImage = std::make_shared<Textures::C_Texture>("directional");
+		m_DirImage->bind();
+		m_DirImage->SetTexData2D(0, &m_DirectionImage);
+		m_DirImage->unbind();
+	}
 }
 
 //=================================================================================
@@ -42,6 +61,7 @@ void C_RayTraceWindow::RayTrace()
 	std::packaged_task<void()> rayTrace([&]() {
 		Renderer::C_RayRenderer renderer(m_Scene);
 		Utils::HighResolutionTimer renderTime;
+		renderer.SetDirectionalDebug(Renderer::C_OctahedralTextureView(Renderer::C_TextureView(&m_DirectionImage), resolution));
 		renderer.Render(*m_Camera, m_ImageStorage);
 		CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
 		UploadStorage();
@@ -81,6 +101,7 @@ void C_RayTraceWindow::Clear()
 {
 	glm::vec4 color{ 0.f ,0.f ,0.f ,0.f };
 	Renderer::C_TextureView(&m_ImageStorage).ClearColor(color);
+	Renderer::C_TextureView(&m_DirectionImage).ClearColor(color);
 	UploadStorage();
 	m_NumCycleSamples = 0;
 }
@@ -115,6 +136,7 @@ void C_RayTraceWindow::DrawComponents() const
 		}
 	}
 	ImGui::Text("Samples: %i", m_NumCycleSamples);
+	ImGui::Image((void*)(intptr_t)(m_DirImage->GetTexture()), ImVec2(static_cast<float>(256), static_cast<float>(256)));
 	m_LiveUpdate.Draw();
 }
 
@@ -133,6 +155,15 @@ void C_RayTraceWindow::UploadStorage() const
 						m_Image->bind();
 						m_Image->SetTexData2D(0, (&m_ImageStorage));
 						m_Image->GenerateMipMaps();
+					}, "RT buffer"
+					)
+			);
+			renderer->AddTransferCommand(
+				std::make_unique<Commands::HACK::C_LambdaCommand>(
+					[this]() {
+						m_DirImage->bind();
+						m_DirImage->SetTexData2D(0, (&m_DirectionImage));
+						m_DirImage->GenerateMipMaps();
 					}, "RT buffer"
 					)
 			);
