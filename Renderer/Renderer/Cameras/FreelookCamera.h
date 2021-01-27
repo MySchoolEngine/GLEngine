@@ -59,6 +59,7 @@ public:
 	//=============================================================
 	// Renderer::I_CameraComponent
 	//=============================================================
+	virtual glm::mat4 GetScreenToworldMatrix() const override;
 	virtual glm::mat4 GetViewProjectionMatrix() const override;
 	virtual glm::mat4 GetProjectionMatrix() const override;
 	virtual glm::mat4 GetViewMatrix() const override;
@@ -139,8 +140,9 @@ private:
 
 	float m_aspectRatio;
 
-	glm::mat4 _viewMatrix;
-	glm::mat4 _projectionMatrix;
+	glm::mat4						_viewMatrix;
+	glm::mat4						_projectionMatrix;
+	glm::mat4						_ScreenToWorld;
 };
 } // namespace Renderer::Cameras
 } // namespace GLEngine

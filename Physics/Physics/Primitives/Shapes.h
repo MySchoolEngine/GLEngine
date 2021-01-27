@@ -11,25 +11,40 @@
 
 #pragma once
 
+#include <Physics/Primitives/Intersectable.h>
+
+#define GLM_GTX_intersect
+#include <glm/gtx/intersect.hpp>
 #include <glm/glm.hpp>
 
 namespace GLEngine::Physics::Primitives {
 /** ==============================================
- * @class S_Sphere
- *
- * @brief	Represents 3D sphere
- *
- * @author 	Dominik Rohacek
- * Contact:	RohacekD@gmail.com
- * @date 	2018/05/16
- ** ==============================================*/
-struct S_Sphere {
+* @class S_Sphere
+*
+* @brief	Represents 3D sphere
+*
+* @author 	Dominik Rohacek
+* Contact:	RohacekD@gmail.com
+* @date 	2018/05/16
+** ==============================================*/
+struct S_Sphere : public T_Intersectable<S_Sphere> {
 public:
 	S_Sphere() = default;
 	constexpr S_Sphere(const glm::vec3& position, float radius)
 		: m_position(position)
 		, m_radius(radius)
 	{
+	}
+
+
+	[[nodiscard]] inline float	IntersectImpl(const S_Ray& ray) const
+	{
+		float t = 0.0f;
+		if (glm::intersectRaySphere(ray.origin, ray.direction, m_position, m_radius * m_radius, t))
+		{
+			return t;
+		}
+		return -1.f;
 	}
 
 	[[nodiscard]] bool IsColliding(const S_Sphere& other) const

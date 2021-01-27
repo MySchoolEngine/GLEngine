@@ -30,6 +30,7 @@ public:
 	// Renderer::I_Renderer
 	//=================================================================================
 	virtual void AddCommand(Renderer::I_Renderer::T_CommandPtr) override;
+	virtual void AddTransferCommand(T_CommandPtr) override;
 	virtual void AddBatch(Renderer::I_Renderer::T_BatchPtr) override;
 
 	virtual void SortCommands() override;
@@ -54,18 +55,18 @@ public:
 private:
 	void CaputreCommands() const;
 
-	bool											 m_Locked = false;
-	std::vector<Renderer::I_Renderer::T_CommandPtr>* m_CommandQueue;
-	GUI::C_PlotLine<500>							 m_DrawCommands;
-	GUI::Input::C_CheckBoxValue						 m_CatchErrors;
-	GUI::Input::C_CheckBoxValue						 m_Wireframe;
-	GUI::Input::C_Button							 m_ScreenCaptureList;
-	bool											 m_OutputCommandList = false;
-	bool											 m_PreviousCatchErrorsVal;
-	Renderer::E_PassType							 m_CurrentPass;
+	bool m_Locked = false;
+	std::vector<Renderer::I_Renderer::T_CommandPtr>*	m_CommandQueue;
+	std::vector<Renderer::I_Renderer::T_CommandPtr>		m_TransferQueue;
+	GUI::C_PlotLine<500>								m_DrawCommands;
+	GUI::Input::C_CheckBoxValue					m_CatchErrors;
+	GUI::Input::C_CheckBoxValue					m_Wireframe;
+	GUI::Input::C_Button						m_ScreenCaptureList;
+	bool										m_OutputCommandList = false;
+	bool																m_PreviousCatchErrorsVal;
+	Renderer::E_PassType								m_CurrentPass;
 
-	enum class E_GUITexts
-	{
+	enum class E_GUITexts {
 		AvgDrawCommands,
 		MinMax,
 		DrawCalls,

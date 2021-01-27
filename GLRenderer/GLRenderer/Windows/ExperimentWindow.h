@@ -80,22 +80,23 @@ private:
 		MinMaxFrametime,
 		Last,
 	};
-	GUI::C_PlotLine<500>												m_Samples;
-	GUI::Input::C_Slider<float>											m_GammaSlider;
-	GUI::Input::C_Slider<float>											m_ExposureSlider;
-	GUI::Input::C_CheckBoxValue											m_VSync;
-	std::array<GUI::C_FormatedText, static_cast<int>(E_GUITexts::Last)> m_GUITexts;
-	GUID																m_FrameStatsGUID;
-	GUID																m_ConsoleWindowGUID;
-	GUID																m_EntitiesWindowGUID;
-	GUID																m_HDRSettingsGUID;
-	GUI::Menu::C_Menu													m_Windows;
+	GUI::C_PlotLine<500>																		m_Samples;
+	GUI::Input::C_Slider<float>															m_GammaSlider;
+	GUI::Input::C_Slider<float>															m_ExposureSlider;
+	GUI::Input::C_CheckBoxValue															m_VSync;
+	std::array<GUI::C_FormatedText, static_cast<int>(E_GUITexts::Last)>				m_GUITexts;
+	GUID																										m_FrameStatsGUID;
+	GUID																										m_ConsoleWindowGUID;
+	GUID																										m_RayTraceGUID;
+	GUID																										m_EntitiesWindowGUID;
+	GUID																										m_HDRSettingsGUID;
+	GUI::Menu::C_Menu																				m_Windows;
 
-	std::unique_ptr<C_MainPassTechnique>  m_MainPass;
-	std::shared_ptr<C_ShadowMapTechnique> m_ShadowPass;
+	std::unique_ptr<C_MainPassTechnique>																		m_MainPass;
+	std::shared_ptr<C_ShadowMapTechnique>										m_ShadowPass;
 
-	std::unique_ptr<C_Framebuffer>				m_HDRFBO;
-	std::shared_ptr<Mesh::C_StaticMeshResource> m_ScreenQuad;
+	std::unique_ptr <C_Framebuffer>																						m_HDRFBO;
+	std::shared_ptr<Mesh::C_StaticMeshResource>							m_ScreenQuad;
 };
 
 } // namespace Windows

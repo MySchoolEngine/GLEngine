@@ -16,6 +16,7 @@ public:
 	//=================================================
 	virtual void Lock(bool lock = true) override;
 	virtual void AddCommand(T_CommandPtr) override;
+	virtual void AddTransferCommand(T_CommandPtr) override;
 	virtual void AddBatch(T_BatchPtr) override;
 	virtual void SortCommands() override;
 	virtual void ExtractData() override;

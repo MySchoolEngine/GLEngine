@@ -19,11 +19,12 @@ public:
 	virtual Physics::Primitives::S_AABB GetAABB() const override;
 
 	virtual glm::mat4 GetViewProjectionMatrix() const = 0;
-	virtual glm::mat4 GetProjectionMatrix() const	  = 0;
-	virtual glm::mat4 GetViewMatrix() const			  = 0;
-	virtual glm::quat GetRotation() const			  = 0;
-	virtual glm::vec3 GetDirection() const			  = 0;
-	virtual glm::vec3 GetPosition() const			  = 0;
+	virtual glm::mat4 GetScreenToworldMatrix() const = 0;
+	virtual glm::mat4 GetProjectionMatrix()		const = 0;
+	virtual glm::mat4 GetViewMatrix()			const = 0;
+	virtual glm::quat GetRotation()				const = 0;
+	virtual glm::vec3 GetDirection()			const = 0;
+	virtual glm::vec3 GetPosition()				const = 0;
 
 	Physics::Primitives::S_Ray GetRay(const glm::vec2& screenPos) const;
 

@@ -34,7 +34,8 @@ public:
 	virtual ~I_Renderer()				  = default;
 	virtual void Lock(bool lock = true)	  = 0;
 	virtual void AddCommand(T_CommandPtr) = 0;
-	virtual void AddBatch(T_BatchPtr)	  = 0;
+	virtual void AddTransferCommand(T_CommandPtr) = 0;
+	virtual void AddBatch(T_BatchPtr) = 0;
 
 	/** ==============================================
 	 * @method:    SortCommands

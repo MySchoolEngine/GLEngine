@@ -27,6 +27,8 @@ public:
 	GUID AddMenu(T_GUIMenu menuItem);
 
 protected:
+	virtual void DrawComponents() const;
+
 	mutable bool m_IsVisible;
 	std::string	 m_Name;
 	GUID		 m_GUID;
