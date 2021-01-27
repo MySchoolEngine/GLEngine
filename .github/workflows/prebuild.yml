@@ -26,9 +26,9 @@ jobs:
       - name: Build
         run: |
           make Dependencies
-          make Dependencies config=Release -j6
+          make Dependencies config=release -j6
           make Assimp
-          make Assimp config=Release -j6
+          make Assimp config=release -j6
       - name: Upload dependencies
         uses: actions/upload-artifact@v2
         with:
@@ -60,7 +60,7 @@ jobs:
         run: premake\premake5.exe vs2019
       - name: Build release
         shell: cmd
-        run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=Release /t:Assimp'
+        run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /t:Assimp /p:Configuration=Release'
       - name: Build debug
         shell: cmd
         run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=Debug /t:Assimp'
