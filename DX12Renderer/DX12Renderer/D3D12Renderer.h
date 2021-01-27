@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Core/CoreMacros.h>
-
 #include <Renderer/IRenderer.h>
+
+#include <Core/CoreMacros.h>
 
 namespace GLEngine::DX12Renderer {
 
@@ -29,7 +29,7 @@ public:
 	Renderer::E_PassType GetCurrentPassType() const override;
 
 private:
-	bool m_Locked = false;
+	bool											 m_Locked = false;
 	std::vector<Renderer::I_Renderer::T_CommandPtr>* m_CommandQueue;
 };
-}
+} // namespace GLEngine::DX12Renderer

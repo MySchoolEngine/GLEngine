@@ -1,63 +1,66 @@
 #version 430
 
 in float vertex;
-in vec3 normal;
+in vec3	 normal;
 
-//per frame
+// per frame
 #include "../include/frameConstants.glsl"
 
-//per model
+// per model
 uniform mat4 modelMatrix;
 
-//terrain uniforms
+// terrain uniforms
 uniform int width;
 uniform int height;
 
 flat out int number;
 
-// gl_VertexID 
+// gl_VertexID
 
 
 //=================================================================================
 void main()
 {
-	int sqNumber = gl_VertexID / 6;
-	int inRectangle = gl_VertexID%6;
+	int sqNumber	= gl_VertexID / 6;
+	int inRectangle = gl_VertexID % 6;
 
-	int line = sqNumber/width;
-	int row = sqNumber%width;
-	int x = row;
-	int z = line;
+	int line = sqNumber / width;
+	int row	 = sqNumber % width;
+	int x	 = row;
+	int z	 = line;
 
-	if(inRectangle<=2){
-		number = sqNumber*2;
+	if (inRectangle <= 2)
+	{
+		number = sqNumber * 2;
 	}
-	else{
-		number = sqNumber*2 + 1;
+	else
+	{
+		number = sqNumber * 2 + 1;
 	}
 
-	switch (inRectangle) {
+	switch (inRectangle)
+	{
 	case 0:
-	break;
+		break;
 	case 1:
 		z++;
-	break;
+		break;
 	case 2:
 		x++;
-	break;
+		break;
 	case 3:
 		z++;
-	break;
+		break;
 	case 4:
 		z++;
 		x++;
-	break;
+		break;
 	case 5:
 		x++;
-	break;
+		break;
 	}
 
 	vec4 vertexPosition = vec4(x, vertex, z, 1);
 
-    gl_Position = frame.viewProjectionMatrix * vertexPosition;
+	gl_Position = frame.viewProjectionMatrix * vertexPosition;
 }

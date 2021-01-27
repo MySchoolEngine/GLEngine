@@ -5,9 +5,10 @@
 namespace GLEngine::Renderer {
 
 //=================================================================================
-I_CameraComponent::I_CameraComponent(std::shared_ptr<Entity::I_Entity>& owner) 
+I_CameraComponent::I_CameraComponent(std::shared_ptr<Entity::I_Entity>& owner)
 	: Entity::I_Component(owner)
-{}
+{
+}
 
 //=================================================================================
 I_CameraComponent::~I_CameraComponent() = default;
@@ -40,4 +41,4 @@ GLEngine::Entity::E_ComponentType I_CameraComponent::GetType() const
 	return Entity::E_ComponentType::Camera;
 }
 
-}
+} // namespace GLEngine::Renderer

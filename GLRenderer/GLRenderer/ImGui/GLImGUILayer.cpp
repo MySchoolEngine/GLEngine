@@ -2,8 +2,8 @@
 
 #include <GLRenderer/ImGui/GLImGUILayer.h>
 
-#include <examples/imgui_impl_opengl3.h>
 #include <examples/imgui_impl_glfw.h>
+#include <examples/imgui_impl_opengl3.h>
 
 namespace GLEngine::GLRenderer {
 
@@ -11,7 +11,6 @@ namespace GLEngine::GLRenderer {
 C_GLImGUILayer::C_GLImGUILayer(GUID window)
 	: GUI::C_ImGuiLayer(window)
 {
-
 }
 
 //=================================================================================
@@ -25,7 +24,7 @@ void C_GLImGUILayer::OnAttach()
 void C_GLImGUILayer::OnDetach()
 {
 	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown(); 
+	ImGui_ImplGlfw_Shutdown();
 	GUI::C_ImGuiLayer::OnDetach();
 }
 
@@ -34,9 +33,9 @@ void C_GLImGUILayer::FrameBegin()
 {
 	ImGuiIO& io = ::ImGui::GetIO();
 
-	float time = (float)glfwGetTime();
+	float time	 = (float)glfwGetTime();
 	io.DeltaTime = m_Time > 0.0f ? (time - m_Time) : (1.0f / 60.0f);
-	m_Time = time;
+	m_Time		 = time;
 
 	ImGui_ImplOpenGL3_NewFrame();
 
@@ -50,4 +49,4 @@ void C_GLImGUILayer::FrameEnd()
 	ImGui_ImplOpenGL3_RenderDrawData(GetRenderData());
 }
 
-}
+} // namespace GLEngine::GLRenderer

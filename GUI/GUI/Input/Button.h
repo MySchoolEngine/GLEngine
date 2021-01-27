@@ -8,8 +8,9 @@ public:
 	C_Button(std::string&& name, const std::function<void()>& callback);
 
 	virtual void Draw() const override;
+
 private:
-	std::string						m_name;
+	std::string			  m_name;
 	std::function<void()> m_Callback;
 };
-}
+} // namespace GLEngine::GUI::Input

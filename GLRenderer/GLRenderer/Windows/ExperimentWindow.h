@@ -1,22 +1,20 @@
 #pragma once
 
-#include <GLRenderer/GLFW/GLFWoGLWindow.h>
-
-#include <GLRenderer/Textures/Texture.h>
-#include <GLRenderer/FBO/Framebuffer.h>
 #include <GLRenderer/CameraManager.h>
+#include <GLRenderer/FBO/Framebuffer.h>
+#include <GLRenderer/GLFW/GLFWoGLWindow.h>
+#include <GLRenderer/MainPassTechnique.h>
+#include <GLRenderer/Mesh/StaticMeshResource.h>
+#include <GLRenderer/ShadowMapPass.h>
+#include <GLRenderer/Textures/Texture.h>
 
 #include <GUI/GUIWindow.h>
-#include <GUI/PlotLine.h>
 #include <GUI/Input/CheckBoxValue.h>
 #include <GUI/Input/Slider.h>
-#include <GUI/GUIWindow.h>
-#include <GUI/Text.h>
 #include <GUI/Menu/Menu.h>
 #include <GUI/Menu/MenuItem.h>
-#include <GLRenderer/MainPassTechnique.h>
-#include <GLRenderer/ShadowMapPass.h>
-#include <GLRenderer/Mesh/StaticMeshResource.h>
+#include <GUI/PlotLine.h>
+#include <GUI/Text.h>
 
 #include <Entity/EntityManager.h>
 
@@ -27,7 +25,7 @@
 namespace GLEngine::Core {
 class C_AppEvent;
 class C_WindowResizedEvent;
-}
+} // namespace GLEngine::Core
 namespace GLEngine::Renderer {
 class I_CameraComponent;
 }
@@ -44,6 +42,7 @@ class C_Framebuffer;
 namespace Windows {
 class C_ExplerimentWindow : public GLFW::C_GLFWoGLWindow {
 	using T_Base = GLFW::C_GLFWoGLWindow;
+
 public:
 	explicit C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo);
 	virtual ~C_ExplerimentWindow();
@@ -64,17 +63,18 @@ private:
 
 	void sampleTime(double new_sample);
 
-	std::shared_ptr<Entity::C_EntityManager>								m_World;
-	std::weak_ptr<Entity::I_Entity>													m_Player;
-	Core::C_LayerStack																			m_LayerStack;
-	Temporar::C_CameraManager																m_CamManager;
-	C_GLImGUILayer*																					m_ImGUI;
-	Utils::HighResolutionTimer															m_FrameTimer;
+	std::shared_ptr<Entity::C_EntityManager> m_World;
+	std::weak_ptr<Entity::I_Entity>			 m_Player;
+	Core::C_LayerStack						 m_LayerStack;
+	Temporar::C_CameraManager				 m_CamManager;
+	C_GLImGUILayer*							 m_ImGUI;
+	Utils::HighResolutionTimer				 m_FrameTimer;
 
 	//===========================
 	// GUI
 	//===========================
-	enum class E_GUITexts {
+	enum class E_GUITexts
+	{
 		AvgFrametime,
 		AvgFps,
 		MinMaxFrametime,
@@ -99,4 +99,5 @@ private:
 	std::shared_ptr<Mesh::C_StaticMeshResource>							m_ScreenQuad;
 };
 
-}}
+} // namespace Windows
+} // namespace GLEngine::GLRenderer

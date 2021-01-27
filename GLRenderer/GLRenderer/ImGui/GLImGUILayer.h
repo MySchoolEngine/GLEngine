@@ -3,8 +3,7 @@
 #include <GUI/ImGuiLayer.h>
 
 namespace GLEngine::GLRenderer {
-class C_GLImGUILayer : public GUI::C_ImGuiLayer
-{
+class C_GLImGUILayer : public GUI::C_ImGuiLayer {
 public:
 	C_GLImGUILayer(GUID window);
 	virtual void OnAttach() override;
@@ -12,7 +11,5 @@ public:
 
 	virtual void FrameBegin() override;
 	virtual void FrameEnd() override;
-
 };
-}
-
+} // namespace GLEngine::GLRenderer

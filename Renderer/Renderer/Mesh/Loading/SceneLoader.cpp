@@ -1,22 +1,22 @@
 #include <RendererStdafx.h>
 
-#include <Renderer/Mesh/Loading/SceneLoader.h>
-
 #include <Renderer/Mesh/Loading/ModelLoader.h>
-
+#include <Renderer/Mesh/Loading/SceneLoader.h>
 #include <Renderer/Mesh/Scene.h>
 
 namespace GLEngine::Renderer::Mesh {
 
 //=================================================================================
-bool SceneLoader::addModelFromFileToScene(const std::filesystem::path& filepath, const std::filesystem::path& filename,
-											std::shared_ptr<MeshData::Scene> scene, const glm::mat4& transform)
+bool SceneLoader::addModelFromFileToScene(const std::filesystem::path&	   filepath,
+										  const std::filesystem::path&	   filename,
+										  std::shared_ptr<MeshData::Scene> scene,
+										  const glm::mat4&				   transform)
 {
-	//Load geometry first
+	// Load geometry first
 	ModelLoader ml;
 	// dr
 	ml.Reset();
-	std::vector< std::string > texNames;
+	std::vector<std::string> texNames;
 
 	const auto fullFilename = filepath / filename;
 
@@ -30,7 +30,7 @@ bool SceneLoader::addModelFromFileToScene(const std::filesystem::path& filepath,
 
 	const auto texureRoot = fullFilename.parent_path();
 
-	for (const auto & texName : texNames)
+	for (const auto& texName : texNames)
 	{
 		scene->textures.push_back((texureRoot / texName).generic_string());
 	}
@@ -38,4 +38,4 @@ bool SceneLoader::addModelFromFileToScene(const std::filesystem::path& filepath,
 	return true;
 }
 
-}
+} // namespace GLEngine::Renderer::Mesh

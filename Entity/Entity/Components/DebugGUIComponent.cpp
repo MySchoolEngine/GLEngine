@@ -12,7 +12,6 @@ C_DebugGUIComponent::C_DebugGUIComponent(std::shared_ptr<I_Entity> owner)
 	, m_Title(owner->GetName())
 	, m_Show(false)
 {
-
 }
 
 //=================================================================================
@@ -24,11 +23,12 @@ void C_DebugGUIComponent::Toggle()
 //=================================================================================
 void C_DebugGUIComponent::PostUpdate()
 {
-	if (m_Show) {
+	if (m_Show)
+	{
 		::ImGui::Begin(m_Title.c_str(), &m_Show);
-			DrawContents();
+		DrawContents();
 		::ImGui::End();
 	}
 }
 
-}
+} // namespace GLEngine::Entity

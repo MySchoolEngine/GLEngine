@@ -5,11 +5,11 @@
 #include <Physics/Primitives/AABB.h>
 #include <Physics/Primitives/Frustum.h>
 
-#include <glm/gtx/norm.hpp>
-#include <glm/gtc/quaternion.hpp>
-
-#include <Core/EventSystem/EventDispatcher.h>
 #include <Core/EventSystem/Event/KeyboardEvents.h>
+#include <Core/EventSystem/EventDispatcher.h>
+
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/norm.hpp>
 
 #include <GLFW/glfw3.h>
 
@@ -30,7 +30,7 @@ FreelookCamera::FreelookCamera(std::shared_ptr<Entity::I_Entity>& owner)
 	, m_nearZ(0.1f)
 	, m_farZ(100.f)
 	, m_fov(90.f)
-	, m_aspectRatio(1900.f/1080.f)
+	, m_aspectRatio(1900.f / 1080.f)
 	, _viewMatrix(glm::lookAt(_position, _position + _view, _up))
 	, _projectionMatrix(glm::mat4(1.f))
 {
@@ -45,9 +45,9 @@ FreelookCamera::~FreelookCamera() = default;
 //=================================================================================
 void FreelookCamera::setupCameraProjection(float nearZ, float farZ, float aspectRatio, float fovYDeg)
 {
-	m_farZ = farZ;
-	m_nearZ = nearZ;
-	m_fov = fovYDeg;
+	m_farZ		  = farZ;
+	m_nearZ		  = nearZ;
+	m_fov		  = fovYDeg;
 	m_aspectRatio = aspectRatio;
 	CreateProjection();
 }
@@ -65,7 +65,7 @@ void FreelookCamera::adjustOrientation(float hDeg, float vDeg)
 	_yaw += glm::radians(hDeg);
 	_pitch += glm::radians(vDeg);
 
-	//value clamping - keep heading and pitch between 0 and 2 pi
+	// value clamping - keep heading and pitch between 0 and 2 pi
 	if (_yaw > glm::two_pi<float>())
 		_yaw -= glm::two_pi<float>();
 	else if (_yaw < 0)
@@ -84,11 +84,11 @@ void FreelookCamera::resetButtons()
 }
 
 //=================================================================================
-void FreelookCamera::positionCamera(const glm::vec3 &camPosition, const glm::vec3& focusPoint, const glm::vec3 &upDirection)
+void FreelookCamera::positionCamera(const glm::vec3& camPosition, const glm::vec3& focusPoint, const glm::vec3& upDirection)
 {
 	_position = camPosition;
-	_up = upDirection;
-	_view = glm::normalize(focusPoint - _position);
+	_up		  = upDirection;
+	_view	  = glm::normalize(focusPoint - _position);
 
 	_left = glm::normalize(glm::cross(_up, _view));
 }
@@ -156,35 +156,35 @@ void FreelookCamera::Update()
 		glm::quat p = glm::angleAxis(_pitch, _left);
 		glm::quat q = glm::angleAxis(-_yaw, glm::vec3(0, 1, 0));
 
-		m = glm::mat4_cast(glm::normalize(q*p));
-		m_rotation = glm::normalize(m_rotation * glm::normalize(q*p));
+		m		   = glm::mat4_cast(glm::normalize(q * p));
+		m_rotation = glm::normalize(m_rotation * glm::normalize(q * p));
 	}
 
 	_view = glm::normalize(glm::vec3(m * glm::vec4(_view, 0)));
-	_up = glm::normalize(glm::vec3(m * glm::vec4(_up, 0)));
+	_up	  = glm::normalize(glm::vec3(m * glm::vec4(_up, 0)));
 	_left = glm::cross(_up, _view);
 
-	//Move camera position
+	// Move camera position
 	if (m_Flags.CheckFlag(CameraDirectionFlags::CAMERA_FORWARD_BIT))
-		_position += _cameraMovementSpeed * t * _view;	//forward
+		_position += _cameraMovementSpeed * t * _view; // forward
 	if (m_Flags.CheckFlag(CameraDirectionFlags::CAMERA_BACKWARD_BIT))
-		_position -= _cameraMovementSpeed * t * _view;	//back
+		_position -= _cameraMovementSpeed * t * _view; // back
 	if (m_Flags.CheckFlag(CameraDirectionFlags::CAMERA_LEFT_BIT))
-		_position += _cameraMovementSpeed * t * _left; //left
+		_position += _cameraMovementSpeed * t * _left; // left
 	if (m_Flags.CheckFlag(CameraDirectionFlags::CAMERA_RIGHT_BIT))
-		_position -= _cameraMovementSpeed * t * _left; //right
+		_position -= _cameraMovementSpeed * t * _left; // right
 	if (m_Flags.CheckFlag(CameraDirectionFlags::CAMERA_UP_BIT))
-		_position += _cameraMovementSpeed * t * glm::vec3(0, 1, 0); //up
+		_position += _cameraMovementSpeed * t * glm::vec3(0, 1, 0); // up
 	if (m_Flags.CheckFlag(CameraDirectionFlags::CAMERA_DOWN_BIT))
-		_position -= _cameraMovementSpeed * t * glm::vec3(0, 1, 0); //down
+		_position -= _cameraMovementSpeed * t * glm::vec3(0, 1, 0); // down
 
-	//Update view matrix
+	// Update view matrix
 	_viewMatrix = glm::lookAt(_position, _position + _view, _up);
 	_ScreenToWorld = glm::inverse(_projectionMatrix * _viewMatrix);
 
-	//Reset angles
+	// Reset angles
 	_pitch = 0.0f;
-	_yaw = 0.0f;
+	_yaw   = 0.0f;
 }
 
 //=================================================================================
@@ -214,20 +214,18 @@ glm::mat4 FreelookCamera::GetProjectionMatrix() const
 //=================================================================================
 glm::quat FreelookCamera::GetRotation() const
 {
-	//glm::quat rot1 = glm::normalize(glm::quat(glm::vec3(0.0f, 0.0f, 1.0f), glm::normalize(_view - _position)));
+	// glm::quat rot1 = glm::normalize(glm::quat(glm::vec3(0.0f, 0.0f, 1.0f), glm::normalize(_view - _position)));
 	//
-	//glm::vec3 right = glm::cross(_view, glm::vec3(0.0f,1.0f,0.0f));
+	// glm::vec3 right = glm::cross(_view, glm::vec3(0.0f,1.0f,0.0f));
 	//
-	//glm::vec3 up = cross(right, _view - _position);
+	// glm::vec3 up = cross(right, _view - _position);
 	//
-	//glm::vec3 newUp = rot1 * glm::vec3(0.0f, 1.0f, 0.0f);
+	// glm::vec3 newUp = rot1 * glm::vec3(0.0f, 1.0f, 0.0f);
 	//
-	//glm::quat rot2 = glm::normalize(glm::quat(newUp, up));
-
+	// glm::quat rot2 = glm::normalize(glm::quat(newUp, up));
 
 
 	return m_rotation;
-
 }
 
 //=================================================================================
@@ -263,7 +261,6 @@ float FreelookCamera::GetAspectRatio() const
 //=================================================================================
 void FreelookCamera::DebugDrawGUI()
 {
-
 }
 
 //=================================================================================
@@ -336,19 +333,23 @@ void FreelookCamera::OnEvent(Core::I_Event& event)
 //=================================================================================
 bool FreelookCamera::OnKeyPressed(Core::C_KeyPressedEvent& event)
 {
-	if (event.GetKeyCode() == GLFW_KEY_DOWN) {
+	if (event.GetKeyCode() == GLFW_KEY_DOWN)
+	{
 		handleInputMessage(CameraMessage::CAMERA_BACKWARD_DOWN);
 		return true;
 	}
-	if (event.GetKeyCode() == GLFW_KEY_UP) {
+	if (event.GetKeyCode() == GLFW_KEY_UP)
+	{
 		handleInputMessage(CameraMessage::CAMERA_FORWARD_DOWN);
 		return true;
 	}
-	if (event.GetKeyCode() == GLFW_KEY_LEFT) {
+	if (event.GetKeyCode() == GLFW_KEY_LEFT)
+	{
 		handleInputMessage(CameraMessage::CAMERA_LEFT_DOWN);
 		return true;
 	}
-	if (event.GetKeyCode() == GLFW_KEY_RIGHT) {
+	if (event.GetKeyCode() == GLFW_KEY_RIGHT)
+	{
 		handleInputMessage(CameraMessage::CAMERA_RIGHT_DOWN);
 	}
 	return false;
@@ -357,19 +358,23 @@ bool FreelookCamera::OnKeyPressed(Core::C_KeyPressedEvent& event)
 //=================================================================================
 bool FreelookCamera::OnKeyReleased(Core::C_KeyReleasedEvent& event)
 {
-	if (event.GetKeyCode() == GLFW_KEY_DOWN) {
+	if (event.GetKeyCode() == GLFW_KEY_DOWN)
+	{
 		handleInputMessage(CameraMessage::CAMERA_BACKWARD_UP);
 		return true;
 	}
-	if (event.GetKeyCode() == GLFW_KEY_UP) {
+	if (event.GetKeyCode() == GLFW_KEY_UP)
+	{
 		handleInputMessage(CameraMessage::CAMERA_FORWARD_UP);
 		return true;
 	}
-	if (event.GetKeyCode() == GLFW_KEY_LEFT) {
+	if (event.GetKeyCode() == GLFW_KEY_LEFT)
+	{
 		handleInputMessage(CameraMessage::CAMERA_LEFT_UP);
 		return true;
 	}
-	if (event.GetKeyCode() == GLFW_KEY_RIGHT) {
+	if (event.GetKeyCode() == GLFW_KEY_RIGHT)
+	{
 		handleInputMessage(CameraMessage::CAMERA_RIGHT_UP);
 	}
 	return false;
@@ -381,4 +386,4 @@ glm::mat4 FreelookCamera::GetScreenToworldMatrix() const
 	return _ScreenToWorld;
 }
 
-}
+} // namespace GLEngine::Renderer::Cameras

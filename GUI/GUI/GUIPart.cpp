@@ -6,4 +6,4 @@ namespace GLEngine::GUI {
 //=================================================================================
 I_GUIPart::~I_GUIPart() = default;
 
-}
+} // namespace GLEngine::GUI

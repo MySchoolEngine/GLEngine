@@ -1,13 +1,12 @@
 #include <GLRendererStdafx.h>
 
+#include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/Textures/TextureManager.h>
 
-#include <GLRenderer/Textures/Texture.h>
+#include <Renderer/Textures/TextureLoader.h>
 
 #include <GUI/GUIManager.h>
 #include <GUI/GUIWindow.h>
-
-#include <Renderer/Textures/TextureLoader.h>
 
 #include <imgui.h>
 
@@ -18,14 +17,13 @@ std::filesystem::path C_TextureManager::s_ErrorTextureFile = "Models/Error.bmp";
 C_TextureManager::C_TextureManager()
 	: m_Window(INVALID_GUID)
 {
-
 }
 
 //=================================================================================
 C_TextureManager& C_TextureManager::Instance()
 {
-	static C_TextureManager    instance; // Guaranteed to be destroyed.
-							// Instantiated on first use.
+	static C_TextureManager instance; // Guaranteed to be destroyed.
+									  // Instantiated on first use.
 	return instance;
 }
 
@@ -39,7 +37,7 @@ C_TextureManager::T_TexturePtr C_TextureManager::GetTexture(const std::string& n
 	}
 
 	Renderer::Textures::TextureLoader tl;
-	auto* buffer = tl.loadTexture(name.c_str());
+	auto*							  buffer = tl.loadTexture(name.c_str());
 	if (!buffer)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Could not load texture '{}'", name);
@@ -98,19 +96,20 @@ void C_TextureManager::Clear()
 //=================================================================================
 GUID C_TextureManager::SetupControls(GUI::C_GUIManager& guiMGR)
 {
-	m_Window = guiMGR.CreateGUIWindow("Texture manager");
+	m_Window		= guiMGR.CreateGUIWindow("Texture manager");
 	auto* shaderMan = guiMGR.GetWindow(m_Window);
 
 	m_TextureList = std::make_unique<GUI::C_LambdaPart>([&]() {
-
-		for (auto& texture : m_Textures) {
+		for (auto& texture : m_Textures)
+		{
 			bool selected = false;
 			::ImGui::Selectable(texture.first.c_str(), &selected);
-			if (selected) {
+			if (selected)
+			{
 				ReloadTexture(texture.first, texture.second);
 			}
 		}
-		});
+	});
 
 	shaderMan->AddComponent(*m_TextureList.get());
 
@@ -127,8 +126,8 @@ void C_TextureManager::DestroyControls(GUI::C_GUIManager& guiMGR)
 void C_TextureManager::ReloadTexture(const std::string& name, T_TexturePtr& texture)
 {
 	Renderer::Textures::TextureLoader tl;
-	Renderer::MeshData::Texture t;
-	bool retval = tl.loadTexture(name.c_str(), t);
+	Renderer::MeshData::Texture		  t;
+	bool							  retval = tl.loadTexture(name.c_str(), t);
 	if (!retval)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Could not load texture '{}'", name);
@@ -158,11 +157,11 @@ C_TextureManager::T_TexturePtr C_TextureManager::GetIdentityTexture()
 		m_IdentityTexture = std::make_shared<C_Texture>("Identity texture");
 		Renderer::MeshData::Texture t;
 		t.height = t.width = 1;
-		t.data = std::shared_ptr<unsigned char>(new unsigned char[4 * t.width * t.height]);
-		t.data.get()[0] = 255;
-		t.data.get()[1] = 255;
-		t.data.get()[2] = 255;
-		t.data.get()[3] = 0;
+		t.data			   = std::shared_ptr<unsigned char>(new unsigned char[4 * t.width * t.height]);
+		t.data.get()[0]	   = 255;
+		t.data.get()[1]	   = 255;
+		t.data.get()[2]	   = 255;
+		t.data.get()[3]	   = 0;
 		m_IdentityTexture->bind();
 		m_IdentityTexture->SetTexData2D(0, t);
 		m_IdentityTexture->unbind();
@@ -170,4 +169,4 @@ C_TextureManager::T_TexturePtr C_TextureManager::GetIdentityTexture()
 	return m_IdentityTexture;
 }
 
-}
+} // namespace GLEngine::GLRenderer::Textures

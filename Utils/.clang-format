@@ -1,0 +1,78 @@
+Standard: c++17
+BreakConstructorInitializers: BeforeComma
+BinPackArguments: false
+BraceWrapping:
+  AfterControlStatement: true
+  AfterFunction: true
+  BeforeElse: true
+BreakBeforeBraces: Custom
+FixNamespaceComments: false
+MaxEmptyLinesToKeep: 2
+
+IndentWidth: 4
+TabWidth: 4
+ConstructorInitializerIndentWidth: 4
+AllowAllConstructorInitializersOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowAllArgumentsOnNextLine: false
+AllowShortEnumsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Empty #mostly for empty ctors
+BinPackArguments: true
+BinPackParameters: false
+ColumnLimit: 180
+AccessModifierOffset: -4
+IndentPPDirectives: BeforeHash
+
+#BitFieldColonSpacing: Both
+PointerAlignment: Left
+#SpaceAroundPointerQualifiers: Before
+SpacesInSquareBrackets: false
+SpacesInParentheses: false
+SpacesInContainerLiterals: false
+SpacesInConditionalStatement: false
+SpacesInAngles: false
+AllowShortFunctionsOnASingleLine: InlineOnly
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments: true
+AlignConsecutiveMacros: true #hopefully not really used
+AlignTrailingComments: true
+AlignConsecutiveDeclarations: true
+BreakBeforeBinaryOperators: true
+FixNamespaceComments: true
+CompactNamespaces: true #only cause it is simple to change it to nested one later
+
+UseTab: Always
+AlignConsecutiveDeclarations: true
+
+SortIncludes: true
+IncludeBlocks: Regroup
+IncludeIsMainRegex: ".h>$"
+IncludeCategories:
+  - Regex:           '^<.*Stdafx.h>'
+    Priority:    	   1
+  - Regex:           '^<Utils/.*>'
+    Priority:        2
+  - Regex:           '^<GLRenderer/.*>'
+    Priority:        5
+  - Regex:           '^<DX12Renderer/.*>'
+    Priority:        6
+  - Regex:           '^<Renderer/.*>'
+    Priority:        9
+  - Regex:           '^<GUI/.*>'
+    Priority:        10
+  - Regex:           '^<Physics/.*>'
+    Priority:        14
+  - Regex:           '^<Entity/.*>'
+    Priority:        15
+  - Regex:           '^<Core/.*>'
+    Priority:        16
+  - Regex:           '^<glm.*>'
+    Priority:        55
+  - Regex:           '^<gli/gli.hpp>$'
+    Priority:        56
+  - Regex:           '^<IL/il.h>$'
+    Priority:        56
+  - Regex:           '<pugixml.hpp>'
+    Priority:        60
+  - Regex:           '.*'
+    Priority:        100

@@ -1,10 +1,8 @@
 #include <EntityStdafx.h>
 
 #include <Entity/BasicEntity.h>
-
-#include <Entity/IComponent.h>
-
 #include <Entity/Components/IDebugGUIComponent.h>
+#include <Entity/IComponent.h>
 
 
 namespace GLEngine::Entity {
@@ -41,7 +39,8 @@ void C_BasicEntity::PostUpdate()
 void C_BasicEntity::OnEvent(Core::I_Event& event)
 {
 	auto debugGUI = GetComponent<E_ComponentType::DebugGUI>();
-	if (debugGUI) {
+	if (debugGUI)
+	{
 		debugGUI->Toggle();
 	}
 }
@@ -64,4 +63,4 @@ glm::vec3 C_BasicEntity::GetPosition() const
 	return m_ModelMatrix[3];
 }
 
-}
+} // namespace GLEngine::Entity

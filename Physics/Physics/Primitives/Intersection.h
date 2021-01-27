@@ -9,10 +9,10 @@
 
 namespace GLEngine::Physics::Primitives {
 struct S_RayIntersection {
-	S_Ray		ray;
-	GUID		entityId;
+	S_Ray ray;
+	GUID  entityId;
 
-	glm::vec3	intersectionPoint;
-	float		distance;
+	glm::vec3 intersectionPoint;
+	float	  distance;
 };
-}
+} // namespace GLEngine::Physics::Primitives

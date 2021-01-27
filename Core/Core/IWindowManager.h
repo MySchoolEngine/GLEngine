@@ -1,9 +1,8 @@
 #pragma once
 
-#include <Core/CoreApi.h>
-
-#include <Core/EventSystem/Layer.h>
 #include <Core/Application.h>
+#include <Core/CoreApi.h>
+#include <Core/EventSystem/Layer.h>
 
 namespace GLEngine::Core {
 
@@ -26,19 +25,21 @@ public:
 //=================================================================================
 class I_WindowManager : public C_Layer {
 public:
-  CORE_API_EXPORT I_WindowManager(C_Application::EventCallbackFn callback);
+	CORE_API_EXPORT I_WindowManager(C_Application::EventCallbackFn callback);
 	CORE_API_EXPORT virtual ~I_WindowManager();
-	virtual std::shared_ptr<I_Window> OpenNewWindow(const S_WindowInfo& info) = 0;
-	virtual std::shared_ptr<I_Window> GetWindow(GUID guid) const = 0;
-	CORE_API_EXPORT virtual void AddWindowFactory(I_WindowFactory* wf);
-	virtual void Update() = 0;
-	virtual unsigned int NumWindows() const = 0;
+	virtual std::shared_ptr<I_Window>							   OpenNewWindow(const S_WindowInfo& info) = 0;
+	virtual std::shared_ptr<I_Window>							   GetWindow(GUID guid) const			   = 0;
+	CORE_API_EXPORT virtual void								   AddWindowFactory(I_WindowFactory* wf);
+	virtual void												   Update()					 = 0;
+	virtual unsigned int										   NumWindows() const		 = 0;
 	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetActiveRenderer() const = 0;
+
 protected:
 	CORE_API_EXPORT std::shared_ptr<I_Window> ConstructWindow(const S_WindowInfo& info) const;
 
 	Core::C_Application::EventCallbackFn m_EventCallback;
+
 private:
 	std::vector<I_WindowFactory*>* m_Facotries;
 };
-}
+} // namespace GLEngine::Core

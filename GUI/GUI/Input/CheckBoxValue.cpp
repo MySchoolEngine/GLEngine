@@ -8,7 +8,6 @@ C_CheckBoxValue::C_CheckBoxValue(bool value, std::string&& name)
 	: m_Value(value)
 	, m_Name(std::move(name))
 {
-
 }
 
 //=================================================================================
@@ -73,7 +72,7 @@ bool C_CheckBoxValue::operator!=(bool val) const
 
 //=================================================================================
 C_CheckBoxValue C_CheckBoxValue::operator!()
-{	
+{
 	return C_CheckBoxValue(!m_Value, std::string(m_Name));
 }
 
@@ -89,4 +88,4 @@ bool C_CheckBoxValue::operator=(bool val)
 	return m_Value = val;
 }
 
-}
+} // namespace GLEngine::GUI::Input
