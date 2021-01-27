@@ -110,11 +110,11 @@ inline float C_TextureView::Get<float>(const glm::ivec2& uv, E_TextureChannel el
 }
   
 
-glm::vec2 signNotZero(glm::vec2 v) {
+inline glm::vec2 signNotZero(glm::vec2 v) {
 	return glm::vec2((v.x >= 0.0) ? +1.0 : -1.0, (v.y >= 0.0) ? +1.0 : -1.0);
 }
 
-glm::vec2 float32x3_to_oct(glm::vec3 v) {
+inline glm::vec2 float32x3_to_oct(glm::vec3 v) {
 	// Project the sphere onto the octahedron, and then onto the xy plane
 	glm::vec2 p = glm::vec2{ v.x, v.y } * (1.0f / (abs(v.x) + abs(v.y) + abs(v.z)));
 	// Reflect the folds of the lower hemisphere over the diagonals
