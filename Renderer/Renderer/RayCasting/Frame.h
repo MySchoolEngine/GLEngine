@@ -33,7 +33,7 @@ public:
 	[[nodiscard]] float TanTheta(const glm::vec3& w) const { return SinTheta(w) / CosTheta(w); }
 	[[nodiscard]] float Tan2Theta(const glm::vec3& w) const { return Sin2Theta(w) / Cos2Theta(w); }
 
-
+	[[nodiscard]] glm::vec3 Reflect(const glm::vec3& wi) const { return glm::vec3(-wi.x, wi.y, -wi.z); }
 private:
 	glm::vec3 X;
 	glm::vec3 Y;
