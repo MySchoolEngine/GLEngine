@@ -34,6 +34,11 @@ jobs:
           wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-linux.tar.gz -O premake.tar.gz
           tar -xf premake.tar.gz
           ./premake5 gmake2
+      - name: check2
+        run: |
+          ls
+          cd bin
+          ls
       - name: Build debug
         run: make config=debug -j6
       - name: Build release
