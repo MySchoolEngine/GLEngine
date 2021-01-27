@@ -25,6 +25,9 @@ public:
 	void RayTrace();
 	void Clear();
 	void RunUntilStop();
+	void StopAll();
+
+	bool IsRunning() const;
 
 private:
 	virtual void DrawComponents() const override;
