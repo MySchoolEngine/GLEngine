@@ -30,14 +30,6 @@ jobs:
         run: make config=debug -j6
       - name: Build release
         run: make config=release -j6
-      - name: Upload dependencies
-        uses: actions/upload-artifact@v2
-        with:
-          name: Unix-dependencies
-          path: |
-            bin/*-linux-*/
-            obj/*-linux-*
-          retention-days: 15
   msvc:
     name: MSVC
     runs-on: windows-latest
@@ -69,11 +61,3 @@ jobs:
       - name: Build debug
         shell: cmd
         run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=Debug'
-      - name: Upload dependencies
-        uses: actions/upload-artifact@v2
-        with:
-          name: Win-dependencies
-          path: |
-            bin/*-windows-*/
-            obj/*-windows-*
-          retention-days: 15
