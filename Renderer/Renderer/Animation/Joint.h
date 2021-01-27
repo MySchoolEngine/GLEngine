@@ -18,6 +18,6 @@ struct RENDERER_API_EXPORT S_Joint {
 	glm::mat4 m_InverseBindTransfomr; // in model space
 	// todo stack vector.
 	std::vector<S_Joint> m_Children;
-	std::size_t m_Id;
+	std::size_t			 m_Id;
 };
-}
+} // namespace GLEngine::Renderer::Animation

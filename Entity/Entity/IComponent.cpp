@@ -1,20 +1,17 @@
 #include <EntityStdafx.h>
 
 #include <Entity/IComponent.h>
-
 #include <Entity/IEntity.h>
 
 #include <imgui.h>
 
-namespace GLEngine::Entity
-{
+namespace GLEngine::Entity {
 
 //=================================================================================
 I_Component::I_Component(std::shared_ptr<I_Entity> owner)
 	: m_Owner(owner)
 	, m_ComponentMatrix(glm::mat4(1.0f))
 {
-
 }
 
 //=================================================================================
@@ -49,4 +46,4 @@ void I_Component::DebugDrawComponentGUI()
 	}
 }
 
-}
+} // namespace GLEngine::Entity

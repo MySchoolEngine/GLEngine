@@ -1,6 +1,5 @@
-#include <Utils/Parsing/MaterialParser.h>
-
 #include <Utils/Parsing/ColorParsing.h>
+#include <Utils/Parsing/MaterialParser.h>
 
 #include <sstream>
 
@@ -49,5 +48,4 @@ MaterialData C_MaterialParser::ParseMaterialData(const pugi::xml_node& node)
 	return data;
 }
 
-}
-
+} // namespace Utils::Parsing

@@ -1,10 +1,9 @@
 #include <DX12RendererStdafx.h>
 
-#include <DX12Renderer/D3D12WindowManager.h>
-
 #include <DX12Renderer/D3D12Window.h>
 #include <DX12Renderer/D3D12WindowFactory.h>
 #include <DX12Renderer/D3D12WindowInfo.h>
+#include <DX12Renderer/D3D12WindowManager.h>
 
 #include <Renderer/IRenderer.h>
 
@@ -27,7 +26,7 @@ std::shared_ptr<Core::I_Window> C_D3D12WindowManager::OpenNewWindow(const Core::
 		return nullptr;
 	}
 	(dynamic_cast<S_D3D12WindowInfo*>(&const_cast<Core::S_WindowInfo&>(info)))->m_HInstance = m_hInstance;
-	auto window = ConstructWindow(info);
+	auto window																				= ConstructWindow(info);
 	window->SetEventCallback(m_EventCallback);
 	m_Windows.push_back(window);
 	return window;
@@ -36,9 +35,7 @@ std::shared_ptr<Core::I_Window> C_D3D12WindowManager::OpenNewWindow(const Core::
 //=================================================================================
 std::shared_ptr<GLEngine::Core::I_Window> C_D3D12WindowManager::GetWindow(GUID guid) const
 {
-	auto it = std::find_if(m_Windows.begin(), m_Windows.end(), [&guid](const std::shared_ptr<GLEngine::Core::I_Window>& wnd) {
-		return wnd->GetGUID() == guid;
-	});
+	auto it = std::find_if(m_Windows.begin(), m_Windows.end(), [&guid](const std::shared_ptr<GLEngine::Core::I_Window>& wnd) { return wnd->GetGUID() == guid; });
 
 	return *it;
 }
@@ -46,18 +43,13 @@ std::shared_ptr<GLEngine::Core::I_Window> C_D3D12WindowManager::GetWindow(GUID g
 //=================================================================================
 void C_D3D12WindowManager::Update()
 {
-	m_Windows.erase(std::remove_if(m_Windows.begin(), m_Windows.end(), [](const decltype(m_Windows)::value_type window) {
-		return window->WantClose();
-	}), m_Windows.end());
+	m_Windows.erase(std::remove_if(m_Windows.begin(), m_Windows.end(), [](const decltype(m_Windows)::value_type window) { return window->WantClose(); }), m_Windows.end());
 
-	std::for_each(m_Windows.begin(), m_Windows.end(), 
-		[&](const decltype(m_Windows)::value_type& window) 
-		{
-			m_UpdatingWindow = window;
-			window->Update();
-			m_UpdatingWindow = nullptr;
-		}
-	);
+	std::for_each(m_Windows.begin(), m_Windows.end(), [&](const decltype(m_Windows)::value_type& window) {
+		m_UpdatingWindow = window;
+		window->Update();
+		m_UpdatingWindow = nullptr;
+	});
 }
 
 //=================================================================================
@@ -100,4 +92,4 @@ C_D3D12WindowManager* ConstructD3D12Manager(Core::C_Application::EventCallbackFn
 	return new C_D3D12WindowManager(eventCallback, hInstance);
 }
 
-}
+} // namespace GLEngine::DX12Renderer

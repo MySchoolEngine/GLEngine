@@ -1,12 +1,11 @@
 #pragma once
 
-namespace GLEngine::Core
-{
+namespace GLEngine::Core {
 
-enum class E_Driver {
+enum class E_Driver
+{
 	OpenGL,
 	Vulkan,
 	DirectX12,
 };
-}
-
+} // namespace GLEngine::Core

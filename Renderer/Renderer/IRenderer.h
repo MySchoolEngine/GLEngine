@@ -5,8 +5,7 @@
 
 #include <memory>
 
-namespace GLEngine {
-namespace Renderer {
+namespace GLEngine::Renderer {
 
 enum class E_PassType
 {
@@ -30,10 +29,10 @@ enum class E_PassType
 class I_Renderer {
 public:
 	using T_CommandPtr = std::unique_ptr<I_RenderCommand>;
-	using T_BatchPtr = std::unique_ptr<I_RenderBatch>;
+	using T_BatchPtr   = std::unique_ptr<I_RenderBatch>;
 
-	virtual ~I_Renderer() = default;
-	virtual void Lock(bool lock = true) = 0;
+	virtual ~I_Renderer()				  = default;
+	virtual void Lock(bool lock = true)	  = 0;
 	virtual void AddCommand(T_CommandPtr) = 0;
 	virtual void AddTransferCommand(T_CommandPtr) = 0;
 	virtual void AddBatch(T_BatchPtr) = 0;
@@ -57,28 +56,27 @@ public:
 	 * @method:    TransformData
 	 * @return:    void
 	 * @brief	   After we collected all data, we have time to transform them
-	 *			   in this time the simulation thread is free to change 
+	 *			   in this time the simulation thread is free to change
 	 *			   it's renderable data
 	 ** ==============================================*/
 	virtual void TransformData() = 0;
 
 	/** ==============================================
-	* @method:    Commit
-	* @return:    void
-	* @brief	   Commits all GPU calls to GPU
-	** ==============================================*/
+	 * @method:    Commit
+	 * @return:    void
+	 * @brief	   Commits all GPU calls to GPU
+	 ** ==============================================*/
 	virtual void Commit() const = 0;
 
 	/** ==============================================
-	* @method:    ClearCommandBuffers
-	* @return:    void
-	* @brief	   Should be called at the end of frame.
-	** ==============================================*/
+	 * @method:    ClearCommandBuffers
+	 * @return:    void
+	 * @brief	   Should be called at the end of frame.
+	 ** ==============================================*/
 	virtual void ClearCommandBuffers() = 0;
 
 	virtual E_PassType GetCurrentPassType() const = 0;
-	virtual void SetCurrentPassType(Renderer::E_PassType type) {}
+	virtual void	   SetCurrentPassType(Renderer::E_PassType type) {}
 };
 
-}
-}
+} // namespace GLEngine::Renderer

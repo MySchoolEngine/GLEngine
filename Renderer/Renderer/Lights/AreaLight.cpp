@@ -12,7 +12,9 @@ C_AreaLight::C_AreaLight(std::shared_ptr<Entity::I_Entity> owner)
 	, m_WidthSlider(10.f, 0.1f, 10.f, "Width")
 	, m_HeightSlider(10.f, 0.1f, 10.f, "Height")
 	, m_DiffuseColor("Diffuse colour", glm::vec3(1.f))
-	, m_SpecularColor("Spec colour", glm::vec3(1.f)) {}
+	, m_SpecularColor("Spec colour", glm::vec3(1.f))
+{
+}
 
 //=================================================================================
 C_AreaLight::~C_AreaLight() = default;
@@ -37,13 +39,13 @@ Physics::Primitives::S_AABB C_AreaLight::GetAABB() const
 	const auto dirX = glm::cross(m_Normal, m_UpVector);
 	const auto dirY = m_UpVector;
 
-	const auto width = std::sqrt(GetWidth() / 2.0f);
+	const auto width  = std::sqrt(GetWidth() / 2.0f);
 	const auto height = std::sqrt(GetHeight() / 2.0f);
 
-	aabb.Add(+ dirY * height + dirX * width);
-	aabb.Add(+ dirY * height - dirX * width);
-	aabb.Add(- dirY * height + dirX * width);
-	aabb.Add(- dirY * height - dirX * width);
+	aabb.Add(+dirY * height + dirX * width);
+	aabb.Add(+dirY * height - dirX * width);
+	aabb.Add(-dirY * height + dirX * width);
+	aabb.Add(-dirY * height - dirX * width);
 
 	return aabb;
 }
@@ -81,4 +83,4 @@ glm::vec3 C_AreaLight::SpecularColour() const
 	return m_SpecularColor.GetValue();
 }
 
-}
+} // namespace GLEngine::Renderer

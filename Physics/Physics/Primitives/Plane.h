@@ -1,8 +1,7 @@
 #pragma once
 
-#include <Physics/Primitives/Ray.h>
-
 #include <Physics/Primitives/Intersectable.h>
+#include <Physics/Primitives/Ray.h>
 
 #include <glm/glm.hpp>
 
@@ -32,4 +31,4 @@ struct S_Plane : public T_Intersectable<S_Plane> {
 		return (glm::dot(origin - ray.origin, useNormal)) / (glm::dot(useNormal, ray.direction));
 	}
 };
-}
+} // namespace GLEngine::Physics::Primitives

@@ -1,23 +1,21 @@
 #pragma once
 
-#include <Core/CoreMacros.h>
-
 #include <Renderer/IRenderer.h>
 
-#include <GUI/PlotLine.h>
-#include <GUI/Input/CheckBoxValue.h>
-#include <GUI/Text.h>
-#include <GUI/Menu/Menu.h>
 #include <GUI/Input/Button.h>
+#include <GUI/Input/CheckBoxValue.h>
+#include <GUI/Menu/Menu.h>
+#include <GUI/PlotLine.h>
+#include <GUI/Text.h>
+
+#include <Core/CoreMacros.h>
 
 namespace GLEngine {
-namespace GUI
-{
+namespace GUI {
 class C_MenuItem;
 }
 
-namespace GUI::Menu
-{
+namespace GUI::Menu {
 class C_MenuItem;
 }
 
@@ -50,9 +48,10 @@ public:
 
 	//=================================================================================
 	virtual Renderer::E_PassType GetCurrentPassType() const override;
-	virtual void SetCurrentPassType(Renderer::E_PassType type) override;
+	virtual void				 SetCurrentPassType(Renderer::E_PassType type) override;
 
 	bool WantWireframe() const { return m_Wireframe.GetValue(); }
+
 private:
 	void CaputreCommands() const;
 
@@ -73,10 +72,10 @@ private:
 		DrawCalls,
 		Last,
 	};
-	std::array<GUI::C_FormatedText, static_cast<int>(E_GUITexts::Last)>				m_GUITexts;
-	GUID																																			m_Window;
-	GUI::Menu::C_Menu																													m_Windows;
+	std::array<GUI::C_FormatedText, static_cast<int>(E_GUITexts::Last)> m_GUITexts;
+	GUID																m_Window;
+	GUI::Menu::C_Menu													m_Windows;
 };
 
-}
-}
+} // namespace GLRenderer
+} // namespace GLEngine

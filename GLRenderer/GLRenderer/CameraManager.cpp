@@ -4,16 +4,13 @@
 
 #include <Renderer/ICameraComponent.h>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Temporar {
+namespace GLEngine::GLRenderer::Temporar {
 
 //=================================================================================
 C_CameraManager::C_CameraManager()
 	: Core::C_Layer("CameraManager")
 	, m_ActiveCamera(nullptr)
 {
-
 }
 
 //=================================================================================
@@ -34,4 +31,4 @@ void C_CameraManager::OnEvent(Core::I_Event& event)
 	m_ActiveCamera->OnEvent(event);
 }
 
-}}}
+} // namespace GLEngine::GLRenderer::Temporar

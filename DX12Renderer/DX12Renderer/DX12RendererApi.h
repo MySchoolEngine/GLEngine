@@ -1,7 +1,7 @@
 #pragma once
 
 #if !defined CORE_PLATFORM
-#error "CORE_PLATFORM not defined"
+	#error "CORE_PLATFORM not defined"
 #endif
 
 #if WIN32
@@ -17,4 +17,3 @@
 		#define DX12_RENDERER_API_EXPORT [[gnu::dllimport]]
 	#endif
 #endif
-
