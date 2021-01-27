@@ -53,8 +53,7 @@ public:
 
 		m_Storage->Set(val, GetAddress(uv) + m_Storage->GetChannelOffset(element));
 	}
-
-private:
+protected:
 	[[nodiscard]] std::size_t GetAddress(const glm::ivec2& uv) const;
 
 	I_TextureViewStorage* m_Storage; // not owning ptr
@@ -64,4 +63,42 @@ template <> inline std::uint8_t C_TextureView::Get<std::uint8_t>(const glm::ivec
 {
 	return m_Storage->GetI(GetAddress(uv) + m_Storage->GetChannelOffset(element));
 }
+
+glm::vec2 signNotZero(glm::vec2 v) {
+	return glm::vec2((v.x >= 0.0) ? +1.0 : -1.0, (v.y >= 0.0) ? +1.0 : -1.0);
+}
+
+glm::vec2 float32x3_to_oct(glm::vec3 v) {
+	// Project the sphere onto the octahedron, and then onto the xy plane
+	glm::vec2 p = glm::vec2{ v.x, v.y } * (1.0f / (abs(v.x) + abs(v.y) + abs(v.z)));
+	// Reflect the folds of the lower hemisphere over the diagonals
+	return (v.z <= 0.0f) ? ((1.0f - abs(glm::vec2{ p.y, p.x })) * signNotZero(p)) : p;
+}
+
+// Represents texture view as described in 
+// @source:	http://jcgt.org/published/0003/02/01/paper.pdf
+// @name:	 A Survey of Efficient Representations for Independent Unit Vectors
+// Expect texture view of size at least equal to @param size.
+// @param size defines square area of texture where should be the resulting octahedron mapping
+class RENDERER_API_EXPORT C_OctahedralTextureView
+{
+public:
+	C_OctahedralTextureView(C_TextureView* view, std::size_t size)
+		: m_View(view)
+		, m_Size(size) 
+	{}
+
+	template<class T>
+	void Set(const glm::vec3& direction, const T val, E_TextureChannel element)
+	{
+		const auto coord = float32x3_to_oct(direction);
+		const auto realCoord = glm::ivec2{ static_cast<float>(m_Size) * (coord / 2.0f + 0.5f) };
+
+		m_View->Set(realCoord, val, element);
+	}
+private:
+	std::size_t		m_Size;
+	C_TextureView*	m_View;
+};
+
 } // namespace GLEngine::Renderer
