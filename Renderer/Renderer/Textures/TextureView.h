@@ -140,7 +140,7 @@ public:
 		const auto coord = float32x3_to_oct(direction);
 		const auto realCoord = glm::ivec2{ static_cast<float>(m_Size) * (coord / 2.0f + 0.5f) };
 
-		m_View->Set(realCoord, val, element);
+		m_View.Set(realCoord, val, element);
 	}
 private:
 	std::size_t		m_Size;
