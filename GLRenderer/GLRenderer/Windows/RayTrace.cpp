@@ -1,12 +1,11 @@
 #include <GLRendererStdafx.h>
 
-#include <GLRenderer/Windows/RayTrace.h>
-
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/Textures/Texture.h>
+#include <GLRenderer/Windows/RayTrace.h>
 
-#include <Renderer/IRenderer.h>
 #include <Renderer/ICameraComponent.h>
+#include <Renderer/IRenderer.h>
 #include <Renderer/RayCasting/RayRenderer.h>
 #include <Renderer/Textures/TextureView.h>
 
@@ -18,7 +17,7 @@
 
 namespace GLEngine::GLRenderer {
 
-constexpr std::uint8_t resolution = 32;
+constexpr static std::uint16_t s_resolution = 512;
 
 //=================================================================================
 C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_CameraComponent> camera)
@@ -30,7 +29,7 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_Camera
 	, m_Running(false)
 	, m_RunningCycle(false)
 	, m_LiveUpdate(false, "Live update")
-	, m_DirectionImage(resolution, resolution, 1)
+	, m_DirectionImage(s_resolution, s_resolution, 1)
 	, m_DirImage(nullptr)
 {
 	{
@@ -57,18 +56,19 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_Camera
 //=================================================================================
 void C_RayTraceWindow::RayTrace()
 {
-	if (m_Running) return;
+	if (m_Running)
+		return;
 	std::packaged_task<void()> rayTrace([&]() {
-		Renderer::C_RayRenderer renderer(m_Scene);
+		Renderer::C_RayRenderer	   renderer(m_Scene);
 		Utils::HighResolutionTimer renderTime;
-		renderer.SetDirectionalDebug(Renderer::C_OctahedralTextureView(Renderer::C_TextureView(&m_DirectionImage), resolution));
+		renderer.SetDirectionalDebug(Renderer::C_OctahedralTextureView(Renderer::C_TextureView(&m_DirectionImage), s_resolution));
 		renderer.Render(*m_Camera, m_ImageStorage);
 		CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
 		UploadStorage();
 		m_Running = false;
 		m_NumCycleSamples++;
-		});
-	m_Running = true;
+	});
+	m_Running	 = true;
 	m_SignalDone = rayTrace.get_future();
 	std::thread rtThread(std::move(rayTrace));
 	rtThread.detach();
@@ -77,7 +77,8 @@ void C_RayTraceWindow::RayTrace()
 //=================================================================================
 void C_RayTraceWindow::RunUntilStop()
 {
-	if (m_Running) return;
+	if (m_Running)
+		return;
 	m_RunningCycle = m_Running = true;
 	std::packaged_task<void()> rayTrace([&]() {
 		Renderer::C_RayRenderer renderer(m_Scene);
@@ -90,7 +91,7 @@ void C_RayTraceWindow::RunUntilStop()
 			m_NumCycleSamples++;
 		}
 		m_Running = false;
-		});
+	});
 	m_SignalDone = rayTrace.get_future();
 	std::thread rtThread(std::move(rayTrace));
 	rtThread.detach();
@@ -99,7 +100,7 @@ void C_RayTraceWindow::RunUntilStop()
 //=================================================================================
 void C_RayTraceWindow::Clear()
 {
-	glm::vec4 color{ 0.f ,0.f ,0.f ,0.f };
+	glm::vec4 color{0.f, 0.f, 0.f, 0.f};
 	Renderer::C_TextureView(&m_ImageStorage).ClearColor(color);
 	Renderer::C_TextureView(&m_DirectionImage).ClearColor(color);
 	UploadStorage();
@@ -109,7 +110,7 @@ void C_RayTraceWindow::Clear()
 //=================================================================================
 void C_RayTraceWindow::DrawComponents() const
 {
-	if(m_LiveUpdate && m_Running)
+	if (m_LiveUpdate && m_Running)
 		UploadStorage();
 	const auto dim = m_ImageStorage.GetDimensions();
 	ImGui::Image((void*)(intptr_t)(m_Image->GetTexture()), ImVec2(static_cast<float>(dim.x), static_cast<float>(dim.y)));
@@ -149,24 +150,21 @@ void C_RayTraceWindow::UploadStorage() const
 		const auto& renderer = Core::C_Application::Get().GetActiveRenderer();
 		if (renderer)
 		{
-			renderer->AddTransferCommand(
-				std::make_unique<Commands::HACK::C_LambdaCommand>(
-					[this]() {
-						m_Image->bind();
-						m_Image->SetTexData2D(0, (&m_ImageStorage));
-						m_Image->GenerateMipMaps();
-					}, "RT buffer"
-					)
-			);
-			renderer->AddTransferCommand(
-				std::make_unique<Commands::HACK::C_LambdaCommand>(
-					[this]() {
-						m_DirImage->bind();
-						m_DirImage->SetTexData2D(0, (&m_DirectionImage));
-						m_DirImage->GenerateMipMaps();
-					}, "RT buffer"
-					)
-			);
+			renderer->AddTransferCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+				[this]() {
+					m_Image->bind();
+					m_Image->SetTexData2D(0, (&m_ImageStorage));
+					m_Image->GenerateMipMaps();
+				},
+				"RT buffer"));
+			renderer->AddTransferCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+				[this]() {
+					m_DirImage->bind();
+					m_DirImage->SetTexData2D(0, (&m_DirectionImage));
+					m_DirImage->GenerateMipMaps();
+					m_DirImage->unbind();
+				},
+				"RT buffer"));
 			foundRenderer = true;
 		}
 	}
@@ -184,4 +182,4 @@ bool C_RayTraceWindow::IsRunning() const
 	return m_Running;
 }
 
-}
+} // namespace GLEngine::GLRenderer
