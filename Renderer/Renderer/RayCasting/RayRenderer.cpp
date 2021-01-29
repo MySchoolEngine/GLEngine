@@ -84,7 +84,7 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 
 			if (!m_Scene.Intersect(ray, intersect)) continue;
 
-			const auto frame = intersect.GetFrame();
+			const auto& frame = intersect.GetFrame();
 
 			C_RayIntersection intersectLight;
 			const auto wol = frame.ToLocal(-ray.direction);
