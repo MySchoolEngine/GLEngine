@@ -56,12 +56,15 @@ void C_OGLRenderer::AddCommand(Renderer::I_Renderer::T_CommandPtr command)
 	{
 		GL_DebugBreak();
 	}
+	// must be after m_Locked check, otherwise will cause deadlock for any broken lambda command
+	std::lock_guard<std::mutex> guardCommand(m_CommandQueueMTX);
 	m_CommandQueue->emplace_back(std::move(command));
 }
 
 //=================================================================================
 void C_OGLRenderer::AddTransferCommand(T_CommandPtr command)
 {
+	std::lock_guard<std::mutex> guardTransfer(m_TransferQueueMTX);
 	m_TransferQueue.emplace_back(std::move(command));
 }
 
@@ -92,19 +95,28 @@ void C_OGLRenderer::TransformData()
 //=================================================================================
 void C_OGLRenderer::Commit() const
 {
-	for (auto& command : m_TransferQueue)
 	{
-		command->Commit();
+		std::lock_guard<std::mutex> guard(m_TransferQueueMTX);
+		for (auto& command : m_TransferQueue)
+		{
+			command->Commit();
+		}
 	}
-	for (auto& command : (*m_CommandQueue))
 	{
-		command->Commit();
+		std::lock_guard<std::mutex> guard(m_CommandQueueMTX);
+		for (auto& command : (*m_CommandQueue))
+		{
+			command->Commit();
+		}
 	}
 }
 
 //=================================================================================
 void C_OGLRenderer::ClearCommandBuffers()
 {
+	// TODO: this is still not safe, some command can come in between commit and this point
+	std::lock_guard<std::mutex> guardCommand(m_CommandQueueMTX);
+	std::lock_guard<std::mutex> guardTransfer(m_TransferQueueMTX);
 	m_DrawCommands.Sample(static_cast<float>(m_CommandQueue->size()));
 	const auto drawCallsNum
 		= std::count_if(m_CommandQueue->begin(), m_CommandQueue->end(), [](const auto& command) { return command->GetType() == Renderer::I_RenderCommand::E_Type::DrawCall; });

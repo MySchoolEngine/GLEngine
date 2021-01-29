@@ -58,6 +58,8 @@ private:
 	bool											 m_Locked = false;
 	std::vector<Renderer::I_Renderer::T_CommandPtr>* m_CommandQueue;
 	std::vector<Renderer::I_Renderer::T_CommandPtr>	 m_TransferQueue;
+	mutable std::mutex								 m_CommandQueueMTX;
+	mutable std::mutex								 m_TransferQueueMTX;
 	GUI::C_PlotLine<500>							 m_DrawCommands;
 	GUI::Input::C_CheckBoxValue						 m_CatchErrors;
 	GUI::Input::C_CheckBoxValue						 m_Wireframe;
