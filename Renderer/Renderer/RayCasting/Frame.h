@@ -3,6 +3,14 @@
 
 namespace GLEngine::Renderer {
 
+// Structure to simplify surface interaction code
+// Creates reference frame using orthonormal basis with (0,1,0) local coordinate
+// as its normal
+// | y / z
+// |  /
+// | /
+// |/     x
+// +-------
 struct S_Frame {
 public:
 	constexpr S_Frame();
