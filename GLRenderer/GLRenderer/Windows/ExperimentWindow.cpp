@@ -288,6 +288,8 @@ void C_ExplerimentWindow::SetupWorld()
 		return;
 	}
 
+	std::shared_ptr<Components::C_StaticMesh> geom = nullptr;
+
 	{
 		m_Player = m_World->GetEntity("Player");
 
@@ -307,6 +309,10 @@ void C_ExplerimentWindow::SetupWorld()
 			// area light
 			auto arealight = std::make_shared<C_GLAreaLight>(player);
 			player->AddComponent(arealight);
+
+			geom = std::make_shared<Components::C_StaticMesh>(Renderer::MeshData::C_Geometry::CreateOctahedron(0.5f, 0.5f), "OctahedronMapping", player);
+			geom->SetComponentMatrix(glm::translate(glm::vec3(0, 1, 2)));
+			player->AddComponent(geom);
 			//
 			// m_ShadowPass = std::make_shared<C_ShadowMapTechnique>(m_World, std::static_pointer_cast<Renderer::I_Light>( arealight));
 		}
@@ -348,6 +354,9 @@ void C_ExplerimentWindow::SetupWorld()
 		m_RayTraceGUID = NextGUID();
 
 		auto RTWindow = new C_RayTraceWindow(m_RayTraceGUID, m_CamManager.GetActiveCamera());
+
+		geom->SetColorMap(RTWindow->GetDebugTexture());
+
 		guiMGR.AddCustomWindow(RTWindow);
 		RTWindow->SetVisible();
 	}
