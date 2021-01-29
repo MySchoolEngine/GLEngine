@@ -31,11 +31,11 @@ public:
 	using T_CommandPtr = std::unique_ptr<I_RenderCommand>;
 	using T_BatchPtr   = std::unique_ptr<I_RenderBatch>;
 
-	virtual ~I_Renderer()				  = default;
-	virtual void Lock(bool lock = true)	  = 0;
-	virtual void AddCommand(T_CommandPtr) = 0;
+	virtual ~I_Renderer()						  = default;
+	virtual void Lock(bool lock = true)			  = 0;
+	virtual void AddCommand(T_CommandPtr)		  = 0;
 	virtual void AddTransferCommand(T_CommandPtr) = 0;
-	virtual void AddBatch(T_BatchPtr) = 0;
+	virtual void AddBatch(T_BatchPtr)			  = 0;
 
 	/** ==============================================
 	 * @method:    SortCommands

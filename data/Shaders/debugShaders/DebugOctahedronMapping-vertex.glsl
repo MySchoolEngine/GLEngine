@@ -19,7 +19,7 @@ out vec3 modelPosition;
 //=================================================================================
 void main()
 {
-	modelPosition = vertex.xyz/vertex.w;
+	modelPosition = vertex.xyz / vertex.w;
 
 	const vec4 worldCoord = modelMatrix * vertex;
 

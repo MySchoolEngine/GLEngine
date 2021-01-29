@@ -2,9 +2,9 @@
 
 #include <GLRendererStdafx.h>
 
-#include <Core/CoreMacros.h>
-
 #include <Renderer/Textures/TextureStorage.h>
+
+#include <Core/CoreMacros.h>
 
 namespace GLEngine::GLRenderer {
 

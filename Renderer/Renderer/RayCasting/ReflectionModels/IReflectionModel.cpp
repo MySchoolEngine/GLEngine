@@ -3,8 +3,7 @@
 #include <Renderer/RayCasting/ReflectionModels/IReflectionModel.h>
 
 
-namespace GLEngine::Renderer
-{
+namespace GLEngine::Renderer {
 
 //=================================================================================
 float I_ReflectionModel::FresnelDieletrics(float cosThetaI, float etaI, float etaO)
@@ -28,9 +27,9 @@ float I_ReflectionModel::FresnelDieletrics(float cosThetaI, float etaI, float et
 
 	const auto cosThetaO = std::sqrt(std::max(0.f, 1 - cosThetaI * cosThetaI));
 
-	const auto Rparallel = ((etaO * cosThetaI) - (etaI * cosThetaO)) / ((etaO * cosThetaI) + (etaI * cosThetaO));
+	const auto Rparallel	  = ((etaO * cosThetaI) - (etaI * cosThetaO)) / ((etaO * cosThetaI) + (etaI * cosThetaO));
 	const auto Rperpendicular = ((etaI * cosThetaI) - (etaO * cosThetaO)) / ((etaI * cosThetaI) + (etaO * cosThetaO));
 	return (Rparallel * Rparallel + Rperpendicular * Rperpendicular) / 2;
 }
 
-}
+} // namespace GLEngine::Renderer

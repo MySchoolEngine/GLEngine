@@ -179,7 +179,7 @@ void FreelookCamera::Update()
 		_position -= _cameraMovementSpeed * t * glm::vec3(0, 1, 0); // down
 
 	// Update view matrix
-	_viewMatrix = glm::lookAt(_position, _position + _view, _up);
+	_viewMatrix	   = glm::lookAt(_position, _position + _view, _up);
 	_ScreenToWorld = glm::inverse(_projectionMatrix * _viewMatrix);
 
 	// Reset angles
@@ -292,7 +292,7 @@ Physics::Primitives::C_Frustum FreelookCamera::GetFrustum() const
 void FreelookCamera::CreateProjection()
 {
 	_projectionMatrix = glm::perspective(glm::radians(m_fov), m_aspectRatio, m_nearZ, m_farZ);
-	_ScreenToWorld = glm::inverse(_projectionMatrix * _viewMatrix);
+	_ScreenToWorld	  = glm::inverse(_projectionMatrix * _viewMatrix);
 }
 
 //=================================================================================

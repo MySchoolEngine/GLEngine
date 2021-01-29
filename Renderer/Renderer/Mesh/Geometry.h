@@ -39,13 +39,12 @@ public:
 		const glm::vec4 top(0, height, 0, 1);
 		const glm::vec4 bottom(0, -height, 0, 1);
 
-		const auto getNormalBinromal = [&]() 
-		{
-			auto it = mesh.vertices.rbegin();
-			const auto A = glm::vec3(*(it));
-			const auto B = glm::vec3(*(++it));
-			const auto C = glm::vec3(*(++it));
-			const auto tang = glm::normalize(C - A);
+		const auto getNormalBinromal = [&]() {
+			auto	   it	  = mesh.vertices.rbegin();
+			const auto A	  = glm::vec3(*(it));
+			const auto B	  = glm::vec3(*(++it));
+			const auto C	  = glm::vec3(*(++it));
+			const auto tang	  = glm::normalize(C - A);
 			const auto biTang = B - A;
 			const auto normal = glm::normalize(glm::cross(tang, biTang));
 			mesh.normals.push_back(normal);

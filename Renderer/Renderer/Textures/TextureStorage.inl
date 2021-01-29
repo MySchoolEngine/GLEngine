@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Core/CoreMacros.h>
+
 #include <Utils/CompileTime/CompileTimeUtils.h>
 
 namespace GLEngine::Renderer {
@@ -24,8 +26,7 @@ template <class internalFormat> int C_TextureViewStorageCPU<internalFormat>::Get
 }
 
 //=================================================================================
-template<class internalFormat>
-float C_TextureViewStorageCPU<internalFormat>::GetF(std::size_t position) const
+template <class internalFormat> float C_TextureViewStorageCPU<internalFormat>::GetF(std::size_t position) const
 {
 	return static_cast<float>(m_Data[position]);
 }
@@ -74,8 +75,7 @@ template <class internalFormat> void C_TextureViewStorageCPU<internalFormat>::Se
 }
 
 //=================================================================================
-template<class internalFormat>
-E_TextureTypes C_TextureViewStorageCPU<internalFormat>::GetStorageType() const
+template <class internalFormat> E_TextureTypes C_TextureViewStorageCPU<internalFormat>::GetStorageType() const
 {
 	if (std::is_same_v<internalFormat, std::uint8_t>)
 	{

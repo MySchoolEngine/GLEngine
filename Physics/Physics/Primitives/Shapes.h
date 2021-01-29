@@ -14,19 +14,19 @@
 #include <Physics/Primitives/Intersectable.h>
 
 #define GLM_GTX_intersect
-#include <glm/gtx/intersect.hpp>
 #include <glm/glm.hpp>
+#include <glm/gtx/intersect.hpp>
 
 namespace GLEngine::Physics::Primitives {
 /** ==============================================
-* @class S_Sphere
-*
-* @brief	Represents 3D sphere
-*
-* @author 	Dominik Rohacek
-* Contact:	RohacekD@gmail.com
-* @date 	2018/05/16
-** ==============================================*/
+ * @class S_Sphere
+ *
+ * @brief	Represents 3D sphere
+ *
+ * @author 	Dominik Rohacek
+ * Contact:	RohacekD@gmail.com
+ * @date 	2018/05/16
+ ** ==============================================*/
 struct S_Sphere : public T_Intersectable<S_Sphere> {
 public:
 	S_Sphere() = default;
@@ -37,7 +37,7 @@ public:
 	}
 
 
-	[[nodiscard]] inline float	IntersectImpl(const S_Ray& ray) const
+	[[nodiscard]] inline float IntersectImpl(const S_Ray& ray) const
 	{
 		float t = 0.0f;
 		if (glm::intersectRaySphere(ray.origin, ray.direction, m_position, m_radius * m_radius, t))

@@ -1,17 +1,16 @@
 #include <RendererStdafx.h>
 
+#include <Renderer/RayCasting/Frame.h>
 #include <Renderer/RayCasting/ReflectionModels/SpecularReflection.h>
 
-#include <Renderer/RayCasting/Frame.h>
-
-namespace GLEngine::Renderer
-{
+namespace GLEngine::Renderer {
 
 //=================================================================================
 C_SpecularReflection::C_SpecularReflection(float etaI, float etaO)
 	: m_etaI(etaI)
 	, m_etaO(etaO)
-{}
+{
+}
 
 //=================================================================================
 glm::vec3 C_SpecularReflection::f(const glm::vec3& wi, const glm::vec3& wo) const
@@ -24,7 +23,7 @@ glm::vec3 C_SpecularReflection::f(const glm::vec3& wi, const glm::vec3& wo) cons
 //=================================================================================
 glm::vec3 C_SpecularReflection::SampleF(const glm::vec3& wi, glm::vec3& wo, const S_Frame& frame, const glm::vec2& rng, float* pdf) const
 {
-	wo = frame.Reflect(wi);
+	wo	 = frame.Reflect(wi);
 	*pdf = 1.0f;
 	return glm::vec3(FresnelDieletrics(frame.CosTheta(wi), m_etaI, m_etaO) / frame.AbsCosTheta(wo));
 }
@@ -35,4 +34,4 @@ float C_SpecularReflection::Pdf(const glm::vec3& wi, const glm::vec3& wo) const
 	return 0.0f;
 }
 
-}
+} // namespace GLEngine::Renderer

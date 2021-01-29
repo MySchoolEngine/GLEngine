@@ -160,15 +160,7 @@ void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* te
 	SetDimensions(tex->GetDimensions());
 	m_Channels = tex->GetNumElements();
 
-	glTexImage2D(m_target,
-		level,
-		GetInternalFormat(),
-		tex->GetDimensions().x,
-		tex->GetDimensions().y,
-		0,
-		GetFormat(tex->GetChannels()),
-		GetUnderlyingType(tex),
-		tex->GetData());
+	glTexImage2D(m_target, level, GetInternalFormat(), tex->GetDimensions().x, tex->GetDimensions().y, 0, GetFormat(tex->GetChannels()), GetUnderlyingType(tex), tex->GetData());
 }
 
 //=================================================================================

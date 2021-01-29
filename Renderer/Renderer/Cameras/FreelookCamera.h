@@ -140,9 +140,9 @@ private:
 
 	float m_aspectRatio;
 
-	glm::mat4						_viewMatrix;
-	glm::mat4						_projectionMatrix;
-	glm::mat4						_ScreenToWorld;
+	glm::mat4 _viewMatrix;
+	glm::mat4 _projectionMatrix;
+	glm::mat4 _ScreenToWorld;
 };
 } // namespace Renderer::Cameras
 } // namespace GLEngine

@@ -96,7 +96,8 @@ void C_OGLRenderer::Commit() const
 	{
 		command->Commit();
 	}
-	for (auto& command : (*m_CommandQueue)) {
+	for (auto& command : (*m_CommandQueue))
+	{
 		command->Commit();
 	}
 }
@@ -205,11 +206,13 @@ void C_OGLRenderer::CaputreCommands() const
 		CORE_LOG(E_Level::Error, E_Context::Render, "Cannot open file for debug output");
 	}
 	file << "Transfer queue\n";
-	for (const auto& command : m_TransferQueue) {
+	for (const auto& command : m_TransferQueue)
+	{
 		file << command->GetDescriptor() << "\n";
 	}
 	file << "Command queue\n";
-	for (const auto& command : (*m_CommandQueue)) {
+	for (const auto& command : (*m_CommandQueue))
+	{
 		file << command->GetDescriptor() << "\n";
 	}
 	file.flush();
