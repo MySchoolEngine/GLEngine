@@ -23,7 +23,7 @@ constexpr static std::uint16_t s_resolution = 512;
 C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_CameraComponent> camera)
 	: GUI::C_Window(guid, "Ray tracing")
 	, m_Camera(camera)
-	, m_ImageStorage(580, 480, 3)
+	, m_ImageStorage(844, 480, 3)
 	, m_Image(nullptr)
 	, m_NumCycleSamples(0)
 	, m_Running(false)
