@@ -26,6 +26,9 @@ public:
 
 	GUID AddMenu(T_GUIMenu menuItem);
 
+	virtual void RequestDestroy() {}
+	[[nodiscard]] virtual bool CanDestroy() const { return true; }
+
 protected:
 	virtual void DrawComponents() const;
 

@@ -54,6 +54,12 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_Camera
 }
 
 //=================================================================================
+C_RayTraceWindow::~C_RayTraceWindow()
+{
+	GLE_ASSERT(!IsRunning(), "Raytracing thread is still running.");
+}
+
+//=================================================================================
 void C_RayTraceWindow::RayTrace()
 {
 	if (m_Running)
@@ -182,6 +188,18 @@ void C_RayTraceWindow::StopAll()
 bool C_RayTraceWindow::IsRunning() const
 {
 	return m_Running;
+}
+
+//=================================================================================
+void C_RayTraceWindow::RequestDestroy()
+{
+	StopAll();
+}
+
+//=================================================================================
+bool C_RayTraceWindow::CanDestroy() const
+{
+	return !IsRunning();
 }
 
 } // namespace GLEngine::GLRenderer

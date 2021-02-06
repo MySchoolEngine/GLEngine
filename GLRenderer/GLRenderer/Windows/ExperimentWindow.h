@@ -51,6 +51,7 @@ public:
 
 	//=================================================================================
 	virtual void OnEvent(Core::I_Event& event) override;
+	[[nodiscard]] virtual bool CanClose() const override;
 
 protected:
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);

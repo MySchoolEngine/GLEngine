@@ -3,6 +3,7 @@
 #include <GUI/ImGuiLayer.h>
 
 #include <Core/Application.h>
+#include <Core/EventSystem/Event/AppEvent.h>
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/Event/MouseEvents.h>
 #include <Core/EventSystem/EventDispatcher.h>
@@ -13,7 +14,6 @@
 #include <imgui.h>
 
 namespace GLEngine::GUI {
-
 
 //=================================================================================
 C_ImGuiLayer::C_ImGuiLayer(GUID window)
@@ -98,6 +98,7 @@ void C_ImGuiLayer::OnEvent(Core::I_Event& event)
 	d.Dispatch<Core::C_MouseButtonReleased>(std::bind(&C_ImGuiLayer::OnMouseButtonReleasedEvent, this, std::placeholders::_1));
 	d.Dispatch<Core::C_MouseScrollEvent>(std::bind(&C_ImGuiLayer::OnMouseScrolledEvent, this, std::placeholders::_1));
 	d.Dispatch<Core::C_MouseMoved>(std::bind(&C_ImGuiLayer::OnMouseMoved, this, std::placeholders::_1));
+	d.Dispatch<Core::C_AppEvent>(std::bind(&C_ImGuiLayer::OnAppEvent, this, std::placeholders::_1));
 }
 
 //=================================================================================
@@ -189,5 +190,22 @@ ImDrawData* C_ImGuiLayer::GetRenderData()
 {
 	return ::ImGui::GetDrawData();
 }
+
+//=================================================================================
+bool C_ImGuiLayer::ReadyForDestroy() const
+{
+	return m_GUIMgr.CanBeDestroyed();
+}
+
+//=================================================================================
+bool C_ImGuiLayer::OnAppEvent(Core::C_AppEvent& event)
+{
+	if (event.GetEventType() == Core::C_AppEvent::E_Type::WindowCloseRequest) {
+		m_GUIMgr.RequestDestroy();
+	}
+
+	return false;
+}
+
 
 } // namespace GLEngine::GUI

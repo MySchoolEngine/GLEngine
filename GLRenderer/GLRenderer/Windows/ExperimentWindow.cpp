@@ -88,6 +88,7 @@ C_ExplerimentWindow::~C_ExplerimentWindow()
 	guiMGR.DestroyWindow(m_ConsoleWindowGUID);
 	guiMGR.DestroyWindow(m_FrameStatsGUID);
 	guiMGR.DestroyWindow(m_HDRSettingsGUID);
+	m_ImGUI->OnDetach();
 };
 
 //=================================================================================
@@ -251,9 +252,6 @@ void C_ExplerimentWindow::OnAppInit()
 	// ~depthStencilTexture setup
 	m_HDRFBO->AttachTexture(GL_DEPTH_STENCIL_ATTACHMENT, depthStencilTexture);
 	depthStencilTexture->unbind();
-
-
-	return false;
 }
 
 //=================================================================================
@@ -432,6 +430,12 @@ bool C_ExplerimentWindow::OnAppEvent(Core::C_AppEvent& event)
 	}
 
 	return false;
+}
+
+//=================================================================================
+bool C_ExplerimentWindow::CanClose() const
+{
+	return m_LayerStack.ReadyForDestroy();
 }
 
 } // namespace GLEngine::GLRenderer::Windows

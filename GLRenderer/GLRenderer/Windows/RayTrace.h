@@ -18,7 +18,7 @@ class C_Texture;
 class C_RayTraceWindow : public GUI::C_Window {
 public:
 	C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_CameraComponent> camera);
-
+	~C_RayTraceWindow();
 
 	void RayTrace();
 	void Clear();
@@ -28,6 +28,9 @@ public:
 	bool IsRunning() const;
 
 	std::shared_ptr<Textures::C_Texture> GetDebugTexture() const { return m_DirImage; }
+
+	virtual void RequestDestroy() override;
+	[[nodiscard]] virtual bool CanDestroy() const override;
 
 private:
 	virtual void DrawComponents() const override;
