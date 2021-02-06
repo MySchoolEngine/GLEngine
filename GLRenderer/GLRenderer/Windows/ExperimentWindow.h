@@ -54,10 +54,11 @@ public:
 
 protected:
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
-	bool OnAppInit(Core::C_AppEvent& event);
+	bool OnAppEvent(Core::C_AppEvent& event);
 	bool OnWindowResized(Core::C_WindowResizedEvent& event);
 
 private:
+	void OnAppInit();
 	void SetupWorld();
 	void MouseSelect();
 

@@ -198,7 +198,7 @@ void C_ExplerimentWindow::OnEvent(Core::I_Event& event)
 
 	Core::C_EventDispatcher d(event);
 	d.Dispatch<Core::C_KeyPressedEvent>(std::bind(&C_ExplerimentWindow::OnKeyPressed, this, std::placeholders::_1));
-	d.Dispatch<Core::C_AppEvent>(std::bind(&C_ExplerimentWindow::OnAppInit, this, std::placeholders::_1));
+	d.Dispatch<Core::C_AppEvent>(std::bind(&C_ExplerimentWindow::OnAppEvent, this, std::placeholders::_1));
 	d.Dispatch<Core::C_WindowResizedEvent>(std::bind(&C_ExplerimentWindow::OnWindowResized, this, std::placeholders::_1));
 
 	m_LayerStack.OnEvent(event);
@@ -216,7 +216,7 @@ bool C_ExplerimentWindow::OnKeyPressed(Core::C_KeyPressedEvent& event)
 }
 
 //=================================================================================
-bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
+void C_ExplerimentWindow::OnAppInit()
 {
 	{
 		using namespace Commands;
@@ -421,6 +421,17 @@ void C_ExplerimentWindow::MouseSelect()
 			entity->OnEvent(event);
 		}
 	}
+}
+
+//=================================================================================
+bool C_ExplerimentWindow::OnAppEvent(Core::C_AppEvent& event)
+{
+	if (event.GetEventType() == Core::C_AppEvent::E_Type::AppInit) {
+		OnAppInit();
+		return true;
+	}
+
+	return false;
 }
 
 } // namespace GLEngine::GLRenderer::Windows

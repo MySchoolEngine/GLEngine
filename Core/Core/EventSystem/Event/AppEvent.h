@@ -9,10 +9,22 @@ namespace GLEngine::Core {
 // @todo: should also contain other events in the future
 class C_AppEvent : public I_Event {
 public:
-	C_AppEvent() = default;
+	enum class E_Type
+	{
+		AppInit,
+		WindowCloseRequest,
+	};
+	C_AppEvent(E_Type type)
+		: m_Type(type){}
 
 	EVENT_CLASS_CATEGORY(E_EventCategory::None);
 	EVENT_CLASS_TYPE(AppEvent);
+
+	const E_Type GetEventType() const { return m_Type; }
+	void		 SetEventType(E_Type val) { m_Type = val; }
+
+private:
+	E_Type m_Type;
 };
 
 //=============================================================
