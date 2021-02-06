@@ -67,12 +67,14 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 			const auto		  ray = GetRay(x, y);
 			C_RayIntersection intersect;
 
+			// direct ray to the light intersection
 			if (areaLight.Intersect(ray, intersect))
 			{
 				textureView.Set({x, y}, textureView.Get<glm::vec3>({x, y}) + glm::vec3{areLightPower, areLightPower, areLightPower});
 				continue;
 			}
 
+			// first primary ray
 			if (!m_Scene.Intersect(ray, intersect))
 				continue;
 
@@ -97,7 +99,7 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 			}
 
 			C_RayIntersection geomIntersect;
-			if (m_Scene.Intersect(lightRay, geomIntersect))
+			if (m_Scene.Intersect(lightRay, geomIntersect, std::numeric_limits<float>::epsilon()))
 			{
 				// light missed, here we should continue the ray
 				continue;

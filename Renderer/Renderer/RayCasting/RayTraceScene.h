@@ -92,7 +92,7 @@ public:
 
 	void operator=(const C_RayTraceScene&) = delete;
 
-	[[nodiscard]] bool Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const;
+	[[nodiscard]] bool Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, float offset = 0.f) const;
 	void			   AddObejct(std::unique_ptr<I_RayGeometryObject>&& object);
 
 private:

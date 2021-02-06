@@ -35,7 +35,7 @@ C_RayTraceScene::C_RayTraceScene()
 C_RayTraceScene::~C_RayTraceScene() = default;
 
 //=================================================================================
-bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
+bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, float offset) const
 {
 	std::vector<std::pair<C_RayIntersection, float>> intersections;
 
@@ -43,7 +43,8 @@ bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInte
 		C_RayIntersection inter;
 		if (object->Intersect(ray, inter))
 		{
-			intersections.push_back({inter, inter.GetRayLength()});
+			if (inter.GetRayLength() >= offset)
+				intersections.push_back({inter, inter.GetRayLength()});
 		}
 	});
 
