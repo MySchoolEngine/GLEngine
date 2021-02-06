@@ -2,6 +2,7 @@
 
 #include <Renderer/ICameraComponent.h>
 #include <Renderer/RayCasting/RayRenderer.h>
+#include <Renderer/RayCasting/ReflectionModels/LambertianModel.h>
 #include <Renderer/RayCasting/ReflectionModels/SpecularReflection.h>
 #include <Renderer/RayCasting/Sampling.h>
 #include <Renderer/Textures/TextureStorage.h>
@@ -53,12 +54,11 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 	auto	   min = std::numeric_limits<float>::max();
 	auto	   max = std::numeric_limits<float>::min();
 
-	const glm::vec3								   lightNormal = glm::normalize(glm::vec3(0, -0.5f, -1));
-	const C_Primitive<Physics::Primitives::S_Disc> areaLight(Physics::Primitives::S_Disc(lightNormal, glm::vec3(0, 1, 2), .25f));
+	const glm::vec3								   lightNormal = glm::normalize(glm::vec3(-1, -0.5f, 0));
+	const C_Primitive<Physics::Primitives::S_Disc> areaLight(Physics::Primitives::S_Disc(lightNormal, glm::vec3(0, 1, 0), 1.f));
 
-	const auto				   areLightPower = 255.f;
-	const auto				   IORGlass		 = 1.5f;
-	const C_SpecularReflection planeMaterial(1.00029f, IORGlass);
+	const auto areLightPower = 255.f;
+	const auto IORGlass		 = 1.5f;
 
 	for (int y = 0; y < dim.y; ++y)
 	{
@@ -82,6 +82,7 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 			const auto		  wol = frame.ToLocal(-ray.direction);
 			glm::vec3		  wil;
 			float			  pdf;
+			C_LambertianModel planeMaterial(glm::vec3(intersect.GetMaterial()->diffuse));
 			planeMaterial.SampleF(-ray.direction, wil, frame, {distrib(gen), distrib(gen)}, &pdf);
 			const Physics::Primitives::S_Ray lightRay{intersect.GetIntersectionPoint(), frame.ToWorld(wil)};
 
