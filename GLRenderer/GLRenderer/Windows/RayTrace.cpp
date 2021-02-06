@@ -120,10 +120,12 @@ void C_RayTraceWindow::DrawComponents() const
 		{
 			const_cast<C_RayTraceWindow*>(this)->RayTrace();
 		}
+		ImGui::SameLine();
 		if (ImGui::Button("Clear"))
 		{
 			const_cast<C_RayTraceWindow*>(this)->Clear();
 		}
+		ImGui::SameLine();
 		if (ImGui::Button("Cycle"))
 		{
 			const_cast<C_RayTraceWindow*>(this)->RunUntilStop();
