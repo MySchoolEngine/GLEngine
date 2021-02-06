@@ -75,9 +75,8 @@ public:
 	//=================================================================================
 	[[nodiscard]] virtual unsigned int NumWindows() const override
 	{
-		return std::accumulate(m_Managers.begin(), m_Managers.end(), 0, [](unsigned int val, const auto& manager) -> unsigned int {
-			return val + (manager == nullptr ? 0 : manager->NumWindows());
-		});
+		return std::accumulate(m_Managers.begin(), m_Managers.end(), 0,
+							   [](unsigned int val, const auto& manager) -> unsigned int { return val + (manager == nullptr ? 0 : manager->NumWindows()); });
 	}
 
 

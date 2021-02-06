@@ -424,7 +424,8 @@ void C_ExplerimentWindow::MouseSelect()
 //=================================================================================
 bool C_ExplerimentWindow::OnAppEvent(Core::C_AppEvent& event)
 {
-	if (event.GetEventType() == Core::C_AppEvent::E_Type::AppInit) {
+	if (event.GetEventType() == Core::C_AppEvent::E_Type::AppInit)
+	{
 		OnAppInit();
 		return true;
 	}

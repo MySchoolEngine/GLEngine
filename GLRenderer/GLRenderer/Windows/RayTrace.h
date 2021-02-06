@@ -29,7 +29,7 @@ public:
 
 	std::shared_ptr<Textures::C_Texture> GetDebugTexture() const { return m_DirImage; }
 
-	virtual void RequestDestroy() override;
+	virtual void			   RequestDestroy() override;
 	[[nodiscard]] virtual bool CanDestroy() const override;
 
 private:

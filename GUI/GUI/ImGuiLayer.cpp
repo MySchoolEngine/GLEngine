@@ -200,7 +200,8 @@ bool C_ImGuiLayer::ReadyForDestroy() const
 //=================================================================================
 bool C_ImGuiLayer::OnAppEvent(Core::C_AppEvent& event)
 {
-	if (event.GetEventType() == Core::C_AppEvent::E_Type::WindowCloseRequest) {
+	if (event.GetEventType() == Core::C_AppEvent::E_Type::WindowCloseRequest)
+	{
 		m_GUIMgr.RequestDestroy();
 	}
 

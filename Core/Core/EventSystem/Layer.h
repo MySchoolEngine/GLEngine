@@ -15,10 +15,10 @@ public:
 	virtual ~C_Layer() = default;
 
 
-	virtual void OnAttach() {}
-	virtual void OnDetach() {}
-	virtual void OnUpdate() {}
-	virtual void OnEvent(Core::I_Event& event) override {}
+	virtual void			   OnAttach() {}
+	virtual void			   OnDetach() {}
+	virtual void			   OnUpdate() {}
+	virtual void			   OnEvent(Core::I_Event& event) override {}
 	[[nodiscard]] virtual bool ReadyForDestroy() const { return true; }
 
 	[[nodiscard]] inline const std::string& GetName() const { return m_DebugName; }

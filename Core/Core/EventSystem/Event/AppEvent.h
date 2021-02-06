@@ -15,7 +15,9 @@ public:
 		WindowCloseRequest,
 	};
 	C_AppEvent(E_Type type)
-		: m_Type(type){}
+		: m_Type(type)
+	{
+	}
 
 	EVENT_CLASS_CATEGORY(E_EventCategory::None);
 	EVENT_CLASS_TYPE(AppEvent);

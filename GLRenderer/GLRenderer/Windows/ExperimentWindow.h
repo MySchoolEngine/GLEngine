@@ -50,7 +50,7 @@ public:
 	virtual void Update() override;
 
 	//=================================================================================
-	virtual void OnEvent(Core::I_Event& event) override;
+	virtual void			   OnEvent(Core::I_Event& event) override;
 	[[nodiscard]] virtual bool CanClose() const override;
 
 protected:
