@@ -65,7 +65,7 @@ public:
 	[[nodiscard]] virtual double GetD(std::size_t position) const override;
 	[[nodiscard]] virtual int	 GetI(std::size_t position) const override;
 
-	[[nodiscard]] virtual constexpr std::uint8_t GetNumElements() const override;
+	[[nodiscard]] virtual std::uint8_t GetNumElements() const override;
 
 	[[nodiscard]] virtual const void* GetData() const override;
 	[[nodiscard]] virtual void*		  GetData() override;
