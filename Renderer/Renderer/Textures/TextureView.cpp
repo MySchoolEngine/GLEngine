@@ -17,4 +17,11 @@ std::size_t C_TextureView::GetAddress(const glm::ivec2& uv) const
 	return (static_cast<std::size_t>(dim.x) * uv.x + uv.y) * m_Storage->GetNumElements();
 }
 
+//=================================================================================
+glm::vec2 C_TextureView::GetPixelCoord(const glm::vec2& uv) const
+{
+	const auto dim = m_Storage->GetDimensions();
+	return uv * glm::vec2(dim);
+}
+
 } // namespace GLEngine::Renderer
