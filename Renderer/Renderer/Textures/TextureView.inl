@@ -7,9 +7,8 @@ namespace GLEngine::Renderer {
 //=================================================================================
 template <class T, class Filter /*= T_Nearest*/> [[nodiscard]] T C_TextureView::Get(const glm::vec2& uv, E_TextureChannel element) const
 {
-
 	const auto pixelCoord = GetPixelCoord(uv);
-	return Filter().FilteredGet<T>(pixelCoord, *this, element);
+	return Filter().template FilteredGet<T>(pixelCoord, *this, element);
 }
 
 //=================================================================================
