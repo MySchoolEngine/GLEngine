@@ -37,19 +37,24 @@ struct T_Nearest;
 //=================================================================================
 class RENDERER_API_EXPORT C_TextureView {
 public:
-	C_TextureView(I_TextureViewStorage* storage);
-	template <class T> [[nodiscard]] T Get(const glm::ivec2& uv, E_TextureChannel element) const;
-
+	explicit C_TextureView(I_TextureViewStorage* storage);
+	template <class T> [[nodiscard]] T							 Get(const glm::ivec2& uv, E_TextureChannel element) const;
 	template <class T, class Filter = T_Nearest> [[nodiscard]] T Get(const glm::vec2& uv, E_TextureChannel element) const;
+	template <class T> [[nodiscard]] T							 GetBorderColor() const;
 
 	template <class T> void Set(const glm::ivec2& uv, const T val, E_TextureChannel element);
 
 protected:
 	[[nodiscard]] std::size_t GetAddress(const glm::ivec2& uv) const;
 	[[nodiscard]] glm::vec2	  GetPixelCoord(const glm::vec2& uv) const;
+	[[nodiscard]] bool		  IsOutsideBorders(const glm::vec2& uv) const;
 
 	I_TextureViewStorage* m_Storage; // not owning ptr
+	glm::vec4			  m_BorderColor;
 };
+
+template <> glm::vec4 C_TextureView::GetBorderColor() const;
+template <> glm::ivec4 C_TextureView::GetBorderColor() const;
 
 // Represents texture view as described in
 // @source:	http://jcgt.org/published/0003/02/01/paper.pdf
