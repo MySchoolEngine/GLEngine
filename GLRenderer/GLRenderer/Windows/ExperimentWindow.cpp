@@ -26,6 +26,7 @@
 #include <Renderer/Cameras/FreelookCamera.h>
 #include <Renderer/Cameras/OrbitalCamera.h>
 #include <Renderer/Mesh/Scene.h>
+#include <Renderer/Textures/TextureView.h>
 
 #include <GUI/ConsoleWindow.h>
 
@@ -43,6 +44,8 @@
 
 #include <pugixml.hpp>
 
+#include <imgui.h>
+
 namespace GLEngine::GLRenderer::Windows {
 
 //=================================================================================
@@ -59,6 +62,8 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	, m_ShadowPass(nullptr)
 	, m_GUITexts({{GUI::C_FormatedText("Avg frame time {:.2f}"), GUI::C_FormatedText("Avg fps {:.2f}"), GUI::C_FormatedText("Min/max frametime {:.2f}/{:.2f}")}})
 	, m_Windows(std::string("Windows"))
+	, m_TextureBuffer(2,2,1)
+	, m_TestTexure(std::make_shared<Textures::C_Texture>("test"))
 {
 	glfwMakeContextCurrent(m_Window);
 
@@ -121,6 +126,10 @@ void C_ExplerimentWindow::Update()
 
 	shmgr.DeactivateShader();
 	// ----- Frame init -------
+
+	::ImGui::Begin("Test texture");
+	::ImGui::Image((void*)(intptr_t)(m_TestTexure->GetTexture()), ImVec2(128, 128));
+	::ImGui::End();
 
 	{
 		RenderDoc::C_DebugScope s("Persistent debug");
@@ -248,6 +257,36 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 	m_HDRFBO->AttachTexture(GL_DEPTH_STENCIL_ATTACHMENT, depthStencilTexture);
 	depthStencilTexture->unbind();
 
+	auto channels = m_TextureBuffer.GetChannels();
+	channels[1]	  = Renderer::E_TextureChannel::None;
+	channels[2]	  = Renderer::E_TextureChannel::None;
+	channels[3]	  = Renderer::E_TextureChannel::None;
+	m_TextureBuffer.SetChannels(channels);
+
+	Renderer::C_TextureView view(&m_TextureBuffer);
+	view.Set({0, 0}, 0, Renderer::E_TextureChannel::Red);
+	view.Set({0, 1}, 255, Renderer::E_TextureChannel::Red);
+	view.Set({1, 0}, 255, Renderer::E_TextureChannel::Red);
+	view.Set({1, 1}, 0, Renderer::E_TextureChannel::Red);
+
+	CORE_LOG(E_Level::Error, E_Context::Core, "{}", view.Get<std::uint8_t, Renderer::T_Bilinear>(glm::vec2(0.5f, 0.0f), Renderer::E_TextureChannel::Red));
+
+	// view.Set(glm::ivec2{2, 0} + glm::ivec2{0, 0}, 0, Renderer::E_TextureChannel::Red);
+	// view.Set(glm::ivec2{2, 0} + glm::ivec2{0, 1}, 255, Renderer::E_TextureChannel::Red);
+	// view.Set(glm::ivec2{2, 0} + glm::ivec2{1, 0}, 255, Renderer::E_TextureChannel::Red);
+	// view.Set(glm::ivec2{2, 0} + glm::ivec2{1, 1}, 0, Renderer::E_TextureChannel::Red);
+	// 
+	// view.Set(glm::ivec2{2, 2} + glm::ivec2{0, 0}, 0, Renderer::E_TextureChannel::Red);
+	// view.Set(glm::ivec2{2, 2} + glm::ivec2{0, 1}, 255, Renderer::E_TextureChannel::Red);
+	// view.Set(glm::ivec2{2, 2} + glm::ivec2{1, 0}, 255, Renderer::E_TextureChannel::Red);
+	// view.Set(glm::ivec2{2, 2} + glm::ivec2{1, 1}, 0, Renderer::E_TextureChannel::Red);
+
+	m_TestTexure->bind();
+	//m_TestTexure->SetFilter(E_OpenGLFilter::Nearest, E_OpenGLFilter::Nearest);
+	m_TestTexure->SetWrap(E_WrapFunction::ClampToEdge, E_WrapFunction::ClampToEdge);
+	m_TestTexure->SetTexData2D(0, &m_TextureBuffer);
+	m_TestTexure->GenerateMipMaps();
+	m_TestTexure->unbind();
 
 	return false;
 }

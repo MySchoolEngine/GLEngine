@@ -8,6 +8,8 @@
 #include <GLRenderer/ShadowMapPass.h>
 #include <GLRenderer/Textures/Texture.h>
 
+#include <Renderer/Textures/TextureStorage.h>
+
 #include <GUI/GUIWindow.h>
 #include <GUI/Input/CheckBoxValue.h>
 #include <GUI/Input/Slider.h>
@@ -96,6 +98,9 @@ private:
 
 	std::unique_ptr<C_Framebuffer>				m_HDRFBO;
 	std::shared_ptr<Mesh::C_StaticMeshResource> m_ScreenQuad;
+
+	Renderer::C_TextureViewStorageCPU<std::uint8_t> m_TextureBuffer;
+	std::shared_ptr<Textures::C_Texture>			m_TestTexure;
 };
 
 } // namespace Windows
