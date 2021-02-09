@@ -20,7 +20,7 @@ std::size_t C_TextureView::GetAddress(const glm::ivec2& uv) const
 //=================================================================================
 glm::vec2 C_TextureView::GetPixelCoord(const glm::vec2& uv) const
 {
-	const auto dim = m_Storage->GetDimensions();
+	const auto dim = m_Storage->GetDimensions() - glm::ivec2(1, 1);
 	return uv * glm::vec2(dim);
 }
 
