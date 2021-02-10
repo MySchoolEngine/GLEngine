@@ -37,14 +37,14 @@ C_TextureManager::T_TexturePtr C_TextureManager::GetTexture(const std::string& n
 	}
 
 	Renderer::Textures::TextureLoader tl;
-	auto*							  buffer = tl.loadTexture(name.c_str());
+	auto							  buffer = std::make_shared<Renderer::I_TextureViewStorage>(tl.loadTexture(name.c_str()));
 	if (!buffer)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Could not load texture '{}'", name);
 		return nullptr;
 	}
 
-	return CreateTexture(buffer, name);
+	return CreateTexture(buffer.get(), name);
 }
 
 //=================================================================================
