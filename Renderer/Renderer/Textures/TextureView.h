@@ -2,6 +2,7 @@
 
 #include <Renderer/RendererApi.h>
 #include <Renderer/Textures/TextureStorage.h>
+#include <Renderer/Textures/TextureDefinitions.h>
 /**
  *	This class serves as CPU side view to the texture independently whether lies on
  *	CPU or GPU memory.
@@ -38,22 +39,30 @@ struct T_Nearest;
 class RENDERER_API_EXPORT C_TextureView {
 public:
 	explicit C_TextureView(I_TextureViewStorage* storage);
-	template <class T> [[nodiscard]] T							 Get(const glm::ivec2& uv, E_TextureChannel element) const;
 	template <class T, class Filter = T_Nearest> [[nodiscard]] T Get(const glm::vec2& uv, E_TextureChannel element) const;
+	template <class T> [[nodiscard]] T							 Get(const glm::ivec2& uv, E_TextureChannel element) const;
 	template <class T> [[nodiscard]] T							 GetBorderColor() const;
 
+	[[nodiscard]] E_WrapFunction GetWrapFunction() const;
+	void						 SetWrapFunction(E_WrapFunction wrap);
+
 	template <class T> void Set(const glm::ivec2& uv, const T val, E_TextureChannel element);
+	void					SetBorderColor(const glm::vec4& color);
+	[[nodiscard]] bool		UseBorderColor() const;
 
 protected:
 	[[nodiscard]] std::size_t GetAddress(const glm::ivec2& uv) const;
 	[[nodiscard]] glm::vec2	  GetPixelCoord(const glm::vec2& uv) const;
 	[[nodiscard]] bool		  IsOutsideBorders(const glm::vec2& uv) const;
+	[[nodiscard]] glm::ivec2  ClampCoordinates(const glm::ivec2& uv) const;
+	
 
 	I_TextureViewStorage* m_Storage; // not owning ptr
 	glm::vec4			  m_BorderColor;
+	E_WrapFunction		  m_WrapFunction;
 };
 
-template <> glm::vec4 C_TextureView::GetBorderColor() const;
+template <> glm::vec4  C_TextureView::GetBorderColor() const;
 template <> glm::ivec4 C_TextureView::GetBorderColor() const;
 
 // Represents texture view as described in

@@ -14,9 +14,15 @@ template <class T, class Filter /*= T_Nearest*/> [[nodiscard]] T C_TextureView::
 //=================================================================================
 template <> inline std::uint8_t C_TextureView::Get<std::uint8_t>(const glm::ivec2& uv, E_TextureChannel element) const
 {
+	glm::ivec2 coord = uv;
 	if (IsOutsideBorders(uv))
-		return GetBorderColor<glm::ivec4>()[static_cast<std::underlying_type_t<E_TextureChannel>>(element)];
-	return m_Storage->GetI(GetAddress(uv) + m_Storage->GetChannelOffset(element));
+		if (UseBorderColor())
+			return GetBorderColor<glm::ivec4>()[static_cast<std::underlying_type_t<E_TextureChannel>>(element)];
+		else
+			coord = ClampCoordinates(uv);
+
+	// TODO: only this line needs to be in specific template
+	return m_Storage->GetI(GetAddress(coord) + m_Storage->GetChannelOffset(element));
 }
 
 //=================================================================================

@@ -69,8 +69,8 @@ public:
 	[[nodiscard]] std::uint64_t GetHandle() const;
 	void						MakeHandleResident(bool val = true);
 
-	void SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT);
-	void SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT, E_WrapFunction wrapR);
+	void SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction wrapT);
+	void SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction wrapT, Renderer::E_WrapFunction wrapR);
 	void SetFilter(E_OpenGLFilter min, E_OpenGLFilter mag);
 	void SetTexParameter(GLenum pname, const glm::vec4& value);
 	void SetTexParameter(GLenum pname, GLint value);

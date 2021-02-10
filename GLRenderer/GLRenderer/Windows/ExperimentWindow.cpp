@@ -283,7 +283,7 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 
 	m_TestTexure->bind();
 	//m_TestTexure->SetFilter(E_OpenGLFilter::Nearest, E_OpenGLFilter::Nearest);
-	m_TestTexure->SetWrap(E_WrapFunction::ClampToEdge, E_WrapFunction::ClampToEdge);
+	m_TestTexure->SetWrap(Renderer::E_WrapFunction::ClampToEdge, Renderer::E_WrapFunction::ClampToEdge);
 	m_TestTexure->SetTexData2D(0, &m_TextureBuffer);
 	m_TestTexure->GenerateMipMaps();
 	m_TestTexure->unbind();

@@ -2,6 +2,8 @@
 
 #include <GLRendererStdafx.h>
 
+#include <Renderer/Textures/TextureDefinitions.h>
+
 namespace GLEngine::GLRenderer {
 
 //=================================================================================
@@ -171,17 +173,9 @@ template <> struct T_FramebufferTarget<E_FramebufferTarget::Draw> {
 
 //=================================================================================
 // Wrap functions
-enum class E_WrapFunction
+constexpr GLenum WrapFunctionToEnum(const Renderer::E_WrapFunction wrap)
 {
-	ClampToEdge,
-	ClampToBorder,
-	MirroredRepeat,
-	Repeat,
-	// MirrorClampToEdge,
-};
-
-constexpr GLenum WrapFunctionToEnum(const E_WrapFunction wrap)
-{
+	using namespace Renderer;
 	switch (wrap)
 	{
 	case E_WrapFunction::ClampToEdge:
@@ -196,7 +190,7 @@ constexpr GLenum WrapFunctionToEnum(const E_WrapFunction wrap)
 	return GL_INVALID_VALUE;
 }
 
-template <E_WrapFunction wrapFunction> struct T_WrapFunction {
+template <Renderer::E_WrapFunction wrapFunction> struct T_WrapFunction {
 	static constexpr GLenum value = WrapFunctionToEnum(wrapFunction);
 };
 
