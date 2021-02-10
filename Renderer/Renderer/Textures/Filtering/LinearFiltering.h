@@ -26,7 +26,7 @@ template <class T> [[nodiscard]] inline auto T_Nearest::FilteredGet(const glm::v
 }
 
 //=================================================================================
-template <class T> [[nodiscard]] auto T_Bilinear::FilteredGet(const glm::vec2& pixelCoord, const C_TextureView& view, E_TextureChannel channel) const
+template <class T> [[nodiscard]] inline auto T_Bilinear::FilteredGet(const glm::vec2& pixelCoord, const C_TextureView& view, E_TextureChannel channel) const
 {
 	const auto weights		= glm::fract(pixelCoord);
 	const auto leftTopCoord = glm::ivec2(pixelCoord - weights);
