@@ -21,7 +21,7 @@ namespace GLEngine {
 namespace Renderer {
 class I_TextureViewStorage;
 class C_TextureView;
-}
+} // namespace Renderer
 namespace GLRenderer {
 namespace Mesh {
 struct Texture;

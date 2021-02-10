@@ -173,7 +173,8 @@ void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* te
 void C_Texture::SetTexData2D(int level, const Renderer::C_TextureView tex)
 {
 	SetTexData2D(level, tex.GetStorage());
-	if (tex.UseBorderColor()) {
+	if (tex.UseBorderColor())
+	{
 		SetBorderColor(tex.GetBorderColor<glm::vec4>());
 	}
 	SetWrap(tex.GetWrapFunction(), tex.GetWrapFunction());

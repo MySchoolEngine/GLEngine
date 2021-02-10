@@ -11,4 +11,4 @@ enum class E_WrapFunction
 	// MirrorClampToEdge,
 };
 
-}
+} // namespace GLEngine::Renderer

@@ -9,7 +9,7 @@ namespace GLEngine::Renderer {
 //=================================================================================
 C_TextureView::C_TextureView(I_TextureViewStorage* storage)
 	: m_Storage(storage)
-	, m_BorderColor(1,0,1,0)
+	, m_BorderColor(1, 0, 1, 0)
 	, m_WrapFunction(E_WrapFunction::Repeat)
 {
 }
@@ -85,7 +85,7 @@ glm::ivec2 C_TextureView::ClampCoordinates(const glm::ivec2& uv) const
 			result.y = dim.y - result.y;
 		}
 	}
-		break;
+	break;
 	case E_WrapFunction::ClampToBorder:
 	default:
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unsupported");

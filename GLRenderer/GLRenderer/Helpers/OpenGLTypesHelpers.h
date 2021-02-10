@@ -3,7 +3,6 @@
 #include <GLRendererStdafx.h>
 
 #include <Renderer/Textures/TextureDefinitions.h>
-
 #include <Renderer/Textures/TextureStorage.h>
 
 #include <Core/CoreMacros.h>
