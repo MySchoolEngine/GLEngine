@@ -84,4 +84,10 @@ glm::ivec2 C_TextureView::ClampCoordinates(const glm::ivec2& uv) const
 	return result;
 }
 
+//=================================================================================
+const I_TextureViewStorage* const C_TextureView::GetStorage() const
+{
+	return m_Storage;
+}
+
 } // namespace GLEngine::Renderer

@@ -50,6 +50,8 @@ public:
 	void					SetBorderColor(const glm::vec4& color);
 	[[nodiscard]] bool		UseBorderColor() const;
 
+	[[nodiscard]] const I_TextureViewStorage* const GetStorage() const;
+
 protected:
 	[[nodiscard]] std::size_t GetAddress(const glm::ivec2& uv) const;
 	[[nodiscard]] glm::vec2	  GetPixelCoord(const glm::vec2& uv) const;

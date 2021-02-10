@@ -114,6 +114,12 @@ void C_Texture::SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction
 }
 
 //=================================================================================
+void C_Texture::SetBorderColor(const glm::vec4& color)
+{
+	SetTexParameter(GL_TEXTURE_BORDER_COLOR, color);
+}
+
+//=================================================================================
 void C_Texture::SetFilter(E_OpenGLFilter min, E_OpenGLFilter mag)
 {
 	bind();
@@ -163,6 +169,16 @@ void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* te
 	glTexImage2D(m_target, level, GetInternalFormat(), tex->GetDimensions().x, tex->GetDimensions().y, 0, GetFormat(tex->GetChannels()),
 				 T_TypeToGL<std::uint8_t>::value, // TODO
 				 tex->GetData());
+}
+
+//=================================================================================
+void C_Texture::SetTexData2D(int level, const Renderer::C_TextureView tex)
+{
+	SetTexData2D(level, tex.GetStorage());
+	if (tex.UseBorderColor()) {
+		SetBorderColor(tex.GetBorderColor<glm::vec4>());
+	}
+	SetWrap(tex.GetWrapFunction(), tex.GetWrapFunction());
 }
 
 //=================================================================================
