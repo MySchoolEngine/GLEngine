@@ -20,6 +20,7 @@
 namespace GLEngine {
 namespace Renderer {
 class I_TextureViewStorage;
+class C_TextureView;
 }
 namespace GLRenderer {
 namespace Mesh {
@@ -69,15 +70,17 @@ public:
 	[[nodiscard]] std::uint64_t GetHandle() const;
 	void						MakeHandleResident(bool val = true);
 
-	void SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT);
-	void SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT, E_WrapFunction wrapR);
+	void SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction wrapT);
+	void SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction wrapT, Renderer::E_WrapFunction wrapR);
 	void SetFilter(E_OpenGLFilter min, E_OpenGLFilter mag);
+	void SetBorderColor(const glm::vec4& color);
 	void SetTexParameter(GLenum pname, const glm::vec4& value);
 	void SetTexParameter(GLenum pname, GLint value);
 	void GenerateMipMaps();
 
 	void SetTexData2D(int level, const Renderer::MeshData::Texture& tex);
 	void SetTexData2D(int level, const Renderer::I_TextureViewStorage* tex);
+	void SetTexData2D(int level, const Renderer::C_TextureView tex);
 	void SetInternalFormat(GLint internalFormat, GLint format, GLenum type);
 
 protected:

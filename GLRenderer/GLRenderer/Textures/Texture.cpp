@@ -95,7 +95,7 @@ void C_Texture::unbind() const
 }
 
 //=================================================================================
-void C_Texture::SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT)
+void C_Texture::SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction wrapT)
 {
 	bind();
 	SetTexParameter(GL_TEXTURE_WRAP_S, WrapFunctionToEnum(wrapS));
@@ -104,13 +104,19 @@ void C_Texture::SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT)
 }
 
 //=================================================================================
-void C_Texture::SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT, E_WrapFunction wrapR)
+void C_Texture::SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction wrapT, Renderer::E_WrapFunction wrapR)
 {
 	bind();
 	SetTexParameter(GL_TEXTURE_WRAP_S, WrapFunctionToEnum(wrapS));
 	SetTexParameter(GL_TEXTURE_WRAP_T, WrapFunctionToEnum(wrapT));
 	SetTexParameter(GL_TEXTURE_WRAP_R, WrapFunctionToEnum(wrapR));
 	unbind();
+}
+
+//=================================================================================
+void C_Texture::SetBorderColor(const glm::vec4& color)
+{
+	SetTexParameter(GL_TEXTURE_BORDER_COLOR, color);
 }
 
 //=================================================================================
@@ -161,6 +167,16 @@ void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* te
 	m_Channels = tex->GetNumElements();
 
 	glTexImage2D(m_target, level, GetInternalFormat(), tex->GetDimensions().x, tex->GetDimensions().y, 0, GetFormat(tex->GetChannels()), GetUnderlyingType(tex), tex->GetData());
+}
+
+//=================================================================================
+void C_Texture::SetTexData2D(int level, const Renderer::C_TextureView tex)
+{
+	SetTexData2D(level, tex.GetStorage());
+	if (tex.UseBorderColor()) {
+		SetBorderColor(tex.GetBorderColor<glm::vec4>());
+	}
+	SetWrap(tex.GetWrapFunction(), tex.GetWrapFunction());
 }
 
 //=================================================================================

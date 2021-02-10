@@ -29,6 +29,7 @@
 #include <Renderer/Cameras/OrbitalCamera.h>
 #include <Renderer/Mesh/Geometry.h>
 #include <Renderer/Mesh/Scene.h>
+#include <Renderer/Textures/TextureView.h>
 
 #include <GUI/ConsoleWindow.h>
 
@@ -45,6 +46,8 @@
 #include <Core/EventSystem/EventDispatcher.h>
 
 #include <pugixml.hpp>
+
+#include <imgui.h>
 
 namespace GLEngine::GLRenderer::Windows {
 
