@@ -26,7 +26,7 @@ C_SkyBox::C_SkyBox(std::shared_ptr<Entity::I_Entity> owner)
 	, m_Textures("Skybox", GL_TEXTURE_CUBE_MAP)
 {
 	m_Textures.SetFilter(E_OpenGLFilter::Linear, E_OpenGLFilter::Linear);
-	m_Textures.SetWrap(E_WrapFunction::ClampToEdge, E_WrapFunction::ClampToEdge, E_WrapFunction::ClampToEdge);
+	m_Textures.SetWrap(Renderer::E_WrapFunction::ClampToEdge, Renderer::E_WrapFunction::ClampToEdge, Renderer::E_WrapFunction::ClampToEdge);
 
 	std::vector<glm::vec3> vertices;
 	// left

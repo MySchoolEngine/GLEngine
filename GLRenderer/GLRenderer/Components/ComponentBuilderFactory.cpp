@@ -70,7 +70,7 @@ void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Enti
 			if (colorMapTexture)
 			{
 				colorMapTexture->StartGroupOp();
-				colorMapTexture->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
+				colorMapTexture->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
 				colorMapTexture->SetFilter(E_OpenGLFilter::LinearMipMapLinear, E_OpenGLFilter::Linear);
 				colorMapTexture->GenerateMipMaps();
 

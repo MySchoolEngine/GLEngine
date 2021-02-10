@@ -2,6 +2,7 @@
 
 #include <Renderer/RendererApi.h>
 #include <Renderer/Textures/TextureStorage.h>
+#include <Renderer/Textures/TextureDefinitions.h>
 /**
  *	This class serves as CPU side view to the texture independently whether lies on
  *	CPU or GPU memory.
@@ -32,73 +33,60 @@
 
 namespace GLEngine::Renderer {
 
+struct T_Nearest;
+
 //=================================================================================
 class RENDERER_API_EXPORT C_TextureView {
 public:
-	C_TextureView(I_TextureViewStorage* storage);
-	template <class T> [[nodiscard]] T Get(const glm::ivec2& uv, E_TextureChannel element) const;
+	explicit C_TextureView(I_TextureViewStorage* storage);
+	template <class T, class Filter = T_Nearest> [[nodiscard]] T Get(const glm::vec2& uv, E_TextureChannel element) const;
+	template <class T> [[nodiscard]] T							 Get(const glm::ivec2& uv, E_TextureChannel element) const;
+	template <class T> [[nodiscard]] T							 GetBorderColor() const;
 
-	// implement bilinear filtering
-	// template<class T>
-	//[[nodiscard]] T Get(const glm::vec2& uv) const;
+	[[nodiscard]] E_WrapFunction GetWrapFunction() const;
+	void						 SetWrapFunction(E_WrapFunction wrap);
 
-	template <class T> void Set(const glm::ivec2& uv, const T val, E_TextureChannel element)
-	{
-		const auto dim = m_Storage->GetDimensions();
-		if (uv.x < 0 || uv.x > dim.x || uv.y < 0 || uv.y > dim.y)
-		{
-			CORE_LOG(E_Level::Info, E_Context::Render, "Writing outside of texture buffer. Result would be discarded.");
-			return;
-		}
+	template <class T> void Set(const glm::ivec2& uv, const T val, E_TextureChannel element);
+	void					SetBorderColor(const glm::vec4& color);
+	[[nodiscard]] bool		UseBorderColor() const;
 
-		m_Storage->Set(val, GetAddress(uv) + m_Storage->GetChannelOffset(element));
-	}
+	[[nodiscard]] const I_TextureViewStorage* const GetStorage() const;
+
 protected:
 	[[nodiscard]] std::size_t GetAddress(const glm::ivec2& uv) const;
+	[[nodiscard]] glm::vec2	  GetPixelCoord(const glm::vec2& uv) const;
+	[[nodiscard]] bool		  IsOutsideBorders(const glm::vec2& uv) const;
+	[[nodiscard]] glm::ivec2  ClampCoordinates(const glm::ivec2& uv) const;
+	
 
 	I_TextureViewStorage* m_Storage; // not owning ptr
+	glm::vec4			  m_BorderColor;
+	E_WrapFunction		  m_WrapFunction;
 };
 
-template <> inline std::uint8_t C_TextureView::Get<std::uint8_t>(const glm::ivec2& uv, E_TextureChannel element) const
-{
-	return m_Storage->GetI(GetAddress(uv) + m_Storage->GetChannelOffset(element));
-}
+template <> glm::vec4  C_TextureView::GetBorderColor() const;
+template <> glm::ivec4 C_TextureView::GetBorderColor() const;
 
-glm::vec2 signNotZero(glm::vec2 v) {
-	return glm::vec2((v.x >= 0.0) ? +1.0 : -1.0, (v.y >= 0.0) ? +1.0 : -1.0);
-}
-
-glm::vec2 float32x3_to_oct(glm::vec3 v) {
-	// Project the sphere onto the octahedron, and then onto the xy plane
-	glm::vec2 p = glm::vec2{ v.x, v.y } * (1.0f / (abs(v.x) + abs(v.y) + abs(v.z)));
-	// Reflect the folds of the lower hemisphere over the diagonals
-	return (v.z <= 0.0f) ? ((1.0f - abs(glm::vec2{ p.y, p.x })) * signNotZero(p)) : p;
-}
-
-// Represents texture view as described in 
+// Represents texture view as described in
 // @source:	http://jcgt.org/published/0003/02/01/paper.pdf
 // @name:	 A Survey of Efficient Representations for Independent Unit Vectors
 // Expect texture view of size at least equal to @param size.
 // @param size defines square area of texture where should be the resulting octahedron mapping
-class RENDERER_API_EXPORT C_OctahedralTextureView
-{
+class RENDERER_API_EXPORT C_OctahedralTextureView {
 public:
 	C_OctahedralTextureView(C_TextureView* view, std::size_t size)
 		: m_View(view)
-		, m_Size(size) 
-	{}
-
-	template<class T>
-	void Set(const glm::vec3& direction, const T val, E_TextureChannel element)
+		, m_Size(size)
 	{
-		const auto coord = float32x3_to_oct(direction);
-		const auto realCoord = glm::ivec2{ static_cast<float>(m_Size) * (coord / 2.0f + 0.5f) };
-
-		m_View->Set(realCoord, val, element);
 	}
+
+	template <class T> void Set(const glm::vec3& direction, const T val, E_TextureChannel element);
+
 private:
-	std::size_t		m_Size;
-	C_TextureView*	m_View;
+	std::size_t	   m_Size;
+	C_TextureView* m_View;
 };
 
 } // namespace GLEngine::Renderer
+
+#include <Renderer/Textures/TextureView.inl>

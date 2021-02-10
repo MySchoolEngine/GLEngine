@@ -48,7 +48,7 @@ C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 			const int numSedimentLayer = 3;
 
 			glTexStorage3D(m_Noise.GetTarget(), 3, GL_R32F, dim, dim, 2 + numSedimentLayer);
-			m_Noise.SetWrap(E_WrapFunction::ClampToEdge, E_WrapFunction::ClampToEdge);
+			m_Noise.SetWrap(Renderer::E_WrapFunction::ClampToEdge, Renderer::E_WrapFunction::ClampToEdge);
 			m_Noise.SetFilter(E_OpenGLFilter::Linear, E_OpenGLFilter::Linear);
 
 			m_Noise.SetDimensions({dim, dim});

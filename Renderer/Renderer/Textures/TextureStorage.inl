@@ -28,7 +28,7 @@ template <class internalFormat> double C_TextureViewStorageCPU<internalFormat>::
 }
 
 //=================================================================================
-template <class internalFormat> constexpr std::uint8_t C_TextureViewStorageCPU<internalFormat>::GetNumElements() const
+template <class internalFormat> std::uint8_t C_TextureViewStorageCPU<internalFormat>::GetNumElements() const
 {
 	return m_Elements;
 }

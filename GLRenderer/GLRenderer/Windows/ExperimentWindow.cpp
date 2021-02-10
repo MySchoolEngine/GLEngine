@@ -26,6 +26,7 @@
 #include <Renderer/Cameras/FreelookCamera.h>
 #include <Renderer/Cameras/OrbitalCamera.h>
 #include <Renderer/Mesh/Scene.h>
+#include <Renderer/Textures/TextureView.h>
 
 #include <GUI/ConsoleWindow.h>
 
@@ -42,6 +43,8 @@
 #include <Core/EventSystem/EventDispatcher.h>
 
 #include <pugixml.hpp>
+
+#include <imgui.h>
 
 namespace GLEngine::GLRenderer::Windows {
 
@@ -247,7 +250,6 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 	// ~depthStencilTexture setup
 	m_HDRFBO->AttachTexture(GL_DEPTH_STENCIL_ATTACHMENT, depthStencilTexture);
 	depthStencilTexture->unbind();
-
 
 	return false;
 }
