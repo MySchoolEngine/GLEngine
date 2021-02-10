@@ -17,12 +17,38 @@ template <> inline std::uint8_t C_TextureView::Get<std::uint8_t>(const glm::ivec
 	glm::ivec2 coord = uv;
 	if (IsOutsideBorders(uv))
 		if (UseBorderColor())
-			return GetBorderColor<glm::ivec4>()[static_cast<std::underlying_type_t<E_TextureChannel>>(element)];
+			return static_cast<std::uint8_t>(GetBorderColor<glm::ivec4>()[static_cast<std::underlying_type_t<E_TextureChannel>>(element)]);
 		else
 			coord = ClampCoordinates(uv);
 
 	// TODO: only this line needs to be in specific template
 	return m_Storage->GetI(GetAddress(coord) + m_Storage->GetChannelOffset(element));
+}
+
+//=================================================================================
+template <> inline float C_TextureView::Get<float>(const glm::ivec2& uv, E_TextureChannel element) const
+{
+	glm::ivec2 coord = uv;
+	if (IsOutsideBorders(uv))
+		if (UseBorderColor())
+			return GetBorderColor<glm::vec4>()[static_cast<std::underlying_type_t<E_TextureChannel>>(element)];
+		else
+			coord = ClampCoordinates(uv);
+
+	// TODO: only this line needs to be in specific template
+	return m_Storage->GetF(GetAddress(uv) + m_Storage->GetChannelOffset(element));
+}
+
+//=================================================================================
+template <class T, typename /*= std::enable_if_t<glm::type<T>::is_vec>*/> T C_TextureView::Get(const glm::ivec2& uv) const
+{
+	// TODO: border colour could be handled simpler
+	T ret;
+	for (std::uint8_t i = 0; i < std::min(static_cast<std::uint8_t>(glm::type<T>::components), m_Storage->GetNumElements()); ++i)
+	{
+		ret[i] = Get<typename T::value_type>(uv, static_cast<E_TextureChannel>(i));
+	}
+	return ret;
 }
 
 //=================================================================================
@@ -48,6 +74,16 @@ template <class T> void C_TextureView::Set(const glm::ivec2& uv, const T val, E_
 	}
 
 	m_Storage->Set(val, GetAddress(uv) + m_Storage->GetChannelOffset(element));
+}
+
+//=================================================================================
+template <class T, typename /*= std::enable_if_t<glm::type<T>::is_vec>*/> void C_TextureView::Set(const glm::ivec2& uv, T&& val)
+{
+	// TODO set it as whole vector if storage is not swizzled
+	for (std::uint8_t i = 0; i < std::min(static_cast<std::uint8_t>(glm::type<T>::components), m_Storage->GetNumElements()); ++i)
+	{
+		Set(uv, val[i], static_cast<E_TextureChannel>(i));
+	}
 }
 
 //=================================================================================
