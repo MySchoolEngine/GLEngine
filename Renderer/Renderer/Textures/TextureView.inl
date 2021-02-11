@@ -36,7 +36,7 @@ template <> inline float C_TextureView::Get<float>(const glm::ivec2& uv, E_Textu
 			coord = ClampCoordinates(uv);
 
 	// TODO: only this line needs to be in specific template
-	return m_Storage->GetF(GetAddress(uv) + m_Storage->GetChannelOffset(element));
+	return m_Storage->GetF(GetAddress(coord) + m_Storage->GetChannelOffset(element));
 }
 
 //=================================================================================
