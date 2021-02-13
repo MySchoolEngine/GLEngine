@@ -21,7 +21,7 @@ namespace GLEngine {
 namespace Renderer {
 class I_TextureViewStorage;
 class C_TextureView;
-}
+} // namespace Renderer
 namespace GLRenderer {
 namespace Mesh {
 struct Texture;
@@ -81,18 +81,17 @@ public:
 	void SetTexData2D(int level, const Renderer::MeshData::Texture& tex);
 	void SetTexData2D(int level, const Renderer::I_TextureViewStorage* tex);
 	void SetTexData2D(int level, const Renderer::C_TextureView tex);
-	void SetInternalFormat(GLint internalFormat, GLint format, GLenum type);
+	void SetInternalFormat(Renderer::E_TextureFormat internalFormat, GLint format);
 
 protected:
 	void  Clean();
-	GLint GetInternalFormat() const;
 
-	GLuint		  m_texture;
-	GLenum		  m_target;
-	std::uint8_t  m_Channels;
-	glm::uvec2	  m_Dimensions;
-	bool		  m_bGroupOperations : 1;
-	std::uint64_t m_Handle;
+	GLuint					  m_texture;
+	GLenum					  m_target;
+	Renderer::E_TextureFormat m_Format;
+	glm::uvec2				  m_Dimensions;
+	bool					  m_bGroupOperations : 1;
+	std::uint64_t			  m_Handle;
 };
 } // namespace Textures
 } // namespace GLRenderer

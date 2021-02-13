@@ -234,7 +234,7 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 	HDRTexture->bind();
 	// HDRTexture setup
 	HDRTexture->SetDimensions({GetWidth(), GetHeight()});
-	HDRTexture->SetInternalFormat(GL_RGBA16F, GL_RGBA, GL_FLOAT);
+	HDRTexture->SetInternalFormat(Renderer::E_TextureFormat::RGBA16f, GL_RGBA);
 	HDRTexture->SetFilter(E_OpenGLFilter::Linear, E_OpenGLFilter::Linear);
 	// ~HDRTexture setup
 	m_HDRFBO->AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
@@ -245,7 +245,7 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 	depthStencilTexture->bind();
 	// depthStencilTexture setup
 	depthStencilTexture->SetDimensions({GetWidth(), GetHeight()});
-	depthStencilTexture->SetInternalFormat(GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8);
+	depthStencilTexture->SetInternalFormat(Renderer::E_TextureFormat::D24S8, GL_DEPTH_STENCIL);
 	depthStencilTexture->SetFilter(E_OpenGLFilter::Linear, E_OpenGLFilter::Linear);
 	// ~depthStencilTexture setup
 	m_HDRFBO->AttachTexture(GL_DEPTH_STENCIL_ATTACHMENT, depthStencilTexture);
@@ -260,7 +260,7 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 	auto HDRTexture = m_HDRFBO->GetAttachement(GL_COLOR_ATTACHMENT0);
 	HDRTexture->bind();
 	HDRTexture->SetDimensions({event.GetWidth(), event.GetHeight()});
-	HDRTexture->SetInternalFormat(GL_RGBA16F, GL_RGBA, GL_FLOAT);
+	HDRTexture->SetInternalFormat(Renderer::E_TextureFormat::RGBA16f, GL_RGBA);
 	HDRTexture->SetFilter(E_OpenGLFilter::Linear, E_OpenGLFilter::Linear);
 	HDRTexture->unbind();
 
@@ -268,7 +268,7 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 
 	depthStencilTexture->bind();
 	depthStencilTexture->SetDimensions({event.GetWidth(), event.GetHeight()});
-	depthStencilTexture->SetInternalFormat(GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8);
+	depthStencilTexture->SetInternalFormat(Renderer::E_TextureFormat::D24S8, GL_DEPTH_STENCIL);
 	depthStencilTexture->SetFilter(E_OpenGLFilter::Linear, E_OpenGLFilter::Linear);
 	depthStencilTexture->unbind();
 

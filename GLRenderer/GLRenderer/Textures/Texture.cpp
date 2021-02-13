@@ -9,6 +9,7 @@
 
 #include <Renderer/IRenderer.h>
 #include <Renderer/Mesh/Scene.h>
+#include <Renderer/Textures/TextureStorage.h>
 #include <Renderer/Textures/TextureView.h>
 
 #include <Core/Application.h>
@@ -22,7 +23,7 @@ C_Texture::C_Texture(const std::string& name, GLenum target)
 	: m_bGroupOperations(false)
 	, m_target(target)
 	, m_texture(0)
-	, m_Channels(0)
+	, m_Format(Renderer::E_TextureFormat::RGBA8i)
 {
 	glGenTextures(1, &m_texture);
 	bind();
@@ -45,7 +46,7 @@ C_Texture::C_Texture(C_Texture&& t)
 	m_bGroupOperations = t.m_bGroupOperations;
 	m_Handle		   = t.m_Handle;
 	m_Dimensions	   = t.m_Dimensions;
-	m_Channels		   = t.m_Channels;
+	m_Format		   = t.m_Format;
 }
 
 //=================================================================================
@@ -63,7 +64,7 @@ void C_Texture::operator=(C_Texture&& rhs)
 	m_bGroupOperations = rhs.m_bGroupOperations;
 	m_Handle		   = rhs.m_Handle;
 	m_Dimensions	   = rhs.m_Dimensions;
-	m_Channels		   = rhs.m_Channels;
+	m_Format		   = rhs.m_Format;
 }
 
 //=================================================================================
@@ -156,36 +157,56 @@ void C_Texture::GenerateMipMaps()
 void C_Texture::SetTexData2D(int level, const Renderer::MeshData::Texture& tex)
 {
 	SetDimensions({tex.width, tex.height});
-	m_Channels = 3;
-	glTexImage2D(m_target, level, GL_RGB, (GLsizei)tex.width, (GLsizei)tex.height, 0, GL_RGBA, T_TypeToGL<decltype(tex.data)::element_type>::value, tex.data.get());
+	static_assert(std::is_same_v<std::uint8_t, decltype(tex.data)::element_type>, "Format have ben changed.");
+	m_Format = Renderer::E_TextureFormat::RGBA8i;
+
+	glTexImage2D(m_target, level,
+				 GetOpenGLInternalFormat(m_Format),		  // internal format
+				 (GLsizei)tex.width, (GLsizei)tex.height, // dimensions
+				 0,										  // border
+				 GL_RGBA,								  // format
+				 T_TypeToGL<decltype(tex.data)::element_type>::value,
+				 tex.data.get() // data
+	);
 }
 
 //=================================================================================
 void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* tex)
 {
 	SetDimensions(tex->GetDimensions());
-	m_Channels = tex->GetNumElements();
-
-	glTexImage2D(m_target, level, GetInternalFormat(), tex->GetDimensions().x, tex->GetDimensions().y, 0, GetFormat(tex->GetChannels()),
+	// todo format
+	glTexImage2D(m_target, level,
+				 GetOpenGLInternalFormat(m_Format), // internal format
+				 tex->GetDimensions().x, tex->GetDimensions().y,
+				 0,								  // border
+				 GetFormat(tex->GetChannels()),	  // format
 				 T_TypeToGL<std::uint8_t>::value, // TODO
-				 tex->GetData());
+				 tex->GetData());				  // data
 }
 
 //=================================================================================
 void C_Texture::SetTexData2D(int level, const Renderer::C_TextureView tex)
 {
 	SetTexData2D(level, tex.GetStorage());
-	if (tex.UseBorderColor()) {
+	if (tex.UseBorderColor())
+	{
 		SetBorderColor(tex.GetBorderColor<glm::vec4>());
 	}
 	SetWrap(tex.GetWrapFunction(), tex.GetWrapFunction());
 }
 
 //=================================================================================
-void C_Texture::SetInternalFormat(GLint internalFormat, GLint format, GLenum type)
+void C_Texture::SetInternalFormat(Renderer::E_TextureFormat internalFormat, GLint format)
 {
-	m_Channels = GetNumberOfChannels(internalFormat);
-	glTexImage2D(m_target, 0, internalFormat, GetWidth(), GetHeight(), 0, format, type, nullptr);
+	m_Format = internalFormat;
+	glTexImage2D(m_target,
+				 0,									// level
+				 GetOpenGLInternalFormat(m_Format), // internal format
+				 GetWidth(), GetHeight(),			// dimensions
+				 0,									// border
+				 format,							// this should be deduced from m_Format too
+				 OpenGLUnderlyingType(m_Format),
+				 nullptr); // no data passed as we just want to allocate buffer
 }
 
 //=================================================================================
@@ -211,30 +232,16 @@ void C_Texture::MakeHandleResident(bool val)
 T_TexBufferFuture C_Texture::GetTextureData() const
 {
 	std::promise<std::unique_ptr<Renderer::I_TextureViewStorage>> promise;
-	auto														  ret = promise.get_future();
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::make_unique<Commands::C_GetTexImage>(
-		std::move(promise), m_target, 0, GetInternalFormat(), T_TypeToGL<std::uint8_t>::value, static_cast<std::size_t>(GetWidth()), GetHeight(), m_Channels));
-	return ret;
-}
 
-//=================================================================================
-GLint C_Texture::GetInternalFormat() const
-{
-	switch (m_Channels)
-	{
-	case 1:
-		return GL_RED;
-	case 2:
-		return GL_RG;
-	case 3:
-		return GL_RGB;
-	case 4:
-		return GL_RGBA;
-	default:
-		CORE_LOG(E_Level::Error, E_Context::Render, "Unknown number of elements: {}", m_Channels);
-		break;
-	}
-	return GL_RGBA;
+	auto  ret	   = promise.get_future();
+	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
+	renderer->AddCommand(std::make_unique<Commands::C_GetTexImage>(std::move(promise), m_target,
+																   0, // level
+																   GetOpenGLInternalFormat(m_Format),
+																   T_TypeToGL<std::uint8_t>::value, // todo
+																   GetWidth(), GetHeight(),			// resolution
+																   Renderer::GetNumberChannels(m_Format)));
+	return ret;
 }
 
 } // namespace GLEngine::GLRenderer::Textures
