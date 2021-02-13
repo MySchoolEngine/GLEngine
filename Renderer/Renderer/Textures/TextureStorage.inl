@@ -8,9 +8,9 @@ template <class internalFormat>
 C_TextureViewStorageCPU<internalFormat>::C_TextureViewStorageCPU(std::size_t width, std::size_t height, std::uint8_t elements)
 	: I_TextureViewStorage(width, height)
 	, m_Elements(elements)
-	, m_Channels(Renderer::GetOrderedChannels(elements))
 {
 	m_Data.resize(width * height * elements);
+	SetChannels(Renderer::GetOrderedChannels(elements));
 }
 
 //=================================================================================
