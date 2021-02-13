@@ -28,14 +28,6 @@ namespace GLEngine::GLRenderer::Mesh {
 //=================================================================================
 C_SceneBuilder::C_SceneBuilder()
 {
-	m_nullTexture = std::make_shared<Textures::C_Texture>("null-texture");
-	m_nullTexture->StartGroupOp();
-	m_nullTexture->SetFilter(E_OpenGLFilter::LinearMipMapLinear, E_OpenGLFilter::Linear);
-	m_nullTexture->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
-	GLubyte data[] = {0, 0, 0, 255};
-	glTexImage2D(m_nullTexture->GetTarget(), 0, GL_RGBA, 1, 1, 0, GL_RGBA, T_TypeToGL<GLubyte>::value, data);
-	m_nullTexture->SetDimensions({1, 1});
-	m_nullTexture->EndGroupOp();
 }
 
 //=================================================================================
