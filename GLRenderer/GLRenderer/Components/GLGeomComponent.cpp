@@ -13,6 +13,8 @@
 
 #include <Core/Application.h>
 
+#include <imgui.h>
+
 namespace GLEngine::GLRenderer::Components {
 
 //=================================================================================
@@ -49,10 +51,6 @@ void C_GLGeomComponent::PerformDraw() const
 	{
 		tm.BindTextureToUnit(*m_ColorMap, 1);
 	}
-	else
-	{
-		tm.BindTextureToUnit(*(tmgr.GetIdentityTexture()), 1);
-	}
 
 	renderer->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&]() {
@@ -74,6 +72,10 @@ void C_GLGeomComponent::PerformDraw() const
 void C_GLGeomComponent::DebugDrawGUI()
 {
 	m_Color.Draw();
+	if (m_ColorMap)
+	{
+		ImGui::Image((void*)(intptr_t)(m_ColorMap->GetTexture()), ImVec2(128, 128));
+	}
 }
 
 //=================================================================================

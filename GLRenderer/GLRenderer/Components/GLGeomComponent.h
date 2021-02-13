@@ -22,7 +22,7 @@ public:
 	void											  SetupGeometry(const Renderer::MeshData::Mesh& mesh) override;
 	void											  PerformDraw() const override;
 	void											  DebugDrawGUI() override;
-	virtual bool									  HasDebugDrawGUI() const override;
+	[[nodiscard]] virtual bool						  HasDebugDrawGUI() const override;
 	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override;
 
 private:
@@ -37,6 +37,6 @@ private:
 class C_GLGeomComponentBuilder : public Renderer::C_GeometryCompBuilder {
 protected:
 	//=================================================================================
-	virtual std::shared_ptr<Renderer::C_GeomComponent> ConstructComponent(std::shared_ptr<Entity::I_Entity> owner) const override;
+	[[nodiscard]] virtual std::shared_ptr<Renderer::C_GeomComponent> ConstructComponent(std::shared_ptr<Entity::I_Entity> owner) const override;
 };
 } // namespace GLEngine::GLRenderer::Components
