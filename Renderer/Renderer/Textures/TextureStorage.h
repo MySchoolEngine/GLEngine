@@ -2,16 +2,9 @@
 
 #include <Renderer/RendererApi.h>
 
+#include <Renderer/Textures/TextureDefinitions.h>
+
 namespace GLEngine::Renderer {
-//=================================================================================
-enum class E_TextureChannel
-{
-	Red,
-	Green,
-	Blue,
-	Alpha,
-	None,
-};
 
 enum class E_TextureTypes
 {
@@ -21,8 +14,6 @@ enum class E_TextureTypes
 	Signed,
 	Floating,
 };
-
-using T_Channels = std::array<E_TextureChannel, 4>;
 
 //=================================================================================
 class RENDERER_API_EXPORT I_TextureViewStorage {
