@@ -19,6 +19,8 @@
 
 #include <pugixml.hpp>
 
+#include <imgui.h>
+
 namespace GLEngine::GLRenderer::Components {
 
 //=================================================================================
@@ -144,6 +146,18 @@ void C_StaticMesh::DebugDrawGUI()
 	if (!m_RoughnessMap)
 	{
 		m_Roughness.Draw();
+	}
+	else
+	{
+		ImGui::Image((void*)(intptr_t)(m_RoughnessMap->GetTexture()), ImVec2(128, 128));
+	}
+	if (m_ColorMap)
+	{
+		ImGui::Image((void*)(intptr_t)(m_ColorMap->GetTexture()), ImVec2(128, 128));
+	}
+	if (m_NormalMap)
+	{
+		ImGui::Image((void*)(intptr_t)(m_NormalMap->GetTexture()), ImVec2(128, 128));
 	}
 }
 
