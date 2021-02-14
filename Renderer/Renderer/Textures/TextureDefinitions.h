@@ -167,17 +167,17 @@ inline T_Channels GetOrderedChannels(const std::uint8_t numChannels)
 {
 	switch (numChannels)
 	{
-	case 1:
-		return {E_TextureChannel::Red, E_TextureChannel::Green, E_TextureChannel::Blue, E_TextureChannel::Alpha};
-	case 2:
-		return {E_TextureChannel::Red, E_TextureChannel::Green, E_TextureChannel::Blue, E_TextureChannel::None};
-	case 3:
-		return {E_TextureChannel::Red, E_TextureChannel::Green, E_TextureChannel::None, E_TextureChannel::None};
 	case 4:
+		return {E_TextureChannel::Red, E_TextureChannel::Green, E_TextureChannel::Blue, E_TextureChannel::Alpha};
+	case 3:
+		return {E_TextureChannel::Red, E_TextureChannel::Green, E_TextureChannel::Blue, E_TextureChannel::None};
+	case 2:
+		return {E_TextureChannel::Red, E_TextureChannel::Green, E_TextureChannel::None, E_TextureChannel::None};
+	case 1:
 		return {E_TextureChannel::Red, E_TextureChannel::None, E_TextureChannel::None, E_TextureChannel::None};
 	default:
 		GLE_ASSERT(false, "Wrong number of channels.");
-		return {};
+		return {E_TextureChannel::Red, E_TextureChannel::None, E_TextureChannel::None, E_TextureChannel::None};
 	}
 }
 

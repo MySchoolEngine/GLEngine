@@ -51,9 +51,7 @@ C_TextureManager::T_TexturePtr C_TextureManager::GetTexture(const std::string& n
 C_TextureManager::T_TexturePtr C_TextureManager::CreateTexture(const Renderer::MeshData::Texture& tex)
 {
 	auto texture = std::make_shared<Textures::C_Texture>(tex.m_name);
-	texture->bind();
 	texture->SetTexData2D(0, tex);
-	texture->unbind();
 
 	m_Textures[tex.m_name] = texture;
 	return texture;
@@ -63,9 +61,7 @@ C_TextureManager::T_TexturePtr C_TextureManager::CreateTexture(const Renderer::M
 C_TextureManager::T_TexturePtr C_TextureManager::CreateTexture(const Renderer::I_TextureViewStorage* tex, const std::string& name)
 {
 	auto texture = std::make_shared<Textures::C_Texture>(name);
-	texture->bind();
 	texture->SetTexData2D(0, tex);
-	texture->unbind();
 
 	m_Textures[name] = texture;
 	return texture;
@@ -135,9 +131,7 @@ void C_TextureManager::ReloadTexture(const std::string& name, T_TexturePtr& text
 		return;
 	}
 
-	texture->bind();
 	texture->SetTexData2D(0, t);
-	texture->unbind();
 }
 
 //=================================================================================
@@ -163,9 +157,7 @@ C_TextureManager::T_TexturePtr C_TextureManager::GetIdentityTexture()
 		t.data.get()[1]	   = 255;
 		t.data.get()[2]	   = 255;
 		t.data.get()[3]	   = 0;
-		m_IdentityTexture->bind();
 		m_IdentityTexture->SetTexData2D(0, t);
-		m_IdentityTexture->unbind();
 	}
 	return m_IdentityTexture;
 }

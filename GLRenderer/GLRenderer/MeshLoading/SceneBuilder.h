@@ -61,7 +61,6 @@ private:
 	std::string GetFilePart(const std::string& filePath) const;
 
 	std::vector<std::shared_ptr<Textures::C_Texture>> m_textures;
-	std::shared_ptr<Textures::C_Texture>			  m_nullTexture;
 	std::shared_ptr<Renderer::MeshData::Scene>		  m_scene;
 	std::string										  m_sceneFolder;
 };
