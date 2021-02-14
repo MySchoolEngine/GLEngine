@@ -104,6 +104,7 @@ GUID C_TextureManager::SetupControls(GUI::C_GUIManager& guiMGR)
 		{
 			bool selected = false;
 			::ImGui::Selectable(texture.first.c_str(), &selected);
+			ImGui::Image((void*)(intptr_t)(texture.second->GetTexture()), ImVec2(128, 128));
 			if (selected)
 			{
 				ReloadTexture(texture.first, texture.second);

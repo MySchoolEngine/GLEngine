@@ -14,6 +14,7 @@ C_TextureViewStorageCPU<internalFormat>::C_TextureViewStorageCPU(std::size_t wid
 	, m_Elements(elements)
 {
 	m_Data.resize(width * height * elements);
+	SetChannels(Renderer::GetOrderedChannels(elements));
 }
 
 //=================================================================================
