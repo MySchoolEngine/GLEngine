@@ -107,26 +107,28 @@ void C_Texture::SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction
 //=================================================================================
 void C_Texture::SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction wrapT, Renderer::E_WrapFunction wrapR)
 {
-	bind();
+	StartGroupOp();
 	SetTexParameter(GL_TEXTURE_WRAP_S, WrapFunctionToEnum(wrapS));
 	SetTexParameter(GL_TEXTURE_WRAP_T, WrapFunctionToEnum(wrapT));
 	SetTexParameter(GL_TEXTURE_WRAP_R, WrapFunctionToEnum(wrapR));
-	unbind();
+	EndGroupOp();
 }
 
 //=================================================================================
 void C_Texture::SetBorderColor(const glm::vec4& color)
 {
+	bind();
 	SetTexParameter(GL_TEXTURE_BORDER_COLOR, color);
+	unbind();
 }
 
 //=================================================================================
 void C_Texture::SetFilter(E_OpenGLFilter min, E_OpenGLFilter mag)
 {
-	bind();
+	StartGroupOp();
 	SetTexParameter(GL_TEXTURE_MIN_FILTER, MinMagFilterToEnum(min));
 	SetTexParameter(GL_TEXTURE_MAG_FILTER, MinMagFilterToEnum(mag));
-	unbind();
+	EndGroupOp();
 }
 
 //=================================================================================
@@ -156,6 +158,7 @@ void C_Texture::GenerateMipMaps()
 //=================================================================================
 void C_Texture::SetTexData2D(int level, const Renderer::MeshData::Texture& tex)
 {
+	bind();
 	SetDimensions({tex.width, tex.height});
 	static_assert(std::is_same_v<std::uint8_t, decltype(tex.data)::element_type>, "Format have ben changed.");
 	m_Format = Renderer::E_TextureFormat::RGBA8i;
@@ -168,11 +171,13 @@ void C_Texture::SetTexData2D(int level, const Renderer::MeshData::Texture& tex)
 				 T_TypeToGL<decltype(tex.data)::element_type>::value,
 				 tex.data.get() // data
 	);
+	unbind();
 }
 
 //=================================================================================
 void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* tex)
 {
+	bind();
 	SetDimensions(tex->GetDimensions());
 
 	glTexImage2D(m_target, level,
@@ -182,22 +187,26 @@ void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* te
 				 GetFormat(tex->GetChannels()), // format
 				 GetUnderlyingType(tex),		// TODO
 				 tex->GetData());				// data
+	unbind();
 }
 
 //=================================================================================
 void C_Texture::SetTexData2D(int level, const Renderer::C_TextureView tex)
 {
+	StartGroupOp();
 	SetTexData2D(level, tex.GetStorage());
 	if (tex.UseBorderColor())
 	{
 		SetBorderColor(tex.GetBorderColor<glm::vec4>());
 	}
 	SetWrap(tex.GetWrapFunction(), tex.GetWrapFunction());
+	EndGroupOp();
 }
 
 //=================================================================================
 void C_Texture::SetInternalFormat(Renderer::E_TextureFormat internalFormat, GLint format)
 {
+	bind();
 	m_Format = internalFormat;
 	glTexImage2D(m_target,
 				 0,									// level
@@ -207,6 +216,7 @@ void C_Texture::SetInternalFormat(Renderer::E_TextureFormat internalFormat, GLin
 				 format,							// this should be deduced from m_Format too
 				 OpenGLUnderlyingType(m_Format),
 				 nullptr); // no data passed as we just want to allocate buffer
+	unbind();
 }
 
 //=================================================================================
