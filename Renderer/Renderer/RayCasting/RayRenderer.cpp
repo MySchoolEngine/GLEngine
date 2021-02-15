@@ -5,11 +5,9 @@
 #include <Renderer/RayCasting/ReflectionModels/LambertianModel.h>
 #include <Renderer/RayCasting/ReflectionModels/SpecularReflection.h>
 #include <Renderer/RayCasting/Sampling.h>
+#include <Renderer/Textures/TextureLoader.h>
 #include <Renderer/Textures/TextureStorage.h>
 #include <Renderer/Textures/TextureView.h>
-
-#include <chrono>
-#include <random>
 
 namespace GLEngine::Renderer {
 
@@ -50,15 +48,14 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 
 	auto textureView = Renderer::C_TextureView(&storage);
 
-	const auto eps = 1e-5f;
-	auto	   min = std::numeric_limits<float>::max();
-	auto	   max = std::numeric_limits<float>::min();
-
 	const glm::vec3								   lightNormal = glm::normalize(glm::vec3(-1, -0.5f, 0));
 	const C_Primitive<Physics::Primitives::S_Disc> areaLight(Physics::Primitives::S_Disc(lightNormal, glm::vec3(0, 1, 0), 1.f));
 
-	const auto areLightPower = 255.f;
-	const auto IORGlass		 = 1.5f;
+	Textures::TextureLoader tl;
+	const auto				textureBuffer = tl.loadTexture(R"(Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp)");
+	C_TextureView			view(textureBuffer);
+
+	const auto areLightPower = 10.f;
 
 	for (int y = 0; y < dim.y; ++y)
 	{
@@ -70,13 +67,15 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 			// direct ray to the light intersection
 			if (areaLight.Intersect(ray, intersect))
 			{
-				textureView.Set({x, y}, textureView.Get<glm::vec3>({x, y}) + glm::vec3{areLightPower, areLightPower, areLightPower});
+				textureView.Set({x, y}, textureView.Get<glm::vec3>(glm::ivec2{x, y}) + glm::vec3{areLightPower, areLightPower, areLightPower});
 				continue;
 			}
 
 			// first primary ray
 			if (!m_Scene.Intersect(ray, intersect))
-				continue;
+				continue; // here we can plug environmental light/atmosphere/whatever
+
+			const auto	point = intersect.GetIntersectionPoint();
 
 			const auto& frame = intersect.GetFrame();
 
@@ -85,8 +84,8 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 			glm::vec3		  wil;
 			float			  pdf;
 			C_LambertianModel planeMaterial(glm::vec3(intersect.GetMaterial()->diffuse));
-			planeMaterial.SampleF(-ray.direction, wil, frame, {distrib(gen), distrib(gen)}, &pdf);
-			const Physics::Primitives::S_Ray lightRay{intersect.GetIntersectionPoint(), frame.ToWorld(wil)};
+			planeMaterial.SampleF(wol, wil, frame, {distrib(gen), distrib(gen)}, &pdf);
+			const Physics::Primitives::S_Ray lightRay{point, frame.ToWorld(wil)};
 
 			if (m_DirectionsView)
 			{
@@ -105,7 +104,9 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 				continue;
 			}
 
+			// ===========================
 			// here we know, that we hit light and it is not occluded
+			// ===========================
 
 
 			const auto lightDistance = std::powf(intersectLight.GetRayLength(), 2.f);
@@ -125,22 +126,20 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 			if (wil.y <= 0 || wol.y <= 0)
 				continue;
 
-			const auto diffuseComponent = intersect.GetMaterial()->diffuse / glm::pi<float>();
+			auto diffuseColour = intersect.GetMaterial()->diffuse;
+			if (glm::abs(intersect.GetIntersectionPoint().y) <= std::numeric_limits<float>::epsilon())
+			{
+				const auto uv = glm::vec2(point.x, point.z) / 10.f;
+				diffuseColour = view.Get<glm::vec4, T_Bilinear>(uv);
+			}
 
-			const auto sample = glm::vec3(diffuseComponent) * illum / pdf;
+			const auto diffuseComponent = diffuseColour / glm::pi<float>();
 
-			textureView.Set({x, y}, textureView.Get<glm::vec3>({x, y}) + sample); // Map due to texture format
+			const auto sample = (glm::vec3(diffuseComponent) * illum) / pdf;
 
-			// need for mapping purposes
-			min = std::min(min, sample.x);
-			min = std::min(min, sample.y);
-
-			max = std::max(max, sample.x);
-			max = std::max(max, sample.y);
+			textureView.Set({x, y}, textureView.Get<glm::vec3>(glm::ivec2{x, y}) + sample);
 		}
 	}
-
-	CORE_LOG(E_Level::Debug, E_Context::Render, "{} {}", min, max);
 }
 
 } // namespace GLEngine::Renderer
