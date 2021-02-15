@@ -41,10 +41,11 @@ struct T_Nearest;
 class RENDERER_API_EXPORT C_TextureView {
 public:
 	explicit C_TextureView(I_TextureViewStorage* storage);
-	template <class T, class Filter = T_Nearest> [[nodiscard]] T			Get(const glm::vec2& uv, E_TextureChannel element) const;
-	template <class T> [[nodiscard]] T										Get(const glm::ivec2& uv, E_TextureChannel element) const;
-	template <class T, typename = std::enable_if_t<glm::type<T>::is_vec>> T Get(const glm::ivec2& uv) const;
-	template <class T> [[nodiscard]] T										GetBorderColor() const;
+	template <class T, class Filter = T_Nearest> [[nodiscard]] T									  Get(const glm::vec2& uv, E_TextureChannel element) const;
+	template <class T> [[nodiscard]] T																  Get(const glm::ivec2& uv, E_TextureChannel element) const;
+	template <class T, class Filter = T_Nearest, typename = std::enable_if_t<glm::type<T>::is_vec>> T Get(const glm::vec2& uv) const;
+	template <class T, typename = std::enable_if_t<glm::type<T>::is_vec>> T							  Get(const glm::ivec2& uv) const;
+	template <class T> [[nodiscard]] T																  GetBorderColor() const;
 
 	[[nodiscard]] E_WrapFunction GetWrapFunction() const;
 	void						 SetWrapFunction(E_WrapFunction wrap);

@@ -52,6 +52,18 @@ template <class T, typename /*= std::enable_if_t<glm::type<T>::is_vec>*/> T C_Te
 }
 
 //=================================================================================
+template <class T, class Filter, typename /*= std::enable_if_t<glm::type<T>::is_vec>*/> T C_TextureView::Get(const glm::vec2& uv) const
+{
+	// TODO: border colour could be handled simpler
+	T ret;
+	for (std::uint8_t i = 0; i < std::min(static_cast<std::uint8_t>(glm::type<T>::components), m_Storage->GetNumElements()); ++i)
+	{
+		ret[i] = Get<typename T::value_type, Filter>(uv, static_cast<E_TextureChannel>(i));
+	}
+	return ret;
+}
+
+//=================================================================================
 template <> inline glm::vec4 C_TextureView::GetBorderColor() const
 {
 	return m_BorderColor;
