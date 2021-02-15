@@ -60,7 +60,11 @@ template <class internalFormat> const void C_TextureViewStorageCPU<internalForma
 //=================================================================================
 template <class internalFormat> std::uint8_t C_TextureViewStorageCPU<internalFormat>::GetChannelOffset(E_TextureChannel element) const
 {
-	return static_cast<std::underlying_type_t<E_TextureChannel>>(element);
+	const auto it = std::find(m_Channels.begin(), m_Channels.end(), element);
+	if (it != m_Channels.end()) {
+		return static_cast<std::uint8_t>(std::distance(m_Channels.begin(), it));
+	}
+	return 0;
 }
 
 //=================================================================================
