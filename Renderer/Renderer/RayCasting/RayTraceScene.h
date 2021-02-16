@@ -64,7 +64,7 @@ public:
 		intersection.SetMaterial(&GetMaterial());
 		return true;
 	}
-	[[nodiscard]] virtual float Area() const { return m_Area; }
+	[[nodiscard]] virtual float Area() const override { return m_Area; }
 
 private:
 	static float GetArea(const Physics::Primitives::S_Plane&) { return std::numeric_limits<float>::infinity(); }
@@ -79,6 +79,12 @@ private:
 	void FillIntersection(const Physics::Primitives::S_Disc& disc, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
 	{
 		FillIntersection(disc.plane, t, ray, intersection);
+	}
+	void FillIntersection(const Physics::Primitives::S_Sphere& sphere, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
+	{
+		const auto intersectionPoint = ray.origin + ray.direction * t;
+		const auto normal			 = (intersectionPoint - sphere.m_position)/sphere.m_radius;
+		intersection				 = C_RayIntersection(S_Frame(normal), glm::vec3(intersectionPoint), Physics::Primitives::S_Ray(ray));
 	}
 	T	  m_Primitive;
 	float m_Area;
