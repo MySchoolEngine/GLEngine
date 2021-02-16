@@ -46,7 +46,7 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 		return camera.GetRay(clipSpace);
 	};
 
-	auto textureView = Renderer::C_TextureView(&storage);
+	auto textureView = C_TextureView(&storage);
 
 	const glm::vec3								   lightNormal = glm::normalize(glm::vec3(-1, -0.5f, 0));
 	const C_Primitive<Physics::Primitives::S_Disc> areaLight(Physics::Primitives::S_Disc(lightNormal, glm::vec3(0, 1, 0), 1.f));
@@ -67,7 +67,7 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 			// direct ray to the light intersection
 			if (areaLight.Intersect(ray, intersect))
 			{
-				textureView.Set({x, y}, textureView.Get<glm::vec3>(glm::ivec2{x, y}) + glm::vec3{areLightPower, areLightPower, areLightPower});
+				AddSample({x, y}, textureView, glm::vec3{areLightPower, areLightPower, areLightPower});
 				continue;
 			}
 
@@ -101,7 +101,8 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 			if (m_Scene.Intersect(lightRay, geomIntersect, std::numeric_limits<float>::epsilon()))
 			{
 				// light missed, here we should continue the ray
-				continue;
+				if (intersectLight.GetRayLength() > geomIntersect.GetRayLength())
+					continue;
 			}
 
 			// ===========================
@@ -137,9 +138,15 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 
 			const auto sample = (glm::vec3(diffuseComponent) * illum) / pdf;
 
-			textureView.Set({x, y}, textureView.Get<glm::vec3>(glm::ivec2{x, y}) + sample);
+			AddSample({x, y}, textureView, sample);
 		}
 	}
+}
+
+//=================================================================================
+void C_RayRenderer::AddSample(const glm::ivec2 coord, C_TextureView view, const glm::vec3 sample)
+{
+	view.Set(coord, view.Get<glm::vec3>(coord) + sample);
 }
 
 } // namespace GLEngine::Renderer

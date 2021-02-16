@@ -16,6 +16,7 @@ public:
 	void Render(I_CameraComponent& camera, I_TextureViewStorage& storage);
 
 private:
+	void								   AddSample(const glm::ivec2 coord, C_TextureView view, const glm::vec3 sample);
 	const C_RayTraceScene&				   m_Scene;
 	std::optional<C_OctahedralTextureView> m_DirectionsView;
 };
