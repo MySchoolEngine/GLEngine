@@ -32,25 +32,10 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_Camera
 	, m_DirectionImage(s_resolution, s_resolution, 1)
 	, m_DirImage(nullptr)
 {
-	{
-		m_Image		  = std::make_shared<Textures::C_Texture>("rayTrace");
-		auto channels = m_ImageStorage.GetChannels();
-		channels[3]	  = Renderer::E_TextureChannel::None;
-		m_ImageStorage.SetChannels(channels);
-	}
+	m_Image = std::make_shared<Textures::C_Texture>("rayTrace");
 
-	{
-		auto channels = m_DirectionImage.GetChannels();
-		channels[1]	  = Renderer::E_TextureChannel::None;
-		channels[2]	  = Renderer::E_TextureChannel::None;
-		channels[3]	  = Renderer::E_TextureChannel::None;
-		m_DirectionImage.SetChannels(channels);
-
-		m_DirImage = std::make_shared<Textures::C_Texture>("directional");
-		m_DirImage->bind();
-		m_DirImage->SetTexData2D(0, &m_DirectionImage);
-		m_DirImage->unbind();
-	}
+	m_DirImage = std::make_shared<Textures::C_Texture>("directional");
+	m_DirImage->SetTexData2D(0, &m_DirectionImage);
 }
 
 //=================================================================================

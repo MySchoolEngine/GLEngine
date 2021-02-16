@@ -4,6 +4,7 @@
 
 #include <Physics/Primitives/Disc.h>
 #include <Physics/Primitives/Plane.h>
+#include <Physics/Primitives/Shapes.h>
 
 namespace GLEngine::Renderer {
 
