@@ -20,15 +20,19 @@ C_RayTraceScene::C_RayTraceScene()
 {
 	using namespace Physics::Primitives;
 	auto							plane = std::make_unique<C_Primitive<S_Plane>>(S_Plane(glm::vec3(0, 1, 0), 0.0f));
+	auto							plane1 = std::make_unique<C_Primitive<S_Plane>>(S_Plane(glm::vec3(1, 0, 0), {-3.f, 0.f, 0.f}));
 	static const MeshData::Material mat1{glm::vec4{}, glm::vec4{255, 0, 255, 0}, glm::vec4{}, 1.f, 0};
 	static const MeshData::Material mat2{glm::vec4{}, glm::vec4{0, 0, 255, 0}, glm::vec4{}, 1.f, 0};
+	static const MeshData::Material mat3{glm::vec4{}, glm::vec4{36.f / 255.f, 36.f / 255.f, 36.f / 255.f, 0}, glm::vec4{}, 1.f, 0};
 	plane->SetMaterial(mat1);
 	AddObejct(std::move(plane));
+	plane1->SetMaterial(mat3);
+	AddObejct(std::move(plane1));
 
 	static const auto normal2 = glm::vec3(0, 0, -1);
-	auto			  disc	  = std::make_unique<C_Primitive<S_Disc>>(S_Disc{normal2, -normal2, 0.5f});
-	disc->SetMaterial(mat2);
-	AddObejct(std::move(disc));
+	auto			  sphere	  = std::make_unique<C_Primitive<S_Sphere>>(S_Sphere{{0.f, 0.f, 0.f}, 1.f});
+	sphere->SetMaterial(mat2);
+	AddObejct(std::move(sphere));
 }
 
 //=================================================================================
