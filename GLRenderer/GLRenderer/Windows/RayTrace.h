@@ -36,15 +36,16 @@ private:
 	virtual void DrawComponents() const override;
 	void		 UploadStorage() const;
 
-	std::shared_ptr<Renderer::I_CameraComponent> m_Camera;
-	std::shared_ptr<Textures::C_Texture>		 m_Image;
-	Renderer::C_TextureViewStorageCPU<float>	 m_ImageStorage;
-	Renderer::C_RayTraceScene					 m_Scene;
-	std::future<void>							 m_SignalDone;
-	int											 m_NumCycleSamples;
-	bool										 m_Running : 1;
-	bool										 m_RunningCycle : 1;
-	GUI::Input::C_CheckBoxValue					 m_LiveUpdate;
+	std::shared_ptr<Renderer::I_CameraComponent>	m_Camera;
+	std::shared_ptr<Textures::C_Texture>			m_Image;
+	Renderer::C_TextureViewStorageCPU<float>		m_ImageStorage;
+	Renderer::C_TextureViewStorageCPU<std::uint8_t> m_WeightedImage;
+	Renderer::C_RayTraceScene						m_Scene;
+	std::future<void>								m_SignalDone;
+	int												m_NumCycleSamples;
+	bool											m_Running : 1;
+	bool											m_RunningCycle : 1;
+	GUI::Input::C_CheckBoxValue						m_LiveUpdate;
 
 	Renderer::C_TextureViewStorageCPU<float> m_DirectionImage;
 	std::shared_ptr<Textures::C_Texture>	 m_DirImage;

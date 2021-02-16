@@ -24,6 +24,7 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_Camera
 	: GUI::C_Window(guid, "Ray tracing")
 	, m_Camera(camera)
 	, m_ImageStorage(844, 480, 3)
+	, m_WeightedImage(844, 480, 3)
 	, m_Image(nullptr)
 	, m_NumCycleSamples(0)
 	, m_Running(false)
@@ -145,8 +146,16 @@ void C_RayTraceWindow::UploadStorage() const
 		{
 			renderer->AddTransferCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[this]() {
+					const auto				dim = m_ImageStorage.GetDimensions();
+					Renderer::C_TextureView weightedView(const_cast<Renderer::C_TextureViewStorageCPU<std::uint8_t>*>(&m_WeightedImage));
+					Renderer::C_TextureView view(const_cast<Renderer::C_TextureViewStorageCPU<float>*>(&m_ImageStorage));
+					for (int i = 0; i < dim.x; ++i)
+						for (int j = 0; j < dim.y; ++j)
+							weightedView.Set({i, j}, view.Get<glm::vec3>(glm::ivec2{i, j}) / static_cast<float>(std::max(m_NumCycleSamples, 1)));
+
 					m_Image->bind();
-					m_Image->SetTexData2D(0, (&m_ImageStorage));
+					m_Image->SetTexData2D(0, (&m_WeightedImage));
+					m_Image->GenerateMipMaps();
 					m_Image->GenerateMipMaps();
 				},
 				"RT buffer"));
