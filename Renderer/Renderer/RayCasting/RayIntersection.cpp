@@ -10,7 +10,8 @@ C_RayIntersection::C_RayIntersection(S_Frame&& frame, glm::vec3&& point, Physics
 	, m_Ray(ray)
 	, m_Material(nullptr)
 	, m_Light(nullptr)
-{}
+{
+}
 
 //=================================================================================
 C_RayIntersection::C_RayIntersection() = default;
@@ -60,4 +61,16 @@ const GLEngine::Renderer::S_Frame& C_RayIntersection::GetFrame() const
 	return m_Frame;
 }
 
+//=================================================================================
+const std::shared_ptr<GLEngine::Renderer::RayTracing::I_RayLight> C_RayIntersection::GetLight() const
+{
+	return m_Light;
 }
+
+//=================================================================================
+void C_RayIntersection::SetLight(const std::shared_ptr<RayTracing::I_RayLight>& light)
+{
+	m_Light = light;
+}
+
+} // namespace GLEngine::Renderer

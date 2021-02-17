@@ -4,8 +4,9 @@
 #include <Renderer/RayCasting/Frame.h>
 
 namespace GLEngine::Renderer {
+namespace RayTracing {
 class I_RayLight;
-
+}
 class RENDERER_API_EXPORT C_RayIntersection {
 public:
 	C_RayIntersection(); //= default;
@@ -20,13 +21,15 @@ public:
 	void									SetMaterial(const MeshData::Material* material);
 	[[nodiscard]] const MeshData::Material* GetMaterial() const;
 
-	[[nodiscard]] bool IsLight() const;
+	[[nodiscard]] bool											IsLight() const;
+	void														SetLight(const std::shared_ptr<RayTracing::I_RayLight>& light);
+	[[nodiscard]] const std::shared_ptr<RayTracing::I_RayLight> GetLight() const;
 
 private:
 	S_Frame						m_Frame;
 	glm::vec3					m_Point;
 	Physics::Primitives::S_Ray	m_Ray;
 	const MeshData::Material*	m_Material; // not owning
-	std::shared_ptr<I_RayLight> m_Light;
+	std::shared_ptr<RayTracing::I_RayLight> m_Light;
 };
 } // namespace GLEngine::Renderer

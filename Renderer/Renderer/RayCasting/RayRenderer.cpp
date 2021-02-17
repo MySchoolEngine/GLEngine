@@ -1,10 +1,13 @@
 #include <RendererStdafx.h>
 
 #include <Renderer/ICameraComponent.h>
+#include <Renderer/RayCasting/Light/ILight.h>
+#include <Renderer/RayCasting/PhysicalProperties.h>
 #include <Renderer/RayCasting/RayRenderer.h>
 #include <Renderer/RayCasting/ReflectionModels/LambertianModel.h>
 #include <Renderer/RayCasting/ReflectionModels/SpecularReflection.h>
 #include <Renderer/RayCasting/Sampling.h>
+#include <Renderer/RayCasting/SceneGeometry.h>
 #include <Renderer/Textures/TextureLoader.h>
 #include <Renderer/Textures/TextureStorage.h>
 #include <Renderer/Textures/TextureView.h>
@@ -48,14 +51,9 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 
 	auto textureView = C_TextureView(&storage);
 
-	const glm::vec3								   lightNormal = glm::normalize(glm::vec3(0, -1.0, 1.0));
-	const C_Primitive<Physics::Primitives::S_Disc> areaLight(Physics::Primitives::S_Disc(lightNormal, glm::vec3(0, 0, 0), 5.f));
-
 	Textures::TextureLoader tl;
 	const auto				textureBuffer = tl.loadTexture(R"(Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp)");
 	C_TextureView			view(textureBuffer);
-
-	const auto areLightPower = 1.f;
 
 	for (int y = 0; y < dim.y; ++y)
 	{
@@ -64,16 +62,17 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 			const auto		  ray = GetRay(x, y);
 			C_RayIntersection intersect;
 
-			// direct ray to the light intersection
-			if (areaLight.Intersect(ray, intersect))
-			{
-				AddSample({x, y}, textureView, glm::vec3{areLightPower, areLightPower, areLightPower});
-				continue;
-			}
-
 			// first primary ray
 			if (!m_Scene.Intersect(ray, intersect))
 				continue; // here we can plug environmental light/atmosphere/whatever
+
+			// direct ray to the light intersection
+			if (intersect.IsLight())
+			{
+				auto light = intersect.GetLight();
+				AddSample({x, y}, textureView, light->Le());
+				continue;
+			}
 
 			const auto point = intersect.GetIntersectionPoint();
 
@@ -83,27 +82,30 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 			const auto		  wol = frame.ToLocal(-ray.direction);
 			glm::vec3		  wil;
 			float			  pdf;
-			C_LambertianModel planeMaterial(glm::vec3(intersect.GetMaterial()->diffuse));
-			planeMaterial.SampleF(wol, wil, frame, {distrib(gen), distrib(gen)}, &pdf);
+			if (glm::abs(point.x + 3.f) <= std::numeric_limits<float>::epsilon())
+			{
+				C_SpecularReflection wallMaterial(PhysicalProperties::IOR::Air, PhysicalProperties::IOR::Glass);
+				wallMaterial.SampleF(wol, wil, frame, {distrib(gen), distrib(gen)}, &pdf);
+
+				if (m_DirectionsView)
+				{
+					m_DirectionsView->Set(wil, 1.f, E_TextureChannel::Red);
+				}
+			}
+			else
+			{
+				C_LambertianModel planeMaterial(glm::vec3(intersect.GetMaterial()->diffuse));
+				planeMaterial.SampleF(wol, wil, frame, {distrib(gen), distrib(gen)}, &pdf);
+			}
 			const Physics::Primitives::S_Ray lightRay{point, frame.ToWorld(wil)};
 
-			if (m_DirectionsView)
+			if (!m_Scene.Intersect(lightRay, intersectLight, std::numeric_limits<float>::epsilon()))
 			{
-				m_DirectionsView->Set(wil, 1.f, E_TextureChannel::Red);
+				continue; // complete miss of scene
 			}
-
-			if (!areaLight.Intersect(lightRay, intersectLight))
-			{
+			// light missed, here we should continue the ray
+			if (!intersectLight.IsLight())
 				continue;
-			}
-
-			C_RayIntersection geomIntersect;
-			if (m_Scene.Intersect(lightRay, geomIntersect, std::numeric_limits<float>::epsilon()))
-			{
-				// light missed, here we should continue the ray
-				if (intersectLight.GetRayLength() > geomIntersect.GetRayLength())
-					continue;
-			}
 
 			// ===========================
 			// here we know, that we hit light and it is not occluded
@@ -116,13 +118,13 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 			if (cosTheta <= 0.f)
 				continue;
 
-			const auto lightFrame = S_Frame(lightNormal);
-			const auto cosyTheta  = lightFrame.CosTheta(lightFrame.ToLocal(-lightRay.direction));
+			const auto& lightFrame = intersectLight.GetFrame();
+			const auto	cosyTheta  = lightFrame.CosTheta(lightFrame.ToLocal(-lightRay.direction));
 
 			if (cosyTheta <= 0.f)
 				continue;
 
-			const auto illum = areLightPower * areaLight.Area() * ((cosTheta * cosyTheta) / lightDistance);
+			const auto illum = intersectLight.GetLight()->Le() * ((cosTheta * cosyTheta) / lightDistance);
 
 			if (wil.y <= 0 || wol.y <= 0)
 				continue;
