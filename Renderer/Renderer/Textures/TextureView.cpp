@@ -80,7 +80,7 @@ glm::ivec2 C_TextureView::ClampCoordinates(const glm::ivec2& uv) const
 			result.y = dim.y + result.y;
 		}
 	}
-		break;
+	break;
 	case E_WrapFunction::MirroredRepeat: {
 		const auto numRepeats = uv / (dim + glm::ivec2{1, 1});
 		result				  = uv - numRepeats * dim;

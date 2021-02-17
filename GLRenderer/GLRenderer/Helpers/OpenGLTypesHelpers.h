@@ -155,7 +155,7 @@ enum class E_OpenGLFilter : char
 //=================================================================================
 inline constexpr GLenum OpenGLUnderlyingType(const Renderer::E_TextureFormat format)
 {
-  switch (format)
+	switch (format)
 	{
 	case Renderer::E_TextureFormat::RGBA32f:
 	case Renderer::E_TextureFormat::RGB32f:

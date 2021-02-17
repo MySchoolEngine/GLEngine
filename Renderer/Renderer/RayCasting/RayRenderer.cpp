@@ -75,7 +75,7 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 			if (!m_Scene.Intersect(ray, intersect))
 				continue; // here we can plug environmental light/atmosphere/whatever
 
-			const auto	point = intersect.GetIntersectionPoint();
+			const auto point = intersect.GetIntersectionPoint();
 
 			const auto& frame = intersect.GetFrame();
 
