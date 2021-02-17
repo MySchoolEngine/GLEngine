@@ -1,6 +1,7 @@
 #include <RendererStdafx.h>
 
 #include <Renderer/RayCasting/RayTraceScene.h>
+#include <Renderer/RayCasting/SceneGeometry.h>
 
 #include <Physics/Primitives/Disc.h>
 #include <Physics/Primitives/Plane.h>
