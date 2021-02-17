@@ -14,7 +14,7 @@ namespace GLEngine::Renderer {
 //=============================================================
 class RENDERER_API_EXPORT C_AreaLight : public I_Light {
 public:
-	C_AreaLight(std::shared_ptr<Entity::I_Entity> owner);
+	explicit C_AreaLight(std::shared_ptr<Entity::I_Entity> owner);
 	virtual ~C_AreaLight();
 
 	virtual void			 DebugDrawGUI() override;
