@@ -2,6 +2,7 @@
 
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/RayCasting/Frame.h>
+#include <Renderer/RayCasting/RayIntersection.h>
 #include <Renderer/RendererApi.h>
 
 #include <Physics/Primitives/Disc.h>
@@ -9,28 +10,7 @@
 #include <Physics/Primitives/Ray.h>
 #include <Physics/Primitives/Shapes.h>
 
-#include <utility>
-
 namespace GLEngine::Renderer {
-
-class RENDERER_API_EXPORT C_RayIntersection {
-public:
-	C_RayIntersection() = default;
-	C_RayIntersection(S_Frame&& frame, glm::vec3&& point, Physics::Primitives::S_Ray&& ray);
-	[[nodiscard]] const S_Frame&					GetFrame() const { return m_Frame; }
-	[[nodiscard]] const Physics::Primitives::S_Ray& GetRay() const { return m_Ray; }
-	[[nodiscard]] const glm::vec3&					GetIntersectionPoint() const { return m_Point; }
-	[[nodiscard]] const float						GetRayLength() const { return glm::distance(m_Point, m_Ray.origin); }
-	// material
-	void									SetMaterial(const MeshData::Material* material) { m_Material = material; }
-	[[nodiscard]] const MeshData::Material* GetMaterial() const { return m_Material; }
-
-private:
-	S_Frame					   m_Frame;
-	glm::vec3				   m_Point;
-	Physics::Primitives::S_Ray m_Ray;
-	const MeshData::Material*  m_Material; // not owning
-};
 
 class I_RayGeometryObject {
 public:

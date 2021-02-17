@@ -9,14 +9,6 @@
 namespace GLEngine::Renderer {
 
 //=================================================================================
-C_RayIntersection::C_RayIntersection(S_Frame&& frame, glm::vec3&& point, Physics::Primitives::S_Ray&& ray)
-	: m_Frame(frame)
-	, m_Point(point)
-	, m_Ray(ray)
-{
-}
-
-//=================================================================================
 C_RayTraceScene::C_RayTraceScene()
 {
 	using namespace Physics::Primitives;

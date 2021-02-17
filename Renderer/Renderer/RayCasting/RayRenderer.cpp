@@ -48,14 +48,14 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 
 	auto textureView = C_TextureView(&storage);
 
-	const glm::vec3								   lightNormal = glm::normalize(glm::vec3(-1, -0.5f, 0));
-	const C_Primitive<Physics::Primitives::S_Disc> areaLight(Physics::Primitives::S_Disc(lightNormal, glm::vec3(0, 1, 0), 1.f));
+	const glm::vec3								   lightNormal = glm::normalize(glm::vec3(0, -1.0, 1.0));
+	const C_Primitive<Physics::Primitives::S_Disc> areaLight(Physics::Primitives::S_Disc(lightNormal, glm::vec3(0, 0, 0), 5.f));
 
 	Textures::TextureLoader tl;
 	const auto				textureBuffer = tl.loadTexture(R"(Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp)");
 	C_TextureView			view(textureBuffer);
 
-	const auto areLightPower = 10.f;
+	const auto areLightPower = 1.f;
 
 	for (int y = 0; y < dim.y; ++y)
 	{
