@@ -54,7 +54,7 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 	{
 		for (int x = 0; x < dim.x; ++x)
 		{
-			const auto		  ray = GetRay(glm::vec2{x, y} + glm::vec2{distrib(gen), distrib(gen)});
+			const auto		  ray = GetRay(glm::vec2{x, y} + rnd.GetV2());
 			C_RayIntersection intersect;
 
 			// first primary ray
