@@ -33,15 +33,10 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 
 	C_STDSampler rnd(0.f, 1.f);
 
-	const auto ToClipSpace = [&](const glm::vec2& screenCoord) -> glm::vec2 {
+	const auto GetRay = [&](const glm::vec2& screenCoord) {
 		const float x = (2.0f * screenCoord.x) / dim.x - 1.0f;
 		const float y = 1.0f - (2.0f * screenCoord.y) / dim.y;
-		return {x, y};
-	};
-
-	const auto GetRay = [&](const glm::vec2& screenCoord) {
-		const auto clipSpace = ToClipSpace(screenCoord);
-		return camera.GetRay(clipSpace);
+		return camera.GetRay({x, y});
 	};
 
 	auto textureView = C_TextureView(&storage);
