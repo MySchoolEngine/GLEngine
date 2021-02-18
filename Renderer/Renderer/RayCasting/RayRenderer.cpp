@@ -3,6 +3,7 @@
 #include <Renderer/ICameraComponent.h>
 #include <Renderer/RayCasting/Light/ILight.h>
 #include <Renderer/RayCasting/PhysicalProperties.h>
+#include <Renderer/RayCasting/RayIntersection.h>
 #include <Renderer/RayCasting/RayRenderer.h>
 #include <Renderer/RayCasting/ReflectionModels/LambertianModel.h>
 #include <Renderer/RayCasting/ReflectionModels/SpecularReflection.h>
@@ -44,8 +45,8 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 		return {x, y};
 	};
 
-	const auto GetRay = [&](int x, int y) {
-		const auto clipSpace = ToClipSpace({static_cast<float>(x), static_cast<float>(y)});
+	const auto GetRay = [&](const glm::vec2& screenCoord) {
+		const auto clipSpace = ToClipSpace(screenCoord);
 		return camera.GetRay(clipSpace);
 	};
 
@@ -59,7 +60,7 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 	{
 		for (int x = 0; x < dim.x; ++x)
 		{
-			const auto		  ray = GetRay(x, y);
+			const auto		  ray = GetRay(glm::vec2{x, y} + glm::vec2{distrib(gen), distrib(gen)});
 			C_RayIntersection intersect;
 
 			// first primary ray
