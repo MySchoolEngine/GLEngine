@@ -1,6 +1,7 @@
 #include <RendererStdafx.h>
 
 #include <Renderer/ICameraComponent.h>
+#include <Renderer/RayCasting/Generator/Sampler.h>
 #include <Renderer/RayCasting/Light/ILight.h>
 #include <Renderer/RayCasting/PhysicalProperties.h>
 #include <Renderer/RayCasting/RayIntersection.h>
@@ -30,14 +31,7 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 	const auto high2 = 255.0;
 	const auto dim	 = storage.GetDimensions();
 
-	std::random_device		  rd;
-	std::mt19937::result_type seed
-		= rd()
-		  ^ ((std::mt19937::result_type)std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()
-			 + (std::mt19937::result_type)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count());
-
-	std::mt19937						  gen(seed);
-	std::uniform_real_distribution<float> distrib(0, 1.f);
+	C_STDSampler rnd(0.f, 1.f);
 
 	const auto ToClipSpace = [&](const glm::vec2& screenCoord) -> glm::vec2 {
 		const float x = (2.0f * screenCoord.x) / dim.x - 1.0f;
@@ -86,7 +80,7 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 			if (glm::abs(point.x + 3.f) <= std::numeric_limits<float>::epsilon())
 			{
 				C_SpecularReflection wallMaterial(PhysicalProperties::IOR::Air, PhysicalProperties::IOR::Glass);
-				wallMaterial.SampleF(wol, wil, frame, {distrib(gen), distrib(gen)}, &pdf);
+				wallMaterial.SampleF(wol, wil, frame, rnd.GetV2(), &pdf);
 
 				if (m_DirectionsView)
 				{
@@ -96,7 +90,7 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 			else
 			{
 				C_LambertianModel planeMaterial(glm::vec3(intersect.GetMaterial()->diffuse));
-				planeMaterial.SampleF(wol, wil, frame, {distrib(gen), distrib(gen)}, &pdf);
+				planeMaterial.SampleF(wol, wil, frame, rnd.GetV2(), &pdf);
 			}
 			const Physics::Primitives::S_Ray lightRay{point, frame.ToWorld(wil)};
 
