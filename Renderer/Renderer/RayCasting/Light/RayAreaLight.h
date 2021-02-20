@@ -4,7 +4,8 @@
 
 namespace GLEngine::Renderer {
 class I_RayGeometryObject;
-}
+class I_Sampler;
+} // namespace GLEngine::Renderer
 
 namespace GLEngine::Renderer::RayTracing {
 class C_AreaLight : public I_RayLight {
@@ -15,6 +16,7 @@ public:
 	[[nodiscard]] virtual float		PdfLe() const override;
 
 	[[nodiscard]] std::shared_ptr<I_RayGeometryObject> GetGeometry() const;
+
 private:
 	glm::vec3							 m_Radiance;
 	std::shared_ptr<I_RayGeometryObject> m_Shape;

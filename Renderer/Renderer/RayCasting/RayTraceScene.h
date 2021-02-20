@@ -28,8 +28,8 @@ public:
 	void			   AddLight(std::shared_ptr<RayTracing::C_AreaLight>&& light);
 
 private:
-	std::vector<std::shared_ptr<I_RayGeometryObject>>		m_Objects;
-	std::vector<std::shared_ptr<RayTracing::C_AreaLight>>	m_AreaLights;
+	std::vector<std::shared_ptr<I_RayGeometryObject>>	  m_Objects;
+	std::vector<std::shared_ptr<RayTracing::C_AreaLight>> m_AreaLights;
 };
 
 } // namespace GLEngine::Renderer

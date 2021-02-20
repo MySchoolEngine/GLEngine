@@ -35,4 +35,4 @@ glm::vec3 C_STDSampler::GetV3()
 	return {m_Distrib(m_Gen), m_Distrib(m_Gen), m_Distrib(m_Gen)};
 }
 
-}
+} // namespace GLEngine::Renderer

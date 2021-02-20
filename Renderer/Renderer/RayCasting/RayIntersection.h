@@ -26,10 +26,10 @@ public:
 	[[nodiscard]] const std::shared_ptr<RayTracing::I_RayLight> GetLight() const;
 
 private:
-	S_Frame						m_Frame;
-	glm::vec3					m_Point;
-	Physics::Primitives::S_Ray	m_Ray;
-	const MeshData::Material*	m_Material; // not owning
+	S_Frame									m_Frame;
+	glm::vec3								m_Point;
+	Physics::Primitives::S_Ray				m_Ray;
+	const MeshData::Material*				m_Material; // not owning
 	std::shared_ptr<RayTracing::I_RayLight> m_Light;
 };
 } // namespace GLEngine::Renderer

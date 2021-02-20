@@ -55,7 +55,7 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 	{
 		for (int x = 0; x < dim.x; ++x)
 		{
-			const auto		  ray = GetRay(glm::vec2{x, y} + rnd.GetV2());
+			const auto ray = GetRay(glm::vec2{x, y} + rnd.GetV2());
 			AddSample({x, y}, textureView, PathTrace(ray, rnd));
 		}
 	}
@@ -70,7 +70,7 @@ void C_RayRenderer::AddSample(const glm::ivec2 coord, C_TextureView view, const 
 //=================================================================================
 glm::vec3 C_RayRenderer::PathTrace(const Physics::Primitives::S_Ray& ray, C_STDSampler& rnd)
 {
-	C_TextureView	  brickView(m_Texture);
+	C_TextureView brickView(m_Texture);
 
 	C_RayIntersection intersect;
 
@@ -85,7 +85,7 @@ glm::vec3 C_RayRenderer::PathTrace(const Physics::Primitives::S_Ray& ray, C_STDS
 		return light->Le();
 	}
 
-	const auto point = intersect.GetIntersectionPoint();
+	const auto& point = intersect.GetIntersectionPoint();
 
 	const auto& frame = intersect.GetFrame();
 
@@ -99,7 +99,7 @@ glm::vec3 C_RayRenderer::PathTrace(const Physics::Primitives::S_Ray& ray, C_STDS
 
 	if (!m_Scene.Intersect(lightRay, intersectLight, std::numeric_limits<float>::epsilon()))
 	{
-		return glm::vec3(0.f);// complete miss of scene
+		return glm::vec3(0.f); // complete miss of scene
 	}
 	// light missed, here we should continue the ray
 	if (!intersectLight.IsLight())
@@ -128,7 +128,7 @@ glm::vec3 C_RayRenderer::PathTrace(const Physics::Primitives::S_Ray& ray, C_STDS
 		return glm::vec3(0.f);
 
 	const auto* material	  = intersect.GetMaterial();
-	auto diffuseColour = material->diffuse;
+	auto		diffuseColour = material->diffuse;
 	if (material->textureIndex != 0)
 	{
 		const auto uv = glm::vec2(point.x, point.z) / 10.f;

@@ -7,8 +7,8 @@
 #include <Physics/Primitives/Disc.h>
 #include <Physics/Primitives/Plane.h>
 #include <Physics/Primitives/Ray.h>
-#include <Physics/Primitives/Triangle.h>
 #include <Physics/Primitives/Shapes.h>
+#include <Physics/Primitives/Triangle.h>
 
 namespace GLEngine::Renderer {
 
@@ -27,6 +27,8 @@ private:
 };
 
 template <class T, typename = decltype(std::declval<T>().IntersectImpl(std::declval<const Physics::Primitives::S_Ray&>()))> class C_Primitive : public I_RayGeometryObject {
+	using namespace Physics::Primitives;
+
 public:
 	C_Primitive(T primitive)
 		: m_Primitive(primitive)
@@ -34,7 +36,7 @@ public:
 	{
 	}
 
-	[[nodiscard]] virtual bool Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const override
+	[[nodiscard]] virtual bool Intersect(const S_Ray& ray, C_RayIntersection& intersection) const override
 	{
 		const auto t = m_Primitive.IntersectImpl(ray);
 		if (t <= 0)
@@ -47,29 +49,26 @@ public:
 	[[nodiscard]] virtual float Area() const override { return m_Area; }
 
 private:
-	static float GetArea(const Physics::Primitives::S_Plane&) { return std::numeric_limits<float>::infinity(); }
-	static float GetArea(const Physics::Primitives::S_Disc& disc) { return disc.radius * disc.radius; }
-	static float GetArea(const Physics::Primitives::S_Sphere&) { return std::numeric_limits<float>::infinity(); }
-	static float GetArea(const Physics::Primitives::S_Triangle& triangle) {  return triangle.GetArea(); }
+	static float GetArea(const S_Plane&) { return std::numeric_limits<float>::infinity(); }
+	static float GetArea(const S_Disc& disc) { return disc.radius * disc.radius; }
+	static float GetArea(const S_Sphere&) { return std::numeric_limits<float>::infinity(); }
+	static float GetArea(const S_Triangle& triangle) { return triangle.GetArea(); }
 
-	void FillIntersection(const Physics::Primitives::S_Plane& plane, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
+	void FillIntersection(const S_Plane& plane, float t, const S_Ray& ray, C_RayIntersection& intersection) const
 	{
 		const auto normal = (glm::dot(plane.normal, -ray.direction) > 0 ? plane.normal : -plane.normal);
-		intersection	  = C_RayIntersection(S_Frame(normal), ray.origin + ray.direction * t, Physics::Primitives::S_Ray(ray));
+		intersection	  = C_RayIntersection(S_Frame(normal), ray.origin + ray.direction * t, S_Ray(ray));
 	}
-	void FillIntersection(const Physics::Primitives::S_Disc& disc, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
+	void FillIntersection(const S_Disc& disc, float t, const S_Ray& ray, C_RayIntersection& intersection) const { FillIntersection(disc.plane, t, ray, intersection); }
+	void FillIntersection(const S_Triangle& triangle, float t, const S_Ray& ray, C_RayIntersection& intersection) const
 	{
-		FillIntersection(disc.plane, t, ray, intersection);
+		intersection = C_RayIntersection(S_Frame(triangle.GetNormal()), ray.origin + ray.direction * t, S_Ray(ray));
 	}
-	void FillIntersection(const Physics::Primitives::S_Triangle& triangle, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
-	{
-		intersection = C_RayIntersection(S_Frame(triangle.GetNormal()), ray.origin + ray.direction * t, Physics::Primitives::S_Ray(ray));
-	}
-	void FillIntersection(const Physics::Primitives::S_Sphere& sphere, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
+	void FillIntersection(const S_Sphere& sphere, float t, const S_Ray& ray, C_RayIntersection& intersection) const
 	{
 		const auto intersectionPoint = ray.origin + ray.direction * t;
 		const auto normal			 = (intersectionPoint - sphere.m_position) / sphere.m_radius;
-		intersection				 = C_RayIntersection(S_Frame(normal), glm::vec3(intersectionPoint), Physics::Primitives::S_Ray(ray));
+		intersection				 = C_RayIntersection(S_Frame(normal), glm::vec3(intersectionPoint), S_Ray(ray));
 	}
 	T	  m_Primitive;
 	float m_Area;
