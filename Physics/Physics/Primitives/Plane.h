@@ -26,7 +26,7 @@ struct S_Plane : public T_Intersectable<S_Plane> {
 	bool								 twoSided : 1;
 	[[nodiscard]] inline constexpr float IntersectImpl(const S_Ray& ray) const
 	{
-		const auto useNormal = ((glm::dot(-ray.direction, normal) > 0) ? normal : -normal);
+		const auto useNormal = ((glm::dot(-ray.direction, normal) < 0 && twoSided) ? -normal : normal);
 		if (glm::dot(-ray.direction, useNormal) < 0.0)
 		{
 			return -1;

@@ -20,7 +20,7 @@ C_RayTraceScene::C_RayTraceScene()
 	static const MeshData::Material mat2{glm::vec4{}, glm::vec4{0, 0, 255, 0}, glm::vec4{}, 1.f, 0};
 	static const MeshData::Material mat3{glm::vec4{}, glm::vec4{36.f / 255.f, 36.f / 255.f, 36.f / 255.f, 0}, glm::vec4{}, 1.f, 0};
 
-	auto triangle = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, 0.f, 3.f}, {3.f, 0.f, -3.f}, {-3.f, 0.f, -3.f}));
+	auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, 0.f, 3.f}, {3.f, 0.f, -3.f}, {-3.f, 0.f, -3.f}));
 	auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, 0.f, 3.f}, {3.f, 0.f, 3.f}, {3.f, 0.f, -3.f}));
 	triangle->SetMaterial(mat1);
 	AddObejct(triangle);
@@ -37,7 +37,9 @@ C_RayTraceScene::C_RayTraceScene()
 
 	// lights
 	const glm::vec3 lightNormal	  = glm::normalize(glm::vec3(0, -1.0, 1.0));
-	auto			areaLightDisc = std::make_shared<C_Primitive<S_Disc>>(S_Disc(lightNormal, glm::vec3(0, 0, 0), 5.f));
+	auto			disc		  = S_Disc(lightNormal, glm::vec3(0, 0, 0), 5.f);
+	disc.plane.twoSided			  = false;
+	auto areaLightDisc			  = std::make_shared<C_Primitive<S_Disc>>(disc);
 
 	auto areaLight = std::make_shared<RayTracing::C_AreaLight>(glm::vec3(1.f, 1.f, 1.f), areaLightDisc);
 	AddLight(std::move(areaLight));
@@ -73,11 +75,9 @@ bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInte
 	if (intersections.empty())
 		return false;
 
-	intersection = intersections[0].intersection;
+	intersection  = intersections[0].intersection;
 	const auto it = std::find_if(m_AreaLights.begin(), m_AreaLights.end(),
-								 [&](const std::shared_ptr<RayTracing::C_AreaLight>& other) { 
-			return other->GetGeometry().get() == intersections[0].object.get(); 
-		});
+								 [&](const std::shared_ptr<RayTracing::C_AreaLight>& other) { return other->GetGeometry().get() == intersections[0].object.get(); });
 	if (it != m_AreaLights.end())
 	{
 		intersection.SetLight(*it);
