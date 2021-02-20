@@ -14,7 +14,7 @@ struct S_Triangle : public T_Intersectable<S_Triangle> {
 		: m_p({p0, p1, p2})
 	{
 		const auto normal = glm::cross(m_p[1] - m_p[0], m_p[2] - m_p[0]);
-		m_Area			  = normal.length() / 2.f;
+		m_Area			  = glm::length(normal) / 2.f;
 		m_Normal		  = glm::normalize(normal);
 	}
 
