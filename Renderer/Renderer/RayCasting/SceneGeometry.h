@@ -7,6 +7,7 @@
 #include <Physics/Primitives/Disc.h>
 #include <Physics/Primitives/Plane.h>
 #include <Physics/Primitives/Ray.h>
+#include <Physics/Primitives/Triangle.h>
 #include <Physics/Primitives/Shapes.h>
 
 namespace GLEngine::Renderer {
@@ -49,6 +50,7 @@ private:
 	static float GetArea(const Physics::Primitives::S_Plane&) { return std::numeric_limits<float>::infinity(); }
 	static float GetArea(const Physics::Primitives::S_Disc& disc) { return disc.radius * disc.radius; }
 	static float GetArea(const Physics::Primitives::S_Sphere&) { return std::numeric_limits<float>::infinity(); }
+	static float GetArea(const Physics::Primitives::S_Triangle& triangle) {  return triangle.GetArea(); }
 
 	void FillIntersection(const Physics::Primitives::S_Plane& plane, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
 	{
@@ -58,6 +60,10 @@ private:
 	void FillIntersection(const Physics::Primitives::S_Disc& disc, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
 	{
 		FillIntersection(disc.plane, t, ray, intersection);
+	}
+	void FillIntersection(const Physics::Primitives::S_Triangle& triangle, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
+	{
+		intersection = C_RayIntersection(S_Frame(triangle.GetNormal()), ray.origin + ray.direction * t, Physics::Primitives::S_Ray(ray));
 	}
 	void FillIntersection(const Physics::Primitives::S_Sphere& sphere, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
 	{

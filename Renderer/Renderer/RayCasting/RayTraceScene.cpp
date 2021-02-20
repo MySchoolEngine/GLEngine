@@ -15,21 +15,25 @@ namespace GLEngine::Renderer {
 C_RayTraceScene::C_RayTraceScene()
 {
 	using namespace Physics::Primitives;
-	auto							plane  = std::make_shared<C_Primitive<S_Plane>>(S_Plane(glm::vec3(0, 1, 0), 0.0f));
-	auto							plane1 = std::make_shared<C_Primitive<S_Plane>>(S_Plane(glm::vec3(1, 0, 0), {-3.f, 0.f, 0.f}));
+	auto							plane = std::make_shared<C_Primitive<S_Plane>>(S_Plane(glm::vec3(1, 0, 0), {-3.f, 0.f, 0.f}));
 	static const MeshData::Material mat1{glm::vec4{}, glm::vec4{255, 0, 255, 0}, glm::vec4{}, 1.f, 0};
 	static const MeshData::Material mat2{glm::vec4{}, glm::vec4{0, 0, 255, 0}, glm::vec4{}, 1.f, 0};
 	static const MeshData::Material mat3{glm::vec4{}, glm::vec4{36.f / 255.f, 36.f / 255.f, 36.f / 255.f, 0}, glm::vec4{}, 1.f, 0};
-	plane->SetMaterial(mat1);
+
+	auto triangle = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, 0.f, 3.f}, {3.f, 0.f, -3.f}, {-3.f, 0.f, -3.f}));
+	auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, 0.f, 3.f}, {3.f, 0.f, 3.f}, {3.f, 0.f, -3.f}));
+	triangle->SetMaterial(mat1);
+	AddObejct(triangle);
+	triangle->SetMaterial(mat1);
+	AddObejct(triangle1);
+
+	plane->SetMaterial(mat3);
 	AddObejct(std::move(plane));
-	plane1->SetMaterial(mat3);
-	AddObejct(std::move(plane1));
 
 	static const auto normal2 = glm::vec3(0, 0, -1);
 	auto			  sphere  = std::make_shared<C_Primitive<S_Sphere>>(S_Sphere{{0.f, 0.f, 0.f}, 1.f});
 	sphere->SetMaterial(mat2);
 	AddObejct(std::move(sphere));
-
 
 	// lights
 	const glm::vec3 lightNormal	  = glm::normalize(glm::vec3(0, -1.0, 1.0));
