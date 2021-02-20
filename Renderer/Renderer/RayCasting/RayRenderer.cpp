@@ -140,8 +140,9 @@ glm::vec3 C_RayRenderer::PathTrace(const Physics::Primitives::S_Ray& ray, C_STDS
 	if (wil.y <= 0 || wol.y <= 0)
 		return glm::vec3(0.f);
 
-	auto diffuseColour = intersect.GetMaterial()->diffuse;
-	if (glm::abs(intersect.GetIntersectionPoint().y) <= std::numeric_limits<float>::epsilon())
+	const auto* material	  = intersect.GetMaterial();
+	auto diffuseColour = material->diffuse;
+	if (material->textureIndex != 0)
 	{
 		const auto uv = glm::vec2(point.x, point.z) / 10.f;
 		diffuseColour = brickView.Get<glm::vec4, T_Bilinear>(uv);
