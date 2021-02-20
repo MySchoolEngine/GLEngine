@@ -93,21 +93,8 @@ glm::vec3 C_RayRenderer::PathTrace(const Physics::Primitives::S_Ray& ray, C_STDS
 	const auto		  wol = frame.ToLocal(-ray.direction);
 	glm::vec3		  wil;
 	float			  pdf;
-	if (glm::abs(point.x + 3.f) <= std::numeric_limits<float>::epsilon())
-	{
-		C_SpecularReflection wallMaterial(PhysicalProperties::IOR::Air, PhysicalProperties::IOR::Glass);
-		wallMaterial.SampleF(wol, wil, frame, rnd.GetV2(), &pdf);
-
-		if (m_DirectionsView)
-		{
-			m_DirectionsView->Set(wil, 1.f, E_TextureChannel::Red);
-		}
-	}
-	else
-	{
-		C_LambertianModel planeMaterial(glm::vec3(intersect.GetMaterial()->diffuse));
-		planeMaterial.SampleF(wol, wil, frame, rnd.GetV2(), &pdf);
-	}
+	C_LambertianModel planeMaterial(glm::vec3(intersect.GetMaterial()->diffuse));
+	planeMaterial.SampleF(wol, wil, frame, rnd.GetV2(), &pdf);
 	const Physics::Primitives::S_Ray lightRay{point, frame.ToWorld(wil)};
 
 	if (!m_Scene.Intersect(lightRay, intersectLight, std::numeric_limits<float>::epsilon()))
