@@ -74,6 +74,7 @@ void C_RayTraceWindow::RunUntilStop()
 	m_RunningCycle = m_Running = true;
 	std::packaged_task<void()> rayTrace([&]() {
 		Renderer::C_RayRenderer renderer(m_Scene);
+		renderer.SetDirectionalDebug(Renderer::C_OctahedralTextureView(Renderer::C_TextureView(&m_DirectionImage), s_resolution));
 		while (m_RunningCycle)
 		{
 			Utils::HighResolutionTimer renderTime;
