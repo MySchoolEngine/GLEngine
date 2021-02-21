@@ -27,6 +27,8 @@ public:
 	void			   AddObejct(std::shared_ptr<I_RayGeometryObject>&& object);
 	void			   AddLight(std::shared_ptr<RayTracing::C_AreaLight>&& light);
 
+	void ForEachLight(std::function<void(const RayTracing::C_AreaLight& light)> fnc) const;
+
 private:
 	std::vector<std::shared_ptr<I_RayGeometryObject>>	  m_Objects;
 	std::vector<std::shared_ptr<RayTracing::C_AreaLight>> m_AreaLights;

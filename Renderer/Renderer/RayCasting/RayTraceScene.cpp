@@ -36,10 +36,10 @@ C_RayTraceScene::C_RayTraceScene()
 	AddObejct(std::move(sphere));
 
 	// lights
-	const glm::vec3 lightNormal	  = glm::normalize(glm::vec3(0, -1.0, 1.0));
-	auto			disc		  = S_Disc(lightNormal, glm::vec3(0, 0, 0), 5.f);
-	disc.plane.twoSided			  = false;
-	auto areaLightDisc			  = std::make_shared<C_Primitive<S_Disc>>(disc);
+	const glm::vec3 lightNormal = glm::normalize(glm::vec3(0, -1.0, 1.0));
+	auto			disc		= S_Disc(lightNormal, glm::vec3(0, 0, 0), 2.5f);
+	disc.plane.twoSided			= false;
+	auto areaLightDisc			= std::make_shared<C_Primitive<S_Disc>>(disc);
 
 	auto areaLight = std::make_shared<RayTracing::C_AreaLight>(glm::vec3(1.f, 1.f, 1.f), areaLightDisc);
 	AddLight(std::move(areaLight));

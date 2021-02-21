@@ -3,6 +3,7 @@
 #include <Renderer/ICameraComponent.h>
 #include <Renderer/RayCasting/Generator/Sampler.h>
 #include <Renderer/RayCasting/Light/ILight.h>
+#include <Renderer/RayCasting/Light/RayAreaLight.h>
 #include <Renderer/RayCasting/PhysicalProperties.h>
 #include <Renderer/RayCasting/RayIntersection.h>
 #include <Renderer/RayCasting/RayRenderer.h>
@@ -13,6 +14,8 @@
 #include <Renderer/Textures/TextureLoader.h>
 #include <Renderer/Textures/TextureStorage.h>
 #include <Renderer/Textures/TextureView.h>
+
+#include <glm/gtx/component_wise.hpp>
 
 namespace GLEngine::Renderer {
 
@@ -70,6 +73,7 @@ void C_RayRenderer::AddSample(const glm::ivec2 coord, C_TextureView view, const 
 //=================================================================================
 glm::vec3 C_RayRenderer::PathTrace(const Physics::Primitives::S_Ray& ray, C_STDSampler& rnd)
 {
+	const float	  eps = 1e-3f;
 	C_TextureView brickView(m_Texture);
 
 	C_RayIntersection intersect;
@@ -85,61 +89,42 @@ glm::vec3 C_RayRenderer::PathTrace(const Physics::Primitives::S_Ray& ray, C_STDS
 		return light->Le();
 	}
 
-	const auto& point = intersect.GetIntersectionPoint();
+	glm::vec3 LoDirect(0.f);
 
-	const auto& frame = intersect.GetFrame();
+	m_Scene.ForEachLight([&](const RayTracing::C_AreaLight& light) {
+		glm::vec3 wig;
+		float	  pdf, distance;
+		glm::vec3 illum = light.SampleLi(intersect, &rnd, wig, &distance, &pdf);
 
-	C_RayIntersection intersectLight;
-	const auto		  wol = frame.ToLocal(-ray.direction);
-	glm::vec3		  wil;
-	float			  pdf;
-	C_LambertianModel planeMaterial(glm::vec3(intersect.GetMaterial()->diffuse));
-	planeMaterial.SampleF(wol, wil, frame, rnd.GetV2(), &pdf);
-	const Physics::Primitives::S_Ray lightRay{point, frame.ToWorld(wil)};
+		if (glm::compMax(illum) > 0.f)
+		{
+			if (glm::dot(wig, intersect.GetFrame().Normal()) <= 0.f)
+			{
+				return;
+			}
+			C_RayIntersection		   lightIntersect;
+			Physics::Primitives::S_Ray lightRay{intersect.GetIntersectionPoint(), wig};
+			if (m_DirectionsView) {
+				m_DirectionsView->Set(wig, 1.f, E_TextureChannel::Red);
+			}
+			if (m_Scene.Intersect(lightRay, lightIntersect, eps)) {
+				if (lightIntersect.GetRayLength() < distance - eps) {
+					return;
+				}
+				const auto& point		  = intersect.GetIntersectionPoint();
+				const auto* material	  = intersect.GetMaterial();
+				auto		diffuseColour = glm::vec3(material->diffuse);
+				if (material->textureIndex != 0)
+				{
+					const auto uv = glm::vec2(point.x, point.z) / 10.f;
+					diffuseColour = brickView.Get<glm::vec3, T_Bilinear>(uv);
+				}
+				LoDirect += illum * (diffuseColour / glm::pi<float>());
+			}
+		}
+	});
 
-	if (!m_Scene.Intersect(lightRay, intersectLight, std::numeric_limits<float>::epsilon()))
-	{
-		return glm::vec3(0.f); // complete miss of scene
-	}
-	// light missed, here we should continue the ray
-	if (!intersectLight.IsLight())
-		return glm::vec3(0.f);
-
-	// ===========================
-	// here we know, that we hit light and it is not occluded
-	// ===========================
-
-
-	const auto lightDistance = std::powf(intersectLight.GetRayLength(), 2.f);
-	const auto cosTheta		 = frame.CosTheta(wil);
-
-	if (cosTheta <= 0.f)
-		return glm::vec3(0.f);
-
-	const auto& lightFrame = intersectLight.GetFrame();
-	const auto	cosyTheta  = lightFrame.CosTheta(lightFrame.ToLocal(-lightRay.direction));
-
-	if (cosyTheta <= 0.f)
-		return glm::vec3(0.f);
-
-	const auto illum = intersectLight.GetLight()->Le() * ((cosTheta * cosyTheta) / lightDistance);
-
-	if (wil.y <= 0 || wol.y <= 0)
-		return glm::vec3(0.f);
-
-	const auto* material	  = intersect.GetMaterial();
-	auto		diffuseColour = material->diffuse;
-	if (material->textureIndex != 0)
-	{
-		const auto uv = glm::vec2(point.x, point.z) / 10.f;
-		diffuseColour = brickView.Get<glm::vec4, T_Bilinear>(uv);
-	}
-
-	const auto diffuseComponent = diffuseColour / glm::pi<float>();
-
-	const auto sample = (glm::vec3(diffuseComponent) * illum) / pdf;
-
-	return sample;
+	return LoDirect;
 }
 
 } // namespace GLEngine::Renderer
