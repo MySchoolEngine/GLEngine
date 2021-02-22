@@ -3,6 +3,7 @@
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/RayCasting/Frame.h>
 #include <Renderer/RayCasting/RayIntersection.h>
+#include <Renderer/RayCasting/GeometryTraits.h>
 
 #include <Physics/Primitives/Disc.h>
 #include <Physics/Primitives/Plane.h>
@@ -31,7 +32,7 @@ class C_Primitive : public I_RayGeometryObject {
 public:
 	C_Primitive(T primitive)
 		: m_Primitive(primitive)
-		, m_Area(GetArea(primitive))
+		, m_Area(RayTracing::T_GeometryTraits::GetArea(primitive))
 	{
 	}
 
@@ -49,11 +50,6 @@ public:
 
 	T m_Primitive;
 private:
-	static float GetArea(const Physics::Primitives::S_Plane&) { return std::numeric_limits<float>::infinity(); }
-	static float GetArea(const Physics::Primitives::S_Disc& disc) { return disc.radius * disc.radius; }
-	static float GetArea(const Physics::Primitives::S_Sphere&) { return std::numeric_limits<float>::infinity(); }
-	static float GetArea(const Physics::Primitives::S_Triangle& triangle) { return triangle.GetArea(); }
-
 	void FillIntersection(const Physics::Primitives::S_Plane& plane, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
 	{
 		const auto normal = (glm::dot(plane.normal, -ray.direction) > 0 ? plane.normal : -plane.normal);

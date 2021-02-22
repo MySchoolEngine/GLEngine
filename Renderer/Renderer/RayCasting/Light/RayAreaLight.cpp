@@ -1,6 +1,7 @@
 #include <RendererStdAfx.h>
 
 #include <Renderer/RayCasting/Generator/Sampler.h>
+#include <Renderer/RayCasting/GeometryTraits.h>
 #include <Renderer/RayCasting/Light/RayAreaLight.h>
 #include <Renderer/RayCasting/RayIntersection.h>
 #include <Renderer/RayCasting/Sampling.h>
@@ -24,9 +25,9 @@ glm::vec3 C_AreaLight::SampleLi(const C_RayIntersection& intersection, I_Sampler
 	const auto ligthRadius = m_Shape->m_Primitive.radius;
 	const auto samplePoint = ligthRadius * SampleConcentricDisc(rnd->GetV2());
 	const auto lightFrame  = S_Frame(m_Shape->m_Primitive.plane.normal);
-	const auto lightPoint  = m_Shape->m_Primitive.plane.origin + samplePoint.x * lightFrame.Tangnt() + samplePoint.y * lightFrame.Bitangent();
+	const auto lightPoint  = RayTracing::T_GeometryTraits::SamplePoint(m_Shape->m_Primitive, rnd);
 
-	wi = lightPoint - intersection.GetIntersectionPoint();
+	wi				   = lightPoint - intersection.GetIntersectionPoint();
 	const auto distSqr = glm::length2(wi);
 	*distance		   = glm::sqrt(distSqr);
 	wi /= (*distance);
