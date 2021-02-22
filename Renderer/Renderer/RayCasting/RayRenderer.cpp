@@ -22,6 +22,7 @@ namespace GLEngine::Renderer {
 //=================================================================================
 C_RayRenderer::C_RayRenderer(const C_RayTraceScene& scene)
 	: m_Scene(scene)
+	, m_ProcessedPixels(0)
 {
 	Textures::TextureLoader tl;
 	m_Texture = tl.loadTexture(R"(Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp)");
@@ -36,10 +37,8 @@ C_RayRenderer::~C_RayRenderer()
 //=================================================================================
 void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& storage)
 {
-	const auto low1	 = 0.0;
-	const auto high1 = 5.0f;
-	const auto low2	 = 0.0;
-	const auto high2 = 255.0;
+	m_ProcessedPixels = 0;
+
 	const auto dim	 = storage.GetDimensions();
 
 	C_STDSampler rnd(0.f, 1.f);
@@ -60,6 +59,7 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 		{
 			const auto ray = GetRay(glm::vec2{x, y} + rnd.GetV2());
 			AddSample({x, y}, textureView, PathTrace(ray, rnd));
+			++m_ProcessedPixels;
 		}
 	}
 }
@@ -125,6 +125,12 @@ glm::vec3 C_RayRenderer::PathTrace(const Physics::Primitives::S_Ray& ray, C_STDS
 	});
 
 	return LoDirect;
+}
+
+//=================================================================================
+std::size_t C_RayRenderer::GetProcessedPixels() const
+{
+	return m_ProcessedPixels;
 }
 
 } // namespace GLEngine::Renderer

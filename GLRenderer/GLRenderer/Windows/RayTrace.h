@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Renderer/RayCasting/RayRenderer.h>
 #include <Renderer/RayCasting/RayTraceScene.h>
 #include <Renderer/Textures/TextureStorage.h>
 
@@ -46,6 +47,7 @@ private:
 	bool											m_Running : 1;
 	bool											m_RunningCycle : 1;
 	GUI::Input::C_CheckBoxValue						m_LiveUpdate;
+	Renderer::C_RayRenderer							m_Renderer;
 
 	Renderer::C_TextureViewStorageCPU<float> m_DirectionImage;
 	std::shared_ptr<Textures::C_Texture>	 m_DirImage;

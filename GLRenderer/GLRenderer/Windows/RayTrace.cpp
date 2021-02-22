@@ -18,13 +18,14 @@
 namespace GLEngine::GLRenderer {
 
 constexpr static std::uint16_t s_resolution = 512;
+constexpr static glm::uvec2	   s_ImageResolution = glm::uvec2(844, 480);
 
 //=================================================================================
 C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_CameraComponent> camera)
 	: GUI::C_Window(guid, "Ray tracing")
 	, m_Camera(camera)
-	, m_ImageStorage(844, 480, 3)
-	, m_WeightedImage(844, 480, 3)
+	, m_ImageStorage(s_ImageResolution.x, s_ImageResolution.y, 3)
+	, m_WeightedImage(s_ImageResolution.x, s_ImageResolution.y, 3)
 	, m_Image(nullptr)
 	, m_NumCycleSamples(0)
 	, m_Running(false)
@@ -32,6 +33,7 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_Camera
 	, m_LiveUpdate(false, "Live update")
 	, m_DirectionImage(s_resolution, s_resolution, 1)
 	, m_DirImage(nullptr)
+	, m_Renderer(m_Scene)
 {
 	m_Image = std::make_shared<Textures::C_Texture>("rayTrace");
 
@@ -51,10 +53,9 @@ void C_RayTraceWindow::RayTrace()
 	if (m_Running)
 		return;
 	std::packaged_task<void()> rayTrace([&]() {
-		Renderer::C_RayRenderer	   renderer(m_Scene);
 		Utils::HighResolutionTimer renderTime;
-		renderer.SetDirectionalDebug(Renderer::C_OctahedralTextureView(Renderer::C_TextureView(&m_DirectionImage), s_resolution));
-		renderer.Render(*m_Camera, m_ImageStorage);
+		m_Renderer.SetDirectionalDebug(Renderer::C_OctahedralTextureView(Renderer::C_TextureView(&m_DirectionImage), s_resolution));
+		m_Renderer.Render(*m_Camera, m_ImageStorage);
 		CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
 		UploadStorage();
 		m_Running = false;
@@ -73,12 +74,11 @@ void C_RayTraceWindow::RunUntilStop()
 		return;
 	m_RunningCycle = m_Running = true;
 	std::packaged_task<void()> rayTrace([&]() {
-		Renderer::C_RayRenderer renderer(m_Scene);
-		renderer.SetDirectionalDebug(Renderer::C_OctahedralTextureView(Renderer::C_TextureView(&m_DirectionImage), s_resolution));
+		m_Renderer.SetDirectionalDebug(Renderer::C_OctahedralTextureView(Renderer::C_TextureView(&m_DirectionImage), s_resolution));
 		while (m_RunningCycle)
 		{
 			Utils::HighResolutionTimer renderTime;
-			renderer.Render(*m_Camera, m_ImageStorage);
+			m_Renderer.Render(*m_Camera, m_ImageStorage);
 			CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
 			UploadStorage();
 			m_NumCycleSamples++;
@@ -123,6 +123,10 @@ void C_RayTraceWindow::DrawComponents() const
 		{
 			const_cast<C_RayTraceWindow*>(this)->RunUntilStop();
 		}
+	}
+	else
+	{
+		ImGui::ProgressBar(static_cast<float>(m_Renderer.GetProcessedPixels()) / (s_ImageResolution.x * s_ImageResolution.y));
 	}
 	if (m_RunningCycle)
 	{

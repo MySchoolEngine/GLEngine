@@ -16,11 +16,13 @@ public:
 
 	void Render(I_CameraComponent& camera, I_TextureViewStorage& storage);
 
+	[[nodiscard]] std::size_t GetProcessedPixels() const;
 private:
 	void								   AddSample(const glm::ivec2 coord, C_TextureView view, const glm::vec3 sample);
 	glm::vec3							   PathTrace(const Physics::Primitives::S_Ray& ray, C_STDSampler& rnd);
 	const C_RayTraceScene&				   m_Scene;
 	std::optional<C_OctahedralTextureView> m_DirectionsView;
 	I_TextureViewStorage*				   m_Texture;
+	std::size_t							   m_ProcessedPixels;
 };
 } // namespace GLEngine::Renderer
