@@ -91,10 +91,10 @@ glm::vec3 C_RayRenderer::PathTrace(const Physics::Primitives::S_Ray& ray, C_STDS
 
 	glm::vec3 LoDirect(0.f);
 
-	m_Scene.ForEachLight([&](const RayTracing::C_AreaLight& light) {
+	m_Scene.ForEachLight([&](const std::reference_wrapper<const RayTracing::I_RayLight>& light) {
 		glm::vec3 wig;
 		float	  pdf, distance;
-		glm::vec3 illum = light.SampleLi(intersect, &rnd, wig, &distance, &pdf);
+		glm::vec3 illum = light.get().SampleLi(intersect, &rnd, wig, &distance, &pdf);
 
 		if (glm::compMax(illum) > 0.f)
 		{
@@ -104,23 +104,28 @@ glm::vec3 C_RayRenderer::PathTrace(const Physics::Primitives::S_Ray& ray, C_STDS
 			}
 			C_RayIntersection		   lightIntersect;
 			Physics::Primitives::S_Ray lightRay{intersect.GetIntersectionPoint(), wig};
-			if (m_DirectionsView) {
+			if (m_DirectionsView)
+			{
 				m_DirectionsView->Set(wig, 1.f, E_TextureChannel::Red);
 			}
-			if (m_Scene.Intersect(lightRay, lightIntersect, eps)) {
-				if (lightIntersect.GetRayLength() < distance - eps) {
+			if (m_Scene.Intersect(lightRay, lightIntersect, eps))
+			{
+				if (lightIntersect.GetRayLength() < distance - eps)
+				{
 					return;
 				}
-				const auto& point		  = intersect.GetIntersectionPoint();
-				const auto* material	  = intersect.GetMaterial();
-				auto		diffuseColour = glm::vec3(material->diffuse);
-				if (material->textureIndex != 0)
-				{
-					const auto uv = glm::vec2(point.x, point.z) / 10.f;
-					diffuseColour = brickView.Get<glm::vec3, T_Bilinear>(uv);
-				}
-				LoDirect += illum * (diffuseColour / glm::pi<float>());
 			}
+			// no intersect for point light
+
+			const auto& point		  = intersect.GetIntersectionPoint();
+			const auto* material	  = intersect.GetMaterial();
+			auto		diffuseColour = glm::vec3(material->diffuse);
+			if (material->textureIndex != 0)
+			{
+				const auto uv = glm::vec2(point.x, point.z) / 10.f;
+				diffuseColour = brickView.Get<glm::vec3, T_Bilinear>(uv);
+			}
+			LoDirect += illum * (diffuseColour / glm::pi<float>());
 		}
 	});
 
