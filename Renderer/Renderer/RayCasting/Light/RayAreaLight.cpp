@@ -6,6 +6,8 @@
 #include <Renderer/RayCasting/Sampling.h>
 #include <Renderer/RayCasting/SceneGeometry.h>
 
+#include <glm/gtx/norm.hpp>
+
 namespace GLEngine::Renderer::RayTracing {
 
 //=================================================================================
@@ -25,9 +27,9 @@ glm::vec3 C_AreaLight::SampleLi(const C_RayIntersection& intersection, I_Sampler
 	const auto lightPoint  = m_Shape->m_Primitive.plane.origin + samplePoint.x * lightFrame.Tangnt() + samplePoint.y * lightFrame.Bitangent();
 
 	wi = lightPoint - intersection.GetIntersectionPoint();
-	const auto distSqr = glm::length(wi);
-	wi /= distSqr;
-	*distance = glm::sqrt(distSqr);
+	const auto distSqr = glm::length2(wi);
+	*distance		   = glm::sqrt(distSqr);
+	wi /= (*distance);
 
 	const auto cosThetaX = glm::dot(intersection.GetFrame().Normal(), wi);
 	const auto cosThetaY = glm::dot(lightFrame.Normal(), -wi);
