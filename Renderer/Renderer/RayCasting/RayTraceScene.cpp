@@ -2,6 +2,7 @@
 
 #include <Renderer/RayCasting/Light/ILight.h>
 #include <Renderer/RayCasting/Light/RayAreaLight.h>
+#include <Renderer/RayCasting/Light/RayPointLight.h>
 #include <Renderer/RayCasting/RayTraceScene.h>
 #include <Renderer/RayCasting/SceneGeometry.h>
 
@@ -43,6 +44,9 @@ C_RayTraceScene::C_RayTraceScene()
 
 	auto areaLight = std::make_shared<RayTracing::C_AreaLight>(glm::vec3(1.f, 1.f, 1.f), areaLightDisc);
 	AddLight(std::move(areaLight));
+	AddLight(std::make_shared<RayTracing::C_PointLight>(glm::vec3(0, 1, 0), glm::vec3(0.4, 0.3, 0.1)));
+	AddLight(std::make_shared<RayTracing::C_PointLight>(glm::vec3(3, 1, 0), glm::vec3(0, 0.6, 0.1)));
+	AddLight(std::make_shared<RayTracing::C_PointLight>(glm::vec3(3, 3, -5), glm::vec3(1.f, 1.f, 1.f)));
 }
 
 //=================================================================================
@@ -97,6 +101,19 @@ void C_RayTraceScene::AddLight(std::shared_ptr<RayTracing::C_AreaLight>&& light)
 	AddObejct(std::move(light->GetGeometry()));
 
 	m_AreaLights.emplace_back(std::move(light));
+}
+
+//=================================================================================
+void C_RayTraceScene::AddLight(std::shared_ptr<RayTracing::C_PointLight>&& light)
+{
+	m_PointLights.emplace_back(std::move(light));
+}
+
+//=================================================================================
+void C_RayTraceScene::ForEachLight(std::function<void(const std::reference_wrapper<const RayTracing::I_RayLight>& light)> fnc) const
+{
+	std::for_each(m_AreaLights.begin(), m_AreaLights.end(), [&](const std::shared_ptr<RayTracing::C_AreaLight>& light) { fnc(*(light.get())); });
+	std::for_each(m_PointLights.begin(), m_PointLights.end(), [&](const std::shared_ptr<RayTracing::C_PointLight>& light) { fnc(*(light.get())); });
 }
 
 } // namespace GLEngine::Renderer
