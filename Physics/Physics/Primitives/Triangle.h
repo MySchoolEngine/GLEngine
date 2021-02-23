@@ -47,8 +47,9 @@ struct S_Triangle : public T_Intersectable<S_Triangle> {
 	[[nodiscard]] inline float	   GetArea() const { return m_Area; }
 
 	std::array<glm::vec3, 3> m_p;
+
 private:
-	glm::vec3				 m_Normal;
-	float					 m_Area;
+	glm::vec3 m_Normal;
+	float	  m_Area;
 };
 } // namespace GLEngine::Physics::Primitives
