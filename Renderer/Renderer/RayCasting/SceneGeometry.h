@@ -2,8 +2,8 @@
 
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/RayCasting/Frame.h>
-#include <Renderer/RayCasting/RayIntersection.h>
 #include <Renderer/RayCasting/GeometryTraits.h>
+#include <Renderer/RayCasting/RayIntersection.h>
 
 #include <Physics/Primitives/Disc.h>
 #include <Physics/Primitives/Plane.h>
@@ -27,8 +27,7 @@ private:
 	MeshData::Material m_Material;
 };
 
-template <class T, typename = decltype(std::declval<T>().IntersectImpl(std::declval<const Physics::Primitives::S_Ray&>()))> 
-class C_Primitive : public I_RayGeometryObject {
+template <class T, typename = decltype(std::declval<T>().IntersectImpl(std::declval<const Physics::Primitives::S_Ray&>()))> class C_Primitive : public I_RayGeometryObject {
 public:
 	C_Primitive(T primitive)
 		: m_Primitive(primitive)
@@ -49,13 +48,17 @@ public:
 	[[nodiscard]] virtual float Area() const override { return m_Area; }
 
 	T m_Primitive;
+
 private:
 	void FillIntersection(const Physics::Primitives::S_Plane& plane, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
 	{
 		const auto normal = (glm::dot(plane.normal, -ray.direction) > 0 ? plane.normal : -plane.normal);
 		intersection	  = C_RayIntersection(S_Frame(normal), ray.origin + ray.direction * t, Physics::Primitives::S_Ray(ray));
 	}
-	void FillIntersection(const Physics::Primitives::S_Disc& disc, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const { FillIntersection(disc.plane, t, ray, intersection); }
+	void FillIntersection(const Physics::Primitives::S_Disc& disc, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
+	{
+		FillIntersection(disc.plane, t, ray, intersection);
+	}
 	void FillIntersection(const Physics::Primitives::S_Triangle& triangle, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
 	{
 		intersection = C_RayIntersection(S_Frame(triangle.GetNormal()), ray.origin + ray.direction * t, Physics::Primitives::S_Ray(ray));

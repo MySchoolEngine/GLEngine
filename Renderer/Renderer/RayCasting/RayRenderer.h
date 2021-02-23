@@ -17,6 +17,7 @@ public:
 	void Render(I_CameraComponent& camera, I_TextureViewStorage& storage);
 
 	[[nodiscard]] std::size_t GetProcessedPixels() const;
+
 private:
 	void								   AddSample(const glm::ivec2 coord, C_TextureView view, const glm::vec3 sample);
 	glm::vec3							   PathTrace(const Physics::Primitives::S_Ray& ray, C_STDSampler& rnd);

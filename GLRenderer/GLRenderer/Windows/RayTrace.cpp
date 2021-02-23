@@ -17,7 +17,7 @@
 
 namespace GLEngine::GLRenderer {
 
-constexpr static std::uint16_t s_resolution = 512;
+constexpr static std::uint16_t s_resolution		 = 512;
 constexpr static glm::uvec2	   s_ImageResolution = glm::uvec2(844, 480);
 
 //=================================================================================

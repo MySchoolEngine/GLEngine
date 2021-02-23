@@ -52,7 +52,8 @@ glm::vec3 T_GeometryTraits::SamplePoint(const Physics::Primitives::S_Triangle& t
 	auto areaX = rnd->GetD();
 	auto areaY = rnd->GetD();
 
-	if (areaX + areaY >= 1.f) {
+	if (areaX + areaY >= 1.f)
+	{
 		areaX = 1 - areaX;
 		areaY = 1 - areaY;
 	}

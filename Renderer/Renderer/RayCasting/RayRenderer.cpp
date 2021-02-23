@@ -39,7 +39,7 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 {
 	m_ProcessedPixels = 0;
 
-	const auto dim	 = storage.GetDimensions();
+	const auto dim = storage.GetDimensions();
 
 	C_STDSampler rnd(0.f, 1.f);
 

@@ -17,7 +17,7 @@ C_PointLight::C_PointLight(const glm::vec3& position, const glm::vec3& intenstiy
 //=================================================================================
 glm::vec3 C_PointLight::SampleLi(const C_RayIntersection& intersection, I_Sampler* rnd, glm::vec3& wi, float* distance, float* pdf) const
 {
-	wi = m_Position - intersection.GetIntersectionPoint();
+	wi			  = m_Position - intersection.GetIntersectionPoint();
 	float distSqr = glm::length2(wi);
 	*distance	  = glm::sqrt(distSqr);
 
@@ -45,4 +45,4 @@ float C_PointLight::PdfLe() const
 	return 1.f;
 }
 
-}
+} // namespace GLEngine::Renderer::RayTracing
