@@ -11,11 +11,77 @@
 #include <Physics/Primitives/Shapes.h>
 
 namespace GLEngine::Renderer {
-
+#define CORNELL
 //=================================================================================
 C_RayTraceScene::C_RayTraceScene()
 {
 	using namespace Physics::Primitives;
+#ifdef CORNELL
+	static const MeshData::Material red{glm::vec4{}, glm::vec4{255, 0, 0, 0}, glm::vec4{}, 1.f, 0};
+	static const MeshData::Material green{glm::vec4{}, glm::vec4{0, 255, 0, 0}, glm::vec4{}, 1.f, 0};
+	static const MeshData::Material white{glm::vec4{}, glm::vec4{255, 255, 255, 0}, glm::vec4{}, 1.f, 0};
+
+	{
+		// floor
+		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, -1.5f, 3.f}, {3.f, -1.5f, -3.f}, {-3.f, -1.5f, -3.f}));
+		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, -1.5f, 3.f}, {3.f, -1.5f, 3.f}, {3.f, -1.5f, -3.f}));
+		triangle->SetMaterial(white);
+		triangle1->SetMaterial(white);
+		AddObejct(triangle);
+		AddObejct(triangle1);
+	}
+
+	{
+		// ceiling
+		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, 1.5f, 3.f}, {-3.f, 1.5f, -3.f}, {3.f, 1.5f, -3.f}));
+		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, 1.5f, 3.f}, {3.f, 1.5f, -3.f}, {3.f, 1.5f, 3.f}));
+		triangle->SetMaterial(white);
+		triangle1->SetMaterial(white);
+		AddObejct(triangle);
+		AddObejct(triangle1);
+	}
+
+	{
+		// left wall - red
+		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, -1.5f, 3.f}, {-3.f, -1.5f, -3.f}, {-3.f, 1.5f, -3.f}));
+		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, -1.5f, 3.f}, {-3.f, 1.5f, -3.f}, {-3.f, 1.5f, 3.f}));
+		triangle->SetMaterial(red);
+		triangle1->SetMaterial(red);
+		AddObejct(triangle);
+		AddObejct(triangle1);
+	}
+
+	{
+		// left wall - green
+		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({3.f, -1.5f, 3.f}, {3.f, 1.5f, -3.f}, {3.f, -1.5f, -3.f}));
+		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({3.f, -1.5f, 3.f}, {3.f, 1.5f, 3.f}, {3.f, 1.5f, -3.f}));
+		triangle->SetMaterial(green);
+		triangle1->SetMaterial(green);
+		AddObejct(triangle);
+		AddObejct(triangle1);
+	}
+
+	{
+		// back wall
+		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, -1.5f, -3.f}, {3.f, -1.5f, -3.f}, {3.f, 1.5f, -3.f}));
+		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, -1.5f, -3.f}, {3.f, 1.5f, -3.f}, {-3.f, 1.5f, -3.f}));
+		triangle->SetMaterial(white);
+		triangle1->SetMaterial(white);
+		AddObejct(triangle);
+		AddObejct(triangle1);
+	}
+
+	{
+		// light
+		const glm::vec3 lightNormal = glm::normalize(glm::vec3(0, -1.0, 0));
+		auto			disc		= S_Disc(lightNormal, glm::vec3(0, 1.43f, 0), 2.f);
+		disc.plane.twoSided			= false;
+		auto areaLightDisc			= std::make_shared<C_Primitive<S_Disc>>(disc);
+
+		auto areaLight = std::make_shared<RayTracing::C_AreaLight>(glm::vec3(1.f, 1.f, 1.f), areaLightDisc);
+		AddLight(std::move(areaLight));
+	}
+#else
 	auto							plane = std::make_shared<C_Primitive<S_Plane>>(S_Plane(glm::vec3(1, 0, 0), {-3.f, 0.f, 0.f}));
 	static const MeshData::Material mat1{glm::vec4{}, glm::vec4{255, 0, 255, 0}, glm::vec4{}, 1.f, 1};
 	static const MeshData::Material mat2{glm::vec4{}, glm::vec4{0, 0, 255, 0}, glm::vec4{}, 1.f, 0};
@@ -47,6 +113,7 @@ C_RayTraceScene::C_RayTraceScene()
 	AddLight(std::make_shared<RayTracing::C_PointLight>(glm::vec3(0, 1, 0), glm::vec3(0.4, 0.3, 0.1)));
 	AddLight(std::make_shared<RayTracing::C_PointLight>(glm::vec3(3, 1, 0), glm::vec3(0, 0.6, 0.1)));
 	AddLight(std::make_shared<RayTracing::C_PointLight>(glm::vec3(3, 3, -5), glm::vec3(1.f, 1.f, 1.f)));
+#endif
 }
 
 //=================================================================================
