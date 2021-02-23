@@ -11,6 +11,7 @@
 #include <Renderer/RayCasting/ReflectionModels/SpecularReflection.h>
 #include <Renderer/RayCasting/Sampling.h>
 #include <Renderer/RayCasting/SceneGeometry.h>
+#include <Renderer/RayCasting/VisibilityTester.h>
 #include <Renderer/Textures/TextureLoader.h>
 #include <Renderer/Textures/TextureStorage.h>
 #include <Renderer/Textures/TextureView.h>
@@ -73,7 +74,6 @@ void C_RayRenderer::AddSample(const glm::ivec2 coord, C_TextureView view, const 
 //=================================================================================
 glm::vec3 C_RayRenderer::PathTrace(const Physics::Primitives::S_Ray& ray, C_STDSampler& rnd)
 {
-	const float	  eps = 1e-3f;
 	C_TextureView brickView(m_Texture);
 
 	C_RayIntersection intersect;
@@ -86,34 +86,21 @@ glm::vec3 C_RayRenderer::PathTrace(const Physics::Primitives::S_Ray& ray, C_STDS
 	if (intersect.IsLight())
 	{
 		auto light = intersect.GetLight();
-		return light->Le();
+		return light->Le() * 100.f;
 	}
 
 	glm::vec3 LoDirect(0.f);
 
 	m_Scene.ForEachLight([&](const std::reference_wrapper<const RayTracing::I_RayLight>& light) {
-		glm::vec3 wig;
 		float	  pdf, distance;
-		glm::vec3 illum = light.get().SampleLi(intersect, &rnd, wig, &distance, &pdf);
+		auto	  vis	= RayTracing::S_VisibilityTester(glm::vec3(), glm::vec3());
+		glm::vec3 illum = light.get().SampleLi(intersect, &rnd, vis, &pdf);
 
 		if (glm::compMax(illum) > 0.f)
 		{
-			if (glm::dot(wig, intersect.GetFrame().Normal()) <= 0.f)
+			if (!vis.IsVisible(m_Scene))
 			{
 				return;
-			}
-			C_RayIntersection		   lightIntersect;
-			Physics::Primitives::S_Ray lightRay{intersect.GetIntersectionPoint(), wig};
-			if (m_DirectionsView)
-			{
-				m_DirectionsView->Set(wig, 1.f, E_TextureChannel::Red);
-			}
-			if (m_Scene.Intersect(lightRay, lightIntersect, eps))
-			{
-				if (lightIntersect.GetRayLength() < distance - eps)
-				{
-					return;
-				}
 			}
 			// no intersect for point light
 
