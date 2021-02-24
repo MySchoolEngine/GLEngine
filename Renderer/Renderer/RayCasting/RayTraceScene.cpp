@@ -20,6 +20,7 @@ C_RayTraceScene::C_RayTraceScene()
 	static const MeshData::Material red{glm::vec4{}, glm::vec4{255, 0, 0, 0}, glm::vec4{}, 1.f, 0};
 	static const MeshData::Material green{glm::vec4{}, glm::vec4{0, 255, 0, 0}, glm::vec4{}, 1.f, 0};
 	static const MeshData::Material white{glm::vec4{}, glm::vec4{255, 255, 255, 0}, glm::vec4{}, 1.f, 0};
+	static const MeshData::Material blue{glm::vec4{}, glm::vec4{0, 0, 255, 0}, glm::vec4{}, 1.f, 0};
 
 	{
 		// floor
@@ -72,6 +73,13 @@ C_RayTraceScene::C_RayTraceScene()
 	}
 
 	{
+		// sphere
+		auto sphere = std::make_shared<C_Primitive<S_Sphere>>(S_Sphere{{-1.5f, -1.f, -1.5f}, 1.f});
+		sphere->SetMaterial(blue);
+		AddObejct(std::move(sphere));
+	}
+
+	{
 		// light
 		const glm::vec3 lightNormal = glm::normalize(glm::vec3(0, -1.0, 0));
 		auto			disc		= S_Disc(lightNormal, glm::vec3(0, 1.43f, 0), 2.f);
@@ -94,8 +102,8 @@ C_RayTraceScene::C_RayTraceScene()
 	triangle->SetMaterial(mat1);
 	AddObejct(triangle1);
 
-	plane->SetMaterial(mat3);
-	AddObejct(std::move(plane));
+	// plane->SetMaterial(mat3);
+	// AddObejct(std::move(plane));
 
 	static const auto normal2 = glm::vec3(0, 0, -1);
 	auto			  sphere  = std::make_shared<C_Primitive<S_Sphere>>(S_Sphere{{0.f, 0.f, 0.f}, 1.f});
