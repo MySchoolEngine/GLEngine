@@ -24,6 +24,7 @@ namespace GLEngine::Renderer {
 C_RayRenderer::C_RayRenderer(const C_RayTraceScene& scene)
 	: m_Scene(scene)
 	, m_ProcessedPixels(0)
+	, m_MaxDepth(3)
 {
 	Textures::TextureLoader tl;
 	m_Texture = tl.loadTexture(R"(Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp)");
@@ -72,7 +73,57 @@ void C_RayRenderer::AddSample(const glm::ivec2 coord, C_TextureView view, const 
 }
 
 //=================================================================================
-glm::vec3 C_RayRenderer::PathTrace(const Physics::Primitives::S_Ray& ray, C_STDSampler& rnd)
+glm::vec3 C_RayRenderer::PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler& rnd)
+{
+	C_TextureView brickView(m_Texture);
+	glm::vec3	  LoDirect(0.f);
+	glm::vec3	  throughput(1.f);
+
+	for (std::size_t pathDepth = 0; pathDepth < 20; ++pathDepth)
+	{
+		C_RayIntersection intersect;
+		// first primary ray
+		if (!m_Scene.Intersect(ray, intersect))
+			return glm::vec3(0.f); // here we can plug environmental light/atmosphere/whatever
+
+		// direct ray to the light intersection
+		if (intersect.IsLight())
+		{
+			auto light = intersect.GetLight();
+			LoDirect += throughput * light->Le() * 100.f;
+		}
+
+		const auto& frame		  = intersect.GetFrame();
+		const auto& point		  = intersect.GetIntersectionPoint();
+		const auto* material	  = intersect.GetMaterial();
+		auto		diffuseColour = glm::vec3(material->diffuse);
+		if (material->textureIndex != 0)
+		{
+			const auto uv = glm::vec2(point.x, point.z) / 10.f;
+			diffuseColour = brickView.Get<glm::vec3, T_Bilinear>(uv);
+		}
+		C_LambertianModel model(diffuseColour);
+
+		const auto wol = frame.ToLocal(-ray.direction);
+
+		glm::vec3 wi;
+		float	  pdf;
+		const auto f = model.SampleF(wol, wi, frame, rnd.GetV2(), &pdf);
+
+		GLE_ASSERT(wi.y > 0, "Wrong direction of the ray!");
+
+		throughput *= f / pdf;
+
+		// next ray
+		ray.origin = point;
+		ray.direction = frame.ToWorld(wi);
+	}
+
+	return LoDirect;
+}
+
+//=================================================================================
+glm::vec3 C_RayRenderer::DirectLighting(const Physics::Primitives::S_Ray& ray, C_STDSampler& rnd)
 {
 	C_TextureView brickView(m_Texture);
 

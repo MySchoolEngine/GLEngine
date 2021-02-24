@@ -7,6 +7,7 @@
 #include <GUI/GUIWindow.h>
 #include <GUI/Input/Button.h>
 #include <GUI/Input/CheckBoxValue.h>
+#include <GUI/Input/Slider.h>
 
 namespace GLEngine::Renderer {
 class I_CameraComponent;
@@ -47,6 +48,7 @@ private:
 	bool											m_Running : 1;
 	bool											m_RunningCycle : 1;
 	GUI::Input::C_CheckBoxValue						m_LiveUpdate;
+	GUI::Input::C_Slider<int>						m_DepthSlider;
 	Renderer::C_RayRenderer							m_Renderer;
 
 	Renderer::C_TextureViewStorageCPU<float> m_DirectionImage;

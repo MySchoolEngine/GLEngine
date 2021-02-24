@@ -34,6 +34,7 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_Camera
 	, m_DirectionImage(s_resolution, s_resolution, 1)
 	, m_DirImage(nullptr)
 	, m_Renderer(m_Scene)
+	, m_DepthSlider(3, 1, 100, "Max path depth")
 {
 	m_Image = std::make_shared<Textures::C_Texture>("rayTrace");
 
@@ -55,6 +56,7 @@ void C_RayTraceWindow::RayTrace()
 	std::packaged_task<void()> rayTrace([&]() {
 		Utils::HighResolutionTimer renderTime;
 		m_Renderer.SetDirectionalDebug(Renderer::C_OctahedralTextureView(Renderer::C_TextureView(&m_DirectionImage), s_resolution));
+		m_Renderer.SetMaxPathDepth(m_DepthSlider);
 		m_Renderer.Render(*m_Camera, m_ImageStorage);
 		CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
 		UploadStorage();
@@ -78,6 +80,7 @@ void C_RayTraceWindow::RunUntilStop()
 		while (m_RunningCycle)
 		{
 			Utils::HighResolutionTimer renderTime;
+			m_Renderer.SetMaxPathDepth(m_DepthSlider);
 			m_Renderer.Render(*m_Camera, m_ImageStorage);
 			CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
 			UploadStorage();
@@ -123,6 +126,7 @@ void C_RayTraceWindow::DrawComponents() const
 		{
 			const_cast<C_RayTraceWindow*>(this)->RunUntilStop();
 		}
+		m_DepthSlider.Draw();
 	}
 	else
 	{

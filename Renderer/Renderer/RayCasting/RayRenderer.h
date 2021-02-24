@@ -18,12 +18,16 @@ public:
 
 	[[nodiscard]] std::size_t GetProcessedPixels() const;
 
+	void SetMaxPathDepth(std::size_t depth) { m_MaxDepth = depth; }
+
 private:
 	void								   AddSample(const glm::ivec2 coord, C_TextureView view, const glm::vec3 sample);
-	glm::vec3							   PathTrace(const Physics::Primitives::S_Ray& ray, C_STDSampler& rnd);
+	glm::vec3							   DirectLighting(const Physics::Primitives::S_Ray& ray, C_STDSampler& rnd);
+	glm::vec3							   PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler& rnd);
 	const C_RayTraceScene&				   m_Scene;
 	std::optional<C_OctahedralTextureView> m_DirectionsView;
 	I_TextureViewStorage*				   m_Texture;
 	std::size_t							   m_ProcessedPixels;
+	std::size_t							   m_MaxDepth;
 };
 } // namespace GLEngine::Renderer
