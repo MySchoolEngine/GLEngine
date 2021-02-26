@@ -80,13 +80,20 @@ C_RayTraceScene::C_RayTraceScene()
 	}
 
 	{
+		// sphere
+		auto sphere = std::make_shared<C_Primitive<S_Sphere>>(S_Sphere{{.8f, 0.f, .5f}, 1.f});
+		sphere->SetMaterial(blue);
+		AddObejct(std::move(sphere));
+	}
+
+	{
 		// light
 		const glm::vec3 lightNormal = glm::normalize(glm::vec3(0, -1.0, 0));
 		auto			disc		= S_Disc(lightNormal, glm::vec3(0, 1.43f, 0), 2.f);
 		disc.plane.twoSided			= false;
 		auto areaLightDisc			= std::make_shared<C_Primitive<S_Disc>>(disc);
 
-		auto areaLight = std::make_shared<RayTracing::C_AreaLight>(glm::vec3(1.f, 1.f, 1.f), areaLightDisc);
+		auto areaLight = std::make_shared<RayTracing::C_AreaLight>(glm::vec3(1.f, 1.f, .3f), areaLightDisc);
 		AddLight(std::move(areaLight));
 	}
 #else
