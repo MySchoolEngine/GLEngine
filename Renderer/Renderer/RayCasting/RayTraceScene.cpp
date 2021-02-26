@@ -8,7 +8,7 @@
 
 #include <Physics/Primitives/Disc.h>
 #include <Physics/Primitives/Plane.h>
-#include <Physics/Primitives/Shapes.h>
+#include <Physics/Primitives/Sphere.h>
 
 namespace GLEngine::Renderer {
 #define CORNELL

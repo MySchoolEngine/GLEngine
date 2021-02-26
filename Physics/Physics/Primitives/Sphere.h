@@ -1,14 +1,3 @@
-/** ==============================================
- * @file 		Shapes.h
- * @date 		2018/05/16 21:32
- * @project 	Opengl Shadow Rendering
- * @faculty 	Faculty of Information Technology
- * @university 	Brno University of Technology
- *
- * @author 		Dominik Rohacek
- * Contact: 	RohacekD@gmail.com
- ** ==============================================*/
-
 #pragma once
 
 #include <Physics/Primitives/Intersectable.h>
@@ -18,15 +7,6 @@
 #include <glm/gtx/intersect.hpp>
 
 namespace GLEngine::Physics::Primitives {
-/** ==============================================
- * @class S_Sphere
- *
- * @brief	Represents 3D sphere
- *
- * @author 	Dominik Rohacek
- * Contact:	RohacekD@gmail.com
- * @date 	2018/05/16
- ** ==============================================*/
 struct S_Sphere : public T_Intersectable<S_Sphere> {
 public:
 	S_Sphere() = default;
@@ -35,7 +15,6 @@ public:
 		, m_radius(radius)
 	{
 	}
-
 
 	[[nodiscard]] inline float IntersectImpl(const S_Ray& ray) const
 	{
