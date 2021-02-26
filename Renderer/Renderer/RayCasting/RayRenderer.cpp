@@ -83,7 +83,7 @@ glm::vec3 C_RayRenderer::PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler&
 	{
 		C_RayIntersection intersect;
 		// first primary ray
-		if (!m_Scene.Intersect(ray, intersect))
+		if (!m_Scene.Intersect(ray, intersect, 1e-3f))
 			return glm::vec3(0.f); // here we can plug environmental light/atmosphere/whatever
 
 		// direct ray to the light intersection
@@ -114,6 +114,15 @@ glm::vec3 C_RayRenderer::PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler&
 
 		throughput *= f / pdf;
 
+		// rusian roulette
+		const auto sruvivalProb = glm::min(1.f, glm::compMax(throughput));
+		const auto randomSurv	= rnd.GetD();
+		if (randomSurv >= sruvivalProb) {
+			break;
+		}
+
+		throughput /= sruvivalProb;
+
 		// next ray
 		ray.origin = point;
 		ray.direction = frame.ToWorld(wi);
@@ -137,7 +146,7 @@ glm::vec3 C_RayRenderer::DirectLighting(const Physics::Primitives::S_Ray& ray, C
 	if (intersect.IsLight())
 	{
 		auto light = intersect.GetLight();
-		return light->Le() * 100.f;
+		return light->Le() * 10.f;
 	}
 
 	glm::vec3 LoDirect(0.f);
