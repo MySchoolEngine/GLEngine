@@ -1,7 +1,7 @@
 #include <RendererStdafx.h>
 
+#include <Renderer/RayCasting/Geometry/RayTraceScene.h>
 #include <Renderer/RayCasting/RayIntersection.h>
-#include <Renderer/RayCasting/RayTraceScene.h>
 #include <Renderer/RayCasting/VisibilityTester.h>
 
 #include <Physics/Primitives/Ray.h>

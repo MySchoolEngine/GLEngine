@@ -2,7 +2,7 @@
 
 #include <Renderer/RayCasting/Frame.h>
 #include <Renderer/RayCasting/Generator/Sampler.h>
-#include <Renderer/RayCasting/GeometryTraits.h>
+#include <Renderer/RayCasting/Geometry/GeometryTraits.h>
 #include <Renderer/RayCasting/Sampling.h>
 
 #include <Physics/Primitives/Disc.h>
