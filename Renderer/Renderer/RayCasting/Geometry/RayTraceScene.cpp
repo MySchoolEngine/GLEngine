@@ -1,10 +1,10 @@
 #include <RendererStdafx.h>
 
+#include <Renderer/RayCasting/Geometry/RayTraceScene.h>
+#include <Renderer/RayCasting/Geometry/SceneGeometry.h>
 #include <Renderer/RayCasting/Light/ILight.h>
 #include <Renderer/RayCasting/Light/RayAreaLight.h>
 #include <Renderer/RayCasting/Light/RayPointLight.h>
-#include <Renderer/RayCasting/RayTraceScene.h>
-#include <Renderer/RayCasting/SceneGeometry.h>
 
 #include <Physics/Primitives/Disc.h>
 #include <Physics/Primitives/Plane.h>

@@ -1,7 +1,8 @@
 #pragma once
 
+#include <Renderer/RayCasting/Geometry/PrimitiveObject.h>
 #include <Renderer/RayCasting/Light/ILight.h>
-#include <Renderer/RayCasting/SceneGeometry.h>
+#include <Renderer/RayCasting/RayIntersection.h>
 
 namespace GLEngine::Physics::Primitives {
 struct S_Disc;

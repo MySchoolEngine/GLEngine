@@ -1,9 +1,6 @@
 #pragma once
 
-#include <Renderer/Mesh/Scene.h>
-#include <Renderer/RayCasting/Frame.h>
-#include <Renderer/RayCasting/GeometryTraits.h>
-#include <Renderer/RayCasting/RayIntersection.h>
+#include <Renderer/RayCasting/Geometry/SceneGeometry.h>
 
 #include <Physics/Primitives/Disc.h>
 #include <Physics/Primitives/Plane.h>
@@ -12,20 +9,6 @@
 #include <Physics/Primitives/Triangle.h>
 
 namespace GLEngine::Renderer {
-
-class I_RayGeometryObject {
-public:
-	virtual ~I_RayGeometryObject()																						= default;
-	[[nodiscard]] virtual bool	Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const = 0;
-	[[nodiscard]] virtual float Area() const																			= 0;
-	[[nodiscard]] float			Pdf() const { return 1.f / Area(); }
-
-	void					  SetMaterial(const MeshData::Material& material) { m_Material = material; }
-	const MeshData::Material& GetMaterial() const { return m_Material; }
-
-private:
-	MeshData::Material m_Material;
-};
 
 template <class T, typename = decltype(std::declval<T>().IntersectImpl(std::declval<const Physics::Primitives::S_Ray&>()))> class C_Primitive : public I_RayGeometryObject {
 public:
@@ -71,5 +54,4 @@ private:
 	}
 	float m_Area;
 };
-
 } // namespace GLEngine::Renderer

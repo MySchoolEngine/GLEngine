@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Renderer/RayCasting/RayTraceScene.h>
+#include <Renderer/RayCasting/Geometry/RayTraceScene.h>
 #include <Renderer/RendererApi.h>
 #include <Renderer/Textures/TextureView.h>
 

@@ -2,6 +2,7 @@
 
 #include <Renderer/ICameraComponent.h>
 #include <Renderer/RayCasting/Generator/Sampler.h>
+#include <Renderer/RayCasting/Geometry/SceneGeometry.h>
 #include <Renderer/RayCasting/Light/ILight.h>
 #include <Renderer/RayCasting/Light/RayAreaLight.h>
 #include <Renderer/RayCasting/PhysicalProperties.h>
@@ -10,7 +11,6 @@
 #include <Renderer/RayCasting/ReflectionModels/LambertianModel.h>
 #include <Renderer/RayCasting/ReflectionModels/SpecularReflection.h>
 #include <Renderer/RayCasting/Sampling.h>
-#include <Renderer/RayCasting/SceneGeometry.h>
 #include <Renderer/RayCasting/VisibilityTester.h>
 #include <Renderer/Textures/TextureLoader.h>
 #include <Renderer/Textures/TextureStorage.h>
@@ -106,8 +106,8 @@ glm::vec3 C_RayRenderer::PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler&
 
 		const auto wol = frame.ToLocal(-ray.direction);
 
-		glm::vec3 wi;
-		float	  pdf;
+		glm::vec3  wi;
+		float	   pdf;
 		const auto f = model.SampleF(wol, wi, frame, rnd.GetV2(), &pdf);
 
 		GLE_ASSERT(wi.y > 0, "Wrong direction of the ray!");
@@ -117,14 +117,15 @@ glm::vec3 C_RayRenderer::PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler&
 		// rusian roulette
 		const auto sruvivalProb = glm::min(1.f, glm::compMax(throughput));
 		const auto randomSurv	= rnd.GetD();
-		if (randomSurv >= sruvivalProb) {
+		if (randomSurv >= sruvivalProb)
+		{
 			break;
 		}
 
 		throughput /= sruvivalProb;
 
 		// next ray
-		ray.origin = point;
+		ray.origin	  = point;
 		ray.direction = frame.ToWorld(wi);
 	}
 

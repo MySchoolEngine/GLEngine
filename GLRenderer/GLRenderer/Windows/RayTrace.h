@@ -1,7 +1,7 @@
 #pragma once
 
+#include <Renderer/RayCasting/Geometry/RayTraceScene.h>
 #include <Renderer/RayCasting/RayRenderer.h>
-#include <Renderer/RayCasting/RayTraceScene.h>
 #include <Renderer/Textures/TextureStorage.h>
 
 #include <GUI/GUIWindow.h>

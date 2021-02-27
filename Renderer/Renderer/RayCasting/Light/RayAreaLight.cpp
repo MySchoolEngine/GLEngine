@@ -1,11 +1,11 @@
 #include <RendererStdAfx.h>
 
 #include <Renderer/RayCasting/Generator/Sampler.h>
-#include <Renderer/RayCasting/GeometryTraits.h>
+#include <Renderer/RayCasting/Geometry/GeometryTraits.h>
+#include <Renderer/RayCasting/Geometry/SceneGeometry.h>
 #include <Renderer/RayCasting/Light/RayAreaLight.h>
 #include <Renderer/RayCasting/RayIntersection.h>
 #include <Renderer/RayCasting/Sampling.h>
-#include <Renderer/RayCasting/SceneGeometry.h>
 #include <Renderer/RayCasting/VisibilityTester.h>
 
 #include <glm/gtx/norm.hpp>
