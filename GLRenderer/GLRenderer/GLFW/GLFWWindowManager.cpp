@@ -56,7 +56,8 @@ void C_GLFWWindowManager::Update()
 			return;
 
 		m_UpdatingWindow = window;
-		window->OnEvent(Core::C_AppEvent(Core::C_AppEvent::E_Type::WindowCloseRequest));
+		Core::C_AppEvent event(Core::C_AppEvent::E_Type::WindowCloseRequest);
+		window->OnEvent(event);
 		m_UpdatingWindow = nullptr;
 	});
 

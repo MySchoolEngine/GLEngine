@@ -9,7 +9,7 @@
 #include <Physics/Primitives/Plane.h>
 #include <Physics/Primitives/Ray.h>
 #include <Physics/Primitives/Sphere.h>
-#include <Physics/Primitives/Triangle.h >
+#include <Physics/Primitives/Triangle.h>
 
 namespace GLEngine::Renderer::RayTracing {
 

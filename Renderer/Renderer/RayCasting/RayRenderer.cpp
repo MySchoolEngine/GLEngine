@@ -153,7 +153,7 @@ glm::vec3 C_RayRenderer::DirectLighting(const Physics::Primitives::S_Ray& ray, C
 	glm::vec3 LoDirect(0.f);
 
 	m_Scene.ForEachLight([&](const std::reference_wrapper<const RayTracing::I_RayLight>& light) {
-		float	  pdf, distance;
+		float	  pdf;
 		auto	  vis	= RayTracing::S_VisibilityTester(glm::vec3(), glm::vec3());
 		glm::vec3 illum = light.get().SampleLi(intersect, &rnd, vis, &pdf);
 
