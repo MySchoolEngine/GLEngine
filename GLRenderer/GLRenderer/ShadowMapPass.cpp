@@ -14,6 +14,8 @@
 #include <Renderer/IRenderableComponent.h>
 #include <Renderer/IRenderer.h>
 
+#include <Physics/Primitives/Frustum.h>
+
 #include <Entity/EntityManager.h>
 #include <Entity/IEntity.h>
 

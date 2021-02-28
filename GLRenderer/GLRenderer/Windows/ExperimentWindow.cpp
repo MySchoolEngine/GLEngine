@@ -45,6 +45,9 @@
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/EventDispatcher.h>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/transform.hpp>
+
 #include <pugixml.hpp>
 
 #include <imgui.h>

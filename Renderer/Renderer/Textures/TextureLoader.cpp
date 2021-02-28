@@ -1,7 +1,8 @@
 #include <RendererStdafx.h>
 
+#include <Renderer/Mesh/Scene.h>
 #include <Renderer/Textures/TextureLoader.h>
-
+#include <Renderer/Textures/TextureStorage.h>
 
 // Selects implementation
 // Either DevIL or FreeImage

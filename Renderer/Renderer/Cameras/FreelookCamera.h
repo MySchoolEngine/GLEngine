@@ -5,12 +5,6 @@
 #include <Utils/BitField.h>
 #include <Utils/HighResolutionTimer.h>
 
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/euler_angles.hpp>
-#include <glm/gtx/transform.hpp>
-
 // Button indicator
 // F.e. I have a "W" bound as a camera forward movement
 // When "W" is pressed, call handleInputMessage(CAMERA_FORWARD_DOWN)

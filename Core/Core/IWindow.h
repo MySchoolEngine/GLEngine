@@ -5,8 +5,6 @@
 #include <Core/EventSystem/Layer.h>
 #include <Core/WindowInfo.h>
 
-#include <glm/vec2.hpp>
-
 namespace GLEngine {
 
 namespace Renderer {

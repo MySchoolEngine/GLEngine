@@ -1,8 +1,14 @@
 #pragma once
 
-#include <Renderer/Mesh/Scene.h>
 #include <Renderer/RendererApi.h>
 #include <Renderer/Textures/TextureStorage.h>
+
+namespace GLEngine::Renderer {
+class I_TextureViewStorage;
+namespace MeshData {
+struct Texture;
+}
+}
 
 namespace GLEngine::Renderer::Textures {
 class RENDERER_API_EXPORT TextureLoader {

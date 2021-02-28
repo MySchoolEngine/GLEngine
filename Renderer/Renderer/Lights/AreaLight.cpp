@@ -2,6 +2,8 @@
 
 #include <Renderer/Lights/AreaLight.h>
 
+#include <Physics/Primitives/Frustum.h>
+
 namespace GLEngine::Renderer {
 
 //=================================================================================

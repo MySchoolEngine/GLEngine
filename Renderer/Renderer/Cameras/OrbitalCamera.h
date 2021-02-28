@@ -4,8 +4,6 @@
 
 #include <GUI/Input/Slider.h>
 
-#include <Core/CoreMacros.h>
-
 namespace GLEngine {
 
 namespace Core {

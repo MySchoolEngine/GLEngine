@@ -2,12 +2,14 @@
 
 #include <Entity/EntityApi.h>
 
-#include <Physics/Primitives/AABB.h>
-
 #include <Core/EventSystem/EventReciever.h>
 
 namespace pugi {
 class xml_node;
+}
+
+namespace GLEngine::Physics::Primitives {
+struct S_AABB;
 }
 
 namespace GLEngine {

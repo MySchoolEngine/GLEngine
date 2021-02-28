@@ -2,6 +2,9 @@
 
 #include <Renderer/ICameraComponent.h>
 
+#include <Physics/Primitives/AABB.h>
+#include <Physics/Primitives/Ray.h>
+
 namespace GLEngine::Renderer {
 
 //=================================================================================
@@ -14,7 +17,7 @@ I_CameraComponent::I_CameraComponent(std::shared_ptr<Entity::I_Entity>& owner)
 I_CameraComponent::~I_CameraComponent() = default;
 
 //=================================================================================
-GLEngine::Physics::Primitives::S_Ray I_CameraComponent::GetRay(const glm::vec2& screenPos) const
+Physics::Primitives::S_Ray I_CameraComponent::GetRay(const glm::vec2& screenPos) const
 {
 	const glm::vec4 ssFar = glm::vec4(screenPos.x, screenPos.y, 1.0, 1.0);
 	const auto		mat	  = GetScreenToworldMatrix();
@@ -30,7 +33,7 @@ GLEngine::Physics::Primitives::S_Ray I_CameraComponent::GetRay(const glm::vec2& 
 }
 
 //=================================================================================
-GLEngine::Physics::Primitives::S_AABB I_CameraComponent::GetAABB() const
+Physics::Primitives::S_AABB I_CameraComponent::GetAABB() const
 {
 	return Physics::Primitives::S_AABB();
 }

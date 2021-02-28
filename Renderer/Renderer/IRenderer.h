@@ -3,8 +3,6 @@
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
 
-#include <memory>
-
 namespace GLEngine::Renderer {
 
 enum class E_PassType

@@ -2,6 +2,7 @@
 
 #include <Renderer/Cameras/OrbitalCamera.h>
 
+#include <Physics/Primitives/Frustum.h>
 #include <Physics/Primitives/Plane.h>
 #include <Physics/Primitives/Ray.h>
 
