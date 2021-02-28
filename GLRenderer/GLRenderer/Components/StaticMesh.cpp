@@ -121,10 +121,10 @@ void C_StaticMesh::PerformDraw() const
 	{
 		tm.BindTextureToUnit(*(tmgr.GetIdentityTexture()), 2);
 	}
+	const auto modelMatrix = GetComponentModelMatrix();
 
 	renderer->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
-		[&]() {
-			const auto modelMatrix = GetComponentModelMatrix();
+		[&, modelMatrix]() {
 			m_Shader->SetUniform("modelMatrix", modelMatrix);
 			m_Shader->SetUniform("modelColor", m_Color.GetValue());
 			m_Shader->SetUniform("roughness", m_Roughness.GetValue());

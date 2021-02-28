@@ -32,11 +32,7 @@ class I_CameraComponent;
 
 namespace GLEngine::GLRenderer {
 class C_GLImGUILayer;
-
-namespace Components {
-class C_StaticMesh;
-}
-
+class C_RayTraceWindow;
 class C_Framebuffer;
 
 namespace Windows {
@@ -93,6 +89,8 @@ private:
 	GUID																m_EntitiesWindowGUID;
 	GUID																m_HDRSettingsGUID;
 	GUI::Menu::C_Menu													m_Windows;
+
+	C_RayTraceWindow* m_RayTraceWindow;
 
 	std::unique_ptr<C_MainPassTechnique>  m_MainPass;
 	std::shared_ptr<C_ShadowMapTechnique> m_ShadowPass;
