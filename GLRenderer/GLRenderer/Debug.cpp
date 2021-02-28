@@ -387,7 +387,7 @@ void C_DebugDraw::DrawMergedGeoms()
 	auto  program	 = Shaders::C_ShaderManager::Instance().GetProgram(s_MergedShaderName);
 	shdManager.ActivateShader(program);
 
-	if (!m_OctahedronInfos.empty())
+	if (!m_OctahedronInfos.empty() && !m_OctahedronMesh)
 	{
 		m_OctahedronMesh = std::make_shared<Components::C_StaticMesh>(Renderer::MeshData::C_Geometry::CreateOctahedron(1.f, 1.f), "OctahedronMapping", nullptr);
 	}
