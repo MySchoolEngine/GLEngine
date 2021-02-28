@@ -2,7 +2,6 @@
 
 #include <Renderer/RayCasting/Geometry/PrimitiveObject.h>
 #include <Renderer/RayCasting/Light/ILight.h>
-#include <Renderer/RayCasting/RayIntersection.h>
 
 namespace GLEngine::Physics::Primitives {
 struct S_Disc;
@@ -11,6 +10,7 @@ struct S_Disc;
 namespace GLEngine::Renderer {
 class I_RayGeometryObject;
 class I_Sampler;
+class C_RayIntersection;
 } // namespace GLEngine::Renderer
 
 namespace GLEngine::Renderer::RayTracing {

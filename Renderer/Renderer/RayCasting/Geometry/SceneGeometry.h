@@ -1,13 +1,14 @@
 #pragma once
 
 #include <Renderer/Mesh/Scene.h>
-#include <Renderer/RayCasting/RayIntersection.h>
 
 namespace GLEngine::Physics::Primitives {
 struct S_Ray;
 }
 
 namespace GLEngine::Renderer {
+
+class C_RayIntersection;
 
 class I_RayGeometryObject {
 public:
