@@ -5,7 +5,6 @@
 
 #include <Physics/Primitives/Disc.h>
 #include <Physics/Primitives/Plane.h>
-#include <Physics/Primitives/Ray.h>
 #include <Physics/Primitives/Sphere.h>
 #include <Physics/Primitives/Triangle.h>
 
@@ -25,7 +24,7 @@ public:
 		if (t <= 0)
 			return false;
 
-		FillIntersection(m_Primitive, t, ray, intersection);
+		RayTracing::T_GeometryTraits::FillIntersection(m_Primitive, t, ray, intersection);
 		intersection.SetMaterial(&GetMaterial());
 		return true;
 	}
@@ -34,25 +33,6 @@ public:
 	T m_Primitive;
 
 private:
-	void FillIntersection(const Physics::Primitives::S_Plane& plane, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
-	{
-		const auto normal = (glm::dot(plane.normal, -ray.direction) > 0 ? plane.normal : -plane.normal);
-		intersection	  = C_RayIntersection(S_Frame(normal), ray.origin + ray.direction * t, Physics::Primitives::S_Ray(ray));
-	}
-	void FillIntersection(const Physics::Primitives::S_Disc& disc, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
-	{
-		FillIntersection(disc.plane, t, ray, intersection);
-	}
-	void FillIntersection(const Physics::Primitives::S_Triangle& triangle, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
-	{
-		intersection = C_RayIntersection(S_Frame(triangle.GetNormal()), ray.origin + ray.direction * t, Physics::Primitives::S_Ray(ray));
-	}
-	void FillIntersection(const Physics::Primitives::S_Sphere& sphere, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
-	{
-		const auto intersectionPoint = ray.origin + ray.direction * t;
-		const auto normal			 = (intersectionPoint - sphere.m_position) / sphere.m_radius;
-		intersection				 = C_RayIntersection(S_Frame(normal), glm::vec3(intersectionPoint), Physics::Primitives::S_Ray(ray));
-	}
 	float m_Area;
 };
 } // namespace GLEngine::Renderer
