@@ -12,7 +12,6 @@
 #include <GLRenderer/Components/ComponentBuilderFactory.h>
 #include <GLRenderer/Components/SkeletalMesh.h>
 #include <GLRenderer/Components/SkyBox.h>
-#include <GLRenderer/Components/StaticMesh.h>
 #include <GLRenderer/Debug.h>
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 #include <GLRenderer/ImGui/GLImGUILayer.h>
@@ -27,7 +26,6 @@
 
 #include <Renderer/Cameras/FreelookCamera.h>
 #include <Renderer/Cameras/OrbitalCamera.h>
-#include <Renderer/Mesh/Geometry.h>
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/Textures/TextureView.h>
 
@@ -44,9 +42,6 @@
 #include <Core/EventSystem/Event/AppEvent.h>
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/EventDispatcher.h>
-
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/transform.hpp>
 
 #include <pugixml.hpp>
 
