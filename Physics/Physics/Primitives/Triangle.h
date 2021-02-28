@@ -3,10 +3,6 @@
 #include <Physics/Primitives/Intersectable.h>
 #include <Physics/Primitives/Ray.h>
 
-#include <glm/glm.hpp>
-
-#include <array>
-
 namespace GLEngine::Physics::Primitives {
 
 struct S_Triangle : public T_Intersectable<S_Triangle> {

@@ -3,7 +3,6 @@
 #include <Physics/Primitives/Intersectable.h>
 
 #define GLM_GTX_intersect
-#include <glm/glm.hpp>
 #include <glm/gtx/intersect.hpp>
 
 namespace GLEngine::Physics::Primitives {

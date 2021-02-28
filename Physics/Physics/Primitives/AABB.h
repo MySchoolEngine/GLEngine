@@ -4,8 +4,6 @@
 #include <Physics/Primitives/Ray.h>
 #include <Physics/Primitives/Sphere.h>
 
-#include <glm/glm.hpp>
-
 namespace GLEngine::Physics::Primitives {
 
 struct S_AABB : public T_Intersectable<S_AABB> {

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <glm/glm.hpp>
-
 namespace GLEngine::Renderer {
 class I_Sampler;
 class C_RayIntersection;

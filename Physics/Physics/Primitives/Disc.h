@@ -4,8 +4,6 @@
 #include <Physics/Primitives/Plane.h>
 #include <Physics/Primitives/Ray.h>
 
-#include <glm/glm.hpp>
-
 namespace GLEngine::Physics::Primitives {
 struct S_Ray;
 
