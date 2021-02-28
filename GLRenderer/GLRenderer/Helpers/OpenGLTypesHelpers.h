@@ -50,7 +50,7 @@ template <> struct T_TypeToGL<glm::ivec4>	{	static constexpr GLenum value = GL_I
 	{
 		return GL_BYTE;
 	}
-	GLE_ASSERT(false, "Unsupported type");
+	GLE_ERROR("Unsupported type");
 
 	return GL_BYTE;
 }

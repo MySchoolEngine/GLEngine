@@ -118,7 +118,7 @@ inline std::uint8_t GetNumberChannels(const T_Channels& channels)
 	{
 		return 1;
 	}
-	GLE_ASSERT(false, "Unknown channels combination.");
+	GLE_ERROR("Unknown channels combination.");
 	return 1;
 }
 
@@ -175,7 +175,7 @@ inline T_Channels GetOrderedChannels(const std::uint8_t numChannels)
 	case 1:
 		return {E_TextureChannel::Red, E_TextureChannel::None, E_TextureChannel::None, E_TextureChannel::None};
 	default:
-		GLE_ASSERT(false, "Wrong number of channels.");
+		GLE_ERROR("Wrong number of channels.");
 		return {E_TextureChannel::Red, E_TextureChannel::None, E_TextureChannel::None, E_TextureChannel::None};
 	}
 }
