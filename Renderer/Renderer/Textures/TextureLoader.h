@@ -8,7 +8,7 @@ class I_TextureViewStorage;
 namespace MeshData {
 struct Texture;
 }
-}
+} // namespace GLEngine::Renderer
 
 namespace GLEngine::Renderer::Textures {
 class RENDERER_API_EXPORT TextureLoader {
