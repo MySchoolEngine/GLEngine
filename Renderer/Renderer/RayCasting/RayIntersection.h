@@ -1,9 +1,13 @@
 #pragma once
 
-#include <Renderer/Mesh/Scene.h>
 #include <Renderer/RayCasting/Frame.h>
 
+#include <Physics/Primitives/Ray.h>
+
 namespace GLEngine::Renderer {
+namespace MeshData {
+struct Material;
+}
 namespace RayTracing {
 class I_RayLight;
 }

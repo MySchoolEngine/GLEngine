@@ -1,5 +1,6 @@
 #include <RendererStdafx.h>
 
+#include <Renderer/Mesh/Scene.h>
 #include <Renderer/RayCasting/RayIntersection.h>
 
 namespace GLEngine::Renderer {

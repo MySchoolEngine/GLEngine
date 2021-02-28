@@ -5,6 +5,7 @@
 #include <Renderer/RayCasting/Light/ILight.h>
 #include <Renderer/RayCasting/Light/RayAreaLight.h>
 #include <Renderer/RayCasting/Light/RayPointLight.h>
+#include <Renderer/RayCasting/RayIntersection.h>
 
 #include <Physics/Primitives/Disc.h>
 #include <Physics/Primitives/Plane.h>
