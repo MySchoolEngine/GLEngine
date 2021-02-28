@@ -1,9 +1,11 @@
 #pragma once
 
 #include <Renderer/Mesh/Scene.h>
-#include <Renderer/RayCasting/Frame.h>
-#include <Renderer/RayCasting/Geometry/GeometryTraits.h>
 #include <Renderer/RayCasting/RayIntersection.h>
+
+namespace GLEngine::Physics::Primitives {
+struct S_Ray;
+}
 
 namespace GLEngine::Renderer {
 

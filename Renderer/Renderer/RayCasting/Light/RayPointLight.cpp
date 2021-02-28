@@ -1,4 +1,4 @@
-#include <RendererStdAfx.h>
+#include <RendererStdafx.h>
 
 #include <Renderer/RayCasting/Light/RayPointLight.h>
 #include <Renderer/RayCasting/RayIntersection.h>

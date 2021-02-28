@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Renderer/RayCasting/Geometry/GeometryTraits.h>
 #include <Renderer/RayCasting/Geometry/SceneGeometry.h>
 
 #include <Physics/Primitives/Disc.h>
