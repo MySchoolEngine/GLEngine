@@ -84,7 +84,7 @@ public:
 	void SetInternalFormat(Renderer::E_TextureFormat internalFormat, GLint format);
 
 protected:
-	void  Clean();
+	void Clean();
 
 	GLuint					  m_texture;
 	GLenum					  m_target;

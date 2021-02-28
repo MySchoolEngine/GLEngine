@@ -1,12 +1,15 @@
 #pragma once
 
 #include <Renderer/ILight.h>
-#include <Renderer/Mesh/Scene.h>
 #include <Renderer/RendererApi.h>
 
 #include <Entity/IComponent.h>
 
 namespace GLEngine::Renderer {
+
+namespace MeshData {
+struct Light;
+}
 
 //=============================================================
 class RENDERER_API_EXPORT I_PointLight : public I_Light {

@@ -2,8 +2,6 @@
 
 #include <Renderer/RendererApi.h>
 
-#include <Physics/Primitives/AABB.h>
-
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
 

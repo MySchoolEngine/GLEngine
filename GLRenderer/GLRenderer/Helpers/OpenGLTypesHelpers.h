@@ -3,6 +3,9 @@
 #include <GLRendererStdafx.h>
 
 #include <Renderer/Textures/TextureDefinitions.h>
+#include <Renderer/Textures/TextureStorage.h>
+
+#include <Core/CoreMacros.h>
 
 // clang-format off
 namespace GLEngine::GLRenderer {
@@ -31,6 +34,26 @@ template <> struct T_TypeToGL<glm::ivec1>	{	static constexpr GLenum value = GL_I
 template <> struct T_TypeToGL<glm::ivec2>	{	static constexpr GLenum value = GL_INT;};
 template <> struct T_TypeToGL<glm::ivec3>	{	static constexpr GLenum value = GL_INT;};
 template <> struct T_TypeToGL<glm::ivec4>	{	static constexpr GLenum value = GL_INT;};
+
+//=================================================================================
+[[nodiscard]] inline GLenum GetUnderlyingType(const Renderer::I_TextureViewStorage* tex)
+{
+	if (tex->GetStorageType() == Renderer::E_TextureTypes::Floating)
+	{
+		return GL_FLOAT;
+	}
+	if (tex->GetStorageType() == Renderer::E_TextureTypes::IntegralNormalized)
+	{
+		return GL_UNSIGNED_BYTE;
+	}
+	if (tex->GetStorageType() == Renderer::E_TextureTypes::Integral)
+	{
+		return GL_BYTE;
+	}
+	GLE_ERROR("Unsupported type");
+
+	return GL_BYTE;
+}
 
 //=================================================================================
 // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glVertexAttribPointer.xhtml
@@ -132,7 +155,7 @@ enum class E_OpenGLFilter : char
 //=================================================================================
 inline constexpr GLenum OpenGLUnderlyingType(const Renderer::E_TextureFormat format)
 {
-  switch (format)
+	switch (format)
 	{
 	case Renderer::E_TextureFormat::RGBA32f:
 	case Renderer::E_TextureFormat::RGB32f:

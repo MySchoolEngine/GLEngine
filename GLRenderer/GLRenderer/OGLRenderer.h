@@ -30,6 +30,7 @@ public:
 	// Renderer::I_Renderer
 	//=================================================================================
 	virtual void AddCommand(Renderer::I_Renderer::T_CommandPtr) override;
+	virtual void AddTransferCommand(T_CommandPtr) override;
 	virtual void AddBatch(Renderer::I_Renderer::T_BatchPtr) override;
 
 	virtual void SortCommands() override;
@@ -56,6 +57,9 @@ private:
 
 	bool											 m_Locked = false;
 	std::vector<Renderer::I_Renderer::T_CommandPtr>* m_CommandQueue;
+	std::vector<Renderer::I_Renderer::T_CommandPtr>	 m_TransferQueue;
+	mutable std::mutex								 m_CommandQueueMTX;
+	mutable std::mutex								 m_TransferQueueMTX;
 	GUI::C_PlotLine<500>							 m_DrawCommands;
 	GUI::Input::C_CheckBoxValue						 m_CatchErrors;
 	GUI::Input::C_CheckBoxValue						 m_Wireframe;

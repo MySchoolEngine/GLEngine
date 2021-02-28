@@ -22,6 +22,7 @@
 #include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 #include <GLRenderer/Windows/ExperimentWindow.h>
+#include <GLRenderer/Windows/RayTrace.h>
 
 #include <Renderer/Cameras/FreelookCamera.h>
 #include <Renderer/Cameras/OrbitalCamera.h>
@@ -84,9 +85,11 @@ C_ExplerimentWindow::~C_ExplerimentWindow()
 
 	auto& guiMGR = m_ImGUI->GetGUIMgr();
 	guiMGR.DestroyWindow(m_EntitiesWindowGUID);
+	guiMGR.DestroyWindow(m_RayTraceGUID);
 	guiMGR.DestroyWindow(m_ConsoleWindowGUID);
 	guiMGR.DestroyWindow(m_FrameStatsGUID);
 	guiMGR.DestroyWindow(m_HDRSettingsGUID);
+	m_ImGUI->OnDetach();
 };
 
 //=================================================================================
@@ -197,7 +200,7 @@ void C_ExplerimentWindow::OnEvent(Core::I_Event& event)
 
 	Core::C_EventDispatcher d(event);
 	d.Dispatch<Core::C_KeyPressedEvent>(std::bind(&C_ExplerimentWindow::OnKeyPressed, this, std::placeholders::_1));
-	d.Dispatch<Core::C_AppEvent>(std::bind(&C_ExplerimentWindow::OnAppInit, this, std::placeholders::_1));
+	d.Dispatch<Core::C_AppEvent>(std::bind(&C_ExplerimentWindow::OnAppEvent, this, std::placeholders::_1));
 	d.Dispatch<Core::C_WindowResizedEvent>(std::bind(&C_ExplerimentWindow::OnWindowResized, this, std::placeholders::_1));
 
 	m_LayerStack.OnEvent(event);
@@ -215,7 +218,7 @@ bool C_ExplerimentWindow::OnKeyPressed(Core::C_KeyPressedEvent& event)
 }
 
 //=================================================================================
-bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
+void C_ExplerimentWindow::OnAppInit()
 {
 	{
 		using namespace Commands;
@@ -250,8 +253,6 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 	// ~depthStencilTexture setup
 	m_HDRFBO->AttachTexture(GL_DEPTH_STENCIL_ATTACHMENT, depthStencilTexture);
 	depthStencilTexture->unbind();
-
-	return false;
 }
 
 //=================================================================================
@@ -293,10 +294,10 @@ void C_ExplerimentWindow::SetupWorld()
 		if (player)
 		{
 			float zoom		   = 5.0f;
-			auto  playerCamera = std::make_shared<Renderer::Cameras::FreelookCamera>(player);
+			auto  playerCamera = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
 			playerCamera->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
-			playerCamera->positionCamera({0, 1, 0}, {0, 0, 1});
-			// playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
+			// playerCamera->positionCamera({ 0,1,0 }, { 0,0,1 });
+			playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
 			// playerCamera->adjustOrientation(20.f, 20.f);
 			playerCamera->Update();
 			player->AddComponent(playerCamera);
@@ -339,6 +340,16 @@ void C_ExplerimentWindow::SetupWorld()
 		auto consoleWindow = new GUI::C_ConsoleWindow(m_ConsoleWindowGUID);
 		guiMGR.AddCustomWindow(consoleWindow);
 		consoleWindow->SetVisible();
+	}
+
+	// RT window
+	{
+		m_RayTraceGUID = NextGUID();
+
+		m_RayTraceWindow = new C_RayTraceWindow(m_RayTraceGUID, m_CamManager.GetActiveCamera());
+
+		guiMGR.AddCustomWindow(m_RayTraceWindow);
+		m_RayTraceWindow->SetVisible();
 	}
 
 	// Entity window
@@ -401,6 +412,24 @@ void C_ExplerimentWindow::MouseSelect()
 			entity->OnEvent(event);
 		}
 	}
+}
+
+//=================================================================================
+bool C_ExplerimentWindow::OnAppEvent(Core::C_AppEvent& event)
+{
+	if (event.GetEventType() == Core::C_AppEvent::E_Type::AppInit)
+	{
+		OnAppInit();
+		return true;
+	}
+
+	return false;
+}
+
+//=================================================================================
+bool C_ExplerimentWindow::CanClose() const
+{
+	return m_LayerStack.ReadyForDestroy();
 }
 
 } // namespace GLEngine::GLRenderer::Windows

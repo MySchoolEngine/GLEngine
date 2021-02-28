@@ -32,11 +32,7 @@ class I_CameraComponent;
 
 namespace GLEngine::GLRenderer {
 class C_GLImGUILayer;
-
-namespace Components {
-class C_StaticMesh;
-}
-
+class C_RayTraceWindow;
 class C_Framebuffer;
 
 namespace Windows {
@@ -50,14 +46,16 @@ public:
 	virtual void Update() override;
 
 	//=================================================================================
-	virtual void OnEvent(Core::I_Event& event) override;
+	virtual void			   OnEvent(Core::I_Event& event) override;
+	[[nodiscard]] virtual bool CanClose() const override;
 
 protected:
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
-	bool OnAppInit(Core::C_AppEvent& event);
+	bool OnAppEvent(Core::C_AppEvent& event);
 	bool OnWindowResized(Core::C_WindowResizedEvent& event);
 
 private:
+	void OnAppInit();
 	void SetupWorld();
 	void MouseSelect();
 
@@ -87,9 +85,12 @@ private:
 	std::array<GUI::C_FormatedText, static_cast<int>(E_GUITexts::Last)> m_GUITexts;
 	GUID																m_FrameStatsGUID;
 	GUID																m_ConsoleWindowGUID;
+	GUID																m_RayTraceGUID;
 	GUID																m_EntitiesWindowGUID;
 	GUID																m_HDRSettingsGUID;
 	GUI::Menu::C_Menu													m_Windows;
+
+	C_RayTraceWindow* m_RayTraceWindow;
 
 	std::unique_ptr<C_MainPassTechnique>  m_MainPass;
 	std::shared_ptr<C_ShadowMapTechnique> m_ShadowPass;

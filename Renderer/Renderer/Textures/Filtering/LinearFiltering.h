@@ -5,8 +5,7 @@
 namespace GLEngine::Renderer {
 //=================================================================================
 struct T_Nearest {
-	template <class T> [[nodiscard]] 
-	auto FilteredGet(const glm::vec2& pixelCoord, const C_TextureView& view, E_TextureChannel channel) const;
+	template <class T> [[nodiscard]] auto FilteredGet(const glm::vec2& pixelCoord, const C_TextureView& view, E_TextureChannel channel) const;
 };
 
 //=================================================================================
@@ -43,4 +42,4 @@ template <class T> [[nodiscard]] inline auto T_Bilinear::FilteredGet(const glm::
 	return result;
 }
 
-} // namespace GLEngine::Rendere
+} // namespace GLEngine::Renderer

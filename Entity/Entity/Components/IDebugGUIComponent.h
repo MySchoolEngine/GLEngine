@@ -3,6 +3,8 @@
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
 
+#include <Physics/Primitives/AABB.h>
+
 namespace GLEngine {
 namespace Entity {
 // @todo: Thats wrong, I_Component can anyway belong to single

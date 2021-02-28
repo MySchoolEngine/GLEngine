@@ -82,8 +82,11 @@ void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum se
 
 //=================================================================================
 // Forward declarations
-namespace GLW {
-class C_ShaderProgram;
+namespace Components {
+class C_StaticMesh;
+}
+namespace Textures {
+class C_Texture;
 }
 
 #if GL_ENGINE_DEBUG
@@ -128,6 +131,8 @@ public:
 
 	void DrawFrustum(const Physics::Primitives::C_Frustum& frust, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f));
 
+	void ProbeDebug(const glm::vec3& position, float size, std::shared_ptr<Textures::C_Texture>& texture);
+
 	void DrawMergedGeoms();
 
 private:
@@ -164,6 +169,14 @@ private:
 
 	std::vector<glm::vec4> m_PointsVertices;
 	std::vector<glm::vec3> m_PointsColors;
+
+	struct OctahedronInfo {
+		std::shared_ptr<Textures::C_Texture> m_Texture;
+		float								 m_size;
+		glm::vec3							 m_Position;
+	};
+	std::shared_ptr<Components::C_StaticMesh>		  m_OctahedronMesh;
+	std::vector<OctahedronInfo>						  m_OctahedronInfos;
 };
 #else
 //=================================================================================
@@ -190,6 +203,8 @@ public:
 	void DrawGrid(const glm::vec4& origin, unsigned short linesToSide, const glm::mat4& modelMatrix = glm::mat4(1.0f)){};
 
 	void DrawFrustum(const Physics::Primitives::C_Frustum& frust, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f)) {}
+
+	void ProbeDebug(const glm::vec3& position, float size, std::shared_ptr<Textures::C_Texture>& texture) {}
 
 	void DrawMergedGeoms(){};
 

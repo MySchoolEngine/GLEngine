@@ -18,6 +18,7 @@ class C_MouseScrollEvent;
 class C_MouseButtonPressed;
 class C_MouseButtonReleased;
 class C_MouseMoved;
+class C_AppEvent;
 } // namespace Core
 
 namespace GUI {
@@ -39,16 +40,18 @@ public:
 
 	bool CapturingMouse() const;
 
-	GUI::C_GUIManager& GetGUIMgr();
+	[[nodiscard]] GUI::C_GUIManager& GetGUIMgr();
+	[[nodiscard]] virtual bool		 ReadyForDestroy() const override;
 
 private:
-	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
-	bool OnKeyReleased(Core::C_KeyReleasedEvent& event);
-	bool OnTextEvent(Core::C_TextInputEvent& event);
-	bool OnMouseButtonPressedEvent(Core::C_MouseButtonPressed& e);
-	bool OnMouseButtonReleasedEvent(Core::C_MouseButtonReleased& e);
-	bool OnMouseScrolledEvent(Core::C_MouseScrollEvent& e);
-	bool OnMouseMoved(Core::C_MouseMoved& e);
+	bool			   OnKeyPressed(Core::C_KeyPressedEvent& event);
+	bool			   OnKeyReleased(Core::C_KeyReleasedEvent& event);
+	bool			   OnTextEvent(Core::C_TextInputEvent& event);
+	bool			   OnMouseButtonPressedEvent(Core::C_MouseButtonPressed& e);
+	bool			   OnMouseButtonReleasedEvent(Core::C_MouseButtonReleased& e);
+	bool			   OnMouseScrolledEvent(Core::C_MouseScrollEvent& e);
+	bool			   OnMouseMoved(Core::C_MouseMoved& e);
+	[[nodiscard]] bool OnAppEvent(Core::C_AppEvent& event);
 
 protected:
 	ImDrawData* GetRenderData();

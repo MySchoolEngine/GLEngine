@@ -179,14 +179,14 @@ void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* te
 {
 	bind();
 	SetDimensions(tex->GetDimensions());
-	// todo format
+
 	glTexImage2D(m_target, level,
 				 GetOpenGLInternalFormat(m_Format), // internal format
 				 tex->GetDimensions().x, tex->GetDimensions().y,
-				 0,								  // border
-				 GetFormat(tex->GetChannels()),	  // format
-				 T_TypeToGL<std::uint8_t>::value, // TODO
-				 tex->GetData());				  // data
+				 0,								// border
+				 GetFormat(tex->GetChannels()), // format
+				 GetUnderlyingType(tex),		// TODO
+				 tex->GetData());				// data
 	unbind();
 }
 

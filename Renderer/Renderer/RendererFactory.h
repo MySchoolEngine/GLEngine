@@ -3,8 +3,6 @@
 #include <Renderer/IRenderer.h>
 #include <Renderer/RendererApi.h>
 
-#include <memory>
-
 namespace GLEngine::Renderer {
 
 class RENDERER_API_EXPORT F_RendererFacotry {

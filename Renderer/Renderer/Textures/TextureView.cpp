@@ -9,7 +9,7 @@ namespace GLEngine::Renderer {
 //=================================================================================
 C_TextureView::C_TextureView(I_TextureViewStorage* storage)
 	: m_Storage(storage)
-	, m_BorderColor(1,0,1,0)
+	, m_BorderColor(1, 0, 1, 0)
 	, m_WrapFunction(E_WrapFunction::Repeat)
 {
 }
@@ -18,7 +18,7 @@ C_TextureView::C_TextureView(I_TextureViewStorage* storage)
 std::size_t C_TextureView::GetAddress(const glm::ivec2& uv) const
 {
 	const auto dim = m_Storage->GetDimensions();
-	return (static_cast<std::size_t>(dim.x) * uv.x + uv.y) * m_Storage->GetNumElements();
+	return (static_cast<std::size_t>(dim.x) * uv.y + uv.x) * m_Storage->GetNumElements();
 }
 
 //=================================================================================
@@ -69,9 +69,18 @@ glm::ivec2 C_TextureView::ClampCoordinates(const glm::ivec2& uv) const
 	case E_WrapFunction::ClampToEdge:
 		result = glm::clamp(result, {0, 0}, dim);
 		break;
-	case E_WrapFunction::Repeat:
+	case E_WrapFunction::Repeat: {
 		result = uv % dim;
-		break;
+		if (result.x < 0)
+		{
+			result.x = dim.x + result.x;
+		}
+		if (result.y < 0)
+		{
+			result.y = dim.y + result.y;
+		}
+	}
+	break;
 	case E_WrapFunction::MirroredRepeat: {
 		const auto numRepeats = uv / (dim + glm::ivec2{1, 1});
 		result				  = uv - numRepeats * dim;
@@ -85,7 +94,7 @@ glm::ivec2 C_TextureView::ClampCoordinates(const glm::ivec2& uv) const
 			result.y = dim.y - result.y;
 		}
 	}
-		break;
+	break;
 	case E_WrapFunction::ClampToBorder:
 	default:
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unsupported");
@@ -99,6 +108,31 @@ glm::ivec2 C_TextureView::ClampCoordinates(const glm::ivec2& uv) const
 const I_TextureViewStorage* const C_TextureView::GetStorage() const
 {
 	return m_Storage;
+}
+
+//=================================================================================
+void C_TextureView::ClearColor(const glm::vec4& colour)
+{
+	const auto dim = m_Storage->GetDimensions();
+	// TODO set it as whole vector if storage is not swizzled
+	// or swizzle this and memset it all over storage
+	for (int u = 0; u < dim.x; ++u)
+	{
+		for (int v = 0; v < dim.y; ++v)
+		{
+			const glm::ivec2 uv{u, v};
+			Set(uv, glm::vec4(colour));
+		}
+	}
+}
+
+//=================================================================================
+// C_OctahedralTextureView
+//=================================================================================
+C_OctahedralTextureView::C_OctahedralTextureView(C_TextureView view, std::size_t size)
+	: m_View(view)
+	, m_Size(size)
+{
 }
 
 } // namespace GLEngine::Renderer

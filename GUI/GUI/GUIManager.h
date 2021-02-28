@@ -24,6 +24,9 @@ public:
 
 	[[nodiscard]] C_Window* GetWindow(GUID guid) const;
 
+	void			   RequestDestroy();
+	[[nodiscard]] bool CanBeDestroyed() const;
+
 	void DestroyWindow(GUID guid);
 	void OnUpdate();
 

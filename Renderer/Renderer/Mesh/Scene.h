@@ -1,11 +1,6 @@
 #pragma once
 
 #include <Physics/Primitives/AABB.h>
-#include <Physics/Primitives/Shapes.h>
-
-#include <memory>
-#include <string>
-#include <vector>
 
 
 namespace GLEngine::Renderer::MeshData {

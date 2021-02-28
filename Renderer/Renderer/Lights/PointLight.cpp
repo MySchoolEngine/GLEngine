@@ -1,6 +1,9 @@
 #include <RendererStdafx.h>
 
 #include <Renderer/Lights/PointLight.h>
+#include <Renderer/Mesh/Scene.h>
+
+#include <Physics/Primitives/Frustum.h>
 
 #include <Utils/Parsing/ColorParsing.h>
 #include <Utils/Parsing/MatrixParse.h>

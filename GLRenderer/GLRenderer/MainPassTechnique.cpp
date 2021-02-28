@@ -18,6 +18,8 @@
 #include <Renderer/IRenderer.h>
 #include <Renderer/Lights/PointLight.h>
 
+#include <Physics/Primitives/Frustum.h>
+
 #include <Entity/EntityManager.h>
 #include <Entity/IEntity.h>
 
