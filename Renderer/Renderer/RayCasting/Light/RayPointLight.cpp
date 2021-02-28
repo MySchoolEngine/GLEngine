@@ -42,10 +42,4 @@ glm::vec3 C_PointLight::Le() const
 	return m_Intensity;
 }
 
-//=================================================================================
-float C_PointLight::PdfLe() const
-{
-	return 1.f;
-}
-
 } // namespace GLEngine::Renderer::RayTracing

@@ -55,12 +55,6 @@ glm::vec3 C_AreaLight::Le() const
 }
 
 //=================================================================================
-float C_AreaLight::PdfLe() const
-{
-	return 0.f;
-}
-
-//=================================================================================
 std::shared_ptr<I_RayGeometryObject> C_AreaLight::GetGeometry() const
 {
 	return m_Shape;

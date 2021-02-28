@@ -19,7 +19,6 @@ public:
 	C_AreaLight(const glm::vec3& radiance, const std::shared_ptr<C_Primitive<Physics::Primitives::S_Disc>>& shape);
 	[[nodiscard]] virtual glm::vec3 SampleLi(const C_RayIntersection& intersection, I_Sampler* rnd, S_VisibilityTester& vis, float* pdf) const override;
 	[[nodiscard]] virtual glm::vec3 Le() const override;
-	[[nodiscard]] virtual float		PdfLe() const override;
 
 	[[nodiscard]] std::shared_ptr<I_RayGeometryObject> GetGeometry() const;
 
