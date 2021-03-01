@@ -1,11 +1,16 @@
 #pragma once
 
-#include <Renderer/Mesh/Scene.h>
 #include <Renderer/RendererApi.h>
 
 namespace pugi {
 class xml_node;
 }
+
+
+namespace GLEngine::Renderer::MeshData {
+struct Mesh;
+struct AnimationData;
+} // namespace GLEngine::Renderer::MeshData
 
 namespace GLEngine::Renderer::Animation {
 class C_SkeletalAnimation;

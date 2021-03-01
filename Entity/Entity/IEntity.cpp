@@ -3,6 +3,8 @@
 #include <Entity/ComponentManager.h>
 #include <Entity/IEntity.h>
 
+#include <Physics/Primitives/AABB.h>
+
 #include <Utils/MapValueIterator.h>
 
 namespace GLEngine::Entity {

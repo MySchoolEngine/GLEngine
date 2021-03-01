@@ -16,13 +16,18 @@ git submodule update
 premake5 vs2019 (or whatever verison are you using)
 
 ## Documentation
-Most of documentation can be found here on github/in code. 
+Most of documentation can be found here on github/in code.
 
-Documentation of current school project is here:
-<https://drive.google.com/drive/folders/1PIpnAONf181flHor8lpHo7DaqPFDL0tx>
+Some user/programmer documentation could be found [here](https://rohacekd.github.io/GLEngine-Documentation/).
+
+## [Contributing](CONTRIBUTING.md)
+This repository is open for contribution. You can start by reading [this](CONTRIBUTING.md). If you have any question regarding code or feature feel free to contact me.
 
 ## Architecure
 [![Architecture](https://github.com/RohacekD/GLEngine/blob/master/wikidata/Architecture.svg)](https://lucid.app/lucidchart/invitations/accept/d2772b03-bc43-4301-b71a-b145bfef3e73)
+
+## PathTracing
+![CornellBox](https://github.com/RohacekD/GLEngine/blob/master/wikidata/PathTraced.png)
 
 * Red lines denote wrong dependencies
 * Blue lines denote opposite dependencies

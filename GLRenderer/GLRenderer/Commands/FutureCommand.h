@@ -6,6 +6,8 @@
 #include <string>
 
 namespace GLEngine::GLRenderer::Commands {
+class FuturePolicyNotBlocking;
+class FuturePolicyBlocking;
 
 //=================================================================================
 template <class futureT, class retT = void, class FuturePolicy = FuturePolicyNotBlocking> class C_FutureCommand : public Renderer::I_RenderCommand, private FuturePolicy {

@@ -4,6 +4,8 @@
 #include <GLRenderer/GLFW/GLFWWindowManager.h>
 #include <GLRenderer/GLFW/GLFWoGLWindow.h>
 
+#include <Core/EventSystem/Event/AppEvent.h>
+
 namespace GLEngine::GLRenderer::GLFW {
 
 //=================================================================================
@@ -48,8 +50,22 @@ std::shared_ptr<GLEngine::Core::I_Window> C_GLFWWindowManager::GetWindow(GUID gu
 //=================================================================================
 void C_GLFWWindowManager::Update()
 {
-	m_Windows.erase(std::remove_if(m_Windows.begin(), m_Windows.end(), [](const decltype(m_Windows)::value_type& window) { return window->WantClose(); }), m_Windows.end());
+	// Ask windows to prepare for closing
+	std::for_each(m_Windows.begin(), m_Windows.end(), [&](const decltype(m_Windows)::value_type& window) {
+		if (!window->WantClose())
+			return;
 
+		m_UpdatingWindow = window;
+		Core::C_AppEvent event(Core::C_AppEvent::E_Type::WindowCloseRequest);
+		window->OnEvent(event);
+		m_UpdatingWindow = nullptr;
+	});
+
+	// close those windows which are ready to
+	m_Windows.erase(std::remove_if(m_Windows.begin(), m_Windows.end(), [](const decltype(m_Windows)::value_type& window) { return window->WantClose() && window->CanClose(); }),
+					m_Windows.end());
+
+	// update the rest of windows
 	std::for_each(m_Windows.begin(), m_Windows.end(), [&](const decltype(m_Windows)::value_type& window) {
 		m_UpdatingWindow = window;
 		window->Update();

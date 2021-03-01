@@ -3,7 +3,6 @@
 #include <Renderer/Animation/Joint.h>
 #include <Renderer/RendererApi.h>
 
-#include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
 namespace GLEngine::Renderer::Animation {

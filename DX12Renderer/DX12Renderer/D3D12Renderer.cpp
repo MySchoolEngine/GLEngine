@@ -82,4 +82,10 @@ Renderer::E_PassType C_D3D12Renderer::GetCurrentPassType() const
 	return Renderer::E_PassType::FinalPass;
 }
 
+//=================================================================================
+void C_D3D12Renderer::AddTransferCommand(T_CommandPtr)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 } // namespace GLEngine::DX12Renderer

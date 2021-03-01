@@ -1,5 +1,9 @@
 #pragma once
 
+#include <Core/CoreMacros.h>
+
+#include <Utils/CompileTime/CompileTimeUtils.h>
+
 namespace GLEngine::Renderer {
 //=================================================================================
 // C_TextureViewStorageCPU<type, int>
@@ -23,9 +27,9 @@ template <class internalFormat> int C_TextureViewStorageCPU<internalFormat>::Get
 }
 
 //=================================================================================
-template <class internalFormat> double C_TextureViewStorageCPU<internalFormat>::GetD(std::size_t position) const
+template <class internalFormat> float C_TextureViewStorageCPU<internalFormat>::GetF(std::size_t position) const
 {
-	return static_cast<double>(m_Data[position]);
+	return static_cast<float>(m_Data[position]);
 }
 
 //=================================================================================
@@ -56,7 +60,12 @@ template <class internalFormat> const void C_TextureViewStorageCPU<internalForma
 //=================================================================================
 template <class internalFormat> std::uint8_t C_TextureViewStorageCPU<internalFormat>::GetChannelOffset(E_TextureChannel element) const
 {
-	return static_cast<std::underlying_type_t<E_TextureChannel>>(element);
+	const auto it = std::find(m_Channels.begin(), m_Channels.end(), element);
+	if (it != m_Channels.end())
+	{
+		return static_cast<std::uint8_t>(std::distance(m_Channels.begin(), it));
+	}
+	return 0;
 }
 
 //=================================================================================
@@ -69,6 +78,25 @@ template <class internalFormat> void C_TextureViewStorageCPU<internalFormat>::Se
 template <class internalFormat> void C_TextureViewStorageCPU<internalFormat>::SetInternal(double value, std::size_t position)
 {
 	m_Data[position] = static_cast<internalFormat>(value);
+}
+
+//=================================================================================
+template <class internalFormat> E_TextureTypes C_TextureViewStorageCPU<internalFormat>::GetStorageType() const
+{
+	if (std::is_same_v<internalFormat, std::uint8_t>)
+	{
+		return E_TextureTypes::IntegralNormalized;
+	}
+	if (std::is_same_v<internalFormat, std::int8_t>)
+	{
+		return E_TextureTypes::Integral;
+	}
+	if (std::is_same_v<internalFormat, float>)
+	{
+		return E_TextureTypes::Floating;
+	}
+
+	static_assert(T_ContainsType_v<internalFormat, std::uint8_t, std::int8_t, float>, "Unsupported internal type of texture storage.");
 }
 
 } // namespace GLEngine::Renderer

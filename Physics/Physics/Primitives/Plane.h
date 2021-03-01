@@ -3,22 +3,34 @@
 #include <Physics/Primitives/Intersectable.h>
 #include <Physics/Primitives/Ray.h>
 
-#include <glm/glm.hpp>
-
 namespace GLEngine::Physics::Primitives {
 struct S_Ray;
 
 struct S_Plane : public T_Intersectable<S_Plane> {
-	constexpr S_Plane(glm::vec4 _normal, float offset)
+	constexpr S_Plane(glm::vec3 _normal, float offset)
 		: normal(_normal)
-		, originOffset(offset)
+		, origin(normal * offset)
+		, twoSided(true)
 	{
 	}
-	glm::vec4							 normal;
-	float								 originOffset;
+	constexpr S_Plane(glm::vec3 _normal, glm::vec3 origin)
+		: normal(_normal)
+		, origin(origin)
+		, twoSided(true)
+	{
+	}
+	glm::vec3							 normal;
+	glm::vec3							 origin;
+	bool								 twoSided : 1;
 	[[nodiscard]] inline constexpr float IntersectImpl(const S_Ray& ray) const
 	{
-		return -(glm::dot(glm::vec4(ray.origin, 1.0f), normal) - originOffset) / (glm::dot(ray.direction, glm::vec3(normal.x, normal.y, normal.z)));
+		const auto useNormal = ((glm::dot(-ray.direction, normal) < 0 && twoSided) ? -normal : normal);
+		if (glm::dot(-ray.direction, useNormal) < 0.0)
+		{
+			return -1;
+		}
+
+		return (glm::dot(origin - ray.origin, useNormal)) / (glm::dot(useNormal, ray.direction));
 	}
 };
 } // namespace GLEngine::Physics::Primitives

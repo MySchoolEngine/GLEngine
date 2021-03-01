@@ -6,6 +6,7 @@
 #include <Renderer/Animation/ColladaLoading/VCount.h>
 #include <Renderer/Animation/SkeletalAnimation.h>
 #include <Renderer/Animation/Skeleton.h>
+#include <Renderer/Mesh/Scene.h>
 
 #include <Utils/Parsing/MatrixParse.h>
 

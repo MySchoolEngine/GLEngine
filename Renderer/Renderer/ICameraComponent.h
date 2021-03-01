@@ -2,10 +2,13 @@
 
 #include <Renderer/RendererApi.h>
 
-#include <Physics/Primitives/Frustum.h>
-
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
+
+namespace GLEngine::Physics::Primitives {
+class C_Frustum;
+struct S_Ray;
+} // namespace GLEngine::Physics::Primitives
 
 namespace GLEngine {
 namespace Renderer {
@@ -16,18 +19,19 @@ public:
 	virtual ~I_CameraComponent(); // = default;
 	virtual Entity::E_ComponentType GetType() const override;
 
-	virtual Physics::Primitives::S_AABB GetAABB() const override;
+	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override;
 
-	virtual glm::mat4 GetViewProjectionMatrix() const = 0;
-	virtual glm::mat4 GetProjectionMatrix() const	  = 0;
-	virtual glm::mat4 GetViewMatrix() const			  = 0;
-	virtual glm::quat GetRotation() const			  = 0;
-	virtual glm::vec3 GetDirection() const			  = 0;
-	virtual glm::vec3 GetPosition() const			  = 0;
+	[[nodiscard]] virtual glm::mat4 GetViewProjectionMatrix() const = 0;
+	[[nodiscard]] virtual glm::mat4 GetScreenToworldMatrix() const	= 0;
+	[[nodiscard]] virtual glm::mat4 GetProjectionMatrix() const		= 0;
+	[[nodiscard]] virtual glm::mat4 GetViewMatrix() const			= 0;
+	[[nodiscard]] virtual glm::quat GetRotation() const				= 0;
+	[[nodiscard]] virtual glm::vec3 GetDirection() const			= 0;
+	[[nodiscard]] virtual glm::vec3 GetPosition() const				= 0;
 
-	Physics::Primitives::S_Ray GetRay(const glm::vec2& screenPos) const;
+	[[nodiscard]] Physics::Primitives::S_Ray GetRay(const glm::vec2& screenPos) const;
 
-	virtual Physics::Primitives::C_Frustum GetFrustum() const = 0;
+	[[nodiscard]] virtual Physics::Primitives::C_Frustum GetFrustum() const = 0;
 };
 } // namespace Renderer
 

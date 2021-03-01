@@ -32,6 +32,78 @@ public:
 		return mesh;
 	}
 
+	[[nodiscard]] static Mesh CreateOctahedron(float height, float width)
+	{
+		Mesh mesh;
+		mesh.vertices.reserve(3 * 4);
+		const glm::vec4 top(0, height, 0, 1);
+		const glm::vec4 bottom(0, -height, 0, 1);
+
+		const auto getNormalBinromal = [&]() {
+			auto	   it	  = mesh.vertices.rbegin();
+			const auto A	  = glm::vec3(*(it));
+			const auto B	  = glm::vec3(*(++it));
+			const auto C	  = glm::vec3(*(++it));
+			const auto tang	  = glm::normalize(C - A);
+			const auto biTang = B - A;
+			const auto normal = glm::normalize(glm::cross(tang, biTang));
+			mesh.normals.push_back(normal);
+			mesh.normals.push_back(normal);
+			mesh.normals.push_back(normal);
+			mesh.tangent.push_back(tang);
+			mesh.tangent.push_back(tang);
+			mesh.tangent.push_back(tang);
+			const auto realBitang = glm::cross(normal, tang);
+			mesh.bitangent.push_back(realBitang);
+		};
+		mesh.vertices.emplace_back(top);
+		mesh.vertices.emplace_back(width, 0, -width, 1);
+		mesh.vertices.emplace_back(-width, 0, -width, 1);
+		getNormalBinromal();
+
+		mesh.vertices.emplace_back(top);
+		mesh.vertices.emplace_back(width, 0, width, 1);
+		mesh.vertices.emplace_back(width, 0, -width, 1);
+		getNormalBinromal();
+
+		mesh.vertices.emplace_back(top);
+		mesh.vertices.emplace_back(-width, 0, width, 1);
+		mesh.vertices.emplace_back(width, 0, width, 1);
+		getNormalBinromal();
+
+		mesh.vertices.emplace_back(top);
+		mesh.vertices.emplace_back(-width, 0, -width, 1);
+		mesh.vertices.emplace_back(-width, 0, width, 1);
+		getNormalBinromal();
+
+		mesh.vertices.emplace_back(bottom);
+		mesh.vertices.emplace_back(-width, 0, -width, 1);
+		mesh.vertices.emplace_back(width, 0, -width, 1);
+		getNormalBinromal();
+
+		mesh.vertices.emplace_back(bottom);
+		mesh.vertices.emplace_back(width, 0, width, 1);
+		mesh.vertices.emplace_back(-width, 0, width, 1);
+		getNormalBinromal();
+
+		mesh.vertices.emplace_back(bottom);
+		mesh.vertices.emplace_back(width, 0, -width, 1);
+		mesh.vertices.emplace_back(width, 0, width, 1);
+		getNormalBinromal();
+
+		mesh.vertices.emplace_back(bottom);
+		mesh.vertices.emplace_back(-width, 0, width, 1);
+		mesh.vertices.emplace_back(-width, 0, -width, 1);
+		getNormalBinromal();
+
+		for (int i = 0; i < mesh.vertices.size(); ++i)
+		{
+			mesh.texcoords.emplace_back(1, 0);
+		}
+
+		return mesh;
+	}
+
 private:
 	static void AddSquare(Mesh& mesh, float size, int xPos, int yPos)
 	{

@@ -11,6 +11,7 @@ C_GUIManager::C_GUIManager() = default;
 //=================================================================================
 C_GUIManager::~C_GUIManager()
 {
+	GLE_ASSERT(CanBeDestroyed(), "Destroying unprepared windows.");
 	for (auto& it : m_Windwos)
 	{
 		delete (it.second);
@@ -66,6 +67,18 @@ void C_GUIManager::DestroyWindow(GUID guid)
 void C_GUIManager::AddCustomWindow(GUI::C_Window* window)
 {
 	m_Windwos[window->GetGuid()] = window;
+}
+
+//=================================================================================
+bool C_GUIManager::CanBeDestroyed() const
+{
+	return std::all_of(m_Windwos.begin(), m_Windwos.end(), [](const auto& window) -> bool { return window.second->CanDestroy(); });
+}
+
+//=================================================================================
+void C_GUIManager::RequestDestroy()
+{
+	std::for_each(m_Windwos.begin(), m_Windwos.end(), [](const auto& window) { window.second->RequestDestroy(); });
 }
 
 } // namespace GLEngine::GUI

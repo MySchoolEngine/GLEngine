@@ -4,8 +4,6 @@
 
 #include <GUI/Input/Slider.h>
 
-#include <Core/CoreMacros.h>
-
 namespace GLEngine {
 
 namespace Core {
@@ -66,6 +64,9 @@ public:
 	virtual bool			 HasDebugDrawGUI() const override;
 	virtual std::string_view GetDebugComponentName() const override;
 
+
+	virtual glm::mat4 GetScreenToworldMatrix() const override;
+
 protected:
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
 	bool OnKeyRepeated(Core::C_KeyRepeatedEvent& event);
@@ -91,6 +92,7 @@ private:
 
 	glm::mat4 _viewMatrix;
 	glm::mat4 _projectionMatrix;
+	glm::mat4 _ScreenToWorld;
 
 	float m_ControlSpeed;
 };

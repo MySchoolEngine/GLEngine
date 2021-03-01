@@ -5,8 +5,6 @@
 #include <Core/EventSystem/Layer.h>
 #include <Core/WindowInfo.h>
 
-#include <glm/vec2.hpp>
-
 namespace GLEngine {
 
 namespace Renderer {
@@ -47,7 +45,8 @@ public:
 
 	inline void SetEventCallback(C_Application::EventCallbackFn callback) { m_Data.m_EventCallback = callback; }
 
-	virtual bool WantClose() const = 0;
+	[[nodiscard]] virtual bool WantClose() const = 0;
+	[[nodiscard]] virtual bool CanClose() const { return true; }
 
 	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetRenderer() const = 0;
 

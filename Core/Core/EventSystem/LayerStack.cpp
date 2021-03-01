@@ -35,4 +35,10 @@ void C_LayerStack::OnEvent(Core::I_Event& event)
 	}
 }
 
+//=================================================================================
+bool C_LayerStack::ReadyForDestroy() const
+{
+	return std::all_of(m_Layers->begin(), m_Layers->end(), [](const auto& it) { return it->ReadyForDestroy(); });
+}
+
 } // namespace GLEngine::Core
