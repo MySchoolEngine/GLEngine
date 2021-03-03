@@ -94,7 +94,7 @@ C_RayTraceScene::C_RayTraceScene()
 		disc.plane.twoSided			= false;
 		auto areaLightDisc			= std::make_shared<C_Primitive<S_Disc>>(disc);
 
-		auto areaLight = std::make_shared<RayTracing::C_AreaLight>(glm::vec3(1.f, 1.f, .3f), areaLightDisc);
+		auto areaLight = std::make_shared<RayTracing::C_AreaLight>(glm::vec3(1.f, 1.f, .3f) * 10.f, areaLightDisc);
 		AddLight(std::move(areaLight));
 	}
 #else

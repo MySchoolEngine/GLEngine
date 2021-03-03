@@ -45,7 +45,7 @@ glm::vec3 C_AreaLight::SampleLi(const C_RayIntersection& intersection, I_Sampler
 
 	*pdf = (distSqr / cosThetaY) * areaInv;
 
-	return m_Radiance * (cosThetaX * cosThetaY) / (distSqr * areaInv);
+	return Le() * (cosThetaX * cosThetaY) / (distSqr * areaInv);
 }
 
 //=================================================================================
