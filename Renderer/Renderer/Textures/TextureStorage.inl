@@ -99,4 +99,34 @@ template <class internalFormat> E_TextureTypes C_TextureViewStorageCPU<internalF
 	static_assert(T_ContainsType_v<internalFormat, std::uint8_t, std::int8_t, float>, "Unsupported internal type of texture storage.");
 }
 
+//=================================================================================
+template <> inline void C_TextureViewStorageCPU<float>::SetAll(const glm::vec4& value)
+{
+	const auto realValue = Swizzle(value);
+	for (auto& it = m_Data.begin(); it != m_Data.end(); it += m_Elements)
+	{
+		std::copy_n(static_cast<const float*>(&realValue.x), m_Elements, it);
+	}
+}
+
+//=================================================================================
+template <> inline void C_TextureViewStorageCPU<std::uint8_t>::SetAll(const glm::vec4& value)
+{
+	const glm::u8vec4 realValue = Swizzle(value);
+	for (auto& it = m_Data.begin(); it != m_Data.end(); it += m_Elements)
+	{
+		std::copy_n(static_cast<const std::uint8_t*>(&realValue.x), m_Elements, it);
+	}
+}
+
+//=================================================================================
+template <> inline void C_TextureViewStorageCPU<std::int8_t>::SetAll(const glm::vec4& value)
+{
+	const glm::i8vec4 realValue = Swizzle(value);
+	for (auto& it = m_Data.begin(); it != m_Data.end(); it += m_Elements)
+	{
+		std::copy_n(static_cast<const std::int8_t*>(&realValue.x), m_Elements, it);
+	}
+}
+
 } // namespace GLEngine::Renderer

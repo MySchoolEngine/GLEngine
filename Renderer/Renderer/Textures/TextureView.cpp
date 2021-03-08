@@ -113,17 +113,8 @@ const I_TextureViewStorage* const C_TextureView::GetStorage() const
 //=================================================================================
 void C_TextureView::ClearColor(const glm::vec4& colour)
 {
-	const auto dim = m_Storage->GetDimensions();
-	// TODO set it as whole vector if storage is not swizzled
-	// or swizzle this and memset it all over storage
-	for (int u = 0; u < dim.x; ++u)
-	{
-		for (int v = 0; v < dim.y; ++v)
-		{
-			const glm::ivec2 uv{u, v};
-			Set(uv, glm::vec4(colour));
-		}
-	}
+	// swizzle on view side
+	m_Storage->SetAll(colour);
 }
 
 //=================================================================================
