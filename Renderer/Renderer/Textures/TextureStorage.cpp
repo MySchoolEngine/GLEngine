@@ -47,10 +47,17 @@ glm::ivec2 I_TextureViewStorage::GetDimensions() const
 //=================================================================================
 bool I_TextureViewStorage::IsSwizzled() const
 {
-	return !(m_Channels == T_Channels{E_TextureChannel::Red, E_TextureChannel::Green, E_TextureChannel::Blue, E_TextureChannel::Alpha}
-			 || m_Channels == T_Channels{E_TextureChannel::Red, E_TextureChannel::Green, E_TextureChannel::Blue, E_TextureChannel::None}
-			 || m_Channels == T_Channels{E_TextureChannel::Red, E_TextureChannel::Green, E_TextureChannel::None, E_TextureChannel::None}
-			 || m_Channels == T_Channels{E_TextureChannel::Red, E_TextureChannel::None, E_TextureChannel::None, E_TextureChannel::None});
+	// for speed concerns I expect that there are no sparse channels
+	if (m_Channels[0] != E_TextureChannel::Red)
+		return false;
+	if (m_Channels[1] != E_TextureChannel::Green && m_Channels[1] != E_TextureChannel::None)
+		return false;
+	if (m_Channels[2] != E_TextureChannel::Blue && m_Channels[2] != E_TextureChannel::None)
+		return false;
+	if (m_Channels[3] != E_TextureChannel::Alpha && m_Channels[3] != E_TextureChannel::None)
+		return false;
+	
+	return true;
 }
 
 //=================================================================================
