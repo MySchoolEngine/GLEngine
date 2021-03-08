@@ -100,12 +100,12 @@ template <class internalFormat> E_TextureTypes C_TextureViewStorageCPU<internalF
 }
 
 //=================================================================================
-template <> inline void C_TextureViewStorageCPU<float>::SetAll(const glm::vec4& value)
+template <class internalFormat> inline void C_TextureViewStorageCPU<internalFormat>::SetAll(const glm::vec4& value)
 {
-	const auto realValue = Swizzle(value);
+	glm::vec<4, internalFormat, glm::defaultp> realValue(Swizzle(value));
 	for (auto& it = m_Data.begin(); it != m_Data.end(); it += m_Elements)
 	{
-		std::copy_n(static_cast<const float*>(&realValue.x), m_Elements, it);
+		std::copy_n(static_cast<const internalFormat*>(&realValue.x), m_Elements, it);
 	}
 }
 
