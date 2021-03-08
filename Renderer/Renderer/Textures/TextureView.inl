@@ -42,13 +42,14 @@ template <> inline float C_TextureView::Get<float>(const glm::ivec2& uv, E_Textu
 //=================================================================================
 template <class T, typename /*= std::enable_if_t<glm::type<T>::is_vec>*/> T C_TextureView::Get(const glm::ivec2& uv) const
 {
-	// TODO: border colour could be handled simpler
-	T ret;
-	for (std::uint8_t i = 0; i < std::min(static_cast<std::uint8_t>(glm::type<T>::components), m_Storage->GetNumElements()); ++i)
-	{
-		ret[i] = Get<typename T::value_type>(uv, static_cast<E_TextureChannel>(i));
-	}
-	return ret;
+	glm::ivec2 coord = uv;
+	if (IsOutsideBorders(uv))
+		if (UseBorderColor())
+			return GetBorderColor<T>();
+		else
+			coord = ClampCoordinates(uv);
+	
+	return m_Storage->GetPixel(GetPixelAddress(coord));
 }
 
 //=================================================================================
@@ -73,6 +74,12 @@ template <> inline glm::vec4 C_TextureView::GetBorderColor() const
 template <> inline glm::ivec4 C_TextureView::GetBorderColor() const
 {
 	return glm::ivec4(m_BorderColor * 255.f);
+}
+
+//=================================================================================
+template <> inline glm::vec3 C_TextureView::GetBorderColor() const
+{
+	return glm::vec3(m_BorderColor);
 }
 
 //=================================================================================

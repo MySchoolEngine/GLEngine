@@ -120,13 +120,11 @@ template <> inline void C_TextureViewStorageCPU<std::uint8_t>::SetAll(const glm:
 }
 
 //=================================================================================
-template <> inline void C_TextureViewStorageCPU<std::int8_t>::SetAll(const glm::vec4& value)
+template <class internalFormat> glm::vec4 C_TextureViewStorageCPU<internalFormat>::GetPixel(std::size_t pixelIndex) const
 {
-	const glm::i8vec4 realValue = Swizzle(value);
-	for (auto& it = m_Data.begin(); it != m_Data.end(); it += m_Elements)
-	{
-		std::copy_n(static_cast<const std::int8_t*>(&realValue.x), m_Elements, it);
-	}
+	glm::vec<4, internalFormat, glm::defaultp> value(0);
+	memcpy(&value.x, &(m_Data[pixelIndex * m_Elements]), sizeof(internalFormat) * m_Elements);
+	return glm::vec4(value);
 }
 
 } // namespace GLEngine::Renderer
