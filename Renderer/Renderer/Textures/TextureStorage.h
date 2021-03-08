@@ -23,9 +23,10 @@ public:
 	[[nodiscard]] virtual int		GetI(std::size_t position) const	   = 0;
 	[[nodiscard]] virtual glm::vec4 GetPixel(std::size_t pixelIndex) const = 0;
 
-	void Set(double value, std::size_t position);
-	void Set(int value, std::size_t position);
-	virtual void SetAll(const glm::vec4& value) = 0;
+	void		 Set(double value, std::size_t position);
+	void		 Set(int value, std::size_t position);
+	virtual void SetPixel(const glm::vec4& value, std::size_t position) = 0; //< position denotes pixels index
+	virtual void SetAll(const glm::vec4& value)							= 0;
 
 	[[nodiscard]] virtual const void* GetData() const							 = 0;
 	[[nodiscard]] virtual void*		  GetData()									 = 0;
@@ -62,6 +63,8 @@ public:
 	[[nodiscard]] virtual float		GetF(std::size_t position) const override;
 	[[nodiscard]] virtual int		GetI(std::size_t position) const override;
 	[[nodiscard]] virtual glm::vec4 GetPixel(std::size_t pixelIndex) const override;
+
+	virtual void SetPixel(const glm::vec4& value, std::size_t position) override; //< position denotes pixels index
 
 	[[nodiscard]] virtual std::uint8_t GetNumElements() const override;
 

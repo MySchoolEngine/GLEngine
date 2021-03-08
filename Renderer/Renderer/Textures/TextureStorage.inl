@@ -110,13 +110,12 @@ template <class internalFormat> inline void C_TextureViewStorageCPU<internalForm
 }
 
 //=================================================================================
-template <> inline void C_TextureViewStorageCPU<std::uint8_t>::SetAll(const glm::vec4& value)
+template <class internalFormat> void C_TextureViewStorageCPU<internalFormat>::SetPixel(const glm::vec4& value, std::size_t position)
 {
-	const glm::u8vec4 realValue = Swizzle(value);
-	for (auto& it = m_Data.begin(); it != m_Data.end(); it += m_Elements)
-	{
-		std::copy_n(static_cast<const std::uint8_t*>(&realValue.x), m_Elements, it);
-	}
+	glm::vec<4, internalFormat, glm::defaultp> realValue(Swizzle(value));
+	auto									   it = m_Data.begin();
+	std::advance(it, position * m_Elements);
+	std::copy_n(static_cast<const internalFormat*>(&realValue.x), m_Elements, it);
 }
 
 //=================================================================================

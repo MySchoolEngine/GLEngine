@@ -98,10 +98,21 @@ template <class T> void C_TextureView::Set(const glm::ivec2& uv, const T val, E_
 //=================================================================================
 template <class T, typename /*= std::enable_if_t<glm::type<T>::is_vec>*/> void C_TextureView::Set(const glm::ivec2& uv, T&& val)
 {
-	// TODO set it as whole vector if storage is not swizzled
-	for (std::uint8_t i = 0; i < std::min(static_cast<std::uint8_t>(glm::type<T>::components), m_Storage->GetNumElements()); ++i)
+	// swizzle on views side
+	if constexpr (std::is_same_v<std::remove_cv_t<T>, glm::vec4>)
 	{
-		Set(uv, val[i], static_cast<E_TextureChannel>(i));
+		m_Storage->SetPixel(val, GetPixelAddress(uv));
+	}
+	else if constexpr (std::is_same_v<std::remove_cv_t<T>, glm::vec3>)
+	{
+		m_Storage->SetPixel(glm::vec4(val, 0.f), GetPixelAddress(uv));
+	}
+	else
+	{
+		for (std::uint8_t i = 0; i < std::min(static_cast<std::uint8_t>(glm::type<T>::components), m_Storage->GetNumElements()); ++i)
+		{
+			Set(uv, val[i], static_cast<E_TextureChannel>(i));
+		}
 	}
 }
 
