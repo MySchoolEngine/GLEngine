@@ -1,4 +1,4 @@
-#include <GUIStdAfx.h>
+#include <GUIStdafx.h>
 
 #include <GUI/FileDialogWindow.h>
 
