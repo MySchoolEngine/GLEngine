@@ -1,6 +1,7 @@
 #include <RendererStdafx.h>
 
 #include <Renderer/Mesh/Loading/ModelLoader.h>
+#include <Renderer/RayCasting/Geometry/GeometryList.h>
 #include <Renderer/RayCasting/Geometry/RayTraceScene.h>
 #include <Renderer/RayCasting/Geometry/SceneGeometry.h>
 #include <Renderer/RayCasting/Light/ILight.h>
@@ -74,7 +75,8 @@ C_RayTraceScene::C_RayTraceScene()
 		AddObejct(triangle1);
 	}
 
-	if(false){
+	if (false)
+	{
 		// sphere
 		auto sphere = std::make_shared<C_Primitive<S_Sphere>>(S_Sphere{{-1.5f, -1.f, -1.5f}, 1.f});
 		sphere->SetMaterial(blue);
@@ -216,12 +218,16 @@ void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh)
 {
 	using namespace Physics::Primitives;
 	static const MeshData::Material blue{glm::vec4{}, glm::vec4{0, 0, 255, 0}, glm::vec4{}, 1.f, 0};
+	auto							list = std::make_shared<C_GeometryList>();
 	for (auto it = mesh.vertices.begin(); it != mesh.vertices.end(); it += 3)
 	{
 		auto triangle = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle(glm::vec3(*it), glm::vec3(*(it + 1)), glm::vec3(*(it + 2))));
 		triangle->SetMaterial(blue);
-		AddObejct(triangle);
+		list->AddObject(triangle);
 	}
+
+	list->GetAABB() = mesh.bbox;
+	AddObejct(list);
 }
 
 } // namespace GLEngine::Renderer
