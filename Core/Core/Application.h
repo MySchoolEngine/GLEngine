@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Core/CoreApi.h>
+
 namespace GLEngine {
 
 namespace Renderer {
@@ -26,16 +28,17 @@ public:
 
 	virtual void Init() = 0;
 #if CORE_PLATFORM == CORE_PLATFORM_WIN
-	virtual void Init(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {};
+	virtual void Init(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow){};
 #endif
 
 	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetActiveRenderer() const = 0;
 
-	static C_Application& Get();
+	static C_Application&		   Get();
 	virtual Core::I_WindowManager& GetWndMgr() const = 0;
 };
 
 // To be defined in CLIENT
 C_Application* CreateApplication();
 
-}}
+} // namespace Core
+} // namespace GLEngine

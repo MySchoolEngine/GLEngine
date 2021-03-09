@@ -3,24 +3,24 @@
 #include <Renderer/ILight.h>
 #include <Renderer/RendererApi.h>
 
-#include <Renderer/Mesh/Scene.h>
-
 #include <Entity/IComponent.h>
 
 namespace GLEngine::Renderer {
 
+namespace MeshData {
+struct Light;
+}
+
 //=============================================================
-class RENDERER_API_EXPORT I_PointLight : public I_Light
-{
+class RENDERER_API_EXPORT I_PointLight : public I_Light {
 public:
 	I_PointLight(std::shared_ptr<Entity::I_Entity> owner);
 	virtual ~I_PointLight();
-	[[nodiscard]] virtual glm::vec3 GetPosition() const = 0;
-	[[nodiscard]] virtual float GetIntensity() const = 0;
-	[[nodiscard]] virtual glm::vec3 GetColor() const = 0;
+	[[nodiscard]] virtual glm::vec3 GetPosition() const	 = 0;
+	[[nodiscard]] virtual float		GetIntensity() const = 0;
+	[[nodiscard]] virtual glm::vec3 GetColor() const	 = 0;
 
 	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override final;
-
 };
 
 //=============================================================
@@ -31,9 +31,8 @@ public:
 	virtual ~C_PointLight();
 
 	[[nodiscard]] virtual glm::vec3 GetPosition() const override;
-	[[nodiscard]] virtual float GetIntensity() const override;
+	[[nodiscard]] virtual float		GetIntensity() const override;
 	[[nodiscard]] virtual glm::vec3 GetColor() const override;
-
 
 
 	//================================================================
@@ -41,18 +40,18 @@ public:
 	[[nodiscard]] Physics::Primitives::C_Frustum GetShadingFrustum() const override;
 
 	virtual std::string_view GetDebugComponentName() const override;
-	virtual bool HasDebugDrawGUI() const override;
+	virtual bool			 HasDebugDrawGUI() const override;
+
 private:
-	float		m_Intensity;
-	glm::vec3	m_Color;
+	float	  m_Intensity;
+	glm::vec3 m_Color;
 
 	friend class C_PointLightCompBuilder;
 };
 
 //=============================================================
-class C_PointLightCompBuilder : public Entity::I_ComponenetBuilder
-{
+class C_PointLightCompBuilder : public Entity::I_ComponenetBuilder {
 public:
 	RENDERER_API_EXPORT virtual std::shared_ptr<Entity::I_Component> Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner) override;
 };
-}
+} // namespace GLEngine::Renderer

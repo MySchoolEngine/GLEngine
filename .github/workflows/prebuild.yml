@@ -1,0 +1,74 @@
+name: prebuild
+ 
+on:
+  schedule:
+    - cron: "0 2 1,15 * *"
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  GCC:
+    name: GCC
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: textbook/git-checkout-submodule-action@master
+      - name: update
+        run: sudo apt update
+      - name: Get X11
+        run: sudo apt-get install xorg-dev
+      - name: Premake
+        run: |
+          wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-linux.tar.gz -O premake.tar.gz
+          tar -xf premake.tar.gz
+          ./premake5 gmake2
+      - name: Build
+        run: |
+          make Dependencies -j6
+          make Dependencies config=release -j6
+          make Assimp -j6
+          make Assimp config=release -j6
+      - name: Upload dependencies
+        uses: actions/upload-artifact@v2
+        with:
+          name: Unix-dependencies
+          path: |
+            bin/*-linux-*/
+            obj/*-linux-*/
+          retention-days: 15
+  msvc:
+    name: MSVC
+    runs-on: windows-latest
+    env:
+      VS_PATH: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\
+      MSBUILD_PATH: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get submodules
+        shell: cmd
+        run: |
+          git submodule init
+          git submodule update
+      - name: Get premake5
+        shell: powershell
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-windows.zip" -OutFile "premake.zip"
+          Expand-Archive -Path premake.zip
+      - name: Generate solution
+        shell: cmd
+        run: premake\premake5.exe vs2019
+      - name: Build release
+        shell: cmd
+        run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=Release'
+      - name: Build debug
+        shell: cmd
+        run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=Debug'
+      - name: Upload dependencies
+        uses: actions/upload-artifact@v2
+        with:
+          name: Win-dependencies
+          path: |
+            bin/*-windows-*/vendor/
+            obj/*-windows-*/vendor/
+          retention-days: 15

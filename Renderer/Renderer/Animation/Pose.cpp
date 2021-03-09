@@ -9,7 +9,6 @@ namespace GLEngine::Renderer::Animation {
 C_Pose::C_Pose(std::vector<S_BoneKeyframe>&& keyframe)
 	: m_keyFrame(keyframe)
 {
-
 }
 
 //=================================================================================
@@ -31,11 +30,9 @@ std::vector<glm::mat4> C_Pose::GetModelSpaceTransofrms() const
 	transofrms.resize(m_keyFrame.size());
 
 	std::transform(m_keyFrame.begin(), m_keyFrame.end(), transofrms.begin(),
-		[](const Renderer::Animation::S_BoneKeyframe& keyFrame) {
-			return keyFrame.GetTransformationMatrix();
-		});
+				   [](const Renderer::Animation::S_BoneKeyframe& keyFrame) { return keyFrame.GetTransformationMatrix(); });
 
 	return transofrms;
 }
 
-}
+} // namespace GLEngine::Renderer::Animation

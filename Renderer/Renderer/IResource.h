@@ -3,11 +3,7 @@
 #include <Renderer/IExtractor.h>
 #include <Renderer/IRawGPUData.h>
 
-#include <memory>
-#include <type_traits>
-
-namespace GLEngine {
-namespace Renderer {
+namespace GLEngine::Renderer {
 
 class I_RenderableComponent;
 
@@ -28,7 +24,7 @@ public:
 	virtual std::unique_ptr<I_RawGPUData> ExtractData() const = 0;
 
 	virtual void Invalidate() = 0;
-	virtual bool IsValid() = 0;
+	virtual bool IsValid()	  = 0;
 };
 
 // leave it here for documentation
@@ -39,7 +35,6 @@ public:
 	virtual bool IsValid() override { return false; };
 };*/
 
-}
-}
+} // namespace GLEngine::Renderer
 
 #include <Renderer/IResource.inl>

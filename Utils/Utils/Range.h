@@ -1,13 +1,11 @@
 #pragma once
 
-#include <utility>
 #include <type_traits>
+#include <utility>
 
 
-template<class iterator, class T>
-constexpr bool is_iterator_of_v =
-	std::is_same_v<T, decltype(std::declval<iterator>().operator*())> ||
-	std::is_convertible_v<decltype(std::declval<iterator>().operator*()), T>;
+template <class iterator, class T>
+constexpr bool is_iterator_of_v = std::is_same_v<T, decltype(std::declval<iterator>().operator*())> || std::is_convertible_v<decltype(std::declval<iterator>().operator*()), T>;
 
 namespace Utils {
 /*
@@ -37,7 +35,7 @@ private:
 		}
 
 		iterBase(iterBase&& other)
-			: m_value(std::move(other.m_value)) 
+			: m_value(std::move(other.m_value))
 		{
 			CORE_LOG(E_Level::Error, E_Context::Core, "iterBase(iterBase&& other)");
 		}
@@ -61,8 +59,8 @@ private:
 		template<class U>
 		struct Model : public Concept
 		{
-			Model(U&& val) 
-				: m_Val(std::forward<U>(val)) 
+			Model(U&& val)
+				: m_Val(std::forward<U>(val))
 			{
 				CORE_LOG(E_Level::Error, E_Context::Core, "Model(U&& val)");
 			}
@@ -95,7 +93,7 @@ public:
 
 	C_Range(C_Range&& other)
 		: m_Begin(std::move(other.m_Begin))
-		, m_End(std::move(other.m_End)) 
+		, m_End(std::move(other.m_End))
 	{
 		CORE_LOG(E_Level::Error, E_Context::Core, "const C_Range&& other");
 	}
@@ -110,7 +108,7 @@ public:
 
 	iterBase& begin() {
 		CORE_LOG(E_Level::Error, E_Context::Core, "begin()");
-		return m_Begin; 
+		return m_Begin;
 	}
 	iterBase& end() { return m_End; }
 
@@ -125,24 +123,27 @@ private:
 	iterBase m_End;
 };*/
 
-template<class T>
-struct Range
-{
+template <class T> struct Range {
 	Range(T&& begin, T&& end)
 		: m_begin(std::forward<T>(begin))
-		, m_end(std::forward<T>(end)) {}
+		, m_end(std::forward<T>(end))
+	{
+	}
 
 	Range(Range&& other)
 		: m_begin(other.m_begin)
-		, m_end(other.m_end) {}
+		, m_end(other.m_end)
+	{
+	}
 
 	T& begin() { return m_begin; }
 	T& end() { return m_end; }
 
 	bool empty() const { return m_begin == m_end; }
+
 private:
 	T m_begin;
 	T m_end;
 };
 
-}
+} // namespace Utils

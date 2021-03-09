@@ -5,10 +5,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Buffers {
-namespace UBO {
+namespace GLEngine::GLRenderer::Buffers::UBO {
 
 //=================================================================================
 C_FrameConstantsBuffer::C_FrameConstantsBuffer(const std::string& blockName, unsigned int index)
@@ -16,9 +13,9 @@ C_FrameConstantsBuffer::C_FrameConstantsBuffer(const std::string& blockName, uns
 	, m_AmbientStrength(0.1f)
 	, m_Time(0.0f)
 {
-	const auto matSize = sizeof(glm::mat4);
-	const auto vecSize = sizeof(glm::vec4);
-	const auto vec3Size = sizeof(glm::vec3);
+	const auto matSize	 = sizeof(glm::mat4);
+	const auto vecSize	 = sizeof(glm::vec4);
+	const auto vec3Size	 = sizeof(glm::vec3);
 	const auto floatSize = sizeof(float);
 
 	const auto bytes = 3 * matSize + vecSize + vec3Size + floatSize;
@@ -31,12 +28,12 @@ C_FrameConstantsBuffer::C_FrameConstantsBuffer(const std::string& blockName, uns
 //=================================================================================
 void C_FrameConstantsBuffer::UploadData() const
 {
-	const auto matSize = sizeof(glm::mat4);
-	const auto vecSize = sizeof(glm::vec4);
-	const auto vec3Size = sizeof(glm::vec3);
-	const auto viewProjectionMat = m_ProjectionMat*m_ViewMat;
+	const auto matSize			 = sizeof(glm::mat4);
+	const auto vecSize			 = sizeof(glm::vec4);
+	const auto vec3Size			 = sizeof(glm::vec3);
+	const auto viewProjectionMat = m_ProjectionMat * m_ViewMat;
 	bind();
-	auto *data = (char *)glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
+	auto* data = (char*)glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
 
 	memcpy(data, glm::value_ptr(m_ProjectionMat), matSize);
 	memcpy(data + matSize, glm::value_ptr(m_ViewMat), matSize);
@@ -49,4 +46,4 @@ void C_FrameConstantsBuffer::UploadData() const
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
 	unbind();
 }
-}}}}
+} // namespace GLEngine::GLRenderer::Buffers::UBO

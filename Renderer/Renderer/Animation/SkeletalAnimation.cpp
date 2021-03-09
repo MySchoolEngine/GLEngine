@@ -1,8 +1,7 @@
 #include <RendererStdafx.h>
 
-#include <Renderer/Animation/SkeletalAnimation.h>
-
 #include <Renderer/Animation/Pose.h>
+#include <Renderer/Animation/SkeletalAnimation.h>
 
 namespace GLEngine::Renderer::Animation {
 //=================================================================================
@@ -34,4 +33,4 @@ C_Pose C_SkeletalAnimation::GetPose(const S_Timestamp timestamp) const
 	return C_Pose(std::move(ret));
 }
 
-}
+} // namespace GLEngine::Renderer::Animation

@@ -4,9 +4,7 @@
 
 struct GLFWwindow;
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace GLFW {
+namespace GLEngine::GLRenderer::GLFW {
 
 class C_GLFWInput : public Core::I_Input {
 public:
@@ -24,11 +22,11 @@ public:
 	 * Top left = (0,0)
 	 */
 	[[nodiscard]] virtual std::pair<float, float> GetMousePosition() const override;
-	[[nodiscard]] virtual float GetMouseX() const override;
-	[[nodiscard]] virtual float GetMouseY() const override;
+	[[nodiscard]] virtual float					  GetMouseX() const override;
+	[[nodiscard]] virtual float					  GetMouseY() const override;
 
 protected:
 	GLFWwindow* m_Window;
 };
 
-}}}
+} // namespace GLEngine::GLRenderer::GLFW

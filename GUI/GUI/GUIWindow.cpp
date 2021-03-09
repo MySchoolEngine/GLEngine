@@ -7,11 +7,11 @@
 namespace GLEngine::GUI {
 
 //=================================================================================
-C_Window::C_Window(GUID guid, const std::string& name) : m_GUID(guid)
-, m_Name(name)
-, m_IsVisible(false)
+C_Window::C_Window(GUID guid, const std::string& name)
+	: m_GUID(guid)
+	, m_Name(name)
+	, m_IsVisible(false)
 {
-
 }
 
 //=================================================================================
@@ -35,11 +35,17 @@ void C_Window::Draw() const
 		}
 	}
 
+	DrawComponents();
+	::ImGui::End();
+}
+
+//=================================================================================
+void C_Window::DrawComponents() const
+{
 	for (const auto& component : m_Components)
 	{
 		component.second.get().Draw();
 	}
-	::ImGui::End();
 }
 
 //=================================================================================
@@ -81,4 +87,4 @@ GUID C_Window::AddMenu(T_GUIMenu menuItem)
 	return guid;
 }
 
-}
+} // namespace GLEngine::GUI

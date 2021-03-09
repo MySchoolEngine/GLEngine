@@ -1,8 +1,7 @@
 #include <GLRendererStdafx.h>
 
-#include <GLRenderer/Textures/TextureLoader.h>
-
 #include <GLRenderer/Textures/Texture.h>
+#include <GLRenderer/Textures/TextureLoader.h>
 
 #include <gli/gli.hpp>
 
@@ -18,11 +17,11 @@ std::shared_ptr<GLRenderer::Textures::C_Texture> TextureLoader::LoadAndInitTextu
 
 
 	gli::gl GL(gli::gl::PROFILE_GL33); // todo
-	auto Format = GL.translate(Texture.format(), Texture.swizzles());
-	GLenum Target = GL.translate(Texture.target());
-	//GLenum internalFormat = GL.translate(Format.Internal, Texture.swizzles());
+	auto	Format = GL.translate(Texture.format(), Texture.swizzles());
+	GLenum	Target = GL.translate(Texture.target());
+	// GLenum internalFormat = GL.translate(Format.Internal, Texture.swizzles());
 
-	GLE_ASSERT(Texture.target()== gli::TARGET_2D, "Only 2d supported now");
+	GLE_ASSERT(Texture.target() == gli::TARGET_2D, "Only 2d supported now");
 	auto texture = std::make_shared<Textures::C_Texture>(path.string());
 	texture->StartGroupOp();
 	texture->SetTexParameter(GL_TEXTURE_BASE_LEVEL, 0);
@@ -36,19 +35,12 @@ std::shared_ptr<GLRenderer::Textures::C_Texture> TextureLoader::LoadAndInitTextu
 		glm::tvec3<GLsizei> Extent(Texture.extent(Level));
 		if (gli::is_compressed(Texture.format()))
 		{
-			glCompressedTexSubImage2D(
-				Target, static_cast<GLint>(Level), 0, 0, Extent.x, Extent.y,
-				Format.Internal, static_cast<GLsizei>(Texture.size(Level)), Texture.data(0, 0, Level));
+			glCompressedTexSubImage2D(Target, static_cast<GLint>(Level), 0, 0, Extent.x, Extent.y, Format.Internal, static_cast<GLsizei>(Texture.size(Level)),
+									  Texture.data(0, 0, Level));
 		}
 		else
 		{
-			glTexSubImage2D(
-				Target, static_cast<GLint>(Level),
-				0, 0,
-				Extent.x,
-				Extent.y,
-				Format.External, Format.Type,
-				Texture.data(0, 0, Level));
+			glTexSubImage2D(Target, static_cast<GLint>(Level), 0, 0, Extent.x, Extent.y, Format.External, Format.Type, Texture.data(0, 0, Level));
 		}
 	}
 
@@ -58,4 +50,4 @@ std::shared_ptr<GLRenderer::Textures::C_Texture> TextureLoader::LoadAndInitTextu
 	return texture;
 }
 
-}
+} // namespace GLEngine::GLRenderer::Textures

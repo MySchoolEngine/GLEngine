@@ -21,4 +21,4 @@ bool S_FloatArray::EndOfArray() const
 	return m_Position >= m_NumFloats;
 }
 
-}
+} // namespace GLEngine::Renderer::Animation

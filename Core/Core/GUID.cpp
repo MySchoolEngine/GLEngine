@@ -12,4 +12,4 @@ GUID NextGUID()
 	return nextGUID++;
 }
 
-}
+} // namespace GLEngine

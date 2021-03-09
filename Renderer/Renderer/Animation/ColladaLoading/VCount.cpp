@@ -28,4 +28,4 @@ bool C_VCount::EndOfArray() const
 	return m_IntStream.rdbuf()->in_avail() == 0;
 }
 
-}
+} // namespace GLEngine::Renderer::Animation

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Core/IWindow.h>
+#include <GLRenderer/GLFW/GLFWInput.h>
 
 #include <Core/Application.h>
-#include <GLRenderer/GLFW/GLFWInput.h>
+#include <Core/IWindow.h>
 
 struct GLFWwindow;
 
@@ -12,8 +12,7 @@ namespace Core {
 class I_Input;
 }
 
-namespace GLRenderer {
-namespace GLFW {
+namespace GLRenderer::GLFW {
 class C_GLFWWindow : public Core::I_Window {
 public:
 	virtual ~C_GLFWWindow();
@@ -23,10 +22,10 @@ public:
 	//============================================================
 	virtual unsigned int GetWidth() const override;
 	virtual unsigned int GetHeight() const override;
-	virtual glm::uvec2 GetSize() const override;
-	virtual void SetTitle(const std::string& title) override;
-	virtual void Update() override;
-	virtual bool WantClose() const override;
+	virtual glm::uvec2	 GetSize() const override;
+	virtual void		 SetTitle(const std::string& title) override;
+	virtual void		 Update() override;
+	virtual bool		 WantClose() const override;
 
 	virtual void Init(const Core::S_WindowInfo& wndInfo) override;
 
@@ -44,6 +43,5 @@ protected:
 	GLFWwindow* m_Window;
 	C_GLFWInput m_Input;
 };
-}
-}
-}
+} // namespace GLRenderer::GLFW
+} // namespace GLEngine

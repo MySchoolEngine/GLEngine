@@ -10,7 +10,6 @@ S_Joint::S_Joint(std::size_t index, const std::string& name, glm::mat4 localBind
 	, m_Name(name)
 	, m_InverseBindTransfomr(localBindTransform)
 {
-
 }
 
 //=================================================================================
@@ -36,7 +35,7 @@ S_Joint::S_Joint(S_Joint&& other)
 //=================================================================================
 glm::mat4 S_Joint::GetAnimatedTransform() const
 {
-	//auto mat = glm::translate(glm::mat4(1.f), m_LocalBindTransform);
+	// auto mat = glm::translate(glm::mat4(1.f), m_LocalBindTransform);
 	// TODO!!!
 	return glm::inverse(m_InverseBindTransfomr);
 }
@@ -45,13 +44,13 @@ glm::mat4 S_Joint::GetAnimatedTransform() const
 void S_Joint::ApplyPoseToJoints(std::vector<glm::mat4>& poseData, const glm::mat4& parentTransform) const
 {
 	const auto& currentLocalPose = poseData[m_Id];
-	const auto& currentPose = parentTransform*currentLocalPose;
+	const auto& currentPose		 = parentTransform * currentLocalPose;
 	for (const auto& child : m_Children)
 	{
 		child.ApplyPoseToJoints(poseData, currentPose);
 	}
 	const auto& newPose = currentPose * m_InverseBindTransfomr;
-	poseData[m_Id] = newPose;
+	poseData[m_Id]		= newPose;
 }
 
-}
+} // namespace GLEngine::Renderer::Animation

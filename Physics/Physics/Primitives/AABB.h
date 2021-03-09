@@ -1,12 +1,8 @@
 #pragma once
 
-#include <Physics/Primitives/Shapes.h>
-#include <Physics/Primitives/Ray.h>
 #include <Physics/Primitives/Intersectable.h>
-
-#include <glm/glm.hpp>
-
-#include <array>
+#include <Physics/Primitives/Ray.h>
+#include <Physics/Primitives/Sphere.h>
 
 namespace GLEngine::Physics::Primitives {
 
@@ -16,9 +12,10 @@ public:
 		: m_Min(0.0f, 0.0f, 0.0f)
 		, m_Max(0.0f, 0.0f, 0.0f)
 		, m_Initialised(false)
-	{}
+	{
+	}
 
-	[[nodiscard]] inline float	IntersectImpl(const S_Ray& ray) const
+	[[nodiscard]] inline float IntersectImpl(const S_Ray& ray) const
 	{
 		if (!m_Initialised)
 		{
@@ -32,23 +29,23 @@ public:
 			LEFT,
 			MIDDLE
 		};
-		bool inside = true;
+		bool				 inside = true;
 		std::array<float, 3> candidatePlane;
 		std::array<float, 3> maxT;
-		quadrantName quadrant[3];
+		quadrantName		 quadrant[3];
 		for (int i = 0; i < 3; ++i)
 		{
 			if (ray.origin[i] < m_Min[i])
 			{
-				quadrant[i] = quadrantName::LEFT;
+				quadrant[i]		  = quadrantName::LEFT;
 				candidatePlane[i] = m_Min[i];
-				inside = false;
+				inside			  = false;
 			}
 			else if (ray.origin[i] > m_Max[i])
 			{
-				quadrant[i] = quadrantName::RIGHT;
+				quadrant[i]		  = quadrantName::RIGHT;
 				candidatePlane[i] = m_Max[i];
-				inside = false;
+				inside			  = false;
 			}
 			else
 			{
@@ -73,17 +70,20 @@ public:
 				whichPlane = i;
 
 		/* Check final candidate actually inside box */
-		if (maxT[whichPlane] < 0) return maxT[whichPlane];
+		if (maxT[whichPlane] < 0)
+			return maxT[whichPlane];
 
 		glm::vec3 coord;
-		
+
 		for (int i = 0; i < 3; i++)
-			if (whichPlane != i) {
+			if (whichPlane != i)
+			{
 				coord[i] = ray.origin[i] + maxT[whichPlane] * ray.direction[i];
 				if (coord[i] < m_Min[i] || coord[i] > m_Max[i])
 					return -1.f;
 			}
-			else {
+			else
+			{
 				coord[i] = candidatePlane[i];
 			}
 
@@ -117,10 +117,7 @@ public:
 		if (point.z > m_Max.z)
 			m_Max.z = point.z;
 	}
-	constexpr void Add(const glm::vec4& point)
-	{
-		Add(glm::vec3(point));
-	}
+	constexpr void Add(const glm::vec4& point) { Add(glm::vec3(point)); }
 	constexpr void Add(const S_AABB& bbox)
 	{
 		if (!bbox.m_Initialised)
@@ -133,12 +130,12 @@ public:
 	constexpr void Add(const S_Sphere& sphere)
 	{
 		const auto pos = sphere.m_position;
-		Add(glm::vec3(pos.x+1, pos.y, pos.z));
-		Add(glm::vec3(pos.x-1, pos.y, pos.z));
-		Add(glm::vec3(pos.x, pos.y+1, pos.z));
-		Add(glm::vec3(pos.x, pos.y-1, pos.z));
-		Add(glm::vec3(pos.x, pos.y, pos.z+1));
-		Add(glm::vec3(pos.x, pos.y, pos.z-1));
+		Add(glm::vec3(pos.x + 1, pos.y, pos.z));
+		Add(glm::vec3(pos.x - 1, pos.y, pos.z));
+		Add(glm::vec3(pos.x, pos.y + 1, pos.z));
+		Add(glm::vec3(pos.x, pos.y - 1, pos.z));
+		Add(glm::vec3(pos.x, pos.y, pos.z + 1));
+		Add(glm::vec3(pos.x, pos.y, pos.z - 1));
 	}
 
 	constexpr void updateWithTriangle(const glm::vec4* triangleVertices)
@@ -151,7 +148,7 @@ public:
 	[[nodiscard]] S_Sphere GetSphere() const
 	{
 		glm::vec3 center = m_Min + (m_Max - m_Min) / 2.0f;
-		float radius = glm::abs(glm::length(m_Max - center));
+		float	  radius = glm::abs(glm::length(m_Max - center));
 		return S_Sphere(center, radius);
 	}
 	[[nodiscard]] constexpr S_AABB getTransformedAABB(const glm::mat4 matrix) const
@@ -178,6 +175,6 @@ public:
 
 	glm::vec3 m_Min;
 	glm::vec3 m_Max;
-	bool			m_Initialised;
+	bool	  m_Initialised;
 };
-}
+} // namespace GLEngine::Physics::Primitives

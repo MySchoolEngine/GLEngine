@@ -1,13 +1,12 @@
 #include <RendererStdafx.h>
 
+#include <Renderer/Animation/AnimationStructures.h>
 #include <Renderer/Animation/ColladaLoading/ColladaLoader.h>
-
 #include <Renderer/Animation/ColladaLoading/FloatArray.h>
 #include <Renderer/Animation/ColladaLoading/VCount.h>
-
-#include <Renderer/Animation/Skeleton.h>
 #include <Renderer/Animation/SkeletalAnimation.h>
-#include <Renderer/Animation/AnimationStructures.h>
+#include <Renderer/Animation/Skeleton.h>
+#include <Renderer/Mesh/Scene.h>
 
 #include <Utils/Parsing/MatrixParse.h>
 
@@ -19,15 +18,14 @@
 namespace GLEngine::Renderer::Animation {
 
 //=================================================================================
-bool C_ColladaLoader::addModelFromDAEFileToScene(
-	const char* filepath,
-	const char* filename,
-	MeshData::Mesh& oMesh,
-	std::string& textureName,
-	C_Skeleton& skeleton,
-	C_SkeletalAnimation& animation,
-	MeshData::AnimationData& animData,
-	glm::mat4& transform)
+bool C_ColladaLoader::addModelFromDAEFileToScene(const char*			  filepath,
+												 const char*			  filename,
+												 MeshData::Mesh&		  oMesh,
+												 std::string&			  textureName,
+												 C_Skeleton&			  skeleton,
+												 C_SkeletalAnimation&	  animation,
+												 MeshData::AnimationData& animData,
+												 glm::mat4&				  transform)
 {
 	std::string name;
 	name.append(filepath);
@@ -38,7 +36,8 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 
 	pugi::xml_parse_result result;
 	result = doc.load_file(name.c_str());
-	if (!result.status == pugi::status_ok) {
+	if (!result.status == pugi::status_ok)
+	{
 		CORE_LOG(E_Level::Error, E_Context::Core, "Can't open dae file: {}", name);
 		return false;
 	}
@@ -62,7 +61,7 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 		}
 		else if (upAxe == "Y_UP")
 		{
-			//do nothing
+			// do nothing
 		}
 		else
 		{
@@ -75,9 +74,9 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 		textureName = imageLibrary.child_value();
 	}
 
-	std::map<std::string, S_Joint> joints; 
-	std::vector<glm::ivec3> jointIndices;
-	std::vector<glm::vec3>	jointWeights;
+	std::map<std::string, S_Joint> joints;
+	std::vector<glm::ivec3>		   jointIndices;
+	std::vector<glm::vec3>		   jointWeights;
 	if (auto controllerLibrary = colladaNode.child("library_controllers"))
 	{
 		if (auto skinXML = controllerLibrary.child("controller").child("skin"))
@@ -97,8 +96,8 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 			std::vector<glm::vec4> vertices;
 			std::vector<glm::vec3> normals;
 			std::vector<glm::vec2> texCoords;
-			std::string_view id = geom.attribute("name").as_string();
-			
+			std::string_view	   id = geom.attribute("name").as_string();
+
 			oMesh.m_name = geom.attribute("name").as_string();
 			if (auto xmlMesh = geom.child("mesh"))
 			{
@@ -145,7 +144,7 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 					else
 					{
 						// it's against standard, but we can recover from this error
-						// we use this information only for optimize 
+						// we use this information only for optimize
 						CORE_LOG(E_Level::Warning, E_Context::Core, "<triangles> element misses required attribute count.");
 					}
 
@@ -155,7 +154,7 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 					oMesh.texcoords.reserve(count * 3);
 					if (auto indiceList = polylist.child("p"))
 					{
-						std::string_view indiceListString = indiceList.child_value();
+						std::string_view  indiceListString = indiceList.child_value();
 						std::stringstream indicesStream;
 						indicesStream << indiceListString;
 						int v, n, t, c;
@@ -179,13 +178,13 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 					else
 					{
 						// it's against standard, but we can recover from this error
-						// we use this information only for optimize 
+						// we use this information only for optimize
 						CORE_LOG(E_Level::Warning, E_Context::Core, "<triangles> element misses required attribute count.");
 					}
 
 					if (auto indiceList = triangles.child("p"))
 					{
-						std::string_view indiceListString = indiceList.child_value();
+						std::string_view  indiceListString = indiceList.child_value();
 						std::stringstream indicesStream;
 						indicesStream << indiceListString;
 						int v, n, t0;
@@ -202,7 +201,6 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 							oMesh.texcoords.emplace_back(texCoords[t0]);
 						}
 					}
-
 				}
 			}
 		}
@@ -215,25 +213,16 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 			if (const auto BSMatrix = skinXML.child("bind_shape_matrix"))
 			{
 				std::stringstream ss(BSMatrix.child_value());
-				float f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16;
+				float			  f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16;
 
-				ss
-					>> f1 >> f2 >> f3 >> f4
-					>> f5 >> f6 >> f7 >> f8
-					>> f9 >> f10 >> f11 >> f12
-					>> f13 >> f14 >> f15 >> f16;
+				ss >> f1 >> f2 >> f3 >> f4 >> f5 >> f6 >> f7 >> f8 >> f9 >> f10 >> f11 >> f12 >> f13 >> f14 >> f15 >> f16;
 
-				// Contains sixteen floating-point numbers representing 
-				// a four-by-four matrix in column-major order; it is 
-				//written in row-major order in the COLLADA document 
+				// Contains sixteen floating-point numbers representing
+				// a four-by-four matrix in column-major order; it is
+				// written in row-major order in the COLLADA document
 				// for human readability
 				// thus we need transpose
-				transform = glm::transpose(glm::mat4(
-					f1, f2, f3, f4,
-					f5, f6, f7, f8,
-					f9, f10, f11, f12,
-					f13, f14, f15, f16
-				));
+				transform = glm::transpose(glm::mat4(f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16));
 			}
 			LoadJointsInvMatrices(joints, skinXML, noramlizingMatrix);
 		}
@@ -254,15 +243,15 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 					CORE_LOG(E_Level::Warning, E_Context::Render, "Skeleton definition should contain only 1 root joint");
 				}
 
-				auto rootNode = *(xmlNode.children("node").begin());
-				std::string_view boneName = rootNode.attribute("sid").as_string();
-				const auto rootJoint = joints.find(boneName.data());
+				auto			 rootNode  = *(xmlNode.children("node").begin());
+				std::string_view boneName  = rootNode.attribute("sid").as_string();
+				const auto		 rootJoint = joints.find(boneName.data());
 				if (rootJoint == joints.end())
 				{
 					CORE_LOG(E_Level::Error, E_Context::Render, "Bone '{}' referenced in file '{}' doesn't exiests.", boneName, name);
 					return false;
 				}
-				skeleton.m_Root = std::make_unique<S_Joint>(rootJoint->second);
+				skeleton.m_Root		= std::make_unique<S_Joint>(rootJoint->second);
 				skeleton.m_NumBones = m_JointNames.size();
 				if (!ParseChildrenJoints(*skeleton.m_Root.get(), rootNode, joints))
 				{
@@ -277,10 +266,10 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(
 		animation = C_SkeletalAnimation(m_JointNames.size());
 		for (const auto& animationXML : animationLibrary.children("animation"))
 		{
-			std::string_view id = animationXML.attribute("id").as_string();
-			const auto underscoreIndex = id.find('_') + 1;
-			std::string boneIdName(id.substr(underscoreIndex, id.find("_pose_matrix") - underscoreIndex));
-			const auto boneId = GetBoneId(boneIdName);
+			std::string_view id				 = animationXML.attribute("id").as_string();
+			const auto		 underscoreIndex = id.find('_') + 1;
+			std::string		 boneIdName(id.substr(underscoreIndex, id.find("_pose_matrix") - underscoreIndex));
+			const auto		 boneId = GetBoneId(boneIdName);
 			if (boneId < 0)
 			{
 				CORE_LOG(E_Level::Warning, E_Context::Render, "Referenced bone '{}' but not found", boneIdName);
@@ -309,7 +298,7 @@ void C_ColladaLoader::LoadJoints(const pugi::xml_node& skinXML)
 			const std::size_t numBones = nameArray.attribute("count").as_int();
 			m_JointNames.reserve(numBones);
 			const std::string_view names = nameArray.child_value();
-			std::stringstream ss;
+			std::stringstream	   ss;
 			ss << names;
 			std::string name;
 			while (ss >> name)
@@ -334,11 +323,11 @@ void C_ColladaLoader::LoadJointsInvMatrices(std::map<std::string, S_Joint>& join
 		if (const auto floatArray = xmlSource.child("float_array"))
 		{
 			S_FloatArray floats(floatArray);
-			int i = 0;
+			int			 i = 0;
 			for (const auto& name : m_JointNames)
 			{
 				const auto bindMatrix = glm::transpose(normalizinMatrix * floats.Get<glm::mat4>());
-				joints.insert({ name, S_Joint(i, name, bindMatrix) });
+				joints.insert({name, S_Joint(i, name, bindMatrix)});
 				++i;
 			}
 		}
@@ -351,12 +340,12 @@ bool C_ColladaLoader::ParseChildrenJoints(S_Joint& parent, const pugi::xml_node&
 	for (const auto& node : xmlParent.children("node"))
 	{
 		std::string_view boneName = node.attribute("sid").as_string();
-		const auto joint = joints.find(boneName.data());
+		const auto		 joint	  = joints.find(boneName.data());
 		if (joint == joints.end())
 		{
 			CORE_LOG(E_Level::Error, E_Context::Render, "Bone '{}' referenced doesn't exiests.", boneName);
 			continue;
-			//return false;
+			// return false;
 		}
 		auto& includedJoint = parent.m_Children.emplace_back(joint->second);
 		if (!ParseChildrenJoints(includedJoint, node, joints))
@@ -403,7 +392,7 @@ C_BoneTimeline C_ColladaLoader::LoadBoneTimeline(const pugi::xml_node& node, con
 		}
 	}
 	C_BoneTimeline timeline(floatArrays[0].count<float>());
-	std::size_t index = 0;
+	std::size_t	   index = 0;
 	while (floatArrays[0].EndOfArray() == false)
 	{
 		timeline.AddBoneKeyFrame(index, S_BoneKeyframe(glm::transpose(floatArrays[1].Get<glm::mat4>()), floatArrays[0].Get<float>()));
@@ -437,14 +426,14 @@ void C_ColladaLoader::LoadAnimData(const pugi::xml_node& skinXML, std::vector<gl
 
 	if (auto vertex_weights = skinXML.child("vertex_weights"))
 	{
-		C_VCount vcount(vertex_weights.child("vcount"));
-		C_VCount v(vertex_weights.child("v"));
+		C_VCount	vcount(vertex_weights.child("vcount"));
+		C_VCount	v(vertex_weights.child("v"));
 		std::size_t vertexIndex = 0;
 		while (vcount.EndOfArray() == false)
 		{
 			glm::ivec3 jointIndicesVec;
 			glm::vec3  jointWeights;
-			const int jointsNum = vcount.Get();
+			const int  jointsNum = vcount.Get();
 			if (jointsNum > 3)
 			{
 				CORE_LOG(E_Level::Warning, E_Context::Render, "Only 3 joints per vertex are supported");
@@ -454,22 +443,22 @@ void C_ColladaLoader::LoadAnimData(const pugi::xml_node& skinXML, std::vector<gl
 				if (i >= jointsNum)
 				{
 					jointIndicesVec[i] = 0;
-					jointWeights[i] = 0.f;
+					jointWeights[i]	   = 0.f;
 					continue;
 				}
 
-				const auto jointIndex = v.Get();
+				const auto jointIndex  = v.Get();
 				const auto weightIndex = v.Get();
-				const auto weight = weightsVec[weightIndex];
+				const auto weight	   = weightsVec[weightIndex];
 
 
 				jointIndicesVec[i] = jointIndex;
-				jointWeights[i] = weight;
+				jointWeights[i]	   = weight;
 			}
 			for (int i = 3; i < jointsNum; ++i)
 			{
 				auto trash = v.Get();
-				trash = v.Get();
+				trash	   = v.Get();
 			}
 
 			jointWeights = glm::normalize(jointWeights);
@@ -482,4 +471,4 @@ void C_ColladaLoader::LoadAnimData(const pugi::xml_node& skinXML, std::vector<gl
 	}
 }
 
-}
+} // namespace GLEngine::Renderer::Animation

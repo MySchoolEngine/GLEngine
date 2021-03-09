@@ -10,7 +10,6 @@ namespace GLEngine::GLRenderer::Shaders {
 C_ShaderCompiler::C_ShaderCompiler(bool preprocessorOutput /*= false*/)
 	: m_PreprocessorOutput(preprocessorOutput)
 {
-
 }
 
 //=================================================================================
@@ -34,9 +33,9 @@ bool C_ShaderCompiler::compileShader(GLuint& shader, const std::filesystem::path
 	src = preproces.PreprocessFile(src, filepath.parent_path().generic_string() + "/");
 	if (m_PreprocessorOutput)
 	{
-		std::ofstream debugOutput;
+		std::ofstream				debugOutput;
 		const std::filesystem::path debugPath("obj/" + filepath.generic_string() + ".o");
-		const auto debugDirectory = debugPath.parent_path();
+		const auto					debugDirectory = debugPath.parent_path();
 		if (!std::filesystem::exists(debugDirectory))
 		{
 			if (!std::filesystem::create_directories(debugDirectory))
@@ -68,7 +67,7 @@ bool C_ShaderCompiler::compileShader(GLuint& shader, const std::filesystem::path
 	glShaderSource(shader, 1, &cstr, NULL);
 	glCompileShader(shader);
 
-	//Compilation log
+	// Compilation log
 	GLint result = 0;
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
 	if (result == GL_FALSE)
@@ -113,7 +112,7 @@ bool C_ShaderCompiler::linkProgram(GLuint& program, size_t count, ...)
 
 	glLinkProgram(program);
 
-	//Check link
+	// Check link
 	int status = 0;
 	glGetProgramiv(program, GL_LINK_STATUS, &status);
 
@@ -139,7 +138,7 @@ bool C_ShaderCompiler::linkProgram(GLuint& program, size_t count, ...)
 }
 
 //=================================================================================
-bool C_ShaderCompiler::linkProgram(GLuint & program, const std::vector<GLuint>& shaders)
+bool C_ShaderCompiler::linkProgram(GLuint& program, const std::vector<GLuint>& shaders)
 {
 	program = glCreateProgram();
 
@@ -149,14 +148,14 @@ bool C_ShaderCompiler::linkProgram(GLuint & program, const std::vector<GLuint>& 
 		return false;
 	}
 
-	for (auto & shader : shaders)
+	for (auto& shader : shaders)
 	{
 		glAttachShader(program, shader);
 	}
 
 	glLinkProgram(program);
 
-	//Check link
+	// Check link
 	int status = 0;
 	glGetProgramiv(program, GL_LINK_STATUS, &status);
 
@@ -202,8 +201,8 @@ bool C_ShaderCompiler::_loadFile(const std::filesystem::path& file, std::string&
 		return false;
 
 	content = std::string(std::istream_iterator<char>(stream >> std::noskipws), std::istream_iterator<char>());
-	stream.close(); //dr
+	stream.close(); // dr
 	return true;
 }
 
-}
+} // namespace GLEngine::GLRenderer::Shaders
