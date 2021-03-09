@@ -307,19 +307,6 @@ void C_ExplerimentWindow::OnAppInit()
 		entitiesWindow->SetVisible();
 	}
 
-	{
-		const auto levelSelectorGUID = NextGUID();
-		auto*	   levelSelectWindwo = new GUI::C_FileDialogWindow(
-			 ".xml", "Select level",
-			 [&, levelSelectorGUID](const std::filesystem::path& level) {
-			 SetupWorld(level);
-			 m_ImGUI->GetGUIMgr().DestroyWindow(levelSelectorGUID);
-		 },
-			 levelSelectorGUID, "./Levels");
-		guiMGR.AddCustomWindow(levelSelectWindwo);
-		levelSelectWindwo->SetVisible();
-	}
-
 	m_FrameStatsGUID = guiMGR.CreateGUIWindow("Frame stats");
 	auto* frameStats = guiMGR.GetWindow(m_FrameStatsGUID);
 
@@ -342,6 +329,19 @@ void C_ExplerimentWindow::OnAppInit()
 
 	const auto rendererWindow = static_cast<C_OGLRenderer*>(m_renderer.get())->SetupControls(guiMGR);
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Renderer", rendererWindow, guiMGR));
+
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Open level", [&]() {
+		const auto levelSelectorGUID = NextGUID();
+		auto*	   levelSelectWindwo = new GUI::C_FileDialogWindow(
+			 ".xml", "Select level",
+			 [&, levelSelectorGUID](const std::filesystem::path& level) {
+				 SetupWorld(level);
+				 m_ImGUI->GetGUIMgr().DestroyWindow(levelSelectorGUID);
+			 },
+			 levelSelectorGUID, "./Levels");
+		guiMGR.AddCustomWindow(levelSelectWindwo);
+		levelSelectWindwo->SetVisible();
+	}));
 }
 
 //=================================================================================
