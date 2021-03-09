@@ -62,6 +62,7 @@ public:
 
 protected:
 	[[nodiscard]] std::size_t GetAddress(const glm::ivec2& uv) const;
+	[[nodiscard]] std::size_t GetPixelAddress(const glm::ivec2& uv) const;
 	[[nodiscard]] glm::vec2	  GetPixelCoord(const glm::vec2& uv) const;
 	[[nodiscard]] bool		  IsOutsideBorders(const glm::vec2& uv) const;
 	[[nodiscard]] glm::ivec2  ClampCoordinates(const glm::ivec2& uv) const;
@@ -74,6 +75,7 @@ protected:
 
 template <> glm::vec4  C_TextureView::GetBorderColor() const;
 template <> glm::ivec4 C_TextureView::GetBorderColor() const;
+template <> glm::vec3  C_TextureView::GetBorderColor() const;
 
 // Represents texture view as described in
 // @source:	http://jcgt.org/published/0003/02/01/paper.pdf
