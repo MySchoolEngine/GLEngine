@@ -30,6 +30,7 @@
 #include <Renderer/Textures/TextureView.h>
 
 #include <GUI/ConsoleWindow.h>
+#include <GUI/FileDialogWindow.h>
 
 #include <Physics/Primitives/Intersection.h>
 #include <Physics/Primitives/Ray.h>
@@ -252,7 +253,7 @@ void C_ExplerimentWindow::OnAppInit()
 	}
 	SetupWorld("Levels/dark.xml");
 
-	m_HDRFBO = std::make_unique<C_Framebuffer>("HDR");
+	m_HDRFBO		= std::make_unique<C_Framebuffer>("HDR");
 	auto HDRTexture = std::make_shared<Textures::C_Texture>("hdrTexture");
 
 	HDRTexture->bind();
@@ -275,7 +276,7 @@ void C_ExplerimentWindow::OnAppInit()
 	m_HDRFBO->AttachTexture(GL_DEPTH_STENCIL_ATTACHMENT, depthStencilTexture);
 	depthStencilTexture->unbind();
 
-	
+
 	auto& guiMGR = m_ImGUI->GetGUIMgr();
 
 	// Console window
@@ -304,6 +305,19 @@ void C_ExplerimentWindow::OnAppInit()
 		auto entitiesWindow = new Entity::C_EntitiesWindow(m_EntitiesWindowGUID, m_World);
 		guiMGR.AddCustomWindow(entitiesWindow);
 		entitiesWindow->SetVisible();
+	}
+
+	{
+		const auto levelSelectorGUID = NextGUID();
+		auto*	   levelSelectWindwo = new GUI::C_FileDialogWindow(
+			 ".xml", "Select level",
+			 [&, levelSelectorGUID](const std::filesystem::path& level) {
+			 SetupWorld(level);
+			 //m_ImGUI->GetGUIMgr().DestroyWindow(levelSelectorGUID);
+		 },
+			 levelSelectorGUID, "./Levels");
+		guiMGR.AddCustomWindow(levelSelectWindwo);
+		levelSelectWindwo->SetVisible();
 	}
 
 	m_FrameStatsGUID = guiMGR.CreateGUIWindow("Frame stats");
@@ -382,8 +396,8 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 		m_CamManager.ActivateCamera(playerCamera);
 
 		// area light
-		auto arealight = std::make_shared<C_GLAreaLight>(player);
-		player->AddComponent(arealight);
+		// auto arealight = std::make_shared<C_GLAreaLight>(player);
+		// player->AddComponent(arealight);
 		//
 		// m_ShadowPass = std::make_shared<C_ShadowMapTechnique>(m_World, std::static_pointer_cast<Renderer::I_Light>( arealight));
 	}
