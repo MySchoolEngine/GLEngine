@@ -43,7 +43,6 @@
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/EventDispatcher.h>
 
-#include <ImGuiFileDialog/ImGuiFileDialog.h>
 #include <pugixml.hpp>
 
 #include <imgui.h>
