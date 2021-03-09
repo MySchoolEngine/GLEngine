@@ -313,7 +313,7 @@ void C_ExplerimentWindow::OnAppInit()
 			 ".xml", "Select level",
 			 [&, levelSelectorGUID](const std::filesystem::path& level) {
 			 SetupWorld(level);
-			 //m_ImGUI->GetGUIMgr().DestroyWindow(levelSelectorGUID);
+			 m_ImGUI->GetGUIMgr().DestroyWindow(levelSelectorGUID);
 		 },
 			 levelSelectorGUID, "./Levels");
 		guiMGR.AddCustomWindow(levelSelectWindwo);

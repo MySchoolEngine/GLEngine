@@ -196,6 +196,7 @@ bool C_RayTraceWindow::IsRunning() const
 //=================================================================================
 void C_RayTraceWindow::RequestDestroy()
 {
+	GUI::C_Window::RequestDestroy();
 	StopAll();
 }
 

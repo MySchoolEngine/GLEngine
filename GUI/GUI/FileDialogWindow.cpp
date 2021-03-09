@@ -40,7 +40,7 @@ void C_FileDialogWindow::Draw() const
 		}
 		else
 		{
-			//CORE_LOG(E_Level::Error, E_Context::Core, "Not ok");
+			m_WantToBeDestroyed = true;
 		}
 	}
 }
