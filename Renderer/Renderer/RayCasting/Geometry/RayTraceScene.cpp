@@ -1,5 +1,6 @@
 #include <RendererStdafx.h>
 
+#include <Renderer/Mesh/Loading/ModelLoader.h>
 #include <Renderer/RayCasting/Geometry/RayTraceScene.h>
 #include <Renderer/RayCasting/Geometry/SceneGeometry.h>
 #include <Renderer/RayCasting/Light/ILight.h>
@@ -73,13 +74,14 @@ C_RayTraceScene::C_RayTraceScene()
 		AddObejct(triangle1);
 	}
 
-	{
+	if(false){
 		// sphere
 		auto sphere = std::make_shared<C_Primitive<S_Sphere>>(S_Sphere{{-1.5f, -1.f, -1.5f}, 1.f});
 		sphere->SetMaterial(blue);
 		AddObejct(std::move(sphere));
 	}
 
+	if (false)
 	{
 		// sphere
 		auto sphere = std::make_shared<C_Primitive<S_Sphere>>(S_Sphere{{.8f, 0.f, .5f}, 1.f});
@@ -96,6 +98,16 @@ C_RayTraceScene::C_RayTraceScene()
 
 		auto areaLight = std::make_shared<RayTracing::C_AreaLight>(glm::vec3(1.f, 1.f, .3f) * 10.f, areaLightDisc);
 		AddLight(std::move(areaLight));
+	}
+
+	{
+		// model
+		auto					 scene = std::make_shared<MeshData::Scene>();
+		std::vector<std::string> textures;
+		Mesh::ModelLoader		 ml;
+		ml.Reset();
+		if (ml.addModelFromFileToScene("Models/sword/baphomet-sword-mostruario.obj", scene, textures))
+			AddMesh(scene->meshes[0]);
 	}
 #else
 	auto							plane = std::make_shared<C_Primitive<S_Plane>>(S_Plane(glm::vec3(1, 0, 0), {-3.f, 0.f, 0.f}));
@@ -197,6 +209,19 @@ void C_RayTraceScene::ForEachLight(std::function<void(const std::reference_wrapp
 {
 	std::for_each(m_AreaLights.begin(), m_AreaLights.end(), [&](const std::shared_ptr<RayTracing::C_AreaLight>& light) { fnc(*(light.get())); });
 	std::for_each(m_PointLights.begin(), m_PointLights.end(), [&](const std::shared_ptr<RayTracing::C_PointLight>& light) { fnc(*(light.get())); });
+}
+
+//=================================================================================
+void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh)
+{
+	using namespace Physics::Primitives;
+	static const MeshData::Material blue{glm::vec4{}, glm::vec4{0, 0, 255, 0}, glm::vec4{}, 1.f, 0};
+	for (auto it = mesh.vertices.begin(); it != mesh.vertices.end(); it += 3)
+	{
+		auto triangle = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle(glm::vec3(*it), glm::vec3(*(it + 1)), glm::vec3(*(it + 2))));
+		triangle->SetMaterial(blue);
+		AddObejct(triangle);
+	}
 }
 
 } // namespace GLEngine::Renderer

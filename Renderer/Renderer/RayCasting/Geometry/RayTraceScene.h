@@ -10,6 +10,10 @@ namespace GLEngine::Renderer {
 class C_RayIntersection;
 class I_RayGeometryObject;
 
+namespace MeshData {
+struct Mesh;
+}
+
 namespace RayTracing {
 class I_RayLight;
 class C_AreaLight;
@@ -28,6 +32,7 @@ public:
 	void			   AddObejct(std::shared_ptr<I_RayGeometryObject>&& object);
 	void			   AddLight(std::shared_ptr<RayTracing::C_AreaLight>&& light);
 	void			   AddLight(std::shared_ptr<RayTracing::C_PointLight>&& light);
+	void			   AddMesh(const MeshData::Mesh& mesh);
 
 	void ForEachLight(std::function<void(const std::reference_wrapper<const RayTracing::I_RayLight>& light)> fnc) const;
 
