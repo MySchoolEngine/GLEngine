@@ -26,6 +26,9 @@ project "ImGuiFileDialog"
         {
             "../../../%{IncludeDir.dirent}",
         }
+
+    filter "system:linux"
+        pic "On"
         
     filter "configurations:Debug"
         runtime "Debug"
