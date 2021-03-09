@@ -34,6 +34,7 @@ workspace "Engine"
 		"FMT_HEADER_ONLY=1",
 		"CORE_PLATFORM_WIN=1",
 		"CORE_PLATFORM_LINUX=2",
+		"GLM_ENABLE_EXPERIMENTAL",
 	}
 
 	workspace_files{
