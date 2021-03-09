@@ -346,6 +346,18 @@ void C_TerrainMesh::DebugDraw()
 }
 
 //=================================================================================
+std::string_view C_TerrainMesh::GetDebugComponentName() const
+{
+	return "Terrain";
+}
+
+//=================================================================================
+bool C_TerrainMesh::HasDebugDrawGUI() const
+{
+	return true;
+}
+
+//=================================================================================
 void C_TerrainMesh::OnEvent(Core::I_Event& event)
 {
 	event.m_Handeld = true;

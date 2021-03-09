@@ -11,7 +11,7 @@
  
 #pragma once
 
-#include <GLRenderer\Buffers\UniformBuffer.h>
+#include <GLRenderer/Buffers/UniformBuffer.h>
 
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>

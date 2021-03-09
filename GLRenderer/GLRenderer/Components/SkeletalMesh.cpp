@@ -1,4 +1,4 @@
-#include <GLRendererStdAfx.h>
+#include <GLRendererStdafx.h>
 
 #include <GLRenderer/Components/SkeletalMesh.h>
 
@@ -8,14 +8,13 @@
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 
-#include <Renderer/Animation/ColladaLoading/ColladaLoader.h>
-#include <Renderer/Mesh/Scene.h>
-#include <GLRenderer/Textures/TextureUnitManager.h>
-
 #include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
+#include <GLRenderer/Textures/TextureManager.h>
+#include <GLRenderer/Textures/TextureUnitManager.h>
 
-#include <Renderer/Textures/TextureLoader.h>
+#include <Renderer/Animation/ColladaLoading/ColladaLoader.h>
+#include <Renderer/Mesh/Scene.h>
 #include <Renderer/IRenderer.h>
 
 #include <Utils/HighResolutionTimer.h>
@@ -28,14 +27,16 @@
 
 #include <GLRenderer/Debug.h>
 
-
 #include <pugixml.hpp>
+
+#include <imgui.h>
 
 namespace GLEngine::GLRenderer::Components {
 
 //=================================================================================
 void C_SkeletalMesh::DebugDrawGUI()
 {
+	const static auto zeroVec = glm::vec4(0.f, 0.f, .0f, 1.f);
 	m_RenderMesh.Draw();
 	m_AnimationProgress.Draw();
 
@@ -43,7 +44,7 @@ void C_SkeletalMesh::DebugDrawGUI()
 	DrawJointGUI = [&DrawJointGUI](const Renderer::Animation::S_Joint& joint)
 	{
 		if (::ImGui::CollapsingHeader(joint.m_Name.c_str())) {
-			auto& pos = (joint.GetAnimatedTransform()) * glm::vec4(0.f, 0.f, .0f, 1.f);
+			const auto& pos = (joint.GetAnimatedTransform()) * zeroVec;
 			::ImGui::Text("Original pos: [%f, %f, %f]", pos.x, pos.y, pos.z);
 			for (const auto& child : joint.m_Children)
 			{
@@ -51,9 +52,20 @@ void C_SkeletalMesh::DebugDrawGUI()
 			}
 		}
 	};
-	if (::ImGui::CollapsingHeader("Skeleton")) {
-		DrawJointGUI(*(m_Skeleton.m_Root.get()));
-	}
+
+	DrawJointGUI(*(m_Skeleton.m_Root.get()));
+}
+
+//=================================================================================
+std::string_view C_SkeletalMesh::GetDebugComponentName() const
+{
+	return "Skeleton";
+}
+
+//=================================================================================
+bool C_SkeletalMesh::HasDebugDrawGUI() const
+{
+	return true;
 }
 
 //=================================================================================
@@ -73,7 +85,7 @@ void C_SkeletalMesh::PerformDraw() const
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
 		std::move(
 			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[&]() {
+				[&, shader]() {
 					shader->SetUniform("modelMatrix", m_ModelMatrix * glm::rotate(-glm::half_pi<float>(), glm::vec3(1.f, .0f, .0f)));
 
 					m_VAO.bind();
@@ -150,18 +162,12 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, std::str
 		texurePath.replace(escapeSequence, 3, " ");
 	}
 
-	Renderer::Textures::TextureLoader tl;
-	Renderer::MeshData::Texture t;
-	bool retval = tl.loadTexture(texurePath.c_str(), t);
+	auto& tmgr = Textures::C_TextureManager::Instance();
+	m_Texture = tmgr.GetTexture(texurePath);
+	if (!m_Texture)
+		return;
 
-	if (!retval)
-	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Texture '{}' cannot be loaded", textureName);
-	}
-
-	m_Texture = std::make_shared<Textures::C_Texture>(textureName);
 	m_Texture->StartGroupOp();
-	m_Texture->SetTexData2D(0, t);
 	m_Texture->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
 	m_Texture->SetFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 	m_Texture->GenerateMipMaps();
@@ -200,7 +206,7 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, std::str
 }
 
 //=================================================================================
-GLEngine::Physics::Primitives::S_AABB C_SkeletalMesh::GetAABB() const
+Physics::Primitives::S_AABB C_SkeletalMesh::GetAABB() const
 {
 	return m_AABB;
 }

@@ -2,8 +2,6 @@
 
 #include <GLRenderer/Windows/ExperimentWindow.h>
 
-#include <GLRenderer/Cameras/OrbitalCamera.h>
-
 #include <GLRenderer/Commands/GLEnable.h>
 #include <GLRenderer/Commands/GlClearColor.h>
 #include <GLRenderer/Commands/GLCullFace.h>
@@ -17,11 +15,10 @@
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 
-#include <GLRenderer/ImGui/ImGuiLayer.h>
+#include <GLRenderer/ImGui/GLImGUILayer.h>
 
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 
-#include <GLRenderer/Textures/TextureLoader.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 
 #include <GLRenderer/Buffers/UBO/FrameConstantsBuffer.h>
@@ -35,11 +32,12 @@
 
 #include <GLRenderer/Lights/GLAreaLight.h>
 
-#include <GLRenderer/GUI/ConsoleWindow.h>
-#include <GLRenderer/GUI/EntitiesWindow.h>
-#include <GLRenderer/GUI/Components/GLEntityDebugComponent.h>
+#include <GUI/ConsoleWindow.h>
+#include <Entity/EntitiesWindow.h>
 
 #include <Renderer/Mesh/Scene.h>
+#include <Renderer/Cameras/OrbitalCamera.h>
+#include <Renderer/Cameras/FreelookCamera.h>
 
 #include <Physics/Primitives/Ray.h>
 #include <Physics/Primitives/Intersection.h>
@@ -53,9 +51,7 @@
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/Event/AppEvent.h>
 
-#include <imgui.h>
 #include <ImGuiFileDialog/ImGuiFileDialog.h>
-
 #include <pugixml.hpp>
 
 namespace GLEngine {
@@ -75,17 +71,17 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	, m_MainPass(nullptr)
 	, m_ShadowPass(nullptr)
 	, m_GUITexts({{
-		("Avg frame time {:.2f}"),
-		("Avg fps {:.2f}"),
-		("Min/max frametime {:.2f}/{:.2f}")
+		GUI::C_FormatedText("Avg frame time {:.2f}"),
+		GUI::C_FormatedText("Avg fps {:.2f}"),
+		GUI::C_FormatedText("Min/max frametime {:.2f}/{:.2f}")
 		}})
-	, m_Windows("Windows")
+	, m_Windows(std::string("Windows"))
 {
 	glfwMakeContextCurrent(m_Window);
 
 	m_FrameTimer.reset();
 
-	m_ImGUI = new ImGui::C_ImGuiLayer(m_ID);
+	m_ImGUI = new C_GLImGUILayer(m_ID);
 	m_ImGUI->OnAttach(); // manual call for now.
 	m_LayerStack.PushLayer(m_ImGUI);
 	m_LayerStack.PushLayer(&m_CamManager);
@@ -355,7 +351,7 @@ bool C_ExplerimentWindow::OnAppInit(Core::C_AppEvent& event)
 	{
 		m_EntitiesWindowGUID = NextGUID();
 
-		auto entitiesWindow = new GUI::C_EntitiesWindow(m_EntitiesWindowGUID, m_World);
+		auto entitiesWindow = new Entity::C_EntitiesWindow(m_EntitiesWindowGUID, m_World);
 		guiMGR.AddCustomWindow(entitiesWindow);
 		entitiesWindow->SetVisible();
 	}
@@ -457,7 +453,8 @@ void C_ExplerimentWindow::MouseSelect()
 	if (inter.distance > 0) {
 		auto entity = m_World->GetEntity(inter.entityId);
 		if (entity) {
-			entity->OnEvent(Core::C_UserEvent("selected"));
+			Core::C_UserEvent event("selected");
+			entity->OnEvent(event);
 		}
 	}
 }

@@ -67,7 +67,7 @@ std::vector<std::shared_ptr<I_Entity>> C_EntityManager::GetEntities(Physics::Pri
 }
 
 //=================================================================================
-const std::vector<std::shared_ptr<GLEngine::Entity::I_Entity>>& C_EntityManager::GetEntities() const
+const std::vector<std::shared_ptr<I_Entity>>& C_EntityManager::GetEntities() const
 {
 	return *m_Entities;
 }
@@ -169,7 +169,7 @@ bool C_EntityManager::LoadLevel(const std::filesystem::path& name, std::unique_p
 	{
 		for (const auto& entityNode : entitiesNode.children("Entity"))
 		{
-			auto entity = std::make_shared<Entity::C_BasicEntity>(entityNode.attribute("name").value());
+			auto entity = std::make_shared<C_BasicEntity>(entityNode.attribute("name").value());
 			entity->AddComponent(debugBuilder->Build(pugi::xml_node(), entity));
 			this->AddEntity(entity);
 
@@ -193,7 +193,7 @@ bool C_EntityManager::LoadLevel(const std::filesystem::path& name, std::unique_p
 
 		for (const auto& entityNode : entitiesNode.children("ExternEntity"))
 		{
-			auto entity = std::make_shared<Entity::C_BasicEntity>(entityNode.attribute("name").value());
+			auto entity = std::make_shared<C_BasicEntity>(entityNode.attribute("name").value());
 			entity->AddComponent(debugBuilder->Build(pugi::xml_node(), entity));
 			AddEntity(entity);
 

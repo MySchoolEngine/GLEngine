@@ -6,7 +6,7 @@ namespace GLEngine {
 namespace Core {
 class CORE_API_EXPORT C_LayerStack : public C_Layer {
 public:
-	explicit C_LayerStack(std::string& name);
+	explicit C_LayerStack(std::string&& name);
 	virtual ~C_LayerStack();
 
 	virtual void PushLayer(C_Layer* layer);

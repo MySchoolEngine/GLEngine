@@ -7,8 +7,8 @@ namespace GLEngine {
 namespace Core {
 
 //=================================================================================
-C_LayerStack::C_LayerStack(std::string& name)
-	: C_Layer(name)
+C_LayerStack::C_LayerStack(std::string&& name)
+	: C_Layer(std::move(name))
 	, m_Layers(new std::remove_pointer<decltype(m_Layers)>::type)
 {}
 

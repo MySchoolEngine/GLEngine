@@ -5,7 +5,6 @@
 #include <GLRenderer/Mesh/StaticMeshResource.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
-#include <GLRenderer/Textures/TextureLoader.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 #include <GLRenderer/Textures/TextureManager.h>
 
@@ -61,7 +60,7 @@ C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::s
 		auto& tmgr = Textures::C_TextureManager::Instance();
 		const auto& texure = scene->textures[material.textureIndex];
 
-		auto texturePtr = tmgr.CreateTexture(texure);
+		auto texturePtr = tmgr.GetTexture(texure);
 		SetColorMap(texturePtr);
 	}
 }
@@ -152,13 +151,23 @@ void C_StaticMesh::PerformDraw() const
 //=================================================================================
 void C_StaticMesh::DebugDrawGUI()
 {
-	if (::ImGui::CollapsingHeader("Static mesh")) {
-		m_Color.Draw();
-		if (!m_RoughnessMap)
-		{
-			m_Roughness.Draw();
-		}
+	m_Color.Draw();
+	if (!m_RoughnessMap)
+	{
+		m_Roughness.Draw();
 	}
+}
+
+//=================================================================================
+std::string_view C_StaticMesh::GetDebugComponentName() const
+{
+	return "Static mesh";
+}
+
+//=================================================================================
+bool C_StaticMesh::HasDebugDrawGUI() const
+{
+	return true;
 }
 
 //=================================================================================

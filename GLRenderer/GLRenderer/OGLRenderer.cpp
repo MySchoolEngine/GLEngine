@@ -4,16 +4,16 @@
 
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Textures/TextureManager.h>
-#include <GLRenderer/ImGui/GUIManager.h>
-#include <GLRenderer/GUI/GUIWindow.h>
-#include <GLRenderer/GUI/Menu/MenuItem.h>
+#include <GUI/GUIManager.h>
+#include <GUI/GUIWindow.h>
+#include <GUI/Menu/MenuItem.h>
 
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
 
 #include <GLRenderer/Debug.h>
 
-#include <imgui.h>
+#include <Utils/DebugBreak.h>
 
 #include <stdexcept>
 
@@ -30,13 +30,13 @@ C_OGLRenderer::C_OGLRenderer()
 	, m_CurrentPass(Renderer::E_PassType::FinalPass)
 	, m_GUITexts(
 		{{
-				("Avg draw commands: {:.2f}"),
-				("Min/max {:.2f}/{:.2f}"),
-				("Draw calls: {}")
+				GUI::C_FormatedText("Avg draw commands: {:.2f}"),
+				GUI::C_FormatedText("Min/max {:.2f}/{:.2f}"),
+				GUI::C_FormatedText("Draw calls: {}")
 			}})
 	, m_ScreenCaptureList("Capture frame commands", [&]() {m_OutputCommandList = true; })
 	, m_Window(INVALID_GUID)
-	, m_Windows("Windows")
+	, m_Windows(std::string("Windows"))
 {
 	int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
@@ -59,7 +59,7 @@ C_OGLRenderer::~C_OGLRenderer()
 void C_OGLRenderer::AddCommand(Renderer::I_Renderer::T_CommandPtr command)
 {
 	if (m_Locked) {
-		__debugbreak();
+		GL_DebugBreak();
 	}
 	m_CommandQueue->emplace_back(std::move(command));
 }
@@ -142,7 +142,7 @@ void C_OGLRenderer::Lock(bool lock /*= true*/)
 }
 
 //=================================================================================
-GUID C_OGLRenderer::SetupControls(ImGui::C_GUIManager& guiMan)
+GUID C_OGLRenderer::SetupControls(GUI::C_GUIManager& guiMan)
 {
 	m_Window = guiMan.CreateGUIWindow("Renderer frame stats");
 	auto* renderStats = guiMan.GetWindow(m_Window);
@@ -169,7 +169,7 @@ GUID C_OGLRenderer::SetupControls(ImGui::C_GUIManager& guiMan)
 }
 
 //=================================================================================
-void C_OGLRenderer::DestroyControls(ImGui::C_GUIManager& guiMan)
+void C_OGLRenderer::DestroyControls(GUI::C_GUIManager& guiMan)
 {
 	guiMan.DestroyWindow(m_Window);
 	auto& shmgr = Shaders::C_ShaderManager::Instance();

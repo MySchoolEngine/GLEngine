@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GLRenderer\Buffers\ShaderStorage.h>
+#include <GLRenderer/Buffers/ShaderStorage.h>
 
 
 namespace GLEngine {

@@ -4,10 +4,12 @@
 
 #include <GLRenderer/Textures/Texture.h>
 
-#include <GLRenderer/ImGui/GUIManager.h>
-#include <GLRenderer/GUI/GUIWindow.h>
+#include <GUI/GUIManager.h>
+#include <GUI/GUIWindow.h>
 
 #include <Renderer/Textures/TextureLoader.h>
+
+#include <imgui.h>
 
 namespace GLEngine::GLRenderer::Textures {
 std::filesystem::path C_TextureManager::s_ErrorTextureFile = "Models/Error.bmp";
@@ -37,16 +39,14 @@ C_TextureManager::T_TexturePtr C_TextureManager::GetTexture(const std::string& n
 	}
 
 	Renderer::Textures::TextureLoader tl;
-	Renderer::MeshData::Texture t;
-	bool retval = tl.loadTexture(name.c_str(), t);
-	if (!retval)
+	auto* buffer = tl.loadTexture(name.c_str());
+	if (!buffer)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Could not load texture '{}'", name);
 		return nullptr;
 	}
 
-	GLE_ASSERT(t.m_name.empty() == false, "There should be name from name: '{}'", name);
-	return CreateTexture(t);
+	return CreateTexture(buffer, name);
 }
 
 //=================================================================================
@@ -58,6 +58,18 @@ C_TextureManager::T_TexturePtr C_TextureManager::CreateTexture(const Renderer::M
 	texture->unbind();
 
 	m_Textures[tex.m_name] = texture;
+	return texture;
+}
+
+//=================================================================================
+C_TextureManager::T_TexturePtr C_TextureManager::CreateTexture(const Renderer::I_TextureViewStorage* tex, const std::string& name)
+{
+	auto texture = std::make_shared<Textures::C_Texture>(name);
+	texture->bind();
+	texture->SetTexData2D(0, tex);
+	texture->unbind();
+
+	m_Textures[name] = texture;
 	return texture;
 }
 
@@ -84,7 +96,7 @@ void C_TextureManager::Clear()
 }
 
 //=================================================================================
-GUID C_TextureManager::SetupControls(ImGui::C_GUIManager& guiMGR)
+GUID C_TextureManager::SetupControls(GUI::C_GUIManager& guiMGR)
 {
 	m_Window = guiMGR.CreateGUIWindow("Texture manager");
 	auto* shaderMan = guiMGR.GetWindow(m_Window);
@@ -106,7 +118,7 @@ GUID C_TextureManager::SetupControls(ImGui::C_GUIManager& guiMGR)
 }
 
 //=================================================================================
-void C_TextureManager::DestroyControls(ImGui::C_GUIManager& guiMGR)
+void C_TextureManager::DestroyControls(GUI::C_GUIManager& guiMGR)
 {
 	guiMGR.DestroyWindow(m_Window);
 }

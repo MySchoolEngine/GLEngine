@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GLRenderer\Buffers\UniformBuffer.h>
+#include <GLRenderer/Buffers/UniformBuffer.h>
 
 namespace GLEngine {
 namespace GLRenderer {

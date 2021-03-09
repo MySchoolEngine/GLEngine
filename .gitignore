@@ -3,6 +3,7 @@
 
 # Ignore imgui ini files
 *imgui.ini
+Makefile
 
 data/obj/*
 data/log.txt

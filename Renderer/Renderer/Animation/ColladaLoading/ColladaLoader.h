@@ -29,7 +29,7 @@ public:
 		C_Skeleton& skeleton,
 		C_SkeletalAnimation& animation, 
 		MeshData::AnimationData& animData,
-		glm::mat4& transform = glm::mat4(1));
+		glm::mat4& transform);
 private:
 	void LoadAnimData(const pugi::xml_node& skinXML, std::vector<glm::ivec3>& jointIndices, std::vector<glm::vec3>& weights);
 	void LoadJoints(const pugi::xml_node& skinXML);
@@ -39,10 +39,7 @@ private:
 	int GetBoneId(const std::string_view& name) const;
 	C_BoneTimeline LoadBoneTimeline(const pugi::xml_node& node, const glm::mat4& normalizinMatrix) const;
 
-#pragma warning(push)
-#pragma warning( disable : 4251)
 	std::vector<std::string> m_JointNames;
-#pragma warning(pop)
 };
 
 }

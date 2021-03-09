@@ -4,7 +4,7 @@
 #include <GLRenderer/Textures/Texture.h>
 
 #include <Renderer/Mesh/GeomComponent.h>
-#include <GLRenderer/GUI/Input/Color.h>
+#include <GUI/Input/Color.h>
 
 namespace GLEngine::GLRenderer::Shaders
 {
@@ -23,6 +23,7 @@ public:
 	void SetupGeometry(const Renderer::MeshData::Mesh& mesh) override;
 	void PerformDraw() const override;
 	void DebugDrawGUI() override;
+	virtual bool HasDebugDrawGUI() const override;
 	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override;
 
 private:

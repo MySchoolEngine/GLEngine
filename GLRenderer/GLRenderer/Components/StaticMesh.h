@@ -4,8 +4,8 @@
 
 #include <GLRenderer/Textures/Texture.h>
 
-#include <GLRenderer/GUI/Input/Color.h>
-#include <GLRenderer/GUI/Input/Slider.h>
+#include <GUI/Input/Color.h>
+#include <GUI/Input/Slider.h>
 
 #include <GLRenderer/Mesh/StaticMeshResource.h>
 
@@ -35,6 +35,8 @@ public:
 		m_Color.SetValue(std::move(ccolor)); }
 	
 	void DebugDrawGUI() override;
+	virtual std::string_view GetDebugComponentName() const override;
+	virtual bool HasDebugDrawGUI() const override;
 
 	void SetColorMap(const std::shared_ptr<Textures::C_Texture>& texture) { m_ColorMap = texture; m_Color.SetValue(glm::vec3(1.0f)); }
 	void SetRoughnessMap(const std::shared_ptr<Textures::C_Texture>& texture) { m_RoughnessMap = texture; m_Roughness = 1.0f; }

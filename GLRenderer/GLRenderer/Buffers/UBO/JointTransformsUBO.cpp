@@ -2,7 +2,7 @@
 
 #include <GLRenderer/Buffers/UBO/JointTransformsUBO.h>
 
-#include <glm\gtc\type_ptr.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace GLEngine::GLRenderer::Buffers::UBO {
 

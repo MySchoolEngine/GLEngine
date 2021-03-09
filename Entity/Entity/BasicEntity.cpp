@@ -4,11 +4,10 @@
 
 #include <Entity/IComponent.h>
 
-#include <Renderer/IDebugGUIComponent.h>
+#include <Entity/Components/IDebugGUIComponent.h>
 
 
-namespace GLEngine {
-namespace Entity {
+namespace GLEngine::Entity {
 
 //=================================================================================
 C_BasicEntity::C_BasicEntity(std::string name)
@@ -41,7 +40,7 @@ void C_BasicEntity::PostUpdate()
 //=================================================================================
 void C_BasicEntity::OnEvent(Core::I_Event& event)
 {
-	auto debugGUI = GetComponent<Entity::E_ComponentType::DebugGUI>();
+	auto debugGUI = GetComponent<E_ComponentType::DebugGUI>();
 	if (debugGUI) {
 		debugGUI->Toggle();
 	}
@@ -65,4 +64,4 @@ glm::vec3 C_BasicEntity::GetPosition() const
 	return m_ModelMatrix[3];
 }
 
-}}
+}

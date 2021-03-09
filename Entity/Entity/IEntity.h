@@ -9,8 +9,7 @@
 #include <Utils/Range.h>
 #include <Utils/MapValueIterator.h>
 
-namespace GLEngine {
-namespace Entity {
+namespace GLEngine::Entity {
 
 enum class E_ComponentType {
 	Graphical,
@@ -45,9 +44,9 @@ public:
 	void AddComponent(T_ComponentPtr component);
 
 	template<E_ComponentType e,
-		typename retType = ComponenetBase<e>::type,
-		typename ret = std::shared_ptr<typename retType>>
-	[[nodiscard]] typename ret GetComponent() {
+		typename retType = typename ComponenetBase<e>::type,
+		typename ret = std::shared_ptr<retType>>
+	[[nodiscard]] ret GetComponent() {
 		auto range = GetComponents(e);
 		if (range.empty())
 			return nullptr;
@@ -60,12 +59,8 @@ public:
 
 protected:
 	EntityID m_ID;
-#pragma warning(push)
-#pragma warning( disable : 4251)
 	std::string m_Name;
-#pragma warning(pop)
 	T_ComponentsContainer m_Components;
 };
 
-}
 }

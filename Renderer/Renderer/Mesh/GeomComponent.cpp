@@ -1,4 +1,4 @@
-#include <RendererStdAfx.h>
+#include <RendererStdafx.h>
 
 #include <Renderer/Mesh/GeomComponent.h>
 
@@ -13,6 +13,12 @@ namespace GLEngine::Renderer {
 C_GeomComponent::C_GeomComponent(std::shared_ptr<Entity::I_Entity> owner)
 	: I_RenderableComponent(owner)
 {
+}
+
+//=================================================================================
+std::string_view C_GeomComponent::GetDebugComponentName() const
+{
+	return "GeomComponent";
 }
 
 //=================================================================================
