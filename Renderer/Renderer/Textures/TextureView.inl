@@ -48,7 +48,7 @@ template <class T, typename /*= std::enable_if_t<glm::type<T>::is_vec>*/> T C_Te
 			return GetBorderColor<T>();
 		else
 			coord = ClampCoordinates(uv);
-	
+
 	return m_Storage->GetPixel(GetPixelAddress(coord));
 }
 

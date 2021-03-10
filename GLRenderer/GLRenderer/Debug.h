@@ -175,8 +175,8 @@ private:
 		float								 m_size;
 		glm::vec3							 m_Position;
 	};
-	std::shared_ptr<Components::C_StaticMesh>		  m_OctahedronMesh;
-	std::vector<OctahedronInfo>						  m_OctahedronInfos;
+	std::shared_ptr<Components::C_StaticMesh> m_OctahedronMesh;
+	std::vector<OctahedronInfo>				  m_OctahedronInfos;
 };
 #else
 //=================================================================================

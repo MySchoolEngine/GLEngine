@@ -56,7 +56,7 @@ bool I_TextureViewStorage::IsSwizzled() const
 		return false;
 	if (m_Channels[3] != E_TextureChannel::Alpha && m_Channels[3] != E_TextureChannel::None)
 		return false;
-	
+
 	return true;
 }
 
@@ -65,21 +65,27 @@ glm::vec4 I_TextureViewStorage::Swizzle(const glm::vec4& value) const
 {
 	if (!IsSwizzled())
 		return value;
-	auto result = glm::vec4(0.f);
-	const auto channelGetter = [](const glm::vec4& value, E_TextureChannel channel) { 
+	auto	   result		 = glm::vec4(0.f);
+	const auto channelGetter = [](const glm::vec4& value, E_TextureChannel channel) {
 		switch (channel)
 		{
-		case E_TextureChannel::Red: return value.r;
-		case E_TextureChannel::Green: return value.g;
-		case E_TextureChannel::Blue: return value.b;
-		case E_TextureChannel::Alpha: return value.a;
+		case E_TextureChannel::Red:
+			return value.r;
+		case E_TextureChannel::Green:
+			return value.g;
+		case E_TextureChannel::Blue:
+			return value.b;
+		case E_TextureChannel::Alpha:
+			return value.a;
 		case E_TextureChannel::None:
-		default: return 0.f;
+		default:
+			return 0.f;
 		}
 	};
 
 	std::uint8_t i = 0;
-	for (const auto& ch : m_Channels) {
+	for (const auto& ch : m_Channels)
+	{
 		result[i++] = channelGetter(value, ch);
 	}
 	return result;

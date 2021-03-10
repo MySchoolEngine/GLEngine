@@ -19,9 +19,9 @@ struct S_Plane : public T_Intersectable<S_Plane> {
 		, twoSided(true)
 	{
 	}
-	glm::vec3							 normal;
-	glm::vec3							 origin;
-	bool								 twoSided : 1;
+	glm::vec3				   normal;
+	glm::vec3				   origin;
+	bool					   twoSided : 1;
 	[[nodiscard]] inline float IntersectImpl(const S_Ray& ray) const
 	{
 		const auto useNormal = ((glm::dot(-ray.direction, normal) < 0 && twoSided) ? -normal : normal);

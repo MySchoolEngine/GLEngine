@@ -234,11 +234,11 @@ void C_ExplerimentWindow::OnAppInit()
 	{
 		// billboard
 		Renderer::MeshData::Mesh billboardMesh;
-		billboardMesh.vertices.emplace_back(-1.f, 1.f, 0, 1); // 1
+		billboardMesh.vertices.emplace_back(-1.f, 1.f, 0, 1);  // 1
 		billboardMesh.vertices.emplace_back(-1.f, -1.f, 0, 1); // 2
 		billboardMesh.vertices.emplace_back(1.0f, 1.0f, 0, 1); // 3
 		billboardMesh.vertices.emplace_back(-1.f, -1.f, 0, 1); // 4 = 2
-		billboardMesh.vertices.emplace_back(1.f, -1.f, 0, 1); // 5
+		billboardMesh.vertices.emplace_back(1.f, -1.f, 0, 1);  // 5
 		billboardMesh.vertices.emplace_back(1.0f, 1.0f, 0, 1); // 6 = 3
 
 
