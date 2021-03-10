@@ -5,6 +5,7 @@
 #include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/Components/SkeletalMesh.h>
+#include <GLRenderer/Debug.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/Textures/TextureManager.h>
@@ -17,10 +18,6 @@
 #include <Core/Application.h>
 
 #include <Utils/HighResolutionTimer.h>
-
-
-#define GLM_ENABLE_EXPERIMENTAL
-#include <GLRenderer/Debug.h>
 
 #include <glm/gtx/transform.hpp>
 

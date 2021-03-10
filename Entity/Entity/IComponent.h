@@ -2,6 +2,8 @@
 
 #include <Entity/EntityApi.h>
 
+#include <GUI/Input/Transformations.h>
+
 #include <Core/EventSystem/EventReciever.h>
 
 namespace pugi {
@@ -44,9 +46,9 @@ public:
 	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const = 0;
 
 protected:
-	std::shared_ptr<I_Entity> GetOwner() const;
-
-	glm::mat4 m_ComponentMatrix;
+	std::shared_ptr<I_Entity>	  GetOwner() const;
+	GUI::Input::C_Transformations m_Transformation;
+	glm::mat4					  m_ComponentMatrix;
 
 private:
 	std::weak_ptr<I_Entity> m_Owner;
