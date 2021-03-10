@@ -20,7 +20,7 @@ public:
 	void SetFromNormal(const glm::vec3& normal);
 
 	[[nodiscard]] constexpr glm::vec3 ToWorld(const glm::vec3& a) const;
-	[[nodiscard]] constexpr glm::vec3 ToLocal(const glm::vec3& a) const;
+	[[nodiscard]] glm::vec3 ToLocal(const glm::vec3& a) const;
 
 	[[nodiscard]] constexpr glm::vec3 Normal() const;
 	[[nodiscard]] constexpr glm::vec3 Tangnt() const;
