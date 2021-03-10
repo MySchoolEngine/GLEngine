@@ -18,6 +18,13 @@ public:
 	{
 	}
 
+	constexpr C_BitField(const std::initializer_list<Enum>& values)
+		: m_Flags(0)
+	{
+		SetFlags(values);
+	}
+
+
 	constexpr C_BitField(const C_BitField& other)
 		: m_Flags(other.m_Flags)
 	{
@@ -30,15 +37,31 @@ public:
 
 	~C_BitField() = default;
 
-	constexpr bool CheckFlag(const Enum flag) const { return !!(static_cast<value_type>(flag) & m_Flags); }
+	[[nodiscard]] constexpr bool CheckFlag(const Enum flag) const { return !!(static_cast<value_type>(flag) & m_Flags); }
 
-	void SetFlag(const Enum flag) { m_Flags |= static_cast<value_type>(flag); }
+	constexpr void SetFlag(const Enum flag) { m_Flags |= static_cast<value_type>(flag); }
 
-	void SetFlags(const C_BitField& field) { m_Flags &= field.GetFlags(); }
+	constexpr void SetFlags(const C_BitField& field) { m_Flags &= field.GetFlags(); }
 
-	void ClearFlag(const Enum flag) { m_Flags &= ~static_cast<value_type>(flag); }
+	constexpr void SetFlags(const std::initializer_list<Enum>& values)
+	{
+		for (const auto e : values)
+		{
+			SetFlag(e);
+		}
+	}
 
-	void ToggleFlag(const Enum flag) { m_Flags ^= static_cast<value_type>(flag); }
+	constexpr void ClearFlag(const Enum flag) { m_Flags &= ~static_cast<value_type>(flag); }
+
+	constexpr void ClearFlags(const std::initializer_list<Enum>& values)
+	{
+		for (const auto e : values)
+		{
+			ClearFlag(e);
+		}
+	}
+
+	constexpr void ToggleFlag(const Enum flag) { m_Flags ^= static_cast<value_type>(flag); }
 
 	C_BitField& operator|=(const Enum bit) { return (this = this | bit); }
 
@@ -57,13 +80,13 @@ public:
 		return *this;
 	}
 
-	bool operator&(const Enum bit) const { return CheckFlag(bit); }
+	[[nodiscard]] bool operator&(const Enum bit) const { return CheckFlag(bit); }
 
-	operator const Enum() const { return m_Flags; }
+	[[nodiscard]] operator const Enum() const { return m_Flags; }
 
-	operator Enum&() { return m_Flags; }
+	[[nodiscard]] operator Enum&() { return m_Flags; }
 
-	value_type GetFlags() const { return m_Flags; }
+	[[nodiscard]] value_type GetFlags() const { return m_Flags; }
 
 protected:
 	value_type m_Flags;
