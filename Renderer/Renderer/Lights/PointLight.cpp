@@ -14,6 +14,7 @@ namespace GLEngine::Renderer {
 I_PointLight::I_PointLight(std::shared_ptr<Entity::I_Entity> owner)
 	: Renderer::I_Light(owner)
 {
+	m_Transformation.SetEnabledTransforms(GUI::Input::C_Transformations::E_Transorms::Translate);
 }
 
 //=================================================================================

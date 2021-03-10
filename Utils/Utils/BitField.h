@@ -80,6 +80,12 @@ public:
 		return *this;
 	}
 
+	C_BitField& operator=(const C_BitField& other)
+	{
+		m_Flags = other.m_Flags;
+		return *this;
+	}
+
 	[[nodiscard]] bool operator&(const Enum bit) const { return CheckFlag(bit); }
 
 	[[nodiscard]] operator const Enum() const { return m_Flags; }

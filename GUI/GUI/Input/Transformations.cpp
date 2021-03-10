@@ -89,4 +89,10 @@ void C_Transformations::SetMatrix(const glm::mat4& mat)
 	m_Rotation	  = glm::eulerAngles(glm::conjugate(rotation));
 }
 
+//=================================================================================
+void C_Transformations::SetEnabledTransforms(Utils::C_BitField<E_Transorms> enableTransforms)
+{
+	m_enabledTransforms = enableTransforms;
+}
+
 } // namespace GLEngine::GUI::Input

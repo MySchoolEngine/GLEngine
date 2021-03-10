@@ -38,8 +38,7 @@ public:
 	void					   DebugDrawComponentGUI();
 	[[nodiscard]] virtual bool HasDebugDrawGUI() const = 0;
 	// should return name used for component in debug
-	[[nodiscard]] virtual std::string_view										GetDebugComponentName() const = 0;
-	[[nodiscard]] Utils::C_BitField<GUI::Input::C_Transformations::E_Transorms> GetAllowedTransforms() const;
+	[[nodiscard]] virtual std::string_view GetDebugComponentName() const = 0;
 	// void SetModelMatrix(const glm::mat4& modelMatrix) { m_ModelMatrix = modelMatrix; };
 	void						  SetComponentMatrix(const glm::mat4& componentMatrix) { m_Transformation.SetMatrix(componentMatrix); }
 	[[nodiscard]] const glm::mat4 GetComponentModelMatrix() const;

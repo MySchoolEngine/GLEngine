@@ -27,7 +27,7 @@ public:
 
 	void Draw() const override;
 
-	[[nodiscard]] C_Vec3& operator=(const glm::vec3& value);
+	C_Vec3& operator=(const glm::vec3& value);
 };
 
 } // namespace GLEngine::GUI::Input

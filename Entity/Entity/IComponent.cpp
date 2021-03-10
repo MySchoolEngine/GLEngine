@@ -47,11 +47,4 @@ void I_Component::DebugDrawComponentGUI()
 	}
 }
 
-//=================================================================================
-Utils::C_BitField<GUI::Input::C_Transformations::E_Transorms> I_Component::GetAllowedTransforms() const
-{
-	using namespace GUI::Input;
-	return {C_Transformations::E_Transorms::Translate, C_Transformations::E_Transorms::Rotate, C_Transformations::E_Transorms::Scale};
-}
-
 } // namespace GLEngine::Entity
