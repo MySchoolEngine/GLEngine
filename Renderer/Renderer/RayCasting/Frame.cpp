@@ -21,4 +21,10 @@ void S_Frame::SetFromNormal(const glm::vec3& normal)
 	X						 = glm::cross(Z, tmpY);
 }
 
+//=================================================================================
+glm::vec3 S_Frame::ToLocal(const glm::vec3& a) const
+{
+	return {glm::dot(a, X), glm::dot(a, Y), glm::dot(a, Z)};
+}
+
 } // namespace GLEngine::Renderer
