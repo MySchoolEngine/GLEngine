@@ -26,13 +26,15 @@ public:
 
 	GUID AddMenu(T_GUIMenu menuItem);
 
-	virtual void			   RequestDestroy() {}
+	virtual void			   RequestDestroy() { m_WantToBeDestroyed = true; }
+	[[nodiscard]] bool		   WantDestroy() const { return m_WantToBeDestroyed; }
 	[[nodiscard]] virtual bool CanDestroy() const { return true; }
 
 protected:
 	virtual void DrawComponents() const;
 
-	mutable bool m_IsVisible;
+	mutable bool m_IsVisible; // cant be bit field as it is being referenced inside
+	mutable bool m_WantToBeDestroyed : 1;
 	std::string	 m_Name;
 	GUID		 m_GUID;
 

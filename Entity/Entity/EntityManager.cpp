@@ -67,6 +67,12 @@ const std::vector<std::shared_ptr<I_Entity>>& C_EntityManager::GetEntities() con
 }
 
 //=================================================================================
+void C_EntityManager::ClearLevel()
+{
+	m_Entities->clear();
+}
+
+//=================================================================================
 void C_EntityManager::AddEntity(std::shared_ptr<I_Entity> entity)
 {
 	m_Entities->push_back(entity);
@@ -126,8 +132,9 @@ Physics::Primitives::S_RayIntersection C_EntityManager::Select(const Physics::Pr
 }
 
 //=================================================================================
-bool C_EntityManager::LoadLevel(const std::string& name, std::unique_ptr<I_ComponentBuilderFactory> cbf)
+bool C_EntityManager::LoadLevel(const std::filesystem::path& name, std::unique_ptr<I_ComponentBuilderFactory> cbf)
 {
+	ClearLevel();
 	CORE_LOG(E_Level::Info, E_Context::Core, "Loading level: {}", name);
 	delete m_Entities;
 	m_Entities = new std::remove_pointer<decltype(m_Entities)>::type;

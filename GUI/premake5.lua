@@ -9,6 +9,7 @@ project "GUI"
 
 	Link("Core")
 	Link("Utils")
+	Link("ImGuiFileDialog")
 
 	includedirs
 	{
@@ -18,6 +19,7 @@ project "GUI"
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.ImGui}",
+		"../%{IncludeDir.ImGuiFileDialog}",
 	}
 
 	links 

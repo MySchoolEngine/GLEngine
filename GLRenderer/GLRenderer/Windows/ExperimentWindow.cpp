@@ -30,6 +30,7 @@
 #include <Renderer/Textures/TextureView.h>
 
 #include <GUI/ConsoleWindow.h>
+#include <GUI/FileDialogWindow.h>
 
 #include <Physics/Primitives/Intersection.h>
 #include <Physics/Primitives/Ray.h>
@@ -229,9 +230,30 @@ void C_ExplerimentWindow::OnAppInit()
 		m_renderer->AddCommand(std::move(std::make_unique<C_GLClearColor>(glm::vec3(0.0f, 0.0f, 0.0f))));
 		m_renderer->AddCommand(std::move(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Front)));
 	}
+	m_MainPass = std::make_unique<C_MainPassTechnique>(m_World);
+	{
+		// billboard
+		Renderer::MeshData::Mesh billboardMesh;
+		billboardMesh.vertices.emplace_back(-1.f, 1.f, 0, 1); // 1
+		billboardMesh.vertices.emplace_back(-1.f, -1.f, 0, 1); // 2
+		billboardMesh.vertices.emplace_back(1.0f, 1.0f, 0, 1); // 3
+		billboardMesh.vertices.emplace_back(-1.f, -1.f, 0, 1); // 4 = 2
+		billboardMesh.vertices.emplace_back(1.f, -1.f, 0, 1); // 5
+		billboardMesh.vertices.emplace_back(1.0f, 1.0f, 0, 1); // 6 = 3
 
-	SetupWorld();
 
+		billboardMesh.texcoords.emplace_back(0, 1);
+		billboardMesh.texcoords.emplace_back(0, 0);
+		billboardMesh.texcoords.emplace_back(1, 1);
+		billboardMesh.texcoords.emplace_back(0, 0);
+		billboardMesh.texcoords.emplace_back(1, 0);
+		billboardMesh.texcoords.emplace_back(1, 1);
+
+		m_ScreenQuad = std::make_shared<Mesh::C_StaticMeshResource>(billboardMesh);
+	}
+	SetupWorld("Levels/dark.xml");
+
+	m_HDRFBO		= std::make_unique<C_Framebuffer>("HDR");
 	auto HDRTexture = std::make_shared<Textures::C_Texture>("hdrTexture");
 
 	HDRTexture->bind();
@@ -253,83 +275,7 @@ void C_ExplerimentWindow::OnAppInit()
 	// ~depthStencilTexture setup
 	m_HDRFBO->AttachTexture(GL_DEPTH_STENCIL_ATTACHMENT, depthStencilTexture);
 	depthStencilTexture->unbind();
-}
 
-//=================================================================================
-bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
-{
-	auto HDRTexture = m_HDRFBO->GetAttachement(GL_COLOR_ATTACHMENT0);
-	HDRTexture->bind();
-	HDRTexture->SetDimensions({event.GetWidth(), event.GetHeight()});
-	HDRTexture->SetInternalFormat(Renderer::E_TextureFormat::RGBA16f, GL_RGBA);
-	HDRTexture->SetFilter(E_OpenGLFilter::Linear, E_OpenGLFilter::Linear);
-	HDRTexture->unbind();
-
-	auto depthStencilTexture = m_HDRFBO->GetAttachement(GL_DEPTH_STENCIL_ATTACHMENT);
-
-	depthStencilTexture->bind();
-	depthStencilTexture->SetDimensions({event.GetWidth(), event.GetHeight()});
-	depthStencilTexture->SetInternalFormat(Renderer::E_TextureFormat::D24S8, GL_DEPTH_STENCIL);
-	depthStencilTexture->SetFilter(E_OpenGLFilter::Linear, E_OpenGLFilter::Linear);
-	depthStencilTexture->unbind();
-
-	return true;
-}
-
-//=================================================================================
-void C_ExplerimentWindow::SetupWorld()
-{
-	m_MainPass = std::make_unique<C_MainPassTechnique>(m_World);
-	m_HDRFBO   = std::make_unique<C_Framebuffer>("HDR");
-	if (!m_World->LoadLevel("Levels/dark.xml", std::make_unique<Components::C_ComponentBuilderFactory>()))
-	{
-		CORE_LOG(E_Level::Warning, E_Context::Render, "Level not loaded");
-		return;
-	}
-
-	{
-		m_Player = m_World->GetEntity("Player");
-
-		auto player = m_Player.lock();
-		if (player)
-		{
-			float zoom		   = 5.0f;
-			auto  playerCamera = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
-			playerCamera->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
-			// playerCamera->positionCamera({ 0,1,0 }, { 0,0,1 });
-			playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
-			// playerCamera->adjustOrientation(20.f, 20.f);
-			playerCamera->Update();
-			player->AddComponent(playerCamera);
-			m_CamManager.ActivateCamera(playerCamera);
-
-			// area light
-			auto arealight = std::make_shared<C_GLAreaLight>(player);
-			player->AddComponent(arealight);
-			//
-			// m_ShadowPass = std::make_shared<C_ShadowMapTechnique>(m_World, std::static_pointer_cast<Renderer::I_Light>( arealight));
-		}
-	}
-	{
-		// billboard
-		Renderer::MeshData::Mesh billboardMesh;
-		billboardMesh.vertices.emplace_back(-1.f, 1.f, 0, 1);  // 1
-		billboardMesh.vertices.emplace_back(-1.f, -1.f, 0, 1); // 2
-		billboardMesh.vertices.emplace_back(1.0f, 1.0f, 0, 1); // 3
-		billboardMesh.vertices.emplace_back(-1.f, -1.f, 0, 1); // 4 = 2
-		billboardMesh.vertices.emplace_back(1.f, -1.f, 0, 1);  // 5
-		billboardMesh.vertices.emplace_back(1.0f, 1.0f, 0, 1); // 6 = 3
-
-
-		billboardMesh.texcoords.emplace_back(0, 1);
-		billboardMesh.texcoords.emplace_back(0, 0);
-		billboardMesh.texcoords.emplace_back(1, 1);
-		billboardMesh.texcoords.emplace_back(0, 0);
-		billboardMesh.texcoords.emplace_back(1, 0);
-		billboardMesh.texcoords.emplace_back(1, 1);
-
-		m_ScreenQuad = std::make_shared<Mesh::C_StaticMeshResource>(billboardMesh);
-	}
 
 	auto& guiMGR = m_ImGUI->GetGUIMgr();
 
@@ -383,6 +329,78 @@ void C_ExplerimentWindow::SetupWorld()
 
 	const auto rendererWindow = static_cast<C_OGLRenderer*>(m_renderer.get())->SetupControls(guiMGR);
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Renderer", rendererWindow, guiMGR));
+
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Open level", [&]() {
+		const auto levelSelectorGUID = NextGUID();
+		auto*	   levelSelectWindwo = new GUI::C_FileDialogWindow(
+			 ".xml", "Select level",
+			 [&, levelSelectorGUID](const std::filesystem::path& level) {
+				 SetupWorld(level);
+				 m_ImGUI->GetGUIMgr().DestroyWindow(levelSelectorGUID);
+			 },
+			 levelSelectorGUID, "./Levels");
+		guiMGR.AddCustomWindow(levelSelectWindwo);
+		levelSelectWindwo->SetVisible();
+	}));
+}
+
+//=================================================================================
+bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
+{
+	auto HDRTexture = m_HDRFBO->GetAttachement(GL_COLOR_ATTACHMENT0);
+	HDRTexture->bind();
+	HDRTexture->SetDimensions({event.GetWidth(), event.GetHeight()});
+	HDRTexture->SetInternalFormat(Renderer::E_TextureFormat::RGBA16f, GL_RGBA);
+	HDRTexture->SetFilter(E_OpenGLFilter::Linear, E_OpenGLFilter::Linear);
+	HDRTexture->unbind();
+
+	auto depthStencilTexture = m_HDRFBO->GetAttachement(GL_DEPTH_STENCIL_ATTACHMENT);
+
+	depthStencilTexture->bind();
+	depthStencilTexture->SetDimensions({event.GetWidth(), event.GetHeight()});
+	depthStencilTexture->SetInternalFormat(Renderer::E_TextureFormat::D24S8, GL_DEPTH_STENCIL);
+	depthStencilTexture->SetFilter(E_OpenGLFilter::Linear, E_OpenGLFilter::Linear);
+	depthStencilTexture->unbind();
+
+	return true;
+}
+
+//=================================================================================
+void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
+{
+	if (!m_World->LoadLevel(level, std::make_unique<Components::C_ComponentBuilderFactory>()))
+	{
+		CORE_LOG(E_Level::Warning, E_Context::Render, "Level not loaded");
+		return;
+	}
+
+	AddMandatoryWorldParts();
+}
+
+//=================================================================================
+void C_ExplerimentWindow::AddMandatoryWorldParts()
+{
+	m_Player = m_World->GetEntity("Player");
+
+	auto player = m_Player.lock();
+	if (player)
+	{
+		float zoom		   = 5.0f;
+		auto  playerCamera = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
+		playerCamera->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
+		// playerCamera->positionCamera({ 0,1,0 }, { 0,0,1 });
+		playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
+		// playerCamera->adjustOrientation(20.f, 20.f);
+		playerCamera->Update();
+		player->AddComponent(playerCamera);
+		m_CamManager.ActivateCamera(playerCamera);
+
+		// area light
+		auto arealight = std::make_shared<C_GLAreaLight>(player);
+		player->AddComponent(arealight);
+		//
+		// m_ShadowPass = std::make_shared<C_ShadowMapTechnique>(m_World, std::static_pointer_cast<Renderer::I_Light>( arealight));
+	}
 }
 
 //=================================================================================
@@ -400,7 +418,7 @@ void C_ExplerimentWindow::MouseSelect()
 
 	using namespace Physics::Primitives;
 	const auto ray = camera->GetRay(clipPosition);
-	;
+
 	C_PersistentDebug::Instance().DrawLine(ray.origin, ray.origin + ray.direction, glm::vec3(0, 1, 0));
 	const S_RayIntersection inter = m_World->Select(ray);
 	if (inter.distance > 0)

@@ -39,12 +39,6 @@ constexpr glm::vec3 S_Frame::Normal() const
 }
 
 //=================================================================================
-constexpr glm::vec3 S_Frame::ToLocal(const glm::vec3& a) const
-{
-	return {glm::dot(a, X), glm::dot(a, Y), glm::dot(a, Z)};
-}
-
-//=================================================================================
 constexpr glm::vec3 S_Frame::ToWorld(const glm::vec3& a) const
 {
 	return X * a.x + Y * a.y + Z * a.z;

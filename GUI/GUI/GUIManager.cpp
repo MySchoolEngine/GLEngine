@@ -12,10 +12,8 @@ C_GUIManager::C_GUIManager() = default;
 C_GUIManager::~C_GUIManager()
 {
 	GLE_ASSERT(CanBeDestroyed(), "Destroying unprepared windows.");
-	for (auto& it : m_Windwos)
-	{
-		delete (it.second);
-	}
+	DestroyPossibleWindows();
+	GLE_ASSERT(m_Windwos.empty(), "Undestroyed windows.");
 }
 
 //=================================================================================
@@ -28,6 +26,8 @@ void C_GUIManager::OnUpdate()
 			it.second->Draw();
 		}
 	}
+
+	DestroyPossibleWindows();
 }
 
 //=================================================================================
@@ -58,9 +58,7 @@ void C_GUIManager::DestroyWindow(GUID guid)
 		return;
 	}
 
-	delete it->second;
-
-	m_Windwos.erase(guid);
+	it->second->RequestDestroy();
 }
 
 //=================================================================================
@@ -72,13 +70,28 @@ void C_GUIManager::AddCustomWindow(GUI::C_Window* window)
 //=================================================================================
 bool C_GUIManager::CanBeDestroyed() const
 {
-	return std::all_of(m_Windwos.begin(), m_Windwos.end(), [](const auto& window) -> bool { return window.second->CanDestroy(); });
+	return std::all_of(m_Windwos.begin(), m_Windwos.end(), [](const auto& window) -> bool { return window.second->WantDestroy(); });
 }
 
 //=================================================================================
 void C_GUIManager::RequestDestroy()
 {
 	std::for_each(m_Windwos.begin(), m_Windwos.end(), [](const auto& window) { window.second->RequestDestroy(); });
+}
+
+//=================================================================================
+void C_GUIManager::DestroyPossibleWindows()
+{
+	std::vector<GUID> toDelete(5);
+	std::for_each(m_Windwos.begin(), m_Windwos.end(), [&](const auto& window) {
+		auto* windowPtr = window.second;
+		if (windowPtr->WantDestroy() && windowPtr->CanDestroy())
+		{
+			delete windowPtr;
+			toDelete.push_back(window.first);
+		}
+	});
+	std::for_each(toDelete.begin(), toDelete.end(), [&](const auto& guid) { m_Windwos.erase(guid); });
 }
 
 } // namespace GLEngine::GUI

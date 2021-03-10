@@ -9,14 +9,15 @@ namespace GLEngine::GLRenderer {
 //=================================================================================
 C_GLAreaLight::C_GLAreaLight(std::shared_ptr<Entity::I_Entity> owner)
 	: Renderer::C_AreaLight(owner)
-	, m_ShadowMap(Textures::C_TextureManager::Instance().CreateEmptyTexture(owner->GetName() + "_ShadowMap"))
+	//, m_ShadowMap(Textures::C_TextureManager::Instance().CreateEmptyTexture(owner->GetName() + "_ShadowMap"))
+	, m_ShadowMap(Textures::C_TextureManager::Instance().GetIdentityTexture())
 {
-	m_ShadowMap->bind();
-	m_ShadowMap->SetDimensions({512, 512});
-	m_ShadowMap->SetInternalFormat(Renderer::E_TextureFormat::D16, GL_DEPTH_COMPONENT);
-	m_ShadowMap->SetFilter(E_OpenGLFilter::Linear, E_OpenGLFilter::Linear);
-	m_ShadowMap->SetWrap(Renderer::E_WrapFunction::ClampToBorder, Renderer::E_WrapFunction::ClampToBorder);
-	m_ShadowMap->unbind();
+	// m_ShadowMap->bind();
+	// m_ShadowMap->SetDimensions({512, 512});
+	// m_ShadowMap->SetInternalFormat(Renderer::E_TextureFormat::D16, GL_DEPTH_COMPONENT);
+	// m_ShadowMap->SetFilter(E_OpenGLFilter::Linear, E_OpenGLFilter::Linear);
+	// m_ShadowMap->SetWrap(Renderer::E_WrapFunction::ClampToBorder, Renderer::E_WrapFunction::ClampToBorder);
+	// m_ShadowMap->unbind();
 }
 
 //=================================================================================

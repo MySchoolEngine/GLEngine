@@ -55,8 +55,9 @@ protected:
 	bool OnWindowResized(Core::C_WindowResizedEvent& event);
 
 private:
+	void SetupWorld(const std::filesystem::path& level);
+	void AddMandatoryWorldParts();
 	void OnAppInit();
-	void SetupWorld();
 	void MouseSelect();
 
 	void sampleTime(double new_sample);
