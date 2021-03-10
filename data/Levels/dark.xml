@@ -33,7 +33,7 @@
 		<Entity name="pl1">
 			<Components>
 				<PointLight intensity="30.0">
-					<translate sid="location">0 1 0</translate>
+					<translate sid="location">0 2 0</translate>
 					<color>0.4 0.3 0.1</color>
 				</PointLight>
 			</Components>
@@ -41,7 +41,7 @@
 
 		<Entity name="pl2">
 			<Components>
-				<PointLight intensity="700.0">
+				<PointLight intensity="50.0">
 					<translate sid="location">3 1 0</translate>
 					<color>0 0.6 0.1</color>
 				</PointLight>
@@ -50,19 +50,10 @@
 
 		<Entity name="pl3">
 			<Components>
-				<PointLight intensity="233.0">
+				<PointLight intensity="5.0">
 					<translate sid="location">3 3 -5</translate>
 				</PointLight>
 			</Components>
 		</Entity>
-		<!--<Entity name="light">
-			<translate sid="location">0 0 -3</translate>
-			<rotate>1 0 0 90</rotate>
-			<Components>
-				<staticMesh filePath="plane.obj" material="basic">
-					<color>1 1 1</color>
-				</staticMesh>
-			</Components>
-		</Entity> -->
 	</Entities>
 </World>

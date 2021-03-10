@@ -27,6 +27,7 @@
 
 #include <GLRenderer/Components/SkeletalMesh.h>
 #include <GLRenderer/Components/SkyBox.h>
+#include <GLRenderer/Entities/TerrainEntity.h>
 #include <GLRenderer/PersistentDebug.h>
 #include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/Debug.h>
@@ -137,6 +138,9 @@ void C_ExplerimentWindow::Update()
 	{
 		// shadow pass
 		m_SunShadow->Render(*m_World.get(), camera.get());
+		::ImGui::Begin("shadowMap");
+		::ImGui::Image((void*)(intptr_t)m_SunShadow->GetZBuffer()->GetTexture(), ImVec2(256, 256));
+		::ImGui::End();
 		m_MainPass->SetSunShadowMap(m_SunShadow->GetZBuffer()->GetHandle());
 		m_MainPass->SetSunViewProjection(m_SunShadow->GetLastViewProjection());
 	}
@@ -343,7 +347,7 @@ void C_ExplerimentWindow::SetupWorld()
 {
 	m_MainPass = std::make_unique<C_MainPassTechnique>(m_World);
 	m_HDRFBO = std::make_unique<C_Framebuffer>("HDR");
-	if (!m_World->LoadLevel("Levels/dark.xml", std::make_unique<Components::C_ComponentBuilderFactory>()))
+	if (!m_World->LoadLevel("Levels/atmosphere.xml", std::make_unique<Components::C_ComponentBuilderFactory>()))
 	{
 		CORE_LOG(E_Level::Warning, E_Context::Render, "Level not loaded");
 		return;
@@ -383,6 +387,11 @@ void C_ExplerimentWindow::SetupWorld()
 		auto sunComp = std::make_shared<Renderer::C_SunLight>(entity);
 		m_SunShadow = std::make_shared<C_SunShadowMapTechnique>(sunComp);
 		entity->AddComponent(sunComp);
+	}
+	if(false){
+		auto entity = std::make_shared<C_TerrainEntity>();
+		m_World->AddEntity(entity);
+		entity->AddPatch({ 0,0 });
 	}
 	{
 		// billboard

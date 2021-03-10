@@ -26,7 +26,7 @@
 #include <Core/Application.h>
 
 namespace GLEngine::GLRenderer {
-const std::uint32_t C_SunShadowMapTechnique::s_ShadowMapSize = 512;
+const std::uint32_t C_SunShadowMapTechnique::s_ShadowMapSize = 1024 * 2;
 const float C_SunShadowMapTechnique::s_ZOffset = 0.001f;
 
 
@@ -39,7 +39,7 @@ C_SunShadowMapTechnique::C_SunShadowMapTechnique(std::shared_ptr<Renderer::C_Sun
 
 	m_Framebuffer = std::make_unique<C_Framebuffer>("sunShadowMapping");
 
-	const bool storeAlbedoForShadowMap = false;
+	const bool storeAlbedoForShadowMap = true;
 	if (storeAlbedoForShadowMap)
 	{
 		auto HDRTexture = std::make_shared<Textures::C_Texture>("hdrTexture");
@@ -77,6 +77,8 @@ C_SunShadowMapTechnique::C_SunShadowMapTechnique(std::shared_ptr<Renderer::C_Sun
 	depthTexture->SetDimensions({ s_ShadowMapSize, s_ShadowMapSize });
 	depthTexture->SetInternalFormat(GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT, GL_FLOAT);
 	depthTexture->SetFilter(GL_NEAREST, GL_NEAREST);
+	//depthTexture->SetTexParameter(GL_TEXTURE_BORDER_COLOR, glm::vec4(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()));
+	depthTexture->SetWrap(E_WrapFunction::ClampToBorder, E_WrapFunction::ClampToBorder);
 
 	m_Framebuffer->AttachTexture(GL_DEPTH_ATTACHMENT, depthTexture);
 
@@ -110,6 +112,8 @@ void C_SunShadowMapTechnique::Render(const Entity::C_EntityManager& world, Rende
 	{
 		aabb.Add(entity->GetAABB());
 	}
+
+	C_DebugDraw::Instance().DrawAABB(aabb, glm::vec3(1, 1, 1));
 
 	const auto sun = m_Sun.lock();
 	const auto left = glm::vec3(1, 0, 0);

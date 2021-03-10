@@ -33,9 +33,17 @@ float SunVisibility(const vec3 position, const vec3 N)
 {
     vec4 shadowCoords = pSunLight.viewProjection * vec4(position, 1);
     shadowCoords = vec4(shadowCoords.xyz * 0.5 + 0.5, 1.0f);
+    // early out
+    /*if(shadowCoords.z < -1 || shadowCoords.z > 1
+    || shadowCoords.x < -1 || shadowCoords.x > 1
+    || shadowCoords.y < -1 || shadowCoords.y > 1)
+    {
+      return 0.0;
+    }*/
     
     float bias = 0.0005*tan(acos(dot(N, normalize(pSunLight.position))));
     bias = clamp(bias, 0.0,0.005);
+
 
     float visibility = 0.0;
     for (int i=0;i<poissonDisk.length();i++){
@@ -52,18 +60,24 @@ float SunVisibility(const vec3 position, const vec3 N)
 //=================================================================================
 vec3 CalculatSunLight(const vec3 N, const vec3 V, const vec3 position)
 {
-    const float visibility = SunVisibility(position, N);
-    if(visibility == 0)
-    {
-        return vec3(0,0,0); // it is in the shadow
-    }
-    const Sphere s = GetAtmosphereBoundary();
+  const Sphere s = GetAtmosphereBoundary();
 
-    float roughnessVal = GetRoughness(texCoordOUT);
 
-    const Ray r = Ray(position, normalize(pSunLight.position));
-    vec3 i;
-    Intersect(r, s, i);
 
-    return visibility * BRDF(N, V, normalize(pSunLight.position), pSunLight.color, roughnessVal) * Transmittance(r, i.z);
+  const float visibility = SunVisibility(position, N);
+  if(visibility == 0)
+  {
+      return vec3(0,0,0); // it is in the shadow
+  }
+
+  float roughnessVal = GetRoughness(texCoordOUT);
+
+  const Ray r = Ray(position, normalize(pSunLight.position));
+  vec3 i;
+  Intersect(r, s, i);
+
+  vec3 skyRadiance = GetSkyRadiance(r, i.z);
+  SolidAngle sunSA = GetSunSolidAngle(N);
+
+  return (visibility * BRDF(N, V, normalize(pSunLight.position), skyRadiance, roughnessVal)) / sunSA;
 }

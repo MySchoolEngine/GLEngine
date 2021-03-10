@@ -198,12 +198,12 @@ vec3 BRDF(const vec3 norm, const vec3 omegaIn, const vec3 omegaOut, const vec3 l
 	vec3 Kd = vec3(1.0) - Ks;
 
 	const float denominator = 4.0 * max(dot(norm, omegaIn), 0.00001) * max(dot(norm, omegaOut), 0.00001);
-	vec3 numerator    = NDF * G * Ks;
+	const vec3 numerator    = (NDF * G * Ks) / PI;
 
 	vec3 spec = numerator / max(denominator, 0.00001);
 
     float NdotL = max(dot(norm, omegaOut), 0.00001); 
-	return (Kd*usedColor/PI + spec) * lightColor * NdotL;
+	return (Kd*(usedColor/PI) + spec) * lightColor * NdotL;
 }
 
 //=================================================================================
@@ -382,11 +382,11 @@ void main()
 
     result += CalculatSunLight(norm, viewDir, FragPos);
     //if(!isInShadow(lightSpacePos, shadowMap[pAreaLight[0].ShadowMap]))
-        result += CalculatAreaLight(pAreaLight[0], norm, viewDir, FragPos);
+        //result += CalculatAreaLight(pAreaLight[0], norm, viewDir, FragPos);
 
 	for(int i = 0; i< NUM_POINTLIGHT;++i)
 	{
-		result += CalculatePointLight(pLight[i], norm);
+		//result += CalculatePointLight(pLight[i], norm);
 	}
 
 	fragColor = vec4(result, 1.0);

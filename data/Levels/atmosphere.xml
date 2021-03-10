@@ -4,20 +4,15 @@
 		<Entity name="ground">
 			<scale>5 1 5</scale>
 			<Components>
-				<staticMesh filePath="plane.obj" material="basicTracing">
+				<staticMesh filePath="plane.obj" material="basicTracing" shadowPassShader="shadowPass">
 					<colorMap>Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp</colorMap>
 					<roughnessMap>Models\Bricks01\REGULAR\1K\Bricks01_ROUGHNESS_1K.bmp</roughnessMap>
 					<normalMap>Models\Bricks01\REGULAR\1K\Bricks01_NRM_1K.bmp</normalMap>
 				</staticMesh>
 			</Components>
 		</Entity>
-		<Entity name="occluder">
-			<translate sid="location">0 1 0</translate>
-			<Components>
-				<Geometry type="plane" subdivisions="0">
-					<color>0.4 0.3 0.1</color>
-				</Geometry>
-			</Components>
-		</Entity>
+		<ExternEntity name="sphere" filePath="lada/lada.obj" material="basicTracing">
+			<translate sid="location">0 3 0</translate>
+		</ExternEntity>
 	</Entities>
 </World>

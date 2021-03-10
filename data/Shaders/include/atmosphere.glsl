@@ -33,8 +33,12 @@ bool SunVisibility(const vec3 position)
 
     float objectNearestLight = texture(pSunLight.sunShadowMap, shadowCoords.xy).r;
 
-    return shadowCoords.z > objectNearestLight;
-        
+    return shadowCoords.z > objectNearestLight; 
+}
+
+SolidAngle GetSunSolidAngle(vec3 normal)
+{
+	return 1 - cos(0.5 * dot(normal, pSunLight.position));
 }
 
 vec3 GetPlanetCenter()
@@ -158,6 +162,7 @@ vec3 InScatteredLight(vec3 y, vec3 v, vec3 s)
 		GetAreosolExtinctionCoef(GetAltitude(y)) * Mie;
 }
 
+// actually return illuminance (lux)
 vec3 GetSkyRadiance(Ray r, float rayLen)
 {
 	const Sphere sun = GetSunSphere();

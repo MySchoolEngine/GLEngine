@@ -7,11 +7,11 @@ namespace GLEngine::Renderer {
 //=================================================================================
 C_SunLight::C_SunLight(std::shared_ptr<Entity::I_Entity> owner)
 	: I_Light(owner)
-	, m_SunX(0.f, -1.f, 1.f, "Sun X")
-	, m_SunY(1.f, -1.f, 1.f, "Sun Y")
-	, m_SunZ(0.f, -1.f, 1.f, "Sun Z")
+	, m_SunX(0.437f, -1.f, 1.f, "Sun X")
+	, m_SunY(0.056f, -1.f, 1.f, "Sun Y")
+	, m_SunZ(-0.347f, -1.f, 1.f, "Sun Z")
 	, m_SunColor("Sun color", glm::vec3(1.f))
-	, m_AsymetricFactor(0.2f, 0.0f, 1.f, "Asymmetric factor")
+	, m_AsymetricFactor(0.95f, 0.0f, 1.f, "Asymmetric factor")
 	, m_SunDiscMultiplier(1.f, 1.0f, 20.f, "Disc multiplier")
 {
 
