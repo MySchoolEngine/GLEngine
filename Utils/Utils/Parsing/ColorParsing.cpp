@@ -1,7 +1,6 @@
 #include <Utils/Parsing/ColorParsing.h>
 
 #include <glm/glm.hpp>
-#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
 
 #include <pugixml.hpp>
