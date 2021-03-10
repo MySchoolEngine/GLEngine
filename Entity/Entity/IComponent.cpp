@@ -3,6 +3,8 @@
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
 
+#include <GUI/Input/Transformations.h>
+
 #include <imgui.h>
 
 namespace GLEngine::Entity {
@@ -40,6 +42,7 @@ const glm::mat4 I_Component::GetComponentModelMatrix() const
 //=================================================================================
 void I_Component::DebugDrawComponentGUI()
 {
+	GUI::Input::C_Transformations t(m_ComponentMatrix);
 	if (::ImGui::CollapsingHeader(GetDebugComponentName().data()))
 	{
 		DebugDrawGUI();

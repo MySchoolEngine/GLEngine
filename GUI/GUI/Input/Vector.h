@@ -12,7 +12,7 @@ public:
 	{
 	}
 
-	const T& GetValue() const { return m_Value; }
+	[[nodiscard]] const T& GetValue() const { return m_Value; }
 	void	 SetValue(T&& value) { m_Value = value; }
 
 protected:
@@ -27,7 +27,7 @@ public:
 
 	void Draw() const override;
 
-	C_Vec3& operator=(const glm::vec3& value);
+	[[nodiscard]] C_Vec3& operator=(const glm::vec3& value);
 };
 
 } // namespace GLEngine::GUI::Input
