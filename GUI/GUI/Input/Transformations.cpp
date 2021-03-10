@@ -3,6 +3,7 @@
 #include <GUI/Input/Transformations.h>
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 namespace GLEngine::GUI::Input {
 
@@ -14,6 +15,7 @@ C_Transformations::C_Transformations(glm::mat4& transformation, Utils::C_BitFiel
 	, m_Rotation("Rotation", glm::vec3(0.f))
 	, m_Scale("Scale", glm::vec3(1.f, 1.f, 1.f))
 {
+	SetMatrix(transformation);
 }
 
 //=================================================================================
@@ -44,9 +46,9 @@ glm::mat4 C_Transformations::GetMatrix() const
 	if (m_enabledTransforms.CheckFlag(E_Transorms::Rotate))
 	{
 		const auto rotations = GetRotation();
-		transform = glm::rotate(transform, rotations.x, glm::vec3(1, 0, 0));
-		transform = glm::rotate(transform, rotations.y, glm::vec3(0, 1, 0));
-		transform = glm::rotate(transform, rotations.z, glm::vec3(0, 0, 1));
+		transform			 = glm::rotate(transform, rotations.x, glm::vec3(1, 0, 0));
+		transform			 = glm::rotate(transform, rotations.y, glm::vec3(0, 1, 0));
+		transform			 = glm::rotate(transform, rotations.z, glm::vec3(0, 0, 1));
 	}
 	if (m_enabledTransforms.CheckFlag(E_Transorms::Scale))
 	{
@@ -71,6 +73,20 @@ glm::vec3 C_Transformations::GetRotation() const
 glm::vec3 C_Transformations::GetScale() const
 {
 	return m_Scale.GetValue();
+}
+
+//=================================================================================
+void C_Transformations::SetMatrix(const glm::mat4& mat)
+{
+	glm::vec3 scale;
+	glm::quat rotation;
+	glm::vec3 translation;
+	glm::vec3 skew;
+	glm::vec4 perspective;
+	glm::decompose(mat, scale, rotation, translation, skew, perspective);
+	m_Scale		  = scale;
+	m_Translation = translation;
+	m_Rotation	  = glm::eulerAngles(glm::conjugate(rotation));
 }
 
 } // namespace GLEngine::GUI::Input

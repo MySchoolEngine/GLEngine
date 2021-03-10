@@ -59,7 +59,7 @@ glm::vec3 C_PointLight::GetPosition() const
 	}
 	ownerPosition = owner->GetPosition();
 
-	return ownerPosition + glm::vec3(m_ComponentMatrix[3]);
+	return ownerPosition + glm::vec3(GetComponentModelMatrix()[3]);
 }
 
 //=================================================================================
@@ -95,8 +95,8 @@ bool C_PointLight::HasDebugDrawGUI() const
 //=================================================================================
 std::shared_ptr<Entity::I_Component> C_PointLightCompBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
 {
-	auto pointLight				  = std::make_shared<Renderer::C_PointLight>(owner);
-	pointLight->m_ComponentMatrix = Utils::Parsing::C_MatrixParser::ParseTransformation(node);
+	auto pointLight = std::make_shared<Renderer::C_PointLight>(owner);
+	pointLight->SetComponentMatrix(Utils::Parsing::C_MatrixParser::ParseTransformation(node));
 
 	if (const auto intensityAttr = node.attribute("intensity"))
 	{

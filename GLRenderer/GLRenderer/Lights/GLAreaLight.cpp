@@ -33,11 +33,7 @@ void C_GLAreaLight::DebugDraw() const
 	const auto width  = std::sqrt(GetWidth() / 2.0f);
 	const auto height = std::sqrt(GetHeight() / 2.0f);
 
-	auto transformMatrix = m_ComponentMatrix;
-	if (const auto entity = GetOwner())
-	{
-		transformMatrix = entity->GetModelMatrix() * transformMatrix;
-	}
+	auto transformMatrix = GetComponentModelMatrix();
 
 	const auto Pos = glm::vec3(transformMatrix[3]);
 

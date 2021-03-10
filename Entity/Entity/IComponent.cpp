@@ -10,7 +10,6 @@ namespace GLEngine::Entity {
 //=================================================================================
 I_Component::I_Component(std::shared_ptr<I_Entity> owner)
 	: m_Owner(owner)
-	, m_ComponentMatrix(glm::mat4(1.0f))
 	, m_Transformation(glm::mat4(1.f))
 {
 }
@@ -46,6 +45,13 @@ void I_Component::DebugDrawComponentGUI()
 		m_Transformation.Draw();
 		DebugDrawGUI();
 	}
+}
+
+//=================================================================================
+Utils::C_BitField<GUI::Input::C_Transformations::E_Transorms> I_Component::GetAllowedTransforms() const
+{
+	using namespace GUI::Input;
+	return {C_Transformations::E_Transorms::Translate, C_Transformations::E_Transorms::Rotate, C_Transformations::E_Transorms::Scale};
 }
 
 } // namespace GLEngine::Entity
