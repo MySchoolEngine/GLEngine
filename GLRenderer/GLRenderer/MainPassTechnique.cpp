@@ -74,7 +74,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 	{
 		for (const auto& lightIt : entity->GetComponents(Entity::E_ComponentType::Light))
 		{
-			const auto pointLight = std::dynamic_pointer_cast<Renderer::I_PointLight>(lightIt);
+			const auto pointLight = std::dynamic_pointer_cast<Renderer::C_PointLight>(lightIt);
 			if (pointLight && pointLightIndex < m_LightsUBO->PointLightsLimit())
 			{
 				const auto pos = pointLight->GetPosition();

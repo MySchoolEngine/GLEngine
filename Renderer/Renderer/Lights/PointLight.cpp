@@ -11,38 +11,20 @@
 namespace GLEngine::Renderer {
 
 //=================================================================================
-I_PointLight::I_PointLight(std::shared_ptr<Entity::I_Entity> owner)
-	: Renderer::I_Light(owner)
-{
-	m_Transformation.SetEnabledTransforms(GUI::Input::C_Transformations::E_Transorms::Translate);
-}
-
-//=================================================================================
-Physics::Primitives::S_AABB I_PointLight::GetAABB() const
-{
-	Physics::Primitives::S_AABB ret;
-	ret.Add(glm::vec3(0.0f, 0.0f, 0.0f));
-	return ret;
-}
-
-//=================================================================================
-I_PointLight::~I_PointLight() = default;
-
-//=================================================================================
 // C_PointLight
 //=================================================================================
 C_PointLight::C_PointLight(std::shared_ptr<Entity::I_Entity> owner)
-	: Renderer::I_PointLight(owner)
-	, m_Intensity()
-	, m_Color(1.f, 1.f, 1.f)
+	: Renderer::I_Light(owner)
+	, m_Intensity(1.f, 0.f, 100.f, "Intensity")
+	, m_Color("Color", {1.f, 1.f, 1.f})
 {
 }
 
 //=================================================================================
 C_PointLight::C_PointLight(std::shared_ptr<Entity::I_Entity> owner, const MeshData::Light& def)
-	: Renderer::I_PointLight(owner)
-	, m_Intensity()
-	, m_Color(def.m_Color)
+	: Renderer::I_Light(owner)
+	, m_Intensity(1.f, 0.f, 100.f, "Intensity")
+	, m_Color("Color", def.m_Color)
 {
 }
 
@@ -50,17 +32,17 @@ C_PointLight::C_PointLight(std::shared_ptr<Entity::I_Entity> owner, const MeshDa
 C_PointLight::~C_PointLight() = default;
 
 //=================================================================================
+Physics::Primitives::S_AABB C_PointLight::GetAABB() const
+{
+	Physics::Primitives::S_AABB ret;
+	ret.Add(GetPosition());
+	return ret;
+}
+
+//=================================================================================
 glm::vec3 C_PointLight::GetPosition() const
 {
-	const auto owner		 = GetOwner();
-	auto	   ownerPosition = glm::vec3(0.f);
-	if (!owner)
-	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Point light without owner");
-	}
-	ownerPosition = owner->GetPosition();
-
-	return ownerPosition + glm::vec3(GetComponentModelMatrix()[3]);
+	return glm::vec3(GetComponentModelMatrix()[3]);
 }
 
 //=================================================================================
@@ -72,7 +54,7 @@ float C_PointLight::GetIntensity() const
 //=================================================================================
 glm::vec3 C_PointLight::GetColor() const
 {
-	return m_Color;
+	return m_Color.GetValue();
 }
 
 //=================================================================================
@@ -91,6 +73,13 @@ std::string_view C_PointLight::GetDebugComponentName() const
 bool C_PointLight::HasDebugDrawGUI() const
 {
 	return true;
+}
+
+//=================================================================================
+void C_PointLight::DebugDrawGUI()
+{
+	m_Intensity.Draw();
+	m_Color.Draw();
 }
 
 //=================================================================================
