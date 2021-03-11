@@ -9,7 +9,7 @@ namespace GLEngine::GUI::Input {
 
 
 //=================================================================================
-C_Transformations::C_Transformations(glm::mat4& transformation, Utils::C_BitField<E_Transorms> enableTransforms)
+C_Transformations::C_Transformations(glm::mat4 transformation, Utils::C_BitField<E_Transorms> enableTransforms)
 	: m_enabledTransforms(enableTransforms)
 	, m_Translation("Translate", glm::vec3(0.f))
 	, m_Rotation("Rotation", glm::vec3(0.f))

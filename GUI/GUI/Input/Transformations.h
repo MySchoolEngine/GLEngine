@@ -14,7 +14,7 @@ public:
 		Rotate	  = 2,
 		Scale	  = 4,
 	};
-	C_Transformations(glm::mat4& transformation, Utils::C_BitField<E_Transorms> enableTransforms = {E_Transorms::Translate, E_Transorms::Rotate, E_Transorms::Scale});
+	C_Transformations(glm::mat4 transformation, Utils::C_BitField<E_Transorms> enableTransforms = {E_Transorms::Translate, E_Transorms::Rotate, E_Transorms::Scale});
 
 	void SetEnabledTransforms(Utils::C_BitField<E_Transorms> enableTransforms);
 	//=================================================================================
