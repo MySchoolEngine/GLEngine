@@ -12,7 +12,7 @@ public:
 	explicit C_GLAreaLight(std::shared_ptr<Entity::I_Entity> owner);
 	const std::shared_ptr<Textures::C_Texture>& GetShadowMap() const;
 
-	void DebugDraw() const;
+	virtual void DebugDraw() const override;
 
 private:
 	std::shared_ptr<Textures::C_Texture> m_ShadowMap;

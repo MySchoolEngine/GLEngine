@@ -4,6 +4,9 @@
 
 #include <Physics/Primitives/Frustum.h>
 
+#include <Utils/Parsing/ColorParsing.h>
+#include <Utils/Parsing/MatrixParse.h>
+
 namespace GLEngine::Renderer {
 
 //=================================================================================
@@ -89,6 +92,36 @@ glm::vec3 C_AreaLight::GetNormal() const
 glm::vec3 C_AreaLight::GetUpVector() const
 {
 	return GetComponentModelMatrix() * glm::vec4(0, 1, 0, 1);
+}
+
+//=================================================================================
+[[nodiscard]] std::shared_ptr<Entity::I_Component> C_AreaLightCompBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
+{
+	auto areaLight = std::make_shared<Renderer::C_AreaLight>(owner);
+	areaLight->SetComponentMatrix(Utils::Parsing::C_MatrixParser::ParseTransformation(node));
+
+
+	if (const auto widthAttr = node.attribute("width"))
+	{
+		areaLight->m_WidthSlider = widthAttr.as_float();
+	}
+
+	if (const auto heightAttr = node.attribute("height"))
+	{
+		areaLight->m_WidthSlider = heightAttr.as_float();
+	}
+
+	if (node.child("DiffuseColor"))
+	{
+		areaLight->m_DiffuseColor = Utils::Parsing::C_ColorParser::ParseColorRGB(node, "DiffuseColor");
+	}
+
+	if (node.child("SpecularColor"))
+	{
+		areaLight->m_SpecularColor = Utils::Parsing::C_ColorParser::ParseColorRGB(node, "SpecularColor");
+	}
+
+	return areaLight;
 }
 
 } // namespace GLEngine::Renderer

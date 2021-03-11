@@ -32,6 +32,7 @@ public:
 
 	virtual Physics::Primitives::S_AABB GetAABB() const override;
 
+	virtual void DebugDraw() const {}
 
 	[[nodiscard]] glm::vec3 DiffuseColour() const;
 	[[nodiscard]] glm::vec3 SpecularColour() const;
@@ -39,6 +40,14 @@ public:
 protected:
 	GUI::Input::C_Slider<float> m_WidthSlider, m_HeightSlider;
 	GUI::Input::C_ColorRBG		m_DiffuseColor, m_SpecularColor;
+
+	friend class C_AreaLightCompBuilder;
+};
+
+//=============================================================
+class C_AreaLightCompBuilder : public Entity::I_ComponenetBuilder {
+public:
+	RENDERER_API_EXPORT [[nodiscard]] virtual std::shared_ptr<Entity::I_Component> Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner) override;
 };
 
 } // namespace GLEngine::Renderer
