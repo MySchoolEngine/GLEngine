@@ -27,6 +27,9 @@ public:
 	[[nodiscard]] float									 GetWidth() const { return m_WidthSlider.GetValue(); }
 	[[nodiscard]] float									 GetHeight() const { return m_HeightSlider.GetValue(); }
 
+	[[nodiscard]] glm::vec3 GetNormal() const;
+	[[nodiscard]] glm::vec3 GetUpVector() const;
+
 	virtual Physics::Primitives::S_AABB GetAABB() const override;
 
 
@@ -34,8 +37,6 @@ public:
 	[[nodiscard]] glm::vec3 SpecularColour() const;
 
 protected:
-	glm::vec3					m_Normal;
-	glm::vec3					m_UpVector;
 	GUI::Input::C_Slider<float> m_WidthSlider, m_HeightSlider;
 	GUI::Input::C_ColorRBG		m_DiffuseColor, m_SpecularColor;
 };
