@@ -234,11 +234,11 @@ void C_ExplerimentWindow::OnAppInit()
 	{
 		// billboard
 		Renderer::MeshData::Mesh billboardMesh;
-		billboardMesh.vertices.emplace_back(-1.f, 1.f, 0, 1); // 1
+		billboardMesh.vertices.emplace_back(-1.f, 1.f, 0, 1);  // 1
 		billboardMesh.vertices.emplace_back(-1.f, -1.f, 0, 1); // 2
 		billboardMesh.vertices.emplace_back(1.0f, 1.0f, 0, 1); // 3
 		billboardMesh.vertices.emplace_back(-1.f, -1.f, 0, 1); // 4 = 2
-		billboardMesh.vertices.emplace_back(1.f, -1.f, 0, 1); // 5
+		billboardMesh.vertices.emplace_back(1.f, -1.f, 0, 1);  // 5
 		billboardMesh.vertices.emplace_back(1.0f, 1.0f, 0, 1); // 6 = 3
 
 
@@ -396,8 +396,8 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 		m_CamManager.ActivateCamera(playerCamera);
 
 		// area light
-		auto arealight = std::make_shared<C_GLAreaLight>(player);
-		player->AddComponent(arealight);
+		// auto arealight = std::make_shared<C_GLAreaLight>(player);
+		// player->AddComponent(arealight);
 		//
 		// m_ShadowPass = std::make_shared<C_ShadowMapTechnique>(m_World, std::static_pointer_cast<Renderer::I_Light>( arealight));
 	}

@@ -3,6 +3,9 @@
 #include <Renderer/ILight.h>
 #include <Renderer/RendererApi.h>
 
+#include <GUI/Input/Color.h>
+#include <GUI/Input/Slider.h>
+
 #include <Entity/IComponent.h>
 
 namespace GLEngine::Renderer {
@@ -12,28 +15,15 @@ struct Light;
 }
 
 //=============================================================
-class RENDERER_API_EXPORT I_PointLight : public I_Light {
-public:
-	I_PointLight(std::shared_ptr<Entity::I_Entity> owner);
-	virtual ~I_PointLight();
-	[[nodiscard]] virtual glm::vec3 GetPosition() const	 = 0;
-	[[nodiscard]] virtual float		GetIntensity() const = 0;
-	[[nodiscard]] virtual glm::vec3 GetColor() const	 = 0;
-
-	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override final;
-};
-
-//=============================================================
-class RENDERER_API_EXPORT C_PointLight : public I_PointLight {
+class RENDERER_API_EXPORT C_PointLight : public I_Light {
 public:
 	explicit C_PointLight(std::shared_ptr<Entity::I_Entity> owner);
 	C_PointLight(std::shared_ptr<Entity::I_Entity> owner, const MeshData::Light& def);
 	virtual ~C_PointLight();
 
-	[[nodiscard]] virtual glm::vec3 GetPosition() const override;
-	[[nodiscard]] virtual float		GetIntensity() const override;
-	[[nodiscard]] virtual glm::vec3 GetColor() const override;
-
+	[[nodiscard]] glm::vec3 GetPosition() const;
+	[[nodiscard]] float		GetIntensity() const;
+	[[nodiscard]] glm::vec3 GetColor() const;
 
 	//================================================================
 	// I_Light
@@ -42,9 +32,15 @@ public:
 	virtual std::string_view GetDebugComponentName() const override;
 	virtual bool			 HasDebugDrawGUI() const override;
 
+	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override final;
+
+
+	//=================================================================================
+	void DebugDrawGUI() override;
+
 private:
-	float	  m_Intensity;
-	glm::vec3 m_Color;
+	GUI::Input::C_Slider<float> m_Intensity;
+	GUI::Input::C_ColorRBG		m_Color;
 
 	friend class C_PointLightCompBuilder;
 };

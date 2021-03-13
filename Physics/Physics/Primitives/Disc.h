@@ -13,8 +13,8 @@ struct S_Disc : public T_Intersectable<S_Disc> {
 		, radius(_radius)
 	{
 	}
-	S_Plane								 plane;
-	float								 radius;
+	S_Plane					   plane;
+	float					   radius;
 	[[nodiscard]] inline float IntersectImpl(const S_Ray& ray) const
 	{
 		const auto t = plane.IntersectImpl(ray);

@@ -12,8 +12,8 @@ public:
 	{
 	}
 
-	const T& GetValue() const { return m_Value; }
-	void	 SetValue(T&& value) { m_Value = value; }
+	[[nodiscard]] const T& GetValue() const { return m_Value; }
+	void				   SetValue(T&& value) { m_Value = value; }
 
 protected:
 	std::string m_name;

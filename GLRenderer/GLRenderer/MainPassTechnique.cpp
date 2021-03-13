@@ -6,7 +6,6 @@
 #include <GLRenderer/Commands/GLViewport.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/Debug.h>
-#include <GLRenderer/Lights/GLAreaLight.h>
 #include <GLRenderer/Lights/LightsUBO.h>
 #include <GLRenderer/MainPassTechnique.h>
 #include <GLRenderer/OGLRenderer.h>
@@ -17,6 +16,7 @@
 #include <Renderer/IRenderableComponent.h>
 #include <Renderer/IRenderer.h>
 #include <Renderer/Lights/PointLight.h>
+#include <Renderer/Lights/AreaLight.h>
 
 #include <Physics/Primitives/Frustum.h>
 
@@ -74,7 +74,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 	{
 		for (const auto& lightIt : entity->GetComponents(Entity::E_ComponentType::Light))
 		{
-			const auto pointLight = std::dynamic_pointer_cast<Renderer::I_PointLight>(lightIt);
+			const auto pointLight = std::dynamic_pointer_cast<Renderer::C_PointLight>(lightIt);
 			if (pointLight && pointLightIndex < m_LightsUBO->PointLightsLimit())
 			{
 				const auto pos = pointLight->GetPosition();
@@ -90,11 +90,11 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				C_DebugDraw::Instance().DrawPoint(glm::vec4(pos, 1.0), pointLight->GetColor());
 			}
 
-			const auto areaLight = std::dynamic_pointer_cast<C_GLAreaLight>(lightIt);
+			const auto areaLight = std::dynamic_pointer_cast<Renderer::C_AreaLight>(lightIt);
 			if (areaLight && areaLightIndex < m_LightsUBO->AreaLightsLimit())
 			{
-				auto& tm = Textures::C_TextureUnitManger::Instance();
-				tm.BindTextureToUnit(*areaLight->GetShadowMap(), 5 + static_cast<unsigned int>(areaLightIndex));
+				// auto& tm = Textures::C_TextureUnitManger::Instance();
+				// tm.BindTextureToUnit(*areaLight->GetShadowMap(), 5 + static_cast<unsigned int>(areaLightIndex));
 				const auto frustum = areaLight->GetShadingFrustum();
 
 

@@ -8,7 +8,6 @@
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/EventDispatcher.h>
 
-#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/euler_angles.hpp>
