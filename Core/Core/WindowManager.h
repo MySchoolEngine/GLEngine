@@ -4,37 +4,36 @@
 
 #include <Utils/CompileTime/CompileTimeUtils.h>
 
-#include <type_traits>
+#include <array>
 #include <memory>
 #include <numeric>
-#include <array>
+#include <type_traits>
 
 namespace GLEngine::Core {
-template<class ...Managers>
-class C_WindwoManager : public I_WindowManager
-{
+template <class... Managers> class C_WindwoManager : public I_WindowManager {
 public:
 	C_WindwoManager(C_Application::EventCallbackFn callback)
 		: I_WindowManager(callback)
 		, m_UpdatingManager(nullptr)
-	{}
+	{
+	}
 
 	//=================================================================================
 	virtual ~C_WindwoManager() = default;
 
 	//=================================================================================
-	template<class T, typename = std::enable_if_t< std::disjunction_v<std::is_same<T, Managers>...>>>
-	void AddManager(T* manager)
+	template <class T, typename = std::enable_if_t<std::disjunction_v<std::is_same<T, Managers>...>>> void AddManager(T* manager)
 	{
 		m_Managers[T_IndexOfType::IndexOf<T, Managers...>()] = std::unique_ptr<I_WindowManager>(manager);
 	}
 
 	//=================================================================================
-	virtual std::shared_ptr<I_Window> OpenNewWindow(const S_WindowInfo& info) override
+	[[nodiscard]] virtual std::shared_ptr<I_Window> OpenNewWindow(const S_WindowInfo& info) override
 	{
 		for (auto& mgr : m_Managers)
 		{
-			if (!mgr) continue;
+			if (!mgr)
+				continue;
 			if (auto window = mgr->OpenNewWindow(info))
 			{
 				return window;
@@ -45,11 +44,12 @@ public:
 
 
 	//=================================================================================
-	virtual std::shared_ptr<I_Window> GetWindow(GUID guid) const override
+	[[nodiscard]] virtual std::shared_ptr<I_Window> GetWindow(GUID guid) const override
 	{
 		for (auto& mgr : m_Managers)
 		{
-			if(!mgr) continue;
+			if (!mgr)
+				continue;
 			if (auto window = mgr->GetWindow(guid))
 			{
 				return window;
@@ -68,31 +68,20 @@ public:
 			{
 				m_UpdatingManager = manager.get();
 				manager->Update();
-				m_UpdatingManager = nullptr;
 			}
 		}
 	}
 
 	//=================================================================================
-	virtual unsigned int NumWindows() const override
+	[[nodiscard]] virtual unsigned int NumWindows() const override
 	{
-		unsigned int acc = 0;
-		for (const auto& manager : m_Managers)
-		{
-			if (manager)
-			{
-				acc += manager->NumWindows();
-			}
-		}
-		return acc;
+		return std::accumulate(m_Managers.begin(), m_Managers.end(), 0,
+							   [](unsigned int val, const auto& manager) -> unsigned int { return val + (manager == nullptr ? 0 : manager->NumWindows()); });
 	}
 
 
 	//=================================================================================
-	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetActiveRenderer() const override
-	{
-		return m_UpdatingManager->GetActiveRenderer();
-	}
+	[[nodiscard]] virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetActiveRenderer() const override { return m_UpdatingManager->GetActiveRenderer(); }
 
 
 	//=================================================================================
@@ -104,13 +93,12 @@ public:
 			{
 				m_UpdatingManager = manager.get();
 				manager->OnEvent(event);
-				m_UpdatingManager = nullptr;
 			}
 		}
 	}
 
 private:
 	std::array<std::unique_ptr<I_WindowManager>, sizeof...(Managers)> m_Managers;
-	I_WindowManager* m_UpdatingManager;
+	I_WindowManager*												  m_UpdatingManager;
 };
-}
+} // namespace GLEngine::Core

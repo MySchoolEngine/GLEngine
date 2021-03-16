@@ -1,7 +1,6 @@
 #include <Utils/Parsing/ColorParsing.h>
 
 #include <glm/glm.hpp>
-#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
 
 #include <pugixml.hpp>
@@ -24,4 +23,4 @@ glm::vec3 C_ColorParser::ParseColorRGB(const pugi::xml_node& node, const std::st
 	return ret;
 }
 
-}
+} // namespace Utils::Parsing

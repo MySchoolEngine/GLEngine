@@ -3,8 +3,7 @@
 namespace GLEngine::GLRenderer::Shaders {
 
 //=================================================================================
-template<class T>
-void GLEngine::GLRenderer::Shaders::C_ShaderTypesReflection::Register()
+template <class T> void GLEngine::GLRenderer::Shaders::C_ShaderTypesReflection::Register()
 {
 	T obj;
 	if constexpr (std::is_base_of_v<I_GLSLStruct<T>, T>)
@@ -13,7 +12,7 @@ void GLEngine::GLRenderer::Shaders::C_ShaderTypesReflection::Register()
 	}
 	else
 	{
-		static_assert(false, "T is not valid GLSL struct");
+		static_assert(!std::is_base_of_v<I_GLSLStruct<T>, T>, "T is not valid GLSL struct");
 	}
 }
-}
+} // namespace GLEngine::GLRenderer::Shaders

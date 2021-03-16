@@ -5,10 +5,9 @@
 
 namespace GLEngine::GUI::Menu {
 //=================================================================================
-C_Menu::C_Menu(const std::string& label)
-	: m_Label(label)
+C_Menu::C_Menu(const std::string&& label)
+	: m_Label(std::move(label))
 {
-
 }
 
 //=================================================================================
@@ -32,4 +31,4 @@ GUID C_Menu::AddMenuItem(T_GUIMenuItem menuItem)
 	return guid;
 }
 
-}
+} // namespace GLEngine::GUI::Menu

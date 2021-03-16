@@ -9,16 +9,17 @@ project "GUI"
 
 	Link("Core")
 	Link("Utils")
+	Link("ImGuiFileDialog")
 
 	includedirs
 	{
 		"../Renderer",
-		"../Core",
 		"../Physics",
 		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.ImGui}",
+		"../%{IncludeDir.ImGuiFileDialog}",
 	}
 
 	links 
@@ -27,12 +28,8 @@ project "GUI"
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
-		systemversion "latest"
-
 		defines
 		{
-			"BUILD_GUI_DLL",
 			"IMGUI_API=__declspec(dllimport)"
 		}
 

@@ -1,13 +1,8 @@
 #include <GLRendererStdafx.h>
 
+#include <GLRenderer/Commands/FBO/glFramebufferTexture.h>
 #include <GLRenderer/FBO/Framebuffer.h>
 #include <GLRenderer/Textures/Texture.h>
-
-#include <GLRenderer/Commands/FBO/glFramebufferTexture.h>
-
-#include <Renderer/IRenderer.h>
-
-#include <Core/Application.h>
 
 namespace GLEngine::GLRenderer {
 
@@ -47,4 +42,4 @@ void C_Framebuffer::SetChecked()
 	m_DirtyFlag = false;
 }
 
-}
+} // namespace GLEngine::GLRenderer

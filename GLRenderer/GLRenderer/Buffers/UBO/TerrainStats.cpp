@@ -2,10 +2,7 @@
 
 #include <GLRenderer/Buffers/UBO/TerrainStats.h>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Buffers {
-namespace UBO {
+namespace GLEngine::GLRenderer::Buffers::UBO {
 
 //=================================================================================
 C_TerrainStats::C_TerrainStats(unsigned int index)
@@ -26,7 +23,7 @@ C_TerrainStats::C_TerrainStats(unsigned int index)
 void C_TerrainStats::UploadData() const
 {
 	bind();
-	float* data = (float *)glMapBuffer(GetBufferType(), GL_READ_WRITE);
+	float* data = (float*)glMapBuffer(GetBufferType(), GL_READ_WRITE);
 
 	data[0] = max;
 	data[1] = min;
@@ -40,7 +37,7 @@ void C_TerrainStats::UploadData() const
 void C_TerrainStats::DownloadData()
 {
 	bind();
-	float* data = (float *)glMapBuffer(GetBufferType(), GL_READ_ONLY);
+	float* data = (float*)glMapBuffer(GetBufferType(), GL_READ_ONLY);
 
 	max = data[0];
 	min = data[1];
@@ -59,4 +56,4 @@ void C_TerrainStats::ClearBuffer()
 	unbind();
 }
 
-}}}}
+} // namespace GLEngine::GLRenderer::Buffers::UBO

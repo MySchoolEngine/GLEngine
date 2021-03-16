@@ -1,24 +1,29 @@
 #pragma once
 
-#ifdef GL_ENGINE_DEBUG
-#include <stdio.h>
-#include <io.h>
-#include <fcntl.h>
-#include <windows.h>
-#endif
+#include <Core/EventSystem/Event/AppEvent.h>
 
 #if CORE_PLATFORM == CORE_PLATFORM_WIN
 
-#include <Core/EventSystem/Event/AppEvent.h>
+	#ifdef GL_ENGINE_DEBUG
+		#include <fcntl.h>
+		#include <io.h>
+		#include <stdio.h>
+		#include <windows.h>
+	#endif
 
 extern GLEngine::Core::C_Application* GLEngine::Core::CreateApplication();
 
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
-#ifdef GL_ENGINE_DEBUG
+	#ifdef GL_ENGINE_DEBUG
 	AllocConsole();
-	freopen_s((FILE**)stdout, "CONOUT$", "w", stdout);
-#endif
+	const auto err = freopen_s((FILE**)stdout, "CONOUT$", "w", stdout);
+	if (err != 0)
+	{
+		FreeConsole();
+		exit(-1);
+	}
+	#endif
 
 
 	CORE_LOG(E_Level::Info, E_Context::Core, "Initialized");
@@ -26,10 +31,13 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	auto app = GLEngine::Core::CreateApplication();
 	app->LoadArgs(0, NULL);
 	app->Init(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
-	app->OnEvent(GLEngine::Core::C_AppEvent());
+	app->OnEvent(GLEngine::Core::C_AppEvent(GLEngine::Core::C_AppEvent::E_Type::AppInit));
 	app->Run();
 	CORE_LOG(E_Level::Info, E_Context::Core, "App ended");
 	delete app;
+	#ifdef GL_ENGINE_DEBUG
+	FreeConsole();
+	#endif
 }
 
 #else
@@ -42,7 +50,8 @@ int main(int argc, char** argv)
 	auto app = GLEngine::Core::CreateApplication();
 	app->LoadArgs(argc, argv);
 	app->Init();
-	app->OnEvent(GLEngine::Core::C_AppEvent());
+	GLEngine::Core::C_AppEvent event(GLEngine::Core::C_AppEvent::E_Type::AppInit);
+	app->OnEvent(event);
 	app->Run();
 	CORE_LOG(E_Level::Info, E_Context::Core, "App ended");
 	delete app;

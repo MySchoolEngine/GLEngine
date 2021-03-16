@@ -18,7 +18,6 @@ C_CameraManager::C_CameraManager()
 	, m_UseDebugCam(false, "Use debug cam")
 	, m_Window(INVALID_GUID)
 {
-
 }
 
 //=================================================================================
@@ -79,4 +78,4 @@ void C_CameraManager::DestroyControls(GUI::C_GUIManager& guiMGR)
 	guiMGR.DestroyWindow(m_Window);
 }
 
-}
+} // namespace GLEngine::GLRenderer::Temporar

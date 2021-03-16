@@ -18,17 +18,17 @@ out vec4 fragColor;
 //=================================================================================
 void main()
 {
-	vec4 sun = vec4(0,50,5,1);
-	vec4 upVec = vec4(0,1,0,1);
+	vec4 sun   = vec4(0, 50, 5, 1);
+	vec4 upVec = vec4(0, 1, 0, 1);
 
-	vec3 albedo = vec3(1,0,0);
+	vec3  albedo = vec3(1, 0, 0);
 	float cosTheta;
 
 	cosTheta = dot(normal,normalize(pSunLight.position));
 	cosTheta = max(0.0, cosTheta);
 	int topLevel = getLayerIndex(tex, uv, FragPos.y);
 
-	albedo = modelColor[topLevel-Terrain_layer1];
+	albedo = modelColor[topLevel - Terrain_layer1];
 
 	vec3 MaterialAmbientColor = frame.AmbientStrength * pSunLight.color; // ambient lighting fake
 	vec3 MaterialDiffuseColor = cosTheta*pSunLight.color;

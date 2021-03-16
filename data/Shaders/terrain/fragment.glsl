@@ -25,20 +25,21 @@ vec3 getNormal(){
 	const vec2 size = vec2(2*s,0.0);
 	const vec3 off = vec3(-s,0,s);
 
-	float s11 = texture(tex, uv).r;
-    float s01 = texture(tex, uv + vec3(off.xy, 0)).r;
-    float s21 = texture(tex, uv + vec3(off.zy, 0)).r;
-    float s10 = texture(tex, uv + vec3(off.yx, 0)).r;
-    float s12 = texture(tex, uv + vec3(off.yz, 0)).r;
-    vec3 va = normalize(vec3(size.xy,s21-s01));
-    vec3 vb = normalize(vec3(size.yx,s12-s10));
-    vec4 bump = vec4( cross(va,vb), s11 );
+	float s11  = texture(tex, uv).r;
+	float s01  = texture(tex, uv + vec3(off.xy, 0)).r;
+	float s21  = texture(tex, uv + vec3(off.zy, 0)).r;
+	float s10  = texture(tex, uv + vec3(off.yx, 0)).r;
+	float s12  = texture(tex, uv + vec3(off.yz, 0)).r;
+	vec3  va   = normalize(vec3(size.xy, s21 - s01));
+	vec3  vb   = normalize(vec3(size.yx, s12 - s10));
+	vec4  bump = vec4(cross(va, vb), s11);
 
-    return vec3(bump.x, bump.z, bump.y);
+	return vec3(bump.x, bump.z, bump.y);
 }
 
 //=================================================================================
-float remap(float value,float  low1,float  high1,float  low2,float high2){
+float remap(float value, float low1, float high1, float low2, float high2)
+{
 	return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
 }
 
@@ -89,7 +90,7 @@ void main()
     const vec3 viewDir = normalize(-omegaIn);
 
 	float terrainWetness = texture(tex, vec3(uv.xy, wetnessLayer)).r;
-	int topLevel = getTopLayerIndex(tex, uv.xy);
+	int	  topLevel		 = getTopLayerIndex(tex, uv.xy);
 
 	vec3 mudColor = vec3(0.5, 0.4, 0.278);
 

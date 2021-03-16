@@ -1,9 +1,8 @@
 #include <GLRendererStdafx.h>
 
 #include <GLRenderer/Lights/LightsUBO.h>
-
-#include <GLRenderer/Textures/TextureLoader.h>
 #include <GLRenderer/Textures/Texture.h>
+#include <GLRenderer/Textures/TextureLoader.h>
 
 
 namespace GLEngine::GLRenderer {
@@ -62,4 +61,4 @@ void C_LightsBuffer::MakeHandlesResident(bool val /*= true*/)
 	m_LTCMagTexture->MakeHandleResident(val);
 }
 
-}
+} // namespace GLEngine::GLRenderer

@@ -12,8 +12,7 @@ namespace Renderer {
 class I_CameraComponent;
 }
 
-namespace GLRenderer {
-namespace Temporar {
+namespace GLRenderer::Temporar {
 
 class C_CameraManager : public Core::C_Layer {
 public:
@@ -41,5 +40,5 @@ private:
 	GUI::Input::C_CheckBoxValue					m_UseDebugCam;
 };
 
-}}}
-
+} // namespace GLRenderer::Temporar
+} // namespace GLEngine

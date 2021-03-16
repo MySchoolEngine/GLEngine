@@ -2,13 +2,13 @@
  * @file 		Frustum.h
  * @date 		2018/03/17 19:52
  * @project 	Computer Graphics Project
- * @faculty 	Faculty of Information Technology 
+ * @faculty 	Faculty of Information Technology
  * @university 	Brno University of Technology
  *
  * @author 		Dominik Rohacek
  * Contact: 	RohacekD@gmail.com
  ** ==============================================*/
- 
+
 #pragma once
 
 #include <Physics/Primitives/AABB.h>
@@ -38,7 +38,8 @@ public:
 		, m_far(zfar)
 		, m_aspect(aspect)
 		, m_fov(fov)
-	{}
+	{
+	}
 	/** ==============================================
 	 * @method:    GetAABB
 	 * @fullName:  C_Frustum::GetAABB
@@ -49,7 +50,7 @@ public:
 	[[nodiscard]] S_AABB GetAABB() const
 	{
 		glm::vec3 nearCenter = glm::vec3(m_position + (m_foreward * m_near));
-		glm::vec3 farCenter = glm::vec3(m_position + (m_foreward * m_far));
+		glm::vec3 farCenter	 = glm::vec3(m_position + (m_foreward * m_far));
 
 		glm::vec3 left = glm::cross(m_upVector, m_foreward);
 
@@ -81,11 +82,11 @@ public:
 		bbox.Add(frb);
 		return bbox;
 	}
-	constexpr void UpdateWithMatrix(const glm::mat4& matrix)
+	void UpdateWithMatrix(const glm::mat4& matrix)
 	{
 		auto newPosition = glm::vec3((matrix * glm::vec4(m_position, 1.0f)));
-		m_upVector = glm::vec3((matrix * glm::vec4(m_position + m_upVector, 1.0f))) - newPosition;
-		m_foreward = glm::vec3((matrix * glm::vec4(m_position + m_foreward, 1.0f))) - newPosition;
+		m_upVector		 = glm::vec3((matrix * glm::vec4(m_position + m_upVector, 1.0f))) - newPosition;
+		m_foreward		 = glm::vec3((matrix * glm::vec4(m_position + m_foreward, 1.0f))) - newPosition;
 
 		m_position = newPosition;
 	}
@@ -95,24 +96,25 @@ public:
 	}
 
 	[[nodiscard]] constexpr const glm::vec3& GetForeward() const { return m_foreward; }
-	constexpr void			SetForeward(const glm::vec3& val) { m_foreward = val; }
-	[[nodiscard]] constexpr float			GetNear() const { return m_near; }
-	constexpr void			SetNear(float val) { m_near = val; }
-	[[nodiscard]] constexpr float			GetFar() const { return m_far; }
-	constexpr void			SetFar(float val) { m_far = val; }
-	[[nodiscard]] constexpr float			GetAspect() const { return m_aspect; }
-	constexpr void			SetAspect(float val) { m_aspect = val; }
-	[[nodiscard]] constexpr float			GetFov() const { return m_fov; }
-	constexpr void			SetFov(float val) { m_fov = val; }
+	constexpr void							 SetForeward(const glm::vec3& val) { m_foreward = val; }
+	[[nodiscard]] constexpr float			 GetNear() const { return m_near; }
+	constexpr void							 SetNear(float val) { m_near = val; }
+	[[nodiscard]] constexpr float			 GetFar() const { return m_far; }
+	constexpr void							 SetFar(float val) { m_far = val; }
+	[[nodiscard]] constexpr float			 GetAspect() const { return m_aspect; }
+	constexpr void							 SetAspect(float val) { m_aspect = val; }
+	[[nodiscard]] constexpr float			 GetFov() const { return m_fov; }
+	constexpr void							 SetFov(float val) { m_fov = val; }
 	[[nodiscard]] constexpr const glm::vec3& GetPosition() const { return m_position; }
 	[[nodiscard]] constexpr const glm::vec3& GetUpVector() const { return m_upVector; }
+
 private:
-	glm::vec3	m_position;
-	glm::vec3	m_upVector;
-	glm::vec3	m_foreward;
-	float		m_near;
-	float		m_far;
-	float		m_aspect;
-	float		m_fov;
+	glm::vec3 m_position;
+	glm::vec3 m_upVector;
+	glm::vec3 m_foreward;
+	float	  m_near;
+	float	  m_far;
+	float	  m_aspect;
+	float	  m_fov;
 };
-}
+} // namespace GLEngine::Physics::Primitives

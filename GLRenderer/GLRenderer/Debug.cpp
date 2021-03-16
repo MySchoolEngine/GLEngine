@@ -1,32 +1,39 @@
 #include <GLRendererStdafx.h>
 
+#include <GLRenderer/Commands/HACK/LambdaCommand.h>
+#include <GLRenderer/Components/StaticMesh.h>
 #include <GLRenderer/Debug.h>
-
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
-#include <GLRenderer/Commands/HACK/LambdaCommand.h>
+#include <GLRenderer/Textures/Texture.h>
 
 #include <Renderer/Animation/Skeleton.h>
+#include <Renderer/IRenderer.h>
+#include <Renderer/Mesh/Geometry.h>
 
 #include <Physics/Primitives/Frustum.h>
 
-#include <Renderer/IRenderer.h>
-
 #include <Core/Application.h>
 
-#include <glm/gtc/type_ptr.hpp>
+#include <Utils/DebugBreak.h>
+
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/transform.hpp>
 
-namespace GLEngine {
-namespace GLRenderer {
+namespace GLEngine::GLRenderer {
 
-const static std::string s_DebugShaderName = "basic-wireframe";
+const static std::string s_DebugShaderName	= "basic-wireframe";
 const static std::string s_MergedShaderName = "MergedWireframes";
 
-#define codeToStr(c) case c: return #c; break
+#define codeToStr(c)                                                                                                                                                               \
+	case c:                                                                                                                                                                        \
+		return #c;                                                                                                                                                                 \
+		break
 
 //=================================================================================
-const char* glErrorCodeToString(unsigned int code) {
+const char* glErrorCodeToString(unsigned int code)
+{
 	switch (code)
 	{
 		codeToStr(GL_INVALID_ENUM);
@@ -42,7 +49,8 @@ const char* glErrorCodeToString(unsigned int code) {
 }
 
 //=================================================================================
-const char* glErrorTypeToString(GLenum code) {
+const char* glErrorTypeToString(GLenum code)
+{
 	switch (code)
 	{
 		codeToStr(GL_DEBUG_TYPE_ERROR);
@@ -56,46 +64,35 @@ const char* glErrorTypeToString(GLenum code) {
 bool _glErrorCheck(const char* file, const int line)
 {
 	GLenum status;
-	while ((status = glGetError()) != GL_NO_ERROR) {
-		std::cout << "[" << file << ":" << line << "] Error (0x"
-			<< std::hex << std::setfill('0') << std::setw(4)
-			<< status << ":" << glErrorCodeToString(status) << "): "
-			// << glewGetErrorString(status)
-			<< std::dec
-			<< std::endl;
-#ifdef GL_ENGINE_DEBUG
-		__debugbreak();
-#endif
+	while ((status = glGetError()) != GL_NO_ERROR)
+	{
+		std::cout << "[" << file << ":" << line << "] Error (0x" << std::hex << std::setfill('0') << std::setw(4) << status << ":" << glErrorCodeToString(status)
+				  << "): "
+				  // << glewGetErrorString(status)
+				  << std::dec << std::endl;
+		GL_DebugBreak();
 		return true;
 	}
 	return false;
 }
 
 //=================================================================================
-void GLAPIENTRY
-MessageCallback(GLenum source,
-	GLenum type,
-	GLuint id,
-	GLenum severity,
-	GLsizei length,
-	const GLchar* message,
-	const void* userParam)
+void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {
-	if (severity == GL_DEBUG_SEVERITY_NOTIFICATION) return;
-	if (type != GL_DEBUG_TYPE_ERROR) return;
-	CORE_LOG(E_Level::Error, E_Context::Render,"GL CALLBACK: {} type = {}, severity = 0x{:x}, message = {}",
-		(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
-		glErrorTypeToString(type), severity, message);
-#ifdef GL_ENGINE_DEBUG
-	__debugbreak();
-#endif
+	if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
+		return;
+	if (type != GL_DEBUG_TYPE_ERROR)
+		return;
+	CORE_LOG(E_Level::Error, E_Context::Render, "GL CALLBACK: {} type = {}, severity = 0x{:x}, message = {}", (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
+			 glErrorTypeToString(type), severity, message);
+	GL_DebugBreak();
 }
 
 //=================================================================================
-C_DebugDraw & C_DebugDraw::Instance()
+C_DebugDraw& C_DebugDraw::Instance()
 {
-	static C_DebugDraw    instance; // Guaranteed to be destroyed.
-									// Instantiated on first use.
+	static C_DebugDraw instance; // Guaranteed to be destroyed.
+								 // Instantiated on first use.
 	return instance;
 }
 
@@ -104,21 +101,11 @@ C_DebugDraw & C_DebugDraw::Instance()
 void C_DebugDraw::SetupAABB()
 {
 	std::vector<glm::vec4> vertices = {
-		{-0.5, -0.5, -0.5, 1.0},
-		{0.5, -0.5, -0.5, 1.0},
-		{0.5,  0.5, -0.5, 1.0},
-		{-0.5,  0.5, -0.5, 1.0},
-		{-0.5, -0.5,  0.5, 1.0},
-		{0.5, -0.5,  0.5, 1.0},
-		{0.5,  0.5,  0.5, 1.0},
-		{-0.5,  0.5,  0.5, 1.0},
+		{-0.5, -0.5, -0.5, 1.0}, {0.5, -0.5, -0.5, 1.0}, {0.5, 0.5, -0.5, 1.0}, {-0.5, 0.5, -0.5, 1.0},
+		{-0.5, -0.5, 0.5, 1.0},	 {0.5, -0.5, 0.5, 1.0},	 {0.5, 0.5, 0.5, 1.0},	{-0.5, 0.5, 0.5, 1.0},
 	};
 
-	std::vector<GLushort> elements = {
-		0, 1, 2, 3,
-		4, 5, 6, 7,
-		0, 4, 1, 5, 2, 6, 3, 7
-	};
+	std::vector<GLushort> elements = {0, 1, 2, 3, 4, 5, 6, 7, 0, 4, 1, 5, 2, 6, 3, 7};
 
 	m_VAOaabb.bind();
 
@@ -134,6 +121,7 @@ void C_DebugDraw::SetupAABB()
 
 //=================================================================================
 C_DebugDraw::C_DebugDraw()
+	: m_OctahedronMesh(nullptr)
 {
 	SetupAABB();
 	std::vector<glm::vec4> dummy4;
@@ -156,14 +144,14 @@ void C_DebugDraw::Clear()
 }
 
 //=================================================================================
-void C_DebugDraw::DrawPoint(const glm::vec4 & point, const glm::vec3 & color, const glm::mat4 & modelMatrix)
+void C_DebugDraw::DrawPoint(const glm::vec4& point, const glm::vec3& color, const glm::mat4& modelMatrix)
 {
 	m_PointsVertices.push_back(modelMatrix * point);
 	m_PointsColors.push_back(color);
 }
 
 //=================================================================================
-void C_DebugDraw::DrawPoint(const glm::vec3 & point, const glm::vec3 & color, const glm::mat4 & modelMatrix)
+void C_DebugDraw::DrawPoint(const glm::vec3& point, const glm::vec3& color, const glm::mat4& modelMatrix)
 {
 	DrawPoint(toVec4(point), color, modelMatrix);
 }
@@ -172,11 +160,11 @@ void C_DebugDraw::DrawPoint(const glm::vec3 & point, const glm::vec3 & color, co
 void C_DebugDraw::DrawAABB(const Physics::Primitives::S_AABB& bbox, const glm::vec3& color /*= glm::vec3(0.0f, 0.0f, 0.0f)*/, const glm::mat4& modelMatrix /*= glm::mat4(1.0f)*/)
 {
 	auto& shdManager = Shaders::C_ShaderManager::Instance();
-	auto program = Shaders::C_ShaderManager::Instance().GetProgram(s_DebugShaderName);
+	auto  program	 = Shaders::C_ShaderManager::Instance().GetProgram(s_DebugShaderName);
 	shdManager.ActivateShader(program);
 
-	glm::vec3 size = bbox.m_Max - bbox.m_Min;
-	glm::vec3 center = (bbox.m_Max + bbox.m_Min) / 2.0f;// glm::vec3((min_x + max_x) / 2, (min_y + max_y) / 2, (min_z + max_z) / 2);
+	glm::vec3 size		= bbox.m_Max - bbox.m_Min;
+	glm::vec3 center	= (bbox.m_Max + bbox.m_Min) / 2.0f; // glm::vec3((min_x + max_x) / 2, (min_y + max_y) / 2, (min_z + max_z) / 2);
 	glm::mat4 transform = glm::translate(glm::mat4(1), center) * glm::scale(glm::mat4(1), size);
 
 	m_AABBTransform.emplace_back(modelMatrix * transform);
@@ -200,7 +188,7 @@ void C_DebugDraw::DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, con
 }
 
 //=================================================================================
-void C_DebugDraw::DrawLines(const std::vector<glm::vec4>& pairs, const glm::vec3 & color)
+void C_DebugDraw::DrawLines(const std::vector<glm::vec4>& pairs, const glm::vec3& color)
 {
 	m_LinesVertices.insert(m_LinesVertices.end(), pairs.begin(), pairs.end());
 	m_LinesColors.insert(m_LinesColors.end(), pairs.size(), color);
@@ -209,13 +197,13 @@ void C_DebugDraw::DrawLines(const std::vector<glm::vec4>& pairs, const glm::vec3
 //=================================================================================
 void C_DebugDraw::DrawBone(const glm::vec3& position, const Renderer::Animation::S_Joint& joint)
 {
-	const auto locTransformation	= glm::inverse((joint.m_InverseBindTransfomr));
-	const glm::vec4 modelDest		= (locTransformation * glm::vec4(0.f, 0.f, 0.0f, 1.f));
-	const glm::vec3 dest			= glm::vec3(modelDest / modelDest.w);
-	const glm::vec3 boneOffset		= dest - position;
+	const auto		locTransformation = glm::inverse((joint.m_InverseBindTransfomr));
+	const glm::vec4 modelDest		  = (locTransformation * glm::vec4(0.f, 0.f, 0.0f, 1.f));
+	const glm::vec3 dest			  = glm::vec3(modelDest / modelDest.w);
+	const glm::vec3 boneOffset		  = dest - position;
 
-	const float bumpFactor = .33f;
-	const auto BumpPosition = position + boneOffset * bumpFactor;
+	const float bumpFactor	 = .33f;
+	const auto	BumpPosition = position + boneOffset * bumpFactor;
 
 	glm::vec3 tangent;
 
@@ -231,12 +219,12 @@ void C_DebugDraw::DrawBone(const glm::vec3& position, const Renderer::Animation:
 		tangent = c2;
 	}
 
-	tangent=glm::normalize(tangent);
+	tangent				 = glm::normalize(tangent);
 	const auto bitangent = glm::cross(tangent, boneOffset);
 
-	const float bumpSize = .05f;
-	const glm::vec3 Offset1 = tangent * bumpSize;
-	const glm::vec3 Offset2 = bitangent * bumpSize;
+	const float		bumpSize = .05f;
+	const glm::vec3 Offset1	 = tangent * bumpSize;
+	const glm::vec3 Offset2	 = bitangent * bumpSize;
 
 
 	DrawLine(position, BumpPosition, glm::vec3(1, 1, 1));
@@ -259,7 +247,7 @@ void C_DebugDraw::DrawBone(const glm::vec3& position, const Renderer::Animation:
 	DrawLine(dest, BumpPosition + Offset1 - Offset2);
 	DrawLine(dest, BumpPosition - Offset1 - Offset2);
 	DrawLine(dest, BumpPosition - Offset1 + Offset2);
-	
+
 	for (const auto& child : joint.m_Children)
 	{
 		DrawBone(dest, child);
@@ -269,10 +257,10 @@ void C_DebugDraw::DrawBone(const glm::vec3& position, const Renderer::Animation:
 //=================================================================================
 void C_DebugDraw::DrawSkeleton(const glm::vec3& root, const Renderer::Animation::C_Skeleton& skeleton)
 {
-	const auto locTransformation = glm::inverse((skeleton.m_Root->m_InverseBindTransfomr));
-	const glm::vec4 modelDest = (locTransformation * glm::vec4(0.f, 0.f, 0.0f, 1.f));
-	const glm::vec3 dest = glm::vec3(modelDest / modelDest.w);
-	const glm::vec3 boneOffset = dest - root;
+	const auto		locTransformation = glm::inverse((skeleton.m_Root->m_InverseBindTransfomr));
+	const glm::vec4 modelDest		  = (locTransformation * glm::vec4(0.f, 0.f, 0.0f, 1.f));
+	const glm::vec3 dest			  = glm::vec3(modelDest / modelDest.w);
+	const glm::vec3 boneOffset		  = dest - root;
 
 	for (const auto& child : skeleton.m_Root->m_Children)
 	{
@@ -281,9 +269,9 @@ void C_DebugDraw::DrawSkeleton(const glm::vec3& root, const Renderer::Animation:
 }
 
 //=================================================================================
-void C_DebugDraw::DrawAxis(const glm::vec3& origin, const glm::vec3& up, const glm::vec3& foreward, glm::mat4 & modelMatrix)
+void C_DebugDraw::DrawAxis(const glm::vec3& origin, const glm::vec3& up, const glm::vec3& foreward, const glm::mat4& modelMatrix)
 {
-	glm::vec3 rightVec = toVec4(glm::normalize(glm::cross(glm::vec3(up), glm::vec3(foreward))));
+	glm::vec3  rightVec			  = toVec4(glm::normalize(glm::cross(glm::vec3(up), glm::vec3(foreward))));
 	const auto originInModelSpace = modelMatrix * glm::vec4(origin, 1.0f);
 	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + foreward), 1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + up), 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -291,14 +279,15 @@ void C_DebugDraw::DrawAxis(const glm::vec3& origin, const glm::vec3& up, const g
 }
 
 //=================================================================================
-void C_DebugDraw::DrawGrid(const glm::vec4& origin, unsigned short linesToSide, glm::mat4& modelMatrix /*= glm::mat4(1.0f)*/)
+void C_DebugDraw::DrawGrid(const glm::vec4& origin, unsigned short linesToSide, const glm::mat4& modelMatrix /*= glm::mat4(1.0f)*/)
 {
 	int limit = linesToSide;
 	// cross for center
 	DrawLine(origin + glm::vec4(-limit, 0, 0, 1.f), origin + glm::vec4(limit, 0, 0, 1.f));
 	DrawLine(origin + glm::vec4(0, 0, -limit, 1.f), origin + glm::vec4(0, 0, limit, 1.f));
 
-	for (int i = 1; i <= limit; ++i) {
+	for (int i = 1; i <= limit; ++i)
+	{
 		// lines in positive direction from origin
 		DrawLine(origin + glm::vec4(-limit, 0, i, 1.f), origin + glm::vec4(limit, 0, i, 1.f));
 		DrawLine(origin + glm::vec4(i, 0, -limit, 1.f), origin + glm::vec4(i, 0, limit, 1.f));
@@ -315,13 +304,13 @@ void C_DebugDraw::DrawFrustum(const Physics::Primitives::C_Frustum& frust, const
 	const auto& position = frust.GetPosition();
 	const auto& upVector = frust.GetUpVector();
 	const auto& forward	 = frust.GetForeward();
-	const auto  fnear	 = frust.GetNear();
-	const auto  ffar	 = frust.GetFar();
-	const auto  fov      = frust.GetFov();
+	const auto	fnear	 = frust.GetNear();
+	const auto	ffar	 = frust.GetFar();
+	const auto	fov		 = frust.GetFov();
 	const auto	aspect	 = frust.GetAspect();
 
 	const glm::vec3 nearCenter = glm::vec3(position + (forward * fnear));
-	const glm::vec3 farCenter = glm::vec3(position + (forward * ffar));
+	const glm::vec3 farCenter  = glm::vec3(position + (forward * ffar));
 
 	const glm::vec3 left = glm::cross(upVector, forward);
 
@@ -343,20 +332,32 @@ void C_DebugDraw::DrawFrustum(const Physics::Primitives::C_Frustum& frust, const
 	const auto frb = glm::vec4(farCenter - (xf * left) - upVector * yf, 1.0f);
 
 	std::vector<glm::vec4> lines;
-	lines.push_back(nlt); lines.push_back(nrt);
-	lines.push_back(nlb); lines.push_back(nrb);
-	lines.push_back(nlt); lines.push_back(nlb);
-	lines.push_back(nrt); lines.push_back(nrb);
+	lines.push_back(nlt);
+	lines.push_back(nrt);
+	lines.push_back(nlb);
+	lines.push_back(nrb);
+	lines.push_back(nlt);
+	lines.push_back(nlb);
+	lines.push_back(nrt);
+	lines.push_back(nrb);
 
-	lines.push_back(flt); lines.push_back(frt);
-	lines.push_back(flb); lines.push_back(frb);
-	lines.push_back(flt); lines.push_back(flb);
-	lines.push_back(frt); lines.push_back(frb);
+	lines.push_back(flt);
+	lines.push_back(frt);
+	lines.push_back(flb);
+	lines.push_back(frb);
+	lines.push_back(flt);
+	lines.push_back(flb);
+	lines.push_back(frt);
+	lines.push_back(frb);
 
-	lines.push_back(nlt); lines.push_back(flt);
-	lines.push_back(nrt); lines.push_back(frt);
-	lines.push_back(nlb); lines.push_back(flb);
-	lines.push_back(nrb); lines.push_back(frb);
+	lines.push_back(nlt);
+	lines.push_back(flt);
+	lines.push_back(nrt);
+	lines.push_back(frt);
+	lines.push_back(nlb);
+	lines.push_back(flb);
+	lines.push_back(nrb);
+	lines.push_back(frb);
 
 	DrawLines(lines, color);
 	DrawPoint(position);
@@ -368,79 +369,91 @@ void C_DebugDraw::DrawFrustum(const Physics::Primitives::C_Frustum& frust, const
 void C_DebugDraw::DrawMergedGeoms()
 {
 	auto& shdManager = Shaders::C_ShaderManager::Instance();
-	auto program = shdManager.GetProgram(s_MergedShaderName);
+	auto  program	 = Shaders::C_ShaderManager::Instance().GetProgram(s_MergedShaderName);
 	shdManager.ActivateShader(program);
 
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
+	if (!m_OctahedronInfos.empty() && !m_OctahedronMesh)
+	{
+		m_OctahedronMesh = std::make_shared<Components::C_StaticMesh>(Renderer::MeshData::C_Geometry::CreateOctahedron(1.f, 1.f), "OctahedronMapping", nullptr);
+	}
 
-	renderer->AddCommand(
-		std::make_unique<Commands::HACK::C_LambdaCommand>(
-			[&]() {
-				m_VAOlines.bind();
-				std::vector<glm::vec4> mergedVertices(m_LinesVertices);
-				std::vector<glm::vec3> mergedColors(m_LinesColors);
-				mergedVertices.insert(mergedVertices.end(), m_PointsVertices.begin(), m_PointsVertices.end());
-				mergedColors.insert(mergedColors.end(), m_PointsColors.begin(), m_PointsColors.end());
-				m_VAOlines.SetBufferData<0, GL_ARRAY_BUFFER>(mergedVertices, true);
-				m_VAOlines.SetBufferData<1, GL_ARRAY_BUFFER>(mergedColors, true);
+	std::for_each(m_OctahedronInfos.begin(), m_OctahedronInfos.end(), [&](const auto& info) {
+		m_OctahedronMesh->SetColorMap(info.m_Texture);
+		m_OctahedronMesh->SetComponentMatrix(glm::scale(glm::translate(info.m_Position), glm::vec3(info.m_size)));
+		m_OctahedronMesh->PerformDraw();
+	});
+	m_OctahedronInfos.clear();
 
-				const auto lineVertices = static_cast<GLsizei>(m_LinesVertices.size());
-				const auto pointsVertices = static_cast<GLsizei>(m_PointsVertices.size());
-				if (lineVertices > 0) {
-					glDrawArrays(GL_LINES, 0, lineVertices);
-				}
-				if (pointsVertices) {
-					glPointSize(5.0f);
-					glEnable(GL_PROGRAM_POINT_SIZE);
-					glDrawArrays(GL_POINTS, lineVertices, pointsVertices);
-				}
+	renderer->AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+		[&]() {
+			m_VAOlines.bind();
+			std::vector<glm::vec4> mergedVertices(m_LinesVertices);
+			std::vector<glm::vec3> mergedColors(m_LinesColors);
+			mergedVertices.insert(mergedVertices.end(), m_PointsVertices.begin(), m_PointsVertices.end());
+			mergedColors.insert(mergedColors.end(), m_PointsColors.begin(), m_PointsColors.end());
+			m_VAOlines.SetBufferData<0, GL_ARRAY_BUFFER>(mergedVertices, true);
+			m_VAOlines.SetBufferData<1, GL_ARRAY_BUFFER>(mergedColors, true);
+
+			const auto lineVertices	  = static_cast<GLsizei>(m_LinesVertices.size());
+			const auto pointsVertices = static_cast<GLsizei>(m_PointsVertices.size());
+			if (lineVertices > 0)
+			{
+				glDrawArrays(GL_LINES, 0, lineVertices);
+			}
+			if (pointsVertices)
+			{
+				glPointSize(5.0f);
+				glEnable(GL_PROGRAM_POINT_SIZE);
+				glDrawArrays(GL_POINTS, lineVertices, pointsVertices);
+			}
 
 
-				m_VAOlines.unbind();
+			m_LinesVertices.clear();
+			m_LinesColors.clear();
 
-				m_LinesVertices.clear();
-				m_LinesColors.clear();
-
-				m_PointsVertices.clear();
-				m_PointsColors.clear();
+			m_PointsVertices.clear();
+			m_PointsColors.clear();
 			}, "C_DebugDraw::DrawMergedGeoms"
-		)
-	);
+		));
 	shdManager.DeactivateShader();
 	auto AABBprogram = shdManager.GetProgram(s_DebugShaderName);
 	shdManager.ActivateShader(AABBprogram);
 
 	renderer->AddCommand(
 		std::make_unique<Commands::HACK::C_LambdaCommand>([this]() {
-			m_VAOaabb.bind();
-			m_VAOaabb.BindBuffer<1>();
+		m_VAOaabb.bind();
+		m_VAOaabb.BindBuffer<1>();
 			}, "Prepare AABB"));
 
 	for (int i = 0; i < m_AABBTransform.size(); ++i) {
-		renderer->AddCommand(
-			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[this, AABBprogram, i]() {
-					AABBprogram->SetUniform("modelMatrix", m_AABBTransform[i]);
-					AABBprogram->SetUniform("colorIN", m_AABBColor[i]);
+		renderer->AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+			[this, AABBprogram, i]() {
+				AABBprogram->SetUniform("modelMatrix", m_AABBTransform[i]);
+				AABBprogram->SetUniform("colorIN", m_AABBColor[i]);
 
-					glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, 0);
-					glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, (GLvoid*)(4 * sizeof(GLushort)));
-					glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, (GLvoid*)(8 * sizeof(GLushort)));
-
-				}, "Debug - DrawAABB"
-			)
-		);
+				glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, 0);
+				glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, (GLvoid*)(4 * sizeof(GLushort)));
+				glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, (GLvoid*)(8 * sizeof(GLushort)));
+			},
+			"Debug - DrawAABB"));
 	}
 
 	renderer->AddCommand(
 		std::make_unique<Commands::HACK::C_LambdaCommand>([this]() {
-				m_VAOaabb.unbind();
-				m_AABBTransform.clear();
-				m_AABBColor.clear();
+		m_VAOaabb.unbind();
+		m_AABBTransform.clear();
+		m_AABBColor.clear();
 			}, "Clear AABB"));
 
 	shdManager.DeactivateShader();
 }
 
+//=================================================================================
+void C_DebugDraw::ProbeDebug(const glm::vec3& position, float size, std::shared_ptr<Textures::C_Texture>& texture)
+{
+	m_OctahedronInfos.emplace_back(OctahedronInfo{texture, size, position});
+}
+
 #endif
-}}
+} // namespace GLEngine::GLRenderer

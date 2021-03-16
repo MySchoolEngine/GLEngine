@@ -19,12 +19,12 @@ public:
 	virtual void Update() override;
 
 	[[nodiscard]] virtual const std::unique_ptr<Renderer::I_Renderer>& GetRenderer() const override;
-	virtual void OnEvent(Core::I_Event& event) override;
+	virtual void													   OnEvent(Core::I_Event& event) override;
+
 protected:
-	virtual void Init(const Core::S_WindowInfo& wndInfo) override;
+	virtual void						  Init(const Core::S_WindowInfo& wndInfo) override;
 	std::unique_ptr<Renderer::I_Renderer> m_renderer;
 };
 
-}
-}
-
+} // namespace GLRenderer::GLFW
+} // namespace GLEngine

@@ -17,6 +17,10 @@
 					<color>0.0 0.0 1.0</color>
 					<roughness>0.83</roughness>
 				</staticMesh>
+				<AreaLight width="5.0" height="2.0">
+					<DiffuseColor>1.0 0.0 0.0</DiffuseColor>
+					<SpecularColor>1.0 1.0 0.0</SpecularColor>
+				</AreaLight>
 			</Components>
 		</Entity>
 		<Entity name="wall">

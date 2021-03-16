@@ -4,18 +4,14 @@ project "DevIL-IL"
     
 	targetdir ("../../../bin/" .. outputdir .. "/vendor/%{prj.name}")
     objdir ("../../../obj/" .. outputdir .. "/vendor/%{prj.name}")
-    disablewarnings 
-    { 
-        "4101", -- sstrcpy
-        "5033", -- register keyword
-        "4065", -- default but no case label 
-    }
 
     includedirs
     {
         "../../DevIL/DevIL/src-IL/include",
         "../../DevIL/DevIL/include/IL",
         "../../DevIL/DevIL/include",
+        "../../libjpeg/",
+        "../libjpeg/",
         ".",
     }
 
@@ -33,13 +29,22 @@ project "DevIL-IL"
         "IL_NO_EXR",
         "IL_NO_WDP",
         "IL_NO_JP2",
-        "IL_NO_JPG",
         "IL_NO_PNG",
         "IL_NO_MNG",
         "IL_NO_LCMS",
         "IL_NO_TIF",
     }
+
+    links
+    {
+        "libjpeg",
+    }
     
+    removedefines
+    {
+        "_UNICODE", 
+    }
+
 	filter "system:windows"
         systemversion "latest"
         cppdialect "C++17"
@@ -48,6 +53,20 @@ project "DevIL-IL"
         postbuildcommands
         {
             ("{COPY} %{cfg.buildtarget.relpath} \"../../../bin/" .. outputdir .. "/Sandbox/\"")
+        }
+        disablewarnings 
+        { 
+            "4101", -- sstrcpy
+            "5033", -- register keyword
+            "4065", -- default but no case label 
+        }
+        
+    filter "system:linux"
+        disablewarnings
+        {
+            "conversion-null",
+            "register",
+            "unused-result",
         }
         
     filter "configurations:Debug"

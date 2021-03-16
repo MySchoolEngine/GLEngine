@@ -22,7 +22,9 @@ end)
 workspace "Engine"
 	architecture "x64"
 	startproject "Sandbox"
-	
+	cppdialect "C++17"
+	systemversion "latest"
+
 	configurations{
 		"Debug",
 		"Release"
@@ -30,6 +32,8 @@ workspace "Engine"
   
 	defines{
 		"FMT_HEADER_ONLY=1",
+		"CORE_PLATFORM_WIN=1",
+		"CORE_PLATFORM_LINUX=2",
 		"GLM_ENABLE_EXPERIMENTAL",
 	}
 
@@ -39,20 +43,24 @@ workspace "Engine"
 		"premakeDefines.lua",
 	}
 
-	disablewarnings {"4251"}
-
-	filter "action:vs*"
+	filter "system:windows"
+		disablewarnings {"4251"}
 		defines {
 			"CORE_PLATFORM=CORE_PLATFORM_WIN",
 			"WIN32", 
 			"_GLFW_WIN32",
 			"_CRT_SECURE_NO_WARNINGS",
 		}
-
-	filter "action:gmake"
-		defines {
-			"_GLFW_X11",
+		buildoptions
+		{
+			"/MP"
 		}
+
+	filter "system:linux"
+		defines {
+			"CORE_PLATFORM=CORE_PLATFORM_LINUX"
+		}
+		links { "stdc++fs" }
 
   filter "configurations:Debug"
     defines "GL_ENGINE_DEBUG"
@@ -70,15 +78,22 @@ IncludeDir["ImGui"] = "vendor/ImGui"
 IncludeDir["ImGuiFileDialog"] = "vendor/ImGuiFileDialog"
 IncludeDir["DevIL"] = "vendor/DevIL/DevIL/include"
 IncludeDir["dirent"] = "vendor/dirent/include"
+group "Assimp"
+  include "vendor/projects/zlib"
+  include "vendor/projects/irrXML"
+  include "vendor/projects/Assimp"
+group ""
 group "Dependencies"
   include "vendor/GLFW"
   include "vendor/Glad"
-  include "vendor/pugixmlPremake"
+  include "vendor/projects/pugixml"
   include "vendor/projects/ImGui"
   include "vendor/projects/ImGuiFileDialog"
   include "vendor/projects/DevIL"
-  filter "action:vs*"
-  	include "vendor/projects/dirent"
+  include "vendor/projects/libjpeg"
+if _TARGET_OS ~= "linux" then
+  include "vendor/projects/dirent"
+end
 group ""
 
 include "Core"
@@ -90,5 +105,6 @@ include "Entity"
 include "Utils"
 include "Physics"
 
-filter "action:vs*"
+if _TARGET_OS ~= "linux" then
   include "DX12Renderer"
+end

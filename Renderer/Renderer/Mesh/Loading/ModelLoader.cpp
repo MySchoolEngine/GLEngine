@@ -25,20 +25,24 @@ glm::mat4 _aiMatrixToGlm(const aiMatrix4x4& aiMatrix)
 }
 
 //=================================================================================
-unsigned int ModelLoader::_numTexturesPreviouslyLoaded = 0;
+unsigned int ModelLoader::_numTexturesPreviouslyLoaded	= 0;
 unsigned int ModelLoader::_numMaterialsPreviouslyLoaded = 0;
-unsigned int ModelLoader::_numMeshesPreviouslyLoaded = 0;
+unsigned int ModelLoader::_numMeshesPreviouslyLoaded	= 0;
 
 //=================================================================================
 ModelLoader::ModelLoader()
 	: _importer(std::make_unique<Assimp::Importer>())
-{ }
+{
+}
 
 //=================================================================================
 ModelLoader::~ModelLoader() = default;
 
 //=================================================================================
-bool ModelLoader::addModelFromFileToScene(const std::filesystem::path& path, std::shared_ptr<Renderer::MeshData::Scene> scene, std::vector< std::string >& textureRegister, glm::mat4 sceneTransform)
+bool ModelLoader::addModelFromFileToScene(const std::filesystem::path&				 path,
+										  std::shared_ptr<Renderer::MeshData::Scene> scene,
+										  std::vector<std::string>&					 textureRegister,
+										  glm::mat4									 sceneTransform)
 {
 	const auto loadedScene = _tryOpenFile(path);
 
@@ -65,14 +69,14 @@ void ModelLoader::Reset()
 }
 
 //=================================================================================
-void ModelLoader::_loadMaterialsFromAiscene(const aiScene* loadedScene, std::shared_ptr<Renderer::MeshData::Scene> scene, std::vector< std::string >& textureRegister)
+void ModelLoader::_loadMaterialsFromAiscene(const aiScene* loadedScene, std::shared_ptr<Renderer::MeshData::Scene> scene, std::vector<std::string>& textureRegister)
 {
 	for (unsigned int i = 0; i < loadedScene->mNumMaterials; ++i)
 	{
 		Renderer::MeshData::Material m;
 		_getMaterialColorAttributes(loadedScene->mMaterials[i], m);
 		const std::string texName = _getMaterialDiffuseTextureName(loadedScene->mMaterials[i]);
-		m.textureIndex = _getTextureIndexAndAddToRegister(texName, textureRegister);
+		m.textureIndex			  = _getTextureIndexAndAddToRegister(texName, textureRegister);
 		scene->materials.push_back(m);
 	}
 }
@@ -80,7 +84,8 @@ void ModelLoader::_loadMaterialsFromAiscene(const aiScene* loadedScene, std::sha
 //=================================================================================
 const aiScene* ModelLoader::_tryOpenFile(const std::filesystem::path& path)
 {
-	const aiScene* s = _importer->ReadFile(path.generic_string().c_str(), aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_RemoveRedundantMaterials | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace);
+	const aiScene* s = _importer->ReadFile(path.generic_string().c_str(),
+										   aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_RemoveRedundantMaterials | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace);
 
 	if (s == nullptr)
 	{
@@ -96,7 +101,7 @@ void ModelLoader::_getMaterialColorAttributes(const aiMaterial* const material, 
 {
 	mat.ambient = _getMaterialColorComponent(material, AI_MATKEY_COLOR_AMBIENT);
 
-	mat.diffuse = _getMaterialColorComponent(material, AI_MATKEY_COLOR_DIFFUSE);
+	mat.diffuse	  = _getMaterialColorComponent(material, AI_MATKEY_COLOR_DIFFUSE);
 	mat.diffuse.w = _getMaterialFloatComponent(material, AI_MATKEY_OPACITY);
 
 	mat.specular = _getMaterialColorComponent(material, AI_MATKEY_COLOR_SPECULAR);
@@ -144,7 +149,7 @@ std::string ModelLoader::_getMaterialDiffuseTextureName(const aiMaterial* materi
 }
 
 //=================================================================================
-int ModelLoader::_getTextureIndexAndAddToRegister(const std::string& name, std::vector< std::string >& textureNames)
+int ModelLoader::_getTextureIndexAndAddToRegister(const std::string& name, std::vector<std::string>& textureNames)
 {
 	if (name.empty())
 		return -1;
@@ -159,10 +164,10 @@ void ModelLoader::_loadLightsFromAiScene(const aiScene* loadedScene, std::shared
 	for (unsigned int i = 0; i < loadedScene->mNumLights; ++i)
 	{
 		Renderer::MeshData::Light light;
-		const auto lightSource = loadedScene->mLights[i];
-		const auto col = lightSource->mColorDiffuse;
-		light.m_Color = { col.r, col.g, col.b };
-		light.m_name = std::string(lightSource->mName.C_Str());
+		const auto				  lightSource = loadedScene->mLights[i];
+		const auto				  col		  = lightSource->mColorDiffuse;
+		light.m_Color						  = {col.r, col.g, col.b};
+		light.m_name						  = std::string(lightSource->mName.C_Str());
 		scene->lights.push_back(light);
 	}
 }
@@ -170,8 +175,8 @@ void ModelLoader::_loadLightsFromAiScene(const aiScene* loadedScene, std::shared
 //=================================================================================
 void ModelLoader::_loadMeshesFromAiScene(const aiScene* loadedScene, std::shared_ptr<Renderer::MeshData::Scene> scene, const glm::mat4& sceneTransform)
 {
-	const aiNode* currentNode = loadedScene->mRootNode;
-	glm::mat4 currentTransform = sceneTransform * _aiMatrixToGlm(loadedScene->mRootNode->mTransformation);
+	const aiNode* currentNode	   = loadedScene->mRootNode;
+	glm::mat4	  currentTransform = sceneTransform * _aiMatrixToGlm(loadedScene->mRootNode->mTransformation);
 
 	while (currentNode != nullptr)
 	{
@@ -222,7 +227,7 @@ void ModelLoader::_loadNodeMeshes(const aiNode* node, const glm::mat4& nodeTrans
 		_loadSingleMeshFromAimesh(aiMeshes[meshIndex], meshes[_numMeshesPreviouslyLoaded + i]);
 
 		meshes[_numMeshesPreviouslyLoaded + i].modelMatrix = nodeTransform;
-		meshes[_numMeshesPreviouslyLoaded + i].m_name = std::string(node->mName.C_Str());
+		meshes[_numMeshesPreviouslyLoaded + i].m_name	   = std::string(node->mName.C_Str());
 	}
 
 	_numMeshesPreviouslyLoaded += node->mNumMeshes;
@@ -238,10 +243,10 @@ void ModelLoader::_loadSingleMeshFromAimesh(const aiMesh* aiMesh, Renderer::Mesh
 	{
 		aiFace* f = &aiMesh->mFaces[i];
 
-		glm::vec4* newPositions = &(mesh.vertices[VERTICES_PER_TRIANGLE * i]);
-		glm::vec3* newNormals = &(mesh.normals[VERTICES_PER_TRIANGLE * i]);
-		glm::vec2* newTcoords = &(mesh.texcoords[VERTICES_PER_TRIANGLE * i]);
-		glm::vec3* newTangents = &(mesh.tangent[VERTICES_PER_TRIANGLE * i]);
+		glm::vec4* newPositions	 = &(mesh.vertices[VERTICES_PER_TRIANGLE * i]);
+		glm::vec3* newNormals	 = &(mesh.normals[VERTICES_PER_TRIANGLE * i]);
+		glm::vec2* newTcoords	 = &(mesh.texcoords[VERTICES_PER_TRIANGLE * i]);
+		glm::vec3* newTangents	 = &(mesh.tangent[VERTICES_PER_TRIANGLE * i]);
 		glm::vec3* newBitangents = &(mesh.bitangent[VERTICES_PER_TRIANGLE * i]);
 
 		_getFacePosNormalTcoords(f, aiMesh, newPositions, newNormals, newTcoords, newTangents, newBitangents);
@@ -274,7 +279,13 @@ void ModelLoader::_assignMeshMaterial(Renderer::MeshData::Mesh& mesh, const aiMe
 }
 
 //=================================================================================
-void ModelLoader::_getFacePosNormalTcoords(const aiFace* face, const aiMesh* mesh, glm::vec4* pos, glm::vec3* normal, glm::vec2* tcoords, glm::vec3* ttangents, glm::vec3* tbitangents)
+void ModelLoader::_getFacePosNormalTcoords(const aiFace* face,
+										   const aiMesh* mesh,
+										   glm::vec4*	 pos,
+										   glm::vec3*	 normal,
+										   glm::vec2*	 tcoords,
+										   glm::vec3*	 ttangents,
+										   glm::vec3*	 tbitangents)
 {
 	GLE_ASSERT(face->mNumIndices == VERTICES_PER_TRIANGLE, "Triangle should have {} vertices", VERTICES_PER_TRIANGLE);
 
@@ -312,4 +323,4 @@ void ModelLoader::_getFacePosNormalTcoords(const aiFace* face, const aiMesh* mes
 		tbitangents[i].z = btg.z;
 	}
 }
-}
+} // namespace GLEngine::Renderer::Mesh

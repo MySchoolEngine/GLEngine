@@ -1,12 +1,9 @@
 #pragma once
 
-#include <GLRenderer\Buffers\ShaderStorage.h>
+#include <GLRenderer/Buffers/ShaderStorage.h>
 
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Buffers {
-namespace UBO {
+namespace GLEngine::GLRenderer::Buffers::UBO {
 
 class C_TerrainStats : public C_ShaderStorageBuffer {
 public:
@@ -23,7 +20,6 @@ public:
 	virtual void UploadData() const override;
 	virtual void DownloadData() override;
 	virtual void ClearBuffer() override;
-
 };
 
-}}}}
+} // namespace GLEngine::GLRenderer::Buffers::UBO

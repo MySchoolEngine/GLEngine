@@ -1,71 +1,61 @@
 #pragma once
 
-#include <Physics/Primitives/Shapes.h>
 #include <Physics/Primitives/AABB.h>
-
-#include <vector>
-#include <string>
-#include <memory>
 
 
 namespace GLEngine::Renderer::MeshData {
 
 //=================================================================================
-struct Material
-{
+struct Material {
 	glm::vec4 ambient;
 	glm::vec4 diffuse;
 	glm::vec4 specular;
-	float shininess;
+	float	  shininess;
 
-	//Index to a texture array
-	//If negative - material has no texture
+	// Index to a texture array
+	// If negative - material has no texture
 	int textureIndex;
 
-	//Alignment to 128bit, in terms of size
+	// Alignment to 128bit, in terms of size
 	float aligmetVariableDoNotUse1, aligmetVariableDoNotUse2;
 };
 
 //=================================================================================
-struct Mesh
-{
+struct Mesh {
 	std::vector<glm::vec4> vertices;
 	std::vector<glm::vec3> normals;
 	std::vector<glm::vec2> texcoords;
 	std::vector<glm::vec3> tangent;
 	std::vector<glm::vec3> bitangent;
 
-	Physics::Primitives::S_AABB     bbox;
-	glm::mat4						modelMatrix;
-	unsigned int					materialIndex;
-	std::string						m_name; // DR
+	Physics::Primitives::S_AABB bbox;
+	glm::mat4					modelMatrix;
+	unsigned int				materialIndex;
+	std::string					m_name; // DR
 };
 
 //=================================================================================
-struct AnimationData
-{
+struct AnimationData {
 	std::vector<glm::ivec3> jointIndices;
 	std::vector<glm::vec3>	weights;
 };
 
 //=================================================================================
-struct Light
-{
+struct Light {
 	std::string m_name;
 	glm::vec3	m_Color;
-
 };
 
-//Texture
-//Always R8G8B8A8 format
+// Texture
+// Always R8G8B8A8 format
 //=================================================================================
-struct Texture
-{
+struct Texture {
 	Texture()
 		: width(0)
 		, height(0)
 		, data(nullptr)
-	{}
+	{
+	}
 
 	unsigned int width;
 	unsigned int height;
@@ -76,15 +66,14 @@ struct Texture
 };
 
 //=================================================================================
-struct Scene
-{
-	//This is the data that interests You
-	std::vector<Mesh>				meshes;
-	std::vector<Light>				lights;
+struct Scene {
+	// This is the data that interests You
+	std::vector<Mesh>  meshes;
+	std::vector<Light> lights;
 
-	std::vector<Material>			materials;
-	std::vector<Texture>			textures;
+	std::vector<Material>	 materials;
+	std::vector<std::string> textures;
 
-	Physics::Primitives::S_AABB     bbox;
+	Physics::Primitives::S_AABB bbox;
 };
-}
+} // namespace GLEngine::Renderer::MeshData

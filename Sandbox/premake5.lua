@@ -9,23 +9,39 @@ project "Sandbox"
 	SetupProject("Sandbox")
 	debugdir ("../data/")
 	
+	pchheader "SandboxStdafx.h"
+	pchsource "SandboxStdafx.cpp"
 	
 	Link("Core")
 	Link("Utils")
 	Link("GLRenderer")
-	Link("DX12Renderer")
+
+	files
+	{
+		"SandboxStdafx.cpp",
+		"SandboxStdafx.h",
+	}
 
 	includedirs
 	{
+		".",
 		"../Renderer",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmt}",
 	}
 
 	filter "system:windows"
-    	kind "WindowedApp"
+		kind "WindowedApp"
 		cppdialect "C++17"
 		systemversion "latest"
+		Link("DX12Renderer")
+
+	filter "system:linux"
+		links
+		{
+			"X11",
+		}
+		linkoptions "-pthread"
 
 	filter "configurations:Debug"
 		runtime "Debug"

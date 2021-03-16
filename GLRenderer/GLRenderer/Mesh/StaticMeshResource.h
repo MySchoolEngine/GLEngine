@@ -1,37 +1,36 @@
 #pragma once
 
-#include <Renderer/IResource.h>
-
 #include <GLRenderer/VAO/VAO.h>
 
-#include <glad/glad.h>
+#include <Renderer/IResource.h>
 
 #include <array>
+#include <glad/glad.h>
 
 namespace GLEngine {
-namespace Renderer::MeshData
-{
+namespace Renderer::MeshData {
 struct Mesh;
 }
 
-namespace GLRenderer {
-namespace Mesh {
+namespace GLRenderer::Mesh {
 class C_StaticMeshResource : public Renderer::I_Resource {
 public:
-	C_StaticMeshResource(const Renderer::MeshData::Mesh & mesh);
+	C_StaticMeshResource(const Renderer::MeshData::Mesh& mesh);
 	~C_StaticMeshResource() = default;
 
 	//=================================================================================
 	virtual std::unique_ptr<Renderer::I_RawGPUData> ExtractData() const override;
-	virtual void Invalidate() override;
-	virtual bool IsValid() override;
+	virtual void									Invalidate() override;
+	virtual bool									IsValid() override;
 
-	void BindVAO() const;
+	void		BindVAO() const;
 	std::size_t GetNumTriangles() const;
+
 protected:
 	VAO::C_GLVAO<5> m_VAO;
-	std::size_t m_triangles;
+	std::size_t		m_triangles;
 };
 
 
-}}}
+} // namespace GLRenderer::Mesh
+} // namespace GLEngine

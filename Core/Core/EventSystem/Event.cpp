@@ -16,9 +16,9 @@ I_Event::~I_Event() = default;
 C_UserEvent::~C_UserEvent() = default;
 
 //=================================================================================
-C_UserEvent::C_UserEvent(const std::string & name) : m_Name(name)
+C_UserEvent::C_UserEvent(const std::string& name)
+	: m_Name(name)
 {
-
 }
 
 //=================================================================================
@@ -39,4 +39,4 @@ const char* C_UserEvent::GetName() const
 	return m_Name.c_str();
 }
 
-}
+} // namespace GLEngine::Core

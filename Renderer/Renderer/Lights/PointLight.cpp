@@ -1,64 +1,48 @@
 #include <RendererStdafx.h>
 
 #include <Renderer/Lights/PointLight.h>
+#include <Renderer/Mesh/Scene.h>
 
-#include <Utils/Parsing/MatrixParse.h>
+#include <Physics/Primitives/Frustum.h>
+
 #include <Utils/Parsing/ColorParsing.h>
+#include <Utils/Parsing/MatrixParse.h>
 
 namespace GLEngine::Renderer {
 
 //=================================================================================
-I_PointLight::I_PointLight(std::shared_ptr<Entity::I_Entity> owner)
-	: Renderer::I_Light(owner)
-{
-
-}
-
-//=================================================================================
-Physics::Primitives::S_AABB I_PointLight::GetAABB() const
-{
-	Physics::Primitives::S_AABB ret;
-	ret.Add(glm::vec3(0.0f, 0.0f, 0.0f));
-	return ret;
-}
-
-//=================================================================================
-I_PointLight::~I_PointLight() = default;
-
-//=================================================================================
 // C_PointLight
 //=================================================================================
-C_PointLight::C_PointLight(std::shared_ptr<Entity::I_Entity> owner) 
-	: Renderer::I_PointLight(owner)
+C_PointLight::C_PointLight(std::shared_ptr<Entity::I_Entity> owner)
+	: Renderer::I_Light(owner)
 	, m_Intensity(1.f, 0.f, 100.f, "Intensity")
-	, m_Color("Color", { 1.f, 1.f, 1.f })
+	, m_Color("Color", {1.f, 1.f, 1.f})
 {
 }
 
 //=================================================================================
 C_PointLight::C_PointLight(std::shared_ptr<Entity::I_Entity> owner, const MeshData::Light& def)
-	: Renderer::I_PointLight(owner)
+	: Renderer::I_Light(owner)
 	, m_Intensity(1.f, 0.f, 100.f, "Intensity")
 	, m_Color("Color", def.m_Color)
 {
-
 }
 
 //=================================================================================
 C_PointLight::~C_PointLight() = default;
 
 //=================================================================================
+Physics::Primitives::S_AABB C_PointLight::GetAABB() const
+{
+	Physics::Primitives::S_AABB ret;
+	ret.Add(GetPosition());
+	return ret;
+}
+
+//=================================================================================
 glm::vec3 C_PointLight::GetPosition() const
 {
-	const auto owner = GetOwner();
-	auto ownerPosition = glm::vec3(0.f);
-	if (!owner)
-	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Point light without owner");
-	}
-	ownerPosition = owner->GetPosition();
-
-	return ownerPosition + glm::vec3(m_ComponentMatrix[3]);
+	return glm::vec3(GetComponentModelMatrix()[3]);
 }
 
 //=================================================================================
@@ -76,7 +60,7 @@ glm::vec3 C_PointLight::GetColor() const
 //=================================================================================
 Physics::Primitives::C_Frustum C_PointLight::GetShadingFrustum() const
 {
-	return Physics::Primitives::C_Frustum(GetPosition(), GetPosition(), GetPosition(), 1.f ,1.f, 1.f, 1.f);
+	return Physics::Primitives::C_Frustum(GetPosition(), GetPosition(), GetPosition(), 1.f, 1.f, 1.f, 1.f);
 }
 
 //=================================================================================
@@ -102,7 +86,7 @@ void C_PointLight::DebugDrawGUI()
 std::shared_ptr<Entity::I_Component> C_PointLightCompBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
 {
 	auto pointLight = std::make_shared<Renderer::C_PointLight>(owner);
-	pointLight->m_ComponentMatrix = Utils::Parsing::C_MatrixParser::ParseTransformation(node);
+	pointLight->SetComponentMatrix(Utils::Parsing::C_MatrixParser::ParseTransformation(node));
 
 	if (const auto intensityAttr = node.attribute("intensity"))
 	{
@@ -117,4 +101,4 @@ std::shared_ptr<Entity::I_Component> C_PointLightCompBuilder::Build(const pugi::
 	return pointLight;
 }
 
-}
+} // namespace GLEngine::Renderer

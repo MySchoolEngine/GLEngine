@@ -5,8 +5,7 @@ namespace GLEngine::Entity
 class C_EntityManager;
 }
 
-namespace GLEngine::Renderer
-{
+namespace GLEngine::Renderer {
 class I_CameraComponent;
 }
 
@@ -25,11 +24,11 @@ public:
 	void SetSunShadowMap(std::uint64_t sunShadowMapHandle);
 	void SetSunViewProjection(glm::mat4 viewProjection);
 private:
-	std::shared_ptr<Entity::C_EntityManager>				m_WorldToRender;
-	std::shared_ptr<Buffers::UBO::C_FrameConstantsBuffer>	m_FrameConstUBO;
-	std::shared_ptr<C_LightsBuffer>							m_LightsUBO;
+	std::shared_ptr<Entity::C_EntityManager>			  m_WorldToRender;
+	std::shared_ptr<Buffers::UBO::C_FrameConstantsBuffer> m_FrameConstUBO;
+	std::shared_ptr<C_LightsBuffer>						  m_LightsUBO;
 	std::uint64_t											m_SunShadowMap;
 	glm::mat4												m_SunViewProjection;
 };
 
-}
+} // namespace GLEngine::GLRenderer

@@ -2,7 +2,7 @@
 #extension GL_ARB_bindless_texture : require
 
 out vec4 FragColor;
-in vec2 TexCoords;
+in vec2	 TexCoords;
 
 #include "../include/units.glsl"
 #include "../include/frameConstants.glsl"

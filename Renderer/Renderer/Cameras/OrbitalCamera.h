@@ -4,8 +4,6 @@
 
 #include <GUI/Input/Slider.h>
 
-#include <Core/CoreMacros.h>
-
 namespace GLEngine {
 
 namespace Core {
@@ -14,7 +12,7 @@ class C_MouseScrollEvent;
 class C_MouseButtonPressed;
 class C_KeyRepeatedEvent;
 class C_KeyEvent;
-}
+} // namespace Core
 
 namespace Physics::Primitives {
 class C_Frustum;
@@ -22,10 +20,9 @@ class C_Frustum;
 
 namespace Renderer::Cameras {
 
-//Orbital camera
-//Using Euclidean angles (= has gimbal lock)
-class RENDERER_API_EXPORT C_OrbitalCamera : public I_CameraComponent
-{
+// Orbital camera
+// Using Euclidean angles (= has gimbal lock)
+class RENDERER_API_EXPORT C_OrbitalCamera : public I_CameraComponent {
 public:
 	C_OrbitalCamera(std::shared_ptr<Entity::I_Entity>& owner);
 	~C_OrbitalCamera(); // = default;
@@ -37,7 +34,7 @@ public:
 	[[nodiscard]] virtual glm::vec3 GetDirection() const override;
 	[[nodiscard]] virtual glm::vec3 GetPosition() const override;
 
-	[[nodiscard]] virtual Physics::Primitives::C_Frustum GetFrustum()	const override;
+	[[nodiscard]] virtual Physics::Primitives::C_Frustum GetFrustum() const override;
 
 
 	[[nodiscard]] float GetAspectRatio() const;
@@ -49,7 +46,7 @@ public:
 
 	void adjustOrientation(float dx, float dy);
 
-	void DebugDraw();
+	void		 DebugDraw();
 	virtual void Update() override;
 
 
@@ -59,14 +56,16 @@ public:
 	[[nodiscard]] float GetFov() const;
 
 
-
 	//=====================================================
 	// I_Component
 	//=====================================================
-	virtual void OnEvent(Core::I_Event& event) override;
-	virtual void DebugDrawGUI() override;
-	virtual bool HasDebugDrawGUI() const override;
+	virtual void			 OnEvent(Core::I_Event& event) override;
+	virtual void			 DebugDrawGUI() override;
+	virtual bool			 HasDebugDrawGUI() const override;
 	virtual std::string_view GetDebugComponentName() const override;
+
+
+	virtual glm::mat4 GetScreenToworldMatrix() const override;
 
 protected:
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
@@ -74,6 +73,7 @@ protected:
 	bool OnMouseScroll(Core::C_MouseScrollEvent& event);
 	bool OnMousePress(Core::C_MouseButtonPressed& event);
 	bool OnKeyEvent(Core::C_KeyEvent& event);
+
 private:
 	glm::vec3 _pos;
 	glm::vec3 _view;
@@ -92,7 +92,9 @@ private:
 
 	glm::mat4 _viewMatrix;
 	glm::mat4 _projectionMatrix;
+	glm::mat4 _ScreenToWorld;
 
 	float m_ControlSpeed;
 };
-}}
+} // namespace Renderer::Cameras
+} // namespace GLEngine

@@ -1,6 +1,7 @@
 project "ImGuiFileDialog"
     kind "StaticLib"
     language "C++"
+    cppdialect "C++17"
     
 	targetdir ("../../../bin/" .. outputdir .. "/vendor/%{prj.name}")
     objdir ("../../../obj/" .. outputdir .. "/vendor/%{prj.name}")
@@ -9,7 +10,6 @@ project "ImGuiFileDialog"
     {
         "../../ImGuiFileDialog/ImGuiFileDialog",
         "../../../%{IncludeDir.ImGui}",
-        "../../../%{IncludeDir.dirent}",
         ".",
     }
 
@@ -21,8 +21,14 @@ project "ImGuiFileDialog"
     
 	filter "system:windows"
         systemversion "latest"
-        cppdialect "C++17"
         staticruntime "Off"
+        includedirs
+        {
+            "../../../%{IncludeDir.dirent}",
+        }
+
+    filter "system:linux"
+        pic "On"
         
     filter "configurations:Debug"
         runtime "Debug"

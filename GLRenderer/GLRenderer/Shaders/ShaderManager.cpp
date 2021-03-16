@@ -1,9 +1,8 @@
 #include <GLRendererStdafx.h>
 
-#include <GLRenderer/Shaders/ShaderManager.h>
-
-#include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
+#include <GLRenderer/Shaders/ShaderManager.h>
+#include <GLRenderer/Shaders/ShaderProgram.h>
 
 #include <GUI/GUIManager.h>
 #include <GUI/GUIWindow.h>
@@ -21,16 +20,15 @@ C_ShaderManager::C_ShaderManager()
 	: m_Timeout(std::chrono::seconds(1))
 	, m_LastUpdate(std::chrono::system_clock::now())
 	, m_Window(INVALID_GUID)
-	, m_PreprocessorOutput(false, "Output preprocessed")
+	, m_PreprocessorOutput(true, "Output preprocessed")
 {
-
 }
 
 //=================================================================================
-C_ShaderManager & C_ShaderManager::Instance()
+C_ShaderManager& C_ShaderManager::Instance()
 {
-	static C_ShaderManager    instance; // Guaranteed to be destroyed.
-						  // Instantiated on first use.
+	static C_ShaderManager instance; // Guaranteed to be destroyed.
+									 // Instantiated on first use.
 	return instance;
 }
 
@@ -49,9 +47,11 @@ void C_ShaderManager::Update()
 	DeactivateShader();
 #ifdef GL_ENGINE_DEBUG
 	const auto currentTime = std::chrono::system_clock::now();
-	if (m_LastUpdate + m_Timeout < currentTime) {
+	if (m_LastUpdate + m_Timeout < currentTime)
+	{
 		m_ActiveShader.reset();
-		for (auto& program : m_Programs) {
+		for (auto& program : m_Programs)
+		{
 			if (!program.second->IsExpired())
 			{
 				continue;
@@ -67,13 +67,15 @@ void C_ShaderManager::Update()
 //=================================================================================
 C_ShaderManager::T_ShaderPtr C_ShaderManager::GetProgram(const std::string& name)
 {
-	if (ShaderLoaded(name)) {
+	if (ShaderLoaded(name))
+	{
 		return m_Programs[name];
 	}
 
 	C_ShaderCompiler compiler(m_PreprocessorOutput.GetValue());
-	GLuint program = LoadProgram(name, compiler);
-	if (program == 0) {
+	GLuint			 program = LoadProgram(name, compiler);
+	if (program == 0)
+	{
 		return nullptr;
 	}
 
@@ -85,13 +87,13 @@ C_ShaderManager::T_ShaderPtr C_ShaderManager::GetProgram(const std::string& name
 
 	Buffers::C_UniformBuffersManager::Instance().ProcessUBOBindingPoints(shaderProgram);
 
-	m_Programs.insert({ name, shaderProgram });
+	m_Programs.insert({name, shaderProgram});
 
 	return shaderProgram;
 }
 
 //=================================================================================
-bool C_ShaderManager::ShaderLoaded(const std::string & name)
+bool C_ShaderManager::ShaderLoaded(const std::string& name)
 {
 	return m_Programs.find(name) != m_Programs.end();
 }
@@ -99,10 +101,12 @@ bool C_ShaderManager::ShaderLoaded(const std::string & name)
 //=================================================================================
 void C_ShaderManager::ActivateShader(T_ShaderPtr shader)
 {
-	if (shader == nullptr) {
-		throw 1;// just error
+	if (shader == nullptr)
+	{
+		throw 1; // just error
 	}
-	if (shader != m_ActiveShader || !m_ActiveShader->IsActive()) {
+	if (shader != m_ActiveShader || !m_ActiveShader->IsActive())
+	{
 		m_ActiveShader = shader;
 		m_ActiveShader->useProgram();
 	}
@@ -112,7 +116,8 @@ void C_ShaderManager::ActivateShader(T_ShaderPtr shader)
 void C_ShaderManager::DeactivateShader()
 {
 	// this is done because imGUI can change shader without letting us know
-	if (m_ActiveShader) {
+	if (m_ActiveShader)
+	{
 		m_ActiveShader->disableProgram();
 		m_ActiveShader = nullptr;
 	}
@@ -123,7 +128,8 @@ std::string C_ShaderManager::ShadersStatistics() const
 {
 	std::stringstream ss;
 	ss << "Loaded shaders: " << m_Programs.size() << std::endl;
-	for (auto& shader : m_Programs) {
+	for (auto& shader : m_Programs)
+	{
 		ss << shader.first << " used by " << shader.second.use_count() - 1 << std::endl;
 		ss << "->\tHas stages:" << std::endl;
 	}
@@ -133,19 +139,20 @@ std::string C_ShaderManager::ShadersStatistics() const
 //=================================================================================
 GUID C_ShaderManager::SetupControls(GUI::C_GUIManager& guiMGR)
 {
-	m_Window = guiMGR.CreateGUIWindow("Shader manager");
+	m_Window		= guiMGR.CreateGUIWindow("Shader manager");
 	auto* shaderMan = guiMGR.GetWindow(m_Window);
 
 	m_ShaderList = std::make_unique<GUI::C_LambdaPart>([&]() {
-
-		for (const auto& program : m_Programs) {
+		for (const auto& program : m_Programs)
+		{
 			bool selected = false;
 			::ImGui::Selectable(program.first.c_str(), &selected);
-			if (selected) {
+			if (selected)
+			{
 				ReloadProgram(program.first, program.second);
 			}
 		}
-		});
+	});
 
 	shaderMan->AddComponent(m_PreprocessorOutput);
 	shaderMan->AddComponent(*m_ShaderList.get());
@@ -160,49 +167,61 @@ void C_ShaderManager::DestroyControls(GUI::C_GUIManager& guiMGR)
 }
 
 //=================================================================================
-bool C_ShaderManager::LoadDoc(pugi::xml_document & document, const std::filesystem::path& filename) const
+bool C_ShaderManager::LoadDoc(pugi::xml_document& document, const std::filesystem::path& filename) const
 {
 	pugi::xml_parse_result result;
 
-	if (filename.has_extension()) {
+	if (filename.has_extension())
+	{
 		result = document.load_file(filename.c_str());
-		if (!result.status == pugi::status_ok) {
+		if (!result.status == pugi::status_ok)
+		{
 			const std::filesystem::path path = s_ShadersFolder / filename;
-			result = document.load_file(path.generic_string().c_str());
+			result							 = document.load_file(path.generic_string().c_str());
 		}
-		else {
+		else
+		{
 			return true;
 		}
 	}
-	else {
+	else
+	{
 		auto path = filename;
 		path.replace_extension("xml");
 		return LoadDoc(document, path);
 	}
 
-	if (result.status == pugi::status_ok) return true;
+	if (result.status == pugi::status_ok)
+		return true;
 	return false;
 }
 
 //=================================================================================
 GLuint C_ShaderManager::LoadShader(const pugi::xml_node& node, C_ShaderCompiler& compiler) const
 {
-	GLuint shader = 0;
+	GLuint		shader = 0;
 	std::string str;
 
 	std::string stageAttribute = node.attribute("stage").value();
 
 	int stage = GL_VERTEX_SHADER;
-	if (stageAttribute == "vertex") stage = GL_VERTEX_SHADER;
-	else if (stageAttribute == "fragment") stage = GL_FRAGMENT_SHADER;
-	else if (stageAttribute == "geometry") stage = GL_GEOMETRY_SHADER;
-	else if (stageAttribute == "compute") stage = GL_COMPUTE_SHADER;
-	else if (stageAttribute == "tess-control") stage = GL_TESS_CONTROL_SHADER;
-	else if (stageAttribute == "tess-evaluation") stage = GL_TESS_EVALUATION_SHADER;
+	if (stageAttribute == "vertex")
+		stage = GL_VERTEX_SHADER;
+	else if (stageAttribute == "fragment")
+		stage = GL_FRAGMENT_SHADER;
+	else if (stageAttribute == "geometry")
+		stage = GL_GEOMETRY_SHADER;
+	else if (stageAttribute == "compute")
+		stage = GL_COMPUTE_SHADER;
+	else if (stageAttribute == "tess-control")
+		stage = GL_TESS_CONTROL_SHADER;
+	else if (stageAttribute == "tess-evaluation")
+		stage = GL_TESS_EVALUATION_SHADER;
 
 	const auto filename = s_ShadersFolder / std::filesystem::path(node.first_child().value());
 
-	if (!compiler.compileShader(shader, filename, stage)) {
+	if (!compiler.compileShader(shader, filename, stage))
+	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "--Compilation error");
 		CORE_LOG(E_Level::Error, E_Context::Render, "{}", filename);
 		return 0;
@@ -216,23 +235,27 @@ GLuint C_ShaderManager::LoadProgram(const std::filesystem::path& name, C_ShaderC
 {
 	pugi::xml_document doc;
 
-	if (!LoadDoc(doc, name)) {
+	if (!LoadDoc(doc, name))
+	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Can't open config file for shader name: {}", name);
 		return 0;
 	}
 
 	std::vector<GLuint> shaders;
 
-	for (auto& shader : doc.child("pipeline").children("shader")) {
+	for (auto& shader : doc.child("pipeline").children("shader"))
+	{
 		GLuint shaderStage = LoadShader(shader, compiler);
-		if (shaderStage == 0) {
+		if (shaderStage == 0)
+		{
 			return 0;
 		}
 		shaders.push_back(shaderStage);
 	}
 
 	GLuint program;
-	if (!compiler.linkProgram(program, shaders)) {
+	if (!compiler.linkProgram(program, shaders))
+	{
 		return false;
 	}
 	return program;
@@ -249,11 +272,10 @@ void C_ShaderManager::ReloadProgram(const std::string& programName, std::shared_
 		program->SetPaths(compiler.GetTouchedFiles());
 #endif
 		Buffers::C_UniformBuffersManager::Instance().ProcessUBOBindingPoints(program);
-	}
-	catch (...)
+	} catch (...)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to reload shader {} so we keep it outdated", programName);
 	}
 }
 
-}
+} // namespace GLEngine::GLRenderer::Shaders

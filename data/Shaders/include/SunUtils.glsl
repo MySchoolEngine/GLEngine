@@ -79,5 +79,5 @@ vec3 CalculatSunLight(const vec3 N, const vec3 V, const vec3 position)
   vec3 skyRadiance = GetSkyRadiance(r, i.z);
   SolidAngle sunSA = GetSunSolidAngle(N);
 
-  return (visibility * BRDF(N, V, normalize(pSunLight.position), skyRadiance, roughnessVal)) / sunSA;
+  return ((visibility * BRDF(N, V, normalize(pSunLight.position), skyRadiance, roughnessVal)) * Transmittance(r, i.z));
 }

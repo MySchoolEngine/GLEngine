@@ -18,7 +18,6 @@ std::string S_MemberDescriptor::Generate() const
 C_StructDescriptor::C_StructDescriptor(std::string_view name)
 	: m_Name(name)
 {
-
 }
 
 //=================================================================================
@@ -40,4 +39,4 @@ void C_StructDescriptor::Push(S_MemberDescriptor description)
 	m_Members.emplace_back(description);
 }
 
-}
+} // namespace GLEngine::GLRenderer::Shaders

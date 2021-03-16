@@ -2,22 +2,18 @@
 
 #include <GLRenderer/Commands/GLClear.h>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Commands {
+namespace GLEngine::GLRenderer::Commands {
 
 //=================================================================================
 C_GLClear::C_GLClear(E_ClearBits bits)
 	: m_Bits(bits)
 {
-
 }
 
 //=================================================================================
 C_GLClear::C_GLClear(Utils::C_BitField<E_ClearBits> bits)
 	: m_Bits(bits)
 {
-
 }
 
 //=================================================================================
@@ -49,21 +45,23 @@ std::string C_GLClear::GetDescriptor() const
 int C_GLClear::EnumToFlags(Utils::C_BitField<E_ClearBits>) const
 {
 	int ret = 0;
-	if (m_Bits.CheckFlag(E_ClearBits::Color)) {
+	if (m_Bits.CheckFlag(E_ClearBits::Color))
+	{
 		ret |= GL_COLOR_BUFFER_BIT;
 	}
-	if (m_Bits.CheckFlag(E_ClearBits::Depth)) {
+	if (m_Bits.CheckFlag(E_ClearBits::Depth))
+	{
 		ret |= GL_DEPTH_BUFFER_BIT;
 	}
-	if (m_Bits.CheckFlag(E_ClearBits::Stencil)) {
+	if (m_Bits.CheckFlag(E_ClearBits::Stencil))
+	{
 		ret |= GL_STENCIL_BUFFER_BIT;
 	}
-	if (m_Bits.CheckFlag(E_ClearBits::Accum)) {
-		//ret |= GL_ACCUM_BUFFER_BIT;
+	if (m_Bits.CheckFlag(E_ClearBits::Accum))
+	{
+		// ret |= GL_ACCUM_BUFFER_BIT;
 	}
 	return ret;
 }
 
-}
-}
-}
+} // namespace GLEngine::GLRenderer::Commands

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GLRenderer\Buffers\UniformBuffer.h>
+#include <GLRenderer/Buffers/UniformBuffer.h>
 
 #include <Renderer/Animation/SkeletalAnimation.h>
 
@@ -12,8 +12,8 @@ public:
 
 
 	virtual void UploadData() const override;
+
 private:
 	std::vector<glm::mat4> m_JointTransforms;
 };
-}
-
+} // namespace GLEngine::GLRenderer::Buffers::UBO

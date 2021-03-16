@@ -2,20 +2,22 @@
 
 #include <Renderer/Lights/AreaLight.h>
 
-#include <Utils/Parsing/MatrixParse.h>
+#include <Physics/Primitives/Frustum.h>
+
 #include <Utils/Parsing/ColorParsing.h>
+#include <Utils/Parsing/MatrixParse.h>
 
 namespace GLEngine::Renderer {
 
 //=================================================================================
 C_AreaLight::C_AreaLight(std::shared_ptr<Entity::I_Entity> owner)
 	: Renderer::I_Light(owner)
-	, m_Normal(glm::normalize(glm::vec3(0, 0, 1.0)))
-	, m_UpVector(glm::normalize(glm::vec3(0, 1.0, 0)))
 	, m_WidthSlider(10.f, 0.1f, 10.f, "Width")
 	, m_HeightSlider(10.f, 0.1f, 10.f, "Height")
 	, m_DiffuseColor("Diffuse colour", glm::vec3(1.f))
-	, m_SpecularColor("Spec colour", glm::vec3(1.f)) {}
+	, m_SpecularColor("Spec colour", glm::vec3(1.f))
+{
+}
 
 //=================================================================================
 C_AreaLight::~C_AreaLight() = default;
@@ -23,12 +25,8 @@ C_AreaLight::~C_AreaLight() = default;
 //=================================================================================
 Physics::Primitives::C_Frustum C_AreaLight::GetShadingFrustum() const
 {
-	auto transformMatrix = m_ComponentMatrix;
-	if (const auto entity = GetOwner())
-	{
-		transformMatrix = entity->GetModelMatrix() * transformMatrix;
-	}
-	Physics::Primitives::C_Frustum ret(transformMatrix[3], m_UpVector, m_Normal, 0.1f, 50.f, 1.0f, 0.f);
+	auto						   transformMatrix = GetComponentModelMatrix();
+	Physics::Primitives::C_Frustum ret(transformMatrix[3], GetUpVector(), GetNormal(), 0.1f, 50.f, 1.0f, 0.f);
 	return ret;
 }
 
@@ -37,16 +35,16 @@ Physics::Primitives::S_AABB C_AreaLight::GetAABB() const
 {
 	Physics::Primitives::S_AABB aabb;
 
-	const auto dirX = glm::cross(m_Normal, m_UpVector);
-	const auto dirY = m_UpVector;
+	const auto dirY = GetUpVector();
+	const auto dirX = glm::cross(GetNormal(), dirY);
 
-	const auto width = std::sqrt(GetWidth() / 2.0f);
+	const auto width  = std::sqrt(GetWidth() / 2.0f);
 	const auto height = std::sqrt(GetHeight() / 2.0f);
 
-	aabb.Add(+ dirY * height + dirX * width);
-	aabb.Add(+ dirY * height - dirX * width);
-	aabb.Add(- dirY * height + dirX * width);
-	aabb.Add(- dirY * height - dirX * width);
+	aabb.Add(+dirY * height + dirX * width);
+	aabb.Add(+dirY * height - dirX * width);
+	aabb.Add(-dirY * height + dirX * width);
+	aabb.Add(-dirY * height - dirX * width);
 
 	return aabb;
 }
@@ -85,16 +83,23 @@ glm::vec3 C_AreaLight::SpecularColour() const
 }
 
 //=================================================================================
-std::shared_ptr<GLEngine::Entity::I_Component> C_AreaLightCompBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
+glm::vec3 C_AreaLight::GetNormal() const
+{
+	return GetComponentModelMatrix() * glm::vec4(0, 0, -1, 1);
+}
+
+//=================================================================================
+glm::vec3 C_AreaLight::GetUpVector() const
+{
+	return GetComponentModelMatrix() * glm::vec4(0, 1, 0, 1);
+}
+
+//=================================================================================
+[[nodiscard]] std::shared_ptr<Entity::I_Component> C_AreaLightCompBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
 {
 	auto areaLight = std::make_shared<Renderer::C_AreaLight>(owner);
-	const auto translation	= Utils::Parsing::C_MatrixParser::ParseTransformation(node);
-	const auto rotation		= Utils::Parsing::C_MatrixParser::ParseRotations(node);
-	areaLight->SetComponentMatrix(translation);
-	const auto normal	= rotation * glm::vec4(0, 0, 1.0, 1.0);
-	const auto up		= rotation * glm::vec4(0, 1.0, 0, 1.0);
-	areaLight->m_Normal = glm::normalize(glm::vec3(normal.x, normal.y, normal.z) / normal.w);
-	areaLight->m_UpVector = glm::normalize(glm::vec3(up.x, up.y, up.z) / up.w);
+	areaLight->SetComponentMatrix(Utils::Parsing::C_MatrixParser::ParseTransformation(node));
+
 
 	if (const auto widthAttr = node.attribute("width"))
 	{
@@ -103,13 +108,20 @@ std::shared_ptr<GLEngine::Entity::I_Component> C_AreaLightCompBuilder::Build(con
 
 	if (const auto heightAttr = node.attribute("height"))
 	{
-		areaLight->m_HeightSlider = heightAttr.as_float();
+		areaLight->m_WidthSlider = heightAttr.as_float();
 	}
 
-	areaLight->m_DiffuseColor = Utils::Parsing::C_ColorParser::ParseColorRGB(node, "diffuseColor");
-	areaLight->m_SpecularColor = Utils::Parsing::C_ColorParser::ParseColorRGB(node, "specularColor");
+	if (node.child("DiffuseColor"))
+	{
+		areaLight->m_DiffuseColor = Utils::Parsing::C_ColorParser::ParseColorRGB(node, "DiffuseColor");
+	}
+
+	if (node.child("SpecularColor"))
+	{
+		areaLight->m_SpecularColor = Utils::Parsing::C_ColorParser::ParseColorRGB(node, "SpecularColor");
+	}
 
 	return areaLight;
 }
 
-}
+} // namespace GLEngine::Renderer
