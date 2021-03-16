@@ -1,4 +1,4 @@
-#include <RendererStdAfx.h>
+#include <RendererStdafx.h>
 
 #include <Renderer/Lights/SunLight.h>
 

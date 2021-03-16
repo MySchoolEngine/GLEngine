@@ -1,4 +1,4 @@
-#include <GLRendererStdAfx.h>
+#include <GLRendererStdafx.h>
 
 #include <GLRenderer/Lights/SunLigth.h>
 #include <GLRenderer/Shaders/Generation/ShaderTypesReflection.h>
