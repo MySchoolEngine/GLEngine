@@ -85,12 +85,12 @@ public:
 
 	// from I_Camera
 	[[nodiscard]] virtual float GetFar() const override;
-	virtual void  SetFar(float Far);
+	virtual void				SetFar(float Far);
 	[[nodiscard]] virtual float GetNear() const override;
-	virtual void  SetNear(float Near);
-	virtual float GetFov() const;
-	virtual void  SetFov(float fov);
-	virtual float GetAspectRatio() const;
+	virtual void				SetNear(float Near);
+	virtual float				GetFov() const;
+	virtual void				SetFov(float fov);
+	virtual float				GetAspectRatio() const;
 
 	//=================================================================================
 	virtual void			 DebugDrawGUI() override;

@@ -9,9 +9,9 @@ in vec3	 normal;
 // per frame
 #include "../include/frameConstants.glsl"
 
-//per model
+// per model
 uniform mat4 modelMatrix;
-layout (binding = 0) uniform sampler2DArray tex;
+layout(binding = 0) uniform sampler2DArray tex;
 uniform float sqPerLine;
 uniform float patchSize;
 
@@ -27,8 +27,8 @@ out vec3 FragPos;
 //=================================================================================
 void main()
 {
-	vec3 planear=vec3(0,0,0);
-	float sqSize = 1 / float(sqPerLine);
+	vec3  planear = vec3(0, 0, 0);
+	float sqSize  = 1 / float(sqPerLine);
 
 
 	int verticesPerLine = int(sqPerLine) * 6;

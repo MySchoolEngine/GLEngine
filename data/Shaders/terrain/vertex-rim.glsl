@@ -7,10 +7,10 @@ in float vertex;
 #include "../include/frameConstants.glsl"
 #include "includes/layersIndexes.glsl"
 
-//per model
+// per model
 uniform mat4 modelMatrix;
-layout (binding = 0) uniform sampler2DArray tex;
-uniform int sqPerLine;
+layout(binding = 0) uniform sampler2DArray tex;
+uniform int	  sqPerLine;
 uniform float patchSize;
 
 out vec3 normal;

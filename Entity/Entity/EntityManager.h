@@ -25,7 +25,7 @@ public:
 	[[nodiscard]] std::shared_ptr<I_Entity>						GetEntity(GUID id) const;
 	[[nodiscard]] std::shared_ptr<I_Entity>						GetEntity(const std::string& name) const;
 	[[nodiscard]] std::vector<std::shared_ptr<I_Entity>>		GetEntities(Physics::Primitives::C_Frustum frust) const;
-	[[nodiscard]] std::shared_ptr<I_Entity> GetOrCreateEntity(const std::string& name);
+	[[nodiscard]] std::shared_ptr<I_Entity>						GetOrCreateEntity(const std::string& name);
 	[[nodiscard]] const std::vector<std::shared_ptr<I_Entity>>& GetEntities() const;
 	void														ClearLevel();
 	void														AddEntity(std::shared_ptr<I_Entity> entity);

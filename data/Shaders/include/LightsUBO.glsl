@@ -13,6 +13,6 @@ layout(std140) uniform lightsUni
 	pointLight pLight[NUM_POINTLIGHT];
 	areaLight  pAreaLight[NUM_AREALIGHT];
 	sunLight   pSunLight;
-    sampler2D  ltc;
-    sampler2D  ltcMag;
+	sampler2D  ltc;
+	sampler2D  ltcMag;
 };

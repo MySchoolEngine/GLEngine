@@ -4,8 +4,8 @@
 #include <GLRenderer/Lights/AreaLightStruct.h>
 #include <GLRenderer/Lights/PointLightStruct.h>
 
-#include <GLRenderer\Lights\PointLightStruct.h>
 #include <GLRenderer\Lights\AreaLightStruct.h>
+#include <GLRenderer\Lights\PointLightStruct.h>
 #include <GLRenderer\Lights\SunLigth.h>
 
 namespace GLEngine::GLRenderer {
@@ -30,11 +30,11 @@ public:
 	void MakeHandlesResident(bool val = true);
 
 private:
-	std::array<S_PointLight, 10>	m_PointLight;
-	std::array<S_AreaLight, 4>		m_AreaLight;
-	S_SunLight						m_SunLight;
-	std::uint64_t					m_LTCFittingSchemeHandle;
-	std::uint64_t					m_LTCMagSchemeHandle;
+	std::array<S_PointLight, 10> m_PointLight;
+	std::array<S_AreaLight, 4>	 m_AreaLight;
+	S_SunLight					 m_SunLight;
+	std::uint64_t				 m_LTCFittingSchemeHandle;
+	std::uint64_t				 m_LTCMagSchemeHandle;
 
 	// do not upload this
 	std::shared_ptr<Textures::C_Texture> m_LTCFittingTexture;

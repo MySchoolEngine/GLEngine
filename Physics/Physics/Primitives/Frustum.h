@@ -91,9 +91,7 @@ public:
 		m_position = newPosition;
 	}
 
-	[[nodiscard]] glm::mat4 GetViewMatrix() const {
-		return glm::lookAt(GetPosition(), GetPosition() + GetForeward(), GetUpVector());
-	}
+	[[nodiscard]] glm::mat4 GetViewMatrix() const { return glm::lookAt(GetPosition(), GetPosition() + GetForeward(), GetUpVector()); }
 
 	[[nodiscard]] constexpr const glm::vec3& GetForeward() const { return m_foreward; }
 	constexpr void							 SetForeward(const glm::vec3& val) { m_foreward = val; }

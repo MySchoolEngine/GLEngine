@@ -15,8 +15,8 @@
 #include <Renderer/ILight.h>
 #include <Renderer/IRenderableComponent.h>
 #include <Renderer/IRenderer.h>
-#include <Renderer/Lights/PointLight.h>
 #include <Renderer/Lights/AreaLight.h>
+#include <Renderer/Lights/PointLight.h>
 #include <Renderer/Lights/SunLight.h>
 
 #include <Physics/Primitives/Frustum.h>
@@ -119,14 +119,14 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 			if (sunLight)
 			{
 				m_LightsUBO->GetSunLight().SetSunPosition(sunLight->GetSunDirection());
-				m_LightsUBO->GetSunLight().m_SunColor = sunLight->GetSunColor();
-				m_LightsUBO->GetSunLight().m_AsymetricFactor = sunLight->AtmosphereAsymetricFactor();
-				m_LightsUBO->GetSunLight().m_SunDiscMultiplier = sunLight->SunDiscMultiplier();
+				m_LightsUBO->GetSunLight().m_SunColor			 = sunLight->GetSunColor();
+				m_LightsUBO->GetSunLight().m_AsymetricFactor	 = sunLight->AtmosphereAsymetricFactor();
+				m_LightsUBO->GetSunLight().m_SunDiscMultiplier	 = sunLight->SunDiscMultiplier();
 				m_LightsUBO->GetSunLight().m_LightViewProjection = m_SunViewProjection;
-				m_LightsUBO->GetSunLight().m_SunShadowMap = m_SunShadowMap;
+				m_LightsUBO->GetSunLight().m_SunShadowMap		 = m_SunShadowMap;
 
-				C_DebugDraw::Instance().DrawPoint(sunLight->GetSunDirection(), { 1.f, 1.f, 0.f });
-				C_DebugDraw::Instance().DrawLine({ 0.f, 0.f, 0.f }, sunLight->GetSunDirection(), { 1.f, 1.f, 0.f });
+				C_DebugDraw::Instance().DrawPoint(sunLight->GetSunDirection(), {1.f, 1.f, 0.f});
+				C_DebugDraw::Instance().DrawLine({0.f, 0.f, 0.f}, sunLight->GetSunDirection(), {1.f, 1.f, 0.f});
 			}
 		}
 	}
@@ -134,24 +134,20 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 	{
 		RenderDoc::C_DebugScope s("UBO Upload");
 		m_LightsUBO->MakeHandlesResident();
-		renderer->AddCommand(
-			std::move(
-				std::make_unique<Commands::HACK::C_LambdaCommand>(
-					[this, &camera]() {
-						m_FrameConstUBO->SetView(camera->GetViewMatrix());
-						m_FrameConstUBO->SetProjection(camera->GetProjectionMatrix());
-						m_FrameConstUBO->SetCameraPosition(glm::vec4(camera->GetPosition(), 1.0f));
-						m_FrameConstUBO->SetNearPlane(camera->GetNear());
-						m_FrameConstUBO->SetFarPlane(camera->GetFar());
-						m_FrameConstUBO->SetFrameTime(static_cast<float>(glfwGetTime()));
-						m_FrameConstUBO->UploadData();
-						m_FrameConstUBO->Activate(true);
-						m_LightsUBO->UploadData();
-						m_LightsUBO->Activate(true);
-					}, "MainPass - upload UBOs"
-				)
-			)
-		);
+		renderer->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+			[this, &camera]() {
+				m_FrameConstUBO->SetView(camera->GetViewMatrix());
+				m_FrameConstUBO->SetProjection(camera->GetProjectionMatrix());
+				m_FrameConstUBO->SetCameraPosition(glm::vec4(camera->GetPosition(), 1.0f));
+				m_FrameConstUBO->SetNearPlane(camera->GetNear());
+				m_FrameConstUBO->SetFarPlane(camera->GetFar());
+				m_FrameConstUBO->SetFrameTime(static_cast<float>(glfwGetTime()));
+				m_FrameConstUBO->UploadData();
+				m_FrameConstUBO->Activate(true);
+				m_LightsUBO->UploadData();
+				m_LightsUBO->Activate(true);
+			},
+			"MainPass - upload UBOs")));
 	}
 
 	{
@@ -192,4 +188,4 @@ void C_MainPassTechnique::SetSunViewProjection(glm::mat4 viewProjection)
 	m_SunViewProjection = viewProjection;
 }
 
-}
+} // namespace GLEngine::GLRenderer

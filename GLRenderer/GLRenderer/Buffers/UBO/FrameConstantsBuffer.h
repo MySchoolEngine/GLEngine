@@ -47,13 +47,14 @@ public:
 	void SetFrameTime(float time) { m_Time = time; }
 	void SetNearPlane(float distance) { m_NearPlane = distance; }
 	void SetFarPlane(float distance) { m_FarPlane = distance; }
+
 private:
 	glm::vec4 m_CameraPosition;
 	glm::mat4 m_ViewMat;
 	glm::mat4 m_ProjectionMat;
 	float	  m_AmbientStrength;
 	float	  m_Time;
-	float			m_NearPlane;
-	float			m_FarPlane;
+	float	  m_NearPlane;
+	float	  m_FarPlane;
 };
 } // namespace GLEngine::GLRenderer::Buffers::UBO

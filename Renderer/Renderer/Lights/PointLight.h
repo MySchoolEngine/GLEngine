@@ -8,9 +8,6 @@
 
 #include <Entity/IComponent.h>
 
-#include <GUI/Input/Slider.h>
-#include <GUI/Input/Color.h>
-
 namespace GLEngine::Renderer {
 
 namespace MeshData {
@@ -32,9 +29,9 @@ public:
 	// I_Light
 	[[nodiscard]] Physics::Primitives::C_Frustum GetShadingFrustum() const override;
 
-	virtual std::string_view GetDebugComponentName() const override;
-	virtual bool HasDebugDrawGUI() const override;
-	virtual void DebugDrawGUI() override;
+	virtual std::string_view						  GetDebugComponentName() const override;
+	virtual bool									  HasDebugDrawGUI() const override;
+	virtual void									  DebugDrawGUI() override;
 	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override final;
 
 private:

@@ -5,9 +5,9 @@
 #include "../include/frameConstants.glsl"
 #include "../include/LightsUBO.glsl"
 
-//per mesh
+// per mesh
 uniform vec3 modelColor[Terrain_NumLayers];
-layout (binding = 0) uniform sampler2DArray tex;
+layout(binding = 0) uniform sampler2DArray tex;
 
 in vec3 normal;
 in vec3 FragPos;
@@ -24,14 +24,14 @@ void main()
 	vec3  albedo = vec3(1, 0, 0);
 	float cosTheta;
 
-	cosTheta = dot(normal,normalize(pSunLight.position));
-	cosTheta = max(0.0, cosTheta);
+	cosTheta	 = dot(normal, normalize(pSunLight.position));
+	cosTheta	 = max(0.0, cosTheta);
 	int topLevel = getLayerIndex(tex, uv, FragPos.y);
 
 	albedo = modelColor[topLevel - Terrain_layer1];
 
 	vec3 MaterialAmbientColor = frame.AmbientStrength * pSunLight.color; // ambient lighting fake
-	vec3 MaterialDiffuseColor = cosTheta*pSunLight.color;
+	vec3 MaterialDiffuseColor = cosTheta * pSunLight.color;
 
 
 	fragColor = vec4((MaterialAmbientColor + MaterialDiffuseColor) * albedo, 1);

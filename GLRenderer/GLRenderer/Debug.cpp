@@ -414,19 +414,21 @@ void C_DebugDraw::DrawMergedGeoms()
 
 			m_PointsVertices.clear();
 			m_PointsColors.clear();
-			}, "C_DebugDraw::DrawMergedGeoms"
-		));
+		},
+		"C_DebugDraw::DrawMergedGeoms"));
 	shdManager.DeactivateShader();
 	auto AABBprogram = shdManager.GetProgram(s_DebugShaderName);
 	shdManager.ActivateShader(AABBprogram);
 
-	renderer->AddCommand(
-		std::make_unique<Commands::HACK::C_LambdaCommand>([this]() {
-		m_VAOaabb.bind();
-		m_VAOaabb.BindBuffer<1>();
-			}, "Prepare AABB"));
+	renderer->AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+		[this]() {
+			m_VAOaabb.bind();
+			m_VAOaabb.BindBuffer<1>();
+		},
+		"Prepare AABB"));
 
-	for (int i = 0; i < m_AABBTransform.size(); ++i) {
+	for (int i = 0; i < m_AABBTransform.size(); ++i)
+	{
 		renderer->AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 			[this, AABBprogram, i]() {
 				AABBprogram->SetUniform("modelMatrix", m_AABBTransform[i]);
@@ -439,12 +441,13 @@ void C_DebugDraw::DrawMergedGeoms()
 			"Debug - DrawAABB"));
 	}
 
-	renderer->AddCommand(
-		std::make_unique<Commands::HACK::C_LambdaCommand>([this]() {
-		m_VAOaabb.unbind();
-		m_AABBTransform.clear();
-		m_AABBColor.clear();
-			}, "Clear AABB"));
+	renderer->AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+		[this]() {
+			m_VAOaabb.unbind();
+			m_AABBTransform.clear();
+			m_AABBColor.clear();
+		},
+		"Clear AABB"));
 
 	shdManager.DeactivateShader();
 }

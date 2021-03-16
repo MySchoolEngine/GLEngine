@@ -16,7 +16,6 @@ C_SunLight::C_SunLight(std::shared_ptr<Entity::I_Entity> owner)
 	, m_AsymetricFactor(0.95f, 0.0f, 1.f, "Asymmetric factor")
 	, m_SunDiscMultiplier(1.f, 1.0f, 20.f, "Disc multiplier")
 {
-
 }
 
 //=================================================================================
@@ -55,7 +54,7 @@ void C_SunLight::DebugDraw() const
 //=================================================================================
 glm::vec3 C_SunLight::GetSunDirection() const
 {
-	return { m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue() };
+	return {m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue()};
 }
 
 //=================================================================================
@@ -88,4 +87,4 @@ Physics::Primitives::S_AABB C_SunLight::GetAABB() const
 	return Physics::Primitives::S_AABB();
 }
 
-}
+} // namespace GLEngine::Renderer

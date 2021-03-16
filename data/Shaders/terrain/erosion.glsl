@@ -20,7 +20,8 @@ float		  depositSpeed;
 
 
 //================================================================================
-layout (binding = 4) uniform rainData{
+layout(binding = 4) uniform rainData
+{
 	ivec2[dropletsNUM] droplets;
 }
 rain;

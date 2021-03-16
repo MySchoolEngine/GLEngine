@@ -1,9 +1,9 @@
 #include <EntityStdafx.h>
 
 #include <Entity/BasicEntity.h>
+#include <Entity/Components/EntityDebugComponent.h>
 #include <Entity/EntityManager.h>
 #include <Entity/IComponent.h>
-#include <Entity/Components/EntityDebugComponent.h>
 #include <Entity/IEntity.h>
 
 #include <GLRenderer/Components/ComponentBuilderFactory.h>

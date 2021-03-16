@@ -1,7 +1,6 @@
 #include <GLRendererStdAfx.h>
 
 #include <GLRenderer/Lights/SunLigth.h>
-
 #include <GLRenderer/Shaders/Generation/ShaderTypesReflection.h>
 
 namespace GLEngine::GLRenderer {
@@ -20,7 +19,6 @@ S_SunLight::S_SunLight()
 	, m_AsymetricFactor(0.6f)
 	, m_SunShadowMap(0)
 {
-
 }
 
 //=================================================================================
@@ -42,4 +40,4 @@ std::string S_SunLight::GetNameImpl() const
 	return "sunLight";
 }
 
-}
+} // namespace GLEngine::GLRenderer

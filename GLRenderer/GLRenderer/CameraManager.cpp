@@ -64,7 +64,7 @@ void C_CameraManager::OnEvent(Core::I_Event& event)
 //=================================================================================
 GUID C_CameraManager::SetupControls(GUI::C_GUIManager& guiMGR)
 {
-	m_Window = guiMGR.CreateGUIWindow("Camera manager");
+	m_Window		= guiMGR.CreateGUIWindow("Camera manager");
 	auto* shaderMan = guiMGR.GetWindow(m_Window);
 
 	shaderMan->AddComponent(m_UseDebugCam);

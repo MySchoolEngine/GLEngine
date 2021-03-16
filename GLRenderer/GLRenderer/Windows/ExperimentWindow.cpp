@@ -142,7 +142,8 @@ void C_ExplerimentWindow::Update()
 	shmgr.DeactivateShader();
 	// ----- Frame init -------
 
-	if(false) {
+	if (false)
+	{
 		RenderDoc::C_DebugScope s("Persistent debug");
 		C_PersistentDebug::Instance().DrawAll();
 	}

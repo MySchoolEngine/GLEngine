@@ -202,12 +202,12 @@ vec3 BRDF(const vec3 norm, const vec3 omegaIn, const vec3 omegaOut, const vec3 l
 	vec3	   Kd = vec3(1.0) - Ks;
 
 	const float denominator = 4.0 * max(dot(norm, omegaIn), 0.00001) * max(dot(norm, omegaOut), 0.00001);
-	const vec3 numerator    = (NDF * G * Ks) / PI;
+	const vec3	numerator	= (NDF * G * Ks) / PI;
 
 	vec3 spec = numerator / max(denominator, 0.00001);
 
-    float NdotL = max(dot(norm, omegaOut), 0.00001); 
-	return (Kd*(usedColor/PI) + spec) * lightColor * NdotL;
+	float NdotL = max(dot(norm, omegaOut), 0.00001);
+	return (Kd * (usedColor / PI) + spec) * lightColor * NdotL;
 }
 
 //=================================================================================
@@ -228,10 +228,10 @@ bool isInShadow(const vec4 lightSpaceCoord, const sampler2D shadowMap)
 vec3 CalculatePointLight(pointLight light, vec3 norm)
 {
 	// TODO: light intensity
-    const vec3 toLight = light.position - FragPos;
-	const vec3 lightDir = normalize(toLight);
-    const float distnace = length(toLight);
-    const float attuneation = 1.0 / distnace * distnace;
+	const vec3	toLight		= light.position - FragPos;
+	const vec3	lightDir	= normalize(toLight);
+	const float distnace	= length(toLight);
+	const float attuneation = 1.0 / distnace * distnace;
 
 	vec3 viewDir = normalize(viewPos - FragPos);
 
@@ -372,17 +372,17 @@ void main()
 	const vec3 norm = GetNormal();
 
 	const vec3 omegaIn = FragPos - viewPos;
-	Ray ray;
+	Ray		   ray;
 	ray.origin = FragPos;
-	ray.dir = reflect(omegaIn,norm);
+	ray.dir	   = reflect(omegaIn, norm);
 
-	vec3 result = vec3(0, 0, 0);
+	vec3 result	  = vec3(0, 0, 0);
 	vec3 omegaOut = normalize(ray.dir);
 	vec3 viewDir  = normalize(-omegaIn);
 
 	result += CalculatSunLight(norm, viewDir, FragPos);
 	// if(!isInShadow(lightSpacePos, shadowMap[pAreaLight[0].ShadowMap]))
-	//result += CalculatAreaLight(pAreaLight[0], norm, viewDir, FragPos);
+	// result += CalculatAreaLight(pAreaLight[0], norm, viewDir, FragPos);
 
 	for (int i = 0; i < NUM_POINTLIGHT; ++i)
 	{
