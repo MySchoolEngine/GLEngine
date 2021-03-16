@@ -36,8 +36,6 @@ in mat3 TBN;
 
 out vec4 fragColor;
 
-#include "../include/LightsUBO.glsl"
-
 float ambientStrength  = 0.1;
 float specularStrength = 0.5;
 vec3  viewPos;
@@ -379,20 +377,16 @@ void main()
 	ray.dir = reflect(omegaIn,norm);
 
 	vec3 result = vec3(0, 0, 0);
-
-	float t = 0;
-	float distSq; // distance from the middle of a disc
-
-
 	vec3 omegaOut = normalize(ray.dir);
 	vec3 viewDir  = normalize(-omegaIn);
 
+	result += CalculatSunLight(norm, viewDir, FragPos);
 	// if(!isInShadow(lightSpacePos, shadowMap[pAreaLight[0].ShadowMap]))
-	result += CalculatAreaLight(pAreaLight[0], norm, viewDir, FragPos);
+	//result += CalculatAreaLight(pAreaLight[0], norm, viewDir, FragPos);
 
 	for (int i = 0; i < NUM_POINTLIGHT; ++i)
 	{
-		//result += CalculatePointLight(pLight[i], norm);
+		result += CalculatePointLight(pLight[i], norm);
 	}
 
 	fragColor = vec4(result, 1.0);
