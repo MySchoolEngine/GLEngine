@@ -47,23 +47,23 @@ struct S_AABB;
 namespace Renderer::Cameras {
 class RENDERER_API_EXPORT FreelookCamera : public I_CameraComponent {
 public:
-	FreelookCamera(std::shared_ptr<Entity::I_Entity>& owner);
+	explicit FreelookCamera(std::shared_ptr<Entity::I_Entity>& owner);
 	virtual ~FreelookCamera(); // = default;
 
 	//=============================================================
 	// Renderer::I_CameraComponent
 	//=============================================================
-	virtual glm::mat4 GetScreenToworldMatrix() const override;
-	virtual glm::mat4 GetViewProjectionMatrix() const override;
-	virtual glm::mat4 GetProjectionMatrix() const override;
-	virtual glm::mat4 GetViewMatrix() const override;
-	virtual glm::quat GetRotation() const override;
-	virtual glm::vec3 GetDirection() const override;
-	virtual glm::vec3 GetPosition() const override;
+	[[nodiscard]] virtual glm::mat4 GetScreenToworldMatrix() const override;
+	[[nodiscard]] virtual glm::mat4 GetViewProjectionMatrix() const override;
+	[[nodiscard]] virtual glm::mat4 GetProjectionMatrix() const override;
+	[[nodiscard]] virtual glm::mat4 GetViewMatrix() const override;
+	[[nodiscard]] virtual glm::quat GetRotation() const override;
+	[[nodiscard]] virtual glm::vec3 GetDirection() const override;
+	[[nodiscard]] virtual glm::vec3 GetPosition() const override;
 
-	virtual Physics::Primitives::C_Frustum GetFrustum() const override;
+	[[nodiscard]] virtual Physics::Primitives::C_Frustum GetFrustum() const override;
 
-	virtual Physics::Primitives::S_AABB GetAABB() const override;
+	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override;
 
 	// Use these 2 function to setup the camera
 	// FOVY in degrees
@@ -81,26 +81,26 @@ public:
 	// Inherited via I_Camera
 	// virtual void debugDraw() const override;
 
-	float getMovementSpeed() const;
+	[[nodiscard]] float getMovementSpeed() const;
 
 	// from I_Camera
 	[[nodiscard]] virtual float GetFar() const override;
 	virtual void				SetFar(float Far);
 	[[nodiscard]] virtual float GetNear() const override;
 	virtual void				SetNear(float Near);
-	virtual float				GetFov() const;
+	[[nodiscard]] virtual float GetFov() const;
 	virtual void				SetFov(float fov);
-	virtual float				GetAspectRatio() const;
+	[[nodiscard]] virtual float GetAspectRatio() const;
 
 	//=================================================================================
-	virtual void			 DebugDrawGUI() override;
-	virtual bool			 HasDebugDrawGUI() const override;
-	virtual std::string_view GetDebugComponentName() const override;
-	virtual void			 OnEvent(Core::I_Event& event) override;
+	virtual void						   DebugDrawGUI() override;
+	[[nodiscard]] virtual bool			   HasDebugDrawGUI() const override;
+	[[nodiscard]] virtual std::string_view GetDebugComponentName() const override;
+	virtual void						   OnEvent(Core::I_Event& event) override;
 
 protected:
-	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
-	bool OnKeyReleased(Core::C_KeyReleasedEvent& event);
+	[[nodiscard]] bool OnKeyPressed(Core::C_KeyPressedEvent& event);
+	[[nodiscard]] bool OnKeyReleased(Core::C_KeyReleasedEvent& event);
 
 private:
 	void  CreateProjection();

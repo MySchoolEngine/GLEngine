@@ -142,13 +142,11 @@ void C_ExplerimentWindow::Update()
 	shmgr.DeactivateShader();
 	// ----- Frame init -------
 
-	if (false)
 	{
 		RenderDoc::C_DebugScope s("Persistent debug");
 		C_PersistentDebug::Instance().DrawAll();
 	}
 
-	if (false)
 	{
 		RenderDoc::C_DebugScope s("Merged debug");
 		C_DebugDraw::Instance().DrawMergedGeoms();

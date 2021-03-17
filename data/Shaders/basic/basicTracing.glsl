@@ -382,7 +382,7 @@ void main()
 
 	result += CalculatSunLight(norm, viewDir, FragPos);
 	// if(!isInShadow(lightSpacePos, shadowMap[pAreaLight[0].ShadowMap]))
-	// result += CalculatAreaLight(pAreaLight[0], norm, viewDir, FragPos);
+	result += CalculatAreaLight(pAreaLight[0], norm, viewDir, FragPos);
 
 	for (int i = 0; i < NUM_POINTLIGHT; ++i)
 	{

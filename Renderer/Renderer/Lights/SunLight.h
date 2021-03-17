@@ -24,8 +24,8 @@ public:
 	[[nodiscard]] std::string_view				 GetDebugComponentName() const override;
 	virtual void								 DebugDrawGUI() override;
 
-	void						DebugDraw() const;
-	Physics::Primitives::S_AABB GetAABB() const override;
+	void									  DebugDraw() const;
+	[[nodiscard]] Physics::Primitives::S_AABB GetAABB() const override;
 
 private:
 	GUI::Input::C_Slider<float> m_SunX;
