@@ -22,7 +22,7 @@ public:
 	void					  SetAreaLight(S_AreaLight light, std::size_t index) { m_AreaLight[index] = light; }
 	[[nodiscard]] std::size_t AreaLightsLimit() const { return m_AreaLight.max_size(); }
 
-	S_SunLight& GetSunLight() { return m_SunLight; }
+	[[nodiscard]] S_SunLight& GetSunLight() { return m_SunLight; }
 
 	void MakeHandlesResident(bool val = true);
 
