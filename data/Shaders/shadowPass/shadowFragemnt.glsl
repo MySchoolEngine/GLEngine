@@ -1,4 +1,5 @@
 #version 430
+#extension GL_ARB_bindless_texture : require
 
 #define NUM_POINTLIGHT 10
 

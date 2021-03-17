@@ -177,6 +177,9 @@ private:
 	};
 	std::shared_ptr<Components::C_StaticMesh> m_OctahedronMesh;
 	std::vector<OctahedronInfo>				  m_OctahedronInfos;
+
+	std::vector<glm::mat4> m_AABBTransform;
+	std::vector<glm::vec3> m_AABBColor;
 };
 #else
 //=================================================================================

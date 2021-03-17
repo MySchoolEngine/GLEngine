@@ -40,20 +40,21 @@ public:
 	void			 SetView(const glm::mat4& val) { m_ViewMat = val; }
 	const glm::mat4& GetProjection() const { return m_ProjectionMat; }
 	void			 SetProjection(const glm::mat4& val) { m_ProjectionMat = val; }
-	const glm::vec3& GetSunPosition() const { return m_SunPosition; }
-	void			 SetSunPosition(const glm::vec3& val) { m_SunPosition = val; }
 
 	float GetAmbientStrength() const { return m_AmbientStrength; }
 	void  SetAmbientStrength(float strength) { m_AmbientStrength = strength; }
 
 	void SetFrameTime(float time) { m_Time = time; }
+	void SetNearPlane(float distance) { m_NearPlane = distance; }
+	void SetFarPlane(float distance) { m_FarPlane = distance; }
 
 private:
 	glm::vec4 m_CameraPosition;
 	glm::mat4 m_ViewMat;
 	glm::mat4 m_ProjectionMat;
-	glm::vec3 m_SunPosition;
 	float	  m_AmbientStrength;
 	float	  m_Time;
+	float	  m_NearPlane;
+	float	  m_FarPlane;
 };
 } // namespace GLEngine::GLRenderer::Buffers::UBO

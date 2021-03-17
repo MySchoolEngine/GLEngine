@@ -4,8 +4,11 @@
 #define NUM_POINTLIGHT 10
 #define NUM_AREALIGHT  4
 
+#include "../include/units.glsl"
 #include "../include/frameConstants.glsl"
 #include "../include/tracing.glsl"
+#include "../include/LightsUBO.glsl"
+#include "../include/atmosphere.glsl"
 #include "../include/PBRT.glsl"
 
 
@@ -32,8 +35,6 @@ in vec4 worldCoord;
 in mat3 TBN;
 
 out vec4 fragColor;
-
-#include "../include/LightsUBO.glsl"
 
 float ambientStrength  = 0.1;
 float specularStrength = 0.5;
@@ -201,12 +202,12 @@ vec3 BRDF(const vec3 norm, const vec3 omegaIn, const vec3 omegaOut, const vec3 l
 	vec3	   Kd = vec3(1.0) - Ks;
 
 	const float denominator = 4.0 * max(dot(norm, omegaIn), 0.00001) * max(dot(norm, omegaOut), 0.00001);
-	vec3		numerator	= NDF * G * Ks;
+	const vec3	numerator	= (NDF * G * Ks) / PI;
 
 	vec3 spec = numerator / max(denominator, 0.00001);
 
 	float NdotL = max(dot(norm, omegaOut), 0.00001);
-	return (Kd * usedColor / PI + spec) * lightColor * NdotL;
+	return (Kd * (usedColor / PI) + spec) * lightColor * NdotL;
 }
 
 //=================================================================================
@@ -227,13 +228,16 @@ bool isInShadow(const vec4 lightSpaceCoord, const sampler2D shadowMap)
 vec3 CalculatePointLight(pointLight light, vec3 norm)
 {
 	// TODO: light intensity
-	vec3 lightDir = normalize(light.position - FragPos);
+	const vec3	toLight		= light.position - FragPos;
+	const vec3	lightDir	= normalize(toLight);
+	const float distnace	= length(toLight);
+	const float attuneation = 1.0 / distnace * distnace;
 
 	vec3 viewDir = normalize(viewPos - FragPos);
 
 	float roughnessVal = GetRoughness(texCoordOUT);
 
-	return BRDF(norm, viewDir, lightDir, light.color, roughnessVal);
+	return BRDF(norm, viewDir, lightDir, light.color * light.intensity, roughnessVal) * attuneation;
 }
 
 //=================================================================================
@@ -355,6 +359,7 @@ vec3 CalculatAreaLight(const areaLight light, const vec3 N, const vec3 V, const 
 	return Lo_i * usedColor;
 }
 
+#include "../include/SunUtils.glsl"
 //=================================================================================
 void main()
 {
@@ -366,21 +371,16 @@ void main()
 
 	const vec3 norm = GetNormal();
 
-	vec3 omegaIn = FragPos - viewPos;
-	Ray	 ray;
+	const vec3 omegaIn = FragPos - viewPos;
+	Ray		   ray;
 	ray.origin = FragPos;
 	ray.dir	   = reflect(omegaIn, norm);
-	;
 
-	vec3 result = vec3(0, 0, 0);
-
-	float t = 0;
-	float distSq; // distance from the middle of a disc
-
-
+	vec3 result	  = vec3(0, 0, 0);
 	vec3 omegaOut = normalize(ray.dir);
 	vec3 viewDir  = normalize(-omegaIn);
 
+	result += CalculatSunLight(norm, viewDir, FragPos);
 	// if(!isInShadow(lightSpacePos, shadowMap[pAreaLight[0].ShadowMap]))
 	result += CalculatAreaLight(pAreaLight[0], norm, viewDir, FragPos);
 
@@ -388,7 +388,6 @@ void main()
 	{
 		result += CalculatePointLight(pLight[i], norm);
 	}
-
 
 	fragColor = vec4(result, 1.0);
 }

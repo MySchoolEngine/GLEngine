@@ -59,14 +59,5 @@
 				</PointLight>
 			</Components>
 		</Entity>
-		<!--<Entity name="light">
-			<translate sid="location">0 0 -3</translate>
-			<rotate>1 0 0 90</rotate>
-			<Components>
-				<staticMesh filePath="plane.obj" material="basic">
-					<color>1 1 1</color>
-				</staticMesh>
-			</Components>
-		</Entity> -->
 	</Entities>
 </World>

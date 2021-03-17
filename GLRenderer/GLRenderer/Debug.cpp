@@ -163,26 +163,12 @@ void C_DebugDraw::DrawAABB(const Physics::Primitives::S_AABB& bbox, const glm::v
 	auto  program	 = Shaders::C_ShaderManager::Instance().GetProgram(s_DebugShaderName);
 	shdManager.ActivateShader(program);
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
-		[this, program, bbox, color, modelMatrix]() {
-			glm::vec3 size		= bbox.m_Max - bbox.m_Min;
-			glm::vec3 center	= (bbox.m_Max + bbox.m_Min) / 2.0f; // glm::vec3((min_x + max_x) / 2, (min_y + max_y) / 2, (min_z + max_z) / 2);
-			glm::mat4 transform = glm::translate(glm::mat4(1), center) * glm::scale(glm::mat4(1), size);
+	glm::vec3 size		= bbox.m_Max - bbox.m_Min;
+	glm::vec3 center	= (bbox.m_Max + bbox.m_Min) / 2.0f; // glm::vec3((min_x + max_x) / 2, (min_y + max_y) / 2, (min_z + max_z) / 2);
+	glm::mat4 transform = glm::translate(glm::mat4(1), center) * glm::scale(glm::mat4(1), size);
 
-			/* Apply object's transformation matrix */
-			program->SetUniform("modelMatrix", modelMatrix * transform);
-			program->SetUniform("colorIN", color);
-
-			m_VAOaabb.bind();
-			m_VAOaabb.BindBuffer<1>();
-
-			glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, 0);
-			glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, (GLvoid*)(4 * sizeof(GLushort)));
-			glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, (GLvoid*)(8 * sizeof(GLushort)));
-
-			m_VAOaabb.unbind();
-		},
-		"Debug - DrawAABB")));
+	m_AABBTransform.emplace_back(modelMatrix * transform);
+	m_AABBColor.emplace_back(color);
 }
 
 //=================================================================================
@@ -386,6 +372,7 @@ void C_DebugDraw::DrawMergedGeoms()
 	auto  program	 = Shaders::C_ShaderManager::Instance().GetProgram(s_MergedShaderName);
 	shdManager.ActivateShader(program);
 
+	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
 	if (!m_OctahedronInfos.empty() && !m_OctahedronMesh)
 	{
 		m_OctahedronMesh = std::make_shared<Components::C_StaticMesh>(Renderer::MeshData::C_Geometry::CreateOctahedron(1.f, 1.f), "OctahedronMapping", nullptr);
@@ -398,7 +385,7 @@ void C_DebugDraw::DrawMergedGeoms()
 	});
 	m_OctahedronInfos.clear();
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+	renderer->AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&]() {
 			m_VAOlines.bind();
 			std::vector<glm::vec4> mergedVertices(m_LinesVertices);
@@ -422,16 +409,47 @@ void C_DebugDraw::DrawMergedGeoms()
 			}
 
 
-			m_VAOlines.unbind();
-			shdManager.DeactivateShader();
-
 			m_LinesVertices.clear();
 			m_LinesColors.clear();
 
 			m_PointsVertices.clear();
 			m_PointsColors.clear();
 		},
-		"C_DebugDraw::DrawMergedGeoms")));
+		"C_DebugDraw::DrawMergedGeoms"));
+	shdManager.DeactivateShader();
+	auto AABBprogram = shdManager.GetProgram(s_DebugShaderName);
+	shdManager.ActivateShader(AABBprogram);
+
+	renderer->AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+		[this]() {
+			m_VAOaabb.bind();
+			m_VAOaabb.BindBuffer<1>();
+		},
+		"Prepare AABB"));
+
+	for (int i = 0; i < m_AABBTransform.size(); ++i)
+	{
+		renderer->AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+			[this, AABBprogram, i]() {
+				AABBprogram->SetUniform("modelMatrix", m_AABBTransform[i]);
+				AABBprogram->SetUniform("colorIN", m_AABBColor[i]);
+
+				glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, 0);
+				glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, (GLvoid*)(4 * sizeof(GLushort)));
+				glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, (GLvoid*)(8 * sizeof(GLushort)));
+			},
+			"Debug - DrawAABB"));
+	}
+
+	renderer->AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+		[this]() {
+			m_VAOaabb.unbind();
+			m_AABBTransform.clear();
+			m_AABBColor.clear();
+		},
+		"Clear AABB"));
+
+	shdManager.DeactivateShader();
 }
 
 //=================================================================================

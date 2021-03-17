@@ -34,6 +34,7 @@ namespace GLEngine::GLRenderer {
 class C_GLImGUILayer;
 class C_RayTraceWindow;
 class C_Framebuffer;
+class C_SunShadowMapTechnique;
 
 namespace Windows {
 class C_ExplerimentWindow : public GLFW::C_GLFWoGLWindow {
@@ -91,10 +92,10 @@ private:
 	GUID																m_HDRSettingsGUID;
 	GUI::Menu::C_Menu													m_Windows;
 
-	C_RayTraceWindow* m_RayTraceWindow;
-
-	std::unique_ptr<C_MainPassTechnique>  m_MainPass;
-	std::shared_ptr<C_ShadowMapTechnique> m_ShadowPass;
+	std::unique_ptr<C_MainPassTechnique>	 m_MainPass;
+	std::shared_ptr<C_ShadowMapTechnique>	 m_ShadowPass;
+	std::shared_ptr<C_SunShadowMapTechnique> m_SunShadow;
+	C_RayTraceWindow*						 m_RayTraceWindow;
 
 	std::unique_ptr<C_Framebuffer>				m_HDRFBO;
 	std::shared_ptr<Mesh::C_StaticMeshResource> m_ScreenQuad;

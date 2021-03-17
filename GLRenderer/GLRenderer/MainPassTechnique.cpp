@@ -15,8 +15,9 @@
 #include <Renderer/ILight.h>
 #include <Renderer/IRenderableComponent.h>
 #include <Renderer/IRenderer.h>
-#include <Renderer/Lights/PointLight.h>
 #include <Renderer/Lights/AreaLight.h>
+#include <Renderer/Lights/PointLight.h>
+#include <Renderer/Lights/SunLight.h>
 
 #include <Physics/Primitives/Frustum.h>
 
@@ -32,9 +33,6 @@ namespace GLEngine::GLRenderer {
 //=================================================================================
 C_MainPassTechnique::C_MainPassTechnique(std::shared_ptr<Entity::C_EntityManager> world)
 	: m_WorldToRender(world)
-	, m_SunX(-13.f, -20.f, 20.f, "Sun X")
-	, m_SunY(15.f, -20.f, 20.f, "Sun Y")
-	, m_SunZ(-5.f, -20.f, 20.f, "Sun Z")
 {
 	m_FrameConstUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>("frameConst");
 	m_LightsUBO		= Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<C_LightsBuffer>("lightsUni");
@@ -50,12 +48,6 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 
 	auto& renderer = (Core::C_Application::Get()).GetActiveRenderer();
 	renderer->SetCurrentPassType(Renderer::E_PassType::FinalPass);
-
-	m_FrameConstUBO->SetView(camera->GetViewMatrix());
-	m_FrameConstUBO->SetProjection(camera->GetProjectionMatrix());
-	m_FrameConstUBO->SetCameraPosition(glm::vec4(camera->GetPosition(), 1.0f));
-	m_FrameConstUBO->SetSunPosition({m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue()});
-	m_FrameConstUBO->SetFrameTime(static_cast<float>(glfwGetTime()));
 
 	{
 		RenderDoc::C_DebugScope s("Window prepare");
@@ -119,9 +111,22 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				light.m_SpecularColor = areaLight->SpecularColour();
 
 				C_DebugDraw::Instance().DrawAxis(pos, frustum.GetUpVector(), frustum.GetForeward());
-				areaLight->DebugDraw();
 				m_LightsUBO->SetAreaLight(light, areaLightIndex);
 				++areaLightIndex;
+			}
+
+			const auto sunLight = std::dynamic_pointer_cast<Renderer::C_SunLight>(lightIt);
+			if (sunLight)
+			{
+				m_LightsUBO->GetSunLight().SetSunPosition(sunLight->GetSunDirection());
+				m_LightsUBO->GetSunLight().m_SunColor			 = sunLight->GetSunColor();
+				m_LightsUBO->GetSunLight().m_AsymetricFactor	 = sunLight->AtmosphereAsymetricFactor();
+				m_LightsUBO->GetSunLight().m_SunDiscMultiplier	 = sunLight->SunDiscMultiplier();
+				m_LightsUBO->GetSunLight().m_LightViewProjection = m_SunViewProjection;
+				m_LightsUBO->GetSunLight().m_SunShadowMap		 = m_SunShadowMap;
+
+				C_DebugDraw::Instance().DrawPoint(sunLight->GetSunDirection(), {1.f, 1.f, 0.f});
+				C_DebugDraw::Instance().DrawLine({0.f, 0.f, 0.f}, sunLight->GetSunDirection(), {1.f, 1.f, 0.f});
 			}
 		}
 	}
@@ -130,7 +135,13 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 		RenderDoc::C_DebugScope s("UBO Upload");
 		m_LightsUBO->MakeHandlesResident();
 		renderer->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
-			[&]() {
+			[this, &camera]() {
+				m_FrameConstUBO->SetView(camera->GetViewMatrix());
+				m_FrameConstUBO->SetProjection(camera->GetProjectionMatrix());
+				m_FrameConstUBO->SetCameraPosition(glm::vec4(camera->GetPosition(), 1.0f));
+				m_FrameConstUBO->SetNearPlane(camera->GetNear());
+				m_FrameConstUBO->SetFarPlane(camera->GetFar());
+				m_FrameConstUBO->SetFrameTime(static_cast<float>(glfwGetTime()));
 				m_FrameConstUBO->UploadData();
 				m_FrameConstUBO->Activate(true);
 				m_LightsUBO->UploadData();
@@ -163,14 +174,18 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 			renderer->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>([&]() { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }, "Reset polygon mode")));
 		}
 	}
+}
 
-	C_DebugDraw::Instance().DrawPoint({m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue()}, {1.f, 1.f, 0.f});
-	bool my_tool_active = true;
-	::ImGui::Begin("Sun", &my_tool_active);
-	m_SunX.Draw();
-	m_SunY.Draw();
-	m_SunZ.Draw();
-	::ImGui::End();
+//=================================================================================
+void C_MainPassTechnique::SetSunShadowMap(std::uint64_t sunShadowMapHandle)
+{
+	m_SunShadowMap = sunShadowMapHandle;
+}
+
+//=================================================================================
+void C_MainPassTechnique::SetSunViewProjection(glm::mat4 viewProjection)
+{
+	m_SunViewProjection = viewProjection;
 }
 
 } // namespace GLEngine::GLRenderer

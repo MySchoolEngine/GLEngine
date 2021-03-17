@@ -29,14 +29,10 @@ public:
 	// I_Light
 	[[nodiscard]] Physics::Primitives::C_Frustum GetShadingFrustum() const override;
 
-	virtual std::string_view GetDebugComponentName() const override;
-	virtual bool			 HasDebugDrawGUI() const override;
-
+	[[nodiscard]] virtual std::string_view			  GetDebugComponentName() const override;
+	[[nodiscard]] virtual bool						  HasDebugDrawGUI() const override;
+	virtual void									  DebugDrawGUI() override;
 	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override final;
-
-
-	//=================================================================================
-	void DebugDrawGUI() override;
 
 private:
 	GUI::Input::C_Slider<float> m_Intensity;
