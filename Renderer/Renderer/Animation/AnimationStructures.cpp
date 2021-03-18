@@ -3,7 +3,7 @@
 #include <Renderer/Animation/AnimationStructures.h>
 
 #include <Core/CoreMacros.h>
-#define GLM_ENABLE_EXPERIMENTAL
+
 #include <glm/gtx/quaternion.hpp>
 
 namespace GLEngine::Renderer::Animation {

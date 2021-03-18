@@ -10,7 +10,6 @@
 
 #include <Utils/Parsing/MatrixParse.h>
 
-#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
 
 #include <pugixml.hpp>
