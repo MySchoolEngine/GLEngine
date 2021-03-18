@@ -15,9 +15,6 @@
 
 #include <GLRenderer/Buffers/GLBuffer.h>
 
-#include <glad/glad.h>
-#include <string>
-
 namespace GLEngine::GLRenderer::Buffers {
 class C_UniformBuffer : public C_GLBuffer<GL_UNIFORM_BUFFER> {
 public:
@@ -25,6 +22,7 @@ public:
 	virtual ~C_UniformBuffer() = default;
 
 	virtual void UploadData() const = 0;
+	[[nodiscard]] virtual std::size_t GetBufferSize() const = 0;
 
 	void		Activate(bool activate = true);
 	inline bool IsActive() const { return m_active; }

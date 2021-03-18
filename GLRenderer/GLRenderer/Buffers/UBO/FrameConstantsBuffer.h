@@ -5,8 +5,13 @@
  * @faculty 	Faculty of Information Technology
  * @university 	Brno University of Technology
  *
+ *
+ * @brief	Define shader values constant through whole
+ *			frame.
+ * 
  * @author 		Dominik Rohacek
  * Contact: 	RohacekD@gmail.com
+ * @date 		2018/05/16
  ** ==============================================*/
 
 #pragma once
@@ -14,25 +19,15 @@
 #include <GLRenderer/Buffers/UniformBuffer.h>
 
 #include <glm/mat4x4.hpp>
-#include <glm/vec4.hpp>
 
 namespace GLEngine::GLRenderer::Buffers::UBO {
-
-/** ==============================================
- * @class C_FrameConstantsBuffer
- *
- * @brief	Define shader values constant through whole
- *			frame.
- *
- * @author 	Dominik Rohacek
- * Contact: RohacekD@gmail.com
- * @date 	2018/05/16
- ** ==============================================*/
 class C_FrameConstantsBuffer : public C_UniformBuffer {
 public:
 	C_FrameConstantsBuffer(const std::string& blockName, unsigned int index);
 
 	virtual void UploadData() const override;
+
+	[[nodiscard]] virtual std::size_t GetBufferSize() const override;
 
 	const glm::vec4& GetCameraPosition() const { return m_CameraPosition; }
 	void			 SetCameraPosition(const glm::vec4& val) { m_CameraPosition = val; }

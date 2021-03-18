@@ -2,9 +2,6 @@
 
 #include <GLRenderer/Buffers/UBO/RainDataBuffer.h>
 
-#include <glm/gtc/type_ptr.hpp>
-
-
 namespace GLEngine::GLRenderer::Buffers::UBO {
 
 //=================================================================================
@@ -12,11 +9,17 @@ C_RainDataBuffer::C_RainDataBuffer(const std::string& blockName, unsigned int in
 	: C_UniformBuffer(blockName, index)
 	, m_TextureDimension(textureDimension)
 {
+	C_UniformBuffer::bind();
+	glBufferData(GetBufferType(), GetBufferSize(), m_RainDrops.data(), GL_DYNAMIC_DRAW);
+	C_UniformBuffer::unbind();
+}
+
+//=================================================================================
+std::size_t C_RainDataBuffer::GetBufferSize() const
+{
 	const auto bytes = sizeof(m_RainDrops);
 
-	C_UniformBuffer::bind();
-	glBufferData(GetBufferType(), bytes, nullptr, GL_DYNAMIC_DRAW);
-	C_UniformBuffer::unbind();
+	return bytes;
 }
 
 //=================================================================================
@@ -25,7 +28,7 @@ void C_RainDataBuffer::UploadData() const
 	bind();
 	auto* data = (char*)glMapBuffer(GetBufferType(), GL_WRITE_ONLY);
 
-	memcpy(data, m_RainDrops.data(), sizeof(m_RainDrops));
+	memcpy(data, m_RainDrops.data(), GetBufferSize());
 
 	glUnmapBuffer(GetBufferType());
 	unbind();
