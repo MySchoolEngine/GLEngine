@@ -22,6 +22,7 @@ public:
 	virtual void unbind() const = 0;
 
 	virtual void NameBuffer(const std::string& name) const = 0;
+	virtual void AllocateMemory(const std::size_t size, GLenum usage, const void* data = nullptr) = 0;
 };
 
 //=================================================================================
@@ -35,11 +36,14 @@ public:
 
 	constexpr GLenum GetBufferType() const noexcept;
 
+	virtual void AllocateMemory(const std::size_t size, GLenum usage, const void* data = nullptr) override;
+
 	//=================================================================================
 	virtual void NameBuffer(const std::string& name) const override { glObjectLabel(GL_BUFFER, m_id, static_cast<GLsizei>(name.length()), name.c_str()); }
 
 protected:
 	GLuint m_id;
 };
+
 } // namespace GLEngine::GLRenderer::Buffers
 #include <GLRenderer/Buffers/GLBuffer.inl>

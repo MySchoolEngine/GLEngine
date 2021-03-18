@@ -13,9 +13,7 @@ C_FrameConstantsBuffer::C_FrameConstantsBuffer(const std::string& blockName, uns
 	, m_AmbientStrength(0.1f)
 	, m_Time(0.0f)
 {
-	C_UniformBuffer::bind();
-	glBufferData(GL_UNIFORM_BUFFER, GetBufferSize(), nullptr, GL_STATIC_DRAW);
-	C_UniformBuffer::unbind();
+	AllocateMemory(false);
 }
 
 //=================================================================================

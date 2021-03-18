@@ -9,9 +9,7 @@ C_RainDataBuffer::C_RainDataBuffer(const std::string& blockName, unsigned int in
 	: C_UniformBuffer(blockName, index)
 	, m_TextureDimension(textureDimension)
 {
-	C_UniformBuffer::bind();
-	glBufferData(GetBufferType(), GetBufferSize(), m_RainDrops.data(), GL_DYNAMIC_DRAW);
-	C_UniformBuffer::unbind();
+	AllocateMemory(true, m_RainDrops.data());
 }
 
 //=================================================================================

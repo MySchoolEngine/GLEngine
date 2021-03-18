@@ -11,9 +11,7 @@ namespace GLEngine::GLRenderer {
 C_LightsBuffer::C_LightsBuffer(const std::string& blockName, unsigned int index)
 	: C_UniformBuffer(blockName, index)
 {
-	C_UniformBuffer::bind();
-	glBufferData(GL_UNIFORM_BUFFER, GetBufferSize(), &(m_PointLight[0].m_Position), GL_DYNAMIC_DRAW);
-	C_UniformBuffer::unbind();
+	AllocateMemory(true, &(m_PointLight[0].m_Position));
 
 	Textures::TextureLoader tl;
 
