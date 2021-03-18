@@ -59,6 +59,7 @@ project "DevIL-IL"
             "4101", -- sstrcpy
             "5033", -- register keyword
             "4065", -- default but no case label 
+            "4756", -- overflow in constant arithmetic
         }
         
     filter "system:linux"

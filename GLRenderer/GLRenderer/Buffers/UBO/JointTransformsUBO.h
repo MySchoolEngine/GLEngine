@@ -11,8 +11,8 @@ public:
 	void SetTransforms(std::vector<Renderer::Animation::S_BoneKeyframe>&& boneKeyframes);
 
 
-	virtual void UploadData() const override;
-
+	virtual void					  UploadData() const override;
+	[[nodiscard]] virtual std::size_t GetBufferSize() const override;
 private:
 	std::vector<glm::mat4> m_JointTransforms;
 };

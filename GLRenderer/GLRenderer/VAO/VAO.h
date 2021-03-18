@@ -26,10 +26,10 @@ public:
 	template <int INDEX, GLenum BUFFERTYPE, class T, typename = T_EnableIndex<INDEX>> void SetBuffer(const std::vector<T>& data)
 	{
 		m_Buffers[INDEX] = std::make_unique<Buffers::C_GLBuffer<BUFFERTYPE>>();
-		BindBuffer<INDEX>();
 
 		if (data.size())
 			InnerSetBufferData<INDEX, BUFFERTYPE>(data);
+		BindBuffer<INDEX>();
 		if (BUFFERTYPE != GL_ELEMENT_ARRAY_BUFFER)
 		{
 			constexpr auto typeLenght = sizeof(T);
@@ -76,9 +76,8 @@ protected:
 private:
 	template <int INDEX, GLenum BUFFERTYPE, class T, typename = T_EnableIndex<INDEX>> void InnerSetBufferData(const std::vector<T>& data, bool dynamicDraw = false)
 	{
-		constexpr auto typeLenght = sizeof(T);
 		const auto	   usage	  = dynamicDraw ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
-		glBufferData(BUFFERTYPE, data.size() * typeLenght, data.data(), usage);
+		m_Buffers[INDEX]->AllocateMemory(data.size() * sizeof(T), usage, data.data());
 	}
 };
 } // namespace GLEngine::GLRenderer::VAO

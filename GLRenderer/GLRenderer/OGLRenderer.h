@@ -73,6 +73,7 @@ private:
 		AvgDrawCommands,
 		MinMax,
 		DrawCalls,
+		UBOMemoryUsage,
 		Last,
 	};
 	std::array<GUI::C_FormatedText, static_cast<int>(E_GUITexts::Last)> m_GUITexts;

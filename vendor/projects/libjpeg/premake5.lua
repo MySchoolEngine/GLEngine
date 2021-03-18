@@ -82,6 +82,10 @@ project "libjpeg"
         {
             ("{COPY} %{cfg.buildtarget.relpath} \"../../../bin/" .. outputdir .. "/Sandbox/\"")
         }
+        disablewarnings 
+        { 
+            "4267", --  conversion from 'size_t' to 'unsigned long', possible loss of data
+        }
 
     filter "system:linux"
         pic "On"

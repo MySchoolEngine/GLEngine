@@ -3,7 +3,10 @@
 #include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/Textures/TextureLoader.h>
 
+#pragma warning(push)
+#pragma warning(disable : 4005)
 #include <gli/gli.hpp>
+#pragma warning(pop)
 
 
 namespace GLEngine::GLRenderer::Textures {
