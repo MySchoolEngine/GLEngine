@@ -14,6 +14,15 @@ C_JointTramsformsUBO::C_JointTramsformsUBO(const std::string& blockNamem, unsign
 }
 
 //=================================================================================
+std::size_t C_JointTramsformsUBO::GetBufferSize() const
+{
+	// TODO: This is wrong size
+	constexpr auto matSize = sizeof(glm::mat4);
+
+	return matSize;
+}
+
+//=================================================================================
 void C_JointTramsformsUBO::SetTransforms(std::vector<Renderer::Animation::S_BoneKeyframe>&& boneKeyframes)
 {
 	GLE_ASSERT(m_JointTransforms.size() == boneKeyframes.size(), "You are setting wrong animation data to UBO for different skeleton");

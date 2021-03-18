@@ -98,6 +98,11 @@ project "Assimp"
             "/bigobj",
             "/MP",
         }
+        disablewarnings 
+        { 
+            "4996", -- The std::iterator class template (used as a base class to provide typedefs) is deprecated in C++17.
+            "4065", -- switch statement contains 'default' but no 'case' labels
+        }
         filter  "configurations:Release"
             defines
             {

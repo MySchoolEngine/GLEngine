@@ -7,7 +7,8 @@ namespace GLEngine::GLRenderer::Buffers::UBO {
 class C_RainDataBuffer : public C_UniformBuffer {
 public:
 	C_RainDataBuffer(const std::string& blockName, unsigned int index, unsigned int textureDimension);
-	virtual void UploadData() const override;
+	virtual void					  UploadData() const override;
+	[[nodiscard]] virtual std::size_t GetBufferSize() const override;
 
 	void GenerateDrops();
 

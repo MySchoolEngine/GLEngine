@@ -23,6 +23,7 @@ C_Texture::C_Texture(const std::string& name, GLenum target)
 	: m_bGroupOperations(false)
 	, m_target(target)
 	, m_texture(0)
+	, m_Handle(0)
 	, m_Format(Renderer::E_TextureFormat::RGBA8i)
 {
 	glGenTextures(1, &m_texture);

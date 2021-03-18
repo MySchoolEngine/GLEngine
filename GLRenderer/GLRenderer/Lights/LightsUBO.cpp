@@ -11,14 +11,7 @@ namespace GLEngine::GLRenderer {
 C_LightsBuffer::C_LightsBuffer(const std::string& blockName, unsigned int index)
 	: C_UniformBuffer(blockName, index)
 {
-
-	constexpr auto pointLightSize = sizeof(m_PointLight);
-	constexpr auto areaLightSize  = sizeof(m_AreaLight);
-
-	C_UniformBuffer::bind();
-	glBufferData(GL_UNIFORM_BUFFER, pointLightSize + areaLightSize + sizeof(std::uint64_t) * 2, &(m_PointLight[0].m_Position), GL_DYNAMIC_DRAW);
-	C_UniformBuffer::unbind();
-	ErrorCheck();
+	AllocateMemory(true, &(m_PointLight[0].m_Position));
 
 	Textures::TextureLoader tl;
 
@@ -45,11 +38,22 @@ C_LightsBuffer::C_LightsBuffer(const std::string& blockName, unsigned int index)
 }
 
 //=================================================================================
+std::size_t C_LightsBuffer::GetBufferSize() const
+{
+	constexpr auto pointLightSize = sizeof(m_PointLight);
+	constexpr auto areaLightSize  = sizeof(m_AreaLight);
+	constexpr auto sunLightSize	  = sizeof(m_SunLight);
+	constexpr auto handleSize	  = sizeof(std::uint64_t);
+
+	constexpr auto bytes = pointLightSize + areaLightSize + sunLightSize + sizeof(std::uint64_t) * 2;
+	return bytes;
+}
+
+//=================================================================================
 void C_LightsBuffer::UploadData() const
 {
 	bind();
-	constexpr auto size = sizeof(m_PointLight) + sizeof(m_AreaLight) + sizeof(std::uint64_t) * 2;
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, size, &(m_PointLight[0].m_Position));
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, GetBufferSize(), &(m_PointLight[0].m_Position));
 	unbind();
 }
 

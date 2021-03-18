@@ -11,6 +11,7 @@ namespace GLEngine::GLRenderer::Buffers {
 //=================================================================================
 C_UniformBuffersManager::C_UniformBuffersManager()
 	: m_MaxBindingPoints(84) // minimum binding points according to specification
+	, m_UsedMemory(0)
 {
 	glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &m_MaxBindingPoints);
 	m_BindingPoint.reserve(m_MaxBindingPoints);

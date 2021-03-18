@@ -20,12 +20,14 @@
 #include <GLRenderer/PersistentDebug.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
+#include <GLRenderer/SunShadowMapTechnique.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 #include <GLRenderer/Windows/ExperimentWindow.h>
 #include <GLRenderer/Windows/RayTrace.h>
 
 #include <Renderer/Cameras/FreelookCamera.h>
 #include <Renderer/Cameras/OrbitalCamera.h>
+#include <Renderer/Lights/SunLight.h>
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/Textures/TextureView.h>
 
@@ -55,8 +57,8 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	: C_GLFWoGLWindow(wndInfo)
 	, m_LayerStack(std::string("ExperimentalWindowLayerStack"))
 	, m_Samples("Frame Times")
-	, m_GammaSlider(1.2f, 1.f, 5.f, "Gamma")
-	, m_ExposureSlider(1.5f, .1f, 10.f, "Exposure")
+	, m_GammaSlider(2.2f, 1.f, 5.f, "Gamma")
+	, m_ExposureSlider(1.f, .1f, 10.f, "Exposure")
 	, m_VSync(false)
 	, m_HDRFBO(nullptr)
 	, m_World(std::make_shared<Entity::C_EntityManager>())
@@ -116,11 +118,22 @@ void C_ExplerimentWindow::Update()
 
 	// m_ShadowPass->Render();
 
-	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
-
 	const auto camera = m_CamManager.GetActiveCamera();
 	GLE_ASSERT(camera, "No active camera");
 
+
+	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
+
+	{
+		// shadow pass
+		m_SunShadow->Render(*m_World.get(), camera.get());
+		::ImGui::Begin("shadowMap");
+		::ImGui::Image((void*)(intptr_t)m_SunShadow->GetZBuffer()->GetTexture(), ImVec2(256, 256));
+		::ImGui::End();
+		m_MainPass->SetSunShadowMap(m_SunShadow->GetZBuffer()->GetHandle());
+		m_MainPass->SetSunViewProjection(m_SunShadow->GetLastViewProjection());
+	}
+	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
 	m_MainPass->Render(camera, GetWidth(), GetHeight());
 
 	// ----- Frame init -------
@@ -148,11 +161,11 @@ void C_ExplerimentWindow::Update()
 	}
 
 	auto HDRTexture = m_HDRFBO->GetAttachement(GL_COLOR_ATTACHMENT0);
+	auto worldDepth = m_HDRFBO->GetAttachement(GL_DEPTH_ATTACHMENT);
 
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.BindTextureToUnit(*(HDRTexture.get()), 0);
-
-	m_HDRFBO->Bind<E_FramebufferTarget::Read>();
+	tm.BindTextureToUnit(*(worldDepth.get()), 1);
 
 	auto shader = shmgr.GetProgram("screenQuad");
 	shmgr.ActivateShader(shader);
@@ -162,15 +175,13 @@ void C_ExplerimentWindow::Update()
 			shader->SetUniform("gamma", m_GammaSlider.GetValue());
 			shader->SetUniform("exposure", m_ExposureSlider.GetValue());
 			shader->SetUniform("hdrBuffer", 0);
+			shader->SetUniform("depthBuffer", 1);
 		},
 		"Update HDR")));
 
 	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::move(std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_ScreenQuad)));
 
 	shmgr.DeactivateShader();
-
-
-	m_HDRFBO->Unbind<E_FramebufferTarget::Read>();
 
 	{
 		RenderDoc::C_DebugScope s("ImGUI");
@@ -221,6 +232,7 @@ bool C_ExplerimentWindow::OnKeyPressed(Core::C_KeyPressedEvent& event)
 //=================================================================================
 void C_ExplerimentWindow::OnAppInit()
 {
+	m_MainPass = std::make_unique<C_MainPassTechnique>(m_World);
 	{
 		using namespace Commands;
 		m_renderer->AddCommand(std::move(std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::DEPTH_TEST)));
@@ -230,7 +242,6 @@ void C_ExplerimentWindow::OnAppInit()
 		m_renderer->AddCommand(std::move(std::make_unique<C_GLClearColor>(glm::vec3(0.0f, 0.0f, 0.0f))));
 		m_renderer->AddCommand(std::move(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Front)));
 	}
-	m_MainPass = std::make_unique<C_MainPassTechnique>(m_World);
 	{
 		// billboard
 		Renderer::MeshData::Mesh billboardMesh;
@@ -251,7 +262,7 @@ void C_ExplerimentWindow::OnAppInit()
 
 		m_ScreenQuad = std::make_shared<Mesh::C_StaticMeshResource>(billboardMesh);
 	}
-	SetupWorld("Levels/dark.xml");
+	SetupWorld("Levels/atmosphere.xml");
 
 	m_HDRFBO		= std::make_unique<C_Framebuffer>("HDR");
 	auto HDRTexture = std::make_shared<Textures::C_Texture>("hdrTexture");
@@ -270,10 +281,10 @@ void C_ExplerimentWindow::OnAppInit()
 	depthStencilTexture->bind();
 	// depthStencilTexture setup
 	depthStencilTexture->SetDimensions({GetWidth(), GetHeight()});
-	depthStencilTexture->SetInternalFormat(Renderer::E_TextureFormat::D24S8, GL_DEPTH_STENCIL);
+	depthStencilTexture->SetInternalFormat(Renderer::E_TextureFormat::D16, GL_DEPTH_COMPONENT);
 	depthStencilTexture->SetFilter(E_OpenGLFilter::Linear, E_OpenGLFilter::Linear);
 	// ~depthStencilTexture setup
-	m_HDRFBO->AttachTexture(GL_DEPTH_STENCIL_ATTACHMENT, depthStencilTexture);
+	m_HDRFBO->AttachTexture(GL_DEPTH_ATTACHMENT, depthStencilTexture);
 	depthStencilTexture->unbind();
 
 
@@ -330,6 +341,9 @@ void C_ExplerimentWindow::OnAppInit()
 	const auto rendererWindow = static_cast<C_OGLRenderer*>(m_renderer.get())->SetupControls(guiMGR);
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Renderer", rendererWindow, guiMGR));
 
+	const auto camManager = m_CamManager.SetupControls(guiMGR);
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Camera manager", camManager, guiMGR));
+
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Open level", [&]() {
 		const auto levelSelectorGUID = NextGUID();
 		auto*	   levelSelectWindwo = new GUI::C_FileDialogWindow(
@@ -354,11 +368,11 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 	HDRTexture->SetFilter(E_OpenGLFilter::Linear, E_OpenGLFilter::Linear);
 	HDRTexture->unbind();
 
-	auto depthStencilTexture = m_HDRFBO->GetAttachement(GL_DEPTH_STENCIL_ATTACHMENT);
+	auto depthStencilTexture = m_HDRFBO->GetAttachement(GL_DEPTH_ATTACHMENT);
 
 	depthStencilTexture->bind();
 	depthStencilTexture->SetDimensions({event.GetWidth(), event.GetHeight()});
-	depthStencilTexture->SetInternalFormat(Renderer::E_TextureFormat::D24S8, GL_DEPTH_STENCIL);
+	depthStencilTexture->SetInternalFormat(Renderer::E_TextureFormat::D16, GL_DEPTH_COMPONENT);
 	depthStencilTexture->SetFilter(E_OpenGLFilter::Linear, E_OpenGLFilter::Linear);
 	depthStencilTexture->unbind();
 
@@ -380,7 +394,7 @@ void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 //=================================================================================
 void C_ExplerimentWindow::AddMandatoryWorldParts()
 {
-	m_Player = m_World->GetEntity("Player");
+	m_Player = m_World->GetOrCreateEntity("Player");
 
 	auto player = m_Player.lock();
 	if (player)
@@ -395,11 +409,28 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 		player->AddComponent(playerCamera);
 		m_CamManager.ActivateCamera(playerCamera);
 
+		auto debugCam = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
+		debugCam->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
+		// playerCamera->positionCamera({ 0,1,0 }, { 0,0,1 });
+		debugCam->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
+		debugCam->adjustOrientation(0.f, 0.f);
+		debugCam->Update();
+		player->AddComponent(debugCam);
+		m_CamManager.SetDebugCamera(debugCam);
+
 		// area light
 		// auto arealight = std::make_shared<C_GLAreaLight>(player);
 		// player->AddComponent(arealight);
 		//
 		// m_ShadowPass = std::make_shared<C_ShadowMapTechnique>(m_World, std::static_pointer_cast<Renderer::I_Light>( arealight));
+	}
+
+	{
+		// create default atmosphere
+		auto entity	 = m_World->GetOrCreateEntity("atmosphere");
+		auto sunComp = std::make_shared<Renderer::C_SunLight>(entity);
+		m_SunShadow	 = std::make_shared<C_SunShadowMapTechnique>(sunComp);
+		entity->AddComponent(sunComp);
 	}
 }
 

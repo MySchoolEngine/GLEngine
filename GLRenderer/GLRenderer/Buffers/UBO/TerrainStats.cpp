@@ -14,9 +14,7 @@ C_TerrainStats::C_TerrainStats(unsigned int index)
 	constexpr auto floatSize = sizeof(float);
 
 	constexpr auto bytes = floatSize * 3;
-	bind();
-	glBufferData(GetBufferType(), bytes, nullptr, GL_DYNAMIC_DRAW);
-	unbind();
+	AllocateMemory(bytes, GL_DYNAMIC_DRAW);
 }
 
 //=================================================================================

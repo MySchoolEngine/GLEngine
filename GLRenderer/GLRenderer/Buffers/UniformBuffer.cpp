@@ -33,4 +33,11 @@ void C_UniformBuffer::Activate(bool activate)
 	}
 }
 
+//=================================================================================
+void C_UniformBuffer::AllocateMemory(bool dynamicUsage, const void* initialData /*= nullptr*/)
+{
+	const auto usage = dynamicUsage ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
+	T_Base::AllocateMemory(GetBufferSize(), usage, initialData);
+}
+
 } // namespace GLEngine::GLRenderer::Buffers

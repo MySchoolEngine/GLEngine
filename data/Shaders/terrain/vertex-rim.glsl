@@ -1,4 +1,5 @@
 #version 430
+#extension GL_ARB_bindless_texture : require
 
 in float vertex;
 
@@ -7,10 +8,10 @@ in float vertex;
 #include "includes/layersIndexes.glsl"
 
 // per model
-uniform mat4		   modelMatrix;
-uniform sampler2DArray tex;
-uniform int			   sqPerLine;
-uniform float		   patchSize;
+uniform mat4 modelMatrix;
+layout(binding = 0) uniform sampler2DArray tex;
+uniform int	  sqPerLine;
+uniform float patchSize;
 
 out vec3 normal;
 out vec3 FragPos;

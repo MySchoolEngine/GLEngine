@@ -2,8 +2,6 @@
 
 #include <Core/CoreEnums.h>
 
-#include <string>
-
 namespace GLEngine::Core {
 
 //=================================================================================

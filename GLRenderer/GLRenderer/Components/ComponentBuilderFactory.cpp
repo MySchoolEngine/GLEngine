@@ -7,11 +7,13 @@
 #include <GLRenderer/Components/StaticMesh.h>
 #include <GLRenderer/Textures/TextureManager.h>
 
-#include <Renderer/Lights/PointLight.h>
 #include <Renderer/Lights/AreaLight.h>
+#include <Renderer/Lights/PointLight.h>
 #include <Renderer/Mesh/Loading/SceneLoader.h>
 
 #include <Entity/Components/EntityDebugComponent.h>
+
+#include <Utils/Parsing/MaterialParser.h>
 
 namespace GLEngine::GLRenderer::Components {
 

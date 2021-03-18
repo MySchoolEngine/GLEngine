@@ -30,4 +30,13 @@ template <GLenum TYPE> constexpr GLenum C_GLBuffer<TYPE>::GetBufferType() const 
 {
 	return TYPE;
 }
+
+//=================================================================================
+template <GLenum TYPE> void C_GLBuffer<TYPE>::AllocateMemory(const std::size_t size, GLenum usage, const void* data /*= nullptr*/)
+{
+	// TODO: here should go the memory counting
+	bind();
+	glBufferData(GetBufferType(), size, data, usage);
+	unbind();
+}
 } // namespace GLEngine::GLRenderer::Buffers
