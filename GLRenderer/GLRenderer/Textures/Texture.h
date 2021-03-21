@@ -72,7 +72,7 @@ public:
 
 	void SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction wrapT);
 	void SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction wrapT, Renderer::E_WrapFunction wrapR);
-	void SetFilter(E_OpenGLFilter min, E_OpenGLFilter mag);
+	void SetFilter(Renderer::E_TextureFilter min, Renderer::E_TextureFilter mag);
 	void SetBorderColor(const glm::vec4& color);
 	void SetTexParameter(GLenum pname, const glm::vec4& value);
 	void SetTexParameter(GLenum pname, GLint value);

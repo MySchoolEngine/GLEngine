@@ -124,7 +124,7 @@ void C_Texture::SetBorderColor(const glm::vec4& color)
 }
 
 //=================================================================================
-void C_Texture::SetFilter(E_OpenGLFilter min, E_OpenGLFilter mag)
+void C_Texture::SetFilter(Renderer::E_TextureFilter min, Renderer::E_TextureFilter mag)
 {
 	StartGroupOp();
 	SetTexParameter(GL_TEXTURE_MIN_FILTER, MinMagFilterToEnum(min));

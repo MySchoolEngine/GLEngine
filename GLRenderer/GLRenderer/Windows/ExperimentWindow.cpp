@@ -271,7 +271,7 @@ void C_ExplerimentWindow::OnAppInit()
 	// HDRTexture setup
 	HDRTexture->SetDimensions({GetWidth(), GetHeight()});
 	HDRTexture->SetInternalFormat(Renderer::E_TextureFormat::RGBA16f, GL_RGBA);
-	HDRTexture->SetFilter(E_OpenGLFilter::Linear, E_OpenGLFilter::Linear);
+	HDRTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
 	// ~HDRTexture setup
 	m_HDRFBO->AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
 	HDRTexture->unbind();
@@ -282,7 +282,7 @@ void C_ExplerimentWindow::OnAppInit()
 	// depthStencilTexture setup
 	depthStencilTexture->SetDimensions({GetWidth(), GetHeight()});
 	depthStencilTexture->SetInternalFormat(Renderer::E_TextureFormat::D16, GL_DEPTH_COMPONENT);
-	depthStencilTexture->SetFilter(E_OpenGLFilter::Linear, E_OpenGLFilter::Linear);
+	depthStencilTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
 	// ~depthStencilTexture setup
 	m_HDRFBO->AttachTexture(GL_DEPTH_ATTACHMENT, depthStencilTexture);
 	depthStencilTexture->unbind();
@@ -365,7 +365,6 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 	HDRTexture->bind();
 	HDRTexture->SetDimensions({event.GetWidth(), event.GetHeight()});
 	HDRTexture->SetInternalFormat(Renderer::E_TextureFormat::RGBA16f, GL_RGBA);
-	HDRTexture->SetFilter(E_OpenGLFilter::Linear, E_OpenGLFilter::Linear);
 	HDRTexture->unbind();
 
 	auto depthStencilTexture = m_HDRFBO->GetAttachement(GL_DEPTH_ATTACHMENT);
@@ -373,7 +372,6 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 	depthStencilTexture->bind();
 	depthStencilTexture->SetDimensions({event.GetWidth(), event.GetHeight()});
 	depthStencilTexture->SetInternalFormat(Renderer::E_TextureFormat::D16, GL_DEPTH_COMPONENT);
-	depthStencilTexture->SetFilter(E_OpenGLFilter::Linear, E_OpenGLFilter::Linear);
 	depthStencilTexture->unbind();
 
 	return true;

@@ -5,6 +5,18 @@
 namespace GLEngine::Renderer {
 
 //=================================================================================
+// MinMag filters
+enum class E_TextureFilter : char
+{
+	Linear,
+	Nearest,
+	NearestMipMapNearest,
+	LinearMipMapNearest,
+	LinearMipMapLinear,
+	NearestMipMapLinear,
+};
+
+//=================================================================================
 enum class E_TextureChannel
 {
 	Red,

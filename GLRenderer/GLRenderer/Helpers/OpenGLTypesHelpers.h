@@ -141,18 +141,6 @@ template <Renderer::E_WrapFunction wrapFunction> struct T_WrapFunction {
 };
 
 //=================================================================================
-// MinMag filters
-enum class E_OpenGLFilter : char
-{
-	Linear,
-	Nearest,
-	NearestMipMapNearest,
-	LinearMipMapNearest,
-	LinearMipMapLinear,
-	NearestMipMapLinear,
-};
-
-//=================================================================================
 inline constexpr GLenum OpenGLUnderlyingType(const Renderer::E_TextureFormat format)
 {
 	switch (format)
@@ -257,21 +245,22 @@ inline constexpr GLenum GetOpenGLInternalFormat(const Renderer::E_TextureFormat 
 }
 
 //=================================================================================
-constexpr GLenum MinMagFilterToEnum(const E_OpenGLFilter filter)
+constexpr GLenum MinMagFilterToEnum(const Renderer::E_TextureFilter filter)
 {
+  using namespace Renderer;
 	switch (filter)
 	{
-	case E_OpenGLFilter::Linear:
+	case E_TextureFilter::Linear:
 		return GL_LINEAR;
-	case E_OpenGLFilter::Nearest:
+	case E_TextureFilter::Nearest:
 		return GL_NEAREST;
-	case E_OpenGLFilter::NearestMipMapNearest:
+	case E_TextureFilter::NearestMipMapNearest:
 		return GL_NEAREST_MIPMAP_NEAREST;
-	case E_OpenGLFilter::LinearMipMapNearest:
+	case E_TextureFilter::LinearMipMapNearest:
 		return GL_LINEAR_MIPMAP_NEAREST;
-	case E_OpenGLFilter::LinearMipMapLinear:
+	case E_TextureFilter::LinearMipMapLinear:
 		return GL_LINEAR_MIPMAP_LINEAR;
-	case E_OpenGLFilter::NearestMipMapLinear:
+	case E_TextureFilter::NearestMipMapLinear:
 		return GL_NEAREST_MIPMAP_LINEAR;
 	}
 	return GL_INVALID_VALUE;

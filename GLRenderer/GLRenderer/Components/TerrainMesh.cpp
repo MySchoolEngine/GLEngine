@@ -49,7 +49,7 @@ C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 
 			glTexStorage3D(m_Noise.GetTarget(), 3, GL_R32F, dim, dim, 2 + numSedimentLayer);
 			m_Noise.SetWrap(Renderer::E_WrapFunction::ClampToEdge, Renderer::E_WrapFunction::ClampToEdge);
-			m_Noise.SetFilter(E_OpenGLFilter::Linear, E_OpenGLFilter::Linear);
+			m_Noise.SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
 
 			m_Noise.SetDimensions({dim, dim});
 			m_Noise.GenerateMipMaps();
