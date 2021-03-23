@@ -255,4 +255,10 @@ T_TexBufferFuture C_Texture::GetTextureData() const
 	return ret;
 }
 
+//=================================================================================
+void* C_Texture::GetDeviceTextureHandle() const
+{
+	return (void*)(intptr_t)(m_texture);
+}
+
 } // namespace GLEngine::GLRenderer::Textures
