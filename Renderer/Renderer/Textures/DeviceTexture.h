@@ -10,10 +10,10 @@ class I_DeviceTexture {
 public:
 	using T_TexBufferFuture = std::future<std::unique_ptr<I_TextureViewStorage>>;
 
-	[[nodiscard]] virtual unsigned int		GetWidth() const			   = 0;
-	[[nodiscard]] virtual unsigned int		GetHeight() const			   = 0;
+	[[nodiscard]] unsigned int				GetWidth() const { return GetDimensions().x; };
+	[[nodiscard]] unsigned int				GetHeight() const { return GetDimensions().y; };
 	[[nodiscard]] virtual const glm::uvec2& GetDimensions() const		   = 0;
-	[[nodiscard]] virtual void*				GetDeviceTextureHandle() const = 0; // todo return type
+	[[nodiscard]] virtual void*				GetDeviceTextureHandle() const = 0;
 	[[nodiscard]] virtual T_TexBufferFuture GetTextureData() const		   = 0;
 
 	virtual void SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT, E_WrapFunction wrapR) = 0;

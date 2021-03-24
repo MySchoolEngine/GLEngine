@@ -53,8 +53,6 @@ public:
 		unbind();
 	}
 
-	[[nodiscard]] virtual inline unsigned int	   GetWidth() const override { return m_Dimensions.x; }
-	[[nodiscard]] virtual inline unsigned int	   GetHeight() const override { return m_Dimensions.y; }
 	[[nodiscard]] virtual inline const glm::uvec2& GetDimensions() const override { return m_Dimensions; }
 	inline void									   SetWidth(unsigned int width) { m_Dimensions.x = width; }
 	inline void									   SetHeight(unsigned int height) { m_Dimensions.y = height; }
