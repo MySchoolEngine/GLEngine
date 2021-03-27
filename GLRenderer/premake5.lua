@@ -36,7 +36,6 @@ project "GLRenderer"
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.GLI}",
 		"../%{IncludeDir.pugixml}",
-		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.ImGui}",
 	}
 

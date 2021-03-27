@@ -27,7 +27,6 @@ project "Sandbox"
 		".",
 		"../Renderer",
 		"../%{IncludeDir.GLM}",
-		"../%{IncludeDir.fmt}",
 	}
 
 	filter "system:windows"

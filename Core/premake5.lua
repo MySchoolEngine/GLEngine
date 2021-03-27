@@ -18,7 +18,6 @@ project "Core"
 		"../DX12Renderer/",
 		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.GLM}",
-		"../%{IncludeDir.fmt}",
 	}
 
 	filter "system:windows"
