@@ -5,11 +5,9 @@ project "GLRenderer"
 	language "C++"
 	staticruntime "off"
 
-	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("../obj/" .. outputdir .. "/%{prj.name}")
+	SetupProject("GLRenderer")
 	
-	pchheader "GLRendererStdafx.h"
-	pchsource "GLRendererStdafx.cpp"
+	PrecompiledHeaders("GLRenderer")
 	
 	Link("Entity")
 	Link("Utils")
@@ -20,11 +18,6 @@ project "GLRenderer"
 	files
 	{
 		"GLRenderer/**.h",
-		"GLRenderer/**.cpp",
-		"GLRenderer/**.inl",
-		"GLRendererStdafx.cpp",
-		"GLRendererStdafx.h",
-		"premake5.lua",
 	}
 
 	includedirs

@@ -5,30 +5,18 @@ project "DX12Renderer"
 	language "C++"
 	staticruntime "off"
 
-	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("../obj/" .. outputdir .. "/%{prj.name}")
+	SetupProject("DX12Renderer")
 	
-	pchheader "DX12RendererStdafx.h"
-	pchsource "DX12RendererStdafx.cpp"
+	PrecompiledHeaders("DX12Renderer")
 
-	files
-	{
-		"DX12Renderer/**.h",
-		"DX12Renderer/**.cpp",
-		"DX12Renderer/**.inl",
-		"DX12RendererStdafx.cpp",
-		"DX12RendererStdafx.h",
-		"premake5.lua",
-	}
+	Link("Core")
+	Link("Entity")
+	Link("Utils")
+	Link("Renderer")
 
 	includedirs
 	{
-		".",
-		"../Renderer",
-		"../Entity",
-		"../Utils",
 		"../Physics",
-		"../Core",
 		"C:/Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/shared",
 		"C:/Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/um",
 		"../%{IncludeDir.pugixml}",
@@ -38,11 +26,6 @@ project "DX12Renderer"
 	links 
 	{ 
 		"pugixml",
-
-		"Entity",
-		"Utils",
-		"Renderer",
-		"Core",
 
 		-- DX Stuff
 		"d3d12",
