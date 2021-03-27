@@ -5,6 +5,7 @@
 #include <Utils/STLAfx.h>
 
 #include <Core/GUID.h>
+#include <Core/CoreMacros.h>
 
 #include <glm/glm.hpp>
 

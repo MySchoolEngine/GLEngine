@@ -18,14 +18,17 @@ public:
 	void									   operator=(C_AudioSystemManager const&) = delete;
 	[[nodiscard]] static C_AudioSystemManager& Instance();
 
-
+	void Update();
+	void Done();
 private:
 	C_AudioSystemManager();
 	~C_AudioSystemManager();
 
 	[[nodiscard]] bool IsError(const FMOD_RESULT result) const;
+	void			   ReportError(const FMOD_RESULT result) const;
 
 	FMOD::System* m_System;
+	bool		  m_Initialized;
 };
 
 } // namespace GLEngine::Audio
