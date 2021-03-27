@@ -1,44 +1,31 @@
 include "../premakeDefines.lua"
 
-project "Renderer"
+project "Audio"
 	kind "SharedLib"
 	language "C++"
-	staticruntime "off"
+
+	SetupProject("Audio")
 	
-	SetupProject("Renderer")
+	PrecompiledHeaders("Audio")
 	
-	PrecompiledHeaders("Renderer")
-	
-	Link("Utils")
 	Link("Entity")
+	Link("Utils")
 	Link("Core")
-	Link("GUI")
 
 	includedirs
 	{
-		"../Core",
-		"../Utils",
-		"../GLRenderer",
-		"../Physics",
 		"../%{IncludeDir.GLM}",
-		"../%{IncludeDir.GLFW}",
-		"../%{IncludeDir.pugixml}",
-		"../%{IncludeDir.DevIL}",
-
-		"../vendor/Assimp/include",
-		"../vendor/projects/Assimp"
+		"../%{IncludeDir.fmod}",
 	}
 
-	libdirs
+	defines
 	{
-		"../vendor/bin/Debug-windows-x86_64/DevIL-IL/",
+		"MODULE_CTX=Audio"
 	}
 
-	links 
-	{ 
-		"pugixml",
-		"Assimp",
-		"DevIL-IL",
+	links
+	{
+		"../%{LibDir.fmod}/fmod_vc.lib"
 	}
 
 	filter "system:windows"
@@ -47,12 +34,13 @@ project "Renderer"
 
 		defines
 		{
-			"BUILD_RENDERER_DLL",
+			"BUILD_AUDIO_DLL",
 		}
 
 		postbuildcommands
 		{
 			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
+			("{COPY} \"../%{LibDir.fmod}/fmod.dll\" \"../bin/" .. outputdir .. "/Sandbox/\""),
 		}
 
 	filter "configurations:Debug"

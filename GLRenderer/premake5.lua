@@ -8,21 +8,16 @@ project "GLRenderer"
 	SetupProject("GLRenderer")
 	
 	PrecompiledHeaders("GLRenderer")
-	
+
 	Link("Entity")
 	Link("Utils")
 	Link("Renderer")
 	Link("Core")
 	Link("GUI")
-
-	files
-	{
-		"GLRenderer/**.h",
-	}
+	Link("Audio")
 
 	includedirs
 	{
-		".",
 		"../Physics",
 		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.Glad}",

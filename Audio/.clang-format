@@ -50,8 +50,10 @@ IncludeIsMainRegex: ".h>$"
 IncludeCategories:
   - Regex:           '^<.*Stdafx.h>'
     Priority:    	   1
-  - Regex:           '^<Entity/.*>'
+  - Regex:           '^<Audio/.*>'
     Priority:        2
+  - Regex:           '^<Entity/.*>'
+    Priority:        3
   - Regex:           '^<GLRenderer/.*>'
     Priority:        5
   - Regex:           '^<DX12Renderer/.*>'
@@ -60,8 +62,6 @@ IncludeCategories:
     Priority:        9
   - Regex:           '^<GUI/.*>'
     Priority:        10
-  - Regex:           '^<Audio/.*>'
-    Priority:        11
   - Regex:           '^<Physics/.*>'
     Priority:        14
   - Regex:           '^<Core/.*>'
