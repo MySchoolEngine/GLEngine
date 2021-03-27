@@ -1,0 +1,16 @@
+Author requires mention of original work in licence and contact informations for original project and author when this Softawre is being used for any use.
+
+Some 3rd party librarires and tools may be used with separate or different licence.
+
+Mainly:
+FMOD Core API (vendor/fmod/LICENCE.TXT for more info).
+gradrigo (vendor/gradrigo/)
+ImGUI (vendor/ImGui/LICENSE.txt)
+ImGuiFileDialog (vendor/ImGuiFileDialog/LICENSE)
+libjpeg (vendor/libjpeg)
+pugixml (vendor/pugixml/LICENSE.md)
+GLFW (vendor/GLFW/LICENSE.md)
+{fmt} (vendor/fmt/LICENSE.rst)
+dirent (vendor/dirent/LICENSE)
+DevIL (vendor/DevIL/LICENSE)
+Assimp loader (vendor/Assimp/LICENSE)
