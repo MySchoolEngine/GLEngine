@@ -32,3 +32,6 @@ This repository is open for contribution. You can start by reading [this](CONTRI
 * Red lines denote wrong dependencies
 * Blue lines denote opposite dependencies
 * The dashed line denotes planned dependency
+
+## Licensing
+License can be found in [LICENSE](LICENSE)
