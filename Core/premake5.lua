@@ -13,6 +13,7 @@ project "Core"
 
 	includedirs
 	{
+		"../Entity/",
 		"../Renderer/",
 		"../GLRenderer/",
 		"../DX12Renderer/",

@@ -53,19 +53,6 @@ private:
 	std::weak_ptr<I_Entity> m_Owner;
 };
 
-//=================================================================================
-class I_ComponenetBuilder {
-public:
-	virtual std::shared_ptr<I_Component> Build(const pugi::xml_node& node, std::shared_ptr<I_Entity> owner) = 0;
-};
-
-//=================================================================================
-class I_ComponentBuilderFactory {
-public:
-	[[nodiscard]] virtual std::unique_ptr<Entity::I_ComponenetBuilder> GetFactory(const std::string& name)													  = 0;
-	virtual void													   ConstructFromFile(std::shared_ptr<I_Entity> entity, const std::filesystem::path& file) = 0;
-};
-
 } // namespace Entity
 //=================================================================================
 // I want this accessible all around the engine

@@ -4,7 +4,7 @@
 #include <Renderer/Mesh/Geometry.h>
 #include <Renderer/RendererApi.h>
 
-#include <Entity/IComponent.h>
+#include <Entity/ComponentBuilder.h>
 
 #include <Utils/Parsing/MaterialParser.h>
 

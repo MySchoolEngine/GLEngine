@@ -6,6 +6,7 @@
 #include <GUI/Input/Color.h>
 #include <GUI/Input/Slider.h>
 
+#include <Entity/ComponentBuilder.h>
 #include <Entity/IComponent.h>
 
 namespace GLEngine::Renderer {

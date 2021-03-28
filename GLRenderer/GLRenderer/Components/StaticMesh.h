@@ -8,6 +8,8 @@
 #include <GUI/Input/Color.h>
 #include <GUI/Input/Slider.h>
 
+#include <Entity/ComponentBuilder.h>
+
 namespace GLEngine {
 namespace Renderer::MeshData {
 struct Mesh;

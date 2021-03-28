@@ -17,6 +17,8 @@ enum class E_ComponentType
 	Light,
 	Camera,
 	DebugGUI,
+	AudioListener,
+	AudioSource,
 };
 
 class ENTITY_API_EXPORT I_Entity : public Core::I_EventReciever {

@@ -10,6 +10,8 @@
 #include <GUI/Input/CheckBoxValue.h>
 #include <GUI/Input/Slider.h>
 
+#include <Entity/ComponentBuilder.h>
+
 namespace GLEngine::GLRenderer::Buffers::UBO {
 class C_JointTramsformsUBO;
 }

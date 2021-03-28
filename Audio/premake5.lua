@@ -5,27 +5,31 @@ project "Audio"
 	language "C++"
 
 	SetupProject("Audio")
-	
+
 	PrecompiledHeaders("Audio")
-	
+
 	Link("Entity")
 	Link("Utils")
 	Link("Core")
 
 	includedirs
 	{
+		"../Physics",
+		"../GUI",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmod}",
+		"../%{IncludeDir.pugixml}",
 	}
 
 	defines
 	{
-		"MODULE_CTX=Audio"
+		"MODULE_CTX=Audio",
 	}
 
 	links
 	{
-		"../%{LibDir.fmod}/fmod_vc.lib"
+		"pugixml",
+		"../%{LibDir.fmod}/fmod_vc.lib",
 	}
 
 	filter "system:windows"

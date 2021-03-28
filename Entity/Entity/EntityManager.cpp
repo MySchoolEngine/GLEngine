@@ -1,6 +1,8 @@
 #include <EntityStdafx.h>
 
 #include <Entity/BasicEntity.h>
+#include <Entity/ComponentBuilder.h>
+#include <Entity/ComponentBuilderFactory.h>
 #include <Entity/Components/EntityDebugComponent.h>
 #include <Entity/EntityManager.h>
 #include <Entity/IComponent.h>
@@ -14,6 +16,8 @@
 #include <Physics/Primitives/Ray.h>
 
 #include <Utils/Parsing/MatrixParse.h>
+
+#include <Core/Engine.h>
 
 #include <pugixml.hpp>
 
@@ -170,6 +174,8 @@ bool C_EntityManager::LoadLevel(const std::filesystem::path& name, std::unique_p
 		return false;
 	}
 
+	auto& enigne = Core::C_Engine::Instance();
+
 	auto debugBuilder = cbf->GetFactory("debug");
 
 	if (auto entitiesNode = worldNode.child("Entities"))
@@ -188,6 +194,14 @@ bool C_EntityManager::LoadLevel(const std::filesystem::path& name, std::unique_p
 					if (builder)
 					{
 						entity->AddComponent(builder->Build(componentNode, entity));
+					}
+					else
+					{
+						auto* builder = enigne.GetGlobalComponentBuilder(componentNode.name());
+						if (builder)
+						{
+							entity->AddComponent(builder->Build(componentNode, entity));
+						}
 					}
 				}
 			}
