@@ -1,6 +1,7 @@
 #include <AudioStdAfx.h>
 
 #include <Audio/ListenerComponent.h>
+#include <Audio/AudioSystemManager.h>
 
 #include <Physics/Primitives/AABB.h>
 
@@ -15,6 +16,7 @@ REGISTER_GLOBAL_COMPONENT_BUILDER("AudioListener", C_ListenerBuilder);
 //=================================================================================
 C_ListenerComponent::C_ListenerComponent(std::shared_ptr<Entity::I_Entity> owner)
 	: Entity::I_Component(std::move(owner))
+	, m_Activate("Activate", [&]() { C_AudioSystemManager::Instance().ActivateListener(shared_from_this()); })
 {
 }
 
@@ -48,6 +50,14 @@ std::string_view C_ListenerComponent::GetDebugComponentName() const
 [[nodiscard]] bool C_ListenerComponent::HasDebugDrawGUI() const
 {
 	return true;
+}
+
+//=================================================================================
+void C_ListenerComponent::DebugDrawGUI()
+{
+	const auto isActive = C_AudioSystemManager::Instance().GetActiveListener() == shared_from_this();
+	if (!isActive)
+		m_Activate.Draw();
 }
 
 //=================================================================================

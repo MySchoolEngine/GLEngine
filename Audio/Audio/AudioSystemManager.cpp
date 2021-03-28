@@ -1,6 +1,7 @@
 #include <AudioStdAfx.h>
 
 #include <Audio/AudioSystemManager.h>
+#include <Audio/ListenerComponent.h>
 
 #include <fmod.hpp>
 
@@ -18,6 +19,7 @@ C_AudioSystemManager& C_AudioSystemManager::Instance()
 C_AudioSystemManager::C_AudioSystemManager()
 	: m_System(nullptr)
 	, m_Initialized(false)
+	, m_ActiveListener(nullptr)
 {
 	FMOD_RESULT result;
 
@@ -25,7 +27,7 @@ C_AudioSystemManager::C_AudioSystemManager()
 	if (IsError(result))
 		return;
 
-	void*	   extradriverdata = 0;
+	void*	   extradriverdata = nullptr;
 	const auto initResult	   = m_System->init(100, FMOD_INIT_NORMAL, extradriverdata);
 	if (IsError(initResult))
 		return;
@@ -47,6 +49,10 @@ C_AudioSystemManager::C_AudioSystemManager()
 	*/
 	const auto setUnits = m_System->set3DSettings(1.0, 1.f, 1.0f);
 	if (IsError(getVersionResult))
+		return;
+
+	const auto setNumListeners = m_System->set3DNumListeners(1); // Right now I support only one listener per scene
+	if (IsError(setNumListeners))
 		return;
 
 	m_Initialized = true;
@@ -73,7 +79,6 @@ void C_AudioSystemManager::Done()
 	if (IsError(result))
 		return;
 
-
 	m_Initialized = false;
 	m_System	  = nullptr;
 }
@@ -97,17 +102,33 @@ void C_AudioSystemManager::ReportError(const FMOD_RESULT result) const
 //=================================================================================
 void C_AudioSystemManager::Update()
 {
-
-	FMOD_VECTOR listenerPos = {0, 0, 0};
+	if (m_ActiveListener)
+	{
+		const auto	pos			= m_ActiveListener->GetPosition();
+		FMOD_VECTOR listenerPos = {pos.x, pos.y, pos.z};
 	FMOD_VECTOR forward		= {0.0f, 0.0f, 1.0f};
 	FMOD_VECTOR up			= {0.0f, 1.0f, 0.0f};
+		FMOD_VECTOR vel			= {0.0f, 0.0f, 0.0f};
 
-	const auto listenerResult = m_System->set3DListenerAttributes(0, &listenerPos, &listenerPos, &forward, &up);
+		const auto listenerResult = m_System->set3DListenerAttributes(0, &listenerPos, &vel, &forward, &up);
 	ReportError(listenerResult);
+	}
 
 
 	const auto updateResult = m_System->update();
 	ReportError(updateResult);
+}
+
+//=================================================================================
+void C_AudioSystemManager::ActivateListener(std::shared_ptr<C_ListenerComponent> listener)
+{
+	m_ActiveListener = listener;
+}
+
+//=================================================================================
+std::shared_ptr<C_ListenerComponent> C_AudioSystemManager::GetActiveListener() const
+{
+	return m_ActiveListener;
 }
 
 } // namespace GLEngine::Audio

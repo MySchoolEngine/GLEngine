@@ -2,13 +2,15 @@
 
 #include <Audio/AudioApi.h>
 
+#include <Entity/ComponentBuilder.h>
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
-#include <Entity/ComponentBuilder.h>
+
+#include <GUI/Input/Button.h>
 
 namespace GLEngine::Audio {
 
-class C_ListenerComponent : public Entity::I_Component {
+class C_ListenerComponent : public Entity::I_Component, public std::enable_shared_from_this<C_ListenerComponent> {
 public:
 	explicit C_ListenerComponent(std::shared_ptr<Entity::I_Entity> owner);
 
@@ -18,6 +20,10 @@ public:
 	virtual [[nodiscard]] bool						  HasDebugDrawGUI() const override;
 	virtual [[nodiscard]] std::string_view			  GetDebugComponentName() const override;
 	virtual [[nodiscard]] Physics::Primitives::S_AABB GetAABB() const override;
+	virtual void									  DebugDrawGUI() override;
+
+	private:
+	GUI::Input::C_Button m_Activate;
 };
 
 

@@ -11,11 +11,11 @@ project "Audio"
 	Link("Entity")
 	Link("Utils")
 	Link("Core")
+	Link("GUI")
 
 	includedirs
 	{
 		"../Physics",
-		"../GUI",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmod}",
 		"../%{IncludeDir.pugixml}",

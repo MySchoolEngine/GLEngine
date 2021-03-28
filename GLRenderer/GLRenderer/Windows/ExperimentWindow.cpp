@@ -34,6 +34,9 @@
 #include <GUI/ConsoleWindow.h>
 #include <GUI/FileDialogWindow.h>
 
+#include <Audio/AudioSystemManager.h>
+#include <Audio/ListenerComponent.h>
+
 #include <Physics/Primitives/Intersection.h>
 #include <Physics/Primitives/Ray.h>
 
@@ -79,11 +82,13 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	m_VSync.SetName("Lock FPS");
 
 	Entity::C_ComponentManager::Instance();
+	Audio::C_AudioSystemManager::Instance();
 }
 
 //=================================================================================
 C_ExplerimentWindow::~C_ExplerimentWindow()
 {
+	Audio::C_AudioSystemManager::Instance().Done();
 	static_cast<C_OGLRenderer*>(m_renderer.get())->DestroyControls(m_ImGUI->GetGUIMgr());
 
 	auto& guiMGR = m_ImGUI->GetGUIMgr();
@@ -98,6 +103,7 @@ C_ExplerimentWindow::~C_ExplerimentWindow()
 //=================================================================================
 void C_ExplerimentWindow::Update()
 {
+	Audio::C_AudioSystemManager::Instance().Update();
 	Shaders::C_ShaderManager::Instance().Update();
 	m_ImGUI->FrameBegin();
 	m_ImGUI->OnUpdate();
@@ -415,6 +421,10 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 		debugCam->Update();
 		player->AddComponent(debugCam);
 		m_CamManager.SetDebugCamera(debugCam);
+
+		auto playerListener = player->GetComponent<Entity::E_ComponentType::AudioListener>();
+
+		Audio::C_AudioSystemManager::Instance().ActivateListener(playerListener);
 
 		// area light
 		// auto arealight = std::make_shared<C_GLAreaLight>(player);
