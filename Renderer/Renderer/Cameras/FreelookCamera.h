@@ -93,7 +93,7 @@ public:
 	[[nodiscard]] virtual float GetAspectRatio() const;
 
 	//=================================================================================
-	virtual void						   DebugDrawGUI() override;
+	virtual void						   DebugDrawGUI(GUI::C_GUIManager* guiMGR = nullptr) override;
 	[[nodiscard]] virtual bool			   HasDebugDrawGUI() const override;
 	[[nodiscard]] virtual std::string_view GetDebugComponentName() const override;
 	virtual void						   OnEvent(Core::I_Event& event) override;

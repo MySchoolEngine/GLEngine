@@ -69,7 +69,7 @@ void C_GLGeomComponent::PerformDraw() const
 }
 
 //=================================================================================
-void C_GLGeomComponent::DebugDrawGUI()
+void C_GLGeomComponent::DebugDrawGUI(GUI::C_GUIManager* guiMGR /*= nullptr*/)
 {
 	m_Color.Draw();
 	if (m_ColorMap)

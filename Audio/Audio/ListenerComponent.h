@@ -20,7 +20,7 @@ public:
 	virtual [[nodiscard]] bool						  HasDebugDrawGUI() const override;
 	virtual [[nodiscard]] std::string_view			  GetDebugComponentName() const override;
 	virtual [[nodiscard]] Physics::Primitives::S_AABB GetAABB() const override;
-	virtual void									  DebugDrawGUI() override;
+	virtual void									  DebugDrawGUI(GUI::C_GUIManager* guiMGR = nullptr) override;
 
 private:
 	GUI::Input::C_Button m_Activate;

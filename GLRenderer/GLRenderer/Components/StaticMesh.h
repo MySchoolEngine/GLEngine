@@ -35,7 +35,7 @@ public:
 		m_Color.SetValue(std::move(ccolor));
 	}
 
-	void					 DebugDrawGUI() override;
+	void					 DebugDrawGUI(GUI::C_GUIManager* guiMGR = nullptr) override;
 	virtual std::string_view GetDebugComponentName() const override;
 	virtual bool			 HasDebugDrawGUI() const override;
 

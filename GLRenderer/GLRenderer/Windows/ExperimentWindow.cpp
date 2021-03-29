@@ -125,7 +125,6 @@ void C_ExplerimentWindow::Update()
 
 	glfwMakeContextCurrent(m_Window);
 
-
 	// m_ShadowPass->Render();
 
 	const auto camera = m_CamManager.GetActiveCamera();
@@ -355,7 +354,7 @@ void C_ExplerimentWindow::OnAppInit()
 	{
 		m_EntitiesWindowGUID = NextGUID();
 
-		auto entitiesWindow = new Entity::C_EntitiesWindow(m_EntitiesWindowGUID, m_World);
+		auto entitiesWindow = new Entity::C_EntitiesWindow(m_EntitiesWindowGUID, m_World, guiMGR);
 		guiMGR.AddCustomWindow(entitiesWindow);
 		entitiesWindow->SetVisible();
 	}

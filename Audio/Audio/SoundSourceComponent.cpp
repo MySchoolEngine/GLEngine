@@ -3,6 +3,9 @@
 #include <Audio/AudioSystemManager.h>
 #include <Audio/SoundSourceComponent.h>
 
+#include <GUI/FileDialogWindow.h>
+#include <GUI/GUIManager.h>
+
 #include <Physics/Primitives/AABB.h>
 
 #include <Core/CoreRegistrations.h>
@@ -12,6 +15,7 @@
 #include <pugixml.hpp>
 
 #include <fmod.hpp>
+#include <imgui.h>
 
 namespace GLEngine::Audio {
 
@@ -20,9 +24,11 @@ C_SoundSourceComponent::C_SoundSourceComponent(std::shared_ptr<Entity::I_Entity>
 	: Entity::I_Component(std::move(owner))
 	, m_Channel(nullptr)
 	, m_Filepath(file)
-	, m_Looped(true)
+	, m_Looped(true, "Looped sound")
+	, m_PlayButton("PlaySound", std::bind(&C_SoundSourceComponent::PlaySound, this))
+	, m_StopButton("StopSound", std::bind(&C_SoundSourceComponent::StopSound, this))
 {
-	m_Sound					   = C_AudioSystemManager::Instance().GetSoundFile(file, true);
+	SetMusic(file);
 	const auto soundModeResult = m_Sound->setMode(m_Looped ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF);
 	if (soundModeResult != FMOD_RESULT::FMOD_OK)
 	{
@@ -35,6 +41,21 @@ C_SoundSourceComponent::C_SoundSourceComponent(std::shared_ptr<Entity::I_Entity>
 //=================================================================================
 void C_SoundSourceComponent::Update()
 {
+	FMOD_MODE mode;
+	m_Sound->getMode(&mode);
+	const auto isLooped = (mode & FMOD_LOOP_NORMAL) != 0;
+	if (isLooped != m_Looped) // looping changed
+	{
+		if (m_Channel && m_Looped == false)
+		{
+			StopSound();
+		}
+		const auto soundModeResult = m_Sound->setMode(m_Looped ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF);
+		if (soundModeResult != FMOD_RESULT::FMOD_OK)
+		{
+			CORE_LOG(E_Level::Error, E_Context::Audio, "Unable to initialize audio system. '{}'", soundModeResult);
+		}
+	}
 	UpdateSoundSourcePosition();
 }
 
@@ -71,8 +92,32 @@ glm::vec3 C_SoundSourceComponent::GetPosition() const
 }
 
 //=================================================================================
-void C_SoundSourceComponent::DebugDrawGUI()
+void C_SoundSourceComponent::DebugDrawGUI(GUI::C_GUIManager* guiMGR /*= nullptr*/)
 {
+	ImGui::Text("%s", fmt::format("File: {}", m_Filepath).c_str());
+	ImGui::SameLine();
+	if (guiMGR && ImGui::Button("Choose file"))
+	{
+		const auto soundSelectWindowGUID = NextGUID();
+		auto*	   levelSelectWindwo	 = new GUI::C_FileDialogWindow(
+			 ".ogg", "Select file",
+			 [&, soundSelectWindowGUID, guiMGR](const std::filesystem::path& sound) {
+				 SetMusic(sound);
+				 guiMGR->DestroyWindow(soundSelectWindowGUID);
+			 },
+			 soundSelectWindowGUID, "./Sound");
+		guiMGR->AddCustomWindow(levelSelectWindwo);
+		levelSelectWindwo->SetVisible();
+	}
+	m_Looped.Draw();
+	if (IsPlaying())
+	{
+		m_StopButton.Draw();
+	}
+	else
+	{
+		m_PlayButton.Draw();
+	}
 }
 
 //=================================================================================
@@ -106,6 +151,36 @@ void C_SoundSourceComponent::UpdateSoundSourcePosition()
 }
 
 //=================================================================================
+void C_SoundSourceComponent::SetLooped(bool looped)
+{
+	m_Looped = looped;
+}
+
+//=================================================================================
+bool C_SoundSourceComponent::IsPlaying() const
+{
+	bool isPlaying = false;
+	m_Channel->isPlaying(&isPlaying);
+	return m_Channel && isPlaying;
+}
+
+//=================================================================================
+void C_SoundSourceComponent::StopSound()
+{
+	const auto stopMusic = m_Channel->stop();
+	if (stopMusic != FMOD_RESULT::FMOD_OK)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Audio, "Unable to initialize audio system. '{}'", stopMusic);
+	}
+}
+
+//=================================================================================
+void C_SoundSourceComponent::SetMusic(const std::filesystem::path& path)
+{
+	m_Sound = C_AudioSystemManager::Instance().GetSoundFile(path, true);
+}
+
+//=================================================================================
 //=================================================================================
 class C_SoundSourceBuilder : public Entity::I_ComponenetBuilder {
 public:
@@ -120,8 +195,13 @@ public:
 		{
 			CORE_LOG(E_Level::Warning, E_Context::Audio, "Audio source without a sound");
 		}
+
 		auto listener = std::make_shared<Audio::C_SoundSourceComponent>(owner, file);
 		listener->SetComponentMatrix(Utils::Parsing::C_MatrixParser::ParseTransformation(node));
+		if (auto loopAttrib = node.attribute("looped"))
+		{
+			listener->SetLooped(loopAttrib.as_bool());
+		}
 
 		return listener;
 	}

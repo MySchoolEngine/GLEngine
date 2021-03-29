@@ -1,7 +1,7 @@
 #include <AudioStdAfx.h>
 
-#include <Audio/ListenerComponent.h>
 #include <Audio/AudioSystemManager.h>
+#include <Audio/ListenerComponent.h>
 
 #include <Physics/Primitives/AABB.h>
 
@@ -53,7 +53,7 @@ std::string_view C_ListenerComponent::GetDebugComponentName() const
 }
 
 //=================================================================================
-void C_ListenerComponent::DebugDrawGUI()
+void C_ListenerComponent::DebugDrawGUI(GUI::C_GUIManager* guiMGR /*= nullptr*/)
 {
 	const auto isActive = C_AudioSystemManager::Instance().GetActiveListener() == shared_from_this();
 	if (!isActive)

@@ -32,7 +32,7 @@ public:
 
 	[[nodiscard]] virtual std::string_view			  GetDebugComponentName() const override;
 	[[nodiscard]] virtual bool						  HasDebugDrawGUI() const override;
-	virtual void									  DebugDrawGUI() override;
+	virtual void									  DebugDrawGUI(GUI::C_GUIManager* guiMGR = nullptr) override;
 	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override final;
 
 private:

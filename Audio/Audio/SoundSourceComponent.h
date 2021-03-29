@@ -4,6 +4,9 @@
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
 
+#include <GUI/Input/CheckBoxValue.h>
+#include <GUI/Input/Button.h>
+
 namespace FMOD {
 class System;
 class Sound;
@@ -21,18 +24,25 @@ public:
 	virtual void Update() override;
 
 	void PlaySound();
+	void StopSound();
+	void SetLooped(bool looped);
+	void SetMusic(const std::filesystem::path& path);
+
+	[[nodiscard]] bool IsPlaying() const;
 
 	virtual [[nodiscard]] Entity::E_ComponentType	  GetType() const override;
 	virtual [[nodiscard]] bool						  HasDebugDrawGUI() const override;
 	virtual [[nodiscard]] std::string_view			  GetDebugComponentName() const override;
 	virtual [[nodiscard]] Physics::Primitives::S_AABB GetAABB() const override;
-	virtual void									  DebugDrawGUI() override;
+	virtual void									  DebugDrawGUI(GUI::C_GUIManager* guiMGR = nullptr) override;
 
 protected:
 	[[nodiscard]] virtual FMOD::Sound* GetSound() const;
 
-	FMOD::Channel* m_Channel;
-	bool		   m_Looped;
+	FMOD::Channel*				m_Channel;
+	GUI::Input::C_CheckBoxValue m_Looped;
+	GUI::Input::C_Button		m_PlayButton;
+	GUI::Input::C_Button		m_StopButton;
 
 private:
 	void				  UpdateSoundSourcePosition();

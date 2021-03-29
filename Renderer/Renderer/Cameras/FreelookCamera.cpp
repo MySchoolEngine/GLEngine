@@ -262,7 +262,7 @@ float FreelookCamera::GetAspectRatio() const
 }
 
 //=================================================================================
-void FreelookCamera::DebugDrawGUI()
+void FreelookCamera::DebugDrawGUI(GUI::C_GUIManager* guiMGR /*= nullptr*/)
 {
 }
 

@@ -14,6 +14,10 @@ namespace GLEngine::Physics::Primitives {
 struct S_AABB;
 }
 
+namespace GLEngine::GUI {
+class C_GUIManager;
+}
+
 namespace GLEngine {
 namespace Entity {
 
@@ -34,8 +38,8 @@ public:
 	virtual void PostUpdate(){};
 
 	// draws inside of prepared window
-	virtual void			   DebugDrawGUI(){};
-	void					   DebugDrawComponentGUI();
+	virtual void			   DebugDrawGUI(GUI::C_GUIManager* guiMGR = nullptr){};
+	void					   DebugDrawComponentGUI(GUI::C_GUIManager* guiMGR = nullptr);
 	[[nodiscard]] virtual bool HasDebugDrawGUI() const = 0;
 	// should return name used for component in debug
 	[[nodiscard]] virtual std::string_view GetDebugComponentName() const = 0;

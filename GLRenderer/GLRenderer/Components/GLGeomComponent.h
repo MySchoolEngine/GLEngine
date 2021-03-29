@@ -21,7 +21,7 @@ public:
 	void											  SetupMaterial(const Utils::Parsing::MaterialData& data) override;
 	void											  SetupGeometry(const Renderer::MeshData::Mesh& mesh) override;
 	void											  PerformDraw() const override;
-	void											  DebugDrawGUI() override;
+	void											  DebugDrawGUI(GUI::C_GUIManager* guiMGR = nullptr) override;
 	[[nodiscard]] virtual bool						  HasDebugDrawGUI() const override;
 	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override;
 

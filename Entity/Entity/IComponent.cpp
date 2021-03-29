@@ -38,12 +38,12 @@ const glm::mat4 I_Component::GetComponentModelMatrix() const
 }
 
 //=================================================================================
-void I_Component::DebugDrawComponentGUI()
+void I_Component::DebugDrawComponentGUI(GUI::C_GUIManager* guiMGR)
 {
 	if (::ImGui::CollapsingHeader(GetDebugComponentName().data()))
 	{
 		m_Transformation.Draw();
-		DebugDrawGUI();
+		DebugDrawGUI(guiMGR);
 	}
 }
 

@@ -18,6 +18,7 @@ project "Audio"
 		"../Physics",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmod}",
+		"../%{IncludeDir.ImGui}",
 		"../%{IncludeDir.pugixml}",
 	}
 
@@ -29,6 +30,7 @@ project "Audio"
 	links
 	{
 		"pugixml",
+		"ImGui",
 		"../%{LibDir.fmod}/fmod_vc.lib",
 	}
 

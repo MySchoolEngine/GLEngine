@@ -86,6 +86,12 @@ const std::vector<std::shared_ptr<I_Entity>>& C_EntityManager::GetEntities() con
 }
 
 //=================================================================================
+std::vector<std::shared_ptr<GLEngine::Entity::I_Entity>>& C_EntityManager::GetEntities()
+{
+	return *m_Entities;
+}
+
+//=================================================================================
 void C_EntityManager::ClearLevel()
 {
 	m_Entities->clear();
