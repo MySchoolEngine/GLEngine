@@ -10,7 +10,7 @@
 					<normalMap>Models\Bricks01\REGULAR\1K\Bricks01_NRM_1K.bmp</normalMap>
 				</staticMesh>
 				<AudioListener />
-				<AudioSource file="Sound/c.ogg" />
+				<AudioSource file="Sound/howiwish.mp3" />
 			</Components>
 		</Entity>
 		<ExternEntity name="sphere" filePath="lada/lada.obj" material="basicTracing">

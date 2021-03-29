@@ -100,7 +100,7 @@ void C_SoundSourceComponent::DebugDrawGUI(GUI::C_GUIManager* guiMGR /*= nullptr*
 	{
 		const auto soundSelectWindowGUID = NextGUID();
 		auto*	   levelSelectWindwo	 = new GUI::C_FileDialogWindow(
-			 ".ogg", "Select file",
+			 ".ogg,.mp3", "Select file",
 			 [&, soundSelectWindowGUID, guiMGR](const std::filesystem::path& sound) {
 				 SetMusic(sound);
 				 guiMGR->DestroyWindow(soundSelectWindowGUID);
