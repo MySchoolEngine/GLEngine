@@ -24,8 +24,13 @@ public:
 
 	void Update();
 	void Done();
+
+	[[nodiscard]] FMOD::Sound* GetSoundFile(const std::filesystem::path& path, bool sound3D);
+
 	void								 ActivateListener(std::shared_ptr<C_ListenerComponent>);
 	std::shared_ptr<C_ListenerComponent> GetActiveListener() const;
+
+	[[nodiscard]] FMOD::Channel* PlaySound(FMOD::Sound* sound);
 
 private:
 	C_AudioSystemManager();
@@ -38,6 +43,8 @@ private:
 	bool		  m_Initialized;
 	std::shared_ptr<C_ListenerComponent> m_ActiveListener;
 	bool								 m_Initialized;
+
+	std::map<std::filesystem::path, FMOD::Sound*> m_SoundDatabase;
 };
 
 } // namespace GLEngine::Audio

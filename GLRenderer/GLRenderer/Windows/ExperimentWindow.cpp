@@ -36,7 +36,10 @@
 
 #include <Audio/AudioSystemManager.h>
 #include <Audio/ListenerComponent.h>
+#include <Audio/SoundSourceComponent.h>
 
+#include <Physics/Primitives/AABB.h>
+#include <Physics/Primitives/Frustum.h>
 #include <Physics/Primitives/Intersection.h>
 #include <Physics/Primitives/Ray.h>
 
@@ -122,11 +125,44 @@ void C_ExplerimentWindow::Update()
 
 	glfwMakeContextCurrent(m_Window);
 
+
 	// m_ShadowPass->Render();
 
 	const auto camera = m_CamManager.GetActiveCamera();
 	GLE_ASSERT(camera, "No active camera");
 
+	// Debug audio
+
+	{
+		const auto camFrustum	  = camera->GetFrustum();
+		const auto camBox		  = camFrustum.GetAABB().GetSphere();
+		const auto entitiesInView = m_World->GetEntities(camFrustum);
+		for (auto& entity : entitiesInView)
+		{
+			auto audioComponents = entity->GetComponents(Entity::E_ComponentType::AudioListener);
+			for (const auto& it : audioComponents)
+			{
+				const auto audioComponent = component_cast<Entity::E_ComponentType::AudioListener>(it);
+				const auto compSphere	  = audioComponent->GetAABB().GetSphere();
+				if (compSphere.IsColliding(camBox))
+				{
+					const auto listenerPos = audioComponent->GetPosition();
+					C_DebugDraw::Instance().DrawPoint(listenerPos, glm::vec3(1, 1, 1));
+				}
+			}
+			auto audioSourceComponents = entity->GetComponents(Entity::E_ComponentType::AudioSource);
+			for (const auto& it : audioSourceComponents)
+			{
+				const auto audioSourceComponent = component_cast<Entity::E_ComponentType::AudioSource>(it);
+				const auto compSphere			= audioSourceComponent->GetAABB().GetSphere();
+				if (compSphere.IsColliding(camBox))
+				{
+					const auto listenerPos = audioSourceComponent->GetPosition();
+					C_DebugDraw::Instance().DrawPoint(listenerPos, glm::vec3(1, 0, 0));
+				}
+			}
+		}
+	}
 
 	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
 

@@ -9,6 +9,8 @@
 					<roughnessMap>Models\Bricks01\REGULAR\1K\Bricks01_ROUGHNESS_1K.bmp</roughnessMap>
 					<normalMap>Models\Bricks01\REGULAR\1K\Bricks01_NRM_1K.bmp</normalMap>
 				</staticMesh>
+				<AudioListener />
+				<AudioSource file="c.ogg" />
 			</Components>
 		</Entity>
 		<ExternEntity name="sphere" filePath="lada/lada.obj" material="basicTracing">

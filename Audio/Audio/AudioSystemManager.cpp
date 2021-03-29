@@ -71,6 +71,12 @@ void C_AudioSystemManager::Done()
 		return;
 	FMOD_RESULT result;
 
+	// release all memory I get from fmod
+	for (auto it : m_SoundDatabase)
+	{
+		result = it.second->release();
+		GLE_ASSERT(!IsError(result), "Something went wrong with sound releasing");
+	}
 
 	result = m_System->close();
 	if (IsError(result))
@@ -111,9 +117,8 @@ void C_AudioSystemManager::Update()
 		FMOD_VECTOR vel			= {0.0f, 0.0f, 0.0f};
 
 		const auto listenerResult = m_System->set3DListenerAttributes(0, &listenerPos, &vel, &forward, &up);
-	ReportError(listenerResult);
+		ReportError(listenerResult);
 	}
-
 
 	const auto updateResult = m_System->update();
 	ReportError(updateResult);
@@ -129,6 +134,38 @@ void C_AudioSystemManager::ActivateListener(std::shared_ptr<C_ListenerComponent>
 std::shared_ptr<C_ListenerComponent> C_AudioSystemManager::GetActiveListener() const
 {
 	return m_ActiveListener;
+}
+
+//=================================================================================
+FMOD::Sound* C_AudioSystemManager::GetSoundFile(const std::filesystem::path& path, bool sound3D)
+{
+	FMOD::Sound* sound;
+	auto		 it = m_SoundDatabase.find(path);
+	if (it != m_SoundDatabase.end())
+		return it->second;
+
+
+	const auto soundResult = m_System->createSound(path.generic_string().c_str(), sound3D ? FMOD_3D : FMOD_2D, nullptr, &sound);
+	if (IsError(soundResult))
+		return nullptr;
+
+	m_SoundDatabase.insert({path, sound});
+
+	return sound;
+}
+
+//=================================================================================
+FMOD::Channel* C_AudioSystemManager::PlaySound(FMOD::Sound* sound)
+{
+	FMOD::Channel* channel;
+	const auto	   playSoundResult = m_System->playSound(sound, nullptr, true, &channel);
+	if (IsError(playSoundResult))
+		return nullptr;
+	const auto setPauseResult = channel->setPaused(false);
+	if (IsError(setPauseResult))
+		return nullptr;
+
+	return channel;
 }
 
 } // namespace GLEngine::Audio

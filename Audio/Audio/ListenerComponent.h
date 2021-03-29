@@ -10,11 +10,11 @@
 
 namespace GLEngine::Audio {
 
-class C_ListenerComponent : public Entity::I_Component, public std::enable_shared_from_this<C_ListenerComponent> {
+class AUDIO_API_EXPORT C_ListenerComponent : public Entity::I_Component, public std::enable_shared_from_this<C_ListenerComponent> {
 public:
 	explicit C_ListenerComponent(std::shared_ptr<Entity::I_Entity> owner);
 
-	[[nodiscard]] glm::vec3 C_ListenerComponent::GetPosition() const;
+	[[nodiscard]] glm::vec3 GetPosition() const;
 
 	virtual [[nodiscard]] Entity::E_ComponentType	  GetType() const override;
 	virtual [[nodiscard]] bool						  HasDebugDrawGUI() const override;
@@ -22,7 +22,7 @@ public:
 	virtual [[nodiscard]] Physics::Primitives::S_AABB GetAABB() const override;
 	virtual void									  DebugDrawGUI() override;
 
-	private:
+private:
 	GUI::Input::C_Button m_Activate;
 };
 
