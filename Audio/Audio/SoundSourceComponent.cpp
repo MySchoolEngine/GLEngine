@@ -68,7 +68,7 @@ glm::vec3 C_SoundSourceComponent::GetPosition() const
 //=================================================================================
 [[nodiscard]] Entity::E_ComponentType C_SoundSourceComponent::GetType() const
 {
-	return Entity::E_ComponentType::AudioListener;
+	return Entity::E_ComponentType::AudioSource;
 }
 
 //=================================================================================

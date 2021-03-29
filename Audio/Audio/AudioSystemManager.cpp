@@ -112,8 +112,8 @@ void C_AudioSystemManager::Update()
 	{
 		const auto	pos			= m_ActiveListener->GetPosition();
 		FMOD_VECTOR listenerPos = {pos.x, pos.y, pos.z};
-	FMOD_VECTOR forward		= {0.0f, 0.0f, 1.0f};
-	FMOD_VECTOR up			= {0.0f, 1.0f, 0.0f};
+		FMOD_VECTOR forward		= {0.0f, 0.0f, 1.0f};
+		FMOD_VECTOR up			= {0.0f, 1.0f, 0.0f};
 		FMOD_VECTOR vel			= {0.0f, 0.0f, 0.0f};
 
 		const auto listenerResult = m_System->set3DListenerAttributes(0, &listenerPos, &vel, &forward, &up);

@@ -40,7 +40,6 @@ private:
 	void			   ReportError(const FMOD_RESULT result) const;
 
 	FMOD::System*						 m_System;
-	bool		  m_Initialized;
 	std::shared_ptr<C_ListenerComponent> m_ActiveListener;
 	bool								 m_Initialized;
 
