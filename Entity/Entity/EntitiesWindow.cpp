@@ -3,6 +3,7 @@
 #include <Entity/BasicEntity.h>
 #include <Entity/EntitiesWindow.h>
 #include <Entity/EntityManager.h>
+#include <Entity/Components/DebugGUIComponent.h>
 
 #include <imgui.h>
 

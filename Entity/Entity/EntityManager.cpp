@@ -3,7 +3,7 @@
 #include <Entity/BasicEntity.h>
 #include <Entity/ComponentBuilder.h>
 #include <Entity/ComponentBuilderFactory.h>
-#include <Entity/Components/EntityDebugComponent.h>
+#include <Entity/Components/DebugGUIComponent.h>
 #include <Entity/EntityManager.h>
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
@@ -68,7 +68,7 @@ std::shared_ptr<I_Entity> C_EntityManager::GetOrCreateEntity(const std::string& 
 		return entity;
 	}
 	entity = std::make_shared<C_BasicEntity>(name);
-	entity->AddComponent(std::make_shared<C_EntityDebugComponent>(entity));
+	entity->AddComponent(std::make_shared<C_DebugGUIComponent>(entity));
 	AddEntity(entity);
 	return entity;
 }
@@ -176,7 +176,7 @@ bool C_EntityManager::LoadLevel(const std::filesystem::path& name, std::unique_p
 
 	auto& enigne = Core::C_Engine::Instance();
 
-	auto debugBuilder = cbf->GetFactory("debug");
+	auto debugBuilder = enigne.GetGlobalComponentBuilder("debug");
 
 	if (auto entitiesNode = worldNode.child("Entities"))
 	{

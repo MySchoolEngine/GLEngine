@@ -11,7 +11,7 @@
 #include <Renderer/Lights/PointLight.h>
 #include <Renderer/Mesh/Loading/SceneLoader.h>
 
-#include <Entity/Components/EntityDebugComponent.h>
+#include <Entity/Components/DebugGUIComponent.h>
 
 #include <Utils/Parsing/MaterialParser.h>
 
@@ -27,10 +27,6 @@ std::unique_ptr<Entity::I_ComponenetBuilder> C_ComponentBuilderFactory::GetFacto
 	if (name == "staticMesh")
 	{
 		return std::make_unique<C_StaticMeshBuilder>();
-	}
-	if (name == "debug")
-	{
-		return std::make_unique<Entity::C_GUIDebugBuilder>();
 	}
 	if (name == "SkeletalMesh")
 	{

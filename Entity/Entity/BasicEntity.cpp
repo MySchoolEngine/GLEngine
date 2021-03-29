@@ -1,7 +1,7 @@
 #include <EntityStdafx.h>
 
 #include <Entity/BasicEntity.h>
-#include <Entity/Components/IDebugGUIComponent.h>
+#include <Entity/Components/DebugGUIComponent.h>
 #include <Entity/IComponent.h>
 
 
@@ -20,7 +20,7 @@ C_BasicEntity::~C_BasicEntity() = default;
 //=================================================================================
 void C_BasicEntity::Update()
 {
-	for (auto comp : *m_Components)
+	for (auto& comp : *m_Components)
 	{
 		comp.second->Update();
 	}
