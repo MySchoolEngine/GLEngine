@@ -61,6 +61,18 @@ void C_ListenerComponent::DebugDrawGUI(GUI::C_GUIManager* guiMGR /*= nullptr*/)
 }
 
 //=================================================================================
+void C_ListenerComponent::Update()
+{
+	m_LastPosition = GetPosition(); // todo could be wrong place
+}
+
+//=================================================================================
+glm::vec3 C_ListenerComponent::GetVelocity() const
+{
+	return (GetPosition() - m_LastPosition);
+}
+
+//=================================================================================
 std::shared_ptr<Entity::I_Component> C_ListenerBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
 {
 	auto listener = std::make_shared<Audio::C_ListenerComponent>(owner);

@@ -95,4 +95,22 @@ void C_Transformations::SetEnabledTransforms(Utils::C_BitField<E_Transorms> enab
 	m_enabledTransforms = enableTransforms;
 }
 
+//=================================================================================
+void C_Transformations::SetTranslation(const glm::vec3& translation)
+{
+	m_Translation.SetValue(glm::vec3(translation));
+}
+
+//=================================================================================
+void C_Transformations::SetRotation(const glm::vec3& rotation)
+{
+	m_Rotation.SetValue(glm::vec3(rotation));
+}
+
+//=================================================================================
+void C_Transformations::SetScale(const glm::vec3& scale)
+{
+	m_Scale.SetValue(glm::vec3(scale));
+}
+
 } // namespace GLEngine::GUI::Input

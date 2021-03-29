@@ -139,14 +139,16 @@ void C_SoundSourceComponent::UpdateSoundSourcePosition()
 	if (m_Channel)
 	{
 		const auto		  position			= GetPosition();
+		const auto		  velocity			= (position - m_LastPosition);
 		const FMOD_VECTOR pos				= {position.x, position.y, position.z};
-		const FMOD_VECTOR vel				= {0.0f, 0.0f, 0.0f};
+		const FMOD_VECTOR vel				= {velocity.x, velocity.y, velocity.z};
 		const auto		  channelAttributes = m_Channel->set3DAttributes(&pos, &vel);
 		if (channelAttributes != FMOD_RESULT::FMOD_OK)
 		{
 			CORE_LOG(E_Level::Error, E_Context::Audio, "Unable to initialize audio system. '{}'", channelAttributes);
 			return;
 		}
+		m_LastPosition = position;
 	}
 }
 

@@ -15,6 +15,7 @@ public:
 	explicit C_ListenerComponent(std::shared_ptr<Entity::I_Entity> owner);
 
 	[[nodiscard]] glm::vec3 GetPosition() const;
+	[[nodiscard]] glm::vec3 GetVelocity() const;
 
 	virtual [[nodiscard]] Entity::E_ComponentType	  GetType() const override;
 	virtual [[nodiscard]] bool						  HasDebugDrawGUI() const override;
@@ -22,8 +23,13 @@ public:
 	virtual [[nodiscard]] Physics::Primitives::S_AABB GetAABB() const override;
 	virtual void									  DebugDrawGUI(GUI::C_GUIManager* guiMGR = nullptr) override;
 
+
+	//=================================================================================
+	void Update() override;
+
 private:
 	GUI::Input::C_Button m_Activate;
+	glm::vec3			 m_LastPosition;
 };
 
 

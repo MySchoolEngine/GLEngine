@@ -4,8 +4,8 @@
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
 
-#include <GUI/Input/CheckBoxValue.h>
 #include <GUI/Input/Button.h>
+#include <GUI/Input/CheckBoxValue.h>
 
 namespace FMOD {
 class System;
@@ -48,6 +48,7 @@ private:
 	void				  UpdateSoundSourcePosition();
 	std::filesystem::path m_Filepath;
 	FMOD::Sound*		  m_Sound;
+	glm::vec3			  m_LastPosition;
 };
 
 } // namespace GLEngine::Audio

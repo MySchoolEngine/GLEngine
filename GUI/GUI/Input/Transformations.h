@@ -26,6 +26,10 @@ public:
 	[[nodiscard]] glm::vec3 GetRotation() const;
 	[[nodiscard]] glm::vec3 GetScale() const;
 
+	void SetTranslation(const glm::vec3& translation);
+	void SetRotation(const glm::vec3& rotation);
+	void SetScale(const glm::vec3& scale);
+
 private:
 	Utils::C_BitField<E_Transorms> m_enabledTransforms;
 	C_Vec3						   m_Translation;
