@@ -9,6 +9,10 @@
 					<roughnessMap>Models\Bricks01\REGULAR\1K\Bricks01_ROUGHNESS_1K.bmp</roughnessMap>
 					<normalMap>Models\Bricks01\REGULAR\1K\Bricks01_NRM_1K.bmp</normalMap>
 				</staticMesh>
+			</Components>
+		</Entity>
+		<Entity name="Sound">
+			<Components>
 				<AudioListener />
 				<AudioSource file="Sound/howiwish.mp3" />
 			</Components>
