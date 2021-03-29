@@ -15,11 +15,11 @@ public:
 
 	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override;
 	[[nodiscard]] virtual bool						  HasDebugDrawGUI() const override;
-	void								Toggle();
+	void											  Toggle();
 
 	void PostUpdate() override;
 
-	virtual void			 DrawContents();
+	virtual void						   DrawContents();
 	[[nodiscard]] virtual std::string_view GetDebugComponentName() const override;
 
 protected:
