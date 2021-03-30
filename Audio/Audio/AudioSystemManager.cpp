@@ -78,6 +78,12 @@ void C_AudioSystemManager::Done()
 		GLE_ASSERT(!IsError(result), "Something went wrong with sound releasing");
 	}
 
+	for (auto* it : m_ProgrammerSounds)
+	{
+		result = it->release();
+		GLE_ASSERT(!IsError(result), "Something went wrong with sound releasing");
+	}
+
 	result = m_System->close();
 	if (IsError(result))
 		return;
@@ -167,6 +173,19 @@ FMOD::Channel* C_AudioSystemManager::PlaySound(FMOD::Sound* sound)
 		return nullptr;
 
 	return channel;
+}
+
+//=================================================================================
+FMOD::Sound* C_AudioSystemManager::GetProgrammerSound(FMOD_MODE mode, FMOD_CREATESOUNDEXINFO* exinfo)
+{
+	FMOD::Sound* sound;
+	const auto	 createSoundResult = m_System->createSound(nullptr, mode, exinfo, &sound);
+	if (IsError(createSoundResult))
+		return nullptr;
+
+	m_ProgrammerSounds.emplace_back(sound);
+
+	return sound;
 }
 
 } // namespace GLEngine::Audio

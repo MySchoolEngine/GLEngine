@@ -79,10 +79,11 @@ IncludeDir["ImGuiFileDialog"] = "vendor/ImGuiFileDialog"
 IncludeDir["DevIL"] = "vendor/DevIL/DevIL/include"
 IncludeDir["dirent"] = "vendor/dirent/include"
 IncludeDir["fmod"] = "vendor/fmod/core/inc"
-IncludeDir["gradrigo"] = "vendor/gradrigo/Debug"
+IncludeDir["gradrigo"] = "vendor/gradrigo"
 
 LibDir = {}
-LibDir["gradrigo"] = "vendor/gradrigo/Debug"
+LibDir["gradrigoDebug"] = "vendor/gradrigo/Debug"
+LibDir["gradrigoRelease"] = "vendor/gradrigo/Debug"
 LibDir["fmod"] = "vendor/fmod/core/lib/x64"
 
 group "Assimp"

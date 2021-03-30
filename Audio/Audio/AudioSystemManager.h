@@ -9,7 +9,8 @@ class Sound;
 class Channel;
 } // namespace FMOD
 
-enum FMOD_RESULT;
+typedef unsigned int FMOD_MODE;
+struct FMOD_CREATESOUNDEXINFO;
 
 namespace GLEngine::Audio {
 
@@ -26,6 +27,7 @@ public:
 	void Done();
 
 	[[nodiscard]] FMOD::Sound* GetSoundFile(const std::filesystem::path& path, bool sound3D);
+	[[nodiscard]] FMOD::Sound* GetProgrammerSound(FMOD_MODE mode, FMOD_CREATESOUNDEXINFO* exinfo);
 
 	void								 ActivateListener(std::shared_ptr<C_ListenerComponent>);
 	std::shared_ptr<C_ListenerComponent> GetActiveListener() const;
@@ -44,6 +46,7 @@ private:
 	bool								 m_Initialized;
 
 	std::map<std::filesystem::path, FMOD::Sound*> m_SoundDatabase;
+	std::vector<FMOD::Sound*>					  m_ProgrammerSounds;
 };
 
 } // namespace GLEngine::Audio

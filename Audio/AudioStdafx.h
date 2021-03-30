@@ -10,3 +10,4 @@
 #include <glm/glm.hpp>
 
 #include <Audio/AudioApi.h>
+#include <Audio/FMODHelpers.h>

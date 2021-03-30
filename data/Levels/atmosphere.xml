@@ -15,7 +15,7 @@
 			<Components>
 				<AudioListener />
 				<AudioSource file="Sound/howiwish.mp3" />
-				<GradrigoAudioSource file="Sound/kaboom.grad">
+				<GradrigoAudioSource file="Sound/Gradrigo/kaboom.grad">
 					<translate sid="location">-2 0 0</translate>
 				</GradrigoAudioSource>
 			</Components>

@@ -20,6 +20,7 @@ project "Audio"
 		"../%{IncludeDir.fmod}",
 		"../%{IncludeDir.ImGui}",
 		"../%{IncludeDir.pugixml}",
+		"../%{IncludeDir.gradrigo}"
 	}
 
 	defines
@@ -52,7 +53,23 @@ project "Audio"
 	filter "configurations:Debug"
 		runtime "Debug"
 		symbols "On"
+		links
+		{
+			"../%{LibDir.gradrigoDebug}/gradrigo.lib"
+		}
+		postbuildcommands
+		{
+			("{COPY} \"../%{LibDir.gradrigoDebug}/gradrigo.dll\" \"../bin/" .. outputdir .. "/Sandbox/\""),
+		}
 
 	filter "configurations:Release"
 		runtime "Release"
 		optimize "On"
+		links
+		{
+			"../%{LibDir.gradrigoRelease}/gradrigo.lib"
+		}
+		postbuildcommands
+		{
+			("{COPY} \"../%{LibDir.gradrigoRelease}/gradrigo.dll\" \"../bin/" .. outputdir .. "/Sandbox/\""),
+		}
