@@ -27,8 +27,12 @@ C_AudioSystemManager::C_AudioSystemManager()
 	if (IsError(result))
 		return;
 
-	void*	   extradriverdata = nullptr;
-	const auto initResult	   = m_System->init(100, FMOD_INIT_NORMAL, extradriverdata);
+	void*		   extradriverdata = nullptr;
+	FMOD_INITFLAGS initFlags	   = FMOD_INIT_NORMAL;
+#ifdef GL_ENGINE_DEBUG
+	initFlags |= FMOD_INIT_PROFILE_ENABLE;
+#endif
+	const auto initResult = m_System->init(100, initFlags, extradriverdata);
 	if (IsError(initResult))
 		return;
 
