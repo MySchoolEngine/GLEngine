@@ -22,4 +22,10 @@ void ReportError(const FMOD_RESULT result)
 	}
 }
 
+//=================================================================================
+FMOD_VECTOR ToFMOD(const glm::vec3& vec)
+{
+	return {vec.x, vec.y, vec.z};
+}
+
 }

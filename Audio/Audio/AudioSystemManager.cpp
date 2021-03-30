@@ -100,12 +100,10 @@ void C_AudioSystemManager::Update()
 {
 	if (m_ActiveListener)
 	{
-		const auto	pos			= m_ActiveListener->GetPosition();
-		const auto	velocity	= m_ActiveListener->GetVelocity();
-		FMOD_VECTOR listenerPos = {pos.x, pos.y, pos.z};
-		FMOD_VECTOR forward		= {0.0f, 0.0f, 1.0f};
-		FMOD_VECTOR up			= {0.0f, 1.0f, 0.0f};
-		FMOD_VECTOR vel			= {velocity.x, velocity.y, velocity.z};
+		const auto listenerPos = ToFMOD(m_ActiveListener->GetPosition());
+		const auto forward	   = ToFMOD(m_ActiveListener->GetForward());
+		const auto up		   = ToFMOD(m_ActiveListener->GetUp());
+		const auto vel		   = ToFMOD(m_ActiveListener->GetVelocity());
 
 		const auto listenerResult = m_System->set3DListenerAttributes(0, &listenerPos, &vel, &forward, &up);
 		ReportError(listenerResult);

@@ -106,11 +106,11 @@ void C_SoundSourceComponent::UpdateSoundSourcePosition()
 {
 	if (m_Channel)
 	{
-		const auto		  position			= GetPosition();
-		const auto		  velocity			= (position - m_LastPosition);
-		const FMOD_VECTOR pos				= {position.x, position.y, position.z};
-		const FMOD_VECTOR vel				= {velocity.x, velocity.y, velocity.z};
-		const auto		  channelAttributes = m_Channel->set3DAttributes(&pos, &vel);
+		const auto position			 = GetPosition();
+		const auto velocity			 = (position - m_LastPosition);
+		const auto pos				 = ToFMOD(position);
+		const auto vel				 = ToFMOD(velocity);
+		const auto channelAttributes = m_Channel->set3DAttributes(&pos, &vel);
 		if (IsError(channelAttributes))
 			return;
 

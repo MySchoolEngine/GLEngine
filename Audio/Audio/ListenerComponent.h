@@ -16,6 +16,8 @@ public:
 
 	[[nodiscard]] glm::vec3 GetPosition() const;
 	[[nodiscard]] glm::vec3 GetVelocity() const;
+	[[nodiscard]] glm::vec3 GetForward() const;
+	[[nodiscard]] glm::vec3 GetUp() const;
 
 	virtual [[nodiscard]] Entity::E_ComponentType	  GetType() const override;
 	virtual [[nodiscard]] bool						  HasDebugDrawGUI() const override;

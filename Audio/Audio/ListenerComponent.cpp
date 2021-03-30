@@ -74,6 +74,18 @@ glm::vec3 C_ListenerComponent::GetVelocity() const
 }
 
 //=================================================================================
+glm::vec3 C_ListenerComponent::GetForward() const
+{
+	return glm::vec4(0, 0, 1, 1) * GetComponentModelMatrix();
+}
+
+//=================================================================================
+glm::vec3 C_ListenerComponent::GetUp() const
+{
+	return glm::vec4(0, 1, 0, 1) * GetComponentModelMatrix();
+}
+
+//=================================================================================
 std::shared_ptr<Entity::I_Component> C_ListenerBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
 {
 	auto listener = std::make_shared<Audio::C_ListenerComponent>(owner);
