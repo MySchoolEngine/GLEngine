@@ -254,3 +254,7 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+
+# gradrigo
+!vendor/gradrigo/[Dd]ebug/
+!vendor/gradrigo/[Rr]elease/
