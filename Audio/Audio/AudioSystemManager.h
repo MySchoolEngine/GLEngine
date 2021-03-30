@@ -38,9 +38,6 @@ private:
 	C_AudioSystemManager();
 	~C_AudioSystemManager();
 
-	[[nodiscard]] bool IsError(const FMOD_RESULT result) const;
-	void			   ReportError(const FMOD_RESULT result) const;
-
 	FMOD::System*						 m_System;
 	std::shared_ptr<C_ListenerComponent> m_ActiveListener;
 	bool								 m_Initialized;

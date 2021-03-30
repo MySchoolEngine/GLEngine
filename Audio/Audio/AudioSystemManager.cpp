@@ -96,22 +96,6 @@ void C_AudioSystemManager::Done()
 }
 
 //=================================================================================
-bool C_AudioSystemManager::IsError(const FMOD_RESULT result) const
-{
-	ReportError(result);
-	return result != FMOD_OK;
-}
-
-//=================================================================================
-void C_AudioSystemManager::ReportError(const FMOD_RESULT result) const
-{
-	if (result != FMOD_OK)
-	{
-		CORE_LOG(E_Level::Error, E_Context::Audio, "Unable to initialize audio system. '{}'", result);
-	}
-}
-
-//=================================================================================
 void C_AudioSystemManager::Update()
 {
 	if (m_ActiveListener)

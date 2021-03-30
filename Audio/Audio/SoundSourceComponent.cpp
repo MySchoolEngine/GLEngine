@@ -111,11 +111,9 @@ void C_SoundSourceComponent::UpdateSoundSourcePosition()
 		const FMOD_VECTOR pos				= {position.x, position.y, position.z};
 		const FMOD_VECTOR vel				= {velocity.x, velocity.y, velocity.z};
 		const auto		  channelAttributes = m_Channel->set3DAttributes(&pos, &vel);
-		if (channelAttributes != FMOD_RESULT::FMOD_OK)
-		{
-			CORE_LOG(E_Level::Error, E_Context::Audio, "Unable to initialize audio system. '{}'", channelAttributes);
+		if (IsError(channelAttributes))
 			return;
-		}
+
 		m_LastPosition = position;
 	}
 }
@@ -138,10 +136,8 @@ bool C_SoundSourceComponent::IsPlaying() const
 void C_SoundSourceComponent::StopSound()
 {
 	const auto stopMusic = m_Channel->stop();
-	if (stopMusic != FMOD_RESULT::FMOD_OK)
-	{
-		CORE_LOG(E_Level::Error, E_Context::Audio, "Unable to initialize audio system. '{}'", stopMusic);
-	}
+	if (IsError(stopMusic))
+		return;
 }
 
 } // namespace GLEngine::Audio
