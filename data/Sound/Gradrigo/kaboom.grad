@@ -1,0 +1,104 @@
+
+// VARIABLES
+// ---------
+
+// There are two types of variables, global and voice-based. For now, variables may be only
+// called by single letters. I will change this in the future, so that they're less awkward
+// to use. The names are case-sensitive: %A, %B, %C are different variables than %a, %b, %c.
+
+// GLOBAL VARIABLES
+// ----------------
+
+// The global variables are declared using command global(). Once declared, they're visible
+// and shared by all the boxes:
+
+global(%N, 60) // Declare variable and set it to a value
+
+play_note = dur(~0.5) {
+	@loop
+	sqr(#%N)
+}
+
+// EXPRESSIONS
+// -----------
+
+// Inside a box you can set the value of the global variables using mathematical expressions.
+// Run some of these boxes and then run the "play_note" again to see the difference.
+
+set_note_72 = {
+  %N = C5
+}
+
+set_note_higher = {
+  %N = %N + 1
+}
+
+set_note_lower = {
+  %N = %N - 1
+}
+
+set_note_random = {
+  %N = C4 + ? * 12     // ? represents a random number between 0 and 1.
+}
+
+// SEQUENCE-BASED VARIABLES
+// ------------------------
+
+// A sequence-based variable is any variable that is not global and is first mentioned in
+// a sequence. It is then visible inside that sequence and any of its subsequences. In the
+// following example, %f is visible throughout the box, whereas %g is visible only inside
+// the inner sequence. The first time it's used outside that inner sequence, it's value
+// will be 0 (default initial value).
+
+// There are two reserved variables used for MIDI communication. It is advisable not to use
+// them for anything else.
+// -- %n ... MIDI note number
+// -- %v ... velocity of the note
+
+example = {
+	%f = C4
+	{
+		%g = E4
+	}
+	dur(4800) { @loop sqr(#%f) }
+	dur(4800) { @loop sqr(#%g) }
+}
+
+// MORE EXAMPLES
+// -------------
+
+// Let's get back to the example from the opening lesson: What happens here is the following:
+// -- The entire box is 1 second long
+// -- There's a loop inside in which:
+//     * A noise5 oscillator generates an output sample with parameter %a
+//     * The value of that parameter is increased by 0.01
+
+kaboom = dur(~1) {
+	@loop
+	noise5(%a)
+	%a = %a + 0.01
+}
+
+// Here's another somewhat more complex example:
+
+pew5times = dur(~1) {
+	%a = 80
+	@loop
+	dur(~0.2) {
+		fadeout(~0.2)
+		%b = #%a
+		@loop
+		sqr(%b)
+		%b = %b + 0.01
+	}
+	%a = %a + 5
+}
+
+// LIMITATIONS
+// -----------
+
+//  * Currently, only float numbers can be used as values of the variables. I might add more
+//    types in the future.
+//  * There are not proper cycles in Gradrigo just yet. I think that at some point not too
+//    far from now I'll add proper while() and for() statements.
+//  * Also, I'll add if/else conditions.

@@ -17,6 +17,7 @@ REGISTER_GLOBAL_COMPONENT_BUILDER("AudioListener", C_ListenerBuilder);
 C_ListenerComponent::C_ListenerComponent(std::shared_ptr<Entity::I_Entity> owner)
 	: Entity::I_Component(std::move(owner))
 	, m_Activate("Activate", [&]() { C_AudioSystemManager::Instance().ActivateListener(shared_from_this()); })
+	, m_LastPosition(GetPosition())
 {
 }
 

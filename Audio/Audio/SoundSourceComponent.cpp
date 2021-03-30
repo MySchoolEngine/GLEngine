@@ -3,46 +3,35 @@
 #include <Audio/AudioSystemManager.h>
 #include <Audio/SoundSourceComponent.h>
 
-#include <GUI/FileDialogWindow.h>
-#include <GUI/GUIManager.h>
-
 #include <Physics/Primitives/AABB.h>
 
-#include <Core/CoreRegistrations.h>
-
-#include <Utils/Parsing/MatrixParse.h>
-
-#include <pugixml.hpp>
-
 #include <fmod.hpp>
-#include <imgui.h>
+
 
 namespace GLEngine::Audio {
 
 //=================================================================================
-C_SoundSourceComponent::C_SoundSourceComponent(std::shared_ptr<Entity::I_Entity> owner, const std::filesystem::path& file)
+C_SoundSourceComponent::C_SoundSourceComponent(std::shared_ptr<Entity::I_Entity> owner)
 	: Entity::I_Component(std::move(owner))
 	, m_Channel(nullptr)
-	, m_Filepath(file)
 	, m_Looped(true, "Looped sound")
 	, m_PlayButton("PlaySound", std::bind(&C_SoundSourceComponent::PlaySound, this))
 	, m_StopButton("StopSound", std::bind(&C_SoundSourceComponent::StopSound, this))
+	, m_LastPosition(GetPosition())
 {
-	SetMusic(file);
-	const auto soundModeResult = m_Sound->setMode(m_Looped ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF);
-	if (soundModeResult != FMOD_RESULT::FMOD_OK)
-	{
-		CORE_LOG(E_Level::Error, E_Context::Audio, "Unable to initialize audio system. '{}'", soundModeResult);
-		return;
-	}
-	PlaySound();
 }
 
 //=================================================================================
 void C_SoundSourceComponent::Update()
 {
+	auto* sound = GetSound();
+	if (!sound)
+	{
+		return;
+	}
+
 	FMOD_MODE mode;
-	m_Sound->getMode(&mode);
+	sound->getMode(&mode);
 	const auto isLooped = (mode & FMOD_LOOP_NORMAL) != 0;
 	if (isLooped != m_Looped) // looping changed
 	{
@@ -50,7 +39,7 @@ void C_SoundSourceComponent::Update()
 		{
 			StopSound();
 		}
-		const auto soundModeResult = m_Sound->setMode(m_Looped ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF);
+		const auto soundModeResult = sound->setMode(m_Looped ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF);
 		if (soundModeResult != FMOD_RESULT::FMOD_OK)
 		{
 			CORE_LOG(E_Level::Error, E_Context::Audio, "Unable to initialize audio system. '{}'", soundModeResult);
@@ -94,21 +83,6 @@ glm::vec3 C_SoundSourceComponent::GetPosition() const
 //=================================================================================
 void C_SoundSourceComponent::DebugDrawGUI(GUI::C_GUIManager* guiMGR /*= nullptr*/)
 {
-	ImGui::Text("%s", fmt::format("File: {}", m_Filepath).c_str());
-	ImGui::SameLine();
-	if (guiMGR && ImGui::Button("Choose file"))
-	{
-		const auto soundSelectWindowGUID = NextGUID();
-		auto*	   levelSelectWindwo	 = new GUI::C_FileDialogWindow(
-			 ".ogg,.mp3", "Select file",
-			 [&, soundSelectWindowGUID, guiMGR](const std::filesystem::path& sound) {
-				 SetMusic(sound);
-				 guiMGR->DestroyWindow(soundSelectWindowGUID);
-			 },
-			 soundSelectWindowGUID, "./Sound");
-		guiMGR->AddCustomWindow(levelSelectWindwo);
-		levelSelectWindwo->SetVisible();
-	}
 	m_Looped.Draw();
 	if (IsPlaying())
 	{
@@ -121,15 +95,9 @@ void C_SoundSourceComponent::DebugDrawGUI(GUI::C_GUIManager* guiMGR /*= nullptr*
 }
 
 //=================================================================================
-FMOD::Sound* C_SoundSourceComponent::GetSound() const
-{
-	return m_Sound;
-}
-
-//=================================================================================
 void C_SoundSourceComponent::PlaySound()
 {
-	m_Channel = C_AudioSystemManager::Instance().PlaySound(m_Sound);
+	m_Channel = C_AudioSystemManager::Instance().PlaySound(GetSound());
 	UpdateSoundSourcePosition();
 }
 
@@ -175,40 +143,5 @@ void C_SoundSourceComponent::StopSound()
 		CORE_LOG(E_Level::Error, E_Context::Audio, "Unable to initialize audio system. '{}'", stopMusic);
 	}
 }
-
-//=================================================================================
-void C_SoundSourceComponent::SetMusic(const std::filesystem::path& path)
-{
-	m_Sound = C_AudioSystemManager::Instance().GetSoundFile(path, true);
-}
-
-//=================================================================================
-//=================================================================================
-class C_SoundSourceBuilder : public Entity::I_ComponenetBuilder {
-public:
-	virtual std::shared_ptr<Entity::I_Component> Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner) override
-	{
-		std::filesystem::path file = "";
-		if (auto fileAttrib = node.attribute("file"))
-		{
-			file = fileAttrib.value();
-		}
-		else
-		{
-			CORE_LOG(E_Level::Warning, E_Context::Audio, "Audio source without a sound");
-		}
-
-		auto listener = std::make_shared<Audio::C_SoundSourceComponent>(owner, file);
-		listener->SetComponentMatrix(Utils::Parsing::C_MatrixParser::ParseTransformation(node));
-		if (auto loopAttrib = node.attribute("looped"))
-		{
-			listener->SetLooped(loopAttrib.as_bool());
-		}
-
-		return listener;
-	}
-};
-
-REGISTER_GLOBAL_COMPONENT_BUILDER("AudioSource", C_SoundSourceBuilder);
 
 } // namespace GLEngine::Audio

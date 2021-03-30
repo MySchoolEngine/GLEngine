@@ -17,7 +17,7 @@ namespace GLEngine::Audio {
 
 class AUDIO_API_EXPORT C_SoundSourceComponent : public Entity::I_Component {
 public:
-	C_SoundSourceComponent(std::shared_ptr<Entity::I_Entity> owner, const std::filesystem::path& file);
+	C_SoundSourceComponent(std::shared_ptr<Entity::I_Entity> owner);
 
 	[[nodiscard]] glm::vec3 GetPosition() const;
 
@@ -26,7 +26,6 @@ public:
 	void PlaySound();
 	void StopSound();
 	void SetLooped(bool looped);
-	void SetMusic(const std::filesystem::path& path);
 
 	[[nodiscard]] bool IsPlaying() const;
 
@@ -37,18 +36,15 @@ public:
 	virtual void									  DebugDrawGUI(GUI::C_GUIManager* guiMGR = nullptr) override;
 
 protected:
-	[[nodiscard]] virtual FMOD::Sound* GetSound() const;
+	[[nodiscard]] virtual FMOD::Sound* GetSound() const = 0;
 
+private:
+	void						UpdateSoundSourcePosition();
+	glm::vec3					m_LastPosition;
 	FMOD::Channel*				m_Channel;
 	GUI::Input::C_CheckBoxValue m_Looped;
 	GUI::Input::C_Button		m_PlayButton;
 	GUI::Input::C_Button		m_StopButton;
-
-private:
-	void				  UpdateSoundSourcePosition();
-	std::filesystem::path m_Filepath;
-	FMOD::Sound*		  m_Sound;
-	glm::vec3			  m_LastPosition;
 };
 
 } // namespace GLEngine::Audio
