@@ -147,6 +147,7 @@ void C_ExplerimentWindow::Update()
 				{
 					const auto listenerPos = audioComponent->GetPosition();
 					C_DebugDraw::Instance().DrawPoint(listenerPos, glm::vec3(1, 1, 1));
+					C_DebugDraw::Instance().DrawAxis(listenerPos, audioComponent->GetUp(), audioComponent->GetForward());
 				}
 			}
 			auto audioSourceComponents = entity->GetComponents(Entity::E_ComponentType::AudioSource);
