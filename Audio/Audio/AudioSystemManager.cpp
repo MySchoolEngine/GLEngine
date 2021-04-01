@@ -165,7 +165,7 @@ FMOD::Channel* C_AudioSystemManager::PlaySound(FMOD::Sound* sound)
 FMOD::Sound* C_AudioSystemManager::GetProgrammerSound(FMOD_MODE mode, FMOD_CREATESOUNDEXINFO* exinfo)
 {
 	FMOD::Sound* sound;
-	const auto	 createSoundResult = m_System->createSound(nullptr, mode, exinfo, &sound);
+	const auto	 createSoundResult = m_System->createStream(nullptr, mode, exinfo, &sound);
 	if (IsError(createSoundResult))
 		return nullptr;
 
