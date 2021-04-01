@@ -82,7 +82,7 @@ void C_GradrigoSoundSourceComponent::SetSourceFile(const std::filesystem::path& 
 	exinfo.pcmsetposcallback = pcmsetposcallback;
 
 
-	m_Sound = C_AudioSystemManager::Instance().GetProgrammerSound(FMOD_OPENUSER | FMOD_LOOP_NORMAL, &exinfo);
+	m_Sound = C_AudioSystemManager::Instance().GetProgrammerSound(FMOD_OPENUSER | FMOD_LOOP_NORMAL | FMOD_3D, &exinfo);
 }
 
 //=================================================================================
