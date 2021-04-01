@@ -13,10 +13,14 @@
 		</Entity>
 		<Entity name="Sound">
 			<Components>
-				<AudioListener />
-				<AudioSource file="Sound/howiwish.mp3" />
+				<AudioListener>
+					<translate sid="location">0 1 0</translate>
+				</AudioListener>
+				<AudioSource file="Sound/howiwish.mp3">
+					<translate sid="location">-1 1 0</translate>
+				</AudioSource>
 				<GradrigoAudioSource file="Sound/Gradrigo/kaboom.grad">
-					<translate sid="location">-2 0 0</translate>
+					<translate sid="location">-2 1 0</translate>
 				</GradrigoAudioSource>
 			</Components>
 		</Entity>
