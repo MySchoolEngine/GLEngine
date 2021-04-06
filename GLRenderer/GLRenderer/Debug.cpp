@@ -144,16 +144,10 @@ void C_DebugDraw::Clear()
 }
 
 //=================================================================================
-void C_DebugDraw::DrawPoint(const glm::vec4& point, const glm::vec3& color, const glm::mat4& modelMatrix)
-{
-	m_PointsVertices.push_back(modelMatrix * point);
-	m_PointsColors.push_back(color);
-}
-
-//=================================================================================
 void C_DebugDraw::DrawPoint(const glm::vec3& point, const glm::vec3& color, const glm::mat4& modelMatrix)
 {
-	DrawPoint(toVec4(point), color, modelMatrix);
+	m_PointsVertices.push_back(modelMatrix * toVec4(point));
+	m_PointsColors.push_back(color);
 }
 
 //=================================================================================
@@ -172,19 +166,13 @@ void C_DebugDraw::DrawAABB(const Physics::Primitives::S_AABB& bbox, const glm::v
 }
 
 //=================================================================================
-void C_DebugDraw::DrawLine(const glm::vec4& pointA, const glm::vec4& pointB, const glm::vec3& color /*= glm::vec3(0.0f, 0.0f, 0.0f)*/)
+void C_DebugDraw::DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, const glm::vec3& color /*= glm::vec3(0.0f, 0.0f, 0.0f)*/)
 {
-	m_LinesVertices.push_back(pointA);
-	m_LinesVertices.push_back(pointB);
+	m_LinesVertices.push_back(toVec4(pointA));
+	m_LinesVertices.push_back(toVec4(pointB));
 	// we need two copies as we have two vertices
 	m_LinesColors.push_back(color);
 	m_LinesColors.push_back(color);
-}
-
-//=================================================================================
-void C_DebugDraw::DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, const glm::vec3& color /*= glm::vec3(0.0f, 0.0f, 0.0f)*/)
-{
-	DrawLine(toVec4(pointA), toVec4(pointB), color);
 }
 
 //=================================================================================
