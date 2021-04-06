@@ -162,10 +162,10 @@ private:
 
 	VAO::C_GLVAO<2> m_VAOlines;
 
-	std::vector<glm::vec4> m_LinesVertices;
+	std::vector<glm::vec3> m_LinesVertices;
 	std::vector<glm::vec3> m_LinesColors;
 
-	std::vector<glm::vec4> m_PointsVertices;
+	std::vector<glm::vec3> m_PointsVertices;
 	std::vector<glm::vec3> m_PointsColors;
 
 	struct OctahedronInfo {

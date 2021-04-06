@@ -124,7 +124,7 @@ C_DebugDraw::C_DebugDraw()
 	: m_OctahedronMesh(nullptr)
 {
 	SetupAABB();
-	std::vector<glm::vec4> dummy4;
+	std::vector<glm::vec3> dummy4;
 	std::vector<glm::vec3> dummy3;
 
 	m_VAOlines.bind();
@@ -376,7 +376,7 @@ void C_DebugDraw::DrawMergedGeoms()
 	renderer->AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&]() {
 			m_VAOlines.bind();
-			std::vector<glm::vec4> mergedVertices(m_LinesVertices);
+			std::vector<glm::vec3> mergedVertices(m_LinesVertices);
 			std::vector<glm::vec3> mergedColors(m_LinesColors);
 			mergedVertices.insert(mergedVertices.end(), m_PointsVertices.begin(), m_PointsVertices.end());
 			mergedColors.insert(mergedColors.end(), m_PointsColors.begin(), m_PointsColors.end());
