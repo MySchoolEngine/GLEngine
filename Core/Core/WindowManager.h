@@ -86,6 +86,14 @@ public:
 		return acc;
 	}
 
+	//=================================================================================
+	[[nodiscard]] virtual Renderer::I_Renderer* ActiveRendererPtr() override {
+	  if (!m_UpdatingManager)
+	  {
+		return nullptr;
+	  }
+	  return m_UpdatingManager->ActiveRendererPtr();
+	}
 
 	//=================================================================================
 	virtual Renderer::I_Renderer& GetActiveRenderer() override

@@ -18,6 +18,7 @@ public:
 	virtual void Update() override;
 	[[nodiscard]] virtual unsigned int NumWindows() const override;
 	[[nodiscard]] virtual Renderer::I_Renderer& GetActiveRenderer() override;
+	[[nodiscard]] virtual Renderer::I_Renderer* ActiveRendererPtr() override;
 
 	//=================================================================================
 	// Core::C_Layer

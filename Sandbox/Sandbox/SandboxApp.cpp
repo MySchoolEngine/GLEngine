@@ -58,6 +58,12 @@ public:
 #endif
 
 	//=================================================================================
+	[[nodiscard]] virtual GLEngine::Renderer::I_Renderer* GetActiveRendererPtr() override
+	{
+	  return m_WndMgr->ActiveRendererPtr();
+	}
+
+	//=================================================================================
 	virtual GLEngine::Renderer::I_Renderer& GetActiveRenderer() override
 	{
 		return m_WndMgr->GetActiveRenderer();

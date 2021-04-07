@@ -30,6 +30,7 @@ public:
 #endif
 
 	virtual Renderer::I_Renderer& GetActiveRenderer() = 0;
+	[[nodiscard]] virtual GLEngine::Renderer::I_Renderer* GetActiveRendererPtr() = 0;
 
 	static C_Application& Get();
 	virtual Core::I_WindowManager& GetWndMgr() const = 0;

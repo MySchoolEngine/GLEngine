@@ -19,6 +19,7 @@ public:
 	virtual void Update() override;
 	virtual unsigned int NumWindows() const override;
 	virtual Renderer::I_Renderer& GetActiveRenderer() override;
+	[[nodiscard]] virtual Renderer::I_Renderer* ActiveRendererPtr() override;
 
 
 	//=================================================================================

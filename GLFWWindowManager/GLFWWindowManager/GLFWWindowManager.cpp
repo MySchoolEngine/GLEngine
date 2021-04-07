@@ -36,6 +36,14 @@ Renderer::I_Renderer& C_GLFWWindowManager::GetActiveRenderer()
 }
 
 //=================================================================================
+Renderer::I_Renderer* C_GLFWWindowManager::ActiveRendererPtr()
+{
+  if (!m_UpdatingWindow)
+	return nullptr;
+  return &m_UpdatingWindow->GetRenderer();
+}
+
+//=================================================================================
 std::shared_ptr<GLEngine::Core::I_Window> C_GLFWWindowManager::GetWindow(GUID guid) const
 {
 	auto it = std::find_if(m_Windows.begin(), m_Windows.end(), [&guid](const std::shared_ptr<GLEngine::Core::I_Window>& wnd) {

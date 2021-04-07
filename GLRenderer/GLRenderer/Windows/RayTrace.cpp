@@ -124,17 +124,20 @@ void C_RayTraceWindow::UploadStorage() const
 	bool foundRenderer = false;
 	while (foundRenderer == false)
 	{
-		auto& renderer = Core::C_Application::Get().GetActiveRenderer();
-		renderer.AddTransferCommand(
-		  std::make_unique<Commands::HACK::C_LambdaCommand>(
-			[this]() {
-			  m_Image->bind();
-			  m_Image->SetTexData2D(0, (&m_ImageStorage));
-			  m_Image->GenerateMipMaps();
-			}, "RT buffer"
-			)
-		);
-		foundRenderer = true;
+		auto* renderer = Core::C_Application::Get().GetActiveRendererPtr();
+		if (renderer)
+		{
+		  renderer->AddTransferCommand(
+			std::make_unique<Commands::HACK::C_LambdaCommand>(
+			  [this]() {
+				m_Image->bind();
+				m_Image->SetTexData2D(0, (&m_ImageStorage));
+				m_Image->GenerateMipMaps();
+			  }, "RT buffer"
+			  )
+		  );
+		  foundRenderer = true;
+		}
 	}
 }
 

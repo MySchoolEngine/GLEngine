@@ -90,6 +90,14 @@ Renderer::I_Renderer& C_D3D12WindowManager::GetActiveRenderer()
 }
 
 //=================================================================================
+Renderer::I_Renderer* C_D3D12WindowManager::ActiveRendererPtr()
+{
+  if (!m_UpdatingWindow)
+	return nullptr;
+  return &m_UpdatingWindow->GetRenderer();
+}
+
+//=================================================================================
 // ConstructD3D12Manager
 //=================================================================================
 C_D3D12WindowManager* ConstructD3D12Manager(Core::C_Application::EventCallbackFn eventCallback, HINSTANCE hInstance)
