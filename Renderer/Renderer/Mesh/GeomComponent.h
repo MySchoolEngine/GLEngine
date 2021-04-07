@@ -28,11 +28,11 @@ protected:
 };
 
 //=============================================================
-class C_GeometryCompBuilder : public Entity::I_ComponenetBuilder
+class RENDERER_API_EXPORT C_GeometryCompBuilder : public Entity::I_ComponenetBuilder
 {
 public:
 	virtual ~C_GeometryCompBuilder();
-	RENDERER_API_EXPORT virtual std::shared_ptr<Entity::I_Component> Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner) override;
+	virtual std::shared_ptr<Entity::I_Component> Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner) override;
 protected:
 	virtual std::shared_ptr<C_GeomComponent> ConstructComponent(std::shared_ptr<Entity::I_Entity> owner) const = 0;
 };

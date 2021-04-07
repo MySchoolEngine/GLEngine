@@ -1,6 +1,6 @@
 #include <GLFWWindowManager/GLFWWindowManager.h>
 
-#if GLENGINE_GLFW_RENDERER!=VULKAN
+#if GLENGINE_GLFW_RENDERER!=GRAPHICS_API_VULKAN
 #include <GLRenderer/GLFW/GLFWWindowFactory.h>
 #include <GLRenderer/GLFW/OpenGLWindowInfo.h>
 #endif
@@ -11,7 +11,7 @@
 	#include <DX12Renderer/D3D12WindowInfo.h>
 #endif
 
-#if GLENGINE_GLFW_RENDERER==VULKAN
+#if GLENGINE_GLFW_RENDERER==GRAPHICS_API_VULKAN
 #include <VulkanRenderer/VkWindowFactory.h>
 #include <VulkanRenderer/VkWindowManager.h>
 #include <VulkanRenderer/VkWindowInfo.h>
@@ -71,7 +71,7 @@ protected:
 		logging.AddLogger(new Utils::Logging::C_FileLogger(std::filesystem::path("log.txt")));
 
 		m_WndMgr = new std::remove_pointer_t<decltype(m_WndMgr)>(std::bind(&C_Application::OnEvent, this, std::placeholders::_1));
-#if GLENGINE_GLFW_RENDERER!=VULKAN
+#if GLENGINE_GLFW_RENDERER!=GRAPHICS_API_VULKAN
 		{
 			// we can open glfw window from here
 			using namespace GLEngine::GLRenderer;
@@ -103,7 +103,7 @@ protected:
 		}
 #endif
 
-#if GLENGINE_GLFW_RENDERER!=VULKAN
+#if GLENGINE_GLFW_RENDERER!=GRAPHICS_API_VULKAN
 		{
 			using namespace GLEngine::GLRenderer::GLFW;
 

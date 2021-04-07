@@ -13,7 +13,9 @@ project "Sandbox"
 	Link("Core")
 	Link("Utils")
 	Link("GLRenderer")
-	Link("VulkanRenderer")
+	if (_OPTIONS["glfwapi"] ~= "opengl") then
+		Link("VulkanRenderer")
+	end
 
 	includedirs
 	{

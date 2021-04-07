@@ -18,6 +18,15 @@ premake.override(premake.vstudio.sln2005, "projects", function(base, wks)
   base(wks)
 end)
 
+newoption {
+	trigger = "glfwapi",
+	description = "Which graphics API will be used with GLFW",
+	default = "opengl",
+	allowed = {
+      { "opengl", "OpenGL" },
+      { "vulkan", "Vulkan (Windows only)" },
+   },
+}
 
 workspace "Engine"
 	architecture "x64"
@@ -34,10 +43,21 @@ workspace "Engine"
 		"FMT_HEADER_ONLY=1",
 		"CORE_PLATFORM_WIN=1",
 		"CORE_PLATFORM_LINUX=2",
-		"GLENGINE_GLFW_RENDERER=VULKAN",
-		"VULKAN_BIN=\"C:/VulkanSDK/Bin\"",
-		"VULKAN_GLSLC=VULKAN_BIN \"/glslc.exe\"",
-  }
+		"GRAPHICS_API_OPENGL=1",
+		"GRAPHICS_API_VULKAN=2",
+		"GRAPHICS_API_D3D12=3",
+  	}
+
+  	configuration "vulkan"
+  		defines{
+			"GLENGINE_GLFW_RENDERER=GRAPHICS_API_VULKAN",
+			"VULKAN_BIN=\"C:/VulkanSDK/Bin\"",
+			"VULKAN_GLSLC=VULKAN_BIN \"/glslc.exe\"",
+  		}
+	configuration "opengl"
+  		defines{
+			"GLENGINE_GLFW_RENDERER=GRAPHICS_API_OPENGL",
+		}
 
 	workspace_files{
 		"vendor/GLM/util/glm.natvis",
@@ -113,7 +133,9 @@ if _TARGET_OS ~= "linux" then
 end
 group ""
 group "Tools"
+if (_OPTIONS["glfwapi"] ~= "opengl") then
 	include "Tools/ShaderPreprocessor"
+end
 group ""
 
 include "Core"
@@ -121,7 +143,9 @@ include "Sandbox"
 include "Renderer"
 include "GLRenderer"
 include "GUI"
-include "VulkanRenderer"
+if (_OPTIONS["glfwapi"] ~= "opengl") then
+	include "VulkanRenderer"
+end
 include "Entity"
 include "Utils"
 include "Physics"
