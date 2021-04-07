@@ -36,6 +36,7 @@ FreelookCamera::FreelookCamera(std::shared_ptr<Entity::I_Entity>& owner)
 {
 	_timer.reset();
 	CreateProjection();
+	_ScreenToWorld = glm::inverse(_projectionMatrix * _viewMatrix);
 }
 
 //=================================================================================
@@ -179,6 +180,7 @@ void FreelookCamera::Update()
 
 	//Update view matrix
 	_viewMatrix = glm::lookAt(_position, _position + _view, _up);
+	_ScreenToWorld = glm::inverse(_projectionMatrix * _viewMatrix);
 
 	//Reset angles
 	_pitch = 0.0f;
@@ -293,6 +295,7 @@ Physics::Primitives::C_Frustum FreelookCamera::GetFrustum() const
 void FreelookCamera::CreateProjection()
 {
 	_projectionMatrix = glm::perspective(glm::radians(m_fov), m_aspectRatio, m_nearZ, m_farZ);
+	_ScreenToWorld = glm::inverse(_projectionMatrix * _viewMatrix);
 }
 
 //=================================================================================
@@ -370,6 +373,12 @@ bool FreelookCamera::OnKeyReleased(Core::C_KeyReleasedEvent& event)
 		handleInputMessage(CameraMessage::CAMERA_RIGHT_UP);
 	}
 	return false;
+}
+
+//=================================================================================
+glm::mat4 FreelookCamera::GetScreenToworldMatrix() const
+{
+	return _ScreenToWorld;
 }
 
 }

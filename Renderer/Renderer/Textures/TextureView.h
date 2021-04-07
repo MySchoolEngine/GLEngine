@@ -70,6 +70,16 @@ public:
 		}
 	}
 
+	template<class T, typename = std::enable_if_t<glm::type<T>::is_vec>>
+	T Get(const glm::ivec2& uv) const
+	{
+		T ret;
+		for (std::uint8_t i = 0; i < std::min(static_cast<std::uint8_t>(glm::type<T>::components), m_Storage->GetNumElements()); ++i)
+		{
+			ret[i] = Get<typename T::value_type>(uv, static_cast<E_TextureChannel>(i));
+		}
+		return ret;
+	}
 private:
 	[[nodiscard]] std::size_t GetAddress(const glm::ivec2& uv) const;
 
@@ -80,5 +90,11 @@ template<>
 inline std::uint8_t C_TextureView::Get<std::uint8_t>(const glm::ivec2& uv, E_TextureChannel element) const
 {
 	return m_Storage->GetI(GetAddress(uv) + m_Storage->GetChannelOffset(element));
+}
+
+template<>
+inline float C_TextureView::Get<float>(const glm::ivec2& uv, E_TextureChannel element) const
+{
+	return m_Storage->GetF(GetAddress(uv) + m_Storage->GetChannelOffset(element));
 }
 }

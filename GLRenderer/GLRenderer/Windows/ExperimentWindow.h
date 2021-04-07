@@ -87,6 +87,7 @@ private:
 	std::array<GUI::C_FormatedText, static_cast<int>(E_GUITexts::Last)>				m_GUITexts;
 	GUID																										m_FrameStatsGUID;
 	GUID																										m_ConsoleWindowGUID;
+	GUID																										m_RayTraceGUID;
 	GUID																										m_EntitiesWindowGUID;
 	GUID																										m_HDRSettingsGUID;
 	GUI::Menu::C_Menu																				m_Windows;

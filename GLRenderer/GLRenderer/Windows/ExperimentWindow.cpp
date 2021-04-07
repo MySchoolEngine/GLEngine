@@ -32,6 +32,7 @@
 #include <GLRenderer/Lights/GLAreaLight.h>
 
 #include <GUI/ConsoleWindow.h>
+#include <GLRenderer/Windows/RayTrace.h>
 #include <Entity/EntitiesWindow.h>
 
 #include <Renderer/Mesh/Scene.h>
@@ -96,6 +97,7 @@ C_ExplerimentWindow::~C_ExplerimentWindow() {
 
 	auto& guiMGR = m_ImGUI->GetGUIMgr();
 	guiMGR.DestroyWindow(m_EntitiesWindowGUID);
+	guiMGR.DestroyWindow(m_RayTraceGUID);
 	guiMGR.DestroyWindow(m_ConsoleWindowGUID);
 	guiMGR.DestroyWindow(m_FrameStatsGUID);
 	guiMGR.DestroyWindow(m_HDRSettingsGUID);
@@ -405,6 +407,15 @@ void C_ExplerimentWindow::SetupWorld()
 		auto consoleWindow = new GUI::C_ConsoleWindow(m_ConsoleWindowGUID);
 		guiMGR.AddCustomWindow(consoleWindow);
 		consoleWindow->SetVisible();
+	}
+
+	// RT window
+	{
+		m_RayTraceGUID = NextGUID();
+
+		auto RTWindow = new C_RayTraceWindow(m_RayTraceGUID, m_CamManager.GetActiveCamera());
+		guiMGR.AddCustomWindow(RTWindow);
+		RTWindow->SetVisible();
 	}
 
 	// Entity window
