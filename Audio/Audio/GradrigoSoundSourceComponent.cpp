@@ -49,6 +49,12 @@ C_GradrigoSoundSourceComponent::C_GradrigoSoundSourceComponent(std::shared_ptr<E
 }
 
 //=================================================================================
+C_GradrigoSoundSourceComponent::~C_GradrigoSoundSourceComponent()
+{
+	Gradrigo::DestroyInstance(m_Gradrigo);
+}
+
+//=================================================================================
 void C_GradrigoSoundSourceComponent::SetSourceFile(const std::filesystem::path& filepath)
 {
 	m_Filepath = filepath;
@@ -62,7 +68,7 @@ void C_GradrigoSoundSourceComponent::SetSourceFile(const std::filesystem::path& 
 
 	const auto content = std::string(std::istream_iterator<char>(stream >> std::noskipws), std::istream_iterator<char>());
 	stream.close();
-	Gradrigo::ParseString(content.c_str(), m_Gradrigo);
+	m_ParseRequest = Gradrigo::ParseString(content.c_str(), m_Gradrigo);
 	CORE_LOG(E_Level::Error, E_Context::Audio, "{}", Gradrigo::ReportBoxesAsJson(m_Gradrigo));
 
 	Gradrigo::StartVoice("kaboom", m_Gradrigo);
@@ -105,11 +111,27 @@ void C_GradrigoSoundSourceComponent::DebugDrawGUI(GUI::C_GUIManager* guiMGR /*= 
 }
 
 //=================================================================================
-FMOD_RESULT C_GradrigoSoundSourceComponent::GetBuffer(void* data, unsigned int datalen) const
+FMOD_RESULT C_GradrigoSoundSourceComponent::GetBuffer(void* data, unsigned int datalen)
 {
 	auto* buffer = (float*)data;
-	Gradrigo::GetBuffer(datalen / sizeof(float), buffer, m_Gradrigo);
+	int request = Gradrigo::GetBuffer(datalen / sizeof(float), buffer, m_Gradrigo);
+	CheckForParseResponse();
 	return FMOD_OK;
+}
+
+//=================================================================================
+void C_GradrigoSoundSourceComponent::CheckForParseResponse()
+{
+	if (m_ParseRequest) {
+		const auto* response = Gradrigo::GetResponseString(m_ParseRequest.value(), m_Gradrigo);
+		if (response) {
+			CORE_LOG(E_Level::Warning, E_Context::Audio, "Gradrigo parsing: {}", response);
+		}
+
+		const auto* json = Gradrigo::ReportBoxesAsJson(m_Gradrigo);
+
+		m_ParseRequest.reset();
+	}
 }
 
 //=================================================================================
