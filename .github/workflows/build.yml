@@ -24,9 +24,9 @@ jobs:
       - name: Generate makefiles
         run: ./premake5 gmake2
       - name: Build debug
-        run: make config=debug
+        run: make config=debug -j=6
       - name: Build release
-        run: make config=release
+        run: make config=release -j=6
   msvc:
     name: MSVC
     runs-on: windows-latest
