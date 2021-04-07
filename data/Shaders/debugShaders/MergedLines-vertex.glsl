@@ -1,6 +1,6 @@
 #version 330
 
-in vec4 vertex;
+in vec3 vertex;
 in vec3 Color;
 
 // per frame
@@ -11,5 +11,5 @@ out vec3 colorOUT;
 void main()
 {
 	colorOUT	= Color;
-	gl_Position = frame.viewProjectionMatrix * vertex;
+	gl_Position = frame.viewProjectionMatrix * vec4(vertex, 1);
 }

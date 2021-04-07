@@ -1,5 +1,6 @@
 #include <RendererStdafx.h>
 
+#include <Renderer/DebugDraw.h>
 #include <Renderer/Lights/AreaLight.h>
 
 #include <Physics/Primitives/Frustum.h>
@@ -92,6 +93,30 @@ glm::vec3 C_AreaLight::GetNormal() const
 glm::vec3 C_AreaLight::GetUpVector() const
 {
 	return GetComponentModelMatrix() * glm::vec4(0, 1, 0, 1);
+}
+
+//=================================================================================
+void C_AreaLight::DebugDraw(Renderer::I_DebugDraw* dd) const
+{
+	const auto upVector = GetUpVector();
+	const auto normal	= GetNormal();
+	const auto dirX		= glm::cross(normal, upVector);
+	const auto width	= std::sqrt(GetWidth() / 2.0f);
+	const auto height	= std::sqrt(GetHeight() / 2.0f);
+
+	auto transformMatrix = GetComponentModelMatrix();
+
+	const auto Pos = glm::vec3(transformMatrix[3]);
+
+	dd->DrawLine(Pos, Pos + normal, glm::vec3(1.f, 1.f, 0.f));
+
+	dd->DrawLine(Pos + upVector * height + dirX * width, Pos + upVector * height - dirX * width, glm::vec3(1.f, 1.f, 0.f));
+	dd->DrawLine(Pos - upVector * height + dirX * width, Pos - upVector * height - dirX * width, glm::vec3(1.f, 1.f, 0.f));
+
+	dd->DrawPoint(Pos + upVector * height + dirX * width, glm::vec3(0, 1, 0));
+
+	dd->DrawLine(Pos - upVector * height + dirX * width, Pos + upVector * height + dirX * width, glm::vec3(1.f, 1.f, 0.f));
+	dd->DrawLine(Pos - upVector * height - dirX * width, Pos + upVector * height - dirX * width, glm::vec3(1.f, 1.f, 0.f));
 }
 
 //=================================================================================

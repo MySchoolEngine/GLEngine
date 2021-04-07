@@ -18,13 +18,10 @@
 
 #include <GLRenderer/VAO/VAO.h>
 
+#include <Renderer/DebugDraw.h>
 #include <Renderer/Mesh/Scene.h>
 
 namespace GLEngine {
-namespace Renderer::Animation {
-struct S_Joint;
-class C_Skeleton;
-} // namespace Renderer::Animation
 
 namespace Physics::Primitives {
 class C_Frustum;
@@ -106,7 +103,7 @@ class C_Texture;
  * @date 	2018/03/17
  * ==============================================
  */
-class C_DebugDraw {
+class C_DebugDraw : public Renderer::I_DebugDraw {
 public:
 	// Singleton stuff
 	C_DebugDraw(C_DebugDraw const&) = delete;
@@ -117,14 +114,13 @@ public:
 	void Clear();
 
 
-	void DrawPoint(const glm::vec3& point, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f), const glm::mat4& modelMatrix = glm::mat4(1.0f));
-	void DrawPoint(const glm::vec4& point, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f), const glm::mat4& modelMatrix = glm::mat4(1.0f));
-	void DrawAABB(const Physics::Primitives::S_AABB& bbox, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f), const glm::mat4& modelMatrix = glm::mat4(1.0f));
-	void DrawLine(const glm::vec4& pointA, const glm::vec4& pointB, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f));
-	void DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f));
-	void DrawLines(const std::vector<glm::vec4>& pairs, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f));
-	void DrawBone(const glm::vec3& position, const Renderer::Animation::S_Joint& joint);
-	void DrawSkeleton(const glm::vec3& root, const Renderer::Animation::C_Skeleton& skeleton);
+	virtual void DrawPoint(const glm::vec3& point, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f), const glm::mat4& modelMatrix = glm::mat4(1.0f)) override;
+	virtual void DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f)) override;
+	virtual void DrawLines(const std::vector<glm::vec4>& pairs, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f)) override;
+	virtual void DrawAABB(const Physics::Primitives::S_AABB& bbox, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f), const glm::mat4& modelMatrix = glm::mat4(1.0f)) override;
+
+	virtual void DrawBone(const glm::vec3& position, const Renderer::Animation::S_Joint& joint) override;
+	virtual void DrawSkeleton(const glm::vec3& root, const Renderer::Animation::C_Skeleton& skeleton) override;
 
 	void DrawAxis(const glm::vec3& origin, const glm::vec3& up, const glm::vec3& foreward, const glm::mat4& modelMatrix = glm::mat4(1.0f));
 	void DrawGrid(const glm::vec4& origin, unsigned short linesToSide, const glm::mat4& modelMatrix = glm::mat4(1.0f));
@@ -164,10 +160,10 @@ private:
 
 	VAO::C_GLVAO<2> m_VAOlines;
 
-	std::vector<glm::vec4> m_LinesVertices;
+	std::vector<glm::vec3> m_LinesVertices;
 	std::vector<glm::vec3> m_LinesColors;
 
-	std::vector<glm::vec4> m_PointsVertices;
+	std::vector<glm::vec3> m_PointsVertices;
 	std::vector<glm::vec3> m_PointsColors;
 
 	struct OctahedronInfo {
@@ -183,7 +179,7 @@ private:
 };
 #else
 //=================================================================================
-class C_DebugDraw {
+class C_DebugDraw : public Renderer::I_DebugDraw {
 public:
 	// Singleton stuff
 	C_DebugDraw(C_DebugDraw const&) = delete;
@@ -194,9 +190,7 @@ public:
 	void Clear(){};
 
 	void DrawPoint(const glm::vec3& point, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f), const glm::mat4& modelMatrix = glm::mat4(1.0f)){};
-	void DrawPoint(const glm::vec4& point, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f), const glm::mat4& modelMatrix = glm::mat4(1.0f)){};
 	void DrawAABB(const Physics::Primitives::S_AABB& bbox, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f), const glm::mat4& modelMatrix = glm::mat4(1.0f)){};
-	void DrawLine(const glm::vec4& pointA, const glm::vec4& pointB, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f)){};
 	void DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f)){};
 	void DrawLines(const std::vector<glm::vec4>& pairs, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f)){};
 	void DrawBone(const glm::vec3& position, const Renderer::Animation::S_Joint& joint){};

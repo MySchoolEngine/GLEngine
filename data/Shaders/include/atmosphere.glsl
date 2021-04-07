@@ -60,7 +60,7 @@ Sphere GetSunSphere()
 	return Sphere(camPosition + normalize(pSunLight.position) * (earthRadius), 150000.0);
 }
 
-vec3 GetSunColor(Ray r)
+vec3 GetSunColor(const Ray r)
 {
 	const float angle = acos(dot(r.dir, normalize(pSunLight.position)));
 	if (angle <= SunAngularRadius)
@@ -160,7 +160,7 @@ vec3 InScatteredLight(vec3 y, vec3 v, vec3 s)
 }
 
 // actually return illuminance (lux)
-vec3 GetSkyRadiance(Ray r, float rayLen)
+vec3 GetSkyRadiance(const Ray r, float rayLen)
 {
 	const Sphere sun			 = GetSunSphere();
 	const int	 numSamples		 = 16;
