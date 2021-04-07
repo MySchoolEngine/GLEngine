@@ -108,6 +108,7 @@ void C_OrbitalCamera::Update()
 	*/
 	_viewMatrix = glm::lookAt(_pos, _center, _up);
 	_projectionMatrix = glm::perspective(_fovy, _aspect, GetNear(), GetFar());
+	_ScreenToWorld = glm::inverse(_projectionMatrix * _viewMatrix);
 }
 
 //=================================================================================
@@ -306,4 +307,11 @@ Physics::Primitives::C_Frustum C_OrbitalCamera::GetFrustum() const
 {
 	return Physics::Primitives::C_Frustum(GetPosition(), _up, GetDirection(), GetNear(), GetFar(), GetAspectRatio(), GetFov());
 }
+
+//=================================================================================
+glm::mat4 C_OrbitalCamera::GetScreenToworldMatrix() const
+{
+	return _ScreenToWorld;
+}
+
 }

@@ -68,7 +68,6 @@ public:
 			{
 				m_UpdatingManager = manager.get();
 				manager->Update();
-				m_UpdatingManager = nullptr;
 			}
 		}
 	}
@@ -105,7 +104,6 @@ public:
 			{
 				m_UpdatingManager = manager.get();
 				manager->OnEvent(event);
-				m_UpdatingManager = nullptr;
 			}
 		}
 	}

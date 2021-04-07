@@ -65,6 +65,12 @@ void C_OGLRenderer::AddCommand(Renderer::I_Renderer::T_CommandPtr command)
 }
 
 //=================================================================================
+void C_OGLRenderer::AddTransferCommand(T_CommandPtr command)
+{
+	m_TransferQueue.emplace_back(std::move(command));
+}
+
+//=================================================================================
 void C_OGLRenderer::AddBatch(Renderer::I_Renderer::T_BatchPtr batc)
 {
 	throw std::logic_error("The method or operation is not implemented.");
@@ -91,6 +97,10 @@ void C_OGLRenderer::TransformData()
 //=================================================================================
 void C_OGLRenderer::Commit() const
 {
+	for (auto& command : m_TransferQueue)
+	{
+		command->Commit();
+	}
 	for (auto& command : (*m_CommandQueue)) {
 		command->Commit();
 	}
@@ -110,6 +120,7 @@ void C_OGLRenderer::ClearCommandBuffers()
 		m_OutputCommandList = false;
 	}
 	m_CommandQueue->clear();
+	m_TransferQueue.clear();
 	const auto avgDrawCommands = m_DrawCommands.Avg();
 	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgDrawCommands)].UpdateText(avgDrawCommands);
 	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::MinMax)]
@@ -202,6 +213,11 @@ void C_OGLRenderer::CaputreCommands() const
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Cannot open file for debug output");
 	}
+	file << "Transfer queue\n";
+	for (const auto& command : m_TransferQueue) {
+		file << command->GetDescriptor() << "\n";
+	}
+	file << "Command queue\n";
 	for (const auto& command : (*m_CommandQueue)) {
 		file << command->GetDescriptor() << "\n";
 	}
