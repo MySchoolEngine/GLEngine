@@ -110,7 +110,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				light.m_Color		  = areaLight->DiffuseColour();
 				light.m_SpecularColor = areaLight->SpecularColour();
 
-				C_DebugDraw::Instance().DrawAxis(pos, frustum.GetUpVector(), frustum.GetForeward());
+				areaLight->DebugDraw(&C_DebugDraw::Instance());
 				m_LightsUBO->SetAreaLight(light, areaLightIndex);
 				++areaLightIndex;
 			}

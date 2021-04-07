@@ -51,7 +51,7 @@ C_SunShadowMapTechnique::C_SunShadowMapTechnique(std::shared_ptr<Renderer::C_Sun
 		// HDRTexture setup
 		HDRTexture->SetDimensions({s_ShadowMapSize, s_ShadowMapSize});
 		HDRTexture->SetInternalFormat(Renderer::E_TextureFormat::RGBA8i, GL_RGBA);
-		HDRTexture->SetFilter(E_OpenGLFilter::Linear, E_OpenGLFilter::Linear);
+		HDRTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
 		// ~HDRTexture setup
 		m_Framebuffer->AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
 		HDRTexture->CreateHandle();
@@ -75,7 +75,7 @@ C_SunShadowMapTechnique::C_SunShadowMapTechnique(std::shared_ptr<Renderer::C_Sun
 	// depthStencilTexture setup
 	depthTexture->SetDimensions({s_ShadowMapSize, s_ShadowMapSize});
 	depthTexture->SetInternalFormat(Renderer::E_TextureFormat::D16, GL_DEPTH_COMPONENT);
-	depthTexture->SetFilter(E_OpenGLFilter::Nearest, E_OpenGLFilter::Nearest);
+	depthTexture->SetFilter(Renderer::E_TextureFilter::Nearest, Renderer::E_TextureFilter::Nearest);
 	// depthTexture->SetTexParameter(GL_TEXTURE_BORDER_COLOR, glm::vec4(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max(),
 	// std::numeric_limits<float>::max()));
 	depthTexture->SetWrap(Renderer::E_WrapFunction::ClampToBorder, Renderer::E_WrapFunction::ClampToBorder);

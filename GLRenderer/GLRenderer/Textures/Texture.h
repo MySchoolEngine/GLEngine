@@ -16,21 +16,21 @@
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 
 #include <Renderer/IResource.h>
+#include <Renderer/Textures/DeviceTexture.h>
 
-namespace GLEngine {
-namespace Renderer {
+namespace GLEngine::Renderer {
 class I_TextureViewStorage;
 class C_TextureView;
-} // namespace Renderer
-namespace GLRenderer {
+} // namespace GLEngine::Renderer
+
+namespace GLEngine::GLRenderer {
 namespace Mesh {
 struct Texture;
 }
 
 namespace Textures {
 using T_TexBufferFuture = std::future<std::unique_ptr<Renderer::I_TextureViewStorage>>;
-class C_Texture // : public Renderer::I_Resource
-{
+class C_Texture : public Renderer::I_DeviceTexture {
 public:
 	explicit C_Texture(const std::string& name, GLenum target = GL_TEXTURE_2D);
 	C_Texture(const C_Texture&) = delete;
@@ -53,35 +53,36 @@ public:
 		unbind();
 	}
 
-	[[nodiscard]] inline unsigned int	   GetWidth() const { return m_Dimensions.x; }
-	[[nodiscard]] inline unsigned int	   GetHeight() const { return m_Dimensions.y; }
-	inline void							   SetWidth(unsigned int width) { m_Dimensions.x = width; }
-	inline void							   SetHeight(unsigned int height) { m_Dimensions.y = height; }
-	[[nodiscard]] inline const glm::uvec2& GetDimensions() const { return m_Dimensions; }
-	inline void							   SetDimensions(const glm::uvec2& dim) { m_Dimensions = dim; }
+	[[nodiscard]] virtual inline unsigned int	   GetWidth() const override { return m_Dimensions.x; }
+	[[nodiscard]] virtual inline unsigned int	   GetHeight() const override { return m_Dimensions.y; }
+	[[nodiscard]] virtual inline const glm::uvec2& GetDimensions() const override { return m_Dimensions; }
+	inline void									   SetWidth(unsigned int width) { m_Dimensions.x = width; }
+	inline void									   SetHeight(unsigned int height) { m_Dimensions.y = height; }
+	inline void									   SetDimensions(const glm::uvec2& dim) { m_Dimensions = dim; }
 
+	[[nodiscard]] virtual void* GetDeviceTextureHandle() const override;
 	// just for now
 	[[nodiscard]] inline GLuint GetTexture() const { return m_texture; }
 	[[nodiscard]] inline GLenum GetTarget() const { return m_target; }
 
-	[[nodiscard]] T_TexBufferFuture GetTextureData() const;
+	[[nodiscard]] virtual T_TexBufferFuture GetTextureData() const override;
 
 	[[nodiscard]] std::uint64_t CreateHandle();
 	[[nodiscard]] std::uint64_t GetHandle() const;
 	void						MakeHandleResident(bool val = true);
 
-	void SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction wrapT);
-	void SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction wrapT, Renderer::E_WrapFunction wrapR);
-	void SetFilter(E_OpenGLFilter min, E_OpenGLFilter mag);
-	void SetBorderColor(const glm::vec4& color);
-	void SetTexParameter(GLenum pname, const glm::vec4& value);
-	void SetTexParameter(GLenum pname, GLint value);
-	void GenerateMipMaps();
+	virtual void SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction wrapT) override;
+	virtual void SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction wrapT, Renderer::E_WrapFunction wrapR) override;
+	virtual void SetFilter(Renderer::E_TextureFilter min, Renderer::E_TextureFilter mag) override;
+	virtual void SetBorderColor(const glm::vec4& color) override;
+	virtual void GenerateMipMaps() override;
+	void		 SetTexParameter(GLenum pname, const glm::vec4& value);
+	void		 SetTexParameter(GLenum pname, GLint value);
 
-	void SetTexData2D(int level, const Renderer::MeshData::Texture& tex);
-	void SetTexData2D(int level, const Renderer::I_TextureViewStorage* tex);
-	void SetTexData2D(int level, const Renderer::C_TextureView tex);
-	void SetInternalFormat(Renderer::E_TextureFormat internalFormat, GLint format);
+	void		 SetTexData2D(int level, const Renderer::MeshData::Texture& tex);
+	virtual void SetTexData2D(int level, const Renderer::I_TextureViewStorage* tex) override;
+	virtual void SetTexData2D(int level, const Renderer::C_TextureView tex) override;
+	void		 SetInternalFormat(Renderer::E_TextureFormat internalFormat, GLint format);
 
 protected:
 	void Clean();
@@ -94,5 +95,4 @@ protected:
 	std::uint64_t			  m_Handle;
 };
 } // namespace Textures
-} // namespace GLRenderer
-} // namespace GLEngine
+} // namespace GLEngine::GLRenderer
