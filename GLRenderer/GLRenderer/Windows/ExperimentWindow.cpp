@@ -85,14 +85,6 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 C_ExplerimentWindow::~C_ExplerimentWindow()
 {
 	static_cast<C_OGLRenderer*>(m_renderer.get())->DestroyControls(m_ImGUI->GetGUIMgr());
-
-	auto& guiMGR = m_ImGUI->GetGUIMgr();
-	guiMGR.DestroyWindow(m_EntitiesWindowGUID);
-	guiMGR.DestroyWindow(m_RayTraceGUID);
-	guiMGR.DestroyWindow(m_ConsoleWindowGUID);
-	guiMGR.DestroyWindow(m_FrameStatsGUID);
-	guiMGR.DestroyWindow(m_HDRSettingsGUID);
-	m_ImGUI->OnDetach();
 };
 
 //=================================================================================
@@ -468,6 +460,17 @@ bool C_ExplerimentWindow::OnAppEvent(Core::C_AppEvent& event)
 	{
 		OnAppInit();
 		return true;
+	}
+	if (event.GetEventType() == Core::C_AppEvent::E_Type::WindowCloseRequest)
+	{
+		m_World->ClearLevel();
+		auto& guiMGR = m_ImGUI->GetGUIMgr();
+		guiMGR.DestroyWindow(m_EntitiesWindowGUID);
+		guiMGR.DestroyWindow(m_RayTraceGUID);
+		guiMGR.DestroyWindow(m_ConsoleWindowGUID);
+		guiMGR.DestroyWindow(m_FrameStatsGUID);
+		guiMGR.DestroyWindow(m_HDRSettingsGUID);
+		m_ImGUI->OnDetach();
 	}
 
 	return false;
