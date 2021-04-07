@@ -73,6 +73,10 @@ workspace "Engine"
 			"_GLFW_WIN32",
 			"_CRT_SECURE_NO_WARNINGS",
 		}
+		buildoptions
+		{
+			"/MP"
+		}
 
 	filter "system:linux"
 		defines {
