@@ -1,25 +1,18 @@
 #include <GLRendererStdafx.h>
 
-#include <GLRenderer/Components/SkyBox.h>
-
 #include <GLRenderer/Buffers/GLBuffer.h>
-
+#include <GLRenderer/CameraManager.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
-
-#include <Renderer/Mesh/Scene.h>
-
+#include <GLRenderer/Components/SkyBox.h>
+#include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
-
-#include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
-
 #include <GLRenderer/Textures/TextureUnitManager.h>
 
-#include <GLRenderer/CameraManager.h>
 #include <Renderer/ICameraComponent.h>
-
-#include <Renderer/Textures/TextureLoader.h>
 #include <Renderer/IRenderer.h>
+#include <Renderer/Mesh/Scene.h>
+#include <Renderer/Textures/TextureLoader.h>
 
 #include <Core/Application.h>
 
@@ -37,52 +30,52 @@ C_SkyBox::C_SkyBox(std::shared_ptr<Entity::I_Entity> owner)
 
 	std::vector<glm::vec3> vertices;
 	// left
-	vertices.emplace_back(100.0f,  100.0f,  100.0f);
-	vertices.emplace_back(100.0f,  100.0f, -100.0f);
+	vertices.emplace_back(100.0f, 100.0f, 100.0f);
+	vertices.emplace_back(100.0f, 100.0f, -100.0f);
 	vertices.emplace_back(100.0f, -100.0f, -100.0f);
 	vertices.emplace_back(100.0f, -100.0f, -100.0f);
-	vertices.emplace_back(100.0f, -100.0f,  100.0f);
-	vertices.emplace_back(100.0f,  100.0f,  100.0f);
+	vertices.emplace_back(100.0f, -100.0f, 100.0f);
+	vertices.emplace_back(100.0f, 100.0f, 100.0f);
 
 	// right
-	vertices.emplace_back(-100.0f, -100.0f,  100.0f);
-	vertices.emplace_back(-100.0f,  100.0f, -100.0f);
-	vertices.emplace_back(-100.0f,  100.0f,  100.0f);
-	vertices.emplace_back(-100.0f, -100.0f,  100.0f);
+	vertices.emplace_back(-100.0f, -100.0f, 100.0f);
+	vertices.emplace_back(-100.0f, 100.0f, -100.0f);
+	vertices.emplace_back(-100.0f, 100.0f, 100.0f);
+	vertices.emplace_back(-100.0f, -100.0f, 100.0f);
 	vertices.emplace_back(-100.0f, -100.0f, -100.0f);
-	vertices.emplace_back(-100.0f,  100.0f, -100.0f);
-	
+	vertices.emplace_back(-100.0f, 100.0f, -100.0f);
+
 	// top
 	vertices.emplace_back(-100.0f, 100.0f, -100.0f);
-	vertices.emplace_back( 100.0f, 100.0f, -100.0f);
-	vertices.emplace_back( 100.0f, 100.0f,  100.0f);
-	vertices.emplace_back( 100.0f, 100.0f,  100.0f);
-	vertices.emplace_back(-100.0f, 100.0f,  100.0f);
+	vertices.emplace_back(100.0f, 100.0f, -100.0f);
+	vertices.emplace_back(100.0f, 100.0f, 100.0f);
+	vertices.emplace_back(100.0f, 100.0f, 100.0f);
+	vertices.emplace_back(-100.0f, 100.0f, 100.0f);
 	vertices.emplace_back(-100.0f, 100.0f, -100.0f);
 
 	// bottom
 	vertices.emplace_back(-100.0f, -100.0f, -100.0f);
-	vertices.emplace_back(-100.0f, -100.0f,  100.0f);
-	vertices.emplace_back( 100.0f, -100.0f, -100.0f);
-	vertices.emplace_back( 100.0f, -100.0f, -100.0f);
-	vertices.emplace_back(-100.0f, -100.0f,  100.0f);
-	vertices.emplace_back( 100.0f, -100.0f,  100.0f);
-
-	//back
-	vertices.emplace_back(-100.0f,  100.0f, 100.0f);
-	vertices.emplace_back( 100.0f,  100.0f, 100.0f);
-	vertices.emplace_back( 100.0f, -100.0f, 100.0f);
-	vertices.emplace_back( 100.0f, -100.0f, 100.0f);
 	vertices.emplace_back(-100.0f, -100.0f, 100.0f);
-	vertices.emplace_back(-100.0f,  100.0f, 100.0f);
+	vertices.emplace_back(100.0f, -100.0f, -100.0f);
+	vertices.emplace_back(100.0f, -100.0f, -100.0f);
+	vertices.emplace_back(-100.0f, -100.0f, 100.0f);
+	vertices.emplace_back(100.0f, -100.0f, 100.0f);
 
-	//front
-	vertices.emplace_back( 100.0f,  100.0f, -100.0f);
-	vertices.emplace_back(-100.0f,  100.0f, -100.0f);
+	// back
+	vertices.emplace_back(-100.0f, 100.0f, 100.0f);
+	vertices.emplace_back(100.0f, 100.0f, 100.0f);
+	vertices.emplace_back(100.0f, -100.0f, 100.0f);
+	vertices.emplace_back(100.0f, -100.0f, 100.0f);
+	vertices.emplace_back(-100.0f, -100.0f, 100.0f);
+	vertices.emplace_back(-100.0f, 100.0f, 100.0f);
+
+	// front
+	vertices.emplace_back(100.0f, 100.0f, -100.0f);
+	vertices.emplace_back(-100.0f, 100.0f, -100.0f);
 	vertices.emplace_back(-100.0f, -100.0f, -100.0f);
 	vertices.emplace_back(-100.0f, -100.0f, -100.0f);
-	vertices.emplace_back( 100.0f, -100.0f, -100.0f);
-	vertices.emplace_back( 100.0f,  100.0f, -100.0f);
+	vertices.emplace_back(100.0f, -100.0f, -100.0f);
+	vertices.emplace_back(100.0f, 100.0f, -100.0f);
 
 	m_VAO.bind();
 	m_VAO.SetBuffer<0, GL_ARRAY_BUFFER>(vertices);
@@ -97,8 +90,8 @@ C_SkyBox::C_SkyBox(std::shared_ptr<Entity::I_Entity> owner)
 void C_SkyBox::AddTexture(E_Side side, const std::filesystem::path& filename)
 {
 	Renderer::Textures::TextureLoader tl;
-	Renderer::MeshData::Texture t;
-	bool retval = tl.loadTexture(filename, t);
+	Renderer::MeshData::Texture		  t;
+	bool							  retval = tl.loadTexture(filename, t);
 
 	if (!retval)
 		CORE_LOG(E_Level::Error, E_Context::Render, "Texture cannot be loaded");
@@ -115,26 +108,21 @@ void C_SkyBox::PerformDraw() const
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.BindTextureToUnit(m_Textures, 0);
 
-	auto& shmgr = Shaders::C_ShaderManager::Instance();
-	auto shader = shmgr.GetProgram("skybox");
+	auto& shmgr	 = Shaders::C_ShaderManager::Instance();
+	auto  shader = shmgr.GetProgram("skybox");
 	shmgr.ActivateShader(shader);
 
-	Core::C_Application::Get().GetActiveRenderer().AddCommand(
-		std::move(
-			std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[&]() {
-					glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+		[&]() {
+			glDepthFunc(GL_LEQUAL); // change depth function so depth test passes when values are equal to depth buffer's content
 
-					m_VAO.bind();
-					m_Textures.bind();
-					glDrawArrays(GL_TRIANGLES, 0, 36);
-					glDepthFunc(GL_LESS); // set depth function back to default
-					m_VAO.unbind();
-				}
-				, "SkyBox draw"
-			)
-		)
-	);
+			m_VAO.bind();
+			m_Textures.bind();
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+			glDepthFunc(GL_LESS); // set depth function back to default
+			m_VAO.unbind();
+		},
+		"SkyBox draw")));
 }
 
 //=================================================================================
@@ -196,4 +184,4 @@ std::shared_ptr<Entity::I_Component> C_SkyBoxCompBuilder::Build(const pugi::xml_
 	return skyboxComp;
 }
 
-}
+} // namespace GLEngine::GLRenderer::Components

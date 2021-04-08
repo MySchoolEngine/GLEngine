@@ -2,8 +2,7 @@
 
 #include <Entity/Components/DebugGUIComponent.h>
 
-namespace GLEngine::Entity
-{
+namespace GLEngine::Entity {
 class C_BasicEntity;
 }
 
@@ -17,14 +16,14 @@ public:
 	virtual void DrawContents() override;
 
 	virtual std::string_view GetDebugComponentName() const override;
+
 private:
 	std::weak_ptr<C_BasicEntity> m_Entity;
 };
 
-class C_GUIDebugBuilder : public I_ComponenetBuilder
-{
+class C_GUIDebugBuilder : public I_ComponenetBuilder {
 public:
 	ENTITY_API_EXPORT virtual std::shared_ptr<I_Component> Build(const pugi::xml_node& node, std::shared_ptr<I_Entity> owner) override;
 };
 
-}
+} // namespace GLEngine::Entity

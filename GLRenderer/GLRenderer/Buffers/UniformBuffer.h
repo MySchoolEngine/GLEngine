@@ -3,7 +3,7 @@
  * \file 		UniformBuffer.h
  * \date 		2018/03/17 19:07
  * \project 	Computer Graphics Project
- * \faculty 	Faculty of Information Technology 
+ * \faculty 	Faculty of Information Technology
  * \university 	Brno University of Technology
  *
  * \author Dominik Rohacek
@@ -23,17 +23,18 @@ public:
 
 	virtual void UploadData() const = 0;
 
-	void Activate(bool activate = true);
+	void		Activate(bool activate = true);
 	inline bool IsActive() const { return m_active; }
 
 	const std::string& GetBlockName() const { return m_blockName; }
-	int GetBinding() const { return GetIndex(); }
+	int				   GetBinding() const { return GetIndex(); }
 
 	GLuint GetIndex() const { return m_index; }
-	void SetIndex(GLuint val) { m_index = val; }
+	void   SetIndex(GLuint val) { m_index = val; }
+
 private:
-	GLuint m_index;
+	GLuint		m_index;
 	std::string m_blockName;
-	bool m_active;
+	bool		m_active;
 };
-}
+} // namespace GLEngine::GLRenderer::Buffers

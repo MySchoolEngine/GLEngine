@@ -7,4 +7,4 @@ namespace GLEngine::Core {
 //=================================================================================
 I_Input::~I_Input() = default;
 
-}
+} // namespace GLEngine::Core

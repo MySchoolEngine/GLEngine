@@ -12,4 +12,4 @@ public:
 	virtual void OnEvent(Core::I_Event& event) = 0;
 };
 
-}
+} // namespace GLEngine::Core

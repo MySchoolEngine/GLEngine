@@ -1,7 +1,7 @@
 #include <GLRendererStdafx.h>
 
-#include <GLRenderer/Shaders/ShaderCompiler.h>
 #include <GLRenderer/Shaders/Generation/ShaderTypesReflection.h>
+#include <GLRenderer/Shaders/ShaderCompiler.h>
 
 #include <Renderer/Shaders/ShaderPreprocessor.h>
 
@@ -12,7 +12,6 @@ namespace GLEngine::GLRenderer::Shaders {
 C_ShaderCompiler::C_ShaderCompiler(bool preprocessorOutput /*= false*/)
 	: m_PreprocessorOutput(preprocessorOutput)
 {
-
 }
 
 //=================================================================================
@@ -22,9 +21,9 @@ bool C_ShaderCompiler::compileShaderStageInternal(T_StageHandle& stage, const st
 	src = preproces.PreprocessFile(src, filepath.parent_path());
 	if (m_PreprocessorOutput)
 	{
-		std::ofstream debugOutput;
+		std::ofstream				debugOutput;
 		const std::filesystem::path debugPath("obj/" + filepath.generic_string() + ".o");
-		const auto debugDirectory = debugPath.parent_path();
+		const auto					debugDirectory = debugPath.parent_path();
 		if (!std::filesystem::exists(debugDirectory))
 		{
 			if (!std::filesystem::create_directories(debugDirectory))
@@ -62,7 +61,7 @@ bool C_ShaderCompiler::compileShaderStageInternal(T_StageHandle& stage, const st
 	glShaderSource(stage, 1, &cstr, nullptr);
 	glCompileShader(stage);
 
-	//Compilation log
+	// Compilation log
 	GLint result = 0;
 	glGetShaderiv(stage, GL_COMPILE_STATUS, &result);
 	if (result == GL_FALSE)
@@ -97,14 +96,14 @@ bool C_ShaderCompiler::linkProgram(GLuint& program, const std::vector<std::pair<
 		return false;
 	}
 
-	for (auto & shader : stages)
+	for (auto& shader : stages)
 	{
 		glAttachShader(program, shader.second);
 	}
 
 	glLinkProgram(program);
 
-	//Check link
+	// Check link
 	int status = 0;
 	glGetProgramiv(program, GL_LINK_STATUS, &status);
 
@@ -129,4 +128,4 @@ bool C_ShaderCompiler::linkProgram(GLuint& program, const std::vector<std::pair<
 	return true;
 }
 
-}
+} // namespace GLEngine::GLRenderer::Shaders

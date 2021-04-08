@@ -31,4 +31,4 @@ constexpr std::size_t C_ModelData::BufferSize() const
 	return matSize + sizeof(m_MaterialIndex);
 }
 
-}
+} // namespace GLEngine::GLRenderer::Buffers::UBO

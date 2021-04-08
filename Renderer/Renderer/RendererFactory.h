@@ -11,8 +11,7 @@ namespace Renderer {
 
 class RENDERER_API_EXPORT F_RendererFacotry {
 public:
-	static std::unique_ptr<Renderer::I_Renderer> GetRenderer();
+  static std::unique_ptr<Renderer::I_Renderer> GetRenderer();
 };
-}
-}
-
+} // namespace Renderer
+} // namespace GLEngine

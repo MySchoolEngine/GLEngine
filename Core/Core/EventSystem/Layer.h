@@ -21,10 +21,12 @@ public:
 	virtual void OnEvent(Core::I_Event& event) override {}
 
 	inline const std::string& GetName() const { return m_DebugName; }
+
 protected:
 	void SetLayerDebugName(const std::string& name);
+
 private:
 	std::string m_DebugName;
 };
 
-}
+} // namespace GLEngine::Core

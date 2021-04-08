@@ -1,17 +1,16 @@
 #include <GLRendererStdafx.h>
 
 #include <GLRenderer/Components/ComponentBuilderFactory.h>
-
+#include <GLRenderer/Components/GLGeomComponent.h>
+#include <GLRenderer/Components/SkeletalMesh.h>
 #include <GLRenderer/Components/SkyBox.h>
 #include <GLRenderer/Components/StaticMesh.h>
-#include <GLRenderer/Components/SkeletalMesh.h>
-#include <GLRenderer/Components/GLGeomComponent.h>
 #include <GLRenderer/Textures/TextureManager.h>
-#include <Entity/Components/EntityDebugComponent.h>
-
-#include <Renderer/Mesh/Loading/SceneLoader.h>
 
 #include <Renderer/Lights/PointLight.h>
+#include <Renderer/Mesh/Loading/SceneLoader.h>
+
+#include <Entity/Components/EntityDebugComponent.h>
 
 namespace GLEngine::GLRenderer::Components {
 
@@ -49,9 +48,9 @@ std::unique_ptr<Entity::I_ComponenetBuilder> C_ComponentBuilderFactory::GetFacto
 void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Entity> entity, const std::filesystem::path& file)
 {
 	auto& tmgr = Textures::C_TextureManager::Instance();
-	auto sl = std::make_unique<Renderer::Mesh::SceneLoader>();
+	auto  sl   = std::make_unique<Renderer::Mesh::SceneLoader>();
 
-	auto scene = std::make_shared<Renderer::MeshData::Scene>();
+	auto	  scene		  = std::make_shared<Renderer::MeshData::Scene>();
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
 	if (!sl->addModelFromFileToScene("Models", file, scene, modelMatrix))
@@ -59,7 +58,7 @@ void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Enti
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}", file);
 		return;
 	}
-	
+
 	for (const auto& mesh : scene->meshes)
 	{
 		const auto material = scene->materials[mesh.materialIndex];
@@ -105,4 +104,4 @@ void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Enti
 	}
 }
 
-}
+} // namespace GLEngine::GLRenderer::Components

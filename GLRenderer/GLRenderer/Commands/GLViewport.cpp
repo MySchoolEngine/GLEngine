@@ -9,7 +9,6 @@ C_GLViewport::C_GLViewport(int x, int y, int widht, int height)
 	: m_coord(x, y)
 	, m_Dimensions(widht, height)
 {
-
 }
 
 //=================================================================================
@@ -17,7 +16,6 @@ C_GLViewport::C_GLViewport(glm::ivec2 coord, int widht, int height)
 	: m_coord(coord)
 	, m_Dimensions(widht, height)
 {
-
 }
 
 //=================================================================================
@@ -44,4 +42,4 @@ std::string C_GLViewport::GetDescriptor() const
 	return fmt::format("GLViewport pos: {} size: {}", m_coord, m_Dimensions);
 }
 
-}
+} // namespace GLEngine::GLRenderer::Commands

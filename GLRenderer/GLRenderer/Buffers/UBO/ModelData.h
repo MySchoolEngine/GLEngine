@@ -13,8 +13,9 @@ public:
 	void SetMaterialIndex(int index) { m_MaterialIndex = index; }
 
 	constexpr std::size_t BufferSize() const;
+
 private:
-	glm::mat4	m_ModelMatrix;
-	int			m_MaterialIndex;
+	glm::mat4 m_ModelMatrix;
+	int		  m_MaterialIndex;
 };
-}
+} // namespace GLEngine::GLRenderer::Buffers::UBO

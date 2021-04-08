@@ -5,9 +5,9 @@
 namespace GLEngine {
 
 // simplest implementation TODO!!!!
-using GUID = unsigned int;
+using GUID					   = unsigned int;
 static const GUID INVALID_GUID = 0;
 
 CORE_API_EXPORT GUID NextGUID();
 
-}
+} // namespace GLEngine

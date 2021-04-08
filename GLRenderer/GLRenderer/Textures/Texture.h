@@ -3,7 +3,7 @@
  * \file 		Texture.h
  * \date 		2018/03/17 19:07
  * \project 	Computer Graphics Project
- * \faculty 	Faculty of Information Technology 
+ * \faculty 	Faculty of Information Technology
  * \university 	Brno University of Technology
  *
  * \author Dominik Rohacek
@@ -13,9 +13,9 @@
 
 #pragma once
 
-#include <Renderer/IResource.h>
-
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
+
+#include <Renderer/IResource.h>
 
 namespace GLEngine {
 namespace Renderer {
@@ -28,7 +28,7 @@ struct Texture;
 
 namespace Textures {
 using T_TexBufferFuture = std::future<std::unique_ptr<Renderer::I_TextureViewStorage>>;
-class C_Texture// : public Renderer::I_Resource
+class C_Texture // : public Renderer::I_Resource
 {
 public:
 	explicit C_Texture(const std::string& name, GLenum target = GL_TEXTURE_2D);
@@ -41,17 +41,25 @@ public:
 	void bind() const;
 	void unbind() const;
 
-	inline void StartGroupOp() { bind(); m_bGroupOperations = true; }
-	inline void EndGroupOp() { m_bGroupOperations = false; unbind(); }
+	inline void StartGroupOp()
+	{
+		bind();
+		m_bGroupOperations = true;
+	}
+	inline void EndGroupOp()
+	{
+		m_bGroupOperations = false;
+		unbind();
+	}
 
-	[[nodiscard]] inline unsigned int GetWidth() const { return m_Dimensions.x; }
-	[[nodiscard]] inline unsigned int GetHeight() const { return m_Dimensions.y; }
-	inline void SetWidth(unsigned int width) { m_Dimensions.x = width; }
-	inline void SetHeight(unsigned int height) { m_Dimensions.y = height; }
+	[[nodiscard]] inline unsigned int	   GetWidth() const { return m_Dimensions.x; }
+	[[nodiscard]] inline unsigned int	   GetHeight() const { return m_Dimensions.y; }
+	inline void							   SetWidth(unsigned int width) { m_Dimensions.x = width; }
+	inline void							   SetHeight(unsigned int height) { m_Dimensions.y = height; }
 	[[nodiscard]] inline const glm::uvec2& GetDimensions() const { return m_Dimensions; }
-	inline void SetDimensions(const glm::uvec2& dim) { m_Dimensions = dim; }
+	inline void							   SetDimensions(const glm::uvec2& dim) { m_Dimensions = dim; }
 
-	//just for now
+	// just for now
 	[[nodiscard]] inline GLuint GetTexture() const { return m_texture; }
 	[[nodiscard]] inline GLenum GetTarget() const { return m_target; }
 
@@ -59,7 +67,7 @@ public:
 
 	[[nodiscard]] std::uint64_t CreateHandle();
 	[[nodiscard]] std::uint64_t GetHandle() const;
-	void MakeHandleResident(bool val = true);
+	void						MakeHandleResident(bool val = true);
 
 	void SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT);
 	void SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT, E_WrapFunction wrapR);
@@ -71,16 +79,19 @@ public:
 	void SetTexData2D(int level, const Renderer::MeshData::Texture& tex);
 	void SetTexData2D(int level, const Renderer::I_TextureViewStorage* tex);
 	void SetInternalFormat(GLint internalFormat, GLint format, GLenum type);
+
 protected:
-	void Clean();
+	void  Clean();
 	GLint GetInternalFormat() const;
 
-	GLuint			m_texture;
-	GLenum			m_target;
-	std::uint8_t	m_Channels;
-	glm::uvec2		m_Dimensions;
-	bool			m_bGroupOperations : 1;
-	std::uint64_t	m_Handle;
-	std::string		m_Name;
+	GLuint		  m_texture;
+	GLenum		  m_target;
+	std::uint8_t  m_Channels;
+	glm::uvec2	  m_Dimensions;
+	bool		  m_bGroupOperations : 1;
+	std::uint64_t m_Handle;
+	std::string	  m_Name;
 };
-}}}
+} // namespace Textures
+} // namespace GLRenderer
+} // namespace GLEngine

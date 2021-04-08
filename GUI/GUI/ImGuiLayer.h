@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Core/EventSystem/Layer.h>
-
 #include <GUI/GUIManager.h>
+
+#include <Core/EventSystem/Layer.h>
 
 struct ImDrawData;
 
@@ -18,7 +18,7 @@ class C_MouseScrollEvent;
 class C_MouseButtonPressed;
 class C_MouseButtonReleased;
 class C_MouseMoved;
-}
+} // namespace Core
 
 namespace GUI {
 class GUI_API_EXPORT C_ImGuiLayer : public Core::C_Layer {
@@ -40,6 +40,7 @@ public:
 	bool CapturingMouse() const;
 
 	GUI::C_GUIManager& GetGUIMgr();
+
 private:
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
 	bool OnKeyReleased(Core::C_KeyReleasedEvent& event);
@@ -52,8 +53,9 @@ private:
 protected:
 	ImDrawData* GetRenderData();
 
-	GUID							m_Window;
-	GUI::C_GUIManager	m_GUIMgr;
-	float							m_Time;
+	GUID			  m_Window;
+	GUI::C_GUIManager m_GUIMgr;
+	float			  m_Time;
 };
-}}
+} // namespace GUI
+} // namespace GLEngine

@@ -1,19 +1,16 @@
 #include <GLRendererStdafx.h>
 
 #include <GLRenderer/GLFW/GLFWoGLWindow.h>
-
 #include <GLRenderer/GLFW/OpenGLWindowInfo.h>
-#include <Renderer/IRenderer.h>
-
 #include <GLRenderer/OGLRenderer.h>
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace GLFW {
+#include <Renderer/IRenderer.h>
+
+namespace GLEngine::GLRenderer { namespace GLFW {
 
 //=================================================================================
 C_GLFWoGLWindow::C_GLFWoGLWindow(const Core::S_WindowInfo& wndInfo)
-	:  m_renderer(nullptr)
+	: m_renderer(nullptr)
 {
 	Init(wndInfo);
 }
@@ -46,9 +43,9 @@ void C_GLFWoGLWindow::Init(const Core::S_WindowInfo& wndInfo)
 	C_GLFWWindow::Init(wndInfo);
 	MakeCurrent();
 
-	m_renderer = std::make_unique<GLEngine::GLRenderer::C_OGLRenderer>();
+	m_renderer				= std::make_unique<GLEngine::GLRenderer::C_OGLRenderer>();
 	const char* description = nullptr;
-	const auto error = glfwGetError(&description);
+	const auto	error		= glfwGetError(&description);
 	if (error != GLFW_NO_ERROR)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "GLFW: OpenGL window init failed: {}", description);
@@ -68,4 +65,4 @@ void C_GLFWoGLWindow::OnEvent(Core::I_Event& event)
 {
 }
 
-}}}
+}} // namespace GLEngine::GLRenderer::GLFW

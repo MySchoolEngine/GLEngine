@@ -5,15 +5,13 @@
  */
 
 namespace GLEngine::Renderer {
-enum class E_ShaderStage
-{
-	Vertex,
-	Fragment,
-	Geometry,
-	TesselationControl,
-	TesselationEvaluation,
-	Compute,
-	RayGen,
+enum class E_ShaderStage {
+  Vertex,
+  Fragment,
+  Geometry,
+  TesselationControl,
+  TesselationEvaluation,
+  Compute,
+  RayGen,
 };
 }
-

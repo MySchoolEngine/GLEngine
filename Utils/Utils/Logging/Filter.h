@@ -20,75 +20,81 @@ namespace Logging {
  ** ==============================================*/
 class UTILS_API_EXPORT C_Filter {
 public:
-	C_Filter(C_Filter* innerFilter = nullptr);
-	virtual ~C_Filter();
-	
-	/**
-	 * @return: bool - true if message passed
-	 **/
-	virtual bool Filter(const S_Data& message);
+  C_Filter(C_Filter *innerFilter = nullptr);
+  virtual ~C_Filter();
+
+  /**
+   * @return: bool - true if message passed
+   **/
+  virtual bool Filter(const S_Data &message);
+
 protected:
-	/** ==============================================
-	* @method:    FilterCheck
-	* @return:    bool
-	* @brief	   Returns true if message should be filtered out
-	** ==============================================*/
-	virtual bool FilterCheck(const S_Data& message) = 0;
-	C_Filter* m_InnerFilter;
+  /** ==============================================
+   * @method:    FilterCheck
+   * @return:    bool
+   * @brief	   Returns true if message should be filtered out
+   ** ==============================================*/
+  virtual bool FilterCheck(const S_Data &message) = 0;
+  C_Filter *m_InnerFilter;
 };
 
 //=================================================================================
 class UTILS_API_EXPORT C_ContextFilter : public C_Filter {
 public:
-	C_ContextFilter(E_Context context, C_Filter* innerFilter = nullptr);
-	virtual ~C_ContextFilter() = default;
-protected:
-	virtual bool FilterCheck(const S_Data& message) override;
+  C_ContextFilter(E_Context context, C_Filter *innerFilter = nullptr);
+  virtual ~C_ContextFilter() = default;
 
-	E_Context m_Context;
+protected:
+  virtual bool FilterCheck(const S_Data &message) override;
+
+  E_Context m_Context;
 };
 
 //=================================================================================
 class UTILS_API_EXPORT C_LevelFilter : public C_Filter {
 public:
-	C_LevelFilter(E_Level context, C_Filter* innerFilter = nullptr);
-	virtual ~C_LevelFilter() = default;
-protected:
-	virtual bool FilterCheck(const S_Data& message) override;
+  C_LevelFilter(E_Level context, C_Filter *innerFilter = nullptr);
+  virtual ~C_LevelFilter() = default;
 
-	E_Level m_Level;
+protected:
+  virtual bool FilterCheck(const S_Data &message) override;
+
+  E_Level m_Level;
 };
 
 //=================================================================================
 class UTILS_API_EXPORT C_TextFilter : public C_Filter {
 public:
-	C_TextFilter(const std::string& text, C_Filter* innerFilter = nullptr);
-	virtual ~C_TextFilter() = default;
+  C_TextFilter(const std::string &text, C_Filter *innerFilter = nullptr);
+  virtual ~C_TextFilter() = default;
+
 protected:
-	virtual bool FilterCheck(const S_Data& message) override;
+  virtual bool FilterCheck(const S_Data &message) override;
+
 private:
-	std::string m_Text;
+  std::string m_Text;
 };
 
 //=================================================================================
 class UTILS_API_EXPORT C_PassAllFilter : public C_Filter {
 public:
-	virtual ~C_PassAllFilter() = default;
+  virtual ~C_PassAllFilter() = default;
+
 protected:
-	virtual bool FilterCheck(const S_Data& message) override;
+  virtual bool FilterCheck(const S_Data &message) override;
 };
 
 //=================================================================================
 class UTILS_API_EXPORT C_NegationFilter : public C_Filter {
 public:
-	C_NegationFilter(C_Filter* negatedFilter, C_Filter* inner = nullptr);
-	virtual ~C_NegationFilter();
-	virtual bool Filter(const S_Data& message) override;
+  C_NegationFilter(C_Filter *negatedFilter, C_Filter *inner = nullptr);
+  virtual ~C_NegationFilter();
+  virtual bool Filter(const S_Data &message) override;
+
 private:
-	virtual bool FilterCheck(const S_Data& message) override;
-	C_Filter* m_NegatedFilter;
+  virtual bool FilterCheck(const S_Data &message) override;
+  C_Filter *m_NegatedFilter;
 };
 
-}
-}
-
+} // namespace Logging
+} // namespace Utils

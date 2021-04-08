@@ -24,4 +24,4 @@ void C_MaterialsBuffer::UploadData() const
 	unbind();
 }
 
-}
+} // namespace GLEngine::GLRenderer::Material

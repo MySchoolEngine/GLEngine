@@ -1,12 +1,5 @@
 #pragma once
 
-
-
 namespace GLEngine {
-namespace Renderer {
-
-
-
-}
-}
-
+namespace Renderer {}
+} // namespace GLEngine

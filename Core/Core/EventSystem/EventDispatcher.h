@@ -8,21 +8,21 @@
 
 
 // strongly inspirited by Hazel
-// 
-namespace GLEngine {
-namespace Core {
+//
+namespace GLEngine::Core {
 
 class C_EventDispatcher {
-	template<typename T>
-	using EventFn = std::function<bool(T&)>;
+	template <typename T> using EventFn = std::function<bool(T&)>;
+
 public:
 	C_EventDispatcher(I_Event& event)
-		: m_Event(event) {}
+		: m_Event(event)
+	{
+	}
 	virtual ~C_EventDispatcher() = default;
 
 
-	template<typename T>
-	bool Dispatch(EventFn<T> func)
+	template <typename T> bool Dispatch(EventFn<T> func)
 	{
 		if (m_Event.GetType() == T::GetStaticType())
 		{
@@ -31,9 +31,10 @@ public:
 		}
 		return false;
 	}
+
 private:
 	I_Event& m_Event;
 };
 
 
-}}
+} // namespace GLEngine::Core

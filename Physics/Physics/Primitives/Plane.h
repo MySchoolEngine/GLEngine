@@ -1,8 +1,7 @@
 #pragma once
 
-#include <Physics/Primitives/Ray.h>
-
 #include <Physics/Primitives/Intersectable.h>
+#include <Physics/Primitives/Ray.h>
 
 #include <glm/glm.hpp>
 
@@ -12,16 +11,20 @@ struct S_Ray;
 struct S_Plane : public T_Intersectable<S_Plane> {
 	constexpr S_Plane(glm::vec3 _normal, float offset)
 		: normal(_normal)
-		, origin(normal* offset)
-		, twoSided(true) {}
+		, origin(normal * offset)
+		, twoSided(true)
+	{
+	}
 	constexpr S_Plane(glm::vec3 _normal, glm::vec3 origin)
 		: normal(_normal)
 		, origin(origin)
-		, twoSided(true) {}
-	glm::vec3	normal;
-	glm::vec3	origin;
-	bool			twoSided : 1;
-	[[nodiscard]] inline constexpr float	IntersectImpl(const S_Ray& ray) const
+		, twoSided(true)
+	{
+	}
+	glm::vec3							 normal;
+	glm::vec3							 origin;
+	bool								 twoSided : 1;
+	[[nodiscard]] inline constexpr float IntersectImpl(const S_Ray& ray) const
 	{
 		const auto useNormal = ((glm::dot(-ray.direction, normal) > 0) ? normal : -normal);
 		if (glm::dot(-ray.direction, useNormal) < 0.0)
@@ -32,4 +35,4 @@ struct S_Plane : public T_Intersectable<S_Plane> {
 		return (glm::dot(origin - ray.origin, useNormal)) / (glm::dot(useNormal, ray.direction));
 	}
 };
-}
+} // namespace GLEngine::Physics::Primitives

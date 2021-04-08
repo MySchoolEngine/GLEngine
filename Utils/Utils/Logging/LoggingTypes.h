@@ -4,17 +4,17 @@ namespace Utils {
 namespace Logging {
 
 enum class E_Context {
-	Core,
-	Render,
-	Entity,
+  Core,
+  Render,
+  Entity,
 };
 
 enum class E_Level {
-	Error,
-	Warning,
-	Info,
-	Debug,
+  Error,
+  Warning,
+  Info,
+  Debug,
 };
 
-}
-}
+} // namespace Logging
+} // namespace Utils

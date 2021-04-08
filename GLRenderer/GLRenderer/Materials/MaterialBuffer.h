@@ -1,7 +1,6 @@
 #pragma once
 
 #include <GLRenderer/Buffers/UniformBuffer.h>
-
 #include <GLRenderer/Materials/PhongMaterial.h>
 
 namespace GLEngine::GLRenderer::Material {
@@ -13,4 +12,4 @@ public:
 
 	std::array<C_PhongMaterial, 40> m_PhongMaterials;
 };
-}
+} // namespace GLEngine::GLRenderer::Material

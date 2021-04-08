@@ -4,27 +4,25 @@
 
 #include <Utils/CompileTime/CompileTimeUtils.h>
 
-#include <type_traits>
+#include <array>
 #include <memory>
 #include <numeric>
-#include <array>
+#include <type_traits>
 
 namespace GLEngine::Core {
-template<class ...Managers>
-class C_WindwoManager : public I_WindowManager
-{
+template <class... Managers> class C_WindwoManager : public I_WindowManager {
 public:
 	C_WindwoManager(C_Application::EventCallbackFn callback)
 		: I_WindowManager(callback)
 		, m_UpdatingManager(nullptr)
-	{}
+	{
+	}
 
 	//=================================================================================
 	virtual ~C_WindwoManager() = default;
 
 	//=================================================================================
-	template<class T, typename = std::enable_if_t< std::disjunction_v<std::is_same<T, Managers>...>>>
-	void AddManager(T* manager)
+	template <class T, typename = std::enable_if_t<std::disjunction_v<std::is_same<T, Managers>...>>> void AddManager(T* manager)
 	{
 		m_Managers[T_IndexOfType::IndexOf<T, Managers...>()] = std::unique_ptr<I_WindowManager>(manager);
 	}
@@ -34,7 +32,8 @@ public:
 	{
 		for (auto& mgr : m_Managers)
 		{
-			if (!mgr) continue;
+			if (!mgr)
+				continue;
 			if (auto window = mgr->OpenNewWindow(info))
 			{
 				return window;
@@ -49,7 +48,8 @@ public:
 	{
 		for (auto& mgr : m_Managers)
 		{
-			if(!mgr) continue;
+			if (!mgr)
+				continue;
 			if (auto window = mgr->GetWindow(guid))
 			{
 				return window;
@@ -87,12 +87,13 @@ public:
 	}
 
 	//=================================================================================
-	[[nodiscard]] virtual Renderer::I_Renderer* ActiveRendererPtr() override {
-	  if (!m_UpdatingManager)
-	  {
-		return nullptr;
-	  }
-	  return m_UpdatingManager->ActiveRendererPtr();
+	[[nodiscard]] virtual Renderer::I_Renderer* ActiveRendererPtr() override
+	{
+		if (!m_UpdatingManager)
+		{
+			return nullptr;
+		}
+		return m_UpdatingManager->ActiveRendererPtr();
 	}
 
 	//=================================================================================
@@ -118,6 +119,6 @@ public:
 
 private:
 	std::array<std::unique_ptr<I_WindowManager>, sizeof...(Managers)> m_Managers;
-	I_WindowManager* m_UpdatingManager;
+	I_WindowManager*												  m_UpdatingManager;
 };
-}
+} // namespace GLEngine::Core

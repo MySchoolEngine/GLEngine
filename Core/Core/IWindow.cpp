@@ -7,4 +7,4 @@ namespace GLEngine::Core {
 //=================================================================================
 I_Window::~I_Window() = default;
 
-}
+} // namespace GLEngine::Core

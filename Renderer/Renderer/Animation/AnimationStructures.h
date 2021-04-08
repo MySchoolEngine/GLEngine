@@ -6,47 +6,46 @@
 
 namespace GLEngine::Renderer::Animation {
 
-struct S_Timestamp
-{
-	S_Timestamp();
-	RENDERER_API_EXPORT S_Timestamp(float timestamp);
+struct S_Timestamp {
+  S_Timestamp();
+  RENDERER_API_EXPORT S_Timestamp(float timestamp);
 
-	[[nodiscard]] bool operator>=(const S_Timestamp& other) const;
-	[[nodiscard]] bool operator>(const S_Timestamp& other) const;
-	[[nodiscard]] S_Timestamp operator-(const S_Timestamp& rhs) const;
-	[[nodiscard]] S_Timestamp operator+(const S_Timestamp& rhs) const;
-	[[nodiscard]] float GetValue() const { return m_Timestamp; }
+  [[nodiscard]] bool operator>=(const S_Timestamp &other) const;
+  [[nodiscard]] bool operator>(const S_Timestamp &other) const;
+  [[nodiscard]] S_Timestamp operator-(const S_Timestamp &rhs) const;
+  [[nodiscard]] S_Timestamp operator+(const S_Timestamp &rhs) const;
+  [[nodiscard]] float GetValue() const { return m_Timestamp; }
+
 private:
-	static float Clamp(float f);
-	float m_Timestamp;
+  static float Clamp(float f);
+  float m_Timestamp;
 };
 
-struct S_BoneKeyframe
-{
-	S_BoneKeyframe() = default;
-	S_BoneKeyframe(const glm::mat4& matrix, S_Timestamp timestamp);
-	S_BoneKeyframe(const glm::vec3& transformation, const glm::quat& rotation, S_Timestamp timestamp);
-	RENDERER_API_EXPORT glm::mat4 GetTransformationMatrix() const;
-	S_Timestamp		m_Timestamp;
-	glm::vec3			m_Transform;
-	glm::quat			m_Rotation;
+struct S_BoneKeyframe {
+  S_BoneKeyframe() = default;
+  S_BoneKeyframe(const glm::mat4 &matrix, S_Timestamp timestamp);
+  S_BoneKeyframe(const glm::vec3 &transformation, const glm::quat &rotation,
+                 S_Timestamp timestamp);
+  RENDERER_API_EXPORT glm::mat4 GetTransformationMatrix() const;
+  S_Timestamp m_Timestamp;
+  glm::vec3 m_Transform;
+  glm::quat m_Rotation;
 };
 
 // todo: move ctor
-class C_BoneTimeline
-{
+class C_BoneTimeline {
 public:
-	C_BoneTimeline() = default;
-	explicit C_BoneTimeline(std::size_t numTimestamps);
+  C_BoneTimeline() = default;
+  explicit C_BoneTimeline(std::size_t numTimestamps);
 
-	void AddBoneKeyFrame(std::size_t index, S_BoneKeyframe&& keyframe);
-	[[nodiscard]] S_BoneKeyframe Sample(S_Timestamp timestamp) const;
+  void AddBoneKeyFrame(std::size_t index, S_BoneKeyframe &&keyframe);
+  [[nodiscard]] S_BoneKeyframe Sample(S_Timestamp timestamp) const;
+
 private:
-	// ideally BST because intervals do not overlap
-	// but we can use vector for now, as we will usually add 
-	// keyframes in order
-	std::vector<S_BoneKeyframe> m_Timeline;
+  // ideally BST because intervals do not overlap
+  // but we can use vector for now, as we will usually add
+  // keyframes in order
+  std::vector<S_BoneKeyframe> m_Timeline;
 };
 
-
-}
+} // namespace GLEngine::Renderer::Animation

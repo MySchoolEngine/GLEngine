@@ -3,8 +3,6 @@
 #include <GLRenderer/Textures/Texture2D.h>
 
 
-namespace GLEngine {
-namespace GLRenderer {
-namespace Textures {
+namespace GLEngine::GLRenderer { namespace Textures {
 
-}}}
+}} // namespace GLEngine::GLRenderer::Textures
