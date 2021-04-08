@@ -4,7 +4,7 @@
 
 #include <Renderer/IResource.h>
 
-namespace GLEngine::GLRenderer { namespace Mesh {
+namespace GLEngine::GLRenderer::Mesh {
 class C_TerrainMeshResource : public Renderer::I_Resource {
 public:
 	C_TerrainMeshResource();
@@ -26,4 +26,4 @@ protected:
 };
 
 
-}} // namespace GLEngine::GLRenderer::Mesh
+} // namespace GLEngine::GLRenderer::Mesh

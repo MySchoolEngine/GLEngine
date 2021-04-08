@@ -7,7 +7,7 @@ namespace Renderer {
 class I_CameraComponent;
 }
 
-namespace GLRenderer { namespace Temporar {
+namespace GLRenderer::Temporar {
 
 class C_CameraManager : public Core::C_Layer {
 public:
@@ -27,5 +27,5 @@ protected:
 	std::shared_ptr<Renderer::I_CameraComponent> m_ActiveCamera;
 };
 
-}} // namespace GLRenderer::Temporar
+} // namespace GLRenderer::Temporar
 } // namespace GLEngine

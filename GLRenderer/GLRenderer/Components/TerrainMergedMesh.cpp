@@ -3,7 +3,7 @@
 #include <GLRenderer/Components/TerrainMergedMesh.h>
 
 
-namespace GLEngine::GLRenderer { namespace Components {
+namespace GLEngine::GLRenderer::Components {
 
 //=================================================================================
 C_TerrainMergedMesh::C_TerrainMergedMesh(std::vector<std::shared_ptr<C_TerrainMesh>> meshes)
@@ -39,4 +39,4 @@ bool C_TerrainMergedMesh::HasDebugDrawGUI() const
 	return true;
 }
 
-}} // namespace GLEngine::GLRenderer::Components
+} // namespace GLEngine::GLRenderer::Components

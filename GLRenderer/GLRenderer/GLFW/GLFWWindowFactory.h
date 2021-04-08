@@ -9,7 +9,7 @@ namespace GLEngine::GLFWManager {
 class C_GLFWWindowManager;
 }
 
-namespace GLEngine::GLRenderer { namespace GLFW {
+namespace GLEngine::GLRenderer::GLFW {
 
 class C_GLFWWindowFactory final : public Core::I_WindowFactory {
 public:
@@ -20,4 +20,4 @@ public:
 GL_RENDERER_API_EXPORT Core::I_WindowFactory* ConstructGLFWWindowFactory();
 GL_RENDERER_API_EXPORT GLFWManager::C_GLFWWindowManager* ConstructGLGLFWManager(Core::C_Application::EventCallbackFn eventCallback);
 
-}} // namespace GLEngine::GLRenderer::GLFW
+} // namespace GLEngine::GLRenderer::GLFW

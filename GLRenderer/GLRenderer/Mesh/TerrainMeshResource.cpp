@@ -3,7 +3,7 @@
 #include <GLRenderer/Mesh/TerrainMeshResource.h>
 
 
-namespace GLEngine::GLRenderer { namespace Mesh {
+namespace GLEngine::GLRenderer::Mesh {
 
 //=================================================================================
 C_TerrainMeshResource::C_TerrainMeshResource()
@@ -60,4 +60,4 @@ std::size_t C_TerrainMeshResource::GetHeight() const
 	return 4;
 }
 
-}} // namespace GLEngine::GLRenderer::Mesh
+} // namespace GLEngine::GLRenderer::Mesh

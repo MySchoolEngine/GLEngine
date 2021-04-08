@@ -15,9 +15,9 @@ struct S_AABB;
 } // namespace Physics::Primitives
 
 namespace GLRenderer {
-namespace Buffers { namespace UBO {
+namespace Buffers::UBO {
 class C_RainDataBuffer;
-}} // namespace Buffers::UBO
+} // namespace Buffers::UBO
 
 namespace Components {
 

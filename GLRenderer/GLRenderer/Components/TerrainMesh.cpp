@@ -20,7 +20,7 @@ const int dim = 1024;
 // if you make this mutable you need to update modelMatrix whenever you
 // mutate this value
 
-namespace GLEngine::GLRenderer { namespace Components {
+namespace GLEngine::GLRenderer::Components {
 
 
 //=================================================================================
@@ -341,4 +341,4 @@ glm::mat4 C_TerrainMesh::GetModelMatrix() const
 	return m_ModelMatrix;
 }
 
-}} // namespace GLEngine::GLRenderer::Components
+} // namespace GLEngine::GLRenderer::Components
