@@ -2,7 +2,7 @@
 
 #include <Renderer/IResource.h>
 
-namespace GLEngine { namespace Renderer {
+namespace GLEngine::Renderer {
 
 class I_RenderCommand {
 public:
@@ -20,4 +20,4 @@ public:
 	virtual std::shared_ptr<I_Resource> GetResource() const = 0;
 };
 
-}} // namespace GLEngine::Renderer
+} // namespace GLEngine::Renderer

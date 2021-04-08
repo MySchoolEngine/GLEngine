@@ -3,7 +3,7 @@
 #include <Renderer/IExtractor.h>
 #include <Renderer/IRawGPUData.h>
 
-namespace GLEngine { namespace Renderer {
+namespace GLEngine::Renderer {
 
 class I_RenderableComponent;
 
@@ -35,6 +35,6 @@ override { return nullptr; }; virtual void Invalidate() override {}; virtual
 bool IsValid() override { return false; };
 };*/
 
-}} // namespace GLEngine::Renderer
+} // namespace GLEngine::Renderer
 
 #include <Renderer/IResource.inl>

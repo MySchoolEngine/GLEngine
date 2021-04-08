@@ -2,7 +2,7 @@
 
 #include <memory>
 
-namespace GLEngine { namespace Renderer {
+namespace GLEngine::Renderer {
 
 class I_RenderableComponent;
 class I_RawGPUData;
@@ -20,4 +20,4 @@ ExtractInner(std::shared_ptr<I_RenderableComponent> component) { return nullptr;
 		}
 };*/
 
-}} // namespace GLEngine::Renderer
+} // namespace GLEngine::Renderer

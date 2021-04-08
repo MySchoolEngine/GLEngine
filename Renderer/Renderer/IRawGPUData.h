@@ -2,7 +2,7 @@
 
 #include <memory>
 
-namespace GLEngine { namespace Renderer {
+namespace GLEngine::Renderer {
 
 class I_Resource;
 
@@ -38,4 +38,4 @@ protected:
 	std::shared_ptr<I_Resource> m_Resource;
 };
 
-}} // namespace GLEngine::Renderer
+} // namespace GLEngine::Renderer
