@@ -45,10 +45,10 @@ class C_KeyPressedEvent;
 class C_KeyReleasedEvent;
 } // namespace Core
 
-namespace Physics { namespace Primitives {
+namespace Physics::Primitives {
 class C_Frustum;
 struct S_AABB;
-}} // namespace Physics::Primitives
+} // namespace Physics::Primitives
 
 namespace Renderer::Cameras {
 class RENDERER_API_EXPORT FreelookCamera : public I_CameraComponent {

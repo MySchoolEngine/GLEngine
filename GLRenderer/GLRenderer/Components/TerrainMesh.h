@@ -10,9 +10,9 @@
 #include <GUI/Input/CheckBoxValue.h>
 
 namespace GLEngine {
-namespace Physics { namespace Primitives {
+namespace Physics::Primitives {
 struct S_AABB;
-}} // namespace Physics::Primitives
+} // namespace Physics::Primitives
 
 namespace GLRenderer {
 namespace Buffers { namespace UBO {

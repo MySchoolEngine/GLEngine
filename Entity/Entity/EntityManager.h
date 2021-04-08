@@ -7,11 +7,11 @@
 namespace GLEngine {
 
 // forward declaration
-namespace Physics { namespace Primitives {
+namespace Physics::Primitives {
 class C_Frustum;
 struct S_Ray;
 struct S_RayIntersection;
-}} // namespace Physics::Primitives
+} // namespace Physics::Primitives
 
 namespace Entity {
 
