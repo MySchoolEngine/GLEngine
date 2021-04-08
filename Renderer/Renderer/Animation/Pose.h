@@ -1,8 +1,7 @@
 #pragma once
 
-#include <Renderer/Animation/IPose.h>
-
 #include <Renderer/Animation/AnimationStructures.h>
+#include <Renderer/Animation/IPose.h>
 
 namespace GLEngine::Renderer::Animation {
 /**
@@ -11,16 +10,13 @@ namespace GLEngine::Renderer::Animation {
  */
 class C_Pose : public I_Pose {
 public:
-  explicit C_Pose(std::vector<S_BoneKeyframe> &&keyframe);
+	explicit C_Pose(std::vector<S_BoneKeyframe>&& keyframe);
 
-  [[nodiscard]] virtual const glm::mat4
-  GetModelSpaceTransform(int boneID) const override;
-  virtual void SetModelSpaceTransform(const glm::mat4 &transform,
-                                      int boneID) override;
-  [[nodiscard]] virtual std::vector<glm::mat4>
-  GetModelSpaceTransofrms() const override;
+	[[nodiscard]] virtual const glm::mat4		 GetModelSpaceTransform(int boneID) const override;
+	virtual void								 SetModelSpaceTransform(const glm::mat4& transform, int boneID) override;
+	[[nodiscard]] virtual std::vector<glm::mat4> GetModelSpaceTransofrms() const override;
 
 private:
-  std::vector<S_BoneKeyframe> m_keyFrame;
+	std::vector<S_BoneKeyframe> m_keyFrame;
 };
 } // namespace GLEngine::Renderer::Animation

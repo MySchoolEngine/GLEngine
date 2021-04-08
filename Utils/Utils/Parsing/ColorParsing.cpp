@@ -11,15 +11,17 @@
 namespace Utils::Parsing {
 
 //=================================================================================
-glm::vec3 C_ColorParser::ParseColorRGB(const pugi::xml_node &node) {
-  glm::vec3 ret(0.f);
-  if (auto colorChild = node.child("color")) {
-    std::stringstream ss;
-    ss << colorChild.child_value();
-    ss >> ret.r >> ret.g >> ret.b;
-  }
+glm::vec3 C_ColorParser::ParseColorRGB(const pugi::xml_node& node)
+{
+	glm::vec3 ret(0.f);
+	if (auto colorChild = node.child("color"))
+	{
+		std::stringstream ss;
+		ss << colorChild.child_value();
+		ss >> ret.r >> ret.g >> ret.b;
+	}
 
-  return ret;
+	return ret;
 }
 
 } // namespace Utils::Parsing

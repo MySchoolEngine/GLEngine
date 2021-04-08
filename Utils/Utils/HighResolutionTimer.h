@@ -10,16 +10,16 @@
 namespace Utils {
 class UTILS_API_EXPORT HighResolutionTimer {
 private:
-  std::chrono::high_resolution_clock::time_point _start, _stop, _last;
-  std::chrono::duration<double, std::nano> _duration;
+	std::chrono::high_resolution_clock::time_point _start, _stop, _last;
+	std::chrono::duration<double, std::nano>	   _duration;
 
 public:
-  HighResolutionTimer();
-  void reset();
-  double getElapsedTimeSeconds();
-  double getElapsedTimeMilliseconds();
-  double getElapsedTimeFromLastQuerySeconds();
-  double getElapsedTimeFromLastQueryMilliseconds();
-  double getTimerPrecisionSeconds();
+	HighResolutionTimer();
+	void   reset();
+	double getElapsedTimeSeconds();
+	double getElapsedTimeMilliseconds();
+	double getElapsedTimeFromLastQuerySeconds();
+	double getElapsedTimeFromLastQueryMilliseconds();
+	double getTimerPrecisionSeconds();
 };
 } // namespace Utils

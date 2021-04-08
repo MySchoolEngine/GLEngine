@@ -1,7 +1,6 @@
 #pragma once
 
-namespace GLEngine {
-namespace Renderer {
+namespace GLEngine { namespace Renderer {
 
 //================================================
 // List of I_RenderCommands
@@ -15,8 +14,7 @@ namespace Renderer {
 //================================================
 class I_RenderBatch {
 public:
-  virtual ~I_RenderBatch() = default;
+	virtual ~I_RenderBatch() = default;
 };
 
-} // namespace Renderer
-} // namespace GLEngine
+}} // namespace GLEngine::Renderer

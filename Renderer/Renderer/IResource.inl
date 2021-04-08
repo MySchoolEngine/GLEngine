@@ -1,5 +1,4 @@
 #pragma once
 
-namespace GLEngine {
-namespace Renderer {}
-} // namespace GLEngine
+namespace GLEngine { namespace Renderer {
+}} // namespace GLEngine::Renderer

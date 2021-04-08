@@ -3,8 +3,7 @@
 #include <Renderer/IExtractor.h>
 #include <Renderer/IRawGPUData.h>
 
-namespace GLEngine {
-namespace Renderer {
+namespace GLEngine { namespace Renderer {
 
 class I_RenderableComponent;
 
@@ -20,23 +19,22 @@ class I_RenderableComponent;
  ** ==============================================*/
 class I_Resource {
 public:
-  virtual ~I_Resource() = default;
+	virtual ~I_Resource() = default;
 
-  virtual std::unique_ptr<I_RawGPUData> ExtractData() const = 0;
+	virtual std::unique_ptr<I_RawGPUData> ExtractData() const = 0;
 
-  virtual void Invalidate() = 0;
-  virtual bool IsValid() = 0;
+	virtual void Invalidate() = 0;
+	virtual bool IsValid()	  = 0;
 };
 
 // leave it here for documentation
 /*class C_SkeletonResource : I_Resource<C_Extractor> {
 
-        virtual std::shared_ptr<I_RenderableComponent> GetComponent() const
+		virtual std::shared_ptr<I_RenderableComponent> GetComponent() const
 override { return nullptr; }; virtual void Invalidate() override {}; virtual
 bool IsValid() override { return false; };
 };*/
 
-} // namespace Renderer
-} // namespace GLEngine
+}} // namespace GLEngine::Renderer
 
 #include <Renderer/IResource.inl>

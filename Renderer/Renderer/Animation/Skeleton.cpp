@@ -8,14 +8,21 @@ namespace GLEngine::Renderer::Animation {
 C_Skeleton::C_Skeleton() = default;
 
 //=================================================================================
-std::size_t C_Skeleton::GetNumBones() const { return m_NumBones; }
+std::size_t C_Skeleton::GetNumBones() const
+{
+	return m_NumBones;
+}
 
 //=================================================================================
-void C_Skeleton::SetNumBonse(std::size_t num) { m_NumBones = num; }
+void C_Skeleton::SetNumBonse(std::size_t num)
+{
+	m_NumBones = num;
+}
 
 //=================================================================================
-void C_Skeleton::ApplyPoseToBones(std::vector<glm::mat4> &poseData) const {
-  m_Root->ApplyPoseToJoints(poseData, glm::mat4(1.f));
+void C_Skeleton::ApplyPoseToBones(std::vector<glm::mat4>& poseData) const
+{
+	m_Root->ApplyPoseToJoints(poseData, glm::mat4(1.f));
 }
 
 } // namespace GLEngine::Renderer::Animation
