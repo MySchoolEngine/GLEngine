@@ -7,7 +7,7 @@
 #include <fstream>
 #include <string>
 
-namespace Utils { namespace Logging {
+namespace Utils::Logging {
 
 class UTILS_API_EXPORT I_Logger {
 public:
@@ -29,4 +29,4 @@ public:
 protected:
 	std::ofstream* m_file;
 };
-}} // namespace Utils::Logging
+} // namespace Utils::Logging

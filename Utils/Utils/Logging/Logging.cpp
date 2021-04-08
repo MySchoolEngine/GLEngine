@@ -1,7 +1,7 @@
 #include <Utils/Logging/ILogger.h>
 #include <Utils/Logging/Logging.h>
 
-namespace Utils { namespace Logging {
+namespace Utils::Logging {
 
 //=================================================================================
 C_LoggingSystem::C_LoggingSystem()
@@ -81,4 +81,4 @@ std::ostream& operator<<(std::ostream& out, const E_Level& c)
 	return out;
 }
 
-}} // namespace Utils::Logging
+} // namespace Utils::Logging

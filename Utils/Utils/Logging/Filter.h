@@ -5,7 +5,7 @@
 
 #include <Core/CoreMacros.h>
 
-namespace Utils { namespace Logging {
+namespace Utils::Logging {
 
 /** ==============================================
  * @class C_Filter
@@ -95,4 +95,4 @@ private:
 	C_Filter*	 m_NegatedFilter;
 };
 
-}} // namespace Utils::Logging
+} // namespace Utils::Logging
