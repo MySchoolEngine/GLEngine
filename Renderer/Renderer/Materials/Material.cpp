@@ -2,6 +2,8 @@
 
 #include <Renderer/Materials/Material.h>
 
+#include <imgui.h>
+
 namespace GLEngine::Renderer {
 
 //=================================================================================
@@ -77,19 +79,19 @@ void C_Material::SetRoughness(float roughness)
 }
 
 //=================================================================================
-void C_Material::SetNormalMap(void* texture)
+void C_Material::SetNormalMap(std::shared_ptr<I_DeviceTexture> texture)
 {
 	m_NormalMap = texture;
 }
 
 //=================================================================================
-void C_Material::SetRoughnessMap(void* texture)
+void C_Material::SetRoughnessMap(std::shared_ptr<I_DeviceTexture> texture)
 {
 	m_RoughnessMap = texture;
 }
 
 //=================================================================================
-void C_Material::SetColorMap(void* texture)
+void C_Material::SetColorMap(std::shared_ptr<I_DeviceTexture> texture)
 {
 	m_ColorMap = texture;
 }
@@ -98,6 +100,14 @@ void C_Material::SetColorMap(void* texture)
 int C_Material::GetMaterialIndex() const
 {
 	return m_MaterialIndex;
+}
+
+//=================================================================================
+void C_Material::DrawGUI() const
+{
+	ImGui::Image((void*)(intptr_t)(GetNormalMap()->GetDeviceTextureHandle()), ImVec2(256, 256));
+	ImGui::Image((void*)(intptr_t)(GetRoughnessMap()->GetDeviceTextureHandle()), ImVec2(256, 256));
+	ImGui::Image((void*)(intptr_t)(GetColorMap()->GetDeviceTextureHandle()), ImVec2(256, 256));
 }
 
 } // namespace GLEngine::Renderer

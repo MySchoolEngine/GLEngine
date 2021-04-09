@@ -25,6 +25,7 @@ project "Renderer"
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.DevIL}",
+		"../%{IncludeDir.ImGui}",
 
 		"../vendor/Assimp/include",
 		"../vendor/projects/Assimp"
@@ -39,6 +40,7 @@ project "Renderer"
 	{ 
 		"pugixml",
 		"Assimp",
+		"ImGui",
 		"DevIL-IL",
 	}
 

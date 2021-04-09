@@ -3,6 +3,11 @@
 #include <Renderer/Materials/Material.h>
 #include <Renderer/Materials/MaterialManager.h>
 
+#include <GUI/GUIManager.h>
+#include <GUI/GUIWindow.h>
+
+#include <imgui.h>
+
 namespace GLEngine::Renderer {
 
 //=================================================================================
@@ -42,6 +47,33 @@ std::shared_ptr<C_Material> C_MaterialManager::RegisterMaterial(C_Material&& mat
 void C_MaterialManager::ForEachMaterial(const T_MaterialEnumerator& fn)
 {
 	std::for_each(m_Materials.begin(), m_Materials.end(), fn);
+}
+
+//=================================================================================
+GUID C_MaterialManager::SetupControls(GUI::C_GUIManager& guiMGR)
+{
+	m_Window		  = guiMGR.CreateGUIWindow("Material manager");
+	auto* materialMan = guiMGR.GetWindow(m_Window);
+
+	m_MaterialsList = std::make_unique<GUI::C_LambdaPart>([&]() {
+		for (const auto& material : m_Materials)
+		{
+			if (::ImGui::CollapsingHeader(material->GetName().c_str()))
+			{
+				material->DrawGUI();
+			}
+		}
+	});
+
+	materialMan->AddComponent(*m_MaterialsList.get());
+
+	return m_Window;
+}
+
+//=================================================================================
+void C_MaterialManager::DestroyControls(GUI::C_GUIManager& guiMGR)
+{
+	guiMGR.DestroyWindow(m_Window);
 }
 
 } // namespace GLEngine::Renderer
