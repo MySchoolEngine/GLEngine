@@ -154,6 +154,12 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 		m_LightsUBO->MakeHandlesResident();
 		renderer.AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
 			[&, materialsHaveChanged]() {
+				m_FrameConstUBO->SetView(camera->GetViewMatrix());
+				m_FrameConstUBO->SetProjection(camera->GetProjectionMatrix());
+				m_FrameConstUBO->SetCameraPosition(glm::vec4(camera->GetPosition(), 1.0f));
+				m_FrameConstUBO->SetNearPlane(camera->GetNear());
+				m_FrameConstUBO->SetFarPlane(camera->GetFar());
+				m_FrameConstUBO->SetFrameTime(static_cast<float>(glfwGetTime()));
 				m_FrameConstUBO->UploadData();
 				m_FrameConstUBO->Activate(true);
 				m_LightsUBO->UploadData();
