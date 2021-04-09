@@ -100,7 +100,7 @@ void C_GLGeomComponent::SetupMaterial(const Utils::Parsing::MaterialData& data)
 
 			m_ColorMap->EndGroupOp();
 
-			m_Material->SetColorMap(static_cast<void*>(&m_ColorMap));
+			m_Material->SetColorMap(m_ColorMap);
 		}
 	}
 }

@@ -169,7 +169,7 @@ void C_StaticMesh::SetColorMap(std::shared_ptr<Textures::C_Texture>& texture)
 	m_ColorMap = texture;
 	m_ColorMap->CreateHandle();
 
-	m_Material->SetColorMap(static_cast<void*>(&m_ColorMap));
+	m_Material->SetColorMap(m_ColorMap);
 }
 
 //=================================================================================
@@ -177,7 +177,7 @@ void C_StaticMesh::SetNormalMap(std::shared_ptr<Textures::C_Texture>& texture)
 {
 	m_NormalMap = texture;
 	texture->CreateHandle();
-	m_Material->SetNormalMap(static_cast<void*>(&m_NormalMap));
+	m_Material->SetNormalMap(texture);
 }
 
 //=================================================================================
@@ -186,7 +186,7 @@ void C_StaticMesh::SetRoughnessMap(const std::shared_ptr<Textures::C_Texture>& t
 	m_RoughnessMap = texture;
 	m_Roughness	   = 1.0f;
 	texture->CreateHandle();
-	m_Material->SetRoughnessMap(static_cast<void*>(&m_RoughnessMap));
+	m_Material->SetRoughnessMap(m_RoughnessMap);
 }
 
 //=================================================================================

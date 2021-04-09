@@ -36,13 +36,14 @@ std::string C_PhongMaterial::GetNameImpl() const
 //=================================================================================
 void C_PhongMaterial::Update(const Renderer::C_Material& material)
 {
-	const auto identity	 = Textures::C_TextureManager::Instance().GetIdentityTexture();
-	auto*	   color	 = static_cast<std::shared_ptr<Textures::C_Texture>*>(material.GetColorMap());
-	auto*	   normalMap = static_cast<std::shared_ptr<Textures::C_Texture>*>(material.GetNormalMap());
+	const auto identity		= Textures::C_TextureManager::Instance().GetIdentityTexture();
+	auto	   color		= std::dynamic_pointer_cast<Textures::C_Texture>(material.GetColorMap());
+	auto	   normalMap	= std::dynamic_pointer_cast<Textures::C_Texture>(material.GetNormalMap());
+	auto	   roughnessMap = std::dynamic_pointer_cast<Textures::C_Texture>(material.GetRoughnessMap());
 	if (color)
 	{
-		m_ColorMap = (*color)->CreateHandle();
-		(*color)->MakeHandleResident();
+		m_ColorMap = color->CreateHandle();
+		color->MakeHandleResident();
 	}
 	else
 	{
@@ -52,14 +53,19 @@ void C_PhongMaterial::Update(const Renderer::C_Material& material)
 	m_NormalMap	   = identity->GetHandle();
 	if (normalMap)
 	{
-		m_NormalMap = (*normalMap)->CreateHandle();
-		(*normalMap)->MakeHandleResident();
+		m_NormalMap = normalMap->CreateHandle();
+		normalMap->MakeHandleResident();
 		m_UseNormalMap = true;
 	}
 	m_RoughnessMap = identity->GetHandle();
-	m_ModelColor   = material.GetColor();
-	m_Roughness	   = material.GetRoughness();
-	m_Shininess	   = material.GetShininess();
+	if (roughnessMap)
+	{
+		m_RoughnessMap = roughnessMap->CreateHandle();
+		roughnessMap->MakeHandleResident();
+	}
+	m_ModelColor = material.GetColor();
+	m_Roughness	 = material.GetRoughness();
+	m_Shininess	 = material.GetShininess();
 }
 
 } // namespace GLEngine::GLRenderer::Material
