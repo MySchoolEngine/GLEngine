@@ -88,6 +88,8 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 C_ExplerimentWindow::~C_ExplerimentWindow()
 {
 	static_cast<C_OGLRenderer*>(m_renderer.get())->DestroyControls(m_ImGUI->GetGUIMgr());
+	m_CamManager.DestroyControls(m_ImGUI->GetGUIMgr());
+	Renderer::C_MaterialManager::Instance().DestroyControls(m_ImGUI->GetGUIMgr());
 };
 
 //=================================================================================
@@ -340,6 +342,9 @@ void C_ExplerimentWindow::OnAppInit()
 
 	const auto camManager = m_CamManager.SetupControls(guiMGR);
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Camera manager", camManager, guiMGR));
+
+	const auto materialManager = Renderer::C_MaterialManager::Instance().SetupControls(guiMGR);
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Material manager", materialManager, guiMGR));
 
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Open level", [&]() {
 		const auto levelSelectorGUID = NextGUID();
