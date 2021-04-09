@@ -7,6 +7,8 @@ CALL :runClang Renderer
 CALL :runClang Physics
 CALL :runClang GUI
 CALL :runClang Entity
+CALL :runClang GLFWWindowManager
+CALL :runClang VulkanRenderer
 
 cd Data
 cd Shaders

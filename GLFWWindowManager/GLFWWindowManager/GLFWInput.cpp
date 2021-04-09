@@ -50,4 +50,4 @@ float C_GLFWInput::GetMouseY() const
 	return GetMousePosition().second;
 }
 
-} // namespace GLEngine::GLRenderer::GLFW
+} // namespace GLEngine::GLFWManager

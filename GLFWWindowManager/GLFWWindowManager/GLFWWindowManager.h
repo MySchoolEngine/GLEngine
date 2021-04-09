@@ -1,9 +1,9 @@
 #pragma once
 
-#include <GLFWWindowManager/GLFWWindowManagerApi.h>
-
 #include <Core/IWindowManager.h>
+
 #include <GLFWWindowManager/GLFWWindow.h>
+#include <GLFWWindowManager/GLFWWindowManagerApi.h>
 
 namespace GLEngine::GLFWManager {
 
@@ -15,10 +15,10 @@ public:
 	//=============================================================
 	[[nodiscard]] virtual std::shared_ptr<Core::I_Window> OpenNewWindow(const Core::S_WindowInfo& info) override;
 	[[nodiscard]] virtual std::shared_ptr<Core::I_Window> GetWindow(GUID guid) const override;
-	virtual void Update() override;
-	[[nodiscard]] virtual unsigned int NumWindows() const override;
-	[[nodiscard]] virtual Renderer::I_Renderer& GetActiveRenderer() override;
-	[[nodiscard]] virtual Renderer::I_Renderer* ActiveRendererPtr() override;
+	virtual void										  Update() override;
+	[[nodiscard]] virtual unsigned int					  NumWindows() const override;
+	[[nodiscard]] virtual Renderer::I_Renderer&			  GetActiveRenderer() override;
+	[[nodiscard]] virtual Renderer::I_Renderer*			  ActiveRendererPtr() override;
 
 	//=================================================================================
 	// Core::C_Layer
@@ -30,7 +30,7 @@ protected:
 
 private:
 	std::vector<std::shared_ptr<Core::I_Window>> m_Windows;
-	std::shared_ptr<Core::I_Window> m_UpdatingWindow;
-	Core::E_Driver				m_Driver;
+	std::shared_ptr<Core::I_Window>				 m_UpdatingWindow;
+	Core::E_Driver								 m_Driver;
 };
-}
+} // namespace GLEngine::GLFWManager

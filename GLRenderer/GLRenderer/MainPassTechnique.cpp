@@ -18,8 +18,8 @@
 #include <Renderer/IRenderer.h>
 #include <Renderer/Lights/AreaLight.h>
 #include <Renderer/Lights/PointLight.h>
-#include <Renderer/Materials/MaterialManager.h>
 #include <Renderer/Lights/SunLight.h>
+#include <Renderer/Materials/MaterialManager.h>
 
 #include <Physics/Primitives/Frustum.h>
 

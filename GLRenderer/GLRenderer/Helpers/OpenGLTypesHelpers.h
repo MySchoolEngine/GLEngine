@@ -2,8 +2,8 @@
 
 #include <GLRendererStdafx.h>
 
-#include <Renderer/Textures/TextureDefinitions.h>
 #include <Renderer/Definitions.h>
+#include <Renderer/Textures/TextureDefinitions.h>
 #include <Renderer/Textures/TextureStorage.h>
 
 #include <Core/CoreMacros.h>
@@ -248,7 +248,7 @@ inline constexpr GLenum GetOpenGLInternalFormat(const Renderer::E_TextureFormat 
 //=================================================================================
 constexpr GLenum MinMagFilterToEnum(const Renderer::E_TextureFilter filter)
 {
-  using namespace Renderer;
+	using namespace Renderer;
 	switch (filter)
 	{
 	case E_TextureFilter::Linear:

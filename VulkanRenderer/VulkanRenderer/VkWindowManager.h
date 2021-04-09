@@ -31,4 +31,4 @@ protected:
 	std::vector<const char*> m_instance_layer_list;
 	std::vector<const char*> m_instance_extensions_list;
 };
-}
+} // namespace GLEngine::VkRenderer

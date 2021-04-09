@@ -252,11 +252,11 @@ T_TexBufferFuture C_Texture::GetTextureData() const
 	auto  ret	   = promise.get_future();
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
 	renderer.AddCommand(std::make_unique<Commands::C_GetTexImage>(std::move(promise), m_target,
-																   0, // level
-																   GetOpenGLInternalFormat(m_Format),
-																   T_TypeToGL<std::uint8_t>::value, // todo
-																   GetWidth(), GetHeight(),			// resolution
-																   Renderer::GetNumberChannels(m_Format)));
+																  0, // level
+																  GetOpenGLInternalFormat(m_Format),
+																  T_TypeToGL<std::uint8_t>::value, // todo
+																  GetWidth(), GetHeight(),		   // resolution
+																  Renderer::GetNumberChannels(m_Format)));
 	return ret;
 }
 

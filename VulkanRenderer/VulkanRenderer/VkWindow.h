@@ -1,15 +1,16 @@
 #pragma once
 
-#include <Core/IWindow.h>
 #include <Core/Application.h>
+#include <Core/IWindow.h>
 
 #include <GLFWWindowManager/GLFWWindow.h>
 
 struct GLFWwindow;
 
-namespace GLEngine::Core {;
+namespace GLEngine::Core {
+;
 class C_WindowResizedEvent;
-}
+} // namespace GLEngine::Core
 
 namespace GLEngine::VkRenderer {
 
@@ -23,30 +24,31 @@ public:
 	virtual Renderer::I_Renderer& GetRenderer() override;
 
 	virtual void OnEvent(Core::I_Event& event) override;
+
 protected:
-	virtual void Init(const Core::S_WindowInfo& wndInfo) override;
+	virtual void				  Init(const Core::S_WindowInfo& wndInfo) override;
 	std::unique_ptr<C_VkRenderer> m_renderer;
 
 	bool OnWindowResized(Core::C_WindowResizedEvent& event);
-private:
 
-	bool CreateWindowSurface();
-	void CreateSwapChain();
+private:
+	bool			   CreateWindowSurface();
+	void			   CreateSwapChain();
 	VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
-	VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
-	VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, VkExtent2D actualExtent);
-	void CreateImageViews();
+	VkPresentModeKHR   ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+	VkExtent2D		   ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, VkExtent2D actualExtent);
+	void			   CreateImageViews();
 
 	void DestroySwapchain();
 
-	VkSwapchainKHR m_SwapChain;
-	std::vector<VkImage> m_SwapChainImages;
+	VkSwapchainKHR			 m_SwapChain;
+	std::vector<VkImage>	 m_SwapChainImages;
 	std::vector<VkImageView> m_SwapChainImagesViews;
-	VkFormat	m_SwapChainImageFormat;
-	VkExtent2D	m_SwapChainExtent;
+	VkFormat				 m_SwapChainImageFormat;
+	VkExtent2D				 m_SwapChainExtent;
 
 	VkSurfaceKHR_T* m_Surface;
 
 	VkInstance_T* m_Instance;
 };
-}
+} // namespace GLEngine::VkRenderer

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Core/CoreMacros.h>
-
 #include <Renderer/IRenderer.h>
+
+#include <Core/CoreMacros.h>
 
 namespace GLEngine::VkRenderer {
 
@@ -38,10 +38,10 @@ public:
 	VkDevice_T* GetDevice() { return m_Device; }
 
 	SwapChainSupportDetails QuerySwapChainSupport(VkSurfaceKHR surface);
-	void FillFamilyIndexes(VkSwapchainCreateInfoKHR& createInfo);
-private:
+	void					FillFamilyIndexes(VkSwapchainCreateInfoKHR& createInfo);
 
-	bool m_Locked = false;
+private:
+	bool											 m_Locked = false;
 	std::vector<Renderer::I_Renderer::T_CommandPtr>* m_CommandQueue;
 
 	VkInstance_T*		m_Instance;
@@ -54,9 +54,8 @@ private:
 	VkQueue m_graphicsQueue;
 	VkQueue m_presentQueue;
 
-	bool InitDevice(VkSurfaceKHR surface);
+	bool								 InitDevice(VkSurfaceKHR surface);
 	std::vector<VkDeviceQueueCreateInfo> CreatePresentingQueueInfos();
-
 };
 
-}
+} // namespace GLEngine::VkRenderer

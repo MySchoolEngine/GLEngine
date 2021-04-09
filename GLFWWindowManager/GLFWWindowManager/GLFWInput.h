@@ -1,7 +1,8 @@
 #pragma once
 
-#include <GLFWWindowManager/GLFWWindowManagerApi.h>
 #include <Core/Input.h>
+
+#include <GLFWWindowManager/GLFWWindowManagerApi.h>
 
 struct GLFWwindow;
 
@@ -30,4 +31,4 @@ protected:
 	GLFWwindow* m_Window;
 };
 
-} // namespace GLEngine::GLRenderer::GLFW
+} // namespace GLEngine::GLFWManager

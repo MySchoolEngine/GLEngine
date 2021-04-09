@@ -1,7 +1,7 @@
 #pragma once
 
 #if !defined CORE_PLATFORM
-#error "CORE_PLATFORM not defined"
+	#error "CORE_PLATFORM not defined"
 #endif
 
 #if CORE_PLATFORM == CORE_PLATFORM_WIN
@@ -11,4 +11,3 @@
 		#define VK_RENDERER_API_EXPORT __declspec(dllimport)
 	#endif
 #endif
-

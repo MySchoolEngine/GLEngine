@@ -37,3 +37,6 @@ project "GLFWWindowManager"
 		{
 			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
 		}
+
+	filter "system:linux"
+		pic "On"

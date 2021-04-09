@@ -50,10 +50,10 @@ IncludeIsMainRegex: ".h>$"
 IncludeCategories:
   - Regex:           '^<.*Stdafx.h>'
     Priority:    	   1
-  - Regex:           '^<GLRenderer/.*>'
-    Priority:        3
   - Regex:           '^<GLFWWindowManager/*.>'
-    Priority:        4
+    Priority:        3
+  - Regex:           '^<GLRenderer/.*>'
+    Priority:        5
   - Regex:           '^<DX12Renderer/.*>'
     Priority:        6
   - Regex:           '^<Renderer/.*>'

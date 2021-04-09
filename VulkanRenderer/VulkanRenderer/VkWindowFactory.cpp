@@ -1,9 +1,7 @@
 #include <VkRendererStdafx.h>
 
-#include <VulkanRenderer/VkWindowFactory.h>
-
 #include <VulkanRenderer/VkWindow.h>
-
+#include <VulkanRenderer/VkWindowFactory.h>
 #include <VulkanRenderer/VkWindowManager.h>
 
 namespace GLEngine::VkRenderer {
@@ -11,7 +9,8 @@ namespace GLEngine::VkRenderer {
 //=================================================================================
 std::shared_ptr<Core::I_Window> C_VkWindowFactory::GetWindow(const Core::S_WindowInfo& wndInfo) const
 {
-	if (wndInfo.m_WindowClass == "VkWindow") {
+	if (wndInfo.m_WindowClass == "VkWindow")
+	{
 		return std::make_shared<C_VkWindow>(wndInfo);
 	}
 	return nullptr;
@@ -32,4 +31,4 @@ VK_RENDERER_API_EXPORT C_VkWindowManager* ConstructVkWManager(Core::C_Applicatio
 	return new C_VkWindowManager(eventCallback);
 }
 
-}
+} // namespace GLEngine::VkRenderer

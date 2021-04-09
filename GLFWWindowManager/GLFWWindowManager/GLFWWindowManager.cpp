@@ -1,10 +1,10 @@
 #include <GLFWWindowManagerStdafx.h>
 
-#include <GLFWWindowManager/GLFWWindowManager.h>
+#include <Renderer/IRenderer.h>
 
 #include <Core/EventSystem/Event/AppEvent.h>
 
-#include <Renderer/IRenderer.h>
+#include <GLFWWindowManager/GLFWWindowManager.h>
 
 namespace GLEngine::GLFWManager {
 
@@ -40,9 +40,9 @@ Renderer::I_Renderer& C_GLFWWindowManager::GetActiveRenderer()
 //=================================================================================
 Renderer::I_Renderer* C_GLFWWindowManager::ActiveRendererPtr()
 {
-  if (!m_UpdatingWindow)
-	return nullptr;
-  return &m_UpdatingWindow->GetRenderer();
+	if (!m_UpdatingWindow)
+		return nullptr;
+	return &m_UpdatingWindow->GetRenderer();
 }
 
 //=================================================================================
@@ -110,4 +110,4 @@ void C_GLFWWindowManager::Init()
 	}
 }
 
-} // namespace GLEngine::GLRenderer::GLFW
+} // namespace GLEngine::GLFWManager

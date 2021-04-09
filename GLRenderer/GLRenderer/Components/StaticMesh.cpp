@@ -45,7 +45,7 @@ C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::s
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}", m_meshFile);
 		return;
 	}
-	
+
 	m_Transformation.SetMatrix(modelMatrix);
 
 	// TODO this is unsafe way to init model

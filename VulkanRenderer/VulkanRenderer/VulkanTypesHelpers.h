@@ -9,7 +9,8 @@
 namespace GLEngine::VkRenderer {
 //=================================================================================
 // Shader stages
-constexpr VkShaderStageFlagBits ShaderStageTypeToEnum(const Renderer::E_ShaderStage stage) {
+constexpr VkShaderStageFlagBits ShaderStageTypeToEnum(const Renderer::E_ShaderStage stage)
+{
 	switch (stage)
 	{
 	case Renderer::E_ShaderStage::Vertex:
@@ -29,4 +30,4 @@ constexpr VkShaderStageFlagBits ShaderStageTypeToEnum(const Renderer::E_ShaderSt
 
 	return VK_SHADER_STAGE_VERTEX_BIT;
 }
-}
+} // namespace GLEngine::VkRenderer

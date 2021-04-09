@@ -1,10 +1,10 @@
 #include <GLFWWindowManagerStdafx.h>
 
-#include <GLFWWindowManager/GLFWWindow.h>
-
 #include <Core/EventSystem/Event/AppEvent.h>
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/Event/MouseEvents.h>
+
+#include <GLFWWindowManager/GLFWWindow.h>
 
 namespace GLEngine::GLFWManager {
 
@@ -206,4 +206,4 @@ void C_GLFWWindow::WindowHint(int hint, int value)
 	glfwWindowHint(hint, value);
 }
 
-} // namespace GLEngine::GLRenderer::GLFW
+} // namespace GLEngine::GLFWManager

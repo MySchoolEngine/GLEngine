@@ -21,7 +21,7 @@ public:
 	virtual void bind() const	= 0;
 	virtual void unbind() const = 0;
 
-	virtual void NameBuffer(const std::string& name) const = 0;
+	virtual void NameBuffer(const std::string& name) const										  = 0;
 	virtual void AllocateMemory(const std::size_t size, GLenum usage, const void* data = nullptr) = 0;
 };
 

@@ -1,10 +1,9 @@
 #include <VkRendererStdafx.h>
 
-#include <VulkanRenderer/VkWindowManager.h>
-
 #include <VulkanRenderer/VkWindow.h>
 #include <VulkanRenderer/VkWindowFactory.h>
 #include <VulkanRenderer/VkWindowInfo.h>
+#include <VulkanRenderer/VkWindowManager.h>
 
 #include <Renderer/IRenderer.h>
 
@@ -34,25 +33,23 @@ void C_VkWindowManager::Init()
 #endif
 	CheckLayersSupport();
 
-	const VkApplicationInfo application_info = {
-		VK_STRUCTURE_TYPE_APPLICATION_INFO,
-		nullptr,
-		"GLEngine",// a bit ironical isn't it?
-		VK_MAKE_VERSION(0, 1, 0),
-		nullptr,
-		VK_MAKE_VERSION(0, 1, 0),
-		VK_MAKE_VERSION(1, 0, 3)
-	};
+	const VkApplicationInfo application_info = {VK_STRUCTURE_TYPE_APPLICATION_INFO,
+												nullptr,
+												"GLEngine", // a bit ironical isn't it?
+												VK_MAKE_VERSION(0, 1, 0),
+												nullptr,
+												VK_MAKE_VERSION(0, 1, 0),
+												VK_MAKE_VERSION(1, 0, 3)};
 
 	const VkInstanceCreateInfo instance_create_info = {
 		VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-		nullptr,						// No pointer to the next thing (?)
-		0,								// No creation flags
-		&application_info,				// No application info
+		nullptr,		   // No pointer to the next thing (?)
+		0,				   // No creation flags
+		&application_info, // No application info
 		static_cast<uint32_t>(m_instance_layer_list.size()),
 		m_instance_layer_list.data(),
-		static_cast<uint32_t>(m_instance_extensions_list.size()),	// The number of extensions
-		m_instance_extensions_list.data()	// The extensions to load
+		static_cast<uint32_t>(m_instance_extensions_list.size()), // The number of extensions
+		m_instance_extensions_list.data()						  // The extensions to load
 	};
 
 	const auto res = vkCreateInstance(&instance_create_info, nullptr, &m_Instance);
@@ -76,7 +73,6 @@ C_VkWindowManager::~C_VkWindowManager()
 
 	vkDestroyInstance(m_Instance, nullptr);
 	m_Instance = nullptr;
-
 }
 
 //=================================================================================
@@ -91,12 +87,10 @@ void C_VkWindowManager::SetupDebug()
 }
 
 //=================================================================================
-VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugReportCallback(
-	VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-	VkDebugUtilsMessageTypeFlagsEXT messageType,
-	const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-	void* pUserData
-)
+VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugReportCallback(VkDebugUtilsMessageSeverityFlagBitsEXT		 messageSeverity,
+														 VkDebugUtilsMessageTypeFlagsEXT			 messageType,
+														 const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+														 void*										 pUserData)
 {
 	CORE_LOG(E_Level::Error, E_Context::Render, "Vulkan: {}", pCallbackData->pMessage);
 
@@ -106,35 +100,32 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugReportCallback(
 //=================================================================================
 void C_VkWindowManager::InitDebug()
 {
-	const auto pfnCreateDebugUtilsMessengerEXT = (PFN_vkCreateDebugUtilsMessengerEXT)
-		vkGetInstanceProcAddr(m_Instance, "vkCreateDebugUtilsMessengerEXT");
+	const auto pfnCreateDebugUtilsMessengerEXT = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(m_Instance, "vkCreateDebugUtilsMessengerEXT");
 	GLE_ASSERT(pfnCreateDebugUtilsMessengerEXT, "Vulkan: havent found vkCreateDebugUtilsMessengerEXT");
 
 	VkDebugUtilsMessengerCreateInfoEXT createInfo{};
-	createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+	createInfo.sType		   = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
 	createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-	createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+	createInfo.messageType	   = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 	createInfo.pfnUserCallback = VulkanDebugReportCallback;
-	createInfo.pUserData = nullptr;
+	createInfo.pUserData	   = nullptr;
 
 	pfnCreateDebugUtilsMessengerEXT(m_Instance, &createInfo, nullptr, &m_DebugMessenger);
 }
 
 //=================================================================================
-void C_VkWindowManager::CheckLayersSupport()
-{
+void C_VkWindowManager::CheckLayersSupport(){
 #ifdef GL_ENGINE_DEBUG
-	{
-		uint32_t layerCount = 0;
-		vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-		std::vector<VkLayerProperties> layers(layerCount);
-		vkEnumerateInstanceLayerProperties(&layerCount, layers.data());
-		CORE_LOG(E_Level::Info, E_Context::Render, "Instance layers: ");
-		for (const auto it : layers)
-		{
-			CORE_LOG(E_Level::Info, E_Context::Render, "\t{}: {}", it.layerName, it.description);
-		}
-	}
+	{uint32_t layerCount = 0;
+vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+std::vector<VkLayerProperties> layers(layerCount);
+vkEnumerateInstanceLayerProperties(&layerCount, layers.data());
+CORE_LOG(E_Level::Info, E_Context::Render, "Instance layers: ");
+for (const auto it : layers)
+{
+	CORE_LOG(E_Level::Info, E_Context::Render, "\t{}: {}", it.layerName, it.description);
+}
+}
 #endif
 }
 
@@ -145,7 +136,7 @@ std::shared_ptr<GLEngine::Core::I_Window> C_VkWindowManager::OpenNewWindow(const
 	{
 		return nullptr;
 	}
-	auto* vkwndInfo = (const_cast<S_VkWindowInfo*>(dynamic_cast<const S_VkWindowInfo*>(&info)));
+	auto* vkwndInfo		  = (const_cast<S_VkWindowInfo*>(dynamic_cast<const S_VkWindowInfo*>(&info)));
 	vkwndInfo->m_Instance = m_Instance;
 
 	return GLFWManager::C_GLFWWindowManager::OpenNewWindow(info);
@@ -158,5 +149,4 @@ C_VkWindowManager* ConstructVkManager(Core::C_Application::EventCallbackFn event
 {
 	return new C_VkWindowManager(eventCallback);
 }
-
 }
