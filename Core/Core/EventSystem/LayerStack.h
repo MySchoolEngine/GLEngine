@@ -13,7 +13,8 @@ public:
 	//===================================================
 	// C_Layer
 	//===================================================
-	virtual void OnEvent(Core::I_Event& event) override;
+	virtual void			   OnEvent(Core::I_Event& event) override;
+	[[nodiscard]] virtual bool ReadyForDestroy() const override;
 
 protected:
 	std::vector<C_Layer*>* m_Layers;

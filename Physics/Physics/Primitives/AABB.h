@@ -2,11 +2,7 @@
 
 #include <Physics/Primitives/Intersectable.h>
 #include <Physics/Primitives/Ray.h>
-#include <Physics/Primitives/Shapes.h>
-
-#include <glm/glm.hpp>
-
-#include <array>
+#include <Physics/Primitives/Sphere.h>
 
 namespace GLEngine::Physics::Primitives {
 

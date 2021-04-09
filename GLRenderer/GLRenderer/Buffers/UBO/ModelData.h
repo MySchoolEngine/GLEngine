@@ -14,6 +14,8 @@ public:
 
 	constexpr std::size_t BufferSize() const;
 
+	[[nodiscard]] virtual std::size_t GetBufferSize() const override;
+
 private:
 	glm::mat4 m_ModelMatrix;
 	int		  m_MaterialIndex;

@@ -20,7 +20,6 @@
 
 #include <Utils/HighResolutionTimer.h>
 
-#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
 
 #include <pugixml.hpp>
@@ -157,8 +156,8 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, std::str
 		return;
 
 	m_Texture->StartGroupOp();
-	m_Texture->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
-	m_Texture->SetFilter(E_OpenGLFilter::LinearMipMapLinear, E_OpenGLFilter::Linear);
+	m_Texture->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
+	m_Texture->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
 	m_Texture->GenerateMipMaps();
 
 	m_Texture->EndGroupOp();

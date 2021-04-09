@@ -7,10 +7,13 @@
 #include <GLRenderer/Components/StaticMesh.h>
 #include <GLRenderer/Textures/TextureManager.h>
 
+#include <Renderer/Lights/AreaLight.h>
 #include <Renderer/Lights/PointLight.h>
 #include <Renderer/Mesh/Loading/SceneLoader.h>
 
 #include <Entity/Components/EntityDebugComponent.h>
+
+#include <Utils/Parsing/MaterialParser.h>
 
 namespace GLEngine::GLRenderer::Components {
 
@@ -36,6 +39,10 @@ std::unique_ptr<Entity::I_ComponenetBuilder> C_ComponentBuilderFactory::GetFacto
 	if (name == "PointLight")
 	{
 		return std::make_unique<Renderer::C_PointLightCompBuilder>();
+	}
+	if (name == "AreaLight")
+	{
+		return std::make_unique<Renderer::C_AreaLightCompBuilder>();
 	}
 	if (name == "Geometry")
 	{
@@ -69,8 +76,8 @@ void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Enti
 			if (colorMapTexture)
 			{
 				colorMapTexture->StartGroupOp();
-				colorMapTexture->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
-				colorMapTexture->SetFilter(E_OpenGLFilter::LinearMipMapLinear, E_OpenGLFilter::Linear);
+				colorMapTexture->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
+				colorMapTexture->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
 				colorMapTexture->GenerateMipMaps();
 
 				colorMapTexture->EndGroupOp();
@@ -84,8 +91,8 @@ void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Enti
 			if (normalMapTexture)
 			{
 				normalMapTexture->StartGroupOp();
-				normalMapTexture->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
-				normalMapTexture->SetFilter(E_OpenGLFilter::LinearMipMapLinear, E_OpenGLFilter::Linear);
+				normalMapTexture->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
+				normalMapTexture->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
 				normalMapTexture->GenerateMipMaps();
 
 				normalMapTexture->EndGroupOp();

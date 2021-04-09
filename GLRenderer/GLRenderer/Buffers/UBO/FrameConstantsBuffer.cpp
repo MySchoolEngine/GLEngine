@@ -13,16 +13,19 @@ C_FrameConstantsBuffer::C_FrameConstantsBuffer(const std::string& blockName, uns
 	, m_AmbientStrength(0.1f)
 	, m_Time(0.0f)
 {
-	const auto matSize	 = sizeof(glm::mat4);
-	const auto vecSize	 = sizeof(glm::vec4);
-	const auto vec3Size	 = sizeof(glm::vec3);
-	const auto floatSize = sizeof(float);
+	AllocateMemory(false);
+}
 
-	const auto bytes = 3 * matSize + vecSize + vec3Size + floatSize;
+//=================================================================================
+std::size_t C_FrameConstantsBuffer::GetBufferSize() const
+{
+	constexpr auto matSize	 = sizeof(glm::mat4);
+	constexpr auto vecSize	 = sizeof(glm::vec4);
+	constexpr auto floatSize = sizeof(float);
 
-	C_UniformBuffer::bind();
-	glBufferData(GL_UNIFORM_BUFFER, bytes, nullptr, GL_STATIC_DRAW);
-	C_UniformBuffer::unbind();
+	constexpr auto bytes = 3 * matSize + vecSize + 4 * floatSize;
+
+	return bytes;
 }
 
 //=================================================================================
@@ -32,6 +35,7 @@ void C_FrameConstantsBuffer::UploadData() const
 	const auto vecSize			 = sizeof(glm::vec4);
 	const auto vec3Size			 = sizeof(glm::vec3);
 	const auto viewProjectionMat = m_ProjectionMat * m_ViewMat;
+	const auto floatSize		 = sizeof(float);
 	bind();
 	auto* data = (char*)glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
 
@@ -39,11 +43,13 @@ void C_FrameConstantsBuffer::UploadData() const
 	memcpy(data + matSize, glm::value_ptr(m_ViewMat), matSize);
 	memcpy(data + 2 * matSize, glm::value_ptr(viewProjectionMat), matSize);
 	memcpy(data + 3 * matSize, glm::value_ptr(m_CameraPosition), sizeof(decltype(m_CameraPosition)));
-	memcpy(data + 3 * matSize + vecSize, glm::value_ptr(m_SunPosition), sizeof(decltype(m_SunPosition)));
-	memcpy(data + 3 * matSize + vecSize + vec3Size, &m_AmbientStrength, sizeof(decltype(m_AmbientStrength)));
-	memcpy(data + 3 * matSize + vecSize + vec3Size + sizeof(decltype(m_AmbientStrength)), &m_Time, sizeof(decltype(m_Time)));
+	memcpy(data + 3 * matSize + vecSize, &m_AmbientStrength, sizeof(decltype(m_AmbientStrength)));
+	memcpy(data + 3 * matSize + vecSize + sizeof(decltype(m_AmbientStrength)), &m_Time, sizeof(decltype(m_Time)));
+	memcpy(data + 3 * matSize + vecSize + sizeof(decltype(m_AmbientStrength)) + floatSize, &m_NearPlane, sizeof(decltype(m_NearPlane)));
+	memcpy(data + 3 * matSize + vecSize + sizeof(decltype(m_AmbientStrength)) + 2 * floatSize, &m_FarPlane, sizeof(decltype(m_FarPlane)));
 
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
 	unbind();
 }
+
 } // namespace GLEngine::GLRenderer::Buffers::UBO

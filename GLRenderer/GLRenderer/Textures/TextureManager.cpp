@@ -37,23 +37,21 @@ C_TextureManager::T_TexturePtr C_TextureManager::GetTexture(const std::string& n
 	}
 
 	Renderer::Textures::TextureLoader tl;
-	auto*							  buffer = tl.loadTexture(name.c_str());
+	auto							  buffer = std::shared_ptr<Renderer::I_TextureViewStorage>(tl.loadTexture(name.c_str()));
 	if (!buffer)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Could not load texture '{}'", name);
 		return nullptr;
 	}
 
-	return CreateTexture(buffer, name);
+	return CreateTexture(buffer.get(), name);
 }
 
 //=================================================================================
 C_TextureManager::T_TexturePtr C_TextureManager::CreateTexture(const Renderer::MeshData::Texture& tex)
 {
 	auto texture = std::make_shared<Textures::C_Texture>(tex.m_name);
-	texture->bind();
 	texture->SetTexData2D(0, tex);
-	texture->unbind();
 
 	m_Textures[tex.m_name] = texture;
 	return texture;
@@ -63,9 +61,7 @@ C_TextureManager::T_TexturePtr C_TextureManager::CreateTexture(const Renderer::M
 C_TextureManager::T_TexturePtr C_TextureManager::CreateTexture(const Renderer::I_TextureViewStorage* tex, const std::string& name)
 {
 	auto texture = std::make_shared<Textures::C_Texture>(name);
-	texture->bind();
 	texture->SetTexData2D(0, tex);
-	texture->unbind();
 
 	m_Textures[name] = texture;
 	return texture;
@@ -104,6 +100,7 @@ GUID C_TextureManager::SetupControls(GUI::C_GUIManager& guiMGR)
 		{
 			bool selected = false;
 			::ImGui::Selectable(texture.first.c_str(), &selected);
+			ImGui::Image((void*)(intptr_t)(texture.second->GetTexture()), ImVec2(128, 128));
 			if (selected)
 			{
 				ReloadTexture(texture.first, texture.second);
@@ -134,9 +131,7 @@ void C_TextureManager::ReloadTexture(const std::string& name, T_TexturePtr& text
 		return;
 	}
 
-	texture->bind();
 	texture->SetTexData2D(0, t);
-	texture->unbind();
 }
 
 //=================================================================================
@@ -162,12 +157,7 @@ C_TextureManager::T_TexturePtr C_TextureManager::GetIdentityTexture()
 		t.data.get()[1]	   = 255;
 		t.data.get()[2]	   = 255;
 		t.data.get()[3]	   = 0;
-		m_IdentityTexture->bind();
 		m_IdentityTexture->SetTexData2D(0, t);
-		m_IdentityTexture->unbind();
-
-		m_IdentityTexture->CreateHandle();
-		m_IdentityTexture->MakeHandleResident(true);
 	}
 	return m_IdentityTexture;
 }

@@ -3,9 +3,6 @@
 #include <string>
 
 namespace GLEngine::Renderer {
-enum class E_TextureFormat
-{
-};
 
 enum class E_TextureType
 {

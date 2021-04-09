@@ -5,6 +5,7 @@
 #include <Renderer/Mesh/GeomComponent.h>
 #include <Renderer/Mesh/Geometry.h>
 
+#include <Utils/Parsing/MaterialParser.h>
 #include <Utils/Parsing/MatrixParse.h>
 
 #include <pugixml.hpp>

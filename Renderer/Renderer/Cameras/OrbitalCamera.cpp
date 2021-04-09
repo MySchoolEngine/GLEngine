@@ -2,6 +2,7 @@
 
 #include <Renderer/Cameras/OrbitalCamera.h>
 
+#include <Physics/Primitives/Frustum.h>
 #include <Physics/Primitives/Plane.h>
 #include <Physics/Primitives/Ray.h>
 
@@ -13,7 +14,6 @@
 #include <Core/IWindowManager.h>
 #include <Core/Input.h>
 
-#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/projection.hpp>
 #include <glm/gtx/rotate_vector.hpp>

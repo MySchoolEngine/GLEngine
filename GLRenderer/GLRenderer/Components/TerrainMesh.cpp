@@ -29,7 +29,7 @@ C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 	, m_Noise("TerrainNoise", GL_TEXTURE_2D_ARRAY)
 	, m_Coord(0, 0)
 	, m_Stats(3)
-	, m_RainData(std::make_shared<decltype(m_RainData)::element_type>("rainData", 1, dim))
+	, m_RainData(std::make_shared<decltype(m_RainData)::element_type>("rainData", 4, dim))
 	, m_HasTexture(false, "Use texture")
 	, m_QueuedUpdate(false)
 	, m_QueueSimulation(false)
@@ -48,8 +48,8 @@ C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 			const int numSedimentLayer = 3;
 
 			glTexStorage3D(m_Noise.GetTarget(), 3, GL_R32F, dim, dim, 2 + numSedimentLayer);
-			m_Noise.SetWrap(E_WrapFunction::ClampToEdge, E_WrapFunction::ClampToEdge);
-			m_Noise.SetFilter(E_OpenGLFilter::Linear, E_OpenGLFilter::Linear);
+			m_Noise.SetWrap(Renderer::E_WrapFunction::ClampToEdge, Renderer::E_WrapFunction::ClampToEdge);
+			m_Noise.SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
 
 			m_Noise.SetDimensions({dim, dim});
 			m_Noise.GenerateMipMaps();

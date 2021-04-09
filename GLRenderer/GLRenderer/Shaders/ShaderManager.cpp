@@ -23,7 +23,7 @@ C_ShaderManager::C_ShaderManager()
 	: m_Timeout(std::chrono::seconds(1))
 	, m_LastUpdate(std::chrono::system_clock::now())
 	, m_Window(INVALID_GUID)
-	, m_PreprocessorOutput(false, "Output preprocessed")
+	, m_PreprocessorOutput(true, "Output preprocessed")
 {
 }
 

@@ -1,12 +1,15 @@
 #include <GLRendererStdafx.h>
 
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
+#include <GLRenderer/Components/StaticMesh.h>
 #include <GLRenderer/Debug.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
+#include <GLRenderer/Textures/Texture.h>
 
 #include <Renderer/Animation/Skeleton.h>
 #include <Renderer/IRenderer.h>
+#include <Renderer/Mesh/Geometry.h>
 
 #include <Physics/Primitives/Frustum.h>
 
@@ -16,6 +19,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/transform.hpp>
 
 namespace GLEngine::GLRenderer {
 
@@ -117,9 +121,10 @@ void C_DebugDraw::SetupAABB()
 
 //=================================================================================
 C_DebugDraw::C_DebugDraw()
+	: m_OctahedronMesh(nullptr)
 {
 	SetupAABB();
-	std::vector<glm::vec4> dummy4;
+	std::vector<glm::vec3> dummy4;
 	std::vector<glm::vec3> dummy3;
 
 	m_VAOlines.bind();
@@ -139,16 +144,10 @@ void C_DebugDraw::Clear()
 }
 
 //=================================================================================
-void C_DebugDraw::DrawPoint(const glm::vec4& point, const glm::vec3& color, const glm::mat4& modelMatrix)
-{
-	m_PointsVertices.push_back(modelMatrix * point);
-	m_PointsColors.push_back(color);
-}
-
-//=================================================================================
 void C_DebugDraw::DrawPoint(const glm::vec3& point, const glm::vec3& color, const glm::mat4& modelMatrix)
 {
-	DrawPoint(toVec4(point), color, modelMatrix);
+	m_PointsVertices.push_back(modelMatrix * toVec4(point));
+	m_PointsColors.push_back(color);
 }
 
 //=================================================================================
@@ -158,42 +157,22 @@ void C_DebugDraw::DrawAABB(const Physics::Primitives::S_AABB& bbox, const glm::v
 	auto  program	 = Shaders::C_ShaderManager::Instance().GetProgram(s_DebugShaderName);
 	shdManager.ActivateShader(program);
 
-	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
-		[this, program, bbox, color, modelMatrix]() {
-			glm::vec3 size		= bbox.m_Max - bbox.m_Min;
-			glm::vec3 center	= (bbox.m_Max + bbox.m_Min) / 2.0f; // glm::vec3((min_x + max_x) / 2, (min_y + max_y) / 2, (min_z + max_z) / 2);
-			glm::mat4 transform = glm::translate(glm::mat4(1), center) * glm::scale(glm::mat4(1), size);
+	glm::vec3 size		= bbox.m_Max - bbox.m_Min;
+	glm::vec3 center	= (bbox.m_Max + bbox.m_Min) / 2.0f; // glm::vec3((min_x + max_x) / 2, (min_y + max_y) / 2, (min_z + max_z) / 2);
+	glm::mat4 transform = glm::translate(glm::mat4(1), center) * glm::scale(glm::mat4(1), size);
 
-			/* Apply object's transformation matrix */
-			program->SetUniform("modelMatrix", modelMatrix * transform);
-			program->SetUniform("colorIN", color);
-
-			m_VAOaabb.bind();
-			m_VAOaabb.BindBuffer<1>();
-
-			glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, 0);
-			glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, (GLvoid*)(4 * sizeof(GLushort)));
-			glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, (GLvoid*)(8 * sizeof(GLushort)));
-
-			m_VAOaabb.unbind();
-		},
-		"Debug - DrawAABB")));
-}
-
-//=================================================================================
-void C_DebugDraw::DrawLine(const glm::vec4& pointA, const glm::vec4& pointB, const glm::vec3& color /*= glm::vec3(0.0f, 0.0f, 0.0f)*/)
-{
-	m_LinesVertices.push_back(pointA);
-	m_LinesVertices.push_back(pointB);
-	// we need two copies as we have two vertices
-	m_LinesColors.push_back(color);
-	m_LinesColors.push_back(color);
+	m_AABBTransform.emplace_back(modelMatrix * transform);
+	m_AABBColor.emplace_back(color);
 }
 
 //=================================================================================
 void C_DebugDraw::DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, const glm::vec3& color /*= glm::vec3(0.0f, 0.0f, 0.0f)*/)
 {
-	DrawLine(toVec4(pointA), toVec4(pointB), color);
+	m_LinesVertices.push_back(toVec4(pointA));
+	m_LinesVertices.push_back(toVec4(pointB));
+	// we need two copies as we have two vertices
+	m_LinesColors.push_back(color);
+	m_LinesColors.push_back(color);
 }
 
 //=================================================================================
@@ -381,10 +360,23 @@ void C_DebugDraw::DrawMergedGeoms()
 	auto  program	 = Shaders::C_ShaderManager::Instance().GetProgram(s_MergedShaderName);
 	shdManager.ActivateShader(program);
 
-	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
+	if (!m_OctahedronInfos.empty() && !m_OctahedronMesh)
+	{
+		m_OctahedronMesh = std::make_shared<Components::C_StaticMesh>(Renderer::MeshData::C_Geometry::CreateOctahedron(1.f, 1.f), "OctahedronMapping", nullptr);
+	}
+
+	std::for_each(m_OctahedronInfos.begin(), m_OctahedronInfos.end(), [&](auto& info) {
+		m_OctahedronMesh->SetColorMap(info.m_Texture);
+		m_OctahedronMesh->SetComponentMatrix(glm::scale(glm::translate(info.m_Position), glm::vec3(info.m_size)));
+		m_OctahedronMesh->PerformDraw();
+	});
+	m_OctahedronInfos.clear();
+
+	renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&]() {
 			m_VAOlines.bind();
-			std::vector<glm::vec4> mergedVertices(m_LinesVertices);
+			std::vector<glm::vec3> mergedVertices(m_LinesVertices);
 			std::vector<glm::vec3> mergedColors(m_LinesColors);
 			mergedVertices.insert(mergedVertices.end(), m_PointsVertices.begin(), m_PointsVertices.end());
 			mergedColors.insert(mergedColors.end(), m_PointsColors.begin(), m_PointsColors.end());
@@ -405,16 +397,53 @@ void C_DebugDraw::DrawMergedGeoms()
 			}
 
 
-			m_VAOlines.unbind();
-			shdManager.DeactivateShader();
-
 			m_LinesVertices.clear();
 			m_LinesColors.clear();
 
 			m_PointsVertices.clear();
 			m_PointsColors.clear();
 		},
-		"C_DebugDraw::DrawMergedGeoms")));
+		"C_DebugDraw::DrawMergedGeoms"));
+	shdManager.DeactivateShader();
+	auto AABBprogram = shdManager.GetProgram(s_DebugShaderName);
+	shdManager.ActivateShader(AABBprogram);
+
+	renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+		[this]() {
+			m_VAOaabb.bind();
+			m_VAOaabb.BindBuffer<1>();
+		},
+		"Prepare AABB"));
+
+	for (int i = 0; i < m_AABBTransform.size(); ++i)
+	{
+		renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+			[this, AABBprogram, i]() {
+				AABBprogram->SetUniform("modelMatrix", m_AABBTransform[i]);
+				AABBprogram->SetUniform("colorIN", m_AABBColor[i]);
+
+				glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, 0);
+				glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, (GLvoid*)(4 * sizeof(GLushort)));
+				glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, (GLvoid*)(8 * sizeof(GLushort)));
+			},
+			"Debug - DrawAABB"));
+	}
+
+	renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+		[this]() {
+			m_VAOaabb.unbind();
+			m_AABBTransform.clear();
+			m_AABBColor.clear();
+		},
+		"Clear AABB"));
+
+	shdManager.DeactivateShader();
+}
+
+//=================================================================================
+void C_DebugDraw::ProbeDebug(const glm::vec3& position, float size, std::shared_ptr<Textures::C_Texture>& texture)
+{
+	m_OctahedronInfos.emplace_back(OctahedronInfo{texture, size, position});
 }
 
 #endif

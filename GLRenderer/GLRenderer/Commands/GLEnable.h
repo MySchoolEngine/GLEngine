@@ -2,6 +2,8 @@
 
 #include <Renderer/IRenderCommand.h>
 
+#include <Core/CoreMacros.h>
+
 #include <Utils/BitField.h>
 
 namespace GLEngine::GLRenderer::Commands {

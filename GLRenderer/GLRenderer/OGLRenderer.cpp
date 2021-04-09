@@ -1,8 +1,10 @@
 #include <GLRendererStdafx.h>
 
+#include <GLRenderer/Debug.h>
 #include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Textures/TextureManager.h>
+#include <GLRenderer/Buffers/UniformBuffersManager.h>
 
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
@@ -26,7 +28,8 @@ C_OGLRenderer::C_OGLRenderer()
 	, m_Wireframe(false, "Render wireframe")
 	, m_PreviousCatchErrorsVal(false)
 	, m_CurrentPass(Renderer::E_PassType::FinalPass)
-	, m_GUITexts({{GUI::C_FormatedText("Avg draw commands: {:.2f}"), GUI::C_FormatedText("Min/max {:.2f}/{:.2f}"), GUI::C_FormatedText("Draw calls: {}")}})
+	, m_GUITexts({{GUI::C_FormatedText("Avg draw commands: {:.2f}"), GUI::C_FormatedText("Min/max {:.2f}/{:.2f}"), GUI::C_FormatedText("Draw calls: {}"),
+				   GUI::C_FormatedText("UBO memory usage: {}B")}})
 	, m_ScreenCaptureList("Capture frame commands", [&]() { m_OutputCommandList = true; })
 	, m_Window(INVALID_GUID)
 	, m_Windows(std::string("Windows"))
@@ -56,12 +59,15 @@ void C_OGLRenderer::AddCommand(Renderer::I_Renderer::T_CommandPtr command)
 	{
 		GL_DebugBreak();
 	}
+	// must be after m_Locked check, otherwise will cause deadlock for any broken lambda command
+	std::lock_guard<std::mutex> guardCommand(m_CommandQueueMTX);
 	m_CommandQueue->emplace_back(std::move(command));
 }
 
 //=================================================================================
 void C_OGLRenderer::AddTransferCommand(T_CommandPtr command)
 {
+	std::lock_guard<std::mutex> guardTransfer(m_TransferQueueMTX);
 	m_TransferQueue.emplace_back(std::move(command));
 }
 
@@ -92,19 +98,28 @@ void C_OGLRenderer::TransformData()
 //=================================================================================
 void C_OGLRenderer::Commit() const
 {
-	for (auto& command : m_TransferQueue)
 	{
-		command->Commit();
+		std::lock_guard<std::mutex> guard(m_TransferQueueMTX);
+		for (auto& command : m_TransferQueue)
+		{
+			command->Commit();
+		}
 	}
-	for (auto& command : (*m_CommandQueue))
 	{
-		command->Commit();
+		std::lock_guard<std::mutex> guard(m_CommandQueueMTX);
+		for (auto& command : (*m_CommandQueue))
+		{
+			command->Commit();
+		}
 	}
 }
 
 //=================================================================================
 void C_OGLRenderer::ClearCommandBuffers()
 {
+	// TODO: this is still not safe, some command can come in between commit and this point
+	std::lock_guard<std::mutex> guardCommand(m_CommandQueueMTX);
+	std::lock_guard<std::mutex> guardTransfer(m_TransferQueueMTX);
 	m_DrawCommands.Sample(static_cast<float>(m_CommandQueue->size()));
 	const auto drawCallsNum
 		= std::count_if(m_CommandQueue->begin(), m_CommandQueue->end(), [](const auto& command) { return command->GetType() == Renderer::I_RenderCommand::E_Type::DrawCall; });
@@ -120,7 +135,7 @@ void C_OGLRenderer::ClearCommandBuffers()
 	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::MinMax)].UpdateText(*std::min_element(m_DrawCommands.cbegin(), m_DrawCommands.cend()),
 																							   *std::max_element(m_DrawCommands.cbegin(), m_DrawCommands.cend()));
 	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::DrawCalls)].UpdateText(drawCallsNum);
-
+	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::UBOMemoryUsage)].UpdateText(Buffers::C_UniformBuffersManager::Instance().GetUsedMemory());
 
 	if (m_PreviousCatchErrorsVal != m_CatchErrors)
 	{
@@ -155,6 +170,7 @@ GUID C_OGLRenderer::SetupControls(GUI::C_GUIManager& guiMan)
 	renderStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgDrawCommands)]);
 	renderStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::MinMax)]);
 	renderStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::DrawCalls)]);
+	renderStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::UBOMemoryUsage)]);
 
 	renderStats->AddMenu(m_Windows);
 

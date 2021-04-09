@@ -9,11 +9,12 @@
 #include <Entity/IComponent.h>
 
 namespace GLEngine::Renderer {
+class I_DebugDraw;
 
 //=============================================================
 class RENDERER_API_EXPORT C_AreaLight : public I_Light {
 public:
-	C_AreaLight(std::shared_ptr<Entity::I_Entity> owner);
+	explicit C_AreaLight(std::shared_ptr<Entity::I_Entity> owner);
 	virtual ~C_AreaLight();
 
 	virtual void			 DebugDrawGUI() override;
@@ -26,16 +27,27 @@ public:
 	[[nodiscard]] float									 GetWidth() const { return m_WidthSlider.GetValue(); }
 	[[nodiscard]] float									 GetHeight() const { return m_HeightSlider.GetValue(); }
 
+	[[nodiscard]] glm::vec3 GetNormal() const;
+	[[nodiscard]] glm::vec3 GetUpVector() const;
+
 	virtual Physics::Primitives::S_AABB GetAABB() const override;
 
 	[[nodiscard]] glm::vec3 DiffuseColour() const;
 	[[nodiscard]] glm::vec3 SpecularColour() const;
 
+	void DebugDraw(I_DebugDraw* dd) const;
+
 protected:
-	glm::vec3					m_Normal;
-	glm::vec3					m_UpVector;
 	GUI::Input::C_Slider<float> m_WidthSlider, m_HeightSlider;
 	GUI::Input::C_ColorRBG		m_DiffuseColor, m_SpecularColor;
+
+	friend class C_AreaLightCompBuilder;
+};
+
+//=============================================================
+class C_AreaLightCompBuilder : public Entity::I_ComponenetBuilder {
+public:
+	RENDERER_API_EXPORT [[nodiscard]] virtual std::shared_ptr<Entity::I_Component> Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner) override;
 };
 
 } // namespace GLEngine::Renderer

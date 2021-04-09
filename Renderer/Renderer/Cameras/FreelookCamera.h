@@ -1,22 +1,16 @@
 #pragma once
 
-#define GLM_ENABLE_EXPERIMENTAL
 #include <Renderer/ICameraComponent.h>
 
 #include <Utils/BitField.h>
 #include <Utils/HighResolutionTimer.h>
 
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/euler_angles.hpp>
-#include <glm/gtx/transform.hpp>
-
 // Button indicator
 // F.e. I have a "W" bound as a camera forward movement
 // When "W" is pressed, call handleInputMessage(CAMERA_FORWARD_DOWN)
-// When "W" is released (user put off the finger from "W" key), call
-// handleInputMessage(CAMERA_FORWARD_UP) The UP and DOWN indicates whether the
-// button was pressed or released Camera update method will handle the message
+// When "W" is released (user put off the finger from "W" key), call handleInputMessage(CAMERA_FORWARD_UP)
+// The UP and DOWN indicates whether the button was pressed or released
+// Camera update method will handle the message
 enum class CameraMessage : std::uint8_t
 {
 	CAMERA_FORWARD_UP = 0,
@@ -53,23 +47,23 @@ struct S_AABB;
 namespace Renderer::Cameras {
 class RENDERER_API_EXPORT FreelookCamera : public I_CameraComponent {
 public:
-	FreelookCamera(std::shared_ptr<Entity::I_Entity>& owner);
+	explicit FreelookCamera(std::shared_ptr<Entity::I_Entity>& owner);
 	virtual ~FreelookCamera(); // = default;
 
 	//=============================================================
 	// Renderer::I_CameraComponent
 	//=============================================================
-	virtual glm::mat4 GetScreenToworldMatrix() const override;
-	virtual glm::mat4 GetViewProjectionMatrix() const override;
-	virtual glm::mat4 GetProjectionMatrix() const override;
-	virtual glm::mat4 GetViewMatrix() const override;
-	virtual glm::quat GetRotation() const override;
-	virtual glm::vec3 GetDirection() const override;
-	virtual glm::vec3 GetPosition() const override;
+	[[nodiscard]] virtual glm::mat4 GetScreenToworldMatrix() const override;
+	[[nodiscard]] virtual glm::mat4 GetViewProjectionMatrix() const override;
+	[[nodiscard]] virtual glm::mat4 GetProjectionMatrix() const override;
+	[[nodiscard]] virtual glm::mat4 GetViewMatrix() const override;
+	[[nodiscard]] virtual glm::quat GetRotation() const override;
+	[[nodiscard]] virtual glm::vec3 GetDirection() const override;
+	[[nodiscard]] virtual glm::vec3 GetPosition() const override;
 
-	virtual Physics::Primitives::C_Frustum GetFrustum() const override;
+	[[nodiscard]] virtual Physics::Primitives::C_Frustum GetFrustum() const override;
 
-	virtual Physics::Primitives::S_AABB GetAABB() const;
+	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override;
 
 	// Use these 2 function to setup the camera
 	// FOVY in degrees
@@ -87,26 +81,26 @@ public:
 	// Inherited via I_Camera
 	// virtual void debugDraw() const override;
 
-	float getMovementSpeed() const;
+	[[nodiscard]] float getMovementSpeed() const;
 
 	// from I_Camera
-	virtual float GetFar() const;
-	virtual void  SetFar(float Far);
-	virtual float GetNear() const;
-	virtual void  SetNear(float Near);
-	virtual float GetFov() const;
-	virtual void  SetFov(float fov);
-	virtual float GetAspectRatio() const;
+	[[nodiscard]] virtual float GetFar() const override;
+	virtual void				SetFar(float Far);
+	[[nodiscard]] virtual float GetNear() const override;
+	virtual void				SetNear(float Near);
+	[[nodiscard]] virtual float GetFov() const;
+	virtual void				SetFov(float fov);
+	[[nodiscard]] virtual float GetAspectRatio() const;
 
 	//=================================================================================
-	virtual void			 DebugDrawGUI() override;
-	virtual bool			 HasDebugDrawGUI() const override;
-	virtual std::string_view GetDebugComponentName() const override;
-	virtual void			 OnEvent(Core::I_Event& event) override;
+	virtual void						   DebugDrawGUI() override;
+	[[nodiscard]] virtual bool			   HasDebugDrawGUI() const override;
+	[[nodiscard]] virtual std::string_view GetDebugComponentName() const override;
+	virtual void						   OnEvent(Core::I_Event& event) override;
 
 protected:
-	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
-	bool OnKeyReleased(Core::C_KeyReleasedEvent& event);
+	[[nodiscard]] bool OnKeyPressed(Core::C_KeyPressedEvent& event);
+	[[nodiscard]] bool OnKeyReleased(Core::C_KeyReleasedEvent& event);
 
 private:
 	void  CreateProjection();

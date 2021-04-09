@@ -1,6 +1,7 @@
 #include <EntityStdafx.h>
 
 #include <Entity/BasicEntity.h>
+#include <Entity/Components/EntityDebugComponent.h>
 #include <Entity/EntityManager.h>
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
@@ -55,6 +56,20 @@ std::shared_ptr<I_Entity> C_EntityManager::GetEntity(const std::string& name) co
 }
 
 //=================================================================================
+std::shared_ptr<I_Entity> C_EntityManager::GetOrCreateEntity(const std::string& name)
+{
+	auto entity = GetEntity(name);
+	if (entity)
+	{
+		return entity;
+	}
+	entity = std::make_shared<C_BasicEntity>(name);
+	entity->AddComponent(std::make_shared<C_EntityDebugComponent>(entity));
+	AddEntity(entity);
+	return entity;
+}
+
+//=================================================================================
 std::vector<std::shared_ptr<I_Entity>> C_EntityManager::GetEntities(Physics::Primitives::C_Frustum frust) const
 {
 	return *m_Entities;
@@ -64,6 +79,12 @@ std::vector<std::shared_ptr<I_Entity>> C_EntityManager::GetEntities(Physics::Pri
 const std::vector<std::shared_ptr<I_Entity>>& C_EntityManager::GetEntities() const
 {
 	return *m_Entities;
+}
+
+//=================================================================================
+void C_EntityManager::ClearLevel()
+{
+	m_Entities->clear();
 }
 
 //=================================================================================
@@ -126,8 +147,9 @@ Physics::Primitives::S_RayIntersection C_EntityManager::Select(const Physics::Pr
 }
 
 //=================================================================================
-bool C_EntityManager::LoadLevel(const std::string& name, std::unique_ptr<I_ComponentBuilderFactory> cbf)
+bool C_EntityManager::LoadLevel(const std::filesystem::path& name, std::unique_ptr<I_ComponentBuilderFactory> cbf)
 {
+	ClearLevel();
 	CORE_LOG(E_Level::Info, E_Context::Core, "Loading level: {}", name);
 	delete m_Entities;
 	m_Entities = new std::remove_pointer<decltype(m_Entities)>::type;

@@ -46,7 +46,8 @@ workspace "Engine"
 		"GRAPHICS_API_OPENGL=1",
 		"GRAPHICS_API_VULKAN=2",
 		"GRAPHICS_API_D3D12=3",
-  	}
+		"GLM_ENABLE_EXPERIMENTAL",
+	}
 
   	configuration "vulkan"
   		defines{

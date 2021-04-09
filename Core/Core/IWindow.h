@@ -1,12 +1,9 @@
 #pragma once
 
 #include <Core/Application.h>
-#include <Core/CoreApi.h>
 #include <Core/CoreMacros.h>
 #include <Core/EventSystem/Layer.h>
 #include <Core/WindowInfo.h>
-
-#include <glm/vec2.hpp>
 
 namespace GLEngine {
 
@@ -49,6 +46,8 @@ public:
 	inline void SetEventCallback(C_Application::EventCallbackFn callback) { m_Data.m_EventCallback = callback; }
 
 	[[nodiscard]] virtual bool WantClose() const = 0;
+	[[nodiscard]] virtual bool CanClose() const { return true; }
+
 
 	[[nodiscard]] virtual Renderer::I_Renderer& GetRenderer() = 0;
 

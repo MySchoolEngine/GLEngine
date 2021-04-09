@@ -7,6 +7,12 @@ namespace pugi {
 class xml_node;
 }
 
+
+namespace GLEngine::Renderer::MeshData {
+struct Mesh;
+struct AnimationData;
+} // namespace GLEngine::Renderer::MeshData
+
 namespace GLEngine::Renderer::Animation {
 class C_SkeletalAnimation;
 class C_Skeleton;

@@ -1,14 +1,20 @@
 #pragma once
 
 #include <GLFWWindowManager/GLFWWindowManagerApi.h>
+#include <GLFWWindowManager/GLFWInput.h>
 
 #include <Core/IWindow.h>
 
-#include <GLFWWindowManager/GLFWInput.h>
+#include <Core/Application.h>
 
 struct GLFWwindow;
 
-namespace GLEngine::GLFWManager {
+namespace GLEngine {
+namespace Core {
+class I_Input;
+}
+
+namespace GLFWManager {
 class C_GLFWWindow : public Core::I_Window {
 public:
 	virtual ~C_GLFWWindow();
@@ -42,4 +48,5 @@ protected:
 	GLFWwindow* m_Window;
 	C_GLFWInput m_Input;
 };
-}
+} // namespace GLRenderer::GLFW
+} // namespace GLEngine

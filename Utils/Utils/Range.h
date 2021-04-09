@@ -93,13 +93,12 @@ to be of same type with T");
 				CORE_LOG(E_Level::Error, E_Context::Core, "~C_Range()");
 		}
 
-		C_Range(C_Range&& other)
-				: m_Begin(std::move(other.m_Begin))
-				, m_End(std::move(other.m_End))
-		{
-				CORE_LOG(E_Level::Error, E_Context::Core, "const C_Range&&
-other");
-		}
+	C_Range(C_Range&& other)
+		: m_Begin(std::move(other.m_Begin))
+		, m_End(std::move(other.m_End))
+	{
+		CORE_LOG(E_Level::Error, E_Context::Core, "const C_Range&& other");
+	}
 
 		template<class iterable>
 		C_Range(std::pair<iterable, iterable>&& range)

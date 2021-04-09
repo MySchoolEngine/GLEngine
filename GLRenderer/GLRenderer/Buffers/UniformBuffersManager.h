@@ -56,10 +56,14 @@ public:
 
 	void ProcessUBOBindingPoints(std::shared_ptr<Shaders::C_ShaderProgram> program) const;
 
+	// get number of bytes used by uniform buffers
+	[[nodiscard]] std::size_t GetUsedMemory() const { return m_UsedMemory; }
+
 private:
 	C_UniformBuffersManager();
 	std::vector<T_UBOSmartPtr> m_BindingPoint;
 	int						   m_MaxBindingPoints;
+	std::size_t				   m_UsedMemory;
 };
 
 //=================================================================================
@@ -69,6 +73,7 @@ template <class T, typename... Params> std::shared_ptr<T> C_UniformBuffersManage
 	auto ubo = std::make_shared<T>(name, static_cast<unsigned int>(m_BindingPoint.size()), std::forward<Params>(params)...);
 	GLE_ASSERT(ubo, "Unable to allocate UBO {}", name);
 	m_BindingPoint.push_back(ubo);
+	m_UsedMemory += ubo->GetBufferSize();
 
 	return ubo;
 }

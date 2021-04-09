@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include <GLRenderer/Shaders/ShaderCompiler.h>
+
 #include <GUI/Input/CheckBoxValue.h>
 #include <GUI/LambdaPart.h>
 

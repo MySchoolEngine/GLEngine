@@ -9,6 +9,8 @@ project "Sandbox"
 	SetupProject("Sandbox")
 	debugdir ("../data/")
 	
+	pchheader "SandboxStdafx.h"
+	pchsource "SandboxStdafx.cpp"
 	
 	Link("Core")
 	Link("Utils")
@@ -17,8 +19,15 @@ project "Sandbox"
 		Link("VulkanRenderer")
 	end
 
+	files
+	{
+		"SandboxStdafx.cpp",
+		"SandboxStdafx.h",
+	}
+
 	includedirs
 	{
+		".",
 		"../Renderer",
 		"../GLFWWindowManager",
 		"../%{IncludeDir.GLM}",

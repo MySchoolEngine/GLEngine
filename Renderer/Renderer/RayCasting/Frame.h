@@ -2,6 +2,14 @@
 
 namespace GLEngine::Renderer {
 
+// Structure to simplify surface interaction code
+// Creates reference frame using orthonormal basis with (0,1,0) local coordinate
+// as its normal
+// | y / z
+// |  /
+// | /
+// |/     x
+// +-------
 struct S_Frame {
 public:
 	constexpr S_Frame();
@@ -11,7 +19,7 @@ public:
 	void SetFromNormal(const glm::vec3& normal);
 
 	[[nodiscard]] constexpr glm::vec3 ToWorld(const glm::vec3& a) const;
-	[[nodiscard]] constexpr glm::vec3 ToLocal(const glm::vec3& a) const;
+	[[nodiscard]] glm::vec3			  ToLocal(const glm::vec3& a) const;
 
 	[[nodiscard]] constexpr glm::vec3 Normal() const;
 	[[nodiscard]] constexpr glm::vec3 Tangnt() const;
@@ -27,6 +35,8 @@ public:
 
 	[[nodiscard]] float TanTheta(const glm::vec3& w) const { return SinTheta(w) / CosTheta(w); }
 	[[nodiscard]] float Tan2Theta(const glm::vec3& w) const { return Sin2Theta(w) / Cos2Theta(w); }
+
+	[[nodiscard]] glm::vec3 Reflect(const glm::vec3& wi) const { return glm::vec3(-wi.x, wi.y, -wi.z); }
 
 private:
 	glm::vec3 X;

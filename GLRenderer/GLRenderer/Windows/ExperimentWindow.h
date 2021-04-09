@@ -32,12 +32,9 @@ class I_CameraComponent;
 
 namespace GLEngine::GLRenderer {
 class C_GLImGUILayer;
-
-namespace Components {
-class C_StaticMesh;
-}
-
+class C_RayTraceWindow;
 class C_Framebuffer;
+class C_SunShadowMapTechnique;
 
 namespace Windows {
 class C_ExplerimentWindow : public GLFW::C_GLFWoGLWindow {
@@ -50,15 +47,18 @@ public:
 	virtual void Update() override;
 
 	//=================================================================================
-	virtual void OnEvent(Core::I_Event& event) override;
+	virtual void			   OnEvent(Core::I_Event& event) override;
+	[[nodiscard]] virtual bool CanClose() const override;
 
 protected:
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
-	bool OnAppInit(Core::C_AppEvent& event);
+	bool OnAppEvent(Core::C_AppEvent& event);
 	bool OnWindowResized(Core::C_WindowResizedEvent& event);
 
 private:
-	void SetupWorld();
+	void SetupWorld(const std::filesystem::path& level);
+	void AddMandatoryWorldParts();
+	void OnAppInit();
 	void MouseSelect();
 
 	void sampleTime(double new_sample);
@@ -92,8 +92,10 @@ private:
 	GUID																m_HDRSettingsGUID;
 	GUI::Menu::C_Menu													m_Windows;
 
-	std::unique_ptr<C_MainPassTechnique>  m_MainPass;
-	std::shared_ptr<C_ShadowMapTechnique> m_ShadowPass;
+	std::unique_ptr<C_MainPassTechnique>	 m_MainPass;
+	std::shared_ptr<C_ShadowMapTechnique>	 m_ShadowPass;
+	std::shared_ptr<C_SunShadowMapTechnique> m_SunShadow;
+	C_RayTraceWindow*						 m_RayTraceWindow;
 
 	std::unique_ptr<C_Framebuffer>				m_HDRFBO;
 	std::shared_ptr<Mesh::C_StaticMeshResource> m_ScreenQuad;

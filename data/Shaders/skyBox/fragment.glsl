@@ -1,7 +1,7 @@
 #version 430
 
-//per mesh
-layout (binding = 0) uniform samplerCube tex;
+// per mesh
+layout(binding = 0) uniform samplerCube tex;
 
 in vec3 uv;
 

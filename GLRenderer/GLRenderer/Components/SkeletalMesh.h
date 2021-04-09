@@ -1,5 +1,8 @@
 #pragma once
 
+#include <GLRenderer/Mesh/StaticMeshResource.h>
+#include <GLRenderer/Textures/Texture.h>
+
 #include <Renderer/Animation/SkeletalAnimation.h>
 #include <Renderer/Animation/Skeleton.h>
 #include <Renderer/IRenderableComponent.h>

@@ -23,6 +23,8 @@
 
 #include <pugixml.hpp>
 
+#include <imgui.h>
+
 namespace GLEngine::GLRenderer::Components {
 
 //=================================================================================
@@ -43,7 +45,8 @@ C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::s
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}", m_meshFile);
 		return;
 	}
-	m_ComponentMatrix = modelMatrix;
+	
+	m_Transformation.SetMatrix(modelMatrix);
 
 	// TODO this is unsafe way to init model
 	m_Mesh		= std::make_shared<Mesh::C_StaticMeshResource>(scene->meshes[0]);
@@ -116,6 +119,18 @@ void C_StaticMesh::DebugDrawGUI()
 	if (!m_RoughnessMap)
 	{
 		m_Roughness.Draw();
+	}
+	else
+	{
+		ImGui::Image((void*)(intptr_t)(m_RoughnessMap->GetTexture()), ImVec2(128, 128));
+	}
+	if (m_ColorMap)
+	{
+		ImGui::Image((void*)(intptr_t)(m_ColorMap->GetTexture()), ImVec2(128, 128));
+	}
+	if (m_NormalMap)
+	{
+		ImGui::Image((void*)(intptr_t)(m_NormalMap->GetTexture()), ImVec2(128, 128));
 	}
 }
 
@@ -203,8 +218,8 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 		if (roughnessMap)
 		{
 			roughnessMap->StartGroupOp();
-			roughnessMap->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
-			roughnessMap->SetFilter(E_OpenGLFilter::LinearMipMapLinear, E_OpenGLFilter::Linear);
+			roughnessMap->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
+			roughnessMap->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
 			roughnessMap->GenerateMipMaps();
 
 			roughnessMap->EndGroupOp();
@@ -219,8 +234,8 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 		if (colorMapTexture)
 		{
 			colorMapTexture->StartGroupOp();
-			colorMapTexture->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
-			colorMapTexture->SetFilter(E_OpenGLFilter::LinearMipMapLinear, E_OpenGLFilter::Linear);
+			colorMapTexture->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
+			colorMapTexture->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
 			colorMapTexture->GenerateMipMaps();
 
 			colorMapTexture->EndGroupOp();
@@ -235,8 +250,8 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 		if (normalMap)
 		{
 			normalMap->StartGroupOp();
-			normalMap->SetWrap(E_WrapFunction::Repeat, E_WrapFunction::Repeat);
-			normalMap->SetFilter(E_OpenGLFilter::LinearMipMapLinear, E_OpenGLFilter::Linear);
+			normalMap->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
+			normalMap->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
 			normalMap->GenerateMipMaps();
 
 			normalMap->EndGroupOp();

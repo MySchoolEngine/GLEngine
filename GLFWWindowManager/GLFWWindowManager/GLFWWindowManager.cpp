@@ -2,6 +2,8 @@
 
 #include <GLFWWindowManager/GLFWWindowManager.h>
 
+#include <Core/EventSystem/Event/AppEvent.h>
+
 #include <Renderer/IRenderer.h>
 
 namespace GLEngine::GLFWManager {
@@ -46,9 +48,7 @@ Renderer::I_Renderer* C_GLFWWindowManager::ActiveRendererPtr()
 //=================================================================================
 std::shared_ptr<GLEngine::Core::I_Window> C_GLFWWindowManager::GetWindow(GUID guid) const
 {
-	auto it = std::find_if(m_Windows.begin(), m_Windows.end(), [&guid](const std::shared_ptr<GLEngine::Core::I_Window>& wnd) {
-		return wnd->GetGUID() == guid;
-	});
+	auto it = std::find_if(m_Windows.begin(), m_Windows.end(), [&guid](const std::shared_ptr<GLEngine::Core::I_Window>& wnd) { return wnd->GetGUID() == guid; });
 
 	return *it;
 }
@@ -56,17 +56,27 @@ std::shared_ptr<GLEngine::Core::I_Window> C_GLFWWindowManager::GetWindow(GUID gu
 //=================================================================================
 void C_GLFWWindowManager::Update()
 {
-	m_Windows.erase(std::remove_if(m_Windows.begin(), m_Windows.end(), [](const decltype(m_Windows)::value_type& window) {
-		return window->WantClose();
-	}), m_Windows.end());
+	// Ask windows to prepare for closing
+	std::for_each(m_Windows.begin(), m_Windows.end(), [&](const decltype(m_Windows)::value_type& window) {
+		if (!window->WantClose())
+			return;
 
-	std::for_each(m_Windows.begin(), m_Windows.end(), 
-		[&](const decltype(m_Windows)::value_type& window) {
-			m_UpdatingWindow = window;
-			window->Update();
-			m_UpdatingWindow = nullptr;
-		}
-	);
+		m_UpdatingWindow = window;
+		Core::C_AppEvent event(Core::C_AppEvent::E_Type::WindowCloseRequest);
+		window->OnEvent(event);
+		m_UpdatingWindow = nullptr;
+	});
+
+	// close those windows which are ready to
+	m_Windows.erase(std::remove_if(m_Windows.begin(), m_Windows.end(), [](const decltype(m_Windows)::value_type& window) { return window->WantClose() && window->CanClose(); }),
+					m_Windows.end());
+
+	// update the rest of windows
+	std::for_each(m_Windows.begin(), m_Windows.end(), [&](const decltype(m_Windows)::value_type& window) {
+		m_UpdatingWindow = window;
+		window->Update();
+		m_UpdatingWindow = nullptr;
+	});
 
 	glfwPollEvents();
 }
@@ -91,14 +101,13 @@ void C_GLFWWindowManager::OnEvent(Core::I_Event& event)
 //=================================================================================
 void C_GLFWWindowManager::Init()
 {
-	const auto error_callback = [](int error, const char* description) {
-		CORE_LOG(E_Level::Error, E_Context::Core, "GLFW: #{}: {}", error, description);
-	};
+	const auto error_callback = [](int error, const char* description) { CORE_LOG(E_Level::Error, E_Context::Core, "GLFW: #{}: {}", error, description); };
 	glfwSetErrorCallback(error_callback);
-	if (!glfwInit()) {
+	if (!glfwInit())
+	{
 		CORE_LOG(E_Level::Error, E_Context::Core, "GLFW: Unable to init glfw. Terminating engine");
 		exit(EXIT_FAILURE);
 	}
 }
 
-}
+} // namespace GLEngine::GLRenderer::GLFW

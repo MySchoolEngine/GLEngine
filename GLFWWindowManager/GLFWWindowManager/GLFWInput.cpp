@@ -1,11 +1,15 @@
 #include <GLFWWindowManagerStdafx.h>
 
 #include <GLFWWindowManager/GLFWInput.h>
+#include <GLFWWindowManager/GLFWWindow.h>
 
 namespace GLEngine::GLFWManager {
 
 //=================================================================================
-C_GLFWInput::C_GLFWInput() = default;
+C_GLFWInput::C_GLFWInput()
+	: m_Window(nullptr)
+{
+}
 
 //=================================================================================
 C_GLFWInput::~C_GLFWInput() = default;
@@ -46,4 +50,4 @@ float C_GLFWInput::GetMouseY() const
 	return GetMousePosition().second;
 }
 
-}
+} // namespace GLEngine::GLRenderer::GLFW

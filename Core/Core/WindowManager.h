@@ -28,7 +28,7 @@ public:
 	}
 
 	//=================================================================================
-	virtual std::shared_ptr<I_Window> OpenNewWindow(const S_WindowInfo& info) override
+	[[nodiscard]] virtual std::shared_ptr<I_Window> OpenNewWindow(const S_WindowInfo& info) override
 	{
 		for (auto& mgr : m_Managers)
 		{
@@ -44,7 +44,7 @@ public:
 
 
 	//=================================================================================
-	virtual std::shared_ptr<I_Window> GetWindow(GUID guid) const override
+	[[nodiscard]] virtual std::shared_ptr<I_Window> GetWindow(GUID guid) const override
 	{
 		for (auto& mgr : m_Managers)
 		{
@@ -73,17 +73,10 @@ public:
 	}
 
 	//=================================================================================
-	virtual unsigned int NumWindows() const override
+	[[nodiscard]] virtual unsigned int NumWindows() const override
 	{
-		unsigned int acc = 0;
-		for (const auto& manager : m_Managers)
-		{
-			if (manager)
-			{
-				acc += manager->NumWindows();
-			}
-		}
-		return acc;
+		return std::accumulate(m_Managers.begin(), m_Managers.end(), 0,
+							   [](unsigned int val, const auto& manager) -> unsigned int { return val + (manager == nullptr ? 0 : manager->NumWindows()); });
 	}
 
 	//=================================================================================

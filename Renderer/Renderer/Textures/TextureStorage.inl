@@ -14,6 +14,7 @@ C_TextureViewStorageCPU<internalFormat>::C_TextureViewStorageCPU(std::size_t wid
 	, m_Elements(elements)
 {
 	m_Data.resize(width * height * elements);
+	SetChannels(Renderer::GetOrderedChannels(elements));
 }
 
 //=================================================================================
@@ -32,7 +33,7 @@ template <class internalFormat> float C_TextureViewStorageCPU<internalFormat>::G
 }
 
 //=================================================================================
-template <class internalFormat> constexpr std::uint8_t C_TextureViewStorageCPU<internalFormat>::GetNumElements() const
+template <class internalFormat> std::uint8_t C_TextureViewStorageCPU<internalFormat>::GetNumElements() const
 {
 	return m_Elements;
 }
@@ -59,7 +60,12 @@ template <class internalFormat> const void C_TextureViewStorageCPU<internalForma
 //=================================================================================
 template <class internalFormat> std::uint8_t C_TextureViewStorageCPU<internalFormat>::GetChannelOffset(E_TextureChannel element) const
 {
-	return static_cast<std::underlying_type_t<E_TextureChannel>>(element);
+	const auto it = std::find(m_Channels.begin(), m_Channels.end(), element);
+	if (it != m_Channels.end())
+	{
+		return static_cast<std::uint8_t>(std::distance(m_Channels.begin(), it));
+	}
+	return 0;
 }
 
 //=================================================================================
@@ -91,6 +97,33 @@ template <class internalFormat> E_TextureTypes C_TextureViewStorageCPU<internalF
 	}
 
 	static_assert(T_ContainsType_v<internalFormat, std::uint8_t, std::int8_t, float>, "Unsupported internal type of texture storage.");
+}
+
+//=================================================================================
+template <class internalFormat> inline void C_TextureViewStorageCPU<internalFormat>::SetAll(const glm::vec4& value)
+{
+	glm::vec<4, internalFormat, glm::defaultp> realValue(Swizzle(value));
+	for (auto it = m_Data.begin(); it != m_Data.end(); it += m_Elements)
+	{
+		std::copy_n(static_cast<const internalFormat*>(&realValue.x), m_Elements, it);
+	}
+}
+
+//=================================================================================
+template <class internalFormat> void C_TextureViewStorageCPU<internalFormat>::SetPixel(const glm::vec4& value, std::size_t position)
+{
+	glm::vec<4, internalFormat, glm::defaultp> realValue(Swizzle(value));
+	auto									   it = m_Data.begin();
+	std::advance(it, position * m_Elements);
+	std::copy_n(static_cast<const internalFormat*>(&realValue.x), m_Elements, it);
+}
+
+//=================================================================================
+template <class internalFormat> glm::vec4 C_TextureViewStorageCPU<internalFormat>::GetPixel(std::size_t pixelIndex) const
+{
+	glm::vec<4, internalFormat, glm::defaultp> value(0);
+	memcpy(&value.x, &(m_Data[pixelIndex * m_Elements]), sizeof(internalFormat) * m_Elements);
+	return glm::vec4(value);
 }
 
 } // namespace GLEngine::Renderer

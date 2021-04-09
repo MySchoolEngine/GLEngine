@@ -9,6 +9,7 @@ public:
 	C_MaterialsBuffer(const std::string& blockName, unsigned int index);
 	virtual void UploadData() const override;
 
+	[[nodiscard]] virtual std::size_t GetBufferSize() const override;
 
 	std::array<C_PhongMaterial, 40> m_PhongMaterials;
 };

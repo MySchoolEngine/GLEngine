@@ -11,6 +11,7 @@ C_Window::C_Window(GUID guid, const std::string& name)
 	: m_GUID(guid)
 	, m_Name(name)
 	, m_IsVisible(false)
+	, m_WantToBeDestroyed(false)
 {
 }
 

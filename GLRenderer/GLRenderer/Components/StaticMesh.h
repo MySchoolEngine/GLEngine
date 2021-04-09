@@ -1,5 +1,8 @@
 #pragma once
 
+#include <GLRenderer/Mesh/StaticMeshResource.h>
+#include <GLRenderer/Textures/Texture.h>
+
 #include <Renderer/IRenderableComponent.h>
 
 #include <GUI/Input/Color.h>

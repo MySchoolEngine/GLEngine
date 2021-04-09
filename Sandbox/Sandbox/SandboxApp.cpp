@@ -1,3 +1,5 @@
+#include <SandboxStdafx.h>
+
 #include <GLFWWindowManager/GLFWWindowManager.h>
 
 #if GLENGINE_GLFW_RENDERER!=GRAPHICS_API_VULKAN

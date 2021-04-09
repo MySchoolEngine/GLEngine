@@ -9,7 +9,7 @@ layout(location = 2) in vec2 texCoord;
 layout(location = 3) in vec3 tangent;
 layout(location = 4) in vec3 bitangent;
 
-//per frame
+// per frame
 #include "../include/frameConstants.glsl"
 
 //per model
@@ -28,12 +28,12 @@ layout(location = 3) out mat3 TBN;
 //=================================================================================
 void main()
 {
-	normalOUT = mat3(transpose(inverse(modelMatrix))) * normal;
+	normalOUT	= mat3(transpose(inverse(modelMatrix))) * normal;
 	texCoordOUT = texCoord;
 
 	worldCoord = modelMatrix * vertex;
 
-	TBN = mat3 (tangent, bitangent, normal);
+	TBN = mat3(tangent, bitangent, normal);
 
-    gl_Position = frame.viewProjectionMatrix * worldCoord; //tohle je reálná hloubka
+	gl_Position = frame.viewProjectionMatrix * worldCoord; // tohle je reálná hloubka
 }

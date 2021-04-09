@@ -1,123 +1,189 @@
 #include <RendererStdafx.h>
 
 #include <Renderer/ICameraComponent.h>
+#include <Renderer/RayCasting/Generator/Sampler.h>
+#include <Renderer/RayCasting/Geometry/SceneGeometry.h>
+#include <Renderer/RayCasting/Light/ILight.h>
+#include <Renderer/RayCasting/Light/RayAreaLight.h>
+#include <Renderer/RayCasting/PhysicalProperties.h>
+#include <Renderer/RayCasting/RayIntersection.h>
 #include <Renderer/RayCasting/RayRenderer.h>
+#include <Renderer/RayCasting/ReflectionModels/LambertianModel.h>
+#include <Renderer/RayCasting/ReflectionModels/SpecularReflection.h>
 #include <Renderer/RayCasting/Sampling.h>
+#include <Renderer/RayCasting/VisibilityTester.h>
+#include <Renderer/Textures/TextureLoader.h>
 #include <Renderer/Textures/TextureStorage.h>
 #include <Renderer/Textures/TextureView.h>
 
-#include <chrono>
-#include <random>
+#include <glm/gtx/component_wise.hpp>
 
 namespace GLEngine::Renderer {
 
 //=================================================================================
 C_RayRenderer::C_RayRenderer(const C_RayTraceScene& scene)
 	: m_Scene(scene)
+	, m_ProcessedPixels(0)
+	, m_MaxDepth(3)
 {
+	Textures::TextureLoader tl;
+	m_Texture = tl.loadTexture(R"(Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp)");
 }
 
 //=================================================================================
-void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& storage) const
+C_RayRenderer::~C_RayRenderer()
 {
-	const auto low1	 = 0.0;
-	const auto high1 = 5.0f;
-	const auto low2	 = 0.0;
-	const auto high2 = 255.0;
-	const auto dim	 = storage.GetDimensions();
+	delete m_Texture;
+}
 
-	std::random_device		  rd;
-	std::mt19937::result_type seed
-		= rd()
-		  ^ ((std::mt19937::result_type)std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()
-			 + (std::mt19937::result_type)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count());
+//=================================================================================
+void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& storage)
+{
+	m_ProcessedPixels = 0;
 
-	std::mt19937						  gen(seed);
-	std::uniform_real_distribution<float> distrib(0, 1.f);
+	const auto dim = storage.GetDimensions();
 
-	const auto ToClipSpace = [&](const glm::vec2& screenCoord) -> glm::vec2 {
+	C_STDSampler rnd(0.f, 1.f);
+
+	const auto GetRay = [&](const glm::vec2& screenCoord) {
 		const float x = (2.0f * screenCoord.x) / dim.x - 1.0f;
 		const float y = 1.0f - (2.0f * screenCoord.y) / dim.y;
-		return {x, y};
+		return camera.GetRay({x, y});
 	};
 
-	const auto GetRay = [&](int x, int y) {
-		const auto clipSpace = ToClipSpace({static_cast<float>(x), static_cast<float>(y)});
-		return camera.GetRay(clipSpace);
-	};
+	auto textureView = C_TextureView(&storage);
 
-	auto textureView = Renderer::C_TextureView(&storage);
-
-	const auto eps = 1e-5f;
-	auto	   min = std::numeric_limits<float>::max();
-	auto	   max = std::numeric_limits<float>::min();
-
-	const auto pointLightPosition  = glm::vec3(-1, 1, -1);
-	const auto pointLightIntensity = 5.f;
-
-	const glm::vec3								   lightNormal = glm::normalize(glm::vec3(0, -0.5f, -1));
-	const C_Primitive<Physics::Primitives::S_Disc> areaLight(Physics::Primitives::S_Disc(lightNormal, glm::vec3(0, 1, 2), .25f));
-	const auto									   areLightPower = 255.f;
+	C_TextureView brickView(m_Texture);
 
 	for (int y = 0; y < dim.y; ++y)
 	{
 		for (int x = 0; x < dim.x; ++x)
 		{
-			const auto		  ray = GetRay(x, y);
-			C_RayIntersection intersect;
-
-			if (areaLight.Intersect(ray, intersect))
-			{
-				textureView.Set({x, y}, glm::vec3{areLightPower, areLightPower, areLightPower});
-				continue;
-			}
-
-			if (!m_Scene.Intersect(ray, intersect))
-				continue;
-
-			const auto frame = intersect.GetFrame();
-			// const auto toLight = pointLightPosition -
-			// intersect.GetIntersectionPoint(); const auto cosTheta =
-			// frame.CosTheta(frame.ToLocal(glm::normalize(toLight))); const auto
-			// sample = intersect.GetMaterial()->diffuse * cosTheta *
-			// (pointLightIntensity / glm::dot(toLight, toLight));
-
-			// Light sample (Single bounce - only hard shadows)
-			// C_RayIntersection intersectLight;
-			// const Physics::Primitives::S_Ray lightRay{ pointLightPosition,
-			// glm::normalize(-toLight) }; if (!m_Scene.Intersect(lightRay,
-			// intersectLight)) 	CORE_LOG(E_Level::Debug, E_Context::Render, "Error {}
-			// {}", x, y); // please, please don't fail
-
-			C_RayIntersection				 intersectLight;
-			const Physics::Primitives::S_Ray lightRay{intersect.GetIntersectionPoint(), UniformSampleHemisphere({distrib(gen), distrib(gen)})};
-
-			if (!areaLight.Intersect(lightRay, intersectLight))
-			{
-				continue;
-			}
-
-			C_RayIntersection geomIntersect;
-			if (m_Scene.Intersect(lightRay, geomIntersect))
-			{
-				continue;
-			}
-
-			const auto cosTheta = frame.CosTheta(frame.ToLocal(glm::normalize(lightRay.direction)));
-			const auto sample	= intersect.GetMaterial()->diffuse * cosTheta * (pointLightIntensity);
-
-			textureView.Set({x, y}, textureView.Get<glm::vec3>({x, y}) + glm::vec3{sample.x, sample.y, sample.z}); // Map due to texture format
-
-			// need for mapping purposes
-			min = std::min(min, sample.x);
-			min = std::min(min, sample.y);
-
-			max = std::max(max, sample.x);
-			max = std::max(max, sample.y);
+			const auto ray = GetRay(glm::vec2{x, y} + rnd.GetV2());
+			AddSample({x, y}, textureView, PathTrace(ray, rnd));
+			++m_ProcessedPixels;
 		}
 	}
+}
 
-	CORE_LOG(E_Level::Debug, E_Context::Render, "{} {}", min, max);
+//=================================================================================
+void C_RayRenderer::AddSample(const glm::ivec2 coord, C_TextureView view, const glm::vec3 sample)
+{
+	view.Set(coord, view.Get<glm::vec3>(coord) + sample);
+}
+
+//=================================================================================
+glm::vec3 C_RayRenderer::PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler& rnd)
+{
+	C_TextureView brickView(m_Texture);
+	glm::vec3	  LoDirect(0.f);
+	glm::vec3	  throughput(1.f);
+
+	for (std::size_t pathDepth = 0; pathDepth < 20; ++pathDepth)
+	{
+		C_RayIntersection intersect;
+		// first primary ray
+		if (!m_Scene.Intersect(ray, intersect, 1e-3f))
+			return glm::vec3(0.f); // here we can plug environmental light/atmosphere/whatever
+
+		// direct ray to the light intersection
+		if (intersect.IsLight())
+		{
+			auto light = intersect.GetLight();
+			LoDirect += throughput * light->Le() * 100.f;
+		}
+
+		const auto& frame		  = intersect.GetFrame();
+		const auto& point		  = intersect.GetIntersectionPoint();
+		const auto* material	  = intersect.GetMaterial();
+		auto		diffuseColour = glm::vec3(material->diffuse);
+		if (material->textureIndex != 0)
+		{
+			const auto uv = glm::vec2(point.x, point.z) / 10.f;
+			diffuseColour = brickView.Get<glm::vec3, T_Bilinear>(uv);
+		}
+		C_LambertianModel model(diffuseColour);
+
+		const auto wol = frame.ToLocal(-ray.direction);
+
+		glm::vec3  wi;
+		float	   pdf;
+		const auto f = model.SampleF(wol, wi, frame, rnd.GetV2(), &pdf);
+
+		GLE_ASSERT(wi.y > 0, "Wrong direction of the ray!");
+
+		throughput *= f / pdf;
+
+		// rusian roulette
+		const auto sruvivalProb = glm::min(1.f, glm::compMax(throughput));
+		const auto randomSurv	= rnd.GetD();
+		if (randomSurv >= sruvivalProb)
+		{
+			break;
+		}
+
+		throughput /= sruvivalProb;
+
+		// next ray
+		ray.origin	  = point;
+		ray.direction = frame.ToWorld(wi);
+	}
+
+	return LoDirect;
+}
+
+//=================================================================================
+glm::vec3 C_RayRenderer::DirectLighting(const Physics::Primitives::S_Ray& ray, C_STDSampler& rnd)
+{
+	C_TextureView brickView(m_Texture);
+
+	C_RayIntersection intersect;
+
+	// first primary ray
+	if (!m_Scene.Intersect(ray, intersect))
+		return glm::vec3(0.f); // here we can plug environmental light/atmosphere/whatever
+
+	// direct ray to the light intersection
+	if (intersect.IsLight())
+	{
+		auto light = intersect.GetLight();
+		return light->Le() * 10.f;
+	}
+
+	glm::vec3 LoDirect(0.f);
+
+	m_Scene.ForEachLight([&](const std::reference_wrapper<const RayTracing::I_RayLight>& light) {
+		float	  pdf;
+		auto	  vis	= RayTracing::S_VisibilityTester(glm::vec3(), glm::vec3());
+		glm::vec3 illum = light.get().SampleLi(intersect, &rnd, vis, &pdf);
+
+		if (glm::compMax(illum) > 0.f)
+		{
+			if (!vis.IsVisible(m_Scene))
+			{
+				return;
+			}
+			// no intersect for point light
+
+			const auto& point		  = intersect.GetIntersectionPoint();
+			const auto* material	  = intersect.GetMaterial();
+			auto		diffuseColour = glm::vec3(material->diffuse);
+			if (material->textureIndex != 0)
+			{
+				const auto uv = glm::vec2(point.x, point.z) / 10.f;
+				diffuseColour = brickView.Get<glm::vec3, T_Bilinear>(uv);
+			}
+			LoDirect += illum * (diffuseColour / glm::pi<float>());
+		}
+	});
+
+	return LoDirect;
+}
+
+//=================================================================================
+std::size_t C_RayRenderer::GetProcessedPixels() const
+{
+	return m_ProcessedPixels;
 }
 
 } // namespace GLEngine::Renderer
