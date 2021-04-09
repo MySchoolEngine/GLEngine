@@ -147,7 +147,7 @@ private:
 #if CORE_PLATFORM == CORE_PLATFORM_WIN
 	GLEngine::Core::C_WindwoManager<GLEngine::GLFWManager::C_GLFWWindowManager, GLEngine::DX12Renderer::C_D3D12WindowManager>* m_WndMgr;
 #else
-	GLEngine::Core::C_WindwoManager<GLEngine::GLRenderer::GLFW::C_GLFWWindowManager>* m_WndMgr;
+	GLEngine::Core::C_WindwoManager<GLEngine::GLFWManager::C_GLFWWindowManager>* m_WndMgr;
 #endif
 };
 
