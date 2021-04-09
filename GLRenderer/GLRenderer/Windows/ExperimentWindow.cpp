@@ -238,7 +238,6 @@ void C_ExplerimentWindow::OnAppInit()
 		m_renderer->AddCommand(std::move(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Front)));
 	}
 
-	Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Material::C_MaterialsBuffer>("materials");
 	Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_ModelData>("modelData");
 	{
 		// billboard
