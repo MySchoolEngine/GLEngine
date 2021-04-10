@@ -2,10 +2,12 @@
 
 #include <Renderer/RendererApi.h>
 
-#include <Physics/Primitives/Frustum.h>
-
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
+
+namespace GLEngine::Physics::Primitives {
+class C_Frustum;
+}
 
 namespace GLEngine {
 namespace Renderer {

@@ -2,8 +2,6 @@
 
 #include <Renderer/RendererApi.h>
 
-#include <Physics/Primitives/Frustum.h>
-
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
 

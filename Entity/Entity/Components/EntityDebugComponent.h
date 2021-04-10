@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Entity/BasicEntity.h>
 #include <Entity/Components/DebugGUIComponent.h>
 
 namespace GLEngine::Entity {

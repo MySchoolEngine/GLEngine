@@ -4,8 +4,6 @@
 
 #include <GUI/Input/Transformations.h>
 
-#include <Physics/Primitives/AABB.h>
-
 #include <Core/EventSystem/EventReciever.h>
 
 namespace pugi {
