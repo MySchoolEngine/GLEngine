@@ -54,8 +54,8 @@ C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::s
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	m_Shader	= shmgr.GetProgram(shader.data());
 
-	const auto	materialIdx = scene->meshes[0].materialIndex;
-	const auto& material	= scene->materials[materialIdx];
+	const auto materialIdx = scene->meshes[0].materialIndex;
+	auto&	   material	   = scene->materials[materialIdx];
 
 	SetMaterial(material);
 }
@@ -115,22 +115,9 @@ void C_StaticMesh::PerformDraw() const
 //=================================================================================
 void C_StaticMesh::DebugDrawGUI()
 {
-	m_Color.Draw();
-	if (!m_RoughnessMap)
+	if (::ImGui::CollapsingHeader("Material"))
 	{
-		m_Roughness.Draw();
-	}
-	else
-	{
-		ImGui::Image((void*)(intptr_t)(m_RoughnessMap->GetTexture()), ImVec2(128, 128));
-	}
-	if (m_ColorMap)
-	{
-		ImGui::Image((void*)(intptr_t)(m_ColorMap->GetTexture()), ImVec2(128, 128));
-	}
-	if (m_NormalMap)
-	{
-		ImGui::Image((void*)(intptr_t)(m_NormalMap->GetTexture()), ImVec2(128, 128));
+		m_Material->DrawGUI();
 	}
 }
 
@@ -143,6 +130,12 @@ void C_StaticMesh::SetMaterial(const Renderer::MeshData::Material& material)
 	{
 		m_Material = materialManager.RegisterMaterial(Renderer::C_Material(material));
 	}
+}
+
+//=================================================================================
+void C_StaticMesh::SetMaterial(std::shared_ptr<Renderer::C_Material> material)
+{
+	m_Material = material;
 }
 
 //=================================================================================
@@ -164,32 +157,6 @@ GLEngine::Physics::Primitives::S_AABB C_StaticMesh::GetAABB() const
 }
 
 //=================================================================================
-void C_StaticMesh::SetColorMap(std::shared_ptr<Textures::C_Texture>& texture)
-{
-	m_ColorMap = texture;
-	m_ColorMap->CreateHandle();
-
-	m_Material->SetColorMap(m_ColorMap);
-}
-
-//=================================================================================
-void C_StaticMesh::SetNormalMap(std::shared_ptr<Textures::C_Texture>& texture)
-{
-	m_NormalMap = texture;
-	texture->CreateHandle();
-	m_Material->SetNormalMap(texture);
-}
-
-//=================================================================================
-void C_StaticMesh::SetRoughnessMap(const std::shared_ptr<Textures::C_Texture>& texture)
-{
-	m_RoughnessMap = texture;
-	m_Roughness	   = 1.0f;
-	texture->CreateHandle();
-	m_Material->SetRoughnessMap(m_RoughnessMap);
-}
-
-//=================================================================================
 std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
 {
 	const auto materialData = Utils::Parsing::C_MaterialParser::ParseMaterialData(node);
@@ -205,10 +172,15 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 			staticMesh->m_ShadowPassShader = shadowPassShader;
 		}
 	}
+	auto& materialManager = Renderer::C_MaterialManager::Instance();
+	auto  material		  = materialManager.GetMaterial(owner->GetName() + "_Material");
+	if (!material)
+	{
+		material = materialManager.RegisterMaterial(Renderer::C_Material(owner->GetName() + "_Material"));
+	}
 
-	staticMesh->SetColor(materialData.m_Color);
-	staticMesh->m_Roughness = materialData.m_Roughness;
-
+	material->SetColor(materialData.m_Color);
+	material->SetRoughness(materialData.m_Roughness);
 
 	auto& tmgr = Textures::C_TextureManager::Instance();
 
@@ -224,7 +196,7 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 
 			roughnessMap->EndGroupOp();
 
-			staticMesh->SetRoughnessMap(roughnessMap);
+			material->SetRoughnessMap(roughnessMap);
 		}
 	}
 
@@ -240,7 +212,7 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 
 			colorMapTexture->EndGroupOp();
 
-			staticMesh->SetColorMap(colorMapTexture);
+			material->SetColorMap(colorMapTexture);
 		}
 	}
 
@@ -256,9 +228,11 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 
 			normalMap->EndGroupOp();
 
-			staticMesh->SetNormalMap(normalMap);
+			material->SetNormalMap(normalMap);
 		}
 	}
+
+	staticMesh->SetMaterial(material);
 
 	return staticMesh;
 }

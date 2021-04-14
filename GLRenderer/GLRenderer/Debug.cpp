@@ -1,11 +1,13 @@
 #include <GLRendererStdafx.h>
 
+#include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
-#include <GLRenderer/Components/StaticMesh.h>
 #include <GLRenderer/Debug.h>
+#include <GLRenderer/Mesh/StaticMeshResource.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/Textures/Texture.h>
+#include <GLRenderer/Textures/TextureUnitManager.h>
 
 #include <Renderer/Animation/Skeleton.h>
 #include <Renderer/IRenderer.h>
@@ -23,8 +25,9 @@
 
 namespace GLEngine::GLRenderer {
 
-const static std::string s_DebugShaderName	= "basic-wireframe";
-const static std::string s_MergedShaderName = "MergedWireframes";
+const static std::string s_DebugShaderName		= "basic-wireframe";
+const static std::string s_MergedShaderName		= "MergedWireframes";
+const static std::string s_OctahedronShaderName = "OctahedronMapping";
 
 #define codeToStr(c)                                                                                                                                                               \
 	case c:                                                                                                                                                                        \
@@ -356,23 +359,31 @@ void C_DebugDraw::DrawFrustum(const Physics::Primitives::C_Frustum& frust, const
 //=================================================================================
 void C_DebugDraw::DrawMergedGeoms()
 {
-	auto& shdManager = Shaders::C_ShaderManager::Instance();
-	auto  program	 = Shaders::C_ShaderManager::Instance().GetProgram(s_MergedShaderName);
-	shdManager.ActivateShader(program);
+	auto& shdManager		 = Shaders::C_ShaderManager::Instance();
+	auto  mergedDebugProgram = shdManager.GetProgram(s_MergedShaderName);
+	auto  octahedronProgram	 = shdManager.GetProgram(s_OctahedronShaderName);
 
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
 	if (!m_OctahedronInfos.empty() && !m_OctahedronMesh)
 	{
-		m_OctahedronMesh = std::make_shared<Components::C_StaticMesh>(Renderer::MeshData::C_Geometry::CreateOctahedron(1.f, 1.f), "OctahedronMapping", nullptr);
+		m_OctahedronMesh = std::make_shared<Mesh::C_StaticMeshResource>(Renderer::MeshData::C_Geometry::CreateOctahedron(1.f, 1.f));
 	}
 
+	auto& tgmg = Textures::C_TextureUnitManger::Instance();
+
+	shdManager.ActivateShader(octahedronProgram);
+	renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([octahedronProgram]() { octahedronProgram->SetUniform("colorMap", 0); }));
 	std::for_each(m_OctahedronInfos.begin(), m_OctahedronInfos.end(), [&](auto& info) {
-		m_OctahedronMesh->SetColorMap(info.m_Texture);
-		m_OctahedronMesh->SetComponentMatrix(glm::scale(glm::translate(info.m_Position), glm::vec3(info.m_size)));
-		m_OctahedronMesh->PerformDraw();
+		const auto modelMatrix = glm::scale(glm::translate(info.m_Position), glm::vec3(info.m_size));
+
+		tgmg.BindTextureToUnit(*info.m_Texture.get(), 0);
+		renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([octahedronProgram, modelMatrix]() { octahedronProgram->SetUniform("modelMatrix", modelMatrix); }));
+		renderer.AddCommand(std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_OctahedronMesh));
 	});
 	m_OctahedronInfos.clear();
+	shdManager.DeactivateShader();
 
+	shdManager.ActivateShader(mergedDebugProgram);
 	renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&]() {
 			m_VAOlines.bind();

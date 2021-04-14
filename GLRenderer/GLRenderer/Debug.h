@@ -83,8 +83,8 @@ void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum se
 
 //=================================================================================
 // Forward declarations
-namespace Components {
-class C_StaticMesh;
+namespace Mesh {
+class C_StaticMeshResource;
 }
 namespace Textures {
 class C_Texture;
@@ -175,8 +175,8 @@ private:
 		float								 m_size;
 		glm::vec3							 m_Position;
 	};
-	std::shared_ptr<Components::C_StaticMesh> m_OctahedronMesh;
-	std::vector<OctahedronInfo>				  m_OctahedronInfos;
+	std::shared_ptr<Mesh::C_StaticMeshResource> m_OctahedronMesh;
+	std::vector<OctahedronInfo>					m_OctahedronInfos;
 
 	std::vector<glm::mat4> m_AABBTransform;
 	std::vector<glm::vec3> m_AABBColor;

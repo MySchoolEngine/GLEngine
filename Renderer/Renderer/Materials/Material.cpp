@@ -87,6 +87,7 @@ void C_Material::SetNormalMap(std::shared_ptr<I_DeviceTexture> texture)
 //=================================================================================
 void C_Material::SetRoughnessMap(std::shared_ptr<I_DeviceTexture> texture)
 {
+	m_Roughness	   = 1.0f;
 	m_RoughnessMap = texture;
 }
 
@@ -94,6 +95,7 @@ void C_Material::SetRoughnessMap(std::shared_ptr<I_DeviceTexture> texture)
 void C_Material::SetColorMap(std::shared_ptr<I_DeviceTexture> texture)
 {
 	m_ColorMap = texture;
+	m_Color	   = glm::vec3(1.0f, 1.0f, 1.0f);
 }
 
 //=================================================================================

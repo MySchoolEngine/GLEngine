@@ -31,6 +31,7 @@ public:
 
 	const std::string& GetName() const { return m_Name; }
 	const glm::vec3&   GetColor() const { return m_Color; }
+	void			   SetColor(const glm::vec3& color) { m_Color = color; }
 	float			   GetRoughness() const { return m_Roughness; }
 
 	int	 GetMaterialIndex() const;
