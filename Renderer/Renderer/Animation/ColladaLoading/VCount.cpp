@@ -6,7 +6,6 @@
 
 namespace GLEngine::Renderer::Animation {
 
-
 //=================================================================================
 C_VCount::C_VCount(const pugi::xml_node& vcount)
 {

@@ -8,7 +8,7 @@
 @struct sunLight;
 // clang-format on
 
-layout(std140) uniform lightsUni
+layout (std140, binding = 5) uniform lightsUni
 {
 	pointLight pLight[NUM_POINTLIGHT];
 	areaLight  pAreaLight[NUM_AREALIGHT];

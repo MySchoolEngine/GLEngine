@@ -147,7 +147,6 @@ bool C_OrbitalCamera::HasDebugDrawGUI() const
 	return true;
 }
 
-
 //=================================================================================
 bool C_OrbitalCamera::OnKeyEvent(Core::C_KeyEvent& event)
 {

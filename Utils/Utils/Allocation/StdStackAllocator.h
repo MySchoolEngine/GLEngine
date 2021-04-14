@@ -74,7 +74,6 @@ private:
 
 	size_type m_Allocated;
 
-
 	using AllocUtils = C_AllocatorUtils<C_StdStackAllocator<T, size, alignment>, alignment>;
 };
 

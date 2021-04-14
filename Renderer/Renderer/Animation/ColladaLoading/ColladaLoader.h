@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Renderer/Mesh/Scene.h>
 #include <Renderer/RendererApi.h>
 
 namespace pugi {

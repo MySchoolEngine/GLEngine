@@ -11,28 +11,40 @@
 
 #pragma once
 
-#include <filesystem>
+#include <Renderer/RendererApi.h>
+#include <Renderer/Shaders/CodeGeneration.h>
 
-namespace GLEngine::GLRenderer::Shaders {
+namespace GLEngine::Renderer::Shaders {
 
-class C_ShaderPreprocessor {
+class RENDERER_API_EXPORT C_ShaderPreprocessor {
 public:
 	using T_Paths = std::vector<std::filesystem::path>;
+
+	C_ShaderPreprocessor(std::unique_ptr<I_CodeProvider>&& codeProvider);
+	~C_ShaderPreprocessor();
+
 	void		Define(const std::string& symbol, const std::string& value);
-	std::string PreprocessFile(const std::string& src, const std::string& filepath);
+	bool		IsDefined(const std::string& name) const;
+	std::string PreprocessFile(const std::string& src, const std::filesystem::path& filepath);
 	T_Paths		GetTouchedPaths() const;
 	bool		WasSuccessful() const { return m_Result; }
 
 protected:
-	void IncludesFiles(std::string& content, const std::string& filepath);
+	void IncludesFiles(std::string& content, const std::filesystem::path& filepath);
 	void CodeGeneration(std::string& content);
 	void ReplaceConstants(std::string& content);
 	void GetDefines(std::string& content);
 
-	bool _loadFile(const char* file, std::string& content);
+	void ResolveIfStatements(std::string& content);
+
+	bool _loadFile(const std::filesystem::path& file, std::string& content);
 
 	using T_Defines = std::map<std::string, std::string>;
+#pragma warning(push)
+#pragma warning(disable : 4251)
 	T_Defines m_defines;
+
+	std::unique_ptr<I_CodeProvider> m_CodeProvider;
 
 	T_Paths m_Paths;
 
@@ -41,5 +53,8 @@ protected:
 	const static std::regex s_IncludeFileName;
 	const static std::regex s_GenerateStruct;
 	const static std::regex s_DefineRegEx;
+	const static std::regex s_IfDefinedRegEx;
+	const static std::regex s_EndIfDefinedRegEx;
+#pragma warning(pop)
 };
-} // namespace GLEngine::GLRenderer::Shaders
+} // namespace GLEngine::Renderer::Shaders

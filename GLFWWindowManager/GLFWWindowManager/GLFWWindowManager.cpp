@@ -1,17 +1,18 @@
-#include <GLRendererStdafx.h>
+#include <GLFWWindowManagerStdafx.h>
 
-#include <GLRenderer/GLFW/GLFWWindowFactory.h>
-#include <GLRenderer/GLFW/GLFWWindowManager.h>
-#include <GLRenderer/GLFW/GLFWoGLWindow.h>
+#include <Renderer/IRenderer.h>
 
 #include <Core/EventSystem/Event/AppEvent.h>
 
-namespace GLEngine::GLRenderer::GLFW {
+#include <GLFWWindowManager/GLFWWindowManager.h>
+
+namespace GLEngine::GLFWManager {
 
 //=================================================================================
-C_GLFWWindowManager::C_GLFWWindowManager(Core::C_Application::EventCallbackFn eventCallback)
+C_GLFWWindowManager::C_GLFWWindowManager(Core::C_Application::EventCallbackFn eventCallback, Core::E_Driver driver)
 	: Core::I_WindowManager(eventCallback)
 	, m_UpdatingWindow(nullptr)
+	, m_Driver(driver)
 {
 	Init();
 }
@@ -19,7 +20,7 @@ C_GLFWWindowManager::C_GLFWWindowManager(Core::C_Application::EventCallbackFn ev
 //=================================================================================
 std::shared_ptr<Core::I_Window> C_GLFWWindowManager::OpenNewWindow(const Core::S_WindowInfo& info)
 {
-	if (info.GetDriver() != Core::E_Driver::OpenGL)
+	if (info.GetDriver() != m_Driver)
 	{
 		return nullptr;
 	}
@@ -30,13 +31,18 @@ std::shared_ptr<Core::I_Window> C_GLFWWindowManager::OpenNewWindow(const Core::S
 }
 
 //=================================================================================
-const std::unique_ptr<Renderer::I_Renderer>& C_GLFWWindowManager::GetActiveRenderer() const
+Renderer::I_Renderer& C_GLFWWindowManager::GetActiveRenderer()
+{
+	GLE_ASSERT(m_UpdatingWindow, "Getting renderer outside of update!");
+	return m_UpdatingWindow->GetRenderer();
+}
+
+//=================================================================================
+Renderer::I_Renderer* C_GLFWWindowManager::ActiveRendererPtr()
 {
 	if (!m_UpdatingWindow)
-	{
 		return nullptr;
-	}
-	return m_UpdatingWindow->GetRenderer();
+	return &m_UpdatingWindow->GetRenderer();
 }
 
 //=================================================================================
@@ -104,11 +110,4 @@ void C_GLFWWindowManager::Init()
 	}
 }
 
-//=================================================================================
-// ConstructGLFWManager
-GL_RENDERER_API_EXPORT C_GLFWWindowManager* ConstructGLFWManager(Core::C_Application::EventCallbackFn eventCallback)
-{
-	return new C_GLFWWindowManager(eventCallback);
-}
-
-} // namespace GLEngine::GLRenderer::GLFW
+} // namespace GLEngine::GLFWManager

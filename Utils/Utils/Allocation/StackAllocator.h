@@ -10,7 +10,6 @@ template <std::size_t size, std::size_t alignment = 4> class C_StackAllocator {
 public:
 	using size_type = std::size_t;
 
-
 	C_StackAllocator()
 		: m_head(m_memory)
 	{

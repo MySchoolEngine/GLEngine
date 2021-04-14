@@ -12,12 +12,12 @@ namespace GLEngine::GLRenderer {
 //=================================================================================
 template <E_FramebufferTarget target /*= E_FramebufferTarget::Framebuffer*/> void C_Framebuffer::Bind()
 {
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::make_unique<Commands::C_GLBindFramebuffer<target>>(m_FBO));
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::C_GLBindFramebuffer<target>>(m_FBO));
 }
 //=================================================================================
 template <E_FramebufferTarget target /*= E_FramebufferTarget::Framebuffer*/> void C_Framebuffer::Unbind()
 {
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::make_unique<Commands::C_GLBindFramebuffer<target>>(0));
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::C_GLBindFramebuffer<target>>(0));
 }
 
 //=================================================================================
@@ -32,7 +32,7 @@ template <E_FramebufferTarget target /*= E_FramebufferTarget::Framebuffer*/> voi
 		}
 	}
 	Bind<target>();
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::make_unique<Commands::C_glFramebufferTexture<target>>(attachement, texture));
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::C_glFramebufferTexture<target>>(attachement, texture));
 	Unbind<target>();
 
 	m_attachements[attachement] = texture;
@@ -45,7 +45,7 @@ template <E_FramebufferTarget target /*= E_FramebufferTarget::Framebuffer*/> std
 	std::promise<bool> retPromise;
 	auto			   ret = retPromise.get_future();
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::make_unique<Commands::C_GLCheckFramebufferStatus<target>>(std::move(retPromise)));
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::C_GLCheckFramebufferStatus<target>>(std::move(retPromise)));
 	return ret;
 }
 } // namespace GLEngine::GLRenderer

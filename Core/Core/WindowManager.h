@@ -79,9 +79,22 @@ public:
 							   [](unsigned int val, const auto& manager) -> unsigned int { return val + (manager == nullptr ? 0 : manager->NumWindows()); });
 	}
 
+	//=================================================================================
+	[[nodiscard]] virtual Renderer::I_Renderer* ActiveRendererPtr() override
+	{
+		if (!m_UpdatingManager)
+		{
+			return nullptr;
+		}
+		return m_UpdatingManager->ActiveRendererPtr();
+	}
 
 	//=================================================================================
-	[[nodiscard]] virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetActiveRenderer() const override { return m_UpdatingManager->GetActiveRenderer(); }
+	virtual Renderer::I_Renderer& GetActiveRenderer() override
+	{
+		GLE_ASSERT(m_UpdatingManager, "Getting renderer outside of update!");
+		return m_UpdatingManager->GetActiveRenderer();
+	}
 
 
 	//=================================================================================

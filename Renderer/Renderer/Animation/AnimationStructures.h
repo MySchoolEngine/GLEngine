@@ -47,5 +47,4 @@ private:
 	std::vector<S_BoneKeyframe> m_Timeline;
 };
 
-
 } // namespace GLEngine::Renderer::Animation

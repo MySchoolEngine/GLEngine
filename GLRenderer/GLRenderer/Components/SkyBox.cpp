@@ -112,7 +112,7 @@ void C_SkyBox::PerformDraw() const
 	auto  shader = shmgr.GetProgram("skybox");
 	shmgr.ActivateShader(shader);
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&]() {
 			glDepthFunc(GL_LEQUAL); // change depth function so depth test passes when values are equal to depth buffer's content
 
@@ -122,7 +122,7 @@ void C_SkyBox::PerformDraw() const
 			glDepthFunc(GL_LESS); // set depth function back to default
 			m_VAO.unbind();
 		},
-		"SkyBox draw")));
+		"SkyBox draw"));
 }
 
 //=================================================================================

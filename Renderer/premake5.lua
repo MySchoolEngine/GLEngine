@@ -25,6 +25,7 @@ project "Renderer"
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.DevIL}",
+		"../%{IncludeDir.ImGui}",
 
 		"../vendor/Assimp/include",
 		"../vendor/projects/Assimp"
@@ -39,13 +40,11 @@ project "Renderer"
 	{ 
 		"pugixml",
 		"Assimp",
+		"ImGui",
 		"DevIL-IL",
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
-		systemversion "latest"
-
 		defines
 		{
 			"BUILD_RENDERER_DLL",
@@ -55,11 +54,3 @@ project "Renderer"
 		{
 			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
 		}
-
-	filter "configurations:Debug"
-		runtime "Debug"
-		symbols "On"
-
-	filter "configurations:Release"
-		runtime "Release"
-		optimize "On"

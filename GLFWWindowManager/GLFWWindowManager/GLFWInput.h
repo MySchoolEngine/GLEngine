@@ -2,11 +2,13 @@
 
 #include <Core/Input.h>
 
+#include <GLFWWindowManager/GLFWWindowManagerApi.h>
+
 struct GLFWwindow;
 
-namespace GLEngine::GLRenderer::GLFW {
+namespace GLEngine::GLFWManager {
 
-class C_GLFWInput : public Core::I_Input {
+class GL_GLFWWINDOWMANAGER_API_EXPORT C_GLFWInput : public Core::I_Input {
 public:
 	C_GLFWInput();
 	virtual ~C_GLFWInput();
@@ -29,4 +31,4 @@ protected:
 	GLFWwindow* m_Window;
 };
 
-} // namespace GLEngine::GLRenderer::GLFW
+} // namespace GLEngine::GLFWManager

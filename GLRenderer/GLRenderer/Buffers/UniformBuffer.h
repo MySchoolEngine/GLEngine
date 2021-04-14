@@ -24,7 +24,7 @@ public:
 
 	void AllocateMemory(bool dynamicUsage, const void* initialData = nullptr);
 
-	virtual void UploadData() const = 0;
+	virtual void					  UploadData() const	= 0;
 	[[nodiscard]] virtual std::size_t GetBufferSize() const = 0;
 
 	void		Activate(bool activate = true);

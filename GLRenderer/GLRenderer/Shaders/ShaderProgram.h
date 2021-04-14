@@ -15,8 +15,6 @@
 
 #include <Renderer/IResource.h>
 
-#include <glm/gtc/type_ptr.hpp>
-
 namespace GLEngine::GLRenderer {
 
 namespace Buffers {

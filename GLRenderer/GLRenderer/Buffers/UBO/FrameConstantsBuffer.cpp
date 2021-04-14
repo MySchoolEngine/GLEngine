@@ -43,10 +43,10 @@ void C_FrameConstantsBuffer::UploadData() const
 	memcpy(data + matSize, glm::value_ptr(m_ViewMat), matSize);
 	memcpy(data + 2 * matSize, glm::value_ptr(viewProjectionMat), matSize);
 	memcpy(data + 3 * matSize, glm::value_ptr(m_CameraPosition), sizeof(decltype(m_CameraPosition)));
-	memcpy(data + 3 * matSize + vecSize, &m_AmbientStrength, sizeof(decltype(m_AmbientStrength)));
-	memcpy(data + 3 * matSize + vecSize + sizeof(decltype(m_AmbientStrength)), &m_Time, sizeof(decltype(m_Time)));
-	memcpy(data + 3 * matSize + vecSize + sizeof(decltype(m_AmbientStrength)) + floatSize, &m_NearPlane, sizeof(decltype(m_NearPlane)));
-	memcpy(data + 3 * matSize + vecSize + sizeof(decltype(m_AmbientStrength)) + 2 * floatSize, &m_FarPlane, sizeof(decltype(m_FarPlane)));
+	memcpy(data + 3 * matSize + vecSize, &m_AmbientStrength, floatSize);
+	memcpy(data + 3 * matSize + vecSize + floatSize, &m_Time, sizeof(decltype(m_Time)));
+	memcpy(data + 3 * matSize + vecSize + 2 * floatSize, &m_NearPlane, sizeof(decltype(m_NearPlane)));
+	memcpy(data + 3 * matSize + vecSize + 3 * floatSize, &m_FarPlane, sizeof(decltype(m_FarPlane)));
 
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
 	unbind();

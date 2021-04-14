@@ -15,6 +15,9 @@ project "Sandbox"
 	Link("Core")
 	Link("Utils")
 	Link("GLRenderer")
+	if (_OPTIONS["glfwapi"] ~= "opengl") then
+		Link("VulkanRenderer")
+	end
 
 	files
 	{
@@ -26,6 +29,7 @@ project "Sandbox"
 	{
 		".",
 		"../Renderer",
+		"../GLFWWindowManager",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmt}",
 	}

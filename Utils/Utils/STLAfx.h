@@ -17,6 +17,7 @@
 #include <optional>
 #include <random>
 #include <regex>
+#include <set>
 #include <sstream>
 #include <stack>
 #include <string>

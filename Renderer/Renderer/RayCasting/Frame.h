@@ -1,6 +1,5 @@
 #pragma once
 
-
 namespace GLEngine::Renderer {
 
 // Structure to simplify surface interaction code

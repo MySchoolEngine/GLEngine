@@ -31,7 +31,8 @@ public:
 	virtual void Init(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow){};
 #endif
 
-	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetActiveRenderer() const = 0;
+	virtual Renderer::I_Renderer&						  GetActiveRenderer()	 = 0;
+	[[nodiscard]] virtual GLEngine::Renderer::I_Renderer* GetActiveRendererPtr() = 0;
 
 	static C_Application&		   Get();
 	virtual Core::I_WindowManager& GetWndMgr() const = 0;
