@@ -5,21 +5,8 @@ project "VulkanRenderer"
 	language "C++"
 	staticruntime "off"
 
-	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("../obj/" .. outputdir .. "/%{prj.name}")
-	
-	pchheader "VkRendererStdafx.h"
-	pchsource "VkRendererStdafx.cpp"
-
-	files
-	{
-		"VulkanRenderer/**.h",
-		"VulkanRenderer/**.cpp",
-		"VulkanRenderer/**.inl",
-		"VkRendererStdafx.cpp",
-		"VkRendererStdafx.h",
-		"premake5.lua",
-	}
+	SetupProject("VulkanRenderer")
+	PrecompiledHeaders("VulkanRenderer")
 	
 	Link("Renderer")
 	Link("Utils")
