@@ -153,8 +153,8 @@ void C_ExplerimentWindow::Update()
 
 	{
 		using namespace Commands;
-		m_renderer->AddCommand(std::move(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth)));
-		m_renderer->AddCommand(std::move(std::make_unique<C_GLViewport>(0, 0, GetWidth(), GetHeight())));
+		m_renderer->AddCommand(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth));
+		m_renderer->AddCommand(std::make_unique<C_GLViewport>(0, 0, GetWidth(), GetHeight()));
 	}
 
 	auto HDRTexture = m_HDRFBO->GetAttachement(GL_COLOR_ATTACHMENT0);
@@ -167,23 +167,22 @@ void C_ExplerimentWindow::Update()
 	auto shader = shmgr.GetProgram("screenQuad");
 	shmgr.ActivateShader(shader);
 
-	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+	m_renderer->AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[this, shader]() {
 			shader->SetUniform("gamma", m_GammaSlider.GetValue());
 			shader->SetUniform("exposure", m_ExposureSlider.GetValue());
 			shader->SetUniform("hdrBuffer", 0);
 			shader->SetUniform("depthBuffer", 1);
 		},
-		"Update HDR")));
+		"Update HDR"));
 
-	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::move(std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_ScreenQuad)));
+	m_renderer->AddCommand(std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_ScreenQuad));
 
 	shmgr.DeactivateShader();
 
 	{
 		RenderDoc::C_DebugScope s("ImGUI");
-		Core::C_Application::Get().GetActiveRenderer().AddCommand(
-			std::move(std::make_unique<Commands::HACK::C_LambdaCommand>([this, shader]() { m_ImGUI->FrameEnd(); }, "m_ImGUI->FrameEnd")));
+		m_renderer->AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([this, shader]() { m_ImGUI->FrameEnd(); }, "m_ImGUI->FrameEnd"));
 	}
 
 	// commit of final commands - from commit few lines above
@@ -232,12 +231,12 @@ void C_ExplerimentWindow::OnAppInit()
 	m_MainPass = std::make_unique<C_MainPassTechnique>(m_World);
 	{
 		using namespace Commands;
-		m_renderer->AddCommand(std::move(std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::DEPTH_TEST)));
-		m_renderer->AddCommand(std::move(std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::CULL_FACE)));
-		m_renderer->AddCommand(std::move(std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::BLEND)));
-		m_renderer->AddCommand(std::move(std::make_unique<HACK::C_LambdaCommand>([]() { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); })));
-		m_renderer->AddCommand(std::move(std::make_unique<C_GLClearColor>(glm::vec3(0.0f, 0.0f, 0.0f))));
-		m_renderer->AddCommand(std::move(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Front)));
+		m_renderer->AddCommand(std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::DEPTH_TEST));
+		m_renderer->AddCommand(std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::CULL_FACE));
+		m_renderer->AddCommand(std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::BLEND));
+		m_renderer->AddCommand(std::make_unique<HACK::C_LambdaCommand>([]() { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); }));
+		m_renderer->AddCommand(std::make_unique<C_GLClearColor>(glm::vec3(0.0f, 0.0f, 0.0f)));
+		m_renderer->AddCommand(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Front));
 	}
 
 	Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_ModelData>("modelData");

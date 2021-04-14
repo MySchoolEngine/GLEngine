@@ -55,11 +55,11 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 	{
 		RenderDoc::C_DebugScope s("Window prepare");
 		using namespace Commands;
-		renderer.AddCommand(std::move(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth)));
-		renderer.AddCommand(std::move(std::make_unique<C_GLViewport>(0, 0, widht, height)));
+		renderer.AddCommand(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth));
+		renderer.AddCommand(std::make_unique<C_GLViewport>(0, 0, widht, height));
 		if (static_cast<C_OGLRenderer*>(&renderer)->WantWireframe())
 		{
-			renderer.AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>([&]() { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }, "Change polygon mode")));
+			renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([&]() { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }, "Change polygon mode"));
 		}
 	}
 
@@ -152,7 +152,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 	{
 		RenderDoc::C_DebugScope s("UBO Upload");
 		m_LightsUBO->MakeHandlesResident();
-		renderer.AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+		renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 			[&, materialsHaveChanged]() {
 				m_FrameConstUBO->SetView(camera->GetViewMatrix());
 				m_FrameConstUBO->SetProjection(camera->GetProjectionMatrix());
@@ -172,7 +172,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				modelData->UploadData();
 				modelData->Activate(true);
 			},
-			"MainPass - upload UBOs")));
+			"MainPass - upload UBOs"));
 	}
 
 	{
@@ -196,7 +196,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 
 		if (static_cast<C_OGLRenderer*>(&renderer)->WantWireframe())
 		{
-			renderer.AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>([&]() { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }, "Reset polygon mode")));
+			renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([&]() { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }, "Reset polygon mode"));
 		}
 	}
 }

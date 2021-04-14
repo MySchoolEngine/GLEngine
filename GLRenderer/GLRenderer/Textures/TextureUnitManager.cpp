@@ -32,10 +32,10 @@ void C_TextureUnitManger::BindTextureToUnit(const C_Texture& texture, unsigned i
 		return;
 	}
 
-	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::move(std::make_unique<Commands::C_GLActivateTexture>(unit)));
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::C_GLActivateTexture>(unit));
 
 	Core::C_Application::Get().GetActiveRenderer().AddCommand(
-		std::move(std::make_unique<Commands::HACK::C_LambdaCommand>([&texture]() { texture.bind(); }, fmt::format("BindTextureToUnit - {} -> {}", texture.GetTexture(), unit))));
+		std::make_unique<Commands::HACK::C_LambdaCommand>([&texture]() { texture.bind(); }, fmt::format("BindTextureToUnit - {} -> {}", texture.GetTexture(), unit)));
 	m_TextureUnits[unit] = texture.GetTexture();
 }
 
@@ -79,11 +79,11 @@ unsigned int C_TextureUnitManger::GetTextureUnit(const C_Texture& texture) const
 //=================================================================================
 void C_TextureUnitManger::BindImageToUnit(const C_Texture& image, unsigned int unit, E_OpenGLAccess access)
 {
-	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::move(std::make_unique<Commands::C_GLActivateTexture>(unit)));
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::C_GLActivateTexture>(unit));
 
-	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&image, unit, access]() { glBindImageTexture(unit, image.GetTexture(), 0, GL_TRUE, 0, AccesRightsToEnum(access), GL_R32F); },
-		fmt::format("BindImageToUnit - {} -> {}", image.GetTexture(), unit))));
+		fmt::format("BindImageToUnit - {} -> {}", image.GetTexture(), unit)));
 
 	m_ImageUnits[unit] = image.GetTexture();
 }

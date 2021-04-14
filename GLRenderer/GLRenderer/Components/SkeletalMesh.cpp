@@ -77,7 +77,7 @@ void C_SkeletalMesh::PerformDraw() const
 	auto  shader = shmgr.GetProgram("animation");
 	shmgr.ActivateShader(shader);
 
-	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&, shader]() {
 			shader->SetUniform("modelMatrix", m_ModelMatrix * glm::rotate(-glm::half_pi<float>(), glm::vec3(1.f, .0f, .0f)));
 
@@ -97,7 +97,7 @@ void C_SkeletalMesh::PerformDraw() const
 			glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_triangles));
 			m_VAO.unbind();
 		},
-		"SkeletalMesh - Draw")));
+		"SkeletalMesh - Draw"));
 }
 
 //=================================================================================

@@ -45,7 +45,7 @@ void C_GLGeomComponent::PerformDraw() const
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	shmgr.ActivateShader(m_Shader);
 
-	renderer.AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+	renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&, matIndex = m_Material ? m_Material->GetMaterialIndex() : 0]() {
 			ErrorCheck();
 			auto modelData = Buffers::C_UniformBuffersManager::Instance().GetBufferByName("modelData");
@@ -57,9 +57,9 @@ void C_GLGeomComponent::PerformDraw() const
 			}
 			ErrorCheck();
 		},
-		"GLGeomComponent - upload matrice")));
+		"GLGeomComponent - upload matrice"));
 
-	renderer.AddCommand(std::move(std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_Mesh)));
+	renderer.AddCommand(std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_Mesh));
 }
 
 //=================================================================================

@@ -97,7 +97,7 @@ void C_StaticMesh::PerformDraw() const
 		shmgr.ActivateShader(m_Shader);
 	}
 
-	renderer.AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+	renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&, matIndex = m_Material ? m_Material->GetMaterialIndex() : 0]() {
 			auto modelData = Buffers::C_UniformBuffersManager::Instance().GetBufferByName("modelData");
 			if (auto modelDataUbo = std::dynamic_pointer_cast<Buffers::UBO::C_ModelData>(modelData))
@@ -107,9 +107,9 @@ void C_StaticMesh::PerformDraw() const
 				modelDataUbo->UploadData();
 			}
 		},
-		"Per object data upload")));
+		"Per object data upload"));
 
-	renderer.AddCommand(std::move(std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_Mesh)));
+	renderer.AddCommand(std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_Mesh));
 }
 
 //=================================================================================
