@@ -67,7 +67,7 @@ void C_GLGeomComponent::DebugDrawGUI()
 {
 	if (::ImGui::CollapsingHeader("Geom component"))
 	{
-		// todo in the future will material.Draw go here
+		m_Material->DrawGUI();
 	}
 }
 
