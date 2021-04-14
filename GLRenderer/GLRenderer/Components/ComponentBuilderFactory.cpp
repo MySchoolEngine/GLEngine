@@ -9,8 +9,8 @@
 
 #include <Renderer/Lights/AreaLight.h>
 #include <Renderer/Lights/PointLight.h>
-#include <Renderer/Mesh/Loading/SceneLoader.h>
 #include <Renderer/Materials/MaterialManager.h>
+#include <Renderer/Mesh/Loading/SceneLoader.h>
 
 #include <Entity/Components/EntityDebugComponent.h>
 
@@ -72,8 +72,8 @@ void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Enti
 		const auto material = scene->materials[mesh.materialIndex];
 		const auto meshComp = std::make_shared<C_StaticMesh>(mesh, "basic", entity, &material);
 
-		auto&	   materialManager = Renderer::C_MaterialManager::Instance();
-		auto	   materialPtr		   = materialManager.GetMaterial(material.m_Name);
+		auto& materialManager = Renderer::C_MaterialManager::Instance();
+		auto  materialPtr	  = materialManager.GetMaterial(material.m_Name);
 		GLE_ASSERT(materialPtr, "Material '{}' should already exist", material.m_Name);
 		if (material.textureIndex >= 0)
 		{
@@ -84,9 +84,9 @@ void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Enti
 				colorMapTexture->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
 				colorMapTexture->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
 				colorMapTexture->GenerateMipMaps();
-		
+
 				colorMapTexture->EndGroupOp();
-		
+
 				materialPtr->SetColorMap(colorMapTexture);
 			}
 		}
@@ -99,9 +99,9 @@ void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Enti
 				normalMapTexture->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
 				normalMapTexture->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
 				normalMapTexture->GenerateMipMaps();
-		
+
 				normalMapTexture->EndGroupOp();
-		
+
 				materialPtr->SetNormalMap(normalMapTexture);
 			}
 		}

@@ -32,10 +32,7 @@ namespace Components {
 class C_StaticMesh : public Renderer::I_RenderableComponent {
 public:
 	C_StaticMesh(std::string meshFile, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner);
-	C_StaticMesh(const Renderer::MeshData::Mesh&	 mesh,
-				 std::string_view					 shader,
-				 std::shared_ptr<Entity::I_Entity>	 owner,
-				 const Renderer::MeshData::Material* material = nullptr);
+	C_StaticMesh(const Renderer::MeshData::Mesh& mesh, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner, const Renderer::MeshData::Material* material = nullptr);
 	virtual void									  PerformDraw() const override;
 	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override;
 
