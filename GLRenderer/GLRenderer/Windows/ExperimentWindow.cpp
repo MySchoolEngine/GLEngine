@@ -95,6 +95,8 @@ C_ExplerimentWindow::~C_ExplerimentWindow()
 //=================================================================================
 void C_ExplerimentWindow::Update()
 {
+	auto& tm = Textures::C_TextureUnitManger::Instance();
+	tm.Reset();
 	Shaders::C_ShaderManager::Instance().Update();
 	m_ImGUI->FrameBegin();
 	m_ImGUI->OnUpdate();
@@ -156,16 +158,16 @@ void C_ExplerimentWindow::Update()
 		m_renderer->AddCommand(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth));
 		m_renderer->AddCommand(std::make_unique<C_GLViewport>(0, 0, GetWidth(), GetHeight()));
 	}
+	m_HDRFBO->Bind<E_FramebufferTarget::Read>();
 
 	auto HDRTexture = m_HDRFBO->GetAttachement(GL_COLOR_ATTACHMENT0);
 	auto worldDepth = m_HDRFBO->GetAttachement(GL_DEPTH_ATTACHMENT);
 
-	auto& tm = Textures::C_TextureUnitManger::Instance();
-	tm.BindTextureToUnit(*(HDRTexture.get()), 0);
-	tm.BindTextureToUnit(*(worldDepth.get()), 1);
-
 	auto shader = shmgr.GetProgram("screenQuad");
 	shmgr.ActivateShader(shader);
+
+	tm.BindTextureToUnit(*(HDRTexture.get()), 0);
+	tm.BindTextureToUnit(*(worldDepth.get()), 1);
 
 	m_renderer->AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[this, shader]() {
@@ -180,6 +182,7 @@ void C_ExplerimentWindow::Update()
 
 	shmgr.DeactivateShader();
 
+	m_HDRFBO->Unbind<E_FramebufferTarget::Read>();
 	{
 		RenderDoc::C_DebugScope s("ImGUI");
 		m_renderer->AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([this, shader]() { m_ImGUI->FrameEnd(); }, "m_ImGUI->FrameEnd"));
