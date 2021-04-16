@@ -27,12 +27,13 @@ C_TextureUnitManger& C_TextureUnitManger::Instance()
 //=================================================================================
 void C_TextureUnitManger::BindTextureToUnit(const C_Texture& texture, unsigned int unit)
 {
+	// if texture unit was deactivated but the texture remained the same we need to reactivate it
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::C_GLActivateTexture>(unit));
+
 	if (m_TextureUnits[unit] == texture.GetTexture())
 	{
 		return;
 	}
-
-	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::C_GLActivateTexture>(unit));
 
 	Core::C_Application::Get().GetActiveRenderer().AddCommand(
 		std::make_unique<Commands::HACK::C_LambdaCommand>([&texture]() { texture.bind(); }, fmt::format("BindTextureToUnit - {} -> {}", texture.GetTexture(), unit)));
