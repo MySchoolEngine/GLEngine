@@ -107,9 +107,12 @@ int C_Material::GetMaterialIndex() const
 //=================================================================================
 void C_Material::DrawGUI() const
 {
-	ImGui::Image((void*)(intptr_t)(GetNormalMap()->GetDeviceTextureHandle()), ImVec2(256, 256));
-	ImGui::Image((void*)(intptr_t)(GetRoughnessMap()->GetDeviceTextureHandle()), ImVec2(256, 256));
-	ImGui::Image((void*)(intptr_t)(GetColorMap()->GetDeviceTextureHandle()), ImVec2(256, 256));
+	if (auto normalMap = GetNormalMap())
+		ImGui::Image((void*)(intptr_t)(normalMap->GetDeviceTextureHandle()), ImVec2(256, 256));
+	if (auto roughnessMap = GetRoughnessMap())
+		ImGui::Image((void*)(intptr_t)(roughnessMap->GetDeviceTextureHandle()), ImVec2(256, 256));
+	if (auto colourMap = GetColorMap())
+		ImGui::Image((void*)(intptr_t)(colourMap->GetDeviceTextureHandle()), ImVec2(256, 256));
 }
 
 } // namespace GLEngine::Renderer
