@@ -55,13 +55,13 @@ workspace "Engine"
 		"premakeDefines.lua",
 	}
 
-  	configuration "vulkan"
+	filter "options:glfwapi=vulkan"
   		defines{
 			"GLENGINE_GLFW_RENDERER=GRAPHICS_API_VULKAN",
 			"VULKAN_BIN=\"C:/VulkanSDK/Bin\"",
 			"VULKAN_GLSLC=VULKAN_BIN \"/glslc.exe\"",
   		}
-	configuration "opengl"
+	filter "options:glfwapi=opengl"
   		defines{
 			"GLENGINE_GLFW_RENDERER=GRAPHICS_API_OPENGL",
 		}
