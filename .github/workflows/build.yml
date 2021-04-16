@@ -75,3 +75,9 @@ jobs:
       - name: Build debug
         shell: cmd
         run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=Debug'
+      - name: Generate vulkan solution
+        shell: cmd
+        run: premake\premake5 --glfwapi=vulkan --vulkanPath=%VULKAN_SDK% vs2019
+      - name: Build vulkan debug
+        shell: cmd
+        run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=Debug'

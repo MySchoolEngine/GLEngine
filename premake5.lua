@@ -28,6 +28,12 @@ newoption {
    },
 }
 
+newoption{
+	trigger = "vulkanPath",
+	description = "Base path for VulkanSDK installation. Suggested is %VULKAN_SDK%",
+	default = "C:/VulkanSDK"
+}
+
 workspace "Engine"
 	architecture "x64"
 	startproject "Sandbox"
@@ -58,7 +64,7 @@ workspace "Engine"
 	filter "options:glfwapi=vulkan"
   		defines{
 			"GLENGINE_GLFW_RENDERER=GRAPHICS_API_VULKAN",
-			"VULKAN_BIN=\"C:/VulkanSDK/Bin\"",
+			"VULKAN_BIN=\"".. _OPTIONS["vulkanPath"] .."/bin\"",
 			"VULKAN_GLSLC=VULKAN_BIN \"/glslc.exe\"",
   		}
 	filter "options:glfwapi=opengl"
