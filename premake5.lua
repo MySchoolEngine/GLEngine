@@ -48,6 +48,12 @@ workspace "Engine"
 		"GRAPHICS_API_D3D12=3",
 		"GLM_ENABLE_EXPERIMENTAL",
 	}
+	
+	workspace_files{
+		"vendor/GLM/util/glm.natvis",
+		"premake5.lua",
+		"premakeDefines.lua",
+	}
 
   	configuration "vulkan"
   		defines{
@@ -59,12 +65,6 @@ workspace "Engine"
   		defines{
 			"GLENGINE_GLFW_RENDERER=GRAPHICS_API_OPENGL",
 		}
-
-	workspace_files{
-		"vendor/GLM/util/glm.natvis",
-		"premake5.lua",
-		"premakeDefines.lua",
-	}
 
 	filter "system:windows"
 		disablewarnings {"4251"}
