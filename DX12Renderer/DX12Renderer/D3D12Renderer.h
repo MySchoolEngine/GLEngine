@@ -24,7 +24,6 @@ public:
 	virtual void Commit() const override;
 	virtual void ClearCommandBuffers() override;
 
-
 	//=================================================================================
 	Renderer::E_PassType GetCurrentPassType() const override;
 

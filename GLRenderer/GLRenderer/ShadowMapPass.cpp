@@ -40,7 +40,7 @@ C_ShadowMapTechnique::C_ShadowMapTechnique(std::shared_ptr<Entity::C_EntityManag
 
 	auto& renderer = (Core::C_Application::Get()).GetActiveRenderer();
 	m_ShadowPassFBO.Bind();
-	renderer->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+	renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&]() {
 			glGenRenderbuffers(1, &m_ColorRenderbuffer);
 			if (m_ColorRenderbuffer)
@@ -52,7 +52,7 @@ C_ShadowMapTechnique::C_ShadowMapTechnique(std::shared_ptr<Entity::C_EntityManag
 				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, m_ColorRenderbuffer);
 			}
 		},
-		"setup renderbuffer for shadow maps")));
+		"setup renderbuffer for shadow maps"));
 	m_ShadowPassFBO.Unbind();
 }
 
@@ -61,7 +61,7 @@ void C_ShadowMapTechnique::Render()
 {
 	RenderDoc::C_DebugScope s("C_ShadowMapTechnique::Render");
 	auto&					renderer = (Core::C_Application::Get()).GetActiveRenderer();
-	renderer->SetCurrentPassType(Renderer::E_PassType::ShadowPass);
+	renderer.SetCurrentPassType(Renderer::E_PassType::ShadowPass);
 
 	const auto areaLigh = std::dynamic_pointer_cast<C_GLAreaLight>(m_Light);
 	const auto frustum	= areaLigh->GetShadingFrustum();
@@ -106,19 +106,19 @@ void C_ShadowMapTechnique::Render()
 	{
 		RenderDoc::C_DebugScope s("Shadow map prepare");
 		using namespace Commands;
-		renderer->AddCommand(std::move(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth)));
-		renderer->AddCommand(std::move(std::make_unique<C_GLViewport>(0, 0, 512, 512)));
-		renderer->AddCommand(std::move(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Back)));
+		renderer.AddCommand(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth));
+		renderer.AddCommand(std::make_unique<C_GLViewport>(0, 0, 512, 512));
+		renderer.AddCommand(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Back));
 	}
 
 	{
 		RenderDoc::C_DebugScope s("UBO Upload");
-		Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+		renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 			[&]() {
 				m_FrameConstUBO->UploadData();
 				m_FrameConstUBO->Activate(true);
 			},
-			"ShadowPass UBO upload")));
+			"ShadowPass UBO upload"));
 	}
 
 	const auto entitiesInView = m_WorldToRender->GetEntities(frustum);
@@ -137,7 +137,7 @@ void C_ShadowMapTechnique::Render()
 
 	{
 		using namespace Commands;
-		renderer->AddCommand(std::move(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Front)));
+		renderer.AddCommand(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Front));
 	}
 }
 

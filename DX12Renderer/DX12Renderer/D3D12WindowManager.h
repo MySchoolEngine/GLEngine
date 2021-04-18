@@ -14,12 +14,12 @@ public:
 	//=============================================================
 	// I_WindowManager
 	//=============================================================
-	virtual std::shared_ptr<Core::I_Window>						   OpenNewWindow(const Core::S_WindowInfo& info) override;
-	virtual std::shared_ptr<Core::I_Window>						   GetWindow(GUID guid) const override;
-	virtual void												   Update() override;
-	virtual unsigned int										   NumWindows() const override;
-	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetActiveRenderer() const override;
-
+	virtual std::shared_ptr<Core::I_Window>		OpenNewWindow(const Core::S_WindowInfo& info) override;
+	virtual std::shared_ptr<Core::I_Window>		GetWindow(GUID guid) const override;
+	virtual void								Update() override;
+	virtual unsigned int						NumWindows() const override;
+	virtual Renderer::I_Renderer&				GetActiveRenderer() override;
+	[[nodiscard]] virtual Renderer::I_Renderer* ActiveRendererPtr() override;
 
 	//=================================================================================
 	// Core::C_Layer

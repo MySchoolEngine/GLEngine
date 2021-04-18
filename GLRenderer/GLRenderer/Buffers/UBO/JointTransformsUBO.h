@@ -13,6 +13,7 @@ public:
 
 	virtual void					  UploadData() const override;
 	[[nodiscard]] virtual std::size_t GetBufferSize() const override;
+
 private:
 	std::vector<glm::mat4> m_JointTransforms;
 };

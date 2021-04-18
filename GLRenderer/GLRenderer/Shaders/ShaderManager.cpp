@@ -1,8 +1,11 @@
 #include <GLRendererStdafx.h>
 
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
+#include <GLRenderer/Shaders/ShaderCompiler.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
+
+#include <Renderer/Shaders/ShaderCompiling.h>
 
 #include <GUI/GUIManager.h>
 #include <GUI/GUIWindow.h>
@@ -167,95 +170,17 @@ void C_ShaderManager::DestroyControls(GUI::C_GUIManager& guiMGR)
 }
 
 //=================================================================================
-bool C_ShaderManager::LoadDoc(pugi::xml_document& document, const std::filesystem::path& filename) const
-{
-	pugi::xml_parse_result result;
-
-	if (filename.has_extension())
-	{
-		result = document.load_file(filename.c_str());
-		if (!result.status == pugi::status_ok)
-		{
-			const std::filesystem::path path = s_ShadersFolder / filename;
-			result							 = document.load_file(path.generic_string().c_str());
-		}
-		else
-		{
-			return true;
-		}
-	}
-	else
-	{
-		auto path = filename;
-		path.replace_extension("xml");
-		return LoadDoc(document, path);
-	}
-
-	if (result.status == pugi::status_ok)
-		return true;
-	return false;
-}
-
-//=================================================================================
-GLuint C_ShaderManager::LoadShader(const pugi::xml_node& node, C_ShaderCompiler& compiler) const
-{
-	GLuint		shader = 0;
-	std::string str;
-
-	std::string stageAttribute = node.attribute("stage").value();
-
-	int stage = GL_VERTEX_SHADER;
-	if (stageAttribute == "vertex")
-		stage = GL_VERTEX_SHADER;
-	else if (stageAttribute == "fragment")
-		stage = GL_FRAGMENT_SHADER;
-	else if (stageAttribute == "geometry")
-		stage = GL_GEOMETRY_SHADER;
-	else if (stageAttribute == "compute")
-		stage = GL_COMPUTE_SHADER;
-	else if (stageAttribute == "tess-control")
-		stage = GL_TESS_CONTROL_SHADER;
-	else if (stageAttribute == "tess-evaluation")
-		stage = GL_TESS_EVALUATION_SHADER;
-
-	const auto filename = s_ShadersFolder / std::filesystem::path(node.first_child().value());
-
-	if (!compiler.compileShader(shader, filename, stage))
-	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "--Compilation error");
-		CORE_LOG(E_Level::Error, E_Context::Render, "{}", filename);
-		return 0;
-	}
-	glObjectLabel(GL_SHADER, shader, static_cast<GLsizei>(filename.generic_string().length()), filename.generic_string().c_str());
-	return shader;
-}
-
-//=================================================================================
 GLuint C_ShaderManager::LoadProgram(const std::filesystem::path& name, C_ShaderCompiler& compiler) const
 {
-	pugi::xml_document doc;
+	Renderer::C_ShaderLoader<GLuint> loader(compiler);
 
-	if (!LoadDoc(doc, name))
-	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Can't open config file for shader name: {}", name);
-		return 0;
-	}
-
-	std::vector<GLuint> shaders;
-
-	for (auto& shader : doc.child("pipeline").children("shader"))
-	{
-		GLuint shaderStage = LoadShader(shader, compiler);
-		if (shaderStage == 0)
-		{
-			return 0;
-		}
-		shaders.push_back(shaderStage);
-	}
+	std::vector<std::pair<Renderer::E_ShaderStage, GLuint>> stages;
+	loader.LoadAllStages(name, stages);
 
 	GLuint program;
-	if (!compiler.linkProgram(program, shaders))
+	if (!compiler.linkProgram(program, stages))
 	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "Problem occured during load of shader pipeline: {}", name);
 		return false;
 	}
 	return program;
@@ -277,5 +202,4 @@ void C_ShaderManager::ReloadProgram(const std::string& programName, std::shared_
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to reload shader {} so we keep it outdated", programName);
 	}
 }
-
 } // namespace GLEngine::GLRenderer::Shaders

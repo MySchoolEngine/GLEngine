@@ -2,7 +2,6 @@
 
 #include <Renderer/Mesh/Scene.h>
 
-
 namespace GLEngine::Renderer::MeshData {
 
 class C_Geometry {
@@ -28,6 +27,16 @@ public:
 				}
 			}
 		}
+
+		mesh.bitangent.resize(mesh.vertices.size());
+		mesh.tangent.resize(mesh.vertices.size());
+		std::fill(mesh.bitangent.begin(), mesh.bitangent.end(), glm::vec3(1.f, 0.f, 0.f));
+		std::fill(mesh.tangent.begin(), mesh.tangent.end(), glm::vec3(0.f, 0.f, 1.f));
+
+		mesh.bbox.Add(glm::vec3(-1.0f, 0, -1.f));
+		mesh.bbox.Add(glm::vec3(1.0f, 0, -1.f));
+		mesh.bbox.Add(glm::vec3(-1.0f, 0, 1.f));
+		mesh.bbox.Add(glm::vec3(1.0f, 0, 1.f));
 
 		return mesh;
 	}
@@ -132,7 +141,6 @@ private:
 		mesh.texcoords.emplace_back(uvRightEdge, uvTopEdge);
 		mesh.texcoords.emplace_back(uvRightEdge, uvBottomEdge);
 		mesh.texcoords.emplace_back(uvLeftEdge, uvBottomEdge);
-
 
 		mesh.normals.reserve(6);
 		mesh.normals.emplace_back(0, 1, 0);

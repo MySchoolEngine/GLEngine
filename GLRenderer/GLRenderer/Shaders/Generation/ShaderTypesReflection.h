@@ -1,6 +1,9 @@
 #pragma once
 
+#include <GLRenderer/GLRendererApi.h>
 #include <GLRenderer/Shaders/Generation/ShaderStructs.h>
+
+#include <Renderer/Shaders/CodeGeneration.h>
 
 namespace GLEngine::GLRenderer::Shaders {
 
@@ -19,6 +22,12 @@ private:
 	C_ShaderTypesReflection();
 
 	std::map<std::string, C_StructDescriptor> m_StructReflections;
+};
+
+class GL_RENDERER_API_EXPORT C_GLCodeProvider : public Renderer::Shaders::I_CodeProvider {
+public:
+private:
+	std::string GetStructCode(const std::string& name) const override;
 };
 
 } // namespace GLEngine::GLRenderer::Shaders

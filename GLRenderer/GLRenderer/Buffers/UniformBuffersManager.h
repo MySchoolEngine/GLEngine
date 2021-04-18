@@ -11,11 +11,6 @@
 
 #pragma once
 
-#include <glad/glad.h>
-#include <memory>
-#include <string>
-#include <vector>
-
 
 namespace GLEngine::GLRenderer {
 

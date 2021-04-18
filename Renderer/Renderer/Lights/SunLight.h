@@ -7,6 +7,7 @@
 #include <GUI/Input/Slider.h>
 
 namespace GLEngine::Renderer {
+class I_DebugDraw;
 
 //=============================================================
 class RENDERER_API_EXPORT C_SunLight : public I_Light {
@@ -24,7 +25,7 @@ public:
 	[[nodiscard]] std::string_view				 GetDebugComponentName() const override;
 	virtual void								 DebugDrawGUI(GUI::C_GUIManager* guiMGR = nullptr) override;
 
-	void									  DebugDraw() const;
+	void									  DebugDraw(I_DebugDraw* dd) const;
 	[[nodiscard]] Physics::Primitives::S_AABB GetAABB() const override;
 
 private:

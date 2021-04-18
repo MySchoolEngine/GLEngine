@@ -39,7 +39,6 @@ MaterialData C_MaterialParser::ParseMaterialData(const pugi::xml_node& node)
 		data.m_ColorMap = colorMap.child_value();
 	}
 
-
 	if (auto normalMap = node.child("normalMap"))
 	{
 		data.m_NormalMap = normalMap.child_value();

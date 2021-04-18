@@ -86,7 +86,6 @@ void C_D3D12Window::Init(const Core::S_WindowInfo& wndInfo)
 
 	ShowWindow(m_Window, TRUE);
 
-
 	m_renderer = std::make_unique<C_D3D12Renderer>();
 }
 
@@ -103,7 +102,7 @@ bool C_D3D12Window::WantClose() const
 }
 
 //=================================================================================
-const std::unique_ptr<GLEngine::Renderer::I_Renderer>& C_D3D12Window::GetRenderer() const
+Renderer::I_Renderer& C_D3D12Window::GetRenderer()
 {
 	throw std::logic_error("The method or operation is not implemented.");
 }

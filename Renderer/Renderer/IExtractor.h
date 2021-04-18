@@ -15,9 +15,9 @@ public:
 // leave it here for documentation now
 /* class C_Extractor : public I_Extractor<C_Extractor> {
 public:
-	static std::unique_ptr<I_RawGPUData> ExtractInner(std::shared_ptr<I_RenderableComponent> component) {
-		return nullptr;
-	}
+		static std::unique_ptr<I_RawGPUData>
+ExtractInner(std::shared_ptr<I_RenderableComponent> component) { return nullptr;
+		}
 };*/
 
 } // namespace GLEngine::Renderer

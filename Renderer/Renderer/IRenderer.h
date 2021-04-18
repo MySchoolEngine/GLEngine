@@ -11,19 +11,17 @@ enum class E_PassType
 	FinalPass
 };
 
-// We need some separated tasks -> game engine should give us list of all visible objects
-// or some way to ask him what is inside given frustum
-// than we need to be able to collect data to internal structures
-// than convert them to GPU-friendly data
-// than collect draw calls, render batches etc.
-// sort them to some convenient order, and commit them to GPU
-// in this way we can split one frame to separated parts
-// 1] simulation
-// 2] data collection (simulation have to be stopped in this moment, so everything we would be able to do here is just collection in tight loop)
-// 3] data conversion - now we can begin with simulation of new frame
-// 4] commit to GPU
-// 5] check the time, if we have enough time, render thread can help with simulation, game computation etc.
-// 6] render new frame
+// We need some separated tasks -> game engine should give us list of all
+// visible objects or some way to ask him what is inside given frustum than we
+// need to be able to collect data to internal structures than convert them to
+// GPU-friendly data than collect draw calls, render batches etc. sort them to
+// some convenient order, and commit them to GPU in this way we can split one
+// frame to separated parts 1] simulation 2] data collection (simulation have to
+// be stopped in this moment, so everything we would be able to do here is just
+// collection in tight loop) 3] data conversion - now we can begin with
+// simulation of new frame 4] commit to GPU 5] check the time, if we have enough
+// time, render thread can help with simulation, game computation etc. 6] render
+// new frame
 class I_Renderer {
 public:
 	using T_CommandPtr = std::unique_ptr<I_RenderCommand>;

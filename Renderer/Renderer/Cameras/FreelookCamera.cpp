@@ -217,7 +217,8 @@ glm::mat4 FreelookCamera::GetProjectionMatrix() const
 //=================================================================================
 glm::quat FreelookCamera::GetRotation() const
 {
-	// glm::quat rot1 = glm::normalize(glm::quat(glm::vec3(0.0f, 0.0f, 1.0f), glm::normalize(_view - _position)));
+	// glm::quat rot1 = glm::normalize(glm::quat(glm::vec3(0.0f, 0.0f, 1.0f),
+	// glm::normalize(_view - _position)));
 	//
 	// glm::vec3 right = glm::cross(_view, glm::vec3(0.0f,1.0f,0.0f));
 	//
@@ -226,7 +227,6 @@ glm::quat FreelookCamera::GetRotation() const
 	// glm::vec3 newUp = rot1 * glm::vec3(0.0f, 1.0f, 0.0f);
 	//
 	// glm::quat rot2 = glm::normalize(glm::quat(newUp, up));
-
 
 	return m_rotation;
 }

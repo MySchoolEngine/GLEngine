@@ -2,7 +2,6 @@
 
 #include <Renderer/IRenderCommand.h>
 
-#include <Core/CoreMacros.h>
 
 namespace GLEngine::GLRenderer::Commands {
 class C_GLViewport : public Renderer::I_RenderCommand {

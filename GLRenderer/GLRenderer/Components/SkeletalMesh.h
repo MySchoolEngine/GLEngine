@@ -14,7 +14,7 @@
 
 namespace GLEngine::GLRenderer::Buffers::UBO {
 class C_JointTramsformsUBO;
-}
+} // namespace GLEngine::GLRenderer
 
 namespace GLEngine::GLRenderer::Components {
 

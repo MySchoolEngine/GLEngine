@@ -16,6 +16,7 @@ project "DX12Renderer"
 
 	includedirs
 	{
+		".",
 		"../Physics",
 		"C:/Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/shared",
 		"C:/Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/um",
@@ -34,9 +35,6 @@ project "DX12Renderer"
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
-		systemversion "latest"
-
 		defines
 		{
 			"BUILD_DX12RENDERER_DLL",
@@ -47,12 +45,3 @@ project "DX12Renderer"
 			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
 		}
 
-	filter "configurations:Debug"
-		runtime "Debug"
-		symbols "On"
-      	defines({ "DEBUG" })
-
-	filter "configurations:Release"
-      	defines({ "NDEBUG" })
-		runtime "Release"
-		optimize "On"

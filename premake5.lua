@@ -18,6 +18,21 @@ premake.override(premake.vstudio.sln2005, "projects", function(base, wks)
   base(wks)
 end)
 
+newoption {
+	trigger = "glfwapi",
+	description = "Which graphics API will be used with GLFW",
+	default = "opengl",
+	allowed = {
+      { "opengl", "OpenGL" },
+      { "vulkan", "Vulkan (Windows only)" },
+   },
+}
+
+newoption{
+	trigger = "vulkanPath",
+	description = "Base path for VulkanSDK installation. Suggested is %VULKAN_SDK%",
+	default = "C:/VulkanSDK"
+}
 
 workspace "Engine"
 	architecture "x64"
@@ -34,14 +49,28 @@ workspace "Engine"
 		"FMT_HEADER_ONLY=1",
 		"CORE_PLATFORM_WIN=1",
 		"CORE_PLATFORM_LINUX=2",
+		"GRAPHICS_API_OPENGL=1",
+		"GRAPHICS_API_VULKAN=2",
+		"GRAPHICS_API_D3D12=3",
 		"GLM_ENABLE_EXPERIMENTAL",
 	}
-
+	
 	workspace_files{
 		"vendor/GLM/util/glm.natvis",
 		"premake5.lua",
 		"premakeDefines.lua",
 	}
+
+	filter "options:glfwapi=vulkan"
+  		defines{
+			"GLENGINE_GLFW_RENDERER=GRAPHICS_API_VULKAN",
+			"VULKAN_BIN=\"".. _OPTIONS["vulkanPath"] .."/bin\"",
+			"VULKAN_GLSLC=VULKAN_BIN \"/glslc.exe\"",
+  		}
+	filter "options:glfwapi=opengl"
+  		defines{
+			"GLENGINE_GLFW_RENDERER=GRAPHICS_API_OPENGL",
+		}
 
 	filter "system:windows"
 		disablewarnings {"4251"}
@@ -62,8 +91,18 @@ workspace "Engine"
 		}
 		links { "stdc++fs" }
 
-  filter "configurations:Debug"
-    defines "GL_ENGINE_DEBUG"
+	filter "configurations:Debug"
+		runtime "Debug"
+		symbols "On"
+		defines { 
+			"DEBUG",
+			"GL_ENGINE_DEBUG",
+		}
+
+	filter "configurations:Release"
+		runtime "Release"
+		optimize "On"
+		defines({ "NDEBUG" })
 
 include "premakeDefines.lua"
 
@@ -91,6 +130,9 @@ group "Assimp"
   include "vendor/projects/irrXML"
   include "vendor/projects/Assimp"
 group ""
+
+VulkanSDKBase = "C:/VulkanSDK/"
+
 group "Dependencies"
   include "vendor/GLFW"
   include "vendor/Glad"
@@ -103,6 +145,17 @@ if _TARGET_OS ~= "linux" then
   include "vendor/projects/dirent"
 end
 group ""
+group "Renderes"
+	include "GLFWWindowManager"
+if _TARGET_OS ~= "linux" then
+	include "DX12Renderer"
+end
+group ""
+group "Tools"
+if (_OPTIONS["glfwapi"] ~= "opengl") then
+	include "Tools/ShaderPreprocessor"
+end
+group ""
 
 include "Audio"
 include "Core"
@@ -110,10 +163,9 @@ include "Sandbox"
 include "Renderer"
 include "GLRenderer"
 include "GUI"
+if (_OPTIONS["glfwapi"] ~= "opengl") then
+	include "VulkanRenderer"
+end
 include "Entity"
 include "Utils"
 include "Physics"
-
-if _TARGET_OS ~= "linux" then
-  include "DX12Renderer"
-end

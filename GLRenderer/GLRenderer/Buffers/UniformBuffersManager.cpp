@@ -4,8 +4,6 @@
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 
-#include <algorithm>
-
 namespace GLEngine::GLRenderer::Buffers {
 
 //=================================================================================
@@ -58,7 +56,6 @@ C_UniformBuffersManager::T_UBOSmartPtr C_UniformBuffersManager::GetBufferByName(
 //=================================================================================
 void C_UniformBuffersManager::ProcessUBOBindingPoints(std::shared_ptr<Shaders::C_ShaderProgram> program) const
 {
-	int i = 0;
 	for (const auto& ubo : m_BindingPoint)
 	{
 		if (!ubo)
@@ -70,7 +67,6 @@ void C_UniformBuffersManager::ProcessUBOBindingPoints(std::shared_ptr<Shaders::C
 		{
 			glUniformBlockBinding(program->GetProgram(), uniformBlockIndex, ubo->GetIndex());
 		}
-		++i;
 	}
 }
 

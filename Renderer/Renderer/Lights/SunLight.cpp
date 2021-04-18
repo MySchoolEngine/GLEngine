@@ -1,5 +1,6 @@
 #include <RendererStdafx.h>
 
+#include <Renderer/DebugDraw.h>
 #include <Renderer/Lights/SunLight.h>
 
 #include <Physics/Primitives/Frustum.h>
@@ -45,10 +46,10 @@ void C_SunLight::DebugDrawGUI(GUI::C_GUIManager* guiMGR /*= nullptr*/)
 }
 
 //=================================================================================
-void C_SunLight::DebugDraw() const
+void C_SunLight::DebugDraw(I_DebugDraw* dd) const
 {
-	// C_DebugDraw::Instance().DrawPoint({ m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue() }, { 1.f, 1.f, 0.f });
-	// C_DebugDraw::Instance().DrawLine({ 0.f, 0.f, 0.f }, { m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue() }, { 1.f, 1.f, 0.f });
+	dd->DrawPoint({m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue()}, {1.f, 1.f, 0.f});
+	dd->DrawLine({0.f, 0.f, 0.f}, {m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue()}, {1.f, 1.f, 0.f});
 }
 
 //=================================================================================

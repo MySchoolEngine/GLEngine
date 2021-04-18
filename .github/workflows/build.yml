@@ -75,3 +75,15 @@ jobs:
       - name: Build debug
         shell: cmd
         run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=Debug'
+      - name: Setup Vulkan
+        shell: powershell
+        run: |
+            Invoke-WebRequest -Uri "https://sdk.lunarg.com/sdk/download/1.1.126.0/windows/VulkanSDK-1.1.126.0-Installer.exe" -OutFile VulkanSDK.exe
+            $installer = Start-Process -FilePath VulkanSDK.exe -Wait -PassThru -ArgumentList @("/S");
+            $installer.WaitForExit();
+      - name: Generate vulkan solution
+        shell: cmd
+        run: premake\premake5 --glfwapi=vulkan --vulkanPath=%VULKAN_SDK% vs2019
+      - name: Build vulkan debug
+        shell: cmd
+        run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=Debug'

@@ -1,15 +1,19 @@
 #include <GLRendererStdafx.h>
 
+#include <GLRenderer/Buffers/UBO/ModelData.h>
+#include <GLRenderer/Buffers/UniformBuffersManager.h>
 #include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/Components/StaticMesh.h>
 #include <GLRenderer/Mesh/StaticMeshResource.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
+#include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/Textures/TextureManager.h>
-#include <GLRenderer/Textures/TextureUnitManager.h>
 
 #include <Renderer/IRenderer.h>
+#include <Renderer/Materials/Material.h>
+#include <Renderer/Materials/MaterialManager.h>
 #include <Renderer/Mesh/Loading/SceneLoader.h>
 #include <Renderer/Mesh/Scene.h>
 
@@ -28,6 +32,7 @@ C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::s
 	: Renderer::I_RenderableComponent(owner)
 	, m_meshFile(meshFile)
 	, m_Mesh(nullptr)
+	, m_Material(nullptr)
 {
 	// @todo lazy init
 	auto sl = std::make_unique<Renderer::Mesh::SceneLoader>();
@@ -41,36 +46,33 @@ C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::s
 		return;
 	}
 
+	m_Transformation.SetMatrix(modelMatrix);
+
 	// TODO this is unsafe way to init model
 	m_Mesh		= std::make_shared<Mesh::C_StaticMeshResource>(scene->meshes[0]);
 	m_AABB		= scene->meshes[0].bbox;
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	m_Shader	= shmgr.GetProgram(shader.data());
 
-	const auto	materialIdx = scene->meshes[0].materialIndex;
-	const auto& material	= scene->materials[materialIdx];
+	const auto materialIdx = scene->meshes[0].materialIndex;
+	auto&	   material	   = scene->materials[materialIdx];
 
-	m_Color.SetValue(material.diffuse);
-
-	if (material.textureIndex >= 0)
-	{
-		auto&		tmgr   = Textures::C_TextureManager::Instance();
-		const auto& texure = scene->textures[material.textureIndex];
-
-		auto texturePtr = tmgr.GetTexture(texure);
-		SetColorMap(texturePtr);
-	}
+	SetMaterial(material);
 }
 
 //=================================================================================
-C_StaticMesh::C_StaticMesh(const Renderer::MeshData::Mesh& mesh, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner)
+C_StaticMesh::C_StaticMesh(const Renderer::MeshData::Mesh& mesh, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner, const Renderer::MeshData::Material* material)
 	: Renderer::I_RenderableComponent(owner)
+	, m_Material(nullptr)
 {
 	m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(mesh);
 	m_AABB = mesh.bbox;
 
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	m_Shader	= shmgr.GetProgram(shader.data());
+
+	if (material)
+		SetMaterial(*material);
 }
 
 //=================================================================================
@@ -86,7 +88,7 @@ void C_StaticMesh::PerformDraw() const
 
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	auto& tmgr	= Textures::C_TextureManager::Instance();
-	if (renderer->GetCurrentPassType() == Renderer::E_PassType::ShadowPass && m_ShadowPassShader)
+	if (renderer.GetCurrentPassType() == Renderer::E_PassType::ShadowPass && m_ShadowPassShader)
 	{
 		shmgr.ActivateShader(m_ShadowPassShader);
 	}
@@ -95,70 +97,45 @@ void C_StaticMesh::PerformDraw() const
 		shmgr.ActivateShader(m_Shader);
 	}
 
-	auto& tm = Textures::C_TextureUnitManger::Instance();
-
-	if (m_RoughnessMap)
-	{
-		tm.BindTextureToUnit(*m_RoughnessMap, 0);
-	}
-	else
-	{
-		tm.BindTextureToUnit(*(tmgr.GetIdentityTexture()), 0);
-	}
-	if (m_ColorMap)
-	{
-		tm.BindTextureToUnit(*m_ColorMap, 1);
-	}
-	else
-	{
-		tm.BindTextureToUnit(*(tmgr.GetIdentityTexture()), 1);
-	}
-	if (m_NormalMap)
-	{
-		tm.BindTextureToUnit(*m_NormalMap, 2);
-	}
-	else
-	{
-		tm.BindTextureToUnit(*(tmgr.GetIdentityTexture()), 2);
-	}
-	const auto modelMatrix = GetComponentModelMatrix();
-
-	renderer->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
-		[&, modelMatrix]() {
-			m_Shader->SetUniform("modelMatrix", modelMatrix);
-			m_Shader->SetUniform("modelColor", m_Color.GetValue());
-			m_Shader->SetUniform("roughness", m_Roughness.GetValue());
-			m_Shader->SetUniform("roughnessMap", 0);
-			m_Shader->SetUniform("colorMap", 1);
-			m_Shader->SetUniform("normalMap", 2);
-			// m_Shader->SetUniform("shadowMap[0]", 5);
-			m_Shader->SetUniform("useNormalMap", m_NormalMap != nullptr);
+	renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+		[&, matIndex = m_Material ? m_Material->GetMaterialIndex() : 0]() {
+			auto modelData = Buffers::C_UniformBuffersManager::Instance().GetBufferByName("modelData");
+			if (auto modelDataUbo = std::dynamic_pointer_cast<Buffers::UBO::C_ModelData>(modelData))
+			{
+				modelDataUbo->SetModelMatrix(GetComponentModelMatrix());
+				modelDataUbo->SetMaterialIndex(matIndex);
+				modelDataUbo->UploadData();
+			}
 		},
-		"Static mesh material upload")));
+		"Per object data upload"));
 
-	renderer->AddCommand(std::move(std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_Mesh)));
+	renderer.AddCommand(std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_Mesh));
 }
 
 //=================================================================================
 void C_StaticMesh::DebugDrawGUI(GUI::C_GUIManager* guiMGR /*= nullptr*/)
 {
-	m_Color.Draw();
-	if (!m_RoughnessMap)
+	if (::ImGui::CollapsingHeader("Material"))
 	{
-		m_Roughness.Draw();
+		m_Material->DrawGUI();
 	}
-	else
+}
+
+//=================================================================================
+void C_StaticMesh::SetMaterial(const Renderer::MeshData::Material& material)
+{
+	auto& materialManager = Renderer::C_MaterialManager::Instance();
+	m_Material			  = materialManager.GetMaterial(material.m_Name);
+	if (!m_Material)
 	{
-		ImGui::Image((void*)(intptr_t)(m_RoughnessMap->GetTexture()), ImVec2(128, 128));
+		m_Material = materialManager.RegisterMaterial(Renderer::C_Material(material));
 	}
-	if (m_ColorMap)
-	{
-		ImGui::Image((void*)(intptr_t)(m_ColorMap->GetTexture()), ImVec2(128, 128));
-	}
-	if (m_NormalMap)
-	{
-		ImGui::Image((void*)(intptr_t)(m_NormalMap->GetTexture()), ImVec2(128, 128));
-	}
+}
+
+//=================================================================================
+void C_StaticMesh::SetMaterial(std::shared_ptr<Renderer::C_Material> material)
+{
+	m_Material = material;
 }
 
 //=================================================================================
@@ -195,10 +172,15 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 			staticMesh->m_ShadowPassShader = shadowPassShader;
 		}
 	}
+	auto& materialManager = Renderer::C_MaterialManager::Instance();
+	auto  material		  = materialManager.GetMaterial(owner->GetName() + "_Material");
+	if (!material)
+	{
+		material = materialManager.RegisterMaterial(Renderer::C_Material(owner->GetName() + "_Material"));
+	}
 
-	staticMesh->SetColor(materialData.m_Color);
-	staticMesh->m_Roughness = materialData.m_Roughness;
-
+	material->SetColor(materialData.m_Color);
+	material->SetRoughness(materialData.m_Roughness);
 
 	auto& tmgr = Textures::C_TextureManager::Instance();
 
@@ -214,7 +196,7 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 
 			roughnessMap->EndGroupOp();
 
-			staticMesh->SetRoughnessMap(roughnessMap);
+			material->SetRoughnessMap(roughnessMap);
 		}
 	}
 
@@ -230,23 +212,27 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 
 			colorMapTexture->EndGroupOp();
 
-			staticMesh->SetColorMap(colorMapTexture);
+			material->SetColorMap(colorMapTexture);
 		}
 	}
 
 	if (!materialData.m_NormalMap.empty())
 	{
-		staticMesh->m_NormalMap = tmgr.GetTexture(materialData.m_NormalMap);
-		if (staticMesh->m_NormalMap)
+		auto normalMap = tmgr.GetTexture(materialData.m_NormalMap);
+		if (normalMap)
 		{
-			staticMesh->m_NormalMap->StartGroupOp();
-			staticMesh->m_NormalMap->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
-			staticMesh->m_NormalMap->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
-			staticMesh->m_NormalMap->GenerateMipMaps();
+			normalMap->StartGroupOp();
+			normalMap->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
+			normalMap->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
+			normalMap->GenerateMipMaps();
 
-			staticMesh->m_NormalMap->EndGroupOp();
+			normalMap->EndGroupOp();
+
+			material->SetNormalMap(normalMap);
 		}
 	}
+
+	staticMesh->SetMaterial(material);
 
 	return staticMesh;
 }

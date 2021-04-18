@@ -1,6 +1,7 @@
 #include <GLRendererStdafx.h>
 
 #include <GLRenderer/Buffers/UBO/FrameConstantsBuffer.h>
+#include <GLRenderer/Buffers/UBO/ModelData.h>
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
 #include <GLRenderer/Commands/GLClear.h>
 #include <GLRenderer/Commands/GLCullFace.h>
@@ -16,6 +17,7 @@
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 #include <GLRenderer/ImGui/GLImGUILayer.h>
 #include <GLRenderer/Lights/GLAreaLight.h>
+#include <GLRenderer/Materials/MaterialBuffer.h>
 #include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/PersistentDebug.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
@@ -28,6 +30,7 @@
 #include <Renderer/Cameras/FreelookCamera.h>
 #include <Renderer/Cameras/OrbitalCamera.h>
 #include <Renderer/Lights/SunLight.h>
+#include <Renderer/Materials/MaterialManager.h>
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/Textures/TextureView.h>
 
@@ -93,20 +96,16 @@ C_ExplerimentWindow::~C_ExplerimentWindow()
 {
 	Audio::C_AudioSystemManager::Instance().Done();
 	static_cast<C_OGLRenderer*>(m_renderer.get())->DestroyControls(m_ImGUI->GetGUIMgr());
-
-	auto& guiMGR = m_ImGUI->GetGUIMgr();
-	guiMGR.DestroyWindow(m_EntitiesWindowGUID);
-	guiMGR.DestroyWindow(m_RayTraceGUID);
-	guiMGR.DestroyWindow(m_ConsoleWindowGUID);
-	guiMGR.DestroyWindow(m_FrameStatsGUID);
-	guiMGR.DestroyWindow(m_HDRSettingsGUID);
-	m_ImGUI->OnDetach();
+	m_CamManager.DestroyControls(m_ImGUI->GetGUIMgr());
+	Renderer::C_MaterialManager::Instance().DestroyControls(m_ImGUI->GetGUIMgr());
 };
 
 //=================================================================================
 void C_ExplerimentWindow::Update()
 {
 	Audio::C_AudioSystemManager::Instance().Update();
+	auto& tm = Textures::C_TextureUnitManger::Instance();
+	tm.Reset();
 	Shaders::C_ShaderManager::Instance().Update();
 	m_ImGUI->FrameBegin();
 	m_ImGUI->OnUpdate();
@@ -198,37 +197,37 @@ void C_ExplerimentWindow::Update()
 
 	{
 		using namespace Commands;
-		m_renderer->AddCommand(std::move(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth)));
-		m_renderer->AddCommand(std::move(std::make_unique<C_GLViewport>(0, 0, GetWidth(), GetHeight())));
+		m_renderer->AddCommand(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth));
+		m_renderer->AddCommand(std::make_unique<C_GLViewport>(0, 0, GetWidth(), GetHeight()));
 	}
+	m_HDRFBO->Bind<E_FramebufferTarget::Read>();
 
 	auto HDRTexture = m_HDRFBO->GetAttachement(GL_COLOR_ATTACHMENT0);
 	auto worldDepth = m_HDRFBO->GetAttachement(GL_DEPTH_ATTACHMENT);
 
-	auto& tm = Textures::C_TextureUnitManger::Instance();
-	tm.BindTextureToUnit(*(HDRTexture.get()), 0);
-	tm.BindTextureToUnit(*(worldDepth.get()), 1);
-
 	auto shader = shmgr.GetProgram("screenQuad");
 	shmgr.ActivateShader(shader);
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+	tm.BindTextureToUnit(*(HDRTexture.get()), 0);
+	tm.BindTextureToUnit(*(worldDepth.get()), 1);
+
+	m_renderer->AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[this, shader]() {
 			shader->SetUniform("gamma", m_GammaSlider.GetValue());
 			shader->SetUniform("exposure", m_ExposureSlider.GetValue());
 			shader->SetUniform("hdrBuffer", 0);
 			shader->SetUniform("depthBuffer", 1);
 		},
-		"Update HDR")));
+		"Update HDR"));
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::move(std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_ScreenQuad)));
+	m_renderer->AddCommand(std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_ScreenQuad));
 
 	shmgr.DeactivateShader();
 
+	m_HDRFBO->Unbind<E_FramebufferTarget::Read>();
 	{
 		RenderDoc::C_DebugScope s("ImGUI");
-		Core::C_Application::Get().GetActiveRenderer()->AddCommand(
-			std::move(std::make_unique<Commands::HACK::C_LambdaCommand>([this, shader]() { m_ImGUI->FrameEnd(); }, "m_ImGUI->FrameEnd")));
+		m_renderer->AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([this, shader]() { m_ImGUI->FrameEnd(); }, "m_ImGUI->FrameEnd"));
 	}
 
 	// commit of final commands - from commit few lines above
@@ -277,13 +276,15 @@ void C_ExplerimentWindow::OnAppInit()
 	m_MainPass = std::make_unique<C_MainPassTechnique>(m_World);
 	{
 		using namespace Commands;
-		m_renderer->AddCommand(std::move(std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::DEPTH_TEST)));
-		m_renderer->AddCommand(std::move(std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::CULL_FACE)));
-		m_renderer->AddCommand(std::move(std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::BLEND)));
-		m_renderer->AddCommand(std::move(std::make_unique<HACK::C_LambdaCommand>([]() { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); })));
-		m_renderer->AddCommand(std::move(std::make_unique<C_GLClearColor>(glm::vec3(0.0f, 0.0f, 0.0f))));
-		m_renderer->AddCommand(std::move(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Front)));
+		m_renderer->AddCommand(std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::DEPTH_TEST));
+		m_renderer->AddCommand(std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::CULL_FACE));
+		m_renderer->AddCommand(std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::BLEND));
+		m_renderer->AddCommand(std::make_unique<HACK::C_LambdaCommand>([]() { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); }));
+		m_renderer->AddCommand(std::make_unique<C_GLClearColor>(glm::vec3(0.0f, 0.0f, 0.0f)));
+		m_renderer->AddCommand(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Front));
 	}
+
+	Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_ModelData>("modelData");
 	{
 		// billboard
 		Renderer::MeshData::Mesh billboardMesh;
@@ -385,6 +386,9 @@ void C_ExplerimentWindow::OnAppInit()
 
 	const auto camManager = m_CamManager.SetupControls(guiMGR);
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Camera manager", camManager, guiMGR));
+
+	const auto materialManager = Renderer::C_MaterialManager::Instance().SetupControls(guiMGR);
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Material manager", materialManager, guiMGR));
 
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Open level", [&]() {
 		const auto levelSelectorGUID = NextGUID();
@@ -514,6 +518,17 @@ bool C_ExplerimentWindow::OnAppEvent(Core::C_AppEvent& event)
 	{
 		OnAppInit();
 		return true;
+	}
+	if (event.GetEventType() == Core::C_AppEvent::E_Type::WindowCloseRequest)
+	{
+		m_World->ClearLevel();
+		auto& guiMGR = m_ImGUI->GetGUIMgr();
+		guiMGR.DestroyWindow(m_EntitiesWindowGUID);
+		guiMGR.DestroyWindow(m_RayTraceGUID);
+		guiMGR.DestroyWindow(m_ConsoleWindowGUID);
+		guiMGR.DestroyWindow(m_FrameStatsGUID);
+		guiMGR.DestroyWindow(m_HDRSettingsGUID);
+		m_ImGUI->OnDetach();
 	}
 
 	return false;

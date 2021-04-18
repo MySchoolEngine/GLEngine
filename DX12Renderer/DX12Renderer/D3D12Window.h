@@ -14,18 +14,17 @@ public:
 	//============================================================
 	// I_Window
 	//============================================================
-	[[nodiscard]] virtual unsigned int											 GetWidth() const override;
-	[[nodiscard]] virtual unsigned int											 GetHeight() const override;
-	[[nodiscard]] virtual glm::uvec2											 GetSize() const override;
-	[[nodiscard]] virtual const Core::I_Input&									 GetInput() const override;
-	virtual void																 Update() override;
-	virtual void																 Init(const Core::S_WindowInfo& wndInfo) override;
-	virtual void																 SetTitle(const std::string& title) override;
-	[[nodiscard]] virtual bool													 WantClose() const override;
-	[[nodiscard]] virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetRenderer() const override;
+	[[nodiscard]] virtual unsigned int			GetWidth() const override;
+	[[nodiscard]] virtual unsigned int			GetHeight() const override;
+	[[nodiscard]] virtual glm::uvec2			GetSize() const override;
+	[[nodiscard]] virtual const Core::I_Input&	GetInput() const override;
+	virtual void								Update() override;
+	virtual void								Init(const Core::S_WindowInfo& wndInfo) override;
+	virtual void								SetTitle(const std::string& title) override;
+	[[nodiscard]] virtual bool					WantClose() const override;
+	[[nodiscard]] virtual Renderer::I_Renderer& GetRenderer() override;
 
-
-	virtual glm::vec2 ToClipSpace(const glm::vec2& screenCoord) const override;
+	[[nodiscard]] virtual glm::vec2 ToClipSpace(const glm::vec2& screenCoord) const override;
 
 protected:
 	virtual void Destroy() override;

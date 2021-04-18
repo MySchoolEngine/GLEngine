@@ -3,8 +3,6 @@
 
 #include <Renderer/IRenderCommand.h>
 
-#include <memory>
-
 namespace GLEngine::GLRenderer::Commands::HACK {
 
 class C_LambdaCommand : public Renderer::I_RenderCommand {

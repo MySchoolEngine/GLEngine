@@ -5,15 +5,33 @@
 ![Preview image of area light](https://github.com/RohacekD/GLEngine/blob/master/wikidata/AreaLight.png?raw=true)
 
 ## Setup
+```
 git clone <https://github.com/RohacekD/GLEngine>
-
 cd GLEngine
-
 git submodule init
-
 git submodule update
-
 premake5 vs2019 (or whatever verison are you using)
+```
+### Vulkan build
+
+You can run both DirectX and OpenGL renderers side by side but in case of Vulkan you need to choose between OpenGL and Vulkan. If you would like to select Vulkan you need to set premake in this way:
+```
+premake5 --glfwapi=vulkan --vulkanPath=%VULKAN_SDK% vs2019
+```
+
+## Features
+
+* OpenGL rednerer
+* Entity component system (basic but working solution)
+* Shader preprocessor and loader
+* Scene, model and image loading
+
+### Experimental features
+
+* Vulkan renderer - WIP, no build validation, not exactly clear build instructions
+* Atmospheric renderer - Radiance working ok-ish, but Irradiance part is absolutelty wrong. This means nice sky picture, but aweful ligting model.
+* Skeletal animation - I haven't tested this for ages.
+* Path tracing - most of basic functionality implemented. Never tested biasness thou.
 
 ## Documentation
 Most of documentation can be found here on github/in code.

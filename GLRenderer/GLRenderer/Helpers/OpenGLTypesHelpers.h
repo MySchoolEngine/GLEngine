@@ -2,6 +2,7 @@
 
 #include <GLRendererStdafx.h>
 
+#include <Renderer/Definitions.h>
 #include <Renderer/Textures/TextureDefinitions.h>
 #include <Renderer/Textures/TextureStorage.h>
 
@@ -247,7 +248,7 @@ inline constexpr GLenum GetOpenGLInternalFormat(const Renderer::E_TextureFormat 
 //=================================================================================
 constexpr GLenum MinMagFilterToEnum(const Renderer::E_TextureFilter filter)
 {
-  using namespace Renderer;
+	using namespace Renderer;
 	switch (filter)
 	{
 	case E_TextureFilter::Linear:
@@ -288,6 +289,28 @@ constexpr GLenum AccesRightsToEnum(const E_OpenGLAccess access)
 	case E_OpenGLAccess::ReadWrite:
 		return GL_READ_WRITE;
 		break;
+	}
+	return GL_INVALID_VALUE;
+}
+
+//=================================================================================
+// Shader stages
+constexpr GLenum ShaderStageTypeToEnum(const Renderer::E_ShaderStage stage)
+{
+	switch (stage)
+	{
+	case Renderer::E_ShaderStage::Vertex:
+		return GL_VERTEX_SHADER;
+	case Renderer::E_ShaderStage::Fragment:
+		return GL_FRAGMENT_SHADER;
+	case Renderer::E_ShaderStage::Geometry:
+		return GL_GEOMETRY_SHADER;
+	case Renderer::E_ShaderStage::TesselationControl:
+		return GL_TESS_CONTROL_SHADER;
+	case Renderer::E_ShaderStage::TesselationEvaluation:
+		return GL_TESS_EVALUATION_SHADER;
+	case Renderer::E_ShaderStage::Compute:
+		return GL_COMPUTE_SHADER;
 	}
 	return GL_INVALID_VALUE;
 }

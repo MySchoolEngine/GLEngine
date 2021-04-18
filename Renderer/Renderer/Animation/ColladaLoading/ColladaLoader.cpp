@@ -147,7 +147,6 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(const char*			  filepath,
 						CORE_LOG(E_Level::Warning, E_Context::Core, "<triangles> element misses required attribute count.");
 					}
 
-
 					oMesh.vertices.reserve(count * 3);
 					oMesh.normals.reserve(count * 3);
 					oMesh.texcoords.reserve(count * 3);
@@ -419,7 +418,6 @@ void C_ColladaLoader::LoadAnimData(const pugi::xml_node& skinXML, std::vector<gl
 			break;
 		}
 
-
 		continue;
 	}
 
@@ -449,7 +447,6 @@ void C_ColladaLoader::LoadAnimData(const pugi::xml_node& skinXML, std::vector<gl
 				const auto jointIndex  = v.Get();
 				const auto weightIndex = v.Get();
 				const auto weight	   = weightsVec[weightIndex];
-
 
 				jointIndicesVec[i] = jointIndex;
 				jointWeights[i]	   = weight;

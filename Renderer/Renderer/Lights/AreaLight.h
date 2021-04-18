@@ -10,7 +10,7 @@
 #include <Entity/IComponent.h>
 
 namespace GLEngine::Renderer {
-
+class I_DebugDraw;
 
 //=============================================================
 class RENDERER_API_EXPORT C_AreaLight : public I_Light {
@@ -33,10 +33,10 @@ public:
 
 	virtual Physics::Primitives::S_AABB GetAABB() const override;
 
-	virtual void DebugDraw() const {}
-
 	[[nodiscard]] glm::vec3 DiffuseColour() const;
 	[[nodiscard]] glm::vec3 SpecularColour() const;
+
+	void DebugDraw(I_DebugDraw* dd) const;
 
 protected:
 	GUI::Input::C_Slider<float> m_WidthSlider, m_HeightSlider;
