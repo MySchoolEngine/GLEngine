@@ -17,7 +17,7 @@ public:
 	[[nodiscard]] virtual bool ReadyForDestroy() const override;
 
 protected:
-	std::vector<C_Layer*>* m_Layers;
+	std::vector<C_Layer*> m_Layers;
 };
 
 } // namespace GLEngine::Core

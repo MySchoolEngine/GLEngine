@@ -45,7 +45,7 @@ std::size_t C_LightsBuffer::GetBufferSize() const
 	constexpr auto sunLightSize	  = sizeof(m_SunLight);
 	constexpr auto handleSize	  = sizeof(std::uint64_t);
 
-	constexpr auto bytes = pointLightSize + areaLightSize + sunLightSize + sizeof(std::uint64_t) * 2;
+	constexpr auto bytes = pointLightSize + areaLightSize + sunLightSize + handleSize * 2;
 	return bytes;
 }
 

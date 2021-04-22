@@ -1,11 +1,9 @@
 #pragma once
 
-#include <CoreStdafx.h>
+#include <Core/CoreApi.h>
 
 #include <Core/EventSystem/Event.h>
 #include <Core/EventSystem/EventReciever.h>
-
-#include <Utils/BitField.h>
 
 namespace GLEngine::Core {
 
