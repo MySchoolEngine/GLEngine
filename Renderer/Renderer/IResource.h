@@ -36,5 +36,3 @@ bool IsValid() override { return false; };
 };*/
 
 } // namespace GLEngine::Renderer
-
-#include <Renderer/IResource.inl>
