@@ -21,17 +21,17 @@ premake5 --glfwapi=vulkan --vulkanPath=%VULKAN_SDK% vs2019
 
 ## Features
 
-* OpenGL rednerer
-* Entity component system (basic but working solution)
-* Shader preprocessor and loader
-* Scene, model and image loading
+*  OpenGL rednerer
+*  Entity component system (basic but working solution)
+*  Shader preprocessor and loader
+*  Scene, model and image loading
 
 ### Experimental features
 
-* Vulkan renderer - WIP, no build validation, not exactly clear build instructions
-* Atmospheric renderer - Radiance working ok-ish, but Irradiance part is absolutelty wrong. This means nice sky picture, but aweful ligting model.
-* Skeletal animation - I haven't tested this for ages.
-* Path tracing - most of basic functionality implemented. Never tested biasness thou.
+*  Vulkan renderer - WIP, no build validation, not exactly clear build instructions
+*  Atmospheric renderer - Radiance working ok-ish, but Irradiance part is absolutelty wrong. This means nice sky picture, but aweful ligting model.
+*  Skeletal animation - I haven't tested this for ages.
+*  Path tracing - most of basic functionality implemented. Never tested biasness thou.
 
 ## Documentation
 Most of documentation can be found here on github/in code.
@@ -47,9 +47,9 @@ This repository is open for contribution. You can start by reading [this](CONTRI
 ## PathTracing
 ![CornellBox](https://github.com/RohacekD/GLEngine/blob/master/wikidata/PathTraced.png)
 
-* Red lines denote wrong dependencies
-* Blue lines denote opposite dependencies
-* The dashed line denotes planned dependency
+*  Red lines denote wrong dependencies
+*  Blue lines denote opposite dependencies
+*  The dashed line denotes planned dependency
 
 ## Licensing
 License can be found in [LICENSE](LICENSE)
