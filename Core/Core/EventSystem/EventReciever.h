@@ -1,6 +1,6 @@
 #pragma once
 
-#include <CoreStdafx.h>
+#include <Core/CoreApi.h>
 
 #include <Core/EventSystem/Event.h>
 
