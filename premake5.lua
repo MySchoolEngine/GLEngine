@@ -34,6 +34,12 @@ newoption{
 	default = "C:/VulkanSDK"
 }
 
+function GetVulkanBin()
+	if os.isdir(_OPTIONS["vulkanPath"].. "/bin") then
+		return _OPTIONS["vulkanPath"].. "/bin" end
+	return "%{wks.location}/vendor/vulkan"
+end
+
 workspace "Engine"
 	architecture "x64"
 	startproject "Sandbox"
@@ -53,6 +59,8 @@ workspace "Engine"
 		"GRAPHICS_API_VULKAN=2",
 		"GRAPHICS_API_D3D12=3",
 		"GLM_ENABLE_EXPERIMENTAL",
+		"VULKAN_BIN=\"".. GetVulkanBin() .."\"",
+		"VULKAN_GLSLC=VULKAN_BIN \"/glslc.exe\"",
 	}
 	
 	workspace_files{
@@ -64,8 +72,6 @@ workspace "Engine"
 	filter "options:glfwapi=vulkan"
   		defines{
 			"GLENGINE_GLFW_RENDERER=GRAPHICS_API_VULKAN",
-			"VULKAN_BIN=\"".. _OPTIONS["vulkanPath"] .."/bin\"",
-			"VULKAN_GLSLC=VULKAN_BIN \"/glslc.exe\"",
   		}
 	filter "options:glfwapi=opengl"
   		defines{
@@ -144,9 +150,7 @@ if _TARGET_OS ~= "linux" then
 end
 group ""
 group "Tools"
-if (_OPTIONS["glfwapi"] ~= "opengl") then
 	include "Tools/ShaderPreprocessor"
-end
 group ""
 
 include "Core"
