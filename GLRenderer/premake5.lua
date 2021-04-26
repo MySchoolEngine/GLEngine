@@ -17,6 +17,7 @@ project "GLRenderer"
 	Link("GLFWWindowManager")
 	Link("Core")
 	Link("GUI")
+	Link("Editor")
 
 	files
 	{

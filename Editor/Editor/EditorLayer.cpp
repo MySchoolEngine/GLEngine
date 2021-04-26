@@ -1,5 +1,6 @@
 #include <EditorStdafx.h>
 
+#include <Editor/CurveEditor.h>
 #include <Editor/EditorLayer.h>
 
 #include <Renderer/DebugDraw.h>
@@ -9,12 +10,16 @@
 namespace GLEngine::Editor {
 
 //=================================================================================
-C_EditorLayer::C_EditorLayer(Renderer::I_DebugDraw& dd, Core::I_Input& directInput)
+C_EditorLayer::C_EditorLayer(Renderer::I_DebugDraw& dd, const Core::I_Input& directInput)
 	: Core::C_Layer("Editor Layer")
 	, m_dd(dd)
 	, m_Input(directInput)
+	, m_CurveEditing(nullptr)
 {
 }
+
+//=================================================================================
+C_EditorLayer::~C_EditorLayer() = default;
 
 //=================================================================================
 void C_EditorLayer::OnEvent(Core::I_Event& event)

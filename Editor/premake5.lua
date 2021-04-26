@@ -28,3 +28,10 @@ project "Editor"
 		"pugixml",
 		"ImGui",
 	}
+
+
+	filter "system:windows"
+		postbuildcommands
+		{
+			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
+		}
