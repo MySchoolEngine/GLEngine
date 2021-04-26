@@ -113,7 +113,7 @@ void C_StaticMesh::PerformDraw() const
 }
 
 //=================================================================================
-void C_StaticMesh::DebugDrawGUI()
+void C_StaticMesh::DebugDrawGUI(GUI::C_GUIManager* guiMGR /*= nullptr*/)
 {
 	if (::ImGui::CollapsingHeader("Material"))
 	{

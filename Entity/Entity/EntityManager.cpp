@@ -1,7 +1,9 @@
 #include <EntityStdafx.h>
 
 #include <Entity/BasicEntity.h>
-#include <Entity/Components/EntityDebugComponent.h>
+#include <Entity/ComponentBuilder.h>
+#include <Entity/ComponentBuilderFactory.h>
+#include <Entity/Components/DebugGUIComponent.h>
 #include <Entity/EntityManager.h>
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
@@ -14,6 +16,8 @@
 #include <Physics/Primitives/Ray.h>
 
 #include <Utils/Parsing/MatrixParse.h>
+
+#include <Core/Engine.h>
 
 #include <pugixml.hpp>
 
@@ -64,7 +68,7 @@ std::shared_ptr<I_Entity> C_EntityManager::GetOrCreateEntity(const std::string& 
 		return entity;
 	}
 	entity = std::make_shared<C_BasicEntity>(name);
-	entity->AddComponent(std::make_shared<C_EntityDebugComponent>(entity));
+	entity->AddComponent(std::make_shared<C_DebugGUIComponent>(entity));
 	AddEntity(entity);
 	return entity;
 }
@@ -77,6 +81,12 @@ std::vector<std::shared_ptr<I_Entity>> C_EntityManager::GetEntities(Physics::Pri
 
 //=================================================================================
 const std::vector<std::shared_ptr<I_Entity>>& C_EntityManager::GetEntities() const
+{
+	return *m_Entities;
+}
+
+//=================================================================================
+std::vector<std::shared_ptr<GLEngine::Entity::I_Entity>>& C_EntityManager::GetEntities()
 {
 	return *m_Entities;
 }
@@ -170,7 +180,9 @@ bool C_EntityManager::LoadLevel(const std::filesystem::path& name, std::unique_p
 		return false;
 	}
 
-	auto debugBuilder = cbf->GetFactory("debug");
+	auto& enigne = Core::C_Engine::Instance();
+
+	auto debugBuilder = enigne.GetGlobalComponentBuilder("debug");
 
 	if (auto entitiesNode = worldNode.child("Entities"))
 	{
@@ -188,6 +200,14 @@ bool C_EntityManager::LoadLevel(const std::filesystem::path& name, std::unique_p
 					if (builder)
 					{
 						entity->AddComponent(builder->Build(componentNode, entity));
+					}
+					else
+					{
+						auto* builder = enigne.GetGlobalComponentBuilder(componentNode.name());
+						if (builder)
+						{
+							entity->AddComponent(builder->Build(componentNode, entity));
+						}
 					}
 				}
 			}

@@ -22,7 +22,6 @@ project "Renderer"
 		"../Physics",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.GLFW}",
-		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.DevIL}",
 		"../%{IncludeDir.ImGui}",

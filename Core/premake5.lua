@@ -13,8 +13,12 @@ project "Core"
 
 	includedirs
 	{
+		"../Entity/",
+		"../Renderer/",
+		"../GLRenderer/",
+		"../DX12Renderer/",
+		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.GLM}",
-		"../%{IncludeDir.fmt}",
 	}
 
 	filter "system:windows"

@@ -1,10 +1,11 @@
 #pragma once
 
-#include <GLRenderer/Components/ComponentBuilderFactory.h>
 #include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/VAO/VAO.h>
 
 #include <Renderer/IRenderableComponent.h>
+
+#include <Entity/ComponentBuilder.h>
 
 namespace GLEngine::GLRenderer::Components {
 

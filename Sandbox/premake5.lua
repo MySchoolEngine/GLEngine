@@ -31,7 +31,6 @@ project "Sandbox"
 		"../Renderer",
 		"../GLFWWindowManager",
 		"../%{IncludeDir.GLM}",
-		"../%{IncludeDir.fmt}",
 	}
 
 	filter "system:windows"

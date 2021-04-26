@@ -35,7 +35,7 @@ std::string_view C_SunLight::GetDebugComponentName() const
 }
 
 //=================================================================================
-void C_SunLight::DebugDrawGUI()
+void C_SunLight::DebugDrawGUI(GUI::C_GUIManager* guiMGR /*= nullptr*/)
 {
 	m_SunX.Draw();
 	m_SunY.Draw();

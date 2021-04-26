@@ -6,6 +6,7 @@
 #include <GUI/Input/Color.h>
 #include <GUI/Input/Slider.h>
 
+#include <Entity/ComponentBuilder.h>
 #include <Entity/IComponent.h>
 
 namespace GLEngine::Renderer {
@@ -17,7 +18,7 @@ public:
 	explicit C_AreaLight(std::shared_ptr<Entity::I_Entity> owner);
 	virtual ~C_AreaLight();
 
-	virtual void			 DebugDrawGUI() override;
+	virtual void			 DebugDrawGUI(GUI::C_GUIManager* guiMGR = nullptr) override;
 	virtual std::string_view GetDebugComponentName() const override;
 	virtual bool			 HasDebugDrawGUI() const override;
 

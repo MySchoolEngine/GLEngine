@@ -24,6 +24,7 @@ function ProjectFiles(projectName)
 	includedirs
 	{
 		".",
+		"../%{IncludeDir.fmt}",
 	}
 end
 

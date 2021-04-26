@@ -76,7 +76,7 @@ bool C_PointLight::HasDebugDrawGUI() const
 }
 
 //=================================================================================
-void C_PointLight::DebugDrawGUI()
+void C_PointLight::DebugDrawGUI(GUI::C_GUIManager* guiMGR /*= nullptr*/)
 {
 	m_Intensity.Draw();
 	m_Color.Draw();

@@ -4,7 +4,7 @@ Some 3rd party librarires and tools may be used with separate or different licen
 
 Mainly:
 FMOD Core API (vendor/fmod/LICENCE.TXT for more info).
-gradrigo (vendor/gradrigo/)
+gradrigo (vendor/gradrigo/LICENSE.txt)
 ImGUI (vendor/ImGui/LICENSE.txt)
 ImGuiFileDialog (vendor/ImGuiFileDialog/LICENSE)
 libjpeg (vendor/libjpeg)

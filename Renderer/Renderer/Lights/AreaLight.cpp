@@ -51,7 +51,7 @@ Physics::Primitives::S_AABB C_AreaLight::GetAABB() const
 }
 
 //=================================================================================
-void C_AreaLight::DebugDrawGUI()
+void C_AreaLight::DebugDrawGUI(GUI::C_GUIManager* guiMGR /*= nullptr*/)
 {
 	m_WidthSlider.Draw();
 	m_HeightSlider.Draw();

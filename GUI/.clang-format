@@ -58,6 +58,8 @@ IncludeCategories:
     Priority:        6
   - Regex:           '^<Renderer/.*>'
     Priority:        9
+  - Regex:           '^<Audio/.*>'
+    Priority:        11
   - Regex:           '^<Physics/.*>'
     Priority:        14
   - Regex:           '^<Entity/.*>'

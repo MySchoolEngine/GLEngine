@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Entity/IComponent.h>
+#include <Entity/ComponentBuilderFactory.h>
 
 namespace GLEngine::GLRenderer::Components {
 

@@ -29,7 +29,7 @@
 namespace GLEngine::GLRenderer::Components {
 
 //=================================================================================
-void C_SkeletalMesh::DebugDrawGUI()
+void C_SkeletalMesh::DebugDrawGUI(GUI::C_GUIManager* guiMGR /*= nullptr*/)
 {
 	const static auto zeroVec = glm::vec4(0.f, 0.f, .0f, 1.f);
 	m_RenderMesh.Draw();

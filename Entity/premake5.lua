@@ -20,7 +20,6 @@ project "Entity"
 		"../GLRenderer",
 		"../Physics",
 		"../%{IncludeDir.pugixml}",
-		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.ImGui}",
 	}
 

@@ -11,6 +11,19 @@
 				</staticMesh>
 			</Components>
 		</Entity>
+		<Entity name="Sound">
+			<Components>
+				<AudioListener>
+					<translate sid="location">0 1 0</translate>
+				</AudioListener>
+				<AudioSource file="Sound/howiwish.mp3">
+					<translate sid="location">-1 1 0</translate>
+				</AudioSource>
+				<GradrigoAudioSource file="Sound/Gradrigo/kaboom.grad">
+					<translate sid="location">-2 1 0</translate>
+				</GradrigoAudioSource>
+			</Components>
+		</Entity>
 		<ExternEntity name="sphere" filePath="lada/lada.obj" material="basicTracing">
 			<translate sid="location">0 3 0</translate>
 		</ExternEntity>

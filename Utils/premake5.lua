@@ -11,7 +11,6 @@ project "Utils"
 	includedirs
 	{
 		"../Core",
-		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.pugixml}",
 	}

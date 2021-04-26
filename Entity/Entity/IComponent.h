@@ -14,6 +14,10 @@ namespace GLEngine::Physics::Primitives {
 struct S_AABB;
 }
 
+namespace GLEngine::GUI {
+class C_GUIManager;
+}
+
 namespace GLEngine {
 namespace Entity {
 
@@ -34,8 +38,8 @@ public:
 	virtual void PostUpdate(){};
 
 	// draws inside of prepared window
-	virtual void			   DebugDrawGUI(){};
-	void					   DebugDrawComponentGUI();
+	virtual void			   DebugDrawGUI(GUI::C_GUIManager* guiMGR = nullptr){};
+	void					   DebugDrawComponentGUI(GUI::C_GUIManager* guiMGR = nullptr);
 	[[nodiscard]] virtual bool HasDebugDrawGUI() const = 0;
 	// should return name used for component in debug
 	[[nodiscard]] virtual std::string_view GetDebugComponentName() const = 0;
@@ -51,19 +55,6 @@ protected:
 
 private:
 	std::weak_ptr<I_Entity> m_Owner;
-};
-
-//=================================================================================
-class I_ComponenetBuilder {
-public:
-	virtual std::shared_ptr<I_Component> Build(const pugi::xml_node& node, std::shared_ptr<I_Entity> owner) = 0;
-};
-
-//=================================================================================
-class I_ComponentBuilderFactory {
-public:
-	[[nodiscard]] virtual std::unique_ptr<Entity::I_ComponenetBuilder> GetFactory(const std::string& name)													  = 0;
-	virtual void													   ConstructFromFile(std::shared_ptr<I_Entity> entity, const std::filesystem::path& file) = 0;
 };
 
 } // namespace Entity

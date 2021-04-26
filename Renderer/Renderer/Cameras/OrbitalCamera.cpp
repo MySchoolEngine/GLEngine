@@ -126,7 +126,7 @@ void C_OrbitalCamera::OnEvent(Core::I_Event& event)
 }
 
 //=================================================================================
-void C_OrbitalCamera::DebugDrawGUI()
+void C_OrbitalCamera::DebugDrawGUI(GUI::C_GUIManager* guiMGR /*= nullptr*/)
 {
 #ifdef GL_ENGINE_DEBUG
 	_angleYDeg.Draw();

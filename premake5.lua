@@ -123,6 +123,14 @@ IncludeDir["ImGui"] = "vendor/ImGui"
 IncludeDir["ImGuiFileDialog"] = "vendor/ImGuiFileDialog"
 IncludeDir["DevIL"] = "vendor/DevIL/DevIL/include"
 IncludeDir["dirent"] = "vendor/dirent/include"
+IncludeDir["fmod"] = "vendor/fmod/core/inc"
+IncludeDir["gradrigo"] = "vendor/gradrigo"
+
+LibDir = {}
+LibDir["gradrigoDebug"] = "vendor/gradrigo/Debug"
+LibDir["gradrigoRelease"] = "vendor/gradrigo/Debug"
+LibDir["fmod"] = "vendor/fmod/core/lib/x64"
+
 group "Assimp"
   include "vendor/projects/zlib"
   include "vendor/projects/irrXML"
@@ -153,6 +161,7 @@ group "Tools"
 	include "Tools/ShaderPreprocessor"
 group ""
 
+include "Audio"
 include "Core"
 include "Sandbox"
 include "Renderer"

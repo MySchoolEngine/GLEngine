@@ -60,6 +60,8 @@ IncludeCategories:
     Priority:        9
   - Regex:           '^<GUI/.*>'
     Priority:        10
+  - Regex:           '^<Audio/.*>'
+    Priority:        11
   - Regex:           '^<Physics/.*>'
     Priority:        14
   - Regex:           '^<Entity/.*>'

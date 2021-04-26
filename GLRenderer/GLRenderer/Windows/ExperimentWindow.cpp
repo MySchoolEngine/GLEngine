@@ -37,6 +37,12 @@
 #include <GUI/ConsoleWindow.h>
 #include <GUI/FileDialogWindow.h>
 
+#include <Audio/AudioSystemManager.h>
+#include <Audio/ListenerComponent.h>
+#include <Audio/SoundSourceComponent.h>
+
+#include <Physics/Primitives/AABB.h>
+#include <Physics/Primitives/Frustum.h>
 #include <Physics/Primitives/Intersection.h>
 #include <Physics/Primitives/Ray.h>
 
@@ -82,11 +88,13 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	m_VSync.SetName("Lock FPS");
 
 	Entity::C_ComponentManager::Instance();
+	Audio::C_AudioSystemManager::Instance();
 }
 
 //=================================================================================
 C_ExplerimentWindow::~C_ExplerimentWindow()
 {
+	Audio::C_AudioSystemManager::Instance().Done();
 	static_cast<C_OGLRenderer*>(m_renderer.get())->DestroyControls(m_ImGUI->GetGUIMgr());
 	m_CamManager.DestroyControls(m_ImGUI->GetGUIMgr());
 	Renderer::C_MaterialManager::Instance().DestroyControls(m_ImGUI->GetGUIMgr());
@@ -95,6 +103,7 @@ C_ExplerimentWindow::~C_ExplerimentWindow()
 //=================================================================================
 void C_ExplerimentWindow::Update()
 {
+	Audio::C_AudioSystemManager::Instance().Update();
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.Reset();
 	Shaders::C_ShaderManager::Instance().Update();
@@ -120,6 +129,39 @@ void C_ExplerimentWindow::Update()
 	const auto camera = m_CamManager.GetActiveCamera();
 	GLE_ASSERT(camera, "No active camera");
 
+	// Debug audio
+
+	{
+		const auto camFrustum	  = camera->GetFrustum();
+		const auto camBox		  = camFrustum.GetAABB().GetSphere();
+		const auto entitiesInView = m_World->GetEntities(camFrustum);
+		for (auto& entity : entitiesInView)
+		{
+			auto audioComponents = entity->GetComponents(Entity::E_ComponentType::AudioListener);
+			for (const auto& it : audioComponents)
+			{
+				const auto audioComponent = component_cast<Entity::E_ComponentType::AudioListener>(it);
+				const auto compSphere	  = audioComponent->GetAABB().GetSphere();
+				if (compSphere.IsColliding(camBox))
+				{
+					const auto listenerPos = audioComponent->GetPosition();
+					C_DebugDraw::Instance().DrawPoint(listenerPos, glm::vec3(1, 1, 1));
+					C_DebugDraw::Instance().DrawAxis(listenerPos, audioComponent->GetUp(), audioComponent->GetForward());
+				}
+			}
+			auto audioSourceComponents = entity->GetComponents(Entity::E_ComponentType::AudioSource);
+			for (const auto& it : audioSourceComponents)
+			{
+				const auto audioSourceComponent = component_cast<Entity::E_ComponentType::AudioSource>(it);
+				const auto compSphere			= audioSourceComponent->GetAABB().GetSphere();
+				if (compSphere.IsColliding(camBox))
+				{
+					const auto listenerPos = audioSourceComponent->GetPosition();
+					C_DebugDraw::Instance().DrawPoint(listenerPos, glm::vec3(1, 0, 0));
+				}
+			}
+		}
+	}
 
 	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
 
@@ -314,7 +356,7 @@ void C_ExplerimentWindow::OnAppInit()
 	{
 		m_EntitiesWindowGUID = NextGUID();
 
-		auto entitiesWindow = new Entity::C_EntitiesWindow(m_EntitiesWindowGUID, m_World);
+		auto entitiesWindow = new Entity::C_EntitiesWindow(m_EntitiesWindowGUID, m_World, guiMGR);
 		guiMGR.AddCustomWindow(entitiesWindow);
 		entitiesWindow->SetVisible();
 	}
@@ -419,6 +461,10 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 		debugCam->Update();
 		player->AddComponent(debugCam);
 		m_CamManager.SetDebugCamera(debugCam);
+
+		auto playerListener = player->GetComponent<Entity::E_ComponentType::AudioListener>();
+
+		Audio::C_AudioSystemManager::Instance().ActivateListener(playerListener);
 
 		// area light
 		// auto arealight = std::make_shared<C_GLAreaLight>(player);

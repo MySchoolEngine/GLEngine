@@ -23,7 +23,7 @@ public:
 	[[nodiscard]] Physics::Primitives::C_Frustum GetShadingFrustum() const override;
 	[[nodiscard]] bool							 HasDebugDrawGUI() const override;
 	[[nodiscard]] std::string_view				 GetDebugComponentName() const override;
-	virtual void								 DebugDrawGUI() override;
+	virtual void								 DebugDrawGUI(GUI::C_GUIManager* guiMGR = nullptr) override;
 
 	void									  DebugDraw(I_DebugDraw* dd) const;
 	[[nodiscard]] Physics::Primitives::S_AABB GetAABB() const override;

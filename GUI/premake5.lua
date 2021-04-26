@@ -17,7 +17,6 @@ project "GUI"
 		"../Physics",
 		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.GLM}",
-		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.ImGui}",
 		"../%{IncludeDir.ImGuiFileDialog}",
 	}
