@@ -1,10 +1,13 @@
 #pragma once
 
-#include <Renderer/Mesh/Scene.h>
 #include <Renderer/RendererApi.h>
 #include <Renderer/Textures/DeviceTexture.h>
 
 #include <Utils/RefCounter.h>
+
+namespace GLEngine::Renderer::MeshData {
+struct Material;
+}
 
 namespace GLEngine::Renderer {
 class RENDERER_API_EXPORT C_Material : Utils::RefCounted<Utils::SingleThreadCounter> {
