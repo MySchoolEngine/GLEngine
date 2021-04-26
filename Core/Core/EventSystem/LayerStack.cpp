@@ -37,4 +37,10 @@ bool C_LayerStack::ReadyForDestroy() const
 	return std::all_of(m_Layers.begin(), m_Layers.end(), [](const auto& it) { return it->ReadyForDestroy(); });
 }
 
+//=================================================================================
+void C_LayerStack::OnUpdate()
+{
+	std::for_each(m_Layers.begin(), m_Layers.end(), [](auto& layer) { layer->OnUpdate(); });
+}
+
 } // namespace GLEngine::Core
