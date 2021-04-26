@@ -155,6 +155,7 @@ group ""
 
 include "Core"
 include "Sandbox"
+include "Editor"
 include "Renderer"
 include "GLRenderer"
 include "GUI"
