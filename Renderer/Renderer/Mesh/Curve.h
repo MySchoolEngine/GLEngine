@@ -12,7 +12,7 @@ public:
 	void					RemoveControlPoint(const std::size_t position);
 	[[nodiscard]] glm::vec3 GetControlPoint(const std::size_t position);
 
-	using T_ControlPointFn = std::function<void(glm::vec3)>;
+	using T_ControlPointFn = std::function<void(glm::vec3&)>;
 	void ForEachControlPoint(const T_ControlPointFn& fn);
 
 private:
