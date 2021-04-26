@@ -1,5 +1,15 @@
 #pragma once
 
+// This interface should be implemented in each API
+// Only responsibility of this class is visualization of primitives:
+// *  Point
+// *  Line
+// *  AABB-box
+// *  Frustum
+//
+// This goal should be achieved as efficiently as possible.
+// There could be be multiple instances of this class throughout the application
+// e.g. one for debug purposes, one for editors purposes etc.
 namespace GLEngine::Physics::Primitives {
 struct S_AABB;
 }
