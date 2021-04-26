@@ -69,6 +69,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	, m_ShadowPass(nullptr)
 	, m_GUITexts({{GUI::C_FormatedText("Avg frame time {:.2f}"), GUI::C_FormatedText("Avg fps {:.2f}"), GUI::C_FormatedText("Min/max frametime {:.2f}/{:.2f}")}})
 	, m_Windows(std::string("Windows"))
+	, m_EditorLayer(*&C_DebugDraw::Instance(), GetInput())
 {
 	glfwMakeContextCurrent(m_Window);
 
@@ -78,10 +79,16 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	m_ImGUI->OnAttach(); // manual call for now.
 	m_LayerStack.PushLayer(m_ImGUI);
 	m_LayerStack.PushLayer(&m_CamManager);
+	m_LayerStack.PushLayer(&m_EditorLayer);
 
 	m_VSync.SetName("Lock FPS");
 
 	Entity::C_ComponentManager::Instance();
+
+	for (int i = 0; i <= 10; ++i)
+		m_Curve.AddControlPoint(i, glm::vec3(0.1 * i, 1 + std::sin(0.1 * i * glm::two_pi<double>()), 0));
+
+	m_EditorLayer.EditCurve(m_Curve);
 }
 
 //=================================================================================
@@ -95,11 +102,12 @@ C_ExplerimentWindow::~C_ExplerimentWindow()
 //=================================================================================
 void C_ExplerimentWindow::Update()
 {
+	m_ImGUI->FrameBegin();
+	m_LayerStack.OnUpdate();
+
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.Reset();
 	Shaders::C_ShaderManager::Instance().Update();
-	m_ImGUI->FrameBegin();
-	m_ImGUI->OnUpdate();
 	// MouseSelect();
 	C_DebugDraw::Instance().DrawAxis(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0, 1.f, 0.0f), glm::vec3(0.f, 0.f, 1.f));
 

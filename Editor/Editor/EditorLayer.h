@@ -24,6 +24,7 @@ public:
 	virtual void OnEvent(Core::I_Event& event) override;
 	virtual void OnUpdate() override;
 
+	void EditCurve(Renderer::C_Curve& curve);
 
 private:
 	Renderer::I_DebugDraw& m_dd;
