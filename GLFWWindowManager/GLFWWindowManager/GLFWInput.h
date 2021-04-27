@@ -24,6 +24,7 @@ public:
 	 * Top left = (0,0)
 	 */
 	[[nodiscard]] virtual std::pair<float, float> GetMousePosition() const override;
+	[[nodiscard]] virtual glm::vec2				  GetClipSpaceMouseCoord() const override;
 	[[nodiscard]] virtual float					  GetMouseX() const override;
 	[[nodiscard]] virtual float					  GetMouseY() const override;
 
