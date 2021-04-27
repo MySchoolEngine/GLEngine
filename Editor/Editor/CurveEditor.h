@@ -6,6 +6,7 @@
 
 namespace GLEngine::Core {
 class I_Input;
+class C_MouseButtonPressed;
 }
 
 namespace GLEngine::Renderer {
@@ -25,8 +26,10 @@ public:
 	void Draw(Renderer::I_DebugDraw& dd) const;
 
 private:
+	bool			   OnMouseKeyPressed(Core::C_MouseButtonPressed& event);
 	Renderer::C_Curve& m_Curve;
 
+	int m_MouseOverPoint;
 	int m_SelectedPoint;
 };
 } // namespace GLEngine::Editor

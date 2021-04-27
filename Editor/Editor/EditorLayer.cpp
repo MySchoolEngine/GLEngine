@@ -24,6 +24,8 @@ C_EditorLayer::~C_EditorLayer() = default;
 //=================================================================================
 void C_EditorLayer::OnEvent(Core::I_Event& event)
 {
+	if (m_CurveEditing)
+		m_CurveEditing->OnEvent(event);
 }
 
 //=================================================================================
