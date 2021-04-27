@@ -8,6 +8,7 @@ namespace GLEngine::Renderer {
 class I_Renderer;
 class I_DebugDraw;
 class C_Curve;
+class I_CameraComponent;
 } // namespace GLEngine::Renderer
 
 namespace GLEngine::Core {
@@ -25,14 +26,16 @@ class EDITOR_API_EXPORT C_EditorLayer : public Core::C_Layer {
 public:
 	C_EditorLayer(Renderer::I_DebugDraw& dd, const Core::I_Input& directInput);
 	~C_EditorLayer();
+	void		 SetCamera(std::shared_ptr<Renderer::I_CameraComponent> camera);
 	virtual void OnEvent(Core::I_Event& event) override;
 	virtual void OnUpdate() override;
 
 	void EditCurve(Renderer::C_Curve& curve);
 
 private:
-	Renderer::I_DebugDraw& m_dd;
-	const Core::I_Input&   m_Input;
+	Renderer::I_DebugDraw&						 m_dd;
+	const Core::I_Input&						 m_Input;
+	std::shared_ptr<Renderer::I_CameraComponent> m_Camera;
 
 	std::unique_ptr<C_CurveEditor> m_CurveEditing;
 };

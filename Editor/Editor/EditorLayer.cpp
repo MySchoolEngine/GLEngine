@@ -30,13 +30,23 @@ void C_EditorLayer::OnEvent(Core::I_Event& event)
 void C_EditorLayer::OnUpdate()
 {
 	if (m_CurveEditing)
+	{
 		m_CurveEditing->Draw(m_dd);
+		if (m_Camera)
+			m_CurveEditing->OnUpdate(m_Input, m_Camera);
+	}
 }
 
 //=================================================================================
 void C_EditorLayer::EditCurve(Renderer::C_Curve& curve)
 {
 	m_CurveEditing = std::make_unique<C_CurveEditor>(curve);
+}
+
+//=================================================================================
+void C_EditorLayer::SetCamera(std::shared_ptr<Renderer::I_CameraComponent> camera)
+{
+	m_Camera = camera;
 }
 
 }; // namespace GLEngine::Editor
