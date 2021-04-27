@@ -14,10 +14,10 @@ project "Editor"
 	Link("Core")
 	Link("GUI")
 	Link("Renderer")
-	Link("Physics")
 
 	includedirs
 	{
+		"../Physics",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.pugixml}",
