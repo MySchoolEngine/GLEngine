@@ -15,6 +15,7 @@ public:
 	C_CurveEditor(Renderer::C_Curve& curve);
 
 	virtual void OnEvent(Core::I_Event& event) override;
+	void		 OnUpdate(const Core::I_Input& input);
 
 	void Draw(Renderer::I_DebugDraw& dd) const;
 

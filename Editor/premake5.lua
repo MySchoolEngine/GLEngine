@@ -14,6 +14,7 @@ project "Editor"
 	Link("Core")
 	Link("GUI")
 	Link("Renderer")
+	Link("Physics")
 
 	includedirs
 	{

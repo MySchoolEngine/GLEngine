@@ -48,4 +48,10 @@ glm::vec3 C_Curve::GetControlPoint(const std::size_t position)
 	return *it;
 }
 
+//=================================================================================
+std::size_t C_Curve::GetNumControlPoints() const
+{
+	return m_Points.size();
+}
+
 } // namespace GLEngine::Renderer
