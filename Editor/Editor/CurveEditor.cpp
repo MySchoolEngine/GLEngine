@@ -1,17 +1,19 @@
 #include <EditorStdAfx.h>
 
 #include <Editor/CurveEditor.h>
+#include <Editor/Utils/MousePicking.h>
 
 #include <Renderer/Colours.h>
 #include <Renderer/DebugDraw.h>
 #include <Renderer/ICameraComponent.h>
 #include <Renderer/Mesh/Curve.h>
 
-#include <Physics/GeometryUtils/DistanceToRay.h>
-
+#include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/Event/MouseEvents.h>
 #include <Core/EventSystem/EventDispatcher.h>
 #include <Core/Input.h>
+
+#include <GLFW/glfw3.h>
 
 namespace GLEngine::Editor {
 
@@ -60,13 +62,12 @@ void C_CurveEditor::OnUpdate(const Core::I_Input& input, std::shared_ptr<Rendere
 {
 	std::vector<std::pair<int, float>> closestPoints;
 
-	using namespace Physics::Primitives;
-	const auto ray = camera->GetRay(input.GetClipSpaceMouseCoord());
+	const auto mousePosition = input.GetClipSpaceMouseCoord();
 
 	const auto numControlPoints = m_Curve.GetNumControlPoints();
 	for (int i = 0; i < numControlPoints; ++i)
 	{
-		const auto distnace = Physics::DistanceToRay(m_Curve.GetControlPoint(i), ray);
+		const auto distnace = ScreenSpaceDistance(m_Curve.GetControlPoint(i), mousePosition, *camera.get());
 		if (distnace < .1f)
 		{
 			closestPoints.emplace_back(i, distnace);

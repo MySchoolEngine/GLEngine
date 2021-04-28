@@ -22,6 +22,7 @@ project "Editor"
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.ImGui}",
+		"../%{IncludeDir.GLFW}", -- for key names
 	}
 
 	links 
