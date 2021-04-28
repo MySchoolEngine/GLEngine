@@ -7,6 +7,7 @@
 namespace GLEngine::Core {
 class I_Input;
 class C_MouseButtonPressed;
+class C_KeyPressedEvent;
 }
 
 namespace GLEngine::Renderer {
@@ -27,6 +28,7 @@ public:
 
 private:
 	bool			   OnMouseKeyPressed(Core::C_MouseButtonPressed& event);
+	bool			   OnKeyPressed(Core::C_KeyPressedEvent& event);
 	Renderer::C_Curve& m_Curve;
 
 	int m_MouseOverPoint;

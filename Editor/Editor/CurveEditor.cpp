@@ -30,11 +30,14 @@ void C_CurveEditor::OnEvent(Core::I_Event& event)
 {
 	Core::C_EventDispatcher d(event);
 	d.Dispatch<Core::C_MouseButtonPressed>(std::bind(&C_CurveEditor::OnMouseKeyPressed, this, std::placeholders::_1));
+	d.Dispatch<Core::C_KeyPressedEvent>(std::bind(&C_CurveEditor::OnKeyPressed, this, std::placeholders::_1));
 }
 
 //=================================================================================
 void C_CurveEditor::Draw(Renderer::I_DebugDraw& dd) const
 {
+	if (m_Curve.GetNumControlPoints() == 0)
+		return;
 	int	 i		  = 0;
 	auto previous = m_Curve.GetControlPoint(0);
 	m_Curve.ForEachControlPoint([&](const glm::vec3& current) {
@@ -94,6 +97,18 @@ bool C_CurveEditor::OnMouseKeyPressed(Core::C_MouseButtonPressed& event)
 		{
 			m_SelectedPoint = m_MouseOverPoint;
 		}
+		return true;
+	}
+	return false;
+}
+
+//=================================================================================
+bool C_CurveEditor::OnKeyPressed(Core::C_KeyPressedEvent& event)
+{
+	if (event.GetKeyCode() == GLFW_KEY_DELETE && m_SelectedPoint >= 0)
+	{
+		m_Curve.RemoveControlPoint(m_SelectedPoint);
+		m_SelectedPoint = -1;
 		return true;
 	}
 	return false;
