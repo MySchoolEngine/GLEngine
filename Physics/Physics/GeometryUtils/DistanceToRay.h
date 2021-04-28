@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 
 namespace GLEngine::Physics {
-[[nodiscard]] float DistanceToRay(const glm::vec3& point, const Primitives::S_Ray& ray)
+[[nodiscard]] inline float DistanceToRay(const glm::vec3& point, const Primitives::S_Ray& ray)
 {
 	const glm::vec3 Vector		  = point - ray.origin;
 	const glm::vec3 LineDirection = ray.direction; // should be normalized
