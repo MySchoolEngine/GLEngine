@@ -82,8 +82,8 @@ void C_CurveEditor::OnUpdate(const Core::I_Input& input, const Renderer::I_Camer
 		}
 	}
 
+	C_MousePickingHelper mousePicking(input, camera);
 
-	std::vector<std::pair<int, float>> closestPoints;
 	std::vector<std::pair<int, float>> closestLineSegments;
 
 	const auto mousePosition = input.GetClipSpaceMouseCoord();
@@ -91,33 +91,17 @@ void C_CurveEditor::OnUpdate(const Core::I_Input& input, const Renderer::I_Camer
 	const auto numControlPoints = m_Curve.GetNumControlPoints();
 	for (int i = 0; i < numControlPoints; ++i)
 	{
-		const auto distnace = ScreenSpaceDistance(m_Curve.GetControlPoint(i), mousePosition, camera);
-		if (distnace < .1f) // todo should be more tight to pixels than size of clip space
+		mousePicking.Point(m_Curve.GetControlPoint(i), [&, i]() { m_MouseOverPoint = i; });
+		if (i > 0)
 		{
-			closestPoints.emplace_back(i, distnace);
-		}
-	}
-
-	for (int i = 1; i < numControlPoints; ++i)
-	{
-		const auto distance = ScreenSpaceDistanceToLine(m_Curve.GetControlPoint(i - 1), m_Curve.GetControlPoint(i), mousePosition, camera);
-		if (distance < .1f)
-		{
-			closestLineSegments.emplace_back(i, distance);
+			mousePicking.LineSegment(m_Curve.GetControlPoint(i - 1), m_Curve.GetControlPoint(i), [&, i]() { m_MouseOverLineSegment = i; });
 		}
 	}
 
 	m_MouseOverPoint	   = -1;
 	m_MouseOverLineSegment = -1;
 
-	std::sort(closestPoints.begin(), closestPoints.end(), [](const auto a, const auto b) { return a.second < b.second; });
-	std::sort(closestLineSegments.begin(), closestLineSegments.end(), [](const auto a, const auto b) { return a.second < b.second; });
-	if (!closestPoints.empty())
-	{
-		m_MouseOverPoint = closestPoints.begin()->first;
-	}
-	if (!closestLineSegments.empty())
-		m_MouseOverLineSegment = closestLineSegments.begin()->first;
+	mousePicking.SelectInteraction();
 }
 
 //=================================================================================
