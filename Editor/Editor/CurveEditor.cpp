@@ -29,6 +29,8 @@ C_CurveEditor::C_CurveEditor(Renderer::C_Curve& curve)
 //=================================================================================
 void C_CurveEditor::OnEvent(Core::I_Event& event)
 {
+	if (m_Gizmo)
+		m_Gizmo->OnEvent(event);
 	Core::C_EventDispatcher d(event);
 	d.Dispatch<Core::C_MouseButtonPressed>(std::bind(&C_CurveEditor::OnMouseKeyPressed, this, std::placeholders::_1));
 	d.Dispatch<Core::C_KeyPressedEvent>(std::bind(&C_CurveEditor::OnKeyPressed, this, std::placeholders::_1));
