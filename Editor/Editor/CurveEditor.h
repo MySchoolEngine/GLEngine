@@ -8,7 +8,7 @@ namespace GLEngine::Core {
 class I_Input;
 class C_MouseButtonPressed;
 class C_KeyPressedEvent;
-}
+} // namespace GLEngine::Core
 
 namespace GLEngine::Renderer {
 class C_Curve;

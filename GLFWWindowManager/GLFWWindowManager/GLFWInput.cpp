@@ -56,7 +56,7 @@ glm::vec2 C_GLFWInput::GetClipSpaceMouseCoord() const
 	const auto screenCoord = GetMousePosition();
 	glm::ivec2 windowSize;
 	glfwGetWindowSize(m_Window, &(windowSize.x), &(windowSize.y));
-	const float x = (2.0f * screenCoord.first) / windowSize.x- 1.0f;
+	const float x = (2.0f * screenCoord.first) / windowSize.x - 1.0f;
 	const float y = 1.0f - (2.0f * screenCoord.second) / windowSize.y;
 	return {x, y};
 }

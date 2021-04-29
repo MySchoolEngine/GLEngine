@@ -42,8 +42,7 @@ void C_CurveEditor::Draw(Renderer::I_DebugDraw& dd) const
 	int	 i		  = 0;
 	auto previous = m_Curve.GetControlPoint(0);
 	m_Curve.ForEachControlPoint([&](const glm::vec3& current) {
-		dd.DrawLine(previous, current, (m_MouseOverLineSegment==i)?Colours::red:Colours::white);
-
+		dd.DrawLine(previous, current, (m_MouseOverLineSegment == i) ? Colours::red : Colours::white);
 
 
 		if (i == m_SelectedPoint)

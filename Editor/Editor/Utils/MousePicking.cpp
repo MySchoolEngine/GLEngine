@@ -1,6 +1,7 @@
 #include <EditorStdAfx.h>
 
 #include <Editor/Utils/MousePicking.h>
+
 #include <Renderer/ICameraComponent.h>
 
 #include <glm/glm.hpp>
@@ -17,7 +18,7 @@ namespace GLEngine::Editor {
 //************************************
 float ScreenSpaceDistance(const glm::vec3& point, const glm::vec2& mousePosition, const Renderer::I_CameraComponent& camera)
 {
-	const auto pointOnScreen = camera.GetViewProjectionMatrix() * glm::vec4(point, 1.f);
+	const auto pointOnScreen  = camera.GetViewProjectionMatrix() * glm::vec4(point, 1.f);
 	const auto clipSpacePoint = glm::vec2(pointOnScreen.x, pointOnScreen.y) / pointOnScreen.w;
 
 	return glm::distance(clipSpacePoint, mousePosition);
@@ -35,4 +36,4 @@ float ScreenSpaceDistanceToLine(const glm::vec3& a, const glm::vec3& b, const gl
 	return glm::distance(glm::closestPointOnLine(mousePosition, clipSpaceA, clipSpaceB), mousePosition);
 }
 
-}
+} // namespace GLEngine::Editor
