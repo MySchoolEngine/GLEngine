@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Editor/EditorApi.h>
+#include <Editor/Gizmo.h>
 
 #include <Core/EventSystem/EventReciever.h>
 
@@ -17,6 +18,7 @@ class I_CameraComponent;
 } // namespace GLEngine::Renderer
 
 namespace GLEngine::Editor {
+
 class EDITOR_API_EXPORT C_CurveEditor : public Core::I_EventReciever {
 public:
 	C_CurveEditor(Renderer::C_Curve& curve);
@@ -27,9 +29,10 @@ public:
 	void Draw(Renderer::I_DebugDraw& dd) const;
 
 private:
-	bool			   OnMouseKeyPressed(Core::C_MouseButtonPressed& event);
-	bool			   OnKeyPressed(Core::C_KeyPressedEvent& event);
-	Renderer::C_Curve& m_Curve;
+	bool				   OnMouseKeyPressed(Core::C_MouseButtonPressed& event);
+	bool				   OnKeyPressed(Core::C_KeyPressedEvent& event);
+	Renderer::C_Curve&	   m_Curve;
+	std::optional<C_Gizmo> m_Gizmo;
 
 	int m_MouseOverPoint;
 	int m_SelectedPoint;

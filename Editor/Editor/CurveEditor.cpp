@@ -61,11 +61,26 @@ void C_CurveEditor::Draw(Renderer::I_DebugDraw& dd) const
 
 		++i;
 	});
+	if (m_Gizmo)
+		m_Gizmo->Draw(dd);
 }
 
 //=================================================================================
 void C_CurveEditor::OnUpdate(const Core::I_Input& input, const Renderer::I_CameraComponent& camera)
 {
+	if (m_Gizmo)
+	{
+		m_Gizmo->OnUpdate(input, camera);
+
+		// if mouse is over gizmo I don't want to select anything from curve
+		if (m_Gizmo->IsMouseOverGizmo())
+		{
+			m_MouseOverLineSegment = m_MouseOverPoint = -1;
+			return;
+		}
+	}
+
+
 	std::vector<std::pair<int, float>> closestPoints;
 	std::vector<std::pair<int, float>> closestLineSegments;
 
@@ -96,7 +111,9 @@ void C_CurveEditor::OnUpdate(const Core::I_Input& input, const Renderer::I_Camer
 	std::sort(closestPoints.begin(), closestPoints.end(), [](const auto a, const auto b) { return a.second < b.second; });
 	std::sort(closestLineSegments.begin(), closestLineSegments.end(), [](const auto a, const auto b) { return a.second < b.second; });
 	if (!closestPoints.empty())
+	{
 		m_MouseOverPoint = closestPoints.begin()->first;
+	}
 	if (!closestLineSegments.empty())
 		m_MouseOverLineSegment = closestLineSegments.begin()->first;
 }
@@ -112,7 +129,11 @@ bool C_CurveEditor::OnMouseKeyPressed(Core::C_MouseButtonPressed& event)
 		}
 		else
 		{
-			m_SelectedPoint = m_MouseOverPoint;
+			if (m_SelectedPoint != m_MouseOverPoint)
+			{
+				m_SelectedPoint = m_MouseOverPoint;
+				m_Gizmo			= C_Gizmo(m_Curve.GetControlPoint(m_SelectedPoint));
+			}
 		}
 		return true;
 	}
