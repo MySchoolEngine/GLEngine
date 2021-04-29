@@ -126,8 +126,8 @@ public:
 	virtual void DrawBone(const glm::vec3& position, const Renderer::Animation::S_Joint& joint) override;
 	virtual void DrawSkeleton(const glm::vec3& root, const Renderer::Animation::C_Skeleton& skeleton) override;
 
-	void DrawAxis(const glm::vec3& origin, const glm::vec3& up, const glm::vec3& foreward, const glm::mat4& modelMatrix = glm::mat4(1.0f));
-	void DrawGrid(const glm::vec4& origin, unsigned short linesToSide, const glm::mat4& modelMatrix = glm::mat4(1.0f));
+	virtual void DrawAxis(const glm::vec3& origin, const glm::vec3& up, const glm::vec3& foreward, const glm::mat4& modelMatrix = glm::mat4(1.0f)) override;
+	void		 DrawGrid(const glm::vec4& origin, unsigned short linesToSide, const glm::mat4& modelMatrix = glm::mat4(1.0f));
 
 	void DrawFrustum(const Physics::Primitives::C_Frustum& frust, const glm::vec3& color = glm::vec3(0.0f, 0.0f, 0.0f));
 
