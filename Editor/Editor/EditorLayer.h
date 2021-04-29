@@ -33,9 +33,9 @@ public:
 	void EditCurve(Renderer::C_Curve& curve);
 
 private:
-	Renderer::I_DebugDraw&						 m_dd;
-	const Core::I_Input&						 m_Input;
-	std::shared_ptr<Renderer::I_CameraComponent> m_Camera;
+	Renderer::I_DebugDraw&					   m_dd;
+	const Core::I_Input&					   m_Input;
+	std::weak_ptr<Renderer::I_CameraComponent> m_Camera;
 
 	std::unique_ptr<C_CurveEditor> m_CurveEditing;
 };

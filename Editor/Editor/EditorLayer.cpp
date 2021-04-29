@@ -34,8 +34,8 @@ void C_EditorLayer::OnUpdate()
 	if (m_CurveEditing)
 	{
 		m_CurveEditing->Draw(m_dd);
-		if (m_Camera)
-			m_CurveEditing->OnUpdate(m_Input, m_Camera);
+		if (auto camera = m_Camera.lock())
+			m_CurveEditing->OnUpdate(m_Input, *camera.get());
 	}
 }
 

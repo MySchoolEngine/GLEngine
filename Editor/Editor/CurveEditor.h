@@ -22,7 +22,7 @@ public:
 	C_CurveEditor(Renderer::C_Curve& curve);
 
 	virtual void OnEvent(Core::I_Event& event) override;
-	void		 OnUpdate(const Core::I_Input& input, std::shared_ptr<Renderer::I_CameraComponent> camera);
+	void		 OnUpdate(const Core::I_Input& input, const Renderer::I_CameraComponent& camera);
 
 	void Draw(Renderer::I_DebugDraw& dd) const;
 
@@ -33,5 +33,7 @@ private:
 
 	int m_MouseOverPoint;
 	int m_SelectedPoint;
+
+	int m_MouseOverLineSegment;
 };
 } // namespace GLEngine::Editor
