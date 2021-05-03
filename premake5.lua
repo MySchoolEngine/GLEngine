@@ -31,7 +31,7 @@ newoption {
 VULKAN_SDK = os.getenv("VULKAN_SDK")
 
 function GetVulkanBin()
-	if os.isdir(VULKAN_SDK.. "/bin") then
+	if not VULKAN_SDK == nil  and os.isdir(VULKAN_SDK.. "/bin") then
 		return "%{VULKAN_SDK}/bin" end
 	return "%{wks.location}/vendor/vulkan"
 end
