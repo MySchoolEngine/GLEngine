@@ -28,15 +28,11 @@ newoption {
    },
 }
 
-newoption{
-	trigger = "vulkanPath",
-	description = "Base path for VulkanSDK installation. Suggested is %VULKAN_SDK%",
-	default = "C:/VulkanSDK"
-}
+VULKAN_SDK = os.getenv("VULKAN_SDK")
 
 function GetVulkanBin()
-	if os.isdir(_OPTIONS["vulkanPath"].. "/bin") then
-		return _OPTIONS["vulkanPath"].. "/bin" end
+	if os.isdir(VULKAN_SDK.. "/bin") then
+		return "%{VULKAN_SDK}/bin" end
 	return "%{wks.location}/vendor/vulkan"
 end
 
@@ -128,8 +124,6 @@ group "Assimp"
   include "vendor/projects/irrXML"
   include "vendor/projects/Assimp"
 group ""
-
-VulkanSDKBase = "C:/VulkanSDK/"
 
 group "Dependencies"
   include "vendor/GLFW"

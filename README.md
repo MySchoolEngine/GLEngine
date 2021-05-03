@@ -16,7 +16,7 @@ premake5 vs2019 (or whatever verison are you using)
 
 You can run both DirectX and OpenGL renderers side by side but in case of Vulkan you need to choose between OpenGL and Vulkan. If you would like to select Vulkan you need to set premake in this way:
 ```
-premake5 --glfwapi=vulkan --vulkanPath=%VULKAN_SDK% vs2019
+premake5 --glfwapi=vulkan vs2019
 ```
 
 ## Features

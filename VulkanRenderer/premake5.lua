@@ -18,7 +18,7 @@ project "VulkanRenderer"
 	{
 		".",
 		"../Physics",
-		"%{VulkanSDKBase}Include",
+		"%{VULKAN_SDK}/Include",
 		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.ImGui}",
@@ -26,7 +26,7 @@ project "VulkanRenderer"
 		"../%{IncludeDir.GLFW}",
 	}
 
-	libdirs { "%{VulkanSDKBase}/Lib" }
+	libdirs { "%{VULKAN_SDK}/Lib" }
 
 	links 
 	{ 
