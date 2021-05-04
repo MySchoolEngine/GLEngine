@@ -30,7 +30,6 @@ project "ShaderPreprocessor"
 
 	postbuildcommands
 	{
-		("{COPY} \"%{wks.location}/vendor/AssimpPrebuild/lib/*\" \"%{cfg.buildtarget.directory}\""),
 		("{COPY} \"%{wks.location}/vendor/projects/DevIL/bin/Debug-windows-x86_64/DevIL-IL/DevIL-IL.dll\" \"%{cfg.buildtarget.directory}\""),
 		("{COPY} \"%{cfg.buildtarget.directory}/../Entity/Entity.dll\" \"%{cfg.buildtarget.directory}\""),
 		("{COPY} \"%{wks.location}/bin/" .. outputdir .. "/vendor/ImGui/*.*\" \"%{cfg.buildtarget.directory}\""),
