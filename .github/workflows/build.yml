@@ -61,19 +61,13 @@ jobs:
       - name: Generate solution
         shell: cmd
         run: premake\premake5.exe vs2019
-      - name: Download artifact
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          name: Win-dependencies
-          workflow: prebuild.yml
-          workflow_conclusion: success
-          branch: master
-      - name: Setup Vulkan
-        shell: powershell
-        run: |
-            Invoke-WebRequest -Uri "https://sdk.lunarg.com/sdk/download/1.1.126.0/windows/VulkanSDK-1.1.126.0-Installer.exe" -OutFile VulkanSDK.exe
-            $installer = Start-Process -FilePath VulkanSDK.exe -Wait -PassThru -ArgumentList @("/S");
-            $installer.WaitForExit();
+#      - name: Download artifact
+#        uses: dawidd6/action-download-artifact@v2
+#        with:
+#          name: Win-dependencies
+#          workflow: prebuild.yml
+#          workflow_conclusion: success
+#          branch: master
       - name: Generate vulkan solution
         shell: cmd
         run: premake\premake5 --glfwapi=vulkan vs2019
