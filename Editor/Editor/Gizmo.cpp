@@ -34,24 +34,17 @@ void C_Gizmo::SetPosition(const glm::vec3& position)
 }
 
 //=================================================================================
-void C_Gizmo::OnUpdate(const Core::I_Input& input, const Renderer::I_CameraComponent& camera)
+void C_Gizmo::OnUpdate(const Core::I_Input& input, const Renderer::I_CameraComponent& camera, C_MousePickingHelper& mouseHelper)
 {
 	// do not change mouse over when dragging gizmo
 	if (m_ControllingGizmo)
 		return;
 
-	std::array<float, 3> closestLines;
-
 	const auto mosuePosition = input.GetClipSpaceMouseCoord();
 
-	closestLines[0] = ScreenSpaceDistanceToLine(m_Position, m_Position + glm::vec3{1, 0, 0}, mosuePosition, camera);
-	closestLines[1] = ScreenSpaceDistanceToLine(m_Position, m_Position + glm::vec3{0, 1, 0}, mosuePosition, camera);
-	closestLines[2] = ScreenSpaceDistanceToLine(m_Position, m_Position + glm::vec3{0, 0, 1}, mosuePosition, camera);
-
-	const auto it = std::min_element(closestLines.begin(), closestLines.end());
-	m_MouseOverDirection.reset();
-	if (it != closestLines.end() && *it < 0.1f)
-		m_MouseOverDirection = static_cast<E_Direction>(std::distance(closestLines.begin(), it));
+	mouseHelper.LineSegment(m_Position, m_Position + glm::vec3{1, 0, 0}, [&]() { m_MouseOverDirection = static_cast<E_Direction>(0); });
+	mouseHelper.LineSegment(m_Position, m_Position + glm::vec3{0, 1, 0}, [&]() { m_MouseOverDirection = static_cast<E_Direction>(1); });
+	mouseHelper.LineSegment(m_Position, m_Position + glm::vec3{0, 0, 1}, [&]() { m_MouseOverDirection = static_cast<E_Direction>(2); });
 }
 
 //=================================================================================
@@ -118,6 +111,12 @@ bool C_Gizmo::OnMouseMoved(Core::C_MouseMoved& event)
 	// 2) Find the offset
 	// 3) Move the position
 	return true;
+}
+
+//=================================================================================
+bool C_Gizmo::IsBeingControlled() const
+{
+	return m_ControllingGizmo;
 }
 
 } // namespace GLEngine::Editor

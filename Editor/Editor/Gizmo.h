@@ -16,6 +16,8 @@ class I_CameraComponent;
 } // namespace GLEngine::Renderer
 
 namespace GLEngine::Editor {
+class C_MousePickingHelper;
+
 class C_Gizmo : Core::I_EventReciever {
 public:
 	C_Gizmo(const glm::vec3& position);
@@ -23,10 +25,11 @@ public:
 	[[nodiscard]] glm::vec3 GetPosition() const;
 	void					SetPosition(const glm::vec3& position);
 
-	void OnUpdate(const Core::I_Input& input, const Renderer::I_CameraComponent& camera);
+	void OnUpdate(const Core::I_Input& input, const Renderer::I_CameraComponent& camera, C_MousePickingHelper& mouseHelper);
 	void Draw(Renderer::I_DebugDraw& dd) const;
 
 	[[nodiscard]] bool IsMouseOverGizmo() const;
+	[[nodiscard]] bool IsBeingControlled() const;
 
 	void OnEvent(Core::I_Event& event) override;
 

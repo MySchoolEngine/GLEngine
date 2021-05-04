@@ -70,21 +70,15 @@ void C_CurveEditor::Draw(Renderer::I_DebugDraw& dd) const
 //=================================================================================
 void C_CurveEditor::OnUpdate(const Core::I_Input& input, const Renderer::I_CameraComponent& camera)
 {
-	if (m_Gizmo)
-	{
-		m_Gizmo->OnUpdate(input, camera);
-
-		// if mouse is over gizmo I don't want to select anything from curve
-		if (m_Gizmo->IsMouseOverGizmo())
-		{
-			m_MouseOverLineSegment = m_MouseOverPoint = -1;
-			return;
-		}
-	}
-
 	C_MousePickingHelper mousePicking(input, camera);
 
-	std::vector<std::pair<int, float>> closestLineSegments;
+	if (m_Gizmo)
+	{
+		if (m_Gizmo->IsBeingControlled()) {
+			return;
+		}
+		m_Gizmo->OnUpdate(input, camera, mousePicking);
+	}
 
 	const auto mousePosition = input.GetClipSpaceMouseCoord();
 
