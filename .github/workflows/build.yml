@@ -80,4 +80,4 @@ jobs:
           branch: master
       - name: Build
         shell: cmd
-        run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=${{ matrix.configuration }} -maxCpuCount -verbosity:diagnostic'
+        run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=${{ matrix.configuration }} -maxCpuCount'
