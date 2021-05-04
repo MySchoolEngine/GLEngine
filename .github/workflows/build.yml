@@ -46,8 +46,13 @@ jobs:
       - name: Build
         run: make config=${{ matrix.config.config }} -j6
   msvc:
-    name: MSVC
+    name: MSVC api=glfwapi config=${{ matrix.configuration }}
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [debug, release]
+        glfwapi: [opengl, vulkan]
     env:
       VS_PATH: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\
       MSBUILD_PATH: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\
@@ -73,18 +78,9 @@ jobs:
 #          workflow: prebuild.yml
 #          workflow_conclusion: success
 #          branch: master
-      - name: Generate vulkan solution
+      - name: Generate solution
         shell: cmd
-        run: premake\premake5 --glfwapi=vulkan vs2019
-      - name: Build vulkan debug
+        run: premake\premake5 --glfwapi=${{ matrix.glfwapi }} vs2019
+      - name: Build
         shell: cmd
-        run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=Debug'
-      - name: Generate normal solution
-        shell: cmd
-        run: premake\premake5.exe vs2019
-      - name: Build release
-        shell: cmd
-        run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=Release'
-      - name: Build debug
-        shell: cmd
-        run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=Debug'
+        run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=${{ matrix.configuration }}'
