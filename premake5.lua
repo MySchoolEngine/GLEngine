@@ -119,11 +119,6 @@ IncludeDir["ImGui"] = "vendor/ImGui"
 IncludeDir["ImGuiFileDialog"] = "vendor/ImGuiFileDialog"
 IncludeDir["DevIL"] = "vendor/DevIL/DevIL/include"
 IncludeDir["dirent"] = "vendor/dirent/include"
-group "Assimp"
-  include "vendor/projects/zlib"
-  include "vendor/projects/irrXML"
-  include "vendor/projects/Assimp"
-group ""
 
 group "Dependencies"
   include "vendor/GLFW"
@@ -136,13 +131,19 @@ group "Dependencies"
 if _TARGET_OS ~= "linux" then
   include "vendor/projects/dirent"
 end
+group "Dependencies/Assimp"
+  include "vendor/projects/zlib"
+  include "vendor/projects/irrXML"
+  include "vendor/projects/Assimp"
 group ""
+
 group "Renderes"
 	include "GLFWWindowManager"
 if _TARGET_OS ~= "linux" then
 	include "DX12Renderer"
 end
 group ""
+
 group "Tools"
 	include "Tools/ShaderPreprocessor"
 group ""
