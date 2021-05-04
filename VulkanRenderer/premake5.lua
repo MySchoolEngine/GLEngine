@@ -13,33 +13,27 @@ project "VulkanRenderer"
 	Link("GLFWWindowManager")
 	Link("Core")
 	Link("Entity")
+	LinkDependency("pugixml")
+	LinkDependency("ImGui")
 
 	includedirs
 	{
 		".",
 		"../Physics",
-		"%{VulkanSDKBase}Include",
-		"../%{IncludeDir.pugixml}",
+		GetVulkanBasePath().."/Include",
 		"../%{IncludeDir.fmt}",
-		"../%{IncludeDir.ImGui}",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.GLFW}",
 	}
 
-	libdirs { "%{VulkanSDKBase}/Lib" }
+	libdirs { GetVulkanBasePath().."/Lib" }
 
 	links 
 	{ 
-		"pugixml",
-		"ImGui",
 		"vulkan-1.lib",
 	}
 
 	filter "system:windows"
-		defines
-		{
-			"BUILD_VULKAN_RENDERER_DLL",
-		}
 
 		postbuildcommands
 		{

@@ -7,7 +7,6 @@ project "Sandbox"
 	
 	debugdir ("../data/")
 	SetupProject("Sandbox")
-	debugdir ("../data/")
 	
 	pchheader "SandboxStdafx.h"
 	pchsource "SandboxStdafx.cpp"
@@ -27,7 +26,6 @@ project "Sandbox"
 
 	includedirs
 	{
-		".",
 		"../Renderer",
 		"../GLFWWindowManager",
 		"../%{IncludeDir.GLM}",

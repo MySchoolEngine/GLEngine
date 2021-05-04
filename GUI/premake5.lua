@@ -11,6 +11,8 @@ project "GUI"
 	Link("Utils")
 	Link("ImGuiFileDialog")
 
+	LinkDependency("ImGui")
+
 	includedirs
 	{
 		"../Renderer",
@@ -18,13 +20,7 @@ project "GUI"
 		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmt}",
-		"../%{IncludeDir.ImGui}",
 		"../%{IncludeDir.ImGuiFileDialog}",
-	}
-
-	links 
-	{ 
-		"ImGui",
 	}
 
 	filter "system:windows"
@@ -37,11 +33,3 @@ project "GUI"
 		{
 			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
 		}
-
-	filter "configurations:Debug"
-		runtime "Debug"
-		symbols "On"
-
-	filter "configurations:Release"
-		runtime "Release"
-		optimize "On"

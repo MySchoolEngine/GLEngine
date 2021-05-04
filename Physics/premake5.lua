@@ -14,12 +14,7 @@ project "Physics"
 		"../%{IncludeDir.fmt}",
 	}
 
-	filter "system:windows"
-		defines
-		{
-			"BUILD_PHYSICS_DLL",
-		}
-
+	--filter "system:windows"
 		-- postbuildcommands
 		-- {
 		-- 	("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")

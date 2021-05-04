@@ -1,22 +1,4 @@
-require('vstudio')
-premake.api.register {
-  name = "workspace_files",
-  scope = "workspace",
-  kind = "list:string",
-}
-
-premake.override(premake.vstudio.sln2005, "projects", function(base, wks)
-  if wks.workspace_files and #wks.workspace_files > 0 then
-    premake.push('Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{' .. os.uuid("Solution Items:"..wks.name) .. '}"')
-    premake.push("ProjectSection(SolutionItems) = preProject")
-    for _, path in ipairs(wks.workspace_files) do
-      premake.w(path.." = "..path)
-    end
-    premake.pop("EndProjectSection")
-    premake.pop("EndProject")
-  end
-  base(wks)
-end)
+include "Tools/Premake5/workspaceFiles.lua"
 
 newoption {
 	trigger = "glfwapi",
@@ -28,16 +10,16 @@ newoption {
    },
 }
 
-newoption{
-	trigger = "vulkanPath",
-	description = "Base path for VulkanSDK installation. Suggested is %VULKAN_SDK%",
-	default = "C:/VulkanSDK"
-}
+VULKAN_SDK = os.getenv("VULKAN_SDK")
+
+function GetVulkanBasePath()
+	if VULKAN_SDK ~= nil and os.isdir(VULKAN_SDK) then
+		return "%{VULKAN_SDK}" end
+	return "%{wks.location}/vendor/vulkan"
+end
 
 function GetVulkanBin()
-	if os.isdir(_OPTIONS["vulkanPath"].. "/bin") then
-		return _OPTIONS["vulkanPath"].. "/bin" end
-	return "%{wks.location}/vendor/vulkan"
+	return GetVulkanBasePath().."/Bin"
 end
 
 workspace "Engine"
@@ -67,6 +49,7 @@ workspace "Engine"
 		"vendor/GLM/util/glm.natvis",
 		"premake5.lua",
 		"premakeDefines.lua",
+		"Tools/Premake5/workspaceFiles.lua",
 	}
 
 	filter "options:glfwapi=vulkan"
@@ -123,13 +106,7 @@ IncludeDir["ImGui"] = "vendor/ImGui"
 IncludeDir["ImGuiFileDialog"] = "vendor/ImGuiFileDialog"
 IncludeDir["DevIL"] = "vendor/DevIL/DevIL/include"
 IncludeDir["dirent"] = "vendor/dirent/include"
-group "Assimp"
-  include "vendor/projects/zlib"
-  include "vendor/projects/irrXML"
-  include "vendor/projects/Assimp"
-group ""
-
-VulkanSDKBase = "C:/VulkanSDK/"
+IncludeDir["Assimp"] = "vendor/Assimp/include"
 
 group "Dependencies"
   include "vendor/GLFW"
@@ -142,13 +119,19 @@ group "Dependencies"
 if _TARGET_OS ~= "linux" then
   include "vendor/projects/dirent"
 end
+group "Dependencies/Assimp"
+  include "vendor/projects/zlib"
+  include "vendor/projects/irrXML"
+  include "vendor/projects/Assimp"
 group ""
+
 group "Renderes"
 	include "GLFWWindowManager"
 if _TARGET_OS ~= "linux" then
 	include "DX12Renderer"
 end
 group ""
+
 group "Tools"
 	include "Tools/ShaderPreprocessor"
 group ""

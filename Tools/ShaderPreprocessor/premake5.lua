@@ -14,24 +14,25 @@ project "ShaderPreprocessor"
 	Link("Renderer")
 	Link("GLRenderer")
 	Link("GUI")
+	LinkDependency("ImGui")
+	LinkDependency("pugixml")
 
 	includedirs
 	{
 		"%{wks.location}/%{IncludeDir.fmt}",
-		"%{wks.location}/%{IncludeDir.pugixml}",
 		"%{wks.location}/%{IncludeDir.GLM}",
 	}
+	
+	filter "system:windows"
+		postbuildcommands
+		{
+			("{COPY} \"%{cfg.buildtarget.directory}/../Entity/Entity.dll\" \"%{cfg.buildtarget.directory}\""),
+			("{COPY} \"%{wks.location}/bin/" .. outputdir .. "/vendor/ImGui/*.*\" \"%{cfg.buildtarget.directory}\""),
+		}
 
-	links 
-	{
-		"pugixml",
-		"ImGui",
-	}
-
-	postbuildcommands
-	{
-		("{COPY} \"%{wks.location}/vendor/AssimpPrebuild/lib/*\" \"%{cfg.buildtarget.directory}\""),
-		("{COPY} \"%{wks.location}/vendor/projects/DevIL/bin/Debug-windows-x86_64/DevIL-IL/DevIL-IL.dll\" \"%{cfg.buildtarget.directory}\""),
-		("{COPY} \"%{cfg.buildtarget.directory}/../Entity/Entity.dll\" \"%{cfg.buildtarget.directory}\""),
-		("{COPY} \"%{wks.location}/bin/" .. outputdir .. "/vendor/ImGui/*.*\" \"%{cfg.buildtarget.directory}\""),
-	}
+	filter "system:linux"
+		links
+		{
+			"X11",
+		}
+		linkoptions "-pthread"

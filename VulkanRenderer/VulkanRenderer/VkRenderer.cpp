@@ -226,4 +226,10 @@ void C_VkRenderer::FillFamilyIndexes(VkSwapchainCreateInfoKHR& createInfo)
 	}
 }
 
+//=================================================================================
+void C_VkRenderer::AddTransferCommand(T_CommandPtr)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 } // namespace GLEngine::VkRenderer

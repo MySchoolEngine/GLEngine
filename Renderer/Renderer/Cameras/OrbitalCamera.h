@@ -49,8 +49,8 @@ public:
 	virtual void Update() override;
 
 
-	virtual [[nodiscard]] float GetFar() const { return _farZ; }
-	virtual [[nodiscard]] float GetNear() const { return _nearZ; }
+	[[nodiscard]] virtual float GetFar() const override { return _farZ; }
+	[[nodiscard]] virtual float GetNear() const override { return _nearZ; }
 
 	[[nodiscard]] float GetFov() const;
 
