@@ -35,3 +35,10 @@ project "ShaderPreprocessor"
 		("{COPY} \"%{cfg.buildtarget.directory}/../Entity/Entity.dll\" \"%{cfg.buildtarget.directory}\""),
 		("{COPY} \"%{wks.location}/bin/" .. outputdir .. "/vendor/ImGui/*.*\" \"%{cfg.buildtarget.directory}\""),
 	}
+
+	filter "system:linux"
+		links
+		{
+			"X11",
+		}
+		linkoptions "-pthread"
