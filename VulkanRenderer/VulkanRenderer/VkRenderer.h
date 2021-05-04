@@ -30,6 +30,7 @@ public:
 	virtual void TransformData() override;
 	virtual void Commit() const override;
 	virtual void ClearCommandBuffers() override;
+	virtual void AddTransferCommand(T_CommandPtr) override;
 
 
 	//=================================================================================

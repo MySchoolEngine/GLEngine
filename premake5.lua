@@ -12,10 +12,14 @@ newoption {
 
 VULKAN_SDK = os.getenv("VULKAN_SDK")
 
-function GetVulkanBin()
-	if not VULKAN_SDK == nil  and os.isdir(VULKAN_SDK.. "/bin") then
-		return "%{VULKAN_SDK}/bin" end
+function GetVulkanBasePath()
+	if VULKAN_SDK ~= nil and os.isdir(VULKAN_SDK) then
+		return "%{VULKAN_SDK}" end
 	return "%{wks.location}/vendor/vulkan"
+end
+
+function GetVulkanBin()
+	return GetVulkanBasePath().."/Bin"
 end
 
 workspace "Engine"
