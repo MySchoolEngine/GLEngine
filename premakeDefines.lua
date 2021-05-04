@@ -46,6 +46,21 @@ if _TARGET_OS == "windows" then
 end
 end
 
+function LinkDependency(depName)
+	includedirs("%{wks.location}/%{IncludeDir."..depName.."}")
+	libdirs {"%{wks.location}/bin/"..outputdir.."/vendor/"..depName.."/"}
+	links
+	{
+		depName,
+	}
+	if _TARGET_OS == "windows" then
+		postbuildcommands
+		{
+			("{COPY} \"%{wks.location}/bin/" .. outputdir .. "/vendor/" .. depName .. "/".. depName ..".dll\" \"%{cfg.buildtarget.directory}\"")
+		}
+	end
+end
+
 function SetupProject(projectName)
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("%{wks.location}/obj/" .. outputdir .. "/%{prj.name}")

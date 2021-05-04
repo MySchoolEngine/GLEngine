@@ -6,27 +6,23 @@ project "Entity"
 	staticruntime "off"
 
 	SetupProject("Entity")
-	
+
 	PrecompiledHeaders("Entity")
-	
+
 	Link("Utils")
 	Link("Core")
 	Link("GUI")
 
+	LinkDependency("ImGui")
+	LinkDependency("pugixml")
+
 	includedirs
 	{
-		"../%{IncludeDir.GLM}",
 		"../Renderer",
 		"../GLRenderer",
 		"../Physics",
-		"../%{IncludeDir.pugixml}",
+		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmt}",
-		"../%{IncludeDir.ImGui}",
-	}
-
-	links{
-		"pugixml",
-		"ImGui",
 	}
 
 	defines
@@ -35,11 +31,6 @@ project "Entity"
 	}
 
 	filter "system:windows"
-		defines
-		{
-			"BUILD_ENTITY_DLL",
-		}
-
 		postbuildcommands
 		{
 			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")

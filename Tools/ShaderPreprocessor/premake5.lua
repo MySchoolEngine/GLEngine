@@ -14,18 +14,13 @@ project "ShaderPreprocessor"
 	Link("Renderer")
 	Link("GLRenderer")
 	Link("GUI")
+	LinkDependency("ImGui")
+	LinkDependency("pugixml")
 
 	includedirs
 	{
 		"%{wks.location}/%{IncludeDir.fmt}",
-		"%{wks.location}/%{IncludeDir.pugixml}",
 		"%{wks.location}/%{IncludeDir.GLM}",
-	}
-
-	links 
-	{
-		"pugixml",
-		"ImGui",
 	}
 	
 	filter "system:windows"

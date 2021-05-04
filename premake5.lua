@@ -102,6 +102,7 @@ IncludeDir["ImGui"] = "vendor/ImGui"
 IncludeDir["ImGuiFileDialog"] = "vendor/ImGuiFileDialog"
 IncludeDir["DevIL"] = "vendor/DevIL/DevIL/include"
 IncludeDir["dirent"] = "vendor/dirent/include"
+IncludeDir["Assimp"] = "vendor/Assimp/include"
 
 group "Dependencies"
   include "vendor/GLFW"

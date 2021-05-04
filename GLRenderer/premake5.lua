@@ -5,12 +5,9 @@ project "GLRenderer"
 	language "C++"
 	staticruntime "off"
 
-	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("../obj/" .. outputdir .. "/%{prj.name}")
-	
-	pchheader "GLRendererStdafx.h"
-	pchsource "GLRendererStdafx.cpp"
-	
+	SetupProject("GLRenderer")
+	PrecompiledHeaders("GLRenderer")
+
 	Link("Entity")
 	Link("Utils")
 	Link("Renderer")
@@ -18,35 +15,22 @@ project "GLRenderer"
 	Link("Core")
 	Link("GUI")
 
-	files
-	{
-		"GLRenderer/**.h",
-		"GLRenderer/**.cpp",
-		"GLRenderer/**.inl",
-		"GLRendererStdafx.cpp",
-		"GLRendererStdafx.h",
-		"premake5.lua",
-	}
+	LinkDependency("ImGui")
+	LinkDependency("pugixml")
+	LinkDependency("GLFW")
 
 	includedirs
 	{
-		".",
 		"../Physics",
-		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.Glad}",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.GLI}",
-		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.fmt}",
-		"../%{IncludeDir.ImGui}",
 	}
 
 	links 
 	{ 
-		"GLFW",
 		"Glad",
-		"pugixml",
-		"ImGui",
 		"DevIL-IL",
 	}
 
@@ -60,7 +44,6 @@ project "GLRenderer"
 	filter "system:windows"
 		defines
 		{
-			"BUILD_GLRENDERER_DLL",
 			"IMGUI_API=__declspec(dllimport)",
 		}
 
@@ -76,11 +59,3 @@ project "GLRenderer"
 
 	filter "system:linux"
 		pic "On"
-
-	filter "configurations:Debug"
-		runtime "Debug"
-		symbols "On"
-
-	filter "configurations:Release"
-		runtime "Release"
-		optimize "On"
