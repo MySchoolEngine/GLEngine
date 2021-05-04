@@ -19,7 +19,9 @@ jobs:
       - name: Get X11
         run: sudo apt-get install xorg-dev
       - name: Premake
-        run: ./Tools/Premake5/premake5 gmake2
+        run: | 
+            sudo chmod +x Tools/Premake5/premake5
+            sudo Tools/Premake5/premake5 gmake2
       - name: Build
         run: |
           make Dependencies -j6
