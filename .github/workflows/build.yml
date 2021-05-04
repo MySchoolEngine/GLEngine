@@ -46,7 +46,7 @@ jobs:
       - name: Build
         run: make config=${{ matrix.config.config }} -j6
   msvc:
-    name: MSVC api=glfwapi config=${{ matrix.configuration }}
+    name: MSVC api=${{ matrix.glfwapi }} config=${{ matrix.configuration }}
     runs-on: windows-latest
     strategy:
       fail-fast: false
@@ -68,9 +68,6 @@ jobs:
         run: |
           Invoke-WebRequest -Uri "https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-windows.zip" -OutFile "premake.zip"
           Expand-Archive -Path premake.zip
-      - name: Generate solution
-        shell: cmd
-        run: premake\premake5.exe vs2019
 #      - name: Download artifact
 #        uses: dawidd6/action-download-artifact@v2
 #        with:
