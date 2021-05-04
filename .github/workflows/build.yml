@@ -80,4 +80,4 @@ jobs:
         run: premake\premake5 --glfwapi=${{ matrix.glfwapi }} vs2019
       - name: Build
         shell: cmd
-        run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=${{ matrix.configuration }}'
+        run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=${{ matrix.configuration }} -maxCpuCount'
