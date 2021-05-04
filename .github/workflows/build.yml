@@ -68,13 +68,13 @@ jobs:
         run: |
           Invoke-WebRequest -Uri "https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-windows.zip" -OutFile "premake.zip"
           Expand-Archive -Path premake.zip
-#      - name: Download artifact
-#        uses: dawidd6/action-download-artifact@v2
-#        with:
-#          name: Win-dependencies
-#          workflow: prebuild.yml
-#          workflow_conclusion: success
-#          branch: master
+      - name: Download artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          name: Win-dependencies
+          workflow: prebuild.yml
+          workflow_conclusion: success
+          branch: master
       - name: Generate solution
         shell: cmd
         run: premake\premake5 --glfwapi=${{ matrix.glfwapi }} vs2019
