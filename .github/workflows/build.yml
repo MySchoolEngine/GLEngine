@@ -21,7 +21,7 @@ jobs:
       - name: Get X11
         run: sudo apt-get install xorg-dev
       - name: Premake
-        run: ./Tools/Premake5/premake5
+        run: sudo ./Tools/Premake5/premake5
       - name: Download artifact
         uses: dawidd6/action-download-artifact@v2
         with:
