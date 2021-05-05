@@ -1,6 +1,6 @@
 #include <GLRendererStdafx.h>
 
-#include <GLRenderer/Lights/SunLigth.h>
+#include <GLRenderer/Lights/SunLight.h>
 #include <GLRenderer/Shaders/Generation/ShaderTypesReflection.h>
 
 namespace GLEngine::GLRenderer {
