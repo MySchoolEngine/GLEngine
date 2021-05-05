@@ -3,20 +3,20 @@ project "ImGuiFileDialog"
     language "C++"
     cppdialect "C++17"
     
-	targetdir ("../../../bin/" .. outputdir .. "/vendor/%{prj.name}")
-    objdir ("../../../obj/" .. outputdir .. "/vendor/%{prj.name}")
+	targetdir ("%{wks.location}/bin/" .. outputdir .. "/vendor/%{prj.name}")
+    objdir ("%{wks.location}/obj/" .. outputdir .. "/vendor/%{prj.name}")
 
     includedirs
     {
-        "../../ImGuiFileDialog/ImGuiFileDialog",
-        "../../../%{IncludeDir.ImGui}",
+        "%{wks.location}/vendor/ImGuiFileDialog/ImGuiFileDialog",
+        "%{wks.location}/%{IncludeDir.ImGui}",
         ".",
     }
 
 	files
 	{
-        "../../ImGuiFileDialog/ImGuiFileDialog/*.h",
-        "../../ImGuiFileDialog/ImGuiFileDialog/*.cpp",
+        "%{wks.location}/vendor/ImGuiFileDialog/ImGuiFileDialog/*.h",
+        "%{wks.location}/vendor/ImGuiFileDialog/ImGuiFileDialog/*.cpp",
     }
     
 	filter "system:windows"
@@ -24,7 +24,7 @@ project "ImGuiFileDialog"
         staticruntime "Off"
         includedirs
         {
-            "../../../%{IncludeDir.dirent}",
+            "%{wks.location}/%{IncludeDir.dirent}",
         }
 
     filter "system:linux"
