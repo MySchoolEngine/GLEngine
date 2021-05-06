@@ -3,6 +3,9 @@
 #include <CoreStdafx.h>
 
 #include <Core/EventSystem/Event/InputEvents.h>
+#include <Core/InputDefinitions.h>
+
+#include <Utils/BitField.h>
 
 namespace GLEngine::Core {
 //=================================================================================
@@ -10,13 +13,17 @@ class C_KeyEvent : public C_InputEvent {
 public:
 	inline int GetKeyCode() const { return m_KeyCode; }
 
+	virtual Utils::C_BitField<E_KeyModifiers> GetModifiers() const { return m_Modifiers; }
+
 protected:
-	C_KeyEvent(int keyCode, GUID window)
+	C_KeyEvent(int keyCode, GUID window, Utils::C_BitField<E_KeyModifiers>& modifiers)
 		: C_InputEvent(window)
 		, m_KeyCode(keyCode)
+		, m_Modifiers(modifiers)
 	{
 	}
-	int m_KeyCode;
+	int								  m_KeyCode;
+	Utils::C_BitField<E_KeyModifiers> m_Modifiers;
 
 	virtual Utils::C_BitField<E_EventCategory> GetInputCategory() const override { return E_EventCategory::Keyboard; }
 };

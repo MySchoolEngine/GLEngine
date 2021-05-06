@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Input.h>
+#include <Core/InputDefinitions.h>
 
 #include <GLFWWindowManager/GLFWWindowManagerApi.h>
 
@@ -31,5 +32,7 @@ public:
 protected:
 	GLFWwindow* m_Window;
 };
+
+[[nodiscard]] Utils::C_BitField<Core::E_KeyModifiers> TranslateGLFWModifiers(int mods);
 
 } // namespace GLEngine::GLFWManager

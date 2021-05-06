@@ -61,4 +61,10 @@ glm::vec2 C_GLFWInput::GetClipSpaceMouseCoord() const
 	return {x, y};
 }
 
+//=================================================================================
+Utils::C_BitField<Core::E_KeyModifiers> TranslateGLFWModifiers(int mods)
+{
+	return static_cast<Core::E_KeyModifiers>(mods);
+}
+
 } // namespace GLEngine::GLFWManager

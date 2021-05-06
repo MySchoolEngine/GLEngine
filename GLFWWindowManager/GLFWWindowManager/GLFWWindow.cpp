@@ -4,6 +4,7 @@
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/Event/MouseEvents.h>
 
+#include <GLFWWindowManager/GLFWInput.h>
 #include <GLFWWindowManager/GLFWWindow.h>
 
 namespace GLEngine::GLFWManager {
@@ -105,17 +106,17 @@ void C_GLFWWindow::Init(const Core::S_WindowInfo& wndInfo)
 		S_Data& data = *static_cast<S_Data*>(glfwGetWindowUserPointer(window));
 		if (action == GLFW_PRESS)
 		{
-			Core::C_KeyPressedEvent event(key, data.m_GUID);
+			Core::C_KeyPressedEvent event(key, data.m_GUID, TranslateGLFWModifiers(mods));
 			data.m_EventCallback(event);
 		}
 		if (action == GLFW_REPEAT)
 		{
-			Core::C_KeyRepeatedEvent event(key, data.m_GUID);
+			Core::C_KeyRepeatedEvent event(key, data.m_GUID, TranslateGLFWModifiers(mods));
 			data.m_EventCallback(event);
 		}
 		if (action == GLFW_RELEASE)
 		{
-			Core::C_KeyReleasedEvent event(key, data.m_GUID);
+			Core::C_KeyReleasedEvent event(key, data.m_GUID, TranslateGLFWModifiers(mods));
 			data.m_EventCallback(event);
 		}
 	};
@@ -136,12 +137,12 @@ void C_GLFWWindow::Init(const Core::S_WindowInfo& wndInfo)
 		S_Data& data = *static_cast<S_Data*>(glfwGetWindowUserPointer(window));
 		if (action == GLFW_PRESS)
 		{
-			Core::C_MouseButtonPressed event(button, data.m_GUID);
+			Core::C_MouseButtonPressed event(button, data.m_GUID, TranslateGLFWModifiers(mods));
 			data.m_EventCallback(event);
 		}
 		else
 		{
-			Core::C_MouseButtonReleased event(button, data.m_GUID);
+			Core::C_MouseButtonReleased event(button, data.m_GUID, TranslateGLFWModifiers(mods));
 			data.m_EventCallback(event);
 		}
 	};
