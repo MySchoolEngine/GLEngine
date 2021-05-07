@@ -35,14 +35,14 @@ void C_EditorLayer::OnUpdate()
 	{
 		m_CurveEditing->Draw(m_dd);
 		if (auto camera = m_Camera.lock())
-			m_CurveEditing->OnUpdate(m_Input, *camera.get());
+			m_CurveEditing->OnUpdate(*camera.get());
 	}
 }
 
 //=================================================================================
 void C_EditorLayer::EditCurve(Renderer::C_Curve& curve)
 {
-	m_CurveEditing = std::make_unique<C_CurveEditor>(curve);
+	m_CurveEditing = std::make_unique<C_CurveEditor>(curve, m_Input);
 }
 
 //=================================================================================

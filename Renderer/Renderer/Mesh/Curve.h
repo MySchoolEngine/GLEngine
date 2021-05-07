@@ -10,6 +10,7 @@ public:
 	void					  AddControlPoint(const std::size_t position, const glm::vec3& point);
 	void					  SetControlPoint(const std::size_t position, const glm::vec3& point);
 	void					  RemoveControlPoint(const std::size_t position);
+	void					  RemoveControlPoint(const std::set<std::size_t>& points);
 	[[nodiscard]] glm::vec3	  GetControlPoint(const std::size_t position);
 	[[nodiscard]] std::size_t GetNumControlPoints() const;
 

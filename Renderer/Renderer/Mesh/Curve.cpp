@@ -41,6 +41,12 @@ void C_Curve::RemoveControlPoint(const std::size_t position)
 }
 
 //=================================================================================
+void C_Curve::RemoveControlPoint(const std::set<std::size_t>& points)
+{
+
+}
+
+//=================================================================================
 glm::vec3 C_Curve::GetControlPoint(const std::size_t position)
 {
 	auto it = m_Points.begin();
