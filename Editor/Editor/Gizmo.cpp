@@ -45,6 +45,8 @@ void C_Gizmo::OnUpdate(const Core::I_Input& input, const Renderer::I_CameraCompo
 	mouseHelper.LineSegment(m_Position, m_Position + glm::vec3{1, 0, 0}, [&]() { m_MouseOverDirection = static_cast<E_Direction>(0); });
 	mouseHelper.LineSegment(m_Position, m_Position + glm::vec3{0, 1, 0}, [&]() { m_MouseOverDirection = static_cast<E_Direction>(1); });
 	mouseHelper.LineSegment(m_Position, m_Position + glm::vec3{0, 0, 1}, [&]() { m_MouseOverDirection = static_cast<E_Direction>(2); });
+
+	m_MouseOverDirection.reset();
 }
 
 //=================================================================================
