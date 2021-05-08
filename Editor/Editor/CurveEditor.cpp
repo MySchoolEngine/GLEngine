@@ -116,6 +116,8 @@ bool C_CurveEditor::OnMouseKeyPressed(Core::C_MouseButtonPressed& event)
 {
 	if (event.GetMouseButton() == GLFW_MOUSE_BUTTON_1) // todo correct enum for mouse buttons
 	{
+		if (m_Gizmo && m_Gizmo->IsBeingControlled())
+			return false;
 		// will be adding/removing from the set
 		if (event.GetModifiers() & Core::E_KeyModifiers::Control)
 		{
@@ -136,7 +138,8 @@ bool C_CurveEditor::OnMouseKeyPressed(Core::C_MouseButtonPressed& event)
 				// if one of the points is part of selection than add other
 				// if both are part of the selection than remove both
 				// if (IsPointSelected())
-				if (IsLineSegmentSelected(m_MouseOverLineSegment)) {
+				if (IsLineSegmentSelected(m_MouseOverLineSegment))
+				{
 					RemovePointToSelected(m_MouseOverLineSegment - 1);
 					RemovePointToSelected(m_MouseOverLineSegment);
 				}
@@ -163,6 +166,29 @@ bool C_CurveEditor::OnMouseKeyPressed(Core::C_MouseButtonPressed& event)
 
 
 		// update gizmo update
+		if (m_Selectedpoints.empty())
+		{
+			m_Gizmo.reset();
+		}
+		else
+		{
+			// 1] calculate mean point
+			// 2] update position
+			glm::vec3 meanPoint(0, 0, 0);
+			for (const auto idx : m_Selectedpoints)
+			{
+				meanPoint += m_Curve.GetControlPoint(idx);
+			}
+			meanPoint /= m_Selectedpoints.size();
+			if (!m_Gizmo)
+			{
+				m_Gizmo = C_Gizmo(meanPoint);
+			}
+			else
+			{
+				m_Gizmo->SetPosition(meanPoint);
+			}
+		}
 		return true;
 	}
 	return false;
