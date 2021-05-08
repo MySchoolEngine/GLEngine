@@ -86,11 +86,13 @@ void C_CurveEditor::OnUpdate(const Renderer::I_CameraComponent& camera)
 
 	if (m_Gizmo)
 	{
+		m_Gizmo->OnUpdate(camera, mousePicking);
+
+		std::for_each(m_Selectedpoints.begin(), m_Selectedpoints.end(),
+					  [&](const std::size_t idx) { m_Curve.SetControlPoint(idx, m_Curve.GetControlPoint(idx) + m_Gizmo->GetPositionDiff()); });
+	
 		if (m_Gizmo->IsBeingControlled())
-		{
 			return;
-		}
-		m_Gizmo->OnUpdate(m_Input, camera, mousePicking);
 	}
 
 	const auto mousePosition = m_Input.GetClipSpaceMouseCoord();
@@ -182,7 +184,7 @@ bool C_CurveEditor::OnMouseKeyPressed(Core::C_MouseButtonPressed& event)
 			meanPoint /= m_Selectedpoints.size();
 			if (!m_Gizmo)
 			{
-				m_Gizmo = C_Gizmo(meanPoint);
+				m_Gizmo.emplace(meanPoint, m_Input);
 			}
 			else
 			{
@@ -201,6 +203,7 @@ bool C_CurveEditor::OnKeyPressed(Core::C_KeyPressedEvent& event)
 	{
 		m_Curve.RemoveControlPoint(m_Selectedpoints);
 		m_Selectedpoints.clear();
+		m_Gizmo.reset();
 		return true;
 	}
 	else if (event.GetKeyCode() == GLFW_KEY_A && event.GetModifiers() & Core::E_KeyModifiers::Control)
