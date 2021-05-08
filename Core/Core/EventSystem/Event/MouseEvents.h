@@ -37,8 +37,9 @@ public:
 	{
 	}
 
-	inline float GetPosX() const { return m_PosX; }
-	inline float GetPosY() const { return m_PosY; }
+	[[nodiscard]] inline float	   GetPosX() const { return m_PosX; }
+	[[nodiscard]] inline float	   GetPosY() const { return m_PosY; }
+	[[nodiscard]] inline glm::vec2 GetPosition() const { return {GetPosX(), GetPosY()}; }
 
 	virtual Utils::C_BitField<E_EventCategory> GetInputCategory() const override { return E_EventCategory::Mouse; }
 
