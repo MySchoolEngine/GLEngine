@@ -36,6 +36,7 @@ private:
 	void			   AddPointToSelected(std::size_t idx);
 	void			   RemovePointToSelected(std::size_t idx);
 	[[nodiscard]] bool IsPointSelected(std::size_t idx) const;
+	void			   UpdateGizmoPozition();
 	/**
 	 * Line segments are indexed from 1. Index n means that points n-1 and n is selected.
 	 */

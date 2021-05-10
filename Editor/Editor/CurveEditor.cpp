@@ -167,31 +167,7 @@ bool C_CurveEditor::OnMouseKeyPressed(Core::C_MouseButtonPressed& event)
 			}
 		}
 
-
-		// update gizmo update
-		if (m_Selectedpoints.empty())
-		{
-			m_Gizmo.reset();
-		}
-		else
-		{
-			// 1] calculate mean point
-			// 2] update position
-			glm::vec3 meanPoint(0, 0, 0);
-			for (const auto idx : m_Selectedpoints)
-			{
-				meanPoint += m_Curve.GetControlPoint(idx);
-			}
-			meanPoint /= m_Selectedpoints.size();
-			if (!m_Gizmo)
-			{
-				m_Gizmo.emplace(meanPoint, m_Input);
-			}
-			else
-			{
-				m_Gizmo->SetPosition(meanPoint);
-			}
-		}
+		UpdateGizmoPozition();
 		return true;
 	}
 	return false;
@@ -215,6 +191,20 @@ bool C_CurveEditor::OnKeyPressed(Core::C_KeyPressedEvent& event)
 		{
 			m_Selectedpoints.insert(i);
 		}
+		return true;
+	}
+	else if (event.GetKeyCode() == GLFW_KEY_KP_ADD && event.GetModifiers() & Core::E_KeyModifiers::Control)
+	{
+		// will add one point to the end of the curve at the direction of last two points
+		const auto curveLength	 = m_Curve.GetNumControlPoints();
+		const auto lineBeginning = m_Curve.GetControlPoint(curveLength - 2);
+		const auto lineEnd		 = m_Curve.GetControlPoint(curveLength - 1);
+		const auto newPoint		 = lineEnd + (lineEnd - lineBeginning);
+		m_Curve.AddControlPoint(curveLength, newPoint);
+
+		m_Selectedpoints.clear();
+		m_Selectedpoints.insert(curveLength);
+		UpdateGizmoPozition();
 		return true;
 	}
 	return false;
@@ -242,6 +232,35 @@ void C_CurveEditor::RemovePointToSelected(std::size_t idx)
 bool C_CurveEditor::IsLineSegmentSelected(std::size_t idx) const
 {
 	return IsPointSelected(idx - 1) && IsPointSelected(idx);
+}
+
+//=================================================================================
+void C_CurveEditor::UpdateGizmoPozition()
+{
+	// no gizmo needed
+	if (m_Selectedpoints.empty())
+	{
+		m_Gizmo.reset();
+	}
+	else
+	{
+		// 1] calculate mean point
+		// 2] update position
+		glm::vec3 meanPoint(0, 0, 0);
+		for (const auto idx : m_Selectedpoints)
+		{
+			meanPoint += m_Curve.GetControlPoint(idx);
+		}
+		meanPoint /= m_Selectedpoints.size();
+		if (!m_Gizmo)
+		{
+			m_Gizmo.emplace(meanPoint, m_Input);
+		}
+		else
+		{
+			m_Gizmo->SetPosition(meanPoint);
+		}
+	}
 }
 
 } // namespace GLEngine::Editor
