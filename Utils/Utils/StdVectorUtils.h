@@ -41,7 +41,7 @@ template <class T, class S> [[nodiscard]] bool contains(const std::set<T>& v, co
 }
 
 //=================================================================================
-// Deletes all indexes defined in set from vector. Leverages the advantage of set being 
+// Deletes all indexes defined in set from vector. Leverages the advantage of set being
 // sorted from the smallest to the highest number and continuity of vector storage.
 template <class T, class IdxT> typename std::vector<T>::iterator remove_indices(std::vector<T>& vector, const std::set<IdxT>& set)
 {

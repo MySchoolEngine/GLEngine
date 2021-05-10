@@ -32,9 +32,9 @@ private:
 	bool OnMouseKeyPressed(Core::C_MouseButtonPressed& event);
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
 
-	void				   AddPointToSelected(std::size_t idx);
-	void				   RemovePointToSelected(std::size_t idx);
-	[[nodiscard]] bool	   IsPointSelected(std::size_t idx) const;
+	void			   AddPointToSelected(std::size_t idx);
+	void			   RemovePointToSelected(std::size_t idx);
+	[[nodiscard]] bool IsPointSelected(std::size_t idx) const;
 	/**
 	 * Line segments are indexed from 1. Index n means that points n-1 and n is selected.
 	 */

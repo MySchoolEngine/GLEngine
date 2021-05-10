@@ -90,7 +90,7 @@ void C_CurveEditor::OnUpdate(const Renderer::I_CameraComponent& camera)
 
 		std::for_each(m_Selectedpoints.begin(), m_Selectedpoints.end(),
 					  [&](const std::size_t idx) { m_Curve.SetControlPoint(idx, m_Curve.GetControlPoint(idx) + m_Gizmo->GetPositionDiff()); });
-	
+
 		if (m_Gizmo->IsBeingControlled())
 			return;
 	}
