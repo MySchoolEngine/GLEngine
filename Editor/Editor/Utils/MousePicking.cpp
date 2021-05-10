@@ -19,12 +19,14 @@ namespace GLEngine::Editor {
 // Parameter: const glm::vec2 & mousePosition
 // Parameter: const Renderer::I_CameraComponent & camera
 //************************************
-float ScreenSpaceDistance(const glm::vec3& point, const glm::vec2& mousePosition, const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewPort)
+float ScreenSpaceDistance(const glm::vec3& point, const glm::vec2& mousePosition, const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewPort, float& depth)
 {
 	const auto resolution			 = viewPort.GetResolution();
 	const auto pointOnScreen		 = camera.GetViewProjectionMatrix() * glm::vec4(point, 1.f);
 	const auto clipSpacePoint		 = glm::vec2(pointOnScreen.x * resolution.x, pointOnScreen.y * resolution.y) / pointOnScreen.w;
 	const auto mouseScreenCoordinate = glm::vec2(mousePosition.x * resolution.x, mousePosition.y * resolution.y);
+
+	depth = pointOnScreen.z / pointOnScreen.w;
 
 	return glm::distance(clipSpacePoint, mouseScreenCoordinate);
 }
@@ -34,7 +36,8 @@ float ScreenSpaceDistanceToLine(const glm::vec3&				   a,
 								const glm::vec3&				   b,
 								const glm::vec2&				   mousePosition,
 								const Renderer::I_CameraComponent& camera,
-								const Renderer::C_Viewport&		   viewPort)
+								const Renderer::C_Viewport&		   viewPort,
+								float&							   depth)
 {
 	const auto resolution			 = viewPort.GetResolution();
 	const auto AinFrustum			 = camera.GetViewProjectionMatrix() * glm::vec4(a, 1.f);
@@ -43,6 +46,9 @@ float ScreenSpaceDistanceToLine(const glm::vec3&				   a,
 
 	const auto clipSpaceA = glm::vec2(AinFrustum.x * resolution.x, AinFrustum.y * resolution.y) / AinFrustum.w;
 	const auto clipSpaceB = glm::vec2(BinFrustum.x * resolution.x, BinFrustum.y * resolution.y) / BinFrustum.w;
+
+	// if this doesn't work than save the mean value but it could affect T like intersecting line segments
+	depth = std::min(AinFrustum.z / AinFrustum.w, BinFrustum.z / BinFrustum.w);
 
 	return glm::distance(glm::closestPointOnLine(mouseScreenCoordinate, clipSpaceA, clipSpaceB), mouseScreenCoordinate);
 }
@@ -60,23 +66,24 @@ C_MousePickingHelper::C_MousePickingHelper(const Core::I_Input& input, const Ren
 //=================================================================================
 void C_MousePickingHelper::LineSegment(const glm::vec3& a, const glm::vec3& b, const T_Callback& cb)
 {
+	float	   depth		 = 0.f;
 	const auto mousePosition = m_Input.GetClipSpaceMouseCoord();
-	const auto distance		 = ScreenSpaceDistanceToLine(a, b, mousePosition, m_Camera, m_Viewport);
-	if (distance < s_MaxDistanceToInteraction) // todo should be more tight to pixels than size of clip space
+	const auto distance		 = ScreenSpaceDistanceToLine(a, b, mousePosition, m_Camera, m_Viewport, depth);
+	if (distance < s_MaxDistanceToInteraction)
 	{
-		m_Interactions.emplace_back(distance, 0.0f, cb);
+		m_Interactions.emplace_back(distance, depth, cb);
 	}
 }
 
 //=================================================================================
 void C_MousePickingHelper::Point(const glm::vec3& point, const T_Callback& cb)
 {
-	// TODO DEPTH
+	float	   depth		 = 0.f;
 	const auto mousePosition = m_Input.GetClipSpaceMouseCoord();
-	const auto distance		 = ScreenSpaceDistance(point, mousePosition, m_Camera, m_Viewport);
-	if (distance < s_MaxDistanceToInteraction) // todo should be more tight to pixels than size of clip space
+	const auto distance		 = ScreenSpaceDistance(point, mousePosition, m_Camera, m_Viewport, depth);
+	if (distance < s_MaxDistanceToInteraction)
 	{
-		m_Interactions.emplace_back(distance, 0.0f, cb);
+		m_Interactions.emplace_back(distance, depth, cb);
 	}
 }
 

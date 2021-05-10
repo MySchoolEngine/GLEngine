@@ -10,9 +10,14 @@ class I_CameraComponent;
 } // namespace GLEngine::Renderer
 
 namespace GLEngine::Editor {
-[[nodiscard]] float ScreenSpaceDistance(const glm::vec3& point, const glm::vec2& mousePosition, const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewPort);
 [[nodiscard]] float
-ScreenSpaceDistanceToLine(const glm::vec3& a, const glm::vec3& b, const glm::vec2& mousePosition, const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewPort);
+ScreenSpaceDistance(const glm::vec3& point, const glm::vec2& mousePosition, const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewPort, float& depth);
+[[nodiscard]] float ScreenSpaceDistanceToLine(const glm::vec3&					 a,
+											  const glm::vec3&					 b,
+											  const glm::vec2&					 mousePosition,
+											  const Renderer::I_CameraComponent& camera,
+											  const Renderer::C_Viewport&		 viewPort,
+											  float&							 depth);
 
 class C_MousePickingHelper {
 public:
