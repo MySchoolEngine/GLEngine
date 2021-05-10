@@ -38,15 +38,17 @@ private:
 
 	// some structure with distance, depth and interactionID
 	struct Interaction {
-		Interaction(float _distance, float _depth, const T_Callback& _cb)
+		Interaction(float _distance, float _depth, std::uint8_t _priority, const T_Callback& _cb)
 			: distance(_distance)
 			, depth(_depth)
+			, priority(_priority)
 			, cb(_cb)
 		{
 		}
-		float	   distance;
-		float	   depth;
-		T_Callback cb;
+		float		 distance;
+		float		 depth;
+		std::uint8_t priority; //< higher priority is preferred over the lower one
+		T_Callback	 cb;
 	};
 	std::vector<Interaction> m_Interactions;
 

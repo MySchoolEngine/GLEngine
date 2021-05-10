@@ -71,7 +71,7 @@ void C_MousePickingHelper::LineSegment(const glm::vec3& a, const glm::vec3& b, c
 	const auto distance		 = ScreenSpaceDistanceToLine(a, b, mousePosition, m_Camera, m_Viewport, depth);
 	if (distance < s_MaxDistanceToInteraction)
 	{
-		m_Interactions.emplace_back(distance, depth, cb);
+		m_Interactions.emplace_back(distance, depth, 1, cb);
 	}
 }
 
@@ -83,7 +83,7 @@ void C_MousePickingHelper::Point(const glm::vec3& point, const T_Callback& cb)
 	const auto distance		 = ScreenSpaceDistance(point, mousePosition, m_Camera, m_Viewport, depth);
 	if (distance < s_MaxDistanceToInteraction)
 	{
-		m_Interactions.emplace_back(distance, depth, cb);
+		m_Interactions.emplace_back(distance, depth, 2, cb);
 	}
 }
 
@@ -91,7 +91,12 @@ void C_MousePickingHelper::Point(const glm::vec3& point, const T_Callback& cb)
 bool C_MousePickingHelper::SelectInteraction()
 {
 	std::sort(m_Interactions.begin(), m_Interactions.end(), [](const auto a, const auto b) {
-		if (std::abs(a.distance - b.distance) <= 1e-4f)
+		const auto difference = std::abs(a.distance - b.distance);
+		if (difference <= 5.f)
+		{
+			return a.priority > b.priority;
+		}
+		if (difference <= 1e-4f)
 		{
 			return a.depth < b.depth;
 		}
