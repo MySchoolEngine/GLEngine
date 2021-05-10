@@ -33,13 +33,45 @@ template <typename T, typename S> void removeIndicesFromVector(std::vector<T>& v
 	return removeIndicesFromVector(v, std::begin(rm), std::end(rm));
 }
 
-template<class T, class S>
-[[nodiscard]] bool contains(const std::set<T>& v, const S& val)
+template <class T, class S> [[nodiscard]] bool contains(const std::set<T>& v, const S& val)
 {
 	if (v.find(val) != v.end())
 		return true;
 	return false;
 }
 
+template <class T, class IdxT> typename std::vector<T>::iterator remove_indices(std::vector<T>& vector, const std::set<IdxT>& set)
+{
+	if (set.empty())
+	{
+		return vector.end();
+	}
+
+	auto	   nextDelete		= set.begin();
+	const auto destinationIndex = *nextDelete;
+	auto	   destination		= vector.begin();
+	auto	   source			= vector.begin();
+	std::advance(destination, destinationIndex);
+	std::advance(source, destinationIndex + 1);
+	++nextDelete;
+	auto sourceIndex = destinationIndex + 1;
+	while (destination != vector.end() - set.size())
+	{
+		while (nextDelete != set.end())
+		{
+			if (sourceIndex == *nextDelete)
+			{
+				++source;
+				++nextDelete;
+				++sourceIndex;
+			}
+		}
+		*destination = std::move(*source);
+		++destination;
+		++source;
+		++sourceIndex;
+	}
+	return destination;
+}
 
 } // namespace GLEngine::Utils
