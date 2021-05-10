@@ -7,6 +7,7 @@
 #include <Renderer/DebugDraw.h>
 #include <Renderer/ICameraComponent.h>
 #include <Renderer/Mesh/Curve.h>
+#include <Renderer/Viewport.h>
 
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/Event/MouseEvents.h>
@@ -80,9 +81,9 @@ void C_CurveEditor::Draw(Renderer::I_DebugDraw& dd) const
 }
 
 //=================================================================================
-void C_CurveEditor::OnUpdate(const Renderer::I_CameraComponent& camera)
+void C_CurveEditor::OnUpdate(const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewport)
 {
-	C_MousePickingHelper mousePicking(m_Input, camera);
+	C_MousePickingHelper mousePicking(m_Input, camera, viewport);
 
 	if (m_Gizmo)
 	{

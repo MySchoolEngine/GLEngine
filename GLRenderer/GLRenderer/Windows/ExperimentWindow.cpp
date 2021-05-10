@@ -69,7 +69,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	, m_ShadowPass(nullptr)
 	, m_GUITexts({{GUI::C_FormatedText("Avg frame time {:.2f}"), GUI::C_FormatedText("Avg fps {:.2f}"), GUI::C_FormatedText("Min/max frametime {:.2f}/{:.2f}")}})
 	, m_Windows(std::string("Windows"))
-	, m_EditorLayer(*&C_DebugDraw::Instance(), GetInput())
+	, m_EditorLayer(*&C_DebugDraw::Instance(), GetInput(), {0,0, GetSize()}) //< viewport could be different from windowsize in the future
 {
 	glfwMakeContextCurrent(m_Window);
 
@@ -386,6 +386,8 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 	depthStencilTexture->SetDimensions({event.GetWidth(), event.GetHeight()});
 	depthStencilTexture->SetInternalFormat(Renderer::E_TextureFormat::D16, GL_DEPTH_COMPONENT);
 	depthStencilTexture->unbind();
+
+	m_EditorLayer.SetViewport({0, 0, GetSize()});
 
 	return true;
 }

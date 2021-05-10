@@ -10,11 +10,12 @@
 namespace GLEngine::Editor {
 
 //=================================================================================
-C_EditorLayer::C_EditorLayer(Renderer::I_DebugDraw& dd, const Core::I_Input& directInput)
+C_EditorLayer::C_EditorLayer(Renderer::I_DebugDraw& dd, const Core::I_Input& directInput, const Renderer::C_Viewport& viewport)
 	: Core::C_Layer("Editor Layer")
 	, m_dd(dd)
 	, m_Input(directInput)
 	, m_CurveEditing(nullptr)
+	, m_Viewport(viewport)
 {
 }
 
@@ -35,7 +36,7 @@ void C_EditorLayer::OnUpdate()
 	{
 		m_CurveEditing->Draw(m_dd);
 		if (auto camera = m_Camera.lock())
-			m_CurveEditing->OnUpdate(*camera.get());
+			m_CurveEditing->OnUpdate(*camera.get(), m_Viewport);
 	}
 }
 
@@ -49,6 +50,12 @@ void C_EditorLayer::EditCurve(Renderer::C_Curve& curve)
 void C_EditorLayer::SetCamera(std::shared_ptr<Renderer::I_CameraComponent> camera)
 {
 	m_Camera = camera;
+}
+
+//=================================================================================
+void C_EditorLayer::SetViewport(const Renderer::C_Viewport& viewport)
+{
+	m_Viewport = viewport;
 }
 
 }; // namespace GLEngine::Editor

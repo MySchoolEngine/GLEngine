@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Renderer/Viewport.h>
+
 namespace GLEngine::Core {
 class I_Input;
 }
@@ -8,12 +10,13 @@ class I_CameraComponent;
 } // namespace GLEngine::Renderer
 
 namespace GLEngine::Editor {
-[[nodiscard]] float ScreenSpaceDistance(const glm::vec3& point, const glm::vec2& mousePosition, const Renderer::I_CameraComponent& camera);
-[[nodiscard]] float ScreenSpaceDistanceToLine(const glm::vec3& a, const glm::vec3& b, const glm::vec2& mousePosition, const Renderer::I_CameraComponent& camera);
+[[nodiscard]] float ScreenSpaceDistance(const glm::vec3& point, const glm::vec2& mousePosition, const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewPort);
+[[nodiscard]] float
+ScreenSpaceDistanceToLine(const glm::vec3& a, const glm::vec3& b, const glm::vec2& mousePosition, const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewPort);
 
 class C_MousePickingHelper {
 public:
-	C_MousePickingHelper(const Core::I_Input& input, const Renderer::I_CameraComponent& camera);
+	C_MousePickingHelper(const Core::I_Input& input, const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewPort);
 
 	// will be called when the interaction will be selected
 	using T_Callback = std::function<void()>;
@@ -26,6 +29,7 @@ public:
 private:
 	const Core::I_Input&			   m_Input;
 	const Renderer::I_CameraComponent& m_Camera;
+	const Renderer::C_Viewport		   m_Viewport;
 
 	// some structure with distance, depth and interactionID
 	struct Interaction {
@@ -40,5 +44,7 @@ private:
 		T_Callback cb;
 	};
 	std::vector<Interaction> m_Interactions;
+
+	inline const static float s_MaxDistanceToInteraction = 35.f; //< in pixels
 };
 } // namespace GLEngine::Editor
