@@ -165,7 +165,7 @@ void C_ExplerimentWindow::Update()
 	{
 		using namespace Commands;
 		m_renderer->AddCommand(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth));
-		m_renderer->AddCommand(std::make_unique<C_GLViewport>(0, 0, GetWidth(), GetHeight()));
+		m_renderer->AddCommand(std::make_unique<C_GLViewport>(Renderer::C_Viewport(0, 0, GetSize())));
 	}
 	m_HDRFBO->Bind<E_FramebufferTarget::Read>();
 

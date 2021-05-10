@@ -159,7 +159,7 @@ void C_SunShadowMapTechnique::Render(const Entity::C_EntityManager& world, Rende
 	{
 		using namespace Commands;
 		renderer.AddCommand(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth));
-		renderer.AddCommand(std::make_unique<C_GLViewport>(0, 0, s_ShadowMapSize, s_ShadowMapSize));
+		renderer.AddCommand(std::make_unique<C_GLViewport>(Renderer::C_Viewport(0, 0, GetZBuffer()->GetDimensions())));
 		renderer.AddCommand(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Back));
 	}
 

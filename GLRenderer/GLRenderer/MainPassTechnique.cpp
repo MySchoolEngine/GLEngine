@@ -56,7 +56,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 		RenderDoc::C_DebugScope s("Window prepare");
 		using namespace Commands;
 		renderer.AddCommand(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth));
-		renderer.AddCommand(std::make_unique<C_GLViewport>(0, 0, widht, height));
+		renderer.AddCommand(std::make_unique<C_GLViewport>(Renderer::C_Viewport(0, 0, widht, height)));
 		if (static_cast<C_OGLRenderer*>(&renderer)->WantWireframe())
 		{
 			renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([&]() { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }, "Change polygon mode"));
