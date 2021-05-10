@@ -2,6 +2,7 @@
 
 #include <Renderer/Mesh/Curve.h>
 
+#include <Utils/StdVectorUtils.h>
 
 namespace GLEngine::Renderer {
 
@@ -43,7 +44,7 @@ void C_Curve::RemoveControlPoint(const std::size_t position)
 //=================================================================================
 void C_Curve::RemoveControlPoint(const std::set<std::size_t>& points)
 {
-
+	m_Points.erase(Utils::remove_indices(m_Points, points), m_Points.end());
 }
 
 //=================================================================================
