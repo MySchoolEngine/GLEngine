@@ -7,12 +7,10 @@
 namespace GLEngine::Renderer {
 
 //=================================================================================
-C_Curve::C_Curve()
-{
-}
+C_Curve::C_Curve() = default;
 
 //=================================================================================
-void C_Curve::AddControlPoint(const std::size_t position, const glm::vec3& point)
+void C_Curve::AddControlPoint(const std::size_t position, const C_Curve::T_PointT& point)
 {
 	auto it = m_Points.begin();
 	std::advance(it, position);
@@ -26,7 +24,7 @@ void C_Curve::ForEachControlPoint(const T_ControlPointFn& fn)
 }
 
 //=================================================================================
-void C_Curve::SetControlPoint(const std::size_t position, const glm::vec3& point)
+void C_Curve::SetControlPoint(const std::size_t position, const C_Curve::T_PointT& point)
 {
 	auto it = m_Points.begin();
 	std::advance(it, position);
@@ -48,7 +46,7 @@ void C_Curve::RemoveControlPoint(const std::set<std::size_t>& points)
 }
 
 //=================================================================================
-glm::vec3 C_Curve::GetControlPoint(const std::size_t position)
+C_Curve::T_PointT C_Curve::GetControlPoint(const std::size_t position) const
 {
 	auto it = m_Points.begin();
 	std::advance(it, position);

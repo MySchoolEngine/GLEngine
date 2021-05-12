@@ -87,7 +87,7 @@ void C_CurveEditor::Draw(Renderer::I_DebugDraw& dd) const
 	slider.Draw();
 	ImGui::End();
 
-	Renderer::C_CurveFunction fnc(m_Curve);
+	Renderer::C_LinearCurveInterpolation fnc(m_Curve);
 
 	dd.DrawPoint(fnc.GetPointInTime(slider.GetValue()), Colours::yellow);
 
