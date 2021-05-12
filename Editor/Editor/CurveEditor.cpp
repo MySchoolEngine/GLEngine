@@ -1,4 +1,4 @@
-#include <EditorStdAfx.h>
+#include <EditorStdafx.h>
 
 #include <Editor/CurveEditor.h>
 #include <Editor/Utils/MousePicking.h>
@@ -9,6 +9,8 @@
 #include <Renderer/Mesh/Curve.h>
 #include <Renderer/Viewport.h>
 
+#include <GUI/Input/Slider.h>
+
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/Event/MouseEvents.h>
 #include <Core/EventSystem/EventDispatcher.h>
@@ -17,6 +19,7 @@
 #include <Utils/StdVectorUtils.h>
 
 #include <GLFW/glfw3.h>
+#include <imgui.h>
 
 namespace GLEngine::Editor {
 
@@ -76,6 +79,18 @@ void C_CurveEditor::Draw(Renderer::I_DebugDraw& dd) const
 
 		++i;
 	});
+
+	static GUI::Input::C_Slider slider(0.f, 0.f, 1.f, "Progress");
+
+	ImGui::Begin("CurveEditor");
+
+	slider.Draw();
+	ImGui::End();
+
+	Renderer::C_CurveFunction fnc(m_Curve);
+
+	dd.DrawPoint(fnc.GetPointInTime(slider.GetValue()), Colours::yellow);
+
 	if (m_Gizmo)
 		m_Gizmo->Draw(dd);
 }
