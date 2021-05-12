@@ -16,7 +16,7 @@ public:
 	virtual Utils::C_BitField<E_KeyModifiers> GetModifiers() const { return m_Modifiers; }
 
 protected:
-	C_KeyEvent(int keyCode, GUID window, Utils::C_BitField<E_KeyModifiers>& modifiers)
+	C_KeyEvent(int keyCode, GUID window, Utils::C_BitField<E_KeyModifiers> modifiers)
 		: C_InputEvent(window)
 		, m_KeyCode(keyCode)
 		, m_Modifiers(modifiers)

@@ -60,7 +60,7 @@ public:
 	virtual Utils::C_BitField<E_KeyModifiers> GetModifiers() const { return m_Modifiers; }
 
 protected:
-	C_MouseButtonEvent(int button, GUID window, Utils::C_BitField<E_KeyModifiers>& modifiers)
+	C_MouseButtonEvent(int button, GUID window, Utils::C_BitField<E_KeyModifiers> modifiers)
 		: C_InputEvent(window)
 		, m_button(button)
 		, m_Modifiers(modifiers)
