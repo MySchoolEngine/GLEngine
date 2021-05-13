@@ -1,6 +1,7 @@
 #include <RendererStdafx.h>
 
 #include <Renderer/Materials/Material.h>
+#include <Renderer/Mesh/Scene.h>
 
 #include <imgui.h>
 

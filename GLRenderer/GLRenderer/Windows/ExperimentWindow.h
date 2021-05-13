@@ -8,6 +8,8 @@
 #include <GLRenderer/ShadowMapPass.h>
 #include <GLRenderer/Textures/Texture.h>
 
+#include <Renderer/Mesh/Curve.h>
+
 #include <GUI/GUIWindow.h>
 #include <GUI/Input/CheckBoxValue.h>
 #include <GUI/Input/Slider.h>
@@ -21,6 +23,8 @@
 #include <Core/EventSystem/LayerStack.h>
 
 #include <Utils/HighResolutionTimer.h>
+
+#include <Editor/EditorLayer.h>
 
 namespace GLEngine::Core {
 class C_AppEvent;
@@ -99,6 +103,9 @@ private:
 
 	std::unique_ptr<C_Framebuffer>				m_HDRFBO;
 	std::shared_ptr<Mesh::C_StaticMeshResource> m_ScreenQuad;
+
+	Renderer::C_Curve	  m_Curve;
+	Editor::C_EditorLayer m_EditorLayer;
 };
 
 } // namespace Windows

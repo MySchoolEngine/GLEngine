@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Core/CoreApi.h>
-
 #include <Core/EventSystem/Event.h>
 
 namespace GLEngine::Core {

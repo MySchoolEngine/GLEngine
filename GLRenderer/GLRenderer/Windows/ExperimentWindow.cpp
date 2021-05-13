@@ -69,6 +69,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	, m_ShadowPass(nullptr)
 	, m_GUITexts({{GUI::C_FormatedText("Avg frame time {:.2f}"), GUI::C_FormatedText("Avg fps {:.2f}"), GUI::C_FormatedText("Min/max frametime {:.2f}/{:.2f}")}})
 	, m_Windows(std::string("Windows"))
+	, m_EditorLayer(*&C_DebugDraw::Instance(), GetInput(), {0,0, GetSize()}) //< viewport could be different from windowsize in the future
 {
 	glfwMakeContextCurrent(m_Window);
 
@@ -77,11 +78,17 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	m_ImGUI = new C_GLImGUILayer(m_ID);
 	m_ImGUI->OnAttach(); // manual call for now.
 	m_LayerStack.PushLayer(m_ImGUI);
+	m_LayerStack.PushLayer(&m_EditorLayer);
 	m_LayerStack.PushLayer(&m_CamManager);
 
 	m_VSync.SetName("Lock FPS");
 
 	Entity::C_ComponentManager::Instance();
+
+	for (int i = 0; i <= 10; ++i)
+		m_Curve.AddControlPoint(i, glm::vec3(0.1 * i, 1 + std::sin(0.1 * i * glm::two_pi<double>()), 0));
+
+	m_EditorLayer.EditCurve(m_Curve);
 }
 
 //=================================================================================
@@ -95,11 +102,13 @@ C_ExplerimentWindow::~C_ExplerimentWindow()
 //=================================================================================
 void C_ExplerimentWindow::Update()
 {
+	m_EditorLayer.SetCamera(m_CamManager.GetActiveCamera());
+	m_ImGUI->FrameBegin();
+	m_LayerStack.OnUpdate();
+
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.Reset();
 	Shaders::C_ShaderManager::Instance().Update();
-	m_ImGUI->FrameBegin();
-	m_ImGUI->OnUpdate();
 	// MouseSelect();
 	C_DebugDraw::Instance().DrawAxis(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0, 1.f, 0.0f), glm::vec3(0.f, 0.f, 1.f));
 
@@ -156,7 +165,7 @@ void C_ExplerimentWindow::Update()
 	{
 		using namespace Commands;
 		m_renderer->AddCommand(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth));
-		m_renderer->AddCommand(std::make_unique<C_GLViewport>(0, 0, GetWidth(), GetHeight()));
+		m_renderer->AddCommand(std::make_unique<C_GLViewport>(Renderer::C_Viewport(0, 0, GetSize())));
 	}
 	m_HDRFBO->Bind<E_FramebufferTarget::Read>();
 
@@ -377,6 +386,8 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 	depthStencilTexture->SetDimensions({event.GetWidth(), event.GetHeight()});
 	depthStencilTexture->SetInternalFormat(Renderer::E_TextureFormat::D16, GL_DEPTH_COMPONENT);
 	depthStencilTexture->unbind();
+
+	m_EditorLayer.SetViewport({0, 0, GetSize()});
 
 	return true;
 }

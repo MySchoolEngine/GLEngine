@@ -3,6 +3,7 @@
 #include <CoreStdafx.h>
 
 #include <Core/EventSystem/Event/InputEvents.h>
+#include <Core/InputDefinitions.h>
 
 namespace GLEngine::Core {
 
@@ -36,8 +37,9 @@ public:
 	{
 	}
 
-	inline float GetPosX() const { return m_PosX; }
-	inline float GetPosY() const { return m_PosY; }
+	[[nodiscard]] inline float	   GetPosX() const { return m_PosX; }
+	[[nodiscard]] inline float	   GetPosY() const { return m_PosY; }
+	[[nodiscard]] inline glm::vec2 GetPosition() const { return {GetPosX(), GetPosY()}; }
 
 	virtual Utils::C_BitField<E_EventCategory> GetInputCategory() const override { return E_EventCategory::Mouse; }
 
@@ -55,14 +57,18 @@ public:
 
 	virtual Utils::C_BitField<E_EventCategory> GetInputCategory() const override { return E_EventCategory::Mouse | E_EventCategory::MouseButton; }
 
+	virtual Utils::C_BitField<E_KeyModifiers> GetModifiers() const { return m_Modifiers; }
+
 protected:
-	C_MouseButtonEvent(int button, GUID window)
+	C_MouseButtonEvent(int button, GUID window, Utils::C_BitField<E_KeyModifiers> modifiers)
 		: C_InputEvent(window)
 		, m_button(button)
+		, m_Modifiers(modifiers)
 	{
 	}
 
-	int m_button;
+	int								  m_button;
+	Utils::C_BitField<E_KeyModifiers> m_Modifiers;
 };
 
 //=============================================================

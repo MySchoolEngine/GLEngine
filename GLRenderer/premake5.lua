@@ -14,6 +14,7 @@ project "GLRenderer"
 	Link("GLFWWindowManager")
 	Link("Core")
 	Link("GUI")
+	Link("Editor")
 
 	LinkDependency("ImGui")
 	LinkDependency("pugixml")

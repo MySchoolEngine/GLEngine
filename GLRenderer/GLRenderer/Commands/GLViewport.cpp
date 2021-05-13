@@ -5,23 +5,15 @@
 namespace GLEngine::GLRenderer::Commands {
 
 //=================================================================================
-C_GLViewport::C_GLViewport(int x, int y, int widht, int height)
-	: m_coord(x, y)
-	, m_Dimensions(widht, height)
-{
-}
-
-//=================================================================================
-C_GLViewport::C_GLViewport(glm::ivec2 coord, int widht, int height)
-	: m_coord(coord)
-	, m_Dimensions(widht, height)
+C_GLViewport::C_GLViewport(const Renderer::C_Viewport& viewport)
+	: m_viewport(viewport)
 {
 }
 
 //=================================================================================
 void C_GLViewport::Commit()
 {
-	glViewport(m_coord.x, m_coord.y, m_Dimensions.x, m_Dimensions.y);
+	glViewport(m_viewport.GetCoordinates().x, m_viewport.GetCoordinates().y, m_viewport.GetResolution().x, m_viewport.GetResolution().y);
 }
 
 //=================================================================================
@@ -39,7 +31,7 @@ std::shared_ptr<Renderer::I_Resource> C_GLViewport::GetResource() const
 //=================================================================================
 std::string C_GLViewport::GetDescriptor() const
 {
-	return fmt::format("GLViewport pos: {} size: {}", m_coord, m_Dimensions);
+	return fmt::format("GLViewport pos: {} size: {}", m_viewport.GetCoordinates(), m_viewport.GetResolution());
 }
 
 } // namespace GLEngine::GLRenderer::Commands

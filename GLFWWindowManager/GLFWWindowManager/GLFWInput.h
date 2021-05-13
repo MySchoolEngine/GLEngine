@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Input.h>
+#include <Core/InputDefinitions.h>
 
 #include <GLFWWindowManager/GLFWWindowManagerApi.h>
 
@@ -24,11 +25,14 @@ public:
 	 * Top left = (0,0)
 	 */
 	[[nodiscard]] virtual std::pair<float, float> GetMousePosition() const override;
+	[[nodiscard]] virtual glm::vec2				  GetClipSpaceMouseCoord() const override;
 	[[nodiscard]] virtual float					  GetMouseX() const override;
 	[[nodiscard]] virtual float					  GetMouseY() const override;
 
 protected:
 	GLFWwindow* m_Window;
 };
+
+[[nodiscard]] Utils::C_BitField<Core::E_KeyModifiers> TranslateGLFWModifiers(int mods);
 
 } // namespace GLEngine::GLFWManager

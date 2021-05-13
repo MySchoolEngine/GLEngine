@@ -25,6 +25,7 @@
 
 namespace GLEngine::GLRenderer {
 
+// TODO: broken as hell
 //=================================================================================
 C_ShadowMapTechnique::C_ShadowMapTechnique(std::shared_ptr<Entity::C_EntityManager> world, std::shared_ptr<Renderer::I_Light>& light)
 	: m_WorldToRender(world)
@@ -107,7 +108,8 @@ void C_ShadowMapTechnique::Render()
 		RenderDoc::C_DebugScope s("Shadow map prepare");
 		using namespace Commands;
 		renderer.AddCommand(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth));
-		renderer.AddCommand(std::make_unique<C_GLViewport>(0, 0, 512, 512));
+		Renderer::C_Viewport shadowMapViewPort(0, 0, 512, 512);
+		renderer.AddCommand(std::make_unique<C_GLViewport>(shadowMapViewPort));
 		renderer.AddCommand(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Back));
 	}
 
