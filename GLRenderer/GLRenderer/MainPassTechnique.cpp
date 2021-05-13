@@ -128,8 +128,8 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				m_LightsUBO->GetSunLight().m_LightViewProjection = m_SunViewProjection;
 				m_LightsUBO->GetSunLight().m_SunShadowMap		 = m_SunShadowMap;
 
-				C_DebugDraw::Instance().DrawPoint(sunLight->GetSunDirection(), {1.f, 1.f, 0.f});
-				C_DebugDraw::Instance().DrawLine({0.f, 0.f, 0.f}, sunLight->GetSunDirection(), {1.f, 1.f, 0.f});
+				C_DebugDraw::Instance().DrawPoint(sunLight->GetSunDirection(), Colours::yellow);
+				C_DebugDraw::Instance().DrawLine({0.f, 0.f, 0.f}, sunLight->GetSunDirection(), Colours::yellow);
 			}
 		}
 	}

@@ -32,8 +32,8 @@ public:
 
 	virtual Physics::Primitives::S_AABB GetAABB() const override;
 
-	[[nodiscard]] glm::vec3 DiffuseColour() const;
-	[[nodiscard]] glm::vec3 SpecularColour() const;
+	[[nodiscard]] Colours::T_Colour DiffuseColour() const;
+	[[nodiscard]] Colours::T_Colour SpecularColour() const;
 
 	void DebugDraw(I_DebugDraw* dd) const;
 

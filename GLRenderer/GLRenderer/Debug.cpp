@@ -147,14 +147,14 @@ void C_DebugDraw::Clear()
 }
 
 //=================================================================================
-void C_DebugDraw::DrawPoint(const glm::vec3& point, const glm::vec3& color, const glm::mat4& modelMatrix)
+void C_DebugDraw::DrawPoint(const glm::vec3& point, const Colours::T_Colour& color, const glm::mat4& modelMatrix)
 {
-	m_PointsVertices.push_back(modelMatrix * toVec4(point));
+	m_PointsVertices.emplace_back(modelMatrix * toVec4(point));
 	m_PointsColors.push_back(color);
 }
 
 //=================================================================================
-void C_DebugDraw::DrawAABB(const Physics::Primitives::S_AABB& bbox, const glm::vec3& color /*= glm::vec3(0.0f, 0.0f, 0.0f)*/, const glm::mat4& modelMatrix /*= glm::mat4(1.0f)*/)
+void C_DebugDraw::DrawAABB(const Physics::Primitives::S_AABB& bbox, const Colours::T_Colour& color, const glm::mat4& modelMatrix)
 {
 	auto& shdManager = Shaders::C_ShaderManager::Instance();
 	auto  program	 = Shaders::C_ShaderManager::Instance().GetProgram(s_DebugShaderName);
@@ -169,17 +169,17 @@ void C_DebugDraw::DrawAABB(const Physics::Primitives::S_AABB& bbox, const glm::v
 }
 
 //=================================================================================
-void C_DebugDraw::DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, const glm::vec3& color /*= glm::vec3(0.0f, 0.0f, 0.0f)*/)
+void C_DebugDraw::DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, const Colours::T_Colour& color)
 {
-	m_LinesVertices.push_back(toVec4(pointA));
-	m_LinesVertices.push_back(toVec4(pointB));
+	m_LinesVertices.emplace_back(toVec4(pointA));
+	m_LinesVertices.emplace_back(toVec4(pointB));
 	// we need two copies as we have two vertices
 	m_LinesColors.push_back(color);
 	m_LinesColors.push_back(color);
 }
 
 //=================================================================================
-void C_DebugDraw::DrawLines(const std::vector<glm::vec4>& pairs, const glm::vec3& color)
+void C_DebugDraw::DrawLines(const std::vector<glm::vec4>& pairs, const Colours::T_Colour& color)
 {
 	m_LinesVertices.insert(m_LinesVertices.end(), pairs.begin(), pairs.end());
 	m_LinesColors.insert(m_LinesColors.end(), pairs.size(), color);
@@ -218,8 +218,8 @@ void C_DebugDraw::DrawBone(const glm::vec3& position, const Renderer::Animation:
 	const glm::vec3 Offset2	 = bitangent * bumpSize;
 
 
-	DrawLine(position, BumpPosition, glm::vec3(1, 1, 1));
-	DrawLine(BumpPosition, dest, glm::vec3(0, 1, 0));
+	DrawLine(position, BumpPosition, Colours::white);
+	DrawLine(BumpPosition, dest, Colours::green);
 
 	// square around the bump
 	DrawLine(BumpPosition + Offset1 + Offset2, BumpPosition + Offset1 - Offset2);
@@ -264,9 +264,9 @@ void C_DebugDraw::DrawAxis(const glm::vec3& origin, const glm::vec3& up, const g
 {
 	glm::vec3  rightVec			  = toVec4(glm::normalize(glm::cross(glm::vec3(up), glm::vec3(foreward))));
 	const auto originInModelSpace = modelMatrix * glm::vec4(origin, 1.0f);
-	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + foreward), 1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + up), 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + rightVec), 1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + foreward), 1.0f), Colours::blue);
+	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + up), 1.0f), Colours::green);
+	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + rightVec), 1.0f), Colours::red);
 }
 
 //=================================================================================
@@ -290,7 +290,7 @@ void C_DebugDraw::DrawGrid(const glm::vec4& origin, unsigned short linesToSide, 
 }
 
 //=================================================================================
-void C_DebugDraw::DrawFrustum(const Physics::Primitives::C_Frustum& frust, const glm::vec3& color)
+void C_DebugDraw::DrawFrustum(const Physics::Primitives::C_Frustum& frust, const Colours::T_Colour& color)
 {
 	const auto& position = frust.GetPosition();
 	const auto& upVector = frust.GetUpVector();
@@ -352,8 +352,8 @@ void C_DebugDraw::DrawFrustum(const Physics::Primitives::C_Frustum& frust, const
 
 	DrawLines(lines, color);
 	DrawPoint(position);
-	DrawLine(position, position + forward, glm::vec3(0, 1, 0));
-	DrawLine(position, position + upVector, glm::vec3(1, 0, 0));
+	DrawLine(position, position + forward, Colours::green);
+	DrawLine(position, position + upVector, Colours::red);
 }
 
 //=================================================================================

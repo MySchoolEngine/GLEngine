@@ -1,7 +1,8 @@
 #pragma once
 
-#include <Physics/Primitives/AABB.h>
+#include <Renderer/Colours.h>
 
+#include <Physics/Primitives/AABB.h>
 
 namespace GLEngine::Renderer::MeshData {
 
@@ -42,8 +43,8 @@ struct AnimationData {
 
 //=================================================================================
 struct Light {
-	std::string m_name;
-	glm::vec3	m_Color;
+	std::string		  m_name;
+	Colours::T_Colour m_Color;
 };
 
 // Texture

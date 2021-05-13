@@ -16,7 +16,7 @@ namespace GLEngine::Renderer {
 C_PointLight::C_PointLight(std::shared_ptr<Entity::I_Entity> owner)
 	: Renderer::I_Light(owner)
 	, m_Intensity(1.f, 0.f, 100.f, "Intensity")
-	, m_Color("Color", {1.f, 1.f, 1.f})
+	, m_Color("Color", Colours::white)
 {
 }
 
@@ -52,7 +52,7 @@ float C_PointLight::GetIntensity() const
 }
 
 //=================================================================================
-glm::vec3 C_PointLight::GetColor() const
+Colours::T_Colour C_PointLight::GetColor() const
 {
 	return m_Color.GetValue();
 }
