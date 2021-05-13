@@ -85,8 +85,10 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 
 	Entity::C_ComponentManager::Instance();
 
-	for (int i = 0; i <= 10; ++i)
-		m_Curve.AddControlPoint(i, glm::vec3(0.1 * i, 1 + std::sin(0.1 * i * glm::two_pi<double>()), 0));
+	const auto numPoints = 12;
+	const auto part		 = 1.0 / numPoints;
+	for (int i = 0; i <= numPoints; ++i)
+		m_Curve.AddControlPoint(i, glm::vec3(part * i, 1 + std::sin(part * i * glm::two_pi<double>()), 0));
 
 	m_EditorLayer.EditCurve(m_Curve);
 }
