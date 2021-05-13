@@ -29,6 +29,7 @@ C_CurveEditor::C_CurveEditor(Renderer::C_Curve& curve, const Core::I_Input& inpu
 	, m_Input(input)
 	, m_MouseOverPoint(-1)
 	, m_MouseOverLineSegment(-1)
+	, m_interpol(curve)
 {
 }
 
@@ -87,9 +88,16 @@ void C_CurveEditor::Draw(Renderer::I_DebugDraw& dd) const
 	slider.Draw();
 	ImGui::End();
 
-	Renderer::C_LinearCurveInterpolation fnc(m_Curve);
+	// Renderer::C_BezierCurveInterpolation fnc(m_Curve);
 
-	dd.DrawPoint(fnc.GetPointInTime(slider.GetValue()), Colours::yellow);
+	dd.DrawPoint(m_interpol.GetPointInTime(slider.GetValue()), Colours::yellow);
+
+	const auto numPoints = 100;
+	const auto part		 = 1.0 / numPoints;
+	for (int i = 0; i < numPoints; ++i)
+	{
+		dd.DrawLine(m_interpol.GetPointInTime(part * i), m_interpol.GetPointInTime(part * (i + 1)), Colours::white);
+	}
 
 	if (m_Gizmo)
 		m_Gizmo->Draw(dd);
@@ -127,6 +135,8 @@ void C_CurveEditor::OnUpdate(const Renderer::I_CameraComponent& camera, const Re
 	m_MouseOverLineSegment = -1;
 
 	mousePicking.SelectInteraction();
+
+	m_interpol = m_Curve;
 }
 
 //=================================================================================

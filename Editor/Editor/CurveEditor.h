@@ -3,6 +3,8 @@
 #include <Editor/EditorApi.h>
 #include <Editor/Gizmo.h>
 
+#include <Renderer/Mesh/Curve.h>
+
 #include <Core/EventSystem/EventReciever.h>
 
 namespace GLEngine::Core {
@@ -49,5 +51,7 @@ private:
 	std::set<std::size_t> m_Selectedpoints;
 
 	int m_MouseOverLineSegment;
+
+	Renderer::C_BezierCurveInterpolation<Renderer::C_Curve> m_interpol;
 };
 } // namespace GLEngine::Editor
