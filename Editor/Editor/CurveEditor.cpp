@@ -135,8 +135,6 @@ void C_CurveEditor::OnUpdate(const Renderer::I_CameraComponent& camera, const Re
 	m_MouseOverLineSegment = -1;
 
 	mousePicking.SelectInteraction();
-
-	m_interpol = m_Curve;
 }
 
 //=================================================================================
