@@ -171,11 +171,17 @@ void C_DebugDraw::DrawAABB(const Physics::Primitives::S_AABB& bbox, const Colour
 //=================================================================================
 void C_DebugDraw::DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, const Colours::T_Colour& color)
 {
+	DrawLine(pointA, pointB, color, color);
+}
+
+//=================================================================================
+void C_DebugDraw::DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, const Colours::T_Colour& colorA, const Colours::T_Colour& colorB)
+{
 	m_LinesVertices.emplace_back(toVec4(pointA));
 	m_LinesVertices.emplace_back(toVec4(pointB));
 	// we need two copies as we have two vertices
-	m_LinesColors.push_back(color);
-	m_LinesColors.push_back(color);
+	m_LinesColors.push_back(colorA);
+	m_LinesColors.push_back(colorB);
 }
 
 //=================================================================================
