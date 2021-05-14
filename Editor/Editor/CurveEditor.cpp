@@ -8,6 +8,7 @@
 #include <Renderer/ICameraComponent.h>
 #include <Renderer/Mesh/Curve.h>
 #include <Renderer/Viewport.h>
+#include <Renderer/Render/CurveRenderer.h>
 
 #include <GUI/Input/Slider.h>
 
@@ -92,12 +93,9 @@ void C_CurveEditor::Draw(Renderer::I_DebugDraw& dd) const
 
 	dd.DrawPoint(m_interpol.GetPointInTime(slider.GetValue()), Colours::yellow);
 
-	const auto numPoints = 100;
-	const auto part		 = 1.0 / numPoints;
-	for (int i = 0; i < numPoints; ++i)
-	{
-		dd.DrawLine(m_interpol.GetPointInTime(part * i), m_interpol.GetPointInTime(part * (i + 1)), Colours::white);
-	}
+	Renderer::C_3DCurveRenderer curveRenderer(dd);
+
+	curveRenderer.Draw(m_interpol, Colours::black, Colours::white, 100);
 
 	if (m_Gizmo)
 		m_Gizmo->Draw(dd);

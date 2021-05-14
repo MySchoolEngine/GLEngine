@@ -27,6 +27,7 @@ class I_DebugDraw {
 public:
 	virtual void DrawPoint(const glm::vec3& point, const Colours::T_Colour& color = Colours::black, const glm::mat4& modelMatrix = glm::mat4(1.0f))					= 0;
 	virtual void DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, const Colours::T_Colour& color = Colours::black)										= 0;
+	virtual void DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, const Colours::T_Colour& colorA, const Colours::T_Colour& colorB)						= 0;
 	virtual void DrawLines(const std::vector<glm::vec4>& pairs, const Colours::T_Colour& color = Colours::black)													= 0;
 	virtual void DrawAABB(const Physics::Primitives::S_AABB& bbox, const Colours::T_Colour& color = Colours::black, const glm::mat4& modelMatrix = glm::mat4(1.0f)) = 0;
 	virtual void DrawAxis(const glm::vec3& origin, const glm::vec3& up, const glm::vec3& foreward, const glm::mat4& modelMatrix = glm::mat4(1.0f))					= 0;

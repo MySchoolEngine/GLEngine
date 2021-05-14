@@ -30,7 +30,7 @@ public:
 };
 
 // This class is doing the linear interpolation
-template <class CurveT> class C_LinearCurveInterpolation : I_CurveFunction<typename CurveT::T_PointT> {
+template <class CurveT> class C_LinearCurveInterpolation : public I_CurveFunction<typename CurveT::T_PointT> {
 public:
 	C_LinearCurveInterpolation(const CurveT& curve);
 	[[nodiscard]] typename CurveT::T_PointT GetPointInTime(float t) const override;
@@ -39,7 +39,7 @@ private:
 	const CurveT& m_Curve;
 };
 
-template <class CurveT> class C_BezierCurveInterpolation : I_CurveFunction<typename CurveT::T_PointT> {
+template <class CurveT> class C_BezierCurveInterpolation : public I_CurveFunction<typename CurveT::T_PointT> {
 public:
 	explicit C_BezierCurveInterpolation(const CurveT& curve);
 
@@ -47,7 +47,7 @@ public:
 
 private:
 	typename CurveT::T_PointT evalBezierCurve(const std::array<typename CurveT::T_PointT, 4>& points, const float& t) const;
-	const CurveT& m_Curve;
+	const CurveT&			  m_Curve;
 };
 } // namespace GLEngine::Renderer
 
