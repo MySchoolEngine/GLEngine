@@ -30,7 +30,7 @@ C_CurveEditor::C_CurveEditor(Renderer::C_Curve& curve, const Core::I_Input& inpu
 	, m_Input(input)
 	, m_MouseOverPoint(-1)
 	, m_MouseOverLineSegment(-1)
-	, m_interpol(curve)
+	, m_interpol(curve, true)
 {
 }
 

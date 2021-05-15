@@ -29,27 +29,31 @@ template <class CurveT> typename CurveT::T_PointT C_LinearCurveInterpolation<Cur
 // C_BezierCurveInterpolation
 //=================================================================================
 template <class CurveT>
-C_BezierCurveInterpolation<CurveT>::C_BezierCurveInterpolation(const CurveT& curve)
+C_BezierCurveInterpolation<CurveT>::C_BezierCurveInterpolation(const CurveT& curve, bool looped)
 	: m_Curve(curve)
+	, m_Looped(looped)
 {
 }
 
 //=================================================================================
 template <class CurveT> typename CurveT::T_PointT C_BezierCurveInterpolation<CurveT>::GetPointInTime(float t) const
 {
-	if (t >= 1.0f) // case of t>=1.0
+	if (t >= 1.0f && !m_Looped) // case of t>=1.0
 	{
 		return m_Curve.GetControlPoint(m_Curve.GetNumControlPoints() - 1);
 	}
-	const auto								 ncurves  = 1 + (m_Curve.GetNumControlPoints() - 4) / 3;
-	const auto								 denomT	  = t * ncurves;
-	const auto								 curve	  = static_cast<std::size_t>(denomT);
-	const auto								 tInCurve = denomT - curve;
+	const auto curveNumPoints = m_Curve.GetNumControlPoints();
+	const auto ncurves		  = 1 + (curveNumPoints - (m_Looped ? 3 : 4)) / 3;
+	const auto denomT		  = t * ncurves;
+	const auto curve		  = static_cast<std::size_t>(denomT);
+	const auto tInCurve		  = denomT - curve;
+	const auto firstPoint	  = curve * 3;
+
 	std::array<typename CurveT::T_PointT, 4> pts;
-	pts[0] = m_Curve.GetControlPoint(curve * 3);
-	pts[1] = m_Curve.GetControlPoint(curve * 3 + 1);
-	pts[2] = m_Curve.GetControlPoint(curve * 3 + 2);
-	pts[3] = m_Curve.GetControlPoint(curve * 3 + 3);
+	pts[0] = m_Curve.GetControlPoint(firstPoint % curveNumPoints);
+	pts[1] = m_Curve.GetControlPoint((firstPoint + 1) % curveNumPoints);
+	pts[2] = m_Curve.GetControlPoint((firstPoint + 2) % curveNumPoints);
+	pts[3] = m_Curve.GetControlPoint((firstPoint + 3) % curveNumPoints);
 
 	return evalBezierCurve(pts, tInCurve);
 }

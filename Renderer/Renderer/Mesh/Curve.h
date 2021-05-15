@@ -41,14 +41,15 @@ private:
 
 template <class CurveT> class C_BezierCurveInterpolation : public I_CurveFunction<typename CurveT::T_PointT> {
 public:
-	explicit C_BezierCurveInterpolation(const CurveT& curve);
+	explicit C_BezierCurveInterpolation(const CurveT& curve, bool looped = false);
 
 	[[nodiscard]] typename CurveT::T_PointT GetPointInTime(float t) const override;
-
 private:
 	typename CurveT::T_PointT evalBezierCurve(const std::array<typename CurveT::T_PointT, 4>& points, const float& t) const;
 	const CurveT&			  m_Curve;
+	bool					  m_Looped;
 };
+
 } // namespace GLEngine::Renderer
 
 #include <Renderer/Mesh/Curve.inl>
