@@ -2,25 +2,25 @@ project "irrXML"
     kind "StaticLib"
     language "C++"
     
-	targetdir ("../../../bin/" .. outputdir .. "/vendor/%{prj.name}")
-    objdir ("../../../obj/" .. outputdir .. "/vendor/%{prj.name}")
+	targetdir ("%{wks.location}/bin/" .. outputdir .. "/vendor/%{prj.name}")
+    objdir ("%{wks.location}/obj/" .. outputdir .. "/vendor/%{prj.name}")
 
     includedirs
     {
-        "../../Assimp/contrib/irrXML",
-        "../../Assimp/include",
+        "%{wks.location}/vendor/Assimp/contrib/irrXML",
+        "%{wks.location}/vendor/Assimp/include",
         "../Assimp", -- config.h
     }
 
 	files
 	{
-		"../../Assimp/contrib/irrXML/CXMLReaderImpl.h",
-		"../../Assimp/contrib/irrXML/heapsort.h",
-		"../../Assimp/contrib/irrXML/irrArray.h",
-		"../../Assimp/contrib/irrXML/irrString.h",
-		"../../Assimp/contrib/irrXML/irrTypes.h",
-		"../../Assimp/contrib/irrXML/irrXML.cpp",
-		"../../Assimp/contrib/irrXML/irrXML.h",
+		"%{wks.location}/vendor/Assimp/contrib/irrXML/CXMLReaderImpl.h",
+		"%{wks.location}/vendor/Assimp/contrib/irrXML/heapsort.h",
+		"%{wks.location}/vendor/Assimp/contrib/irrXML/irrArray.h",
+		"%{wks.location}/vendor/Assimp/contrib/irrXML/irrString.h",
+		"%{wks.location}/vendor/Assimp/contrib/irrXML/irrTypes.h",
+		"%{wks.location}/vendor/Assimp/contrib/irrXML/irrXML.cpp",
+		"%{wks.location}/vendor/Assimp/contrib/irrXML/irrXML.h",
     }
     
 	filter "system:windows"
@@ -28,7 +28,7 @@ project "irrXML"
 
         postbuildcommands
         {
-            ("{COPY} %{cfg.buildtarget.relpath} \"../../../bin/" .. outputdir .. "/Sandbox/\"")
+            ("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\"")
         }
         defines
         {

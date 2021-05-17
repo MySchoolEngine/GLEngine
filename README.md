@@ -44,12 +44,12 @@ This repository is open for contribution. You can start by reading [this](CONTRI
 ## Architecure
 [![Architecture](https://github.com/RohacekD/GLEngine/blob/master/wikidata/Architecture.svg)](https://lucid.app/lucidchart/invitations/accept/d2772b03-bc43-4301-b71a-b145bfef3e73)
 
-## PathTracing
-![CornellBox](https://github.com/RohacekD/GLEngine/blob/master/wikidata/PathTraced.png)
-
 *  Red lines denote wrong dependencies
 *  Blue lines denote opposite dependencies
 *  The dashed line denotes planned dependency
+
+## PathTracing
+![CornellBox](https://github.com/RohacekD/GLEngine/blob/master/wikidata/PathTraced.png)
 
 ## Licensing
 License can be found in [LICENSE](LICENSE)
