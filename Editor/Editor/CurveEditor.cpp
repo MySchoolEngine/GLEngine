@@ -31,10 +31,10 @@ C_CurveEditor::C_CurveEditor(Renderer::C_Curve& curve, const Core::I_Input& inpu
 	, m_MouseOverPoint(-1)
 	, m_MouseOverLineSegment(-1)
 	, m_interpol(std::make_unique<Renderer::C_LinearCurveInterpolation<Renderer::C_Curve>>(m_Curve))
-	, m_Select("Interpolation type", 0, "Linear")
+	, m_Select("Interpolation type", E_InterpolationType::Linear, "Linear")
 {
-	m_Select.AddValue(1, "Bezier");
-	m_Select.AddValue(2, "Smooth Bezier");
+	m_Select.AddValue(E_InterpolationType::Bezier, "Bezier");
+	m_Select.AddValue(E_InterpolationType::SmoothBezier, "Smooth Bezier");
 }
 
 //=================================================================================
@@ -109,10 +109,13 @@ void C_CurveEditor::OnUpdate(const Renderer::I_CameraComponent& camera, const Re
 	{
 		switch (m_Select.GetSelectedValue())
 		{
-		case 1:
+		case E_InterpolationType::Bezier:
 			m_interpol = std::make_unique<Renderer::C_BezierCurveInterpolation<Renderer::C_Curve>>(m_Curve, true);
 			break;
-		case 0:
+		case E_InterpolationType::SmoothBezier:
+			m_interpol = std::make_unique<Renderer::C_SmoothBezierCurveInterpolation<Renderer::C_Curve>>(m_Curve, true);
+			break;
+		case E_InterpolationType::Linear:
 		default:
 			m_interpol = std::make_unique<Renderer::C_LinearCurveInterpolation<Renderer::C_Curve>>(m_Curve);
 			break;

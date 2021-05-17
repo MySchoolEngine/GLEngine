@@ -49,7 +49,15 @@ private:
 	std::optional<C_Gizmo> m_Gizmo;
 	const Core::I_Input&   m_Input;
 
-	GUI::Input::C_Select<int> m_Select;
+
+	enum class E_InterpolationType
+	{
+		Linear,
+		Bezier,
+		SmoothBezier,
+	};
+
+	GUI::Input::C_Select<E_InterpolationType> m_Select;
 
 	int					  m_MouseOverPoint;
 	std::set<std::size_t> m_Selectedpoints;
