@@ -2,6 +2,8 @@
 
 #include <GUI/GUIPart.h>
 
+#include <string_view>
+
 namespace GLEngine::GUI::Input {
 
 template <class Key> class C_Select : public I_GUIPart {

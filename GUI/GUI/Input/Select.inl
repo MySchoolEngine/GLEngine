@@ -22,7 +22,7 @@ template <class Key> bool C_Select<Key>::Changed() const
 //=================================================================================
 template <class Key> const Key& C_Select<Key>::GetSelectedValue() const
 {
-	return m_Selected->second;
+	return m_Selected->first;
 }
 
 //=================================================================================

@@ -5,6 +5,8 @@
 
 #include <Renderer/Mesh/Curve.h>
 
+#include <GUI/Input/Select.h>
+
 #include <Core/EventSystem/EventReciever.h>
 
 namespace GLEngine::Core {
@@ -47,11 +49,13 @@ private:
 	std::optional<C_Gizmo> m_Gizmo;
 	const Core::I_Input&   m_Input;
 
+	GUI::Input::C_Select<int> m_Select;
+
 	int					  m_MouseOverPoint;
 	std::set<std::size_t> m_Selectedpoints;
 
 	int m_MouseOverLineSegment;
 
-	Renderer::C_BezierCurveInterpolation<Renderer::C_Curve> m_interpol;
+	std::unique_ptr<Renderer::I_CurveFunction<glm::vec3>> m_interpol;
 };
 } // namespace GLEngine::Editor
