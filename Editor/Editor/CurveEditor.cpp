@@ -7,6 +7,7 @@
 #include <Renderer/DebugDraw.h>
 #include <Renderer/ICameraComponent.h>
 #include <Renderer/Mesh/Curve.h>
+#include <Renderer/Render/CurveRenderer.h>
 #include <Renderer/Viewport.h>
 
 #include <GUI/Input/Slider.h>
@@ -29,7 +30,11 @@ C_CurveEditor::C_CurveEditor(Renderer::C_Curve& curve, const Core::I_Input& inpu
 	, m_Input(input)
 	, m_MouseOverPoint(-1)
 	, m_MouseOverLineSegment(-1)
+	, m_interpol(std::make_unique<Renderer::C_LinearCurveInterpolation<Renderer::C_Curve>>(m_Curve))
+	, m_Select("Interpolation type", E_InterpolationType::Linear, "Linear")
 {
+	m_Select.AddValue(E_InterpolationType::Bezier, "Bezier");
+	m_Select.AddValue(E_InterpolationType::SmoothBezier, "Smooth Bezier");
 }
 
 //=================================================================================
@@ -83,13 +88,15 @@ void C_CurveEditor::Draw(Renderer::I_DebugDraw& dd) const
 	static GUI::Input::C_Slider slider(0.f, 0.f, 1.f, "Progress");
 
 	ImGui::Begin("CurveEditor");
-
+	m_Select.Draw();
 	slider.Draw();
 	ImGui::End();
 
-	Renderer::C_LinearCurveInterpolation fnc(m_Curve);
+	dd.DrawPoint(m_interpol->GetPointInTime(slider.GetValue()), Colours::yellow);
 
-	dd.DrawPoint(fnc.GetPointInTime(slider.GetValue()), Colours::yellow);
+	Renderer::C_3DCurveRenderer curveRenderer(dd);
+
+	curveRenderer.Draw(*m_interpol, Colours::black, Colours::white, 100);
 
 	if (m_Gizmo)
 		m_Gizmo->Draw(dd);
@@ -98,6 +105,23 @@ void C_CurveEditor::Draw(Renderer::I_DebugDraw& dd) const
 //=================================================================================
 void C_CurveEditor::OnUpdate(const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewport)
 {
+	if (m_Select.Changed())
+	{
+		switch (m_Select.GetSelectedValue())
+		{
+		case E_InterpolationType::Bezier:
+			m_interpol = std::make_unique<Renderer::C_BezierCurveInterpolation<Renderer::C_Curve>>(m_Curve, true);
+			break;
+		case E_InterpolationType::SmoothBezier:
+			m_interpol = std::make_unique<Renderer::C_SmoothBezierCurveInterpolation<Renderer::C_Curve>>(m_Curve, true);
+			break;
+		case E_InterpolationType::Linear:
+		default:
+			m_interpol = std::make_unique<Renderer::C_LinearCurveInterpolation<Renderer::C_Curve>>(m_Curve);
+			break;
+		}
+	}
+
 	C_MousePickingHelper mousePicking(m_Input, camera, viewport);
 
 	if (m_Gizmo)

@@ -84,11 +84,6 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	m_VSync.SetName("Lock FPS");
 
 	Entity::C_ComponentManager::Instance();
-
-	for (int i = 0; i <= 10; ++i)
-		m_Curve.AddControlPoint(i, glm::vec3(0.1 * i, 1 + std::sin(0.1 * i * glm::two_pi<double>()), 0));
-
-	m_EditorLayer.EditCurve(m_Curve);
 }
 
 //=================================================================================
@@ -247,7 +242,7 @@ void C_ExplerimentWindow::OnAppInit()
 		m_renderer->AddCommand(std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::CULL_FACE));
 		m_renderer->AddCommand(std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::BLEND));
 		m_renderer->AddCommand(std::make_unique<HACK::C_LambdaCommand>([]() { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); }));
-		m_renderer->AddCommand(std::make_unique<C_GLClearColor>(glm::vec3(0.0f, 0.0f, 0.0f)));
+		m_renderer->AddCommand(std::make_unique<C_GLClearColor>(Colours::black));
 		m_renderer->AddCommand(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Front));
 	}
 
@@ -463,7 +458,7 @@ void C_ExplerimentWindow::MouseSelect()
 	using namespace Physics::Primitives;
 	const auto ray = camera->GetRay(clipPosition);
 
-	C_PersistentDebug::Instance().DrawLine(ray.origin, ray.origin + ray.direction, glm::vec3(0, 1, 0));
+	C_PersistentDebug::Instance().DrawLine(ray.origin, ray.origin + ray.direction, Colours::green);
 	const S_RayIntersection inter = m_World->Select(ray);
 	if (inter.distance > 0)
 	{

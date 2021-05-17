@@ -104,7 +104,6 @@ private:
 	std::unique_ptr<C_Framebuffer>				m_HDRFBO;
 	std::shared_ptr<Mesh::C_StaticMeshResource> m_ScreenQuad;
 
-	Renderer::C_Curve	  m_Curve;
 	Editor::C_EditorLayer m_EditorLayer;
 };
 

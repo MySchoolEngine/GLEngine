@@ -15,7 +15,7 @@ const auto slReg = []() {
 S_SunLight::S_SunLight()
 	: m_SunPosition(0, 1, 0)
 	, m_SunDiscMultiplier(1.f)
-	, m_SunColor(1.f)
+	, m_SunColor(Colours::white)
 	, m_AsymetricFactor(0.6f)
 	, m_SunShadowMap(0)
 {

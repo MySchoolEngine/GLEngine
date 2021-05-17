@@ -19,7 +19,7 @@ S_AreaLight::S_AreaLight()
 	, m_Height(10.f)
 	, m_Normal(0.f)
 	, m_Intensity(1.0f)
-	, m_Color(1.f)
+	, m_Color(Colours::white)
 {
 }
 

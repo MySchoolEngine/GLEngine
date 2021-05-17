@@ -10,7 +10,7 @@ namespace GLEngine::Renderer {
 //=================================================================================
 C_Material::C_Material(const std::string& name)
 	: m_Name(name)
-	, m_Color(1.f)
+	, m_Color(Colours::white)
 	, m_Roughness(0.5f)
 	, m_ColorMap(nullptr)
 	, m_NormalMap(nullptr)
@@ -24,7 +24,7 @@ C_Material::C_Material(const std::string& name)
 //=================================================================================
 C_Material::C_Material(const MeshData::Material& material)
 	: m_Name(material.m_Name)
-	, m_Color(1.f)
+	, m_Color(Colours::white)
 	, m_Roughness(0.5f)
 	, m_ColorMap(nullptr)
 	, m_NormalMap(nullptr)
@@ -68,7 +68,7 @@ void C_Material::CleanChangeFlag()
 }
 
 //=================================================================================
-void C_Material::SetDiffuseColor(const glm::vec3& color)
+void C_Material::SetDiffuseColor(const Colours::T_Colour& color)
 {
 	m_Color = color;
 }
@@ -96,7 +96,7 @@ void C_Material::SetRoughnessMap(std::shared_ptr<I_DeviceTexture> texture)
 void C_Material::SetColorMap(std::shared_ptr<I_DeviceTexture> texture)
 {
 	m_ColorMap = texture;
-	m_Color	   = glm::vec3(1.0f, 1.0f, 1.0f);
+	m_Color	   = Colours::white;
 }
 
 //=================================================================================

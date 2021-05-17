@@ -15,10 +15,10 @@ public:
 	C_SunLight(std::shared_ptr<Entity::I_Entity> owner);
 	virtual ~C_SunLight();
 
-	[[nodiscard]] glm::vec3 GetSunDirection() const;
-	[[nodiscard]] glm::vec3 GetSunColor() const;
-	[[nodiscard]] float		SunDiscMultiplier() const;
-	[[nodiscard]] float		AtmosphereAsymetricFactor() const;
+	[[nodiscard]] glm::vec3			GetSunDirection() const;
+	[[nodiscard]] Colours::T_Colour GetSunColor() const;
+	[[nodiscard]] float				SunDiscMultiplier() const;
+	[[nodiscard]] float				AtmosphereAsymetricFactor() const;
 
 	[[nodiscard]] Physics::Primitives::C_Frustum GetShadingFrustum() const override;
 	[[nodiscard]] bool							 HasDebugDrawGUI() const override;
