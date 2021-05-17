@@ -84,13 +84,6 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	m_VSync.SetName("Lock FPS");
 
 	Entity::C_ComponentManager::Instance();
-
-	const auto numPoints = 12;
-	const auto part		 = 1.0 / numPoints;
-	for (int i = 0; i <= numPoints; ++i)
-		m_Curve.AddControlPoint(i, glm::vec3(part * i, 1 + std::sin(part * i * glm::two_pi<double>()), 0));
-
-	m_EditorLayer.EditCurve(m_Curve);
 }
 
 //=================================================================================
