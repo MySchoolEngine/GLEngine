@@ -44,10 +44,75 @@ public:
 	explicit C_BezierCurveInterpolation(const CurveT& curve, bool looped = false);
 
 	[[nodiscard]] typename CurveT::T_PointT GetPointInTime(float t) const override;
-private:
+
+protected:
 	typename CurveT::T_PointT evalBezierCurve(const std::array<typename CurveT::T_PointT, 4>& points, const float& t) const;
+	typename CurveT::T_PointT derviBezierCurve(const std::array<typename CurveT::T_PointT, 4>& points, const float& t) const;
 	const CurveT&			  m_Curve;
 	bool					  m_Looped;
+};
+
+template <class CurveT> class C_SmoothBezierCurveInterpolation : public C_BezierCurveInterpolation<CurveT> {
+public:
+	explicit C_SmoothBezierCurveInterpolation(const CurveT& curve, bool looped = false)
+		: C_BezierCurveInterpolation<CurveT>(curve, looped)
+	{
+	}
+
+	[[nodiscard]] typename CurveT::T_PointT GetPointInTime(float t) const override
+	{
+		const auto								 curveNumPoints = m_Curve.GetNumControlPoints();
+
+		if (t >= 1.0f) // case of t>=1.0
+		{
+			return m_Curve.GetControlPoint(m_Curve.GetNumControlPoints() - 1);
+		}
+		std::array<typename CurveT::T_PointT, 4> pts;
+		if (curveNumPoints <= 4)
+		{
+			for (int i = 0; i < 4; ++i)
+			{
+				if (i < curveNumPoints)
+				{
+					pts[i] = m_Curve.GetControlPoint(i);
+				}
+				else
+				{
+					pts[i] = m_Curve.GetControlPoint(curveNumPoints - 1);
+				}
+			}
+
+			return evalBezierCurve(pts, t);
+		}
+		const auto ncurves	  = 1 + (curveNumPoints - 3) / 2;
+		const auto denomT	  = t * ncurves;
+		const auto curve	  = static_cast<std::size_t>(denomT);
+		const auto tInCurve	  = denomT - curve;
+		const auto firstPoint = curve * 3;
+
+		if (curve == 0)
+		{
+			pts[0] = m_Curve.GetControlPoint(0);
+			pts[1] = m_Curve.GetControlPoint(1);
+			pts[2] = m_Curve.GetControlPoint(2);
+			pts[3] = m_Curve.GetControlPoint(3);
+			pts[3] = (pts[2] + pts[3]) / 2.f;
+		}
+		else if (curve == ncurves - 1) {
+			const auto usedPoints = 3 + 2 * (curve - 1);
+			pts[0]				  = (m_Curve.GetControlPoint(usedPoints - 1) + m_Curve.GetControlPoint(usedPoints)) / 2.f;
+			for (int i = 1; i < 4; ++i) {
+				const auto index = usedPoints - 1 + i;
+				pts[i]			 = m_Curve.GetControlPoint((index < curveNumPoints) ? index : curveNumPoints - 1);
+			}
+		}
+		else
+		{
+		
+		}
+
+		return evalBezierCurve(pts, tInCurve);
+	}
 };
 
 } // namespace GLEngine::Renderer

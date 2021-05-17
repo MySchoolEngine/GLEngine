@@ -43,13 +43,33 @@ template <class CurveT> typename CurveT::T_PointT C_BezierCurveInterpolation<Cur
 		return m_Curve.GetControlPoint(m_Curve.GetNumControlPoints() - 1);
 	}
 	const auto curveNumPoints = m_Curve.GetNumControlPoints();
-	const auto ncurves		  = 1 + (curveNumPoints - (m_Looped ? 3 : 4)) / 3;
-	const auto denomT		  = t * ncurves;
-	const auto curve		  = static_cast<std::size_t>(denomT);
-	const auto tInCurve		  = denomT - curve;
-	const auto firstPoint	  = curve * 3;
 
 	std::array<typename CurveT::T_PointT, 4> pts;
+	if (curveNumPoints < 4)
+	{
+		for (int i = 0; i < 4; ++i)
+		{
+			if (i < curveNumPoints)
+			{
+				pts[i] = m_Curve.GetControlPoint(i);
+			}
+			else
+			{
+				pts[i] = m_Curve.GetControlPoint(curveNumPoints - 1);
+			}
+		}
+
+		if (m_Looped)
+			pts[3] = m_Curve.GetControlPoint(0);
+
+		return evalBezierCurve(pts, t);
+	}
+	const auto ncurves	  = 1 + (curveNumPoints - (m_Looped ? 3 : 4)) / 3;
+	const auto denomT	  = t * ncurves;
+	const auto curve	  = static_cast<std::size_t>(denomT);
+	const auto tInCurve	  = denomT - curve;
+	const auto firstPoint = curve * 3;
+
 	pts[0] = m_Curve.GetControlPoint(firstPoint % curveNumPoints);
 	pts[1] = m_Curve.GetControlPoint((firstPoint + 1) % curveNumPoints);
 	pts[2] = m_Curve.GetControlPoint((firstPoint + 2) % curveNumPoints);
@@ -67,4 +87,11 @@ template <class CurveT> typename CurveT::T_PointT C_BezierCurveInterpolation<Cur
 	const float b3 = t * t * t;
 	return points[0] * b0 + points[1] * b1 + points[2] * b2 + points[3] * b3;
 }
+
+//=================================================================================
+template <class CurveT> typename CurveT::T_PointT C_BezierCurveInterpolation<CurveT>::derviBezierCurve(const std::array<typename CurveT::T_PointT, 4>& points, const float& t) const
+{
+	return -3 * (1 - t) * (1 - t) * points[0] + (3 * (1 - t) * (1 - t) - 6 * t * (1 - t)) * points[1] + (6 * t * (1 - t) - 3 * t * t) * points[2] + 3 * t * t * points[3];
+}
+
 } // namespace GLEngine::Renderer
