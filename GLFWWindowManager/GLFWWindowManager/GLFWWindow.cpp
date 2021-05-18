@@ -52,9 +52,7 @@ void C_GLFWWindow::SetTitle(const std::string& title)
 //=================================================================================
 void C_GLFWWindow::Update()
 {
-	glfwMakeContextCurrent(m_Window);
-	glfwSwapBuffers(m_Window);
-	glfwPollEvents();
+	// event polling and buffer swap happens in OpenGL specific implementation
 }
 
 //=================================================================================
@@ -169,8 +167,11 @@ void C_GLFWWindow::Init(const Core::S_WindowInfo& wndInfo)
 	glfwSetCharCallback(m_Window, text_callback);
 	glfwSetWindowSizeCallback(m_Window, resize_window_callback);
 
-	glfwMakeContextCurrent(m_Window);
-	glfwSwapInterval(0);
+	if (m_Driver != Core::E_Driver::Vulkan)
+	{
+		glfwMakeContextCurrent(m_Window);
+		glfwSwapInterval(0);
+	}
 
 	m_Input.SetWindow(m_Window);
 }
