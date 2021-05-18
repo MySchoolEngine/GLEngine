@@ -56,7 +56,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 		RenderDoc::C_DebugScope s("Window prepare");
 		using namespace Commands;
 		renderer.AddCommand(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth));
-		renderer.AddCommand(std::make_unique<C_GLViewport>(0, 0, widht, height));
+		renderer.AddCommand(std::make_unique<C_GLViewport>(Renderer::C_Viewport(0, 0, widht, height)));
 		if (static_cast<C_OGLRenderer*>(&renderer)->WantWireframe())
 		{
 			renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([&]() { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }, "Change polygon mode"));
@@ -128,8 +128,8 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				m_LightsUBO->GetSunLight().m_LightViewProjection = m_SunViewProjection;
 				m_LightsUBO->GetSunLight().m_SunShadowMap		 = m_SunShadowMap;
 
-				C_DebugDraw::Instance().DrawPoint(sunLight->GetSunDirection(), {1.f, 1.f, 0.f});
-				C_DebugDraw::Instance().DrawLine({0.f, 0.f, 0.f}, sunLight->GetSunDirection(), {1.f, 1.f, 0.f});
+				C_DebugDraw::Instance().DrawPoint(sunLight->GetSunDirection(), Colours::yellow);
+				C_DebugDraw::Instance().DrawLine({0.f, 0.f, 0.f}, sunLight->GetSunDirection(), Colours::yellow);
 			}
 		}
 	}

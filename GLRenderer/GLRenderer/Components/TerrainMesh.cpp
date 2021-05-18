@@ -291,8 +291,8 @@ void C_TerrainMesh::DebugDraw()
 		const auto modelMatrix			 = GetModelMatrix();
 		const auto dropPointInModelSpace = modelMatrix * dropPoint;
 
-		debug.DrawPoint(dropPointInModelSpace, glm::vec3(0, 0, 1));
-		debug.DrawLine(dropPointInModelSpace, modelMatrix * (fallPoint), glm::vec3(0, 0, 1));
+		debug.DrawPoint(dropPointInModelSpace, Colours::blue);
+		debug.DrawLine(dropPointInModelSpace, modelMatrix * (fallPoint), Colours::blue);
 	}
 
 	if (m_Selected)

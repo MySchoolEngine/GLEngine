@@ -13,34 +13,25 @@ project "Renderer"
 	Link("Entity")
 	Link("Core")
 	Link("GUI")
+	
+	LinkDependency("Assimp")
+	LinkDependency("ImGui")
+	LinkDependency("pugixml")
 
 	includedirs
 	{
-		"../Core",
-		"../Utils",
 		"../GLRenderer",
 		"../Physics",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.fmt}",
-		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.DevIL}",
-		"../%{IncludeDir.ImGui}",
 
-		"../vendor/Assimp/include",
 		"../vendor/projects/Assimp"
-	}
-
-	libdirs
-	{
-		"../vendor/bin/Debug-windows-x86_64/DevIL-IL/",
 	}
 
 	links 
 	{ 
-		"pugixml",
-		"Assimp",
-		"ImGui",
 		"DevIL-IL",
 	}
 

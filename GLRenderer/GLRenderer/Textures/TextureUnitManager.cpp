@@ -123,4 +123,11 @@ unsigned int C_TextureUnitManger::GetImageUnit(const C_Texture& image) const
 	return it->first;
 }
 
+//=================================================================================
+void C_TextureUnitManger::Reset()
+{
+	m_TextureUnits.clear();
+	m_ImageUnits.clear();
+}
+
 } // namespace GLEngine::GLRenderer::Textures

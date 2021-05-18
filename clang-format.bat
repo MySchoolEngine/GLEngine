@@ -9,6 +9,7 @@ CALL :runClang GUI
 CALL :runClang Entity
 CALL :runClang GLFWWindowManager
 CALL :runClang VulkanRenderer
+CALL :runClang Editor
 
 cd Data
 cd Shaders

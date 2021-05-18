@@ -69,6 +69,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	, m_ShadowPass(nullptr)
 	, m_GUITexts({{GUI::C_FormatedText("Avg frame time {:.2f}"), GUI::C_FormatedText("Avg fps {:.2f}"), GUI::C_FormatedText("Min/max frametime {:.2f}/{:.2f}")}})
 	, m_Windows(std::string("Windows"))
+	, m_EditorLayer(*&C_DebugDraw::Instance(), GetInput(), {0,0, GetSize()}) //< viewport could be different from windowsize in the future
 {
 	glfwMakeContextCurrent(m_Window);
 
@@ -77,6 +78,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	m_ImGUI = new C_GLImGUILayer(m_ID);
 	m_ImGUI->OnAttach(); // manual call for now.
 	m_LayerStack.PushLayer(m_ImGUI);
+	m_LayerStack.PushLayer(&m_EditorLayer);
 	m_LayerStack.PushLayer(&m_CamManager);
 
 	m_VSync.SetName("Lock FPS");
@@ -95,9 +97,13 @@ C_ExplerimentWindow::~C_ExplerimentWindow()
 //=================================================================================
 void C_ExplerimentWindow::Update()
 {
-	Shaders::C_ShaderManager::Instance().Update();
+	m_EditorLayer.SetCamera(m_CamManager.GetActiveCamera());
 	m_ImGUI->FrameBegin();
-	m_ImGUI->OnUpdate();
+	m_LayerStack.OnUpdate();
+
+	auto& tm = Textures::C_TextureUnitManger::Instance();
+	tm.Reset();
+	Shaders::C_ShaderManager::Instance().Update();
 	// MouseSelect();
 	C_DebugDraw::Instance().DrawAxis(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0, 1.f, 0.0f), glm::vec3(0.f, 0.f, 1.f));
 
@@ -154,18 +160,18 @@ void C_ExplerimentWindow::Update()
 	{
 		using namespace Commands;
 		m_renderer->AddCommand(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth));
-		m_renderer->AddCommand(std::make_unique<C_GLViewport>(0, 0, GetWidth(), GetHeight()));
+		m_renderer->AddCommand(std::make_unique<C_GLViewport>(Renderer::C_Viewport(0, 0, GetSize())));
 	}
+	m_HDRFBO->Bind<E_FramebufferTarget::Read>();
 
 	auto HDRTexture = m_HDRFBO->GetAttachement(GL_COLOR_ATTACHMENT0);
 	auto worldDepth = m_HDRFBO->GetAttachement(GL_DEPTH_ATTACHMENT);
 
-	auto& tm = Textures::C_TextureUnitManger::Instance();
-	tm.BindTextureToUnit(*(HDRTexture.get()), 0);
-	tm.BindTextureToUnit(*(worldDepth.get()), 1);
-
 	auto shader = shmgr.GetProgram("screenQuad");
 	shmgr.ActivateShader(shader);
+
+	tm.BindTextureToUnit(*(HDRTexture.get()), 0);
+	tm.BindTextureToUnit(*(worldDepth.get()), 1);
 
 	m_renderer->AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[this, shader]() {
@@ -180,6 +186,7 @@ void C_ExplerimentWindow::Update()
 
 	shmgr.DeactivateShader();
 
+	m_HDRFBO->Unbind<E_FramebufferTarget::Read>();
 	{
 		RenderDoc::C_DebugScope s("ImGUI");
 		m_renderer->AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([this, shader]() { m_ImGUI->FrameEnd(); }, "m_ImGUI->FrameEnd"));
@@ -235,7 +242,7 @@ void C_ExplerimentWindow::OnAppInit()
 		m_renderer->AddCommand(std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::CULL_FACE));
 		m_renderer->AddCommand(std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::BLEND));
 		m_renderer->AddCommand(std::make_unique<HACK::C_LambdaCommand>([]() { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); }));
-		m_renderer->AddCommand(std::make_unique<C_GLClearColor>(glm::vec3(0.0f, 0.0f, 0.0f)));
+		m_renderer->AddCommand(std::make_unique<C_GLClearColor>(Colours::black));
 		m_renderer->AddCommand(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Front));
 	}
 
@@ -375,6 +382,8 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 	depthStencilTexture->SetInternalFormat(Renderer::E_TextureFormat::D16, GL_DEPTH_COMPONENT);
 	depthStencilTexture->unbind();
 
+	m_EditorLayer.SetViewport({0, 0, GetSize()});
+
 	return true;
 }
 
@@ -449,7 +458,7 @@ void C_ExplerimentWindow::MouseSelect()
 	using namespace Physics::Primitives;
 	const auto ray = camera->GetRay(clipPosition);
 
-	C_PersistentDebug::Instance().DrawLine(ray.origin, ray.origin + ray.direction, glm::vec3(0, 1, 0));
+	C_PersistentDebug::Instance().DrawLine(ray.origin, ray.origin + ray.direction, Colours::green);
 	const S_RayIntersection inter = m_World->Select(ray);
 	if (inter.distance > 0)
 	{

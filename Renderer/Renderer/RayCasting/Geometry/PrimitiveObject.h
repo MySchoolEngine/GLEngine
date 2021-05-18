@@ -2,6 +2,7 @@
 
 #include <Renderer/RayCasting/Geometry/GeometryTraits.h>
 #include <Renderer/RayCasting/Geometry/SceneGeometry.h>
+#include <Renderer/RayCasting/RayIntersection.h>
 
 #include <Physics/Primitives/Disc.h>
 #include <Physics/Primitives/Plane.h>

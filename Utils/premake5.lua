@@ -8,22 +8,13 @@ project "Utils"
 
 	SetupProject("Utils")
 
+	LinkDependency("pugixml")
+
 	includedirs
 	{
 		"../Core",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.GLM}",
-		"../%{IncludeDir.pugixml}",
-	}
-
-	links 
-	{ 
-		"pugixml",
-	}
-
-	defines
-	{
-		"BUILD_UTILS_DLL",
 	}
 
 	filter "system:windows"

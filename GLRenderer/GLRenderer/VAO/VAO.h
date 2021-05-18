@@ -81,4 +81,3 @@ private:
 	}
 };
 } // namespace GLEngine::GLRenderer::VAO
-#include <GLRenderer/VAO/VAO.inl>

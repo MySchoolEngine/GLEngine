@@ -33,7 +33,6 @@ void C_FrameConstantsBuffer::UploadData() const
 {
 	const auto matSize			 = sizeof(glm::mat4);
 	const auto vecSize			 = sizeof(glm::vec4);
-	const auto vec3Size			 = sizeof(glm::vec3);
 	const auto viewProjectionMat = m_ProjectionMat * m_ViewMat;
 	const auto floatSize		 = sizeof(float);
 	bind();

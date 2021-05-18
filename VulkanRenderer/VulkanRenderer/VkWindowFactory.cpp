@@ -1,4 +1,4 @@
-#include <VkRendererStdafx.h>
+#include <VulkanRendererStdafx.h>
 
 #include <VulkanRenderer/VkWindow.h>
 #include <VulkanRenderer/VkWindowFactory.h>
@@ -26,7 +26,7 @@ Core::I_WindowFactory* ConstructVkWindowFactory()
 }
 
 //=================================================================================
-VK_RENDERER_API_EXPORT C_VkWindowManager* ConstructVkWManager(Core::C_Application::EventCallbackFn eventCallback)
+C_VkWindowManager* ConstructVkWManager(Core::C_Application::EventCallbackFn eventCallback)
 {
 	return new C_VkWindowManager(eventCallback);
 }

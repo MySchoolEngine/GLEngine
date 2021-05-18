@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Core/Application.h>
-#include <Core/CoreMacros.h>
 #include <Core/EventSystem/Layer.h>
 #include <Core/WindowInfo.h>
 

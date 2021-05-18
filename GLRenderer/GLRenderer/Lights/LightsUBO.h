@@ -3,7 +3,7 @@
 #include <GLRenderer/Buffers/UniformBuffer.h>
 #include <GLRenderer/Lights/AreaLightStruct.h>
 #include <GLRenderer/Lights/PointLightStruct.h>
-#include <GLRenderer/Lights/SunLigth.h>
+#include <GLRenderer/Lights/SunLight.h>
 
 namespace GLEngine::GLRenderer {
 namespace Textures {
