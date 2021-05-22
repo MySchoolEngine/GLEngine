@@ -11,6 +11,8 @@ CALL :runClang GLFWWindowManager
 CALL :runClang VulkanRenderer
 CALL :runClang Editor
 
+cd ..
+cd ..
 cd Data
 cd Shaders
 @for /R "." %%I in (*.glsl) do @clang-format -style=file -i --verbose "%%I" 
