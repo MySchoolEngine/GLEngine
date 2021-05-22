@@ -48,7 +48,7 @@ workspace "Engine"
 	workspace_files{
 		"vendor/GLM/util/glm.natvis",
 		"premake5.lua",
-		"premakeDefines.lua",
+		"Tools/Premake5/premakeDefines.lua",
 		"Tools/Premake5/workspaceFiles.lua",
 	}
 
@@ -93,7 +93,7 @@ workspace "Engine"
 		optimize "On"
 		defines({ "NDEBUG" })
 
-include "premakeDefines.lua"
+include "Tools/Premake5/premakeDefines.lua"
 
 IncludeDir = {}
 IncludeDir["GLFW"] = "vendor/GLFW/include"
