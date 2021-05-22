@@ -53,7 +53,7 @@ function LinkDependency(depName)
 	{
 		depName,
 	}
-	if _TARGET_OS == "windows" then
+	if _TARGET_OS == "windows" and NonDllLib[depName] == nil then
 		postbuildcommands
 		{
 			("{COPY} \"%{wks.location}/bin/" .. outputdir .. "/vendor/" .. depName .. "/".. depName ..".dll\" \"%{cfg.buildtarget.directory}\"")

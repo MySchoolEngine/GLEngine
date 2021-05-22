@@ -108,6 +108,11 @@ IncludeDir["DevIL"] = "vendor/DevIL/DevIL/include"
 IncludeDir["dirent"] = "vendor/dirent/include"
 IncludeDir["Assimp"] = "vendor/Assimp/include"
 
+-- could be header only or static lib
+NonDllLib = {}
+NonDllLib["pugixml"] = true
+NonDllLib["GLFW"] = true
+
 group "Dependencies"
   include "vendor/GLFW"
   include "vendor/Glad"

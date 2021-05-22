@@ -6,9 +6,9 @@ project "DX12Renderer"
 	staticruntime "off"
 
 	SetupProject("DX12Renderer")
-	
+
 	PrecompiledHeaders("DX12Renderer")
-	
+
 	Link("Entity")
 	Link("Utils")
 	Link("Renderer")
