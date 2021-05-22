@@ -5,42 +5,28 @@ project "DX12Renderer"
 	language "C++"
 	staticruntime "off"
 
-	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("../obj/" .. outputdir .. "/%{prj.name}")
+	SetupProject("DX12Renderer")
 	
-	pchheader "DX12RendererStdafx.h"
-	pchsource "DX12RendererStdafx.cpp"
+	PrecompiledHeaders("DX12Renderer")
 	
 	Link("Entity")
 	Link("Utils")
 	Link("Renderer")
 	Link("Core")
 
-	files
-	{
-		"DX12Renderer/**.h",
-		"DX12Renderer/**.cpp",
-		"DX12Renderer/**.inl",
-		"DX12RendererStdafx.cpp",
-		"DX12RendererStdafx.h",
-		"premake5.lua",
-	}
+	LinkDependency("pugixml")
 
 	includedirs
 	{
-		".",
 		"../Physics",
 		"C:/Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/shared",
 		"C:/Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/um",
-		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.GLM}",
 	}
 
 	links 
 	{ 
-		"pugixml",
-
 		-- DX Stuff
 		"d3d12",
    		"dxgi",
@@ -48,13 +34,9 @@ project "DX12Renderer"
 	}
 
 	filter "system:windows"
-		defines
-		{
-			"BUILD_DX12RENDERER_DLL",
-		}
 
 		postbuildcommands
 		{
-			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
+			("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\""),
 		}
 
