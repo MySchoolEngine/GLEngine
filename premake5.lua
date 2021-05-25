@@ -48,7 +48,7 @@ workspace "Engine"
 	workspace_files{
 		"vendor/GLM/util/glm.natvis",
 		"premake5.lua",
-		"premakeDefines.lua",
+		"Tools/Premake5/premakeDefines.lua",
 		"Tools/Premake5/workspaceFiles.lua",
 	}
 
@@ -93,7 +93,7 @@ workspace "Engine"
 		optimize "On"
 		defines({ "NDEBUG" })
 
-include "premakeDefines.lua"
+include "Tools/Premake5/premakeDefines.lua"
 
 IncludeDir = {}
 IncludeDir["GLFW"] = "vendor/GLFW/include"
@@ -107,6 +107,11 @@ IncludeDir["ImGuiFileDialog"] = "vendor/ImGuiFileDialog"
 IncludeDir["DevIL"] = "vendor/DevIL/DevIL/include"
 IncludeDir["dirent"] = "vendor/dirent/include"
 IncludeDir["Assimp"] = "vendor/Assimp/include"
+
+-- could be header only or static lib
+NonDllLib = {}
+NonDllLib["pugixml"] = true
+NonDllLib["GLFW"] = true
 
 group "Dependencies"
   include "vendor/GLFW"
