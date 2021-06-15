@@ -13,6 +13,7 @@ project "Renderer"
 	Link("Entity")
 	Link("Core")
 	Link("GUI")
+	Link("Animation")
 	
 	LinkDependency("Assimp")
 	LinkDependency("ImGui")
@@ -20,7 +21,6 @@ project "Renderer"
 
 	includedirs
 	{
-		"../GLRenderer",
 		"../Physics",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.GLFW}",

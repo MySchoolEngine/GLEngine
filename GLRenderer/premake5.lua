@@ -15,6 +15,7 @@ project "GLRenderer"
 	Link("Core")
 	Link("GUI")
 	Link("Editor")
+	Link("Animation") -- until the whole skeletal Animation could be moved outside of API specific implementation
 
 	LinkDependency("ImGui")
 	LinkDependency("pugixml")

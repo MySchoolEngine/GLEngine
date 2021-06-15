@@ -141,6 +141,7 @@ group "Tools"
 	include "Tools/ShaderPreprocessor"
 group ""
 
+include "Animation"
 include "Core"
 include "Sandbox"
 include "Editor"
