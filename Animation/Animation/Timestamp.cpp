@@ -37,6 +37,18 @@ bool S_Timestamp::operator>(const S_Timestamp& other) const
 }
 
 //=================================================================================
+bool S_Timestamp::operator<(const S_Timestamp& other) const
+{
+	return m_Timestamp < other.m_Timestamp;
+}
+
+//=================================================================================
+bool S_Timestamp::operator<=(const S_Timestamp& other) const
+{
+	return m_Timestamp <= other.m_Timestamp;
+}
+
+//=================================================================================
 S_Timestamp S_Timestamp::operator-(const S_Timestamp& rhs) const
 {
 	return S_Timestamp(m_Timestamp - rhs.m_Timestamp);
@@ -47,4 +59,5 @@ S_Timestamp S_Timestamp::operator+(const S_Timestamp& rhs) const
 {
 	return S_Timestamp(m_Timestamp + rhs.m_Timestamp);
 }
+
 }
