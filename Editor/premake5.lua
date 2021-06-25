@@ -14,21 +14,18 @@ project "Editor"
 	Link("Core")
 	Link("GUI")
 	Link("Renderer")
+	Link("Animation")
+	
+	LinkDependency("ImGui")
+	LinkDependency("pugixml")
+	LinkDependency("ImGuizmo")
 
 	includedirs
 	{
 		"../Physics",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmt}",
-		"../%{IncludeDir.pugixml}",
-		"../%{IncludeDir.ImGui}",
 		"../%{IncludeDir.GLFW}", -- for key names
-	}
-
-	links 
-	{ 
-		"pugixml",
-		"ImGui",
 	}
 
 
