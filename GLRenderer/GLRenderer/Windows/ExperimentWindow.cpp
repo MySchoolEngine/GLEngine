@@ -84,6 +84,8 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	m_VSync.SetName("Lock FPS");
 
 	Entity::C_ComponentManager::Instance();
+
+	m_EditorLayer.EditAnimation();
 }
 
 //=================================================================================

@@ -1,5 +1,6 @@
 #include <EditorStdafx.h>
 
+#include <Editor/AnimationEditor.h>
 #include <Editor/CurveEditor.h>
 #include <Editor/EditorLayer.h>
 
@@ -15,6 +16,7 @@ C_EditorLayer::C_EditorLayer(Renderer::I_DebugDraw& dd, const Core::I_Input& dir
 	, m_dd(dd)
 	, m_Input(directInput)
 	, m_CurveEditing(nullptr)
+	, m_AnimationEditing(nullptr)
 	, m_Viewport(viewport)
 {
 }
@@ -38,6 +40,9 @@ void C_EditorLayer::OnUpdate()
 		if (auto camera = m_Camera.lock())
 			m_CurveEditing->OnUpdate(*camera.get(), m_Viewport);
 	}
+
+	if (m_AnimationEditing)
+		m_AnimationEditing->DrawGUI();
 }
 
 //=================================================================================
@@ -56,6 +61,12 @@ void C_EditorLayer::SetCamera(std::shared_ptr<Renderer::I_CameraComponent> camer
 void C_EditorLayer::SetViewport(const Renderer::C_Viewport& viewport)
 {
 	m_Viewport = viewport;
+}
+
+//=================================================================================
+void C_EditorLayer::EditAnimation()
+{
+	m_AnimationEditing = std::make_unique<C_AnimationEditor>();
 }
 
 }; // namespace GLEngine::Editor

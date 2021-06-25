@@ -23,6 +23,7 @@ class I_Input;
 // decide which model will render its AABB box etc.
 namespace GLEngine::Editor {
 class C_CurveEditor;
+class C_AnimationEditor;
 
 class EDITOR_API_EXPORT C_EditorLayer : public Core::C_Layer {
 public:
@@ -35,12 +36,15 @@ public:
 
 	void EditCurve(Renderer::C_Curve& curve);
 
+	void EditAnimation(); // TODO!
+
 private:
 	Renderer::I_DebugDraw&					   m_dd;
 	const Core::I_Input&					   m_Input;
 	std::weak_ptr<Renderer::I_CameraComponent> m_Camera;
 	Renderer::C_Viewport					   m_Viewport;
 
-	std::unique_ptr<C_CurveEditor> m_CurveEditing;
+	std::unique_ptr<C_CurveEditor>	   m_CurveEditing;
+	std::unique_ptr<C_AnimationEditor> m_AnimationEditing;
 };
 } // namespace GLEngine::Editor
