@@ -7,12 +7,14 @@ namespace GLEngine::Animation {
 //=================================================================================
 void C_AnimationTrack::AddKeyFrame(S_AnimationFrame&& keyframe)
 {
-	if (empty()) {
+	if (empty())
+	{
 		m_Timeline.emplace_back(keyframe);
 		return;
 	}
 	auto previousFrame = PreviousFrame(keyframe.Time);
-	if (previousFrame->Time < keyframe.Time) {
+	if (previousFrame->Time < keyframe.Time)
+	{
 		previousFrame++;
 	}
 	m_Timeline.insert(previousFrame, keyframe);
@@ -34,9 +36,19 @@ S_AnimationFrame C_AnimationTrack::Sample(const S_Timestamp time) const
 	}
 
 	const auto previousFrame = PreviousFrame(time);
-	const auto nextFrame	 = std::next(previousFrame);
+	auto	   nextFrame	 = std::next(previousFrame);
 
-	const auto intervalLen		  = nextFrame->Time - previousFrame->Time;
+	S_Timestamp intervalLen;
+	if (nextFrame == m_Timeline.end())
+	{
+		intervalLen = 1.0f - previousFrame->Time.GetValue();
+		nextFrame	= previousFrame;
+	}
+	else
+	{
+		intervalLen = nextFrame->Time - previousFrame->Time;
+	}
+
 	const auto timeInInterval	  = time - previousFrame->Time;
 	const auto percentageProgress = timeInInterval.GetValue() / intervalLen.GetValue();
 
