@@ -43,6 +43,7 @@ workspace "Engine"
 		"GLM_ENABLE_EXPERIMENTAL",
 		"VULKAN_BIN=\"".. GetVulkanBin() .."\"",
 		"VULKAN_GLSLC=VULKAN_BIN \"/glslc.exe\"",
+		"IMGUI_DEFINE_MATH_OPERATORS",
 	}
 	
 	workspace_files{
