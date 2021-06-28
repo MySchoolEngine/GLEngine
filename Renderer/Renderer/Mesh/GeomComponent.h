@@ -20,6 +20,9 @@ public:
 	virtual void SetupGeometry(const MeshData::Mesh& mesh)				 = 0;
 	virtual void SetupMaterial(const Utils::Parsing::MaterialData& data) = 0;
 
+	virtual void			   DebugDrawGUI() override;
+	[[nodiscard]] virtual bool HasDebugDrawGUI() const override;
+
 	virtual std::string_view GetDebugComponentName() const override;
 
 protected:
