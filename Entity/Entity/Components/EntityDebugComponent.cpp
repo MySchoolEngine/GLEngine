@@ -3,6 +3,8 @@
 #include <Entity/BasicEntity.h>
 #include <Entity/Components/EntityDebugComponent.h>
 
+#include <imgui.h>
+
 namespace GLEngine::Entity {
 
 //=================================================================================
@@ -20,10 +22,14 @@ void C_EntityDebugComponent::DrawContents()
 {
 	if (auto entity = m_Entity.lock())
 	{
+		int i = 0;
 		for (auto& component : *entity)
 		{
+			ImGui::PushID(i);
 			if (component.second->HasDebugDrawGUI())
 				component.second->DebugDrawComponentGUI();
+			ImGui::PopID();
+			++i;
 		}
 	}
 }
