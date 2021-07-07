@@ -1,10 +1,10 @@
 #include <GLRendererStdafx.h>
 
+#include <GLRenderer/Buffers/UniformBuffersManager.h>
 #include <GLRenderer/Debug.h>
 #include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Textures/TextureManager.h>
-#include <GLRenderer/Buffers/UniformBuffersManager.h>
 
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
@@ -15,6 +15,7 @@
 
 #include <Utils/DebugBreak.h>
 
+#include <imgui.h>
 #include <stdexcept>
 
 namespace GLEngine::GLRenderer {

@@ -2,8 +2,6 @@
 
 #include <Renderer/IRenderCommand.h>
 
-#include <memory>
-
 namespace GLEngine::GLRenderer {
 
 namespace Mesh {

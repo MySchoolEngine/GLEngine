@@ -1,5 +1,6 @@
 #include <RendererStdafx.h>
 
+#include <Renderer/DebugDraw.h>
 #include <Renderer/Lights/AreaLight.h>
 
 #include <Physics/Primitives/Frustum.h>
@@ -14,8 +15,8 @@ C_AreaLight::C_AreaLight(std::shared_ptr<Entity::I_Entity> owner)
 	: Renderer::I_Light(owner)
 	, m_WidthSlider(10.f, 0.1f, 10.f, "Width")
 	, m_HeightSlider(10.f, 0.1f, 10.f, "Height")
-	, m_DiffuseColor("Diffuse colour", glm::vec3(1.f))
-	, m_SpecularColor("Spec colour", glm::vec3(1.f))
+	, m_DiffuseColor("Diffuse colour", Colours::white)
+	, m_SpecularColor("Spec colour", Colours::white)
 {
 }
 
@@ -71,13 +72,13 @@ bool C_AreaLight::HasDebugDrawGUI() const
 }
 
 //=================================================================================
-glm::vec3 C_AreaLight::DiffuseColour() const
+Colours::T_Colour C_AreaLight::DiffuseColour() const
 {
 	return m_DiffuseColor.GetValue();
 }
 
 //=================================================================================
-glm::vec3 C_AreaLight::SpecularColour() const
+Colours::T_Colour C_AreaLight::SpecularColour() const
 {
 	return m_SpecularColor.GetValue();
 }
@@ -92,6 +93,30 @@ glm::vec3 C_AreaLight::GetNormal() const
 glm::vec3 C_AreaLight::GetUpVector() const
 {
 	return GetComponentModelMatrix() * glm::vec4(0, 1, 0, 1);
+}
+
+//=================================================================================
+void C_AreaLight::DebugDraw(Renderer::I_DebugDraw* dd) const
+{
+	const auto upVector = GetUpVector();
+	const auto normal	= GetNormal();
+	const auto dirX		= glm::cross(normal, upVector);
+	const auto width	= std::sqrt(GetWidth() / 2.0f);
+	const auto height	= std::sqrt(GetHeight() / 2.0f);
+
+	auto transformMatrix = GetComponentModelMatrix();
+
+	const auto Pos = glm::vec3(transformMatrix[3]);
+
+	dd->DrawLine(Pos, Pos + normal, Colours::yellow);
+
+	dd->DrawLine(Pos + upVector * height + dirX * width, Pos + upVector * height - dirX * width, Colours::yellow);
+	dd->DrawLine(Pos - upVector * height + dirX * width, Pos - upVector * height - dirX * width, Colours::yellow);
+
+	dd->DrawPoint(Pos + upVector * height + dirX * width, Colours::green);
+
+	dd->DrawLine(Pos - upVector * height + dirX * width, Pos + upVector * height + dirX * width, Colours::yellow);
+	dd->DrawLine(Pos - upVector * height - dirX * width, Pos + upVector * height - dirX * width, Colours::yellow);
 }
 
 //=================================================================================

@@ -33,7 +33,7 @@ inline float UniformSpherePDF()
 }
 
 //=================================================================================
-// directly taken from Doc. Jaroslav Køivánek codebase
+// directly taken from Doc. Jaroslav Kï¿½ivï¿½nek codebase
 inline glm::vec2 SampleConcentricDisc(const glm::vec2& aSamples)
 {
 	float phi, r;

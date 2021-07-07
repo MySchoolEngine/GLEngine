@@ -1,5 +1,7 @@
 #version 430
-#extension GL_ARB_bindless_texture : require
+#if !defined VULKAN
+    #extension GL_ARB_bindless_texture : require
+#endif
 
 #define NUM_POINTLIGHT 10
 

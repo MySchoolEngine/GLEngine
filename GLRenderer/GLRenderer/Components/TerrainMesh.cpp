@@ -37,7 +37,7 @@ C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 {
 
 	m_Terrain = std::make_shared<Mesh::C_TerrainMeshResource>();
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&]() {
 			m_Noise.StartGroupOp();
 			// 0 layer - height
@@ -49,13 +49,13 @@ C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 
 			glTexStorage3D(m_Noise.GetTarget(), 3, GL_R32F, dim, dim, 2 + numSedimentLayer);
 			m_Noise.SetWrap(Renderer::E_WrapFunction::ClampToEdge, Renderer::E_WrapFunction::ClampToEdge);
-			m_Noise.SetFilter(E_OpenGLFilter::Linear, E_OpenGLFilter::Linear);
+			m_Noise.SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
 
 			m_Noise.SetDimensions({dim, dim});
 			m_Noise.GenerateMipMaps();
 			m_Noise.EndGroupOp();
 		},
-		"Terrain - texture commands")));
+		"Terrain - texture commands"));
 
 	SetSettings(settings);
 
@@ -102,7 +102,7 @@ void C_TerrainMesh::PerformDraw() const
 	auto  shader = shmgr.GetProgram("terrain");
 	shmgr.ActivateShader(shader);
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[this, shader]() {
 			shader->SetUniform("patchSize", static_cast<float>(m_Settings->m_PatchSize));
 			shader->SetUniform("tex", 0);
@@ -118,7 +118,7 @@ void C_TerrainMesh::PerformDraw() const
 			glDrawArrays(GL_TRIANGLES, 0, 6 * m_Settings->m_SqPerLine * m_Settings->m_SqPerLine);
 			m_Terrain->UnbindVAO();
 		},
-		"Terrain - draw")));
+		"Terrain - draw"));
 
 	// rim render
 	tm.BindTextureToUnit(m_Noise, 0);
@@ -126,7 +126,7 @@ void C_TerrainMesh::PerformDraw() const
 	auto ShaderTerrainRim = shmgr.GetProgram("terrain-rim");
 	shmgr.ActivateShader(ShaderTerrainRim);
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[this, ShaderTerrainRim]() {
 			ShaderTerrainRim->SetUniform("patchSize", static_cast<float>(m_Settings->m_PatchSize));
 			ShaderTerrainRim->SetUniform("tex", 0);
@@ -140,7 +140,7 @@ void C_TerrainMesh::PerformDraw() const
 			glDrawArrays(GL_TRIANGLES, 0, 6 * m_Settings->m_SqPerLine * 4);
 			m_Terrain->UnbindVAO();
 		},
-		"Terrain - terrain-rim")));
+		"Terrain - terrain-rim"));
 
 
 	if (m_Selected)
@@ -175,7 +175,7 @@ void C_TerrainMesh::UpdateStats()
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	shmgr.ActivateShader(shmgr.GetProgram("stats"));
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&]() {
 			m_Stats.bind();
 
@@ -189,7 +189,7 @@ void C_TerrainMesh::UpdateStats()
 			m_AABB.Add(glm::vec3(0.0f, m_Stats.min, 0.0f));
 			m_AABB.Add(glm::vec3(static_cast<float>(m_Settings->m_PatchSize), m_Stats.max, static_cast<float>(m_Settings->m_PatchSize)));
 		},
-		"Download stats")));
+		"Download stats"));
 }
 
 //=================================================================================
@@ -200,7 +200,7 @@ void C_TerrainMesh::GenerateTerrain()
 	auto  noiseShader = shmgr.GetProgram("noise");
 	shmgr.ActivateShader(noiseShader);
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[this, noiseShader]() {
 			noiseShader->SetUniform("frequency", static_cast<int>(m_Settings->m_Freq));
 			noiseShader->SetUniform("unicoord", (m_Coord * (dim - 1)));
@@ -210,21 +210,21 @@ void C_TerrainMesh::GenerateTerrain()
 			noiseShader->SetUniform("layerWeight[1]", m_Settings->m_Layers[1].m_Weight.GetValue());
 			noiseShader->SetUniform("layerWeight[2]", m_Settings->m_Layers[2].m_Weight.GetValue());
 		},
-		"Prepare generation of noise")));
+		"Prepare generation of noise"));
 
 
 	RenderDoc::C_DebugScope s("NoiseCompute");
 	auto&					tm = Textures::C_TextureUnitManger::Instance();
 	tm.BindImageToUnit(m_Noise, 0, E_OpenGLAccess::Write);
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&]() {
 			glDispatchCompute(dim / 16, dim / 16, 1);
 			glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
 			m_Noise.GenerateMipMaps();
 		},
-		"Dispatch noise")));
+		"Dispatch noise"));
 
 	m_QueuedUpdate = true;
 }
@@ -242,7 +242,7 @@ void C_TerrainMesh::Simulate()
 		return;
 	shmgr.ActivateShader(program);
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[this, program]() {
 			program->SetUniform("numDrops", static_cast<int>(m_Settings->m_Drops));
 			program->SetUniform("numSteps", static_cast<int>(m_Settings->m_NumSteps));
@@ -260,7 +260,7 @@ void C_TerrainMesh::Simulate()
 			// generate new droplets
 			m_RainData->GenerateDrops();
 		},
-		"Simulate")));
+		"Simulate"));
 
 	s = RenderDoc::C_DebugScope("collectHeightMap");
 
@@ -268,14 +268,14 @@ void C_TerrainMesh::Simulate()
 	shmgr.ActivateShader(noiseShader);
 
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&]() {
 			glDispatchCompute(dim / 16, dim / 16, 1);
 			glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
 			m_Noise.GenerateMipMaps();
 		},
-		"collectHeightMap")));
+		"collectHeightMap"));
 }
 
 //=================================================================================
@@ -291,8 +291,8 @@ void C_TerrainMesh::DebugDraw()
 		const auto modelMatrix			 = GetModelMatrix();
 		const auto dropPointInModelSpace = modelMatrix * dropPoint;
 
-		debug.DrawPoint(dropPointInModelSpace, glm::vec3(0, 0, 1));
-		debug.DrawLine(dropPointInModelSpace, modelMatrix * (fallPoint), glm::vec3(0, 0, 1));
+		debug.DrawPoint(dropPointInModelSpace, Colours::blue);
+		debug.DrawLine(dropPointInModelSpace, modelMatrix * (fallPoint), Colours::blue);
 	}
 
 	if (m_Selected)
@@ -330,7 +330,7 @@ void C_TerrainMesh::OnEvent(Core::I_Event& event)
 }
 
 //=================================================================================
-GLEngine::Physics::Primitives::S_AABB C_TerrainMesh::GetAABB() const
+Physics::Primitives::S_AABB C_TerrainMesh::GetAABB() const
 {
 	return m_AABB;
 }

@@ -2,6 +2,7 @@
 
 #include <GLRenderer/Commands/GlClearColor.h>
 
+
 namespace GLEngine::GLRenderer::Commands {
 
 //=================================================================================

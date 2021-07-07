@@ -76,9 +76,8 @@ protected:
 private:
 	template <int INDEX, GLenum BUFFERTYPE, class T, typename = T_EnableIndex<INDEX>> void InnerSetBufferData(const std::vector<T>& data, bool dynamicDraw = false)
 	{
-		const auto	   usage	  = dynamicDraw ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
+		const auto usage = dynamicDraw ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
 		m_Buffers[INDEX]->AllocateMemory(data.size() * sizeof(T), usage, data.data());
 	}
 };
 } // namespace GLEngine::GLRenderer::VAO
-#include <GLRenderer/VAO/VAO.inl>

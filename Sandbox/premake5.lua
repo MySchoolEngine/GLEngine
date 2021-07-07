@@ -1,4 +1,4 @@
-include "../premakeDefines.lua"
+include "../Tools/Premake5/premakeDefines.lua"
 
 project "Sandbox"
     kind "ConsoleApp"
@@ -7,7 +7,6 @@ project "Sandbox"
 	
 	debugdir ("../data/")
 	SetupProject("Sandbox")
-	debugdir ("../data/")
 	
 	pchheader "SandboxStdafx.h"
 	pchsource "SandboxStdafx.cpp"
@@ -15,6 +14,9 @@ project "Sandbox"
 	Link("Core")
 	Link("Utils")
 	Link("GLRenderer")
+	if (_OPTIONS["glfwapi"] ~= "opengl") then
+		Link("VulkanRenderer")
+	end
 
 	files
 	{
@@ -24,8 +26,8 @@ project "Sandbox"
 
 	includedirs
 	{
-		".",
 		"../Renderer",
+		"../GLFWWindowManager",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmt}",
 	}

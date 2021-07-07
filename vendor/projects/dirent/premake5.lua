@@ -2,22 +2,22 @@ filter "system:windows"
     project "Dirent"
         kind "StaticLib"
         language "C++"
+        systemversion "latest"
+        cppdialect "C++17"
+        staticruntime "Off"
         
-    	targetdir ("../../../bin/" .. outputdir .. "/vendor/%{prj.name}")
-        objdir ("../../../obj/" .. outputdir .. "/vendor/%{prj.name}")
+    	targetdir ("%{wks.location}/bin/" .. outputdir .. "/vendor/%{prj.name}")
+        objdir ("%{wks.location}/obj/" .. outputdir .. "/vendor/%{prj.name}")
 
         includedirs
         {
-            "../../../%{IncludeDir.dirent}",
+            "%{wks.location}/%{IncludeDir.dirent}",
         }
 
     	files
     	{
-            "../../../%{IncludeDir.dirent}*.h",
+            "%{wks.location}/%{IncludeDir.dirent}*.h",
         }
-        systemversion "latest"
-        cppdialect "C++17"
-        staticruntime "Off"
             
         filter "configurations:Debug"
             runtime "Debug"

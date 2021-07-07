@@ -3,7 +3,6 @@
 #include <Renderer/Animation/AnimationStructures.h>
 #include <Renderer/Animation/IPose.h>
 
-
 namespace GLEngine::Renderer::Animation {
 /**
  * Represents sampled value of animation in given time.

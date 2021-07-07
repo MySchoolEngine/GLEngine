@@ -10,8 +10,8 @@ class I_RenderableComponent;
 /** ==============================================
  * @class I_Resource
  *
- * @brief This class represents data for GPU. It encapsulate way how to extract them form @I_Entity
- *		  and their state in GPU memory.
+ * @brief This class represents data for GPU. It encapsulate way how to extract
+ *them form @I_Entity and their state in GPU memory.
  *
  * @author 	Dominik Rohacek
  * Contact: RohacekD@gmail.com
@@ -30,11 +30,9 @@ public:
 // leave it here for documentation
 /*class C_SkeletonResource : I_Resource<C_Extractor> {
 
-	virtual std::shared_ptr<I_RenderableComponent> GetComponent() const override { return nullptr; };
-	virtual void Invalidate() override {};
-	virtual bool IsValid() override { return false; };
+		virtual std::shared_ptr<I_RenderableComponent> GetComponent() const
+override { return nullptr; }; virtual void Invalidate() override {}; virtual
+bool IsValid() override { return false; };
 };*/
 
 } // namespace GLEngine::Renderer
-
-#include <Renderer/IResource.inl>

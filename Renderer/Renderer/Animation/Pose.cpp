@@ -4,7 +4,6 @@
 
 namespace GLEngine::Renderer::Animation {
 
-
 //=================================================================================
 C_Pose::C_Pose(std::vector<S_BoneKeyframe>&& keyframe)
 	: m_keyFrame(keyframe)

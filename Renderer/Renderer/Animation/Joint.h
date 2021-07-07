@@ -14,7 +14,8 @@ struct RENDERER_API_EXPORT S_Joint {
 	void ApplyPoseToJoints(std::vector<glm::mat4>& poseData, const glm::mat4& parentTransform) const;
 
 	std::string m_Name;
-	// glm::mat4 m_LocalBindTransform; // local bind transform - original transform in relation to parent joint transform
+	// glm::mat4 m_LocalBindTransform; // local bind transform - original
+	// transform in relation to parent joint transform
 	glm::mat4 m_InverseBindTransfomr; // in model space
 	// todo stack vector.
 	std::vector<S_Joint> m_Children;

@@ -1,8 +1,5 @@
 #pragma once
 
-#include <GLRenderer/Debug.h>
-
-
 namespace GLEngine::GLRenderer {
 
 class C_PersistentDebug {

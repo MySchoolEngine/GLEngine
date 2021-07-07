@@ -70,7 +70,7 @@ vec3 CalculatSunLight(const vec3 N, const vec3 V, const vec3 position)
 		return vec3(0, 0, 0); // it is in the shadow
 	}
 
-	float roughnessVal = GetRoughness(texCoordOUT);
+	float roughnessVal = GetRoughness(texCoordOUT, CURRENT_MATERIAL);
 
 	const Ray r = Ray(position, normalize(pSunLight.position));
 	vec3	  i;

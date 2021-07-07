@@ -27,12 +27,14 @@ class I_WindowManager : public C_Layer {
 public:
 	CORE_API_EXPORT I_WindowManager(C_Application::EventCallbackFn callback);
 	CORE_API_EXPORT virtual ~I_WindowManager();
-	virtual std::shared_ptr<I_Window>							   OpenNewWindow(const S_WindowInfo& info) = 0;
-	virtual std::shared_ptr<I_Window>							   GetWindow(GUID guid) const			   = 0;
-	CORE_API_EXPORT virtual void								   AddWindowFactory(I_WindowFactory* wf);
-	virtual void												   Update()					 = 0;
-	virtual unsigned int										   NumWindows() const		 = 0;
-	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetActiveRenderer() const = 0;
+	virtual std::shared_ptr<I_Window> OpenNewWindow(const S_WindowInfo& info) = 0;
+	virtual std::shared_ptr<I_Window> GetWindow(GUID guid) const			  = 0;
+	CORE_API_EXPORT virtual void	  AddWindowFactory(I_WindowFactory* wf);
+	virtual void					  Update()			  = 0;
+	virtual unsigned int			  NumWindows() const  = 0;
+	virtual Renderer::I_Renderer&	  GetActiveRenderer() = 0;
+	// this function is meant for functions unsure from which part of frame are being called
+	[[nodiscard]] virtual Renderer::I_Renderer* ActiveRendererPtr() = 0;
 
 protected:
 	CORE_API_EXPORT std::shared_ptr<I_Window> ConstructWindow(const S_WindowInfo& info) const;

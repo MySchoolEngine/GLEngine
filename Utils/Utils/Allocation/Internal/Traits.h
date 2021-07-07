@@ -4,7 +4,8 @@
 
 #include <memory>
 
-// technique from Andrei Alexandrescu: Modern C++ Design: Generic Programming and Design
+// technique from Andrei Alexandrescu: Modern C++ Design: Generic Programming
+// and Design
 namespace Utils::Allocation::Traits {
 
 template <typename T> struct has_deallocate_all {

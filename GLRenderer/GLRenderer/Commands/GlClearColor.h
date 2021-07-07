@@ -2,10 +2,6 @@
 
 #include <Renderer/IRenderCommand.h>
 
-#include <Core/CoreMacros.h>
-
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
 
 namespace GLEngine::GLRenderer::Commands {
 

@@ -1,4 +1,4 @@
-include "../premakeDefines.lua"
+include "../Tools/Premake5/premakeDefines.lua"
 
 project "Physics"
 	kind "SharedLib"
@@ -14,24 +14,8 @@ project "Physics"
 		"../%{IncludeDir.fmt}",
 	}
 
-	filter "system:windows"
-		cppdialect "C++17"
-		systemversion "latest"
-
-		defines
-		{
-			"BUILD_PHYSICS_DLL",
-		}
-
+	--filter "system:windows"
 		-- postbuildcommands
 		-- {
-		-- 	("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")
+		-- 	("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\"")
 		-- }
-
-	filter "configurations:Debug"
-		runtime "Debug"
-		symbols "On"
-
-	filter "configurations:Release"
-		runtime "Release"
-		optimize "On"

@@ -1,50 +1,32 @@
-include "../premakeDefines.lua"
+include "../Tools/Premake5/premakeDefines.lua"
 
 project "DX12Renderer"
 	kind "SharedLib"
 	language "C++"
 	staticruntime "off"
 
-	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("../obj/" .. outputdir .. "/%{prj.name}")
-	
-	pchheader "DX12RendererStdafx.h"
-	pchsource "DX12RendererStdafx.cpp"
+	SetupProject("DX12Renderer")
 
-	files
-	{
-		"DX12Renderer/**.h",
-		"DX12Renderer/**.cpp",
-		"DX12Renderer/**.inl",
-		"DX12RendererStdafx.cpp",
-		"DX12RendererStdafx.h",
-		"premake5.lua",
-	}
+	PrecompiledHeaders("DX12Renderer")
+
+	Link("Entity")
+	Link("Utils")
+	Link("Renderer")
+	Link("Core")
+
+	LinkDependency("pugixml")
 
 	includedirs
 	{
-		".",
-		"../Renderer",
-		"../Entity",
-		"../Utils",
 		"../Physics",
-		"../Core",
 		"C:/Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/shared",
 		"C:/Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/um",
-		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.GLM}",
 	}
 
 	links 
 	{ 
-		"pugixml",
-
-		"Entity",
-		"Utils",
-		"Renderer",
-		"Core",
-
 		-- DX Stuff
 		"d3d12",
    		"dxgi",
@@ -52,25 +34,9 @@ project "DX12Renderer"
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
-		systemversion "latest"
-
-		defines
-		{
-			"BUILD_DX12RENDERER_DLL",
-		}
 
 		postbuildcommands
 		{
-			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
+			("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\""),
 		}
 
-	filter "configurations:Debug"
-		runtime "Debug"
-		symbols "On"
-      	defines({ "DEBUG" })
-
-	filter "configurations:Release"
-      	defines({ "NDEBUG" })
-		runtime "Release"
-		optimize "On"

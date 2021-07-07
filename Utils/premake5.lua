@@ -1,4 +1,4 @@
-include "../premakeDefines.lua"
+include "../Tools/Premake5/premakeDefines.lua"
 
 project "Utils"
 	kind "SharedLib"
@@ -8,35 +8,18 @@ project "Utils"
 
 	SetupProject("Utils")
 
+	LinkDependency("pugixml")
+
 	includedirs
 	{
 		"../Core",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.GLM}",
-		"../%{IncludeDir.pugixml}",
-	}
-
-	links 
-	{ 
-		"pugixml",
-	}
-
-	defines
-	{
-		"BUILD_UTILS_DLL",
 	}
 
 	filter "system:windows"
 		systemversion "latest"
 		postbuildcommands
 		{
-			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")
+			("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\"")
 		}
-
-	filter "configurations:Debug"
-		runtime "Debug"
-		symbols "On"
-
-	filter "configurations:Release"
-		runtime "Release"
-		optimize "On"

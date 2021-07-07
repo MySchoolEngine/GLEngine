@@ -188,7 +188,7 @@ std::shared_ptr<Textures::C_Texture> C_SceneBuilder::LoadTexture(const Renderer:
 	tex->SetTexData2D(0, texture);
 	//	ErrorCheck();
 	tex->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
-	tex->SetFilter(E_OpenGLFilter::LinearMipMapLinear, E_OpenGLFilter::Linear);
+	tex->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
 	tex->GenerateMipMaps();
 	//	ErrorCheck();
 

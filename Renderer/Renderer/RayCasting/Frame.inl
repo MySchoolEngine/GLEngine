@@ -1,8 +1,6 @@
 #pragma once
 
-
 namespace GLEngine::Renderer {
-
 
 //=================================================================================
 constexpr S_Frame::S_Frame(const glm::vec3& x, const glm::vec3& y, const glm::vec3& z)

@@ -36,7 +36,6 @@ public:
 
 	[[nodiscard]] virtual Physics::Primitives::C_Frustum GetFrustum() const override;
 
-
 	[[nodiscard]] float GetAspectRatio() const;
 
 	void setupCameraView(float zoom, glm::vec3 center, float angleXDeg, float angleYDeg);
@@ -50,8 +49,8 @@ public:
 	virtual void Update() override;
 
 
-	virtual [[nodiscard]] float GetFar() const { return _farZ; }
-	virtual [[nodiscard]] float GetNear() const { return _nearZ; }
+	[[nodiscard]] virtual float GetFar() const override { return _farZ; }
+	[[nodiscard]] virtual float GetNear() const override { return _nearZ; }
 
 	[[nodiscard]] float GetFov() const;
 
@@ -63,7 +62,6 @@ public:
 	virtual void			 DebugDrawGUI() override;
 	virtual bool			 HasDebugDrawGUI() const override;
 	virtual std::string_view GetDebugComponentName() const override;
-
 
 	virtual glm::mat4 GetScreenToworldMatrix() const override;
 
