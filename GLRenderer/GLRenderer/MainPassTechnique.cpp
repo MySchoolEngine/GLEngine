@@ -5,10 +5,10 @@
 #include <GLRenderer/Commands/GLClear.h>
 #include <GLRenderer/Commands/GLViewport.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
-#include <GLRenderer/Debug.h>
 #include <GLRenderer/Lights/GLAreaLight.h>
 #include <GLRenderer/Lights/LightsUBO.h>
 #include <GLRenderer/MainPassTechnique.h>
+#include <GLRenderer/Materials/MaterialBuffer.h>
 #include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 
@@ -16,7 +16,10 @@
 #include <Renderer/ILight.h>
 #include <Renderer/IRenderableComponent.h>
 #include <Renderer/IRenderer.h>
+#include <Renderer/Lights/AreaLight.h>
 #include <Renderer/Lights/PointLight.h>
+#include <Renderer/Lights/SunLight.h>
+#include <Renderer/Materials/MaterialManager.h>
 
 #include <Physics/Primitives/Frustum.h>
 
@@ -32,12 +35,10 @@ namespace GLEngine::GLRenderer {
 //=================================================================================
 C_MainPassTechnique::C_MainPassTechnique(std::shared_ptr<Entity::C_EntityManager> world)
 	: m_WorldToRender(world)
-	, m_SunX(-13.f, -20.f, 20.f, "Sun X")
-	, m_SunY(15.f, -20.f, 20.f, "Sun Y")
-	, m_SunZ(-5.f, -20.f, 20.f, "Sun Z")
 {
 	m_FrameConstUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>("frameConst");
 	m_LightsUBO		= Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<C_LightsBuffer>("lightsUni");
+	m_MatterialsUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Material::C_MaterialsBuffer>("materials");
 }
 
 //=================================================================================
@@ -49,22 +50,16 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 	const auto				entitiesInView = m_WorldToRender->GetEntities(camFrustum);
 
 	auto& renderer = (Core::C_Application::Get()).GetActiveRenderer();
-	renderer->SetCurrentPassType(Renderer::E_PassType::FinalPass);
-
-	m_FrameConstUBO->SetView(camera->GetViewMatrix());
-	m_FrameConstUBO->SetProjection(camera->GetProjectionMatrix());
-	m_FrameConstUBO->SetCameraPosition(glm::vec4(camera->GetPosition(), 1.0f));
-	m_FrameConstUBO->SetSunPosition({m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue()});
-	m_FrameConstUBO->SetFrameTime(static_cast<float>(glfwGetTime()));
+	renderer.SetCurrentPassType(Renderer::E_PassType::FinalPass);
 
 	{
 		RenderDoc::C_DebugScope s("Window prepare");
 		using namespace Commands;
-		renderer->AddCommand(std::move(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth)));
-		renderer->AddCommand(std::move(std::make_unique<C_GLViewport>(0, 0, widht, height)));
-		if (static_cast<C_OGLRenderer*>(renderer.get())->WantWireframe())
+		renderer.AddCommand(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth));
+		renderer.AddCommand(std::make_unique<C_GLViewport>(Renderer::C_Viewport(0, 0, widht, height)));
+		if (static_cast<C_OGLRenderer*>(&renderer)->WantWireframe())
 		{
-			renderer->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>([&]() { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }, "Change polygon mode")));
+			renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([&]() { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }, "Change polygon mode"));
 		}
 	}
 
@@ -74,7 +69,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 	{
 		for (const auto& lightIt : entity->GetComponents(Entity::E_ComponentType::Light))
 		{
-			const auto pointLight = std::dynamic_pointer_cast<Renderer::I_PointLight>(lightIt);
+			const auto pointLight = std::dynamic_pointer_cast<Renderer::C_PointLight>(lightIt);
 			if (pointLight && pointLightIndex < m_LightsUBO->PointLightsLimit())
 			{
 				const auto pos = pointLight->GetPosition();
@@ -90,11 +85,11 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				C_DebugDraw::Instance().DrawPoint(glm::vec4(pos, 1.0), pointLight->GetColor());
 			}
 
-			const auto areaLight = std::dynamic_pointer_cast<C_GLAreaLight>(lightIt);
+			const auto areaLight = std::dynamic_pointer_cast<Renderer::C_AreaLight>(lightIt);
 			if (areaLight && areaLightIndex < m_LightsUBO->AreaLightsLimit())
 			{
-				auto& tm = Textures::C_TextureUnitManger::Instance();
-				tm.BindTextureToUnit(*areaLight->GetShadowMap(), 5 + static_cast<unsigned int>(areaLightIndex));
+				// auto& tm = Textures::C_TextureUnitManger::Instance();
+				// tm.BindTextureToUnit(*areaLight->GetShadowMap(), 5 + static_cast<unsigned int>(areaLightIndex));
 				const auto frustum = areaLight->GetShadingFrustum();
 
 
@@ -118,25 +113,62 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				light.m_Color		  = areaLight->DiffuseColour();
 				light.m_SpecularColor = areaLight->SpecularColour();
 
-				C_DebugDraw::Instance().DrawAxis(pos, frustum.GetUpVector(), frustum.GetForeward());
-				areaLight->DebugDraw();
+				areaLight->DebugDraw(&C_DebugDraw::Instance());
 				m_LightsUBO->SetAreaLight(light, areaLightIndex);
 				++areaLightIndex;
+			}
+
+			const auto sunLight = std::dynamic_pointer_cast<Renderer::C_SunLight>(lightIt);
+			if (sunLight)
+			{
+				m_LightsUBO->GetSunLight().SetSunPosition(sunLight->GetSunDirection());
+				m_LightsUBO->GetSunLight().m_SunColor			 = sunLight->GetSunColor();
+				m_LightsUBO->GetSunLight().m_AsymetricFactor	 = sunLight->AtmosphereAsymetricFactor();
+				m_LightsUBO->GetSunLight().m_SunDiscMultiplier	 = sunLight->SunDiscMultiplier();
+				m_LightsUBO->GetSunLight().m_LightViewProjection = m_SunViewProjection;
+				m_LightsUBO->GetSunLight().m_SunShadowMap		 = m_SunShadowMap;
+
+				C_DebugDraw::Instance().DrawPoint(sunLight->GetSunDirection(), Colours::yellow);
+				C_DebugDraw::Instance().DrawLine({0.f, 0.f, 0.f}, sunLight->GetSunDirection(), Colours::yellow);
 			}
 		}
 	}
 
+	bool materialsHaveChanged = false;
+	{
+		int i = 0;
+		Renderer::C_MaterialManager::Instance().ForEachMaterial([&matUBO = m_MatterialsUBO, &i, &materialsHaveChanged](std::shared_ptr<Renderer::C_Material>& material) {
+			if (material->IsChanged())
+			{
+				materialsHaveChanged = true;
+				matUBO->m_PhongMaterials[i].Update(*material.get());
+				material->CleanChangeFlag();
+			}
+			++i;
+		});
+	}
+
+
 	{
 		RenderDoc::C_DebugScope s("UBO Upload");
 		m_LightsUBO->MakeHandlesResident();
-		renderer->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
-			[&]() {
+		renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+			[&, materialsHaveChanged]() {
+				m_FrameConstUBO->SetView(camera->GetViewMatrix());
+				m_FrameConstUBO->SetProjection(camera->GetProjectionMatrix());
+				m_FrameConstUBO->SetCameraPosition(glm::vec4(camera->GetPosition(), 1.0f));
+				m_FrameConstUBO->SetNearPlane(camera->GetNear());
+				m_FrameConstUBO->SetFarPlane(camera->GetFar());
+				m_FrameConstUBO->SetFrameTime(static_cast<float>(glfwGetTime()));
 				m_FrameConstUBO->UploadData();
 				m_FrameConstUBO->Activate(true);
 				m_LightsUBO->UploadData();
 				m_LightsUBO->Activate(true);
+				if (materialsHaveChanged)
+					m_MatterialsUBO->UploadData();
+				m_MatterialsUBO->Activate(true);
 			},
-			"MainPass - upload UBOs")));
+			"MainPass - upload UBOs"));
 	}
 
 	{
@@ -158,19 +190,23 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 		RenderDoc::C_DebugScope s("Clean");
 		m_LightsUBO->MakeHandlesResident(false);
 
-		if (static_cast<C_OGLRenderer*>(renderer.get())->WantWireframe())
+		if (static_cast<C_OGLRenderer*>(&renderer)->WantWireframe())
 		{
-			renderer->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>([&]() { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }, "Reset polygon mode")));
+			renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([&]() { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }, "Reset polygon mode"));
 		}
 	}
+}
 
-	C_DebugDraw::Instance().DrawPoint({m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue()}, {1.f, 1.f, 0.f});
-	bool my_tool_active = true;
-	::ImGui::Begin("Sun", &my_tool_active);
-	m_SunX.Draw();
-	m_SunY.Draw();
-	m_SunZ.Draw();
-	::ImGui::End();
+//=================================================================================
+void C_MainPassTechnique::SetSunShadowMap(std::uint64_t sunShadowMapHandle)
+{
+	m_SunShadowMap = sunShadowMapHandle;
+}
+
+//=================================================================================
+void C_MainPassTechnique::SetSunViewProjection(glm::mat4 viewProjection)
+{
+	m_SunViewProjection = viewProjection;
 }
 
 } // namespace GLEngine::GLRenderer

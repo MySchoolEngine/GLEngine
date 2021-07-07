@@ -2,8 +2,6 @@
 
 #include <Core/CoreEnums.h>
 
-#include <string>
-
 namespace GLEngine::Core {
 
 //=================================================================================
@@ -22,10 +20,5 @@ struct S_WindowInfo {
 	bool		 m_Maximalize : 1;
 
 	virtual E_Driver GetDriver() const = 0;
-};
-
-//=================================================================================
-struct S_VulkanWindowInfo : public S_WindowInfo {
-	virtual E_Driver GetDriver() const override { return E_Driver::Vulkan; }
 };
 } // namespace GLEngine::Core

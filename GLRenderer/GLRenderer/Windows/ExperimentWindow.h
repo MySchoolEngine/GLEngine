@@ -8,6 +8,8 @@
 #include <GLRenderer/ShadowMapPass.h>
 #include <GLRenderer/Textures/Texture.h>
 
+#include <Renderer/Mesh/Curve.h>
+
 #include <GUI/GUIWindow.h>
 #include <GUI/Input/CheckBoxValue.h>
 #include <GUI/Input/Slider.h>
@@ -22,6 +24,8 @@
 
 #include <Utils/HighResolutionTimer.h>
 
+#include <Editor/EditorLayer.h>
+
 namespace GLEngine::Core {
 class C_AppEvent;
 class C_WindowResizedEvent;
@@ -34,6 +38,7 @@ namespace GLEngine::GLRenderer {
 class C_GLImGUILayer;
 class C_RayTraceWindow;
 class C_Framebuffer;
+class C_SunShadowMapTechnique;
 
 namespace Windows {
 class C_ExplerimentWindow : public GLFW::C_GLFWoGLWindow {
@@ -55,8 +60,9 @@ protected:
 	bool OnWindowResized(Core::C_WindowResizedEvent& event);
 
 private:
+	void SetupWorld(const std::filesystem::path& level);
+	void AddMandatoryWorldParts();
 	void OnAppInit();
-	void SetupWorld();
 	void MouseSelect();
 
 	void sampleTime(double new_sample);
@@ -90,13 +96,15 @@ private:
 	GUID																m_HDRSettingsGUID;
 	GUI::Menu::C_Menu													m_Windows;
 
-	C_RayTraceWindow* m_RayTraceWindow;
-
-	std::unique_ptr<C_MainPassTechnique>  m_MainPass;
-	std::shared_ptr<C_ShadowMapTechnique> m_ShadowPass;
+	std::unique_ptr<C_MainPassTechnique>	 m_MainPass;
+	std::shared_ptr<C_ShadowMapTechnique>	 m_ShadowPass;
+	std::shared_ptr<C_SunShadowMapTechnique> m_SunShadow;
+	C_RayTraceWindow*						 m_RayTraceWindow;
 
 	std::unique_ptr<C_Framebuffer>				m_HDRFBO;
 	std::shared_ptr<Mesh::C_StaticMeshResource> m_ScreenQuad;
+
+	Editor::C_EditorLayer m_EditorLayer;
 };
 
 } // namespace Windows

@@ -1,39 +1,43 @@
 #version 430
-#extension GL_ARB_bindless_texture : require
+#if !defined VULKAN
+    #extension GL_ARB_bindless_texture : require
+#endif
 
 #define NUM_POINTLIGHT 10
 #define NUM_AREALIGHT  4
 
+#include "../include/units.glsl"
 #include "../include/frameConstants.glsl"
 #include "../include/tracing.glsl"
+#include "../include/LightsUBO.glsl"
+#include "../include/atmosphere.glsl"
 #include "../include/PBRT.glsl"
+#include "../include/materials.glsl"
+
+//per model
+layout(binding = 2) uniform modelData
+{
+    mat4 modelMatrix;
+    int  materialIndex;
+};
 
 
 const float LUT_SIZE  = 64.0;
 const float LUT_SCALE = (LUT_SIZE - 1.0) / LUT_SIZE;
 const float LUT_BIAS  = 0.5 / LUT_SIZE;
 
+#define CURRENT_MATERIAL phong[materialIndex]
 
-// per mesh
-uniform sampler2D tex;
-uniform sampler2D roughnessMap;
-uniform sampler2D colorMap;
-uniform sampler2D normalMap;
+//per mesh
 uniform sampler2D shadowMap[NUM_AREALIGHT];
-uniform vec3	  modelColor;
-uniform float	  roughness;
-bool			  twoSided = false;
+bool twoSided = false;
 
-uniform bool useNormalMap;
-
-in vec3 normalOUT;
-in vec2 texCoordOUT;
-in vec4 worldCoord;
-in mat3 TBN;
+layout(location = 0) in vec3 normalOUT;
+layout(location = 1) in vec2 texCoordOUT;
+layout(location = 2) in vec4 worldCoord;
+layout(location = 3) in mat3 TBN;
 
 out vec4 fragColor;
-
-#include "../include/LightsUBO.glsl"
 
 float ambientStrength  = 0.1;
 float specularStrength = 0.5;
@@ -156,34 +160,6 @@ void ClipQuadToHorizon(inout vec3 L[5], out int n, out int config)
 		L[4] = L[0];
 }
 
-
-//=================================================================================
-float GetRoughness(const vec2 uv)
-{
-	float roughnessVal = roughness;
-	roughnessVal *= texture(roughnessMap, texCoordOUT).x;
-	return roughnessVal;
-}
-
-//=================================================================================
-vec3 GetNormal()
-{
-	if (!useNormalMap)
-	{
-		vec3 norm = normalize(normalOUT);
-		return norm;
-	}
-
-	vec3 normalMapSample = texture(normalMap, texCoordOUT).xyz;
-	normalMapSample		 = 2.0 * normalMapSample - vec3(1.0, 1.0, 1.0);
-
-	vec3 normal = TBN * normalMapSample;
-	normal		= normalize(normal);
-	normal.z	= -normal.z;
-	return normal;
-}
-
-
 //=================================================================================
 // should be ok ish for dielectrics
 const float R0 = 0.04;
@@ -201,12 +177,12 @@ vec3 BRDF(const vec3 norm, const vec3 omegaIn, const vec3 omegaOut, const vec3 l
 	vec3	   Kd = vec3(1.0) - Ks;
 
 	const float denominator = 4.0 * max(dot(norm, omegaIn), 0.00001) * max(dot(norm, omegaOut), 0.00001);
-	vec3		numerator	= NDF * G * Ks;
+	const vec3	numerator	= (NDF * G * Ks) / PI;
 
 	vec3 spec = numerator / max(denominator, 0.00001);
 
 	float NdotL = max(dot(norm, omegaOut), 0.00001);
-	return (Kd * usedColor / PI + spec) * lightColor * NdotL;
+	return (Kd * (usedColor / PI) + spec) * lightColor * NdotL;
 }
 
 //=================================================================================
@@ -227,13 +203,16 @@ bool isInShadow(const vec4 lightSpaceCoord, const sampler2D shadowMap)
 vec3 CalculatePointLight(pointLight light, vec3 norm)
 {
 	// TODO: light intensity
-	vec3 lightDir = normalize(light.position - FragPos);
+	const vec3	toLight		= light.position - FragPos;
+	const vec3	lightDir	= normalize(toLight);
+	const float distnace	= length(toLight);
+	const float attuneation = 1.0 / distnace * distnace;
 
 	vec3 viewDir = normalize(viewPos - FragPos);
 
-	float roughnessVal = GetRoughness(texCoordOUT);
+	float roughnessVal = GetRoughness(texCoordOUT, CURRENT_MATERIAL);
 
-	return BRDF(norm, viewDir, lightDir, light.color, roughnessVal);
+	return BRDF(norm, viewDir, lightDir, light.color * light.intensity, roughnessVal) * attuneation;
 }
 
 //=================================================================================
@@ -332,7 +311,7 @@ vec3 CalculatAreaLight(const areaLight light, const vec3 N, const vec3 V, const 
 	InitRectPoints(rect, points);
 
 
-	float roughness = GetRoughness(texCoordOUT);
+    float roughness = GetRoughness(texCoordOUT, CURRENT_MATERIAL);
 
 
 	float theta = acos(dot(N, V));
@@ -355,32 +334,28 @@ vec3 CalculatAreaLight(const areaLight light, const vec3 N, const vec3 V, const 
 	return Lo_i * usedColor;
 }
 
+#include "../include/SunUtils.glsl"
 //=================================================================================
 void main()
 {
 	viewPos = frame.CameraPosition.xyz / frame.CameraPosition.w;
 	FragPos = worldCoord.xyz / worldCoord.w;
 
-	usedColor = modelColor;
-	usedColor *= texture(colorMap, texCoordOUT).xyz;
+    usedColor = CURRENT_MATERIAL.modelColor;
+	usedColor *= texture(CURRENT_MATERIAL.colorMap, texCoordOUT).xyz;
 
-	const vec3 norm = GetNormal();
+	const vec3 norm = GetNormal(texCoordOUT, phong[materialIndex], TBN, normalOUT);
 
-	vec3 omegaIn = FragPos - viewPos;
-	Ray	 ray;
+	const vec3 omegaIn = FragPos - viewPos;
+	Ray		   ray;
 	ray.origin = FragPos;
 	ray.dir	   = reflect(omegaIn, norm);
-	;
 
-	vec3 result = vec3(0, 0, 0);
-
-	float t = 0;
-	float distSq; // distance from the middle of a disc
-
-
+	vec3 result	  = vec3(0, 0, 0);
 	vec3 omegaOut = normalize(ray.dir);
 	vec3 viewDir  = normalize(-omegaIn);
 
+	result += CalculatSunLight(norm, viewDir, FragPos);
 	// if(!isInShadow(lightSpacePos, shadowMap[pAreaLight[0].ShadowMap]))
 	result += CalculatAreaLight(pAreaLight[0], norm, viewDir, FragPos);
 
@@ -388,7 +363,6 @@ void main()
 	{
 		result += CalculatePointLight(pLight[i], norm);
 	}
-
 
 	fragColor = vec4(result, 1.0);
 }

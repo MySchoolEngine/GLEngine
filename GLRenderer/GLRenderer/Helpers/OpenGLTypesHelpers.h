@@ -2,6 +2,7 @@
 
 #include <GLRendererStdafx.h>
 
+#include <Renderer/Definitions.h>
 #include <Renderer/Textures/TextureDefinitions.h>
 #include <Renderer/Textures/TextureStorage.h>
 
@@ -141,18 +142,6 @@ template <Renderer::E_WrapFunction wrapFunction> struct T_WrapFunction {
 };
 
 //=================================================================================
-// MinMag filters
-enum class E_OpenGLFilter : char
-{
-	Linear,
-	Nearest,
-	NearestMipMapNearest,
-	LinearMipMapNearest,
-	LinearMipMapLinear,
-	NearestMipMapLinear,
-};
-
-//=================================================================================
 inline constexpr GLenum OpenGLUnderlyingType(const Renderer::E_TextureFormat format)
 {
 	switch (format)
@@ -257,21 +246,22 @@ inline constexpr GLenum GetOpenGLInternalFormat(const Renderer::E_TextureFormat 
 }
 
 //=================================================================================
-constexpr GLenum MinMagFilterToEnum(const E_OpenGLFilter filter)
+constexpr GLenum MinMagFilterToEnum(const Renderer::E_TextureFilter filter)
 {
+	using namespace Renderer;
 	switch (filter)
 	{
-	case E_OpenGLFilter::Linear:
+	case E_TextureFilter::Linear:
 		return GL_LINEAR;
-	case E_OpenGLFilter::Nearest:
+	case E_TextureFilter::Nearest:
 		return GL_NEAREST;
-	case E_OpenGLFilter::NearestMipMapNearest:
+	case E_TextureFilter::NearestMipMapNearest:
 		return GL_NEAREST_MIPMAP_NEAREST;
-	case E_OpenGLFilter::LinearMipMapNearest:
+	case E_TextureFilter::LinearMipMapNearest:
 		return GL_LINEAR_MIPMAP_NEAREST;
-	case E_OpenGLFilter::LinearMipMapLinear:
+	case E_TextureFilter::LinearMipMapLinear:
 		return GL_LINEAR_MIPMAP_LINEAR;
-	case E_OpenGLFilter::NearestMipMapLinear:
+	case E_TextureFilter::NearestMipMapLinear:
 		return GL_NEAREST_MIPMAP_LINEAR;
 	}
 	return GL_INVALID_VALUE;
@@ -299,6 +289,28 @@ constexpr GLenum AccesRightsToEnum(const E_OpenGLAccess access)
 	case E_OpenGLAccess::ReadWrite:
 		return GL_READ_WRITE;
 		break;
+	}
+	return GL_INVALID_VALUE;
+}
+
+//=================================================================================
+// Shader stages
+constexpr GLenum ShaderStageTypeToEnum(const Renderer::E_ShaderStage stage)
+{
+	switch (stage)
+	{
+	case Renderer::E_ShaderStage::Vertex:
+		return GL_VERTEX_SHADER;
+	case Renderer::E_ShaderStage::Fragment:
+		return GL_FRAGMENT_SHADER;
+	case Renderer::E_ShaderStage::Geometry:
+		return GL_GEOMETRY_SHADER;
+	case Renderer::E_ShaderStage::TesselationControl:
+		return GL_TESS_CONTROL_SHADER;
+	case Renderer::E_ShaderStage::TesselationEvaluation:
+		return GL_TESS_EVALUATION_SHADER;
+	case Renderer::E_ShaderStage::Compute:
+		return GL_COMPUTE_SHADER;
 	}
 	return GL_INVALID_VALUE;
 }

@@ -1,6 +1,5 @@
 #pragma once
 
-
 namespace Utils {
 
 template <class T> class MapValueIterator {

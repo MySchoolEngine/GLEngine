@@ -150,7 +150,7 @@ void C_RayTraceWindow::UploadStorage() const
 	bool foundRenderer = false;
 	while (foundRenderer == false)
 	{
-		const auto& renderer = Core::C_Application::Get().GetActiveRenderer();
+		auto* renderer = Core::C_Application::Get().GetActiveRendererPtr();
 		if (renderer)
 		{
 			renderer->AddTransferCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
@@ -196,6 +196,7 @@ bool C_RayTraceWindow::IsRunning() const
 //=================================================================================
 void C_RayTraceWindow::RequestDestroy()
 {
+	GUI::C_Window::RequestDestroy();
 	StopAll();
 }
 

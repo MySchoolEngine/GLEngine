@@ -1,4 +1,4 @@
-include "../premakeDefines.lua"
+include "../Tools/Premake5/premakeDefines.lua"
 
 project "GUI"
 	kind "SharedLib"
@@ -9,6 +9,9 @@ project "GUI"
 
 	Link("Core")
 	Link("Utils")
+	Link("ImGuiFileDialog")
+
+	LinkDependency("ImGui")
 
 	includedirs
 	{
@@ -17,12 +20,7 @@ project "GUI"
 		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmt}",
-		"../%{IncludeDir.ImGui}",
-	}
-
-	links 
-	{ 
-		"ImGui",
+		"../%{IncludeDir.ImGuiFileDialog}",
 	}
 
 	filter "system:windows"
@@ -33,13 +31,5 @@ project "GUI"
 
 		postbuildcommands
 		{
-			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
+			("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\""),
 		}
-
-	filter "configurations:Debug"
-		runtime "Debug"
-		symbols "On"
-
-	filter "configurations:Release"
-		runtime "Release"
-		optimize "On"

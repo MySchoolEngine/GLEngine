@@ -2,26 +2,26 @@ project "DevIL-IL"
     kind "SharedLib"
     language "C++"
     
-	targetdir ("../../../bin/" .. outputdir .. "/vendor/%{prj.name}")
-    objdir ("../../../obj/" .. outputdir .. "/vendor/%{prj.name}")
+	targetdir ("%{wks.location}/bin/" .. outputdir .. "/vendor/%{prj.name}")
+    objdir ("%{wks.location}/obj/" .. outputdir .. "/vendor/%{prj.name}")
 
     includedirs
     {
-        "../../DevIL/DevIL/src-IL/include",
-        "../../DevIL/DevIL/include/IL",
-        "../../DevIL/DevIL/include",
-        "../../libjpeg/",
+        "%{wks.location}/vendor/DevIL/DevIL/src-IL/include",
+        "%{wks.location}/vendor/DevIL/DevIL/include/IL",
+        "%{wks.location}/vendor/DevIL/DevIL/include",
+        "%{wks.location}/vendor/libjpeg/",
         "../libjpeg/",
         ".",
     }
 
 	files
 	{
-        "../../DevIL/DevIL/src-IL/include/*.h",
+        "%{wks.location}/vendor/DevIL/DevIL/src-IL/include/*.h",
         "./config.h",
-        "../../DevIL/DevIL/include/IL/devil_internal_exports.h",
-        "../../DevIL/DevIL/include/IL/il.h",
-        "../../DevIL/DevIL/src-IL/src/*.cpp",
+        "%{wks.location}/vendor/DevIL/DevIL/include/IL/devil_internal_exports.h",
+        "%{wks.location}/vendor/DevIL/DevIL/include/IL/il.h",
+        "%{wks.location}/vendor/DevIL/DevIL/src-IL/src/*.cpp",
     }
 
     defines
@@ -52,13 +52,14 @@ project "DevIL-IL"
 
         postbuildcommands
         {
-            ("{COPY} %{cfg.buildtarget.relpath} \"../../../bin/" .. outputdir .. "/Sandbox/\"")
+            ("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\"")
         }
         disablewarnings 
         { 
             "4101", -- sstrcpy
             "5033", -- register keyword
             "4065", -- default but no case label 
+            "4756", -- overflow in constant arithmetic
         }
         
     filter "system:linux"

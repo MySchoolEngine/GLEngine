@@ -11,6 +11,9 @@ public:
 	void						operator=(C_TextureUnitManger const&) = delete;
 	static C_TextureUnitManger& Instance();
 
+	// Cause ImGui is activating and binding images I need to dump my cache from previous frames.
+	void Reset();
+
 	void					   BindTextureToUnit(const C_Texture& texture, unsigned int unit);
 	[[nodiscard]] bool		   UnitHasTexture(unsigned int unit) const;
 	[[nodiscard]] bool		   IsTextureBindInUnit(const C_Texture& texture, unsigned int unit) const;

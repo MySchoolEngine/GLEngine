@@ -1,11 +1,13 @@
 #include <GLRendererStdafx.h>
 
+#include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
-#include <GLRenderer/Components/StaticMesh.h>
 #include <GLRenderer/Debug.h>
+#include <GLRenderer/Mesh/StaticMeshResource.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/Textures/Texture.h>
+#include <GLRenderer/Textures/TextureUnitManager.h>
 
 #include <Renderer/Animation/Skeleton.h>
 #include <Renderer/IRenderer.h>
@@ -17,15 +19,15 @@
 
 #include <Utils/DebugBreak.h>
 
-#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/transform.hpp>
 
 namespace GLEngine::GLRenderer {
 
-const static std::string s_DebugShaderName	= "basic-wireframe";
-const static std::string s_MergedShaderName = "MergedWireframes";
+const static std::string s_DebugShaderName		= "basic-wireframe";
+const static std::string s_MergedShaderName		= "MergedWireframes";
+const static std::string s_OctahedronShaderName = "OctahedronMapping";
 
 #define codeToStr(c)                                                                                                                                                               \
 	case c:                                                                                                                                                                        \
@@ -125,7 +127,7 @@ C_DebugDraw::C_DebugDraw()
 	: m_OctahedronMesh(nullptr)
 {
 	SetupAABB();
-	std::vector<glm::vec4> dummy4;
+	std::vector<glm::vec3> dummy4;
 	std::vector<glm::vec3> dummy3;
 
 	m_VAOlines.bind();
@@ -145,65 +147,45 @@ void C_DebugDraw::Clear()
 }
 
 //=================================================================================
-void C_DebugDraw::DrawPoint(const glm::vec4& point, const glm::vec3& color, const glm::mat4& modelMatrix)
+void C_DebugDraw::DrawPoint(const glm::vec3& point, const Colours::T_Colour& color, const glm::mat4& modelMatrix)
 {
-	m_PointsVertices.push_back(modelMatrix * point);
+	m_PointsVertices.emplace_back(modelMatrix * toVec4(point));
 	m_PointsColors.push_back(color);
 }
 
 //=================================================================================
-void C_DebugDraw::DrawPoint(const glm::vec3& point, const glm::vec3& color, const glm::mat4& modelMatrix)
-{
-	DrawPoint(toVec4(point), color, modelMatrix);
-}
-
-//=================================================================================
-void C_DebugDraw::DrawAABB(const Physics::Primitives::S_AABB& bbox, const glm::vec3& color /*= glm::vec3(0.0f, 0.0f, 0.0f)*/, const glm::mat4& modelMatrix /*= glm::mat4(1.0f)*/)
+void C_DebugDraw::DrawAABB(const Physics::Primitives::S_AABB& bbox, const Colours::T_Colour& color, const glm::mat4& modelMatrix)
 {
 	auto& shdManager = Shaders::C_ShaderManager::Instance();
 	auto  program	 = Shaders::C_ShaderManager::Instance().GetProgram(s_DebugShaderName);
 	shdManager.ActivateShader(program);
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
-		[this, program, bbox, color, modelMatrix]() {
-			glm::vec3 size		= bbox.m_Max - bbox.m_Min;
-			glm::vec3 center	= (bbox.m_Max + bbox.m_Min) / 2.0f; // glm::vec3((min_x + max_x) / 2, (min_y + max_y) / 2, (min_z + max_z) / 2);
-			glm::mat4 transform = glm::translate(glm::mat4(1), center) * glm::scale(glm::mat4(1), size);
+	glm::vec3 size		= bbox.m_Max - bbox.m_Min;
+	glm::vec3 center	= (bbox.m_Max + bbox.m_Min) / 2.0f; // glm::vec3((min_x + max_x) / 2, (min_y + max_y) / 2, (min_z + max_z) / 2);
+	glm::mat4 transform = glm::translate(glm::mat4(1), center) * glm::scale(glm::mat4(1), size);
 
-			/* Apply object's transformation matrix */
-			program->SetUniform("modelMatrix", modelMatrix * transform);
-			program->SetUniform("colorIN", color);
-
-			m_VAOaabb.bind();
-			m_VAOaabb.BindBuffer<1>();
-
-			glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, 0);
-			glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, (GLvoid*)(4 * sizeof(GLushort)));
-			glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, (GLvoid*)(8 * sizeof(GLushort)));
-
-			m_VAOaabb.unbind();
-		},
-		"Debug - DrawAABB")));
+	m_AABBTransform.emplace_back(modelMatrix * transform);
+	m_AABBColor.emplace_back(color);
 }
 
 //=================================================================================
-void C_DebugDraw::DrawLine(const glm::vec4& pointA, const glm::vec4& pointB, const glm::vec3& color /*= glm::vec3(0.0f, 0.0f, 0.0f)*/)
+void C_DebugDraw::DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, const Colours::T_Colour& color)
 {
-	m_LinesVertices.push_back(pointA);
-	m_LinesVertices.push_back(pointB);
+	DrawLine(pointA, pointB, color, color);
+}
+
+//=================================================================================
+void C_DebugDraw::DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, const Colours::T_Colour& colorA, const Colours::T_Colour& colorB)
+{
+	m_LinesVertices.emplace_back(toVec4(pointA));
+	m_LinesVertices.emplace_back(toVec4(pointB));
 	// we need two copies as we have two vertices
-	m_LinesColors.push_back(color);
-	m_LinesColors.push_back(color);
+	m_LinesColors.push_back(colorA);
+	m_LinesColors.push_back(colorB);
 }
 
 //=================================================================================
-void C_DebugDraw::DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, const glm::vec3& color /*= glm::vec3(0.0f, 0.0f, 0.0f)*/)
-{
-	DrawLine(toVec4(pointA), toVec4(pointB), color);
-}
-
-//=================================================================================
-void C_DebugDraw::DrawLines(const std::vector<glm::vec4>& pairs, const glm::vec3& color)
+void C_DebugDraw::DrawLines(const std::vector<glm::vec4>& pairs, const Colours::T_Colour& color)
 {
 	m_LinesVertices.insert(m_LinesVertices.end(), pairs.begin(), pairs.end());
 	m_LinesColors.insert(m_LinesColors.end(), pairs.size(), color);
@@ -242,8 +224,8 @@ void C_DebugDraw::DrawBone(const glm::vec3& position, const Renderer::Animation:
 	const glm::vec3 Offset2	 = bitangent * bumpSize;
 
 
-	DrawLine(position, BumpPosition, glm::vec3(1, 1, 1));
-	DrawLine(BumpPosition, dest, glm::vec3(0, 1, 0));
+	DrawLine(position, BumpPosition, Colours::white);
+	DrawLine(BumpPosition, dest, Colours::green);
 
 	// square around the bump
 	DrawLine(BumpPosition + Offset1 + Offset2, BumpPosition + Offset1 - Offset2);
@@ -288,9 +270,9 @@ void C_DebugDraw::DrawAxis(const glm::vec3& origin, const glm::vec3& up, const g
 {
 	glm::vec3  rightVec			  = toVec4(glm::normalize(glm::cross(glm::vec3(up), glm::vec3(foreward))));
 	const auto originInModelSpace = modelMatrix * glm::vec4(origin, 1.0f);
-	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + foreward), 1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + up), 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + rightVec), 1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + foreward), 1.0f), Colours::blue);
+	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + up), 1.0f), Colours::green);
+	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + rightVec), 1.0f), Colours::red);
 }
 
 //=================================================================================
@@ -314,7 +296,7 @@ void C_DebugDraw::DrawGrid(const glm::vec4& origin, unsigned short linesToSide, 
 }
 
 //=================================================================================
-void C_DebugDraw::DrawFrustum(const Physics::Primitives::C_Frustum& frust, const glm::vec3& color)
+void C_DebugDraw::DrawFrustum(const Physics::Primitives::C_Frustum& frust, const Colours::T_Colour& color)
 {
 	const auto& position = frust.GetPosition();
 	const auto& upVector = frust.GetUpVector();
@@ -376,33 +358,42 @@ void C_DebugDraw::DrawFrustum(const Physics::Primitives::C_Frustum& frust, const
 
 	DrawLines(lines, color);
 	DrawPoint(position);
-	DrawLine(position, position + forward, glm::vec3(0, 1, 0));
-	DrawLine(position, position + upVector, glm::vec3(1, 0, 0));
+	DrawLine(position, position + forward, Colours::green);
+	DrawLine(position, position + upVector, Colours::red);
 }
 
 //=================================================================================
 void C_DebugDraw::DrawMergedGeoms()
 {
-	auto& shdManager = Shaders::C_ShaderManager::Instance();
-	auto  program	 = Shaders::C_ShaderManager::Instance().GetProgram(s_MergedShaderName);
-	shdManager.ActivateShader(program);
+	auto& shdManager		 = Shaders::C_ShaderManager::Instance();
+	auto  mergedDebugProgram = shdManager.GetProgram(s_MergedShaderName);
+	auto  octahedronProgram	 = shdManager.GetProgram(s_OctahedronShaderName);
 
+	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
 	if (!m_OctahedronInfos.empty() && !m_OctahedronMesh)
 	{
-		m_OctahedronMesh = std::make_shared<Components::C_StaticMesh>(Renderer::MeshData::C_Geometry::CreateOctahedron(1.f, 1.f), "OctahedronMapping", nullptr);
+		m_OctahedronMesh = std::make_shared<Mesh::C_StaticMeshResource>(Renderer::MeshData::C_Geometry::CreateOctahedron(1.f, 1.f));
 	}
 
-	std::for_each(m_OctahedronInfos.begin(), m_OctahedronInfos.end(), [&](const auto& info) {
-		m_OctahedronMesh->SetColorMap(info.m_Texture);
-		m_OctahedronMesh->SetComponentMatrix(glm::scale(glm::translate(info.m_Position), glm::vec3(info.m_size)));
-		m_OctahedronMesh->PerformDraw();
+	auto& tgmg = Textures::C_TextureUnitManger::Instance();
+
+	shdManager.ActivateShader(octahedronProgram);
+	renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([octahedronProgram]() { octahedronProgram->SetUniform("colorMap", 0); }));
+	std::for_each(m_OctahedronInfos.begin(), m_OctahedronInfos.end(), [&](auto& info) {
+		const auto modelMatrix = glm::scale(glm::translate(info.m_Position), glm::vec3(info.m_size));
+
+		tgmg.BindTextureToUnit(*info.m_Texture.get(), 0);
+		renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([octahedronProgram, modelMatrix]() { octahedronProgram->SetUniform("modelMatrix", modelMatrix); }));
+		renderer.AddCommand(std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_OctahedronMesh));
 	});
 	m_OctahedronInfos.clear();
+	shdManager.DeactivateShader();
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+	shdManager.ActivateShader(mergedDebugProgram);
+	renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&]() {
 			m_VAOlines.bind();
-			std::vector<glm::vec4> mergedVertices(m_LinesVertices);
+			std::vector<glm::vec3> mergedVertices(m_LinesVertices);
 			std::vector<glm::vec3> mergedColors(m_LinesColors);
 			mergedVertices.insert(mergedVertices.end(), m_PointsVertices.begin(), m_PointsVertices.end());
 			mergedColors.insert(mergedColors.end(), m_PointsColors.begin(), m_PointsColors.end());
@@ -423,16 +414,47 @@ void C_DebugDraw::DrawMergedGeoms()
 			}
 
 
-			m_VAOlines.unbind();
-			shdManager.DeactivateShader();
-
 			m_LinesVertices.clear();
 			m_LinesColors.clear();
 
 			m_PointsVertices.clear();
 			m_PointsColors.clear();
 		},
-		"C_DebugDraw::DrawMergedGeoms")));
+		"C_DebugDraw::DrawMergedGeoms"));
+	shdManager.DeactivateShader();
+	auto AABBprogram = shdManager.GetProgram(s_DebugShaderName);
+	shdManager.ActivateShader(AABBprogram);
+
+	renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+		[this]() {
+			m_VAOaabb.bind();
+			m_VAOaabb.BindBuffer<1>();
+		},
+		"Prepare AABB"));
+
+	for (int i = 0; i < m_AABBTransform.size(); ++i)
+	{
+		renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+			[this, AABBprogram, i]() {
+				AABBprogram->SetUniform("modelMatrix", m_AABBTransform[i]);
+				AABBprogram->SetUniform("colorIN", m_AABBColor[i]);
+
+				glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, 0);
+				glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, (GLvoid*)(4 * sizeof(GLushort)));
+				glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, (GLvoid*)(8 * sizeof(GLushort)));
+			},
+			"Debug - DrawAABB"));
+	}
+
+	renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+		[this]() {
+			m_VAOaabb.unbind();
+			m_AABBTransform.clear();
+			m_AABBColor.clear();
+		},
+		"Clear AABB"));
+
+	shdManager.DeactivateShader();
 }
 
 //=================================================================================

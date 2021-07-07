@@ -10,9 +10,9 @@ class I_Resource;
  * @class I_RawGPUDAta
  *
  * @brief	This is raw data extracted via I_Extractor. This class exists to
- *			keep data out of entity to avoid semafors as much as possible.
- *			Data will be than transformed into GPU friendly data, but this
- *			will happen when simulation thread can run again.
+ *			keep data out of entity to avoid semafors as much as
+ *possible. Data will be than transformed into GPU friendly data, but this will
+ *happen when simulation thread can run again.
  *
  * @author 	Dominik Rohacek
  * Contact: RohacekD@gmail.com

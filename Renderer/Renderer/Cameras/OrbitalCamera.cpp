@@ -14,8 +14,6 @@
 #include <Core/IWindowManager.h>
 #include <Core/Input.h>
 
-
-#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/projection.hpp>
 #include <glm/gtx/rotate_vector.hpp>
@@ -148,7 +146,6 @@ bool C_OrbitalCamera::HasDebugDrawGUI() const
 {
 	return true;
 }
-
 
 //=================================================================================
 bool C_OrbitalCamera::OnKeyEvent(Core::C_KeyEvent& event)

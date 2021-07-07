@@ -1,17 +1,15 @@
-include "../../../premakeDefines.lua"
-
 project "pugixml"
 	kind "StaticLib"
 	language "C++"
 
 
-	targetdir ("../../../bin/" .. outputdir .. "/vendor/%{prj.name}")
-	objdir ("../../../obj/" .. outputdir .. "/vendor/%{prj.name}")
+	targetdir ("%{wks.location}/bin/" .. outputdir .. "/vendor/%{prj.name}")
+	objdir ("%{wks.location}/obj/" .. outputdir .. "/vendor/%{prj.name}")
 
 	files { 
-		"../../pugixml/src/pugixml.hpp", 
-		"../../pugixml/src/pugiconfig.hpp",
-		"../../pugixml/src/pugixml.cpp" }
+		"%{wks.location}/vendor/pugixml/src/pugixml.hpp", 
+		"%{wks.location}/vendor/pugixml/src/pugiconfig.hpp",
+		"%{wks.location}/vendor/pugixml/src/pugixml.cpp" }
 
 	filter "system:windows"
 		cppdialect "C++17"
@@ -19,7 +17,7 @@ project "pugixml"
 
 		postbuildcommands
 		{
-			("{COPY} %{cfg.buildtarget.relpath} \"../../../bin/" .. outputdir .. "/Sandbox/\"")
+			("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\"")
 		}
 
 	filter "system:linux"

@@ -8,26 +8,22 @@ namespace GLEngine::Core {
 //=================================================================================
 C_LayerStack::C_LayerStack(std::string&& name)
 	: C_Layer(std::move(name))
-	, m_Layers(new std::remove_pointer<decltype(m_Layers)>::type)
 {
 }
 
 //=================================================================================
-C_LayerStack::~C_LayerStack()
-{
-	delete m_Layers;
-}
+C_LayerStack::~C_LayerStack() = default;
 
 //=================================================================================
 void C_LayerStack::PushLayer(C_Layer* layer)
 {
-	m_Layers->push_back(layer);
+	m_Layers.push_back(layer);
 }
 
 //=================================================================================
 void C_LayerStack::OnEvent(Core::I_Event& event)
 {
-	for (auto& layer : *m_Layers)
+	for (auto& layer : m_Layers)
 	{
 		layer->OnEvent(event);
 		if (event.m_Handeld)
@@ -38,7 +34,13 @@ void C_LayerStack::OnEvent(Core::I_Event& event)
 //=================================================================================
 bool C_LayerStack::ReadyForDestroy() const
 {
-	return std::all_of(m_Layers->begin(), m_Layers->end(), [](const auto& it) { return it->ReadyForDestroy(); });
+	return std::all_of(m_Layers.begin(), m_Layers.end(), [](const auto& it) { return it->ReadyForDestroy(); });
+}
+
+//=================================================================================
+void C_LayerStack::OnUpdate()
+{
+	std::for_each(m_Layers.begin(), m_Layers.end(), [](auto& layer) { layer->OnUpdate(); });
 }
 
 } // namespace GLEngine::Core

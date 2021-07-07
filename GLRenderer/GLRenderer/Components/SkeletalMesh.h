@@ -10,9 +10,17 @@
 #include <GUI/Input/CheckBoxValue.h>
 #include <GUI/Input/Slider.h>
 
-namespace GLEngine::GLRenderer::Buffers::UBO {
+namespace GLEngine::GLRenderer {
+namespace Buffers::UBO {
 class C_JointTramsformsUBO;
 }
+namespace Mesh {
+class C_StaticMeshResource;
+}
+namespace Textures {
+class C_Texture;
+}
+} // namespace GLEngine::GLRenderer
 
 namespace GLEngine::GLRenderer::Components {
 

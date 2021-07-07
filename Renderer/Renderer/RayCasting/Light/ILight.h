@@ -13,7 +13,7 @@ struct S_VisibilityTester;
  */
 class I_RayLight {
 public:
-	virtual ~I_RayLight()																													   = default;
+	virtual ~I_RayLight() = default;
 	/**
 	 * Samples incident radiance at the intersection given by @param intersection from light.
 	 */
@@ -21,6 +21,6 @@ public:
 	/**
 	 * Returns emitted radiance at a surface point intersected by a ray.
 	 */
-	[[nodiscard]] virtual glm::vec3 Le() const																								   = 0;
+	[[nodiscard]] virtual glm::vec3 Le() const = 0;
 };
 } // namespace GLEngine::Renderer::RayTracing

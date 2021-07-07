@@ -1,8 +1,6 @@
 #pragma once
 
-
 namespace GLEngine::Renderer {
-
 
 //=================================================================================
 constexpr S_Frame::S_Frame(const glm::vec3& x, const glm::vec3& y, const glm::vec3& z)
@@ -36,12 +34,6 @@ constexpr glm::vec3 S_Frame::Tangnt() const
 constexpr glm::vec3 S_Frame::Normal() const
 {
 	return Y;
-}
-
-//=================================================================================
-constexpr glm::vec3 S_Frame::ToLocal(const glm::vec3& a) const
-{
-	return {glm::dot(a, X), glm::dot(a, Y), glm::dot(a, Z)};
 }
 
 //=================================================================================

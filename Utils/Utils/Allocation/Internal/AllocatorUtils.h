@@ -1,6 +1,5 @@
 #pragma once
 
-
 namespace Utils::Allocation {
 template <class T, std::size_t alignment> class C_AllocatorUtils {
 public:

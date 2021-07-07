@@ -4,7 +4,6 @@
 
 #include <Core/IWindowManager.h>
 
-
 namespace GLEngine::DX12Renderer {
 
 class C_D3D12WindowFactory final : public Core::I_WindowFactory {

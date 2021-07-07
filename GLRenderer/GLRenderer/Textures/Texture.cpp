@@ -23,6 +23,8 @@ C_Texture::C_Texture(const std::string& name, GLenum target)
 	: m_bGroupOperations(false)
 	, m_target(target)
 	, m_texture(0)
+	, m_Name(name)
+	, m_Handle(0)
 	, m_Format(Renderer::E_TextureFormat::RGBA8i)
 {
 	glGenTextures(1, &m_texture);
@@ -47,6 +49,7 @@ C_Texture::C_Texture(C_Texture&& t)
 	m_Handle		   = t.m_Handle;
 	m_Dimensions	   = t.m_Dimensions;
 	m_Format		   = t.m_Format;
+	m_Name			   = std::move(t.m_Name);
 }
 
 //=================================================================================
@@ -65,11 +68,13 @@ void C_Texture::operator=(C_Texture&& rhs)
 	m_Handle		   = rhs.m_Handle;
 	m_Dimensions	   = rhs.m_Dimensions;
 	m_Format		   = rhs.m_Format;
+	m_Name			   = std::move(rhs.m_Name);
 }
 
 //=================================================================================
 C_Texture::~C_Texture()
 {
+	CORE_LOG(E_Level::Debug, E_Context::Render, "Texture being deleted name: {}", m_Name);
 	Clean();
 }
 
@@ -123,7 +128,7 @@ void C_Texture::SetBorderColor(const glm::vec4& color)
 }
 
 //=================================================================================
-void C_Texture::SetFilter(E_OpenGLFilter min, E_OpenGLFilter mag)
+void C_Texture::SetFilter(Renderer::E_TextureFilter min, Renderer::E_TextureFilter mag)
 {
 	StartGroupOp();
 	SetTexParameter(GL_TEXTURE_MIN_FILTER, MinMagFilterToEnum(min));
@@ -222,7 +227,8 @@ void C_Texture::SetInternalFormat(Renderer::E_TextureFormat internalFormat, GLin
 //=================================================================================
 std::uint64_t C_Texture::CreateHandle()
 {
-	m_Handle = glGetTextureHandleARB(m_texture);
+	if (m_Handle == 0)
+		m_Handle = glGetTextureHandleARB(m_texture);
 	return GetHandle();
 }
 
@@ -235,7 +241,7 @@ std::uint64_t C_Texture::GetHandle() const
 //=================================================================================
 void C_Texture::MakeHandleResident(bool val)
 {
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::make_unique<Commands::C_GLMakeTextureHandleResident>(m_Handle, val));
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::C_GLMakeTextureHandleResident>(m_Handle, val));
 }
 
 //=================================================================================
@@ -245,13 +251,19 @@ T_TexBufferFuture C_Texture::GetTextureData() const
 
 	auto  ret	   = promise.get_future();
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
-	renderer->AddCommand(std::make_unique<Commands::C_GetTexImage>(std::move(promise), m_target,
-																   0, // level
-																   GetOpenGLInternalFormat(m_Format),
-																   T_TypeToGL<std::uint8_t>::value, // todo
-																   GetWidth(), GetHeight(),			// resolution
-																   Renderer::GetNumberChannels(m_Format)));
+	renderer.AddCommand(std::make_unique<Commands::C_GetTexImage>(std::move(promise), m_target,
+																  0, // level
+																  GetOpenGLInternalFormat(m_Format),
+																  T_TypeToGL<std::uint8_t>::value, // todo
+																  GetWidth(), GetHeight(),		   // resolution
+																  Renderer::GetNumberChannels(m_Format)));
 	return ret;
+}
+
+//=================================================================================
+void* C_Texture::GetDeviceTextureHandle() const
+{
+	return (void*)(intptr_t)(m_texture);
 }
 
 } // namespace GLEngine::GLRenderer::Textures

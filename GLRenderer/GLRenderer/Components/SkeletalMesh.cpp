@@ -5,8 +5,10 @@
 #include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/Components/SkeletalMesh.h>
+#include <GLRenderer/Mesh/StaticMeshResource.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
+#include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/Textures/TextureManager.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 
@@ -17,10 +19,6 @@
 #include <Core/Application.h>
 
 #include <Utils/HighResolutionTimer.h>
-
-
-#define GLM_ENABLE_EXPERIMENTAL
-#include <GLRenderer/Debug.h>
 
 #include <glm/gtx/transform.hpp>
 
@@ -79,7 +77,7 @@ void C_SkeletalMesh::PerformDraw() const
 	auto  shader = shmgr.GetProgram("animation");
 	shmgr.ActivateShader(shader);
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&, shader]() {
 			shader->SetUniform("modelMatrix", m_ModelMatrix * glm::rotate(-glm::half_pi<float>(), glm::vec3(1.f, .0f, .0f)));
 
@@ -99,7 +97,7 @@ void C_SkeletalMesh::PerformDraw() const
 			glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_triangles));
 			m_VAO.unbind();
 		},
-		"SkeletalMesh - Draw")));
+		"SkeletalMesh - Draw"));
 }
 
 //=================================================================================
@@ -159,7 +157,7 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, std::str
 
 	m_Texture->StartGroupOp();
 	m_Texture->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
-	m_Texture->SetFilter(E_OpenGLFilter::LinearMipMapLinear, E_OpenGLFilter::Linear);
+	m_Texture->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
 	m_Texture->GenerateMipMaps();
 
 	m_Texture->EndGroupOp();

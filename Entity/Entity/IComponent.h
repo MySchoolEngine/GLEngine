@@ -2,6 +2,8 @@
 
 #include <Entity/EntityApi.h>
 
+#include <GUI/Input/Transformations.h>
+
 #include <Core/EventSystem/EventReciever.h>
 
 namespace pugi {
@@ -22,7 +24,7 @@ enum class E_ComponentType;
 //=================================================================================
 class ENTITY_API_EXPORT I_Component : public Core::I_EventReciever {
 public:
-	I_Component(std::shared_ptr<I_Entity> owner);
+	explicit I_Component(std::shared_ptr<I_Entity> owner);
 	virtual ~I_Component()								  = default;
 	[[nodiscard]] virtual E_ComponentType GetType() const = 0;
 
@@ -32,21 +34,20 @@ public:
 	virtual void PostUpdate(){};
 
 	// draws inside of prepared window
-	virtual void DebugDrawGUI(){};
-	void		 DebugDrawComponentGUI();
-	virtual bool HasDebugDrawGUI() const = 0;
+	virtual void			   DebugDrawGUI(){};
+	void					   DebugDrawComponentGUI();
+	[[nodiscard]] virtual bool HasDebugDrawGUI() const = 0;
 	// should return name used for component in debug
-	virtual std::string_view GetDebugComponentName() const = 0;
+	[[nodiscard]] virtual std::string_view GetDebugComponentName() const = 0;
 	// void SetModelMatrix(const glm::mat4& modelMatrix) { m_ModelMatrix = modelMatrix; };
-	void						  SetComponentMatrix(const glm::mat4& componentMatrix) { m_ComponentMatrix = componentMatrix; }
+	void						  SetComponentMatrix(const glm::mat4& componentMatrix) { m_Transformation.SetMatrix(componentMatrix); }
 	[[nodiscard]] const glm::mat4 GetComponentModelMatrix() const;
 
 	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const = 0;
 
 protected:
-	std::shared_ptr<I_Entity> GetOwner() const;
-
-	glm::mat4 m_ComponentMatrix;
+	std::shared_ptr<I_Entity>	  GetOwner() const;
+	GUI::Input::C_Transformations m_Transformation;
 
 private:
 	std::weak_ptr<I_Entity> m_Owner;

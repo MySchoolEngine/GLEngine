@@ -3,8 +3,8 @@
 #include <Renderer/RayCasting/Frame.h>
 #include <Renderer/RayCasting/Generator/Sampler.h>
 #include <Renderer/RayCasting/Geometry/GeometryTraits.h>
-#include <Renderer/RayCasting/Sampling.h>
 #include <Renderer/RayCasting/RayIntersection.h>
+#include <Renderer/RayCasting/Sampling.h>
 
 #include <Physics/Primitives/Disc.h>
 #include <Physics/Primitives/Plane.h>

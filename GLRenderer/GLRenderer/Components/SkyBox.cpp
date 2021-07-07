@@ -25,7 +25,7 @@ C_SkyBox::C_SkyBox(std::shared_ptr<Entity::I_Entity> owner)
 	: Renderer::I_RenderableComponent(owner)
 	, m_Textures("Skybox", GL_TEXTURE_CUBE_MAP)
 {
-	m_Textures.SetFilter(E_OpenGLFilter::Linear, E_OpenGLFilter::Linear);
+	m_Textures.SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
 	m_Textures.SetWrap(Renderer::E_WrapFunction::ClampToEdge, Renderer::E_WrapFunction::ClampToEdge, Renderer::E_WrapFunction::ClampToEdge);
 
 	std::vector<glm::vec3> vertices;
@@ -112,7 +112,7 @@ void C_SkyBox::PerformDraw() const
 	auto  shader = shmgr.GetProgram("skybox");
 	shmgr.ActivateShader(shader);
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&]() {
 			glDepthFunc(GL_LEQUAL); // change depth function so depth test passes when values are equal to depth buffer's content
 
@@ -122,7 +122,7 @@ void C_SkyBox::PerformDraw() const
 			glDepthFunc(GL_LESS); // set depth function back to default
 			m_VAO.unbind();
 		},
-		"SkyBox draw")));
+		"SkyBox draw"));
 }
 
 //=================================================================================

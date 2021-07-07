@@ -11,7 +11,6 @@
 
 #include <IL/il.h>
 
-
 namespace GLEngine::Renderer::Textures {
 //=================================================================================
 bool TextureLoader::_isILinitialized = false;

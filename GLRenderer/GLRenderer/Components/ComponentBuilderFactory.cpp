@@ -7,10 +7,14 @@
 #include <GLRenderer/Components/StaticMesh.h>
 #include <GLRenderer/Textures/TextureManager.h>
 
+#include <Renderer/Lights/AreaLight.h>
 #include <Renderer/Lights/PointLight.h>
+#include <Renderer/Materials/MaterialManager.h>
 #include <Renderer/Mesh/Loading/SceneLoader.h>
 
 #include <Entity/Components/EntityDebugComponent.h>
+
+#include <Utils/Parsing/MaterialParser.h>
 
 namespace GLEngine::GLRenderer::Components {
 
@@ -37,6 +41,10 @@ std::unique_ptr<Entity::I_ComponenetBuilder> C_ComponentBuilderFactory::GetFacto
 	{
 		return std::make_unique<Renderer::C_PointLightCompBuilder>();
 	}
+	if (name == "AreaLight")
+	{
+		return std::make_unique<Renderer::C_AreaLightCompBuilder>();
+	}
 	if (name == "Geometry")
 	{
 		return std::make_unique<C_GLGeomComponentBuilder>();
@@ -61,9 +69,12 @@ void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Enti
 
 	for (const auto& mesh : scene->meshes)
 	{
-		const auto meshComp = std::make_shared<C_StaticMesh>(mesh, "basic", entity);
 		const auto material = scene->materials[mesh.materialIndex];
-		meshComp->SetColor(material.diffuse);
+		const auto meshComp = std::make_shared<C_StaticMesh>(mesh, "basic", entity, &material);
+
+		auto& materialManager = Renderer::C_MaterialManager::Instance();
+		auto  materialPtr	  = materialManager.GetMaterial(material.m_Name);
+		GLE_ASSERT(materialPtr, "Material '{}' should already exist", material.m_Name);
 		if (material.textureIndex >= 0)
 		{
 			auto colorMapTexture = tmgr.GetTexture(scene->textures[material.textureIndex]);
@@ -71,12 +82,27 @@ void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Enti
 			{
 				colorMapTexture->StartGroupOp();
 				colorMapTexture->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
-				colorMapTexture->SetFilter(E_OpenGLFilter::LinearMipMapLinear, E_OpenGLFilter::Linear);
+				colorMapTexture->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
 				colorMapTexture->GenerateMipMaps();
 
 				colorMapTexture->EndGroupOp();
 
-				meshComp->SetColorMap(colorMapTexture);
+				materialPtr->SetColorMap(colorMapTexture);
+			}
+		}
+		if (material.noramlTextureIndex >= 0)
+		{
+			auto normalMapTexture = tmgr.GetTexture(scene->textures[material.noramlTextureIndex]);
+			if (normalMapTexture)
+			{
+				normalMapTexture->StartGroupOp();
+				normalMapTexture->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
+				normalMapTexture->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
+				normalMapTexture->GenerateMipMaps();
+
+				normalMapTexture->EndGroupOp();
+
+				materialPtr->SetNormalMap(normalMapTexture);
 			}
 		}
 

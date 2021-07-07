@@ -33,6 +33,8 @@ public:
 	template <class T, class... Args> std::reference_wrapper<GUI::Menu::C_MenuItem> CreateMenuItem(Args&&... args);
 
 private:
+	void DestroyPossibleWindows();
+
 	std::unordered_map<GUID, GUI::C_Window*>			m_Windwos;
 	std::vector<std::unique_ptr<GUI::Menu::C_MenuItem>> m_MenuItems;
 };

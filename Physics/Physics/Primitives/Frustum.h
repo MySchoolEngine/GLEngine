@@ -14,6 +14,8 @@
 #include <Physics/Primitives/AABB.h>
 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
 
 namespace GLEngine::Physics::Primitives {
 
@@ -88,6 +90,8 @@ public:
 
 		m_position = newPosition;
 	}
+
+	[[nodiscard]] glm::mat4 GetViewMatrix() const { return glm::lookAt(GetPosition(), GetPosition() + GetForeward(), GetUpVector()); }
 
 	[[nodiscard]] constexpr const glm::vec3& GetForeward() const { return m_foreward; }
 	constexpr void							 SetForeward(const glm::vec3& val) { m_foreward = val; }

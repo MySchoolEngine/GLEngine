@@ -1,5 +1,7 @@
 #pragma once
 
+#include <GLRenderer/Helpers/GLSLTypeHelpers.h>
+
 namespace GLEngine::GLRenderer::Shaders {
 
 //=================================================================================

@@ -4,13 +4,12 @@
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 
-#include <algorithm>
-
 namespace GLEngine::GLRenderer::Buffers {
 
 //=================================================================================
 C_UniformBuffersManager::C_UniformBuffersManager()
 	: m_MaxBindingPoints(84) // minimum binding points according to specification
+	, m_UsedMemory(0)
 {
 	glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &m_MaxBindingPoints);
 	m_BindingPoint.reserve(m_MaxBindingPoints);
@@ -57,7 +56,6 @@ C_UniformBuffersManager::T_UBOSmartPtr C_UniformBuffersManager::GetBufferByName(
 //=================================================================================
 void C_UniformBuffersManager::ProcessUBOBindingPoints(std::shared_ptr<Shaders::C_ShaderProgram> program) const
 {
-	int i = 0;
 	for (const auto& ubo : m_BindingPoint)
 	{
 		if (!ubo)
@@ -69,7 +67,6 @@ void C_UniformBuffersManager::ProcessUBOBindingPoints(std::shared_ptr<Shaders::C
 		{
 			glUniformBlockBinding(program->GetProgram(), uniformBlockIndex, ubo->GetIndex());
 		}
-		++i;
 	}
 }
 

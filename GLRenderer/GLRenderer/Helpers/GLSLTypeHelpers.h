@@ -1,6 +1,10 @@
 #pragma once
 
-#include <GLRendererStdafx.h>
+#include <glm/glm.hpp>
+
+#include <cstdint>
+#include <string_view>
+
 
 namespace GLEngine::GLRenderer {
 
@@ -119,6 +123,10 @@ template <> struct T_TypeToGLSL<glm::mat4x2> {
 };
 template <> struct T_TypeToGLSL<glm::mat4x3> {
 	static constexpr std::string_view value = "mat4x3";
+};
+
+template <> struct T_TypeToGLSL<std::uint64_t> {
+	static constexpr std::string_view value = "sampler2D";
 };
 
 template <class T> constexpr auto T_TypeToGLSL_v = T_TypeToGLSL<T>::value;

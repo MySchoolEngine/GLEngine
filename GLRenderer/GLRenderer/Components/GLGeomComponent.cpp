@@ -1,13 +1,15 @@
 #include <GLRendererStdafx.h>
 
+#include <GLRenderer/Buffers/UBO/ModelData.h>
+#include <GLRenderer/Buffers/UniformBuffersManager.h>
 #include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/Components/GLGeomComponent.h>
+#include <GLRenderer/Mesh/StaticMeshResource.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/Textures/TextureManager.h>
-#include <GLRenderer/Textures/TextureUnitManager.h>
 
 #include <Renderer/IRenderer.h>
 
@@ -26,6 +28,9 @@ C_GLGeomComponent::C_GLGeomComponent(std::shared_ptr<Entity::I_Entity> owner)
 }
 
 //=================================================================================
+C_GLGeomComponent::~C_GLGeomComponent() = default;
+
+//=================================================================================
 void C_GLGeomComponent::SetupGeometry(const Renderer::MeshData::Mesh& mesh)
 {
 	m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(mesh);
@@ -38,43 +43,31 @@ void C_GLGeomComponent::PerformDraw() const
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
 
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
-	auto& tmgr	= Textures::C_TextureManager::Instance();
-	auto& tm	= Textures::C_TextureUnitManger::Instance();
-
-	tm.BindTextureToUnit(*(tmgr.GetIdentityTexture()), 0);
-	tm.BindTextureToUnit(*(tmgr.GetIdentityTexture()), 1);
-	tm.BindTextureToUnit(*(tmgr.GetIdentityTexture()), 2);
 	shmgr.ActivateShader(m_Shader);
 
-
-	if (m_ColorMap)
-	{
-		tm.BindTextureToUnit(*m_ColorMap, 1);
-	}
-
-	renderer->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
-		[&]() {
-			const auto modelMatrix = GetComponentModelMatrix();
-			m_Shader->SetUniform("modelMatrix", modelMatrix);
-			m_Shader->SetUniform("modelColor", m_Color.GetValue());
-			m_Shader->SetUniform("roughness", 1);
-			m_Shader->SetUniform("roughnessMap", 0);
-			m_Shader->SetUniform("colorMap", 1);
-			m_Shader->SetUniform("normalMap", 2);
-			m_Shader->SetUniform("useNormalMap", false);
+	renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+		[&, matIndex = m_Material ? m_Material->GetMaterialIndex() : 0]() {
+			ErrorCheck();
+			auto modelData = Buffers::C_UniformBuffersManager::Instance().GetBufferByName("modelData");
+			if (auto modelDataUbo = std::dynamic_pointer_cast<Buffers::UBO::C_ModelData>(modelData))
+			{
+				modelDataUbo->SetModelMatrix(GetComponentModelMatrix());
+				modelDataUbo->SetMaterialIndex(matIndex);
+				modelDataUbo->UploadData();
+			}
+			ErrorCheck();
 		},
-		"GLGeomComponent - upload material")));
+		"GLGeomComponent - upload matrice"));
 
-	renderer->AddCommand(std::move(std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_Mesh)));
+	renderer.AddCommand(std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_Mesh));
 }
 
 //=================================================================================
 void C_GLGeomComponent::DebugDrawGUI()
 {
-	m_Color.Draw();
-	if (m_ColorMap)
+	if (::ImGui::CollapsingHeader("Geom component"))
 	{
-		ImGui::Image((void*)(intptr_t)(m_ColorMap->GetTexture()), ImVec2(128, 128));
+		m_Material->DrawGUI();
 	}
 }
 
@@ -87,11 +80,9 @@ bool C_GLGeomComponent::HasDebugDrawGUI() const
 //=================================================================================
 void C_GLGeomComponent::SetupMaterial(const Utils::Parsing::MaterialData& data)
 {
+	C_GeomComponent::SetupMaterial(data);
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	m_Shader	= shmgr.GetProgram(data.m_MaterialName);
-
-	auto color = data.m_Color;
-	m_Color.SetValue(std::move(color));
 
 	auto& tmgr = Textures::C_TextureManager::Instance();
 
@@ -100,14 +91,16 @@ void C_GLGeomComponent::SetupMaterial(const Utils::Parsing::MaterialData& data)
 		m_ColorMap = tmgr.GetTexture(data.m_ColorMap);
 		if (m_ColorMap)
 		{
-			m_Color = glm::vec3(1.0f);
+			m_Material->SetDiffuseColor(glm::vec3(1.0f));
 
 			m_ColorMap->StartGroupOp();
 			m_ColorMap->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
-			m_ColorMap->SetFilter(E_OpenGLFilter::LinearMipMapLinear, E_OpenGLFilter::Linear);
+			m_ColorMap->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
 			m_ColorMap->GenerateMipMaps();
 
 			m_ColorMap->EndGroupOp();
+
+			m_Material->SetColorMap(m_ColorMap);
 		}
 	}
 }

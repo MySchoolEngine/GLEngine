@@ -15,16 +15,17 @@
 
 #include <GLRenderer/Buffers/GLBuffer.h>
 
-#include <glad/glad.h>
-#include <string>
-
 namespace GLEngine::GLRenderer::Buffers {
 class C_UniformBuffer : public C_GLBuffer<GL_UNIFORM_BUFFER> {
 public:
+	using T_Base = C_GLBuffer<GL_UNIFORM_BUFFER>;
 	C_UniformBuffer(const std::string& blockName, unsigned int index);
 	virtual ~C_UniformBuffer() = default;
 
-	virtual void UploadData() const = 0;
+	void AllocateMemory(bool dynamicUsage, const void* initialData = nullptr);
+
+	virtual void					  UploadData() const	= 0;
+	[[nodiscard]] virtual std::size_t GetBufferSize() const = 0;
 
 	void		Activate(bool activate = true);
 	inline bool IsActive() const { return m_active; }
