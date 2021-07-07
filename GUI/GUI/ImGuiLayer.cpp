@@ -57,6 +57,46 @@ void C_ImGuiLayer::OnAttach()
 	io.KeyMap[ImGuiKey_X]		   = GLFW_KEY_X;
 	io.KeyMap[ImGuiKey_Y]		   = GLFW_KEY_Y;
 	io.KeyMap[ImGuiKey_Z]		   = GLFW_KEY_Z;
+
+	io.FontDefault = io.Fonts->AddFontFromFileTTF("Fonts/Roboto/Roboto-Regular.ttf", 18.0f);
+
+	auto& style = ImGui::GetStyle();
+
+	style.WindowRounding = 0.f;
+	style.GrabRounding	 = 0.f;
+	style.TabRounding	 = 0.f;
+	style.FramePadding	 = {5, 5};
+
+	// http://paletton.com/#uid=12P0x0k0d9D00++cwOthgucrFnh
+	const auto shade0 = ImColor(0.239f, 0.239f, 0.239f);
+	const auto shade1 = ImColor(1.f, 1.f, 1.f);
+	const auto shade2 = ImColor(0.561f, 0.922f, 0.561f);
+	const auto shade3 = ImColor(0.349f, 0.757f, 0.349f);
+	const auto shade4 = ImColor(0.078f, 0.58f, 0.078f);
+
+	style.Colors[ImGuiCol_::ImGuiCol_TitleBgActive]	   = shade4;
+	style.Colors[ImGuiCol_::ImGuiCol_ButtonActive]	   = shade4;
+	style.Colors[ImGuiCol_::ImGuiCol_SliderGrab]	   = shade4;
+	style.Colors[ImGuiCol_::ImGuiCol_ResizeGripActive] = shade4;
+	style.Colors[ImGuiCol_::ImGuiCol_FrameBgActive]	   = shade4;
+	style.Colors[ImGuiCol_::ImGuiCol_HeaderActive]	   = shade4;
+
+
+	style.Colors[ImGuiCol_::ImGuiCol_ButtonHovered]		   = shade3;
+	style.Colors[ImGuiCol_::ImGuiCol_FrameBgHovered]	   = shade3;
+	style.Colors[ImGuiCol_::ImGuiCol_HeaderHovered]		   = shade3;
+	style.Colors[ImGuiCol_::ImGuiCol_ResizeGripHovered]	   = shade3;
+	style.Colors[ImGuiCol_::ImGuiCol_ScrollbarGrabHovered] = shade3;
+
+	style.Colors[ImGuiCol_::ImGuiCol_ResizeGrip]  = shade2;
+	style.Colors[ImGuiCol_::ImGuiCol_Button]	  = shade2;
+	style.Colors[ImGuiCol_::ImGuiCol_SliderGrab]  = shade2;
+	style.Colors[ImGuiCol_::ImGuiCol_ScrollbarBg] = shade2;
+	style.Colors[ImGuiCol_::ImGuiCol_FrameBg]	  = shade2;
+	style.Colors[ImGuiCol_::ImGuiCol_Header]	  = shade2;
+
+
+	style.Colors[ImGuiCol_::ImGuiCol_CheckMark] = shade1;
 }
 
 //=================================================================================
