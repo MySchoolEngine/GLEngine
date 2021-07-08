@@ -10,7 +10,6 @@ bool C_GeometryList::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInter
 {
 	if (m_AABB.IntersectImpl(ray) <= 0.f)
 		return false;
-	auto offset = 1e-3f;
 	struct S_IntersectionInfo {
 		C_RayIntersection					 intersection;
 		float								 t;
@@ -23,6 +22,7 @@ bool C_GeometryList::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInter
 
 
 	std::for_each(m_Geometry.begin(), m_Geometry.end(), [&](const auto& object) {
+		constexpr auto	  offset = 1e-3f;
 		C_RayIntersection inter;
 		if (object->Intersect(ray, inter))
 		{
