@@ -34,13 +34,12 @@ C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::s
 	, m_Mesh(nullptr)
 	, m_Material(nullptr)
 {
-	// @todo lazy init
-	auto sl = std::make_unique<Renderer::Mesh::SceneLoader>();
+	Renderer::Mesh::SceneLoader sl;
 
 	auto	  scene		  = std::make_shared<Renderer::MeshData::Scene>();
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
-	if (!sl->addModelFromFileToScene("Models", m_meshFile.c_str(), scene, modelMatrix))
+	if (!sl.addModelFromFileToScene("Models", m_meshFile.c_str(), scene, modelMatrix))
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}", m_meshFile);
 		return;
