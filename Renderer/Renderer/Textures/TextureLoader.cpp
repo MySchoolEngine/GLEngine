@@ -20,7 +20,7 @@ bool TextureLoader::loadTexture(const std::filesystem::path& path, MeshData::Tex
 {
 	Init();
 
-	ilLoadTexture(path);
+	auto image = ilLoadTexture(path);
 	const ILenum Error = ilGetError();
 
 	if (Error != IL_NO_ERROR)
@@ -55,8 +55,7 @@ I_TextureViewStorage* TextureLoader::loadTexture(const std::filesystem::path& pa
 {
 	Init();
 
-	ilLoadTexture(path);
-
+	auto		 image = ilLoadTexture(path);
 	const ILenum Error = ilGetError();
 
 	if (Error != IL_NO_ERROR)
@@ -126,7 +125,7 @@ void TextureLoader::Init()
 }
 
 //=================================================================================
-ILuint TextureLoader::ilLoadTexture(const std::filesystem::path& path)
+unsigned int TextureLoader::ilLoadTexture(const std::filesystem::path& path)
 {
 	ilEnable(IL_ORIGIN_SET);
 	ilOriginFunc(IL_ORIGIN_LOWER_LEFT);

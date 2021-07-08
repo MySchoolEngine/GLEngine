@@ -56,12 +56,12 @@ std::unique_ptr<Entity::I_ComponenetBuilder> C_ComponentBuilderFactory::GetFacto
 void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Entity> entity, const std::filesystem::path& file)
 {
 	auto& tmgr = Textures::C_TextureManager::Instance();
-	auto  sl   = std::make_unique<Renderer::Mesh::SceneLoader>();
+	Renderer::Mesh::SceneLoader sl;
 
 	auto	  scene		  = std::make_shared<Renderer::MeshData::Scene>();
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
-	if (!sl->addModelFromFileToScene("Models", file, scene, modelMatrix))
+	if (!sl.addModelFromFileToScene("Models", file, scene, modelMatrix))
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}", file);
 		return;
