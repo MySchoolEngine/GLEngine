@@ -4,6 +4,8 @@
 
 ![Preview image of area light](https://github.com/RohacekD/GLEngine/blob/master/wikidata/AreaLight.png?raw=true)
 
+[![BCH compliance](https://bettercodehub.com/edge/badge/MySchoolEngine/GLEngine?branch=master)](https://bettercodehub.com/)
+
 ## Setup
 ```
 git clone <https://github.com/RohacekD/GLEngine>
