@@ -17,6 +17,8 @@ public:
 	[[nodiscard]] I_TextureViewStorage* loadTexture(const std::filesystem::path& path);
 
 private:
-	static bool _isILinitialized;
+	void		 Init();
+	unsigned int ilLoadTexture(const std::filesystem::path& path);
+	static bool	 _isILinitialized;
 };
 } // namespace GLEngine::Renderer::Textures

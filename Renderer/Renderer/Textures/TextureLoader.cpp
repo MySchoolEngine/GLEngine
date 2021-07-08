@@ -18,26 +18,10 @@ bool TextureLoader::_isILinitialized = false;
 //=================================================================================
 bool TextureLoader::loadTexture(const std::filesystem::path& path, MeshData::Texture& t)
 {
-	if (!_isILinitialized)
-	{
-		ilInit();
-		_isILinitialized = true;
-	}
+	Init();
 
-	ilEnable(IL_ORIGIN_SET);
-	ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
-
-	ILuint image;
-	ilGenImages(1, &image);
-	ilBindImage(image);
-
-#if CORE_PLATFORM == CORE_PLATFORM_WIN
-	ilLoadImage(path.wstring().c_str());
-#else
-	ilLoadImage(path.generic_string().c_str());
-#endif
-	ILenum Error;
-	Error = ilGetError();
+	auto image = ilLoadTexture(path);
+	const ILenum Error = ilGetError();
 
 	if (Error != IL_NO_ERROR)
 	{
@@ -69,26 +53,10 @@ bool TextureLoader::loadTexture(const std::filesystem::path& path, MeshData::Tex
 //=================================================================================
 I_TextureViewStorage* TextureLoader::loadTexture(const std::filesystem::path& path)
 {
-	if (!_isILinitialized)
-	{
-		ilInit();
-		_isILinitialized = true;
-	}
+	Init();
 
-	ilEnable(IL_ORIGIN_SET);
-	ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
-
-	ILuint image;
-	ilGenImages(1, &image);
-	ilBindImage(image);
-
-#if CORE_PLATFORM == CORE_PLATFORM_WIN
-	ilLoadImage(path.wstring().c_str());
-#else
-	ilLoadImage(path.generic_string().c_str());
-#endif
-	ILenum Error;
-	Error = ilGetError();
+	auto		 image = ilLoadTexture(path);
+	const ILenum Error = ilGetError();
 
 	if (Error != IL_NO_ERROR)
 	{
@@ -144,6 +112,35 @@ I_TextureViewStorage* TextureLoader::loadTexture(const std::filesystem::path& pa
 	ilDeleteImage(image);
 
 	return textureBuffer;
+}
+
+//=================================================================================
+void TextureLoader::Init()
+{
+	if (!_isILinitialized)
+	{
+		ilInit();
+		_isILinitialized = true;
+	}
+}
+
+//=================================================================================
+unsigned int TextureLoader::ilLoadTexture(const std::filesystem::path& path)
+{
+	ilEnable(IL_ORIGIN_SET);
+	ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
+
+	ILuint image;
+	ilGenImages(1, &image);
+	ilBindImage(image);
+
+#if CORE_PLATFORM == CORE_PLATFORM_WIN
+	ilLoadImage(path.wstring().c_str());
+#else
+	ilLoadImage(path.generic_string().c_str());
+#endif
+
+	return image;
 }
 
 } // namespace GLEngine::Renderer::Textures
