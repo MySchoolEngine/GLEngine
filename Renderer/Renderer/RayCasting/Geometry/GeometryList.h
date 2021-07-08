@@ -14,8 +14,8 @@ public:
 
 	void AddObject(std::shared_ptr<I_RayGeometryObject>&& object);
 
-	const Physics::Primitives::S_AABB& GetAABB() const { return m_AABB; }
-	Physics::Primitives::S_AABB& GetAABB() { return m_AABB; }
+	[[nodiscard]] const Physics::Primitives::S_AABB& GetAABB() const { return m_AABB; }
+	[[nodiscard]] Physics::Primitives::S_AABB& GetAABB() { return m_AABB; }
 private:
 	std::vector<std::shared_ptr<I_RayGeometryObject>> m_Geometry;
 	Physics::Primitives::S_AABB						  m_AABB;
