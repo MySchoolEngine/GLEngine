@@ -10,8 +10,8 @@ namespace GLEngine::Renderer {
 //=================================================================================
 C_Material::C_Material(const std::string& name)
 	: m_Name(name)
-	, m_Color(Colours::white)
-	, m_Roughness(0.5f)
+	, m_Color("Color", Colours::white)
+	, m_Roughness(0.5f, 0.f, 1.f, "Roughness")
 	, m_ColorMap(nullptr)
 	, m_NormalMap(nullptr)
 	, m_RoughnessMap(nullptr)
@@ -24,8 +24,8 @@ C_Material::C_Material(const std::string& name)
 //=================================================================================
 C_Material::C_Material(const MeshData::Material& material)
 	: m_Name(material.m_Name)
-	, m_Color(Colours::white)
-	, m_Roughness(0.5f)
+	, m_Color("Color", Colours::white)
+	, m_Roughness(0.5f, 0.f, 1.f, "Roughness")
 	, m_ColorMap(nullptr)
 	, m_NormalMap(nullptr)
 	, m_RoughnessMap(nullptr)
@@ -108,6 +108,8 @@ int C_Material::GetMaterialIndex() const
 //=================================================================================
 void C_Material::DrawGUI() const
 {
+	m_Color.Draw();
+	m_Roughness.Draw();
 	if (auto normalMap = GetNormalMap())
 		ImGui::Image((void*)(intptr_t)(normalMap->GetDeviceTextureHandle()), ImVec2(256, 256));
 	if (auto roughnessMap = GetRoughnessMap())

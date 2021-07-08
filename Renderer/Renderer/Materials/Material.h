@@ -4,6 +4,9 @@
 #include <Renderer/RendererApi.h>
 #include <Renderer/Textures/DeviceTexture.h>
 
+#include <GUI/Input/Color.h>
+#include <GUI/Input/Slider.h>
+
 #include <Utils/RefCounter.h>
 
 namespace GLEngine::Renderer::MeshData {
@@ -34,7 +37,7 @@ public:
 	std::shared_ptr<I_DeviceTexture> GetRoughnessMap() const { return m_RoughnessMap; }
 
 	const std::string&		 GetName() const { return m_Name; }
-	const Colours::T_Colour& GetColor() const { return m_Color; }
+	const Colours::T_Colour& GetColor() const { return m_Color.GetValue(); }
 	void					 SetColor(const Colours::T_Colour& color) { m_Color = color; }
 	float					 GetRoughness() const { return m_Roughness; }
 
@@ -48,8 +51,8 @@ public:
 
 private:
 	std::string						 m_Name;
-	Colours::T_Colour				 m_Color;
-	float							 m_Roughness;
+	GUI::Input::C_ColorRBG			 m_Color;
+	GUI::Input::C_Slider<float>		 m_Roughness;
 	std::shared_ptr<I_DeviceTexture> m_ColorMap;
 	std::shared_ptr<I_DeviceTexture> m_NormalMap;
 	std::shared_ptr<I_DeviceTexture> m_RoughnessMap;
