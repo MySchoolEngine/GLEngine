@@ -147,7 +147,7 @@ glm::vec3 C_RayRenderer::DirectLighting(const Physics::Primitives::S_Ray& ray, C
 	if (intersect.IsLight())
 	{
 		auto light = intersect.GetLight();
-		return light->Le() * 10.f;
+		return light->Le();
 	}
 
 	glm::vec3 LoDirect(0.f);
@@ -165,15 +165,17 @@ glm::vec3 C_RayRenderer::DirectLighting(const Physics::Primitives::S_Ray& ray, C
 			}
 			// no intersect for point light
 
-			const auto& point		  = intersect.GetIntersectionPoint();
-			const auto* material	  = intersect.GetMaterial();
-			auto		diffuseColour = glm::vec3(material->diffuse);
+			const auto&		  point			= intersect.GetIntersectionPoint();
+			const auto*		  material		= intersect.GetMaterial();
+			const auto&		  frame			= intersect.GetFrame();
+			auto			  diffuseColour = glm::vec3(material->diffuse);
+			C_LambertianModel model(diffuseColour);
 			if (material->textureIndex != 0)
 			{
 				const auto uv = glm::vec2(point.x, point.z) / 10.f;
 				diffuseColour = brickView.Get<glm::vec3, T_Bilinear>(uv);
 			}
-			LoDirect += illum * (diffuseColour / glm::pi<float>());
+			LoDirect += illum * model.f(frame.ToLocal(ray.direction), frame.ToLocal(vis.GetRay().direction));
 		}
 	});
 
