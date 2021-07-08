@@ -1,10 +1,10 @@
 # GLEngine
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/0c09524c2a59475ea538d0ec615a999d)](https://app.codacy.com/gh/MySchoolEngine/GLEngine?utm_source=github.com&utm_medium=referral&utm_content=MySchoolEngine/GLEngine&utm_campaign=Badge_Grade_Dashboard)[![Build](https://github.com/MySchoolEngine/GLEngine/workflows/build/badge.svg)](https://github.com/MySchoolEngine/GLEngine/actions?workflow=build)
+[![BCH compliance](https://bettercodehub.com/edge/badge/MySchoolEngine/GLEngine?branch=master)](https://bettercodehub.com/)
 
 ![Preview image of area light](https://github.com/RohacekD/GLEngine/blob/master/wikidata/AreaLight.png?raw=true)
 
-[![BCH compliance](https://bettercodehub.com/edge/badge/MySchoolEngine/GLEngine?branch=master)](https://bettercodehub.com/)
 
 ## Setup
 ```
