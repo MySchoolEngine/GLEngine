@@ -49,6 +49,8 @@
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/EventDispatcher.h>
 
+#include <Utils/StdVectorUtils.h>
+
 #include <pugixml.hpp>
 
 #include <imgui.h>
@@ -110,8 +112,8 @@ void C_ExplerimentWindow::Update()
 	const auto avgMsPerFrame = m_Samples.Avg();
 	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgFrametime)].UpdateText(m_Samples.Avg());
 	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgFps)].UpdateText(1000.f / avgMsPerFrame);
-	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::MinMaxFrametime)].UpdateText(*std::min_element(m_Samples.cbegin(), m_Samples.cend()),
-																										*std::max_element(m_Samples.cbegin(), m_Samples.cend()));
+	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::MinMaxFrametime)].UpdateText(*Utils::min_element(m_Samples),
+																										*Utils::max_element(m_Samples));
 
 	glfwSwapInterval(m_VSync ? 1 : 0);
 
@@ -235,6 +237,7 @@ bool C_ExplerimentWindow::OnKeyPressed(Core::C_KeyPressedEvent& event)
 //=================================================================================
 void C_ExplerimentWindow::OnAppInit()
 {
+	m_FrameTimer.reset();
 	m_MainPass = std::make_unique<C_MainPassTechnique>(m_World);
 	{
 		using namespace Commands;
@@ -364,6 +367,7 @@ void C_ExplerimentWindow::OnAppInit()
 		guiMGR.AddCustomWindow(levelSelectWindwo);
 		levelSelectWindwo->SetVisible();
 	}));
+	CORE_LOG(E_Level::Info, E_Context::Render, "Experiment window setup time was %f", float(m_FrameTimer.getElapsedTimeFromLastQueryMilliseconds()) / 1000.f);
 }
 
 //=================================================================================
