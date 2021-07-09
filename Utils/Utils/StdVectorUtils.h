@@ -27,6 +27,21 @@ template <typename T, typename Iter> void removeIndicesFromVector(std::vector<T>
 	v.erase(std::remove_if(v.begin(), v.end(), pred), v.end());
 }
 
+//=================================================================================
+template <typename Container> 
+auto min_element(const Container& c)
+{
+	return std::min_element(c.cbegin(), c.cend());
+}
+
+//=================================================================================
+template <typename Container>
+auto max_element(const Container& c)
+{
+	return std::max_element(c.cbegin(), c.cend());
+}
+
+//=================================================================================
 template <typename T, typename S> void removeIndicesFromVector(std::vector<T>& v, const S& rm)
 {
 	GLE_ASSERT(std::is_sorted(std::begin(rm), std::end(rm)), "Unsorted indices to delete");
