@@ -3,7 +3,9 @@
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
 
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
+#include <imgui_internal.h>
 
 namespace GLEngine::Entity {
 
@@ -42,8 +44,13 @@ void I_Component::DebugDrawComponentGUI()
 {
 	if (::ImGui::CollapsingHeader(GetDebugComponentName().data()))
 	{
+		ImVec2 padding{20, 0};
+		ImVec2 p0 = ImGui::GetCursorScreenPos();
+		ImGui::SetCursorScreenPos(p0 + padding);
+		ImGui::BeginGroup();
 		m_Transformation.Draw();
 		DebugDrawGUI();
+		ImGui::EndGroup();
 	}
 }
 
