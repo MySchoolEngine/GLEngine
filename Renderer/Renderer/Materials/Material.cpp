@@ -18,6 +18,7 @@ C_Material::C_Material(const std::string& name)
 	, m_Changed(true)
 	, m_MaterialIndex(-1)
 	, m_Shininess(32.f)
+	, m_Textures({GUI::C_Texture{m_ColorMap}, GUI::C_Texture{m_NormalMap}, GUI::C_Texture{m_RoughnessMap}})
 {
 }
 
@@ -32,6 +33,7 @@ C_Material::C_Material(const MeshData::Material& material)
 	, m_Changed(true)
 	, m_MaterialIndex(-1)
 	, m_Shininess(material.shininess)
+	, m_Textures({GUI::C_Texture{m_ColorMap}, GUI::C_Texture{m_NormalMap}, GUI::C_Texture{m_RoughnessMap}})
 {
 }
 
@@ -46,6 +48,7 @@ C_Material::C_Material(C_Material&& other)
 	, m_Changed(other.m_Changed)
 	, m_MaterialIndex(other.m_MaterialIndex)
 	, m_Shininess(other.GetShininess())
+	, m_Textures({GUI::C_Texture{m_ColorMap}, GUI::C_Texture{m_NormalMap}, GUI::C_Texture{m_RoughnessMap}})
 {
 }
 
@@ -82,7 +85,8 @@ void C_Material::SetRoughness(float roughness)
 //=================================================================================
 void C_Material::SetNormalMap(std::shared_ptr<I_DeviceTexture> texture)
 {
-	m_NormalMap = texture;
+	m_NormalMap	  = texture;
+	m_Textures[1] = GUI::C_Texture(m_NormalMap);
 }
 
 //=================================================================================
@@ -90,6 +94,7 @@ void C_Material::SetRoughnessMap(std::shared_ptr<I_DeviceTexture> texture)
 {
 	m_Roughness	   = 1.0f;
 	m_RoughnessMap = texture;
+	m_Textures[2]  = GUI::C_Texture(m_RoughnessMap);
 }
 
 //=================================================================================
@@ -97,6 +102,7 @@ void C_Material::SetColorMap(std::shared_ptr<I_DeviceTexture> texture)
 {
 	m_ColorMap = texture;
 	m_Color	   = Colours::white;
+	m_Textures[0] = GUI::C_Texture(m_ColorMap);
 }
 
 //=================================================================================
@@ -110,12 +116,8 @@ void C_Material::DrawGUI() const
 {
 	m_Color.Draw();
 	m_Roughness.Draw();
-	if (auto normalMap = GetNormalMap())
-		ImGui::Image((void*)(intptr_t)(normalMap->GetDeviceTextureHandle()), ImVec2(256, 256));
-	if (auto roughnessMap = GetRoughnessMap())
-		ImGui::Image((void*)(intptr_t)(roughnessMap->GetDeviceTextureHandle()), ImVec2(256, 256));
-	if (auto colourMap = GetColorMap())
-		ImGui::Image((void*)(intptr_t)(colourMap->GetDeviceTextureHandle()), ImVec2(256, 256));
+	for (const auto& it : m_Textures)
+		it.Draw();
 }
 
 } // namespace GLEngine::Renderer

@@ -6,6 +6,7 @@
 
 #include <GUI/Input/Color.h>
 #include <GUI/Input/Slider.h>
+#include <GUI/Texture.h>
 
 #include <Utils/RefCounter.h>
 
@@ -56,6 +57,7 @@ private:
 	std::shared_ptr<I_DeviceTexture> m_ColorMap;
 	std::shared_ptr<I_DeviceTexture> m_NormalMap;
 	std::shared_ptr<I_DeviceTexture> m_RoughnessMap;
+	std::array<GUI::C_Texture, 3>	 m_Textures;
 	bool							 m_Changed : 1;
 	int								 m_MaterialIndex;
 	float							 m_Shininess;
