@@ -59,13 +59,16 @@ void C_ImGuiLayer::OnAttach()
 	io.KeyMap[ImGuiKey_Z]		   = GLFW_KEY_Z;
 
 	io.FontDefault = io.Fonts->AddFontFromFileTTF("Fonts/Roboto/Roboto-Regular.ttf", 18.0f);
+	// io.Fonts->AddFontFromFileTTF("Fonts/material-design-icons/font/MaterialIcons-Regular.ttf", 18.0f);
 
 	auto& style = ImGui::GetStyle();
 
-	style.WindowRounding = 0.f;
-	style.GrabRounding	 = 0.f;
-	style.TabRounding	 = 0.f;
-	style.FramePadding	 = {5, 5};
+	style.WindowRounding	= 0.f;
+	style.GrabRounding		= 0.f;
+	style.TabRounding		= 0.f;
+	style.ScrollbarRounding = 0.f;
+	style.ChildRounding		= 0.f;
+	style.FramePadding		= {5, 5};
 
 	// http://paletton.com/#uid=12P0x0k0d9D00++cwOthgucrFnh
 	const auto shade0 = ImColor(0.239f, 0.239f, 0.239f);
