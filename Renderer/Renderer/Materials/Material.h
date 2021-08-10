@@ -51,6 +51,8 @@ public:
 	void DrawGUI() const;
 
 private:
+	void SetTextureCB();
+
 	std::string						 m_Name;
 	GUI::Input::C_ColorRBG			 m_Color;
 	GUI::Input::C_Slider<float>		 m_Roughness;
@@ -58,7 +60,7 @@ private:
 	std::shared_ptr<I_DeviceTexture> m_NormalMap;
 	std::shared_ptr<I_DeviceTexture> m_RoughnessMap;
 	std::array<GUI::C_Texture, 3>	 m_Textures;
-	bool							 m_Changed : 1;
+	mutable bool					 m_Changed : 1; // mutable because of const-ness of DrawGUI
 	int								 m_MaterialIndex;
 	float							 m_Shininess;
 };

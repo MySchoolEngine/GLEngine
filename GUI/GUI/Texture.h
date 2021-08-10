@@ -11,8 +11,11 @@ public:
 
 	virtual void Draw() const override;
 
+	void SetOnTextureCleanCB(std::function<void()> cb);
+
 private:
 	std::weak_ptr<Renderer::I_DeviceTexture> m_Texture;
 	glm::uvec2								 m_Dimensions;
+	std::function<void()>					 m_TextureCleanCB;
 };
 } // namespace GLEngine::GUI
