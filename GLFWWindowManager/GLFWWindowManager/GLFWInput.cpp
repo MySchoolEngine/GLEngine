@@ -1,6 +1,6 @@
 #include <GLFWWindowManagerStdafx.h>
 
-#include <UTils/EnumUtils.h>
+#include <Utils/EnumUtils.h>
 
 #include <GLFWWindowManager/GLFWInput.h>
 #include <GLFWWindowManager/GLFWWindow.h>
