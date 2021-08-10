@@ -28,7 +28,7 @@ void C_Texture::Draw() const
 		const ImGuiIO& io = ImGui::GetIO();
 		if (total_bb.Contains(io.MousePos))
 		{
-			if (DrawSquareButton(draw_list, canvas_pos + ImVec2(iconSize.x, 0) - ImVec2(20, -10), E_ButtonType::Cross)  && io.MouseReleased[0] && m_TextureCleanCB)
+			if (DrawSquareButton(draw_list, canvas_pos + ImVec2(iconSize.x, 0) - ImVec2(20, -4), E_ButtonType::Cross)  && io.MouseReleased[0] && m_TextureCleanCB)
 			{
 				m_TextureCleanCB();
 			}
