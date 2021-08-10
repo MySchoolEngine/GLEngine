@@ -3,7 +3,6 @@
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
 
-#define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
 #include <imgui_internal.h>
 
