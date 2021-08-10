@@ -191,7 +191,7 @@ void C_ExplerimentWindow::Update()
 	m_HDRFBO->Unbind<E_FramebufferTarget::Read>();
 	{
 		RenderDoc::C_DebugScope s("ImGUI");
-		m_renderer->AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([this, shader]() { m_ImGUI->FrameEnd(); }, "m_ImGUI->FrameEnd"));
+		m_renderer->AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([this]() { m_ImGUI->FrameEnd(m_Input); }, "m_ImGUI->FrameEnd"));
 	}
 
 	// commit of final commands - from commit few lines above

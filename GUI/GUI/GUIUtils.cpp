@@ -31,6 +31,11 @@ bool DrawSquareButton(ImDrawList* draw_list, const ImVec2 pos, const E_ButtonTyp
 		draw_list->AddLine(ImVec2(rect.Max.x - 3, rect.Min.y + 3), ImVec2(rect.Min.x + 3, rect.Max.y - 3), color, 2);
 		break;
 	}
+
+	if (mouseOver) {
+		ImGui::SetMouseCursor(ImGuiMouseCursor_::ImGuiMouseCursor_Hand);
+	}
+
 	return mouseOver;
 }
 

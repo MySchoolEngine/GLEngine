@@ -9,6 +9,7 @@
 #include <Core/EventSystem/EventDispatcher.h>
 #include <Core/IWindow.h>
 #include <Core/IWindowManager.h>
+#include <Core/Input.h>
 
 #include <GLFW/glfw3.h>
 #include <imgui.h>
@@ -125,8 +126,42 @@ void C_ImGuiLayer::FrameBegin()
 }
 
 //=================================================================================
-void C_ImGuiLayer::FrameEnd()
+void C_ImGuiLayer::FrameEnd(Core::I_Input& input)
 {
+	ImGuiIO& io = ImGui::GetIO();
+	if ((io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange) == 0)
+	{
+		ImGuiMouseCursor_ imgui_cursor = static_cast<ImGuiMouseCursor_>(ImGui::GetMouseCursor());
+		if (imgui_cursor != ImGuiMouseCursor_None)
+		{
+			switch (imgui_cursor)
+			{
+			case ImGuiMouseCursor_Arrow:
+				input.SetMouseCursor(Core::I_Input::E_MouseCursor::Arrow);
+				break;
+			case ImGuiMouseCursor_Hand:
+				input.SetMouseCursor(Core::I_Input::E_MouseCursor::Hand);
+				break;
+			case ImGuiMouseCursor_TextInput:
+				input.SetMouseCursor(Core::I_Input::E_MouseCursor::TextInput);
+				break;
+			case ImGuiMouseCursor_ResizeNS:
+				input.SetMouseCursor(Core::I_Input::E_MouseCursor::NSResize);
+				break;
+			case ImGuiMouseCursor_ResizeEW:
+				input.SetMouseCursor(Core::I_Input::E_MouseCursor::WEResize);
+				break;
+			case ImGuiMouseCursor_ResizeAll:
+			case ImGuiMouseCursor_ResizeNESW:
+			case ImGuiMouseCursor_ResizeNWSE:
+			case ImGuiMouseCursor_NotAllowed:
+			default:
+				input.SetMouseCursor(Core::I_Input::E_MouseCursor::Arrow);
+				break;
+			}
+		}
+	}
+
 	::ImGui::Render();
 }
 

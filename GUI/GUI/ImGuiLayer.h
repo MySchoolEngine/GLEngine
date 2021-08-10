@@ -19,6 +19,7 @@ class C_MouseButtonPressed;
 class C_MouseButtonReleased;
 class C_MouseMoved;
 class C_AppEvent;
+class I_Input;
 } // namespace Core
 
 namespace GUI {
@@ -34,7 +35,7 @@ public:
 
 	virtual void FrameBegin();
 
-	virtual void FrameEnd();
+	virtual void FrameEnd(Core::I_Input& input);
 
 	virtual void OnEvent(Core::I_Event& event) override;
 
