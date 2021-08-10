@@ -9,6 +9,7 @@
 #include <Core/EventSystem/EventDispatcher.h>
 #include <Core/IWindow.h>
 #include <Core/IWindowManager.h>
+#include <Core/Input.h>
 
 #include <GLFW/glfw3.h>
 #include <imgui.h>
@@ -57,6 +58,49 @@ void C_ImGuiLayer::OnAttach()
 	io.KeyMap[ImGuiKey_X]		   = GLFW_KEY_X;
 	io.KeyMap[ImGuiKey_Y]		   = GLFW_KEY_Y;
 	io.KeyMap[ImGuiKey_Z]		   = GLFW_KEY_Z;
+
+	io.FontDefault = io.Fonts->AddFontFromFileTTF("Fonts/Roboto/Roboto-Regular.ttf", 18.0f);
+	// io.Fonts->AddFontFromFileTTF("Fonts/material-design-icons/font/MaterialIcons-Regular.ttf", 18.0f);
+
+	auto& style = ImGui::GetStyle();
+
+	style.WindowRounding	= 0.f;
+	style.GrabRounding		= 0.f;
+	style.TabRounding		= 0.f;
+	style.ScrollbarRounding = 0.f;
+	style.ChildRounding		= 0.f;
+	style.FramePadding		= {5, 5};
+
+	// http://paletton.com/#uid=12P0x0k0d9D00++cwOthgucrFnh
+	const auto shade0 = ImColor(0.239f, 0.239f, 0.239f);
+	const auto shade1 = ImColor(1.f, 1.f, 1.f);
+	const auto shade2 = ImColor(0.561f, 0.922f, 0.561f);
+	const auto shade3 = ImColor(0.349f, 0.757f, 0.349f);
+	const auto shade4 = ImColor(0.078f, 0.58f, 0.078f);
+
+	style.Colors[ImGuiCol_::ImGuiCol_TitleBgActive]	   = shade4;
+	style.Colors[ImGuiCol_::ImGuiCol_ButtonActive]	   = shade4;
+	style.Colors[ImGuiCol_::ImGuiCol_SliderGrab]	   = shade4;
+	style.Colors[ImGuiCol_::ImGuiCol_ResizeGripActive] = shade4;
+	style.Colors[ImGuiCol_::ImGuiCol_FrameBgActive]	   = shade4;
+	style.Colors[ImGuiCol_::ImGuiCol_HeaderActive]	   = shade4;
+
+
+	style.Colors[ImGuiCol_::ImGuiCol_ButtonHovered]		   = shade3;
+	style.Colors[ImGuiCol_::ImGuiCol_FrameBgHovered]	   = shade3;
+	style.Colors[ImGuiCol_::ImGuiCol_HeaderHovered]		   = shade3;
+	style.Colors[ImGuiCol_::ImGuiCol_ResizeGripHovered]	   = shade3;
+	style.Colors[ImGuiCol_::ImGuiCol_ScrollbarGrabHovered] = shade3;
+
+	style.Colors[ImGuiCol_::ImGuiCol_ResizeGrip]  = shade2;
+	style.Colors[ImGuiCol_::ImGuiCol_Button]	  = shade2;
+	style.Colors[ImGuiCol_::ImGuiCol_SliderGrab]  = shade2;
+	style.Colors[ImGuiCol_::ImGuiCol_ScrollbarBg] = shade2;
+	style.Colors[ImGuiCol_::ImGuiCol_FrameBg]	  = shade2;
+	style.Colors[ImGuiCol_::ImGuiCol_Header]	  = shade2;
+
+
+	style.Colors[ImGuiCol_::ImGuiCol_CheckMark] = shade1;
 }
 
 //=================================================================================
@@ -82,8 +126,10 @@ void C_ImGuiLayer::FrameBegin()
 }
 
 //=================================================================================
-void C_ImGuiLayer::FrameEnd()
+void C_ImGuiLayer::FrameEnd(Core::I_Input& input)
 {
+	UpdateMouseCursor(input);
+
 	::ImGui::Render();
 }
 
@@ -208,5 +254,42 @@ bool C_ImGuiLayer::OnAppEvent(Core::C_AppEvent& event)
 	return false;
 }
 
+//=================================================================================
+void C_ImGuiLayer::UpdateMouseCursor(Core::I_Input& input)
+{
+	ImGuiIO& io = ImGui::GetIO();
+	if ((io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange) == 0)
+	{
+		ImGuiMouseCursor_ imgui_cursor = static_cast<ImGuiMouseCursor_>(ImGui::GetMouseCursor());
+		if (imgui_cursor != ImGuiMouseCursor_None)
+		{
+			switch (imgui_cursor)
+			{
+			case ImGuiMouseCursor_Arrow:
+				input.SetMouseCursor(Core::I_Input::E_MouseCursor::Arrow);
+				break;
+			case ImGuiMouseCursor_Hand:
+				input.SetMouseCursor(Core::I_Input::E_MouseCursor::Hand);
+				break;
+			case ImGuiMouseCursor_TextInput:
+				input.SetMouseCursor(Core::I_Input::E_MouseCursor::TextInput);
+				break;
+			case ImGuiMouseCursor_ResizeNS:
+				input.SetMouseCursor(Core::I_Input::E_MouseCursor::NSResize);
+				break;
+			case ImGuiMouseCursor_ResizeEW:
+				input.SetMouseCursor(Core::I_Input::E_MouseCursor::WEResize);
+				break;
+			case ImGuiMouseCursor_ResizeAll:
+			case ImGuiMouseCursor_ResizeNESW:
+			case ImGuiMouseCursor_ResizeNWSE:
+			case ImGuiMouseCursor_NotAllowed:
+			default:
+				input.SetMouseCursor(Core::I_Input::E_MouseCursor::Arrow);
+				break;
+			}
+		}
+	}
+}
 
 } // namespace GLEngine::GUI
