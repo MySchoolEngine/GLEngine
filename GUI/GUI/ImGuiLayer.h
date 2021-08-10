@@ -55,6 +55,8 @@ private:
 	[[nodiscard]] bool OnAppEvent(Core::C_AppEvent& event);
 
 protected:
+	void UpdateMouseCursor(Core::I_Input& input);
+
 	ImDrawData* GetRenderData();
 
 	GUID			  m_Window;
