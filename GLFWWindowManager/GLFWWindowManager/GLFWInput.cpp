@@ -1,5 +1,7 @@
 #include <GLFWWindowManagerStdafx.h>
 
+#include <UTils/EnumUtils.h>
+
 #include <GLFWWindowManager/GLFWInput.h>
 #include <GLFWWindowManager/GLFWWindow.h>
 
@@ -9,12 +11,12 @@ namespace GLEngine::GLFWManager {
 C_GLFWInput::C_GLFWInput()
 	: m_Window(nullptr)
 {
-	m_MouseCursors[static_cast<std::size_t>(E_MouseCursor::Arrow)]	   = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
-	m_MouseCursors[static_cast<std::size_t>(E_MouseCursor::Hand)]	   = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
-	m_MouseCursors[static_cast<std::size_t>(E_MouseCursor::TextInput)] = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
-	m_MouseCursors[static_cast<std::size_t>(E_MouseCursor::WEResize)] = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
-	m_MouseCursors[static_cast<std::size_t>(E_MouseCursor::NSResize)] = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
-	m_MouseCursors[static_cast<std::size_t>(E_MouseCursor::Crosshair)] = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
+	m_MouseCursors[Utils::ToIndex(E_MouseCursor::Arrow)]	 = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
+	m_MouseCursors[Utils::ToIndex(E_MouseCursor::Hand)]		 = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
+	m_MouseCursors[Utils::ToIndex(E_MouseCursor::TextInput)] = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
+	m_MouseCursors[Utils::ToIndex(E_MouseCursor::WEResize)]	 = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
+	m_MouseCursors[Utils::ToIndex(E_MouseCursor::NSResize)]	 = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
+	m_MouseCursors[Utils::ToIndex(E_MouseCursor::Crosshair)] = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
 }
 
 //=================================================================================
@@ -70,7 +72,7 @@ glm::vec2 C_GLFWInput::GetClipSpaceMouseCoord() const
 //=================================================================================
 void C_GLFWInput::SetMouseCursor(E_MouseCursor cursor)
 {
-	const auto cursorObj = m_MouseCursors[static_cast<std::size_t>(cursor)];
+	const auto cursorObj = m_MouseCursors[Utils::ToIndex(cursor)];
 	if (cursorObj)
 	{
 		glfwSetCursor(m_Window, cursorObj);
