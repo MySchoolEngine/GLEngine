@@ -10,6 +10,7 @@ project "Core"
 	PrecompiledHeaders("Core")
 
 	Link("Utils")
+	LinkDependency("crossguid")
 
 	includedirs
 	{

@@ -65,6 +65,8 @@ function SetupProject(projectName)
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("%{wks.location}/obj/" .. outputdir .. "/%{prj.name}")
 	ProjectFiles(projectName)
+	-- everybody needs guid
+	includedirs{"%{wks.location}/%{IncludeDir.crossguid}"}
 	defines
 	{
 		"BUILD_"..string.upper(tostring(projectName)).."_DLL",

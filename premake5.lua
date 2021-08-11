@@ -107,10 +107,12 @@ IncludeDir["ImGuiFileDialog"] = "vendor/ImGuiFileDialog"
 IncludeDir["DevIL"] = "vendor/DevIL/DevIL/include"
 IncludeDir["dirent"] = "vendor/dirent/include"
 IncludeDir["Assimp"] = "vendor/Assimp/include"
+IncludeDir["crossguid"] = "vendor/crossguid/include"
 
 -- could be header only or static lib
 NonDllLib = {}
 NonDllLib["pugixml"] = true
+NonDllLib["crossguid"] = true
 NonDllLib["GLFW"] = true
 
 group "Dependencies"
@@ -121,6 +123,7 @@ group "Dependencies"
   include "vendor/projects/ImGuiFileDialog"
   include "vendor/projects/DevIL"
   include "vendor/projects/libjpeg"
+  include "vendor/projects/crossguid"
 if _TARGET_OS ~= "linux" then
   include "vendor/projects/dirent"
 end
