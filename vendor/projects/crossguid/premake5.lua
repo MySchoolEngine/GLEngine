@@ -16,11 +16,10 @@ project "crossguid"
 		"%{wks.location}/vendor/%{prj.name}/include/"
 	}
 
-	defines {"GUID_WINDOWS"}
-
 	filter "system:windows"
 		cppdialect "C++17"
 		systemversion "latest"
+		defines {"GUID_WINDOWS"}
 
 		postbuildcommands
 		{
@@ -29,6 +28,7 @@ project "crossguid"
 
 	filter "system:linux"
 		pic "On"
+		defines {"GUID_LIBUUID"}
 
 	filter "configurations:Debug"
 		runtime "Debug"
