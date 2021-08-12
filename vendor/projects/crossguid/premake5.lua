@@ -30,6 +30,7 @@ project "crossguid"
 		pic "On"
 		defines {"GUID_LIBUUID"}
 		libdirs { os.findlib("uuid") }
+		links {"uuid"}
 
 	filter "configurations:Debug"
 		runtime "Debug"
