@@ -22,7 +22,7 @@ const std::filesystem::path C_ShaderManager::s_ShadersFolder = "shaders/";
 C_ShaderManager::C_ShaderManager()
 	: m_Timeout(std::chrono::seconds(1))
 	, m_LastUpdate(std::chrono::system_clock::now())
-	, m_Window(INVALID_GUID)
+	, m_Window(GUID::INVALID_GUID)
 	, m_PreprocessorOutput(false, "Output preprocessed")
 {
 }

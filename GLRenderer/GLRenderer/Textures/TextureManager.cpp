@@ -15,7 +15,7 @@ std::filesystem::path C_TextureManager::s_ErrorTextureFile = "Models/Error.bmp";
 
 //=================================================================================
 C_TextureManager::C_TextureManager()
-	: m_Window(INVALID_GUID)
+	: m_Window(GUID::INVALID_GUID)
 {
 }
 

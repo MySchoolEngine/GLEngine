@@ -32,6 +32,8 @@ jobs:
         run: sudo apt update
       - name: Get X11
         run: sudo apt-get install xorg-dev
+      - name: Get uuid
+        run: sudo apt-get install uuid-dev
       - name: Premake
         run: | 
             sudo chmod +x Tools/Premake5/premake5

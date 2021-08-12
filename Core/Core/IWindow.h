@@ -57,7 +57,7 @@ protected:
 	I_Window()
 		: C_Layer("window")
 		, m_ID(NextGUID())
-		, m_Data({nullptr, INVALID_GUID})
+		, m_Data({nullptr, GUID::INVALID_GUID})
 	{
 	}
 	GUID m_ID;
