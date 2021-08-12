@@ -29,6 +29,7 @@ project "crossguid"
 	filter "system:linux"
 		pic "On"
 		defines {"GUID_LIBUUID"}
+		libdirs { os.findlib("uuid") }
 
 	filter "configurations:Debug"
 		runtime "Debug"
