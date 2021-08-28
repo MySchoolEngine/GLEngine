@@ -21,11 +21,6 @@ project "crossguid"
 		systemversion "latest"
 		defines {"GUID_WINDOWS"}
 
-		postbuildcommands
-		{
-			("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\"")
-		}
-
 	filter "system:linux"
 		pic "On"
 		defines {"GUID_LIBUUID"}
