@@ -40,9 +40,8 @@ project "irrXML"
         pic "On"
 
     filter "configurations:Debug"
-        runtime "Debug"
-        symbols "on"
-
+        runtime "Release"
+        
     filter "configurations:Release"
         runtime "Release"
         optimize "on"
