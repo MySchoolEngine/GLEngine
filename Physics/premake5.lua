@@ -3,9 +3,11 @@ include "../Tools/Premake5/premakeDefines.lua"
 project "Physics"
 	kind "SharedLib"
 	language "C++"
-	staticruntime "off"
 	
 	SetupProject("Physics")
+	PrecompiledHeaders("Physics")
+
+	Link("Renderer")
 
 	includedirs
 	{
