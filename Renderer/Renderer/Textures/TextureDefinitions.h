@@ -29,6 +29,37 @@ enum class E_TextureChannel
 using T_Channels = std::array<E_TextureChannel, 4>;
 
 //=================================================================================
+// Blending
+//=================================================================================
+enum class E_BlendFactor
+{
+	Zero,
+	One,
+	SourceColor,
+	InvSourceColor,
+	SourceAlpha,
+	InvSourceAlpha,
+	DestinationColor,
+	InvDestinationColor,
+	DestinationAlpha,
+	InvDestinationAlpha,
+	AlphaConstant,	  //< glBlendColor, ID3D12GraphicsCommandList::OMSetBlendFactor
+	InvAphaConstant,  //< glBlendColor, ID3D12GraphicsCommandList::OMSetBlendFactor
+	ColorConstant,	  //< glBlendColor, ID3D12GraphicsCommandList::OMSetBlendFactor
+	InvColorConstant, //< glBlendColor, ID3D12GraphicsCommandList::OMSetBlendFactor
+};
+
+//=================================================================================
+enum class E_BlendFunction
+{
+	Add,			 //< Result = Src + Dst
+	Subtract,		 //< Result = Src - Dst
+	ReverseSubtract, //< Result = Dst - Src
+	Min,			 //< Result = Min(Dst, Src)
+	Max,			 //< Result = Max(Dst, Src)
+};
+
+//=================================================================================
 enum class E_TextureFormat
 {
 	RGBA32f, // float

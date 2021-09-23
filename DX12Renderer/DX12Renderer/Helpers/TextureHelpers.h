@@ -1,86 +1,71 @@
 #pragma once
 
-#include <GLRendererStdafx.h>
+#include <Renderer/Textures/TextureDefinitions.h>
 
-namespace GLEngine::GLRenderer {
-inline std::uint8_t GetNumberOfChannels(GLint pixelFormat)
-{
-	switch (pixelFormat)
-	{
-	case GL_RED:
-		return 1;
-	case GL_RG:
-		return 2;
-	case GL_RGB:
-		return 3;
-	case GL_RGBA:
-		return 4;
-	case GL_RGBA16F:
-		return 4;
-	default:
-		CORE_LOG(E_Level::Error, E_Context::Render, "Unknown pixel format: {}", pixelFormat);
-		return 0;
-	}
-}
+#include <Core/CoreMacros.h>
+
+#include <d3d12.h>
+
+namespace GLEngine::DX12Renderer {
 
 //=================================================================================
-inline GLenum GetBlendFunction(Renderer::E_BlendFunction e)
+[[nodiscard]] constexpr D3D12_BLEND_OP GetBlendFunction(Renderer::E_BlendFunction e)
 {
 	switch (e)
 	{
 	case Renderer::E_BlendFunction::Add:
-		return GL_FUNC_ADD;
+		return D3D12_BLEND_OP_ADD;
 	case Renderer::E_BlendFunction::Subtract:
-		return GL_FUNC_SUBTRACT;
+		return D3D12_BLEND_OP_SUBTRACT;
 	case Renderer::E_BlendFunction::ReverseSubtract:
-		return GL_FUNC_REVERSE_SUBTRACT;
+		return D3D12_BLEND_OP_REV_SUBTRACT;
 	case Renderer::E_BlendFunction::Min:
-		return GL_MIN;
+		return D3D12_BLEND_OP_MIN;
 	case Renderer::E_BlendFunction::Max:
-		return GL_MAX;
+		return D3D12_BLEND_OP_MAX;
 	default:
 		GLE_ASSERT(false, "Unknown blend function");
-		return GL_FUNC_ADD;
+		return D3D12_BLEND_OP_ADD;\
 	}
 }
 
 //=================================================================================
-inline GLenum GetBlendFactor(Renderer::E_BlendFactor e)
+[[nodiscard]] constexpr D3D12_BLEND GetBlendFactor(Renderer::E_BlendFactor e)
 {
 	switch (e)
 	{
 	case Renderer::E_BlendFactor::Zero:
-		return GL_ZERO;
+		return D3D12_BLEND_ZERO;
 	case Renderer::E_BlendFactor::One:
-		return GL_ONE;
+		return D3D12_BLEND_ONE;
 	case Renderer::E_BlendFactor::SourceColor:
-		return GL_SRC_COLOR;
+		return D3D12_BLEND_SRC_COLOR;
 	case Renderer::E_BlendFactor::InvSourceColor:
-		return GL_ONE_MINUS_SRC_COLOR;
+		return D3D12_BLEND_INV_SRC_COLOR;
 	case Renderer::E_BlendFactor::SourceAlpha:
-		return GL_SRC_ALPHA;
+		return D3D12_BLEND_SRC_ALPHA;
 	case Renderer::E_BlendFactor::InvSourceAlpha:
-		return GL_ONE_MINUS_SRC_ALPHA;
+		return D3D12_BLEND_INV_SRC_ALPHA;
 	case Renderer::E_BlendFactor::DestinationColor:
-		return GL_DST_COLOR;
+		return D3D12_BLEND_DEST_COLOR;
 	case Renderer::E_BlendFactor::InvDestinationColor:
-		return GL_ONE_MINUS_DST_COLOR;
+		return D3D12_BLEND_INV_DEST_COLOR;
 	case Renderer::E_BlendFactor::DestinationAlpha:
-		return GL_DST_ALPHA;
+		return D3D12_BLEND_DEST_ALPHA;
 	case Renderer::E_BlendFactor::InvDestinationAlpha:
-		return GL_ONE_MINUS_DST_ALPHA;
+		return D3D12_BLEND_INV_DEST_ALPHA;
 	case Renderer::E_BlendFactor::AlphaConstant:
-		return GL_CONSTANT_COLOR;
+		return D3D12_BLEND_BLEND_FACTOR;
 	case Renderer::E_BlendFactor::InvAphaConstant:
-		return GL_ONE_MINUS_CONSTANT_COLOR;
+		return D3D12_BLEND_INV_BLEND_FACTOR;
 	case Renderer::E_BlendFactor::ColorConstant:
-		return GL_CONSTANT_ALPHA;
+		return D3D12_BLEND_BLEND_FACTOR;
 	case Renderer::E_BlendFactor::InvColorConstant:
-		return GL_ONE_MINUS_CONSTANT_ALPHA;
+		return D3D12_BLEND_INV_BLEND_FACTOR;
 	default:
 		GLE_ASSERT(false, "Unknown blend factor");
-		return GL_ONE;
+		return D3D12_BLEND_ONE;
 	}
 }
 
-} // namespace GLEngine::GLRenderer
+} // namespace GLEngine::DX12Renderer
