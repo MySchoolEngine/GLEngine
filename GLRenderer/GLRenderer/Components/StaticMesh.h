@@ -8,6 +8,8 @@
 #include <GUI/Input/Color.h>
 #include <GUI/Input/Slider.h>
 
+#include <rttr/type>
+
 namespace GLEngine {
 namespace Renderer::MeshData {
 struct Mesh;
@@ -42,6 +44,7 @@ public:
 
 	void SetMaterial(std::shared_ptr<Renderer::C_Material> material);
 
+	RTTR_ENABLE(Renderer::I_RenderableComponent);
 protected:
 	void SetMaterial(const Renderer::MeshData::Material& material);
 
@@ -58,6 +61,7 @@ protected:
 class C_StaticMeshBuilder : public Entity::I_ComponenetBuilder {
 public:
 	virtual std::shared_ptr<Entity::I_Component> Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner) override;
+	RTTR_ENABLE(Entity::I_ComponenetBuilder);
 };
 
 } // namespace Components

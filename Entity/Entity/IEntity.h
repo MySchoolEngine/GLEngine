@@ -9,6 +9,8 @@
 #include <Utils/MapValueIterator.h>
 #include <Utils/Range.h>
 
+#include <rttr/type>
+
 namespace GLEngine::Entity {
 
 enum class E_ComponentType
@@ -57,6 +59,7 @@ public:
 	[[nodiscard]] virtual T_ComponentIter begin();
 	[[nodiscard]] virtual T_ComponentIter end();
 
+	RTTR_ENABLE();
 protected:
 	EntityID			  m_ID;
 	std::string			  m_Name;

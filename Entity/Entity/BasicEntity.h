@@ -24,6 +24,8 @@ public:
 
 	virtual glm::vec3 GetPosition() const override;
 
+	RTTR_ENABLE(I_Entity);
+
 private:
 	glm::mat4 m_ModelMatrix;
 };

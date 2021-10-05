@@ -44,6 +44,7 @@ workspace "Engine"
 		"VULKAN_BIN=\"".. GetVulkanBin() .."\"",
 		"VULKAN_GLSLC=VULKAN_BIN \"/glslc.exe\"",
 		"IMGUI_DEFINE_MATH_OPERATORS",
+		"RTTR_DLL",
 	}
 	
 	workspace_files{
@@ -109,6 +110,7 @@ IncludeDir["DevIL"] = "vendor/DevIL/DevIL/include"
 IncludeDir["dirent"] = "vendor/dirent/include"
 IncludeDir["Assimp"] = "vendor/Assimp/include"
 IncludeDir["crossguid"] = "vendor/crossguid/include"
+IncludeDir["RTTR"] = {"vendor/RTTR/src", "vendor/projects/RTTR"}
 
 -- could be header only or static lib
 NonDllLib = {}
@@ -125,6 +127,7 @@ group "Dependencies"
   include "vendor/projects/DevIL"
   include "vendor/projects/libjpeg"
   include "vendor/projects/crossguid"
+  include "vendor/projects/RTTR"
 if _TARGET_OS ~= "linux" then
   include "vendor/projects/dirent"
 end

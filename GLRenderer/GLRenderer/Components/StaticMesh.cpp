@@ -24,8 +24,21 @@
 #include <pugixml.hpp>
 
 #include <imgui.h>
+#include <rttr/registration>
 
 namespace GLEngine::GLRenderer::Components {
+
+RTTR_REGISTRATION
+{
+	rttr::registration::class_<C_StaticMeshBuilder>("C_StaticMeshBuilder")
+		.constructor<>()
+		.method("Build", &C_StaticMeshBuilder::Build);
+
+
+	rttr::registration::class_<C_StaticMesh>("C_StaticMesh")
+		.constructor<std::string, std::string_view, std::shared_ptr<Entity::I_Entity>>();
+	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<GLEngine::GLRenderer::Components::C_StaticMesh>>();
+}
 
 //=================================================================================
 C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner)

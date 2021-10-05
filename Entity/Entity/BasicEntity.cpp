@@ -4,9 +4,17 @@
 #include <Entity/Components/IDebugGUIComponent.h>
 #include <Entity/IComponent.h>
 
+#include <rttr/registration>
 
 namespace GLEngine::Entity {
 
+RTTR_REGISTRATION
+{
+	rttr::registration::class_<C_BasicEntity>("C_BasicEntity");
+
+
+	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_BasicEntity>>();
+}
 //=================================================================================
 C_BasicEntity::C_BasicEntity(std::string name)
 	: I_Entity(std::move(name))

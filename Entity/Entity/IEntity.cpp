@@ -7,6 +7,13 @@
 
 #include <Utils/MapValueIterator.h>
 
+#include <rttr/registration>
+
+RTTR_REGISTRATION
+{
+	rttr::registration::class_<GLEngine::Entity::I_Entity>("I_Entity");
+}
+
 namespace GLEngine::Entity {
 
 //=================================================================================

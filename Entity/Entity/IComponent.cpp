@@ -3,10 +3,22 @@
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
 
+#include <pugixml.hpp>
+
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <rttr/registration>
+
+RTTR_REGISTRATION
+{
+	rttr::registration::class_<GLEngine::Entity::I_ComponenetBuilder>("I_ComponenetBuilder")
+		.method("Build", &GLEngine::Entity::I_ComponenetBuilder::Build);
+
+	rttr::registration::class_<GLEngine::Entity::I_Component>("I_Component");
+}
 
 namespace GLEngine::Entity {
+
 
 //=================================================================================
 I_Component::I_Component(std::shared_ptr<I_Entity> owner)

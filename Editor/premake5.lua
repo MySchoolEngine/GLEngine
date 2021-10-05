@@ -15,6 +15,8 @@ project "Editor"
 	Link("GUI")
 	Link("Renderer")
 
+	LinkDependency("RTTR")
+
 	includedirs
 	{
 		"../Physics",
