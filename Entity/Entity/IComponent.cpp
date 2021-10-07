@@ -14,11 +14,11 @@ RTTR_REGISTRATION
 	rttr::registration::class_<GLEngine::Entity::I_ComponenetBuilder>("I_ComponenetBuilder")
 		.method("Build", &GLEngine::Entity::I_ComponenetBuilder::Build);
 
-	rttr::registration::class_<GLEngine::Entity::I_Component>("I_Component");
+	rttr::registration::class_<GLEngine::Entity::I_Component>("I_Component")
+		.property("Transformation", &GLEngine::Entity::I_Component::m_Transformation);
 }
 
 namespace GLEngine::Entity {
-
 
 //=================================================================================
 I_Component::I_Component(std::shared_ptr<I_Entity> owner)

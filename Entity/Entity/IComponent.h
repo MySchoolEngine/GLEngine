@@ -7,6 +7,7 @@
 #include <Core/EventSystem/EventReciever.h>
 
 #include <rttr/type>
+#include <rttr/registration_friend.h>
 
 namespace pugi {
 class xml_node;
@@ -47,13 +48,14 @@ public:
 
 	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const = 0;
 
-	RTTR_ENABLE();
 protected:
 	std::shared_ptr<I_Entity>	  GetOwner() const;
 	GUI::Input::C_Transformations m_Transformation;
 
 private:
 	std::weak_ptr<I_Entity> m_Owner;
+	RTTR_ENABLE();
+	RTTR_REGISTRATION_FRIEND;
 };
 
 //=================================================================================

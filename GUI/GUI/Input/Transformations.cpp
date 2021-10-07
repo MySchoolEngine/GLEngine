@@ -5,8 +5,17 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 
+#include <rttr/registration.h>
+
 namespace GLEngine::GUI::Input {
 
+RTTR_REGISTRATION
+{
+	rttr::registration::class_<C_Transformations>("Transformations")
+		.property("Translation", &C_Transformations::GetTranslation, &C_Transformations::SetTranslation)
+		.property("Rotation", &C_Transformations::GetRotation, &C_Transformations::SetRotation)
+		.property("Scale", &C_Transformations::GetScale, &C_Transformations::SetScale);
+}
 
 //=================================================================================
 C_Transformations::C_Transformations(glm::mat4 transformation, Utils::C_BitField<E_Transorms> enableTransforms)
@@ -58,19 +67,19 @@ glm::mat4 C_Transformations::GetMatrix() const
 }
 
 //=================================================================================
-glm::vec3 C_Transformations::GetTranslation() const
+const glm::vec3& C_Transformations::GetTranslation() const
 {
 	return m_Translation.GetValue();
 }
 
 //=================================================================================
-glm::vec3 C_Transformations::GetRotation() const
+const glm::vec3& C_Transformations::GetRotation() const
 {
 	return m_Rotation.GetValue();
 }
 
 //=================================================================================
-glm::vec3 C_Transformations::GetScale() const
+const glm::vec3& C_Transformations::GetScale() const
 {
 	return m_Scale.GetValue();
 }
@@ -93,6 +102,24 @@ void C_Transformations::SetMatrix(const glm::mat4& mat)
 void C_Transformations::SetEnabledTransforms(Utils::C_BitField<E_Transorms> enableTransforms)
 {
 	m_enabledTransforms = enableTransforms;
+}
+
+//=================================================================================
+void C_Transformations::SetTranslation(const glm::vec3& translation)
+{
+	m_Translation.SetValue(glm::vec3(translation));
+}
+
+//=================================================================================
+void C_Transformations::SetRotation(const glm::vec3& rotation)
+{
+	m_Rotation.SetValue(glm::vec3(rotation));
+}
+
+//=================================================================================
+void C_Transformations::SetScale(const glm::vec3& scale)
+{
+	m_Scale.SetValue(glm::vec3(scale));
 }
 
 } // namespace GLEngine::GUI::Input

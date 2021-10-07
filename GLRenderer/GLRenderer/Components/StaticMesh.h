@@ -56,6 +56,7 @@ protected:
 	Physics::Primitives::S_AABB					m_AABB;
 
 	friend class C_StaticMeshBuilder;
+	RTTR_REGISTRATION_FRIEND;
 };
 
 class C_StaticMeshBuilder : public Entity::I_ComponenetBuilder {

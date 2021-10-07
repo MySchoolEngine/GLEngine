@@ -20,11 +20,14 @@ public:
 	//=================================================================================
 	void Draw() const override;
 
-	[[nodiscard]] glm::mat4 GetMatrix() const;
-	void					SetMatrix(const glm::mat4& mat);
-	[[nodiscard]] glm::vec3 GetTranslation() const;
-	[[nodiscard]] glm::vec3 GetRotation() const;
-	[[nodiscard]] glm::vec3 GetScale() const;
+	[[nodiscard]] glm::mat4		   GetMatrix() const;
+	void						   SetMatrix(const glm::mat4& mat);
+	[[nodiscard]] const glm::vec3& GetTranslation() const;
+	void						   SetTranslation(const glm::vec3& translation);
+	[[nodiscard]] const glm::vec3& GetRotation() const;
+	void						   SetRotation(const glm::vec3& rotation);
+	[[nodiscard]] const glm::vec3& GetScale() const;
+	void						   SetScale(const glm::vec3& scale);
 
 private:
 	Utils::C_BitField<E_Transorms> m_enabledTransforms;

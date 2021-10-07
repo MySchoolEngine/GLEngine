@@ -12,6 +12,7 @@ project "GUI"
 	Link("ImGuiFileDialog")
 
 	LinkDependency("ImGui")
+	LinkDependency("RTTR")
 
 	includedirs
 	{

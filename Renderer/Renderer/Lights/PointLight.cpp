@@ -8,6 +8,16 @@
 #include <Utils/Parsing/ColorParsing.h>
 #include <Utils/Parsing/MatrixParse.h>
 
+#include <rttr/registration.h>
+
+RTTR_REGISTRATION
+{
+	rttr::registration::class_<GLEngine::Renderer::C_PointLight>("I_Component")
+		.constructor<std::shared_ptr<GLEngine::Entity::I_Entity>>()
+		.property_readonly("Intensity", &GLEngine::Renderer::C_PointLight::GetIntensity)
+		.property_readonly("Color", &GLEngine::Renderer::C_PointLight::GetColor);
+}
+
 namespace GLEngine::Renderer {
 
 //=================================================================================

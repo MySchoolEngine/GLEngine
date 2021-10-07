@@ -9,6 +9,7 @@
 #include <GUI/Input/Slider.h>
 
 #include <Entity/IComponent.h>
+#include <rttr/type>
 
 namespace GLEngine::Renderer {
 
@@ -41,6 +42,7 @@ private:
 	GUI::Input::C_ColorRBG		m_Color;
 
 	friend class C_PointLightCompBuilder;
+	RTTR_ENABLE(I_Light);
 };
 
 //=============================================================
