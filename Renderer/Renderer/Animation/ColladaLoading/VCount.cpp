@@ -20,7 +20,7 @@ unsigned int C_VCount::Get()
 	unsigned int ret;
 	GLE_ASSERT(EndOfArray() == false, "You are reading behind the streams end.");
 	m_IntStream >> ret;
-	GLE_ASSERT(m_IntStream.badbit == false); // read was successful
+	GLE_ASSERT(m_IntStream.bad() == false, "read was successful"); // read was successful
 	return ret;
 }
 
