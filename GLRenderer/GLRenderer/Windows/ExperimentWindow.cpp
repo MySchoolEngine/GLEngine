@@ -55,6 +55,8 @@
 
 #include <imgui.h>
 
+#include <Utils/Serialization/XMLSerialize.h>
+
 namespace GLEngine::GLRenderer::Windows {
 
 //=================================================================================
@@ -401,6 +403,10 @@ void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 	}
 
 	AddMandatoryWorldParts();
+
+	Utils::C_XMLSerializer s;
+	const auto str = s.Serialize(*m_World);
+	CORE_LOG(E_Level::Error, E_Context::Render, "{}", str);
 }
 
 //=================================================================================
