@@ -1,6 +1,15 @@
 #include <CoreStdafx.h>
 
 #include <Core/GUID.h>
+#include <rttr/registration.h>
+
+RTTR_REGISTRATION
+{
+	rttr::registration::class_<GLEngine::GUID>("GUID")
+		.constructor<>()
+		.constructor<std::string_view>()
+		.property_readonly("ID", &GLEngine::GUID::toString);
+}
 
 namespace GLEngine {
 

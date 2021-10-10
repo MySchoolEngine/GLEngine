@@ -4,6 +4,9 @@
 
 #include <Core/GUID.h>
 
+#include <rttr/type>
+#include <rttr/registration_friend.h>
+
 namespace GLEngine {
 
 // forward declaration
@@ -34,8 +37,11 @@ public:
 
 	[[nodiscard]] bool LoadLevel(const std::filesystem::path& name, std::unique_ptr<I_ComponentBuilderFactory> cbf);
 
+	RTTR_ENABLE();
+	RTTR_REGISTRATION_FRIEND;
+
 private:
-	std::vector<std::shared_ptr<I_Entity>>* m_Entities;
+	std::vector<std::shared_ptr<I_Entity>> m_Entities;
 };
 
 } // namespace Entity

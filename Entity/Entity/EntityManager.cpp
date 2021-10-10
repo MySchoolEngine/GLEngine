@@ -19,20 +19,22 @@
 
 #include <imgui.h>
 
+#include <rttr/registration.h>
+
+RTTR_REGISTRATION
+{
+	rttr::registration::class_<GLEngine::Entity::C_EntityManager>("EntityManager")
+	  .constructor<>()
+	  .property("Entities", &GLEngine::Entity::C_EntityManager::m_Entities);
+}
 
 namespace GLEngine::Entity {
 
 //=================================================================================
-C_EntityManager::C_EntityManager()
-	: m_Entities(new std::remove_pointer<decltype(m_Entities)>::type)
-{
-}
+C_EntityManager::C_EntityManager() = default;
 
 //=================================================================================
-C_EntityManager::~C_EntityManager()
-{
-	delete m_Entities;
-}
+C_EntityManager::~C_EntityManager() = default;
 
 //=================================================================================
 std::shared_ptr<I_Entity> C_EntityManager::GetEntity(GUID id) const
@@ -41,14 +43,14 @@ std::shared_ptr<I_Entity> C_EntityManager::GetEntity(GUID id) const
 	{
 		return nullptr;
 	}
-	return *std::find_if(m_Entities->begin(), m_Entities->end(), [id](const std::shared_ptr<I_Entity>& entity) { return entity->GetID() == id; });
+	return *std::find_if(m_Entities.begin(), m_Entities.end(), [id](const std::shared_ptr<I_Entity>& entity) { return entity->GetID() == id; });
 }
 
 //=================================================================================
 std::shared_ptr<I_Entity> C_EntityManager::GetEntity(const std::string& name) const
 {
-	const auto it = std::find_if(m_Entities->begin(), m_Entities->end(), [name](const std::shared_ptr<I_Entity>& entity) { return entity->GetName() == name; });
-	if (it == m_Entities->end())
+	const auto it = std::find_if(m_Entities.begin(), m_Entities.end(), [name](const std::shared_ptr<I_Entity>& entity) { return entity->GetName() == name; });
+	if (it == m_Entities.end())
 	{
 		return nullptr;
 	}
@@ -72,36 +74,36 @@ std::shared_ptr<I_Entity> C_EntityManager::GetOrCreateEntity(const std::string& 
 //=================================================================================
 std::vector<std::shared_ptr<I_Entity>> C_EntityManager::GetEntities(Physics::Primitives::C_Frustum frust) const
 {
-	return *m_Entities;
+	return m_Entities;
 }
 
 //=================================================================================
 const std::vector<std::shared_ptr<I_Entity>>& C_EntityManager::GetEntities() const
 {
-	return *m_Entities;
+	return m_Entities;
 }
 
 //=================================================================================
 void C_EntityManager::ClearLevel()
 {
-	m_Entities->clear();
+	m_Entities.clear();
 }
 
 //=================================================================================
 void C_EntityManager::AddEntity(std::shared_ptr<I_Entity> entity)
 {
-	m_Entities->push_back(entity);
+	m_Entities.push_back(entity);
 }
 
 //=================================================================================
 void C_EntityManager::OnUpdate()
 {
-	for (auto& entity : *m_Entities)
+	for (auto& entity : m_Entities)
 	{
 		entity->Update();
 	}
 
-	for (auto& entity : *m_Entities)
+	for (auto& entity : m_Entities)
 	{
 		entity->PostUpdate();
 	}
@@ -111,8 +113,8 @@ void C_EntityManager::OnUpdate()
 Physics::Primitives::S_RayIntersection C_EntityManager::Select(const Physics::Primitives::S_Ray& ray)
 {
 	std::vector<Physics::Primitives::S_RayIntersection> intersects;
-	intersects.reserve(m_Entities->size());
-	for (auto& entity : *m_Entities)
+	intersects.reserve(m_Entities.size());
+	for (auto& entity : m_Entities)
 	{
 		const auto aabb		= entity->GetAABB();
 		const auto distance = aabb.IntersectImpl(ray);
@@ -151,8 +153,7 @@ bool C_EntityManager::LoadLevel(const std::filesystem::path& name, std::unique_p
 {
 	ClearLevel();
 	CORE_LOG(E_Level::Info, E_Context::Core, "Loading level: {}", name);
-	delete m_Entities;
-	m_Entities = new std::remove_pointer<decltype(m_Entities)>::type;
+	m_Entities.clear();
 	pugi::xml_document doc;
 
 	pugi::xml_parse_result result;

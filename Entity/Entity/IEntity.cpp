@@ -11,7 +11,11 @@
 
 RTTR_REGISTRATION
 {
-	rttr::registration::class_<GLEngine::Entity::I_Entity>("I_Entity");
+	rttr::registration::class_<GLEngine::Entity::I_Entity>("I_Entity")
+		.property("ID", &GLEngine::Entity::I_Entity::m_ID)
+		.property("name", &GLEngine::Entity::I_Entity::m_Name);
+
+	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<GLEngine::Entity::I_Entity>>();
 }
 
 namespace GLEngine::Entity {

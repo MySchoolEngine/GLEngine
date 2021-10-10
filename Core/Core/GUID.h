@@ -2,6 +2,7 @@
 
 #include <Core/CoreApi.h>
 
+#include <rttr/type>
 #include <crossguid/guid.hpp>
 
 namespace GLEngine {

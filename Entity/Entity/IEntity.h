@@ -10,6 +10,7 @@
 #include <Utils/Range.h>
 
 #include <rttr/type>
+#include <rttr/registration_friend.h>
 
 namespace GLEngine::Entity {
 
@@ -60,6 +61,8 @@ public:
 	[[nodiscard]] virtual T_ComponentIter end();
 
 	RTTR_ENABLE();
+	RTTR_REGISTRATION_FRIEND;
+
 protected:
 	EntityID			  m_ID;
 	std::string			  m_Name;
