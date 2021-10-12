@@ -12,8 +12,8 @@ std::string C_XMLSerializer::Serialize(const rttr::instance obj)
 		return std::string();
 
 	pugi::xml_document		doc;
-	const rttr::instance	obj2 = obj.get_type().get_raw_type().is_wrapper() ? obj.get_wrapped_instance() : obj;
-	pugi::xml_node			node = doc.append_child(obj.get_type().get_name().to_string().c_str());
+	const rttr::instance	obj2  = obj.get_type().get_raw_type().is_wrapper() ? obj.get_wrapped_instance() : obj;
+	pugi::xml_node			node  = doc.append_child(obj2.get_type().get_name().to_string().c_str());
 	const auto				node2 = SerializeObject(obj, node);
 	std::stringstream		ss;
 	pugi::xml_writer_stream writer(ss);
@@ -24,7 +24,7 @@ std::string C_XMLSerializer::Serialize(const rttr::instance obj)
 //=================================================================================
 pugi::xml_node C_XMLSerializer::SerializeObject(const rttr::instance& obj2, pugi::xml_node& node)
 {
-	const rttr::instance obj  = obj2.get_type().get_raw_type().is_wrapper() ? obj2.get_wrapped_instance() : obj2;
+	const rttr::instance obj = obj2.get_type().get_raw_type().is_wrapper() ? obj2.get_wrapped_instance() : obj2;
 
 	const auto prop_list = obj.get_derived_type().get_properties();
 	for (auto prop : prop_list)
@@ -42,7 +42,7 @@ pugi::xml_node C_XMLSerializer::SerializeObject(const rttr::instance& obj2, pugi
 //=================================================================================
 void C_XMLSerializer::WriteProperty(const rttr::property& prop, const rttr::instance& var, pugi::xml_node& parent)
 {
-	const auto type = prop.get_type();
+	const auto type		 = prop.get_type();
 	const auto propValue = prop.get_value(var);
 	if (type.is_arithmetic())
 	{
@@ -97,8 +97,11 @@ void C_XMLSerializer::WriteAtomics(const rttr::property& prop, const rttr::varia
 //=================================================================================
 void C_XMLSerializer::WriteArray(const rttr::variant_sequential_view& view, pugi::xml_node& parent)
 {
-	for (const auto& item : view) {
-		auto node = parent.append_child(item.get_type().get_name().to_string().c_str());
+	for (const auto& item : view)
+	{
+		const auto obj	= rttr::instance(item);
+		const auto type = obj.get_type().get_raw_type().is_wrapper() ? obj.get_wrapped_instance() : obj;
+		auto	   node = parent.append_child(type.get_type().get_name().to_string().c_str());
 		SerializeObject(item, node);
 	}
 }

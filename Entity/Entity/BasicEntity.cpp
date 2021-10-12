@@ -6,15 +6,15 @@
 
 #include <rttr/registration>
 
-namespace GLEngine::Entity {
-
 RTTR_REGISTRATION
 {
-	rttr::registration::class_<C_BasicEntity>("C_BasicEntity");
+	rttr::registration::class_<GLEngine::Entity::C_BasicEntity>("C_BasicEntity");
 
-
-	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_BasicEntity>>();
+	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<GLEngine::Entity::C_BasicEntity>>();
 }
+
+namespace GLEngine::Entity {
+
 //=================================================================================
 C_BasicEntity::C_BasicEntity(std::string name)
 	: I_Entity(std::move(name))
