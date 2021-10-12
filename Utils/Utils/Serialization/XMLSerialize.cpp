@@ -12,8 +12,7 @@ std::string C_XMLSerializer::Serialize(const rttr::instance obj)
 		return std::string();
 
 	pugi::xml_document		doc;
-	const rttr::instance	obj2  = obj.get_type().get_raw_type().is_wrapper() ? obj.get_wrapped_instance() : obj;
-	pugi::xml_node			node  = doc.append_child(obj2.get_type().get_name().to_string().c_str());
+	pugi::xml_node			node  = doc.append_child(GetNodeName(obj.get_type()).to_string().c_str());
 	const auto				node2 = SerializeObject(obj, node);
 	std::stringstream		ss;
 	pugi::xml_writer_stream writer(ss);
@@ -24,7 +23,7 @@ std::string C_XMLSerializer::Serialize(const rttr::instance obj)
 //=================================================================================
 pugi::xml_node C_XMLSerializer::SerializeObject(const rttr::instance& obj2, pugi::xml_node& node)
 {
-	const rttr::instance obj = obj2.get_type().get_raw_type().is_wrapper() ? obj2.get_wrapped_instance() : obj2;
+	const rttr::instance obj   = obj2.get_type().get_raw_type().is_wrapper() ? obj2.get_wrapped_instance() : obj2;
 
 	const auto prop_list = obj.get_derived_type().get_properties();
 	for (auto prop : prop_list)
@@ -44,7 +43,7 @@ void C_XMLSerializer::WriteProperty(const rttr::property& prop, const rttr::inst
 {
 	const auto type		 = prop.get_type();
 	const auto propValue = prop.get_value(var);
-	if (type.is_arithmetic())
+	if (type.is_arithmetic() || type == rttr::type::get<std::string>())
 	{
 		WriteAtomics(prop, propValue, parent);
 	}
@@ -99,11 +98,29 @@ void C_XMLSerializer::WriteArray(const rttr::variant_sequential_view& view, pugi
 {
 	for (const auto& item : view)
 	{
-		const auto obj	= rttr::instance(item);
-		const auto type = obj.get_type().get_raw_type().is_wrapper() ? obj.get_wrapped_instance() : obj;
-		auto	   node = parent.append_child(type.get_type().get_name().to_string().c_str());
-		SerializeObject(item, node);
+		const rttr::instance obj  = item.extract_wrapped_value();
+		const rttr::instance ins  = obj.get_type().get_raw_type().is_wrapper() ? obj.get_wrapped_instance() : obj;
+		auto				 node = parent.append_child(GetNodeName(ins.get_derived_type()).to_string().c_str());
+		SerializeObject(ins, node);
 	}
+}
+
+//=================================================================================
+rttr::string_view C_XMLSerializer::GetNodeName(const rttr::type& type)
+{
+	rttr::type rawType = type;
+	if (rawType.is_pointer())
+	{
+		rawType = rawType.get_raw_type();
+	}
+	if (rawType.is_wrapper())
+	{
+		rawType = rawType.get_wrapped_type();
+	}
+	if (rawType.is_pointer())
+		rawType = rawType.get_raw_type();
+
+	return rawType.get_name();
 }
 
 } // namespace GLEngine::Utils

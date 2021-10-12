@@ -11,7 +11,7 @@
 
 RTTR_REGISTRATION
 {
-	rttr::registration::class_<GLEngine::Entity::I_Entity>("I_Entity")
+	rttr::registration::class_<GLEngine::Entity::I_Entity>("I_Entity")(rttr::policy::ctor::as_std_shared_ptr)
 		.property("ID", &GLEngine::Entity::I_Entity::m_ID)
 		.property("name", &GLEngine::Entity::I_Entity::m_Name);
 
