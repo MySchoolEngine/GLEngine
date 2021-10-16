@@ -6,18 +6,18 @@
 
 namespace GLEngine::Utils {
 //=================================================================================
-std::string C_XMLSerializer::Serialize(const rttr::instance obj)
+pugi::xml_document C_XMLSerializer::Serialize(const rttr::instance obj)
 {
 	if (!obj.is_valid())
-		return std::string();
+		return {};
 
 	pugi::xml_document		doc;
 	pugi::xml_node			node  = doc.append_child(GetNodeName(obj.get_type()).to_string().c_str());
 	const auto				node2 = SerializeObject(obj, node);
-	std::stringstream		ss;
-	pugi::xml_writer_stream writer(ss);
-	node2.print(writer);
-	return ss.str();
+	// std::stringstream		ss;
+	// pugi::xml_writer_stream writer(ss);
+	// node2.print(writer);
+	return doc;
 }
 
 //=================================================================================
