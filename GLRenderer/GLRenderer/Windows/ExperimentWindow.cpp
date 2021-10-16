@@ -56,6 +56,7 @@
 #include <imgui.h>
 
 #include <Utils/Serialization/XMLSerialize.h>
+#include <Utils/Serialization/XMLDeserialize.h>
 
 namespace GLEngine::GLRenderer::Windows {
 
@@ -406,7 +407,12 @@ void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 
 	Utils::C_XMLSerializer s;
 	const auto str = s.Serialize(m_World);
-	CORE_LOG(E_Level::Error, E_Context::Render, "{}", str);
+	std::stringstream		ss;
+	pugi::xml_writer_stream writer(ss);
+	str.print(writer);
+	CORE_LOG(E_Level::Error, E_Context::Render, "{}", ss.str());
+	Utils::C_XMLDeserializer d;
+	d.Deserialize<std::shared_ptr<Entity::C_EntityManager>>(str);
 }
 
 //=================================================================================
