@@ -12,6 +12,7 @@ namespace GLEngine::GUI::Input {
 RTTR_REGISTRATION
 {
 	rttr::registration::class_<C_Transformations>("Transformations")
+		.constructor<>()(rttr::policy::ctor::as_object)
 		.property("Translation", &C_Transformations::GetTranslation, &C_Transformations::SetTranslation)
 		.property("Rotation", &C_Transformations::GetRotation, &C_Transformations::SetRotation)
 		.property("Scale", &C_Transformations::GetScale, &C_Transformations::SetScale);
@@ -25,6 +26,15 @@ C_Transformations::C_Transformations(glm::mat4 transformation, Utils::C_BitField
 	, m_Scale("Scale", glm::vec3(1.f, 1.f, 1.f))
 {
 	SetMatrix(transformation);
+}
+
+//=================================================================================
+C_Transformations::C_Transformations()
+	: m_enabledTransforms({E_Transorms::Translate, E_Transorms::Rotate, E_Transorms::Scale})
+	, m_Translation("Translate", glm::vec3(0.f))
+	, m_Rotation("Rotation", glm::vec3(0.f))
+	, m_Scale("Scale", glm::vec3(1.f, 1.f, 1.f))
+{
 }
 
 //=================================================================================
