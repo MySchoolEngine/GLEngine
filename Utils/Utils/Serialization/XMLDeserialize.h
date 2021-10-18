@@ -23,8 +23,8 @@ public:
 
 private:
 	rttr::variant DeserializeDoc(const pugi::xml_document& document);
-	rttr::variant DeserializeNode(const pugi::xml_node& node);
-	void		  DeserializeProperty(rttr::property& prop, rttr::variant& owner, const pugi::xml_node& node);
-	rttr::variant DeserializeAtomic(const pugi::xml_node& node, rttr::property& prop);
+	rttr::variant DeserializeNode(const pugi::xml_node& node, const rttr::type& type);
+	void		  DeserializeProperty(const rttr::property& prop, rttr::variant& owner, const pugi::xml_node& node);
+	rttr::variant DeserializeAtomic(const pugi::xml_node& node, const rttr::property& prop);
 };
 } // namespace GLEngine::Utils
