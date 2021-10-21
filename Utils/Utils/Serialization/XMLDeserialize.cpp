@@ -1,9 +1,8 @@
+#include <Utils/Logging/LoggingMacros.h>
 #include <Utils/Serialization/GLMRTTI.h>
 #include <Utils/Serialization/XMLDeserialize.h>
 
 #include <rttr/type>
-
-#include <Utils/Logging/LoggingMacros.h>
 
 namespace GLEngine::Utils {
 
@@ -11,12 +10,7 @@ namespace GLEngine::Utils {
 rttr::variant C_XMLDeserializer::DeserializeDoc(const pugi::xml_document& document)
 {
 	const auto rootNode = document.root().first_child();
-	return DeserializeNode(rootNode, rttr::type::get_by_name(rootNode.name()));
-}
-
-//=================================================================================
-rttr::variant C_XMLDeserializer::DeserializeNode(const pugi::xml_node& node, const rttr::type& type)
-{
+	const auto type		= rttr::type::get_by_name(rootNode.name());
 	if (type.is_valid() == false)
 		return {};
 	auto var = type.create();
@@ -25,8 +19,17 @@ rttr::variant C_XMLDeserializer::DeserializeNode(const pugi::xml_node& node, con
 		CORE_LOG(E_Level::Error, E_Context::Core, "Invalid variant created. Probably needs ctor to be registered.");
 		return {};
 	}
-	CORE_LOG(E_Level::Error, E_Context::Core, "{}", var.get_type());
-	for (auto& prop : type.get_properties()) {
+	return DeserializeNode(rootNode, var);
+}
+
+//=================================================================================
+rttr::variant C_XMLDeserializer::DeserializeNode(const pugi::xml_node& node, rttr::variant& var)
+{
+	const rttr::instance var2 = var.get_type().get_raw_type().is_wrapper() ? rttr::instance(var).get_wrapped_instance() : var;
+	//CORE_LOG(E_Level::Error, E_Context::Core, "{}", var2.get_type());
+
+	for (auto& prop : var2.get_type().get_properties())
+	{
 		DeserializeProperty(prop, var, node);
 	}
 
@@ -36,16 +39,58 @@ rttr::variant C_XMLDeserializer::DeserializeNode(const pugi::xml_node& node, con
 //=================================================================================
 void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::variant& owner, const pugi::xml_node& node)
 {
-	const auto type = prop.get_type();
+	const auto type = prop.get_type().get_raw_type();
 	if (type.is_arithmetic() || type == rttr::type::get<std::string>())
 	{
 		prop.set_value(owner, DeserializeAtomic(node, prop));
 	}
+	else if (type.is_sequential_container())
+	{
+		const auto child = node.child(prop.get_name().to_string().c_str());
+		auto	   var	 = prop.get_value(owner);
+		auto	   view	 = var.create_sequential_view();
+		DeserializeArray(child, view);
+	}
+	else if (type.is_associative_container())
+	{
+		const auto child = node.child(prop.get_name().to_string().c_str());
+		auto	   var	 = prop.get_value(owner);
+		auto	   view	 = var.create_associative_view();
+		DeserializeAssociativeArray(child, view);
+	}
 	else
 	{
-		const auto child	= node.child(prop.get_name().to_string().c_str());
+		const auto child = node.child(prop.get_name().to_string().c_str());
 		if (child)
-			prop.set_value(owner, DeserializeNode(child, prop.get_type()));
+			prop.set_value(owner, DeserializeNode(child, prop.get_value(owner)));
+	}
+}
+
+//=================================================================================
+void C_XMLDeserializer::DeserializeArray(const pugi::xml_node& child, rttr::variant_sequential_view& view)
+{
+	int index = 0;
+	for (const auto childNode : child) {
+		const auto type = rttr::type::get_by_name(childNode.name());
+		if (type.is_valid() == false)
+			continue;
+		auto var = type.create();
+		DeserializeNode(childNode, var);
+		var.convert(view.get_value_type());
+		const auto iter = view.insert(view.end(), var);
+		if (iter == view.end())
+		{
+			CORE_LOG(E_Level::Error, E_Context::Core, "FAILED.");
+		}
+		index++;
+	}
+}
+
+//=================================================================================
+void C_XMLDeserializer::DeserializeAssociativeArray(const pugi::xml_node& child, rttr::variant_associative_view& view)
+{
+	for (const auto childNode : child) {
+		
 	}
 }
 
@@ -81,10 +126,10 @@ rttr::variant C_XMLDeserializer::DeserializeAtomic(const pugi::xml_node& node, c
 		else if (type == rttr::type::get<double>())
 			return attr.as_double();
 		else if (type == rttr::type::get<std::string>())
-			return attr.as_string();
+			return std::string(attr.as_string());
 	}
 	CORE_LOG(E_Level::Error, E_Context::Core, "Unknown atomics.");
 	return {};
 }
 
-}
+} // namespace GLEngine::Utils
