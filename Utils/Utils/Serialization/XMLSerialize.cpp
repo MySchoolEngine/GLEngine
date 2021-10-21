@@ -49,8 +49,19 @@ void C_XMLSerializer::WriteProperty(const rttr::property& prop, const rttr::inst
 	}
 	else if (propValue.is_sequential_container())
 	{
+		const auto view = propValue.create_sequential_view();
+		if (view.is_empty())
+			return;
 		auto node = parent.append_child(prop.get_name().to_string().c_str());
-		WriteArray(propValue.create_sequential_view(), node);
+		WriteArray(view, node);
+	}
+	else if (propValue.is_associative_container())
+	{
+		const auto view = propValue.create_associative_view();
+		if (view.is_empty())
+			return;
+		auto node = parent.append_child(prop.get_name().to_string().c_str());
+		WriteAssociativeArray(view, node);
 	}
 	else
 	{
@@ -121,6 +132,17 @@ rttr::string_view C_XMLSerializer::GetNodeName(const rttr::type& type)
 		rawType = rawType.get_raw_type();
 
 	return rawType.get_name();
+}
+
+//=================================================================================
+void C_XMLSerializer::WriteAssociativeArray(const rttr::variant_associative_view& view, pugi::xml_node& parent)
+{
+	for (const auto& item : view) {
+		auto itemNode = parent.append_child("item");
+		auto keyNode = itemNode.append_child("key");
+		keyNode.append_attribute("type").set_value(item.first.extract_wrapped_value().get_type().get_name().to_string().c_str());
+		SerializeObject(item.first.extract_wrapped_value(), keyNode);
+	}
 }
 
 } // namespace GLEngine::Utils
