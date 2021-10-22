@@ -31,6 +31,7 @@ protected:
 
 public:
 	explicit I_Entity(std::string name);
+	explicit I_Entity();
 	virtual ~I_Entity();
 
 	// naive GUID version

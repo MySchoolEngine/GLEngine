@@ -25,8 +25,10 @@
 RTTR_REGISTRATION
 {
 	rttr::registration::class_<GLEngine::Entity::C_EntityManager>("EntityManager")
-	  .constructor<>()
+		.constructor<>()
 		.property("Entities", &GLEngine::Entity::C_EntityManager::m_Entities)(rttr::policy::prop::bind_as_ptr);
+
+	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<GLEngine::Entity::C_EntityManager>>();
 
 	rttr::registration::class_<pugi::xml_node>("pugi::xml_node");
 }

@@ -11,6 +11,7 @@ namespace GLEngine::Entity {
 class C_BasicEntity : public I_Entity {
 public:
 	explicit C_BasicEntity(std::string name);
+	explicit C_BasicEntity();
 	virtual ~C_BasicEntity();
 
 	virtual void Update() override;

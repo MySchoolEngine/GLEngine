@@ -8,7 +8,9 @@
 
 RTTR_REGISTRATION
 {
-	rttr::registration::class_<GLEngine::Entity::C_BasicEntity>("C_BasicEntity");
+	rttr::registration::class_<GLEngine::Entity::C_BasicEntity>("C_BasicEntity")
+		.constructor<std::string>()(rttr::policy::ctor::as_std_shared_ptr)
+		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr);
 
 	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<GLEngine::Entity::C_BasicEntity>>();
 }
@@ -23,7 +25,17 @@ C_BasicEntity::C_BasicEntity(std::string name)
 }
 
 //=================================================================================
-C_BasicEntity::~C_BasicEntity() = default;
+C_BasicEntity::C_BasicEntity()
+	: I_Entity("")
+	, m_ModelMatrix(glm::mat4(1.f))
+{
+}
+
+//=================================================================================
+C_BasicEntity::~C_BasicEntity()
+{
+	CORE_LOG(E_Level::Error, E_Context::Core, "~C_BasicEntity()");
+}
 
 //=================================================================================
 void C_BasicEntity::Update()
