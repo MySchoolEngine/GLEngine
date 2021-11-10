@@ -3,6 +3,9 @@
 #include <GUI/GUIPart.h>
 #include <Renderer/Colours.h>
 
+#include <rttr/registration_friend.h>
+#include <rttr/registration.h>
+
 namespace GLEngine::GUI::Input {
 
 template <class T> class C_ColorBase : public I_GUIPart {
@@ -34,6 +37,8 @@ public:
 
 
 	using C_ColorBase<Colours::T_Colour>::operator=;
+	RTTR_ENABLE();
+	RTTR_REGISTRATION_FRIEND;
 };
 
 
@@ -47,5 +52,7 @@ public:
 
 
 	using C_ColorBase<glm::vec4>::operator=;
+	RTTR_ENABLE();
+	RTTR_REGISTRATION_FRIEND;
 };
 } // namespace GLEngine::GUI::Input

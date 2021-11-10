@@ -10,6 +10,9 @@
 
 #include <Utils/RefCounter.h>
 
+#include <rttr/registration_friend.h>
+#include <rttr/registration.h>
+
 namespace GLEngine::Renderer::MeshData {
 struct Material;
 }
@@ -63,5 +66,7 @@ private:
 	mutable bool					 m_Changed : 1; // mutable because of const-ness of DrawGUI
 	int								 m_MaterialIndex;
 	float							 m_Shininess;
+	RTTR_ENABLE();
+	RTTR_REGISTRATION_FRIEND;
 };
 } // namespace GLEngine::Renderer
