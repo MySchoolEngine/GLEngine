@@ -14,6 +14,9 @@ template <class Type> using T_ParentMetatype = typename ParentMetatype<Type>::ty
 template <auto Type> struct MemberType {};
 template <auto Type> using MemberType_t = typename MemberType<Type>::type;
 
+template <auto Type> struct MemberIsOptional : std::false_type {};
+template <auto Type> constexpr bool MemberIsOptional_v = MemberIsOptional<Type>::value;
+
 #define REGISTER_META_CLASS(cls, Parent) \
 template <> struct ::Utils::Reflection::ParentMetatype<cls> { using type = Parent; }; \
 template <> struct ::Utils::Reflection::IsMetadataName<cls> : std::true_type {}
@@ -29,6 +32,9 @@ MemberType_t<Member> GetMetadataMember(const rttr::property& prop)
 {
 	static_assert(IsMetadataName_v<Enum>, "Given member name must be registered meta member.");
 	const auto metadata = prop.get_metadata(Member);
+	if constexpr (!MemberIsOptional_v<Member>) {
+		GLE_ASSERT(metadata.is_valid(), "Mandatory property metamember missing.");
+	}
 	return metadata.get_value<MemberType_t<Member>>();
 }
 
@@ -37,7 +43,9 @@ template <class Enum>
 rttr::variant GetMetadataMember(const rttr::property& prop, const Enum member)
 {
 	static_assert(IsMetadataName_v<Enum>, "Given member name must be registered meta member.");
-	return prop.get_metadata(member);
+	const auto metadata = prop.get_metadata(Member);
+	GLE_ASSERT(MemberIsOptional_v<Member> || metadata.is_valid(), "Mandatory property metamember missing.");
+	return metadata;
 }
 
 //=================================================================================
