@@ -5,6 +5,8 @@
 
 #include <Utils/BitField.h>
 
+#include <rttr/registration_friend.h>
+
 namespace GLEngine::GUI::Input {
 class GUI_API_EXPORT C_Transformations : public I_GUIPart {
 public:
@@ -32,9 +34,12 @@ public:
 
 private:
 	Utils::C_BitField<E_Transorms> m_enabledTransforms;
-	C_Vec3						   m_Translation;
-	C_Vec3						   m_Rotation;
-	C_Vec3						   m_Scale;
+	glm::vec3					   m_Translation;
+	glm::vec3					   m_Rotation;
+	glm::vec3					   m_Scale;
+
+	RTTR_ENABLE();
+	RTTR_REGISTRATION_FRIEND;
 };
 } // namespace GLEngine::GUI::Input
 
