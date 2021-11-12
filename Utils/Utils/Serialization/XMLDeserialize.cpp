@@ -1,6 +1,7 @@
 #include <Utils/Logging/LoggingMacros.h>
 #include <Utils/Serialization/GLMRTTI.h>
 #include <Utils/Serialization/XMLDeserialize.h>
+#include <Utils/Serialization/SerializationTraits.h>
 
 #include <rttr/type>
 
@@ -40,9 +41,9 @@ rttr::variant C_XMLDeserializer::DeserializeNode(const pugi::xml_node& node, rtt
 void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::variant& owner, const pugi::xml_node& node)
 {
 	const auto type = prop.get_type().get_raw_type();
-	if (type.is_arithmetic() || type == rttr::type::get<std::string>())
+	if (IsAtomicType(type))
 	{
-		prop.set_value(owner, DeserializeAtomic(node, prop));
+		prop.set_value(owner, DeserializeAtomic(node.attribute(prop.get_name().to_string().c_str()), prop.get_type()));
 	}
 	else if (type.is_sequential_container())
 	{
@@ -89,16 +90,21 @@ void C_XMLDeserializer::DeserializeArray(const pugi::xml_node& child, rttr::vari
 //=================================================================================
 void C_XMLDeserializer::DeserializeAssociativeArray(const pugi::xml_node& child, rttr::variant_associative_view& view)
 {
+	auto keyType = view.get_key_type();
 	for (const auto childNode : child) {
-		
+		rttr::variant keyVar;
+		if (IsAtomicType(keyType)) {
+			keyVar = DeserializeAtomic(childNode.child("key").attribute("value"), keyType);
+			if (!keyVar.is_valid())
+				CORE_LOG(E_Level::Error, E_Context::Core, "FAILED.");
+		}
+		view.insert(keyVar, rttr::variant(nullptr));
 	}
 }
 
 //=================================================================================
-rttr::variant C_XMLDeserializer::DeserializeAtomic(const pugi::xml_node& node, const rttr::property& prop)
+rttr::variant C_XMLDeserializer::DeserializeAtomic(const pugi::xml_attribute& attr, const rttr::type& type)
 {
-	const auto attr = node.attribute(prop.get_name().to_string().c_str());
-	const auto type = prop.get_type();
 	if (attr)
 	{
 		if (type == rttr::type::get<bool>())
@@ -127,6 +133,8 @@ rttr::variant C_XMLDeserializer::DeserializeAtomic(const pugi::xml_node& node, c
 			return attr.as_double();
 		else if (type == rttr::type::get<std::string>())
 			return std::string(attr.as_string());
+		else if (type.is_enumeration())
+			return type.get_enumeration().name_to_value(attr.as_string());
 	}
 	CORE_LOG(E_Level::Error, E_Context::Core, "Unknown atomics.");
 	return {};

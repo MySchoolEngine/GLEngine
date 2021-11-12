@@ -13,7 +13,7 @@ public:
 private:
 	[[nodiscard]] pugi::xml_node SerializeObject(const rttr::instance& obj2, pugi::xml_node& node);
 	void						 WriteProperty(const rttr::property& prop, const rttr::instance& var, pugi::xml_node& parent);
-	void						 WriteAtomics(const rttr::property& prop, const rttr::variant& obj, pugi::xml_node& attr);
+	void						 WriteAtomics(const rttr::type& type, const rttr::variant& obj, pugi::xml_attribute& attr);
 	void						 WriteArray(const rttr::variant_sequential_view& view, pugi::xml_node& parent);
 	void						 WriteAssociativeArray(const rttr::variant_associative_view& view, pugi::xml_node& parent);
 

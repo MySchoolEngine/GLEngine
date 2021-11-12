@@ -1,5 +1,6 @@
 #include <Utils/Serialization/GLMRTTI.h>
 #include <Utils/Serialization/XMLSerialize.h>
+#include <Utils/Serialization/SerializationTraits.h>
 
 #include <rttr/type>
 #include <sstream>
@@ -43,9 +44,9 @@ void C_XMLSerializer::WriteProperty(const rttr::property& prop, const rttr::inst
 {
 	const auto type		 = prop.get_type();
 	const auto propValue = prop.get_value(var);
-	if (type.is_arithmetic() || type == rttr::type::get<std::string>())
+	if (IsAtomicType(type))
 	{
-		WriteAtomics(prop, propValue, parent);
+		WriteAtomics(type, propValue, parent.append_attribute(prop.get_name().to_string().c_str()));
 	}
 	else if (propValue.is_sequential_container())
 	{
@@ -70,38 +71,54 @@ void C_XMLSerializer::WriteProperty(const rttr::property& prop, const rttr::inst
 }
 
 //=================================================================================
-void C_XMLSerializer::WriteAtomics(const rttr::property& prop, const rttr::variant& obj, pugi::xml_node& node)
+void C_XMLSerializer::WriteAtomics(const rttr::type& type, const rttr::variant& obj, pugi::xml_attribute& attr)
 {
-	const auto type = prop.get_type();
-	const auto name = prop.get_name();
-	auto	   attr = node.append_attribute(name.to_string().c_str());
-
-	if (type == rttr::type::get<bool>())
-		attr.set_value(obj.to_bool());
-	else if (type == rttr::type::get<char>())
-		attr.set_value(obj.to_bool());
-	else if (type == rttr::type::get<int8_t>())
-		attr.set_value(obj.to_int8());
-	else if (type == rttr::type::get<int16_t>())
-		attr.set_value(obj.to_int16());
-	else if (type == rttr::type::get<int32_t>())
-		attr.set_value(obj.to_int32());
-	else if (type == rttr::type::get<int64_t>())
-		attr.set_value(obj.to_int64());
-	else if (type == rttr::type::get<uint8_t>())
-		attr.set_value(obj.to_uint8());
-	else if (type == rttr::type::get<uint16_t>())
-		attr.set_value(obj.to_uint16());
-	else if (type == rttr::type::get<uint32_t>())
-		attr.set_value(obj.to_uint32());
-	else if (type == rttr::type::get<uint64_t>())
-		attr.set_value(obj.to_uint64());
-	else if (type == rttr::type::get<float>())
-		attr.set_value(obj.to_double());
-	else if (type == rttr::type::get<double>())
-		attr.set_value(obj.to_double());
+	if (type.is_arithmetic())
+	{
+		if (type == rttr::type::get<bool>())
+			attr.set_value(obj.to_bool());
+		else if (type == rttr::type::get<char>())
+			attr.set_value(obj.to_bool());
+		else if (type == rttr::type::get<int8_t>())
+			attr.set_value(obj.to_int8());
+		else if (type == rttr::type::get<int16_t>())
+			attr.set_value(obj.to_int16());
+		else if (type == rttr::type::get<int32_t>())
+			attr.set_value(obj.to_int32());
+		else if (type == rttr::type::get<int64_t>())
+			attr.set_value(obj.to_int64());
+		else if (type == rttr::type::get<uint8_t>())
+			attr.set_value(obj.to_uint8());
+		else if (type == rttr::type::get<uint16_t>())
+			attr.set_value(obj.to_uint16());
+		else if (type == rttr::type::get<uint32_t>())
+			attr.set_value(obj.to_uint32());
+		else if (type == rttr::type::get<uint64_t>())
+			attr.set_value(obj.to_uint64());
+		else if (type == rttr::type::get<float>())
+			attr.set_value(obj.to_double());
+		else if (type == rttr::type::get<double>())
+			attr.set_value(obj.to_double());
+	}
 	else if (type == rttr::type::get<std::string>())
 		attr.set_value(obj.to_string().c_str());
+	else if (type.is_enumeration())
+	{
+		bool ok = false;
+		const auto result = obj.to_string(&ok);
+		if (ok)
+		{
+			attr.set_value(obj.to_string().c_str());
+		}
+		else
+		{
+			ok		   = false;
+			auto value = obj.to_uint64(&ok);
+			if (ok)
+				attr.set_value(value);
+			// GLE_ASSERT(ok, "Wrong enum serialized");
+		}
+	}
 }
 
 //=================================================================================
@@ -139,9 +156,36 @@ void C_XMLSerializer::WriteAssociativeArray(const rttr::variant_associative_view
 {
 	for (const auto& item : view) {
 		auto itemNode = parent.append_child("item");
-		auto keyNode = itemNode.append_child("key");
-		keyNode.append_attribute("type").set_value(item.first.extract_wrapped_value().get_type().get_name().to_string().c_str());
-		SerializeObject(item.first.extract_wrapped_value(), keyNode);
+		{
+			auto		  keyNode = itemNode.append_child("key");
+			rttr::variant key	  = item.first;
+			while (key.get_type().is_wrapper())
+				key = key.extract_wrapped_value();
+			const auto type = rttr::instance(key).get_derived_type();
+			if (IsAtomicType(type))
+			{
+				WriteAtomics(type, key, keyNode.append_attribute("value"));
+			}
+			else
+			{
+				SerializeObject(key, keyNode.append_child(GetNodeName(type).to_string().c_str()));
+			}
+		}
+		{
+			auto	   valueNode = itemNode.append_child("value");
+			rttr::variant value		= item.second;
+			while (value.get_type().is_wrapper())
+				value = value.extract_wrapped_value();
+			const auto type = rttr::instance(value).get_derived_type();
+			if (IsAtomicType(type))
+			{
+				WriteAtomics(type, value, valueNode.append_attribute("value"));
+			}
+			else
+			{
+				SerializeObject(value, valueNode.append_child(GetNodeName(type).to_string().c_str()));
+			}
+		}
 	}
 }
 

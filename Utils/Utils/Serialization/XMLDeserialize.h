@@ -25,7 +25,7 @@ private:
 	rttr::variant DeserializeDoc(const pugi::xml_document& document);
 	rttr::variant DeserializeNode(const pugi::xml_node& node, rttr::variant& var);
 	void		  DeserializeProperty(const rttr::property& prop, rttr::variant& owner, const pugi::xml_node& node);
-	rttr::variant DeserializeAtomic(const pugi::xml_node& node, const rttr::property& prop);
+	rttr::variant DeserializeAtomic(const pugi::xml_attribute& attr, const rttr::type& type);
 	void		  DeserializeArray(const pugi::xml_node& child, rttr::variant_sequential_view& view);
 	void		  DeserializeAssociativeArray(const pugi::xml_node& child, rttr::variant_associative_view& view);
 };
