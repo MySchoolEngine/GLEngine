@@ -7,19 +7,40 @@
 namespace GLEngine::GUI {
 
 //=================================================================================
-void DrawSlider(rttr::instance& obj, const rttr::property& prop)
+void DrawVec3(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
 	::ImGui::InputFloat3(GetMetadataMember<UI::Vec3::Name>(prop).c_str(), (float*)(prop.get_value(obj).convert<glm::vec3*>()));
 }
 
+//=================================================================================
 void DrawCheckbox(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 	
 	::ImGui::Checkbox(GetMetadataMember<UI::Checkbox::Name>(prop).c_str(), (prop.get_value(obj).convert<bool*>()));
 }
+
+//=================================================================================
+void DrawSlider(rttr::instance& obj, const rttr::property& prop)
+{
+	using namespace ::Utils::Reflection;
+
+	::ImGui::SliderFloat(GetMetadataMember<UI::Slider::Name>(prop).c_str(),
+		(prop.get_value(obj).convert<float*>()),
+		GetMetadataMember<UI::Slider::Min>(prop),
+		GetMetadataMember<UI::Slider::Max>(prop));
+}
+
+//=================================================================================
+void DrawColour(rttr::instance& obj, const rttr::property& prop)
+{
+	using namespace ::Utils::Reflection;
+
+	::ImGui::ColorEdit3(GetMetadataMember<UI::Colour::Name>(prop).c_str(), (float*)(prop.get_value(obj).convert<glm::vec3*>()));
+}
+
 //=================================================================================
 void DrawAllPropertyGUI(rttr::instance& obj)
 {
@@ -36,7 +57,19 @@ GUI_API_EXPORT void DrawPropertyGUI(rttr::instance& obj, const rttr::property& p
 	using namespace ::Utils::Reflection;
 	if (UI::IsUIMetaclass<MetaGUI::Vec3>(prop))
 	{
-		DrawSlider(obj, prop);
+		DrawVec3(obj, prop);
+	}
+	else if (UI::IsUIMetaclass<MetaGUI::Checkbox>(prop))
+	{
+		DrawCheckbox(obj, prop);
+	}
+	else if (UI::IsUIMetaclass<MetaGUI::Colour>(prop))
+	{
+		DrawCheckbox(obj, prop);
+	}
+	else if (UI::IsUIMetaclass<MetaGUI::Slider>(prop))
+	{
+		DrawColour(obj, prop);
 	}
 }
 

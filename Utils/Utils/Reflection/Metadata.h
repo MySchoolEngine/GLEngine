@@ -93,6 +93,7 @@ enum class MetaGUI
   Slider,
   Colour,
   Vec3,
+  Checkbox,
 };
 REGISTER_META_CLASS(MetaGUI, Metatype);
 
@@ -100,8 +101,10 @@ namespace UI
 {
 template <MetaGUI Class> struct UIMetaclassToType {};
 template <MetaGUI Class> using UIMetaclassToType_t = typename UIMetaclassToType<Class>::type;
-template <> struct UIMetaclassToType<MetaGUI::Vec3> { using type = glm::vec3; };
 template <> struct UIMetaclassToType<MetaGUI::Slider> { using type = float; };
+template <> struct UIMetaclassToType<MetaGUI::Colour> { using type = glm::vec3; };
+template <> struct UIMetaclassToType<MetaGUI::Vec3> { using type = glm::vec3; };
+template <> struct UIMetaclassToType<MetaGUI::Checkbox> { using type = bool; };
 //template <> struct UIMetaclassToType<MetaGUI::Colour> { using type = Colours::T_Colour; };
 //=================================================================================
 template <MetaGUI Class>
@@ -125,14 +128,19 @@ enum class Slider
   Max,
 };
 
-enum class Checkbox
+enum class Colour
 {
-  Name,
+	Name,
 };
 
 enum class Vec3
 {
   Name,
+};
+
+enum class Checkbox
+{
+	Name,
 };
 } // namespace UI
 REGISTER_META_CLASS(UI::Slider, MetaGUI);
@@ -140,10 +148,13 @@ REGISTER_META_MEMBER_TYPE(UI::Slider::Name, std::string);
 REGISTER_META_MEMBER_TYPE(UI::Slider::Min, float);
 REGISTER_META_MEMBER_TYPE(UI::Slider::Max, float);
 
-REGISTER_META_CLASS(UI::Checkbox, MetaGUI);
-REGISTER_META_MEMBER_TYPE(UI::Checkbox::Name, std::string);
+REGISTER_META_CLASS(UI::Colour, MetaGUI);
+REGISTER_META_MEMBER_TYPE(UI::Colour::Name, std::string);
 
 REGISTER_META_CLASS(UI::Vec3, MetaGUI);
 REGISTER_META_MEMBER_TYPE(UI::Vec3::Name, std::string);
+
+REGISTER_META_CLASS(UI::Checkbox, MetaGUI);
+REGISTER_META_MEMBER_TYPE(UI::Checkbox::Name, std::string);
 
 }
