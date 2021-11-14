@@ -27,8 +27,9 @@ template <> struct ::Utils::Reflection::MemberType<member> {using type = Type;};
 //=================================================================================
 // Getters
 //=================================================================================
-template <auto Member, class Enum = decltype(Member)>
-MemberType_t<Member> GetMetadataMember(const rttr::property& prop)
+// Type could be rttr::type, rttr::property, rttr::instance
+template <auto Member, class Enum = decltype(Member), class Type>
+MemberType_t<Member> GetMetadataMember(const Type& prop)
 {
 	static_assert(IsMetadataName_v<Enum>, "Given member name must be registered meta member.");
 	const auto metadata = prop.get_metadata(Member);
@@ -94,6 +95,7 @@ enum class MetaGUI
   Colour,
   Vec3,
   Checkbox,
+  CustomGUIWidget, //-> function<void(rttr::instance, rttr::property)>
 };
 REGISTER_META_CLASS(MetaGUI, Metatype);
 
@@ -101,11 +103,10 @@ namespace UI
 {
 template <MetaGUI Class> struct UIMetaclassToType {};
 template <MetaGUI Class> using UIMetaclassToType_t = typename UIMetaclassToType<Class>::type;
-template <> struct UIMetaclassToType<MetaGUI::Slider> { using type = float; };
-template <> struct UIMetaclassToType<MetaGUI::Colour> { using type = glm::vec3; };
-template <> struct UIMetaclassToType<MetaGUI::Vec3> { using type = glm::vec3; };
+template <> struct UIMetaclassToType<MetaGUI::Slider>	{ using type = float; };
+template <> struct UIMetaclassToType<MetaGUI::Colour>	{ using type = glm::vec3; };
+template <> struct UIMetaclassToType<MetaGUI::Vec3>		{ using type = glm::vec3; };
 template <> struct UIMetaclassToType<MetaGUI::Checkbox> { using type = bool; };
-//template <> struct UIMetaclassToType<MetaGUI::Colour> { using type = Colours::T_Colour; };
 //=================================================================================
 template <MetaGUI Class>
 [[nodiscard]] bool IsUIMetaclass(const rttr::property& prop)
@@ -119,6 +120,29 @@ template <MetaGUI Class>
 		GLE_ASSERT(rttr::type::get<UIMetaclassToType_t<Class>*>() == prop.get_type(), "Property has wrong type");
 	}
 	return isRightClass;
+}
+
+//=================================================================================
+template <MetaGUI Class, class Type>
+[[nodiscard]] bool IsTypeUIMetaClass(Type&& arg)
+{
+	rttr::type type;
+	if constexpr (std::is_same_v<decltype(std::remove_cv_t<Type>), rttr::type>) {
+		type = arg;
+	}
+	else if constexpr (std::is_same_v<decltype(std::remove_cv<Type>, rttr::property>)
+	{
+		type = arg.get_type();
+	}
+	else if constexpr (std::is_same_v<decltype(std::remove_cv<Type>, rttr::instance > )
+	{
+		type = arg.get_type();
+	}
+	else
+	{
+		return false;
+	}
+	return type.get_metadata(Class).is_valid();
 }
 
 enum class Slider
@@ -142,6 +166,11 @@ enum class Checkbox
 {
 	Name,
 };
+
+enum class CustomGUIWidget
+{
+	DrawFunction,
+};
 } // namespace UI
 REGISTER_META_CLASS(UI::Slider, MetaGUI);
 REGISTER_META_MEMBER_TYPE(UI::Slider::Name, std::string);
@@ -156,5 +185,8 @@ REGISTER_META_MEMBER_TYPE(UI::Vec3::Name, std::string);
 
 REGISTER_META_CLASS(UI::Checkbox, MetaGUI);
 REGISTER_META_MEMBER_TYPE(UI::Checkbox::Name, std::string);
+
+REGISTER_META_CLASS(UI::CustomGUIWidget, MetaGUI); // for whole types
+REGISTER_META_MEMBER_TYPE(UI::CustomGUIWidget::DrawFunction, std::function<void(rttr::instance&)>);
 
 }

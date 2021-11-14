@@ -45,6 +45,14 @@ void DrawColour(rttr::instance& obj, const rttr::property& prop)
 void DrawAllPropertyGUI(rttr::instance& obj)
 {
 	using namespace ::Utils::Reflection;
+
+	if (UI::IsTypeUIMetaClass<MetaGUI::CustomGUIWidget>(obj))
+	{
+		// custom widgets
+		GetMetadataMember<UI::CustomGUIWidget::DrawFunction>(obj)(obj);
+		return;
+	}
+
 	for (const auto& prop : obj.get_type().get_properties())
 	{
 		DrawPropertyGUI(obj, prop);

@@ -18,6 +18,10 @@
  * 		RegisterMetamember<UI::Vec3::Name>("Translate")
  * 	)
  * If you want to have the property bound as ptr for whatever reasons you can create property alias.
+
+ * Another option is to create custom widget for given type.
+ * Than you need to register whole function.
+ * 
  */
 
 namespace GLEngine::GUI {
