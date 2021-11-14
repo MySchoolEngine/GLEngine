@@ -7,6 +7,7 @@
 
 #include <rttr/registration_friend.h>
 
+// TODO: This class should not be in GUI module at all! This should go to the Entity??
 namespace GLEngine::GUI::Input {
 class GUI_API_EXPORT C_Transformations : public I_GUIPart {
 public:

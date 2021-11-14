@@ -90,9 +90,9 @@ glm::mat4 C_Transformations::GetMatrix() const
 	}
 	if (m_enabledTransforms.CheckFlag(E_Transorms::Rotate))
 	{
-		transform			 = glm::rotate(transform, m_Rotation.x, glm::vec3(1, 0, 0));
-		transform			 = glm::rotate(transform, m_Rotation.y, glm::vec3(0, 1, 0));
-		transform			 = glm::rotate(transform, m_Rotation.z, glm::vec3(0, 0, 1));
+		transform = glm::rotate(transform, m_Rotation.x, glm::vec3(1, 0, 0));
+		transform = glm::rotate(transform, m_Rotation.y, glm::vec3(0, 1, 0));
+		transform = glm::rotate(transform, m_Rotation.z, glm::vec3(0, 0, 1));
 	}
 	if (m_enabledTransforms.CheckFlag(E_Transorms::Scale))
 	{
