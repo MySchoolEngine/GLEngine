@@ -5,6 +5,14 @@
 
 #include <Physics/Primitives/Frustum.h>
 
+RTTR_REGISTRATION
+{
+  using namespace GLEngine::Renderer;
+
+	rttr::registration::class_<C_SunLight>("C_SunLight")
+	  .constructor<std::shared_ptr<GLEngine::Entity::I_Entity>>();
+}
+
 namespace GLEngine::Renderer {
 
 //=================================================================================

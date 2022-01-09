@@ -16,6 +16,17 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+RTTR_REGISTRATION
+{
+	using namespace GLEngine::GLRenderer::Textures;
+
+	rttr::registration::class_<C_Texture>("C_Texture")
+		.constructor<const std::string&, GLenum>()
+		.property("Name", &C_Texture::m_Name);
+
+	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_Texture>>();
+}
+
 namespace GLEngine::GLRenderer::Textures {
 
 //=================================================================================

@@ -19,9 +19,21 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/transform.hpp>
 
+#include <rttr/registration>
+
 // TODO: here only for key codes.
 #include <GLFW/glfw3.h>
 #include <stdexcept>
+
+RTTR_REGISTRATION
+{
+	using namespace GLEngine::Renderer::Cameras;
+
+	rttr::registration::class_<C_OrbitalCamera>("C_OrbitalCamera")
+	  .constructor<std::shared_ptr<GLEngine::Entity::I_Entity>&>();
+
+	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_OrbitalCamera>>();
+}
 
 namespace GLEngine::Renderer::Cameras {
 

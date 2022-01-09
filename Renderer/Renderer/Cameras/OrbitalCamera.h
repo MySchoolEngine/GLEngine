@@ -4,6 +4,9 @@
 
 #include <GUI/Input/Slider.h>
 
+#include <rttr/registration_friend.h>
+#include <rttr/registration.h>
+
 namespace GLEngine {
 
 namespace Core {
@@ -65,6 +68,8 @@ public:
 
 	virtual glm::mat4 GetScreenToworldMatrix() const override;
 
+	RTTR_ENABLE(I_CameraComponent);
+	RTTR_REGISTRATION_FRIEND;
 protected:
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
 	bool OnKeyRepeated(Core::C_KeyRepeatedEvent& event);

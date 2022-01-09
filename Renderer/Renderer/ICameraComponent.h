@@ -5,6 +5,9 @@
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
 
+#include <rttr/registration_friend.h>
+#include <rttr/registration.h>
+
 namespace GLEngine::Physics::Primitives {
 class C_Frustum;
 struct S_Ray;
@@ -34,6 +37,9 @@ public:
 	[[nodiscard]] Physics::Primitives::S_Ray GetRay(const glm::vec2& screenPos) const;
 
 	[[nodiscard]] virtual Physics::Primitives::C_Frustum GetFrustum() const = 0;
+
+	RTTR_ENABLE();
+	RTTR_REGISTRATION_FRIEND;
 };
 } // namespace Renderer
 

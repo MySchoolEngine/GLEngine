@@ -12,7 +12,7 @@
 
 RTTR_REGISTRATION
 {
-	rttr::registration::class_<GLEngine::Renderer::C_PointLight>("I_Component")
+	rttr::registration::class_<GLEngine::Renderer::C_PointLight>("C_PointLight")
 		.constructor<std::shared_ptr<GLEngine::Entity::I_Entity>>()
 		.property_readonly("Intensity", &GLEngine::Renderer::C_PointLight::GetIntensity)
 		.property_readonly("Color", &GLEngine::Renderer::C_PointLight::GetColor);

@@ -18,6 +18,9 @@
 #include <Renderer/IResource.h>
 #include <Renderer/Textures/DeviceTexture.h>
 
+#include <rttr/registration_friend.h>
+#include <rttr/registration.h>
+
 namespace GLEngine::Renderer {
 class I_TextureViewStorage;
 class C_TextureView;
@@ -84,6 +87,8 @@ public:
 	virtual void SetTexData2D(int level, const Renderer::C_TextureView tex) override;
 	void		 SetInternalFormat(Renderer::E_TextureFormat internalFormat, GLint format);
 
+	RTTR_ENABLE(Renderer::I_DeviceTexture);
+	RTTR_REGISTRATION_FRIEND;
 protected:
 	void Clean();
 

@@ -2,6 +2,9 @@
 
 #include <Renderer/Textures/TextureDefinitions.h>
 
+#include <rttr/registration_friend.h>
+#include <rttr/registration.h>
+
 namespace GLEngine::Renderer {
 class I_TextureViewStorage;
 class C_TextureView;
@@ -24,5 +27,7 @@ public:
 
 	virtual void SetTexData2D(int level, const I_TextureViewStorage* tex) = 0;
 	virtual void SetTexData2D(int level, const C_TextureView tex)		  = 0;
+
+	RTTR_ENABLE();
 };
 } // namespace GLEngine::Renderer

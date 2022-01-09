@@ -28,6 +28,7 @@ public:
 	void									  DebugDraw(I_DebugDraw* dd) const;
 	[[nodiscard]] Physics::Primitives::S_AABB GetAABB() const override;
 
+	RTTR_ENABLE(I_Light);
 private:
 	GUI::Input::C_Slider<float> m_SunX;
 	GUI::Input::C_Slider<float> m_SunY;

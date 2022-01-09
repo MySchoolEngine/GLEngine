@@ -5,6 +5,7 @@
 
 #include <imgui.h>
 
+#include <rttr/registration>
 
 RTTR_REGISTRATION
 {
