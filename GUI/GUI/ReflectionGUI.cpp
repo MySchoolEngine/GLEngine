@@ -73,11 +73,11 @@ GUI_API_EXPORT void DrawPropertyGUI(rttr::instance& obj, const rttr::property& p
 	}
 	else if (UI::IsUIMetaclass<MetaGUI::Colour>(prop))
 	{
-		DrawCheckbox(obj, prop);
+		DrawColour(obj, prop);
 	}
 	else if (UI::IsUIMetaclass<MetaGUI::Slider>(prop))
 	{
-		DrawColour(obj, prop);
+		DrawSlider(obj, prop);
 	}
 }
 
