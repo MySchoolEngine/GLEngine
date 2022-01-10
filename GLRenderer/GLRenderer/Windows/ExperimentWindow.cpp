@@ -49,14 +49,13 @@
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/EventDispatcher.h>
 
+#include <Utils/Serialization/XMLDeserialize.h>
+#include <Utils/Serialization/XMLSerialize.h>
 #include <Utils/StdVectorUtils.h>
 
 #include <pugixml.hpp>
 
 #include <imgui.h>
-
-#include <Utils/Serialization/XMLSerialize.h>
-#include <Utils/Serialization/XMLDeserialize.h>
 
 namespace GLEngine::GLRenderer::Windows {
 
@@ -369,6 +368,12 @@ void C_ExplerimentWindow::OnAppInit()
 			 levelSelectorGUID, "./Levels");
 		guiMGR.AddCustomWindow(levelSelectWindwo);
 		levelSelectWindwo->SetVisible();
+	}));
+
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Save Level", [&]() {
+		Utils::C_XMLSerializer s;
+		const auto			   str = s.Serialize(m_World);
+		str.save_file("./Levels/savedLevel.xml");
 	}));
 	CORE_LOG(E_Level::Info, E_Context::Render, "Experiment window setup time was %f", float(m_FrameTimer.getElapsedTimeFromLastQueryMilliseconds()) / 1000.f);
 }
