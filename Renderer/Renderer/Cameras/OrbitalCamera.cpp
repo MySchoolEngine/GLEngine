@@ -29,6 +29,7 @@
 #include <GLFW/glfw3.h>
 #include <stdexcept>
 
+#pragma region registration
 RTTR_REGISTRATION
 {
 	using namespace GLEngine::Renderer::Cameras;
@@ -42,12 +43,29 @@ RTTR_REGISTRATION
 				rttr::policy::prop::bind_as_ptr,
 				RegisterMetaclass<MetaGUI::Slider>(),
 				RegisterMetamember<UI::Slider::Name>("Y angle:"),
+				RegisterMetamember<UI::Slider::Min>(-89.0f),
+				RegisterMetamember<UI::Slider::Max>(89.0f)
+			)
+		.property("XAngle", &C_OrbitalCamera::_angleXDeg)
+			(
+				rttr::policy::prop::bind_as_ptr,
+				RegisterMetaclass<MetaGUI::Slider>(),
+				RegisterMetamember<UI::Slider::Name>("X angle:"),
 				RegisterMetamember<UI::Slider::Min>(0.0f),
-				RegisterMetamember<UI::Slider::Max>(-89.0f)
+				RegisterMetamember<UI::Slider::Max>(360.0f)
+			)
+		.property("Zoom", &C_OrbitalCamera::_zoom)
+			(
+				rttr::policy::prop::bind_as_ptr,
+				RegisterMetaclass<MetaGUI::Slider>(),
+				RegisterMetamember<UI::Slider::Name>("Zoom:"),
+				RegisterMetamember<UI::Slider::Min>(0.1f),
+				RegisterMetamember<UI::Slider::Max>(50.0f)
 			);
 
 	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_OrbitalCamera>>();
 }
+#pragma endregion
 
 namespace GLEngine::Renderer::Cameras {
 
@@ -55,11 +73,12 @@ namespace GLEngine::Renderer::Cameras {
 C_OrbitalCamera::C_OrbitalCamera(std::shared_ptr<Entity::I_Entity>& owner)
 	: I_CameraComponent(owner)
 	, m_ControlSpeed(0.5f)
-	//, GLE_DEBUG_MEMBER_CTOR_LIST((0.0f, -89.0f, 89.0f, "Y angle:"), (0.0f), _angleYDeg)
-	//, GLE_DEBUG_MEMBER_CTOR_LIST((0.0f, 0, 360.f, "X angle:"), (0.0f), _angleXDeg)
-	//, GLE_DEBUG_MEMBER_CTOR_LIST((0.0f, 0.1f, 50.f, "Zoom:"), (0.0f), _zoom)
+	, _angleYDeg(0.0f)
+	, _angleXDeg(0.0f)
+	, _zoom()
 {
 	_pos = _view = _up = _left = glm::vec3(0);
+	m_Transformation.SetEnabledTransforms(GUI::Input::C_Transformations::E_Transorms::Translate);
 }
 
 //=================================================================================
@@ -70,7 +89,7 @@ void C_OrbitalCamera::setupCameraView(float zoom, glm::vec3 center, float angleX
 {
 	_zoom = zoom;
 
-	_center	   = center;
+	m_Transformation.SetTranslation(center);
 	_angleXDeg = angleXDeg;
 	_angleYDeg = angleYDeg;
 }
@@ -100,12 +119,6 @@ void C_OrbitalCamera::adjustZoom(int d)
 }
 
 //=================================================================================
-void C_OrbitalCamera::setCenterPoint(const glm::vec3& center)
-{
-	_center = center;
-}
-
-//=================================================================================
 void C_OrbitalCamera::DebugDraw()
 {
 }
@@ -120,17 +133,14 @@ void C_OrbitalCamera::Update()
 	float y = _zoom * sin(rady);
 	float z = _zoom * cos(rady) * sin(radx);
 
-	_pos  = glm::vec3(x, y, z) + _center;
-	_view = _center - _pos;
+	const auto centerOfView = m_Transformation.GetTranslation();
+
+	_pos  = glm::vec3(x, y, z) + centerOfView;
+	_view = centerOfView - _pos;
 	_left = glm::cross(glm::vec3(0, 1, 0), glm::normalize(_view));
 	_up	  = glm::cross(_view, _left);
 
-	/*
-	_pos = glm::vec3(x, y, z);
-	_pos += _center;
-	_up = glm::vec3(0, 1, 0);
-	*/
-	_viewMatrix		  = glm::lookAt(_pos, _center, _up);
+	_viewMatrix		  = glm::lookAt(_pos, centerOfView, _up);
 	_projectionMatrix = glm::perspective(_fovy, _aspect, GetNear(), GetFar());
 	_ScreenToWorld	  = glm::inverse(_projectionMatrix * _viewMatrix);
 }
@@ -157,11 +167,6 @@ void C_OrbitalCamera::DebugDrawGUI()
 	rttr::instance obj(*this);
 	auto		   prop = rttr::type::get<C_OrbitalCamera>().get_property("YAngle");
 	GUI::DrawAllPropertyGUI(obj);
-#ifdef GL_ENGINE_DEBUG
-	//_angleYDeg.Draw();
-	//_angleXDeg.Draw();
-	//_zoom.Draw();
-#endif
 }
 
 //=================================================================================
@@ -211,22 +216,22 @@ bool C_OrbitalCamera::OnKeyEvent(Core::C_KeyEvent& event)
 	glm::vec3 leftProjOnXZ	  = glm::vec3(left.x, 0.0f, left.z);
 	if (event.GetKeyCode() == GLFW_KEY_W)
 	{
-		_center += forwardProjOnXZ;
+		m_Transformation.SetTranslation(m_Transformation.GetTranslation() + forwardProjOnXZ);
 		return true;
 	}
 	if (event.GetKeyCode() == GLFW_KEY_S)
 	{
-		_center -= forwardProjOnXZ;
+		m_Transformation.SetTranslation(m_Transformation.GetTranslation() - forwardProjOnXZ);
 		return true;
 	}
 	if (event.GetKeyCode() == GLFW_KEY_A)
 	{
-		_center -= leftProjOnXZ;
+		m_Transformation.SetTranslation(m_Transformation.GetTranslation() - leftProjOnXZ);
 		return true;
 	}
 	if (event.GetKeyCode() == GLFW_KEY_D)
 	{
-		_center += leftProjOnXZ;
+		m_Transformation.SetTranslation(m_Transformation.GetTranslation() + leftProjOnXZ);
 		return true;
 	}
 	return false;
@@ -291,7 +296,7 @@ bool C_OrbitalCamera::OnMousePress(Core::C_MouseButtonPressed& event)
 		{
 			const glm::vec4 hit = glm::vec4(_pos, 1.0f) + glm::vec4(ray.direction, 1.0f) * intersect;
 
-			_center = hit;
+			m_Transformation.SetTranslation(hit);
 			Update();
 			return true;
 		}
@@ -314,7 +319,7 @@ glm::quat C_OrbitalCamera::GetRotation() const
 //=================================================================================
 glm::vec3 C_OrbitalCamera::GetDirection() const
 {
-	return _center - GetPosition();
+	return m_Transformation.GetTranslation() - GetPosition();
 }
 
 //=================================================================================

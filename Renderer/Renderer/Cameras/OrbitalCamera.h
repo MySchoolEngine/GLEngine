@@ -42,7 +42,6 @@ public:
 	[[nodiscard]] float GetAspectRatio() const;
 
 	void setupCameraView(float zoom, glm::vec3 center, float angleXDeg, float angleYDeg);
-	void setCenterPoint(const glm::vec3& center);
 	void setupCameraProjection(float nearZ, float farZ, float aspectRatio, float fovYDeg);
 	void adjustZoom(int zoom);
 
@@ -82,7 +81,6 @@ private:
 	glm::vec3 _view;
 	glm::vec3 _left;
 	glm::vec3 _up;
-	glm::vec3 _center;
 
 	float _fovy;
 	float _nearZ;
