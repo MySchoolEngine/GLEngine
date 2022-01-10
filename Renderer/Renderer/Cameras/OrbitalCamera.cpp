@@ -14,6 +14,10 @@
 #include <Core/IWindowManager.h>
 #include <Core/Input.h>
 
+#include <GUI/ReflectionGUI.h>
+
+#include <Utils/Reflection/Metadata.h>
+
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/projection.hpp>
 #include <glm/gtx/rotate_vector.hpp>
@@ -28,9 +32,19 @@
 RTTR_REGISTRATION
 {
 	using namespace GLEngine::Renderer::Cameras;
+	using namespace GLEngine::GUI::Input;
+	using namespace Utils::Reflection;
 
 	rttr::registration::class_<C_OrbitalCamera>("C_OrbitalCamera")
-	  .constructor<std::shared_ptr<GLEngine::Entity::I_Entity>&>();
+	  .constructor<std::shared_ptr<GLEngine::Entity::I_Entity>&>()
+		.property("YAngle", &C_OrbitalCamera::_angleYDeg)
+			(
+				rttr::policy::prop::bind_as_ptr,
+				RegisterMetaclass<MetaGUI::Slider>(),
+				RegisterMetamember<UI::Slider::Name>("Y angle:"),
+				RegisterMetamember<UI::Slider::Min>(0.0f),
+				RegisterMetamember<UI::Slider::Max>(-89.0f)
+			);
 
 	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_OrbitalCamera>>();
 }
@@ -41,9 +55,9 @@ namespace GLEngine::Renderer::Cameras {
 C_OrbitalCamera::C_OrbitalCamera(std::shared_ptr<Entity::I_Entity>& owner)
 	: I_CameraComponent(owner)
 	, m_ControlSpeed(0.5f)
-	, GLE_DEBUG_MEMBER_CTOR_LIST((0.0f, -89.0f, 89.0f, "Y angle:"), (0.0f), _angleYDeg)
-	, GLE_DEBUG_MEMBER_CTOR_LIST((0.0f, 0, 360.f, "X angle:"), (0.0f), _angleXDeg)
-	, GLE_DEBUG_MEMBER_CTOR_LIST((0.0f, 0.1f, 50.f, "Zoom:"), (0.0f), _zoom)
+	//, GLE_DEBUG_MEMBER_CTOR_LIST((0.0f, -89.0f, 89.0f, "Y angle:"), (0.0f), _angleYDeg)
+	//, GLE_DEBUG_MEMBER_CTOR_LIST((0.0f, 0, 360.f, "X angle:"), (0.0f), _angleXDeg)
+	//, GLE_DEBUG_MEMBER_CTOR_LIST((0.0f, 0.1f, 50.f, "Zoom:"), (0.0f), _zoom)
 {
 	_pos = _view = _up = _left = glm::vec3(0);
 }
@@ -140,10 +154,13 @@ void C_OrbitalCamera::OnEvent(Core::I_Event& event)
 //=================================================================================
 void C_OrbitalCamera::DebugDrawGUI()
 {
+	rttr::instance obj(*this);
+	auto		   prop = rttr::type::get<C_OrbitalCamera>().get_property("YAngle");
+	GUI::DrawAllPropertyGUI(obj);
 #ifdef GL_ENGINE_DEBUG
-	_angleYDeg.Draw();
-	_angleXDeg.Draw();
-	_zoom.Draw();
+	//_angleYDeg.Draw();
+	//_angleXDeg.Draw();
+	//_zoom.Draw();
 #endif
 }
 

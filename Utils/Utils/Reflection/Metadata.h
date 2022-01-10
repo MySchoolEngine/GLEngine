@@ -1,7 +1,10 @@
 #pragma once
 
+#include <Utils/STD20Utils.h>
+
 #include <rttr/type>
 #include <type_traits>
+
 
 namespace Utils::Reflection {
 
@@ -24,6 +27,30 @@ template <> struct ::Utils::Reflection::IsMetadataName<cls> : std::true_type {}
 #define REGISTER_META_MEMBER_TYPE(member, Type) \
 template <> struct ::Utils::Reflection::MemberType<member> {using type = Type;};
 
+namespace detail {
+//=================================================================================
+template <auto Class, class Type>
+[[nodiscard]] rttr::variant GetMetadata(Type&& arg)
+{
+	if constexpr (std::is_same_v<std::remove_cvref_t<Type>, rttr::type>)
+	{
+		return arg.get_metadata(Class);
+	}
+	else if constexpr (std::is_same_v<std::remove_cvref_t<Type>, rttr::property>)
+	{
+		return arg.get_metadata(Class);
+	}
+	else if constexpr (std::is_same_v<std::remove_cvref_t<Type>, rttr::instance>)
+	{
+		return arg.get_type().get_metadata(Class);
+	}
+	else
+	{
+		return {};
+	}
+}
+}
+
 //=================================================================================
 // Getters
 //=================================================================================
@@ -32,7 +59,7 @@ template <auto Member, class Enum = decltype(Member), class Type>
 MemberType_t<Member> GetMetadataMember(const Type& prop)
 {
 	static_assert(IsMetadataName_v<Enum>, "Given member name must be registered meta member.");
-	const auto metadata = prop.get_metadata(Member);
+	const auto metadata = detail::GetMetadata<Member>(prop);
 	if constexpr (!MemberIsOptional_v<Member>) {
 		GLE_ASSERT(metadata.is_valid(), "Mandatory property metamember missing.");
 	}
@@ -126,23 +153,7 @@ template <MetaGUI Class>
 template <MetaGUI Class, class Type>
 [[nodiscard]] bool IsTypeUIMetaClass(Type&& arg)
 {
-	rttr::type type;
-	if constexpr (std::is_same_v<decltype(std::remove_cv_t<Type>), rttr::type>) {
-		type = arg;
-	}
-	else if constexpr (std::is_same_v<decltype(std::remove_cv<Type>, rttr::property>)
-	{
-		type = arg.get_type();
-	}
-	else if constexpr (std::is_same_v<decltype(std::remove_cv<Type>, rttr::instance > )
-	{
-		type = arg.get_type();
-	}
-	else
-	{
-		return false;
-	}
-	return type.get_metadata(Class).is_valid();
+	return detail::GetMetadata<Class>(arg).is_valid();
 }
 
 enum class Slider

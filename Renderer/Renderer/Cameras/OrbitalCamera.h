@@ -89,9 +89,9 @@ private:
 	float _farZ;
 	float _aspect;
 
-	GLE_DEBUG_MEMBER(GUI::Input::C_Slider<float>, float, _zoom);
-	GLE_DEBUG_MEMBER(GUI::Input::C_Slider<float>, float, _angleXDeg);
-	GLE_DEBUG_MEMBER(GUI::Input::C_Slider<float>, float, _angleYDeg);
+	float _zoom;
+	float _angleXDeg;
+	float _angleYDeg;
 
 	glm::mat4 _viewMatrix;
 	glm::mat4 _projectionMatrix;
