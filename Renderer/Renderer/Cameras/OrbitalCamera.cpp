@@ -44,7 +44,8 @@ RTTR_REGISTRATION
 				RegisterMetaclass<MetaGUI::Slider>(),
 				RegisterMetamember<UI::Slider::Name>("Y angle:"),
 				RegisterMetamember<UI::Slider::Min>(-89.0f),
-				RegisterMetamember<UI::Slider::Max>(89.0f)
+				RegisterMetamember<UI::Slider::Max>(89.0f),
+				RegisterMetamember<SerializationCls::DerefSerialize>(true)
 			)
 		.property("XAngle", &C_OrbitalCamera::_angleXDeg)
 			(
@@ -52,7 +53,8 @@ RTTR_REGISTRATION
 				RegisterMetaclass<MetaGUI::Slider>(),
 				RegisterMetamember<UI::Slider::Name>("X angle:"),
 				RegisterMetamember<UI::Slider::Min>(0.0f),
-				RegisterMetamember<UI::Slider::Max>(360.0f)
+				RegisterMetamember<UI::Slider::Max>(360.0f),
+				RegisterMetamember<SerializationCls::DerefSerialize>(true)
 			)
 		.property("Zoom", &C_OrbitalCamera::_zoom)
 			(
@@ -60,7 +62,8 @@ RTTR_REGISTRATION
 				RegisterMetaclass<MetaGUI::Slider>(),
 				RegisterMetamember<UI::Slider::Name>("Zoom:"),
 				RegisterMetamember<UI::Slider::Min>(0.1f),
-				RegisterMetamember<UI::Slider::Max>(50.0f)
+				RegisterMetamember<UI::Slider::Max>(50.0f),
+				RegisterMetamember<SerializationCls::DerefSerialize>(true)
 			);
 
 	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_OrbitalCamera>>();

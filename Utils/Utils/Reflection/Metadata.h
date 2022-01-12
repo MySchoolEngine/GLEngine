@@ -2,6 +2,8 @@
 
 #include <Utils/STD20Utils.h>
 
+#include <glm/glm.hpp>
+
 #include <rttr/type>
 #include <type_traits>
 
@@ -77,6 +79,16 @@ rttr::variant GetMetadataMember(const rttr::property& prop, const Enum member)
 }
 
 //=================================================================================
+// Type could be rttr::type, rttr::property, rttr::instance
+template <auto Member, class Enum = decltype(Member), class Type>
+[[nodiscard]] bool HasMetadataMember(const Type& prop)
+{
+	static_assert(IsMetadataName_v<Enum>, "Given member name must be registered meta member.");
+	const auto metadata = detail::GetMetadata<Member>(prop);
+	return metadata.is_valid();
+}
+
+//=================================================================================
 template <auto Class, class Enum = decltype(Class)>
 [[nodiscard]] bool IsMetaclass(const rttr::property& prop)
 {
@@ -125,6 +137,15 @@ enum class MetaGUI
   CustomGUIWidget, //-> function<void(rttr::instance, rttr::property)>
 };
 REGISTER_META_CLASS(MetaGUI, Metatype);
+
+enum class SerializationCls
+{
+  NoSerialize,
+  DerefSerialize, // dereference before serialization
+};
+REGISTER_META_CLASS(SerializationCls, Metatype);
+REGISTER_META_MEMBER_TYPE(SerializationCls::NoSerialize, bool);
+REGISTER_META_MEMBER_TYPE(SerializationCls::DerefSerialize, bool);
 
 namespace UI
 {

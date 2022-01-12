@@ -1,6 +1,10 @@
+#include <Utils/Logging/LoggingMacros.h>
+#include <Utils/Reflection/Metadata.h>
 #include <Utils/Serialization/GLMRTTI.h>
-#include <Utils/Serialization/XMLSerialize.h>
 #include <Utils/Serialization/SerializationTraits.h>
+#include <Utils/Serialization/XMLSerialize.h>
+
+#include <Core/CoreMacros.h>
 
 #include <rttr/type>
 #include <sstream>
@@ -12,9 +16,9 @@ pugi::xml_document C_XMLSerializer::Serialize(const rttr::instance obj)
 	if (!obj.is_valid())
 		return {};
 
-	pugi::xml_document		doc;
-	pugi::xml_node			node  = doc.append_child(GetNodeName(obj.get_type()).to_string().c_str());
-	const auto				node2 = SerializeObject(obj, node);
+	pugi::xml_document doc;
+	pugi::xml_node	   node	 = doc.append_child(GetNodeName(obj.get_type()).to_string().c_str());
+	const auto		   node2 = SerializeObject(obj, node);
 	// std::stringstream		ss;
 	// pugi::xml_writer_stream writer(ss);
 	// node2.print(writer);
@@ -24,13 +28,13 @@ pugi::xml_document C_XMLSerializer::Serialize(const rttr::instance obj)
 //=================================================================================
 pugi::xml_node C_XMLSerializer::SerializeObject(const rttr::instance& obj2, pugi::xml_node& node)
 {
-	const rttr::instance obj   = obj2.get_type().get_raw_type().is_wrapper() ? obj2.get_wrapped_instance() : obj2;
+	using namespace ::Utils::Reflection;
+	const rttr::instance obj = obj2.get_type().get_raw_type().is_wrapper() ? obj2.get_wrapped_instance() : obj2;
 
 	const auto prop_list = obj.get_derived_type().get_properties();
 	for (auto prop : prop_list)
 	{
-		// todo
-		if (prop.get_metadata("NO_SERIALIZE"))
+		if (HasMetadataMember<SerializationCls::NoSerialize>(prop))
 			continue;
 
 		WriteProperty(prop, obj, node);
@@ -42,8 +46,14 @@ pugi::xml_node C_XMLSerializer::SerializeObject(const rttr::instance& obj2, pugi
 //=================================================================================
 void C_XMLSerializer::WriteProperty(const rttr::property& prop, const rttr::instance& var, pugi::xml_node& parent)
 {
-	const auto type		 = prop.get_type();
-	const auto propValue = prop.get_value(var);
+	using namespace ::Utils::Reflection;
+	auto type	   = prop.get_type();
+	auto propValue = prop.get_value(var);
+	if (HasMetadataMember<SerializationCls::DerefSerialize>(prop))
+	{
+		GLE_ASSERT(type.is_pointer(), "Cannot dereference {}", type);
+		type = type.get_raw_type();
+	}
 	if (IsAtomicType(type))
 	{
 		WriteAtomics(type, propValue, parent.append_attribute(prop.get_name().to_string().c_str()));
@@ -73,7 +83,34 @@ void C_XMLSerializer::WriteProperty(const rttr::property& prop, const rttr::inst
 //=================================================================================
 void C_XMLSerializer::WriteAtomics(const rttr::type& type, const rttr::variant& obj, pugi::xml_attribute& attr)
 {
-	if (type.is_arithmetic())
+	if (obj.get_type().is_pointer())
+	{
+		if (type == rttr::type::get<bool>())
+			attr.set_value(*obj.convert<bool*>());
+		else if (type == rttr::type::get<char>())
+			attr.set_value(*obj.convert<char*>());
+		else if (type == rttr::type::get<int8_t>())
+			attr.set_value(*obj.convert<int8_t*>());
+		else if (type == rttr::type::get<int16_t>())
+			attr.set_value(*obj.convert<int16_t*>());
+		else if (type == rttr::type::get<int32_t>())
+			attr.set_value(*obj.convert<int32_t*>());
+		else if (type == rttr::type::get<int64_t>())
+			attr.set_value(*obj.convert<int64_t*>());
+		else if (type == rttr::type::get<uint8_t>())
+			attr.set_value(*obj.convert<uint8_t*>());
+		else if (type == rttr::type::get<uint16_t>())
+			attr.set_value(*obj.convert<uint16_t*>());
+		else if (type == rttr::type::get<uint32_t>())
+			attr.set_value(*obj.convert<uint32_t*>());
+		else if (type == rttr::type::get<uint64_t>())
+			attr.set_value(*obj.convert<uint64_t*>());
+		else if (type == rttr::type::get<float>())
+			attr.set_value(*obj.convert<float*>());
+		else if (type == rttr::type::get<double>())
+			attr.set_value(*obj.convert<double*>());
+	}
+	else if (type.is_arithmetic())
 	{
 		if (type == rttr::type::get<bool>())
 			attr.set_value(obj.to_bool());
@@ -96,7 +133,7 @@ void C_XMLSerializer::WriteAtomics(const rttr::type& type, const rttr::variant& 
 		else if (type == rttr::type::get<uint64_t>())
 			attr.set_value(obj.to_uint64());
 		else if (type == rttr::type::get<float>())
-			attr.set_value(obj.to_double());
+			attr.set_value(obj.to_float());
 		else if (type == rttr::type::get<double>())
 			attr.set_value(obj.to_double());
 	}
@@ -104,7 +141,7 @@ void C_XMLSerializer::WriteAtomics(const rttr::type& type, const rttr::variant& 
 		attr.set_value(obj.to_string().c_str());
 	else if (type.is_enumeration())
 	{
-		bool ok = false;
+		bool	   ok	  = false;
 		const auto result = obj.to_string(&ok);
 		if (ok)
 		{
@@ -154,7 +191,8 @@ rttr::string_view C_XMLSerializer::GetNodeName(const rttr::type& type)
 //=================================================================================
 void C_XMLSerializer::WriteAssociativeArray(const rttr::variant_associative_view& view, pugi::xml_node& parent)
 {
-	for (const auto& item : view) {
+	for (const auto& item : view)
+	{
 		auto itemNode = parent.append_child("item");
 		{
 			auto		  keyNode = itemNode.append_child("key");
@@ -172,7 +210,7 @@ void C_XMLSerializer::WriteAssociativeArray(const rttr::variant_associative_view
 			}
 		}
 		{
-			auto	   valueNode = itemNode.append_child("value");
+			auto		  valueNode = itemNode.append_child("value");
 			rttr::variant value		= item.second;
 			while (value.get_type().is_wrapper())
 				value = value.extract_wrapped_value();

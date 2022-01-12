@@ -3,6 +3,11 @@
 #include <Utils/Serialization/XMLDeserialize.h>
 #include <Utils/Serialization/SerializationTraits.h>
 
+#include <Utils/Reflection/Metadata.h>
+#include <Utils/Logging/LoggingMacros.h>
+
+#include <Core/CoreMacros.h>
+
 #include <rttr/type>
 
 namespace GLEngine::Utils {
@@ -40,7 +45,13 @@ rttr::variant C_XMLDeserializer::DeserializeNode(const pugi::xml_node& node, rtt
 //=================================================================================
 void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::variant& owner, const pugi::xml_node& node)
 {
-	const auto type = prop.get_type().get_raw_type();
+	auto type = prop.get_type().get_raw_type();
+	using namespace ::Utils::Reflection;
+	if (HasMetadataMember<SerializationCls::DerefSerialize>(prop))
+	{
+		GLE_ASSERT(type.is_pointer(), "Cannot dereference {}", type);
+		type = type.get_raw_type();
+	}
 	if (IsAtomicType(type))
 	{
 		prop.set_value(owner, DeserializeAtomic(node.attribute(prop.get_name().to_string().c_str()), prop.get_type()));
