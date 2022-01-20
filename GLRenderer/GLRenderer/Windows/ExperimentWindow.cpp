@@ -52,6 +52,9 @@
 #include <Utils/Serialization/XMLDeserialize.h>
 #include <Utils/Serialization/XMLSerialize.h>
 #include <Utils/StdVectorUtils.h>
+#include <Utils/Serialization/XMLSerialize.h>
+
+#include <GUI/Input/Transformations.h>
 
 #include <pugixml.hpp>
 
@@ -345,17 +348,10 @@ void C_ExplerimentWindow::OnAppInit()
 	hdrSettings->AddComponent(m_GammaSlider);
 	hdrSettings->AddComponent(m_ExposureSlider);
 
-
-	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("HDR Settings", m_HDRSettingsGUID, guiMGR));
-
-	const auto rendererWindow = static_cast<C_OGLRenderer*>(m_renderer.get())->SetupControls(guiMGR);
-	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Renderer", rendererWindow, guiMGR));
-
-	const auto camManager = m_CamManager.SetupControls(guiMGR);
-	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Camera manager", camManager, guiMGR));
-
-	const auto materialManager = Renderer::C_MaterialManager::Instance().SetupControls(guiMGR);
-	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Material manager", materialManager, guiMGR));
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("New level", [&]() { 
+		m_World->ClearLevel();
+		AddMandatoryWorldParts();
+	}));
 
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Open level", [&]() {
 		const auto levelSelectorGUID = NextGUID();
@@ -371,10 +367,29 @@ void C_ExplerimentWindow::OnAppInit()
 	}));
 
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Save Level", [&]() {
-		Utils::C_XMLSerializer s;
-		const auto			   str = s.Serialize(m_World);
-		str.save_file("./Levels/savedLevel.xml");
+		const auto			   filename = m_World->GetFilename();
+		if (filename.empty())
+		{
+			SaveLevelAs();
+		}
+		else
+		{
+			SaveLevel(filename);
+		}
 	}));
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Save Level As", std::bind(&C_ExplerimentWindow::SaveLevelAs, this)));
+
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("HDR Settings", m_HDRSettingsGUID, guiMGR));
+
+	const auto rendererWindow = static_cast<C_OGLRenderer*>(m_renderer.get())->SetupControls(guiMGR);
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Renderer", rendererWindow, guiMGR));
+
+	const auto camManager = m_CamManager.SetupControls(guiMGR);
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Camera manager", camManager, guiMGR));
+
+	const auto materialManager = Renderer::C_MaterialManager::Instance().SetupControls(guiMGR);
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Material manager", materialManager, guiMGR));
+
 	CORE_LOG(E_Level::Info, E_Context::Render, "Experiment window setup time was %f", float(m_FrameTimer.getElapsedTimeFromLastQueryMilliseconds()) / 1000.f);
 }
 
@@ -417,7 +432,38 @@ void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 	str.print(writer);
 	CORE_LOG(E_Level::Error, E_Context::Render, "{}", ss.str());
 	Utils::C_XMLDeserializer d;
-	d.Deserialize<std::shared_ptr<Entity::C_EntityManager>>(str);
+	const auto newWorld = d.Deserialize<std::shared_ptr<Entity::C_EntityManager>>(str);
+	const auto				 newstr	  = s.Serialize(newWorld.value());
+	std::stringstream		 ss1;
+	pugi::xml_writer_stream	 writer1(ss1);
+	newstr.print(writer1);
+	CORE_LOG(E_Level::Error, E_Context::Render, "{}", ss1.str());
+}
+
+//=================================================================================
+void C_ExplerimentWindow::SaveLevel(const std::filesystem::path& filename)
+{
+	Utils::C_XMLSerializer s;
+	const auto			   str = s.Serialize(m_World);
+	m_World->SetFilename(filename);
+	str.save_file(filename.c_str());
+}
+
+//=================================================================================
+void C_ExplerimentWindow::SaveLevelAs()
+{
+	auto&	   guiMGR			 = m_ImGUI->GetGUIMgr();
+	const auto levelSelectorGUID = NextGUID();
+	auto*	   levelPathSelect	 = new GUI::C_FileDialogWindow(
+		   ".xml", "Select level",
+		   [&, levelSelectorGUID](const std::filesystem::path& level) {
+			   m_ImGUI->GetGUIMgr().DestroyWindow(levelSelectorGUID);
+
+			   SaveLevel(level);
+		   },
+		   levelSelectorGUID, "./Levels");
+	guiMGR.AddCustomWindow(levelPathSelect);
+	levelPathSelect->SetVisible();
 }
 
 //=================================================================================

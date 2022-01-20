@@ -36,7 +36,9 @@ RTTR_REGISTRATION
 namespace GLEngine::Entity {
 
 //=================================================================================
-C_EntityManager::C_EntityManager() = default;
+C_EntityManager::C_EntityManager()
+	: m_Filename("")
+{}
 
 //=================================================================================
 C_EntityManager::~C_EntityManager() = default;
@@ -92,6 +94,7 @@ const std::vector<std::shared_ptr<I_Entity>>& C_EntityManager::GetEntities() con
 void C_EntityManager::ClearLevel()
 {
 	m_Entities.clear();
+	m_Filename = "";
 }
 
 //=================================================================================
@@ -158,6 +161,7 @@ bool C_EntityManager::LoadLevel(const std::filesystem::path& name, std::unique_p
 {
 	ClearLevel();
 	CORE_LOG(E_Level::Info, E_Context::Core, "Loading level: {}", name);
+	m_Filename = name;
 	m_Entities.clear();
 	pugi::xml_document doc;
 
@@ -235,6 +239,18 @@ bool C_EntityManager::LoadLevel(const std::filesystem::path& name, std::unique_p
 	}
 
 	return true;
+}
+
+//=================================================================================
+void C_EntityManager::SetFilename(const std::filesystem::path& filename)
+{
+	m_Filename = filename;
+}
+
+//=================================================================================
+std::filesystem::path C_EntityManager::GetFilename() const
+{
+	return m_Filename;
 }
 
 } // namespace GLEngine::Entity
