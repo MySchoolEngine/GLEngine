@@ -3,27 +3,87 @@
 #include <Renderer/DebugDraw.h>
 #include <Renderer/Lights/SunLight.h>
 
+#include <GUI/ReflectionGUI.h>
+
+#include <Utils/Reflection/Metadata.h>
+
 #include <Physics/Primitives/Frustum.h>
 
+#include <rttr/registration>
+
+#pragma region registration
 RTTR_REGISTRATION
 {
-  using namespace GLEngine::Renderer;
+	using namespace Utils::Reflection;
+	using namespace GLEngine::Renderer;
 
 	rttr::registration::class_<C_SunLight>("C_SunLight")
-	  .constructor<std::shared_ptr<GLEngine::Entity::I_Entity>>();
+		.constructor<std::shared_ptr<GLEngine::Entity::I_Entity>>()
+		.property("SunX", &C_SunLight::m_SunX)
+			(
+				rttr::policy::prop::bind_as_ptr,
+				RegisterMetaclass<MetaGUI::Slider>(),
+				RegisterMetamember<UI::Slider::Name>("Sun X:"),
+				RegisterMetamember<UI::Slider::Min>(-1.0f),
+				RegisterMetamember<UI::Slider::Max>(1.0f),
+				RegisterMetamember<SerializationCls::DerefSerialize>(true)
+			)
+		.property("SunY", &C_SunLight::m_SunX)
+			(
+				rttr::policy::prop::bind_as_ptr,
+				RegisterMetaclass<MetaGUI::Slider>(),
+				RegisterMetamember<UI::Slider::Name>("Sun Y:"),
+				RegisterMetamember<UI::Slider::Min>(-1.0f),
+				RegisterMetamember<UI::Slider::Max>(1.0f),
+				RegisterMetamember<SerializationCls::DerefSerialize>(true)
+			)
+		.property("SunZ", &C_SunLight::m_SunX)
+			(
+				rttr::policy::prop::bind_as_ptr,
+				RegisterMetaclass<MetaGUI::Slider>(),
+				RegisterMetamember<UI::Slider::Name>("Sun Z:"),
+				RegisterMetamember<UI::Slider::Min>(-1.0f),
+				RegisterMetamember<UI::Slider::Max>(1.0f),
+				RegisterMetamember<SerializationCls::DerefSerialize>(true)
+			)
+		.property("SunColor", &C_SunLight::m_SunColor)
+			(
+				rttr::policy::prop::bind_as_ptr,
+				RegisterMetaclass<MetaGUI::Colour>(),
+				RegisterMetamember<UI::Colour::Name>("Sun color")
+			)
+		.property("AsymmetricFactor", &C_SunLight::m_AsymetricFactor)
+			(
+				rttr::policy::prop::bind_as_ptr,
+				RegisterMetaclass<MetaGUI::Slider>(),
+				RegisterMetamember<UI::Slider::Name>("Asymmetric factor:"),
+				RegisterMetamember<UI::Slider::Min>(0.f),
+				RegisterMetamember<UI::Slider::Max>(1.0f),
+				RegisterMetamember<SerializationCls::DerefSerialize>(true)
+			)
+		.property("DiscMultiplier", &C_SunLight::m_AsymetricFactor)
+			(
+				rttr::policy::prop::bind_as_ptr,
+				RegisterMetaclass<MetaGUI::Slider>(),
+				RegisterMetamember<UI::Slider::Name>("Disc multiplier:"),
+				RegisterMetamember<UI::Slider::Min>(1.f),
+				RegisterMetamember<UI::Slider::Max>(20.0f),
+				RegisterMetamember<SerializationCls::DerefSerialize>(true)
+			);
 }
+#pragma endregion registration
 
 namespace GLEngine::Renderer {
 
 //=================================================================================
 C_SunLight::C_SunLight(std::shared_ptr<Entity::I_Entity> owner)
 	: I_Light(owner)
-	, m_SunX(0.437f, -1.f, 1.f, "Sun X")
-	, m_SunY(0.056f, -1.f, 1.f, "Sun Y")
-	, m_SunZ(-0.347f, -1.f, 1.f, "Sun Z")
-	, m_SunColor("Sun color", Colours::white)
-	, m_AsymetricFactor(0.95f, 0.0f, 1.f, "Asymmetric factor")
-	, m_SunDiscMultiplier(1.f, 1.0f, 20.f, "Disc multiplier")
+	, m_SunX(0.437f)
+	, m_SunY(0.056f)
+	, m_SunZ(-0.347f)
+	, m_SunColor(Colours::white)
+	, m_AsymetricFactor(0.95f)
+	, m_SunDiscMultiplier(1.f)
 {
 }
 
@@ -45,31 +105,27 @@ std::string_view C_SunLight::GetDebugComponentName() const
 //=================================================================================
 void C_SunLight::DebugDrawGUI()
 {
-	m_SunX.Draw();
-	m_SunY.Draw();
-	m_SunZ.Draw();
-	m_SunColor.Draw();
-	m_AsymetricFactor.Draw();
-	m_SunDiscMultiplier.Draw();
+	rttr::instance obj(*this);
+	GUI::DrawAllPropertyGUI(obj);
 }
 
 //=================================================================================
 void C_SunLight::DebugDraw(I_DebugDraw* dd) const
 {
-	dd->DrawPoint({m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue()}, Colours::yellow);
-	dd->DrawLine({0.f, 0.f, 0.f}, {m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue()}, Colours::yellow);
+	dd->DrawPoint({m_SunX, m_SunY, m_SunZ}, Colours::yellow);
+	dd->DrawLine({0.f, 0.f, 0.f}, {m_SunX, m_SunY, m_SunZ}, Colours::yellow);
 }
 
 //=================================================================================
 glm::vec3 C_SunLight::GetSunDirection() const
 {
-	return {m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue()};
+	return {m_SunX, m_SunY, m_SunZ};
 }
 
 //=================================================================================
 Colours::T_Colour C_SunLight::GetSunColor() const
 {
-	return m_SunColor.GetValue();
+	return m_SunColor;
 }
 
 //=================================================================================
