@@ -2,8 +2,6 @@
 
 #include <Renderer/ICameraComponent.h>
 
-#include <GUI/Input/Slider.h>
-
 #include <rttr/registration_friend.h>
 #include <rttr/registration.h>
 

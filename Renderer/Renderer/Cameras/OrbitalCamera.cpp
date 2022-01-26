@@ -33,7 +33,6 @@
 RTTR_REGISTRATION
 {
 	using namespace GLEngine::Renderer::Cameras;
-	using namespace GLEngine::GUI::Input;
 	using namespace Utils::Reflection;
 
 	rttr::registration::class_<C_OrbitalCamera>("C_OrbitalCamera")
@@ -168,7 +167,6 @@ void C_OrbitalCamera::OnEvent(Core::I_Event& event)
 void C_OrbitalCamera::DebugDrawGUI()
 {
 	rttr::instance obj(*this);
-	auto		   prop = rttr::type::get<C_OrbitalCamera>().get_property("YAngle");
 	GUI::DrawAllPropertyGUI(obj);
 }
 
