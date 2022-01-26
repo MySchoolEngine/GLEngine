@@ -3,20 +3,66 @@
 #include <Renderer/DebugDraw.h>
 #include <Renderer/Lights/AreaLight.h>
 
+#include <GUI/ReflectionGUI.h>
+
 #include <Physics/Primitives/Frustum.h>
 
 #include <Utils/Parsing/ColorParsing.h>
 #include <Utils/Parsing/MatrixParse.h>
+
+#include <rttr/registration>
+
+#pragma region registration
+RTTR_REGISTRATION
+{
+	using namespace Utils::Reflection;
+	using namespace GLEngine::Renderer;
+	
+	rttr::registration::class_<C_AreaLight>("C_AreaLight")
+		.constructor<std::shared_ptr<GLEngine::Entity::I_Entity>>()
+		.property("Width", &C_AreaLight::m_Width)
+			(
+				rttr::policy::prop::bind_as_ptr,
+				RegisterMetaclass<MetaGUI::Slider>(),
+				RegisterMetamember<UI::Slider::Name>("Width:"),
+				RegisterMetamember<UI::Slider::Min>(.1f),
+				RegisterMetamember<UI::Slider::Max>(10.0f),
+				RegisterMetamember<SerializationCls::DerefSerialize>(true)
+			)
+		.property("Height", &C_AreaLight::m_Height)
+			(
+				rttr::policy::prop::bind_as_ptr,
+				RegisterMetaclass<MetaGUI::Slider>(),
+				RegisterMetamember<UI::Slider::Name>("Height:"),
+				RegisterMetamember<UI::Slider::Min>(.1f),
+				RegisterMetamember<UI::Slider::Max>(10.0f),
+				RegisterMetamember<SerializationCls::DerefSerialize>(true)
+			)
+		.property("DiffuseColour", &C_AreaLight::m_DiffuseColor)
+			(
+				rttr::policy::prop::bind_as_ptr,
+				RegisterMetaclass<MetaGUI::Colour>(),
+				RegisterMetamember<UI::Colour::Name>("Diffuse colour:")
+			)
+		.property("SpecColour", &C_AreaLight::m_SpecularColor)
+			(
+				rttr::policy::prop::bind_as_ptr,
+				RegisterMetaclass<MetaGUI::Colour>(),
+				RegisterMetamember<UI::Colour::Name>("Spec colour:")
+			);
+}
+#pragma endregion registration
+
 
 namespace GLEngine::Renderer {
 
 //=================================================================================
 C_AreaLight::C_AreaLight(std::shared_ptr<Entity::I_Entity> owner)
 	: Renderer::I_Light(owner)
-	, m_WidthSlider(10.f, 0.1f, 10.f, "Width")
-	, m_HeightSlider(10.f, 0.1f, 10.f, "Height")
-	, m_DiffuseColor("Diffuse colour", Colours::white)
-	, m_SpecularColor("Spec colour", Colours::white)
+	, m_Width(1.f)
+	, m_Height(1.f)
+	, m_DiffuseColor(Colours::white)
+	, m_SpecularColor(Colours::white)
 {
 }
 
@@ -53,10 +99,8 @@ Physics::Primitives::S_AABB C_AreaLight::GetAABB() const
 //=================================================================================
 void C_AreaLight::DebugDrawGUI()
 {
-	m_WidthSlider.Draw();
-	m_HeightSlider.Draw();
-	m_DiffuseColor.Draw();
-	m_SpecularColor.Draw();
+	rttr::instance obj(*this);
+	GUI::DrawAllPropertyGUI(obj);
 }
 
 //=================================================================================
@@ -74,13 +118,13 @@ bool C_AreaLight::HasDebugDrawGUI() const
 //=================================================================================
 Colours::T_Colour C_AreaLight::DiffuseColour() const
 {
-	return m_DiffuseColor.GetValue();
+	return m_DiffuseColor;
 }
 
 //=================================================================================
 Colours::T_Colour C_AreaLight::SpecularColour() const
 {
-	return m_SpecularColor.GetValue();
+	return m_SpecularColor;
 }
 
 //=================================================================================
@@ -128,12 +172,12 @@ void C_AreaLight::DebugDraw(Renderer::I_DebugDraw* dd) const
 
 	if (const auto widthAttr = node.attribute("width"))
 	{
-		areaLight->m_WidthSlider = widthAttr.as_float();
+		areaLight->m_Width = widthAttr.as_float();
 	}
 
 	if (const auto heightAttr = node.attribute("height"))
 	{
-		areaLight->m_WidthSlider = heightAttr.as_float();
+		areaLight->m_Height = heightAttr.as_float();
 	}
 
 	if (node.child("DiffuseColor"))

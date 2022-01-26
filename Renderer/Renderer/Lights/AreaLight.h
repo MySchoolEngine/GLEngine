@@ -3,9 +3,6 @@
 #include <Renderer/ILight.h>
 #include <Renderer/RendererApi.h>
 
-#include <GUI/Input/Color.h>
-#include <GUI/Input/Slider.h>
-
 #include <Entity/IComponent.h>
 
 namespace GLEngine::Renderer {
@@ -24,8 +21,8 @@ public:
 	//================================================================
 	// I_Light
 	[[nodiscard]] virtual Physics::Primitives::C_Frustum GetShadingFrustum() const override;
-	[[nodiscard]] float									 GetWidth() const { return m_WidthSlider.GetValue(); }
-	[[nodiscard]] float									 GetHeight() const { return m_HeightSlider.GetValue(); }
+	[[nodiscard]] float									 GetWidth() const { return m_Width; }
+	[[nodiscard]] float									 GetHeight() const { return m_Height; }
 
 	[[nodiscard]] glm::vec3 GetNormal() const;
 	[[nodiscard]] glm::vec3 GetUpVector() const;
@@ -37,9 +34,14 @@ public:
 
 	void DebugDraw(I_DebugDraw* dd) const;
 
+	RTTR_ENABLE(I_Light);
+	RTTR_REGISTRATION_FRIEND;
+
 protected:
-	GUI::Input::C_Slider<float> m_WidthSlider, m_HeightSlider;
-	GUI::Input::C_ColorRBG		m_DiffuseColor, m_SpecularColor;
+	float						m_Width;
+	float						m_Height;
+	Colours::T_Colour			m_DiffuseColor;
+	Colours::T_Colour			m_SpecularColor;
 
 	friend class C_AreaLightCompBuilder;
 };
