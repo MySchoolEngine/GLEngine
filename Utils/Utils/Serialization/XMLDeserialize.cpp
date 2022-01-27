@@ -1,10 +1,8 @@
 #include <Utils/Logging/LoggingMacros.h>
-#include <Utils/Serialization/GLMRTTI.h>
-#include <Utils/Serialization/XMLDeserialize.h>
-#include <Utils/Serialization/SerializationTraits.h>
-
 #include <Utils/Reflection/Metadata.h>
-#include <Utils/Logging/LoggingMacros.h>
+#include <Utils/Serialization/GLMRTTI.h>
+#include <Utils/Serialization/SerializationTraits.h>
+#include <Utils/Serialization/XMLDeserialize.h>
 
 #include <Core/CoreMacros.h>
 
@@ -45,7 +43,7 @@ rttr::variant C_XMLDeserializer::DeserializeNode(const pugi::xml_node& node, rtt
 //=================================================================================
 void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::variant& owner, const pugi::xml_node& node)
 {
-	auto type = prop.get_type().get_raw_type();
+	auto type = prop.get_type();
 	using namespace ::Utils::Reflection;
 	if (HasMetadataMember<SerializationCls::DerefSerialize>(prop))
 	{
@@ -56,14 +54,14 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 	{
 		prop.set_value(owner, DeserializeAtomic(node.attribute(prop.get_name().to_string().c_str()), prop.get_type()));
 	}
-	else if (type.is_sequential_container())
+	else if (type.get_raw_type().is_sequential_container())
 	{
 		const auto child = node.child(prop.get_name().to_string().c_str());
 		auto	   var	 = prop.get_value(owner);
 		auto	   view	 = var.create_sequential_view();
 		DeserializeArray(child, view);
 	}
-	else if (type.is_associative_container())
+	else if (type.get_raw_type().is_associative_container())
 	{
 		const auto child = node.child(prop.get_name().to_string().c_str());
 		auto	   var	 = prop.get_value(owner);
@@ -101,14 +99,37 @@ void C_XMLDeserializer::DeserializeArray(const pugi::xml_node& child, rttr::vari
 //=================================================================================
 void C_XMLDeserializer::DeserializeAssociativeArray(const pugi::xml_node& child, rttr::variant_associative_view& view)
 {
-	auto keyType = view.get_key_type();
-	for (const auto childNode : child) {
+	auto keyType   = view.get_key_type();
+	auto valueType = view.get_value_type();
+	for (const auto childNode : child)
+	{
 		rttr::variant keyVar;
-		if (IsAtomicType(keyType)) {
+		rttr::variant valueVar;
+		if (IsAtomicType(keyType))
+		{
 			keyVar = DeserializeAtomic(childNode.child("key").attribute("value"), keyType);
 			if (!keyVar.is_valid())
 				CORE_LOG(E_Level::Error, E_Context::Core, "FAILED.");
 		}
+		else
+			CORE_LOG(E_Level::Error, E_Context::Core, "Well, not implemented. Yet?");
+
+		if (IsAtomicType(valueType))
+		{
+			valueVar = DeserializeAtomic(childNode.child("value").attribute("value"), valueType);
+			if (!valueVar.is_valid())
+				CORE_LOG(E_Level::Error, E_Context::Core, "FAILED.");
+		}
+		else
+		{
+			const auto node = *childNode.child("value").children().begin();
+			const auto type = rttr::type::get_by_name(node.name());
+			if (type.is_valid() == false)
+				continue;
+			valueVar = type.create();
+			valueVar = DeserializeNode(node, valueVar);
+		}
+
 		view.insert(keyVar, rttr::variant(nullptr));
 	}
 }
