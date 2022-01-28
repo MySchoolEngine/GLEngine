@@ -30,7 +30,7 @@ RTTR_REGISTRATION
 {
 	using namespace GLEngine::GLRenderer::Components;
 	rttr::registration::class_<C_StaticMeshBuilder>("C_StaticMeshBuilder")
-		.constructor<>()
+		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
 		.method("Build", &C_StaticMeshBuilder::Build);
 
 
@@ -39,6 +39,10 @@ RTTR_REGISTRATION
 		.property("MeshFile", &C_StaticMesh::m_meshFile)
 		.property("Material", &C_StaticMesh::m_Material);
 	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_StaticMesh>>();
+	rttr::type::register_converter_func([](std::shared_ptr<C_StaticMesh> ptr, bool& ok) -> std::shared_ptr<GLEngine::Entity::I_Component> {
+		ok = true;
+		return std::static_pointer_cast<GLEngine::Entity::I_Component>(ptr);
+	});
 }
 
 namespace GLEngine::GLRenderer::Components {

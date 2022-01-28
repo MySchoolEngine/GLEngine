@@ -8,7 +8,7 @@
 namespace GLEngine::Renderer {
 
 //=================================================================================
-I_CameraComponent::I_CameraComponent(std::shared_ptr<Entity::I_Entity>& owner)
+I_CameraComponent::I_CameraComponent(std::shared_ptr<Entity::I_Entity> owner)
 	: Entity::I_Component(owner)
 {
 }

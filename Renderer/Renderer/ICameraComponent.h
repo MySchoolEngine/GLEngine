@@ -18,7 +18,7 @@ namespace Renderer {
 
 class RENDERER_API_EXPORT I_CameraComponent : public Entity::I_Component {
 public:
-	explicit I_CameraComponent(std::shared_ptr<Entity::I_Entity>& owner);
+	explicit I_CameraComponent(std::shared_ptr<Entity::I_Entity> owner);
 	virtual ~I_CameraComponent(); // = default;
 	virtual Entity::E_ComponentType GetType() const override;
 

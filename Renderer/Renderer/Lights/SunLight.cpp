@@ -18,7 +18,8 @@ RTTR_REGISTRATION
 	using namespace GLEngine::Renderer;
 
 	rttr::registration::class_<C_SunLight>("C_SunLight")
-		.constructor<std::shared_ptr<GLEngine::Entity::I_Entity>>()
+		.constructor<std::shared_ptr<GLEngine::Entity::I_Entity>>()(rttr::policy::ctor::as_std_shared_ptr)
+		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
 		.property("SunX", &C_SunLight::m_SunX)
 			(
 				rttr::policy::prop::bind_as_ptr,
@@ -70,6 +71,13 @@ RTTR_REGISTRATION
 				RegisterMetamember<UI::Slider::Max>(20.0f),
 				RegisterMetamember<SerializationCls::DerefSerialize>(true)
 			);
+
+	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_SunLight>>();
+	rttr::type::register_converter_func([](std::shared_ptr<C_SunLight> ptr, bool& ok) 
+		-> std::shared_ptr<GLEngine::Entity::I_Component> {
+		ok = true;
+		return std::static_pointer_cast<GLEngine::Entity::I_Component>(ptr);
+	});
 }
 #pragma endregion registration
 
@@ -84,6 +92,12 @@ C_SunLight::C_SunLight(std::shared_ptr<Entity::I_Entity> owner)
 	, m_SunColor(Colours::white)
 	, m_AsymetricFactor(0.95f)
 	, m_SunDiscMultiplier(1.f)
+{
+}
+
+//=================================================================================
+C_SunLight::C_SunLight()
+	: C_SunLight(nullptr)
 {
 }
 

@@ -127,10 +127,21 @@ void C_XMLDeserializer::DeserializeAssociativeArray(const pugi::xml_node& child,
 			if (type.is_valid() == false)
 				continue;
 			valueVar = type.create();
+			if (!valueVar.is_valid()) {
+				CORE_LOG(E_Level::Error, E_Context::Core, "Could not instantiate type '{}'", type);
+				continue;
+			}
 			valueVar = DeserializeNode(node, valueVar);
+			if (!valueVar.convert(view.get_value_type()))
+			{
+				CORE_LOG(E_Level::Error, E_Context::Core, "Cannot convert to the value type.");
+				continue;
+			}
 		}
 
-		view.insert(keyVar, rttr::variant(nullptr));
+		if (view.insert(keyVar, valueVar).second == false) {
+			CORE_LOG(E_Level::Error, E_Context::Core, "Something happend.");
+		}
 	}
 }
 

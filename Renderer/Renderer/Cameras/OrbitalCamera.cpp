@@ -2,6 +2,8 @@
 
 #include <Renderer/Cameras/OrbitalCamera.h>
 
+#include <Entity/BasicEntity.h>
+
 #include <Physics/Primitives/Frustum.h>
 #include <Physics/Primitives/Plane.h>
 #include <Physics/Primitives/Ray.h>
@@ -36,7 +38,8 @@ RTTR_REGISTRATION
 	using namespace Utils::Reflection;
 
 	rttr::registration::class_<C_OrbitalCamera>("C_OrbitalCamera")
-	  .constructor<std::shared_ptr<GLEngine::Entity::I_Entity>&>()
+		.constructor<std::shared_ptr<GLEngine::Entity::I_Entity>>()(rttr::policy::ctor::as_std_shared_ptr)
+		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
 		.property("YAngle", &C_OrbitalCamera::_angleYDeg)
 			(
 				rttr::policy::prop::bind_as_ptr,
@@ -66,13 +69,18 @@ RTTR_REGISTRATION
 			);
 
 	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_OrbitalCamera>>();
+	rttr::type::register_converter_func([](std::shared_ptr<C_OrbitalCamera> ptr, bool& ok)
+	  -> std::shared_ptr<GLEngine::Entity::I_Component> {
+		ok = true;
+		return std::static_pointer_cast<GLEngine::Entity::I_Component>(ptr);
+	});
 }
 #pragma endregion
 
 namespace GLEngine::Renderer::Cameras {
 
 //=================================================================================
-C_OrbitalCamera::C_OrbitalCamera(std::shared_ptr<Entity::I_Entity>& owner)
+C_OrbitalCamera::C_OrbitalCamera(std::shared_ptr<Entity::I_Entity> owner)
 	: I_CameraComponent(owner)
 	, m_ControlSpeed(0.5f)
 	, _angleYDeg(0.0f)
@@ -81,6 +89,16 @@ C_OrbitalCamera::C_OrbitalCamera(std::shared_ptr<Entity::I_Entity>& owner)
 {
 	_pos = _view = _up = _left = glm::vec3(0);
 	m_Transformation.SetEnabledTransforms(GUI::Input::C_Transformations::E_Transorms::Translate);
+}
+
+//=================================================================================
+C_OrbitalCamera::C_OrbitalCamera()
+	: I_CameraComponent(nullptr)
+	, m_ControlSpeed(0.5f)
+	, _angleYDeg(0.0f)
+	, _angleXDeg(0.0f)
+	, _zoom()
+{
 }
 
 //=================================================================================

@@ -11,6 +11,7 @@ class I_DebugDraw;
 class RENDERER_API_EXPORT C_SunLight : public I_Light {
 public:
 	C_SunLight(std::shared_ptr<Entity::I_Entity> owner);
+	C_SunLight();
 	virtual ~C_SunLight();
 
 	[[nodiscard]] glm::vec3			GetSunDirection() const;

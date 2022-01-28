@@ -25,7 +25,8 @@ namespace Renderer::Cameras {
 // Using Euclidean angles (= has gimbal lock)
 class RENDERER_API_EXPORT C_OrbitalCamera : public I_CameraComponent {
 public:
-	C_OrbitalCamera(std::shared_ptr<Entity::I_Entity>& owner);
+	C_OrbitalCamera(std::shared_ptr<Entity::I_Entity> owner);
+	C_OrbitalCamera();
 	~C_OrbitalCamera(); // = default;
 
 	[[nodiscard]] virtual glm::mat4 GetViewProjectionMatrix() const override;
