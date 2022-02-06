@@ -19,7 +19,6 @@ enum class E_ComponentType
 	Graphical,
 	Light,
 	Camera,
-	DebugGUI,
 };
 
 class ENTITY_API_EXPORT I_Entity : public Core::I_EventReciever {
@@ -31,7 +30,6 @@ protected:
 
 public:
 	explicit I_Entity(std::string name);
-	explicit I_Entity();
 	virtual ~I_Entity();
 
 	// naive GUID version

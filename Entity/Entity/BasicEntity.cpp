@@ -1,7 +1,6 @@
 #include <EntityStdafx.h>
 
 #include <Entity/BasicEntity.h>
-#include <Entity/Components/IDebugGUIComponent.h>
 #include <Entity/IComponent.h>
 
 #include <rttr/registration>
@@ -58,11 +57,6 @@ void C_BasicEntity::PostUpdate()
 //=================================================================================
 void C_BasicEntity::OnEvent(Core::I_Event& event)
 {
-	auto debugGUI = GetComponent<E_ComponentType::DebugGUI>();
-	if (debugGUI)
-	{
-		debugGUI->Toggle();
-	}
 }
 
 //=================================================================================

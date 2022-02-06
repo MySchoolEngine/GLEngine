@@ -13,5 +13,6 @@ public:
 
 private:
 	std::shared_ptr<C_EntityManager> m_World;
+	mutable GUID					 m_SelectedEntity;
 };
 } // namespace GLEngine::Entity
