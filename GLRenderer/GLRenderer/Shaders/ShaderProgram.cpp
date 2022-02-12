@@ -135,6 +135,13 @@ void C_ShaderProgram::SetName(const std::string& name) noexcept
 	m_name = name;
 	glObjectLabel(GL_PROGRAM, m_Program, static_cast<GLsizei>(name.length()), name.c_str());
 }
+
+//=================================================================================
+std::string C_ShaderProgram::GetName() const
+{
+	return m_name;
+}
+
 #endif
 
 } // namespace GLEngine::GLRenderer::Shaders

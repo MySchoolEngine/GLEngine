@@ -36,8 +36,11 @@ RTTR_REGISTRATION
 
 	rttr::registration::class_<C_StaticMesh>("C_StaticMesh")
 		.constructor<std::string, std::string_view, std::shared_ptr<GLEngine::Entity::I_Entity>>()
+		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
 		.property("MeshFile", &C_StaticMesh::m_meshFile)
-		.property("Material", &C_StaticMesh::m_Material);
+		.property("Material", &C_StaticMesh::m_Material)
+		.property("Shader", &C_StaticMesh::GetShader, &C_StaticMesh::SetShader)
+		.property("ShadowPassShader", &C_StaticMesh::GetShadowShader, &C_StaticMesh::SetShadowShader);
 	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_StaticMesh>>();
 	rttr::type::register_converter_func([](std::shared_ptr<C_StaticMesh> ptr, bool& ok) -> std::shared_ptr<GLEngine::Entity::I_Component> {
 		ok = true;
@@ -54,29 +57,7 @@ C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::s
 	, m_Mesh(nullptr)
 	, m_Material(nullptr)
 {
-	Renderer::Mesh::SceneLoader sl;
-
-	auto	  scene		  = std::make_shared<Renderer::MeshData::Scene>();
-	glm::mat4 modelMatrix = glm::mat4(1.0f);
-
-	if (!sl.addModelFromFileToScene("Models", m_meshFile.c_str(), scene, modelMatrix))
-	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}", m_meshFile);
-		return;
-	}
-
-	m_Transformation.SetMatrix(modelMatrix);
-
-	// TODO this is unsafe way to init model
-	m_Mesh		= std::make_shared<Mesh::C_StaticMeshResource>(scene->meshes[0]);
-	m_AABB		= scene->meshes[0].bbox;
-	auto& shmgr = Shaders::C_ShaderManager::Instance();
-	m_Shader	= shmgr.GetProgram(shader.data());
-
-	const auto materialIdx = scene->meshes[0].materialIndex;
-	auto&	   material	   = scene->materials[materialIdx];
-
-	SetMaterial(material);
+	SetShader(shader.data());
 }
 
 //=================================================================================
@@ -87,11 +68,18 @@ C_StaticMesh::C_StaticMesh(const Renderer::MeshData::Mesh& mesh, std::string_vie
 	m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(mesh);
 	m_AABB = mesh.bbox;
 
-	auto& shmgr = Shaders::C_ShaderManager::Instance();
-	m_Shader	= shmgr.GetProgram(shader.data());
+	SetShader(shader.data());
 
 	if (material)
 		SetMaterial(*material);
+}
+
+//=================================================================================
+C_StaticMesh::C_StaticMesh()
+	: Renderer::I_RenderableComponent(nullptr)
+	, m_Material(nullptr)
+{
+	SetShader("basicTracing"); // TODO
 }
 
 //=================================================================================
@@ -99,8 +87,7 @@ void C_StaticMesh::PerformDraw() const
 {
 	if (!m_Mesh || !m_Shader)
 	{
-		// CORE_LOG(E_Level::Error, E_Context::Render, "Static mesh uncomplete");
-		return;
+		const_cast<C_StaticMesh*>(this)->LoadMesh(); // lazy load, lazy dominik wrong design, should burn in hell
 	}
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
 
@@ -173,6 +160,64 @@ bool C_StaticMesh::HasDebugDrawGUI() const
 GLEngine::Physics::Primitives::S_AABB C_StaticMesh::GetAABB() const
 {
 	return m_AABB;
+}
+
+//=================================================================================
+void C_StaticMesh::SetShader(const std::string shader)
+{
+	auto& shmgr = Shaders::C_ShaderManager::Instance();
+	m_Shader	= shmgr.GetProgram(shader);
+}
+
+//=================================================================================
+std::string C_StaticMesh::GetShader() const
+{
+	if (!m_Shader)
+		return "";
+	else
+		return m_Shader->GetName();
+}
+
+//=================================================================================
+void C_StaticMesh::SetShadowShader(const std::string shader)
+{
+	auto& shmgr = Shaders::C_ShaderManager::Instance();
+	m_ShadowPassShader	= shmgr.GetProgram(shader);
+}
+
+//=================================================================================
+std::string C_StaticMesh::GetShadowShader() const
+{
+	if (!m_ShadowPassShader)
+		return "";
+	else
+		return m_ShadowPassShader->GetName();
+}
+
+//=================================================================================
+void C_StaticMesh::LoadMesh()
+{
+	Renderer::Mesh::SceneLoader sl;
+
+	auto	  scene		  = std::make_shared<Renderer::MeshData::Scene>();
+	glm::mat4 modelMatrix = glm::mat4(1.0f);
+
+	if (!sl.addModelFromFileToScene("Models", m_meshFile.c_str(), scene, modelMatrix))
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}", m_meshFile);
+		return;
+	}
+
+	m_Transformation.SetMatrix(modelMatrix);
+
+	// TODO this is unsafe way to init model
+	m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(scene->meshes[0]);
+	m_AABB = scene->meshes[0].bbox;
+
+	const auto materialIdx = scene->meshes[0].materialIndex;
+	auto&	   material	   = scene->materials[materialIdx];
+
+	SetMaterial(material);
 }
 
 //=================================================================================

@@ -42,8 +42,11 @@ public:
 
 #if _DEBUG
 	void SetName(const std::string& name) noexcept;
+	std::string GetName() const;
 #else
+	// TODO: Huge problem due to serialization of the scene
 	inline void SetName(const std::string& name) noexcept {}
+	std::string GetName() const { return ""; }
 #endif
 
 	// replace this

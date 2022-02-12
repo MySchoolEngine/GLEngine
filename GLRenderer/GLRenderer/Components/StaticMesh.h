@@ -31,10 +31,13 @@ class C_StaticMeshResource;
 
 namespace Components {
 
+// because of RTTR I need parameter-less constructor
+// this will also lead to change in the way, how the owner is propagated into the component
 class C_StaticMesh : public Renderer::I_RenderableComponent {
 public:
 	C_StaticMesh(std::string meshFile, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner);
 	C_StaticMesh(const Renderer::MeshData::Mesh& mesh, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner, const Renderer::MeshData::Material* material = nullptr);
+	C_StaticMesh();
 	virtual void									  PerformDraw() const override;
 	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override;
 
@@ -42,11 +45,19 @@ public:
 	virtual std::string_view GetDebugComponentName() const override;
 	virtual bool			 HasDebugDrawGUI() const override;
 
+	void		SetShader(const std::string shader);
+	std::string GetShader() const;
+	void		SetShadowShader(const std::string shader);
+	std::string GetShadowShader() const;
+
 	void SetMaterial(std::shared_ptr<Renderer::C_Material> material);
 
 	RTTR_ENABLE(Renderer::I_RenderableComponent);
+
 protected:
 	void SetMaterial(const Renderer::MeshData::Material& material);
+
+	void LoadMesh();
 
 	std::string									m_meshFile;
 	std::shared_ptr<Mesh::C_StaticMeshResource> m_Mesh;
