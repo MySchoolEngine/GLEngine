@@ -37,7 +37,7 @@ C_EntityManager::~C_EntityManager()
 //=================================================================================
 std::shared_ptr<I_Entity> C_EntityManager::GetEntity(GUID id) const
 {
-	if (id == INVALID_GUID)
+	if (id.isValid() == false)
 	{
 		return nullptr;
 	}
@@ -138,7 +138,7 @@ Physics::Primitives::S_RayIntersection C_EntityManager::Select(const Physics::Pr
 		using namespace Physics::Primitives;
 		constexpr S_Plane plane{glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), -1};
 		S_RayIntersection intersection;
-		intersection.entityId		   = INVALID_GUID;
+		intersection.entityId		   = GUID::INVALID_GUID;
 		intersection.distance		   = plane.IntersectImpl(ray);
 		intersection.intersectionPoint = ray.origin + ray.direction * intersection.distance;
 		intersection.ray			   = ray;

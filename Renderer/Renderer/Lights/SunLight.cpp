@@ -1,5 +1,6 @@
 #include <RendererStdafx.h>
 
+#include <Renderer/DebugDraw.h>
 #include <Renderer/Lights/SunLight.h>
 
 #include <Physics/Primitives/Frustum.h>
@@ -12,7 +13,7 @@ C_SunLight::C_SunLight(std::shared_ptr<Entity::I_Entity> owner)
 	, m_SunX(0.437f, -1.f, 1.f, "Sun X")
 	, m_SunY(0.056f, -1.f, 1.f, "Sun Y")
 	, m_SunZ(-0.347f, -1.f, 1.f, "Sun Z")
-	, m_SunColor("Sun color", glm::vec3(1.f))
+	, m_SunColor("Sun color", Colours::white)
 	, m_AsymetricFactor(0.95f, 0.0f, 1.f, "Asymmetric factor")
 	, m_SunDiscMultiplier(1.f, 1.0f, 20.f, "Disc multiplier")
 {
@@ -45,10 +46,10 @@ void C_SunLight::DebugDrawGUI()
 }
 
 //=================================================================================
-void C_SunLight::DebugDraw() const
+void C_SunLight::DebugDraw(I_DebugDraw* dd) const
 {
-	// C_DebugDraw::Instance().DrawPoint({ m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue() }, { 1.f, 1.f, 0.f });
-	// C_DebugDraw::Instance().DrawLine({ 0.f, 0.f, 0.f }, { m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue() }, { 1.f, 1.f, 0.f });
+	dd->DrawPoint({m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue()}, Colours::yellow);
+	dd->DrawLine({0.f, 0.f, 0.f}, {m_SunX.GetValue(), m_SunY.GetValue(), m_SunZ.GetValue()}, Colours::yellow);
 }
 
 //=================================================================================
@@ -58,7 +59,7 @@ glm::vec3 C_SunLight::GetSunDirection() const
 }
 
 //=================================================================================
-glm::vec3 C_SunLight::GetSunColor() const
+Colours::T_Colour C_SunLight::GetSunColor() const
 {
 	return m_SunColor.GetValue();
 }

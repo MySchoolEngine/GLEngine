@@ -2,41 +2,41 @@ project "zlib"
     kind "SharedLib"
     language "C++"
     
-	targetdir ("../../../bin/" .. outputdir .. "/vendor/%{prj.name}")
-    objdir ("../../../obj/" .. outputdir .. "/vendor/%{prj.name}")
+	targetdir ("%{wks.location}/bin/" .. outputdir .. "/vendor/%{prj.name}")
+    objdir ("%{wks.location}/obj/" .. outputdir .. "/vendor/%{prj.name}")
 
     includedirs
     {
-        "../../Assimp/contrib/zlib",
+        "%{wks.location}/vendor/Assimp/contrib/zlib",
         ".",
     }
 
 	files
 	{
-        "../../Assimp/contrib/zlib/crc32.h",
-        "../../Assimp/contrib/zlib/deflate.h",
-        "../../Assimp/contrib/zlib/gzguts.h",
-        "../../Assimp/contrib/zlib/inffast.h",
-        "../../Assimp/contrib/zlib/inffixed.h",
-        "../../Assimp/contrib/zlib/inflate.h",
-        "../../Assimp/contrib/zlib/inftrees.h",
-        "../../Assimp/contrib/zlib/trees.h",
-        "../../Assimp/contrib/zlib/zutil.h",
-        "../../Assimp/contrib/zlib/adler32.c",
-        "../../Assimp/contrib/zlib/compress.c",
-        "../../Assimp/contrib/zlib/crc32.c",
-        "../../Assimp/contrib/zlib/deflate.c",
-        "../../Assimp/contrib/zlib/gzclose.c",
-        "../../Assimp/contrib/zlib/gzlib.c",
-        "../../Assimp/contrib/zlib/gzread.c",
-        "../../Assimp/contrib/zlib/gzwrite.c",
-        "../../Assimp/contrib/zlib/inflate.c",
-        "../../Assimp/contrib/zlib/infback.c",
-        "../../Assimp/contrib/zlib/inftrees.c",
-        "../../Assimp/contrib/zlib/inffast.c",
-        "../../Assimp/contrib/zlib/trees.c",
-        "../../Assimp/contrib/zlib/uncompr.c",
-        "../../Assimp/contrib/zlib/zutil.c",
+        "%{wks.location}/vendor/Assimp/contrib/zlib/crc32.h",
+        "%{wks.location}/vendor/Assimp/contrib/zlib/deflate.h",
+        "%{wks.location}/vendor/Assimp/contrib/zlib/gzguts.h",
+        "%{wks.location}/vendor/Assimp/contrib/zlib/inffast.h",
+        "%{wks.location}/vendor/Assimp/contrib/zlib/inffixed.h",
+        "%{wks.location}/vendor/Assimp/contrib/zlib/inflate.h",
+        "%{wks.location}/vendor/Assimp/contrib/zlib/inftrees.h",
+        "%{wks.location}/vendor/Assimp/contrib/zlib/trees.h",
+        "%{wks.location}/vendor/Assimp/contrib/zlib/zutil.h",
+        "%{wks.location}/vendor/Assimp/contrib/zlib/adler32.c",
+        "%{wks.location}/vendor/Assimp/contrib/zlib/compress.c",
+        "%{wks.location}/vendor/Assimp/contrib/zlib/crc32.c",
+        "%{wks.location}/vendor/Assimp/contrib/zlib/deflate.c",
+        "%{wks.location}/vendor/Assimp/contrib/zlib/gzclose.c",
+        "%{wks.location}/vendor/Assimp/contrib/zlib/gzlib.c",
+        "%{wks.location}/vendor/Assimp/contrib/zlib/gzread.c",
+        "%{wks.location}/vendor/Assimp/contrib/zlib/gzwrite.c",
+        "%{wks.location}/vendor/Assimp/contrib/zlib/inflate.c",
+        "%{wks.location}/vendor/Assimp/contrib/zlib/infback.c",
+        "%{wks.location}/vendor/Assimp/contrib/zlib/inftrees.c",
+        "%{wks.location}/vendor/Assimp/contrib/zlib/inffast.c",
+        "%{wks.location}/vendor/Assimp/contrib/zlib/trees.c",
+        "%{wks.location}/vendor/Assimp/contrib/zlib/uncompr.c",
+        "%{wks.location}/vendor/Assimp/contrib/zlib/zutil.c",
         "./zconf.h",
     }
 
@@ -50,7 +50,7 @@ project "zlib"
 
         postbuildcommands
         {
-            ("{COPY} %{cfg.buildtarget.relpath} \"../../../bin/" .. outputdir .. "/Sandbox/\"")
+            ("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\"")
         }
         defines
         {
@@ -63,7 +63,7 @@ project "zlib"
         }
         files
         {
-            "../../Assimp/contrib/zlib/win32/zlib1.rc"
+            "%{wks.location}/vendor/Assimp/contrib/zlib/win32/zlib1.rc"
         }
         
     filter "system:not windows"

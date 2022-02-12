@@ -9,8 +9,8 @@ namespace Utils::Allocation {
 /** ==============================================
  * @class C_FallbackAllocator
  *
- * @brief Uses Primary allocator as long, as it returns not-null result, then uses
- *		  Secondary. At leas Primary allocator has to define owns function.
+ * @brief Uses Primary allocator as long, as it returns not-null result, then
+ *uses Secondary. At leas Primary allocator has to define owns function.
  *
  * @author 	Dominik Rohacek
  * Contact: RohacekD@gmail.com
@@ -40,7 +40,6 @@ public:
 		}
 		return Secondary::deallocate(p, n);
 	}
-
 
 	typename std::enable_if<Traits::has_owns<Primary>::value && Traits::has_owns<Secondary>::value, bool>::type bool owns(pointer p)
 	{

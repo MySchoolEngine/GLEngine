@@ -1,7 +1,7 @@
 #version 430
 
-// per model
-in vec3 colorOUT;
+//per model
+layout (location = 1) in vec3 colorOUT;
 
 out vec4 fragColor;
 

@@ -15,7 +15,7 @@ const auto ptlReg = []() {
 //=================================================================================
 S_PointLight::S_PointLight()
 	: m_Position(0.f)
-	, m_Color(0.f)
+	, m_Color(Colours::black)
 	, m_Intensity(0.f)
 {
 }

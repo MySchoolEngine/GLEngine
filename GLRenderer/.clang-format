@@ -49,9 +49,11 @@ IncludeBlocks: Regroup
 IncludeIsMainRegex: ".h>$"
 IncludeCategories:
   - Regex:           '^<.*Stdafx.h>'
-    Priority:    	 1
+    Priority:    	   1
   - Regex:           '^<GLRenderer/.*>'
-    Priority:        5
+    Priority:        3
+  - Regex:           '^<GLFWWindowManager/*.>'
+    Priority:        4
   - Regex:           '^<DX12Renderer/.*>'
     Priority:        6
   - Regex:           '^<Renderer/.*>'

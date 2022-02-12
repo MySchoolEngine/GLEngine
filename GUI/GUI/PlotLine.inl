@@ -32,7 +32,7 @@ template <int samples> void C_PlotLine<samples>::Sample(float sample)
 //=================================================================================
 template <int samples> float C_PlotLine<samples>::Avg() const
 {
-	const auto allSamples = std::accumulate(m_Samples.begin(), m_Samples.end(), 0.0f);
+	const auto allSamples = std::accumulate(cbegin(), cend(), 0.0f);
 	if (m_SampleID < samples)
 	{
 		return allSamples / m_SampleID;
@@ -61,6 +61,12 @@ template <int samples> typename C_PlotLine<samples>::T_SamplesCIter C_PlotLine<s
 //=================================================================================
 template <int samples> typename C_PlotLine<samples>::T_SamplesCIter C_PlotLine<samples>::cend() const
 {
+	if (m_SampleID < samples)
+	{
+		auto begin = cbegin();
+		std::advance(begin, m_SampleID);
+		return begin;
+	}
 	return m_Samples.cend();
 }
 

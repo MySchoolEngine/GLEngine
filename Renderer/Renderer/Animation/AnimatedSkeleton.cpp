@@ -3,7 +3,6 @@
 #include <Renderer/Animation/AnimatedSkeleton.h>
 #include <Renderer/Animation/Skeleton.h>
 
-
 namespace GLEngine::Renderer::Animation {
 
 //=================================================================================

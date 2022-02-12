@@ -1,10 +1,10 @@
 #include <GLRendererStdafx.h>
 
+#include <GLRenderer/Buffers/UniformBuffersManager.h>
 #include <GLRenderer/Debug.h>
 #include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Textures/TextureManager.h>
-#include <GLRenderer/Buffers/UniformBuffersManager.h>
 
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
@@ -15,6 +15,7 @@
 
 #include <Utils/DebugBreak.h>
 
+#include <imgui.h>
 #include <stdexcept>
 
 namespace GLEngine::GLRenderer {
@@ -30,7 +31,7 @@ C_OGLRenderer::C_OGLRenderer()
 	, m_GUITexts({{GUI::C_FormatedText("Avg draw commands: {:.2f}"), GUI::C_FormatedText("Min/max {:.2f}/{:.2f}"), GUI::C_FormatedText("Draw calls: {}"),
 				   GUI::C_FormatedText("UBO memory usage: {}B")}})
 	, m_ScreenCaptureList("Capture frame commands", [&]() { m_OutputCommandList = true; })
-	, m_Window(INVALID_GUID)
+	, m_Window(GUID::INVALID_GUID)
 	, m_Windows(std::string("Windows"))
 {
 	int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);

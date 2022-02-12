@@ -62,7 +62,7 @@ C_SunShadowMapTechnique::C_SunShadowMapTechnique(std::shared_ptr<Renderer::C_Sun
 	{
 		auto& renderer = (Core::C_Application::Get()).GetActiveRenderer();
 		m_Framebuffer->Bind();
-		renderer->AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([=]() {
+		renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([=]() {
 			glDrawBuffer(GL_NONE);
 			glReadBuffer(GL_NONE);
 		}));
@@ -152,20 +152,20 @@ void C_SunShadowMapTechnique::Render(const Entity::C_EntityManager& world, Rende
 	m_LastViewProject = lightProjectionMatrix * lightView;
 
 	auto& renderer = (Core::C_Application::Get()).GetActiveRenderer();
-	renderer->SetCurrentPassType(Renderer::E_PassType::ShadowPass);
+	renderer.SetCurrentPassType(Renderer::E_PassType::ShadowPass);
 
 	m_Framebuffer->Bind<E_FramebufferTarget::Draw>();
 
 	{
 		using namespace Commands;
-		renderer->AddCommand(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth));
-		renderer->AddCommand(std::make_unique<C_GLViewport>(0, 0, s_ShadowMapSize, s_ShadowMapSize));
-		renderer->AddCommand(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Back));
+		renderer.AddCommand(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth));
+		renderer.AddCommand(std::make_unique<C_GLViewport>(Renderer::C_Viewport(0, 0, GetZBuffer()->GetDimensions())));
+		renderer.AddCommand(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Back));
 	}
 
 	{
 		RenderDoc::C_DebugScope s("UBO Upload");
-		renderer->AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+		renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 			[=]() {
 				m_FrameConstUBO->SetView(lightView);
 				m_FrameConstUBO->SetProjection(lightProjectionMatrix);
@@ -193,13 +193,13 @@ void C_SunShadowMapTechnique::Render(const Entity::C_EntityManager& world, Rende
 	}
 
 	m_Framebuffer->Unbind<E_FramebufferTarget::Draw>();
-	renderer->SetCurrentPassType(Renderer::E_PassType::FinalPass);
+	renderer.SetCurrentPassType(Renderer::E_PassType::FinalPass);
 
 	GetZBuffer()->GenerateMipMaps();
 
 	{
 		using namespace Commands;
-		renderer->AddCommand(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Front));
+		renderer.AddCommand(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Front));
 	}
 }
 

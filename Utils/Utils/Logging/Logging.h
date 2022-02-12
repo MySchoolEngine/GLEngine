@@ -36,7 +36,6 @@ private:
 	C_LoggingSystem();
 	~C_LoggingSystem();
 
-
 	std::vector<I_Logger*>* m_Loggers;
 };
 

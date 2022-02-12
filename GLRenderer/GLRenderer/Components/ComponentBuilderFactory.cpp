@@ -9,6 +9,7 @@
 
 #include <Renderer/Lights/AreaLight.h>
 #include <Renderer/Lights/PointLight.h>
+#include <Renderer/Materials/MaterialManager.h>
 #include <Renderer/Mesh/Loading/SceneLoader.h>
 
 #include <Entity/Components/EntityDebugComponent.h>
@@ -55,12 +56,12 @@ std::unique_ptr<Entity::I_ComponenetBuilder> C_ComponentBuilderFactory::GetFacto
 void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Entity> entity, const std::filesystem::path& file)
 {
 	auto& tmgr = Textures::C_TextureManager::Instance();
-	auto  sl   = std::make_unique<Renderer::Mesh::SceneLoader>();
+	Renderer::Mesh::SceneLoader sl;
 
 	auto	  scene		  = std::make_shared<Renderer::MeshData::Scene>();
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
-	if (!sl->addModelFromFileToScene("Models", file, scene, modelMatrix))
+	if (!sl.addModelFromFileToScene("Models", file, scene, modelMatrix))
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}", file);
 		return;
@@ -68,9 +69,12 @@ void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Enti
 
 	for (const auto& mesh : scene->meshes)
 	{
-		const auto meshComp = std::make_shared<C_StaticMesh>(mesh, "basic", entity);
 		const auto material = scene->materials[mesh.materialIndex];
-		meshComp->SetColor(material.diffuse);
+		const auto meshComp = std::make_shared<C_StaticMesh>(mesh, "basic", entity, &material);
+
+		auto& materialManager = Renderer::C_MaterialManager::Instance();
+		auto  materialPtr	  = materialManager.GetMaterial(material.m_Name);
+		GLE_ASSERT(materialPtr, "Material '{}' should already exist", material.m_Name);
 		if (material.textureIndex >= 0)
 		{
 			auto colorMapTexture = tmgr.GetTexture(scene->textures[material.textureIndex]);
@@ -83,7 +87,22 @@ void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Enti
 
 				colorMapTexture->EndGroupOp();
 
-				meshComp->SetColorMap(colorMapTexture);
+				materialPtr->SetColorMap(colorMapTexture);
+			}
+		}
+		if (material.noramlTextureIndex >= 0)
+		{
+			auto normalMapTexture = tmgr.GetTexture(scene->textures[material.noramlTextureIndex]);
+			if (normalMapTexture)
+			{
+				normalMapTexture->StartGroupOp();
+				normalMapTexture->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
+				normalMapTexture->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
+				normalMapTexture->GenerateMipMaps();
+
+				normalMapTexture->EndGroupOp();
+
+				materialPtr->SetNormalMap(normalMapTexture);
 			}
 		}
 

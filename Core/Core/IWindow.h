@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Core/Application.h>
-#include <Core/CoreMacros.h>
 #include <Core/EventSystem/Layer.h>
 #include <Core/WindowInfo.h>
 
@@ -18,18 +17,18 @@ class I_Input;
 /************************************************************************/
 /* Represents single window on screen                                   */
 /************************************************************************/
-class I_Window : public C_Layer {
+class CORE_API_EXPORT I_Window : public C_Layer {
 public:
-	virtual ~I_Window()						 = default;
-	virtual unsigned int   GetWidth() const	 = 0;
-	virtual unsigned int   GetHeight() const = 0;
-	virtual glm::uvec2	   GetSize() const	 = 0;
-	virtual const I_Input& GetInput() const	 = 0;
+	virtual ~I_Window();
+	[[nodiscard]] virtual unsigned int	 GetWidth() const  = 0;
+	[[nodiscard]] virtual unsigned int	 GetHeight() const = 0;
+	[[nodiscard]] virtual glm::uvec2	 GetSize() const   = 0;
+	[[nodiscard]] virtual const I_Input& GetInput() const  = 0;
 	/**
 	 * Transforms screen space coordinates to clip space
 	 * Clip space have (0,0) in the middle of viewport
 	 */
-	virtual glm::vec2 ToClipSpace(const glm::vec2& screenCoord) const = 0;
+	[[nodiscard]] virtual glm::vec2 ToClipSpace(const glm::vec2& screenCoord) const = 0;
 
 	virtual void Update() = 0;
 
@@ -48,16 +47,17 @@ public:
 	[[nodiscard]] virtual bool WantClose() const = 0;
 	[[nodiscard]] virtual bool CanClose() const { return true; }
 
-	virtual const std::unique_ptr<GLEngine::Renderer::I_Renderer>& GetRenderer() const = 0;
 
-	inline GUID GetGUID() const { return m_ID; }
+	[[nodiscard]] virtual Renderer::I_Renderer& GetRenderer() = 0;
+
+	[[nodiscard]] inline GUID GetGUID() const { return m_ID; }
 
 protected:
 	virtual void Destroy() = 0;
 	I_Window()
 		: C_Layer("window")
 		, m_ID(NextGUID())
-		, m_Data({nullptr, INVALID_GUID})
+		, m_Data({nullptr, GUID::INVALID_GUID})
 	{
 	}
 	GUID m_ID;

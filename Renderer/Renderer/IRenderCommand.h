@@ -2,8 +2,6 @@
 
 #include <Renderer/IResource.h>
 
-#include <memory>
-
 namespace GLEngine::Renderer {
 
 class I_RenderCommand {

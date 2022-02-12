@@ -33,7 +33,7 @@ private:
 	S_Frame									m_Frame;
 	glm::vec3								m_Point;
 	Physics::Primitives::S_Ray				m_Ray;
-	const MeshData::Material*				m_Material; // not owning
-	std::shared_ptr<RayTracing::I_RayLight> m_Light;
+	const MeshData::Material*				m_Material = nullptr; // not owning
+	std::shared_ptr<RayTracing::I_RayLight> m_Light	   = nullptr;
 };
 } // namespace GLEngine::Renderer

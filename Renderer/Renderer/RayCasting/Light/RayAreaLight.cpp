@@ -24,9 +24,9 @@ C_AreaLight::C_AreaLight(const glm::vec3& radiance, const std::shared_ptr<C_Prim
 glm::vec3 C_AreaLight::SampleLi(const C_RayIntersection& intersection, I_Sampler* rnd, S_VisibilityTester& vis, float* pdf) const
 {
 	const auto ligthRadius = m_Shape->m_Primitive.radius;
-	const auto samplePoint = ligthRadius * SampleConcentricDisc(rnd->GetV2());
-	const auto lightFrame  = S_Frame(m_Shape->m_Primitive.plane.normal);
-	const auto lightPoint  = RayTracing::T_GeometryTraits::SamplePoint(m_Shape->m_Primitive, rnd);
+	// const auto samplePoint = ligthRadius * SampleConcentricDisc(rnd->GetV2()); //< TODO for future use when Li is dependant on the position on the light
+	const auto lightFrame = S_Frame(m_Shape->m_Primitive.plane.normal);
+	const auto lightPoint = RayTracing::T_GeometryTraits::SamplePoint(m_Shape->m_Primitive, rnd);
 
 	vis = S_VisibilityTester(lightPoint, intersection.GetIntersectionPoint());
 
@@ -45,7 +45,7 @@ glm::vec3 C_AreaLight::SampleLi(const C_RayIntersection& intersection, I_Sampler
 
 	*pdf = (distSqr / cosThetaY) * areaInv;
 
-	return m_Radiance * (cosThetaX * cosThetaY) / (distSqr * areaInv);
+	return Le() * (cosThetaX * cosThetaY) / (distSqr * areaInv);
 }
 
 //=================================================================================

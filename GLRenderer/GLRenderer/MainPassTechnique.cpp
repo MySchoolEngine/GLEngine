@@ -5,9 +5,10 @@
 #include <GLRenderer/Commands/GLClear.h>
 #include <GLRenderer/Commands/GLViewport.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
-#include <GLRenderer/Debug.h>
+#include <GLRenderer/Lights/GLAreaLight.h>
 #include <GLRenderer/Lights/LightsUBO.h>
 #include <GLRenderer/MainPassTechnique.h>
+#include <GLRenderer/Materials/MaterialBuffer.h>
 #include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 
@@ -18,6 +19,7 @@
 #include <Renderer/Lights/AreaLight.h>
 #include <Renderer/Lights/PointLight.h>
 #include <Renderer/Lights/SunLight.h>
+#include <Renderer/Materials/MaterialManager.h>
 
 #include <Physics/Primitives/Frustum.h>
 
@@ -36,6 +38,7 @@ C_MainPassTechnique::C_MainPassTechnique(std::shared_ptr<Entity::C_EntityManager
 {
 	m_FrameConstUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>("frameConst");
 	m_LightsUBO		= Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<C_LightsBuffer>("lightsUni");
+	m_MatterialsUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Material::C_MaterialsBuffer>("materials");
 }
 
 //=================================================================================
@@ -47,16 +50,16 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 	const auto				entitiesInView = m_WorldToRender->GetEntities(camFrustum);
 
 	auto& renderer = (Core::C_Application::Get()).GetActiveRenderer();
-	renderer->SetCurrentPassType(Renderer::E_PassType::FinalPass);
+	renderer.SetCurrentPassType(Renderer::E_PassType::FinalPass);
 
 	{
 		RenderDoc::C_DebugScope s("Window prepare");
 		using namespace Commands;
-		renderer->AddCommand(std::move(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth)));
-		renderer->AddCommand(std::move(std::make_unique<C_GLViewport>(0, 0, widht, height)));
-		if (static_cast<C_OGLRenderer*>(renderer.get())->WantWireframe())
+		renderer.AddCommand(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth));
+		renderer.AddCommand(std::make_unique<C_GLViewport>(Renderer::C_Viewport(0, 0, widht, height)));
+		if (static_cast<C_OGLRenderer*>(&renderer)->WantWireframe())
 		{
-			renderer->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>([&]() { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }, "Change polygon mode")));
+			renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([&]() { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }, "Change polygon mode"));
 		}
 	}
 
@@ -110,7 +113,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				light.m_Color		  = areaLight->DiffuseColour();
 				light.m_SpecularColor = areaLight->SpecularColour();
 
-				C_DebugDraw::Instance().DrawAxis(pos, frustum.GetUpVector(), frustum.GetForeward());
+				areaLight->DebugDraw(&C_DebugDraw::Instance());
 				m_LightsUBO->SetAreaLight(light, areaLightIndex);
 				++areaLightIndex;
 			}
@@ -125,17 +128,32 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				m_LightsUBO->GetSunLight().m_LightViewProjection = m_SunViewProjection;
 				m_LightsUBO->GetSunLight().m_SunShadowMap		 = m_SunShadowMap;
 
-				C_DebugDraw::Instance().DrawPoint(sunLight->GetSunDirection(), {1.f, 1.f, 0.f});
-				C_DebugDraw::Instance().DrawLine({0.f, 0.f, 0.f}, sunLight->GetSunDirection(), {1.f, 1.f, 0.f});
+				C_DebugDraw::Instance().DrawPoint(sunLight->GetSunDirection(), Colours::yellow);
+				C_DebugDraw::Instance().DrawLine({0.f, 0.f, 0.f}, sunLight->GetSunDirection(), Colours::yellow);
 			}
 		}
 	}
 
+	bool materialsHaveChanged = false;
+	{
+		int i = 0;
+		Renderer::C_MaterialManager::Instance().ForEachMaterial([&matUBO = m_MatterialsUBO, &i, &materialsHaveChanged](std::shared_ptr<Renderer::C_Material>& material) {
+			if (material->IsChanged())
+			{
+				materialsHaveChanged = true;
+				matUBO->m_PhongMaterials[i].Update(*material.get());
+				material->CleanChangeFlag();
+			}
+			++i;
+		});
+	}
+
+
 	{
 		RenderDoc::C_DebugScope s("UBO Upload");
 		m_LightsUBO->MakeHandlesResident();
-		renderer->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
-			[this, &camera]() {
+		renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+			[&, materialsHaveChanged]() {
 				m_FrameConstUBO->SetView(camera->GetViewMatrix());
 				m_FrameConstUBO->SetProjection(camera->GetProjectionMatrix());
 				m_FrameConstUBO->SetCameraPosition(glm::vec4(camera->GetPosition(), 1.0f));
@@ -146,8 +164,11 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				m_FrameConstUBO->Activate(true);
 				m_LightsUBO->UploadData();
 				m_LightsUBO->Activate(true);
+				if (materialsHaveChanged)
+					m_MatterialsUBO->UploadData();
+				m_MatterialsUBO->Activate(true);
 			},
-			"MainPass - upload UBOs")));
+			"MainPass - upload UBOs"));
 	}
 
 	{
@@ -169,9 +190,9 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 		RenderDoc::C_DebugScope s("Clean");
 		m_LightsUBO->MakeHandlesResident(false);
 
-		if (static_cast<C_OGLRenderer*>(renderer.get())->WantWireframe())
+		if (static_cast<C_OGLRenderer*>(&renderer)->WantWireframe())
 		{
-			renderer->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>([&]() { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }, "Reset polygon mode")));
+			renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([&]() { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }, "Reset polygon mode"));
 		}
 	}
 }

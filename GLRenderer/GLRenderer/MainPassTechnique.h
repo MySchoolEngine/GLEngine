@@ -16,6 +16,10 @@ namespace Buffers::UBO {
 class C_FrameConstantsBuffer;
 }
 
+namespace Material {
+class C_MaterialsBuffer;
+}
+
 class C_MainPassTechnique {
 public:
 	explicit C_MainPassTechnique(std::shared_ptr<Entity::C_EntityManager> world);
@@ -29,6 +33,7 @@ private:
 	std::shared_ptr<C_LightsBuffer>						  m_LightsUBO;
 	std::uint64_t										  m_SunShadowMap;
 	glm::mat4											  m_SunViewProjection;
+	std::shared_ptr<Material::C_MaterialsBuffer>		  m_MatterialsUBO;
 };
 
 } // namespace GLEngine::GLRenderer

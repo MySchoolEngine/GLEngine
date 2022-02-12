@@ -11,8 +11,20 @@ on:
   
 jobs:
   GCC:
-    name: GCC
-    runs-on: ubuntu-20.04
+    name: ${{ matrix.config.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "Ubuntu GCC Debug",
+            config: "debug",
+          }
+        - {
+            name: "Ubuntu GCC Release",
+            config: "release",
+          }
     steps:
       - uses: actions/checkout@v2
       - uses: textbook/git-checkout-submodule-action@master
@@ -20,30 +32,29 @@ jobs:
         run: sudo apt update
       - name: Get X11
         run: sudo apt-get install xorg-dev
+      - name: Get uuid
+        run: sudo apt-get install uuid-dev
       - name: Premake
-        run: |
-          wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-linux.tar.gz -O premake.tar.gz
-          tar -xf premake.tar.gz
-          ./premake5 gmake2
-      - name: Download artifact
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          name: Unix-dependencies
-          workflow: prebuild.yml
-          workflow_conclusion: success
-          branch: master
-      - name: check2
-        run: |
-          ls
-          cd bin
-          ls
-      - name: Build debug
-        run: make config=debug -j6
-      - name: Build release
-        run: make config=release -j6
+        run: | 
+            sudo chmod +x Tools/Premake5/premake5
+            sudo Tools/Premake5/premake5 gmake2
+#      - name: Download artifact
+#        uses: dawidd6/action-download-artifact@v2
+#        with:
+#          name: Unix-dependencies
+#          workflow: prebuild.yml
+#          workflow_conclusion: success
+#          branch: master
+      - name: Build
+        run: make config=${{ matrix.config.config }} -j6
   msvc:
-    name: MSVC
+    name: MSVC api=${{ matrix.glfwapi }} config=${{ matrix.configuration }}
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [debug, release]
+        glfwapi: [opengl, vulkan]
     env:
       VS_PATH: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\
       MSBUILD_PATH: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\
@@ -61,7 +72,7 @@ jobs:
           Expand-Archive -Path premake.zip
       - name: Generate solution
         shell: cmd
-        run: premake\premake5.exe vs2019
+        run: premake\premake5 --glfwapi=${{ matrix.glfwapi }} vs2019
       - name: Download artifact
         uses: dawidd6/action-download-artifact@v2
         with:
@@ -69,9 +80,6 @@ jobs:
           workflow: prebuild.yml
           workflow_conclusion: success
           branch: master
-      - name: Build release
+      - name: Build
         shell: cmd
-        run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=Release'
-      - name: Build debug
-        shell: cmd
-        run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=Debug'
+        run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=${{ matrix.configuration }} -maxCpuCount'

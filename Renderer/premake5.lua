@@ -1,4 +1,4 @@
-include "../premakeDefines.lua"
+include "../Tools/Premake5/premakeDefines.lua"
 
 project "Renderer"
 	kind "SharedLib"
@@ -13,39 +13,29 @@ project "Renderer"
 	Link("Entity")
 	Link("Core")
 	Link("GUI")
+	
+	LinkDependency("Assimp")
+	LinkDependency("ImGui")
+	LinkDependency("pugixml")
 
 	includedirs
 	{
-		"../Core",
-		"../Utils",
 		"../GLRenderer",
 		"../Physics",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.fmt}",
-		"../%{IncludeDir.pugixml}",
 		"../%{IncludeDir.DevIL}",
 
-		"../vendor/Assimp/include",
 		"../vendor/projects/Assimp"
-	}
-
-	libdirs
-	{
-		"../vendor/bin/Debug-windows-x86_64/DevIL-IL/",
 	}
 
 	links 
 	{ 
-		"pugixml",
-		"Assimp",
 		"DevIL-IL",
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
-		systemversion "latest"
-
 		defines
 		{
 			"BUILD_RENDERER_DLL",
@@ -53,13 +43,5 @@ project "Renderer"
 
 		postbuildcommands
 		{
-			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
+			("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\""),
 		}
-
-	filter "configurations:Debug"
-		runtime "Debug"
-		symbols "On"
-
-	filter "configurations:Release"
-		runtime "Release"
-		optimize "On"

@@ -21,9 +21,4 @@ struct S_WindowInfo {
 
 	virtual E_Driver GetDriver() const = 0;
 };
-
-//=================================================================================
-struct S_VulkanWindowInfo : public S_WindowInfo {
-	virtual E_Driver GetDriver() const override { return E_Driver::Vulkan; }
-};
 } // namespace GLEngine::Core

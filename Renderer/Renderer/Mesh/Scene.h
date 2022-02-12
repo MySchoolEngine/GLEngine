@@ -1,7 +1,8 @@
 #pragma once
 
-#include <Physics/Primitives/AABB.h>
+#include <Renderer/Colours.h>
 
+#include <Physics/Primitives/AABB.h>
 
 namespace GLEngine::Renderer::MeshData {
 
@@ -14,10 +15,10 @@ struct Material {
 
 	// Index to a texture array
 	// If negative - material has no texture
-	int textureIndex;
+	int textureIndex	   = -1;
+	int noramlTextureIndex = -1;
 
-	// Alignment to 128bit, in terms of size
-	float aligmetVariableDoNotUse1, aligmetVariableDoNotUse2;
+	std::string m_Name;
 };
 
 //=================================================================================
@@ -42,8 +43,8 @@ struct AnimationData {
 
 //=================================================================================
 struct Light {
-	std::string m_name;
-	glm::vec3	m_Color;
+	std::string		  m_name;
+	Colours::T_Colour m_Color;
 };
 
 // Texture

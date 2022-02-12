@@ -27,10 +27,15 @@ C_TextureUnitManger& C_TextureUnitManger::Instance()
 //=================================================================================
 void C_TextureUnitManger::BindTextureToUnit(const C_Texture& texture, unsigned int unit)
 {
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::move(std::make_unique<Commands::C_GLActivateTexture>(unit)));
+	if (m_TextureUnits[unit] == texture.GetTexture())
+	{
+		return;
+	}
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(
-		std::move(std::make_unique<Commands::HACK::C_LambdaCommand>([&texture]() { texture.bind(); }, fmt::format("BindTextureToUnit - {} -> {}", texture.GetTexture(), unit))));
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::C_GLActivateTexture>(unit));
+
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(
+		std::make_unique<Commands::HACK::C_LambdaCommand>([&texture]() { texture.bind(); }, fmt::format("BindTextureToUnit - {} -> {}", texture.GetTexture(), unit)));
 	m_TextureUnits[unit] = texture.GetTexture();
 }
 
@@ -74,11 +79,11 @@ unsigned int C_TextureUnitManger::GetTextureUnit(const C_Texture& texture) const
 //=================================================================================
 void C_TextureUnitManger::BindImageToUnit(const C_Texture& image, unsigned int unit, E_OpenGLAccess access)
 {
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::move(std::make_unique<Commands::C_GLActivateTexture>(unit)));
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::C_GLActivateTexture>(unit));
 
-	Core::C_Application::Get().GetActiveRenderer()->AddCommand(std::move(std::make_unique<Commands::HACK::C_LambdaCommand>(
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&image, unit, access]() { glBindImageTexture(unit, image.GetTexture(), 0, GL_TRUE, 0, AccesRightsToEnum(access), GL_R32F); },
-		fmt::format("BindImageToUnit - {} -> {}", image.GetTexture(), unit))));
+		fmt::format("BindImageToUnit - {} -> {}", image.GetTexture(), unit)));
 
 	m_ImageUnits[unit] = image.GetTexture();
 }
@@ -116,6 +121,13 @@ unsigned int C_TextureUnitManger::GetImageUnit(const C_Texture& image) const
 {
 	auto it = std::find_if(m_ImageUnits.begin(), m_ImageUnits.end(), [&](const auto& it) { return it.second == image.GetTexture(); });
 	return it->first;
+}
+
+//=================================================================================
+void C_TextureUnitManger::Reset()
+{
+	m_TextureUnits.clear();
+	m_ImageUnits.clear();
 }
 
 } // namespace GLEngine::GLRenderer::Textures

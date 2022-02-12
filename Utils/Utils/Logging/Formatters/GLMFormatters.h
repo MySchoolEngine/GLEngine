@@ -27,3 +27,9 @@ template <> struct fmt::formatter<glm::ivec2> : fmt::formatter<string_view> {
 
 	template <typename FormatContext> auto format(const glm::ivec2& vec, FormatContext& ctx) { return format_to(ctx.out(), "({}, {})", vec.x, vec.y); }
 };
+
+template <> struct fmt::formatter<glm::uvec2> : fmt::formatter<string_view> {
+	constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+
+	template <typename FormatContext> auto format(const glm::uvec2& vec, FormatContext& ctx) { return format_to(ctx.out(), "({}, {})", vec.x, vec.y); }
+};

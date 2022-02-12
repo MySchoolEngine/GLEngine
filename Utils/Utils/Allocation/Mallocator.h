@@ -10,7 +10,6 @@ template <std::size_t alignment = 4> class C_Mallocator {
 public:
 	using size_type = std::size_t;
 
-
 	C_Mallocator()
 		: m_head(m_memory)
 	{

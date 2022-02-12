@@ -23,4 +23,64 @@ inline std::uint8_t GetNumberOfChannels(GLint pixelFormat)
 	}
 }
 
+//=================================================================================
+inline GLenum GetBlendFunction(Renderer::E_BlendFunction e)
+{
+	switch (e)
+	{
+	case Renderer::E_BlendFunction::Add:
+		return GL_FUNC_ADD;
+	case Renderer::E_BlendFunction::Subtract:
+		return GL_FUNC_SUBTRACT;
+	case Renderer::E_BlendFunction::ReverseSubtract:
+		return GL_FUNC_REVERSE_SUBTRACT;
+	case Renderer::E_BlendFunction::Min:
+		return GL_MIN;
+	case Renderer::E_BlendFunction::Max:
+		return GL_MAX;
+	default:
+		GLE_ASSERT(false, "Unknown blend function");
+		return GL_FUNC_ADD;
+	}
+}
+
+//=================================================================================
+inline GLenum GetBlendFactor(Renderer::E_BlendFactor e)
+{
+	switch (e)
+	{
+	case Renderer::E_BlendFactor::Zero:
+		return GL_ZERO;
+	case Renderer::E_BlendFactor::One:
+		return GL_ONE;
+	case Renderer::E_BlendFactor::SourceColor:
+		return GL_SRC_COLOR;
+	case Renderer::E_BlendFactor::InvSourceColor:
+		return GL_ONE_MINUS_SRC_COLOR;
+	case Renderer::E_BlendFactor::SourceAlpha:
+		return GL_SRC_ALPHA;
+	case Renderer::E_BlendFactor::InvSourceAlpha:
+		return GL_ONE_MINUS_SRC_ALPHA;
+	case Renderer::E_BlendFactor::DestinationColor:
+		return GL_DST_COLOR;
+	case Renderer::E_BlendFactor::InvDestinationColor:
+		return GL_ONE_MINUS_DST_COLOR;
+	case Renderer::E_BlendFactor::DestinationAlpha:
+		return GL_DST_ALPHA;
+	case Renderer::E_BlendFactor::InvDestinationAlpha:
+		return GL_ONE_MINUS_DST_ALPHA;
+	case Renderer::E_BlendFactor::AlphaConstant:
+		return GL_CONSTANT_COLOR;
+	case Renderer::E_BlendFactor::InvAphaConstant:
+		return GL_ONE_MINUS_CONSTANT_COLOR;
+	case Renderer::E_BlendFactor::ColorConstant:
+		return GL_CONSTANT_ALPHA;
+	case Renderer::E_BlendFactor::InvColorConstant:
+		return GL_ONE_MINUS_CONSTANT_ALPHA;
+	default:
+		GLE_ASSERT(false, "Unknown blend factor");
+		return GL_ONE;
+	}
+}
+
 } // namespace GLEngine::GLRenderer

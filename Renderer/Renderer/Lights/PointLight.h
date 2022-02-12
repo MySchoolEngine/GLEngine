@@ -1,6 +1,8 @@
 #pragma once
 
+#include <Renderer/Colours.h>
 #include <Renderer/ILight.h>
+#include <Renderer/Mesh/Scene.h>
 #include <Renderer/RendererApi.h>
 
 #include <GUI/Input/Color.h>
@@ -21,9 +23,9 @@ public:
 	C_PointLight(std::shared_ptr<Entity::I_Entity> owner, const MeshData::Light& def);
 	virtual ~C_PointLight();
 
-	[[nodiscard]] glm::vec3 GetPosition() const;
-	[[nodiscard]] float		GetIntensity() const;
-	[[nodiscard]] glm::vec3 GetColor() const;
+	[[nodiscard]] glm::vec3			GetPosition() const;
+	[[nodiscard]] float				GetIntensity() const;
+	[[nodiscard]] Colours::T_Colour GetColor() const;
 
 	//================================================================
 	// I_Light

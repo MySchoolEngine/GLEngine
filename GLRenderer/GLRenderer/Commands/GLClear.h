@@ -6,6 +6,7 @@
 
 #include <Utils/BitField.h>
 
+
 namespace GLEngine::GLRenderer::Commands {
 
 class C_GLClear : public Renderer::I_RenderCommand {
