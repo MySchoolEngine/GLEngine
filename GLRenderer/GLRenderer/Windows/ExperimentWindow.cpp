@@ -36,6 +36,7 @@
 
 #include <GUI/ConsoleWindow.h>
 #include <GUI/FileDialogWindow.h>
+#include <GUI/Input/Transformations.h>
 
 #include <Physics/Primitives/Intersection.h>
 #include <Physics/Primitives/Ray.h>
@@ -52,9 +53,6 @@
 #include <Utils/Serialization/XMLDeserialize.h>
 #include <Utils/Serialization/XMLSerialize.h>
 #include <Utils/StdVectorUtils.h>
-#include <Utils/Serialization/XMLSerialize.h>
-
-#include <GUI/Input/Transformations.h>
 
 #include <pugixml.hpp>
 
@@ -417,27 +415,38 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 //=================================================================================
 void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 {
+//#define OLD_LOAD
+#ifdef OLD_LOAD
 	if (!m_World->LoadLevel(level, std::make_unique<Components::C_ComponentBuilderFactory>()))
 	{
 		CORE_LOG(E_Level::Warning, E_Context::Render, "Level not loaded");
 		return;
 	}
+	
+	AddMandatoryWorldParts();
+#else
+
+	pugi::xml_document doc;
+
+	pugi::xml_parse_result result;
+	result = doc.load_file(level.c_str());
+	if (!result.status == pugi::status_ok)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Core, "Can't open config file for level name: {}", level);
+		return;
+	}
+
+	Utils::C_XMLDeserializer d;
+	auto					 newWorld = d.Deserialize<std::shared_ptr<Entity::C_EntityManager>>(doc);
+	m_World.swap(newWorld.value());
+	m_World->SetFilename(level);
 
 	AddMandatoryWorldParts();
 
-	Utils::C_XMLSerializer s;
-	const auto str = s.Serialize(m_World);
-	std::stringstream		ss;
-	pugi::xml_writer_stream writer(ss);
-	str.print(writer);
-	CORE_LOG(E_Level::Error, E_Context::Render, "{}", ss.str());
-	Utils::C_XMLDeserializer d;
-	const auto newWorld = d.Deserialize<std::shared_ptr<Entity::C_EntityManager>>(str);
-	const auto				 newstr	  = s.Serialize(newWorld.value());
-	std::stringstream		 ss1;
-	pugi::xml_writer_stream	 writer1(ss1);
-	newstr.print(writer1);
-	CORE_LOG(E_Level::Error, E_Context::Render, "{}", ss1.str());
+	// Inform entitites about the level loaded event
+	Core::C_EntityEvent levelEvent(GUID::INVALID_GUID, Core::C_EntityEvent::EntityEvent::LevelLoaded);
+	m_World->OnEvent(levelEvent);
+#endif
 }
 
 //=================================================================================
@@ -512,6 +521,7 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 //=================================================================================
 void C_ExplerimentWindow::MouseSelect()
 {
+	// this code should go to the editor layer one day
 	if (m_ImGUI->CapturingMouse())
 	{
 		return;
@@ -532,7 +542,8 @@ void C_ExplerimentWindow::MouseSelect()
 		auto entity = m_World->GetEntity(inter.entityId);
 		if (entity)
 		{
-			Core::C_UserEvent event("selected");
+			// todo: entities window needs to know that as well
+			Core::C_EntityEvent event(entity->GetID(), Core::C_EntityEvent::EntityEvent::Seleced);
 			entity->OnEvent(event);
 		}
 	}

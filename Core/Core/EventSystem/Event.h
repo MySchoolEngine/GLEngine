@@ -86,6 +86,9 @@ public:
 
 		//Editor
 		Seleced,
+
+		//Entity system
+		LevelLoaded,
 	};
 
 	explicit C_EntityEvent(GUID guid, EntityEvent type);

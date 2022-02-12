@@ -221,7 +221,6 @@ bool C_EntityManager::LoadLevel(const std::filesystem::path& name, std::unique_p
 		for (const auto& entityNode : entitiesNode.children("ExternEntity"))
 		{
 			auto entity = std::make_shared<C_BasicEntity>(entityNode.attribute("name").value());
-			entity->AddComponent(debugBuilder->Build(pugi::xml_node(), entity));
 			AddEntity(entity);
 
 			cbf->ConstructFromFile(entity, entityNode.attribute("filePath").value());
@@ -246,6 +245,14 @@ void C_EntityManager::SetFilename(const std::filesystem::path& filename)
 std::filesystem::path C_EntityManager::GetFilename() const
 {
 	return m_Filename;
+}
+
+//=================================================================================
+void C_EntityManager::OnEvent(Core::I_Event& event)
+{
+	for (auto& entity : m_Entities) {
+		entity->OnEvent(event);
+	}
 }
 
 } // namespace GLEngine::Entity

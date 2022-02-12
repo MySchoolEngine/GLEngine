@@ -2,10 +2,11 @@
 
 #include <Entity/EntityApi.h>
 
+#include <Core/EventSystem/EventReciever.h>
 #include <Core/GUID.h>
 
-#include <rttr/type>
 #include <rttr/registration_friend.h>
+#include <rttr/type>
 
 namespace GLEngine {
 
@@ -21,7 +22,7 @@ namespace Entity {
 class I_Entity;
 class I_ComponentBuilderFactory;
 
-class ENTITY_API_EXPORT C_EntityManager {
+class ENTITY_API_EXPORT C_EntityManager : public Core::I_EventReciever {
 public:
 	C_EntityManager();
 	~C_EntityManager();
@@ -35,17 +36,18 @@ public:
 	void														OnUpdate();
 	[[nodiscard]] Physics::Primitives::S_RayIntersection		Select(const Physics::Primitives::S_Ray& ray);
 
-	void SetFilename(const std::filesystem::path& filename);
+	void								SetFilename(const std::filesystem::path& filename);
 	[[nodiscard]] std::filesystem::path GetFilename() const;
 
 	[[nodiscard]] bool LoadLevel(const std::filesystem::path& name, std::unique_ptr<I_ComponentBuilderFactory> cbf);
 
+	virtual void OnEvent(Core::I_Event& event) override;
+
 	RTTR_ENABLE();
 	RTTR_REGISTRATION_FRIEND;
-
 private:
-	std::filesystem::path					m_Filename;
-	std::vector<std::shared_ptr<I_Entity>>	m_Entities;
+	std::filesystem::path				   m_Filename;
+	std::vector<std::shared_ptr<I_Entity>> m_Entities;
 };
 
 } // namespace Entity
