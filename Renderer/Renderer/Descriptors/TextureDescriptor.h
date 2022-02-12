@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Renderer/Textures/TextureDefinitions.h>
+
 #include <string>
 
 namespace GLEngine::Renderer {
