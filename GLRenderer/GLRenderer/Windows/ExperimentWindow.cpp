@@ -55,6 +55,8 @@
 
 #include <imgui.h>
 
+#include <GLRenderer/OGLDevice.h>
+
 namespace GLEngine::GLRenderer::Windows {
 
 //=================================================================================
@@ -368,6 +370,15 @@ void C_ExplerimentWindow::OnAppInit()
 		levelSelectWindwo->SetVisible();
 	}));
 	CORE_LOG(E_Level::Info, E_Context::Render, "Experiment window setup time was %f", float(m_FrameTimer.getElapsedTimeFromLastQueryMilliseconds()) / 1000.f);
+
+	auto tex = Textures::C_Texture(Renderer::TextureDescriptor{
+			"Texture",
+			256, 256,
+			Renderer::E_TextureType::TEXTUE_2D,
+
+			Renderer::E_TextureFormat::RGB8i
+		});
+	m_Device->AllocateTexture(tex);
 }
 
 //=================================================================================
