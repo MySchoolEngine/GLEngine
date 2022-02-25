@@ -35,7 +35,7 @@ public:
 	[[nodiscard]] virtual std::uint8_t GetNumElements() const							= 0;
 	[[nodiscard]] virtual std::uint8_t GetChannelOffset(E_TextureChannel element) const = 0;
 
-	[[nodiscard]] glm::ivec2 GetDimensions() const;
+	[[nodiscard]] glm::uvec2 GetDimensions() const;
 
 	// defines how channels are laid out in memory
 	[[nodiscard]] T_Channels GetChannels() const { return m_Channels; }
@@ -50,7 +50,7 @@ protected:
 
 	[[nodiscard]] glm::vec4 Swizzle(const glm::vec4& value) const;
 
-	glm::ivec2 m_Dimensions;
+	glm::uvec2 m_Dimensions;
 	T_Channels m_Channels;
 };
 
