@@ -20,10 +20,11 @@ class C_MenuItem;
 }
 
 namespace GLRenderer {
+class C_GLDevice;
 
 class C_OGLRenderer : public Renderer::I_Renderer {
 public:
-	C_OGLRenderer();
+	C_OGLRenderer(C_GLDevice&);
 	virtual ~C_OGLRenderer() override;
 
 	//=================================================================================
@@ -67,6 +68,8 @@ private:
 	bool											 m_OutputCommandList = false;
 	bool											 m_PreviousCatchErrorsVal;
 	Renderer::E_PassType							 m_CurrentPass;
+
+	C_GLDevice& m_Device;
 
 	enum class E_GUITexts
 	{

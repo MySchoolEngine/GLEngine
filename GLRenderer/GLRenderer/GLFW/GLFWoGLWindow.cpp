@@ -3,6 +3,7 @@
 #include <GLRenderer/GLFW/GLFWoGLWindow.h>
 #include <GLRenderer/GLFW/OpenGLWindowInfo.h>
 #include <GLRenderer/OGLRenderer.h>
+#include <GLRenderer/OGLDevice.h>
 
 #include <Renderer/IRenderer.h>
 
@@ -43,7 +44,8 @@ void C_GLFWoGLWindow::Init(const Core::S_WindowInfo& wndInfo)
 	C_GLFWWindow::Init(wndInfo);
 	MakeCurrent();
 
-	m_renderer				= std::make_unique<GLEngine::GLRenderer::C_OGLRenderer>();
+	m_Device				= std::make_unique<GLRenderer::C_GLDevice>();
+	m_renderer				= std::make_unique<GLEngine::GLRenderer::C_OGLRenderer>(*(m_Device.get()));
 	const char* description = nullptr;
 	const auto	error		= glfwGetError(&description);
 	if (error != GLFW_NO_ERROR)

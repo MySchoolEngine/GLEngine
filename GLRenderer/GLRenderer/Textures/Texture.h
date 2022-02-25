@@ -32,11 +32,14 @@ namespace Textures {
 using T_TexBufferFuture = std::future<std::unique_ptr<Renderer::I_TextureViewStorage>>;
 class C_Texture : public Renderer::I_DeviceTexture {
 public:
+	explicit C_Texture(const Renderer::TextureDescriptor& desc);
 	explicit C_Texture(const std::string& name, GLenum target = GL_TEXTURE_2D);
 	C_Texture(const C_Texture&) = delete;
 	C_Texture(C_Texture&& t);
 	void operator=(C_Texture&& rhs);
 	virtual ~C_Texture();
+
+	[[nodiscard]] virtual bool IsAllocated() const;
 
 	// TODO move to Commands
 	void bind() const;
@@ -53,10 +56,10 @@ public:
 		unbind();
 	}
 
-	[[nodiscard]] virtual inline const glm::uvec2& GetDimensions() const override { return m_Dimensions; }
-	inline void									   SetWidth(unsigned int width) { m_Dimensions.x = width; }
-	inline void									   SetHeight(unsigned int height) { m_Dimensions.y = height; }
-	inline void									   SetDimensions(const glm::uvec2& dim) { m_Dimensions = dim; }
+	[[nodiscard]] virtual inline const glm::uvec2& GetDimensions() const override { return {m_Desc.width, m_Desc.height}; }
+	inline void									   SetWidth(unsigned int width) { m_Desc.width = width; }
+	inline void									   SetHeight(unsigned int height) { m_Desc.height = height; }
+	inline void									   SetDimensions(const glm::uvec2& dim) { m_Desc.width = dim.x; m_Desc.height = dim.y; }
 
 	[[nodiscard]] virtual void* GetDeviceTextureHandle() const override;
 	// just for now
@@ -88,10 +91,8 @@ protected:
 	GLuint					  m_texture;
 	GLenum					  m_target;
 	Renderer::E_TextureFormat m_Format;
-	glm::uvec2				  m_Dimensions;
 	bool					  m_bGroupOperations : 1;
 	std::uint64_t			  m_Handle;
-	std::string				  m_Name;
 };
 } // namespace Textures
 } // namespace GLEngine::GLRenderer

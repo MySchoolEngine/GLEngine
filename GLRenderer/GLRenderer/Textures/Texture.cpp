@@ -20,13 +20,14 @@ namespace GLEngine::GLRenderer::Textures {
 
 //=================================================================================
 C_Texture::C_Texture(const std::string& name, GLenum target)
-	: m_bGroupOperations(false)
+	: Renderer::I_DeviceTexture({})
+	, m_bGroupOperations(false)
 	, m_target(target)
 	, m_texture(0)
-	, m_Name(name)
 	, m_Handle(0)
 	, m_Format(Renderer::E_TextureFormat::RGBA8i)
 {
+	m_Desc.name = name;
 	glGenTextures(1, &m_texture);
 	bind();
 	glObjectLabel(GL_TEXTURE, m_texture, static_cast<GLsizei>(name.length()), name.c_str());
@@ -35,6 +36,7 @@ C_Texture::C_Texture(const std::string& name, GLenum target)
 
 //=================================================================================
 C_Texture::C_Texture(C_Texture&& t)
+	: Renderer::I_DeviceTexture({})
 {
 	if (&t == this)
 	{
@@ -47,9 +49,13 @@ C_Texture::C_Texture(C_Texture&& t)
 	m_target		   = t.m_target;
 	m_bGroupOperations = t.m_bGroupOperations;
 	m_Handle		   = t.m_Handle;
-	m_Dimensions	   = t.m_Dimensions;
 	m_Format		   = t.m_Format;
-	m_Name			   = std::move(t.m_Name);
+}
+
+//=================================================================================
+C_Texture::C_Texture(const Renderer::TextureDescriptor& desc)
+	: Renderer::I_DeviceTexture(desc)
+{
 }
 
 //=================================================================================
@@ -66,15 +72,13 @@ void C_Texture::operator=(C_Texture&& rhs)
 	m_target		   = rhs.m_target;
 	m_bGroupOperations = rhs.m_bGroupOperations;
 	m_Handle		   = rhs.m_Handle;
-	m_Dimensions	   = rhs.m_Dimensions;
 	m_Format		   = rhs.m_Format;
-	m_Name			   = std::move(rhs.m_Name);
 }
 
 //=================================================================================
 C_Texture::~C_Texture()
 {
-	CORE_LOG(E_Level::Debug, E_Context::Render, "Texture being deleted name: {}", m_Name);
+	CORE_LOG(E_Level::Debug, E_Context::Render, "Texture being deleted name: {}", m_Desc.name);
 	Clean();
 }
 
@@ -165,11 +169,11 @@ void C_Texture::SetTexData2D(int level, const Renderer::MeshData::Texture& tex)
 {
 	bind();
 	SetDimensions({tex.width, tex.height});
-	static_assert(std::is_same_v<std::uint8_t, decltype(tex.data)::element_type>, "Format have ben changed.");
-	m_Format = Renderer::E_TextureFormat::RGBA8i;
+	static_assert(std::is_same_v<std::uint8_t, decltype(tex.data)::element_type>, "Format have been changed.");
+	m_Desc.format = Renderer::E_TextureFormat::RGBA8i;
 
 	glTexImage2D(m_target, level,
-				 GetOpenGLInternalFormat(m_Format),		  // internal format
+				 GetOpenGLInternalFormat(m_Desc.format),  // internal format
 				 (GLsizei)tex.width, (GLsizei)tex.height, // dimensions
 				 0,										  // border
 				 GL_RGBA,								  // format
@@ -186,7 +190,7 @@ void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* te
 	SetDimensions(tex->GetDimensions());
 
 	glTexImage2D(m_target, level,
-				 GetOpenGLInternalFormat(m_Format), // internal format
+				 GetOpenGLInternalFormat(m_Desc.format), // internal format
 				 tex->GetDimensions().x, tex->GetDimensions().y,
 				 0,								// border
 				 GetFormat(tex->GetChannels()), // format
@@ -212,14 +216,14 @@ void C_Texture::SetTexData2D(int level, const Renderer::C_TextureView tex)
 void C_Texture::SetInternalFormat(Renderer::E_TextureFormat internalFormat, GLint format)
 {
 	bind();
-	m_Format = internalFormat;
+	m_Desc.format = internalFormat;
 	glTexImage2D(m_target,
 				 0,									// level
-				 GetOpenGLInternalFormat(m_Format), // internal format
+				 GetOpenGLInternalFormat(m_Desc.format), // internal format
 				 GetWidth(), GetHeight(),			// dimensions
 				 0,									// border
 				 format,							// this should be deduced from m_Format too
-				 OpenGLUnderlyingType(m_Format),
+				 OpenGLUnderlyingType(m_Desc.format),
 				 nullptr); // no data passed as we just want to allocate buffer
 	unbind();
 }
@@ -253,10 +257,10 @@ T_TexBufferFuture C_Texture::GetTextureData() const
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
 	renderer.AddCommand(std::make_unique<Commands::C_GetTexImage>(std::move(promise), m_target,
 																  0, // level
-																  GetOpenGLInternalFormat(m_Format),
+																  GetOpenGLInternalFormat(m_Desc.format),
 																  T_TypeToGL<std::uint8_t>::value, // todo
 																  GetWidth(), GetHeight(),		   // resolution
-																  Renderer::GetNumberChannels(m_Format)));
+																  Renderer::GetNumberChannels(m_Desc.format)));
 	return ret;
 }
 
@@ -264,6 +268,12 @@ T_TexBufferFuture C_Texture::GetTextureData() const
 void* C_Texture::GetDeviceTextureHandle() const
 {
 	return (void*)(intptr_t)(m_texture);
+}
+
+//=================================================================================
+bool C_Texture::IsAllocated() const
+{
+	return m_texture;
 }
 
 } // namespace GLEngine::GLRenderer::Textures
