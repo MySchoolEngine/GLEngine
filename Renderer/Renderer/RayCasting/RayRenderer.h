@@ -26,7 +26,7 @@ private:
 	glm::vec3							   PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler& rnd);
 	const C_RayTraceScene&				   m_Scene;
 	std::optional<C_OctahedralTextureView> m_DirectionsView;
-	std::unique_ptr<I_TextureViewStorage>  m_Texture;
+	I_TextureViewStorage*				   m_Texture;
 	std::size_t							   m_ProcessedPixels;
 	std::size_t							   m_MaxDepth;
 };

@@ -31,7 +31,10 @@ C_RayRenderer::C_RayRenderer(const C_RayTraceScene& scene)
 }
 
 //=================================================================================
-C_RayRenderer::~C_RayRenderer() = default;
+C_RayRenderer::~C_RayRenderer()
+{
+	delete m_Texture;
+}
 
 //=================================================================================
 void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& storage)
@@ -50,11 +53,11 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 
 	auto textureView = C_TextureView(&storage);
 
-	C_TextureView brickView(m_Texture.get());
+	C_TextureView brickView(m_Texture);
 
-	for (std::uint32_t y = 0; y < dim.y; ++y)
+	for (int y = 0; y < dim.y; ++y)
 	{
-		for (std::uint32_t x = 0; x < dim.x; ++x)
+		for (int x = 0; x < dim.x; ++x)
 		{
 			const auto ray = GetRay(glm::vec2{x, y} + rnd.GetV2());
 			AddSample({x, y}, textureView, PathTrace(ray, rnd));
@@ -72,7 +75,7 @@ void C_RayRenderer::AddSample(const glm::ivec2 coord, C_TextureView view, const 
 //=================================================================================
 glm::vec3 C_RayRenderer::PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler& rnd)
 {
-	C_TextureView brickView(m_Texture.get());
+	C_TextureView brickView(m_Texture);
 	glm::vec3	  LoDirect(0.f);
 	glm::vec3	  throughput(1.f);
 
@@ -132,7 +135,7 @@ glm::vec3 C_RayRenderer::PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler&
 //=================================================================================
 glm::vec3 C_RayRenderer::DirectLighting(const Physics::Primitives::S_Ray& ray, C_STDSampler& rnd)
 {
-	C_TextureView brickView(m_Texture.get());
+	C_TextureView brickView(m_Texture);
 
 	C_RayIntersection intersect;
 
