@@ -21,13 +21,14 @@ class C_TextureManager {
 
 public:
 	// Singleton stuff
+	// todo give it device on stratup
+	// TODO: make it multi-tone as you would want to create one texture manager for each API
 	C_TextureManager(C_TextureManager const&)	   = delete;
 	void								   operator=(C_TextureManager const&) = delete;
 	[[nodiscard]] static C_TextureManager& Instance();
 
 	[[nodiscard]] T_TexturePtr GetTexture(const std::string& name);
 	[[nodiscard]] T_TexturePtr CreateEmptyTexture(const std::string& name);
-	[[nodiscard]] T_TexturePtr CreateTexture(const Renderer::MeshData::Texture& tex);
 	[[nodiscard]] T_TexturePtr CreateTexture(const Renderer::I_TextureViewStorage* tex, const std::string& name);
 
 	void Clear();
@@ -51,6 +52,8 @@ private:
 	static std::filesystem::path s_ErrorTextureFile;
 
 	void ReloadTexture(const std::string& name, T_TexturePtr& texture);
+
+	[[nodiscard]] Renderer::I_Device& GetDevice();
 
 	GUID							   m_Window;
 	std::unique_ptr<GUI::C_LambdaPart> m_TextureList;

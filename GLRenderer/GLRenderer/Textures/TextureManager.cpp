@@ -3,10 +3,16 @@
 #include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/Textures/TextureManager.h>
 
+#include <Renderer/Descriptors/TextureDescriptor.h>
+#include <Renderer/IDevice.h>
+#include <Renderer/IRenderer.h>
 #include <Renderer/Textures/TextureLoader.h>
+#include <Renderer/Textures/TextureView.h>
 
 #include <GUI/GUIManager.h>
 #include <GUI/GUIWindow.h>
+
+#include <Core/Application.h>
 
 #include <imgui.h>
 
@@ -37,31 +43,28 @@ C_TextureManager::T_TexturePtr C_TextureManager::GetTexture(const std::string& n
 	}
 
 	Renderer::Textures::TextureLoader tl;
-	auto							  buffer = std::shared_ptr<Renderer::I_TextureViewStorage>(tl.loadTexture(name.c_str()));
+	auto							  buffer = tl.loadTexture(name.c_str());
 	if (!buffer)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Could not load texture '{}'", name);
 		return nullptr;
 	}
 
-	return CreateTexture(buffer.get(), name);
-}
-
-//=================================================================================
-C_TextureManager::T_TexturePtr C_TextureManager::CreateTexture(const Renderer::MeshData::Texture& tex)
-{
-	auto texture = std::make_shared<Textures::C_Texture>(tex.m_name);
-	texture->SetTexData2D(0, tex);
-
-	m_Textures[tex.m_name] = texture;
-	return texture;
+	return CreateTexture(buffer, name);
 }
 
 //=================================================================================
 C_TextureManager::T_TexturePtr C_TextureManager::CreateTexture(const Renderer::I_TextureViewStorage* tex, const std::string& name)
 {
-	auto texture = std::make_shared<Textures::C_Texture>(name);
-	texture->SetTexData2D(0, tex);
+	// todo proper format:
+	// 1] from metadata
+	// 2] if not present than it should do immediate load - slow version
+	const Renderer::TextureDescriptor desc{name, tex->GetDimensions().x, tex->GetDimensions().y, Renderer::E_TextureType::TEXTUE_2D, Renderer::E_TextureFormat::RGBA8i};
+	auto							  texture  = std::make_shared<Textures::C_Texture>(desc);
+	if (GetDevice().AllocateTexture(*m_IdentityTexture.get()))
+	{
+		texture->SetTexData2D(0, tex);
+	}
 
 	m_Textures[name] = texture;
 	return texture;
@@ -70,6 +73,8 @@ C_TextureManager::T_TexturePtr C_TextureManager::CreateTexture(const Renderer::I
 //=================================================================================
 C_TextureManager::T_TexturePtr C_TextureManager::CreateEmptyTexture(const std::string& name)
 {
+	// only used in shadow mapping. That should not go through texture manager.
+	// this is candidate for deletion
 	auto it = m_Textures.find(name);
 	if (it != m_Textures.end())
 	{
@@ -122,16 +127,16 @@ void C_TextureManager::DestroyControls(GUI::C_GUIManager& guiMGR)
 //=================================================================================
 void C_TextureManager::ReloadTexture(const std::string& name, T_TexturePtr& texture)
 {
+	// TODO: make it job thing
 	Renderer::Textures::TextureLoader tl;
-	Renderer::MeshData::Texture		  t;
-	bool							  retval = tl.loadTexture(name.c_str(), t);
-	if (!retval)
+	auto							  tex = tl.loadTexture(name.c_str());
+	if (!tex)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Could not load texture '{}'", name);
 		return;
 	}
 
-	texture->SetTexData2D(0, t);
+	texture->SetTexData2D(0, tex);
 }
 
 //=================================================================================
@@ -139,6 +144,7 @@ C_TextureManager::T_TexturePtr C_TextureManager::GetErrorTexture()
 {
 	if (!m_ErrorTexture)
 	{
+		// this load should happen on engine start
 		m_ErrorTexture = GetTexture(s_ErrorTextureFile.generic_string());
 	}
 	return m_ErrorTexture;
@@ -149,17 +155,25 @@ C_TextureManager::T_TexturePtr C_TextureManager::GetIdentityTexture()
 {
 	if (!m_IdentityTexture)
 	{
-		m_IdentityTexture = std::make_shared<C_Texture>("Identity texture");
-		Renderer::MeshData::Texture t;
-		t.height = t.width = 1;
-		t.data			   = std::shared_ptr<unsigned char>(new unsigned char[4 * t.width * t.height]);
-		t.data.get()[0]	   = 255;
-		t.data.get()[1]	   = 255;
-		t.data.get()[2]	   = 255;
-		t.data.get()[3]	   = 0;
-		m_IdentityTexture->SetTexData2D(0, t);
+		const Renderer::TextureDescriptor desc{"Identity texture", 1, 1, Renderer::E_TextureType::TEXTUE_2D, Renderer::E_TextureFormat::RGBA8i};
+
+		m_IdentityTexture = std::make_shared<C_Texture>(desc);
+
+		if (GetDevice().AllocateTexture(*m_IdentityTexture.get()))
+		{
+			Renderer::C_TextureViewStorageCPU<std::uint8_t> storage(1, 1, 4);
+			Renderer::C_TextureView							view(&storage);
+			view.Set<glm::vec4>(glm::ivec2(0, 0), glm::vec4(255, 255, 255, 0));
+			m_IdentityTexture->SetTexData2D(0, &storage);
+		}
 	}
 	return m_IdentityTexture;
+}
+
+//=================================================================================
+Renderer::I_Device& C_TextureManager::GetDevice()
+{
+	return Core::C_Application::Get().GetActiveRenderer().GetDevice();
 }
 
 } // namespace GLEngine::GLRenderer::Textures
