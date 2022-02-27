@@ -32,6 +32,8 @@ C_Texture::C_Texture(const std::string& name, GLenum target)
 	bind();
 	glObjectLabel(GL_TEXTURE, m_texture, static_cast<GLsizei>(name.length()), name.c_str());
 	unbind();
+
+	SetInternalFormat(m_Format, GetOpenGLFormat(m_Format));
 }
 
 //=================================================================================
@@ -161,25 +163,6 @@ void C_Texture::GenerateMipMaps()
 {
 	bind();
 	glGenerateMipmap(m_target);
-	unbind();
-}
-
-//=================================================================================
-void C_Texture::SetTexData2D(int level, const Renderer::MeshData::Texture& tex)
-{
-	bind();
-	SetDimensions({tex.width, tex.height});
-	static_assert(std::is_same_v<std::uint8_t, decltype(tex.data)::element_type>, "Format have been changed.");
-	m_Desc.format = Renderer::E_TextureFormat::RGBA8i;
-
-	glTexImage2D(m_target, level,
-				 GetOpenGLInternalFormat(m_Desc.format),  // internal format
-				 (GLsizei)tex.width, (GLsizei)tex.height, // dimensions
-				 0,										  // border
-				 GL_RGBA,								  // format
-				 T_TypeToGL<decltype(tex.data)::element_type>::value,
-				 tex.data.get() // data
-	);
 	unbind();
 }
 

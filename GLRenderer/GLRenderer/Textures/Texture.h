@@ -17,6 +17,7 @@
 
 #include <Renderer/IResource.h>
 #include <Renderer/Textures/DeviceTexture.h>
+#include <Renderer/Descriptors/TextureDescriptor.h>
 
 namespace GLEngine::Renderer {
 class I_TextureViewStorage;
@@ -80,11 +81,10 @@ public:
 	void		 SetTexParameter(GLenum pname, const glm::vec4& value);
 	void		 SetTexParameter(GLenum pname, GLint value);
 
-	void		 SetTexData2D(int level, const Renderer::MeshData::Texture& tex);
 	virtual void SetTexData2D(int level, const Renderer::I_TextureViewStorage* tex) override;
 	virtual void SetTexData2D(int level, const Renderer::C_TextureView tex) override;
-	void		 SetInternalFormat(Renderer::E_TextureFormat internalFormat, GLint format);
 
+	void SetInternalFormat(Renderer::E_TextureFormat internalFormat, GLint format);
 protected:
 	void Clean();
 
