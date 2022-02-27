@@ -231,4 +231,10 @@ void C_OGLRenderer::CaputreCommands() const
 	file.close();
 }
 
+//=================================================================================
+GLEngine::Renderer::I_Device& C_OGLRenderer::GetDevice()
+{
+	return m_Device;
+}
+
 } // namespace GLEngine::GLRenderer

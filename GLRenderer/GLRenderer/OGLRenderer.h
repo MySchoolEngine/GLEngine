@@ -52,6 +52,7 @@ public:
 	virtual void				 SetCurrentPassType(Renderer::E_PassType type) override;
 
 	bool WantWireframe() const { return m_Wireframe.GetValue(); }
+	virtual Renderer::I_Device& GetDevice() override;
 
 private:
 	void CaputreCommands() const;
