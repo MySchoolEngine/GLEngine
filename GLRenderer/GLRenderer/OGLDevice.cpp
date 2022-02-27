@@ -92,14 +92,14 @@ bool C_GLDevice::AllocateTexture(Renderer::I_DeviceTexture& texture)
 		memory = descriptor.width * descriptor.height * Renderer::GetNumberChannels(descriptor.format);
 		glGetIntegerv(NVX_ext::GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &currentMemoryKb);
 		CORE_LOG(E_Level::Info, E_Context::Render, "Memroy available {}", currentMemoryKb);
-		break;
+		return true;
 	}
 	default:
 		break;
 	}
 
 
-	return true;
+	return false;
 }
 // C_GLDevice::T_TextureHandle C_GLDevice::CreateTexture(const Renderer::TextureDescriptor& descriptor)
 // {
