@@ -22,12 +22,12 @@ namespace GLEngine::GLRenderer::Textures {
 C_Texture::C_Texture(const std::string& name, GLenum target)
 	: Renderer::I_DeviceTexture({})
 	, m_bGroupOperations(false)
-	, m_target(target)
 	, m_texture(0)
 	, m_Handle(0)
 	, m_Format(Renderer::E_TextureFormat::RGBA8i)
 {
 	m_Desc.name = name;
+	m_Desc.type = Renderer::E_TextureType::TEXTUE_2D; // TODO
 	glGenTextures(1, &m_texture);
 	bind();
 	glObjectLabel(GL_TEXTURE, m_texture, static_cast<GLsizei>(name.length()), name.c_str());
@@ -46,7 +46,6 @@ C_Texture::C_Texture(C_Texture&& t)
 
 	m_texture		   = t.m_texture;
 	t.m_texture		   = 0;
-	m_target		   = t.m_target;
 	m_bGroupOperations = t.m_bGroupOperations;
 	m_Handle		   = t.m_Handle;
 	m_Format		   = t.m_Format;
@@ -69,7 +68,6 @@ void C_Texture::operator=(C_Texture&& rhs)
 
 	m_texture		   = rhs.m_texture;
 	rhs.m_texture	   = 0;
-	m_target		   = rhs.m_target;
 	m_bGroupOperations = rhs.m_bGroupOperations;
 	m_Handle		   = rhs.m_Handle;
 	m_Format		   = rhs.m_Format;
@@ -94,14 +92,14 @@ void C_Texture::Clean()
 void C_Texture::bind() const
 {
 	if (!m_bGroupOperations)
-		glBindTexture(m_target, m_texture);
+		glBindTexture(GetTextureType(m_Desc.type), m_texture);
 }
 
 //=================================================================================
 void C_Texture::unbind() const
 {
 	if (!m_bGroupOperations)
-		glBindTexture(m_target, 0);
+		glBindTexture(GetTextureType(m_Desc.type), 0);
 }
 
 //=================================================================================
@@ -144,7 +142,7 @@ void C_Texture::SetFilter(Renderer::E_TextureFilter min, Renderer::E_TextureFilt
 void C_Texture::SetTexParameter(GLenum pname, const glm::vec4& value)
 {
 	bind();
-	glTexParameterfv(m_target, pname, glm::value_ptr(value));
+	glTexParameterfv(GetTextureType(m_Desc.type), pname, glm::value_ptr(value));
 	unbind();
 }
 
@@ -152,7 +150,7 @@ void C_Texture::SetTexParameter(GLenum pname, const glm::vec4& value)
 void C_Texture::SetTexParameter(GLenum pname, GLint value)
 {
 	bind();
-	glTexParameteri(m_target, pname, value);
+	glTexParameteri(GetTextureType(m_Desc.type), pname, value);
 	unbind();
 }
 
@@ -160,7 +158,7 @@ void C_Texture::SetTexParameter(GLenum pname, GLint value)
 void C_Texture::GenerateMipMaps()
 {
 	bind();
-	glGenerateMipmap(m_target);
+	glGenerateMipmap(GetTextureType(m_Desc.type));
 	unbind();
 }
 
@@ -172,7 +170,7 @@ void C_Texture::SetTexData2D(int level, const Renderer::MeshData::Texture& tex)
 	static_assert(std::is_same_v<std::uint8_t, decltype(tex.data)::element_type>, "Format have been changed.");
 	m_Desc.format = Renderer::E_TextureFormat::RGBA8i;
 
-	glTexImage2D(m_target, level,
+	glTexImage2D(GetTextureType(m_Desc.type), level,
 				 GetOpenGLInternalFormat(m_Desc.format),  // internal format
 				 (GLsizei)tex.width, (GLsizei)tex.height, // dimensions
 				 0,										  // border
@@ -189,7 +187,7 @@ void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* te
 	bind();
 	SetDimensions(tex->GetDimensions());
 
-	glTexImage2D(m_target, level,
+	glTexImage2D(GetTextureType(m_Desc.type), level,
 				 GetOpenGLInternalFormat(m_Desc.format), // internal format
 				 tex->GetDimensions().x, tex->GetDimensions().y,
 				 0,								// border
@@ -217,7 +215,7 @@ void C_Texture::SetInternalFormat(Renderer::E_TextureFormat internalFormat, GLin
 {
 	bind();
 	m_Desc.format = internalFormat;
-	glTexImage2D(m_target,
+	glTexImage2D(GetTextureType(m_Desc.type),
 				 0,									// level
 				 GetOpenGLInternalFormat(m_Desc.format), // internal format
 				 GetWidth(), GetHeight(),			// dimensions
@@ -255,7 +253,7 @@ T_TexBufferFuture C_Texture::GetTextureData() const
 
 	auto  ret	   = promise.get_future();
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
-	renderer.AddCommand(std::make_unique<Commands::C_GetTexImage>(std::move(promise), m_target,
+	renderer.AddCommand(std::make_unique<Commands::C_GetTexImage>(std::move(promise), GetTextureType(m_Desc.type),
 																  0, // level
 																  GetOpenGLInternalFormat(m_Desc.format),
 																  T_TypeToGL<std::uint8_t>::value, // todo

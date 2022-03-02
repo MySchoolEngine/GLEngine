@@ -14,6 +14,7 @@
 #pragma once
 
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
+#include <GLRenderer/Helpers/TextureHelpers.h>
 
 #include <Renderer/IResource.h>
 #include <Renderer/Textures/DeviceTexture.h>
@@ -59,12 +60,17 @@ public:
 	[[nodiscard]] virtual inline const glm::uvec2& GetDimensions() const override { return {m_Desc.width, m_Desc.height}; }
 	inline void									   SetWidth(unsigned int width) { m_Desc.width = width; }
 	inline void									   SetHeight(unsigned int height) { m_Desc.height = height; }
-	inline void									   SetDimensions(const glm::uvec2& dim) { m_Desc.width = dim.x; m_Desc.height = dim.y; }
+	inline void									   SetDimensions(const glm::uvec2& dim)
+	{
+		// todo: should go away
+		m_Desc.width  = dim.x;
+		m_Desc.height = dim.y;
+	}
 
 	[[nodiscard]] virtual void* GetDeviceTextureHandle() const override;
 	// just for now
 	[[nodiscard]] inline GLuint GetTexture() const { return m_texture; }
-	[[nodiscard]] inline GLenum GetTarget() const { return m_target; }
+	[[nodiscard]] inline GLenum GetTarget() const { return GetTextureType(m_Desc.type); }
 
 	[[nodiscard]] virtual T_TexBufferFuture GetTextureData() const override;
 
@@ -89,7 +95,6 @@ protected:
 	void Clean();
 
 	GLuint					  m_texture;
-	GLenum					  m_target;
 	Renderer::E_TextureFormat m_Format;
 	bool					  m_bGroupOperations : 1;
 	std::uint64_t			  m_Handle;
