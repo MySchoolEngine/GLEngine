@@ -135,6 +135,44 @@ inline std::uint8_t GetNumberChannels(const E_TextureFormat format)
 }
 
 //=================================================================================
+inline constexpr bool IsDepthFormat(const Renderer::E_TextureFormat format)
+{
+	switch (format)
+	{
+	case E_TextureFormat::RGBA32f:
+	case E_TextureFormat::RGBA16f:
+	case E_TextureFormat::RGBA32i:
+	case E_TextureFormat::RGBA16i:
+	case E_TextureFormat::RGBA8i:
+	case E_TextureFormat::RGB32f:
+	case E_TextureFormat::RG16f:
+	case E_TextureFormat::RGB32i:
+	case E_TextureFormat::RGB16i:
+	case E_TextureFormat::RGB8i:
+	case E_TextureFormat::RG32f:
+	case E_TextureFormat::RGB16f:
+	case E_TextureFormat::RG32i:
+	case E_TextureFormat::RG16i:
+	case E_TextureFormat::RG8i:
+	case E_TextureFormat::R32f:
+	case E_TextureFormat::R16f:
+	case E_TextureFormat::R32i:
+	case E_TextureFormat::R16i:
+	case E_TextureFormat::R8i:
+		return false;
+	case E_TextureFormat::D24S8:
+	case E_TextureFormat::D32f:
+	case E_TextureFormat::D24:
+	case E_TextureFormat::D16:
+		return true;
+	default:
+		GLE_ERROR("Unknown format.");
+		return false;
+		// keep it this way to force every new format to define this.
+	}
+}
+
+//=================================================================================
 inline std::uint8_t GetNumberChannels(const T_Channels& channels)
 {
 	if (channels == T_Channels{E_TextureChannel::Red, E_TextureChannel::Green, E_TextureChannel::Blue, E_TextureChannel::Alpha})

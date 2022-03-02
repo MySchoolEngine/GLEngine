@@ -246,6 +246,47 @@ inline constexpr GLenum GetOpenGLInternalFormat(const Renderer::E_TextureFormat 
 }
 
 //=================================================================================
+inline constexpr GLenum GetOpenGLFormat(const Renderer::E_TextureFormat format)
+{
+	switch (format)
+	{
+	case Renderer::E_TextureFormat::RGBA32f:
+	case Renderer::E_TextureFormat::RGBA16f:
+	case Renderer::E_TextureFormat::RGBA32i:
+	case Renderer::E_TextureFormat::RGBA16i:
+	case Renderer::E_TextureFormat::RGBA8i:
+		return GL_RGBA;
+	case Renderer::E_TextureFormat::RGB32f:
+	case Renderer::E_TextureFormat::RGB16f:
+	case Renderer::E_TextureFormat::RGB32i:
+	case Renderer::E_TextureFormat::RGB16i:
+	case Renderer::E_TextureFormat::RGB8i:
+		return GL_RGB;
+	case Renderer::E_TextureFormat::RG32f:
+	case Renderer::E_TextureFormat::RG16f:
+	case Renderer::E_TextureFormat::RG32i:
+	case Renderer::E_TextureFormat::RG16i:
+	case Renderer::E_TextureFormat::RG8i:
+		return GL_RG;
+	case Renderer::E_TextureFormat::R32f:
+	case Renderer::E_TextureFormat::R16f:
+	case Renderer::E_TextureFormat::R32i:
+	case Renderer::E_TextureFormat::R16i:
+	case Renderer::E_TextureFormat::R8i:
+		return GL_RED;
+	case Renderer::E_TextureFormat::D24S8:
+		return GL_DEPTH_STENCIL;
+	case Renderer::E_TextureFormat::D32f:
+	case Renderer::E_TextureFormat::D24:
+	case Renderer::E_TextureFormat::D16:
+		return GL_DEPTH_COMPONENT;
+	default:
+		CORE_LOG(E_Level::Error, E_Context::Render, "Unknown texture format");
+		break;
+	}
+}
+
+//=================================================================================
 constexpr GLenum MinMagFilterToEnum(const Renderer::E_TextureFilter filter)
 {
 	using namespace Renderer;
@@ -276,6 +317,7 @@ enum class E_OpenGLAccess : char
 	ReadWrite,
 };
 
+//=================================================================================
 constexpr GLenum AccesRightsToEnum(const E_OpenGLAccess access)
 {
 	switch (access)

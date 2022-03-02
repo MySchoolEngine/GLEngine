@@ -158,8 +158,8 @@ void C_RayTraceWindow::UploadStorage() const
 					const auto				dim = m_ImageStorage.GetDimensions();
 					Renderer::C_TextureView weightedView(const_cast<Renderer::C_TextureViewStorageCPU<std::uint8_t>*>(&m_WeightedImage));
 					Renderer::C_TextureView view(const_cast<Renderer::C_TextureViewStorageCPU<float>*>(&m_ImageStorage));
-					for (int i = 0; i < dim.x; ++i)
-						for (int j = 0; j < dim.y; ++j)
+					for (std::uint32_t i = 0; i < dim.x; ++i)
+						for (std::uint32_t j = 0; j < dim.y; ++j)
 							weightedView.Set({i, j}, view.Get<glm::vec3>(glm::ivec2{i, j}) / static_cast<float>(std::max(m_NumCycleSamples, 1)));
 
 					m_Image->bind();
