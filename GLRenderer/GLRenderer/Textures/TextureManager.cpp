@@ -61,7 +61,7 @@ C_TextureManager::T_TexturePtr C_TextureManager::CreateTexture(const Renderer::I
 	// 2] if not present than it should do immediate load - slow version
 	const Renderer::TextureDescriptor desc{name, tex->GetDimensions().x, tex->GetDimensions().y, Renderer::E_TextureType::TEXTUE_2D, Renderer::E_TextureFormat::RGBA8i};
 	auto							  texture  = std::make_shared<Textures::C_Texture>(desc);
-	if (GetDevice().AllocateTexture(*m_IdentityTexture.get()))
+	if (GetDevice().AllocateTexture(*texture.get()))
 	{
 		texture->SetTexData2D(0, tex);
 	}

@@ -56,7 +56,10 @@ C_Texture::C_Texture(C_Texture&& t)
 //=================================================================================
 C_Texture::C_Texture(const Renderer::TextureDescriptor& desc)
 	: Renderer::I_DeviceTexture(desc)
+	, m_bGroupOperations(false)
+	, m_Handle(0)
 {
+	glGenTextures(1, &m_texture);
 }
 
 //=================================================================================

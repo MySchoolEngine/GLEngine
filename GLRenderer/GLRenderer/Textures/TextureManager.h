@@ -5,6 +5,7 @@
 
 namespace GLEngine::Renderer {
 class I_TextureViewStorage;
+class I_Device;
 }
 namespace GLEngine::Renderer::MeshData {
 struct Texture;
