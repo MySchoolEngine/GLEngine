@@ -43,7 +43,7 @@ C_TextureManager::T_TexturePtr C_TextureManager::GetTexture(const std::string& n
 	}
 
 	Renderer::Textures::TextureLoader tl;
-	auto							  buffer = tl.loadTexture(name.c_str());
+	const auto						  buffer = tl.loadTexture(name.c_str());
 	if (!buffer)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Could not load texture '{}'", name);
@@ -59,8 +59,8 @@ C_TextureManager::T_TexturePtr C_TextureManager::CreateTexture(const Renderer::I
 	// todo proper format:
 	// 1] from metadata
 	// 2] if not present than it should do immediate load - slow version
-	const Renderer::TextureDescriptor desc{name, tex->GetDimensions().x, tex->GetDimensions().y, Renderer::E_TextureType::TEXTUE_2D, Renderer::E_TextureFormat::RGBA8i};
-	auto							  texture  = std::make_shared<Textures::C_Texture>(desc);
+	const Renderer::TextureDescriptor desc{name, tex->GetDimensions().x, tex->GetDimensions().y, Renderer::E_TextureType::TEXTUE_2D, Renderer::E_TextureFormat::RGBA8i, true};
+	auto							  texture = std::make_shared<Textures::C_Texture>(desc);
 	if (GetDevice().AllocateTexture(*texture.get()))
 	{
 		texture->SetTexData2D(0, tex);

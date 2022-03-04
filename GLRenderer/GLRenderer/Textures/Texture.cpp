@@ -6,6 +6,7 @@
 #include <GLRenderer/Helpers/TextureHelpers.h>
 #include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/Textures/TextureUtils.h>
+#include <GLRenderer/Textures/TextureManager.h>
 
 #include <Renderer/IRenderer.h>
 #include <Renderer/Mesh/Scene.h>
@@ -59,7 +60,6 @@ C_Texture::C_Texture(const Renderer::TextureDescriptor& desc)
 	, m_bGroupOperations(false)
 	, m_Handle(0)
 {
-	glGenTextures(1, &m_texture);
 }
 
 //=================================================================================
@@ -223,6 +223,10 @@ std::uint64_t C_Texture::CreateHandle()
 //=================================================================================
 std::uint64_t C_Texture::GetHandle() const
 {
+	if (!m_IsPresentOnGPU)
+	{
+		return C_TextureManager::Instance().GetErrorTexture()->CreateHandle();
+	}
 	return m_Handle;
 }
 

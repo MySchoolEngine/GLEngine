@@ -12,6 +12,7 @@ enum class E_TextureType
 };
 
 struct TextureDescriptor {
+
 	std::string	  name;
 	std::size_t	  width;
 	std::size_t	  height;
@@ -19,7 +20,13 @@ struct TextureDescriptor {
 
 	E_TextureFormat format;
 
+	//!< Allows GPU device manager to stream in and out texture
+	//!< set to false for e.g. GBuffer, shadow maps etc
+	bool m_bStreamable  = true;
+
 	std::uint8_t m_Levels	  = 1; //< Num mip maps
 	std::uint8_t m_NumSamples = 1; //< Multisampled textures
+
+
 };
 } // namespace GLEngine::Renderer

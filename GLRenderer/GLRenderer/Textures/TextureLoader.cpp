@@ -24,6 +24,7 @@ std::shared_ptr<GLRenderer::Textures::C_Texture> TextureLoader::LoadAndInitTextu
 	GLenum	Target = GL.translate(Texture.target());
 	// GLenum internalFormat = GL.translate(Format.Internal, Texture.swizzles());
 
+	// should be already allocated
 	GLE_ASSERT(Texture.target() == gli::TARGET_2D, "Only 2d supported now");
 	auto texture = std::make_shared<Textures::C_Texture>(path.string());
 	texture->StartGroupOp();

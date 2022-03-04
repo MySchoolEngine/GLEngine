@@ -41,9 +41,9 @@ public:
 	void operator=(C_Texture&& rhs);
 	virtual ~C_Texture();
 
-	[[nodiscard]] virtual bool IsAllocated() const;
+	[[nodiscard]] virtual bool IsAllocated() const override;
 
-	// TODO move to Commands
+	// TODO move to Commands or remove due to new API
 	void bind() const;
 	void unbind() const;
 
@@ -70,6 +70,7 @@ public:
 
 	[[nodiscard]] virtual void* GetDeviceTextureHandle() const override;
 	// just for now
+	void						SetGPUID(GLuint ID) { m_texture = ID; }
 	[[nodiscard]] inline GLuint GetTexture() const { return m_texture; }
 	[[nodiscard]] inline GLenum GetTarget() const { return GetTextureType(m_Desc.type); }
 

@@ -18,5 +18,8 @@ private:
 
 	std::size_t m_TotalMemory; //< Based on available memory at start time
 	std::size_t m_MemoryUsed;  //< my very rough estimate!!
+
+	std::size_t m_TextureBudget;
+	std::size_t m_TextureMemoryUsed;
 };
 } // namespace GLEngine::GLRenderer

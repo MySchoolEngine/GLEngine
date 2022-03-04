@@ -186,6 +186,28 @@ inline constexpr GLenum OpenGLUnderlyingType(const Renderer::E_TextureFormat for
 }
 
 //=================================================================================
+inline constexpr std::size_t SizeOfGLType(const GLenum type)
+{
+	switch (type)
+	{
+	case GL_FLOAT:
+		return sizeof(float);
+	case GL_INT:
+		return sizeof(int);
+	case GL_SHORT:
+		return sizeof(short);
+	case GL_BYTE:
+		return 1;
+	case GL_UNSIGNED_INT_24_8:
+		return 4;
+	default:
+		CORE_LOG(E_Level::Error, E_Context::Render, "Unknown texture type");
+		break;
+	}
+	return 4; // worst case scenario
+}
+
+//=================================================================================
 inline constexpr GLenum GetOpenGLInternalFormat(const Renderer::E_TextureFormat format)
 {
 	switch (format)
@@ -284,6 +306,7 @@ inline constexpr GLenum GetOpenGLFormat(const Renderer::E_TextureFormat format)
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unknown texture format");
 		break;
 	}
+	return GL_RGBA;
 }
 
 //=================================================================================
