@@ -22,7 +22,53 @@ std::filesystem::path C_TextureManager::s_ErrorTextureFile = "Models/Error.bmp";
 //=================================================================================
 C_TextureManager::C_TextureManager()
 	: m_Window(GUID::INVALID_GUID)
+	, m_IdentityTexture(nullptr)
+	, m_ErrorTexture(nullptr)
 {
+	// preload fallback textures
+	{
+		// Identity
+		const Renderer::TextureDescriptor desc{"Identity texture", 1, 1, Renderer::E_TextureType::TEXTUE_2D, Renderer::E_TextureFormat::RGBA8i, false};
+
+		m_IdentityTexture = std::make_shared<C_Texture>(desc);
+
+		if (GetDevice().AllocateTexture(*m_IdentityTexture.get()))
+		{
+			Renderer::C_TextureViewStorageCPU<std::uint8_t> storage(1, 1, 4);
+			Renderer::C_TextureView							view(&storage);
+			view.Set<glm::vec4>(glm::ivec2(0, 0), glm::vec4(255, 255, 255, 0));
+			m_IdentityTexture->SetTexData2D(0, &storage);
+			m_IdentityTexture->m_IsPresentOnGPU = true;
+		}
+	}
+	{
+		// error texture
+		Renderer::Textures::TextureLoader tl;
+		const auto						  buffer = tl.loadTexture(s_ErrorTextureFile.generic_string().c_str());
+		if (!buffer)
+		{
+			CORE_LOG(E_Level::Error, E_Context::Render, "Could not load texture '{}'", s_ErrorTextureFile.generic_string());
+			return;
+		}
+
+		m_ErrorTexture = GetTexture(s_ErrorTextureFile.generic_string());
+		const Renderer::TextureDescriptor desc{
+			s_ErrorTextureFile.generic_string(), 
+			buffer->GetDimensions().x,
+			buffer->GetDimensions().y,
+			Renderer::E_TextureType::TEXTUE_2D,
+			Renderer::E_TextureFormat::RGBA8i, 
+			false};
+
+		m_ErrorTexture = std::make_shared<C_Texture>(desc);
+		if (GetDevice().AllocateTexture(*m_ErrorTexture.get()))
+		{
+			ErrorCheck();
+			m_ErrorTexture->SetTexData2D(0, buffer);
+			ErrorCheck();
+			m_ErrorTexture->m_IsPresentOnGPU = true;
+		}
+	}
 }
 
 //=================================================================================
@@ -142,31 +188,14 @@ void C_TextureManager::ReloadTexture(const std::string& name, T_TexturePtr& text
 //=================================================================================
 C_TextureManager::T_TexturePtr C_TextureManager::GetErrorTexture()
 {
-	if (!m_ErrorTexture)
-	{
-		// this load should happen on engine start
-		m_ErrorTexture = GetTexture(s_ErrorTextureFile.generic_string());
-	}
+	GLE_ASSERT(m_ErrorTexture, "This texture should be preloaded on engine start");
 	return m_ErrorTexture;
 }
 
 //=================================================================================
 C_TextureManager::T_TexturePtr C_TextureManager::GetIdentityTexture()
 {
-	if (!m_IdentityTexture)
-	{
-		const Renderer::TextureDescriptor desc{"Identity texture", 1, 1, Renderer::E_TextureType::TEXTUE_2D, Renderer::E_TextureFormat::RGBA8i};
-
-		m_IdentityTexture = std::make_shared<C_Texture>(desc);
-
-		if (GetDevice().AllocateTexture(*m_IdentityTexture.get()))
-		{
-			Renderer::C_TextureViewStorageCPU<std::uint8_t> storage(1, 1, 4);
-			Renderer::C_TextureView							view(&storage);
-			view.Set<glm::vec4>(glm::ivec2(0, 0), glm::vec4(255, 255, 255, 0));
-			m_IdentityTexture->SetTexData2D(0, &storage);
-		}
-	}
+	GLE_ASSERT(m_IdentityTexture, "This texture should be preloaded on engine start");
 	return m_IdentityTexture;
 }
 

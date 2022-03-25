@@ -96,14 +96,14 @@ void C_Texture::Clean()
 //=================================================================================
 void C_Texture::bind() const
 {
-	if (!m_bGroupOperations)
+	if (!m_bGroupOperations && !m_bIsTexture)
 		glBindTexture(GetTextureType(m_Desc.type), m_texture);
 }
 
 //=================================================================================
 void C_Texture::unbind() const
 {
-	if (!m_bGroupOperations)
+	if (!m_bGroupOperations && !m_bIsTexture)
 		glBindTexture(GetTextureType(m_Desc.type), 0);
 }
 
@@ -170,17 +170,38 @@ void C_Texture::GenerateMipMaps()
 //=================================================================================
 void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* tex)
 {
-	bind();
-	SetDimensions(tex->GetDimensions());
+	GLE_ASSERT(tex, "This should be smth like reference");
+	if (!m_bIsTexture)
+	{
+		ErrorCheck();
+		bind();
+		ErrorCheck();
+		SetDimensions(tex->GetDimensions());
+		ErrorCheck();
 
-	glTexImage2D(GetTextureType(m_Desc.type), level,
-				 GetOpenGLInternalFormat(m_Desc.format), // internal format
-				 tex->GetDimensions().x, tex->GetDimensions().y,
-				 0,								// border
-				 GetFormat(tex->GetChannels()), // format
-				 GetUnderlyingType(tex),		// TODO
-				 tex->GetData());				// data
-	unbind();
+		glTexImage2D(GetTextureType(m_Desc.type), level,
+					 GetOpenGLInternalFormat(m_Desc.format), // internal format
+					 tex->GetDimensions().x, tex->GetDimensions().y,
+					 0,								// border
+					 GetFormat(tex->GetChannels(), Renderer::IsIntegral(tex->GetStorageType())), // format
+					 GetUnderlyingType(tex),		// TODO
+					 tex->GetData());															 // data
+		ErrorCheck();
+		unbind();
+		ErrorCheck();
+	}
+	else
+	{
+		// https://www.khronos.org/registry/OpenGL/specs/gl/glspec45.compatibility.pdf Table 8.35
+		glTextureSubImage2D(m_texture,
+							0,												//!< Level
+							0, 0,											//!< Offsets
+							tex->GetDimensions().x, tex->GetDimensions().y, //!< Dimmensions
+							GetFormat(tex->GetChannels(), Renderer::IsIntegral(tex->GetStorageType())),
+							GetUnderlyingType(tex),
+							tex->GetData());
+		ErrorCheck();
+	}
 }
 
 //=================================================================================
@@ -215,8 +236,10 @@ void C_Texture::SetInternalFormat(Renderer::E_TextureFormat internalFormat, GLin
 //=================================================================================
 std::uint64_t C_Texture::CreateHandle()
 {
-	if (m_Handle == 0)
+	ErrorCheck();
+	if (m_IsPresentOnGPU && m_Handle == 0)
 		m_Handle = glGetTextureHandleARB(m_texture);
+	ErrorCheck();
 	return GetHandle();
 }
 

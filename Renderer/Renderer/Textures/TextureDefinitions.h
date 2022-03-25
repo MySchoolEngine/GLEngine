@@ -90,6 +90,23 @@ enum class E_TextureFormat
 };
 
 //=================================================================================
+enum class E_TextureTypes
+{
+	IntegralNormalized, //[ 0,1]
+	Integral,
+	SignedNormalized, //[-1,1]
+	Signed,
+	Floating,
+};
+
+[[nodiscard]] constexpr bool IsIntegral(E_TextureTypes e)
+{
+	if (e == E_TextureTypes::Floating)
+		return false;
+	return true;
+}
+
+//=================================================================================
 inline std::uint8_t GetNumberChannels(const E_TextureFormat format)
 {
 	switch (format)

@@ -5,15 +5,6 @@
 
 namespace GLEngine::Renderer {
 
-enum class E_TextureTypes
-{
-	IntegralNormalized, //[ 0,1]
-	Integral,
-	SignedNormalized, //[-1,1]
-	Signed,
-	Floating,
-};
-
 //=================================================================================
 class RENDERER_API_EXPORT I_TextureViewStorage {
 public:

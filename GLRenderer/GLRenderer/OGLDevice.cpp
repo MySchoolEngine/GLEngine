@@ -77,6 +77,7 @@ bool C_GLDevice::AllocateTexture(Renderer::I_DeviceTexture& texture)
 	GLuint		texID;
 	const auto& descriptor = texture.GetDescriptor();
 	glCreateTextures(GetTextureType(descriptor.type), 1, &texID);
+	CORE_LOG(E_Level::Error, E_Context::Render, "Texture object {}", texID);
 
 	std::size_t memory = 0;
 

@@ -36,6 +36,11 @@ C_OGLRenderer::C_OGLRenderer(C_GLDevice& device)
 	, m_Windows(std::string("Windows"))
 	, m_Device(device)
 {
+	if (m_CatchErrors || true)
+	{
+		glEnable(GL_DEBUG_OUTPUT);
+		glDebugMessageCallback(MessageCallback, 0);
+	}
 }
 
 //=================================================================================

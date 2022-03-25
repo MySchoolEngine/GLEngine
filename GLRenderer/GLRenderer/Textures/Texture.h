@@ -70,7 +70,11 @@ public:
 
 	[[nodiscard]] virtual void* GetDeviceTextureHandle() const override;
 	// just for now
-	void						SetGPUID(GLuint ID) { m_texture = ID; }
+	void SetGPUID(GLuint ID)
+	{
+		m_texture = ID;
+		m_bIsTexture = true;
+	}
 	[[nodiscard]] inline GLuint GetTexture() const { return m_texture; }
 	[[nodiscard]] inline GLenum GetTarget() const { return GetTextureType(m_Desc.type); }
 
@@ -95,10 +99,15 @@ public:
 protected:
 	void Clean();
 
+	friend class C_TextureManager;
+
 	GLuint					  m_texture;
 	Renderer::E_TextureFormat m_Format;
 	bool					  m_bGroupOperations : 1;
+	bool					  m_IsPresentOnGPU = false;
 	std::uint64_t			  m_Handle;
+
+	bool m_bIsTexture = false;
 };
 } // namespace Textures
 } // namespace GLEngine::GLRenderer

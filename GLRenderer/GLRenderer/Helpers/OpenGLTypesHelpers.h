@@ -245,7 +245,7 @@ inline constexpr GLenum GetOpenGLInternalFormat(const Renderer::E_TextureFormat 
 	case Renderer::E_TextureFormat::R16i:
 		return GL_R16I;
 	case Renderer::E_TextureFormat::RGBA8i:
-		return GL_RGBA;
+		return GL_RGBA8I;
 	case Renderer::E_TextureFormat::RGB8i:
 		return GL_RGB8I;
 	case Renderer::E_TextureFormat::RG8i:
@@ -274,28 +274,32 @@ inline constexpr GLenum GetOpenGLFormat(const Renderer::E_TextureFormat format)
 	{
 	case Renderer::E_TextureFormat::RGBA32f:
 	case Renderer::E_TextureFormat::RGBA16f:
+		return GL_RGBA;
 	case Renderer::E_TextureFormat::RGBA32i:
 	case Renderer::E_TextureFormat::RGBA16i:
 	case Renderer::E_TextureFormat::RGBA8i:
-		return GL_RGBA;
+		return GL_RGBA_INTEGER;
 	case Renderer::E_TextureFormat::RGB32f:
 	case Renderer::E_TextureFormat::RGB16f:
+		return GL_RGB;
 	case Renderer::E_TextureFormat::RGB32i:
 	case Renderer::E_TextureFormat::RGB16i:
 	case Renderer::E_TextureFormat::RGB8i:
-		return GL_RGB;
+		return GL_RGB_INTEGER;
 	case Renderer::E_TextureFormat::RG32f:
 	case Renderer::E_TextureFormat::RG16f:
+		return GL_RG;
 	case Renderer::E_TextureFormat::RG32i:
 	case Renderer::E_TextureFormat::RG16i:
 	case Renderer::E_TextureFormat::RG8i:
-		return GL_RG;
+		return GL_RG_INTEGER;
 	case Renderer::E_TextureFormat::R32f:
 	case Renderer::E_TextureFormat::R16f:
+		return GL_RED;
 	case Renderer::E_TextureFormat::R32i:
 	case Renderer::E_TextureFormat::R16i:
 	case Renderer::E_TextureFormat::R8i:
-		return GL_RED;
+		return GL_RED_INTEGER;
 	case Renderer::E_TextureFormat::D24S8:
 		return GL_DEPTH_STENCIL;
 	case Renderer::E_TextureFormat::D32f:
