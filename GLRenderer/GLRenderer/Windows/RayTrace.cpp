@@ -36,10 +36,20 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_Camera
 	, m_Renderer(m_Scene)
 	, m_DepthSlider(3, 1, 100, "Max path depth")
 {
+	ErrorCheck();
 	m_Image = std::make_shared<Textures::C_Texture>("rayTrace");
+	m_Image->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
 
-	m_DirImage = std::make_shared<Textures::C_Texture>("directional");
+	ErrorCheck();
+	m_DirImage = std::make_shared<Textures::C_Texture>(Renderer::TextureDescriptor{
+		"directional",
+		m_DirectionImage.GetDimensions().x, m_DirectionImage.GetDimensions().y,
+		Renderer::E_TextureType::TEXTUE_2D,
+		Renderer::E_TextureFormat::R32f,
+		false
+	});
 	m_DirImage->SetTexData2D(0, &m_DirectionImage);
+	ErrorCheck();
 }
 
 //=================================================================================
@@ -164,8 +174,7 @@ void C_RayTraceWindow::UploadStorage() const
 
 					m_Image->bind();
 					m_Image->SetTexData2D(0, (&m_WeightedImage));
-					m_Image->GenerateMipMaps();
-					m_Image->GenerateMipMaps();
+					//m_Image->GenerateMipMaps();
 				},
 				"RT buffer"));
 			renderer->AddTransferCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
