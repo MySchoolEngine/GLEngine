@@ -30,6 +30,7 @@ C_Texture::C_Texture(const std::string& name, GLenum target)
 	m_Desc.name = name;
 	m_Desc.type = Renderer::E_TextureType::TEXTUE_2D; // TODO
 	glGenTextures(1, &m_texture);
+	CORE_LOG(E_Level::Error, E_Context::Render, "Usage of the old texture version");
 	bind();
 	glObjectLabel(GL_TEXTURE, m_texture, static_cast<GLsizei>(name.length()), name.c_str());
 	unbind();
@@ -147,7 +148,10 @@ void C_Texture::SetFilter(Renderer::E_TextureFilter min, Renderer::E_TextureFilt
 void C_Texture::SetTexParameter(GLenum pname, const glm::vec4& value)
 {
 	bind();
-	glTexParameterfv(GetTextureType(m_Desc.type), pname, glm::value_ptr(value));
+	if (!m_bIsTexture)
+		glTexParameterfv(GetTextureType(m_Desc.type), pname, glm::value_ptr(value));
+	else
+		glTextureParameterfv(m_texture, pname, glm::value_ptr(value));
 	unbind();
 }
 
@@ -155,7 +159,10 @@ void C_Texture::SetTexParameter(GLenum pname, const glm::vec4& value)
 void C_Texture::SetTexParameter(GLenum pname, GLint value)
 {
 	bind();
-	glTexParameteri(GetTextureType(m_Desc.type), pname, value);
+	if (!m_bIsTexture)
+		glTexParameteri(GetTextureType(m_Desc.type), pname, value);
+	else
+		glTextureParameteri(m_texture, pname, value);
 	unbind();
 }
 
@@ -163,7 +170,10 @@ void C_Texture::SetTexParameter(GLenum pname, GLint value)
 void C_Texture::GenerateMipMaps()
 {
 	bind();
-	glGenerateMipmap(GetTextureType(m_Desc.type));
+	if (!m_bIsTexture)
+		glGenerateMipmap(GetTextureType(m_Desc.type));
+	else
+		glGenerateTextureMipmap(m_texture);
 	unbind();
 }
 
