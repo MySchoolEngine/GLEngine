@@ -26,7 +26,17 @@ struct TextureDescriptor {
 
 	std::uint8_t m_Levels	  = 1; //< Num mip maps
 	std::uint8_t m_NumSamples = 1; //< Multisampled textures
+};
 
+struct SamplerDescriptor2D {
 
+	// filtering
+	Renderer::E_TextureFilter m_FilterMin;
+	Renderer::E_TextureFilter m_FilterMag;
+
+	// border
+	glm::vec4				 m_BorderColor;
+	Renderer::E_WrapFunction m_WrapS;
+	Renderer::E_WrapFunction m_WrapT;
 };
 } // namespace GLEngine::Renderer

@@ -46,6 +46,8 @@ public:
 	virtual [[nodiscard]] bool AllocateTexture(I_DeviceTexture& texture) = 0;
 	virtual void			   DestroyTexture(T_TextureHandle& texture)	 = 0;
 
+	virtual [[nodiscard]] bool AllocateSampler(I_TextureSampler2D& texture) = 0;
+	virtual void			   DestroySampler(I_TextureSampler2D& texture)	= 0;
 	[[nodiscard]] virtual std::size_t GetAllocatedMemory() const = 0;
 };
 } // namespace GLEngine::Renderer
