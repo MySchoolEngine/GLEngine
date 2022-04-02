@@ -3,6 +3,7 @@
 #include <GLRenderer/Helpers/TextureHelpers.h>
 #include <GLRenderer/OGLDevice.h>
 #include <GLRenderer/Textures/Texture.h>
+#include <GLRenderer/Textures/Sampler.h>
 
 #include <Renderer/Textures/DeviceTexture.h>
 #include <Renderer/Textures/TextureDefinitions.h>
@@ -131,6 +132,25 @@ bool C_GLDevice::HasExtension(const std::string_view ext) const
 			return true;
 	}
 	return false;
+}
+
+//=================================================================================
+bool C_GLDevice::AllocateSampler(Renderer::I_TextureSampler2D& sampler)
+{
+	auto*  samplerGL = reinterpret_cast<C_Sampler2D*>(&sampler);
+	GLuint samplerID;
+	glCreateSamplers(1, &samplerID);
+
+	samplerGL->m_Sampler = samplerID;
+	return true;
+}
+
+//=================================================================================
+void C_GLDevice::DestroySampler(Renderer::I_TextureSampler2D& texture)
+{
+	auto* samplerGL = reinterpret_cast<C_Sampler2D*>(&texture);
+	glDeleteSamplers(1, &samplerGL->m_Sampler);
+	
 }
 
 } // namespace GLEngine::GLRenderer
