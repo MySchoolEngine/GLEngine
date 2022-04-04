@@ -227,17 +227,21 @@ void C_Texture::SetTexData2D(int level, const Renderer::C_TextureView tex)
 //=================================================================================
 void C_Texture::SetInternalFormat(Renderer::E_TextureFormat internalFormat, GLint format)
 {
-	bind();
-	m_Desc.format = internalFormat;
-	glTexImage2D(GetTextureType(m_Desc.type),
+	if (!m_bIsTexture)
+	{
+		// IMHO I don't want to do that with my immutable textures
+		bind();
+		m_Desc.format = internalFormat;
+		glTexImage2D(GetTextureType(m_Desc.type),
 				 0,									// level
 				 GetOpenGLInternalFormat(m_Desc.format), // internal format
 				 GetWidth(), GetHeight(),			// dimensions
 				 0,									// border
 				 format,							// this should be deduced from m_Format too
 				 OpenGLUnderlyingType(m_Desc.format),
-				 nullptr); // no data passed as we just want to allocate buffer
-	unbind();
+					 nullptr); // no data passed as we just want to allocate buffer
+		unbind();
+	}
 }
 
 //=================================================================================
