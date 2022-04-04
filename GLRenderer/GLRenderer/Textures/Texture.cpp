@@ -183,11 +183,8 @@ void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* te
 	GLE_ASSERT(tex, "This should be smth like reference");
 	if (!m_bIsTexture)
 	{
-		ErrorCheck();
 		bind();
-		ErrorCheck();
 		SetDimensions(tex->GetDimensions());
-		ErrorCheck();
 
 		glTexImage2D(GetTextureType(m_Desc.type), level,
 					 GetOpenGLInternalFormat(m_Desc.format), // internal format
@@ -196,9 +193,7 @@ void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* te
 					 GetFormat(tex->GetChannels(), Renderer::IsIntegral(tex->GetStorageType())), // format
 					 GetUnderlyingType(tex),		// TODO
 					 tex->GetData());															 // data
-		ErrorCheck();
 		unbind();
-		ErrorCheck();
 	}
 	else
 	{
@@ -210,8 +205,10 @@ void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* te
 							GetFormat(tex->GetChannels(), Renderer::IsIntegral(tex->GetStorageType())),
 							GetUnderlyingType(tex),
 							tex->GetData());
-		ErrorCheck();
 	}
+	// automatic mip-maps generation
+	if (m_Desc.m_Levels > 1)
+		glGenerateTextureMipmap(m_texture);
 }
 
 //=================================================================================
