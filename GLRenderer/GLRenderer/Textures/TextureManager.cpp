@@ -58,14 +58,16 @@ C_TextureManager::C_TextureManager()
 			buffer->GetDimensions().y,
 			Renderer::E_TextureType::TEXTUE_2D,
 			Renderer::E_TextureFormat::RGBA32f, 
-			false};
+			false,
+			9};
 
 		m_ErrorTexture = std::make_shared<C_Texture>(desc);
 		if (GetDevice().AllocateTexture(*m_ErrorTexture.get()))
 		{
-			ErrorCheck();
+			m_ErrorTexture->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
+			m_ErrorTexture->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
 			m_ErrorTexture->SetTexData2D(0, buffer);
-			ErrorCheck();
+
 			m_ErrorTexture->m_IsPresentOnGPU = true;
 		}
 		m_ErrorTexture->GenerateMipMaps();
