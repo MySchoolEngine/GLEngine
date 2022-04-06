@@ -57,7 +57,7 @@ C_TextureManager::C_TextureManager()
 			buffer->GetDimensions().x,
 			buffer->GetDimensions().y,
 			Renderer::E_TextureType::TEXTUE_2D,
-			Renderer::E_TextureFormat::RGBA8i, 
+			Renderer::E_TextureFormat::RGBA32f, 
 			false};
 
 		m_ErrorTexture = std::make_shared<C_Texture>(desc);
@@ -68,6 +68,7 @@ C_TextureManager::C_TextureManager()
 			ErrorCheck();
 			m_ErrorTexture->m_IsPresentOnGPU = true;
 		}
+		m_ErrorTexture->GenerateMipMaps();
 	}
 }
 
@@ -105,7 +106,13 @@ C_TextureManager::T_TexturePtr C_TextureManager::CreateTexture(const Renderer::I
 	// todo proper format:
 	// 1] from metadata
 	// 2] if not present than it should do immediate load - slow version
-	const Renderer::TextureDescriptor desc{name, tex->GetDimensions().x, tex->GetDimensions().y, Renderer::E_TextureType::TEXTUE_2D, Renderer::E_TextureFormat::RGBA8i, true};
+	const Renderer::TextureDescriptor desc{name,
+										   tex->GetDimensions().x,
+										   tex->GetDimensions().y,
+										   Renderer::E_TextureType::TEXTUE_2D,
+										   Renderer::GetClosestFormat(tex->GetChannels(), !Renderer::IsIntegral(tex->GetStorageType())),
+										   true,
+										   10};
 	auto							  texture = std::make_shared<Textures::C_Texture>(desc);
 	if (GetDevice().AllocateTexture(*texture.get()))
 	{

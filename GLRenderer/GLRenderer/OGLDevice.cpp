@@ -96,6 +96,8 @@ bool C_GLDevice::AllocateTexture(Renderer::I_DeviceTexture& texture)
 		CORE_LOG(E_Level::Info, E_Context::Render, "Memroy available {}", currentMemoryKb);
 		textureGL->SetGPUID(texID);
 		m_TextureMemoryUsed += memory;
+
+		AllocateSampler(textureGL->m_DefaultSampler);
 		return true;
 	}
 	default:

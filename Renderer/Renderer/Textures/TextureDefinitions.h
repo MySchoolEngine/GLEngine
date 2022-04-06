@@ -279,6 +279,27 @@ inline T_Channels GetOrderedChannels(const std::uint8_t numChannels)
 }
 
 //=================================================================================
+inline E_TextureFormat GetClosestFormat(const T_Channels& channels, bool isFloatingPoint)
+{
+	GLE_ASSERT(isFloatingPoint, "Engine doesn't support integer textures yet.");
+	const auto numChannels = GetNumberChannels(channels);
+	switch (numChannels)
+	{
+	case 1:
+		return E_TextureFormat::R32f;
+	case 2:
+		return E_TextureFormat::RG32f;
+	case 3:
+		return E_TextureFormat::RGB32f;
+	case 4:
+		return E_TextureFormat::RGBA32f;
+	default:
+		break;
+	}
+	return E_TextureFormat::RGBA32f;
+}
+
+//=================================================================================
 //=================================================================================
 //=================================================================================
 enum class E_WrapFunction

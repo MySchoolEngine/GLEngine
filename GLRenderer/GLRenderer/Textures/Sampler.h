@@ -24,6 +24,7 @@ private:
 	GLuint m_Sampler;
 
 	friend class C_GLDevice;
+	friend class Textures::C_Texture;
 };
 
 } // namespace GLEngine::GLRenderer

@@ -5,8 +5,8 @@
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 #include <GLRenderer/Helpers/TextureHelpers.h>
 #include <GLRenderer/Textures/Texture.h>
-#include <GLRenderer/Textures/TextureUtils.h>
 #include <GLRenderer/Textures/TextureManager.h>
+#include <GLRenderer/Textures/TextureUtils.h>
 
 #include <Renderer/IRenderer.h>
 #include <Renderer/Mesh/Scene.h>
@@ -22,6 +22,7 @@ namespace GLEngine::GLRenderer::Textures {
 //=================================================================================
 C_Texture::C_Texture(const std::string& name, GLenum target)
 	: Renderer::I_DeviceTexture({})
+	, m_DefaultSampler({})
 	, m_bGroupOperations(false)
 	, m_texture(0)
 	, m_Handle(0)
@@ -30,7 +31,7 @@ C_Texture::C_Texture(const std::string& name, GLenum target)
 	m_Desc.name = name;
 	m_Desc.type = Renderer::E_TextureType::TEXTUE_2D; // TODO
 	glGenTextures(1, &m_texture);
-	CORE_LOG(E_Level::Error, E_Context::Render, "Usage of the old texture version");
+	CORE_LOG(E_Level::Error, E_Context::Render, "Texture {}", m_texture);
 	bind();
 	glObjectLabel(GL_TEXTURE, m_texture, static_cast<GLsizei>(name.length()), name.c_str());
 	unbind();
@@ -41,6 +42,7 @@ C_Texture::C_Texture(const std::string& name, GLenum target)
 //=================================================================================
 C_Texture::C_Texture(C_Texture&& t)
 	: Renderer::I_DeviceTexture({})
+	, m_DefaultSampler(t.m_DefaultSampler)
 {
 	if (&t == this)
 	{
@@ -60,6 +62,7 @@ C_Texture::C_Texture(const Renderer::TextureDescriptor& desc)
 	: Renderer::I_DeviceTexture(desc)
 	, m_bGroupOperations(false)
 	, m_Handle(0)
+	, m_DefaultSampler({})
 {
 }
 
@@ -111,10 +114,17 @@ void C_Texture::unbind() const
 //=================================================================================
 void C_Texture::SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction wrapT)
 {
-	bind();
-	SetTexParameter(GL_TEXTURE_WRAP_S, WrapFunctionToEnum(wrapS));
-	SetTexParameter(GL_TEXTURE_WRAP_T, WrapFunctionToEnum(wrapT));
-	unbind();
+	if (!m_bIsTexture)
+	{
+		bind();
+		SetTexParameter(GL_TEXTURE_WRAP_S, WrapFunctionToEnum(wrapS));
+		SetTexParameter(GL_TEXTURE_WRAP_T, WrapFunctionToEnum(wrapT));
+		unbind();
+	}
+	else
+	{
+		m_DefaultSampler.SetWrap(wrapS, wrapT);
+	}
 }
 
 //=================================================================================
@@ -130,18 +140,32 @@ void C_Texture::SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction
 //=================================================================================
 void C_Texture::SetBorderColor(const glm::vec4& color)
 {
-	bind();
-	SetTexParameter(GL_TEXTURE_BORDER_COLOR, color);
-	unbind();
+	if (!m_bIsTexture)
+	{
+		bind();
+		SetTexParameter(GL_TEXTURE_BORDER_COLOR, color);
+		unbind();
+	}
+	else
+	{
+		m_DefaultSampler.SetBorderColor(color);
+	}
 }
 
 //=================================================================================
 void C_Texture::SetFilter(Renderer::E_TextureFilter min, Renderer::E_TextureFilter mag)
 {
-	StartGroupOp();
-	SetTexParameter(GL_TEXTURE_MIN_FILTER, MinMagFilterToEnum(min));
-	SetTexParameter(GL_TEXTURE_MAG_FILTER, MinMagFilterToEnum(mag));
-	EndGroupOp();
+	if (!m_bIsTexture)
+	{
+		StartGroupOp();
+		SetTexParameter(GL_TEXTURE_MIN_FILTER, MinMagFilterToEnum(min));
+		SetTexParameter(GL_TEXTURE_MAG_FILTER, MinMagFilterToEnum(mag));
+		EndGroupOp();
+	}
+	else
+	{
+		m_DefaultSampler.SetFilter(min, mag);
+	}
 }
 
 //=================================================================================
@@ -233,12 +257,12 @@ void C_Texture::SetInternalFormat(Renderer::E_TextureFormat internalFormat, GLin
 		bind();
 		m_Desc.format = internalFormat;
 		glTexImage2D(GetTextureType(m_Desc.type),
-				 0,									// level
-				 GetOpenGLInternalFormat(m_Desc.format), // internal format
-				 GetWidth(), GetHeight(),			// dimensions
-				 0,									// border
-				 format,							// this should be deduced from m_Format too
-				 OpenGLUnderlyingType(m_Desc.format),
+					 0,									// level
+					 GetOpenGLInternalFormat(m_Desc.format), // internal format
+					 GetWidth(), GetHeight(),			// dimensions
+					 0,									// border
+					 format,							// this should be deduced from m_Format too
+					 OpenGLUnderlyingType(m_Desc.format),
 					 nullptr); // no data passed as we just want to allocate buffer
 		unbind();
 	}
@@ -249,7 +273,12 @@ std::uint64_t C_Texture::CreateHandle()
 {
 	ErrorCheck();
 	if (m_IsPresentOnGPU && m_Handle == 0)
-		m_Handle = glGetTextureHandleARB(m_texture);
+	{
+		if (!m_bIsTexture)
+		  m_Handle = glGetTextureHandleARB(m_texture);
+		else
+			m_Handle = glGetTextureSamplerHandleARB(m_texture, m_DefaultSampler.m_Sampler);
+	}
 	ErrorCheck();
 	return GetHandle();
 }
@@ -267,7 +296,14 @@ std::uint64_t C_Texture::GetHandle() const
 //=================================================================================
 void C_Texture::MakeHandleResident(bool val)
 {
-	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::C_GLMakeTextureHandleResident>(m_Handle, val));
+	if (!m_IsPresentOnGPU)
+	{
+		C_TextureManager::Instance().GetErrorTexture()->MakeHandleResident(val);
+		return;
+	}
+	if (m_IsResidient!=val)
+		Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::C_GLMakeTextureHandleResident>(GetHandle(), val));
+	m_IsResidient = val;
 }
 
 //=================================================================================

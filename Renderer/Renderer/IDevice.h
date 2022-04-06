@@ -3,6 +3,7 @@
 #include <Renderer/Descriptors/TextureDescriptor.h>
 #include <Renderer/RendererApi.h>
 #include <Renderer/Textures/DeviceTexture.h>
+#include <Renderer/Textures/TextureSampler.h>
 
 #include <memory>
 

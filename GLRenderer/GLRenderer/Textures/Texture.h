@@ -20,6 +20,8 @@
 #include <Renderer/Textures/DeviceTexture.h>
 #include <Renderer/Descriptors/TextureDescriptor.h>
 
+#include <GLRenderer/Textures/Sampler.h>
+
 namespace GLEngine::Renderer {
 class I_TextureViewStorage;
 class C_TextureView;
@@ -100,12 +102,16 @@ protected:
 	void Clean();
 
 	friend class C_TextureManager;
+	friend class C_GLDevice;
 
 	GLuint					  m_texture;
 	Renderer::E_TextureFormat m_Format;
 	bool					  m_bGroupOperations : 1;
 	bool					  m_IsPresentOnGPU = false;
+	bool					  m_IsResidient = false;
 	std::uint64_t			  m_Handle;
+
+	C_Sampler2D m_DefaultSampler;
 
 	bool m_bIsTexture = false;
 };
