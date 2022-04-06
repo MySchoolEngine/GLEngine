@@ -13,6 +13,9 @@ public:
 	virtual std::size_t GetAllocatedMemory() const override;
 
 
+	virtual bool AllocateSampler(Renderer::I_TextureSampler2D& texture) override;
+	virtual void DestroySampler(Renderer::I_TextureSampler2D& texture) override;
+
 private:
 	[[nodiscard]] bool HasExtension(const std::string_view ext) const;
 
