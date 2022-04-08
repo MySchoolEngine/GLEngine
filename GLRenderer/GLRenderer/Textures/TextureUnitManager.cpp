@@ -34,8 +34,9 @@ void C_TextureUnitManger::BindTextureToUnit(const C_Texture& texture, unsigned i
 
 	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::C_GLActivateTexture>(unit));
 
-	Core::C_Application::Get().GetActiveRenderer().AddCommand(
-		std::make_unique<Commands::HACK::C_LambdaCommand>([&texture]() { texture.bind(); }, fmt::format("BindTextureToUnit - {} -> {}", texture.GetTexture(), unit)));
+	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+		[&texture]() { glBindTexture(GL_TEXTURE_2D, texture.GetTexture()); /* here really goes the bind*/},
+		fmt::format("BindTextureToUnit - {} -> {}", texture.GetTexture(), unit)));
 	m_TextureUnits[unit] = texture.GetTexture();
 }
 

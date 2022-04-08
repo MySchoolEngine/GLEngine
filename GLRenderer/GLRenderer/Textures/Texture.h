@@ -44,6 +44,7 @@ public:
 	virtual ~C_Texture();
 
 	[[nodiscard]] virtual bool IsAllocated() const override;
+	void					   SetReadyToUse() { m_IsPresentOnGPU = true; }
 
 	// TODO move to Commands or remove due to new API
 	void bind() const;

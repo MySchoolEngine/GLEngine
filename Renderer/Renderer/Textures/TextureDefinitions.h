@@ -1,6 +1,9 @@
 #pragma once
 
+#include <Utils/Logging/LoggingMacros.h>
 #include <Core/CoreMacros.h>
+
+#include <array>
 
 namespace GLEngine::Renderer {
 

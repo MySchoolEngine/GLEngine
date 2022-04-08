@@ -233,6 +233,8 @@ void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* te
 	// automatic mip-maps generation
 	if (m_Desc.m_Levels > 1)
 		glGenerateTextureMipmap(m_texture);
+
+	SetReadyToUse();
 }
 
 //=================================================================================

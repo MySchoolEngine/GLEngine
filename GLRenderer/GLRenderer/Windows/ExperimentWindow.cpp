@@ -275,28 +275,35 @@ void C_ExplerimentWindow::OnAppInit()
 	SetupWorld("Levels/atmosphere.xml");
 
 	m_HDRFBO		= std::make_unique<C_Framebuffer>("HDR");
-	auto HDRTexture = std::make_shared<Textures::C_Texture>("hdrTexture");
+	const Renderer::TextureDescriptor HDRTextureDef{
+		"hdrTexture",
+		GetWidth(), GetHeight(),
+		Renderer::E_TextureType::TEXTUE_2D,
+		Renderer::E_TextureFormat::RGBA16f,
+		false
+	};
+	auto HDRTexture = std::make_shared<Textures::C_Texture>(HDRTextureDef);
+	m_Device->AllocateTexture(*HDRTexture.get());
 
-	HDRTexture->bind();
-	// HDRTexture setup
-	HDRTexture->SetDimensions({GetWidth(), GetHeight()});
-	HDRTexture->SetInternalFormat(Renderer::E_TextureFormat::RGBA16f, GL_RGBA);
 	HDRTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
 	// ~HDRTexture setup
 	m_HDRFBO->AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
-	HDRTexture->unbind();
 
-	auto depthStencilTexture = std::make_shared<Textures::C_Texture>("hdrDepthTexture");
+	const Renderer::TextureDescriptor hdrDepthTextureDef{
+		"hdrDepthTexture",
+		GetWidth(), GetHeight(),
+		Renderer::E_TextureType::TEXTUE_2D,
+		Renderer::E_TextureFormat::D16,
+		false
+	};
+	auto depthStencilTexture = std::make_shared<Textures::C_Texture>(hdrDepthTextureDef);
+	m_Device->AllocateTexture(*depthStencilTexture.get());
 
-	depthStencilTexture->bind();
-	// depthStencilTexture setup
-	depthStencilTexture->SetDimensions({GetWidth(), GetHeight()});
-	depthStencilTexture->SetInternalFormat(Renderer::E_TextureFormat::D16, GL_DEPTH_COMPONENT);
-	depthStencilTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
+	// depthStencilTexture->SetTexParameter(GL_COMPARE_REF_TO_TEXTURE, GL_COMPARE_REF_TO_TEXTURE);
+	// depthStencilTexture->SetTexParameter(GL_TEXTURE_COMPARE_FUNC, GL_NEVER);
+	//depthStencilTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
 	// ~depthStencilTexture setup
 	m_HDRFBO->AttachTexture(GL_DEPTH_ATTACHMENT, depthStencilTexture);
-	depthStencilTexture->unbind();
-
 
 	auto& guiMGR = m_ImGUI->GetGUIMgr();
 
@@ -370,15 +377,6 @@ void C_ExplerimentWindow::OnAppInit()
 		levelSelectWindwo->SetVisible();
 	}));
 	CORE_LOG(E_Level::Info, E_Context::Render, "Experiment window setup time was %f", float(m_FrameTimer.getElapsedTimeFromLastQueryMilliseconds()) / 1000.f);
-
-	auto tex = Textures::C_Texture(Renderer::TextureDescriptor{
-			"Texture",
-			256, 256,
-			Renderer::E_TextureType::TEXTUE_2D,
-
-			Renderer::E_TextureFormat::RGB8i
-		});
-	m_Device->AllocateTexture(tex);
 }
 
 //=================================================================================

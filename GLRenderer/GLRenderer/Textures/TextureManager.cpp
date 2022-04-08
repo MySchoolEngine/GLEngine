@@ -38,7 +38,6 @@ C_TextureManager::C_TextureManager()
 			Renderer::C_TextureView							view(&storage);
 			view.Set<glm::vec4>(glm::ivec2(0, 0), glm::vec4(255, 255, 255, 0));
 			m_IdentityTexture->SetTexData2D(0, &storage);
-			m_IdentityTexture->m_IsPresentOnGPU = true;
 		}
 	}
 	{
@@ -51,7 +50,6 @@ C_TextureManager::C_TextureManager()
 			return;
 		}
 
-		m_ErrorTexture = GetTexture(s_ErrorTextureFile.generic_string());
 		const Renderer::TextureDescriptor desc{
 			s_ErrorTextureFile.generic_string(), 
 			buffer->GetDimensions().x,
@@ -67,8 +65,6 @@ C_TextureManager::C_TextureManager()
 			m_ErrorTexture->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
 			m_ErrorTexture->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
 			m_ErrorTexture->SetTexData2D(0, buffer);
-
-			m_ErrorTexture->m_IsPresentOnGPU = true;
 		}
 		m_ErrorTexture->GenerateMipMaps();
 	}
