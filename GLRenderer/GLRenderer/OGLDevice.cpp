@@ -97,7 +97,7 @@ bool C_GLDevice::AllocateTexture(Renderer::I_DeviceTexture& texture)
 		textureGL->SetGPUID(texID);
 		m_TextureMemoryUsed += memory;
 
-		AllocateSampler(textureGL->m_DefaultSampler);
+		AllocateSampler(textureGL->m_DefaultSampler); // TODO once propper sampler system ready delete this
 		return true;
 	}
 	default:
@@ -113,13 +113,19 @@ bool C_GLDevice::AllocateTexture(Renderer::I_DeviceTexture& texture)
 //=================================================================================
 std::size_t C_GLDevice::GetAllocatedMemory() const
 {
-	return 0;
+	return m_TextureMemoryUsed;
 }
 
 //=================================================================================
-void C_GLDevice::DestroyTexture(T_TextureHandle& texture)
+void C_GLDevice::DestroyTexture(Renderer::I_DeviceTexture& texture)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	auto* textureGL = reinterpret_cast<Textures::C_Texture*>(&texture);
+	GLE_ASSERT(textureGL, "Wrong API texture passed in");
+	auto tex = textureGL->GetTexture();
+	glDeleteTextures(1, &tex);
+	textureGL->m_texture = 0;
+	DestroySampler(textureGL->m_DefaultSampler);
+	textureGL->m_IsPresentOnGPU = false;
 }
 
 //=================================================================================

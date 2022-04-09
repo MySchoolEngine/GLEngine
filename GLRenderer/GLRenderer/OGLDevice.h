@@ -8,7 +8,7 @@ class C_GLDevice : public Renderer::I_Device {
 public:
 	C_GLDevice();
 	virtual [[nodiscard]] bool AllocateTexture(Renderer::I_DeviceTexture& texture) override;
-	virtual void			   DestroyTexture(T_TextureHandle& texture) override;
+	virtual void			   DestroyTexture(Renderer::I_DeviceTexture& texture) override;
 
 	virtual std::size_t GetAllocatedMemory() const override;
 
