@@ -57,19 +57,19 @@ inline constexpr const FormatDescriptor& GetFormatDescriptor(const Renderer::E_T
 }
 
 //=================================================================================
-constexpr GLenum GetOpenGLFormat(const Renderer::E_TextureFormat format)
+GLenum GetOpenGLFormat(const Renderer::E_TextureFormat format)
 {
 	return GetFormatDescriptor(format).glExternalFormat;
 }
 
 //=================================================================================
-constexpr GLenum GetOpenGLInternalFormat(const Renderer::E_TextureFormat format)
+GLenum GetOpenGLInternalFormat(const Renderer::E_TextureFormat format)
 {
 	return GetFormatDescriptor(format).glInternalFormat;
 }
 
 //=================================================================================
-constexpr GLenum OpenGLUnderlyingType(const Renderer::E_TextureFormat format)
+GLenum OpenGLUnderlyingType(const Renderer::E_TextureFormat format)
 {
 	return GetFormatDescriptor(format).glUnderlyingType;
 }

@@ -142,7 +142,7 @@ template <Renderer::E_WrapFunction wrapFunction> struct T_WrapFunction {
 };
 
 //=================================================================================
-constexpr GLenum OpenGLUnderlyingType(const Renderer::E_TextureFormat format);
+GLenum OpenGLUnderlyingType(const Renderer::E_TextureFormat format);
 
 //=================================================================================
 inline constexpr std::size_t SizeOfGLType(const GLenum type)
@@ -167,10 +167,10 @@ inline constexpr std::size_t SizeOfGLType(const GLenum type)
 }
 
 //=================================================================================
-inline constexpr GLenum GetOpenGLInternalFormat(const Renderer::E_TextureFormat format);
+GLenum GetOpenGLInternalFormat(const Renderer::E_TextureFormat format);
 
 //=================================================================================
-inline constexpr GLenum GetOpenGLFormat(const Renderer::E_TextureFormat format);
+GLenum GetOpenGLFormat(const Renderer::E_TextureFormat format);
 
 //=================================================================================
 constexpr GLenum MinMagFilterToEnum(const Renderer::E_TextureFilter filter)
