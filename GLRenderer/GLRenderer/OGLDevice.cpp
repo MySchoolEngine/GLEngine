@@ -97,6 +97,9 @@ bool C_GLDevice::AllocateTexture(Renderer::I_DeviceTexture& texture)
 		textureGL->SetGPUID(texID);
 		m_TextureMemoryUsed += memory;
 
+		textureGL->SetTexParameter(GL_TEXTURE_BASE_LEVEL, 0);
+		textureGL->SetTexParameter(GL_TEXTURE_MAX_LEVEL, 9);
+
 		AllocateSampler(textureGL->m_DefaultSampler); // TODO once propper sampler system ready delete this
 		return true;
 	}
