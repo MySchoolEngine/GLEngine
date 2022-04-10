@@ -273,7 +273,6 @@ void C_Texture::SetInternalFormat(Renderer::E_TextureFormat internalFormat, GLin
 //=================================================================================
 std::uint64_t C_Texture::CreateHandle()
 {
-	ErrorCheck();
 	if (m_IsPresentOnGPU && m_Handle == 0)
 	{
 		if (!m_bIsTexture)
@@ -281,7 +280,6 @@ std::uint64_t C_Texture::CreateHandle()
 		else
 			m_Handle = glGetTextureSamplerHandleARB(m_texture, m_DefaultSampler.m_Sampler);
 	}
-	ErrorCheck();
 	return GetHandle();
 }
 
