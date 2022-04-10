@@ -51,10 +51,9 @@ jobs:
       matrix:
         configuration: [debug, release]
         glfwapi: [opengl, vulkan]
-    env:
-      VS_PATH: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\
-      MSBUILD_PATH: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\
     steps:
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
       - uses: actions/checkout@v2
       - name: Get submodules
         shell: cmd
@@ -71,4 +70,4 @@ jobs:
         run: premake\premake5 --glfwapi=${{ matrix.glfwapi }} vs2019
       - name: Build
         shell: cmd
-        run: '"%MSBUILD_PATH%\MSBuild.exe" Engine.sln /p:Configuration=${{ matrix.configuration }} -maxCpuCount'
+        run: msbuild Engine.sln /p:Configuration=${{ matrix.configuration }} -maxCpuCount
