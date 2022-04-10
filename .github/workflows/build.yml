@@ -31,7 +31,6 @@ jobs:
         run: |
           git submodule init
           git submodule update
-      - uses: textbook/git-checkout-submodule-action@master
       - name: update
         run: sudo apt update
       - name: Get X11
