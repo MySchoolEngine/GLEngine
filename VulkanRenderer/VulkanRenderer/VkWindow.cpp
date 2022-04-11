@@ -196,7 +196,7 @@ void C_VkWindow::CreateImageViews()
 		createInfo.subresourceRange.baseArrayLayer = 0;
 		createInfo.subresourceRange.layerCount	   = 1;
 
-		if (vkCreateImageView(m_renderer->GetDevice(), &createInfo, nullptr, &m_SwapChainImagesViews[i]) != VK_SUCCESS)
+		if (vkCreateImageView(m_renderer->GetDeviceVK(), &createInfo, nullptr, &m_SwapChainImagesViews[i]) != VK_SUCCESS)
 		{
 			CORE_LOG(E_Level::Error, E_Context::Render, "failed to create image views");
 			return;
