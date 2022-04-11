@@ -103,7 +103,7 @@ protected:
 	void Clean();
 
 	friend class C_TextureManager;
-	friend class C_GLDevice;
+	friend class GLEngine::GLRenderer::C_GLDevice;
 
 	GLuint					  m_texture;
 	Renderer::E_TextureFormat m_Format;
