@@ -8,7 +8,9 @@ Before pull request please run clang-tidy on your code (on windows you can use c
 
 ###### Code placement
 **CP.1 - Implementation to cpp** - Headers are for reader. So try to avoid noise in headers by placing as much functions to cpp/inl files as possible.
+
 **CP.2 - Inline, templated and constexpr** - The implementation of those functions needs to be known to the users at compile time. But in order to avoid visual noise consider placing them to separate `.inl` file and include this file to the end of header file after the end of namespace. This will force you to place code in `.inl` file to the correct namespace and this helps future reader to parse file visually quicker.
+
 **CP.3 - Special functions** - Prefer placing all functions to teh cpp as defined in **CP.1** even defaulted special functions. Place constructors to the top of cpp and all the special functions below them before the other functions.
 
 ###### Templates
