@@ -28,6 +28,7 @@ class C_TextureView;
 } // namespace GLEngine::Renderer
 
 namespace GLEngine::GLRenderer {
+class C_GLDevice;
 namespace Mesh {
 struct Texture;
 }
@@ -99,11 +100,13 @@ public:
 	virtual void SetTexData2D(int level, const Renderer::C_TextureView tex) override;
 
 	void SetInternalFormat(Renderer::E_TextureFormat internalFormat, GLint format);
-protected:
-	void Clean();
 
 	friend class C_TextureManager;
 	friend class GLEngine::GLRenderer::C_GLDevice;
+
+protected:
+	void Clean();
+
 
 	GLuint					  m_texture;
 	Renderer::E_TextureFormat m_Format;
