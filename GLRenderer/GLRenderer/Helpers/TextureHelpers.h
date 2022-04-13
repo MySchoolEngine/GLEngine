@@ -19,6 +19,7 @@ inline GLint GetTextureType(Renderer::E_TextureType e)
 	}
 }
 
+//=================================================================================
 inline std::uint8_t GetNumberOfChannels(GLint pixelFormat)
 {
 	switch (pixelFormat)

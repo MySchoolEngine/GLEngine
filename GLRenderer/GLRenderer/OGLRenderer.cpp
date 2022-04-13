@@ -36,11 +36,13 @@ C_OGLRenderer::C_OGLRenderer(C_GLDevice& device)
 	, m_Windows(std::string("Windows"))
 	, m_Device(device)
 {
-	if (m_CatchErrors || true)
+	if (m_CatchErrors)
 	{
 		glEnable(GL_DEBUG_OUTPUT);
-		glDebugMessageCallback(MessageCallback, 0);
+		glDebugMessageCallback(MessageCallback, nullptr);
 	}
+
+	auto& tmgr = Textures::C_TextureManager::Instance(&device);
 }
 
 //=================================================================================

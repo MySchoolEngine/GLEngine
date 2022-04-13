@@ -5,14 +5,11 @@
 
 #include <Renderer/Descriptors/TextureDescriptor.h>
 #include <Renderer/IDevice.h>
-#include <Renderer/IRenderer.h>
 #include <Renderer/Textures/TextureLoader.h>
 #include <Renderer/Textures/TextureView.h>
 
 #include <GUI/GUIManager.h>
 #include <GUI/GUIWindow.h>
-
-#include <Core/Application.h>
 
 #include <imgui.h>
 
@@ -20,10 +17,11 @@ namespace GLEngine::GLRenderer::Textures {
 std::filesystem::path C_TextureManager::s_ErrorTextureFile = "Models/Error.bmp";
 
 //=================================================================================
-C_TextureManager::C_TextureManager()
+C_TextureManager::C_TextureManager(Renderer::I_Device& device)
 	: m_Window(GUID::INVALID_GUID)
 	, m_IdentityTexture(nullptr)
 	, m_ErrorTexture(nullptr)
+	, m_Device(device)
 {
 	// preload fallback textures
 	{
@@ -71,9 +69,9 @@ C_TextureManager::C_TextureManager()
 }
 
 //=================================================================================
-C_TextureManager& C_TextureManager::Instance()
+C_TextureManager& C_TextureManager::Instance(Renderer::I_Device* device)
 {
-	static C_TextureManager instance; // Guaranteed to be destroyed.
+	static C_TextureManager instance(*device); // Guaranteed to be destroyed.
 									  // Instantiated on first use.
 	return instance;
 }
@@ -207,7 +205,7 @@ C_TextureManager::T_TexturePtr C_TextureManager::GetIdentityTexture()
 //=================================================================================
 Renderer::I_Device& C_TextureManager::GetDevice()
 {
-	return Core::C_Application::Get().GetActiveRenderer().GetDevice();
+	return m_Device;
 }
 
 } // namespace GLEngine::GLRenderer::Textures
