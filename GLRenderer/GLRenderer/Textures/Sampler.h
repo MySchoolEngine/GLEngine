@@ -7,10 +7,7 @@ namespace GLEngine::GLRenderer {
 
 class C_Sampler2D : public Renderer::I_TextureSampler2D {
 public:
-	C_Sampler2D(const Renderer::SamplerDescriptor2D& desc)
-		: Renderer::I_TextureSampler2D(desc)
-	{
-	}
+	C_Sampler2D(const Renderer::SamplerDescriptor2D& desc);
 
 	virtual void SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction wrapT) override;
 	virtual void SetFilter(Renderer::E_TextureFilter min, Renderer::E_TextureFilter mag) override;

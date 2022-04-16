@@ -12,6 +12,8 @@ inline GLint GetTextureType(Renderer::E_TextureType e)
 	{
 	case Renderer::E_TextureType::TEXTUE_2D:
 		return GL_TEXTURE_2D;
+	case Renderer::E_TextureType::CUBE_MAP:
+		return GL_TEXTURE_CUBE_MAP;
 	default:
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unknown texture target: {}", e);
 		return GL_TEXTURE_2D;

@@ -8,7 +8,8 @@ namespace GLEngine::Renderer {
 
 enum class E_TextureType
 {
-	TEXTUE_2D
+	TEXTUE_2D,
+	CUBE_MAP,
 };
 
 struct TextureDescriptor {
