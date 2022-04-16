@@ -30,7 +30,6 @@ public:
 	[[nodiscard]] static C_TextureManager& Instance(Renderer::I_Device* device = nullptr);
 
 	[[nodiscard]] T_TexturePtr GetTexture(const std::string& name);
-	[[nodiscard]] T_TexturePtr CreateEmptyTexture(const std::string& name);
 	[[nodiscard]] T_TexturePtr CreateTexture(const Renderer::I_TextureViewStorage* tex, const std::string& name);
 
 	void Clear();
