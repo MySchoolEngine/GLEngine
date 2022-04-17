@@ -79,6 +79,7 @@ public:
 		m_bIsTexture = true;
 	}
 	[[nodiscard]] inline GLuint GetTexture() const { return m_texture; }
+	[[nodiscard]] inline GLuint GetDefaultSampler() const { return m_DefaultSampler.m_Sampler; }
 	[[nodiscard]] inline GLenum GetTarget() const { return GetTextureType(m_Desc.type); }
 
 	[[nodiscard]] virtual T_TexBufferFuture GetTextureData() const override;
