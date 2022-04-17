@@ -277,8 +277,7 @@ void C_ExplerimentWindow::OnAppInit()
 	m_HDRFBO		= std::make_unique<C_Framebuffer>("HDR");
 	const Renderer::TextureDescriptor HDRTextureDef{
 		"hdrTexture",
-		GetWidth(), GetHeight(),
-		Renderer::E_TextureType::TEXTUE_2D,
+		GetWidth(), GetHeight(), Renderer::E_TextureType::TEXTURE_2D,
 		Renderer::E_TextureFormat::RGBA16f,
 		false
 	};
@@ -291,8 +290,7 @@ void C_ExplerimentWindow::OnAppInit()
 
 	const Renderer::TextureDescriptor hdrDepthTextureDef{
 		"hdrDepthTexture",
-		GetWidth(), GetHeight(),
-		Renderer::E_TextureType::TEXTUE_2D,
+		GetWidth(), GetHeight(), Renderer::E_TextureType::TEXTURE_2D,
 		Renderer::E_TextureFormat::D16,
 		false
 	};

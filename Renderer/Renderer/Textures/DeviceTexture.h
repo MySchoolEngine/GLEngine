@@ -35,7 +35,7 @@ public:
 
 	[[nodiscard]] unsigned int				GetWidth() const { return GetDimensions().x; };
 	[[nodiscard]] unsigned int				GetHeight() const { return GetDimensions().y; };
-	[[nodiscard]] virtual const glm::uvec2& GetDimensions() const		   = 0;
+	[[nodiscard]] virtual glm::uvec2		GetDimensions() const		   = 0;
 	[[nodiscard]] virtual void*				GetDeviceTextureHandle() const = 0;
 	[[nodiscard]] virtual T_TexBufferFuture GetTextureData() const		   = 0;
 

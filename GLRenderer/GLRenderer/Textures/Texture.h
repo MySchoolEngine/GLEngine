@@ -15,12 +15,11 @@
 
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 #include <GLRenderer/Helpers/TextureHelpers.h>
+#include <GLRenderer/Textures/Sampler.h>
 
+#include <Renderer/Descriptors/TextureDescriptor.h>
 #include <Renderer/IResource.h>
 #include <Renderer/Textures/DeviceTexture.h>
-#include <Renderer/Descriptors/TextureDescriptor.h>
-
-#include <GLRenderer/Textures/Sampler.h>
 
 namespace GLEngine::Renderer {
 class I_TextureViewStorage;
@@ -62,10 +61,10 @@ public:
 		unbind();
 	}
 
-	[[nodiscard]] virtual inline const glm::uvec2& GetDimensions() const override { return {m_Desc.width, m_Desc.height}; }
-	inline void									   SetWidth(unsigned int width) { m_Desc.width = width; }
-	inline void									   SetHeight(unsigned int height) { m_Desc.height = height; }
-	inline void									   SetDimensions(const glm::uvec2& dim)
+	[[nodiscard]] virtual inline glm::uvec2 GetDimensions() const override { return {m_Desc.width, m_Desc.height}; }
+	inline void								SetWidth(unsigned int width) { m_Desc.width = width; }
+	inline void								SetHeight(unsigned int height) { m_Desc.height = height; }
+	inline void								SetDimensions(const glm::uvec2& dim)
 	{
 		// todo: should go away
 		m_Desc.width  = dim.x;

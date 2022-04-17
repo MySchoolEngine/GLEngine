@@ -44,7 +44,7 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_Camera
 	m_DirImage = std::make_shared<Textures::C_Texture>(Renderer::TextureDescriptor{
 		"directional",
 		m_DirectionImage.GetDimensions().x, m_DirectionImage.GetDimensions().y,
-		Renderer::E_TextureType::TEXTUE_2D,
+		Renderer::E_TextureType::TEXTURE_2D,
 		Renderer::E_TextureFormat::R32f,
 		false
 	});

@@ -29,7 +29,7 @@ C_Texture::C_Texture(const std::string& name, GLenum target)
 	, m_Format(Renderer::E_TextureFormat::RGBA8i)
 {
 	m_Desc.name = name;
-	m_Desc.type = Renderer::E_TextureType::TEXTUE_2D; // TODO
+ 	m_Desc.type = Renderer::E_TextureType::TEXTURE_2D; // TODO
 	glGenTextures(1, &m_texture);
 	CORE_LOG(E_Level::Error, E_Context::Render, "Texture {}", m_texture);
 	bind();

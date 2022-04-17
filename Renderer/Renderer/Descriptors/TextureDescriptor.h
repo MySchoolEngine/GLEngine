@@ -8,7 +8,8 @@ namespace GLEngine::Renderer {
 
 enum class E_TextureType
 {
-	TEXTUE_2D,
+	TEXTURE_2D,
+	TEXTURE_2D_ARRAY,
 	CUBE_MAP,
 };
 
@@ -27,6 +28,7 @@ struct TextureDescriptor {
 
 	std::uint8_t m_Levels	  = 1; //< Num mip maps
 	std::uint8_t m_NumSamples = 1; //< Multisampled textures
+	std::uint8_t m_NumTextures= 1; //< used for arrays
 };
 
 struct SamplerDescriptor2D {
