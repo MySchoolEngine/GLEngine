@@ -10,6 +10,7 @@
 #include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 
+#include <Renderer/IDevice.h>
 #include <Renderer/IRenderer.h>
 
 #include <Physics/Primitives/AABB.h>
@@ -20,13 +21,31 @@ const int dim = 1024;
 // if you make this mutable you need to update modelMatrix whenever you
 // mutate this value
 
+
+// 0 layer - height
+// 1 layer - amount of water
+// 2 layer - lowest layer - rock
+// 3 layer - second layer - sand
+// 4 layer - third layer - dirt
+const int s_numSedimentLayer = 3;
+
 namespace GLEngine::GLRenderer::Components {
 
 
 //=================================================================================
 C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 	: Renderer::I_RenderableComponent(nullptr)
-	, m_Noise("TerrainNoise", GL_TEXTURE_2D_ARRAY)
+	, m_Noise(
+			Renderer::TextureDescriptor{
+				"TerrainNoise", 
+				dim, dim, 
+				Renderer::E_TextureType::TEXTURE_2D_ARRAY, 
+				Renderer::E_TextureFormat::R32f,			// could be R16f but TODO find why it doesn't work
+				false, 
+				1, 1, 
+				2 + s_numSedimentLayer
+			}
+		)
 	, m_Coord(0, 0)
 	, m_Stats(3)
 	, m_RainData(std::make_shared<decltype(m_RainData)::element_type>("rainData", 4, dim))
@@ -35,27 +54,13 @@ C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 	, m_QueueSimulation(false)
 	, m_Selected(false)
 {
+	auto& device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
+
+	device.AllocateTexture(m_Noise);
+	ErrorCheck();
+	m_Noise.SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
 
 	m_Terrain = std::make_shared<Mesh::C_TerrainMeshResource>();
-	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
-		[&]() {
-			m_Noise.StartGroupOp();
-			// 0 layer - height
-			// 1 layer - amount of water
-			// 2 layer - lowest layer - rock
-			// 3 layer - second layer - sand
-			// 4 layer - third layer - dirt
-			const int numSedimentLayer = 3;
-
-			glTexStorage3D(m_Noise.GetTarget(), 3, GL_R32F, dim, dim, 2 + numSedimentLayer);
-			m_Noise.SetWrap(Renderer::E_WrapFunction::ClampToEdge, Renderer::E_WrapFunction::ClampToEdge);
-			m_Noise.SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
-
-			m_Noise.SetDimensions({dim, dim});
-			m_Noise.GenerateMipMaps();
-			m_Noise.EndGroupOp();
-		},
-		"Terrain - texture commands"));
 
 	SetSettings(settings);
 
@@ -80,6 +85,13 @@ C_TerrainMesh::C_TerrainMesh(Textures::C_Texture&& texture)
 	m_Terrain = std::make_shared<Mesh::C_TerrainMeshResource>();
 
 	m_RainData->GenerateDrops();
+}
+
+//=================================================================================
+C_TerrainMesh::~C_TerrainMesh()
+{
+	auto& device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
+	device.DestroyTexture(m_Noise);
 }
 
 //=================================================================================
@@ -195,7 +207,6 @@ void C_TerrainMesh::UpdateStats()
 //=================================================================================
 void C_TerrainMesh::GenerateTerrain()
 {
-
 	auto& shmgr		  = Shaders::C_ShaderManager::Instance();
 	auto  noiseShader = shmgr.GetProgram("noise");
 	shmgr.ActivateShader(noiseShader);
@@ -297,15 +308,15 @@ void C_TerrainMesh::DebugDraw()
 
 	if (m_Selected)
 	{
-		// ::ImGui::Begin("Terrain ", &m_Selected);
-		// 	::ImGui::Image((void*)GetTexture().GetTexture(),
-		// 	{
-		// 		256,
-		// 		256
-		// 	},
-		// 	{ 0,1 }, { 1,0 });
-		// 	m_HasTexture.Draw();
-		// ::ImGui::End();
+		::ImGui::Begin("Terrain ", &m_Selected);
+			::ImGui::Image((void*)GetTexture().GetTexture(),
+			{
+				256,
+				256
+			},
+			{ 0,1 }, { 1,0 });
+			m_HasTexture.Draw();
+		::ImGui::End();
 	}
 }
 
