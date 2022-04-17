@@ -30,7 +30,13 @@ public:
 	I_DeviceTexture(const TextureDescriptor& desc)
 		: m_Desc(desc)
 	{}
-	I_DeviceTexture(I_DeviceTexture&&) = default;
+	I_DeviceTexture(I_DeviceTexture&&)			  = default;
+	I_DeviceTexture& operator=(I_DeviceTexture&&) = default;
+	virtual ~I_DeviceTexture()					  = default;
+
+	//< correct implementation would involve GPU calls. Should be implemented on I_Device
+	I_DeviceTexture(const I_DeviceTexture&) = default;
+	I_DeviceTexture& operator=(const I_DeviceTexture&) = delete;
 
 	[[nodiscard]] virtual bool IsAllocated() const = 0;
 
