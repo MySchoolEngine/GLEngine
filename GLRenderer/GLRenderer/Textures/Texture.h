@@ -18,7 +18,6 @@
 #include <GLRenderer/Textures/Sampler.h>
 
 #include <Renderer/Descriptors/TextureDescriptor.h>
-#include <Renderer/IResource.h>
 #include <Renderer/Textures/DeviceTexture.h>
 
 namespace GLEngine::Renderer {
@@ -93,8 +92,8 @@ public:
 	virtual void SetFilter(Renderer::E_TextureFilter min, Renderer::E_TextureFilter mag) override;
 	virtual void SetBorderColor(const glm::vec4& color) override;
 	virtual void GenerateMipMaps() override;
-	void		 SetTexParameter(GLenum pname, const glm::vec4& value);
-	void		 SetTexParameter(GLenum pname, GLint value);
+	void		 SetParameter(GLenum pname, const glm::vec4& value);
+	void		 SetParameter(GLenum pname, GLint value);
 
 	virtual void SetTexData2D(int level, const Renderer::I_TextureViewStorage* tex) override;
 	virtual void SetTexData2D(int level, const Renderer::C_TextureView tex) override;

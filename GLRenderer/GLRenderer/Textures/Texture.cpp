@@ -120,8 +120,8 @@ void C_Texture::SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction
 	if (!m_bIsTexture)
 	{
 		bind();
-		SetTexParameter(GL_TEXTURE_WRAP_S, WrapFunctionToEnum(wrapS));
-		SetTexParameter(GL_TEXTURE_WRAP_T, WrapFunctionToEnum(wrapT));
+		SetParameter(GL_TEXTURE_WRAP_S, WrapFunctionToEnum(wrapS));
+		SetParameter(GL_TEXTURE_WRAP_T, WrapFunctionToEnum(wrapT));
 		unbind();
 	}
 	else
@@ -134,9 +134,9 @@ void C_Texture::SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction
 void C_Texture::SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction wrapT, Renderer::E_WrapFunction wrapR)
 {
 	StartGroupOp();
-	SetTexParameter(GL_TEXTURE_WRAP_S, WrapFunctionToEnum(wrapS));
-	SetTexParameter(GL_TEXTURE_WRAP_T, WrapFunctionToEnum(wrapT));
-	SetTexParameter(GL_TEXTURE_WRAP_R, WrapFunctionToEnum(wrapR));
+	SetParameter(GL_TEXTURE_WRAP_S, WrapFunctionToEnum(wrapS));
+	SetParameter(GL_TEXTURE_WRAP_T, WrapFunctionToEnum(wrapT));
+	SetParameter(GL_TEXTURE_WRAP_R, WrapFunctionToEnum(wrapR));
 	EndGroupOp();
 }
 
@@ -146,7 +146,7 @@ void C_Texture::SetBorderColor(const glm::vec4& color)
 	if (!m_bIsTexture)
 	{
 		bind();
-		SetTexParameter(GL_TEXTURE_BORDER_COLOR, color);
+		SetParameter(GL_TEXTURE_BORDER_COLOR, color);
 		unbind();
 	}
 	else
@@ -161,8 +161,8 @@ void C_Texture::SetFilter(Renderer::E_TextureFilter min, Renderer::E_TextureFilt
 	if (!m_bIsTexture)
 	{
 		StartGroupOp();
-		SetTexParameter(GL_TEXTURE_MIN_FILTER, MinMagFilterToEnum(min));
-		SetTexParameter(GL_TEXTURE_MAG_FILTER, MinMagFilterToEnum(mag));
+		SetParameter(GL_TEXTURE_MIN_FILTER, MinMagFilterToEnum(min));
+		SetParameter(GL_TEXTURE_MAG_FILTER, MinMagFilterToEnum(mag));
 		EndGroupOp();
 	}
 	else
@@ -172,7 +172,7 @@ void C_Texture::SetFilter(Renderer::E_TextureFilter min, Renderer::E_TextureFilt
 }
 
 //=================================================================================
-void C_Texture::SetTexParameter(GLenum pname, const glm::vec4& value)
+void C_Texture::SetParameter(GLenum pname, const glm::vec4& value)
 {
 	bind();
 	if (!m_bIsTexture)
@@ -183,7 +183,7 @@ void C_Texture::SetTexParameter(GLenum pname, const glm::vec4& value)
 }
 
 //=================================================================================
-void C_Texture::SetTexParameter(GLenum pname, GLint value)
+void C_Texture::SetParameter(GLenum pname, GLint value)
 {
 	bind();
 	if (!m_bIsTexture)
