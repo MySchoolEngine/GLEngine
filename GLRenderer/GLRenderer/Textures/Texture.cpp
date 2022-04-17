@@ -29,7 +29,7 @@ C_Texture::C_Texture(const std::string& name, GLenum target)
 	, m_Format(Renderer::E_TextureFormat::RGBA8i)
 {
 	m_Desc.name = name;
- 	m_Desc.type = Renderer::E_TextureType::TEXTURE_2D; // TODO
+	m_Desc.type = Renderer::E_TextureType::TEXTURE_2D; // TODO
 	glGenTextures(1, &m_texture);
 	CORE_LOG(E_Level::Error, E_Context::Render, "Texture {}", m_texture);
 	bind();
@@ -40,10 +40,20 @@ C_Texture::C_Texture(const std::string& name, GLenum target)
 }
 
 //=================================================================================
+C_Texture::C_Texture(const Renderer::TextureDescriptor& desc)
+	: Renderer::I_DeviceTexture(desc)
+	, m_bGroupOperations(false)
+	, m_Handle(0)
+	, m_DefaultSampler({})
+{
+}
+
+//=================================================================================
 C_Texture::C_Texture(C_Texture&& t)
-	: Renderer::I_DeviceTexture({})
+	: Renderer::I_DeviceTexture(std::move(t))
 	, m_DefaultSampler(t.m_DefaultSampler)
 {
+	GLE_ASSERT(m_texture == 0, "Moving into the texture that haven't been cleared before. This will leak memory.");
 	if (&t == this)
 	{
 		return;
@@ -55,15 +65,6 @@ C_Texture::C_Texture(C_Texture&& t)
 	m_bGroupOperations = t.m_bGroupOperations;
 	m_Handle		   = t.m_Handle;
 	m_Format		   = t.m_Format;
-}
-
-//=================================================================================
-C_Texture::C_Texture(const Renderer::TextureDescriptor& desc)
-	: Renderer::I_DeviceTexture(desc)
-	, m_bGroupOperations(false)
-	, m_Handle(0)
-	, m_DefaultSampler({})
-{
 }
 
 //=================================================================================
@@ -80,12 +81,14 @@ void C_Texture::operator=(C_Texture&& rhs)
 	m_bGroupOperations = rhs.m_bGroupOperations;
 	m_Handle		   = rhs.m_Handle;
 	m_Format		   = rhs.m_Format;
+	m_Desc			   = rhs.m_Desc;
 }
 
 //=================================================================================
 C_Texture::~C_Texture()
 {
 	CORE_LOG(E_Level::Debug, E_Context::Render, "Texture being deleted name: {}", m_Desc.name);
+	GLE_ASSERT(m_texture == 0, "Descruting the texture that haven't been cleared before. This will leak memory.");
 	Clean();
 }
 

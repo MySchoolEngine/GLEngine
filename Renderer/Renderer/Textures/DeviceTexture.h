@@ -30,6 +30,7 @@ public:
 	I_DeviceTexture(const TextureDescriptor& desc)
 		: m_Desc(desc)
 	{}
+	I_DeviceTexture(I_DeviceTexture&&) = default;
 
 	[[nodiscard]] virtual bool IsAllocated() const = 0;
 
