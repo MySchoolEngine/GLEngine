@@ -15,12 +15,10 @@
 
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 #include <GLRenderer/Helpers/TextureHelpers.h>
-
-#include <Renderer/IResource.h>
-#include <Renderer/Textures/DeviceTexture.h>
-#include <Renderer/Descriptors/TextureDescriptor.h>
-
 #include <GLRenderer/Textures/Sampler.h>
+
+#include <Renderer/Descriptors/TextureDescriptor.h>
+#include <Renderer/Textures/DeviceTexture.h>
 
 namespace GLEngine::Renderer {
 class I_TextureViewStorage;
@@ -62,10 +60,10 @@ public:
 		unbind();
 	}
 
-	[[nodiscard]] virtual inline const glm::uvec2& GetDimensions() const override { return {m_Desc.width, m_Desc.height}; }
-	inline void									   SetWidth(unsigned int width) { m_Desc.width = width; }
-	inline void									   SetHeight(unsigned int height) { m_Desc.height = height; }
-	inline void									   SetDimensions(const glm::uvec2& dim)
+	[[nodiscard]] virtual inline glm::uvec2 GetDimensions() const override { return {m_Desc.width, m_Desc.height}; }
+	inline void								SetWidth(unsigned int width) { m_Desc.width = width; }
+	inline void								SetHeight(unsigned int height) { m_Desc.height = height; }
+	inline void								SetDimensions(const glm::uvec2& dim)
 	{
 		// todo: should go away
 		m_Desc.width  = dim.x;
@@ -80,6 +78,7 @@ public:
 		m_bIsTexture = true;
 	}
 	[[nodiscard]] inline GLuint GetTexture() const { return m_texture; }
+	[[nodiscard]] inline GLuint GetDefaultSampler() const { return m_DefaultSampler.m_Sampler; }
 	[[nodiscard]] inline GLenum GetTarget() const { return GetTextureType(m_Desc.type); }
 
 	[[nodiscard]] virtual T_TexBufferFuture GetTextureData() const override;
@@ -93,8 +92,8 @@ public:
 	virtual void SetFilter(Renderer::E_TextureFilter min, Renderer::E_TextureFilter mag) override;
 	virtual void SetBorderColor(const glm::vec4& color) override;
 	virtual void GenerateMipMaps() override;
-	void		 SetTexParameter(GLenum pname, const glm::vec4& value);
-	void		 SetTexParameter(GLenum pname, GLint value);
+	void		 SetParameter(GLenum pname, const glm::vec4& value);
+	void		 SetParameter(GLenum pname, GLint value);
 
 	virtual void SetTexData2D(int level, const Renderer::I_TextureViewStorage* tex) override;
 	virtual void SetTexData2D(int level, const Renderer::C_TextureView tex) override;

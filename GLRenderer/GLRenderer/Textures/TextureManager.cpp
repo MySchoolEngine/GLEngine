@@ -26,7 +26,7 @@ C_TextureManager::C_TextureManager(Renderer::I_Device& device)
 	// preload fallback textures
 	{
 		// Identity
-		const Renderer::TextureDescriptor desc{"Identity texture", 1, 1, Renderer::E_TextureType::TEXTUE_2D, Renderer::E_TextureFormat::RGBA8i, false};
+		const Renderer::TextureDescriptor desc{"Identity texture", 1, 1, Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::RGBA8i, false};
 
 		m_IdentityTexture = std::make_shared<C_Texture>(desc);
 
@@ -52,7 +52,7 @@ C_TextureManager::C_TextureManager(Renderer::I_Device& device)
 			s_ErrorTextureFile.generic_string(), 
 			buffer->GetDimensions().x,
 			buffer->GetDimensions().y,
-			Renderer::E_TextureType::TEXTUE_2D,
+			Renderer::E_TextureType::TEXTURE_2D,
 			Renderer::E_TextureFormat::RGBA32f, 
 			false,
 			9};
@@ -105,7 +105,7 @@ C_TextureManager::T_TexturePtr C_TextureManager::CreateTexture(const Renderer::I
 	const Renderer::TextureDescriptor desc{name,
 										   tex->GetDimensions().x,
 										   tex->GetDimensions().y,
-										   Renderer::E_TextureType::TEXTUE_2D,
+										   Renderer::E_TextureType::TEXTURE_2D,
 										   Renderer::GetClosestFormat(tex->GetChannels(), !Renderer::IsIntegral(tex->GetStorageType())),
 										   true,
 										   10};
@@ -114,24 +114,6 @@ C_TextureManager::T_TexturePtr C_TextureManager::CreateTexture(const Renderer::I
 	{
 		texture->SetTexData2D(0, tex);
 	}
-
-	m_Textures[name] = texture;
-	return texture;
-}
-
-//=================================================================================
-C_TextureManager::T_TexturePtr C_TextureManager::CreateEmptyTexture(const std::string& name)
-{
-	// only used in shadow mapping. That should not go through texture manager.
-	// this is candidate for deletion
-	auto it = m_Textures.find(name);
-	if (it != m_Textures.end())
-	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Texture with name '{}' already exists.", name);
-		return nullptr;
-	}
-
-	auto texture = std::make_shared<Textures::C_Texture>(name);
 
 	m_Textures[name] = texture;
 	return texture;

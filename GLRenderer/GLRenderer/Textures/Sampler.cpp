@@ -6,6 +6,13 @@
 
 namespace GLEngine::GLRenderer {
 //=================================================================================
+C_Sampler2D::C_Sampler2D(const Renderer::SamplerDescriptor2D& desc)
+	: Renderer::I_TextureSampler2D(desc)
+	, m_Sampler(0)
+{
+}
+
+//=================================================================================
 void C_Sampler2D::SetParameter(GLenum pname, GLint value)
 {
 	glSamplerParameteri(m_Sampler, pname, value);

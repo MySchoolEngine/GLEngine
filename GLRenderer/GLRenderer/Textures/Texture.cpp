@@ -29,7 +29,7 @@ C_Texture::C_Texture(const std::string& name, GLenum target)
 	, m_Format(Renderer::E_TextureFormat::RGBA8i)
 {
 	m_Desc.name = name;
-	m_Desc.type = Renderer::E_TextureType::TEXTUE_2D; // TODO
+	m_Desc.type = Renderer::E_TextureType::TEXTURE_2D; // TODO
 	glGenTextures(1, &m_texture);
 	CORE_LOG(E_Level::Error, E_Context::Render, "Texture {}", m_texture);
 	bind();
@@ -40,10 +40,20 @@ C_Texture::C_Texture(const std::string& name, GLenum target)
 }
 
 //=================================================================================
+C_Texture::C_Texture(const Renderer::TextureDescriptor& desc)
+	: Renderer::I_DeviceTexture(desc)
+	, m_bGroupOperations(false)
+	, m_Handle(0)
+	, m_DefaultSampler({})
+{
+}
+
+//=================================================================================
 C_Texture::C_Texture(C_Texture&& t)
-	: Renderer::I_DeviceTexture({})
+	: Renderer::I_DeviceTexture(std::move(t))
 	, m_DefaultSampler(t.m_DefaultSampler)
 {
+	GLE_ASSERT(m_texture == 0, "Moving into the texture that haven't been cleared before. This will leak memory.");
 	if (&t == this)
 	{
 		return;
@@ -55,15 +65,6 @@ C_Texture::C_Texture(C_Texture&& t)
 	m_bGroupOperations = t.m_bGroupOperations;
 	m_Handle		   = t.m_Handle;
 	m_Format		   = t.m_Format;
-}
-
-//=================================================================================
-C_Texture::C_Texture(const Renderer::TextureDescriptor& desc)
-	: Renderer::I_DeviceTexture(desc)
-	, m_bGroupOperations(false)
-	, m_Handle(0)
-	, m_DefaultSampler({})
-{
 }
 
 //=================================================================================
@@ -80,12 +81,14 @@ void C_Texture::operator=(C_Texture&& rhs)
 	m_bGroupOperations = rhs.m_bGroupOperations;
 	m_Handle		   = rhs.m_Handle;
 	m_Format		   = rhs.m_Format;
+	m_Desc			   = rhs.m_Desc;
 }
 
 //=================================================================================
 C_Texture::~C_Texture()
 {
 	CORE_LOG(E_Level::Debug, E_Context::Render, "Texture being deleted name: {}", m_Desc.name);
+	GLE_ASSERT(m_texture == 0, "Descruting the texture that haven't been cleared before. This will leak memory.");
 	Clean();
 }
 
@@ -117,8 +120,8 @@ void C_Texture::SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction
 	if (!m_bIsTexture)
 	{
 		bind();
-		SetTexParameter(GL_TEXTURE_WRAP_S, WrapFunctionToEnum(wrapS));
-		SetTexParameter(GL_TEXTURE_WRAP_T, WrapFunctionToEnum(wrapT));
+		SetParameter(GL_TEXTURE_WRAP_S, WrapFunctionToEnum(wrapS));
+		SetParameter(GL_TEXTURE_WRAP_T, WrapFunctionToEnum(wrapT));
 		unbind();
 	}
 	else
@@ -131,9 +134,9 @@ void C_Texture::SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction
 void C_Texture::SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction wrapT, Renderer::E_WrapFunction wrapR)
 {
 	StartGroupOp();
-	SetTexParameter(GL_TEXTURE_WRAP_S, WrapFunctionToEnum(wrapS));
-	SetTexParameter(GL_TEXTURE_WRAP_T, WrapFunctionToEnum(wrapT));
-	SetTexParameter(GL_TEXTURE_WRAP_R, WrapFunctionToEnum(wrapR));
+	SetParameter(GL_TEXTURE_WRAP_S, WrapFunctionToEnum(wrapS));
+	SetParameter(GL_TEXTURE_WRAP_T, WrapFunctionToEnum(wrapT));
+	SetParameter(GL_TEXTURE_WRAP_R, WrapFunctionToEnum(wrapR));
 	EndGroupOp();
 }
 
@@ -143,7 +146,7 @@ void C_Texture::SetBorderColor(const glm::vec4& color)
 	if (!m_bIsTexture)
 	{
 		bind();
-		SetTexParameter(GL_TEXTURE_BORDER_COLOR, color);
+		SetParameter(GL_TEXTURE_BORDER_COLOR, color);
 		unbind();
 	}
 	else
@@ -158,8 +161,8 @@ void C_Texture::SetFilter(Renderer::E_TextureFilter min, Renderer::E_TextureFilt
 	if (!m_bIsTexture)
 	{
 		StartGroupOp();
-		SetTexParameter(GL_TEXTURE_MIN_FILTER, MinMagFilterToEnum(min));
-		SetTexParameter(GL_TEXTURE_MAG_FILTER, MinMagFilterToEnum(mag));
+		SetParameter(GL_TEXTURE_MIN_FILTER, MinMagFilterToEnum(min));
+		SetParameter(GL_TEXTURE_MAG_FILTER, MinMagFilterToEnum(mag));
 		EndGroupOp();
 	}
 	else
@@ -169,7 +172,7 @@ void C_Texture::SetFilter(Renderer::E_TextureFilter min, Renderer::E_TextureFilt
 }
 
 //=================================================================================
-void C_Texture::SetTexParameter(GLenum pname, const glm::vec4& value)
+void C_Texture::SetParameter(GLenum pname, const glm::vec4& value)
 {
 	bind();
 	if (!m_bIsTexture)
@@ -180,7 +183,7 @@ void C_Texture::SetTexParameter(GLenum pname, const glm::vec4& value)
 }
 
 //=================================================================================
-void C_Texture::SetTexParameter(GLenum pname, GLint value)
+void C_Texture::SetParameter(GLenum pname, GLint value)
 {
 	bind();
 	if (!m_bIsTexture)

@@ -49,7 +49,7 @@ C_SunShadowMapTechnique::C_SunShadowMapTechnique(std::shared_ptr<Renderer::C_Sun
 	if (storeAlbedoForShadowMap)
 	{
 		auto HDRTexture = std::make_shared<Textures::C_Texture>(
-			Renderer::TextureDescriptor{"hdrTexture", s_ShadowMapSize, s_ShadowMapSize, Renderer::E_TextureType::TEXTUE_2D, Renderer::E_TextureFormat::RGBA16f, false});
+			Renderer::TextureDescriptor{"hdrTexture", s_ShadowMapSize, s_ShadowMapSize, Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::RGBA16f, false});
 
 		device.AllocateTexture(*HDRTexture.get());
 
@@ -72,7 +72,7 @@ C_SunShadowMapTechnique::C_SunShadowMapTechnique(std::shared_ptr<Renderer::C_Sun
 	}
 
 	auto depthTexture = std::make_shared<Textures::C_Texture>(
-		Renderer::TextureDescriptor{"sunShadowMap", s_ShadowMapSize, s_ShadowMapSize, Renderer::E_TextureType::TEXTUE_2D, Renderer::E_TextureFormat::D16, false});
+		Renderer::TextureDescriptor{"sunShadowMap", s_ShadowMapSize, s_ShadowMapSize, Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::D16, false});
 
 	device.AllocateTexture(*depthTexture.get());
 

@@ -2,8 +2,8 @@
 
 #include <GLRenderer/Helpers/TextureHelpers.h>
 #include <GLRenderer/OGLDevice.h>
-#include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/Textures/Sampler.h>
+#include <GLRenderer/Textures/Texture.h>
 
 #include <Renderer/Textures/DeviceTexture.h>
 #include <Renderer/Textures/TextureDefinitions.h>
@@ -22,6 +22,7 @@ constexpr static auto GPU_MEMORY_INFO_EVICTED_MEMORY_NVX		   = 0x904B;
 //=================================================================================
 C_GLDevice::C_GLDevice()
 	: m_TotalMemory(std::numeric_limits<int>::max())
+	, m_TextureMemoryUsed(0)
 {
 	int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
@@ -85,25 +86,33 @@ bool C_GLDevice::AllocateTexture(Renderer::I_DeviceTexture& texture)
 
 	switch (descriptor.type)
 	{
-	case Renderer::E_TextureType::TEXTUE_2D: {
-		GLint currentMemoryKb = 0;
-		glGetIntegerv(NVX_ext::GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &currentMemoryKb);
-		CORE_LOG(E_Level::Info, E_Context::Render, "Memroy available {}", currentMemoryKb);
+	case Renderer::E_TextureType::TEXTURE_2D: {
 		glTextureStorage2D(texID, descriptor.m_Levels, GetOpenGLInternalFormat(descriptor.format), descriptor.width, descriptor.height);
 		// still missing 1.33 for mip mapping and size of the type
 		memory = descriptor.width * descriptor.height * Renderer::GetNumberChannels(descriptor.format) * SizeOfGLType(OpenGLUnderlyingType(descriptor.format));
-		glGetIntegerv(NVX_ext::GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &currentMemoryKb);
-		CORE_LOG(E_Level::Info, E_Context::Render, "Memroy available {}", currentMemoryKb);
 		textureGL->SetGPUID(texID);
 		m_TextureMemoryUsed += memory;
 
-		textureGL->SetTexParameter(GL_TEXTURE_BASE_LEVEL, 0);
-		textureGL->SetTexParameter(GL_TEXTURE_MAX_LEVEL, 9);
+		textureGL->SetParameter(GL_TEXTURE_BASE_LEVEL, 0);
+		textureGL->SetParameter(GL_TEXTURE_MAX_LEVEL, descriptor.m_Levels - 1);
+
+		AllocateSampler(textureGL->m_DefaultSampler); // TODO once propper sampler system ready delete this
+		return true;
+	}
+	case Renderer::E_TextureType::TEXTURE_2D_ARRAY: {
+		glTextureStorage3D(texID, descriptor.m_Levels, GetOpenGLInternalFormat(descriptor.format), descriptor.width, descriptor.height, descriptor.m_NumTextures);
+		memory = descriptor.width * descriptor.height * Renderer::GetNumberChannels(descriptor.format) * SizeOfGLType(OpenGLUnderlyingType(descriptor.format)) * descriptor.m_NumTextures;
+		textureGL->SetGPUID(texID);
+		m_TextureMemoryUsed += memory;
+
+		textureGL->SetParameter(GL_TEXTURE_BASE_LEVEL, 0);
+		textureGL->SetParameter(GL_TEXTURE_MAX_LEVEL, descriptor.m_Levels - 1);
 
 		AllocateSampler(textureGL->m_DefaultSampler); // TODO once propper sampler system ready delete this
 		return true;
 	}
 	default:
+		GLE_ASSERT(false, "Unimplemented case.");
 		break;
 	}
 

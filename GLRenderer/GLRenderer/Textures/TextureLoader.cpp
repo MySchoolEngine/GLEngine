@@ -28,8 +28,8 @@ std::shared_ptr<GLRenderer::Textures::C_Texture> TextureLoader::LoadAndInitTextu
 	GLE_ASSERT(Texture.target() == gli::TARGET_2D, "Only 2d supported now");
 	auto texture = std::make_shared<Textures::C_Texture>(path.string());
 	texture->StartGroupOp();
-	texture->SetTexParameter(GL_TEXTURE_BASE_LEVEL, 0);
-	texture->SetTexParameter(GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(Texture.levels() - 1));
+	texture->SetParameter(GL_TEXTURE_BASE_LEVEL, 0);
+	texture->SetParameter(GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(Texture.levels() - 1));
 	glTexParameteriv(Target, GL_TEXTURE_SWIZZLE_RGBA, &Format.Swizzles[0]);
 
 	glTexStorage2D(Target, static_cast<GLint>(Texture.levels()), Format.Internal, Texture.extent(0).x, Texture.extent(0).y);

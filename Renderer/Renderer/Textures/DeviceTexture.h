@@ -30,12 +30,19 @@ public:
 	I_DeviceTexture(const TextureDescriptor& desc)
 		: m_Desc(desc)
 	{}
+	I_DeviceTexture(I_DeviceTexture&&)			  = default;
+	I_DeviceTexture& operator=(I_DeviceTexture&&) = default;
+	virtual ~I_DeviceTexture()					  = default;
+
+	//< correct implementation would involve GPU calls. Should be implemented on I_Device
+	I_DeviceTexture(const I_DeviceTexture&) = default;
+	I_DeviceTexture& operator=(const I_DeviceTexture&) = delete;
 
 	[[nodiscard]] virtual bool IsAllocated() const = 0;
 
 	[[nodiscard]] unsigned int				GetWidth() const { return GetDimensions().x; };
 	[[nodiscard]] unsigned int				GetHeight() const { return GetDimensions().y; };
-	[[nodiscard]] virtual const glm::uvec2& GetDimensions() const		   = 0;
+	[[nodiscard]] virtual glm::uvec2		GetDimensions() const		   = 0;
 	[[nodiscard]] virtual void*				GetDeviceTextureHandle() const = 0;
 	[[nodiscard]] virtual T_TexBufferFuture GetTextureData() const		   = 0;
 
