@@ -33,14 +33,6 @@ public:
 	I_Device()			= default;
 	virtual ~I_Device() = default;
 
-	/**
-	 * Base for GPU handles. Holds use count described earlier.
-	 *
-	 */
-	struct GPUHandle {
-		void Use() {} //< call this every time handle being used
-	};
-
 
 	using T_TextureHandle = std::shared_ptr<I_DeviceTexture>;
 
