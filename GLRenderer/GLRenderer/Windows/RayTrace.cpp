@@ -41,7 +41,7 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_Camera
 	m_Image = std::make_shared<Textures::C_Texture>(Renderer::TextureDescriptor {
 		"rayTrace", 
 		s_ImageResolution.x, s_ImageResolution.y, 
-		Renderer::E_TextureType::TEXTUE_2D, 
+		Renderer::E_TextureType::TEXTURE_2D, 
 		Renderer::E_TextureFormat::RGB32f, 
 		false
 	});
