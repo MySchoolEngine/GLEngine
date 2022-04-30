@@ -36,7 +36,6 @@ using T_TexBufferFuture = std::future<std::unique_ptr<Renderer::I_TextureViewSto
 class C_Texture : public Renderer::I_DeviceTexture {
 public:
 	explicit C_Texture(const Renderer::TextureDescriptor& desc);
-	explicit C_Texture(const std::string& name, GLenum target = GL_TEXTURE_2D);
 	C_Texture(const C_Texture&) = delete;
 	C_Texture(C_Texture&& t);
 	void operator=(C_Texture&& rhs);
@@ -48,17 +47,6 @@ public:
 	// TODO move to Commands or remove due to new API
 	void bind() const;
 	void unbind() const;
-
-	inline void StartGroupOp()
-	{
-		bind();
-		m_bGroupOperations = true;
-	}
-	inline void EndGroupOp()
-	{
-		m_bGroupOperations = false;
-		unbind();
-	}
 
 	[[nodiscard]] virtual inline glm::uvec2 GetDimensions() const override { return {m_Desc.width, m_Desc.height}; }
 	inline void								SetWidth(unsigned int width) { m_Desc.width = width; }
@@ -75,7 +63,6 @@ public:
 	void SetGPUID(GLuint ID)
 	{
 		m_texture = ID;
-		m_bIsTexture = true;
 	}
 	[[nodiscard]] inline GLuint GetTexture() const { return m_texture; }
 	[[nodiscard]] inline GLuint GetDefaultSampler() const { return m_DefaultSampler.m_Sampler; }
@@ -98,8 +85,6 @@ public:
 	virtual void SetTexData2D(int level, const Renderer::I_TextureViewStorage* tex) override;
 	virtual void SetTexData2D(int level, const Renderer::C_TextureView tex) override;
 
-	void SetInternalFormat(Renderer::E_TextureFormat internalFormat, GLint format);
-
 	friend class C_TextureManager;
 	friend class GLEngine::GLRenderer::C_GLDevice;
 
@@ -108,15 +93,11 @@ protected:
 
 
 	GLuint					  m_texture;
-	Renderer::E_TextureFormat m_Format;
-	bool					  m_bGroupOperations : 1;
 	bool					  m_IsPresentOnGPU = false;
 	bool					  m_IsResidient = false;
 	std::uint64_t			  m_Handle;
 
 	C_Sampler2D m_DefaultSampler;
-
-	bool m_bIsTexture = false;
 };
 } // namespace Textures
 } // namespace GLEngine::GLRenderer

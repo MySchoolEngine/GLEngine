@@ -57,7 +57,6 @@ C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 	auto& device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
 
 	device.AllocateTexture(m_Noise);
-	ErrorCheck();
 	m_Noise.SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
 
 	m_Terrain = std::make_shared<Mesh::C_TerrainMeshResource>();

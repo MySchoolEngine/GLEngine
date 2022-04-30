@@ -36,7 +36,7 @@ void C_TextureUnitManger::BindTextureToUnit(const C_Texture& texture, unsigned i
 
 	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&texture, unit]() {
-			glBindTexture(texture.GetTarget(), texture.GetTexture()); /* here really goes the bind*/
+			texture.bind(); /* here really goes the bind - just cause the standard*/
 			glBindSampler(unit, texture.GetDefaultSampler());
 	  },
 		fmt::format("BindTextureToUnit - {} -> {}", texture.GetTexture(), unit)));

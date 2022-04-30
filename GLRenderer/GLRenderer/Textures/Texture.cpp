@@ -20,29 +20,8 @@
 namespace GLEngine::GLRenderer::Textures {
 
 //=================================================================================
-C_Texture::C_Texture(const std::string& name, GLenum target)
-	: Renderer::I_DeviceTexture({})
-	, m_DefaultSampler({})
-	, m_bGroupOperations(false)
-	, m_texture(0)
-	, m_Handle(0)
-	, m_Format(Renderer::E_TextureFormat::RGBA8i)
-{
-	m_Desc.name = name;
-	m_Desc.type = Renderer::E_TextureType::TEXTURE_2D; // TODO
-	glGenTextures(1, &m_texture);
-	CORE_LOG(E_Level::Error, E_Context::Render, "Texture {}", m_texture);
-	bind();
-	glObjectLabel(GL_TEXTURE, m_texture, static_cast<GLsizei>(name.length()), name.c_str());
-	unbind();
-
-	SetInternalFormat(m_Format, GetOpenGLFormat(m_Format));
-}
-
-//=================================================================================
 C_Texture::C_Texture(const Renderer::TextureDescriptor& desc)
 	: Renderer::I_DeviceTexture(desc)
-	, m_bGroupOperations(false)
 	, m_Handle(0)
 	, m_DefaultSampler({})
 {
@@ -60,11 +39,9 @@ C_Texture::C_Texture(C_Texture&& t)
 	}
 	Clean();
 
-	m_texture		   = t.m_texture;
-	t.m_texture		   = 0;
-	m_bGroupOperations = t.m_bGroupOperations;
-	m_Handle		   = t.m_Handle;
-	m_Format		   = t.m_Format;
+	m_texture	= t.m_texture;
+	t.m_texture = 0;
+	m_Handle	= t.m_Handle;
 }
 
 //=================================================================================
@@ -76,12 +53,10 @@ void C_Texture::operator=(C_Texture&& rhs)
 	}
 	Clean();
 
-	m_texture		   = rhs.m_texture;
-	rhs.m_texture	   = 0;
-	m_bGroupOperations = rhs.m_bGroupOperations;
-	m_Handle		   = rhs.m_Handle;
-	m_Format		   = rhs.m_Format;
-	m_Desc			   = rhs.m_Desc;
+	m_texture	  = rhs.m_texture;
+	rhs.m_texture = 0;
+	m_Handle	  = rhs.m_Handle;
+	m_Desc		  = rhs.m_Desc;
 }
 
 //=================================================================================
@@ -95,144 +70,78 @@ C_Texture::~C_Texture()
 //=================================================================================
 void C_Texture::Clean()
 {
-	if (m_texture != 0)
-		glDeleteTextures(1, &m_texture);
 	m_texture = 0;
 }
 
 //=================================================================================
 void C_Texture::bind() const
 {
-	if (!m_bGroupOperations && !m_bIsTexture)
-		glBindTexture(GetTextureType(m_Desc.type), m_texture);
+	glBindTexture(GetTextureType(m_Desc.type), m_texture);
 }
 
 //=================================================================================
 void C_Texture::unbind() const
 {
-	if (!m_bGroupOperations && !m_bIsTexture)
-		glBindTexture(GetTextureType(m_Desc.type), 0);
+	glBindTexture(GetTextureType(m_Desc.type), 0);
 }
 
 //=================================================================================
 void C_Texture::SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction wrapT)
 {
-	if (!m_bIsTexture)
-	{
-		bind();
-		SetParameter(GL_TEXTURE_WRAP_S, WrapFunctionToEnum(wrapS));
-		SetParameter(GL_TEXTURE_WRAP_T, WrapFunctionToEnum(wrapT));
-		unbind();
-	}
-	else
-	{
-		m_DefaultSampler.SetWrap(wrapS, wrapT);
-	}
+	m_DefaultSampler.SetWrap(wrapS, wrapT);
 }
 
 //=================================================================================
 void C_Texture::SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction wrapT, Renderer::E_WrapFunction wrapR)
 {
-	StartGroupOp();
 	SetParameter(GL_TEXTURE_WRAP_S, WrapFunctionToEnum(wrapS));
 	SetParameter(GL_TEXTURE_WRAP_T, WrapFunctionToEnum(wrapT));
 	SetParameter(GL_TEXTURE_WRAP_R, WrapFunctionToEnum(wrapR));
-	EndGroupOp();
 }
 
 //=================================================================================
 void C_Texture::SetBorderColor(const glm::vec4& color)
 {
-	if (!m_bIsTexture)
-	{
-		bind();
-		SetParameter(GL_TEXTURE_BORDER_COLOR, color);
-		unbind();
-	}
-	else
-	{
-		m_DefaultSampler.SetBorderColor(color);
-	}
+	m_DefaultSampler.SetBorderColor(color);
 }
 
 //=================================================================================
 void C_Texture::SetFilter(Renderer::E_TextureFilter min, Renderer::E_TextureFilter mag)
 {
-	if (!m_bIsTexture)
-	{
-		StartGroupOp();
-		SetParameter(GL_TEXTURE_MIN_FILTER, MinMagFilterToEnum(min));
-		SetParameter(GL_TEXTURE_MAG_FILTER, MinMagFilterToEnum(mag));
-		EndGroupOp();
-	}
-	else
-	{
-		m_DefaultSampler.SetFilter(min, mag);
-	}
+	m_DefaultSampler.SetFilter(min, mag);
 }
 
 //=================================================================================
 void C_Texture::SetParameter(GLenum pname, const glm::vec4& value)
 {
-	bind();
-	if (!m_bIsTexture)
-		glTexParameterfv(GetTextureType(m_Desc.type), pname, glm::value_ptr(value));
-	else
-		glTextureParameterfv(m_texture, pname, glm::value_ptr(value));
-	unbind();
+	glTextureParameterfv(m_texture, pname, glm::value_ptr(value));
 }
 
 //=================================================================================
 void C_Texture::SetParameter(GLenum pname, GLint value)
 {
-	bind();
-	if (!m_bIsTexture)
-		glTexParameteri(GetTextureType(m_Desc.type), pname, value);
-	else
-		glTextureParameteri(m_texture, pname, value);
-	unbind();
+	glTextureParameteri(m_texture, pname, value);
 }
 
 //=================================================================================
 void C_Texture::GenerateMipMaps()
 {
-	bind();
-	if (!m_bIsTexture)
-		glGenerateMipmap(GetTextureType(m_Desc.type));
-	else
-		glGenerateTextureMipmap(m_texture);
-	unbind();
+	glGenerateTextureMipmap(m_texture);
 }
 
 //=================================================================================
 void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* tex)
 {
 	GLE_ASSERT(tex, "This should be smth like reference");
-	if (!m_bIsTexture)
-	{
-		bind();
-		SetDimensions(tex->GetDimensions());
+	// https://www.khronos.org/registry/OpenGL/specs/gl/glspec45.compatibility.pdf Table 8.35
+	glTextureSubImage2D(m_texture,
+						0,												//!< Level
+						0, 0,											//!< Offsets
+						tex->GetDimensions().x, tex->GetDimensions().y, //!< Dimmensions
+						GetFormat(tex->GetChannels(), 
+						Renderer::IsIntegral(tex->GetStorageType())), 
+						GetUnderlyingType(tex), tex->GetData());
 
-		glTexImage2D(GetTextureType(m_Desc.type), level,
-					 GetOpenGLInternalFormat(m_Desc.format), // internal format
-					 tex->GetDimensions().x, tex->GetDimensions().y,
-					 0,								// border
-					 GetFormat(tex->GetChannels(), Renderer::IsIntegral(tex->GetStorageType())), // format
-					 GetUnderlyingType(tex),		// TODO
-					 tex->GetData());															 // data
-		unbind();
-	}
-	else
-	{
-		// https://www.khronos.org/registry/OpenGL/specs/gl/glspec45.compatibility.pdf Table 8.35
-		glTextureSubImage2D(m_texture,
-							0,												//!< Level
-							0, 0,											//!< Offsets
-							tex->GetDimensions().x, tex->GetDimensions().y, //!< Dimmensions
-							GetFormat(tex->GetChannels(), Renderer::IsIntegral(tex->GetStorageType())),
-							GetUnderlyingType(tex),
-							tex->GetData());
-	}
 	// automatic mip-maps generation
 	if (m_Desc.m_Levels > 1)
 		glGenerateTextureMipmap(m_texture);
@@ -243,34 +152,12 @@ void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* te
 //=================================================================================
 void C_Texture::SetTexData2D(int level, const Renderer::C_TextureView tex)
 {
-	StartGroupOp();
 	SetTexData2D(level, tex.GetStorage());
 	if (tex.UseBorderColor())
 	{
 		SetBorderColor(tex.GetBorderColor<glm::vec4>());
 	}
 	SetWrap(tex.GetWrapFunction(), tex.GetWrapFunction());
-	EndGroupOp();
-}
-
-//=================================================================================
-void C_Texture::SetInternalFormat(Renderer::E_TextureFormat internalFormat, GLint format)
-{
-	if (!m_bIsTexture)
-	{
-		// IMHO I don't want to do that with my immutable textures
-		bind();
-		m_Desc.format = internalFormat;
-		glTexImage2D(GetTextureType(m_Desc.type),
-					 0,									// level
-					 GetOpenGLInternalFormat(m_Desc.format), // internal format
-					 GetWidth(), GetHeight(),			// dimensions
-					 0,									// border
-					 format,							// this should be deduced from m_Format too
-					 OpenGLUnderlyingType(m_Desc.format),
-					 nullptr); // no data passed as we just want to allocate buffer
-		unbind();
-	}
 }
 
 //=================================================================================
@@ -278,10 +165,7 @@ std::uint64_t C_Texture::CreateHandle()
 {
 	if (m_IsPresentOnGPU && m_Handle == 0)
 	{
-		if (!m_bIsTexture)
-		  m_Handle = glGetTextureHandleARB(m_texture);
-		else
-			m_Handle = glGetTextureSamplerHandleARB(m_texture, m_DefaultSampler.m_Sampler);
+		m_Handle = glGetTextureSamplerHandleARB(m_texture, m_DefaultSampler.m_Sampler);
 	}
 	return GetHandle();
 }
@@ -304,7 +188,7 @@ void C_Texture::MakeHandleResident(bool val)
 		C_TextureManager::Instance().GetErrorTexture()->MakeHandleResident(val);
 		return;
 	}
-	if (m_IsResidient!=val)
+	if (m_IsResidient != val)
 		Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::C_GLMakeTextureHandleResident>(GetHandle(), val));
 	m_IsResidient = val;
 }

@@ -87,7 +87,7 @@ bool C_GLDevice::AllocateTexture(Renderer::I_DeviceTexture& texture)
 	switch (descriptor.type)
 	{
 	case Renderer::E_TextureType::TEXTURE_2D: {
-		glTextureStorage2D(texID, descriptor.m_Levels, GetOpenGLInternalFormat(descriptor.format), descriptor.width, descriptor.height);
+		glTextureStorage2D(texID, descriptor.m_Levels, GetOpenGLInternalFormat(descriptor.format), static_cast<GLsizei>(descriptor.width), static_cast<GLsizei>(descriptor.height));
 		// still missing 1.33 for mip mapping and size of the type
 		memory = descriptor.width * descriptor.height * Renderer::GetNumberChannels(descriptor.format) * SizeOfGLType(OpenGLUnderlyingType(descriptor.format));
 		textureGL->SetGPUID(texID);
@@ -96,19 +96,22 @@ bool C_GLDevice::AllocateTexture(Renderer::I_DeviceTexture& texture)
 		textureGL->SetParameter(GL_TEXTURE_BASE_LEVEL, 0);
 		textureGL->SetParameter(GL_TEXTURE_MAX_LEVEL, descriptor.m_Levels - 1);
 
-		AllocateSampler(textureGL->m_DefaultSampler); // TODO once propper sampler system ready delete this
+		AllocateSampler(textureGL->m_DefaultSampler); // TODO once proper sampler system ready delete this
 		return true;
 	}
 	case Renderer::E_TextureType::TEXTURE_2D_ARRAY: {
-		glTextureStorage3D(texID, descriptor.m_Levels, GetOpenGLInternalFormat(descriptor.format), descriptor.width, descriptor.height, descriptor.m_NumTextures);
-		memory = descriptor.width * descriptor.height * Renderer::GetNumberChannels(descriptor.format) * SizeOfGLType(OpenGLUnderlyingType(descriptor.format)) * descriptor.m_NumTextures;
+		glTextureStorage3D(texID, descriptor.m_Levels, GetOpenGLInternalFormat(descriptor.format), 
+						   static_cast<GLsizei>(descriptor.width), static_cast<GLsizei>(descriptor.height),
+						   static_cast<GLsizei>(descriptor.m_NumTextures));
+		memory = descriptor.width * descriptor.height * Renderer::GetNumberChannels(descriptor.format) * SizeOfGLType(OpenGLUnderlyingType(descriptor.format))
+				 * descriptor.m_NumTextures;
 		textureGL->SetGPUID(texID);
 		m_TextureMemoryUsed += memory;
 
 		textureGL->SetParameter(GL_TEXTURE_BASE_LEVEL, 0);
 		textureGL->SetParameter(GL_TEXTURE_MAX_LEVEL, descriptor.m_Levels - 1);
 
-		AllocateSampler(textureGL->m_DefaultSampler); // TODO once propper sampler system ready delete this
+		AllocateSampler(textureGL->m_DefaultSampler); // TODO once proper sampler system ready delete this
 		return true;
 	}
 	default:
@@ -171,7 +174,6 @@ void C_GLDevice::DestroySampler(Renderer::I_TextureSampler2D& texture)
 {
 	auto* samplerGL = reinterpret_cast<C_Sampler2D*>(&texture);
 	glDeleteSamplers(1, &samplerGL->m_Sampler);
-	
 }
 
 } // namespace GLEngine::GLRenderer
