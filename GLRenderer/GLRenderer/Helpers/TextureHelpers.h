@@ -2,7 +2,28 @@
 
 #include <GLRendererStdafx.h>
 
+#include <Renderer/Textures/TextureDefinitions.h>
+#include <Renderer/Descriptors/TextureDescriptor.h>
+
 namespace GLEngine::GLRenderer {
+inline GLint GetTextureType(Renderer::E_TextureType e)
+{
+	switch (e)
+	{
+	case Renderer::E_TextureType::TEXTURE_2D:
+		return GL_TEXTURE_2D;
+	case Renderer::E_TextureType::CUBE_MAP:
+		return GL_TEXTURE_CUBE_MAP;
+	case Renderer::E_TextureType::TEXTURE_2D_ARRAY:
+		return GL_TEXTURE_2D_ARRAY;
+	default:
+		CORE_LOG(E_Level::Error, E_Context::Render, "Unknown texture target: {}", e);
+		return GL_TEXTURE_2D;
+		break;
+	}
+}
+
+//=================================================================================
 inline std::uint8_t GetNumberOfChannels(GLint pixelFormat)
 {
 	switch (pixelFormat)

@@ -155,12 +155,9 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, std::str
 	if (!m_Texture)
 		return;
 
-	m_Texture->StartGroupOp();
 	m_Texture->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
 	m_Texture->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
 	m_Texture->GenerateMipMaps();
-
-	m_Texture->EndGroupOp();
 
 	// setup joint transforms
 	auto& UBOMan		= Buffers::C_UniformBuffersManager::Instance();

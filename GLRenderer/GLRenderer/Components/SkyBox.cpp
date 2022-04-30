@@ -23,10 +23,10 @@ namespace GLEngine::GLRenderer::Components {
 //=================================================================================
 C_SkyBox::C_SkyBox(std::shared_ptr<Entity::I_Entity> owner)
 	: Renderer::I_RenderableComponent(owner)
-	, m_Textures("Skybox", GL_TEXTURE_CUBE_MAP)
+//, m_Textures("Skybox", GL_TEXTURE_CUBE_MAP)
 {
-	m_Textures.SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
-	m_Textures.SetWrap(Renderer::E_WrapFunction::ClampToEdge, Renderer::E_WrapFunction::ClampToEdge, Renderer::E_WrapFunction::ClampToEdge);
+	//m_Textures.SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
+	//m_Textures.SetWrap(Renderer::E_WrapFunction::ClampToEdge, Renderer::E_WrapFunction::ClampToEdge, Renderer::E_WrapFunction::ClampToEdge);
 
 	std::vector<glm::vec3> vertices;
 	// left
@@ -90,23 +90,22 @@ C_SkyBox::C_SkyBox(std::shared_ptr<Entity::I_Entity> owner)
 void C_SkyBox::AddTexture(E_Side side, const std::filesystem::path& filename)
 {
 	Renderer::Textures::TextureLoader tl;
-	Renderer::MeshData::Texture		  t;
-	bool							  retval = tl.loadTexture(filename, t);
+	auto							  tex = tl.loadTexture(filename);
 
-	if (!retval)
+	if (!tex)
 		CORE_LOG(E_Level::Error, E_Context::Render, "Texture cannot be loaded");
 
-	m_Textures.bind();
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + static_cast<int>(side), 0, GL_RGBA, t.width, t.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, t.data.get());
+	//m_Textures.bind();
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + static_cast<int>(side), 0, GL_RGBA, tex->GetDimensions().x, tex->GetDimensions().y, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex->GetData());
 
-	m_Textures.unbind();
+	//m_Textures.unbind();
 }
 
 //=================================================================================
 void C_SkyBox::PerformDraw() const
 {
 	auto& tm = Textures::C_TextureUnitManger::Instance();
-	tm.BindTextureToUnit(m_Textures, 0);
+	//tm.BindTextureToUnit(m_Textures, 0);
 
 	auto& shmgr	 = Shaders::C_ShaderManager::Instance();
 	auto  shader = shmgr.GetProgram("skybox");
@@ -117,7 +116,7 @@ void C_SkyBox::PerformDraw() const
 			glDepthFunc(GL_LEQUAL); // change depth function so depth test passes when values are equal to depth buffer's content
 
 			m_VAO.bind();
-			m_Textures.bind();
+			//m_Textures.bind();
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 			glDepthFunc(GL_LESS); // set depth function back to default
 			m_VAO.unbind();

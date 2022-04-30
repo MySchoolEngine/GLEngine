@@ -45,8 +45,9 @@ float remap(float value, float low1, float high1, float low2, float high2)
 }
 
 vec2 texCoordOUT = vec2(0, 0);
+@struct PhongMaterial;
 
-float GetRoughness(vec2 uv)
+float GetRoughness(vec2 uv, const PhongMaterial material)
 {
 	return 1.0;
 }
@@ -77,7 +78,7 @@ vec3 BRDF(const vec3 norm, const vec3 omegaIn, const vec3 omegaOut, const vec3 l
 	return (Kd * usedColor / PI + spec) * lightColor * NdotL;
 }
 
-#include "../include/SunUtils.glsl"
+//#include "../include/SunUtils.glsl"
 
 //=================================================================================
 void main()
@@ -113,7 +114,13 @@ void main()
 		specularStrength = 0;
 	}*/
 
-	vec3 result = vec3(0, 0, 0);
+	/*vec3 result = vec3(0, 0, 0);
 	result += CalculatSunLight(normal, viewDir, FragPos);
-	fragColor = vec4(result, 1);
+	fragColor = vec4(result, 1);*/
+
+	float cosTheta	 = dot(normal, normalize(pSunLight.position));
+	vec3 MaterialAmbientColor = frame.AmbientStrength * pSunLight.color; // ambient lighting fake
+	vec3 MaterialDiffuseColor = cosTheta * pSunLight.color;
+
+	fragColor = vec4((MaterialAmbientColor + MaterialDiffuseColor) * usedColor, 1);
 }

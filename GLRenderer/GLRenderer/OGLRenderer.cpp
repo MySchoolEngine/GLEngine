@@ -3,6 +3,7 @@
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
 #include <GLRenderer/Debug.h>
 #include <GLRenderer/OGLRenderer.h>
+#include <GLRenderer/OGLDevice.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Textures/TextureManager.h>
 
@@ -21,7 +22,7 @@
 namespace GLEngine::GLRenderer {
 
 //=================================================================================
-C_OGLRenderer::C_OGLRenderer()
+C_OGLRenderer::C_OGLRenderer(C_GLDevice& device)
 	: m_CommandQueue(new std::remove_pointer<decltype(m_CommandQueue)>::type)
 	, m_DrawCommands("Draw commands")
 	, m_CatchErrors(false, "Catch errors")
@@ -33,13 +34,15 @@ C_OGLRenderer::C_OGLRenderer()
 	, m_ScreenCaptureList("Capture frame commands", [&]() { m_OutputCommandList = true; })
 	, m_Window(GUID::INVALID_GUID)
 	, m_Windows(std::string("Windows"))
+	, m_Device(device)
 {
-	int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-
-	if (status == 0)
+	if (m_CatchErrors)
 	{
-		CORE_LOG(E_Level::Error, E_Context::Core, "GLFW: Glad wasn't loaded properlly. Status {}", status);
+		glEnable(GL_DEBUG_OUTPUT);
+		glDebugMessageCallback(MessageCallback, nullptr);
 	}
+
+	auto& tmgr = Textures::C_TextureManager::Instance(&device);
 }
 
 //=================================================================================
@@ -233,6 +236,12 @@ void C_OGLRenderer::CaputreCommands() const
 	}
 	file.flush();
 	file.close();
+}
+
+//=================================================================================
+GLEngine::Renderer::I_Device& C_OGLRenderer::GetDevice()
+{
+	return m_Device;
 }
 
 } // namespace GLEngine::GLRenderer

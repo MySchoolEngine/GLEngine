@@ -34,7 +34,7 @@ public:
 	virtual bool			 HasDebugDrawGUI() const override;
 
 private:
-	Textures::C_Texture							 m_Textures;
+	//Textures::C_Texture							 m_Textures;
 	VAO::C_GLVAO<1>								 m_VAO;
 	static constexpr Physics::Primitives::S_AABB m_AABB = Physics::Primitives::S_AABB();
 };

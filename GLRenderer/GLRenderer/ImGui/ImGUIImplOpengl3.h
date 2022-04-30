@@ -1,4 +1,4 @@
 #pragma once
 
-#include <examples/imgui_impl_opengl3.h>
+#include <GLRenderer/ImGui/imgui_impl_opengl3.h>
 #include <imgui.h>

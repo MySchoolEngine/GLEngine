@@ -5,6 +5,8 @@
 
 namespace GLEngine::Renderer {
 
+class I_Device;
+
 enum class E_PassType
 {
 	ShadowPass,
@@ -70,6 +72,8 @@ public:
 	 * @brief	   Should be called at the end of frame.
 	 ** ==============================================*/
 	virtual void ClearCommandBuffers() = 0;
+
+	virtual I_Device& GetDevice() = 0;
 
 	virtual E_PassType GetCurrentPassType() const = 0;
 	virtual void	   SetCurrentPassType(Renderer::E_PassType type) {}

@@ -232,4 +232,10 @@ void C_VkRenderer::AddTransferCommand(T_CommandPtr)
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
+//=================================================================================
+Renderer::I_Device& C_VkRenderer::GetDevice()
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 } // namespace GLEngine::VkRenderer

@@ -25,6 +25,7 @@ class C_TerrainMesh : public Renderer::I_RenderableComponent {
 public:
 	explicit C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings);
 	explicit C_TerrainMesh(Textures::C_Texture&& texture);
+	~C_TerrainMesh();
 
 	void					 SetSettings(C_TerrainEntity::S_TerrainSettings* settings);
 	virtual void			 PerformDraw() const override;

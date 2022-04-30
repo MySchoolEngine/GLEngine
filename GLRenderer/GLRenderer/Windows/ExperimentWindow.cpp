@@ -55,6 +55,8 @@
 
 #include <imgui.h>
 
+#include <GLRenderer/OGLDevice.h>
+
 namespace GLEngine::GLRenderer::Windows {
 
 //=================================================================================
@@ -273,28 +275,33 @@ void C_ExplerimentWindow::OnAppInit()
 	SetupWorld("Levels/atmosphere.xml");
 
 	m_HDRFBO		= std::make_unique<C_Framebuffer>("HDR");
-	auto HDRTexture = std::make_shared<Textures::C_Texture>("hdrTexture");
+	const Renderer::TextureDescriptor HDRTextureDef{
+		"hdrTexture",
+		GetWidth(), GetHeight(), Renderer::E_TextureType::TEXTURE_2D,
+		Renderer::E_TextureFormat::RGBA16f,
+		false
+	};
+	auto HDRTexture = std::make_shared<Textures::C_Texture>(HDRTextureDef);
+	m_Device->AllocateTexture(*HDRTexture.get());
 
-	HDRTexture->bind();
-	// HDRTexture setup
-	HDRTexture->SetDimensions({GetWidth(), GetHeight()});
-	HDRTexture->SetInternalFormat(Renderer::E_TextureFormat::RGBA16f, GL_RGBA);
 	HDRTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
 	// ~HDRTexture setup
 	m_HDRFBO->AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
-	HDRTexture->unbind();
 
-	auto depthStencilTexture = std::make_shared<Textures::C_Texture>("hdrDepthTexture");
+	const Renderer::TextureDescriptor hdrDepthTextureDef{
+		"hdrDepthTexture",
+		GetWidth(), GetHeight(), Renderer::E_TextureType::TEXTURE_2D,
+		Renderer::E_TextureFormat::D16,
+		false
+	};
+	auto depthStencilTexture = std::make_shared<Textures::C_Texture>(hdrDepthTextureDef);
+	m_Device->AllocateTexture(*depthStencilTexture.get());
 
-	depthStencilTexture->bind();
-	// depthStencilTexture setup
-	depthStencilTexture->SetDimensions({GetWidth(), GetHeight()});
-	depthStencilTexture->SetInternalFormat(Renderer::E_TextureFormat::D16, GL_DEPTH_COMPONENT);
-	depthStencilTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
+	// depthStencilTexture->SetTexParameter(GL_COMPARE_REF_TO_TEXTURE, GL_COMPARE_REF_TO_TEXTURE);
+	// depthStencilTexture->SetTexParameter(GL_TEXTURE_COMPARE_FUNC, GL_NEVER);
+	//depthStencilTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
 	// ~depthStencilTexture setup
 	m_HDRFBO->AttachTexture(GL_DEPTH_ATTACHMENT, depthStencilTexture);
-	depthStencilTexture->unbind();
-
 
 	auto& guiMGR = m_ImGUI->GetGUIMgr();
 
@@ -373,18 +380,27 @@ void C_ExplerimentWindow::OnAppInit()
 //=================================================================================
 bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 {
-	auto HDRTexture = m_HDRFBO->GetAttachement(GL_COLOR_ATTACHMENT0);
-	HDRTexture->bind();
-	HDRTexture->SetDimensions({event.GetWidth(), event.GetHeight()});
-	HDRTexture->SetInternalFormat(Renderer::E_TextureFormat::RGBA16f, GL_RGBA);
-	HDRTexture->unbind();
+	{
+		auto						HDRTexture = m_HDRFBO->GetAttachement(GL_COLOR_ATTACHMENT0);
+		Renderer::TextureDescriptor descHDR	   = HDRTexture->GetDescriptor();
+		descHDR.width						   = event.GetWidth();
+		descHDR.height						   = event.GetHeight();
+		m_Device->DestroyTexture(*HDRTexture.get());
+		HDRTexture = std::make_shared<Textures::C_Texture>(descHDR);
+		m_Device->AllocateTexture(*HDRTexture.get());
+		m_HDRFBO->AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
+	}
 
-	auto depthStencilTexture = m_HDRFBO->GetAttachement(GL_DEPTH_ATTACHMENT);
-
-	depthStencilTexture->bind();
-	depthStencilTexture->SetDimensions({event.GetWidth(), event.GetHeight()});
-	depthStencilTexture->SetInternalFormat(Renderer::E_TextureFormat::D16, GL_DEPTH_COMPONENT);
-	depthStencilTexture->unbind();
+	{
+		auto						depthStencilTexture = m_HDRFBO->GetAttachement(GL_DEPTH_ATTACHMENT);
+		Renderer::TextureDescriptor descDepth			= depthStencilTexture->GetDescriptor();
+		descDepth.width									= event.GetWidth();
+		descDepth.height								= event.GetHeight();
+		m_Device->DestroyTexture(*depthStencilTexture.get());
+		depthStencilTexture = std::make_shared<Textures::C_Texture>(descDepth);
+		m_Device->AllocateTexture(*depthStencilTexture.get());
+		m_HDRFBO->AttachTexture(GL_DEPTH_ATTACHMENT, depthStencilTexture);
+	}
 
 	m_EditorLayer.SetViewport({0, 0, GetSize()});
 

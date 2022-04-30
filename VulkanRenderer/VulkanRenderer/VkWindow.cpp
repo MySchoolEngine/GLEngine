@@ -39,9 +39,9 @@ void C_VkWindow::DestroySwapchain()
 {
 	for (auto imageView : m_SwapChainImagesViews)
 	{
-		vkDestroyImageView(m_renderer->GetDevice(), imageView, nullptr);
+		vkDestroyImageView(m_renderer->GetDeviceVK(), imageView, nullptr);
 	}
-	vkDestroySwapchainKHR(m_renderer->GetDevice(), m_SwapChain, nullptr);
+	vkDestroySwapchainKHR(m_renderer->GetDeviceVK(), m_SwapChain, nullptr);
 }
 
 //=================================================================================
@@ -116,16 +116,16 @@ void C_VkWindow::CreateSwapChain()
 
 	createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-	if (vkCreateSwapchainKHR(m_renderer->GetDevice(), &createInfo, nullptr, &m_SwapChain) != VK_SUCCESS)
+	if (vkCreateSwapchainKHR(m_renderer->GetDeviceVK(), &createInfo, nullptr, &m_SwapChain) != VK_SUCCESS)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "failed to create swap chain");
 		return;
 	}
 
 
-	vkGetSwapchainImagesKHR(m_renderer->GetDevice(), m_SwapChain, &imageCount, nullptr);
+	vkGetSwapchainImagesKHR(m_renderer->GetDeviceVK(), m_SwapChain, &imageCount, nullptr);
 	m_SwapChainImages.resize(imageCount);
-	vkGetSwapchainImagesKHR(m_renderer->GetDevice(), m_SwapChain, &imageCount, m_SwapChainImages.data());
+	vkGetSwapchainImagesKHR(m_renderer->GetDeviceVK(), m_SwapChain, &imageCount, m_SwapChainImages.data());
 
 	m_SwapChainImageFormat = surfaceFormat.format;
 	m_SwapChainExtent	   = extent;
@@ -196,7 +196,7 @@ void C_VkWindow::CreateImageViews()
 		createInfo.subresourceRange.baseArrayLayer = 0;
 		createInfo.subresourceRange.layerCount	   = 1;
 
-		if (vkCreateImageView(m_renderer->GetDevice(), &createInfo, nullptr, &m_SwapChainImagesViews[i]) != VK_SUCCESS)
+		if (vkCreateImageView(m_renderer->GetDeviceVK(), &createInfo, nullptr, &m_SwapChainImagesViews[i]) != VK_SUCCESS)
 		{
 			CORE_LOG(E_Level::Error, E_Context::Render, "failed to create image views");
 			return;

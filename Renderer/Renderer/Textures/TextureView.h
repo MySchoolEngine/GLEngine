@@ -55,17 +55,19 @@ public:
 	void																	   SetBorderColor(const glm::vec4& color);
 	[[nodiscard]] bool														   UseBorderColor() const;
 
-	[[nodiscard]] const I_TextureViewStorage* const GetStorage() const;
+	// I_DeviceTexture
+	[[nodiscard]] virtual const glm::uvec2& GetDimensions() const;			// override;
 
+	[[nodiscard]] const I_TextureViewStorage* const GetStorage() const;
 
 	void ClearColor(const glm::vec4& colour);
 
 protected:
 	[[nodiscard]] std::size_t GetAddress(const glm::ivec2& uv) const;
-	[[nodiscard]] std::size_t GetPixelAddress(const glm::ivec2& uv) const;
+	[[nodiscard]] std::size_t GetPixelAddress(const glm::uvec2& uv) const;
 	[[nodiscard]] glm::vec2	  GetPixelCoord(const glm::vec2& uv) const;
 	[[nodiscard]] bool		  IsOutsideBorders(const glm::vec2& uv) const;
-	[[nodiscard]] glm::ivec2  ClampCoordinates(const glm::ivec2& uv) const;
+	[[nodiscard]] glm::uvec2  ClampCoordinates(const glm::uvec2& uv) const;
 
 
 	I_TextureViewStorage* m_Storage; // not owning ptr

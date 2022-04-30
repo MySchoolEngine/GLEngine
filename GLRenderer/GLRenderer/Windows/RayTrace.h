@@ -41,7 +41,7 @@ private:
 	std::shared_ptr<Renderer::I_CameraComponent>	m_Camera;
 	std::shared_ptr<Textures::C_Texture>			m_Image;
 	Renderer::C_TextureViewStorageCPU<float>		m_ImageStorage;
-	Renderer::C_TextureViewStorageCPU<std::uint8_t> m_WeightedImage;
+	Renderer::C_TextureViewStorageCPU<float>		m_WeightedImage;
 	Renderer::C_RayTraceScene						m_Scene;
 	std::future<void>								m_SignalDone;
 	int												m_NumCycleSamples;

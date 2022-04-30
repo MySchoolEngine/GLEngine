@@ -6,6 +6,7 @@
 
 #include <Renderer/ICameraComponent.h>
 #include <Renderer/IRenderer.h>
+#include <Renderer/IDevice.h>
 #include <Renderer/RayCasting/RayRenderer.h>
 #include <Renderer/Textures/TextureView.h>
 
@@ -36,10 +37,25 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_Camera
 	, m_Renderer(m_Scene)
 	, m_DepthSlider(3, 1, 100, "Max path depth")
 {
-	m_Image = std::make_shared<Textures::C_Texture>("rayTrace");
+	auto& device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
+	m_Image = std::make_shared<Textures::C_Texture>(Renderer::TextureDescriptor {
+		"rayTrace", 
+		s_ImageResolution.x, s_ImageResolution.y, 
+		Renderer::E_TextureType::TEXTURE_2D, 
+		Renderer::E_TextureFormat::RGB32f, 
+		false
+	});
+	device.AllocateTexture(*m_Image.get());
+	m_Image->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
 
-	m_DirImage = std::make_shared<Textures::C_Texture>("directional");
-	m_DirImage->SetTexData2D(0, &m_DirectionImage);
+	m_DirImage = std::make_shared<Textures::C_Texture>(Renderer::TextureDescriptor{
+		"directional",
+		m_DirectionImage.GetDimensions().x, m_DirectionImage.GetDimensions().y,
+		Renderer::E_TextureType::TEXTURE_2D,
+		Renderer::E_TextureFormat::R32f,
+		false
+	});
+	device.AllocateTexture(*m_DirImage.get());
 }
 
 //=================================================================================
@@ -156,16 +172,14 @@ void C_RayTraceWindow::UploadStorage() const
 			renderer->AddTransferCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 				[this]() {
 					const auto				dim = m_ImageStorage.GetDimensions();
-					Renderer::C_TextureView weightedView(const_cast<Renderer::C_TextureViewStorageCPU<std::uint8_t>*>(&m_WeightedImage));
+					Renderer::C_TextureView weightedView(const_cast<Renderer::C_TextureViewStorageCPU<float>*>(&m_WeightedImage));
 					Renderer::C_TextureView view(const_cast<Renderer::C_TextureViewStorageCPU<float>*>(&m_ImageStorage));
-					for (int i = 0; i < dim.x; ++i)
-						for (int j = 0; j < dim.y; ++j)
+					for (std::uint32_t i = 0; i < dim.x; ++i)
+						for (std::uint32_t j = 0; j < dim.y; ++j)
 							weightedView.Set({i, j}, view.Get<glm::vec3>(glm::ivec2{i, j}) / static_cast<float>(std::max(m_NumCycleSamples, 1)));
 
 					m_Image->bind();
 					m_Image->SetTexData2D(0, (&m_WeightedImage));
-					m_Image->GenerateMipMaps();
-					m_Image->GenerateMipMaps();
 				},
 				"RT buffer"));
 			renderer->AddTransferCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(

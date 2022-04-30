@@ -29,6 +29,7 @@ C_GetTexImage::C_GetTexImage(std::promise<std::unique_ptr<Renderer::I_TextureVie
 //=================================================================================
 void C_GetTexImage::Commit()
 {
+	// TODO also needs update to the glGetTextureImage
 	auto buffer = std::make_unique<Renderer::C_TextureViewStorageCPU<std::uint8_t>>(m_Width, m_Hegiht, m_Channels);
 	glGetTexImage(m_Target, m_Level, m_Format, m_Type, buffer->GetData());
 	m_Promise.set_value(std::move(buffer));

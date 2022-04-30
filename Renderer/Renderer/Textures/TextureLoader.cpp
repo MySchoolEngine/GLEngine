@@ -70,12 +70,18 @@ I_TextureViewStorage* TextureLoader::loadTexture(const std::filesystem::path& pa
 
 	if (ilGetInteger(IL_PALETTE_TYPE) != IL_PAL_NONE)
 	{
-		ilConvertImage(ilGetInteger(IL_PALETTE_BASE_TYPE), IL_UNSIGNED_BYTE);
+		ilConvertImage(ilGetInteger(IL_PALETTE_BASE_TYPE), IL_FLOAT);
 	}
+	if (ilGetInteger(IL_IMAGE_TYPE) != IL_FLOAT)
+	  ilConvertImage(ilGetInteger(IL_IMAGE_FORMAT), IL_FLOAT);
 
 	if (ilGetInteger(IL_IMAGE_BPC) == 1)
 	{
 		textureBuffer = new C_TextureViewStorageCPU<std::uint8_t>(width, height, static_cast<std::uint8_t>(ilGetInteger(IL_IMAGE_CHANNELS)));
+	}
+	else if (ilGetInteger(IL_IMAGE_BPC) == 4)
+	{
+		textureBuffer = new C_TextureViewStorageCPU<float>(width, height, static_cast<std::uint8_t>(ilGetInteger(IL_IMAGE_CHANNELS)));
 	}
 	else
 	{
