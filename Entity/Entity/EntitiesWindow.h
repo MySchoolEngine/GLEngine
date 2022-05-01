@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GUI/GUIWindow.h>
+#include <GUI/Input/TypeSelector.h>
 
 namespace GLEngine::Entity {
 class C_EntityManager;
@@ -14,5 +15,6 @@ public:
 private:
 	std::shared_ptr<C_EntityManager> m_World;
 	mutable GUID					 m_SelectedEntity;
+	GUI::Input::C_TypeSelector		 m_EntityTypeSelector;
 };
 } // namespace GLEngine::Entity
