@@ -10,11 +10,13 @@ public:
 	C_EntitiesWindow(GUID guid, std::shared_ptr<C_EntityManager>& world);
 	virtual ~C_EntitiesWindow();
 
+	void SetWorld(std::shared_ptr<C_EntityManager> world);
+
 	virtual void Draw() const override;
 
 private:
-	std::shared_ptr<C_EntityManager> m_World;
-	mutable GUID					 m_SelectedEntity;
-	GUI::Input::C_TypeSelector		 m_EntityTypeSelector;
+	std::weak_ptr<C_EntityManager> m_World;
+	mutable GUID				   m_SelectedEntity;
+	GUI::Input::C_TypeSelector	   m_EntityTypeSelector;
 };
 } // namespace GLEngine::Entity

@@ -92,6 +92,10 @@ void C_XMLDeserializer::DeserializeArray(const pugi::xml_node& child, rttr::vari
 		{
 			CORE_LOG(E_Level::Error, E_Context::Core, "FAILED.");
 		}
+		if (auto method = type.get_method("AfterDeserialize"))
+		{
+			method.invoke(var);
+		}
 		index++;
 	}
 }
@@ -136,6 +140,9 @@ void C_XMLDeserializer::DeserializeAssociativeArray(const pugi::xml_node& child,
 			{
 				CORE_LOG(E_Level::Error, E_Context::Core, "Cannot convert to the value type.");
 				continue;
+			}
+			if (auto method = type.get_method("AfterDeserialize")) {
+				method.invoke(valueVar);
 			}
 		}
 

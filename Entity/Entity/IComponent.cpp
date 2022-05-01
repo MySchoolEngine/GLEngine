@@ -65,4 +65,13 @@ void I_Component::DebugDrawComponentGUI()
 	}
 }
 
+//=================================================================================
+void I_Component::SetParent(std::shared_ptr<I_Entity> owner)
+{
+	auto currentOwner = GetOwner();
+	GLE_ASSERT((currentOwner) == nullptr, "Only call this on component without parent");
+
+	m_Owner = owner;
+}
+
 } // namespace GLEngine::Entity

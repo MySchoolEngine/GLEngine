@@ -29,23 +29,28 @@ void C_EntitiesWindow::Draw() const
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 
 	static float SceneTreeHeight = 300.0f;
-	ImGui::BeginChild("SceneTree", ImVec2(0, std::max(50.f, SceneTreeHeight)), true);
-	for (const auto& entity : m_World->GetEntities())
+	auto		 world			 = m_World.lock();
+	if (world)
 	{
-		bool selected = false;
-		ImGui::Selectable(entity->GetName().c_str(), &selected);
-		if (selected)
+		ImGui::BeginChild("SceneTree", ImVec2(0, std::max(50.f, SceneTreeHeight)), true);
+
+		for (const auto& entity : world->GetEntities())
 		{
-			Core::C_EntityEvent event(entity->GetID(), Core::C_EntityEvent::EntityEvent::Seleced);
-			//TODO: I need to sand this to the event tree root
-			entity->OnEvent(event);
-			if (m_SelectedEntity == entity->GetID())
-				m_SelectedEntity = GUID::INVALID_GUID;
-			else
-				m_SelectedEntity = entity->GetID();
+			bool selected = false;
+			ImGui::Selectable(entity->GetName().c_str(), &selected);
+			if (selected)
+			{
+				Core::C_EntityEvent event(entity->GetID(), Core::C_EntityEvent::EntityEvent::Seleced);
+				// TODO: I need to sand this to the event tree root
+				entity->OnEvent(event);
+				if (m_SelectedEntity == entity->GetID())
+					m_SelectedEntity = GUID::INVALID_GUID;
+				else
+					m_SelectedEntity = entity->GetID();
+			}
 		}
+		ImGui::EndChild();
 	}
-	ImGui::EndChild();
 
 	SceneTreeHeight += GUI::Splitter();
 
@@ -53,34 +58,62 @@ void C_EntitiesWindow::Draw() const
 	ImGui::PopStyleVar();
 
 	m_EntityTypeSelector.Draw();
-	ImGui::Button("Spawn");
+	if (ImGui::Button("Spawn")) {
+		const auto type = rttr::type::get_by_name(m_EntityTypeSelector.GetSelectedTypeName());
+		if (type.is_valid() == false) {
+			CORE_LOG(E_Level::Error, E_Context::Entity, "Type {} doesn't exists.", m_EntityTypeSelector.GetSelectedTypeName());
+		}
+		else
+		{
+			// auto entity = type.create();
+			// m_World->AddEntity(entity.convert(rttr::type::get<>());
+		}
+	}
 
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 	ImGui::EndChild();
 
 
 	// here should be way how to add components
-	auto entity = m_World->GetEntity(m_SelectedEntity);
-	if (entity)
+	if (world)
 	{
-		ImGui::BeginChild("SelectedEntity", ImVec2(0, 0), true);
-		ImGui::PopStyleVar();
-		ImGui::Text("%s", entity->GetName().c_str());
-		int i = 0;
-		for (auto& component : *entity)
+		auto entity = world->GetEntity(m_SelectedEntity);
+		if (entity)
 		{
-			ImGui::PushID(i);
-			if (component.second->HasDebugDrawGUI())
-				component.second->DebugDrawComponentGUI();
-			ImGui::PopID();
-			++i;
+			ImGui::BeginChild("SelectedEntity", ImVec2(0, 0), true);
+			ImGui::PopStyleVar();
+			ImGui::Text("%s", entity->GetName().c_str());
+			int i = 0;
+			for (auto& component : *entity)
+			{
+				ImGui::PushID(i);
+				if (component.second->HasDebugDrawGUI())
+					component.second->DebugDrawComponentGUI();
+				ImGui::PopID();
+				++i;
+			}
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+			ImGui::EndChild();
 		}
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-		ImGui::EndChild();
+	}
+
+	if (!world)
+	{
+		ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
+		ImGui::Text("World went missing!");
+		ImGui::PopStyleColor();
 	}
 
 	ImGui::PopStyleVar();
 	ImGui::End();
+}
+
+//=================================================================================
+void C_EntitiesWindow::SetWorld(std::shared_ptr<C_EntityManager> world)
+{
+	m_World = world;
+	// entity removed anyway
+	m_SelectedEntity=GUID::INVALID_GUID;
 }
 
 } // namespace GLEngine::Entity

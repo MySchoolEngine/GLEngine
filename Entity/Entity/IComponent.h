@@ -48,6 +48,9 @@ public:
 
 	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const = 0;
 
+	// only call on component without parent
+	void SetParent(std::shared_ptr<I_Entity> owner);
+
 protected:
 	std::shared_ptr<I_Entity>	  GetOwner() const;
 	GUI::Input::C_Transformations m_Transformation;

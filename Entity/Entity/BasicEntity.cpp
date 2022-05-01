@@ -2,6 +2,7 @@
 
 #include <Entity/BasicEntity.h>
 #include <Entity/IComponent.h>
+#include <Entity/ComponentManager.h>
 
 #include <rttr/registration>
 
@@ -9,7 +10,8 @@ RTTR_REGISTRATION
 {
 	rttr::registration::class_<GLEngine::Entity::C_BasicEntity>("C_BasicEntity")
 		.constructor<std::string>()(rttr::policy::ctor::as_std_shared_ptr)
-		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr);
+		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
+		.method("AfterDeserialize", &GLEngine::Entity::C_BasicEntity::AfterDeserialize)();
 
 	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<GLEngine::Entity::C_BasicEntity>>();
 }
@@ -39,7 +41,7 @@ C_BasicEntity::~C_BasicEntity()
 //=================================================================================
 void C_BasicEntity::Update()
 {
-	for (auto comp : *m_Components)
+	for (auto& comp : *m_Components)
 	{
 		comp.second->Update();
 	}
@@ -75,6 +77,17 @@ const glm::mat4& C_BasicEntity::GetModelMatrix() const
 glm::vec3 C_BasicEntity::GetPosition() const
 {
 	return m_ModelMatrix[3];
+}
+
+//=================================================================================
+void C_BasicEntity::AfterDeserialize()
+{
+	auto& compManager = Entity::C_ComponentManager::Instance();
+	for (auto& comp : *m_Components)
+	{
+		compManager.RegisterComponent(comp.second);
+		comp.second->SetParent(shared_from_this());
+	}
 }
 
 } // namespace GLEngine::Entity
