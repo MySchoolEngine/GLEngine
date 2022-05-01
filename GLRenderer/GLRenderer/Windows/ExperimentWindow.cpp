@@ -273,7 +273,7 @@ void C_ExplerimentWindow::OnAppInit()
 
 		m_ScreenQuad = std::make_shared<Mesh::C_StaticMeshResource>(billboardMesh);
 	}
-	SetupWorld("Levels/atmosphere.xml");
+	SetupWorld("Levels/newLevel.xml");
 
 	m_HDRFBO		= std::make_unique<C_Framebuffer>("HDR");
 	auto HDRTexture = std::make_shared<Textures::C_Texture>("hdrTexture");
@@ -440,6 +440,12 @@ void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 	auto					 newWorld = d.Deserialize<std::shared_ptr<Entity::C_EntityManager>>(doc);
 	m_World.swap(newWorld.value());
 	m_World->SetFilename(level);
+
+	auto& guiMGR = m_ImGUI->GetGUIMgr();
+	auto* entitiesWnd = guiMGR.GetWindow(m_EntitiesWindowGUID);
+	if (auto* entitiesWindow = dynamic_cast<Entity::C_EntitiesWindow*>(entitiesWnd)) {
+		entitiesWindow->SetWorld(m_World);
+	}
 
 	AddMandatoryWorldParts();
 
