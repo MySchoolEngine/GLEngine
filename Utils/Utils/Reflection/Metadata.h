@@ -2,6 +2,8 @@
 
 #include <Utils/STD20Utils.h>
 
+#include <Core/CoreMacros.h>
+
 #include <glm/glm.hpp>
 
 #include <rttr/type>
@@ -74,7 +76,7 @@ rttr::variant GetMetadataMember(const rttr::property& prop, const Enum member)
 {
 	static_assert(IsMetadataName_v<Enum>, "Given member name must be registered meta member.");
 	const auto metadata = prop.get_metadata(member);
-	GLE_ASSERT(MemberIsOptional_v<Member> || metadata.is_valid(), "Mandatory property metamember missing.");
+	GLE_ASSERT(MemberIsOptional_v<member> || metadata.is_valid(), "Mandatory property metamember missing.");
 	return metadata;
 }
 
