@@ -15,6 +15,7 @@ project "VulkanRenderer"
 	Link("Entity")
 	LinkDependency("pugixml")
 	LinkDependency("ImGui")
+	LinkDependency("RTTR")
 
 	includedirs
 	{
