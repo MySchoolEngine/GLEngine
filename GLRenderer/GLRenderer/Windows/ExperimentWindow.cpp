@@ -395,7 +395,7 @@ void C_ExplerimentWindow::OnAppInit()
 	const auto materialManager = Renderer::C_MaterialManager::Instance().SetupControls(guiMGR);
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Material manager", materialManager, guiMGR));
 
-	CORE_LOG(E_Level::Info, E_Context::Render, "Experiment window setup time was %f", float(m_FrameTimer.getElapsedTimeFromLastQueryMilliseconds()) / 1000.f);
+	CORE_LOG(E_Level::Info, E_Context::Render, "Experiment window setup time was {}", float(m_FrameTimer.getElapsedTimeFromLastQueryMilliseconds()) / 1000.f);
 }
 
 //=================================================================================
