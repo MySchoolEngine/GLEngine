@@ -9,7 +9,7 @@ struct C_VCount {
 public:
 	explicit C_VCount(const pugi::xml_node& vcount);
 
-	[[nodiscard]] int Get();
+	[[nodiscard]] unsigned int Get();
 
 	[[nodiscard]] bool EndOfArray() const;
 

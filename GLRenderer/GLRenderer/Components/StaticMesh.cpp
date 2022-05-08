@@ -253,12 +253,10 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 		auto roughnessMap = tmgr.GetTexture(materialData.m_RoughtnessMap);
 		if (roughnessMap)
 		{
-			roughnessMap->StartGroupOp();
 			roughnessMap->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
 			roughnessMap->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
+			roughnessMap->SetParameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
 			roughnessMap->GenerateMipMaps();
-
-			roughnessMap->EndGroupOp();
 
 			material->SetRoughnessMap(roughnessMap);
 		}
@@ -269,12 +267,10 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 		auto colorMapTexture = tmgr.GetTexture(materialData.m_ColorMap);
 		if (colorMapTexture)
 		{
-			colorMapTexture->StartGroupOp();
 			colorMapTexture->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
 			colorMapTexture->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
+			colorMapTexture->SetParameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
 			colorMapTexture->GenerateMipMaps();
-
-			colorMapTexture->EndGroupOp();
 
 			material->SetColorMap(colorMapTexture);
 		}
@@ -285,12 +281,10 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 		auto normalMap = tmgr.GetTexture(materialData.m_NormalMap);
 		if (normalMap)
 		{
-			normalMap->StartGroupOp();
 			normalMap->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
 			normalMap->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
+			normalMap->SetParameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
 			normalMap->GenerateMipMaps();
-
-			normalMap->EndGroupOp();
 
 			material->SetNormalMap(normalMap);
 		}

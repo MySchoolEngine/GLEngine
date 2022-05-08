@@ -30,7 +30,7 @@ rttr::variant C_XMLDeserializer::DeserializeDoc(const pugi::xml_document& docume
 rttr::variant C_XMLDeserializer::DeserializeNode(const pugi::xml_node& node, rttr::variant& var)
 {
 	const rttr::instance var2 = var.get_type().get_raw_type().is_wrapper() ? rttr::instance(var).get_wrapped_instance() : var;
-	//CORE_LOG(E_Level::Error, E_Context::Core, "{}", var2.get_type());
+	// CORE_LOG(E_Level::Error, E_Context::Core, "{}", var2.get_type());
 
 	for (auto& prop : var2.get_type().get_properties())
 	{
@@ -52,7 +52,28 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 	}
 	if (IsAtomicType(type))
 	{
-		prop.set_value(owner, DeserializeAtomic(node.attribute(prop.get_name().to_string().c_str()), prop.get_type()));
+		const auto propertyName = prop.get_name().to_string();
+		if (const auto attribute = node.attribute(propertyName.c_str()))
+			prop.set_value(owner, DeserializeAtomic(attribute, type));
+		else
+		{
+			// support old attributes as elements
+			if (const auto childNode = node.child(propertyName.c_str()))
+			{
+				if (const auto attribute = childNode.attribute(propertyName.c_str()))
+				{
+					prop.set_value(owner, DeserializeAtomic(attribute, type));
+				}
+				else
+				{
+					CORE_LOG(E_Level::Warning, E_Context::Core, "Missing attribute for property {}.", prop);
+				}
+			}
+			else
+			{
+				CORE_LOG(E_Level::Warning, E_Context::Core, "Missing attribute for property {}.", prop);
+			}
+		}
 	}
 	else if (type.get_raw_type().is_sequential_container())
 	{
@@ -80,7 +101,8 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 void C_XMLDeserializer::DeserializeArray(const pugi::xml_node& child, rttr::variant_sequential_view& view)
 {
 	int index = 0;
-	for (const auto childNode : child) {
+	for (const auto childNode : child)
+	{
 		const auto type = rttr::type::get_by_name(childNode.name());
 		if (type.is_valid() == false)
 			continue;
@@ -131,22 +153,25 @@ void C_XMLDeserializer::DeserializeAssociativeArray(const pugi::xml_node& child,
 			if (type.is_valid() == false)
 				continue;
 			valueVar = type.create();
-			if (!valueVar.is_valid()) {
+			if (!valueVar.is_valid())
+			{
 				CORE_LOG(E_Level::Error, E_Context::Core, "Could not instantiate type '{}'", type);
 				continue;
 			}
 			valueVar = DeserializeNode(node, valueVar);
 			if (!valueVar.convert(view.get_value_type()))
 			{
-				CORE_LOG(E_Level::Error, E_Context::Core, "Cannot convert to the value type.");
+				CORE_LOG(E_Level::Error, E_Context::Core, "Cannot convert to the value type {} to {}.", valueVar.get_type(), view.get_value_type());
 				continue;
 			}
-			if (auto method = type.get_method("AfterDeserialize")) {
+			if (auto method = type.get_method("AfterDeserialize"))
+			{
 				method.invoke(valueVar);
 			}
 		}
 
-		if (view.insert(keyVar, valueVar).second == false) {
+		if (view.insert(keyVar, valueVar).second == false)
+		{
 			CORE_LOG(E_Level::Error, E_Context::Core, "Something happend.");
 		}
 	}
@@ -186,7 +211,7 @@ rttr::variant C_XMLDeserializer::DeserializeAtomic(const pugi::xml_attribute& at
 		else if (type.is_enumeration())
 			return type.get_enumeration().name_to_value(attr.as_string());
 	}
-	CORE_LOG(E_Level::Error, E_Context::Core, "Unknown atomics.");
+	CORE_LOG(E_Level::Error, E_Context::Core, "Unknown atomics type {} attribute {}", type, attr.name());
 	return {};
 }
 

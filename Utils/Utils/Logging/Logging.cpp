@@ -49,6 +49,9 @@ std::ostream& operator<<(std::ostream& out, const E_Context& c)
 	case E_Context::Render:
 		text = "Render";
 		break;
+	case E_Context::Entity:
+		text = "Entity";
+		break;
 	}
 	out << text;
 	return out;

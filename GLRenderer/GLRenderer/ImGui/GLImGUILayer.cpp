@@ -20,7 +20,7 @@ C_GLImGUILayer::C_GLImGUILayer(GUID window)
 void C_GLImGUILayer::OnAttach()
 {
 	GUI::C_ImGuiLayer::OnAttach();
-	ImGui_ImplOpenGL3_Init("#version 410");
+	ImGui_ImplOpenGL3_Init("#version 420");
 }
 
 //=================================================================================

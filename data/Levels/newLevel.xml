@@ -1,8 +1,7 @@
 <?xml version="1.0"?>
 <EntityManager>
 	<Entities>
-		<C_BasicEntity name="Player">
-			<ID ID="dfc9800f-c6cc-428b-a5f2-6c532f1ec4d3" />
+		<C_BasicEntity name="Player" ID="dfc9800f-c6cc-428b-a5f2-6c532f1ec4d3">
 			<components>
 				<item>
 					<key value="Camera" />
@@ -18,8 +17,7 @@
 				</item>
 			</components>
 		</C_BasicEntity>
-		<C_BasicEntity name="atmosphere">
-			<ID ID="be8f65c9-5e97-41b4-9955-91acaeccd3c0" />
+		<C_BasicEntity name="atmosphere" ID="be8f65c9-5e97-41b4-9955-91acaeccd3c0">
 			<components>
 				<item>
 					<key value="Light" />

@@ -36,7 +36,8 @@ public:
 	//=================================================================================
 	virtual Renderer::E_PassType GetCurrentPassType() const override;
 
-	VkDevice_T* GetDevice() { return m_Device; }
+	VkDevice_T* GetDeviceVK() { return m_Device; }
+	virtual Renderer::I_Device& GetDevice() override;
 
 	SwapChainSupportDetails QuerySwapChainSupport(VkSurfaceKHR surface);
 	void					FillFamilyIndexes(VkSwapchainCreateInfoKHR& createInfo);

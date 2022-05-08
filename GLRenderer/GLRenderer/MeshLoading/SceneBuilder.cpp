@@ -4,22 +4,19 @@
 #include <GLRenderer/Mesh/StaticMeshResource.h>
 #include <GLRenderer/MeshLoading/SceneBuilder.h>
 #include <GLRenderer/Textures/Texture.h>
+#include <GLRenderer/Textures/TextureLoader.h>
+#include <Renderer/Descriptors/TextureDescriptor.h>
 
+#include <Renderer/IDevice.h>
+#include <Renderer/IRenderer.h>
 #include <Renderer/Mesh/Loading/SceneLoader.h>
 #include <Renderer/Mesh/Scene.h>
 
 #include <Physics/Primitives/AABB.h>
 
-// #include "render/Nodes/MeshNode.h"
-// #include "render/Nodes/RenderNode.h"
-// #include "render/Nodes/Scene.h"
-// #include "render/Nodes/Terrain.h"
-
-#include <GLRenderer/Textures/TextureLoader.h>
+#include <Core/Application.h>
 
 #include <glm/gtc/matrix_transform.hpp>
-
-//#include "Debug.h"
 
 #include <pugixml.hpp>
 
@@ -181,20 +178,24 @@ std::shared_ptr<I_RenderNode> C_SceneBuilder::LoadMesh(const Mesh& mesh)
 */
 
 //=================================================================================
-std::shared_ptr<Textures::C_Texture> C_SceneBuilder::LoadTexture(const Renderer::MeshData::Texture& texture) const
+std::shared_ptr<Renderer::I_DeviceTexture> C_SceneBuilder::LoadTexture(const Renderer::I_TextureViewStorage& texture, const std::string& name) const
 {
-	auto tex = std::make_shared<Textures::C_Texture>(texture.m_name);
-	tex->StartGroupOp();
-	tex->SetTexData2D(0, texture);
-	//	ErrorCheck();
-	tex->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
-	tex->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
-	tex->GenerateMipMaps();
-	//	ErrorCheck();
-
-	tex->EndGroupOp();
-
-	return tex;
+	// const Renderer::TextureDescriptor desc{
+	// 	name,
+	// 	texture.GetDimensions().x,
+	// 	texture.GetDimensions().y,
+	// 	Renderer::E_TextureType::TEXTUE_2D,
+	// 	Renderer::E_TextureFormat::RGBA8i
+	// };
+	//
+	// auto tex = Core::C_Application::Get().GetActiveRenderer()->GetDevice().CreateTexture(desc);
+	// tex->SetTexData2D(0, &texture);
+	// tex->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
+	// tex->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
+	// tex->GenerateMipMaps();
+	//
+	// return tex;
+	return nullptr;
 }
 
 //=================================================================================

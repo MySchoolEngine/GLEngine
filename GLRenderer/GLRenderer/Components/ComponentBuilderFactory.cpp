@@ -74,12 +74,9 @@ void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Enti
 			auto colorMapTexture = tmgr.GetTexture(scene->textures[material.textureIndex]);
 			if (colorMapTexture)
 			{
-				colorMapTexture->StartGroupOp();
 				colorMapTexture->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
 				colorMapTexture->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
 				colorMapTexture->GenerateMipMaps();
-
-				colorMapTexture->EndGroupOp();
 
 				materialPtr->SetColorMap(colorMapTexture);
 			}
@@ -89,12 +86,9 @@ void C_ComponentBuilderFactory::ConstructFromFile(std::shared_ptr<Entity::I_Enti
 			auto normalMapTexture = tmgr.GetTexture(scene->textures[material.noramlTextureIndex]);
 			if (normalMapTexture)
 			{
-				normalMapTexture->StartGroupOp();
 				normalMapTexture->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
 				normalMapTexture->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
 				normalMapTexture->GenerateMipMaps();
-
-				normalMapTexture->EndGroupOp();
 
 				materialPtr->SetNormalMap(normalMapTexture);
 			}

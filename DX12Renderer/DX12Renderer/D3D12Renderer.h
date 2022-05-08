@@ -2,8 +2,6 @@
 
 #include <Renderer/IRenderer.h>
 
-#include <Core/CoreMacros.h>
-
 namespace GLEngine::DX12Renderer {
 
 class C_D3D12Renderer : public Renderer::I_Renderer {
@@ -26,6 +24,7 @@ public:
 
 	//=================================================================================
 	Renderer::E_PassType GetCurrentPassType() const override;
+	Renderer::I_Device&	 GetDevice() override;
 
 private:
 	bool											 m_Locked = false;

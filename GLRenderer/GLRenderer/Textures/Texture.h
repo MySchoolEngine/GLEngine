@@ -14,8 +14,10 @@
 #pragma once
 
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
+#include <GLRenderer/Helpers/TextureHelpers.h>
+#include <GLRenderer/Textures/Sampler.h>
 
-#include <Renderer/IResource.h>
+#include <Renderer/Descriptors/TextureDescriptor.h>
 #include <Renderer/Textures/DeviceTexture.h>
 
 #include <rttr/registration_friend.h>
@@ -27,6 +29,7 @@ class C_TextureView;
 } // namespace GLEngine::Renderer
 
 namespace GLEngine::GLRenderer {
+class C_GLDevice;
 namespace Mesh {
 struct Texture;
 }
@@ -35,38 +38,39 @@ namespace Textures {
 using T_TexBufferFuture = std::future<std::unique_ptr<Renderer::I_TextureViewStorage>>;
 class C_Texture : public Renderer::I_DeviceTexture {
 public:
-	explicit C_Texture(const std::string& name, GLenum target = GL_TEXTURE_2D);
+	explicit C_Texture(const Renderer::TextureDescriptor& desc);
 	C_Texture(const C_Texture&) = delete;
 	C_Texture(C_Texture&& t);
 	void operator=(C_Texture&& rhs);
 	virtual ~C_Texture();
 
-	// TODO move to Commands
+	[[nodiscard]] virtual bool IsAllocated() const override;
+	void					   SetReadyToUse() { m_IsPresentOnGPU = true; }
+
+	// TODO move to Commands or remove due to new API
 	void bind() const;
 	void unbind() const;
 
-	inline void StartGroupOp()
+	[[nodiscard]] virtual inline glm::uvec2 GetDimensions() const override { return {m_Desc.width, m_Desc.height}; }
+	inline void								SetWidth(unsigned int width) { m_Desc.width = width; }
+	inline void								SetHeight(unsigned int height) { m_Desc.height = height; }
+	//inline void								SetName();
+	inline void								SetDimensions(const glm::uvec2& dim)
 	{
-		bind();
-		m_bGroupOperations = true;
+		// todo: should go away
+		m_Desc.width  = dim.x;
+		m_Desc.height = dim.y;
 	}
-	inline void EndGroupOp()
-	{
-		m_bGroupOperations = false;
-		unbind();
-	}
-
-	[[nodiscard]] virtual inline unsigned int	   GetWidth() const override { return m_Dimensions.x; }
-	[[nodiscard]] virtual inline unsigned int	   GetHeight() const override { return m_Dimensions.y; }
-	[[nodiscard]] virtual inline const glm::uvec2& GetDimensions() const override { return m_Dimensions; }
-	inline void									   SetWidth(unsigned int width) { m_Dimensions.x = width; }
-	inline void									   SetHeight(unsigned int height) { m_Dimensions.y = height; }
-	inline void									   SetDimensions(const glm::uvec2& dim) { m_Dimensions = dim; }
 
 	[[nodiscard]] virtual void* GetDeviceTextureHandle() const override;
 	// just for now
+	void SetGPUID(GLuint ID)
+	{
+		m_texture = ID;
+	}
 	[[nodiscard]] inline GLuint GetTexture() const { return m_texture; }
-	[[nodiscard]] inline GLenum GetTarget() const { return m_target; }
+	[[nodiscard]] inline GLuint GetDefaultSampler() const { return m_DefaultSampler.m_Sampler; }
+	[[nodiscard]] inline GLenum GetTarget() const { return GetTextureType(m_Desc.type); }
 
 	[[nodiscard]] virtual T_TexBufferFuture GetTextureData() const override;
 
@@ -79,26 +83,27 @@ public:
 	virtual void SetFilter(Renderer::E_TextureFilter min, Renderer::E_TextureFilter mag) override;
 	virtual void SetBorderColor(const glm::vec4& color) override;
 	virtual void GenerateMipMaps() override;
-	void		 SetTexParameter(GLenum pname, const glm::vec4& value);
-	void		 SetTexParameter(GLenum pname, GLint value);
+	void		 SetParameter(GLenum pname, const glm::vec4& value);
+	void		 SetParameter(GLenum pname, GLint value);
 
-	void		 SetTexData2D(int level, const Renderer::MeshData::Texture& tex);
 	virtual void SetTexData2D(int level, const Renderer::I_TextureViewStorage* tex) override;
 	virtual void SetTexData2D(int level, const Renderer::C_TextureView tex) override;
-	void		 SetInternalFormat(Renderer::E_TextureFormat internalFormat, GLint format);
+
+	friend class C_TextureManager;
+	friend class GLEngine::GLRenderer::C_GLDevice;
 
 	RTTR_ENABLE(Renderer::I_DeviceTexture);
 	RTTR_REGISTRATION_FRIEND;
 protected:
 	void Clean();
 
+
 	GLuint					  m_texture;
-	GLenum					  m_target;
-	Renderer::E_TextureFormat m_Format;
-	glm::uvec2				  m_Dimensions;
-	bool					  m_bGroupOperations : 1;
+	bool					  m_IsPresentOnGPU = false;
+	bool					  m_IsResidient = false;
 	std::uint64_t			  m_Handle;
-	std::string				  m_Name;
+
+	C_Sampler2D m_DefaultSampler;
 };
 } // namespace Textures
 } // namespace GLEngine::GLRenderer
