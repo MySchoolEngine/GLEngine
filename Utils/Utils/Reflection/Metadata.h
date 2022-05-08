@@ -23,8 +23,8 @@ template <auto Type> struct MemberIsOptional : std::false_type {};
 template <auto Type> constexpr bool MemberIsOptional_v = MemberIsOptional<Type>::value;
 
 #define REGISTER_META_CLASS(cls, Parent) \
-template <> struct ::Utils::Reflection::ParentMetatype<cls> { using type = Parent; }; \
-template <> struct ::Utils::Reflection::IsMetadataName<cls> : std::true_type {}
+template <> struct ParentMetatype<cls> { using type = Parent; }; \
+template <> struct IsMetadataName<cls> : std::true_type {}
 
 #define REGISTER_META_MEMBER_TYPE(member, Type) \
 template <> struct ::Utils::Reflection::MemberType<member> {using type = Type;};
@@ -65,7 +65,7 @@ MemberType_t<Member> GetMetadataMember(const Type& prop)
 	if constexpr (!MemberIsOptional_v<Member>) {
 		GLE_ASSERT(metadata.is_valid(), "Mandatory property metamember missing.");
 	}
-	return metadata.get_value<MemberType_t<Member>>();
+	return metadata.template get_value<MemberType_t<Member>>();
 }
 
 //=================================================================================
