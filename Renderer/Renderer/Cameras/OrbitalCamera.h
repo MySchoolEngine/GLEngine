@@ -66,6 +66,9 @@ public:
 
 	virtual glm::mat4 GetScreenToworldMatrix() const override;
 
+	// Deserializer special method
+	void AfterDeserialize();
+
 	RTTR_ENABLE(I_CameraComponent);
 	RTTR_REGISTRATION_FRIEND;
 protected:

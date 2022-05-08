@@ -40,6 +40,10 @@ RTTR_REGISTRATION
 	rttr::registration::class_<C_OrbitalCamera>("C_OrbitalCamera")
 		.constructor<std::shared_ptr<GLEngine::Entity::I_Entity>>()(rttr::policy::ctor::as_std_shared_ptr)
 		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
+		.method("AfterDeserialize", &C_OrbitalCamera::AfterDeserialize)
+		.property("nearZ", &C_OrbitalCamera::_nearZ)
+		.property("farZ", &C_OrbitalCamera::_farZ)
+		.property("aspectZ", &C_OrbitalCamera::_aspect)
 		.property("YAngle", &C_OrbitalCamera::_angleYDeg)
 			(
 				rttr::policy::prop::bind_as_ptr,
@@ -96,8 +100,12 @@ C_OrbitalCamera::C_OrbitalCamera()
 	: I_CameraComponent(nullptr)
 	, m_ControlSpeed(0.5f)
 	, _angleYDeg(0.0f)
-	, _angleXDeg(0.0f)
-	, _zoom()
+	, _angleXDeg(90.0f)
+	, _zoom(5.0f)
+	, _nearZ(0.1f)
+	, _farZ(100.f)
+	, _aspect(1.85546875f)
+	, _fovy(glm::radians(90.f))
 {
 }
 
@@ -375,6 +383,12 @@ Physics::Primitives::C_Frustum C_OrbitalCamera::GetFrustum() const
 glm::mat4 C_OrbitalCamera::GetScreenToworldMatrix() const
 {
 	return _ScreenToWorld;
+}
+
+//=================================================================================
+void C_OrbitalCamera::AfterDeserialize()
+{
+	Update();
 }
 
 } // namespace GLEngine::Renderer::Cameras

@@ -516,11 +516,6 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 			player->AddComponent(playerCamera);
 		}
 		auto camIt = player->GetComponents(Entity::E_ComponentType::Camera).begin();
-		float zoom = 5.0f;
-		std::static_pointer_cast<Renderer::Cameras::C_OrbitalCamera>(*camIt)->setupCameraProjection(0.1f, 2 * zoom * 100,
-																									static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
-		std::static_pointer_cast<Renderer::Cameras::C_OrbitalCamera>(*camIt)->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
-		std::static_pointer_cast<Renderer::I_CameraComponent>(*camIt)->Update();
 		m_CamManager.ActivateCamera(std::static_pointer_cast<Renderer::I_CameraComponent>(*camIt));
 		++camIt;
 		m_CamManager.SetDebugCamera(std::static_pointer_cast<Renderer::I_CameraComponent>(*camIt));
