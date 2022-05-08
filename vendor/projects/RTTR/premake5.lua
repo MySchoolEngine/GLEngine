@@ -8,7 +8,7 @@ project "RTTR"
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/vendor/%{prj.name}")
     objdir ("%{wks.location}/obj/" .. outputdir .. "/vendor/%{prj.name}")
 
-    libPath = "%{wks.location}/RTTR/src/"
+    libPath = "%{wks.location}/vendor/RTTR/src/"
 
     -- pchheader (libPath.."detail/base/pch.h")
 

@@ -27,7 +27,7 @@ template <> struct ParentMetatype<cls> { using type = Parent; }; \
 template <> struct IsMetadataName<cls> : std::true_type {}
 
 #define REGISTER_META_MEMBER_TYPE(member, Type) \
-template <> struct ::Utils::Reflection::MemberType<member> {using type = Type;};
+template <> struct MemberType<member> {using type = Type;};
 
 namespace detail {
 //=================================================================================
@@ -73,7 +73,7 @@ template <class Enum>
 rttr::variant GetMetadataMember(const rttr::property& prop, const Enum member)
 {
 	static_assert(IsMetadataName_v<Enum>, "Given member name must be registered meta member.");
-	const auto metadata = prop.get_metadata(Member);
+	const auto metadata = prop.get_metadata(member);
 	GLE_ASSERT(MemberIsOptional_v<Member> || metadata.is_valid(), "Mandatory property metamember missing.");
 	return metadata;
 }
