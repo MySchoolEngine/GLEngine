@@ -530,9 +530,16 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 	{
 		// create default atmosphere
 		auto entity	 = m_World->GetOrCreateEntity("atmosphere");
-		auto sunComp = std::make_shared<Renderer::C_SunLight>(entity);
-		m_SunShadow	 = std::make_shared<C_SunShadowMapTechnique>(sunComp);
-		entity->AddComponent(sunComp);
+		if (auto sunLight = entity->GetComponent<Entity::E_ComponentType::Light>())
+		{
+			m_SunShadow = std::make_shared<C_SunShadowMapTechnique>(std::static_pointer_cast<Renderer::C_SunLight>(sunLight));
+		}
+		else
+		{
+			auto sunComp = std::make_shared<Renderer::C_SunLight>(entity);
+			m_SunShadow	 = std::make_shared<C_SunShadowMapTechnique>(sunComp);
+			entity->AddComponent(sunComp);
+		}
 	}
 }
 
