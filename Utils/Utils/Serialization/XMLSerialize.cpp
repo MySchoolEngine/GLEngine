@@ -23,7 +23,7 @@ pugi::xml_document C_XMLSerializer::Serialize(const rttr::instance obj)
 }
 
 //=================================================================================
-pugi::xml_node C_XMLSerializer::SerializeObject(const rttr::instance& obj2, pugi::xml_node& node)
+pugi::xml_node C_XMLSerializer::SerializeObject(const rttr::instance& obj2, pugi::xml_node node)
 {
 	using namespace ::Utils::Reflection;
 	const rttr::instance obj = obj2.get_type().get_raw_type().is_wrapper() ? obj2.get_wrapped_instance() : obj2;
@@ -41,7 +41,7 @@ pugi::xml_node C_XMLSerializer::SerializeObject(const rttr::instance& obj2, pugi
 }
 
 //=================================================================================
-void C_XMLSerializer::WriteProperty(const rttr::property& prop, const rttr::instance& var, pugi::xml_node& parent)
+void C_XMLSerializer::WriteProperty(const rttr::property& prop, const rttr::instance& var, pugi::xml_node parent)
 {
 	using namespace ::Utils::Reflection;
 	auto type	   = prop.get_type();
@@ -78,7 +78,7 @@ void C_XMLSerializer::WriteProperty(const rttr::property& prop, const rttr::inst
 }
 
 //=================================================================================
-void C_XMLSerializer::WriteAtomics(const rttr::type& type, const rttr::variant& obj, pugi::xml_attribute& attr)
+void C_XMLSerializer::WriteAtomics(const rttr::type& type, const rttr::variant& obj, pugi::xml_attribute attr)
 {
 	if (obj.get_type().is_pointer())
 	{
@@ -156,7 +156,7 @@ void C_XMLSerializer::WriteAtomics(const rttr::type& type, const rttr::variant& 
 }
 
 //=================================================================================
-void C_XMLSerializer::WriteArray(const rttr::variant_sequential_view& view, pugi::xml_node& parent)
+void C_XMLSerializer::WriteArray(const rttr::variant_sequential_view& view, pugi::xml_node parent)
 {
 	for (const auto& item : view)
 	{
@@ -186,7 +186,7 @@ rttr::string_view C_XMLSerializer::GetNodeName(const rttr::type& type)
 }
 
 //=================================================================================
-void C_XMLSerializer::WriteAssociativeArray(const rttr::variant_associative_view& view, pugi::xml_node& parent)
+void C_XMLSerializer::WriteAssociativeArray(const rttr::variant_associative_view& view, pugi::xml_node parent)
 {
 	for (const auto& item : view)
 	{
