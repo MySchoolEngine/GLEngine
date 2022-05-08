@@ -505,7 +505,7 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 	auto player = m_Player.lock();
 	if (player)
 	{
-		auto& cameras = player->GetComponents(Entity::E_ComponentType::Camera);
+		auto cameras = player->GetComponents(Entity::E_ComponentType::Camera);
 		for (int i = cameras.size(); i < 2; ++i)
 		{
 			float zoom		   = 5.0f;
