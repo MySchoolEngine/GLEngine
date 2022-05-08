@@ -29,7 +29,7 @@ rttr::variant C_XMLDeserializer::DeserializeDoc(const pugi::xml_document& docume
 //=================================================================================
 rttr::variant C_XMLDeserializer::DeserializeNode(const pugi::xml_node& node, rttr::variant& var)
 {
-	const rttr::instance var2 = var.get_type().get_raw_type().is_wrapper() ? rttr::instance(var).get_wrapped_instance() : var;
+	const rttr::instance var2 = var.get_type().get_raw_type().is_wrapper() ? rttr::instance(var).get_wrapped_instance() : rttr::instance(var);
 	// CORE_LOG(E_Level::Error, E_Context::Core, "{}", var2.get_type());
 
 	for (auto& prop : var2.get_type().get_properties())
@@ -92,8 +92,10 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 	else
 	{
 		const auto child = node.child(prop.get_name().to_string().c_str());
-		if (child)
-			prop.set_value(owner, DeserializeNode(child, prop.get_value(owner)));
+		if (child) {
+			auto var = prop.get_value(owner);
+			prop.set_value(owner, DeserializeNode(child, var));
+		}
 	}
 }
 
