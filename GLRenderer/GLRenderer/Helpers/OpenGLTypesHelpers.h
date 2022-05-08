@@ -159,6 +159,8 @@ inline constexpr std::size_t SizeOfGLType(const GLenum type)
 		return 1;
 	case GL_UNSIGNED_INT_24_8:
 		return 4;
+	case GL_HALF_FLOAT:
+		return 2;
 	default:
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unknown texture type");
 		break;

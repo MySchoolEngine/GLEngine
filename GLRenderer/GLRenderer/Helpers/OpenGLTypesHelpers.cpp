@@ -42,8 +42,8 @@ static FormatDescriptor const TextureFormatDesc[] = {
 
 	{false, false, GL_UNSIGNED_INT_24_8, GL_DEPTH_STENCIL,		GL_NONE, 2},
 	{false, false, GL_FLOAT,			 GL_DEPTH_COMPONENT32F, GL_NONE, 1},
-	{false, false, GL_NONE,				 GL_DEPTH_COMPONENT24,  GL_NONE, 1},
-	{false, false, GL_NONE,				 GL_DEPTH_COMPONENT16,	GL_NONE, 1},
+	{false, false, GL_UNSIGNED_INT_24_8, GL_DEPTH_COMPONENT24,  GL_NONE, 1},
+	{false, false, GL_HALF_FLOAT,		 GL_DEPTH_COMPONENT16,	GL_NONE, 1},
 };
 
 constexpr std::size_t Count = sizeof(TextureFormatDesc) / sizeof(FormatDescriptor);
