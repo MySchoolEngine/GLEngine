@@ -29,7 +29,7 @@ RTTR_REGISTRATION
 				RegisterMetamember<UI::Slider::Max>(1.0f),
 				RegisterMetamember<SerializationCls::DerefSerialize>(true)
 			)
-		.property("SunY", &C_SunLight::m_SunX)
+		.property("SunY", &C_SunLight::m_SunY)
 			(
 				rttr::policy::prop::bind_as_ptr,
 				RegisterMetaclass<MetaGUI::Slider>(),
@@ -38,7 +38,7 @@ RTTR_REGISTRATION
 				RegisterMetamember<UI::Slider::Max>(1.0f),
 				RegisterMetamember<SerializationCls::DerefSerialize>(true)
 			)
-		.property("SunZ", &C_SunLight::m_SunX)
+		.property("SunZ", &C_SunLight::m_SunZ)
 			(
 				rttr::policy::prop::bind_as_ptr,
 				RegisterMetaclass<MetaGUI::Slider>(),
