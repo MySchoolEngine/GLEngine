@@ -189,21 +189,6 @@ bool C_EntityManager::LoadLevel(const std::filesystem::path& name, std::unique_p
 			{
 				for (const auto& componentNode : componentsNode.children())
 				{
-					if (std::string(componentNode.name()) == "staticMesh")
-					{
-						auto		  t				= rttr::type::get<I_ComponenetBuilder>();
-						const auto derived = t.get_derived_classes();
-						CORE_LOG(E_Level::Error, E_Context::Entity, "{}", derived.size());
-						const auto	  staticBuilder = t.get_derived_classes().begin();
-						auto var = (*staticBuilder).create();
-						auto method = t.get_method("Build");
-						rttr::variant entityV		= (entity);
-						const auto	  b1			= entityV.can_convert(rttr::type::get<std::shared_ptr<Entity::I_Entity>>());
-						auto		  ret			= method.invoke(var, componentNode, std::static_pointer_cast<I_Entity>(entity));
-						const auto	  b				= ret.can_convert(rttr::type::get<std::shared_ptr<Entity::I_Component>>());
-						const auto	  name			= ret.get_type().get_name();
-						CORE_LOG(E_Level::Error, E_Context::Entity, "{} {}", b, ret.get_type().get_name().begin());
-					}
 					auto builder = cbf->GetFactory(componentNode.name());
 					if (builder)
 					{

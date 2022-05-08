@@ -18,10 +18,7 @@ pugi::xml_document C_XMLSerializer::Serialize(const rttr::instance obj)
 
 	pugi::xml_document doc;
 	pugi::xml_node	   node	 = doc.append_child(GetNodeName(obj.get_type()).to_string().c_str());
-	const auto		   node2 = SerializeObject(obj, node);
-	// std::stringstream		ss;
-	// pugi::xml_writer_stream writer(ss);
-	// node2.print(writer);
+	SerializeObject(obj, node);
 	return doc;
 }
 
@@ -145,7 +142,7 @@ void C_XMLSerializer::WriteAtomics(const rttr::type& type, const rttr::variant& 
 		const auto result = obj.to_string(&ok);
 		if (ok)
 		{
-			attr.set_value(obj.to_string().c_str());
+			attr.set_value(result.c_str());
 		}
 		else
 		{
