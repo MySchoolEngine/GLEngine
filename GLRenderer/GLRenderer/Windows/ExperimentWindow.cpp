@@ -144,7 +144,7 @@ void C_ExplerimentWindow::Update()
 		m_MainPass->SetSunViewProjection(m_SunShadow->GetLastViewProjection());
 	}
 	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
-	m_MainPass->Render(camera, GetWidth(), GetHeight());
+	m_MainPass->Render(*m_World.get(), camera, GetWidth(), GetHeight());
 
 	// ----- Frame init -------
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
@@ -243,7 +243,7 @@ bool C_ExplerimentWindow::OnKeyPressed(Core::C_KeyPressedEvent& event)
 void C_ExplerimentWindow::OnAppInit()
 {
 	m_FrameTimer.reset();
-	m_MainPass = std::make_unique<C_MainPassTechnique>(m_World);
+	m_MainPass = std::make_unique<C_MainPassTechnique>();
 	{
 		using namespace Commands;
 		m_renderer->AddCommand(std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::DEPTH_TEST));
@@ -505,24 +505,25 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 	auto player = m_Player.lock();
 	if (player)
 	{
-		float zoom		   = 5.0f;
-		auto  playerCamera = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
-		playerCamera->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
-		// playerCamera->positionCamera({ 0,1,0 }, { 0,0,1 });
-		playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
-		// playerCamera->adjustOrientation(20.f, 20.f);
-		playerCamera->Update();
-		player->AddComponent(playerCamera);
-		m_CamManager.ActivateCamera(playerCamera);
-
-		auto debugCam = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
-		debugCam->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
-		// playerCamera->positionCamera({ 0,1,0 }, { 0,0,1 });
-		debugCam->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
-		debugCam->adjustOrientation(0.f, 0.f);
-		debugCam->Update();
-		player->AddComponent(debugCam);
-		m_CamManager.SetDebugCamera(debugCam);
+		auto& cameras = player->GetComponents(Entity::E_ComponentType::Camera);
+		for (int i = cameras.size(); i < 2; ++i)
+		{
+			float zoom		   = 5.0f;
+			auto  playerCamera = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
+			playerCamera->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
+			playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
+			playerCamera->Update();
+			player->AddComponent(playerCamera);
+		}
+		auto camIt = player->GetComponents(Entity::E_ComponentType::Camera).begin();
+		float zoom = 5.0f;
+		std::static_pointer_cast<Renderer::Cameras::C_OrbitalCamera>(*camIt)->setupCameraProjection(0.1f, 2 * zoom * 100,
+																									static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
+		std::static_pointer_cast<Renderer::Cameras::C_OrbitalCamera>(*camIt)->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
+		std::static_pointer_cast<Renderer::I_CameraComponent>(*camIt)->Update();
+		m_CamManager.ActivateCamera(std::static_pointer_cast<Renderer::I_CameraComponent>(*camIt));
+		++camIt;
+		m_CamManager.SetDebugCamera(std::static_pointer_cast<Renderer::I_CameraComponent>(*camIt));
 
 		// area light
 		// auto arealight = std::make_shared<C_GLAreaLight>(player);

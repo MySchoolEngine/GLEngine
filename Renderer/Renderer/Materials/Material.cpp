@@ -45,7 +45,7 @@ C_Material::C_Material(const std::string& name)
 //=================================================================================
 C_Material::C_Material(const MeshData::Material& material)
 	: m_Name(material.m_Name)
-	, m_Color("Color", Colours::white)
+	, m_Color("Color", material.diffuse)
 	, m_Roughness(0.5f, 0.f, 1.f, "Roughness")
 	, m_ColorMap(nullptr)
 	, m_NormalMap(nullptr)

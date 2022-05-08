@@ -58,6 +58,14 @@ C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::s
 	, m_Material(nullptr)
 {
 	SetShader(shader.data());
+	Renderer::MeshData::Material material
+	{
+		glm::vec4{1.0f, 0.0f, 0.f, 0.f}, 
+		glm::vec4{1.0f, 0.0f, 0.f, 0.f}, 
+		glm::vec4{1.0f, 0.0f, 0.f, 0.f},
+		.5f
+	};
+	SetMaterial(material);
 }
 
 //=================================================================================
@@ -80,6 +88,16 @@ C_StaticMesh::C_StaticMesh()
 	, m_Material(nullptr)
 {
 	SetShader("basicTracing"); // TODO
+	Renderer::MeshData::Material material
+	{
+		glm::vec4{1.0f, 0.0f, 0.f, 0.f}, 
+		glm::vec4{1.0f, 0.0f, 0.f, 0.f}, 
+		glm::vec4{1.0f, 0.0f, 0.f, 0.f},
+		.5f,
+		-1, -1, 
+		"Default"
+	};
+	SetMaterial(material);
 }
 
 //=================================================================================
