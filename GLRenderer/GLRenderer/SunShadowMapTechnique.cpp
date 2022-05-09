@@ -35,7 +35,7 @@ const float			C_SunShadowMapTechnique::s_ZOffset		 = 0.001f;
 
 
 //=================================================================================
-C_SunShadowMapTechnique::C_SunShadowMapTechnique(std::shared_ptr<Renderer::C_SunLight>& light)
+C_SunShadowMapTechnique::C_SunShadowMapTechnique(std::shared_ptr<Renderer::C_SunLight> light)
 	: m_Sun(light)
 {
 	m_FrameConstUBO = std::dynamic_pointer_cast<Buffers::UBO::C_FrameConstantsBuffer>(Buffers::C_UniformBuffersManager::Instance().GetBufferByName("frameConst"));
