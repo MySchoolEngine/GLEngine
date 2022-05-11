@@ -18,5 +18,6 @@ private:
 	std::weak_ptr<C_EntityManager> m_World;
 	mutable GUID				   m_SelectedEntity;
 	GUI::Input::C_TypeSelector	   m_EntityTypeSelector;
+	GUI::Input::C_TypeSelector	   m_ComponentTypeSelector;
 };
 } // namespace GLEngine::Entity

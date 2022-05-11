@@ -7,6 +7,7 @@
 #include <GUI/GUIUtils.h>
 
 #include <imgui.h>
+#include <misc/cpp/imgui_stdlib.h>
 
 namespace GLEngine::Entity {
 
@@ -16,6 +17,7 @@ C_EntitiesWindow::C_EntitiesWindow(GUID guid, std::shared_ptr<C_EntityManager>& 
 	, m_World(world)
 	, m_SelectedEntity(GUID::INVALID_GUID)
 	, m_EntityTypeSelector("Entity class", rttr::type::get<I_Entity>().get_name().data())
+	, m_ComponentTypeSelector("Component class", rttr::type::get<I_Component>().get_name().data())
 {
 }
 
@@ -52,31 +54,41 @@ void C_EntitiesWindow::Draw() const
 		ImGui::EndChild();
 	}
 
-	SceneTreeHeight += GUI::Splitter();
-
-	ImGui::BeginChild("SpawnEntity", ImVec2(0, 150), true);
-	ImGui::PopStyleVar();
-
-	m_EntityTypeSelector.Draw();
-	if (ImGui::Button("Spawn")) {
-		const auto type = rttr::type::get_by_name(m_EntityTypeSelector.GetSelectedTypeName());
-		if (type.is_valid() == false) {
-			CORE_LOG(E_Level::Error, E_Context::Entity, "Type {} doesn't exists.", m_EntityTypeSelector.GetSelectedTypeName());
-		}
-		else
-		{
-			// auto entity = type.create();
-			// m_World->AddEntity(entity.convert(rttr::type::get<>());
-		}
-	}
-
-	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-	ImGui::EndChild();
-
-
-	// here should be way how to add components
 	if (world)
 	{
+		SceneTreeHeight += GUI::Splitter();
+
+		ImGui::BeginChild("SpawnEntity", ImVec2(0, 150), true);
+		ImGui::PopStyleVar();
+
+		m_EntityTypeSelector.Draw();
+		static std::string entityName;
+		ImGui::InputText("Entity name", &entityName);
+		if (ImGui::Button("Spawn"))
+		{
+			const auto type = rttr::type::get_by_name(m_EntityTypeSelector.GetSelectedTypeName());
+			if (entityName.empty())
+			{
+				CORE_LOG(E_Level::Error, E_Context::Entity, "Cannot spawn entity without a name.");
+			}
+			else if (type.is_valid() == false)
+			{
+				CORE_LOG(E_Level::Error, E_Context::Entity, "Type {} doesn't exists.", m_EntityTypeSelector.GetSelectedTypeName());
+			}
+			else
+			{
+				auto entity = type.create({entityName});
+				world->AddEntity(entity.convert<std::shared_ptr<I_Entity>>());
+
+				entityName = "";
+			}
+		}
+
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+		ImGui::EndChild();
+
+
+		// here should be way how to add components
 		auto entity = world->GetEntity(m_SelectedEntity);
 		if (entity)
 		{
@@ -92,12 +104,14 @@ void C_EntitiesWindow::Draw() const
 				ImGui::PopID();
 				++i;
 			}
+
+			m_ComponentTypeSelector.Draw();
+
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 			ImGui::EndChild();
 		}
 	}
-
-	if (!world)
+	else
 	{
 		ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
 		ImGui::Text("World went missing!");
@@ -113,7 +127,7 @@ void C_EntitiesWindow::SetWorld(std::shared_ptr<C_EntityManager> world)
 {
 	m_World = world;
 	// entity removed anyway
-	m_SelectedEntity=GUID::INVALID_GUID;
+	m_SelectedEntity = GUID::INVALID_GUID;
 }
 
 } // namespace GLEngine::Entity

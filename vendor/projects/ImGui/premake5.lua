@@ -12,16 +12,19 @@ project "ImGui"
 
 	files
 	{
-        "%{wks.location}/vendor/ImGui/imconfig.h",
-        "%{wks.location}/vendor/ImGui/imgui.h",
-        "%{wks.location}/vendor/ImGui/imgui.cpp",
-        "%{wks.location}/vendor/ImGui/imgui_draw.cpp",
-        "%{wks.location}/vendor/ImGui/imgui_internal.h",
-        "%{wks.location}/vendor/ImGui/imgui_widgets.cpp",
-        "%{wks.location}/vendor/ImGui/imstb_rectpack.h",
-        "%{wks.location}/vendor/ImGui/imstb_textedit.h",
-        "%{wks.location}/vendor/ImGui/imstb_truetype.h",
-        "%{wks.location}/vendor/ImGui/imgui_demo.cpp",
+        "%{wks.location}/"..IncludeDir["ImGui"].."/imconfig.h",
+        "%{wks.location}/"..IncludeDir["ImGui"].."/imgui.h",
+        "%{wks.location}/"..IncludeDir["ImGui"].."/imgui.cpp",
+        "%{wks.location}/"..IncludeDir["ImGui"].."/imgui_draw.cpp",
+        "%{wks.location}/"..IncludeDir["ImGui"].."/imgui_internal.h",
+        "%{wks.location}/"..IncludeDir["ImGui"].."/imgui_widgets.cpp",
+        "%{wks.location}/"..IncludeDir["ImGui"].."/imstb_rectpack.h",
+        "%{wks.location}/"..IncludeDir["ImGui"].."/imstb_textedit.h",
+        "%{wks.location}/"..IncludeDir["ImGui"].."/imstb_truetype.h",
+        "%{wks.location}/"..IncludeDir["ImGui"].."/imgui_demo.cpp",
+
+        "%{wks.location}/"..IncludeDir["ImGui"].."/misc/cpp/imgui_stdlib.h",
+        "%{wks.location}/"..IncludeDir["ImGui"].."/misc/cpp/imgui_stdlib.cpp",
     }
 
     includedirs

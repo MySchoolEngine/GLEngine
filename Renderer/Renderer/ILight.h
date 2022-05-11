@@ -25,7 +25,7 @@ public:
 
 	virtual Physics::Primitives::C_Frustum GetShadingFrustum() const = 0;
 
-	RTTR_ENABLE();
+	RTTR_ENABLE(Entity::I_Component);
 };
 } // namespace Renderer
 

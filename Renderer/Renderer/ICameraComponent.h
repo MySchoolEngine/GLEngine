@@ -38,7 +38,7 @@ public:
 
 	[[nodiscard]] virtual Physics::Primitives::C_Frustum GetFrustum() const = 0;
 
-	RTTR_ENABLE();
+	RTTR_ENABLE(Entity::I_Component);
 	RTTR_REGISTRATION_FRIEND;
 };
 } // namespace Renderer
