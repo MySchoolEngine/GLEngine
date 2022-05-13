@@ -143,7 +143,7 @@ template <class T> struct Range {
 	{
 		m_begin = other.m_begin;
 		m_end	= other.m_end;
-	  return *this;
+		return *this;
 	}
 
 	T& begin() { return m_begin; }
