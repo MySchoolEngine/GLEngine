@@ -20,7 +20,7 @@ rttr::variant C_XMLDeserializer::DeserializeDoc(const pugi::xml_document& docume
 	auto var = type.create();
 	if (var.is_valid() == false)
 	{
-		CORE_LOG(E_Level::Error, E_Context::Core, "Invalid variant created. Probably needs ctor to be registered.");
+		CORE_LOG(E_Level::Error, E_Context::Core, "Invalid variant created. Probably needs ctor to be registered. Type = {}", type);
 		return {};
 	}
 	return DeserializeNode(rootNode, var);
@@ -114,7 +114,7 @@ void C_XMLDeserializer::DeserializeArray(const pugi::xml_node& child, rttr::vari
 		const auto iter = view.insert(view.end(), var);
 		if (iter == view.end())
 		{
-			CORE_LOG(E_Level::Error, E_Context::Core, "FAILED.");
+			CORE_LOG(E_Level::Error, E_Context::Core, "Failed to insert item into the array.");
 		}
 		if (auto method = type.get_method("AfterDeserialize"))
 		{
@@ -137,7 +137,7 @@ void C_XMLDeserializer::DeserializeAssociativeArray(const pugi::xml_node& child,
 		{
 			keyVar = DeserializeAtomic(childNode.child("key").attribute("value"), keyType);
 			if (!keyVar.is_valid())
-				CORE_LOG(E_Level::Error, E_Context::Core, "FAILED.");
+				CORE_LOG(E_Level::Error, E_Context::Core, "Failed to deserialize atomic type key.");
 		}
 		else
 			CORE_LOG(E_Level::Error, E_Context::Core, "Well, not implemented. Yet?");
