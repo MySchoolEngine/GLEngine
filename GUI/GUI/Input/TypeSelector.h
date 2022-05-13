@@ -19,16 +19,4 @@ private:
 	std::string			m_Name;
 	mutable std::string m_Selected;
 };
-
-template<class BaseType>
-class GUI_API_EXPORT C_CTTypeSelector : public C_TypeSelector {
-public:
-	C_CTTypeSelector(const std::string_view name)
-		: C_TypeSelector(name, rttr::type::get<BaseType>().get_name())
-	{}
-
-	[[nodiscard]] BaseType* GetInstnace() const {
-
-	}
-};
 } // namespace GLEngine::GUI::Input

@@ -60,7 +60,7 @@ void DrawAllPropertyGUI(rttr::instance& obj)
 }
 
 //=================================================================================
-GUI_API_EXPORT void DrawPropertyGUI(rttr::instance& obj, const rttr::property& prop)
+void DrawPropertyGUI(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 	if (UI::IsUIMetaclass<MetaGUI::Vec3>(prop))
