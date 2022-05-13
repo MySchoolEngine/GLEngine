@@ -8,7 +8,8 @@
 #include <GUI/Input/Color.h>
 #include <GUI/Input/Slider.h>
 
-#include <rttr/type>
+#include <rttr/registration.h>
+#include <rttr/registration_friend.h>
 
 namespace GLEngine {
 namespace Renderer::MeshData {
@@ -30,9 +31,6 @@ class C_StaticMeshResource;
 }
 
 namespace Components {
-
-// because of RTTR I need parameter-less constructor
-// this will also lead to change in the way, how the owner is propagated into the component
 class C_StaticMesh : public Renderer::I_RenderableComponent {
 public:
 	C_StaticMesh(std::string meshFile, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner);

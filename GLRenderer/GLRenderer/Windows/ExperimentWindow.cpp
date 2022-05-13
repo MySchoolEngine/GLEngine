@@ -1,6 +1,5 @@
 #include <GLRendererStdafx.h>
 
-#include <GLRenderer/Buffers/UBO/FrameConstantsBuffer.h>
 #include <GLRenderer/Buffers/UBO/ModelData.h>
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
 #include <GLRenderer/Commands/GLClear.h>
@@ -27,7 +26,6 @@
 #include <GLRenderer/Windows/ExperimentWindow.h>
 #include <GLRenderer/Windows/RayTrace.h>
 
-#include <Renderer/Cameras/FreelookCamera.h>
 #include <Renderer/Cameras/OrbitalCamera.h>
 #include <Renderer/Lights/SunLight.h>
 #include <Renderer/Materials/MaterialManager.h>
@@ -36,7 +34,6 @@
 
 #include <GUI/ConsoleWindow.h>
 #include <GUI/FileDialogWindow.h>
-#include <GUI/Input/Transformations.h>
 
 #include <Physics/Primitives/Intersection.h>
 #include <Physics/Primitives/Ray.h>
@@ -431,17 +428,6 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 //=================================================================================
 void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 {
-//#define OLD_LOAD
-#ifdef OLD_LOAD
-	if (!m_World->LoadLevel(level, std::make_unique<Components::C_ComponentBuilderFactory>()))
-	{
-		CORE_LOG(E_Level::Warning, E_Context::Render, "Level not loaded");
-		return;
-	}
-	
-	AddMandatoryWorldParts();
-#else
-
 	pugi::xml_document doc;
 
 	pugi::xml_parse_result result;
@@ -468,7 +454,6 @@ void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 	// Inform entitites about the level loaded event
 	Core::C_EntityEvent levelEvent(GUID::INVALID_GUID, Core::C_EntityEvent::EntityEvent::LevelLoaded);
 	m_World->OnEvent(levelEvent);
-#endif
 }
 
 //=================================================================================
