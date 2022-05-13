@@ -40,14 +40,8 @@ public:
 
 	void BindUBO(std::shared_ptr<Buffers::C_UniformBuffer>) const;
 
-#if _DEBUG
 	void SetName(const std::string& name) noexcept;
 	std::string GetName() const;
-#else
-	// TODO: Huge problem due to serialization of the scene
-	inline void SetName(const std::string& name) noexcept {}
-	std::string GetName() const { return ""; }
-#endif
 
 	// replace this
 	inline GLuint GetProgram() const { return m_Program; }
