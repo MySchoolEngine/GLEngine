@@ -37,50 +37,18 @@ void C_LoggingSystem::RemoveLogger(I_Logger* logger)
 //=================================================================================
 std::ostream& operator<<(std::ostream& out, const E_Context& c)
 {
-	const char* text = nullptr;
-	switch (c)
-	{
-	default:
-		text = "UnknownContext";
-		break;
-	case E_Context::Core:
-		text = "Core";
-		break;
-	case E_Context::Render:
-		text = "Render";
-		break;
-	case E_Context::Entity:
-		text = "Entity";
-		break;
-	}
-	out << text;
+	auto enumType = rttr::type::get<E_Context>();
+	auto enumContext = enumType.get_enumeration();
+	out << enumContext.value_to_name(c);
 	return out;
 }
 
 //=================================================================================
 std::ostream& operator<<(std::ostream& out, const E_Level& c)
 {
-	const char* text = nullptr;
-	switch (c)
-	{
-
-	default:
-		text = "UnknownLevel";
-		break;
-	case E_Level::Error:
-		text = "Error";
-		break;
-	case E_Level::Warning:
-		text = "Warning";
-		break;
-	case E_Level::Info:
-		text = "Info";
-		break;
-	case E_Level::Debug:
-		text = "Debug";
-		break;
-	}
-	out << text;
+	auto enumType	 = rttr::type::get<E_Level>();
+	auto enumLevel = enumType.get_enumeration();
+	out << enumLevel.value_to_name(c);
 	return out;
 }
 
