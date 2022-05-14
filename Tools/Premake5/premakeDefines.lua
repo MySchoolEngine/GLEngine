@@ -20,6 +20,15 @@ function ProjectFiles(projectName)
 		tostring(projectName).."/**.inl",
 		"premake5.lua",
 	}
+	filter "action:vs*"
+	  vpaths {
+		  { ["Natvis Files"] = { "**.natvis" } },
+	  }
+
+	  files{
+		  "%{wks.location}/vendor/ImGui/misc/natvis/imgui.natvis",
+		  "%{wks.location}/vendor/GLM/util/glm.natvis"
+	  }
 
 	includedirs
 	{

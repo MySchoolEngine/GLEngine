@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="GLEngine::Renderer::C_Viewport">
+    <DisplayString>{{Min=({X,g} {Y,g}) Max=({X+Width,g} {Y+Height,g}) Size=({Width,g} {Height,g})}}</DisplayString>
+    <Expand>
+      <Item Name="[Width]">Width</Item>
+      <Item Name="[Height]">Height</Item>
+    </Expand>
+  </Type>
+</AutoVisualizer>
