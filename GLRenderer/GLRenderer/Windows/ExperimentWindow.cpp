@@ -50,6 +50,7 @@
 #include <Utils/Serialization/XMLDeserialize.h>
 #include <Utils/Serialization/XMLSerialize.h>
 #include <Utils/StdVectorUtils.h>
+#include <Utils/EnumUtils.h>
 
 #include <pugixml.hpp>
 
@@ -112,10 +113,9 @@ void C_ExplerimentWindow::Update()
 	C_DebugDraw::Instance().DrawAxis(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0, 1.f, 0.0f), glm::vec3(0.f, 0.f, 1.f));
 
 	const auto avgMsPerFrame = m_Samples.Avg();
-	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgFrametime)].UpdateText(m_Samples.Avg());
-	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgFps)].UpdateText(1000.f / avgMsPerFrame);
-	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::MinMaxFrametime)].UpdateText(*Utils::min_element(m_Samples),
-																										*Utils::max_element(m_Samples));
+	m_GUITexts[::Utils::ToIndex(E_GUITexts::AvgFrametime)].UpdateText(m_Samples.Avg());
+	m_GUITexts[::Utils::ToIndex(E_GUITexts::AvgFps)].UpdateText(1000.f / avgMsPerFrame);
+	m_GUITexts[::Utils::ToIndex(E_GUITexts::MinMaxFrametime)].UpdateText(*Utils::min_element(m_Samples),*Utils::max_element(m_Samples));
 
 	glfwSwapInterval(m_VSync ? 1 : 0);
 
@@ -336,9 +336,9 @@ void C_ExplerimentWindow::OnAppInit()
 	m_FrameStatsGUID = guiMGR.CreateGUIWindow("Frame stats");
 	auto* frameStats = guiMGR.GetWindow(m_FrameStatsGUID);
 
-	frameStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgFrametime)]);
-	frameStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgFps)]);
-	frameStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::MinMaxFrametime)]);
+	frameStats->AddComponent(m_GUITexts[::Utils::ToIndex(E_GUITexts::AvgFrametime)]);
+	frameStats->AddComponent(m_GUITexts[::Utils::ToIndex(E_GUITexts::AvgFps)]);
+	frameStats->AddComponent(m_GUITexts[::Utils::ToIndex(E_GUITexts::MinMaxFrametime)]);
 	frameStats->AddComponent(m_Samples);
 	frameStats->AddComponent(m_VSync);
 	frameStats->SetVisible(true);
