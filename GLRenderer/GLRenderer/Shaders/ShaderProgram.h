@@ -81,8 +81,8 @@ public:
 #endif
 
 private:
-#if _DEBUG
 	std::string						   m_name;
+#if _DEBUG
 	std::filesystem::file_time_type	   m_LastUpdate;
 	std::vector<std::filesystem::path> m_Paths;
 
