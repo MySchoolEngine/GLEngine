@@ -54,7 +54,8 @@ public:
 	[[nodiscard]] virtual inline glm::uvec2 GetDimensions() const override { return {m_Desc.width, m_Desc.height}; }
 	inline void								SetWidth(unsigned int width) { m_Desc.width = width; }
 	inline void								SetHeight(unsigned int height) { m_Desc.height = height; }
-	//inline void								SetName();
+	void									SetName(std::string name);
+	std::string								GetName();
 	inline void								SetDimensions(const glm::uvec2& dim)
 	{
 		// todo: should go away
