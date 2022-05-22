@@ -25,6 +25,7 @@ C_RayRenderer::C_RayRenderer(const C_RayTraceScene& scene)
 	: m_Scene(scene)
 	, m_ProcessedPixels(0)
 	, m_MaxDepth(3)
+	, m_NewResultAviable(false)
 {
 	Textures::TextureLoader tl;
 	m_Texture = tl.loadTexture(R"(Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp)");
@@ -37,11 +38,12 @@ C_RayRenderer::~C_RayRenderer()
 }
 
 //=================================================================================
-void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& storage)
+void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& storage, std::mutex* storageMutex)
 {
+	const auto								 dim = storage.GetDimensions();
+	Renderer::C_TextureViewStorageCPU<float> imageStorage(dim.x, dim.y, 3);
 	m_ProcessedPixels = 0;
 
-	const auto dim = storage.GetDimensions();
 
 	C_STDSampler rnd(0.f, 1.f);
 
@@ -51,11 +53,14 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 		return camera.GetRay({x, y});
 	};
 
-	auto textureView = C_TextureView(&storage);
+	auto textureView = C_TextureView(&imageStorage);
 
-	C_TextureView brickView(m_Texture);
+	// Not yet, also it should go to the scene structure
+	//C_TextureView brickView(m_Texture);
 
-	for (int y = 0; y < dim.y; ++y)
+	int interleavedLines = 2;
+
+	for (int y = 0; y < dim.y; y += interleavedLines)
 	{
 		for (int x = 0; x < dim.x; ++x)
 		{
@@ -63,7 +68,50 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 			AddSample({x, y}, textureView, PathTrace(ray, rnd));
 			++m_ProcessedPixels;
 		}
+
+		auto weightedView = C_TextureView(&storage);
+		if (storageMutex)
+		{
+			std::lock_guard<std::mutex> lock(*storageMutex);
+			UpdateView(y, interleavedLines, textureView, weightedView, 1);
+		}
+		else
+		{
+			UpdateView(y, interleavedLines, textureView, weightedView, 1);
+		}
 	}
+	for (int y = interleavedLines / 2; y < dim.y; y += interleavedLines)
+	{
+		for (int x = 0; x < dim.x; ++x)
+		{
+			const auto ray = GetRay(glm::vec2{x, y} + rnd.GetV2());
+			AddSample({x, y}, textureView, PathTrace(ray, rnd));
+			++m_ProcessedPixels;
+		}
+
+		auto weightedView = C_TextureView(&storage);
+		if (storageMutex)
+		{
+			std::lock_guard<std::mutex> lock(*storageMutex);
+			UpdateView(y, interleavedLines/2, textureView, weightedView, 1);
+		}
+		else
+		{
+			UpdateView(y, interleavedLines/2, textureView, weightedView, 1);
+		}
+	}
+}
+
+//=================================================================================
+void C_RayRenderer::UpdateView(unsigned int sourceLine, unsigned int numLines, C_TextureView& source, C_TextureView& target, unsigned int numSamples)
+{
+	const auto dim = target.GetDimensions();
+	for (int x = 0; x < dim.x; ++x)
+	{
+		for (int i = sourceLine; i < std::min(dim.y, sourceLine + numLines); ++i)
+			target.Set({x, i}, source.Get<glm::vec3>(glm::ivec2{x, sourceLine}) / static_cast<float>(numSamples));
+	}
+	m_NewResultAviable = true;
 }
 
 //=================================================================================
@@ -79,7 +127,7 @@ glm::vec3 C_RayRenderer::PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler&
 	glm::vec3	  LoDirect(0.f);
 	glm::vec3	  throughput(1.f);
 
-	for (std::size_t pathDepth = 0; pathDepth < 20; ++pathDepth)
+	for (std::size_t pathDepth = 0; pathDepth < m_MaxDepth; ++pathDepth)
 	{
 		C_RayIntersection intersect;
 		// first primary ray

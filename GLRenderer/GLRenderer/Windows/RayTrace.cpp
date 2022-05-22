@@ -5,8 +5,8 @@
 #include <GLRenderer/Windows/RayTrace.h>
 
 #include <Renderer/ICameraComponent.h>
-#include <Renderer/IRenderer.h>
 #include <Renderer/IDevice.h>
+#include <Renderer/IRenderer.h>
 #include <Renderer/RayCasting/RayRenderer.h>
 #include <Renderer/Textures/TextureView.h>
 
@@ -26,42 +26,25 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_Camera
 	: GUI::C_Window(guid, "Ray tracing")
 	, m_Camera(camera)
 	, m_ImageStorage(s_ImageResolution.x, s_ImageResolution.y, 3)
-	, m_WeightedImage(s_ImageResolution.x, s_ImageResolution.y, 3)
-	, m_Image(nullptr)
+	, m_Image(Textures::C_Texture(
+		  Renderer::TextureDescriptor{"rayTrace", s_ImageResolution.x, s_ImageResolution.y, Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::RGB32f, false}))
 	, m_NumCycleSamples(0)
 	, m_Running(false)
 	, m_RunningCycle(false)
-	, m_LiveUpdate(false, "Live update")
-	, m_DirectionImage(s_resolution, s_resolution, 1)
-	, m_DirImage(nullptr)
 	, m_Renderer(m_Scene)
 	, m_DepthSlider(3, 1, 100, "Max path depth")
 {
 	auto& device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
-	m_Image = std::make_shared<Textures::C_Texture>(Renderer::TextureDescriptor {
-		"rayTrace", 
-		s_ImageResolution.x, s_ImageResolution.y, 
-		Renderer::E_TextureType::TEXTURE_2D, 
-		Renderer::E_TextureFormat::RGB32f, 
-		false
-	});
-	device.AllocateTexture(*m_Image.get());
-	m_Image->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
-
-	m_DirImage = std::make_shared<Textures::C_Texture>(Renderer::TextureDescriptor{
-		"directional",
-		m_DirectionImage.GetDimensions().x, m_DirectionImage.GetDimensions().y,
-		Renderer::E_TextureType::TEXTURE_2D,
-		Renderer::E_TextureFormat::R32f,
-		false
-	});
-	device.AllocateTexture(*m_DirImage.get());
+	device.AllocateTexture(m_Image);
+	m_Image.SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
 }
 
 //=================================================================================
 C_RayTraceWindow::~C_RayTraceWindow()
 {
 	GLE_ASSERT(!IsRunning(), "Raytracing thread is still running.");
+	auto& device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
+	device.DestroyTexture(m_Image);
 }
 
 //=================================================================================
@@ -71,11 +54,9 @@ void C_RayTraceWindow::RayTrace()
 		return;
 	std::packaged_task<void()> rayTrace([&]() {
 		Utils::HighResolutionTimer renderTime;
-		m_Renderer.SetDirectionalDebug(Renderer::C_OctahedralTextureView(Renderer::C_TextureView(&m_DirectionImage), s_resolution));
 		m_Renderer.SetMaxPathDepth(m_DepthSlider);
-		m_Renderer.Render(*m_Camera, m_ImageStorage);
+		m_Renderer.Render(*m_Camera, m_ImageStorage, &m_ImageLock);
 		CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
-		UploadStorage();
 		m_Running = false;
 		m_NumCycleSamples++;
 	});
@@ -92,14 +73,12 @@ void C_RayTraceWindow::RunUntilStop()
 		return;
 	m_RunningCycle = m_Running = true;
 	std::packaged_task<void()> rayTrace([&]() {
-		m_Renderer.SetDirectionalDebug(Renderer::C_OctahedralTextureView(Renderer::C_TextureView(&m_DirectionImage), s_resolution));
 		while (m_RunningCycle)
 		{
 			Utils::HighResolutionTimer renderTime;
 			m_Renderer.SetMaxPathDepth(m_DepthSlider);
-			m_Renderer.Render(*m_Camera, m_ImageStorage);
+			m_Renderer.Render(*m_Camera, m_ImageStorage, &m_ImageLock);
 			CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
-			UploadStorage();
 			m_NumCycleSamples++;
 		}
 		m_Running = false;
@@ -114,18 +93,25 @@ void C_RayTraceWindow::Clear()
 {
 	glm::vec4 color{0.f, 0.f, 0.f, 0.f};
 	Renderer::C_TextureView(&m_ImageStorage).ClearColor(color);
-	Renderer::C_TextureView(&m_DirectionImage).ClearColor(color);
-	UploadStorage();
+	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
+	renderer.AddTransferCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+		[this]() {
+			m_Image.SetTexData2D(0, (&m_ImageStorage));
+			m_Renderer.SetResultConsumed();
+		},
+		"RT buffer"));
 	m_NumCycleSamples = 0;
 }
 
 //=================================================================================
 void C_RayTraceWindow::DrawComponents() const
 {
-	if (m_LiveUpdate && m_Running)
-		UploadStorage();
+	// This is coming from main thread, we can do updates here
+	// TODO: Condition "is something to upload"
+	const_cast<C_RayTraceWindow*>(this)->UploadStorage();
 	const auto dim = m_ImageStorage.GetDimensions();
-	ImGui::Image((void*)(intptr_t)(m_Image->GetTexture()), ImVec2(static_cast<float>(dim.x), static_cast<float>(dim.y)));
+	// only reason why I cannot move this code to Renderer instead or even to sandbox code :)
+	ImGui::Image((void*)(intptr_t)(m_Image.GetTexture()), ImVec2(static_cast<float>(dim.x), static_cast<float>(dim.y)));
 	if (!m_Running)
 	{
 		if (ImGui::Button("Render"))
@@ -147,52 +133,38 @@ void C_RayTraceWindow::DrawComponents() const
 	else
 	{
 		ImGui::ProgressBar(static_cast<float>(m_Renderer.GetProcessedPixels()) / (s_ImageResolution.x * s_ImageResolution.y));
-	}
-	if (m_RunningCycle)
-	{
-		if (ImGui::Button("Stop"))
+
+		if (m_RunningCycle)
 		{
-			const_cast<C_RayTraceWindow*>(this)->StopAll();
+			if (ImGui::Button("Stop"))
+			{
+				const_cast<C_RayTraceWindow*>(this)->StopAll();
+			}
 		}
 	}
 	ImGui::Text("Samples: %i", m_NumCycleSamples);
-	ImGui::Image((void*)(intptr_t)(m_DirImage->GetTexture()), ImVec2(static_cast<float>(256), static_cast<float>(256)));
-	m_LiveUpdate.Draw();
 }
 
 //=================================================================================
-void C_RayTraceWindow::UploadStorage() const
+void C_RayTraceWindow::UploadStorage()
 {
-	bool foundRenderer = false;
-	while (foundRenderer == false)
-	{
-		auto* renderer = Core::C_Application::Get().GetActiveRendererPtr();
-		if (renderer)
-		{
-			renderer->AddTransferCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[this]() {
-					const auto				dim = m_ImageStorage.GetDimensions();
-					Renderer::C_TextureView weightedView(const_cast<Renderer::C_TextureViewStorageCPU<float>*>(&m_WeightedImage));
-					Renderer::C_TextureView view(const_cast<Renderer::C_TextureViewStorageCPU<float>*>(&m_ImageStorage));
-					for (std::uint32_t i = 0; i < dim.x; ++i)
-						for (std::uint32_t j = 0; j < dim.y; ++j)
-							weightedView.Set({i, j}, view.Get<glm::vec3>(glm::ivec2{i, j}) / static_cast<float>(std::max(m_NumCycleSamples, 1)));
-
-					m_Image->bind();
-					m_Image->SetTexData2D(0, (&m_WeightedImage));
-				},
-				"RT buffer"));
-			renderer->AddTransferCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
-				[this]() {
-					m_DirImage->bind();
-					m_DirImage->SetTexData2D(0, (&m_DirectionImage));
-					m_DirImage->GenerateMipMaps();
-					m_DirImage->unbind();
-				},
-				"RT buffer"));
-			foundRenderer = true;
-		}
-	}
+	// This method should only check whether renderer has any presentable update
+	// and if so, than upload it, also this should only be called from main thread
+	// so add assert here
+	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
+	renderer.AddTransferCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+		[this]() {
+			if (m_ImageLock.try_lock())
+			{
+				if (m_Renderer.NewResultAviable())
+				{
+					m_Image.SetTexData2D(0, (&m_ImageStorage));
+					m_Renderer.SetResultConsumed();
+				}
+				m_ImageLock.unlock();
+			}
+		},
+		"RT buffer"));
 }
 
 //=================================================================================

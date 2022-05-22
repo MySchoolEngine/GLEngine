@@ -29,29 +29,24 @@ public:
 
 	bool IsRunning() const;
 
-	std::shared_ptr<Textures::C_Texture> GetDebugTexture() const { return m_DirImage; }
-
 	virtual void			   RequestDestroy() override;
 	[[nodiscard]] virtual bool CanDestroy() const override;
 
 private:
 	virtual void DrawComponents() const override;
-	void		 UploadStorage() const;
+	void		 UploadStorage();
 
-	std::shared_ptr<Renderer::I_CameraComponent>	m_Camera;
-	std::shared_ptr<Textures::C_Texture>			m_Image;
-	Renderer::C_TextureViewStorageCPU<float>		m_ImageStorage;
-	Renderer::C_TextureViewStorageCPU<float>		m_WeightedImage;
-	Renderer::C_RayTraceScene						m_Scene;
-	std::future<void>								m_SignalDone;
-	int												m_NumCycleSamples;
-	bool											m_Running : 1;
-	bool											m_RunningCycle : 1;
-	GUI::Input::C_CheckBoxValue						m_LiveUpdate;
-	GUI::Input::C_Slider<int>						m_DepthSlider;
-	Renderer::C_RayRenderer							m_Renderer;
+	std::shared_ptr<Renderer::I_CameraComponent> m_Camera;		  // TODO: Should be weak? What should I do when camera moves?
+	Textures::C_Texture							 m_Image;		  // The presented result
+	Renderer::C_TextureViewStorageCPU<float>	 m_ImageStorage;  // Intermediate data, could need some weighting
+	Renderer::C_RayTraceScene					 m_Scene;
+	std::future<void>							 m_SignalDone;		 // Signaling that work has ended, no one uses that?
+	int											 m_NumCycleSamples;	 // How many samples had been already used per pixel, Used for sampling
+	bool										 m_Running : 1;		 // Indicate that renderer is currntly running
+	bool										 m_RunningCycle : 1; // Run until stop feature
+	GUI::Input::C_Slider<int>					 m_DepthSlider;		 // How many bounces should be traced
+	Renderer::C_RayRenderer						 m_Renderer;
 
-	Renderer::C_TextureViewStorageCPU<float> m_DirectionImage;
-	std::shared_ptr<Textures::C_Texture>	 m_DirImage;
+	std::mutex m_ImageLock;
 };
 } // namespace GLEngine::GLRenderer
