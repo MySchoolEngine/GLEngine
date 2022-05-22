@@ -24,6 +24,24 @@
 				<item>
 					<key value="Graphical" />
 					<value>
+						<C_StaticMesh MeshFile="tree/Tree.obj">
+							<Transformation>
+								<Translation x="0" y="0" z="0" />
+								<Rotation x="0" y="-0" z="0" />
+								<Scale x="1" y="1" z="1" />
+							</Transformation>
+							<Material Name="floor_Material" Roughness="1" Shininess="32">
+								<Color>
+									<Colour x="1" y="1" z="1" />
+								</Color>
+								<ColorMap Name="Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp" />
+								<NormalMap Name="Models\Bricks01\REGULAR\1K\Bricks01_NRM_1K.bmp" />
+								<RoughnessMap Name="Models\Bricks01\REGULAR\1K\Bricks01_ROUGHNESS_1K.bmp" />
+							</Material>
+						</C_StaticMesh>
+					</value>
+					<key value="Graphical" />
+					<value>
 						<C_StaticMesh MeshFile="plane.obj">
 							<Transformation>
 								<Translation x="0" y="0" z="0" />
