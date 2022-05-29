@@ -19,15 +19,16 @@
 namespace GLEngine::GLRenderer {
 
 constexpr static std::uint16_t s_resolution		 = 512;
-constexpr static glm::uvec2	   s_ImageResolution = glm::uvec2(844, 480);
+constexpr static glm::uvec2	   s_ImageResolution = glm::uvec2(840, 488);
+constexpr static unsigned int  s_Coef			 = 1; // 28 max
 
 //=================================================================================
 C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_CameraComponent> camera)
 	: GUI::C_Window(guid, "Ray tracing")
 	, m_Camera(camera)
-	, m_ImageStorage(s_ImageResolution.x, s_ImageResolution.y, 3)
-	, m_Image(Textures::C_Texture(
-		  Renderer::TextureDescriptor{"rayTrace", s_ImageResolution.x, s_ImageResolution.y, Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::RGB32f, false}))
+	, m_ImageStorage(s_ImageResolution.x / s_Coef, s_ImageResolution.y / s_Coef, 3)
+	, m_Image(Textures::C_Texture(Renderer::TextureDescriptor{"rayTrace", s_ImageResolution.x / s_Coef, s_ImageResolution.y/ s_Coef, Renderer::E_TextureType::TEXTURE_2D,
+															  Renderer::E_TextureFormat::RGB32f, false}))
 	, m_NumCycleSamples(0)
 	, m_Running(false)
 	, m_RunningCycle(false)
@@ -111,7 +112,7 @@ void C_RayTraceWindow::DrawComponents() const
 	const_cast<C_RayTraceWindow*>(this)->UploadStorage();
 	const auto dim = m_ImageStorage.GetDimensions();
 	// only reason why I cannot move this code to Renderer instead or even to sandbox code :)
-	ImGui::Image((void*)(intptr_t)(m_Image.GetTexture()), ImVec2(static_cast<float>(dim.x), static_cast<float>(dim.y)));
+	ImGui::Image((void*)(intptr_t)(m_Image.GetTexture()), ImVec2(static_cast<float>(dim.x) * s_Coef, static_cast<float>(dim.y) * s_Coef));
 	if (!m_Running)
 	{
 		if (ImGui::Button("Render"))
