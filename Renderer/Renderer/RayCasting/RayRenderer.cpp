@@ -132,7 +132,7 @@ glm::vec3 C_RayRenderer::PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler&
 		C_RayIntersection intersect;
 		// first primary ray
 		if (!m_Scene.Intersect(ray, intersect, 1e-3f))
-			return glm::vec3(0.f); // here we can plug environmental light/atmosphere/whatever
+			break;
 
 		// direct ray to the light intersection
 		if (intersect.IsLight())
