@@ -16,27 +16,34 @@ struct S_Triangle : public T_Intersectable<S_Triangle> {
 
 	[[nodiscard]] inline float IntersectImpl(const S_Ray& ray) const
 	{
+		// Möller–Trumbore intersection algorithm
+		const float EPSILON = 0.0000001f;
 		using namespace glm;
-		const auto ao = m_p[0] - ray.origin;
-		const auto bo = m_p[1] - ray.origin;
-		const auto co = m_p[2] - ray.origin;
-
-		const auto v0 = cross(co, bo);
-		const auto v1 = cross(bo, ao);
-		const auto v2 = cross(ao, co);
-
-		const auto v0d = dot(v0, ray.direction);
-		const auto v1d = dot(v1, ray.direction);
-		const auto v2d = dot(v2, ray.direction);
-
-		if (((v0d < 0.f) && (v1d < 0.f) && (v2d < 0.f)) || ((v0d >= 0.f) && (v1d >= 0.f) && (v2d >= 0.f)))
+		vec3  edge1, edge2, h, s, q;
+		float a, f, u, v;
+		edge1 = m_p[1] - m_p[0];
+		edge2 = m_p[2] - m_p[0];
+		h	  = cross(ray.direction, edge2);
+		a	  = dot(edge1, h);
+		if (a > -EPSILON && a < EPSILON)
+			return false; // This ray is parallel to this triangle.
+		f = 1.0f / a;
+		s = ray.origin - m_p[0];
+		u = f * dot(s, h);
+		if (u < 0.0f || u > 1.0f)
+			return false;
+		q = cross(s, edge1);
+		v = f * dot(ray.direction, q);
+		if (v < 0.0f || u + v > 1.0f)
+			return false;
+		// At this stage we can compute t to find out where the intersection point is on the line.
+		float t = f * dot(edge2, q);
+		if (t > EPSILON) // ray intersection
 		{
-			const float distance = dot(m_Normal, ao) / dot(m_Normal, ray.direction);
-
-			return distance;
+			return t;
 		}
-
-		return -1.f;
+		else // This means that there is a line intersection but not a ray intersection.
+			return -1.f;
 	}
 
 	[[nodiscard]] inline glm::vec3 GetNormal() const { return m_Normal; }
