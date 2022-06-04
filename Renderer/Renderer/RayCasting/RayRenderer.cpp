@@ -38,7 +38,7 @@ C_RayRenderer::~C_RayRenderer()
 }
 
 //=================================================================================
-void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& storage, std::mutex* storageMutex)
+void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& storage, std::mutex* storageMutex, int numSamplesBefore)
 {
 	const auto								 dim = storage.GetDimensions();
 	Renderer::C_TextureViewStorageCPU<float> imageStorage(dim.x, dim.y, 3);
@@ -73,13 +73,14 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 		if (storageMutex)
 		{
 			std::lock_guard<std::mutex> lock(*storageMutex);
-			UpdateView(y, interleavedLines, textureView, weightedView, 1);
+			UpdateView(y, interleavedLines, textureView, weightedView, numSamplesBefore + 1);
 		}
 		else
 		{
-			UpdateView(y, interleavedLines, textureView, weightedView, 1);
+			UpdateView(y, interleavedLines, textureView, weightedView, numSamplesBefore + 1);
 		}
 	}
+	Sleep(1500);
 	for (int y = interleavedLines / 2; y < dim.y; y += interleavedLines)
 	{
 		for (int x = 0; x < dim.x; ++x)
@@ -93,11 +94,11 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 		if (storageMutex)
 		{
 			std::lock_guard<std::mutex> lock(*storageMutex);
-			UpdateView(y, interleavedLines/2, textureView, weightedView, 1);
+			UpdateView(y, interleavedLines / 2, textureView, weightedView, numSamplesBefore + 1);
 		}
 		else
 		{
-			UpdateView(y, interleavedLines/2, textureView, weightedView, 1);
+			UpdateView(y, interleavedLines / 2, textureView, weightedView, numSamplesBefore + 1);
 		}
 	}
 }
@@ -109,7 +110,12 @@ void C_RayRenderer::UpdateView(unsigned int sourceLine, unsigned int numLines, C
 	for (int x = 0; x < dim.x; ++x)
 	{
 		for (int i = sourceLine; i < std::min(dim.y, sourceLine + numLines); ++i)
-			target.Set({x, i}, source.Get<glm::vec3>(glm::ivec2{x, sourceLine}) / static_cast<float>(numSamples));
+		{
+			const auto samplePortion   = 1.0f / static_cast<float>(numSamples);
+			const auto sourceLineVal   = source.Get<glm::vec3>(glm::ivec2{x, sourceLine}) * samplePortion;
+			const auto previousLineVal = source.Get<glm::vec3>(glm::ivec2{x, i}) * (1.0f - samplePortion);
+			target.Set({x, i}, sourceLineVal + previousLineVal);
+		}
 	}
 	m_NewResultAviable = true;
 }

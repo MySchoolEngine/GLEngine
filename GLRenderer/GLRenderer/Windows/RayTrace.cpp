@@ -56,7 +56,7 @@ void C_RayTraceWindow::RayTrace()
 	std::packaged_task<void()> rayTrace([&]() {
 		Utils::HighResolutionTimer renderTime;
 		m_Renderer.SetMaxPathDepth(m_DepthSlider);
-		m_Renderer.Render(*m_Camera, m_ImageStorage, &m_ImageLock);
+		m_Renderer.Render(*m_Camera, m_ImageStorage, &m_ImageLock, m_NumCycleSamples);
 		CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
 		m_Running = false;
 		m_NumCycleSamples++;
@@ -78,7 +78,7 @@ void C_RayTraceWindow::RunUntilStop()
 		{
 			Utils::HighResolutionTimer renderTime;
 			m_Renderer.SetMaxPathDepth(m_DepthSlider);
-			m_Renderer.Render(*m_Camera, m_ImageStorage, &m_ImageLock);
+			m_Renderer.Render(*m_Camera, m_ImageStorage, &m_ImageLock, m_NumCycleSamples);
 			CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
 			m_NumCycleSamples++;
 		}
