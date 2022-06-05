@@ -38,10 +38,9 @@ C_RayRenderer::~C_RayRenderer()
 }
 
 //=================================================================================
-void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& storage, std::mutex* storageMutex, int numSamplesBefore)
+void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& weightedImage, I_TextureViewStorage& storage, std::mutex* storageMutex, int numSamplesBefore)
 {
-	const auto								 dim = storage.GetDimensions();
-	Renderer::C_TextureViewStorageCPU<float> imageStorage(dim.x, dim.y, 3);
+	const auto dim	  = storage.GetDimensions();
 	m_ProcessedPixels = 0;
 
 
@@ -53,10 +52,7 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 		return camera.GetRay({x, y});
 	};
 
-	auto textureView = C_TextureView(&imageStorage);
-
-	// Not yet, also it should go to the scene structure
-	//C_TextureView brickView(m_Texture);
+	auto textureView = C_TextureView(&storage);
 
 	int interleavedLines = 2;
 
@@ -69,7 +65,7 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 			++m_ProcessedPixels;
 		}
 
-		auto weightedView = C_TextureView(&storage);
+		auto weightedView = C_TextureView(&weightedImage);
 		if (storageMutex)
 		{
 			std::lock_guard<std::mutex> lock(*storageMutex);
@@ -80,7 +76,6 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 			UpdateView(y, interleavedLines, textureView, weightedView, numSamplesBefore + 1);
 		}
 	}
-	Sleep(1500);
 	for (int y = interleavedLines / 2; y < dim.y; y += interleavedLines)
 	{
 		for (int x = 0; x < dim.x; ++x)
@@ -90,7 +85,7 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& stor
 			++m_ProcessedPixels;
 		}
 
-		auto weightedView = C_TextureView(&storage);
+		auto weightedView = C_TextureView(&weightedImage);
 		if (storageMutex)
 		{
 			std::lock_guard<std::mutex> lock(*storageMutex);
@@ -109,12 +104,12 @@ void C_RayRenderer::UpdateView(unsigned int sourceLine, unsigned int numLines, C
 	const auto dim = target.GetDimensions();
 	for (int x = 0; x < dim.x; ++x)
 	{
+		const auto denominator = 1.0f / static_cast<float>(numSamples);
+		const auto sourceLineVal = source.Get<glm::vec3>(glm::ivec2{x, sourceLine}) * denominator;
 		for (int i = sourceLine; i < std::min(dim.y, sourceLine + numLines); ++i)
 		{
-			const auto samplePortion   = 1.0f / static_cast<float>(numSamples);
-			const auto sourceLineVal   = source.Get<glm::vec3>(glm::ivec2{x, sourceLine}) * samplePortion;
-			const auto previousLineVal = source.Get<glm::vec3>(glm::ivec2{x, i}) * (1.0f - samplePortion);
-			target.Set({x, i}, sourceLineVal + previousLineVal);
+			const auto previousLineVal = source.Get<glm::vec3>(glm::ivec2{x, i}) * (1.0f - denominator);
+			target.Set({x, i}, (sourceLineVal + previousLineVal) * denominator);
 		}
 	}
 	m_NewResultAviable = true;
@@ -123,7 +118,8 @@ void C_RayRenderer::UpdateView(unsigned int sourceLine, unsigned int numLines, C
 //=================================================================================
 void C_RayRenderer::AddSample(const glm::ivec2 coord, C_TextureView view, const glm::vec3 sample)
 {
-	view.Set(coord, view.Get<glm::vec3>(coord) + sample);
+	const auto previousValue = view.Get<glm::vec3>(coord);
+	view.Set(coord, previousValue + sample);
 }
 
 //=================================================================================
@@ -135,7 +131,7 @@ glm::vec3 C_RayRenderer::PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler&
 
 	for (std::size_t pathDepth = 0; pathDepth < m_MaxDepth; ++pathDepth)
 	{
-		C_RayIntersection intersect;
+		C_RayIntersection intersect, intersectY;
 		// first primary ray
 		if (!m_Scene.Intersect(ray, intersect, 1e-3f))
 			break;
@@ -144,7 +140,7 @@ glm::vec3 C_RayRenderer::PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler&
 		if (intersect.IsLight())
 		{
 			auto light = intersect.GetLight();
-			LoDirect += throughput * light->Le() * 100.f;
+			LoDirect += throughput * light->Le();
 		}
 
 		const auto& frame		  = intersect.GetFrame();
@@ -166,21 +162,19 @@ glm::vec3 C_RayRenderer::PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler&
 
 		GLE_ASSERT(wi.y > 0, "Wrong direction of the ray!");
 
-		throughput *= f / pdf;
+		Physics::Primitives::S_Ray rayY;
+		rayY.origin	   = point;
+		rayY.direction = frame.ToWorld(wi);
 
-		// rusian roulette
-		const auto sruvivalProb = glm::min(1.f, glm::compMax(throughput));
-		const auto randomSurv	= rnd.GetD();
-		if (randomSurv >= sruvivalProb)
-		{
+		if (!m_Scene.Intersect(rayY, intersectY, 1e-3f))
 			break;
+
+		if (intersectY.IsLight())
+		{
+			auto light = intersectY.GetLight();
+			LoDirect += glm::one_over_pi<float>() * wi.y * light->Le() / pdf;
 		}
-
-		throughput /= sruvivalProb;
-
-		// next ray
-		ray.origin	  = point;
-		ray.direction = frame.ToWorld(wi);
+		break;
 	}
 
 	return LoDirect;

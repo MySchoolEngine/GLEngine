@@ -39,6 +39,7 @@ private:
 	std::shared_ptr<Renderer::I_CameraComponent> m_Camera;		  // TODO: Should be weak? What should I do when camera moves?
 	Textures::C_Texture							 m_Image;		  // The presented result
 	Renderer::C_TextureViewStorageCPU<float>	 m_ImageStorage;  // Intermediate data, could need some weighting
+	Renderer::C_TextureViewStorageCPU<float>	 m_SamplesStorage;  // Intermediate data, could need some weighting
 	Renderer::C_RayTraceScene					 m_Scene;
 	std::future<void>							 m_SignalDone;		 // Signaling that work has ended, no one uses that?
 	int											 m_NumCycleSamples;	 // How many samples had been already used per pixel, Used for sampling

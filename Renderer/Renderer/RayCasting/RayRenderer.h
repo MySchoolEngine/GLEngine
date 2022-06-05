@@ -14,8 +14,8 @@ public:
 	C_RayRenderer(const C_RayTraceScene& scene);
 	~C_RayRenderer();
 
-	// @var storageMutex is optional, if present the writes will be synchronized
-	void Render(I_CameraComponent& camera, I_TextureViewStorage& storage, std::mutex* storageMutex, int numSamplesBefore);
+	// @var storageMutex is optional, if present the writes to the weighted will be synchronized
+	void Render(I_CameraComponent& camera, I_TextureViewStorage& weightedImage, I_TextureViewStorage& storage, std::mutex* storageMutex, int numSamplesBefore);
 
 	[[nodiscard]] std::size_t GetProcessedPixels() const;
 
