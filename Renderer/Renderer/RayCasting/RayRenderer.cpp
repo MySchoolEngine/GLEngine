@@ -125,7 +125,7 @@ void C_RayRenderer::AddSample(const glm::ivec2 coord, C_TextureView view, const 
 //=================================================================================
 Colours::T_Colour C_RayRenderer::PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler& rnd)
 {
-	return Li_LightSampling(ray, rnd);
+	return Li_PathTrace(ray, rnd, 0);
 }
 
 //=================================================================================
@@ -178,6 +178,66 @@ Colours::T_Colour C_RayRenderer::Li_Direct(const Physics::Primitives::S_Ray& ray
 		auto	   light	   = intersectY.GetLight();
 		const auto lightPart   = wi.y * light->Le() / pdf;
 		LoDirect += glm::vec3(f.x * lightPart.x, f.y * lightPart.y, f.z * lightPart.z);
+	}
+
+	return LoDirect;
+}
+
+//=================================================================================
+Colours::T_Colour C_RayRenderer::Li_PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler& rnd, int currentDepth)
+{
+	C_TextureView brickView(m_Texture);
+
+	Colours::T_Colour LoDirect = Colours::black; // f in his example
+
+	C_RayIntersection intersect;
+	// first primary ray
+	if (!m_Scene.Intersect(ray, intersect, 1e-3f))
+		return Colours::black;
+
+	const auto& frame		  = intersect.GetFrame();
+	const auto& point		  = intersect.GetIntersectionPoint();
+	const auto* material	  = intersect.GetMaterial();
+	auto		diffuseColour = glm::vec3(material->diffuse);
+	if (material->textureIndex != 0)
+	{
+		const auto uv = glm::vec2(point.x, point.z) / 10.f;
+		diffuseColour = brickView.Get<glm::vec3, T_Bilinear>(uv);
+	}
+	C_LambertianModel model(diffuseColour);
+
+	const auto wol = frame.ToLocal(-ray.direction);
+
+	constexpr int N = 4;
+
+	for (int i = 0; i < N; ++i)
+	{
+		glm::vec3  wi;
+		float	   pdf;
+		const auto f = model.SampleF(wol, wi, frame, rnd.GetV2(), &pdf);
+
+		GLE_ASSERT(wi.y > 0, "Wrong direction of the ray!");
+
+		// generate new ray
+		ray.origin	  = intersect.GetIntersectionPoint();
+		ray.direction = frame.ToWorld(wi);
+
+		// add Li
+		if (currentDepth < m_MaxDepth)
+		{
+			// recursion
+			Colours::T_Colour Li = Li_PathTrace(ray, rnd, currentDepth + 1);
+			LoDirect += glm::vec3(f.x * Li.x, f.y * Li.y, f.z * Li.z) * wi.y / pdf;
+		}
+	}
+
+	LoDirect /= N;
+
+	// direct ray to the light intersection
+	if (intersect.IsLight())
+	{
+		auto light = intersect.GetLight();
+		LoDirect += light->Le();
 	}
 
 	return LoDirect;

@@ -30,6 +30,7 @@ private:
 	void							AddSample(const glm::ivec2 coord, C_TextureView view, const glm::vec3 sample);
 	[[nodiscard]] Colours::T_Colour Li_LightSampling(const Physics::Primitives::S_Ray& ray, C_STDSampler& rnd);
 	[[nodiscard]] Colours::T_Colour Li_Direct(const Physics::Primitives::S_Ray& ray, C_STDSampler& rnd);
+	[[nodiscard]] Colours::T_Colour Li_PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler& rnd, int currentDepth);
 	[[nodiscard]] Colours::T_Colour PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler& rnd);
 	void							UpdateView(unsigned int sourceLine, unsigned int numLines, C_TextureView& source, C_TextureView& target, unsigned int numSamples);
 	const C_RayTraceScene&			m_Scene;
