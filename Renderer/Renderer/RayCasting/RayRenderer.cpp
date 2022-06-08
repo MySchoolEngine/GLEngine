@@ -172,7 +172,9 @@ glm::vec3 C_RayRenderer::PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler&
 		if (intersectY.IsLight())
 		{
 			auto light = intersectY.GetLight();
-			LoDirect += glm::one_over_pi<float>() * wi.y * light->Le() / pdf;
+			const auto diffusePart = material->diffuse * glm::one_over_pi<float>();
+			const auto lightPart   = wi.y * light->Le() / pdf;
+			LoDirect += glm::vec3(diffusePart.x * lightPart.x, diffusePart.y * lightPart.y, diffusePart.z * lightPart.z);
 		}
 		break;
 	}
