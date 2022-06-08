@@ -8,6 +8,7 @@
 #include <Renderer/RayCasting/Light/RayAreaLight.h>
 #include <Renderer/RayCasting/Light/RayPointLight.h>
 #include <Renderer/RayCasting/RayIntersection.h>
+#include <Renderer/Colours.h>
 
 #include <Physics/Primitives/Disc.h>
 #include <Physics/Primitives/Plane.h>
@@ -24,6 +25,7 @@ C_RayTraceScene::C_RayTraceScene()
 	static const MeshData::Material green{glm::vec4{}, glm::vec4{0, 255, 0, 0}, glm::vec4{}, 1.f, 0};
 	static const MeshData::Material white{glm::vec4{}, glm::vec4{255, 255, 255, 0}, glm::vec4{}, 1.f, 0};
 	static const MeshData::Material blue{glm::vec4{}, glm::vec4{0, 0, 255, 0}, glm::vec4{}, 1.f, 0};
+	static const MeshData::Material black{glm::vec4{}, glm::vec4{Colours::black, 0.f}, glm::vec4{}, 1.f, 0};
 
 	{
 		// floor
@@ -75,7 +77,6 @@ C_RayTraceScene::C_RayTraceScene()
 		AddObejct(triangle1);
 	}
 
-	if (false)
 	{
 		// sphere
 		auto sphere = std::make_shared<C_Primitive<S_Sphere>>(S_Sphere{{-1.5f, -1.f, -1.5f}, 1.f});
@@ -83,7 +84,6 @@ C_RayTraceScene::C_RayTraceScene()
 		AddObejct(std::move(sphere));
 	}
 
-	if (false)
 	{
 		// sphere
 		auto sphere = std::make_shared<C_Primitive<S_Sphere>>(S_Sphere{{.8f, 0.f, .5f}, 1.f});
@@ -97,8 +97,9 @@ C_RayTraceScene::C_RayTraceScene()
 		auto			disc		= S_Disc(lightNormal, glm::vec3(0, 1.43f, 0), 2.f);
 		disc.plane.twoSided			= false;
 		auto areaLightDisc			= std::make_shared<C_Primitive<S_Disc>>(disc);
+		areaLightDisc->SetMaterial(black);
 
-		auto areaLight = std::make_shared<RayTracing::C_AreaLight>(glm::vec3(1.f, 1.f, .3f) * 10.f, areaLightDisc);
+		auto areaLight = std::make_shared<RayTracing::C_AreaLight>(glm::vec3(1.f, 1.f, .3f), areaLightDisc);
 		AddLight(std::move(areaLight));
 	}
 
