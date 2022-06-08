@@ -176,9 +176,8 @@ Colours::T_Colour C_RayRenderer::Li_Direct(const Physics::Primitives::S_Ray& ray
 	if (intersectY.IsLight())
 	{
 		auto	   light	   = intersectY.GetLight();
-		const auto diffusePart = material->diffuse * glm::one_over_pi<float>();
 		const auto lightPart   = wi.y * light->Le() / pdf;
-		LoDirect += glm::vec3(diffusePart.x * lightPart.x, diffusePart.y * lightPart.y, diffusePart.z * lightPart.z);
+		LoDirect += glm::vec3(f.x * lightPart.x, f.y * lightPart.y, f.z * lightPart.z);
 	}
 
 	return LoDirect;
