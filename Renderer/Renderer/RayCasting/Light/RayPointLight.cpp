@@ -3,6 +3,7 @@
 #include <Renderer/RayCasting/Light/RayPointLight.h>
 #include <Renderer/RayCasting/RayIntersection.h>
 #include <Renderer/RayCasting/VisibilityTester.h>
+#include <Renderer/Colours.h>
 
 #include <glm/gtx/norm.hpp>
 
@@ -16,7 +17,7 @@ C_PointLight::C_PointLight(const glm::vec3& position, const glm::vec3& intenstiy
 }
 
 //=================================================================================
-glm::vec3 C_PointLight::SampleLi(const C_RayIntersection& intersection, I_Sampler* rnd, S_VisibilityTester& vis, float* pdf) const
+Colours::T_Colour C_PointLight::SampleLi(const C_RayIntersection& intersection, I_Sampler* rnd, S_VisibilityTester& vis, float* pdf) const
 {
 	auto	   wi		= m_Position - intersection.GetIntersectionPoint();
 	float	   distSqr	= glm::length2(wi);
@@ -37,7 +38,7 @@ glm::vec3 C_PointLight::SampleLi(const C_RayIntersection& intersection, I_Sample
 }
 
 //=================================================================================
-glm::vec3 C_PointLight::Le() const
+Colours::T_Colour C_PointLight::Le() const
 {
 	return m_Intensity;
 }

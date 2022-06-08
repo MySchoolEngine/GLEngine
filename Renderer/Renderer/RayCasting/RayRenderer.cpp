@@ -123,13 +123,13 @@ void C_RayRenderer::AddSample(const glm::ivec2 coord, C_TextureView view, const 
 }
 
 //=================================================================================
-glm::vec3 C_RayRenderer::PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler& rnd)
+Colours::T_Colour C_RayRenderer::PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler& rnd)
 {
 	return Li_LightSampling(ray, rnd);
 }
 
 //=================================================================================
-glm::vec3 C_RayRenderer::Li_Direct(const Physics::Primitives::S_Ray& ray, C_STDSampler& rnd)
+Colours::T_Colour C_RayRenderer::Li_Direct(const Physics::Primitives::S_Ray& ray, C_STDSampler& rnd)
 {
 	C_TextureView	  brickView(m_Texture);
 
@@ -185,7 +185,7 @@ glm::vec3 C_RayRenderer::Li_Direct(const Physics::Primitives::S_Ray& ray, C_STDS
 }
 
 //=================================================================================
-glm::vec3 C_RayRenderer::Li_LightSampling(const Physics::Primitives::S_Ray& ray, C_STDSampler& rnd)
+Colours::T_Colour C_RayRenderer::Li_LightSampling(const Physics::Primitives::S_Ray& ray, C_STDSampler& rnd)
 {
 	C_TextureView brickView(m_Texture);
 
@@ -193,16 +193,16 @@ glm::vec3 C_RayRenderer::Li_LightSampling(const Physics::Primitives::S_Ray& ray,
 
 	// first primary ray
 	if (!m_Scene.Intersect(ray, intersect))
-		return glm::vec3(0.f); // here we can plug environmental light/atmosphere/whatever
+		return Colours::black; // here we can plug environmental light/atmosphere/whatever
+
+	glm::vec3 LoDirect(0.f);
 
 	// direct ray to the light intersection
 	if (intersect.IsLight())
 	{
 		auto light = intersect.GetLight();
-		return light->Le();
+		LoDirect += light->Le();
 	}
-
-	glm::vec3 LoDirect(0.f);
 
 	m_Scene.ForEachLight([&](const std::reference_wrapper<const RayTracing::I_RayLight>& light) {
 		float	  pdf;
