@@ -125,65 +125,67 @@ void C_RayRenderer::AddSample(const glm::ivec2 coord, C_TextureView view, const 
 //=================================================================================
 glm::vec3 C_RayRenderer::PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler& rnd)
 {
-	C_TextureView brickView(m_Texture);
-	glm::vec3	  LoDirect(0.f);
-	glm::vec3	  throughput(1.f);
+	return Li_LightSampling(ray, rnd);
+}
 
-	for (std::size_t pathDepth = 0; pathDepth < m_MaxDepth; ++pathDepth)
+//=================================================================================
+glm::vec3 C_RayRenderer::Li_Direct(const Physics::Primitives::S_Ray& ray, C_STDSampler& rnd)
+{
+	C_TextureView	  brickView(m_Texture);
+
+	glm::vec3 LoDirect(0.f);
+
+	C_RayIntersection intersect, intersectY;
+	// first primary ray
+	if (!m_Scene.Intersect(ray, intersect, 1e-3f))
+		return Colours::black;
+
+	// direct ray to the light intersection
+	if (intersect.IsLight())
 	{
-		C_RayIntersection intersect, intersectY;
-		// first primary ray
-		if (!m_Scene.Intersect(ray, intersect, 1e-3f))
-			break;
+		auto light = intersect.GetLight();
+		LoDirect += light->Le();
+	}
 
-		// direct ray to the light intersection
-		if (intersect.IsLight())
-		{
-			auto light = intersect.GetLight();
-			LoDirect += throughput * light->Le();
-		}
+	const auto& frame		  = intersect.GetFrame();
+	const auto& point		  = intersect.GetIntersectionPoint();
+	const auto* material	  = intersect.GetMaterial();
+	auto		diffuseColour = glm::vec3(material->diffuse);
+	if (material->textureIndex != 0)
+	{
+		const auto uv = glm::vec2(point.x, point.z) / 10.f;
+		diffuseColour = brickView.Get<glm::vec3, T_Bilinear>(uv);
+	}
+	C_LambertianModel model(diffuseColour);
 
-		const auto& frame		  = intersect.GetFrame();
-		const auto& point		  = intersect.GetIntersectionPoint();
-		const auto* material	  = intersect.GetMaterial();
-		auto		diffuseColour = glm::vec3(material->diffuse);
-		if (material->textureIndex != 0)
-		{
-			const auto uv = glm::vec2(point.x, point.z) / 10.f;
-			diffuseColour = brickView.Get<glm::vec3, T_Bilinear>(uv);
-		}
-		C_LambertianModel model(diffuseColour);
+	const auto wol = frame.ToLocal(-ray.direction);
 
-		const auto wol = frame.ToLocal(-ray.direction);
+	glm::vec3  wi;
+	float	   pdf;
+	const auto f = model.SampleF(wol, wi, frame, rnd.GetV2(), &pdf);
 
-		glm::vec3  wi;
-		float	   pdf;
-		const auto f = model.SampleF(wol, wi, frame, rnd.GetV2(), &pdf);
+	GLE_ASSERT(wi.y > 0, "Wrong direction of the ray!");
 
-		GLE_ASSERT(wi.y > 0, "Wrong direction of the ray!");
+	Physics::Primitives::S_Ray rayY;
+	rayY.origin	   = point;
+	rayY.direction = frame.ToWorld(wi);
 
-		Physics::Primitives::S_Ray rayY;
-		rayY.origin	   = point;
-		rayY.direction = frame.ToWorld(wi);
+	if (!m_Scene.Intersect(rayY, intersectY, 1e-3f))
+		return LoDirect;
 
-		if (!m_Scene.Intersect(rayY, intersectY, 1e-3f))
-			break;
-
-		if (intersectY.IsLight())
-		{
-			auto light = intersectY.GetLight();
-			const auto diffusePart = material->diffuse * glm::one_over_pi<float>();
-			const auto lightPart   = wi.y * light->Le() / pdf;
-			LoDirect += glm::vec3(diffusePart.x * lightPart.x, diffusePart.y * lightPart.y, diffusePart.z * lightPart.z);
-		}
-		break;
+	if (intersectY.IsLight())
+	{
+		auto	   light	   = intersectY.GetLight();
+		const auto diffusePart = material->diffuse * glm::one_over_pi<float>();
+		const auto lightPart   = wi.y * light->Le() / pdf;
+		LoDirect += glm::vec3(diffusePart.x * lightPart.x, diffusePart.y * lightPart.y, diffusePart.z * lightPart.z);
 	}
 
 	return LoDirect;
 }
 
 //=================================================================================
-glm::vec3 C_RayRenderer::DirectLighting(const Physics::Primitives::S_Ray& ray, C_STDSampler& rnd)
+glm::vec3 C_RayRenderer::Li_LightSampling(const Physics::Primitives::S_Ray& ray, C_STDSampler& rnd)
 {
 	C_TextureView brickView(m_Texture);
 
