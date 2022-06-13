@@ -18,7 +18,7 @@
 	#define GLE_ASSERT(expr, message, ...)                                                                                                                                         \
 		if (!(expr))                                                                                                                                                               \
 		{                                                                                                                                                                          \
-			CORE_LOG(E_Level::Error, E_Context::Core, "Assert failed: {}" message, ##__VA_ARGS__);                                                                                 \
+			CORE_LOG(E_Level::Error, E_Context::Core, "Assert failed: " message, ##__VA_ARGS__);                                                                                   \
 		}
 #endif
 
