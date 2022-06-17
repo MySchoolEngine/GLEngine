@@ -130,7 +130,6 @@ if _TARGET_OS ~= "linux" then
 end
 group "Dependencies/Assimp"
   include "vendor/projects/zlib"
-  include "vendor/projects/irrXML"
   include "vendor/projects/Assimp"
 group ""
 
