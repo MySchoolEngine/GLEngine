@@ -69,11 +69,11 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& weig
 		if (storageMutex)
 		{
 			std::lock_guard<std::mutex> lock(*storageMutex);
-			UpdateView(y, interleavedLines, textureView, weightedView, numSamplesBefore + 1);
+			UpdateView(y, interleavedLines, textureView, weightedView, numSamplesBefore);
 		}
 		else
 		{
-			UpdateView(y, interleavedLines, textureView, weightedView, numSamplesBefore + 1);
+			UpdateView(y, interleavedLines, textureView, weightedView, numSamplesBefore);
 		}
 	}
 	for (int y = interleavedLines / 2; y < dim.y; y += interleavedLines)
@@ -89,11 +89,11 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& weig
 		if (storageMutex)
 		{
 			std::lock_guard<std::mutex> lock(*storageMutex);
-			UpdateView(y, interleavedLines / 2, textureView, weightedView, numSamplesBefore + 1);
+			UpdateView(y, interleavedLines / 2, textureView, weightedView, numSamplesBefore);
 		}
 		else
 		{
-			UpdateView(y, interleavedLines / 2, textureView, weightedView, numSamplesBefore + 1);
+			UpdateView(y, interleavedLines / 2, textureView, weightedView, numSamplesBefore);
 		}
 	}
 }
@@ -101,15 +101,19 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& weig
 //=================================================================================
 void C_RayRenderer::UpdateView(unsigned int sourceLine, unsigned int numLines, C_TextureView& source, C_TextureView& target, unsigned int numSamples)
 {
+	// basic restriction is that source line has N+1 samples
+	// so I need to carry 1/(N+1) part of it to the next lines
+	// this holds even for 1st sample on source line
 	const auto dim = target.GetDimensions();
 	for (int x = 0; x < dim.x; ++x)
 	{
-		const auto denominator = 1.0f / static_cast<float>(numSamples);
-		const auto sourceLineVal = source.Get<glm::vec3>(glm::ivec2{x, sourceLine}) * denominator;
-		for (int i = sourceLine; i < std::min(dim.y, sourceLine + numLines); ++i)
+		const auto denominator	 = 1.0f / static_cast<float>(numSamples + 1);
+		const auto sourceLineVal = source.Get<glm::vec3>(glm::ivec2{x, sourceLine});
+		target.Set({x, sourceLine}, sourceLineVal * denominator);
+		for (int i = sourceLine + 1; i < std::min(dim.y, sourceLine + numLines); ++i)
 		{
-			const auto previousLineVal = source.Get<glm::vec3>(glm::ivec2{x, i}) * (1.0f - denominator);
-			target.Set({x, i}, (sourceLineVal + previousLineVal) * denominator);
+			const auto previousLineVal = source.Get<glm::vec3>(glm::ivec2{x, i});
+			target.Set({x, i}, (sourceLineVal * denominator + previousLineVal) * denominator);
 		}
 	}
 	m_NewResultAviable = true;
@@ -176,7 +180,7 @@ Colours::T_Colour C_RayRenderer::Li_Direct(const Physics::Primitives::S_Ray& ray
 	if (intersectY.IsLight())
 	{
 		auto	   light	   = intersectY.GetLight();
-		const auto lightPart   = wi.y * light->Le() / pdf;
+		const auto lightPart = wi.y * light->Le() / pdf;
 		LoDirect += glm::vec3(f.x * lightPart.x, f.y * lightPart.y, f.z * lightPart.z);
 	}
 
