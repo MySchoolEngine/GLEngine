@@ -19,12 +19,15 @@ void C_Trimesh::AddTriangle(const Physics::Primitives::S_Triangle& triangle)
 	m_Vertices.push_back(triangle.m_p[0]);
 	m_Vertices.push_back(triangle.m_p[1]);
 	m_Vertices.push_back(triangle.m_p[2]);
+	m_AABB.Add(triangle.m_p[0]);
+	m_AABB.Add(triangle.m_p[1]);
+	m_AABB.Add(triangle.m_p[2]);
 }
 
 //=================================================================================
 bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
 {
-	if (m_AABB.IntersectImpl(ray) <= 0.f)
+	if (m_Vertices.size() > 3 * 5 && m_AABB.IntersectImpl(ray) <= 0.f)
 		return false;
 
 	struct S_IntersectionInfo {
