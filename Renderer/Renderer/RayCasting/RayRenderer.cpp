@@ -52,9 +52,10 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& weig
 		return camera.GetRay({x, y});
 	};
 
-	auto textureView = C_TextureView(&storage);
+	auto textureView  = C_TextureView(&storage);
+	auto weightedView = C_TextureView(&weightedImage);
 
-	int interleavedLines = 2;
+	int interleavedLines = 8;
 
 	for (int y = 0; y < dim.y; y += interleavedLines)
 	{
@@ -65,7 +66,6 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& weig
 			++m_ProcessedPixels;
 		}
 
-		auto weightedView = C_TextureView(&weightedImage);
 		if (storageMutex)
 		{
 			std::lock_guard<std::mutex> lock(*storageMutex);
@@ -76,26 +76,30 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& weig
 			UpdateView(y, interleavedLines, textureView, weightedView, numSamplesBefore);
 		}
 	}
-	for (int y = interleavedLines / 2; y < dim.y; y += interleavedLines)
+
+	do
 	{
-		for (int x = 0; x < dim.x; ++x)
+		for (int y = interleavedLines / 2; y < dim.y; y += interleavedLines)
+		{
+			for (int x = 0; x < dim.x; ++x)
 		{
 			const auto ray = GetRay(glm::vec2{x, y} + rnd.GetV2());
 			AddSample({x, y}, textureView, PathTrace(ray, rnd));
-			++m_ProcessedPixels;
-		}
+				++m_ProcessedPixels;
+			}
 
-		auto weightedView = C_TextureView(&weightedImage);
-		if (storageMutex)
-		{
-			std::lock_guard<std::mutex> lock(*storageMutex);
+			if (storageMutex)
+			{
+				std::lock_guard<std::mutex> lock(*storageMutex);
 			UpdateView(y, interleavedLines / 2, textureView, weightedView, numSamplesBefore);
 		}
 		else
 		{
-			UpdateView(y, interleavedLines / 2, textureView, weightedView, numSamplesBefore);
+				UpdateView(y, interleavedLines / 2, textureView, weightedView, numSamplesBefore);
+			}
 		}
-	}
+		interleavedLines /= 2;
+	} while (interleavedLines > 1);
 }
 
 //=================================================================================
