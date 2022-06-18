@@ -53,6 +53,7 @@ bool TextureLoader::loadTexture(const std::filesystem::path& path, MeshData::Tex
 //=================================================================================
 I_TextureViewStorage* TextureLoader::loadTexture(const std::filesystem::path& path)
 {
+	// memory leak, ilDeleteImage(image); could be skipped
 	Init();
 
 	auto		 image = ilLoadTexture(path);
@@ -147,6 +148,27 @@ unsigned int TextureLoader::ilLoadTexture(const std::filesystem::path& path)
 #endif
 
 	return image;
+}
+
+//=================================================================================
+bool TextureLoader::SaveTexture(const std::filesystem::path& path, I_TextureViewStorage* view)
+{
+	Init();
+
+	ILuint image;
+	ilGenImages(1, &image);
+	ilBindImage(image);
+
+	ilTexImage(view->GetDimensions().x, view->GetDimensions().y, 1, view->GetNumElements(), IL_RGB, IL_FLOAT, view->GetData());
+
+	bool result;
+#if CORE_PLATFORM == CORE_PLATFORM_WIN
+	result = ilSaveImage(path.wstring().c_str());
+#else
+	result = ilSaveImage(path.generic_string().c_str());
+#endif
+	ilDeleteImage(image);
+	return result;
 }
 
 } // namespace GLEngine::Renderer::Textures

@@ -318,7 +318,7 @@ void C_ExplerimentWindow::OnAppInit()
 	{
 		m_RayTraceGUID = NextGUID();
 
-		m_RayTraceWindow = new C_RayTraceWindow(m_RayTraceGUID, m_CamManager.GetActiveCamera());
+		m_RayTraceWindow = new C_RayTraceWindow(m_RayTraceGUID, m_CamManager.GetActiveCamera(), guiMGR);
 
 		guiMGR.AddCustomWindow(m_RayTraceWindow);
 		m_RayTraceWindow->SetVisible();

@@ -20,7 +20,7 @@ class C_Texture;
 }
 class C_RayTraceWindow : public GUI::C_Window {
 public:
-	C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_CameraComponent> camera);
+	C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_CameraComponent> camera, GUI::C_GUIManager& guiMGR);
 	~C_RayTraceWindow();
 
 	void RayTrace();
@@ -36,11 +36,12 @@ public:
 private:
 	virtual void DrawComponents() const override;
 	void		 UploadStorage();
+	void		 SaveCurrentImage();
 
-	std::shared_ptr<Renderer::I_CameraComponent> m_Camera;		  // TODO: Should be weak? What should I do when camera moves?
-	Textures::C_Texture							 m_Image;		  // The presented result
-	Renderer::C_TextureViewStorageCPU<float>	 m_ImageStorage;  // Intermediate data, could need some weighting
-	Renderer::C_TextureViewStorageCPU<float>	 m_SamplesStorage;  // Intermediate data, could need some weighting
+	std::shared_ptr<Renderer::I_CameraComponent> m_Camera; // TODO: Should be weak? What should I do when camera moves?
+	Textures::C_Texture							 m_Image;  // The presented result, TODO: make this pointer to base class or handle so I can move this to renderer or user code
+	Renderer::C_TextureViewStorageCPU<float>	 m_ImageStorage;   // Intermediate data, could need some weighting
+	Renderer::C_TextureViewStorageCPU<float>	 m_SamplesStorage; // Intermediate data, could need some weighting
 	Renderer::C_RayTraceScene					 m_Scene;
 	std::future<void>							 m_SignalDone;		 // Signaling that work has ended, no one uses that?
 	int											 m_NumCycleSamples;	 // How many samples had been already used per pixel, Used for sampling
@@ -49,6 +50,7 @@ private:
 	GUI::Input::C_Slider<int>					 m_DepthSlider;		 // How many bounces should be traced
 	Renderer::C_RayRenderer						 m_Renderer;
 	GUI::C_Image								 m_GUIImage;
+	GUI::Menu::C_Menu							 m_FileMenu;
 
 	std::mutex m_ImageLock;
 };

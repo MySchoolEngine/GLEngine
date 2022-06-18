@@ -9,6 +9,9 @@
 #include <Renderer/IRenderer.h>
 #include <Renderer/RayCasting/RayRenderer.h>
 #include <Renderer/Textures/TextureView.h>
+#include <Renderer/Textures/TextureLoader.h>
+
+#include <GUI/GUIManager.h>
 
 #include <Core/Application.h>
 
@@ -23,7 +26,7 @@ constexpr static glm::uvec2	   s_ImageResolution = glm::uvec2(840, 488);
 constexpr static unsigned int  s_Coef			 = 1; // 28 max
 
 //=================================================================================
-C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_CameraComponent> camera)
+C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_CameraComponent> camera, GUI::C_GUIManager& guiMGR)
 	: GUI::C_Window(guid, "Ray tracing")
 	, m_Camera(camera)
 	, m_ImageStorage(s_ImageResolution.x / s_Coef, s_ImageResolution.y / s_Coef, 3)
@@ -36,12 +39,17 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_Camera
 	, m_Renderer(m_Scene)
 	, m_DepthSlider(3, 1, 100, "Max path depth")
 	, m_GUIImage(m_Image)
+	, m_FileMenu("File")
 {
 	auto& device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
 	device.AllocateTexture(m_Image);
 	m_Image.SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
 
 	m_GUIImage.SetSize(s_ImageResolution * s_Coef);
+
+	AddMenu(m_FileMenu);
+
+	m_FileMenu.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Save as HDR", std::bind(&C_RayTraceWindow::SaveCurrentImage, this)));
 }
 
 //=================================================================================
@@ -194,6 +202,15 @@ void C_RayTraceWindow::RequestDestroy()
 bool C_RayTraceWindow::CanDestroy() const
 {
 	return !IsRunning();
+}
+
+//=================================================================================
+void C_RayTraceWindow::SaveCurrentImage()
+{
+	Renderer::Textures::TextureLoader loader;
+	if (!loader.SaveTexture("result.bmp", &m_ImageStorage)) {
+		CORE_LOG(E_Level::Error, E_Context::Render, "Ray tracer cannot save the image.");
+	}
 }
 
 } // namespace GLEngine::GLRenderer
