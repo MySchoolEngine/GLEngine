@@ -57,6 +57,9 @@ public:
 
 	const TextureDescriptor& GetDescriptor() const { return m_Desc; }
 
+	// utility function for GUI
+	virtual void* GetGPUHandle() = 0;
+
 protected:
 	TextureDescriptor m_Desc;
 };

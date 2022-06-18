@@ -2,20 +2,20 @@
 
 #include <GUI/GUIPart.h>
 
-namespace GLEngine::GLRenderer::Textures {
-class C_Texture;
-}
+#include <Renderer/Textures/DeviceTexture.h>
 
 namespace GLEngine::GUI {
-// This should look like bool value for user and has size of bool value
-// @todo unit testing
-class C_Image : public I_GUIPart {
+class GUI_API_EXPORT C_Image : public I_GUIPart {
 public:
-	explicit C_Image(const std::shared_ptr<GLRenderer::Textures::C_Texture>& texture);
+	// needs to get texture handle one day
+	explicit C_Image(Renderer::I_DeviceTexture& texture);
 	virtual void Draw() const override;
 
+	void SetSize(const glm::vec2 dim);
+
 private:
-	std::shared_ptr<GLRenderer::Textures::C_Texture> m_texture;
+	std::reference_wrapper<Renderer::I_DeviceTexture> m_texture;
+	glm::vec2										  m_Size; //< Size of GUI, not the image
 };
 
 } // namespace GLEngine::GUI

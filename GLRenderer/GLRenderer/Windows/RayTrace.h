@@ -5,6 +5,7 @@
 #include <Renderer/Textures/TextureStorage.h>
 
 #include <GUI/GUIWindow.h>
+#include <GUI/Image.h>
 #include <GUI/Input/Button.h>
 #include <GUI/Input/CheckBoxValue.h>
 #include <GUI/Input/Slider.h>
@@ -47,6 +48,7 @@ private:
 	bool										 m_RunningCycle : 1; // Run until stop feature
 	GUI::Input::C_Slider<int>					 m_DepthSlider;		 // How many bounces should be traced
 	Renderer::C_RayRenderer						 m_Renderer;
+	GUI::C_Image								 m_GUIImage;
 
 	std::mutex m_ImageLock;
 };

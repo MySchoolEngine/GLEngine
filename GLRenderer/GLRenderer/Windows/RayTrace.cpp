@@ -35,10 +35,13 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_Camera
 	, m_RunningCycle(false)
 	, m_Renderer(m_Scene)
 	, m_DepthSlider(3, 1, 100, "Max path depth")
+	, m_GUIImage(m_Image)
 {
 	auto& device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
 	device.AllocateTexture(m_Image);
 	m_Image.SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
+
+	m_GUIImage.SetSize(s_ImageResolution * s_Coef);
 }
 
 //=================================================================================
@@ -110,11 +113,9 @@ void C_RayTraceWindow::Clear()
 void C_RayTraceWindow::DrawComponents() const
 {
 	// This is coming from main thread, we can do updates here
-	// TODO: Condition "is something to upload"
 	const_cast<C_RayTraceWindow*>(this)->UploadStorage();
 	const auto dim = m_ImageStorage.GetDimensions();
-	// only reason why I cannot move this code to Renderer instead or even to sandbox code :)
-	ImGui::Image((void*)(intptr_t)(m_Image.GetTexture()), ImVec2(static_cast<float>(dim.x) * s_Coef, static_cast<float>(dim.y) * s_Coef));
+	m_GUIImage.Draw();
 	if (!m_Running)
 	{
 		if (ImGui::Button("Render"))
