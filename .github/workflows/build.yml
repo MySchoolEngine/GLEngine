@@ -31,6 +31,7 @@ jobs:
         run: |
           git submodule init
           git submodule update
+          g++ --version
       - name: update
         run: sudo apt update
       - name: Get X11
@@ -38,7 +39,7 @@ jobs:
       - name: Get uuid
         run: sudo apt-get install uuid-dev
       - name: Premake
-        run: | 
+        run: |
             sudo chmod +x Tools/Premake5/premake5
             sudo Tools/Premake5/premake5 gmake2
       - name: Build
