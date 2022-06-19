@@ -34,6 +34,8 @@ jobs:
           g++ --version
       - name: update
         run: sudo apt update
+      - name: versionCheck
+        run: g++ --version
       - name: Get X11
         run: sudo apt-get install xorg-dev
       - name: Get uuid
