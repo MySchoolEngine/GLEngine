@@ -46,7 +46,7 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_Camera
 	device.AllocateTexture(m_Image);
 	m_Image.SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
 
-	m_GUIImage.SetSize(s_ImageResolution * s_Coef);
+	m_GUIImage.SetSize(s_ImageResolution);
 
 	AddMenu(m_FileMenu);
 
