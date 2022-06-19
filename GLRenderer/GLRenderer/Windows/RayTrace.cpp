@@ -8,10 +8,11 @@
 #include <Renderer/IDevice.h>
 #include <Renderer/IRenderer.h>
 #include <Renderer/RayCasting/RayRenderer.h>
-#include <Renderer/Textures/TextureView.h>
 #include <Renderer/Textures/TextureLoader.h>
+#include <Renderer/Textures/TextureView.h>
 
 #include <GUI/GUIManager.h>
+#include <GUI/FileDialogWindow.h>
 
 #include <Core/Application.h>
 
@@ -31,7 +32,7 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_Camera
 	, m_Camera(camera)
 	, m_ImageStorage(s_ImageResolution.x / s_Coef, s_ImageResolution.y / s_Coef, 3)
 	, m_SamplesStorage(s_ImageResolution.x / s_Coef, s_ImageResolution.y / s_Coef, 3)
-	, m_Image(Textures::C_Texture(Renderer::TextureDescriptor{"rayTrace", s_ImageResolution.x / s_Coef, s_ImageResolution.y/ s_Coef, Renderer::E_TextureType::TEXTURE_2D,
+	, m_Image(Textures::C_Texture(Renderer::TextureDescriptor{"rayTrace", s_ImageResolution.x / s_Coef, s_ImageResolution.y / s_Coef, Renderer::E_TextureType::TEXTURE_2D,
 															  Renderer::E_TextureFormat::RGB32f, false}))
 	, m_NumCycleSamples(0)
 	, m_Running(false)
@@ -49,7 +50,18 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_Camera
 
 	AddMenu(m_FileMenu);
 
-	m_FileMenu.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Save as HDR", std::bind(&C_RayTraceWindow::SaveCurrentImage, this)));
+	m_FileMenu.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Save as...", [&]() {
+		const auto textureSelectorGUID = NextGUID();
+		auto*	   textureSelectWindow = new GUI::C_FileDialogWindow(
+			 ".bmp,.hdr,.ppm", "Save image as...",
+			 [&, textureSelectorGUID](const std::filesystem::path& texture) {
+				 SaveCurrentImage(texture);
+				 guiMGR.DestroyWindow(textureSelectorGUID);
+			 },
+			 textureSelectorGUID, "./Images");
+		guiMGR.AddCustomWindow(textureSelectWindow);
+		textureSelectWindow->SetVisible();
+	}));
 }
 
 //=================================================================================
@@ -68,7 +80,7 @@ void C_RayTraceWindow::RayTrace()
 	std::packaged_task<void()> rayTrace([&]() {
 		Utils::HighResolutionTimer renderTime;
 		m_Renderer.SetMaxPathDepth(m_DepthSlider);
-		m_Renderer.Render(*m_Camera, m_ImageStorage, m_SamplesStorage, & m_ImageLock, m_NumCycleSamples);
+		m_Renderer.Render(*m_Camera, m_ImageStorage, m_SamplesStorage, &m_ImageLock, m_NumCycleSamples);
 		CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
 		m_Running = false;
 		m_NumCycleSamples++;
@@ -90,7 +102,7 @@ void C_RayTraceWindow::RunUntilStop()
 		{
 			Utils::HighResolutionTimer renderTime;
 			m_Renderer.SetMaxPathDepth(m_DepthSlider);
-			m_Renderer.Render(*m_Camera, m_ImageStorage, m_SamplesStorage, & m_ImageLock, m_NumCycleSamples);
+			m_Renderer.Render(*m_Camera, m_ImageStorage, m_SamplesStorage, &m_ImageLock, m_NumCycleSamples);
 			CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
 			m_NumCycleSamples++;
 		}
@@ -205,10 +217,11 @@ bool C_RayTraceWindow::CanDestroy() const
 }
 
 //=================================================================================
-void C_RayTraceWindow::SaveCurrentImage()
+void C_RayTraceWindow::SaveCurrentImage(const std::filesystem::path& texture)
 {
 	Renderer::Textures::TextureLoader loader;
-	if (!loader.SaveTexture("result.bmp", &m_ImageStorage)) {
+	if (!loader.SaveTexture(texture, &m_ImageStorage))
+	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Ray tracer cannot save the image.");
 	}
 }

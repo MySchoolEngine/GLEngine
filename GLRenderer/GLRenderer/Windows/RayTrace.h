@@ -36,7 +36,7 @@ public:
 private:
 	virtual void DrawComponents() const override;
 	void		 UploadStorage();
-	void		 SaveCurrentImage();
+	void		 SaveCurrentImage(const std::filesystem::path& texture);
 
 	std::shared_ptr<Renderer::I_CameraComponent> m_Camera; // TODO: Should be weak? What should I do when camera moves?
 	Textures::C_Texture							 m_Image;  // The presented result, TODO: make this pointer to base class or handle so I can move this to renderer or user code
