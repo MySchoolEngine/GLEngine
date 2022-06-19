@@ -25,7 +25,7 @@ end
 workspace "Engine"
 	architecture "x64"
 	startproject "Sandbox"
-	cppdialect "C++17"
+	cppdialect "C++2a"
 	systemversion "latest"
 
 	configurations{
