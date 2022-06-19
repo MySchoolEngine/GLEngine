@@ -221,4 +221,10 @@ bool C_Texture::IsAllocated() const
 	return m_texture;
 }
 
+//=================================================================================
+void* C_Texture::GetGPUHandle()
+{
+	return (void*)(intptr_t)(GetTexture());
+}
+
 } // namespace GLEngine::GLRenderer::Textures

@@ -4,6 +4,8 @@
 #include <Renderer/Textures/TextureLoader.h>
 #include <Renderer/Textures/TextureStorage.h>
 
+#include <Utils/ScopeFinalizer.h>
+
 // Selects implementation
 // Either DevIL or FreeImage
 // WARNING - there is a bug in FreeImage implementation! It returns BGRA!
@@ -21,6 +23,7 @@ bool TextureLoader::loadTexture(const std::filesystem::path& path, MeshData::Tex
 	Init();
 
 	auto image = ilLoadTexture(path);
+	Utils::C_ScopeFinalizer finalizer([image]() { ilDeleteImage(image); });
 	const ILenum Error = ilGetError();
 
 	if (Error != IL_NO_ERROR)
@@ -45,17 +48,17 @@ bool TextureLoader::loadTexture(const std::filesystem::path& path, MeshData::Tex
 	t.data = std::shared_ptr<unsigned char>(new unsigned char[4 * t.width * t.height]);
 	memcpy(t.data.get(), ilGetData(), 4 * t.width * t.height);
 
-	ilDeleteImage(image);
-
 	return true;
 }
 
 //=================================================================================
 I_TextureViewStorage* TextureLoader::loadTexture(const std::filesystem::path& path)
 {
+	// memory leak, ilDeleteImage(image); could be skipped
 	Init();
 
-	auto		 image = ilLoadTexture(path);
+	auto					image = ilLoadTexture(path);
+	Utils::C_ScopeFinalizer finalizer([image]() { ilDeleteImage(image); });
 	const ILenum Error = ilGetError();
 
 	if (Error != IL_NO_ERROR)
@@ -115,8 +118,6 @@ I_TextureViewStorage* TextureLoader::loadTexture(const std::filesystem::path& pa
 
 	textureBuffer->SetData(ilGetData(), static_cast<std::size_t>(width) * height);
 
-	ilDeleteImage(image);
-
 	return textureBuffer;
 }
 
@@ -147,6 +148,27 @@ unsigned int TextureLoader::ilLoadTexture(const std::filesystem::path& path)
 #endif
 
 	return image;
+}
+
+//=================================================================================
+bool TextureLoader::SaveTexture(const std::filesystem::path& path, I_TextureViewStorage* view)
+{
+	Init();
+
+	ILuint image;
+	ilGenImages(1, &image);
+	ilBindImage(image);
+
+	ilTexImage(view->GetDimensions().x, view->GetDimensions().y, 1, view->GetNumElements(), IL_RGB, IL_FLOAT, view->GetData());
+	Utils::C_ScopeFinalizer finalizer([image]() { ilDeleteImage(image); });
+
+	bool result;
+#if CORE_PLATFORM == CORE_PLATFORM_WIN
+	result = ilSaveImage(path.wstring().c_str());
+#else
+	result = ilSaveImage(path.generic_string().c_str());
+#endif
+	return result;
 }
 
 } // namespace GLEngine::Renderer::Textures
