@@ -7,7 +7,7 @@
 
 namespace GLEngine::Physics {
 
-template <class triangleDef> float TraingleRayIntersect(const triangleDef& vertices, const Primitives::S_Ray& ray, glm::vec2* uv = nullptr)
+template <class triangleDef> float TraingleRayIntersect(const triangleDef& vertices, const Primitives::S_Ray& ray, glm::vec2* barycentric = nullptr)
 {
 	// Möller–Trumbore intersection algorithm
 	const float EPSILON = 0.0000001f;
@@ -29,8 +29,8 @@ template <class triangleDef> float TraingleRayIntersect(const triangleDef& verti
 		return -1.f;
 	// At this stage we can compute t to find out where the intersection point is on the line.
 	float t = invDet * dot(edge2, q);
-	if (uv)
-		*uv = {u, v};
+	if (barycentric)
+		*barycentric = {u, v};
 	if (t > EPSILON) // ray intersection
 	{
 		return t;
