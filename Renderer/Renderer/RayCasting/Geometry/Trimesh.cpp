@@ -39,16 +39,19 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersecti
 	std::vector<S_IntersectionInfo> intersections;
 	intersections.reserve(5);
 
+	glm::vec2 uv;
+
 	for (int i = 0; i < m_Vertices.size(); i += 3)
 	{
-		glm::vec3  triDef[] = {m_Vertices[i], m_Vertices[i + 1], m_Vertices[i + 2]};
-		const auto length	= Physics::TraingleRayIntersect(triDef, ray);
+		const glm::vec3* triDef = &(m_Vertices[i]);
+		const auto length	= Physics::TraingleRayIntersect(triDef, ray, &uv);
 		if (length > 0.0f)
 		{
 			auto normal = glm::cross(m_Vertices[i + 1] - m_Vertices[i], m_Vertices[i + 2] - m_Vertices[i]);
 			const auto area	  = glm::length(normal) / 2.f;
 			normal			  = glm::normalize(normal);
 			C_RayIntersection inter(S_Frame(normal), ray.origin + length * ray.direction, Physics::Primitives::S_Ray(ray));
+			inter.SetUV(uv);
 			inter.SetMaterial(&GetMaterial());
 
 			intersections.push_back({inter, length});

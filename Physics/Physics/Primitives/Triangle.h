@@ -1,9 +1,8 @@
 #pragma once
 
+#include <Physics/GeometryUtils/TriangleIntersect.h>
 #include <Physics/Primitives/Intersectable.h>
 #include <Physics/Primitives/Ray.h>
-
-#include <Physics/GeometryUtils/TriangleIntersect.h>
 
 namespace GLEngine::Physics::Primitives {
 

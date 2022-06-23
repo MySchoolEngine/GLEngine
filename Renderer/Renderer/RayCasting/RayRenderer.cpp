@@ -206,6 +206,7 @@ Colours::T_Colour C_RayRenderer::Li_PathTrace(Physics::Primitives::S_Ray ray, C_
 	const auto& frame		  = intersect.GetFrame();
 	const auto& point		  = intersect.GetIntersectionPoint();
 	const auto* material	  = intersect.GetMaterial();
+	const auto	uv			  = intersect.GetUV();
 	auto		diffuseColour = glm::vec3(material->diffuse);
 	if (material->textureIndex != 0)
 	{

@@ -11,6 +11,7 @@ C_RayIntersection::C_RayIntersection(S_Frame&& frame, glm::vec3&& point, Physics
 	, m_Ray(ray)
 	, m_Material(nullptr)
 	, m_Light(nullptr)
+	, m_UV({0.f, 0.f})
 {
 }
 
