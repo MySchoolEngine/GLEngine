@@ -57,20 +57,17 @@ jobs:
     steps:
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.1
+        with:
+          vs-version: '[16.11,16.12)'
       - uses: actions/checkout@v2
       - name: Get submodules
         shell: cmd
         run: |
           git submodule init
           git submodule update
-      - name: Get premake5
-        shell: powershell
-        run: |
-          Invoke-WebRequest -Uri "https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-windows.zip" -OutFile "premake.zip"
-          Expand-Archive -Path premake.zip
       - name: Generate solution
         shell: cmd
-        run: premake\premake5 --glfwapi=${{ matrix.glfwapi }} vs2019
+        run: Tools\Premake5\premake5.exe --glfwapi=${{ matrix.glfwapi }} vs2019
       - name: Build
         shell: cmd
         run: msbuild Engine.sln /p:Configuration=${{ matrix.configuration }} -maxCpuCount
