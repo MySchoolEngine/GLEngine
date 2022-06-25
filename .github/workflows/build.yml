@@ -57,8 +57,6 @@ jobs:
     steps:
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.1
-        with:
-          vs-version: '[16.11,16.12)'
       - uses: actions/checkout@v2
       - name: Get submodules
         shell: cmd
