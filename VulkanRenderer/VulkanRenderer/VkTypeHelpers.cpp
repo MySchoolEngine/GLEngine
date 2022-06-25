@@ -1,4 +1,4 @@
-#include <VulkanRendererStdAfx.h>
+#include <VulkanRendererStdafx.h>
 
 #include <VulkanRenderer/VkTypeHelpers.h>
 
