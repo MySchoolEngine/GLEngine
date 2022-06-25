@@ -32,7 +32,7 @@ jobs:
           git submodule init
           git submodule update
       - name: Set up g++-10
-        run: alias g++="g++-10"
+        run: sudo ln -f g++-10 g++
       - name: update
         run: sudo apt update
       - name: Get X11
