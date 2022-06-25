@@ -43,9 +43,9 @@ jobs:
       - name: Premake
         run: |
             sudo chmod +x Tools/Premake5/premake5
-            sudo Tools/Premake5/premake5 gmake2
+            sudo Tools/Premake5/premake5 gmake2 --glfwapi=${{ matrix.glfwapi }}
       - name: Build
-        run: make config=${{ matrix.config.config }} -j6
+        run: make config=${{ matrix.configuration }} -j6
   msvc:
     name: MSVC api=${{ matrix.glfwapi }} config=${{ matrix.configuration }}
     runs-on: windows-latest
