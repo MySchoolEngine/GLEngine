@@ -5,6 +5,8 @@
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
 
+#include <Utils/DebugBreak.h>
+
 namespace GLEngine::VkRenderer {
 
 //=================================================================================
@@ -33,7 +35,7 @@ void C_VkRenderer::AddCommand(T_CommandPtr command)
 {
 	if (m_Locked)
 	{
-		__debugbreak();
+		GL_DebugBreak();
 	}
 	m_CommandQueue->emplace_back(std::move(command));
 }
