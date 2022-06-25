@@ -32,10 +32,7 @@ C_RayRenderer::C_RayRenderer(const C_RayTraceScene& scene)
 }
 
 //=================================================================================
-C_RayRenderer::~C_RayRenderer()
-{
-	delete m_Texture;
-}
+C_RayRenderer::~C_RayRenderer() = default;
 
 //=================================================================================
 void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& weightedImage, I_TextureViewStorage& storage, std::mutex* storageMutex, int numSamplesBefore)
@@ -139,7 +136,7 @@ Colours::T_Colour C_RayRenderer::PathTrace(Physics::Primitives::S_Ray ray, C_STD
 //=================================================================================
 Colours::T_Colour C_RayRenderer::Li_Direct(const Physics::Primitives::S_Ray& ray, C_STDSampler& rnd)
 {
-	C_TextureView	  brickView(m_Texture);
+	C_TextureView	  brickView(m_Texture.get());
 
 	glm::vec3 LoDirect(0.f);
 
@@ -194,7 +191,7 @@ Colours::T_Colour C_RayRenderer::Li_Direct(const Physics::Primitives::S_Ray& ray
 //=================================================================================
 Colours::T_Colour C_RayRenderer::Li_PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler& rnd, int currentDepth)
 {
-	C_TextureView brickView(m_Texture);
+	C_TextureView brickView(m_Texture.get());
 
 	Colours::T_Colour LoDirect = Colours::black; // f in his example
 
@@ -254,7 +251,7 @@ Colours::T_Colour C_RayRenderer::Li_PathTrace(Physics::Primitives::S_Ray ray, C_
 //=================================================================================
 Colours::T_Colour C_RayRenderer::Li_LightSampling(const Physics::Primitives::S_Ray& ray, C_STDSampler& rnd)
 {
-	C_TextureView brickView(m_Texture);
+	C_TextureView brickView(m_Texture.get());
 
 	C_RayIntersection intersect;
 

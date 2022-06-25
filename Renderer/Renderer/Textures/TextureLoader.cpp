@@ -22,9 +22,9 @@ bool TextureLoader::loadTexture(const std::filesystem::path& path, MeshData::Tex
 {
 	Init();
 
-	auto image = ilLoadTexture(path);
+	auto					image = ilLoadTexture(path);
 	Utils::C_ScopeFinalizer finalizer([image]() { ilDeleteImage(image); });
-	const ILenum Error = ilGetError();
+	const ILenum			Error = ilGetError();
 
 	if (Error != IL_NO_ERROR)
 	{
@@ -52,14 +52,14 @@ bool TextureLoader::loadTexture(const std::filesystem::path& path, MeshData::Tex
 }
 
 //=================================================================================
-I_TextureViewStorage* TextureLoader::loadTexture(const std::filesystem::path& path)
+std::unique_ptr<I_TextureViewStorage> TextureLoader::loadTexture(const std::filesystem::path& path)
 {
 	// memory leak, ilDeleteImage(image); could be skipped
 	Init();
 
 	auto					image = ilLoadTexture(path);
 	Utils::C_ScopeFinalizer finalizer([image]() { ilDeleteImage(image); });
-	const ILenum Error = ilGetError();
+	const ILenum			Error = ilGetError();
 
 	if (Error != IL_NO_ERROR)
 	{
@@ -67,24 +67,24 @@ I_TextureViewStorage* TextureLoader::loadTexture(const std::filesystem::path& pa
 		return nullptr;
 	}
 
-	const auto			  width			= ilGetInteger(IL_IMAGE_WIDTH);
-	const auto			  height		= ilGetInteger(IL_IMAGE_HEIGHT);
-	I_TextureViewStorage* textureBuffer = nullptr;
+	const auto							  width			= ilGetInteger(IL_IMAGE_WIDTH);
+	const auto							  height		= ilGetInteger(IL_IMAGE_HEIGHT);
+	std::unique_ptr<I_TextureViewStorage> textureBuffer = nullptr;
 
 	if (ilGetInteger(IL_PALETTE_TYPE) != IL_PAL_NONE)
 	{
 		ilConvertImage(ilGetInteger(IL_PALETTE_BASE_TYPE), IL_FLOAT);
 	}
 	if (ilGetInteger(IL_IMAGE_TYPE) != IL_FLOAT)
-	  ilConvertImage(ilGetInteger(IL_IMAGE_FORMAT), IL_FLOAT);
+		ilConvertImage(ilGetInteger(IL_IMAGE_FORMAT), IL_FLOAT);
 
 	if (ilGetInteger(IL_IMAGE_BPC) == 1)
 	{
-		textureBuffer = new C_TextureViewStorageCPU<std::uint8_t>(width, height, static_cast<std::uint8_t>(ilGetInteger(IL_IMAGE_CHANNELS)));
+		textureBuffer = std::make_unique<C_TextureViewStorageCPU<std::uint8_t>>(width, height, static_cast<std::uint8_t>(ilGetInteger(IL_IMAGE_CHANNELS)));
 	}
 	else if (ilGetInteger(IL_IMAGE_BPC) == 4)
 	{
-		textureBuffer = new C_TextureViewStorageCPU<float>(width, height, static_cast<std::uint8_t>(ilGetInteger(IL_IMAGE_CHANNELS)));
+		textureBuffer = std::make_unique <C_TextureViewStorageCPU<float>>(width, height, static_cast<std::uint8_t>(ilGetInteger(IL_IMAGE_CHANNELS)));
 	}
 	else
 	{

@@ -62,7 +62,7 @@ C_TextureManager::C_TextureManager(Renderer::I_Device& device)
 		{
 			m_ErrorTexture->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
 			m_ErrorTexture->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
-			m_ErrorTexture->SetTexData2D(0, buffer);
+			m_ErrorTexture->SetTexData2D(0, buffer.get());
 		}
 		m_ErrorTexture->GenerateMipMaps();
 	}
@@ -93,7 +93,7 @@ C_TextureManager::T_TexturePtr C_TextureManager::GetTexture(const std::string& n
 		return nullptr;
 	}
 
-	return CreateTexture(buffer, name);
+	return CreateTexture(buffer.get(), name);
 }
 
 //=================================================================================
@@ -167,7 +167,7 @@ void C_TextureManager::ReloadTexture(const std::string& name, T_TexturePtr& text
 		return;
 	}
 
-	texture->SetTexData2D(0, tex);
+	texture->SetTexData2D(0, tex.get());
 }
 
 //=================================================================================
