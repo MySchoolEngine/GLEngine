@@ -61,7 +61,7 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& weig
 	{
 		for (unsigned int x = 0; x < dim.x; ++x)
 		{
-			const auto ray = GetRay(glm::vec2{x, y} + (rnd.GetV2() - glm::vec2(1.f, 1.f)) / 2.f);
+			const auto ray = GetRay(glm::vec2{x, y} + (2.f * rnd.GetV2() - glm::vec2(1.f, 1.f)) / 2.f);
 			AddSample({x, y}, textureView, PathTrace(ray, rnd));
 			++m_ProcessedPixels;
 		}
@@ -83,7 +83,7 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& weig
 		{
 			for (unsigned int x = 0; x < dim.x; ++x)
 			{
-				const auto ray = GetRay(glm::vec2{x, y} + (rnd.GetV2() - glm::vec2(1.f, 1.f))/2.f);
+				const auto ray = GetRay(glm::vec2{x, y} + (2.f * rnd.GetV2() - glm::vec2(1.f, 1.f)) / 2.f);
 				AddSample({x, y}, textureView, PathTrace(ray, rnd));
 				++m_ProcessedPixels;
 			}
@@ -139,7 +139,7 @@ Colours::T_Colour C_RayRenderer::PathTrace(Physics::Primitives::S_Ray ray, C_STD
 //=================================================================================
 Colours::T_Colour C_RayRenderer::Li_Direct(const Physics::Primitives::S_Ray& ray, C_STDSampler& rnd)
 {
-	C_TextureView	  brickView(m_Texture);
+	C_TextureView brickView(m_Texture);
 
 	glm::vec3 LoDirect(0.f);
 
@@ -163,7 +163,7 @@ Colours::T_Colour C_RayRenderer::Li_Direct(const Physics::Primitives::S_Ray& ray
 	if (material->textureIndex != 0)
 	{
 		diffuseColour = brickView.Get<glm::vec3, T_Bilinear>(uv);
-		//diffuseColour = glm::vec3(uv.x, uv.y, 0.0f);
+		// diffuseColour = glm::vec3(uv.x, uv.y, 0.0f);
 	}
 	C_LambertianModel model(diffuseColour);
 
@@ -184,7 +184,7 @@ Colours::T_Colour C_RayRenderer::Li_Direct(const Physics::Primitives::S_Ray& ray
 
 	if (intersectY.IsLight())
 	{
-		auto	   light	   = intersectY.GetLight();
+		auto	   light	 = intersectY.GetLight();
 		const auto lightPart = wi.y * light->Le() / pdf;
 		LoDirect += glm::vec3(f.x * lightPart.x, f.y * lightPart.y, f.z * lightPart.z);
 	}
@@ -274,8 +274,8 @@ Colours::T_Colour C_RayRenderer::Li_LightSampling(const Physics::Primitives::S_R
 	}
 
 	m_Scene.ForEachLight([&](const std::reference_wrapper<const RayTracing::I_RayLight>& light) {
-		float	  pdf;
-		auto	  vis	= RayTracing::S_VisibilityTester(glm::vec3(), glm::vec3());
+		float			  pdf;
+		auto			  vis	= RayTracing::S_VisibilityTester(glm::vec3(), glm::vec3());
 		Colours::T_Colour illum = light.get().SampleLi(intersect, &rnd, vis, &pdf);
 
 		if (glm::compMax(illum) > 0.f)
@@ -286,11 +286,11 @@ Colours::T_Colour C_RayRenderer::Li_LightSampling(const Physics::Primitives::S_R
 			}
 			// no intersect for point light
 
-			const auto&		  point			= intersect.GetIntersectionPoint();
-			const auto*		  material		= intersect.GetMaterial();
-			const auto&		  frame			= intersect.GetFrame();
-			const auto		  uv			= intersect.GetUV();
-			auto			  diffuseColour = Colours::T_Colour(material->diffuse);
+			const auto& point		  = intersect.GetIntersectionPoint();
+			const auto* material	  = intersect.GetMaterial();
+			const auto& frame		  = intersect.GetFrame();
+			const auto	uv			  = intersect.GetUV();
+			auto		diffuseColour = Colours::T_Colour(material->diffuse);
 			if (material->textureIndex != 0)
 			{
 				diffuseColour = brickView.Get<glm::vec3, T_Bilinear>(uv);
