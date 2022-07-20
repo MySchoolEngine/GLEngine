@@ -16,6 +16,7 @@ public:
 private:
 	std::reference_wrapper<Renderer::I_DeviceTexture> m_texture;
 	glm::vec2										  m_Size; //< Size of GUI, not the image
+	mutable float									  m_Zoom;
 };
 
 } // namespace GLEngine::GUI
