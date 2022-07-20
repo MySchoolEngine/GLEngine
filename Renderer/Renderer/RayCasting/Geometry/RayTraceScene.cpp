@@ -1,18 +1,21 @@
 #include <RendererStdafx.h>
 
+#include <Renderer/Colours.h>
 #include <Renderer/Mesh/Loading/ModelLoader.h>
 #include <Renderer/RayCasting/Geometry/GeometryList.h>
 #include <Renderer/RayCasting/Geometry/RayTraceScene.h>
 #include <Renderer/RayCasting/Geometry/SceneGeometry.h>
+#include <Renderer/RayCasting/Geometry/Trimesh.h>
 #include <Renderer/RayCasting/Light/ILight.h>
 #include <Renderer/RayCasting/Light/RayAreaLight.h>
 #include <Renderer/RayCasting/Light/RayPointLight.h>
 #include <Renderer/RayCasting/RayIntersection.h>
-#include <Renderer/Colours.h>
 
 #include <Physics/Primitives/Disc.h>
 #include <Physics/Primitives/Plane.h>
 #include <Physics/Primitives/Sphere.h>
+
+#include <Utils/HighResolutionTimer.h>
 
 namespace GLEngine::Renderer {
 #define CORNELL
@@ -21,20 +24,23 @@ C_RayTraceScene::C_RayTraceScene()
 {
 	using namespace Physics::Primitives;
 #ifdef CORNELL
-	static const MeshData::Material red{glm::vec4{}, glm::vec4{255, 0, 0, 0}, glm::vec4{}, 1.f, 0};
-	static const MeshData::Material green{glm::vec4{}, glm::vec4{0, 255, 0, 0}, glm::vec4{}, 1.f, 0};
-	static const MeshData::Material white{glm::vec4{}, glm::vec4{255, 255, 255, 0}, glm::vec4{}, 1.f, 0};
-	static const MeshData::Material blue{glm::vec4{}, glm::vec4{0, 0, 255, 0}, glm::vec4{}, 1.f, 0};
+	static const MeshData::Material red{glm::vec4{}, glm::vec4{1, 0, 0, 0}, glm::vec4{}, 1.f, 0};
+	static const MeshData::Material green{glm::vec4{}, glm::vec4{0, 1, 0, 0}, glm::vec4{}, 1.f, 0};
+	static const MeshData::Material white{glm::vec4{}, glm::vec4{1, 1, 1, 0}, glm::vec4{}, 1.f, 0};
+	static const MeshData::Material brick{glm::vec4{}, glm::vec4{1, 1, 1, 0}, glm::vec4{}, 1.f, 1};
+	static const MeshData::Material blue{glm::vec4{}, glm::vec4{0, 0, 1, 0}, glm::vec4{}, 1.f, 0};
 	static const MeshData::Material black{glm::vec4{}, glm::vec4{Colours::black, 0.f}, glm::vec4{}, 1.f, 0};
 
 	{
+		auto trimesh = std::make_shared<C_Trimesh>();
 		// floor
-		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, -1.5f, 3.f}, {3.f, -1.5f, -3.f}, {-3.f, -1.5f, -3.f}));
-		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, -1.5f, 3.f}, {3.f, -1.5f, 3.f}, {3.f, -1.5f, -3.f}));
-		triangle->SetMaterial(white);
-		triangle1->SetMaterial(white);
-		AddObejct(triangle);
-		AddObejct(triangle1);
+		auto triangle  = S_Triangle({-3.f, -1.5f, 3.f}, {3.f, -1.5f, -3.f}, {-3.f, -1.5f, -3.f});
+		auto triangle1 = S_Triangle({-3.f, -1.5f, 3.f}, {3.f, -1.5f, 3.f}, {3.f, -1.5f, -3.f});
+		trimesh->AddTriangle(triangle, {glm::vec2(1.0f, 0.0f), glm::vec2(0.0f, 1.0f), glm::vec2(1.0f, 1.0f)});
+		trimesh->AddTriangle(triangle1, {glm::vec2(1.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 1.0f)});
+		trimesh->SetMaterial(brick);
+
+		AddObejct(trimesh);
 	}
 
 	{
@@ -77,6 +83,7 @@ C_RayTraceScene::C_RayTraceScene()
 		AddObejct(triangle1);
 	}
 
+	if (false)
 	{
 		// sphere
 		auto sphere = std::make_shared<C_Primitive<S_Sphere>>(S_Sphere{{-1.5f, -1.f, -1.5f}, 1.f});
@@ -84,6 +91,7 @@ C_RayTraceScene::C_RayTraceScene()
 		AddObejct(std::move(sphere));
 	}
 
+	if (false)
 	{
 		// sphere
 		auto sphere = std::make_shared<C_Primitive<S_Sphere>>(S_Sphere{{.8f, 0.f, .5f}, 1.f});
@@ -94,16 +102,16 @@ C_RayTraceScene::C_RayTraceScene()
 	{
 		// light
 		const glm::vec3 lightNormal = glm::normalize(glm::vec3(0, -1.0, 0));
-		auto			disc		= S_Disc(lightNormal, glm::vec3(0, 1.43f, 0), 2.f);
+		auto			disc		= S_Disc(lightNormal, glm::vec3(0, 1.43f, 0), 0.7f);
 		disc.plane.twoSided			= false;
 		auto areaLightDisc			= std::make_shared<C_Primitive<S_Disc>>(disc);
 		areaLightDisc->SetMaterial(black);
 
-		auto areaLight = std::make_shared<RayTracing::C_AreaLight>(glm::vec3(1.f, 1.f, .3f), areaLightDisc);
+		auto areaLight = std::make_shared<RayTracing::C_AreaLight>(5.f*glm::vec3(1.f, 1.f, .3f), areaLightDisc);
 		AddLight(std::move(areaLight));
 	}
 
-	{
+	if(false){
 		// model
 		auto					 scene = std::make_shared<MeshData::Scene>();
 		std::vector<std::string> textures;
@@ -217,9 +225,12 @@ void C_RayTraceScene::ForEachLight(std::function<void(const std::reference_wrapp
 //=================================================================================
 void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh)
 {
+	Utils::HighResolutionTimer renderTime;
 	using namespace Physics::Primitives;
 	static const MeshData::Material blue{glm::vec4{}, glm::vec4{0, 0, 255, 0}, glm::vec4{}, 1.f, 0};
-	auto							list = std::make_shared<C_GeometryList>();
+//#define OLD_TRIMESH
+#ifdef OLD_TRIMESH
+	auto list = std::make_shared<C_GeometryList>();
 	for (auto it = mesh.vertices.begin(); it != mesh.vertices.end(); it += 3)
 	{
 		auto triangle = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle(glm::vec3(*it), glm::vec3(*(it + 1)), glm::vec3(*(it + 2))));
@@ -229,6 +240,13 @@ void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh)
 
 	list->GetAABB() = mesh.bbox;
 	AddObejct(list);
+#else
+	auto trimesh = std::make_shared<C_Trimesh>();
+	trimesh->SetMaterial(blue);
+	trimesh->AddMesh(mesh);
+	AddObejct(trimesh);
+#endif
+	CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
 }
 
 } // namespace GLEngine::Renderer
