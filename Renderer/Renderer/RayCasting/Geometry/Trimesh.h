@@ -18,6 +18,7 @@ public:
 	}
 
 	void AddTriangle(const Physics::Primitives::S_Triangle& triangle);
+	void AddTriangle(const Physics::Primitives::S_Triangle& triangle, const std::array<glm::vec2, 3>& uv);
 	void AddMesh(const MeshData::Mesh& mesh);
 
 	[[nodiscard]] const Physics::Primitives::S_AABB& GetAABB() const { return m_AABB; }
@@ -25,6 +26,7 @@ public:
 
 private:
 	std::vector<glm::vec3>		m_Vertices;
+	std::vector<glm::vec2>		m_TexCoords;
 	Physics::Primitives::S_AABB m_AABB;
 };
 }

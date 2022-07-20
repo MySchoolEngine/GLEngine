@@ -25,6 +25,16 @@ void C_Trimesh::AddTriangle(const Physics::Primitives::S_Triangle& triangle)
 }
 
 //=================================================================================
+void C_Trimesh::AddTriangle(const Physics::Primitives::S_Triangle& triangle, const std::array<glm::vec2, 3>& uv)
+{
+	GLE_ASSERT(m_Vertices.size() == m_TexCoords.size(), "Mix matching uv and uv-less triangles.");
+	AddTriangle(triangle);
+	m_TexCoords.push_back(uv[0]);
+	m_TexCoords.push_back(uv[1]);
+	m_TexCoords.push_back(uv[2]);
+}
+
+//=================================================================================
 bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
 {
 	if (m_Vertices.size() > 3 * 5 && m_AABB.IntersectImpl(ray) <= 0.f)
@@ -39,19 +49,24 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersecti
 	std::vector<S_IntersectionInfo> intersections;
 	intersections.reserve(5);
 
-	glm::vec2 uv;
+	glm::vec2 barycentric;
 
 	for (int i = 0; i < m_Vertices.size(); i += 3)
 	{
 		const glm::vec3* triDef = &(m_Vertices[i]);
-		const auto length	= Physics::TraingleRayIntersect(triDef, ray, &uv);
+		const auto		 length = Physics::TraingleRayIntersect(triDef, ray, &barycentric);
 		if (length > 0.0f)
 		{
 			auto normal = glm::cross(m_Vertices[i + 1] - m_Vertices[i], m_Vertices[i + 2] - m_Vertices[i]);
 			const auto area	  = glm::length(normal) / 2.f;
 			normal			  = glm::normalize(normal);
 			C_RayIntersection inter(S_Frame(normal), ray.origin + length * ray.direction, Physics::Primitives::S_Ray(ray));
-			inter.SetUV(uv);
+			if (!m_TexCoords.empty())
+			{
+				const glm::vec2* triUV = &(m_TexCoords[i]);
+				const glm::vec2	 uv	   = barycentric.x * triUV[0] + barycentric.y * triUV[1] + (1 - barycentric.x - barycentric.y) * triUV[2];
+				inter.SetUV(uv);
+			}
 			inter.SetMaterial(&GetMaterial());
 
 			intersections.push_back({inter, length});
