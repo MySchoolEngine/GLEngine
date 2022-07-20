@@ -61,7 +61,7 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& weig
 	{
 		for (unsigned int x = 0; x < dim.x; ++x)
 		{
-			const auto ray = GetRay(glm::vec2{x, y} + rnd.GetV2());
+			const auto ray = GetRay(glm::vec2{x, y} + (rnd.GetV2() - glm::vec2(1.f, 1.f)) / 2.f);
 			AddSample({x, y}, textureView, PathTrace(ray, rnd));
 			++m_ProcessedPixels;
 		}
@@ -83,7 +83,7 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& weig
 		{
 			for (unsigned int x = 0; x < dim.x; ++x)
 			{
-				const auto ray = GetRay(glm::vec2{x, y} + rnd.GetV2());
+				const auto ray = GetRay(glm::vec2{x, y} + (rnd.GetV2() - glm::vec2(1.f, 1.f))/2.f);
 				AddSample({x, y}, textureView, PathTrace(ray, rnd));
 				++m_ProcessedPixels;
 			}
