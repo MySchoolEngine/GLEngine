@@ -57,9 +57,9 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& weig
 
 	int interleavedLines = 8;
 
-	for (int y = 0; y < dim.y; y += interleavedLines)
+	for (unsigned int y = 0; y < dim.y; y += interleavedLines)
 	{
-		for (int x = 0; x < dim.x; ++x)
+		for (unsigned int x = 0; x < dim.x; ++x)
 		{
 			const auto ray = GetRay(glm::vec2{x, y} + rnd.GetV2());
 			AddSample({x, y}, textureView, PathTrace(ray, rnd));
@@ -79,22 +79,22 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& weig
 
 	do
 	{
-		for (int y = interleavedLines / 2; y < dim.y; y += interleavedLines)
+		for (unsigned int y = interleavedLines / 2; y < dim.y; y += interleavedLines)
 		{
-			for (int x = 0; x < dim.x; ++x)
-		{
-			const auto ray = GetRay(glm::vec2{x, y} + rnd.GetV2());
-			AddSample({x, y}, textureView, PathTrace(ray, rnd));
+			for (unsigned int x = 0; x < dim.x; ++x)
+			{
+				const auto ray = GetRay(glm::vec2{x, y} + rnd.GetV2());
+				AddSample({x, y}, textureView, PathTrace(ray, rnd));
 				++m_ProcessedPixels;
 			}
 
 			if (storageMutex)
 			{
 				std::lock_guard<std::mutex> lock(*storageMutex);
-			UpdateView(y, interleavedLines / 2, textureView, weightedView, numSamplesBefore);
-		}
-		else
-		{
+				UpdateView(y, interleavedLines / 2, textureView, weightedView, numSamplesBefore);
+			}
+			else
+			{
 				UpdateView(y, interleavedLines / 2, textureView, weightedView, numSamplesBefore);
 			}
 		}
@@ -109,12 +109,12 @@ void C_RayRenderer::UpdateView(unsigned int sourceLine, unsigned int numLines, C
 	// so I need to carry 1/(N+1) part of it to the next lines
 	// this holds even for 1st sample on source line
 	const auto dim = target.GetDimensions();
-	for (int x = 0; x < dim.x; ++x)
+	for (unsigned int x = 0; x < dim.x; ++x)
 	{
 		const auto denominator	 = 1.0f / static_cast<float>(numSamples + 1);
 		const auto sourceLineVal = source.Get<glm::vec3>(glm::ivec2{x, sourceLine});
 		target.Set({x, sourceLine}, sourceLineVal * denominator);
-		for (int i = sourceLine + 1; i < std::min(dim.y, sourceLine + numLines); ++i)
+		for (unsigned int i = sourceLine + 1; i < std::min(dim.y, sourceLine + numLines); ++i)
 		{
 			const auto previousLineVal = source.Get<glm::vec3>(glm::ivec2{x, i});
 			target.Set({x, i}, (sourceLineVal * denominator + previousLineVal) * denominator);
@@ -158,11 +158,12 @@ Colours::T_Colour C_RayRenderer::Li_Direct(const Physics::Primitives::S_Ray& ray
 	const auto& frame		  = intersect.GetFrame();
 	const auto& point		  = intersect.GetIntersectionPoint();
 	const auto* material	  = intersect.GetMaterial();
+	const auto	uv			  = intersect.GetUV();
 	auto		diffuseColour = glm::vec3(material->diffuse);
 	if (material->textureIndex != 0)
 	{
-		const auto uv = glm::vec2(point.x, point.z) / 10.f;
 		diffuseColour = brickView.Get<glm::vec3, T_Bilinear>(uv);
+		//diffuseColour = glm::vec3(uv.x, uv.y, 0.0f);
 	}
 	C_LambertianModel model(diffuseColour);
 
@@ -210,9 +211,9 @@ Colours::T_Colour C_RayRenderer::Li_PathTrace(Physics::Primitives::S_Ray ray, C_
 	auto		diffuseColour = glm::vec3(material->diffuse);
 	if (material->textureIndex != 0)
 	{
-		const auto uv = glm::vec2(point.x, point.z) / 10.f;
 		diffuseColour = brickView.Get<glm::vec3, T_Bilinear>(uv);
 	}
+
 	C_LambertianModel model(diffuseColour);
 
 	const auto wol = frame.ToLocal(-ray.direction);
@@ -225,7 +226,7 @@ Colours::T_Colour C_RayRenderer::Li_PathTrace(Physics::Primitives::S_Ray ray, C_
 		float	   pdf;
 		const auto f = model.SampleF(wol, wi, frame, rnd.GetV2(), &pdf);
 
-		GLE_ASSERT(wi.y > 0, "Wrong direction of the ray!");
+		GLE_ASSERT(wi.y >= 0, "Wrong direction of the ray!");
 
 		// generate new ray
 		ray.origin	  = intersect.GetIntersectionPoint();
@@ -236,7 +237,7 @@ Colours::T_Colour C_RayRenderer::Li_PathTrace(Physics::Primitives::S_Ray ray, C_
 		{
 			// recursion
 			Colours::T_Colour Li = Li_PathTrace(ray, rnd, currentDepth + 1);
-			LoDirect += glm::vec3(f.x * Li.x, f.y * Li.y, f.z * Li.z) * wi.y / pdf;
+			LoDirect += Colours::T_Colour(f.x * Li.x, f.y * Li.y, f.z * Li.z) * wi.y / pdf;
 		}
 	}
 
@@ -288,13 +289,14 @@ Colours::T_Colour C_RayRenderer::Li_LightSampling(const Physics::Primitives::S_R
 			const auto&		  point			= intersect.GetIntersectionPoint();
 			const auto*		  material		= intersect.GetMaterial();
 			const auto&		  frame			= intersect.GetFrame();
+			const auto		  uv			= intersect.GetUV();
 			auto			  diffuseColour = glm::vec3(material->diffuse);
-			C_LambertianModel model(diffuseColour);
 			if (material->textureIndex != 0)
 			{
-				const auto uv = glm::vec2(point.x, point.z) / 10.f;
-				diffuseColour = brickView.Get<glm::vec3, T_Bilinear>(uv);
+				// diffuseColour = brickView.Get<glm::vec3, T_Bilinear>(uv);
+				diffuseColour = glm::vec3(uv.x, uv.y, 0.0f);
 			}
+			C_LambertianModel model(diffuseColour);
 			LoDirect += illum * model.f(frame.ToLocal(ray.direction), frame.ToLocal(vis.GetRay().direction));
 		}
 	});
