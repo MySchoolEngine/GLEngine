@@ -264,7 +264,7 @@ Colours::T_Colour C_RayRenderer::Li_LightSampling(const Physics::Primitives::S_R
 	if (!m_Scene.Intersect(ray, intersect))
 		return Colours::black; // here we can plug environmental light/atmosphere/whatever
 
-	glm::vec3 LoDirect(0.f);
+	Colours::T_Colour LoDirect(0.f);
 
 	// direct ray to the light intersection
 	if (intersect.IsLight())
@@ -276,7 +276,7 @@ Colours::T_Colour C_RayRenderer::Li_LightSampling(const Physics::Primitives::S_R
 	m_Scene.ForEachLight([&](const std::reference_wrapper<const RayTracing::I_RayLight>& light) {
 		float	  pdf;
 		auto	  vis	= RayTracing::S_VisibilityTester(glm::vec3(), glm::vec3());
-		glm::vec3 illum = light.get().SampleLi(intersect, &rnd, vis, &pdf);
+		Colours::T_Colour illum = light.get().SampleLi(intersect, &rnd, vis, &pdf);
 
 		if (glm::compMax(illum) > 0.f)
 		{
@@ -290,11 +290,10 @@ Colours::T_Colour C_RayRenderer::Li_LightSampling(const Physics::Primitives::S_R
 			const auto*		  material		= intersect.GetMaterial();
 			const auto&		  frame			= intersect.GetFrame();
 			const auto		  uv			= intersect.GetUV();
-			auto			  diffuseColour = glm::vec3(material->diffuse);
+			auto			  diffuseColour = Colours::T_Colour(material->diffuse);
 			if (material->textureIndex != 0)
 			{
-				// diffuseColour = brickView.Get<glm::vec3, T_Bilinear>(uv);
-				diffuseColour = glm::vec3(uv.x, uv.y, 0.0f);
+				diffuseColour = brickView.Get<glm::vec3, T_Bilinear>(uv);
 			}
 			C_LambertianModel model(diffuseColour);
 			LoDirect += illum * model.f(frame.ToLocal(ray.direction), frame.ToLocal(vis.GetRay().direction));
