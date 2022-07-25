@@ -34,7 +34,6 @@ private:
 	[[nodiscard]] Colours::T_Colour PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler& rnd);
 	void							UpdateView(unsigned int sourceLine, unsigned int numLines, C_TextureView& source, C_TextureView& target, unsigned int numSamples);
 	const C_RayTraceScene&			m_Scene;
-	I_TextureViewStorage*			m_Texture;
 	std::size_t						m_ProcessedPixels;
 	std::size_t						m_MaxDepth;
 	bool							m_NewResultAviable;

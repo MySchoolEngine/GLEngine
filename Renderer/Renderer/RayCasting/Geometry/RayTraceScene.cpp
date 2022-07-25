@@ -10,6 +10,8 @@
 #include <Renderer/RayCasting/Light/RayAreaLight.h>
 #include <Renderer/RayCasting/Light/RayPointLight.h>
 #include <Renderer/RayCasting/RayIntersection.h>
+#include <Renderer/Textures/TextureLoader.h>
+#include <Renderer/Textures/TextureStorage.h>
 
 #include <Physics/Primitives/Disc.h>
 #include <Physics/Primitives/Plane.h>
@@ -24,12 +26,15 @@ C_RayTraceScene::C_RayTraceScene()
 {
 	using namespace Physics::Primitives;
 #ifdef CORNELL
-	static const MeshData::Material red{glm::vec4{}, glm::vec4{1, 0, 0, 0}, glm::vec4{}, 1.f, 0};
-	static const MeshData::Material green{glm::vec4{}, glm::vec4{0, 1, 0, 0}, glm::vec4{}, 1.f, 0};
-	static const MeshData::Material white{glm::vec4{}, glm::vec4{1, 1, 1, 0}, glm::vec4{}, 1.f, 0};
-	static const MeshData::Material brick{glm::vec4{}, glm::vec4{1, 1, 1, 0}, glm::vec4{}, 1.f, 1};
-	static const MeshData::Material blue{glm::vec4{}, glm::vec4{0, 0, 1, 0}, glm::vec4{}, 1.f, 0};
-	static const MeshData::Material black{glm::vec4{}, glm::vec4{Colours::black, 0.f}, glm::vec4{}, 1.f, 0};
+	Textures::TextureLoader tl;
+	m_Textures.emplace_back(tl.loadTexture(R"(Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp)"));
+
+	static const MeshData::Material red{glm::vec4{},	glm::vec4{Colours::red, 0},		glm::vec4{}, 1.f, -1};
+	static const MeshData::Material green{glm::vec4{},	glm::vec4{Colours::green, 0},	glm::vec4{}, 1.f, -1};
+	static const MeshData::Material white{glm::vec4{},	glm::vec4{Colours::white, 0},	glm::vec4{}, 1.f, -1};
+	static const MeshData::Material brick{glm::vec4{},	glm::vec4{Colours::white, 0},	glm::vec4{}, 1.f,  0}; // brick texture
+	static const MeshData::Material blue{glm::vec4{},	glm::vec4{Colours::blue, 0},	glm::vec4{}, 1.f, -1};
+	static const MeshData::Material black{glm::vec4{},	glm::vec4{Colours::black, 0.f}, glm::vec4{}, 1.f, -1};
 
 	{
 		auto trimesh = std::make_shared<C_Trimesh>();
@@ -83,7 +88,6 @@ C_RayTraceScene::C_RayTraceScene()
 		AddObejct(triangle1);
 	}
 
-	if (false)
 	{
 		// sphere
 		auto sphere = std::make_shared<C_Primitive<S_Sphere>>(S_Sphere{{-1.5f, -1.f, -1.5f}, 1.f});
@@ -107,11 +111,12 @@ C_RayTraceScene::C_RayTraceScene()
 		auto areaLightDisc			= std::make_shared<C_Primitive<S_Disc>>(disc);
 		areaLightDisc->SetMaterial(black);
 
-		auto areaLight = std::make_shared<RayTracing::C_AreaLight>(5.f*glm::vec3(1.f, 1.f, .3f), areaLightDisc);
+		auto areaLight = std::make_shared<RayTracing::C_AreaLight>(5.f * glm::vec3(1.f, 1.f, .3f), areaLightDisc);
 		AddLight(std::move(areaLight));
 	}
 
-	if(false){
+	if (false)
+	{
 		// model
 		auto					 scene = std::make_shared<MeshData::Scene>();
 		std::vector<std::string> textures;
@@ -156,7 +161,13 @@ C_RayTraceScene::C_RayTraceScene()
 }
 
 //=================================================================================
-C_RayTraceScene::~C_RayTraceScene() = default;
+C_RayTraceScene::~C_RayTraceScene()
+{
+  for (auto* texture : m_Textures)
+  {
+	  delete texture;
+  }
+}
 
 //=================================================================================
 bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, float offset) const
@@ -247,6 +258,12 @@ void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh)
 	AddObejct(trimesh);
 #endif
 	CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
+}
+
+//=================================================================================
+const C_TextureView C_RayTraceScene::GetTextureView(int textureID) const
+{
+	return C_TextureView(m_Textures[textureID]);
 }
 
 } // namespace GLEngine::Renderer

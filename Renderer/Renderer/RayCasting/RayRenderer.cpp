@@ -12,8 +12,6 @@
 #include <Renderer/RayCasting/ReflectionModels/SpecularReflection.h>
 #include <Renderer/RayCasting/Sampling.h>
 #include <Renderer/RayCasting/VisibilityTester.h>
-#include <Renderer/Textures/TextureLoader.h>
-#include <Renderer/Textures/TextureStorage.h>
 #include <Renderer/Textures/TextureView.h>
 
 #include <glm/gtx/component_wise.hpp>
@@ -27,15 +25,10 @@ C_RayRenderer::C_RayRenderer(const C_RayTraceScene& scene)
 	, m_MaxDepth(3)
 	, m_NewResultAviable(false)
 {
-	Textures::TextureLoader tl;
-	m_Texture = tl.loadTexture(R"(Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp)");
 }
 
 //=================================================================================
-C_RayRenderer::~C_RayRenderer()
-{
-	delete m_Texture;
-}
+C_RayRenderer::~C_RayRenderer() = default;
 
 //=================================================================================
 void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& weightedImage, I_TextureViewStorage& storage, std::mutex* storageMutex, int numSamplesBefore)
@@ -139,8 +132,6 @@ Colours::T_Colour C_RayRenderer::PathTrace(Physics::Primitives::S_Ray ray, C_STD
 //=================================================================================
 Colours::T_Colour C_RayRenderer::Li_Direct(const Physics::Primitives::S_Ray& ray, C_STDSampler& rnd)
 {
-	C_TextureView brickView(m_Texture);
-
 	glm::vec3 LoDirect(0.f);
 
 	C_RayIntersection intersect, intersectY;
@@ -160,10 +151,9 @@ Colours::T_Colour C_RayRenderer::Li_Direct(const Physics::Primitives::S_Ray& ray
 	const auto* material	  = intersect.GetMaterial();
 	const auto	uv			  = intersect.GetUV();
 	auto		diffuseColour = glm::vec3(material->diffuse);
-	if (material->textureIndex != 0)
+	if (material->textureIndex != -1)
 	{
-		diffuseColour = brickView.Get<glm::vec3, T_Bilinear>(uv);
-		// diffuseColour = glm::vec3(uv.x, uv.y, 0.0f);
+		diffuseColour = m_Scene.GetTextureView(material->textureIndex).Get<glm::vec3, T_Bilinear>(uv);
 	}
 	C_LambertianModel model(diffuseColour);
 
@@ -195,8 +185,6 @@ Colours::T_Colour C_RayRenderer::Li_Direct(const Physics::Primitives::S_Ray& ray
 //=================================================================================
 Colours::T_Colour C_RayRenderer::Li_PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler& rnd, int currentDepth)
 {
-	C_TextureView brickView(m_Texture);
-
 	Colours::T_Colour LoDirect = Colours::black; // f in his example
 
 	C_RayIntersection intersect;
@@ -209,9 +197,9 @@ Colours::T_Colour C_RayRenderer::Li_PathTrace(Physics::Primitives::S_Ray ray, C_
 	const auto* material	  = intersect.GetMaterial();
 	const auto	uv			  = intersect.GetUV();
 	auto		diffuseColour = glm::vec3(material->diffuse);
-	if (material->textureIndex != 0)
+	if (material->textureIndex != -1)
 	{
-		diffuseColour = brickView.Get<glm::vec3, T_Bilinear>(uv);
+		diffuseColour = m_Scene.GetTextureView(material->textureIndex).Get<glm::vec3, T_Bilinear>(uv);
 	}
 
 	C_LambertianModel model(diffuseColour);
@@ -256,8 +244,6 @@ Colours::T_Colour C_RayRenderer::Li_PathTrace(Physics::Primitives::S_Ray ray, C_
 //=================================================================================
 Colours::T_Colour C_RayRenderer::Li_LightSampling(const Physics::Primitives::S_Ray& ray, C_STDSampler& rnd)
 {
-	C_TextureView brickView(m_Texture);
-
 	C_RayIntersection intersect;
 
 	// first primary ray
@@ -291,9 +277,9 @@ Colours::T_Colour C_RayRenderer::Li_LightSampling(const Physics::Primitives::S_R
 			const auto& frame		  = intersect.GetFrame();
 			const auto	uv			  = intersect.GetUV();
 			auto		diffuseColour = Colours::T_Colour(material->diffuse);
-			if (material->textureIndex != 0)
+			if (material->textureIndex != -1)
 			{
-				diffuseColour = brickView.Get<glm::vec3, T_Bilinear>(uv);
+				diffuseColour = m_Scene.GetTextureView(material->textureIndex).Get<glm::vec3, T_Bilinear>(uv);
 			}
 			C_LambertianModel model(diffuseColour);
 			LoDirect += illum * model.f(frame.ToLocal(ray.direction), frame.ToLocal(vis.GetRay().direction));
