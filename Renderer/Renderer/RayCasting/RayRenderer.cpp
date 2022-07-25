@@ -203,7 +203,11 @@ Colours::T_Colour C_RayRenderer::Li_PathTrace(Physics::Primitives::S_Ray ray, C_
 		diffuseColour = m_Scene.GetTextureView(material->textureIndex).Get<glm::vec3, T_Bilinear>(uv);
 	}
 
-	C_LambertianModel model(diffuseColour);
+	std::unique_ptr<I_ReflectionModel> model = nullptr;
+	if (material->shininess==0.f)
+		model = std::make_unique<C_LambertianModel>(diffuseColour);
+	else
+		model = std::make_unique<C_SpecularReflection>(1.0f, 1.5f);
 
 	const auto wol = frame.ToLocal(-ray.direction);
 
@@ -213,7 +217,7 @@ Colours::T_Colour C_RayRenderer::Li_PathTrace(Physics::Primitives::S_Ray ray, C_
 	{
 		glm::vec3  wi;
 		float	   pdf;
-		const auto f = model.SampleF(wol, wi, frame, rnd.GetV2(), &pdf);
+		const auto f = model->SampleF(wol, wi, frame, rnd.GetV2(), &pdf);
 
 		GLE_ASSERT(wi.y >= 0, "Wrong direction of the ray!");
 

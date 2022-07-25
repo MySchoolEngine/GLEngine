@@ -29,12 +29,13 @@ C_RayTraceScene::C_RayTraceScene()
 	Textures::TextureLoader tl;
 	m_Textures.emplace_back(tl.loadTexture(R"(Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp)"));
 
-	static const MeshData::Material red{glm::vec4{},	glm::vec4{Colours::red, 0},		glm::vec4{}, 1.f, -1};
-	static const MeshData::Material green{glm::vec4{},	glm::vec4{Colours::green, 0},	glm::vec4{}, 1.f, -1};
-	static const MeshData::Material white{glm::vec4{},	glm::vec4{Colours::white, 0},	glm::vec4{}, 1.f, -1};
-	static const MeshData::Material brick{glm::vec4{},	glm::vec4{Colours::white, 0},	glm::vec4{}, 1.f,  0}; // brick texture
-	static const MeshData::Material blue{glm::vec4{},	glm::vec4{Colours::blue, 0},	glm::vec4{}, 1.f, -1};
-	static const MeshData::Material black{glm::vec4{},	glm::vec4{Colours::black, 0.f}, glm::vec4{}, 1.f, -1};
+	static const MeshData::Material red{glm::vec4{},		glm::vec4{Colours::red, 0},		glm::vec4{}, 0.f, -1};
+	static const MeshData::Material green{glm::vec4{},		glm::vec4{Colours::green, 0},	glm::vec4{}, 0.f, -1};
+	static const MeshData::Material white{glm::vec4{},		glm::vec4{Colours::white, 0},	glm::vec4{}, 0.f, -1};
+	static const MeshData::Material brick{glm::vec4{},		glm::vec4{Colours::white, 0},	glm::vec4{}, 0.f,  0}; // brick texture
+	static const MeshData::Material blue{glm::vec4{},		glm::vec4{Colours::blue, 0},	glm::vec4{}, 0.f, -1};
+	static const MeshData::Material blueMirror{glm::vec4{},	glm::vec4{Colours::blue, 0},	glm::vec4{}, 1.f, -1};
+	static const MeshData::Material black{glm::vec4{},		glm::vec4{Colours::black, 0.f}, glm::vec4{}, 0.f, -1};
 
 	{
 		auto trimesh = std::make_shared<C_Trimesh>();
@@ -91,11 +92,10 @@ C_RayTraceScene::C_RayTraceScene()
 	{
 		// sphere
 		auto sphere = std::make_shared<C_Primitive<S_Sphere>>(S_Sphere{{-1.5f, -1.f, -1.5f}, 1.f});
-		sphere->SetMaterial(blue);
+		sphere->SetMaterial(blueMirror);
 		AddObejct(std::move(sphere));
 	}
 
-	if (false)
 	{
 		// sphere
 		auto sphere = std::make_shared<C_Primitive<S_Sphere>>(S_Sphere{{.8f, 0.f, .5f}, 1.f});
