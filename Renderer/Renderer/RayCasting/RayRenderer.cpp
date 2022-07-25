@@ -104,13 +104,14 @@ void C_RayRenderer::UpdateView(unsigned int sourceLine, unsigned int numLines, C
 	const auto dim = target.GetDimensions();
 	for (unsigned int x = 0; x < dim.x; ++x)
 	{
+		// sqrt for gamma correction with gamma = 2
 		const auto denominator	 = 1.0f / static_cast<float>(numSamples + 1);
 		const auto sourceLineVal = source.Get<glm::vec3>(glm::ivec2{x, sourceLine});
-		target.Set({x, sourceLine}, sourceLineVal * denominator);
+		target.Set({x, sourceLine}, glm::sqrt(sourceLineVal * denominator));
 		for (unsigned int i = sourceLine + 1; i < std::min(dim.y, sourceLine + numLines); ++i)
 		{
 			const auto previousLineVal = source.Get<glm::vec3>(glm::ivec2{x, i});
-			target.Set({x, i}, (sourceLineVal * denominator + previousLineVal) * denominator);
+			target.Set({x, i}, glm::sqrt((sourceLineVal * denominator + previousLineVal) * denominator));
 		}
 	}
 	m_NewResultAviable = true;
