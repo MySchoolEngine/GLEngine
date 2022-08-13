@@ -26,17 +26,18 @@ C_TextureManager::C_TextureManager(Renderer::I_Device& device)
 	// preload fallback textures
 	{
 		// Identity
-		const Renderer::TextureDescriptor desc{"Identity texture", 1, 1, Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::RGBA8i, false};
+		const Renderer::TextureDescriptor desc{"Identity texture", 1, 1, Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::RGBA16f, false};
 
 		m_IdentityTexture = std::make_shared<C_Texture>(desc);
 
 		if (GetDevice().AllocateTexture(*m_IdentityTexture.get()))
 		{
-			Renderer::C_TextureViewStorageCPU<std::uint8_t> storage(1, 1, 4);
+			Renderer::C_TextureViewStorageCPU<float> storage(1, 1, 4);
 			Renderer::C_TextureView							view(&storage);
 			view.Set<glm::vec4>(glm::ivec2(0, 0), glm::vec4(255, 255, 255, 0));
 			m_IdentityTexture->SetTexData2D(0, &storage);
 		}
+		m_IdentityTexture->CreateHandle();
 	}
 	{
 		// error texture

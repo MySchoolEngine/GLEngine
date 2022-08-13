@@ -18,11 +18,13 @@
 #include <GLRenderer/ImGui/GLImGUILayer.h>
 #include <GLRenderer/Lights/GLAreaLight.h>
 #include <GLRenderer/Materials/MaterialBuffer.h>
+#include <GLRenderer/OGLDevice.h>
 #include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/PersistentDebug.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/SunShadowMapTechnique.h>
+#include <GLRenderer/Textures/TextureManager.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 #include <GLRenderer/Windows/ExperimentWindow.h>
 #include <GLRenderer/Windows/RayTrace.h>
@@ -54,8 +56,6 @@
 #include <pugixml.hpp>
 
 #include <imgui.h>
-
-#include <GLRenderer/OGLDevice.h>
 
 namespace GLEngine::GLRenderer::Windows {
 
@@ -374,6 +374,9 @@ void C_ExplerimentWindow::OnAppInit()
 		guiMGR.AddCustomWindow(levelSelectWindwo);
 		levelSelectWindwo->SetVisible();
 	}));
+
+	auto& tmgr = Textures::C_TextureManager::Instance();
+	tmgr.GetIdentityTexture()->MakeHandleResident(); // Hack, I need to have active renderer because of lack of dependency injection
 	CORE_LOG(E_Level::Info, E_Context::Render, "Experiment window setup time was %f", float(m_FrameTimer.getElapsedTimeFromLastQueryMilliseconds()) / 1000.f);
 }
 
