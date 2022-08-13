@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<World>
+	<Entities>
+		<Entity name="floor">
+			<translate sid="location">0 -1.5 0</translate>
+			<Components>
+				<staticMesh filePath="plane.obj" material="basicTracing" shadowPassShader="shadowPass">
+					<color>1 1 1</color>
+				</staticMesh>
+			</Components>
+		</Entity>
+		<Entity name="ceiling">
+			<translate sid="location">0 1.5 0</translate>
+			<rotate>1 0 0 180</rotate>
+			<Components>
+				<staticMesh filePath="plane.obj" material="basicTracing" shadowPassShader="shadowPass">
+					<color>1 1 1</color>
+				</staticMesh>
+			</Components>
+		</Entity>
+		<Entity name="left">
+			<translate sid="location">3 0 0</translate>
+			<rotate>0 0 1 90</rotate>
+			<Components>
+				<staticMesh filePath="plane.obj" material="basicTracing" shadowPassShader="shadowPass">
+					<color>0 1 0</color>
+				</staticMesh>
+			</Components>
+		</Entity>
+		<Entity name="right">
+			<translate sid="location">-3 0 0</translate>
+			<rotate>0 0 1 -90</rotate>
+			<Components>
+				<staticMesh filePath="plane.obj" material="basicTracing" shadowPassShader="shadowPass">
+					<color>1 0 0</color>
+				</staticMesh>
+			</Components>
+		</Entity>
+		<Entity name="back">
+			<translate sid="location">0 0 -3</translate>
+			<rotate>1 0 0 90</rotate>
+			<Components>
+				<staticMesh filePath="plane.obj" material="basicTracing" shadowPassShader="shadowPass">
+					<color>1 1 1</color>
+				</staticMesh>
+			</Components>
+		</Entity>
+		<Entity name="sphere1">
+			<translate sid="location">-1.5 -1.5 -1.5</translate>
+			<Components>
+				<staticMesh filePath="sphere.obj" material="basicTracing" shadowPassShader="shadowPass">
+					<color>0 1 0</color>
+				</staticMesh>
+			</Components>
+		</Entity>
+		<Entity name="sphere2">
+			<translate sid="location">0.8 0.0 0.5</translate>
+			<Components>
+				<staticMesh filePath="sphere.obj" material="basicTracing" shadowPassShader="shadowPass">
+					<color>0 1 0</color>
+				</staticMesh>
+			</Components>
+		</Entity>
+
+		<Entity name="pl1">
+			<Components>
+				<PointLight intensity="30.0">
+					<translate sid="location">0 1 0</translate>
+					<color>0.4 0.3 0.1</color>
+				</PointLight>
+			</Components>
+		</Entity>
+	</Entities>
+</World>
