@@ -18,7 +18,7 @@ S_AreaLight::S_AreaLight()
 	, m_Width(10.f)
 	, m_Height(10.f)
 	, m_Normal(0.f)
-	, m_Intensity(1.0f)
+	, m_Intensity(0.0f)
 	, m_Color(Colours::white)
 {
 }
