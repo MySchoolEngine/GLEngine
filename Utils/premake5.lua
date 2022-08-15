@@ -4,7 +4,6 @@ project "Utils"
 	kind "SharedLib"
 	language "C++"
 	staticruntime "off"
-	cppdialect "C++17"
 
 	SetupProject("Utils")
 

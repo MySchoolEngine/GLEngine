@@ -11,7 +11,8 @@
 				</staticMesh>
 			</Components>
 		</Entity>
-		<ExternEntity name="sphere" filePath="lada/lada.obj" material="basicTracing">
+		<Entity name="atmosphere"></Entity>
+		<ExternEntity name="car" filePath="lada/lada.obj" material="basicTracing">
 			<translate sid="location">0 3 0</translate>
 		</ExternEntity>
 	</Entities>

@@ -38,6 +38,12 @@ void C_FrameConstantsBuffer::UploadData() const
 	bind();
 	auto* data = (char*)glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
 
+	if (!data)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "Trying to map unexistant buffer.");
+		return;
+	}
+
 	memcpy(data, glm::value_ptr(m_ProjectionMat), matSize);
 	memcpy(data + matSize, glm::value_ptr(m_ViewMat), matSize);
 	memcpy(data + 2 * matSize, glm::value_ptr(viewProjectionMat), matSize);

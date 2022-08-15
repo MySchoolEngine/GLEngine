@@ -61,6 +61,8 @@ float SunVisibility(const vec3 position, const vec3 N)
 //=================================================================================
 vec3 CalculatSunLight(const vec3 N, const vec3 V, const vec3 position)
 {
+	if(pSunLight.sunlightPresent==0)
+		return vec3(0,0,0);
 	const Sphere s = GetAtmosphereBoundary();
 
 

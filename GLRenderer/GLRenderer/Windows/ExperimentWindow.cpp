@@ -18,11 +18,13 @@
 #include <GLRenderer/ImGui/GLImGUILayer.h>
 #include <GLRenderer/Lights/GLAreaLight.h>
 #include <GLRenderer/Materials/MaterialBuffer.h>
+#include <GLRenderer/OGLDevice.h>
 #include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/PersistentDebug.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/SunShadowMapTechnique.h>
+#include <GLRenderer/Textures/TextureManager.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 #include <GLRenderer/Windows/ExperimentWindow.h>
 #include <GLRenderer/Windows/RayTrace.h>
@@ -55,8 +57,6 @@
 
 #include <imgui.h>
 
-#include <GLRenderer/OGLDevice.h>
-
 namespace GLEngine::GLRenderer::Windows {
 
 //=================================================================================
@@ -66,14 +66,14 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	, m_Samples("Frame Times")
 	, m_GammaSlider(2.2f, 1.f, 5.f, "Gamma")
 	, m_ExposureSlider(1.f, .1f, 10.f, "Exposure")
-	, m_VSync(false)
+	, m_VSync(true)
 	, m_HDRFBO(nullptr)
 	, m_World(std::make_shared<Entity::C_EntityManager>())
 	, m_MainPass(nullptr)
 	, m_ShadowPass(nullptr)
 	, m_GUITexts({{GUI::C_FormatedText("Avg frame time {:.2f}"), GUI::C_FormatedText("Avg fps {:.2f}"), GUI::C_FormatedText("Min/max frametime {:.2f}/{:.2f}")}})
 	, m_Windows(std::string("Windows"))
-	, m_EditorLayer(*&C_DebugDraw::Instance(), GetInput(), {0,0, GetSize()}) //< viewport could be different from windowsize in the future
+	, m_EditorLayer(*&C_DebugDraw::Instance(), GetInput(), {0, 0, GetSize()}) //< viewport could be different from windowsize in the future
 {
 	glfwMakeContextCurrent(m_Window);
 
@@ -131,14 +131,17 @@ void C_ExplerimentWindow::Update()
 
 	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
 
+	if (m_SunShadow)
 	{
 		// shadow pass
 		m_SunShadow->Render(*m_World.get(), camera.get());
-		::ImGui::Begin("shadowMap");
-		::ImGui::Image((void*)(intptr_t)m_SunShadow->GetZBuffer()->GetTexture(), ImVec2(256, 256));
-		::ImGui::End();
 		m_MainPass->SetSunShadowMap(m_SunShadow->GetZBuffer()->GetHandle());
 		m_MainPass->SetSunViewProjection(m_SunShadow->GetLastViewProjection());
+	}
+	else
+	{
+		auto& tmgr = Textures::C_TextureManager::Instance();
+		m_MainPass->SetSunShadowMap(tmgr.GetIdentityTexture()->GetHandle());
 	}
 	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
 	m_MainPass->Render(camera, GetWidth(), GetHeight());
@@ -181,6 +184,11 @@ void C_ExplerimentWindow::Update()
 		[this, shader]() {
 			shader->SetUniform("gamma", m_GammaSlider.GetValue());
 			shader->SetUniform("exposure", m_ExposureSlider.GetValue());
+			auto atmosphereEntity = m_World->GetEntity("atmosphere");
+			if (atmosphereEntity)
+				shader->SetUniform("renderAtmosphere", 1);
+			else
+				shader->SetUniform("renderAtmosphere", 0);
 			shader->SetUniform("hdrBuffer", 0);
 			shader->SetUniform("depthBuffer", 1);
 		},
@@ -272,34 +280,24 @@ void C_ExplerimentWindow::OnAppInit()
 
 		m_ScreenQuad = std::make_shared<Mesh::C_StaticMeshResource>(billboardMesh);
 	}
-	SetupWorld("Levels/atmosphere.xml");
+	SetupWorld("Levels/cornellBox.xml");
 
-	m_HDRFBO		= std::make_unique<C_Framebuffer>("HDR");
-	const Renderer::TextureDescriptor HDRTextureDef{
-		"hdrTexture",
-		GetWidth(), GetHeight(), Renderer::E_TextureType::TEXTURE_2D,
-		Renderer::E_TextureFormat::RGBA16f,
-		false
-	};
-	auto HDRTexture = std::make_shared<Textures::C_Texture>(HDRTextureDef);
+	m_HDRFBO = std::make_unique<C_Framebuffer>("HDR");
+	const Renderer::TextureDescriptor HDRTextureDef{"hdrTexture", GetWidth(), GetHeight(), Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::RGBA16f, false};
+	auto							  HDRTexture = std::make_shared<Textures::C_Texture>(HDRTextureDef);
 	m_Device->AllocateTexture(*HDRTexture.get());
 
 	HDRTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
 	// ~HDRTexture setup
 	m_HDRFBO->AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
 
-	const Renderer::TextureDescriptor hdrDepthTextureDef{
-		"hdrDepthTexture",
-		GetWidth(), GetHeight(), Renderer::E_TextureType::TEXTURE_2D,
-		Renderer::E_TextureFormat::D16,
-		false
-	};
-	auto depthStencilTexture = std::make_shared<Textures::C_Texture>(hdrDepthTextureDef);
+	const Renderer::TextureDescriptor hdrDepthTextureDef{"hdrDepthTexture", GetWidth(), GetHeight(), Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::D16, false};
+	auto							  depthStencilTexture = std::make_shared<Textures::C_Texture>(hdrDepthTextureDef);
 	m_Device->AllocateTexture(*depthStencilTexture.get());
 
 	// depthStencilTexture->SetTexParameter(GL_COMPARE_REF_TO_TEXTURE, GL_COMPARE_REF_TO_TEXTURE);
 	// depthStencilTexture->SetTexParameter(GL_TEXTURE_COMPARE_FUNC, GL_NEVER);
-	//depthStencilTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
+	// depthStencilTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
 	// ~depthStencilTexture setup
 	m_HDRFBO->AttachTexture(GL_DEPTH_ATTACHMENT, depthStencilTexture);
 
@@ -374,6 +372,9 @@ void C_ExplerimentWindow::OnAppInit()
 		guiMGR.AddCustomWindow(levelSelectWindwo);
 		levelSelectWindwo->SetVisible();
 	}));
+
+	auto& tmgr = Textures::C_TextureManager::Instance();
+	tmgr.GetIdentityTexture()->MakeHandleResident(); // Hack, I need to have active renderer because of lack of dependency injection
 	CORE_LOG(E_Level::Info, E_Context::Render, "Experiment window setup time was %f", float(m_FrameTimer.getElapsedTimeFromLastQueryMilliseconds()) / 1000.f);
 }
 
@@ -445,20 +446,18 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 		debugCam->Update();
 		player->AddComponent(debugCam);
 		m_CamManager.SetDebugCamera(debugCam);
-
-		// area light
-		// auto arealight = std::make_shared<C_GLAreaLight>(player);
-		// player->AddComponent(arealight);
-		//
-		// m_ShadowPass = std::make_shared<C_ShadowMapTechnique>(m_World, std::static_pointer_cast<Renderer::I_Light>( arealight));
 	}
-
+	auto atmosphereEntity = m_World->GetEntity("atmosphere");
+	if (atmosphereEntity)
 	{
 		// create default atmosphere
-		auto entity	 = m_World->GetOrCreateEntity("atmosphere");
-		auto sunComp = std::make_shared<Renderer::C_SunLight>(entity);
+		auto sunComp = std::make_shared<Renderer::C_SunLight>(atmosphereEntity);
 		m_SunShadow	 = std::make_shared<C_SunShadowMapTechnique>(sunComp);
-		entity->AddComponent(sunComp);
+		atmosphereEntity->AddComponent(sunComp);
+	}
+	else
+	{
+		m_SunShadow = nullptr;
 	}
 }
 

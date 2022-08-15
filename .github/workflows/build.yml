@@ -31,6 +31,9 @@ jobs:
         run: |
           git submodule init
           git submodule update
+      - name: Set up g++-10
+        run: |
+          cd /usr/bin && sudo ln -f g++-10 g++
       - name: update
         run: sudo apt update
       - name: Get X11
@@ -38,7 +41,7 @@ jobs:
       - name: Get uuid
         run: sudo apt-get install uuid-dev
       - name: Premake
-        run: | 
+        run: |
             sudo chmod +x Tools/Premake5/premake5
             sudo Tools/Premake5/premake5 gmake2
       - name: Build
@@ -60,14 +63,9 @@ jobs:
         run: |
           git submodule init
           git submodule update
-      - name: Get premake5
-        shell: powershell
-        run: |
-          Invoke-WebRequest -Uri "https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-windows.zip" -OutFile "premake.zip"
-          Expand-Archive -Path premake.zip
       - name: Generate solution
         shell: cmd
-        run: premake\premake5 --glfwapi=${{ matrix.glfwapi }} vs2019
+        run: Tools\Premake5\premake5.exe --glfwapi=${{ matrix.glfwapi }} vs2019
       - name: Build
         shell: cmd
         run: msbuild Engine.sln /p:Configuration=${{ matrix.configuration }} -maxCpuCount

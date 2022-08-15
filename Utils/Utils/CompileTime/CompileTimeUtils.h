@@ -16,7 +16,14 @@ template <int32_t Value> struct require_at_compile_time {
 	static constexpr const int32_t value = Value;
 };
 
-#define __FILENAME__ (__FILE__ + require_at_compile_time<basename_index(__FILE__)>::value)
+// Solve random crashes in __FILENAME__ on GCC, temporary solution as I would like
+// to migrate to the C++20 anyway
+#ifdef __cpp_lib_source_location
+	#include <source_location>
+	#define __FILENAME__ std::source_location::current().file_name()
+#else
+	#define __FILENAME__ (__FILE__ + require_at_compile_time<basename_index(__FILE__)>::value)
+#endif
 
 //=================================================================================
 struct T_IndexOfType {

@@ -15,11 +15,13 @@ struct S_SunLight : public Shaders::I_GLSLStruct<S_SunLight> {
 	Shaders::C_StructDescriptor GetDescriptionImpl() const;
 	std::string					GetNameImpl() const;
 
-	glm::vec3		  m_SunPosition;
-	float			  m_SunDiscMultiplier;
-	Colours::T_Colour m_SunColor;
-	float			  m_AsymetricFactor; // mie scattering [0,1]
-	glm::mat4		  m_LightViewProjection;
-	std::uint64_t	  m_SunShadowMap;
+	glm::vec3				 m_SunPosition;
+	float					 m_SunDiscMultiplier;
+	Colours::T_Colour		 m_SunColor;
+	float					 m_AsymetricFactor; // mie scattering [0,1]
+	glm::mat4				 m_LightViewProjection;
+	int						 m_SunlightPresent;
+	Utils::Padding<float, 1> gap1;
+	std::uint64_t			 m_SunShadowMap;
 };
 } // namespace GLEngine::GLRenderer

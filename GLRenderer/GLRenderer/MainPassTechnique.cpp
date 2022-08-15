@@ -65,6 +65,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 
 	std::size_t pointLightIndex = 0;
 	std::size_t areaLightIndex	= 0;
+	bool		sunLightFound	= false;
 	for (auto& entity : entitiesInView)
 	{
 		for (const auto& lightIt : entity->GetComponents(Entity::E_ComponentType::Light))
@@ -112,6 +113,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				light.m_DirX		  = dirX;
 				light.m_Color		  = areaLight->DiffuseColour();
 				light.m_SpecularColor = areaLight->SpecularColour();
+				light.m_Intensity	  = 1.f;
 
 				areaLight->DebugDraw(&C_DebugDraw::Instance());
 				m_LightsUBO->SetAreaLight(light, areaLightIndex);
@@ -127,12 +129,17 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				m_LightsUBO->GetSunLight().m_SunDiscMultiplier	 = sunLight->SunDiscMultiplier();
 				m_LightsUBO->GetSunLight().m_LightViewProjection = m_SunViewProjection;
 				m_LightsUBO->GetSunLight().m_SunShadowMap		 = m_SunShadowMap;
+				m_LightsUBO->GetSunLight().m_SunlightPresent	 = 1;
+				sunLightFound									 = true;
 
 				C_DebugDraw::Instance().DrawPoint(sunLight->GetSunDirection(), Colours::yellow);
 				C_DebugDraw::Instance().DrawLine({0.f, 0.f, 0.f}, sunLight->GetSunDirection(), Colours::yellow);
 			}
 		}
 	}
+
+	if (sunLightFound == false)
+		m_LightsUBO->GetSunLight().m_SunlightPresent = 0;
 
 	bool materialsHaveChanged = false;
 	{
