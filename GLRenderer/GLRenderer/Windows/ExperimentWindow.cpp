@@ -66,14 +66,14 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	, m_Samples("Frame Times")
 	, m_GammaSlider(2.2f, 1.f, 5.f, "Gamma")
 	, m_ExposureSlider(1.f, .1f, 10.f, "Exposure")
-	, m_VSync(false)
+	, m_VSync(true)
 	, m_HDRFBO(nullptr)
 	, m_World(std::make_shared<Entity::C_EntityManager>())
 	, m_MainPass(nullptr)
 	, m_ShadowPass(nullptr)
 	, m_GUITexts({{GUI::C_FormatedText("Avg frame time {:.2f}"), GUI::C_FormatedText("Avg fps {:.2f}"), GUI::C_FormatedText("Min/max frametime {:.2f}/{:.2f}")}})
 	, m_Windows(std::string("Windows"))
-	, m_EditorLayer(*&C_DebugDraw::Instance(), GetInput(), {0,0, GetSize()}) //< viewport could be different from windowsize in the future
+	, m_EditorLayer(*&C_DebugDraw::Instance(), GetInput(), {0, 0, GetSize()}) //< viewport could be different from windowsize in the future
 {
 	glfwMakeContextCurrent(m_Window);
 
