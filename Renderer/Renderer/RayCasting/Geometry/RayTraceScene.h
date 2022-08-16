@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Renderer/RendererApi.h>
-
 #include <Renderer/Textures/TextureView.h>
 
 namespace GLEngine::Physics::Primitives {
@@ -45,7 +44,7 @@ private:
 	std::vector<std::shared_ptr<I_RayGeometryObject>>	   m_Objects;
 	std::vector<std::shared_ptr<RayTracing::C_AreaLight>>  m_AreaLights;
 	std::vector<std::shared_ptr<RayTracing::C_PointLight>> m_PointLights;
-	std::vector<I_TextureViewStorage*>					   m_Textures;
+	std::vector<std::unique_ptr<I_TextureViewStorage>>	   m_Textures;
 };
 
 } // namespace GLEngine::Renderer

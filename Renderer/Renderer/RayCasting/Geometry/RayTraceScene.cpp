@@ -103,6 +103,8 @@ C_RayTraceScene::C_RayTraceScene()
 		AddObejct(std::move(sphere));
 	}
 
+	constexpr bool discLight = false;
+	if (discLight)
 	{
 		// light
 		const glm::vec3 lightNormal = glm::normalize(glm::vec3(0, -1.0, 0));
@@ -113,6 +115,18 @@ C_RayTraceScene::C_RayTraceScene()
 
 		auto areaLight = std::make_shared<RayTracing::C_AreaLight>(5.f * glm::vec3(1.f, 1.f, .3f), areaLightDisc);
 		AddLight(std::move(areaLight));
+	}
+	else
+	{
+		// ceiling
+		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-1.f, 1.5f - .01f, 1.f}, {-1.f, 1.5f - .01f, -1.f}, {1.f, 1.5f - .01f, -1.f}));
+		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-1.f, 1.5f - .01f, 1.f}, {1.f, 1.5f - .01f, -1.f}, {1.f, 1.5f - .01f, 1.f}));
+		triangle->SetMaterial(white);
+		triangle1->SetMaterial(white);
+		auto areaLight = std::make_shared<RayTracing::C_AreaLight>(5.f * glm::vec3(1.f, 1.f, .3f) * 0.5f, triangle);
+		AddLight(std::move(areaLight));
+		auto areaLight1 = std::make_shared<RayTracing::C_AreaLight>(5.f * glm::vec3(1.f, 1.f, .3f) * 0.5f, triangle1);
+		AddLight(std::move(areaLight1));
 	}
 
 	if (false)
@@ -161,13 +175,7 @@ C_RayTraceScene::C_RayTraceScene()
 }
 
 //=================================================================================
-C_RayTraceScene::~C_RayTraceScene()
-{
-  for (auto* texture : m_Textures)
-  {
-	  delete texture;
-  }
-}
+C_RayTraceScene::~C_RayTraceScene() = default;
 
 //=================================================================================
 bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, float offset) const
@@ -263,7 +271,7 @@ void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh)
 //=================================================================================
 const C_TextureView C_RayTraceScene::GetTextureView(int textureID) const
 {
-	return C_TextureView(m_Textures[textureID]);
+	return C_TextureView(m_Textures[textureID].get());
 }
 
 } // namespace GLEngine::Renderer

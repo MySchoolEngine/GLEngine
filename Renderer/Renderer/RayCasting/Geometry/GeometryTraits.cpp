@@ -92,4 +92,22 @@ void T_GeometryTraits::FillIntersection(const Physics::Primitives::S_Triangle& t
 	intersection = C_RayIntersection(S_Frame(triangle.GetNormal()), ray.origin + ray.direction * t, Physics::Primitives::S_Ray(ray));
 }
 
+//=================================================================================
+glm::vec3 T_GeometryTraits::GetNormal(const Physics::Primitives::S_Triangle& triangle)
+{
+	return triangle.GetNormal();
+}
+
+//=================================================================================
+glm::vec3 T_GeometryTraits::GetNormal(const Physics::Primitives::S_Plane& plane)
+{
+	return plane.normal;
+}
+
+//=================================================================================
+glm::vec3 T_GeometryTraits::GetNormal(const Physics::Primitives::S_Disc& disc)
+{
+	return disc.plane.normal;
+}
+
 } // namespace GLEngine::Renderer::RayTracing
