@@ -226,8 +226,6 @@ Colours::T_Colour C_RayRenderer::Li_PathTrace(Physics::Primitives::S_Ray ray, C_
 		else
 			model = std::make_unique<C_SpecularReflection>(1.0f, 1.5f);
 
-		
-
 		// add Li
 		Colours::T_Colour Li = Li_LightSampling(ray, rnd);
 		LoDirect += Li * throughput;
@@ -245,19 +243,16 @@ Colours::T_Colour C_RayRenderer::Li_PathTrace(Physics::Primitives::S_Ray ray, C_
 
 		GLE_ASSERT(wi.y >= 0, "Wrong direction of the ray!");
 
-		// direct ray to the light intersection
-		// if (intersect.IsLight())
-		// {
-		// 	auto light = intersect.GetLight();
-		// 	LoDirect += light->Le() * throughput * f;
-		// }
+		// russian roulete after first 3 bounces!
+		if (i > 3)
+		{
+			const auto	survProb = std::min(1.f, glm::compMax(throughput));
+			const float random	 = rnd.GetD();
+			if (random >= survProb)
+				break;
 
-		const auto survProb = std::min(1.f, glm::compMax(throughput));
-		const float random	 = rnd.GetD();
-		if (random >= survProb)
-			break;
-
-		throughput /= survProb;
+			throughput /= survProb;
+		}
 
 		// generate new ray
 		ray.origin	  = intersect.GetIntersectionPoint();

@@ -270,7 +270,7 @@ void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh)
 	trimesh->AddMesh(mesh);
 	AddObejct(trimesh);
 #endif
-	CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
+	CORE_LOG(E_Level::Warning, E_Context::Render, "Raytracing add mesh: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
 }
 
 //=================================================================================
