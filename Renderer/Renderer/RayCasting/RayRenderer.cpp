@@ -127,7 +127,7 @@ void C_RayRenderer::AddSample(const glm::ivec2 coord, C_TextureView view, const 
 //=================================================================================
 Colours::T_Colour C_RayRenderer::PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler& rnd)
 {
-	return Li_PathTrace(ray, rnd, 0);
+	return Li_PathTrace(ray, rnd);
 }
 
 //=================================================================================
@@ -184,63 +184,85 @@ Colours::T_Colour C_RayRenderer::Li_Direct(const Physics::Primitives::S_Ray& ray
 }
 
 //=================================================================================
-Colours::T_Colour C_RayRenderer::Li_PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler& rnd, int currentDepth)
+Colours::T_Colour C_RayRenderer::Li_PathTrace(Physics::Primitives::S_Ray ray, C_STDSampler& rnd)
 {
 	Colours::T_Colour LoDirect = Colours::black; // f in his example
+	Colours::T_Colour throughput = Colours::white;
 
 	C_RayIntersection intersect;
 	// first primary ray
-	if (!m_Scene.Intersect(ray, intersect, 1e-3f))
-		return Colours::black;
 
-	const auto& frame		  = intersect.GetFrame();
-	const auto& point		  = intersect.GetIntersectionPoint();
-	const auto* material	  = intersect.GetMaterial();
-	const auto	uv			  = intersect.GetUV();
-	auto		diffuseColour = glm::vec3(material->diffuse);
-	if (material->textureIndex != -1)
+	int i = 0;
+
+	while (true)
 	{
-		diffuseColour = m_Scene.GetTextureView(material->textureIndex).Get<glm::vec3, T_Bilinear>(uv);
-	}
+		if (!m_Scene.Intersect(ray, intersect, 1e-3f))
+			return LoDirect; // here the background colour goes
 
-	std::unique_ptr<I_ReflectionModel> model = nullptr;
-	if (material->shininess==0.f)
-		model = std::make_unique<C_LambertianModel>(diffuseColour);
-	else
-		model = std::make_unique<C_SpecularReflection>(1.0f, 1.5f);
+		if (i == 0) {
+			if (intersect.IsLight())
+			{
+				auto light = intersect.GetLight();
+				LoDirect += throughput * light->Le();
+			}
+		}
 
-	const auto wol = frame.ToLocal(-ray.direction);
+		if (i >= 5)
+			break;
 
-	constexpr int N = 4;
+		const auto& frame		  = intersect.GetFrame();
+		const auto& point		  = intersect.GetIntersectionPoint();
+		const auto* material	  = intersect.GetMaterial();
+		const auto	uv			  = intersect.GetUV();
+		auto		diffuseColour = glm::vec3(material->diffuse);
+		if (material->textureIndex != -1)
+		{
+			diffuseColour = m_Scene.GetTextureView(material->textureIndex).Get<glm::vec3, T_Bilinear>(uv);
+		}
 
-	for (int i = 0; i < N; ++i)
-	{
+		std::unique_ptr<I_ReflectionModel> model = nullptr;
+		if (material->shininess == 0.f)
+			model = std::make_unique<C_LambertianModel>(diffuseColour);
+		else
+			model = std::make_unique<C_SpecularReflection>(1.0f, 1.5f);
+
+		
+
+		// add Li
+		Colours::T_Colour Li = Li_LightSampling(ray, rnd);
+		LoDirect += Li * throughput;
+
+		const auto wol = frame.ToLocal(-ray.direction);
+
 		glm::vec3  wi;
 		float	   pdf;
 		const auto f = model->SampleF(wol, wi, frame, rnd.GetV2(), &pdf);
 
+		if (f == glm::vec3(0, 0, 0) || pdf == 0.f)
+			break;
+
+		throughput *= f * wi.y / pdf; 
+
 		GLE_ASSERT(wi.y >= 0, "Wrong direction of the ray!");
+
+		// direct ray to the light intersection
+		// if (intersect.IsLight())
+		// {
+		// 	auto light = intersect.GetLight();
+		// 	LoDirect += light->Le() * throughput * f;
+		// }
+
+		const auto survProb = std::min(1.f, glm::compMax(throughput));
+		const float random	 = rnd.GetD();
+		if (random >= survProb)
+			break;
+
+		throughput /= survProb;
 
 		// generate new ray
 		ray.origin	  = intersect.GetIntersectionPoint();
 		ray.direction = frame.ToWorld(wi);
-
-		// add Li
-		if (currentDepth < m_MaxDepth)
-		{
-			// recursion
-			Colours::T_Colour Li = Li_PathTrace(ray, rnd, currentDepth + 1);
-			LoDirect += Colours::T_Colour(f.x * Li.x, f.y * Li.y, f.z * Li.z) * wi.y / pdf;
-		}
-	}
-
-	LoDirect /= N;
-
-	// direct ray to the light intersection
-	if (intersect.IsLight())
-	{
-		auto light = intersect.GetLight();
-		LoDirect += light->Le();
+		++i;
 	}
 
 	return LoDirect;
@@ -286,8 +308,12 @@ Colours::T_Colour C_RayRenderer::Li_LightSampling(const Physics::Primitives::S_R
 			{
 				diffuseColour = m_Scene.GetTextureView(material->textureIndex).Get<glm::vec3, T_Bilinear>(uv);
 			}
-			C_LambertianModel model(diffuseColour);
-			LoDirect += illum * model.f(frame.ToLocal(ray.direction), frame.ToLocal(vis.GetRay().direction));
+			std::unique_ptr<I_ReflectionModel> model = nullptr;
+			if (material->shininess == 0.f)
+				model = std::make_unique<C_LambertianModel>(diffuseColour);
+			else
+				model = std::make_unique<C_SpecularReflection>(1.0f, 1.5f);
+			LoDirect += illum * model->f(frame.ToLocal(ray.direction), frame.ToLocal(vis.GetRay().direction));
 		}
 	});
 
