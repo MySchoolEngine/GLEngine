@@ -137,7 +137,12 @@ C_RayTraceScene::C_RayTraceScene()
 		Mesh::ModelLoader		 ml;
 		ml.Reset();
 		if (ml.addModelFromFileToScene("Models/sword/baphomet-sword-mostruario.obj", scene, textures))
-			AddMesh(scene->meshes[0]);
+		{
+			for (int i = 0; i < scene->meshes.size(); ++i)
+			{
+				AddMesh(scene->meshes[i]);
+			}
+		}
 	}
 #else
 	auto							plane = std::make_shared<C_Primitive<S_Plane>>(S_Plane(glm::vec3(1, 0, 0), {-3.f, 0.f, 0.f}));
@@ -246,7 +251,7 @@ void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh)
 {
 	Utils::HighResolutionTimer renderTime;
 	using namespace Physics::Primitives;
-	static const MeshData::Material blue{glm::vec4{}, glm::vec4{0, 0, 255, 0}, glm::vec4{}, 1.f, 0};
+	static const MeshData::Material blue{glm::vec4{}, glm::vec4(Colours::blue, 0.f), glm::vec4{}, 0.f, -1};
 //#define OLD_TRIMESH
 #ifdef OLD_TRIMESH
 	auto list = std::make_shared<C_GeometryList>();
