@@ -53,13 +53,13 @@ Colours::T_Colour C_PathIntegrator::Li_Direct(const Physics::Primitives::S_Ray& 
 	{
 		diffuseColour = m_Scene.GetTextureView(material->textureIndex).Get<glm::vec3, T_Bilinear>(uv);
 	}
-	C_LambertianModel model(diffuseColour);
+	const std::unique_ptr<I_ReflectionModel> model = GetReflectionModel(material, diffuseColour);
 
 	const auto wol = frame.ToLocal(-ray.direction);
 
 	glm::vec3  wi;
 	float	   pdf;
-	const auto f = model.SampleF(wol, wi, frame, rnd.GetV2(), &pdf);
+	const auto f = model->SampleF(wol, wi, frame, rnd.GetV2(), &pdf);
 
 	GLE_ASSERT(wi.y > 0, "Wrong direction of the ray!");
 
@@ -118,11 +118,7 @@ Colours::T_Colour C_PathIntegrator::Li_PathTrace(Physics::Primitives::S_Ray ray,
 			diffuseColour = m_Scene.GetTextureView(material->textureIndex).Get<glm::vec3, T_Bilinear>(uv);
 		}
 
-		std::unique_ptr<I_ReflectionModel> model = nullptr;
-		if (material->shininess == 0.f)
-			model = std::make_unique<C_LambertianModel>(diffuseColour);
-		else
-			model = std::make_unique<C_SpecularReflection>(PhysicalProperties::IOR::Air, PhysicalProperties::IOR::Glass);
+		const std::unique_ptr<I_ReflectionModel> model = GetReflectionModel(material, diffuseColour);
 
 		// add Li
 		Colours::T_Colour Li = Li_LightSampling(ray, rnd);
@@ -201,16 +197,21 @@ Colours::T_Colour C_PathIntegrator::Li_LightSampling(const Physics::Primitives::
 			{
 				diffuseColour = m_Scene.GetTextureView(material->textureIndex).Get<glm::vec3, T_Bilinear>(uv);
 			}
-			std::unique_ptr<I_ReflectionModel> model = nullptr;
-			if (material->shininess == 0.f)
-				model = std::make_unique<C_LambertianModel>(diffuseColour);
-			else
-				model = std::make_unique<C_SpecularReflection>(1.0f, 1.5f);
+			const std::unique_ptr<I_ReflectionModel> model = GetReflectionModel(material, diffuseColour);
 			LoDirect += illum * model->f(frame.ToLocal(ray.direction), frame.ToLocal(vis.GetRay().direction));
 		}
 	});
 
 	return LoDirect;
+}
+
+//=================================================================================
+std::unique_ptr<Renderer::I_ReflectionModel> C_PathIntegrator::GetReflectionModel(const MeshData::Material* material, Colours::T_Colour& colour) const
+{
+	if (material->shininess == 0.f)
+		return std::make_unique<C_LambertianModel>(colour);
+	else
+		return std::make_unique<C_SpecularReflection>(PhysicalProperties::IOR::Air, PhysicalProperties::IOR::Glass);
 }
 
 } // namespace GLEngine::Renderer
