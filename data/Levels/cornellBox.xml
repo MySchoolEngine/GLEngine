@@ -49,7 +49,7 @@
 			</Components>
 		</Entity>
 		<Entity name="sphere1">
-			<translate sid="location">-1.5 -1.5 -1.5</translate>
+			<translate sid="location">-1.5 -1.0 -1.5</translate>
 			<Components>
 				<staticMesh filePath="sphere.obj" material="basicTracing" shadowPassShader="shadowPass">
 					<color>0 0 1</color>

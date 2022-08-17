@@ -16,14 +16,41 @@ class C_RayIntersection;
 namespace GLEngine::Renderer::RayTracing {
 class C_AreaLight : public I_RayLight {
 public:
-	C_AreaLight(const Colours::T_Colour& radiance, const std::shared_ptr<C_Primitive<Physics::Primitives::S_Disc>>& shape);
+	template <class primitiveT>
+	C_AreaLight(const Colours::T_Colour& radiance, const std::shared_ptr<C_Primitive<primitiveT>>& shape)
+		: m_Radiance(radiance)
+		, m_Shape(std::make_unique<Geometry<primitiveT>>(shape))
+	{
+	}
 	[[nodiscard]] virtual Colours::T_Colour SampleLi(const C_RayIntersection& intersection, I_Sampler* rnd, S_VisibilityTester& vis, float* pdf) const override;
 	[[nodiscard]] virtual Colours::T_Colour Le() const override;
 
 	[[nodiscard]] std::shared_ptr<I_RayGeometryObject> GetGeometry() const;
 
 private:
-	Colours::T_Colour										  m_Radiance;
-	std::shared_ptr<C_Primitive<Physics::Primitives::S_Disc>> m_Shape;
+	// type erasure due to bad architecture
+	struct GeometryBase {
+		virtual float								 Area() const					   = 0;
+		virtual glm::vec3							 Normal() const					   = 0;
+		virtual glm::vec3							 SamplePoint(I_Sampler* rnd) const = 0;
+		virtual std::shared_ptr<I_RayGeometryObject> GetGeometry() const			   = 0;
+	};
+
+	template <class primitiveT>
+	struct Geometry : public GeometryBase {
+		Geometry(std::shared_ptr<C_Primitive<primitiveT>> pShape)
+			: shape(pShape)
+		{
+		}
+		virtual float								 Area() const override { return shape->Area(); }
+		virtual glm::vec3							 Normal() const override { return RayTracing::T_GeometryTraits::GetNormal(shape->m_Primitive); }
+		virtual glm::vec3							 SamplePoint(I_Sampler* rnd) const override { return RayTracing::T_GeometryTraits::SamplePoint(shape->m_Primitive, rnd); }
+		virtual std::shared_ptr<I_RayGeometryObject> GetGeometry() const override { return shape; }
+
+		std::shared_ptr<C_Primitive<primitiveT>> shape;
+	};
+
+	Colours::T_Colour			  m_Radiance; // TODO: Terrible choice. Radiance is bad choice
+	std::unique_ptr<GeometryBase> m_Shape;
 };
 } // namespace GLEngine::Renderer::RayTracing
