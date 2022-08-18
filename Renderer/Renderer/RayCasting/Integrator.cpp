@@ -4,12 +4,13 @@
 #include <Renderer/RayCasting/Generator/Sampler.h>
 #include <Renderer/RayCasting/Geometry/RayTraceScene.h>
 #include <Renderer/RayCasting/Integrator.h>
+#include <Renderer/RayCasting/Light/BackgroundLight.h>
 #include <Renderer/RayCasting/Light/ILight.h>
+#include <Renderer/RayCasting/PhysicalProperties.h>
 #include <Renderer/RayCasting/RayIntersection.h>
 #include <Renderer/RayCasting/ReflectionModels/LambertianModel.h>
 #include <Renderer/RayCasting/ReflectionModels/SpecularReflection.h>
 #include <Renderer/RayCasting/VisibilityTester.h>
-#include <Renderer/RayCasting/PhysicalProperties.h>
 
 #include <glm/gtx/component_wise.hpp>
 
@@ -89,12 +90,17 @@ Colours::T_Colour C_PathIntegrator::Li_PathTrace(Physics::Primitives::S_Ray ray,
 	C_RayIntersection intersect;
 	// first primary ray
 
+	RayTracing::C_BackgroundLight bgLight(glm::vec3(135, 206, 250) / glm::vec3(255.f));
+
 	int i = 0;
 
 	while (true)
 	{
 		if (!m_Scene.Intersect(ray, intersect, 1e-3f))
-			return LoDirect; // here the background colour goes
+		{
+			LoDirect += throughput * bgLight.Le();
+			break;
+		}
 
 		if (i == 0)
 		{
