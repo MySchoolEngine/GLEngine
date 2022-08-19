@@ -34,7 +34,7 @@ public:
 	void			   AddObejct(std::shared_ptr<I_RayGeometryObject>&& object);
 	void			   AddLight(std::shared_ptr<RayTracing::C_AreaLight>&& light);
 	void			   AddLight(std::shared_ptr<RayTracing::C_PointLight>&& light);
-	void			   AddMesh(const MeshData::Mesh& mesh);
+	void			   AddMesh(const MeshData::Mesh& mesh, const MeshData::Material& material);
 
 	void ForEachLight(std::function<void(const std::reference_wrapper<const RayTracing::I_RayLight>& light)> fnc) const;
 

@@ -247,18 +247,17 @@ void C_RayTraceScene::ForEachLight(std::function<void(const std::reference_wrapp
 }
 
 //=================================================================================
-void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh)
+void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh, const MeshData::Material& material)
 {
 	Utils::HighResolutionTimer renderTime;
 	using namespace Physics::Primitives;
-	static const MeshData::Material blue{glm::vec4{}, glm::vec4(Colours::blue, 0.f), glm::vec4{}, 0.f, -1};
 //#define OLD_TRIMESH
 #ifdef OLD_TRIMESH
 	auto list = std::make_shared<C_GeometryList>();
 	for (auto it = mesh.vertices.begin(); it != mesh.vertices.end(); it += 3)
 	{
 		auto triangle = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle(glm::vec3(*it), glm::vec3(*(it + 1)), glm::vec3(*(it + 2))));
-		triangle->SetMaterial(blue);
+		triangle->SetMaterial(material);
 		list->AddObject(triangle);
 	}
 
@@ -266,8 +265,9 @@ void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh)
 	AddObejct(list);
 #else
 	auto trimesh = std::make_shared<C_Trimesh>();
-	trimesh->SetMaterial(blue);
+	trimesh->SetMaterial(material);
 	trimesh->AddMesh(mesh);
+	trimesh->SetTransformation(glm::translate(glm::mat4(1.f), glm::vec3(0, -1.5f, 0)) * glm::scale(glm::mat4(1.f), glm::vec3(0.5f, 0.5f, 0.5f)));
 	AddObejct(trimesh);
 #endif
 	CORE_LOG(E_Level::Warning, E_Context::Render, "Raytracing add mesh: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
