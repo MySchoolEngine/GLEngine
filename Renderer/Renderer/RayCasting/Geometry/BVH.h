@@ -22,16 +22,17 @@ private:
 
 	struct BVHNode {
 		Physics::Primitives::S_AABB aabb;
-		BVHNode*					left  = nullptr;
-		BVHNode*					right = nullptr;
+		unsigned int				left  = -1;
+		unsigned int				right = -1;
 		unsigned int				firstTrig, lastTrig; // index of first vertex
 	};
+	using NodeID = unsigned int;
 	[[nodiscard]] bool IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, const BVHNode* node) const;
 	void			   DebugDrawNode(I_DebugDraw* dd, const glm::mat4& modelMatrix, const BVHNode* node) const;
-	void			   SplitBVHNode(BVHNode* node, unsigned int level);
-	void			   DeleteNode(BVHNode* node);
+	// using NodeID because the vector is being reallocated on the way
+	void			   SplitBVHNode(NodeID node, unsigned int level);
 
 	std::vector<glm::vec3>& m_Storage;
-	BVHNode*				m_Root;
+	std::vector<BVHNode>	m_Nodes;
 };
 } // namespace GLEngine::Renderer
