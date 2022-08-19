@@ -156,10 +156,6 @@ void C_DebugDraw::DrawPoint(const glm::vec3& point, const Colours::T_Colour& col
 //=================================================================================
 void C_DebugDraw::DrawAABB(const Physics::Primitives::S_AABB& bbox, const Colours::T_Colour& color, const glm::mat4& modelMatrix)
 {
-	auto& shdManager = Shaders::C_ShaderManager::Instance();
-	auto  program	 = Shaders::C_ShaderManager::Instance().GetProgram(s_DebugShaderName);
-	shdManager.ActivateShader(program);
-
 	glm::vec3 size		= bbox.m_Max - bbox.m_Min;
 	glm::vec3 center	= (bbox.m_Max + bbox.m_Min) / 2.0f; // glm::vec3((min_x + max_x) / 2, (min_y + max_y) / 2, (min_z + max_z) / 2);
 	glm::mat4 transform = glm::translate(glm::mat4(1), center) * glm::scale(glm::mat4(1), size);
