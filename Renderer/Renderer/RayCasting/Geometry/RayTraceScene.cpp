@@ -89,13 +89,14 @@ C_RayTraceScene::C_RayTraceScene()
 		AddObejct(triangle1);
 	}
 
-	{
+	if(false){
 		// sphere
 		auto sphere = std::make_shared<C_Primitive<S_Sphere>>(S_Sphere{{-1.5f, -1.f, -1.5f}, 1.f});
 		sphere->SetMaterial(blueMirror);
 		AddObejct(std::move(sphere));
 	}
 
+	if (false)
 	{
 		// sphere
 		auto sphere = std::make_shared<C_Primitive<S_Sphere>>(S_Sphere{{.8f, 0.f, .5f}, 1.f});
@@ -140,7 +141,24 @@ C_RayTraceScene::C_RayTraceScene()
 		{
 			for (int i = 0; i < scene->meshes.size(); ++i)
 			{
-				AddMesh(scene->meshes[i]);
+				AddMesh(scene->meshes[i], blue);
+			}
+		}
+	}
+
+	if (true)
+	{
+		// model
+		auto					 scene = std::make_shared<MeshData::Scene>();
+		std::vector<std::string> textures;
+		Mesh::ModelLoader		 ml;
+		ml.Reset();
+		const MeshData::Material* materials[4] = {&blue, &red, &green, &white};
+		if (ml.addModelFromFileToScene("Models/dragon/Dragon_Busts_Gerhald3D.obj", scene, textures))
+		{
+			for (int i = 0; i < scene->meshes.size(); ++i)
+			{
+				AddMesh(scene->meshes[i], *materials[i]);
 			}
 		}
 	}
@@ -271,7 +289,7 @@ void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh, const MeshData::Materi
 	m_Trimeshes.push_back(trimesh);
 	AddObejct(trimesh);
 #endif
-	CORE_LOG(E_Level::Warning, E_Context::Render, "Raytracing add mesh: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
+	CORE_LOG(E_Level::Info, E_Context::Render, "Raytracing add mesh: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
 }
 
 //=================================================================================

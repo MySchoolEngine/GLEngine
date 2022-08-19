@@ -50,6 +50,9 @@ private:
 	std::vector<std::shared_ptr<RayTracing::C_AreaLight>>  m_AreaLights;
 	std::vector<std::shared_ptr<RayTracing::C_PointLight>> m_PointLights;
 	std::vector<std::unique_ptr<I_TextureViewStorage>>	   m_Textures;
+
+	// aux
+	std::vector<std::shared_ptr<C_Trimesh>> m_Trimeshes;
 };
 
 } // namespace GLEngine::Renderer

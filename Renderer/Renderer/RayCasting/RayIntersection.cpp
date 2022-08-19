@@ -75,4 +75,11 @@ void C_RayIntersection::SetLight(const std::shared_ptr<RayTracing::I_RayLight>& 
 	m_Light = light;
 }
 
+//=================================================================================
+void C_RayIntersection::TransformRayAndPoint(const glm::mat4& mat)
+{
+	m_Point = mat * glm::vec4(m_Point, 1.f);
+	m_Ray.origin = mat * glm::vec4(m_Ray.origin, 1.f);
+}
+
 } // namespace GLEngine::Renderer

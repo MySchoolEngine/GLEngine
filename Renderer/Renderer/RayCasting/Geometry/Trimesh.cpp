@@ -1,16 +1,26 @@
 #include <RendererStdafx.h>
 
+#include <Renderer/DebugDraw.h>
 #include <Renderer/RayCasting/Geometry/Trimesh.h>
 #include <Renderer/RayCasting/RayIntersection.h>
 
 #include <Physics/GeometryUtils/TriangleIntersect.h>
 
+#include <Utils/HighResolutionTimer.h>
 #include <Utils/Range.h>
 
 #include <algorithm>
 
 
 namespace GLEngine::Renderer {
+
+
+//=================================================================================
+C_Trimesh::~C_Trimesh()
+{
+	if (m_BVH)
+		delete m_BVH;
+}
 
 //=================================================================================
 void C_Trimesh::AddTriangle(const Physics::Primitives::S_Triangle& triangle)
@@ -35,14 +45,27 @@ void C_Trimesh::AddTriangle(const Physics::Primitives::S_Triangle& triangle, con
 }
 
 //=================================================================================
-bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
+bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersection& intersection) const
 {
-	if (m_Vertices.size() > 3 * 5 && m_AABB.IntersectImpl(ray) <= 0.f)
+	const auto ray = Physics::Primitives::S_Ray{m_TransofrmInv * glm::vec4(rayIn.origin, 1.f), rayIn.direction};
+	// we have AABB translated already, so we use original ray
+	if (m_Vertices.size() > 3 * 5 && m_AABB.IntersectImpl(rayIn) <= 0.f)
 		return false;
 
+	if (m_BVH)
+	{
+		if (m_BVH->Intersect(ray, intersection))
+		{
+			intersection.SetMaterial(&GetMaterial());
+			intersection.TransformRayAndPoint(m_Transofrm);
+			return true;
+		}
+		return false;
+	}
+
 	struct S_IntersectionInfo {
-		C_RayIntersection					 intersection;
-		float								 t;
+		C_RayIntersection intersection;
+		float			  t;
 
 		[[nodiscard]] bool operator<(const S_IntersectionInfo& a) const { return t < a.t; }
 	};
@@ -57,7 +80,7 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersecti
 		const auto		 length = Physics::TraingleRayIntersect(triDef, ray, &barycentric);
 		if (length > 0.0f)
 		{
-			auto normal = glm::cross(m_Vertices[i + 1] - m_Vertices[i], m_Vertices[i + 2] - m_Vertices[i]);
+			auto	   normal = glm::cross(m_Vertices[i + 1] - m_Vertices[i], m_Vertices[i + 2] - m_Vertices[i]);
 			const auto area	  = glm::length(normal) / 2.f;
 			normal			  = glm::normalize(normal);
 			C_RayIntersection inter(S_Frame(normal), ray.origin + length * ray.direction, Physics::Primitives::S_Ray(ray));
@@ -80,6 +103,7 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersecti
 
 
 	intersection = intersections[0].intersection;
+	intersection.TransformRayAndPoint(m_Transofrm);
 	return true;
 }
 
@@ -89,8 +113,26 @@ void C_Trimesh::AddMesh(const MeshData::Mesh& mesh)
 	std::transform(mesh.vertices.begin(), mesh.vertices.end(), std::back_inserter(m_Vertices), [](const glm::vec4& i) { return glm::vec3(i); });
 	m_AABB = mesh.bbox;
 	GLE_ASSERT(m_Vertices.size() % 3 == 0, "Wrong number of vertices.");
+
+	Utils::HighResolutionTimer BVHBuildTime;
+	m_BVH = new BVH(m_Vertices);
+	CORE_LOG(E_Level::Info, E_Context::Render, "BVH trimesh {} build time {}ms", mesh.m_name, BVHBuildTime.getElapsedTimeFromLastQueryMilliseconds());
+}
+
+//=================================================================================
+void C_Trimesh::SetTransformation(glm::mat4 mat)
+{
+	auto invMat	   = glm::inverse(mat);
+	m_AABB		   = m_AABB.getTransformedAABB(mat);
+	m_Transofrm	   = mat;
+	m_TransofrmInv = invMat;
+}
+
+//=================================================================================
 void C_Trimesh::DebugDraw(I_DebugDraw* dd) const
 {
+	if (m_BVH)
+		m_BVH->DebugDraw(dd, m_Transofrm);
 }
 
 } // namespace GLEngine::Renderer
