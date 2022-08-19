@@ -12,6 +12,7 @@
 
 namespace GLEngine::Renderer {
 class I_CameraComponent;
+class I_DebugDraw;
 }
 
 namespace GLEngine::GLRenderer {
@@ -22,6 +23,8 @@ class C_RayTraceWindow : public GUI::C_Window {
 public:
 	C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_CameraComponent> camera, GUI::C_GUIManager& guiMGR);
 	~C_RayTraceWindow();
+
+	void DebugDraw(Renderer::I_DebugDraw* dd) const;
 
 	void RayTrace();
 	void Clear();
@@ -51,6 +54,7 @@ private:
 	Renderer::C_RayRenderer						 m_Renderer;
 	GUI::C_Image								 m_GUIImage;
 	GUI::Menu::C_Menu							 m_FileMenu;
+	GUI::Input::C_CheckBoxValue					 m_DebugDraw;
 
 	std::mutex m_ImageLock;
 };

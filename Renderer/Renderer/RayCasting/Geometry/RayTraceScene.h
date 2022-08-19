@@ -11,9 +11,12 @@ namespace GLEngine::Renderer {
 class C_RayIntersection;
 class I_RayGeometryObject;
 class I_TextureViewStorage;
+class I_DebugDraw;
+class C_Trimesh;
 
 namespace MeshData {
 struct Mesh;
+struct Material;
 }
 
 namespace RayTracing {
@@ -39,6 +42,8 @@ public:
 	void ForEachLight(std::function<void(const std::reference_wrapper<const RayTracing::I_RayLight>& light)> fnc) const;
 
 	const C_TextureView GetTextureView(int textureID) const;
+
+	void DebugDraw(I_DebugDraw* dd) const;
 
 private:
 	std::vector<std::shared_ptr<I_RayGeometryObject>>	   m_Objects;

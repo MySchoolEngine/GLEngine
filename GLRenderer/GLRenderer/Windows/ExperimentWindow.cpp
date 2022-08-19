@@ -118,6 +118,7 @@ void C_ExplerimentWindow::Update()
 																										*Utils::max_element(m_Samples));
 
 	glfwSwapInterval(m_VSync ? 1 : 0);
+	m_RayTraceWindow->DebugDraw(&C_DebugDraw::Instance());
 
 	m_World->OnUpdate();
 

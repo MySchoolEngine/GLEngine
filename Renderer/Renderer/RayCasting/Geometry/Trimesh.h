@@ -24,9 +24,12 @@ public:
 	[[nodiscard]] const Physics::Primitives::S_AABB& GetAABB() const { return m_AABB; }
 	[[nodiscard]] Physics::Primitives::S_AABB& GetAABB() { return m_AABB; }
 
+	
+	void DebugDraw(I_DebugDraw* dd) const;
+
 private:
 	std::vector<glm::vec3>		m_Vertices;
 	std::vector<glm::vec2>		m_TexCoords;
 	Physics::Primitives::S_AABB m_AABB;
 };
-}
+} // namespace GLEngine::Renderer

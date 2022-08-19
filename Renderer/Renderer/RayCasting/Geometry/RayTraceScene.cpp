@@ -268,6 +268,7 @@ void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh, const MeshData::Materi
 	trimesh->SetMaterial(material);
 	trimesh->AddMesh(mesh);
 	trimesh->SetTransformation(glm::translate(glm::mat4(1.f), glm::vec3(0, -1.5f, 0)) * glm::scale(glm::mat4(1.f), glm::vec3(0.5f, 0.5f, 0.5f)));
+	m_Trimeshes.push_back(trimesh);
 	AddObejct(trimesh);
 #endif
 	CORE_LOG(E_Level::Warning, E_Context::Render, "Raytracing add mesh: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
@@ -277,6 +278,12 @@ void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh, const MeshData::Materi
 const C_TextureView C_RayTraceScene::GetTextureView(int textureID) const
 {
 	return C_TextureView(m_Textures[textureID].get());
+}
+
+//=================================================================================
+void C_RayTraceScene::DebugDraw(I_DebugDraw* dd) const
+{
+	std::for_each(m_Trimeshes.begin(), m_Trimeshes.end(), [&](const auto& trimesh) { trimesh->DebugDraw(dd); });
 }
 
 } // namespace GLEngine::Renderer

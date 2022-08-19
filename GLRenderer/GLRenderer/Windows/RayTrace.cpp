@@ -41,6 +41,7 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_Camera
 	, m_DepthSlider(3, 1, 100, "Max path depth")
 	, m_GUIImage(m_Image)
 	, m_FileMenu("File")
+	, m_DebugDraw(false, "Debug draw")
 {
 	auto& device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
 	device.AllocateTexture(m_Image);
@@ -167,6 +168,7 @@ void C_RayTraceWindow::DrawComponents() const
 		}
 	}
 	ImGui::Text("Samples: %i", m_NumCycleSamples);
+	m_DebugDraw.Draw();
 }
 
 //=================================================================================
@@ -224,6 +226,13 @@ void C_RayTraceWindow::SaveCurrentImage(const std::filesystem::path& texture)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Ray tracer cannot save the image.");
 	}
+}
+
+//=================================================================================
+void C_RayTraceWindow::DebugDraw(Renderer::I_DebugDraw* dd) const
+{
+	if (m_DebugDraw)
+		m_Scene.DebugDraw(dd);
 }
 
 } // namespace GLEngine::GLRenderer
