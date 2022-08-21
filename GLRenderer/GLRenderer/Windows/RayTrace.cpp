@@ -143,19 +143,24 @@ void C_RayTraceWindow::Clear()
 }
 
 //=================================================================================
-void C_RayTraceWindow::DrawComponents() const
+void C_RayTraceWindow::Update()
 {
+	// This is coming from main thread, we can do updates here
 	if (StillLoadingScene())
 	{
 		// try for the complete result
 		if (m_LoadingPromise.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
 		{
-			m_Scene = m_LoadingPromise.get();
+			m_Scene	   = m_LoadingPromise.get();
 			m_Renderer = std::make_unique<Renderer::C_RayRenderer>(*m_Scene);
 		}
 	}
-	// This is coming from main thread, we can do updates here
-	const_cast<C_RayTraceWindow*>(this)->UploadStorage();
+	UploadStorage();
+}
+
+//=================================================================================
+void C_RayTraceWindow::DrawComponents() const
+{
 	const auto dim = m_ImageStorage.GetDimensions();
 	m_GUIImage.Draw();
 	if (!m_Scene)

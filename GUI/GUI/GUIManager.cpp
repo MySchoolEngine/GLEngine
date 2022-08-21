@@ -21,6 +21,11 @@ void C_GUIManager::OnUpdate()
 {
 	for (auto& it : m_Windwos)
 	{
+		it.second->Update();
+	}
+
+	for (auto& it : m_Windwos)
+	{
 		if (it.second->IsVisible())
 		{
 			it.second->Draw();
