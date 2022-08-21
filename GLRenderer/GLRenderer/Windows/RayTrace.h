@@ -13,7 +13,7 @@
 namespace GLEngine::Renderer {
 class I_CameraComponent;
 class I_DebugDraw;
-}
+} // namespace GLEngine::Renderer
 
 namespace GLEngine::GLRenderer {
 namespace Textures {
@@ -40,21 +40,23 @@ private:
 	virtual void DrawComponents() const override;
 	void		 UploadStorage();
 	void		 SaveCurrentImage(const std::filesystem::path& texture);
+	bool		 StillLoadingScene() const;
 
-	std::shared_ptr<Renderer::I_CameraComponent> m_Camera; // TODO: Should be weak? What should I do when camera moves?
-	Textures::C_Texture							 m_Image;  // The presented result, TODO: make this pointer to base class or handle so I can move this to renderer or user code
-	Renderer::C_TextureViewStorageCPU<float>	 m_ImageStorage;   // Intermediate data, could need some weighting
-	Renderer::C_TextureViewStorageCPU<float>	 m_SamplesStorage; // Intermediate data, could need some weighting
-	Renderer::C_RayTraceScene					 m_Scene;
-	std::future<void>							 m_SignalDone;		 // Signaling that work has ended, no one uses that?
-	int											 m_NumCycleSamples;	 // How many samples had been already used per pixel, Used for sampling
-	bool										 m_Running : 1;		 // Indicate that renderer is currntly running
-	bool										 m_RunningCycle : 1; // Run until stop feature
-	GUI::Input::C_Slider<int>					 m_DepthSlider;		 // How many bounces should be traced
-	Renderer::C_RayRenderer						 m_Renderer;
-	GUI::C_Image								 m_GUIImage;
-	GUI::Menu::C_Menu							 m_FileMenu;
-	GUI::Input::C_CheckBoxValue					 m_DebugDraw;
+	// 
+	std::shared_ptr<Renderer::I_CameraComponent>	 m_Camera; // TODO: Should be weak? What should I do when camera moves?
+	Textures::C_Texture								 m_Image;  // The presented result, TODO: make this pointer to base class or handle so I can move this to renderer or user code
+	Renderer::C_TextureViewStorageCPU<float>		 m_ImageStorage;   // Intermediate data, could need some weighting
+	Renderer::C_TextureViewStorageCPU<float>		 m_SamplesStorage; // Intermediate data, could need some weighting
+	mutable Renderer::C_RayTraceScene*				 m_Scene;
+	mutable std::future<Renderer::C_RayTraceScene*>	 m_LoadingPromise;	 // mutable because we call it for GUI
+	int												 m_NumCycleSamples;	 // How many samples had been already used per pixel, Used for sampling
+	bool											 m_Running : 1;		 // Indicate that renderer is currently running
+	bool											 m_RunningCycle : 1; // Run until stop feature
+	GUI::Input::C_Slider<int>						 m_DepthSlider;		 // How many bounces should be traced
+	mutable std::unique_ptr<Renderer::C_RayRenderer> m_Renderer;
+	GUI::C_Image									 m_GUIImage;
+	GUI::Menu::C_Menu								 m_FileMenu;
+	GUI::Input::C_CheckBoxValue						 m_DebugDraw;
 
 	std::mutex m_ImageLock;
 };
