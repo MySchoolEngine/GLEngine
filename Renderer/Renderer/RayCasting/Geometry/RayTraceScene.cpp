@@ -153,7 +153,7 @@ C_RayTraceScene::C_RayTraceScene()
 		std::vector<std::string> textures;
 		Mesh::ModelLoader		 ml;
 		ml.Reset();
-		const MeshData::Material* materials[4] = {&blue, &red, &green, &white};
+		const MeshData::Material* materials[4] = {&blue, &red, &blueMirror, &white};
 		if (ml.addModelFromFileToScene("Models/dragon/Dragon_Busts_Gerhald3D.obj", scene, textures))
 		{
 			for (int i = 0; i < scene->meshes.size(); ++i)

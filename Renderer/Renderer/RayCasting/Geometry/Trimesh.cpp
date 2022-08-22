@@ -48,9 +48,6 @@ void C_Trimesh::AddTriangle(const Physics::Primitives::S_Triangle& triangle, con
 bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersection& intersection) const
 {
 	const auto ray = Physics::Primitives::S_Ray{m_TransofrmInv * glm::vec4(rayIn.origin, 1.f), rayIn.direction};
-	// we have AABB translated already, so we use original ray
-	if (m_Vertices.size() > 3 * 5 && m_AABB.IntersectImpl(rayIn) <= 0.f)
-		return false;
 
 	if (m_BVH)
 	{
@@ -62,6 +59,11 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 		}
 		return false;
 	}
+
+	// we check AABB after potentional BVH to avoid double checking
+	// we have AABB translated already, so we use original ray
+	if (m_Vertices.size() > 3 * 5 && m_AABB.IntersectImpl(rayIn) <= 0.f)
+		return false;
 
 	struct S_IntersectionInfo {
 		C_RayIntersection intersection;

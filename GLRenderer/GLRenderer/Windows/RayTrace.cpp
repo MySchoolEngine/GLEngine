@@ -165,7 +165,7 @@ void C_RayTraceWindow::DrawComponents() const
 	m_GUIImage.Draw();
 	if (!m_Scene)
 	{
-		ImGui::TextColored(ImVec4(255, 0, 0, 0), "Still loading scene.");
+		ImGui::TextColored(ImVec4(1, 0, 0, 1), "Still loading scene.");
 	}
 	else if (!m_Running)
 	{
