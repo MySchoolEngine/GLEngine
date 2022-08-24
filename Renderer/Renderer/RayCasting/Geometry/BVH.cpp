@@ -163,8 +163,7 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection
 
 		[[nodiscard]] bool operator<(const S_IntersectionInfo& a) const { return t < a.t; }
 	};
-	std::vector<S_IntersectionInfo> intersections;
-	intersections.reserve(5);
+	S_IntersectionInfo closestIntersect{C_RayIntersection(), std::numeric_limits<float>::max()};
 
 	glm::vec2 barycentric;
 
@@ -174,22 +173,23 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection
 		const auto		 length = Physics::TraingleRayIntersect(triDef, ray, &barycentric);
 		if (length > 0.0f)
 		{
+			if (closestIntersect.t < length)
+			{
+				continue;
+			}
 			auto	   normal = glm::cross(m_Storage[i + 1] - m_Storage[i], m_Storage[i + 2] - m_Storage[i]);
 			const auto area	  = glm::length(normal) / 2.f;
 			normal			  = glm::normalize(normal);
 			C_RayIntersection inter(S_Frame(normal), ray.origin + length * ray.direction, Physics::Primitives::S_Ray(ray));
 
-			intersections.push_back({inter, length});
+			closestIntersect = {inter, length};
 		}
 	}
-
-	std::sort(intersections.begin(), intersections.end());
-
-	if (intersections.empty())
+	if (closestIntersect.t == std::numeric_limits<float>::max())
 		return false;
 
 
-	intersection = intersections[0].intersection;
+	intersection = closestIntersect.intersection;
 	return true;
 }
 
