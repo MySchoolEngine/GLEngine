@@ -17,8 +17,7 @@ bool C_GeometryList::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInter
 
 		[[nodiscard]] bool operator<(const S_IntersectionInfo& a) const { return t < a.t; }
 	};
-	std::vector<S_IntersectionInfo> intersections;
-	intersections.reserve(5);
+	S_IntersectionInfo closestIntersect{C_RayIntersection(), std::numeric_limits<float>::max()};
 
 
 	std::for_each(m_Geometry.begin(), m_Geometry.end(), [&](const auto& object) {
@@ -26,19 +25,16 @@ bool C_GeometryList::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInter
 		C_RayIntersection inter;
 		if (object->Intersect(ray, inter))
 		{
-			if (inter.GetRayLength() >= offset)
-				intersections.push_back({inter, inter.GetRayLength(), object});
+			if (inter.GetRayLength() >= offset && inter.GetRayLength() < closestIntersect.t)
+				closestIntersect = {inter, inter.GetRayLength(), object};
 		}
 	});
 
-
-	std::sort(intersections.begin(), intersections.end());
-
-	if (intersections.empty())
+	if (closestIntersect.t == std::numeric_limits<float>::max())
 		return false;
 
 
-	intersection = intersections[0].intersection;
+	intersection = closestIntersect.intersection;
 	return true;
 }
 

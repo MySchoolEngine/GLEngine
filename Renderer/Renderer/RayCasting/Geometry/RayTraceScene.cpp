@@ -210,26 +210,23 @@ bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInte
 
 		[[nodiscard]] bool operator<(const S_IntersectionInfo& a) const { return t < a.t; }
 	};
-	std::vector<S_IntersectionInfo> intersections;
-	intersections.reserve(5);
+	S_IntersectionInfo closestIntersect{C_RayIntersection(), std::numeric_limits<float>::max()};
 
 	std::for_each(m_Objects.begin(), m_Objects.end(), [&](const auto& object) {
 		C_RayIntersection inter;
 		if (object->Intersect(ray, inter))
 		{
-			if (inter.GetRayLength() >= offset)
-				intersections.push_back({inter, inter.GetRayLength(), object});
+			if (inter.GetRayLength() >= offset && inter.GetRayLength() < closestIntersect.t)
+				closestIntersect = {inter, inter.GetRayLength(), object};
 		}
 	});
 
-	std::sort(intersections.begin(), intersections.end());
-
-	if (intersections.empty())
+	if (closestIntersect.t == std::numeric_limits<float>::max())
 		return false;
 
-	intersection  = intersections[0].intersection;
+	intersection  = closestIntersect.intersection;
 	const auto it = std::find_if(m_AreaLights.begin(), m_AreaLights.end(),
-								 [&](const std::shared_ptr<RayTracing::C_AreaLight>& other) { return other->GetGeometry().get() == intersections[0].object.get(); });
+								 [&](const std::shared_ptr<RayTracing::C_AreaLight>& other) { return other->GetGeometry().get() == closestIntersect.object.get(); });
 	if (it != m_AreaLights.end())
 	{
 		intersection.SetLight(*it);
