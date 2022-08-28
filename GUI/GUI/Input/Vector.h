@@ -21,7 +21,7 @@ protected:
 };
 
 //=================================================================================
-class C_Vec3 final : public C_Vector<glm::vec3> {
+class GUI_API_EXPORT C_Vec3 final : public C_Vector<glm::vec3> {
 public:
 	C_Vec3(std::string&& name, glm::vec3 val);
 

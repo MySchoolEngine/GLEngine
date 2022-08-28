@@ -25,30 +25,40 @@ namespace GLEngine::GLRenderer {
 constexpr static std::uint16_t s_resolution		 = 512;
 constexpr static glm::uvec2	   s_ImageResolution = glm::uvec2(840, 488);
 constexpr static unsigned int  s_Coef			 = 1; // 28 max
+constexpr static unsigned int  s_ProbeSize		 = 64;
 
 //=================================================================================
 C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_CameraComponent> camera, GUI::C_GUIManager& guiMGR)
 	: GUI::C_Window(guid, "Ray tracing")
 	, m_Camera(camera)
 	, m_ImageStorage(s_ImageResolution.x / s_Coef, s_ImageResolution.y / s_Coef, 3)
+	, m_ProbeStorage(s_ProbeSize, s_ProbeSize, 3)
 	, m_SamplesStorage(s_ImageResolution.x / s_Coef, s_ImageResolution.y / s_Coef, 3)
 	, m_Image(Textures::C_Texture(Renderer::TextureDescriptor{"rayTrace", s_ImageResolution.x / s_Coef, s_ImageResolution.y / s_Coef, Renderer::E_TextureType::TEXTURE_2D,
 															  Renderer::E_TextureFormat::RGB32f, false}))
+	, m_Probe(std::make_shared<Textures::C_Texture>(
+		  Renderer::TextureDescriptor{"probeTexture", s_ProbeSize, s_ProbeSize, Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::RGB32f, false}))
 	, m_NumCycleSamples(0)
 	, m_Running(false)
 	, m_RunningCycle(false)
 	, m_Scene(nullptr)
 	, m_Renderer(nullptr)
+	, m_ProbeRenderer(nullptr)
 	, m_DepthSlider(3, 1, 100, "Max path depth")
 	, m_GUIImage(m_Image)
+	, m_GUIImageProbe(*m_Probe.get())
 	, m_FileMenu("File")
 	, m_DebugDraw(false, "Debug draw")
+	, m_ProbePosition("Probe position", glm::vec3(1.f, 0.f, 0.f))
 {
 	auto& device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
 	device.AllocateTexture(m_Image);
+	device.AllocateTexture(*m_Probe.get());
 	m_Image.SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
+	m_Probe->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
 
 	m_GUIImage.SetSize(s_ImageResolution);
+	m_GUIImageProbe.SetSize({128, 128});
 
 	AddMenu(m_FileMenu);
 
@@ -78,6 +88,7 @@ C_RayTraceWindow::~C_RayTraceWindow()
 	GLE_ASSERT(!IsRunning(), "Raytracing thread is still running.");
 	auto& device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
 	device.DestroyTexture(m_Image);
+	device.DestroyTexture(*m_Probe.get());
 	if (m_Scene)
 		delete m_Scene;
 }
@@ -95,6 +106,23 @@ void C_RayTraceWindow::RayTrace()
 		CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
 		m_Running = false;
 		m_NumCycleSamples++;
+	});
+	m_Running = true;
+	std::thread rtThread(std::move(rayTrace));
+	rtThread.detach();
+}
+
+//=================================================================================
+void C_RayTraceWindow::RayTraceProbe()
+{
+	GLE_ASSERT(m_Renderer, "Ray tracing running during load.");
+	if (m_Running)
+		return;
+	std::packaged_task<void()> rayTrace([&]() {
+		Utils::HighResolutionTimer renderTime;
+		m_ProbeRenderer->Render(m_ProbeStorage, GetProbePosition(), nullptr);
+		CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace probe: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
+		m_Running = false;
 	});
 	m_Running = true;
 	std::thread rtThread(std::move(rayTrace));
@@ -151,8 +179,9 @@ void C_RayTraceWindow::Update()
 		// try for the complete result
 		if (m_LoadingPromise.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
 		{
-			m_Scene	   = m_LoadingPromise.get();
-			m_Renderer = std::make_unique<Renderer::C_RayRenderer>(*m_Scene);
+			m_Scene			= m_LoadingPromise.get();
+			m_Renderer		= std::make_unique<Renderer::C_RayRenderer>(*m_Scene);
+			m_ProbeRenderer = std::make_unique<Renderer::C_ProbeRenderer>(*m_Scene, 64);
 		}
 	}
 	UploadStorage();
@@ -163,6 +192,8 @@ void C_RayTraceWindow::DrawComponents() const
 {
 	const auto dim = m_ImageStorage.GetDimensions();
 	m_GUIImage.Draw();
+	m_GUIImageProbe.Draw();
+	m_ProbePosition.Draw();
 	if (!m_Scene)
 	{
 		ImGui::TextColored(ImVec4(1, 0, 0, 1), "Still loading scene.");
@@ -182,6 +213,16 @@ void C_RayTraceWindow::DrawComponents() const
 		if (ImGui::Button("Cycle"))
 		{
 			const_cast<C_RayTraceWindow*>(this)->RunUntilStop();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Render probe"))
+		{
+			const_cast<C_RayTraceWindow*>(this)->RayTraceProbe();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Reset probe"))
+		{
+			m_ProbeRenderer->ResetProbe();
 		}
 		m_DepthSlider.Draw();
 	}
@@ -224,6 +265,15 @@ void C_RayTraceWindow::UploadStorage()
 			}
 		},
 		"RT buffer"));
+	renderer.AddTransferCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+		[this]() {
+			if (m_ProbeRenderer->NewResultAviable())
+			{
+				m_Probe->SetTexData2D(0, (&m_ProbeStorage));
+				m_ProbeRenderer->SetResultConsumed();
+			}
+		},
+		"RT Probe buffer"));
 }
 
 //=================================================================================

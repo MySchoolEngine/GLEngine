@@ -2,6 +2,7 @@
 
 #include <Renderer/RayCasting/Geometry/RayTraceScene.h>
 #include <Renderer/RayCasting/RayRenderer.h>
+#include <Renderer/RayCasting/ProbeRenderer.h>
 #include <Renderer/Textures/TextureStorage.h>
 
 #include <GUI/GUIWindow.h>
@@ -9,6 +10,7 @@
 #include <GUI/Input/Button.h>
 #include <GUI/Input/CheckBoxValue.h>
 #include <GUI/Input/Slider.h>
+#include <GUI/Input/Vector.h>
 
 namespace GLEngine::Renderer {
 class I_CameraComponent;
@@ -30,6 +32,7 @@ public:
 	void Clear();
 	void RunUntilStop();
 	void StopAll();
+	void RayTraceProbe();
 
 	bool IsRunning() const;
 
@@ -38,6 +41,9 @@ public:
 
 
 	virtual void Update() override;
+
+	std::shared_ptr<Textures::C_Texture> GetTexture() { return m_Probe; }
+	glm::vec3							 GetProbePosition() { return m_ProbePosition.GetValue(); }
 
 private:
 	virtual void DrawComponents() const override;
@@ -57,9 +63,14 @@ private:
 	bool										 m_RunningCycle : 1; // Run until stop feature
 	GUI::Input::C_Slider<int>					 m_DepthSlider;		 // How many bounces should be traced
 	std::unique_ptr<Renderer::C_RayRenderer>	 m_Renderer;
+	std::unique_ptr<Renderer::C_ProbeRenderer>	 m_ProbeRenderer;
+	std::shared_ptr<Textures::C_Texture>		 m_Probe;
+	Renderer::C_TextureViewStorageCPU<float>	 m_ProbeStorage; // Intermediate data, could need some weighting
 	GUI::C_Image								 m_GUIImage;
+	GUI::C_Image								 m_GUIImageProbe;
 	GUI::Menu::C_Menu							 m_FileMenu;
 	GUI::Input::C_CheckBoxValue					 m_DebugDraw;
+	GUI::Input::C_Vec3							 m_ProbePosition;
 
 	std::mutex m_ImageLock;
 };
