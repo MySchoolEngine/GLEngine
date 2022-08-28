@@ -454,7 +454,7 @@ void C_DebugDraw::DrawMergedGeoms()
 }
 
 //=================================================================================
-void C_DebugDraw::ProbeDebug(const glm::vec3& position, float size, std::shared_ptr<Textures::C_Texture>& texture)
+void C_DebugDraw::ProbeDebug(const glm::vec3& position, float size, std::shared_ptr<Textures::C_Texture> texture)
 {
 	m_OctahedronInfos.emplace_back(OctahedronInfo{texture, size, position});
 }
