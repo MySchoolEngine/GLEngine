@@ -32,12 +32,12 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_Camera
 	: GUI::C_Window(guid, "Ray tracing")
 	, m_Camera(camera)
 	, m_ImageStorage(s_ImageResolution.x / s_Coef, s_ImageResolution.y / s_Coef, 3)
-	, m_ProbeStorage(s_ProbeSize, s_ProbeSize, 3)
+	, m_ProbeStorage(s_ProbeSize+2, s_ProbeSize+2, 3)
 	, m_SamplesStorage(s_ImageResolution.x / s_Coef, s_ImageResolution.y / s_Coef, 3)
 	, m_Image(Textures::C_Texture(Renderer::TextureDescriptor{"rayTrace", s_ImageResolution.x / s_Coef, s_ImageResolution.y / s_Coef, Renderer::E_TextureType::TEXTURE_2D,
 															  Renderer::E_TextureFormat::RGB32f, false}))
 	, m_Probe(std::make_shared<Textures::C_Texture>(
-		  Renderer::TextureDescriptor{"probeTexture", s_ProbeSize, s_ProbeSize, Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::RGB32f, false}))
+		  Renderer::TextureDescriptor{"probeTexture", s_ProbeSize+2, s_ProbeSize+2, Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::RGB32f, false}))
 	, m_NumCycleSamples(0)
 	, m_Running(false)
 	, m_RunningCycle(false)

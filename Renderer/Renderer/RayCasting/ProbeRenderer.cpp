@@ -55,11 +55,43 @@ void C_ProbeRenderer::Render(I_TextureViewStorage& texture, const glm::vec3 prob
 	// integrate
 	C_TextureView imageView(&texture);
 	const auto	  dim = texture.GetDimensions();
+	GLE_ASSERT(dim.x >= 4, "Probe needs to at least 2x2 + border");
+	GLE_ASSERT(dim.x == dim.y, "Probe needs to be square");
+	const unsigned int probeSideWithBorder = dim.x;
+	const unsigned int perProbeResolution  = dim.x - 2;
 	for (unsigned int x = 0; x < dim.x; ++x)
 	{
 		for (unsigned int y = 0; y < dim.y; ++y)
 		{
-			const glm::vec2 coord(static_cast<float>(x) / dim.x, static_cast<float>(y) / dim.y);
+			unsigned int ix = x;
+			unsigned int iy = y;
+
+			if (x == 0)
+			{
+				iy = probeSideWithBorder - y - 2;
+			}
+			else if (y == 0)
+			{
+				ix = probeSideWithBorder - x - 2;
+			}
+			else if (x == probeSideWithBorder - 1)
+			{
+				ix = perProbeResolution - 1;
+				iy = probeSideWithBorder - y - 2;
+			}
+			else if (y == probeSideWithBorder - 1)
+			{
+				iy = perProbeResolution - 1;
+				ix = probeSideWithBorder - x - 2;
+			}
+			else
+			{
+				ix -= 1;
+				iy -= 1;
+			}
+			
+			const glm::vec2 coord = (glm::vec2(ix, iy) + glm::vec2(0.5, 0.5)) * (2.0f / float(perProbeResolution)) - glm::vec2(1.0f, 1.0f);
+
 			const auto		pixelDir = oct_to_float32x3(coord);
 			glm::vec4		output(0.f);
 			for (unsigned int i = 0; i < m_SamplesPerRender; ++i)
