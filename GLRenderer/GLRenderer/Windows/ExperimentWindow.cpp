@@ -147,6 +147,8 @@ void C_ExplerimentWindow::Update()
 	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
 	m_MainPass->Render(camera, GetWidth(), GetHeight());
 
+	C_DebugDraw::Instance().ProbeDebug(m_RayTraceWindow->GetProbePosition(), .25f, m_RayTraceWindow->GetTexture());
+
 	// ----- Frame init -------
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 
