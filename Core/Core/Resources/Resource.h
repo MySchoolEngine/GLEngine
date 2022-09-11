@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Core/CoreApi.h>
-#include <Core/Resources/ResourceHandle.h>
 
 namespace GLEngine::Core {
 
@@ -17,6 +16,15 @@ public:                                                                         
 		static std::string name(#resourceType);                                                                                                                                    \
 		return name;                                                                                                                                                               \
 	}
+
+
+enum class ResourceState : std::uint8_t
+{
+	Empty,
+	Loading,
+	Ready,
+	Failed, // cannot load/no loader
+};
 
 class CORE_API_EXPORT Resource {
 public:
@@ -34,4 +42,5 @@ private:
 	friend class C_ResourceManager;
 };
 
+template <class ResourceType> concept is_resource = std::is_base_of_v<Resource, ResourceType>;
 } // namespace GLEngine::Core

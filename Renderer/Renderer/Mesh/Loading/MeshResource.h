@@ -6,25 +6,29 @@
 #include <Core/Resources/ResourceLoader.h>
 
 namespace GLEngine::Renderer {
-class I_TextureViewStorage;
 
-class TextureResource : public Core::Resource {
+namespace MeshData {
+struct Scene;
+}
+
+class MeshResource : public Core::Resource {
 public:
-	DECLARE_RESOURCE_TYPE(TextureResource)
+	DECLARE_RESOURCE_TYPE(MeshResource)
 
 	virtual bool Load(const std::filesystem::path& filepath) override;
 	virtual bool Reload() override;
 
 	// First check GetState to avoid SEGFAULTs
-	const I_TextureViewStorage& GetStorage() const;
-	I_TextureViewStorage&		GetStorage();
+	MeshData::Scene& GetScene();
+	const MeshData::Scene& GetScene() const;
 
 private:
-	std::filesystem::path				  m_Filepath;
-	std::unique_ptr<I_TextureViewStorage> m_TextureStorage = nullptr;
+	std::filesystem::path					   m_Filepath;
+	std::shared_ptr<Renderer::MeshData::Scene> m_Scene;
+	std::vector<std::string>				   m_TexuterNames;
 };
 
-class RENDERER_API_EXPORT TextureLoader : public Core::ResourceLoader<TextureResource> {
+class RENDERER_API_EXPORT MeshLoader : public Core::ResourceLoader<MeshResource> {
 public:
 	virtual std::shared_ptr<Core::Resource> CreateResource() const override;
 	virtual std::vector<std::string>		GetSupportedExtensions() const override;

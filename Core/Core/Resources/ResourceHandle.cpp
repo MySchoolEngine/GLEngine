@@ -34,4 +34,16 @@ ResourceHandleBase::~ResourceHandleBase()
 	}
 }
 
+//=================================================================================
+bool ResourceHandleBase::IsReady() const
+{
+	return GetState() == ResourceState::Ready;
+}
+
+//=================================================================================
+bool ResourceHandleBase::IsLoading() const
+{
+	return GetState() == ResourceState::Loading;
+}
+
 }
