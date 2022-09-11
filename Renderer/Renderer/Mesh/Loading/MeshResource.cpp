@@ -13,6 +13,7 @@ bool MeshResource::Load(const std::filesystem::path& filepath)
 	m_Scene	   = std::make_shared<Renderer::MeshData::Scene>();
 	m_Filepath = filepath;
 	Mesh::ModelLoader ml;
+	ml.Reset();
 	return ml.addModelFromFileToScene(m_Filepath, m_Scene, m_TexuterNames);
 }
 
@@ -55,7 +56,7 @@ std::shared_ptr<GLEngine::Core::Resource> MeshLoader::CreateResource() const
 //=================================================================================
 std::vector<std::string> MeshLoader::GetSupportedExtensions() const
 {
-	return {"obj"};
+	return {".obj"};
 }
 
 } // namespace GLEngine::Renderer

@@ -11,7 +11,7 @@ namespace MeshData {
 struct Scene;
 }
 
-class MeshResource : public Core::Resource {
+class RENDERER_API_EXPORT MeshResource : public Core::Resource {
 public:
 	DECLARE_RESOURCE_TYPE(MeshResource)
 
