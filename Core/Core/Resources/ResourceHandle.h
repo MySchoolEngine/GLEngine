@@ -12,6 +12,7 @@ public:
 	[[nodiscard]] ResourceState GetState() const;
 	[[nodiscard]] bool			IsReady() const;
 	[[nodiscard]] bool			IsLoading() const;
+	[[nodiscard]] bool			IsFailed() const;
 
 	explicit operator bool() const { return IsReady(); }
 

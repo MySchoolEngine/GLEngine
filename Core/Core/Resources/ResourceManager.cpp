@@ -33,6 +33,10 @@ void C_ResourceManager::Destroy()
 //=================================================================================
 void C_ResourceManager::RegisterResourceType(const I_ResourceLoader* loader)
 {
+	if (auto it = m_TypeIdToLoader.find(loader->GetResourceTypeID()); it != m_TypeIdToLoader.end()) {
+		CORE_LOG(E_Level::Error, E_Context::Core, "Loader for this type already registered");
+		return;
+	}
 	m_TypeIdToLoader[loader->GetResourceTypeID()] = loader;
 	for (const auto& ext : loader->GetSupportedExtensions())
 	{

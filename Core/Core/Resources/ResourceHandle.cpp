@@ -46,4 +46,10 @@ bool ResourceHandleBase::IsLoading() const
 	return GetState() == ResourceState::Loading;
 }
 
+//=================================================================================
+bool ResourceHandleBase::IsFailed() const
+{
+	return GetState() == ResourceState::Failed;
+}
+
 }

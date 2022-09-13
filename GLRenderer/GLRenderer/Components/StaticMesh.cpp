@@ -18,6 +18,7 @@
 #include <Renderer/Mesh/Scene.h>
 
 #include <Core/Application.h>
+#include <Core/Resources/ResourceManager.h>
 
 #include <Utils/Parsing/MaterialParser.h>
 
@@ -31,42 +32,23 @@ namespace GLEngine::GLRenderer::Components {
 C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner)
 	: Renderer::I_RenderableComponent(owner)
 	, m_meshFile(meshFile)
-	, m_Mesh(nullptr)
 	, m_Material(nullptr)
 {
-	Renderer::Mesh::SceneLoader sl;
-
-	auto	  scene		  = std::make_shared<Renderer::MeshData::Scene>();
-	glm::mat4 modelMatrix = glm::mat4(1.0f);
-
-	if (!sl.addModelFromFileToScene("Models", m_meshFile.c_str(), scene, modelMatrix))
-	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}", m_meshFile);
-		return;
-	}
-
-	m_Transformation.SetMatrix(modelMatrix);
-
-	// TODO this is unsafe way to init model
-	m_Mesh		= std::make_shared<Mesh::C_StaticMeshResource>(scene->meshes[0]);
-	m_AABB		= scene->meshes[0].bbox;
-	auto& shmgr = Shaders::C_ShaderManager::Instance();
-	m_Shader	= shmgr.GetProgram(shader.data());
-
-	const auto materialIdx = scene->meshes[0].materialIndex;
-	auto&	   material	   = scene->materials[materialIdx];
-
-	SetMaterial(material);
+	auto& rm	   = Core::C_ResourceManager::Instance();
+	m_MeshResource = rm.LoadResource<Renderer::MeshResource>(std::filesystem::path("Models") / meshFile, true);
+	auto& shmgr	   = Shaders::C_ShaderManager::Instance();
+	m_Shader	   = shmgr.GetProgram(shader.data());
 }
 
 //=================================================================================
-C_StaticMesh::C_StaticMesh(const Renderer::MeshData::Mesh& mesh, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner, const Renderer::MeshData::Material* material)
+C_StaticMesh::C_StaticMesh(Core::ResourceHandle<Renderer::MeshResource> meshHandle,
+						   std::string_view								shader,
+						   std::shared_ptr<Entity::I_Entity>			owner,
+						   const Renderer::MeshData::Material*			material)
 	: Renderer::I_RenderableComponent(owner)
 	, m_Material(nullptr)
+	, m_MeshResource(meshHandle)
 {
-	m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(mesh);
-	m_AABB = mesh.bbox;
-
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	m_Shader	= shmgr.GetProgram(shader.data());
 
@@ -77,7 +59,7 @@ C_StaticMesh::C_StaticMesh(const Renderer::MeshData::Mesh& mesh, std::string_vie
 //=================================================================================
 void C_StaticMesh::PerformDraw() const
 {
-	if (!m_Mesh || !m_Shader)
+	if (m_Mesh.empty() || !m_Shader || !m_MeshResource)
 	{
 		// CORE_LOG(E_Level::Error, E_Context::Render, "Static mesh uncomplete");
 		return;
@@ -108,7 +90,8 @@ void C_StaticMesh::PerformDraw() const
 		},
 		"Per object data upload"));
 
-	renderer.AddCommand(std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_Mesh));
+	for (const auto& mesh : m_Mesh)
+		renderer.AddCommand(std::make_unique<Commands::HACK::C_DrawStaticMesh>(mesh));
 }
 
 //=================================================================================
@@ -117,6 +100,14 @@ void C_StaticMesh::DebugDrawGUI()
 	if (::ImGui::CollapsingHeader("Material"))
 	{
 		m_Material->DrawGUI();
+	}
+	if (m_MeshResource.IsLoading())
+	{
+		::ImGui::Text("Still loading");
+	}
+	else if (m_MeshResource.IsFailed())
+	{
+		::ImGui::TextColored(ImVec4(1, 0, 0, 1), "Failed");
 	}
 }
 
@@ -153,6 +144,29 @@ bool C_StaticMesh::HasDebugDrawGUI() const
 GLEngine::Physics::Primitives::S_AABB C_StaticMesh::GetAABB() const
 {
 	return m_AABB;
+}
+
+//=================================================================================
+void C_StaticMesh::Update()
+{
+	if (m_MeshResource && m_Mesh.empty())
+	{
+		const auto& scene = m_MeshResource.GetResource().GetScene();
+		for (unsigned int i = 0; i < scene.meshes.size(); ++i)
+		{
+			m_Mesh.emplace_back(std::make_shared<Mesh::C_StaticMeshResource>(m_MeshResource.GetResource().GetScene().meshes[i]));
+			m_AABB.Add(m_MeshResource.GetResource().GetScene().meshes[i].bbox);
+		}
+
+		// only 1 material right now
+		if (!m_Material)
+		{
+			const auto materialIdx = m_MeshResource.GetResource().GetScene().meshes[0].materialIndex;
+			// would force all materials to be white
+			auto& material = m_MeshResource.GetResource().GetScene().materials[materialIdx];
+			SetMaterial(material);
+		}
+	}
 }
 
 //=================================================================================
