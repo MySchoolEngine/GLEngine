@@ -110,6 +110,7 @@ void C_ExplerimentWindow::Update()
 	m_EditorLayer.SetCamera(m_CamManager.GetActiveCamera());
 	m_ImGUI->FrameBegin();
 	m_LayerStack.OnUpdate();
+	Core::C_ResourceManager::Instance().UpdatePendingLoads();
 
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.Reset();

@@ -13,6 +13,7 @@ bool MeshResource::Load(const std::filesystem::path& filepath)
 	m_Scene	   = std::make_shared<Renderer::MeshData::Scene>();
 	m_Filepath = filepath;
 	Mesh::ModelLoader ml;
+	std::lock_guard	  lock(ml.GetMutex());
 	ml.Reset();
 	return ml.addModelFromFileToScene(m_Filepath, m_Scene, m_TexuterNames);
 }
@@ -21,6 +22,8 @@ bool MeshResource::Load(const std::filesystem::path& filepath)
 bool MeshResource::Reload()
 {
 	Mesh::ModelLoader ml;
+	std::lock_guard	  lock(ml.GetMutex());
+	ml.Reset();
 	auto newScene = std::make_shared<Renderer::MeshData::Scene>();
 	std::vector<std::string> newTextures;
 	if (ml.addModelFromFileToScene(m_Filepath, newScene, newTextures)) {

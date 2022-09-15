@@ -28,7 +28,7 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 		// once all maps updated, we have to unlock, as loaders can also trigger resource loading
 		// TODO: How do we propagate information isBlocking to consequent loads?
 		lock.unlock();
-		if (isBlocking || true)
+		if (isBlocking)
 		{
 			if (loader->LoadResource(filepath, resource))
 			{
@@ -41,7 +41,28 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 		}
 		else
 		{
-			// run thread, will need job manager once aviable
+			// run thread, will need job manager once finished
+			std::packaged_task<void(std::shared_ptr<Resource>)> load([this, filepath](std::shared_ptr<Resource> resource) {
+				const auto* loader = GetLoaderForExt(filepath.extension().string());
+				if (!loader)
+				{
+					CORE_LOG(E_Level::Error, E_Context::Core, "No loader specified for {}", filepath.extension());
+				}
+				const bool result = loader->LoadResource(filepath, resource);
+
+				std::lock_guard lock(m_FinishedLoadsMutes);
+				if (result)
+				{
+					m_FinishedLoads.push_back(resource);
+				}
+				else
+				{
+					// put to failed
+					m_FailedLoads.push_back(resource);
+				}
+			});
+			std::thread				   loadThread(std::move(load), resource);
+			loadThread.detach();
 		}
 	}
 

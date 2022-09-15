@@ -74,6 +74,23 @@ void C_ResourceManager::AddResourceToUnusedList(const std::shared_ptr<Resource>&
 }
 
 //=================================================================================
+void C_ResourceManager::UpdatePendingLoads()
+{
+	m_FinishedLoadsMutes.try_lock();
+	for (const auto& resource : m_FinishedLoads) {
+		resource->m_State = ResourceState::Ready;
+	}
+	for (const auto& resource : m_FailedLoads)
+	{
+		resource->m_State = ResourceState::Failed;
+	}
+
+	m_FinishedLoads.clear();
+	m_FailedLoads.clear();
+	m_FinishedLoadsMutes.unlock();
+}
+
+//=================================================================================
 bool I_ResourceLoader::LoadResource(const std::filesystem::path& filepath, std::shared_ptr<Resource>& resource) const
 {
 	return resource->Load(filepath);

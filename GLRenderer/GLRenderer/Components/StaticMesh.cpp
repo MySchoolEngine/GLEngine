@@ -35,7 +35,7 @@ C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::s
 	, m_Material(nullptr)
 {
 	auto& rm	   = Core::C_ResourceManager::Instance();
-	m_MeshResource = rm.LoadResource<Renderer::MeshResource>(std::filesystem::path("Models") / meshFile, true);
+	m_MeshResource = rm.LoadResource<Renderer::MeshResource>(std::filesystem::path("Models") / meshFile);
 	auto& shmgr	   = Shaders::C_ShaderManager::Instance();
 	m_Shader	   = shmgr.GetProgram(shader.data());
 }

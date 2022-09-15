@@ -22,7 +22,7 @@ public:
 
 	// not needed as I run single threaded so far and does not care about memory in this moment
 	void UnloadUnusedResources() {}
-	void UpdatePendingLoads() {}
+	void UpdatePendingLoads();
 
 	// transfers ptr ownership to the manager
 	void RegisterResourceType(const I_ResourceLoader* loader);
@@ -41,6 +41,9 @@ private:
 	std::map<std::filesystem::path, std::shared_ptr<Resource>> m_Resources;
 	std::shared_mutex										   m_Mutex;
 	std::vector<std::shared_ptr<Resource>>					   m_UnusedList;
+	std::shared_mutex										   m_FinishedLoadsMutes;
+	std::vector<std::shared_ptr<Resource>>					   m_FinishedLoads;
+	std::vector<std::shared_ptr<Resource>>					   m_FailedLoads;
 
 	std::map<std::string, const I_ResourceLoader*> m_ExtToLoaders;
 	std::map<std::size_t, const I_ResourceLoader*> m_TypeIdToLoader;
