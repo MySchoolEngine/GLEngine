@@ -33,7 +33,8 @@ void C_ResourceManager::Destroy()
 //=================================================================================
 void C_ResourceManager::RegisterResourceType(const I_ResourceLoader* loader)
 {
-	if (auto it = m_TypeIdToLoader.find(loader->GetResourceTypeID()); it != m_TypeIdToLoader.end()) {
+	if (auto it = m_TypeIdToLoader.find(loader->GetResourceTypeID()); it != m_TypeIdToLoader.end())
+	{
 		CORE_LOG(E_Level::Error, E_Context::Core, "Loader for this type already registered");
 		return;
 	}
@@ -76,8 +77,13 @@ void C_ResourceManager::AddResourceToUnusedList(const std::shared_ptr<Resource>&
 //=================================================================================
 void C_ResourceManager::UpdatePendingLoads()
 {
-	m_FinishedLoadsMutes.try_lock();
-	for (const auto& resource : m_FinishedLoads) {
+	if (!m_FinishedLoadsMutes.try_lock())
+	{
+		return;
+	}
+
+	for (const auto& resource : m_FinishedLoads)
+	{
 		resource->m_State = ResourceState::Ready;
 	}
 	for (const auto& resource : m_FailedLoads)
@@ -88,6 +94,41 @@ void C_ResourceManager::UpdatePendingLoads()
 	m_FinishedLoads.clear();
 	m_FailedLoads.clear();
 	m_FinishedLoadsMutes.unlock();
+
+	if (m_UpdatesSinceLastRemove > s_NumUpdatesBetweenUnloading)
+	{
+		UnloadUnusedResources();
+		m_UpdatesSinceLastRemove = 0;
+	}
+	m_UpdatesSinceLastRemove++;
+}
+
+//=================================================================================
+void C_ResourceManager::UnloadUnusedResources()
+{
+	std::unique_lock lock(m_Mutex);
+	for (const auto& resource : m_UnusedList)
+	{
+		// 1 reference in m_Resources, second in m_UnusedList
+		if (resource.use_count() == 2)
+		{
+			// should be deleted
+			auto it		 = m_Resources.begin();
+			bool deleted = false;
+			while (it != m_Resources.end())
+			{
+				if (it->second == resource)
+				{
+					CORE_LOG(E_Level::Info, E_Context::Core, "Removing resource {}", it->first);
+					m_Resources.erase(it);
+					deleted = true;
+					break;
+				}
+			}
+			GLE_ASSERT(deleted, "Unused resource not in resources");
+		}
+	}
+	m_UnusedList.clear();
 }
 
 //=================================================================================

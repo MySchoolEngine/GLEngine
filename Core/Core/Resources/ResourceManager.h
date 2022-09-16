@@ -21,7 +21,7 @@ public:
 	void Destroy();
 
 	// not needed as I run single threaded so far and does not care about memory in this moment
-	void UnloadUnusedResources() {}
+	void UnloadUnusedResources();
 	void UpdatePendingLoads();
 
 	// transfers ptr ownership to the manager
@@ -47,6 +47,9 @@ private:
 
 	std::map<std::string, const I_ResourceLoader*> m_ExtToLoaders;
 	std::map<std::size_t, const I_ResourceLoader*> m_TypeIdToLoader;
+
+	unsigned int					 m_UpdatesSinceLastRemove{0};
+	const inline static unsigned int s_NumUpdatesBetweenUnloading{10};
 
 	friend class ResourceHandleBase; // still not sure about this, I don't think I need to befriend anyone to achieve this
 };
