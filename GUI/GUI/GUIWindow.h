@@ -21,6 +21,7 @@ public:
 	[[nodiscard]] bool		 IsVisible() const;
 	GUID					 AddComponent(T_GUIPartRef component);
 	[[nodiscard]] I_GUIPart* GetComponent(GUID guid) const;
+	virtual void			 Update() {}
 
 	[[nodiscard]] GUID GetGuid() const { return m_GUID; }
 

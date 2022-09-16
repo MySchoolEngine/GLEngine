@@ -226,4 +226,14 @@ void C_RayTraceWindow::SaveCurrentImage(const std::filesystem::path& texture)
 	}
 }
 
+//=================================================================================
+void C_RayTraceWindow::Update()
+{
+  // simply destroy when closed
+	if (!IsVisible() && !IsRunning())
+	{
+	  m_WantToBeDestroyed = true;
+	}
+}
+
 } // namespace GLEngine::GLRenderer
