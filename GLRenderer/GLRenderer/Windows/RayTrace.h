@@ -32,6 +32,7 @@ public:
 
 	virtual void			   RequestDestroy() override;
 	[[nodiscard]] virtual bool CanDestroy() const override;
+	void					   Update() override;
 
 private:
 	virtual void DrawComponents() const override;

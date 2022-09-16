@@ -1,7 +1,15 @@
 #pragma once
 
+#include <Renderer/Mesh/Loading/MeshResource.h>
 #include <Renderer/RendererApi.h>
+#include <Renderer/Textures/TextureResource.h>
 #include <Renderer/Textures/TextureView.h>
+
+#include <Core/Resources/ResourceHandle.h>
+
+namespace GLEngine::Core {
+class LoadingQuery;
+}
 
 namespace GLEngine::Physics::Primitives {
 struct S_Ray;
@@ -10,7 +18,7 @@ struct S_Ray;
 namespace GLEngine::Renderer {
 class C_RayIntersection;
 class I_RayGeometryObject;
-class I_TextureViewStorage;
+class TextureResource;
 
 namespace MeshData {
 struct Mesh;
@@ -24,7 +32,7 @@ class C_PointLight;
 
 class RENDERER_API_EXPORT C_RayTraceScene {
 public:
-	C_RayTraceScene();
+	C_RayTraceScene(Core::LoadingQuery* loadingQuery = nullptr);
 	C_RayTraceScene(const C_RayTraceScene&) = delete;
 	~C_RayTraceScene();
 
@@ -44,7 +52,8 @@ private:
 	std::vector<std::shared_ptr<I_RayGeometryObject>>	   m_Objects;
 	std::vector<std::shared_ptr<RayTracing::C_AreaLight>>  m_AreaLights;
 	std::vector<std::shared_ptr<RayTracing::C_PointLight>> m_PointLights;
-	std::vector<std::unique_ptr<I_TextureViewStorage>>	   m_Textures;
+	std::vector<Core::ResourceHandle<TextureResource>>	   m_Textures;
+	std::vector<Core::ResourceHandle<MeshResource>>		   m_Meshes;
 };
 
 } // namespace GLEngine::Renderer
