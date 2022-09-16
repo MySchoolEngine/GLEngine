@@ -10,32 +10,37 @@
 #include <Renderer/RayCasting/Light/RayAreaLight.h>
 #include <Renderer/RayCasting/Light/RayPointLight.h>
 #include <Renderer/RayCasting/RayIntersection.h>
-#include <Renderer/Textures/TextureLoader.h>
+#include <Renderer/Textures/TextureResource.h>
 #include <Renderer/Textures/TextureStorage.h>
 
 #include <Physics/Primitives/Disc.h>
 #include <Physics/Primitives/Plane.h>
 #include <Physics/Primitives/Sphere.h>
 
+#include <Core/Resources/LoadingQuery.h>
+#include <Core/Resources/ResourceManager.h>
+
 #include <Utils/HighResolutionTimer.h>
 
 namespace GLEngine::Renderer {
 #define CORNELL
 //=================================================================================
-C_RayTraceScene::C_RayTraceScene()
+C_RayTraceScene::C_RayTraceScene(Core::LoadingQuery* loadingQuery)
 {
 	using namespace Physics::Primitives;
 #ifdef CORNELL
-	Textures::TextureLoader tl;
-	m_Textures.emplace_back(tl.loadTexture(R"(Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp)"));
+	auto& rm = Core::C_ResourceManager::Instance();
+	m_Textures.emplace_back(rm.LoadResource<TextureResource>(std::filesystem::path(R"(Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp)"), true));
+	if (loadingQuery)
+		loadingQuery->AddHandle(m_Textures[0]);
 
-	static const MeshData::Material red{glm::vec4{},		glm::vec4{Colours::red, 0},		glm::vec4{}, 0.f, -1};
-	static const MeshData::Material green{glm::vec4{},		glm::vec4{Colours::green, 0},	glm::vec4{}, 0.f, -1};
-	static const MeshData::Material white{glm::vec4{},		glm::vec4{Colours::white, 0},	glm::vec4{}, 0.f, -1};
-	static const MeshData::Material brick{glm::vec4{},		glm::vec4{Colours::white, 0},	glm::vec4{}, 0.f,  0}; // brick texture
-	static const MeshData::Material blue{glm::vec4{},		glm::vec4{Colours::blue, 0},	glm::vec4{}, 0.f, -1};
-	static const MeshData::Material blueMirror{glm::vec4{},	glm::vec4{Colours::blue, 0},	glm::vec4{}, 1.f, -1};
-	static const MeshData::Material black{glm::vec4{},		glm::vec4{Colours::black, 0.f}, glm::vec4{}, 0.f, -1};
+	static const MeshData::Material red{glm::vec4{}, glm::vec4{Colours::red, 0}, glm::vec4{}, 0.f, -1};
+	static const MeshData::Material green{glm::vec4{}, glm::vec4{Colours::green, 0}, glm::vec4{}, 0.f, -1};
+	static const MeshData::Material white{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, -1};
+	static const MeshData::Material brick{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, 0}; // brick texture
+	static const MeshData::Material blue{glm::vec4{}, glm::vec4{Colours::blue, 0}, glm::vec4{}, 0.f, -1};
+	static const MeshData::Material blueMirror{glm::vec4{}, glm::vec4{Colours::blue, 0}, glm::vec4{}, 1.f, -1};
+	static const MeshData::Material black{glm::vec4{}, glm::vec4{Colours::black, 0.f}, glm::vec4{}, 0.f, -1};
 
 	{
 		auto trimesh = std::make_shared<C_Trimesh>();
@@ -131,16 +136,14 @@ C_RayTraceScene::C_RayTraceScene()
 
 	if (false)
 	{
-		// model
-		auto					 scene = std::make_shared<MeshData::Scene>();
-		std::vector<std::string> textures;
-		Mesh::ModelLoader		 ml;
-		ml.Reset();
-		if (ml.addModelFromFileToScene("Models/sword/baphomet-sword-mostruario.obj", scene, textures))
+		auto& meshHandle = m_Meshes.emplace_back(rm.LoadResource<MeshResource>(R"(Models/sword/baphomet-sword-mostruario.obj)", true));
+		if (loadingQuery)
+			loadingQuery->AddHandle(meshHandle);
+
+		if (meshHandle)
 		{
-			for (int i = 0; i < scene->meshes.size(); ++i)
-			{
-				AddMesh(scene->meshes[i]);
+			for (auto& mesh : meshHandle.GetResource().GetScene().meshes) {
+				AddMesh(mesh);
 			}
 		}
 	}
@@ -276,7 +279,8 @@ void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh)
 //=================================================================================
 const C_TextureView C_RayTraceScene::GetTextureView(int textureID) const
 {
-	return C_TextureView(m_Textures[textureID].get());
+	// because the truly const texture view is not implemented I need const cast here
+	return C_TextureView(const_cast<I_TextureViewStorage*>(&(m_Textures[textureID].GetResource().GetStorage())));
 }
 
 } // namespace GLEngine::Renderer
