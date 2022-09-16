@@ -107,6 +107,8 @@ void C_ResourceManager::UpdatePendingLoads()
 void C_ResourceManager::UnloadUnusedResources()
 {
 	std::unique_lock lock(m_Mutex);
+	// if resource is still loading, we need to finish loading
+	// it is referenced from the job system, so it will be deleted after load
 	for (const auto& resource : m_UnusedList)
 	{
 		// 1 reference in m_Resources, second in m_UnusedList

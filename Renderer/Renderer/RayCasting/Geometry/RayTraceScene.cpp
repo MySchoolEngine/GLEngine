@@ -30,7 +30,7 @@ C_RayTraceScene::C_RayTraceScene(Core::LoadingQuery* loadingQuery)
 	using namespace Physics::Primitives;
 #ifdef CORNELL
 	auto& rm = Core::C_ResourceManager::Instance();
-	m_Textures.emplace_back(rm.LoadResource<TextureResource>(std::filesystem::path(R"(Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp)"), true));
+	m_Textures.emplace_back(rm.LoadResource<TextureResource>(std::filesystem::path(R"(Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp)")));
 	if (loadingQuery)
 		loadingQuery->AddHandle(m_Textures[0]);
 
@@ -136,7 +136,7 @@ C_RayTraceScene::C_RayTraceScene(Core::LoadingQuery* loadingQuery)
 
 	if (false)
 	{
-		auto& meshHandle = m_Meshes.emplace_back(rm.LoadResource<MeshResource>(R"(Models/sword/baphomet-sword-mostruario.obj)", true));
+		auto& meshHandle = m_Meshes.emplace_back(rm.LoadResource<MeshResource>(R"(Models/sword/baphomet-sword-mostruario.obj)"));
 		if (loadingQuery)
 			loadingQuery->AddHandle(meshHandle);
 
