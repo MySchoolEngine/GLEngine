@@ -304,7 +304,8 @@ void C_RayTraceScene::BuildScene()
 			// intentional copy as I need to re-number the textures
 			MeshData::Material mat = meshHandle.GetResource().GetScene().materials[mesh.materialIndex];
 			mat.textureIndex	   = -1; // I would need to check whether such texture exists
-			mat.noramlTextureIndex = -1; 
+			mat.noramlTextureIndex = -1;
+			mat.shininess		   = 0.f;
 			AddMesh(mesh, mat);
 		}
 	}
