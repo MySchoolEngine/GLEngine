@@ -1,4 +1,4 @@
-#include <RendererStdAfx.h>
+#include <RendererStdafx.h>
 
 #include <Renderer/DebugDraw.h>
 #include <Renderer/RayCasting/Geometry/BVH.h>

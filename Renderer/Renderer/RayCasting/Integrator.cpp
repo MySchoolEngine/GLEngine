@@ -1,4 +1,4 @@
-#include <RendererStdAfx.h>
+#include <RendererStdafx.h>
 
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/RayCasting/Generator/Sampler.h>

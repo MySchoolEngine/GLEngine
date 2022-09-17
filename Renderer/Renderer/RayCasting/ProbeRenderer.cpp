@@ -1,4 +1,4 @@
-#include <RendererStdAfx.h>
+#include <RendererStdafx.h>
 
 #include <Renderer/RayCasting/Generator/Sampler.h>
 #include <Renderer/RayCasting/Integrator.h>
