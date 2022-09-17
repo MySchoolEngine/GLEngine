@@ -18,6 +18,7 @@ S_SunLight::S_SunLight()
 	, m_SunColor(Colours::white)
 	, m_AsymetricFactor(0.6f)
 	, m_SunShadowMap(0)
+	, m_SunlightPresent(1)
 {
 }
 
@@ -30,6 +31,7 @@ Shaders::C_StructDescriptor S_SunLight::GetDescriptionImpl() const
 	ret.Push("color", &S_SunLight::m_SunColor);
 	ret.Push("asymetricFactor", &S_SunLight::m_AsymetricFactor);
 	ret.Push("viewProjection", &S_SunLight::m_LightViewProjection);
+	ret.Push("sunlightPresent", &S_SunLight::m_SunlightPresent);
 	ret.Push("sunShadowMap", &S_SunLight::m_SunShadowMap);
 	return ret;
 }

@@ -130,7 +130,7 @@ void C_Transformations::SetMatrix(const glm::mat4& mat)
 	glm::decompose(mat, scale, rotation, translation, skew, perspective);
 	m_Scale		  = scale;
 	m_Translation = translation;
-	m_Rotation	  = glm::eulerAngles(glm::conjugate(rotation));
+	m_Rotation	  = glm::degrees(glm::eulerAngles(glm::conjugate(rotation)));
 }
 
 //=================================================================================

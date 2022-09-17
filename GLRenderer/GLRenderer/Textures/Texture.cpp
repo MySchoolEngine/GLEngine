@@ -244,4 +244,10 @@ std::string C_Texture::GetName()
 	return m_Desc.name;
 }
 
+//=================================================================================
+void* C_Texture::GetGPUHandle()
+{
+	return (void*)(intptr_t)(GetTexture());
+}
+
 } // namespace GLEngine::GLRenderer::Textures

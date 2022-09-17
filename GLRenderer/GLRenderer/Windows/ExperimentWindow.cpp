@@ -17,11 +17,13 @@
 #include <GLRenderer/ImGui/GLImGUILayer.h>
 #include <GLRenderer/Lights/GLAreaLight.h>
 #include <GLRenderer/Materials/MaterialBuffer.h>
+#include <GLRenderer/OGLDevice.h>
 #include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/PersistentDebug.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/SunShadowMapTechnique.h>
+#include <GLRenderer/Textures/TextureManager.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 #include <GLRenderer/Windows/ExperimentWindow.h>
 #include <GLRenderer/Windows/RayTrace.h>
@@ -29,7 +31,9 @@
 #include <Renderer/Cameras/OrbitalCamera.h>
 #include <Renderer/Lights/SunLight.h>
 #include <Renderer/Materials/MaterialManager.h>
+#include <Renderer/Mesh/Loading/MeshResource.h>
 #include <Renderer/Mesh/Scene.h>
+#include <Renderer/Textures/TextureResource.h>
 #include <Renderer/Textures/TextureView.h>
 
 #include <GUI/ConsoleWindow.h>
@@ -46,17 +50,16 @@
 #include <Core/EventSystem/Event/AppEvent.h>
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/EventDispatcher.h>
+#include <Core/Resources/ResourceManager.h>
 
+#include <Utils/EnumUtils.h>
 #include <Utils/Serialization/XMLDeserialize.h>
 #include <Utils/Serialization/XMLSerialize.h>
 #include <Utils/StdVectorUtils.h>
-#include <Utils/EnumUtils.h>
 
 #include <pugixml.hpp>
 
 #include <imgui.h>
-
-#include <GLRenderer/OGLDevice.h>
 
 namespace GLEngine::GLRenderer::Windows {
 
@@ -67,14 +70,14 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	, m_Samples("Frame Times")
 	, m_GammaSlider(2.2f, 1.f, 5.f, "Gamma")
 	, m_ExposureSlider(1.f, .1f, 10.f, "Exposure")
-	, m_VSync(false)
+	, m_VSync(true)
 	, m_HDRFBO(nullptr)
 	, m_World(std::make_shared<Entity::C_EntityManager>())
 	, m_MainPass(nullptr)
 	, m_ShadowPass(nullptr)
 	, m_GUITexts({{GUI::C_FormatedText("Avg frame time {:.2f}"), GUI::C_FormatedText("Avg fps {:.2f}"), GUI::C_FormatedText("Min/max frametime {:.2f}/{:.2f}")}})
 	, m_Windows(std::string("Windows"))
-	, m_EditorLayer(*&C_DebugDraw::Instance(), GetInput(), {0,0, GetSize()}) //< viewport could be different from windowsize in the future
+	, m_EditorLayer(*&C_DebugDraw::Instance(), GetInput(), {0, 0, GetSize()}) //< viewport could be different from windowsize in the future
 {
 	glfwMakeContextCurrent(m_Window);
 
@@ -89,6 +92,9 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	m_VSync.SetName("Lock FPS");
 
 	Entity::C_ComponentManager::Instance();
+	auto& rm = Core::C_ResourceManager::Instance();
+	rm.RegisterResourceType(new Renderer::TextureLoader());
+	rm.RegisterResourceType(new Renderer::MeshLoader());
 }
 
 //=================================================================================
@@ -105,6 +111,7 @@ void C_ExplerimentWindow::Update()
 	m_EditorLayer.SetCamera(m_CamManager.GetActiveCamera());
 	m_ImGUI->FrameBegin();
 	m_LayerStack.OnUpdate();
+	Core::C_ResourceManager::Instance().UpdatePendingLoads();
 
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.Reset();
@@ -115,9 +122,10 @@ void C_ExplerimentWindow::Update()
 	const auto avgMsPerFrame = m_Samples.Avg();
 	m_GUITexts[::Utils::ToIndex(E_GUITexts::AvgFrametime)].UpdateText(m_Samples.Avg());
 	m_GUITexts[::Utils::ToIndex(E_GUITexts::AvgFps)].UpdateText(1000.f / avgMsPerFrame);
-	m_GUITexts[::Utils::ToIndex(E_GUITexts::MinMaxFrametime)].UpdateText(*Utils::min_element(m_Samples),*Utils::max_element(m_Samples));
+	m_GUITexts[::Utils::ToIndex(E_GUITexts::MinMaxFrametime)].UpdateText(*Utils::min_element(m_Samples), *Utils::max_element(m_Samples));
 
 	glfwSwapInterval(m_VSync ? 1 : 0);
+	m_RayTraceWindow->DebugDraw(&C_DebugDraw::Instance());
 
 	m_World->OnUpdate();
 
@@ -131,17 +139,22 @@ void C_ExplerimentWindow::Update()
 
 	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
 
+	if (m_SunShadow)
 	{
 		// shadow pass
 		m_SunShadow->Render(*m_World.get(), camera.get());
-		::ImGui::Begin("shadowMap");
-		::ImGui::Image((void*)(intptr_t)m_SunShadow->GetZBuffer()->GetTexture(), ImVec2(256, 256));
-		::ImGui::End();
 		m_MainPass->SetSunShadowMap(m_SunShadow->GetZBuffer()->GetHandle());
 		m_MainPass->SetSunViewProjection(m_SunShadow->GetLastViewProjection());
 	}
+	else
+	{
+		auto& tmgr = Textures::C_TextureManager::Instance();
+		m_MainPass->SetSunShadowMap(tmgr.GetIdentityTexture()->GetHandle());
+	}
 	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
 	m_MainPass->Render(*m_World.get(), camera, GetWidth(), GetHeight());
+
+	C_DebugDraw::Instance().ProbeDebug(m_RayTraceWindow->GetProbePosition(), .25f, m_RayTraceWindow->GetTexture());
 
 	// ----- Frame init -------
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
@@ -181,6 +194,11 @@ void C_ExplerimentWindow::Update()
 		[this, shader]() {
 			shader->SetUniform("gamma", m_GammaSlider.GetValue());
 			shader->SetUniform("exposure", m_ExposureSlider.GetValue());
+			auto atmosphereEntity = m_World->GetEntity("atmosphere");
+			if (atmosphereEntity)
+				shader->SetUniform("renderAtmosphere", 1);
+			else
+				shader->SetUniform("renderAtmosphere", 0);
 			shader->SetUniform("hdrBuffer", 0);
 			shader->SetUniform("depthBuffer", 1);
 		},
@@ -272,34 +290,24 @@ void C_ExplerimentWindow::OnAppInit()
 
 		m_ScreenQuad = std::make_shared<Mesh::C_StaticMeshResource>(billboardMesh);
 	}
-	SetupWorld("Levels/newLevel.xml");
+	SetupWorld("Levels/cornellBox.xml");
 
-	m_HDRFBO		= std::make_unique<C_Framebuffer>("HDR");
-	const Renderer::TextureDescriptor HDRTextureDef{
-		"hdrTexture",
-		GetWidth(), GetHeight(), Renderer::E_TextureType::TEXTURE_2D,
-		Renderer::E_TextureFormat::RGBA16f,
-		false
-	};
-	auto HDRTexture = std::make_shared<Textures::C_Texture>(HDRTextureDef);
+	m_HDRFBO = std::make_unique<C_Framebuffer>("HDR");
+	const Renderer::TextureDescriptor HDRTextureDef{"hdrTexture", GetWidth(), GetHeight(), Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::RGBA16f, false};
+	auto							  HDRTexture = std::make_shared<Textures::C_Texture>(HDRTextureDef);
 	m_Device->AllocateTexture(*HDRTexture.get());
 
 	HDRTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
 	// ~HDRTexture setup
 	m_HDRFBO->AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
 
-	const Renderer::TextureDescriptor hdrDepthTextureDef{
-		"hdrDepthTexture",
-		GetWidth(), GetHeight(), Renderer::E_TextureType::TEXTURE_2D,
-		Renderer::E_TextureFormat::D16,
-		false
-	};
-	auto depthStencilTexture = std::make_shared<Textures::C_Texture>(hdrDepthTextureDef);
+	const Renderer::TextureDescriptor hdrDepthTextureDef{"hdrDepthTexture", GetWidth(), GetHeight(), Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::D16, false};
+	auto							  depthStencilTexture = std::make_shared<Textures::C_Texture>(hdrDepthTextureDef);
 	m_Device->AllocateTexture(*depthStencilTexture.get());
 
 	// depthStencilTexture->SetTexParameter(GL_COMPARE_REF_TO_TEXTURE, GL_COMPARE_REF_TO_TEXTURE);
 	// depthStencilTexture->SetTexParameter(GL_TEXTURE_COMPARE_FUNC, GL_NEVER);
-	//depthStencilTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
+	// depthStencilTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
 	// ~depthStencilTexture setup
 	m_HDRFBO->AttachTexture(GL_DEPTH_ATTACHMENT, depthStencilTexture);
 
@@ -318,7 +326,7 @@ void C_ExplerimentWindow::OnAppInit()
 	{
 		m_RayTraceGUID = NextGUID();
 
-		m_RayTraceWindow = new C_RayTraceWindow(m_RayTraceGUID, m_CamManager.GetActiveCamera());
+		m_RayTraceWindow = new C_RayTraceWindow(m_RayTraceGUID, m_CamManager.GetActiveCamera(), guiMGR);
 
 		guiMGR.AddCustomWindow(m_RayTraceWindow);
 		m_RayTraceWindow->SetVisible();
@@ -350,7 +358,7 @@ void C_ExplerimentWindow::OnAppInit()
 	hdrSettings->AddComponent(m_GammaSlider);
 	hdrSettings->AddComponent(m_ExposureSlider);
 
-	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("New level", [&]() { 
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("New level", [&]() {
 		m_World->ClearLevel();
 		AddMandatoryWorldParts();
 	}));
@@ -368,8 +376,11 @@ void C_ExplerimentWindow::OnAppInit()
 		levelSelectWindwo->SetVisible();
 	}));
 
+	auto& tmgr = Textures::C_TextureManager::Instance();
+	tmgr.GetIdentityTexture()->MakeHandleResident(); // Hack, I need to have active renderer because of lack of dependency injection
+
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Save Level", [&]() {
-		const auto			   filename = m_World->GetFilename();
+		const auto filename = m_World->GetFilename();
 		if (filename.empty())
 		{
 			SaveLevelAs();
@@ -443,7 +454,7 @@ void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 	m_World.swap(newWorld.value());
 	m_World->SetFilename(level);
 
-	auto& guiMGR = m_ImGUI->GetGUIMgr();
+	auto& guiMGR	  = m_ImGUI->GetGUIMgr();
 	auto* entitiesWnd = guiMGR.GetWindow(m_EntitiesWindowGUID);
 	if (auto* entitiesWindow = dynamic_cast<Entity::C_EntitiesWindow*>(entitiesWnd)) {
 		entitiesWindow->SetWorld(m_World);
@@ -451,7 +462,7 @@ void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 
 	AddMandatoryWorldParts();
 
-	// Inform entitites about the level loaded event
+	// Inform entities about the level loaded event
 	Core::C_EntityEvent levelEvent(GUID::INVALID_GUID, Core::C_EntityEvent::EntityEvent::LevelLoaded);
 	m_World->OnEvent(levelEvent);
 }
@@ -514,7 +525,7 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 
 	{
 		// create default atmosphere
-		auto entity	 = m_World->GetOrCreateEntity("atmosphere");
+		auto entity = m_World->GetOrCreateEntity("atmosphere");
 		if (auto sunLight = entity->GetComponent<Entity::E_ComponentType::Light>())
 		{
 			m_SunShadow = std::make_shared<C_SunShadowMapTechnique>(std::static_pointer_cast<Renderer::C_SunLight>(sunLight));

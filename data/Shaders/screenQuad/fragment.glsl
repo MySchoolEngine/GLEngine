@@ -15,6 +15,7 @@ uniform sampler2D hdrBuffer;
 uniform sampler2D depthBuffer;
 uniform float	  gamma;
 uniform float	  exposure;
+uniform bool 	  renderAtmosphere;
 
 vec2 toClipSpace(vec2 uv)
 {
@@ -24,25 +25,29 @@ vec2 toClipSpace(vec2 uv)
 }
 void main()
 {
-	const vec2 centeredUV = toClipSpace(TexCoords);
-	const Ray  ray		  = GetCameraRay(centeredUV);
-
-
 	vec3 hdrColor = texture(hdrBuffer, TexCoords).rgb;
-
-	const Sphere s = GetAtmosphereBoundary();
-	vec3		 intersect;
-	vec4		 depth = texture(depthBuffer, TexCoords);
-	if (Intersect(ray, s, intersect))
+	
+	if(renderAtmosphere)
 	{
-		vec4  intersectionPoint = vec4(ray.origin + ray.dir * intersect.z, 1.0);
-		vec4  P					= frame.viewProjectionMatrix * intersectionPoint;
-		float depthAtSample		= toLinearDepth(depth.x);
+		const vec2 centeredUV = toClipSpace(TexCoords);
+		const Ray  ray		  = GetCameraRay(centeredUV);
 
-		// this means we doesn't hit the geomtery
-		if (P.z < depthAtSample || depthAtSample > frame.zFar)
+
+
+		const Sphere s = GetAtmosphereBoundary();
+		vec3		 intersect;
+		vec4		 depth = texture(depthBuffer, TexCoords);
+		if (Intersect(ray, s, intersect))
 		{
-			hdrColor = GetSkyRadiance(ray, intersect.z);
+			vec4  intersectionPoint = vec4(ray.origin + ray.dir * intersect.z, 1.0);
+			vec4  P					= frame.viewProjectionMatrix * intersectionPoint;
+			float depthAtSample		= toLinearDepth(depth.x);
+
+			// this means we doesn't hit the geomtery
+			if (P.z < depthAtSample || depthAtSample > frame.zFar)
+			{
+				hdrColor = GetSkyRadiance(ray, intersect.z);
+			}
 		}
 	}
 

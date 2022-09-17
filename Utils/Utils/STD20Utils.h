@@ -1,7 +1,7 @@
 #pragma once
 
 // function from C++20 that are already possible to implement in current standard
-#if __cplusplus < 202002L
+#ifndef __cpp_lib_remove_cvref
 namespace std {
 // https://en.cppreference.com/w/cpp/types/remove_cvref
 template <class T> struct remove_cvref {

@@ -90,6 +90,8 @@ public:
 	virtual void SetTexData2D(int level, const Renderer::I_TextureViewStorage* tex) override;
 	virtual void SetTexData2D(int level, const Renderer::C_TextureView tex) override;
 
+	virtual void* GetGPUHandle() override;
+
 	friend class C_TextureManager;
 	friend class GLEngine::GLRenderer::C_GLDevice;
 

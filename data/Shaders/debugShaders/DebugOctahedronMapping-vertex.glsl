@@ -1,11 +1,11 @@
 #version 430
 #extension GL_ARB_bindless_texture : require
 
-attribute vec4 vertex;
-attribute vec3 normal;
-attribute vec2 texCoord;
-attribute vec3 tangent;
-attribute vec3 bitangent;
+in vec4 vertex;
+in vec3 normal;
+in vec2 texCoord;
+in vec3 tangent;
+in vec3 bitangent;
 
 // per frame
 #include "../include/frameConstants.glsl"

@@ -25,7 +25,7 @@ end
 workspace "Engine"
 	architecture "x64"
 	startproject "Sandbox"
-	cppdialect "C++17"
+	cppdialect "C++20"
 	systemversion "latest"
 
 	configurations{
@@ -136,7 +136,6 @@ if _TARGET_OS ~= "linux" then
 end
 group "Dependencies/Assimp"
   include "vendor/projects/zlib"
-  include "vendor/projects/irrXML"
   include "vendor/projects/Assimp"
 group ""
 

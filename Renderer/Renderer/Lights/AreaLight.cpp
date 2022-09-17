@@ -10,6 +10,8 @@
 #include <Utils/Parsing/ColorParsing.h>
 #include <Utils/Parsing/MatrixParse.h>
 
+#include <glm/gtx/matrix_decompose.hpp>
+
 #include <rttr/registration>
 
 #pragma region registration
@@ -130,13 +132,23 @@ Colours::T_Colour C_AreaLight::SpecularColour() const
 //=================================================================================
 glm::vec3 C_AreaLight::GetNormal() const
 {
-	return GetComponentModelMatrix() * glm::vec4(0, 0, -1, 1);
+	glm::mat4		transform(1.f);
+	const glm::vec3 rotations = m_Transformation.GetRotation();
+	transform				  = glm::rotate(transform, glm::radians(rotations).x, glm::vec3(1, 0, 0));
+	transform				  = glm::rotate(transform, glm::radians(rotations).y, glm::vec3(0, 1, 0));
+	transform				  = glm::rotate(transform, glm::radians(rotations).z, glm::vec3(0, 0, 1));
+	return transform * glm::vec4(0, 0, -1, 1);
 }
 
 //=================================================================================
 glm::vec3 C_AreaLight::GetUpVector() const
 {
-	return GetComponentModelMatrix() * glm::vec4(0, 1, 0, 1);
+	glm::mat4		transform(1.f);
+	const glm::vec3 rotations = m_Transformation.GetRotation();
+	transform				  = glm::rotate(transform, glm::radians(rotations).x, glm::vec3(1, 0, 0));
+	transform				  = glm::rotate(transform, glm::radians(rotations).y, glm::vec3(0, 1, 0));
+	transform				  = glm::rotate(transform, glm::radians(rotations).z, glm::vec3(0, 0, 1));
+	return transform * glm::vec4(0, 1, 0, 1);
 }
 
 //=================================================================================
@@ -166,8 +178,12 @@ void C_AreaLight::DebugDraw(Renderer::I_DebugDraw* dd) const
 //=================================================================================
 [[nodiscard]] std::shared_ptr<Entity::I_Component> C_AreaLightCompBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
 {
-	auto areaLight = std::make_shared<Renderer::C_AreaLight>(owner);
-	areaLight->SetComponentMatrix(Utils::Parsing::C_MatrixParser::ParseTransformation(node));
+	auto	   areaLight = std::make_shared<Renderer::C_AreaLight>(owner);
+
+	const auto transform = Utils::Parsing::C_MatrixParser::ParseTransformation(node);
+	const auto rotation	 = Utils::Parsing::C_MatrixParser::ParseRotations(node);
+
+	areaLight->SetComponentMatrix(transform * rotation);
 
 
 	if (const auto widthAttr = node.attribute("width"))
