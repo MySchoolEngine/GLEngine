@@ -48,7 +48,7 @@
 				</staticMesh>
 			</Components>
 		</Entity>
-		<Entity name="sphere1">
+		<!--<Entity name="sphere1">
 			<translate sid="location">-1.5 -1.0 -1.5</translate>
 			<Components>
 				<staticMesh filePath="sphere.obj" material="basicTracing" shadowPassShader="shadowPass">
@@ -63,7 +63,7 @@
 					<color>0 0 1</color>
 				</staticMesh>
 			</Components>
-		</Entity>
+		</Entity>-->
 
 		<Entity name="light">
 			<Components>
@@ -75,5 +75,10 @@
 				</AreaLight>
 			</Components>
 		</Entity>
+
+		<ExternEntity name="dragonHead" filePath="dragon/Dragon_Busts_Gerhald3D.obj" material="basicTracing" shadowPassShader="shadowPass">
+			<translate sid="location">0 -1.5 0</translate>
+			<scale>0.5 0.5 0.5</scale>
+		</ExternEntity>
 	</Entities>
 </World>

@@ -32,6 +32,8 @@ public:
 	glm::vec2 GetUV() const { return m_UV; }
 	void	  SetUV(const glm::vec2& UV) { m_UV = UV; }
 
+	void TransformRayAndPoint(const glm::mat4& mat);
+
 private:
 	S_Frame									m_Frame;
 	glm::vec3								m_Point;

@@ -16,12 +16,12 @@ public:
 	C_Window(GUID guid, const std::string& name);
 	virtual ~C_Window() = default;
 
+	virtual void			 Update() {}
 	virtual void			 Draw() const override;
 	void					 SetVisible(bool enable = true);
 	[[nodiscard]] bool		 IsVisible() const;
 	GUID					 AddComponent(T_GUIPartRef component);
 	[[nodiscard]] I_GUIPart* GetComponent(GUID guid) const;
-	virtual void			 Update() {}
 
 	[[nodiscard]] GUID GetGuid() const { return m_GUID; }
 

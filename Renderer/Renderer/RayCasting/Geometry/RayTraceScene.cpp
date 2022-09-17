@@ -25,14 +25,13 @@
 namespace GLEngine::Renderer {
 #define CORNELL
 //=================================================================================
-C_RayTraceScene::C_RayTraceScene(Core::LoadingQuery* loadingQuery)
+C_RayTraceScene::C_RayTraceScene()
 {
 	using namespace Physics::Primitives;
 #ifdef CORNELL
 	auto& rm = Core::C_ResourceManager::Instance();
 	m_Textures.emplace_back(rm.LoadResource<TextureResource>(std::filesystem::path(R"(Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp)")));
-	if (loadingQuery)
-		loadingQuery->AddHandle(m_Textures[0]);
+	m_Loading.AddHandle(m_Textures[0]);
 
 	static const MeshData::Material red{glm::vec4{}, glm::vec4{Colours::red, 0}, glm::vec4{}, 0.f, -1};
 	static const MeshData::Material green{glm::vec4{}, glm::vec4{Colours::green, 0}, glm::vec4{}, 0.f, -1};
@@ -94,6 +93,7 @@ C_RayTraceScene::C_RayTraceScene(Core::LoadingQuery* loadingQuery)
 		AddObejct(triangle1);
 	}
 
+	if (false)
 	{
 		// sphere
 		auto sphere = std::make_shared<C_Primitive<S_Sphere>>(S_Sphere{{-1.5f, -1.f, -1.5f}, 1.f});
@@ -101,6 +101,7 @@ C_RayTraceScene::C_RayTraceScene(Core::LoadingQuery* loadingQuery)
 		AddObejct(std::move(sphere));
 	}
 
+	if (false)
 	{
 		// sphere
 		auto sphere = std::make_shared<C_Primitive<S_Sphere>>(S_Sphere{{.8f, 0.f, .5f}, 1.f});
@@ -137,15 +138,13 @@ C_RayTraceScene::C_RayTraceScene(Core::LoadingQuery* loadingQuery)
 	if (false)
 	{
 		auto& meshHandle = m_Meshes.emplace_back(rm.LoadResource<MeshResource>(R"(Models/sword/baphomet-sword-mostruario.obj)"));
-		if (loadingQuery)
-			loadingQuery->AddHandle(meshHandle);
+		m_Loading.AddHandle(meshHandle);
+	}
 
-		if (meshHandle)
-		{
-			for (auto& mesh : meshHandle.GetResource().GetScene().meshes) {
-				AddMesh(mesh);
-			}
-		}
+	if (true)
+	{
+		auto& meshHandle = m_Meshes.emplace_back(rm.LoadResource<MeshResource>(R"(Models/dragon/Dragon_Busts_Gerhald3D.obj)"));
+		m_Loading.AddHandle(meshHandle);
 	}
 #else
 	auto							plane = std::make_shared<C_Primitive<S_Plane>>(S_Plane(glm::vec3(1, 0, 0), {-3.f, 0.f, 0.f}));
@@ -195,26 +194,23 @@ bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInte
 
 		[[nodiscard]] bool operator<(const S_IntersectionInfo& a) const { return t < a.t; }
 	};
-	std::vector<S_IntersectionInfo> intersections;
-	intersections.reserve(5);
+	S_IntersectionInfo closestIntersect{C_RayIntersection(), std::numeric_limits<float>::max()};
 
 	std::for_each(m_Objects.begin(), m_Objects.end(), [&](const auto& object) {
 		C_RayIntersection inter;
 		if (object->Intersect(ray, inter))
 		{
-			if (inter.GetRayLength() >= offset)
-				intersections.push_back({inter, inter.GetRayLength(), object});
+			if (inter.GetRayLength() >= offset && inter.GetRayLength() < closestIntersect.t)
+				closestIntersect = {inter, inter.GetRayLength(), object};
 		}
 	});
 
-	std::sort(intersections.begin(), intersections.end());
-
-	if (intersections.empty())
+	if (closestIntersect.t == std::numeric_limits<float>::max())
 		return false;
 
-	intersection  = intersections[0].intersection;
+	intersection  = closestIntersect.intersection;
 	const auto it = std::find_if(m_AreaLights.begin(), m_AreaLights.end(),
-								 [&](const std::shared_ptr<RayTracing::C_AreaLight>& other) { return other->GetGeometry().get() == intersections[0].object.get(); });
+								 [&](const std::shared_ptr<RayTracing::C_AreaLight>& other) { return other->GetGeometry().get() == closestIntersect.object.get(); });
 	if (it != m_AreaLights.end())
 	{
 		intersection.SetLight(*it);
@@ -250,18 +246,17 @@ void C_RayTraceScene::ForEachLight(std::function<void(const std::reference_wrapp
 }
 
 //=================================================================================
-void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh)
+void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh, const MeshData::Material& material)
 {
 	Utils::HighResolutionTimer renderTime;
 	using namespace Physics::Primitives;
-	static const MeshData::Material blue{glm::vec4{}, glm::vec4(Colours::blue, 0.f), glm::vec4{}, 0.f, -1};
 //#define OLD_TRIMESH
 #ifdef OLD_TRIMESH
 	auto list = std::make_shared<C_GeometryList>();
 	for (auto it = mesh.vertices.begin(); it != mesh.vertices.end(); it += 3)
 	{
 		auto triangle = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle(glm::vec3(*it), glm::vec3(*(it + 1)), glm::vec3(*(it + 2))));
-		triangle->SetMaterial(blue);
+		triangle->SetMaterial(material);
 		list->AddObject(triangle);
 	}
 
@@ -269,11 +264,13 @@ void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh)
 	AddObejct(list);
 #else
 	auto trimesh = std::make_shared<C_Trimesh>();
-	trimesh->SetMaterial(blue);
+	trimesh->SetMaterial(material);
 	trimesh->AddMesh(mesh);
+	trimesh->SetTransformation(glm::translate(glm::mat4(1.f), glm::vec3(0, -1.5f, 0)) * glm::scale(glm::mat4(1.f), glm::vec3(0.5f, 0.5f, 0.5f)));
+	m_Trimeshes.push_back(trimesh);
 	AddObejct(trimesh);
 #endif
-	CORE_LOG(E_Level::Warning, E_Context::Render, "Raytracing add mesh: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
+	CORE_LOG(E_Level::Info, E_Context::Render, "Raytracing add mesh: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
 }
 
 //=================================================================================
@@ -281,6 +278,37 @@ const C_TextureView C_RayTraceScene::GetTextureView(int textureID) const
 {
 	// because the truly const texture view is not implemented I need const cast here
 	return C_TextureView(const_cast<I_TextureViewStorage*>(&(m_Textures[textureID].GetResource().GetStorage())));
+}
+
+//=================================================================================
+void C_RayTraceScene::DebugDraw(I_DebugDraw* dd) const
+{
+	std::for_each(m_Trimeshes.begin(), m_Trimeshes.end(), [&](const auto& trimesh) { trimesh->DebugDraw(dd); });
+}
+
+//=================================================================================
+bool C_RayTraceScene::IsLoaded() const
+{
+	return m_Loading.IsDone();
+}
+
+//=================================================================================
+void C_RayTraceScene::BuildScene()
+{
+	for (const auto& meshHandle : m_Meshes)
+	{
+		GLE_ASSERT(meshHandle, "At this point all the handles should be loaded!");
+
+		for (auto& mesh : meshHandle.GetResource().GetScene().meshes)
+		{
+			// intentional copy as I need to re-number the textures
+			MeshData::Material mat = meshHandle.GetResource().GetScene().materials[mesh.materialIndex];
+			mat.textureIndex	   = -1; // I would need to check whether such texture exists
+			mat.noramlTextureIndex = -1;
+			mat.shininess		   = 0.f;
+			AddMesh(mesh, mat);
+		}
+	}
 }
 
 } // namespace GLEngine::Renderer

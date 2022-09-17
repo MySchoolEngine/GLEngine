@@ -133,7 +133,7 @@ public:
 
 	void DrawFrustum(const Physics::Primitives::C_Frustum& frust, const Colours::T_Colour& color = Colours::black);
 
-	void ProbeDebug(const glm::vec3& position, float size, std::shared_ptr<Textures::C_Texture>& texture);
+	void ProbeDebug(const glm::vec3& position, float size, std::shared_ptr<Textures::C_Texture> texture);
 
 	void DrawMergedGeoms();
 
@@ -208,7 +208,7 @@ public:
 
 	void DrawFrustum(const Physics::Primitives::C_Frustum& frust, const Colours::T_Colour& color = Colours::black) {}
 
-	void ProbeDebug(const glm::vec3& position, float size, std::shared_ptr<Textures::C_Texture>& texture) {}
+	void ProbeDebug(const glm::vec3& position, float size, std::shared_ptr<Textures::C_Texture> texture) {}
 
 	void DrawMergedGeoms(){};
 

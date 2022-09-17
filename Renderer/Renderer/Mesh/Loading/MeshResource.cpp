@@ -10,6 +10,7 @@ namespace GLEngine::Renderer {
 //=================================================================================
 bool MeshResource::Load(const std::filesystem::path& filepath)
 {
+	// This does not have to be shared ptr
 	m_Scene	   = std::make_shared<Renderer::MeshData::Scene>();
 	m_Filepath = filepath;
 	Mesh::ModelLoader ml;

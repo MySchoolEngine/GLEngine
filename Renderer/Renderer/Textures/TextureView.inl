@@ -132,6 +132,18 @@ inline glm::vec2 float32x3_to_oct(glm::vec3 v)
 	return (v.z <= 0.0f) ? ((1.0f - abs(glm::vec2{p.y, p.x})) * signNotZero(p)) : p;
 }
 
+inline glm::vec3 oct_to_float32x3(glm::vec2 e)
+{
+	glm::vec3 v = glm::vec3(e.x, e.y, 1.0f - abs(e.x) - abs(e.y));
+	if (v.z < 0.0f)
+	{
+		auto r = (1.0f - glm::abs(glm::vec2{v.y, v.x})) * signNotZero({v.x, v.y});
+		v.x	   = r.x;
+		v.y	   = r.y;
+	}
+	return glm::normalize(v);
+}
+
 //=================================================================================
 // C_OctahedralTextureView
 //=================================================================================
