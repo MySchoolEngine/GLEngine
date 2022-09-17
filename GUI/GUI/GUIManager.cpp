@@ -23,6 +23,7 @@ void C_GUIManager::OnUpdate()
 	{
 		it.second->Update();
 	}
+	DestroyPossibleWindows();
 
 	for (auto& it : m_Windwos)
 	{
@@ -31,8 +32,6 @@ void C_GUIManager::OnUpdate()
 			it.second->Draw();
 		}
 	}
-
-	DestroyPossibleWindows();
 }
 
 //=================================================================================

@@ -38,9 +38,7 @@ public:
 
 	virtual void			   RequestDestroy() override;
 	[[nodiscard]] virtual bool CanDestroy() const override;
-
-
-	virtual void Update() override;
+	void					   Update() override;
 
 	std::shared_ptr<Textures::C_Texture> GetTexture() { return m_Probe; }
 	glm::vec3							 GetProbePosition() { return m_ProbePosition.GetValue(); }
@@ -56,7 +54,7 @@ private:
 	Textures::C_Texture							 m_Image;  // The presented result, TODO: make this pointer to base class or handle so I can move this to renderer or user code
 	Renderer::C_TextureViewStorageCPU<float>	 m_ImageStorage;   // Intermediate data, could need some weighting
 	Renderer::C_TextureViewStorageCPU<float>	 m_SamplesStorage; // Intermediate data, could need some weighting
-	Renderer::C_RayTraceScene*					 m_Scene;
+	Renderer::C_RayTraceScene					 m_Scene;
 	std::future<Renderer::C_RayTraceScene*>		 m_LoadingPromise;	 // mutable because we call it for GUI
 	int											 m_NumCycleSamples;	 // How many samples had been already used per pixel, Used for sampling
 	bool										 m_Running : 1;		 // Indicate that renderer is currently running

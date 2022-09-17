@@ -10,12 +10,15 @@
 #include <Renderer/RayCasting/Light/RayAreaLight.h>
 #include <Renderer/RayCasting/Light/RayPointLight.h>
 #include <Renderer/RayCasting/RayIntersection.h>
-#include <Renderer/Textures/TextureLoader.h>
+#include <Renderer/Textures/TextureResource.h>
 #include <Renderer/Textures/TextureStorage.h>
 
 #include <Physics/Primitives/Disc.h>
 #include <Physics/Primitives/Plane.h>
 #include <Physics/Primitives/Sphere.h>
+
+#include <Core/Resources/LoadingQuery.h>
+#include <Core/Resources/ResourceManager.h>
 
 #include <Utils/HighResolutionTimer.h>
 
@@ -26,16 +29,17 @@ C_RayTraceScene::C_RayTraceScene()
 {
 	using namespace Physics::Primitives;
 #ifdef CORNELL
-	Textures::TextureLoader tl;
-	m_Textures.emplace_back(tl.loadTexture(R"(Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp)"));
+	auto& rm = Core::C_ResourceManager::Instance();
+	m_Textures.emplace_back(rm.LoadResource<TextureResource>(std::filesystem::path(R"(Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp)")));
+	m_Loading.AddHandle(m_Textures[0]);
 
-	static const MeshData::Material red{glm::vec4{},		glm::vec4{Colours::red, 0},		glm::vec4{}, 0.f, -1};
-	static const MeshData::Material green{glm::vec4{},		glm::vec4{Colours::green, 0},	glm::vec4{}, 0.f, -1};
-	static const MeshData::Material white{glm::vec4{},		glm::vec4{Colours::white, 0},	glm::vec4{}, 0.f, -1};
-	static const MeshData::Material brick{glm::vec4{},		glm::vec4{Colours::white, 0},	glm::vec4{}, 0.f,  0}; // brick texture
-	static const MeshData::Material blue{glm::vec4{},		glm::vec4{Colours::blue, 0},	glm::vec4{}, 0.f, -1};
-	static const MeshData::Material blueMirror{glm::vec4{},	glm::vec4{Colours::blue, 0},	glm::vec4{}, 1.f, -1};
-	static const MeshData::Material black{glm::vec4{},		glm::vec4{Colours::black, 0.f}, glm::vec4{}, 0.f, -1};
+	static const MeshData::Material red{glm::vec4{}, glm::vec4{Colours::red, 0}, glm::vec4{}, 0.f, -1};
+	static const MeshData::Material green{glm::vec4{}, glm::vec4{Colours::green, 0}, glm::vec4{}, 0.f, -1};
+	static const MeshData::Material white{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, -1};
+	static const MeshData::Material brick{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, 0}; // brick texture
+	static const MeshData::Material blue{glm::vec4{}, glm::vec4{Colours::blue, 0}, glm::vec4{}, 0.f, -1};
+	static const MeshData::Material blueMirror{glm::vec4{}, glm::vec4{Colours::blue, 0}, glm::vec4{}, 1.f, -1};
+	static const MeshData::Material black{glm::vec4{}, glm::vec4{Colours::black, 0.f}, glm::vec4{}, 0.f, -1};
 
 	{
 		auto trimesh = std::make_shared<C_Trimesh>();
@@ -89,7 +93,8 @@ C_RayTraceScene::C_RayTraceScene()
 		AddObejct(triangle1);
 	}
 
-	if(false){
+	if (false)
+	{
 		// sphere
 		auto sphere = std::make_shared<C_Primitive<S_Sphere>>(S_Sphere{{-1.5f, -1.f, -1.5f}, 1.f});
 		sphere->SetMaterial(blueMirror);
@@ -132,35 +137,14 @@ C_RayTraceScene::C_RayTraceScene()
 
 	if (false)
 	{
-		// model
-		auto					 scene = std::make_shared<MeshData::Scene>();
-		std::vector<std::string> textures;
-		Mesh::ModelLoader		 ml;
-		ml.Reset();
-		if (ml.addModelFromFileToScene("Models/sword/baphomet-sword-mostruario.obj", scene, textures))
-		{
-			for (int i = 0; i < scene->meshes.size(); ++i)
-			{
-				AddMesh(scene->meshes[i], blue);
-			}
-		}
+		auto& meshHandle = m_Meshes.emplace_back(rm.LoadResource<MeshResource>(R"(Models/sword/baphomet-sword-mostruario.obj)"));
+		m_Loading.AddHandle(meshHandle);
 	}
 
 	if (true)
 	{
-		// model
-		auto					 scene = std::make_shared<MeshData::Scene>();
-		std::vector<std::string> textures;
-		Mesh::ModelLoader		 ml;
-		ml.Reset();
-		const MeshData::Material* materials[4] = {&blue, &red, &blueMirror, &white};
-		if (ml.addModelFromFileToScene("Models/dragon/Dragon_Busts_Gerhald3D.obj", scene, textures))
-		{
-			for (int i = 0; i < scene->meshes.size(); ++i)
-			{
-				AddMesh(scene->meshes[i], *materials[i]);
-			}
-		}
+		auto& meshHandle = m_Meshes.emplace_back(rm.LoadResource<MeshResource>(R"(Models/dragon/Dragon_Busts_Gerhald3D.obj)"));
+		m_Loading.AddHandle(meshHandle);
 	}
 #else
 	auto							plane = std::make_shared<C_Primitive<S_Plane>>(S_Plane(glm::vec3(1, 0, 0), {-3.f, 0.f, 0.f}));
@@ -292,13 +276,38 @@ void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh, const MeshData::Materi
 //=================================================================================
 const C_TextureView C_RayTraceScene::GetTextureView(int textureID) const
 {
-	return C_TextureView(m_Textures[textureID].get());
+	// because the truly const texture view is not implemented I need const cast here
+	return C_TextureView(const_cast<I_TextureViewStorage*>(&(m_Textures[textureID].GetResource().GetStorage())));
 }
 
 //=================================================================================
 void C_RayTraceScene::DebugDraw(I_DebugDraw* dd) const
 {
 	std::for_each(m_Trimeshes.begin(), m_Trimeshes.end(), [&](const auto& trimesh) { trimesh->DebugDraw(dd); });
+}
+
+//=================================================================================
+bool C_RayTraceScene::IsLoaded() const
+{
+	return m_Loading.IsDone();
+}
+
+//=================================================================================
+void C_RayTraceScene::BuildScene()
+{
+	for (const auto& meshHandle : m_Meshes)
+	{
+		GLE_ASSERT(meshHandle, "At this point all the handles should be loaded!");
+
+		for (auto& mesh : meshHandle.GetResource().GetScene().meshes)
+		{
+			// intentional copy as I need to re-number the textures
+			MeshData::Material mat = meshHandle.GetResource().GetScene().materials[mesh.materialIndex];
+			mat.textureIndex	   = -1; // I would need to check whether such texture exists
+			mat.noramlTextureIndex = -1; 
+			AddMesh(mesh, mat);
+		}
+	}
 }
 
 } // namespace GLEngine::Renderer

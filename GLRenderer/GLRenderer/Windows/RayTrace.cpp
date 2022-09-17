@@ -41,7 +41,7 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_Camera
 	, m_NumCycleSamples(0)
 	, m_Running(false)
 	, m_RunningCycle(false)
-	, m_Scene(nullptr)
+	, m_Scene()
 	, m_Renderer(nullptr)
 	, m_ProbeRenderer(nullptr)
 	, m_DepthSlider(3, 1, 100, "Max path depth")
@@ -74,12 +74,6 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<Renderer::I_Camera
 		guiMGR.AddCustomWindow(textureSelectWindow);
 		textureSelectWindow->SetVisible();
 	}));
-
-	// this should be moved to the job system one day
-	std::packaged_task<Renderer::C_RayTraceScene*()> loadScene([&]() { return new Renderer::C_RayTraceScene(); });
-	m_LoadingPromise = loadScene.get_future();
-	std::thread rtThread(std::move(loadScene));
-	rtThread.detach();
 }
 
 //=================================================================================
@@ -89,8 +83,6 @@ C_RayTraceWindow::~C_RayTraceWindow()
 	auto& device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
 	device.DestroyTexture(m_Image);
 	device.DestroyTexture(*m_Probe.get());
-	if (m_Scene)
-		delete m_Scene;
 }
 
 //=================================================================================
@@ -177,12 +169,18 @@ void C_RayTraceWindow::Update()
 	if (StillLoadingScene())
 	{
 		// try for the complete result
-		if (m_LoadingPromise.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+		if (m_Scene.IsLoaded())
 		{
-			m_Scene			= m_LoadingPromise.get();
-			m_Renderer		= std::make_unique<Renderer::C_RayRenderer>(*m_Scene);
-			m_ProbeRenderer = std::make_unique<Renderer::C_ProbeRenderer>(*m_Scene, 64);
+			m_Scene.BuildScene();
+			m_Renderer		= std::make_unique<Renderer::C_RayRenderer>(m_Scene);
+			m_ProbeRenderer = std::make_unique<Renderer::C_ProbeRenderer>(m_Scene, 64);
 		}
+	}
+	// simply destroy when closed
+	if (!IsVisible() && !IsRunning())
+	{
+		m_WantToBeDestroyed = true;
+		return;
 	}
 	UploadStorage();
 }
@@ -194,7 +192,7 @@ void C_RayTraceWindow::DrawComponents() const
 	m_GUIImage.Draw();
 	m_GUIImageProbe.Draw();
 	m_ProbePosition.Draw();
-	if (!m_Scene)
+	if (StillLoadingScene())
 	{
 		ImGui::TextColored(ImVec4(1, 0, 0, 1), "Still loading scene.");
 	}
@@ -314,18 +312,14 @@ void C_RayTraceWindow::SaveCurrentImage(const std::filesystem::path& texture)
 //=================================================================================
 void C_RayTraceWindow::DebugDraw(Renderer::I_DebugDraw* dd) const
 {
-	if (m_DebugDraw && m_Scene)
-		m_Scene->DebugDraw(dd);
+	if (m_DebugDraw)
+		m_Scene.DebugDraw(dd);
 }
 
 //=================================================================================
 bool C_RayTraceWindow::StillLoadingScene() const
 {
-	if (m_LoadingPromise.valid())
-	{
-		return true;
-	}
-	return false;
+	return m_Renderer == nullptr;
 }
 
 } // namespace GLEngine::GLRenderer

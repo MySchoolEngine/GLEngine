@@ -33,7 +33,9 @@
 #include <Renderer/Cameras/OrbitalCamera.h>
 #include <Renderer/Lights/SunLight.h>
 #include <Renderer/Materials/MaterialManager.h>
+#include <Renderer/Mesh/Loading/MeshResource.h>
 #include <Renderer/Mesh/Scene.h>
+#include <Renderer/Textures/TextureResource.h>
 #include <Renderer/Textures/TextureView.h>
 
 #include <GUI/ConsoleWindow.h>
@@ -50,6 +52,7 @@
 #include <Core/EventSystem/Event/AppEvent.h>
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/EventDispatcher.h>
+#include <Core/Resources/ResourceManager.h>
 
 #include <Utils/StdVectorUtils.h>
 
@@ -88,6 +91,9 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	m_VSync.SetName("Lock FPS");
 
 	Entity::C_ComponentManager::Instance();
+	auto& rm = Core::C_ResourceManager::Instance();
+	rm.RegisterResourceType(new Renderer::TextureLoader());
+	rm.RegisterResourceType(new Renderer::MeshLoader());
 }
 
 //=================================================================================
@@ -104,6 +110,7 @@ void C_ExplerimentWindow::Update()
 	m_EditorLayer.SetCamera(m_CamManager.GetActiveCamera());
 	m_ImGUI->FrameBegin();
 	m_LayerStack.OnUpdate();
+	Core::C_ResourceManager::Instance().UpdatePendingLoads();
 
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.Reset();
