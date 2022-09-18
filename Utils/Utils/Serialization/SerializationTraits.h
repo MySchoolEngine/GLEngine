@@ -7,7 +7,7 @@
 namespace GLEngine::Utils {
 [[nodiscard]] static inline bool IsAtomicType(const rttr::type& type)
 {
-	return type.is_arithmetic() || type == rttr::type::get<std::string>() || type.is_enumeration();
+	return type.is_arithmetic() || type == rttr::type::get<std::string>() || type.is_enumeration() || type == rttr::type::get<std::filesystem::path>();
 }
 }
 

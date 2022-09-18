@@ -131,6 +131,11 @@ void C_XMLDeserializer::DeserializeAssociativeArray(const pugi::xml_node& child,
 	auto valueType = view.get_value_type();
 	for (const auto childNode : child)
 	{
+		if (childNode.name() != std::string_view("item"))
+		{
+			CORE_LOG(E_Level::Error, E_Context::Core, "Unexpected node in associative array. {}.", childNode.name());
+			continue;
+		}
 		rttr::variant keyVar;
 		rttr::variant valueVar;
 		if (IsAtomicType(keyType))
@@ -150,7 +155,12 @@ void C_XMLDeserializer::DeserializeAssociativeArray(const pugi::xml_node& child,
 		}
 		else
 		{
-			const auto node = *childNode.child("value").children().begin();
+			auto	   valueNode = childNode.child("value");
+			if (!valueNode)
+			{
+				CORE_LOG(E_Level::Error, E_Context::Core, "Missing value node in associative array.");
+			}
+			const auto node		 = *valueNode.children().begin();
 			const auto type = rttr::type::get_by_name(node.name());
 			if (type.is_valid() == false)
 				continue;
@@ -210,6 +220,8 @@ rttr::variant C_XMLDeserializer::DeserializeAtomic(const pugi::xml_attribute& at
 			return attr.as_double();
 		else if (type == rttr::type::get<std::string>())
 			return std::string(attr.as_string());
+		else if (type == rttr::type::get<std::filesystem::path>())
+			return std::filesystem::path(attr.as_string());
 		else if (type.is_enumeration())
 			return type.get_enumeration().name_to_value(attr.as_string());
 	}
