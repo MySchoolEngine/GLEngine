@@ -38,7 +38,7 @@ RTTR_REGISTRATION
 	rttr::registration::class_<C_StaticMesh>("C_StaticMesh")
 		.constructor<std::string, std::string_view, std::shared_ptr<GLEngine::Entity::I_Entity>>()
 		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
-		.property("MeshFile", &C_StaticMesh::m_meshFile)
+		.property("MeshFile", &C_StaticMesh::GetMeshFile, &C_StaticMesh::SetMeshFile)
 		.property("Material", &C_StaticMesh::m_Material)
 		.property("Shader", &C_StaticMesh::GetShader, &C_StaticMesh::SetShader)
 		.property("ShadowPassShader", &C_StaticMesh::GetShadowShader, &C_StaticMesh::SetShadowShader);
@@ -54,11 +54,9 @@ namespace GLEngine::GLRenderer::Components {
 //=================================================================================
 C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner)
 	: Renderer::I_RenderableComponent(owner)
-	, m_meshFile(meshFile)
 	, m_Material(nullptr)
 {
-	auto& rm	   = Core::C_ResourceManager::Instance();
-	m_MeshResource = rm.LoadResource<Renderer::MeshResource>(std::filesystem::path("Models") / meshFile);
+	SetMeshFile(meshFile);
 	SetShader(shader.data());
 }
 
@@ -238,6 +236,19 @@ std::string C_StaticMesh::GetShadowShader() const
 		return "";
 	else
 		return m_ShadowPassShader->GetName();
+}
+
+//=================================================================================
+void C_StaticMesh::SetMeshFile(const std::filesystem::path meshfile)
+{
+	auto& rm	   = Core::C_ResourceManager::Instance();
+	m_MeshResource = rm.LoadResource<Renderer::MeshResource>(std::filesystem::path("Models") / meshfile);
+}
+
+//=================================================================================
+std::filesystem::path C_StaticMesh::GetMeshFile() const
+{
+	return m_MeshResource.GetResource().GetFilePath();
 }
 
 //=================================================================================

@@ -9,10 +9,10 @@
 #include <GUI/Input/Color.h>
 #include <GUI/Input/Slider.h>
 
+#include <Core/Resources/ResourceHandle.h>
+
 #include <rttr/registration.h>
 #include <rttr/registration_friend.h>
-
-#include <Core/Resources/ResourceHandle.h>
 
 namespace GLEngine {
 namespace Renderer::MeshData {
@@ -49,10 +49,12 @@ public:
 	virtual std::string_view GetDebugComponentName() const override;
 	virtual bool			 HasDebugDrawGUI() const override;
 
-	void		SetShader(const std::string shader);
-	std::string GetShader() const;
-	void		SetShadowShader(const std::string shader);
-	std::string GetShadowShader() const;
+	void				  SetShader(const std::string shader);
+	std::string			  GetShader() const;
+	void				  SetShadowShader(const std::string shader);
+	std::string			  GetShadowShader() const;
+	void				  SetMeshFile(const std::filesystem::path meshfile);
+	std::filesystem::path GetMeshFile() const;
 
 	void SetMaterial(std::shared_ptr<Renderer::C_Material> material);
 
@@ -63,7 +65,6 @@ public:
 protected:
 	void SetMaterial(const Renderer::MeshData::Material& material);
 
-	std::string												 m_meshFile;
 	std::vector<std::shared_ptr<Mesh::C_StaticMeshResource>> m_Mesh;
 	Core::ResourceHandle<Renderer::MeshResource>			 m_MeshResource;
 	std::shared_ptr<Shaders::C_ShaderProgram>				 m_Shader;
