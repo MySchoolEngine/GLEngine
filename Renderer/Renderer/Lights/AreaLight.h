@@ -12,6 +12,7 @@ class I_DebugDraw;
 class RENDERER_API_EXPORT C_AreaLight : public I_Light {
 public:
 	explicit C_AreaLight(std::shared_ptr<Entity::I_Entity> owner);
+	C_AreaLight();
 	virtual ~C_AreaLight();
 
 	virtual void			 DebugDrawGUI() override;

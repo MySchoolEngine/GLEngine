@@ -22,6 +22,7 @@ RTTR_REGISTRATION
 	
 	rttr::registration::class_<C_AreaLight>("C_AreaLight")
 		.constructor<std::shared_ptr<GLEngine::Entity::I_Entity>>()
+		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
 		.property("Width", &C_AreaLight::m_Width)
 			(
 				rttr::policy::prop::bind_as_ptr,
@@ -44,14 +45,21 @@ RTTR_REGISTRATION
 			(
 				rttr::policy::prop::bind_as_ptr,
 				RegisterMetaclass<MetaGUI::Colour>(),
-				RegisterMetamember<UI::Colour::Name>("Diffuse colour:")
+				RegisterMetamember<UI::Colour::Name>("Diffuse colour:"),
+				RegisterMetamember<SerializationCls::DerefSerialize>(true)
 			)
 		.property("SpecColour", &C_AreaLight::m_SpecularColor)
 			(
 				rttr::policy::prop::bind_as_ptr,
 				RegisterMetaclass<MetaGUI::Colour>(),
-				RegisterMetamember<UI::Colour::Name>("Spec colour:")
+				RegisterMetamember<UI::Colour::Name>("Spec colour:"),
+				RegisterMetamember<SerializationCls::DerefSerialize>(true)
 			);
+	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_AreaLight>>();
+	rttr::type::register_converter_func([](std::shared_ptr<C_AreaLight> ptr, bool& ok) -> std::shared_ptr<GLEngine::Entity::I_Component> {
+		ok = true;
+		return std::static_pointer_cast<GLEngine::Entity::I_Component>(ptr);
+	});
 }
 #pragma endregion registration
 
@@ -61,6 +69,16 @@ namespace GLEngine::Renderer {
 //=================================================================================
 C_AreaLight::C_AreaLight(std::shared_ptr<Entity::I_Entity> owner)
 	: Renderer::I_Light(owner)
+	, m_Width(1.f)
+	, m_Height(1.f)
+	, m_DiffuseColor(Colours::white)
+	, m_SpecularColor(Colours::white)
+{
+}
+
+//=================================================================================
+C_AreaLight::C_AreaLight()
+	: Renderer::I_Light(nullptr)
 	, m_Width(1.f)
 	, m_Height(1.f)
 	, m_DiffuseColor(Colours::white)
