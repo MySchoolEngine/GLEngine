@@ -22,6 +22,8 @@ public:
 	MeshData::Scene& GetScene();
 	const MeshData::Scene& GetScene() const;
 
+	std::filesystem::path GetFilePath() const;
+
 private:
 	std::filesystem::path					   m_Filepath;
 	std::shared_ptr<Renderer::MeshData::Scene> m_Scene;
