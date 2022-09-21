@@ -136,6 +136,8 @@ void C_XMLSerializer::WriteAtomics(const rttr::type& type, const rttr::variant& 
 	}
 	else if (type == rttr::type::get<std::string>())
 		attr.set_value(obj.to_string().c_str());
+	else if (type == rttr::type::get<std::filesystem::path>())
+		attr.set_value(obj.to_string().c_str());
 	else if (type.is_enumeration())
 	{
 		bool	   ok	  = false;

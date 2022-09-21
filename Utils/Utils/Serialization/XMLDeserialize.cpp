@@ -29,11 +29,15 @@ rttr::variant C_XMLDeserializer::DeserializeDoc(const pugi::xml_document& docume
 //=================================================================================
 rttr::variant C_XMLDeserializer::DeserializeNode(const pugi::xml_node& node, rttr::variant& var)
 {
+	using namespace ::Utils::Reflection;
 	const rttr::instance var2 = var.get_type().get_raw_type().is_wrapper() ? rttr::instance(var).get_wrapped_instance() : rttr::instance(var);
 	// CORE_LOG(E_Level::Error, E_Context::Core, "{}", var2.get_type());
 
 	for (auto& prop : var2.get_type().get_properties())
 	{
+		if (HasMetadataMember<SerializationCls::NoSerialize>(prop))
+			continue;
+
 		DeserializeProperty(prop, var, node);
 	}
 

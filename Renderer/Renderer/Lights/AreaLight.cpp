@@ -152,9 +152,9 @@ glm::vec3 C_AreaLight::GetNormal() const
 {
 	glm::mat4		transform(1.f);
 	const glm::vec3 rotations = m_Transformation.GetRotation();
-	transform				  = glm::rotate(transform, glm::radians(rotations).x, glm::vec3(1, 0, 0));
-	transform				  = glm::rotate(transform, glm::radians(rotations).y, glm::vec3(0, 1, 0));
-	transform				  = glm::rotate(transform, glm::radians(rotations).z, glm::vec3(0, 0, 1));
+	transform				  = glm::rotate(transform, rotations.x, glm::vec3(1, 0, 0));
+	transform				  = glm::rotate(transform, rotations.y, glm::vec3(0, 1, 0));
+	transform				  = glm::rotate(transform, rotations.z, glm::vec3(0, 0, 1));
 	return transform * glm::vec4(0, 0, -1, 1);
 }
 
@@ -163,9 +163,9 @@ glm::vec3 C_AreaLight::GetUpVector() const
 {
 	glm::mat4		transform(1.f);
 	const glm::vec3 rotations = m_Transformation.GetRotation();
-	transform				  = glm::rotate(transform, glm::radians(rotations).x, glm::vec3(1, 0, 0));
-	transform				  = glm::rotate(transform, glm::radians(rotations).y, glm::vec3(0, 1, 0));
-	transform				  = glm::rotate(transform, glm::radians(rotations).z, glm::vec3(0, 0, 1));
+	transform				  = glm::rotate(transform, rotations.x, glm::vec3(1, 0, 0));
+	transform				  = glm::rotate(transform, rotations.y, glm::vec3(0, 1, 0));
+	transform				  = glm::rotate(transform, rotations.z, glm::vec3(0, 0, 1));
 	return transform * glm::vec4(0, 1, 0, 1);
 }
 

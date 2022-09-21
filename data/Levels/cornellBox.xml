@@ -25,7 +25,7 @@
 						<C_StaticMesh MeshFile="plane.obj" Shader="basicTracing" ShadowPassShader="shadowPass">
 							<Transformation>
 								<Translation x="0" y="-1.5" z="0" />
-								<Rotation x="0" y="-0" z="0" />
+								<RotationDeg x="0" y="-0" z="0" />
 								<Scale x="1" y="1" z="1" />
 							</Transformation>
 							<Material Name="floor_Material" Roughness="1" Shininess="0">
@@ -46,7 +46,7 @@
 						<C_StaticMesh MeshFile="plane.obj" Shader="basicTracing" ShadowPassShader="shadowPass">
 							<Transformation>
 								<Translation x="0" y="1.5" z="0" />
-								<Rotation x="3.14" y="-0" z="0" />
+								<RotationDeg x="180" y="-0" z="0" />
 								<Scale x="1" y="1" z="1" />
 							</Transformation>
 							<Material Name="floor_Material" Roughness="1" Shininess="0">
@@ -67,7 +67,7 @@
 						<C_StaticMesh MeshFile="plane.obj" Shader="basicTracing" ShadowPassShader="shadowPass">
 							<Transformation>
 								<Translation x="3" y="0" z="0" />
-								<Rotation x="0" y="-0" z="1.57" />
+								<RotationDeg x="0" y="-0" z="90" />
 								<Scale x="0.5" y="1" z="1" />
 							</Transformation>
 							<Material Name="left_Material" Roughness="1" Shininess="0">
@@ -88,7 +88,7 @@
 						<C_StaticMesh MeshFile="plane.obj" Shader="basicTracing" ShadowPassShader="shadowPass">
 							<Transformation>
 								<Translation x="-3" y="0" z="0" />
-								<Rotation x="0" y="-0" z="-1.57" />
+								<RotationDeg x="0" y="-0" z="-90" />
 								<Scale x="0.5" y="1" z="1" />
 							</Transformation>
 							<Material Name="left_Material" Roughness="1" Shininess="0">
@@ -112,7 +112,7 @@
 						<C_StaticMesh MeshFile="plane.obj" Shader="basicTracing" ShadowPassShader="shadowPass">
 							<Transformation>
 								<Translation x="0" y="0" z="-3" />
-								<Rotation x="1.57" y="0" z="0" />
+								<RotationDeg x="90" y="0" z="0" />
 								<Scale x="1" y="1" z="0.5" />
 							</Transformation>
 							<Material Name="back_Material" Roughness="1" Shininess="0">
@@ -150,7 +150,7 @@
 						<C_AreaLight Width="2.0" Height="2.0">
 							<Transformation>
 								<Translation x="0" y="1.49" z="0" />
-								<Rotation x="-90" y="-0" z="0" />
+								<RotationDeg x="-90" y="-0" z="0" />
 							</Transformation>
 							<DiffuseColour>
 									<Colour x="1" y="0" z="0" />
@@ -172,7 +172,7 @@
 						<C_StaticMesh MeshFile="dragon/Dragon_Busts_Gerhald3D.obj" Shader="basicTracing" ShadowPassShader="shadowPass">
 							<Transformation>
 								<Translation x="0" y="-1.5" z="0" />
-								<Rotation x="0" y="-0" z="0" />
+								<RotationDeg x="0" y="-0" z="0" />
 								<Scale x="0.5" y="0.5" z="0.5" />
 							</Transformation>
 							<Material Name="floor_Material" Roughness="1" Shininess="0">

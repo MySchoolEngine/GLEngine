@@ -30,14 +30,16 @@ RTTR_REGISTRATION
 			(
 				rttr::policy::prop::bind_as_ptr, 
 				RegisterMetaclass<MetaGUI::Vec3>(), 
-				RegisterMetamember<UI::Vec3::Name>("Rotation")
+				RegisterMetamember<UI::Vec3::Name>("Rotation"),
+				RegisterMetamember<SerializationCls::NoSerialize>(true)
 			)
 		.property("Scale", &C_Transformations::m_Scale)
 			(
 				rttr::policy::prop::bind_as_ptr, 
 				RegisterMetaclass<MetaGUI::Vec3>(), 
 				RegisterMetamember<UI::Vec3::Name>("Scale")
-			);
+			)
+		.property("RotationDeg", &C_Transformations::GetRotationDeg, &C_Transformations::SetRotationDeg);
 }
 
 namespace GLEngine::GUI::Input {
@@ -155,6 +157,18 @@ void C_Transformations::SetRotation(const glm::vec3& rotation)
 void C_Transformations::SetScale(const glm::vec3& scale)
 {
 	m_Scale = scale;
+}
+
+//=================================================================================
+const glm::vec3& C_Transformations::GetRotationDeg() const
+{
+	return glm::degrees(m_Rotation);
+}
+
+//=================================================================================
+void C_Transformations::SetRotationDeg(const glm::vec3& rotation)
+{
+	m_Rotation = glm::radians(rotation);
 }
 
 } // namespace GLEngine::GUI::Input
