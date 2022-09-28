@@ -13,8 +13,6 @@
 
 #pragma once
 
-#include <Renderer/IResource.h>
-
 namespace GLEngine::GLRenderer {
 
 namespace Buffers {

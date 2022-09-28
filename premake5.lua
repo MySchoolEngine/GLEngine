@@ -52,6 +52,7 @@ workspace "Engine"
 		"vendor/ImGui/misc/nativs/imgui.natvis",
 		"vendor/pugixml/contrib/nativs/pugixml.natvis",
 		"Renderer/renderer.natvis",
+		"Entity/Entity.natvis",
 		"premake5.lua",
 		"Tools/Premake5/premakeDefines.lua",
 		"Tools/Premake5/workspaceFiles.lua",

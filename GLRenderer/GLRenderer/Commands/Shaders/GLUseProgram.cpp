@@ -24,12 +24,6 @@ Renderer::I_RenderCommand::E_Type C_GLUseProgram::GetType() const
 }
 
 //=================================================================================
-std::shared_ptr<GLEngine::Renderer::I_Resource> C_GLUseProgram::GetResource() const
-{
-	return nullptr;
-}
-
-//=================================================================================
 std::string C_GLUseProgram::GetDescriptor() const
 {
 	return fmt::format("UseProgram {}", m_Proram);

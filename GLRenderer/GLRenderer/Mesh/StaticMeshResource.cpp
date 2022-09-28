@@ -32,24 +32,6 @@ C_StaticMeshResource::C_StaticMeshResource(const Renderer::MeshData::Mesh& mesh)
 }
 
 //=================================================================================
-std::unique_ptr<GLEngine::Renderer::I_RawGPUData> C_StaticMeshResource::ExtractData() const
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-//=================================================================================
-void C_StaticMeshResource::Invalidate()
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-//=================================================================================
-bool C_StaticMeshResource::IsValid()
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-//=================================================================================
 void C_StaticMeshResource::BindVAO() const
 {
 	m_VAO.bind();

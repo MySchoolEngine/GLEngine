@@ -24,12 +24,6 @@ Renderer::I_RenderCommand::E_Type C_GLCullFace::GetType() const
 }
 
 //=================================================================================
-std::shared_ptr<Renderer::I_Resource> C_GLCullFace::GetResource() const
-{
-	return nullptr;
-}
-
-//=================================================================================
 std::string C_GLCullFace::GetDescriptor() const
 {
 	return "CullFace";

@@ -2,22 +2,15 @@
 
 #include <GLRenderer/VAO/VAO.h>
 
-#include <Renderer/IResource.h>
-
 namespace GLEngine::Renderer::MeshData {
 struct Mesh;
 }
 
 namespace GLEngine::GLRenderer::Mesh {
-class C_StaticMeshResource : public Renderer::I_Resource {
+class C_StaticMeshResource {
 public:
 	C_StaticMeshResource(const Renderer::MeshData::Mesh& mesh);
 	~C_StaticMeshResource() = default;
-
-	//=================================================================================
-	virtual std::unique_ptr<Renderer::I_RawGPUData> ExtractData() const override;
-	virtual void									Invalidate() override;
-	virtual bool									IsValid() override;
 
 	void		BindVAO() const;
 	std::size_t GetNumTriangles() const;

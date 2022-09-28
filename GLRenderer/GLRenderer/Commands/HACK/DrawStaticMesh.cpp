@@ -27,12 +27,6 @@ Renderer::I_RenderCommand::E_Type C_DrawStaticMesh::GetType() const
 }
 
 //=================================================================================
-std::shared_ptr<Renderer::I_Resource> C_DrawStaticMesh::GetResource() const
-{
-	return m_Mesh;
-}
-
-//=================================================================================
 std::string C_DrawStaticMesh::GetDescriptor() const
 {
 	return fmt::format("DrawStaticMesh tris: {}", m_Mesh->GetNumTriangles());
