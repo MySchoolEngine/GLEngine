@@ -515,26 +515,17 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 		m_CamManager.ActivateCamera(std::static_pointer_cast<Renderer::I_CameraComponent>(*camIt));
 		++camIt;
 		m_CamManager.SetDebugCamera(std::static_pointer_cast<Renderer::I_CameraComponent>(*camIt));
-
-		// area light
-		// auto arealight = std::make_shared<C_GLAreaLight>(player);
-		// player->AddComponent(arealight);
-		//
-		// m_ShadowPass = std::make_shared<C_ShadowMapTechnique>(m_World, std::static_pointer_cast<Renderer::I_Light>( arealight));
 	}
 
 	{
 		// create default atmosphere
-		auto entity = m_World->GetOrCreateEntity("atmosphere");
-		if (auto sunLight = entity->GetComponent<Entity::E_ComponentType::Light>())
+		auto entity = m_World->GetEntity("atmosphere");
+		if (entity)
 		{
-			m_SunShadow = std::make_shared<C_SunShadowMapTechnique>(std::static_pointer_cast<Renderer::C_SunLight>(sunLight));
-		}
-		else
-		{
-			auto sunComp = std::make_shared<Renderer::C_SunLight>(entity);
-			m_SunShadow	 = std::make_shared<C_SunShadowMapTechnique>(sunComp);
-			entity->AddComponent(sunComp);
+			if (auto sunLight = entity->GetComponent<Entity::E_ComponentType::Light>())
+			{
+				m_SunShadow = std::make_shared<C_SunShadowMapTechnique>(std::static_pointer_cast<Renderer::C_SunLight>(sunLight));
+			}
 		}
 	}
 }
