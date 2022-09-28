@@ -7,6 +7,25 @@
 
 #include <Utils/MapValueIterator.h>
 
+#include <rttr/registration>
+
+RTTR_REGISTRATION
+{
+	using namespace GLEngine::Entity;
+	rttr::registration::class_<I_Entity>("I_Entity")(rttr::policy::ctor::as_std_shared_ptr)
+		.property("ID", &I_Entity::m_ID)
+		.property("name", &I_Entity::m_Name)
+		.property("components", &I_Entity::m_Components);
+
+	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<I_Entity>>();
+
+	rttr::registration::enumeration<E_ComponentType>("E_ComponentType")(
+		rttr::value("Graphical",	E_ComponentType::Graphical), 
+		rttr::value("Light",		E_ComponentType::Light),
+		rttr::value("Camera",		E_ComponentType::Camera)
+	);
+}
+
 namespace GLEngine::Entity {
 
 //=================================================================================

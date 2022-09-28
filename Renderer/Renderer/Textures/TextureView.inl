@@ -2,6 +2,8 @@
 
 #include <Renderer/Textures/Filtering/LinearFiltering.h>
 
+#include <Utils/EnumUtils.h>
+
 namespace GLEngine::Renderer {
 
 //=================================================================================
@@ -17,7 +19,7 @@ template <> inline std::uint8_t C_TextureView::Get<std::uint8_t>(const glm::ivec
 	glm::ivec2 coord = uv;
 	if (IsOutsideBorders(uv))
 		if (UseBorderColor())
-			return static_cast<std::uint8_t>(GetBorderColor<glm::ivec4>()[static_cast<std::underlying_type_t<E_TextureChannel>>(element)]);
+			return static_cast<std::uint8_t>(GetBorderColor<glm::ivec4>()[::Utils::ToIndex(element)]);
 		else
 			coord = ClampCoordinates(uv);
 
@@ -31,7 +33,7 @@ template <> inline float C_TextureView::Get<float>(const glm::ivec2& uv, E_Textu
 	glm::ivec2 coord = uv;
 	if (IsOutsideBorders(uv))
 		if (UseBorderColor())
-			return GetBorderColor<glm::vec4>()[static_cast<std::underlying_type_t<E_TextureChannel>>(element)];
+			return GetBorderColor<glm::vec4>()[::Utils::ToIndex(element)];
 		else
 			coord = ClampCoordinates(uv);
 

@@ -3,10 +3,47 @@
 #include <Renderer/Lights/PointLight.h>
 #include <Renderer/Mesh/Scene.h>
 
+#include <GUI/ReflectionGUI.h>
+
 #include <Physics/Primitives/Frustum.h>
 
 #include <Utils/Parsing/ColorParsing.h>
 #include <Utils/Parsing/MatrixParse.h>
+
+#include <rttr/registration.h>
+
+#pragma region registration
+RTTR_REGISTRATION
+{
+	using namespace Utils::Reflection;
+	using namespace GLEngine::Renderer;
+
+	rttr::registration::class_<C_PointLight>("C_PointLight")
+		.constructor<std::shared_ptr<GLEngine::Entity::I_Entity>>()
+		.constructor<>()
+		.property("Intensity", &C_PointLight::m_Intensity)
+  		  (
+			  rttr::policy::prop::bind_as_ptr,
+			  RegisterMetaclass<MetaGUI::Slider>(),
+			  RegisterMetamember<UI::Slider::Name>("Intensity:"),
+			  RegisterMetamember<UI::Slider::Min>(0.f),
+			  RegisterMetamember<UI::Slider::Max>(100.0f),
+			  RegisterMetamember<SerializationCls::DerefSerialize>(true)
+		  )
+		.property("Color", &C_PointLight::m_Color)
+		(
+			rttr::policy::prop::bind_as_ptr,
+			RegisterMetaclass<MetaGUI::Colour>(),
+			RegisterMetamember<UI::Colour::Name>("Colour:")
+		);
+
+	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_PointLight>>();
+	rttr::type::register_converter_func([](std::shared_ptr<C_PointLight> ptr, bool& ok) -> std::shared_ptr<GLEngine::Entity::I_Component> {
+		ok = true;
+		return std::static_pointer_cast<GLEngine::Entity::I_Component>(ptr);
+	});
+}
+#pragma endregion registration
 
 namespace GLEngine::Renderer {
 
@@ -15,16 +52,24 @@ namespace GLEngine::Renderer {
 //=================================================================================
 C_PointLight::C_PointLight(std::shared_ptr<Entity::I_Entity> owner)
 	: Renderer::I_Light(owner)
-	, m_Intensity(1.f, 0.f, 100.f, "Intensity")
-	, m_Color("Color", Colours::white)
+	, m_Intensity(1.f)
+	, m_Color(Colours::white)
 {
 }
 
 //=================================================================================
 C_PointLight::C_PointLight(std::shared_ptr<Entity::I_Entity> owner, const MeshData::Light& def)
 	: Renderer::I_Light(owner)
-	, m_Intensity(1.f, 0.f, 100.f, "Intensity")
-	, m_Color("Color", def.m_Color)
+	, m_Intensity(1.f)
+	, m_Color(def.m_Color)
+{
+}
+
+//=================================================================================
+C_PointLight::C_PointLight()
+	: Renderer::I_Light(nullptr)
+	, m_Intensity(1.f)
+	, m_Color(Colours::white)
 {
 }
 
@@ -54,7 +99,7 @@ float C_PointLight::GetIntensity() const
 //=================================================================================
 Colours::T_Colour C_PointLight::GetColor() const
 {
-	return m_Color.GetValue();
+	return m_Color;
 }
 
 //=================================================================================
@@ -78,8 +123,8 @@ bool C_PointLight::HasDebugDrawGUI() const
 //=================================================================================
 void C_PointLight::DebugDrawGUI()
 {
-	m_Intensity.Draw();
-	m_Color.Draw();
+	rttr::instance obj(*this);
+	GUI::DrawAllPropertyGUI(obj);
 }
 
 //=================================================================================

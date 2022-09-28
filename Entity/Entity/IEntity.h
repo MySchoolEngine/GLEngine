@@ -9,6 +9,9 @@
 #include <Utils/MapValueIterator.h>
 #include <Utils/Range.h>
 
+#include <rttr/type>
+#include <rttr/registration_friend.h>
+
 namespace GLEngine::Entity {
 
 enum class E_ComponentType
@@ -16,7 +19,6 @@ enum class E_ComponentType
 	Graphical,
 	Light,
 	Camera,
-	DebugGUI,
 };
 
 class ENTITY_API_EXPORT I_Entity : public Core::I_EventReciever {
@@ -56,6 +58,9 @@ public:
 	//=================================================================================
 	[[nodiscard]] virtual T_ComponentIter begin();
 	[[nodiscard]] virtual T_ComponentIter end();
+
+	RTTR_ENABLE();
+	RTTR_REGISTRATION_FRIEND;
 
 protected:
 	EntityID			  m_ID;

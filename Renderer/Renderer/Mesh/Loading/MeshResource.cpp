@@ -52,6 +52,12 @@ const MeshData::Scene& MeshResource::GetScene() const
 }
 
 //=================================================================================
+std::filesystem::path MeshResource::GetFilePath() const
+{
+	return m_Filepath;
+}
+
+//=================================================================================
 std::shared_ptr<GLEngine::Core::Resource> MeshLoader::CreateResource() const
 {
 	return std::make_shared<MeshResource>();

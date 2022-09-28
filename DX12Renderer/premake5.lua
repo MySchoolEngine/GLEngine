@@ -15,6 +15,7 @@ project "DX12Renderer"
 	Link("Core")
 
 	LinkDependency("pugixml")
+	LinkDependency("RTTR")
 
 	includedirs
 	{

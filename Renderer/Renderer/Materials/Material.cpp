@@ -5,6 +5,25 @@
 
 #include <imgui.h>
 
+#include <rttr/registration>
+
+RTTR_REGISTRATION
+{
+	using namespace GLEngine::Renderer;
+
+	rttr::registration::class_<C_Material>("C_Material")
+		.constructor<std::string>()
+		.property("Name", &C_Material::m_Name)
+		.property("Color", &C_Material::m_Color)
+		.property_readonly("Roughness", &C_Material::GetRoughness)
+		.property_readonly("ColorMap", &C_Material::m_ColorMap)
+		.property_readonly("NormalMap", &C_Material::m_NormalMap)
+		.property_readonly("RoughnessMap", &C_Material::m_RoughnessMap)
+		.property("Shininess", &C_Material::GetShininess, &C_Material::SetShininess);
+
+	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_Material>>();
+}
+
 namespace GLEngine::Renderer {
 
 //=================================================================================
@@ -26,7 +45,7 @@ C_Material::C_Material(const std::string& name)
 //=================================================================================
 C_Material::C_Material(const MeshData::Material& material)
 	: m_Name(material.m_Name)
-	, m_Color("Color", Colours::white)
+	, m_Color("Color", material.diffuse)
 	, m_Roughness(0.5f, 0.f, 1.f, "Roughness")
 	, m_ColorMap(nullptr)
 	, m_NormalMap(nullptr)

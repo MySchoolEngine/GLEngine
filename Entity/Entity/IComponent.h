@@ -6,6 +6,9 @@
 
 #include <Core/EventSystem/EventReciever.h>
 
+#include <rttr/type>
+#include <rttr/registration_friend.h>
+
 namespace pugi {
 class xml_node;
 }
@@ -45,18 +48,24 @@ public:
 
 	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const = 0;
 
+	// only call on component without parent
+	void SetParent(std::shared_ptr<I_Entity> owner);
+
 protected:
 	std::shared_ptr<I_Entity>	  GetOwner() const;
 	GUI::Input::C_Transformations m_Transformation;
 
 private:
 	std::weak_ptr<I_Entity> m_Owner;
+	RTTR_ENABLE();
+	RTTR_REGISTRATION_FRIEND;
 };
 
 //=================================================================================
 class I_ComponenetBuilder {
 public:
 	virtual std::shared_ptr<I_Component> Build(const pugi::xml_node& node, std::shared_ptr<I_Entity> owner) = 0;
+	RTTR_ENABLE();
 };
 
 //=================================================================================

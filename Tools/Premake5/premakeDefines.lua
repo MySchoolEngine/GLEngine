@@ -47,7 +47,13 @@ end
 end
 
 function LinkDependency(depName)
-	includedirs("%{wks.location}/%{IncludeDir."..depName.."}")
+	if not (type( IncludeDir[depName] ) == "string") then
+		for i,dir in pairs(IncludeDir[depName]) do
+			includedirs { "%{wks.location}/"..dir }
+		end
+	else
+		includedirs{"%{wks.location}/%{IncludeDir."..depName.."}"}
+	end
 	libdirs {"%{wks.location}/bin/"..outputdir.."/vendor/"..depName.."/"}
 	links
 	{

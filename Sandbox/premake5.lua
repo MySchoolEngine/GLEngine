@@ -14,6 +14,7 @@ project "Sandbox"
 	Link("Core")
 	Link("Utils")
 	Link("GLRenderer")
+	LinkDependency("RTTR")
 	if (_OPTIONS["glfwapi"] ~= "opengl") then
 		Link("VulkanRenderer")
 	end

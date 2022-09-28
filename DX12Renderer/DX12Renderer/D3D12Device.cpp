@@ -1,4 +1,4 @@
-#include <DX12RendererStdAfx.h>
+#include <DX12RendererStdafx.h>
 
 #include <DX12Renderer/D3D12Device.h>
 

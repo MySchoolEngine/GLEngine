@@ -11,6 +11,9 @@
 
 #include <Core/Resources/ResourceHandle.h>
 
+#include <rttr/registration.h>
+#include <rttr/registration_friend.h>
+
 namespace GLEngine {
 namespace Renderer::MeshData {
 struct Mesh;
@@ -31,10 +34,10 @@ class C_StaticMeshResource;
 }
 
 namespace Components {
-
 class C_StaticMesh : public Renderer::I_RenderableComponent {
 public:
 	C_StaticMesh(std::string meshFile, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner);
+	C_StaticMesh();
 	C_StaticMesh(Core::ResourceHandle<Renderer::MeshResource> meshHandle,
 				 std::string_view							  shader,
 				 std::shared_ptr<Entity::I_Entity>			  owner,
@@ -46,14 +49,22 @@ public:
 	virtual std::string_view GetDebugComponentName() const override;
 	virtual bool			 HasDebugDrawGUI() const override;
 
+	void				  SetShader(const std::string shader);
+	std::string			  GetShader() const;
+	void				  SetShadowShader(const std::string shader);
+	std::string			  GetShadowShader() const;
+	void				  SetMeshFile(const std::filesystem::path meshfile);
+	std::filesystem::path GetMeshFile() const;
+
 	void SetMaterial(std::shared_ptr<Renderer::C_Material> material);
 
 	virtual void Update() override;
 
+	RTTR_ENABLE(Renderer::I_RenderableComponent);
+
 protected:
 	void SetMaterial(const Renderer::MeshData::Material& material);
 
-	std::string												 m_meshFile;
 	std::vector<std::shared_ptr<Mesh::C_StaticMeshResource>> m_Mesh;
 	Core::ResourceHandle<Renderer::MeshResource>			 m_MeshResource;
 	std::shared_ptr<Shaders::C_ShaderProgram>				 m_Shader;
@@ -62,11 +73,13 @@ protected:
 	Physics::Primitives::S_AABB								 m_AABB;
 
 	friend class C_StaticMeshBuilder;
+	RTTR_REGISTRATION_FRIEND;
 };
 
 class C_StaticMeshBuilder : public Entity::I_ComponenetBuilder {
 public:
 	virtual std::shared_ptr<Entity::I_Component> Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner) override;
+	RTTR_ENABLE(Entity::I_ComponenetBuilder);
 };
 
 } // namespace Components

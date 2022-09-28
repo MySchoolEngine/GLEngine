@@ -1,84 +1,189 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<World>
+<EntityManager>
 	<Entities>
-		<Entity name="floor">
-			<translate sid="location">0 -1.5 0</translate>
-			<Components>
-				<staticMesh filePath="plane.obj" material="basicTracing" shadowPassShader="shadowPass">
-					<color>1 1 1</color>
-				</staticMesh>
-			</Components>
-		</Entity>
-		<Entity name="ceiling">
-			<translate sid="location">0 1.5 0</translate>
-			<rotate>1 0 0 180</rotate>
-			<Components>
-				<staticMesh filePath="plane.obj" material="basicTracing" shadowPassShader="shadowPass">
-					<color>1 1 1</color>
-				</staticMesh>
-			</Components>
-		</Entity>
-		<Entity name="left">
-			<translate sid="location">3 0 0</translate>
-			<rotate>0 0 1 90</rotate>
-			<scale>0.5 1 1</scale>
-			<Components>
-				<staticMesh filePath="plane.obj" material="basicTracing" shadowPassShader="shadowPass">
-					<color>0 1 0</color>
-				</staticMesh>
-			</Components>
-		</Entity>
-		<Entity name="right">
-			<translate sid="location">-3 0 0</translate>
-			<rotate>0 0 1 -90</rotate>
-			<scale>0.5 1 1</scale>
-			<Components>
-				<staticMesh filePath="plane.obj" material="basicTracing" shadowPassShader="shadowPass">
-					<color>1 0 0</color>
-				</staticMesh>
-			</Components>
-		</Entity>
-		<Entity name="back">
+		<C_BasicEntity name="Player" ID="dfc9800f-c6cc-428b-a5f2-6c532f1ec4d3">
+			<components>
+				<item>
+					<key value="Camera" />
+					<value>
+						<C_OrbitalCamera YAngle="90" XAngle="90" Zoom="5" />
+					</value>
+				</item>
+				<item>
+					<key value="Camera" />
+					<value>
+						<C_OrbitalCamera YAngle="90" XAngle="90" Zoom="5" />
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
+		<C_BasicEntity name="floor">
+			<components>
+				<item>
+					<key value="Graphical" />
+					<value>
+						<C_StaticMesh MeshFile="plane.obj" Shader="basicTracing" ShadowPassShader="shadowPass">
+							<Transformation>
+								<Translation x="0" y="-1.5" z="0" />
+								<RotationDeg x="0" y="-0" z="0" />
+								<Scale x="1" y="1" z="1" />
+							</Transformation>
+							<Material Name="floor_Material" Roughness="1" Shininess="0">
+								<Color>
+									<Colour x="1" y="1" z="1" />
+								</Color>
+							</Material>
+						</C_StaticMesh>
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
+		<C_BasicEntity name="ceiling">
+			<components>
+				<item>
+					<key value="Graphical" />
+					<value>
+						<C_StaticMesh MeshFile="plane.obj" Shader="basicTracing" ShadowPassShader="shadowPass">
+							<Transformation>
+								<Translation x="0" y="1.5" z="0" />
+								<RotationDeg x="180" y="-0" z="0" />
+								<Scale x="1" y="1" z="1" />
+							</Transformation>
+							<Material Name="floor_Material" Roughness="1" Shininess="0">
+								<Color>
+									<Colour x="1" y="1" z="1" />
+								</Color>
+							</Material>
+						</C_StaticMesh>
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
+		<C_BasicEntity name="left">
+			<components>
+				<item>
+					<key value="Graphical" />
+					<value>
+						<C_StaticMesh MeshFile="plane.obj" Shader="basicTracing" ShadowPassShader="shadowPass">
+							<Transformation>
+								<Translation x="3" y="0" z="0" />
+								<RotationDeg x="0" y="-0" z="90" />
+								<Scale x="0.5" y="1" z="1" />
+							</Transformation>
+							<Material Name="left_Material" Roughness="1" Shininess="0">
+								<Color>
+									<Colour x="0" y="1" z="0" />
+								</Color>
+							</Material>
+						</C_StaticMesh>
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
+		<C_BasicEntity name="right">
+			<components>
+				<item>
+					<key value="Graphical" />
+					<value>
+						<C_StaticMesh MeshFile="plane.obj" Shader="basicTracing" ShadowPassShader="shadowPass">
+							<Transformation>
+								<Translation x="-3" y="0" z="0" />
+								<RotationDeg x="0" y="-0" z="-90" />
+								<Scale x="0.5" y="1" z="1" />
+							</Transformation>
+							<Material Name="left_Material" Roughness="1" Shininess="0">
+								<Color>
+									<Colour x="1" y="0" z="0" />
+								</Color>
+							</Material>
+						</C_StaticMesh>
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
+		<C_BasicEntity name="back">
 			<translate sid="location">0 0 -3</translate>
 			<rotate>1 0 0 90</rotate>
 			<scale>1 1 0.5</scale>
-			<Components>
-				<staticMesh filePath="plane.obj" material="basicTracing" shadowPassShader="shadowPass">
-					<color>1 1 1</color>
-				</staticMesh>
-			</Components>
-		</Entity>
-		<!--<Entity name="sphere1">
+			<components>
+				<item>
+					<key value="Graphical" />
+					<value>
+						<C_StaticMesh MeshFile="plane.obj" Shader="basicTracing" ShadowPassShader="shadowPass">
+							<Transformation>
+								<Translation x="0" y="0" z="-3" />
+								<RotationDeg x="90" y="0" z="0" />
+								<Scale x="1" y="1" z="0.5" />
+							</Transformation>
+							<Material Name="back_Material" Roughness="1" Shininess="0">
+								<Color>
+									<Colour x="1" y="1" z="1" />
+								</Color>
+							</Material>
+						</C_StaticMesh>
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
+		<!--<C_BasicEntity name="sphere1">
 			<translate sid="location">-1.5 -1.0 -1.5</translate>
-			<Components>
-				<staticMesh filePath="sphere.obj" material="basicTracing" shadowPassShader="shadowPass">
+			<components>
+				<C_StaticMesh MeshFile="sphere.obj" Shader="basicTracing" ShadowPassShader="shadowPass">
 					<color>0 0 1</color>
-				</staticMesh>
-			</Components>
-		</Entity>
-		<Entity name="sphere2">
+				</C_StaticMesh>
+			</components>
+		</C_BasicEntity>
+		<C_BasicEntity name="sphere2">
 			<translate sid="location">0.8 0.0 0.5</translate>
-			<Components>
-				<staticMesh filePath="sphere.obj" material="basicTracing" shadowPassShader="shadowPass">
+			<components>
+				<C_StaticMesh MeshFile="sphere.obj" Shader="basicTracing" ShadowPassShader="shadowPass">
 					<color>0 0 1</color>
-				</staticMesh>
-			</Components>
-		</Entity>-->
+				</C_StaticMesh>
+			</components>
+		</C_BasicEntity>-->
 
-		<Entity name="light">
-			<Components>
-				<AreaLight width="2.0" height="2.0">
-					<translate sid="location">0 1.49 0</translate>
-					<rotate>1 0 0 90</rotate>
-					<DiffuseColor>1.0 1.0 1.0</DiffuseColor>
-					<SpecularColor>1.0 1.0 1.0</SpecularColor>
-				</AreaLight>
-			</Components>
-		</Entity>
+		<C_BasicEntity name="light">
+			<components>
+				<item>
+					<key value="Light" />
+					<value>
+						<C_AreaLight Width="2.0" Height="2.0">
+							<Transformation>
+								<Translation x="0" y="1.49" z="0" />
+								<RotationDeg x="-90" y="-0" z="0" />
+							</Transformation>
+							<DiffuseColour>
+									<Colour x="1" y="0" z="0" />
+							</DiffuseColour>
+							<SpecColour>
+									<Colour x="1" y="1" z="1" />
+							</SpecColour>
+						</C_AreaLight>
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
 
-		<ExternEntity name="dragonHead" filePath="dragon/Dragon_Busts_Gerhald3D.obj" material="basicTracing" shadowPassShader="shadowPass">
-			<translate sid="location">0 -1.5 0</translate>
-			<scale>0.5 0.5 0.5</scale>
-		</ExternEntity>
+		<C_BasicEntity name="dragonHead">
+			<components>
+				<item>
+					<key value="Graphical" />
+					<value>
+						<C_StaticMesh MeshFile="dragon/Dragon_Busts_Gerhald3D.obj" Shader="basicTracing" ShadowPassShader="shadowPass">
+							<Transformation>
+								<Translation x="0" y="-1.5" z="0" />
+								<RotationDeg x="0" y="-0" z="0" />
+								<Scale x="0.5" y="0.5" z="0.5" />
+							</Transformation>
+							<Material Name="floor_Material" Roughness="1" Shininess="0">
+								<Color>
+									<Colour x="1" y="1" z="1" />
+								</Color>
+							</Material>
+						</C_StaticMesh>
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
 	</Entities>
-</World>
+</EntityManager>

@@ -33,8 +33,7 @@
 namespace GLEngine::GLRenderer {
 
 //=================================================================================
-C_MainPassTechnique::C_MainPassTechnique(std::shared_ptr<Entity::C_EntityManager> world)
-	: m_WorldToRender(world)
+C_MainPassTechnique::C_MainPassTechnique()
 {
 	m_FrameConstUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>("frameConst");
 	m_LightsUBO		= Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<C_LightsBuffer>("lightsUni");
@@ -42,12 +41,12 @@ C_MainPassTechnique::C_MainPassTechnique(std::shared_ptr<Entity::C_EntityManager
 }
 
 //=================================================================================
-void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> camera, unsigned int widht, unsigned int height)
+void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shared_ptr<Renderer::I_CameraComponent> camera, unsigned int widht, unsigned int height)
 {
 	RenderDoc::C_DebugScope s("C_MainPassTechnique::Render");
 	const auto				camFrustum	   = camera->GetFrustum();
 	const auto				camBox		   = camFrustum.GetAABB().GetSphere();
-	const auto				entitiesInView = m_WorldToRender->GetEntities(camFrustum);
+	const auto				entitiesInView = world.GetEntities(camFrustum);
 
 	auto& renderer = (Core::C_Application::Get()).GetActiveRenderer();
 	renderer.SetCurrentPassType(Renderer::E_PassType::FinalPass);

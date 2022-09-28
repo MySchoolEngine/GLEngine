@@ -16,6 +16,7 @@ project "ShaderPreprocessor"
 	Link("GUI")
 	LinkDependency("ImGui")
 	LinkDependency("pugixml")
+	LinkDependency("RTTR")
 
 	includedirs
 	{

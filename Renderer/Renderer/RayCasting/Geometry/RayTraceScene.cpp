@@ -297,7 +297,9 @@ void C_RayTraceScene::BuildScene()
 {
 	for (const auto& meshHandle : m_Meshes)
 	{
-		GLE_ASSERT(meshHandle, "At this point all the handles should be loaded!");
+		GLE_ASSERT(meshHandle.IsLoading() == false, "At this point all the handles should be loaded!");
+		if (!meshHandle)
+			continue;
 
 		for (auto& mesh : meshHandle.GetResource().GetScene().meshes)
 		{

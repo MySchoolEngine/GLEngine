@@ -1,6 +1,5 @@
 #include <GLRendererStdafx.h>
 
-#include <GLRenderer/Buffers/UBO/FrameConstantsBuffer.h>
 #include <GLRenderer/Buffers/UBO/ModelData.h>
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
 #include <GLRenderer/Commands/GLClear.h>
@@ -29,7 +28,6 @@
 #include <GLRenderer/Windows/ExperimentWindow.h>
 #include <GLRenderer/Windows/RayTrace.h>
 
-#include <Renderer/Cameras/FreelookCamera.h>
 #include <Renderer/Cameras/OrbitalCamera.h>
 #include <Renderer/Lights/SunLight.h>
 #include <Renderer/Materials/MaterialManager.h>
@@ -54,6 +52,9 @@
 #include <Core/EventSystem/EventDispatcher.h>
 #include <Core/Resources/ResourceManager.h>
 
+#include <Utils/EnumUtils.h>
+#include <Utils/Serialization/XMLDeserialize.h>
+#include <Utils/Serialization/XMLSerialize.h>
 #include <Utils/StdVectorUtils.h>
 
 #include <pugixml.hpp>
@@ -119,10 +120,9 @@ void C_ExplerimentWindow::Update()
 	C_DebugDraw::Instance().DrawAxis(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0, 1.f, 0.0f), glm::vec3(0.f, 0.f, 1.f));
 
 	const auto avgMsPerFrame = m_Samples.Avg();
-	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgFrametime)].UpdateText(m_Samples.Avg());
-	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgFps)].UpdateText(1000.f / avgMsPerFrame);
-	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::MinMaxFrametime)].UpdateText(*Utils::min_element(m_Samples),
-																										*Utils::max_element(m_Samples));
+	m_GUITexts[::Utils::ToIndex(E_GUITexts::AvgFrametime)].UpdateText(m_Samples.Avg());
+	m_GUITexts[::Utils::ToIndex(E_GUITexts::AvgFps)].UpdateText(1000.f / avgMsPerFrame);
+	m_GUITexts[::Utils::ToIndex(E_GUITexts::MinMaxFrametime)].UpdateText(*Utils::min_element(m_Samples), *Utils::max_element(m_Samples));
 
 	glfwSwapInterval(m_VSync ? 1 : 0);
 	m_RayTraceWindow->DebugDraw(&C_DebugDraw::Instance());
@@ -152,7 +152,7 @@ void C_ExplerimentWindow::Update()
 		m_MainPass->SetSunShadowMap(tmgr.GetIdentityTexture()->GetHandle());
 	}
 	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
-	m_MainPass->Render(camera, GetWidth(), GetHeight());
+	m_MainPass->Render(*m_World.get(), camera, GetWidth(), GetHeight());
 
 	C_DebugDraw::Instance().ProbeDebug(m_RayTraceWindow->GetProbePosition(), .25f, m_RayTraceWindow->GetTexture());
 
@@ -258,7 +258,7 @@ bool C_ExplerimentWindow::OnKeyPressed(Core::C_KeyPressedEvent& event)
 void C_ExplerimentWindow::OnAppInit()
 {
 	m_FrameTimer.reset();
-	m_MainPass = std::make_unique<C_MainPassTechnique>(m_World);
+	m_MainPass = std::make_unique<C_MainPassTechnique>();
 	{
 		using namespace Commands;
 		m_renderer->AddCommand(std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::DEPTH_TEST));
@@ -344,9 +344,9 @@ void C_ExplerimentWindow::OnAppInit()
 	m_FrameStatsGUID = guiMGR.CreateGUIWindow("Frame stats");
 	auto* frameStats = guiMGR.GetWindow(m_FrameStatsGUID);
 
-	frameStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgFrametime)]);
-	frameStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgFps)]);
-	frameStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::MinMaxFrametime)]);
+	frameStats->AddComponent(m_GUITexts[::Utils::ToIndex(E_GUITexts::AvgFrametime)]);
+	frameStats->AddComponent(m_GUITexts[::Utils::ToIndex(E_GUITexts::AvgFps)]);
+	frameStats->AddComponent(m_GUITexts[::Utils::ToIndex(E_GUITexts::MinMaxFrametime)]);
 	frameStats->AddComponent(m_Samples);
 	frameStats->AddComponent(m_VSync);
 	frameStats->SetVisible(true);
@@ -358,17 +358,10 @@ void C_ExplerimentWindow::OnAppInit()
 	hdrSettings->AddComponent(m_GammaSlider);
 	hdrSettings->AddComponent(m_ExposureSlider);
 
-
-	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("HDR Settings", m_HDRSettingsGUID, guiMGR));
-
-	const auto rendererWindow = static_cast<C_OGLRenderer*>(m_renderer.get())->SetupControls(guiMGR);
-	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Renderer", rendererWindow, guiMGR));
-
-	const auto camManager = m_CamManager.SetupControls(guiMGR);
-	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Camera manager", camManager, guiMGR));
-
-	const auto materialManager = Renderer::C_MaterialManager::Instance().SetupControls(guiMGR);
-	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Material manager", materialManager, guiMGR));
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("New level", [&]() {
+		m_World->ClearLevel();
+		AddMandatoryWorldParts();
+	}));
 
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Open level", [&]() {
 		const auto levelSelectorGUID = NextGUID();
@@ -385,7 +378,32 @@ void C_ExplerimentWindow::OnAppInit()
 
 	auto& tmgr = Textures::C_TextureManager::Instance();
 	tmgr.GetIdentityTexture()->MakeHandleResident(); // Hack, I need to have active renderer because of lack of dependency injection
-	CORE_LOG(E_Level::Info, E_Context::Render, "Experiment window setup time was %f", float(m_FrameTimer.getElapsedTimeFromLastQueryMilliseconds()) / 1000.f);
+
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Save Level", [&]() {
+		const auto filename = m_World->GetFilename();
+		if (filename.empty())
+		{
+			SaveLevelAs();
+		}
+		else
+		{
+			SaveLevel(filename);
+		}
+	}));
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Save Level As", std::bind(&C_ExplerimentWindow::SaveLevelAs, this)));
+
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("HDR Settings", m_HDRSettingsGUID, guiMGR));
+
+	const auto rendererWindow = static_cast<C_OGLRenderer*>(m_renderer.get())->SetupControls(guiMGR);
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Renderer", rendererWindow, guiMGR));
+
+	const auto camManager = m_CamManager.SetupControls(guiMGR);
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Camera manager", camManager, guiMGR));
+
+	const auto materialManager = Renderer::C_MaterialManager::Instance().SetupControls(guiMGR);
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Material manager", materialManager, guiMGR));
+
+	CORE_LOG(E_Level::Info, E_Context::Render, "Experiment window setup time was {}", float(m_FrameTimer.getElapsedTimeFromLastQueryMilliseconds()) / 1000.f);
 }
 
 //=================================================================================
@@ -421,13 +439,58 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 //=================================================================================
 void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 {
-	if (!m_World->LoadLevel(level, std::make_unique<Components::C_ComponentBuilderFactory>()))
+	pugi::xml_document doc;
+
+	pugi::xml_parse_result result;
+	result = doc.load_file(level.c_str());
+	if (!result.status == pugi::status_ok)
 	{
-		CORE_LOG(E_Level::Warning, E_Context::Render, "Level not loaded");
+		CORE_LOG(E_Level::Error, E_Context::Core, "Can't open config file for level name: {}", level);
 		return;
 	}
 
+	Utils::C_XMLDeserializer d;
+	auto					 newWorld = d.Deserialize<std::shared_ptr<Entity::C_EntityManager>>(doc);
+	m_World.swap(newWorld.value());
+	m_World->SetFilename(level);
+
+	auto& guiMGR	  = m_ImGUI->GetGUIMgr();
+	auto* entitiesWnd = guiMGR.GetWindow(m_EntitiesWindowGUID);
+	if (auto* entitiesWindow = dynamic_cast<Entity::C_EntitiesWindow*>(entitiesWnd)) {
+		entitiesWindow->SetWorld(m_World);
+	}
+
 	AddMandatoryWorldParts();
+
+	// Inform entities about the level loaded event
+	Core::C_EntityEvent levelEvent(GUID::INVALID_GUID, Core::C_EntityEvent::EntityEvent::LevelLoaded);
+	m_World->OnEvent(levelEvent);
+}
+
+//=================================================================================
+void C_ExplerimentWindow::SaveLevel(const std::filesystem::path& filename)
+{
+	Utils::C_XMLSerializer s;
+	const auto			   str = s.Serialize(m_World);
+	m_World->SetFilename(filename);
+	str.save_file(filename.c_str());
+}
+
+//=================================================================================
+void C_ExplerimentWindow::SaveLevelAs()
+{
+	auto&	   guiMGR			 = m_ImGUI->GetGUIMgr();
+	const auto levelSelectorGUID = NextGUID();
+	auto*	   levelPathSelect	 = new GUI::C_FileDialogWindow(
+		   ".xml", "Select level",
+		   [&, levelSelectorGUID](const std::filesystem::path& level) {
+			   m_ImGUI->GetGUIMgr().DestroyWindow(levelSelectorGUID);
+
+			   SaveLevel(level);
+		   },
+		   levelSelectorGUID, "./Levels");
+	guiMGR.AddCustomWindow(levelPathSelect);
+	levelPathSelect->SetVisible();
 }
 
 //=================================================================================
@@ -438,42 +501,48 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 	auto player = m_Player.lock();
 	if (player)
 	{
-		float zoom		   = 5.0f;
-		auto  playerCamera = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
-		playerCamera->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
-		// playerCamera->positionCamera({ 0,1,0 }, { 0,0,1 });
-		playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
-		// playerCamera->adjustOrientation(20.f, 20.f);
-		playerCamera->Update();
-		player->AddComponent(playerCamera);
-		m_CamManager.ActivateCamera(playerCamera);
+		auto cameras = player->GetComponents(Entity::E_ComponentType::Camera);
+		for (int i = cameras.size(); i < 2; ++i)
+		{
+			float zoom		   = 5.0f;
+			auto  playerCamera = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
+			playerCamera->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
+			playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
+			playerCamera->Update();
+			player->AddComponent(playerCamera);
+		}
+		auto camIt = player->GetComponents(Entity::E_ComponentType::Camera).begin();
+		m_CamManager.ActivateCamera(std::static_pointer_cast<Renderer::I_CameraComponent>(*camIt));
+		++camIt;
+		m_CamManager.SetDebugCamera(std::static_pointer_cast<Renderer::I_CameraComponent>(*camIt));
 
-		auto debugCam = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
-		debugCam->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
-		// playerCamera->positionCamera({ 0,1,0 }, { 0,0,1 });
-		debugCam->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
-		debugCam->adjustOrientation(0.f, 0.f);
-		debugCam->Update();
-		player->AddComponent(debugCam);
-		m_CamManager.SetDebugCamera(debugCam);
+		// area light
+		// auto arealight = std::make_shared<C_GLAreaLight>(player);
+		// player->AddComponent(arealight);
+		//
+		// m_ShadowPass = std::make_shared<C_ShadowMapTechnique>(m_World, std::static_pointer_cast<Renderer::I_Light>( arealight));
 	}
-	auto atmosphereEntity = m_World->GetEntity("atmosphere");
-	if (atmosphereEntity)
+
 	{
 		// create default atmosphere
-		auto sunComp = std::make_shared<Renderer::C_SunLight>(atmosphereEntity);
-		m_SunShadow	 = std::make_shared<C_SunShadowMapTechnique>(sunComp);
-		atmosphereEntity->AddComponent(sunComp);
-	}
-	else
-	{
-		m_SunShadow = nullptr;
+		auto entity = m_World->GetOrCreateEntity("atmosphere");
+		if (auto sunLight = entity->GetComponent<Entity::E_ComponentType::Light>())
+		{
+			m_SunShadow = std::make_shared<C_SunShadowMapTechnique>(std::static_pointer_cast<Renderer::C_SunLight>(sunLight));
+		}
+		else
+		{
+			auto sunComp = std::make_shared<Renderer::C_SunLight>(entity);
+			m_SunShadow	 = std::make_shared<C_SunShadowMapTechnique>(sunComp);
+			entity->AddComponent(sunComp);
+		}
 	}
 }
 
 //=================================================================================
 void C_ExplerimentWindow::MouseSelect()
 {
+	// this code should go to the editor layer one day
 	if (m_ImGUI->CapturingMouse())
 	{
 		return;
@@ -494,7 +563,8 @@ void C_ExplerimentWindow::MouseSelect()
 		auto entity = m_World->GetEntity(inter.entityId);
 		if (entity)
 		{
-			Core::C_UserEvent event("selected");
+			// todo: entities window needs to know that as well
+			Core::C_EntityEvent event(entity->GetID(), Core::C_EntityEvent::EntityEvent::Seleced);
 			entity->OnEvent(event);
 		}
 	}

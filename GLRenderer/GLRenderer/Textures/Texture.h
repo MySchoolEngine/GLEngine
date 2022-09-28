@@ -20,6 +20,9 @@
 #include <Renderer/Descriptors/TextureDescriptor.h>
 #include <Renderer/Textures/DeviceTexture.h>
 
+#include <rttr/registration_friend.h>
+#include <rttr/registration.h>
+
 namespace GLEngine::Renderer {
 class I_TextureViewStorage;
 class C_TextureView;
@@ -51,6 +54,8 @@ public:
 	[[nodiscard]] virtual inline glm::uvec2 GetDimensions() const override { return {m_Desc.width, m_Desc.height}; }
 	inline void								SetWidth(unsigned int width) { m_Desc.width = width; }
 	inline void								SetHeight(unsigned int height) { m_Desc.height = height; }
+	void									SetName(std::string name);
+	std::string								GetName();
 	inline void								SetDimensions(const glm::uvec2& dim)
 	{
 		// todo: should go away
@@ -90,6 +95,8 @@ public:
 	friend class C_TextureManager;
 	friend class GLEngine::GLRenderer::C_GLDevice;
 
+	RTTR_ENABLE(Renderer::I_DeviceTexture);
+	RTTR_REGISTRATION_FRIEND;
 protected:
 	void Clean();
 

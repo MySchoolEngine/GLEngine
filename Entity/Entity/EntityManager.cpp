@@ -1,7 +1,6 @@
 #include <EntityStdafx.h>
 
 #include <Entity/BasicEntity.h>
-#include <Entity/Components/EntityDebugComponent.h>
 #include <Entity/EntityManager.h>
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
@@ -19,20 +18,29 @@
 
 #include <imgui.h>
 
+#include <rttr/registration>
+#include <rttr/type>
+
+RTTR_REGISTRATION
+{
+	rttr::registration::class_<GLEngine::Entity::C_EntityManager>("EntityManager")
+		.constructor<>()
+		.property("Entities", &GLEngine::Entity::C_EntityManager::m_Entities)(rttr::policy::prop::bind_as_ptr);
+
+	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<GLEngine::Entity::C_EntityManager>>();
+
+	rttr::registration::class_<pugi::xml_node>("pugi::xml_node");
+}
 
 namespace GLEngine::Entity {
 
 //=================================================================================
 C_EntityManager::C_EntityManager()
-	: m_Entities(new std::remove_pointer<decltype(m_Entities)>::type)
-{
-}
+	: m_Filename("")
+{}
 
 //=================================================================================
-C_EntityManager::~C_EntityManager()
-{
-	delete m_Entities;
-}
+C_EntityManager::~C_EntityManager() = default;
 
 //=================================================================================
 std::shared_ptr<I_Entity> C_EntityManager::GetEntity(GUID id) const
@@ -41,14 +49,14 @@ std::shared_ptr<I_Entity> C_EntityManager::GetEntity(GUID id) const
 	{
 		return nullptr;
 	}
-	return *std::find_if(m_Entities->begin(), m_Entities->end(), [id](const std::shared_ptr<I_Entity>& entity) { return entity->GetID() == id; });
+	return *std::find_if(m_Entities.begin(), m_Entities.end(), [id](const std::shared_ptr<I_Entity>& entity) { return entity->GetID() == id; });
 }
 
 //=================================================================================
 std::shared_ptr<I_Entity> C_EntityManager::GetEntity(const std::string& name) const
 {
-	const auto it = std::find_if(m_Entities->begin(), m_Entities->end(), [name](const std::shared_ptr<I_Entity>& entity) { return entity->GetName() == name; });
-	if (it == m_Entities->end())
+	const auto it = std::find_if(m_Entities.begin(), m_Entities.end(), [name](const std::shared_ptr<I_Entity>& entity) { return entity->GetName() == name; });
+	if (it == m_Entities.end())
 	{
 		return nullptr;
 	}
@@ -64,7 +72,6 @@ std::shared_ptr<I_Entity> C_EntityManager::GetOrCreateEntity(const std::string& 
 		return entity;
 	}
 	entity = std::make_shared<C_BasicEntity>(name);
-	entity->AddComponent(std::make_shared<C_EntityDebugComponent>(entity));
 	AddEntity(entity);
 	return entity;
 }
@@ -72,36 +79,37 @@ std::shared_ptr<I_Entity> C_EntityManager::GetOrCreateEntity(const std::string& 
 //=================================================================================
 std::vector<std::shared_ptr<I_Entity>> C_EntityManager::GetEntities(Physics::Primitives::C_Frustum frust) const
 {
-	return *m_Entities;
+	return m_Entities;
 }
 
 //=================================================================================
 const std::vector<std::shared_ptr<I_Entity>>& C_EntityManager::GetEntities() const
 {
-	return *m_Entities;
+	return m_Entities;
 }
 
 //=================================================================================
 void C_EntityManager::ClearLevel()
 {
-	m_Entities->clear();
+	m_Entities.clear();
+	m_Filename = "";
 }
 
 //=================================================================================
 void C_EntityManager::AddEntity(std::shared_ptr<I_Entity> entity)
 {
-	m_Entities->push_back(entity);
+	m_Entities.push_back(entity);
 }
 
 //=================================================================================
 void C_EntityManager::OnUpdate()
 {
-	for (auto& entity : *m_Entities)
+	for (auto& entity : m_Entities)
 	{
 		entity->Update();
 	}
 
-	for (auto& entity : *m_Entities)
+	for (auto& entity : m_Entities)
 	{
 		entity->PostUpdate();
 	}
@@ -111,8 +119,8 @@ void C_EntityManager::OnUpdate()
 Physics::Primitives::S_RayIntersection C_EntityManager::Select(const Physics::Primitives::S_Ray& ray)
 {
 	std::vector<Physics::Primitives::S_RayIntersection> intersects;
-	intersects.reserve(m_Entities->size());
-	for (auto& entity : *m_Entities)
+	intersects.reserve(m_Entities.size());
+	for (auto& entity : m_Entities)
 	{
 		const auto aabb		= entity->GetAABB();
 		const auto distance = aabb.IntersectImpl(ray);
@@ -151,8 +159,8 @@ bool C_EntityManager::LoadLevel(const std::filesystem::path& name, std::unique_p
 {
 	ClearLevel();
 	CORE_LOG(E_Level::Info, E_Context::Core, "Loading level: {}", name);
-	delete m_Entities;
-	m_Entities = new std::remove_pointer<decltype(m_Entities)>::type;
+	m_Filename = name;
+	m_Entities.clear();
 	pugi::xml_document doc;
 
 	pugi::xml_parse_result result;
@@ -170,14 +178,11 @@ bool C_EntityManager::LoadLevel(const std::filesystem::path& name, std::unique_p
 		return false;
 	}
 
-	auto debugBuilder = cbf->GetFactory("debug");
-
 	if (auto entitiesNode = worldNode.child("Entities"))
 	{
 		for (const auto& entityNode : entitiesNode.children("Entity"))
 		{
 			auto entity = std::make_shared<C_BasicEntity>(entityNode.attribute("name").value());
-			entity->AddComponent(debugBuilder->Build(pugi::xml_node(), entity));
 			this->AddEntity(entity);
 
 			if (auto componentsNode = entityNode.child("Components"))
@@ -201,7 +206,6 @@ bool C_EntityManager::LoadLevel(const std::filesystem::path& name, std::unique_p
 		for (const auto& entityNode : entitiesNode.children("ExternEntity"))
 		{
 			auto entity = std::make_shared<C_BasicEntity>(entityNode.attribute("name").value());
-			entity->AddComponent(debugBuilder->Build(pugi::xml_node(), entity));
 			AddEntity(entity);
 
 			cbf->ConstructFromFile(entity, entityNode.attribute("filePath").value());
@@ -214,6 +218,26 @@ bool C_EntityManager::LoadLevel(const std::filesystem::path& name, std::unique_p
 	}
 
 	return true;
+}
+
+//=================================================================================
+void C_EntityManager::SetFilename(const std::filesystem::path& filename)
+{
+	m_Filename = filename;
+}
+
+//=================================================================================
+std::filesystem::path C_EntityManager::GetFilename() const
+{
+	return m_Filename;
+}
+
+//=================================================================================
+void C_EntityManager::OnEvent(Core::I_Event& event)
+{
+	for (auto& entity : m_Entities) {
+		entity->OnEvent(event);
+	}
 }
 
 } // namespace GLEngine::Entity

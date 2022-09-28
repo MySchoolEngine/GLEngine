@@ -56,7 +56,7 @@ public:
 	[[nodiscard]] bool														   UseBorderColor() const;
 
 	// I_DeviceTexture
-	[[nodiscard]] virtual const glm::uvec2& GetDimensions() const;			// override;
+	[[nodiscard]] virtual const glm::uvec2 GetDimensions() const; // override;
 
 	[[nodiscard]] const I_TextureViewStorage* const GetStorage() const;
 

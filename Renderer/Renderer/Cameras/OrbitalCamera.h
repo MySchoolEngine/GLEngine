@@ -2,7 +2,8 @@
 
 #include <Renderer/ICameraComponent.h>
 
-#include <GUI/Input/Slider.h>
+#include <rttr/registration_friend.h>
+#include <rttr/registration.h>
 
 namespace GLEngine {
 
@@ -24,7 +25,8 @@ namespace Renderer::Cameras {
 // Using Euclidean angles (= has gimbal lock)
 class RENDERER_API_EXPORT C_OrbitalCamera : public I_CameraComponent {
 public:
-	C_OrbitalCamera(std::shared_ptr<Entity::I_Entity>& owner);
+	C_OrbitalCamera(std::shared_ptr<Entity::I_Entity> owner);
+	C_OrbitalCamera();
 	~C_OrbitalCamera(); // = default;
 
 	[[nodiscard]] virtual glm::mat4 GetViewProjectionMatrix() const override;
@@ -39,7 +41,6 @@ public:
 	[[nodiscard]] float GetAspectRatio() const;
 
 	void setupCameraView(float zoom, glm::vec3 center, float angleXDeg, float angleYDeg);
-	void setCenterPoint(const glm::vec3& center);
 	void setupCameraProjection(float nearZ, float farZ, float aspectRatio, float fovYDeg);
 	void adjustZoom(int zoom);
 
@@ -65,6 +66,11 @@ public:
 
 	virtual glm::mat4 GetScreenToworldMatrix() const override;
 
+	// Deserializer special method
+	void AfterDeserialize();
+
+	RTTR_ENABLE(I_CameraComponent);
+	RTTR_REGISTRATION_FRIEND;
 protected:
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
 	bool OnKeyRepeated(Core::C_KeyRepeatedEvent& event);
@@ -77,16 +83,15 @@ private:
 	glm::vec3 _view;
 	glm::vec3 _left;
 	glm::vec3 _up;
-	glm::vec3 _center;
 
 	float _fovy;
 	float _nearZ;
 	float _farZ;
 	float _aspect;
 
-	GLE_DEBUG_MEMBER(GUI::Input::C_Slider<float>, float, _zoom);
-	GLE_DEBUG_MEMBER(GUI::Input::C_Slider<float>, float, _angleXDeg);
-	GLE_DEBUG_MEMBER(GUI::Input::C_Slider<float>, float, _angleYDeg);
+	float _zoom;
+	float _angleXRad;
+	float _angleYRad; // radians
 
 	glm::mat4 _viewMatrix;
 	glm::mat4 _projectionMatrix;

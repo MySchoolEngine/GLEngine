@@ -39,4 +39,21 @@ bool DrawSquareButton(ImDrawList* draw_list, const ImVec2 pos, const E_ButtonTyp
 	return mouseOver;
 }
 
+//=================================================================================
+GUI_API_EXPORT [[nodiscard]] float Splitter()
+{
+	const auto buttonPos = ImGui::GetCursorScreenPos();
+	ImGui::InvisibleButton("hsplitter", ImVec2(-1, 8.0f));
+	const ImGuiIO& io = ImGui::GetIO();
+	const ImRect   rect(buttonPos, buttonPos + ImGui::GetItemRectSize());
+	if (rect.Contains(io.MousePos))
+	{
+		ImGui::SetMouseCursor(ImGuiMouseCursor_::ImGuiMouseCursor_ResizeNS);
+	}
+	if (ImGui::IsItemActive())
+		return ImGui::GetIO().MouseDelta.y;
+	else
+		return 0.f;
+}
+
 } // namespace GLEngine::GUI

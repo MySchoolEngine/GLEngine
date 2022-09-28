@@ -17,6 +17,17 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+RTTR_REGISTRATION
+{
+	using namespace GLEngine::GLRenderer::Textures;
+
+	rttr::registration::class_<C_Texture>("C_Texture")
+		.constructor<const GLEngine::Renderer::TextureDescriptor&>()
+		.property("Name", &C_Texture::GetName, &C_Texture::SetName);
+
+	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_Texture>>();
+}
+
 namespace GLEngine::GLRenderer::Textures {
 
 //=================================================================================
@@ -219,6 +230,18 @@ void* C_Texture::GetDeviceTextureHandle() const
 bool C_Texture::IsAllocated() const
 {
 	return m_texture;
+}
+
+//=================================================================================
+void C_Texture::SetName(std::string name)
+{
+	m_Desc.name = name;
+}
+
+//=================================================================================
+std::string C_Texture::GetName()
+{
+	return m_Desc.name;
 }
 
 //=================================================================================

@@ -39,4 +39,11 @@ const char* C_UserEvent::GetName() const
 	return m_Name.c_str();
 }
 
+//=================================================================================
+C_EntityEvent::C_EntityEvent(GUID guid, EntityEvent type)
+	: m_Entity(guid)
+	, m_Type(type)
+{
+}
+
 } // namespace GLEngine::Core

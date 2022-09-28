@@ -3,6 +3,9 @@
 #include <Renderer/Descriptors/TextureDescriptor.h>
 #include <Renderer/Textures/TextureDefinitions.h>
 
+#include <rttr/registration_friend.h>
+#include <rttr/registration.h>
+
 #include <glm/glm.hpp>
 
 #include <future>
@@ -62,5 +65,7 @@ public:
 
 protected:
 	TextureDescriptor m_Desc;
+
+	RTTR_ENABLE();
 };
 } // namespace GLEngine::Renderer

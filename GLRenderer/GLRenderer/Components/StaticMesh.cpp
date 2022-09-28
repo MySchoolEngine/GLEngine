@@ -25,19 +25,39 @@
 #include <pugixml.hpp>
 
 #include <imgui.h>
+#include <rttr/registration>
+
+RTTR_REGISTRATION
+{
+	using namespace GLEngine::GLRenderer::Components;
+	rttr::registration::class_<C_StaticMeshBuilder>("C_StaticMeshBuilder")
+		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
+		.method("Build", &C_StaticMeshBuilder::Build);
+
+
+	rttr::registration::class_<C_StaticMesh>("C_StaticMesh")
+		.constructor<std::string, std::string_view, std::shared_ptr<GLEngine::Entity::I_Entity>>()
+		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
+		.property("MeshFile", &C_StaticMesh::GetMeshFile, &C_StaticMesh::SetMeshFile)
+		.property("Material", &C_StaticMesh::m_Material)
+		.property("Shader", &C_StaticMesh::GetShader, &C_StaticMesh::SetShader)
+		.property("ShadowPassShader", &C_StaticMesh::GetShadowShader, &C_StaticMesh::SetShadowShader);
+	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_StaticMesh>>();
+	rttr::type::register_converter_func([](std::shared_ptr<C_StaticMesh> ptr, bool& ok) -> std::shared_ptr<GLEngine::Entity::I_Component> {
+		ok = true;
+		return std::static_pointer_cast<GLEngine::Entity::I_Component>(ptr);
+	});
+}
 
 namespace GLEngine::GLRenderer::Components {
 
 //=================================================================================
 C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner)
 	: Renderer::I_RenderableComponent(owner)
-	, m_meshFile(meshFile)
 	, m_Material(nullptr)
 {
-	auto& rm	   = Core::C_ResourceManager::Instance();
-	m_MeshResource = rm.LoadResource<Renderer::MeshResource>(std::filesystem::path("Models") / meshFile);
-	auto& shmgr	   = Shaders::C_ShaderManager::Instance();
-	m_Shader	   = shmgr.GetProgram(shader.data());
+	SetMeshFile(meshFile);
+	SetShader(shader.data());
 }
 
 //=================================================================================
@@ -49,11 +69,28 @@ C_StaticMesh::C_StaticMesh(Core::ResourceHandle<Renderer::MeshResource> meshHand
 	, m_Material(nullptr)
 	, m_MeshResource(meshHandle)
 {
-	auto& shmgr = Shaders::C_ShaderManager::Instance();
-	m_Shader	= shmgr.GetProgram(shader.data());
+	SetShader(shader.data());
 
 	if (material)
 		SetMaterial(*material);
+}
+
+//=================================================================================
+C_StaticMesh::C_StaticMesh()
+	: Renderer::I_RenderableComponent(nullptr)
+	, m_Material(nullptr)
+{
+	SetShader("basicTracing"); // TODO
+	Renderer::MeshData::Material material
+	{
+		glm::vec4{1.0f, 0.0f, 0.f, 0.f}, 
+		glm::vec4{1.0f, 0.0f, 0.f, 0.f}, 
+		glm::vec4{1.0f, 0.0f, 0.f, 0.f},
+		.5f,
+		-1, -1, 
+		"Default"
+	};
+	SetMaterial(material);
 }
 
 //=================================================================================
@@ -61,7 +98,7 @@ void C_StaticMesh::PerformDraw() const
 {
 	if (m_Mesh.empty() || !m_Shader || !m_MeshResource)
 	{
-		// CORE_LOG(E_Level::Error, E_Context::Render, "Static mesh uncomplete");
+		// lazy load, lazy dominik wrong design, should burn in hell
 		return;
 	}
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
@@ -167,6 +204,51 @@ void C_StaticMesh::Update()
 			SetMaterial(material);
 		}
 	}
+}
+
+//=================================================================================
+void C_StaticMesh::SetShader(const std::string shader)
+{
+	auto& shmgr = Shaders::C_ShaderManager::Instance();
+	m_Shader	= shmgr.GetProgram(shader);
+}
+
+//=================================================================================
+std::string C_StaticMesh::GetShader() const
+{
+	if (!m_Shader)
+		return "";
+	else
+		return m_Shader->GetName();
+}
+
+//=================================================================================
+void C_StaticMesh::SetShadowShader(const std::string shader)
+{
+	auto& shmgr		   = Shaders::C_ShaderManager::Instance();
+	m_ShadowPassShader = shmgr.GetProgram(shader);
+}
+
+//=================================================================================
+std::string C_StaticMesh::GetShadowShader() const
+{
+	if (!m_ShadowPassShader)
+		return "";
+	else
+		return m_ShadowPassShader->GetName();
+}
+
+//=================================================================================
+void C_StaticMesh::SetMeshFile(const std::filesystem::path meshfile)
+{
+	auto& rm	   = Core::C_ResourceManager::Instance();
+	m_MeshResource = rm.LoadResource<Renderer::MeshResource>(std::filesystem::path("Models") / meshfile);
+}
+
+//=================================================================================
+std::filesystem::path C_StaticMesh::GetMeshFile() const
+{
+	return m_MeshResource.GetResource().GetFilePath();
 }
 
 //=================================================================================

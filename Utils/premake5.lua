@@ -8,6 +8,7 @@ project "Utils"
 	SetupProject("Utils")
 
 	LinkDependency("pugixml")
+	LinkDependency("RTTR")
 
 	includedirs
 	{
