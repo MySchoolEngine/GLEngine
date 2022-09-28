@@ -90,8 +90,8 @@ private:
 	float _aspect;
 
 	float _zoom;
-	float _angleXDeg;
-	float _angleYDeg;
+	float _angleXRad;
+	float _angleYRad; // radians
 
 	glm::mat4 _viewMatrix;
 	glm::mat4 _projectionMatrix;

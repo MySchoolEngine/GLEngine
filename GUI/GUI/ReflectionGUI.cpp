@@ -34,6 +34,17 @@ void DrawSlider(rttr::instance& obj, const rttr::property& prop)
 }
 
 //=================================================================================
+void DrawAngle(rttr::instance& obj, const rttr::property& prop)
+{
+	using namespace ::Utils::Reflection;
+
+	::ImGui::SliderAngle(GetMetadataMember<UI::Angle::Name>(prop).c_str(),
+						(prop.get_value(obj).convert<float*>()), 
+						GetMetadataMember<UI::Angle::Min>(prop),
+						GetMetadataMember<UI::Angle::Max>(prop));
+}
+
+//=================================================================================
 void DrawColour(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
@@ -78,6 +89,10 @@ void DrawPropertyGUI(rttr::instance& obj, const rttr::property& prop)
 	else if (UI::IsUIMetaclass<MetaGUI::Slider>(prop))
 	{
 		DrawSlider(obj, prop);
+	}
+	else if (UI::IsUIMetaclass<MetaGUI::Angle>(prop))
+	{
+		DrawAngle(obj, prop);
 	}
 }
 
