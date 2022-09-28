@@ -9,7 +9,7 @@ namespace GLEngine::Core {
 class CORE_API_EXPORT I_ResourceLoader {
 public:
 	virtual ~I_ResourceLoader()											   = default;
-	virtual [[nodiscard]] std::shared_ptr<Resource> CreateResource() const = 0;
+	[[nodiscard]] virtual std::shared_ptr<Resource> CreateResource() const = 0;
 	bool											LoadResource(const std::filesystem::path& filepath, std::shared_ptr<Resource>& resource) const;
 	/**
 	 * List of supported extensions accompanied with the dot.

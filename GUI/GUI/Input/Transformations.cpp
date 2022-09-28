@@ -160,13 +160,13 @@ void C_Transformations::SetScale(const glm::vec3& scale)
 }
 
 //=================================================================================
-const glm::vec3& C_Transformations::GetRotationDeg() const
+glm::vec3 C_Transformations::GetRotationDeg() const
 {
 	return glm::degrees(m_Rotation);
 }
 
 //=================================================================================
-void C_Transformations::SetRotationDeg(const glm::vec3& rotation)
+void C_Transformations::SetRotationDeg(glm::vec3 rotation)
 {
 	m_Rotation = glm::radians(rotation);
 }

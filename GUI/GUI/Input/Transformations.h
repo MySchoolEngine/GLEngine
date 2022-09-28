@@ -32,13 +32,13 @@ public:
 	void						   SetRotation(const glm::vec3& rotation);
 	[[nodiscard]] const glm::vec3& GetScale() const;
 	void						   SetScale(const glm::vec3& scale);
-	[[nodiscard]] const glm::vec3& GetRotationDeg() const;
-	void						   SetRotationDeg(const glm::vec3& rotation);
+	[[nodiscard]] glm::vec3		   GetRotationDeg() const;
+	void						   SetRotationDeg(glm::vec3 rotation);
 
 private:
 	Utils::C_BitField<E_Transorms> m_enabledTransforms;
 	glm::vec3					   m_Translation;
-	glm::vec3					   m_Rotation;	  //< in rad
+	glm::vec3					   m_Rotation; //< in rad
 	glm::vec3					   m_Scale;
 
 	RTTR_ENABLE();

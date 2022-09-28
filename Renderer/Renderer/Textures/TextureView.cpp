@@ -125,7 +125,7 @@ void C_TextureView::ClearColor(const glm::vec4& colour)
 }
 
 //=================================================================================
-const glm::uvec2& C_TextureView::GetDimensions() const
+const glm::uvec2 C_TextureView::GetDimensions() const
 {
 	return m_Storage->GetDimensions();
 }
