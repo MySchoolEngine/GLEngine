@@ -451,6 +451,11 @@ void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 
 	Utils::C_XMLDeserializer d;
 	auto					 newWorld = d.Deserialize<std::shared_ptr<Entity::C_EntityManager>>(doc);
+	if (newWorld.has_value() == false)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Core, "XML {} is not valid level.", level);
+		return;
+	}
 	m_World.swap(newWorld.value());
 	m_World->SetFilename(level);
 
@@ -526,6 +531,14 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 			{
 				m_SunShadow = std::make_shared<C_SunShadowMapTechnique>(std::static_pointer_cast<Renderer::C_SunLight>(sunLight));
 			}
+			else
+			{
+				m_SunShadow.reset();
+			}
+		}
+		else
+		{
+			m_SunShadow.reset();
 		}
 	}
 }

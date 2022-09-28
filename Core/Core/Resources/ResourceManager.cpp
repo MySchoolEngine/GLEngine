@@ -126,6 +126,7 @@ void C_ResourceManager::UnloadUnusedResources()
 					deleted = true;
 					break;
 				}
+				++it;
 			}
 			GLE_ASSERT(deleted, "Unused resource not in resources");
 		}
