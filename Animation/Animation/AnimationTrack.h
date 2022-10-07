@@ -4,22 +4,24 @@
 #include <Animation/AnimationFrame.h>
 
 namespace GLEngine::Animation {
-class ANIMATION_API_EXPORT C_AnimationTrack {
-	using T_Container	  = std::vector<S_AnimationFrame>;
-	using T_Iterator	  = T_Container::iterator;
-	using T_ConstIterator = T_Container::const_iterator;
+template <class valT>
+class C_AnimationTrack {
+	using T_Frame		  = S_AnimationFrame<valT>;
+	using T_Container	  = std::vector<T_Frame>;
+	using T_Iterator	  = typename T_Container::iterator;
+	using T_ConstIterator = typename T_Container::const_iterator;
 
 public:
 	C_AnimationTrack() = default;
 
-	void						   AddKeyFrame(S_AnimationFrame&& keyframe);
-	void						   PushBackFrame(S_AnimationFrame&& keyframe);
-	[[nodiscard]] S_AnimationFrame Sample(const S_Timestamp time) const;
+	void				  AddKeyFrame(T_Frame&& keyframe);
+	void				  PushBackFrame(T_Frame&& keyframe);
+	[[nodiscard]] T_Frame Sample(const S_Timestamp time) const;
 
 
 	// allow iteration and container-like structure of class
-	[[nodiscard]] S_AnimationFrame&		  operator[](const std::size_t index);
-	[[nodiscard]] const S_AnimationFrame& operator[](const std::size_t index) const;
+	[[nodiscard]] T_Frame&		 operator[](const std::size_t index);
+	[[nodiscard]] const T_Frame& operator[](const std::size_t index) const;
 
 	[[nodiscard]] std::size_t	  size() const;
 	[[nodiscard]] bool			  empty() const;
@@ -28,9 +30,14 @@ public:
 	[[nodiscard]] T_ConstIterator begin() const;
 	[[nodiscard]] T_ConstIterator end() const;
 
-//private:
+	[[nodiscard]] constexpr std::size_t GetNumVariables() const;
+
+private:
 	[[nodiscard]] T_ConstIterator PreviousFrame(const S_Timestamp time) const;
 
 	T_Container m_Timeline;
 };
+
 } // namespace GLEngine::Animation
+
+#include <Animation/AnimationTrack.inl>
