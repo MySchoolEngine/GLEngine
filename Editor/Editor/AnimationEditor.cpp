@@ -14,10 +14,10 @@ namespace GLEngine::Editor {
 //=================================================================================
 C_AnimationEditor::C_AnimationEditor()
 {
-	m_Tracks.emplace_back(TrackData{Animation::C_AnimationTrack(), std::string("Track1"), 0xff0000ff, false});
+	m_Tracks.emplace_back(TrackData{Animation::C_AnimationTrack<float>(), std::string("Track1"), 0xff0000ff, false});
 	for (int i = 0; i < 10; ++i)
 		m_Tracks.back().track.AddKeyFrame({0.1f * i, 0.1f * i});
-	m_Tracks.emplace_back(TrackData{Animation::C_AnimationTrack(), std::string("Track2"), 0xff00ff00, false});
+	m_Tracks.emplace_back(TrackData{Animation::C_AnimationTrack<float>(), std::string("Track2"), 0xff00ff00, false});
 	for (int i = 0; i < 10; ++i)
 		m_Tracks.back().track.AddKeyFrame({0.1f * i, 1.f - 0.1f * i});
 }
@@ -42,12 +42,8 @@ void C_AnimationEditor::DrawGUI()
 	const ImRect rect(canvas_pos, canvas_pos + canvas_size);
 	const ImRect timelineRect(canvas_pos + ImVec2(legendWidth, headerHeight), canvas_pos + canvas_size);
 
-	ImVec2 nextTrackPos(3, headerHeight + 2);
-	for (const auto& trackData : m_Tracks)
-	{
-		draw_list->AddText(canvas_pos + nextTrackPos, trackData.colour, trackData.name.c_str());
-		nextTrackPos.y += font_size + 4;
-	}
+	ImVec2 legendPos(3, headerHeight + 2);
+	DrawLegend(draw_list, canvas_pos + legendPos);
 
 	draw_list->AddRect(rect.Min, rect.Max, 0xFFAAAAAA, 4);
 	draw_list->AddLine(canvas_pos + ImVec2(legendWidth, 0), canvas_pos + ImVec2(legendWidth, canvas_size.y - 1), 0xFFAAAAAA);
@@ -118,10 +114,28 @@ void C_AnimationEditor::DrawGUI()
 float C_AnimationEditor::LegendWidth() const
 {
 	float maxLen = 0.f;
-	for (const auto& trackData : m_Tracks) {
-		maxLen = std::max(maxLen, ImGui::CalcTextSize(trackData.name.c_str()).x);
-	}
+	ForEachExpandedLine([&maxLen](const TrackData& trackData) { maxLen = std::max(maxLen, ImGui::CalcTextSize(trackData.name.c_str()).x); });
 	return maxLen;
+}
+
+//=================================================================================
+void C_AnimationEditor::ForEachExpandedLine(std::function<void(const C_AnimationEditor::TrackData&)> f) const
+{
+	// TODO expanded
+	for (const auto& trackData : m_Tracks)
+	{
+		f(trackData);
+	}
+}
+
+//=================================================================================
+void C_AnimationEditor::DrawLegend(ImDrawList* drawList, ImVec2 LegendBegin) const
+{
+	const auto font_size = ImGui::GetFontSize();
+	ForEachExpandedLine([&](const auto& trackData) {
+		drawList->AddText(LegendBegin, trackData.colour, trackData.name.c_str());
+		LegendBegin.y += font_size + 4;
+	});
 }
 
 } // namespace GLEngine::Editor
