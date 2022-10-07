@@ -69,6 +69,8 @@ private:
 
 	std::shared_ptr<Entity::C_EntityManager> m_World;
 	std::weak_ptr<Entity::I_Entity>			 m_Player;
+	std::weak_ptr<Entity::I_Entity>			 m_Dummy;
+	float									 m_T = 0.0f;
 	Core::C_LayerStack						 m_LayerStack;
 	Temporar::C_CameraManager				 m_CamManager;
 	C_GLImGUILayer*							 m_ImGUI;

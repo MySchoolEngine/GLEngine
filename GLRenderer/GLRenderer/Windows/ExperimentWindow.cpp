@@ -11,6 +11,7 @@
 #include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/Components/ComponentBuilderFactory.h>
+#include <GLRenderer/Components/GLGeomComponent.h>
 #include <GLRenderer/Components/SkeletalMesh.h>
 #include <GLRenderer/Components/SkyBox.h>
 #include <GLRenderer/Debug.h>
@@ -31,6 +32,7 @@
 #include <Renderer/Cameras/OrbitalCamera.h>
 #include <Renderer/Lights/SunLight.h>
 #include <Renderer/Materials/MaterialManager.h>
+#include <Renderer/Mesh/Geometry.h>
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/Textures/TextureView.h>
 
@@ -52,6 +54,10 @@
 #include <pugixml.hpp>
 
 #include <imgui.h>
+
+#include <glm/gtx/compatibility.hpp>
+
+#include <Animation/Easings.h>
 
 namespace GLEngine::GLRenderer::Windows {
 
@@ -120,6 +126,17 @@ void C_ExplerimentWindow::Update()
 	m_World->OnUpdate();
 
 	glfwMakeContextCurrent(m_Window);
+
+	if (auto dummy = m_Dummy.lock())
+	{
+		auto octahedron = dummy->GetComponent<Entity::E_ComponentType::Graphical>();
+
+		const glm::vec3 goal(0, 5, 0);
+		const glm::vec3 start(0, 0, 0);
+
+
+		octahedron->SetComponentMatrix(glm::translate(glm::mat4(1.f), glm::lerp(start, goal, Animation::QuadraticEaseOut(m_T))));
+	}
 
 	// m_ShadowPass->Render();
 
@@ -206,6 +223,11 @@ void C_ExplerimentWindow::Update()
 void C_ExplerimentWindow::sampleTime(double new_sample)
 {
 	m_Samples.Sample(static_cast<float>(new_sample));
+
+	m_T += static_cast<float>(new_sample)/1000.f;
+	if (m_T >= 1.f) {
+		m_T -= 1.f;
+	}
 }
 
 //=================================================================================
@@ -433,6 +455,21 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 		// player->AddComponent(arealight);
 		//
 		// m_ShadowPass = std::make_shared<C_ShadowMapTechnique>(m_World, std::static_pointer_cast<Renderer::I_Light>( arealight));
+	}
+
+	{
+		const auto dummy = m_World->GetOrCreateEntity("dummy");
+		m_Dummy			 = dummy;
+		auto geometry	 = std::make_shared<Components::C_GLGeomComponent>(dummy);
+
+		Utils::Parsing::MaterialData mat;
+		mat.m_Color		   = Colours::red;
+		mat.m_MaterialName = "basicTracing";
+
+		geometry->SetupGeometry(Renderer::MeshData::C_Geometry::CreateOctahedron(1.f, 1.f));
+		geometry->SetupMaterial(mat);
+
+		dummy->AddComponent(geometry);
 	}
 
 	{
