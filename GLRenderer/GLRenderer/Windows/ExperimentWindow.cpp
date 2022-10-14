@@ -551,7 +551,7 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 		m_Dummy			 = dummy;
 		auto geometry	 = std::make_shared<Components::C_GLGeomComponent>(dummy);
 
-		Utils::Parsing::MaterialData mat;
+		::Utils::Parsing::MaterialData mat;
 		mat.m_Color		   = Colours::red;
 		mat.m_MaterialName = "basicTracing";
 
