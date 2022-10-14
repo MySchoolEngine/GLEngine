@@ -49,8 +49,9 @@ workspace "Engine"
 	
 	workspace_files{
 		"vendor/GLM/util/glm.natvis",
-		"vendor/ImGui/misc/nativs/imgui.natvis",
-		"vendor/pugixml/contrib/nativs/pugixml.natvis",
+		"vendor/ImGui/misc/natvis/imgui.natvis",
+		"vendor/pugixml/contrib/natvis/pugixml.natvis",
+		"Animation/animation.natvis",
 		"Renderer/renderer.natvis",
 		"Entity/Entity.natvis",
 		"premake5.lua",
