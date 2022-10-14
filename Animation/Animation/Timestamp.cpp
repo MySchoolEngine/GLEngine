@@ -1,4 +1,4 @@
-#include <AnimationStdAfx.h>
+#include <AnimationStdafx.h>
 
 #include <Animation/Timestamp.h>
 
