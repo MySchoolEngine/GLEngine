@@ -1,4 +1,4 @@
-#include <EditorStdAfx.h>
+#include <EditorStdafx.h>
 
 #include <Editor/AnimationEditor.h>
 
