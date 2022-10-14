@@ -34,6 +34,9 @@
 [submodule "vendor/libjpeg"]
 	path = vendor/libjpeg
 	url = https://github.com/LuaDist/libjpeg
+[submodule "vendor/ImGuizmo"]
+	path = vendor/ImGuizmo
+	url = https://github.com/CedricGuillemet/ImGuizmo
 [submodule "vendor/crossguid"]
 	path = vendor/crossguid
 	url = https://github.com/graeme-hill/crossguid

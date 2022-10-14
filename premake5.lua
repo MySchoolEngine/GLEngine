@@ -49,8 +49,9 @@ workspace "Engine"
 	
 	workspace_files{
 		"vendor/GLM/util/glm.natvis",
-		"vendor/ImGui/misc/nativs/imgui.natvis",
-		"vendor/pugixml/contrib/nativs/pugixml.natvis",
+		"vendor/ImGui/misc/natvis/imgui.natvis",
+		"vendor/pugixml/contrib/natvis/pugixml.natvis",
+		"Animation/animation.natvis",
 		"Renderer/renderer.natvis",
 		"Entity/Entity.natvis",
 		"premake5.lua",
@@ -112,6 +113,7 @@ IncludeDir["pugixml"] = "vendor/pugixml/src"
 IncludeDir["fmt"] = "vendor/fmt/include"
 IncludeDir["ImGui"] = "vendor/ImGui"
 IncludeDir["ImGuiFileDialog"] = "vendor/ImGuiFileDialog"
+IncludeDir["ImGuizmo"] = "vendor/ImGuizmo"
 IncludeDir["DevIL"] = "vendor/DevIL/DevIL/include"
 IncludeDir["dirent"] = "vendor/dirent/include"
 IncludeDir["Assimp"] = "vendor/Assimp/include"
@@ -130,6 +132,7 @@ group "Dependencies"
   include "vendor/projects/pugixml"
   include "vendor/projects/ImGui"
   include "vendor/projects/ImGuiFileDialog"
+  include "vendor/projects/ImGuizmo"
   include "vendor/projects/DevIL"
   include "vendor/projects/libjpeg"
   include "vendor/projects/crossguid"
@@ -153,6 +156,7 @@ group "Tools"
 	include "Tools/ShaderPreprocessor"
 group ""
 
+include "Animation"
 include "Core"
 include "Sandbox"
 include "Editor"

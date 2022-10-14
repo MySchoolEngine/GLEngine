@@ -1,47 +1,36 @@
 include "../Tools/Premake5/premakeDefines.lua"
 
-project "Renderer"
+project "Animation"
 	kind "SharedLib"
 	language "C++"
 	staticruntime "off"
 	
-	SetupProject("Renderer")
+	SetupProject("Animation")
 	
-	PrecompiledHeaders("Renderer")
+	PrecompiledHeaders("Animation")
 	
 	Link("Utils")
-	Link("Entity")
 	Link("Core")
-	Link("GUI")
-	Link("Animation")
-	
-	LinkDependency("Assimp")
-	LinkDependency("ImGui")
-	LinkDependency("pugixml")
 	LinkDependency("RTTR")
 
 	includedirs
 	{
 		"../Physics",
 		"../%{IncludeDir.GLM}",
-		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.fmt}",
-		"../%{IncludeDir.DevIL}",
-
-		"../vendor/projects/Assimp"
+		"../%{IncludeDir.pugixml}",
+		"../%{IncludeDir.ImGui}",
+		"../%{IncludeDir.GLFW}", -- for key names
 	}
 
 	links 
 	{ 
-		"DevIL-IL",
+		"pugixml",
+		"ImGui",
 	}
 
-	filter "system:windows"
-		defines
-		{
-			"BUILD_RENDERER_DLL",
-		}
 
+	filter "system:windows"
 		postbuildcommands
 		{
 			("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\""),

@@ -19,7 +19,7 @@ public:
 private:
 	std::shared_ptr<C_Skeleotn>			 m_Skeleton;
 	std::shared_ptr<C_SkeletalAnimation> m_Animation;
-	S_Timestamp							 m_animationTime;
+	GLEngine::Animation::S_Timestamp	 m_animationTime;
 };
 
 } // namespace GLEngine::Renderer::Animation
