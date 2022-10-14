@@ -100,6 +100,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	Entity::C_ComponentManager::Instance();
 
 	m_EditorLayer.EditAnimation();
+
 	auto& rm = Core::C_ResourceManager::Instance();
 	rm.RegisterResourceType(new Renderer::TextureLoader());
 	rm.RegisterResourceType(new Renderer::MeshLoader());
@@ -559,6 +560,7 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 		geometry->SetupMaterial(mat);
 
 		dummy->AddComponent(geometry);
+
 	}
 
 	{

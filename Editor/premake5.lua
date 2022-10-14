@@ -22,6 +22,8 @@ project "Editor"
 
 	LinkDependency("RTTR")
 
+	LinkDependency("RTTR")
+
 	includedirs
 	{
 		"../Physics",
