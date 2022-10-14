@@ -61,10 +61,6 @@
 
 #include <imgui.h>
 
-#include <glm/gtx/compatibility.hpp>
-
-#include <Animation/Easings.h>
-
 namespace GLEngine::GLRenderer::Windows {
 
 //=================================================================================
@@ -96,7 +92,6 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	m_VSync.SetName("Lock FPS");
 
 	Entity::C_ComponentManager::Instance();
-
 	auto& rm = Core::C_ResourceManager::Instance();
 	rm.RegisterResourceType(new Renderer::TextureLoader());
 	rm.RegisterResourceType(new Renderer::MeshLoader());
