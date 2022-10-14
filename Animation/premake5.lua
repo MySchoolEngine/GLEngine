@@ -11,6 +11,7 @@ project "Animation"
 	
 	Link("Utils")
 	Link("Core")
+	LinkDependency("RTTR")
 
 	includedirs
 	{

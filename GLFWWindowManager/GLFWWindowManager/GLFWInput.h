@@ -6,6 +6,7 @@
 #include <GLFWWindowManager/GLFWWindowManagerApi.h>
 
 struct GLFWwindow;
+struct GLFWcursor;
 
 namespace GLEngine::GLFWManager {
 
@@ -29,8 +30,12 @@ public:
 	[[nodiscard]] virtual float					  GetMouseX() const override;
 	[[nodiscard]] virtual float					  GetMouseY() const override;
 
+
+	virtual void SetMouseCursor(E_MouseCursor cursor) override;
+
 protected:
-	GLFWwindow* m_Window;
+	GLFWwindow*																m_Window;
+	std::array<GLFWcursor*, static_cast<std::size_t>(E_MouseCursor::Count)> m_MouseCursors;
 };
 
 [[nodiscard]] Utils::C_BitField<Core::E_KeyModifiers> TranslateGLFWModifiers(int mods);

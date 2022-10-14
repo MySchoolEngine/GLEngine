@@ -11,6 +11,7 @@ project "GLFWWindowManager"
 	
 	Link("Utils")
 	Link("Core")
+	LinkDependency("RTTR")
 
 	includedirs
 	{

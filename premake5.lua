@@ -25,7 +25,7 @@ end
 workspace "Engine"
 	architecture "x64"
 	startproject "Sandbox"
-	cppdialect "C++17"
+	cppdialect "C++20"
 	systemversion "latest"
 
 	configurations{
@@ -44,10 +44,15 @@ workspace "Engine"
 		"VULKAN_BIN=\"".. GetVulkanBin() .."\"",
 		"VULKAN_GLSLC=VULKAN_BIN \"/glslc.exe\"",
 		"IMGUI_DEFINE_MATH_OPERATORS",
+		"RTTR_DLL",
 	}
 	
 	workspace_files{
 		"vendor/GLM/util/glm.natvis",
+		"vendor/ImGui/misc/nativs/imgui.natvis",
+		"vendor/pugixml/contrib/nativs/pugixml.natvis",
+		"Renderer/renderer.natvis",
+		"Entity/Entity.natvis",
 		"premake5.lua",
 		"Tools/Premake5/premakeDefines.lua",
 		"Tools/Premake5/workspaceFiles.lua",
@@ -70,6 +75,8 @@ workspace "Engine"
 			"_GLFW_WIN32",
 			"_CRT_SECURE_NO_WARNINGS",
 		}
+
+	filter "action:vs*"
 		buildoptions
 		{
 			"/MP"
@@ -109,10 +116,13 @@ IncludeDir["ImGuizmo"] = "vendor/ImGuizmo"
 IncludeDir["DevIL"] = "vendor/DevIL/DevIL/include"
 IncludeDir["dirent"] = "vendor/dirent/include"
 IncludeDir["Assimp"] = "vendor/Assimp/include"
+IncludeDir["crossguid"] = "vendor/crossguid/include"
+IncludeDir["RTTR"] = {"vendor/RTTR/src", "vendor/projects/RTTR"}
 
 -- could be header only or static lib
 NonDllLib = {}
 NonDllLib["pugixml"] = true
+NonDllLib["crossguid"] = true
 NonDllLib["GLFW"] = true
 
 group "Dependencies"
@@ -124,12 +134,13 @@ group "Dependencies"
   include "vendor/projects/ImGuizmo"
   include "vendor/projects/DevIL"
   include "vendor/projects/libjpeg"
+  include "vendor/projects/crossguid"
+  include "vendor/projects/RTTR"
 if _TARGET_OS ~= "linux" then
   include "vendor/projects/dirent"
 end
 group "Dependencies/Assimp"
   include "vendor/projects/zlib"
-  include "vendor/projects/irrXML"
   include "vendor/projects/Assimp"
 group ""
 

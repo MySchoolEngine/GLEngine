@@ -139,10 +139,19 @@ template <class T> struct Range {
 	{
 	}
 
+	Range& operator=(Range& other)
+	{
+		m_begin = other.m_begin;
+		m_end	= other.m_end;
+		return *this;
+	}
+
 	T& begin() { return m_begin; }
 	T& end() { return m_end; }
 
-	bool empty() const { return m_begin == m_end; }
+	[[nodiscard]] bool empty() const { return m_begin == m_end; }
+
+	[[nodiscard]] std::size_t size() const { return std::distance(m_begin, m_end); }
 
 private:
 	T m_begin;

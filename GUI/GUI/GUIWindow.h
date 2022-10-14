@@ -16,6 +16,7 @@ public:
 	C_Window(GUID guid, const std::string& name);
 	virtual ~C_Window() = default;
 
+	virtual void			 Update() {}
 	virtual void			 Draw() const override;
 	void					 SetVisible(bool enable = true);
 	[[nodiscard]] bool		 IsVisible() const;

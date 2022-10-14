@@ -20,6 +20,8 @@ project "Editor"
 	LinkDependency("pugixml")
 	LinkDependency("ImGuizmo")
 
+	LinkDependency("RTTR")
+
 	includedirs
 	{
 		"../Physics",

@@ -6,9 +6,13 @@
 #include <Physics/Primitives/Ray.h>
 
 namespace GLEngine::Renderer {
+RTTR_REGISTRATION
+{
+	rttr::registration::class_<I_CameraComponent>("I_CameraComponent");
+}
 
 //=================================================================================
-I_CameraComponent::I_CameraComponent(std::shared_ptr<Entity::I_Entity>& owner)
+I_CameraComponent::I_CameraComponent(std::shared_ptr<Entity::I_Entity> owner)
 	: Entity::I_Component(owner)
 {
 }

@@ -18,6 +18,7 @@ project "Renderer"
 	LinkDependency("Assimp")
 	LinkDependency("ImGui")
 	LinkDependency("pugixml")
+	LinkDependency("RTTR")
 
 	includedirs
 	{

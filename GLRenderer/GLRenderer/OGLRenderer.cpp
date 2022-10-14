@@ -3,6 +3,7 @@
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
 #include <GLRenderer/Debug.h>
 #include <GLRenderer/OGLRenderer.h>
+#include <GLRenderer/OGLDevice.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Textures/TextureManager.h>
 
@@ -14,6 +15,7 @@
 #include <GUI/Menu/MenuItem.h>
 
 #include <Utils/DebugBreak.h>
+#include <Utils/EnumUtils.h>
 
 #include <imgui.h>
 #include <stdexcept>
@@ -21,7 +23,7 @@
 namespace GLEngine::GLRenderer {
 
 //=================================================================================
-C_OGLRenderer::C_OGLRenderer()
+C_OGLRenderer::C_OGLRenderer(C_GLDevice& device)
 	: m_CommandQueue(new std::remove_pointer<decltype(m_CommandQueue)>::type)
 	, m_DrawCommands("Draw commands")
 	, m_CatchErrors(false, "Catch errors")
@@ -31,15 +33,17 @@ C_OGLRenderer::C_OGLRenderer()
 	, m_GUITexts({{GUI::C_FormatedText("Avg draw commands: {:.2f}"), GUI::C_FormatedText("Min/max {:.2f}/{:.2f}"), GUI::C_FormatedText("Draw calls: {}"),
 				   GUI::C_FormatedText("UBO memory usage: {}B")}})
 	, m_ScreenCaptureList("Capture frame commands", [&]() { m_OutputCommandList = true; })
-	, m_Window(INVALID_GUID)
+	, m_Window(GUID::INVALID_GUID)
 	, m_Windows(std::string("Windows"))
+	, m_Device(device)
 {
-	int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-
-	if (status == 0)
+	if (m_CatchErrors)
 	{
-		CORE_LOG(E_Level::Error, E_Context::Core, "GLFW: Glad wasn't loaded properlly. Status {}", status);
+		glEnable(GL_DEBUG_OUTPUT);
+		glDebugMessageCallback(MessageCallback, nullptr);
 	}
+
+	auto& tmgr = Textures::C_TextureManager::Instance(&device);
 }
 
 //=================================================================================
@@ -131,11 +135,11 @@ void C_OGLRenderer::ClearCommandBuffers()
 	m_CommandQueue->clear();
 	m_TransferQueue.clear();
 	const auto avgDrawCommands = m_DrawCommands.Avg();
-	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgDrawCommands)].UpdateText(avgDrawCommands);
-	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::MinMax)].UpdateText(*std::min_element(m_DrawCommands.cbegin(), m_DrawCommands.cend()),
+	m_GUITexts[Utils::ToIndex(E_GUITexts::AvgDrawCommands)].UpdateText(avgDrawCommands);
+	m_GUITexts[Utils::ToIndex(E_GUITexts::MinMax)].UpdateText(*std::min_element(m_DrawCommands.cbegin(), m_DrawCommands.cend()),
 																							   *std::max_element(m_DrawCommands.cbegin(), m_DrawCommands.cend()));
-	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::DrawCalls)].UpdateText(drawCallsNum);
-	m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::UBOMemoryUsage)].UpdateText(Buffers::C_UniformBuffersManager::Instance().GetUsedMemory());
+	m_GUITexts[Utils::ToIndex(E_GUITexts::DrawCalls)].UpdateText(drawCallsNum);
+	m_GUITexts[Utils::ToIndex(E_GUITexts::UBOMemoryUsage)].UpdateText(Buffers::C_UniformBuffersManager::Instance().GetUsedMemory());
 
 	if (m_PreviousCatchErrorsVal != m_CatchErrors)
 	{
@@ -167,10 +171,10 @@ GUID C_OGLRenderer::SetupControls(GUI::C_GUIManager& guiMan)
 	renderStats->AddComponent(m_DrawCommands);
 	renderStats->AddComponent(m_CatchErrors);
 	renderStats->AddComponent(m_Wireframe);
-	renderStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::AvgDrawCommands)]);
-	renderStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::MinMax)]);
-	renderStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::DrawCalls)]);
-	renderStats->AddComponent(m_GUITexts[static_cast<std::underlying_type_t<E_GUITexts>>(E_GUITexts::UBOMemoryUsage)]);
+	renderStats->AddComponent(m_GUITexts[Utils::ToIndex(E_GUITexts::AvgDrawCommands)]);
+	renderStats->AddComponent(m_GUITexts[Utils::ToIndex(E_GUITexts::MinMax)]);
+	renderStats->AddComponent(m_GUITexts[Utils::ToIndex(E_GUITexts::DrawCalls)]);
+	renderStats->AddComponent(m_GUITexts[Utils::ToIndex(E_GUITexts::UBOMemoryUsage)]);
 
 	renderStats->AddMenu(m_Windows);
 
@@ -233,6 +237,12 @@ void C_OGLRenderer::CaputreCommands() const
 	}
 	file.flush();
 	file.close();
+}
+
+//=================================================================================
+GLEngine::Renderer::I_Device& C_OGLRenderer::GetDevice()
+{
+	return m_Device;
 }
 
 } // namespace GLEngine::GLRenderer

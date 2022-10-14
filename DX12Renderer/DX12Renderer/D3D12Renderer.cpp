@@ -88,4 +88,10 @@ void C_D3D12Renderer::AddTransferCommand(T_CommandPtr)
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
+//=================================================================================
+Renderer::I_Device& C_D3D12Renderer::GetDevice()
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 } // namespace GLEngine::DX12Renderer

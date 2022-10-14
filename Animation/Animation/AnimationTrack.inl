@@ -120,9 +120,9 @@ template <class valT> constexpr std::size_t C_AnimationTrack<valT>::GetNumVariab
 {
 	if constexpr (std::is_floating_point_v<valT>)
 		return 1;
-	else if constexpr (glm::is_vec<valT>)
+	else if constexpr (glm::type<valT>::is_vec)
 		return valT::length();
-	else if constexpr (glm::is_quat<valT>)
+	else if constexpr (glm::type<valT>::is_quat)
 		return 4;
 }
 

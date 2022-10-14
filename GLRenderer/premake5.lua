@@ -20,6 +20,7 @@ project "GLRenderer"
 	LinkDependency("ImGui")
 	LinkDependency("pugixml")
 	LinkDependency("GLFW")
+	LinkDependency("RTTR")
 
 	includedirs
 	{

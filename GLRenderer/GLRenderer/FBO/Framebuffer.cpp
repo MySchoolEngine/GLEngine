@@ -4,6 +4,11 @@
 #include <GLRenderer/FBO/Framebuffer.h>
 #include <GLRenderer/Textures/Texture.h>
 
+#include <Renderer/IDevice.h>
+#include <Renderer/IRenderer.h>
+
+#include <Core/Application.h>
+
 namespace GLEngine::GLRenderer {
 
 //=================================================================================
@@ -20,6 +25,10 @@ C_Framebuffer::C_Framebuffer(const std::string& name)
 //=================================================================================
 C_Framebuffer::~C_Framebuffer()
 {
+	auto& device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
+	for (auto& attachement : m_attachements) {
+		device.DestroyTexture(*(attachement.second.get()));
+	}
 	glDeleteBuffers(1, &m_FBO);
 }
 

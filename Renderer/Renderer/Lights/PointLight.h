@@ -10,6 +10,8 @@
 
 #include <Entity/IComponent.h>
 
+#include <rttr/type>
+
 namespace GLEngine::Renderer {
 
 namespace MeshData {
@@ -21,6 +23,7 @@ class RENDERER_API_EXPORT C_PointLight : public I_Light {
 public:
 	explicit C_PointLight(std::shared_ptr<Entity::I_Entity> owner);
 	C_PointLight(std::shared_ptr<Entity::I_Entity> owner, const MeshData::Light& def);
+	C_PointLight();
 	virtual ~C_PointLight();
 
 	[[nodiscard]] glm::vec3			GetPosition() const;
@@ -37,10 +40,12 @@ public:
 	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override final;
 
 private:
-	GUI::Input::C_Slider<float> m_Intensity;
-	GUI::Input::C_ColorRBG		m_Color;
+	float			  m_Intensity;
+	Colours::T_Colour m_Color;
 
 	friend class C_PointLightCompBuilder;
+	RTTR_ENABLE(I_Light);
+	RTTR_REGISTRATION_FRIEND;
 };
 
 //=============================================================

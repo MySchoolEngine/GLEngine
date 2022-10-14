@@ -3,6 +3,12 @@
 #include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/Textures/TextureLoader.h>
 
+#include <Renderer/Textures/TextureDefinitions.h>
+#include <Renderer/IDevice.h>
+#include <Renderer/IRenderer.h>
+
+#include <Core/Application.h>
+
 #pragma warning(push)
 #pragma warning(disable : 4005)
 #include <gli/gli.hpp>
@@ -24,14 +30,18 @@ std::shared_ptr<GLRenderer::Textures::C_Texture> TextureLoader::LoadAndInitTextu
 	GLenum	Target = GL.translate(Texture.target());
 	// GLenum internalFormat = GL.translate(Format.Internal, Texture.swizzles());
 
+	// should be already allocated
 	GLE_ASSERT(Texture.target() == gli::TARGET_2D, "Only 2d supported now");
-	auto texture = std::make_shared<Textures::C_Texture>(path.string());
-	texture->StartGroupOp();
-	texture->SetTexParameter(GL_TEXTURE_BASE_LEVEL, 0);
-	texture->SetTexParameter(GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(Texture.levels() - 1));
-	glTexParameteriv(Target, GL_TEXTURE_SWIZZLE_RGBA, &Format.Swizzles[0]);
 
-	glTexStorage2D(Target, static_cast<GLint>(Texture.levels()), Format.Internal, Texture.extent(0).x, Texture.extent(0).y);
+	const Renderer::TextureDescriptor desc{path.string(), Texture.extent(0).x, Texture.extent(0).y, Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::D16,
+										   true,		  Texture.levels()};
+
+	auto texture = std::make_shared<Textures::C_Texture>(desc);
+
+	Core::C_Application::Get().GetActiveRenderer().GetDevice().AllocateTexture(*texture.get());
+	texture->SetParameter(GL_TEXTURE_BASE_LEVEL, 0);
+	texture->SetParameter(GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(Texture.levels() - 1));
+	glTexParameteriv(Target, GL_TEXTURE_SWIZZLE_RGBA, &Format.Swizzles[0]);
 
 	for (std::size_t Level = 0; Level < Texture.levels(); ++Level)
 	{
@@ -43,11 +53,9 @@ std::shared_ptr<GLRenderer::Textures::C_Texture> TextureLoader::LoadAndInitTextu
 		}
 		else
 		{
-			glTexSubImage2D(Target, static_cast<GLint>(Level), 0, 0, Extent.x, Extent.y, Format.External, Format.Type, Texture.data(0, 0, Level));
+			glTextureSubImage2D(texture->GetTexture(), static_cast<GLint>(Level), 0, 0, Extent.x, Extent.y, Format.External, Format.Type, Texture.data(0, 0, Level));
 		}
 	}
-
-	texture->EndGroupOp();
 
 
 	return texture;

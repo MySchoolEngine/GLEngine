@@ -47,17 +47,30 @@ end
 end
 
 function LinkDependency(depName)
-	includedirs("%{wks.location}/%{IncludeDir."..depName.."}")
+	if not (type( IncludeDir[depName] ) == "string") then
+		for i,dir in pairs(IncludeDir[depName]) do
+			includedirs { "%{wks.location}/"..dir }
+		end
+	else
+		includedirs{"%{wks.location}/%{IncludeDir."..depName.."}"}
+	end
 	libdirs {"%{wks.location}/bin/"..outputdir.."/vendor/"..depName.."/"}
 	links
 	{
 		depName,
 	}
-	if _TARGET_OS == "windows" and NonDllLib[depName] == nil then
+	if _TARGET_OS == "windows" then
+	  if NonDllLib[depName] == nil then
 		postbuildcommands
 		{
 			("{COPY} \"%{wks.location}/bin/" .. outputdir .. "/vendor/" .. depName .. "/".. depName ..".dll\" \"%{cfg.buildtarget.directory}\"")
 		}
+	  else
+		postbuildcommands
+		{
+			("{COPY} \"%{wks.location}/bin/" .. outputdir .. "/vendor/" .. depName .. "/".. depName ..".lib\" \"%{cfg.buildtarget.directory}\"")
+		}
+	  end
 	end
 end
 
@@ -65,6 +78,8 @@ function SetupProject(projectName)
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("%{wks.location}/obj/" .. outputdir .. "/%{prj.name}")
 	ProjectFiles(projectName)
+	-- everybody needs guid
+	includedirs{"%{wks.location}/%{IncludeDir.crossguid}"}
 	defines
 	{
 		"BUILD_"..string.upper(tostring(projectName)).."_DLL",

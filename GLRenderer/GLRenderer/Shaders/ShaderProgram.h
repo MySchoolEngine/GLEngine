@@ -13,8 +13,6 @@
 
 #pragma once
 
-#include <Renderer/IResource.h>
-
 namespace GLEngine::GLRenderer {
 
 namespace Buffers {
@@ -40,11 +38,8 @@ public:
 
 	void BindUBO(std::shared_ptr<Buffers::C_UniformBuffer>) const;
 
-#if _DEBUG
 	void SetName(const std::string& name) noexcept;
-#else
-	inline void SetName(const std::string& name) noexcept {}
-#endif
+	std::string GetName() const;
 
 	// replace this
 	inline GLuint GetProgram() const { return m_Program; }
@@ -84,8 +79,8 @@ public:
 #endif
 
 private:
-#if _DEBUG
 	std::string						   m_name;
+#if _DEBUG
 	std::filesystem::file_time_type	   m_LastUpdate;
 	std::vector<std::filesystem::path> m_Paths;
 

@@ -13,33 +13,21 @@
 
 #pragma once
 
-#include <glm/glm.hpp>
-
-#include <memory>
-#include <string>
-#include <vector>
-
-
 namespace pugi {
 class xml_document;
 class xml_node;
 } // namespace pugi
 
-
 namespace GLEngine {
-namespace Renderer::MeshData {
+namespace Renderer {
+class I_DeviceTexture;
+namespace MeshData {
 struct Scene;
 struct Mesh;
-struct Texture;
-} // namespace Renderer::MeshData
+} // namespace MeshData
+} // namespace Renderer
 
-namespace GLRenderer {
-
-namespace Textures {
-class C_Texture;
-}
-
-namespace Mesh {
+namespace GLRenderer::Mesh {
 class I_RenderNode;
 class C_Scene;
 class C_Terrain;
@@ -49,22 +37,21 @@ public:
 	C_SceneBuilder();
 	~C_SceneBuilder() = default;
 
-	std::shared_ptr<C_Scene>			 LoadScene(const std::string& sceneDefinitionFile);
-	std::shared_ptr<C_Terrain>			 LoadTerrain(const pugi::xml_node& node);
-	std::shared_ptr<C_Scene>			 LoadModel(const pugi::xml_node& node);
-	std::shared_ptr<I_RenderNode>		 LoadMesh(const Renderer::MeshData::Mesh& mesh);
-	std::shared_ptr<Textures::C_Texture> LoadTexture(const Renderer::MeshData::Texture& texture) const;
+	std::shared_ptr<C_Scene>				   LoadScene(const std::string& sceneDefinitionFile);
+	std::shared_ptr<C_Terrain>				   LoadTerrain(const pugi::xml_node& node);
+	std::shared_ptr<C_Scene>				   LoadModel(const pugi::xml_node& node);
+	std::shared_ptr<I_RenderNode>			   LoadMesh(const Renderer::MeshData::Mesh& mesh);
+	std::shared_ptr<Renderer::I_DeviceTexture> LoadTexture(const Renderer::I_TextureViewStorage& texture, const std::string& name) const;
 
 private:
 	glm::vec3	ReadPositionNode(const pugi::xml_node& node) const noexcept;
 	std::string GetFolderpath(const std::string& filePath) const;
 	std::string GetFilePart(const std::string& filePath) const;
 
-	std::vector<std::shared_ptr<Textures::C_Texture>> m_textures;
-	std::shared_ptr<Renderer::MeshData::Scene>		  m_scene;
-	std::string										  m_sceneFolder;
+	std::vector<std::shared_ptr<Renderer::I_DeviceTexture>> m_textures;
+	std::shared_ptr<Renderer::MeshData::Scene>				m_scene;
+	std::string												m_sceneFolder;
 };
 
-} // namespace Mesh
-} // namespace GLRenderer
+} // namespace GLRenderer::Mesh
 } // namespace GLEngine

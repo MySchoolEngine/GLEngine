@@ -142,108 +142,37 @@ template <Renderer::E_WrapFunction wrapFunction> struct T_WrapFunction {
 };
 
 //=================================================================================
-inline constexpr GLenum OpenGLUnderlyingType(const Renderer::E_TextureFormat format)
+GLenum OpenGLUnderlyingType(const Renderer::E_TextureFormat format);
+
+//=================================================================================
+inline constexpr std::size_t SizeOfGLType(const GLenum type)
 {
-	switch (format)
+	switch (type)
 	{
-	case Renderer::E_TextureFormat::RGBA32f:
-	case Renderer::E_TextureFormat::RGB32f:
-	case Renderer::E_TextureFormat::RG32f:
-	case Renderer::E_TextureFormat::R32f:
-	case Renderer::E_TextureFormat::RGBA16f:
-	case Renderer::E_TextureFormat::RGB16f:
-	case Renderer::E_TextureFormat::RG16f:
-	case Renderer::E_TextureFormat::R16f:
-		return GL_FLOAT;
-	case Renderer::E_TextureFormat::RGBA32i:
-	case Renderer::E_TextureFormat::RGB32i:
-	case Renderer::E_TextureFormat::RG32i:
-	case Renderer::E_TextureFormat::R32i:
-		return GL_INT;
-	case Renderer::E_TextureFormat::RGBA16i:
-	case Renderer::E_TextureFormat::RGB16i:
-	case Renderer::E_TextureFormat::RG16i:
-	case Renderer::E_TextureFormat::R16i:
-		return GL_SHORT;
-	case Renderer::E_TextureFormat::RGBA8i:
-	case Renderer::E_TextureFormat::RGB8i:
-	case Renderer::E_TextureFormat::RG8i:
-	case Renderer::E_TextureFormat::R8i:
-		return GL_BYTE;
-	case Renderer::E_TextureFormat::D24S8:
-		return GL_UNSIGNED_INT_24_8;
-	case Renderer::E_TextureFormat::D32f:
-		return GL_FLOAT;
-	case Renderer::E_TextureFormat::D24:
-		return GL_FLOAT;
-	case Renderer::E_TextureFormat::D16:
-		return GL_FLOAT;
+	case GL_FLOAT:
+		return sizeof(float);
+	case GL_INT:
+		return sizeof(int);
+	case GL_SHORT:
+		return sizeof(short);
+	case GL_BYTE:
+		return 1;
+	case GL_UNSIGNED_INT_24_8:
+		return 4;
+	case GL_HALF_FLOAT:
+		return 2;
 	default:
-		CORE_LOG(E_Level::Error, E_Context::Render, "Unknown texture format");
+		CORE_LOG(E_Level::Error, E_Context::Render, "Unknown texture type");
 		break;
 	}
-	return GL_BYTE;
+	return 4; // worst case scenario
 }
 
 //=================================================================================
-inline constexpr GLenum GetOpenGLInternalFormat(const Renderer::E_TextureFormat format)
-{
-	switch (format)
-	{
-	case Renderer::E_TextureFormat::RGBA32f:
-		return GL_RGBA32F;
-	case Renderer::E_TextureFormat::RGB32f:
-		return GL_RGB32F;
-	case Renderer::E_TextureFormat::RG32f:
-		return GL_RG32F;
-	case Renderer::E_TextureFormat::R32f:
-		return GL_R32F;
-	case Renderer::E_TextureFormat::RGBA16f:
-		return GL_RGBA16F;
-	case Renderer::E_TextureFormat::RGB16f:
-		return GL_RGB16F;
-	case Renderer::E_TextureFormat::RG16f:
-		return GL_RG16F;
-	case Renderer::E_TextureFormat::R16f:
-		return GL_R16F;
-	case Renderer::E_TextureFormat::RGBA32i:
-		return GL_RGBA32I;
-	case Renderer::E_TextureFormat::RGB32i:
-		return GL_RGB32I;
-	case Renderer::E_TextureFormat::RG32i:
-		return GL_RG32I;
-	case Renderer::E_TextureFormat::R32i:
-		return GL_R32I;
-	case Renderer::E_TextureFormat::RGBA16i:
-		return GL_RGBA16I;
-	case Renderer::E_TextureFormat::RGB16i:
-		return GL_RGB16I;
-	case Renderer::E_TextureFormat::RG16i:
-		return GL_RG16I;
-	case Renderer::E_TextureFormat::R16i:
-		return GL_R16I;
-	case Renderer::E_TextureFormat::RGBA8i:
-		return GL_RGBA;
-	case Renderer::E_TextureFormat::RGB8i:
-		return GL_RGB8I;
-	case Renderer::E_TextureFormat::RG8i:
-		return GL_RG8I;
-	case Renderer::E_TextureFormat::R8i:
-		return GL_R8I;
-	case Renderer::E_TextureFormat::D32f:
-		return GL_DEPTH_COMPONENT32F;
-	case Renderer::E_TextureFormat::D24S8:
-		return GL_DEPTH24_STENCIL8;
-	case Renderer::E_TextureFormat::D24:
-		return GL_DEPTH_COMPONENT24;
-	case Renderer::E_TextureFormat::D16:
-		return GL_DEPTH_COMPONENT16;
-	default:
-		CORE_LOG(E_Level::Error, E_Context::Render, "Unknown texture format");
-		break;
-	}
-	return GL_R8I;
-}
+GLenum GetOpenGLInternalFormat(const Renderer::E_TextureFormat format);
+
+//=================================================================================
+GLenum GetOpenGLFormat(const Renderer::E_TextureFormat format);
 
 //=================================================================================
 constexpr GLenum MinMagFilterToEnum(const Renderer::E_TextureFilter filter)
@@ -276,6 +205,7 @@ enum class E_OpenGLAccess : char
 	ReadWrite,
 };
 
+//=================================================================================
 constexpr GLenum AccesRightsToEnum(const E_OpenGLAccess access)
 {
 	switch (access)

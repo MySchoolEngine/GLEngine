@@ -3,6 +3,8 @@
 #include <Physics/Primitives/Intersectable.h>
 #include <Physics/Primitives/Ray.h>
 
+#include <glm/glm.hpp>
+
 namespace GLEngine::Physics::Primitives {
 struct S_Ray;
 

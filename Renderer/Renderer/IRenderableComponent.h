@@ -5,6 +5,8 @@
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
 
+#include <rttr/registration>
+
 namespace GLEngine {
 namespace Renderer {
 class RENDERER_API_EXPORT I_RenderableComponent : public Entity::I_Component {
@@ -17,6 +19,8 @@ public:
 
 	virtual void					PerformDraw() const = 0;
 	virtual Entity::E_ComponentType GetType() const override { return Entity::E_ComponentType::Graphical; }
+
+	RTTR_ENABLE(Entity::I_Component);
 };
 } // namespace Renderer
 

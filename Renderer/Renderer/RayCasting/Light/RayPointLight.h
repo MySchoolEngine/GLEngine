@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Renderer/Colours.h>
 #include <Renderer/RayCasting/Light/ILight.h>
 
 namespace GLEngine::Renderer {
@@ -10,11 +11,11 @@ namespace GLEngine::Renderer::RayTracing {
 class C_PointLight : public I_RayLight {
 public:
 	C_PointLight(const glm::vec3& position, const glm::vec3& intenstiy);
-	[[nodiscard]] glm::vec3 SampleLi(const C_RayIntersection& intersection, I_Sampler* rnd, S_VisibilityTester& vis, float* pdf) const override;
-	[[nodiscard]] glm::vec3 Le() const override;
+	[[nodiscard]] Colours::T_Colour SampleLi(const C_RayIntersection& intersection, I_Sampler* rnd, S_VisibilityTester& vis, float* pdf) const override;
+	[[nodiscard]] Colours::T_Colour Le() const override;
 
 private:
-	glm::vec3 m_Position;
-	glm::vec3 m_Intensity;
+	Colours::T_Colour m_Position;
+	Colours::T_Colour m_Intensity;
 };
 } // namespace GLEngine::Renderer::RayTracing

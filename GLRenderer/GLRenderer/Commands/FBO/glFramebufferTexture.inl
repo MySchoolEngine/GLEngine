@@ -25,12 +25,6 @@ template <E_FramebufferTarget framebuffer> Renderer::I_RenderCommand::E_Type C_g
 }
 
 //=================================================================================
-template <E_FramebufferTarget framebuffer> std::shared_ptr<Renderer::I_Resource> C_glFramebufferTexture<framebuffer>::GetResource() const
-{
-	return nullptr;
-}
-
-//=================================================================================
 template <E_FramebufferTarget framebuffer> std::string GLEngine::GLRenderer::Commands::C_glFramebufferTexture<framebuffer>::GetDescriptor() const
 {
 	return fmt::format("glFramebufferTexture {} {}", m_Attachement, m_Texture->GetTexture());

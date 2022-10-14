@@ -78,12 +78,9 @@ void C_GLGeomComponent::SetupMaterial(const Utils::Parsing::MaterialData& data)
 		{
 			m_Material->SetDiffuseColor(glm::vec3(1.0f));
 
-			colorMap->StartGroupOp();
 			colorMap->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
 			colorMap->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
 			colorMap->GenerateMipMaps();
-
-			colorMap->EndGroupOp();
 
 			m_Material->SetColorMap(colorMap);
 		}

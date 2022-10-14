@@ -30,12 +30,6 @@ Renderer::I_RenderCommand::E_Type C_GLClear::GetType() const
 }
 
 //=================================================================================
-std::shared_ptr<Renderer::I_Resource> C_GLClear::GetResource() const
-{
-	return nullptr;
-}
-
-//=================================================================================
 std::string C_GLClear::GetDescriptor() const
 {
 	return std::string("GLClear");

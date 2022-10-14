@@ -2,6 +2,7 @@
 
 #include <Utils/Logging/Formatters/GLMFormatters.h>
 #include <Utils/Logging/Formatters/filepath.h>
+#include <Utils/Logging/Formatters/rttr.h>
 #include <Utils/Logging/ILogger.h>
 
 #include <fmt/format.h>

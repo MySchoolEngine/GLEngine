@@ -29,11 +29,17 @@ public:
 	void														SetLight(const std::shared_ptr<RayTracing::I_RayLight>& light);
 	[[nodiscard]] const std::shared_ptr<RayTracing::I_RayLight> GetLight() const;
 
+	glm::vec2 GetUV() const { return m_UV; }
+	void	  SetUV(const glm::vec2& UV) { m_UV = UV; }
+
+	void TransformRayAndPoint(const glm::mat4& mat);
+
 private:
 	S_Frame									m_Frame;
 	glm::vec3								m_Point;
 	Physics::Primitives::S_Ray				m_Ray;
-	const MeshData::Material*				m_Material; // not owning
-	std::shared_ptr<RayTracing::I_RayLight> m_Light;
+	glm::vec2								m_UV	   = {0.f, 0.f};
+	const MeshData::Material*				m_Material = nullptr; // not owning
+	std::shared_ptr<RayTracing::I_RayLight> m_Light	   = nullptr;
 };
 } // namespace GLEngine::Renderer

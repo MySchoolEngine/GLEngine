@@ -21,7 +21,7 @@ class C_Framebuffer;
 
 class C_SunShadowMapTechnique final {
 public:
-	C_SunShadowMapTechnique(std::shared_ptr<Renderer::C_SunLight>& light);
+	C_SunShadowMapTechnique(std::shared_ptr<Renderer::C_SunLight> light);
 	~C_SunShadowMapTechnique(); // = defualt
 
 	void								 Render(const Entity::C_EntityManager& world, Renderer::I_CameraComponent* camera);

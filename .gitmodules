@@ -37,3 +37,9 @@
 [submodule "vendor/ImGuizmo"]
 	path = vendor/ImGuizmo
 	url = https://github.com/CedricGuillemet/ImGuizmo
+[submodule "vendor/crossguid"]
+	path = vendor/crossguid
+	url = https://github.com/graeme-hill/crossguid
+[submodule "vendor/RTTR"]
+	path = vendor/RTTR
+	url = https://github.com/rttrorg/rttr
