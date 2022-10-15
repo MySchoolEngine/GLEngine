@@ -30,7 +30,7 @@ project "VulkanRenderer"
 
 	links 
 	{
-		"$(VULKAN_SDK)/lib/vulkan-1.lib"
+		"$(VULKAN_SDK)/lib/vulkan-1.lib",
 		"vulkan-1.lib",
 	}
 
