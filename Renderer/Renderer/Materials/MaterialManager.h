@@ -3,6 +3,7 @@
 #include <Renderer/RendererApi.h>
 
 #include <GUI/LambdaPart.h>
+
 #include <Core/GUID.h>
 
 namespace GLEngine::GUI {

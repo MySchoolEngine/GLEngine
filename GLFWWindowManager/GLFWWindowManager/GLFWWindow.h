@@ -44,8 +44,9 @@ protected:
 	void MakeCurrent();
 	void WindowHint(int hint, int value);
 
-	GLFWwindow* m_Window;
-	C_GLFWInput m_Input;
+	GLFWwindow*	   m_Window;
+	C_GLFWInput	   m_Input;
+	Core::E_Driver m_Driver;
 };
 } // namespace GLFWManager
 } // namespace GLEngine

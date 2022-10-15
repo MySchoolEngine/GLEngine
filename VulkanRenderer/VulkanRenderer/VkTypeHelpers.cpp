@@ -60,4 +60,4 @@ VkFormat GetVkInternalFormat(const Renderer::E_TextureFormat format)
 	return VkFormat::VK_FORMAT_R8_SINT;
 }
 
-}
+} // namespace GLEngine::VkRenderer

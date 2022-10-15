@@ -70,7 +70,7 @@ bool C_VkWindow::CreateWindowSurface()
 	const auto ret = glfwCreateWindowSurface(m_Instance, m_Window, nullptr, &m_Surface);
 	if (ret != VK_SUCCESS)
 	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Window unable to initialise its surface");
+		CORE_LOG(E_Level::Error, E_Context::Render, "Window unable to initialise its surface. {}", ret);
 		return false;
 	}
 	return true;
@@ -116,9 +116,9 @@ void C_VkWindow::CreateSwapChain()
 
 	createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-	if (vkCreateSwapchainKHR(m_renderer->GetDeviceVK(), &createInfo, nullptr, &m_SwapChain) != VK_SUCCESS)
+	if (const auto result = vkCreateSwapchainKHR(m_renderer->GetDeviceVK(), &createInfo, nullptr, &m_SwapChain) != VK_SUCCESS)
 	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "failed to create swap chain");
+		CORE_LOG(E_Level::Error, E_Context::Render, "Failed to create swap chain. {}", result);
 		return;
 	}
 
@@ -196,9 +196,9 @@ void C_VkWindow::CreateImageViews()
 		createInfo.subresourceRange.baseArrayLayer = 0;
 		createInfo.subresourceRange.layerCount	   = 1;
 
-		if (vkCreateImageView(m_renderer->GetDeviceVK(), &createInfo, nullptr, &m_SwapChainImagesViews[i]) != VK_SUCCESS)
+		if (const auto result = vkCreateImageView(m_renderer->GetDeviceVK(), &createInfo, nullptr, &m_SwapChainImagesViews[i]) != VK_SUCCESS)
 		{
-			CORE_LOG(E_Level::Error, E_Context::Render, "failed to create image views");
+			CORE_LOG(E_Level::Error, E_Context::Render, "Failed to create image views. {}", result);
 			return;
 		}
 

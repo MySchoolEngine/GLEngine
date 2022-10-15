@@ -20,3 +20,5 @@
 #include <vulkan/vulkan.h>
 
 #include <VulkanRenderer/VulkanTypesHelpers.h>
+
+#include <VulkanRenderer/VkLogFormatting.h>
