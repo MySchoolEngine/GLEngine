@@ -63,8 +63,7 @@ void C_EntitiesWindow::Draw() const
 
 		m_EntityTypeSelector.Draw();
 		static std::string entityName;
-		ImGui::InputText("Entity name", &entityName);
-		if (ImGui::Button("Spawn"))
+		if (ImGui::Button("Spawn") || ImGui::InputText("Entity name", &entityName))
 		{
 			const auto type = rttr::type::get_by_name(m_EntityTypeSelector.GetSelectedTypeName());
 			if (entityName.empty())
@@ -77,9 +76,10 @@ void C_EntitiesWindow::Draw() const
 			}
 			else
 			{
-				auto entity = type.create({entityName});
-				world->AddEntity(entity.convert<std::shared_ptr<I_Entity>>());
-
+				auto entityVar = type.create({entityName});
+				auto entity	   = entityVar.convert<std::shared_ptr<I_Entity>>();
+				world->AddEntity(entity);
+				m_SelectedEntity = entity->GetID();
 				entityName = "";
 			}
 		}
@@ -105,25 +105,29 @@ void C_EntitiesWindow::Draw() const
 				++i;
 			}
 
-			  ImGui::BeginChild("AddComponent", ImVec2(0, 100), true);
-			  m_ComponentTypeSelector.Draw();
-			  if (ImGui::Button("Add component"))
-			  {
-				  const auto type = rttr::type::get_by_name(m_ComponentTypeSelector.GetSelectedTypeName());
-				  if (type.is_valid() == false)
-				  {
-					  CORE_LOG(E_Level::Error, E_Context::Entity, "Type {} doesn't exists.", m_ComponentTypeSelector.GetSelectedTypeName());
-				  }
-				  else
-				  {
-					  auto component = type.create({entity});
-					  if (component)
-						  entity->AddComponent(component.convert<std::shared_ptr<I_Component>>());
-					  else
-						  CORE_LOG(E_Level::Error, E_Context::Entity, "Cannot instantiate component '{}'.", m_ComponentTypeSelector.GetSelectedTypeName());
-				  }
-			  }
-			  ImGui::EndChild();
+			ImGui::BeginChild("AddComponent", ImVec2(0, 100), true);
+			m_ComponentTypeSelector.Draw();
+			if (ImGui::Button("Add component"))
+			{
+				const auto type = rttr::type::get_by_name(m_ComponentTypeSelector.GetSelectedTypeName());
+				if (type.is_valid() == false)
+				{
+					CORE_LOG(E_Level::Error, E_Context::Entity, "Type {} doesn't exists.", m_ComponentTypeSelector.GetSelectedTypeName());
+				}
+				else
+				{
+					auto component = type.create();
+					if (component)
+					{
+						auto componentPtr = component.convert<std::shared_ptr<I_Component>>();
+						componentPtr->SetParent(entity);
+						entity->AddComponent(componentPtr);
+					}
+					else
+						CORE_LOG(E_Level::Error, E_Context::Entity, "Cannot instantiate component '{}'.", m_ComponentTypeSelector.GetSelectedTypeName());
+				}
+			}
+			ImGui::EndChild();
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 			ImGui::EndChild();
 		}
