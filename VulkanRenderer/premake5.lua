@@ -29,7 +29,8 @@ project "VulkanRenderer"
 	libdirs { GetVulkanBasePath().."/Lib" }
 
 	links 
-	{ 
+	{
+		"$(VULKAN_SDK)/lib/vulkan-1.lib"
 		"vulkan-1.lib",
 	}
 
