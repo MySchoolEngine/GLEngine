@@ -39,7 +39,7 @@ std::shared_ptr<C_Material> C_MaterialManager::GetMaterial(const std::string& na
 std::shared_ptr<C_Material> C_MaterialManager::RegisterMaterial(C_Material&& material)
 {
 	m_Materials.push_back(std::make_shared<C_Material>(std::move(material)));
-	m_Materials.back()->SetMaterialIndex(m_Materials.size() - 1);
+	m_Materials.back()->SetMaterialIndex(static_cast<int>(m_Materials.size()) - 1);
 	return m_Materials.back();
 }
 
