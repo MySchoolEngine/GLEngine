@@ -6,6 +6,8 @@
 
 #include <GUI/GUIUtils.h>
 
+#include <Core/EventSystem/Event.h>
+
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
 
@@ -105,25 +107,25 @@ void C_EntitiesWindow::Draw() const
 				++i;
 			}
 
-			  ImGui::BeginChild("AddComponent", ImVec2(0, 100), true);
-			  m_ComponentTypeSelector.Draw();
-			  if (ImGui::Button("Add component"))
-			  {
-				  const auto type = rttr::type::get_by_name(m_ComponentTypeSelector.GetSelectedTypeName());
-				  if (type.is_valid() == false)
-				  {
-					  CORE_LOG(E_Level::Error, E_Context::Entity, "Type {} doesn't exists.", m_ComponentTypeSelector.GetSelectedTypeName());
-				  }
-				  else
-				  {
-					  auto component = type.create({entity});
-					  if (component)
-						  entity->AddComponent(component.convert<std::shared_ptr<I_Component>>());
-					  else
-						  CORE_LOG(E_Level::Error, E_Context::Entity, "Cannot instantiate component '{}'.", m_ComponentTypeSelector.GetSelectedTypeName());
-				  }
-			  }
-			  ImGui::EndChild();
+			ImGui::BeginChild("AddComponent", ImVec2(0, 100), true);
+			m_ComponentTypeSelector.Draw();
+			if (ImGui::Button("Add component"))
+			{
+				const auto type = rttr::type::get_by_name(m_ComponentTypeSelector.GetSelectedTypeName());
+				if (type.is_valid() == false)
+				{
+					CORE_LOG(E_Level::Error, E_Context::Entity, "Type {} doesn't exists.", m_ComponentTypeSelector.GetSelectedTypeName());
+				}
+				else
+				{
+					auto component = type.create({entity});
+					if (component)
+						entity->AddComponent(component.convert<std::shared_ptr<I_Component>>());
+					else
+						CORE_LOG(E_Level::Error, E_Context::Entity, "Cannot instantiate component '{}'.", m_ComponentTypeSelector.GetSelectedTypeName());
+				}
+			}
+			ImGui::EndChild();
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 			ImGui::EndChild();
 		}

@@ -2,7 +2,6 @@
 
 #include <Renderer/Colours.h>
 #include <Renderer/ILight.h>
-#include <Renderer/Mesh/Scene.h>
 #include <Renderer/RendererApi.h>
 
 #include <GUI/Input/Color.h>
