@@ -1,6 +1,10 @@
 #pragma once
 
 #include <GUI/GUIPart.h>
+#include <Renderer/Colours.h>
+
+#include <rttr/registration_friend.h>
+#include <rttr/registration.h>
 
 namespace GLEngine::GUI::Input {
 
@@ -23,16 +27,18 @@ protected:
 	mutable T	m_Color;
 };
 
-class C_ColorRBG : public C_ColorBase<glm::vec3> {
+class C_ColorRBG : public C_ColorBase<Colours::T_Colour> {
 public:
-	C_ColorRBG(std::string&& name, glm::vec3 def)
+	C_ColorRBG(std::string&& name, Colours::T_Colour def)
 		: C_ColorBase(std::move(name), (def))
 	{
 	}
 	GUI_API_EXPORT virtual void Draw() const override;
 
 
-	using C_ColorBase<glm::vec3>::operator=;
+	using C_ColorBase<Colours::T_Colour>::operator=;
+	RTTR_ENABLE();
+	RTTR_REGISTRATION_FRIEND;
 };
 
 
@@ -46,5 +52,7 @@ public:
 
 
 	using C_ColorBase<glm::vec4>::operator=;
+	RTTR_ENABLE();
+	RTTR_REGISTRATION_FRIEND;
 };
 } // namespace GLEngine::GUI::Input

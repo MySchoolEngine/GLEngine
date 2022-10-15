@@ -1,4 +1,4 @@
-include "../premakeDefines.lua"
+include "../Tools/Premake5/premakeDefines.lua"
 
 project "GLRenderer"
 	kind "SharedLib"
@@ -15,10 +15,12 @@ project "GLRenderer"
 	Link("Core")
 	Link("GUI")
 	Link("Editor")
+	Link("Animation") -- until the whole skeletal Animation could be moved outside of API specific implementation
 
 	LinkDependency("ImGui")
 	LinkDependency("pugixml")
 	LinkDependency("GLFW")
+	LinkDependency("RTTR")
 
 	includedirs
 	{
@@ -50,7 +52,7 @@ project "GLRenderer"
 
 		postbuildcommands
 		{
-			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
+			("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\""),
 		}
 
 		links

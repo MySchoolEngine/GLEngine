@@ -4,6 +4,8 @@
 #include <Renderer/Textures/TextureLoader.h>
 #include <Renderer/Textures/TextureStorage.h>
 
+#include <Utils/ScopeFinalizer.h>
+
 // Selects implementation
 // Either DevIL or FreeImage
 // WARNING - there is a bug in FreeImage implementation! It returns BGRA!
@@ -18,26 +20,11 @@ bool TextureLoader::_isILinitialized = false;
 //=================================================================================
 bool TextureLoader::loadTexture(const std::filesystem::path& path, MeshData::Texture& t)
 {
-	if (!_isILinitialized)
-	{
-		ilInit();
-		_isILinitialized = true;
-	}
+	Init();
 
-	ilEnable(IL_ORIGIN_SET);
-	ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
-
-	ILuint image;
-	ilGenImages(1, &image);
-	ilBindImage(image);
-
-#if CORE_PLATFORM == CORE_PLATFORM_WIN
-	ilLoadImage(path.wstring().c_str());
-#else
-	ilLoadImage(path.generic_string().c_str());
-#endif
-	ILenum Error;
-	Error = ilGetError();
+	auto					image = ilLoadTexture(path);
+	Utils::C_ScopeFinalizer finalizer([image]() { ilDeleteImage(image); });
+	const ILenum			Error = ilGetError();
 
 	if (Error != IL_NO_ERROR)
 	{
@@ -61,34 +48,18 @@ bool TextureLoader::loadTexture(const std::filesystem::path& path, MeshData::Tex
 	t.data = std::shared_ptr<unsigned char>(new unsigned char[4 * t.width * t.height]);
 	memcpy(t.data.get(), ilGetData(), 4 * t.width * t.height);
 
-	ilDeleteImage(image);
-
 	return true;
 }
 
 //=================================================================================
-I_TextureViewStorage* TextureLoader::loadTexture(const std::filesystem::path& path)
+std::unique_ptr<I_TextureViewStorage> TextureLoader::loadTexture(const std::filesystem::path& path)
 {
-	if (!_isILinitialized)
-	{
-		ilInit();
-		_isILinitialized = true;
-	}
+	// memory leak, ilDeleteImage(image); could be skipped
+	Init();
 
-	ilEnable(IL_ORIGIN_SET);
-	ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
-
-	ILuint image;
-	ilGenImages(1, &image);
-	ilBindImage(image);
-
-#if CORE_PLATFORM == CORE_PLATFORM_WIN
-	ilLoadImage(path.wstring().c_str());
-#else
-	ilLoadImage(path.generic_string().c_str());
-#endif
-	ILenum Error;
-	Error = ilGetError();
+	auto					image = ilLoadTexture(path);
+	Utils::C_ScopeFinalizer finalizer([image]() { ilDeleteImage(image); });
+	const ILenum			Error = ilGetError();
 
 	if (Error != IL_NO_ERROR)
 	{
@@ -96,18 +67,24 @@ I_TextureViewStorage* TextureLoader::loadTexture(const std::filesystem::path& pa
 		return nullptr;
 	}
 
-	const auto			  width			= ilGetInteger(IL_IMAGE_WIDTH);
-	const auto			  height		= ilGetInteger(IL_IMAGE_HEIGHT);
-	I_TextureViewStorage* textureBuffer = nullptr;
+	const auto							  width			= ilGetInteger(IL_IMAGE_WIDTH);
+	const auto							  height		= ilGetInteger(IL_IMAGE_HEIGHT);
+	std::unique_ptr<I_TextureViewStorage> textureBuffer = nullptr;
 
 	if (ilGetInteger(IL_PALETTE_TYPE) != IL_PAL_NONE)
 	{
-		ilConvertImage(ilGetInteger(IL_PALETTE_BASE_TYPE), IL_UNSIGNED_BYTE);
+		ilConvertImage(ilGetInteger(IL_PALETTE_BASE_TYPE), IL_FLOAT);
 	}
+	if (ilGetInteger(IL_IMAGE_TYPE) != IL_FLOAT)
+		ilConvertImage(ilGetInteger(IL_IMAGE_FORMAT), IL_FLOAT);
 
 	if (ilGetInteger(IL_IMAGE_BPC) == 1)
 	{
-		textureBuffer = new C_TextureViewStorageCPU<std::uint8_t>(width, height, static_cast<std::uint8_t>(ilGetInteger(IL_IMAGE_CHANNELS)));
+		textureBuffer = std::make_unique<C_TextureViewStorageCPU<std::uint8_t>>(width, height, static_cast<std::uint8_t>(ilGetInteger(IL_IMAGE_CHANNELS)));
+	}
+	else if (ilGetInteger(IL_IMAGE_BPC) == 4)
+	{
+		textureBuffer = std::make_unique <C_TextureViewStorageCPU<float>>(width, height, static_cast<std::uint8_t>(ilGetInteger(IL_IMAGE_CHANNELS)));
 	}
 	else
 	{
@@ -141,9 +118,57 @@ I_TextureViewStorage* TextureLoader::loadTexture(const std::filesystem::path& pa
 
 	textureBuffer->SetData(ilGetData(), static_cast<std::size_t>(width) * height);
 
-	ilDeleteImage(image);
-
 	return textureBuffer;
+}
+
+//=================================================================================
+void TextureLoader::Init()
+{
+	if (!_isILinitialized)
+	{
+		ilInit();
+		_isILinitialized = true;
+	}
+}
+
+//=================================================================================
+unsigned int TextureLoader::ilLoadTexture(const std::filesystem::path& path)
+{
+	ilEnable(IL_ORIGIN_SET);
+	ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
+
+	ILuint image;
+	ilGenImages(1, &image);
+	ilBindImage(image);
+
+#if CORE_PLATFORM == CORE_PLATFORM_WIN
+	ilLoadImage(path.wstring().c_str());
+#else
+	ilLoadImage(path.generic_string().c_str());
+#endif
+
+	return image;
+}
+
+//=================================================================================
+bool TextureLoader::SaveTexture(const std::filesystem::path& path, I_TextureViewStorage* view)
+{
+	Init();
+
+	ILuint image;
+	ilGenImages(1, &image);
+	ilBindImage(image);
+
+	ilTexImage(view->GetDimensions().x, view->GetDimensions().y, 1, view->GetNumElements(), IL_RGB, IL_FLOAT, view->GetData());
+	Utils::C_ScopeFinalizer finalizer([image]() { ilDeleteImage(image); });
+
+	bool result;
+#if CORE_PLATFORM == CORE_PLATFORM_WIN
+	result = ilSaveImage(path.wstring().c_str());
+#else
+	result = ilSaveImage(path.generic_string().c_str());
+#endif
+	return result;
 }
 
 } // namespace GLEngine::Renderer::Textures

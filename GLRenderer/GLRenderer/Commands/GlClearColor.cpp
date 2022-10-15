@@ -24,15 +24,9 @@ void C_GLClearColor::Commit()
 }
 
 //=================================================================================
-GLEngine::Renderer::I_RenderCommand::E_Type C_GLClearColor::GetType() const
+Renderer::I_RenderCommand::E_Type C_GLClearColor::GetType() const
 {
 	return Renderer::I_RenderCommand::E_Type::StateChange;
-}
-
-//=================================================================================
-std::shared_ptr<GLEngine::Renderer::I_Resource> C_GLClearColor::GetResource() const
-{
-	return nullptr;
 }
 
 //=================================================================================

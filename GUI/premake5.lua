@@ -1,4 +1,4 @@
-include "../premakeDefines.lua"
+include "../Tools/Premake5/premakeDefines.lua"
 
 project "GUI"
 	kind "SharedLib"
@@ -12,6 +12,7 @@ project "GUI"
 	Link("ImGuiFileDialog")
 
 	LinkDependency("ImGui")
+	LinkDependency("RTTR")
 
 	includedirs
 	{
@@ -31,5 +32,5 @@ project "GUI"
 
 		postbuildcommands
 		{
-			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
+			("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\""),
 		}

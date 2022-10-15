@@ -1,4 +1,4 @@
-include "../premakeDefines.lua"
+include "../Tools/Premake5/premakeDefines.lua"
 
 project "Renderer"
 	kind "SharedLib"
@@ -13,14 +13,15 @@ project "Renderer"
 	Link("Entity")
 	Link("Core")
 	Link("GUI")
+	Link("Animation")
 	
 	LinkDependency("Assimp")
 	LinkDependency("ImGui")
 	LinkDependency("pugixml")
+	LinkDependency("RTTR")
 
 	includedirs
 	{
-		"../GLRenderer",
 		"../Physics",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.GLFW}",
@@ -43,5 +44,5 @@ project "Renderer"
 
 		postbuildcommands
 		{
-			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
+			("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\""),
 		}

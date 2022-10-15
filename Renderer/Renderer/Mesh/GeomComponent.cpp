@@ -38,6 +38,18 @@ void C_GeomComponent::SetupMaterial(const Utils::Parsing::MaterialData& data)
 }
 
 //=================================================================================
+void C_GeomComponent::DebugDrawGUI()
+{
+	m_Material->DrawGUI();
+}
+
+//=================================================================================
+bool C_GeomComponent::HasDebugDrawGUI() const
+{
+	return true;
+}
+
+//=================================================================================
 C_GeomComponent::~C_GeomComponent() = default;
 
 //=================================================================================

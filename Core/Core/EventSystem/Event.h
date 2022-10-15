@@ -23,18 +23,20 @@ enum class E_EventType
 	WindowClose,
 	WindowResized,
 	UserDefined,
+	Entity,
 };
 
 //=================================================================================
 enum class E_EventCategory
 {
-	None		= 0,
-	Application = BIT(0),
-	Input		= BIT(1),
-	Keyboard	= BIT(2),
-	Mouse		= BIT(3),
-	MouseButton = BIT(4),
-	UserDefined = BIT(5),
+	None		 = 0,
+	Application	 = BIT(0),
+	Input		 = BIT(1),
+	Keyboard	 = BIT(2),
+	Mouse		 = BIT(3),
+	MouseButton	 = BIT(4),
+	UserDefined	 = BIT(5),
+	EntitySystem = BIT(6),
 };
 
 //=================================================================================
@@ -75,6 +77,31 @@ private:
 };
 
 //=================================================================================
+class CORE_API_EXPORT C_EntityEvent : public I_Event {
+public:
+	enum class EntityEvent
+	{
+		Spawned,
+		Despawned,
+
+		//Editor
+		Seleced,
+
+		//Entity system
+		LevelLoaded,
+	};
+
+	explicit C_EntityEvent(GUID guid, EntityEvent type);
+
+	EVENT_CLASS_TYPE(Entity);
+	EVENT_CLASS_CATEGORY(E_EventCategory::EntitySystem);
+
+private:
+	GUID		m_Entity;
+	EntityEvent m_Type;
+};
+
+//=================================================================================
 inline std::ostream& operator<<(std::ostream& os, const I_Event& e)
 {
 	return os << e.GetName();
@@ -85,10 +112,10 @@ inline std::ostream& operator<<(std::ostream& os, const I_Event& e)
 //=================================================================================
 //= Event cast
 //=================================================================================
-template <GLEngine::Core::E_EventCategory> class EventCategoryBase {
+template <Core::E_EventCategory> class EventCategoryBase {
 };
 
-template <GLEngine::Core::E_EventCategory e, typename retType = typename EventCategoryBase<e>::type> constexpr retType& event_base_cast(GLEngine::Core::I_Event& comp)
+template <Core::E_EventCategory e, typename retType = typename EventCategoryBase<e>::type> constexpr retType& event_base_cast(Core::I_Event& comp)
 {
 	return static_cast<retType&>(comp);
 }

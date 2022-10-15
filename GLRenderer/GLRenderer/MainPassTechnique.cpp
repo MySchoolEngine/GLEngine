@@ -33,8 +33,7 @@
 namespace GLEngine::GLRenderer {
 
 //=================================================================================
-C_MainPassTechnique::C_MainPassTechnique(std::shared_ptr<Entity::C_EntityManager> world)
-	: m_WorldToRender(world)
+C_MainPassTechnique::C_MainPassTechnique()
 {
 	m_FrameConstUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>("frameConst");
 	m_LightsUBO		= Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<C_LightsBuffer>("lightsUni");
@@ -42,12 +41,12 @@ C_MainPassTechnique::C_MainPassTechnique(std::shared_ptr<Entity::C_EntityManager
 }
 
 //=================================================================================
-void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> camera, unsigned int widht, unsigned int height)
+void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shared_ptr<Renderer::I_CameraComponent> camera, unsigned int widht, unsigned int height)
 {
 	RenderDoc::C_DebugScope s("C_MainPassTechnique::Render");
 	const auto				camFrustum	   = camera->GetFrustum();
 	const auto				camBox		   = camFrustum.GetAABB().GetSphere();
-	const auto				entitiesInView = m_WorldToRender->GetEntities(camFrustum);
+	const auto				entitiesInView = world.GetEntities(camFrustum);
 
 	auto& renderer = (Core::C_Application::Get()).GetActiveRenderer();
 	renderer.SetCurrentPassType(Renderer::E_PassType::FinalPass);
@@ -65,6 +64,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 
 	std::size_t pointLightIndex = 0;
 	std::size_t areaLightIndex	= 0;
+	bool		sunLightFound	= false;
 	for (auto& entity : entitiesInView)
 	{
 		for (const auto& lightIt : entity->GetComponents(Entity::E_ComponentType::Light))
@@ -112,6 +112,7 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				light.m_DirX		  = dirX;
 				light.m_Color		  = areaLight->DiffuseColour();
 				light.m_SpecularColor = areaLight->SpecularColour();
+				light.m_Intensity	  = 1.f;
 
 				areaLight->DebugDraw(&C_DebugDraw::Instance());
 				m_LightsUBO->SetAreaLight(light, areaLightIndex);
@@ -127,12 +128,17 @@ void C_MainPassTechnique::Render(std::shared_ptr<Renderer::I_CameraComponent> ca
 				m_LightsUBO->GetSunLight().m_SunDiscMultiplier	 = sunLight->SunDiscMultiplier();
 				m_LightsUBO->GetSunLight().m_LightViewProjection = m_SunViewProjection;
 				m_LightsUBO->GetSunLight().m_SunShadowMap		 = m_SunShadowMap;
+				m_LightsUBO->GetSunLight().m_SunlightPresent	 = 1;
+				sunLightFound									 = true;
 
 				C_DebugDraw::Instance().DrawPoint(sunLight->GetSunDirection(), Colours::yellow);
 				C_DebugDraw::Instance().DrawLine({0.f, 0.f, 0.f}, sunLight->GetSunDirection(), Colours::yellow);
 			}
 		}
 	}
+
+	if (sunLightFound == false)
+		m_LightsUBO->GetSunLight().m_SunlightPresent = 0;
 
 	bool materialsHaveChanged = false;
 	{

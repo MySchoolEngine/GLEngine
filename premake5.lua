@@ -25,7 +25,7 @@ end
 workspace "Engine"
 	architecture "x64"
 	startproject "Sandbox"
-	cppdialect "C++17"
+	cppdialect "C++20"
 	systemversion "latest"
 
 	configurations{
@@ -43,12 +43,19 @@ workspace "Engine"
 		"GLM_ENABLE_EXPERIMENTAL",
 		"VULKAN_BIN=\"".. GetVulkanBin() .."\"",
 		"VULKAN_GLSLC=VULKAN_BIN \"/glslc.exe\"",
+		"IMGUI_DEFINE_MATH_OPERATORS",
+		"RTTR_DLL",
 	}
 	
 	workspace_files{
 		"vendor/GLM/util/glm.natvis",
+		"vendor/ImGui/misc/natvis/imgui.natvis",
+		"vendor/pugixml/contrib/natvis/pugixml.natvis",
+		"Animation/animation.natvis",
+		"Renderer/renderer.natvis",
+		"Entity/Entity.natvis",
 		"premake5.lua",
-		"premakeDefines.lua",
+		"Tools/Premake5/premakeDefines.lua",
 		"Tools/Premake5/workspaceFiles.lua",
 	}
 
@@ -69,6 +76,8 @@ workspace "Engine"
 			"_GLFW_WIN32",
 			"_CRT_SECURE_NO_WARNINGS",
 		}
+
+	filter "action:vs*"
 		buildoptions
 		{
 			"/MP"
@@ -93,7 +102,7 @@ workspace "Engine"
 		optimize "On"
 		defines({ "NDEBUG" })
 
-include "premakeDefines.lua"
+include "Tools/Premake5/premakeDefines.lua"
 
 IncludeDir = {}
 IncludeDir["GLFW"] = "vendor/GLFW/include"
@@ -104,9 +113,18 @@ IncludeDir["pugixml"] = "vendor/pugixml/src"
 IncludeDir["fmt"] = "vendor/fmt/include"
 IncludeDir["ImGui"] = "vendor/ImGui"
 IncludeDir["ImGuiFileDialog"] = "vendor/ImGuiFileDialog"
+IncludeDir["ImGuizmo"] = "vendor/ImGuizmo"
 IncludeDir["DevIL"] = "vendor/DevIL/DevIL/include"
 IncludeDir["dirent"] = "vendor/dirent/include"
 IncludeDir["Assimp"] = "vendor/Assimp/include"
+IncludeDir["crossguid"] = "vendor/crossguid/include"
+IncludeDir["RTTR"] = {"vendor/RTTR/src", "vendor/projects/RTTR"}
+
+-- could be header only or static lib
+NonDllLib = {}
+NonDllLib["pugixml"] = true
+NonDllLib["crossguid"] = true
+NonDllLib["GLFW"] = true
 
 group "Dependencies"
   include "vendor/GLFW"
@@ -114,14 +132,16 @@ group "Dependencies"
   include "vendor/projects/pugixml"
   include "vendor/projects/ImGui"
   include "vendor/projects/ImGuiFileDialog"
+  include "vendor/projects/ImGuizmo"
   include "vendor/projects/DevIL"
   include "vendor/projects/libjpeg"
+  include "vendor/projects/crossguid"
+  include "vendor/projects/RTTR"
 if _TARGET_OS ~= "linux" then
   include "vendor/projects/dirent"
 end
 group "Dependencies/Assimp"
   include "vendor/projects/zlib"
-  include "vendor/projects/irrXML"
   include "vendor/projects/Assimp"
 group ""
 
@@ -136,6 +156,7 @@ group "Tools"
 	include "Tools/ShaderPreprocessor"
 group ""
 
+include "Animation"
 include "Core"
 include "Sandbox"
 include "Editor"

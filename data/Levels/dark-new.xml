@@ -1,0 +1,163 @@
+<?xml version="1.0"?>
+<EntityManager>
+	<Entities>
+		<C_BasicEntity name="Player">
+			<ID ID="ebf7b098-0037-4ad1-b2b3-f66fa1db833d" />
+			<components>
+				<item>
+					<key value="Camera" />
+					<value>
+						<C_OrbitalCamera YAngle="0" XAngle="90" Zoom="5" />
+					</value>
+				</item>
+				<item>
+					<key value="Camera" />
+					<value>
+						<C_OrbitalCamera YAngle="0" XAngle="90" Zoom="5" />
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
+		<C_BasicEntity name="floor">
+			<ID ID="bcd772ee-241b-47bd-b1f7-08f40490067f" />
+			<components>
+				<item>
+					<key value="Graphical" />
+					<value>
+						<C_StaticMesh MeshFile="tree/Tree.obj">
+							<Transformation>
+								<Translation x="0" y="0" z="0" />
+								<Rotation x="0" y="-0" z="0" />
+								<Scale x="1" y="1" z="1" />
+							</Transformation>
+							<Material Name="floor_Material" Roughness="1" Shininess="32">
+								<Color>
+									<Colour x="1" y="1" z="1" />
+								</Color>
+								<ColorMap Name="Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp" />
+								<NormalMap Name="Models\Bricks01\REGULAR\1K\Bricks01_NRM_1K.bmp" />
+								<RoughnessMap Name="Models\Bricks01\REGULAR\1K\Bricks01_ROUGHNESS_1K.bmp" />
+							</Material>
+						</C_StaticMesh>
+					</value>
+					<key value="Graphical" />
+					<value>
+						<C_StaticMesh MeshFile="plane.obj">
+							<Transformation>
+								<Translation x="0" y="0" z="0" />
+								<Rotation x="0" y="-0" z="0" />
+								<Scale x="1" y="1" z="1" />
+							</Transformation>
+							<Material Name="floor_Material" Roughness="1" Shininess="32">
+								<Color>
+									<Colour x="1" y="1" z="1" />
+								</Color>
+								<ColorMap Name="Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp" />
+								<NormalMap Name="Models\Bricks01\REGULAR\1K\Bricks01_NRM_1K.bmp" />
+								<RoughnessMap Name="Models\Bricks01\REGULAR\1K\Bricks01_ROUGHNESS_1K.bmp" />
+							</Material>
+						</C_StaticMesh>
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
+		<C_BasicEntity name="sphere">
+			<ID ID="1c3adf91-93ee-490b-a195-86fbe626cc20" />
+			<components>
+				<item>
+					<key value="Graphical" />
+					<value>
+						<C_StaticMesh MeshFile="sphere.obj">
+							<Transformation>
+								<Translation x="0" y="0" z="0" />
+								<Rotation x="0" y="-0" z="0" />
+								<Scale x="1" y="1" z="1" />
+							</Transformation>
+							<Material Name="sphere_Material" Roughness="0.829999983" Shininess="32">
+								<Color>
+									<Colour x="0" y="0" z="1" />
+								</Color>
+								<ColorMap />
+								<NormalMap />
+								<RoughnessMap />
+							</Material>
+						</C_StaticMesh>
+					</value>
+				</item>
+				<item>
+					<key value="Light" />
+					<value>
+						<C_AreaLight Width="5" Height="2">
+							<DiffuseColour x="1" y="0" z="0" />
+							<SpecColour x="1" y="1" z="0" />
+						</C_AreaLight>
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
+		<C_BasicEntity name="wall">
+			<ID ID="2c395df2-5594-4fd5-8a2f-e3776d9aae3b" />
+			<components>
+				<item>
+					<key value="Graphical" />
+					<value>
+						<C_StaticMesh MeshFile="plane.obj">
+							<Transformation>
+								<Translation x="0" y="0" z="0" />
+								<Rotation x="0" y="-0" z="0" />
+								<Scale x="1" y="1" z="1" />
+							</Transformation>
+							<Material Name="wall_Material" Roughness="0.00999999978" Shininess="32">
+								<Color>
+									<Colour x="0.140000001" y="0.140000001" z="0.140000001" />
+								</Color>
+								<ColorMap />
+								<NormalMap />
+								<RoughnessMap />
+							</Material>
+						</C_StaticMesh>
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
+		<C_BasicEntity name="pl1">
+			<ID ID="f9466b68-3af0-48aa-ae5e-2e012aacfa8f" />
+			<components>
+				<item>
+					<key value="Light" />
+					<value>
+						<C_PointLight Intensity="30">
+							<Color x="0.400000006" y="0.300000012" z="0.100000001" />
+						</C_PointLight>
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
+		<C_BasicEntity name="pl2">
+			<ID ID="6cab611b-d7f7-4ed5-88b5-25735da38deb" />
+			<components>
+				<item>
+					<key value="Light" />
+					<value>
+						<C_PointLight Intensity="700">
+							<Color x="0" y="0.600000024" z="0.100000001" />
+						</C_PointLight>
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
+		<C_BasicEntity name="pl3">
+			<ID ID="b5705ad7-284d-452f-b535-0655bb121d75" />
+			<components>
+				<item>
+					<key value="Light" />
+					<value>
+						<C_PointLight Intensity="233">
+							<Color x="1" y="1" z="1" />
+						</C_PointLight>
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
+	</Entities>
+</EntityManager>

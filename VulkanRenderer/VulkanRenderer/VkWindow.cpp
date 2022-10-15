@@ -39,9 +39,9 @@ void C_VkWindow::DestroySwapchain()
 {
 	for (auto imageView : m_SwapChainImagesViews)
 	{
-		vkDestroyImageView(m_renderer->GetDevice(), imageView, nullptr);
+		vkDestroyImageView(m_renderer->GetDeviceVK(), imageView, nullptr);
 	}
-	vkDestroySwapchainKHR(m_renderer->GetDevice(), m_SwapChain, nullptr);
+	vkDestroySwapchainKHR(m_renderer->GetDeviceVK(), m_SwapChain, nullptr);
 }
 
 //=================================================================================
@@ -123,9 +123,9 @@ void C_VkWindow::CreateSwapChain()
 	}
 
 
-	vkGetSwapchainImagesKHR(m_renderer->GetDevice(), m_SwapChain, &imageCount, nullptr);
+	vkGetSwapchainImagesKHR(m_renderer->GetDeviceVK(), m_SwapChain, &imageCount, nullptr);
 	m_SwapChainImages.resize(imageCount);
-	vkGetSwapchainImagesKHR(m_renderer->GetDevice(), m_SwapChain, &imageCount, m_SwapChainImages.data());
+	vkGetSwapchainImagesKHR(m_renderer->GetDeviceVK(), m_SwapChain, &imageCount, m_SwapChainImages.data());
 
 	m_SwapChainImageFormat = surfaceFormat.format;
 	m_SwapChainExtent	   = extent;

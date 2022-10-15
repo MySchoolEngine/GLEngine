@@ -18,11 +18,13 @@
 	#define GLE_ASSERT(expr, message, ...)                                                                                                                                         \
 		if (!(expr))                                                                                                                                                               \
 		{                                                                                                                                                                          \
-			CORE_LOG(E_Level::Error, E_Context::Core, "Assert failed: {}" message, ##__VA_ARGS__);                                                                                 \
+			CORE_LOG(E_Level::Error, E_Context::Core, "Assert failed: " message, ##__VA_ARGS__);                                                                                   \
 		}
 #endif
 
 #define GLE_ERROR(message, ...) GLE_ASSERT(false, message, ##__VA_ARGS__)
+
+#define GLE_TO_BE_IMPLEMENTED() GLE_ASSERT(false, "Not yet implemented");
 
 //======================================================
 // Debug members

@@ -23,12 +23,6 @@ Renderer::I_RenderCommand::E_Type C_GLViewport::GetType() const
 }
 
 //=================================================================================
-std::shared_ptr<Renderer::I_Resource> C_GLViewport::GetResource() const
-{
-	return nullptr;
-}
-
-//=================================================================================
 std::string C_GLViewport::GetDescriptor() const
 {
 	return fmt::format("GLViewport pos: {} size: {}", m_viewport.GetCoordinates(), m_viewport.GetResolution());

@@ -52,7 +52,7 @@ IncludeCategories:
     Priority:    	   1
   - Regex:           '^<Renderer/.*>'
     Priority:        2
-  - Regex:           '^<GLRenderer/.*>'
+  - Regex:           '^<Animation/.*>'
     Priority:        5
   - Regex:           '^<DX12Renderer/.*>'
     Priority:        6

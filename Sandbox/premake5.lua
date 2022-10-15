@@ -1,4 +1,4 @@
-include "../premakeDefines.lua"
+include "../Tools/Premake5/premakeDefines.lua"
 
 project "Sandbox"
     kind "ConsoleApp"
@@ -14,6 +14,7 @@ project "Sandbox"
 	Link("Core")
 	Link("Utils")
 	Link("GLRenderer")
+	LinkDependency("RTTR")
 	if (_OPTIONS["glfwapi"] ~= "opengl") then
 		Link("VulkanRenderer")
 	end

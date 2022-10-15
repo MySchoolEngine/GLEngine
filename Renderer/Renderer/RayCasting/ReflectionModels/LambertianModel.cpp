@@ -17,7 +17,7 @@ C_LambertianModel::~C_LambertianModel() = default;
 //=================================================================================
 glm::vec3 C_LambertianModel::f(const glm::vec3& wi, const glm::vec3& wo) const
 {
-	return m_Colour * (1.f / glm::one_over_pi<float>());
+	return m_Colour * glm::one_over_pi<float>();
 }
 
 //=================================================================================

@@ -13,20 +13,12 @@
 namespace GLEngine::Renderer::RayTracing {
 
 //=================================================================================
-C_AreaLight::C_AreaLight(const glm::vec3& radiance, const std::shared_ptr<C_Primitive<Physics::Primitives::S_Disc>>& shape)
-	: m_Radiance(radiance)
-	, m_Shape(shape)
-{
-}
-
-//=================================================================================
 // sampleIllumination in PGIII
-glm::vec3 C_AreaLight::SampleLi(const C_RayIntersection& intersection, I_Sampler* rnd, S_VisibilityTester& vis, float* pdf) const
+Colours::T_Colour C_AreaLight::SampleLi(const C_RayIntersection& intersection, I_Sampler* rnd, S_VisibilityTester& vis, float* pdf) const
 {
-	const auto ligthRadius = m_Shape->m_Primitive.radius;
-	const auto samplePoint = ligthRadius * SampleConcentricDisc(rnd->GetV2());
-	const auto lightFrame  = S_Frame(m_Shape->m_Primitive.plane.normal);
-	const auto lightPoint  = RayTracing::T_GeometryTraits::SamplePoint(m_Shape->m_Primitive, rnd);
+	// const auto samplePoint = ligthRadius * SampleConcentricDisc(rnd->GetV2()); //< TODO for future use when Li is dependant on the position on the light
+	const auto lightFrame = S_Frame(m_Shape->Normal());
+	const auto lightPoint = m_Shape->SamplePoint(rnd);
 
 	vis = S_VisibilityTester(lightPoint, intersection.GetIntersectionPoint());
 
@@ -39,17 +31,18 @@ glm::vec3 C_AreaLight::SampleLi(const C_RayIntersection& intersection, I_Sampler
 	const auto cosThetaY = glm::dot(lightFrame.Normal(), -wi);
 
 	if (cosThetaX <= 0.f || cosThetaY <= 0.f)
-		return glm::vec3(0.f);
+		return Colours::black;
 
-	const auto areaInv = 1.f / (ligthRadius * ligthRadius * glm::pi<float>());
+	const auto areaInv = 1.f / m_Shape->Area();
 
-	*pdf = (distSqr / cosThetaY) * areaInv;
+	if (pdf)
+		*pdf = (distSqr / cosThetaY) * areaInv;
 
-	return m_Radiance * (cosThetaX * cosThetaY) / (distSqr * areaInv);
+	return Le() * (cosThetaX * cosThetaY) / (distSqr * areaInv);
 }
 
 //=================================================================================
-glm::vec3 C_AreaLight::Le() const
+Colours::T_Colour C_AreaLight::Le() const
 {
 	return m_Radiance;
 }
@@ -57,7 +50,7 @@ glm::vec3 C_AreaLight::Le() const
 //=================================================================================
 std::shared_ptr<I_RayGeometryObject> C_AreaLight::GetGeometry() const
 {
-	return m_Shape;
+	return m_Shape->GetGeometry();
 }
 
 } // namespace GLEngine::Renderer::RayTracing

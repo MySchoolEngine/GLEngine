@@ -2,18 +2,11 @@
 
 #include <GLRenderer/VAO/VAO.h>
 
-#include <Renderer/IResource.h>
-
 namespace GLEngine::GLRenderer::Mesh {
-class C_TerrainMeshResource : public Renderer::I_Resource {
+class C_TerrainMeshResource {
 public:
 	C_TerrainMeshResource();
 	~C_TerrainMeshResource() = default;
-
-	//=================================================================================
-	virtual std::unique_ptr<Renderer::I_RawGPUData> ExtractData() const override;
-	virtual void									Invalidate() override;
-	virtual bool									IsValid() override;
 
 	void		BindVAO() const;
 	void		UnbindVAO() const;

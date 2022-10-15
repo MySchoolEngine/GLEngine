@@ -9,53 +9,9 @@
 namespace GLEngine::Renderer::Animation {
 
 //=================================================================================
-// S_Timestamp
-//=================================================================================
-S_Timestamp::S_Timestamp(float timestamp)
-	: m_Timestamp(S_Timestamp::Clamp(timestamp))
-{
-}
-
-//=================================================================================
-S_Timestamp::S_Timestamp()
-	: m_Timestamp(0.f)
-{
-}
-
-//=================================================================================
-float S_Timestamp::Clamp(float f)
-{
-	return std::clamp(f, 0.0f, 1.0f);
-}
-
-//=================================================================================
-bool S_Timestamp::operator>=(const S_Timestamp& other) const
-{
-	return m_Timestamp >= other.m_Timestamp;
-}
-
-//=================================================================================
-bool S_Timestamp::operator>(const S_Timestamp& other) const
-{
-	return m_Timestamp > other.m_Timestamp;
-}
-
-//=================================================================================
-S_Timestamp S_Timestamp::operator-(const S_Timestamp& rhs) const
-{
-	return S_Timestamp(m_Timestamp - rhs.m_Timestamp);
-}
-
-//=================================================================================
-S_Timestamp S_Timestamp::operator+(const S_Timestamp& rhs) const
-{
-	return S_Timestamp(m_Timestamp + rhs.m_Timestamp);
-}
-
-//=================================================================================
 // S_BoneKeyframe
 //=================================================================================
-S_BoneKeyframe::S_BoneKeyframe(const glm::mat4& matrix, S_Timestamp timestamp)
+S_BoneKeyframe::S_BoneKeyframe(const glm::mat4& matrix, GLEngine::Animation::S_Timestamp timestamp)
 	: m_Transform(matrix[3][0], matrix[3][1], matrix[3][2])
 	, m_Rotation(glm::quat_cast(matrix))
 	, m_Timestamp(timestamp)
@@ -63,7 +19,7 @@ S_BoneKeyframe::S_BoneKeyframe(const glm::mat4& matrix, S_Timestamp timestamp)
 }
 
 //=================================================================================
-S_BoneKeyframe::S_BoneKeyframe(const glm::vec3& transformation, const glm::quat& rotation, S_Timestamp timestamp)
+S_BoneKeyframe::S_BoneKeyframe(const glm::vec3& transformation, const glm::quat& rotation, GLEngine::Animation::S_Timestamp timestamp)
 	: m_Transform(transformation)
 	, m_Rotation(rotation)
 	, m_Timestamp(timestamp)
@@ -94,9 +50,9 @@ void C_BoneTimeline::AddBoneKeyFrame(std::size_t index, S_BoneKeyframe&& keyfram
 }
 
 //=================================================================================
-S_BoneKeyframe C_BoneTimeline::Sample(S_Timestamp timestamp) const
+S_BoneKeyframe C_BoneTimeline::Sample(GLEngine::Animation::S_Timestamp timestamp) const
 {
-	GLE_ASSERT(m_Timeline.size() > 0, "There is no keyframe in the animation");
+	GLE_ASSERT(!m_Timeline.empty(), "There is no keyframe in the animation");
 	// find first keyframe >= to given timestamp
 	const auto& nextKeyframeIt = std::find_if(m_Timeline.begin(), m_Timeline.end(), [timestamp](const S_BoneKeyframe& it) { return it.m_Timestamp > timestamp; });
 	// we are after last keyframe

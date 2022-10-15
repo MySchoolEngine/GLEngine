@@ -1,9 +1,11 @@
 project "Assimp"
     kind "SharedLib"
     language "C++"
+
+    LinkDependency("pugixml")
     
-	targetdir ("../../../bin/" .. outputdir .. "/vendor/%{prj.name}")
-    objdir ("../../../obj/" .. outputdir .. "/vendor/%{prj.name}")
+	targetdir ("%{wks.location}/bin/" .. outputdir .. "/vendor/%{prj.name}")
+    objdir ("%{wks.location}/obj/" .. outputdir .. "/vendor/%{prj.name}")
 
     ContribDir = "../../Assimp/contrib"
     UnzipIncludeDir = ContribDir.."/unzip"
@@ -21,6 +23,7 @@ project "Assimp"
         ContribDir,
         "../../Assimp/include/",
         "../zlib",
+        "../../Assimp/code",
         ".",
     }
 
@@ -28,31 +31,16 @@ project "Assimp"
 	{
         "../../Assimp/include/**.hpp",
         "../../Assimp/include/**.h",
-        "../../Assimp/code/*.h",
-        "../../Assimp/code/*.cpp",
-        "../../Assimp/code/Importer/StepFile/*.h",
-        "../../Assimp/code/Importer/StepFile/*.cpp",
-        "../../Assimp/code/Importer/STEPParser/*.h",
-        "../../Assimp/code/Importer/STEPParser/*.cpp",
-
-        "../../Assimp/code/Importer/IFC/IFCUtil.*",
-        "../../Assimp/code/Importer/IFC/IFCReaderGen_2x3.h",
-        "../../Assimp/code/Importer/IFC/IFCReaderGen1_2x3.cpp",
-        "../../Assimp/code/Importer/IFC/IFCReaderGen2_2x3.cpp",
-        "../../Assimp/code/Importer/IFC/IFCLoader.*",
-        "../../Assimp/code/Importer/IFC/IFCProfile.cpp",
-        "../../Assimp/code/Importer/IFC/IFCOpenings.cpp",
-        "../../Assimp/code/Importer/IFC/IFCMaterial.cpp",
-        "../../Assimp/code/Importer/IFC/IFCGeometry.cpp",
-        "../../Assimp/code/Importer/IFC/IFCCurve.cpp",
-        "../../Assimp/code/Importer/IFC/IFCBoolean.cpp",
+        "../../Assimp/code/**.h",
+        "../../Assimp/code/**.cpp",
 
         ContribDir.."/clipper/clipper.hpp",
         ContribDir.."/clipper/clipper.cpp",
 
         UnzipIncludeDir.."/crypt.h",
-        UnzipIncludeDir.."/ioapi.c",
+        UnzipIncludeDir.."/crypt.c",
         UnzipIncludeDir.."/ioapi.h",
+        UnzipIncludeDir.."/ioapi.c",
         UnzipIncludeDir.."/unzip.h",
         UnzipIncludeDir.."/unzip.c",
         OpenDDLParserDir.."/code/*.cpp",
@@ -69,22 +57,52 @@ project "Assimp"
         "revision.h",
         "./assimp/config.h"
     }
+    removefiles
+    {
+         "../../Assimp/code/AssetLib/MDL/HalfLife/**.h",  -- no Half-Life please
+         "../../Assimp/code/AssetLib/MDL/HalfLife/**.cpp",-- no Half-Life please
+    }
+
 
     defines
     {
         "ASSIMP_BUILD_NO_C4D_IMPORTER",
+        "ASSIMP_BUILD_NO_IFC_IMPORTER",
+        "ASSIMP_BUILD_NO_GLTF_IMPORTER", -- one day I'd like to fix this, some rapidjson problems
+        "ASSIMP_BUILD_NO_GLTF_EXPORTER", -- one day I'd like to fix this, some rapidjson problems
+        -- 3DS
+        "ASSIMP_BUILD_NO_3DS_IMPORTER", -- not used right now, faster build
+        "ASSIMP_BUILD_NO_3DS_EXPORTER", -- not used right now, faster build
+        -- 3MF
+        "ASSIMP_BUILD_NO_3MF_IMPORTER", -- not used right now, faster build
+        "ASSIMP_BUILD_NO_3DS_EXPORTER", -- not used right now, faster build
+        -- AC
+        "ASSIMP_BUILD_NO_AC_IMPORTER", -- not used right now, faster build
+        -- AMF
+        "ASSIMP_BUILD_NO_AMF_IMPORTER", -- not used right now, faster build
+        -- ASE
+        "ASSIMP_BUILD_NO_ASE_IMPORTER", -- not used right now, faster build
+        -- MDL
+        "ASSIMP_BUILD_NO_MDL_IMPORTER", -- not used right now, faster build
+        -- HMP
+        "ASSIMP_BUILD_NO_HMP_IMPORTER", -- gets broken after removing Half-Life 1 loader
+        "ASSIMP_BUILD_NO_IFC_IMPORTER", -- not used right now, faster build
+        "ASSIMP_BUILD_NO_ASSJSON_EXPORTER", -- not used right now, build does not work
         "ASSIMP_BUILD_DLL_EXPORT",
         "OPENDDLPARSER_BUILD",
+        "VER_MAJOR=5",
+        "VER_MINOR=2",
+        "VER_PATCH=4",
     }
 
     links
     {
         "zlib",
-        "irrXML",
+        "pugixml",
     }
     
 	filter "system:windows"
-        staticruntime "On"
+        staticruntime "off"
 
         postbuildcommands
         {
@@ -113,7 +131,6 @@ project "Assimp"
             defines
             {
                 "_CRT_SECURE_NO_WARNINGS",
-                "_CRT_SECURE_NO_WARNINGS",
                 "WIN32_LEAN_AND_MEAN",
             }
         
@@ -127,7 +144,6 @@ project "Assimp"
         
     filter "configurations:Debug"
         runtime "Debug"
-        symbols "on"
 
     filter "configurations:Release"
         runtime "Release"

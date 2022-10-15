@@ -10,7 +10,7 @@ namespace GLEngine::Renderer::Animation {
 class RENDERER_API_EXPORT C_SkeletalAnimation {
 public:
 	explicit C_SkeletalAnimation(std::size_t numBones);
-	[[nodiscard]] C_Pose GetPose(const S_Timestamp timestamp) const;
+	[[nodiscard]] C_Pose GetPose(const GLEngine::Animation::S_Timestamp timestamp) const;
 	void				 SetBoneTimeline(std::size_t index, C_BoneTimeline&& timeline);
 
 private:

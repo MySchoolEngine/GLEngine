@@ -18,69 +18,87 @@
 #include <Renderer/Mesh/Scene.h>
 
 #include <Core/Application.h>
+#include <Core/Resources/ResourceManager.h>
 
 #include <Utils/Parsing/MaterialParser.h>
 
 #include <pugixml.hpp>
 
 #include <imgui.h>
+#include <rttr/registration>
+
+RTTR_REGISTRATION
+{
+	using namespace GLEngine::GLRenderer::Components;
+	rttr::registration::class_<C_StaticMeshBuilder>("C_StaticMeshBuilder")
+		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
+		.method("Build", &C_StaticMeshBuilder::Build);
+
+
+	rttr::registration::class_<C_StaticMesh>("C_StaticMesh")
+		.constructor<std::string, std::string_view, std::shared_ptr<GLEngine::Entity::I_Entity>>()
+		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
+		.property("MeshFile", &C_StaticMesh::GetMeshFile, &C_StaticMesh::SetMeshFile)
+		.property("Material", &C_StaticMesh::m_Material)
+		.property("Shader", &C_StaticMesh::GetShader, &C_StaticMesh::SetShader)
+		.property("ShadowPassShader", &C_StaticMesh::GetShadowShader, &C_StaticMesh::SetShadowShader);
+	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_StaticMesh>>();
+	rttr::type::register_converter_func([](std::shared_ptr<C_StaticMesh> ptr, bool& ok) -> std::shared_ptr<GLEngine::Entity::I_Component> {
+		ok = true;
+		return std::static_pointer_cast<GLEngine::Entity::I_Component>(ptr);
+	});
+}
 
 namespace GLEngine::GLRenderer::Components {
 
 //=================================================================================
 C_StaticMesh::C_StaticMesh(std::string meshFile, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner)
 	: Renderer::I_RenderableComponent(owner)
-	, m_meshFile(meshFile)
-	, m_Mesh(nullptr)
 	, m_Material(nullptr)
 {
-	// @todo lazy init
-	auto sl = std::make_unique<Renderer::Mesh::SceneLoader>();
-
-	auto	  scene		  = std::make_shared<Renderer::MeshData::Scene>();
-	glm::mat4 modelMatrix = glm::mat4(1.0f);
-
-	if (!sl->addModelFromFileToScene("Models", m_meshFile.c_str(), scene, modelMatrix))
-	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}", m_meshFile);
-		return;
-	}
-
-	m_Transformation.SetMatrix(modelMatrix);
-
-	// TODO this is unsafe way to init model
-	m_Mesh		= std::make_shared<Mesh::C_StaticMeshResource>(scene->meshes[0]);
-	m_AABB		= scene->meshes[0].bbox;
-	auto& shmgr = Shaders::C_ShaderManager::Instance();
-	m_Shader	= shmgr.GetProgram(shader.data());
-
-	const auto materialIdx = scene->meshes[0].materialIndex;
-	auto&	   material	   = scene->materials[materialIdx];
-
-	SetMaterial(material);
+	SetMeshFile(meshFile);
+	SetShader(shader.data());
 }
 
 //=================================================================================
-C_StaticMesh::C_StaticMesh(const Renderer::MeshData::Mesh& mesh, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner, const Renderer::MeshData::Material* material)
+C_StaticMesh::C_StaticMesh(Core::ResourceHandle<Renderer::MeshResource> meshHandle,
+						   std::string_view								shader,
+						   std::shared_ptr<Entity::I_Entity>			owner,
+						   const Renderer::MeshData::Material*			material)
 	: Renderer::I_RenderableComponent(owner)
 	, m_Material(nullptr)
+	, m_MeshResource(meshHandle)
 {
-	m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(mesh);
-	m_AABB = mesh.bbox;
-
-	auto& shmgr = Shaders::C_ShaderManager::Instance();
-	m_Shader	= shmgr.GetProgram(shader.data());
+	SetShader(shader.data());
 
 	if (material)
 		SetMaterial(*material);
 }
 
 //=================================================================================
+C_StaticMesh::C_StaticMesh()
+	: Renderer::I_RenderableComponent(nullptr)
+	, m_Material(nullptr)
+{
+	SetShader("basicTracing"); // TODO
+	Renderer::MeshData::Material material
+	{
+		glm::vec4{1.0f, 0.0f, 0.f, 0.f}, 
+		glm::vec4{1.0f, 0.0f, 0.f, 0.f}, 
+		glm::vec4{1.0f, 0.0f, 0.f, 0.f},
+		.5f,
+		-1, -1, 
+		"Default"
+	};
+	SetMaterial(material);
+}
+
+//=================================================================================
 void C_StaticMesh::PerformDraw() const
 {
-	if (!m_Mesh || !m_Shader)
+	if (m_Mesh.empty() || !m_Shader || !m_MeshResource)
 	{
-		// CORE_LOG(E_Level::Error, E_Context::Render, "Static mesh uncomplete");
+		// lazy load, lazy dominik wrong design, should burn in hell
 		return;
 	}
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
@@ -109,7 +127,8 @@ void C_StaticMesh::PerformDraw() const
 		},
 		"Per object data upload"));
 
-	renderer.AddCommand(std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_Mesh));
+	for (const auto& mesh : m_Mesh)
+		renderer.AddCommand(std::make_unique<Commands::HACK::C_DrawStaticMesh>(mesh));
 }
 
 //=================================================================================
@@ -118,6 +137,14 @@ void C_StaticMesh::DebugDrawGUI()
 	if (::ImGui::CollapsingHeader("Material"))
 	{
 		m_Material->DrawGUI();
+	}
+	if (m_MeshResource.IsLoading())
+	{
+		::ImGui::Text("Still loading");
+	}
+	else if (m_MeshResource.IsFailed())
+	{
+		::ImGui::TextColored(ImVec4(1, 0, 0, 1), "Failed");
 	}
 }
 
@@ -157,6 +184,74 @@ GLEngine::Physics::Primitives::S_AABB C_StaticMesh::GetAABB() const
 }
 
 //=================================================================================
+void C_StaticMesh::Update()
+{
+	if (m_MeshResource && m_Mesh.empty())
+	{
+		const auto& scene = m_MeshResource.GetResource().GetScene();
+		for (unsigned int i = 0; i < scene.meshes.size(); ++i)
+		{
+			m_Mesh.emplace_back(std::make_shared<Mesh::C_StaticMeshResource>(m_MeshResource.GetResource().GetScene().meshes[i]));
+			m_AABB.Add(m_MeshResource.GetResource().GetScene().meshes[i].bbox);
+		}
+
+		// only 1 material right now
+		if (!m_Material)
+		{
+			const auto materialIdx = m_MeshResource.GetResource().GetScene().meshes[0].materialIndex;
+			// would force all materials to be white
+			auto& material = m_MeshResource.GetResource().GetScene().materials[materialIdx];
+			SetMaterial(material);
+		}
+	}
+}
+
+//=================================================================================
+void C_StaticMesh::SetShader(const std::string shader)
+{
+	auto& shmgr = Shaders::C_ShaderManager::Instance();
+	m_Shader	= shmgr.GetProgram(shader);
+}
+
+//=================================================================================
+std::string C_StaticMesh::GetShader() const
+{
+	if (!m_Shader)
+		return "";
+	else
+		return m_Shader->GetName();
+}
+
+//=================================================================================
+void C_StaticMesh::SetShadowShader(const std::string shader)
+{
+	auto& shmgr		   = Shaders::C_ShaderManager::Instance();
+	m_ShadowPassShader = shmgr.GetProgram(shader);
+}
+
+//=================================================================================
+std::string C_StaticMesh::GetShadowShader() const
+{
+	if (!m_ShadowPassShader)
+		return "";
+	else
+		return m_ShadowPassShader->GetName();
+}
+
+//=================================================================================
+void C_StaticMesh::SetMeshFile(const std::filesystem::path meshfile)
+{
+	auto& rm	   = Core::C_ResourceManager::Instance();
+	m_MeshResource = rm.LoadResource<Renderer::MeshResource>(std::filesystem::path("Models") / meshfile);
+}
+
+//=================================================================================
+std::filesystem::path C_StaticMesh::GetMeshFile() const
+{
+	return m_MeshResource.GetResource().GetFilePath();
+}
+
+//=================================================================================
 std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
 {
 	const auto materialData = Utils::Parsing::C_MaterialParser::ParseMaterialData(node);
@@ -189,12 +284,10 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 		auto roughnessMap = tmgr.GetTexture(materialData.m_RoughtnessMap);
 		if (roughnessMap)
 		{
-			roughnessMap->StartGroupOp();
 			roughnessMap->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
 			roughnessMap->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
+			roughnessMap->SetParameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
 			roughnessMap->GenerateMipMaps();
-
-			roughnessMap->EndGroupOp();
 
 			material->SetRoughnessMap(roughnessMap);
 		}
@@ -205,12 +298,10 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 		auto colorMapTexture = tmgr.GetTexture(materialData.m_ColorMap);
 		if (colorMapTexture)
 		{
-			colorMapTexture->StartGroupOp();
 			colorMapTexture->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
 			colorMapTexture->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
+			colorMapTexture->SetParameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
 			colorMapTexture->GenerateMipMaps();
-
-			colorMapTexture->EndGroupOp();
 
 			material->SetColorMap(colorMapTexture);
 		}
@@ -221,12 +312,10 @@ std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_
 		auto normalMap = tmgr.GetTexture(materialData.m_NormalMap);
 		if (normalMap)
 		{
-			normalMap->StartGroupOp();
 			normalMap->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
 			normalMap->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
+			normalMap->SetParameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
 			normalMap->GenerateMipMaps();
-
-			normalMap->EndGroupOp();
 
 			material->SetNormalMap(normalMap);
 		}

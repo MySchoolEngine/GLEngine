@@ -57,6 +57,10 @@ IncludeCategories:
   - Regex:           '^<DX12Renderer/.*>'
     Priority:        6
   - Regex:           '^<Renderer/.*>'
+    Priority:        7
+  - Regex:           '^<Animation/.*>'
+    Priority:        8
+  - Regex:           '^<Editor/.*>'
     Priority:        9
   - Regex:           '^<GUI/.*>'
     Priority:        10

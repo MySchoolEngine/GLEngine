@@ -5,6 +5,8 @@
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
 
+#include <rttr/type>
+
 namespace GLEngine::Physics::Primitives {
 class C_Frustum;
 }
@@ -22,6 +24,8 @@ public:
 	[[nodiscard]] virtual Entity::E_ComponentType GetType() const override { return Entity::E_ComponentType::Light; }
 
 	virtual Physics::Primitives::C_Frustum GetShadingFrustum() const = 0;
+
+	RTTR_ENABLE(Entity::I_Component);
 };
 } // namespace Renderer
 

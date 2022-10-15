@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="GLEngine::Renderer::C_Viewport">
+    <DisplayString>{{Min=({X,g} {Y,g}) Max=({X+Width,g} {Y+Height,g}) Size=({Width,g} {Height,g})}}</DisplayString>
+    <Expand>
+      <Item Name="[Width]">Width</Item>
+      <Item Name="[Height]">Height</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="GLEngine::Renderer::MeshResource">
+    <DisplayString>{{{m_Filepath._Text}}}</DisplayString>
+    <Expand>
+      <Item Name="[Filepath]">m_Filepath</Item>
+      <Item Name="[Scene]">m_Scene</Item>
+      <Item Name="[Texture names]">m_TexuterNames</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="GLEngine::Renderer::TextureResource">
+    <DisplayString>{{{m_Filepath._Text}}}</DisplayString>
+    <Expand>
+      <Item Name="[Filepath]">m_Filepath</Item>
+      <Item Name="[Texture]">*m_TextureStorage</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="GLEngine::Renderer::I_TextureViewStorage">
+    <DisplayString>{{[{m_Dimensions.x}x{m_Dimensions.y}]:{m_Channels}}}</DisplayString>
+    <Expand>
+      <Item Name="[Dimensions]">m_Dimensions</Item>
+      <Item Name="[Channels]">m_Channels</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="GLEngine::Renderer::MeshData::Material">
+    <DisplayString>{{{m_Name}}}</DisplayString>
+  </Type>
+</AutoVisualizer>

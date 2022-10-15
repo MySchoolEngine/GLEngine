@@ -341,4 +341,13 @@ void ModelLoader::_getFacePosNormalTcoords(const aiFace* face,
 		tbitangents[i].z = btg.z;
 	}
 }
+
+//=================================================================================
+std::mutex& ModelLoader::GetMutex()
+{
+	return m_Mutex;
+}
+
+std::mutex ModelLoader::m_Mutex;
+
 } // namespace GLEngine::Renderer::Mesh

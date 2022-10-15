@@ -1,4 +1,4 @@
-include "../../premakeDefines.lua"
+include "../../Tools/Premake5/premakeDefines.lua"
 
 project "ShaderPreprocessor"
     kind "ConsoleApp"
@@ -16,6 +16,7 @@ project "ShaderPreprocessor"
 	Link("GUI")
 	LinkDependency("ImGui")
 	LinkDependency("pugixml")
+	LinkDependency("RTTR")
 
 	includedirs
 	{

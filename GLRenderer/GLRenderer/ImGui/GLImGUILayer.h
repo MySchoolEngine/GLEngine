@@ -10,6 +10,6 @@ public:
 	virtual void OnDetach() override;
 
 	virtual void FrameBegin() override;
-	virtual void FrameEnd() override;
+	virtual void FrameEnd(Core::I_Input& input) override;
 };
 } // namespace GLEngine::GLRenderer

@@ -1,4 +1,4 @@
-include "../premakeDefines.lua"
+include "../Tools/Premake5/premakeDefines.lua"
 
 project "Entity"
 	kind "SharedLib"
@@ -15,6 +15,7 @@ project "Entity"
 
 	LinkDependency("ImGui")
 	LinkDependency("pugixml")
+	LinkDependency("RTTR")
 
 	includedirs
 	{
@@ -33,5 +34,5 @@ project "Entity"
 	filter "system:windows"
 		postbuildcommands
 		{
-			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")
+			("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\"")
 		}

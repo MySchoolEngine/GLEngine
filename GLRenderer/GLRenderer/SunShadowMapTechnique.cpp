@@ -18,6 +18,7 @@
 #include <Renderer/IRenderableComponent.h>
 #include <Renderer/IRenderer.h>
 #include <Renderer/Lights/SunLight.h>
+#include <Renderer/IDevice.h>
 
 #include <Physics/Primitives/Frustum.h>
 
@@ -34,7 +35,7 @@ const float			C_SunShadowMapTechnique::s_ZOffset		 = 0.001f;
 
 
 //=================================================================================
-C_SunShadowMapTechnique::C_SunShadowMapTechnique(std::shared_ptr<Renderer::C_SunLight>& light)
+C_SunShadowMapTechnique::C_SunShadowMapTechnique(std::shared_ptr<Renderer::C_SunLight> light)
 	: m_Sun(light)
 {
 	m_FrameConstUBO = std::dynamic_pointer_cast<Buffers::UBO::C_FrameConstantsBuffer>(Buffers::C_UniformBuffersManager::Instance().GetBufferByName("frameConst"));
@@ -42,21 +43,22 @@ C_SunShadowMapTechnique::C_SunShadowMapTechnique(std::shared_ptr<Renderer::C_Sun
 
 	m_Framebuffer = std::make_unique<C_Framebuffer>("sunShadowMapping");
 
+	auto& device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
+
 	const bool storeAlbedoForShadowMap = true;
 	if (storeAlbedoForShadowMap)
 	{
-		auto HDRTexture = std::make_shared<Textures::C_Texture>("hdrTexture");
+		auto HDRTexture = std::make_shared<Textures::C_Texture>(
+			Renderer::TextureDescriptor{"hdrTexture", s_ShadowMapSize, s_ShadowMapSize, Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::RGBA16f, false});
 
-		HDRTexture->bind();
+		device.AllocateTexture(*HDRTexture.get());
+
 		// HDRTexture setup
-		HDRTexture->SetDimensions({s_ShadowMapSize, s_ShadowMapSize});
-		HDRTexture->SetInternalFormat(Renderer::E_TextureFormat::RGBA8i, GL_RGBA);
 		HDRTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
 		// ~HDRTexture setup
 		m_Framebuffer->AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
 		HDRTexture->CreateHandle();
 		HDRTexture->MakeHandleResident(true);
-		HDRTexture->unbind();
 	}
 	else
 	{
@@ -69,36 +71,22 @@ C_SunShadowMapTechnique::C_SunShadowMapTechnique(std::shared_ptr<Renderer::C_Sun
 		m_Framebuffer->Bind();
 	}
 
-	auto depthTexture = std::make_shared<Textures::C_Texture>("sunShadowMap");
+	auto depthTexture = std::make_shared<Textures::C_Texture>(
+		Renderer::TextureDescriptor{"sunShadowMap", s_ShadowMapSize, s_ShadowMapSize, Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::D16, false});
 
-	depthTexture->bind();
-	// depthStencilTexture setup
-	depthTexture->SetDimensions({s_ShadowMapSize, s_ShadowMapSize});
-	depthTexture->SetInternalFormat(Renderer::E_TextureFormat::D16, GL_DEPTH_COMPONENT);
+	device.AllocateTexture(*depthTexture.get());
+
+
 	depthTexture->SetFilter(Renderer::E_TextureFilter::Nearest, Renderer::E_TextureFilter::Nearest);
 	// depthTexture->SetTexParameter(GL_TEXTURE_BORDER_COLOR, glm::vec4(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max(),
 	// std::numeric_limits<float>::max()));
 	depthTexture->SetWrap(Renderer::E_WrapFunction::ClampToBorder, Renderer::E_WrapFunction::ClampToBorder);
 
 	m_Framebuffer->AttachTexture(GL_DEPTH_ATTACHMENT, depthTexture);
+	depthTexture->SetReadyToUse();
 
 	depthTexture->CreateHandle();
 	depthTexture->MakeHandleResident(true);
-
-	depthTexture->unbind();
-
-	// auto completeness = m_Framebuffer->CheckCompleteness();
-	// const auto lambda = [](std::future<bool>&& completeness) {
-	// 	if (!completeness.get())
-	// 	{
-	// 		CORE_LOG(E_Level::Error, E_Context::Render, "Shadow map fbo is uncomplete");
-	// 	}
-	// };
-	//
-	// m_Framebuffer->SetChecked();
-
-	// std::thread completenessCheck(lambda, std::move(completeness));
-	// completenessCheck.detach();
 }
 
 //=================================================================================

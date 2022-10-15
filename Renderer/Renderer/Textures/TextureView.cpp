@@ -22,7 +22,7 @@ std::size_t C_TextureView::GetAddress(const glm::ivec2& uv) const
 }
 
 //=================================================================================
-std::size_t C_TextureView::GetPixelAddress(const glm::ivec2& uv) const
+std::size_t C_TextureView::GetPixelAddress(const glm::uvec2& uv) const
 {
 	const auto dim = m_Storage->GetDimensions();
 	return (static_cast<std::size_t>(dim.x) * uv.y + uv.x);
@@ -31,7 +31,7 @@ std::size_t C_TextureView::GetPixelAddress(const glm::ivec2& uv) const
 //=================================================================================
 glm::vec2 C_TextureView::GetPixelCoord(const glm::vec2& uv) const
 {
-	const auto dim = m_Storage->GetDimensions() - glm::ivec2(1, 1);
+	const auto dim = m_Storage->GetDimensions() - glm::uvec2(1, 1);
 	return uv * glm::vec2(dim);
 }
 
@@ -67,10 +67,10 @@ bool C_TextureView::UseBorderColor() const
 }
 
 //=================================================================================
-glm::ivec2 C_TextureView::ClampCoordinates(const glm::ivec2& uv) const
+glm::uvec2 C_TextureView::ClampCoordinates(const glm::uvec2& uv) const
 {
-	const auto dim	  = m_Storage->GetDimensions() - glm::ivec2(1, 1);
-	glm::ivec2 result = uv;
+	const auto dim	  = m_Storage->GetDimensions() - glm::uvec2(1, 1);
+	glm::uvec2 result = uv;
 	switch (m_WrapFunction)
 	{
 	case E_WrapFunction::ClampToEdge:
@@ -89,7 +89,7 @@ glm::ivec2 C_TextureView::ClampCoordinates(const glm::ivec2& uv) const
 	}
 	break;
 	case E_WrapFunction::MirroredRepeat: {
-		const auto numRepeats = uv / (dim + glm::ivec2{1, 1});
+		const auto numRepeats = uv / (dim + glm::uvec2{1, 1});
 		result				  = uv - numRepeats * dim;
 		// odd repeats -> e.g. second repeat -> mirror
 		if (numRepeats.x % 2 == 1)
@@ -122,6 +122,12 @@ void C_TextureView::ClearColor(const glm::vec4& colour)
 {
 	// swizzle on view side
 	m_Storage->SetAll(colour);
+}
+
+//=================================================================================
+const glm::uvec2 C_TextureView::GetDimensions() const
+{
+	return m_Storage->GetDimensions();
 }
 
 //=================================================================================

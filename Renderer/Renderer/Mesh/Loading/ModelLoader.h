@@ -26,8 +26,11 @@ public:
 											   glm::mat4								  sceneTransform = glm::mat4(1));
 
 	void Reset();
+	std::mutex& GetMutex();
+
 
 private:
+	static std::mutex m_Mutex;
 	std::unique_ptr<Assimp::Importer> _importer;
 
 	std::stack<const aiNode*> _nodeStack;

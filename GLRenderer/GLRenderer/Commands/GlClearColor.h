@@ -15,7 +15,6 @@ public:
 	//===========================================
 	virtual void								  Commit() override;
 	virtual E_Type								  GetType() const override;
-	virtual std::shared_ptr<Renderer::I_Resource> GetResource() const override;
 	[[nodiscard]] virtual std::string			  GetDescriptor() const override;
 
 protected:

@@ -32,12 +32,6 @@ Renderer::I_RenderCommand::E_Type C_LambdaCommand::GetType() const
 }
 
 //=================================================================================
-std::shared_ptr<Renderer::I_Resource> C_LambdaCommand::GetResource() const
-{
-	return nullptr;
-}
-
-//=================================================================================
 std::string C_LambdaCommand::GetDescriptor() const
 {
 	return m_Name;

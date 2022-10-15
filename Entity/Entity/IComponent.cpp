@@ -3,7 +3,22 @@
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
 
+#include <pugixml.hpp>
+
 #include <imgui.h>
+#include <imgui_internal.h>
+#include <rttr/registration>
+
+RTTR_REGISTRATION
+{
+	using namespace GLEngine::Entity;
+	rttr::registration::class_<I_ComponenetBuilder>("I_ComponenetBuilder")
+		.method("Build", &I_ComponenetBuilder::Build);
+
+	rttr::registration::class_<I_Component>("I_Component")
+		.property("Transformation", &I_Component::m_Transformation)
+		.method("SetParent", &I_Component::SetParent);
+}
 
 namespace GLEngine::Entity {
 
@@ -42,9 +57,23 @@ void I_Component::DebugDrawComponentGUI()
 {
 	if (::ImGui::CollapsingHeader(GetDebugComponentName().data()))
 	{
+		ImVec2 padding{20, 0};
+		ImVec2 p0 = ImGui::GetCursorScreenPos();
+		ImGui::SetCursorScreenPos(p0 + padding);
+		ImGui::BeginGroup();
 		m_Transformation.Draw();
 		DebugDrawGUI();
+		ImGui::EndGroup();
 	}
+}
+
+//=================================================================================
+void I_Component::SetParent(std::shared_ptr<I_Entity> owner)
+{
+	auto currentOwner = GetOwner();
+	GLE_ASSERT((currentOwner) == nullptr, "Only call this on component without parent");
+
+	m_Owner = owner;
 }
 
 } // namespace GLEngine::Entity

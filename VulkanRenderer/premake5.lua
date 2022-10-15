@@ -1,4 +1,4 @@
-include "../premakeDefines.lua"
+include "../Tools/Premake5/premakeDefines.lua"
 
 project "VulkanRenderer"
 	kind "SharedLib"
@@ -15,6 +15,7 @@ project "VulkanRenderer"
 	Link("Entity")
 	LinkDependency("pugixml")
 	LinkDependency("ImGui")
+	LinkDependency("RTTR")
 
 	includedirs
 	{

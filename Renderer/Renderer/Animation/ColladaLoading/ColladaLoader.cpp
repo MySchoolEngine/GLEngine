@@ -428,14 +428,14 @@ void C_ColladaLoader::LoadAnimData(const pugi::xml_node& skinXML, std::vector<gl
 		std::size_t vertexIndex = 0;
 		while (vcount.EndOfArray() == false)
 		{
-			glm::ivec3 jointIndicesVec;
-			glm::vec3  jointWeights;
-			const int  jointsNum = vcount.Get();
+			glm::ivec3		   jointIndicesVec;
+			glm::vec3		   jointWeights;
+			const unsigned int jointsNum = vcount.Get();
 			if (jointsNum > 3)
 			{
 				CORE_LOG(E_Level::Warning, E_Context::Render, "Only 3 joints per vertex are supported");
 			}
-			for (int i = 0; i < 3; ++i)
+			for (unsigned int i = 0; i < 3; ++i)
 			{
 				if (i >= jointsNum)
 				{
@@ -451,7 +451,7 @@ void C_ColladaLoader::LoadAnimData(const pugi::xml_node& skinXML, std::vector<gl
 				jointIndicesVec[i] = jointIndex;
 				jointWeights[i]	   = weight;
 			}
-			for (int i = 3; i < jointsNum; ++i)
+			for (unsigned int i = 3; i < jointsNum; ++i)
 			{
 				auto trash = v.Get();
 				trash	   = v.Get();

@@ -3,14 +3,17 @@
 #include <Entity/EntityApi.h>
 #include <Entity/IEntity.h>
 
+#include <memory>
+
 namespace GLEngine::Entity {
 
 /**
  * This class should now do only the "dirty" work of updating components etc
  */
-class C_BasicEntity : public I_Entity {
+class C_BasicEntity : public I_Entity, public std::enable_shared_from_this<C_BasicEntity> {
 public:
 	explicit C_BasicEntity(std::string name);
+	explicit C_BasicEntity();
 	virtual ~C_BasicEntity();
 
 	virtual void Update() override;
@@ -23,6 +26,11 @@ public:
 	virtual const glm::mat4& GetModelMatrix() const override;
 
 	virtual glm::vec3 GetPosition() const override;
+
+	// Deserializer special method
+	void AfterDeserialize();
+
+	RTTR_ENABLE(I_Entity);
 
 private:
 	glm::mat4 m_ModelMatrix;

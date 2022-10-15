@@ -1,4 +1,4 @@
-include "../premakeDefines.lua"
+include "../Tools/Premake5/premakeDefines.lua"
 
 project "Editor"
 	kind "SharedLib"
@@ -14,26 +14,27 @@ project "Editor"
 	Link("Core")
 	Link("GUI")
 	Link("Renderer")
+	Link("Animation")
+	
+	LinkDependency("ImGui")
+	LinkDependency("pugixml")
+	LinkDependency("ImGuizmo")
+
+	LinkDependency("RTTR")
+
+	LinkDependency("RTTR")
 
 	includedirs
 	{
 		"../Physics",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmt}",
-		"../%{IncludeDir.pugixml}",
-		"../%{IncludeDir.ImGui}",
 		"../%{IncludeDir.GLFW}", -- for key names
-	}
-
-	links 
-	{ 
-		"pugixml",
-		"ImGui",
 	}
 
 
 	filter "system:windows"
 		postbuildcommands
 		{
-			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
+			("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\""),
 		}

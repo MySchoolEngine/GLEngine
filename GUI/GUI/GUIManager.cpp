@@ -21,13 +21,17 @@ void C_GUIManager::OnUpdate()
 {
 	for (auto& it : m_Windwos)
 	{
+		it.second->Update();
+	}
+	DestroyPossibleWindows();
+
+	for (auto& it : m_Windwos)
+	{
 		if (it.second->IsVisible())
 		{
 			it.second->Draw();
 		}
 	}
-
-	DestroyPossibleWindows();
 }
 
 //=================================================================================

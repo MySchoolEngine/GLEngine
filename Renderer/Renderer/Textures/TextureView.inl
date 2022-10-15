@@ -2,6 +2,8 @@
 
 #include <Renderer/Textures/Filtering/LinearFiltering.h>
 
+#include <Utils/EnumUtils.h>
+
 namespace GLEngine::Renderer {
 
 //=================================================================================
@@ -17,7 +19,7 @@ template <> inline std::uint8_t C_TextureView::Get<std::uint8_t>(const glm::ivec
 	glm::ivec2 coord = uv;
 	if (IsOutsideBorders(uv))
 		if (UseBorderColor())
-			return static_cast<std::uint8_t>(GetBorderColor<glm::ivec4>()[static_cast<std::underlying_type_t<E_TextureChannel>>(element)]);
+			return static_cast<std::uint8_t>(GetBorderColor<glm::ivec4>()[::Utils::ToIndex(element)]);
 		else
 			coord = ClampCoordinates(uv);
 
@@ -31,7 +33,7 @@ template <> inline float C_TextureView::Get<float>(const glm::ivec2& uv, E_Textu
 	glm::ivec2 coord = uv;
 	if (IsOutsideBorders(uv))
 		if (UseBorderColor())
-			return GetBorderColor<glm::vec4>()[static_cast<std::underlying_type_t<E_TextureChannel>>(element)];
+			return GetBorderColor<glm::vec4>()[::Utils::ToIndex(element)];
 		else
 			coord = ClampCoordinates(uv);
 
@@ -130,6 +132,18 @@ inline glm::vec2 float32x3_to_oct(glm::vec3 v)
 	glm::vec2 p = glm::vec2{v.x, v.y} * (1.0f / (abs(v.x) + abs(v.y) + abs(v.z)));
 	// Reflect the folds of the lower hemisphere over the diagonals
 	return (v.z <= 0.0f) ? ((1.0f - abs(glm::vec2{p.y, p.x})) * signNotZero(p)) : p;
+}
+
+inline glm::vec3 oct_to_float32x3(glm::vec2 e)
+{
+	glm::vec3 v = glm::vec3(e.x, e.y, 1.0f - abs(e.x) - abs(e.y));
+	if (v.z < 0.0f)
+	{
+		auto r = (1.0f - glm::abs(glm::vec2{v.y, v.x})) * signNotZero({v.x, v.y});
+		v.x	   = r.x;
+		v.y	   = r.y;
+	}
+	return glm::normalize(v);
 }
 
 //=================================================================================
