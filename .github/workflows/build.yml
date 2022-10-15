@@ -11,26 +11,17 @@ on:
   
 jobs:
   GCC:
-    name: ${{ matrix.config.name }}
+    name: GCC api=${{ matrix.glfwapi }} config=${{ matrix.configuration }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        config:
-        - {
-            name: "Ubuntu GCC Debug",
-            config: "debug",
-          }
-        - {
-            name: "Ubuntu GCC Release",
-            config: "release",
-          }
+        configuration: [debug, release]
+        glfwapi: [opengl, vulkan]
     steps:
-      - uses: actions/checkout@v2
-      - name: Get submodules
-        run: |
-          git submodule init
-          git submodule update
+      - uses: actions/checkout@v2.5.0
+        with:
+          submodules: recursive
       - name: Set up g++-10
         run: |
           cd /usr/bin && sudo ln -f g++-10 g++
@@ -38,14 +29,21 @@ jobs:
         run: sudo apt update
       - name: Get X11
         run: sudo apt-get install xorg-dev
+      - name: Vulkan update
+        if: ${{matrix.glfwapi == 'vulkan'}}
+        uses: humbletim/setup-vulkan-sdk@v1.2.0
+        with:
+          vulkan-query-version: 1.3.204.0
+          vulkan-components: Vulkan-Headers, Vulkan-Loader
+          vulkan-use-cache: true
       - name: Get uuid
         run: sudo apt-get install uuid-dev
       - name: Premake
         run: |
             sudo chmod +x Tools/Premake5/premake5
-            sudo Tools/Premake5/premake5 gmake2
+            sudo Tools/Premake5/premake5 gmake2 --glfwapi=${{ matrix.glfwapi }}
       - name: Build
-        run: make config=${{ matrix.config.config }} -j6
+        run: make config=${{ matrix.configuration }} -j6
   msvc:
     name: MSVC api=${{ matrix.glfwapi }} config=${{ matrix.configuration }}
     runs-on: windows-latest
@@ -57,12 +55,9 @@ jobs:
     steps:
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.1
-      - uses: actions/checkout@v2
-      - name: Get submodules
-        shell: cmd
-        run: |
-          git submodule init
-          git submodule update
+      - uses: actions/checkout@v2.5.0
+        with:
+          submodules: recursive
       - name: Generate solution
         shell: cmd
         run: Tools\Premake5\premake5.exe --glfwapi=${{ matrix.glfwapi }} vs2019
