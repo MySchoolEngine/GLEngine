@@ -7,7 +7,6 @@
 #include <GLRenderer/Commands/GLEnable.h>
 #include <GLRenderer/Commands/GLViewport.h>
 #include <GLRenderer/Commands/GlClearColor.h>
-#include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/Components/ComponentBuilderFactory.h>
 #include <GLRenderer/Components/SkeletalMesh.h>
@@ -15,11 +14,11 @@
 #include <GLRenderer/Debug.h>
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 #include <GLRenderer/ImGui/GLImGUILayer.h>
-#include <GLRenderer/Lights/GLAreaLight.h>
 #include <GLRenderer/Materials/MaterialBuffer.h>
 #include <GLRenderer/OGLDevice.h>
 #include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/PersistentDebug.h>
+#include <GLRenderer/RenderInterface.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/SunShadowMapTechnique.h>
@@ -184,29 +183,24 @@ void C_ExplerimentWindow::Update()
 	auto HDRTexture = m_HDRFBO->GetAttachement(GL_COLOR_ATTACHMENT0);
 	auto worldDepth = m_HDRFBO->GetAttachement(GL_DEPTH_ATTACHMENT);
 
-	auto shader = shmgr.GetProgram("screenQuad");
-	shmgr.ActivateShader(shader);
+	const FullScreenSetup fsSetup{
+		.shaderName = "screenQuad",
+		.shaderSetup =
+			[this](Shaders::C_ShaderProgram& shader) {
+				shader.SetUniform("gamma", m_GammaSlider.GetValue());
+				shader.SetUniform("exposure", m_ExposureSlider.GetValue());
+				auto atmosphereEntity = m_World->GetEntity("atmosphere");
+				if (atmosphereEntity)
+					shader.SetUniform("renderAtmosphere", 1);
+				else
+					shader.SetUniform("renderAtmosphere", 0);
+				shader.SetUniform("hdrBuffer", 0);
+				shader.SetUniform("depthBuffer", 1);
+			},
+		.inputTextures = {HDRTexture.get(), worldDepth.get()},
+	};
+	m_RenderInterface->RenderFullScreen(fsSetup);
 
-	tm.BindTextureToUnit(*(HDRTexture.get()), 0);
-	tm.BindTextureToUnit(*(worldDepth.get()), 1);
-
-	m_renderer->AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
-		[this, shader]() {
-			shader->SetUniform("gamma", m_GammaSlider.GetValue());
-			shader->SetUniform("exposure", m_ExposureSlider.GetValue());
-			auto atmosphereEntity = m_World->GetEntity("atmosphere");
-			if (atmosphereEntity)
-				shader->SetUniform("renderAtmosphere", 1);
-			else
-				shader->SetUniform("renderAtmosphere", 0);
-			shader->SetUniform("hdrBuffer", 0);
-			shader->SetUniform("depthBuffer", 1);
-		},
-		"Update HDR"));
-
-	m_renderer->AddCommand(std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_ScreenQuad));
-
-	shmgr.DeactivateShader();
 
 	m_HDRFBO->Unbind<E_FramebufferTarget::Read>();
 	{
@@ -270,26 +264,10 @@ void C_ExplerimentWindow::OnAppInit()
 	}
 
 	Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_ModelData>("modelData");
-	{
-		// billboard
-		Renderer::MeshData::Mesh billboardMesh;
-		billboardMesh.vertices.emplace_back(-1.f, 1.f, 0, 1);  // 1
-		billboardMesh.vertices.emplace_back(-1.f, -1.f, 0, 1); // 2
-		billboardMesh.vertices.emplace_back(1.0f, 1.0f, 0, 1); // 3
-		billboardMesh.vertices.emplace_back(-1.f, -1.f, 0, 1); // 4 = 2
-		billboardMesh.vertices.emplace_back(1.f, -1.f, 0, 1);  // 5
-		billboardMesh.vertices.emplace_back(1.0f, 1.0f, 0, 1); // 6 = 3
 
+	m_RenderInterface
+		= std::make_unique<C_RenderInterface>(Shaders::C_ShaderManager::Instance(), Textures::C_TextureUnitManger::Instance(), *static_cast<C_OGLRenderer*>(m_renderer.get()));
 
-		billboardMesh.texcoords.emplace_back(0, 1);
-		billboardMesh.texcoords.emplace_back(0, 0);
-		billboardMesh.texcoords.emplace_back(1, 1);
-		billboardMesh.texcoords.emplace_back(0, 0);
-		billboardMesh.texcoords.emplace_back(1, 0);
-		billboardMesh.texcoords.emplace_back(1, 1);
-
-		m_ScreenQuad = std::make_shared<Mesh::C_StaticMeshResource>(billboardMesh);
-	}
 	SetupWorld("Levels/cornellBox.xml");
 
 	m_HDRFBO = std::make_unique<C_Framebuffer>("HDR");
@@ -461,7 +439,8 @@ void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 
 	auto& guiMGR	  = m_ImGUI->GetGUIMgr();
 	auto* entitiesWnd = guiMGR.GetWindow(m_EntitiesWindowGUID);
-	if (auto* entitiesWindow = dynamic_cast<Entity::C_EntitiesWindow*>(entitiesWnd)) {
+	if (auto* entitiesWindow = dynamic_cast<Entity::C_EntitiesWindow*>(entitiesWnd))
+	{
 		entitiesWindow->SetWorld(m_World);
 	}
 
