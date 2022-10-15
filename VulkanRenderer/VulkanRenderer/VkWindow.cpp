@@ -116,7 +116,7 @@ void C_VkWindow::CreateSwapChain()
 
 	createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-	if (const auto result = vkCreateSwapchainKHR(m_renderer->GetDevice(), &createInfo, nullptr, &m_SwapChain) != VK_SUCCESS)
+	if (const auto result = vkCreateSwapchainKHR(m_renderer->GetDeviceVK(), &createInfo, nullptr, &m_SwapChain) != VK_SUCCESS)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Failed to create swap chain. {}", result);
 		return;
@@ -196,7 +196,7 @@ void C_VkWindow::CreateImageViews()
 		createInfo.subresourceRange.baseArrayLayer = 0;
 		createInfo.subresourceRange.layerCount	   = 1;
 
-		if (const auto result = vkCreateImageView(m_renderer->GetDevice(), &createInfo, nullptr, &m_SwapChainImagesViews[i]) != VK_SUCCESS)
+		if (const auto result = vkCreateImageView(m_renderer->GetDeviceVK(), &createInfo, nullptr, &m_SwapChainImagesViews[i]) != VK_SUCCESS)
 		{
 			CORE_LOG(E_Level::Error, E_Context::Render, "Failed to create image views. {}", result);
 			return;
