@@ -19,11 +19,9 @@ jobs:
         configuration: [debug, release]
         glfwapi: [opengl, vulkan]
     steps:
-      - uses: actions/checkout@v2
-      - name: Get submodules
-        run: |
-          git submodule init
-          git submodule update
+      - uses: actions/checkout@v2.5.0
+        with:
+          submodules: recursive
       - name: Set up g++-10
         run: |
           cd /usr/bin && sudo ln -f g++-10 g++
@@ -57,12 +55,9 @@ jobs:
     steps:
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.1
-      - uses: actions/checkout@v2
-      - name: Get submodules
-        shell: cmd
-        run: |
-          git submodule init
-          git submodule update
+      - uses: actions/checkout@v2.5.0
+        with:
+          submodules: recursive
       - name: Generate solution
         shell: cmd
         run: Tools\Premake5\premake5.exe --glfwapi=${{ matrix.glfwapi }} vs2019
