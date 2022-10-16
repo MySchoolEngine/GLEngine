@@ -59,7 +59,7 @@ bool C_RenderInterface::RenderFullScreen(const FullScreenSetup& setup)
 		// needs cast
 		m_tm.BindTextureToUnit(*static_cast<Textures::C_Texture*>(texture), i++);
 	}
-	m_renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([&setup, shader]() { setup.shaderSetup(*(shader.get())); }, "Update full-screen pass shader"));
+	m_renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([setup, shader]() { setup.shaderSetup(*(shader.get())); }, "Update full-screen pass shader"));
 
 	m_renderer.AddCommand(std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_ScreenQuad));
 

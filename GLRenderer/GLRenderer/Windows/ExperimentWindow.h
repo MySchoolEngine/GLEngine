@@ -55,7 +55,6 @@ public:
 	[[nodiscard]] virtual bool CanClose() const override;
 
 protected:
-	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
 	bool OnAppEvent(Core::C_AppEvent& event);
 	bool OnWindowResized(Core::C_WindowResizedEvent& event);
 
@@ -104,6 +103,7 @@ private:
 	C_RayTraceWindow*						 m_RayTraceWindow;
 
 	std::unique_ptr<C_Framebuffer>	   m_HDRFBO;
+	std::unique_ptr<C_Framebuffer>	   m_HDRFBOAtmosphere;
 	std::unique_ptr<C_RenderInterface> m_RenderInterface;
 
 	Editor::C_EditorLayer m_EditorLayer;

@@ -225,6 +225,11 @@ std::string C_StaticMesh::GetShader() const
 //=================================================================================
 void C_StaticMesh::SetShadowShader(const std::string shader)
 {
+	if (shader.empty())
+	{
+		m_ShadowPassShader = nullptr;
+		return;
+	}
 	auto& shmgr		   = Shaders::C_ShaderManager::Instance();
 	m_ShadowPassShader = shmgr.GetProgram(shader);
 }

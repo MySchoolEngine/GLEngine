@@ -1,5 +1,6 @@
 #include <GLRendererStdafx.h>
 
+#include <GLRenderer/Commands/GLEnable.h>
 #include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/Debug.h>
@@ -365,11 +366,12 @@ void C_DebugDraw::DrawMergedGeoms()
 	auto  mergedDebugProgram = shdManager.GetProgram(s_MergedShaderName);
 	auto  octahedronProgram	 = shdManager.GetProgram(s_OctahedronShaderName);
 
-	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
 	if (!m_OctahedronInfos.empty() && !m_OctahedronMesh)
 	{
 		m_OctahedronMesh = std::make_shared<Mesh::C_StaticMeshResource>(Renderer::MeshData::C_Geometry::CreateOctahedron(1.f, 1.f));
 	}
+	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
+	renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([&]() { glDisable(GL_DEPTH_TEST); }, "Disable depth test."));
 
 	auto& tgmg = Textures::C_TextureUnitManger::Instance();
 
@@ -451,6 +453,7 @@ void C_DebugDraw::DrawMergedGeoms()
 		"Clear AABB"));
 
 	shdManager.DeactivateShader();
+	renderer.AddCommand(std::make_unique<Commands::C_GLEnable>(Commands::C_GLEnable::E_GLEnableValues::DEPTH_TEST));
 }
 
 //=================================================================================
