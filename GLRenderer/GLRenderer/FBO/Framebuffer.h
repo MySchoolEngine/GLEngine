@@ -23,7 +23,6 @@ class C_Texture;
 
 class C_Framebuffer {
 public:
-	explicit C_Framebuffer(const std::string& name);
 	~C_Framebuffer();
 
 	template <E_FramebufferTarget target = E_FramebufferTarget::Framebuffer> void Bind();
@@ -37,11 +36,17 @@ public:
 	[[nodiscard]] bool NeedCheck() const;
 	void			   SetChecked();
 
+	bool IsDefaultRenderTarget() const { return m_FBO == 0; }
+
 private:
+	explicit C_Framebuffer(const std::string_view name, bool defaultRendertarget = false);
 	GLuint												   m_FBO;
 	bool												   m_DirtyFlag;
 	std::map<GLenum, std::shared_ptr<Textures::C_Texture>> m_attachements;
+
+	friend class C_GLDevice;
 };
+
 
 } // namespace GLEngine::GLRenderer
 

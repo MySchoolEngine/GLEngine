@@ -6,6 +6,7 @@
 #include <GLRenderer/FBO/Framebuffer.h>
 #include <GLRenderer/SunShadowMapTechnique.h>
 #include <GLRenderer/Textures/Texture.h>
+#include <GLRenderer/OGLDevice.h>
 
 /// temporal
 #include <GLRenderer/Commands/GLClear.h>
@@ -40,10 +41,10 @@ C_SunShadowMapTechnique::C_SunShadowMapTechnique(std::shared_ptr<Renderer::C_Sun
 {
 	m_FrameConstUBO = std::dynamic_pointer_cast<Buffers::UBO::C_FrameConstantsBuffer>(Buffers::C_UniformBuffersManager::Instance().GetBufferByName("frameConst"));
 
+	auto& device = static_cast<C_GLDevice&>(Core::C_Application::Get().GetActiveRenderer().GetDevice());
 
-	m_Framebuffer = std::make_unique<C_Framebuffer>("sunShadowMapping");
+	m_Framebuffer = std::unique_ptr<C_Framebuffer>(device.AllocateFramebuffer("sunShadowMapping"));
 
-	auto& device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
 
 	const bool storeAlbedoForShadowMap = true;
 	if (storeAlbedoForShadowMap)

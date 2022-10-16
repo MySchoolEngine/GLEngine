@@ -46,6 +46,7 @@ C_RenderInterface::~C_RenderInterface() = default;
 //=================================================================================
 bool C_RenderInterface::RenderFullScreen(const FullScreenSetup& setup)
 {
+	setup.renderTarget.Bind<E_FramebufferTarget::Draw>();
 	auto shader = m_shmgr.GetProgram(setup.shaderName);
 	if (!shader)
 		return false;
@@ -63,6 +64,7 @@ bool C_RenderInterface::RenderFullScreen(const FullScreenSetup& setup)
 	m_renderer.AddCommand(std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_ScreenQuad));
 
 	m_shmgr.DeactivateShader();
+	setup.renderTarget.Unbind<E_FramebufferTarget::Draw>();
 	return true;
 }
 

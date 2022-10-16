@@ -8,6 +8,7 @@
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/Lights/GLAreaLight.h>
 #include <GLRenderer/ShadowMapPass.h>
+#include <GLRenderer/OGLDevice.h>
 
 #include <Renderer/ICameraComponent.h>
 #include <Renderer/ILight.h>
@@ -27,10 +28,10 @@ namespace GLEngine::GLRenderer {
 
 // TODO: broken as hell
 //=================================================================================
-C_ShadowMapTechnique::C_ShadowMapTechnique(std::shared_ptr<Entity::C_EntityManager> world, std::shared_ptr<Renderer::I_Light>& light)
+C_ShadowMapTechnique::C_ShadowMapTechnique(std::shared_ptr<Entity::C_EntityManager> world, std::shared_ptr<Renderer::I_Light>& light, Renderer::I_Device& device)
 	: m_WorldToRender(world)
 	, m_Light(light)
-	, m_ShadowPassFBO("ShadowPassFBO")
+	, m_ShadowPassFBO(static_cast<C_GLDevice&>(device).AllocateFramebuffer("ShadowPassFBO"))
 {
 	m_FrameConstUBO = std::dynamic_pointer_cast<Buffers::UBO::C_FrameConstantsBuffer>(Buffers::C_UniformBuffersManager::Instance().GetBufferByName("frameConst"));
 	if (!m_FrameConstUBO)
@@ -40,7 +41,7 @@ C_ShadowMapTechnique::C_ShadowMapTechnique(std::shared_ptr<Entity::C_EntityManag
 
 
 	auto& renderer = (Core::C_Application::Get()).GetActiveRenderer();
-	m_ShadowPassFBO.Bind();
+	m_ShadowPassFBO->Bind();
 	renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&]() {
 			glGenRenderbuffers(1, &m_ColorRenderbuffer);
@@ -54,7 +55,13 @@ C_ShadowMapTechnique::C_ShadowMapTechnique(std::shared_ptr<Entity::C_EntityManag
 			}
 		},
 		"setup renderbuffer for shadow maps"));
-	m_ShadowPassFBO.Unbind();
+	m_ShadowPassFBO->Unbind();
+}
+
+//=================================================================================
+C_ShadowMapTechnique::~C_ShadowMapTechnique()
+{
+	delete m_ShadowPassFBO;
 }
 
 //=================================================================================
@@ -83,13 +90,13 @@ void C_ShadowMapTechnique::Render()
 	m_FrameConstUBO->SetProjection(glm::ortho(-width, width, -height, height, frustum.GetNear(), frustum.GetFar()));
 	m_FrameConstUBO->SetCameraPosition(glm::vec4(frustum.GetPosition(), 1.0f));
 
-	m_ShadowPassFBO.AttachTexture(GL_DEPTH_ATTACHMENT, areaLigh->GetShadowMap());
-	m_ShadowPassFBO.Bind<E_FramebufferTarget::Draw>();
+	m_ShadowPassFBO->AttachTexture(GL_DEPTH_ATTACHMENT, areaLigh->GetShadowMap());
+	m_ShadowPassFBO->Bind<E_FramebufferTarget::Draw>();
 
-	if (m_ShadowPassFBO.NeedCheck())
+	if (m_ShadowPassFBO->NeedCheck())
 	{
 		// terribly ineffective
-		auto	   completeness = m_ShadowPassFBO.CheckCompleteness<E_FramebufferTarget::Draw>();
+		auto	   completeness = m_ShadowPassFBO->CheckCompleteness<E_FramebufferTarget::Draw>();
 		const auto lambda		= [](std::future<bool>&& completeness) {
 			  if (!completeness.get())
 			  {
@@ -97,7 +104,7 @@ void C_ShadowMapTechnique::Render()
 			  }
 		};
 
-		m_ShadowPassFBO.SetChecked();
+		m_ShadowPassFBO->SetChecked();
 
 		std::thread completenessCheck(lambda, std::move(completeness));
 		completenessCheck.detach();
@@ -135,7 +142,7 @@ void C_ShadowMapTechnique::Render()
 			}
 		}
 	}
-	m_ShadowPassFBO.Unbind<E_FramebufferTarget::Draw>();
+	m_ShadowPassFBO->Unbind<E_FramebufferTarget::Draw>();
 
 	{
 		using namespace Commands;

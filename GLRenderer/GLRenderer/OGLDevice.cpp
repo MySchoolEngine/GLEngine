@@ -4,6 +4,7 @@
 #include <GLRenderer/OGLDevice.h>
 #include <GLRenderer/Textures/Sampler.h>
 #include <GLRenderer/Textures/Texture.h>
+#include <GLRenderer/FBO/Framebuffer.h>
 
 #include <Renderer/Textures/DeviceTexture.h>
 #include <Renderer/Textures/TextureDefinitions.h>
@@ -173,6 +174,18 @@ void C_GLDevice::DestroySampler(Renderer::I_TextureSampler2D& texture)
 {
 	auto* samplerGL = reinterpret_cast<C_Sampler2D*>(&texture);
 	glDeleteSamplers(1, &samplerGL->m_Sampler);
+}
+
+//=================================================================================
+C_Framebuffer* C_GLDevice::AllocateFramebuffer(const std::string_view name)
+{
+	return new C_Framebuffer(name);
+}
+
+//=================================================================================
+C_Framebuffer C_GLDevice::GetDefualtRendertarget()
+{
+	return C_Framebuffer("default", true);
 }
 
 } // namespace GLEngine::GLRenderer

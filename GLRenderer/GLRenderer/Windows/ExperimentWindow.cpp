@@ -195,6 +195,7 @@ void C_ExplerimentWindow::Update()
 				shader.SetUniform("depthBuffer", 1);
 			},
 		.inputTextures = {HDRTexture.get(), worldDepth.get()},
+		.renderTarget  = defaultRenderTarget,
 	};
 	m_RenderInterface->RenderFullScreen(fsSetup);
 
