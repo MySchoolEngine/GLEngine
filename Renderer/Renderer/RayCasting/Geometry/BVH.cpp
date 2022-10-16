@@ -48,10 +48,10 @@ void BVH::SplitBVHNode(NodeID nodeId, unsigned int level)
 	// naive split!
 	// 1) Allocate two new nodes
 	m_Nodes.emplace_back();
-	const NodeID leftNodeId = static_cast<unsigned int>(m_Storage.size()) - 1;
+	const NodeID leftNodeId = static_cast<unsigned int>(m_Nodes.size()) - 1;
 	m_Nodes[nodeId].left	= leftNodeId;
 	m_Nodes.emplace_back();
-	const NodeID rightNodeId = static_cast<unsigned int>(m_Storage.size()) - 1;
+	const NodeID rightNodeId = static_cast<unsigned int>(m_Nodes.size()) - 1;
 	m_Nodes[nodeId].right	 = rightNodeId;
 	// now I can store references, because I am not adding new elements
 	auto& left	= m_Nodes[leftNodeId];
