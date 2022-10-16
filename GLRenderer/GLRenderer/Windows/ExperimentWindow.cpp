@@ -116,7 +116,6 @@ void C_ExplerimentWindow::Update()
 	tm.Reset();
 	Shaders::C_ShaderManager::Instance().Update();
 	// MouseSelect();
-	C_DebugDraw::Instance().DrawAxis(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0, 1.f, 0.0f), glm::vec3(0.f, 0.f, 1.f));
 
 	const auto avgMsPerFrame = m_Samples.Avg();
 	m_GUITexts[::Utils::ToIndex(E_GUITexts::AvgFrametime)].UpdateText(m_Samples.Avg());
@@ -156,9 +155,7 @@ void C_ExplerimentWindow::Update()
 	C_DebugDraw::Instance().ProbeDebug(m_RayTraceWindow->GetProbePosition(), .25f, m_RayTraceWindow->GetTexture());
 
 	// ----- Frame init -------
-	auto& shmgr = Shaders::C_ShaderManager::Instance();
-
-	shmgr.DeactivateShader();
+	Shaders::C_ShaderManager::Instance().DeactivateShader();
 	// ----- Frame init -------
 
 	{
@@ -240,11 +237,6 @@ void C_ExplerimentWindow::OnEvent(Core::I_Event& event)
 //=================================================================================
 bool C_ExplerimentWindow::OnKeyPressed(Core::C_KeyPressedEvent& event)
 {
-	// if (event.GetWindowGUID() != GetGUID()) {
-	// 	return false;
-	// }
-
-
 	return false;
 }
 

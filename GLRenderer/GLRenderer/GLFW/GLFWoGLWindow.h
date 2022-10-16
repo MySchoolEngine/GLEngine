@@ -20,7 +20,6 @@ class C_GLFWoGLWindow : public GLFWManager::C_GLFWWindow {
 public:
 	explicit C_GLFWoGLWindow(const Core::S_WindowInfo& wndInfo);
 	virtual ~C_GLFWoGLWindow();
-	virtual void Update() override;
 
 	[[nodiscard]] virtual Renderer::I_Renderer& GetRenderer() override;
 	virtual void								OnEvent(Core::I_Event& event) override;
