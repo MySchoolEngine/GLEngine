@@ -29,7 +29,7 @@ void BVH::Build()
 	for (const auto& vertex : m_Storage)
 		root.aabb.Add(vertex);
 	root.firstTrig = 0;
-	root.lastTrig  = m_Storage.size() - 3;
+	root.lastTrig  = static_cast<unsigned int>(m_Storage.size()) - 3;
 	SplitBVHNode(0, 0);
 }
 
@@ -48,10 +48,10 @@ void BVH::SplitBVHNode(NodeID nodeId, unsigned int level)
 	// naive split!
 	// 1) Allocate two new nodes
 	m_Nodes.emplace_back();
-	const NodeID leftNodeId = m_Nodes.size() - 1;
+	const NodeID leftNodeId = static_cast<unsigned int>(m_Nodes.size()) - 1;
 	m_Nodes[nodeId].left	= leftNodeId;
 	m_Nodes.emplace_back();
-	const NodeID rightNodeId = m_Nodes.size() - 1;
+	const NodeID rightNodeId = static_cast<unsigned int>(m_Nodes.size()) - 1;
 	m_Nodes[nodeId].right	 = rightNodeId;
 	// now I can store references, because I am not adding new elements
 	auto& left	= m_Nodes[leftNodeId];
@@ -98,11 +98,11 @@ void BVH::SplitBVHNode(NodeID nodeId, unsigned int level)
 	right.lastTrig	= node.lastTrig;
 
 	// build AABBs
-	for (int i = left.firstTrig; i < left.lastTrig + 3; ++i)
+	for (unsigned int i = left.firstTrig; i < left.lastTrig + 3; ++i)
 	{
 		left.aabb.Add(m_Storage[i]);
 	}
-	for (int i = right.firstTrig; i < right.lastTrig + 3; ++i)
+	for (unsigned int i = right.firstTrig; i < right.lastTrig + 3; ++i)
 	{
 		right.aabb.Add(m_Storage[i]);
 	}
@@ -167,7 +167,7 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection
 
 	glm::vec2 barycentric;
 
-	for (int i = node->firstTrig; i <= node->lastTrig; i += 3)
+	for (unsigned int i = node->firstTrig; i <= node->lastTrig; i += 3)
 	{
 		const glm::vec3* triDef = &(m_Storage[i]);
 		const auto		 length = Physics::TraingleRayIntersect(triDef, ray, &barycentric);

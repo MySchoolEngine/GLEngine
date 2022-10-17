@@ -1,11 +1,11 @@
 #pragma once
 
-#include <Utils/Logging/LoggingMacros.h>
+#include <Entity/EntityApi.h>
 
-#include <Utils/STLAfx.h>
-
+#include <Core/CoreMacros.h>
 #include <Core/GUID.h>
 
-#include <glm/glm.hpp>
+#include <Utils/Logging/LoggingMacros.h>
+#include <Utils/STLAfx.h>
 
-#include <Entity/EntityApi.h>
+#include <glm/glm.hpp>

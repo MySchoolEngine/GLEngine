@@ -6,7 +6,7 @@
 #include <Entity/IEntity.h>
 
 #include <rttr/registration_friend.h>
-#include <rttr/registration.h>
+#include <rttr/rttr_enable.h>
 
 namespace GLEngine::Physics::Primitives {
 class C_Frustum;

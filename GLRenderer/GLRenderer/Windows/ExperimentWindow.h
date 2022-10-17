@@ -4,7 +4,6 @@
 #include <GLRenderer/FBO/Framebuffer.h>
 #include <GLRenderer/GLFW/GLFWoGLWindow.h>
 #include <GLRenderer/MainPassTechnique.h>
-#include <GLRenderer/Mesh/StaticMeshResource.h>
 #include <GLRenderer/ShadowMapPass.h>
 #include <GLRenderer/Textures/Texture.h>
 
@@ -39,6 +38,7 @@ class C_GLImGUILayer;
 class C_RayTraceWindow;
 class C_Framebuffer;
 class C_SunShadowMapTechnique;
+class C_RenderInterface;
 
 namespace Windows {
 class C_ExplerimentWindow : public GLFW::C_GLFWoGLWindow {
@@ -55,7 +55,6 @@ public:
 	[[nodiscard]] virtual bool CanClose() const override;
 
 protected:
-	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
 	bool OnAppEvent(Core::C_AppEvent& event);
 	bool OnWindowResized(Core::C_WindowResizedEvent& event);
 
@@ -103,8 +102,9 @@ private:
 	std::shared_ptr<C_SunShadowMapTechnique> m_SunShadow;
 	C_RayTraceWindow*						 m_RayTraceWindow;
 
-	std::unique_ptr<C_Framebuffer>				m_HDRFBO;
-	std::shared_ptr<Mesh::C_StaticMeshResource> m_ScreenQuad;
+	std::unique_ptr<C_Framebuffer>	   m_HDRFBO;
+	std::unique_ptr<C_Framebuffer>	   m_HDRFBOAtmosphere;
+	std::unique_ptr<C_RenderInterface> m_RenderInterface;
 
 	Editor::C_EditorLayer m_EditorLayer;
 };

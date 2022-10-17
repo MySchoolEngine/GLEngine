@@ -3,12 +3,15 @@
 #include <Renderer/IDevice.h>
 
 namespace GLEngine::GLRenderer {
-
+class C_Framebuffer;
 class C_GLDevice : public Renderer::I_Device {
 public:
 	C_GLDevice();
 	[[nodiscard]] virtual bool AllocateTexture(Renderer::I_DeviceTexture& texture) override;
 	virtual void			   DestroyTexture(Renderer::I_DeviceTexture& texture) override;
+
+	C_Framebuffer* AllocateFramebuffer(const std::string_view name);
+	C_Framebuffer  GetDefualtRendertarget();
 
 	virtual std::size_t GetAllocatedMemory() const override;
 

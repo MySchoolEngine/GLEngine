@@ -3,6 +3,8 @@
 #include <GLRenderer/Components/TerrainMergedMesh.h>
 #include <GLRenderer/Entities/TerrainEntity.h>
 
+#include <Core/EventSystem/Event.h>
+
 #include <Utils/Range.h>
 
 #include <imgui.h>

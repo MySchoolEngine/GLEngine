@@ -7,7 +7,6 @@
 #include <GLRenderer/Commands/GLEnable.h>
 #include <GLRenderer/Commands/GLViewport.h>
 #include <GLRenderer/Commands/GlClearColor.h>
-#include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/Components/ComponentBuilderFactory.h>
 #include <GLRenderer/Components/SkeletalMesh.h>
@@ -15,11 +14,11 @@
 #include <GLRenderer/Debug.h>
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 #include <GLRenderer/ImGui/GLImGUILayer.h>
-#include <GLRenderer/Lights/GLAreaLight.h>
 #include <GLRenderer/Materials/MaterialBuffer.h>
 #include <GLRenderer/OGLDevice.h>
 #include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/PersistentDebug.h>
+#include <GLRenderer/RenderInterface.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/SunShadowMapTechnique.h>
@@ -72,6 +71,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	, m_ExposureSlider(1.f, .1f, 10.f, "Exposure")
 	, m_VSync(true)
 	, m_HDRFBO(nullptr)
+	, m_HDRFBOAtmosphere(nullptr)
 	, m_World(std::make_shared<Entity::C_EntityManager>())
 	, m_MainPass(nullptr)
 	, m_ShadowPass(nullptr)
@@ -117,7 +117,6 @@ void C_ExplerimentWindow::Update()
 	tm.Reset();
 	Shaders::C_ShaderManager::Instance().Update();
 	// MouseSelect();
-	C_DebugDraw::Instance().DrawAxis(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0, 1.f, 0.0f), glm::vec3(0.f, 0.f, 1.f));
 
 	const auto avgMsPerFrame = m_Samples.Avg();
 	m_GUITexts[::Utils::ToIndex(E_GUITexts::AvgFrametime)].UpdateText(m_Samples.Avg());
@@ -131,14 +130,12 @@ void C_ExplerimentWindow::Update()
 
 	glfwMakeContextCurrent(m_Window);
 
-	// m_ShadowPass->Render();
-
 	const auto camera = m_CamManager.GetActiveCamera();
 	GLE_ASSERT(camera, "No active camera");
 
-
-	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
-
+	// ======
+	// Sun shadow
+	// ======
 	if (m_SunShadow)
 	{
 		// shadow pass
@@ -151,64 +148,80 @@ void C_ExplerimentWindow::Update()
 		auto& tmgr = Textures::C_TextureManager::Instance();
 		m_MainPass->SetSunShadowMap(tmgr.GetIdentityTexture()->GetHandle());
 	}
+	// ======
+	// World render
+	// ======
 	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
 	m_MainPass->Render(*m_World.get(), camera, GetWidth(), GetHeight());
-
-	C_DebugDraw::Instance().ProbeDebug(m_RayTraceWindow->GetProbePosition(), .25f, m_RayTraceWindow->GetTexture());
-
-	// ----- Frame init -------
-	auto& shmgr = Shaders::C_ShaderManager::Instance();
-
-	shmgr.DeactivateShader();
-	// ----- Frame init -------
-
-	{
-		RenderDoc::C_DebugScope s("Persistent debug");
-		C_PersistentDebug::Instance().DrawAll();
-	}
-
-	{
-		RenderDoc::C_DebugScope s("Merged debug");
-		C_DebugDraw::Instance().DrawMergedGeoms();
-	}
-
 	m_HDRFBO->Unbind<E_FramebufferTarget::Draw>();
 
+	// ======
+	// Atmosphere render
+	// ======
+	Renderer::I_DeviceTexture* HDRTexturePtr = nullptr;
+	if (m_HDRFBOAtmosphere)
+	{
+		m_HDRFBO->Bind<E_FramebufferTarget::Read>();
+
+		auto HDRTexture = m_HDRFBO->GetAttachement(GL_COLOR_ATTACHMENT0);
+		auto worldDepth = m_HDRFBO->GetAttachement(GL_DEPTH_ATTACHMENT);
+		const FullScreenSetup fsSetup{
+			.shaderName = "atmosphere",
+			.shaderSetup =
+				[](Shaders::C_ShaderProgram& shader) {
+					shader.SetUniform("hdrBuffer", 0);
+					shader.SetUniform("depthBuffer", 1);
+				},
+			.inputTextures = {HDRTexture.get(), worldDepth.get()},
+			.renderTarget  = *m_HDRFBOAtmosphere.get(),
+		};
+		m_RenderInterface->RenderFullScreen(fsSetup);
+		m_HDRFBO->Unbind<E_FramebufferTarget::Read>();
+
+		HDRTexturePtr = m_HDRFBOAtmosphere->GetAttachement(GL_COLOR_ATTACHMENT0).get();
+		m_HDRFBOAtmosphere->Bind<E_FramebufferTarget::Read>();
+	}
+	else
+	{
+		m_HDRFBO->Bind<E_FramebufferTarget::Read>();
+		HDRTexturePtr = m_HDRFBO->GetAttachement(GL_COLOR_ATTACHMENT0).get();
+	}
+
+	// ======
+	// HDR correction
+	// ======
+	auto				  defaultRenderTarget = m_Device->GetDefualtRendertarget();
+	// clear screen
 	{
 		using namespace Commands;
 		m_renderer->AddCommand(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth));
 		m_renderer->AddCommand(std::make_unique<C_GLViewport>(Renderer::C_Viewport(0, 0, GetSize())));
 	}
-	m_HDRFBO->Bind<E_FramebufferTarget::Read>();
-
-	auto HDRTexture = m_HDRFBO->GetAttachement(GL_COLOR_ATTACHMENT0);
-	auto worldDepth = m_HDRFBO->GetAttachement(GL_DEPTH_ATTACHMENT);
-
-	auto shader = shmgr.GetProgram("screenQuad");
-	shmgr.ActivateShader(shader);
-
-	tm.BindTextureToUnit(*(HDRTexture.get()), 0);
-	tm.BindTextureToUnit(*(worldDepth.get()), 1);
-
-	m_renderer->AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
-		[this, shader]() {
-			shader->SetUniform("gamma", m_GammaSlider.GetValue());
-			shader->SetUniform("exposure", m_ExposureSlider.GetValue());
-			auto atmosphereEntity = m_World->GetEntity("atmosphere");
-			if (atmosphereEntity)
-				shader->SetUniform("renderAtmosphere", 1);
-			else
-				shader->SetUniform("renderAtmosphere", 0);
-			shader->SetUniform("hdrBuffer", 0);
-			shader->SetUniform("depthBuffer", 1);
-		},
-		"Update HDR"));
-
-	m_renderer->AddCommand(std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_ScreenQuad));
-
-	shmgr.DeactivateShader();
-
+	const FullScreenSetup fsSetup{
+		.shaderName = "screenQuad",
+		.shaderSetup =
+			[gamma = m_GammaSlider.GetValue(), exposure = m_ExposureSlider.GetValue()](Shaders::C_ShaderProgram& shader) {
+				shader.SetUniform("gamma", gamma);
+				shader.SetUniform("exposure", exposure);
+				shader.SetUniform("hdrBuffer", 0);
+			},
+		.inputTextures = {HDRTexturePtr},
+		.renderTarget  = defaultRenderTarget,
+	};
+	m_RenderInterface->RenderFullScreen(fsSetup);
 	m_HDRFBO->Unbind<E_FramebufferTarget::Read>();
+
+	// ======
+	// Debug and ImGui
+	// ======
+	{
+		RenderDoc::C_DebugScope s("Persistent debug");
+		C_PersistentDebug::Instance().DrawAll();
+	}
+	{
+		RenderDoc::C_DebugScope s("Merged debug");
+		C_DebugDraw::Instance().DrawMergedGeoms();
+	}
 	{
 		RenderDoc::C_DebugScope s("ImGUI");
 		m_renderer->AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([this]() { m_ImGUI->FrameEnd(m_Input); }, "m_ImGUI->FrameEnd"));
@@ -236,22 +249,10 @@ void C_ExplerimentWindow::OnEvent(Core::I_Event& event)
 	T_Base::OnEvent(event);
 
 	Core::C_EventDispatcher d(event);
-	d.Dispatch<Core::C_KeyPressedEvent>(std::bind(&C_ExplerimentWindow::OnKeyPressed, this, std::placeholders::_1));
 	d.Dispatch<Core::C_AppEvent>(std::bind(&C_ExplerimentWindow::OnAppEvent, this, std::placeholders::_1));
 	d.Dispatch<Core::C_WindowResizedEvent>(std::bind(&C_ExplerimentWindow::OnWindowResized, this, std::placeholders::_1));
 
 	m_LayerStack.OnEvent(event);
-}
-
-//=================================================================================
-bool C_ExplerimentWindow::OnKeyPressed(Core::C_KeyPressedEvent& event)
-{
-	// if (event.GetWindowGUID() != GetGUID()) {
-	// 	return false;
-	// }
-
-
-	return false;
 }
 
 //=================================================================================
@@ -270,46 +271,35 @@ void C_ExplerimentWindow::OnAppInit()
 	}
 
 	Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_ModelData>("modelData");
-	{
-		// billboard
-		Renderer::MeshData::Mesh billboardMesh;
-		billboardMesh.vertices.emplace_back(-1.f, 1.f, 0, 1);  // 1
-		billboardMesh.vertices.emplace_back(-1.f, -1.f, 0, 1); // 2
-		billboardMesh.vertices.emplace_back(1.0f, 1.0f, 0, 1); // 3
-		billboardMesh.vertices.emplace_back(-1.f, -1.f, 0, 1); // 4 = 2
-		billboardMesh.vertices.emplace_back(1.f, -1.f, 0, 1);  // 5
-		billboardMesh.vertices.emplace_back(1.0f, 1.0f, 0, 1); // 6 = 3
 
+	m_RenderInterface
+		= std::make_unique<C_RenderInterface>(Shaders::C_ShaderManager::Instance(), Textures::C_TextureUnitManger::Instance(), *static_cast<C_OGLRenderer*>(m_renderer.get()));
 
-		billboardMesh.texcoords.emplace_back(0, 1);
-		billboardMesh.texcoords.emplace_back(0, 0);
-		billboardMesh.texcoords.emplace_back(1, 1);
-		billboardMesh.texcoords.emplace_back(0, 0);
-		billboardMesh.texcoords.emplace_back(1, 0);
-		billboardMesh.texcoords.emplace_back(1, 1);
-
-		m_ScreenQuad = std::make_shared<Mesh::C_StaticMeshResource>(billboardMesh);
-	}
 	SetupWorld("Levels/cornellBox.xml");
 
-	m_HDRFBO = std::make_unique<C_Framebuffer>("HDR");
-	const Renderer::TextureDescriptor HDRTextureDef{"hdrTexture", GetWidth(), GetHeight(), Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::RGBA16f, false};
-	auto							  HDRTexture = std::make_shared<Textures::C_Texture>(HDRTextureDef);
-	m_Device->AllocateTexture(*HDRTexture.get());
+#pragma region FBOSteup
+	{
+		m_HDRFBO = std::unique_ptr<C_Framebuffer>(m_Device->AllocateFramebuffer("HDR"));
+		const Renderer::TextureDescriptor HDRTextureDef{"hdrTexture", GetWidth(), GetHeight(), Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::RGBA16f, false};
+		auto							  HDRTexture = std::make_shared<Textures::C_Texture>(HDRTextureDef);
+		m_Device->AllocateTexture(*HDRTexture.get());
 
-	HDRTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
-	// ~HDRTexture setup
-	m_HDRFBO->AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
+		HDRTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
+		// ~HDRTexture setup
+		m_HDRFBO->AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
 
-	const Renderer::TextureDescriptor hdrDepthTextureDef{"hdrDepthTexture", GetWidth(), GetHeight(), Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::D16, false};
-	auto							  depthStencilTexture = std::make_shared<Textures::C_Texture>(hdrDepthTextureDef);
-	m_Device->AllocateTexture(*depthStencilTexture.get());
+		const Renderer::TextureDescriptor hdrDepthTextureDef{
+			"hdrDepthTexture", GetWidth(), GetHeight(), Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::D16, false};
+		auto depthStencilTexture = std::make_shared<Textures::C_Texture>(hdrDepthTextureDef);
+		m_Device->AllocateTexture(*depthStencilTexture.get());
 
-	// depthStencilTexture->SetTexParameter(GL_COMPARE_REF_TO_TEXTURE, GL_COMPARE_REF_TO_TEXTURE);
-	// depthStencilTexture->SetTexParameter(GL_TEXTURE_COMPARE_FUNC, GL_NEVER);
-	// depthStencilTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
-	// ~depthStencilTexture setup
-	m_HDRFBO->AttachTexture(GL_DEPTH_ATTACHMENT, depthStencilTexture);
+		// depthStencilTexture->SetTexParameter(GL_COMPARE_REF_TO_TEXTURE, GL_COMPARE_REF_TO_TEXTURE);
+		// depthStencilTexture->SetTexParameter(GL_TEXTURE_COMPARE_FUNC, GL_NEVER);
+		// depthStencilTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
+		// ~depthStencilTexture setup
+		m_HDRFBO->AttachTexture(GL_DEPTH_ATTACHMENT, depthStencilTexture);
+	}
+#pragma endregion FBOSteup
 
 	auto& guiMGR = m_ImGUI->GetGUIMgr();
 
@@ -431,6 +421,18 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 		m_HDRFBO->AttachTexture(GL_DEPTH_ATTACHMENT, depthStencilTexture);
 	}
 
+	if (m_HDRFBOAtmosphere)
+	{
+		auto						HDRTexture = m_HDRFBOAtmosphere->GetAttachement(GL_COLOR_ATTACHMENT0);
+		Renderer::TextureDescriptor descHDR	   = HDRTexture->GetDescriptor();
+		descHDR.width						   = event.GetWidth();
+		descHDR.height						   = event.GetHeight();
+		m_Device->DestroyTexture(*HDRTexture.get());
+		HDRTexture = std::make_shared<Textures::C_Texture>(descHDR);
+		m_Device->AllocateTexture(*HDRTexture.get());
+		m_HDRFBOAtmosphere->AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
+	}
+
 	m_EditorLayer.SetViewport({0, 0, GetSize()});
 
 	return true;
@@ -461,7 +463,8 @@ void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 
 	auto& guiMGR	  = m_ImGUI->GetGUIMgr();
 	auto* entitiesWnd = guiMGR.GetWindow(m_EntitiesWindowGUID);
-	if (auto* entitiesWindow = dynamic_cast<Entity::C_EntitiesWindow*>(entitiesWnd)) {
+	if (auto* entitiesWindow = dynamic_cast<Entity::C_EntitiesWindow*>(entitiesWnd))
+	{
 		entitiesWindow->SetWorld(m_World);
 	}
 
@@ -470,6 +473,23 @@ void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 	// Inform entities about the level loaded event
 	Core::C_EntityEvent levelEvent(GUID::INVALID_GUID, Core::C_EntityEvent::EntityEvent::LevelLoaded);
 	m_World->OnEvent(levelEvent);
+
+	// FBO for atmosphere
+	if (m_World->GetEntity("atmosphere"))
+	{
+		m_HDRFBOAtmosphere = std::unique_ptr<C_Framebuffer>(m_Device->AllocateFramebuffer("Atmosphere"));
+		const Renderer::TextureDescriptor HDRTextureDef{
+			"hdrTextureAtmosphere", GetWidth(), GetHeight(), Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::RGBA16f, false};
+		auto HDRTexture = std::make_shared<Textures::C_Texture>(HDRTextureDef);
+		m_Device->AllocateTexture(*HDRTexture.get());
+
+		HDRTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
+		m_HDRFBOAtmosphere->AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
+	}
+	else
+	{
+		m_HDRFBOAtmosphere = nullptr;
+	}
 }
 
 //=================================================================================

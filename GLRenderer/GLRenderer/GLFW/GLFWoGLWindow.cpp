@@ -20,14 +20,6 @@ C_GLFWoGLWindow::C_GLFWoGLWindow(const Core::S_WindowInfo& wndInfo)
 C_GLFWoGLWindow::~C_GLFWoGLWindow() = default;
 
 //=================================================================================
-void C_GLFWoGLWindow::Update()
-{
-	glfwMakeContextCurrent(m_Window);
-	glfwSwapBuffers(m_Window);
-	glfwPollEvents();
-}
-
-//=================================================================================
 void C_GLFWoGLWindow::Init(const Core::S_WindowInfo& wndInfo)
 {
 	GLE_ASSERT(wndInfo.GetDriver() == Core::E_Driver::OpenGL, "This class supports only OpenGL");

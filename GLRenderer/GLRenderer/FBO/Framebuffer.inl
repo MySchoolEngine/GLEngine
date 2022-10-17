@@ -23,6 +23,7 @@ template <E_FramebufferTarget target /*= E_FramebufferTarget::Framebuffer*/> voi
 //=================================================================================
 template <E_FramebufferTarget target /*= E_FramebufferTarget::Framebuffer*/> void C_Framebuffer::AttachTexture(GLenum attachement, std::shared_ptr<Textures::C_Texture> texture)
 {
+	GLE_ASSERT(!IsDefaultRenderTarget(), "Cant attach to default rendertarget.");
 	const auto it = m_attachements.find(attachement);
 	if (it != m_attachements.end())
 	{
@@ -42,6 +43,7 @@ template <E_FramebufferTarget target /*= E_FramebufferTarget::Framebuffer*/> voi
 //=================================================================================
 template <E_FramebufferTarget target /*= E_FramebufferTarget::Framebuffer*/> std::future<bool> GLEngine::GLRenderer::C_Framebuffer::CheckCompleteness() const
 {
+	GLE_ASSERT(!IsDefaultRenderTarget(), "Cant CheckCompleteness to default rendertarget.");
 	std::promise<bool> retPromise;
 	auto			   ret = retPromise.get_future();
 
