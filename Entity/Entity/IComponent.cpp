@@ -11,11 +11,13 @@
 
 RTTR_REGISTRATION
 {
-	rttr::registration::class_<GLEngine::Entity::I_ComponenetBuilder>("I_ComponenetBuilder")
-		.method("Build", &GLEngine::Entity::I_ComponenetBuilder::Build);
+	using namespace GLEngine::Entity;
+	rttr::registration::class_<I_ComponenetBuilder>("I_ComponenetBuilder")
+		.method("Build", &I_ComponenetBuilder::Build);
 
-	rttr::registration::class_<GLEngine::Entity::I_Component>("I_Component")
-		.property("Transformation", &GLEngine::Entity::I_Component::m_Transformation);
+	rttr::registration::class_<I_Component>("I_Component")
+		.property("Transformation", &I_Component::m_Transformation)
+		.method("SetParent", &I_Component::SetParent);
 }
 
 namespace GLEngine::Entity {

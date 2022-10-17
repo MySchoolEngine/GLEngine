@@ -542,6 +542,7 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 		m_CamManager.SetDebugCamera(std::static_pointer_cast<Renderer::I_CameraComponent>(*camIt));
 	}
 
+
 	{
 		// create default atmosphere
 		auto entity = m_World->GetEntity("atmosphere");

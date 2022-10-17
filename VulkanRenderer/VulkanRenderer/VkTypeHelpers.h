@@ -6,4 +6,4 @@ namespace GLEngine::VkRenderer {
 
 //=================================================================================
 VkFormat GetVkInternalFormat(const Renderer::E_TextureFormat format);
-}
+} // namespace GLEngine::VkRenderer
