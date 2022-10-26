@@ -3,8 +3,11 @@
 #include <Renderer/Materials/Material.h>
 #include <Renderer/Mesh/Scene.h>
 
-#include <imgui.h>
+#include <GLRenderer/Textures/TextureManager.h>
 
+#include <Core/Resources/ResourceManager.h>
+
+#include <imgui.h>
 #include <rttr/registration>
 
 RTTR_REGISTRATION
@@ -16,9 +19,9 @@ RTTR_REGISTRATION
 		.property("Name", &C_Material::m_Name)
 		.property("Color", &C_Material::m_Color)
 		.property_readonly("Roughness", &C_Material::GetRoughness)
-		.property_readonly("ColorMap", &C_Material::m_ColorMap)
-		.property_readonly("NormalMap", &C_Material::m_NormalMap)
-		.property_readonly("RoughnessMap", &C_Material::m_RoughnessMap)
+		.property("ColorMap", &C_Material::GetColorMapPath, &C_Material::SetColorMapPath)
+		.property("NormalMap", &C_Material::GetNormalMapPath, &C_Material::SetNormalMapPath)
+		.property("RoughnessMap", &C_Material::GetRoughnessMapPath, &C_Material::SetRoughnessMapPath)
 		.property("Shininess", &C_Material::GetShininess, &C_Material::SetShininess);
 
 	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_Material>>();
@@ -114,6 +117,13 @@ void C_Material::SetNormalMap(std::shared_ptr<I_DeviceTexture> texture)
 }
 
 //=================================================================================
+void C_Material::SetNormalMapPath(const std::filesystem::path& path)
+{
+	auto& rm	   = Core::C_ResourceManager::Instance();
+	m_NormalMapRes = rm.LoadResource<TextureResource>(path);
+}
+
+//=================================================================================
 void C_Material::SetRoughnessMap(std::shared_ptr<I_DeviceTexture> texture)
 {
 	m_Roughness	   = 1.0f;
@@ -124,6 +134,13 @@ void C_Material::SetRoughnessMap(std::shared_ptr<I_DeviceTexture> texture)
 }
 
 //=================================================================================
+void C_Material::SetRoughnessMapPath(const std::filesystem::path& path)
+{
+	auto& rm	   = Core::C_ResourceManager::Instance();
+	m_RoughnessRes = rm.LoadResource<TextureResource>(path);
+}
+
+//=================================================================================
 void C_Material::SetColorMap(std::shared_ptr<I_DeviceTexture> texture)
 {
 	m_ColorMap	  = texture;
@@ -131,6 +148,13 @@ void C_Material::SetColorMap(std::shared_ptr<I_DeviceTexture> texture)
 	m_Textures[0] = GUI::C_Texture(m_ColorMap);
 	SetTextureCB();
 	m_Changed = true;
+}
+
+//=================================================================================
+void C_Material::SetColorMapPath(const std::filesystem::path& path)
+{
+	auto& rm	  = Core::C_ResourceManager::Instance();
+	m_ColorMapRes = rm.LoadResource<TextureResource>(path);
 }
 
 //=================================================================================
@@ -156,6 +180,30 @@ void C_Material::SetTextureCB()
 	m_Textures[0].SetOnTextureCleanCB([&]() { SetColorMap(nullptr); });
 	m_Textures[1].SetOnTextureCleanCB([&]() { SetNormalMap(nullptr); });
 	m_Textures[2].SetOnTextureCleanCB([&]() { SetRoughnessMap(nullptr); });
+}
+
+//=================================================================================
+const std::filesystem::path& C_Material::GetColorMapPath() const
+{
+	if (m_ColorMapRes)
+		return m_ColorMapRes.GetResource().GetFilepath();
+	return {};
+}
+
+//=================================================================================
+const std::filesystem::path& C_Material::GetNormalMapPath() const
+{
+	if (m_NormalMapRes)
+		return m_NormalMapRes.GetResource().GetFilepath();
+	return {};
+}
+
+//=================================================================================
+const std::filesystem::path& C_Material::GetRoughnessMapPath() const
+{
+	if (m_RoughnessRes)
+		return m_RoughnessRes.GetResource().GetFilepath();
+	return {};
 }
 
 } // namespace GLEngine::Renderer

@@ -51,7 +51,7 @@ void C_XMLSerializer::WriteProperty(const rttr::property& prop, const rttr::inst
 		GLE_ASSERT(type.is_pointer(), "Cannot dereference {}", type);
 		type = type.get_raw_type();
 	}
-	if (IsAtomicType(type))
+	if (IsAtomicType(type) && IsEmpty(type, propValue) == false)
 	{
 		WriteAtomics(type, propValue, parent.append_attribute(prop.get_name().to_string().c_str()));
 	}
