@@ -70,12 +70,14 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 				}
 				else
 				{
-					CORE_LOG(E_Level::Warning, E_Context::Core, "Missing attribute for property {}.", prop);
+					if (HasMetadataMember<SerializationCls::MandatoryProperty>(prop))
+						CORE_LOG(E_Level::Warning, E_Context::Core, "Missing attribute for property {}.", prop);
 				}
 			}
 			else
 			{
-				CORE_LOG(E_Level::Warning, E_Context::Core, "Missing attribute for property {}.", prop);
+				if (HasMetadataMember<SerializationCls::MandatoryProperty>(prop))
+					CORE_LOG(E_Level::Warning, E_Context::Core, "Missing attribute for property {}.", prop);
 			}
 		}
 	}

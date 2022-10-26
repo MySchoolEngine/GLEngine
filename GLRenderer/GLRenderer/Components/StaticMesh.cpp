@@ -21,6 +21,7 @@
 #include <Core/Resources/ResourceManager.h>
 
 #include <Utils/Parsing/MaterialParser.h>
+#include <Utils/Reflection/Metadata.h>
 
 #include <pugixml.hpp>
 
@@ -30,6 +31,7 @@
 RTTR_REGISTRATION
 {
 	using namespace GLEngine::GLRenderer::Components;
+	using namespace Utils::Reflection;
 	rttr::registration::class_<C_StaticMeshBuilder>("C_StaticMeshBuilder")
 		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
 		.method("Build", &C_StaticMeshBuilder::Build);
@@ -39,6 +41,9 @@ RTTR_REGISTRATION
 		.constructor<std::string, std::string_view, std::shared_ptr<GLEngine::Entity::I_Entity>>()
 		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
 		.property("MeshFile", &C_StaticMesh::GetMeshFile, &C_StaticMesh::SetMeshFile)
+		(
+			RegisterMetamember<SerializationCls::MandatoryProperty>(true)
+		)
 		.property("Material", &C_StaticMesh::m_Material)
 		.property("Shader", &C_StaticMesh::GetShader, &C_StaticMesh::SetShader)
 		.property("ShadowPassShader", &C_StaticMesh::GetShadowShader, &C_StaticMesh::SetShadowShader);

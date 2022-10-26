@@ -145,10 +145,12 @@ enum class SerializationCls
 {
   NoSerialize,
   DerefSerialize, // dereference before serialization
+  MandatoryProperty,
 };
 REGISTER_META_CLASS(SerializationCls, Metatype);
 REGISTER_META_MEMBER_TYPE(SerializationCls::NoSerialize, bool);
 REGISTER_META_MEMBER_TYPE(SerializationCls::DerefSerialize, bool);
+REGISTER_META_MEMBER_TYPE(SerializationCls::MandatoryProperty, bool);
 
 namespace UI
 {
