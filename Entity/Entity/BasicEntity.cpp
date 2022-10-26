@@ -82,6 +82,7 @@ glm::vec3 C_BasicEntity::GetPosition() const
 //=================================================================================
 void C_BasicEntity::AfterDeserialize()
 {
+	CORE_LOG(E_Level::Error, E_Context::Core, "Entity '{}' deserialized", m_Name);
 	auto& compManager = Entity::C_ComponentManager::Instance();
 	for (auto& comp : *m_Components)
 	{

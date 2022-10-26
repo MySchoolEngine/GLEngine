@@ -34,7 +34,6 @@ I_Entity::I_Entity(std::string name)
 	, m_Components(new std::remove_pointer<decltype(m_Components)>::type)
 	, m_ID(NextGUID())
 {
-	CORE_LOG(E_Level::Info, E_Context::Entity, "Entity '{}' created.", m_Name);
 }
 
 //=================================================================================

@@ -98,6 +98,7 @@ void C_EntityManager::ClearLevel()
 //=================================================================================
 void C_EntityManager::AddEntity(std::shared_ptr<I_Entity> entity)
 {
+	CORE_LOG(E_Level::Info, E_Context::Entity, "Entity '{}' added to the world.", entity->GetName());
 	m_Entities.push_back(entity);
 }
 
