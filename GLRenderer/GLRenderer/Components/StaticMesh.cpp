@@ -247,7 +247,10 @@ std::string C_StaticMesh::GetShadowShader() const
 void C_StaticMesh::SetMeshFile(const std::filesystem::path meshfile)
 {
 	auto& rm	   = Core::C_ResourceManager::Instance();
-	m_MeshResource = rm.LoadResource<Renderer::MeshResource>(std::filesystem::path("Models") / meshfile);
+	auto  path = meshfile;
+	if (meshfile.generic_string().find("Models") == std::string::npos)
+		path = std::filesystem::path("Models") / meshfile;
+	m_MeshResource = rm.LoadResource<Renderer::MeshResource>(path);
 }
 
 //=================================================================================

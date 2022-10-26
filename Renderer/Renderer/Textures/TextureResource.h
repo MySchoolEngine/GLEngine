@@ -16,8 +16,9 @@ public:
 	virtual bool Reload() override;
 
 	// First check GetState to avoid SEGFAULTs
-	const I_TextureViewStorage& GetStorage() const;
-	I_TextureViewStorage&		GetStorage();
+	const I_TextureViewStorage&	 GetStorage() const;
+	I_TextureViewStorage&		 GetStorage();
+	const std::filesystem::path& GetFilepath() const { return m_Filepath; }
 
 private:
 	std::filesystem::path				  m_Filepath;
