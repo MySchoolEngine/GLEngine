@@ -1,7 +1,6 @@
 #pragma once
 
 #include <GUI/GUIPart.h>
-#include <GUI/Input/Vector.h>
 
 #include <Utils/BitField.h>
 
