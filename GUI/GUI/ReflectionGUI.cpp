@@ -7,95 +7,108 @@
 namespace GLEngine::GUI {
 
 //=================================================================================
-void DrawVec3(rttr::instance& obj, const rttr::property& prop)
+void DrawText(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	::ImGui::InputFloat3(GetMetadataMember<UI::Vec3::Name>(prop).c_str(), (float*)(prop.get_value(obj).convert<glm::vec3*>()));
+	::ImGui::Text(prop.get_value(obj).convert<std::string*>()->c_str());
 }
 
 //=================================================================================
-void DrawCheckbox(rttr::instance& obj, const rttr::property& prop)
+bool DrawVec3(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
-	
-	::ImGui::Checkbox(GetMetadataMember<UI::Checkbox::Name>(prop).c_str(), (prop.get_value(obj).convert<bool*>()));
+
+	return ::ImGui::InputFloat3(GetMetadataMember<UI::Vec3::Name>(prop).c_str(), (float*)(prop.get_value(obj).convert<glm::vec3*>()));
 }
 
 //=================================================================================
-void DrawSlider(rttr::instance& obj, const rttr::property& prop)
+bool DrawCheckbox(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	::ImGui::SliderFloat(GetMetadataMember<UI::Slider::Name>(prop).c_str(),
-		(prop.get_value(obj).convert<float*>()),
-		GetMetadataMember<UI::Slider::Min>(prop),
-		GetMetadataMember<UI::Slider::Max>(prop));
+	return ::ImGui::Checkbox(GetMetadataMember<UI::Checkbox::Name>(prop).c_str(), (prop.get_value(obj).convert<bool*>()));
 }
 
 //=================================================================================
-void DrawAngle(rttr::instance& obj, const rttr::property& prop)
+bool DrawSlider(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	::ImGui::SliderAngle(GetMetadataMember<UI::Angle::Name>(prop).c_str(),
-						(prop.get_value(obj).convert<float*>()), 
-						GetMetadataMember<UI::Angle::Min>(prop),
-						GetMetadataMember<UI::Angle::Max>(prop));
+	return ::ImGui::SliderFloat(GetMetadataMember<UI::Slider::Name>(prop).c_str(), (prop.get_value(obj).convert<float*>()), GetMetadataMember<UI::Slider::Min>(prop),
+								GetMetadataMember<UI::Slider::Max>(prop));
 }
 
 //=================================================================================
-void DrawColour(rttr::instance& obj, const rttr::property& prop)
+bool DrawAngle(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	::ImGui::ColorEdit3(GetMetadataMember<UI::Colour::Name>(prop).c_str(), (float*)(prop.get_value(obj).convert<glm::vec3*>()));
+	return ::ImGui::SliderAngle(GetMetadataMember<UI::Angle::Name>(prop).c_str(), (prop.get_value(obj).convert<float*>()), GetMetadataMember<UI::Angle::Min>(prop),
+								GetMetadataMember<UI::Angle::Max>(prop));
 }
 
 //=================================================================================
-void DrawAllPropertyGUI(rttr::instance& obj)
+bool DrawColour(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
+
+	return ::ImGui::ColorEdit3(GetMetadataMember<UI::Colour::Name>(prop).c_str(), (float*)(prop.get_value(obj).convert<glm::vec3*>()));
+}
+
+//=================================================================================
+std::vector<rttr::property> DrawAllPropertyGUI(rttr::instance& obj)
+{
+	using namespace ::Utils::Reflection;
+	std::vector<rttr::property> changedVals;
 
 	if (UI::IsTypeUIMetaClass<MetaGUI::CustomGUIWidget>(obj))
 	{
 		// custom widgets
 		GetMetadataMember<UI::CustomGUIWidget::DrawFunction>(obj)(obj);
-		return;
+		return {};
 	}
 
 	for (const auto& prop : obj.get_type().get_properties())
 	{
-		DrawPropertyGUI(obj, prop);
+		if (DrawPropertyGUI(obj, prop))
+		{
+			changedVals.emplace_back(prop);
+		}
 	}
+	return changedVals;
 }
 
 //=================================================================================
-void DrawPropertyGUI(rttr::instance& obj, const rttr::property& prop)
+bool DrawPropertyGUI(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 	if (UI::IsUIMetaclass<MetaGUI::Vec3>(prop))
 	{
-		DrawVec3(obj, prop);
+		return DrawVec3(obj, prop);
 	}
 	else if (UI::IsUIMetaclass<MetaGUI::Checkbox>(prop))
 	{
-		DrawCheckbox(obj, prop);
+		return DrawCheckbox(obj, prop);
 	}
 	else if (UI::IsUIMetaclass<MetaGUI::Colour>(prop))
 	{
-		DrawColour(obj, prop);
+		return DrawColour(obj, prop);
 	}
 	else if (UI::IsUIMetaclass<MetaGUI::Slider>(prop))
 	{
-		DrawSlider(obj, prop);
+		return DrawSlider(obj, prop);
 	}
 	else if (UI::IsUIMetaclass<MetaGUI::Angle>(prop))
 	{
-		DrawAngle(obj, prop);
+		return DrawAngle(obj, prop);
 	}
+	else if (UI::IsUIMetaclass<MetaGUI::Text>(prop))
+	{
+		DrawText(obj, prop);
+		return false;
+	}
+	return false;
 }
 
-}
-
-
+} // namespace GLEngine::GUI

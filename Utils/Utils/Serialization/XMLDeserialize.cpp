@@ -52,6 +52,7 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 	if (HasMetadataMember<SerializationCls::DerefSerialize>(prop))
 	{
 		GLE_ASSERT(type.is_pointer(), "Cannot dereference {}", type);
+		GLE_ASSERT(!IsAtomicType(type) || (IsAtomicType(type) && type != rttr::type::get<std::string>()), "Does not work, you probably wrnogly reflected data.");
 		type = type.get_raw_type();
 	}
 	if (IsAtomicType(type))
