@@ -18,7 +18,10 @@ public:
 	[[nodiscard]] std::unique_ptr<I_TextureViewStorage> loadTexture(const std::filesystem::path& path);
 	bool												SaveTexture(const std::filesystem::path& path, I_TextureViewStorage*);
 
+	std::mutex& GetMutex() { return m_Mutex; }
+
 private:
+	static std::mutex m_Mutex;
 	void		 Init();
 	unsigned int ilLoadTexture(const std::filesystem::path& path);
 	static bool	 _isILinitialized;

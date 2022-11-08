@@ -15,7 +15,8 @@
 
 namespace GLEngine::Renderer::Textures {
 //=================================================================================
-bool TextureLoader::_isILinitialized = false;
+bool	   TextureLoader::_isILinitialized = false;
+std::mutex TextureLoader::m_Mutex;
 
 //=================================================================================
 bool TextureLoader::loadTexture(const std::filesystem::path& path, MeshData::Texture& t)

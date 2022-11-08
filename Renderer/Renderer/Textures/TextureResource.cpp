@@ -10,6 +10,8 @@ namespace GLEngine::Renderer {
 bool TextureResource::Load(const std::filesystem::path& filepath)
 {
 	Textures::TextureLoader tl;
+
+	std::lock_guard lock(tl.GetMutex());
 	m_TextureStorage = tl.loadTexture(filepath);
 	m_Filepath		 = filepath;
 	return m_TextureStorage != nullptr;
