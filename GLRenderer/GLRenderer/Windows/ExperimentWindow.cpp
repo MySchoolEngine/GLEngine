@@ -112,6 +112,7 @@ void C_ExplerimentWindow::Update()
 	m_ImGUI->FrameBegin();
 	m_LayerStack.OnUpdate();
 	Core::C_ResourceManager::Instance().UpdatePendingLoads();
+	Renderer::C_MaterialManager::Instance().Update();
 
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.Reset();

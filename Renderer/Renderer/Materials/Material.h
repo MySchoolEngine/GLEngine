@@ -5,8 +5,6 @@
 #include <Renderer/Textures/DeviceTexture.h>
 #include <Renderer/Textures/TextureResource.h>
 
-#include <GUI/Input/Color.h>
-#include <GUI/Input/Slider.h>
 #include <GUI/Texture.h>
 
 #include <Core/Resources/ResourceHandle.h>
@@ -50,7 +48,7 @@ public:
 	void							 SetRoughnessMapPath(const std::filesystem::path&);
 
 	const std::string&		 GetName() const { return m_Name; }
-	const Colours::T_Colour& GetColor() const { return m_Color.GetValue(); }
+	const Colours::T_Colour& GetColor() const { return m_Color; }
 	void					 SetColor(const Colours::T_Colour& color) { m_Color = color; }
 	float					 GetRoughness() const { return m_Roughness; }
 
@@ -60,14 +58,16 @@ public:
 	void  SetShininess(float value) { m_Shininess = value; }
 	float GetShininess() const { return m_Shininess; }
 
-	void DrawGUI() const;
+	void DrawGUI();
+
+	void Update();
 
 private:
 	void SetTextureCB();
 
 	std::string										m_Name;
-	GUI::Input::C_ColorRBG							m_Color;
-	GUI::Input::C_Slider<float>						m_Roughness;
+	Colours::T_Colour								m_Color;
+	float											m_Roughness;
 	Core::ResourceHandle<Renderer::TextureResource> m_ColorMapRes;
 	Core::ResourceHandle<Renderer::TextureResource> m_NormalMapRes;
 	Core::ResourceHandle<Renderer::TextureResource> m_RoughnessRes;

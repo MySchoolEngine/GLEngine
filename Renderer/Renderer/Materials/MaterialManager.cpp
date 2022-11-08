@@ -6,6 +6,8 @@
 #include <GUI/GUIManager.h>
 #include <GUI/GUIWindow.h>
 
+#include <Utils/Serialization/XMLSerialize.h>
+
 #include <imgui.h>
 
 namespace GLEngine::Renderer {
@@ -25,6 +27,18 @@ C_MaterialManager& C_MaterialManager::Instance()
 
 //=================================================================================
 std::shared_ptr<C_Material> C_MaterialManager::GetMaterial(const std::string& name)
+{
+	auto material = std::find_if(m_Materials.begin(), m_Materials.end(), [&name](const auto& mat) { return mat->GetName() == name; });
+	if (material == m_Materials.end())
+	{
+		return nullptr;
+	}
+
+	return *material;
+}
+
+//=================================================================================
+std::shared_ptr<const C_Material> C_MaterialManager::GetMaterial(const std::string& name) const
 {
 	auto material = std::find_if(m_Materials.begin(), m_Materials.end(), [&name](const auto& mat) { return mat->GetName() == name; });
 	if (material == m_Materials.end())
@@ -61,6 +75,9 @@ GUID C_MaterialManager::SetupControls(GUI::C_GUIManager& guiMGR)
 			if (::ImGui::CollapsingHeader(material->GetName().c_str()))
 			{
 				material->DrawGUI();
+				if (::ImGui::Button("Save")) {
+					SaveMaterial(material->GetName(), std::filesystem::path("Materials") / (material->GetName() + ".xml"));
+				}
 			}
 		}
 	});
@@ -74,6 +91,21 @@ GUID C_MaterialManager::SetupControls(GUI::C_GUIManager& guiMGR)
 void C_MaterialManager::DestroyControls(GUI::C_GUIManager& guiMGR)
 {
 	guiMGR.DestroyWindow(m_Window);
+}
+
+//=================================================================================
+void C_MaterialManager::SaveMaterial(const std::string& name, const std::filesystem::path& path) const
+{
+	Utils::C_XMLSerializer s;
+	const auto			   materialToSave = GetMaterial(name);
+	const auto			   str			  = s.Serialize(materialToSave);
+	str.save_file(path.c_str());
+}
+
+//=================================================================================
+void C_MaterialManager::Update()
+{
+	ForEachMaterial([](std::shared_ptr<C_Material>& mat) { mat->Update(); });
 }
 
 } // namespace GLEngine::Renderer

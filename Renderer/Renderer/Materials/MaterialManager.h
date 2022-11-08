@@ -20,6 +20,7 @@ public:
 	[[nodiscard]] static C_MaterialManager& Instance();
 
 	[[nodiscard]] std::shared_ptr<C_Material> GetMaterial(const std::string& name);
+	[[nodiscard]] std::shared_ptr<const C_Material> GetMaterial(const std::string& name) const;
 	[[nodiscard]] std::shared_ptr<C_Material> RegisterMaterial(C_Material&& material);
 
 	using T_MaterialEnumerator = std::function<void(std::shared_ptr<C_Material>&)>;
@@ -27,6 +28,10 @@ public:
 
 	GUID SetupControls(GUI::C_GUIManager& guiMGR);
 	void DestroyControls(GUI::C_GUIManager& guiMGR);
+
+	void SaveMaterial(const std::string& name, const std::filesystem::path& path) const;
+
+	void Update();
 
 private:
 	C_MaterialManager();
