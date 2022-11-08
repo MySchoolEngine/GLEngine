@@ -188,4 +188,10 @@ C_Framebuffer C_GLDevice::GetDefualtRendertarget()
 	return C_Framebuffer("default", true);
 }
 
+//=================================================================================
+Renderer::I_Device::T_TextureHandle C_GLDevice::CreateTextureHandle(const Renderer::TextureDescriptor& desc)
+{
+	return std::make_shared<Textures::C_Texture>(desc);
+}
+
 } // namespace GLEngine::GLRenderer
