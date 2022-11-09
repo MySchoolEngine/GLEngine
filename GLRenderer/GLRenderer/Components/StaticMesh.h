@@ -42,6 +42,7 @@ public:
 				 std::string_view							  shader,
 				 std::shared_ptr<Entity::I_Entity>			  owner,
 				 const Renderer::MeshData::Material*		  material = nullptr);
+	~C_StaticMesh();
 	virtual void									  PerformDraw() const override;
 	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override;
 

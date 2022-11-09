@@ -3,6 +3,7 @@
 #include <Renderer/RendererApi.h>
 
 #include <GUI/LambdaPart.h>
+
 #include <Core/GUID.h>
 
 namespace GLEngine::GUI {
@@ -19,11 +20,12 @@ public:
 	void									operator=(C_MaterialManager const&) = delete;
 	[[nodiscard]] static C_MaterialManager& Instance();
 
-	[[nodiscard]] std::shared_ptr<C_Material> GetMaterial(const std::string& name);
+	[[nodiscard]] std::shared_ptr<C_Material>		GetMaterial(const std::string& name);
 	[[nodiscard]] std::shared_ptr<const C_Material> GetMaterial(const std::string& name) const;
-	[[nodiscard]] std::shared_ptr<C_Material> RegisterMaterial(C_Material&& material);
+	[[nodiscard]] std::shared_ptr<C_Material>		RegisterMaterial(C_Material&& material);
+	[[nodiscard]] void								UnregisterMaterial(std::shared_ptr<C_Material>& material);
 
-	using T_MaterialEnumerator = std::function<void(std::shared_ptr<C_Material>&)>;
+	using T_MaterialEnumerator = std::function<void(C_Material&)>;
 	void ForEachMaterial(const T_MaterialEnumerator& fn);
 
 	GUID SetupControls(GUI::C_GUIManager& guiMGR);

@@ -99,6 +99,14 @@ C_StaticMesh::C_StaticMesh()
 }
 
 //=================================================================================
+C_StaticMesh::~C_StaticMesh()
+{
+	auto& materialManager = Renderer::C_MaterialManager::Instance();
+	if (m_Material)
+		materialManager.UnregisterMaterial(m_Material);
+}
+
+//=================================================================================
 void C_StaticMesh::PerformDraw() const
 {
 	if (m_Mesh.empty() || !m_Shader || !m_MeshResource)
@@ -167,6 +175,9 @@ void C_StaticMesh::SetMaterial(const Renderer::MeshData::Material& material)
 //=================================================================================
 void C_StaticMesh::SetMaterial(std::shared_ptr<Renderer::C_Material> material)
 {
+	auto& materialManager = Renderer::C_MaterialManager::Instance();
+	if (m_Material)
+		materialManager.UnregisterMaterial(m_Material);
 	m_Material = material;
 }
 

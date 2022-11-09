@@ -143,12 +143,12 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shar
 	bool materialsHaveChanged = false;
 	{
 		int i = 0;
-		Renderer::C_MaterialManager::Instance().ForEachMaterial([&matUBO = m_MatterialsUBO, &i, &materialsHaveChanged](std::shared_ptr<Renderer::C_Material>& material) {
-			if (material->IsChanged())
+		Renderer::C_MaterialManager::Instance().ForEachMaterial([&matUBO = m_MatterialsUBO, &i, &materialsHaveChanged](Renderer::C_Material& material) {
+			if (material.IsChanged())
 			{
 				materialsHaveChanged = true;
-				matUBO->m_PhongMaterials[i].Update(*material.get());
-				material->CleanChangeFlag();
+				matUBO->m_PhongMaterials[i].Update(material);
+				material.CleanChangeFlag();
 			}
 			++i;
 		});

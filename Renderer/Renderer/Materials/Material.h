@@ -65,6 +65,8 @@ public:
 private:
 	void SetTextureCB();
 
+	friend class C_MaterialManager;
+
 	std::string										m_Name;
 	Colours::T_Colour								m_Color;
 	float											m_Roughness;
