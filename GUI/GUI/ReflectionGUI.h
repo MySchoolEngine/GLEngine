@@ -26,6 +26,7 @@
 
 namespace GLEngine::GUI {
 
-GUI_API_EXPORT void DrawAllPropertyGUI(rttr::instance& obj);
-GUI_API_EXPORT void DrawPropertyGUI(rttr::instance& obj, const rttr::property& prop);
+GUI_API_EXPORT std::vector<rttr::property> DrawAllPropertyGUI(rttr::instance& obj);
+// return true when value changes
+GUI_API_EXPORT bool DrawPropertyGUI(rttr::instance& obj, const rttr::property& prop);
 } // namespace GLEngine::GUI

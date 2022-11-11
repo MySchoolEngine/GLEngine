@@ -137,7 +137,8 @@ enum class MetaGUI
   Colour,
   Vec3,
   Checkbox,
-  CustomGUIWidget, //-> function<void(rttr::instance, rttr::property)>
+  Text,
+  CustomGUIWidget, //-> function<bool(rttr::instance, rttr::property)>
 };
 REGISTER_META_CLASS(MetaGUI, Metatype);
 
@@ -145,10 +146,12 @@ enum class SerializationCls
 {
   NoSerialize,
   DerefSerialize, // dereference before serialization
+  MandatoryProperty,
 };
 REGISTER_META_CLASS(SerializationCls, Metatype);
 REGISTER_META_MEMBER_TYPE(SerializationCls::NoSerialize, bool);
 REGISTER_META_MEMBER_TYPE(SerializationCls::DerefSerialize, bool);
+REGISTER_META_MEMBER_TYPE(SerializationCls::MandatoryProperty, bool);
 
 namespace UI
 {
@@ -159,6 +162,7 @@ template <> struct UIMetaclassToType<MetaGUI::Angle>	{ using type = float; };
 template <> struct UIMetaclassToType<MetaGUI::Colour>	{ using type = glm::vec3; };
 template <> struct UIMetaclassToType<MetaGUI::Vec3>		{ using type = glm::vec3; };
 template <> struct UIMetaclassToType<MetaGUI::Checkbox> { using type = bool; };
+template <> struct UIMetaclassToType<MetaGUI::Text>		{ using type = std::string; };
 //=================================================================================
 template <MetaGUI Class>
 [[nodiscard]] bool IsUIMetaclass(const rttr::property& prop)
@@ -169,7 +173,8 @@ template <MetaGUI Class>
 		// Those are actually compile time problems. So I do not include it into the result as it should be checked before committing.
 		GLE_ASSERT(prop.get_type().is_pointer(), "Property for UI needs to be rttr::policy::prop::bind_as_ptr in order to ImGui make work.");
 		// unfortunately, it is impossible to check this during registration
-		GLE_ASSERT(rttr::type::get<UIMetaclassToType_t<Class>*>() == prop.get_type(), "Property has wrong type");
+		GLE_ASSERT(rttr::type::get<UIMetaclassToType_t<Class>*>() == prop.get_type(), "Property has wrong type expected '{}' passed '{}'",
+				   rttr::type::get<UIMetaclassToType_t<Class>*>(), prop.get_type());
 	}
 	return isRightClass;
 }
@@ -210,6 +215,10 @@ enum class Checkbox
 	Name,
 };
 
+enum class Text
+{
+};
+
 enum class CustomGUIWidget
 {
 	DrawFunction,
@@ -233,6 +242,8 @@ REGISTER_META_MEMBER_TYPE(UI::Vec3::Name, std::string);
 
 REGISTER_META_CLASS(UI::Checkbox, MetaGUI);
 REGISTER_META_MEMBER_TYPE(UI::Checkbox::Name, std::string);
+
+REGISTER_META_CLASS(UI::Text, MetaGUI);
 
 REGISTER_META_CLASS(UI::CustomGUIWidget, MetaGUI); // for whole types
 REGISTER_META_MEMBER_TYPE(UI::CustomGUIWidget::DrawFunction, std::function<void(rttr::instance&)>);

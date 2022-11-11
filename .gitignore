@@ -5,6 +5,9 @@
 *imgui.ini
 Makefile
 
+# Ignore compiler score
+compileData.scor*
+
 data/obj/*
 data/log.txt
 

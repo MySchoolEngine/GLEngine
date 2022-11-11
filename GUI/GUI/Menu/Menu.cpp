@@ -27,7 +27,7 @@ void C_Menu::Draw() const
 GUID C_Menu::AddMenuItem(T_GUIMenuItem menuItem)
 {
 	GUID guid = NextGUID();
-	m_MenuItems.emplace(guid, menuItem);
+	m_MenuItems.emplace_back(guid, menuItem);
 	return guid;
 }
 

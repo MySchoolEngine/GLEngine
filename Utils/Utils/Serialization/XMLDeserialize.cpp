@@ -31,7 +31,7 @@ rttr::variant C_XMLDeserializer::DeserializeNode(const pugi::xml_node& node, rtt
 {
 	using namespace ::Utils::Reflection;
 	const rttr::instance var2 = var.get_type().get_raw_type().is_wrapper() ? rttr::instance(var).get_wrapped_instance() : rttr::instance(var);
-	// CORE_LOG(E_Level::Error, E_Context::Core, "{}", var2.get_type());
+	//CORE_LOG(E_Level::Error, E_Context::Core, "{}", var2.get_type());
 
 	for (auto& prop : var2.get_type().get_properties())
 	{
@@ -52,6 +52,7 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 	if (HasMetadataMember<SerializationCls::DerefSerialize>(prop))
 	{
 		GLE_ASSERT(type.is_pointer(), "Cannot dereference {}", type);
+		GLE_ASSERT(!IsAtomicType(type) || (IsAtomicType(type) && type != rttr::type::get<std::string>()), "Does not work, you probably wrnogly reflected data.");
 		type = type.get_raw_type();
 	}
 	if (IsAtomicType(type))
@@ -70,12 +71,14 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 				}
 				else
 				{
-					CORE_LOG(E_Level::Warning, E_Context::Core, "Missing attribute for property {}.", prop);
+					if (HasMetadataMember<SerializationCls::MandatoryProperty>(prop))
+						CORE_LOG(E_Level::Warning, E_Context::Core, "Missing attribute for property {}.", prop);
 				}
 			}
 			else
 			{
-				CORE_LOG(E_Level::Warning, E_Context::Core, "Missing attribute for property {}.", prop);
+				if (HasMetadataMember<SerializationCls::MandatoryProperty>(prop))
+					CORE_LOG(E_Level::Warning, E_Context::Core, "Missing attribute for property {}.", prop);
 			}
 		}
 	}

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <GLRenderer/Mesh/StaticMeshResource.h>
-#include <GLRenderer/Textures/Texture.h>
 
 #include <Renderer/IRenderableComponent.h>
 #include <Renderer/Mesh/Loading/MeshResource.h>
@@ -26,9 +25,6 @@ namespace GLRenderer {
 namespace Shaders {
 class C_ShaderProgram;
 }
-namespace Textures {
-class C_Texture;
-}
 namespace Mesh {
 class C_StaticMeshResource;
 }
@@ -42,6 +38,7 @@ public:
 				 std::string_view							  shader,
 				 std::shared_ptr<Entity::I_Entity>			  owner,
 				 const Renderer::MeshData::Material*		  material = nullptr);
+	~C_StaticMesh();
 	virtual void									  PerformDraw() const override;
 	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override;
 

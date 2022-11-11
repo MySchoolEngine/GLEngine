@@ -9,6 +9,8 @@ public:
 	C_GLDevice();
 	[[nodiscard]] virtual bool AllocateTexture(Renderer::I_DeviceTexture& texture) override;
 	virtual void			   DestroyTexture(Renderer::I_DeviceTexture& texture) override;
+	virtual T_TextureHandle	   CreateTextureHandle(const Renderer::TextureDescriptor& desc) override;
+
 
 	C_Framebuffer* AllocateFramebuffer(const std::string_view name);
 	C_Framebuffer  GetDefualtRendertarget();
@@ -17,7 +19,7 @@ public:
 
 
 	[[nodiscard]] virtual bool AllocateSampler(Renderer::I_TextureSampler2D& texture) override;
-	virtual void DestroySampler(Renderer::I_TextureSampler2D& texture) override;
+	virtual void			   DestroySampler(Renderer::I_TextureSampler2D& texture) override;
 
 private:
 	[[nodiscard]] bool HasExtension(const std::string_view ext) const;

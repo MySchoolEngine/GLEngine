@@ -21,6 +21,7 @@
 #include <Core/Resources/ResourceManager.h>
 
 #include <Utils/Parsing/MaterialParser.h>
+#include <Utils/Reflection/Metadata.h>
 
 #include <pugixml.hpp>
 
@@ -30,6 +31,7 @@
 RTTR_REGISTRATION
 {
 	using namespace GLEngine::GLRenderer::Components;
+	using namespace Utils::Reflection;
 	rttr::registration::class_<C_StaticMeshBuilder>("C_StaticMeshBuilder")
 		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
 		.method("Build", &C_StaticMeshBuilder::Build);
@@ -39,6 +41,9 @@ RTTR_REGISTRATION
 		.constructor<std::string, std::string_view, std::shared_ptr<GLEngine::Entity::I_Entity>>()
 		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
 		.property("MeshFile", &C_StaticMesh::GetMeshFile, &C_StaticMesh::SetMeshFile)
+		(
+			RegisterMetamember<SerializationCls::MandatoryProperty>(true)
+		)
 		.property("Material", &C_StaticMesh::m_Material)
 		.property("Shader", &C_StaticMesh::GetShader, &C_StaticMesh::SetShader)
 		.property("ShadowPassShader", &C_StaticMesh::GetShadowShader, &C_StaticMesh::SetShadowShader);
@@ -91,6 +96,14 @@ C_StaticMesh::C_StaticMesh()
 		"Default"
 	};
 	SetMaterial(material);
+}
+
+//=================================================================================
+C_StaticMesh::~C_StaticMesh()
+{
+	auto& materialManager = Renderer::C_MaterialManager::Instance();
+	if (m_Material)
+		materialManager.UnregisterMaterial(m_Material);
 }
 
 //=================================================================================
@@ -162,6 +175,9 @@ void C_StaticMesh::SetMaterial(const Renderer::MeshData::Material& material)
 //=================================================================================
 void C_StaticMesh::SetMaterial(std::shared_ptr<Renderer::C_Material> material)
 {
+	auto& materialManager = Renderer::C_MaterialManager::Instance();
+	if (m_Material)
+		materialManager.UnregisterMaterial(m_Material);
 	m_Material = material;
 }
 
@@ -247,7 +263,10 @@ std::string C_StaticMesh::GetShadowShader() const
 void C_StaticMesh::SetMeshFile(const std::filesystem::path meshfile)
 {
 	auto& rm	   = Core::C_ResourceManager::Instance();
-	m_MeshResource = rm.LoadResource<Renderer::MeshResource>(std::filesystem::path("Models") / meshfile);
+	auto  path = meshfile;
+	if (meshfile.generic_string().find("Models") == std::string::npos)
+		path = std::filesystem::path("Models") / meshfile;
+	m_MeshResource = rm.LoadResource<Renderer::MeshResource>(path);
 }
 
 //=================================================================================
