@@ -6,8 +6,6 @@
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/Textures/TextureStorage.h>
 
-#include <GLRenderer/Textures/TextureManager.h>
-
 #include <GUI/ReflectionGUI.h>
 
 #include <Core/Application.h>
