@@ -18,7 +18,7 @@ public:
 
 private:
 	std::string					  m_Label;
-	std::map<GUID, T_GUIMenuItem> m_MenuItems;
+	std::vector<std::pair<GUID, T_GUIMenuItem>> m_MenuItems;
 };
 
 } // namespace GLEngine::GUI::Menu

@@ -40,8 +40,8 @@ protected:
 	GUID		 m_GUID;
 
 private:
-	std::map<GUID, T_GUIPartRef> m_Components;
-	std::map<GUID, T_GUIMenu>	 m_Menus;
+	std::vector<std::pair<GUID, T_GUIPartRef>> m_Components;
+	std::map<GUID, T_GUIMenu>				   m_Menus;
 };
 
 } // namespace GLEngine::GUI

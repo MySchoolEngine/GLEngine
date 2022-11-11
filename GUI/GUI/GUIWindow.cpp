@@ -65,14 +65,14 @@ bool C_Window::IsVisible() const
 GUID C_Window::AddComponent(C_Window::T_GUIPartRef component)
 {
 	GUID guid = NextGUID();
-	m_Components.emplace(guid, component);
+	m_Components.emplace_back(guid, component);
 	return guid;
 }
 
 //=================================================================================
 I_GUIPart* C_Window::GetComponent(GUID guid) const
 {
-	const auto& it = m_Components.find(guid);
+	const auto& it = std::find_if(m_Components.begin(), m_Components.end(), [&guid](const auto& pair) { return pair.first == guid; });
 	if (it != m_Components.end())
 	{
 		return &(it->second.get());
