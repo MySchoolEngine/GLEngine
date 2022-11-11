@@ -7,6 +7,15 @@
 namespace GLEngine::Renderer {
 
 //=================================================================================
+TextureResource::TextureResource()
+	: m_TextureStorage(nullptr)
+{
+}
+
+//=================================================================================
+TextureResource::~TextureResource() = default;
+
+//=================================================================================
 bool TextureResource::Load(const std::filesystem::path& filepath)
 {
 	Textures::TextureLoader tl;

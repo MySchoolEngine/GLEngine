@@ -1,7 +1,6 @@
 #pragma once
 
 #include <GLRenderer/Mesh/StaticMeshResource.h>
-#include <GLRenderer/Textures/Texture.h>
 
 #include <Renderer/IRenderableComponent.h>
 #include <Renderer/Mesh/Loading/MeshResource.h>
@@ -25,9 +24,6 @@ class C_Material;
 namespace GLRenderer {
 namespace Shaders {
 class C_ShaderProgram;
-}
-namespace Textures {
-class C_Texture;
 }
 namespace Mesh {
 class C_StaticMeshResource;

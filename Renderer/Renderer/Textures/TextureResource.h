@@ -11,6 +11,8 @@ class I_TextureViewStorage;
 class TextureResource : public Core::Resource {
 public:
 	DECLARE_RESOURCE_TYPE(TextureResource)
+	TextureResource();
+	~TextureResource();
 
 	virtual bool Load(const std::filesystem::path& filepath) override;
 	virtual bool Reload() override;
@@ -22,7 +24,7 @@ public:
 
 private:
 	std::filesystem::path				  m_Filepath;
-	std::unique_ptr<I_TextureViewStorage> m_TextureStorage = nullptr;
+	std::unique_ptr<I_TextureViewStorage> m_TextureStorage;
 };
 
 class RENDERER_API_EXPORT TextureLoader : public Core::ResourceLoader<TextureResource> {
