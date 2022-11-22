@@ -65,6 +65,7 @@ private:
 	void AddMandatoryWorldParts();
 	void OnAppInit();
 	void MouseSelect();
+	void RecreateAtmosphereFBO();
 
 	void sampleTime(double new_sample);
 

@@ -161,6 +161,10 @@ void C_ExplerimentWindow::Update()
 	// Atmosphere render
 	// ======
 	Renderer::I_DeviceTexture* HDRTexturePtr = nullptr;
+	if (!m_HDRFBOAtmosphere && m_World->GetEntity("atmosphere"))
+	{
+		RecreateAtmosphereFBO();
+	}
 	if (m_HDRFBOAtmosphere)
 	{
 		m_HDRFBO->Bind<E_FramebufferTarget::Read>();
@@ -479,14 +483,7 @@ void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 	// FBO for atmosphere
 	if (m_World->GetEntity("atmosphere"))
 	{
-		m_HDRFBOAtmosphere = std::unique_ptr<C_Framebuffer>(m_Device->AllocateFramebuffer("Atmosphere"));
-		const Renderer::TextureDescriptor HDRTextureDef{
-			"hdrTextureAtmosphere", GetWidth(), GetHeight(), Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::RGBA16f, false};
-		auto HDRTexture = std::make_shared<Textures::C_Texture>(HDRTextureDef);
-		m_Device->AllocateTexture(*HDRTexture.get());
-
-		HDRTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
-		m_HDRFBOAtmosphere->AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
+		RecreateAtmosphereFBO();
 	}
 	else
 	{
@@ -624,6 +621,19 @@ bool C_ExplerimentWindow::OnAppEvent(Core::C_AppEvent& event)
 bool C_ExplerimentWindow::CanClose() const
 {
 	return m_LayerStack.ReadyForDestroy();
+}
+
+//=================================================================================
+void C_ExplerimentWindow::RecreateAtmosphereFBO()
+{
+	m_HDRFBOAtmosphere = std::unique_ptr<C_Framebuffer>(m_Device->AllocateFramebuffer("Atmosphere"));
+	const Renderer::TextureDescriptor HDRTextureDef{
+		"hdrTextureAtmosphere", GetWidth(), GetHeight(), Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::RGBA16f, false};
+	auto HDRTexture = std::make_shared<Textures::C_Texture>(HDRTextureDef);
+	m_Device->AllocateTexture(*HDRTexture.get());
+
+	HDRTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
+	m_HDRFBOAtmosphere->AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
 }
 
 } // namespace GLEngine::GLRenderer::Windows
