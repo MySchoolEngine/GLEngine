@@ -53,7 +53,7 @@ void C_TerrainEntity::OnEvent(Core::I_Event& event)
 }
 
 //=================================================================================
-void C_TerrainEntity::Update()
+void C_TerrainEntity::Update(float dt)
 {
 	WholeTerrain([](T_TerrainPtr patch) { patch->UpdateStats(); });
 

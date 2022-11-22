@@ -40,7 +40,7 @@ public:
 	[[nodiscard]] virtual const glm::mat4& GetModelMatrix() const = 0;
 	[[nodiscard]] const std::string&	   GetName() const { return m_Name; };
 
-	virtual void Update(){};
+	virtual void Update(float dt){};
 	virtual void PostUpdate(){};
 
 	Physics::Primitives::S_AABB GetAABB() const;

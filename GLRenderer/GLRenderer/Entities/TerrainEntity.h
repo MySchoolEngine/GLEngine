@@ -26,7 +26,7 @@ public:
 	[[nodiscard]] virtual Entity::I_Entity::T_ComponentRange GetComponents(Entity::E_ComponentType type) const override;
 	virtual void											 OnEvent(Core::I_Event& event) override;
 
-	virtual void Update() override;
+	virtual void Update(float dt) override;
 
 	void AddPatch(T_TerrainPtr);
 	void AddPatch(glm::ivec2 coord);

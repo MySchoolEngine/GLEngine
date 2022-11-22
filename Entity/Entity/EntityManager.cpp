@@ -103,11 +103,11 @@ void C_EntityManager::AddEntity(std::shared_ptr<I_Entity> entity)
 }
 
 //=================================================================================
-void C_EntityManager::OnUpdate()
+void C_EntityManager::OnUpdate(float dt)
 {
 	for (auto& entity : m_Entities)
 	{
-		entity->Update();
+		entity->Update(dt);
 	}
 
 	for (auto& entity : m_Entities)

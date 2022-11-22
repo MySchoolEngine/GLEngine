@@ -33,7 +33,7 @@ public:
 	[[nodiscard]] const std::vector<std::shared_ptr<I_Entity>>& GetEntities() const;
 	void														ClearLevel();
 	void														AddEntity(std::shared_ptr<I_Entity> entity);
-	void														OnUpdate();
+	void														OnUpdate(float dt);
 	[[nodiscard]] Physics::Primitives::S_RayIntersection		Select(const Physics::Primitives::S_Ray& ray);
 
 	void								SetFilename(const std::filesystem::path& filename);

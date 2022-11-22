@@ -108,6 +108,7 @@ C_ExplerimentWindow::~C_ExplerimentWindow()
 //=================================================================================
 void C_ExplerimentWindow::Update()
 {
+	const float dt = (float)m_FrameTimer.getElapsedTimeFromLastQueryMilliseconds();
 	m_EditorLayer.SetCamera(m_CamManager.GetActiveCamera());
 	m_ImGUI->FrameBegin();
 	m_LayerStack.OnUpdate();
@@ -127,7 +128,7 @@ void C_ExplerimentWindow::Update()
 	glfwSwapInterval(m_VSync ? 1 : 0);
 	m_RayTraceWindow->DebugDraw(&C_DebugDraw::Instance());
 
-	m_World->OnUpdate();
+	m_World->OnUpdate(dt);
 
 	glfwMakeContextCurrent(m_Window);
 
@@ -233,7 +234,7 @@ void C_ExplerimentWindow::Update()
 	m_renderer->Commit();
 	m_renderer->ClearCommandBuffers();
 	glfwSwapBuffers(m_Window);
-	sampleTime(float(m_FrameTimer.getElapsedTimeFromLastQueryMilliseconds()));
+	sampleTime(dt);
 }
 
 //=================================================================================
@@ -534,7 +535,7 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 			auto  playerCamera = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
 			playerCamera->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
 			playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
-			playerCamera->Update();
+			playerCamera->Update(0.f);
 			player->AddComponent(playerCamera);
 		}
 		auto camIt = player->GetComponents(Entity::E_ComponentType::Camera).begin();

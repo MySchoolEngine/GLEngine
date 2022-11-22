@@ -24,7 +24,6 @@ FreelookCamera::FreelookCamera(std::shared_ptr<Entity::I_Entity>& owner)
 	, m_Flags()
 	, _yaw(0)
 	, _pitch(0)
-	, _timer()
 	, _position(glm::vec3(0))
 	, _up(glm::vec3(0, 1, 0))
 	, _left(glm::vec3(1, 0, 0))
@@ -37,7 +36,6 @@ FreelookCamera::FreelookCamera(std::shared_ptr<Entity::I_Entity>& owner)
 	, _viewMatrix(glm::lookAt(_position, _position + _view, _up))
 	, _projectionMatrix(glm::mat4(1.f))
 {
-	_timer.reset();
 	CreateProjection();
 	_ScreenToWorld = glm::inverse(_projectionMatrix * _viewMatrix);
 }
@@ -149,10 +147,8 @@ void FreelookCamera::handleInputMessage(CameraMessage msg)
 }
 
 //=================================================================================
-void FreelookCamera::Update()
+void FreelookCamera::Update(float dt)
 {
-	float t = (float)_timer.getElapsedTimeFromLastQuerySeconds();
-
 	glm::mat4 m = glm::mat4(1);
 	if (_yaw != 0 || _pitch != 0)
 	{
@@ -169,17 +165,17 @@ void FreelookCamera::Update()
 
 	// Move camera position
 	if (m_Flags.CheckFlag(CameraDirectionFlags::CAMERA_FORWARD_BIT))
-		_position += _cameraMovementSpeed * t * _view; // forward
+		_position += _cameraMovementSpeed * dt * _view; // forward
 	if (m_Flags.CheckFlag(CameraDirectionFlags::CAMERA_BACKWARD_BIT))
-		_position -= _cameraMovementSpeed * t * _view; // back
+		_position -= _cameraMovementSpeed * dt * _view; // back
 	if (m_Flags.CheckFlag(CameraDirectionFlags::CAMERA_LEFT_BIT))
-		_position += _cameraMovementSpeed * t * _left; // left
+		_position += _cameraMovementSpeed * dt * _left; // left
 	if (m_Flags.CheckFlag(CameraDirectionFlags::CAMERA_RIGHT_BIT))
-		_position -= _cameraMovementSpeed * t * _left; // right
+		_position -= _cameraMovementSpeed * dt * _left; // right
 	if (m_Flags.CheckFlag(CameraDirectionFlags::CAMERA_UP_BIT))
-		_position += _cameraMovementSpeed * t * glm::vec3(0, 1, 0); // up
+		_position += _cameraMovementSpeed * dt * glm::vec3(0, 1, 0); // up
 	if (m_Flags.CheckFlag(CameraDirectionFlags::CAMERA_DOWN_BIT))
-		_position -= _cameraMovementSpeed * t * glm::vec3(0, 1, 0); // down
+		_position -= _cameraMovementSpeed * dt * glm::vec3(0, 1, 0); // down
 
 	// Update view matrix
 	_viewMatrix	   = glm::lookAt(_position, _position + _view, _up);

@@ -39,11 +39,11 @@ C_BasicEntity::~C_BasicEntity()
 }
 
 //=================================================================================
-void C_BasicEntity::Update()
+void C_BasicEntity::Update(float dt)
 {
 	for (auto& comp : *m_Components)
 	{
-		comp.second->Update();
+		comp.second->Update(dt);
 	}
 }
 

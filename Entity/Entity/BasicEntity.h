@@ -16,7 +16,7 @@ public:
 	explicit C_BasicEntity();
 	virtual ~C_BasicEntity();
 
-	virtual void Update() override;
+	virtual void Update(float dt) override;
 	virtual void PostUpdate() override;
 
 	//================================================================================
