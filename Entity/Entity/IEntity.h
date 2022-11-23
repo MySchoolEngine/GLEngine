@@ -19,6 +19,7 @@ enum class E_ComponentType
 	Graphical,
 	Light,
 	Camera,
+	Particle,
 };
 
 class ENTITY_API_EXPORT I_Entity : public Core::I_EventReciever {
