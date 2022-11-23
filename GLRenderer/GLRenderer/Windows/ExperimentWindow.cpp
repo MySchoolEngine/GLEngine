@@ -28,6 +28,7 @@
 #include <GLRenderer/Windows/RayTrace.h>
 
 #include <Renderer/Cameras/OrbitalCamera.h>
+#include <Renderer/Particles/ParticlesEffect.h>
 #include <Renderer/Lights/SunLight.h>
 #include <Renderer/Materials/MaterialManager.h>
 #include <Renderer/Mesh/Loading/MeshResource.h>
@@ -128,7 +129,9 @@ void C_ExplerimentWindow::Update()
 	glfwSwapInterval(m_VSync ? 1 : 0);
 	m_RayTraceWindow->DebugDraw(&C_DebugDraw::Instance());
 
-	m_World->OnUpdate(dt);
+	m_World->OnUpdate(dt / 1000.f);
+
+	m_Particles->DebugDraw(&C_DebugDraw::Instance());
 
 	glfwMakeContextCurrent(m_Window);
 
@@ -539,6 +542,10 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 		m_CamManager.ActivateCamera(std::static_pointer_cast<Renderer::I_CameraComponent>(*camIt));
 		++camIt;
 		m_CamManager.SetDebugCamera(std::static_pointer_cast<Renderer::I_CameraComponent>(*camIt));
+
+		
+		m_Particles = std::make_shared<Renderer::C_ParticleEffect>(player);
+		player->AddComponent(m_Particles);
 	}
 
 
