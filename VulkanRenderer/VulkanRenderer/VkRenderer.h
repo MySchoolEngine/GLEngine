@@ -5,6 +5,7 @@
 #include <Core/CoreMacros.h>
 
 namespace GLEngine::VkRenderer {
+class C_VkDevice;
 
 struct SwapChainSupportDetails {
 	VkSurfaceCapabilitiesKHR		capabilities;
@@ -36,7 +37,7 @@ public:
 	//=================================================================================
 	virtual Renderer::E_PassType GetCurrentPassType() const override;
 
-	VkDevice_T* GetDeviceVK() { return m_Device; }
+	VkDevice_T* GetDeviceVK();
 	virtual Renderer::I_Device& GetDevice() override;
 
 	SwapChainSupportDetails QuerySwapChainSupport(VkSurfaceKHR surface);
@@ -47,11 +48,12 @@ private:
 	std::vector<Renderer::I_Renderer::T_CommandPtr>* m_CommandQueue;
 
 	VkInstance_T*		m_Instance;
-	VkDevice_T*			m_Device;
 	VkPhysicalDevice_T* m_GPU;
 	uint32_t			m_GraphicsFamilyIndex;
 	uint32_t			m_ComputeFamilyIndex;
 	uint32_t			m_PresentingFamilyIndex;
+
+	C_VkDevice* m_Device;
 
 	VkQueue m_graphicsQueue;
 	VkQueue m_presentQueue;

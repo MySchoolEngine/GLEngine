@@ -1,10 +1,12 @@
 #include <GLRendererStdafx.h>
 
+#include <GLRenderer/Buffers/GLBuffer.h>
+#include <GLRenderer/FBO/Framebuffer.h>
+#include <GLRenderer/Helpers/BufferHelpers.h>
 #include <GLRenderer/Helpers/TextureHelpers.h>
 #include <GLRenderer/OGLDevice.h>
 #include <GLRenderer/Textures/Sampler.h>
 #include <GLRenderer/Textures/Texture.h>
-#include <GLRenderer/FBO/Framebuffer.h>
 
 #include <Renderer/Textures/DeviceTexture.h>
 #include <Renderer/Textures/TextureDefinitions.h>
@@ -96,12 +98,12 @@ bool C_GLDevice::AllocateTexture(Renderer::I_DeviceTexture& texture)
 		textureGL->SetParameter(GL_TEXTURE_BASE_LEVEL, 0);
 		textureGL->SetParameter(GL_TEXTURE_MAX_LEVEL, descriptor.m_Levels - 1);
 
-		AllocateSampler(textureGL->m_DefaultSampler); // TODO once proper sampler system ready delete this
+		if (!AllocateSampler(textureGL->m_DefaultSampler)) // TODO once proper sampler system ready delete this
+			return false;
 		return true;
 	}
 	case Renderer::E_TextureType::TEXTURE_2D_ARRAY: {
-		glTextureStorage3D(texID, descriptor.m_Levels, GetOpenGLInternalFormat(descriptor.format), 
-						   static_cast<GLsizei>(descriptor.width), static_cast<GLsizei>(descriptor.height),
+		glTextureStorage3D(texID, descriptor.m_Levels, GetOpenGLInternalFormat(descriptor.format), static_cast<GLsizei>(descriptor.width), static_cast<GLsizei>(descriptor.height),
 						   static_cast<GLsizei>(descriptor.m_NumTextures));
 		memory = descriptor.width * descriptor.height * Renderer::GetNumberChannels(descriptor.format) * SizeOfGLType(OpenGLUnderlyingType(descriptor.format))
 				 * descriptor.m_NumTextures;
@@ -111,7 +113,8 @@ bool C_GLDevice::AllocateTexture(Renderer::I_DeviceTexture& texture)
 		textureGL->SetParameter(GL_TEXTURE_BASE_LEVEL, 0);
 		textureGL->SetParameter(GL_TEXTURE_MAX_LEVEL, descriptor.m_Levels - 1);
 
-		AllocateSampler(textureGL->m_DefaultSampler); // TODO once proper sampler system ready delete this
+		if (!AllocateSampler(textureGL->m_DefaultSampler)) // TODO once proper sampler system ready delete this
+			return false;
 		return true;
 	}
 	default:
@@ -141,6 +144,18 @@ void C_GLDevice::DestroyTexture(Renderer::I_DeviceTexture& texture)
 	textureGL->m_texture = 0;
 	DestroySampler(textureGL->m_DefaultSampler);
 	textureGL->m_IsPresentOnGPU = false;
+	// release memory coutnter?
+}
+
+//=================================================================================
+void C_GLDevice::DestroyBuffer(Renderer::I_Buffer& buffer)
+{
+	auto* bufferGL = reinterpret_cast<Buffers::C_GLBufferImpl*>(&buffer);
+	GLE_ASSERT(bufferGL, "Wrong API buffer passed in");
+
+	const auto& descriptor = buffer.GetDescriptor();
+	m_MemoryUsed -= descriptor.size;
+	glDeleteBuffers(1, &bufferGL->m_id);
 }
 
 //=================================================================================
@@ -192,6 +207,27 @@ C_Framebuffer C_GLDevice::GetDefualtRendertarget()
 Renderer::I_Device::T_TextureHandle C_GLDevice::CreateTextureHandle(const Renderer::TextureDescriptor& desc)
 {
 	return std::make_shared<Textures::C_Texture>(desc);
+}
+
+//=================================================================================
+bool C_GLDevice::AllocateBuffer(Renderer::I_Buffer& buffer)
+{
+	auto* bufferGL = reinterpret_cast<Buffers::C_GLBufferImpl*>(&buffer);
+	GLE_ASSERT(bufferGL, "Wrong API buffer passed in");
+	const auto& descriptor = buffer.GetDescriptor();
+
+	glGenBuffers(1, &bufferGL->m_id);
+	glNamedBufferData(bufferGL->m_id, descriptor.size, nullptr, GetBufferUsage(descriptor.dynamics, descriptor.access));
+
+	m_MemoryUsed += descriptor.size;
+
+	return true;
+}
+
+//=================================================================================
+Renderer::I_Device::T_BufferHandle C_GLDevice::CreateBufferHandle(const Renderer::BufferDescriptor& desc)
+{
+	return std::make_shared<Buffers::C_GLBufferImpl>(desc);
 }
 
 } // namespace GLEngine::GLRenderer

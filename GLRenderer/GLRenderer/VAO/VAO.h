@@ -2,6 +2,9 @@
 
 #include <GLRenderer/Buffers/GLBuffer.h>
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
+#include <GLRenderer/Helpers/BufferHelpers.h>
+
+#include <Renderer/Buffer.h>
 
 namespace GLEngine::GLRenderer::VAO {
 
@@ -55,10 +58,11 @@ public:
 		NameBuffer<INDEX>("indices");
 	}
 
-	template <int INDEX, GLenum BUFFERTYPE, class T, typename = T_EnableIndex<INDEX>> void SetBufferData(const std::vector<T>& data, bool dynamicDraw = false)
+	template <int INDEX, GLenum BUFFERTYPE, class T, typename = T_EnableIndex<INDEX>>
+	void SetBufferData(const std::vector<T>& data, const Renderer::BufferDynamics dynamics = Renderer::BufferDynamics::Static)
 	{
 		BindBuffer<INDEX>();
-		InnerSetBufferData<INDEX, BUFFERTYPE>(data, dynamicDraw);
+		InnerSetBufferData<INDEX, BUFFERTYPE>(data, dynamics);
 		m_Buffers[INDEX]->unbind();
 	}
 
@@ -74,9 +78,10 @@ protected:
 	std::array<std::unique_ptr<Buffers::I_GLBufferBase>, BUFFERS> m_Buffers;
 
 private:
-	template <int INDEX, GLenum BUFFERTYPE, class T, typename = T_EnableIndex<INDEX>> void InnerSetBufferData(const std::vector<T>& data, bool dynamicDraw = false)
+	template <int INDEX, GLenum BUFFERTYPE, class T, typename = T_EnableIndex<INDEX>>
+	void InnerSetBufferData(const std::vector<T>& data, const Renderer::BufferDynamics dynamics = Renderer::BufferDynamics::Static)
 	{
-		const auto usage = dynamicDraw ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
+		const auto usage = GetBufferUsage(dynamics, Renderer::BufferAccess::Draw);
 		m_Buffers[INDEX]->AllocateMemory(data.size() * sizeof(T), usage, data.data());
 	}
 };

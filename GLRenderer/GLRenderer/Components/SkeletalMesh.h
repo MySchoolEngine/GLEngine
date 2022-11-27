@@ -28,7 +28,7 @@ class C_SkeletalMesh : public Renderer::I_RenderableComponent {
 public:
 	C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, std::string meshFile, std::string meshFolder = "Models");
 	virtual void PerformDraw() const override;
-	virtual void Update() override;
+	virtual void Update(float dt) override;
 
 	virtual void									  DebugDrawGUI() override;
 	virtual bool									  HasDebugDrawGUI() const override;

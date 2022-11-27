@@ -200,7 +200,7 @@ GLEngine::Physics::Primitives::S_AABB C_StaticMesh::GetAABB() const
 }
 
 //=================================================================================
-void C_StaticMesh::Update()
+void C_StaticMesh::Update(float dt)
 {
 	if (m_MeshResource && m_Mesh.empty())
 	{

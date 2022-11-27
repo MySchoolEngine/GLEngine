@@ -395,8 +395,8 @@ void C_DebugDraw::DrawMergedGeoms()
 			std::vector<glm::vec3> mergedColors(m_LinesColors);
 			mergedVertices.insert(mergedVertices.end(), m_PointsVertices.begin(), m_PointsVertices.end());
 			mergedColors.insert(mergedColors.end(), m_PointsColors.begin(), m_PointsColors.end());
-			m_VAOlines.SetBufferData<0, GL_ARRAY_BUFFER>(mergedVertices, true);
-			m_VAOlines.SetBufferData<1, GL_ARRAY_BUFFER>(mergedColors, true);
+			m_VAOlines.SetBufferData<0, GL_ARRAY_BUFFER>(mergedVertices, Renderer::BufferDynamics::Dynamic);
+			m_VAOlines.SetBufferData<1, GL_ARRAY_BUFFER>(mergedColors, Renderer::BufferDynamics::Dynamic);
 
 			const auto lineVertices	  = static_cast<GLsizei>(m_LinesVertices.size());
 			const auto pointsVertices = static_cast<GLsizei>(m_PointsVertices.size());

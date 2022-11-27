@@ -3,7 +3,6 @@
 #include <Renderer/ICameraComponent.h>
 
 #include <Utils/BitField.h>
-#include <Utils/HighResolutionTimer.h>
 
 // Button indicator
 // F.e. I have a "W" bound as a camera forward movement
@@ -76,7 +75,7 @@ public:
 	void resetButtons();
 
 	// Update method - call every time when camera data needs updating
-	virtual void Update() override;
+	virtual void Update(float dt) override;
 
 	// Inherited via I_Camera
 	// virtual void debugDraw() const override;
@@ -118,8 +117,6 @@ private:
 
 	Utils::C_BitField<CameraDirectionFlags> m_Flags;
 	float									_yaw, _pitch; // camera angles
-
-	Utils::HighResolutionTimer _timer;
 
 	glm::vec3 _position;
 	glm::vec3 _up;

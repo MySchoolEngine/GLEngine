@@ -19,6 +19,7 @@ enum class E_ComponentType
 	Graphical,
 	Light,
 	Camera,
+	Particle,
 };
 
 class ENTITY_API_EXPORT I_Entity : public Core::I_EventReciever {
@@ -40,7 +41,7 @@ public:
 	[[nodiscard]] virtual const glm::mat4& GetModelMatrix() const = 0;
 	[[nodiscard]] const std::string&	   GetName() const { return m_Name; };
 
-	virtual void Update(){};
+	virtual void Update(float dt){};
 	virtual void PostUpdate(){};
 
 	Physics::Primitives::S_AABB GetAABB() const;

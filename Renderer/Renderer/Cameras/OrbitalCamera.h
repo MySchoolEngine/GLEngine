@@ -47,7 +47,7 @@ public:
 	void adjustOrientation(float dx, float dy);
 
 	void		 DebugDraw();
-	virtual void Update() override;
+	virtual void Update(float dt) override;
 
 
 	[[nodiscard]] virtual float GetFar() const override { return _farZ; }

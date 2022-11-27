@@ -101,7 +101,7 @@ void C_SkeletalMesh::PerformDraw() const
 }
 
 //=================================================================================
-void C_SkeletalMesh::Update()
+void C_SkeletalMesh::Update(float dt)
 {
 	C_DebugDraw::Instance().DrawSkeleton(glm::vec3(1.0f, .0f, .0f), m_Skeleton);
 	m_AnimationProgress += .01f;

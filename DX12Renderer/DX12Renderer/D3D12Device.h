@@ -11,5 +11,7 @@ public:
 
 	bool AllocateSampler(Renderer::I_TextureSampler2D& texture) override;
 	void DestroySampler(Renderer::I_TextureSampler2D& texture) override;
+
+	bool AllocateBuffer(Renderer::I_Buffer& buffer) override;
 };
 } // namespace GLEngine::DX12Renderer

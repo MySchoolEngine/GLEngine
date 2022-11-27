@@ -55,7 +55,7 @@ public:
 
 	void SetMaterial(std::shared_ptr<Renderer::C_Material> material);
 
-	virtual void Update() override;
+	virtual void Update(float dt) override;
 
 	RTTR_ENABLE(Renderer::I_RenderableComponent);
 

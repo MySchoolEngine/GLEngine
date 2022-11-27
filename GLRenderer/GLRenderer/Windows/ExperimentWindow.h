@@ -31,6 +31,7 @@ class C_WindowResizedEvent;
 } // namespace GLEngine::Core
 namespace GLEngine::Renderer {
 class I_CameraComponent;
+class C_ParticleEffect;
 }
 
 namespace GLEngine::GLRenderer {
@@ -65,6 +66,7 @@ private:
 	void AddMandatoryWorldParts();
 	void OnAppInit();
 	void MouseSelect();
+	void RecreateAtmosphereFBO();
 
 	void sampleTime(double new_sample);
 
@@ -105,6 +107,8 @@ private:
 	std::unique_ptr<C_Framebuffer>	   m_HDRFBO;
 	std::unique_ptr<C_Framebuffer>	   m_HDRFBOAtmosphere;
 	std::unique_ptr<C_RenderInterface> m_RenderInterface;
+
+	std::shared_ptr<Renderer::C_ParticleEffect> m_Particles;
 
 	Editor::C_EditorLayer m_EditorLayer;
 };

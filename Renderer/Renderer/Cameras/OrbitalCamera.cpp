@@ -152,7 +152,7 @@ void C_OrbitalCamera::DebugDraw()
 }
 
 //=================================================================================
-void C_OrbitalCamera::Update()
+void C_OrbitalCamera::Update(float dt)
 {
 	const float x = _zoom * cos(_angleYRad) * cos(_angleXRad);
 	const float y = _zoom * sin(_angleYRad);
@@ -213,7 +213,7 @@ bool C_OrbitalCamera::OnKeyEvent(Core::C_KeyEvent& event)
 	if (event.GetKeyCode() == GLFW_KEY_DOWN)
 	{
 		adjustOrientation(0.0f, -m_ControlSpeed);
-		Update();
+		Update(0.f);
 		return true;
 	}
 	if (event.GetKeyCode() == GLFW_KEY_UP)
@@ -321,7 +321,7 @@ bool C_OrbitalCamera::OnMousePress(Core::C_MouseButtonPressed& event)
 			const glm::vec4 hit = glm::vec4(_pos, 1.0f) + glm::vec4(ray.direction, 1.0f) * intersect;
 
 			m_Transformation.SetTranslation(hit);
-			Update();
+			Update(0.f);
 			return true;
 		}
 	}
@@ -385,7 +385,7 @@ glm::mat4 C_OrbitalCamera::GetScreenToworldMatrix() const
 //=================================================================================
 void C_OrbitalCamera::AfterDeserialize()
 {
-	Update();
+	Update(0.f);
 }
 
 } // namespace GLEngine::Renderer::Cameras

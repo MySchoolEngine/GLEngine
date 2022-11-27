@@ -1,6 +1,7 @@
 #include <VulkanRendererStdafx.h>
 
 #include <VulkanRenderer/VkRenderer.h>
+#include <VulkanRenderer/VkDevice.h>
 
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
@@ -11,6 +12,7 @@ namespace GLEngine::VkRenderer {
 C_VkRenderer::C_VkRenderer(VkInstance instance, VkSurfaceKHR surface)
 	: m_CommandQueue(new std::remove_pointer<decltype(m_CommandQueue)>::type)
 	, m_Instance(instance)
+	, m_Device(nullptr)
 {
 	InitDevice(surface);
 }
@@ -18,7 +20,7 @@ C_VkRenderer::C_VkRenderer(VkInstance instance, VkSurfaceKHR surface)
 //=================================================================================
 C_VkRenderer::~C_VkRenderer()
 {
-	vkDestroyDevice(m_Device, nullptr);
+	delete m_Device;
 	delete m_CommandQueue;
 }
 
@@ -139,16 +141,18 @@ bool C_VkRenderer::InitDevice(VkSurfaceKHR surface)
 	device_create_info.enabledExtensionCount   = static_cast<uint32_t>(deviceExtensions.size());
 	device_create_info.ppEnabledExtensionNames = deviceExtensions.data();
 
-
-	auto ret = pfnCreateDevice(m_GPU, &device_create_info, nullptr, &m_Device);
+	VkDevice_T* device;
+	auto		ret = pfnCreateDevice(m_GPU, &device_create_info, nullptr, &device);
 	if (ret != VK_SUCCESS)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Core, "Vulkan device unable to initialize. Error code: '{}'", ret);
 		std::exit(EXIT_FAILURE);
 	}
 
-	vkGetDeviceQueue(m_Device, m_GraphicsFamilyIndex, 0, &m_graphicsQueue);
-	vkGetDeviceQueue(m_Device, m_PresentingFamilyIndex, 0, &m_presentQueue);
+	vkGetDeviceQueue(device, m_GraphicsFamilyIndex, 0, &m_graphicsQueue);
+	vkGetDeviceQueue(device, m_PresentingFamilyIndex, 0, &m_presentQueue);
+
+	m_Device = new C_VkDevice(device);
 
 	return true;
 }
@@ -235,7 +239,13 @@ void C_VkRenderer::AddTransferCommand(T_CommandPtr)
 //=================================================================================
 Renderer::I_Device& C_VkRenderer::GetDevice()
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	return *m_Device;
+}
+
+//=================================================================================
+VkDevice_T* C_VkRenderer::GetDeviceVK()
+{
+	return m_Device->GetDeviceVK();
 }
 
 } // namespace GLEngine::VkRenderer

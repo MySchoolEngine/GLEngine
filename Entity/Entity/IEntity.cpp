@@ -22,7 +22,8 @@ RTTR_REGISTRATION
 	rttr::registration::enumeration<E_ComponentType>("E_ComponentType")(
 		rttr::value("Graphical",	E_ComponentType::Graphical), 
 		rttr::value("Light",		E_ComponentType::Light),
-		rttr::value("Camera",		E_ComponentType::Camera)
+		rttr::value("Camera",		E_ComponentType::Camera),
+		rttr::value("Particle",		E_ComponentType::Particle)
 	);
 }
 

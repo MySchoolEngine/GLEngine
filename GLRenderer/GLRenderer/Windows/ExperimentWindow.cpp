@@ -28,6 +28,7 @@
 #include <GLRenderer/Windows/RayTrace.h>
 
 #include <Renderer/Cameras/OrbitalCamera.h>
+#include <Renderer/Particles/ParticlesEffect.h>
 #include <Renderer/Lights/SunLight.h>
 #include <Renderer/Materials/MaterialManager.h>
 #include <Renderer/Mesh/Loading/MeshResource.h>
@@ -108,6 +109,7 @@ C_ExplerimentWindow::~C_ExplerimentWindow()
 //=================================================================================
 void C_ExplerimentWindow::Update()
 {
+	const float dt = (float)m_FrameTimer.getElapsedTimeFromLastQueryMilliseconds();
 	m_EditorLayer.SetCamera(m_CamManager.GetActiveCamera());
 	m_ImGUI->FrameBegin();
 	m_LayerStack.OnUpdate();
@@ -127,7 +129,9 @@ void C_ExplerimentWindow::Update()
 	glfwSwapInterval(m_VSync ? 1 : 0);
 	m_RayTraceWindow->DebugDraw(&C_DebugDraw::Instance());
 
-	m_World->OnUpdate();
+	m_World->OnUpdate(dt / 1000.f);
+
+	m_Particles->DebugDraw(&C_DebugDraw::Instance());
 
 	glfwMakeContextCurrent(m_Window);
 
@@ -160,6 +164,10 @@ void C_ExplerimentWindow::Update()
 	// Atmosphere render
 	// ======
 	Renderer::I_DeviceTexture* HDRTexturePtr = nullptr;
+	if (!m_HDRFBOAtmosphere && m_World->GetEntity("atmosphere"))
+	{
+		RecreateAtmosphereFBO();
+	}
 	if (m_HDRFBOAtmosphere)
 	{
 		m_HDRFBO->Bind<E_FramebufferTarget::Read>();
@@ -233,7 +241,7 @@ void C_ExplerimentWindow::Update()
 	m_renderer->Commit();
 	m_renderer->ClearCommandBuffers();
 	glfwSwapBuffers(m_Window);
-	sampleTime(float(m_FrameTimer.getElapsedTimeFromLastQueryMilliseconds()));
+	sampleTime(dt);
 }
 
 //=================================================================================
@@ -478,14 +486,7 @@ void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 	// FBO for atmosphere
 	if (m_World->GetEntity("atmosphere"))
 	{
-		m_HDRFBOAtmosphere = std::unique_ptr<C_Framebuffer>(m_Device->AllocateFramebuffer("Atmosphere"));
-		const Renderer::TextureDescriptor HDRTextureDef{
-			"hdrTextureAtmosphere", GetWidth(), GetHeight(), Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::RGBA16f, false};
-		auto HDRTexture = std::make_shared<Textures::C_Texture>(HDRTextureDef);
-		m_Device->AllocateTexture(*HDRTexture.get());
-
-		HDRTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
-		m_HDRFBOAtmosphere->AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
+		RecreateAtmosphereFBO();
 	}
 	else
 	{
@@ -534,13 +535,17 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 			auto  playerCamera = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
 			playerCamera->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
 			playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
-			playerCamera->Update();
+			playerCamera->Update(0.f);
 			player->AddComponent(playerCamera);
 		}
 		auto camIt = player->GetComponents(Entity::E_ComponentType::Camera).begin();
 		m_CamManager.ActivateCamera(std::static_pointer_cast<Renderer::I_CameraComponent>(*camIt));
 		++camIt;
 		m_CamManager.SetDebugCamera(std::static_pointer_cast<Renderer::I_CameraComponent>(*camIt));
+
+		
+		m_Particles = std::make_shared<Renderer::C_ParticleEffect>(player);
+		player->AddComponent(m_Particles);
 	}
 
 
@@ -623,6 +628,19 @@ bool C_ExplerimentWindow::OnAppEvent(Core::C_AppEvent& event)
 bool C_ExplerimentWindow::CanClose() const
 {
 	return m_LayerStack.ReadyForDestroy();
+}
+
+//=================================================================================
+void C_ExplerimentWindow::RecreateAtmosphereFBO()
+{
+	m_HDRFBOAtmosphere = std::unique_ptr<C_Framebuffer>(m_Device->AllocateFramebuffer("Atmosphere"));
+	const Renderer::TextureDescriptor HDRTextureDef{
+		"hdrTextureAtmosphere", GetWidth(), GetHeight(), Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::RGBA16f, false};
+	auto HDRTexture = std::make_shared<Textures::C_Texture>(HDRTextureDef);
+	m_Device->AllocateTexture(*HDRTexture.get());
+
+	HDRTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
+	m_HDRFBOAtmosphere->AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
 }
 
 } // namespace GLEngine::GLRenderer::Windows

@@ -33,4 +33,10 @@ void C_D3D12Device::DestroySampler(Renderer::I_TextureSampler2D& texture)
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
+//=================================================================================
+bool C_D3D12Device::AllocateBuffer(Renderer::I_Buffer& buffer)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 } // namespace GLEngine::DX12Renderer
