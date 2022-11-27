@@ -83,7 +83,7 @@ void C_ParticleEffect::Update(float dt)
 //=================================================================================
 void C_ParticleEffect::SpawnParticle(Particle& particle)
 {
-	particle.position		  = m_Rnd.GetV3();
+	particle.position		  = UniformSampleSphere(m_Rnd.GetV2());
 	const glm::vec3 direction = UniformSampleHemisphere(m_Rnd.GetV2());
 	particle.velocity		  = glm::vec3{direction.x, direction.z, direction.y} * (m_MinSpead + (m_MaxSpeed - m_MinSpead) * m_Rnd.GetD());
 	particle.lifetime		  = 10 * m_Rnd.GetD();
