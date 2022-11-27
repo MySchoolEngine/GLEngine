@@ -21,6 +21,10 @@ public:
 	[[nodiscard]] virtual bool AllocateSampler(Renderer::I_TextureSampler2D& texture) override;
 	virtual void			   DestroySampler(Renderer::I_TextureSampler2D& texture) override;
 
+	bool		   AllocateBuffer(Renderer::I_Buffer& buffer) override;
+	T_BufferHandle CreateBufferHandle(const Renderer::BufferDescriptor& desc) override;
+	virtual void   DestroyBuffer(Renderer::I_Buffer& buffer) override;
+
 private:
 	[[nodiscard]] bool HasExtension(const std::string_view ext) const;
 

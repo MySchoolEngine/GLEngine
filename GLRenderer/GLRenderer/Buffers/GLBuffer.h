@@ -12,7 +12,31 @@
  */
 #pragma once
 
+#include <Renderer/Buffer.h>
+
+#include <GLRenderer/Helpers/BufferHelpers.h>
+
+namespace GLEngine::GLRenderer {
+class C_GLDevice;
+}
+
 namespace GLEngine::GLRenderer::Buffers {
+
+// TODO Rename once the others deleted
+class C_GLBufferImpl : public Renderer::I_Buffer {
+public:
+	C_GLBufferImpl(const Renderer::BufferDescriptor& desc)
+		: Renderer::I_Buffer(desc)
+	{
+	}
+
+	// missing part!
+	void bind() override { glBindBuffer(GetBufferUsage(m_Desc.type), m_id); }
+
+	friend class ::GLEngine::GLRenderer::C_GLDevice;
+protected:
+	GLuint m_id;
+};
 
 class I_GLBufferBase {
 public:
