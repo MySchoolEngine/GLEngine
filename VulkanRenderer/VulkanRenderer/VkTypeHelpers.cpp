@@ -60,4 +60,18 @@ VkFormat GetVkInternalFormat(const Renderer::E_TextureFormat format)
 	return VkFormat::VK_FORMAT_R8_SINT;
 }
 
+//=================================================================================
+VkBufferUsageFlagBits GetVkBufferUsage(const Renderer::E_BufferType type)
+{
+	switch (type)
+	{
+	case Renderer::VertexAttribute:
+		return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+	case Renderer::Uniform:
+		return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+	}
+	GLE_ASSERT(false, "Unknown type");
+	return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+}
+
 } // namespace GLEngine::VkRenderer
