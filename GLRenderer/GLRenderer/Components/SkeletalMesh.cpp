@@ -34,21 +34,24 @@ namespace GLEngine::GLRenderer::Components {
 C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, const std::filesystem::path& meshFile, const std::filesystem::path& meshFolder)
 	: Renderer::I_RenderableComponent(owner)
 	, m_RenderMesh(true, "Render mesh")
+	, m_RunAnimation(true, "Run animation")
+	, m_ColorMapGUI(m_ColorMap)
 	, m_Animation(0)
 	, m_AnimationProgress(.0f, .0f, 1.f, "Animation progress")
 	, m_TransformationUBO(nullptr)
 	, m_ColorMap(nullptr)
+	, m_triangles(0)
 {
+	m_ColorMapGUI.SetOnTextureCleanCB([&]() {
+		m_ColorMapRes = {};
+		m_ColorMap	  = nullptr;
+	});
 	Renderer::C_ColladaLoader sl;
 
 	std::string textureName;
 
-	Utils::HighResolutionTimer timer;
-	timer.reset();
-
 	Renderer::MeshData::Mesh		  mesh;
 	Renderer::MeshData::AnimationData animData;
-
 
 	if (!sl.addModelFromDAEFileToScene(meshFolder, meshFile, mesh, textureName, m_Skeleton, m_Animation, animData, m_ModelMatrix))
 	{
@@ -56,20 +59,7 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, const st
 		return;
 	}
 
-	// m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(mesh);
-
-	CORE_LOG(E_Level::Info, E_Context::Render, "Parsing skeleton file took {}ms", timer.getElapsedTimeFromLastQueryMilliseconds());
-
-	const std::filesystem::path texurePath = meshFolder / textureName;
-
-	// const auto escapeSequence = texurePath.generic_string().find("%20");
-	// if (escapeSequence != std::string::npos)
-	// {
-	// 	texurePath.replace(escapeSequence, 3, " ");
-	// }
-
-	auto& rm	  = Core::C_ResourceManager::Instance();
-	m_ColorMapRes = rm.LoadResource<Renderer::TextureResource>(texurePath);
+	SetColorMapPath(meshFolder / textureName);
 
 	// setup joint transforms
 	auto& UBOMan		= Buffers::C_UniformBuffersManager::Instance();
@@ -107,7 +97,9 @@ void C_SkeletalMesh::DebugDrawGUI()
 {
 	const static auto zeroVec = glm::vec4(0.f, 0.f, .0f, 1.f);
 	m_RenderMesh.Draw();
+	m_RunAnimation.Draw();
 	m_AnimationProgress.Draw();
+	m_ColorMapGUI.Draw();
 
 	std::function<void(const Renderer::S_Joint&)> DrawJointGUI;
 	DrawJointGUI = [&DrawJointGUI](const Renderer::S_Joint& joint) {
@@ -156,7 +148,7 @@ void C_SkeletalMesh::PerformDraw() const
 
 	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&, shader]() {
-			shader->SetUniform("modelMatrix", m_ModelMatrix * glm::rotate(-glm::half_pi<float>(), glm::vec3(1.f, .0f, .0f)));
+			shader->SetUniform("modelMatrix", m_ModelMatrix * glm::rotate(-glm::half_pi<float>(), glm::vec3(1.f, .0f, .0f)) * glm::scale(glm::vec3{0.1}));
 
 			m_VAO.bind();
 
@@ -194,13 +186,18 @@ void C_SkeletalMesh::Update()
 																	 .m_bStreamable = false});
 		device.AllocateTexture(*m_ColorMap.get());
 		m_ColorMap->SetTexData2D(0, (&storage));
+
+		m_ColorMapGUI = GUI::C_Texture(m_ColorMap);
 	}
 
 	C_DebugDraw::Instance().DrawSkeleton(glm::vec3(1.0f, .0f, .0f), m_Skeleton);
-	m_AnimationProgress += .01f;
-	if (m_AnimationProgress.GetValue() > 1.f)
+	if (m_RunAnimation)
 	{
-		m_AnimationProgress = 0.f;
+		m_AnimationProgress += .01f;
+		if (m_AnimationProgress.GetValue() > 1.f)
+		{
+			m_AnimationProgress = 0.f;
+		}
 	}
 }
 
@@ -208,6 +205,21 @@ void C_SkeletalMesh::Update()
 Physics::Primitives::S_AABB C_SkeletalMesh::GetAABB() const
 {
 	return m_AABB;
+}
+
+//=================================================================================
+void C_SkeletalMesh::SetColorMapPath(const std::filesystem::path& path)
+{
+	auto& rm	  = Core::C_ResourceManager::Instance();
+	m_ColorMapRes = rm.LoadResource<Renderer::TextureResource>(path);
+}
+
+//=================================================================================
+const std::filesystem::path& C_SkeletalMesh::GetColorMapPath() const
+{
+	if (m_ColorMapRes)
+		return m_ColorMapRes.GetResource().GetFilepath();
+	return {};
 }
 
 //=================================================================================

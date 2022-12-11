@@ -1,29 +1,22 @@
 #pragma once
 
-#include <GLRenderer/Mesh/StaticMeshResource.h>
+#include <GLRenderer/VAO/VAO.h>
 
 #include <Renderer/Animation/SkeletalAnimation.h>
 #include <Renderer/Animation/Skeleton.h>
 #include <Renderer/IRenderableComponent.h>
-#include <Renderer/Textures/TextureResource.h>
 #include <Renderer/Textures/DeviceTexture.h>
+#include <Renderer/Textures/TextureResource.h>
 
 #include <GUI/Input/CheckBoxValue.h>
 #include <GUI/Input/Slider.h>
+#include <GUI/Texture.h>
 
 #include <Core/Resources/ResourceHandle.h>
 
-namespace GLEngine::GLRenderer {
-namespace Buffers::UBO {
+namespace GLEngine::GLRenderer::Buffers::UBO {
 class C_JointTramsformsUBO;
-}
-namespace Mesh {
-class C_StaticMeshResource;
-}
-namespace Textures {
-class C_Texture;
-}
-} // namespace GLEngine::GLRenderer
+} // namespace GLEngine::GLRenderer::Buffers::UBO
 
 namespace GLEngine::GLRenderer::Components {
 
@@ -38,14 +31,18 @@ public:
 	virtual std::string_view						  GetDebugComponentName() const override;
 	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override;
 
+	void						 SetColorMapPath(const std::filesystem::path& path);
+	const std::filesystem::path& GetColorMapPath() const;
+
 public:
-	std::shared_ptr<Mesh::C_StaticMeshResource>			m_Mesh;
 	Core::ResourceHandle<Renderer::TextureResource>		m_ColorMapRes;
 	std::shared_ptr<Renderer::I_DeviceTexture>			m_ColorMap;
+	GUI::C_Texture										m_ColorMapGUI;
 	Renderer::C_Skeleton								m_Skeleton;
 	Renderer::C_SkeletalAnimation						m_Animation;
 	std::shared_ptr<Buffers::UBO::C_JointTramsformsUBO> m_TransformationUBO;
 	GUI::Input::C_CheckBoxValue							m_RenderMesh;
+	GUI::Input::C_CheckBoxValue							m_RunAnimation;
 	GUI::Input::C_Slider<float>							m_AnimationProgress;
 	Physics::Primitives::S_AABB							m_AABB;
 
