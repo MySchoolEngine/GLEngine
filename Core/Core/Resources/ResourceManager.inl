@@ -47,6 +47,7 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 				if (!loader)
 				{
 					CORE_LOG(E_Level::Error, E_Context::Core, "No loader specified for {}", filepath.extension());
+					return false;
 				}
 				const bool result = loader->LoadResource(filepath, resource);
 
