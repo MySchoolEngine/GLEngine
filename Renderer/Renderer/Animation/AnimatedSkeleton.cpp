@@ -3,7 +3,7 @@
 #include <Renderer/Animation/AnimatedSkeleton.h>
 #include <Renderer/Animation/Skeleton.h>
 
-namespace GLEngine::Renderer::Animation {
+namespace GLEngine::Renderer {
 
 //=================================================================================
 C_AnimatedSkeleton::C_AnimatedSkeleton(std::shared_ptr<C_Skeleotn>&& skeleton)

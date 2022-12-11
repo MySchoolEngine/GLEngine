@@ -4,7 +4,7 @@ namespace pugi {
 class xml_node;
 }
 
-namespace GLEngine::Renderer::Animation {
+namespace GLEngine::Renderer {
 struct C_VCount {
 public:
 	explicit C_VCount(const pugi::xml_node& vcount);
@@ -16,4 +16,4 @@ public:
 private:
 	std::stringstream m_IntStream;
 };
-} // namespace GLEngine::Renderer::Animation
+} // namespace GLEngine::Renderer

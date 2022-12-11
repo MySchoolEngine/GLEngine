@@ -189,7 +189,7 @@ void C_DebugDraw::DrawLines(const std::vector<glm::vec4>& pairs, const Colours::
 }
 
 //=================================================================================
-void C_DebugDraw::DrawBone(const glm::vec3& position, const Renderer::Animation::S_Joint& joint)
+void C_DebugDraw::DrawBone(const glm::vec3& position, const Renderer::S_Joint& joint)
 {
 	const auto		locTransformation = glm::inverse((joint.m_InverseBindTransfomr));
 	const glm::vec4 modelDest		  = (locTransformation * glm::vec4(0.f, 0.f, 0.0f, 1.f));
@@ -249,7 +249,7 @@ void C_DebugDraw::DrawBone(const glm::vec3& position, const Renderer::Animation:
 }
 
 //=================================================================================
-void C_DebugDraw::DrawSkeleton(const glm::vec3& root, const Renderer::Animation::C_Skeleton& skeleton)
+void C_DebugDraw::DrawSkeleton(const glm::vec3& root, const Renderer::C_Skeleton& skeleton)
 {
 	const auto		locTransformation = glm::inverse((skeleton.m_Root->m_InverseBindTransfomr));
 	const glm::vec4 modelDest		  = (locTransformation * glm::vec4(0.f, 0.f, 0.0f, 1.f));

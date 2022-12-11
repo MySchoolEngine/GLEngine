@@ -2,7 +2,7 @@
 
 #include <Editor/EditorApi.h>
 
-#include <Animation/AnimationTrack.h>
+#include <Renderer/Animation/AnimationTrack.h>
 
 struct ImDrawList;
 struct ImVec2;
@@ -16,7 +16,7 @@ public:
 
 private:
 	struct TrackData {
-		Animation::C_AnimationTrack<float> track;
+		Renderer::C_AnimationTrack<float> track;
 		std::string						   name;
 		unsigned int					   colour;
 		bool							   selected;

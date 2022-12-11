@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Animation/Timestamp.h>
+#include <Renderer/Animation/Timestamp.h>
 
-namespace GLEngine::Animation {
+namespace GLEngine::Renderer {
 template<class valT>
 struct S_AnimationFrame {
 public:

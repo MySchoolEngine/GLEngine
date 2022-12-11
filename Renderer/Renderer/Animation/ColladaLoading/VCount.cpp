@@ -4,7 +4,7 @@
 
 #include <pugixml.hpp>
 
-namespace GLEngine::Renderer::Animation {
+namespace GLEngine::Renderer {
 
 //=================================================================================
 C_VCount::C_VCount(const pugi::xml_node& vcount)
@@ -30,4 +30,4 @@ bool C_VCount::EndOfArray() const
 	return m_IntStream.rdbuf()->in_avail() == 0 || m_IntStream.eof();
 }
 
-} // namespace GLEngine::Renderer::Animation
+} // namespace GLEngine::Renderer

@@ -6,12 +6,12 @@
 
 #include <glm/gtx/quaternion.hpp>
 
-namespace GLEngine::Renderer::Animation {
+namespace GLEngine::Renderer {
 
 //=================================================================================
 // S_BoneKeyframe
 //=================================================================================
-S_BoneKeyframe::S_BoneKeyframe(const glm::mat4& matrix, GLEngine::Animation::S_Timestamp timestamp)
+S_BoneKeyframe::S_BoneKeyframe(const glm::mat4& matrix, S_Timestamp timestamp)
 	: m_Transform(matrix[3][0], matrix[3][1], matrix[3][2])
 	, m_Rotation(glm::quat_cast(matrix))
 	, m_Timestamp(timestamp)
@@ -19,7 +19,7 @@ S_BoneKeyframe::S_BoneKeyframe(const glm::mat4& matrix, GLEngine::Animation::S_T
 }
 
 //=================================================================================
-S_BoneKeyframe::S_BoneKeyframe(const glm::vec3& transformation, const glm::quat& rotation, GLEngine::Animation::S_Timestamp timestamp)
+S_BoneKeyframe::S_BoneKeyframe(const glm::vec3& transformation, const glm::quat& rotation, S_Timestamp timestamp)
 	: m_Transform(transformation)
 	, m_Rotation(rotation)
 	, m_Timestamp(timestamp)
@@ -50,7 +50,7 @@ void C_BoneTimeline::AddBoneKeyFrame(std::size_t index, S_BoneKeyframe&& keyfram
 }
 
 //=================================================================================
-S_BoneKeyframe C_BoneTimeline::Sample(GLEngine::Animation::S_Timestamp timestamp) const
+S_BoneKeyframe C_BoneTimeline::Sample(S_Timestamp timestamp) const
 {
 	GLE_ASSERT(!m_Timeline.empty(), "There is no keyframe in the animation");
 	// find first keyframe >= to given timestamp
@@ -78,4 +78,4 @@ S_BoneKeyframe C_BoneTimeline::Sample(GLEngine::Animation::S_Timestamp timestamp
 	return S_BoneKeyframe(glm::mix(previousKeyframe.m_Transform, nextKeyframe.m_Transform, percentageProgress),
 						  glm::slerp(previousKeyframe.m_Rotation, nextKeyframe.m_Rotation, percentageProgress), timestamp);
 }
-} // namespace GLEngine::Renderer::Animation
+} // namespace GLEngine::Renderer

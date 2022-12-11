@@ -14,11 +14,11 @@
 
 #include <pugixml.hpp>
 
-namespace GLEngine::Renderer::Animation {
+namespace GLEngine::Renderer {
 
 //=================================================================================
-bool C_ColladaLoader::addModelFromDAEFileToScene(const char*			  filepath,
-												 const char*			  filename,
+bool C_ColladaLoader::addModelFromDAEFileToScene(const std::filesystem::path&			  filepath,
+												 const std::filesystem::path&			  filename,
 												 MeshData::Mesh&		  oMesh,
 												 std::string&			  textureName,
 												 C_Skeleton&			  skeleton,
@@ -26,10 +26,7 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(const char*			  filepath,
 												 MeshData::AnimationData& animData,
 												 glm::mat4&				  transform)
 {
-	std::string name;
-	name.append(filepath);
-	name.append("/");
-	name.append(filename);
+	const std::filesystem::path name = filepath / filename;
 	CORE_LOG(E_Level::Info, E_Context::Core, "Loading dae file: {}", name);
 	pugi::xml_document doc;
 
@@ -467,4 +464,4 @@ void C_ColladaLoader::LoadAnimData(const pugi::xml_node& skinXML, std::vector<gl
 	}
 }
 
-} // namespace GLEngine::Renderer::Animation
+} // namespace GLEngine::Renderer

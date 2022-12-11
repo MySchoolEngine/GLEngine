@@ -1,14 +1,17 @@
 #pragma once
 
 #include <GLRenderer/Mesh/StaticMeshResource.h>
-#include <GLRenderer/Textures/Texture.h>
 
 #include <Renderer/Animation/SkeletalAnimation.h>
 #include <Renderer/Animation/Skeleton.h>
 #include <Renderer/IRenderableComponent.h>
+#include <Renderer/Textures/TextureResource.h>
+#include <Renderer/Textures/DeviceTexture.h>
 
 #include <GUI/Input/CheckBoxValue.h>
 #include <GUI/Input/Slider.h>
+
+#include <Core/Resources/ResourceHandle.h>
 
 namespace GLEngine::GLRenderer {
 namespace Buffers::UBO {
@@ -26,7 +29,7 @@ namespace GLEngine::GLRenderer::Components {
 
 class C_SkeletalMesh : public Renderer::I_RenderableComponent {
 public:
-	C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, std::string meshFile, std::string meshFolder = "Models");
+	C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, const std::filesystem::path& meshFile, const std::filesystem::path& meshFolder = "Models");
 	virtual void PerformDraw() const override;
 	virtual void Update() override;
 
@@ -37,9 +40,10 @@ public:
 
 public:
 	std::shared_ptr<Mesh::C_StaticMeshResource>			m_Mesh;
-	std::shared_ptr<Textures::C_Texture>				m_Texture;
-	Renderer::Animation::C_Skeleton						m_Skeleton;
-	Renderer::Animation::C_SkeletalAnimation			m_Animation;
+	Core::ResourceHandle<Renderer::TextureResource>		m_ColorMapRes;
+	std::shared_ptr<Renderer::I_DeviceTexture>			m_ColorMap;
+	Renderer::C_Skeleton								m_Skeleton;
+	Renderer::C_SkeletalAnimation						m_Animation;
 	std::shared_ptr<Buffers::UBO::C_JointTramsformsUBO> m_TransformationUBO;
 	GUI::Input::C_CheckBoxValue							m_RenderMesh;
 	GUI::Input::C_Slider<float>							m_AnimationProgress;

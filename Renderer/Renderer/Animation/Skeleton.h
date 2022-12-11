@@ -5,7 +5,7 @@
 
 #include <glm/gtc/quaternion.hpp>
 
-namespace GLEngine::Renderer::Animation {
+namespace GLEngine::Renderer {
 
 class RENDERER_API_EXPORT C_Skeleton {
 public:

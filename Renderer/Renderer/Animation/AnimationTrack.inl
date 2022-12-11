@@ -2,7 +2,7 @@
 
 #include <glm/gtx/type_trait.hpp>
 
-namespace GLEngine::Animation {
+namespace GLEngine::Renderer {
 
 //=================================================================================
 template <class valT> void C_AnimationTrack<valT>::AddKeyFrame(C_AnimationTrack<valT>::T_Frame&& keyframe)
@@ -126,4 +126,4 @@ template <class valT> constexpr std::size_t C_AnimationTrack<valT>::GetNumVariab
 		return 4;
 }
 
-} // namespace GLEngine::Animation
+} // namespace GLEngine::Renderer

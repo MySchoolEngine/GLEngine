@@ -1,11 +1,10 @@
 #pragma once
 
-#include <Animation/AnimationApi.h>
-#include <Animation/AnimationFrame.h>
+#include <Renderer/Animation/AnimationFrame.h>
+#include <Renderer/RendererApi.h>
 
-namespace GLEngine::Animation {
-template <class valT>
-class C_AnimationTrack {
+namespace GLEngine::Renderer {
+template <class valT> class C_AnimationTrack {
 	using T_Frame		  = S_AnimationFrame<valT>;
 	using T_Container	  = std::vector<T_Frame>;
 	using T_Iterator	  = typename T_Container::iterator;
@@ -38,6 +37,6 @@ private:
 	T_Container m_Timeline;
 };
 
-} // namespace GLEngine::Animation
+} // namespace GLEngine::Renderer
 
-#include <Animation/AnimationTrack.inl>
+#include <Renderer/Animation/AnimationTrack.inl>

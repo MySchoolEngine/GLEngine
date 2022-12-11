@@ -2,7 +2,7 @@
 
 #include <Renderer/Animation/Skeleton.h>
 
-namespace GLEngine::Renderer::Animation {
+namespace GLEngine::Renderer {
 
 //=================================================================================
 C_Skeleton::C_Skeleton() = default;

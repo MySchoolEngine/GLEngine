@@ -3,7 +3,7 @@
 #include <Renderer/Animation/AnimationStructures.h>
 #include <Renderer/Animation/IPose.h>
 
-namespace GLEngine::Renderer::Animation {
+namespace GLEngine::Renderer {
 /**
  * Represents sampled value of animation in given time.
  * Should come out of keyframe sampling, IK animation or similar systems
@@ -19,4 +19,4 @@ public:
 private:
 	std::vector<S_BoneKeyframe> m_keyFrame;
 };
-} // namespace GLEngine::Renderer::Animation
+} // namespace GLEngine::Renderer

@@ -4,7 +4,7 @@
 
 #include <pugixml.hpp>
 
-namespace GLEngine::Renderer::Animation {
+namespace GLEngine::Renderer {
 
 //=================================================================================
 S_FloatArray::S_FloatArray(const pugi::xml_node& floatArray)
@@ -21,4 +21,4 @@ bool S_FloatArray::EndOfArray() const
 	return m_Position >= m_NumFloats;
 }
 
-} // namespace GLEngine::Renderer::Animation
+} // namespace GLEngine::Renderer

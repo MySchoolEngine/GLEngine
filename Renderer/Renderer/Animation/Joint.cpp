@@ -2,7 +2,7 @@
 
 #include <Renderer/Animation/Joint.h>
 
-namespace GLEngine::Renderer::Animation {
+namespace GLEngine::Renderer {
 
 //=================================================================================
 S_Joint::S_Joint(std::size_t index, const std::string& name, glm::mat4 localBindTransform)
@@ -53,4 +53,4 @@ void S_Joint::ApplyPoseToJoints(std::vector<glm::mat4>& poseData, const glm::mat
 	poseData[m_Id]		= newPose;
 }
 
-} // namespace GLEngine::Renderer::Animation
+} // namespace GLEngine::Renderer

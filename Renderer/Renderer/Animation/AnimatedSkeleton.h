@@ -2,7 +2,7 @@
 
 #include <Renderer/Animation/SkeletalAnimation.h>
 
-namespace GLEngine::Renderer::Animation {
+namespace GLEngine::Renderer {
 
 class C_Skeleotn;
 
@@ -19,7 +19,7 @@ public:
 private:
 	std::shared_ptr<C_Skeleotn>			 m_Skeleton;
 	std::shared_ptr<C_SkeletalAnimation> m_Animation;
-	GLEngine::Animation::S_Timestamp	 m_animationTime;
+	GLEngine::Renderer::S_Timestamp		 m_animationTime;
 };
 
-} // namespace GLEngine::Renderer::Animation
+} // namespace GLEngine::Renderer

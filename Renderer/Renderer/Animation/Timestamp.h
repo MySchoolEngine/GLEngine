@@ -1,13 +1,13 @@
 #pragma once
 
-#include <Animation/AnimationApi.h>
+#include <Renderer/RendererApi.h>
 
-namespace GLEngine::Animation {
+namespace GLEngine::Renderer {
 
 /**
  * Clamps into the interval [0,1]
  */
-struct ANIMATION_API_EXPORT S_Timestamp {
+struct RENDERER_API_EXPORT S_Timestamp {
 	S_Timestamp();
 	S_Timestamp(float timestamp);
 

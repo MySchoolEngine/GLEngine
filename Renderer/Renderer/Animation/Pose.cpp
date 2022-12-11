@@ -2,7 +2,7 @@
 
 #include <Renderer/Animation/Pose.h>
 
-namespace GLEngine::Renderer::Animation {
+namespace GLEngine::Renderer {
 
 //=================================================================================
 C_Pose::C_Pose(std::vector<S_BoneKeyframe>&& keyframe)
@@ -28,10 +28,9 @@ std::vector<glm::mat4> C_Pose::GetModelSpaceTransofrms() const
 	std::vector<glm::mat4> transofrms;
 	transofrms.resize(m_keyFrame.size());
 
-	std::transform(m_keyFrame.begin(), m_keyFrame.end(), transofrms.begin(),
-				   [](const Renderer::Animation::S_BoneKeyframe& keyFrame) { return keyFrame.GetTransformationMatrix(); });
+	std::transform(m_keyFrame.begin(), m_keyFrame.end(), transofrms.begin(), [](const S_BoneKeyframe& keyFrame) { return keyFrame.GetTransformationMatrix(); });
 
 	return transofrms;
 }
 
-} // namespace GLEngine::Renderer::Animation
+} // namespace GLEngine::Renderer

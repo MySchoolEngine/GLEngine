@@ -8,7 +8,7 @@
 namespace GLEngine::Renderer {
 class I_TextureViewStorage;
 
-class TextureResource : public Core::Resource {
+class RENDERER_API_EXPORT TextureResource : public Core::Resource {
 public:
 	DECLARE_RESOURCE_TYPE(TextureResource)
 	TextureResource();

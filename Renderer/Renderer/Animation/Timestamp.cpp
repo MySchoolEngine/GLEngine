@@ -1,8 +1,8 @@
-#include <AnimationStdafx.h>
+#include <RendererStdafx.h>
 
-#include <Animation/Timestamp.h>
+#include <Renderer/Animation/Timestamp.h>
 
-namespace GLEngine::Animation {
+namespace GLEngine::Renderer {
 
 //=================================================================================
 // S_Timestamp
@@ -60,4 +60,4 @@ S_Timestamp S_Timestamp::operator+(const S_Timestamp& rhs) const
 	return S_Timestamp(m_Timestamp + rhs.m_Timestamp);
 }
 
-}
+} // namespace GLEngine::Renderer

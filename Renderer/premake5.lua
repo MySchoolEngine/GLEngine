@@ -13,7 +13,7 @@ project "Renderer"
 	Link("Entity")
 	Link("Core")
 	Link("GUI")
-	Link("Animation")
+--	Link("Animation")
 	
 	LinkDependency("Assimp")
 	LinkDependency("ImGui")

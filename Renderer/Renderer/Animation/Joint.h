@@ -2,7 +2,7 @@
 
 #include <Renderer/RendererApi.h>
 
-namespace GLEngine::Renderer::Animation {
+namespace GLEngine::Renderer {
 
 struct RENDERER_API_EXPORT S_Joint {
 	S_Joint() = default;
@@ -21,4 +21,4 @@ struct RENDERER_API_EXPORT S_Joint {
 	std::vector<S_Joint> m_Children;
 	std::size_t			 m_Id;
 };
-} // namespace GLEngine::Renderer::Animation
+} // namespace GLEngine::Renderer

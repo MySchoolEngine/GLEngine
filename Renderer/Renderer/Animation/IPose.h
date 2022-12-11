@@ -4,7 +4,7 @@
 
 #include <glm/glm.hpp>
 
-namespace GLEngine::Renderer::Animation {
+namespace GLEngine::Renderer {
 
 class RENDERER_API_EXPORT I_Pose {
 public:
@@ -14,4 +14,4 @@ public:
 	virtual std::vector<glm::mat4> GetModelSpaceTransofrms() const								  = 0;
 };
 
-} // namespace GLEngine::Renderer::Animation
+} // namespace GLEngine::Renderer

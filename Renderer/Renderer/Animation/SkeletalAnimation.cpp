@@ -3,7 +3,7 @@
 #include <Renderer/Animation/Pose.h>
 #include <Renderer/Animation/SkeletalAnimation.h>
 
-namespace GLEngine::Renderer::Animation {
+namespace GLEngine::Renderer {
 //=================================================================================
 // C_SkeletalAnimation
 //=================================================================================
@@ -19,7 +19,7 @@ void C_SkeletalAnimation::SetBoneTimeline(std::size_t index, C_BoneTimeline&& ti
 }
 
 //=================================================================================
-C_Pose C_SkeletalAnimation::GetPose(const GLEngine::Animation::S_Timestamp timestamp) const
+C_Pose C_SkeletalAnimation::GetPose(const S_Timestamp timestamp) const
 {
 	std::vector<S_BoneKeyframe> ret;
 	ret.resize(m_Timelines.size());
@@ -33,4 +33,4 @@ C_Pose C_SkeletalAnimation::GetPose(const GLEngine::Animation::S_Timestamp times
 	return C_Pose(std::move(ret));
 }
 
-} // namespace GLEngine::Renderer::Animation
+} // namespace GLEngine::Renderer

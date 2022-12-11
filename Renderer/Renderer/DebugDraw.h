@@ -18,10 +18,8 @@ struct S_AABB;
 
 namespace GLEngine::Renderer {
 
-namespace Animation {
 struct S_Joint;
 class C_Skeleton;
-} // namespace Animation
 
 class I_DebugDraw {
 public:
@@ -32,7 +30,7 @@ public:
 	virtual void DrawAABB(const Physics::Primitives::S_AABB& bbox, const Colours::T_Colour& color = Colours::black, const glm::mat4& modelMatrix = glm::mat4(1.0f)) = 0;
 	virtual void DrawAxis(const glm::vec3& origin, const glm::vec3& up, const glm::vec3& foreward, const glm::mat4& modelMatrix = glm::mat4(1.0f))					= 0;
 
-	virtual void DrawBone(const glm::vec3& position, const Animation::S_Joint& joint)		= 0;
-	virtual void DrawSkeleton(const glm::vec3& root, const Animation::C_Skeleton& skeleton) = 0;
+	virtual void DrawBone(const glm::vec3& position, const S_Joint& joint)		 = 0;
+	virtual void DrawSkeleton(const glm::vec3& root, const C_Skeleton& skeleton) = 0;
 };
 } // namespace GLEngine::Renderer

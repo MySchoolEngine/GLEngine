@@ -14,10 +14,10 @@ namespace GLEngine::Editor {
 //=================================================================================
 C_AnimationEditor::C_AnimationEditor()
 {
-	m_Tracks.emplace_back(TrackData{Animation::C_AnimationTrack<float>(), std::string("Track1"), 0xff0000ff, false});
+	m_Tracks.emplace_back(TrackData{Renderer::C_AnimationTrack<float>(), std::string("Track1"), 0xff0000ff, false});
 	for (int i = 0; i < 10; ++i)
 		m_Tracks.back().track.AddKeyFrame({0.1f * i, 0.1f * i});
-	m_Tracks.emplace_back(TrackData{Animation::C_AnimationTrack<float>(), std::string("Track2"), 0xff00ff00, false});
+	m_Tracks.emplace_back(TrackData{Renderer::C_AnimationTrack<float>(), std::string("Track2"), 0xff00ff00, false});
 	for (int i = 0; i < 10; ++i)
 		m_Tracks.back().track.AddKeyFrame({0.1f * i, 1.f - 0.1f * i});
 }

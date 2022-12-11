@@ -14,7 +14,7 @@ project "Editor"
 	Link("Core")
 	Link("GUI")
 	Link("Renderer")
-	Link("Animation")
+--	Link("Animation")
 	
 	LinkDependency("ImGui")
 	LinkDependency("pugixml")

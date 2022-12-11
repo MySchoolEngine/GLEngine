@@ -1,6 +1,6 @@
 #pragma once
 
-namespace GLEngine::Animation {
+namespace GLEngine::Renderer {
 
 [[nodiscard]] inline float Linear(const float t)
 {

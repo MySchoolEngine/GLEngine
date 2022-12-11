@@ -4,7 +4,7 @@ namespace pugi {
 class xml_node;
 }
 
-namespace GLEngine::Renderer::Animation {
+namespace GLEngine::Renderer {
 
 struct S_FloatArray {
 	S_FloatArray() = default;
@@ -22,6 +22,6 @@ private:
 	std::stringstream m_FloatsStream;
 };
 
-} // namespace GLEngine::Renderer::Animation
+} // namespace GLEngine::Renderer
 
 #include <Renderer/Animation/ColladaLoading/FloatArray.inl>

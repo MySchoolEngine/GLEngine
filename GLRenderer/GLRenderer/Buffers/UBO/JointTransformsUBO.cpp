@@ -23,11 +23,11 @@ std::size_t C_JointTramsformsUBO::GetBufferSize() const
 }
 
 //=================================================================================
-void C_JointTramsformsUBO::SetTransforms(std::vector<Renderer::Animation::S_BoneKeyframe>&& boneKeyframes)
+void C_JointTramsformsUBO::SetTransforms(std::vector<Renderer::S_BoneKeyframe>&& boneKeyframes)
 {
 	GLE_ASSERT(m_JointTransforms.size() == boneKeyframes.size(), "You are setting wrong animation data to UBO for different skeleton");
 	std::transform(boneKeyframes.begin(), boneKeyframes.end(), m_JointTransforms.begin(),
-				   [](const Renderer::Animation::S_BoneKeyframe& keyFrame) { return keyFrame.GetTransformationMatrix(); });
+				   [](const Renderer::S_BoneKeyframe& keyFrame) { return keyFrame.GetTransformationMatrix(); });
 }
 
 //=================================================================================

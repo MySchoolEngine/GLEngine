@@ -1,6 +1,6 @@
 #pragma once
 
-namespace GLEngine::Renderer::Animation {
+namespace GLEngine::Renderer {
 
 //=================================================================================
 template <> inline float S_FloatArray::Get<float>()

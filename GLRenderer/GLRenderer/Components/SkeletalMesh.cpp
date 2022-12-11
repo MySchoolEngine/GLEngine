@@ -9,14 +9,16 @@
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/Textures/Texture.h>
-#include <GLRenderer/Textures/TextureManager.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 
 #include <Renderer/Animation/ColladaLoading/ColladaLoader.h>
+#include <Renderer/Animation/Skeleton.h>
+#include <Renderer/IDevice.h>
 #include <Renderer/IRenderer.h>
 #include <Renderer/Mesh/Scene.h>
 
 #include <Core/Application.h>
+#include <Core/Resources/ResourceManager.h>
 
 #include <Utils/HighResolutionTimer.h>
 
@@ -29,14 +31,86 @@
 namespace GLEngine::GLRenderer::Components {
 
 //=================================================================================
+C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, const std::filesystem::path& meshFile, const std::filesystem::path& meshFolder)
+	: Renderer::I_RenderableComponent(owner)
+	, m_RenderMesh(true, "Render mesh")
+	, m_Animation(0)
+	, m_AnimationProgress(.0f, .0f, 1.f, "Animation progress")
+	, m_TransformationUBO(nullptr)
+	, m_ColorMap(nullptr)
+{
+	Renderer::C_ColladaLoader sl;
+
+	std::string textureName;
+
+	Utils::HighResolutionTimer timer;
+	timer.reset();
+
+	Renderer::MeshData::Mesh		  mesh;
+	Renderer::MeshData::AnimationData animData;
+
+
+	if (!sl.addModelFromDAEFileToScene(meshFolder, meshFile, mesh, textureName, m_Skeleton, m_Animation, animData, m_ModelMatrix))
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}/{}", meshFolder, meshFile);
+		return;
+	}
+
+	// m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(mesh);
+
+	CORE_LOG(E_Level::Info, E_Context::Render, "Parsing skeleton file took {}ms", timer.getElapsedTimeFromLastQueryMilliseconds());
+
+	const std::filesystem::path texurePath = meshFolder / textureName;
+
+	// const auto escapeSequence = texurePath.generic_string().find("%20");
+	// if (escapeSequence != std::string::npos)
+	// {
+	// 	texurePath.replace(escapeSequence, 3, " ");
+	// }
+
+	auto& rm	  = Core::C_ResourceManager::Instance();
+	m_ColorMapRes = rm.LoadResource<Renderer::TextureResource>(texurePath);
+
+	// setup joint transforms
+	auto& UBOMan		= Buffers::C_UniformBuffersManager::Instance();
+	m_TransformationUBO = UBOMan.CreateUniformBuffer<Buffers::UBO::C_JointTramsformsUBO>("jointTransforms", m_Skeleton.GetNumBones());
+
+	// m_TransformationUBO->SetTransforms(m_Animation.GetTransform(0.f));
+
+	// setup VAO
+	static_assert(sizeof(glm::vec3) == sizeof(GLfloat) * 3, "Platform doesn't support this directly.");
+
+	m_triangles = mesh.vertices.size();
+	m_AABB		= mesh.bbox;
+
+	m_VAO.bind();
+	m_VAO.SetBuffer<0, GL_ARRAY_BUFFER>(mesh.vertices);
+	m_VAO.SetBuffer<1, GL_ARRAY_BUFFER>(mesh.normals);
+	m_VAO.SetBuffer<2, GL_ARRAY_BUFFER>(mesh.texcoords);
+	m_VAO.SetBuffer<3, GL_ARRAY_BUFFER>(animData.jointIndices);
+	m_VAO.SetBuffer<4, GL_ARRAY_BUFFER>(animData.weights);
+
+
+	m_VAO.EnableArray<0>();
+	m_VAO.EnableArray<1>();
+	m_VAO.EnableArray<2>();
+	m_VAO.EnableArray<3>();
+	m_VAO.EnableArray<4>();
+
+	m_VAO.unbind();
+
+	m_AABB = mesh.bbox;
+}
+
+//=================================================================================
 void C_SkeletalMesh::DebugDrawGUI()
 {
 	const static auto zeroVec = glm::vec4(0.f, 0.f, .0f, 1.f);
 	m_RenderMesh.Draw();
 	m_AnimationProgress.Draw();
 
-	std::function<void(const Renderer::Animation::S_Joint&)> DrawJointGUI;
-	DrawJointGUI = [&DrawJointGUI](const Renderer::Animation::S_Joint& joint) {
+	std::function<void(const Renderer::S_Joint&)> DrawJointGUI;
+	DrawJointGUI = [&DrawJointGUI](const Renderer::S_Joint& joint) {
 		if (::ImGui::CollapsingHeader(joint.m_Name.c_str()))
 		{
 			const auto& pos = (joint.GetAnimatedTransform()) * zeroVec;
@@ -71,7 +145,10 @@ void C_SkeletalMesh::PerformDraw() const
 		return;
 	}
 	auto& tm = Textures::C_TextureUnitManger::Instance();
-	tm.BindTextureToUnit(*m_Texture, 0);
+	if (m_ColorMap)
+	{
+		tm.BindTextureToUnit(*std::static_pointer_cast<Textures::C_Texture>(m_ColorMap), 0);
+	}
 
 	auto& shmgr	 = Shaders::C_ShaderManager::Instance();
 	auto  shader = shmgr.GetProgram("animation");
@@ -103,91 +180,28 @@ void C_SkeletalMesh::PerformDraw() const
 //=================================================================================
 void C_SkeletalMesh::Update()
 {
+	if (m_ColorMap == nullptr && m_ColorMapRes.IsReady())
+	{
+		auto&								  device   = Core::C_Application::Get().GetActiveRenderer().GetDevice();
+		auto&								  resource = m_ColorMapRes.GetResource();
+		const Renderer::I_TextureViewStorage& storage  = resource.GetStorage();
+		m_ColorMap
+			= device.CreateTextureHandle(Renderer::TextureDescriptor{.name	 = resource.GetFilepath().generic_string(),
+																	 .width	 = storage.GetDimensions().x,
+																	 .height = storage.GetDimensions().y,
+																	 .type	 = Renderer::E_TextureType::TEXTURE_2D,
+																	 .format = Renderer::GetClosestFormat(storage.GetChannels(), !Renderer::IsIntegral(storage.GetStorageType())),
+																	 .m_bStreamable = false});
+		device.AllocateTexture(*m_ColorMap.get());
+		m_ColorMap->SetTexData2D(0, (&storage));
+	}
+
 	C_DebugDraw::Instance().DrawSkeleton(glm::vec3(1.0f, .0f, .0f), m_Skeleton);
 	m_AnimationProgress += .01f;
 	if (m_AnimationProgress.GetValue() > 1.f)
 	{
 		m_AnimationProgress = 0.f;
 	}
-}
-
-//=================================================================================
-C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, std::string meshFile, std::string meshFolder)
-	: Renderer::I_RenderableComponent(owner)
-	, m_RenderMesh(true, "Render mesh")
-	, m_Animation(0)
-	, m_AnimationProgress(.0f, .0f, 1.f, "Animation progress")
-	, m_TransformationUBO(nullptr)
-{
-	Renderer::Animation::C_ColladaLoader sl;
-
-	std::string textureName;
-
-	Utils::HighResolutionTimer timer;
-	timer.reset();
-
-	Renderer::MeshData::Mesh		  mesh;
-	Renderer::MeshData::AnimationData animData;
-
-
-	if (!sl.addModelFromDAEFileToScene(meshFolder.data(), meshFile.data(), mesh, textureName, m_Skeleton, m_Animation, animData, m_ModelMatrix))
-	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}/{}", meshFolder, meshFile);
-		return;
-	}
-
-	// m_Mesh = std::make_shared<Mesh::C_StaticMeshResource>(mesh);
-
-	CORE_LOG(E_Level::Info, E_Context::Render, "Parsing skeleton file took {}ms", timer.getElapsedTimeFromLastQueryMilliseconds());
-
-	std::string texurePath(meshFolder + "/");
-
-	texurePath.append(textureName);
-
-	const auto escapeSequence = texurePath.find("%20");
-	if (escapeSequence != std::string::npos)
-	{
-		texurePath.replace(escapeSequence, 3, " ");
-	}
-
-	auto& tmgr = Textures::C_TextureManager::Instance();
-	m_Texture  = tmgr.GetTexture(texurePath);
-	if (!m_Texture)
-		return;
-
-	m_Texture->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
-	m_Texture->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
-	m_Texture->GenerateMipMaps();
-
-	// setup joint transforms
-	auto& UBOMan		= Buffers::C_UniformBuffersManager::Instance();
-	m_TransformationUBO = UBOMan.CreateUniformBuffer<Buffers::UBO::C_JointTramsformsUBO>("jointTransforms", m_Skeleton.GetNumBones());
-
-	// m_TransformationUBO->SetTransforms(m_Animation.GetTransform(0.f));
-
-	// setup VAO
-	static_assert(sizeof(glm::vec3) == sizeof(GLfloat) * 3, "Platform doesn't support this directly.");
-
-	m_triangles = mesh.vertices.size();
-	m_AABB		= mesh.bbox;
-
-	m_VAO.bind();
-	m_VAO.SetBuffer<0, GL_ARRAY_BUFFER>(mesh.vertices);
-	m_VAO.SetBuffer<1, GL_ARRAY_BUFFER>(mesh.normals);
-	m_VAO.SetBuffer<2, GL_ARRAY_BUFFER>(mesh.texcoords);
-	m_VAO.SetBuffer<3, GL_ARRAY_BUFFER>(animData.jointIndices);
-	m_VAO.SetBuffer<4, GL_ARRAY_BUFFER>(animData.weights);
-
-
-	m_VAO.EnableArray<0>();
-	m_VAO.EnableArray<1>();
-	m_VAO.EnableArray<2>();
-	m_VAO.EnableArray<3>();
-	m_VAO.EnableArray<4>();
-
-	m_VAO.unbind();
-
-	m_AABB = mesh.bbox;
 }
 
 //=================================================================================
