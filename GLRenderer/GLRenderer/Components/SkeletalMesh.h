@@ -23,6 +23,7 @@ namespace GLEngine::GLRenderer::Components {
 class C_SkeletalMesh : public Renderer::I_RenderableComponent {
 public:
 	C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, const std::filesystem::path& meshFile, const std::filesystem::path& meshFolder = "Models");
+	~C_SkeletalMesh();
 	virtual void PerformDraw() const override;
 	virtual void Update() override;
 

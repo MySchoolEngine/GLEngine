@@ -20,10 +20,6 @@
 #include <Core/Application.h>
 #include <Core/Resources/ResourceManager.h>
 
-#include <Utils/HighResolutionTimer.h>
-
-#include <glm/gtx/transform.hpp>
-
 #include <pugixml.hpp>
 
 #include <imgui.h>
@@ -44,7 +40,12 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, const st
 {
 	m_ColorMapGUI.SetOnTextureCleanCB([&]() {
 		m_ColorMapRes = {};
-		m_ColorMap	  = nullptr;
+		if (m_ColorMap)
+		{
+			auto& device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
+			device.DestroyTexture(*m_ColorMap.get());
+			m_ColorMap = nullptr;
+		}
 	});
 	Renderer::C_ColladaLoader sl;
 
@@ -90,6 +91,17 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, const st
 	m_VAO.unbind();
 
 	m_AABB = mesh.bbox;
+}
+
+//=================================================================================
+C_SkeletalMesh::~C_SkeletalMesh()
+{
+	if (m_ColorMap)
+	{
+		auto& device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
+		device.DestroyTexture(*m_ColorMap.get());
+		m_ColorMap = nullptr;
+	}
 }
 
 //=================================================================================
@@ -148,7 +160,7 @@ void C_SkeletalMesh::PerformDraw() const
 
 	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&, shader]() {
-			shader->SetUniform("modelMatrix", m_ModelMatrix * glm::rotate(-glm::half_pi<float>(), glm::vec3(1.f, .0f, .0f)) * glm::scale(glm::vec3{0.1}));
+			shader->SetUniform("modelMatrix", GetComponentModelMatrix());
 
 			m_VAO.bind();
 
