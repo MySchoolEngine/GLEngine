@@ -56,6 +56,8 @@
 #include <Utils/Serialization/XMLSerialize.h>
 #include <Utils/StdVectorUtils.h>
 
+#include <glm/gtx/transform.hpp>
+
 #include <pugixml.hpp>
 
 #include <imgui.h>
@@ -164,8 +166,8 @@ void C_ExplerimentWindow::Update()
 	{
 		m_HDRFBO->Bind<E_FramebufferTarget::Read>();
 
-		auto HDRTexture = m_HDRFBO->GetAttachement(GL_COLOR_ATTACHMENT0);
-		auto worldDepth = m_HDRFBO->GetAttachement(GL_DEPTH_ATTACHMENT);
+		auto				  HDRTexture = m_HDRFBO->GetAttachement(GL_COLOR_ATTACHMENT0);
+		auto				  worldDepth = m_HDRFBO->GetAttachement(GL_DEPTH_ATTACHMENT);
 		const FullScreenSetup fsSetup{
 			.shaderName = "atmosphere",
 			.shaderSetup =
@@ -191,7 +193,7 @@ void C_ExplerimentWindow::Update()
 	// ======
 	// HDR correction
 	// ======
-	auto				  defaultRenderTarget = m_Device->GetDefualtRendertarget();
+	auto defaultRenderTarget = m_Device->GetDefualtRendertarget();
 	// clear screen
 	{
 		using namespace Commands;
@@ -541,6 +543,15 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 		m_CamManager.ActivateCamera(std::static_pointer_cast<Renderer::I_CameraComponent>(*camIt));
 		++camIt;
 		m_CamManager.SetDebugCamera(std::static_pointer_cast<Renderer::I_CameraComponent>(*camIt));
+	}
+
+
+	auto runner = m_World->GetOrCreateEntity("runner");
+	{
+		auto skeletalMesh = std::make_shared<Components::C_SkeletalMesh>(runner, "model.dae");
+		skeletalMesh->SetComponentMatrix(glm::translate(glm::mat4{1.f}, glm::vec3(0, -1, 0)) * glm::rotate(glm::half_pi<float>(), glm::vec3(1.f, .0f, .0f))
+										 * glm::scale(glm::vec3{0.2}));
+		runner->AddComponent(skeletalMesh);
 	}
 
 
