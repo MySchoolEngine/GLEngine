@@ -40,6 +40,7 @@ private:
 
 	void		_loadMaterialsFromAiscene(const aiScene* loadedScene, std::shared_ptr<Renderer::MeshData::Scene> scene, std::vector<std::string>& textureRegister);
 	void		_loadLightsFromAiScene(const aiScene* loadedScene, std::shared_ptr<Renderer::MeshData::Scene> scene);
+	void		_loadSkeletonFromAiScene(const aiScene* loadedScene, std::shared_ptr<Renderer::MeshData::Scene> scene);
 	void		_getMaterialColorAttributes(const aiMaterial* material, Renderer::MeshData::Material& mat);
 	glm::vec4	_getMaterialColorComponent(const aiMaterial* const material, const char* key, unsigned int type, unsigned int index);
 	float		_getMaterialFloatComponent(const aiMaterial* const material, const char* key, unsigned type, unsigned index);

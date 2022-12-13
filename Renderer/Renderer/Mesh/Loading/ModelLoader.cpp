@@ -54,6 +54,8 @@ bool ModelLoader::addModelFromFileToScene(const std::filesystem::path&				 path,
 
 	_loadLightsFromAiScene(loadedScene, scene);
 
+	_loadSkeletonFromAiScene(loadedScene, scene);
+
 	_importer->FreeScene();
 
 	_numMaterialsPreviouslyLoaded += loadedScene->mNumMaterials;
@@ -188,6 +190,12 @@ void ModelLoader::_loadLightsFromAiScene(const aiScene* loadedScene, std::shared
 		light.m_name						  = std::string(lightSource->mName.C_Str());
 		scene->lights.push_back(light);
 	}
+}
+
+//=================================================================================
+void ModelLoader::_loadSkeletonFromAiScene(const aiScene* loadedScene, std::shared_ptr<Renderer::MeshData::Scene> scene)
+{
+  //loadedScene->has
 }
 
 //=================================================================================
