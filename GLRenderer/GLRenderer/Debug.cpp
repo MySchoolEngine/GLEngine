@@ -11,6 +11,7 @@
 #include <GLRenderer/Textures/TextureUnitManager.h>
 
 #include <Renderer/Animation/Skeleton.h>
+#include <Renderer/Animation/IPose.h>
 #include <Renderer/IRenderer.h>
 #include <Renderer/Mesh/Geometry.h>
 
@@ -260,6 +261,27 @@ void C_DebugDraw::DrawSkeleton(const glm::vec3& root, const Renderer::C_Skeleton
 	{
 		DrawBone(root + boneOffset, child);
 	}
+}
+
+//=================================================================================
+void C_DebugDraw::DrawPose(const Renderer::C_Skeleton& skeleton, const Renderer::I_Pose& pose, const glm::mat4& mat)
+{
+	auto transforms = pose.GetLocalSpaceTransofrms();
+	glm::vec4  zero(0.f, 0.f, 0.f, 1.f);
+
+	const Renderer::S_Joint& rootJoint = skeleton.GetRoot();
+	std::function<void(const Renderer::S_Joint&, const glm::mat4&, const glm::vec4)> drawChildren;
+	drawChildren = [&](const Renderer::S_Joint& joint, const glm::mat4& parent, const glm::vec4& pos)
+	{
+		for (const auto& child : joint.m_Children)
+		{
+			const auto		fullTransform = parent * transforms[child.m_Id];
+			const glm::vec4 childPos = parent * transforms[child.m_Id] * zero;
+			DrawLine(pos, childPos, Colours::cyan);
+			drawChildren(child, fullTransform, childPos);
+		}
+	};
+	drawChildren(rootJoint, mat * transforms[rootJoint.m_Id], mat * transforms[rootJoint.m_Id] * zero);
 }
 
 //=================================================================================
