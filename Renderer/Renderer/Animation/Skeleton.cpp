@@ -25,4 +25,10 @@ void C_Skeleton::ApplyPoseToBones(std::vector<glm::mat4>& poseData) const
 	m_Root->ApplyPoseToJoints(poseData, glm::mat4(1.f));
 }
 
+//=================================================================================
+const S_Joint& C_Skeleton::GetRoot() const
+{
+	return *m_Root.get();
+}
+
 } // namespace GLEngine::Renderer::Animation

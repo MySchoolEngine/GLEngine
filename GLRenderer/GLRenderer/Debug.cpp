@@ -276,7 +276,7 @@ void C_DebugDraw::DrawPose(const Renderer::C_Skeleton& skeleton, const Renderer:
 		for (const auto& child : joint.m_Children)
 		{
 			const auto		fullTransform = parent * transforms[child.m_Id];
-			const glm::vec4 childPos = parent * transforms[child.m_Id] * zero;
+			const glm::vec4 childPos	  = fullTransform * zero;
 			DrawLine(pos, childPos, Colours::cyan);
 			drawChildren(child, fullTransform, childPos);
 		}

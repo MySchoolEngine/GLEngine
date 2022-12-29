@@ -13,10 +13,11 @@ public:
 	[[nodiscard]] std::size_t GetNumBones() const;
 	void					  SetNumBonse(std::size_t num);
 	void					  ApplyPoseToBones(std::vector<glm::mat4>& poseData) const;
+	const S_Joint&			  GetRoot() const;
 
 public:
 	std::unique_ptr<S_Joint> m_Root;
 	std::size_t				 m_NumBones;
 };
 
-} // namespace GLEngine::Renderer::Animation
+} // namespace GLEngine::Renderer

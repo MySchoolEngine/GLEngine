@@ -165,7 +165,7 @@ void C_SkeletalMesh::PerformDraw() const
 			m_VAO.bind();
 
 			const auto& pose	   = m_Animation.GetPose(m_AnimationProgress.GetValue());
-			auto		transofrms = pose.GetModelSpaceTransofrms();
+			auto		transofrms = pose.GetLocalSpaceTransofrms();
 
 			m_Skeleton.ApplyPoseToBones(transofrms);
 
@@ -202,7 +202,9 @@ void C_SkeletalMesh::Update()
 		m_ColorMapGUI = GUI::C_Texture(m_ColorMap);
 	}
 
+	const auto& pose = m_Animation.GetPose(m_AnimationProgress.GetValue());
 	C_DebugDraw::Instance().DrawSkeleton(glm::vec3(1.0f, .0f, .0f), m_Skeleton);
+	C_DebugDraw::Instance().DrawPose(m_Skeleton, pose, GetComponentModelMatrix());
 	if (m_RunAnimation)
 	{
 		m_AnimationProgress += .01f;
