@@ -43,7 +43,7 @@
 				<item>
 					<key value="Graphical" />
 					<value>
-						<C_StaticMesh MeshFile="plane.obj" Shader="basicTracing" ShadowPassShader="shadowPass">
+						<C_StaticMesh MeshFile="model.dae" Shader="basicTracing" ShadowPassShader="shadowPass">
 							<Transformation>
 								<Translation x="0" y="1.5" z="0" />
 								<RotationDeg x="180" y="-0" z="0" />

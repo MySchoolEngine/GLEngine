@@ -116,6 +116,14 @@ void C_StaticMesh::PerformDraw() const
 	}
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
 
+	if (m_MeshResource.GetResource().GetScene().meshes[0].skeleton.bones.empty() == false) {
+		const glm::vec4 zero(0, 0, 0, 1);
+		auto& dd = C_DebugDraw::Instance();
+		for (const auto& bone : m_MeshResource.GetResource().GetScene().meshes[0].skeleton.bones) {
+			dd.DrawPoint(glm::transpose(bone.modelSpace) * zero, Colours::white);
+		}
+	}
+
 
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	auto& tmgr	= Textures::C_TextureManager::Instance();

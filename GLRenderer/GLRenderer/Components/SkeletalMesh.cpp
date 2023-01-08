@@ -52,7 +52,7 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, const st
 	std::string textureName;
 
 	Renderer::MeshData::Mesh		  mesh;
-	Renderer::MeshData::AnimationData animData;
+	Renderer::MeshData::SkeletonData animData;
 
 	if (!sl.addModelFromDAEFileToScene(meshFolder, meshFile, mesh, textureName, m_Skeleton, m_Animation, animData, m_ModelMatrix))
 	{

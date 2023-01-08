@@ -10,7 +10,7 @@ class xml_node;
 
 namespace GLEngine::Renderer::MeshData {
 struct Mesh;
-struct AnimationData;
+struct SkeletonData;
 } // namespace GLEngine::Renderer::MeshData
 
 namespace GLEngine::Renderer {
@@ -31,7 +31,7 @@ public:
 												  std::string&				   textureName,
 												  C_Skeleton&				   skeleton,
 												  C_SkeletalAnimation&		   animation,
-												  MeshData::AnimationData&	   animData,
+												  MeshData::SkeletonData&	   animData,
 												  glm::mat4&				   transform);
 
 private:

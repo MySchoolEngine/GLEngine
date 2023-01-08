@@ -54,8 +54,6 @@ bool ModelLoader::addModelFromFileToScene(const std::filesystem::path&				 path,
 
 	_loadLightsFromAiScene(loadedScene, scene);
 
-	_loadSkeletonFromAiScene(loadedScene, scene);
-
 	_importer->FreeScene();
 
 	_numMaterialsPreviouslyLoaded += loadedScene->mNumMaterials;
@@ -193,9 +191,36 @@ void ModelLoader::_loadLightsFromAiScene(const aiScene* loadedScene, std::shared
 }
 
 //=================================================================================
-void ModelLoader::_loadSkeletonFromAiScene(const aiScene* loadedScene, std::shared_ptr<Renderer::MeshData::Scene> scene)
+void ModelLoader::_loadSkeletonFromAiScene(const aiMesh* aiMesh, Renderer::MeshData::Mesh& mesh)
 {
-  //loadedScene->has
+	if (aiMesh->mNumBones)
+	{
+		mesh.skeleton.jointIndices.resize(aiMesh->mNumVertices);
+		mesh.skeleton.weights.resize(aiMesh->mNumVertices);
+		mesh.skeleton.bones.reserve(aiMesh->mNumBones);
+		for (unsigned int i = 0; i < aiMesh->mNumBones; ++i)
+		{
+			const auto* aiBone = aiMesh->mBones[i];
+			auto		boneID = i;
+			std::string boneName(aiBone->mName.data);
+			JointID		nodeID(boneName);
+			if (mesh.skeleton.GetBoneIndex(nodeID) == MeshData::SkeletonData::BadIndex)
+			{
+				boneID							  = i;
+				mesh.skeleton.boneMapping[nodeID] = boneID;
+				mesh.skeleton.bones.push_back({nodeID, _aiMatrixToGlm(aiBone->mOffsetMatrix)});
+			}
+			else
+			{
+				boneID = mesh.skeleton.boneMapping[nodeID];
+			}
+			for (unsigned int j = 0; j < aiBone->mNumWeights; ++j)
+			{
+				const aiVertexWeight& aiVertexVewight = aiBone->mWeights[j];
+				mesh.skeleton.AddBoneData(aiVertexVewight.mVertexId, boneID, aiVertexVewight.mWeight);
+			}
+		}
+	}
 }
 
 //=================================================================================
@@ -209,6 +234,9 @@ void ModelLoader::_loadMeshesFromAiScene(const aiScene* loadedScene, std::shared
 		_pushNodeChildrenOnStacks(currentNode, currentTransform);
 
 		_loadNodeMeshes(currentNode, currentTransform, loadedScene->mMeshes, scene->meshes);
+
+		// todo index
+		_loadArmatureData(currentNode, currentTransform, scene->meshes[0]);
 
 		_getNextNodeAndTransform(currentNode, currentTransform);
 	}
@@ -251,6 +279,7 @@ void ModelLoader::_loadNodeMeshes(const aiNode* node, const glm::mat4& nodeTrans
 	{
 		const unsigned int meshIndex = node->mMeshes[i];
 		_loadSingleMeshFromAimesh(aiMeshes[meshIndex], meshes[_numMeshesPreviouslyLoaded + i]);
+		_loadSkeletonFromAiScene(aiMeshes[meshIndex], meshes[_numMeshesPreviouslyLoaded + i]);
 
 		meshes[_numMeshesPreviouslyLoaded + i].modelMatrix = nodeTransform;
 		meshes[_numMeshesPreviouslyLoaded + i].m_name	   = std::string(node->mName.C_Str());
@@ -354,6 +383,12 @@ void ModelLoader::_getFacePosNormalTcoords(const aiFace* face,
 std::mutex& ModelLoader::GetMutex()
 {
 	return m_Mutex;
+}
+
+//=================================================================================
+void ModelLoader::_loadArmatureData(const aiNode* currentNode, const glm::mat4& currentTransform, MeshData::Mesh& mesh)
+{
+
 }
 
 std::mutex ModelLoader::m_Mutex;

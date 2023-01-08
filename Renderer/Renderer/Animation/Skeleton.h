@@ -7,6 +7,24 @@
 
 namespace GLEngine::Renderer {
 
+// represents JointID in whole hierarchy, used for faster queries
+struct JointID {
+public:
+	JointID()
+		: m_Name()
+		, m_ID(0)
+	{}
+	explicit JointID(const std::string& name);
+
+	bool operator==(const JointID& other) const;
+	bool operator!=(const JointID& other) const;
+	bool operator<(const JointID& other) const;
+
+private:
+	std::string m_Name;
+	std::size_t m_ID;
+};
+
 class RENDERER_API_EXPORT C_Skeleton {
 public:
 	C_Skeleton();

@@ -23,7 +23,7 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(const std::filesystem::path&			
 												 std::string&			  textureName,
 												 C_Skeleton&			  skeleton,
 												 C_SkeletalAnimation&	  animation,
-												 MeshData::AnimationData& animData,
+												 MeshData::SkeletonData& animData,
 												 glm::mat4&				  transform)
 {
 	const std::filesystem::path name = filepath / filename;
