@@ -36,7 +36,7 @@ std::vector<glm::mat4> C_Pose::GetLocalSpaceTransofrms() const
 //=================================================================================
 void C_Pose::Blend(const C_Pose& other, float weight)
 {
-	GLE_ASSERT(m_keyFrame.size() == other.m_keyFrame.size());
+	GLE_ASSERT(m_keyFrame.size() == other.m_keyFrame.size(), "Number of keyframes in both poses have to match.");
 	for (unsigned int i = 0; i < m_keyFrame.size(); ++i) {
 
 	}
