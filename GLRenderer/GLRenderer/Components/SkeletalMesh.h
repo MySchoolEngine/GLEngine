@@ -44,6 +44,7 @@ public:
 	std::shared_ptr<Buffers::UBO::C_JointTramsformsUBO> m_TransformationUBO;
 	GUI::Input::C_CheckBoxValue							m_RenderMesh;
 	GUI::Input::C_CheckBoxValue							m_RunAnimation;
+	GUI::Input::C_CheckBoxValue							m_RenderSkeleton;
 	GUI::Input::C_Slider<float>							m_AnimationProgress;
 	Physics::Primitives::S_AABB							m_AABB;
 	bool												m_bInit = false;

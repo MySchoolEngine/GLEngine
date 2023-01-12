@@ -28,6 +28,9 @@ namespace GLEngine::GLRenderer::Components {
 C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, const std::filesystem::path& meshFile, const std::filesystem::path& meshFolder)
 	: Renderer::I_RenderableComponent(owner)
 	, m_ColorMap(nullptr)
+	, m_RenderMesh(true, "Render mesh")
+	, m_RenderSkeleton(false, "Render skleton")
+	, m_RunAnimation(true, "Run animation")
 	, m_ColorMapGUI(m_ColorMap)
 	, m_Animation(0)
 	, m_TransformationUBO(nullptr)
@@ -109,6 +112,7 @@ void C_SkeletalMesh::DebugDrawGUI()
 {
 	const static auto zeroVec = glm::vec4(0.f, 0.f, .0f, 1.f);
 	m_RenderMesh.Draw();
+	m_RenderSkeleton.Draw();
 	m_RunAnimation.Draw();
 	m_AnimationProgress.Draw();
 	m_ColorMapGUI.Draw();
