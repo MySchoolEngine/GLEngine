@@ -41,7 +41,9 @@ void main()
 		vec4 worldNormal = jointTransform * vec4(normal, 0.0);
 		totalNormal += worldNormal * weights[i];
 	}
-	normalOUT	= totalNormal.xyz;
+	normalOUT	= normalize((modelMatrix * totalNormal).xyz);
+	normalOUT = normalOUT.xzy;
+	normalOUT.z = -normalOUT.z;
 	texCoordOUT = texCoord;
 
 	worldCoord = modelMatrix * totalLocalPos;
