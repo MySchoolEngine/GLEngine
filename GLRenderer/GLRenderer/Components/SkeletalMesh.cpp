@@ -29,7 +29,7 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, const st
 	: Renderer::I_RenderableComponent(owner)
 	, m_ColorMap(nullptr)
 	, m_RenderMesh(true, "Render mesh")
-	, m_RenderSkeleton(false, "Render skleton")
+	, m_RenderSkeleton(false, "Render skeleton")
 	, m_RunAnimation(true, "Run animation")
 	, m_ColorMapGUI(m_ColorMap)
 	, m_Animation(0)
@@ -117,20 +117,20 @@ void C_SkeletalMesh::DebugDrawGUI()
 	m_AnimationProgress.Draw();
 	m_ColorMapGUI.Draw();
 
-	std::function<void(const Renderer::S_Joint&)> DrawJointGUI;
-	DrawJointGUI = [&DrawJointGUI](const Renderer::S_Joint& joint) {
-		if (::ImGui::CollapsingHeader(joint.m_Name.c_str()))
+	std::function<void(const Renderer::S_Joint* const)> DrawJointGUI;
+	DrawJointGUI = [&DrawJointGUI, &skeleton = m_Skeleton](const Renderer::S_Joint* const joint) {
+		if (::ImGui::CollapsingHeader(joint->m_Id.GetName().c_str()))
 		{
-			const auto& pos = (joint.GetAnimatedTransform()) * zeroVec;
+			const auto& pos = (joint->GetAnimatedTransform()) * zeroVec;
 			::ImGui::Text("Original pos: [%f, %f, %f]", pos.x, pos.y, pos.z);
-			for (const auto& child : joint.m_Children)
+			for (const auto& child : joint->m_Children)
 			{
-				DrawJointGUI(child);
+				DrawJointGUI(skeleton.GetJoint(child));
 			}
 		}
 	};
 
-	DrawJointGUI(*(m_Skeleton.m_Root.get()));
+	DrawJointGUI(&m_Skeleton.GetRoot());
 }
 
 //=================================================================================
@@ -169,9 +169,9 @@ void C_SkeletalMesh::PerformDraw() const
 			m_VAO.bind();
 
 			const auto& pose	   = m_Animation.GetPose(m_AnimationProgress.GetValue());
-			auto		transofrms = pose.GetLocalSpaceTransofrms();
+			auto		transofrms = pose.GetMSTransofrms();
 
-			m_Skeleton.ApplyPoseToBones(transofrms);
+			m_Skeleton.ConverToLS(transofrms);
 
 			shader->SetUniform("transforms", transofrms);
 
@@ -210,7 +210,8 @@ void C_SkeletalMesh::Update()
 		return;
 
 	const auto& pose = m_Animation.GetPose(m_AnimationProgress.GetValue());
-	C_DebugDraw::Instance().DrawSkeleton(glm::vec3(1.0f, .0f, .0f), m_Skeleton);
+	if (m_RenderSkeleton)
+		C_DebugDraw::Instance().DrawSkeleton(glm::vec3(1.0f, .0f, .0f), m_Skeleton, GetComponentModelMatrix());
 	C_DebugDraw::Instance().DrawPose(m_Skeleton, pose, GetComponentModelMatrix());
 	if (m_RunAnimation)
 	{

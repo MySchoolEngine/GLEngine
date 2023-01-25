@@ -188,14 +188,15 @@ void C_DebugDraw::DrawLines(const std::vector<glm::vec4>& pairs, const Colours::
 }
 
 //=================================================================================
-void C_DebugDraw::DrawBone(const glm::vec3& position, const Renderer::S_Joint& joint)
+void C_DebugDraw::DrawBone(const glm::vec3& position, const Renderer::T_BoneIndex jointID, const Renderer::C_Skeleton& skeleton, const glm::mat4& modelMat)
 {
-	const auto		locTransformation = glm::inverse((joint.m_InverseBindTransform));
-	const glm::vec4 modelDest		  = (locTransformation * glm::vec4(0.f, 0.f, 0.0f, 1.f));
-	const glm::vec3 dest			  = glm::vec3(modelDest / modelDest.w);
-	const glm::vec3 boneOffset		  = dest - position;
+	const Renderer::S_Joint* const joint			= skeleton.GetJoint(jointID);
+	const auto					   MSTransformation = modelMat * glm::inverse(joint->m_InverseBindTransform);
+	const glm::vec4				   modelDest		= MSTransformation * glm::vec4(0.f, 0.f, 0.0f, 1.f);
+	const glm::vec3				   dest				= glm::vec3(modelDest / modelDest.w);
+	const glm::vec3				   boneOffset		= dest - position;
 
-	const float bumpFactor	 = .33f;
+	const float bumpFactor	 = .2f;
 	const auto	BumpPosition = position + boneOffset * bumpFactor;
 
 	glm::vec3 tangent;
@@ -213,9 +214,9 @@ void C_DebugDraw::DrawBone(const glm::vec3& position, const Renderer::S_Joint& j
 	}
 
 	tangent				 = glm::normalize(tangent);
-	const auto bitangent = glm::cross(tangent, boneOffset);
+	const auto bitangent = glm::normalize(glm::cross(tangent, boneOffset));
 
-	constexpr float bumpSize = .05f;
+	const float		bumpSize = .09f * glm::length(boneOffset);
 	const glm::vec3 Offset1	 = tangent * bumpSize;
 	const glm::vec3 Offset2	 = bitangent * bumpSize;
 
@@ -224,61 +225,62 @@ void C_DebugDraw::DrawBone(const glm::vec3& position, const Renderer::S_Joint& j
 	DrawLine(BumpPosition, dest, Colours::green);
 
 	// square around the bump
-	DrawLine(BumpPosition + Offset1 + Offset2, BumpPosition + Offset1 - Offset2);
-	DrawLine(BumpPosition + Offset1 + Offset2, BumpPosition - Offset1 + Offset2);
-	DrawLine(BumpPosition - Offset1 + Offset2, BumpPosition - Offset1 - Offset2);
-	DrawLine(BumpPosition + Offset1 - Offset2, BumpPosition - Offset1 - Offset2);
+	DrawLine(BumpPosition + Offset1 + Offset2, BumpPosition + Offset1 - Offset2, Colours::gray);
+	DrawLine(BumpPosition + Offset1 + Offset2, BumpPosition - Offset1 + Offset2, Colours::gray);
+	DrawLine(BumpPosition - Offset1 + Offset2, BumpPosition - Offset1 - Offset2, Colours::gray);
+	DrawLine(BumpPosition + Offset1 - Offset2, BumpPosition - Offset1 - Offset2, Colours::gray);
 
 	// pos to bump
-	DrawLine(position, BumpPosition + Offset1 + Offset2);
-	DrawLine(position, BumpPosition + Offset1 - Offset2);
-	DrawLine(position, BumpPosition - Offset1 - Offset2);
-	DrawLine(position, BumpPosition - Offset1 + Offset2);
+	DrawLine(position, BumpPosition + Offset1 + Offset2, Colours::gray);
+	DrawLine(position, BumpPosition + Offset1 - Offset2, Colours::gray);
+	DrawLine(position, BumpPosition - Offset1 - Offset2, Colours::gray);
+	DrawLine(position, BumpPosition - Offset1 + Offset2, Colours::gray);
 
 	// bump to dest
-	DrawLine(dest, BumpPosition + Offset1 + Offset2);
-	DrawLine(dest, BumpPosition + Offset1 - Offset2);
-	DrawLine(dest, BumpPosition - Offset1 - Offset2);
-	DrawLine(dest, BumpPosition - Offset1 + Offset2);
+	DrawLine(dest, BumpPosition + Offset1 + Offset2, Colours::gray);
+	DrawLine(dest, BumpPosition + Offset1 - Offset2, Colours::gray);
+	DrawLine(dest, BumpPosition - Offset1 - Offset2, Colours::gray);
+	DrawLine(dest, BumpPosition - Offset1 + Offset2, Colours::gray);
 
-	for (const auto& child : joint.m_Children)
+	for (const auto& child : joint->m_Children)
 	{
-		DrawBone(dest, child);
+		DrawBone(dest, child, skeleton, modelMat);
 	}
 }
 
 //=================================================================================
-void C_DebugDraw::DrawSkeleton(const glm::vec3& root, const Renderer::C_Skeleton& skeleton)
+void C_DebugDraw::DrawSkeleton(const glm::vec3& root, const Renderer::C_Skeleton& skeleton, const glm::mat4& modelMat)
 {
-	const auto		locTransformation = glm::inverse((skeleton.m_Root->m_InverseBindTransform));
+	const auto		locTransformation = modelMat * glm::inverse((skeleton.GetRoot().m_InverseBindTransform));
 	const glm::vec4 modelDest		  = (locTransformation * glm::vec4(0.f, 0.f, 0.0f, 1.f));
 	const glm::vec3 dest			  = glm::vec3(modelDest / modelDest.w);
 	const glm::vec3 boneOffset		  = dest - root;
 
-	for (const auto& child : skeleton.m_Root->m_Children)
+	for (const auto& child : skeleton.GetRoot().m_Children)
 	{
-		DrawBone(root + boneOffset, child);
+		DrawBone(root + boneOffset, skeleton.GetRootIndex(), skeleton, modelMat);
 	}
 }
 
 //=================================================================================
 void C_DebugDraw::DrawPose(const Renderer::C_Skeleton& skeleton, const Renderer::I_Pose& pose, const glm::mat4& mat)
 {
-	const auto			transforms = pose.GetLocalSpaceTransofrms();
-	constexpr glm::vec4 zero(0.f, 0.f, 0.f, 1.f);
-
-	const Renderer::S_Joint&														 rootJoint = skeleton.GetRoot();
-	std::function<void(const Renderer::S_Joint&, const glm::mat4&, const glm::vec4)> drawChildren;
-	drawChildren = [&](const Renderer::S_Joint& joint, const glm::mat4& parent, const glm::vec4& pos) {
-		for (const auto& child : joint.m_Children)
-		{
-			const auto		fullTransform = parent * transforms[child.m_Id];
-			const glm::vec4 childPos	  = fullTransform * zero;
-			DrawLine(pos, childPos, Colours::cyan);
-			drawChildren(child, fullTransform, childPos);
-		}
-	};
-	drawChildren(rootJoint, mat * transforms[rootJoint.m_Id], mat * transforms[rootJoint.m_Id] * zero);
+	// auto transforms = pose.GetLocalSpaceTransofrms();
+	// glm::vec4  zero(0.f, 0.f, 0.f, 1.f);
+	//
+	// const Renderer::S_Joint& rootJoint = skeleton.GetRoot();
+	// std::function<void(const Renderer::S_Joint&, const glm::mat4&, const glm::vec4)> drawChildren;
+	// drawChildren = [&](const Renderer::S_Joint& joint, const glm::mat4& parent, const glm::vec4& pos)
+	// {
+	// 	for (const auto& child : joint.m_Children)
+	// 	{
+	// 		const auto		fullTransform = parent * transforms[child.m_Id];
+	// 		const glm::vec4 childPos	  = fullTransform * zero;
+	// 		DrawLine(pos, childPos, Colours::cyan);
+	// 		drawChildren(child, fullTransform, childPos);
+	// 	}
+	// };
+	// drawChildren(rootJoint, mat * transforms[rootJoint.m_Id], mat * transforms[rootJoint.m_Id] * zero);
 }
 
 //=================================================================================
