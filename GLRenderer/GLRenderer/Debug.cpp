@@ -15,8 +15,6 @@
 #include <Renderer/IRenderer.h>
 #include <Renderer/Mesh/Geometry.h>
 
-#include <Physics/Primitives/Frustum.h>
-
 #include <Core/Application.h>
 
 #include <Utils/DebugBreak.h>
@@ -92,7 +90,7 @@ void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum se
 }
 
 //=================================================================================
-C_DebugDraw& C_DebugDraw::Instance()
+Renderer::I_DebugDraw& C_DebugDraw::Instance()
 {
 	static C_DebugDraw instance; // Guaranteed to be destroyed.
 								 // Instantiated on first use.
@@ -169,7 +167,6 @@ void C_DebugDraw::DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, con
 {
 	DrawLine(pointA, pointB, color, color);
 }
-
 //=================================================================================
 void C_DebugDraw::DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, const Colours::T_Colour& colorA, const Colours::T_Colour& colorB)
 {
@@ -185,81 +182,6 @@ void C_DebugDraw::DrawLines(const std::vector<glm::vec4>& pairs, const Colours::
 {
 	m_LinesVertices.insert(m_LinesVertices.end(), pairs.begin(), pairs.end());
 	m_LinesColors.insert(m_LinesColors.end(), pairs.size(), color);
-}
-
-//=================================================================================
-void C_DebugDraw::DrawBone(const glm::vec3& position, const Renderer::T_BoneIndex jointID, const Renderer::C_Skeleton& skeleton, const glm::mat4& modelMat)
-{
-	const Renderer::S_Joint* const joint			= skeleton.GetJoint(jointID);
-	const auto					   MSTransformation = modelMat * glm::inverse(joint->m_InverseBindTransform);
-	const glm::vec4				   modelDest		= MSTransformation * glm::vec4(0.f, 0.f, 0.0f, 1.f);
-	const glm::vec3				   dest				= glm::vec3(modelDest / modelDest.w);
-	const glm::vec3				   boneOffset		= dest - position;
-
-	const float bumpFactor	 = .2f;
-	const auto	BumpPosition = position + boneOffset * bumpFactor;
-
-	glm::vec3 tangent;
-
-	auto c1 = glm::cross(boneOffset, glm::vec3(0.0, 0.0, 1.0));
-	auto c2 = glm::cross(boneOffset, glm::vec3(0.0, 1.0, 0.0));
-
-	if (glm::length(c1) > glm::length(c2))
-	{
-		tangent = c1;
-	}
-	else
-	{
-		tangent = c2;
-	}
-
-	tangent				 = glm::normalize(tangent);
-	const auto bitangent = glm::normalize(glm::cross(tangent, boneOffset));
-
-	const float		bumpSize = .09f * glm::length(boneOffset);
-	const glm::vec3 Offset1	 = tangent * bumpSize;
-	const glm::vec3 Offset2	 = bitangent * bumpSize;
-
-
-	DrawLine(position, BumpPosition, Colours::white);
-	DrawLine(BumpPosition, dest, Colours::green);
-
-	// square around the bump
-	DrawLine(BumpPosition + Offset1 + Offset2, BumpPosition + Offset1 - Offset2, Colours::gray);
-	DrawLine(BumpPosition + Offset1 + Offset2, BumpPosition - Offset1 + Offset2, Colours::gray);
-	DrawLine(BumpPosition - Offset1 + Offset2, BumpPosition - Offset1 - Offset2, Colours::gray);
-	DrawLine(BumpPosition + Offset1 - Offset2, BumpPosition - Offset1 - Offset2, Colours::gray);
-
-	// pos to bump
-	DrawLine(position, BumpPosition + Offset1 + Offset2, Colours::gray);
-	DrawLine(position, BumpPosition + Offset1 - Offset2, Colours::gray);
-	DrawLine(position, BumpPosition - Offset1 - Offset2, Colours::gray);
-	DrawLine(position, BumpPosition - Offset1 + Offset2, Colours::gray);
-
-	// bump to dest
-	DrawLine(dest, BumpPosition + Offset1 + Offset2, Colours::gray);
-	DrawLine(dest, BumpPosition + Offset1 - Offset2, Colours::gray);
-	DrawLine(dest, BumpPosition - Offset1 - Offset2, Colours::gray);
-	DrawLine(dest, BumpPosition - Offset1 + Offset2, Colours::gray);
-
-	for (const auto& child : joint->m_Children)
-	{
-		DrawBone(dest, child, skeleton, modelMat);
-	}
-}
-
-//=================================================================================
-void C_DebugDraw::DrawSkeleton(const glm::vec3& root, const Renderer::C_Skeleton& skeleton, const glm::mat4& modelMat)
-{
-	const auto		locTransformation = modelMat * glm::inverse((skeleton.GetRoot().m_InverseBindTransform));
-	const glm::vec4 modelDest		  = (locTransformation * glm::vec4(0.f, 0.f, 0.0f, 1.f));
-	const glm::vec3 dest			  = glm::vec3(modelDest / modelDest.w);
-	const glm::vec3 boneOffset		  = dest - root;
-
-	for (const auto& child : skeleton.GetRoot().m_Children)
-	{
-		DrawBone(root + boneOffset, skeleton.GetRootIndex(), skeleton, modelMat);
-	}
 }
 
 //=================================================================================

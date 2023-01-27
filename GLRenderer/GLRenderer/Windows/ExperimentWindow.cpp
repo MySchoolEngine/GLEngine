@@ -236,7 +236,7 @@ void C_ExperimentWindow::Update()
 	}
 	{
 		RenderDoc::C_DebugScope s("Merged debug");
-		C_DebugDraw::Instance().DrawMergedGeoms();
+		static_cast<C_DebugDraw&>(C_DebugDraw::Instance()).DrawMergedGeoms();
 	}
 	{
 		RenderDoc::C_DebugScope s("ImGUI");
