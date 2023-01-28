@@ -55,7 +55,6 @@ private:
 	Renderer::C_TextureViewStorageCPU<float>	 m_ImageStorage;   // Intermediate data, could need some weighting
 	Renderer::C_TextureViewStorageCPU<float>	 m_SamplesStorage; // Intermediate data, could need some weighting
 	Renderer::C_RayTraceScene					 m_Scene;
-	std::future<Renderer::C_RayTraceScene*>		 m_LoadingPromise;	 // mutable because we call it for GUI
 	int											 m_NumCycleSamples;	 // How many samples had been already used per pixel, Used for sampling
 	bool										 m_Running : 1;		 // Indicate that renderer is currently running
 	bool										 m_RunningCycle : 1; // Run until stop feature

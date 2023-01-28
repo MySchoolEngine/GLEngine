@@ -7,6 +7,7 @@
 #include <GUI/GUIUtils.h>
 
 #include <Core/EventSystem/Event.h>
+#include <Core/Application.h>
 
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
@@ -45,8 +46,7 @@ void C_EntitiesWindow::Draw() const
 			if (selected)
 			{
 				Core::C_EntityEvent event(entity->GetID(), Core::C_EntityEvent::EntityEvent::Seleced);
-				// TODO: I need to sand this to the event tree root
-				entity->OnEvent(event);
+				Core::C_Application::Get().OnEvent(event);
 				if (m_SelectedEntity == entity->GetID())
 					m_SelectedEntity = GUID::INVALID_GUID;
 				else

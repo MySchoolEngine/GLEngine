@@ -256,6 +256,7 @@ void C_ExplerimentWindow::OnEvent(Core::I_Event& event)
 	d.Dispatch<Core::C_WindowResizedEvent>(std::bind(&C_ExplerimentWindow::OnWindowResized, this, std::placeholders::_1));
 
 	m_LayerStack.OnEvent(event);
+	m_World->OnEvent(event);
 }
 
 //=================================================================================
