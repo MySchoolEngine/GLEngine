@@ -236,7 +236,7 @@ void ModelLoader::_loadMeshesFromAiScene(const aiScene* loadedScene, std::shared
 		_loadNodeMeshes(currentNode, currentTransform, loadedScene->mMeshes, scene->meshes);
 
 		// todo index
-		_loadArmatureData(currentNode, currentTransform, scene->meshes[0]);
+		//_loadArmatureData(currentNode, currentTransform, scene->meshes[0]);
 
 		_getNextNodeAndTransform(currentNode, currentTransform);
 	}
