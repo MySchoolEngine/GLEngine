@@ -1,4 +1,4 @@
-#include <RendererStdAfx.h>
+#include <RendererStdafx.h>
 
 #include <Renderer/Animation/Skeleton.h>
 #include <Renderer/DebugDraw.h>
