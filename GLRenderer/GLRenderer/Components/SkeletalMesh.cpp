@@ -237,23 +237,4 @@ const std::filesystem::path& C_SkeletalMesh::GetColorMapPath() const
 	return empty;
 }
 
-//=================================================================================
-// C_SkeletalMeshBuilder
-//=================================================================================
-std::shared_ptr<Entity::I_Component> C_SkeletalMeshBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
-{
-	if (const auto fileAttr = node.attribute("file"))
-	{
-		const auto file = fileAttr.as_string();
-
-		return std::make_shared<C_SkeletalMesh>(owner, file);
-	}
-	else
-	{
-		CORE_LOG(E_Level::Error, E_Context::Entity, "Given element <SkeletalMesh> doesn't specify file to load");
-	}
-
-	return nullptr;
-}
-
 } // namespace GLEngine::GLRenderer::Components

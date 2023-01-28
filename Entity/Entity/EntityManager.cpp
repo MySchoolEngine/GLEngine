@@ -5,8 +5,6 @@
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
 
-#include <GLRenderer/Components/ComponentBuilderFactory.h>
-
 #include <Physics/Primitives/Frustum.h>
 #include <Physics/Primitives/Intersection.h>
 #include <Physics/Primitives/Plane.h>
@@ -153,72 +151,6 @@ Physics::Primitives::S_RayIntersection C_EntityManager::Select(const Physics::Pr
 		intersection.ray			   = ray;
 		return intersection;
 	}
-}
-
-//=================================================================================
-bool C_EntityManager::LoadLevel(const std::filesystem::path& name, std::unique_ptr<I_ComponentBuilderFactory> cbf)
-{
-	ClearLevel();
-	CORE_LOG(E_Level::Info, E_Context::Core, "Loading level: {}", name);
-	m_Filename = name;
-	m_Entities.clear();
-	pugi::xml_document doc;
-
-	pugi::xml_parse_result result;
-	result = doc.load_file(name.c_str());
-	if (!result.status == pugi::status_ok)
-	{
-		CORE_LOG(E_Level::Error, E_Context::Core, "Can't open config file for level name: {}", name);
-		return false;
-	}
-
-	auto worldNode = doc.child("World");
-	if (!worldNode)
-	{
-		CORE_LOG(E_Level::Error, E_Context::Core, "Invalid level name: {}", name);
-		return false;
-	}
-
-	if (auto entitiesNode = worldNode.child("Entities"))
-	{
-		for (const auto& entityNode : entitiesNode.children("Entity"))
-		{
-			auto entity = std::make_shared<C_BasicEntity>(entityNode.attribute("name").value());
-			this->AddEntity(entity);
-
-			if (auto componentsNode = entityNode.child("Components"))
-			{
-				for (const auto& componentNode : componentsNode.children())
-				{
-					auto builder = cbf->GetFactory(componentNode.name());
-					if (builder)
-					{
-						entity->AddComponent(builder->Build(componentNode, entity));
-					}
-				}
-			}
-
-			const auto translation = Utils::Parsing::C_MatrixParser::ParseTransformation(entityNode);
-			const auto rotation	   = Utils::Parsing::C_MatrixParser::ParseRotations(entityNode);
-			const auto scale	   = Utils::Parsing::C_MatrixParser::ParseScale(entityNode);
-			entity->SetModelMatrix(translation * rotation * scale);
-		}
-
-		for (const auto& entityNode : entitiesNode.children("ExternEntity"))
-		{
-			auto entity = std::make_shared<C_BasicEntity>(entityNode.attribute("name").value());
-			AddEntity(entity);
-
-			cbf->ConstructFromFile(entity, entityNode.attribute("filePath").value());
-
-			const auto translation = Utils::Parsing::C_MatrixParser::ParseTransformation(entityNode);
-			const auto rotation	   = Utils::Parsing::C_MatrixParser::ParseRotations(entityNode);
-			const auto scale	   = Utils::Parsing::C_MatrixParser::ParseScale(entityNode);
-			entity->SetModelMatrix(translation * rotation * scale);
-		}
-	}
-
-	return true;
 }
 
 //=================================================================================

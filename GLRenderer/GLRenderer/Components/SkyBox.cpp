@@ -142,45 +142,4 @@ bool C_SkyBox::HasDebugDrawGUI() const
 	return true;
 }
 
-//=================================================================================
-// C_SkyBoxCompBuilder
-//=================================================================================
-std::shared_ptr<Entity::I_Component> C_SkyBoxCompBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
-{
-	auto skyboxComp = std::make_shared<C_SkyBox>(owner);
-
-	if (auto side = node.child("Top"))
-	{
-		const auto attrib = side.attribute("image");
-		skyboxComp->AddTexture(C_SkyBox::E_Side::Top, attrib.value());
-	}
-	if (auto side = node.child("Bottom"))
-	{
-		const auto attrib = side.attribute("image");
-		skyboxComp->AddTexture(C_SkyBox::E_Side::Bottom, attrib.value());
-	}
-	if (auto side = node.child("Left"))
-	{
-		const auto attrib = side.attribute("image");
-		skyboxComp->AddTexture(C_SkyBox::E_Side::Left, attrib.value());
-	}
-	if (auto side = node.child("Right"))
-	{
-		const auto attrib = side.attribute("image");
-		skyboxComp->AddTexture(C_SkyBox::E_Side::Right, attrib.value());
-	}
-	if (auto side = node.child("Back"))
-	{
-		const auto attrib = side.attribute("image");
-		skyboxComp->AddTexture(C_SkyBox::E_Side::Back, attrib.value());
-	}
-	if (auto side = node.child("Forward"))
-	{
-		const auto attrib = side.attribute("image");
-		skyboxComp->AddTexture(C_SkyBox::E_Side::Forward, attrib.value());
-	}
-
-	return skyboxComp;
-}
-
 } // namespace GLEngine::GLRenderer::Components
