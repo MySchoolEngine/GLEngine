@@ -231,9 +231,10 @@ void C_SkeletalMesh::SetColorMapPath(const std::filesystem::path& path)
 //=================================================================================
 const std::filesystem::path& C_SkeletalMesh::GetColorMapPath() const
 {
+	const static std::filesystem::path empty("");
 	if (m_ColorMapRes)
 		return m_ColorMapRes.GetResource().GetFilepath();
-	return {};
+	return empty;
 }
 
 //=================================================================================
