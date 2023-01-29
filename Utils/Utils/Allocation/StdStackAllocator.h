@@ -3,6 +3,7 @@
 #include <Utils/Allocation/Internal/AllocatorUtils.h>
 
 #include <memory>
+#include <type_traits>
 
 namespace Utils::Allocation {
 
@@ -43,7 +44,7 @@ public:
 
 	pointer allocate(size_type n, const void* hint = 0)
 	{
-		const auto n1 = AllocUtils::roundToAligned(n * sizeof(T));
+		const auto n1 = AllocUtils::roundToAligned(n);
 		if (n1 > static_cast<size_type>((m_memory + size) - m_head))
 		{
 			return nullptr;
@@ -67,6 +68,19 @@ public:
 	void deallocateAll() { m_head = m_memory; }
 
 	bool owns(pointer p) { return p >= m_memory && p < m_memory + size; }
+
+	
+	// deletion policy for std::unique_ptr<T>
+	template <class T = pointer>
+	struct delete_policy {
+	public:
+		constexpr delete_policy() noexcept = default;
+
+		template <class otherT, std::enable_if_t<std::is_convertible_v<otherT*, T>, int> = 0>
+		delete_policy(const C_StdStackAllocator::delete_policy<otherT>&) noexcept {}
+
+		void operator()(T _Ptr) const noexcept {} // do nothing, stackAlloc will delete everything at the end
+	};
 
 private:
 	char  m_memory[size];

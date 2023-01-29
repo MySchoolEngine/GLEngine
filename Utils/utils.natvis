@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="Utils::Allocation::C_StdStackAllocator&lt;*, *, *&gt;">
+    <DisplayString>{{Used: {(m_head - m_memory)}/{$T2}, Usage: {((float)(m_head - m_memory))/$T2,g}%}}</DisplayString>
+    <Expand>
+      <Item Name="[Used[B]]">(m_head - m_memory)</Item>
+      <Item Name="[Capacity[B]]">$T2</Item>
+      <ArrayItems>
+        <Size>$T2</Size>
+        <ValuePointer>($T1*)m_memory</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+</AutoVisualizer>

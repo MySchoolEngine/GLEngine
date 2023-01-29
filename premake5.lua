@@ -54,6 +54,7 @@ workspace "Engine"
 		"Animation/animation.natvis",
 		"Renderer/renderer.natvis",
 		"Entity/Entity.natvis",
+		"Utils/utils.natvis",
 		"premake5.lua",
 		"Tools/Premake5/premakeDefines.lua",
 		"Tools/Premake5/workspaceFiles.lua",
