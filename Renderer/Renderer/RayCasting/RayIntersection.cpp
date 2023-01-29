@@ -42,7 +42,7 @@ void C_RayIntersection::SetMaterial(const MeshData::Material* material)
 //=================================================================================
 const float C_RayIntersection::GetRayLength() const
 {
-	return glm::distance(m_Point, m_Ray.origin);
+	return m_RayLength;
 }
 
 //=================================================================================

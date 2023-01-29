@@ -55,6 +55,7 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 		{
 			intersection.SetMaterial(&GetMaterial());
 			intersection.TransformRayAndPoint(m_Transofrm);
+			intersection.SetRayLength(glm::distance(intersection.GetRay().origin, intersection.GetIntersectionPoint()));
 			return true;
 		}
 		return false;
@@ -107,6 +108,7 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 
 	intersection = closestIntersect.intersection;
 	intersection.TransformRayAndPoint(m_Transofrm);
+	intersection.SetRayLength(glm::distance(intersection.GetRay().origin, intersection.GetIntersectionPoint()));
 	return true;
 }
 

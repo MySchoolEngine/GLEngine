@@ -181,6 +181,7 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection
 			const auto area	  = glm::length(normal) / 2.f;
 			normal			  = glm::normalize(normal);
 			C_RayIntersection inter(S_Frame(normal), ray.origin + length * ray.direction, Physics::Primitives::S_Ray(ray));
+			inter.SetRayLength(length);
 
 			closestIntersect = {inter, length};
 		}

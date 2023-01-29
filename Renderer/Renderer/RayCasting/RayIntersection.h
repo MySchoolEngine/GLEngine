@@ -21,6 +21,7 @@ public:
 	[[nodiscard]] const Physics::Primitives::S_Ray& GetRay() const;
 	[[nodiscard]] const glm::vec3&					GetIntersectionPoint() const;
 	[[nodiscard]] const float						GetRayLength() const;
+	void											SetRayLength(float t) { m_RayLength = t; }
 
 	void									SetMaterial(const MeshData::Material* material);
 	[[nodiscard]] const MeshData::Material* GetMaterial() const;
@@ -39,6 +40,7 @@ private:
 	glm::vec3								m_Point;
 	Physics::Primitives::S_Ray				m_Ray;
 	glm::vec2								m_UV	   = {0.f, 0.f};
+	float									m_RayLength;
 	const MeshData::Material*				m_Material = nullptr; // not owning
 	std::shared_ptr<RayTracing::I_RayLight> m_Light	   = nullptr;
 };

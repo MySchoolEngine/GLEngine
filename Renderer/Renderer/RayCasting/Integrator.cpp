@@ -9,6 +9,7 @@
 #include <Renderer/RayCasting/PhysicalProperties.h>
 #include <Renderer/RayCasting/RayIntersection.h>
 #include <Renderer/RayCasting/ReflectionModels/LambertianModel.h>
+#include <Renderer/RayCasting/ReflectionModels/OrenNayar.h>
 #include <Renderer/RayCasting/ReflectionModels/SpecularReflection.h>
 #include <Renderer/RayCasting/VisibilityTester.h>
 
@@ -25,11 +26,12 @@ C_PathIntegrator::C_PathIntegrator(const C_RayTraceScene& scene)
 //=================================================================================
 Colours::T_Colour C_PathIntegrator::TraceRay(Physics::Primitives::S_Ray ray, I_Sampler& rnd)
 {
-	return Li_PathTrace(ray, rnd);
+	T_Alloc alloc;
+	return Li_PathTrace(ray, rnd, &alloc);
 }
 
 //=================================================================================
-Colours::T_Colour C_PathIntegrator::Li_Direct(const Physics::Primitives::S_Ray& ray, I_Sampler& rnd)
+Colours::T_Colour C_PathIntegrator::Li_Direct(const Physics::Primitives::S_Ray& ray, I_Sampler& rnd, T_Alloc* alloc)
 {
 	glm::vec3 LoDirect(0.f);
 
@@ -54,7 +56,8 @@ Colours::T_Colour C_PathIntegrator::Li_Direct(const Physics::Primitives::S_Ray& 
 	{
 		diffuseColour = m_Scene.GetTextureView(material->textureIndex).Get<glm::vec3, T_Bilinear>(uv);
 	}
-	const std::unique_ptr<I_ReflectionModel> model = GetReflectionModel(material, diffuseColour);
+	//const auto model = GetReflectionModel(material, diffuseColour);
+	const auto model = GetReflectionModel<C_PathIntegrator::T_Alloc::delete_policy<>>(material, diffuseColour, alloc);
 
 	const auto wol = frame.ToLocal(-ray.direction);
 
@@ -82,7 +85,7 @@ Colours::T_Colour C_PathIntegrator::Li_Direct(const Physics::Primitives::S_Ray& 
 }
 
 //=================================================================================
-Colours::T_Colour C_PathIntegrator::Li_PathTrace(Physics::Primitives::S_Ray ray, I_Sampler& rnd)
+Colours::T_Colour C_PathIntegrator::Li_PathTrace(Physics::Primitives::S_Ray ray, I_Sampler& rnd, T_Alloc* alloc)
 {
 	Colours::T_Colour LoDirect	 = Colours::black; // f in his example
 	Colours::T_Colour throughput = Colours::white;
@@ -124,10 +127,11 @@ Colours::T_Colour C_PathIntegrator::Li_PathTrace(Physics::Primitives::S_Ray ray,
 			diffuseColour = m_Scene.GetTextureView(material->textureIndex).Get<glm::vec3, T_Bilinear>(uv);
 		}
 
-		const std::unique_ptr<I_ReflectionModel> model = GetReflectionModel(material, diffuseColour);
+		const auto model = GetReflectionModel<C_PathIntegrator::T_Alloc::delete_policy<>>(material, diffuseColour, alloc);
+		//const auto model = GetReflectionModel(material, diffuseColour);
 
 		// add Li
-		Colours::T_Colour Li = Li_LightSampling(ray, rnd);
+		Colours::T_Colour Li = Li_LightSampling(ray, rnd, alloc);
 		LoDirect += Li * throughput;
 
 		const auto wol = frame.ToLocal(-ray.direction);
@@ -164,7 +168,7 @@ Colours::T_Colour C_PathIntegrator::Li_PathTrace(Physics::Primitives::S_Ray ray,
 }
 
 //=================================================================================
-Colours::T_Colour C_PathIntegrator::Li_LightSampling(const Physics::Primitives::S_Ray& ray, I_Sampler& rnd)
+Colours::T_Colour C_PathIntegrator::Li_LightSampling(const Physics::Primitives::S_Ray& ray, I_Sampler& rnd, T_Alloc* alloc)
 {
 	C_RayIntersection intersect;
 
@@ -203,7 +207,8 @@ Colours::T_Colour C_PathIntegrator::Li_LightSampling(const Physics::Primitives::
 			{
 				diffuseColour = m_Scene.GetTextureView(material->textureIndex).Get<glm::vec3, T_Bilinear>(uv);
 			}
-			const std::unique_ptr<I_ReflectionModel> model = GetReflectionModel(material, diffuseColour);
+			//const auto model = GetReflectionModel<std::default_delete<Renderer::I_ReflectionModel>>(material, diffuseColour);
+			const auto model = GetReflectionModel<C_PathIntegrator::T_Alloc::delete_policy<>>(material, diffuseColour, alloc);
 			LoDirect += illum * model->f(frame.ToLocal(ray.direction), frame.ToLocal(vis.GetRay().direction));
 		}
 	});
@@ -212,12 +217,24 @@ Colours::T_Colour C_PathIntegrator::Li_LightSampling(const Physics::Primitives::
 }
 
 //=================================================================================
-std::unique_ptr<Renderer::I_ReflectionModel> C_PathIntegrator::GetReflectionModel(const MeshData::Material* material, Colours::T_Colour& colour) const
+template <class deleter, class T_Alloct>
+std::unique_ptr<Renderer::I_ReflectionModel, deleter> C_PathIntegrator::GetReflectionModel(const MeshData::Material* material, Colours::T_Colour& colour, T_Alloct* alloc) const
 {
-	if (material->shininess == 0.f)
-		return std::make_unique<C_LambertianModel>(colour);
+	if constexpr (std::is_same_v < T_Alloc, void> == false)
+	{
+		if (material->shininess == 0.f)
+			return std::unique_ptr<C_OrenNayarModel, deleter>(new (alloc->allocate(sizeof(C_OrenNayarModel))) C_OrenNayarModel(colour, 8.f), deleter{});
+		else
+			return std::unique_ptr<C_SpecularReflection, deleter>(
+				new (alloc->allocate(sizeof(C_SpecularReflection))) C_SpecularReflection(PhysicalProperties::IOR::Air, PhysicalProperties::IOR::Glass), deleter{});
+	}
 	else
-		return std::make_unique<C_SpecularReflection>(PhysicalProperties::IOR::Air, PhysicalProperties::IOR::Glass);
+	{
+		if (material->shininess == 0.f)
+			return std::make_unique<C_OrenNayarModel>(colour, 8.f);
+		else
+			return std::make_unique<C_SpecularReflection>(PhysicalProperties::IOR::Air, PhysicalProperties::IOR::Glass);
+	}
 }
 
 } // namespace GLEngine::Renderer

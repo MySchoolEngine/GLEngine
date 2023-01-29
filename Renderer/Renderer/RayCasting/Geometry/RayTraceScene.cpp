@@ -194,7 +194,7 @@ bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInte
 
 		[[nodiscard]] bool operator<(const S_IntersectionInfo& a) const { return t < a.t; }
 	};
-	S_IntersectionInfo closestIntersect{C_RayIntersection(), std::numeric_limits<float>::max()};
+	S_IntersectionInfo closestIntersect{C_RayIntersection(), std::numeric_limits<float>::max(), nullptr};
 
 	std::for_each(m_Objects.begin(), m_Objects.end(), [&](const auto& object) {
 		C_RayIntersection inter;
