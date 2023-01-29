@@ -93,10 +93,4 @@ Physics::Primitives::S_AABB C_GLGeomComponent::GetAABB() const
 	return m_AABB;
 }
 
-//=================================================================================
-std::shared_ptr<Renderer::C_GeomComponent> C_GLGeomComponentBuilder::ConstructComponent(std::shared_ptr<Entity::I_Entity> owner) const
-{
-	return std::make_shared<C_GLGeomComponent>(owner);
-}
-
 } // namespace GLEngine::GLRenderer::Components

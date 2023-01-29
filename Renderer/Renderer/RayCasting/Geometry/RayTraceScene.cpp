@@ -188,9 +188,9 @@ C_RayTraceScene::~C_RayTraceScene() = default;
 bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, float offset) const
 {
 	struct S_IntersectionInfo {
-		C_RayIntersection					 intersection;
-		float								 t;
-		std::shared_ptr<I_RayGeometryObject> object;
+		C_RayIntersection	 intersection;
+		float				 t;
+		I_RayGeometryObject* object;
 
 		[[nodiscard]] bool operator<(const S_IntersectionInfo& a) const { return t < a.t; }
 	};
@@ -201,7 +201,7 @@ bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInte
 		if (object->Intersect(ray, inter))
 		{
 			if (inter.GetRayLength() >= offset && inter.GetRayLength() < closestIntersect.t)
-				closestIntersect = {inter, inter.GetRayLength(), object};
+				closestIntersect = {inter, inter.GetRayLength(), object.get()};
 		}
 	});
 
@@ -210,7 +210,7 @@ bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInte
 
 	intersection  = closestIntersect.intersection;
 	const auto it = std::find_if(m_AreaLights.begin(), m_AreaLights.end(),
-								 [&](const std::shared_ptr<RayTracing::C_AreaLight>& other) { return other->GetGeometry().get() == closestIntersect.object.get(); });
+								 [&](const std::shared_ptr<RayTracing::C_AreaLight>& other) { return other->GetGeometry().get() == closestIntersect.object; });
 	if (it != m_AreaLights.end())
 	{
 		intersection.SetLight(*it);

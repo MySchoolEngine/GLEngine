@@ -42,14 +42,7 @@ private:
 	float			  m_Intensity;
 	Colours::T_Colour m_Color;
 
-	friend class C_PointLightCompBuilder;
 	RTTR_ENABLE(I_Light);
 	RTTR_REGISTRATION_FRIEND;
-};
-
-//=============================================================
-class C_PointLightCompBuilder : public Entity::I_ComponenetBuilder {
-public:
-	RENDERER_API_EXPORT virtual std::shared_ptr<Entity::I_Component> Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner) override;
 };
 } // namespace GLEngine::Renderer

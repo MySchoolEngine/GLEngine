@@ -8,7 +8,6 @@
 #include <GLRenderer/Commands/GLViewport.h>
 #include <GLRenderer/Commands/GlClearColor.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
-#include <GLRenderer/Components/ComponentBuilderFactory.h>
 #include <GLRenderer/Components/SkeletalMesh.h>
 #include <GLRenderer/Components/SkyBox.h>
 #include <GLRenderer/Debug.h>
@@ -531,7 +530,7 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 	if (player)
 	{
 		auto cameras = player->GetComponents(Entity::E_ComponentType::Camera);
-		for (int i = cameras.size(); i < 2; ++i)
+		for (auto i = cameras.size(); i < 2; ++i)
 		{
 			float zoom		   = 5.0f;
 			auto  playerCamera = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
@@ -551,7 +550,7 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 	{
 		auto skeletalMesh = std::make_shared<Components::C_SkeletalMesh>(runner, "model.dae");
 		skeletalMesh->SetComponentMatrix(glm::translate(glm::mat4{1.f}, glm::vec3(0, -1, 0)) * glm::rotate(glm::half_pi<float>(), glm::vec3(1.f, .0f, .0f))
-										 * glm::scale(glm::vec3{0.2}));
+										 * glm::scale(glm::vec3{0.2f}));
 		runner->AddComponent(skeletalMesh);
 	}
 
