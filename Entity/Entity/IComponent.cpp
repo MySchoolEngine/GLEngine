@@ -12,8 +12,6 @@
 RTTR_REGISTRATION
 {
 	using namespace GLEngine::Entity;
-	rttr::registration::class_<I_ComponenetBuilder>("I_ComponenetBuilder")
-		.method("Build", &I_ComponenetBuilder::Build);
 
 	rttr::registration::class_<I_Component>("I_Component")
 		.property("Transformation", &I_Component::m_Transformation)

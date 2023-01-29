@@ -1,6 +1,5 @@
 #pragma once
 
-#include <GLRenderer/Components/ComponentBuilderFactory.h>
 #include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/VAO/VAO.h>
 
@@ -38,11 +37,4 @@ private:
 	VAO::C_GLVAO<1>								 m_VAO;
 	static constexpr Physics::Primitives::S_AABB m_AABB = Physics::Primitives::S_AABB();
 };
-
-//=============================================================
-class C_SkyBoxCompBuilder : public Entity::I_ComponenetBuilder {
-public:
-	virtual std::shared_ptr<Entity::I_Component> Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner) override;
-};
-
 } // namespace GLEngine::GLRenderer::Components

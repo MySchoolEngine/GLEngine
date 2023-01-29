@@ -17,7 +17,7 @@ C_Texture::C_Texture(std::weak_ptr<Renderer::I_DeviceTexture> texture, const glm
 //=================================================================================
 void C_Texture::Draw() const
 {
-	const ImVec2 iconSize(m_Dimensions.x, m_Dimensions.y);
+	const ImVec2 iconSize(static_cast<float>(m_Dimensions.x), static_cast<float>(m_Dimensions.y));
 	const auto	 canvas_pos = ImGui::GetCursorScreenPos();
 	ImDrawList*	 draw_list	= ImGui::GetWindowDrawList();
 	const ImRect total_bb(canvas_pos, canvas_pos + iconSize);

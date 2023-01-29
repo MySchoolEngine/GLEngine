@@ -39,8 +39,6 @@ public:
 	void								SetFilename(const std::filesystem::path& filename);
 	[[nodiscard]] std::filesystem::path GetFilename() const;
 
-	[[nodiscard]] bool LoadLevel(const std::filesystem::path& name, std::unique_ptr<I_ComponentBuilderFactory> cbf);
-
 	virtual void OnEvent(Core::I_Event& event) override;
 
 	RTTR_ENABLE();

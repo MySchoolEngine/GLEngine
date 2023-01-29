@@ -69,14 +69,7 @@ protected:
 	std::shared_ptr<Renderer::C_Material>					 m_Material;
 	Physics::Primitives::S_AABB								 m_AABB;
 
-	friend class C_StaticMeshBuilder;
 	RTTR_REGISTRATION_FRIEND;
-};
-
-class C_StaticMeshBuilder : public Entity::I_ComponenetBuilder {
-public:
-	virtual std::shared_ptr<Entity::I_Component> Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner) override;
-	RTTR_ENABLE(Entity::I_ComponenetBuilder);
 };
 
 } // namespace Components
