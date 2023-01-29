@@ -59,6 +59,7 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, const st
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unable to load model {}/{}", meshFolder, meshFile);
 		return;
 	}
+	m_bInit = true;
 
 	SetColorMapPath(meshFolder / textureName);
 
@@ -144,7 +145,7 @@ bool C_SkeletalMesh::HasDebugDrawGUI() const
 //=================================================================================
 void C_SkeletalMesh::PerformDraw() const
 {
-	if (!m_RenderMesh)
+	if (!m_RenderMesh || !m_bInit)
 	{
 		return;
 	}
@@ -201,6 +202,9 @@ void C_SkeletalMesh::Update()
 
 		m_ColorMapGUI = GUI::C_Texture(m_ColorMap);
 	}
+
+	if (!m_bInit)
+		return;
 
 	const auto& pose = m_Animation.GetPose(m_AnimationProgress.GetValue());
 	C_DebugDraw::Instance().DrawSkeleton(glm::vec3(1.0f, .0f, .0f), m_Skeleton);
