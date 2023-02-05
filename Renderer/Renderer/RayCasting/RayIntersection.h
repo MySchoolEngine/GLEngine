@@ -1,13 +1,11 @@
 #pragma once
 
 #include <Renderer/RayCasting/Frame.h>
+#include <Renderer/RayCasting/Material/MaterialInterface.h>
 
 #include <Physics/Primitives/Ray.h>
 
 namespace GLEngine::Renderer {
-namespace MeshData {
-struct Material;
-}
 namespace RayTracing {
 class I_RayLight;
 }
@@ -23,8 +21,8 @@ public:
 	[[nodiscard]] const float						GetRayLength() const;
 	void											SetRayLength(float t) { m_RayLength = t; }
 
-	void									SetMaterial(const MeshData::Material* material);
-	[[nodiscard]] const MeshData::Material* GetMaterial() const;
+	void									 SetMaterial(const I_MaterialInterface* material);
+	[[nodiscard]] const I_MaterialInterface* GetMaterial() const;
 
 	[[nodiscard]] bool											IsLight() const;
 	void														SetLight(const std::shared_ptr<RayTracing::I_RayLight>& light);
@@ -39,9 +37,9 @@ private:
 	S_Frame									m_Frame;
 	glm::vec3								m_Point;
 	Physics::Primitives::S_Ray				m_Ray;
-	glm::vec2								m_UV	   = {0.f, 0.f};
+	glm::vec2								m_UV = {0.f, 0.f};
 	float									m_RayLength;
-	const MeshData::Material*				m_Material = nullptr; // not owning
+	const I_MaterialInterface*				m_Material = nullptr; // not owning
 	std::shared_ptr<RayTracing::I_RayLight> m_Light	   = nullptr;
 };
 } // namespace GLEngine::Renderer

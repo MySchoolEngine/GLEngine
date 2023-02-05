@@ -28,13 +28,13 @@ bool C_RayIntersection::IsLight() const
 }
 
 //=================================================================================
-const GLEngine::Renderer::MeshData::Material* C_RayIntersection::GetMaterial() const
+const I_MaterialInterface* C_RayIntersection::GetMaterial() const
 {
 	return m_Material;
 }
 
 //=================================================================================
-void C_RayIntersection::SetMaterial(const MeshData::Material* material)
+void C_RayIntersection::SetMaterial(const I_MaterialInterface* material)
 {
 	m_Material = material;
 }

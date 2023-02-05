@@ -19,6 +19,7 @@ class TextureResource;
 class I_TextureViewStorage;
 class I_DebugDraw;
 class C_Trimesh;
+class I_MaterialInterface;
 
 namespace MeshData {
 struct Mesh;
@@ -60,10 +61,13 @@ private:
 	std::vector<std::shared_ptr<RayTracing::C_PointLight>> m_PointLights;
 	std::vector<Core::ResourceHandle<TextureResource>>	   m_Textures;
 	std::vector<Core::ResourceHandle<MeshResource>>		   m_Meshes;
+	std::vector<std::unique_ptr<I_MaterialInterface>>	   m_Materials;
 	// aux
 	std::vector<std::shared_ptr<C_Trimesh>> m_Trimeshes;
 
 	Core::LoadingQuery m_Loading;
+
+	std::unique_ptr<I_MaterialInterface>& AddMaterial(const MeshData::Material& material);
 };
 
 } // namespace GLEngine::Renderer
