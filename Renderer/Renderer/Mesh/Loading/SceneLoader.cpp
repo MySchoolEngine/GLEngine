@@ -16,7 +16,7 @@ bool SceneLoader::addModelFromFileToScene(const std::filesystem::path&	   filepa
 	ModelLoader ml;
 	// dr
 	ml.Reset();
-	std::vector<std::string> texNames;
+	std::vector<std::filesystem::path> texNames;
 
 	const auto fullFilename = filepath / filename;
 

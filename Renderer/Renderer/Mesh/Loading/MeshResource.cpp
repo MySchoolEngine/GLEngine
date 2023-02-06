@@ -26,7 +26,7 @@ bool MeshResource::Reload()
 	std::lock_guard	  lock(ml.GetMutex());
 	ml.Reset();
 	auto newScene = std::make_shared<Renderer::MeshData::Scene>();
-	std::vector<std::string> newTextures;
+	std::vector<std::filesystem::path> newTextures;
 	if (ml.addModelFromFileToScene(m_Filepath, newScene, newTextures)) {
 		m_Scene = newScene;
 		m_TexuterNames = newTextures;
@@ -55,6 +55,13 @@ const MeshData::Scene& MeshResource::GetScene() const
 std::filesystem::path MeshResource::GetFilePath() const
 {
 	return m_Filepath;
+}
+
+//=================================================================================
+const std::vector<std::filesystem::path>& MeshResource::GetTextureNames() const
+{
+	GLE_ASSERT(IsReady(), "Dereferencing unloaded resource.");
+	return m_TexuterNames;
 }
 
 //=================================================================================

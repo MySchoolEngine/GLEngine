@@ -216,12 +216,15 @@ void C_StaticMesh::Update()
 		}
 
 		// only 1 material right now
-		if (!m_Material)
+		if (!m_Material || m_Material->GetName() == "Default")
 		{
 			const auto materialIdx = m_MeshResource.GetResource().GetScene().meshes[0].materialIndex;
 			// would force all materials to be white
 			auto& material = m_MeshResource.GetResource().GetScene().materials[materialIdx];
 			SetMaterial(material);
+			if (material.textureIndex != -1) {
+				m_Material->SetColorMapPath(m_MeshResource.GetResource().GetTextureNames()[material.textureIndex]);
+			}
 		}
 	}
 }
