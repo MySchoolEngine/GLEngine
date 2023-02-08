@@ -65,7 +65,8 @@ private:
 	// aux
 	std::vector<std::shared_ptr<C_Trimesh>> m_Trimeshes;
 
-	Core::LoadingQuery m_Loading;
+	Core::LoadingQuery m_LoadingMeshes;
+	Core::LoadingQuery m_LoadingTextures;
 
 	std::unique_ptr<I_MaterialInterface>& AddMaterial(const MeshData::Material& material);
 };

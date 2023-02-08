@@ -32,7 +32,7 @@ C_RayTraceScene::C_RayTraceScene()
 #ifdef CORNELL
 	auto& rm = Core::C_ResourceManager::Instance();
 	m_Textures.emplace_back(rm.LoadResource<TextureResource>(std::filesystem::path(R"(Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp)")));
-	m_Loading.AddHandle(m_Textures[0]);
+	m_LoadingTextures.AddHandle(m_Textures[0]);
 
 	static const MeshData::Material red{glm::vec4{}, glm::vec4{Colours::red, 0}, glm::vec4{}, 0.f, -1, -1, "red"};
 	static const MeshData::Material green{glm::vec4{}, glm::vec4{Colours::green, 0}, glm::vec4{}, 0.f, -1, -1, "green"};
@@ -147,13 +147,13 @@ C_RayTraceScene::C_RayTraceScene()
 	if (false)
 	{
 		auto& meshHandle = m_Meshes.emplace_back(rm.LoadResource<MeshResource>(R"(Models/sword/baphomet-sword-mostruario.obj)"));
-		m_Loading.AddHandle(meshHandle);
+		m_LoadingMeshes.AddHandle(meshHandle);
 	}
 
 	if (true)
 	{
-		auto& meshHandle = m_Meshes.emplace_back(rm.LoadResource<MeshResource>(R"(Models/dragon/Dragon_Busts_Gerhald3D.obj)"));
-		m_Loading.AddHandle(meshHandle);
+		auto& meshHandle = m_Meshes.emplace_back(rm.LoadResource<MeshResource>(R"(Models/KoboldRig/Kobold_Rig_.obj)"));
+		m_LoadingMeshes.AddHandle(meshHandle);
 	}
 #else
 	auto							plane = std::make_shared<C_Primitive<S_Plane>>(S_Plane(glm::vec3(1, 0, 0), {-3.f, 0.f, 0.f}));
@@ -298,26 +298,41 @@ void C_RayTraceScene::DebugDraw(I_DebugDraw* dd) const
 //=================================================================================
 bool C_RayTraceScene::IsLoaded() const
 {
-	return m_Loading.IsDone();
+	return m_LoadingMeshes.IsDone() && m_LoadingTextures.IsDone();
 }
 
 //=================================================================================
 void C_RayTraceScene::BuildScene()
 {
-	for (const auto& meshHandle : m_Meshes)
+	auto& rm = Core::C_ResourceManager::Instance();
+	if (m_LoadingMeshes.IsDone())
 	{
-		GLE_ASSERT(meshHandle.IsLoading() == false, "At this point all the handles should be loaded!");
-		if (!meshHandle)
-			continue;
-
-		for (auto& mesh : meshHandle.GetResource().GetScene().meshes)
+		for (const auto& meshHandle : m_Meshes)
 		{
-			// intentional copy as I need to re-number the textures
-			MeshData::Material mat = meshHandle.GetResource().GetScene().materials[mesh.materialIndex];
-			mat.textureIndex	   = -1; // I would need to check whether such texture exists
-			mat.noramlTextureIndex = -1;
-			mat.shininess		   = 0.f;
-			AddMesh(mesh, mat);
+			GLE_ASSERT(meshHandle.IsLoading() == false, "At this point all the handles should be loaded!");
+			if (!meshHandle)
+				continue;
+
+			for (auto& mesh : meshHandle.GetResource().GetScene().meshes)
+			{
+				// intentional copy as I need to re-number the textures
+				m_LoadingTextures.AddHandle(m_Textures[0]);
+				const auto&		   scene = meshHandle.GetResource().GetScene();
+				MeshData::Material mat	 = scene.materials[mesh.materialIndex];
+
+				if (mat.textureIndex != -1)
+				{
+					m_Textures.emplace_back(rm.LoadResource<TextureResource>(std::filesystem::path(meshHandle.GetResource().GetTextureNames()[mat.textureIndex])));
+					mat.textureIndex = m_Textures.size() - 1;
+				}
+				if (mat.noramlTextureIndex != -1)
+				{
+					m_Textures.emplace_back(rm.LoadResource<TextureResource>(std::filesystem::path(meshHandle.GetResource().GetTextureNames()[mat.textureIndex])));
+					mat.noramlTextureIndex = m_Textures.size() - 1;
+				}
+				mat.shininess		   = 0.f;
+				AddMesh(mesh, mat);
+			}
 		}
 	}
 }

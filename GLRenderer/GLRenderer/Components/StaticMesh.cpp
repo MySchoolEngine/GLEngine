@@ -211,16 +211,16 @@ void C_StaticMesh::Update()
 		const auto& scene = m_MeshResource.GetResource().GetScene();
 		for (unsigned int i = 0; i < scene.meshes.size(); ++i)
 		{
-			m_Mesh.emplace_back(std::make_shared<Mesh::C_StaticMeshResource>(m_MeshResource.GetResource().GetScene().meshes[i]));
-			m_AABB.Add(m_MeshResource.GetResource().GetScene().meshes[i].bbox);
+			m_Mesh.emplace_back(std::make_shared<Mesh::C_StaticMeshResource>(scene.meshes[i]));
+			m_AABB.Add(scene.meshes[i].bbox);
 		}
 
 		// only 1 material right now
 		if (!m_Material || m_Material->GetName() == "Default")
 		{
-			const auto materialIdx = m_MeshResource.GetResource().GetScene().meshes[0].materialIndex;
+			const auto materialIdx = scene.meshes[0].materialIndex;
 			// would force all materials to be white
-			auto& material = m_MeshResource.GetResource().GetScene().materials[materialIdx];
+			auto& material = scene.materials[materialIdx];
 			SetMaterial(material);
 			if (material.textureIndex != -1) {
 				m_Material->SetColorMapPath(m_MeshResource.GetResource().GetTextureNames()[material.textureIndex]);
