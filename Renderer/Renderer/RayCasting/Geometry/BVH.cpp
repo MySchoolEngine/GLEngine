@@ -34,7 +34,7 @@ void BVH::Build()
 }
 
 //=================================================================================
-void BVH::SplitBVHNode(NodeID nodeId, unsigned int level)
+void BVH::SplitBVHNode(T_BVHNodeID nodeId, unsigned int level)
 {
 	if (level > 10)
 		return;
@@ -48,10 +48,10 @@ void BVH::SplitBVHNode(NodeID nodeId, unsigned int level)
 	// naive split!
 	// 1) Allocate two new nodes
 	m_Nodes.emplace_back();
-	const NodeID leftNodeId = static_cast<unsigned int>(m_Nodes.size()) - 1;
+	const T_BVHNodeID leftNodeId = static_cast<T_BVHNodeID>(m_Nodes.size()) - 1;
 	m_Nodes[nodeId].left	= leftNodeId;
 	m_Nodes.emplace_back();
-	const NodeID rightNodeId = static_cast<unsigned int>(m_Nodes.size()) - 1;
+	const T_BVHNodeID rightNodeId = static_cast<T_BVHNodeID>(m_Nodes.size()) - 1;
 	m_Nodes[nodeId].right	 = rightNodeId;
 	// now I can store references, because I am not adding new elements
 	auto& left	= m_Nodes[leftNodeId];
