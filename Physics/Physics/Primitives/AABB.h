@@ -173,6 +173,10 @@ public:
 		return newBB;
 	}
 
+	constexpr float Area() const { const glm::vec3 extent = m_Max - m_Min;
+		return (extent.x * extent.y + extent.y * extent.z + extent.z * extent.x) * 2.f;
+	}
+
 	glm::vec3 m_Min;
 	glm::vec3 m_Max;
 	bool	  m_Initialised;

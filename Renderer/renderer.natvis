@@ -35,6 +35,26 @@
   </Type>
 
   <Type Name="GLEngine::Renderer::MeshData::Material">
-    <DisplayString>{{{m_Name}}}</DisplayString>
+    <DisplayString>{m_Name}</DisplayString>
+  </Type>
+
+  <Type Name="GLEngine::Renderer::BVH::BVHNode">
+    <Intrinsic Name="hasLeft"  Expression="left  != GLEngine::Renderer::BVH::s_InvalidBVHNode"/>
+    <Intrinsic Name="hasRight" Expression="right != GLEngine::Renderer::BVH::s_InvalidBVHNode"/>
+    <Intrinsic Name="numTris" Expression="(lastTrig-firstTrig)/3+1"/>
+    <DisplayString Condition="hasLeft() || hasRight()">{aabb}: {numTris()} tris</DisplayString>
+    <DisplayString Condition="!hasLeft() &amp;&amp; !hasRight()">{aabb}: {numTris()} tris - leaf</DisplayString>
+    <Expand>
+      <Item Name="[tris]">numTris()</Item>
+      <Item Name="[aabb]">aabb</Item>
+      <Synthetic Name="[left]" Condition="!hasLeft()">
+        <DisplayString>nullptr</DisplayString>
+      </Synthetic>
+      <Item Name="[left]" Condition="hasLeft()">left</Item>
+      <Synthetic Name="[right]" Condition="!hasRight()">
+        <DisplayString>nullptr</DisplayString>
+      </Synthetic>
+      <Item Name="[right]" Condition="hasRight()">right</Item>
+    </Expand>
   </Type>
 </AutoVisualizer>
