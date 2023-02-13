@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Renderer/RayCasting/Geometry/RayTraceScene.h>
-#include <Renderer/RayCasting/RayRenderer.h>
 #include <Renderer/RayCasting/ProbeRenderer.h>
+#include <Renderer/RayCasting/RayRenderer.h>
 #include <Renderer/Textures/TextureStorage.h>
 
 #include <GUI/GUIWindow.h>
@@ -48,12 +48,15 @@ private:
 	void		 UploadStorage();
 	void		 SaveCurrentImage(const std::filesystem::path& texture);
 	bool		 StillLoadingScene() const;
-
+	void		 RecalculateHeatMap();
 	//
 	std::shared_ptr<Renderer::I_CameraComponent> m_Camera; // TODO: Should be weak? What should I do when camera moves?
 	Textures::C_Texture							 m_Image;  // The presented result, TODO: make this pointer to base class or handle so I can move this to renderer or user code
+	Textures::C_Texture							 m_HeatMap;
 	Renderer::C_TextureViewStorageCPU<float>	 m_ImageStorage;   // Intermediate data, could need some weighting
 	Renderer::C_TextureViewStorageCPU<float>	 m_SamplesStorage; // Intermediate data, could need some weighting
+	Renderer::C_TextureViewStorageCPU<float>	 m_HeatMapStorage;
+	Renderer::C_TextureViewStorageCPU<float>	 m_HeatMapNormalizedStorage;
 	Renderer::C_RayTraceScene					 m_Scene;
 	int											 m_NumCycleSamples;	 // How many samples had been already used per pixel, Used for sampling
 	bool										 m_Running : 1;		 // Indicate that renderer is currently running
@@ -64,6 +67,7 @@ private:
 	std::shared_ptr<Textures::C_Texture>		 m_Probe;
 	Renderer::C_TextureViewStorageCPU<float>	 m_ProbeStorage; // Intermediate data, could need some weighting
 	GUI::C_Image								 m_GUIImage;
+	GUI::C_Image								 m_GUIHeatMapImage;
 	GUI::C_Image								 m_GUIImageProbe;
 	GUI::Menu::C_Menu							 m_FileMenu;
 	GUI::Input::C_CheckBoxValue					 m_DebugDraw;
