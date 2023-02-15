@@ -32,9 +32,9 @@ private:
 	[[nodiscard]] bool IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, const BVHNode* node) const;
 	void			   DebugDrawNode(I_DebugDraw* dd, const glm::mat4& modelMatrix, const BVHNode* node, unsigned int level) const;
 	// using NodeID because the vector is being reallocated on the way
-	void SplitBVHNodeNaive(T_BVHNodeID node, unsigned int level);
+	void SplitBVHNodeNaive(T_BVHNodeID node, unsigned int level, std::vector<glm::vec3>& centroids);
 
-	[[nodiscard]] float CalcSAHCost(const BVHNode& parent, const unsigned int axis, const float splitPos) const;
+	[[nodiscard]] float CalcSAHCost(const BVHNode& parent, const unsigned int axis, const float splitPos, std::vector<glm::vec3>& centroids) const;
 
 	std::vector<glm::vec3>& m_Storage;
 	std::vector<BVHNode>	m_Nodes;

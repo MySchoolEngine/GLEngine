@@ -30,11 +30,20 @@ void BVH::Build()
 		root.aabb.Add(vertex);
 	root.firstTrig = 0;
 	root.lastTrig  = static_cast<unsigned int>(m_Storage.size()) - 3;
-	SplitBVHNodeNaive(0, 0);
+	std::vector<glm::vec3> centroids;
+	centroids.reserve(root.NumTrig());
+	const auto			   trigCenter = [](const glm::vec3* triDef) { return (triDef[0] + triDef[1] + triDef[2]) / 3.f; };
+
+	for (unsigned int i = root.firstTrig; i < root.lastTrig + 3; i += 3)
+	{
+		const glm::vec3* triDef = &(m_Storage[i]);
+		centroids.emplace_back(trigCenter(triDef));
+	}
+	SplitBVHNodeNaive(0, 0, centroids);
 }
 
 //=================================================================================
-void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level)
+void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<glm::vec3>& centroids)
 {
 	if (level > 10)
 		return;
@@ -57,8 +66,8 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level)
 		for (unsigned int i = m_Nodes[nodeId].firstTrig; i < m_Nodes[nodeId].lastTrig + 3; i += 3)
 		{
 			const glm::vec3* triDef			 = &(m_Storage[i]);
-			const float		 currentCentroid = trigCenter(triDef, axe);
-			const float		 cost			 = CalcSAHCost(m_Nodes[nodeId], axe, currentCentroid);
+			const float		 currentCentroid = centroids[i/3][axe];
+			const float		 cost			 = CalcSAHCost(m_Nodes[nodeId], axe, currentCentroid, centroids);
 			if (cost < bestCost)
 			{
 				bestCost	= cost;
@@ -89,8 +98,7 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level)
 	while (leftSorting < rightSorting)
 	{
 		// find left candidate to swap
-		const glm::vec3* triDef = &(m_Storage[leftSorting]);
-		if (trigCenter(triDef, axis) < average)
+		if (centroids[leftSorting / 3][axis] < average)
 		{
 			leftSorting += 3;
 			continue;
@@ -98,8 +106,7 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level)
 		// find right candidate for swap
 		while (true)
 		{
-			const glm::vec3* triDef = &(m_Storage[rightSorting]);
-			if (trigCenter(triDef, axis) < average)
+			if (centroids[rightSorting / 3][axis] < average)
 			{
 				break;
 			}
@@ -111,12 +118,12 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level)
 			std::swap(m_Storage[leftSorting], m_Storage[rightSorting]);
 			std::swap(m_Storage[leftSorting + 1], m_Storage[rightSorting + 1]);
 			std::swap(m_Storage[leftSorting + 2], m_Storage[rightSorting + 2]);
+			std::swap(centroids[leftSorting / 3], centroids[rightSorting / 3]);
 		}
 	}
-	const glm::vec3* triDef = &(m_Storage[leftSorting]);
 	if (leftSorting >= rightSorting)
 	{
-		if (trigCenter(triDef, axis) < average)
+		if (centroids[leftSorting / 3][axis] < average)
 		{
 			rightSorting += 3;
 		}
@@ -143,8 +150,8 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level)
 		right.aabb.Add(m_Storage[i]);
 	}
 
-	SplitBVHNodeNaive(leftNodeId, level + 1);
-	SplitBVHNodeNaive(rightNodeId, level + 1);
+	SplitBVHNodeNaive(leftNodeId, level + 1, centroids);
+	SplitBVHNodeNaive(rightNodeId, level + 1, centroids);
 }
 
 //=================================================================================
@@ -264,16 +271,14 @@ void BVH::DebugDrawNode(I_DebugDraw* dd, const glm::mat4& modelMatrix, const BVH
 }
 
 //=================================================================================
-float BVH::CalcSAHCost(const BVHNode& parent, const unsigned int axis, const float splitPos) const
+float BVH::CalcSAHCost(const BVHNode& parent, const unsigned int axis, const float splitPos, std::vector<glm::vec3>& centroids) const
 {
-	const auto trigCenter = [&](const glm::vec3* triDef) { return (triDef[0][axis] + triDef[1][axis] + triDef[2][axis]) / 3.f; };
-
 	Physics::Primitives::S_AABB left, right;
 	unsigned int				leftCount = 0, rightCount = 0;
 	for (unsigned int i = parent.firstTrig; i < parent.lastTrig + 3; i += 3)
 	{
 		const glm::vec3* triDef = &(m_Storage[i]);
-		if (trigCenter(triDef) < splitPos)
+		if (centroids[i / 3][axis] < splitPos)
 		{
 			left.Add(triDef[0]);
 			left.Add(triDef[1]);
