@@ -43,10 +43,34 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level)
 	if (m_Nodes[nodeId].lastTrig - m_Nodes[nodeId].firstTrig <= 20 * 3)
 		return;
 
-	auto axis = level % 3;
+	const auto trigCenter = [](const glm::vec3* triDef, unsigned int axis) { return (triDef[0][axis] + triDef[1][axis] + triDef[2][axis]) / 3.f; };
 
-	// naive split!
-	// 1) Allocate two new nodes
+
+	// try finding better than average
+	const float	 parentCost	 = m_Nodes[nodeId].aabb.Area() * m_Nodes[nodeId].NumTrig();
+	float		 bestCost	 = std::numeric_limits<float>::max();
+	float		 bestAverage = 0.f;
+	unsigned int bestAxis	 = 0;
+	unsigned int bestTrig	 = 0;
+	for (unsigned int axe = 0; axe < 3; ++axe)
+	{
+		for (unsigned int i = m_Nodes[nodeId].firstTrig; i < m_Nodes[nodeId].lastTrig + 3; i += 3)
+		{
+			const glm::vec3* triDef			 = &(m_Storage[i]);
+			const float		 currentCentroid = trigCenter(triDef, axe);
+			const float		 cost			 = CalcSAHCost(m_Nodes[nodeId], axe, currentCentroid);
+			if (cost < bestCost)
+			{
+				bestCost	= cost;
+				bestAverage = currentCentroid;
+				bestAxis	= axe;
+				bestTrig	= i;
+			}
+		}
+	}
+	if (bestCost >= parentCost) {
+		return;
+	}
 	m_Nodes.emplace_back();
 	const T_BVHNodeID leftNodeId = static_cast<T_BVHNodeID>(m_Nodes.size()) - 1;
 	m_Nodes[nodeId].left		 = leftNodeId;
@@ -54,36 +78,12 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level)
 	const T_BVHNodeID rightNodeId = static_cast<T_BVHNodeID>(m_Nodes.size()) - 1;
 	m_Nodes[nodeId].right		  = rightNodeId;
 	// now I can store references, because I am not adding new elements
-	auto& left	= m_Nodes[leftNodeId];
-	auto& right = m_Nodes[rightNodeId];
-	auto& node	= m_Nodes[nodeId];
+	auto&			   left	   = m_Nodes[leftNodeId];
+	auto&			   right   = m_Nodes[rightNodeId];
+	auto&			   node	   = m_Nodes[nodeId];
 
-	// first split along X
-	auto	   average	  = node.aabb.m_Min[axis] + (node.aabb.m_Max[axis] - node.aabb.m_Min[axis]) * 0.5f;
-	const auto trigCenter = [](const glm::vec3* triDef, unsigned int axis) { return (triDef[0][axis] + triDef[1][axis] + triDef[2][axis]) / 3.f; };
-
-
-	// try finding better than average
-	float		 bestCost	 = 1e30f;
-	float		 bestAverage = 0.f;
-	unsigned int bestAxis	 = 0;
-	for (unsigned int axe = 0; axe < 3; ++axe)
-	{
-		for (unsigned int i = node.firstTrig; i < node.lastTrig + 3; i += 3)
-		{
-			const glm::vec3* triDef			 = &(m_Storage[i]);
-			const float		 currentCentroid = trigCenter(triDef, axe);
-			const float		 cost			 = CalcSAHCost(node, axe, currentCentroid);
-			if (cost < bestCost)
-			{
-				bestCost	= cost;
-				bestAverage = currentCentroid;
-				bestAxis	= axe;
-			}
-		}
-	}
-	axis	= bestAxis;
-	average = bestAverage;
+	const unsigned int axis = bestAxis;
+	const float average = bestAverage;
 
 	unsigned int leftSorting = node.firstTrig, rightSorting = node.lastTrig;
 	while (leftSorting < rightSorting)
@@ -105,17 +105,25 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level)
 			}
 			rightSorting -= 3;
 		}
-		if (leftSorting >= rightSorting) {
-			std::swap(leftSorting, rightSorting);
-			break;
+		if (leftSorting < rightSorting)
+		{
+			// swap
+			std::swap(m_Storage[leftSorting], m_Storage[rightSorting]);
+			std::swap(m_Storage[leftSorting + 1], m_Storage[rightSorting + 1]);
+			std::swap(m_Storage[leftSorting + 2], m_Storage[rightSorting + 2]);
 		}
-		// swap
-		std::swap(m_Storage[leftSorting], m_Storage[rightSorting]);
-		std::swap(m_Storage[leftSorting + 1], m_Storage[rightSorting + 1]);
-		std::swap(m_Storage[leftSorting + 2], m_Storage[rightSorting + 2]);
-
-		// leftSorting += 3;
-		// rightSorting -= 3;
+	}
+	const glm::vec3* triDef = &(m_Storage[leftSorting]);
+	if (leftSorting >= rightSorting)
+	{
+		if (trigCenter(triDef, axis) < average)
+		{
+			rightSorting += 3;
+		}
+		else
+		{
+			leftSorting -= 3;
+		}
 	}
 
 	left.firstTrig	= node.firstTrig;
@@ -281,7 +289,7 @@ float BVH::CalcSAHCost(const BVHNode& parent, const unsigned int axis, const flo
 		}
 	}
 	const float cost = leftCount * left.Area() + rightCount * right.Area();
-	return cost > 0.f ? cost : 1e30f;
+	return cost > 0.f ? cost : std::numeric_limits<float>::max();
 }
 
 } // namespace GLEngine::Renderer

@@ -2,7 +2,7 @@
 
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
   <Type Name="GLEngine::Entity::I_Entity">
-    <DisplayString>{{({m_Name}:{m_ID.m_Guid._bytes})}}</DisplayString>
+    <DisplayString>{m_Name}:{m_ID.m_Guid._bytes}</DisplayString>
     <Expand>
       <Item Name="[Name]">m_Name</Item>
       <Item Name="[ID]">m_ID</Item>

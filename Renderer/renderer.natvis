@@ -10,24 +10,26 @@
   </Type>
 
   <Type Name="GLEngine::Renderer::MeshResource">
-    <DisplayString>{{{m_Filepath._Text}}}</DisplayString>
+    <DisplayString>Mesh: {m_Filepath._Text}, {m_State}</DisplayString>
     <Expand>
-      <Item Name="[Filepath]">m_Filepath</Item>
-      <Item Name="[Scene]">m_Scene</Item>
+      <Item Name="[Filepath]">m_Filepath._Text</Item>
+      <Item Name="[Scene]">*m_Scene._Ptr</Item>
       <Item Name="[Texture names]">m_TexuterNames</Item>
+      <Item Name="[State]">m_State</Item>
     </Expand>
   </Type>
 
   <Type Name="GLEngine::Renderer::TextureResource">
-    <DisplayString>{{{m_Filepath._Text}}}</DisplayString>
+    <DisplayString>Texture: {m_Filepath._Text}, {m_State}</DisplayString>
     <Expand>
-      <Item Name="[Filepath]">m_Filepath</Item>
+      <Item Name="[Filepath]">m_Filepath._Text</Item>
       <Item Name="[Texture]">*m_TextureStorage</Item>
+      <Item Name="[State]">m_State</Item>
     </Expand>
   </Type>
 
   <Type Name="GLEngine::Renderer::I_TextureViewStorage">
-    <DisplayString>{{[{m_Dimensions.x}x{m_Dimensions.y}]:{m_Channels}}}</DisplayString>
+    <DisplayString>[{m_Dimensions.x}x{m_Dimensions.y}]:{m_Channels}</DisplayString>
     <Expand>
       <Item Name="[Dimensions]">m_Dimensions</Item>
       <Item Name="[Channels]">m_Channels</Item>
@@ -36,6 +38,51 @@
 
   <Type Name="GLEngine::Renderer::MeshData::Material">
     <DisplayString>{m_Name}</DisplayString>
+  </Type>
+  
+  <Type Name="GLEngine::Renderer::C_DiffuseMaterial">
+    <DisplayString>Diffuse mat: {m_DiffuseColour}</DisplayString>
+    <Expand>
+      <Item Name="[Colour]">m_DiffuseColour</Item>
+      <Item Name="[Texture]">m_DiffuseTexture</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="GLEngine::Renderer::C_Material">
+    <DisplayString Condition="m_Changed">{m_Name}: Changed</DisplayString>
+    <DisplayString Condition="!m_Changed">{m_Name}: Unchanged</DisplayString>
+    <Expand>
+      <Item Name="[Name]">m_Name</Item>
+      <Item Name="[Colour]">m_Color</Item>
+      <Item Name="[Roughness]">m_Roughness</Item>
+      <Item Name="[Colour map Res]">m_ColorMapRes</Item>
+      <Item Name="[Normal map Res]">m_NormalMapRes</Item>
+      <Item Name="[Roughness map Res]">m_RoughnessRes</Item>
+      <Item Name="[Colour map]">*m_ColorMap._Ptr</Item>
+      <Item Name="[Normal map]">*m_NormalMap._Ptr</Item>
+      <Item Name="[Roughness map]">*m_RoughnessMap._Ptr</Item>
+      <Item Name="[Material index]">m_MaterialIndex</Item>
+      <Item Name="[Shininess]">m_Shininess</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="GLEngine::Renderer::I_DeviceTexture">
+    <DisplayString>{m_Desc.name} [{m_Desc.width}x{m_Desc.height}]</DisplayString>
+    <Expand>
+      <ExpandedItem>m_Desc</ExpandedItem>
+    </Expand>
+  </Type>
+
+  <Type Name="GLEngine::Renderer::BVH">
+    <Intrinsic Name="numNodes" Expression="m_Nodes._Mypair._Myval2._Mylast - m_Nodes._Mypair._Myval2._Myfirst"/>
+    <Intrinsic Name="numVertices" Expression="m_Storage._Mypair._Myval2._Mylast - m_Storage._Mypair._Myval2._Myfirst"/>
+    <DisplayString Condition="numNodes() == 0">{numVertices()} - tris - not init</DisplayString>
+    <DisplayString Condition="numNodes() != 0">{numVertices()} - tris, {numNodes()} nodes</DisplayString>
+    <Expand>
+      <Item Name="[Root]" Condition="numNodes() != 0">m_Nodes[0]</Item>
+      <Item Name="[Nodes]" Condition="numNodes() != 0">m_Nodes</Item>
+      <Item Name="[Storage]">m_Storage</Item>
+    </Expand>
   </Type>
 
   <Type Name="GLEngine::Renderer::BVH::BVHNode">

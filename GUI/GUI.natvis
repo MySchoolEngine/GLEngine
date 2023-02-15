@@ -2,6 +2,9 @@
 
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
   <Type Name="GLEngine::GUI::C_Window">
-    <DisplayString>{{{m_Name}:Visible: {m_IsVisible},Destroying: {m_WantToBeDestroyed}}}</DisplayString>
+    <DisplayString>{m_Name}:Visible: {m_IsVisible},Destroying: {m_WantToBeDestroyed}</DisplayString>
+  </Type>
+  <Type Name="GLEngine::GUI::Input::C_CheckBoxValue">
+    <DisplayString>{m_Name}: {m_Value}</DisplayString>
   </Type>
 </AutoVisualizer>
