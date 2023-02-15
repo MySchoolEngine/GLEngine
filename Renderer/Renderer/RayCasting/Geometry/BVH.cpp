@@ -49,11 +49,8 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<
 		return;
 
 	// limit nodes thats too small
-	if (m_Nodes[nodeId].lastTrig - m_Nodes[nodeId].firstTrig <= 20 * 3)
+	if (m_Nodes[nodeId].NumTrig() <= 20)
 		return;
-
-	const auto trigCenter = [](const glm::vec3* triDef, unsigned int axis) { return (triDef[0][axis] + triDef[1][axis] + triDef[2][axis]) / 3.f; };
-
 
 	// try finding better than average
 	const float	 parentCost	 = m_Nodes[nodeId].aabb.Area() * m_Nodes[nodeId].NumTrig();
