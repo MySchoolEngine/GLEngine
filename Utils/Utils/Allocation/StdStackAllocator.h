@@ -71,15 +71,15 @@ public:
 
 	
 	// deletion policy for std::unique_ptr<T>
-	template <class T = pointer>
+	template <class T_Deletion = pointer>
 	struct delete_policy {
 	public:
 		constexpr delete_policy() noexcept = default;
 
-		template <class otherT, std::enable_if_t<std::is_convertible_v<otherT*, T>, int> = 0>
+		template <class otherT, std::enable_if_t<std::is_convertible_v<otherT*, T_Deletion>, int> = 0>
 		delete_policy(const C_StdStackAllocator::delete_policy<otherT>&) noexcept {}
 
-		void operator()(T _Ptr) const noexcept {} // do nothing, stackAlloc will delete everything at the end
+		void operator()(T_Deletion _Ptr) const noexcept {} // do nothing, stackAlloc will delete everything at the end
 	};
 
 private:
