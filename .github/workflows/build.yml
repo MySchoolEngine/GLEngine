@@ -36,6 +36,10 @@ jobs:
           cd /usr/bin && sudo ln -f g++-11 g++
       - name: update
         run: sudo apt update
+      - name: check version
+        run: |
+          g++ --version
+          gcc --version
       - name: Get X11
         run: sudo apt-get install xorg-dev
       - name: Get uuid
