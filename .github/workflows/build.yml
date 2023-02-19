@@ -31,9 +31,9 @@ jobs:
         run: |
           git submodule init
           git submodule update
-      - name: Set up g++-10
+      - name: Set up g++-11
         run: |
-          cd /usr/bin && sudo ln -f g++-10 g++
+          cd /usr/bin && sudo ln -f g++-11 g++
       - name: update
         run: sudo apt update
       - name: Get X11
