@@ -27,7 +27,7 @@ public:
 				I_TextureViewStorage& storage,
 				std::mutex*			  storageMutex,
 				int					  numSamplesBefore,
-				AdditionalTargets	  additional = AdditionalTargets());
+				AdditionalTargets	  additional = {nullptr});
 
 	[[nodiscard]] std::size_t GetProcessedPixels() const;
 
