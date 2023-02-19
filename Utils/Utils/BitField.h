@@ -112,7 +112,7 @@ template <typename Enum> typename std::enable_if<Utils::enable_BitField_operator
 
 template <typename Enum> typename std::enable_if<Utils::enable_BitField_operators<Enum>::enable, Utils::C_BitField<Enum>>::type operator&(Enum lhs, Enum rhs)
 {
-	Utils::C_BitField<Enum> field();
+	Utils::C_BitField<Enum> field;
 	if (lhs == rhs)
 		field.SetFlag(lhs);
 	return field;

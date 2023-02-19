@@ -27,6 +27,7 @@ public:
 
 		RayTracing::T_GeometryTraits::FillIntersection(m_Primitive, t, ray, intersection);
 		intersection.SetMaterial(&GetMaterial());
+		intersection.SetRayLength(t);
 		return true;
 	}
 	[[nodiscard]] virtual float Area() const override { return m_Area; }

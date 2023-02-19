@@ -9,6 +9,7 @@
 #include <Renderer/RayCasting/Light/ILight.h>
 #include <Renderer/RayCasting/Light/RayAreaLight.h>
 #include <Renderer/RayCasting/Light/RayPointLight.h>
+#include <Renderer/RayCasting/Material/DiffuseMaterial.h>
 #include <Renderer/RayCasting/RayIntersection.h>
 #include <Renderer/Textures/TextureResource.h>
 #include <Renderer/Textures/TextureStorage.h>
@@ -31,7 +32,7 @@ C_RayTraceScene::C_RayTraceScene()
 #ifdef CORNELL
 	auto& rm = Core::C_ResourceManager::Instance();
 	m_Textures.emplace_back(rm.LoadResource<TextureResource>(std::filesystem::path(R"(Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp)")));
-	m_Loading.AddHandle(m_Textures[0]);
+	m_LoadingTextures.AddHandle(m_Textures[0]);
 
 	static const MeshData::Material red{glm::vec4{}, glm::vec4{Colours::red, 0}, glm::vec4{}, 0.f, -1, -1, "red"};
 	static const MeshData::Material green{glm::vec4{}, glm::vec4{Colours::green, 0}, glm::vec4{}, 0.f, -1, -1, "green"};
@@ -41,6 +42,14 @@ C_RayTraceScene::C_RayTraceScene()
 	static const MeshData::Material blueMirror{glm::vec4{}, glm::vec4{Colours::blue, 0}, glm::vec4{}, 1.f, -1, -1, "blueMirror"};
 	static const MeshData::Material black{glm::vec4{}, glm::vec4{Colours::black, 0.f}, glm::vec4{}, 0.f, -1, -1, "black"};
 
+	auto* redMat		= AddMaterial(red).get();
+	auto* greenMat		= AddMaterial(green).get();
+	auto* whiteMat		= AddMaterial(white).get();
+	auto* brickMat		= AddMaterial(brick).get();
+	auto* blueMat		= AddMaterial(blue).get();
+	auto* blueMirrorMat = AddMaterial(blueMirror).get();
+	auto* blackMat		= AddMaterial(black).get();
+
 	{
 		auto trimesh = std::make_shared<C_Trimesh>();
 		// floor
@@ -48,7 +57,7 @@ C_RayTraceScene::C_RayTraceScene()
 		auto triangle1 = S_Triangle({-3.f, -1.5f, 3.f}, {3.f, -1.5f, 3.f}, {3.f, -1.5f, -3.f});
 		trimesh->AddTriangle(triangle, {glm::vec2(1.0f, 0.0f), glm::vec2(0.0f, 1.0f), glm::vec2(1.0f, 1.0f)});
 		trimesh->AddTriangle(triangle1, {glm::vec2(1.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 1.0f)});
-		trimesh->SetMaterial(brick);
+		trimesh->SetMaterial(brickMat);
 
 		AddObejct(trimesh);
 	}
@@ -57,8 +66,8 @@ C_RayTraceScene::C_RayTraceScene()
 		// ceiling
 		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, 1.5f, 3.f}, {-3.f, 1.5f, -3.f}, {3.f, 1.5f, -3.f}));
 		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, 1.5f, 3.f}, {3.f, 1.5f, -3.f}, {3.f, 1.5f, 3.f}));
-		triangle->SetMaterial(white);
-		triangle1->SetMaterial(white);
+		triangle->SetMaterial(whiteMat);
+		triangle1->SetMaterial(whiteMat);
 		AddObejct(triangle);
 		AddObejct(triangle1);
 	}
@@ -67,8 +76,8 @@ C_RayTraceScene::C_RayTraceScene()
 		// left wall - red
 		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, -1.5f, 3.f}, {-3.f, -1.5f, -3.f}, {-3.f, 1.5f, -3.f}));
 		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, -1.5f, 3.f}, {-3.f, 1.5f, -3.f}, {-3.f, 1.5f, 3.f}));
-		triangle->SetMaterial(red);
-		triangle1->SetMaterial(red);
+		triangle->SetMaterial(redMat);
+		triangle1->SetMaterial(redMat);
 		AddObejct(triangle);
 		AddObejct(triangle1);
 	}
@@ -77,8 +86,8 @@ C_RayTraceScene::C_RayTraceScene()
 		// left wall - green
 		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({3.f, -1.5f, 3.f}, {3.f, 1.5f, -3.f}, {3.f, -1.5f, -3.f}));
 		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({3.f, -1.5f, 3.f}, {3.f, 1.5f, 3.f}, {3.f, 1.5f, -3.f}));
-		triangle->SetMaterial(green);
-		triangle1->SetMaterial(green);
+		triangle->SetMaterial(greenMat);
+		triangle1->SetMaterial(greenMat);
 		AddObejct(triangle);
 		AddObejct(triangle1);
 	}
@@ -87,8 +96,8 @@ C_RayTraceScene::C_RayTraceScene()
 		// back wall
 		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, -1.5f, -3.f}, {3.f, -1.5f, -3.f}, {3.f, 1.5f, -3.f}));
 		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, -1.5f, -3.f}, {3.f, 1.5f, -3.f}, {-3.f, 1.5f, -3.f}));
-		triangle->SetMaterial(white);
-		triangle1->SetMaterial(white);
+		triangle->SetMaterial(whiteMat);
+		triangle1->SetMaterial(whiteMat);
 		AddObejct(triangle);
 		AddObejct(triangle1);
 	}
@@ -97,7 +106,7 @@ C_RayTraceScene::C_RayTraceScene()
 	{
 		// sphere
 		auto sphere = std::make_shared<C_Primitive<S_Sphere>>(S_Sphere{{-1.5f, -1.f, -1.5f}, 1.f});
-		sphere->SetMaterial(blueMirror);
+		sphere->SetMaterial(blueMirrorMat);
 		AddObejct(std::move(sphere));
 	}
 
@@ -105,7 +114,7 @@ C_RayTraceScene::C_RayTraceScene()
 	{
 		// sphere
 		auto sphere = std::make_shared<C_Primitive<S_Sphere>>(S_Sphere{{.8f, 0.f, .5f}, 1.f});
-		sphere->SetMaterial(blue);
+		sphere->SetMaterial(blueMat);
 		AddObejct(std::move(sphere));
 	}
 
@@ -117,7 +126,7 @@ C_RayTraceScene::C_RayTraceScene()
 		auto			disc		= S_Disc(lightNormal, glm::vec3(0, 1.43f, 0), 0.7f);
 		disc.plane.twoSided			= false;
 		auto areaLightDisc			= std::make_shared<C_Primitive<S_Disc>>(disc);
-		areaLightDisc->SetMaterial(black);
+		areaLightDisc->SetMaterial(blackMat);
 
 		auto areaLight = std::make_shared<RayTracing::C_AreaLight>(5.f * glm::vec3(1.f, 1.f, .3f), areaLightDisc);
 		AddLight(std::move(areaLight));
@@ -127,8 +136,8 @@ C_RayTraceScene::C_RayTraceScene()
 		// ceiling
 		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-1.f, 1.5f - .01f, 1.f}, {-1.f, 1.5f - .01f, -1.f}, {1.f, 1.5f - .01f, -1.f}));
 		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-1.f, 1.5f - .01f, 1.f}, {1.f, 1.5f - .01f, -1.f}, {1.f, 1.5f - .01f, 1.f}));
-		triangle->SetMaterial(white);
-		triangle1->SetMaterial(white);
+		triangle->SetMaterial(whiteMat);
+		triangle1->SetMaterial(whiteMat);
 		auto areaLight = std::make_shared<RayTracing::C_AreaLight>(5.f * glm::vec3(1.f, 1.f, .3f) * 0.5f, triangle);
 		AddLight(std::move(areaLight));
 		auto areaLight1 = std::make_shared<RayTracing::C_AreaLight>(5.f * glm::vec3(1.f, 1.f, .3f) * 0.5f, triangle1);
@@ -138,13 +147,13 @@ C_RayTraceScene::C_RayTraceScene()
 	if (false)
 	{
 		auto& meshHandle = m_Meshes.emplace_back(rm.LoadResource<MeshResource>(R"(Models/sword/baphomet-sword-mostruario.obj)"));
-		m_Loading.AddHandle(meshHandle);
+		m_LoadingMeshes.AddHandle(meshHandle);
 	}
 
 	if (true)
 	{
-		auto& meshHandle = m_Meshes.emplace_back(rm.LoadResource<MeshResource>(R"(Models/dragon/Dragon_Busts_Gerhald3D.obj)"));
-		m_Loading.AddHandle(meshHandle);
+		auto& meshHandle = m_Meshes.emplace_back(rm.LoadResource<MeshResource>(R"(Models/KoboldRig/Kobold_Rig_.obj)"));
+		m_LoadingMeshes.AddHandle(meshHandle);
 	}
 #else
 	auto							plane = std::make_shared<C_Primitive<S_Plane>>(S_Plane(glm::vec3(1, 0, 0), {-3.f, 0.f, 0.f}));
@@ -194,7 +203,7 @@ bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInte
 
 		[[nodiscard]] bool operator<(const S_IntersectionInfo& a) const { return t < a.t; }
 	};
-	S_IntersectionInfo closestIntersect{C_RayIntersection(), std::numeric_limits<float>::max()};
+	S_IntersectionInfo closestIntersect{C_RayIntersection(), std::numeric_limits<float>::max(), nullptr};
 
 	std::for_each(m_Objects.begin(), m_Objects.end(), [&](const auto& object) {
 		C_RayIntersection inter;
@@ -264,7 +273,7 @@ void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh, const MeshData::Materi
 	AddObejct(list);
 #else
 	auto trimesh = std::make_shared<C_Trimesh>();
-	trimesh->SetMaterial(material);
+	trimesh->SetMaterial(AddMaterial(material).get());
 	trimesh->AddMesh(mesh);
 	trimesh->SetTransformation(glm::translate(glm::mat4(1.f), glm::vec3(0, -1.5f, 0)) * glm::scale(glm::mat4(1.f), glm::vec3(0.5f, 0.5f, 0.5f)));
 	m_Trimeshes.push_back(trimesh);
@@ -289,27 +298,61 @@ void C_RayTraceScene::DebugDraw(I_DebugDraw* dd) const
 //=================================================================================
 bool C_RayTraceScene::IsLoaded() const
 {
-	return m_Loading.IsDone();
+	return m_LoadingMeshes.IsDone() && m_LoadingTextures.IsDone();
 }
 
 //=================================================================================
 void C_RayTraceScene::BuildScene()
 {
-	for (const auto& meshHandle : m_Meshes)
+	auto& rm = Core::C_ResourceManager::Instance();
+	if (m_LoadingMeshes.IsDone())
 	{
-		GLE_ASSERT(meshHandle.IsLoading() == false, "At this point all the handles should be loaded!");
-		if (!meshHandle)
-			continue;
-
-		for (auto& mesh : meshHandle.GetResource().GetScene().meshes)
+		for (const auto& meshHandle : m_Meshes)
 		{
-			// intentional copy as I need to re-number the textures
-			MeshData::Material mat = meshHandle.GetResource().GetScene().materials[mesh.materialIndex];
-			mat.textureIndex	   = -1; // I would need to check whether such texture exists
-			mat.noramlTextureIndex = -1;
-			mat.shininess		   = 0.f;
-			AddMesh(mesh, mat);
+			GLE_ASSERT(meshHandle.IsLoading() == false, "At this point all the handles should be loaded!");
+			if (!meshHandle)
+				continue;
+
+			for (auto& mesh : meshHandle.GetResource().GetScene().meshes)
+			{
+				// intentional copy as I need to re-number the textures
+				m_LoadingTextures.AddHandle(m_Textures[0]);
+				const auto&		   scene = meshHandle.GetResource().GetScene();
+				MeshData::Material mat	 = scene.materials[mesh.materialIndex];
+
+				if (mat.textureIndex != -1)
+				{
+					m_Textures.emplace_back(rm.LoadResource<TextureResource>(std::filesystem::path(meshHandle.GetResource().GetTextureNames()[mat.textureIndex])));
+					mat.textureIndex = m_Textures.size() - 1;
+				}
+				if (mat.noramlTextureIndex != -1)
+				{
+					m_Textures.emplace_back(rm.LoadResource<TextureResource>(std::filesystem::path(meshHandle.GetResource().GetTextureNames()[mat.textureIndex])));
+					mat.noramlTextureIndex = m_Textures.size() - 1;
+				}
+				mat.shininess		   = 0.f;
+				AddMesh(mesh, mat);
+			}
 		}
+	}
+}
+
+//=================================================================================
+std::unique_ptr<I_MaterialInterface>& C_RayTraceScene::AddMaterial(const MeshData::Material& material)
+{
+	if (material.shininess == 0.f)
+	{
+		Core::ResourceHandle<TextureResource> texture = {};
+		if (material.textureIndex != -1) 
+		{
+			texture = m_Textures[material.textureIndex];
+		}
+		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(material.diffuse, texture));
+	}
+	else
+	{
+		// todo glossy mat
+		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(material.diffuse));
 	}
 }
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Renderer/Mesh/Scene.h>
+#include <Renderer/RayCasting/Material/MaterialInterface.h>
 
 namespace GLEngine::Physics::Primitives {
 struct S_Ray;
@@ -17,10 +18,14 @@ public:
 	[[nodiscard]] virtual float Area() const																			= 0;
 	[[nodiscard]] float			Pdf() const { return 1.f / Area(); }
 
-	void					  SetMaterial(const MeshData::Material& material) { m_Material = material; }
-	const MeshData::Material& GetMaterial() const { return m_Material; }
+	void					  SetMaterial(I_MaterialInterface* material) { m_MaterialInter = material; }
+	I_MaterialInterface&	  GetMaterial() const
+	{
+		GLE_ASSERT(m_MaterialInter, "Using uninitialized scene!");
+		return *m_MaterialInter;
+	}
 
 private:
-	MeshData::Material m_Material;
+	I_MaterialInterface* m_MaterialInter = nullptr;
 };
 } // namespace GLEngine::Renderer

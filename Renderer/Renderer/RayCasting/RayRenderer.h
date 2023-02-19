@@ -16,8 +16,18 @@ public:
 	C_RayRenderer(const C_RayTraceScene& scene);
 	~C_RayRenderer();
 
+	struct AdditionalTargets {
+		I_TextureViewStorage* rowHeatMap = nullptr;
+		[[nodiscard]] bool	  CheckTargets(const I_TextureViewStorage& mainTarget) const;
+	};
+
 	// @var storageMutex is optional, if present the writes to the weighted will be synchronized
-	void Render(I_CameraComponent& camera, I_TextureViewStorage& weightedImage, I_TextureViewStorage& storage, std::mutex* storageMutex, int numSamplesBefore);
+	void Render(I_CameraComponent&	  camera,
+				I_TextureViewStorage& weightedImage,
+				I_TextureViewStorage& storage,
+				std::mutex*			  storageMutex,
+				int					  numSamplesBefore,
+				AdditionalTargets	  additional = {nullptr});
 
 	[[nodiscard]] std::size_t GetProcessedPixels() const;
 

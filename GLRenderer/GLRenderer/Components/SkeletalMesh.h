@@ -46,6 +46,7 @@ public:
 	GUI::Input::C_CheckBoxValue							m_RunAnimation;
 	GUI::Input::C_Slider<float>							m_AnimationProgress;
 	Physics::Primitives::S_AABB							m_AABB;
+	bool												m_bInit = false;
 
 	VAO::C_GLVAO<5> m_VAO;
 	std::size_t		m_triangles;

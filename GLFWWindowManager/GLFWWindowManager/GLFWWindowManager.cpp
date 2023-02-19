@@ -90,12 +90,14 @@ unsigned int C_GLFWWindowManager::NumWindows() const
 //=================================================================================
 void C_GLFWWindowManager::OnEvent(Core::I_Event& event)
 {
+	auto updatedWindow = m_UpdatingWindow;
 	for (auto& window : m_Windows)
 	{
 		m_UpdatingWindow = window;
 		window->OnEvent(event);
 		m_UpdatingWindow = nullptr;
 	}
+	m_UpdatingWindow = updatedWindow;
 }
 
 //=================================================================================

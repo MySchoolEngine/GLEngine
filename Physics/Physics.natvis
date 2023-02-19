@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="GLEngine::Physics::Primitives::S_AABB">
+    <DisplayString>{m_Min}-{m_Max}</DisplayString>
+    <Expand>
+      <Item Name="[Min]">m_Min</Item>
+      <Item Name="[Max]">m_Max</Item>
+      <Item Name="[Initialised]">m_Initialised</Item>
+    </Expand>
+  </Type>
+</AutoVisualizer>

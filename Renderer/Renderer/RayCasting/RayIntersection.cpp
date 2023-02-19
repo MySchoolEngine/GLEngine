@@ -28,13 +28,13 @@ bool C_RayIntersection::IsLight() const
 }
 
 //=================================================================================
-const GLEngine::Renderer::MeshData::Material* C_RayIntersection::GetMaterial() const
+const I_MaterialInterface* C_RayIntersection::GetMaterial() const
 {
 	return m_Material;
 }
 
 //=================================================================================
-void C_RayIntersection::SetMaterial(const MeshData::Material* material)
+void C_RayIntersection::SetMaterial(const I_MaterialInterface* material)
 {
 	m_Material = material;
 }
@@ -42,7 +42,7 @@ void C_RayIntersection::SetMaterial(const MeshData::Material* material)
 //=================================================================================
 const float C_RayIntersection::GetRayLength() const
 {
-	return glm::distance(m_Point, m_Ray.origin);
+	return m_RayLength;
 }
 
 //=================================================================================

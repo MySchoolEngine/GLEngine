@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Renderer/Colours.h>
+#include <Renderer/RayCasting/RayTracingSettings.h>
 
 #include <Physics/Primitives/Ray.h>
 
@@ -19,11 +20,9 @@ public:
 	[[nodiscard]] Colours::T_Colour TraceRay(Physics::Primitives::S_Ray ray, I_Sampler& rnd);
 
 private:
-	[[nodiscard]] Colours::T_Colour Li_LightSampling(const Physics::Primitives::S_Ray& ray, I_Sampler& rnd);
-	[[nodiscard]] Colours::T_Colour Li_Direct(const Physics::Primitives::S_Ray& ray, I_Sampler& rnd);
-	[[nodiscard]] Colours::T_Colour Li_PathTrace(Physics::Primitives::S_Ray ray, I_Sampler& rnd);
-
-	[[nodiscard]] std::unique_ptr<I_ReflectionModel> GetReflectionModel(const MeshData::Material* material, Colours::T_Colour& colour) const;
+	[[nodiscard]] Colours::T_Colour Li_LightSampling(const Physics::Primitives::S_Ray& ray, I_Sampler& rnd, RayTracingSettings::T_ReflAlloc* alloc = nullptr);
+	[[nodiscard]] Colours::T_Colour Li_Direct(const Physics::Primitives::S_Ray& ray, I_Sampler& rnd, RayTracingSettings::T_ReflAlloc* alloc = nullptr);
+	[[nodiscard]] Colours::T_Colour Li_PathTrace(Physics::Primitives::S_Ray ray, I_Sampler& rnd, RayTracingSettings::T_ReflAlloc* alloc = nullptr);
 
 	const C_RayTraceScene& m_Scene;
 };

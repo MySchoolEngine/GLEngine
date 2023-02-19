@@ -100,6 +100,7 @@ public:
 	//=================================================================================
 	virtual void OnEvent(Core::I_Event& event) override
 	{
+		auto updateManager = m_UpdatingManager;
 		for (const auto& manager : m_Managers)
 		{
 			if (manager)
@@ -108,6 +109,7 @@ public:
 				manager->OnEvent(event);
 			}
 		}
+		m_UpdatingManager = updateManager;
 	}
 
 private:
