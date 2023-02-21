@@ -13,12 +13,18 @@
 
 class C_ShaderCompiler : public GLEngine::Renderer::ShaderCompilerTrait<std::string>
 {
+public:
+	void ReleaseStage(T_StageHandle& stage)
+	{
+		// nothing
+	}
 protected:
-	bool compileShaderStageInternal(T_StageHandle& stage, const std::filesystem::path& filepath, const GLEngine::Renderer::E_ShaderStage shaderStage, std::string& content) override
+	bool compileShaderStageInternal(T_StageHandle& stage, const std::filesystem::path& filepath, const GLEngine::Renderer::E_ShaderStage shaderStage, std::vector<char>& content) override
 	{
 		GLEngine::Renderer::Shaders::C_ShaderPreprocessor preproces(std::make_unique<GLEngine::GLRenderer::Shaders::C_GLCodeProvider>());
 		preproces.Define("VULKAN", "1");
-		stage = preproces.PreprocessFile(content, filepath.parent_path());
+		std::string strContent(content.begin(), content.end());
+		stage = preproces.PreprocessFile(strContent, filepath.parent_path());
 
 		return preproces.WasSuccessful();
 	}

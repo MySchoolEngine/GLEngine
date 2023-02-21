@@ -46,6 +46,7 @@ private:
 	std::vector<VkImageView> m_SwapChainImagesViews;
 	VkFormat				 m_SwapChainImageFormat;
 	VkExtent2D				 m_SwapChainExtent;
+	VkPipelineLayout		 m_PipelineLayout;
 
 	VkSurfaceKHR_T* m_Surface;
 

@@ -2,6 +2,8 @@
 
 #include <VulkanRenderer/VkTypeHelpers.h>
 
+#include <Renderer/Viewport.h>
+
 namespace GLEngine::VkRenderer {
 
 //=================================================================================
@@ -58,6 +60,43 @@ VkFormat GetVkInternalFormat(const Renderer::E_TextureFormat format)
 		break;
 	}
 	return VkFormat::VK_FORMAT_R8_SINT;
+}
+
+//=================================================================================
+VkShaderStageFlagBits GetVkShaderStage(Renderer::E_ShaderStage stage)
+{
+	switch (stage)
+	{
+	case Renderer::E_ShaderStage::Vertex:
+		return VK_SHADER_STAGE_VERTEX_BIT;
+	case Renderer::E_ShaderStage::Fragment:
+		return VK_SHADER_STAGE_FRAGMENT_BIT;
+	case Renderer::E_ShaderStage::Geometry:
+		return VK_SHADER_STAGE_GEOMETRY_BIT;
+	case Renderer::E_ShaderStage::TesselationControl:
+		return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+	case Renderer::E_ShaderStage::TesselationEvaluation:
+		return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+	case Renderer::E_ShaderStage::Compute:
+		return VK_SHADER_STAGE_COMPUTE_BIT;
+	default:
+		break;
+	}
+
+	GLE_ERROR("Unknown shader stage.")
+}
+
+//=================================================================================
+VkViewport TranslateViewport(const Renderer::C_Viewport& viewport)
+{
+	return {
+		.x		  = static_cast<float>(viewport.GetCoordinates().x),
+		.y		  = static_cast<float>(viewport.GetCoordinates().y),
+		.width	  = static_cast<float>(viewport.GetResolution().x),
+		.height	  = static_cast<float>(viewport.GetResolution().y),
+		.minDepth = 0.f,
+		.maxDepth = 1.f,
+	};
 }
 
 } // namespace GLEngine::VkRenderer

@@ -1,15 +1,34 @@
 #include <VulkanRendererStdafx.h>
 
+#include <VulkanRenderer/Shaders/ShaderCompiler.h>
 #include <VulkanRenderer/VkRenderer.h>
 #include <VulkanRenderer/VkWindow.h>
 #include <VulkanRenderer/VkWindowInfo.h>
 
 #include <Core/EventSystem/Event/AppEvent.h>
 #include <Core/EventSystem/EventDispatcher.h>
+#include <Renderer/Viewport.h>
 
 #include <GLFW/glfw3.h>
 
 namespace GLEngine::VkRenderer {
+
+static std::vector<char> readFile(const std::string& filename)
+{
+	std::ifstream file(filename, std::ios::ate | std::ios::binary);
+
+	if (!file.is_open())
+	{
+		throw std::runtime_error("failed to open file!");
+	}
+	size_t			  fileSize = (size_t)file.tellg();
+	std::vector<char> buffer(fileSize);
+	file.seekg(0);
+	file.read(buffer.data(), fileSize);
+	file.close();
+
+	return buffer;
+}
 
 //=================================================================================
 C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
@@ -24,6 +43,18 @@ C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
 	CORE_LOG(E_Level::Info, E_Context::Render, "GLFW: Vulkan window initialized");
 	CreateSwapChain();
 	CreateImageViews();
+	C_ShaderCompiler						 compiler(static_cast<C_VkDevice&>(m_renderer->GetDevice()));
+	Renderer::C_ShaderLoader<VkShaderModule> loader(compiler);
+
+	std::vector<std::pair<Renderer::E_ShaderStage, VkShaderModule>> stages;
+	if (!loader.LoadAllStages("basicVulkan", stages))
+	{
+		// error probably? End the run?
+	}
+	if (!compiler.linkProgram(m_PipelineLayout, stages, "basic", Renderer::C_Viewport(0, 0, GetSize())))
+	{
+		return;
+	}
 }
 
 //=================================================================================
@@ -31,6 +62,7 @@ C_VkWindow::~C_VkWindow()
 {
 	DestroySwapchain();
 	vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
+	vkDestroyPipelineLayout(m_renderer->GetDeviceVK(), m_PipelineLayout, nullptr);
 	m_renderer.reset(nullptr);
 };
 
@@ -221,6 +253,19 @@ bool C_VkWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 {
 	DestroySwapchain();
 	CreateSwapChain();
+	vkDestroyPipelineLayout(m_renderer->GetDeviceVK(), m_PipelineLayout, nullptr);
+	C_ShaderCompiler						 compiler(static_cast<C_VkDevice&>(m_renderer->GetDevice()));
+	Renderer::C_ShaderLoader<VkShaderModule> loader(compiler);
+
+	std::vector<std::pair<Renderer::E_ShaderStage, VkShaderModule>> stages;
+	if (!loader.LoadAllStages("basicVulkan", stages))
+	{
+		// error probably? End the run?
+	}
+	if (!compiler.linkProgram(m_PipelineLayout, stages, "basic", Renderer::C_Viewport(0, 0, GetSize())))
+	{
+		return false;
+	}
 	return true;
 }
 

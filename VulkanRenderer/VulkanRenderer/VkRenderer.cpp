@@ -18,7 +18,7 @@ C_VkRenderer::C_VkRenderer(VkInstance instance, VkSurfaceKHR surface)
 //=================================================================================
 C_VkRenderer::~C_VkRenderer()
 {
-	vkDestroyDevice(m_Device, nullptr);
+	vkDestroyDevice(m_VkDevice, nullptr);
 	delete m_CommandQueue;
 }
 
@@ -140,15 +140,17 @@ bool C_VkRenderer::InitDevice(VkSurfaceKHR surface)
 	device_create_info.ppEnabledExtensionNames = deviceExtensions.data();
 
 
-	auto ret = pfnCreateDevice(m_GPU, &device_create_info, nullptr, &m_Device);
+	auto ret = pfnCreateDevice(m_GPU, &device_create_info, nullptr, &m_VkDevice);
 	if (ret != VK_SUCCESS)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Core, "Vulkan device unable to initialize. Error code: '{}'", ret);
 		std::exit(EXIT_FAILURE);
 	}
 
-	vkGetDeviceQueue(m_Device, m_GraphicsFamilyIndex, 0, &m_graphicsQueue);
-	vkGetDeviceQueue(m_Device, m_PresentingFamilyIndex, 0, &m_presentQueue);
+	vkGetDeviceQueue(m_VkDevice, m_GraphicsFamilyIndex, 0, &m_graphicsQueue);
+	vkGetDeviceQueue(m_VkDevice, m_PresentingFamilyIndex, 0, &m_presentQueue);
+
+	m_Device.Init(m_VkDevice);
 
 	return true;
 }
@@ -235,7 +237,7 @@ void C_VkRenderer::AddTransferCommand(T_CommandPtr)
 //=================================================================================
 Renderer::I_Device& C_VkRenderer::GetDevice()
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	return m_Device;
 }
 
 } // namespace GLEngine::VkRenderer

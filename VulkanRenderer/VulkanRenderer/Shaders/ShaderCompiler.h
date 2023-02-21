@@ -2,18 +2,25 @@
 
 #include <Renderer/Shaders/ShaderCompiling.h>
 
-namespace GLEngine::VkRenderer::Shaders {
+namespace GLEngine::Renderer {
+class C_Viewport;
+}
 
-class C_ShaderCompiler : public Renderer::ShaderCompilerTrait<VkPipelineShaderStageCreateInfo> {
+namespace GLEngine::VkRenderer {
+class C_VkDevice;
+class C_ShaderCompiler : public Renderer::ShaderCompilerTrait<VkShaderModule> {
 public:
-	C_ShaderCompiler(VkDevice_T*);
-	// bool linkProgram(T_ShaderProgram& program, const std::vector<T_StageHandle>& shaders);
+	C_ShaderCompiler(C_VkDevice& device, bool preprocessorOutput = false);
+	bool linkProgram(VkPipelineLayout&														pipelineLayout,
+					 const std::vector<std::pair<Renderer::E_ShaderStage, VkShaderModule>>& stages,
+					 const std::string&														name,
+					 const Renderer::C_Viewport&											viewport);
+	void ReleaseStage(T_StageHandle& stage) override;
+	bool m_PreprocessorOutput;
 
 protected:
-	virtual bool compileShaderStageInternal(T_StageHandle& stage, const std::filesystem::path& filepath, const Renderer::E_ShaderStage shaderStage, std::string& content) override;
-
-
-	VkDevice_T* m_Device;
+	C_VkDevice&	 m_Device;
+	virtual bool
+	compileShaderStageInternal(T_StageHandle& stage, const std::filesystem::path& filepath, const Renderer::E_ShaderStage shaderStage, std::vector<char>& content) override;
 };
-
-} // namespace GLEngine::VkRenderer::Shaders
+}

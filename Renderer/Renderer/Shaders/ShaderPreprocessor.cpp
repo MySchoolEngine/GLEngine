@@ -44,7 +44,8 @@ std::string C_ShaderPreprocessor::PreprocessFile(const std::string& src, const s
 	GetDefines(ret);
 	ReplaceConstants(ret);
 
-	CodeGeneration(ret);
+	if (m_CodeProvider)
+		CodeGeneration(ret);
 
 	return ret;
 }
@@ -85,7 +86,7 @@ void C_ShaderPreprocessor::IncludesFiles(std::string& content, const std::filesy
 void C_ShaderPreprocessor::CodeGeneration(std::string& content)
 {
 	std::smatch m;
-	std::string result = "";
+	std::string result;
 
 	while (std::regex_search(content, m, s_GenerateStruct))
 	{
@@ -101,7 +102,7 @@ void C_ShaderPreprocessor::GetDefines(std::string& content)
 {
 	std::smatch m;
 
-	std::string result = "";
+	std::string result;
 
 	while (std::regex_search(content, m, s_DefineRegEx))
 	{
@@ -150,7 +151,7 @@ bool C_ShaderPreprocessor::_loadFile(const std::filesystem::path& file, std::str
 void C_ShaderPreprocessor::ResolveIfStatements(std::string& content)
 {
 	std::smatch m;
-	std::string result = "";
+	std::string result;
 
 	while (std::regex_search(content, m, s_IfDefinedRegEx))
 	{

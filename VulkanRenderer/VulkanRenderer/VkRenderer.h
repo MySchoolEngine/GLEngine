@@ -1,5 +1,7 @@
 #pragma once
 
+#include <VulkanRenderer/VkDevice.h>
+
 #include <Renderer/IRenderer.h>
 
 #include <Core/CoreMacros.h>
@@ -36,7 +38,7 @@ public:
 	//=================================================================================
 	virtual Renderer::E_PassType GetCurrentPassType() const override;
 
-	VkDevice_T* GetDeviceVK() { return m_Device; }
+	VkDevice_T*					GetDeviceVK() { return m_VkDevice; }
 	virtual Renderer::I_Device& GetDevice() override;
 
 	SwapChainSupportDetails QuerySwapChainSupport(VkSurfaceKHR surface);
@@ -47,7 +49,8 @@ private:
 	std::vector<Renderer::I_Renderer::T_CommandPtr>* m_CommandQueue;
 
 	VkInstance_T*		m_Instance;
-	VkDevice_T*			m_Device;
+	C_VkDevice			m_Device;
+	VkDevice_T*			m_VkDevice;
 	VkPhysicalDevice_T* m_GPU;
 	uint32_t			m_GraphicsFamilyIndex;
 	uint32_t			m_ComputeFamilyIndex;
