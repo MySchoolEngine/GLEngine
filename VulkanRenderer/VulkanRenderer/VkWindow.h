@@ -38,6 +38,8 @@ private:
 	VkPresentModeKHR   ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 	VkExtent2D		   ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, VkExtent2D actualExtent);
 	void			   CreateImageViews();
+	void			   CreatePipeline();
+	void			   CreateRenderPass();
 
 	void DestroySwapchain();
 
@@ -46,7 +48,9 @@ private:
 	std::vector<VkImageView> m_SwapChainImagesViews;
 	VkFormat				 m_SwapChainImageFormat;
 	VkExtent2D				 m_SwapChainExtent;
+	VkRenderPass			 m_RenderPass;
 	VkPipelineLayout		 m_PipelineLayout;
+	VkPipeline				 m_GraphicsPipeline;
 
 	VkSurfaceKHR_T* m_Surface;
 

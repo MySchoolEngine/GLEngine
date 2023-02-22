@@ -77,51 +77,9 @@ bool C_ShaderCompiler::compileShaderStageInternal(T_StageHandle&				stage,
 }
 
 //=================================================================================
-bool C_ShaderCompiler::linkProgram(VkPipelineLayout&													  pipelineLayout,
-								   const std::vector<std::pair<Renderer::E_ShaderStage, VkShaderModule>>& stages,
-								   const std::string&													  name,
-								   const Renderer::C_Viewport&											  viewport)
+bool C_ShaderCompiler::linkProgram(VkPipelineLayout& pipelineLayout, const std::vector<std::pair<Renderer::E_ShaderStage, VkShaderModule>>& stages)
 {
-	bool							 bResult	  = true;
-	VkPipelineShaderStageCreateInfo* shaderStages = new VkPipelineShaderStageCreateInfo[stages.size()];
-	for (const auto & stage : stages)
-	{
-		const VkPipelineShaderStageCreateInfo fragShaderStageInfo{
-			.sType	= VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-			.pNext	= nullptr,
-			.flags	= 0,
-			.stage	= GetVkShaderStage(stage.first),
-			.module = stage.second,
-			.pName	= name.c_str(),
-		};
-	}
-
-	std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
-
-	const VkPipelineDynamicStateCreateInfo dynamicState{
-		.sType			   = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
-		.pNext			   = nullptr,
-		.flags			   = 0,
-		.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size()),
-		.pDynamicStates	   = dynamicStates.data(),
-	};
-
-	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-	vertexInputInfo.sType							= VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	vertexInputInfo.vertexBindingDescriptionCount	= 0;
-	vertexInputInfo.pVertexBindingDescriptions		= nullptr; // Optional
-	vertexInputInfo.vertexAttributeDescriptionCount = 0;
-	vertexInputInfo.pVertexAttributeDescriptions	= nullptr; // Optional
-
-	const VkPipelineInputAssemblyStateCreateInfo inputAssembly{
-		.sType					= VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
-		.topology				= VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-		.primitiveRestartEnable = VK_FALSE,
-	};
-
-	const VkViewport vKViewport = TranslateViewport(viewport);
-
-	const VkRect2D scissor{.offset = {0, 0}, .extent = {viewport.GetResolution().x, viewport.GetResolution().y}};
+	bool bResult = true;
 
 	const VkPipelineLayoutCreateInfo pipelineLayoutInfo{
 		.sType					= VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
@@ -134,12 +92,6 @@ bool C_ShaderCompiler::linkProgram(VkPipelineLayout&													  pipelineLayou
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "failed to create pipeline layout! {}", result);
 		bResult = false;
-	}
-
-	// don't leak stages
-	for (auto& stage : stages)
-	{
-		vkDestroyShaderModule(m_Device.GetVkDevice(), stage.second, nullptr);
 	}
 	return bResult;
 }
