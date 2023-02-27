@@ -24,6 +24,7 @@ public:
 	virtual Renderer::I_Renderer& GetRenderer() override;
 
 	virtual void OnEvent(Core::I_Event& event) override;
+	void Update() override;
 
 protected:
 	virtual void				  Init(const Core::S_WindowInfo& wndInfo) override;
@@ -40,17 +41,29 @@ private:
 	void			   CreateImageViews();
 	void			   CreatePipeline();
 	void			   CreateRenderPass();
+	void			   CreateFramebuffers();
+	void			   CreateCommandPool();
+	void			   CreateCommandBuffer();
+	void			   CreateSyncObjects();
+	void			   RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
 	void DestroySwapchain();
 
-	VkSwapchainKHR			 m_SwapChain;
-	std::vector<VkImage>	 m_SwapChainImages;
-	std::vector<VkImageView> m_SwapChainImagesViews;
-	VkFormat				 m_SwapChainImageFormat;
-	VkExtent2D				 m_SwapChainExtent;
-	VkRenderPass			 m_RenderPass;
-	VkPipelineLayout		 m_PipelineLayout;
-	VkPipeline				 m_GraphicsPipeline;
+	VkSwapchainKHR			   m_SwapChain;
+	std::vector<VkImage>	   m_SwapChainImages;
+	std::vector<VkFramebuffer> m_SwapChainFramebuffers;
+	std::vector<VkImageView>   m_SwapChainImagesViews;
+	VkFormat				   m_SwapChainImageFormat;
+	VkExtent2D				   m_SwapChainExtent;
+	VkRenderPass			   m_RenderPass;
+	VkPipelineLayout		   m_PipelineLayout;
+	VkPipeline				   m_GraphicsPipeline;
+	VkCommandPool			   m_CommandPool;
+	VkCommandBuffer			   m_CommandBuffer; // auto cleanup on pool release!
+
+	VkSemaphore m_ImageAvailableSemaphore;
+	VkSemaphore m_RenderFinishedSemaphore;
+	VkFence		m_InFlightFence;
 
 	VkSurfaceKHR_T* m_Surface;
 

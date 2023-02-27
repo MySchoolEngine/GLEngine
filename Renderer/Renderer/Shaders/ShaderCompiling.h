@@ -28,7 +28,12 @@ public:
 
 protected:
 	bool		 _loadFile(const std::filesystem::path& file, std::vector<char>& content);
-	virtual bool compileShaderStageInternal(T_StageHandle& stage, const std::filesystem::path& filepath, const Renderer::E_ShaderStage shaderStage, std::vector<char>& content) = 0;
+	virtual bool compileShaderStageInternal(T_StageHandle&				  stage,
+											const std::filesystem::path&  filepath,
+											const Renderer::E_ShaderStage shaderStage,
+											std::vector<char>&			  content,
+											const std::string&			  entryPoint)
+		= 0;
 
 	T_Paths m_TouchedFiles;
 };
@@ -152,7 +157,7 @@ bool ShaderCompilerTrait<StageHandle>::compileShaderStage(T_StageHandle& stage, 
 	}
 	m_TouchedFiles.emplace_back(filepath);
 
-	return compileShaderStageInternal(stage, filepath, shaderStage, src);
+	return compileShaderStageInternal(stage, filepath, shaderStage, src, "main");
 }
 
 //=================================================================================

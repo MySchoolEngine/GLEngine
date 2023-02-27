@@ -44,6 +44,11 @@ public:
 	SwapChainSupportDetails QuerySwapChainSupport(VkSurfaceKHR surface);
 	void					FillFamilyIndexes(VkSwapchainCreateInfoKHR& createInfo);
 
+	// todo: Temporary
+	uint32_t GetGraphicsFamilyIndex() const;
+	VkQueue	 GetGraphicsQueue() const;
+	VkQueue	 GetPresentationQueue() const;
+
 private:
 	bool											 m_Locked = false;
 	std::vector<Renderer::I_Renderer::T_CommandPtr>* m_CommandQueue;

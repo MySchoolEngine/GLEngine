@@ -240,4 +240,22 @@ Renderer::I_Device& C_VkRenderer::GetDevice()
 	return m_Device;
 }
 
+//=================================================================================
+uint32_t C_VkRenderer::GetGraphicsFamilyIndex() const
+{
+	return m_GraphicsFamilyIndex;
+}
+
+//=================================================================================
+VkQueue C_VkRenderer::GetGraphicsQueue() const
+{
+	return m_graphicsQueue;
+}
+
+//=================================================================================
+VkQueue C_VkRenderer::GetPresentationQueue() const
+{
+	return m_presentQueue;
+}
+
 } // namespace GLEngine::VkRenderer

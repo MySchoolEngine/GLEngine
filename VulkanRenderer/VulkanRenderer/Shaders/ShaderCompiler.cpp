@@ -19,7 +19,8 @@ C_ShaderCompiler::C_ShaderCompiler(C_VkDevice& device, bool preprocessorOutput /
 bool C_ShaderCompiler::compileShaderStageInternal(T_StageHandle&				stage,
 												  const std::filesystem::path&	filepath,
 												  const Renderer::E_ShaderStage shaderStage,
-												  std::vector<char>&			content)
+												  std::vector<char>&			content,
+												  const std::string& entryPoint)
 {
 	if (filepath.extension() == "xml")
 	{

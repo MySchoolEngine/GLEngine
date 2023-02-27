@@ -18,8 +18,10 @@ C_ShaderCompiler::C_ShaderCompiler(bool preprocessorOutput /*= false*/)
 bool C_ShaderCompiler::compileShaderStageInternal(T_StageHandle&				stage,
 												  const std::filesystem::path&	filepath,
 												  const Renderer::E_ShaderStage shaderStage,
-												  std::vector<char>&			content)
+												  std::vector<char>&			content,
+												  const std::string&			entryPoint)
 {
+	// todo: entryPoint
 	Renderer::Shaders::C_ShaderPreprocessor preproces(std::make_unique<C_GLCodeProvider>());
 	std::string								strContent(content.begin(), content.end());
 	strContent = preproces.PreprocessFile(strContent, filepath.parent_path());

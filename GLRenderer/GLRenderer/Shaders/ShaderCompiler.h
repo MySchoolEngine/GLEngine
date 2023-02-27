@@ -23,7 +23,10 @@ public:
 	bool		 m_PreprocessorOutput;
 
 protected:
-	virtual bool
-	compileShaderStageInternal(T_StageHandle& stage, const std::filesystem::path& filepath, const Renderer::E_ShaderStage shaderStage, std::vector<char>& content) override;
+	virtual bool compileShaderStageInternal(T_StageHandle&				  stage,
+											const std::filesystem::path&  filepath,
+											const Renderer::E_ShaderStage shaderStage,
+											std::vector<char>&			  content,
+											const std::string&			  entryPoint) override;
 };
 } // namespace GLEngine::GLRenderer::Shaders

@@ -19,7 +19,7 @@ public:
 		// nothing
 	}
 protected:
-	bool compileShaderStageInternal(T_StageHandle& stage, const std::filesystem::path& filepath, const GLEngine::Renderer::E_ShaderStage shaderStage, std::vector<char>& content) override
+	bool compileShaderStageInternal(T_StageHandle& stage, const std::filesystem::path& filepath, const GLEngine::Renderer::E_ShaderStage shaderStage, std::vector<char>& content, const std::string& entryPoint) override
 	{
 		GLEngine::Renderer::Shaders::C_ShaderPreprocessor preproces(std::make_unique<GLEngine::GLRenderer::Shaders::C_GLCodeProvider>());
 		preproces.Define("VULKAN", "1");
@@ -136,7 +136,7 @@ int main(int argc, char** argv)
 			batfile << gs_GLSLC.generic_string()
 				<< " -fshader-stage=" << stageArgument
 				<< " " << (relativeFolder / filename).generic_string()
-				<< " -o " << (relativeFolder / outputFilename).generic_string()  << "\n";
+				<< " -o " << (relativeFolder / outputFilename).generic_string() << "\n";
 		}
 
 		batfile << "pause\n";
