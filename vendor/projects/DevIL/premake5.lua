@@ -10,8 +10,10 @@ project "DevIL-IL"
         "%{wks.location}/vendor/DevIL/DevIL/src-IL/include",
         "%{wks.location}/vendor/DevIL/DevIL/include/IL",
         "%{wks.location}/vendor/DevIL/DevIL/include",
+        "%{wks.location}/vendor/libpng/",
         "%{wks.location}/vendor/libjpeg/",
         "../libjpeg/",
+        "../libpng/",
         ".",
     }
 
@@ -29,7 +31,6 @@ project "DevIL-IL"
         "IL_NO_EXR",
         "IL_NO_WDP",
         "IL_NO_JP2",
-        "IL_NO_PNG",
         "IL_NO_MNG",
         "IL_NO_LCMS",
         "IL_NO_TIF",
@@ -38,6 +39,7 @@ project "DevIL-IL"
     links
     {
         "libjpeg",
+        "libpng",
     }
     
     removedefines
