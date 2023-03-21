@@ -1,5 +1,7 @@
 #pragma once
 
+#include <VulkanRenderer/Pipeline.h>
+
 #include <Core/Application.h>
 #include <Core/IWindow.h>
 
@@ -24,7 +26,7 @@ public:
 	virtual Renderer::I_Renderer& GetRenderer() override;
 
 	virtual void OnEvent(Core::I_Event& event) override;
-	void Update() override;
+	void		 Update() override;
 
 protected:
 	virtual void				  Init(const Core::S_WindowInfo& wndInfo) override;
@@ -40,7 +42,6 @@ private:
 	VkExtent2D		   ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, VkExtent2D actualExtent);
 	void			   CreateImageViews();
 	void			   CreatePipeline();
-	void			   CreateRenderPass();
 	void			   CreateFramebuffers();
 	void			   CreateCommandPool();
 	void			   CreateCommandBuffer();
@@ -55,11 +56,10 @@ private:
 	std::vector<VkImageView>   m_SwapChainImagesViews;
 	VkFormat				   m_SwapChainImageFormat;
 	VkExtent2D				   m_SwapChainExtent;
-	VkRenderPass			   m_RenderPass;
-	VkPipelineLayout		   m_PipelineLayout;
-	VkPipeline				   m_GraphicsPipeline;
 	VkCommandPool			   m_CommandPool;
 	VkCommandBuffer			   m_CommandBuffer; // auto cleanup on pool release!
+
+	C_Pipeline m_Pipeline;
 
 	VkSemaphore m_ImageAvailableSemaphore;
 	VkSemaphore m_RenderFinishedSemaphore;
