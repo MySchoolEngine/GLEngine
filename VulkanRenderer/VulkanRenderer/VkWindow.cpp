@@ -321,7 +321,8 @@ bool C_VkWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 //=================================================================================
 void C_VkWindow::CreatePipeline()
 {
-	m_Pipeline.create(m_renderer->GetDevice(), m_SwapChainImageFormat);
+	Renderer::PipelineDescriptor desc{.primitiveType = Renderer::E_RenderPrimitives::TriangleList};
+	m_Pipeline.create(m_renderer->GetDevice(), desc, m_SwapChainImageFormat);
 }
 
 //=================================================================================

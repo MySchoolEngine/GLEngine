@@ -8,7 +8,7 @@
 namespace GLEngine::VkRenderer {
 
 //=================================================================================
-void C_Pipeline::create(Renderer::I_Device& device, VkFormat swapCahinImageFormat)
+void C_Pipeline::create(Renderer::I_Device& device, Renderer::PipelineDescriptor desc, VkFormat swapCahinImageFormat)
 {
 	std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
@@ -29,7 +29,7 @@ void C_Pipeline::create(Renderer::I_Device& device, VkFormat swapCahinImageForma
 
 	const VkPipelineInputAssemblyStateCreateInfo inputAssembly{
 		.sType					= VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
-		.topology				= VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+		.topology				= GetVkDrawPrimitive(desc.primitiveType),
 		.primitiveRestartEnable = VK_FALSE,
 	};
 
@@ -43,7 +43,7 @@ void C_Pipeline::create(Renderer::I_Device& device, VkFormat swapCahinImageForma
 		.sType					 = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
 		.depthClampEnable		 = VK_FALSE, // for shadow-maps set true and enable GPU feature
 		.rasterizerDiscardEnable = VK_FALSE,
-		.polygonMode			 = VK_POLYGON_MODE_FILL, // wire-frame also needs GPU feature to change
+		.polygonMode			 = desc.wireframe ? VK_POLYGON_MODE_LINE : VK_POLYGON_MODE_FILL,
 		.cullMode				 = VK_CULL_MODE_BACK_BIT,
 		.frontFace				 = VK_FRONT_FACE_CLOCKWISE,
 		.depthBiasEnable		 = VK_FALSE,

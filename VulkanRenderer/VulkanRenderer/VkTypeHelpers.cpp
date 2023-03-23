@@ -99,4 +99,21 @@ VkViewport TranslateViewport(const Renderer::C_Viewport& viewport)
 	};
 }
 
+//=================================================================================
+VkPrimitiveTopology GetVkDrawPrimitive(const Renderer::E_RenderPrimitives renderPrimitive)
+{
+	switch (renderPrimitive)
+	{
+	case Renderer::E_RenderPrimitives::TriangleList:
+		return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	case Renderer::E_RenderPrimitives::LineList:
+		return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+	case Renderer::E_RenderPrimitives::PointList:
+		return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+	default:
+		GLE_ERROR("Unknown render primitive");
+		return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	}
+}
+
 } // namespace GLEngine::VkRenderer

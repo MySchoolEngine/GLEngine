@@ -12,4 +12,5 @@ namespace GLEngine::VkRenderer {
 VkFormat			  GetVkInternalFormat(const Renderer::E_TextureFormat format);
 VkShaderStageFlagBits GetVkShaderStage(Renderer::E_ShaderStage stage);
 VkViewport			  TranslateViewport(const Renderer::C_Viewport& viewport);
+VkPrimitiveTopology	  GetVkDrawPrimitive(const Renderer::E_RenderPrimitives renderPrimitive);
 } // namespace GLEngine::VkRenderer

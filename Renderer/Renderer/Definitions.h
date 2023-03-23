@@ -15,4 +15,11 @@ enum class E_ShaderStage
 	Compute,
 	RayGen,
 };
+
+enum class E_RenderPrimitives
+{
+	TriangleList,
+	LineList,
+	PointList
+};
 } // namespace GLEngine::Renderer
