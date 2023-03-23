@@ -46,6 +46,7 @@ private:
 	void			   CreateCommandPool();
 	void			   CreateCommandBuffer();
 	void			   CreateSyncObjects();
+	void			   CreateVertexBuffer();
 	void			   RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
 	void DestroySwapchain();
@@ -61,9 +62,11 @@ private:
 
 	C_Pipeline m_Pipeline;
 
-	VkSemaphore m_ImageAvailableSemaphore;
-	VkSemaphore m_RenderFinishedSemaphore;
-	VkFence		m_InFlightFence;
+	VkSemaphore	   m_ImageAvailableSemaphore;
+	VkSemaphore	   m_RenderFinishedSemaphore;
+	VkFence		   m_InFlightFence;
+	VkBuffer	   m_VertexBuffer;
+	VkDeviceMemory m_VertexBufferMemory;
 
 	VkSurfaceKHR_T* m_Surface;
 

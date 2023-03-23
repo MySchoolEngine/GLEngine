@@ -49,6 +49,8 @@ public:
 	VkQueue	 GetGraphicsQueue() const;
 	VkQueue	 GetPresentationQueue() const;
 
+	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+
 private:
 	bool											 m_Locked = false;
 	std::vector<Renderer::I_Renderer::T_CommandPtr>* m_CommandQueue;

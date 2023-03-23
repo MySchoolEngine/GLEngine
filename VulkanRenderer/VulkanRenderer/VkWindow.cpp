@@ -45,6 +45,7 @@ C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
 	CORE_LOG(E_Level::Info, E_Context::Render, "GLFW: Vulkan window initialized");
 	CreateSwapChain();
 	CreateImageViews();
+	CreateVertexBuffer();
 	CreatePipeline();
 	CreateFramebuffers();
 	CreateCommandPool();
@@ -55,6 +56,8 @@ C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
 //=================================================================================
 C_VkWindow::~C_VkWindow()
 {
+	vkDestroyBuffer(m_renderer->GetDeviceVK(), m_VertexBuffer, nullptr);
+	vkFreeMemory(m_renderer->GetDeviceVK(), m_VertexBufferMemory, nullptr);
 	vkDestroySemaphore(m_renderer->GetDeviceVK(), m_ImageAvailableSemaphore, nullptr);
 	vkDestroySemaphore(m_renderer->GetDeviceVK(), m_RenderFinishedSemaphore, nullptr);
 	vkDestroyFence(m_renderer->GetDeviceVK(), m_InFlightFence, nullptr);
@@ -417,6 +420,10 @@ void C_VkWindow::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t ima
 	vkCmdSetViewport(commandBuffer, 0, 1, &vkViewport);
 	const VkRect2D scissor{.offset = {0, 0}, .extent = {viewport.GetResolution().x, viewport.GetResolution().y}};
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+	VkBuffer	 vertexBuffers[] = {m_VertexBuffer};
+	VkDeviceSize offsets[]		 = {0};
+	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 	vkCmdDraw(commandBuffer, 3, 1, 0, 0);
 	vkCmdEndRenderPass(commandBuffer);
 	if (const auto result = vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
@@ -441,6 +448,54 @@ void C_VkWindow::CreateSyncObjects()
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "failed to record command buffer. {}");
 	}
+}
+
+//=================================================================================
+void C_VkWindow::CreateVertexBuffer()
+{
+	struct Vertex {
+		glm::vec2 pos;
+		glm::vec3 color;
+	};
+
+	const std::vector<Vertex> vertices = {
+		{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+		{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+		{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+	};
+
+	VkBufferCreateInfo bufferInfo{
+		.sType		 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+		.size		 = sizeof(vertices[0]) * vertices.size(),
+		.usage		 = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+		.sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+	};
+
+	if (const auto result = vkCreateBuffer(m_renderer->GetDeviceVK(), &bufferInfo, nullptr, &m_VertexBuffer) != VK_SUCCESS)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "failed to create vertex buffer. {}", result);
+	}
+
+	VkMemoryRequirements memRequirements;
+	vkGetBufferMemoryRequirements(m_renderer->GetDeviceVK(), m_VertexBuffer, &memRequirements);
+
+	VkMemoryAllocateInfo allocInfo{
+		.sType			 = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+		.allocationSize	 = memRequirements.size,
+		.memoryTypeIndex = m_renderer->findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT),
+	};
+
+	if (const auto result = vkAllocateMemory(m_renderer->GetDeviceVK(), &allocInfo, nullptr, &m_VertexBufferMemory) != VK_SUCCESS)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "failed to allocate vertex buffer memory. {}", result);
+	}
+
+	vkBindBufferMemory(m_renderer->GetDeviceVK(), m_VertexBuffer, m_VertexBufferMemory, 0);
+	void* data;
+	vkMapMemory(m_renderer->GetDeviceVK(), m_VertexBufferMemory, 0, bufferInfo.size, 0, &data);
+	memcpy(data, vertices.data(), (size_t)bufferInfo.size);
+	vkUnmapMemory(m_renderer->GetDeviceVK(), m_VertexBufferMemory);
+
 }
 
 } // namespace GLEngine::VkRenderer

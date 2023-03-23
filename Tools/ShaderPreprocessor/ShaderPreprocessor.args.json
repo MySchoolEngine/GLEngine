@@ -4,7 +4,7 @@
   "Items": [
     {
       "Id": "10b3a275-573c-40a2-acb0-f78f34375e9e",
-      "Command": "-s basicVulkan.xml"
+      "Command": "-s basicVulkanSources.xml"
     }
   ]
 }

@@ -141,6 +141,7 @@ int main(int argc, char** argv)
 
 		batfile << "pause\n";
 		batfile.close();
+		CORE_LOG(E_Level::Info, E_Context::Core, "Successfully created bat file");
 	}
 	else
 	{

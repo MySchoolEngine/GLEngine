@@ -5,6 +5,8 @@
 #include <VulkanRenderer/VkDevice.h>
 #include <VulkanRenderer/VkTypeHelpers.h>
 
+#include <Renderer/Colours.h>
+
 namespace GLEngine::VkRenderer {
 
 //=================================================================================
@@ -20,12 +22,34 @@ void C_Pipeline::create(Renderer::I_Device& device, Renderer::PipelineDescriptor
 		.pDynamicStates	   = dynamicStates.data(),
 	};
 
-	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-	vertexInputInfo.sType							= VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	vertexInputInfo.vertexBindingDescriptionCount	= 0;
-	vertexInputInfo.pVertexBindingDescriptions		= nullptr; // Optional
-	vertexInputInfo.vertexAttributeDescriptionCount = 0;
-	vertexInputInfo.pVertexAttributeDescriptions	= nullptr; // Optional
+	VkVertexInputBindingDescription bindingDescription{
+		.binding   = 0,
+		.stride	   = sizeof(glm::vec2) + sizeof(Colours::T_Colour),
+		.inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
+	};
+
+	std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{
+		VkVertexInputAttributeDescription{
+			.location = 0,
+			.binding  = 0,
+			.format	  = VK_FORMAT_R32G32_SFLOAT,
+			.offset	  = 0,
+		},
+		VkVertexInputAttributeDescription{
+			.location = 1,
+			.binding  = 0,
+			.format	  = VK_FORMAT_R32G32B32_SFLOAT,
+			.offset	  = sizeof(glm::vec2),
+		},
+	};
+
+	VkPipelineVertexInputStateCreateInfo vertexInputInfo{
+		.sType							 = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
+		.vertexBindingDescriptionCount	 = 1,
+		.pVertexBindingDescriptions		 = &bindingDescription,
+		.vertexAttributeDescriptionCount = 2,
+		.pVertexAttributeDescriptions	 = attributeDescriptions.data(), // Optional
+	};
 
 	const VkPipelineInputAssemblyStateCreateInfo inputAssembly{
 		.sType					= VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
