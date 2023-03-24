@@ -45,12 +45,12 @@ C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
 	CORE_LOG(E_Level::Info, E_Context::Render, "GLFW: Vulkan window initialized");
 	CreateSwapChain();
 	CreateImageViews();
-	CreateVertexBuffer();
 	CreatePipeline();
 	CreateFramebuffers();
 	CreateCommandPool();
 	CreateCommandBuffer();
 	CreateSyncObjects();
+	CreateVertexBuffer();
 }
 
 //=================================================================================
@@ -463,39 +463,96 @@ void C_VkWindow::CreateVertexBuffer()
 		{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
 		{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
 	};
+	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
+	VkBuffer	   stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+	void* data;
+	vkMapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, 0, bufferSize, 0, &data);
+	memcpy(data, vertices.data(), (size_t)bufferSize);
+	vkUnmapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory);
+
+
+	CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_VertexBuffer, m_VertexBufferMemory);
+
+	CopyBuffer(stagingBuffer, m_VertexBuffer, bufferSize);
+
+	vkDestroyBuffer(m_renderer->GetDeviceVK(), stagingBuffer, nullptr);
+	vkFreeMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, nullptr);
+}
+
+//=================================================================================
+void C_VkWindow::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+{
 	VkBufferCreateInfo bufferInfo{
 		.sType		 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-		.size		 = sizeof(vertices[0]) * vertices.size(),
-		.usage		 = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+		.size		 = size,
+		.usage		 = usage,
 		.sharingMode = VK_SHARING_MODE_EXCLUSIVE,
 	};
 
-	if (const auto result = vkCreateBuffer(m_renderer->GetDeviceVK(), &bufferInfo, nullptr, &m_VertexBuffer) != VK_SUCCESS)
+	if (const auto result = vkCreateBuffer(m_renderer->GetDeviceVK(), &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
 	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "failed to create vertex buffer. {}", result);
+		CORE_LOG(E_Level::Error, E_Context::Render, "failed to create buffer. {}", result);
 	}
 
 	VkMemoryRequirements memRequirements;
-	vkGetBufferMemoryRequirements(m_renderer->GetDeviceVK(), m_VertexBuffer, &memRequirements);
+	vkGetBufferMemoryRequirements(m_renderer->GetDeviceVK(), buffer, &memRequirements);
 
 	VkMemoryAllocateInfo allocInfo{
 		.sType			 = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
 		.allocationSize	 = memRequirements.size,
-		.memoryTypeIndex = m_renderer->findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT),
+		.memoryTypeIndex = m_renderer->findMemoryType(memRequirements.memoryTypeBits, properties),
 	};
 
-	if (const auto result = vkAllocateMemory(m_renderer->GetDeviceVK(), &allocInfo, nullptr, &m_VertexBufferMemory) != VK_SUCCESS)
+	if (const auto result = vkAllocateMemory(m_renderer->GetDeviceVK(), &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
 	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "failed to allocate vertex buffer memory. {}", result);
+		CORE_LOG(E_Level::Error, E_Context::Render, "failed to allocate buffer memory. {}", result);
 	}
 
-	vkBindBufferMemory(m_renderer->GetDeviceVK(), m_VertexBuffer, m_VertexBufferMemory, 0);
-	void* data;
-	vkMapMemory(m_renderer->GetDeviceVK(), m_VertexBufferMemory, 0, bufferInfo.size, 0, &data);
-	memcpy(data, vertices.data(), (size_t)bufferInfo.size);
-	vkUnmapMemory(m_renderer->GetDeviceVK(), m_VertexBufferMemory);
+	vkBindBufferMemory(m_renderer->GetDeviceVK(), buffer, bufferMemory, 0);
+}
 
+//=================================================================================
+void C_VkWindow::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
+{
+	const VkCommandBufferAllocateInfo allocInfo{
+		.sType				= VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+		.commandPool		= m_CommandPool,
+		.level				= VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+		.commandBufferCount = 1,
+	};
+
+	VkCommandBuffer commandBuffer;
+	vkAllocateCommandBuffers(m_renderer->GetDeviceVK(), &allocInfo, &commandBuffer);
+
+	const VkCommandBufferBeginInfo beginInfo{
+		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
+	};
+
+	vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+	const VkBufferCopy copyRegion{
+		.srcOffset = 0, // Optional
+		.dstOffset = 0, // Optional
+		.size	   = size,
+	};
+	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+	vkEndCommandBuffer(commandBuffer);
+
+	const VkSubmitInfo submitInfo{
+		.sType				= VK_STRUCTURE_TYPE_SUBMIT_INFO,
+		.commandBufferCount = 1,
+		.pCommandBuffers	= &commandBuffer,
+	};
+
+	vkQueueSubmit(m_renderer->GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+	vkQueueWaitIdle(m_renderer->GetGraphicsQueue());
+
+	vkFreeCommandBuffers(m_renderer->GetDeviceVK(), m_CommandPool, 1, &commandBuffer);
 }
 
 } // namespace GLEngine::VkRenderer
