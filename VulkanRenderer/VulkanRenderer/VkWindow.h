@@ -47,9 +47,8 @@ private:
 	void			   CreateCommandBuffer();
 	void			   CreateSyncObjects();
 	void			   CreateVertexBuffer();
+	void			   CreateIndexBuffer(); 
 	void			   RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
-	void			   CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
-	void			   CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
 	void DestroySwapchain();
 
@@ -69,6 +68,8 @@ private:
 	VkFence		   m_InFlightFence;
 	VkBuffer	   m_VertexBuffer;
 	VkDeviceMemory m_VertexBufferMemory;
+	VkBuffer	   m_IndexBuffer;
+	VkDeviceMemory m_IndexBufferMemory;
 
 	VkSurfaceKHR_T* m_Surface;
 
