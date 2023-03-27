@@ -8,12 +8,6 @@
 
 namespace GLEngine::VkRenderer {
 
-struct SwapChainSupportDetails {
-	VkSurfaceCapabilitiesKHR		capabilities;
-	std::vector<VkSurfaceFormatKHR> formats;
-	std::vector<VkPresentModeKHR>	presentModes;
-};
-
 // VkRenderer is tightly bound to its window now
 class C_VkRenderer : public Renderer::I_Renderer {
 public:
@@ -41,7 +35,6 @@ public:
 	VkDevice_T*					GetDeviceVK() { return m_VkDevice; }
 	virtual Renderer::I_Device& GetDevice() override;
 
-	SwapChainSupportDetails QuerySwapChainSupport(VkSurfaceKHR surface);
 	void					FillFamilyIndexes(VkSwapchainCreateInfoKHR& createInfo);
 
 	// todo: Temporary
@@ -49,7 +42,7 @@ public:
 	VkQueue	 GetGraphicsQueue() const;
 	VkQueue	 GetPresentationQueue() const;
 
-	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+	void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkCommandPool& commandPool);
 
 private:
 	bool											 m_Locked = false;
@@ -58,7 +51,6 @@ private:
 	VkInstance_T*		m_Instance;
 	C_VkDevice			m_Device;
 	VkDevice_T*			m_VkDevice;
-	VkPhysicalDevice_T* m_GPU;
 	uint32_t			m_GraphicsFamilyIndex;
 	uint32_t			m_ComputeFamilyIndex;
 	uint32_t			m_PresentingFamilyIndex;

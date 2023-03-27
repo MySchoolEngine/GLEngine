@@ -2,6 +2,7 @@
 
 #include <VulkanRenderer/Shaders/ShaderCompiler.h>
 #include <VulkanRenderer/VkRenderer.h>
+#include <VulkanRenderer/VkDevice.h>
 #include <VulkanRenderer/VkTypeHelpers.h>
 #include <VulkanRenderer/VkWindow.h>
 #include <VulkanRenderer/VkWindowInfo.h>
@@ -163,7 +164,8 @@ bool C_VkWindow::CreateWindowSurface()
 //=================================================================================
 void C_VkWindow::CreateSwapChain()
 {
-	const SwapChainSupportDetails swapChainSupport = m_renderer->QuerySwapChainSupport(m_Surface);
+	auto&						  vkDevice		   = dynamic_cast<C_VkDevice&>(m_renderer->GetDevice());
+	const SwapChainSupportDetails swapChainSupport = vkDevice.QuerySwapChainSupport(m_Surface);
 
 	const VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
 	const VkPresentModeKHR	 presentMode   = ChooseSwapPresentMode(swapChainSupport.presentModes);

@@ -87,13 +87,13 @@ bool C_VkRenderer::InitDevice(VkSurfaceKHR surface)
 	GLE_ASSERT(gpuCount > 0, "No GPU detected");
 	std::vector<VkPhysicalDevice> gpus(gpuCount);
 	vkEnumeratePhysicalDevices(m_Instance, &gpuCount, gpus.data());
-	m_GPU = gpus[0];
+	VkPhysicalDevice_T*  gpu = gpus[0];
 
 	{
 		uint32_t familyCount = 0;
-		vkGetPhysicalDeviceQueueFamilyProperties(m_GPU, &familyCount, nullptr);
+		vkGetPhysicalDeviceQueueFamilyProperties(gpu, &familyCount, nullptr);
 		std::vector<VkQueueFamilyProperties> familyProperties(familyCount);
-		vkGetPhysicalDeviceQueueFamilyProperties(m_GPU, &familyCount, familyProperties.data());
+		vkGetPhysicalDeviceQueueFamilyProperties(gpu, &familyCount, familyProperties.data());
 
 		uint32_t i	   = 0;
 		bool	 found = false;
@@ -110,7 +110,7 @@ bool C_VkRenderer::InitDevice(VkSurfaceKHR surface)
 			}
 
 			VkBool32   presentSupport = false;
-			const auto ret			  = vkGetPhysicalDeviceSurfaceSupportKHR(m_GPU, i, surface, &presentSupport);
+			const auto ret			  = vkGetPhysicalDeviceSurfaceSupportKHR(gpu, i, surface, &presentSupport);
 			if (ret == VK_SUCCESS && presentSupport)
 			{
 				m_PresentingFamilyIndex = i;
@@ -140,7 +140,7 @@ bool C_VkRenderer::InitDevice(VkSurfaceKHR surface)
 	device_create_info.ppEnabledExtensionNames = deviceExtensions.data();
 
 
-	auto ret = pfnCreateDevice(m_GPU, &device_create_info, nullptr, &m_VkDevice);
+	auto ret = pfnCreateDevice(gpu, &device_create_info, nullptr, &m_VkDevice);
 	if (ret != VK_SUCCESS)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Core, "Vulkan device unable to initialize. Error code: '{}'", ret);
@@ -150,7 +150,7 @@ bool C_VkRenderer::InitDevice(VkSurfaceKHR surface)
 	vkGetDeviceQueue(m_VkDevice, m_GraphicsFamilyIndex, 0, &m_graphicsQueue);
 	vkGetDeviceQueue(m_VkDevice, m_PresentingFamilyIndex, 0, &m_presentQueue);
 
-	m_Device.Init(m_VkDevice);
+	m_Device.Init(m_VkDevice, gpu);
 
 	return true;
 }
@@ -181,32 +181,6 @@ std::vector<VkDeviceQueueCreateInfo> C_VkRenderer::CreatePresentingQueueInfos()
 Renderer::E_PassType C_VkRenderer::GetCurrentPassType() const
 {
 	return Renderer::E_PassType::FinalPass;
-}
-
-//=================================================================================
-SwapChainSupportDetails C_VkRenderer::QuerySwapChainSupport(VkSurfaceKHR sruface)
-{
-	SwapChainSupportDetails details;
-	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_GPU, sruface, &details.capabilities);
-
-	uint32_t formatCount;
-	vkGetPhysicalDeviceSurfaceFormatsKHR(m_GPU, sruface, &formatCount, nullptr);
-
-	if (formatCount != 0)
-	{
-		details.formats.resize(formatCount);
-		vkGetPhysicalDeviceSurfaceFormatsKHR(m_GPU, sruface, &formatCount, details.formats.data());
-	}
-
-	uint32_t presentModeCount;
-	vkGetPhysicalDeviceSurfacePresentModesKHR(m_GPU, sruface, &presentModeCount, nullptr);
-
-	if (presentModeCount != 0)
-	{
-		details.presentModes.resize(presentModeCount);
-		vkGetPhysicalDeviceSurfacePresentModesKHR(m_GPU, sruface, &presentModeCount, details.presentModes.data());
-	}
-	return details;
 }
 
 //=================================================================================
@@ -259,18 +233,43 @@ VkQueue C_VkRenderer::GetPresentationQueue() const
 }
 
 //=================================================================================
-uint32_t C_VkRenderer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+void C_VkRenderer::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkCommandPool& commandPool)
 {
-	VkPhysicalDeviceMemoryProperties memProperties;
-	vkGetPhysicalDeviceMemoryProperties(m_GPU, &memProperties);
-	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
-	{
-		if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
-		{
-			return i;
-		}
-	}
-	throw std::runtime_error("failed to find suitable memory type!");
+	const VkCommandBufferAllocateInfo allocInfo{
+		.sType				= VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+		.commandPool		= commandPool,
+		.level				= VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+		.commandBufferCount = 1,
+	};
+
+	VkCommandBuffer commandBuffer;
+	vkAllocateCommandBuffers(GetDeviceVK(), &allocInfo, &commandBuffer);
+
+	const VkCommandBufferBeginInfo beginInfo{
+		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
+	};
+
+	vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+	const VkBufferCopy copyRegion{
+		.srcOffset = 0, // Optional
+		.dstOffset = 0, // Optional
+		.size	   = size,
+	};
+	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+	vkEndCommandBuffer(commandBuffer);
+
+	const VkSubmitInfo submitInfo{
+		.sType				= VK_STRUCTURE_TYPE_SUBMIT_INFO,
+		.commandBufferCount = 1,
+		.pCommandBuffers	= &commandBuffer,
+	};
+
+	vkQueueSubmit(GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+	vkQueueWaitIdle(GetGraphicsQueue());
+
+	vkFreeCommandBuffers(GetDeviceVK(), commandPool, 1, &commandBuffer);
 }
 
 } // namespace GLEngine::VkRenderer

@@ -11,9 +11,10 @@ C_VkDevice::C_VkDevice() = default;
 C_VkDevice::~C_VkDevice() = default;
 
 //=================================================================================
-void C_VkDevice::Init(VkDevice_T* device)
+void C_VkDevice::Init(VkDevice_T* device, VkPhysicalDevice_T* gpu)
 {
 	m_Device = device;
+	m_GPU	 = gpu;
 }
 
 //=================================================================================
@@ -75,6 +76,79 @@ bool C_VkDevice::CreateView(VkImageView& resultView, VkImage& image, VkFormat fo
 	}
 
 	return true;
+}
+
+//=================================================================================
+void C_VkDevice::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+{
+	const VkBufferCreateInfo bufferInfo{
+		.sType		 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+		.size		 = size,
+		.usage		 = usage,
+		.sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+	};
+
+	if (const auto result = vkCreateBuffer(GetVkDevice(), &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "failed to create buffer. {}", result);
+	}
+
+	VkMemoryRequirements memRequirements;
+	vkGetBufferMemoryRequirements(GetVkDevice(), buffer, &memRequirements);
+
+	VkMemoryAllocateInfo allocInfo{
+		.sType			 = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+		.allocationSize	 = memRequirements.size,
+		.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties),
+	};
+
+	if (const auto result = vkAllocateMemory(GetVkDevice(), &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "failed to allocate buffer memory. {}", result);
+	}
+
+	vkBindBufferMemory(GetVkDevice(), buffer, bufferMemory, 0);
+}
+
+//=================================================================================
+SwapChainSupportDetails C_VkDevice::QuerySwapChainSupport(VkSurfaceKHR surface)
+{
+	SwapChainSupportDetails details;
+	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_GPU, surface, &details.capabilities);
+
+	uint32_t formatCount;
+	vkGetPhysicalDeviceSurfaceFormatsKHR(m_GPU, surface, &formatCount, nullptr);
+
+	if (formatCount != 0)
+	{
+		details.formats.resize(formatCount);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(m_GPU, surface, &formatCount, details.formats.data());
+	}
+
+	uint32_t presentModeCount;
+	vkGetPhysicalDeviceSurfacePresentModesKHR(m_GPU, surface, &presentModeCount, nullptr);
+
+	if (presentModeCount != 0)
+	{
+		details.presentModes.resize(presentModeCount);
+		vkGetPhysicalDeviceSurfacePresentModesKHR(m_GPU, surface, &presentModeCount, details.presentModes.data());
+	}
+	return details;
+}
+
+//=================================================================================
+uint32_t C_VkDevice::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+{
+	VkPhysicalDeviceMemoryProperties memProperties;
+	vkGetPhysicalDeviceMemoryProperties(m_GPU, &memProperties);
+	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
+	{
+		if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
+		{
+			return i;
+		}
+	}
+	throw std::runtime_error("failed to find suitable memory type!");
 }
 
 } // namespace GLEngine::VkRenderer
