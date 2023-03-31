@@ -12,6 +12,11 @@
 #include <Core/EventSystem/Event/AppEvent.h>
 #include <Core/EventSystem/EventDispatcher.h>
 
+#include <Renderer/Mesh/Loading/MeshResource.h>
+#include <Renderer/Textures/TextureResource.h>
+
+#include <Core/Resources/ResourceManager.h>
+
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -60,6 +65,11 @@ C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
 	CreateUniformBuffers();
 	CreateDescriptorPool();
 	CreateDescriptorSets();
+
+
+	auto& rm = Core::C_ResourceManager::Instance();
+	rm.RegisterResourceType(new Renderer::TextureLoader());
+	rm.RegisterResourceType(new Renderer::MeshLoader());
 }
 
 //=================================================================================
@@ -636,8 +646,7 @@ void C_VkWindow::CreateDescriptorSets()
 			.range	= sizeof(UniformBufferObject),
 		};
 
-		const VkWriteDescriptorSet descriptorWrite
-		{
+		const VkWriteDescriptorSet descriptorWrite{
 			.sType			 = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 			.dstSet			 = descriptorSets[i],
 			.dstBinding		 = 0,
