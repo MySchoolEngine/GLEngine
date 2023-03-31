@@ -1,8 +1,8 @@
 #include <VulkanRendererStdafx.h>
 
 #include <VulkanRenderer/Shaders/ShaderCompiler.h>
-#include <VulkanRenderer/VkRenderer.h>
 #include <VulkanRenderer/VkDevice.h>
+#include <VulkanRenderer/VkRenderer.h>
 #include <VulkanRenderer/VkTypeHelpers.h>
 #include <VulkanRenderer/VkWindow.h>
 #include <VulkanRenderer/VkWindowInfo.h>
@@ -62,9 +62,12 @@ C_VkWindow::~C_VkWindow()
 	vkFreeMemory(m_renderer->GetDeviceVK(), m_VertexBufferMemory, nullptr);
 	vkDestroyBuffer(m_renderer->GetDeviceVK(), m_IndexBuffer, nullptr);
 	vkFreeMemory(m_renderer->GetDeviceVK(), m_IndexBufferMemory, nullptr);
-	vkDestroySemaphore(m_renderer->GetDeviceVK(), m_ImageAvailableSemaphore, nullptr);
-	vkDestroySemaphore(m_renderer->GetDeviceVK(), m_RenderFinishedSemaphore, nullptr);
-	vkDestroyFence(m_renderer->GetDeviceVK(), m_InFlightFence, nullptr);
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	{
+		vkDestroySemaphore(m_renderer->GetDeviceVK(), m_ImageAvailableSemaphore[i], nullptr);
+		vkDestroySemaphore(m_renderer->GetDeviceVK(), m_RenderFinishedSemaphore[i], nullptr);
+		vkDestroyFence(m_renderer->GetDeviceVK(), m_InFlightFence[i], nullptr);
+	}
 	vkDestroyCommandPool(m_renderer->GetDeviceVK(), m_CommandPool, nullptr);
 	for (auto framebuffer : m_SwapChainFramebuffers)
 	{
@@ -72,6 +75,11 @@ C_VkWindow::~C_VkWindow()
 	}
 	DestroySwapchain();
 	vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	{
+		vkDestroyBuffer(m_renderer->GetDeviceVK(), uniformBuffers[i], nullptr);
+		vkFreeMemory(m_renderer->GetDeviceVK(), uniformBuffersMemory[i], nullptr);
+	}
 	m_Pipeline.destroy(m_renderer->GetDevice());
 	m_renderer.reset(nullptr);
 };
@@ -79,17 +87,19 @@ C_VkWindow::~C_VkWindow()
 //=================================================================================
 void C_VkWindow::Update()
 {
-	vkWaitForFences(m_renderer->GetDeviceVK(), 1, &m_InFlightFence, VK_TRUE, UINT64_MAX);
-	vkResetFences(m_renderer->GetDeviceVK(), 1, &m_InFlightFence);
+	vkWaitForFences(m_renderer->GetDeviceVK(), 1, &m_InFlightFence[currentFrame], VK_TRUE, UINT64_MAX);
 
 	uint32_t imageIndex;
-	vkAcquireNextImageKHR(m_renderer->GetDeviceVK(), m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+	vkAcquireNextImageKHR(m_renderer->GetDeviceVK(), m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphore[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
-	vkResetCommandBuffer(m_CommandBuffer, 0);
-	RecordCommandBuffer(m_CommandBuffer, imageIndex);
+	
+	vkResetFences(m_renderer->GetDeviceVK(), 1, &m_InFlightFence[currentFrame]);
 
-	VkSemaphore			 waitSemaphores[]	= {m_ImageAvailableSemaphore};
-	VkSemaphore			 signalSemaphores[] = {m_RenderFinishedSemaphore};
+	vkResetCommandBuffer(m_CommandBuffer[currentFrame], 0);
+	RecordCommandBuffer(m_CommandBuffer[currentFrame], imageIndex);
+
+	VkSemaphore			 waitSemaphores[]	= {m_ImageAvailableSemaphore[currentFrame]};
+	VkSemaphore			 signalSemaphores[] = {m_RenderFinishedSemaphore[currentFrame]};
 	VkPipelineStageFlags waitStages[]		= {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
 	const VkSubmitInfo submitInfo{
@@ -98,12 +108,12 @@ void C_VkWindow::Update()
 		.pWaitSemaphores	  = waitSemaphores,
 		.pWaitDstStageMask	  = waitStages,
 		.commandBufferCount	  = 1,
-		.pCommandBuffers	  = &m_CommandBuffer,
+		.pCommandBuffers	  = &m_CommandBuffer[currentFrame],
 		.signalSemaphoreCount = 1,
 		.pSignalSemaphores	  = signalSemaphores,
 	};
 
-	if (const auto result = vkQueueSubmit(m_renderer->GetGraphicsQueue(), 1, &submitInfo, m_InFlightFence) != VK_SUCCESS)
+	if (const auto result = vkQueueSubmit(m_renderer->GetGraphicsQueue(), 1, &submitInfo, m_InFlightFence[currentFrame]) != VK_SUCCESS)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "failed to submit draw command buffer. {}", result);
 		return;
@@ -120,6 +130,8 @@ void C_VkWindow::Update()
 	};
 
 	vkQueuePresentKHR(m_renderer->GetPresentationQueue(), &presentInfo);
+
+	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
 //=================================================================================
@@ -378,14 +390,16 @@ void C_VkWindow::CreateCommandPool()
 //=================================================================================
 void C_VkWindow::CreateCommandBuffer()
 {
+	m_CommandBuffer.resize(MAX_FRAMES_IN_FLIGHT);
+
 	const VkCommandBufferAllocateInfo allocInfo{
 		.sType				= VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
 		.commandPool		= m_CommandPool,
 		.level				= VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-		.commandBufferCount = 1,
+		.commandBufferCount = static_cast<uint32_t>(m_CommandBuffer.size()),
 	};
 
-	if (const auto result = vkAllocateCommandBuffers(m_renderer->GetDeviceVK(), &allocInfo, &m_CommandBuffer) != VK_SUCCESS)
+	if (const auto result = vkAllocateCommandBuffers(m_renderer->GetDeviceVK(), &allocInfo, m_CommandBuffer.data()) != VK_SUCCESS)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Failed to create command buffer. {}", result);
 	}
@@ -442,17 +456,26 @@ void C_VkWindow::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t ima
 //=================================================================================
 void C_VkWindow::CreateSyncObjects()
 {
-	const VkSemaphoreCreateInfo semaphoreInfo{.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
-	const VkFenceCreateInfo		fenceInfo{
+	m_ImageAvailableSemaphore.resize(MAX_FRAMES_IN_FLIGHT);
+	m_RenderFinishedSemaphore.resize(MAX_FRAMES_IN_FLIGHT);
+	m_InFlightFence.resize(MAX_FRAMES_IN_FLIGHT);
+
+	const VkSemaphoreCreateInfo semaphoreInfo{
+		.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+	};
+	const VkFenceCreateInfo fenceInfo{
 		.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
 		.flags = VK_FENCE_CREATE_SIGNALED_BIT,
 	};
 
-	if (vkCreateSemaphore(m_renderer->GetDeviceVK(), &semaphoreInfo, nullptr, &m_ImageAvailableSemaphore) != VK_SUCCESS
-		|| vkCreateSemaphore(m_renderer->GetDeviceVK(), &semaphoreInfo, nullptr, &m_RenderFinishedSemaphore) != VK_SUCCESS
-		|| vkCreateFence(m_renderer->GetDeviceVK(), &fenceInfo, nullptr, &m_InFlightFence) != VK_SUCCESS)
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "failed to record command buffer. {}");
+		if (vkCreateSemaphore(m_renderer->GetDeviceVK(), &semaphoreInfo, nullptr, &m_ImageAvailableSemaphore[i]) != VK_SUCCESS
+			|| vkCreateSemaphore(m_renderer->GetDeviceVK(), &semaphoreInfo, nullptr, &m_RenderFinishedSemaphore[i]) != VK_SUCCESS
+			|| vkCreateFence(m_renderer->GetDeviceVK(), &fenceInfo, nullptr, &m_InFlightFence[i]) != VK_SUCCESS)
+		{
+			CORE_LOG(E_Level::Error, E_Context::Render, "failed to record command buffer. {}");
+		}
 	}
 }
 

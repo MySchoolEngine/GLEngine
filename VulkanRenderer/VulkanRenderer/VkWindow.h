@@ -52,24 +52,27 @@ private:
 
 	void DestroySwapchain();
 
-	VkSwapchainKHR			   m_SwapChain;
-	std::vector<VkImage>	   m_SwapChainImages;
-	std::vector<VkFramebuffer> m_SwapChainFramebuffers;
-	std::vector<VkImageView>   m_SwapChainImagesViews;
-	VkFormat				   m_SwapChainImageFormat;
-	VkExtent2D				   m_SwapChainExtent;
-	VkCommandPool			   m_CommandPool;
-	VkCommandBuffer			   m_CommandBuffer; // auto cleanup on pool release!
+	VkSwapchainKHR				 m_SwapChain;
+	std::vector<VkImage>		 m_SwapChainImages;
+	std::vector<VkFramebuffer>	 m_SwapChainFramebuffers;
+	std::vector<VkImageView>	 m_SwapChainImagesViews;
+	VkFormat					 m_SwapChainImageFormat;
+	VkExtent2D					 m_SwapChainExtent;
+	VkCommandPool				 m_CommandPool;
+	std::vector<VkCommandBuffer> m_CommandBuffer; // auto cleanup on pool release!
 
 	C_Pipeline m_Pipeline;
 
-	VkSemaphore	   m_ImageAvailableSemaphore;
-	VkSemaphore	   m_RenderFinishedSemaphore;
-	VkFence		   m_InFlightFence;
-	VkBuffer	   m_VertexBuffer;
-	VkDeviceMemory m_VertexBufferMemory;
-	VkBuffer	   m_IndexBuffer;
-	VkDeviceMemory m_IndexBufferMemory;
+	std::vector<VkSemaphore> m_ImageAvailableSemaphore;
+	std::vector<VkSemaphore> m_RenderFinishedSemaphore;
+	std::vector<VkFence>	 m_InFlightFence;
+	VkBuffer				 m_VertexBuffer;
+	VkDeviceMemory			 m_VertexBufferMemory;
+	VkBuffer				 m_IndexBuffer;
+	VkDeviceMemory			 m_IndexBufferMemory;
+
+	const int MAX_FRAMES_IN_FLIGHT = 2;
+	uint32_t  currentFrame		   = 0;
 
 	VkSurfaceKHR_T* m_Surface;
 
