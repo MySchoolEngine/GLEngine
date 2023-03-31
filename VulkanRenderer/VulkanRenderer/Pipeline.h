@@ -13,10 +13,14 @@ public:
 	// todo
 	VkRenderPass& GetRenderPass() { return m_RenderPass; }
 	VkPipeline&	  GetGraphicsPipeline() { return m_GraphicsPipeline; }
+	VkDescriptorSetLayout& GetDescriptorSetLayout() { return m_DescriptorSetLayout; }
+	VkPipelineLayout&	   GetLayout() { return m_PipelineLayout; }
 
 private:
 	void CreateRenderPass(Renderer::I_Device& device, VkFormat swapCahinImageFormat);
 
+	
+	VkDescriptorSetLayout		 m_DescriptorSetLayout;
 	VkPipelineLayout			 m_PipelineLayout;
 	VkRenderPass				 m_RenderPass;
 	VkPipeline					 m_GraphicsPipeline;

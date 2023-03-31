@@ -17,6 +17,11 @@ class C_WindowResizedEvent;
 namespace GLEngine::VkRenderer {
 
 class C_VkRenderer;
+struct UniformBufferObject {
+	glm::mat4 model;
+	glm::mat4 view;
+	glm::mat4 proj;
+};
 
 class C_VkWindow : public GLFWManager::C_GLFWWindow {
 public:
@@ -47,10 +52,15 @@ private:
 	void			   CreateCommandBuffer();
 	void			   CreateSyncObjects();
 	void			   CreateVertexBuffer();
-	void			   CreateIndexBuffer(); 
+	void			   CreateIndexBuffer();
+	void			   CreateUniformBuffers();
+	void			   CreateDescriptorPool();
+	void			   CreateDescriptorSets();
 	void			   RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
 	void DestroySwapchain();
+
+	void UpdateUniformBuffer(uint32_t currentImage);
 
 	VkSwapchainKHR				 m_SwapChain;
 	std::vector<VkImage>		 m_SwapChainImages;
@@ -73,6 +83,14 @@ private:
 
 	const int MAX_FRAMES_IN_FLIGHT = 2;
 	uint32_t  currentFrame		   = 0;
+
+
+	// Uniform buffers
+	std::vector<VkBuffer>		 uniformBuffers;
+	std::vector<VkDeviceMemory>	 uniformBuffersMemory;
+	std::vector<void*>			 uniformBuffersMapped;
+	VkDescriptorPool			 descriptorPool;
+	std::vector<VkDescriptorSet> descriptorSets;
 
 	VkSurfaceKHR_T* m_Surface;
 

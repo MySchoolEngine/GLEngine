@@ -22,7 +22,7 @@ void C_Pipeline::create(Renderer::I_Device& device, Renderer::PipelineDescriptor
 		.pDynamicStates	   = dynamicStates.data(),
 	};
 
-	VkVertexInputBindingDescription bindingDescription{
+	const VkVertexInputBindingDescription bindingDescription{
 		.binding   = 0,
 		.stride	   = sizeof(glm::vec2) + sizeof(Colours::T_Colour),
 		.inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
@@ -43,7 +43,7 @@ void C_Pipeline::create(Renderer::I_Device& device, Renderer::PipelineDescriptor
 		},
 	};
 
-	VkPipelineVertexInputStateCreateInfo vertexInputInfo{
+	const VkPipelineVertexInputStateCreateInfo vertexInputInfo{
 		.sType							 = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
 		.vertexBindingDescriptionCount	 = 1,
 		.pVertexBindingDescriptions		 = &bindingDescription,
@@ -69,7 +69,7 @@ void C_Pipeline::create(Renderer::I_Device& device, Renderer::PipelineDescriptor
 		.rasterizerDiscardEnable = VK_FALSE,
 		.polygonMode			 = desc.wireframe ? VK_POLYGON_MODE_LINE : VK_POLYGON_MODE_FILL,
 		.cullMode				 = VK_CULL_MODE_BACK_BIT,
-		.frontFace				 = VK_FRONT_FACE_CLOCKWISE,
+		.frontFace				 = VK_FRONT_FACE_COUNTER_CLOCKWISE,
 		.depthBiasEnable		 = VK_FALSE,
 		.depthBiasConstantFactor = 0.0f, // Optional
 		.depthBiasClamp			 = 0.0f, // Optional
@@ -115,10 +115,41 @@ void C_Pipeline::create(Renderer::I_Device& device, Renderer::PipelineDescriptor
 	{
 		// error probably? End the run?
 	}
-	if (!compiler.linkProgram(m_PipelineLayout, stages))
+
+	const VkDescriptorSetLayoutBinding uboLayoutBinding{
+		.binding			= 0,
+		.descriptorType		= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+		.descriptorCount	= 1,
+		.stageFlags			= VK_SHADER_STAGE_VERTEX_BIT,
+		.pImmutableSamplers = nullptr,
+	};
+
+	const VkDescriptorSetLayoutCreateInfo layoutInfo{
+		.sType		  = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+		.bindingCount = 1,
+		.pBindings	  = &uboLayoutBinding,
+	};
+
+	if (const auto result = vkCreateDescriptorSetLayout(vkDevice.GetVkDevice(), &layoutInfo, nullptr, &m_DescriptorSetLayout) != VK_SUCCESS)
 	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "failed to create descriptor set layout. {}", result);
 		return;
 	}
+
+	const VkPipelineLayoutCreateInfo pipelineLayoutInfo{
+		.sType					= VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+		.pNext					= nullptr,
+		.setLayoutCount			= 1,
+		.pSetLayouts			= &m_DescriptorSetLayout,
+		.pushConstantRangeCount = 0,
+	};
+
+	if (const auto result = vkCreatePipelineLayout(vkDevice.GetVkDevice(), &pipelineLayoutInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "failed to create pipeline layout! {}", result);
+		return;
+	}
+
 	std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
 	for (const auto& stage : stages)
 	{
@@ -225,6 +256,7 @@ void C_Pipeline::CreateRenderPass(Renderer::I_Device& device, VkFormat swapCahin
 void C_Pipeline::destroy(Renderer::I_Device& device)
 {
 	auto& vkDevice = static_cast<C_VkDevice&>(device);
+	vkDestroyDescriptorSetLayout(vkDevice.GetVkDevice(), m_DescriptorSetLayout, nullptr);
 	vkDestroyPipeline(vkDevice.GetVkDevice(), m_GraphicsPipeline, nullptr);
 	vkDestroyPipelineLayout(vkDevice.GetVkDevice(), m_PipelineLayout, nullptr);
 	vkDestroyRenderPass(vkDevice.GetVkDevice(), m_RenderPass, nullptr);

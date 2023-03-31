@@ -12,6 +12,10 @@
 #include <Core/EventSystem/Event/AppEvent.h>
 #include <Core/EventSystem/EventDispatcher.h>
 
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 #include <GLFW/glfw3.h>
 
 namespace GLEngine::VkRenderer {
@@ -53,6 +57,9 @@ C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
 	CreateSyncObjects();
 	CreateVertexBuffer();
 	CreateIndexBuffer();
+	CreateUniformBuffers();
+	CreateDescriptorPool();
+	CreateDescriptorSets();
 }
 
 //=================================================================================
@@ -80,6 +87,7 @@ C_VkWindow::~C_VkWindow()
 		vkDestroyBuffer(m_renderer->GetDeviceVK(), uniformBuffers[i], nullptr);
 		vkFreeMemory(m_renderer->GetDeviceVK(), uniformBuffersMemory[i], nullptr);
 	}
+	vkDestroyDescriptorPool(m_renderer->GetDeviceVK(), descriptorPool, nullptr);
 	m_Pipeline.destroy(m_renderer->GetDevice());
 	m_renderer.reset(nullptr);
 };
@@ -92,7 +100,8 @@ void C_VkWindow::Update()
 	uint32_t imageIndex;
 	vkAcquireNextImageKHR(m_renderer->GetDeviceVK(), m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphore[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
-	
+	UpdateUniformBuffer(currentFrame);
+
 	vkResetFences(m_renderer->GetDeviceVK(), 1, &m_InFlightFence[currentFrame]);
 
 	vkResetCommandBuffer(m_CommandBuffer[currentFrame], 0);
@@ -440,10 +449,12 @@ void C_VkWindow::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t ima
 	const VkRect2D scissor{.offset = {0, 0}, .extent = {viewport.GetResolution().x, viewport.GetResolution().y}};
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
+
 	VkBuffer	 vertexBuffers[] = {m_VertexBuffer};
 	VkDeviceSize offsets[]		 = {0};
 	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 	vkCmdBindIndexBuffer(commandBuffer, m_IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline.GetLayout(), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 	vkCmdDrawIndexed(commandBuffer, 6u, 1, 0, 0, 0);
 	vkCmdEndRenderPass(commandBuffer);
 	if (const auto result = vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
@@ -540,6 +551,104 @@ void C_VkWindow::CreateIndexBuffer()
 
 	vkDestroyBuffer(m_renderer->GetDeviceVK(), stagingBuffer, nullptr);
 	vkFreeMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, nullptr);
+}
+
+//=================================================================================
+void C_VkWindow::CreateUniformBuffers()
+{
+	auto&		 vkDevice	= dynamic_cast<C_VkDevice&>(m_renderer->GetDevice());
+	VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+
+	uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+	uniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
+	uniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
+
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	{
+		vkDevice.CreateBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i],
+							  uniformBuffersMemory[i]);
+
+		vkMapMemory(m_renderer->GetDeviceVK(), uniformBuffersMemory[i], 0, bufferSize, 0, &uniformBuffersMapped[i]);
+	}
+}
+
+//=================================================================================
+void C_VkWindow::UpdateUniformBuffer(uint32_t currentImage)
+{
+	static auto startTime = std::chrono::high_resolution_clock::now();
+
+	auto				currentTime = std::chrono::high_resolution_clock::now();
+	float				time		= std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+	UniformBufferObject ubo{};
+	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.view  = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.proj  = glm::perspective(glm::radians(45.0f), m_SwapChainExtent.width / (float)m_SwapChainExtent.height, 0.1f, 10.0f);
+	ubo.proj[1][1] *= -1;
+
+	memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
+}
+
+//=================================================================================
+void C_VkWindow::CreateDescriptorPool()
+{
+	const VkDescriptorPoolSize poolSize{
+		.type			 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+		.descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT),
+	};
+
+	const VkDescriptorPoolCreateInfo poolInfo{
+		.sType		   = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+		.flags		   = 0,
+		.maxSets	   = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT),
+		.poolSizeCount = 1,
+		.pPoolSizes	   = &poolSize,
+	};
+	if (const auto result = vkCreateDescriptorPool(m_renderer->GetDeviceVK(), &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "failed to create descriptor pool. {}", result);
+		return;
+	}
+}
+
+//=================================================================================
+void C_VkWindow::CreateDescriptorSets()
+{
+	std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, m_Pipeline.GetDescriptorSetLayout());
+	const VkDescriptorSetAllocateInfo  allocInfo{
+		 .sType				 = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+		 .descriptorPool	 = descriptorPool,
+		 .descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT),
+		 .pSetLayouts		 = layouts.data(),
+	 };
+
+	descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
+	if (const auto result = vkAllocateDescriptorSets(m_renderer->GetDeviceVK(), &allocInfo, descriptorSets.data()) != VK_SUCCESS)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "failed to allocate descriptor sets. {}", result);
+		return;
+	}
+
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	{
+		const VkDescriptorBufferInfo bufferInfo{
+			.buffer = uniformBuffers[i],
+			.offset = 0,
+			.range	= sizeof(UniformBufferObject),
+		};
+
+		const VkWriteDescriptorSet descriptorWrite
+		{
+			.sType			 = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+			.dstSet			 = descriptorSets[i],
+			.dstBinding		 = 0,
+			.dstArrayElement = 0,
+			.descriptorCount = 1,
+			.descriptorType	 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+			.pBufferInfo	 = &bufferInfo,
+		};
+
+		vkUpdateDescriptorSets(m_renderer->GetDeviceVK(), 1, &descriptorWrite, 0, nullptr);
+	}
 }
 
 } // namespace GLEngine::VkRenderer
