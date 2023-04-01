@@ -60,6 +60,9 @@ private:
 
 	bool								 InitDevice(VkSurfaceKHR surface);
 	std::vector<VkDeviceQueueCreateInfo> CreatePresentingQueueInfos();
+
+	VkCommandBuffer BeginSingleTimeCommands(VkCommandPool& commandPool);
+	void			EndSigneTimeCommands(VkCommandBuffer& commandBuffer, VkCommandPool& commandPool);
 };
 
 } // namespace GLEngine::VkRenderer

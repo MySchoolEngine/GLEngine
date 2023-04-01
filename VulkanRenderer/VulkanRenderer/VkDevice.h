@@ -33,7 +33,7 @@ public:
 	uint32_t				findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
 private:
-	VkDevice_T*			m_Device;
-	VkPhysicalDevice_T* m_GPU;
+	VkDevice_T*			m_Device = nullptr;
+	VkPhysicalDevice_T* m_GPU	 = nullptr;
 };
 } // namespace GLEngine::VkRenderer

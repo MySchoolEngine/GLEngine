@@ -235,6 +235,21 @@ VkQueue C_VkRenderer::GetPresentationQueue() const
 //=================================================================================
 void C_VkRenderer::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkCommandPool& commandPool)
 {
+	VkCommandBuffer commandBuffer = BeginSingleTimeCommands(commandPool);
+
+	const VkBufferCopy copyRegion{
+		.srcOffset = 0, // Optional
+		.dstOffset = 0, // Optional
+		.size	   = size,
+	};
+	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+	EndSigneTimeCommands(commandBuffer, commandPool);
+}
+
+//=================================================================================
+VkCommandBuffer C_VkRenderer::BeginSingleTimeCommands(VkCommandPool& commandPool)
+{
 	const VkCommandBufferAllocateInfo allocInfo{
 		.sType				= VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
 		.commandPool		= commandPool,
@@ -251,13 +266,12 @@ void C_VkRenderer::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSi
 	};
 
 	vkBeginCommandBuffer(commandBuffer, &beginInfo);
+	return commandBuffer;
+}
 
-	const VkBufferCopy copyRegion{
-		.srcOffset = 0, // Optional
-		.dstOffset = 0, // Optional
-		.size	   = size,
-	};
-	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+//=================================================================================
+void C_VkRenderer::EndSigneTimeCommands(VkCommandBuffer& commandBuffer, VkCommandPool& commandPool)
+{
 	vkEndCommandBuffer(commandBuffer);
 
 	const VkSubmitInfo submitInfo{
