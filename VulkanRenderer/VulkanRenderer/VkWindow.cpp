@@ -7,14 +7,12 @@
 #include <VulkanRenderer/VkWindow.h>
 #include <VulkanRenderer/VkWindowInfo.h>
 
+#include <Renderer/Mesh/Loading/MeshResource.h>
+#include <Renderer/Textures/TextureResource.h>
 #include <Renderer/Viewport.h>
 
 #include <Core/EventSystem/Event/AppEvent.h>
 #include <Core/EventSystem/EventDispatcher.h>
-
-#include <Renderer/Mesh/Loading/MeshResource.h>
-#include <Renderer/Textures/TextureResource.h>
-
 #include <Core/Resources/ResourceManager.h>
 
 #define GLM_FORCE_RADIANS
@@ -360,7 +358,17 @@ bool C_VkWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 //=================================================================================
 void C_VkWindow::CreatePipeline()
 {
-	Renderer::PipelineDescriptor desc{.primitiveType = Renderer::E_RenderPrimitives::TriangleList};
+	Renderer::PipelineDescriptor desc{
+		.primitiveType = Renderer::E_RenderPrimitives::TriangleList,
+		.vertexInput   = {{
+							  .binding = 0,
+							  .type	   = Renderer::T_TypeShaderDataType_v<glm::vec2>
+						  },
+						  {
+							  .binding = 0,
+							  .type	   = Renderer::T_TypeShaderDataType_v<glm::vec3>
+						  },},
+	};
 	m_Pipeline.create(m_renderer->GetDevice(), desc, m_SwapChainImageFormat);
 }
 

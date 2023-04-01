@@ -28,26 +28,26 @@ void C_Pipeline::create(Renderer::I_Device& device, Renderer::PipelineDescriptor
 		.inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
 	};
 
-	std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{
-		VkVertexInputAttributeDescription{
-			.location = 0,
-			.binding  = 0,
-			.format	  = VK_FORMAT_R32G32_SFLOAT,
-			.offset	  = 0,
-		},
-		VkVertexInputAttributeDescription{
-			.location = 1,
-			.binding  = 0,
-			.format	  = VK_FORMAT_R32G32B32_SFLOAT,
-			.offset	  = sizeof(glm::vec2),
-		},
-	};
+	std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
+	attributeDescriptions.reserve(desc.vertexInput.size());
+	uint32_t									   currentOffset = 0;
+	for (uint32_t i = 0; i < desc.vertexInput.size(); ++i) {
+		const auto& attribDsec = desc.vertexInput[i];
+		attributeDescriptions.emplace_back(
+			VkVertexInputAttributeDescription{
+			.location = i,
+			.binding  = attribDsec.binding,
+			.format	  = GetVkShaderDataFormat(attribDsec.type),
+			.offset	  = currentOffset,
+		});
+		currentOffset += Renderer::ShaderDataTypeSize(attribDsec.type);
+	}
 
 	const VkPipelineVertexInputStateCreateInfo vertexInputInfo{
 		.sType							 = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
 		.vertexBindingDescriptionCount	 = 1,
 		.pVertexBindingDescriptions		 = &bindingDescription,
-		.vertexAttributeDescriptionCount = 2,
+		.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size()),
 		.pVertexAttributeDescriptions	 = attributeDescriptions.data(), // Optional
 	};
 

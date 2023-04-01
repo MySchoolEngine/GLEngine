@@ -116,4 +116,23 @@ VkPrimitiveTopology GetVkDrawPrimitive(const Renderer::E_RenderPrimitives render
 	}
 }
 
+//=================================================================================
+VkFormat GetVkShaderDataFormat(const Renderer::E_ShaderDataType format)
+{
+	switch (format)
+	{
+	case Renderer::E_ShaderDataType::Float:
+		return VK_FORMAT_R32_SFLOAT;
+	case Renderer::E_ShaderDataType::Vec2:
+		return VK_FORMAT_R32G32_SFLOAT;
+	case Renderer::E_ShaderDataType::Vec3:
+		return VK_FORMAT_R32G32B32_SFLOAT;
+	case Renderer::E_ShaderDataType::Vec4:
+		return VK_FORMAT_R32G32B32A32_SFLOAT;
+	default:
+		GLE_ERROR("Unknown shader data format");
+		return VK_FORMAT_R32G32B32A32_SFLOAT;
+	}
+}
+
 } // namespace GLEngine::VkRenderer
