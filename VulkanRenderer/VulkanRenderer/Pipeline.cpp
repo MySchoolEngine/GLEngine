@@ -22,31 +22,36 @@ void C_Pipeline::create(Renderer::I_Device& device, Renderer::PipelineDescriptor
 		.pDynamicStates	   = dynamicStates.data(),
 	};
 
-	const VkVertexInputBindingDescription bindingDescription{
-		.binding   = 0,
-		.stride	   = sizeof(glm::vec2) + sizeof(Colours::T_Colour),
-		.inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
-	};
+	std::vector<VkVertexInputBindingDescription> bindingDescriptions(desc.bindingCount);
+	for (uint32_t i = 0; i < desc.bindingCount;++i)
+	{
+		auto& bindingDesc = bindingDescriptions[i];
+		bindingDesc.binding = 0;
+		bindingDesc.stride	  = 0; // will be updated
+		bindingDesc.inputRate = VK_VERTEX_INPUT_RATE_VERTEX; // no instances yet
+	}
 
 	std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
 	attributeDescriptions.reserve(desc.vertexInput.size());
-	uint32_t									   currentOffset = 0;
 	for (uint32_t i = 0; i < desc.vertexInput.size(); ++i) {
 		const auto& attribDsec = desc.vertexInput[i];
+
 		attributeDescriptions.emplace_back(
 			VkVertexInputAttributeDescription{
 			.location = i,
 			.binding  = attribDsec.binding,
 			.format	  = GetVkShaderDataFormat(attribDsec.type),
-			.offset	  = currentOffset,
+			.offset	  = bindingDescriptions[attribDsec.binding].stride,
 		});
-		currentOffset += Renderer::ShaderDataTypeSize(attribDsec.type);
+		bindingDescriptions[attribDsec.binding].stride += Renderer::ShaderDataTypeSize(attribDsec.type);
+		// will be useful once I will start using instances
+		GLE_ASSERT(bindingDescriptions[attribDsec.binding].inputRate == VK_VERTEX_INPUT_RATE_VERTEX);
 	}
 
 	const VkPipelineVertexInputStateCreateInfo vertexInputInfo{
 		.sType							 = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
-		.vertexBindingDescriptionCount	 = 1,
-		.pVertexBindingDescriptions		 = &bindingDescription,
+		.vertexBindingDescriptionCount	 = static_cast<uint32_t>(desc.bindingCount),
+		.pVertexBindingDescriptions		 = bindingDescriptions.data(),
 		.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size()),
 		.pVertexAttributeDescriptions	 = attributeDescriptions.data(), // Optional
 	};

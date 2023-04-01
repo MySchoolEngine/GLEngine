@@ -360,6 +360,7 @@ void C_VkWindow::CreatePipeline()
 {
 	Renderer::PipelineDescriptor desc{
 		.primitiveType = Renderer::E_RenderPrimitives::TriangleList,
+		.bindingCount = 1,
 		.vertexInput   = {{
 							  .binding = 0,
 							  .type	   = Renderer::T_TypeShaderDataType_v<glm::vec2>

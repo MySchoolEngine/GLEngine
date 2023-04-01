@@ -15,6 +15,7 @@ struct PipelineDescriptor {
 public:
 	E_RenderPrimitives				 primitiveType;
 	bool							 wireframe = false;
+	uint32_t						 bindingCount = 0;
 	std::vector<AttributeDescriptor> vertexInput;
 	std::vector<AttributeDescriptor> instanceInput;
 };
