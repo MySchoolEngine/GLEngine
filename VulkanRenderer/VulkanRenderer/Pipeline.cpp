@@ -26,7 +26,7 @@ void C_Pipeline::create(Renderer::I_Device& device, Renderer::PipelineDescriptor
 	for (uint32_t i = 0; i < desc.bindingCount;++i)
 	{
 		auto& bindingDesc = bindingDescriptions[i];
-		bindingDesc.binding = 0;
+		bindingDesc.binding = i;
 		bindingDesc.stride	  = 0; // will be updated
 		bindingDesc.inputRate = VK_VERTEX_INPUT_RATE_VERTEX; // no instances yet
 	}

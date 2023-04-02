@@ -2,8 +2,11 @@
 
 #include <VulkanRenderer/Pipeline.h>
 
+#include <Renderer/Mesh/Loading/MeshResource.h>
+
 #include <Core/Application.h>
 #include <Core/IWindow.h>
+#include <Core/Resources/ResourceHandle.h>
 
 #include <GLFWWindowManager/GLFWWindow.h>
 
@@ -76,10 +79,14 @@ private:
 	std::vector<VkSemaphore> m_ImageAvailableSemaphore;
 	std::vector<VkSemaphore> m_RenderFinishedSemaphore;
 	std::vector<VkFence>	 m_InFlightFence;
-	VkBuffer				 m_VertexBuffer;
-	VkDeviceMemory			 m_VertexBufferMemory;
+	VkBuffer				 m_VertexBufferPositions;
+	VkBuffer				 m_VertexBufferNormal;
+	VkDeviceMemory			 m_VertexBufferMemoryPositions;
+	VkDeviceMemory			 m_VertexBufferMemoryNormal;
 	VkBuffer				 m_IndexBuffer;
 	VkDeviceMemory			 m_IndexBufferMemory;
+
+	Core::ResourceHandle<Renderer::MeshResource> m_MeshHandle;
 
 	const int MAX_FRAMES_IN_FLIGHT = 2;
 	uint32_t  currentFrame		   = 0;

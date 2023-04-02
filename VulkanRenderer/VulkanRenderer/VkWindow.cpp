@@ -8,6 +8,7 @@
 #include <VulkanRenderer/VkWindowInfo.h>
 
 #include <Renderer/Mesh/Loading/MeshResource.h>
+#include <Renderer/Mesh/Scene.h>
 #include <Renderer/Textures/TextureResource.h>
 #include <Renderer/Viewport.h>
 
@@ -47,6 +48,11 @@ C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
 {
 	Init(wndInfo);
 
+
+	auto& rm = Core::C_ResourceManager::Instance();
+	rm.RegisterResourceType(new Renderer::TextureLoader());
+	rm.RegisterResourceType(new Renderer::MeshLoader());
+
 	CreateWindowSurface();
 	m_renderer = std::make_unique<C_VkRenderer>(m_Instance, m_Surface);
 
@@ -63,18 +69,15 @@ C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
 	CreateUniformBuffers();
 	CreateDescriptorPool();
 	CreateDescriptorSets();
-
-
-	auto& rm = Core::C_ResourceManager::Instance();
-	rm.RegisterResourceType(new Renderer::TextureLoader());
-	rm.RegisterResourceType(new Renderer::MeshLoader());
 }
 
 //=================================================================================
 C_VkWindow::~C_VkWindow()
 {
-	vkDestroyBuffer(m_renderer->GetDeviceVK(), m_VertexBuffer, nullptr);
-	vkFreeMemory(m_renderer->GetDeviceVK(), m_VertexBufferMemory, nullptr);
+	vkDestroyBuffer(m_renderer->GetDeviceVK(), m_VertexBufferPositions, nullptr);
+	vkFreeMemory(m_renderer->GetDeviceVK(), m_VertexBufferMemoryPositions, nullptr);
+	vkDestroyBuffer(m_renderer->GetDeviceVK(), m_VertexBufferNormal, nullptr);
+	vkFreeMemory(m_renderer->GetDeviceVK(), m_VertexBufferMemoryNormal, nullptr);
 	vkDestroyBuffer(m_renderer->GetDeviceVK(), m_IndexBuffer, nullptr);
 	vkFreeMemory(m_renderer->GetDeviceVK(), m_IndexBufferMemory, nullptr);
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
@@ -360,13 +363,13 @@ void C_VkWindow::CreatePipeline()
 {
 	Renderer::PipelineDescriptor desc{
 		.primitiveType = Renderer::E_RenderPrimitives::TriangleList,
-		.bindingCount = 1,
+		.bindingCount = 2,
 		.vertexInput   = {{
 							  .binding = 0,
-							  .type	   = Renderer::T_TypeShaderDataType_v<glm::vec2>
+							  .type	   = Renderer::T_TypeShaderDataType_v<glm::vec4>
 						  },
 						  {
-							  .binding = 0,
+							  .binding = 1,
 							  .type	   = Renderer::T_TypeShaderDataType_v<glm::vec3>
 						  },},
 	};
@@ -469,12 +472,13 @@ void C_VkWindow::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t ima
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
 
-	VkBuffer	 vertexBuffers[] = {m_VertexBuffer};
-	VkDeviceSize offsets[]		 = {0};
-	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-	vkCmdBindIndexBuffer(commandBuffer, m_IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+	VkBuffer	 vertexBuffers[] = {m_VertexBufferPositions, m_VertexBufferNormal};
+	VkDeviceSize offsets[]		 = {0, 0};
+	vkCmdBindVertexBuffers(commandBuffer, 0, 2, vertexBuffers, offsets);
+	//vkCmdBindIndexBuffer(commandBuffer, m_IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
 	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline.GetLayout(), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
-	vkCmdDrawIndexed(commandBuffer, 6u, 1, 0, 0, 0);
+	//vkCmdDrawIndexed(commandBuffer, 6u, 1, 0, 0, 0);
+	vkCmdDraw(commandBuffer, m_MeshHandle.GetResource().GetScene().meshes[0].vertices.size(), 1, 0, 0);
 	vkCmdEndRenderPass(commandBuffer);
 	if (const auto result = vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
 	{
@@ -512,39 +516,67 @@ void C_VkWindow::CreateSyncObjects()
 //=================================================================================
 void C_VkWindow::CreateVertexBuffer()
 {
-	struct Vertex {
-		glm::vec2 pos;
-		glm::vec3 color;
-	};
+	auto& rm = Core::C_ResourceManager::Instance();
 
-	const std::vector<Vertex> vertices = {
-		{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-		{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-		{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-		{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}},
-	};
+	m_MeshHandle = rm.LoadResource<Renderer::MeshResource>(std::filesystem::path("Models/sphere.obj"), true);
+
 	auto& vkDevice = dynamic_cast<C_VkDevice&>(m_renderer->GetDevice());
 
-	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+	if (!m_MeshHandle)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "Failed to load resource");
+		return;
+	}
 
-	VkBuffer	   stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
-	vkDevice.CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
-						  stagingBufferMemory);
+	auto& mesh = m_MeshHandle.GetResource().GetScene().meshes[0];
 
-	void* data;
-	vkMapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, 0, bufferSize, 0, &data);
-	memcpy(data, vertices.data(), (size_t)bufferSize);
-	vkUnmapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory);
+	// positions
+	{
+		VkDeviceSize bufferSize = sizeof(mesh.vertices[0]) * mesh.vertices.size();
+
+		VkBuffer	   stagingBuffer;
+		VkDeviceMemory stagingBufferMemory;
+		vkDevice.CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
+							  stagingBufferMemory);
+
+		void* data;
+		vkMapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, 0, bufferSize, 0, &data);
+		memcpy(data, mesh.vertices.data(), (size_t)bufferSize);
+		vkUnmapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory);
 
 
-	vkDevice.CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_VertexBuffer,
-						  m_VertexBufferMemory);
+		vkDevice.CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_VertexBufferPositions,
+							  m_VertexBufferMemoryPositions);
 
-	m_renderer->CopyBuffer(stagingBuffer, m_VertexBuffer, bufferSize, m_CommandPool);
+		m_renderer->CopyBuffer(stagingBuffer, m_VertexBufferPositions, bufferSize, m_CommandPool);
 
-	vkDestroyBuffer(m_renderer->GetDeviceVK(), stagingBuffer, nullptr);
-	vkFreeMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, nullptr);
+		vkDestroyBuffer(m_renderer->GetDeviceVK(), stagingBuffer, nullptr);
+		vkFreeMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, nullptr);
+	}
+
+	// normals
+	{
+		VkDeviceSize bufferSize = sizeof(mesh.normals[0]) * mesh.normals.size();
+
+		VkBuffer	   stagingBuffer;
+		VkDeviceMemory stagingBufferMemory;
+		vkDevice.CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
+							  stagingBufferMemory);
+
+		void* data;
+		vkMapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, 0, bufferSize, 0, &data);
+		memcpy(data, mesh.normals.data(), (size_t)bufferSize);
+		vkUnmapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory);
+
+
+		vkDevice.CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_VertexBufferNormal,
+							  m_VertexBufferMemoryNormal);
+
+		m_renderer->CopyBuffer(stagingBuffer, m_VertexBufferNormal, bufferSize, m_CommandPool);
+
+		vkDestroyBuffer(m_renderer->GetDeviceVK(), stagingBuffer, nullptr);
+		vkFreeMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, nullptr);
+	}
 }
 
 //=================================================================================
