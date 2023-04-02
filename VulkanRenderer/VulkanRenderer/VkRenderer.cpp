@@ -108,6 +108,10 @@ bool C_VkRenderer::InitDevice(VkSurfaceKHR surface)
 			{
 				m_ComputeFamilyIndex = i;
 			}
+			else if (it.queueFlags & VK_QUEUE_TRANSFER_BIT)
+			{
+				m_TransferFamilyIndex = i;
+			}
 
 			VkBool32   presentSupport = false;
 			const auto ret			  = vkGetPhysicalDeviceSurfaceSupportKHR(gpu, i, surface, &presentSupport);
@@ -148,6 +152,7 @@ bool C_VkRenderer::InitDevice(VkSurfaceKHR surface)
 	}
 
 	vkGetDeviceQueue(m_VkDevice, m_GraphicsFamilyIndex, 0, &m_graphicsQueue);
+	vkGetDeviceQueue(m_VkDevice, m_TransferFamilyIndex, 0, &m_TransferQueue);
 	vkGetDeviceQueue(m_VkDevice, m_PresentingFamilyIndex, 0, &m_presentQueue);
 
 	m_Device.Init(m_VkDevice, gpu);
@@ -159,7 +164,7 @@ bool C_VkRenderer::InitDevice(VkSurfaceKHR surface)
 std::vector<VkDeviceQueueCreateInfo> C_VkRenderer::CreatePresentingQueueInfos()
 {
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-	std::set<uint32_t>					 uniqueQueueFamilies = {m_GraphicsFamilyIndex, m_PresentingFamilyIndex};
+	std::set<uint32_t>					 uniqueQueueFamilies = {m_GraphicsFamilyIndex, m_TransferFamilyIndex,m_PresentingFamilyIndex};
 
 	float queuePriority = 1.0f;
 	for (uint32_t queueFamily : uniqueQueueFamilies)
@@ -280,10 +285,16 @@ void C_VkRenderer::EndSigneTimeCommands(VkCommandBuffer& commandBuffer, VkComman
 		.pCommandBuffers	= &commandBuffer,
 	};
 
-	vkQueueSubmit(GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
-	vkQueueWaitIdle(GetGraphicsQueue());
+	vkQueueSubmit(GetTransferQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+	vkQueueWaitIdle(GetTransferQueue());
 
 	vkFreeCommandBuffers(GetDeviceVK(), commandPool, 1, &commandBuffer);
+}
+
+//=================================================================================
+VkQueue C_VkRenderer::GetTransferQueue() const
+{
+	return m_TransferQueue;
 }
 
 } // namespace GLEngine::VkRenderer

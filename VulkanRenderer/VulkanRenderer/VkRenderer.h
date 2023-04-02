@@ -40,6 +40,7 @@ public:
 	// todo: Temporary
 	uint32_t GetGraphicsFamilyIndex() const;
 	VkQueue	 GetGraphicsQueue() const;
+	VkQueue	 GetTransferQueue() const;
 	VkQueue	 GetPresentationQueue() const;
 
 	void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkCommandPool& commandPool);
@@ -53,9 +54,11 @@ private:
 	VkDevice_T*			m_VkDevice;
 	uint32_t			m_GraphicsFamilyIndex;
 	uint32_t			m_ComputeFamilyIndex;
+	uint32_t			m_TransferFamilyIndex = (uint32_t)-1;
 	uint32_t			m_PresentingFamilyIndex;
 
 	VkQueue m_graphicsQueue;
+	VkQueue m_TransferQueue;
 	VkQueue m_presentQueue;
 
 	bool								 InitDevice(VkSurfaceKHR surface);
