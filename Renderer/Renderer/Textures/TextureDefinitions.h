@@ -1,7 +1,9 @@
 #pragma once
 
-#include <Utils/Logging/LoggingMacros.h>
 #include <Core/CoreMacros.h>
+
+#include <Utils/BitField.h>
+#include <Utils/Logging/LoggingMacros.h>
 
 #include <array>
 
@@ -20,21 +22,28 @@ enum class E_TextureFilter : char
 };
 
 //=================================================================================
-enum class E_TextureChannel
+enum class E_TextureChannel : std::uint8_t
 {
-	Red,
-	Green,
-	Blue,
-	Alpha,
-	None,
+	Red	  = BIT(0),
+	Green = BIT(1),
+	Blue  = BIT(2),
+	Alpha = BIT(3),
+	None  = BIT(4),
 };
 
-using T_Channels = std::array<E_TextureChannel, 4>;
+using T_Channels	 = std::array<E_TextureChannel, 4>;		  // When order of channels is needed
+using T_ChannelsBits = ::Utils::C_BitField<E_TextureChannel>; // When order independent
+} // namespace GLEngine::Renderer
+// Enable bit field for channels for ease of use
+template <> struct ::Utils::enable_BitField_operators<GLEngine::Renderer::E_TextureChannel> {
+	static constexpr bool enable = true;
+};
+namespace GLEngine::Renderer {
 
 //=================================================================================
 // Blending
 //=================================================================================
-enum class E_BlendFactor
+enum class E_BlendFactor : std::uint8_t
 {
 	Zero,
 	One,
@@ -53,7 +62,7 @@ enum class E_BlendFactor
 };
 
 //=================================================================================
-enum class E_BlendFunction
+enum class E_BlendFunction : std::uint8_t
 {
 	Add,			 //< Result = Src + Dst
 	Subtract,		 //< Result = Src - Dst
