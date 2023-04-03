@@ -27,6 +27,7 @@ project "Renderer"
 		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.DevIL}",
+		"%{wks.location}/%{IncludeDir.slot_map}",
 
 		"../vendor/projects/Assimp"
 	}

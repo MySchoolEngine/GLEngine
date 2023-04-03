@@ -43,3 +43,6 @@
 [submodule "vendor/RTTR"]
 	path = vendor/RTTR
 	url = https://github.com/rttrorg/rttr
+[submodule "vendor/slot_map"]
+	path = vendor/slot_map
+	url = https://github.com/SergeyMakeev/slot_map

@@ -3,6 +3,7 @@
 #include <VulkanRenderer/VkDevice.h>
 
 #include <Renderer/IRenderer.h>
+#include <Renderer/Resources/RenderResourceHandle.h>
 
 #include <Core/CoreMacros.h>
 
@@ -43,7 +44,7 @@ public:
 	VkQueue	 GetTransferQueue() const;
 	VkQueue	 GetPresentationQueue() const;
 
-	void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkCommandPool& commandPool);
+	void CopyBuffer(VkBuffer srcBuffer, Renderer::Handle<Renderer::Buffer> dstBuffer, VkDeviceSize size, VkCommandPool& commandPool);
 
 private:
 	bool											 m_Locked = false;

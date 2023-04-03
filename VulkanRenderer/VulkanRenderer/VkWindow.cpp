@@ -3,6 +3,7 @@
 #include <VulkanRenderer/Shaders/ShaderCompiler.h>
 #include <VulkanRenderer/VkDevice.h>
 #include <VulkanRenderer/VkRenderer.h>
+#include <VulkanRenderer/VkResourceManager.h>
 #include <VulkanRenderer/VkTypeHelpers.h>
 #include <VulkanRenderer/VkWindow.h>
 #include <VulkanRenderer/VkWindowInfo.h>
@@ -74,10 +75,8 @@ C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
 //=================================================================================
 C_VkWindow::~C_VkWindow()
 {
-	vkDestroyBuffer(m_renderer->GetDeviceVK(), m_VertexBufferPositions, nullptr);
-	vkFreeMemory(m_renderer->GetDeviceVK(), m_VertexBufferMemoryPositions, nullptr);
-	vkDestroyBuffer(m_renderer->GetDeviceVK(), m_VertexBufferNormal, nullptr);
-	vkFreeMemory(m_renderer->GetDeviceVK(), m_VertexBufferMemoryNormal, nullptr);
+	GetVkDevice().GetRM().destroyBuffer(m_PositionsHandle);
+	GetVkDevice().GetRM().destroyBuffer(m_NormalsHandle);
 	vkDestroyBuffer(m_renderer->GetDeviceVK(), m_IndexBuffer, nullptr);
 	vkFreeMemory(m_renderer->GetDeviceVK(), m_IndexBufferMemory, nullptr);
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
@@ -199,8 +198,7 @@ bool C_VkWindow::CreateWindowSurface()
 //=================================================================================
 void C_VkWindow::CreateSwapChain()
 {
-	auto&						  vkDevice		   = dynamic_cast<C_VkDevice&>(m_renderer->GetDevice());
-	const SwapChainSupportDetails swapChainSupport = vkDevice.QuerySwapChainSupport(m_Surface);
+	const SwapChainSupportDetails swapChainSupport = GetVkDevice().QuerySwapChainSupport(m_Surface);
 
 	const VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
 	const VkPresentModeKHR	 presentMode   = ChooseSwapPresentMode(swapChainSupport.presentModes);
@@ -471,13 +469,17 @@ void C_VkWindow::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t ima
 	const VkRect2D scissor{.offset = {0, 0}, .extent = {viewport.GetResolution().x, viewport.GetResolution().y}};
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
+	C_VkBuffer* pPosBuffer = GetVkDevice().GetRM().GetBuffer(m_PositionsHandle);
+	C_VkBuffer* pNorBuffer = GetVkDevice().GetRM().GetBuffer(m_NormalsHandle);
 
-	VkBuffer	 vertexBuffers[] = {m_VertexBufferPositions, m_VertexBufferNormal};
+	GLE_ASSERT(pPosBuffer && pNorBuffer);
+
+	VkBuffer	 vertexBuffers[] = {pPosBuffer->GetBuffer(), pNorBuffer->GetBuffer()};
 	VkDeviceSize offsets[]		 = {0, 0};
 	vkCmdBindVertexBuffers(commandBuffer, 0, 2, vertexBuffers, offsets);
-	//vkCmdBindIndexBuffer(commandBuffer, m_IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+	// vkCmdBindIndexBuffer(commandBuffer, m_IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
 	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline.GetLayout(), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
-	//vkCmdDrawIndexed(commandBuffer, 6u, 1, 0, 0, 0);
+	// vkCmdDrawIndexed(commandBuffer, 6u, 1, 0, 0, 0);
 	vkCmdDraw(commandBuffer, m_MeshHandle.GetResource().GetScene().meshes[0].vertices.size(), 1, 0, 0);
 	vkCmdEndRenderPass(commandBuffer);
 	if (const auto result = vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
@@ -520,7 +522,6 @@ void C_VkWindow::CreateVertexBuffer()
 
 	m_MeshHandle = rm.LoadResource<Renderer::MeshResource>(std::filesystem::path("Models/sphere.obj"), true);
 
-	auto& vkDevice = dynamic_cast<C_VkDevice&>(m_renderer->GetDevice());
 
 	if (!m_MeshHandle)
 	{
@@ -536,7 +537,7 @@ void C_VkWindow::CreateVertexBuffer()
 
 		VkBuffer	   stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
-		vkDevice.CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
+		GetVkDevice().CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
 							  stagingBufferMemory);
 
 		void* data;
@@ -544,11 +545,9 @@ void C_VkWindow::CreateVertexBuffer()
 		memcpy(data, mesh.vertices.data(), (size_t)bufferSize);
 		vkUnmapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory);
 
+		m_PositionsHandle = GetVkDevice().GetRM().createBuffer(Renderer::BufferDescriptor{.size = static_cast<uint32_t>(bufferSize)});
 
-		vkDevice.CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_VertexBufferPositions,
-							  m_VertexBufferMemoryPositions);
-
-		m_renderer->CopyBuffer(stagingBuffer, m_VertexBufferPositions, bufferSize, m_CommandPool);
+		m_renderer->CopyBuffer(stagingBuffer, m_PositionsHandle, bufferSize, m_CommandPool);
 
 		vkDestroyBuffer(m_renderer->GetDeviceVK(), stagingBuffer, nullptr);
 		vkFreeMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, nullptr);
@@ -560,7 +559,7 @@ void C_VkWindow::CreateVertexBuffer()
 
 		VkBuffer	   stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
-		vkDevice.CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
+		GetVkDevice().CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
 							  stagingBufferMemory);
 
 		void* data;
@@ -568,11 +567,9 @@ void C_VkWindow::CreateVertexBuffer()
 		memcpy(data, mesh.normals.data(), (size_t)bufferSize);
 		vkUnmapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory);
 
+		m_NormalsHandle = GetVkDevice().GetRM().createBuffer(Renderer::BufferDescriptor{.size = static_cast<uint32_t>(bufferSize)});
 
-		vkDevice.CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_VertexBufferNormal,
-							  m_VertexBufferMemoryNormal);
-
-		m_renderer->CopyBuffer(stagingBuffer, m_VertexBufferNormal, bufferSize, m_CommandPool);
+		m_renderer->CopyBuffer(stagingBuffer, m_NormalsHandle, bufferSize, m_CommandPool);
 
 		vkDestroyBuffer(m_renderer->GetDeviceVK(), stagingBuffer, nullptr);
 		vkFreeMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, nullptr);
@@ -582,32 +579,31 @@ void C_VkWindow::CreateVertexBuffer()
 //=================================================================================
 void C_VkWindow::CreateIndexBuffer()
 {
-	auto&						vkDevice   = dynamic_cast<C_VkDevice&>(m_renderer->GetDevice());
-	const std::vector<uint16_t> indices	   = {0, 1, 2, 2, 3, 0};
-	VkDeviceSize				bufferSize = sizeof(indices[0]) * indices.size();
-
-	VkBuffer	   stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
-	vkDevice.CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
-						  stagingBufferMemory);
-
-	void* data;
-	vkMapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, 0, bufferSize, 0, &data);
-	memcpy(data, indices.data(), (size_t)bufferSize);
-	vkUnmapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory);
-
-	vkDevice.CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_IndexBuffer, m_IndexBufferMemory);
-
-	m_renderer->CopyBuffer(stagingBuffer, m_IndexBuffer, bufferSize, m_CommandPool);
-
-	vkDestroyBuffer(m_renderer->GetDeviceVK(), stagingBuffer, nullptr);
-	vkFreeMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, nullptr);
+	// const std::vector<uint16_t> indices	   = {0, 1, 2, 2, 3, 0};
+	// VkDeviceSize				bufferSize = sizeof(indices[0]) * indices.size();
+	// 
+	// VkBuffer	   stagingBuffer;
+	// VkDeviceMemory stagingBufferMemory;
+	// GetVkDevice().CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
+	// 					  stagingBufferMemory);
+	// 
+	// void* data;
+	// vkMapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, 0, bufferSize, 0, &data);
+	// memcpy(data, indices.data(), (size_t)bufferSize);
+	// vkUnmapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory);
+	// 
+	// GetVkDevice().CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_IndexBuffer,
+	// 						   m_IndexBufferMemory);
+	// 
+	// m_renderer->CopyBuffer(stagingBuffer, m_IndexBuffer, bufferSize, m_CommandPool);
+	// 
+	// vkDestroyBuffer(m_renderer->GetDeviceVK(), stagingBuffer, nullptr);
+	// vkFreeMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, nullptr);
 }
 
 //=================================================================================
 void C_VkWindow::CreateUniformBuffers()
 {
-	auto&		 vkDevice	= dynamic_cast<C_VkDevice&>(m_renderer->GetDevice());
 	VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
 	uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
@@ -616,7 +612,7 @@ void C_VkWindow::CreateUniformBuffers()
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
-		vkDevice.CreateBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i],
+		GetVkDevice().CreateBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i],
 							  uniformBuffersMemory[i]);
 
 		vkMapMemory(m_renderer->GetDeviceVK(), uniformBuffersMemory[i], 0, bufferSize, 0, &uniformBuffersMapped[i]);
@@ -699,6 +695,12 @@ void C_VkWindow::CreateDescriptorSets()
 
 		vkUpdateDescriptorSets(m_renderer->GetDeviceVK(), 1, &descriptorWrite, 0, nullptr);
 	}
+}
+
+//=================================================================================
+C_VkDevice& C_VkWindow::GetVkDevice()
+{
+	return dynamic_cast<C_VkDevice&>(m_renderer->GetDevice());
 }
 
 } // namespace GLEngine::VkRenderer

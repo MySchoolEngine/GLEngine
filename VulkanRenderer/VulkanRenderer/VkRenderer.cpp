@@ -1,9 +1,11 @@
 #include <VulkanRendererStdafx.h>
 
 #include <VulkanRenderer/VkRenderer.h>
+#include <VulkanRenderer/VkBuffer.h>
 
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
+#include <Renderer/Resources/ResourceManager.h>
 
 namespace GLEngine::VkRenderer {
 
@@ -87,7 +89,7 @@ bool C_VkRenderer::InitDevice(VkSurfaceKHR surface)
 	GLE_ASSERT(gpuCount > 0, "No GPU detected");
 	std::vector<VkPhysicalDevice> gpus(gpuCount);
 	vkEnumeratePhysicalDevices(m_Instance, &gpuCount, gpus.data());
-	VkPhysicalDevice_T*  gpu = gpus[0];
+	VkPhysicalDevice_T* gpu = gpus[0];
 
 	{
 		uint32_t familyCount = 0;
@@ -164,7 +166,7 @@ bool C_VkRenderer::InitDevice(VkSurfaceKHR surface)
 std::vector<VkDeviceQueueCreateInfo> C_VkRenderer::CreatePresentingQueueInfos()
 {
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-	std::set<uint32_t>					 uniqueQueueFamilies = {m_GraphicsFamilyIndex, m_TransferFamilyIndex,m_PresentingFamilyIndex};
+	std::set<uint32_t>					 uniqueQueueFamilies = {m_GraphicsFamilyIndex, m_TransferFamilyIndex, m_PresentingFamilyIndex};
 
 	float queuePriority = 1.0f;
 	for (uint32_t queueFamily : uniqueQueueFamilies)
@@ -238,7 +240,7 @@ VkQueue C_VkRenderer::GetPresentationQueue() const
 }
 
 //=================================================================================
-void C_VkRenderer::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkCommandPool& commandPool)
+void C_VkRenderer::CopyBuffer(VkBuffer srcBuffer, Renderer::Handle<Renderer::Buffer> dstBuffer, VkDeviceSize size, VkCommandPool& commandPool)
 {
 	VkCommandBuffer commandBuffer = BeginSingleTimeCommands(commandPool);
 
@@ -247,7 +249,11 @@ void C_VkRenderer::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSi
 		.dstOffset = 0, // Optional
 		.size	   = size,
 	};
-	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+	C_VkBuffer* pdstBuffer = m_Device.GetRM().GetBuffer(dstBuffer);
+	GLE_ASSERT(pdstBuffer);
+
+	vkCmdCopyBuffer(commandBuffer, srcBuffer, pdstBuffer->GetBuffer(), 1, &copyRegion);
 
 	EndSigneTimeCommands(commandBuffer, commandPool);
 }

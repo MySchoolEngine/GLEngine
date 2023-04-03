@@ -1,6 +1,7 @@
 #pragma once
 
 #include <VulkanRenderer/Pipeline.h>
+#include <VulkanRenderer/VkResourceManager.h>
 
 #include <Renderer/Mesh/Loading/MeshResource.h>
 
@@ -65,6 +66,8 @@ private:
 
 	void UpdateUniformBuffer(uint32_t currentImage);
 
+	C_VkDevice& GetVkDevice();
+
 	VkSwapchainKHR				 m_SwapChain;
 	std::vector<VkImage>		 m_SwapChainImages;
 	std::vector<VkFramebuffer>	 m_SwapChainFramebuffers;
@@ -76,15 +79,13 @@ private:
 
 	C_Pipeline m_Pipeline;
 
-	std::vector<VkSemaphore> m_ImageAvailableSemaphore;
-	std::vector<VkSemaphore> m_RenderFinishedSemaphore;
-	std::vector<VkFence>	 m_InFlightFence;
-	VkBuffer				 m_VertexBufferPositions;
-	VkBuffer				 m_VertexBufferNormal;
-	VkDeviceMemory			 m_VertexBufferMemoryPositions;
-	VkDeviceMemory			 m_VertexBufferMemoryNormal;
-	VkBuffer				 m_IndexBuffer;
-	VkDeviceMemory			 m_IndexBufferMemory;
+	std::vector<VkSemaphore>		   m_ImageAvailableSemaphore;
+	std::vector<VkSemaphore>		   m_RenderFinishedSemaphore;
+	std::vector<VkFence>			   m_InFlightFence;
+	Renderer::Handle<Renderer::Buffer> m_PositionsHandle;
+	Renderer::Handle<Renderer::Buffer> m_NormalsHandle;
+	VkBuffer						   m_IndexBuffer;
+	VkDeviceMemory					   m_IndexBufferMemory;
 
 	Core::ResourceHandle<Renderer::MeshResource> m_MeshHandle;
 

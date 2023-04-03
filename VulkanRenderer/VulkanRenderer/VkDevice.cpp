@@ -5,7 +5,10 @@
 namespace GLEngine::VkRenderer {
 
 //=================================================================================
-C_VkDevice::C_VkDevice() = default;
+C_VkDevice::C_VkDevice()
+{
+	m_GPUResourceManager.Init(this);
+}
 
 //=================================================================================
 C_VkDevice::~C_VkDevice() = default;
@@ -149,6 +152,12 @@ uint32_t C_VkDevice::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags p
 		}
 	}
 	throw std::runtime_error("failed to find suitable memory type!");
+}
+
+//=================================================================================
+C_VkResourceManager& C_VkDevice::GetRM()
+{
+	return m_GPUResourceManager;
 }
 
 } // namespace GLEngine::VkRenderer

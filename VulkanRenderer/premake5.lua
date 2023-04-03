@@ -25,6 +25,7 @@ project "VulkanRenderer"
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.GLFW}",
+		"%{wks.location}/%{IncludeDir.slot_map}",
 	}
 
 	libdirs { GetVulkanBasePath().."/Lib" }
