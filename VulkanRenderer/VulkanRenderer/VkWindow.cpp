@@ -77,6 +77,10 @@ C_VkWindow::~C_VkWindow()
 {
 	GetVkDevice().GetRM().destroyBuffer(m_PositionsHandle);
 	GetVkDevice().GetRM().destroyBuffer(m_NormalsHandle);
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	{
+		GetVkDevice().GetRM().destroyBuffer(m_UniformBuffers[i]);
+	}
 	vkDestroyBuffer(m_renderer->GetDeviceVK(), m_IndexBuffer, nullptr);
 	vkFreeMemory(m_renderer->GetDeviceVK(), m_IndexBufferMemory, nullptr);
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
@@ -92,11 +96,6 @@ C_VkWindow::~C_VkWindow()
 	}
 	DestroySwapchain();
 	vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
-	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-	{
-		vkDestroyBuffer(m_renderer->GetDeviceVK(), uniformBuffers[i], nullptr);
-		vkFreeMemory(m_renderer->GetDeviceVK(), uniformBuffersMemory[i], nullptr);
-	}
 	vkDestroyDescriptorPool(m_renderer->GetDeviceVK(), descriptorPool, nullptr);
 	m_Pipeline.destroy(m_renderer->GetDevice());
 	m_renderer.reset(nullptr);
@@ -538,14 +537,18 @@ void C_VkWindow::CreateVertexBuffer()
 		VkBuffer	   stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
 		GetVkDevice().CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
-							  stagingBufferMemory);
+								   stagingBufferMemory);
 
 		void* data;
 		vkMapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, 0, bufferSize, 0, &data);
 		memcpy(data, mesh.vertices.data(), (size_t)bufferSize);
 		vkUnmapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory);
 
-		m_PositionsHandle = GetVkDevice().GetRM().createBuffer(Renderer::BufferDescriptor{.size = static_cast<uint32_t>(bufferSize)});
+		m_PositionsHandle = GetVkDevice().GetRM().createBuffer(Renderer::BufferDescriptor{
+			.size  = static_cast<uint32_t>(bufferSize),
+			.type  = Renderer::E_BufferType::Vertex,
+			.usage = Renderer::E_ResourceUsage::Immutable,
+		});
 
 		m_renderer->CopyBuffer(stagingBuffer, m_PositionsHandle, bufferSize, m_CommandPool);
 
@@ -560,14 +563,18 @@ void C_VkWindow::CreateVertexBuffer()
 		VkBuffer	   stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
 		GetVkDevice().CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
-							  stagingBufferMemory);
+								   stagingBufferMemory);
 
 		void* data;
 		vkMapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, 0, bufferSize, 0, &data);
 		memcpy(data, mesh.normals.data(), (size_t)bufferSize);
 		vkUnmapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory);
 
-		m_NormalsHandle = GetVkDevice().GetRM().createBuffer(Renderer::BufferDescriptor{.size = static_cast<uint32_t>(bufferSize)});
+		m_NormalsHandle = GetVkDevice().GetRM().createBuffer(Renderer::BufferDescriptor{
+			.size  = static_cast<uint32_t>(bufferSize),
+			.type  = Renderer::E_BufferType::Vertex,
+			.usage = Renderer::E_ResourceUsage::Immutable,
+		});
 
 		m_renderer->CopyBuffer(stagingBuffer, m_NormalsHandle, bufferSize, m_CommandPool);
 
@@ -581,22 +588,22 @@ void C_VkWindow::CreateIndexBuffer()
 {
 	// const std::vector<uint16_t> indices	   = {0, 1, 2, 2, 3, 0};
 	// VkDeviceSize				bufferSize = sizeof(indices[0]) * indices.size();
-	// 
+	//
 	// VkBuffer	   stagingBuffer;
 	// VkDeviceMemory stagingBufferMemory;
 	// GetVkDevice().CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
 	// 					  stagingBufferMemory);
-	// 
+	//
 	// void* data;
 	// vkMapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, 0, bufferSize, 0, &data);
 	// memcpy(data, indices.data(), (size_t)bufferSize);
 	// vkUnmapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory);
-	// 
+	//
 	// GetVkDevice().CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_IndexBuffer,
 	// 						   m_IndexBufferMemory);
-	// 
+	//
 	// m_renderer->CopyBuffer(stagingBuffer, m_IndexBuffer, bufferSize, m_CommandPool);
-	// 
+	//
 	// vkDestroyBuffer(m_renderer->GetDeviceVK(), stagingBuffer, nullptr);
 	// vkFreeMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, nullptr);
 }
@@ -605,17 +612,15 @@ void C_VkWindow::CreateIndexBuffer()
 void C_VkWindow::CreateUniformBuffers()
 {
 	VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-
-	uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-	uniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
-	uniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
+	m_UniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
-		GetVkDevice().CreateBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i],
-							  uniformBuffersMemory[i]);
-
-		vkMapMemory(m_renderer->GetDeviceVK(), uniformBuffersMemory[i], 0, bufferSize, 0, &uniformBuffersMapped[i]);
+		m_UniformBuffers[i] = GetVkDevice().GetRM().createBuffer(Renderer::BufferDescriptor{
+			.size  = static_cast<uint32_t>(bufferSize),
+			.type  = Renderer::E_BufferType::Uniform,
+			.usage = Renderer::E_ResourceUsage::Persistent,
+		});
 	}
 }
 
@@ -632,7 +637,7 @@ void C_VkWindow::UpdateUniformBuffer(uint32_t currentImage)
 	ubo.proj  = glm::perspective(glm::radians(45.0f), m_SwapChainExtent.width / (float)m_SwapChainExtent.height, 0.1f, 10.0f);
 	ubo.proj[1][1] *= -1;
 
-	memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
+	GetVkDevice().GetRM().GetBuffer(m_UniformBuffers[currentImage])->UploadData(&ubo, sizeof(ubo));
 }
 
 //=================================================================================
@@ -677,8 +682,9 @@ void C_VkWindow::CreateDescriptorSets()
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
+		C_VkBuffer*					 uniformBuffer = GetVkDevice().GetRM().GetBuffer(m_UniformBuffers[i]);
 		const VkDescriptorBufferInfo bufferInfo{
-			.buffer = uniformBuffers[i],
+			.buffer = uniformBuffer->GetBuffer(),
 			.offset = 0,
 			.range	= sizeof(UniformBufferObject),
 		};

@@ -135,4 +135,22 @@ VkFormat GetVkShaderDataFormat(const Renderer::E_ShaderDataType format)
 	}
 }
 
+//=================================================================================
+VkBufferUsageFlags GetBufferType(const Renderer::E_BufferType bufferType)
+{
+	switch (bufferType)
+	{
+	case Renderer::E_BufferType::Vertex:
+		return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+	case Renderer::E_BufferType::Index:
+		return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+	case Renderer::E_BufferType::Uniform:
+		return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+	default:
+		GLE_ERROR("Unknown buffer type");
+		return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+
+	}
+}
+
 } // namespace GLEngine::VkRenderer

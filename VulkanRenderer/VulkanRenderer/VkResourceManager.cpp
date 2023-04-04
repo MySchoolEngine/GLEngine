@@ -2,6 +2,7 @@
 
 #include <VulkanRenderer/VkResourceManager.h>
 #include <VulkanRenderer/VkDevice.h>
+#include <VulkanRenderer/VkTypeHelpers.h>
 
 namespace GLEngine::VkRenderer {
 
@@ -23,7 +24,20 @@ Renderer::Handle<Renderer::Buffer> C_VkResourceManager::createBuffer(const Rende
 	auto handle = m_BufferPool.CreateNew(desc);
 	if (auto* buffer = m_BufferPool.GetResource(handle))
 	{
-		m_device->CreateBuffer(desc.size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, buffer->m_Buffer, buffer->m_Memory);
+		auto				  vkUsageBits = GetBufferType(desc.type);
+		VkMemoryPropertyFlags resourceUsage{};
+		if (desc.usage == Renderer::E_ResourceUsage::Immutable) {
+			vkUsageBits |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+			resourceUsage = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+		}
+		if (desc.usage == Renderer::E_ResourceUsage::Persistent) {
+			resourceUsage = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+		}
+		m_device->CreateBuffer(desc.size, vkUsageBits, resourceUsage, buffer->m_Buffer, buffer->m_Memory);
+		if (desc.usage == Renderer::E_ResourceUsage::Persistent) {
+			// map memory
+			vkMapMemory(m_device->GetVkDevice(), buffer->m_Memory, 0, desc.size, 0, &buffer->m_MappedMemory);
+		}
 	}
 	return handle;
 }

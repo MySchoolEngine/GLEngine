@@ -94,9 +94,7 @@ private:
 
 
 	// Uniform buffers
-	std::vector<VkBuffer>		 uniformBuffers;
-	std::vector<VkDeviceMemory>	 uniformBuffersMemory;
-	std::vector<void*>			 uniformBuffersMapped;
+	std::vector<Renderer::Handle<Renderer::Buffer>> m_UniformBuffers;
 	VkDescriptorPool			 descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;
 

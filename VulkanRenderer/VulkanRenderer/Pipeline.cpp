@@ -45,7 +45,7 @@ void C_Pipeline::create(Renderer::I_Device& device, Renderer::PipelineDescriptor
 		});
 		bindingDescriptions[attribDsec.binding].stride += Renderer::ShaderDataTypeSize(attribDsec.type);
 		// will be useful once I will start using instances
-		GLE_ASSERT(bindingDescriptions[attribDsec.binding].inputRate == VK_VERTEX_INPUT_RATE_VERTEX);
+		GLE_ASSERT(bindingDescriptions[attribDsec.binding].inputRate == VK_VERTEX_INPUT_RATE_VERTEX, "Wrong input rate");
 	}
 
 	const VkPipelineVertexInputStateCreateInfo vertexInputInfo{

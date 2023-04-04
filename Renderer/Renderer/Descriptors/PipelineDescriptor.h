@@ -28,8 +28,8 @@ struct PipelineDescriptor {
 public:
 	E_RenderPrimitives				 primitiveType;
 	bool							 wireframe = false;
-	std::vector<BlendingDescriptor> blending;
-	glm::vec4						blendConstant;
+	std::vector<BlendingDescriptor>	 blending;
+	glm::vec4						 blendConstant;
 	uint32_t						 bindingCount = 0;
 	std::vector<AttributeDescriptor> vertexInput;
 	std::vector<AttributeDescriptor> instanceInput;
