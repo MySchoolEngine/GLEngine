@@ -140,6 +140,7 @@ group "Dependencies"
   include "vendor/projects/ImGuizmo"
   include "vendor/projects/DevIL"
   include "vendor/projects/libjpeg"
+  include "vendor/projects/libpng"
   include "vendor/projects/crossguid"
   include "vendor/projects/RTTR"
 if _TARGET_OS ~= "linux" then

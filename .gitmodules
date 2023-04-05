@@ -46,3 +46,6 @@
 [submodule "vendor/slot_map"]
 	path = vendor/slot_map
 	url = https://github.com/SergeyMakeev/slot_map
+[submodule "vendor/libpng"]
+	path = vendor/libpng
+	url = https://github.com/glennrp/libpng

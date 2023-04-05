@@ -7,6 +7,7 @@
 
 #include <GUI/GUIWindow.h>
 #include <GUI/Image.h>
+#include <GUI/ImageViewer.h>
 #include <GUI/Input/Button.h>
 #include <GUI/Input/CheckBoxValue.h>
 #include <GUI/Input/Slider.h>
@@ -66,7 +67,7 @@ private:
 	std::unique_ptr<Renderer::C_ProbeRenderer>	 m_ProbeRenderer;
 	std::shared_ptr<Textures::C_Texture>		 m_Probe;
 	Renderer::C_TextureViewStorageCPU<float>	 m_ProbeStorage; // Intermediate data, could need some weighting
-	GUI::C_Image								 m_GUIImage;
+	GUI::C_ImageViewer							 m_GUIImage;
 	GUI::C_Image								 m_GUIHeatMapImage;
 	GUI::C_Image								 m_GUIImageProbe;
 	GUI::Menu::C_Menu							 m_FileMenu;
