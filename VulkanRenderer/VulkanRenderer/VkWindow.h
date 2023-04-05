@@ -84,8 +84,7 @@ private:
 	std::vector<VkFence>			   m_InFlightFence;
 	Renderer::Handle<Renderer::Buffer> m_PositionsHandle;
 	Renderer::Handle<Renderer::Buffer> m_NormalsHandle;
-	VkBuffer						   m_IndexBuffer;
-	VkDeviceMemory					   m_IndexBufferMemory;
+	Renderer::Handle<Renderer::Buffer> m_IndexHandle;
 
 	Core::ResourceHandle<Renderer::MeshResource> m_MeshHandle;
 
