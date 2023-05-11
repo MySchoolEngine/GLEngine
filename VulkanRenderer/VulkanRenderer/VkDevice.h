@@ -30,6 +30,7 @@ public:
 	void			DestroySampler(Renderer::I_TextureSampler2D& texture) override;
 	std::size_t		GetAllocatedMemory() const override;
 	void			CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+	void			CreateImage(glm::uvec2 dim, VkBufferUsageFlags usage, VkImage& textureImage, VkDeviceMemory& textureImageMemory);
 
 	SwapChainSupportDetails QuerySwapChainSupport(VkSurfaceKHR surface);
 	uint32_t				findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);

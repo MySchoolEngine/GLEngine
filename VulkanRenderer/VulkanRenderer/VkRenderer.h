@@ -45,6 +45,8 @@ public:
 	VkQueue	 GetPresentationQueue() const;
 
 	void CopyBuffer(VkBuffer srcBuffer, Renderer::Handle<Renderer::Buffer> dstBuffer, VkDeviceSize size, VkCommandPool& commandPool);
+	void CopyBufferToImage(VkBuffer srcBuffer, VkImage image, uint32_t width, uint32_t height, VkCommandPool& commandPool);
+	void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, VkCommandPool& commandPool);
 
 private:
 	bool											 m_Locked = false;

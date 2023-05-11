@@ -1,7 +1,7 @@
 #include <VulkanRendererStdafx.h>
 
-#include <VulkanRenderer/VkRenderer.h>
 #include <VulkanRenderer/VkBuffer.h>
+#include <VulkanRenderer/VkRenderer.h>
 
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
@@ -135,6 +135,7 @@ bool C_VkRenderer::InitDevice(VkSurfaceKHR surface)
 	const auto queueInfos = CreatePresentingQueueInfos();
 
 	VkPhysicalDeviceFeatures device_features{};
+	device_features.samplerAnisotropy = VK_TRUE;
 
 	VkDeviceCreateInfo device_create_info{};
 	device_create_info.sType				   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -251,9 +252,85 @@ void C_VkRenderer::CopyBuffer(VkBuffer srcBuffer, Renderer::Handle<Renderer::Buf
 	};
 
 	C_VkBuffer* pdstBuffer = m_Device.GetRM().GetBuffer(dstBuffer);
-	GLE_ASSERT(pdstBuffer);
+	GLE_ASSERT(pdstBuffer, "buffer not found");
 
 	vkCmdCopyBuffer(commandBuffer, srcBuffer, pdstBuffer->GetBuffer(), 1, &copyRegion);
+
+	EndSigneTimeCommands(commandBuffer, commandPool);
+}
+
+//=================================================================================
+void C_VkRenderer::TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, VkCommandPool& commandPool)
+{
+	VkCommandBuffer commandBuffer = BeginSingleTimeCommands(commandPool);
+
+	VkImageMemoryBarrier barrier{
+		.sType				  = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+		.srcAccessMask = 0, // TODO
+		.dstAccessMask = 0, // TODO
+		.oldLayout			  = oldLayout,
+		.newLayout			  = newLayout,
+		.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+		.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+		.image				  = image,
+		.subresourceRange	  = {
+			.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+			.baseMipLevel	= 0,
+			.levelCount		= 1,
+			.baseArrayLayer = 0,
+			.layerCount		= 1,
+		},
+	};
+
+	VkPipelineStageFlags sourceStage;
+	VkPipelineStageFlags destinationStage;
+
+	if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+	{
+		barrier.srcAccessMask = 0;
+		barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+		sourceStage		 = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+	}
+	else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+	{
+		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+		sourceStage		 = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	}
+	else
+	{
+		throw std::invalid_argument("unsupported layout transition!");
+	}
+
+	vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+
+	EndSigneTimeCommands(commandBuffer, commandPool);
+}
+
+//=================================================================================
+void C_VkRenderer::CopyBufferToImage(VkBuffer srcBuffer, VkImage image, uint32_t width, uint32_t height, VkCommandPool& commandPool)
+{
+	VkCommandBuffer commandBuffer = BeginSingleTimeCommands(commandPool);
+
+	VkBufferImageCopy region{
+		.bufferOffset		 = 0,
+		.bufferRowLength	 = 0,
+		.bufferImageHeight = 0,
+		.imageSubresource = {
+			.aspectMask	   = VK_IMAGE_ASPECT_COLOR_BIT,
+			.mipLevel	   = 0,
+			.baseArrayLayer = 0,
+			.layerCount	   = 1,
+		},
+		.imageOffset = {0, 0, 0},
+		.imageExtent = {width, height, 1},
+	};
+
+	vkCmdCopyBufferToImage(commandBuffer, srcBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
 	EndSigneTimeCommands(commandBuffer, commandPool);
 }
@@ -291,8 +368,8 @@ void C_VkRenderer::EndSigneTimeCommands(VkCommandBuffer& commandBuffer, VkComman
 		.pCommandBuffers	= &commandBuffer,
 	};
 
-	vkQueueSubmit(GetTransferQueue(), 1, &submitInfo, VK_NULL_HANDLE);
-	vkQueueWaitIdle(GetTransferQueue());
+	vkQueueSubmit(GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+	vkQueueWaitIdle(GetGraphicsQueue());
 
 	vkFreeCommandBuffers(GetDeviceVK(), commandPool, 1, &commandBuffer);
 }

@@ -63,6 +63,40 @@ VkFormat GetVkInternalFormat(const Renderer::E_TextureFormat format)
 }
 
 //=================================================================================
+VkFilter GetVkInternalFormat(const Renderer::E_TextureFilter format)
+{
+	switch (format)
+	{
+	case Renderer::E_TextureFilter::Linear:
+		return VK_FILTER_LINEAR;
+	case Renderer::E_TextureFilter::Nearest:
+		return VK_FILTER_NEAREST;
+	default:
+		GLE_ERROR("Unknown filter");
+		return VK_FILTER_LINEAR;
+	}
+}
+
+//=================================================================================
+VkSamplerAddressMode GetVkInternalFormat(const Renderer::E_WrapFunction wrapFunction)
+{
+	switch (wrapFunction)
+	{
+	case Renderer::E_WrapFunction::ClampToEdge:
+		return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	case Renderer::E_WrapFunction::ClampToBorder:
+		return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+	case Renderer::E_WrapFunction::MirroredRepeat:
+		return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+	case Renderer::E_WrapFunction::Repeat:
+		return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	default:
+		GLE_ERROR("Unknown wrap function");
+		return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	}
+}
+
+//=================================================================================
 VkShaderStageFlagBits GetVkShaderStage(Renderer::E_ShaderStage stage)
 {
 	switch (stage)
@@ -83,7 +117,8 @@ VkShaderStageFlagBits GetVkShaderStage(Renderer::E_ShaderStage stage)
 		break;
 	}
 
-	GLE_ERROR("Unknown shader stage.")
+	GLE_ERROR("Unknown shader stage.");
+	return VK_SHADER_STAGE_VERTEX_BIT;
 }
 
 //=================================================================================
