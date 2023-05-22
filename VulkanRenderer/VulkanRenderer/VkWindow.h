@@ -94,8 +94,7 @@ private:
 	Core::ResourceHandle<Renderer::MeshResource>	m_MeshHandle;
 	Core::ResourceHandle<Renderer::TextureResource> m_TextureHandle;
 
-	VkImage		   textureImage;
-	VkDeviceMemory textureImageMemory;
+	Renderer::Handle<Renderer::Texture> m_GPUTextureHandle;
 	VkImageView	   textureImageView;
 	VkSampler	   textureSampler;
 

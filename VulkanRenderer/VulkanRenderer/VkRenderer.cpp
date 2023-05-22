@@ -2,10 +2,12 @@
 
 #include <VulkanRenderer/VkBuffer.h>
 #include <VulkanRenderer/VkRenderer.h>
+#include <VulkanRenderer/VkTypeHelpers.h>
 
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
 #include <Renderer/Resources/ResourceManager.h>
+#include <Renderer/Textures/TextureStorage.h>
 
 namespace GLEngine::VkRenderer {
 
@@ -257,6 +259,37 @@ void C_VkRenderer::CopyBuffer(VkBuffer srcBuffer, Renderer::Handle<Renderer::Buf
 	vkCmdCopyBuffer(commandBuffer, srcBuffer, pdstBuffer->GetBuffer(), 1, &copyRegion);
 
 	EndSigneTimeCommands(commandBuffer, commandPool);
+}
+
+//=================================================================================
+void C_VkRenderer::CopyImageResource(Renderer::Handle<Renderer::Texture> dstTexture, Core::ResourceHandle<Renderer::TextureResource>& textureHandle, VkCommandPool& commandPool)
+{
+	const auto& storage = textureHandle.GetResource().GetStorage();
+
+	const glm::uvec2   dim		 = storage.GetDimensions();
+	const VkDeviceSize imageSize = dim.x * dim.y * 4 * sizeof(float); // todo, could be different type
+
+	VkBuffer	   stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+
+	m_Device.CreateBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
+						  stagingBufferMemory);
+
+	void* data;
+	vkMapMemory(GetDeviceVK(), stagingBufferMemory, 0, imageSize, 0, &data);
+	memcpy(data, storage.GetData(), static_cast<size_t>(imageSize));
+	vkUnmapMemory(GetDeviceVK(), stagingBufferMemory);
+
+	C_VkTexture* pdstTexture = m_Device.GetRM().GetTexture(dstTexture);
+
+	// formats should be deduced from desc
+	TransitionImageLayout(pdstTexture->textureImage, GetTextureFormat(pdstTexture->m_Desc.format), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, commandPool);
+	CopyBufferToImage(stagingBuffer, pdstTexture->textureImage, static_cast<uint32_t>(dim.x), static_cast<uint32_t>(dim.y), commandPool);
+	TransitionImageLayout(pdstTexture->textureImage, GetTextureFormat(pdstTexture->m_Desc.format), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+						  commandPool);
+
+	vkDestroyBuffer(GetDeviceVK(), stagingBuffer, nullptr);
+	vkFreeMemory(GetDeviceVK(), stagingBufferMemory, nullptr);
 }
 
 //=================================================================================

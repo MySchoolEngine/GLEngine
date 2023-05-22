@@ -1,6 +1,7 @@
 #include <VulkanRendererStdafx.h>
 
 #include <VulkanRenderer/VkDevice.h>
+#include <VulkanRenderer/VkTypeHelpers.h>
 
 namespace GLEngine::VkRenderer {
 
@@ -55,13 +56,15 @@ std::size_t C_VkDevice::GetAllocatedMemory() const
 }
 
 //=================================================================================
-bool C_VkDevice::CreateView(VkImageView& resultView, VkImage& image, VkFormat format)
+bool C_VkDevice::CreateView(VkImageView& resultView, Renderer::Handle<Renderer::Texture> texture)
 {
+	auto* pTexture = GetRM().GetTexture(texture);
+	GLE_ASSERT(pTexture, "Uninitalized texture");
 	VkImageViewCreateInfo createInfo{};
 	createInfo.sType						   = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-	createInfo.image						   = image;
+	createInfo.image						   = pTexture->textureImage;
 	createInfo.viewType						   = VK_IMAGE_VIEW_TYPE_2D;
-	createInfo.format						   = format;
+	createInfo.format						   = GetTextureFormat(pTexture->m_Desc.format);
 	createInfo.components.r					   = VK_COMPONENT_SWIZZLE_IDENTITY;
 	createInfo.components.g					   = VK_COMPONENT_SWIZZLE_IDENTITY;
 	createInfo.components.b					   = VK_COMPONENT_SWIZZLE_IDENTITY;

@@ -102,8 +102,7 @@ C_VkWindow::~C_VkWindow()
 	m_Pipeline.destroy(m_renderer->GetDevice());
 	m_renderer.reset(nullptr);
 	// image cleanup
-	vkDestroyImage(m_renderer->GetDeviceVK(), textureImage, nullptr);
-	vkFreeMemory(m_renderer->GetDeviceVK(), textureImageMemory, nullptr);
+	GetVkDevice().GetRM().destoryTexture(m_GPUTextureHandle);
 	vkDestroySampler(m_renderer->GetDeviceVK(), textureSampler, nullptr);
 	vkDestroyImageView(m_renderer->GetDeviceVK(), textureImageView, nullptr);
 };
@@ -303,8 +302,26 @@ void C_VkWindow::CreateImageViews()
 	std::size_t i = 0;
 	for (auto& image : m_SwapChainImages)
 	{
-		GetVkDevice().CreateView(m_SwapChainImagesViews[i], image, m_SwapChainImageFormat);
+		VkImageViewCreateInfo createInfo{};
+		createInfo.sType						   = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		createInfo.image						   = image;
+		createInfo.viewType						   = VK_IMAGE_VIEW_TYPE_2D;
+		createInfo.format						   = m_SwapChainImageFormat;
+		createInfo.components.r					   = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.g					   = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.b					   = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.a					   = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.subresourceRange.aspectMask	   = VK_IMAGE_ASPECT_COLOR_BIT;
+		createInfo.subresourceRange.baseMipLevel   = 0;
+		createInfo.subresourceRange.levelCount	   = 1;
+		createInfo.subresourceRange.baseArrayLayer = 0;
+		createInfo.subresourceRange.layerCount	   = 1;
 
+		if (const auto result = vkCreateImageView(m_renderer->GetDeviceVK(), &createInfo, nullptr, &m_SwapChainImagesViews[i]) != VK_SUCCESS)
+		{
+			CORE_LOG(E_Level::Error, E_Context::Render, "Failed to create image view. {}", result);
+			return;
+		}
 		++i;
 	}
 }
@@ -457,8 +474,8 @@ void C_VkWindow::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t ima
 	const VkRect2D scissor{.offset = {0, 0}, .extent = {viewport.GetResolution().x, viewport.GetResolution().y}};
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-	C_VkBuffer* pPosBuffer = GetVkDevice().GetRM().GetBuffer(m_PositionsHandle);
-	C_VkBuffer* pNorBuffer = GetVkDevice().GetRM().GetBuffer(m_NormalsHandle);
+	C_VkBuffer* pPosBuffer		= GetVkDevice().GetRM().GetBuffer(m_PositionsHandle);
+	C_VkBuffer* pNorBuffer		= GetVkDevice().GetRM().GetBuffer(m_NormalsHandle);
 	C_VkBuffer* pTexCoordBuffer = GetVkDevice().GetRM().GetBuffer(m_TexCoordHandle);
 
 	GLE_ASSERT(pPosBuffer && pNorBuffer && pTexCoordBuffer, "Buffers not created");
@@ -759,31 +776,21 @@ void C_VkWindow::CreateTexture()
 	const glm::uvec2   dim		 = storage.GetDimensions();
 	const VkDeviceSize imageSize = dim.x * dim.y * 4 * sizeof(float);
 
-	VkBuffer	   stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
+	Renderer::TextureDescriptor textureDesc{.name		   = m_TextureHandle.GetResource().GetFilepath().generic_string(),
+											.width		   = storage.GetDimensions().x,
+											.height		   = storage.GetDimensions().y,
+											.type		   = Renderer::E_TextureType::TEXTURE_2D,
+											.format		   = Renderer::GetClosestFormat(storage.GetChannels(), !Renderer::IsIntegral(storage.GetStorageType())),
+											.m_bStreamable = false};
 
-	GetVkDevice().CreateBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
-							   stagingBufferMemory);
-
-	void* data;
-	vkMapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, 0, imageSize, 0, &data);
-	memcpy(data, storage.GetData(), static_cast<size_t>(imageSize));
-	vkUnmapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory);
-
-	GetVkDevice().CreateImage(dim, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, textureImage, textureImageMemory);
-
-	m_renderer->TransitionImageLayout(textureImage, VK_FORMAT_R32G32B32A32_SFLOAT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, m_CommandPool);
-	m_renderer->CopyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(dim.x), static_cast<uint32_t>(dim.y), m_CommandPool);
-	m_renderer->TransitionImageLayout(textureImage, VK_FORMAT_R32G32B32A32_SFLOAT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, m_CommandPool);
-
-	vkDestroyBuffer(m_renderer->GetDeviceVK(), stagingBuffer, nullptr);
-	vkFreeMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, nullptr);
+	m_GPUTextureHandle = GetVkDevice().GetRM().createTexture(textureDesc);
+	m_renderer->CopyImageResource(m_GPUTextureHandle, m_TextureHandle, m_CommandPool);
 }
 
 //=================================================================================
 void C_VkWindow::CreateTextureImageView()
 {
-	GetVkDevice().CreateView(textureImageView, textureImage, VK_FORMAT_R32G32B32A32_SFLOAT);// unify format definition
+	GetVkDevice().CreateView(textureImageView, m_GPUTextureHandle); // unify format definition
 }
 
 //=================================================================================
@@ -800,7 +807,7 @@ void C_VkWindow::CreateTextureSampler()
 		.sType					 = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
 		.magFilter				 = GetVkInternalFormat(desc.m_FilterMin),
 		.minFilter				 = GetVkInternalFormat(desc.m_FilterMag),
-		.mipmapMode				 = VK_SAMPLER_MIPMAP_MODE_LINEAR,
+		.mipmapMode				 = GetVkInternalMipMapFilter(desc.m_FilterMin), // what ever now
 		.addressModeU			 = GetVkInternalFormat(desc.m_WrapS),
 		.addressModeV			 = GetVkInternalFormat(desc.m_WrapT),
 		.addressModeW			 = GetVkInternalFormat(desc.m_WrapU),

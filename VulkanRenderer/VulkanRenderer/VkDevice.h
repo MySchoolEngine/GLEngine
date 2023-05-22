@@ -19,7 +19,7 @@ public:
 
 	void Init(VkDevice_T* device, VkPhysicalDevice_T* gpu);
 
-	bool CreateView(VkImageView& result, VkImage& image, VkFormat format);
+	bool CreateView(VkImageView& result, Renderer::Handle<Renderer::Texture> texture);
 
 	VkDevice_T* GetVkDevice() { return m_Device; }
 
