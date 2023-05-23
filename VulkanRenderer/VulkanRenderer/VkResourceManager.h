@@ -1,6 +1,7 @@
 #pragma once
 
 #include <VulkanRenderer/Textures/VkTexture.h>
+#include <VulkanRenderer/Textures/VkSampler.h>
 #include <VulkanRenderer/VkBuffer.h>
 
 #include <Renderer/Resources/ResourceManager.h>
@@ -8,6 +9,7 @@
 namespace GLEngine::VkRenderer {
 class C_VkDevice;
 class C_VkTexture;
+class C_VkSampler;
 
 class C_VkResourceManager : public Renderer::ResouceManager {
 public:
@@ -22,13 +24,18 @@ public:
 	void											  destoryTexture(Renderer::Handle<Renderer::Texture> handle) override;
 	[[nodiscard]] Renderer::Handle<Renderer::Buffer>  createBuffer(const Renderer::BufferDescriptor& desc) override;
 	void											  destroyBuffer(const Renderer::Handle<Renderer::Buffer>& handle) override;
+	[[nodiscard]] Renderer::Handle<Renderer::Sampler> createSampler(const Renderer::SamplerDescriptor2D& desc) override;
+	void											  destroySampler(const Renderer::Handle<Renderer::Sampler>& handle) override;
 
-	C_VkBuffer* GetBuffer(const Renderer::Handle<Renderer::Buffer>& handle);
+	C_VkBuffer*	 GetBuffer(const Renderer::Handle<Renderer::Buffer>& handle);
 	C_VkTexture* GetTexture(const Renderer::Handle<Renderer::Texture>& handle);
+	C_VkSampler* GetSampler(const Renderer::Handle<Renderer::Sampler>& handle);
+
 
 private:
 	Renderer::ResourcePool<Renderer::Buffer, C_VkBuffer>   m_BufferPool;
 	Renderer::ResourcePool<Renderer::Texture, C_VkTexture> m_TexturePool;
+	Renderer::ResourcePool<Renderer::Sampler, C_VkSampler> m_SamplerPool;
 	C_VkDevice*											   m_device;
 };
 } // namespace GLEngine::VkRenderer

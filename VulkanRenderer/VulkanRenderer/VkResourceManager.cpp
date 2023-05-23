@@ -65,6 +65,7 @@ void C_VkResourceManager::destoryTexture(Renderer::Handle<Renderer::Texture> han
 	{
 		vkDestroyImage(m_device->GetVkDevice(), texture->textureImage, nullptr);
 		vkFreeMemory(m_device->GetVkDevice(), texture->textureImageMemory, nullptr);
+		m_TexturePool.RemoveHandle(handle);
 	}
 }
 
@@ -116,6 +117,49 @@ Renderer::Handle<Renderer::Texture> C_VkResourceManager::createTexture(const Ren
 }
 
 //=================================================================================
+Renderer::Handle<Renderer::Sampler> C_VkResourceManager::createSampler(const Renderer::SamplerDescriptor2D& desc)
+{
+	auto handle = m_SamplerPool.CreateNew(desc);
+	if (auto* sampler = m_SamplerPool.GetResource(handle))
+	{
+		VkSamplerCreateInfo samplerInfo{
+			.sType					 = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
+			.magFilter				 = GetVkInternalFormat(desc.m_FilterMin),
+			.minFilter				 = GetVkInternalFormat(desc.m_FilterMag),
+			.mipmapMode				 = GetVkInternalMipMapFilter(desc.m_FilterMin), // what ever now
+			.addressModeU			 = GetVkInternalFormat(desc.m_WrapS),
+			.addressModeV			 = GetVkInternalFormat(desc.m_WrapT),
+			.addressModeW			 = GetVkInternalFormat(desc.m_WrapU),
+			.mipLodBias				 = 0.0f,
+			.anisotropyEnable		 = VK_TRUE,
+			.maxAnisotropy			 = 2,
+			.compareEnable			 = VK_FALSE,
+			.compareOp				 = VK_COMPARE_OP_ALWAYS,
+			.minLod					 = 0.0f,
+			.maxLod					 = 0.0f,
+			.borderColor			 = VK_BORDER_COLOR_INT_OPAQUE_BLACK,
+			.unnormalizedCoordinates = VK_FALSE,
+		}; // otherwise vkGetPhysicalDeviceProperties
+
+		if (const auto result = vkCreateSampler(m_device->GetVkDevice(), &samplerInfo, nullptr, &sampler->textureSampler) != VK_SUCCESS)
+		{
+			CORE_LOG(E_Level::Error, E_Context::Render, "failed to create texture sampler. {}", result);
+		}
+	}
+	return handle;
+}
+
+//=================================================================================
+void C_VkResourceManager::destroySampler(const Renderer::Handle<Renderer::Sampler>& handle)
+{
+	if (auto* sampler = m_SamplerPool.GetResource(handle))
+	{
+		vkDestroySampler(m_device->GetVkDevice(), sampler->textureSampler, nullptr);
+		m_SamplerPool.RemoveHandle(handle);
+	}
+}
+
+//=================================================================================
 void C_VkResourceManager::destoryShader(Renderer::Handle<Renderer::Shader> handle)
 {
 	throw std::logic_error("The method or operation is not implemented.");
@@ -137,6 +181,12 @@ C_VkBuffer* C_VkResourceManager::GetBuffer(const Renderer::Handle<Renderer::Buff
 C_VkTexture* C_VkResourceManager::GetTexture(const Renderer::Handle<Renderer::Texture>& handle)
 {
 	return m_TexturePool.GetResource(handle);
+}
+
+//=================================================================================
+VkRenderer::C_VkSampler* C_VkResourceManager::GetSampler(const Renderer::Handle<Renderer::Sampler>& handle)
+{
+	return m_SamplerPool.GetResource(handle);
 }
 
 } // namespace GLEngine::VkRenderer

@@ -95,8 +95,8 @@ private:
 	Core::ResourceHandle<Renderer::TextureResource> m_TextureHandle;
 
 	Renderer::Handle<Renderer::Texture> m_GPUTextureHandle;
+	Renderer::Handle<Renderer::Sampler> m_GPUTextureSampler;
 	VkImageView	   textureImageView;
-	VkSampler	   textureSampler;
 
 	const int MAX_FRAMES_IN_FLIGHT = 2;
 	uint32_t  currentFrame		   = 0;

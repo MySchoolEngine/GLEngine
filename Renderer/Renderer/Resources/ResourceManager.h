@@ -18,6 +18,8 @@ public:
 	virtual void						  destoryTexture(Handle<Texture> handle)		  = 0;
 	[[nodiscard]] virtual Handle<Buffer>  createBuffer(const BufferDescriptor& desc)	  = 0;
 	virtual void						  destroyBuffer(const Handle<Buffer>& handle)	  = 0;
+	[[nodiscard]] virtual Handle<Sampler> createSampler(const SamplerDescriptor2D& desc)  = 0;
+	virtual void						  destroySampler(const Handle<Sampler>& handle)	  = 0;
 };
 
 template <class Badge, class ConcreteResource> class ResourcePool final {
