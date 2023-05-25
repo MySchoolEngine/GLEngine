@@ -24,4 +24,10 @@ Renderer::Handle<GLEngine::Renderer::Sampler> C_VkTexture::GetSampler() const
 	return m_TextureSampler;
 }
 
+//=================================================================================
+VkImageView C_VkTexture::GetView() const
+{
+	return textureImageView;
+}
+
 }

@@ -62,7 +62,6 @@ private:
 	void			   CreateDescriptorPool();
 	void			   CreateDescriptorSets();
 	void			   CreateTexture();
-	void			   CreateTextureImageView();
 	void			   CreateTextureSampler();
 	void			   RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
@@ -95,8 +94,6 @@ private:
 	Core::ResourceHandle<Renderer::TextureResource> m_TextureHandle;
 
 	Renderer::Handle<Renderer::Texture> m_GPUTextureHandle;
-	Renderer::Handle<Renderer::Sampler> m_GPUTextureSampler;
-	VkImageView	   textureImageView;
 
 	const int MAX_FRAMES_IN_FLIGHT = 2;
 	uint32_t  currentFrame		   = 0;

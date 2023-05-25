@@ -13,10 +13,13 @@ public:
 	void								SetSampler(Renderer::Handle<Renderer::Sampler> sampler);
 	Renderer::Handle<Renderer::Sampler> GetSampler() const;
 
+	VkImageView GetView() const;
+
 private:
 	Renderer::TextureDescriptor m_Desc;
 	VkImage						textureImage;
 	VkDeviceMemory				textureImageMemory;
+	VkImageView					textureImageView;
 	// add sampler
 	Renderer::Handle<Renderer::Sampler> m_TextureSampler;
 

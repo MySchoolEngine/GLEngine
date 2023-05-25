@@ -69,7 +69,6 @@ C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
 	CreateUniformBuffers();
 	CreateDescriptorPool();
 	CreateTexture();
-	CreateTextureImageView();
 	CreateTextureSampler();
 	CreateDescriptorSets();
 }
@@ -102,9 +101,9 @@ C_VkWindow::~C_VkWindow()
 	m_Pipeline.destroy(m_renderer->GetDevice());
 	m_renderer.reset(nullptr);
 	// image cleanup
+	const auto* texture = GetVkDevice().GetRM().GetTexture(m_GPUTextureHandle);
+	GetVkDevice().GetRM().destroySampler(texture->GetSampler());
 	GetVkDevice().GetRM().destoryTexture(m_GPUTextureHandle);
-	GetVkDevice().GetRM().destroySampler(m_GPUTextureSampler);
-	vkDestroyImageView(m_renderer->GetDeviceVK(), textureImageView, nullptr);
 };
 
 //=================================================================================
@@ -730,7 +729,7 @@ void C_VkWindow::CreateDescriptorSets()
 		const auto*					sampler = GetVkDevice().GetRM().GetSampler(texture->GetSampler());
 		const VkDescriptorImageInfo imageInfo{
 			.sampler	 = sampler->GetVkSampler(),
-			.imageView	 = textureImageView,
+			.imageView	 = texture->GetView(),
 			.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 		};
 
@@ -789,15 +788,9 @@ void C_VkWindow::CreateTexture()
 }
 
 //=================================================================================
-void C_VkWindow::CreateTextureImageView()
-{
-	GetVkDevice().CreateView(textureImageView, m_GPUTextureHandle); // unify format definition
-}
-
-//=================================================================================
 void C_VkWindow::CreateTextureSampler()
 {
-	m_GPUTextureSampler = GetVkDevice().GetRM().createSampler(Renderer::SamplerDescriptor2D{
+	auto GPUSamplerHandle = GetVkDevice().GetRM().createSampler(Renderer::SamplerDescriptor2D{
 		.m_FilterMin = Renderer::E_TextureFilter::Linear,
 		.m_FilterMag = Renderer::E_TextureFilter::Linear,
 		.m_WrapS	 = Renderer ::E_WrapFunction::Repeat,
@@ -805,7 +798,7 @@ void C_VkWindow::CreateTextureSampler()
 		.m_WrapU	 = Renderer ::E_WrapFunction::Repeat,
 	});
 	if (auto* texture = GetVkDevice().GetRM().GetTexture(m_GPUTextureHandle)) {
-		texture->SetSampler(m_GPUTextureSampler);
+		texture->SetSampler(GPUSamplerHandle);
 	}
 }
 

@@ -65,6 +65,7 @@ void C_VkResourceManager::destoryTexture(Renderer::Handle<Renderer::Texture> han
 	{
 		vkDestroyImage(m_device->GetVkDevice(), texture->textureImage, nullptr);
 		vkFreeMemory(m_device->GetVkDevice(), texture->textureImageMemory, nullptr);
+		vkDestroyImageView(m_device->GetVkDevice(), texture->textureImageView, nullptr);
 		m_TexturePool.RemoveHandle(handle);
 	}
 }
@@ -111,6 +112,8 @@ Renderer::Handle<Renderer::Texture> C_VkResourceManager::createTexture(const Ren
 		}
 
 		vkBindImageMemory(m_device->GetVkDevice(), texture->textureImage, texture->textureImageMemory, 0);
+
+		m_device->CreateView(texture->textureImageView, handle); 
 	}
 
 	return handle;
