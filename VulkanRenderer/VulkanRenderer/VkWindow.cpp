@@ -726,8 +726,8 @@ void C_VkWindow::CreateDescriptorSets()
 			.offset = 0,
 			.range	= sizeof(UniformBufferObject),
 		};
-
-		const auto* sampler = GetVkDevice().GetRM().GetSampler(m_GPUTextureSampler);
+		const auto*					texture = GetVkDevice().GetRM().GetTexture(m_GPUTextureHandle);
+		const auto*					sampler = GetVkDevice().GetRM().GetSampler(texture->GetSampler());
 		const VkDescriptorImageInfo imageInfo{
 			.sampler	 = sampler->GetVkSampler(),
 			.imageView	 = textureImageView,
@@ -797,15 +797,16 @@ void C_VkWindow::CreateTextureImageView()
 //=================================================================================
 void C_VkWindow::CreateTextureSampler()
 {
-	Renderer::SamplerDescriptor2D desc{
+	m_GPUTextureSampler = GetVkDevice().GetRM().createSampler(Renderer::SamplerDescriptor2D{
 		.m_FilterMin = Renderer::E_TextureFilter::Linear,
 		.m_FilterMag = Renderer::E_TextureFilter::Linear,
 		.m_WrapS	 = Renderer ::E_WrapFunction::Repeat,
 		.m_WrapT	 = Renderer ::E_WrapFunction::Repeat,
 		.m_WrapU	 = Renderer ::E_WrapFunction::Repeat,
-	};
-
-	m_GPUTextureSampler = GetVkDevice().GetRM().createSampler(desc);
+	});
+	if (auto* texture = GetVkDevice().GetRM().GetTexture(m_GPUTextureHandle)) {
+		texture->SetSampler(m_GPUTextureSampler);
+	}
 }
 
 } // namespace GLEngine::VkRenderer
