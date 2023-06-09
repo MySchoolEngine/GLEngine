@@ -13,7 +13,11 @@
 
 class C_ShaderCompiler : public GLEngine::Renderer::ShaderCompilerTrait<std::string>
 {
+	using T_Base = GLEngine::Renderer::ShaderCompilerTrait<std::string>;
 public:
+	C_ShaderCompiler()
+		: T_Base(std::ios::binary)
+	{}
 	void ReleaseStage(T_StageHandle& stage)
 	{
 		// nothing

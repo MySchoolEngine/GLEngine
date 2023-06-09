@@ -11,7 +11,8 @@ namespace GLEngine::VkRenderer {
 
 //=================================================================================
 C_ShaderCompiler::C_ShaderCompiler(C_VkDevice& device, bool preprocessorOutput /*= false*/)
-	: m_PreprocessorOutput(preprocessorOutput)
+	: T_Base(std::ios::binary)
+	, m_PreprocessorOutput(preprocessorOutput)
 	, m_Device(device)
 {
 }
@@ -20,7 +21,7 @@ bool C_ShaderCompiler::compileShaderStageInternal(T_StageHandle&				stage,
 												  const std::filesystem::path&	filepath,
 												  const Renderer::E_ShaderStage shaderStage,
 												  std::vector<char>&			content,
-												  const std::string& entryPoint)
+												  const std::string&			entryPoint)
 {
 	if (filepath.extension() == "xml")
 	{
