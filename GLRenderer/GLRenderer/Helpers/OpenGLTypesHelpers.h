@@ -196,6 +196,25 @@ constexpr GLenum MinMagFilterToEnum(const Renderer::E_TextureFilter filter)
 	return GL_INVALID_VALUE;
 }
 
+
+inline constexpr GLenum GetBufferType(const Renderer::E_BufferType bufferType)
+{
+	switch (bufferType)
+	{
+	case Renderer::E_BufferType::Vertex:
+		return GL_ARRAY_BUFFER;
+	case Renderer::E_BufferType::Index:
+		return GL_INDEX_ARRAY;
+	case Renderer::E_BufferType::Uniform:
+		return GL_UNIFORM_BUFFER;
+	default:
+		GLE_ERROR("Unknown buffer type.")
+		break;
+
+	}
+	return GL_INVALID_VALUE;
+}
+
 //=================================================================================
 // Access rights
 enum class E_OpenGLAccess : char

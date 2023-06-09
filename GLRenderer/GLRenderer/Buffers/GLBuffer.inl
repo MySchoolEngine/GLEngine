@@ -1,5 +1,7 @@
 #pragma once
 
+#include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
+
 namespace GLEngine::GLRenderer::Buffers {
 //=================================================================================
 template <GLenum TYPE> C_GLBuffer<TYPE>::C_GLBuffer()
@@ -40,3 +42,35 @@ template <GLenum TYPE> void C_GLBuffer<TYPE>::AllocateMemory(const std::size_t s
 	unbind();
 }
 } // namespace GLEngine::GLRenderer::Buffers
+
+namespace GLEngine::GLRenderer {
+//=================================================================================
+inline GLenum GLBuffer::GetType() const
+{
+	return GetBufferType(desc.type);
+}
+
+//=================================================================================
+inline GLenum GLBuffer::GetUsage() const
+{
+	return GL_STATIC_DRAW; // todo
+}
+
+//=================================================================================
+inline void GLBuffer::bind() const
+{
+	glBindBuffer(GetType(), m_id);
+}
+
+//=================================================================================
+inline void GLBuffer::unbind() const
+{
+	glBindBuffer(GetType(), 0);
+}
+
+//=================================================================================
+inline uint32_t GLBuffer::GetSize() const
+{
+	return desc.size;
+}
+} // namespace GLEngine::GLRenderer

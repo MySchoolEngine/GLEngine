@@ -12,6 +12,35 @@
  */
 #pragma once
 
+#include <Renderer/Descriptors/BufferDescriptor.h>
+
+namespace GLEngine::GLRenderer {
+class GLBuffer {
+public:
+	GLBuffer(const Renderer::BufferDescriptor& desc)
+		: desc(desc)
+		, m_id(0)
+		, m_MappedMemory(nullptr)
+	{
+	}
+
+	GLenum GetType() const;
+	GLenum GetUsage() const;
+	uint32_t GetSize() const;
+
+	void   bind() const;
+	void   unbind() const;
+
+private:
+	const Renderer::BufferDescriptor desc;
+	GLuint							 m_id;
+	void*							 m_MappedMemory;
+
+	friend class GLResourceManager;
+};
+
+} // namespace GLEngine::GLRenderer
+
 namespace GLEngine::GLRenderer::Buffers {
 
 class I_GLBufferBase {
