@@ -92,7 +92,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugReportCallback(VkDebugUtilsMessageSeve
 														 const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 														 void*										 pUserData)
 {
-	CORE_LOG(E_Level::Error, E_Context::Render, "Vulkan: {}", pCallbackData->pMessage);
+	if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
+		CORE_LOG(E_Level::Error, E_Context::Render, "Vulkan: {}", pCallbackData->pMessage);
 
 	return VK_FALSE;
 }
@@ -116,16 +117,17 @@ void C_VkWindowManager::InitDebug()
 //=================================================================================
 void C_VkWindowManager::CheckLayersSupport(){
 #ifdef GL_ENGINE_DEBUG
-	{uint32_t layerCount = 0;
-vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-std::vector<VkLayerProperties> layers(layerCount);
-vkEnumerateInstanceLayerProperties(&layerCount, layers.data());
-CORE_LOG(E_Level::Info, E_Context::Render, "Instance layers: ");
-for (const auto it : layers)
-{
-	CORE_LOG(E_Level::Info, E_Context::Render, "\t{}: {}", it.layerName, it.description);
-}
-}
+	{
+		uint32_t layerCount = 0;
+		vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+		std::vector<VkLayerProperties> layers(layerCount);
+		vkEnumerateInstanceLayerProperties(&layerCount, layers.data());
+		//CORE_LOG(E_Level::Info, E_Context::Render, "Instance layers: ");
+		for (const auto it : layers)
+		{
+			//CORE_LOG(E_Level::Info, E_Context::Render, "\t{}: {}", it.layerName, it.description);
+		}
+	}
 #endif
 }
 

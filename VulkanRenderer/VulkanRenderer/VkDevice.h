@@ -19,7 +19,7 @@ public:
 
 	void Init(VkDevice_T* device, VkPhysicalDevice_T* gpu);
 
-	bool CreateView(VkImageView& result, VkImage& image, VkFormat format);
+	bool CreateView(VkImageView& result, Renderer::Handle<Renderer::Texture> texture);
 
 	VkDevice_T* GetVkDevice() { return m_Device; }
 
@@ -30,6 +30,7 @@ public:
 	void			DestroySampler(Renderer::I_TextureSampler2D& texture) override;
 	std::size_t		GetAllocatedMemory() const override;
 	void			CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+	void			CreateImage(glm::uvec2 dim, VkBufferUsageFlags usage, VkImage& textureImage, VkDeviceMemory& textureImageMemory);
 
 	SwapChainSupportDetails QuerySwapChainSupport(VkSurfaceKHR surface);
 	uint32_t				findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);

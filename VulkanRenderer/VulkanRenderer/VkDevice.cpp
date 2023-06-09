@@ -1,6 +1,7 @@
 #include <VulkanRendererStdafx.h>
 
 #include <VulkanRenderer/VkDevice.h>
+#include <VulkanRenderer/VkTypeHelpers.h>
 
 namespace GLEngine::VkRenderer {
 
@@ -55,13 +56,15 @@ std::size_t C_VkDevice::GetAllocatedMemory() const
 }
 
 //=================================================================================
-bool C_VkDevice::CreateView(VkImageView& resultView, VkImage& image, VkFormat format)
+bool C_VkDevice::CreateView(VkImageView& resultView, Renderer::Handle<Renderer::Texture> texture)
 {
+	auto* pTexture = GetRM().GetTexture(texture);
+	GLE_ASSERT(pTexture, "Uninitalized texture");
 	VkImageViewCreateInfo createInfo{};
 	createInfo.sType						   = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-	createInfo.image						   = image;
+	createInfo.image						   = pTexture->textureImage;
 	createInfo.viewType						   = VK_IMAGE_VIEW_TYPE_2D;
-	createInfo.format						   = format;
+	createInfo.format						   = GetTextureFormat(pTexture->m_Desc.format);
 	createInfo.components.r					   = VK_COMPONENT_SWIZZLE_IDENTITY;
 	createInfo.components.g					   = VK_COMPONENT_SWIZZLE_IDENTITY;
 	createInfo.components.b					   = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -158,6 +161,45 @@ uint32_t C_VkDevice::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags p
 C_VkResourceManager& C_VkDevice::GetRM()
 {
 	return m_GPUResourceManager;
+}
+
+//=================================================================================
+void C_VkDevice::CreateImage(glm::uvec2 dim, VkBufferUsageFlags usage, VkImage& textureImage, VkDeviceMemory& textureImageMemory)
+{
+	const VkImageCreateInfo imageInfo{
+		.sType		   = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+		.flags = 0,
+		.imageType	   = VK_IMAGE_TYPE_2D,
+		.format = VK_FORMAT_R32G32B32A32_SFLOAT,
+		.extent = { .width= dim.x, .height = dim.y, .depth = 1,},
+		.mipLevels	   = 1,
+		.arrayLayers   = 1,
+		.samples = VK_SAMPLE_COUNT_1_BIT, // no multisampling
+		.tiling = VK_IMAGE_TILING_OPTIMAL,
+		.usage = usage,
+		.sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+		.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED, // discards pixels on first transition
+	};
+
+	if (auto result = vkCreateImage(GetVkDevice(), &imageInfo, nullptr, &textureImage) != VK_SUCCESS)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "failed to create image. {}", result);
+		return;
+	}
+	VkMemoryRequirements memRequirements;
+	vkGetImageMemoryRequirements(GetVkDevice(), textureImage, &memRequirements);
+
+	VkMemoryAllocateInfo allocInfo{};
+	allocInfo.sType			  = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.allocationSize  = memRequirements.size;
+	allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+	if (vkAllocateMemory(GetVkDevice(), &allocInfo, nullptr, &textureImageMemory) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to allocate image memory!");
+	}
+
+	vkBindImageMemory(GetVkDevice(), textureImage, textureImageMemory, 0);
 }
 
 } // namespace GLEngine::VkRenderer

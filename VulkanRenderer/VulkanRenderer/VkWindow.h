@@ -4,6 +4,7 @@
 #include <VulkanRenderer/VkResourceManager.h>
 
 #include <Renderer/Mesh/Loading/MeshResource.h>
+#include <Renderer/Textures/TextureResource.h>
 
 #include <Core/Application.h>
 #include <Core/IWindow.h>
@@ -60,6 +61,9 @@ private:
 	void			   CreateUniformBuffers();
 	void			   CreateDescriptorPool();
 	void			   CreateDescriptorSets();
+	void			   CreateTexture();
+	void			   CreateTextureImageView();
+	void			   CreateTextureSampler();
 	void			   RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
 	void DestroySwapchain();
@@ -84,9 +88,15 @@ private:
 	std::vector<VkFence>			   m_InFlightFence;
 	Renderer::Handle<Renderer::Buffer> m_PositionsHandle;
 	Renderer::Handle<Renderer::Buffer> m_NormalsHandle;
+	Renderer::Handle<Renderer::Buffer> m_TexCoordHandle;
 	Renderer::Handle<Renderer::Buffer> m_IndexHandle;
 
-	Core::ResourceHandle<Renderer::MeshResource> m_MeshHandle;
+	Core::ResourceHandle<Renderer::MeshResource>	m_MeshHandle;
+	Core::ResourceHandle<Renderer::TextureResource> m_TextureHandle;
+
+	Renderer::Handle<Renderer::Texture> m_GPUTextureHandle;
+	Renderer::Handle<Renderer::Sampler> m_GPUTextureSampler;
+	VkImageView	   textureImageView;
 
 	const int MAX_FRAMES_IN_FLIGHT = 2;
 	uint32_t  currentFrame		   = 0;
@@ -94,8 +104,8 @@ private:
 
 	// Uniform buffers
 	std::vector<Renderer::Handle<Renderer::Buffer>> m_UniformBuffers;
-	VkDescriptorPool			 descriptorPool;
-	std::vector<VkDescriptorSet> descriptorSets;
+	VkDescriptorPool								descriptorPool;
+	std::vector<VkDescriptorSet>					descriptorSets;
 
 	VkSurfaceKHR_T* m_Surface;
 

@@ -8,9 +8,8 @@
 #include <VulkanRenderer/VkWindow.h>
 #include <VulkanRenderer/VkWindowInfo.h>
 
-#include <Renderer/Mesh/Loading/MeshResource.h>
 #include <Renderer/Mesh/Scene.h>
-#include <Renderer/Textures/TextureResource.h>
+#include <Renderer/Textures/TextureStorage.h>
 #include <Renderer/Viewport.h>
 
 #include <Core/EventSystem/Event/AppEvent.h>
@@ -69,6 +68,9 @@ C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
 	CreateIndexBuffer();
 	CreateUniformBuffers();
 	CreateDescriptorPool();
+	CreateTexture();
+	CreateTextureImageView();
+	CreateTextureSampler();
 	CreateDescriptorSets();
 }
 
@@ -77,6 +79,7 @@ C_VkWindow::~C_VkWindow()
 {
 	GetVkDevice().GetRM().destroyBuffer(m_PositionsHandle);
 	GetVkDevice().GetRM().destroyBuffer(m_NormalsHandle);
+	GetVkDevice().GetRM().destroyBuffer(m_TexCoordHandle);
 	GetVkDevice().GetRM().destroyBuffer(m_IndexHandle);
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
@@ -98,6 +101,10 @@ C_VkWindow::~C_VkWindow()
 	vkDestroyDescriptorPool(m_renderer->GetDeviceVK(), descriptorPool, nullptr);
 	m_Pipeline.destroy(m_renderer->GetDevice());
 	m_renderer.reset(nullptr);
+	// image cleanup
+	GetVkDevice().GetRM().destoryTexture(m_GPUTextureHandle);
+	GetVkDevice().GetRM().destroySampler(m_GPUTextureSampler);
+	vkDestroyImageView(m_renderer->GetDeviceVK(), textureImageView, nullptr);
 };
 
 //=================================================================================
@@ -106,7 +113,7 @@ void C_VkWindow::Update()
 	vkWaitForFences(m_renderer->GetDeviceVK(), 1, &m_InFlightFence[currentFrame], VK_TRUE, UINT64_MAX);
 
 	uint32_t imageIndex;
-	vkAcquireNextImageKHR(m_renderer->GetDeviceVK(), m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphore[currentFrame], VK_NULL_HANDLE, &imageIndex);
+	auto	 ret = vkAcquireNextImageKHR(m_renderer->GetDeviceVK(), m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphore[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
 	UpdateUniformBuffer(currentFrame);
 
@@ -293,20 +300,17 @@ void C_VkWindow::CreateImageViews()
 	m_SwapChainImagesViews.resize(m_SwapChainImages.size());
 
 	std::size_t i = 0;
-	for (const auto& image : m_SwapChainImages)
+	for (auto& image : m_SwapChainImages)
 	{
 		VkImageViewCreateInfo createInfo{};
-		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		createInfo.image = image;
-
-		createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		createInfo.format	= m_SwapChainImageFormat;
-
-		createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-		createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-		createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-		createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-
+		createInfo.sType						   = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		createInfo.image						   = image;
+		createInfo.viewType						   = VK_IMAGE_VIEW_TYPE_2D;
+		createInfo.format						   = m_SwapChainImageFormat;
+		createInfo.components.r					   = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.g					   = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.b					   = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.a					   = VK_COMPONENT_SWIZZLE_IDENTITY;
 		createInfo.subresourceRange.aspectMask	   = VK_IMAGE_ASPECT_COLOR_BIT;
 		createInfo.subresourceRange.baseMipLevel   = 0;
 		createInfo.subresourceRange.levelCount	   = 1;
@@ -315,10 +319,9 @@ void C_VkWindow::CreateImageViews()
 
 		if (const auto result = vkCreateImageView(m_renderer->GetDeviceVK(), &createInfo, nullptr, &m_SwapChainImagesViews[i]) != VK_SUCCESS)
 		{
-			CORE_LOG(E_Level::Error, E_Context::Render, "Failed to create image views. {}", result);
+			CORE_LOG(E_Level::Error, E_Context::Render, "Failed to create image view. {}", result);
 			return;
 		}
-
 		++i;
 	}
 }
@@ -359,7 +362,7 @@ void C_VkWindow::CreatePipeline()
 {
 	Renderer::PipelineDescriptor desc{
 		.primitiveType = Renderer::E_RenderPrimitives::TriangleList,
-		.bindingCount = 2,
+		.bindingCount = 3,
 		.vertexInput   = {{
 							  .binding = 0,
 							  .type	   = Renderer::T_TypeShaderDataType_v<glm::vec4>
@@ -367,6 +370,10 @@ void C_VkWindow::CreatePipeline()
 						  {
 							  .binding = 1,
 							  .type	   = Renderer::T_TypeShaderDataType_v<glm::vec3>
+						  },
+						  {
+							  .binding = 2,
+							  .type	   = Renderer::T_TypeShaderDataType_v<glm::vec2>
 						  },},
 	};
 	m_Pipeline.create(m_renderer->GetDevice(), desc, m_SwapChainImageFormat);
@@ -467,18 +474,19 @@ void C_VkWindow::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t ima
 	const VkRect2D scissor{.offset = {0, 0}, .extent = {viewport.GetResolution().x, viewport.GetResolution().y}};
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-	C_VkBuffer* pPosBuffer = GetVkDevice().GetRM().GetBuffer(m_PositionsHandle);
-	C_VkBuffer* pNorBuffer = GetVkDevice().GetRM().GetBuffer(m_NormalsHandle);
+	C_VkBuffer* pPosBuffer		= GetVkDevice().GetRM().GetBuffer(m_PositionsHandle);
+	C_VkBuffer* pNorBuffer		= GetVkDevice().GetRM().GetBuffer(m_NormalsHandle);
+	C_VkBuffer* pTexCoordBuffer = GetVkDevice().GetRM().GetBuffer(m_TexCoordHandle);
 
-	GLE_ASSERT(pPosBuffer && pNorBuffer);
+	GLE_ASSERT(pPosBuffer && pNorBuffer && pTexCoordBuffer, "Buffers not created");
 
-	VkBuffer	 vertexBuffers[] = {pPosBuffer->GetBuffer(), pNorBuffer->GetBuffer()};
-	VkDeviceSize offsets[]		 = {0, 0};
-	vkCmdBindVertexBuffers(commandBuffer, 0, 2, vertexBuffers, offsets);
+	VkBuffer	 vertexBuffers[] = {pPosBuffer->GetBuffer(), pNorBuffer->GetBuffer(), pTexCoordBuffer->GetBuffer()};
+	VkDeviceSize offsets[]		 = {0, 0, 0};
+	vkCmdBindVertexBuffers(commandBuffer, 0, 3, vertexBuffers, offsets);
 	// vkCmdBindIndexBuffer(commandBuffer, m_IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
 	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline.GetLayout(), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 	// vkCmdDrawIndexed(commandBuffer, 6u, 1, 0, 0, 0);
-	vkCmdDraw(commandBuffer, m_MeshHandle.GetResource().GetScene().meshes[0].vertices.size(), 1, 0, 0);
+	vkCmdDraw(commandBuffer, static_cast<uint32_t>(m_MeshHandle.GetResource().GetScene().meshes[0].vertices.size()), 1, 0, 0);
 	vkCmdEndRenderPass(commandBuffer);
 	if (const auto result = vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
 	{
@@ -518,7 +526,7 @@ void C_VkWindow::CreateVertexBuffer()
 {
 	auto& rm = Core::C_ResourceManager::Instance();
 
-	m_MeshHandle = rm.LoadResource<Renderer::MeshResource>(std::filesystem::path("Models/sphere.obj"), true);
+	m_MeshHandle = rm.LoadResource<Renderer::MeshResource>(std::filesystem::path("Models/plane.obj"), true);
 
 
 	if (!m_MeshHandle)
@@ -580,6 +588,32 @@ void C_VkWindow::CreateVertexBuffer()
 		vkDestroyBuffer(m_renderer->GetDeviceVK(), stagingBuffer, nullptr);
 		vkFreeMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, nullptr);
 	}
+
+	// UVs
+	{
+		VkDeviceSize bufferSize = sizeof(mesh.texcoords[0]) * mesh.texcoords.size();
+
+		VkBuffer	   stagingBuffer;
+		VkDeviceMemory stagingBufferMemory;
+		GetVkDevice().CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
+								   stagingBufferMemory);
+
+		void* data;
+		vkMapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, 0, bufferSize, 0, &data);
+		memcpy(data, mesh.texcoords.data(), (size_t)bufferSize);
+		vkUnmapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory);
+
+		m_TexCoordHandle = GetVkDevice().GetRM().createBuffer(Renderer::BufferDescriptor{
+			.size  = static_cast<uint32_t>(bufferSize),
+			.type  = Renderer::E_BufferType::Vertex,
+			.usage = Renderer::E_ResourceUsage::Immutable,
+		});
+
+		m_renderer->CopyBuffer(stagingBuffer, m_TexCoordHandle, bufferSize, m_CommandPool);
+
+		vkDestroyBuffer(m_renderer->GetDeviceVK(), stagingBuffer, nullptr);
+		vkFreeMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, nullptr);
+	}
 }
 
 //=================================================================================
@@ -635,6 +669,7 @@ void C_VkWindow::UpdateUniformBuffer(uint32_t currentImage)
 	float				time		= std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 	UniformBufferObject ubo{};
 	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	ubo.view  = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	ubo.proj  = glm::perspective(glm::radians(45.0f), m_SwapChainExtent.width / (float)m_SwapChainExtent.height, 0.1f, 10.0f);
 	ubo.proj[1][1] *= -1;
@@ -645,17 +680,18 @@ void C_VkWindow::UpdateUniformBuffer(uint32_t currentImage)
 //=================================================================================
 void C_VkWindow::CreateDescriptorPool()
 {
-	const VkDescriptorPoolSize poolSize{
-		.type			 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-		.descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT),
-	};
+	std::array<VkDescriptorPoolSize, 2> poolSizes{};
+	poolSizes[0].type			 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+	poolSizes[1].type			 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
 	const VkDescriptorPoolCreateInfo poolInfo{
 		.sType		   = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
 		.flags		   = 0,
 		.maxSets	   = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT),
-		.poolSizeCount = 1,
-		.pPoolSizes	   = &poolSize,
+		.poolSizeCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT),
+		.pPoolSizes	   = poolSizes.data(),
 	};
 	if (const auto result = vkCreateDescriptorPool(m_renderer->GetDeviceVK(), &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
 	{
@@ -690,8 +726,15 @@ void C_VkWindow::CreateDescriptorSets()
 			.offset = 0,
 			.range	= sizeof(UniformBufferObject),
 		};
+		const auto*					texture = GetVkDevice().GetRM().GetTexture(m_GPUTextureHandle);
+		const auto*					sampler = GetVkDevice().GetRM().GetSampler(texture->GetSampler());
+		const VkDescriptorImageInfo imageInfo{
+			.sampler	 = sampler->GetVkSampler(),
+			.imageView	 = textureImageView,
+			.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+		};
 
-		const VkWriteDescriptorSet descriptorWrite{
+		const VkWriteDescriptorSet descriptorUniform{
 			.sType			 = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 			.dstSet			 = descriptorSets[i],
 			.dstBinding		 = 0,
@@ -701,7 +744,19 @@ void C_VkWindow::CreateDescriptorSets()
 			.pBufferInfo	 = &bufferInfo,
 		};
 
-		vkUpdateDescriptorSets(m_renderer->GetDeviceVK(), 1, &descriptorWrite, 0, nullptr);
+		const VkWriteDescriptorSet descriptorImage{
+			.sType			 = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+			.dstSet			 = descriptorSets[i],
+			.dstBinding		 = 1,
+			.dstArrayElement = 0,
+			.descriptorCount = 1,
+			.descriptorType	 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+			.pImageInfo		 = &imageInfo,
+		};
+
+		std::array<VkWriteDescriptorSet, 2> descriptorWrites{descriptorUniform, descriptorImage};
+
+		vkUpdateDescriptorSets(m_renderer->GetDeviceVK(), static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
 }
 
@@ -709,6 +764,49 @@ void C_VkWindow::CreateDescriptorSets()
 C_VkDevice& C_VkWindow::GetVkDevice()
 {
 	return dynamic_cast<C_VkDevice&>(m_renderer->GetDevice());
+}
+
+//=================================================================================
+void C_VkWindow::CreateTexture()
+{
+	auto& rm = Core::C_ResourceManager::Instance();
+
+	m_TextureHandle		= rm.LoadResource<Renderer::TextureResource>(std::filesystem::path("Models/Error.bmp"), true);
+	const auto& storage = m_TextureHandle.GetResource().GetStorage();
+
+	const glm::uvec2   dim		 = storage.GetDimensions();
+	const VkDeviceSize imageSize = dim.x * dim.y * 4 * sizeof(float);
+
+	Renderer::TextureDescriptor textureDesc{.name		   = m_TextureHandle.GetResource().GetFilepath().generic_string(),
+											.width		   = storage.GetDimensions().x,
+											.height		   = storage.GetDimensions().y,
+											.type		   = Renderer::E_TextureType::TEXTURE_2D,
+											.format		   = Renderer::GetClosestFormat(storage.GetChannels(), !Renderer::IsIntegral(storage.GetStorageType())),
+											.m_bStreamable = false};
+
+	m_GPUTextureHandle = GetVkDevice().GetRM().createTexture(textureDesc);
+	m_renderer->CopyImageResource(m_GPUTextureHandle, m_TextureHandle, m_CommandPool);
+}
+
+//=================================================================================
+void C_VkWindow::CreateTextureImageView()
+{
+	GetVkDevice().CreateView(textureImageView, m_GPUTextureHandle); // unify format definition
+}
+
+//=================================================================================
+void C_VkWindow::CreateTextureSampler()
+{
+	m_GPUTextureSampler = GetVkDevice().GetRM().createSampler(Renderer::SamplerDescriptor2D{
+		.m_FilterMin = Renderer::E_TextureFilter::Linear,
+		.m_FilterMag = Renderer::E_TextureFilter::Linear,
+		.m_WrapS	 = Renderer ::E_WrapFunction::Repeat,
+		.m_WrapT	 = Renderer ::E_WrapFunction::Repeat,
+		.m_WrapU	 = Renderer ::E_WrapFunction::Repeat,
+	});
+	if (auto* texture = GetVkDevice().GetRM().GetTexture(m_GPUTextureHandle)) {
+		texture->SetSampler(m_GPUTextureSampler);
+	}
 }
 
 } // namespace GLEngine::VkRenderer

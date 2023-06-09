@@ -22,22 +22,24 @@ void C_Pipeline::create(Renderer::I_Device& device, Renderer::PipelineDescriptor
 		.pDynamicStates	   = dynamicStates.data(),
 	};
 
+	GLE_ASSERT(desc.bindingCount == desc.vertexInput.size() + desc.instanceInput.size(), "Wrong count of bindings.");
+
 	std::vector<VkVertexInputBindingDescription> bindingDescriptions(desc.bindingCount);
-	for (uint32_t i = 0; i < desc.bindingCount;++i)
+	for (uint32_t i = 0; i < desc.bindingCount; ++i)
 	{
-		auto& bindingDesc = bindingDescriptions[i];
-		bindingDesc.binding = i;
-		bindingDesc.stride	  = 0; // will be updated
+		auto& bindingDesc	  = bindingDescriptions[i];
+		bindingDesc.binding	  = i;
+		bindingDesc.stride	  = 0;							 // will be updated
 		bindingDesc.inputRate = VK_VERTEX_INPUT_RATE_VERTEX; // no instances yet
 	}
 
 	std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
 	attributeDescriptions.reserve(desc.vertexInput.size());
-	for (uint32_t i = 0; i < desc.vertexInput.size(); ++i) {
+	for (uint32_t i = 0; i < desc.vertexInput.size(); ++i)
+	{
 		const auto& attribDsec = desc.vertexInput[i];
 
-		attributeDescriptions.emplace_back(
-			VkVertexInputAttributeDescription{
+		attributeDescriptions.emplace_back(VkVertexInputAttributeDescription{
 			.location = i,
 			.binding  = attribDsec.binding,
 			.format	  = GetVkShaderDataFormat(attribDsec.type),
@@ -129,10 +131,19 @@ void C_Pipeline::create(Renderer::I_Device& device, Renderer::PipelineDescriptor
 		.pImmutableSamplers = nullptr,
 	};
 
-	const VkDescriptorSetLayoutCreateInfo layoutInfo{
+	const VkDescriptorSetLayoutBinding samplerLayoutBinding{
+		.binding			= 1,
+		.descriptorType		= VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+		.descriptorCount	= 1,
+		.stageFlags			= VK_SHADER_STAGE_FRAGMENT_BIT,
+		.pImmutableSamplers = nullptr,
+	};
+
+	std::array<const VkDescriptorSetLayoutBinding, 2> bindings = {uboLayoutBinding, samplerLayoutBinding};
+	const VkDescriptorSetLayoutCreateInfo			  layoutInfo{
 		.sType		  = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-		.bindingCount = 1,
-		.pBindings	  = &uboLayoutBinding,
+		.bindingCount = static_cast<uint32_t>(bindings.size()),
+		.pBindings	  = bindings.data(),
 	};
 
 	if (const auto result = vkCreateDescriptorSetLayout(vkDevice.GetVkDevice(), &layoutInfo, nullptr, &m_DescriptorSetLayout) != VK_SUCCESS)
