@@ -15,6 +15,8 @@ public:
 	virtual void											  destoryTexture(Renderer::Handle<Renderer::Texture> handle) override;
 	[[nodiscard]] virtual Renderer::Handle<Renderer::Buffer>  createBuffer(const Renderer::BufferDescriptor& desc) override;
 	virtual void											  destroyBuffer(const Renderer::Handle<Renderer::Buffer>& handle) override;
+	[[nodiscard]] virtual Renderer::Handle<Renderer::Sampler> createSampler(const Renderer::SamplerDescriptor2D& desc) override;
+	virtual void											  destroySampler(const Renderer::Handle<Renderer::Sampler>& handle) override;
 
 	GLBuffer* GetBuffer(const Renderer::Handle<Renderer::Buffer>& handle);
 

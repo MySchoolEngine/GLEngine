@@ -35,7 +35,7 @@ using T_Channels	 = std::array<E_TextureChannel, 4>;		  // When order of channel
 using T_ChannelsBits = ::Utils::C_BitField<E_TextureChannel>; // When order independent
 } // namespace GLEngine::Renderer
 // Enable bit field for channels for ease of use
-template <> struct ::Utils::enable_BitField_operators<GLEngine::Renderer::E_TextureChannel> {
+template <> struct Utils::enable_BitField_operators<GLEngine::Renderer::E_TextureChannel> {
 	static constexpr bool enable = true;
 };
 namespace GLEngine::Renderer {

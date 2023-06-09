@@ -61,4 +61,15 @@ void GLResourceManager::destoryTexture(Renderer::Handle<Renderer::Texture> handl
 {
 }
 
+//=================================================================================
+Renderer::Handle<Renderer::Sampler> GLResourceManager::createSampler(const Renderer::SamplerDescriptor2D& desc)
+{
+	return {};
+}
+
+//=================================================================================
+void GLResourceManager::destroySampler(const Renderer::Handle<Renderer::Sampler>& handle)
+{
+}
+
 } // namespace GLEngine::GLRenderer

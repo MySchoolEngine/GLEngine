@@ -16,8 +16,7 @@ public:
 
 	ShaderCompilerTrait(const std::ios_base::openmode additionalOpenmode = {})
 		: m_additionalOpenmode(additionalOpenmode)
-	{
-	}
+	{}
 
 	virtual ~ShaderCompilerTrait() = default;
 
