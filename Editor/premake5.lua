@@ -34,6 +34,11 @@ project "Editor"
 
 
 	filter "system:windows"
+		defines
+		{
+			"IMGUI_API=__declspec(dllimport)",
+		}
+
 		postbuildcommands
 		{
 			("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\""),

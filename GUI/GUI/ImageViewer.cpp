@@ -2,6 +2,7 @@
 
 #include <GUI/ImageViewer.h>
 
+#include <imgui.h>
 #include <imgui_internal.h>
 
 namespace GLEngine::GUI {
