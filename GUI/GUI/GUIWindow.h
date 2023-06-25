@@ -33,6 +33,7 @@ public:
 
 protected:
 	virtual void DrawComponents() const;
+	void		 DrawMenus() const;
 
 	mutable bool m_IsVisible; // cant be bit field as it is being referenced inside
 	mutable bool m_WantToBeDestroyed : 1;
