@@ -5,10 +5,11 @@
 namespace GLEngine::Renderer {
 template <class Badge> using resource_index_t = dod::slot_map_key32<Badge>;
 
-struct Buffer;	// < does not need to be implemented, just badge
-struct Shader;	// < does not need to be implemented, just badge
-struct Texture; // < does not need to be implemented, just badge
-struct Sampler; // < does not need to be implemented, just badge
+struct Buffer;	 // < does not need to be implemented, just badge
+struct Shader;	 // < does not need to be implemented, just badge
+struct Pipeline; // < does not need to be implemented, just badge
+struct Texture;	 // < does not need to be implemented, just badge
+struct Sampler;	 // < does not need to be implemented, just badge
 
 template <class Badge> class Handle final {
 public:

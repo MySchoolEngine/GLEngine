@@ -46,6 +46,12 @@ GLBuffer* GLResourceManager::GetBuffer(const Renderer::Handle<Renderer::Buffer>&
 }
 
 //=================================================================================
+Shaders::C_ShaderProgram* GLResourceManager::GetShader(const Renderer::Handle<Renderer::Shader>& handle)
+{
+	return nullptr;
+}
+
+//=================================================================================
 Renderer::Handle<Renderer::Shader> GLResourceManager::createShader(const std::filesystem::path& path)
 {
 	return {};

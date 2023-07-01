@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Renderer/Descriptors/BufferDescriptor.h>
+#include <Renderer/Descriptors/PipelineDescriptor.h>
 #include <Renderer/Descriptors/TextureDescriptor.h>
 #include <Renderer/Resources/RenderResourceHandle.h>
 
@@ -12,14 +13,16 @@ class ResouceManager {
 public:
 	virtual ~ResouceManager() noexcept = default;
 
-	[[nodiscard]] virtual Handle<Shader>  createShader(const std::filesystem::path& path) = 0;
-	virtual void						  destoryShader(Handle<Shader> handle)			  = 0;
-	[[nodiscard]] virtual Handle<Texture> createTexture(const TextureDescriptor& desc)	  = 0;
-	virtual void						  destoryTexture(Handle<Texture> handle)		  = 0;
-	[[nodiscard]] virtual Handle<Buffer>  createBuffer(const BufferDescriptor& desc)	  = 0;
-	virtual void						  destroyBuffer(const Handle<Buffer>& handle)	  = 0;
-	[[nodiscard]] virtual Handle<Sampler> createSampler(const SamplerDescriptor2D& desc)  = 0;
-	virtual void						  destroySampler(const Handle<Sampler>& handle)	  = 0;
+	[[nodiscard]] virtual Handle<Shader>   createShader(const std::filesystem::path& path) = 0;
+	virtual void						   destoryShader(Handle<Shader> handle)			   = 0;
+	[[nodiscard]] virtual Handle<Pipeline> createPipeline(const PipelineDescriptor& desc) { return {}; }
+	virtual void						   destoryPipeline(Handle<Pipeline> handle) {}
+	[[nodiscard]] virtual Handle<Texture>  createTexture(const TextureDescriptor& desc)	  = 0;
+	virtual void						   destoryTexture(Handle<Texture> handle)		  = 0;
+	[[nodiscard]] virtual Handle<Buffer>   createBuffer(const BufferDescriptor& desc)	  = 0;
+	virtual void						   destroyBuffer(const Handle<Buffer>& handle)	  = 0;
+	[[nodiscard]] virtual Handle<Sampler>  createSampler(const SamplerDescriptor2D& desc) = 0;
+	virtual void						   destroySampler(const Handle<Sampler>& handle)  = 0;
 };
 
 template <class Badge, class ConcreteResource> class ResourcePool final {
