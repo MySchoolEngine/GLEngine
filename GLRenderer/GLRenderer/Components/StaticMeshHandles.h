@@ -26,11 +26,14 @@ public:
 	void								Render(Renderer::Renderer3D& renderer) const;
 
 private:
+	struct MeshContainer {
+		Renderer::Handle<Renderer::Buffer> m_PositionsHandle;
+		Renderer::Handle<Renderer::Buffer> m_NormalsHandle;
+		Renderer::Handle<Renderer::Buffer> m_TexCoordsHandle;
+		Renderer::Handle<Renderer::Buffer> m_TangentHandle;
+		Renderer::Handle<Renderer::Buffer> m_BitangentHandle;
+	};
 	Core::ResourceHandle<Renderer::MeshResource> m_MeshResource;
-	Renderer::Handle<Renderer::Buffer>			 m_PositionsHandle;
-	Renderer::Handle<Renderer::Buffer>			 m_NormalsHandle;
-	Renderer::Handle<Renderer::Buffer>			 m_TexCoordsHandle;
-	Renderer::Handle<Renderer::Buffer>			 m_TangentHandle;
-	Renderer::Handle<Renderer::Buffer>			 m_BitangentHandle;
+	std::vector<MeshContainer>					 m_Meshes;
 };
 } // namespace GLEngine::GLRenderer
