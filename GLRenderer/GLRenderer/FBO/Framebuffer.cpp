@@ -17,10 +17,12 @@ C_Framebuffer::C_Framebuffer(const std::string_view name, bool defaultRendertarg
 	, m_FBO(0)
 {
 	if (!defaultRendertarget)
+	{
 		glGenFramebuffers(1, &m_FBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
-	glObjectLabel(GL_FRAMEBUFFER, m_FBO, static_cast<GLsizei>(name.size()), name.data());
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+		glObjectLabel(GL_FRAMEBUFFER, m_FBO, static_cast<GLsizei>(name.size()), name.data());
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
 }
 
 //=================================================================================
