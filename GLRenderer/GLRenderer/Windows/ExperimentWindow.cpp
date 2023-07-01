@@ -10,10 +10,9 @@
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/Components/SkeletalMesh.h>
 #include <GLRenderer/Components/SkyBox.h>
-#include <GLRenderer/Components/StaticMeshHandles.h>
 #include <GLRenderer/Debug.h>
-#include <GLRenderer/GLResourceManager.h>
 #include <GLRenderer/GLRenderInterface.h>
+#include <GLRenderer/GLResourceManager.h>
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 #include <GLRenderer/ImGui/GLImGUILayer.h>
 #include <GLRenderer/Materials/MaterialBuffer.h>
@@ -30,6 +29,7 @@
 #include <GLRenderer/Windows/RayTrace.h>
 
 #include <Renderer/Cameras/OrbitalCamera.h>
+#include <Renderer/Components/StaticMeshHandles.h>
 #include <Renderer/Lights/SunLight.h>
 #include <Renderer/Materials/MaterialManager.h>
 #include <Renderer/Mesh/Loading/MeshResource.h>
@@ -567,7 +567,7 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 
 	auto staticMeshHandle = m_World->GetOrCreateEntity("handles");
 	{
-		handlesMesh = std::make_shared<C_StaticMeshHandles>();
+		handlesMesh = std::make_shared<Renderer::C_StaticMeshHandles>();
 		handlesMesh->SetParent(staticMeshHandle);
 		staticMeshHandle->AddComponent(handlesMesh);
 	}

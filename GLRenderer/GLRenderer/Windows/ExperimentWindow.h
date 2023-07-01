@@ -32,7 +32,8 @@ class C_WindowResizedEvent;
 } // namespace GLEngine::Core
 namespace GLEngine::Renderer {
 class I_CameraComponent;
-}
+class C_StaticMeshHandles;
+} // namespace GLEngine::Renderer
 
 namespace GLEngine::GLRenderer {
 class C_GLImGUILayer;
@@ -40,7 +41,6 @@ class C_RayTraceWindow;
 class C_Framebuffer;
 class C_SunShadowMapTechnique;
 class C_RenderInterface;
-class C_StaticMeshHandles;
 class C_GLRenderInterface;
 
 namespace Windows {
@@ -105,11 +105,11 @@ private:
 	std::shared_ptr<C_SunShadowMapTechnique> m_SunShadow;
 	C_RayTraceWindow*						 m_RayTraceWindow;
 
-	std::shared_ptr<C_StaticMeshHandles> handlesMesh;
+	std::shared_ptr<Renderer::C_StaticMeshHandles> handlesMesh;
 
-	std::unique_ptr<C_Framebuffer>	   m_HDRFBO;
-	std::unique_ptr<C_Framebuffer>	   m_HDRFBOAtmosphere;
-	std::unique_ptr<C_RenderInterface> m_RenderInterface;
+	std::unique_ptr<C_Framebuffer>		 m_HDRFBO;
+	std::unique_ptr<C_Framebuffer>		 m_HDRFBOAtmosphere;
+	std::unique_ptr<C_RenderInterface>	 m_RenderInterface;
 	std::unique_ptr<C_GLRenderInterface> m_RenderInterfaceHandles;
 
 	Editor::C_EditorLayer m_EditorLayer;

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Renderer/RendererApi.h>
+
 #include <Renderer/IRenderableComponent.h>
 #include <Renderer/Mesh/Loading/MeshResource.h>
 #include <Renderer/Renderer3D.h>
@@ -10,9 +12,9 @@
 #include <rttr/registration.h>
 #include <rttr/registration_friend.h>
 
-namespace GLEngine::GLRenderer {
+namespace GLEngine::Renderer {
 
-class C_StaticMeshHandles : public Renderer::I_RenderableComponent {
+class RENDERER_API_EXPORT C_StaticMeshHandles : public I_RenderableComponent {
 public:
 	C_StaticMeshHandles();
 	virtual ~C_StaticMeshHandles() = default;
@@ -23,17 +25,17 @@ public:
 	virtual Physics::Primitives::S_AABB GetAABB() const override;
 	virtual void						OnEvent(Core::I_Event& event) override;
 	virtual void						Update() override;
-	void								Render(Renderer::Renderer3D& renderer) const;
+	void								Render(Renderer3D& renderer) const;
 
 private:
 	struct MeshContainer {
-		Renderer::Handle<Renderer::Buffer> m_PositionsHandle;
-		Renderer::Handle<Renderer::Buffer> m_NormalsHandle;
-		Renderer::Handle<Renderer::Buffer> m_TexCoordsHandle;
-		Renderer::Handle<Renderer::Buffer> m_TangentHandle;
-		Renderer::Handle<Renderer::Buffer> m_BitangentHandle;
+		Handle<Buffer> m_PositionsHandle;
+		Handle<Buffer> m_NormalsHandle;
+		Handle<Buffer> m_TexCoordsHandle;
+		Handle<Buffer> m_TangentHandle;
+		Handle<Buffer> m_BitangentHandle;
 	};
-	Core::ResourceHandle<Renderer::MeshResource> m_MeshResource;
-	std::vector<MeshContainer>					 m_Meshes;
+	Core::ResourceHandle<MeshResource> m_MeshResource;
+	std::vector<MeshContainer>		   m_Meshes;
 };
-} // namespace GLEngine::GLRenderer
+} // namespace GLEngine::Renderer

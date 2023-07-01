@@ -1,24 +1,22 @@
-#include <GLRendererStdafx.h>
+#include <RendererStdafx.h>
 
-#include <GLRenderer/Components/StaticMeshHandles.h>
-#include <GLRenderer/GLResourceManager.h>
-#include <GLRenderer/OGLDevice.h>
-
+#include <Renderer/Components/StaticMeshHandles.h>
 #include <Renderer/IRenderer.h>
 #include <Renderer/Mesh/Loading/ModelLoader.h>
+#include <Renderer/Resources/ResourceManager.h>
 
 #include <Core/Application.h>
 #include <Core/Resources/LoadingQuery.h>
 #include <Core/Resources/ResourceManager.h>
 
-namespace GLEngine::GLRenderer {
+namespace GLEngine::Renderer {
 
 //=================================================================================
 C_StaticMeshHandles::C_StaticMeshHandles()
-	: Renderer::I_RenderableComponent(nullptr)
+	: I_RenderableComponent(nullptr)
 {
 	auto& rm	   = Core::C_ResourceManager::Instance();
-	m_MeshResource = rm.LoadResource<Renderer::MeshResource>(R"(Models/sphere.obj)");
+	m_MeshResource = rm.LoadResource<MeshResource>(R"(Models/sphere.obj)");
 }
 
 //=================================================================================
@@ -56,7 +54,7 @@ Physics::Primitives::S_AABB C_StaticMeshHandles::GetAABB() const
 //=================================================================================
 void C_StaticMeshHandles::Update()
 {
-	if (m_Meshes.empty() == false && m_MeshResource.IsReady())
+	if (m_Meshes.empty() == true && m_MeshResource.IsReady())
 	{
 		auto& scene = m_MeshResource.GetResource().GetScene();
 		m_Meshes.reserve(scene.meshes.size());
@@ -66,46 +64,46 @@ void C_StaticMeshHandles::Update()
 			// load buffer
 			auto& mesh = m_MeshResource.GetResource().GetScene().meshes[0];
 
-			Renderer::I_Renderer&	  renderer = Core::C_Application::Get().GetActiveRenderer();
-			Renderer::ResouceManager& rm	   = renderer.GetRM();
+			I_Renderer&		renderer = Core::C_Application::Get().GetActiveRenderer();
+			ResouceManager& rm		 = renderer.GetRM();
 
 			const auto positionsSize		= static_cast<uint32_t>(sizeof(mesh.vertices[0]) * mesh.vertices.size());
-			meshContainer.m_PositionsHandle = rm.createBuffer(Renderer::BufferDescriptor{
+			meshContainer.m_PositionsHandle = rm.createBuffer(BufferDescriptor{
 				.size  = positionsSize,
-				.type  = Renderer::E_BufferType::Vertex,
-				.usage = Renderer::E_ResourceUsage::Immutable,
+				.type  = E_BufferType::Vertex,
+				.usage = E_ResourceUsage::Immutable,
 			});
 			renderer.SetBufferData(meshContainer.m_PositionsHandle, positionsSize, mesh.vertices.data());
 
 			const auto normalsSize		  = static_cast<uint32_t>(sizeof(mesh.normals[0]) * mesh.normals.size());
-			meshContainer.m_NormalsHandle = rm.createBuffer(Renderer::BufferDescriptor{
+			meshContainer.m_NormalsHandle = rm.createBuffer(BufferDescriptor{
 				.size  = normalsSize,
-				.type  = Renderer::E_BufferType::Vertex,
-				.usage = Renderer::E_ResourceUsage::Immutable,
+				.type  = E_BufferType::Vertex,
+				.usage = E_ResourceUsage::Immutable,
 			});
 			renderer.SetBufferData(meshContainer.m_NormalsHandle, normalsSize, mesh.normals.data());
 
 			const auto texCoordSize			= static_cast<uint32_t>(sizeof(mesh.texcoords[0]) * mesh.texcoords.size());
-			meshContainer.m_TexCoordsHandle = rm.createBuffer(Renderer::BufferDescriptor{
+			meshContainer.m_TexCoordsHandle = rm.createBuffer(BufferDescriptor{
 				.size  = texCoordSize,
-				.type  = Renderer::E_BufferType::Vertex,
-				.usage = Renderer::E_ResourceUsage::Immutable,
+				.type  = E_BufferType::Vertex,
+				.usage = E_ResourceUsage::Immutable,
 			});
 			renderer.SetBufferData(meshContainer.m_TexCoordsHandle, texCoordSize, mesh.texcoords.data());
 
 			const auto tangentSize		  = static_cast<uint32_t>(sizeof(mesh.tangent[0]) * mesh.tangent.size());
-			meshContainer.m_TangentHandle = rm.createBuffer(Renderer::BufferDescriptor{
+			meshContainer.m_TangentHandle = rm.createBuffer(BufferDescriptor{
 				.size  = tangentSize,
-				.type  = Renderer::E_BufferType::Vertex,
-				.usage = Renderer::E_ResourceUsage::Immutable,
+				.type  = E_BufferType::Vertex,
+				.usage = E_ResourceUsage::Immutable,
 			});
 			renderer.SetBufferData(meshContainer.m_TangentHandle, tangentSize, mesh.tangent.data());
 
 			const auto bitangentSize		= static_cast<uint32_t>(sizeof(mesh.bitangent[0]) * mesh.bitangent.size());
-			meshContainer.m_BitangentHandle = rm.createBuffer(Renderer::BufferDescriptor{
+			meshContainer.m_BitangentHandle = rm.createBuffer(BufferDescriptor{
 				.size  = bitangentSize,
-				.type  = Renderer::E_BufferType::Vertex,
-				.usage = Renderer::E_ResourceUsage::Immutable,
+				.type  = E_BufferType::Vertex,
+				.usage = E_ResourceUsage::Immutable,
 			});
 			renderer.SetBufferData(meshContainer.m_BitangentHandle, bitangentSize, mesh.bitangent.data());
 		}
@@ -113,14 +111,14 @@ void C_StaticMeshHandles::Update()
 }
 
 //=================================================================================
-void C_StaticMeshHandles::Render(Renderer::Renderer3D& renderer) const
+void C_StaticMeshHandles::Render(Renderer3D& renderer) const
 {
 	if (m_MeshResource.IsReady())
 	{
 		for (auto& meshContainer : m_Meshes)
 		{
 			// needs pipeline as well
-			renderer.Draw(Renderer::RenderCall3D{
+			renderer.Draw(RenderCall3D{
 				.ModelMatrix   = GetComponentModelMatrix(),
 				.MaterialIndex = 0,
 				.Buffers
@@ -131,4 +129,4 @@ void C_StaticMeshHandles::Render(Renderer::Renderer3D& renderer) const
 	}
 }
 
-} // namespace GLEngine::GLRenderer
+} // namespace GLEngine::Renderer
