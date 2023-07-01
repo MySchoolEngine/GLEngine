@@ -113,7 +113,7 @@ Renderer::Handle<Renderer::Texture> C_VkResourceManager::createTexture(const Ren
 
 		vkBindImageMemory(m_device->GetVkDevice(), texture->textureImage, texture->textureImageMemory, 0);
 
-		m_device->CreateView(texture->textureImageView, handle); 
+		m_device->CreateView(texture->textureImageView, handle, *this); 
 	}
 
 	return handle;

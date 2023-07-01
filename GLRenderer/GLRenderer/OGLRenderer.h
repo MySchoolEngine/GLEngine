@@ -1,5 +1,7 @@
 #pragma once
 
+#include <GLRenderer/GLResourceManager.h>
+
 #include <Renderer/IRenderer.h>
 
 #include <GUI/Input/Button.h>
@@ -47,9 +49,12 @@ public:
 	virtual Renderer::E_PassType GetCurrentPassType() const override;
 	virtual void				 SetCurrentPassType(Renderer::E_PassType type) override;
 
-	bool WantWireframe() const { return m_Wireframe.GetValue(); }
+	bool						WantWireframe() const { return m_Wireframe.GetValue(); }
 	virtual Renderer::I_Device& GetDevice() override;
 	void						SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer, std::size_t numBytes, const void* data) override;
+
+	Renderer::ResouceManager& GetRM() override;
+	GLResourceManager&		  GetRMGL();
 
 private:
 	void CaputreCommands() const;
@@ -66,6 +71,8 @@ private:
 	bool											 m_OutputCommandList = false;
 	bool											 m_PreviousCatchErrorsVal;
 	Renderer::E_PassType							 m_CurrentPass;
+
+	GLResourceManager m_GPUResourceManager;
 
 	C_GLDevice& m_Device;
 

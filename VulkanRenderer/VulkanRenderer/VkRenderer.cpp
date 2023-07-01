@@ -17,6 +17,7 @@ C_VkRenderer::C_VkRenderer(VkInstance instance, VkSurfaceKHR surface)
 	, m_Instance(instance)
 {
 	InitDevice(surface);
+	m_GPUResourceManager.Init(&m_Device);
 	InitDefaultCommandPool();
 }
 
@@ -248,7 +249,7 @@ void C_VkRenderer::CopyBuffer(VkBuffer srcBuffer, Renderer::Handle<Renderer::Buf
 		.size	   = size,
 	};
 
-	C_VkBuffer* pdstBuffer = m_Device.GetRM().GetBuffer(dstBuffer);
+	C_VkBuffer* pdstBuffer = m_GPUResourceManager.GetBuffer(dstBuffer);
 	GLE_ASSERT(pdstBuffer, "buffer not found");
 
 	vkCmdCopyBuffer(commandBuffer, srcBuffer, pdstBuffer->GetBuffer(), 1, &copyRegion);
@@ -275,7 +276,7 @@ void C_VkRenderer::CopyImageResource(Renderer::Handle<Renderer::Texture> dstText
 	memcpy(data, storage.GetData(), static_cast<size_t>(imageSize));
 	vkUnmapMemory(GetDeviceVK(), stagingBufferMemory);
 
-	C_VkTexture* pdstTexture = m_Device.GetRM().GetTexture(dstTexture);
+	C_VkTexture* pdstTexture = m_GPUResourceManager.GetTexture(dstTexture);
 
 	// formats should be deduced from desc
 	TransitionImageLayout(pdstTexture->textureImage, GetTextureFormat(pdstTexture->m_Desc.format), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, commandPool);
@@ -411,7 +412,7 @@ VkQueue C_VkRenderer::GetTransferQueue() const
 //=================================================================================
 void C_VkRenderer::SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer, std::size_t numBytes, const void* data)
 {
-	auto* buffer = m_Device.GetRM().GetBuffer(dstBuffer);
+	auto* buffer = m_GPUResourceManager.GetBuffer(dstBuffer);
 	if (buffer->GetDesc().usage == Renderer::E_ResourceUsage::Persistent) {
 		buffer->UploadData(data, numBytes);
 		return;
@@ -430,6 +431,18 @@ void C_VkRenderer::SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer, s
 
 	vkDestroyBuffer(GetDeviceVK(), stagingBuffer, nullptr);
 	vkFreeMemory(GetDeviceVK(), stagingBufferMemory, nullptr);
+}
+
+//=================================================================================
+Renderer::ResouceManager& C_VkRenderer::GetRM()
+{
+	return m_GPUResourceManager;
+}
+
+//=================================================================================
+C_VkResourceManager& C_VkRenderer::GetRMVK()
+{
+	return m_GPUResourceManager;
 }
 
 } // namespace GLEngine::VkRenderer

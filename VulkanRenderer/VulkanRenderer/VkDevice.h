@@ -19,7 +19,7 @@ public:
 
 	void Init(VkDevice_T* device, VkPhysicalDevice_T* gpu);
 
-	bool CreateView(VkImageView& result, Renderer::Handle<Renderer::Texture> texture);
+	bool CreateView(VkImageView& result, Renderer::Handle<Renderer::Texture> texture, C_VkResourceManager& rm);
 
 	VkDevice_T* GetVkDevice() { return m_Device; }
 
@@ -35,12 +35,8 @@ public:
 	SwapChainSupportDetails QuerySwapChainSupport(VkSurfaceKHR surface);
 	uint32_t				findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
-	C_VkResourceManager& GetRM();
-
 private:
 	VkDevice_T*			m_Device = nullptr;
 	VkPhysicalDevice_T* m_GPU	 = nullptr;
-
-	C_VkResourceManager m_GPUResourceManager;
 };
 } // namespace GLEngine::VkRenderer

@@ -50,6 +50,9 @@ public:
 	void CopyBufferToImage(VkBuffer srcBuffer, VkImage image, uint32_t width, uint32_t height, VkCommandPool& commandPool);
 	void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, VkCommandPool& commandPool);
 
+	Renderer::ResouceManager& GetRM() override;
+	C_VkResourceManager& GetRMVK();
+
 private:
 	bool											 m_Locked = false;
 	std::vector<Renderer::I_Renderer::T_CommandPtr>* m_CommandQueue;
@@ -66,7 +69,8 @@ private:
 	VkQueue m_TransferQueue;
 	VkQueue m_presentQueue;
 
-	VkCommandPool m_DefaultCommandPool;
+	VkCommandPool		m_DefaultCommandPool;
+	C_VkResourceManager m_GPUResourceManager;
 
 	bool								 InitDevice(VkSurfaceKHR surface);
 	bool								 InitDefaultCommandPool();

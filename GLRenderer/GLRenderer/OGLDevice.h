@@ -1,7 +1,5 @@
 #pragma once
 
-#include <GLRenderer/GLResourceManager.h>
-
 #include <Renderer/IDevice.h>
 
 namespace GLEngine::GLRenderer {
@@ -23,7 +21,6 @@ public:
 	[[nodiscard]] virtual bool AllocateSampler(Renderer::I_TextureSampler2D& texture) override;
 	virtual void			   DestroySampler(Renderer::I_TextureSampler2D& texture) override;
 
-	GLResourceManager& GetRM();
 private:
 	[[nodiscard]] bool HasExtension(const std::string_view ext) const;
 
@@ -32,8 +29,5 @@ private:
 
 	std::size_t m_TextureBudget;
 	std::size_t m_TextureMemoryUsed;
-
-
-	GLResourceManager m_GPUResourceManager;
 };
 } // namespace GLEngine::GLRenderer

@@ -76,4 +76,10 @@ void C_D3D12Renderer::SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
+//=================================================================================
+Renderer::ResouceManager& C_D3D12Renderer::GetRM()
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 } // namespace GLEngine::DX12Renderer

@@ -1,11 +1,11 @@
 #include <GLRendererStdafx.h>
 
+#include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/GLRenderInterface.h>
 #include <GLRenderer/GLResourceManager.h>
-#include <GLRenderer/OGLDevice.h>
+#include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
-#include <GLRenderer/Commands/HACK/LambdaCommand.h>
 
 #include <Renderer/IRenderer.h>
 
@@ -31,8 +31,7 @@ C_GLRenderInterface::~C_GLRenderInterface()
 void C_GLRenderInterface::Render(const Renderer::RenderCall3D& call)
 {
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
-	auto& device = static_cast<C_GLDevice&>(Core::C_Application::Get().GetActiveRenderer().GetDevice());
-	auto& glRM =  device.GetRM();
+	auto& glRM	   = static_cast<C_OGLRenderer&>(renderer).GetRMGL();
 
 	// bind shader, UBOs
 	Shaders::C_ShaderManager& shm = Shaders::C_ShaderManager::Instance();
@@ -54,7 +53,8 @@ void C_GLRenderInterface::Render(const Renderer::RenderCall3D& call)
 			PositionsBuffer->unbind();
 
 			glBindVertexArray(0);
-		}, "handles"));
+		},
+		"handles"));
 }
 
 } // namespace GLEngine::GLRenderer

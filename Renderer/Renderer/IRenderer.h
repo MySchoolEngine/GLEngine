@@ -7,6 +7,7 @@
 namespace GLEngine::Renderer {
 
 class I_Device;
+class ResouceManager;
 
 enum class E_PassType
 {
@@ -56,7 +57,8 @@ public:
 	 ** ==============================================*/
 	virtual void SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer, std::size_t numBytes, const void* data) = 0;
 
-	virtual I_Device& GetDevice() = 0;
+	virtual I_Device&				  GetDevice() = 0;
+	virtual Renderer::ResouceManager& GetRM()	  = 0;
 
 	virtual E_PassType GetCurrentPassType() const = 0;
 	virtual void	   SetCurrentPassType(Renderer::E_PassType type) {}

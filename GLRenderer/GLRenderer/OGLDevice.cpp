@@ -194,10 +194,4 @@ Renderer::I_Device::T_TextureHandle C_GLDevice::CreateTextureHandle(const Render
 	return std::make_shared<Textures::C_Texture>(desc);
 }
 
-//=================================================================================
-GLResourceManager& C_GLDevice::GetRM()
-{
-	return m_GPUResourceManager;
-}
-
 } // namespace GLEngine::GLRenderer

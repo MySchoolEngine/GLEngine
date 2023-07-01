@@ -76,13 +76,13 @@ C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
 //=================================================================================
 C_VkWindow::~C_VkWindow()
 {
-	GetVkDevice().GetRM().destroyBuffer(m_PositionsHandle);
-	GetVkDevice().GetRM().destroyBuffer(m_NormalsHandle);
-	GetVkDevice().GetRM().destroyBuffer(m_TexCoordHandle);
-	GetVkDevice().GetRM().destroyBuffer(m_IndexHandle);
+	GetRenderer().GetRM().destroyBuffer(m_PositionsHandle);
+	GetRenderer().GetRM().destroyBuffer(m_NormalsHandle);
+	GetRenderer().GetRM().destroyBuffer(m_TexCoordHandle);
+	GetRenderer().GetRM().destroyBuffer(m_IndexHandle);
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
-		GetVkDevice().GetRM().destroyBuffer(m_UniformBuffers[i]);
+		GetRenderer().GetRM().destroyBuffer(m_UniformBuffers[i]);
 	}
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
@@ -101,9 +101,9 @@ C_VkWindow::~C_VkWindow()
 	m_Pipeline.destroy(m_renderer->GetDevice());
 	m_renderer.reset(nullptr);
 	// image cleanup
-	const auto* texture = GetVkDevice().GetRM().GetTexture(m_GPUTextureHandle);
-	GetVkDevice().GetRM().destroySampler(texture->GetSampler());
-	GetVkDevice().GetRM().destoryTexture(m_GPUTextureHandle);
+	const auto* texture = m_renderer->GetRMVK().GetTexture(m_GPUTextureHandle);
+	GetRenderer().GetRM().destroySampler(texture->GetSampler());
+	GetRenderer().GetRM().destoryTexture(m_GPUTextureHandle);
 };
 
 //=================================================================================
@@ -473,9 +473,9 @@ void C_VkWindow::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t ima
 	const VkRect2D scissor{.offset = {0, 0}, .extent = {viewport.GetResolution().x, viewport.GetResolution().y}};
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-	C_VkBuffer* pPosBuffer		= GetVkDevice().GetRM().GetBuffer(m_PositionsHandle);
-	C_VkBuffer* pNorBuffer		= GetVkDevice().GetRM().GetBuffer(m_NormalsHandle);
-	C_VkBuffer* pTexCoordBuffer = GetVkDevice().GetRM().GetBuffer(m_TexCoordHandle);
+	C_VkBuffer* pPosBuffer		= m_renderer->GetRMVK().GetBuffer(m_PositionsHandle);
+	C_VkBuffer* pNorBuffer		= m_renderer->GetRMVK().GetBuffer(m_NormalsHandle);
+	C_VkBuffer* pTexCoordBuffer = m_renderer->GetRMVK().GetBuffer(m_TexCoordHandle);
 
 	GLE_ASSERT(pPosBuffer && pNorBuffer && pTexCoordBuffer, "Buffers not created");
 
@@ -540,7 +540,7 @@ void C_VkWindow::CreateVertexBuffer()
 	{
 		VkDeviceSize bufferSize = sizeof(mesh.vertices[0]) * mesh.vertices.size();
 
-		m_PositionsHandle = GetVkDevice().GetRM().createBuffer(Renderer::BufferDescriptor{
+		m_PositionsHandle = m_renderer->GetRM().createBuffer(Renderer::BufferDescriptor{
 			.size  = static_cast<uint32_t>(bufferSize),
 			.type  = Renderer::E_BufferType::Vertex,
 			.usage = Renderer::E_ResourceUsage::Immutable,
@@ -553,7 +553,7 @@ void C_VkWindow::CreateVertexBuffer()
 	{
 		VkDeviceSize bufferSize = sizeof(mesh.normals[0]) * mesh.normals.size();
 
-		m_NormalsHandle = GetVkDevice().GetRM().createBuffer(Renderer::BufferDescriptor{
+		m_NormalsHandle = GetRenderer().GetRM().createBuffer(Renderer::BufferDescriptor{
 			.size  = static_cast<uint32_t>(bufferSize),
 			.type  = Renderer::E_BufferType::Vertex,
 			.usage = Renderer::E_ResourceUsage::Immutable,
@@ -566,7 +566,7 @@ void C_VkWindow::CreateVertexBuffer()
 	{
 		VkDeviceSize bufferSize = sizeof(mesh.texcoords[0]) * mesh.texcoords.size();
 
-		m_TexCoordHandle = GetVkDevice().GetRM().createBuffer(Renderer::BufferDescriptor{
+		m_TexCoordHandle = GetRenderer().GetRM().createBuffer(Renderer::BufferDescriptor{
 			.size  = static_cast<uint32_t>(bufferSize),
 			.type  = Renderer::E_BufferType::Vertex,
 			.usage = Renderer::E_ResourceUsage::Immutable,
@@ -582,7 +582,7 @@ void C_VkWindow::CreateIndexBuffer()
 	const std::vector<uint16_t> indices	   = {0, 1, 2, 2, 3, 0};
 	VkDeviceSize				bufferSize = sizeof(indices[0]) * indices.size();
 
-	m_IndexHandle = GetVkDevice().GetRM().createBuffer(Renderer::BufferDescriptor{
+	m_IndexHandle = GetRenderer().GetRM().createBuffer(Renderer::BufferDescriptor{
 		.size  = static_cast<uint32_t>(bufferSize),
 		.type  = Renderer::E_BufferType::Index,
 		.usage = Renderer::E_ResourceUsage::Immutable,
@@ -598,7 +598,7 @@ void C_VkWindow::CreateUniformBuffers()
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
-		m_UniformBuffers[i] = GetVkDevice().GetRM().createBuffer(Renderer::BufferDescriptor{
+		m_UniformBuffers[i] = GetRenderer().GetRM().createBuffer(Renderer::BufferDescriptor{
 			.size  = static_cast<uint32_t>(bufferSize),
 			.type  = Renderer::E_BufferType::Uniform,
 			.usage = Renderer::E_ResourceUsage::Persistent,
@@ -666,14 +666,14 @@ void C_VkWindow::CreateDescriptorSets()
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
-		C_VkBuffer*					 uniformBuffer = GetVkDevice().GetRM().GetBuffer(m_UniformBuffers[i]);
+		C_VkBuffer*					 uniformBuffer = m_renderer->GetRMVK().GetBuffer(m_UniformBuffers[i]);
 		const VkDescriptorBufferInfo bufferInfo{
 			.buffer = uniformBuffer->GetBuffer(),
 			.offset = 0,
 			.range	= sizeof(UniformBufferObject),
 		};
-		const auto*					texture = GetVkDevice().GetRM().GetTexture(m_GPUTextureHandle);
-		const auto*					sampler = GetVkDevice().GetRM().GetSampler(texture->GetSampler());
+		const auto*					texture = m_renderer->GetRMVK().GetTexture(m_GPUTextureHandle);
+		const auto*					sampler = m_renderer->GetRMVK().GetSampler(texture->GetSampler());
 		const VkDescriptorImageInfo imageInfo{
 			.sampler	 = sampler->GetVkSampler(),
 			.imageView	 = texture->GetView(),
@@ -730,21 +730,22 @@ void C_VkWindow::CreateTexture()
 											.format		   = Renderer::GetClosestFormat(storage.GetChannels(), !Renderer::IsIntegral(storage.GetStorageType())),
 											.m_bStreamable = false};
 
-	m_GPUTextureHandle = GetVkDevice().GetRM().createTexture(textureDesc);
+	m_GPUTextureHandle = GetRenderer().GetRM().createTexture(textureDesc);
 	m_renderer->CopyImageResource(m_GPUTextureHandle, m_TextureHandle, m_CommandPool);
 }
 
 //=================================================================================
 void C_VkWindow::CreateTextureSampler()
 {
-	auto GPUSamplerHandle = GetVkDevice().GetRM().createSampler(Renderer::SamplerDescriptor2D{
+	auto GPUSamplerHandle = m_renderer->GetRM().createSampler(Renderer::SamplerDescriptor2D{
 		.m_FilterMin = Renderer::E_TextureFilter::Linear,
 		.m_FilterMag = Renderer::E_TextureFilter::Linear,
 		.m_WrapS	 = Renderer ::E_WrapFunction::Repeat,
 		.m_WrapT	 = Renderer ::E_WrapFunction::Repeat,
 		.m_WrapU	 = Renderer ::E_WrapFunction::Repeat,
 	});
-	if (auto* texture = GetVkDevice().GetRM().GetTexture(m_GPUTextureHandle)) {
+	if (auto* texture = m_renderer->GetRMVK().GetTexture(m_GPUTextureHandle))
+	{
 		texture->SetSampler(GPUSamplerHandle);
 	}
 }
