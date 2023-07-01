@@ -10,7 +10,10 @@
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/Components/SkeletalMesh.h>
 #include <GLRenderer/Components/SkyBox.h>
+#include <GLRenderer/Components/StaticMeshHandles.h>
 #include <GLRenderer/Debug.h>
+#include <GLRenderer/GLResourceManager.h>
+#include <GLRenderer/GLRenderInterface.h>
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 #include <GLRenderer/ImGui/GLImGUILayer.h>
 #include <GLRenderer/Materials/MaterialBuffer.h>
@@ -135,6 +138,9 @@ void C_ExplerimentWindow::Update()
 	const auto camera = m_CamManager.GetActiveCamera();
 	GLE_ASSERT(camera, "No active camera");
 
+	handlesMesh->Update();
+	handlesMesh->Render(m_3DRenderer);
+
 	// ======
 	// Sun shadow
 	// ======
@@ -155,6 +161,10 @@ void C_ExplerimentWindow::Update()
 	// ======
 	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
 	m_MainPass->Render(*m_World.get(), camera, GetWidth(), GetHeight());
+	{
+		RenderDoc::C_DebugScope s("Handles draw");
+		m_3DRenderer.Commit(*m_RenderInterfaceHandles.get());
+	}
 	m_HDRFBO->Unbind<E_FramebufferTarget::Draw>();
 
 	// ======
@@ -277,6 +287,8 @@ void C_ExplerimentWindow::OnAppInit()
 
 	m_RenderInterface
 		= std::make_unique<C_RenderInterface>(Shaders::C_ShaderManager::Instance(), Textures::C_TextureUnitManger::Instance(), *static_cast<C_OGLRenderer*>(m_renderer.get()));
+
+	m_RenderInterfaceHandles = std::make_unique<C_GLRenderInterface>();
 
 	SetupWorld("Levels/cornellBox.xml");
 
@@ -552,6 +564,13 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 		skeletalMesh->SetComponentMatrix(glm::translate(glm::mat4{1.f}, glm::vec3(0, -1, 0)) * glm::rotate(glm::half_pi<float>(), glm::vec3(1.f, .0f, .0f))
 										 * glm::scale(glm::vec3{0.2f}));
 		runner->AddComponent(skeletalMesh);
+	}
+
+	auto staticMeshHandle = m_World->GetOrCreateEntity("handles");
+	{
+		handlesMesh = std::make_shared<C_StaticMeshHandles>();
+		handlesMesh->SetParent(staticMeshHandle);
+		staticMeshHandle->AddComponent(handlesMesh);
 	}
 
 
