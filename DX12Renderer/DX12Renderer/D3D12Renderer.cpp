@@ -38,30 +38,6 @@ void C_D3D12Renderer::AddCommand(T_CommandPtr command)
 }
 
 //=================================================================================
-void C_D3D12Renderer::AddBatch(T_BatchPtr)
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-//=================================================================================
-void C_D3D12Renderer::SortCommands()
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-//=================================================================================
-void C_D3D12Renderer::ExtractData()
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-//=================================================================================
-void C_D3D12Renderer::TransformData()
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-//=================================================================================
 void C_D3D12Renderer::Commit() const
 {
 	for (auto& command : (*m_CommandQueue))
@@ -90,6 +66,12 @@ void C_D3D12Renderer::AddTransferCommand(T_CommandPtr)
 
 //=================================================================================
 Renderer::I_Device& C_D3D12Renderer::GetDevice()
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+//=================================================================================
+void C_D3D12Renderer::SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer, std::size_t numBytes, const void* data)
 {
 	throw std::logic_error("The method or operation is not implemented.");
 }

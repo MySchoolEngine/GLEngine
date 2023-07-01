@@ -240,7 +240,6 @@ void C_ExplerimentWindow::Update()
 	}
 
 	// commit of final commands - from commit few lines above
-	m_renderer->SortCommands();
 	m_renderer->Commit();
 	m_renderer->ClearCommandBuffers();
 	glfwSwapBuffers(m_Window);

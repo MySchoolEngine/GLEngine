@@ -23,10 +23,6 @@ public:
 	//=================================================
 	virtual void Lock(bool lock = true) override;
 	virtual void AddCommand(T_CommandPtr) override;
-	virtual void AddBatch(T_BatchPtr) override;
-	virtual void SortCommands() override;
-	virtual void ExtractData() override;
-	virtual void TransformData() override;
 	virtual void Commit() const override;
 	virtual void ClearCommandBuffers() override;
 	virtual void AddTransferCommand(T_CommandPtr) override;
@@ -45,6 +41,8 @@ public:
 	VkQueue	 GetGraphicsQueue() const;
 	VkQueue	 GetTransferQueue() const;
 	VkQueue	 GetPresentationQueue() const;
+
+	void SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer, std::size_t numBytes, const void* data) override;
 
 	void CopyBuffer(VkBuffer srcBuffer, Renderer::Handle<Renderer::Buffer> dstBuffer, VkDeviceSize size, VkCommandPool& commandPool);
 	// copy whole image, blocking operation, should go to async, have options to copy just parts of image etc.
@@ -68,7 +66,10 @@ private:
 	VkQueue m_TransferQueue;
 	VkQueue m_presentQueue;
 
+	VkCommandPool m_DefaultCommandPool;
+
 	bool								 InitDevice(VkSurfaceKHR surface);
+	bool								 InitDefaultCommandPool();
 	std::vector<VkDeviceQueueCreateInfo> CreatePresentingQueueInfos();
 
 	VkCommandBuffer BeginSingleTimeCommands(VkCommandPool& commandPool);

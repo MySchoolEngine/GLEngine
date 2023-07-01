@@ -76,30 +76,6 @@ void C_OGLRenderer::AddTransferCommand(T_CommandPtr command)
 }
 
 //=================================================================================
-void C_OGLRenderer::AddBatch(Renderer::I_Renderer::T_BatchPtr batc)
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-//=================================================================================
-void C_OGLRenderer::SortCommands()
-{
-	// todo: no sorting for now
-}
-
-//=================================================================================
-void C_OGLRenderer::ExtractData()
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-//=================================================================================
-void C_OGLRenderer::TransformData()
-{
-	// todo: no extraction for now
-}
-
-//=================================================================================
 void C_OGLRenderer::Commit() const
 {
 	{
@@ -243,6 +219,17 @@ void C_OGLRenderer::CaputreCommands() const
 GLEngine::Renderer::I_Device& C_OGLRenderer::GetDevice()
 {
 	return m_Device;
+}
+
+//=================================================================================
+void C_OGLRenderer::SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer, std::size_t numBytes, const void* data)
+{
+	auto* buffer = m_Device.GetRM().GetBuffer(dstBuffer);
+	GLE_ASSERT(buffer->GetDesc().usage != Renderer::E_ResourceUsage::Persistent, "Not implemented");
+	GLE_ASSERT(buffer, "Buffer does not exist");
+	buffer->bind();
+	glBufferData(buffer->GetType(), buffer->GetSize(), data, buffer->GetUsage());
+	buffer->unbind();
 }
 
 } // namespace GLEngine::GLRenderer

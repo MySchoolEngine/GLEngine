@@ -23,8 +23,6 @@ public:
 	[[nodiscard]] virtual bool AllocateSampler(Renderer::I_TextureSampler2D& texture) override;
 	virtual void			   DestroySampler(Renderer::I_TextureSampler2D& texture) override;
 
-	void SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer, void* data);
-
 	GLResourceManager& GetRM();
 private:
 	[[nodiscard]] bool HasExtension(const std::string_view ext) const;

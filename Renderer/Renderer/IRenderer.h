@@ -2,6 +2,7 @@
 
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
+#include <Renderer/Resources/RenderResourceHandle.h>
 
 namespace GLEngine::Renderer {
 
@@ -33,31 +34,6 @@ public:
 	virtual void Lock(bool lock = true)			  = 0;
 	virtual void AddCommand(T_CommandPtr)		  = 0;
 	virtual void AddTransferCommand(T_CommandPtr) = 0;
-	virtual void AddBatch(T_BatchPtr)			  = 0;
-
-	/** ==============================================
-	 * @method:    SortCommands
-	 * @return:    void
-	 * @brief	   Reorganize all commands for better performance
-	 ** ==============================================*/
-	virtual void SortCommands() = 0;
-
-	/** ==============================================
-	 * @method:    ExtractData
-	 * @return:    void
-	 * @brief	   By now we should have all commands to render the frame
-	 *			   and we start with extraction of I_RawGPUData
-	 ** ==============================================*/
-	virtual void ExtractData() = 0;
-
-	/** ==============================================
-	 * @method:    TransformData
-	 * @return:    void
-	 * @brief	   After we collected all data, we have time to transform them
-	 *			   in this time the simulation thread is free to change
-	 *			   it's renderable data
-	 ** ==============================================*/
-	virtual void TransformData() = 0;
 
 	/** ==============================================
 	 * @method:    Commit
@@ -72,6 +48,13 @@ public:
 	 * @brief	   Should be called at the end of frame.
 	 ** ==============================================*/
 	virtual void ClearCommandBuffers() = 0;
+
+	/** ==============================================
+	 * @method:    SetBufferData
+	 * @return:    void
+	 * @brief	   Copy data into GPU buffer.
+	 ** ==============================================*/
+	virtual void SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer, std::size_t numBytes, const void* data) = 0;
 
 	virtual I_Device& GetDevice() = 0;
 

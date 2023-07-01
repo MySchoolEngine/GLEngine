@@ -11,7 +11,9 @@ public:
 
 	VkBuffer& GetBuffer();
 
-	void UploadData(void* data, std::size_t size);
+	void UploadData(const void* data, std::size_t size);
+
+	const Renderer::BufferDescriptor& GetDesc() const;
 
 private:
 	Renderer::BufferDescriptor m_desc;

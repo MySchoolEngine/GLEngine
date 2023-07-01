@@ -540,41 +540,18 @@ void C_VkWindow::CreateVertexBuffer()
 	{
 		VkDeviceSize bufferSize = sizeof(mesh.vertices[0]) * mesh.vertices.size();
 
-		VkBuffer	   stagingBuffer;
-		VkDeviceMemory stagingBufferMemory;
-		GetVkDevice().CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
-								   stagingBufferMemory);
-
-		void* data;
-		vkMapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, mesh.vertices.data(), (size_t)bufferSize);
-		vkUnmapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory);
-
 		m_PositionsHandle = GetVkDevice().GetRM().createBuffer(Renderer::BufferDescriptor{
 			.size  = static_cast<uint32_t>(bufferSize),
 			.type  = Renderer::E_BufferType::Vertex,
 			.usage = Renderer::E_ResourceUsage::Immutable,
 		});
 
-		m_renderer->CopyBuffer(stagingBuffer, m_PositionsHandle, bufferSize, m_CommandPool);
-
-		vkDestroyBuffer(m_renderer->GetDeviceVK(), stagingBuffer, nullptr);
-		vkFreeMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, nullptr);
+		m_renderer->SetBufferData(m_PositionsHandle, bufferSize, mesh.vertices.data());
 	}
 
 	// normals
 	{
 		VkDeviceSize bufferSize = sizeof(mesh.normals[0]) * mesh.normals.size();
-
-		VkBuffer	   stagingBuffer;
-		VkDeviceMemory stagingBufferMemory;
-		GetVkDevice().CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
-								   stagingBufferMemory);
-
-		void* data;
-		vkMapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, mesh.normals.data(), (size_t)bufferSize);
-		vkUnmapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory);
 
 		m_NormalsHandle = GetVkDevice().GetRM().createBuffer(Renderer::BufferDescriptor{
 			.size  = static_cast<uint32_t>(bufferSize),
@@ -582,25 +559,12 @@ void C_VkWindow::CreateVertexBuffer()
 			.usage = Renderer::E_ResourceUsage::Immutable,
 		});
 
-		m_renderer->CopyBuffer(stagingBuffer, m_NormalsHandle, bufferSize, m_CommandPool);
-
-		vkDestroyBuffer(m_renderer->GetDeviceVK(), stagingBuffer, nullptr);
-		vkFreeMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, nullptr);
+		m_renderer->SetBufferData(m_NormalsHandle, bufferSize, mesh.normals.data());
 	}
 
 	// UVs
 	{
 		VkDeviceSize bufferSize = sizeof(mesh.texcoords[0]) * mesh.texcoords.size();
-
-		VkBuffer	   stagingBuffer;
-		VkDeviceMemory stagingBufferMemory;
-		GetVkDevice().CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
-								   stagingBufferMemory);
-
-		void* data;
-		vkMapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, mesh.texcoords.data(), (size_t)bufferSize);
-		vkUnmapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory);
 
 		m_TexCoordHandle = GetVkDevice().GetRM().createBuffer(Renderer::BufferDescriptor{
 			.size  = static_cast<uint32_t>(bufferSize),
@@ -608,10 +572,7 @@ void C_VkWindow::CreateVertexBuffer()
 			.usage = Renderer::E_ResourceUsage::Immutable,
 		});
 
-		m_renderer->CopyBuffer(stagingBuffer, m_TexCoordHandle, bufferSize, m_CommandPool);
-
-		vkDestroyBuffer(m_renderer->GetDeviceVK(), stagingBuffer, nullptr);
-		vkFreeMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, nullptr);
+		m_renderer->SetBufferData(m_NormalsHandle, bufferSize, mesh.normals.data());
 	}
 }
 
@@ -621,26 +582,12 @@ void C_VkWindow::CreateIndexBuffer()
 	const std::vector<uint16_t> indices	   = {0, 1, 2, 2, 3, 0};
 	VkDeviceSize				bufferSize = sizeof(indices[0]) * indices.size();
 
-	VkBuffer	   stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
-	GetVkDevice().CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
-							   stagingBufferMemory);
-
-	void* data;
-	vkMapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, 0, bufferSize, 0, &data);
-	memcpy(data, indices.data(), (size_t)bufferSize);
-	vkUnmapMemory(m_renderer->GetDeviceVK(), stagingBufferMemory);
-
 	m_IndexHandle = GetVkDevice().GetRM().createBuffer(Renderer::BufferDescriptor{
 		.size  = static_cast<uint32_t>(bufferSize),
 		.type  = Renderer::E_BufferType::Index,
 		.usage = Renderer::E_ResourceUsage::Immutable,
 	});
-
-	m_renderer->CopyBuffer(stagingBuffer, m_IndexHandle, bufferSize, m_CommandPool);
-
-	vkDestroyBuffer(m_renderer->GetDeviceVK(), stagingBuffer, nullptr);
-	vkFreeMemory(m_renderer->GetDeviceVK(), stagingBufferMemory, nullptr);
+	m_renderer->SetBufferData(m_NormalsHandle, bufferSize, indices.data());
 }
 
 //=================================================================================
@@ -673,7 +620,7 @@ void C_VkWindow::UpdateUniformBuffer(uint32_t currentImage)
 	ubo.proj  = glm::perspective(glm::radians(45.0f), m_SwapChainExtent.width / (float)m_SwapChainExtent.height, 0.1f, 10.0f);
 	ubo.proj[1][1] *= -1;
 
-	GetVkDevice().GetRM().GetBuffer(m_UniformBuffers[currentImage])->UploadData(&ubo, sizeof(ubo));
+	m_renderer->SetBufferData(m_UniformBuffers[currentImage], sizeof(ubo), &ubo);
 }
 
 //=================================================================================

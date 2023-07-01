@@ -19,6 +19,7 @@ project "GLFWWindowManager"
 		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmt}",
+		"%{wks.location}/%{IncludeDir.slot_map}",
 	}
 
 	links 

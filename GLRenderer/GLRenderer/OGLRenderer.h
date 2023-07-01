@@ -31,12 +31,8 @@ public:
 	// Renderer::I_Renderer
 	//=================================================================================
 	virtual void AddCommand(Renderer::I_Renderer::T_CommandPtr) override;
-	virtual void AddTransferCommand(T_CommandPtr) override;
-	virtual void AddBatch(Renderer::I_Renderer::T_BatchPtr) override;
+	virtual void AddTransferCommand(T_CommandPtr) override; //< obsolete
 
-	virtual void SortCommands() override;
-	virtual void ExtractData() override;
-	virtual void TransformData() override;
 	virtual void Commit() const override;
 	virtual void ClearCommandBuffers() override;
 
@@ -53,6 +49,7 @@ public:
 
 	bool WantWireframe() const { return m_Wireframe.GetValue(); }
 	virtual Renderer::I_Device& GetDevice() override;
+	void						SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer, std::size_t numBytes, const void* data) override;
 
 private:
 	void CaputreCommands() const;

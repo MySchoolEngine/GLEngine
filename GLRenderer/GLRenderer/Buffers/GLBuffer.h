@@ -24,6 +24,8 @@ public:
 	{
 	}
 
+	const Renderer::BufferDescriptor& GetDesc() const { return desc; }
+
 	GLenum GetType() const;
 	GLenum GetUsage() const;
 	uint32_t GetSize() const;

@@ -17,11 +17,13 @@ C_VkRenderer::C_VkRenderer(VkInstance instance, VkSurfaceKHR surface)
 	, m_Instance(instance)
 {
 	InitDevice(surface);
+	InitDefaultCommandPool();
 }
 
 //=================================================================================
 C_VkRenderer::~C_VkRenderer()
 {
+	vkDestroyCommandPool(GetDeviceVK(), m_DefaultCommandPool, nullptr);
 	vkDestroyDevice(m_VkDevice, nullptr);
 	delete m_CommandQueue;
 }
@@ -40,30 +42,6 @@ void C_VkRenderer::AddCommand(T_CommandPtr command)
 		__debugbreak();
 	}
 	m_CommandQueue->emplace_back(std::move(command));
-}
-
-//=================================================================================
-void C_VkRenderer::AddBatch(T_BatchPtr)
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-//=================================================================================
-void C_VkRenderer::SortCommands()
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-//=================================================================================
-void C_VkRenderer::ExtractData()
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-//=================================================================================
-void C_VkRenderer::TransformData()
-{
-	throw std::logic_error("The method or operation is not implemented.");
 }
 
 //=================================================================================
@@ -162,6 +140,23 @@ bool C_VkRenderer::InitDevice(VkSurfaceKHR surface)
 
 	m_Device.Init(m_VkDevice, gpu);
 
+	return true;
+}
+
+//=================================================================================
+bool C_VkRenderer::InitDefaultCommandPool()
+{
+	const VkCommandPoolCreateInfo poolInfo{
+		.sType			  = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+		.flags			  = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+		.queueFamilyIndex = GetGraphicsFamilyIndex(),
+	};
+
+	if (const auto result = vkCreateCommandPool(GetDeviceVK(), &poolInfo, nullptr, &m_DefaultCommandPool) != VK_SUCCESS)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "Failed to create command pool. {}", result);
+		return false;
+	}
 	return true;
 }
 
@@ -411,6 +406,30 @@ void C_VkRenderer::EndSigneTimeCommands(VkCommandBuffer& commandBuffer, VkComman
 VkQueue C_VkRenderer::GetTransferQueue() const
 {
 	return m_TransferQueue;
+}
+
+//=================================================================================
+void C_VkRenderer::SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer, std::size_t numBytes, const void* data)
+{
+	auto* buffer = m_Device.GetRM().GetBuffer(dstBuffer);
+	if (buffer->GetDesc().usage == Renderer::E_ResourceUsage::Persistent) {
+		buffer->UploadData(data, numBytes);
+		return;
+	}
+	VkBuffer	   stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	m_Device.CreateBuffer(numBytes, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
+							   stagingBufferMemory);
+
+	void* dataDst;
+	vkMapMemory(GetDeviceVK(), stagingBufferMemory, 0, numBytes, 0, &dataDst);
+	memcpy(dataDst, data, (size_t)numBytes);
+	vkUnmapMemory(GetDeviceVK(), stagingBufferMemory);
+
+	CopyBuffer(stagingBuffer, dstBuffer, numBytes, m_DefaultCommandPool);
+
+	vkDestroyBuffer(GetDeviceVK(), stagingBuffer, nullptr);
+	vkFreeMemory(GetDeviceVK(), stagingBufferMemory, nullptr);
 }
 
 } // namespace GLEngine::VkRenderer

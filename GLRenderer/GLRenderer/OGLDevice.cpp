@@ -195,16 +195,6 @@ Renderer::I_Device::T_TextureHandle C_GLDevice::CreateTextureHandle(const Render
 }
 
 //=================================================================================
-void C_GLDevice::SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer, void* data)
-{
-	auto* buffer = m_GPUResourceManager.GetBuffer(dstBuffer);
-	GLE_ASSERT(buffer, "Buffer does not exist");
-	buffer->bind();
-	glBufferData(buffer->GetType(), buffer->GetSize(), data, buffer->GetUsage());
-	buffer->unbind();
-}
-
-//=================================================================================
 GLResourceManager& C_GLDevice::GetRM()
 {
 	return m_GPUResourceManager;

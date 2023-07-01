@@ -17,10 +17,16 @@ VkBuffer& C_VkBuffer::GetBuffer()
 }
 
 //=================================================================================
-void C_VkBuffer::UploadData(void* data, std::size_t size)
+void C_VkBuffer::UploadData(const void* data, std::size_t size)
 {
 	GLE_ASSERT(m_desc.usage == Renderer::E_ResourceUsage::Persistent, "Uploading data to non-persistent buffer");
 	memcpy(m_MappedMemory, data, size);
+}
+
+//=================================================================================
+const Renderer::BufferDescriptor& C_VkBuffer::GetDesc() const
+{
+	return m_desc;
 }
 
 }
