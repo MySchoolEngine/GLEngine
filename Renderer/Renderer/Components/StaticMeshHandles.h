@@ -34,6 +34,7 @@ private:
 		Handle<Buffer> m_TexCoordsHandle;
 		Handle<Buffer> m_TangentHandle;
 		Handle<Buffer> m_BitangentHandle;
+		uint32_t	   m_NumPrimitives;
 	};
 	Core::ResourceHandle<MeshResource> m_MeshResource;
 	std::vector<MeshContainer>		   m_Meshes;

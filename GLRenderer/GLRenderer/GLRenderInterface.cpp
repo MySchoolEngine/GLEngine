@@ -47,7 +47,7 @@ void C_GLRenderInterface::Render(const Renderer::RenderCall3D& call)
 			glVertexAttribPointer(0, 4, T_TypeToGL<glm::vec4>::value, GL_FALSE, 0, nullptr);
 			glEnableVertexAttribArray(0);
 
-			glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(960));
+			glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(call.NumPrimities));
 
 
 			PositionsBuffer->unbind();

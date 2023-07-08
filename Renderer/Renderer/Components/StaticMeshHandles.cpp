@@ -61,6 +61,7 @@ void C_StaticMeshHandles::Update()
 		for (auto& mesh : scene.meshes)
 		{
 			auto& meshContainer = m_Meshes.emplace_back();
+			meshContainer.m_NumPrimitives = static_cast<uint32_t>(mesh.vertices.size());
 			// load buffer
 			auto& mesh = m_MeshResource.GetResource().GetScene().meshes[0];
 
@@ -120,6 +121,7 @@ void C_StaticMeshHandles::Render(Renderer3D& renderer) const
 			// needs pipeline as well
 			renderer.Draw(RenderCall3D{
 				.ModelMatrix   = GetComponentModelMatrix(),
+				.NumPrimities  = meshContainer.m_NumPrimitives,
 				.MaterialIndex = 0,
 				.Buffers
 				= {meshContainer.m_PositionsHandle, meshContainer.m_NormalsHandle, meshContainer.m_TexCoordsHandle, meshContainer.m_TangentHandle, meshContainer.m_BitangentHandle},

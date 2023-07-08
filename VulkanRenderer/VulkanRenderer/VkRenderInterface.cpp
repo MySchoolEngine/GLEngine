@@ -36,7 +36,7 @@ void C_VkRenderInterface::Render(const Renderer::RenderCall3D& call)
 	// vkCmdBindIndexBuffer(m_CommandBuffer, m_IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
 	vkCmdBindDescriptorSets(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline->GetLayout(), 0, 1, &m_DescriptorSet, 0, nullptr);
 	// vkCmdDrawIndexed(m_CommandBuffer, 6u, 1, 0, 0, 0);
-	vkCmdDraw(m_CommandBuffer, static_cast<GLsizei>(960), 1, 0, 0);
+	vkCmdDraw(m_CommandBuffer, call.NumPrimities, 1, 0, 0);
 }
 
 //=================================================================================
