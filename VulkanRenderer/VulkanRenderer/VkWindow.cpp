@@ -43,7 +43,8 @@ static std::vector<char> readFile(const std::string& filename)
 
 //=================================================================================
 C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
-	: m_renderer(nullptr)
+	: GLFWManager::C_GLFWWindow(Core::E_Driver::Vulkan)
+	, m_renderer(nullptr)
 	, m_Instance(nullptr)
 {
 	Init(wndInfo);
