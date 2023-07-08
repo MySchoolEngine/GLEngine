@@ -2,8 +2,10 @@
 
 #include <VulkanRenderer/Pipeline.h>
 #include <VulkanRenderer/VkResourceManager.h>
+#include <VulkanRenderer/VkRenderInterface.h>
 
 #include <Renderer/Mesh/Loading/MeshResource.h>
+#include <Renderer/Renderer3D.h>
 #include <Renderer/Textures/TextureResource.h>
 
 #include <Core/Application.h>
@@ -18,6 +20,15 @@ namespace GLEngine::Core {
 ;
 class C_WindowResizedEvent;
 } // namespace GLEngine::Core
+
+namespace GLEngine::Renderer {
+class I_CameraComponent;
+class C_StaticMeshHandles;
+} // namespace GLEngine::Renderer
+
+namespace GLEngine::Entity {
+class C_EntityManager;
+}
 
 namespace GLEngine::VkRenderer {
 
@@ -107,5 +118,13 @@ private:
 	VkSurfaceKHR_T* m_Surface;
 
 	VkInstance_T* m_Instance;
+
+
+	// SCENE RELATED STUFF
+	Renderer::Renderer3D						   m_3DRenderer;
+	std::shared_ptr<Entity::C_EntityManager>	   m_World;
+	std::shared_ptr<Renderer::C_StaticMeshHandles> handlesMesh;
+
+	C_VkRenderInterface m_RenderInterface;
 };
 } // namespace GLEngine::VkRenderer

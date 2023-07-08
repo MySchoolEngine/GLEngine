@@ -8,9 +8,12 @@
 #include <VulkanRenderer/VkWindow.h>
 #include <VulkanRenderer/VkWindowInfo.h>
 
+#include <Renderer/Components/StaticMeshHandles.h>
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/Textures/TextureStorage.h>
 #include <Renderer/Viewport.h>
+
+#include <Entity/EntityManager.h>
 
 #include <Core/EventSystem/Event/AppEvent.h>
 #include <Core/EventSystem/EventDispatcher.h>
@@ -72,6 +75,16 @@ C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
 	CreateTexture();
 	CreateTextureSampler();
 	CreateDescriptorSets();
+
+	// WORLD RELATED STUFF
+	m_World = std::make_shared<Entity::C_EntityManager>();
+
+	auto staticMeshHandle = m_World->GetOrCreateEntity("handles");
+	{
+		handlesMesh = std::make_shared<Renderer::C_StaticMeshHandles>();
+		handlesMesh->SetParent(staticMeshHandle);
+		staticMeshHandle->AddComponent(handlesMesh);
+	}
 }
 
 //=================================================================================
@@ -110,6 +123,10 @@ C_VkWindow::~C_VkWindow()
 //=================================================================================
 void C_VkWindow::Update()
 {
+	Core::C_ResourceManager::Instance().UpdatePendingLoads();
+	handlesMesh->Update();
+	handlesMesh->Render(m_3DRenderer);
+
 	vkWaitForFences(m_renderer->GetDeviceVK(), 1, &m_InFlightFence[currentFrame], VK_TRUE, UINT64_MAX);
 
 	uint32_t imageIndex;
@@ -156,6 +173,7 @@ void C_VkWindow::Update()
 	vkQueuePresentKHR(m_renderer->GetPresentationQueue(), &presentInfo);
 
 	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+	m_3DRenderer.Clear();
 }
 
 //=================================================================================
@@ -474,19 +492,11 @@ void C_VkWindow::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t ima
 	const VkRect2D scissor{.offset = {0, 0}, .extent = {viewport.GetResolution().x, viewport.GetResolution().y}};
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-	C_VkBuffer* pPosBuffer		= m_renderer->GetRMVK().GetBuffer(m_PositionsHandle);
-	C_VkBuffer* pNorBuffer		= m_renderer->GetRMVK().GetBuffer(m_NormalsHandle);
-	C_VkBuffer* pTexCoordBuffer = m_renderer->GetRMVK().GetBuffer(m_TexCoordHandle);
+	m_RenderInterface.BeginRender(commandBuffer, descriptorSets[currentFrame], &m_Pipeline);
+	m_3DRenderer.Commit(m_RenderInterface);
+	m_RenderInterface.EndRender();
 
-	GLE_ASSERT(pPosBuffer && pNorBuffer && pTexCoordBuffer, "Buffers not created");
 
-	VkBuffer	 vertexBuffers[] = {pPosBuffer->GetBuffer(), pNorBuffer->GetBuffer(), pTexCoordBuffer->GetBuffer()};
-	VkDeviceSize offsets[]		 = {0, 0, 0};
-	vkCmdBindVertexBuffers(commandBuffer, 0, 3, vertexBuffers, offsets);
-	// vkCmdBindIndexBuffer(commandBuffer, m_IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
-	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline.GetLayout(), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
-	// vkCmdDrawIndexed(commandBuffer, 6u, 1, 0, 0, 0);
-	vkCmdDraw(commandBuffer, static_cast<uint32_t>(m_MeshHandle.GetResource().GetScene().meshes[0].vertices.size()), 1, 0, 0);
 	vkCmdEndRenderPass(commandBuffer);
 	if (const auto result = vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
 	{
