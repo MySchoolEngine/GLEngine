@@ -38,5 +38,6 @@ private:
 	};
 	Core::ResourceHandle<MeshResource> m_MeshResource;
 	std::vector<MeshContainer>		   m_Meshes;
+	Handle<Pipeline>				   m_Pipeline;
 };
 } // namespace GLEngine::Renderer

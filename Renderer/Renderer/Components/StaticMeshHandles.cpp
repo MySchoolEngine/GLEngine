@@ -17,6 +17,32 @@ C_StaticMeshHandles::C_StaticMeshHandles()
 {
 	auto& rm	   = Core::C_ResourceManager::Instance();
 	m_MeshResource = rm.LoadResource<MeshResource>(R"(Models/sphere.obj)");
+	m_Pipeline = Core::C_Application::Get().GetActiveRenderer().GetRM().createPipeline(PipelineDescriptor{
+		.primitiveType = Renderer::E_RenderPrimitives::TriangleList,
+		.bindingCount = 5,
+		.vertexInput   = {{
+							  .binding = 0,
+							  .type	   = Renderer::T_TypeShaderDataType_v<glm::vec4>
+						  },
+						  {
+							  .binding = 1,
+							  .type	   = Renderer::T_TypeShaderDataType_v<glm::vec3>
+						  },
+						  {
+							  .binding = 2,
+							  .type	   = Renderer::T_TypeShaderDataType_v<glm::vec2>
+						  },
+						  {
+							  .binding = 3,
+							  .type	   = Renderer::T_TypeShaderDataType_v<glm::vec3>
+						  },
+						  {
+							  .binding = 4,
+							  .type	   = Renderer::T_TypeShaderDataType_v<glm::vec3>
+						  },},
+		.shader =  "handles",
+		// .colorAttachementFormat = GetTextureFormat(m_SwapChainImageFormat), no need for OpenGL and will be solved for Vulkan
+	});
 }
 
 //=================================================================================
@@ -60,7 +86,7 @@ void C_StaticMeshHandles::Update()
 		m_Meshes.reserve(scene.meshes.size());
 		for (auto& mesh : scene.meshes)
 		{
-			auto& meshContainer = m_Meshes.emplace_back();
+			auto& meshContainer			  = m_Meshes.emplace_back();
 			meshContainer.m_NumPrimitives = static_cast<uint32_t>(mesh.vertices.size());
 			// load buffer
 			auto& mesh = m_MeshResource.GetResource().GetScene().meshes[0];
@@ -125,7 +151,7 @@ void C_StaticMeshHandles::Render(Renderer3D& renderer) const
 				.MaterialIndex = 0,
 				.Buffers
 				= {meshContainer.m_PositionsHandle, meshContainer.m_NormalsHandle, meshContainer.m_TexCoordsHandle, meshContainer.m_TangentHandle, meshContainer.m_BitangentHandle},
-				.Shader = "handles",
+				.Pipeline = m_Pipeline,
 			});
 		}
 	}

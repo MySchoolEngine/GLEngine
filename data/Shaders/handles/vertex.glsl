@@ -4,7 +4,7 @@
 #endif ////////
 
 layout(location = 0) in vec4 vertex;
-// layout(location = 1) in vec3 normal;
+layout(location = 1) in vec3 normal;
 // layout(location = 2) in vec2 texCoord;
 // layout(location = 3) in vec3 tangent;
 // layout(location = 4) in vec3 bitangent;
@@ -20,7 +20,7 @@ layout(binding = 2) uniform modelData
 };
 
 //=================================================================================
-// layout(location = 0) out vec3 normalOUT;
+layout(location = 0) out vec3 normalOUT;
 // layout(location = 1) out vec2 texCoordOUT;
 // layout(location = 2) out vec4 worldCoord;
 // layout(location = 3) out mat3 TBN;
@@ -28,7 +28,7 @@ layout(binding = 2) uniform modelData
 //=================================================================================
 void main()
 {
-	// normalOUT	= mat3(transpose(inverse(modelMatrix))) * normal;
+	normalOUT	= mat3(transpose(inverse(modelMatrix))) * normal;
 	// texCoordOUT = texCoord;
 
 	vec4 worldCoord = modelMatrix * vertex;

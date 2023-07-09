@@ -78,4 +78,39 @@ void GLResourceManager::destroySampler(const Renderer::Handle<Renderer::Sampler>
 {
 }
 
+//=================================================================================
+Renderer::Handle<Renderer::Pipeline> GLResourceManager::createPipeline(const Renderer::PipelineDescriptor& desc)
+{
+	// no caching so far, but needed as well as in Vulkan
+	auto handle = m_PipelinePool.CreateNew(desc);
+	return handle;
+}
+
+//=================================================================================
+void GLResourceManager::destoryPipeline(Renderer::Handle<Renderer::Pipeline> handle)
+{
+	// no real object here, so no destruction
+	m_PipelinePool.RemoveHandle(handle);
+}
+
+//=================================================================================
+GLPipeline* GLResourceManager::GetPipeline(const Renderer::Handle<Renderer::Pipeline>& handle)
+{
+	return m_PipelinePool.GetResource(handle);
+}
+
+//=================================================================================
+// GLPipeline
+//=================================================================================
+GLPipeline::GLPipeline(const Renderer::PipelineDescriptor& desc)
+	: m_Desc(desc)
+{
+}
+
+//=================================================================================
+const Renderer::PipelineDescriptor& GLPipeline::GetDesc() const
+{
+	return m_Desc;
+}
+
 } // namespace GLEngine::GLRenderer

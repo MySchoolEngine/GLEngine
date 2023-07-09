@@ -14,7 +14,7 @@ layout(binding = 2) uniform modelData
 };
 //===================================================
 
-// layout(location = 0) in vec3 normalOUT;
+layout(location = 0) in vec3 normalOUT;
 // layout(location = 1) in vec2 texCoordOUT;
 // layout(location = 2) in vec4 worldCoord;
 // layout(location = 3) in mat3 TBN;
@@ -45,6 +45,6 @@ void main()
 	vec3 specular = specularStrength * spec * pLight[0].color;  
 
 	vec3 result = (diffuse + specular) * getColor(texCoordOUT, phong[materialIndex]);*/
-	vec3 result = vec3(1,10,0);
+	vec3 result = normalOUT;
 	fragColor = vec4(result, 1.0);
 }

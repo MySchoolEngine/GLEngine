@@ -33,25 +33,41 @@ void C_GLRenderInterface::Render(const Renderer::RenderCall3D& call)
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
 	auto& glRM	   = static_cast<C_OGLRenderer&>(renderer).GetRMGL();
 
+	GLPipeline* pipeline = glRM.GetPipeline(call.Pipeline);
+	GLE_ASSERT(pipeline, "No pipeline set");
+	if (!pipeline)
+	{
+		return;
+	}
+
 	// bind shader, UBOs
 	Shaders::C_ShaderManager& shm = Shaders::C_ShaderManager::Instance();
-	shm.ActivateShader(shm.GetProgram(call.Shader));
+	shm.ActivateShader(shm.GetProgram(pipeline->GetDesc().shader));
 
 	renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&]() {
 			glBindVertexArray(m_VAOid);
 
-			auto* PositionsBuffer = glRM.GetBuffer(call.Buffers[0]);
-			PositionsBuffer->bind();
-			// read those from pipeline!
-			glVertexAttribPointer(0, 4, T_TypeToGL<glm::vec4>::value, GL_FALSE, 0, nullptr);
-			glEnableVertexAttribArray(0);
+			for (int i = 0; i < 2; ++i)
+			{
+				auto* buffer = glRM.GetBuffer(call.Buffers[i]);
+				buffer->bind();
+				// read those from pipeline!
+				if (i == 0)
+					glVertexAttribPointer(i, 4, T_TypeToGL<glm::vec4>::value, GL_FALSE, 0, nullptr);
+				else
+					glVertexAttribPointer(i, 4, T_TypeToGL<glm::vec3>::value, GL_FALSE, 0, nullptr);
+				glEnableVertexAttribArray(i);
+			}
 
 			glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(call.NumPrimities));
 
 
-			PositionsBuffer->unbind();
-
+			for (int i = 0; i < 2; ++i)
+			{
+				auto* buffer = glRM.GetBuffer(call.Buffers[i]);
+				buffer->unbind();
+			}
 			glBindVertexArray(0);
 		},
 		"handles"));
