@@ -1,5 +1,6 @@
 #include <VulkanRendererStdafx.h>
 
+#include <VulkanRenderer/Pipeline.h>
 #include <VulkanRenderer/Shaders/ShaderCompiler.h>
 #include <VulkanRenderer/VkDevice.h>
 #include <VulkanRenderer/VkRenderer.h>
@@ -112,7 +113,7 @@ C_VkWindow::~C_VkWindow()
 	DestroySwapchain();
 	vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
 	vkDestroyDescriptorPool(m_renderer->GetDeviceVK(), descriptorPool, nullptr);
-	m_Pipeline.destroy(m_renderer->GetDevice());
+	// m_Pipeline.destroy(m_renderer->GetDevice());
 	m_renderer.reset(nullptr);
 	// image cleanup
 	const auto* texture = m_renderer->GetRMVK().GetTexture(m_GPUTextureHandle);
@@ -364,7 +365,6 @@ bool C_VkWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 	}
 	DestroySwapchain();
 	CreateSwapChain();
-	m_Pipeline.destroy(m_renderer->GetDevice());
 	CreatePipeline();
 	CreateFramebuffers();
 	CreateCommandPool();
@@ -393,13 +393,16 @@ void C_VkWindow::CreatePipeline()
 							  .binding = 2,
 							  .type	   = Renderer::T_TypeShaderDataType_v<glm::vec2>
 						  },},
+		.shader = "basicVulkan",
+		.colorAttachementFormat = GetTextureFormat(m_SwapChainImageFormat),
 	};
-	m_Pipeline.create(m_renderer->GetDevice(), desc, m_SwapChainImageFormat);
+	m_PipelineHandle = m_renderer->GetRM().createPipeline(desc);
 }
 
 //=================================================================================
 void C_VkWindow::CreateFramebuffers()
 {
+	auto* pipeline = m_renderer->GetRMVK().GetPipeline(m_PipelineHandle);
 	m_SwapChainFramebuffers.resize(m_SwapChainImagesViews.size());
 	for (size_t i = 0; i < m_SwapChainImagesViews.size(); i++)
 	{
@@ -407,7 +410,7 @@ void C_VkWindow::CreateFramebuffers()
 
 		const VkFramebufferCreateInfo framebufferInfo{
 			.sType			 = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
-			.renderPass		 = m_Pipeline.GetRenderPass(),
+			.renderPass		 = pipeline->GetRenderPass(),
 			.attachmentCount = 1,
 			.pAttachments	 = attachments,
 			.width			 = m_SwapChainExtent.width,
@@ -472,10 +475,11 @@ void C_VkWindow::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t ima
 		return;
 	}
 
+	auto*						pipeline   = m_renderer->GetRMVK().GetPipeline(m_PipelineHandle);
 	const VkClearValue			clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
 	const VkRenderPassBeginInfo renderPassInfo{
 		.sType			 = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
-		.renderPass		 = m_Pipeline.GetRenderPass(),
+		.renderPass		 = pipeline->GetRenderPass(),
 		.framebuffer	 = m_SwapChainFramebuffers[imageIndex],
 		.renderArea		 = {{0, 0}, m_SwapChainExtent},
 		.clearValueCount = 1,
@@ -483,7 +487,7 @@ void C_VkWindow::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t ima
 	};
 
 	vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline.GetGraphicsPipeline());
+	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetGraphicsPipeline());
 
 	// we went for dynamic state of viewport and scissor
 	const Renderer::C_Viewport viewport(0, 0, GetSize());
@@ -492,7 +496,7 @@ void C_VkWindow::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t ima
 	const VkRect2D scissor{.offset = {0, 0}, .extent = {viewport.GetResolution().x, viewport.GetResolution().y}};
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-	m_RenderInterface.BeginRender(commandBuffer, descriptorSets[currentFrame], &m_Pipeline);
+	m_RenderInterface.BeginRender(commandBuffer, descriptorSets[currentFrame], pipeline);
 	m_3DRenderer.Commit(m_RenderInterface);
 	m_RenderInterface.EndRender();
 
@@ -660,7 +664,8 @@ void C_VkWindow::CreateDescriptorPool()
 //=================================================================================
 void C_VkWindow::CreateDescriptorSets()
 {
-	std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, m_Pipeline.GetDescriptorSetLayout());
+	auto*							   pipeline = m_renderer->GetRMVK().GetPipeline(m_PipelineHandle);
+	std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, pipeline->GetDescriptorSetLayout());
 	const VkDescriptorSetAllocateInfo  allocInfo{
 		 .sType				 = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
 		 .descriptorPool	 = descriptorPool,

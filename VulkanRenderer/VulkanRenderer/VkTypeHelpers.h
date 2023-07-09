@@ -22,4 +22,7 @@ VkPrimitiveTopology	  GetVkDrawPrimitive(const Renderer::E_RenderPrimitives rend
 VkBufferUsageFlags	  GetBufferType(const Renderer::E_BufferType bufferType);
 VkFormat			  GetTextureFormat(const Renderer::E_TextureFormat textureFormat);
 VkImageType			  GetTextureType(const Renderer::E_TextureType textureType);
+
+// Reverse getters
+Renderer::E_TextureFormat GetTextureFormat(VkFormat textureFormat);
 } // namespace GLEngine::VkRenderer

@@ -187,9 +187,38 @@ C_VkTexture* C_VkResourceManager::GetTexture(const Renderer::Handle<Renderer::Te
 }
 
 //=================================================================================
+C_Pipeline* C_VkResourceManager::GetPipeline(const Renderer::Handle<Renderer::Pipeline>& handle)
+{
+	return m_PipelinePool.GetResource(handle);
+}
+
+//=================================================================================
 VkRenderer::C_VkSampler* C_VkResourceManager::GetSampler(const Renderer::Handle<Renderer::Sampler>& handle)
 {
 	return m_SamplerPool.GetResource(handle);
+}
+
+//=================================================================================
+Renderer::Handle<Renderer::Pipeline> C_VkResourceManager::createPipeline(const Renderer::PipelineDescriptor& desc)
+{
+	if (auto handle = m_PSOCache.GetPipeline(desc); handle.IsValid())
+	{
+		return handle;
+	}
+	// create and cache new pipeline
+	auto handle = m_PipelinePool.CreateNew();
+	if (C_Pipeline* pipeline = m_PipelinePool.GetResource(handle)) {
+		pipeline->create(*m_device, desc);
+	
+		m_PSOCache.CachePipeline(desc, handle);
+	}
+	return handle;
+}
+
+//=================================================================================
+void C_VkResourceManager::destoryPipeline(Renderer::Handle<Renderer::Pipeline> handle)
+{
+	// deliberately empty implementation. I don't want to delete cached pipelines
 }
 
 } // namespace GLEngine::VkRenderer

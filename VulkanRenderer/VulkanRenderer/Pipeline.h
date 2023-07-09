@@ -7,7 +7,7 @@ namespace GLEngine::VkRenderer {
 class C_Pipeline {
 public:
 	C_Pipeline() = default;
-	void create(Renderer::I_Device& device, Renderer::PipelineDescriptor desc, VkFormat swapCahinImageFormat);
+	void create(Renderer::I_Device& device, Renderer::PipelineDescriptor desc);
 	void destroy(Renderer::I_Device& device);
 
 	// todo
@@ -17,9 +17,8 @@ public:
 	VkPipelineLayout&	   GetLayout() { return m_PipelineLayout; }
 
 private:
-	void CreateRenderPass(Renderer::I_Device& device, VkFormat swapCahinImageFormat);
+	void CreateRenderPass(Renderer::I_Device& device, Renderer::PipelineDescriptor desc);
 
-	
 	VkDescriptorSetLayout		 m_DescriptorSetLayout;
 	VkPipelineLayout			 m_PipelineLayout;
 	VkRenderPass				 m_RenderPass;

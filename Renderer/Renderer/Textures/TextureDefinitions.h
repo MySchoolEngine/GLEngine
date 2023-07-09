@@ -94,6 +94,11 @@ enum class E_TextureFormat
 	RGB8i,
 	RG8i,
 	R8i,
+	RGBA8isrgb, // std::uint8_t srgb
+	BGRA8isrgb,
+	RGB8isrgb,
+	RG8isrgb,
+	R8isrgb,
 
 	D24S8, // depth 24 stencil 8
 	D32f,

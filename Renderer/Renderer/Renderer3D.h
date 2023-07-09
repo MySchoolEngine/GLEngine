@@ -16,6 +16,7 @@ namespace GLEngine::Renderer {
 // binning first happens by shader, later by geometry
 struct RenderCall3D {
 	glm::mat4					  ModelMatrix;
+	uint32_t					  NumPrimities;
 	int							  MaterialIndex; // oddly specific now, but I will think about it
 	std::array<Handle<Buffer>, 5> Buffers;		 // let's go for up to 5 attributes right now
 	std::string					  Shader;		 // need to be a handle

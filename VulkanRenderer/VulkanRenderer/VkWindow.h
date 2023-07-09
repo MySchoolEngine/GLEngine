@@ -1,6 +1,5 @@
 #pragma once
 
-#include <VulkanRenderer/Pipeline.h>
 #include <VulkanRenderer/VkResourceManager.h>
 #include <VulkanRenderer/VkRenderInterface.h>
 
@@ -91,7 +90,7 @@ private:
 	VkCommandPool				 m_CommandPool;
 	std::vector<VkCommandBuffer> m_CommandBuffer; // auto cleanup on pool release!
 
-	C_Pipeline m_Pipeline;
+	Renderer::Handle<Renderer::Pipeline> m_PipelineHandle;
 
 	std::vector<VkSemaphore>		   m_ImageAvailableSemaphore;
 	std::vector<VkSemaphore>		   m_RenderFinishedSemaphore;

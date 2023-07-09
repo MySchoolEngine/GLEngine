@@ -10,7 +10,7 @@
 namespace GLEngine::VkRenderer {
 
 //=================================================================================
-void C_Pipeline::create(Renderer::I_Device& device, Renderer::PipelineDescriptor desc, VkFormat swapCahinImageFormat)
+void C_Pipeline::create(Renderer::I_Device& device, Renderer::PipelineDescriptor desc)
 {
 	std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
@@ -94,6 +94,8 @@ void C_Pipeline::create(Renderer::I_Device& device, Renderer::PipelineDescriptor
 		.alphaToOneEnable	   = VK_FALSE, // Optional
 	};
 
+	// could be from descriptor
+
 	const VkPipelineColorBlendAttachmentState colorBlendAttachment{
 		.blendEnable		 = VK_FALSE,
 		.srcColorBlendFactor = VK_BLEND_FACTOR_ONE,	 // Optional
@@ -104,7 +106,6 @@ void C_Pipeline::create(Renderer::I_Device& device, Renderer::PipelineDescriptor
 		.alphaBlendOp		 = VK_BLEND_OP_ADD,		 // Optional
 		.colorWriteMask		 = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT,
 	};
-
 	const VkPipelineColorBlendStateCreateInfo colorBlending{
 		.sType			 = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
 		.logicOpEnable	 = VK_FALSE,
@@ -118,7 +119,7 @@ void C_Pipeline::create(Renderer::I_Device& device, Renderer::PipelineDescriptor
 	Renderer::C_ShaderLoader<VkShaderModule> loader(compiler);
 
 	std::vector<std::pair<Renderer::E_ShaderStage, VkShaderModule>> stages;
-	if (!loader.LoadAllStages("basicVulkan", stages))
+	if (!loader.LoadAllStages(desc.shader, stages))
 	{
 		// error probably? End the run?
 	}
@@ -180,7 +181,7 @@ void C_Pipeline::create(Renderer::I_Device& device, Renderer::PipelineDescriptor
 		shaderStages.push_back(shaderStageInfo);
 	}
 
-	CreateRenderPass(device, swapCahinImageFormat);
+	CreateRenderPass(device, desc);
 
 	const VkGraphicsPipelineCreateInfo pipelineInfo{
 		.sType				 = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
@@ -215,12 +216,12 @@ void C_Pipeline::create(Renderer::I_Device& device, Renderer::PipelineDescriptor
 }
 
 //=================================================================================
-void C_Pipeline::CreateRenderPass(Renderer::I_Device& device, VkFormat swapCahinImageFormat)
+void C_Pipeline::CreateRenderPass(Renderer::I_Device& device, Renderer::PipelineDescriptor desc)
 {
 	auto&						  vkDevice = static_cast<C_VkDevice&>(device);
 	const VkAttachmentDescription colorAttachment{
 		.flags			= 0,
-		.format			= swapCahinImageFormat,
+		.format			= GetTextureFormat(desc.colorAttachementFormat),
 		.samples		= VK_SAMPLE_COUNT_1_BIT,
 		.loadOp			= VK_ATTACHMENT_LOAD_OP_CLEAR,
 		.storeOp		= VK_ATTACHMENT_STORE_OP_STORE,
@@ -230,7 +231,7 @@ void C_Pipeline::CreateRenderPass(Renderer::I_Device& device, VkFormat swapCahin
 		.finalLayout	= VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, // we are going to present the results
 	};
 
-	// no subpassess - usable for post-process effects chained togather
+	// no subpassess - usable for post-process effects chained together
 	const VkAttachmentReference colorAttachmentRef{
 		.attachment = 0,
 		.layout		= VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,

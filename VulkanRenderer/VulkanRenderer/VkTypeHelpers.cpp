@@ -241,6 +241,18 @@ VkFormat GetTextureFormat(const Renderer::E_TextureFormat textureFormat)
 	case Renderer::E_TextureFormat::R8i:
 		return VK_FORMAT_R8_SINT;
 
+	// integer formats 8 bits srgb
+	case Renderer::E_TextureFormat::RGBA8isrgb:
+		return VK_FORMAT_R8G8B8A8_SRGB;
+	case Renderer::E_TextureFormat::BGRA8isrgb:
+		return VK_FORMAT_B8G8R8A8_SRGB;
+	case Renderer::E_TextureFormat::RGB8isrgb:
+		return VK_FORMAT_R8G8B8_SRGB;
+	case Renderer::E_TextureFormat::RG8isrgb:
+		return VK_FORMAT_R8G8_SRGB;
+	case Renderer::E_TextureFormat::R8isrgb:
+		return VK_FORMAT_R8_SRGB;
+
 	// integer formats depths
 	case Renderer::E_TextureFormat::D24S8:
 		return VK_FORMAT_D24_UNORM_S8_UINT;
@@ -253,6 +265,85 @@ VkFormat GetTextureFormat(const Renderer::E_TextureFormat textureFormat)
 	}
 	GLE_ERROR("Unknown format!");
 	return VK_FORMAT_R8G8B8A8_UINT;
+}
+
+//=================================================================================
+Renderer::E_TextureFormat GetTextureFormat(VkFormat textureFormat)
+{
+	switch (textureFormat)
+	{
+		using enum Renderer::E_TextureFormat;
+		// float formats
+	case VK_FORMAT_R32G32B32A32_SFLOAT:
+		return RGBA32f;
+	case VK_FORMAT_R32G32B32_SFLOAT:
+		return RGB32f;
+	case VK_FORMAT_R32G32_SFLOAT:
+		return RG32f;
+	case VK_FORMAT_R32_SFLOAT:
+		return R32f;
+	case VK_FORMAT_R16G16B16A16_SFLOAT:
+		return RGBA16f;
+	case VK_FORMAT_R16G16B16_SFLOAT:
+		return RGB16f;
+	case VK_FORMAT_R16G16_SFLOAT:
+		return RG16f;
+	case VK_FORMAT_R16_SFLOAT:
+		return R16f;
+
+	// integer formats 32 bits
+	case VK_FORMAT_R32G32B32A32_SINT:
+		return RGBA32i;
+	case VK_FORMAT_R32G32B32_SINT:
+		return RGB32i;
+	case VK_FORMAT_R32G32_SINT:
+		return RG32i;
+	case VK_FORMAT_R32_SINT:
+		return R32i;
+
+	// integer formats 16 bits
+	case VK_FORMAT_R16G16B16A16_SINT:
+		return RGBA16i;
+	case VK_FORMAT_R16G16B16_SINT:
+		return RGB16i;
+	case VK_FORMAT_R16G16_SINT:
+		return RG16i;
+	case VK_FORMAT_R16_SINT:
+		return R16i;
+
+	// integer formats 8 bits
+	case VK_FORMAT_R8G8B8A8_SINT:
+		return RGBA8i;
+	case VK_FORMAT_R8G8B8_SINT:
+		return RGB8i;
+	case VK_FORMAT_R8G8_SINT:
+		return RG8i;
+	case VK_FORMAT_R8_SINT:
+		return R8i;
+
+	// integer formats 8 bits srgb
+	case VK_FORMAT_R8G8B8A8_SRGB:
+		return RGBA8isrgb;
+	case VK_FORMAT_B8G8R8A8_SRGB:
+		return BGRA8isrgb;
+	case VK_FORMAT_R8G8B8_SRGB:
+		return RGB8isrgb;
+	case VK_FORMAT_R8G8_SRGB:
+		return RG8isrgb;
+	case VK_FORMAT_R8_SRGB:
+		return R8isrgb;
+
+	// integer formats depths
+	case VK_FORMAT_D24_UNORM_S8_UINT:
+		return D24S8; //< Prefer this over just D24
+		//return D24;
+	case VK_FORMAT_D32_SFLOAT:
+		return D32f;
+	case VK_FORMAT_D16_UNORM:
+		return D16;
+	}
+	GLE_ERROR("Unknown format!");
+	return Renderer::E_TextureFormat::RGBA8i;
 }
 
 //=================================================================================
