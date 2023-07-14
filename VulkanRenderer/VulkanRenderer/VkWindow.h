@@ -68,8 +68,6 @@ private:
 	void			   CreateCommandPool();
 	void			   CreateCommandBuffer();
 	void			   CreateSyncObjects();
-	void			   CreateVertexBuffer();
-	void			   CreateIndexBuffer();
 	void			   CreateUniformBuffers();
 	void			   CreateDescriptorPool();
 	void			   CreateDescriptorSets();
@@ -100,10 +98,6 @@ private:
 	std::vector<VkSemaphore>		   m_ImageAvailableSemaphore;
 	std::vector<VkSemaphore>		   m_RenderFinishedSemaphore;
 	std::vector<VkFence>			   m_InFlightFence;
-	Renderer::Handle<Renderer::Buffer> m_PositionsHandle;
-	Renderer::Handle<Renderer::Buffer> m_NormalsHandle;
-	Renderer::Handle<Renderer::Buffer> m_TexCoordHandle;
-	Renderer::Handle<Renderer::Buffer> m_IndexHandle;
 
 	Core::ResourceHandle<Renderer::MeshResource>	m_MeshHandle;
 	Core::ResourceHandle<Renderer::TextureResource> m_TextureHandle;

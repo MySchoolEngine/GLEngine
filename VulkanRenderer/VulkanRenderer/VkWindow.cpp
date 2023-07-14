@@ -71,8 +71,6 @@ C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
 	CreateCommandPool();
 	CreateCommandBuffer();
 	CreateSyncObjects();
-	CreateVertexBuffer();
-	CreateIndexBuffer();
 	CreateUniformBuffers();
 	CreateDescriptorPool();
 	CreateTexture();
@@ -114,10 +112,6 @@ C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
 //=================================================================================
 C_VkWindow::~C_VkWindow()
 {
-	GetRenderer().GetRM().destroyBuffer(m_PositionsHandle);
-	GetRenderer().GetRM().destroyBuffer(m_NormalsHandle);
-	GetRenderer().GetRM().destroyBuffer(m_TexCoordHandle);
-	GetRenderer().GetRM().destroyBuffer(m_IndexHandle);
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
 		GetRenderer().GetRM().destroyBuffer(m_UniformBuffers[i]);
@@ -562,76 +556,6 @@ void C_VkWindow::CreateSyncObjects()
 			CORE_LOG(E_Level::Error, E_Context::Render, "failed to record command buffer. {}");
 		}
 	}
-}
-
-//=================================================================================
-void C_VkWindow::CreateVertexBuffer()
-{
-	auto& rm = Core::C_ResourceManager::Instance();
-
-	m_MeshHandle = rm.LoadResource<Renderer::MeshResource>(std::filesystem::path("Models/plane.obj"), true);
-
-
-	if (!m_MeshHandle)
-	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Failed to load resource");
-		return;
-	}
-
-	auto& mesh = m_MeshHandle.GetResource().GetScene().meshes[0];
-
-	// positions
-	{
-		VkDeviceSize bufferSize = sizeof(mesh.vertices[0]) * mesh.vertices.size();
-
-		m_PositionsHandle = m_renderer->GetRM().createBuffer(Renderer::BufferDescriptor{
-			.size  = static_cast<uint32_t>(bufferSize),
-			.type  = Renderer::E_BufferType::Vertex,
-			.usage = Renderer::E_ResourceUsage::Immutable,
-		});
-
-		m_renderer->SetBufferData(m_PositionsHandle, bufferSize, mesh.vertices.data());
-	}
-
-	// normals
-	{
-		VkDeviceSize bufferSize = sizeof(mesh.normals[0]) * mesh.normals.size();
-
-		m_NormalsHandle = GetRenderer().GetRM().createBuffer(Renderer::BufferDescriptor{
-			.size  = static_cast<uint32_t>(bufferSize),
-			.type  = Renderer::E_BufferType::Vertex,
-			.usage = Renderer::E_ResourceUsage::Immutable,
-		});
-
-		m_renderer->SetBufferData(m_NormalsHandle, bufferSize, mesh.normals.data());
-	}
-
-	// UVs
-	{
-		VkDeviceSize bufferSize = sizeof(mesh.texcoords[0]) * mesh.texcoords.size();
-
-		m_TexCoordHandle = GetRenderer().GetRM().createBuffer(Renderer::BufferDescriptor{
-			.size  = static_cast<uint32_t>(bufferSize),
-			.type  = Renderer::E_BufferType::Vertex,
-			.usage = Renderer::E_ResourceUsage::Immutable,
-		});
-
-		m_renderer->SetBufferData(m_NormalsHandle, bufferSize, mesh.normals.data());
-	}
-}
-
-//=================================================================================
-void C_VkWindow::CreateIndexBuffer()
-{
-	const std::vector<uint16_t> indices	   = {0, 1, 2, 2, 3, 0};
-	VkDeviceSize				bufferSize = sizeof(indices[0]) * indices.size();
-
-	m_IndexHandle = GetRenderer().GetRM().createBuffer(Renderer::BufferDescriptor{
-		.size  = static_cast<uint32_t>(bufferSize),
-		.type  = Renderer::E_BufferType::Index,
-		.usage = Renderer::E_ResourceUsage::Immutable,
-	});
-	m_renderer->SetBufferData(m_NormalsHandle, bufferSize, indices.data());
 }
 
 //=================================================================================
