@@ -28,6 +28,7 @@ public:
 	void								Render(Renderer3D& renderer) const;
 
 private:
+	Handle<Buffer> m_ModelDataHandle;
 	struct MeshContainer {
 		Handle<Buffer> m_PositionsHandle;
 		Handle<Buffer> m_NormalsHandle;

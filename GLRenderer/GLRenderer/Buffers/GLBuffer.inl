@@ -53,6 +53,13 @@ inline GLenum GLBuffer::GetType() const
 //=================================================================================
 inline GLenum GLBuffer::GetUsage() const
 {
+	switch (desc.usage)
+	{
+	case Renderer::E_ResourceUsage::Immutable:
+		return GL_STATIC_DRAW;
+	case Renderer::E_ResourceUsage::Dynamic:
+		return GL_STREAM_DRAW;
+	}
 	return GL_STATIC_DRAW; // todo
 }
 
