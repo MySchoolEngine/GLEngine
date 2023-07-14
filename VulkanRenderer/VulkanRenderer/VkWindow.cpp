@@ -14,6 +14,7 @@
 #include <Renderer/Textures/TextureStorage.h>
 #include <Renderer/Viewport.h>
 
+#include <Entity/EntitiesWindow.h>
 #include <Entity/EntityManager.h>
 
 #include <Core/EventSystem/Event/AppEvent.h>
@@ -50,6 +51,7 @@ C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
 	: GLFWManager::C_GLFWWindow(Core::E_Driver::Vulkan)
 	, m_renderer(nullptr)
 	, m_Instance(nullptr)
+	, m_ImGUI(m_ID)
 {
 	Init(wndInfo);
 
@@ -77,6 +79,8 @@ C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
 	CreateTextureSampler();
 	CreateDescriptorSets();
 
+	m_ImGUI.OnAttach(); // manual call for now.
+
 	// WORLD RELATED STUFF
 	m_World = std::make_shared<Entity::C_EntityManager>();
 
@@ -86,6 +90,25 @@ C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
 		handlesMesh->SetParent(staticMeshHandle);
 		staticMeshHandle->AddComponent(handlesMesh);
 	}
+
+
+	const SwapChainSupportDetails swapChainSupport = GetVkDevice().QuerySwapChainSupport(m_Surface);
+
+	auto* pipeline = m_renderer->GetRMVK().GetPipeline(m_PipelineHandle);
+	m_ImGUI.Init(VkGuiInit{
+		.Instance		= m_Instance,
+		.PhysicalDevice = GetVkDevice().GetPhysicalDevice(),
+		.Device			= GetVkDevice().GetVkDevice(),
+		.QueueFamily	= m_renderer->GetGraphicsFamilyIndex(),
+		.Queue			= m_renderer->GetGraphicsQueue(),
+		.PipelineCache	= VK_NULL_HANDLE,
+		.MinImageCount	= swapChainSupport.capabilities.minImageCount,
+		.ImageCount		= imageCount,
+		.RenderPass		= pipeline->GetRenderPass(),
+		.CommandBuffer	= m_CommandBuffer[0],
+	});
+
+	SetupGUI();
 }
 
 //=================================================================================
@@ -124,6 +147,8 @@ C_VkWindow::~C_VkWindow()
 //=================================================================================
 void C_VkWindow::Update()
 {
+	m_ImGUI.FrameBegin();
+	m_ImGUI.OnUpdate();
 	Core::C_ResourceManager::Instance().UpdatePendingLoads();
 	handlesMesh->Update();
 	handlesMesh->Render(m_3DRenderer);
@@ -229,7 +254,7 @@ void C_VkWindow::CreateSwapChain()
 	glm::ivec2				 size		   = GetSize();
 	const VkExtent2D		 extent		   = ChooseSwapExtent(swapChainSupport.capabilities, {static_cast<uint32_t>(size.x), static_cast<uint32_t>(size.y)});
 
-	uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+	imageCount = swapChainSupport.capabilities.minImageCount + 1;
 	if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
 	{
 		imageCount = swapChainSupport.capabilities.maxImageCount;
@@ -353,6 +378,8 @@ void C_VkWindow::OnEvent(Core::I_Event& event)
 
 	Core::C_EventDispatcher d(event);
 	d.Dispatch<Core::C_WindowResizedEvent>(std::bind(&C_VkWindow::OnWindowResized, this, std::placeholders::_1));
+
+	m_ImGUI.OnEvent(event);
 }
 
 //=================================================================================
@@ -500,6 +527,8 @@ void C_VkWindow::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t ima
 	m_3DRenderer.Commit(m_RenderInterface);
 	m_RenderInterface.EndRender();
 
+	m_ImGUI.SetCommandBuffer(m_CommandBuffer[currentFrame]);
+	m_ImGUI.FrameEnd(m_Input);
 
 	vkCmdEndRenderPass(commandBuffer);
 	if (const auto result = vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
@@ -763,6 +792,22 @@ void C_VkWindow::CreateTextureSampler()
 	if (auto* texture = m_renderer->GetRMVK().GetTexture(m_GPUTextureHandle))
 	{
 		texture->SetSampler(GPUSamplerHandle);
+	}
+}
+
+//=================================================================================
+void C_VkWindow::SetupGUI()
+{
+	auto& guiMGR = m_ImGUI.GetGUIMgr();
+
+
+	// Entity window
+	{
+		m_EntitiesWindowGUID = NextGUID();
+
+		auto entitiesWindow = new Entity::C_EntitiesWindow(m_EntitiesWindowGUID, m_World);
+		guiMGR.AddCustomWindow(entitiesWindow);
+		entitiesWindow->SetVisible();
 	}
 }
 

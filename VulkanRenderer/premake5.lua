@@ -37,6 +37,10 @@ project "VulkanRenderer"
 	}
 
 	filter "system:windows"
+		defines
+		{
+			"IMGUI_API=__declspec(dllimport)",
+		}
 
 		postbuildcommands
 		{

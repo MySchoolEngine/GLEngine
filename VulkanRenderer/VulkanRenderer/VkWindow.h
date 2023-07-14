@@ -1,7 +1,8 @@
 #pragma once
 
-#include <VulkanRenderer/VkResourceManager.h>
+#include <VulkanRenderer/ImGui/VkImGUILayer.h>
 #include <VulkanRenderer/VkRenderInterface.h>
+#include <VulkanRenderer/VkResourceManager.h>
 
 #include <Renderer/Mesh/Loading/MeshResource.h>
 #include <Renderer/Renderer3D.h>
@@ -32,6 +33,7 @@ class C_EntityManager;
 namespace GLEngine::VkRenderer {
 
 class C_VkRenderer;
+class C_VkImGUILayer;
 struct UniformBufferObject {
 	glm::mat4 model;
 	glm::mat4 view;
@@ -73,6 +75,7 @@ private:
 	void			   CreateDescriptorSets();
 	void			   CreateTexture();
 	void			   CreateTextureSampler();
+	void			   SetupGUI();
 	void			   RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
 	void DestroySwapchain();
@@ -89,6 +92,8 @@ private:
 	VkExtent2D					 m_SwapChainExtent;
 	VkCommandPool				 m_CommandPool;
 	std::vector<VkCommandBuffer> m_CommandBuffer; // auto cleanup on pool release!
+
+	C_VkImGUILayer m_ImGUI;
 
 	Renderer::Handle<Renderer::Pipeline> m_PipelineHandle;
 
@@ -117,6 +122,10 @@ private:
 	VkSurfaceKHR_T* m_Surface;
 
 	VkInstance_T* m_Instance;
+
+	uint32_t imageCount;
+
+	GUID m_EntitiesWindowGUID;
 
 
 	// SCENE RELATED STUFF

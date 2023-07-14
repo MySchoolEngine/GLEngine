@@ -193,4 +193,10 @@ void C_VkDevice::CreateImage(glm::uvec2 dim, VkBufferUsageFlags usage, VkImage& 
 	vkBindImageMemory(GetVkDevice(), textureImage, textureImageMemory, 0);
 }
 
+//=================================================================================
+VkPhysicalDevice C_VkDevice::GetPhysicalDevice() const
+{
+	return m_GPU;
+}
+
 } // namespace GLEngine::VkRenderer
