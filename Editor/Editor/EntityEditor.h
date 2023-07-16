@@ -19,8 +19,6 @@ private:
 	virtual void	   DrawComponents() const override;
 	[[nodiscard]] bool UnsavedWork() const;
 
-	virtual std::string GetTitle() const override;
-
 	void DiscardWork();
 	void SaveWorkWindow();
 	void OpenEntityWindow();

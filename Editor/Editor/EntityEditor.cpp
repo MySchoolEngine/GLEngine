@@ -57,12 +57,6 @@ bool EntityEditor::UnsavedWork() const
 }
 
 //=================================================================================
-std::string EntityEditor::GetTitle() const
-{
-	return m_Name + (UnsavedWork() ? " - unsaved" : "");
-}
-
-//=================================================================================
 void EntityEditor::Update()
 {
 	m_Entity->Update();
