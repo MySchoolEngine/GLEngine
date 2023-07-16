@@ -34,6 +34,8 @@
 #include <Renderer/Textures/TextureResource.h>
 #include <Renderer/Textures/TextureView.h>
 
+#include <Editor/EntityEditor.h>
+
 #include <GUI/ConsoleWindow.h>
 #include <GUI/FileDialogWindow.h>
 
@@ -109,11 +111,13 @@ C_ExplerimentWindow::~C_ExplerimentWindow()
 //=================================================================================
 void C_ExplerimentWindow::Update()
 {
+	bool open = true;
 	m_EditorLayer.SetCamera(m_CamManager.GetActiveCamera());
 	m_ImGUI->FrameBegin();
 	m_LayerStack.OnUpdate();
 	Core::C_ResourceManager::Instance().UpdatePendingLoads();
 	Renderer::C_MaterialManager::Instance().Update();
+	::ImGui::ShowDemoWindow(&open);
 
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.Reset();
@@ -323,6 +327,15 @@ void C_ExplerimentWindow::OnAppInit()
 
 		guiMGR.AddCustomWindow(m_RayTraceWindow);
 		m_RayTraceWindow->SetVisible();
+	}
+
+	{
+		m_EntityEditorGUID = NextGUID();
+
+		auto* entities = new Editor::EntityEditor(m_EntityEditorGUID, guiMGR);
+
+		guiMGR.AddCustomWindow(entities);
+		entities->SetVisible();
 	}
 
 	// Entity window
