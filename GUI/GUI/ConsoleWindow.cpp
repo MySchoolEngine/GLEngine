@@ -131,7 +131,7 @@ void C_ConsoleWindow::Draw() const
 		}
 		if (!filter->Filter(data))
 			continue;
-		::ImGui::TextColored(s_LevelColors[static_cast<levelUnderlying>(data.m_Level)], data.m_Text.c_str());
+		::ImGui::TextColored(s_LevelColors[static_cast<levelUnderlying>(data.m_Level)], "%s", data.m_Text.c_str());
 	}
 	::ImGui::SetScrollHereY(1.0f);
 	::ImGui::EndChild();

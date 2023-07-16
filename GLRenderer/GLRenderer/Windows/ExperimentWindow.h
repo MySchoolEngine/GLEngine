@@ -8,6 +8,9 @@
 #include <GLRenderer/Textures/Texture.h>
 
 #include <Renderer/Mesh/Curve.h>
+#include <Renderer/Renderer3D.h>
+
+#include <Editor/EditorLayer.h>
 
 #include <GUI/GUIWindow.h>
 #include <GUI/Input/CheckBoxValue.h>
@@ -23,15 +26,14 @@
 
 #include <Utils/HighResolutionTimer.h>
 
-#include <Editor/EditorLayer.h>
-
 namespace GLEngine::Core {
 class C_AppEvent;
 class C_WindowResizedEvent;
 } // namespace GLEngine::Core
 namespace GLEngine::Renderer {
 class I_CameraComponent;
-}
+class C_StaticMeshHandles;
+} // namespace GLEngine::Renderer
 
 namespace GLEngine::GLRenderer {
 class C_GLImGUILayer;
@@ -39,6 +41,7 @@ class C_RayTraceWindow;
 class C_Framebuffer;
 class C_SunShadowMapTechnique;
 class C_RenderInterface;
+class C_GLRenderInterface;
 
 namespace Windows {
 class C_ExplerimentWindow : public GLFW::C_GLFWoGLWindow {
@@ -103,11 +106,16 @@ private:
 	std::shared_ptr<C_SunShadowMapTechnique> m_SunShadow;
 	C_RayTraceWindow*						 m_RayTraceWindow;
 
-	std::unique_ptr<C_Framebuffer>	   m_HDRFBO;
-	std::unique_ptr<C_Framebuffer>	   m_HDRFBOAtmosphere;
-	std::unique_ptr<C_RenderInterface> m_RenderInterface;
+	std::shared_ptr<Renderer::C_StaticMeshHandles> handlesMesh;
+
+	std::unique_ptr<C_Framebuffer>		 m_HDRFBO;
+	std::unique_ptr<C_Framebuffer>		 m_HDRFBOAtmosphere;
+	std::unique_ptr<C_RenderInterface>	 m_RenderInterface;
+	std::unique_ptr<C_GLRenderInterface> m_RenderInterfaceHandles;
 
 	Editor::C_EditorLayer m_EditorLayer;
+
+	Renderer::Renderer3D m_3DRenderer;
 };
 
 } // namespace Windows

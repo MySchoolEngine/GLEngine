@@ -19,6 +19,10 @@
     </Expand>
   </Type>
 
+  <Type Name="GLEngine::Renderer::Handle&lt;*&gt;">
+    <DisplayString Condition="m_index.raw == 0">null</DisplayString>
+  </Type>
+
   <Type Name="GLEngine::Renderer::TextureResource">
     <DisplayString>Texture: {m_Filepath._Text}, {m_State}</DisplayString>
     <Expand>

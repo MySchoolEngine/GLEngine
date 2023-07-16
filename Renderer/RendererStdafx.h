@@ -6,6 +6,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/hash.hpp>
 
 #include <Core/CoreMacros.h>
 

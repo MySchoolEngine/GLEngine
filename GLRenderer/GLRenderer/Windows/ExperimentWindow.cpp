@@ -11,6 +11,8 @@
 #include <GLRenderer/Components/SkeletalMesh.h>
 #include <GLRenderer/Components/SkyBox.h>
 #include <GLRenderer/Debug.h>
+#include <GLRenderer/GLRenderInterface.h>
+#include <GLRenderer/GLResourceManager.h>
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 #include <GLRenderer/ImGui/GLImGUILayer.h>
 #include <GLRenderer/Materials/MaterialBuffer.h>
@@ -27,6 +29,7 @@
 #include <GLRenderer/Windows/RayTrace.h>
 
 #include <Renderer/Cameras/OrbitalCamera.h>
+#include <Renderer/Components/StaticMeshHandles.h>
 #include <Renderer/Lights/SunLight.h>
 #include <Renderer/Materials/MaterialManager.h>
 #include <Renderer/Mesh/Loading/MeshResource.h>
@@ -139,6 +142,9 @@ void C_ExplerimentWindow::Update()
 	const auto camera = m_CamManager.GetActiveCamera();
 	GLE_ASSERT(camera, "No active camera");
 
+	handlesMesh->Update();
+	handlesMesh->Render(m_3DRenderer);
+
 	// ======
 	// Sun shadow
 	// ======
@@ -159,6 +165,10 @@ void C_ExplerimentWindow::Update()
 	// ======
 	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
 	m_MainPass->Render(*m_World.get(), camera, GetWidth(), GetHeight());
+	{
+		RenderDoc::C_DebugScope s("Handles draw");
+		m_3DRenderer.Commit(*m_RenderInterfaceHandles.get());
+	}
 	m_HDRFBO->Unbind<E_FramebufferTarget::Draw>();
 
 	// ======
@@ -234,7 +244,6 @@ void C_ExplerimentWindow::Update()
 	}
 
 	// commit of final commands - from commit few lines above
-	m_renderer->SortCommands();
 	m_renderer->Commit();
 	m_renderer->ClearCommandBuffers();
 	glfwSwapBuffers(m_Window);
@@ -281,6 +290,8 @@ void C_ExplerimentWindow::OnAppInit()
 
 	m_RenderInterface
 		= std::make_unique<C_RenderInterface>(Shaders::C_ShaderManager::Instance(), Textures::C_TextureUnitManger::Instance(), *static_cast<C_OGLRenderer*>(m_renderer.get()));
+
+	m_RenderInterfaceHandles = std::make_unique<C_GLRenderInterface>();
 
 	SetupWorld("Levels/cornellBox.xml");
 
@@ -565,6 +576,13 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 		skeletalMesh->SetComponentMatrix(glm::translate(glm::mat4{1.f}, glm::vec3(0, -1, 0)) * glm::rotate(glm::half_pi<float>(), glm::vec3(1.f, .0f, .0f))
 										 * glm::scale(glm::vec3{0.2f}));
 		runner->AddComponent(skeletalMesh);
+	}
+
+	auto staticMeshHandle = m_World->GetOrCreateEntity("handles");
+	{
+		handlesMesh = std::make_shared<Renderer::C_StaticMeshHandles>();
+		handlesMesh->SetParent(staticMeshHandle);
+		staticMeshHandle->AddComponent(handlesMesh);
 	}
 
 
