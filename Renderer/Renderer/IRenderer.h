@@ -8,6 +8,7 @@ namespace GLEngine::Renderer {
 
 class I_Device;
 class ResouceManager;
+class I_TextureViewStorage;
 
 enum class E_PassType
 {
@@ -55,13 +56,16 @@ public:
 	 * @return:    void
 	 * @brief	   Copy data into GPU buffer.
 	 ** ==============================================*/
-	virtual void SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer, std::size_t numBytes, const void* data) = 0;
+	virtual void SetBufferData(Handle<Buffer> dstBuffer, std::size_t numBytes, const void* data) = 0;
+	virtual void SetTextureData(Handle<Texture> dstTexture, const I_TextureViewStorage& storage) {}
 
-	virtual I_Device&				  GetDevice() = 0;
-	virtual Renderer::ResouceManager& GetRM()	  = 0;
+	virtual I_Device&		GetDevice() = 0;
+	virtual ResouceManager& GetRM()		= 0;
+
+	virtual void* GetTextureGPUHandle(Handle<Texture> texture) { return nullptr; }
 
 	virtual E_PassType GetCurrentPassType() const = 0;
-	virtual void	   SetCurrentPassType(Renderer::E_PassType type) {}
+	virtual void	   SetCurrentPassType(E_PassType type) {}
 };
 
 } // namespace GLEngine::Renderer

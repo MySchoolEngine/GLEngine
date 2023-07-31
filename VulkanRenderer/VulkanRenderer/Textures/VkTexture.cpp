@@ -30,4 +30,10 @@ VkImageView C_VkTexture::GetView() const
 	return textureImageView;
 }
 
+//=================================================================================
+VkImage C_VkTexture::GetGPUHandle() const
+{
+	return textureImage;
+}
+
 }

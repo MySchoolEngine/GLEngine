@@ -258,10 +258,8 @@ void C_VkRenderer::CopyBuffer(VkBuffer srcBuffer, Renderer::Handle<Renderer::Buf
 }
 
 //=================================================================================
-void C_VkRenderer::CopyImageResource(Renderer::Handle<Renderer::Texture> dstTexture, Core::ResourceHandle<Renderer::TextureResource>& textureHandle, VkCommandPool& commandPool)
+void C_VkRenderer::SetTextureData(Renderer::Handle<Renderer::Texture> dstTexture, const Renderer::I_TextureViewStorage& storage)
 {
-	const auto& storage = textureHandle.GetResource().GetStorage();
-
 	const glm::uvec2   dim		 = storage.GetDimensions();
 	const VkDeviceSize imageSize = dim.x * dim.y * 4 * sizeof(float); // todo, could be different type
 
@@ -279,10 +277,10 @@ void C_VkRenderer::CopyImageResource(Renderer::Handle<Renderer::Texture> dstText
 	C_VkTexture* pdstTexture = m_GPUResourceManager.GetTexture(dstTexture);
 
 	// formats should be deduced from desc
-	TransitionImageLayout(pdstTexture->textureImage, GetTextureFormat(pdstTexture->m_Desc.format), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, commandPool);
-	CopyBufferToImage(stagingBuffer, pdstTexture->textureImage, static_cast<uint32_t>(dim.x), static_cast<uint32_t>(dim.y), commandPool);
+	TransitionImageLayout(pdstTexture->textureImage, GetTextureFormat(pdstTexture->m_Desc.format), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, m_DefaultCommandPool);
+	CopyBufferToImage(stagingBuffer, pdstTexture->textureImage, static_cast<uint32_t>(dim.x), static_cast<uint32_t>(dim.y), m_DefaultCommandPool);
 	TransitionImageLayout(pdstTexture->textureImage, GetTextureFormat(pdstTexture->m_Desc.format), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-						  commandPool);
+						  m_DefaultCommandPool);
 
 	vkDestroyBuffer(GetDeviceVK(), stagingBuffer, nullptr);
 	vkFreeMemory(GetDeviceVK(), stagingBufferMemory, nullptr);
@@ -444,5 +442,15 @@ C_VkResourceManager& C_VkRenderer::GetRMVK()
 {
 	return m_GPUResourceManager;
 }
+//=================================================================================
+void* C_VkRenderer::GetTextureGPUHandle(Renderer::Handle<Renderer::Texture> textureHanlde)
+{
+	if (auto* texture = m_GPUResourceManager.GetTexture(textureHanlde))
+	{
+		return texture->GetView();
+	}
+	return VK_NULL_HANDLE;
+}
 
 } // namespace GLEngine::VkRenderer
+

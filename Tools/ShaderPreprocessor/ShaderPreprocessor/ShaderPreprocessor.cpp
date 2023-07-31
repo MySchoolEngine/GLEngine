@@ -18,7 +18,7 @@ public:
 	C_ShaderCompiler()
 		: T_Base(std::ios::binary)
 	{}
-	void ReleaseStage(T_StageHandle& stage)
+	void ReleaseStage(T_StageHandle& stage) override
 	{
 		// nothing
 	}

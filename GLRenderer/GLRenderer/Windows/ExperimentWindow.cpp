@@ -26,7 +26,6 @@
 #include <GLRenderer/Textures/TextureManager.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 #include <GLRenderer/Windows/ExperimentWindow.h>
-#include <GLRenderer/Windows/RayTrace.h>
 
 #include <Renderer/Cameras/OrbitalCamera.h>
 #include <Renderer/Components/StaticMeshHandles.h>
@@ -36,6 +35,7 @@
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/Textures/TextureResource.h>
 #include <Renderer/Textures/TextureView.h>
+#include <Renderer/Windows/RayTrace.h>
 
 #include <Editor/EntityEditor.h>
 
@@ -334,7 +334,7 @@ void C_ExplerimentWindow::OnAppInit()
 	{
 		m_RayTraceGUID = NextGUID();
 
-		m_RayTraceWindow = new C_RayTraceWindow(m_RayTraceGUID, m_CamManager.GetActiveCamera(), guiMGR);
+		m_RayTraceWindow = new Renderer::C_RayTraceWindow(m_RayTraceGUID, m_CamManager.GetActiveCamera(), guiMGR);
 
 		guiMGR.AddCustomWindow(m_RayTraceWindow);
 		m_RayTraceWindow->SetVisible();
