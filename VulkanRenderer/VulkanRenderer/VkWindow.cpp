@@ -12,7 +12,9 @@
 #include <Renderer/Components/StaticMeshHandles.h>
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/Textures/TextureStorage.h>
+#include <Renderer/Cameras/OrbitalCamera.h>
 #include <Renderer/Viewport.h>
+#include <Renderer/Windows/RayTrace.h>
 
 #include <Entity/EntitiesWindow.h>
 #include <Entity/EntityManager.h>
@@ -105,8 +107,6 @@ C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
 		.RenderPass		= pipeline->GetRenderPass(),
 		.CommandBuffer	= m_CommandBuffer[0],
 	});
-
-	SetupGUI();
 }
 
 //=================================================================================
@@ -143,6 +143,8 @@ void C_VkWindow::Update()
 {
 	m_ImGUI.FrameBegin();
 	m_ImGUI.OnUpdate();
+	bool show = true;
+	ImGui::ShowDemoWindow(&show);
 	Core::C_ResourceManager::Instance().UpdatePendingLoads();
 	handlesMesh->Update();
 	handlesMesh->Render(m_3DRenderer);
@@ -371,6 +373,7 @@ void C_VkWindow::OnEvent(Core::I_Event& event)
 	GLFWManager::C_GLFWWindow::OnEvent(event);
 
 	Core::C_EventDispatcher d(event);
+	d.Dispatch<Core::C_AppEvent>(std::bind(&C_VkWindow::OnAppEvent, this, std::placeholders::_1));
 	d.Dispatch<Core::C_WindowResizedEvent>(std::bind(&C_VkWindow::OnWindowResized, this, std::placeholders::_1));
 
 	m_ImGUI.OnEvent(event);
@@ -700,7 +703,7 @@ void C_VkWindow::CreateTexture()
 											.m_bStreamable = false};
 
 	m_GPUTextureHandle = GetRenderer().GetRM().createTexture(textureDesc);
-	m_renderer->CopyImageResource(m_GPUTextureHandle, m_TextureHandle, m_CommandPool);
+	m_renderer->SetTextureData(m_GPUTextureHandle, storage);
 }
 
 //=================================================================================
@@ -722,6 +725,18 @@ void C_VkWindow::CreateTextureSampler()
 //=================================================================================
 void C_VkWindow::SetupGUI()
 {
+	auto player = m_World->GetOrCreateEntity("Player");
+	if (player)
+	{
+		auto cameras = player->GetComponents(Entity::E_ComponentType::Camera);
+		float zoom		   = 5.0f;
+		playerCamera = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
+		playerCamera->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
+		playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
+		playerCamera->Update();
+		player->AddComponent(playerCamera);
+	}
+
 	auto& guiMGR = m_ImGUI.GetGUIMgr();
 
 
@@ -733,6 +748,27 @@ void C_VkWindow::SetupGUI()
 		guiMGR.AddCustomWindow(entitiesWindow);
 		entitiesWindow->SetVisible();
 	}
+
+	// RT window
+	{
+		m_RayTraceGUID = NextGUID();
+
+		m_RayTraceWindow = new Renderer::C_RayTraceWindow(m_RayTraceGUID, playerCamera, guiMGR);
+
+		guiMGR.AddCustomWindow(m_RayTraceWindow);
+		m_RayTraceWindow->SetVisible();
+	}
+}
+
+//=================================================================================
+bool C_VkWindow::OnAppEvent(Core::C_AppEvent& event)
+{
+	if (event.GetEventType() == Core::C_AppEvent::E_Type::AppInit)
+	{
+		SetupGUI();
+		return true;
+	}
+	return false;
 }
 
 } // namespace GLEngine::VkRenderer

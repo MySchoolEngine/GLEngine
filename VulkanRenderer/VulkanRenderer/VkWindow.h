@@ -24,6 +24,10 @@ class C_WindowResizedEvent;
 namespace GLEngine::Renderer {
 class I_CameraComponent;
 class C_StaticMeshHandles;
+class C_RayTraceWindow;
+namespace Cameras {
+class C_OrbitalCamera;
+}
 } // namespace GLEngine::Renderer
 
 namespace GLEngine::Entity {
@@ -57,6 +61,7 @@ protected:
 	bool OnWindowResized(Core::C_WindowResizedEvent& event);
 
 private:
+	bool			   OnAppEvent(Core::C_AppEvent& event);
 	bool			   CreateWindowSurface();
 	void			   CreateSwapChain();
 	VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
@@ -120,12 +125,15 @@ private:
 	uint32_t imageCount;
 
 	GUID m_EntitiesWindowGUID;
+	GUID						m_RayTraceGUID;
+	Renderer::C_RayTraceWindow* m_RayTraceWindow;
 
 
 	// SCENE RELATED STUFF
 	Renderer::Renderer3D						   m_3DRenderer;
 	std::shared_ptr<Entity::C_EntityManager>	   m_World;
 	std::shared_ptr<Renderer::C_StaticMeshHandles> handlesMesh;
+	std::shared_ptr<Renderer::Cameras::C_OrbitalCamera> playerCamera;
 
 	C_VkRenderInterface m_RenderInterface;
 };
