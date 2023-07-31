@@ -2,6 +2,7 @@
 
 #include <GUI/ImageViewer.h>
 
+#include <imgui.h>
 #include <Renderer/IRenderer.h>
 
 #include <Core/Application.h>

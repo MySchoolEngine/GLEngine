@@ -2,7 +2,7 @@
 
 #include <GUI/FileDialogWindow.h>
 
-#include <ImGuiFileDialog/ImGuiFileDialog.h>
+#include <ImGuiFileDialog.h>
 
 namespace GLEngine::GUI {
 
@@ -16,26 +16,26 @@ C_FileDialogWindow::C_FileDialogWindow(const std::string&										fileType,
 	, m_WindowName(windowName)
 	, m_SuccessCallback(succesCallback)
 {
-	igfd::ImGuiFileDialog::Instance()->OpenDialog(m_WindowName, windowName.c_str(), fileType.c_str(), basePath.generic_string(), "");
+	ImGuiFileDialog::Instance()->OpenDialog(m_WindowName, windowName.c_str(), fileType.c_str(), basePath.generic_string(), "");
 }
 
 //=================================================================================
 C_FileDialogWindow::~C_FileDialogWindow()
 {
-	igfd::ImGuiFileDialog::Instance()->CloseDialog(m_WindowName);
+	ImGuiFileDialog::Instance()->Close();
 }
 
 //=================================================================================
 void C_FileDialogWindow::Draw() const
 {
 	// display
-	if (igfd::ImGuiFileDialog::Instance()->FileDialog(m_WindowName))
+	if (ImGuiFileDialog::Instance()->Display(m_WindowName))
 	{
 		// action if OK
-		if (igfd::ImGuiFileDialog::Instance()->IsOk == true)
+		if (ImGuiFileDialog::Instance()->IsOk()== true)
 		{
-			const std::filesystem::path filePathName = igfd::ImGuiFileDialog::Instance()->GetFilePathName();
-			const std::filesystem::path filePath	 = igfd::ImGuiFileDialog::Instance()->GetCurrentPath();
+			const std::filesystem::path filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+			const std::filesystem::path filePath	 = ImGuiFileDialog::Instance()->GetCurrentPath();
 			m_SuccessCallback(filePath / filePathName);
 		}
 		else

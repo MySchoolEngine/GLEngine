@@ -22,6 +22,7 @@ project "ImGui"
         "%{wks.location}/"..IncludeDir["ImGui"].."/imstb_textedit.h",
         "%{wks.location}/"..IncludeDir["ImGui"].."/imstb_truetype.h",
         "%{wks.location}/"..IncludeDir["ImGui"].."/imgui_demo.cpp",
+        "%{wks.location}/"..IncludeDir["ImGui"].."/imgui_tables.cpp",
 
         "%{wks.location}/"..IncludeDir["ImGui"].."/misc/cpp/imgui_stdlib.h",
         "%{wks.location}/"..IncludeDir["ImGui"].."/misc/cpp/imgui_stdlib.cpp",

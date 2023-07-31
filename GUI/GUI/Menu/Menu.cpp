@@ -5,10 +5,13 @@
 
 namespace GLEngine::GUI::Menu {
 //=================================================================================
-C_Menu::C_Menu(const std::string&& label)
+C_Menu::C_Menu(std::string&& label)
 	: m_Label(std::move(label))
 {
 }
+
+//=================================================================================
+C_Menu::~C_Menu() = default;
 
 //=================================================================================
 void C_Menu::Draw() const
@@ -24,11 +27,12 @@ void C_Menu::Draw() const
 }
 
 //=================================================================================
-GUID C_Menu::AddMenuItem(T_GUIMenuItem menuItem)
+GUID C_Menu::AddMenuItem(std::reference_wrapper<C_MenuItem> menuItem)
 {
 	GUID guid = NextGUID();
 	m_MenuItems.emplace_back(guid, menuItem);
 	return guid;
 }
+
 
 } // namespace GLEngine::GUI::Menu

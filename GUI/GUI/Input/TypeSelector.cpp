@@ -13,9 +13,14 @@ C_TypeSelector::C_TypeSelector(const std::string_view name, const std::string& b
 {
 	const auto baseType		  = rttr::type::get_by_name(m_BaseTypeName);
 	const auto derivedClasses = baseType.get_derived_classes();
-	const auto autoselected	  = derivedClasses.begin();
-	GLE_ASSERT(autoselected != derivedClasses.end(), "No derived class to select");
-	m_Selected = (*autoselected).get_name().data();
+
+	for (const auto& type : baseType.get_derived_classes()) {
+		if (type.get_constructors().empty() == false)
+		{
+			m_Selected = type.get_name().data();
+		}
+	}
+	GLE_ASSERT(m_Selected.empty() == false, "No derived class to select");
 }
 
 //=================================================================================
@@ -27,6 +32,7 @@ void C_TypeSelector::Draw() const
 	{
 		for (const auto& type : baseType.get_derived_classes())
 		{
+			if (type.get_constructors().empty()) continue;
 			bool is_selected = type.get_name() == m_Selected;
 			if (ImGui::Selectable(type.get_name().data(), is_selected))
 			{

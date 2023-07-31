@@ -15,8 +15,8 @@ project "ImGuiFileDialog"
 
 	files
 	{
-        "%{wks.location}/vendor/ImGuiFileDialog/ImGuiFileDialog/*.h",
-        "%{wks.location}/vendor/ImGuiFileDialog/ImGuiFileDialog/*.cpp",
+        "%{wks.location}/vendor/ImGuiFileDialog/*.h",
+        "%{wks.location}/vendor/ImGuiFileDialog/*.cpp",
     }
     
 	filter "system:windows"
@@ -25,6 +25,10 @@ project "ImGuiFileDialog"
         includedirs
         {
             "%{wks.location}/%{IncludeDir.dirent}",
+        }
+        defines
+        {
+            "IMGUI_API=__declspec(dllimport)"
         }
 
     filter "system:linux"

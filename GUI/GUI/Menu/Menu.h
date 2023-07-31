@@ -7,17 +7,18 @@ namespace GLEngine::GUI::Menu {
 
 class GUI_API_EXPORT C_Menu : public I_GUIPart {
 public:
-	using T_GUIMenuItem = std::reference_wrapper<Menu::C_MenuItem>;
+	using T_GUIMenuItem = std::reference_wrapper<C_MenuItem>;
 
 public:
-	explicit C_Menu(const std::string&& label);
+	explicit C_Menu(std::string&& label);
+	~C_Menu();
 
 	virtual void Draw() const override;
 
-	GUID AddMenuItem(T_GUIMenuItem menuItem);
+	virtual GUID AddMenuItem(std::reference_wrapper<C_MenuItem> menuItem);
 
 private:
-	std::string					  m_Label;
+	std::string									m_Label;
 	std::vector<std::pair<GUID, T_GUIMenuItem>> m_MenuItems;
 };
 
