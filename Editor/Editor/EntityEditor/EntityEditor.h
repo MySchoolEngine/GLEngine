@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Editor/EditorApi.h>
+#include <Editor/EntityEditor/EntityComponentsEditor.h>
 
 #include <GUI/GUIWindow.h>
 #include <GUI/Menu/Menu.h>
@@ -13,7 +14,7 @@ public:
 	EntityEditor(GUID guid, GUI::C_GUIManager& guiMGR);
 
 	virtual void Update() override;
-	void SetEntity(std::weak_ptr<Entity::I_Entity>& entity);
+	void		 SetEntity(std::weak_ptr<Entity::I_Entity>& entity);
 
 private:
 	virtual void	   DrawComponents() const override;
@@ -39,10 +40,11 @@ private:
 	};
 
 
-	bool							  m_HasChanged = false;
+	bool							  m_HasChanged		= false;
 	QueuedOperation					  m_QueuedOperation = QueuedOperation::None;
 	GUI::Menu::C_Menu				  m_File;
 	std::shared_ptr<Entity::I_Entity> m_Entity;
 	std::filesystem::path			  m_Path;
+	mutable C_EntityCompoenentEditor  m_ComponentEditor;
 };
 } // namespace GLEngine::Editor

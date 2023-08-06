@@ -1,6 +1,6 @@
 #include <EditorStdafx.h>
 
-#include <Editor/EntityEditor.h>
+#include <Editor/EntityEditor/EntityEditor.h>
 
 #include <GUI/FileDialogWindow.h>
 #include <GUI/GUIManager.h>
@@ -11,6 +11,7 @@
 #include <Utils/Serialization/XMLSerialize.h>
 
 #include <imgui.h>
+#include <imgui_internal.h>
 
 namespace GLEngine::Editor {
 
@@ -28,7 +29,8 @@ EntityEditor::EntityEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 			return;
 		}
 		OpenEntityWindow();
-	}));
+		},
+		"Ctrl+O"));
 	m_File.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>(
 		"Save entity", [&]() { SaveEntity(m_Path); }, "Ctrl+S"));
 	m_File.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>(
@@ -41,7 +43,28 @@ EntityEditor::EntityEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 void EntityEditor::DrawComponents() const
 {
 	ImGuiID dockspace_id = ImGui::GetID("EntitiesEditor");
+	if (ImGui::DockBuilderGetNode(dockspace_id) == NULL)
+	{
+		ImGui::DockBuilderRemoveNode(dockspace_id);							   // Clear out existing layout
+		ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace); // Add empty node
+		// ImGui::DockBuilderSetNodeSize(dockspace_id, dockspace_size);
+		ImGuiID leftNode, rightNode;
+		ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.20f, &leftNode, &rightNode);
+
+		ImGui::DockBuilderDockWindow("Properties", leftNode);
+		ImGui::DockBuilderDockWindow("View", rightNode);
+		ImGui::DockBuilderFinish(dockspace_id);
+	}
 	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
+	//ImGui::SetNextWindowDockID(dockspace_id); Nice to have
+	ImGui::Begin("Properties");
+
+	m_ComponentEditor.Draw();
+	ImGui::End();
+	//ImGui::SetNextWindowDockID(dockspace_id); Nice to have
+	ImGui::Begin("View");
+	ImGui::Text("view");
+	ImGui::End();
 }
 
 //=================================================================================
@@ -59,7 +82,8 @@ bool EntityEditor::UnsavedWork() const
 //=================================================================================
 void EntityEditor::Update()
 {
-	m_Entity->Update();
+	if (m_Entity)
+		m_Entity->Update();
 	if (m_QueuedOperation != QueuedOperation::None)
 	{
 
@@ -131,6 +155,7 @@ void EntityEditor::Update()
 				m_Entity		  = std::make_shared<Entity::C_BasicEntity>();
 				m_Path			  = "";
 				m_HasChanged	  = true;
+				m_ComponentEditor.SetEntity(m_Entity);
 				m_QueuedOperation = QueuedOperation::None;
 				break;
 			case QueuedOperation::OpenEntity:
@@ -191,7 +216,6 @@ void EntityEditor::OpenEntity(const std::filesystem::path& path)
 //=================================================================================
 void EntityEditor::SaveWorkWindow()
 {
-
 }
 
 //=================================================================================
