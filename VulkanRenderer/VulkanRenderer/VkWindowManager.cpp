@@ -39,7 +39,7 @@ void C_VkWindowManager::Init()
 												VK_MAKE_VERSION(0, 1, 0),
 												nullptr,
 												VK_MAKE_VERSION(0, 1, 0),
-												VK_MAKE_VERSION(1, 0, 3)};
+												VK_MAKE_VERSION(1, 3, 0)};
 
 	const VkInstanceCreateInfo instance_create_info = {
 		VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
