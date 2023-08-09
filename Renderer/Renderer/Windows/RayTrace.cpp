@@ -89,6 +89,7 @@ void C_RayTraceWindow::CreateTextures(I_Renderer& renderer)
 			.m_WrapT	 = Renderer ::E_WrapFunction::Repeat,
 			.m_WrapU	 = Renderer ::E_WrapFunction::Repeat,
 		});
+		renderer.SetTextureSampler(m_GPUImageHandle, GPUSamplerHandle);
 		// TODO: still need to setup sampler
 		m_GUIImage = GUI::C_ImageViewer(m_GPUImageHandle);
 		m_GUIImage.SetSize({s_ImageResolution.x / s_Coef, s_ImageResolution.y / s_Coef});
@@ -101,7 +102,7 @@ void C_RayTraceWindow::CreateTextures(I_Renderer& renderer)
 			   .width		  = 1,
 			   .height		  = s_ImageResolution.y / s_Coef,
 			   .type		  = E_TextureType::TEXTURE_2D,
-			   .format		  = E_TextureFormat::RGB32f,
+			   .format		  = E_TextureFormat::RGBA32f, // todo this used to not contain alpha channel
 			   .m_bStreamable = false,
 		   });
 		auto GPUSamplerHandle = renderer.GetRM().createSampler(SamplerDescriptor2D{
@@ -111,7 +112,8 @@ void C_RayTraceWindow::CreateTextures(I_Renderer& renderer)
 			.m_WrapT	 = Renderer ::E_WrapFunction::Repeat,
 			.m_WrapU	 = Renderer ::E_WrapFunction::Repeat,
 		});
-		m_GUIHeatMapImage	  = GUI::C_Image(m_GPUHeatMapHandle);
+		renderer.SetTextureSampler(m_GPUHeatMapHandle, GPUSamplerHandle);
+		m_GUIHeatMapImage = GUI::C_Image(m_GPUHeatMapHandle);
 	}
 
 	// probe
@@ -121,7 +123,7 @@ void C_RayTraceWindow::CreateTextures(I_Renderer& renderer)
 			 .width		   = s_ProbeSize + 2,
 			 .height	   = s_ProbeSize + 2,
 			 .type		   = E_TextureType::TEXTURE_2D,
-			 .format	   = E_TextureFormat::RGB32f,
+			 .format	   = E_TextureFormat::RGBA32f, // todo this used to not contain alpha channel
 			 .m_NumSamples = false,
 		 });
 		auto GPUSamplerHandle = renderer.GetRM().createSampler(SamplerDescriptor2D{
@@ -131,8 +133,10 @@ void C_RayTraceWindow::CreateTextures(I_Renderer& renderer)
 			.m_WrapT	 = Renderer ::E_WrapFunction::Repeat,
 			.m_WrapU	 = Renderer ::E_WrapFunction::Repeat,
 		});
-		m_GUIImageProbe		  = GUI::C_Image(m_GPUHeatMapHandle);
+		renderer.SetTextureSampler(m_GPUProbeHandle, GPUSamplerHandle);
+		m_GUIImageProbe = GUI::C_Image(m_GPUHeatMapHandle);
 	}
+	Clear();
 }
 
 //=================================================================================
@@ -209,9 +213,7 @@ void C_RayTraceWindow::RunUntilStop()
 //=================================================================================
 void C_RayTraceWindow::Clear()
 {
-	GLE_ASSERT(m_Renderer, "Ray tracing running during load.");
-
-	glm::vec4 color{0.f, 0.f, 0.f, 0.f};
+	const glm::vec4 color{Colours::black, 1.f};
 	C_TextureView(&m_ImageStorage).ClearColor(color);
 	C_TextureView(&m_HeatMapStorage).ClearColor(color);
 	C_TextureView(&m_HeatMapNormalizedStorage).ClearColor(color);
@@ -219,7 +221,8 @@ void C_RayTraceWindow::Clear()
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
 	renderer.SetTextureData(m_GPUImageHandle, m_ImageStorage);
 	renderer.SetTextureData(m_GPUHeatMapHandle, m_HeatMapNormalizedStorage);
-	m_Renderer->SetResultConsumed();
+	if (m_Renderer)
+		m_Renderer->SetResultConsumed();
 
 	m_NumCycleSamples = 0;
 }
@@ -327,7 +330,7 @@ void C_RayTraceWindow::UploadStorage()
 		}
 		m_ImageLock.unlock();
 	}
-	renderer.SetTextureData(m_GPUProbeHandle, m_ProbeStorage);
+	// renderer.SetTextureData(m_GPUProbeHandle, m_ProbeStorage);
 }
 
 //=================================================================================

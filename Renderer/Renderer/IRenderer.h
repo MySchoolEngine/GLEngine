@@ -59,10 +59,13 @@ public:
 	virtual void SetBufferData(Handle<Buffer> dstBuffer, std::size_t numBytes, const void* data) = 0;
 	virtual void SetTextureData(Handle<Texture> dstTexture, const I_TextureViewStorage& storage) {}
 
+	virtual void SetTextureSampler(Handle<Texture> dstTexture, Handle<Sampler> srcSampler) = 0;
+
 	virtual I_Device&		GetDevice() = 0;
 	virtual ResouceManager& GetRM()		= 0;
 
-	virtual void* GetTextureGPUHandle(Handle<Texture> texture) { return nullptr; }
+	virtual void* GetTextureGUIHandle(Handle<Texture> texture) { return nullptr; }
+	// another one for destroy needed
 
 	virtual E_PassType GetCurrentPassType() const = 0;
 	virtual void	   SetCurrentPassType(E_PassType type) {}

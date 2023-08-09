@@ -44,12 +44,13 @@ public:
 
 	void SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer, std::size_t numBytes, const void* data) override;
 	void SetTextureData(Renderer::Handle<Renderer::Texture> dstTexture, const Renderer::I_TextureViewStorage& storage) override;
+	void SetTextureSampler(Renderer::Handle<Renderer::Texture> dstTexture, Renderer::Handle<Renderer::Sampler> srcSampler) override;
 
 	void CopyBuffer(VkBuffer srcBuffer, Renderer::Handle<Renderer::Buffer> dstBuffer, VkDeviceSize size, VkCommandPool& commandPool);
 	// copy whole image, blocking operation, should go to async, have options to copy just parts of image etc.
 	void  CopyBufferToImage(VkBuffer srcBuffer, VkImage image, uint32_t width, uint32_t height, VkCommandPool& commandPool);
 	void  TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, VkCommandPool& commandPool);
-	void* GetTextureGPUHandle(Renderer::Handle<Renderer::Texture> texture) override;
+	void* GetTextureGUIHandle(Renderer::Handle<Renderer::Texture> texture) override;
 
 	Renderer::ResouceManager& GetRM() override;
 	C_VkResourceManager&	  GetRMVK();

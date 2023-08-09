@@ -15,6 +15,7 @@ namespace GLEngine::GUI {
 C_ImageViewer::C_ImageViewer(Renderer::Handle<Renderer::Texture> texture)
 	: m_texture(texture)
 	, m_Zoom(2.f)
+	, m_GUIHandle(nullptr)
 {
 }
 
@@ -50,9 +51,12 @@ void C_ImageViewer::Draw() const
 	// todo - minimap - done
 	//      - channels
 
-	void* gpuHandle = Core::C_Application::Get().GetActiveRenderer().GetTextureGPUHandle(m_texture);
+	if (!m_GUIHandle)
+	{
+		m_GUIHandle = Core::C_Application::Get().GetActiveRenderer().GetTextureGUIHandle(m_texture);
+	}
 
-	ImGui::Image((void*)(intptr_t)(gpuHandle), drawAreaSz, zoomArea.Min, zoomArea.Max);
+	ImGui::Image((void*)(intptr_t)(m_GUIHandle), drawAreaSz, zoomArea.Min, zoomArea.Max);
 
 	const ImVec2 canvas_final = ImGui::GetCursorPos();
 
@@ -67,7 +71,7 @@ void C_ImageViewer::Draw() const
 		const ImVec2	minimapDrawAreaSz(width, height);
 		ImGui::SetCursorPos(canvas_p0 + ImVec2(drawAreaSz.x - offsetFromCorner - minimapDrawAreaSz.x, offsetFromCorner));
 		const ImVec2 screenSpacePos = ImGui::GetCursorScreenPos();
-		ImGui::Image((void*)(intptr_t)(gpuHandle), minimapDrawAreaSz);
+		ImGui::Image((void*)(intptr_t)(m_GUIHandle), minimapDrawAreaSz);
 
 		// rect
 		ImGuiWindow* window = ImGui::GetCurrentWindow();

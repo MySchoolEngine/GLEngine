@@ -14,16 +14,19 @@ namespace GLEngine::GUI {
 C_Image::C_Image(Renderer::Handle<Renderer::Texture> handle)
 	: m_texture(handle)
 	, m_Zoom(2.f)
+	, m_GUIHandle(nullptr)
 {
+	if (m_texture.IsValid()) {
+		m_GUIHandle = Core::C_Application::Get().GetActiveRenderer().GetTextureGUIHandle(m_texture);
+	}
 }
 
 //=================================================================================
 void C_Image::Draw() const
 {
-	if (m_texture.IsValid())
+	if (m_texture.IsValid() && m_GUIHandle)
 	{
-		void* gpuHandle = Core::C_Application::Get().GetActiveRenderer().GetTextureGPUHandle(m_texture);
-		ImGui::Image((void*)(intptr_t)(gpuHandle), ImVec2(m_Size.x, m_Size.y));
+		ImGui::Image((void*)(intptr_t)(m_GUIHandle), ImVec2(m_Size.x, m_Size.y));
 	}
 }
 

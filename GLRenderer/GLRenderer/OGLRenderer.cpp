@@ -256,12 +256,18 @@ GLResourceManager& C_OGLRenderer::GetRMGL()
 }
 
 //=================================================================================
-void* C_OGLRenderer::GetTextureGPUHandle(Renderer::Handle<Renderer::Texture> textureHandle)
+void* C_OGLRenderer::GetTextureGUIHandle(Renderer::Handle<Renderer::Texture> textureHandle)
 {
 	if (auto* texture = m_GPUResourceManager.GetTexture(textureHandle)) {
 		return texture->GetGPUHandle();
 	}
 	return nullptr;
+}
+
+//=================================================================================
+void C_OGLRenderer::SetTextureSampler(Renderer::Handle<Renderer::Texture> dstTexture, Renderer::Handle<Renderer::Sampler> srcSampler)
+{
+	throw std::logic_error("The method or operation is not implemented.");
 }
 
 } // namespace GLEngine::GLRenderer

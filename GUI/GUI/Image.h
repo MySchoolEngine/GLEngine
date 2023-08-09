@@ -18,6 +18,8 @@ private:
 	Renderer::Handle<Renderer::Texture>				  m_texture;
 	glm::vec2										  m_Size; //< Size of GUI, not the image
 	mutable float									  m_Zoom;
+
+	void* m_GUIHandle;
 };
 
 } // namespace GLEngine::GUI

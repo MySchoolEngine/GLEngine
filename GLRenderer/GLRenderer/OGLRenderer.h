@@ -53,11 +53,11 @@ public:
 	virtual Renderer::I_Device& GetDevice() override;
 	void						SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer, std::size_t numBytes, const void* data) override;
 	void						SetTextureData(Renderer::Handle<Renderer::Texture> dstTexture, const Renderer::I_TextureViewStorage& storage) override;
-	void*						GetTextureGPUHandle(Renderer::Handle<Renderer::Texture> texture) override;
+	void						SetTextureSampler(Renderer::Handle<Renderer::Texture> dstTexture, Renderer::Handle<Renderer::Sampler> srcSampler) override;
+	void*						GetTextureGUIHandle(Renderer::Handle<Renderer::Texture> texture) override;
 
 	Renderer::ResouceManager& GetRM() override;
 	GLResourceManager&		  GetRMGL();
-
 
 private:
 	void CaputreCommands() const;

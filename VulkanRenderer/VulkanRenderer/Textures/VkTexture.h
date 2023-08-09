@@ -15,8 +15,6 @@ public:
 
 	VkImageView GetView() const;
 
-	VkImage GetGPUHandle() const;
-
 private:
 	Renderer::TextureDescriptor m_Desc;
 	VkImage						textureImage;
