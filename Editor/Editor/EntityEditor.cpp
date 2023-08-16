@@ -59,7 +59,8 @@ bool EntityEditor::UnsavedWork() const
 //=================================================================================
 void EntityEditor::Update()
 {
-	m_Entity->Update();
+	if (m_Entity)
+		m_Entity->Update();
 	if (m_QueuedOperation != QueuedOperation::None)
 	{
 
