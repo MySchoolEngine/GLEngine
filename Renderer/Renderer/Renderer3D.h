@@ -19,7 +19,7 @@ struct RenderCall3D {
 	uint32_t					  NumPrimities;
 	int							  MaterialIndex; // oddly specific now, but I will think about it
 	std::array<Handle<Buffer>, 5> Buffers;		 // let's go for up to 5 attributes right now
-	Handle<Pipeline>			  Pipeline;
+	Handle<Pipeline>			  PipelineHandle;
 };
 
 class RenderInterface {

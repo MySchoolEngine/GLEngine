@@ -33,7 +33,7 @@ void C_GLRenderInterface::Render(const Renderer::RenderCall3D& call)
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
 	auto& glRM	   = static_cast<C_OGLRenderer&>(renderer).GetRMGL();
 
-	GLPipeline* pipeline = glRM.GetPipeline(call.Pipeline);
+	GLPipeline* pipeline = glRM.GetPipeline(call.PipelineHandle);
 	GLE_ASSERT(pipeline, "No pipeline set");
 	if (!pipeline)
 	{
