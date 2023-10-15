@@ -55,8 +55,10 @@ bool ModelLoader::addModelFromFileToScene(const std::filesystem::path&				 path,
 	_loadLightsFromAiScene(loadedScene, scene);
 
 	const auto parentDir = path.parent_path();
-	for (auto& texturePath : textureRegister) {
-		if (texturePath.is_relative()) {
+	for (auto& texturePath : textureRegister)
+	{
+		if (texturePath.is_relative())
+		{
 			texturePath = parentDir / texturePath;
 		}
 	}
@@ -83,9 +85,9 @@ void ModelLoader::_loadMaterialsFromAiscene(const aiScene* loadedScene, std::sha
 		_getMaterialColorAttributes(loadedScene->mMaterials[i], m);
 		aiString matName;
 		loadedScene->mMaterials[i]->Get(AI_MATKEY_NAME, matName);
-		m.m_Name				  = matName.C_Str();
+		m.m_Name							= matName.C_Str();
 		const std::filesystem::path texName = _getMaterialDiffuseTextureName(loadedScene->mMaterials[i]);
-		m.textureIndex			  = _getTextureIndexAndAddToRegister(texName, textureRegister);
+		m.textureIndex						= _getTextureIndexAndAddToRegister(texName, textureRegister);
 
 		const auto dispTexName = _getMaterialNormalTextureName(loadedScene->mMaterials[i]);
 		m.noramlTextureIndex   = _getTextureIndexAndAddToRegister(dispTexName, textureRegister);
@@ -113,7 +115,7 @@ void ModelLoader::_getMaterialColorAttributes(const aiMaterial* const material, 
 {
 	mat.ambient = _getMaterialColorComponent(material, AI_MATKEY_COLOR_AMBIENT);
 
-	mat.diffuse	  = _getMaterialColorComponent(material, AI_MATKEY_COLOR_DIFFUSE);
+	mat.diffuse	  = glm::vec4(_getMaterialColorComponent(material, AI_MATKEY_COLOR_DIFFUSE), 0.f);
 	mat.diffuse.w = _getMaterialFloatComponent(material, AI_MATKEY_OPACITY);
 
 	mat.specular = _getMaterialColorComponent(material, AI_MATKEY_COLOR_SPECULAR);
@@ -122,16 +124,16 @@ void ModelLoader::_getMaterialColorAttributes(const aiMaterial* const material, 
 }
 
 //=================================================================================
-glm::vec4 ModelLoader::_getMaterialColorComponent(const aiMaterial* const material, const char* key, unsigned type, unsigned index)
+Colours::T_Colour ModelLoader::_getMaterialColorComponent(const aiMaterial* const material, const char* key, unsigned int type, unsigned int index)
 {
 	if (material)
 	{
 		aiColor3D c;
 		material->Get(key, type, index, c);
-		return glm::vec4(c.r, c.g, c.b, 1.0f);
+		return Colours::T_Colour(c.r, c.g, c.b);
 	}
 
-	return glm::vec4(0, 0, 0, 0);
+	return Colours::T_Colour(0.f, 0.f, 0.f);
 }
 
 //=================================================================================
@@ -395,7 +397,6 @@ std::mutex& ModelLoader::GetMutex()
 //=================================================================================
 void ModelLoader::_loadArmatureData(const aiNode* currentNode, const glm::mat4& currentTransform, MeshData::Mesh& mesh)
 {
-
 }
 
 std::mutex ModelLoader::m_Mutex;
