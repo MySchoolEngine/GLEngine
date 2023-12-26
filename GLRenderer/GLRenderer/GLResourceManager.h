@@ -19,6 +19,8 @@ private:
 
 class GLResourceManager : public Renderer::ResouceManager {
 public:
+	void Init(C_GLDevice* device);
+
 	[[nodiscard]] virtual Renderer::Handle<Renderer::Shader>   createShader(const std::filesystem::path& path) override;
 	virtual void											   destoryShader(Renderer::Handle<Renderer::Shader> handle) override;
 	[[nodiscard]] virtual Renderer::Handle<Renderer::Pipeline> createPipeline(const Renderer::PipelineDescriptor& desc) override;
@@ -33,11 +35,14 @@ public:
 	GLBuffer*				  GetBuffer(const Renderer::Handle<Renderer::Buffer>& handle);
 	Shaders::C_ShaderProgram* GetShader(const Renderer::Handle<Renderer::Shader>& handle);
 	GLPipeline*				  GetPipeline(const Renderer::Handle<Renderer::Pipeline>& handle);
+	Textures::C_Texture*	  GetTexture(const Renderer::Handle<Renderer::Texture>& handle);
 
 private:
-	// Renderer::ResourcePool<Renderer::Texture, Textures::C_Texture> m_TexturePool;
+	Renderer::ResourcePool<Renderer::Texture, Textures::C_Texture>						m_TexturePool;
 	Renderer::ResourcePool<Renderer::Shader, std::shared_ptr<Shaders::C_ShaderProgram>> m_ShaderPool;
 	Renderer::ResourcePool<Renderer::Buffer, GLBuffer>									m_BufferPool;
 	Renderer::ResourcePool<Renderer::Pipeline, GLPipeline>								m_PipelinePool;
+
+	C_GLDevice* m_Device;
 };
 } // namespace GLEngine::GLRenderer

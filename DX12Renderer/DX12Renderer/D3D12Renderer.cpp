@@ -82,4 +82,10 @@ Renderer::ResouceManager& C_D3D12Renderer::GetRM()
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
+//=================================================================================
+void C_D3D12Renderer::SetTextureSampler(Renderer::Handle<Renderer::Texture> dstTexture, Renderer::Handle<Renderer::Sampler> srcSampler)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 } // namespace GLEngine::DX12Renderer

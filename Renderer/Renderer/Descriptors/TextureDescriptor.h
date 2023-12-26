@@ -13,6 +13,7 @@ enum class E_TextureType
 	CUBE_MAP,
 };
 
+// todo needs usage bit!
 struct TextureDescriptor {
 
 	std::string	  name;

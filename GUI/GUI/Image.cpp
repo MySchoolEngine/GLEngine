@@ -2,22 +2,32 @@
 
 #include <GUI/Image.h>
 
+#include <Renderer/IRenderer.h>
+
+#include <Core/Application.h>
+
 #include <imgui_internal.h>
 
 namespace GLEngine::GUI {
 
 //=================================================================================
-C_Image::C_Image(Renderer::I_DeviceTexture& texture)
-	: m_texture(texture)
+C_Image::C_Image(Renderer::Handle<Renderer::Texture> handle)
+	: m_texture(handle)
 	, m_Zoom(2.f)
+	, m_GUIHandle(nullptr)
 {
-	SetSize(m_texture.get().GetDimensions());
+	if (m_texture.IsValid()) {
+		m_GUIHandle = Core::C_Application::Get().GetActiveRenderer().GetTextureGUIHandle(m_texture);
+	}
 }
 
 //=================================================================================
 void C_Image::Draw() const
 {
-	ImGui::Image((void*)(intptr_t)(m_texture.get().GetGPUHandle()), ImVec2(m_Size.x, m_Size.y));
+	if (m_texture.IsValid() && m_GUIHandle)
+	{
+		ImGui::Image((void*)(intptr_t)(m_GUIHandle), ImVec2(m_Size.x, m_Size.y));
+	}
 }
 
 //=================================================================================

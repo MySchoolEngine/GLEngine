@@ -22,6 +22,7 @@ project "GUI"
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.ImGuiFileDialog}",
+		"%{wks.location}/%{IncludeDir.slot_map}",
 	}
 
 	filter "system:windows"

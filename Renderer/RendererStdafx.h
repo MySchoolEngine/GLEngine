@@ -11,5 +11,6 @@
 #include <Core/CoreMacros.h>
 
 #include <Renderer/RendererApi.h>
+#include <Renderer/Colours.h>
 
 #include <rttr/registration.h>
