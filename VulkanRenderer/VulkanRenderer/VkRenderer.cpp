@@ -1,5 +1,6 @@
 #include <VulkanRendererStdafx.h>
 
+#include <VulkanRenderer/ImGui/ImGUIImplVulkan.h>
 #include <VulkanRenderer/VkBuffer.h>
 #include <VulkanRenderer/VkRenderer.h>
 #include <VulkanRenderer/VkTypeHelpers.h>
@@ -258,10 +259,8 @@ void C_VkRenderer::CopyBuffer(VkBuffer srcBuffer, Renderer::Handle<Renderer::Buf
 }
 
 //=================================================================================
-void C_VkRenderer::CopyImageResource(Renderer::Handle<Renderer::Texture> dstTexture, Core::ResourceHandle<Renderer::TextureResource>& textureHandle, VkCommandPool& commandPool)
+void C_VkRenderer::SetTextureData(Renderer::Handle<Renderer::Texture> dstTexture, const Renderer::I_TextureViewStorage& storage)
 {
-	const auto& storage = textureHandle.GetResource().GetStorage();
-
 	const glm::uvec2   dim		 = storage.GetDimensions();
 	const VkDeviceSize imageSize = dim.x * dim.y * 4 * sizeof(float); // todo, could be different type
 
@@ -279,10 +278,11 @@ void C_VkRenderer::CopyImageResource(Renderer::Handle<Renderer::Texture> dstText
 	C_VkTexture* pdstTexture = m_GPUResourceManager.GetTexture(dstTexture);
 
 	// formats should be deduced from desc
-	TransitionImageLayout(pdstTexture->textureImage, GetTextureFormat(pdstTexture->m_Desc.format), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, commandPool);
-	CopyBufferToImage(stagingBuffer, pdstTexture->textureImage, static_cast<uint32_t>(dim.x), static_cast<uint32_t>(dim.y), commandPool);
+	TransitionImageLayout(pdstTexture->textureImage, GetTextureFormat(pdstTexture->m_Desc.format), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+						  m_DefaultCommandPool);
+	CopyBufferToImage(stagingBuffer, pdstTexture->textureImage, static_cast<uint32_t>(dim.x), static_cast<uint32_t>(dim.y), m_DefaultCommandPool);
 	TransitionImageLayout(pdstTexture->textureImage, GetTextureFormat(pdstTexture->m_Desc.format), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-						  commandPool);
+						  m_DefaultCommandPool);
 
 	vkDestroyBuffer(GetDeviceVK(), stagingBuffer, nullptr);
 	vkFreeMemory(GetDeviceVK(), stagingBufferMemory, nullptr);
@@ -420,7 +420,7 @@ void C_VkRenderer::SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer, s
 	VkBuffer	   stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
 	m_Device.CreateBuffer(numBytes, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
-							   stagingBufferMemory);
+						  stagingBufferMemory);
 
 	void* dataDst;
 	vkMapMemory(GetDeviceVK(), stagingBufferMemory, 0, numBytes, 0, &dataDst);
@@ -443,6 +443,26 @@ Renderer::ResouceManager& C_VkRenderer::GetRM()
 C_VkResourceManager& C_VkRenderer::GetRMVK()
 {
 	return m_GPUResourceManager;
+}
+//=================================================================================
+void* C_VkRenderer::GetTextureGUIHandle(Renderer::Handle<Renderer::Texture> textureHanlde)
+{
+	if (auto* texture = m_GPUResourceManager.GetTexture(textureHanlde))
+	{
+		if (auto* sampler = m_GPUResourceManager.GetSampler(texture->GetSampler()))
+		{
+			return ImGui_ImplVulkan_AddTexture(sampler->textureSampler, texture->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		}
+	}
+	return VK_NULL_HANDLE;
+}
+
+//=================================================================================
+void C_VkRenderer::SetTextureSampler(Renderer::Handle<Renderer::Texture> dstTexture, Renderer::Handle<Renderer::Sampler> srcSampler)
+{
+	if (auto* texture = m_GPUResourceManager.GetTexture(dstTexture)) {
+		texture->SetSampler(srcSampler);
+	}
 }
 
 } // namespace GLEngine::VkRenderer

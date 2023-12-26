@@ -107,7 +107,7 @@ template <class T, typename /*= std::enable_if_t<glm::type<T>::is_vec>*/> void C
 	}
 	else if constexpr (std::is_same_v<std::remove_cv_t<T>, glm::vec3>)
 	{
-		m_Storage->SetPixel(glm::vec4(val, 0.f), GetPixelAddress(uv));
+		m_Storage->SetPixel(glm::vec4(val, 1.f), GetPixelAddress(uv));
 	}
 	else
 	{

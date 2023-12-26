@@ -16,7 +16,7 @@ C_FileDialogWindow::C_FileDialogWindow(const std::string&										fileType,
 	, m_WindowName(windowName)
 	, m_SuccessCallback(succesCallback)
 {
-	ImGuiFileDialog::Instance()->OpenDialog(m_WindowName, windowName.c_str(), fileType.c_str(), basePath.generic_string(), "");
+	ImGuiFileDialog::Instance()->OpenDialog(m_WindowName, windowName, fileType.c_str(), basePath.generic_string(), "");
 }
 
 //=================================================================================

@@ -167,7 +167,7 @@ void C_StaticMeshHandles::Render(Renderer3D& renderer) const
 				.MaterialIndex = 0,
 				.Buffers
 				= {meshContainer.m_PositionsHandle, meshContainer.m_NormalsHandle, meshContainer.m_TexCoordsHandle, meshContainer.m_TangentHandle, meshContainer.m_BitangentHandle},
-				.Pipeline = m_Pipeline,
+				.PipelineHandle = m_Pipeline,
 			});
 		}
 	}

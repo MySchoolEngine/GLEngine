@@ -3,21 +3,28 @@
 #include <GUI/ImageViewer.h>
 
 #include <imgui.h>
+#include <Renderer/IRenderer.h>
+
+#include <Core/Application.h>
+
 #include <imgui_internal.h>
 
 namespace GLEngine::GUI {
 
 //=================================================================================
-C_ImageViewer::C_ImageViewer(Renderer::I_DeviceTexture& texture)
+C_ImageViewer::C_ImageViewer(Renderer::Handle<Renderer::Texture> texture)
 	: m_texture(texture)
 	, m_Zoom(2.f)
+	, m_GUIHandle(nullptr)
 {
-	SetSize(m_texture.get().GetDimensions());
 }
 
 //=================================================================================
 void C_ImageViewer::Draw() const
 {
+	// TODO
+	if (m_texture.IsValid() == false)
+		return;
 	// drawing area
 	const auto io = ImGui::GetIO();
 	m_Zoom		  = std::clamp(m_Zoom + io.MouseWheel / 10.f, 1.f, 10.f);
@@ -34,7 +41,7 @@ void C_ImageViewer::Draw() const
 	{
 		// mouse pos is defined in screen space
 		const auto mousePos = ImGui::GetMousePos() - ImGui::GetCursorScreenPos();
-		ImVec2 mouseUV(mousePos.x / drawAreaSz.x, mousePos.y / drawAreaSz.y);
+		ImVec2	   mouseUV(mousePos.x / drawAreaSz.x, mousePos.y / drawAreaSz.y);
 		mouseUV.x	 = glm::clamp(mouseUV.x, 1.f / m_Zoom / 2.f, 1.f - 1.f / m_Zoom / 2.f);
 		mouseUV.y	 = glm::clamp(mouseUV.y, 1.f / m_Zoom / 2.f, 1.f - 1.f / m_Zoom / 2.f);
 		zoomArea.Min = mouseUV - ImVec2{1.f / m_Zoom / 2.f, 1.f / m_Zoom / 2.f};
@@ -44,7 +51,12 @@ void C_ImageViewer::Draw() const
 	// todo - minimap - done
 	//      - channels
 
-	ImGui::Image((void*)(intptr_t)(m_texture.get().GetGPUHandle()), drawAreaSz, zoomArea.Min, zoomArea.Max);
+	if (!m_GUIHandle)
+	{
+		m_GUIHandle = Core::C_Application::Get().GetActiveRenderer().GetTextureGUIHandle(m_texture);
+	}
+
+	ImGui::Image((void*)(intptr_t)(m_GUIHandle), drawAreaSz, zoomArea.Min, zoomArea.Max);
 
 	const ImVec2 canvas_final = ImGui::GetCursorPos();
 
@@ -59,12 +71,12 @@ void C_ImageViewer::Draw() const
 		const ImVec2	minimapDrawAreaSz(width, height);
 		ImGui::SetCursorPos(canvas_p0 + ImVec2(drawAreaSz.x - offsetFromCorner - minimapDrawAreaSz.x, offsetFromCorner));
 		const ImVec2 screenSpacePos = ImGui::GetCursorScreenPos();
-		ImGui::Image((void*)(intptr_t)(m_texture.get().GetGPUHandle()), minimapDrawAreaSz);
+		ImGui::Image((void*)(intptr_t)(m_GUIHandle), minimapDrawAreaSz);
 
 		// rect
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
-		ImVec2		 minPos(width*zoomArea.Min.x, height * zoomArea.Min.y);
-		ImVec2		 maxPos(width*zoomArea.Max.x, height * zoomArea.Max.y);
+		ImVec2		 minPos(width * zoomArea.Min.x, height * zoomArea.Min.y);
+		ImVec2		 maxPos(width * zoomArea.Max.x, height * zoomArea.Max.y);
 
 		window->DrawList->AddRect(screenSpacePos + minPos, screenSpacePos + maxPos, ImGui::ColorConvertFloat4ToU32(ImVec4(1.f, 0.f, 0.f, .5f)), 0.0f);
 	}

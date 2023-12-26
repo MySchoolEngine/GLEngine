@@ -18,11 +18,14 @@ public:
 	void Commit() const override;
 	void ClearCommandBuffers() override;
 	void SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer, std::size_t numBytes, const void* data) override;
+	void SetTextureSampler(Renderer::Handle<Renderer::Texture> dstTexture, Renderer::Handle<Renderer::Sampler> srcSampler) override;
 
 	//=================================================================================
 	Renderer::E_PassType	  GetCurrentPassType() const override;
 	Renderer::I_Device&		  GetDevice() override;
 	Renderer::ResouceManager& GetRM() override;
+
+
 
 private:
 	bool											 m_Locked = false;
