@@ -16,7 +16,7 @@ C_Window::C_Window(GUID guid, const std::string& name)
 }
 
 //=================================================================================
-void C_Window::Draw() const
+bool C_Window::Draw() const
 {
 	ImGuiWindowFlags flags = 0;
 	if (!m_Menus.empty())
@@ -28,6 +28,7 @@ void C_Window::Draw() const
 
 	DrawComponents();
 	::ImGui::End();
+	return false; // todo!
 }
 
 //=================================================================================

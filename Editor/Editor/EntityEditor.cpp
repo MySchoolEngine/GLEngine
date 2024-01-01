@@ -20,20 +20,39 @@ EntityEditor::EntityEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 	, m_File("File")
 {
 	m_File.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>(
-		"New entity", [&]() { m_QueuedOperation = QueuedOperation::NewEntity; }, "Ctrl+N"));
+		"New entity",
+		[&]() {
+			m_QueuedOperation = QueuedOperation::NewEntity;
+			return false;
+		},
+		"Ctrl+N"));
 	m_File.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Open entity", [&]() {
 		if (UnsavedWork())
 		{
 			m_QueuedOperation = QueuedOperation::OpenEntity;
-			return;
+			return false;
 		}
 		OpenEntityWindow();
+		return false;
 	}));
 	m_File.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>(
-		"Save entity", [&]() { SaveEntity(m_Path); }, "Ctrl+S"));
+		"Save entity",
+		[&]() {
+			SaveEntity(m_Path);
+			return false;
+		},
+		"Ctrl+S"));
 	m_File.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>(
-		"Save entity as", [&]() { CORE_LOG(E_Level::Error, E_Context::Core, "New entity"); }, "Ctrl+Shift+S"));
-	m_File.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Close entity", [&]() { m_QueuedOperation = QueuedOperation::CloseEntity; }));
+		"Save entity as",
+		[&]() {
+			CORE_LOG(E_Level::Error, E_Context::Core, "New entity");
+			return false;
+		},
+		"Ctrl+Shift+S"));
+	m_File.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Close entity", [&]() {
+		m_QueuedOperation = QueuedOperation::CloseEntity;
+		return false;
+	}));
 	AddMenu(m_File);
 }
 
@@ -64,7 +83,7 @@ void EntityEditor::Update()
 	if (m_QueuedOperation != QueuedOperation::None)
 	{
 
-		if (ImGui::BeginPopupModal("Save?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		if (ImGui::BeginPopupModal("Save?", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			ImGui::Text("Save change to the opened entity?");
 
@@ -89,7 +108,7 @@ void EntityEditor::Update()
 			ImGui::EndPopup();
 		}
 
-		if (ImGui::BeginPopupModal("Discard?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		if (ImGui::BeginPopupModal("Discard?", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			ImGui::Text("Discard unsaved changes to the entity?");
 
@@ -192,7 +211,6 @@ void EntityEditor::OpenEntity(const std::filesystem::path& path)
 //=================================================================================
 void EntityEditor::SaveWorkWindow()
 {
-
 }
 
 //=================================================================================

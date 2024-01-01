@@ -65,6 +65,7 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<I_CameraComponent>
 			 textureSelectorGUID, "./Images");
 		guiMGR.AddCustomWindow(textureSelectWindow);
 		textureSelectWindow->SetVisible();
+		return false;
 	}));
 	CreateTextures(Core::C_Application::Get().GetActiveRenderer());
 }

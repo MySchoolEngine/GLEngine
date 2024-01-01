@@ -64,7 +64,7 @@ protected:
 private:
 	void SetupWorld(const std::filesystem::path& level);
 	void SaveLevel(const std::filesystem::path& filename);
-	void SaveLevelAs();
+	bool SaveLevelAs();
 	void AddMandatoryWorldParts();
 	void OnAppInit();
 	void MouseSelect();

@@ -21,7 +21,7 @@ public:
 
 	void SetEnabledTransforms(Utils::C_BitField<E_Transorms> enableTransforms);
 	//=================================================================================
-	void Draw() const override;
+	bool Draw() const override;
 
 	[[nodiscard]] glm::mat4		   GetMatrix() const;
 	void						   SetMatrix(const glm::mat4& mat);

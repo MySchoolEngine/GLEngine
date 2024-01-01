@@ -58,7 +58,7 @@ public:
 	void  SetShininess(float value) { m_Shininess = value; }
 	float GetShininess() const { return m_Shininess; }
 
-	void DrawGUI();
+	bool DrawGUI();
 
 	void Update();
 

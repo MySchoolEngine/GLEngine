@@ -24,8 +24,9 @@ C_TypeSelector::C_TypeSelector(const std::string_view name, const std::string& b
 }
 
 //=================================================================================
-void C_TypeSelector::Draw() const
+bool C_TypeSelector::Draw() const
 {
+	bool	   changed	= false;
 	const auto baseType = rttr::type::get_by_name(m_BaseTypeName);
 
 	if (::ImGui::BeginCombo(m_Name.c_str(), m_Selected.c_str()))
@@ -36,7 +37,10 @@ void C_TypeSelector::Draw() const
 			bool is_selected = type.get_name() == m_Selected;
 			if (ImGui::Selectable(type.get_name().data(), is_selected))
 			{
-				m_Selected = type.get_name().data();
+				if (type.get_name().data() != m_Selected) {
+					m_Selected = type.get_name().data();
+					changed	   = true;
+				}
 			}
 			if (is_selected)
 			{
@@ -45,6 +49,7 @@ void C_TypeSelector::Draw() const
 		}
 		::ImGui::EndCombo();
 	}
+	return changed;
 }
 
 } // namespace GLEngine::GUI::Input

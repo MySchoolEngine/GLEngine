@@ -65,21 +65,23 @@ C_Transformations::C_Transformations()
 }
 
 //=================================================================================
-void C_Transformations::Draw() const
+bool C_Transformations::Draw() const
 {
+	bool		   changed = false;
 	rttr::instance obj(*this);
 	if (m_enabledTransforms.CheckFlag(E_Transorms::Translate))
 	{
-		GUI::DrawPropertyGUI(obj, rttr::type::get<C_Transformations>().get_property("Translation"));
+		changed |= GUI::DrawPropertyGUI(obj, rttr::type::get<C_Transformations>().get_property("Translation"));
 	}
 	if (m_enabledTransforms.CheckFlag(E_Transorms::Rotate))
 	{
-		GUI::DrawPropertyGUI(obj, rttr::type::get<C_Transformations>().get_property("Rotation"));
+		changed |= GUI::DrawPropertyGUI(obj, rttr::type::get<C_Transformations>().get_property("Rotation"));
 	}
 	if (m_enabledTransforms.CheckFlag(E_Transorms::Scale))
 	{
-		GUI::DrawPropertyGUI(obj, rttr::type::get<C_Transformations>().get_property("Scale"));
+		changed |= GUI::DrawPropertyGUI(obj, rttr::type::get<C_Transformations>().get_property("Scale"));
 	}
+	return changed;
 }
 
 //=================================================================================

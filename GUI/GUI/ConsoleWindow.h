@@ -12,7 +12,7 @@ public:
 	virtual ~C_ConsoleWindow();
 
 	virtual void Log(Utils::Logging::E_Level level, Utils::Logging::E_Context context, int line, const char* file, const std::string& text) override;
-	virtual void Draw() const override;
+	virtual bool Draw() const override;
 
 private:
 	//@todo replace with stack vector once we have 'em

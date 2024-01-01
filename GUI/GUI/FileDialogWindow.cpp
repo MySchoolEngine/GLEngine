@@ -26,7 +26,7 @@ C_FileDialogWindow::~C_FileDialogWindow()
 }
 
 //=================================================================================
-void C_FileDialogWindow::Draw() const
+bool C_FileDialogWindow::Draw() const
 {
 	// display
 	if (ImGuiFileDialog::Instance()->Display(m_WindowName))
@@ -43,6 +43,7 @@ void C_FileDialogWindow::Draw() const
 			m_WantToBeDestroyed = true;
 		}
 	}
+	return false; // todo
 }
 
 } // namespace GLEngine::GUI

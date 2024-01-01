@@ -189,7 +189,7 @@ int C_Material::GetMaterialIndex() const
 }
 
 //=================================================================================
-void C_Material::DrawGUI()
+bool C_Material::DrawGUI()
 {
 	rttr::instance obj(*this);
 	if (GUI::DrawAllPropertyGUI(obj).empty() == false)
@@ -197,7 +197,9 @@ void C_Material::DrawGUI()
 		m_Changed = true;
 	}
 	for (const auto& it : m_Textures)
-		it.Draw();
+		m_Changed |= it.Draw();
+
+	return m_Changed;
 }
 
 //=================================================================================
