@@ -76,7 +76,7 @@ private:
 	Core::C_LayerStack						 m_LayerStack;
 	Temporar::C_CameraManager				 m_CamManager;
 	C_GLImGUILayer*							 m_ImGUI;
-	Utils::HighResolutionTimer				 m_FrameTimer;
+	::Utils::HighResolutionTimer			 m_FrameTimer;
 
 	//===========================
 	// GUI

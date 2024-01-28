@@ -61,6 +61,7 @@ workspace "Engine"
 		"premake5.lua",
 		"Tools/Premake5/premakeDefines.lua",
 		"Tools/Premake5/workspaceFiles.lua",
+		"Core/Core.natvis",
 	}
 
 	filter "options:glfwapi=vulkan"

@@ -2,6 +2,8 @@
 
 #include <Renderer/Components/StaticMeshHandles.h>
 #include <Renderer/IRenderer.h>
+#include <Renderer/Materials/Material.h>
+#include <Renderer/Materials/MaterialManager.h>
 #include <Renderer/Mesh/Loading/ModelLoader.h>
 #include <Renderer/Resources/ResourceManager.h>
 
@@ -9,14 +11,37 @@
 #include <Core/Resources/LoadingQuery.h>
 #include <Core/Resources/ResourceManager.h>
 
+#include <Utils/Reflection/Metadata.h>
+
+#include <imgui.h>
+#include <rttr/registration>
+
+RTTR_REGISTRATION
+{
+	using namespace GLEngine::Renderer;
+	using namespace Utils::Reflection;
+
+	rttr::registration::class_<C_StaticMeshHandles>("C_StaticMeshHandles")
+		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
+		.property("MeshFile", &C_StaticMeshHandles::GetMeshFile, &C_StaticMeshHandles::SetMeshFile)(RegisterMetamember<SerializationCls::MandatoryProperty>(true))
+		.property("Material", &C_StaticMeshHandles::m_Material)
+		//.property("Shader", &C_StaticMesh::GetShader, &C_StaticMesh::SetShader)
+		;
+	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_StaticMeshHandles>>();
+	rttr::type::register_converter_func([](std::shared_ptr<C_StaticMeshHandles> ptr, bool& ok) -> std::shared_ptr<GLEngine::Entity::I_Component> {
+		ok = true;
+		return std::static_pointer_cast<GLEngine::Entity::I_Component>(ptr);
+	});
+}
+
 namespace GLEngine::Renderer {
 
 //=================================================================================
 C_StaticMeshHandles::C_StaticMeshHandles()
 	: I_RenderableComponent(nullptr)
+	, m_Material(nullptr)
 {
-	auto& rm	   = Core::C_ResourceManager::Instance();
-	m_MeshResource = rm.LoadResource<MeshResource>(R"(Models/sphere.obj)");
+	SetMeshFile(R"(Models/sphere.obj)");
 }
 
 //=================================================================================
@@ -54,7 +79,12 @@ Physics::Primitives::S_AABB C_StaticMeshHandles::GetAABB() const
 //=================================================================================
 void C_StaticMeshHandles::Update()
 {
-	if (m_Pipeline.IsValid() == false) {
+	if (m_MeshResource.IsReady() && !m_Material)
+	{
+		m_Material = Renderer::C_MaterialManager::Instance().RegisterMaterial(Renderer::C_Material(m_MeshResource.GetResource().GetScene().materials[0]));
+	}
+	if (m_Pipeline.IsValid() == false)
+	{
 
 		m_Pipeline = Core::C_Application::Get().GetActiveRenderer().GetRM().createPipeline(PipelineDescriptor{
 		.primitiveType = Renderer::E_RenderPrimitives::TriangleList,
@@ -156,7 +186,7 @@ void C_StaticMeshHandles::Update()
 //=================================================================================
 void C_StaticMeshHandles::Render(Renderer3D& renderer) const
 {
-	if (m_MeshResource.IsReady())
+	if (m_MeshResource.IsReady() && m_Material)
 	{
 		for (auto& meshContainer : m_Meshes)
 		{
@@ -164,12 +194,46 @@ void C_StaticMeshHandles::Render(Renderer3D& renderer) const
 			renderer.Draw(RenderCall3D{
 				.ModelMatrix   = GetComponentModelMatrix(),
 				.NumPrimities  = meshContainer.m_NumPrimitives,
-				.MaterialIndex = 0,
+				.MaterialIndex = m_Material->GetMaterialIndex(),
 				.Buffers
 				= {meshContainer.m_PositionsHandle, meshContainer.m_NormalsHandle, meshContainer.m_TexCoordsHandle, meshContainer.m_TangentHandle, meshContainer.m_BitangentHandle},
 				.PipelineHandle = m_Pipeline,
 			});
 		}
+	}
+}
+
+//=================================================================================
+void C_StaticMeshHandles::SetMeshFile(const std::filesystem::path meshfile)
+{
+	auto& rm   = Core::C_ResourceManager::Instance();
+	auto  path = meshfile;
+	if (meshfile.generic_string().find("Models") == std::string::npos)
+		path = std::filesystem::path("Models") / meshfile;
+	m_MeshResource = rm.LoadResource<Renderer::MeshResource>(path);
+}
+
+//=================================================================================
+std::filesystem::path C_StaticMeshHandles::GetMeshFile() const
+{
+	return m_MeshResource.GetResource().GetFilePath();
+}
+
+//=================================================================================
+void C_StaticMeshHandles::DebugDrawGUI()
+{
+	if (::ImGui::CollapsingHeader("Material"))
+	{
+		if (m_Material)
+			m_Material->DrawGUI();
+	}
+	if (m_MeshResource.IsLoading())
+	{
+		::ImGui::Text("Still loading");
+	}
+	else if (m_MeshResource.IsFailed())
+	{
+		::ImGui::TextColored(ImVec4(1, 0, 0, 1), "Failed");
 	}
 }
 

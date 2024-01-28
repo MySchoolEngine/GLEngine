@@ -257,7 +257,7 @@ void C_RayTraceScene::ForEachLight(std::function<void(const std::reference_wrapp
 //=================================================================================
 void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh, const MeshData::Material& material)
 {
-	Utils::HighResolutionTimer renderTime;
+	::Utils::HighResolutionTimer renderTime;
 	using namespace Physics::Primitives;
 //#define OLD_TRIMESH
 #ifdef OLD_TRIMESH

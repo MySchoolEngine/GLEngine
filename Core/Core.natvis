@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+  <Type Name="GLEngine::Core::ResourceHandle&lt;*&gt;">
+    <DisplayString Condition="m_Resource._Ptr">{*m_Resource._Ptr}</DisplayString>
+    <DisplayString Condition="!m_Resource._Ptr">invalid</DisplayString>
+    <Expand>
+      <Item Name="[resource]" Condition="m_Resource._Ptr">*(($T1*)m_Resource._Ptr)</Item>
+    </Expand>
+  </Type>
+  <Type Name="GLEngine::Core::Resource">
+    <DisplayString>{m_State,en}</DisplayString>
+  </Type>
+</AutoVisualizer>

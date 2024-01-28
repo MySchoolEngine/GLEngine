@@ -481,7 +481,7 @@ void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 		return;
 	}
 
-	Utils::C_XMLDeserializer d;
+	Utils::C_XMLDeserializer d(Core::C_ResourceManager::Instance());
 	auto					 newWorld = d.Deserialize<std::shared_ptr<Entity::C_EntityManager>>(doc);
 	if (newWorld.has_value() == false)
 	{
