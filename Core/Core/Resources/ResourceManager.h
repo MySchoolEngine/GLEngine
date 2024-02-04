@@ -38,18 +38,19 @@ private:
 	const I_ResourceLoader*	  GetLoaderForExt(const std::string& ext) const;
 	std::shared_ptr<Resource> GetResourcePtr(const std::filesystem::path& filepath);
 
-	std::map<std::filesystem::path, std::shared_ptr<Resource>> m_Resources;
-	std::shared_mutex										   m_Mutex;
-	std::vector<std::shared_ptr<Resource>>					   m_UnusedList;
-	std::shared_mutex										   m_FinishedLoadsMutes;
-	std::vector<std::shared_ptr<Resource>>					   m_FinishedLoads;
-	std::vector<std::shared_ptr<Resource>>					   m_FailedLoads;
+	std::map<std::filesystem::path, std::shared_ptr<Resource>>		m_Resources;
+	std::shared_mutex												m_Mutex;
+	std::vector<std::pair<std::shared_ptr<Resource>, unsigned int>> m_UnusedList;
+	std::shared_mutex												m_FinishedLoadsMutes;
+	std::vector<std::shared_ptr<Resource>>							m_FinishedLoads;
+	std::vector<std::shared_ptr<Resource>>							m_FailedLoads;
 
 	std::map<std::string, const I_ResourceLoader*> m_ExtToLoaders;
 	std::map<std::size_t, const I_ResourceLoader*> m_TypeIdToLoader;
 
 	unsigned int					 m_UpdatesSinceLastRemove{0};
 	const inline static unsigned int s_NumUpdatesBetweenUnloading{10};
+	const inline static unsigned int s_UpdatesBeforeDelete{5};
 
 	friend class ResourceHandleBase; // still not sure about this, I don't think I need to befriend anyone to achieve this
 };

@@ -51,6 +51,7 @@ workspace "Engine"
 		"vendor/GLM/util/glm.natvis",
 		"vendor/ImGui/misc/natvis/imgui.natvis",
 		"vendor/pugixml/contrib/natvis/pugixml.natvis",
+		"vendor/projects/RTTR/rttr.natvis",
 		"Animation/animation.natvis",
 		"Physics/Physics.natvis",
 		"Renderer/renderer.natvis",

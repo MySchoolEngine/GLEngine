@@ -70,8 +70,9 @@ std::shared_ptr<Resource> C_ResourceManager::GetResourcePtr(const std::filesyste
 //=================================================================================
 void C_ResourceManager::AddResourceToUnusedList(const std::shared_ptr<Resource>& resource)
 {
+	std::unique_lock lock(m_Mutex);
 	GLE_ASSERT(resource.use_count() == 2, "Trying to get rid of resource that is still used by others.");
-	m_UnusedList.push_back(resource);
+	m_UnusedList.emplace_back(resource, 0);
 }
 
 //=================================================================================
@@ -109,17 +110,22 @@ void C_ResourceManager::UnloadUnusedResources()
 	std::unique_lock lock(m_Mutex);
 	// if resource is still loading, we need to finish loading
 	// it is referenced from the job system, so it will be deleted after load
-	for (const auto& resource : m_UnusedList)
+	for (auto& resourcePair : m_UnusedList)
 	{
 		// 1 reference in m_Resources, second in m_UnusedList
-		if (resource.use_count() == 2)
+		if (resourcePair.second < s_UpdatesBeforeDelete)
+		{
+			++resourcePair.second;
+			continue;
+		}
+		if (resourcePair.first.use_count() == 2)
 		{
 			// should be deleted
 			auto it		 = m_Resources.begin();
 			bool deleted = false;
 			while (it != m_Resources.end())
 			{
-				if (it->second == resource)
+				if (it->second == resourcePair.first)
 				{
 					CORE_LOG(E_Level::Info, E_Context::Core, "Removing resource {}", it->first);
 					m_Resources.erase(it);
@@ -131,7 +137,11 @@ void C_ResourceManager::UnloadUnusedResources()
 			GLE_ASSERT(deleted, "Unused resource not in resources");
 		}
 	}
-	m_UnusedList.clear();
+	auto retainedEnd = std::remove_if(m_UnusedList.begin(), m_UnusedList.end(), [](const std::pair<std::shared_ptr<Resource>, unsigned int>& unusedResource) { 
+				return unusedResource.first.use_count() <= 2;
+		}
+	);
+	m_UnusedList.erase(retainedEnd, m_UnusedList.end());
 }
 
 //=================================================================================

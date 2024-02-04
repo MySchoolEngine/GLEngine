@@ -120,10 +120,17 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 				GLE_ASSERT(typeCast, "Type {} does not exists", child.attribute("derivedTypeCast").as_string());
 				var = typeCast.create();
 				GLE_ASSERT(var.is_valid(), "Type {} cannot be instancieated.", type);
+				auto varNode = DeserializeNode(child, var);
+				FinishDeserialization(type, varNode);
+				GLE_ASSERT(varNode.convert(prop.get_type()), "Cannot convert");
+				GLE_ASSERT(prop.set_value(owner, varNode), "Cannot assign property {}", prop);
 			}
-			auto varNode = DeserializeNode(child, var);
-			GLE_ASSERT(varNode.convert(prop.get_type()), "Cannot convert");
-			GLE_ASSERT(prop.set_value(owner, varNode), "Cannot assign property {}", prop);
+			else
+			{
+				auto varNode = DeserializeNode(child, var);
+				FinishDeserialization(type, varNode);
+				prop.set_value(owner, varNode);
+			}
 		}
 	}
 }

@@ -80,8 +80,16 @@ void C_XMLSerializer::WriteProperty(const rttr::property& prop, const rttr::inst
 			while (value.get_type().is_wrapper())
 				value = value.extract_wrapped_value();
 
+			auto propType = prop.get_type();
+			while (propType.is_wrapper())
+				propType = propType.get_wrapped_type();
+
+			if (propType.is_pointer())
+				propType = propType.get_raw_type();
+
 			auto typeWrapped = rttr::instance(value).get_derived_type();
-			propNode.append_attribute("derivedTypeCast").set_value(typeWrapped.get_name().data());
+			if (typeWrapped.is_derived_from(propType) && typeWrapped != propType)
+				propNode.append_attribute("derivedTypeCast").set_value(typeWrapped.get_name().data());
 		}
 		SerializeObject(propValue, propNode);
 	}
