@@ -8,6 +8,10 @@
 
 #include <Entity/IEntity.h>
 
+namespace GLEngine::GUI {
+class C_FileDialogWindow;
+}
+
 namespace GLEngine::Editor {
 class EDITOR_API_EXPORT EntityEditor final : public GUI::C_Window {
 public:
@@ -21,8 +25,6 @@ private:
 	[[nodiscard]] bool UnsavedWork() const;
 
 	void DiscardWork();
-	void SaveWorkWindow();
-	void OpenEntityWindow();
 	void OpenEntity(const std::filesystem::path& path);
 	void SaveEntity(const std::filesystem::path& path);
 
@@ -37,14 +39,17 @@ private:
 		NewEntity,
 		OpenEntity,
 		CloseEntity,
+		SaveEntity
 	};
 
 
-	bool							  m_HasChanged		= false;
-	QueuedOperation					  m_QueuedOperation = QueuedOperation::None;
-	GUI::Menu::C_Menu				  m_File;
-	std::shared_ptr<Entity::I_Entity> m_Entity;
-	std::filesystem::path			  m_Path;
-	mutable C_EntityCompoenentEditor  m_ComponentEditor;
+	bool								 m_HasChanged	   = false;
+	QueuedOperation						 m_QueuedOperation = QueuedOperation::None;
+	GUI::Menu::C_Menu					 m_File;
+	std::shared_ptr<Entity::I_Entity>	 m_Entity;
+	std::filesystem::path				 m_Path;
+	GUI::C_FileDialogWindow*			 m_FileDialog;
+	std::optional<std::filesystem::path> m_FileDialogPath;
+	mutable C_EntityCompoenentEditor	 m_ComponentEditor;
 };
 } // namespace GLEngine::Editor

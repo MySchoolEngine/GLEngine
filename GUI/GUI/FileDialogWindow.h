@@ -14,6 +14,7 @@ public:
 	virtual void Draw() const override;
 
 	void SetTitle(const std::string& windowTitle);
+	void SetBasePath(const std::filesystem::path& basePath);
 
 private:
 	std::string										  m_WindowName;

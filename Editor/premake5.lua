@@ -30,6 +30,7 @@ project "Editor"
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.GLFW}", -- for key names
+		"%{wks.location}/%{IncludeDir.slot_map}",
 	}
 
 

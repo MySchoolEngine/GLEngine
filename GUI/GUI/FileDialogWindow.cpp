@@ -46,9 +46,16 @@ void C_FileDialogWindow::Draw() const
 	}
 }
 
+//=================================================================================
 void C_FileDialogWindow::SetTitle(const std::string& windowTitle)
 {
 	m_WindowTitle = windowTitle;
+}
+
+//=================================================================================
+void C_FileDialogWindow::SetBasePath(const std::filesystem::path& basePath)
+{
+	m_BasePath = basePath;
 }
 
 //=================================================================================
