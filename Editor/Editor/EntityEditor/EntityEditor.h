@@ -39,7 +39,8 @@ private:
 		NewEntity,
 		OpenEntity,
 		CloseEntity,
-		SaveEntity
+		SaveEntity,
+		SaveEntityAs,
 	};
 
 

@@ -11,6 +11,7 @@
 #include <Core/Filesystem/Paths.h>
 
 #include <Utils/Serialization/XMLSerialize.h>
+#include <Utils/Serialization/XMLDeserialize.h>
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -29,7 +30,7 @@ EntityEditor::EntityEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 	m_File.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>(
 		"Save entity", [&]() { m_QueuedOperation = QueuedOperation::SaveEntity; }, "Ctrl+S"));
 	m_File.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>(
-		"Save entity as", [&]() { CORE_LOG(E_Level::Error, E_Context::Core, "New entity"); }, "Ctrl+Shift+S"));
+		"Save entity as", [&]() { m_QueuedOperation = QueuedOperation::SaveEntityAs; }, "Ctrl+Shift+S"));
 	m_File.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Close entity", [&]() { m_QueuedOperation = QueuedOperation::CloseEntity; }));
 	AddMenu(m_File);
 
@@ -181,6 +182,26 @@ void EntityEditor::Update()
 					}
 				}
 				break;
+			case QueuedOperation::SaveEntityAs:
+				if (m_FileDialogPath.has_value() == false)
+				{
+					if (!m_FileDialog->IsVisible())
+					{
+						m_FileDialog->SetTitle("Save entity");
+						m_FileDialog->SetVisible(true);
+					}
+				}
+				else
+				{
+					if (m_FileDialogPath.has_value())
+					{
+						SaveEntity(m_FileDialogPath.value());
+						m_FileDialogPath = {};
+						m_FileDialog->SetVisible(false);
+						m_QueuedOperation = QueuedOperation::None;
+					}
+				}
+				break;
 			case QueuedOperation::NewEntity:
 				m_Entity	 = std::make_shared<Entity::C_BasicEntity>();
 				m_Path		 = "";
@@ -208,6 +229,8 @@ void EntityEditor::Update()
 			case QueuedOperation::CloseEntity:
 				DiscardWork();
 				m_QueuedOperation = QueuedOperation::None;
+				break;
+			default:
 				break;
 			}
 		}
@@ -238,8 +261,26 @@ void EntityEditor::OpenEntity(const std::filesystem::path& path)
 	}
 
 	m_Path		 = path;
-	m_Entity	 = std::make_shared<Entity::C_BasicEntity>(); // TODO!!
 	m_HasChanged = false;
+
+	pugi::xml_document doc;
+
+	pugi::xml_parse_result result;
+	result = doc.load_file(path.c_str());
+	if (!result.status == pugi::status_ok)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Core, "Can't open config file for entity name: {}", path);
+		return;
+	}
+
+	Utils::C_XMLDeserializer ds;
+	auto loadEntity = ds.Deserialize<std::shared_ptr<Entity::C_BasicEntity>>(doc);
+	if (loadEntity.has_value() == false)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Core, "Failed loading entity file: {}", path);
+		return;
+	}
+	m_Entity = loadEntity.value();
 }
 
 //=================================================================================
