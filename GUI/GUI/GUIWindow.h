@@ -32,6 +32,8 @@ public:
 	[[nodiscard]] virtual bool CanDestroy() const { return true; }
 
 protected:
+	virtual void		 OnSetVisible() {}
+	virtual void		 OnHide() {}
 	virtual void DrawComponents() const;
 	void		 DrawMenus() const;
 
