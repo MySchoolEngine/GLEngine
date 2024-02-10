@@ -14,7 +14,7 @@ C_Menu::C_Menu(std::string&& label)
 C_Menu::~C_Menu() = default;
 
 //=================================================================================
-void C_Menu::Draw() const
+bool C_Menu::Draw() const
 {
 	if (::ImGui::BeginMenu(m_Label.c_str()))
 	{
@@ -24,6 +24,7 @@ void C_Menu::Draw() const
 		}
 		::ImGui::EndMenu();
 	}
+	return false;
 }
 
 //=================================================================================

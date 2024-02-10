@@ -35,7 +35,7 @@ void C_ConsoleWindow::Log(Utils::Logging::E_Level level, Utils::Logging::E_Conte
 }
 
 //=================================================================================
-void C_ConsoleWindow::Draw() const
+bool C_ConsoleWindow::Draw() const
 {
 	::ImGui::Begin(m_Name.c_str(), &m_IsVisible);
 	static const char* levels[]			 = {"Error", "Warning", "Info", "Debug", "None"};
@@ -136,6 +136,7 @@ void C_ConsoleWindow::Draw() const
 	::ImGui::SetScrollHereY(1.0f);
 	::ImGui::EndChild();
 	::ImGui::End();
+	return false;
 }
 
 } // namespace GLEngine::GUI

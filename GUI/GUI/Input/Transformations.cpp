@@ -16,7 +16,7 @@
 
 RTTR_REGISTRATION
 {
-	using namespace Utils::Reflection;
+	using namespace ::Utils::Reflection;
 	using namespace GLEngine::GUI::Input;
 	rttr::registration::class_<C_Transformations>("Transformations")
 		.constructor<>()(rttr::policy::ctor::as_object)
@@ -46,7 +46,7 @@ namespace GLEngine::GUI::Input {
 
 
 //=================================================================================
-C_Transformations::C_Transformations(glm::mat4 transformation, Utils::C_BitField<E_Transorms> enableTransforms)
+C_Transformations::C_Transformations(glm::mat4 transformation, ::Utils::C_BitField<E_Transorms> enableTransforms)
 	: m_enabledTransforms(enableTransforms)
 	, m_Translation(glm::vec3(0.f))
 	, m_Rotation(glm::vec3(0.f))
@@ -65,21 +65,23 @@ C_Transformations::C_Transformations()
 }
 
 //=================================================================================
-void C_Transformations::Draw() const
+bool C_Transformations::Draw() const
 {
+	bool		   changed = false;
 	rttr::instance obj(*this);
 	if (m_enabledTransforms.CheckFlag(E_Transorms::Translate))
 	{
-		GUI::DrawPropertyGUI(obj, rttr::type::get<C_Transformations>().get_property("Translation"));
+		changed |= GUI::DrawPropertyGUI(obj, rttr::type::get<C_Transformations>().get_property("Translation"));
 	}
 	if (m_enabledTransforms.CheckFlag(E_Transorms::Rotate))
 	{
-		GUI::DrawPropertyGUI(obj, rttr::type::get<C_Transformations>().get_property("Rotation"));
+		changed |= GUI::DrawPropertyGUI(obj, rttr::type::get<C_Transformations>().get_property("Rotation"));
 	}
 	if (m_enabledTransforms.CheckFlag(E_Transorms::Scale))
 	{
-		GUI::DrawPropertyGUI(obj, rttr::type::get<C_Transformations>().get_property("Scale"));
+		changed |= GUI::DrawPropertyGUI(obj, rttr::type::get<C_Transformations>().get_property("Scale"));
 	}
+	return changed;
 }
 
 //=================================================================================
@@ -136,7 +138,7 @@ void C_Transformations::SetMatrix(const glm::mat4& mat)
 }
 
 //=================================================================================
-void C_Transformations::SetEnabledTransforms(Utils::C_BitField<E_Transorms> enableTransforms)
+void C_Transformations::SetEnabledTransforms(::Utils::C_BitField<E_Transorms> enableTransforms)
 {
 	m_enabledTransforms = enableTransforms;
 }

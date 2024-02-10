@@ -18,7 +18,7 @@ public:
 	C_GeomComponent(std::shared_ptr<Entity::I_Entity> owner);
 	virtual ~C_GeomComponent();
 	virtual void SetupGeometry(const MeshData::Mesh& mesh)				 = 0;
-	virtual void SetupMaterial(const Utils::Parsing::MaterialData& data) = 0;
+	virtual void SetupMaterial(const ::Utils::Parsing::MaterialData& data) = 0;
 
 	virtual void			   DebugDrawGUI() override;
 	[[nodiscard]] virtual bool HasDebugDrawGUI() const override;

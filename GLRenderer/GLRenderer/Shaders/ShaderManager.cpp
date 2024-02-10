@@ -155,6 +155,7 @@ GUID C_ShaderManager::SetupControls(GUI::C_GUIManager& guiMGR)
 				ReloadProgram(program.first, program.second);
 			}
 		}
+		return false; // nothing to be saved here
 	});
 
 	shaderMan->AddComponent(m_PreprocessorOutput);

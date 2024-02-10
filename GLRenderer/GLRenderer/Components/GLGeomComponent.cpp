@@ -63,7 +63,7 @@ void C_GLGeomComponent::PerformDraw() const
 }
 
 //=================================================================================
-void C_GLGeomComponent::SetupMaterial(const Utils::Parsing::MaterialData& data)
+void C_GLGeomComponent::SetupMaterial(const ::Utils::Parsing::MaterialData& data)
 {
 	C_GeomComponent::SetupMaterial(data);
 	auto& shmgr = Shaders::C_ShaderManager::Instance();

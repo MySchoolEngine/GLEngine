@@ -13,7 +13,7 @@ public:
 	GUI_API_EXPORT C_FormatedText(const C_FormatedText&& other);
 	GUI_API_EXPORT C_FormatedText(const C_FormatedText& other);
 
-	virtual void Draw() const override;
+	virtual bool Draw() const override;
 
 	GUI_API_EXPORT [[nodiscard]] const std::string_view GetCurrentText() const;
 

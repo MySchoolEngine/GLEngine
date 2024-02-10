@@ -119,7 +119,7 @@ void EntityEditor::Update()
 			ImGui::EndPopup();
 		}
 
-		if (ImGui::BeginPopupModal("Discard?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		if (ImGui::BeginPopupModal("Discard?", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			ImGui::Text("Discard unsaved changes to the entity?");
 

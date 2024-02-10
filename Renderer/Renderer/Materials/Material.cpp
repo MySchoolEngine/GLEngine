@@ -189,7 +189,7 @@ int C_Material::GetMaterialIndex() const
 }
 
 //=================================================================================
-void C_Material::DrawGUI()
+bool C_Material::DrawGUI()
 {
 	rttr::instance obj(*this);
 	if (GUI::DrawAllPropertyGUI(obj).empty() == false)
@@ -197,7 +197,9 @@ void C_Material::DrawGUI()
 		m_Changed = true;
 	}
 	for (const auto& it : m_Textures)
-		it.Draw();
+		m_Changed |= it.Draw();
+
+	return m_Changed;
 }
 
 //=================================================================================
@@ -222,7 +224,7 @@ const std::filesystem::path& C_Material::GetColorMapPath() const
 {
 	const static std::filesystem::path empty{};
 	if (m_ColorMapRes)
-		return m_ColorMapRes.GetResource().GetFilepath();
+		return m_ColorMapRes.GetResource().GetFilePath();
 	return empty;
 }
 
@@ -231,7 +233,7 @@ const std::filesystem::path& C_Material::GetNormalMapPath() const
 {
 	const static std::filesystem::path empty("");
 	if (m_NormalMapRes)
-		return m_NormalMapRes.GetResource().GetFilepath();
+		return m_NormalMapRes.GetResource().GetFilePath();
 	return empty;
 }
 
@@ -240,7 +242,7 @@ const std::filesystem::path& C_Material::GetRoughnessMapPath() const
 {
 	const static std::filesystem::path empty("");
 	if (m_RoughnessRes)
-		return m_RoughnessRes.GetResource().GetFilepath();
+		return m_RoughnessRes.GetResource().GetFilePath();
 	return empty;
 }
 
@@ -254,10 +256,10 @@ void C_Material::Update()
 		auto&				  resource = m_ColorMapRes.GetResource();
 		I_TextureViewStorage& storage  = resource.GetStorage();
 		auto				  colorMap = device.CreateTextureHandle(
-			 Renderer::TextureDescriptor{resource.GetFilepath().generic_string(), storage.GetDimensions().x, storage.GetDimensions().y, Renderer::E_TextureType::TEXTURE_2D,
+			 Renderer::TextureDescriptor{resource.GetFilePath().generic_string(), storage.GetDimensions().x, storage.GetDimensions().y, Renderer::E_TextureType::TEXTURE_2D,
 										 Renderer::GetClosestFormat(storage.GetChannels(), !Renderer::IsIntegral(storage.GetStorageType())), false});
 		if (!device.AllocateTexture(*colorMap.get())) {
-			CORE_LOG(E_Level::Error, E_Context::Render, "Cannot allocate memory for texture '{}' in material '{}'", resource.GetFilepath(), GetName());
+			CORE_LOG(E_Level::Error, E_Context::Render, "Cannot allocate memory for texture '{}' in material '{}'", resource.GetFilePath(), GetName());
 			return;
 		}
 		colorMap->SetTexData2D(0, (&storage));
@@ -269,11 +271,11 @@ void C_Material::Update()
 		auto&				  resource = m_NormalMapRes.GetResource();
 		I_TextureViewStorage& storage  = resource.GetStorage();
 		auto				  normalMap = device.CreateTextureHandle(
-			 Renderer::TextureDescriptor{resource.GetFilepath().generic_string(), storage.GetDimensions().x, storage.GetDimensions().y, Renderer::E_TextureType::TEXTURE_2D,
+			 Renderer::TextureDescriptor{resource.GetFilePath().generic_string(), storage.GetDimensions().x, storage.GetDimensions().y, Renderer::E_TextureType::TEXTURE_2D,
 										 Renderer::GetClosestFormat(storage.GetChannels(), !Renderer::IsIntegral(storage.GetStorageType())), false});
 		if (!device.AllocateTexture(*normalMap.get()))
 		{
-			CORE_LOG(E_Level::Error, E_Context::Render, "Cannot allocate memory for texture '{}' in material '{}'", resource.GetFilepath(), GetName());
+			CORE_LOG(E_Level::Error, E_Context::Render, "Cannot allocate memory for texture '{}' in material '{}'", resource.GetFilePath(), GetName());
 			return;
 		}
 		normalMap->SetTexData2D(0, (&storage));
@@ -285,11 +287,11 @@ void C_Material::Update()
 		auto&				  resource	= m_RoughnessRes.GetResource();
 		I_TextureViewStorage& storage	= resource.GetStorage();
 		auto				  roughnessMap = device.CreateTextureHandle(
-			 Renderer::TextureDescriptor{resource.GetFilepath().generic_string(), storage.GetDimensions().x, storage.GetDimensions().y, Renderer::E_TextureType::TEXTURE_2D,
+			 Renderer::TextureDescriptor{resource.GetFilePath().generic_string(), storage.GetDimensions().x, storage.GetDimensions().y, Renderer::E_TextureType::TEXTURE_2D,
 										 Renderer::GetClosestFormat(storage.GetChannels(), !Renderer::IsIntegral(storage.GetStorageType())), false});
 		if (!device.AllocateTexture(*roughnessMap.get()))
 		{
-			CORE_LOG(E_Level::Error, E_Context::Render, "Cannot allocate memory for texture '{}' in material '{}'", resource.GetFilepath(), GetName());
+			CORE_LOG(E_Level::Error, E_Context::Render, "Cannot allocate memory for texture '{}' in material '{}'", resource.GetFilePath(), GetName());
 			return;
 		}
 		roughnessMap->SetTexData2D(0, (&storage));

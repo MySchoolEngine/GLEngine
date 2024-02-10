@@ -13,7 +13,7 @@ public:
 	explicit C_Menu(std::string&& label);
 	~C_Menu();
 
-	virtual void Draw() const override;
+	virtual bool Draw() const override;
 
 	virtual GUID AddMenuItem(std::reference_wrapper<C_MenuItem> menuItem);
 

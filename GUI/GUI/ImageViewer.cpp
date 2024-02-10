@@ -20,11 +20,11 @@ C_ImageViewer::C_ImageViewer(Renderer::Handle<Renderer::Texture> texture)
 }
 
 //=================================================================================
-void C_ImageViewer::Draw() const
+bool C_ImageViewer::Draw() const
 {
 	// TODO
 	if (m_texture.IsValid() == false)
-		return;
+		return false;
 	// drawing area
 	const auto io = ImGui::GetIO();
 	m_Zoom		  = std::clamp(m_Zoom + io.MouseWheel / 10.f, 1.f, 10.f);
@@ -82,6 +82,7 @@ void C_ImageViewer::Draw() const
 	}
 	ImGui::SetCursorPos(canvas_p0);
 	ImGui::ItemSize(imageRect);
+	return false;
 }
 
 //=================================================================================

@@ -378,6 +378,7 @@ void C_ExplerimentWindow::OnAppInit()
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("New level", [&]() {
 		m_World->ClearLevel();
 		AddMandatoryWorldParts();
+		return true;
 	}));
 
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Open level", [&]() {
@@ -391,6 +392,7 @@ void C_ExplerimentWindow::OnAppInit()
 			 levelSelectorGUID, "./Levels");
 		guiMGR.AddCustomWindow(levelSelectWindwo);
 		levelSelectWindwo->SetVisible();
+		return false;
 	}));
 
 	auto& tmgr = Textures::C_TextureManager::Instance();
@@ -406,6 +408,7 @@ void C_ExplerimentWindow::OnAppInit()
 		{
 			SaveLevel(filename);
 		}
+		return false;
 	}));
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Save Level As", std::bind(&C_ExplerimentWindow::SaveLevelAs, this)));
 
@@ -478,7 +481,7 @@ void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 		return;
 	}
 
-	Utils::C_XMLDeserializer d;
+	Utils::C_XMLDeserializer d(Core::C_ResourceManager::Instance());
 	auto					 newWorld = d.Deserialize<std::shared_ptr<Entity::C_EntityManager>>(doc);
 	if (newWorld.has_value() == false)
 	{
@@ -529,7 +532,7 @@ void C_ExplerimentWindow::SaveLevel(const std::filesystem::path& filename)
 }
 
 //=================================================================================
-void C_ExplerimentWindow::SaveLevelAs()
+bool C_ExplerimentWindow::SaveLevelAs()
 {
 	auto&	   guiMGR			 = m_ImGUI->GetGUIMgr();
 	const auto levelSelectorGUID = NextGUID();
@@ -543,6 +546,7 @@ void C_ExplerimentWindow::SaveLevelAs()
 		   levelSelectorGUID, "./Levels");
 	guiMGR.AddCustomWindow(levelPathSelect);
 	levelPathSelect->SetVisible();
+	return false;
 }
 
 //=================================================================================

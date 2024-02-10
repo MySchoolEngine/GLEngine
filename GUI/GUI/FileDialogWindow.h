@@ -11,7 +11,7 @@ public:
 								GUID													 guid,
 								const std::filesystem::path&							 basePath = "."); // data folder by default
 	virtual ~C_FileDialogWindow();
-	virtual void Draw() const override;
+	virtual bool Draw() const override;
 
 	void SetTitle(const std::string& windowTitle);
 	void SetBasePath(const std::filesystem::path& basePath);

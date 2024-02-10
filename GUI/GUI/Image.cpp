@@ -22,12 +22,13 @@ C_Image::C_Image(Renderer::Handle<Renderer::Texture> handle)
 }
 
 //=================================================================================
-void C_Image::Draw() const
+bool C_Image::Draw() const
 {
 	if (m_texture.IsValid() && m_GUIHandle)
 	{
 		ImGui::Image((void*)(intptr_t)(m_GUIHandle), ImVec2(m_Size.x, m_Size.y));
 	}
+	return false;
 }
 
 //=================================================================================

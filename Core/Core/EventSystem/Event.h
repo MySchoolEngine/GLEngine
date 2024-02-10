@@ -47,15 +47,15 @@ enum class E_EventCategory
 	virtual const char* GetName() const override { return #type; }
 
 #define EVENT_CLASS_CATEGORY(category)                                                                                                                                             \
-	virtual Utils::C_BitField<E_EventCategory> GetCategories() const override { return category; }
+	virtual ::Utils::C_BitField<E_EventCategory> GetCategories() const override { return category; }
 
 //=================================================================================
 class CORE_API_EXPORT I_Event {
 public:
 	virtual ~I_Event();
-	virtual E_EventType						   GetType() const		 = 0;
-	virtual Utils::C_BitField<E_EventCategory> GetCategories() const = 0;
-	virtual const char*						   GetName() const		 = 0;
+	virtual E_EventType							 GetType() const	   = 0;
+	virtual ::Utils::C_BitField<E_EventCategory> GetCategories() const = 0;
+	virtual const char*							 GetName() const	   = 0;
 
 	inline bool IsInCategory(E_EventCategory category) const { return GetCategories() & category; }
 
@@ -69,7 +69,7 @@ public:
 	virtual ~C_UserEvent();
 
 	virtual E_EventType						   GetType() const override;
-	virtual Utils::C_BitField<E_EventCategory> GetCategories() const override;
+	virtual ::Utils::C_BitField<E_EventCategory> GetCategories() const override;
 	virtual const char*						   GetName() const override;
 
 private:
@@ -84,10 +84,10 @@ public:
 		Spawned,
 		Despawned,
 
-		//Editor
+		// Editor
 		Seleced,
 
-		//Entity system
+		// Entity system
 		LevelLoaded,
 	};
 
@@ -123,6 +123,6 @@ template <Core::E_EventCategory e, typename retType = typename EventCategoryBase
 } // namespace GLEngine
 
 //=================================================================================
-template <> struct Utils::enable_BitField_operators<GLEngine::Core::E_EventCategory> {
+template <> struct ::Utils::enable_BitField_operators<GLEngine::Core::E_EventCategory> {
 	static constexpr bool enable = true;
 };

@@ -65,6 +65,7 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<I_CameraComponent>
 			 textureSelectorGUID, "./Images");
 		guiMGR.AddCustomWindow(textureSelectWindow);
 		textureSelectWindow->SetVisible();
+		return false;
 	}));
 	CreateTextures(Core::C_Application::Get().GetActiveRenderer());
 }
@@ -156,7 +157,7 @@ void C_RayTraceWindow::RayTrace()
 	if (m_Running)
 		return;
 	std::packaged_task<void()> rayTrace([&]() {
-		Utils::HighResolutionTimer renderTime;
+		::Utils::HighResolutionTimer renderTime;
 		m_Renderer->SetMaxPathDepth(m_DepthSlider);
 		m_Renderer->Render(*m_Camera, m_ImageStorage, m_SamplesStorage, &m_ImageLock, m_NumCycleSamples, {.rowHeatMap = &m_HeatMapStorage});
 		CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
@@ -176,7 +177,7 @@ void C_RayTraceWindow::RayTraceProbe()
 	if (m_Running)
 		return;
 	std::packaged_task<void()> rayTrace([&]() {
-		Utils::HighResolutionTimer renderTime;
+		::Utils::HighResolutionTimer renderTime;
 		m_ProbeRenderer->Render(m_ProbeStorage, GetProbePosition(), nullptr);
 		CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace probe: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
 		m_Running = false;
@@ -197,7 +198,7 @@ void C_RayTraceWindow::RunUntilStop()
 	std::packaged_task<void()> rayTrace([&]() {
 		while (m_RunningCycle)
 		{
-			Utils::HighResolutionTimer renderTime;
+			::Utils::HighResolutionTimer renderTime;
 			m_Renderer->SetMaxPathDepth(m_DepthSlider);
 			m_Renderer->Render(*m_Camera, m_ImageStorage, m_SamplesStorage, &m_ImageLock, m_NumCycleSamples);
 			CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());

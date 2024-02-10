@@ -55,7 +55,7 @@ void C_RayRenderer::Render(I_CameraComponent&	 camera,
 	{
 		for (unsigned int x = 0; x < dim.x; ++x)
 		{
-			Utils::HighResolutionTimer renderTime;
+			::Utils::HighResolutionTimer renderTime;
 			const auto				   ray = GetRay(glm::vec2{x, y} + (2.f * rnd.GetV2() - glm::vec2(1.f, 1.f)) / 2.f);
 			AddSample({x, y}, textureView, integrator.TraceRay(ray, rnd));
 			if (additional.rowHeatMap)
@@ -83,7 +83,7 @@ void C_RayRenderer::Render(I_CameraComponent&	 camera,
 		{
 			for (unsigned int x = 0; x < dim.x; ++x)
 			{
-				Utils::HighResolutionTimer renderTime;
+				::Utils::HighResolutionTimer renderTime;
 				const auto ray = GetRay(glm::vec2{x, y} + (2.f * rnd.GetV2() - glm::vec2(1.f, 1.f)) / 2.f);
 				AddSample({x, y}, textureView, integrator.TraceRay(ray, rnd));
 				++m_ProcessedPixels;

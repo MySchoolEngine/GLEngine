@@ -12,9 +12,10 @@ C_FormatedText::C_FormatedText(const std::string& formatText)
 }
 
 //=================================================================================
-void C_FormatedText::Draw() const
+bool C_FormatedText::Draw() const
 {
 	::ImGui::Text("%s", m_PrintString.c_str());
+	return false;
 }
 
 //=================================================================================
