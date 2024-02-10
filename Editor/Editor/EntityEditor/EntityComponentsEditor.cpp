@@ -24,7 +24,7 @@ void C_EntityCompoenentEditor::SetEntity(std::shared_ptr<Entity::I_Entity> entit
 }
 
 //=================================================================================
-void C_EntityCompoenentEditor::Draw() const
+bool C_EntityCompoenentEditor::Draw() const
 {
 	if (auto entity = m_Entity.lock())
 	{
@@ -53,6 +53,7 @@ void C_EntityCompoenentEditor::Draw() const
 		}
 		ImGui::EndChild();
 	}
+	return false;
 }
 
 } // namespace GLEngine::Editor

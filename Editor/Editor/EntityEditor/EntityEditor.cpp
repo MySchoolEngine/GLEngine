@@ -9,6 +9,7 @@
 #include <Entity/BasicEntity.h>
 
 #include <Core/Filesystem/Paths.h>
+#include <Core/Resources/ResourceManager.h>
 
 #include <Utils/Serialization/XMLSerialize.h>
 #include <Utils/Serialization/XMLDeserialize.h>
@@ -24,14 +25,14 @@ EntityEditor::EntityEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 	, m_File("File")
 {
 	m_File.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>(
-		"New entity", [&]() { m_QueuedOperation = QueuedOperation::NewEntity; }, "Ctrl+N"));
+		"New entity", [&]() { m_QueuedOperation = QueuedOperation::NewEntity; return false;}, "Ctrl+N"));
 	m_File.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>(
-		"Open entity", [&]() { m_QueuedOperation = QueuedOperation::OpenEntity; }, "Ctrl+O"));
+		"Open entity", [&]() { m_QueuedOperation = QueuedOperation::OpenEntity; return false;}, "Ctrl+O"));
 	m_File.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>(
-		"Save entity", [&]() { m_QueuedOperation = QueuedOperation::SaveEntity; }, "Ctrl+S"));
+		"Save entity", [&]() { m_QueuedOperation = QueuedOperation::SaveEntity; return false;}, "Ctrl+S"));
 	m_File.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>(
-		"Save entity as", [&]() { m_QueuedOperation = QueuedOperation::SaveEntityAs; }, "Ctrl+Shift+S"));
-	m_File.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Close entity", [&]() { m_QueuedOperation = QueuedOperation::CloseEntity; }));
+		"Save entity as", [&]() { m_QueuedOperation = QueuedOperation::SaveEntityAs; return false;}, "Ctrl+Shift+S"));
+	m_File.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Close entity", [&]() { m_QueuedOperation = QueuedOperation::CloseEntity; return false;}));
 	AddMenu(m_File);
 
 	const auto entityDialogGUID = NextGUID();
@@ -159,6 +160,8 @@ void EntityEditor::Update()
 			case QueuedOperation::None:
 				break;
 			case QueuedOperation::SaveEntity:
+				if (!UnsavedWork())
+					break;
 				if (m_Path.empty() && m_FileDialogPath.has_value() == false)
 				{
 					if (!m_FileDialog->IsVisible())
@@ -273,7 +276,7 @@ void EntityEditor::OpenEntity(const std::filesystem::path& path)
 		return;
 	}
 
-	Utils::C_XMLDeserializer ds;
+	Utils::C_XMLDeserializer ds(Core::C_ResourceManager::Instance());
 	auto loadEntity = ds.Deserialize<std::shared_ptr<Entity::C_BasicEntity>>(doc);
 	if (loadEntity.has_value() == false)
 	{

@@ -12,7 +12,7 @@ class C_EntityCompoenentEditor : public GUI::I_GUIPart {
 public:
 	C_EntityCompoenentEditor();
 
-	virtual void Draw() const override;
+	virtual bool Draw() const override;
 
 	void SetEntity(std::shared_ptr<Entity::I_Entity>);
 
