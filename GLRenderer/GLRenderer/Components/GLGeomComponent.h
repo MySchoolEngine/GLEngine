@@ -22,7 +22,7 @@ public:
 	explicit C_GLGeomComponent(std::shared_ptr<Entity::I_Entity> owner);
 	virtual ~C_GLGeomComponent();
 	//=================================================================================
-	void											  SetupMaterial(const Utils::Parsing::MaterialData& data) override;
+	void											  SetupMaterial(const ::Utils::Parsing::MaterialData& data) override;
 	void											  SetupGeometry(const Renderer::MeshData::Mesh& mesh) override;
 	void											  PerformDraw() const override;
 	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override;

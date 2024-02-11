@@ -3,6 +3,20 @@
 #include <Core/Resources/ResourceHandle.h>
 #include <Core/Resources/ResourceManager.h>
 
+#include <Utils/Reflection/Metadata.h>
+
+#include <rttr/registration>
+
+RTTR_REGISTRATION
+{
+	using namespace GLEngine::Core;
+	using namespace Utils::Reflection;
+
+	rttr::registration::class_<ResourceHandleBase>("ResourceHandleBase")
+		.constructor<std::shared_ptr<Resource>>()()
+		.constructor<>()()
+		.property("Resource", &ResourceHandleBase::m_Resource);
+}
 
 namespace GLEngine::Core {
 
@@ -29,7 +43,8 @@ ResourceState ResourceHandleBase::GetState() const
 //=================================================================================
 ResourceHandleBase::~ResourceHandleBase()
 {
-	if (m_Resource.use_count() == 2) {
+	if (m_Resource.use_count() == 2)
+	{
 		C_ResourceManager::Instance().AddResourceToUnusedList(m_Resource);
 	}
 }
@@ -52,4 +67,11 @@ bool ResourceHandleBase::IsFailed() const
 	return GetState() == ResourceState::Failed;
 }
 
+//=================================================================================
+const std::filesystem::path& ResourceHandleBase::GetFilePath() const
+{
+	if (m_Resource)
+		return m_Resource->GetFilePath();
+	return "";
 }
+} // namespace GLEngine::Core

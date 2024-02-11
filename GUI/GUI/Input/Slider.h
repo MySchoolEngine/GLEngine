@@ -8,7 +8,7 @@ namespace GLEngine::GUI::Input {
 template <typename T> class C_Slider : public I_GUIPart {
 public:
 	C_Slider(T value, T min, T max, std::string&& name = "");
-	GUI_API_EXPORT virtual void Draw() const override;
+	GUI_API_EXPORT virtual bool Draw() const override;
 
 	void SetName(std::string&& name);
 	T	 GetValue() const;

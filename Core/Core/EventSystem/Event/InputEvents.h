@@ -12,7 +12,7 @@ namespace Core {
 // Input event is window dependent
 class C_InputEvent : public I_Event {
 public:
-	virtual Utils::C_BitField<E_EventCategory> GetCategories() const override { return GetInputCategory() | E_EventCategory::Input; }
+	virtual ::Utils::C_BitField<E_EventCategory> GetCategories() const override { return GetInputCategory() | E_EventCategory::Input; }
 
 	// window which trigged this event
 	inline GUID GetWindowGUID() const { return m_WindowID; };
@@ -23,7 +23,7 @@ protected:
 	{
 	}
 
-	virtual Utils::C_BitField<E_EventCategory> GetInputCategory() const = 0;
+	virtual ::Utils::C_BitField<E_EventCategory> GetInputCategory() const = 0;
 
 private:
 	GUID m_WindowID;

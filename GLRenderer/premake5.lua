@@ -29,6 +29,7 @@ project "GLRenderer"
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.GLI}",
 		"../%{IncludeDir.fmt}",
+		"%{wks.location}/%{IncludeDir.slot_map}",
 	}
 
 	links 

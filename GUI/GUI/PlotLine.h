@@ -12,7 +12,7 @@ template <int samples> class C_PlotLine : public I_GUIPart {
 
 public:
 	explicit C_PlotLine(std::string&& name);
-	virtual void		Draw() const override;
+	virtual bool		Draw() const override;
 	void				Sample(float sample);
 	[[nodiscard]] float Avg() const;
 	[[nodiscard]] float LastSample() const;

@@ -8,6 +8,10 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 	// check if being loaded, or already exists
 	// lock maps, as we want to make this in atomic manner
 	std::unique_lock lock(m_Mutex);
+	if (filepath.empty()) {
+		CORE_LOG(E_Level::Error, E_Context::Core, "Resource without path.");
+		return {};
+	}
 	if (auto resource = GetResourcePtr(filepath))
 	{
 		std::shared_ptr<ResourceType> concreteResource = std::static_pointer_cast<ResourceType>(resource);

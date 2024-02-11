@@ -15,10 +15,16 @@ C_ShaderCompiler::C_ShaderCompiler(bool preprocessorOutput /*= false*/)
 }
 
 //=================================================================================
-bool C_ShaderCompiler::compileShaderStageInternal(T_StageHandle& stage, const std::filesystem::path& filepath, const Renderer::E_ShaderStage shaderStage, std::string& src)
+bool C_ShaderCompiler::compileShaderStageInternal(T_StageHandle&				stage,
+												  const std::filesystem::path&	filepath,
+												  const Renderer::E_ShaderStage shaderStage,
+												  std::vector<char>&			content,
+												  const std::string&			entryPoint)
 {
+	// todo: entryPoint
 	Renderer::Shaders::C_ShaderPreprocessor preproces(std::make_unique<C_GLCodeProvider>());
-	src = preproces.PreprocessFile(src, filepath.parent_path());
+	std::string								strContent(content.begin(), content.end());
+	strContent = preproces.PreprocessFile(strContent, filepath.parent_path());
 	if (m_PreprocessorOutput)
 	{
 		std::ofstream				debugOutput;
@@ -36,7 +42,7 @@ bool C_ShaderCompiler::compileShaderStageInternal(T_StageHandle& stage, const st
 		{
 			CORE_LOG(E_Level::Error, E_Context::Render, "Cannot open file for debug output");
 		}
-		debugOutput << src;
+		debugOutput << strContent;
 		debugOutput.flush();
 		debugOutput.close();
 	}
@@ -57,7 +63,7 @@ bool C_ShaderCompiler::compileShaderStageInternal(T_StageHandle& stage, const st
 		return false;
 	}
 
-	const char* cstr = src.c_str();
+	const char* cstr = strContent.c_str();
 	glShaderSource(stage, 1, &cstr, nullptr);
 	glCompileShader(stage);
 
@@ -126,6 +132,12 @@ bool C_ShaderCompiler::linkProgram(GLuint& program, const std::vector<std::pair<
 	}
 
 	return true;
+}
+
+//=================================================================================
+void C_ShaderCompiler::ReleaseStage(T_StageHandle& stage)
+{
+	glDeleteShader(stage);
 }
 
 } // namespace GLEngine::GLRenderer::Shaders

@@ -191,7 +191,7 @@ void C_SkeletalMesh::Update()
 		auto&								  resource = m_ColorMapRes.GetResource();
 		const Renderer::I_TextureViewStorage& storage  = resource.GetStorage();
 		m_ColorMap
-			= device.CreateTextureHandle(Renderer::TextureDescriptor{.name	 = resource.GetFilepath().generic_string(),
+			= device.CreateTextureHandle(Renderer::TextureDescriptor{.name	 = resource.GetFilePath().generic_string(),
 																	 .width	 = storage.GetDimensions().x,
 																	 .height = storage.GetDimensions().y,
 																	 .type	 = Renderer::E_TextureType::TEXTURE_2D,
@@ -237,7 +237,7 @@ const std::filesystem::path& C_SkeletalMesh::GetColorMapPath() const
 {
 	const static std::filesystem::path empty("");
 	if (m_ColorMapRes)
-		return m_ColorMapRes.GetResource().GetFilepath();
+		return m_ColorMapRes.GetResource().GetFilePath();
 	return empty;
 }
 

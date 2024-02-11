@@ -33,7 +33,7 @@ public:
 		: C_ColorBase(std::move(name), (def))
 	{
 	}
-	GUI_API_EXPORT virtual void Draw() const override;
+	GUI_API_EXPORT virtual bool Draw() const override;
 
 
 	using C_ColorBase<Colours::T_Colour>::operator=;
@@ -48,7 +48,7 @@ public:
 		: C_ColorBase(std::move(name), (def))
 	{
 	}
-	GUI_API_EXPORT virtual void Draw() const override;
+	GUI_API_EXPORT virtual bool Draw() const override;
 
 
 	using C_ColorBase<glm::vec4>::operator=;

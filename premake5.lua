@@ -51,6 +51,7 @@ workspace "Engine"
 		"vendor/GLM/util/glm.natvis",
 		"vendor/ImGui/misc/natvis/imgui.natvis",
 		"vendor/pugixml/contrib/natvis/pugixml.natvis",
+		"vendor/projects/RTTR/rttr.natvis",
 		"Animation/animation.natvis",
 		"Physics/Physics.natvis",
 		"Renderer/renderer.natvis",
@@ -61,6 +62,7 @@ workspace "Engine"
 		"premake5.lua",
 		"Tools/Premake5/premakeDefines.lua",
 		"Tools/Premake5/workspaceFiles.lua",
+		"Core/Core.natvis",
 	}
 
 	filter "options:glfwapi=vulkan"
@@ -123,6 +125,7 @@ IncludeDir["dirent"] = "vendor/dirent/include"
 IncludeDir["Assimp"] = "vendor/Assimp/include"
 IncludeDir["crossguid"] = "vendor/crossguid/include"
 IncludeDir["RTTR"] = {"vendor/RTTR/src", "vendor/projects/RTTR"}
+IncludeDir["slot_map"] = "vendor/slot_map"
 
 -- could be header only or static lib
 NonDllLib = {}

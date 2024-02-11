@@ -10,14 +10,17 @@ namespace GLEngine::GUI::Menu {
 
 class GUI_API_EXPORT C_MenuItem : public I_GUIPart {
 public:
-	C_MenuItem(const std::string& label, const std::function<void()>& callback, const std::string& shortcut = "");
+	/**
+	 * The callback should return true if the edited value have been changed.
+	 */
+	C_MenuItem(const std::string& label, const std::function<bool()>& callback, const std::string& shortcut = "");
 
-	virtual void Draw() const override;
+	virtual bool Draw() const override;
 
 private:
 	std::string			  m_Label;
 	std::string			  m_Shortcut;
-	std::function<void()> m_Callback;
+	std::function<bool()> m_Callback;
 };
 
 class GUI_API_EXPORT C_MenuItemOpenWindow : public C_MenuItem {

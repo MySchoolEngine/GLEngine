@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline>
+  <shader stage="vertex">vulkan/Vertex.spv</shader>
+  <shader stage="fragment">vulkan/Fragment.spv</shader>
+</pipeline>

@@ -11,9 +11,9 @@ C_CheckBoxValue::C_CheckBoxValue(bool value, std::string&& name)
 }
 
 //=================================================================================
-void C_CheckBoxValue::Draw() const
+bool C_CheckBoxValue::Draw() const
 {
-	::ImGui::Checkbox(m_Name.c_str(), &m_Value);
+	return ::ImGui::Checkbox(m_Name.c_str(), &m_Value);
 }
 
 //=================================================================================

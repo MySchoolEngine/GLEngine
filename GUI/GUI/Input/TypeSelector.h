@@ -10,7 +10,7 @@ namespace GLEngine::GUI::Input {
 class GUI_API_EXPORT C_TypeSelector : public I_GUIPart {
 public:
 	C_TypeSelector(const std::string_view name, const std::string& baseTypeName);
-	void Draw() const override;
+	bool Draw() const override;
 
 	const std::string& GetSelectedTypeName() const { return m_Selected; }
 

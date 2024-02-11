@@ -24,6 +24,7 @@ project "DX12Renderer"
 		"C:/Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/um",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.GLM}",
+		"%{wks.location}/%{IncludeDir.slot_map}",
 	}
 
 	links 

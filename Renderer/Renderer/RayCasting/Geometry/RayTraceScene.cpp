@@ -257,7 +257,7 @@ void C_RayTraceScene::ForEachLight(std::function<void(const std::reference_wrapp
 //=================================================================================
 void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh, const MeshData::Material& material)
 {
-	Utils::HighResolutionTimer renderTime;
+	::Utils::HighResolutionTimer renderTime;
 	using namespace Physics::Primitives;
 //#define OLD_TRIMESH
 #ifdef OLD_TRIMESH
@@ -323,18 +323,29 @@ void C_RayTraceScene::BuildScene()
 				if (mat.textureIndex != -1)
 				{
 					m_Textures.emplace_back(rm.LoadResource<TextureResource>(std::filesystem::path(meshHandle.GetResource().GetTextureNames()[mat.textureIndex])));
-					mat.textureIndex = m_Textures.size() - 1;
+					mat.textureIndex = static_cast<int>(m_Textures.size() - 1);
 				}
 				if (mat.noramlTextureIndex != -1)
 				{
 					m_Textures.emplace_back(rm.LoadResource<TextureResource>(std::filesystem::path(meshHandle.GetResource().GetTextureNames()[mat.textureIndex])));
-					mat.noramlTextureIndex = m_Textures.size() - 1;
+					mat.noramlTextureIndex = static_cast<int>(m_Textures.size() - 1);
 				}
 				mat.shininess		   = 0.f;
 				AddMesh(mesh, mat);
 			}
 		}
 	}
+}
+
+void C_RayTraceScene::ClearScene()
+{
+	m_Objects.clear();
+	m_AreaLights.clear();
+	m_PointLights.clear();
+	m_Textures.clear();
+	m_Meshes.clear();
+	m_Materials.clear();
+	m_Trimeshes.clear();
 }
 
 //=================================================================================

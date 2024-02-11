@@ -1,5 +1,15 @@
 #pragma once
 
+/*****************************************************
+* NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE
+* Note that this whole project is learning oriented
+* thus you should not take this coding style as 
+* something good. Quite an opposite. This 
+* file contains my excursion into the template 
+* hell and taking it into the most absurd level.
+* NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE
+*****************************************************/
+
 #include <Utils/STD20Utils.h>
 
 #include <Core/CoreMacros.h>

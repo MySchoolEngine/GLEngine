@@ -32,7 +32,6 @@ public:
 		BindBuffer<INDEX>();
 		if (BUFFERTYPE != GL_ELEMENT_ARRAY_BUFFER)
 		{
-			constexpr auto typeLenght = sizeof(T);
 			if constexpr (T_GLTypeIsIntegral_v<T_TypeToGL<T>::value>)
 			{
 				glVertexAttribIPointer(INDEX, T_GLNumComponenets_v<T>, T_TypeToGL<T>::value, 0, nullptr);

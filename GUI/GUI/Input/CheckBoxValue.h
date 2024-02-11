@@ -8,7 +8,7 @@ namespace GLEngine::GUI::Input {
 class GUI_API_EXPORT C_CheckBoxValue : public I_GUIPart {
 public:
 	C_CheckBoxValue(bool value, std::string&& name = "");
-	virtual void Draw() const override;
+	virtual bool Draw() const override;
 
 	void SetName(std::string&& name);
 	bool GetValue() const;

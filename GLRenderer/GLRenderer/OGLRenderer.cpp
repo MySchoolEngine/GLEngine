@@ -1,9 +1,10 @@
 #include <GLRendererStdafx.h>
 
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
+#include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/Debug.h>
-#include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/OGLDevice.h>
+#include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Textures/TextureManager.h>
 
@@ -32,7 +33,11 @@ C_OGLRenderer::C_OGLRenderer(C_GLDevice& device)
 	, m_CurrentPass(Renderer::E_PassType::FinalPass)
 	, m_GUITexts({{GUI::C_FormatedText("Avg draw commands: {:.2f}"), GUI::C_FormatedText("Min/max {:.2f}/{:.2f}"), GUI::C_FormatedText("Draw calls: {}"),
 				   GUI::C_FormatedText("UBO memory usage: {}B")}})
-	, m_ScreenCaptureList("Capture frame commands", [&]() { m_OutputCommandList = true; })
+	, m_ScreenCaptureList("Capture frame commands",
+						  [&]() {
+							  m_OutputCommandList = true;
+							  return false; // this value is not being saved
+						  })
 	, m_Window(GUID::INVALID_GUID)
 	, m_Windows(std::string("Windows"))
 	, m_Device(device)
@@ -44,6 +49,7 @@ C_OGLRenderer::C_OGLRenderer(C_GLDevice& device)
 	}
 
 	auto& tmgr = Textures::C_TextureManager::Instance(&device);
+	m_GPUResourceManager.Init(&device);
 }
 
 //=================================================================================
@@ -73,30 +79,6 @@ void C_OGLRenderer::AddTransferCommand(T_CommandPtr command)
 {
 	std::lock_guard<std::mutex> guardTransfer(m_TransferQueueMTX);
 	m_TransferQueue.emplace_back(std::move(command));
-}
-
-//=================================================================================
-void C_OGLRenderer::AddBatch(Renderer::I_Renderer::T_BatchPtr batc)
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-//=================================================================================
-void C_OGLRenderer::SortCommands()
-{
-	// todo: no sorting for now
-}
-
-//=================================================================================
-void C_OGLRenderer::ExtractData()
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-//=================================================================================
-void C_OGLRenderer::TransformData()
-{
-	// todo: no extraction for now
 }
 
 //=================================================================================
@@ -137,7 +119,7 @@ void C_OGLRenderer::ClearCommandBuffers()
 	const auto avgDrawCommands = m_DrawCommands.Avg();
 	m_GUITexts[Utils::ToIndex(E_GUITexts::AvgDrawCommands)].UpdateText(avgDrawCommands);
 	m_GUITexts[Utils::ToIndex(E_GUITexts::MinMax)].UpdateText(*std::min_element(m_DrawCommands.cbegin(), m_DrawCommands.cend()),
-																							   *std::max_element(m_DrawCommands.cbegin(), m_DrawCommands.cend()));
+															  *std::max_element(m_DrawCommands.cbegin(), m_DrawCommands.cend()));
 	m_GUITexts[Utils::ToIndex(E_GUITexts::DrawCalls)].UpdateText(drawCallsNum);
 	m_GUITexts[Utils::ToIndex(E_GUITexts::UBOMemoryUsage)].UpdateText(Buffers::C_UniformBuffersManager::Instance().GetUsedMemory());
 
@@ -243,6 +225,53 @@ void C_OGLRenderer::CaputreCommands() const
 GLEngine::Renderer::I_Device& C_OGLRenderer::GetDevice()
 {
 	return m_Device;
+}
+
+//=================================================================================
+void C_OGLRenderer::SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer, std::size_t numBytes, const void* data)
+{
+	auto* buffer = m_GPUResourceManager.GetBuffer(dstBuffer);
+	GLE_ASSERT(buffer->GetDesc().usage != Renderer::E_ResourceUsage::Persistent, "Not implemented");
+	GLE_ASSERT(buffer, "Buffer does not exist");
+	buffer->bind();
+	glBufferData(buffer->GetType(), buffer->GetSize(), data, buffer->GetUsage());
+	buffer->unbind();
+}
+
+//=================================================================================
+void C_OGLRenderer::SetTextureData(Renderer::Handle<Renderer::Texture> dstTexture, const Renderer::I_TextureViewStorage& storage)
+{
+	if (auto* texture = m_GPUResourceManager.GetTexture(dstTexture))
+	{
+		AddTransferCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([texture, storage = &storage]() { texture->SetTexData2D(0, storage); }, "RT buffer"));
+	}
+}
+
+//=================================================================================
+Renderer::ResouceManager& C_OGLRenderer::GetRM()
+{
+	return m_GPUResourceManager;
+}
+
+//=================================================================================
+GLResourceManager& C_OGLRenderer::GetRMGL()
+{
+	return m_GPUResourceManager;
+}
+
+//=================================================================================
+void* C_OGLRenderer::GetTextureGUIHandle(Renderer::Handle<Renderer::Texture> textureHandle)
+{
+	if (auto* texture = m_GPUResourceManager.GetTexture(textureHandle)) {
+		return texture->GetGPUHandle();
+	}
+	return nullptr;
+}
+
+//=================================================================================
+void C_OGLRenderer::SetTextureSampler(Renderer::Handle<Renderer::Texture> dstTexture, Renderer::Handle<Renderer::Sampler> srcSampler)
+{
+	throw std::logic_error("The method or operation is not implemented.");
 }
 
 } // namespace GLEngine::GLRenderer

@@ -38,7 +38,7 @@ public:
 	[[nodiscard]] virtual glm::vec2 ToClipSpace(const glm::vec2& screenCoord) const override;
 
 protected:
-	C_GLFWWindow();
+	C_GLFWWindow(Core::E_Driver driver);
 	virtual void Destroy() override;
 
 	void MakeCurrent();

@@ -117,3 +117,11 @@ template <typename Enum> typename std::enable_if<Utils::enable_BitField_operator
 		field.SetFlag(lhs);
 	return field;
 }
+
+template <class T> struct std::hash<Utils::C_BitField<T>> {
+	std::size_t operator()(const Utils::C_BitField<T>& s) const noexcept
+	{
+		auto h1 = std::hash<std::underlying_type_t<T>>{}(s.GetFlags());
+		return h1;
+	}
+};

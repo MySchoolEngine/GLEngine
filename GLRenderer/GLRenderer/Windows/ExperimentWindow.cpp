@@ -11,6 +11,8 @@
 #include <GLRenderer/Components/SkeletalMesh.h>
 #include <GLRenderer/Components/SkyBox.h>
 #include <GLRenderer/Debug.h>
+#include <GLRenderer/GLRenderInterface.h>
+#include <GLRenderer/GLResourceManager.h>
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 #include <GLRenderer/ImGui/GLImGUILayer.h>
 #include <GLRenderer/Materials/MaterialBuffer.h>
@@ -24,15 +26,19 @@
 #include <GLRenderer/Textures/TextureManager.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 #include <GLRenderer/Windows/ExperimentWindow.h>
-#include <GLRenderer/Windows/RayTrace.h>
 
 #include <Renderer/Cameras/OrbitalCamera.h>
+#include <Renderer/Components/StaticMeshHandles.h>
 #include <Renderer/Lights/SunLight.h>
 #include <Renderer/Materials/MaterialManager.h>
 #include <Renderer/Mesh/Loading/MeshResource.h>
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/Textures/TextureResource.h>
 #include <Renderer/Textures/TextureView.h>
+#include <Renderer/Windows/RayTrace.h>
+
+#include <Editor/EntityEditor/EntitiesWindow.h>
+#include <Editor/EntityEditor/EntityEditor.h>
 
 #include <GUI/ConsoleWindow.h>
 #include <GUI/FileDialogWindow.h>
@@ -42,7 +48,6 @@
 
 #include <Entity/BasicEntity.h>
 #include <Entity/ComponentManager.h>
-#include <Entity/EntitiesWindow.h>
 #include <Entity/IComponent.h>
 
 #include <Core/EventSystem/Event/AppEvent.h>
@@ -109,11 +114,13 @@ C_ExplerimentWindow::~C_ExplerimentWindow()
 //=================================================================================
 void C_ExplerimentWindow::Update()
 {
+	bool open = true;
 	m_EditorLayer.SetCamera(m_CamManager.GetActiveCamera());
 	m_ImGUI->FrameBegin();
 	m_LayerStack.OnUpdate();
 	Core::C_ResourceManager::Instance().UpdatePendingLoads();
 	Renderer::C_MaterialManager::Instance().Update();
+	::ImGui::ShowDemoWindow(&open);
 
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.Reset();
@@ -135,6 +142,9 @@ void C_ExplerimentWindow::Update()
 	const auto camera = m_CamManager.GetActiveCamera();
 	GLE_ASSERT(camera, "No active camera");
 
+	handlesMesh->Update();
+	handlesMesh->Render(m_3DRenderer);
+
 	// ======
 	// Sun shadow
 	// ======
@@ -155,6 +165,10 @@ void C_ExplerimentWindow::Update()
 	// ======
 	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
 	m_MainPass->Render(*m_World.get(), camera, GetWidth(), GetHeight());
+	{
+		RenderDoc::C_DebugScope s("Handles draw");
+		m_3DRenderer.Commit(*m_RenderInterfaceHandles.get());
+	}
 	m_HDRFBO->Unbind<E_FramebufferTarget::Draw>();
 
 	// ======
@@ -230,7 +244,6 @@ void C_ExplerimentWindow::Update()
 	}
 
 	// commit of final commands - from commit few lines above
-	m_renderer->SortCommands();
 	m_renderer->Commit();
 	m_renderer->ClearCommandBuffers();
 	glfwSwapBuffers(m_Window);
@@ -278,6 +291,8 @@ void C_ExplerimentWindow::OnAppInit()
 	m_RenderInterface
 		= std::make_unique<C_RenderInterface>(Shaders::C_ShaderManager::Instance(), Textures::C_TextureUnitManger::Instance(), *static_cast<C_OGLRenderer*>(m_renderer.get()));
 
+	m_RenderInterfaceHandles = std::make_unique<C_GLRenderInterface>();
+
 	SetupWorld("Levels/cornellBox.xml");
 
 #pragma region FBOSteup
@@ -319,17 +334,26 @@ void C_ExplerimentWindow::OnAppInit()
 	{
 		m_RayTraceGUID = NextGUID();
 
-		m_RayTraceWindow = new C_RayTraceWindow(m_RayTraceGUID, m_CamManager.GetActiveCamera(), guiMGR);
+		m_RayTraceWindow = new Renderer::C_RayTraceWindow(m_RayTraceGUID, m_CamManager.GetActiveCamera(), guiMGR);
 
 		guiMGR.AddCustomWindow(m_RayTraceWindow);
 		m_RayTraceWindow->SetVisible();
+	}
+
+	{
+		m_EntityEditorGUID = NextGUID();
+
+		auto* entities = new Editor::EntityEditor(m_EntityEditorGUID, guiMGR);
+
+		guiMGR.AddCustomWindow(entities);
+		entities->SetVisible();
 	}
 
 	// Entity window
 	{
 		m_EntitiesWindowGUID = NextGUID();
 
-		auto entitiesWindow = new Entity::C_EntitiesWindow(m_EntitiesWindowGUID, m_World);
+		auto entitiesWindow = new Editor::C_EntitiesWindow(m_EntitiesWindowGUID, m_World);
 		guiMGR.AddCustomWindow(entitiesWindow);
 		entitiesWindow->SetVisible();
 	}
@@ -354,6 +378,7 @@ void C_ExplerimentWindow::OnAppInit()
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("New level", [&]() {
 		m_World->ClearLevel();
 		AddMandatoryWorldParts();
+		return true;
 	}));
 
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Open level", [&]() {
@@ -367,6 +392,7 @@ void C_ExplerimentWindow::OnAppInit()
 			 levelSelectorGUID, "./Levels");
 		guiMGR.AddCustomWindow(levelSelectWindwo);
 		levelSelectWindwo->SetVisible();
+		return false;
 	}));
 
 	auto& tmgr = Textures::C_TextureManager::Instance();
@@ -382,6 +408,7 @@ void C_ExplerimentWindow::OnAppInit()
 		{
 			SaveLevel(filename);
 		}
+		return false;
 	}));
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Save Level As", std::bind(&C_ExplerimentWindow::SaveLevelAs, this)));
 
@@ -454,7 +481,7 @@ void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 		return;
 	}
 
-	Utils::C_XMLDeserializer d;
+	Utils::C_XMLDeserializer d(Core::C_ResourceManager::Instance());
 	auto					 newWorld = d.Deserialize<std::shared_ptr<Entity::C_EntityManager>>(doc);
 	if (newWorld.has_value() == false)
 	{
@@ -466,7 +493,7 @@ void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 
 	auto& guiMGR	  = m_ImGUI->GetGUIMgr();
 	auto* entitiesWnd = guiMGR.GetWindow(m_EntitiesWindowGUID);
-	if (auto* entitiesWindow = dynamic_cast<Entity::C_EntitiesWindow*>(entitiesWnd))
+	if (auto* entitiesWindow = dynamic_cast<Editor::C_EntitiesWindow*>(entitiesWnd))
 	{
 		entitiesWindow->SetWorld(m_World);
 	}
@@ -505,7 +532,7 @@ void C_ExplerimentWindow::SaveLevel(const std::filesystem::path& filename)
 }
 
 //=================================================================================
-void C_ExplerimentWindow::SaveLevelAs()
+bool C_ExplerimentWindow::SaveLevelAs()
 {
 	auto&	   guiMGR			 = m_ImGUI->GetGUIMgr();
 	const auto levelSelectorGUID = NextGUID();
@@ -519,6 +546,7 @@ void C_ExplerimentWindow::SaveLevelAs()
 		   levelSelectorGUID, "./Levels");
 	guiMGR.AddCustomWindow(levelPathSelect);
 	levelPathSelect->SetVisible();
+	return false;
 }
 
 //=================================================================================
@@ -552,6 +580,13 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 		skeletalMesh->SetComponentMatrix(glm::translate(glm::mat4{1.f}, glm::vec3(0, -1, 0)) * glm::rotate(glm::half_pi<float>(), glm::vec3(1.f, .0f, .0f))
 										 * glm::scale(glm::vec3{0.2f}));
 		runner->AddComponent(skeletalMesh);
+	}
+
+	auto staticMeshHandle = m_World->GetOrCreateEntity("handles");
+	{
+		handlesMesh = std::make_shared<Renderer::C_StaticMeshHandles>();
+		handlesMesh->SetParent(staticMeshHandle);
+		staticMeshHandle->AddComponent(handlesMesh);
 	}
 
 

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="rttr::type">
+    <DisplayString Condition="!m_type_data">invalid</DisplayString>
+    <DisplayString Condition="m_type_data">{m_type_data->name}</DisplayString>
+  </Type>
+</AutoVisualizer>

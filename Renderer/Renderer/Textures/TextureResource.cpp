@@ -4,6 +4,12 @@
 #include <Renderer/Textures/TextureResource.h>
 #include <Renderer/Textures/TextureStorage.h>
 
+#include <Core/Resources/ResourceHandle.h>
+
+#include <rttr/registration>
+
+DECLARE_RESOURCE_TYPE(GLEngine::Renderer::TextureResource)
+
 namespace GLEngine::Renderer {
 
 //=================================================================================

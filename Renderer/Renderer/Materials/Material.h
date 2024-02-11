@@ -19,7 +19,7 @@ struct Material;
 }
 
 namespace GLEngine::Renderer {
-class RENDERER_API_EXPORT C_Material : Utils::RefCounted<Utils::SingleThreadCounter> {
+class RENDERER_API_EXPORT C_Material : ::Utils::RefCounted<::Utils::SingleThreadCounter> {
 public:
 	C_Material(const std::string& name);
 	C_Material(const MeshData::Material& material);
@@ -58,7 +58,7 @@ public:
 	void  SetShininess(float value) { m_Shininess = value; }
 	float GetShininess() const { return m_Shininess; }
 
-	void DrawGUI();
+	bool DrawGUI();
 
 	void Update();
 

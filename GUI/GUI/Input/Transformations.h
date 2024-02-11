@@ -16,12 +16,12 @@ public:
 		Rotate	  = 2,
 		Scale	  = 4,
 	};
-	C_Transformations(glm::mat4 transformation, Utils::C_BitField<E_Transorms> enableTransforms = {E_Transorms::Translate, E_Transorms::Rotate, E_Transorms::Scale});
+	C_Transformations(glm::mat4 transformation, ::Utils::C_BitField<E_Transorms> enableTransforms = {E_Transorms::Translate, E_Transorms::Rotate, E_Transorms::Scale});
 	C_Transformations();
 
-	void SetEnabledTransforms(Utils::C_BitField<E_Transorms> enableTransforms);
+	void SetEnabledTransforms(::Utils::C_BitField<E_Transorms> enableTransforms);
 	//=================================================================================
-	void Draw() const override;
+	bool Draw() const override;
 
 	[[nodiscard]] glm::mat4		   GetMatrix() const;
 	void						   SetMatrix(const glm::mat4& mat);
@@ -35,10 +35,10 @@ public:
 	void						   SetRotationDeg(glm::vec3 rotation);
 
 private:
-	Utils::C_BitField<E_Transorms> m_enabledTransforms;
-	glm::vec3					   m_Translation;
-	glm::vec3					   m_Rotation; //< in rad
-	glm::vec3					   m_Scale;
+	::Utils::C_BitField<E_Transorms> m_enabledTransforms;
+	glm::vec3						 m_Translation;
+	glm::vec3						 m_Rotation; //< in rad
+	glm::vec3						 m_Scale;
 
 	RTTR_ENABLE();
 	RTTR_REGISTRATION_FRIEND;

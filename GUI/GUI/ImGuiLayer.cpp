@@ -37,6 +37,8 @@ void C_ImGuiLayer::OnAttach()
 	io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
 	io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
 
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
 	io.KeyMap[ImGuiKey_Tab]		   = GLFW_KEY_TAB;
 	io.KeyMap[ImGuiKey_LeftArrow]  = GLFW_KEY_LEFT;
 	io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;

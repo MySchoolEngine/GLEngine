@@ -13,19 +13,19 @@ class C_KeyEvent : public C_InputEvent {
 public:
 	inline int GetKeyCode() const { return m_KeyCode; }
 
-	virtual Utils::C_BitField<E_KeyModifiers> GetModifiers() const { return m_Modifiers; }
+	virtual ::Utils::C_BitField<E_KeyModifiers> GetModifiers() const { return m_Modifiers; }
 
 protected:
-	C_KeyEvent(int keyCode, GUID window, Utils::C_BitField<E_KeyModifiers> modifiers)
+	C_KeyEvent(int keyCode, GUID window, ::Utils::C_BitField<E_KeyModifiers> modifiers)
 		: C_InputEvent(window)
 		, m_KeyCode(keyCode)
 		, m_Modifiers(modifiers)
 	{
 	}
-	int								  m_KeyCode;
-	Utils::C_BitField<E_KeyModifiers> m_Modifiers;
+	int									m_KeyCode;
+	::Utils::C_BitField<E_KeyModifiers> m_Modifiers;
 
-	virtual Utils::C_BitField<E_EventCategory> GetInputCategory() const override { return E_EventCategory::Keyboard; }
+	virtual ::Utils::C_BitField<E_EventCategory> GetInputCategory() const override { return E_EventCategory::Keyboard; }
 };
 
 //=================================================================================
@@ -81,6 +81,6 @@ public:
 protected:
 	unsigned int m_Codepoint;
 
-	virtual Utils::C_BitField<E_EventCategory> GetInputCategory() const override { return E_EventCategory::Keyboard; }
+	virtual ::Utils::C_BitField<E_EventCategory> GetInputCategory() const override { return E_EventCategory::Keyboard; }
 };
 } // namespace GLEngine::Core

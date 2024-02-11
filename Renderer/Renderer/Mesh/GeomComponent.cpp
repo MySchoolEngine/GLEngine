@@ -28,7 +28,7 @@ std::string_view C_GeomComponent::GetDebugComponentName() const
 }
 
 //=================================================================================
-void C_GeomComponent::SetupMaterial(const Utils::Parsing::MaterialData& data)
+void C_GeomComponent::SetupMaterial(const ::Utils::Parsing::MaterialData& data)
 {
 	auto& materialManager = C_MaterialManager::Instance();
 	m_Material			  = materialManager.GetMaterial("GeomComponent");

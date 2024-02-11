@@ -5,11 +5,11 @@
 namespace GLEngine::GUI {
 class GUI_API_EXPORT C_LambdaPart : public I_GUIPart {
 public:
-	explicit C_LambdaPart(std::function<void()> lambda);
-	virtual void Draw() const override;
+	explicit C_LambdaPart(std::function<bool()> lambda);
+	virtual bool Draw() const override;
 
 private:
-	std::function<void()> m_Lambda;
+	std::function<bool()> m_Lambda;
 };
 
 } // namespace GLEngine::GUI

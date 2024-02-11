@@ -54,6 +54,7 @@ public:
 
 	[[nodiscard]] bool IsLoaded() const;
 	void			   BuildScene(); //< Call after fully loaded
+	void			   ClearScene();
 
 private:
 	std::vector<std::shared_ptr<I_RayGeometryObject>>	   m_Objects;

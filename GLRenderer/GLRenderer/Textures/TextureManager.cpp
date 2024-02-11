@@ -143,6 +143,7 @@ GUID C_TextureManager::SetupControls(GUI::C_GUIManager& guiMGR)
 				ReloadTexture(texture.first, texture.second);
 			}
 		}
+		return false; // TODO?
 	});
 
 	shaderMan->AddComponent(*m_TextureList.get());
