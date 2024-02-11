@@ -337,6 +337,17 @@ void C_RayTraceScene::BuildScene()
 	}
 }
 
+void C_RayTraceScene::ClearScene()
+{
+	m_Objects.clear();
+	m_AreaLights.clear();
+	m_PointLights.clear();
+	m_Textures.clear();
+	m_Meshes.clear();
+	m_Materials.clear();
+	m_Trimeshes.clear();
+}
+
 //=================================================================================
 std::unique_ptr<I_MaterialInterface>& C_RayTraceScene::AddMaterial(const MeshData::Material& material)
 {
