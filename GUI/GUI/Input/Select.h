@@ -9,7 +9,7 @@ namespace GLEngine::GUI::Input {
 template <class Key> class C_Select : public I_GUIPart {
 public:
 	C_Select(const std::string_view name, const Key& defaultKey, const std::string_view label);
-	virtual void Draw() const override;
+	virtual bool Draw() const override;
 
 	void	   AddValue(const Key& key, const std::string_view label);
 	const Key& GetSelectedValue() const;

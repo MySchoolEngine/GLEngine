@@ -10,7 +10,7 @@ class GUI_API_EXPORT C_Image : public I_GUIPart {
 public:
 	// needs to get texture handle one day
 	explicit C_Image(Renderer::Handle<Renderer::Texture> handle);
-	virtual void Draw() const override;
+	virtual bool Draw() const override;
 
 	void SetSize(const glm::vec2 dim);
 

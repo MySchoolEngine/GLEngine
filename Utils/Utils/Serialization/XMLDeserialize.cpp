@@ -1,14 +1,24 @@
 #include <Utils/Logging/LoggingMacros.h>
 #include <Utils/Reflection/Metadata.h>
+#include <Utils/STLAfx.h>
 #include <Utils/Serialization/GLMRTTI.h>
 #include <Utils/Serialization/SerializationTraits.h>
 #include <Utils/Serialization/XMLDeserialize.h>
 
 #include <Core/CoreMacros.h>
+#include <Core/Resources/ResourceManager.h>
+
+#include <pugixml.hpp>
 
 #include <rttr/type>
 
 namespace GLEngine::Utils {
+
+//=================================================================================
+C_XMLDeserializer::C_XMLDeserializer(Core::C_ResourceManager& resMng)
+	: m_Ctx({resMng})
+{
+}
 
 //=================================================================================
 rttr::variant C_XMLDeserializer::DeserializeDoc(const pugi::xml_document& document)
@@ -23,7 +33,9 @@ rttr::variant C_XMLDeserializer::DeserializeDoc(const pugi::xml_document& docume
 		CORE_LOG(E_Level::Error, E_Context::Core, "Invalid variant created. Probably needs ctor to be registered. Type = {}", type);
 		return {};
 	}
-	return DeserializeNode(rootNode, var);
+	DeserializeNode(rootNode, var);
+	FinishDeserialization(type, var);
+	return var;
 }
 
 //=================================================================================
@@ -31,7 +43,7 @@ rttr::variant C_XMLDeserializer::DeserializeNode(const pugi::xml_node& node, rtt
 {
 	using namespace ::Utils::Reflection;
 	const rttr::instance var2 = var.get_type().get_raw_type().is_wrapper() ? rttr::instance(var).get_wrapped_instance() : rttr::instance(var);
-	//CORE_LOG(E_Level::Error, E_Context::Core, "{}", var2.get_type());
+	// CORE_LOG(E_Level::Error, E_Context::Core, "{}", var2.get_type());
 
 	for (auto& prop : var2.get_type().get_properties())
 	{
@@ -99,9 +111,19 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 	else
 	{
 		const auto child = node.child(prop.get_name().to_string().c_str());
-		if (child) {
+		if (child)
+		{
 			auto var = prop.get_value(owner);
-			prop.set_value(owner, DeserializeNode(child, var));
+			if (!child.attribute("derivedTypeCast").empty())
+			{
+				auto typeCast = rttr::type::get_by_name(child.attribute("derivedTypeCast").as_string());
+				GLE_ASSERT(typeCast, "Type {} does not exists", child.attribute("derivedTypeCast").as_string());
+				var = typeCast.create();
+				GLE_ASSERT(var.is_valid(), "Type {} cannot be instancieated.", type);
+			}
+			auto varNode = DeserializeNode(child, var);
+			GLE_ASSERT(varNode.convert(prop.get_type()), "Cannot convert");
+			GLE_ASSERT(prop.set_value(owner, varNode), "Cannot assign property {}", prop);
 		}
 	}
 }
@@ -123,10 +145,7 @@ void C_XMLDeserializer::DeserializeArray(const pugi::xml_node& child, rttr::vari
 		{
 			CORE_LOG(E_Level::Error, E_Context::Core, "Failed to insert item into the array.");
 		}
-		if (auto method = type.get_method("AfterDeserialize"))
-		{
-			method.invoke(var);
-		}
+		FinishDeserialization(type, var);
 		index++;
 	}
 }
@@ -162,12 +181,12 @@ void C_XMLDeserializer::DeserializeAssociativeArray(const pugi::xml_node& child,
 		}
 		else
 		{
-			auto	   valueNode = childNode.child("value");
+			auto valueNode = childNode.child("value");
 			if (!valueNode)
 			{
 				CORE_LOG(E_Level::Error, E_Context::Core, "Missing value node in associative array.");
 			}
-			const auto node		 = *valueNode.children().begin();
+			const auto node = *valueNode.children().begin();
 			const auto type = rttr::type::get_by_name(node.name());
 			if (type.is_valid() == false)
 				continue;
@@ -183,15 +202,28 @@ void C_XMLDeserializer::DeserializeAssociativeArray(const pugi::xml_node& child,
 				CORE_LOG(E_Level::Error, E_Context::Core, "Cannot convert to the value type {} to {}.", valueVar.get_type(), view.get_value_type());
 				continue;
 			}
-			if (auto method = type.get_method("AfterDeserialize"))
-			{
-				method.invoke(valueVar);
-			}
+			FinishDeserialization(type, valueVar);
 		}
 
 		if (view.insert(keyVar, valueVar).second == false)
 		{
 			CORE_LOG(E_Level::Error, E_Context::Core, "Something happend.");
+		}
+	}
+}
+
+//=================================================================================
+void C_XMLDeserializer::FinishDeserialization(const rttr::type& type, rttr::variant& var)
+{
+	if (auto method = type.get_method("AfterDeserialize"))
+	{
+		if (method.get_parameter_infos().empty())
+		{
+			method.invoke(var);
+		}
+		else
+		{
+			method.invoke(var, m_Ctx);
 		}
 	}
 }

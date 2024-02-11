@@ -9,7 +9,7 @@ namespace GLEngine::GUI {
 class GUI_API_EXPORT C_ImageViewer : public I_GUIPart {
 public:
 	explicit C_ImageViewer(Renderer::Handle<Renderer::Texture> texture);
-	virtual void Draw() const override;
+	virtual bool Draw() const override;
 
 	void SetSize(const glm::vec2 dim);
 

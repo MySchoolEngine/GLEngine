@@ -9,8 +9,8 @@
 #include <Utils/MapValueIterator.h>
 #include <Utils/Range.h>
 
-#include <rttr/type>
 #include <rttr/registration_friend.h>
+#include <rttr/type>
 
 namespace GLEngine::Entity {
 
@@ -26,7 +26,7 @@ protected:
 	using T_ComponentsContainer = std::multimap<E_ComponentType, T_ComponentPtr>*;
 	using T_ComponentIter		= std::remove_pointer<T_ComponentsContainer>::type::iterator;
 	using T_ComponentConstIter	= std::remove_pointer<T_ComponentsContainer>::type::const_iterator;
-	using T_ComponentRange		= Utils::Range<Utils::MapValueIterator<T_ComponentIter>>;
+	using T_ComponentRange		= ::Utils::Range<::Utils::MapValueIterator<T_ComponentIter>>;
 
 public:
 	explicit I_Entity(std::string name);

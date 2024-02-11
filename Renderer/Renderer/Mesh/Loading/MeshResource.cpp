@@ -4,8 +4,17 @@
 #include <Renderer/Mesh/Loading/ModelLoader.h>
 #include <Renderer/Mesh/Scene.h>
 
+#include <Core/Resources/ResourceHandle.h>
+
+#include <rttr/registration>
+
+DECLARE_RESOURCE_TYPE(GLEngine::Renderer::MeshResource)
 
 namespace GLEngine::Renderer {
+
+
+//=================================================================================
+MeshResource::MeshResource() = default;
 
 //=================================================================================
 bool MeshResource::Load(const std::filesystem::path& filepath)
@@ -25,10 +34,11 @@ bool MeshResource::Reload()
 	Mesh::ModelLoader ml;
 	std::lock_guard	  lock(ml.GetMutex());
 	ml.Reset();
-	auto newScene = std::make_shared<Renderer::MeshData::Scene>();
+	auto							   newScene = std::make_shared<Renderer::MeshData::Scene>();
 	std::vector<std::filesystem::path> newTextures;
-	if (ml.addModelFromFileToScene(m_Filepath, newScene, newTextures)) {
-		m_Scene = newScene;
+	if (ml.addModelFromFileToScene(m_Filepath, newScene, newTextures))
+	{
+		m_Scene		   = newScene;
 		m_TexuterNames = newTextures;
 		return true;
 	}
@@ -49,12 +59,6 @@ const MeshData::Scene& MeshResource::GetScene() const
 {
 	GLE_ASSERT(IsReady(), "Dereferencing unloaded resource.");
 	return *m_Scene.get();
-}
-
-//=================================================================================
-std::filesystem::path MeshResource::GetFilePath() const
-{
-	return m_Filepath;
 }
 
 //=================================================================================

@@ -17,7 +17,7 @@ pugi::xml_document C_XMLSerializer::Serialize(const rttr::instance obj)
 		return {};
 
 	pugi::xml_document doc;
-	pugi::xml_node	   node	 = doc.append_child(GetNodeName(obj.get_type()).to_string().c_str());
+	pugi::xml_node	   node = doc.append_child(GetNodeName(obj.get_type()).to_string().c_str());
 	SerializeObject(obj, node);
 	return doc;
 }
@@ -44,8 +44,8 @@ pugi::xml_node C_XMLSerializer::SerializeObject(const rttr::instance& obj2, pugi
 void C_XMLSerializer::WriteProperty(const rttr::property& prop, const rttr::instance& var, pugi::xml_node parent)
 {
 	using namespace ::Utils::Reflection;
-	auto type	   = prop.get_type();
-	auto propValue = prop.get_value(var);
+	auto		  type		= prop.get_type();
+	rttr::variant propValue = prop.get_value(var);
 	if (HasMetadataMember<SerializationCls::DerefSerialize>(prop))
 	{
 		GLE_ASSERT(type.is_pointer(), "Cannot dereference {}", type);
@@ -73,7 +73,17 @@ void C_XMLSerializer::WriteProperty(const rttr::property& prop, const rttr::inst
 	}
 	else
 	{
-		SerializeObject(propValue, parent.append_child(prop.get_name().to_string().c_str()));
+		auto propNode = parent.append_child(prop.get_name().to_string().c_str());
+		if (type.get_raw_type().is_wrapper())
+		{
+			auto value = propValue;
+			while (value.get_type().is_wrapper())
+				value = value.extract_wrapped_value();
+
+			auto typeWrapped = rttr::instance(value).get_derived_type();
+			propNode.append_attribute("derivedTypeCast").set_value(typeWrapped.get_name().data());
+		}
+		SerializeObject(propValue, propNode);
 	}
 }
 

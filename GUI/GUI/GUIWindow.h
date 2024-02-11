@@ -17,7 +17,7 @@ public:
 	virtual ~C_Window() = default;
 
 	virtual void			 Update() {}
-	virtual void			 Draw() const override;
+	virtual bool			 Draw() const override;
 	void					 SetVisible(bool enable = true);
 	[[nodiscard]] bool		 IsVisible() const;
 	GUID					 AddComponent(T_GUIPartRef component);
@@ -32,6 +32,8 @@ public:
 	[[nodiscard]] virtual bool CanDestroy() const { return true; }
 
 protected:
+	virtual void		 OnSetVisible() {}
+	virtual void		 OnHide() {}
 	virtual void DrawComponents() const;
 	void		 DrawMenus() const;
 

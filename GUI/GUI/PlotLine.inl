@@ -13,7 +13,7 @@ C_PlotLine<samples>::C_PlotLine(std::string&& name)
 }
 
 //=================================================================================
-template <int samples> void C_PlotLine<samples>::Draw() const
+template <int samples> bool C_PlotLine<samples>::Draw() const
 {
 	int samplesNum = samples;
 	if (m_SampleID < samples)
@@ -21,6 +21,7 @@ template <int samples> void C_PlotLine<samples>::Draw() const
 		samplesNum = m_SampleID;
 	}
 	::ImGui::PlotLines(m_Name.c_str(), m_Samples.data(), samplesNum);
+	return false;
 }
 
 //=================================================================================

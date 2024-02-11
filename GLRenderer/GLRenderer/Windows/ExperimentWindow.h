@@ -64,7 +64,7 @@ protected:
 private:
 	void SetupWorld(const std::filesystem::path& level);
 	void SaveLevel(const std::filesystem::path& filename);
-	void SaveLevelAs();
+	bool SaveLevelAs();
 	void AddMandatoryWorldParts();
 	void OnAppInit();
 	void MouseSelect();
@@ -76,7 +76,7 @@ private:
 	Core::C_LayerStack						 m_LayerStack;
 	Temporar::C_CameraManager				 m_CamManager;
 	C_GLImGUILayer*							 m_ImGUI;
-	Utils::HighResolutionTimer				 m_FrameTimer;
+	::Utils::HighResolutionTimer			 m_FrameTimer;
 
 	//===========================
 	// GUI
