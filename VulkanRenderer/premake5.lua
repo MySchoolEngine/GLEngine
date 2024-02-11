@@ -13,6 +13,7 @@ project "VulkanRenderer"
 	Link("GLFWWindowManager")
 	Link("Core")
 	Link("Entity")
+	Link("Editor")
 	Link("GUI")
 	LinkDependency("pugixml")
 	LinkDependency("ImGui")

@@ -16,7 +16,7 @@
 #include <Renderer/Viewport.h>
 #include <Renderer/Windows/RayTrace.h>
 
-#include <Entity/EntitiesWindow.h>
+#include <Editor/EntityEditor/EntitiesWindow.h>
 #include <Entity/EntityManager.h>
 
 #include <Core/EventSystem/Event/AppEvent.h>
@@ -695,7 +695,7 @@ void C_VkWindow::CreateTexture()
 	const glm::uvec2   dim		 = storage.GetDimensions();
 	const VkDeviceSize imageSize = dim.x * dim.y * 4 * sizeof(float);
 
-	Renderer::TextureDescriptor textureDesc{.name		   = m_TextureHandle.GetResource().GetFilepath().generic_string(),
+	Renderer::TextureDescriptor textureDesc{.name		   = m_TextureHandle.GetResource().GetFilePath().generic_string(),
 											.width		   = storage.GetDimensions().x,
 											.height		   = storage.GetDimensions().y,
 											.type		   = Renderer::E_TextureType::TEXTURE_2D,
@@ -744,7 +744,7 @@ void C_VkWindow::SetupGUI()
 	{
 		m_EntitiesWindowGUID = NextGUID();
 
-		auto entitiesWindow = new Entity::C_EntitiesWindow(m_EntitiesWindowGUID, m_World);
+		auto entitiesWindow = new Editor::C_EntitiesWindow(m_EntitiesWindowGUID, m_World);
 		guiMGR.AddCustomWindow(entitiesWindow);
 		entitiesWindow->SetVisible();
 	}
