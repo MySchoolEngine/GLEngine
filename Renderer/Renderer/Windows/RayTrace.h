@@ -15,6 +15,10 @@
 #include <GUI/Input/Slider.h>
 #include <GUI/Input/Vector.h>
 
+namespace GLEngine::Entity {
+class C_EntityManager;
+}
+
 namespace GLEngine::Renderer {
 class I_CameraComponent;
 class I_DebugDraw;
@@ -24,6 +28,8 @@ class RENDERER_API_EXPORT C_RayTraceWindow : public GUI::C_Window {
 public:
 	C_RayTraceWindow(GUID guid, std::shared_ptr<I_CameraComponent> camera, GUI::C_GUIManager& guiMGR);
 	~C_RayTraceWindow();
+
+	void SetScene(Entity::C_EntityManager& world);
 
 	void DebugDraw(I_DebugDraw* dd) const;
 

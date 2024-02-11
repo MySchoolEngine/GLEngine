@@ -12,6 +12,8 @@
 #include <GUI/FileDialogWindow.h>
 #include <GUI/GUIManager.h>
 
+#include <Entity/EntityManager.h>
+
 #include <Core/Application.h>
 
 #include <Utils/HighResolutionTimer.h>
@@ -148,6 +150,12 @@ C_RayTraceWindow::~C_RayTraceWindow()
 	rm.destoryTexture(m_GPUImageHandle);
 	rm.destoryTexture(m_GPUHeatMapHandle);
 	rm.destoryTexture(m_GPUProbeHandle);
+}
+
+void C_RayTraceWindow::SetScene(Entity::C_EntityManager& world)
+{
+	m_Scene.ClearScene();
+
 }
 
 //=================================================================================

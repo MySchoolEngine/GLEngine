@@ -37,7 +37,8 @@
 #include <Renderer/Textures/TextureView.h>
 #include <Renderer/Windows/RayTrace.h>
 
-#include <Editor/EntityEditor.h>
+#include <Editor/EntityEditor/EntitiesWindow.h>
+#include <Editor/EntityEditor/EntityEditor.h>
 
 #include <GUI/ConsoleWindow.h>
 #include <GUI/FileDialogWindow.h>
@@ -47,7 +48,6 @@
 
 #include <Entity/BasicEntity.h>
 #include <Entity/ComponentManager.h>
-#include <Entity/EntitiesWindow.h>
 #include <Entity/IComponent.h>
 
 #include <Core/EventSystem/Event/AppEvent.h>
@@ -353,7 +353,7 @@ void C_ExplerimentWindow::OnAppInit()
 	{
 		m_EntitiesWindowGUID = NextGUID();
 
-		auto entitiesWindow = new Entity::C_EntitiesWindow(m_EntitiesWindowGUID, m_World);
+		auto entitiesWindow = new Editor::C_EntitiesWindow(m_EntitiesWindowGUID, m_World);
 		guiMGR.AddCustomWindow(entitiesWindow);
 		entitiesWindow->SetVisible();
 	}
@@ -493,7 +493,7 @@ void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 
 	auto& guiMGR	  = m_ImGUI->GetGUIMgr();
 	auto* entitiesWnd = guiMGR.GetWindow(m_EntitiesWindowGUID);
-	if (auto* entitiesWindow = dynamic_cast<Entity::C_EntitiesWindow*>(entitiesWnd))
+	if (auto* entitiesWindow = dynamic_cast<Editor::C_EntitiesWindow*>(entitiesWnd))
 	{
 		entitiesWindow->SetWorld(m_World);
 	}
