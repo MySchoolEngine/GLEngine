@@ -13,9 +13,19 @@ public:
 	virtual ~C_FileDialogWindow();
 	virtual bool Draw() const override;
 
+	void SetTitle(const std::string& windowTitle);
+	void SetBasePath(const std::filesystem::path& basePath);
+
 private:
 	std::string										  m_WindowName;
+	std::string										  m_WindowTitle;
+	std::filesystem::path							  m_BasePath;
+	std::string										  m_fileType;
 	std::function<void(const std::filesystem::path&)> m_SuccessCallback;
+
+protected:
+	virtual void OnSetVisible() override;
+	virtual void OnHide() override;
 };
 
 } // namespace GLEngine::GUI

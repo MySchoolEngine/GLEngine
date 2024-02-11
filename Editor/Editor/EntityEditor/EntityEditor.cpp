@@ -1,6 +1,6 @@
 #include <EditorStdafx.h>
 
-#include <Editor/EntityEditor.h>
+#include <Editor/EntityEditor/EntityEditor.h>
 
 #include <GUI/FileDialogWindow.h>
 #include <GUI/GUIManager.h>
@@ -8,9 +8,14 @@
 
 #include <Entity/BasicEntity.h>
 
+#include <Core/Filesystem/Paths.h>
+#include <Core/Resources/ResourceManager.h>
+
 #include <Utils/Serialization/XMLSerialize.h>
+#include <Utils/Serialization/XMLDeserialize.h>
 
 #include <imgui.h>
+#include <imgui_internal.h>
 
 namespace GLEngine::Editor {
 
@@ -20,47 +25,55 @@ EntityEditor::EntityEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 	, m_File("File")
 {
 	m_File.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>(
-		"New entity",
-		[&]() {
-			m_QueuedOperation = QueuedOperation::NewEntity;
-			return false;
-		},
-		"Ctrl+N"));
-	m_File.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Open entity", [&]() {
-		if (UnsavedWork())
-		{
-			m_QueuedOperation = QueuedOperation::OpenEntity;
-			return false;
-		}
-		OpenEntityWindow();
-		return false;
-	}));
+		"New entity", [&]() { m_QueuedOperation = QueuedOperation::NewEntity; return false;}, "Ctrl+N"));
 	m_File.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>(
-		"Save entity",
-		[&]() {
-			SaveEntity(m_Path);
-			return false;
-		},
-		"Ctrl+S"));
+		"Open entity", [&]() { m_QueuedOperation = QueuedOperation::OpenEntity; return false;}, "Ctrl+O"));
 	m_File.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>(
-		"Save entity as",
-		[&]() {
-			CORE_LOG(E_Level::Error, E_Context::Core, "New entity");
-			return false;
-		},
-		"Ctrl+Shift+S"));
-	m_File.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Close entity", [&]() {
-		m_QueuedOperation = QueuedOperation::CloseEntity;
-		return false;
-	}));
+		"Save entity", [&]() { m_QueuedOperation = QueuedOperation::SaveEntity; return false;}, "Ctrl+S"));
+	m_File.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>(
+		"Save entity as", [&]() { m_QueuedOperation = QueuedOperation::SaveEntityAs; return false;}, "Ctrl+Shift+S"));
+	m_File.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Close entity", [&]() { m_QueuedOperation = QueuedOperation::CloseEntity; return false;}));
 	AddMenu(m_File);
+
+	const auto entityDialogGUID = NextGUID();
+	m_FileDialog				= new GUI::C_FileDialogWindow(
+		   Core::Filesystem::entityFile.generic_string(), "Select file",
+		   [&, entityDialogGUID](const std::filesystem::path& entityFile) {
+			   m_FileDialogPath = entityFile;
+			   m_FileDialog->SetVisible(false);
+			   // guiMGR.DestroyWindow(entityDialogGUID);
+		   },
+		   entityDialogGUID, Core::Filesystem::entityFolder);
+
+	guiMGR.AddCustomWindow(m_FileDialog);
 }
 
 //=================================================================================
 void EntityEditor::DrawComponents() const
 {
 	ImGuiID dockspace_id = ImGui::GetID("EntitiesEditor");
+	if (ImGui::DockBuilderGetNode(dockspace_id) == NULL)
+	{
+		ImGui::DockBuilderRemoveNode(dockspace_id);							   // Clear out existing layout
+		ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace); // Add empty node
+		// ImGui::DockBuilderSetNodeSize(dockspace_id, dockspace_size);
+		ImGuiID leftNode, rightNode;
+		ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.20f, &leftNode, &rightNode);
+
+		ImGui::DockBuilderDockWindow("Properties", leftNode);
+		ImGui::DockBuilderDockWindow("View", rightNode);
+		ImGui::DockBuilderFinish(dockspace_id);
+	}
 	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
+	// ImGui::SetNextWindowDockID(dockspace_id); Nice to have
+	ImGui::Begin("Properties");
+
+	m_ComponentEditor.Draw();
+	ImGui::End();
+	// ImGui::SetNextWindowDockID(dockspace_id); Nice to have
+	ImGui::Begin("View");
+	ImGui::Text("view");
+	ImGui::End();
 }
 
 //=================================================================================
@@ -82,8 +95,7 @@ void EntityEditor::Update()
 		m_Entity->Update();
 	if (m_QueuedOperation != QueuedOperation::None)
 	{
-
-		if (ImGui::BeginPopupModal("Save?", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		if (ImGui::BeginPopupModal("Save?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			ImGui::Text("Save change to the opened entity?");
 
@@ -128,7 +140,7 @@ void EntityEditor::Update()
 			ImGui::EndPopup();
 		}
 
-		if (UnsavedWork())
+		if (UnsavedWork() && m_QueuedOperation != QueuedOperation::SaveEntity)
 		{
 			if (m_QueuedOperation == QueuedOperation::CloseEntity)
 			{
@@ -147,17 +159,81 @@ void EntityEditor::Update()
 			{
 			case QueuedOperation::None:
 				break;
+			case QueuedOperation::SaveEntity:
+				if (!UnsavedWork())
+					break;
+				if (m_Path.empty() && m_FileDialogPath.has_value() == false)
+				{
+					if (!m_FileDialog->IsVisible())
+					{
+						m_FileDialog->SetTitle("Save entity");
+						m_FileDialog->SetVisible(true);
+					}
+				}
+				else
+				{
+					if (m_Path.empty() == false)
+					{
+						SaveEntity(m_Path);
+					}
+					if (m_FileDialogPath.has_value())
+					{
+						SaveEntity(m_FileDialogPath.value());
+						m_FileDialogPath = {};
+						m_FileDialog->SetVisible(false);
+						m_QueuedOperation = QueuedOperation::None;
+					}
+				}
+				break;
+			case QueuedOperation::SaveEntityAs:
+				if (m_FileDialogPath.has_value() == false)
+				{
+					if (!m_FileDialog->IsVisible())
+					{
+						m_FileDialog->SetTitle("Save entity");
+						m_FileDialog->SetVisible(true);
+					}
+				}
+				else
+				{
+					if (m_FileDialogPath.has_value())
+					{
+						SaveEntity(m_FileDialogPath.value());
+						m_FileDialogPath = {};
+						m_FileDialog->SetVisible(false);
+						m_QueuedOperation = QueuedOperation::None;
+					}
+				}
+				break;
 			case QueuedOperation::NewEntity:
-				m_Entity		  = std::make_shared<Entity::C_BasicEntity>();
-				m_Path			  = "";
-				m_HasChanged	  = true;
+				m_Entity	 = std::make_shared<Entity::C_BasicEntity>();
+				m_Path		 = "";
+				m_HasChanged = true;
+				m_ComponentEditor.SetEntity(m_Entity);
 				m_QueuedOperation = QueuedOperation::None;
 				break;
 			case QueuedOperation::OpenEntity:
+				if (m_FileDialogPath.has_value())
+				{
+					// TODO
+					m_FileDialogPath = {};
+					m_FileDialog->SetVisible(false);
+					m_QueuedOperation = QueuedOperation::None;
+				}
+				else
+				{
+					if (!m_FileDialog->IsVisible())
+					{
+						m_FileDialog->SetTitle("Select entity");
+						m_FileDialog->SetVisible(true);
+					}
+				}
 				break;
 			case QueuedOperation::CloseEntity:
 				DiscardWork();
 				m_QueuedOperation = QueuedOperation::None;
+				break;
+			default:
 				break;
 			}
 		}
@@ -179,22 +255,6 @@ void EntityEditor::DiscardWork()
 }
 
 //=================================================================================
-void EntityEditor::OpenEntityWindow()
-{
-	// const auto levelSelectorGUID = NextGUID();
-	// auto*	   levelSelectWindwo = new GUI::C_FileDialogWindow(
-	// 	 ".ent", "Open entity",
-	// 	 [&, levelSelectorGUID](const std::filesystem::path& entity) {
-	// 		 CORE_LOG(E_Level::Error, E_Context::Core, "Open entity");
-	// 		 OpenEntity(entity);
-	// 		 guiMGR.DestroyWindow(levelSelectorGUID);
-	// 	 },
-	// 	 levelSelectorGUID, "./Entities");
-	// guiMGR.AddCustomWindow(levelSelectWindwo);
-	// levelSelectWindwo->SetVisible();
-}
-
-//=================================================================================
 void EntityEditor::OpenEntity(const std::filesystem::path& path)
 {
 	GLE_ASSERT(UnsavedWork() == false, "Trying to open new entity when old one is not destroyed.");
@@ -204,13 +264,26 @@ void EntityEditor::OpenEntity(const std::filesystem::path& path)
 	}
 
 	m_Path		 = path;
-	m_Entity	 = std::make_shared<Entity::C_BasicEntity>(); // TODO!!
 	m_HasChanged = false;
-}
 
-//=================================================================================
-void EntityEditor::SaveWorkWindow()
-{
+	pugi::xml_document doc;
+
+	pugi::xml_parse_result result;
+	result = doc.load_file(path.c_str());
+	if (!result.status == pugi::status_ok)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Core, "Can't open config file for entity name: {}", path);
+		return;
+	}
+
+	Utils::C_XMLDeserializer ds(Core::C_ResourceManager::Instance());
+	auto loadEntity = ds.Deserialize<std::shared_ptr<Entity::C_BasicEntity>>(doc);
+	if (loadEntity.has_value() == false)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Core, "Failed loading entity file: {}", path);
+		return;
+	}
+	m_Entity = loadEntity.value();
 }
 
 //=================================================================================

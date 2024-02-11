@@ -43,6 +43,12 @@ void C_Window::DrawComponents() const
 //=================================================================================
 void C_Window::SetVisible(bool enable /*= true*/)
 {
+	if (m_IsVisible != enable) {
+		if (enable)
+			OnSetVisible();
+		else
+			OnHide();
+	}
 	m_IsVisible = enable;
 }
 
