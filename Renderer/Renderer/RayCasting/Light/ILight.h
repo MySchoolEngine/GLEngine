@@ -18,7 +18,7 @@ public:
 	/**
 	 * Samples incident radiance at the intersection given by @param intersection from light.
 	 */
-	[[nodiscard]] virtual Colours::T_Colour SampleLi(const C_RayIntersection& intersection, I_Sampler* rnd, S_VisibilityTester& vis, float* pdf) const = 0;
+	[[nodiscard]] virtual Colours::T_Colour SampleLi(const C_RayIntersection& intersection, I_Sampler& rnd, S_VisibilityTester& vis, float* pdf) const = 0;
 	/**
 	 * Returns emitted radiance at a surface point intersected by a ray.
 	 */

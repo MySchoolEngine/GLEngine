@@ -174,7 +174,7 @@ Colours::T_Colour C_PathIntegrator::Li_LightSampling(const Physics::Primitives::
 	m_Scene.ForEachLight([&](const std::reference_wrapper<const RayTracing::I_RayLight>& light) {
 		float			  pdf;
 		auto			  vis	= RayTracing::S_VisibilityTester(glm::vec3(), glm::vec3());
-		Colours::T_Colour illum = light.get().SampleLi(intersect, &rnd, vis, &pdf);
+		Colours::T_Colour illum = light.get().SampleLi(intersect, rnd, vis, &pdf);
 
 		if (glm::compMax(illum) > 0.f)
 		{

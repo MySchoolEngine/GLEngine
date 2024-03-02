@@ -14,7 +14,7 @@ namespace GLEngine::Renderer::RayTracing {
 
 //=================================================================================
 // sampleIllumination in PGIII
-Colours::T_Colour C_AreaLight::SampleLi(const C_RayIntersection& intersection, I_Sampler* rnd, S_VisibilityTester& vis, float* pdf) const
+Colours::T_Colour C_AreaLight::SampleLi(const C_RayIntersection& intersection, I_Sampler& rnd, S_VisibilityTester& vis, float* pdf) const
 {
 	// const auto samplePoint = ligthRadius * SampleConcentricDisc(rnd->GetV2()); //< TODO for future use when Li is dependant on the position on the light
 	const auto lightFrame = S_Frame(m_Shape->Normal());
