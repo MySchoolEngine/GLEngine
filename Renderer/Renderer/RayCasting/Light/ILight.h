@@ -23,5 +23,13 @@ public:
 	 * Returns emitted radiance at a surface point intersected by a ray.
 	 */
 	[[nodiscard]] virtual Colours::T_Colour Le() const = 0;
+	/**
+	 * Returns true for delta lights such as point light
+	 */
+	virtual bool IsDeltaLight() const = 0;
+	/**
+	 * 
+	 */
+	virtual float Pdf_Li(const glm::vec3& wi) const = 0;
 };
 } // namespace GLEngine::Renderer::RayTracing

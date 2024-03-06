@@ -24,6 +24,8 @@ public:
 	}
 	[[nodiscard]] virtual Colours::T_Colour SampleLi(const C_RayIntersection& intersection, I_Sampler& rnd, S_VisibilityTester& vis, float* pdf) const override;
 	[[nodiscard]] virtual Colours::T_Colour Le() const override;
+	virtual bool							IsDeltaLight() const override { return false; }
+	virtual float							Pdf_Li(glm::vec3 wi) const override;
 
 	[[nodiscard]] std::shared_ptr<I_RayGeometryObject> GetGeometry() const;
 

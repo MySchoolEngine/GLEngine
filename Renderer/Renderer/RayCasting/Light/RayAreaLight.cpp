@@ -48,6 +48,12 @@ Colours::T_Colour C_AreaLight::Le() const
 }
 
 //=================================================================================
+float C_AreaLight::Pdf_Li(glm::vec3 wi) const
+{
+	return 0.0f;
+}
+
+//=================================================================================
 std::shared_ptr<I_RayGeometryObject> C_AreaLight::GetGeometry() const
 {
 	return m_Shape->GetGeometry();
