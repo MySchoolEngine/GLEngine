@@ -33,6 +33,7 @@ Colours::T_Colour C_PathIntegrator::TraceRay(Physics::Primitives::S_Ray ray, I_S
 //=================================================================================
 Colours::T_Colour C_PathIntegrator::Li_Direct(const Physics::Primitives::S_Ray& ray, I_Sampler& rnd, RayTracingSettings::T_ReflAlloc* alloc)
 {
+	// this is basing the direction on BRDF somehow
 	glm::vec3 LoDirect(0.f);
 
 	C_RayIntersection intersect, intersectY;
@@ -47,10 +48,10 @@ Colours::T_Colour C_PathIntegrator::Li_Direct(const Physics::Primitives::S_Ray& 
 		LoDirect += light->Le();
 	}
 
-	const auto& frame		  = intersect.GetFrame();
-	const auto& point		  = intersect.GetIntersectionPoint();
-	const auto* material	  = intersect.GetMaterial();
-	const auto	model		  = material->GetScatteringFunction(intersect, *alloc);
+	const auto& frame	 = intersect.GetFrame();
+	const auto& point	 = intersect.GetIntersectionPoint();
+	const auto* material = intersect.GetMaterial();
+	const auto	model	 = material->GetScatteringFunction(intersect, *alloc);
 
 	const auto wol = frame.ToLocal(-ray.direction);
 
@@ -110,9 +111,9 @@ Colours::T_Colour C_PathIntegrator::Li_PathTrace(Physics::Primitives::S_Ray ray,
 		if (i >= 15)
 			break;
 
-		const auto& frame		  = intersect.GetFrame();
-		const auto& point		  = intersect.GetIntersectionPoint();
-		const auto* material	  = intersect.GetMaterial();
+		const auto& frame	 = intersect.GetFrame();
+		const auto& point	 = intersect.GetIntersectionPoint();
+		const auto* material = intersect.GetMaterial();
 
 		const auto model = material->GetScatteringFunction(intersect, *alloc);
 
@@ -156,6 +157,7 @@ Colours::T_Colour C_PathIntegrator::Li_PathTrace(Physics::Primitives::S_Ray ray,
 //=================================================================================
 Colours::T_Colour C_PathIntegrator::Li_LightSampling(const Physics::Primitives::S_Ray& ray, I_Sampler& rnd, RayTracingSettings::T_ReflAlloc* alloc)
 {
+	// this simply samples from all the lights
 	C_RayIntersection intersect;
 
 	// first primary ray
@@ -172,25 +174,90 @@ Colours::T_Colour C_PathIntegrator::Li_LightSampling(const Physics::Primitives::
 	}
 
 	m_Scene.ForEachLight([&](const std::reference_wrapper<const RayTracing::I_RayLight>& light) {
-		float			  pdf;
-		auto			  vis	= RayTracing::S_VisibilityTester(glm::vec3(), glm::vec3());
-		Colours::T_Colour illum = light.get().SampleLi(intersect, rnd, vis, &pdf);
+		LoDirect += EstimateDirect(intersect, light, rnd, alloc);
+		// float			  pdf;
+		// auto			  vis	= RayTracing::S_VisibilityTester(glm::vec3(), glm::vec3());
+		// Colours::T_Colour illum = light.get().SampleLi(intersect, rnd, vis, &pdf);
+		//
+		// if (glm::compMax(illum) > 0.f)
+		//{
+		//	if (!vis.IsVisible(m_Scene))
+		//	{
+		//		return;
+		//	}
+		//	// no intersect for point light
+		//
+		//	const auto& point	 = intersect.GetIntersectionPoint();
+		//	const auto* material = intersect.GetMaterial();
+		//	const auto& frame	 = intersect.GetFrame();
+		//	const auto	model	 = material->GetScatteringFunction(intersect, *alloc);
+		//	LoDirect += illum * model->f(frame.ToLocal(ray.direction), frame.ToLocal(vis.GetRay().direction));
+		//}
+	});
 
-		if (glm::compMax(illum) > 0.f)
+	return LoDirect;
+}
+
+inline float PowerHeuristic(int nf, float fPdf, int ng, float gPdf)
+{
+	float f = nf * fPdf, g = ng * gPdf;
+	return (f * f) / (f * f + g * g);
+}
+
+Colours::T_Colour
+C_PathIntegrator::EstimateDirect(const C_RayIntersection& intersection, const RayTracing::I_RayLight& light, I_Sampler& rnd, RayTracingSettings::T_ReflAlloc* alloc)
+{
+	Colours::T_Colour LoDirect = Colours::black;
+	glm::vec3		  wi(0.f);
+	float			  lightPdf		= 0;
+	float			  scatteringPdf = 0;
+	auto			  vis			= RayTracing::S_VisibilityTester(glm::vec3(), glm::vec3());
+
+	const auto& point	 = intersection.GetIntersectionPoint();
+	const auto* material = intersection.GetMaterial();
+	const auto& frame	 = intersection.GetFrame();
+	const auto	model	 = material->GetScatteringFunction(intersection, *alloc); // this should be way before to avoid allocation
+
+	const Colours::T_Colour illum = light.SampleLi(intersection, rnd, vis, &lightPdf);
+	if (illum != Colours::black && lightPdf > 0.f)
+	{
+		Colours::T_Colour f		   = model->SampleF(frame.ToLocal(intersection.GetRay().direction), wi, frame, rnd.GetV2(), &scatteringPdf) * wi.y;
+
+		if (f != Colours::black)
 		{
+			// here we can handle media
 			if (!vis.IsVisible(m_Scene))
 			{
-				return;
+				LoDirect = Colours::black;
 			}
-			// no intersect for point light
 
-			const auto& point		  = intersect.GetIntersectionPoint();
-			const auto* material	  = intersect.GetMaterial();
-			const auto& frame		  = intersect.GetFrame();
-			const auto	model		  = material->GetScatteringFunction(intersect, *alloc);
-			LoDirect += illum * model->f(frame.ToLocal(ray.direction), frame.ToLocal(vis.GetRay().direction));
+			if (LoDirect == Colours::black)
+			{
+				// calculate weight for MIS
+				if (light.IsDeltaLight())
+				{
+					LoDirect += f * illum / lightPdf;
+				}
+				else
+				{
+					// delta light is point lights
+					float weight = PowerHeuristic(1, lightPdf, 1, scatteringPdf);
+					LoDirect += f * illum * model->f(frame.ToLocal(intersection.GetRay().direction), frame.ToLocal(vis.GetRay().direction)) * weight / lightPdf;
+				}
+			}
 		}
-	});
+	}
+
+	// BRDF sampling here
+	if (!light.IsDeltaLight())
+	{ // we cant hit delta lights
+		Colours::T_Colour f = model->SampleF(frame.ToLocal(intersection.GetRay().direction), wi, frame, rnd.GetV2(), &scatteringPdf);
+		f *= wi.y;
+		if (f == Colours::black && scatteringPdf > 0.f) {
+			float weight = 1.f;
+			light.SampleLi()
+		}
+	}
 
 	return LoDirect;
 }
