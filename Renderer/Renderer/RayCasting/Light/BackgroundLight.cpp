@@ -11,7 +11,7 @@ C_BackgroundLight::C_BackgroundLight(const Colours::T_Colour& backgroundColor)
 }
 
 //=================================================================================
-Colours::T_Colour C_BackgroundLight::SampleLi(const C_RayIntersection& intersection, I_Sampler* rnd, S_VisibilityTester& vis, float* pdf) const
+Colours::T_Colour C_BackgroundLight::SampleLi(const C_RayIntersection& intersection, I_Sampler& rnd, S_VisibilityTester& vis, float* pdf) const
 {
 	// float pdfSA;
 	// auto  wil  = SampleUniformSphereW(Vec2f(rnd1, rnd2), &pdfSA);
