@@ -93,7 +93,7 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 			if (!m_TexCoords.empty())
 			{
 				const glm::vec2* triUV = &(m_TexCoords[i]);
-				const glm::vec2	 uv	   = barycentric.x * triUV[0] + barycentric.y * triUV[1] + (1 - barycentric.x - barycentric.y) * triUV[2];
+				const glm::vec2	 uv	   = barycentric.x * triUV[1] + barycentric.y * triUV[2] + (1 - barycentric.x - barycentric.y) * triUV[0];
 				inter.SetUV(uv);
 			}
 			inter.SetMaterial(&GetMaterial());
