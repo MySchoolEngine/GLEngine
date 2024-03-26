@@ -46,3 +46,15 @@
 #endif
 
 #define GLE_DEBUG_MEMBER_CTOR_LIST(debugInit, releaseInit, memberName) memberName GLE_DEBUG_MEMBER_CTOR_LIST_IMPL(debugInit, releaseInit)
+
+
+//======================================================
+// Todo macro
+//======================================================
+#ifdef GL_ENGINE_DEBUG
+	#ifdef WIN32
+		#define GLE_TODO(date, UserName, todoMessage) __pragma(message("TODO("date", "UserName"): " todoMessage))
+	#endif
+#else
+	#define GLE_TODO(date, UseName, todoMessage)
+#endif
