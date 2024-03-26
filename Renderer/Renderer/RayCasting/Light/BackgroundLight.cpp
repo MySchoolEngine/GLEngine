@@ -32,4 +32,10 @@ Colours::T_Colour C_BackgroundLight::Le() const
 	return m_BackgroundColor;
 }
 
+float C_BackgroundLight::Pdf_Li(const glm::vec3& wi) const
+{
+	GLE_TODO("26.3.2024", "RohacekD", "Proper implementation.")
+	return 0.0f;
+}
+
 }

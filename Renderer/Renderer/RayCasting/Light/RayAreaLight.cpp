@@ -48,9 +48,13 @@ Colours::T_Colour C_AreaLight::Le() const
 }
 
 //=================================================================================
-float C_AreaLight::Pdf_Li(glm::vec3 wi) const
+float C_AreaLight::Pdf_Li(const glm::vec3& wi) const
 {
-	return 0.0f;
+	const auto areaInv = 1.f / m_Shape->Area();
+	const auto distSqr = glm::length2(wi);
+	const auto lightFrame = S_Frame(m_Shape->Normal());
+	const auto cosThetaY  = glm::dot(lightFrame.Normal(), -wi);
+	return (distSqr / cosThetaY) * areaInv;
 }
 
 //=================================================================================
