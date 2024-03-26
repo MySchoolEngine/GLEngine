@@ -130,17 +130,20 @@ NonDllLib["pugixml"] = true
 NonDllLib["crossguid"] = true
 NonDllLib["GLFW"] = true
 
+group "Tests"
+	include "Tests/Renderer"
 group "Dependencies"
   include "vendor/GLFW"
   include "vendor/Glad"
-  include "vendor/projects/pugixml"
+  include "vendor/projects/crossguid"
+  include "vendor/projects/DevIL"
+  include "vendor/projects/gtest"
   include "vendor/projects/ImGui"
   include "vendor/projects/ImGuiFileDialog"
   include "vendor/projects/ImGuizmo"
-  include "vendor/projects/DevIL"
   include "vendor/projects/libjpeg"
   include "vendor/projects/libpng"
-  include "vendor/projects/crossguid"
+  include "vendor/projects/pugixml"
   include "vendor/projects/RTTR"
 if _TARGET_OS ~= "linux" then
   include "vendor/projects/dirent"
