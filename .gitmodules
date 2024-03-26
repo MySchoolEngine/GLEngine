@@ -46,3 +46,6 @@
 [submodule "vendor/libpng"]
 	path = vendor/libpng
 	url = https://github.com/glennrp/libpng
+[submodule "vendor/gtest"]
+	path = vendor/gtest
+	url = https://github.com/google/googletest

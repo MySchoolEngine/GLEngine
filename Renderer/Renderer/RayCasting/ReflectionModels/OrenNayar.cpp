@@ -20,7 +20,7 @@ C_OrenNayarModel::C_OrenNayarModel(const Colours::T_Colour& colour, float sigmaD
 C_OrenNayarModel::~C_OrenNayarModel() = default;
 
 //=================================================================================
-glm::vec3 C_OrenNayarModel::f(const glm::vec3& wi, const glm::vec3& wo) const
+Colours::T_Colour C_OrenNayarModel::f(const glm::vec3& wi, const glm::vec3& wo) const
 {
 	S_Frame		defaultFrame;
 	const float sinThetaI = defaultFrame.SinTheta(wi);
@@ -57,7 +57,7 @@ glm::vec3 C_OrenNayarModel::f(const glm::vec3& wi, const glm::vec3& wo) const
 }
 
 //=================================================================================
-glm::vec3 C_OrenNayarModel::SampleF(const glm::vec3& wi, glm::vec3& wo, const S_Frame& frame, const glm::vec2& rng, float* pdf) const
+Colours::T_Colour C_OrenNayarModel::SampleF(const glm::vec3& wi, glm::vec3& wo, const S_Frame& frame, const glm::vec2& rng, float* pdf) const
 {
 	wo = CosineSampleHemisphere(rng);
 	*pdf = Pdf(wi, wo);

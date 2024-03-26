@@ -17,7 +17,7 @@ C_PointLight::C_PointLight(const glm::vec3& position, const glm::vec3& intenstiy
 }
 
 //=================================================================================
-Colours::T_Colour C_PointLight::SampleLi(const C_RayIntersection& intersection, I_Sampler* rnd, S_VisibilityTester& vis, float* pdf) const
+Colours::T_Colour C_PointLight::SampleLi(const C_RayIntersection& intersection, I_Sampler& rnd, S_VisibilityTester& vis, float* pdf) const
 {
 	auto	   wi		= m_Position - intersection.GetIntersectionPoint();
 	float	   distSqr	= glm::length2(wi);
