@@ -253,9 +253,25 @@ C_PathIntegrator::EstimateDirect(const C_RayIntersection& intersection, const Ra
 	{ // we cant hit delta lights
 		Colours::T_Colour f = model->SampleF(frame.ToLocal(intersection.GetRay().direction), wi, frame, rnd.GetV2(), &scatteringPdf);
 		f *= wi.y;
-		if (f == Colours::black && scatteringPdf > 0.f) {
+		if (f != Colours::black && scatteringPdf > 0.f) {
 			float weight = 1.f;
-			light.SampleLi()
+			lightPdf = light.Pdf_Li(wi);
+			if (lightPdf == 0)
+				return LoDirect;
+			weight = PowerHeuristic(1, scatteringPdf, 1, lightPdf);
+
+			Colours::T_Colour		   Li = Colours::black;
+			C_RayIntersection lightIntersect;
+			Physics::Primitives::S_Ray lightLigth(intersection.GetIntersectionPoint(), wi);
+			if (m_Scene.Intersect(lightLigth, lightIntersect)) {
+				// check if we hit given light
+				if (lightIntersect.GetLight().get() == &light) {
+					Li = light.Le();// wrong
+				}
+			}
+			if (Li != Colours::black) {
+				LoDirect += f * Li * weight / scatteringPdf;
+			}
 		}
 	}
 
