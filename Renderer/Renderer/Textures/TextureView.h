@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Renderer/RendererApi.h>
+#include <Renderer/Textures/Storage/TextureStorage.h>
 #include <Renderer/Textures/TextureDefinitions.h>
-#include <Renderer/Textures/TextureStorage.h>
 /**
  *	This class serves as CPU side view to the texture independently whether lies on
  *	CPU or GPU memory.

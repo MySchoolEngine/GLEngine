@@ -1,6 +1,6 @@
 #include <RendererStdafx.h>
 
-#include <Renderer/Textures/TextureStorage.h>
+#include <Renderer/Textures/Storage/TextureStorage.h>
 
 namespace GLEngine::Renderer {
 

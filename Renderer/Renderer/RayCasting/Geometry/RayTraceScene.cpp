@@ -11,8 +11,8 @@
 #include <Renderer/RayCasting/Light/RayPointLight.h>
 #include <Renderer/RayCasting/Material/DiffuseMaterial.h>
 #include <Renderer/RayCasting/RayIntersection.h>
+#include <Renderer/Textures/Storage/TextureStorage.h>
 #include <Renderer/Textures/TextureResource.h>
-#include <Renderer/Textures/TextureStorage.h>
 
 #include <Physics/Primitives/Disc.h>
 #include <Physics/Primitives/Plane.h>

@@ -4,7 +4,7 @@
 #include <Renderer/IRenderer.h>
 #include <Renderer/Materials/Material.h>
 #include <Renderer/Mesh/Scene.h>
-#include <Renderer/Textures/TextureStorage.h>
+#include <Renderer/Textures/Storage/TextureStorage.h>
 
 #include <GUI/ReflectionGUI.h>
 

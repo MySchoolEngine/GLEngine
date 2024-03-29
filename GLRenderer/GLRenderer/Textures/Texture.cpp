@@ -10,7 +10,7 @@
 
 #include <Renderer/IRenderer.h>
 #include <Renderer/Mesh/Scene.h>
-#include <Renderer/Textures/TextureStorage.h>
+#include <Renderer/Textures/Storage/TextureStorage.h>
 #include <Renderer/Textures/TextureView.h>
 
 #include <Core/Application.h>

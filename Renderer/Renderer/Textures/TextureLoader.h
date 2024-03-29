@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Renderer/RendererApi.h>
-#include <Renderer/Textures/TextureStorage.h>
+#include <Renderer/Textures/Storage/TextureStorage.h>
 
 namespace GLEngine::Renderer {
 class I_TextureViewStorage;
