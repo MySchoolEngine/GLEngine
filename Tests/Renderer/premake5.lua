@@ -8,6 +8,7 @@ project "RendererTest"
 	SetupProject("RendererTest")
 	
 	Link("Renderer")
+	Link("Utils")
 	links { "gtest_main" }
 
 	LinkDependency("RTTR")
@@ -29,7 +30,6 @@ project "RendererTest"
 
 	CopyLib("Core")
 	CopyLib("Entity")
-	CopyLib("Utils")
 	CopyLib("GUI")
 	CopyDependencyLib("Assimp")
 	CopyDependencyLib("ImGui")
