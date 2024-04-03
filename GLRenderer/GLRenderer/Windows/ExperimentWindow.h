@@ -100,7 +100,6 @@ private:
 	std::unique_ptr<C_MainPassTechnique>	 m_MainPass;
 	std::shared_ptr<C_ShadowMapTechnique>	 m_ShadowPass;
 	std::shared_ptr<C_SunShadowMapTechnique> m_SunShadow;
-	C_RayTraceWindow*						 m_RayTraceWindow;
 
 	std::unique_ptr<C_Framebuffer>	   m_HDRFBO;
 	std::unique_ptr<C_Framebuffer>	   m_HDRFBOAtmosphere;

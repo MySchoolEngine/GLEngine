@@ -22,17 +22,17 @@ project "Renderer"
 
 	includedirs
 	{
-		"../Physics",
-		"../%{IncludeDir.GLM}",
-		"../%{IncludeDir.GLFW}",
-		"../%{IncludeDir.fmt}",
-		"../%{IncludeDir.DevIL}",
+		"%{wks.location}/Physics",
+		"%{wks.location}/%{IncludeDir.GLM}",
+		"%{wks.location}/%{IncludeDir.GLFW}",
+		"%{wks.location}/%{IncludeDir.fmt}",
+		"%{wks.location}/%{IncludeDir.DevIL}",
 
-		"../vendor/projects/Assimp"
+		"%{wks.location}/vendor/projects/Assimp"
 	}
 
 	links 
-	{ 
+	{
 		"DevIL-IL",
 	}
 

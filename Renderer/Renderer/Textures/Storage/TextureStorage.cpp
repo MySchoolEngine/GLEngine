@@ -1,6 +1,6 @@
 #include <RendererStdafx.h>
 
-#include <Renderer/Textures/TextureStorage.h>
+#include <Renderer/Textures/Storage/TextureStorage.h>
 
 namespace GLEngine::Renderer {
 
@@ -49,15 +49,22 @@ bool I_TextureViewStorage::IsSwizzled() const
 {
 	// for speed concerns I expect that there are no sparse channels
 	if (m_Channels[0] != E_TextureChannel::Red)
-		return false;
+		return true;
 	if (m_Channels[1] != E_TextureChannel::Green && m_Channels[1] != E_TextureChannel::None)
-		return false;
+		return true;
 	if (m_Channels[2] != E_TextureChannel::Blue && m_Channels[2] != E_TextureChannel::None)
-		return false;
+		return true;
 	if (m_Channels[3] != E_TextureChannel::Alpha && m_Channels[3] != E_TextureChannel::None)
-		return false;
+		return true;
 
-	return true;
+	return false;
+}
+
+//=================================================================================
+void I_TextureViewStorage::SetChannels(T_Channels swizzle)
+{
+	GLE_TODO("29.03.2024", "RohacekD", "Add checks for uniqueness and validity")
+	m_Channels = swizzle;
 }
 
 //=================================================================================

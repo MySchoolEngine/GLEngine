@@ -3,8 +3,8 @@
 #include <GLRendererStdafx.h>
 
 #include <Renderer/Definitions.h>
+#include <Renderer/Textures/Storage/TextureStorage.h>
 #include <Renderer/Textures/TextureDefinitions.h>
-#include <Renderer/Textures/TextureStorage.h>
 
 #include <Core/CoreMacros.h>
 

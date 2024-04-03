@@ -1,8 +1,8 @@
 #include <RendererStdafx.h>
 
 #include <Renderer/Mesh/Scene.h>
+#include <Renderer/Textures/Storage/TextureLinearStorage.h>
 #include <Renderer/Textures/TextureLoader.h>
-#include <Renderer/Textures/TextureStorage.h>
 
 #include <Utils/ScopeFinalizer.h>
 
@@ -85,7 +85,7 @@ std::unique_ptr<I_TextureViewStorage> TextureLoader::loadTexture(const std::file
 	}
 	else if (ilGetInteger(IL_IMAGE_BPC) == 4)
 	{
-		textureBuffer = std::make_unique <C_TextureViewStorageCPU<float>>(width, height, static_cast<std::uint8_t>(ilGetInteger(IL_IMAGE_CHANNELS)));
+		textureBuffer = std::make_unique<C_TextureViewStorageCPU<float>>(width, height, static_cast<std::uint8_t>(ilGetInteger(IL_IMAGE_CHANNELS)));
 	}
 	else
 	{

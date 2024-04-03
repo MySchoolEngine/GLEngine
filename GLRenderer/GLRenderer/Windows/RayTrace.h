@@ -3,7 +3,7 @@
 #include <Renderer/RayCasting/Geometry/RayTraceScene.h>
 #include <Renderer/RayCasting/ProbeRenderer.h>
 #include <Renderer/RayCasting/RayRenderer.h>
-#include <Renderer/Textures/TextureStorage.h>
+#include <Renderer/Textures/Storage/TextureLinearStorage.h>
 
 #include <GUI/GUIWindow.h>
 #include <GUI/Image.h>

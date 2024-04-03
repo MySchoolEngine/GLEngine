@@ -2,7 +2,7 @@
 
 #include <GLRenderer/Commands/Textures/GetTexImage.h>
 
-#include <Renderer/Textures/TextureStorage.h>
+#include <Renderer/Textures/Storage/TextureLinearStorage.h>
 
 namespace GLEngine::GLRenderer::Commands {
 

@@ -42,7 +42,7 @@ private:
 	void				  _loadLightsFromAiScene(const aiScene* loadedScene, std::shared_ptr<MeshData::Scene> scene);
 	void				  _loadSkeletonFromAiScene(const aiMesh* aiMesh, MeshData::Mesh& mesh);
 	void				  _getMaterialColorAttributes(const aiMaterial* material, MeshData::Material& mat);
-	glm::vec4			  _getMaterialColorComponent(const aiMaterial* const material, const char* key, unsigned int type, unsigned int index);
+	Colours::T_Colour	  _getMaterialColorComponent(const aiMaterial* const material, const char* key, unsigned int type, unsigned int index);
 	float				  _getMaterialFloatComponent(const aiMaterial* const material, const char* key, unsigned type, unsigned index);
 	std::filesystem::path _getMaterialDiffuseTextureName(const aiMaterial* material);
 	std::string			  _getMaterialNormalTextureName(const aiMaterial* material);

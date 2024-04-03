@@ -3,8 +3,10 @@
 #include <Renderer/Colours.h>
 #include <Renderer/RayCasting/Material/DiffuseMaterial.h>
 #include <Renderer/RayCasting/RayIntersection.h>
+#include <Renderer/RayCasting/ReflectionModels/LambertianModel.h>
 #include <Renderer/RayCasting/ReflectionModels/OrenNayar.h>
-#include <Renderer/Textures/TextureStorage.h>
+#include <Renderer/Textures/Filtering/LinearFiltering.h>
+#include <Renderer/Textures/Storage/TextureStorage.h>
 #include <Renderer/Textures/TextureView.h>
 
 namespace GLEngine::Renderer {

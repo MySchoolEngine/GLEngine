@@ -11,8 +11,8 @@
 #include <Renderer/RayCasting/Light/RayPointLight.h>
 #include <Renderer/RayCasting/Material/DiffuseMaterial.h>
 #include <Renderer/RayCasting/RayIntersection.h>
+#include <Renderer/Textures/Storage/TextureStorage.h>
 #include <Renderer/Textures/TextureResource.h>
-#include <Renderer/Textures/TextureStorage.h>
 
 #include <Physics/Primitives/Disc.h>
 #include <Physics/Primitives/Plane.h>
@@ -55,8 +55,8 @@ C_RayTraceScene::C_RayTraceScene()
 		// floor
 		auto triangle  = S_Triangle({-3.f, -1.5f, 3.f}, {3.f, -1.5f, -3.f}, {-3.f, -1.5f, -3.f});
 		auto triangle1 = S_Triangle({-3.f, -1.5f, 3.f}, {3.f, -1.5f, 3.f}, {3.f, -1.5f, -3.f});
-		trimesh->AddTriangle(triangle, {glm::vec2(1.0f, 0.0f), glm::vec2(0.0f, 1.0f), glm::vec2(1.0f, 1.0f)});
-		trimesh->AddTriangle(triangle1, {glm::vec2(1.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 1.0f)});
+		trimesh->AddTriangle(triangle,  {glm::vec2(0.0f, 1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(0.0f, 0.0f)});
+		trimesh->AddTriangle(triangle1, {glm::vec2(0.0f, 1.0f), glm::vec2(1.0f, 1.0f), glm::vec2(1.0f, 0.0f)});
 		trimesh->SetMaterial(brickMat);
 
 		AddObejct(trimesh);
