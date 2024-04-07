@@ -24,7 +24,6 @@ project "RendererTest"
 	}
 	files
 	{
-		"**.cpp",
 		"%{wks.location}/vendor/gtest/googletest/src/gtest_main.cc",
 	}
 
@@ -32,6 +31,7 @@ project "RendererTest"
 	CopyLib("Entity")
 	CopyLib("GUI")
 	CopyDependencyLib("Assimp")
+	CopyDependencyLib("zlib")
 	CopyDependencyLib("ImGui")
 	CopyDependencyLib("pugixml")
 	CopyDependencyLib("DevIL-IL")
