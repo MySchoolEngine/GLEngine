@@ -12,15 +12,22 @@ C_CPURasterizer::C_CPURasterizer(Renderer::C_TextureView& view)
 }
 
 //=================================================================================
-void C_CPURasterizer::DrawLine(const Colours::T_Colour& colour, const glm::ivec2& p1, const glm::ivec2& p2)
+void C_CPURasterizer::DrawLine(const Colours::T_Colour& colour, const glm::ivec2& p1, const glm::ivec2& p2, bool antiAliased)
 {
-	if (std::abs(p2.y - p1.y) < std::abs(p2.x - p1.x))
+	if (antiAliased)
 	{
-		BresenhamHorizontal(colour, p1, p2);
+		XiaolinWu(colour, p1, p2);
 	}
 	else
 	{
-		BresenhamVertical(colour, p1, p2);
+		if (std::abs(p2.y - p1.y) < std::abs(p2.x - p1.x))
+		{
+			BresenhamHorizontal(colour, p1, p2);
+		}
+		else
+		{
+			BresenhamVertical(colour, p1, p2);
+		}
 	}
 }
 
@@ -90,6 +97,62 @@ void C_CPURasterizer::BresenhamVertical(const Colours::T_Colour& colour, glm::iv
 		else
 		{
 			pred = pred + 2 * dx;
+		}
+	}
+}
+
+//=================================================================================
+void C_CPURasterizer::XiaolinWu(const Colours::T_Colour& colour, glm::ivec2 p1, glm::ivec2 p2)
+{
+	bool vertical = std::abs(p2.y - p1.y) > std::abs(p2.x - p1.x);
+	if (vertical) {
+		std::swap(p1.x, p1.y);
+		std::swap(p2.x, p2.y);
+	}
+	if (p1.x > p2.x)
+	{
+		std::swap(p1, p2);
+	}
+
+	int		  dx	   = p2.x - p1.x;
+	const int dy	   = p2.y - p1.y;
+	float	  gradient = 1.0f;
+	if (dx != 0)
+	{
+		gradient = static_cast<float>(dy) / dx;
+	}
+	// float yend = y0 + gradient * (xend - p1.x);
+	float yIntersect = p1.y + gradient;
+
+	const auto fract	  = [](float x) { return x - std::floor(x); };
+	const auto alphaBlend = [&](const Colours::T_Colour& colour, const glm::ivec2& coord, float alpha) {
+		const auto currentCol = m_view.Get<glm::vec3>(coord);
+		m_view.Set(coord, glm::mix(currentCol, colour, alpha));
+	};
+
+	// endpoints
+	
+
+	if (vertical)
+	{
+		for (int x = p1.x + 1; x < p2.x; ++x)
+		{
+			// needs alpha blending
+			const auto fraction = fract(yIntersect);
+			alphaBlend(colour, glm::ivec2(std::floor(yIntersect), x), (1.f - fraction));
+			alphaBlend(colour, glm::ivec2(std::floor(yIntersect) + 1, x), fraction);
+			yIntersect = yIntersect + gradient;
+		}
+	}
+	else
+	{
+		for (int x = p1.x + 1; x < p2.x; ++x)
+		{
+			// needs alpha blending
+			const auto fraction = fract(yIntersect);
+			alphaBlend(colour, glm::ivec2(x, std::floor(yIntersect)), (1.f - fraction));
+			alphaBlend(colour, glm::ivec2(x, std::floor(yIntersect) + 1), fraction);
+			yIntersect = yIntersect + gradient;
 		}
 	}
 }
