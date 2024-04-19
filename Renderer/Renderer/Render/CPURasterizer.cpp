@@ -32,6 +32,33 @@ void C_CPURasterizer::DrawLine(const Colours::T_Colour& colour, const glm::ivec2
 }
 
 //=================================================================================
+void C_CPURasterizer::DrawCircle(const Colours::T_Colour& colour, const glm::ivec2& p, float radius, bool antiAliased)
+{
+	float t1 = radius / 16;
+	float t2 = 0.f;
+	int y = 0;
+	int x = radius;
+	while (x >= y)
+	{
+		m_view.Set(p + glm::ivec2{x, y}, glm::vec3{colour});
+		m_view.Set(p + glm::ivec2{x, -y}, glm::vec3{colour});
+		m_view.Set(p + glm::ivec2{-x, -y}, glm::vec3{colour});
+		m_view.Set(p + glm::ivec2{-x, y}, glm::vec3{colour});
+		m_view.Set(p + glm::ivec2{y, x}, glm::vec3{colour});
+		m_view.Set(p + glm::ivec2{y, -x}, glm::vec3{colour});
+		m_view.Set(p + glm::ivec2{-y, -x}, glm::vec3{colour});
+		m_view.Set(p + glm::ivec2{-y, x}, glm::vec3{colour});
+		++y;
+		t1 = t1 + y;
+		t2 = t1 - x;
+		if (t2 >= 0) {
+			t1 = t2;
+			--x;
+		}
+	}
+}
+
+//=================================================================================
 void C_CPURasterizer::BresenhamHorizontal(const Colours::T_Colour& colour, glm::ivec2 p1, glm::ivec2 p2)
 {
 	// Bresenham's algorithm
