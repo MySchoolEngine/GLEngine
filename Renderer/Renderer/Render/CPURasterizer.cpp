@@ -125,11 +125,6 @@ void C_CPURasterizer::XiaolinWu(const Colours::T_Colour& colour, glm::ivec2 p1, 
 	float yIntersect = p1.y + gradient;
 
 	const auto fract	  = [](float x) { return x - std::floor(x); };
-	const auto alphaBlend = [&](const Colours::T_Colour& colour, const glm::ivec2& coord, float alpha) {
-		const auto currentCol = m_view.Get<glm::vec3>(coord);
-		m_view.Set(coord, glm::mix(currentCol, colour, alpha));
-	};
-
 	// endpoints
 	
 
@@ -139,8 +134,8 @@ void C_CPURasterizer::XiaolinWu(const Colours::T_Colour& colour, glm::ivec2 p1, 
 		{
 			// needs alpha blending
 			const auto fraction = fract(yIntersect);
-			alphaBlend(colour, glm::ivec2(std::floor(yIntersect), x), (1.f - fraction));
-			alphaBlend(colour, glm::ivec2(std::floor(yIntersect) + 1, x), fraction);
+			m_view.DrawPixel(glm::ivec2(std::floor(yIntersect), x), glm::vec4(colour, 1.f - fraction));
+			m_view.DrawPixel(glm::ivec2(std::floor(yIntersect) + 1, x), glm::vec4(colour, fraction));
 			yIntersect = yIntersect + gradient;
 		}
 	}
@@ -150,8 +145,8 @@ void C_CPURasterizer::XiaolinWu(const Colours::T_Colour& colour, glm::ivec2 p1, 
 		{
 			// needs alpha blending
 			const auto fraction = fract(yIntersect);
-			alphaBlend(colour, glm::ivec2(x, std::floor(yIntersect)), (1.f - fraction));
-			alphaBlend(colour, glm::ivec2(x, std::floor(yIntersect) + 1), fraction);
+			m_view.DrawPixel(glm::ivec2(x, std::floor(yIntersect)), glm::vec4(colour, 1.f - fraction));
+			m_view.DrawPixel(glm::ivec2(x, std::floor(yIntersect) + 1), glm::vec4(colour, fraction));
 			yIntersect = yIntersect + gradient;
 		}
 	}
