@@ -66,6 +66,11 @@ public:
 
 	void DrawPixel(const glm::ivec2& coord, glm::vec4&& colour);
 
+	/**
+	 * Fills line span including start and end pixel
+	 */
+	void FillLineSpan(const glm::vec3& colour, unsigned int line, unsigned int start, unsigned int end);
+
 protected:
 	[[nodiscard]] std::size_t GetAddress(const glm::ivec2& uv) const;
 	[[nodiscard]] std::size_t GetPixelAddress(const glm::uvec2& uv) const;

@@ -2,6 +2,7 @@
 
 #include <Renderer/Render/CPURasterizer.h>
 
+#include <queue>
 
 namespace GLEngine::Renderer {
 
@@ -36,8 +37,8 @@ void C_CPURasterizer::DrawCircle(const Colours::T_Colour& colour, const glm::ive
 {
 	float t1 = radius / 16;
 	float t2 = 0.f;
-	int y = 0;
-	int x = radius;
+	int	  y	 = 0;
+	int	  x	 = radius;
 	while (x >= y)
 	{
 		m_view.Set(p + glm::ivec2{x, y}, glm::vec3{colour});
@@ -51,10 +52,90 @@ void C_CPURasterizer::DrawCircle(const Colours::T_Colour& colour, const glm::ive
 		++y;
 		t1 = t1 + y;
 		t2 = t1 - x;
-		if (t2 >= 0) {
+		if (t2 >= 0)
+		{
 			t1 = t2;
 			--x;
 		}
+	}
+}
+
+//=================================================================================
+void C_CPURasterizer::FloodFill(const Colours::T_Colour& colour, const glm::ivec2& p)
+{
+	ScanLineFloodFill(colour, p);
+}
+
+//=================================================================================
+void C_CPURasterizer::QueueFloodFill(const Colours::T_Colour& colour, const glm::ivec2& p)
+{
+	const glm::vec3		   clearColor = m_view.Get<glm::vec3>(p);
+	std::queue<glm::ivec2> open;
+	open.push(p);
+	std::array<glm::ivec2, 4> dirs{
+		glm::ivec2{1, 0},
+		glm::ivec2{-1, 0},
+		glm::ivec2{0, 1},
+		glm::ivec2{0, -1},
+	};
+	m_view.Set(p, glm::vec3{colour});
+	while (open.empty() == false)
+	{
+		const auto current = open.front();
+		open.pop();
+		for (const auto& dir : dirs)
+		{
+			const glm::vec3 testedColour = m_view.Get<glm::vec3>(current + dir);
+			if (testedColour == clearColor)
+			{
+				m_view.Set(current + dir, glm::vec3{colour});
+				open.push(current + dir);
+			}
+		}
+	}
+}
+
+//=================================================================================
+void C_CPURasterizer::ScanLineFloodFill(const Colours::T_Colour& colour, const glm::ivec2& p)
+{
+	const glm::vec3		   clearColor = m_view.Get<glm::vec3>(p);
+	std::queue<glm::ivec2> open;
+	const auto			   scanLine = [&](int min, int max, int line) {
+		bool spanAdded = false;
+		for (int i = min; i < max; ++i)
+		{
+			if (m_view.Get<glm::vec3>(glm::ivec2{i, line}) != clearColor)
+			{
+				spanAdded = false;
+			}
+			else if (!spanAdded)
+			{
+				open.push(glm::ivec2{i, line});
+				spanAdded = true;
+			}
+		}
+	};
+	open.push(p);
+	m_view.Set(p, glm::vec3{colour});
+	while (open.empty() == false)
+	{
+		auto					current = open.front();
+		const static glm::ivec2 leftStep{1, 0};
+		open.pop();
+		auto leftCurrent = current;
+		while (m_view.Get<glm::vec3>(leftCurrent - leftStep) == clearColor)
+		{
+			//m_view.Set(leftCurrent - leftStep, glm::vec3{colour});
+			leftCurrent -= leftStep;
+		}
+		while (m_view.Get<glm::vec3>(current + leftStep) == clearColor)
+		{
+			//m_view.Set(current + leftStep, glm::vec3{colour});
+			current += leftStep;
+		}
+		m_view.FillLineSpan(colour, current.y, leftCurrent.x, current.x);
+		scanLine(leftCurrent.x, current.x, current.y - 1);
+		scanLine(leftCurrent.x, current.x, current.y + 1);
 	}
 }
 
@@ -132,7 +213,8 @@ void C_CPURasterizer::BresenhamVertical(const Colours::T_Colour& colour, glm::iv
 void C_CPURasterizer::XiaolinWu(const Colours::T_Colour& colour, glm::ivec2 p1, glm::ivec2 p2)
 {
 	bool vertical = std::abs(p2.y - p1.y) > std::abs(p2.x - p1.x);
-	if (vertical) {
+	if (vertical)
+	{
 		std::swap(p1.x, p1.y);
 		std::swap(p2.x, p2.y);
 	}
@@ -151,9 +233,9 @@ void C_CPURasterizer::XiaolinWu(const Colours::T_Colour& colour, glm::ivec2 p1, 
 	// float yend = y0 + gradient * (xend - p1.x);
 	float yIntersect = p1.y + gradient;
 
-	const auto fract	  = [](float x) { return x - std::floor(x); };
+	const auto fract = [](float x) { return x - std::floor(x); };
 	// endpoints
-	
+
 
 	if (vertical)
 	{

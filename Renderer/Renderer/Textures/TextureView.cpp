@@ -17,6 +17,12 @@ C_TextureView::C_TextureView(I_TextureViewStorage* storage)
 }
 
 //=================================================================================
+void C_TextureView::FillLineSpan(const glm::vec3& colour, unsigned int line, unsigned int start, unsigned int end)
+{
+	m_Storage->FillLineSpan(colour, line, start, end);
+}
+
+//=================================================================================
 std::size_t C_TextureView::GetAddress(const glm::ivec2& uv) const
 {
 	const auto dim = m_Storage->GetDimensions();
@@ -159,7 +165,7 @@ public:
 //=================================================================================
 void C_TextureView::DrawPixel(const glm::ivec2& coord, glm::vec4&& colour)
 {
-	if (!m_EnableBlending) {
+	if (!m_EnableBlending || colour.a >= 1.f) {
 		Set(coord, glm::vec3{colour});
 	}
 	else
