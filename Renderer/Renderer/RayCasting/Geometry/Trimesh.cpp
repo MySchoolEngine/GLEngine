@@ -115,7 +115,8 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 //=================================================================================
 void C_Trimesh::AddMesh(const MeshData::Mesh& mesh)
 {
-	std::transform(mesh.vertices.begin(), mesh.vertices.end(), std::back_inserter(m_Vertices), [](const glm::vec4& i) { return glm::vec3(i); });
+	m_Vertices.reserve(mesh.vertices.size());
+	m_Vertices = mesh.vertices;
 	m_AABB = mesh.bbox;
 	GLE_ASSERT(m_Vertices.size() % 3 == 0, "Wrong number of vertices.");
 
