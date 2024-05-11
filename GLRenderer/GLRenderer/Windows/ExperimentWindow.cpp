@@ -40,6 +40,8 @@
 #include <Physics/Primitives/Intersection.h>
 #include <Physics/Primitives/Ray.h>
 
+#include <Editor/Editors/ImageEditor.h>
+
 #include <Entity/BasicEntity.h>
 #include <Entity/ComponentManager.h>
 #include <Entity/EntitiesWindow.h>
@@ -391,6 +393,19 @@ void C_ExplerimentWindow::OnAppInit()
 
 		guiMGR.AddCustomWindow(rayTraceWindow);
 		rayTraceWindow->SetVisible(true);
+	}));
+
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Image editor", [&]() {
+		if (guiMGR.GetWindow(m_ImageEditorGUID) != nullptr)
+		{
+			return;
+		}
+		m_ImageEditorGUID = NextGUID();
+
+		auto* imageEditorWindow = new Editor::C_ImageEditor(m_ImageEditorGUID);
+
+		guiMGR.AddCustomWindow(imageEditorWindow);
+		imageEditorWindow->SetVisible(true);
 	}));
 
 	const auto rendererWindow = static_cast<C_OGLRenderer*>(m_renderer.get())->SetupControls(guiMGR);

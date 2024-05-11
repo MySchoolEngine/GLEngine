@@ -93,6 +93,7 @@ private:
 	GUID																m_FrameStatsGUID;
 	GUID																m_ConsoleWindowGUID;
 	GUID																m_RayTraceGUID;
+	GUID																m_ImageEditorGUID;
 	GUID																m_EntitiesWindowGUID;
 	GUID																m_HDRSettingsGUID;
 	GUI::Menu::C_Menu													m_Windows;
