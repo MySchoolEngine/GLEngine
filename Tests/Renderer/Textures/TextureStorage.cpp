@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <Renderer/Textures/TextureStorage.h>
-#include <Renderer/Textures/TextureLinearStorage.h>
+#include <Renderer/Textures/Storage/TextureStorage.h>
+#include <Renderer/Textures/Storage/TextureLinearStorage.h>
 
 #include <Renderer/Colours.h>
 
