@@ -31,6 +31,7 @@
 #include <Renderer/Materials/MaterialManager.h>
 #include <Renderer/Mesh/Loading/MeshResource.h>
 #include <Renderer/Mesh/Scene.h>
+#include <Renderer/RayCasting/Geometry/TrimeshModel.h>
 #include <Renderer/Textures/TextureResource.h>
 #include <Renderer/Textures/TextureView.h>
 
@@ -96,6 +97,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	auto& rm = Core::C_ResourceManager::Instance();
 	rm.RegisterResourceType(new Renderer::TextureLoader());
 	rm.RegisterResourceType(new Renderer::MeshLoader());
+	rm.RegisterResourceType(new Renderer::TrimeshModelTrimesh());
 }
 
 //=================================================================================
@@ -382,7 +384,8 @@ void C_ExplerimentWindow::OnAppInit()
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("HDR Settings", m_HDRSettingsGUID, guiMGR));
 
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Ray tracing", [&]() {
-		if (guiMGR.GetWindow(m_RayTraceGUID) != nullptr) {
+		if (guiMGR.GetWindow(m_RayTraceGUID) != nullptr)
+		{
 			return;
 		}
 		m_RayTraceGUID = NextGUID();

@@ -6,18 +6,26 @@
 
 namespace GLEngine::Renderer {
 class I_DebugDraw;
+class C_Trimesh;
 
+/**
+ * BVH is either loaded from file or built.
+ * 1) Load file - In that case we need to set vertices from trimesh
+ * 2) Build		- First set the pointer to the BVH and lately explicitly build
+ */
 class BVH {
 public:
 	// BVH is not owning struct, but can modify order of elements in the storage
 	BVH(std::vector<glm::vec3>& storage);
+	BVH(C_Trimesh& trimesh);
 	~BVH();
 	[[nodiscard]] bool Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const;
 
 	void DebugDraw(I_DebugDraw* dd, const glm::mat4& modelMatrix) const;
 
-private:
 	void Build();
+
+private:
 
 	using T_BVHNodeID = unsigned short;
 	constexpr static T_BVHNodeID s_InvalidBVHNode = static_cast<T_BVHNodeID>(-1);

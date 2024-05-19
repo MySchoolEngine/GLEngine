@@ -6,21 +6,17 @@
 
 #include <Physics/GeometryUtils/TriangleIntersect.h>
 
-#include <Utils/HighResolutionTimer.h>
 #include <Utils/Range.h>
 
 #include <algorithm>
 
 
 namespace GLEngine::Renderer {
-
+//=================================================================================
+C_Trimesh::C_Trimesh() = default;
 
 //=================================================================================
-C_Trimesh::~C_Trimesh()
-{
-	if (m_BVH)
-		delete m_BVH;
-}
+C_Trimesh::~C_Trimesh() = default;
 
 //=================================================================================
 void C_Trimesh::AddTriangle(const Physics::Primitives::S_Triangle& triangle)
@@ -61,9 +57,7 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 		return false;
 	}
 
-	// we check AABB after potentional BVH to avoid double checking
-	// we have AABB translated already, so we use original ray
-	if (m_Vertices.size() > 3 * 5 && m_AABB.IntersectImpl(rayIn) <= 0.f)
+	if (m_AABB.IntersectImpl(rayIn) <= 0.f)
 		return false;
 
 	struct S_IntersectionInfo {
@@ -108,7 +102,7 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 
 	intersection = closestIntersect.intersection;
 	intersection.TransformRayAndPoint(m_Transofrm);
-	intersection.SetRayLength(glm::distance(intersection.GetRay().origin, intersection.GetIntersectionPoint()));
+	intersection.SetRayLength(glm::distance(intersection.GetRay().origin, intersection.GetIntersectionPoint())); // todo tady mohu použít length ne?
 	return true;
 }
 
@@ -119,10 +113,6 @@ void C_Trimesh::AddMesh(const MeshData::Mesh& mesh)
 	m_Vertices = mesh.vertices;
 	m_AABB = mesh.bbox;
 	GLE_ASSERT(m_Vertices.size() % 3 == 0, "Wrong number of vertices.");
-
-	Utils::HighResolutionTimer BVHBuildTime;
-	m_BVH = new BVH(m_Vertices);
-	CORE_LOG(E_Level::Info, E_Context::Render, "BVH trimesh {} build time {}ms", mesh.m_name, BVHBuildTime.getElapsedTimeFromLastQueryMilliseconds());
 }
 
 //=================================================================================
@@ -139,6 +129,18 @@ void C_Trimesh::DebugDraw(I_DebugDraw* dd) const
 {
 	if (m_BVH)
 		m_BVH->DebugDraw(dd, m_Transofrm);
+}
+
+//=================================================================================
+std::size_t C_Trimesh::GetNumTriangles() const
+{
+	return m_Vertices.size() / 3;
+}
+
+//=================================================================================
+void C_Trimesh::SetBVH(const BVH* bvh)
+{
+	m_BVH = bvh;
 }
 
 } // namespace GLEngine::Renderer

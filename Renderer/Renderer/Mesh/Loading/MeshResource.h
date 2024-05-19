@@ -24,7 +24,7 @@ public:
 
 	std::filesystem::path GetFilePath() const;
 
-	const std::vector<std::filesystem::path>& GetTextureNames() const; // shoudl be handeled better
+	const std::vector<std::filesystem::path>& GetTextureNames() const; // should be handled better
 
 private:
 	std::filesystem::path					   m_Filepath;

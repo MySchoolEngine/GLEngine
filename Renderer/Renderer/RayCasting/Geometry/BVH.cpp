@@ -2,6 +2,7 @@
 
 #include <Renderer/DebugDraw.h>
 #include <Renderer/RayCasting/Geometry/BVH.h>
+#include <Renderer/RayCasting/Geometry/Trimesh.h>
 
 #include <Physics/GeometryUtils/TriangleIntersect.h>
 
@@ -12,6 +13,12 @@ BVH::BVH(std::vector<glm::vec3>& storage)
 	: m_Storage(storage)
 {
 	Build();
+}
+
+//=================================================================================
+BVH::BVH(C_Trimesh& trimesh)
+	: m_Storage(trimesh.m_Vertices)
+{
 }
 
 //=================================================================================
@@ -112,6 +119,7 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<
 		if (leftSorting < rightSorting)
 		{
 			// swap
+			GLE_TODO("19-05-2024", "RohacekD", "Needs to scrumble ather attributes as well.");
 			std::swap(m_Storage[leftSorting], m_Storage[rightSorting]);
 			std::swap(m_Storage[leftSorting + 1], m_Storage[rightSorting + 1]);
 			std::swap(m_Storage[leftSorting + 2], m_Storage[rightSorting + 2]);
