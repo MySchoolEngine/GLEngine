@@ -9,4 +9,23 @@
       <Item Name="[Initialised]">m_Initialised</Item>
     </Expand>
   </Type>
+  <Type Name="GLEngine::Physics::Primitives::S_Disc">
+    <DisplayString>{plane}:{radius}</DisplayString>
+    <Expand>
+      <Item Name="[Plane]">plane</Item>
+      <Item Name="[Radius]">radius</Item>
+    </Expand>
+  </Type>
+  <Type Name="GLEngine::Physics::Primitives::S_Plane">
+    <DisplayString Condition="twoSided">P:{origin} N:{normal} two-sided</DisplayString>
+    <DisplayString Condition="!twoSided">P:{origin} N:{normal} one-sided</DisplayString>
+    <Expand>
+      <Item Name="[Origin]">origin</Item>
+      <Item Name="[Normal]">normal</Item>
+      <Synthetic  Name="sides">
+        <DisplayString Condition="twoSided">two-sided</DisplayString>
+        <DisplayString Condition="!twoSided">one-sided</DisplayString>
+      </Synthetic>
+    </Expand>
+  </Type>
 </AutoVisualizer>
