@@ -132,6 +132,7 @@ NonDllLib["GLFW"] = true
 
 group "Tests"
 	include "Tests/Renderer"
+	include "Tests/Core"
 group "Dependencies"
   include "vendor/GLFW"
   include "vendor/Glad"
