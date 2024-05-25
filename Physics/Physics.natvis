@@ -2,11 +2,14 @@
 
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
   <Type Name="GLEngine::Physics::Primitives::S_AABB">
-    <DisplayString>{m_Min}-{m_Max}</DisplayString>
+    <DisplayString Condition="m_Initialised">{m_Min}-{m_Max}</DisplayString>
+    <DisplayString Condition="!m_Initialised">invalid AABB</DisplayString>
     <Expand>
-      <Item Name="[Min]">m_Min</Item>
-      <Item Name="[Max]">m_Max</Item>
-      <Item Name="[Initialised]">m_Initialised</Item>
+      <Item Name="[Min]" Condition="m_Initialised">m_Min</Item>
+      <Item Name="[Max]" Condition="m_Initialised">m_Max</Item>
+      <Synthetic  Name="sides" Condition="m_Initialised">
+        <DisplayString>UNINITALIZED</DisplayString>
+      </Synthetic>
     </Expand>
   </Type>
   <Type Name="GLEngine::Physics::Primitives::S_Disc">

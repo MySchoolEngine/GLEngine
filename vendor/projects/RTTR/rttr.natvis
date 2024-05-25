@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="rttr::type">
+    <DisplayString Condition="m_type_data->is_valid">{m_type_data->name}</DisplayString>
+    <DisplayString Condition="!m_type_data->is_valid">Invalid type</DisplayString>
+    <Expand>
+      <Item Name="[Name]">m_type_data->name</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="rttr::property">
+    <DisplayString>{m_wrapper->m_declaring_type} {m_wrapper->m_name.m_data,s}</DisplayString>
+    <Expand>
+      <Item Name="[Type]">m_wrapper->m_declaring_type</Item>
+      <Item Name="[Name]">m_wrapper->m_name.m_data,s</Item>
+    </Expand>
+  </Type>
+</AutoVisualizer>
