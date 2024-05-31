@@ -26,6 +26,7 @@ private:
 	Renderer::C_TextureViewStorageCPU<float>   m_Storage;
 	GUI::C_ImageViewer*						   m_GUIImage;
 	std::shared_ptr<Renderer::I_DeviceTexture> m_DeviceImage; // should not be owning ptr
+	std::shared_ptr<Renderer::I_DeviceTexture> m_Background;  // should not be owning ptr
 
 	bool m_bDone = false;
 	bool m_bFinish = false;

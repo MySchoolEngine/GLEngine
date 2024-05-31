@@ -12,7 +12,12 @@
 
 #include <Utils/HighResolutionTimer.h>
 
+#include <imgui_internal.h>
+
 namespace GLEngine::Editor {
+
+const static glm::vec2 s_ImageDrawArea{800, 800};
+const static glm::uvec2 s_BackgroundDim{2, 2};
 
 //=================================================================================
 C_ImageEditor::C_ImageEditor(GUID guid)
@@ -20,6 +25,7 @@ C_ImageEditor::C_ImageEditor(GUID guid)
 	, m_Storage(1024, 1024, 3)
 	, m_GUIImage(nullptr)
 	, m_DeviceImage(nullptr)
+	, m_Background(nullptr)
 {
 	auto&							  device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
 	const Renderer::TextureDescriptor desc{.name		  = "Editor image",
@@ -28,10 +34,31 @@ C_ImageEditor::C_ImageEditor(GUID guid)
 										   .type		  = Renderer::E_TextureType::TEXTURE_2D,
 										   .format		  = Renderer::E_TextureFormat::RGB32f,
 										   .m_bStreamable = false};
+	const Renderer::TextureDescriptor descTransparent{.name			 = "Transparent background",
+													  .width		 = s_BackgroundDim.x,
+													  .height		 = s_BackgroundDim.y,
+													  .type			 = Renderer::E_TextureType::TEXTURE_2D,
+													  .format		 = Renderer::E_TextureFormat::RGB32f,
+													  .m_bStreamable = false};
 
 	m_DeviceImage = device.CreateTextureHandle(desc);
+	m_Background  = device.CreateTextureHandle(descTransparent);
 	device.AllocateTexture(*m_DeviceImage.get());
+	device.AllocateTexture(*m_Background.get());
 	m_Storage.SetAll(glm::vec4(Colours::white, 0.f));
+	{
+		Renderer::C_TextureViewStorageCPU<float> storage(s_BackgroundDim.x, s_BackgroundDim.y, 3);
+		storage.SetAll(glm::vec4(Colours::white, 0.f));
+		Renderer::C_TextureView view(&storage);
+
+		view.Set(glm::ivec2{0, 0}, glm::vec3{Colours::gray});
+		view.Set(glm::ivec2{1, 1}, glm::vec3{Colours::gray});
+
+		m_Background->SetTexData2D(0, &storage);
+		m_Background->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
+		m_Background->SetFilter(Renderer::E_TextureFilter::Nearest, Renderer::E_TextureFilter::Nearest);
+	}
+
 
 	m_GUIImage = new GUI::C_ImageViewer(*m_DeviceImage.get());
 	m_GUIImage->SetSize({800, 800});
@@ -91,6 +118,10 @@ void C_ImageEditor::Update()
 //=================================================================================
 void C_ImageEditor::DrawComponents() const
 {
+	const ImVec2 canvas_p0 = ImGui::GetCursorPos();
+	ImGui::Image((void*)(intptr_t)(m_Background->GetGPUHandle()), {s_ImageDrawArea.x, s_ImageDrawArea.y}, {0, 0},
+				 {s_ImageDrawArea.x / (s_BackgroundDim.x * 5), s_ImageDrawArea.y / (s_BackgroundDim.y * 5)});
+	ImGui::SetCursorPos(canvas_p0);
 	m_GUIImage->Draw();
 }
 
