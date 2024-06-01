@@ -40,6 +40,15 @@ bool DrawSlider(rttr::instance& obj, const rttr::property& prop)
 }
 
 //=================================================================================
+bool DrawSliderInt(rttr::instance& obj, const rttr::property& prop)
+{
+	using namespace ::Utils::Reflection;
+
+	return ::ImGui::SliderInt(GetMetadataMember<UI::SliderInt::Name>(prop).c_str(), (prop.get_value(obj).convert<int*>()), GetMetadataMember<UI::SliderInt::Min>(prop),
+								GetMetadataMember<UI::SliderInt::Max>(prop));
+}
+
+//=================================================================================
 bool DrawAngle(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
@@ -69,7 +78,10 @@ std::vector<rttr::property> DrawAllPropertyGUI(rttr::instance& obj)
 		return {};
 	}
 
-	for (const auto& prop : obj.get_type().get_properties())
+	rttr::type type = obj.get_type().get_raw_type();
+	if (type.get_derived_classes().empty() == false)
+		type = obj.get_derived_type();
+	for (const auto& prop : type.get_properties())
 	{
 		if (DrawPropertyGUI(obj, prop))
 		{
@@ -98,6 +110,10 @@ bool DrawPropertyGUI(rttr::instance& obj, const rttr::property& prop)
 	else if (UI::IsUIMetaclass<MetaGUI::Slider>(prop))
 	{
 		return DrawSlider(obj, prop);
+	}
+	else if (UI::IsUIMetaclass<MetaGUI::SliderInt>(prop))
+	{
+		return DrawSliderInt(obj, prop);
 	}
 	else if (UI::IsUIMetaclass<MetaGUI::Angle>(prop))
 	{

@@ -133,6 +133,7 @@ template <> struct IsMetadataName<Metatype> : std::true_type {};
 enum class MetaGUI
 {
   Slider,
+  SliderInt,
   Angle,
   Colour,
   Vec3,
@@ -157,12 +158,13 @@ namespace UI
 {
 template <MetaGUI Class> struct UIMetaclassToType {};
 template <MetaGUI Class> using UIMetaclassToType_t = typename UIMetaclassToType<Class>::type;
-template <> struct UIMetaclassToType<MetaGUI::Slider>	{ using type = float; };
-template <> struct UIMetaclassToType<MetaGUI::Angle>	{ using type = float; };
-template <> struct UIMetaclassToType<MetaGUI::Colour>	{ using type = glm::vec3; };
-template <> struct UIMetaclassToType<MetaGUI::Vec3>		{ using type = glm::vec3; };
-template <> struct UIMetaclassToType<MetaGUI::Checkbox> { using type = bool; };
-template <> struct UIMetaclassToType<MetaGUI::Text>		{ using type = std::string; };
+template <> struct UIMetaclassToType<MetaGUI::Slider>		{ using type = float; };
+template <> struct UIMetaclassToType<MetaGUI::SliderInt>	{ using type = int; };
+template <> struct UIMetaclassToType<MetaGUI::Angle>		{ using type = float; };
+template <> struct UIMetaclassToType<MetaGUI::Colour>		{ using type = glm::vec3; };
+template <> struct UIMetaclassToType<MetaGUI::Vec3>			{ using type = glm::vec3; };
+template <> struct UIMetaclassToType<MetaGUI::Checkbox>		{ using type = bool; };
+template <> struct UIMetaclassToType<MetaGUI::Text>			{ using type = std::string; };
 //=================================================================================
 template <MetaGUI Class>
 [[nodiscard]] bool IsUIMetaclass(const rttr::property& prop)
@@ -191,6 +193,13 @@ enum class Slider
   Name,
   Min,
   Max,
+};
+
+enum class SliderInt
+{
+	Name,
+	Min,
+	Max,
 };
 
 enum class Angle
@@ -228,6 +237,10 @@ REGISTER_META_CLASS(UI::Slider, MetaGUI);
 REGISTER_META_MEMBER_TYPE(UI::Slider::Name, std::string);
 REGISTER_META_MEMBER_TYPE(UI::Slider::Min, float);
 REGISTER_META_MEMBER_TYPE(UI::Slider::Max, float);
+REGISTER_META_CLASS(UI::SliderInt, MetaGUI);
+REGISTER_META_MEMBER_TYPE(UI::SliderInt::Name, std::string);
+REGISTER_META_MEMBER_TYPE(UI::SliderInt::Min, int);
+REGISTER_META_MEMBER_TYPE(UI::SliderInt::Max, int);
 
 REGISTER_META_CLASS(UI::Angle, MetaGUI);
 REGISTER_META_MEMBER_TYPE(UI::Angle::Name, std::string);
