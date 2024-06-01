@@ -1,12 +1,18 @@
 #include <EditorStdafx.h>
 
+#include <Editor/Editors/Image/Tools/BrickGenerator.h>
 #include <Editor/Editors/ImageEditor.h>
+#include <Editor/Editors/ImageEditorTool.h>
 
 #include <Renderer/Colours.h>
 #include <Renderer/IDevice.h>
 #include <Renderer/IRenderer.h>
 #include <Renderer/Render/CPURasterizer.h>
 #include <Renderer/Textures/TextureView.h>
+#include <GUI/GUIManager.h>
+#include <GUI/Menu/Menu.h>
+#include <GUI/Menu/MenuItem.h>
+#include <GUI/ReflectionGUI.h>
 
 #include <Core/Application.h>
 
@@ -16,14 +22,15 @@
 
 namespace GLEngine::Editor {
 
-const static glm::vec2 s_ImageDrawArea{800, 800};
+const static glm::vec2	s_ImageDrawArea{800, 800};
 const static glm::uvec2 s_BackgroundDim{2, 2};
 
 //=================================================================================
-C_ImageEditor::C_ImageEditor(GUID guid)
+C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 	: GUI::C_Window(guid, "Image editor")
 	, m_Storage(1024, 1024, 3)
 	, m_GUIImage(nullptr)
+	, m_Tools("Tools")
 	, m_DeviceImage(nullptr)
 	, m_Background(nullptr)
 {
@@ -59,21 +66,25 @@ C_ImageEditor::C_ImageEditor(GUID guid)
 		m_Background->SetFilter(Renderer::E_TextureFilter::Nearest, Renderer::E_TextureFilter::Nearest);
 	}
 
+	AddMenu(m_Tools);
+
+	m_Tools.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Histogram", std::bind(&C_ImageEditor::ToggleHistogram, this)));
+	m_Tools.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Brick", [&]() { m_ActiveTool = std::make_unique<C_BrickGenerator>(Renderer::C_TextureView(&m_Storage)); }));
+	m_Tools.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Blur", [&]() { m_ActiveTool = std::make_unique<C_GaussianBlur>(Renderer::C_TextureView(&m_Storage)); }));
 
 	m_GUIImage = new GUI::C_ImageViewer(*m_DeviceImage.get());
 	m_GUIImage->SetSize({800, 800});
 	m_DeviceImage->SetTexData2D(0, &m_Storage);
-
 
 	std::thread([&]() {
 		Utils::HighResolutionTimer timer;
 		timer.reset();
 		Renderer::C_TextureView view(&m_Storage);
 		view.EnableBlending();
-		int						x1 = 100;
-		int						x2 = 900;
-		int						y1 = 100;
-		int						y2 = 900;
+		int x1 = 100;
+		int x2 = 900;
+		int y1 = 100;
+		int y2 = 900;
 
 		glm::uvec2				  center{512, 512};
 		Renderer::C_CPURasterizer rasterizer(view);
@@ -86,7 +97,8 @@ C_ImageEditor::C_ImageEditor(GUID guid)
 		//	glm::ivec2 dir{std::cos(glm::radians(i * 10.f)) * 400, std::sin(glm::radians(i * 10.f)) * 400};
 		//	rasterizer.DrawLine(Colours::red, center, glm::ivec2{center} + dir, true);
 		//}
-		m_bDone = true;
+		m_bDone		= true;
+		m_bModified = true;
 		CORE_LOG(E_Level::Info, E_Context::Render, "Line render time {}", float(timer.getElapsedTimeFromLastQueryMilliseconds()) / 1000.f);
 	}).detach();
 }
@@ -110,7 +122,7 @@ void C_ImageEditor::Update()
 		{
 			CORE_LOG(E_Level::Info, E_Context::Render, "Updates: {}", numUpdates);
 		}
-			m_DeviceImage->SetTexData2D(0, &m_Storage); // possibly miss last update
+		m_DeviceImage->SetTexData2D(0, &m_Storage); // possibly miss last update
 		m_bFinish = m_bDone;
 	}
 }
@@ -123,6 +135,26 @@ void C_ImageEditor::DrawComponents() const
 				 {s_ImageDrawArea.x / (s_BackgroundDim.x * 5), s_ImageDrawArea.y / (s_BackgroundDim.y * 5)});
 	ImGui::SetCursorPos(canvas_p0);
 	m_GUIImage->Draw();
+	::ImGui::SameLine();
+	if (m_ActiveTool)
+	{
+		::ImGui::BeginChild("ImageTools");
+		rttr::instance obj(m_ActiveTool.get());
+		if (GUI::DrawAllPropertyGUI(obj).empty() == false)
+		{
+			// m_Changed = true;
+		}
+		if (ImGui::Button("Apply")) {
+			m_ActiveTool->Apply();
+			m_bFinish = false; // hack
+		}
+		::ImGui::EndChild();
+	}
+}
+
+void C_ImageEditor::ToggleHistogram()
+{
+	CORE_LOG(E_Level::Error, E_Context::Core, "Histogram.");
 }
 
 } // namespace GLEngine::Editor
