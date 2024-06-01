@@ -1,8 +1,10 @@
 #pragma once
 
+#include <Renderer/Colours.h>
 #include <Renderer/RendererApi.h>
 #include <Renderer/Textures/Storage/TextureStorage.h>
 #include <Renderer/Textures/TextureDefinitions.h>
+
 /**
  *	This class serves as CPU side view to the texture independently whether lies on
  *	CPU or GPU memory.
@@ -69,7 +71,7 @@ public:
 	/**
 	 * Fills line span including start and end pixel
 	 */
-	void FillLineSpan(const glm::vec3& colour, unsigned int line, unsigned int start, unsigned int end);
+	void FillLineSpan(const Colours::T_Colour& colour, unsigned int line, unsigned int start, unsigned int end);
 
 protected:
 	[[nodiscard]] std::size_t GetAddress(const glm::ivec2& uv) const;

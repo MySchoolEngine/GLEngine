@@ -17,9 +17,10 @@ C_TextureView::C_TextureView(I_TextureViewStorage* storage)
 }
 
 //=================================================================================
-void C_TextureView::FillLineSpan(const glm::vec3& colour, unsigned int line, unsigned int start, unsigned int end)
+void C_TextureView::FillLineSpan(const Colours::T_Colour& colour, unsigned int line, unsigned int start, unsigned int end)
 {
-	m_Storage->FillLineSpan(colour, line, start, end);
+	if (line > 0 && line < m_Storage->GetDimensions().y - 1)
+		m_Storage->FillLineSpan(colour, line, std::max(start, 0u), std::min(end, m_Storage->GetDimensions().x - 1));
 }
 
 //=================================================================================
@@ -140,8 +141,8 @@ void C_TextureView::ClearColor(const glm::vec4& colour)
 
 class BlendFunctionFactory {
 public:
-
-	static const std::function<glm::vec3(const glm::vec3&, const glm::vec3&)> GetBlendFunction(E_BlendFunction function) {
+	static const std::function<glm::vec3(const glm::vec3&, const glm::vec3&)> GetBlendFunction(E_BlendFunction function)
+	{
 		switch (function)
 		{
 		case GLEngine::Renderer::E_BlendFunction::Add:
@@ -165,7 +166,8 @@ public:
 //=================================================================================
 void C_TextureView::DrawPixel(const glm::ivec2& coord, glm::vec4&& colour)
 {
-	if (!m_EnableBlending || colour.a >= 1.f) {
+	if (!m_EnableBlending || colour.a >= 1.f)
+	{
 		Set(coord, glm::vec3{colour});
 	}
 	else

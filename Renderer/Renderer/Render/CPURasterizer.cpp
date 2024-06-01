@@ -35,27 +35,57 @@ void C_CPURasterizer::DrawLine(const Colours::T_Colour& colour, const glm::ivec2
 //=================================================================================
 void C_CPURasterizer::DrawCircle(const Colours::T_Colour& colour, const glm::ivec2& p, float radius, bool antiAliased)
 {
-	float t1 = radius / 16;
-	float t2 = 0.f;
-	int	  y	 = 0;
-	int	  x	 = radius;
-	while (x >= y)
+	if (antiAliased)
 	{
-		m_view.Set(p + glm::ivec2{x, y}, glm::vec3{colour});
-		m_view.Set(p + glm::ivec2{x, -y}, glm::vec3{colour});
-		m_view.Set(p + glm::ivec2{-x, -y}, glm::vec3{colour});
-		m_view.Set(p + glm::ivec2{-x, y}, glm::vec3{colour});
-		m_view.Set(p + glm::ivec2{y, x}, glm::vec3{colour});
-		m_view.Set(p + glm::ivec2{y, -x}, glm::vec3{colour});
-		m_view.Set(p + glm::ivec2{-y, -x}, glm::vec3{colour});
-		m_view.Set(p + glm::ivec2{-y, x}, glm::vec3{colour});
-		++y;
-		t1 = t1 + y;
-		t2 = t1 - x;
-		if (t2 >= 0)
+		float t1 = radius / 16;
+		float t2 = 0.f;
+		int	  y	 = 0;
+		int	  x	 = radius;
+		float xIntersect = 0.f;
+		while (x >= y)
 		{
-			t1 = t2;
-			--x;
+			m_view.Set(p + glm::ivec2{x, y}, glm::vec3{colour});
+			m_view.Set(p + glm::ivec2{x, -y}, glm::vec3{colour});
+			m_view.Set(p + glm::ivec2{-x, -y}, glm::vec3{colour});
+			m_view.Set(p + glm::ivec2{-x, y}, glm::vec3{colour});
+			m_view.Set(p + glm::ivec2{y, x}, glm::vec3{colour});
+			m_view.Set(p + glm::ivec2{y, -x}, glm::vec3{colour});
+			m_view.Set(p + glm::ivec2{-y, -x}, glm::vec3{colour});
+			m_view.Set(p + glm::ivec2{-y, x}, glm::vec3{colour});
+			++y;
+			t1 = t1 + y;
+			t2 = t1 - x;
+			if (t2 >= 0)
+			{
+				t1 = t2;
+				--x;
+			}
+		}
+	}
+	else
+	{
+		float t1 = radius / 16;
+		float t2 = 0.f;
+		int	  y	 = 0;
+		int	  x	 = radius;
+		while (x >= y)
+		{
+			m_view.Set(p + glm::ivec2{x, y}, glm::vec3{colour});
+			m_view.Set(p + glm::ivec2{x, -y}, glm::vec3{colour});
+			m_view.Set(p + glm::ivec2{-x, -y}, glm::vec3{colour});
+			m_view.Set(p + glm::ivec2{-x, y}, glm::vec3{colour});
+			m_view.Set(p + glm::ivec2{y, x}, glm::vec3{colour});
+			m_view.Set(p + glm::ivec2{y, -x}, glm::vec3{colour});
+			m_view.Set(p + glm::ivec2{-y, -x}, glm::vec3{colour});
+			m_view.Set(p + glm::ivec2{-y, x}, glm::vec3{colour});
+			++y;
+			t1 = t1 + y;
+			t2 = t1 - x;
+			if (t2 >= 0)
+			{
+				t1 = t2;
+				--x;
+			}
 		}
 	}
 }
@@ -125,12 +155,10 @@ void C_CPURasterizer::ScanLineFloodFill(const Colours::T_Colour& colour, const g
 		auto leftCurrent = current;
 		while (m_view.Get<glm::vec3>(leftCurrent - leftStep) == clearColor)
 		{
-			//m_view.Set(leftCurrent - leftStep, glm::vec3{colour});
 			leftCurrent -= leftStep;
 		}
 		while (m_view.Get<glm::vec3>(current + leftStep) == clearColor)
 		{
-			//m_view.Set(current + leftStep, glm::vec3{colour});
 			current += leftStep;
 		}
 		m_view.FillLineSpan(colour, current.y, leftCurrent.x, current.x);
