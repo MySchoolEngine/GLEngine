@@ -23,6 +23,12 @@ private:
 	int m_MortarThickness;
 	int m_BrickOffset;
 
+	// randomness
+	int m_RowHeightDeviation;
+	int m_BrickWidthDeviation;
+	int m_MortarWidthDeviation;
+	int m_MortarHeightDeviation;
+
 	Colours::T_Colour m_BrickColour;
 	Colours::T_Colour m_MortarColour;
 };
