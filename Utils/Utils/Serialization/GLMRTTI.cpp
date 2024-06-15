@@ -1,25 +1,26 @@
 #include <glm/glm.hpp>
 
+#include <fmt/format.h>
+
 #include <optional>
 #include <rttr/registration>
 #include <sstream>
-#include <format>
 
 bool SerializeString(const glm::vec2& vec, std::string& ret)
 {
-	ret = "(" + std::format("{}", vec.x) + "," + std::format("{}", vec.y) + ")";
+	ret = "(" + fmt::format("{}", vec.x) + "," + fmt::format("{}", vec.y) + ")";
 	return true;
 }
 
 bool SerializeString(const glm::vec3& vec, std::string& ret)
 {
-	ret = "(" + std::format("{}", vec.x) + "," + std::format("{}", vec.y) + "," + std::format("{}", vec.z) + ")";
+	ret = "(" + fmt::format("{}", vec.x) + "," + fmt::format("{}", vec.y) + "," + fmt::format("{}", vec.z) + ")";
 	return true;
 }
 
 bool SerializeString(const glm::vec4& vec, std::string& ret)
 {
-	ret = "(" + std::format("{}", vec.x) + "," + std::format("{}", vec.y) + "," + std::format("{}", vec.z) + "," + std::format("{}", vec.w) + ")";
+	ret = "(" + fmt::format("{}", vec.x) + "," + fmt::format("{}", vec.y) + "," + fmt::format("{}", vec.z) + "," + fmt::format("{}", vec.w) + ")";
 	return true;
 }
 
