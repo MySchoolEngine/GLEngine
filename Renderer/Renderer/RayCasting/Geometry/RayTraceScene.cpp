@@ -323,14 +323,14 @@ void C_RayTraceScene::BuildScene()
 				if (mat.textureIndex != -1)
 				{
 					m_Textures.emplace_back(rm.LoadResource<TextureResource>(std::filesystem::path(meshHandle.GetResource().GetTextureNames()[mat.textureIndex])));
-					mat.textureIndex = m_Textures.size() - 1;
+					mat.textureIndex = static_cast<int>(m_Textures.size()) - 1;
 				}
 				if (mat.noramlTextureIndex != -1)
 				{
 					m_Textures.emplace_back(rm.LoadResource<TextureResource>(std::filesystem::path(meshHandle.GetResource().GetTextureNames()[mat.textureIndex])));
-					mat.noramlTextureIndex = m_Textures.size() - 1;
+					mat.noramlTextureIndex = static_cast<int>(m_Textures.size()) - 1;
 				}
-				mat.shininess		   = 0.f;
+				mat.shininess = 0.f;
 				AddMesh(mesh, mat);
 			}
 		}
@@ -343,7 +343,7 @@ std::unique_ptr<I_MaterialInterface>& C_RayTraceScene::AddMaterial(const MeshDat
 	if (material.shininess == 0.f)
 	{
 		Core::ResourceHandle<TextureResource> texture = {};
-		if (material.textureIndex != -1) 
+		if (material.textureIndex != -1)
 		{
 			texture = m_Textures[material.textureIndex];
 		}

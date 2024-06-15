@@ -362,7 +362,7 @@ void C_RayTraceWindow::RecalculateHeatMap()
 	float max = std::numeric_limits<float>::min();
 	for (unsigned int row = 0; row < heatMap.GetDimensions().y; ++row)
 	{
-		const auto sample = heatMap.Get<float>(glm::ivec2{0, row}, Renderer::E_TextureChannel::Red);
+		const auto sample = heatMap.Get<float>(glm::uvec2{0, row}, Renderer::E_TextureChannel::Red);
 		if (sample < min)
 			min = sample;
 		if (sample > max)
@@ -373,8 +373,8 @@ void C_RayTraceWindow::RecalculateHeatMap()
 	const Colours::T_Colour maxColour = Colours::red;
 	for (unsigned int row = 0; row < heatMap.GetDimensions().y; ++row)
 	{
-		const auto sample = heatMap.Get<float>(glm::ivec2{0, row}, Renderer::E_TextureChannel::Red);
-		result.Set(glm::ivec2{0, row}, glm::mix(minColour, maxColour, (sample - min) / interval));
+		const auto sample = heatMap.Get<float>(glm::uvec2{0, row}, Renderer::E_TextureChannel::Red);
+		result.Set(glm::uvec2{0, row}, glm::mix(minColour, maxColour, (sample - min) / interval));
 	}
 }
 
