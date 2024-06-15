@@ -17,12 +17,6 @@ bool AnimationResource::Reload()
 }
 
 //=================================================================================
-std::filesystem::path AnimationResource::GetFilePath() const
-{
-	return m_Filepath;
-}
-
-//=================================================================================
 std::shared_ptr<Core::Resource> AnimationLoader::CreateResource() const
 {
 	return std::make_shared<AnimationResource>();

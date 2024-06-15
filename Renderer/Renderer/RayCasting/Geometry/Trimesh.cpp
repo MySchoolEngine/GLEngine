@@ -7,9 +7,20 @@
 #include <Physics/GeometryUtils/TriangleIntersect.h>
 
 #include <Utils/Range.h>
+#include <Utils/Serialization/SerializationUtils.h>
 
 #include <algorithm>
+#include <rttr/registration>
 
+RTTR_REGISTRATION
+{
+	using namespace GLEngine::Renderer;
+	rttr::registration::class_<C_Trimesh>("Trimesh")
+		.constructor<>()(rttr::policy::ctor::as_object)
+		.property("Vertices", &C_Trimesh::m_Vertices)(rttr::policy::prop::as_reference_wrapper)
+		.property("Transofrm", &C_Trimesh::m_Transofrm)(rttr::policy::prop::as_reference_wrapper, REGISTER_DEFAULT_VALUE(glm::mat4(1.f)))
+		.property("AABB", &C_Trimesh::m_AABB);
+}
 
 namespace GLEngine::Renderer {
 //=================================================================================
@@ -77,7 +88,8 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 		const auto		 length = Physics::TraingleRayIntersect(triDef, ray, &barycentric);
 		if (length > 0.0f)
 		{
-			if (closestIntersect.t < length) {
+			if (closestIntersect.t < length)
+			{
 				continue;
 			}
 			auto	   normal = glm::cross(m_Vertices[i + 1] - m_Vertices[i], m_Vertices[i + 2] - m_Vertices[i]);
@@ -111,7 +123,7 @@ void C_Trimesh::AddMesh(const MeshData::Mesh& mesh)
 {
 	m_Vertices.reserve(mesh.vertices.size());
 	m_Vertices = mesh.vertices;
-	m_AABB = mesh.bbox;
+	m_AABB	   = mesh.bbox;
 	GLE_ASSERT(m_Vertices.size() % 3 == 0, "Wrong number of vertices.");
 }
 

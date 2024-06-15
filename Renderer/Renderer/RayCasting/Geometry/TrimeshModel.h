@@ -11,6 +11,8 @@
 #include <Core/Resources/ResourceHandle.h>
 #include <Core/Resources/ResourceLoader.h>
 
+#include <rttr/registration_friend.h>
+
 namespace GLEngine::Renderer {
 class RENDERER_API_EXPORT C_TrimeshModel : public Core::Resource {
 public:
@@ -26,13 +28,18 @@ public:
 
 	bool SupportSaving() const override;
 
+	void AfterDeserialize();
+
+	RTTR_ENABLE();
+	RTTR_REGISTRATION_FRIEND;
+
+protected:
+	bool SaveInternal() const override;
+
 private:
 	std::vector<C_Trimesh> m_Trimeshes;
 	std::vector<BVH*>	   m_BVHs;
-
-protected:
-	//=================================================================================
-	bool SaveInternal() const override;
+	std::filesystem::path  m_Filepath;
 };
 
 class RENDERER_API_EXPORT TrimeshModelTrimesh : public Core::ResourceLoader<C_TrimeshModel> {

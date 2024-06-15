@@ -6,18 +6,40 @@
 
 #include <Physics/GeometryUtils/TriangleIntersect.h>
 
+RTTR_REGISTRATION
+{
+	using namespace GLEngine::Renderer;
+	rttr::registration::class_<BVH>("BVH")
+		.constructor<>()(rttr::policy::ctor::as_raw_ptr)
+		.property("Nodes", &BVH::m_Nodes)(rttr::policy::prop::bind_as_ptr);
+	
+	rttr::registration::class_<BVH::BVHNode>("BVHNode")
+		.constructor<>()(rttr::policy::ctor::as_object)
+		.property("AABB", &BVH::BVHNode::aabb)
+		.property("left", &BVH::BVHNode::left)
+		.property("right", &BVH::BVHNode::right)
+		.property("firstTrig", &BVH::BVHNode::firstTrig)
+		.property("lastTrig", &BVH::BVHNode::lastTrig);
+}
+
 namespace GLEngine::Renderer {
 
 //=================================================================================
 BVH::BVH(std::vector<glm::vec3>& storage)
-	: m_Storage(storage)
+	: m_Storage(&storage)
 {
 	Build();
 }
 
 //=================================================================================
 BVH::BVH(C_Trimesh& trimesh)
-	: m_Storage(trimesh.m_Vertices)
+	: m_Storage(&trimesh.m_Vertices)
+{
+}
+
+//=================================================================================
+BVH::BVH()
+	: m_Storage()
 {
 }
 
@@ -27,23 +49,23 @@ BVH::~BVH() = default;
 //=================================================================================
 void BVH::Build()
 {
-	if (m_Storage.empty())
+	if (m_Storage->empty())
 		return;
 
 	GLE_ASSERT(m_Nodes.empty(), "Trying to rebuild the BVH without cleaning.");
 
 	auto& root = m_Nodes.emplace_back();
-	for (const auto& vertex : m_Storage)
+	for (const auto& vertex : *m_Storage)
 		root.aabb.Add(vertex);
 	root.firstTrig = 0;
-	root.lastTrig  = static_cast<unsigned int>(m_Storage.size()) - 3;
+	root.lastTrig  = static_cast<unsigned int>(m_Storage->size()) - 3;
 	std::vector<glm::vec3> centroids;
 	centroids.reserve(root.NumTrig());
 	const auto			   trigCenter = [](const glm::vec3* triDef) { return (triDef[0] + triDef[1] + triDef[2]) / 3.f; };
 
 	for (unsigned int i = root.firstTrig; i < root.lastTrig + 3; i += 3)
 	{
-		const glm::vec3* triDef = &(m_Storage[i]);
+		const glm::vec3* triDef = &(m_Storage->at(i));
 		centroids.emplace_back(trigCenter(triDef));
 	}
 	SplitBVHNodeNaive(0, 0, centroids);
@@ -69,7 +91,7 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<
 	{
 		for (unsigned int i = m_Nodes[nodeId].firstTrig; i < m_Nodes[nodeId].lastTrig + 3; i += 3)
 		{
-			const glm::vec3* triDef			 = &(m_Storage[i]);
+			const glm::vec3* triDef			 = &(m_Storage->at(i));
 			const float		 currentCentroid = centroids[i/3][axe];
 			const float		 cost			 = CalcSAHCost(m_Nodes[nodeId], axe, currentCentroid, centroids);
 			if (cost < bestCost)
@@ -118,11 +140,12 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<
 		}
 		if (leftSorting < rightSorting)
 		{
+			auto& storage = *m_Storage;
 			// swap
 			GLE_TODO("19-05-2024", "RohacekD", "Needs to scrumble ather attributes as well.");
-			std::swap(m_Storage[leftSorting], m_Storage[rightSorting]);
-			std::swap(m_Storage[leftSorting + 1], m_Storage[rightSorting + 1]);
-			std::swap(m_Storage[leftSorting + 2], m_Storage[rightSorting + 2]);
+			std::swap(storage[leftSorting], storage[rightSorting]);
+			std::swap(storage[leftSorting + 1], storage[rightSorting + 1]);
+			std::swap(storage[leftSorting + 2], storage[rightSorting + 2]);
 			std::swap(centroids[leftSorting / 3], centroids[rightSorting / 3]);
 		}
 	}
@@ -148,11 +171,11 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<
 	// build AABBs
 	for (unsigned int i = left.firstTrig; i < left.lastTrig + 3; ++i)
 	{
-		left.aabb.Add(m_Storage[i]);
+		left.aabb.Add((*m_Storage)[i]);
 	}
 	for (unsigned int i = right.firstTrig; i < right.lastTrig + 3; ++i)
 	{
-		right.aabb.Add(m_Storage[i]);
+		right.aabb.Add((*m_Storage)[i]);
 	}
 
 	SplitBVHNodeNaive(leftNodeId, level + 1, centroids);
@@ -214,10 +237,11 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection
 	S_IntersectionInfo closestIntersect{C_RayIntersection(), std::numeric_limits<float>::max()};
 
 	glm::vec2 barycentric;
+	auto&	  storage = *m_Storage;
 
 	for (unsigned int i = node->firstTrig; i <= node->lastTrig; i += 3)
 	{
-		const glm::vec3* triDef = &(m_Storage[i]);
+		const glm::vec3* triDef = &(m_Storage->at(i));
 		const auto		 length = Physics::TraingleRayIntersect(triDef, ray, &barycentric);
 		if (length > 0.0f)
 		{
@@ -225,7 +249,7 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection
 			{
 				continue;
 			}
-			auto	   normal = glm::cross(m_Storage[i + 1] - m_Storage[i], m_Storage[i + 2] - m_Storage[i]);
+			auto	   normal = glm::cross(storage[i + 1] - storage[i], storage[i + 2] - storage[i]);
 			const auto area	  = glm::length(normal) / 2.f;
 			normal			  = glm::normalize(normal);
 			C_RayIntersection inter(S_Frame(normal), ray.origin + length * ray.direction, Physics::Primitives::S_Ray(ray));
@@ -282,7 +306,7 @@ float BVH::CalcSAHCost(const BVHNode& parent, const unsigned int axis, const flo
 	unsigned int				leftCount = 0, rightCount = 0;
 	for (unsigned int i = parent.firstTrig; i < parent.lastTrig + 3; i += 3)
 	{
-		const glm::vec3* triDef = &(m_Storage[i]);
+		const glm::vec3* triDef = &(m_Storage->at(i));
 		if (centroids[i / 3][axis] < splitPos)
 		{
 			left.Add(triDef[0]);

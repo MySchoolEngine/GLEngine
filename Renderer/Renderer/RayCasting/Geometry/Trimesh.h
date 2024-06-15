@@ -6,6 +6,8 @@
 #include <Physics/Primitives/AABB.h>
 #include <Physics/Primitives/Triangle.h>
 
+#include <rttr/registration_friend.h>
+
 namespace GLEngine::Renderer {
 class I_DebugDraw;
 
@@ -32,6 +34,9 @@ public:
 
 	void DebugDraw(I_DebugDraw* dd) const;
 
+	RTTR_ENABLE();
+	RTTR_REGISTRATION_FRIEND;
+
 private:
 	std::vector<glm::vec3>		m_Vertices;
 	std::vector<glm::vec2>		m_TexCoords;
@@ -40,5 +45,6 @@ private:
 	glm::mat4					m_TransofrmInv = glm::mat4(1.f);
 	const BVH*					m_BVH		   = nullptr;
 	friend class BVH;
+	friend class C_TrimeshModel;
 };
 } // namespace GLEngine::Renderer

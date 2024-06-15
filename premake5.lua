@@ -58,6 +58,7 @@ workspace "Engine"
 		"Entity/Entity.natvis",
 		"GUI/GUI.natvis",
 		"Utils/utils.natvis",
+		"vendor/projects/RTTR/rttr.natvis",
 		"premake5.lua",
 		"Tools/Premake5/premakeDefines.lua",
 		"Tools/Premake5/workspaceFiles.lua",

@@ -13,6 +13,7 @@
 #include <rttr/registration.h>
 
 #pragma region registration
+// clang-format off
 RTTR_REGISTRATION
 {
 	using namespace Utils::Reflection;
@@ -27,8 +28,7 @@ RTTR_REGISTRATION
 			  RegisterMetaclass<MetaGUI::Slider>(),
 			  RegisterMetamember<UI::Slider::Name>("Intensity:"),
 			  RegisterMetamember<UI::Slider::Min>(0.f),
-			  RegisterMetamember<UI::Slider::Max>(100.0f),
-			  RegisterMetamember<SerializationCls::DerefSerialize>(true)
+			  RegisterMetamember<UI::Slider::Max>(100.0f)
 		  )
 		.property("Color", &C_PointLight::m_Color)
 		(
@@ -43,6 +43,7 @@ RTTR_REGISTRATION
 		return std::static_pointer_cast<GLEngine::Entity::I_Component>(ptr);
 	});
 }
+// clang-format on
 #pragma endregion registration
 
 namespace GLEngine::Renderer {
