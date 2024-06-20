@@ -126,7 +126,8 @@ rttr::detail::metadata RegisterMetaclass()
 enum class Metatype
 {
   Serialization,
-  GUI, // -> MetaGUI
+  GUI,		// -> MetaGUI
+  GUIInfo,	// -> MetaGUIInfo
 };
 template <> struct IsMetadataName<Metatype> : std::true_type {};
 
@@ -153,6 +154,13 @@ REGISTER_META_CLASS(SerializationCls, Metatype);
 REGISTER_META_MEMBER_TYPE(SerializationCls::NoSerialize, bool);
 REGISTER_META_MEMBER_TYPE(SerializationCls::DerefSerialize, bool);
 REGISTER_META_MEMBER_TYPE(SerializationCls::MandatoryProperty, bool);
+
+enum class MetaGUIInfo
+{
+	CollapsableGroup, // name of group
+};
+REGISTER_META_CLASS(MetaGUIInfo, Metatype);
+REGISTER_META_MEMBER_TYPE(MetaGUIInfo::CollapsableGroup, std::string);
 
 namespace UI
 {

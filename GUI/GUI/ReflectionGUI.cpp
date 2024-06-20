@@ -81,11 +81,19 @@ std::vector<rttr::property> DrawAllPropertyGUI(rttr::instance& obj)
 	rttr::type type = obj.get_type().get_raw_type();
 	if (type.get_derived_classes().empty() == false)
 		type = obj.get_derived_type();
+
+	std::map<std::string, rttr::property> collapsableHeaders;
 	for (const auto& prop : type.get_properties())
 	{
-		if (DrawPropertyGUI(obj, prop))
+		if (HasMetadataMember<MetaGUIInfo::CollapsableGroup>(obj)) {
+			collapsableHeaders[GetMetadataMember<MetaGUIInfo>(prop, MetaGUIInfo::CollapsableGroup).get_value<std::string>()] = prop;
+		}
+		else
 		{
-			changedVals.emplace_back(prop);
+			if (DrawPropertyGUI(obj, prop))
+			{
+				changedVals.emplace_back(prop);
+			}
 		}
 	}
 	return changedVals;
@@ -124,7 +132,11 @@ bool DrawPropertyGUI(rttr::instance& obj, const rttr::property& prop)
 		DrawText(obj, prop);
 		return false;
 	}
-	return false;
+	else
+	{
+		rttr::instance ins{prop.get_value(obj)};
+		return GUI::DrawAllPropertyGUI(ins).empty() == false; // this will not return changed properties
+	}
 }
 
 } // namespace GLEngine::GUI

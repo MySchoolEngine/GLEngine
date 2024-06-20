@@ -9,6 +9,8 @@
 #include <Renderer/IRenderer.h>
 #include <Renderer/Render/CPURasterizer.h>
 #include <Renderer/Textures/TextureView.h>
+
+#include <GUI/FileDialogWindow.h>
 #include <GUI/GUIManager.h>
 #include <GUI/Menu/Menu.h>
 #include <GUI/Menu/MenuItem.h>
@@ -28,8 +30,9 @@ const static glm::uvec2 s_BackgroundDim{2, 2};
 //=================================================================================
 C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 	: GUI::C_Window(guid, "Image editor")
-	, m_Storage(1024, 1024, 3)
+	, m_Storage(1024, 1024, 4)
 	, m_GUIImage(nullptr)
+	, m_FileMenu("File")
 	, m_Tools("Tools")
 	, m_DeviceImage(nullptr)
 	, m_Background(nullptr)
@@ -39,7 +42,7 @@ C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 										   .width		  = 1024,
 										   .height		  = 1024,
 										   .type		  = Renderer::E_TextureType::TEXTURE_2D,
-										   .format		  = Renderer::E_TextureFormat::RGB32f,
+										   .format		  = Renderer::E_TextureFormat::RGBA32f,
 										   .m_bStreamable = false};
 	const Renderer::TextureDescriptor descTransparent{.name			 = "Transparent background",
 													  .width		 = s_BackgroundDim.x,
@@ -66,11 +69,26 @@ C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 		m_Background->SetFilter(Renderer::E_TextureFilter::Nearest, Renderer::E_TextureFilter::Nearest);
 	}
 
+	AddMenu(m_FileMenu);
 	AddMenu(m_Tools);
 
 	m_Tools.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Histogram", std::bind(&C_ImageEditor::ToggleHistogram, this)));
 	m_Tools.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Brick", [&]() { m_ActiveTool = std::make_unique<C_BrickGenerator>(Renderer::C_TextureView(&m_Storage)); }));
 	m_Tools.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Blur", [&]() { m_ActiveTool = std::make_unique<C_GaussianBlur>(Renderer::C_TextureView(&m_Storage)); }));
+	std::reference_wrapper<GUI::Menu::C_MenuItem> createMenuItem = guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Save as...", [&]() {
+		const auto textureSelectorGUID = NextGUID();
+		auto*	   textureSelectWindow = new GUI::C_FileDialogWindow(
+			 ".bmp,.hdr,.ppm", "Save image as...",
+			 [&, textureSelectorGUID](const std::filesystem::path& texture) {
+				 // TODO save here
+
+				 guiMGR.DestroyWindow(textureSelectorGUID);
+			 },
+			 textureSelectorGUID, "./Images");
+		guiMGR.AddCustomWindow(textureSelectWindow);
+		textureSelectWindow->SetVisible();
+	});
+	m_FileMenu.AddMenuItem(createMenuItem);
 
 	m_GUIImage = new GUI::C_ImageViewer(*m_DeviceImage.get());
 	m_GUIImage->SetSize({800, 800});
@@ -90,9 +108,9 @@ C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 		Renderer::C_CPURasterizer rasterizer(view);
 		rasterizer.DrawCircle(Colours::red, center, 200);
 		rasterizer.DrawCircle(Colours::red, center, 400);
-		rasterizer.FloodFill(Colours::blue, {212, 512});
-		//rasterizer.FloodFill(Colours::green, {512, 512});
-		//for (int i = 0; i < 36; ++i)
+		// rasterizer.FloodFill(Colours::blue, {212, 512});
+		// rasterizer.FloodFill(Colours::green, {512, 512});
+		// for (int i = 0; i < 36; ++i)
 		//{
 		//	glm::ivec2 dir{std::cos(glm::radians(i * 10.f)) * 400, std::sin(glm::radians(i * 10.f)) * 400};
 		//	rasterizer.DrawLine(Colours::red, center, glm::ivec2{center} + dir, true);
@@ -142,7 +160,7 @@ void C_ImageEditor::DrawComponents() const
 		rttr::instance obj(m_ActiveTool.get());
 		if (GUI::DrawAllPropertyGUI(obj).empty() == false)
 		{
-			// m_Changed = true;
+			
 		}
 		if (ImGui::Button("Apply")) {
 			m_ActiveTool->Apply();
@@ -155,6 +173,10 @@ void C_ImageEditor::DrawComponents() const
 void C_ImageEditor::ToggleHistogram()
 {
 	CORE_LOG(E_Level::Error, E_Context::Core, "Histogram.");
+}
+
+void C_ImageEditor::SetupToolPreview()
+{
 }
 
 } // namespace GLEngine::Editor

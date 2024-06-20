@@ -6,6 +6,10 @@
 #include <rttr/registration.h>
 #include <rttr/registration_friend.h>
 
+namespace GLEngine::Renderer {
+class I_Device;
+}
+
 namespace GLEngine::Editor {
 // event system should handle resource update? Or should I propagate it otherwise?
 // There is no resource so just propagate to the editor and editor should handle
@@ -17,6 +21,8 @@ public:
 	C_ImageEditorTool(Renderer::C_TextureView view); // can be performed on whole image or just part of it
 
 	virtual void Apply() {}
+	virtual void GeneratePreview() {}
+	virtual void SetupPreview(Renderer::I_Device& device) {}
 	// for reflection GUI
 	RTTR_ENABLE();
 

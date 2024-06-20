@@ -402,7 +402,7 @@ void C_ExplerimentWindow::OnAppInit()
 		}
 		m_ImageEditorGUID = NextGUID();
 
-		auto* imageEditorWindow = new Editor::C_ImageEditor(m_ImageEditorGUID);
+		auto* imageEditorWindow = new Editor::C_ImageEditor(m_ImageEditorGUID, guiMGR);
 
 		guiMGR.AddCustomWindow(imageEditorWindow);
 		imageEditorWindow->SetVisible(true);

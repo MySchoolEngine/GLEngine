@@ -21,7 +21,8 @@ RTTR_REGISTRATION
 			RegisterMetamember<UI::SliderInt::Min>(1),
 			RegisterMetamember<UI::SliderInt::Max>(100))
 		.property("BrickWidth", &C_BrickGenerator::m_BrickWidth)(
-			rttr::policy::prop::bind_as_ptr, RegisterMetaclass<MetaGUI::SliderInt>(),
+			rttr::policy::prop::bind_as_ptr,
+			RegisterMetaclass<MetaGUI::SliderInt>(),
 			RegisterMetamember<UI::SliderInt::Name>("Row width:"),
 			RegisterMetamember<UI::SliderInt::Min>(1),
 			RegisterMetamember<UI::SliderInt::Max>(100))
@@ -36,25 +37,29 @@ RTTR_REGISTRATION
 			RegisterMetaclass<MetaGUI::SliderInt>(),
 			RegisterMetamember<UI::SliderInt::Name>("Row height deviation:"),
 			RegisterMetamember<UI::SliderInt::Min>(1),
-			RegisterMetamember<UI::SliderInt::Max>(100))
+			RegisterMetamember<UI::SliderInt::Max>(100),
+			RegisterMetamember<SerializationCls::DerefSerialize>("Randomize"))
 		.property("BrickWidthDeviation", &C_BrickGenerator::m_BrickWidthDeviation)(
 			rttr::policy::prop::bind_as_ptr,
 			RegisterMetaclass<MetaGUI::SliderInt>(),
 			RegisterMetamember<UI::SliderInt::Name>("Brick width deviation:"),
 			RegisterMetamember<UI::SliderInt::Min>(1),
-			RegisterMetamember<UI::SliderInt::Max>(100))
+			RegisterMetamember<UI::SliderInt::Max>(100),
+			RegisterMetamember<SerializationCls::DerefSerialize>("Randomize"))
 		.property("MortarWidthDeviation", &C_BrickGenerator::m_MortarWidthDeviation)(
 			rttr::policy::prop::bind_as_ptr,
 			RegisterMetaclass<MetaGUI::SliderInt>(),
 			RegisterMetamember<UI::SliderInt::Name>("Mortar width deviation:"),
 			RegisterMetamember<UI::SliderInt::Min>(1),
-			RegisterMetamember<UI::SliderInt::Max>(100))
+			RegisterMetamember<UI::SliderInt::Max>(100),
+			RegisterMetamember<SerializationCls::DerefSerialize>("Randomize"))
 		.property("MortarHeightDeviation", &C_BrickGenerator::m_MortarHeightDeviation)(
 			rttr::policy::prop::bind_as_ptr,
 			RegisterMetaclass<MetaGUI::SliderInt>(),
 			RegisterMetamember<UI::SliderInt::Name>("Mortar height deviation:"),
 			RegisterMetamember<UI::SliderInt::Min>(1),
-			RegisterMetamember<UI::SliderInt::Max>(100))
+			RegisterMetamember<UI::SliderInt::Max>(100),
+			RegisterMetamember<SerializationCls::DerefSerialize>("Randomize"))
 		.property("MortarThickness", &C_BrickGenerator::m_MortarThickness)(
 			rttr::policy::prop::bind_as_ptr,
 			RegisterMetaclass<MetaGUI::SliderInt>(),
