@@ -53,6 +53,7 @@ enum class E_BlendFactor
 };
 
 //=================================================================================
+// Source is colour written by fragment shader
 enum class E_BlendFunction
 {
 	Add,			 //< Result = Src + Dst

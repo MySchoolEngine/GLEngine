@@ -1,8 +1,10 @@
 #pragma once
 
+#include <Renderer/Colours.h>
 #include <Renderer/RendererApi.h>
 #include <Renderer/Textures/Storage/TextureStorage.h>
 #include <Renderer/Textures/TextureDefinitions.h>
+
 /**
  *	This class serves as CPU side view to the texture independently whether lies on
  *	CPU or GPU memory.
@@ -50,6 +52,8 @@ public:
 	[[nodiscard]] E_WrapFunction GetWrapFunction() const;
 	void						 SetWrapFunction(E_WrapFunction wrap);
 
+	void EnableBlending(bool enable = true);
+
 	template <class T> void													   Set(const glm::ivec2& uv, const T val, E_TextureChannel element);
 	template <class T, typename = std::enable_if_t<glm::type<T>::is_vec>> void Set(const glm::ivec2& uv, T&& val);
 	void																	   SetBorderColor(const glm::vec4& color);
@@ -62,6 +66,13 @@ public:
 
 	void ClearColor(const glm::vec4& colour);
 
+	void DrawPixel(const glm::ivec2& coord, glm::vec4&& colour);
+
+	/**
+	 * Fills line span including start and end pixel
+	 */
+	void FillLineSpan(const Colours::T_Colour& colour, unsigned int line, unsigned int start, unsigned int end);
+
 protected:
 	[[nodiscard]] std::size_t GetAddress(const glm::ivec2& uv) const;
 	[[nodiscard]] std::size_t GetPixelAddress(const glm::uvec2& uv) const;
@@ -73,6 +84,8 @@ protected:
 	I_TextureViewStorage* m_Storage; // not owning ptr
 	glm::vec4			  m_BorderColor;
 	E_WrapFunction		  m_WrapFunction;
+	bool				  m_EnableBlending;
+	E_BlendFunction		  m_BlendOperation;
 };
 
 template <> glm::vec4  C_TextureView::GetBorderColor() const;
