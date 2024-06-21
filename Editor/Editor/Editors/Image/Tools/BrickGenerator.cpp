@@ -32,34 +32,36 @@ RTTR_REGISTRATION
 			RegisterMetamember<UI::SliderInt::Name>("Brick offset:"),
 			RegisterMetamember<UI::SliderInt::Min>(1),
 			RegisterMetamember<UI::SliderInt::Max>(100))
+#pragma region Randomness
 		.property("RowHeightDeviation", &C_BrickGenerator::m_RowHeightDeviation)(
 			rttr::policy::prop::bind_as_ptr,
 			RegisterMetaclass<MetaGUI::SliderInt>(),
+			RegisterMetamember<MetaGUIInfo::CollapsableGroup>("Randomness"),
 			RegisterMetamember<UI::SliderInt::Name>("Row height deviation:"),
 			RegisterMetamember<UI::SliderInt::Min>(1),
-			RegisterMetamember<UI::SliderInt::Max>(100),
-			RegisterMetamember<SerializationCls::DerefSerialize>("Randomize"))
+			RegisterMetamember<UI::SliderInt::Max>(100))
 		.property("BrickWidthDeviation", &C_BrickGenerator::m_BrickWidthDeviation)(
 			rttr::policy::prop::bind_as_ptr,
 			RegisterMetaclass<MetaGUI::SliderInt>(),
+			RegisterMetamember<MetaGUIInfo::CollapsableGroup>("Randomness"),
 			RegisterMetamember<UI::SliderInt::Name>("Brick width deviation:"),
 			RegisterMetamember<UI::SliderInt::Min>(1),
-			RegisterMetamember<UI::SliderInt::Max>(100),
-			RegisterMetamember<SerializationCls::DerefSerialize>("Randomize"))
+			RegisterMetamember<UI::SliderInt::Max>(100))
 		.property("MortarWidthDeviation", &C_BrickGenerator::m_MortarWidthDeviation)(
 			rttr::policy::prop::bind_as_ptr,
 			RegisterMetaclass<MetaGUI::SliderInt>(),
+			RegisterMetamember<MetaGUIInfo::CollapsableGroup>("Randomness"),
 			RegisterMetamember<UI::SliderInt::Name>("Mortar width deviation:"),
 			RegisterMetamember<UI::SliderInt::Min>(1),
-			RegisterMetamember<UI::SliderInt::Max>(100),
-			RegisterMetamember<SerializationCls::DerefSerialize>("Randomize"))
+			RegisterMetamember<UI::SliderInt::Max>(100))
 		.property("MortarHeightDeviation", &C_BrickGenerator::m_MortarHeightDeviation)(
 			rttr::policy::prop::bind_as_ptr,
 			RegisterMetaclass<MetaGUI::SliderInt>(),
+			RegisterMetamember<MetaGUIInfo::CollapsableGroup>("Randomness"),
 			RegisterMetamember<UI::SliderInt::Name>("Mortar height deviation:"),
 			RegisterMetamember<UI::SliderInt::Min>(1),
-			RegisterMetamember<UI::SliderInt::Max>(100),
-			RegisterMetamember<SerializationCls::DerefSerialize>("Randomize"))
+			RegisterMetamember<UI::SliderInt::Max>(100))
+#pragma endregion
 		.property("MortarThickness", &C_BrickGenerator::m_MortarThickness)(
 			rttr::policy::prop::bind_as_ptr,
 			RegisterMetaclass<MetaGUI::SliderInt>(),
@@ -95,6 +97,7 @@ C_BrickGenerator::C_BrickGenerator(Renderer::C_TextureView view)
 {
 }
 
+//=================================================================================
 void C_BrickGenerator::Apply()
 {
 	std::random_device				rd;		   // a seed source for the random number engine

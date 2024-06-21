@@ -45,7 +45,7 @@ bool DrawSliderInt(rttr::instance& obj, const rttr::property& prop)
 	using namespace ::Utils::Reflection;
 
 	return ::ImGui::SliderInt(GetMetadataMember<UI::SliderInt::Name>(prop).c_str(), (prop.get_value(obj).convert<int*>()), GetMetadataMember<UI::SliderInt::Min>(prop),
-								GetMetadataMember<UI::SliderInt::Max>(prop));
+							  GetMetadataMember<UI::SliderInt::Max>(prop));
 }
 
 //=================================================================================
@@ -82,17 +82,31 @@ std::vector<rttr::property> DrawAllPropertyGUI(rttr::instance& obj)
 	if (type.get_derived_classes().empty() == false)
 		type = obj.get_derived_type();
 
-	std::map<std::string, rttr::property> collapsableHeaders;
-	for (const auto& prop : type.get_properties())
+	std::map<std::string, std::vector<rttr::property>> collapsableHeaders;
+	for (auto& prop : type.get_properties())
 	{
-		if (HasMetadataMember<MetaGUIInfo::CollapsableGroup>(obj)) {
-			collapsableHeaders[GetMetadataMember<MetaGUIInfo>(prop, MetaGUIInfo::CollapsableGroup).get_value<std::string>()] = prop;
+		if (HasMetadataMember<MetaGUIInfo::CollapsableGroup>(prop))
+		{
+			collapsableHeaders[GetMetadataMember<MetaGUIInfo::CollapsableGroup>(prop)].emplace_back(prop);
 		}
 		else
 		{
 			if (DrawPropertyGUI(obj, prop))
 			{
 				changedVals.emplace_back(prop);
+			}
+		}
+	}
+	for (auto& collapsableHeader : collapsableHeaders)
+	{
+		if (::ImGui::CollapsingHeader(collapsableHeader.first.c_str()))
+		{
+			for (auto& prop : collapsableHeader.second)
+			{
+				if (DrawPropertyGUI(obj, prop))
+				{
+					changedVals.emplace_back(prop);
+				}
 			}
 		}
 	}
