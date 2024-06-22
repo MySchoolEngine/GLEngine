@@ -1,6 +1,7 @@
 #include <EditorStdafx.h>
 
 #include <Editor/Editors/Image/Tools/BrickGenerator.h>
+#include <Editor/Editors/Image/Tools/PerlinNoiseGenerator.h>
 #include <Editor/Editors/ImageEditor.h>
 #include <Editor/Editors/ImageEditorTool.h>
 
@@ -74,6 +75,8 @@ C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 
 	m_Tools.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Histogram", std::bind(&C_ImageEditor::ToggleHistogram, this)));
 	m_Tools.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Brick", [&]() { m_ActiveTool = std::make_unique<C_BrickGenerator>(Renderer::C_TextureView(&m_Storage)); }));
+	m_Tools.AddMenuItem(
+		guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Perlin Noise", [&]() { m_ActiveTool = std::make_unique<C_PerlinNoise>(Renderer::C_TextureView(&m_Storage)); }));
 	m_Tools.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Blur", [&]() { m_ActiveTool = std::make_unique<C_GaussianBlur>(Renderer::C_TextureView(&m_Storage)); }));
 	std::reference_wrapper<GUI::Menu::C_MenuItem> createMenuItem = guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Save as...", [&]() {
 		const auto textureSelectorGUID = NextGUID();
@@ -160,7 +163,11 @@ void C_ImageEditor::DrawComponents() const
 		rttr::instance obj(m_ActiveTool.get());
 		if (GUI::DrawAllPropertyGUI(obj).empty() == false)
 		{
-			
+			std::packaged_task<void()> preveiewUpdate([&device = Core::C_Application::Get().GetActiveRenderer().GetDevice(), &tool = m_ActiveTool]() { 
+				tool->GeneratePreview();
+			});
+			std::thread				   rtThread(std::move(preveiewUpdate));
+			rtThread.detach();
 		}
 		if (ImGui::Button("Apply")) {
 			m_ActiveTool->Apply();
@@ -170,11 +177,13 @@ void C_ImageEditor::DrawComponents() const
 	}
 }
 
+//=================================================================================
 void C_ImageEditor::ToggleHistogram()
 {
 	CORE_LOG(E_Level::Error, E_Context::Core, "Histogram.");
 }
 
+//=================================================================================
 void C_ImageEditor::SetupToolPreview()
 {
 }
