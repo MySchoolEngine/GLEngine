@@ -8,6 +8,7 @@
 #include <Renderer/Colours.h>
 #include <Renderer/IDevice.h>
 #include <Renderer/IRenderer.h>
+#include <Renderer/Render/CPUCompute.h>
 #include <Renderer/Render/CPURasterizer.h>
 #include <Renderer/Textures/TextureView.h>
 
@@ -32,6 +33,7 @@ const static glm::uvec2 s_BackgroundDim{2, 2};
 C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 	: GUI::C_Window(guid, "Image editor")
 	, m_Storage(1024, 1024, 4)
+	, m_Histogram(255, 1, 1)
 	, m_GUIImage(nullptr)
 	, m_FileMenu("File")
 	, m_Tools("Tools")
@@ -144,6 +146,8 @@ void C_ImageEditor::Update()
 			CORE_LOG(E_Level::Info, E_Context::Render, "Updates: {}", numUpdates);
 		}
 		m_DeviceImage->SetTexData2D(0, &m_Storage); // possibly miss last update
+		Renderer::C_CPUCompute compute;
+		compute.ComputeHistogram(Renderer::C_TextureView(&m_Storage), Renderer::C_TextureView(&m_Histogram));
 		m_bFinish = m_bDone;
 	}
 }
@@ -157,30 +161,29 @@ void C_ImageEditor::DrawComponents() const
 	ImGui::SetCursorPos(canvas_p0);
 	m_GUIImage->Draw();
 	::ImGui::SameLine();
+	::ImGui::BeginChild("ImageTools");
+	::ImGui::PlotHistogram("Luminance histogram", (const float*)m_Histogram.GetData(), 255, 0, nullptr, std::numeric_limits<float>::min(), std::numeric_limits<float>::max(), {0, 50});
 	if (m_ActiveTool)
 	{
-		::ImGui::BeginChild("ImageTools");
 		rttr::instance obj(m_ActiveTool.get());
 		if (GUI::DrawAllPropertyGUI(obj).empty() == false)
 		{
-			std::packaged_task<void()> preveiewUpdate([&device = Core::C_Application::Get().GetActiveRenderer().GetDevice(), &tool = m_ActiveTool]() { 
-				tool->GeneratePreview();
-			});
+			std::packaged_task<void()> preveiewUpdate([&device = Core::C_Application::Get().GetActiveRenderer().GetDevice(), &tool = m_ActiveTool]() { tool->GeneratePreview(); });
 			std::thread				   rtThread(std::move(preveiewUpdate));
 			rtThread.detach();
 		}
-		if (ImGui::Button("Apply")) {
+		if (ImGui::Button("Apply"))
+		{
 			m_ActiveTool->Apply();
 			m_bFinish = false; // hack
 		}
-		::ImGui::EndChild();
 	}
+	::ImGui::EndChild();
 }
 
 //=================================================================================
 void C_ImageEditor::ToggleHistogram()
 {
-	CORE_LOG(E_Level::Error, E_Context::Core, "Histogram.");
 }
 
 //=================================================================================

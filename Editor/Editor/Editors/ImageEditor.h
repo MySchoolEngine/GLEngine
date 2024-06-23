@@ -28,6 +28,7 @@ protected:
 
 private:
 	Renderer::C_TextureViewStorageCPU<float>   m_Storage;
+	Renderer::C_TextureViewStorageCPU<float>   m_Histogram;
 	GUI::C_ImageViewer*						   m_GUIImage; // view
 	GUI::Menu::C_Menu						   m_FileMenu;
 	GUI::Menu::C_Menu						   m_Tools;

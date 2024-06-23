@@ -6,6 +6,11 @@ namespace GLEngine::Colours {
 
 using T_Colour = glm::vec3;
 
+inline static float ToLuminance(const T_Colour& col)
+{
+	return (0.2126f * col.x + 0.7152f * col.y + 0.0722f * col.z);
+}
+
 inline constexpr static auto white	= T_Colour(1, 1, 1);
 inline constexpr static auto black	= T_Colour(0, 0, 0);
 inline constexpr static auto red	= T_Colour(1, 0, 0);
