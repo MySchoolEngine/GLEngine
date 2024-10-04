@@ -13,6 +13,7 @@ project "Core"
 	links {"uuid"}
 	LinkDependency("crossguid")
 	LinkDependency("RTTR")
+	LinkDependency("pugixml")
 
 	includedirs
 	{

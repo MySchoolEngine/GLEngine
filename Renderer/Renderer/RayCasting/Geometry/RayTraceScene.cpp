@@ -23,6 +23,8 @@
 
 #include <Utils/HighResolutionTimer.h>
 
+#define DISABLE if (true)
+
 namespace GLEngine::Renderer {
 #define CORNELL
 //=================================================================================
@@ -50,18 +52,20 @@ C_RayTraceScene::C_RayTraceScene()
 	auto* blueMirrorMat = AddMaterial(blueMirror).get();
 	auto* blackMat		= AddMaterial(black).get();
 
+	DISABLE
 	{
 		auto trimesh = std::make_shared<C_Trimesh>();
 		// floor
 		auto triangle  = S_Triangle({-3.f, -1.5f, 3.f}, {3.f, -1.5f, -3.f}, {-3.f, -1.5f, -3.f});
 		auto triangle1 = S_Triangle({-3.f, -1.5f, 3.f}, {3.f, -1.5f, 3.f}, {3.f, -1.5f, -3.f});
-		trimesh->AddTriangle(triangle,  {glm::vec2(0.0f, 1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(0.0f, 0.0f)});
+		trimesh->AddTriangle(triangle, {glm::vec2(0.0f, 1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(0.0f, 0.0f)});
 		trimesh->AddTriangle(triangle1, {glm::vec2(0.0f, 1.0f), glm::vec2(1.0f, 1.0f), glm::vec2(1.0f, 0.0f)});
 		trimesh->SetMaterial(brickMat);
 
 		AddObejct(trimesh);
 	}
 
+	DISABLE
 	{
 		// ceiling
 		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, 1.5f, 3.f}, {-3.f, 1.5f, -3.f}, {3.f, 1.5f, -3.f}));
@@ -72,6 +76,7 @@ C_RayTraceScene::C_RayTraceScene()
 		AddObejct(triangle1);
 	}
 
+	DISABLE
 	{
 		// left wall - red
 		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, -1.5f, 3.f}, {-3.f, -1.5f, -3.f}, {-3.f, 1.5f, -3.f}));
@@ -82,6 +87,7 @@ C_RayTraceScene::C_RayTraceScene()
 		AddObejct(triangle1);
 	}
 
+	DISABLE
 	{
 		// left wall - green
 		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({3.f, -1.5f, 3.f}, {3.f, 1.5f, -3.f}, {3.f, -1.5f, -3.f}));
@@ -92,6 +98,7 @@ C_RayTraceScene::C_RayTraceScene()
 		AddObejct(triangle1);
 	}
 
+	DISABLE
 	{
 		// back wall
 		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, -1.5f, -3.f}, {3.f, -1.5f, -3.f}, {3.f, 1.5f, -3.f}));
@@ -138,9 +145,10 @@ C_RayTraceScene::C_RayTraceScene()
 		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-1.f, 1.5f - .01f, 1.f}, {1.f, 1.5f - .01f, -1.f}, {1.f, 1.5f - .01f, 1.f}));
 		triangle->SetMaterial(whiteMat);
 		triangle1->SetMaterial(whiteMat);
-		auto areaLight = std::make_shared<RayTracing::C_AreaLight>(5.f * glm::vec3(1.f, 1.f, .3f) * 0.5f, triangle);
+		float power		= 1.2f;
+		auto  areaLight = std::make_shared<RayTracing::C_AreaLight>(glm::vec3(1.f, 1.f, .3f) * power, triangle);
 		AddLight(std::move(areaLight));
-		auto areaLight1 = std::make_shared<RayTracing::C_AreaLight>(5.f * glm::vec3(1.f, 1.f, .3f) * 0.5f, triangle1);
+		auto areaLight1 = std::make_shared<RayTracing::C_AreaLight>(glm::vec3(1.f, 1.f, .3f) * power, triangle1);
 		AddLight(std::move(areaLight1));
 	}
 
@@ -255,7 +263,7 @@ void C_RayTraceScene::ForEachLight(std::function<void(const std::reference_wrapp
 }
 
 //=================================================================================
-void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh, const MeshData::Material& material)
+void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh, const MeshData::Material& material, const BVH* bvh)
 {
 	Utils::HighResolutionTimer renderTime;
 	using namespace Physics::Primitives;
@@ -286,7 +294,11 @@ void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh, const MeshData::Materi
 const C_TextureView C_RayTraceScene::GetTextureView(int textureID) const
 {
 	// because the truly const texture view is not implemented I need const cast here
-	return C_TextureView(const_cast<I_TextureViewStorage*>(&(m_Textures[textureID].GetResource().GetStorage())));
+	auto view = C_TextureView(const_cast<I_TextureViewStorage*>(&(m_Textures[textureID].GetResource().GetStorage())));
+	view.SetRect({10, 10, 50, 50});
+	view.SetBorderColor({0, 0, 0, 0});
+	view.SetWrapFunction(E_WrapFunction::ClampToBorder);
+	return view;
 }
 
 //=================================================================================

@@ -22,4 +22,10 @@ ResourceState Resource::GetState() const
 	return m_State;
 }
 
+//=================================================================================
+const std::filesystem::path& Resource::GetFilePath() const
+{
+	return m_Filepath;
+}
+
 } // namespace GLEngine::Core
