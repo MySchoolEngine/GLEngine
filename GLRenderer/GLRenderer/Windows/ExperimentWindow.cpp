@@ -125,10 +125,10 @@ void C_ExplerimentWindow::Update()
 	const auto avgMsPerFrame = m_Samples.Avg();
 	m_GUITexts[::Utils::ToIndex(E_GUITexts::AvgFrametime)].UpdateText(m_Samples.Avg());
 	m_GUITexts[::Utils::ToIndex(E_GUITexts::AvgFps)].UpdateText(1000.f / avgMsPerFrame);
-	m_GUITexts[::Utils::ToIndex(E_GUITexts::MinMaxFrametime)].UpdateText(*Utils::min_element(m_Samples), *Utils::max_element(m_Samples));
+	m_GUITexts[::Utils::ToIndex(E_GUITexts::MinMaxFrametime)].UpdateText(*::Utils::min_element(m_Samples), *::Utils::max_element(m_Samples));
 
 	glfwSwapInterval(m_VSync ? 1 : 0);
-	
+
 	if (auto* rayTraceWindow = m_ImGUI->GetGUIMgr().GetWindow(m_RayTraceGUID); rayTraceWindow)
 	{
 		static_cast<C_RayTraceWindow*>(rayTraceWindow)->DebugDraw(&C_DebugDraw::Instance());
