@@ -55,6 +55,7 @@ workspace "Engine"
 		"Physics/Physics.natvis",
 		"Renderer/renderer.natvis",
 		"GLRenderer/GLRenderer.natvis",
+		"Core/Core.natvis",
 		"Entity/Entity.natvis",
 		"GUI/GUI.natvis",
 		"Utils/utils.natvis",
@@ -132,8 +133,9 @@ NonDllLib["crossguid"] = true
 NonDllLib["GLFW"] = true
 
 group "Tests"
-	include "Tests/Renderer"
 	include "Tests/Core"
+	include "Tests/Renderer"
+	include "Tests/Utils"
 group "Dependencies"
   include "vendor/GLFW"
   include "vendor/Glad"

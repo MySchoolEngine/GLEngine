@@ -8,6 +8,7 @@ project "CoreTest"
 	SetupProject("CoreTest")
 	
 	Link("Utils")
+	Link("Core")
 	links { "gtest_main" }
 
 	LinkDependency("RTTR")
