@@ -20,7 +20,7 @@ public:
 		, height(0)
 	{
 	}
-	constexpr S_Rect(unsigned int x, unsigned int y, unsigned int width, unsigned int height)
+	constexpr S_Rect(int x, int y, unsigned int width, unsigned int height)
 		: x(x)
 		, y(y)
 		, width(width)
@@ -30,8 +30,8 @@ public:
 
 	[[nodiscard]] constexpr S_Rect GetIntersection(const S_Rect& other) const
 	{
-		const auto top	= std::max(y, other.y);
-		const auto left = std::max(x, other.x);
+		const int top	= std::max(y, other.y);
+		const int left = std::max(x, other.x);
 		return {top, left, std::min(Bottom(), other.Bottom()) - top + 1, std::min(Right(), other.Right()) - left + 1};
 	}
 
@@ -56,8 +56,8 @@ public:
 	[[nodiscard]] constexpr bool IsValid() const { return (x >= 0) && (y >= 0) && (width > 0 || height > 0); }
 
 private:
-	int x, y;
-	int width, height;
+	unsigned int x, y;
+	unsigned int width, height;
 
 	RTTR_ENABLE();
 	RTTR_REGISTRATION_FRIEND;
