@@ -6,9 +6,14 @@
 namespace GLEngine::Core {
 
 // test
+static_assert(S_Rect(0, 0, 1, 1).IsValid());
 static_assert(S_Rect(0, 0, 5, 5).Contains({1, 1}));
 static_assert(!S_Rect(0, 0, 5, 5).Contains({5, 5}));
 static_assert(!S_Rect(0, 0, 5, 5).GetIntersection(S_Rect(5, 5, 1, 1)).IsValid());
+// try corners
+static_assert(S_Rect(0, 0, 5, 5).GetIntersection(S_Rect(0, 0, 1, 1)).IsValid());
+static_assert(S_Rect(0, 0, 5, 5).GetIntersection(S_Rect(0, 4, 1, 1)).IsValid());
+static_assert(S_Rect(0, 0, 5, 5).GetIntersection(S_Rect(4, 0, 1, 1)).IsValid());
 static_assert(S_Rect(0, 0, 5, 5).GetIntersection(S_Rect(4, 4, 1, 1)).IsValid());
 
 TEST(Rect, Edges)

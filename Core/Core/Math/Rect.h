@@ -2,12 +2,15 @@
 
 #include <glm/vec2.hpp>
 
+#include <algorithm>
 #include <rttr/registration.h>
 #include <rttr/registration_friend.h>
 
-#include <algorithm>
-
 namespace GLEngine::Core {
+
+/**
+ * Represent rectangle inside of an image. In order to be valid needs to have width and height > 0
+ */
 struct S_Rect {
 public:
 	constexpr S_Rect()
@@ -29,7 +32,7 @@ public:
 	{
 		const auto top	= std::max(y, other.y);
 		const auto left = std::max(x, other.x);
-		return {top, left, std::min(Bottom(), other.Bottom()) - top, std::min(Right(), other.Right()) - left};
+		return {top, left, std::min(Bottom(), other.Bottom()) - top + 1, std::min(Right(), other.Right()) - left + 1};
 	}
 
 	[[nodiscard]] constexpr bool Contains(const glm::vec2& point) const { return point.x > x && point.y > y && (point.x - x) < width && (point.y - y) < height; }
@@ -40,9 +43,9 @@ public:
 	constexpr glm::uvec2 BottomRight() const { return glm::uvec2(Bottom(), Right()); }
 
 	constexpr unsigned int Top() const { return y; }
-	constexpr unsigned int Bottom() const { return y + height; }
+	constexpr unsigned int Bottom() const { return y + height - 1; }
 	constexpr unsigned int Left() const { return x; }
-	constexpr unsigned int Right() const { return x + width; }
+	constexpr unsigned int Right() const { return x + width - 1; }
 
 	constexpr glm::uvec2   GetSize() const { return {width, height}; }
 	constexpr unsigned int GetArea() const { return width * height; }
@@ -50,11 +53,11 @@ public:
 	constexpr unsigned int GetWidth() const { return width; }
 	constexpr unsigned int GetHeight() const { return height; }
 
-	[[nodiscard]] constexpr bool IsValid() const { return (x > 0) && (y > 0) && (width > 0 || height > 0); }
+	[[nodiscard]] constexpr bool IsValid() const { return (x >= 0) && (y >= 0) && (width > 0 || height > 0); }
 
 private:
-	unsigned int x, y;
-	unsigned int width, height;
+	int x, y;
+	int width, height;
 
 	RTTR_ENABLE();
 	RTTR_REGISTRATION_FRIEND;
