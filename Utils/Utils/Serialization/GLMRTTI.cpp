@@ -150,7 +150,7 @@ RTTR_REGISTRATION
 		.property("y", &glm::vec4::y)
 		.property("z", &glm::vec4::z)
 		.property("w", &glm::vec4::w);
-	rttr::registration::class_<glm::mat4>("mat4")
+	rttr::registration::class_<glm::mat<4, 4, glm::f32, glm::defaultp>>("mat4")
 	  	.constructor<>()(rttr::policy::ctor::as_object)
 		.property_readonly("length", &glm::mat4::length);
 
