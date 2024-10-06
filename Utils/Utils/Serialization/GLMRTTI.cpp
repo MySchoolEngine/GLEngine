@@ -151,7 +151,8 @@ RTTR_REGISTRATION
 		.property("z", &glm::vec4::z)
 		.property("w", &glm::vec4::w);
 	rttr::registration::class_<glm::mat4>("mat4")
-	 	.constructor<>()(rttr::policy::ctor::as_object);
+	  	.constructor<>()(rttr::policy::ctor::as_object)
+		.property_readonly("length", &glm::mat4::length);
 
 	REGISTER_SERIALIZATION(glm::vec2);
 	REGISTER_SERIALIZATION(glm::vec3);
