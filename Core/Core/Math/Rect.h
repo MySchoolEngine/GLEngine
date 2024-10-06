@@ -9,7 +9,10 @@
 namespace GLEngine::Core {
 
 /**
- * Represent rectangle inside of an image. In order to be valid needs to have width and height > 0
+ * Represent rectangle inside of an image. In order to be valid needs to have width and height > 0.
+ * 
+ * Top < Bottom
+ * Left < Right
  */
 struct S_Rect {
 public:

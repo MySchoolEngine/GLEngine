@@ -62,6 +62,12 @@ TEST_F(TextureViewFixture, UseBorderColor)
 
 TEST_F(TextureViewFixture, GetPixelCoord)
 {
-	EXPECT_EQ(GetPixelCoord({0.0, 0.0}), glm::vec2(0.5, 0.5));
+	// keep in mind orientation descirbed in C_TextureView::GetPixelCoord
+	// and size of the view == (3;3)
+	EXPECT_EQ(GetPixelCoord({0.5, 0.5}), glm::vec2(1, 1));
+	EXPECT_EQ(GetPixelCoord({0.0, 0.0}), glm::vec2(0, 2));
+	EXPECT_EQ(GetPixelCoord({1.0, 1.0}), glm::vec2(2, 0));
+	EXPECT_EQ(GetPixelCoord({0.0, 1.0}), glm::vec2(0, 0));
+	EXPECT_EQ(GetPixelCoord({1.0, 0.0}), glm::vec2(2, 2));
 }
 } // namespace GLEngine::Renderer

@@ -71,6 +71,7 @@ protected:
 	[[nodiscard]] std::size_t GetPixelAddress(const glm::uvec2& coord) const;
 	/**
 	 * @param	uv				[u;v] \in [<0;1>;<0;1>]
+	 *							The (0;0) lies bottom left and (1;1) top right
 	 * @returns [float, float]	uv -> [<0.5;width-0.5);<0.5;height-0.5>] value mapped to the pixel address space
 	 *							pointing center of the pixel.
 	 */
