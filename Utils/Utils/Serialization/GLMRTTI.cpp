@@ -157,7 +157,7 @@ RTTR_REGISTRATION
 	REGISTER_SERIALIZATION(glm::vec2);
 	REGISTER_SERIALIZATION(glm::vec3);
 	REGISTER_SERIALIZATION(glm::vec4);
-	REGISTER_SERIALIZATION(glm::mat4);
+	REGISTER_SERIALIZATION(glm::mat<4, 4, glm::f32, glm::defaultp>);
 	REGISTER_SERIALIZATION(std::vector<glm::vec3>);
 }
 // clang-format on
