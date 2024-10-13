@@ -32,6 +32,7 @@
 #include <stdexcept>
 
 #pragma region registration
+// clang-format off
 RTTR_REGISTRATION
 {
 	using namespace GLEngine::Renderer::Cameras;
@@ -46,30 +47,27 @@ RTTR_REGISTRATION
 		.property("aspectZ", &C_OrbitalCamera::_aspect)
 		.property("YAngle", &C_OrbitalCamera::_angleYRad)
 			(
-				rttr::policy::prop::bind_as_ptr,
+				rttr::policy::prop::as_reference_wrapper,
 				RegisterMetaclass<MetaGUI::Angle>(),
 				RegisterMetamember<UI::Angle::Name>("Y angle:"),
 				RegisterMetamember<UI::Angle::Min>(-89.0f),
-				RegisterMetamember<UI::Angle::Max>(89.0f),
-				RegisterMetamember<SerializationCls::DerefSerialize>(true)
+				RegisterMetamember<UI::Angle::Max>(89.0f)
 			 )
 		.property("XAngle", &C_OrbitalCamera::_angleXRad)
 			(
-				rttr::policy::prop::bind_as_ptr,
+				rttr::policy::prop::as_reference_wrapper,
 				RegisterMetaclass<MetaGUI::Angle>(),
 				RegisterMetamember<UI::Angle::Name>("X angle:"),
 				RegisterMetamember<UI::Angle::Min>(0.0f),
-				RegisterMetamember<UI::Angle::Max>(360.0f),
-				RegisterMetamember<SerializationCls::DerefSerialize>(true)
+				RegisterMetamember<UI::Angle::Max>(360.0f)
 			)
 		.property("Zoom", &C_OrbitalCamera::_zoom)
 			(
-				rttr::policy::prop::bind_as_ptr, 
+				rttr::policy::prop::as_reference_wrapper, 
 				RegisterMetaclass<MetaGUI::Slider>(),
 				RegisterMetamember<UI::Slider::Name>("Zoom:"),
 				RegisterMetamember<UI::Slider::Min>(0.1f),
-				RegisterMetamember<UI::Slider::Max>(50.0f),
-				RegisterMetamember<SerializationCls::DerefSerialize>(true)
+				RegisterMetamember<UI::Slider::Max>(50.0f)
 			);
 
 	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_OrbitalCamera>>();
@@ -79,6 +77,7 @@ RTTR_REGISTRATION
 		return std::static_pointer_cast<GLEngine::Entity::I_Component>(ptr);
 	});
 }
+// clang-format on
 #pragma endregion
 
 namespace GLEngine::Renderer::Cameras {

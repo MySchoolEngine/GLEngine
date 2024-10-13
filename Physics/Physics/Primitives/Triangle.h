@@ -4,6 +4,8 @@
 #include <Physics/Primitives/Intersectable.h>
 #include <Physics/Primitives/Ray.h>
 
+#include <rttr/registration_friend.h>
+
 namespace GLEngine::Physics::Primitives {
 
 struct S_Triangle : public T_Intersectable<S_Triangle> {
@@ -21,6 +23,9 @@ struct S_Triangle : public T_Intersectable<S_Triangle> {
 	[[nodiscard]] inline float	   GetArea() const { return m_Area; }
 
 	std::array<glm::vec3, 3> m_p;
+
+	RTTR_ENABLE();
+	RTTR_REGISTRATION_FRIEND;
 
 private:
 	glm::vec3 m_Normal;

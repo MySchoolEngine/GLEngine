@@ -36,6 +36,11 @@ public:
 
 	template <class T> T* allocate() { return static_cast<T*>(allocate(sizeof(T))); }
 
+	template <class T, class... Args> T* allocate(Args... args) 
+	{
+		return new (allocate(sizeof(T))) T(std::forward<Args>(args)...);
+	}
+
 	template <class T> T* allocateArray(size_type n) { return static_cast<T*>(allocate(sizeof(T) * n)); }
 
 	template <class T> void deallocate(T* p)

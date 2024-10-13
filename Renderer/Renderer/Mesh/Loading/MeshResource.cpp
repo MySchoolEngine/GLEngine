@@ -52,12 +52,6 @@ const MeshData::Scene& MeshResource::GetScene() const
 }
 
 //=================================================================================
-std::filesystem::path MeshResource::GetFilePath() const
-{
-	return m_Filepath;
-}
-
-//=================================================================================
 const std::vector<std::filesystem::path>& MeshResource::GetTextureNames() const
 {
 	GLE_ASSERT(IsReady(), "Dereferencing unloaded resource.");

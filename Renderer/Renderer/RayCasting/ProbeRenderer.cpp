@@ -103,7 +103,7 @@ void C_ProbeRenderer::Render(I_TextureViewStorage& texture, const glm::vec3 prob
 				if (weight >= 1e-4)
 					output += glm::vec4(res.radiance * weight, weight);
 			}
-			const auto		oldValue = imageView.Get<glm::vec3>(glm::ivec2{x, y});
+			const auto		oldValue = imageView.Get<glm::vec3>(glm::uvec2{x, y});
 			const glm::vec3 newValue = glm::vec3(output) / output.w;
 			imageView.Set({x, y}, m_Hysteresis * oldValue + newValue * (1.f - m_Hysteresis));
 		}

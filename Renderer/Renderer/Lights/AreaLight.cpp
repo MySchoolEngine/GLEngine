@@ -15,6 +15,7 @@
 #include <rttr/registration>
 
 #pragma region registration
+// clang-format off
 RTTR_REGISTRATION
 {
 	using namespace Utils::Reflection;
@@ -25,35 +26,31 @@ RTTR_REGISTRATION
 		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
 		.property("Width", &C_AreaLight::m_Width)
 			(
-				rttr::policy::prop::bind_as_ptr,
+				rttr::policy::prop::as_reference_wrapper,
 				RegisterMetaclass<MetaGUI::Slider>(),
 				RegisterMetamember<UI::Slider::Name>("Width:"),
 				RegisterMetamember<UI::Slider::Min>(.1f),
-				RegisterMetamember<UI::Slider::Max>(10.0f),
-				RegisterMetamember<SerializationCls::DerefSerialize>(true)
+				RegisterMetamember<UI::Slider::Max>(10.0f)
 			)
 		.property("Height", &C_AreaLight::m_Height)
 			(
-				rttr::policy::prop::bind_as_ptr,
+				rttr::policy::prop::as_reference_wrapper,
 				RegisterMetaclass<MetaGUI::Slider>(),
 				RegisterMetamember<UI::Slider::Name>("Height:"),
 				RegisterMetamember<UI::Slider::Min>(.1f),
-				RegisterMetamember<UI::Slider::Max>(10.0f),
-				RegisterMetamember<SerializationCls::DerefSerialize>(true)
+				RegisterMetamember<UI::Slider::Max>(10.0f)
 			)
 		.property("DiffuseColour", &C_AreaLight::m_DiffuseColor)
 			(
-				rttr::policy::prop::bind_as_ptr,
+				rttr::policy::prop::as_reference_wrapper,
 				RegisterMetaclass<MetaGUI::Colour>(),
-				RegisterMetamember<UI::Colour::Name>("Diffuse colour:"),
-				RegisterMetamember<SerializationCls::DerefSerialize>(true)
+				RegisterMetamember<UI::Colour::Name>("Diffuse colour:")
 			)
 		.property("SpecColour", &C_AreaLight::m_SpecularColor)
 			(
-				rttr::policy::prop::bind_as_ptr,
+				rttr::policy::prop::as_reference_wrapper,
 				RegisterMetaclass<MetaGUI::Colour>(),
-				RegisterMetamember<UI::Colour::Name>("Spec colour:"),
-				RegisterMetamember<SerializationCls::DerefSerialize>(true)
+				RegisterMetamember<UI::Colour::Name>("Spec colour:")
 			);
 	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_AreaLight>>();
 	rttr::type::register_converter_func([](std::shared_ptr<C_AreaLight> ptr, bool& ok) -> std::shared_ptr<GLEngine::Entity::I_Component> {
@@ -61,6 +58,7 @@ RTTR_REGISTRATION
 		return std::static_pointer_cast<GLEngine::Entity::I_Component>(ptr);
 	});
 }
+// clang-format on
 #pragma endregion registration
 
 

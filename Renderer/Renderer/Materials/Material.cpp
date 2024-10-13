@@ -14,6 +14,7 @@
 #include <imgui.h>
 #include <rttr/registration>
 
+// clang-format off
 RTTR_REGISTRATION
 {
 	using namespace GLEngine::Renderer;
@@ -22,13 +23,26 @@ RTTR_REGISTRATION
 	rttr::registration::class_<C_Material>("C_Material")
 		.constructor<std::string>()
 		.property("Name", &C_Material::m_Name)
-		.property("NameTitle", &C_Material::m_Name)(rttr::policy::prop::bind_as_ptr, RegisterMetaclass<MetaGUI::Text>(), RegisterMetamember<SerializationCls::DerefSerialize>(true),
-													RegisterMetamember<SerializationCls::NoSerialize>(true))
-		.property("Color", &C_Material::m_Color)(rttr::policy::prop::bind_as_ptr, RegisterMetaclass<MetaGUI::Colour>(), RegisterMetamember<UI::Colour::Name>("Colour:"),
-												 RegisterMetamember<SerializationCls::DerefSerialize>(true))
-		.property("Roughness", &C_Material::m_Roughness)(rttr::policy::prop::bind_as_ptr, RegisterMetaclass<MetaGUI::Slider>(), RegisterMetamember<UI::Slider::Name>("Roughness:"),
-														 RegisterMetamember<UI::Slider::Min>(0.f), RegisterMetamember<UI::Slider::Max>(1.0f),
-														 RegisterMetamember<SerializationCls::DerefSerialize>(true))
+		.property("NameTitle", &C_Material::m_Name)
+		(
+			rttr::policy::prop::as_reference_wrapper,
+			RegisterMetaclass<MetaGUI::Text>(),
+			RegisterMetamember<SerializationCls::NoSerialize>(true)
+		)
+		.property("Color", &C_Material::m_Color)
+		(
+			rttr::policy::prop::as_reference_wrapper,
+			RegisterMetaclass<MetaGUI::Colour>(),
+			RegisterMetamember<UI::Colour::Name>("Colour:")
+		)
+		.property("Roughness", &C_Material::m_Roughness)
+		(
+			rttr::policy::prop::as_reference_wrapper,
+			RegisterMetaclass<MetaGUI::Slider>(),
+			RegisterMetamember<UI::Slider::Name>("Roughness:"),
+			RegisterMetamember<UI::Slider::Min>(0.f),
+			RegisterMetamember<UI::Slider::Max>(1.0f)
+		)
 		.property("ColorMap", &C_Material::GetColorMapPath, &C_Material::SetColorMapPath)
 		.property("NormalMap", &C_Material::GetNormalMapPath, &C_Material::SetNormalMapPath)
 		.property("RoughnessMap", &C_Material::GetRoughnessMapPath, &C_Material::SetRoughnessMapPath)
@@ -36,6 +50,7 @@ RTTR_REGISTRATION
 
 	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_Material>>();
 }
+// clang-format on
 
 namespace GLEngine::Renderer {
 

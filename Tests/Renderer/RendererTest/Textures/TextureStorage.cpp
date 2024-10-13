@@ -1,27 +1,17 @@
 #include <gtest/gtest.h>
 
-#include <Renderer/Textures/Storage/TextureStorage.h>
-#include <Renderer/Textures/Storage/TextureLinearStorage.h>
-
 #include <Renderer/Colours.h>
+#include <Renderer/Textures/Storage/TextureLinearStorage.h>
+#include <Renderer/Textures/Storage/TextureStorage.h>
 
-namespace glm
-{
-// template <typename Sink>
-// void AbslStringify(Sink& sink, glm::vec3& e) {
-// 	absl::Format(&sink, "%s", "Choices");
-// }
-}
+#include <RendererTest/GlmPrinters.h>
 
 namespace GLEngine::Renderer {
 
-class TextureStorageFixture : public ::testing::Test
-{
+class TextureStorageFixture : public ::testing::Test {
 public:
-	inline const static T_Channels RGBAChannels = T_Channels{ E_TextureChannel::Red, E_TextureChannel::Green, E_TextureChannel::Blue, E_TextureChannel::Alpha };
-	inline const static T_Channels BGRAChannels = T_Channels{ E_TextureChannel::Blue, E_TextureChannel::Green, E_TextureChannel::Red, E_TextureChannel::Alpha };
-
-
+	inline const static T_Channels RGBAChannels = T_Channels{E_TextureChannel::Red, E_TextureChannel::Green, E_TextureChannel::Blue, E_TextureChannel::Alpha};
+	inline const static T_Channels BGRAChannels = T_Channels{E_TextureChannel::Blue, E_TextureChannel::Green, E_TextureChannel::Red, E_TextureChannel::Alpha};
 };
 TEST_F(TextureStorageFixture, Constructor)
 {
@@ -37,9 +27,9 @@ TEST_F(TextureStorageFixture, Constructor)
 TEST_F(TextureStorageFixture, IsSwizzled)
 {
 	C_TextureViewStorageCPU<std::uint8_t> storage(1, 1, 3);
-	storage.SetPixel({ 0.f, 1.f, 2.f, 3.f }, 0);
+	storage.SetPixel({0.f, 1.f, 2.f, 3.f}, 0);
 	EXPECT_FALSE(storage.IsSwizzled()); // by default no swizzle
-	storage.SetChannels({ E_TextureChannel::Red ,  E_TextureChannel::Red,  E_TextureChannel::Red ,  E_TextureChannel::None });
+	storage.SetChannels({E_TextureChannel::Red, E_TextureChannel::Red, E_TextureChannel::Red, E_TextureChannel::None});
 	EXPECT_TRUE(storage.IsSwizzled()); // by default no swizzle
 }
 
@@ -56,18 +46,19 @@ TEST_F(TextureStorageFixture, GetChannelOffset)
 	EXPECT_EQ(storage.GetChannelOffset(E_TextureChannel::Red), 0);
 	EXPECT_EQ(storage.GetChannelOffset(E_TextureChannel::Green), 1);
 	EXPECT_EQ(storage.GetChannelOffset(E_TextureChannel::Blue), 2);
-	EXPECT_EQ(storage.GetChannelOffset(E_TextureChannel::None), 3);
+	EXPECT_EQ(storage.GetChannelOffset(E_TextureChannel::Alpha), 3);
 
 	storage.SetChannels(BGRAChannels);
 	EXPECT_EQ(storage.GetChannelOffset(E_TextureChannel::Red), 2);
 	EXPECT_EQ(storage.GetChannelOffset(E_TextureChannel::Green), 1);
 	EXPECT_EQ(storage.GetChannelOffset(E_TextureChannel::Blue), 0);
-	EXPECT_EQ(storage.GetChannelOffset(E_TextureChannel::None), -1);
+	EXPECT_EQ(storage.GetChannelOffset(E_TextureChannel::None), static_cast<std::uint8_t>(-1));
+	EXPECT_EQ(storage.GetChannelOffset(E_TextureChannel::Alpha), 3);
 }
 
 TEST_F(TextureStorageFixture, GetPixel)
 {
-	C_TextureViewStorageCPU<float> storage(2, 2, 4);
+	C_TextureViewStorageCPU<float> storage(2, 2, 3);
 	storage.Set(1.0, 6); // red channel of bottom left pixel
 	EXPECT_EQ(storage.GetPixel(2), glm::vec4(1.0, .0, 0.0, 0.0));
 	storage.SetChannels(BGRAChannels);
@@ -77,4 +68,4 @@ TEST_F(TextureStorageFixture, GetPixel)
 TEST_F(TextureStorageFixture, SetAll)
 {
 }
-}
+} // namespace GLEngine::Renderer

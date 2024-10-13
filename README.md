@@ -40,6 +40,8 @@ Most of documentation can be found here on github/in code.
 
 Some user/programmer documentation could be found [here](https://rohacekd.github.io/GLEngine-Documentation/).
 
+I have written short [documentation](CodeDocumentation.md) for not so obvious cases for ease of development.
+
 ## [Contributing](CONTRIBUTING.md)
 This repository is open for contribution. You can start by reading [this](CONTRIBUTING.md). If you have any question regarding code or feature feel free to contact me.
 

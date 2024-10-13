@@ -54,7 +54,7 @@ private:
 	void _loadNodeMeshes(const aiNode* node, const glm::mat4& nodeTransform, aiMesh** const aiMeshes, std::vector<MeshData::Mesh>& meshes);
 	void _loadSingleMeshFromAimesh(const aiMesh* aiMesh, MeshData::Mesh& mesh);
 	void _allocateNewMeshes(const unsigned int numNewMeshes, std::vector<MeshData::Mesh>& meshes);
-	void _getFacePosNormalTcoords(const aiFace* face, const aiMesh* mesh, glm::vec4* pos, glm::vec3* normal, glm::vec2* tcoords, glm::vec3* ttangents, glm::vec3* tbitangents);
+	void _getFacePosNormalTcoords(const aiFace* face, const aiMesh* mesh, glm::vec3* pos, glm::vec3* normal, glm::vec2* tcoords, glm::vec3* ttangents, glm::vec3* tbitangents);
 	void _allocateMesh(MeshData::Mesh& mesh, const unsigned int numFaces);
 	void _assignMeshMaterial(MeshData::Mesh& mesh, const aiMesh* aimesh);
 	void _loadArmatureData(const aiNode* currentNode, const glm::mat4& currentTransform, MeshData::Mesh& mesh);
