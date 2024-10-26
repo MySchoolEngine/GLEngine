@@ -43,3 +43,6 @@
 [submodule "vendor/RTTR"]
 	path = vendor/RTTR
 	url = https://github.com/rttrorg/rttr
+[submodule "vendor/libpng"]
+	path = vendor/libpng
+	url = https://github.com/glennrp/libpng

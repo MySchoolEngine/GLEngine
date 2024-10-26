@@ -3,7 +3,7 @@
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
   <Type Name="GLEngine::Animation::C_AnimationTrack&lt;*&gt;">
     <DisplayString Condition="m_Timeline.size() == 0">empty</DisplayString>
-    <DisplayString>{{Keys: {m_Timeline.size()}}}</DisplayString>
+    <DisplayString>{Keys: {m_Timeline.size()}}</DisplayString>
     <Expand>
       <Item Name="[Timeline]">m_Timeline</Item>
     </Expand>

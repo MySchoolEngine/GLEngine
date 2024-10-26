@@ -193,38 +193,4 @@ void C_AreaLight::DebugDraw(Renderer::I_DebugDraw* dd) const
 	dd->DrawLine(Pos - upVector * height - dirX * width, Pos + upVector * height - dirX * width, Colours::yellow);
 }
 
-//=================================================================================
-[[nodiscard]] std::shared_ptr<Entity::I_Component> C_AreaLightCompBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
-{
-	auto	   areaLight = std::make_shared<Renderer::C_AreaLight>(owner);
-
-	const auto transform = Utils::Parsing::C_MatrixParser::ParseTransformation(node);
-	const auto rotation	 = Utils::Parsing::C_MatrixParser::ParseRotations(node);
-
-	areaLight->SetComponentMatrix(transform * rotation);
-
-
-	if (const auto widthAttr = node.attribute("width"))
-	{
-		areaLight->m_Width = widthAttr.as_float();
-	}
-
-	if (const auto heightAttr = node.attribute("height"))
-	{
-		areaLight->m_Height = heightAttr.as_float();
-	}
-
-	if (node.child("DiffuseColor"))
-	{
-		areaLight->m_DiffuseColor = Utils::Parsing::C_ColorParser::ParseColorRGB(node, "DiffuseColor");
-	}
-
-	if (node.child("SpecularColor"))
-	{
-		areaLight->m_SpecularColor = Utils::Parsing::C_ColorParser::ParseColorRGB(node, "SpecularColor");
-	}
-
-	return areaLight;
-}
-
 } // namespace GLEngine::Renderer

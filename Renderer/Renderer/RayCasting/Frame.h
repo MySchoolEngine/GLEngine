@@ -12,6 +12,7 @@ namespace GLEngine::Renderer {
 // +-------
 struct S_Frame {
 public:
+	// default constructed frame has normal facing along Y
 	constexpr S_Frame();
 	constexpr S_Frame(const glm::vec3& x, const glm::vec3& y, const glm::vec3& z);
 	S_Frame(const glm::vec3& normal);
@@ -35,6 +36,17 @@ public:
 
 	[[nodiscard]] float TanTheta(const glm::vec3& w) const { return SinTheta(w) / CosTheta(w); }
 	[[nodiscard]] float Tan2Theta(const glm::vec3& w) const { return Sin2Theta(w) / Cos2Theta(w); }
+
+	[[nodiscard]] float SinPhi(const glm::vec3& w) const
+	{
+		const float sinTheta = SinTheta(w);
+		return sinTheta == 0.f ? 0.0f : glm::clamp(w.y / sinTheta, -1.f, 1.f);
+	}
+	[[nodiscard]] float CosPhi(const glm::vec3& w) const
+	{
+		const float sinTheta = SinTheta(w);
+		return sinTheta == 0.f ? 0.0f : glm::clamp(w.x / sinTheta, -1.f, 1.f);
+	}
 
 	[[nodiscard]] glm::vec3 Reflect(const glm::vec3& wi) const { return glm::vec3(-wi.x, wi.y, -wi.z); }
 

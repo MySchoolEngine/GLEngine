@@ -3,9 +3,9 @@
 #include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/Textures/TextureLoader.h>
 
-#include <Renderer/Textures/TextureDefinitions.h>
 #include <Renderer/IDevice.h>
 #include <Renderer/IRenderer.h>
+#include <Renderer/Textures/TextureDefinitions.h>
 
 #include <Core/Application.h>
 
@@ -33,8 +33,13 @@ std::shared_ptr<GLRenderer::Textures::C_Texture> TextureLoader::LoadAndInitTextu
 	// should be already allocated
 	GLE_ASSERT(Texture.target() == gli::TARGET_2D, "Only 2d supported now");
 
-	const Renderer::TextureDescriptor desc{path.string(), Texture.extent(0).x, Texture.extent(0).y, Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::D16,
-										   true,		  Texture.levels()};
+	const Renderer::TextureDescriptor desc{path.string(),
+										   static_cast<std::size_t>(Texture.extent(0).x),
+										   static_cast<std::size_t>(Texture.extent(0).y),
+										   Renderer::E_TextureType::TEXTURE_2D,
+										   Renderer::E_TextureFormat::D16,
+										   true,
+										   static_cast<std::uint8_t>(Texture.levels())};
 
 	auto texture = std::make_shared<Textures::C_Texture>(desc);
 

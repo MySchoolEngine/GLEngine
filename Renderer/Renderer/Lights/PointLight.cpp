@@ -127,23 +127,4 @@ void C_PointLight::DebugDrawGUI()
 	GUI::DrawAllPropertyGUI(obj);
 }
 
-//=================================================================================
-std::shared_ptr<Entity::I_Component> C_PointLightCompBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
-{
-	auto pointLight = std::make_shared<Renderer::C_PointLight>(owner);
-	pointLight->SetComponentMatrix(Utils::Parsing::C_MatrixParser::ParseTransformation(node));
-
-	if (const auto intensityAttr = node.attribute("intensity"))
-	{
-		pointLight->m_Intensity = intensityAttr.as_float();
-	}
-
-	if (node.child("color"))
-	{
-		pointLight->m_Color = Utils::Parsing::C_ColorParser::ParseColorRGB(node);
-	}
-
-	return pointLight;
-}
-
 } // namespace GLEngine::Renderer

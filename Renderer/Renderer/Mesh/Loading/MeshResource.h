@@ -24,10 +24,12 @@ public:
 
 	std::filesystem::path GetFilePath() const;
 
+	const std::vector<std::filesystem::path>& GetTextureNames() const; // shoudl be handeled better
+
 private:
 	std::filesystem::path					   m_Filepath;
 	std::shared_ptr<Renderer::MeshData::Scene> m_Scene;
-	std::vector<std::string>				   m_TexuterNames;
+	std::vector<std::filesystem::path>		   m_TexuterNames;
 };
 
 class RENDERER_API_EXPORT MeshLoader : public Core::ResourceLoader<MeshResource> {

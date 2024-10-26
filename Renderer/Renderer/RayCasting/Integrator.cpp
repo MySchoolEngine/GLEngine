@@ -9,6 +9,7 @@
 #include <Renderer/RayCasting/PhysicalProperties.h>
 #include <Renderer/RayCasting/RayIntersection.h>
 #include <Renderer/RayCasting/ReflectionModels/LambertianModel.h>
+#include <Renderer/RayCasting/ReflectionModels/OrenNayar.h>
 #include <Renderer/RayCasting/ReflectionModels/SpecularReflection.h>
 #include <Renderer/RayCasting/VisibilityTester.h>
 
@@ -25,11 +26,12 @@ C_PathIntegrator::C_PathIntegrator(const C_RayTraceScene& scene)
 //=================================================================================
 Colours::T_Colour C_PathIntegrator::TraceRay(Physics::Primitives::S_Ray ray, I_Sampler& rnd)
 {
-	return Li_PathTrace(ray, rnd);
+	RayTracingSettings::T_ReflAlloc alloc;
+	return Li_PathTrace(ray, rnd, &alloc);
 }
 
 //=================================================================================
-Colours::T_Colour C_PathIntegrator::Li_Direct(const Physics::Primitives::S_Ray& ray, I_Sampler& rnd)
+Colours::T_Colour C_PathIntegrator::Li_Direct(const Physics::Primitives::S_Ray& ray, I_Sampler& rnd, RayTracingSettings::T_ReflAlloc* alloc)
 {
 	glm::vec3 LoDirect(0.f);
 
@@ -48,13 +50,7 @@ Colours::T_Colour C_PathIntegrator::Li_Direct(const Physics::Primitives::S_Ray& 
 	const auto& frame		  = intersect.GetFrame();
 	const auto& point		  = intersect.GetIntersectionPoint();
 	const auto* material	  = intersect.GetMaterial();
-	const auto	uv			  = intersect.GetUV();
-	auto		diffuseColour = glm::vec3(material->diffuse);
-	if (material->textureIndex != -1)
-	{
-		diffuseColour = m_Scene.GetTextureView(material->textureIndex).Get<glm::vec3, T_Bilinear>(uv);
-	}
-	const std::unique_ptr<I_ReflectionModel> model = GetReflectionModel(material, diffuseColour);
+	const auto	model		  = material->GetScatteringFunction(intersect, *alloc);
 
 	const auto wol = frame.ToLocal(-ray.direction);
 
@@ -82,7 +78,7 @@ Colours::T_Colour C_PathIntegrator::Li_Direct(const Physics::Primitives::S_Ray& 
 }
 
 //=================================================================================
-Colours::T_Colour C_PathIntegrator::Li_PathTrace(Physics::Primitives::S_Ray ray, I_Sampler& rnd)
+Colours::T_Colour C_PathIntegrator::Li_PathTrace(Physics::Primitives::S_Ray ray, I_Sampler& rnd, RayTracingSettings::T_ReflAlloc* alloc)
 {
 	Colours::T_Colour LoDirect	 = Colours::black; // f in his example
 	Colours::T_Colour throughput = Colours::white;
@@ -117,17 +113,11 @@ Colours::T_Colour C_PathIntegrator::Li_PathTrace(Physics::Primitives::S_Ray ray,
 		const auto& frame		  = intersect.GetFrame();
 		const auto& point		  = intersect.GetIntersectionPoint();
 		const auto* material	  = intersect.GetMaterial();
-		const auto	uv			  = intersect.GetUV();
-		auto		diffuseColour = glm::vec3(material->diffuse);
-		if (material->textureIndex != -1)
-		{
-			diffuseColour = m_Scene.GetTextureView(material->textureIndex).Get<glm::vec3, T_Bilinear>(uv);
-		}
 
-		const std::unique_ptr<I_ReflectionModel> model = GetReflectionModel(material, diffuseColour);
+		const auto model = material->GetScatteringFunction(intersect, *alloc);
 
 		// add Li
-		Colours::T_Colour Li = Li_LightSampling(ray, rnd);
+		Colours::T_Colour Li = Li_LightSampling(ray, rnd, alloc);
 		LoDirect += Li * throughput;
 
 		const auto wol = frame.ToLocal(-ray.direction);
@@ -164,7 +154,7 @@ Colours::T_Colour C_PathIntegrator::Li_PathTrace(Physics::Primitives::S_Ray ray,
 }
 
 //=================================================================================
-Colours::T_Colour C_PathIntegrator::Li_LightSampling(const Physics::Primitives::S_Ray& ray, I_Sampler& rnd)
+Colours::T_Colour C_PathIntegrator::Li_LightSampling(const Physics::Primitives::S_Ray& ray, I_Sampler& rnd, RayTracingSettings::T_ReflAlloc* alloc)
 {
 	C_RayIntersection intersect;
 
@@ -197,27 +187,12 @@ Colours::T_Colour C_PathIntegrator::Li_LightSampling(const Physics::Primitives::
 			const auto& point		  = intersect.GetIntersectionPoint();
 			const auto* material	  = intersect.GetMaterial();
 			const auto& frame		  = intersect.GetFrame();
-			const auto	uv			  = intersect.GetUV();
-			auto		diffuseColour = Colours::T_Colour(material->diffuse);
-			if (material->textureIndex != -1)
-			{
-				diffuseColour = m_Scene.GetTextureView(material->textureIndex).Get<glm::vec3, T_Bilinear>(uv);
-			}
-			const std::unique_ptr<I_ReflectionModel> model = GetReflectionModel(material, diffuseColour);
+			const auto	model		  = material->GetScatteringFunction(intersect, *alloc);
 			LoDirect += illum * model->f(frame.ToLocal(ray.direction), frame.ToLocal(vis.GetRay().direction));
 		}
 	});
 
 	return LoDirect;
-}
-
-//=================================================================================
-std::unique_ptr<Renderer::I_ReflectionModel> C_PathIntegrator::GetReflectionModel(const MeshData::Material* material, Colours::T_Colour& colour) const
-{
-	if (material->shininess == 0.f)
-		return std::make_unique<C_LambertianModel>(colour);
-	else
-		return std::make_unique<C_SpecularReflection>(PhysicalProperties::IOR::Air, PhysicalProperties::IOR::Glass);
 }
 
 } // namespace GLEngine::Renderer

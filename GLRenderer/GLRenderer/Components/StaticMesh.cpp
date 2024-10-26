@@ -32,10 +32,6 @@ RTTR_REGISTRATION
 {
 	using namespace GLEngine::GLRenderer::Components;
 	using namespace Utils::Reflection;
-	rttr::registration::class_<C_StaticMeshBuilder>("C_StaticMeshBuilder")
-		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
-		.method("Build", &C_StaticMeshBuilder::Build);
-
 
 	rttr::registration::class_<C_StaticMesh>("C_StaticMesh")
 		.constructor<std::string, std::string_view, std::shared_ptr<GLEngine::Entity::I_Entity>>()
@@ -215,17 +211,20 @@ void C_StaticMesh::Update()
 		const auto& scene = m_MeshResource.GetResource().GetScene();
 		for (unsigned int i = 0; i < scene.meshes.size(); ++i)
 		{
-			m_Mesh.emplace_back(std::make_shared<Mesh::C_StaticMeshResource>(m_MeshResource.GetResource().GetScene().meshes[i]));
-			m_AABB.Add(m_MeshResource.GetResource().GetScene().meshes[i].bbox);
+			m_Mesh.emplace_back(std::make_shared<Mesh::C_StaticMeshResource>(scene.meshes[i]));
+			m_AABB.Add(scene.meshes[i].bbox);
 		}
 
 		// only 1 material right now
-		if (!m_Material)
+		if (!m_Material || m_Material->GetName() == "Default")
 		{
-			const auto materialIdx = m_MeshResource.GetResource().GetScene().meshes[0].materialIndex;
+			const auto materialIdx = scene.meshes[0].materialIndex;
 			// would force all materials to be white
-			auto& material = m_MeshResource.GetResource().GetScene().materials[materialIdx];
+			auto& material = scene.materials[materialIdx];
 			SetMaterial(material);
+			if (material.textureIndex != -1) {
+				m_Material->SetColorMapPath(m_MeshResource.GetResource().GetTextureNames()[material.textureIndex]);
+			}
 		}
 	}
 }
@@ -281,81 +280,6 @@ void C_StaticMesh::SetMeshFile(const std::filesystem::path meshfile)
 std::filesystem::path C_StaticMesh::GetMeshFile() const
 {
 	return m_MeshResource.GetResource().GetFilePath();
-}
-
-//=================================================================================
-std::shared_ptr<Entity::I_Component> C_StaticMeshBuilder::Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner)
-{
-	const auto materialData = Utils::Parsing::C_MaterialParser::ParseMaterialData(node);
-
-	auto staticMesh = std::make_shared<C_StaticMesh>(node.attribute("filePath").value(), materialData.m_MaterialName, owner);
-
-	if (auto shadowPassAttr = node.attribute("shadowPassShader"))
-	{
-		auto& shmgr			   = Shaders::C_ShaderManager::Instance();
-		auto  shadowPassShader = shmgr.GetProgram(shadowPassAttr.as_string());
-		if (shadowPassShader)
-		{
-			staticMesh->m_ShadowPassShader = shadowPassShader;
-		}
-	}
-	auto& materialManager = Renderer::C_MaterialManager::Instance();
-	auto  material		  = materialManager.GetMaterial(owner->GetName() + "_Material");
-	if (!material)
-	{
-		material = materialManager.RegisterMaterial(Renderer::C_Material(owner->GetName() + "_Material"));
-	}
-
-	material->SetColor(materialData.m_Color);
-	material->SetRoughness(materialData.m_Roughness);
-
-	auto& tmgr = Textures::C_TextureManager::Instance();
-
-	if (!materialData.m_RoughtnessMap.empty())
-	{
-		auto roughnessMap = tmgr.GetTexture(materialData.m_RoughtnessMap);
-		if (roughnessMap)
-		{
-			roughnessMap->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
-			roughnessMap->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
-			roughnessMap->SetParameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
-			roughnessMap->GenerateMipMaps();
-
-			material->SetRoughnessMap(roughnessMap);
-		}
-	}
-
-	if (!materialData.m_ColorMap.empty())
-	{
-		auto colorMapTexture = tmgr.GetTexture(materialData.m_ColorMap);
-		if (colorMapTexture)
-		{
-			colorMapTexture->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
-			colorMapTexture->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
-			colorMapTexture->SetParameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
-			colorMapTexture->GenerateMipMaps();
-
-			material->SetColorMap(colorMapTexture);
-		}
-	}
-
-	if (!materialData.m_NormalMap.empty())
-	{
-		auto normalMap = tmgr.GetTexture(materialData.m_NormalMap);
-		if (normalMap)
-		{
-			normalMap->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
-			normalMap->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
-			normalMap->SetParameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
-			normalMap->GenerateMipMaps();
-
-			material->SetNormalMap(normalMap);
-		}
-	}
-
-	staticMesh->SetMaterial(material);
-
-	return staticMesh;
 }
 
 } // namespace GLEngine::GLRenderer::Components

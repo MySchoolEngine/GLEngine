@@ -29,14 +29,4 @@ protected:
 	std::shared_ptr<C_Material> m_Material;
 };
 
-//=============================================================
-class RENDERER_API_EXPORT C_GeometryCompBuilder : public Entity::I_ComponenetBuilder {
-public:
-	virtual ~C_GeometryCompBuilder();
-	virtual std::shared_ptr<Entity::I_Component> Build(const pugi::xml_node& node, std::shared_ptr<Entity::I_Entity> owner) override;
-
-protected:
-	virtual std::shared_ptr<C_GeomComponent> ConstructComponent(std::shared_ptr<Entity::I_Entity> owner) const = 0;
-};
-
 } // namespace GLEngine::Renderer

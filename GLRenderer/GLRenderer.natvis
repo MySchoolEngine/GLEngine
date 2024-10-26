@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  
+  <!-- Components -->
+  <Type Name="GLEngine::GLRenderer::Components::C_StaticMesh">
+    <DisplayString>StaticMesh: {m_MeshResource}</DisplayString>
+    <Expand>
+      <Item Name="[Meshes]">m_Mesh</Item>
+      <Item Name="[Resource]">m_MeshResource</Item>
+      <Item Name="[Shader]">*m_Shader._Ptr</Item>
+      <Item Name="[ShadowPassShader]" Condition="m_ShadowPassShader != nullptr">*m_ShadowPassShader._Ptr</Item>
+      <Item Name="[ShadowPassShader]" Condition="m_ShadowPassShader == nullptr">*m_Shader._Ptr</Item>
+      <Item Name="[Material]">*m_Material._Ptr</Item>
+      <Item Name="[AABB]">m_AABB</Item>
+    </Expand>
+  </Type>
+
+  <!-- Others -->
+  <Type Name="GLEngine::GLRenderer::Mesh::C_StaticMeshResource">
+    <DisplayString>{m_Name}, Tris: {m_triangles}</DisplayString>
+  </Type>
+  <Type Name="GLEngine::GLRenderer::Shaders::C_ShaderProgram">
+    <DisplayString Condition="m_bIsActive">{m_name}: Active</DisplayString>
+    <DisplayString Condition="!m_bIsActive">{m_name}: Inactive</DisplayString>
+  </Type>
+</AutoVisualizer>

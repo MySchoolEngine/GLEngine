@@ -6,6 +6,8 @@
 #include <Renderer/RayCasting/RayRenderer.h>
 #include <Renderer/Textures/TextureView.h>
 
+#include <Utils/HighResolutionTimer.h>
+
 namespace GLEngine::Renderer {
 
 //=================================================================================
@@ -21,8 +23,14 @@ C_RayRenderer::C_RayRenderer(const C_RayTraceScene& scene)
 C_RayRenderer::~C_RayRenderer() = default;
 
 //=================================================================================
-void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& weightedImage, I_TextureViewStorage& storage, std::mutex* storageMutex, int numSamplesBefore)
+void C_RayRenderer::Render(I_CameraComponent&	 camera,
+						   I_TextureViewStorage& weightedImage,
+						   I_TextureViewStorage& storage,
+						   std::mutex*			 storageMutex,
+						   int					 numSamplesBefore,
+						   AdditionalTargets	 additional)
 {
+	GLE_ASSERT(additional.CheckTargets(storage), "Wrong additional target passed");
 	const auto dim	  = storage.GetDimensions();
 	m_ProcessedPixels = 0;
 
@@ -39,6 +47,7 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& weig
 
 	auto textureView  = C_TextureView(&storage);
 	auto weightedView = C_TextureView(&weightedImage);
+	auto heatMapView  = C_TextureView(additional.rowHeatMap);
 
 	int interleavedLines = 8;
 
@@ -46,8 +55,14 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& weig
 	{
 		for (unsigned int x = 0; x < dim.x; ++x)
 		{
-			const auto ray = GetRay(glm::vec2{x, y} + (2.f * rnd.GetV2() - glm::vec2(1.f, 1.f)) / 2.f);
+			Utils::HighResolutionTimer renderTime;
+			const auto				   ray = GetRay(glm::vec2{x, y} + (2.f * rnd.GetV2() - glm::vec2(1.f, 1.f)) / 2.f);
 			AddSample({x, y}, textureView, integrator.TraceRay(ray, rnd));
+			if (additional.rowHeatMap)
+			{
+				const auto previousValue = heatMapView.Get<glm::vec3>(glm::ivec2{0, y});
+				heatMapView.Set(glm::ivec2{0, y}, previousValue + glm::vec3{renderTime.getElapsedTimeFromLastQueryMilliseconds(), 0, 0});
+			}
 			++m_ProcessedPixels;
 		}
 
@@ -68,9 +83,15 @@ void C_RayRenderer::Render(I_CameraComponent& camera, I_TextureViewStorage& weig
 		{
 			for (unsigned int x = 0; x < dim.x; ++x)
 			{
+				Utils::HighResolutionTimer renderTime;
 				const auto ray = GetRay(glm::vec2{x, y} + (2.f * rnd.GetV2() - glm::vec2(1.f, 1.f)) / 2.f);
 				AddSample({x, y}, textureView, integrator.TraceRay(ray, rnd));
 				++m_ProcessedPixels;
+				if (additional.rowHeatMap) // should be before add sample :( but before TraceRay
+				{
+					const auto previousValue = heatMapView.Get<glm::vec3>(glm::ivec2{0, y});
+					heatMapView.Set(glm::ivec2{0, y}, previousValue + glm::vec3{renderTime.getElapsedTimeFromLastQueryMilliseconds(), 0, 0});
+				}
 			}
 
 			if (storageMutex)
@@ -119,6 +140,14 @@ void C_RayRenderer::AddSample(const glm::ivec2 coord, C_TextureView view, const 
 std::size_t C_RayRenderer::GetProcessedPixels() const
 {
 	return m_ProcessedPixels;
+}
+
+//=================================================================================
+bool C_RayRenderer::AdditionalTargets::CheckTargets(const I_TextureViewStorage& mainTarget) const
+{
+	if (rowHeatMap)
+		return rowHeatMap->GetDimensions().x == 1 && rowHeatMap->GetDimensions().y == mainTarget.GetDimensions().y;
+	return true;
 }
 
 } // namespace GLEngine::Renderer

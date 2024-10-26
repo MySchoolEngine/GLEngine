@@ -32,13 +32,6 @@ private:
 	std::shared_ptr<Shaders::C_ShaderProgram>	m_Shader;
 	Physics::Primitives::S_AABB					m_AABB;
 };
-
-//=================================================================================
-class C_GLGeomComponentBuilder : public Renderer::C_GeometryCompBuilder {
-protected:
-	//=================================================================================
-	[[nodiscard]] virtual std::shared_ptr<Renderer::C_GeomComponent> ConstructComponent(std::shared_ptr<Entity::I_Entity> owner) const override;
-};
 } // namespace Components
 
 } // namespace GLEngine::GLRenderer

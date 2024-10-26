@@ -40,7 +40,7 @@ ModelLoader::~ModelLoader() = default;
 //=================================================================================
 bool ModelLoader::addModelFromFileToScene(const std::filesystem::path&				 path,
 										  std::shared_ptr<Renderer::MeshData::Scene> scene,
-										  std::vector<std::string>&					 textureRegister,
+										  std::vector<std::filesystem::path>&		 textureRegister,
 										  glm::mat4									 sceneTransform)
 {
 	const auto loadedScene = _tryOpenFile(path);
@@ -53,6 +53,13 @@ bool ModelLoader::addModelFromFileToScene(const std::filesystem::path&				 path,
 	_loadMeshesFromAiScene(loadedScene, scene, sceneTransform);
 
 	_loadLightsFromAiScene(loadedScene, scene);
+
+	const auto parentDir = path.parent_path();
+	for (auto& texturePath : textureRegister) {
+		if (texturePath.is_relative()) {
+			texturePath = parentDir / texturePath;
+		}
+	}
 
 	_importer->FreeScene();
 
@@ -68,7 +75,7 @@ void ModelLoader::Reset()
 }
 
 //=================================================================================
-void ModelLoader::_loadMaterialsFromAiscene(const aiScene* loadedScene, std::shared_ptr<Renderer::MeshData::Scene> scene, std::vector<std::string>& textureRegister)
+void ModelLoader::_loadMaterialsFromAiscene(const aiScene* loadedScene, std::shared_ptr<Renderer::MeshData::Scene> scene, std::vector<std::filesystem::path>& textureRegister)
 {
 	for (unsigned int i = 0; i < loadedScene->mNumMaterials; ++i)
 	{
@@ -77,7 +84,7 @@ void ModelLoader::_loadMaterialsFromAiscene(const aiScene* loadedScene, std::sha
 		aiString matName;
 		loadedScene->mMaterials[i]->Get(AI_MATKEY_NAME, matName);
 		m.m_Name				  = matName.C_Str();
-		const std::string texName = _getMaterialDiffuseTextureName(loadedScene->mMaterials[i]);
+		const std::filesystem::path texName = _getMaterialDiffuseTextureName(loadedScene->mMaterials[i]);
 		m.textureIndex			  = _getTextureIndexAndAddToRegister(texName, textureRegister);
 
 		const auto dispTexName = _getMaterialNormalTextureName(loadedScene->mMaterials[i]);
@@ -141,7 +148,7 @@ float ModelLoader::_getMaterialFloatComponent(const aiMaterial* material, const 
 }
 
 //=================================================================================
-std::string ModelLoader::_getMaterialDiffuseTextureName(const aiMaterial* material)
+std::filesystem::path ModelLoader::_getMaterialDiffuseTextureName(const aiMaterial* material)
 {
 	if (material && material->GetTextureCount(aiTextureType_DIFFUSE) != 0)
 	{
@@ -167,7 +174,7 @@ std::string ModelLoader::_getMaterialNormalTextureName(const aiMaterial* materia
 }
 
 //=================================================================================
-int ModelLoader::_getTextureIndexAndAddToRegister(const std::string& name, std::vector<std::string>& textureNames)
+int ModelLoader::_getTextureIndexAndAddToRegister(const std::filesystem::path& name, std::vector<std::filesystem::path>& textureNames)
 {
 	if (name.empty())
 		return -1;

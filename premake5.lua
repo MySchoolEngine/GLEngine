@@ -52,8 +52,12 @@ workspace "Engine"
 		"vendor/ImGui/misc/natvis/imgui.natvis",
 		"vendor/pugixml/contrib/natvis/pugixml.natvis",
 		"Animation/animation.natvis",
+		"Physics/Physics.natvis",
 		"Renderer/renderer.natvis",
+		"GLRenderer/GLRenderer.natvis",
 		"Entity/Entity.natvis",
+		"GUI/GUI.natvis",
+		"Utils/utils.natvis",
 		"premake5.lua",
 		"Tools/Premake5/premakeDefines.lua",
 		"Tools/Premake5/workspaceFiles.lua",
@@ -135,6 +139,7 @@ group "Dependencies"
   include "vendor/projects/ImGuizmo"
   include "vendor/projects/DevIL"
   include "vendor/projects/libjpeg"
+  include "vendor/projects/libpng"
   include "vendor/projects/crossguid"
   include "vendor/projects/RTTR"
 if _TARGET_OS ~= "linux" then
