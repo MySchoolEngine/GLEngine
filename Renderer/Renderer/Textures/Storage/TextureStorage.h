@@ -78,6 +78,11 @@ public:
 
 	[[nodiscard]] virtual E_TextureTypes GetStorageType() const = 0;
 
+	/**
+	 * Fills line span including start and end pixel. Allows for performance improvement in linear storages.
+	 */
+	virtual void FillLineSpan(const glm::vec3& colour, unsigned int line, unsigned int start, unsigned int end) = 0;
+
 protected:
 	virtual void SetInternal(double value, std::size_t position) = 0;
 	virtual void SetInternal(int value, std::size_t position)	 = 0;
