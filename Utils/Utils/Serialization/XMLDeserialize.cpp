@@ -169,7 +169,7 @@ void C_XMLDeserializer::DeserializeArray(const pugi::xml_node& child, rttr::vari
 		auto var = type.create();
 		GLE_ASSERT(var.is_valid(), "Cannot create {} var", type);
 		DeserializeNode(childNode, var);
-		GLE_ASSERT(var.convert(view.get_value_type()));
+		GLE_ASSERT(var.convert(view.get_value_type()), "Cannot convert variable {} to {}", var.get_type(), view.get_value_type());
 		GLE_ASSERT(var.is_valid(), "Cannot create {} var", type);
 		const auto iter = view.insert(view.end(), var);
 		if (iter == view.end())
