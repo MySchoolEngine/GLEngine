@@ -1,5 +1,7 @@
 #pragma once
 
+#include <GUIStdafx.h>
+
 #include <GUI/GUIPart.h>
 #include <GUI/Menu/MenuItem.h>
 

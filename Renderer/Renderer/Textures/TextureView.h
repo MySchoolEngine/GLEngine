@@ -1,8 +1,10 @@
 #pragma once
 
+#include <Renderer/Colours.h>
 #include <Renderer/RendererApi.h>
 #include <Renderer/Textures/Storage/TextureStorage.h>
 #include <Renderer/Textures/TextureDefinitions.h>
+
 /**
  *	This class serves as CPU side view to the texture independently whether lies on
  *	CPU or GPU memory.
@@ -54,8 +56,11 @@ public:
 
 	void SetRect(const Core::S_Rect& rect);
 
+	void EnableBlending(bool enable = true);
+
 	template <class T> void													   Set(const glm::uvec2& coord, const T val, E_TextureChannel element);
 	template <class T, typename = std::enable_if_t<glm::type<T>::is_vec>> void Set(const glm::uvec2& coord, T&& val);
+
 	void																	   SetBorderColor(const glm::vec4& color);
 	[[nodiscard]] bool														   UseBorderColor() const;
 
@@ -65,6 +70,13 @@ public:
 	[[nodiscard]] const I_TextureViewStorage* const GetStorage() const;
 
 	void ClearColor(const glm::vec4& colour);
+
+	void DrawPixel(const glm::ivec2& coord, glm::vec4&& colour);
+
+	/**
+	 * Fills line span including start and end pixel
+	 */
+	void FillLineSpan(const Colours::T_Colour& colour, unsigned int line, unsigned int start, unsigned int end);
 
 protected:
 	[[nodiscard]] std::size_t GetAddress(const glm::uvec2& coord) const;
@@ -92,6 +104,9 @@ protected:
 	glm::vec4			  m_BorderColor;
 	E_WrapFunction		  m_WrapFunction;
 	Core::S_Rect		  m_Rect;
+
+	bool				  m_EnableBlending;
+	E_BlendFunction		  m_BlendOperation;
 
 	friend class TextureViewFixture;
 };

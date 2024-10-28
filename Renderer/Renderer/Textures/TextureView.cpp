@@ -11,8 +11,17 @@ C_TextureView::C_TextureView(I_TextureViewStorage* storage)
 	: m_Storage(storage)
 	, m_BorderColor(1, 0, 1, 0)
 	, m_WrapFunction(E_WrapFunction::Repeat)
+	, m_EnableBlending(false)
+	, m_BlendOperation(E_BlendFunction::Add)
 	, m_Rect(0, 0, storage?storage->GetDimensions().x:0, storage?storage->GetDimensions().y:0) // todo check if correct
 {
+}
+
+//=================================================================================
+void C_TextureView::FillLineSpan(const Colours::T_Colour& colour, unsigned int line, unsigned int start, unsigned int end)
+{
+	if (line > 0 && line < m_Storage->GetDimensions().y - 1)
+		m_Storage->FillLineSpan(colour, line, std::max(start, 0u), std::min(end, m_Storage->GetDimensions().x - 1));
 }
 
 //=================================================================================
@@ -72,6 +81,12 @@ void C_TextureView::SetWrapFunction(E_WrapFunction wrap)
 void C_TextureView::SetRect(const Core::S_Rect& rect)
 {
 	m_Rect = rect.GetIntersection({0, 0, m_Storage ? m_Storage->GetDimensions().x : 0, m_Storage ? m_Storage->GetDimensions().y : 0});
+}
+
+//=================================================================================
+void C_TextureView::EnableBlending(bool enable)
+{
+	m_EnableBlending = enable;
 }
 
 //=================================================================================
@@ -138,6 +153,45 @@ void C_TextureView::ClearColor(const glm::vec4& colour)
 	// TODO: should only work for area in rect
 	if (m_Rect.TopLeft() == glm::uvec2{0, 0} && m_Rect.GetHeight())
 		m_Storage->SetAll(colour);
+}
+
+class BlendFunctionFactory {
+public:
+	static const std::function<glm::vec3(const glm::vec3&, const glm::vec3&)> GetBlendFunction(E_BlendFunction function)
+	{
+		switch (function)
+		{
+		case GLEngine::Renderer::E_BlendFunction::Add:
+			return [](const glm::vec3& dst, const glm::vec3& src) { return src + dst; };
+		case GLEngine::Renderer::E_BlendFunction::Subtract:
+			return [](const glm::vec3& dst, const glm::vec3& src) { return src - dst; };
+		case GLEngine::Renderer::E_BlendFunction::ReverseSubtract:
+			return [](const glm::vec3& dst, const glm::vec3& src) { return dst - src; };
+		case GLEngine::Renderer::E_BlendFunction::Min:
+			return [](const glm::vec3& dst, const glm::vec3& src) { return glm::min(dst, src); };
+		case GLEngine::Renderer::E_BlendFunction::Max:
+			return [](const glm::vec3& dst, const glm::vec3& src) { return glm::max(dst, src); };
+		default:
+			GLE_ASSERT(false, "Unknown blend function.");
+			break;
+		}
+		return [](const glm::vec3& dst, const glm::vec3& src) { return src + dst; };
+	}
+};
+
+//=================================================================================
+void C_TextureView::DrawPixel(const glm::ivec2& coord, glm::vec4&& colour)
+{
+	if (!m_EnableBlending || colour.a >= 1.f)
+	{
+		Set(coord, glm::vec3{colour});
+	}
+	else
+	{
+		const auto currentCol = Get<glm::vec4>(coord);
+		const auto alpha	  = colour.a;
+		Set(coord, BlendFunctionFactory::GetBlendFunction(m_BlendOperation)(glm::vec3(currentCol) * (1.f - alpha), glm::vec3{colour} * alpha));
+	}
 }
 
 //=================================================================================
