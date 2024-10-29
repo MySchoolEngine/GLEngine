@@ -84,6 +84,12 @@ void C_TextureView::SetRect(const Core::S_Rect& rect)
 }
 
 //=================================================================================
+const Core::S_Rect& C_TextureView::GetRect() const
+{
+	return m_Rect;
+}
+
+//=================================================================================
 void C_TextureView::EnableBlending(bool enable)
 {
 	m_EnableBlending = enable;
@@ -155,6 +161,7 @@ void C_TextureView::ClearColor(const glm::vec4& colour)
 		m_Storage->SetAll(colour);
 }
 
+//=================================================================================
 class BlendFunctionFactory {
 public:
 	static const std::function<glm::vec3(const glm::vec3&, const glm::vec3&)> GetBlendFunction(E_BlendFunction function)
@@ -180,7 +187,7 @@ public:
 };
 
 //=================================================================================
-void C_TextureView::DrawPixel(const glm::ivec2& coord, glm::vec4&& colour)
+void C_TextureView::DrawPixel(const glm::uvec2& coord, glm::vec4&& colour)
 {
 	if (!m_EnableBlending || colour.a >= 1.f)
 	{

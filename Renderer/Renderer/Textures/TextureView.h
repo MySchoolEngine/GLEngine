@@ -48,6 +48,10 @@ public:
 	template <class T, class Filter = T_Nearest> [[nodiscard]] T													Get(const glm::vec2& uv, E_TextureChannel element) const;
 	template <class T> [[nodiscard]] T																				Get(const glm::uvec2& coord, E_TextureChannel element) const;
 	template <class T, class Filter = T_Nearest, typename = std::enable_if_t<glm::type<T>::is_vec>> [[nodiscard]] T Get(const glm::vec2& uv) const;
+	/**
+	 * Needs to be glm::uint2 because there is no negative address space. 
+	 * The user is responsible for checking for positiveness off coordinates
+	 */
 	template <class T, typename = std::enable_if_t<glm::type<T>::is_vec>> T											Get(const glm::uvec2& coord) const;
 	template <class T> [[nodiscard]] T																				GetBorderColor() const;
 
@@ -55,6 +59,7 @@ public:
 	void						 SetWrapFunction(E_WrapFunction wrap);
 
 	void SetRect(const Core::S_Rect& rect);
+	const Core::S_Rect& GetRect() const;
 
 	void EnableBlending(bool enable = true);
 
@@ -71,7 +76,10 @@ public:
 
 	void ClearColor(const glm::vec4& colour);
 
-	void DrawPixel(const glm::ivec2& coord, glm::vec4&& colour);
+	/**
+	 * Supports blending.
+	 */
+	void DrawPixel(const glm::uvec2& coord, glm::vec4&& colour);
 
 	/**
 	 * Fills line span including start and end pixel
