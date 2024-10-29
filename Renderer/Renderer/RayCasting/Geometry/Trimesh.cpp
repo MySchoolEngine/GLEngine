@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <rttr/registration>
 
+// clang-format off
 RTTR_REGISTRATION
 {
 	using namespace GLEngine::Renderer;
@@ -21,6 +22,7 @@ RTTR_REGISTRATION
 		.property("Transofrm", &C_Trimesh::m_Transofrm)(rttr::policy::prop::as_reference_wrapper, REGISTER_DEFAULT_VALUE(glm::mat4(1.f)))
 		.property("AABB", &C_Trimesh::m_AABB);
 }
+// clang-format on
 
 namespace GLEngine::Renderer {
 //=================================================================================
