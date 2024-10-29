@@ -31,6 +31,11 @@ public:
 	[[nodiscard]] virtual std::uint8_t	 GetChannelOffset(E_TextureChannel element) const override;
 	[[nodiscard]] virtual E_TextureTypes GetStorageType() const override;
 
+	/**
+	 * Fills line span including start and end pixel
+	 */
+	void FillLineSpan(const glm::vec3& colour, unsigned int line, unsigned int start, unsigned int end) override;
+
 protected:
 	virtual void SetInternal(double value, std::size_t position) override;
 	virtual void SetInternal(int value, std::size_t position) override;
