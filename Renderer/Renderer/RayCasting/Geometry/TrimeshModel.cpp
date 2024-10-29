@@ -9,6 +9,7 @@
 
 #include <rttr/registration>
 
+// clang-format off
 RTTR_REGISTRATION
 {
 	using namespace GLEngine::Renderer;
@@ -20,6 +21,7 @@ RTTR_REGISTRATION
 
 		rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_TrimeshModel>>();
 }
+// clang-format on
 
 namespace GLEngine::Renderer {
 

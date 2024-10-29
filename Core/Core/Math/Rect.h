@@ -39,6 +39,7 @@ public:
 	}
 
 	[[nodiscard]] constexpr bool Contains(const glm::vec2& point) const { return point.x > x && point.y > y && (point.x - x) < width && (point.y - y) < height; }
+	[[nodiscard]] constexpr bool Contains(const glm::ivec2& point) const { return point.x > x && point.y > y && (point.x - x) < width && (point.y - y) < height; }
 
 	constexpr glm::uvec2 TopLeft() const { return glm::uvec2(Top(), Left()); }
 	constexpr glm::uvec2 TopRight() const { return glm::uvec2(Top(), Right()); }

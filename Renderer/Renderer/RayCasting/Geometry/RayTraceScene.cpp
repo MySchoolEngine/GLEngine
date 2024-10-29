@@ -305,6 +305,7 @@ const C_TextureView C_RayTraceScene::GetTextureView(int textureID) const
 void C_RayTraceScene::DebugDraw(I_DebugDraw* dd) const
 {
 	std::for_each(m_Trimeshes.begin(), m_Trimeshes.end(), [&](const auto& trimesh) { trimesh->DebugDraw(dd); });
+	m_Blob->DebugDraw(*dd);
 }
 
 //=================================================================================

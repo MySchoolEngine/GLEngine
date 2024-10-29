@@ -19,4 +19,21 @@
     <DisplayString Condition="Type==TokenType::LeftParenth || Type == TokenType::RightParenth">{Type,e}</DisplayString>
     <DisplayString Condition="Type==TokenType::Invalid">INVALID</DisplayString>
   </Type>
+  <Type Name="GLEngine::Core::LoadingQuery">
+    <Intrinsic Name="numHandles" Expression="m_handles._Mypair._Myval2._Mylast - m_handles._Mypair._Myval2._Myfirst"/>
+    <DisplayString Condition="numHandles() == 0">EMPTY</DisplayString>
+    <Expand>
+      <Item Name="[Handles]" Condition="numHandles()">m_handles</Item>
+    </Expand>
+  </Type>
+  <Type Name="GLEngine::Core::ResourceHandle&lt;*&gt;">
+    <AlternativeType Name="GLEngine::Core::ResourceHandleBase"/>
+    <DisplayString Condition="m_Resource._Ptr">{*m_Resource._Ptr}</DisplayString>
+    <Expand>
+      <Synthetic Name="[Resource]" Condition="!m_Resource._Ptr">
+        <DisplayString>EMPTY</DisplayString>
+      </Synthetic>
+      <Item Name="[Resource]" Condition="m_Resource._Ptr">*m_Resource._Ptr</Item>
+    </Expand>
+  </Type>
 </AutoVisualizer>

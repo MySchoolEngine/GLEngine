@@ -6,6 +6,7 @@
 
 #include <Physics/GeometryUtils/TriangleIntersect.h>
 
+// clang-format off
 RTTR_REGISTRATION
 {
 	using namespace GLEngine::Renderer;
@@ -21,6 +22,7 @@ RTTR_REGISTRATION
 		.property("firstTrig", &BVH::BVHNode::firstTrig)
 		.property("lastTrig", &BVH::BVHNode::lastTrig);
 }
+// clang-format on
 
 namespace GLEngine::Renderer {
 

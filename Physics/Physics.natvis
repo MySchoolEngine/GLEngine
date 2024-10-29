@@ -19,6 +19,14 @@
       <Item Name="[Radius]">radius</Item>
     </Expand>
   </Type>
+  <Type Name="GLEngine::Physics::Primitives::S_Triangle">
+    <DisplayString>{{{m_p[0]} - {m_p[1]} - {m_p[2]}}}</DisplayString>
+    <Expand>
+      <Item Name="[Vertices]">m_p._Elems,3</Item>
+      <Item Name="[Normal]">m_Normal</Item>
+      <Item Name="[Area]">m_Area</Item>
+    </Expand>
+  </Type>
   <Type Name="GLEngine::Physics::Primitives::S_Plane">
     <DisplayString Condition="twoSided">P:{origin} N:{normal} two-sided</DisplayString>
     <DisplayString Condition="!twoSided">P:{origin} N:{normal} one-sided</DisplayString>
