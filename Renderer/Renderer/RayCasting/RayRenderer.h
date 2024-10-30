@@ -39,7 +39,7 @@ public:
 	void			   SetResultConsumed() { m_NewResultAviable = false; }
 
 private:
-	void							AddSample(const glm::ivec2 coord, C_TextureView view, const glm::vec3 sample);
+	void							AddSample(const glm::uvec2 coord, C_TextureView view, const glm::vec3 sample);
 	void							UpdateView(unsigned int sourceLine, unsigned int numLines, C_TextureView& source, C_TextureView& target, unsigned int numSamples);
 	std::size_t						m_ProcessedPixels;
 	std::size_t						m_MaxDepth;

@@ -31,6 +31,7 @@
 #include <Renderer/Materials/MaterialManager.h>
 #include <Renderer/Mesh/Loading/MeshResource.h>
 #include <Renderer/Mesh/Scene.h>
+#include <Renderer/RayCasting/Geometry/TrimeshModel.h>
 #include <Renderer/Textures/TextureResource.h>
 #include <Renderer/Textures/TextureView.h>
 
@@ -39,6 +40,8 @@
 
 #include <Physics/Primitives/Intersection.h>
 #include <Physics/Primitives/Ray.h>
+
+#include <Editor/Editors/ImageEditor.h>
 
 #include <Entity/BasicEntity.h>
 #include <Entity/ComponentManager.h>
@@ -96,6 +99,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 	auto& rm = Core::C_ResourceManager::Instance();
 	rm.RegisterResourceType(new Renderer::TextureLoader());
 	rm.RegisterResourceType(new Renderer::MeshLoader());
+	rm.RegisterResourceType(new Renderer::TrimeshModelTrimesh());
 }
 
 //=================================================================================
@@ -123,10 +127,14 @@ void C_ExplerimentWindow::Update()
 	const auto avgMsPerFrame = m_Samples.Avg();
 	m_GUITexts[::Utils::ToIndex(E_GUITexts::AvgFrametime)].UpdateText(m_Samples.Avg());
 	m_GUITexts[::Utils::ToIndex(E_GUITexts::AvgFps)].UpdateText(1000.f / avgMsPerFrame);
-	m_GUITexts[::Utils::ToIndex(E_GUITexts::MinMaxFrametime)].UpdateText(*Utils::min_element(m_Samples), *Utils::max_element(m_Samples));
+	m_GUITexts[::Utils::ToIndex(E_GUITexts::MinMaxFrametime)].UpdateText(*::Utils::min_element(m_Samples), *::Utils::max_element(m_Samples));
 
 	glfwSwapInterval(m_VSync ? 1 : 0);
-	m_RayTraceWindow->DebugDraw(&C_DebugDraw::Instance());
+
+	if (auto* rayTraceWindow = m_ImGUI->GetGUIMgr().GetWindow(m_RayTraceGUID); rayTraceWindow)
+	{
+		static_cast<C_RayTraceWindow*>(rayTraceWindow)->DebugDraw(&C_DebugDraw::Instance());
+	}
 
 	m_World->OnUpdate();
 
@@ -315,16 +323,6 @@ void C_ExplerimentWindow::OnAppInit()
 		consoleWindow->SetVisible();
 	}
 
-	// RT window
-	{
-		m_RayTraceGUID = NextGUID();
-
-		m_RayTraceWindow = new C_RayTraceWindow(m_RayTraceGUID, m_CamManager.GetActiveCamera(), guiMGR);
-
-		guiMGR.AddCustomWindow(m_RayTraceWindow);
-		m_RayTraceWindow->SetVisible();
-	}
-
 	// Entity window
 	{
 		m_EntitiesWindowGUID = NextGUID();
@@ -386,6 +384,32 @@ void C_ExplerimentWindow::OnAppInit()
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Save Level As", std::bind(&C_ExplerimentWindow::SaveLevelAs, this)));
 
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("HDR Settings", m_HDRSettingsGUID, guiMGR));
+
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Ray tracing", [&]() {
+		if (guiMGR.GetWindow(m_RayTraceGUID) != nullptr)
+		{
+			return;
+		}
+		m_RayTraceGUID = NextGUID();
+
+		auto* rayTraceWindow = new C_RayTraceWindow(m_RayTraceGUID, m_CamManager.GetActiveCamera(), guiMGR);
+
+		guiMGR.AddCustomWindow(rayTraceWindow);
+		rayTraceWindow->SetVisible(true);
+	}));
+
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Image editor", [&]() {
+		if (guiMGR.GetWindow(m_ImageEditorGUID) != nullptr)
+		{
+			return;
+		}
+		m_ImageEditorGUID = NextGUID();
+
+		auto* imageEditorWindow = new Editor::C_ImageEditor(m_ImageEditorGUID, guiMGR);
+
+		guiMGR.AddCustomWindow(imageEditorWindow);
+		imageEditorWindow->SetVisible(true);
+	}));
 
 	const auto rendererWindow = static_cast<C_OGLRenderer*>(m_renderer.get())->SetupControls(guiMGR);
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Renderer", rendererWindow, guiMGR));

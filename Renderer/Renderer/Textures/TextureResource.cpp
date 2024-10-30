@@ -2,7 +2,7 @@
 
 #include <Renderer/Textures/TextureLoader.h>
 #include <Renderer/Textures/TextureResource.h>
-#include <Renderer/Textures/TextureStorage.h>
+#include <Renderer/Textures/Storage/TextureStorage.h>
 
 namespace GLEngine::Renderer {
 

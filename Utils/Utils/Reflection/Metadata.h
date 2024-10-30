@@ -12,6 +12,7 @@
 
 namespace Utils::Reflection {
 
+// clang-format off
 template <class Name> struct IsMetadataName : std::false_type {};
 template <class Name> constexpr bool IsMetadataName_v = IsMetadataName<Name>::value;
 
@@ -28,13 +29,18 @@ template <auto Type> constexpr bool MemberIsOptional_v = MemberIsOptional<Type>:
 template <> struct ParentMetatype<cls> { using type = Parent; }; \
 template <> struct IsMetadataName<cls> : std::true_type {}
 
+template <class MetaClass> concept IsMetaclassConcept = IsMetadataName_v<MetaClass>;
+
 #define REGISTER_META_MEMBER_TYPE(member, Type) \
 template <> struct MemberType<member> {using type = Type;};
 
+template <auto MetaClass, class T> concept IsCorrectMetaClassMemberType = 
+	std::is_same_v<MemberType_t<MetaClass>, T> || std::is_convertible_v<T, MemberType_t<MetaClass>>;
+// clang-format on
+
 namespace detail {
 //=================================================================================
-template <auto Class, class Type>
-[[nodiscard]] rttr::variant GetMetadata(Type&& arg)
+template <auto Class, class Type> [[nodiscard]] rttr::variant GetMetadata(Type&& arg)
 {
 	if constexpr (std::is_same_v<std::remove_cvref_t<Type>, rttr::type>)
 	{
@@ -53,27 +59,27 @@ template <auto Class, class Type>
 		return {};
 	}
 }
-}
+} // namespace detail
 
 //=================================================================================
 // Getters
 //=================================================================================
 // Type could be rttr::type, rttr::property, rttr::instance
-template <auto Member, class Enum = decltype(Member), class Type>
-MemberType_t<Member> GetMetadataMember(const Type& prop)
+template <auto Member, class Enum = decltype(Member), class Type> requires IsMetaclassConcept<Enum> MemberType_t<Member> GetMetadataMember(const Type& prop)
 {
 	static_assert(IsMetadataName_v<Enum>, "Given member name must be registered meta member.");
 	const auto metadata = detail::GetMetadata<Member>(prop);
-	if constexpr (!MemberIsOptional_v<Member>) {
+	if constexpr (!MemberIsOptional_v<Member>)
+	{
 		GLE_ASSERT(metadata.is_valid(), "Mandatory property metamember missing.");
 	}
 	return metadata.template get_value<MemberType_t<Member>>();
 }
 
 //=================================================================================
-template <class Enum>
-rttr::variant GetMetadataMember(const rttr::property& prop, const Enum member)
+template <class Enum> requires IsMetaclassConcept<Enum> rttr::variant GetMetadataMember(const rttr::property& prop, const Enum member)
 {
+	static_assert(std::is_enum_v<Enum>, "Only enum accepted");
 	static_assert(IsMetadataName_v<Enum>, "Given member name must be registered meta member.");
 	const auto metadata = prop.get_metadata(member);
 	GLE_ASSERT(MemberIsOptional_v<member> || metadata.is_valid(), "Mandatory property metamember missing.");
@@ -82,8 +88,7 @@ rttr::variant GetMetadataMember(const rttr::property& prop, const Enum member)
 
 //=================================================================================
 // Type could be rttr::type, rttr::property, rttr::instance
-template <auto Member, class Enum = decltype(Member), class Type>
-[[nodiscard]] bool HasMetadataMember(const Type& prop)
+template <auto Member, class Enum = decltype(Member), class Type> requires IsMetaclassConcept<Enum> [[nodiscard]] bool HasMetadataMember(const Type& prop)
 {
 	static_assert(IsMetadataName_v<Enum>, "Given member name must be registered meta member.");
 	const auto metadata = detail::GetMetadata<Member>(prop);
@@ -91,8 +96,7 @@ template <auto Member, class Enum = decltype(Member), class Type>
 }
 
 //=================================================================================
-template <auto Class, class Enum = decltype(Class)>
-[[nodiscard]] bool IsMetaclass(const rttr::property& prop)
+template <auto Class, class Enum = decltype(Class)> requires IsMetaclassConcept<Enum> [[nodiscard]] bool IsMetaclass(const rttr::property& prop)
 {
 	static_assert(std::is_enum_v<Enum>, "Class name could be only enum class.");
 	static_assert(IsMetadataName_v<Enum>, "Given class name must be registered meta member.");
@@ -103,7 +107,7 @@ template <auto Class, class Enum = decltype(Class)>
 // Registration
 //=================================================================================
 template <auto Member, class Type, class Enum = decltype(Member)>
-rttr::detail::metadata RegisterMetamember(const Type& value)
+requires IsMetaclassConcept<Enum> && IsCorrectMetaClassMemberType<Member, Type> rttr::detail::metadata RegisterMetamember(const Type& value)
 {
 	static_assert(std::is_enum_v<Enum>, "Member name could be only enum class.");
 	static_assert(IsMetadataName_v<Enum>, "Given member name must be registered meta member.");
@@ -112,8 +116,7 @@ rttr::detail::metadata RegisterMetamember(const Type& value)
 }
 
 //=================================================================================
-template <auto MetaClass, class Enum = decltype(MetaClass)> 
-rttr::detail::metadata RegisterMetaclass()
+template <auto MetaClass, class Enum = decltype(MetaClass)> requires IsMetaclassConcept<Enum> rttr::detail::metadata RegisterMetaclass()
 {
 	static_assert(std::is_enum_v<Enum>, "Class name could be only enum class.");
 	static_assert(IsMetadataName_v<Enum>, "Given class name must be registered meta member.");
@@ -125,72 +128,101 @@ rttr::detail::metadata RegisterMetaclass()
 //=================================================================================
 enum class Metatype
 {
-  Serialization,
-  GUI, // -> MetaGUI
+	Serialization,
+	GUI,	 // -> MetaGUI
+	GUIInfo, // -> MetaGUIInfo
 };
-template <> struct IsMetadataName<Metatype> : std::true_type {};
+template <> struct IsMetadataName<Metatype> : std::true_type {
+};
 
 enum class MetaGUI
 {
-  Slider,
-  Angle,
-  Colour,
-  Vec3,
-  Checkbox,
-  Text,
-  CustomGUIWidget, //-> function<bool(rttr::instance, rttr::property)>
+	Slider,
+	SliderInt,
+	Angle,
+	Colour,
+	Vec3,
+	Checkbox,
+	Text,
+	CustomGUIWidget, //-> function<bool(rttr::instance, rttr::property)>
 };
 REGISTER_META_CLASS(MetaGUI, Metatype);
 
 enum class SerializationCls
 {
-  NoSerialize,
-  DerefSerialize, // dereference before serialization
-  MandatoryProperty,
+	NoSerialize,
+	DerefSerialize, // dereference before serialization
+	MandatoryProperty,
 };
 REGISTER_META_CLASS(SerializationCls, Metatype);
 REGISTER_META_MEMBER_TYPE(SerializationCls::NoSerialize, bool);
-REGISTER_META_MEMBER_TYPE(SerializationCls::DerefSerialize, bool);
 REGISTER_META_MEMBER_TYPE(SerializationCls::MandatoryProperty, bool);
 
-namespace UI
+enum class MetaGUIInfo
 {
-template <MetaGUI Class> struct UIMetaclassToType {};
+	CollapsableGroup, // name of group
+};
+REGISTER_META_CLASS(MetaGUIInfo, Metatype);
+REGISTER_META_MEMBER_TYPE(MetaGUIInfo::CollapsableGroup, std::string);
+
+namespace UI {
+template <MetaGUI Class> struct UIMetaclassToType {
+};
 template <MetaGUI Class> using UIMetaclassToType_t = typename UIMetaclassToType<Class>::type;
-template <> struct UIMetaclassToType<MetaGUI::Slider>	{ using type = float; };
-template <> struct UIMetaclassToType<MetaGUI::Angle>	{ using type = float; };
-template <> struct UIMetaclassToType<MetaGUI::Colour>	{ using type = glm::vec3; };
-template <> struct UIMetaclassToType<MetaGUI::Vec3>		{ using type = glm::vec3; };
-template <> struct UIMetaclassToType<MetaGUI::Checkbox> { using type = bool; };
-template <> struct UIMetaclassToType<MetaGUI::Text>		{ using type = std::string; };
+template <> struct UIMetaclassToType<MetaGUI::Slider> {
+	using type = float;
+};
+template <> struct UIMetaclassToType<MetaGUI::SliderInt> {
+	using type = int;
+};
+template <> struct UIMetaclassToType<MetaGUI::Angle> {
+	using type = float;
+};
+template <> struct UIMetaclassToType<MetaGUI::Colour> {
+	using type = glm::vec3;
+};
+template <> struct UIMetaclassToType<MetaGUI::Vec3> {
+	using type = glm::vec3;
+};
+template <> struct UIMetaclassToType<MetaGUI::Checkbox> {
+	using type = bool;
+};
+template <> struct UIMetaclassToType<MetaGUI::Text> {
+	using type = std::string;
+};
 //=================================================================================
-template <MetaGUI Class>
-[[nodiscard]] bool IsUIMetaclass(const rttr::property& prop)
+template <MetaGUI Class> [[nodiscard]] bool IsUIMetaclass(const rttr::property& prop)
 {
 	const auto isRightClass = IsMetaclass<Class>(prop);
 	if (isRightClass)
 	{
 		// Those are actually compile time problems. So I do not include it into the result as it should be checked before committing.
-		GLE_ASSERT(prop.get_type().is_pointer(), "Property for UI needs to be rttr::policy::prop::bind_as_ptr in order to ImGui make work.");
+		GLE_ASSERT(prop.get_type().is_wrapper(), "Property for UI needs to be rttr::policy::prop::as_reference_wrapper in order to ImGui make work.");
 		// unfortunately, it is impossible to check this during registration
-		GLE_ASSERT(rttr::type::get<UIMetaclassToType_t<Class>*>() == prop.get_type(), "Property has wrong type expected '{}' passed '{}'",
-				   rttr::type::get<UIMetaclassToType_t<Class>*>(), prop.get_type());
+		GLE_ASSERT(rttr::type::get<UIMetaclassToType_t<Class>>() == prop.get_type().get_wrapped_type(), "Property has wrong type expected '{}' passed '{}'",
+				   rttr::type::get<UIMetaclassToType_t<Class>>(), prop.get_type().get_wrapped_type());
 	}
 	return isRightClass;
 }
 
 //=================================================================================
-template <MetaGUI Class, class Type>
-[[nodiscard]] bool IsTypeUIMetaClass(Type&& arg)
+template <MetaGUI Class, class Type> [[nodiscard]] bool IsTypeUIMetaClass(Type&& arg)
 {
 	return detail::GetMetadata<Class>(arg).is_valid();
 }
 
 enum class Slider
 {
-  Name,
-  Min,
-  Max,
+	Name,
+	Min,
+	Max,
+};
+
+enum class SliderInt
+{
+	Name,
+	Min,
+	Max,
 };
 
 enum class Angle
@@ -207,7 +239,7 @@ enum class Colour
 
 enum class Vec3
 {
-  Name,
+	Name,
 };
 
 enum class Checkbox
@@ -228,6 +260,10 @@ REGISTER_META_CLASS(UI::Slider, MetaGUI);
 REGISTER_META_MEMBER_TYPE(UI::Slider::Name, std::string);
 REGISTER_META_MEMBER_TYPE(UI::Slider::Min, float);
 REGISTER_META_MEMBER_TYPE(UI::Slider::Max, float);
+REGISTER_META_CLASS(UI::SliderInt, MetaGUI);
+REGISTER_META_MEMBER_TYPE(UI::SliderInt::Name, std::string);
+REGISTER_META_MEMBER_TYPE(UI::SliderInt::Min, int);
+REGISTER_META_MEMBER_TYPE(UI::SliderInt::Max, int);
 
 REGISTER_META_CLASS(UI::Angle, MetaGUI);
 REGISTER_META_MEMBER_TYPE(UI::Angle::Name, std::string);
@@ -248,4 +284,4 @@ REGISTER_META_CLASS(UI::Text, MetaGUI);
 REGISTER_META_CLASS(UI::CustomGUIWidget, MetaGUI); // for whole types
 REGISTER_META_MEMBER_TYPE(UI::CustomGUIWidget::DrawFunction, std::function<void(rttr::instance&)>);
 
-}
+} // namespace Utils::Reflection

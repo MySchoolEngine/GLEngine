@@ -73,3 +73,8 @@ jobs:
       - name: Build
         shell: cmd
         run: msbuild Engine.sln /p:Configuration=${{ matrix.configuration }} -maxCpuCount
+      - name: Test
+        shell: cmd
+        run: |
+            bin\${{ matrix.configuration }}-windows-x86_64\CoreTest\CoreTest.exe
+            bin\${{ matrix.configuration }}-windows-x86_64\RendererTest\RendererTest.exe

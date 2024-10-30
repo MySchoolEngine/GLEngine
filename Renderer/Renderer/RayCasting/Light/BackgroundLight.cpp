@@ -11,7 +11,7 @@ C_BackgroundLight::C_BackgroundLight(const Colours::T_Colour& backgroundColor)
 }
 
 //=================================================================================
-Colours::T_Colour C_BackgroundLight::SampleLi(const C_RayIntersection& intersection, I_Sampler* rnd, S_VisibilityTester& vis, float* pdf) const
+Colours::T_Colour C_BackgroundLight::SampleLi(const C_RayIntersection& intersection, I_Sampler& rnd, S_VisibilityTester& vis, float* pdf) const
 {
 	// float pdfSA;
 	// auto  wil  = SampleUniformSphereW(Vec2f(rnd1, rnd2), &pdfSA);
@@ -30,6 +30,12 @@ Colours::T_Colour C_BackgroundLight::SampleLi(const C_RayIntersection& intersect
 Colours::T_Colour C_BackgroundLight::Le() const
 {
 	return m_BackgroundColor;
+}
+
+float C_BackgroundLight::Pdf_Li(const glm::vec3& wi) const
+{
+	GLE_TODO("26.3.2024", "RohacekD", "Proper implementation.")
+	return 0.0f;
 }
 
 }

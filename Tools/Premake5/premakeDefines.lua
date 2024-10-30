@@ -15,9 +15,9 @@ end
 function ProjectFiles(projectName)
 	files
 	{
-		tostring(projectName).."/**.h",
-		tostring(projectName).."/**.cpp",
-		tostring(projectName).."/**.inl",
+		"%{prj.location}/"..tostring(projectName).."/**.h",
+		"%{prj.location}/"..tostring(projectName).."/**.cpp",
+		"%{prj.location}/"..tostring(projectName).."/**.inl",
 		"premake5.lua",
 	}
 
@@ -25,6 +25,31 @@ function ProjectFiles(projectName)
 	{
 		".",
 	}
+end
+
+function CopyLib(projectName)
+if _TARGET_OS == "windows" then
+	postbuildcommands
+	{
+		("{COPY} \"%{wks.location}/bin/" .. outputdir .. "/" .. projectName .. "/".. projectName ..".dll\" \"%{cfg.buildtarget.directory}\"")
+	}
+end
+end
+
+function CopyDependencyLib(depName)
+	if _TARGET_OS == "windows" then
+	  if NonDllLib[depName] == nil then
+		postbuildcommands
+		{
+			("{COPY} \"%{wks.location}/bin/" .. outputdir .. "/vendor/" .. depName .. "/".. depName ..".dll\" \"%{cfg.buildtarget.directory}\"")
+		}
+	  else
+		postbuildcommands
+		{
+			("{COPY} \"%{wks.location}/bin/" .. outputdir .. "/vendor/" .. depName .. "/".. depName ..".lib\" \"%{cfg.buildtarget.directory}\"")
+		}
+	  end
+	end
 end
 
 function Link(projectName)
@@ -37,13 +62,7 @@ function Link(projectName)
 	{
 		projectName,
 	}
-
-if _TARGET_OS == "windows" then
-	postbuildcommands
-	{
-		("{COPY} \"%{wks.location}/bin/" .. outputdir .. "/" .. projectName .. "/".. projectName ..".dll\" \"%{cfg.buildtarget.directory}\"")
-	}
-end
+	CopyLib(projectName)
 end
 
 function LinkDependency(depName)
@@ -59,19 +78,7 @@ function LinkDependency(depName)
 	{
 		depName,
 	}
-	if _TARGET_OS == "windows" then
-	  if NonDllLib[depName] == nil then
-		postbuildcommands
-		{
-			("{COPY} \"%{wks.location}/bin/" .. outputdir .. "/vendor/" .. depName .. "/".. depName ..".dll\" \"%{cfg.buildtarget.directory}\"")
-		}
-	  else
-		postbuildcommands
-		{
-			("{COPY} \"%{wks.location}/bin/" .. outputdir .. "/vendor/" .. depName .. "/".. depName ..".lib\" \"%{cfg.buildtarget.directory}\"")
-		}
-	  end
-	end
+	CopyDependencyLib(depName)
 end
 
 function SetupProject(projectName)

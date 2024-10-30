@@ -89,7 +89,7 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(const std::filesystem::path&			
 	{
 		for (const auto geom : geomLibrary.children("geometry"))
 		{
-			std::vector<glm::vec4> vertices;
+			std::vector<glm::vec3> vertices;
 			std::vector<glm::vec3> normals;
 			std::vector<glm::vec2> texCoords;
 			std::string_view	   id = geom.attribute("name").as_string();

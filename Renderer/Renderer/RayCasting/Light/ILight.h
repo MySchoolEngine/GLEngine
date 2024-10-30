@@ -18,10 +18,18 @@ public:
 	/**
 	 * Samples incident radiance at the intersection given by @param intersection from light.
 	 */
-	[[nodiscard]] virtual Colours::T_Colour SampleLi(const C_RayIntersection& intersection, I_Sampler* rnd, S_VisibilityTester& vis, float* pdf) const = 0;
+	[[nodiscard]] virtual Colours::T_Colour SampleLi(const C_RayIntersection& intersection, I_Sampler& rnd, S_VisibilityTester& vis, float* pdf) const = 0;
 	/**
 	 * Returns emitted radiance at a surface point intersected by a ray.
 	 */
 	[[nodiscard]] virtual Colours::T_Colour Le() const = 0;
+	/**
+	 * Returns true for delta lights such as point light
+	 */
+	virtual bool IsDeltaLight() const = 0;
+	/**
+	 * 
+	 */
+	virtual float Pdf_Li(const glm::vec3& wi) const = 0;
 };
 } // namespace GLEngine::Renderer::RayTracing

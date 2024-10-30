@@ -23,7 +23,6 @@ public:
 	const std::filesystem::path& GetFilepath() const { return m_Filepath; }
 
 private:
-	std::filesystem::path				  m_Filepath;
 	std::unique_ptr<I_TextureViewStorage> m_TextureStorage;
 };
 

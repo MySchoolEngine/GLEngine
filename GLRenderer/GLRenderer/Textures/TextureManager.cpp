@@ -5,6 +5,7 @@
 
 #include <Renderer/Descriptors/TextureDescriptor.h>
 #include <Renderer/IDevice.h>
+#include <Renderer/Textures/Storage/TextureLinearStorage.h>
 #include <Renderer/Textures/TextureLoader.h>
 #include <Renderer/Textures/TextureView.h>
 
