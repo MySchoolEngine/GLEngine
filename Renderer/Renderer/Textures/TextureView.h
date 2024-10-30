@@ -33,6 +33,8 @@
  *	Let's start with simple part CPU side let's say GL_RGB8 format
  */
 
+#include <Core/Math/Rect.h>
+
 #include <glm/gtx/type_trait.hpp>
 
 namespace GLEngine::Renderer {
@@ -43,19 +45,27 @@ struct T_Nearest;
 class RENDERER_API_EXPORT C_TextureView {
 public:
 	explicit C_TextureView(I_TextureViewStorage* storage);
-	template <class T, class Filter = T_Nearest> [[nodiscard]] T									  Get(const glm::vec2& uv, E_TextureChannel element) const;
-	template <class T> [[nodiscard]] T																  Get(const glm::ivec2& uv, E_TextureChannel element) const;
-	template <class T, class Filter = T_Nearest, typename = std::enable_if_t<glm::type<T>::is_vec>> T Get(const glm::vec2& uv) const;
-	template <class T, typename = std::enable_if_t<glm::type<T>::is_vec>> T							  Get(const glm::ivec2& uv) const;
-	template <class T> [[nodiscard]] T																  GetBorderColor() const;
+	template <class T, class Filter = T_Nearest> [[nodiscard]] T													Get(const glm::vec2& uv, E_TextureChannel element) const;
+	template <class T> [[nodiscard]] T																				Get(const glm::uvec2& coord, E_TextureChannel element) const;
+	template <class T, class Filter = T_Nearest, typename = std::enable_if_t<glm::type<T>::is_vec>> [[nodiscard]] T Get(const glm::vec2& uv) const;
+	/**
+	 * Needs to be glm::uint2 because there is no negative address space. 
+	 * The user is responsible for checking for positiveness off coordinates
+	 */
+	template <class T, typename = std::enable_if_t<glm::type<T>::is_vec>> T											Get(const glm::uvec2& coord) const;
+	template <class T> [[nodiscard]] T																				GetBorderColor() const;
 
 	[[nodiscard]] E_WrapFunction GetWrapFunction() const;
 	void						 SetWrapFunction(E_WrapFunction wrap);
 
+	void SetRect(const Core::S_Rect& rect);
+	const Core::S_Rect& GetRect() const;
+
 	void EnableBlending(bool enable = true);
 
-	template <class T> void													   Set(const glm::ivec2& uv, const T val, E_TextureChannel element);
-	template <class T, typename = std::enable_if_t<glm::type<T>::is_vec>> void Set(const glm::ivec2& uv, T&& val);
+	template <class T> void													   Set(const glm::uvec2& coord, const T val, E_TextureChannel element);
+	template <class T, typename = std::enable_if_t<glm::type<T>::is_vec>> void Set(const glm::uvec2& coord, T&& val);
+
 	void																	   SetBorderColor(const glm::vec4& color);
 	[[nodiscard]] bool														   UseBorderColor() const;
 
@@ -66,7 +76,10 @@ public:
 
 	void ClearColor(const glm::vec4& colour);
 
-	void DrawPixel(const glm::ivec2& coord, glm::vec4&& colour);
+	/**
+	 * Supports blending.
+	 */
+	void DrawPixel(const glm::uvec2& coord, glm::vec4&& colour);
 
 	/**
 	 * Fills line span including start and end pixel
@@ -74,18 +87,36 @@ public:
 	void FillLineSpan(const Colours::T_Colour& colour, unsigned int line, unsigned int start, unsigned int end);
 
 protected:
-	[[nodiscard]] std::size_t GetAddress(const glm::ivec2& uv) const;
-	[[nodiscard]] std::size_t GetPixelAddress(const glm::uvec2& uv) const;
-	[[nodiscard]] glm::vec2	  GetPixelCoord(const glm::vec2& uv) const;
-	[[nodiscard]] bool		  IsOutsideBorders(const glm::vec2& uv) const;
-	[[nodiscard]] glm::uvec2  ClampCoordinates(const glm::uvec2& uv) const;
+	[[nodiscard]] std::size_t GetAddress(const glm::uvec2& coord) const;
+	[[nodiscard]] std::size_t GetPixelAddress(const glm::uvec2& coord) const;
+	/**
+	 * @param	uv				[u;v] \in [<0;1>;<0;1>]
+	 *							The (0;0) lies bottom left and (1;1) top right
+	 * @returns [float, float]	uv -> [<0.5;width-0.5);<0.5;height-0.5>] value mapped to the pixel address space
+	 *							pointing center of the pixel.
+	 */
+	[[nodiscard]] glm::vec2	 GetPixelCoord(const glm::vec2& uv) const;
+	/**
+	 * @param	coord			Pixel coordinate
+	 * @returns					true if coord lies inside the image false otherwise
+	 */
+	[[nodiscard]] bool		 IsOutsideBorders(const glm::ivec2& coord) const;
+	/**
+	 * @param	coord			Pixel coordinate
+	 * @returns					Pixel coordinate based on wrap function
+	 */
+	[[nodiscard]] glm::uvec2 ClampCoordinates(const glm::ivec2& coord) const;
 
 
 	I_TextureViewStorage* m_Storage; // not owning ptr
 	glm::vec4			  m_BorderColor;
 	E_WrapFunction		  m_WrapFunction;
+	Core::S_Rect		  m_Rect;
+
 	bool				  m_EnableBlending;
 	E_BlendFunction		  m_BlendOperation;
+
+	friend class TextureViewFixture;
 };
 
 template <> glm::vec4  C_TextureView::GetBorderColor() const;

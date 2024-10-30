@@ -70,3 +70,22 @@ public:
 };
 
 template <class T, class... Types> constexpr bool T_ContainsType_v = T_ContainsType<T, Types...>::value;
+
+namespace Utils {
+
+template <bool... values> struct all_of : std::true_type {};
+template <bool... values> struct all_of<true, values...> : all_of<values...> {};
+template <bool... values> struct all_of<false, values...> : std::false_type {};
+
+template <bool... values> struct none_of : std::true_type {};
+template <bool... values> struct none_of<false, values...> : none_of<values...> {};
+template <bool... values> struct none_of<true, values...> : std::false_type {};
+
+template <bool... values> struct any_of : std::false_type {};
+template <bool... values> struct any_of<true, values...> : std::true_type {};
+template <bool... values> struct any_of<false, values...> : any_of<values...> {};
+
+template <bool... values> constexpr bool all_of_v  = all_of<values...>::value;
+template <bool... values> constexpr bool none_of_v = none_of<values...>::value;
+template <bool... values> constexpr bool any_of_v = any_of<values...>::value;
+} // namespace Utils

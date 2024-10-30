@@ -156,7 +156,6 @@ enum class SerializationCls
 };
 REGISTER_META_CLASS(SerializationCls, Metatype);
 REGISTER_META_MEMBER_TYPE(SerializationCls::NoSerialize, bool);
-REGISTER_META_MEMBER_TYPE(SerializationCls::DerefSerialize, bool);
 REGISTER_META_MEMBER_TYPE(SerializationCls::MandatoryProperty, bool);
 
 enum class MetaGUIInfo
@@ -198,10 +197,10 @@ template <MetaGUI Class> [[nodiscard]] bool IsUIMetaclass(const rttr::property& 
 	if (isRightClass)
 	{
 		// Those are actually compile time problems. So I do not include it into the result as it should be checked before committing.
-		GLE_ASSERT(prop.get_type().is_pointer(), "Property for UI needs to be rttr::policy::prop::bind_as_ptr in order to ImGui make work.");
+		GLE_ASSERT(prop.get_type().is_wrapper(), "Property for UI needs to be rttr::policy::prop::as_reference_wrapper in order to ImGui make work.");
 		// unfortunately, it is impossible to check this during registration
-		GLE_ASSERT(rttr::type::get<UIMetaclassToType_t<Class>*>() == prop.get_type(), "Property has wrong type expected '{}' passed '{}'",
-				   rttr::type::get<UIMetaclassToType_t<Class>*>(), prop.get_type());
+		GLE_ASSERT(rttr::type::get<UIMetaclassToType_t<Class>>() == prop.get_type().get_wrapped_type(), "Property has wrong type expected '{}' passed '{}'",
+				   rttr::type::get<UIMetaclassToType_t<Class>>(), prop.get_type().get_wrapped_type());
 	}
 	return isRightClass;
 }

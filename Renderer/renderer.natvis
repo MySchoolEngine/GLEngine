@@ -19,6 +19,12 @@
     </Expand>
   </Type>
 
+  <Type Name="GLEngine::Renderer::C_Trimesh">
+    <Intrinsic Name="numTriangles" Expression="m_Vertices._Mypair._Myval2._Mylast - m_Vertices._Mypair._Myval2._Myfirst"/>
+    <DisplayString Condition="m_BVH">Trimesh: {numTriangles()}tris - BVH: [{*m_BVH}]</DisplayString>
+    <DisplayString Condition="!m_BVH">Trimesh: {numTriangles()}tris - no BVH</DisplayString>
+  </Type>
+
   <Type Name="GLEngine::Renderer::TextureResource">
     <DisplayString>Texture: {m_Filepath._Text}, {m_State}</DisplayString>
     <Expand>

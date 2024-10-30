@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="GLEngine::Core::Scanner">
+    <DisplayString Condition="m_Current &lt; m_Source.size()">Line: {m_Line}:0, Current: {(unsigned char)m_Source[m_Current]}, {m_Source}</DisplayString>
+    <DisplayString Condition="m_Current &gt;= m_Source.size()">Line: {m_Line}:0, Current: EOF, {m_Source}</DisplayString>
+    <Expand>
+      <Item Name="[Current char]">m_Source[m_Current]</Item>
+      <Item Name="[Line]">m_Line</Item>
+      <Item Name="[Column]">m_Column</Item>
+      <Item Name="[Source]">m_Source</Item>
+    </Expand>
+  </Type>
+  <Type Name="GLEngine::Core::Literal">
+    <DisplayString Condition="m_Literal.Type==TokenType::Number">Literal: {m_Literal.Lexeme,s} number</DisplayString>
+    <DisplayString Condition="m_Literal.Type==TokenType::String">Literal: {m_Literal.Lexeme,s} string</DisplayString>
+  </Type>
+  <Type Name="GLEngine::Core::Token">
+    <DisplayString Condition="Type==TokenType::LeftParenth || Type == TokenType::RightParenth">{Type,e}</DisplayString>
+    <DisplayString Condition="Type==TokenType::Invalid">INVALID</DisplayString>
+  </Type>
+  <Type Name="GLEngine::Core::LoadingQuery">
+    <Intrinsic Name="numHandles" Expression="m_handles._Mypair._Myval2._Mylast - m_handles._Mypair._Myval2._Myfirst"/>
+    <DisplayString Condition="numHandles() == 0">EMPTY</DisplayString>
+    <Expand>
+      <Item Name="[Handles]" Condition="numHandles()">m_handles</Item>
+    </Expand>
+  </Type>
+  <Type Name="GLEngine::Core::ResourceHandle&lt;*&gt;">
+    <AlternativeType Name="GLEngine::Core::ResourceHandleBase"/>
+    <DisplayString Condition="m_Resource._Ptr">{*m_Resource._Ptr}</DisplayString>
+    <Expand>
+      <Synthetic Name="[Resource]" Condition="!m_Resource._Ptr">
+        <DisplayString>EMPTY</DisplayString>
+      </Synthetic>
+      <Item Name="[Resource]" Condition="m_Resource._Ptr">*m_Resource._Ptr</Item>
+    </Expand>
+  </Type>
+</AutoVisualizer>

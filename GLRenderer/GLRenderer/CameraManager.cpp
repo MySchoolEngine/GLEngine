@@ -51,6 +51,8 @@ std::shared_ptr<Renderer::I_CameraComponent> C_CameraManager::GetActiveCamera() 
 //=================================================================================
 void C_CameraManager::OnEvent(Core::I_Event& event)
 {
+	if (!m_ActiveCamera || !m_DebugCamera)
+		return; // todo
 	if (!m_UseDebugCam)
 	{
 		m_ActiveCamera->OnEvent(event);

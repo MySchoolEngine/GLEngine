@@ -12,8 +12,8 @@ template <class triangleDef> float TraingleRayIntersect(const triangleDef& verti
 	// Möller–Trumbore intersection algorithm
 	const float EPSILON = 0.0000001f;
 	using namespace glm;
-	const vec3	edge1 = vertices[1] - vertices[0];
-	const vec3	edge2 = vertices[2] - vertices[0];
+	const vec3	edge1 = vertices[1] - vertices[0]; //TODO: precalculate? and measure
+	const vec3	edge2 = vertices[2] - vertices[0]; //TODO: precalculate? and measure
 	const vec3	h	  = cross(ray.direction, edge2);
 	const float det	  = dot(edge1, h);
 	if (det > -EPSILON && det < EPSILON)

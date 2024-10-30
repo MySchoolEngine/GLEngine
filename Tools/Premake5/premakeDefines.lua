@@ -15,9 +15,9 @@ end
 function ProjectFiles(projectName)
 	files
 	{
-		tostring(projectName).."/**.h",
-		tostring(projectName).."/**.cpp",
-		tostring(projectName).."/**.inl",
+		"%{prj.location}/"..tostring(projectName).."/**.h",
+		"%{prj.location}/"..tostring(projectName).."/**.cpp",
+		"%{prj.location}/"..tostring(projectName).."/**.inl",
 		"premake5.lua",
 	}
 
