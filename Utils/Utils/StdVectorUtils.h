@@ -1,6 +1,13 @@
 #pragma once
 
-namespace GLEngine::Utils {
+#include <Utils/Logging/LoggingMacros.h>
+#include <Utils/Logging/LoggingTypes.h>
+
+#include <algorithm>
+#include <set>
+#include <vector>
+
+namespace Utils {
 
 // Source:
 // https://codereview.stackexchange.com/questions/206686/removing-by-indices-several-elements-from-a-vector
@@ -92,4 +99,18 @@ template <class T, class IdxT> typename std::vector<T>::iterator remove_indices(
 	return destination;
 }
 
-} // namespace GLEngine::Utils
+// result = {result, append}
+template <class T> void appendVector(std::vector<T>& result, const std::vector<T>& append)
+{
+	result.insert(std::end(result), std::begin(append), std::end(append));
+}
+
+// returns {a, b}
+template <class T> std::vector<T> mergeVector(const std::vector<T>& a, const std::vector<T>& b)
+{
+	std::vector<T> result = a;
+	appendVector(result, b);
+	return result;
+}
+
+} // namespace Utils

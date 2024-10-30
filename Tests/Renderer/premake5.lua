@@ -1,0 +1,37 @@
+include "../../Tools/Premake5/premakeDefines.lua"
+
+project "RendererTest"
+	kind "ConsoleApp"
+	language "C++"
+	staticruntime "off"
+
+	SetupProject("RendererTest")
+	
+	Link("Renderer")
+	Link("Utils")
+	links { "gtest_main" }
+
+	LinkDependency("RTTR")
+
+	includedirs
+	{
+		"%{wks.location}/vendor/gtest/googletest/include",
+		"%{wks.location}/Core",
+		"%{wks.location}/Utils",
+		"%{wks.location}/%{IncludeDir.GLM}",
+		"%{wks.location}/%{IncludeDir.fmt}",
+		"%{wks.location}/%{IncludeDir.RTTR}",
+	}
+	files
+	{
+		"%{wks.location}/vendor/gtest/googletest/src/gtest_main.cc",
+	}
+
+	CopyLib("Core")
+	CopyLib("Entity")
+	CopyLib("GUI")
+	CopyDependencyLib("Assimp")
+	CopyDependencyLib("zlib")
+	CopyDependencyLib("ImGui")
+	CopyDependencyLib("pugixml")
+	CopyDependencyLib("DevIL-IL")

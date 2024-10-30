@@ -32,6 +32,8 @@ public:
 
 	const ResourceType& GetResource() const;
 	ResourceType&		GetResource();
+
+	const std::filesystem::path& GetFilepath() const;
 };
 
 } // namespace GLEngine::Core

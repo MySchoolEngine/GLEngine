@@ -10,7 +10,7 @@
 
 #include <Renderer/IRenderer.h>
 #include <Renderer/Mesh/Scene.h>
-#include <Renderer/Textures/TextureStorage.h>
+#include <Renderer/Textures/Storage/TextureStorage.h>
 #include <Renderer/Textures/TextureView.h>
 
 #include <Core/Application.h>
@@ -144,6 +144,7 @@ void C_Texture::GenerateMipMaps()
 void C_Texture::SetTexData2D(int level, const Renderer::I_TextureViewStorage* tex)
 {
 	GLE_ASSERT(tex, "This should be smth like reference");
+	GLE_ASSERT(GetDimensions() == tex->GetDimensions(), "Size of storage and texture should match");
 	// https://www.khronos.org/registry/OpenGL/specs/gl/glspec45.compatibility.pdf Table 8.35
 	glTextureSubImage2D(m_texture,
 						0,												//!< Level

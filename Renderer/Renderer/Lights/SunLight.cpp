@@ -12,6 +12,7 @@
 #include <rttr/registration>
 
 #pragma region registration
+// clang-format off
 RTTR_REGISTRATION
 {
 	using namespace Utils::Reflection;
@@ -26,8 +27,7 @@ RTTR_REGISTRATION
 				RegisterMetaclass<MetaGUI::Slider>(),
 				RegisterMetamember<UI::Slider::Name>("Sun X:"),
 				RegisterMetamember<UI::Slider::Min>(-1.0f),
-				RegisterMetamember<UI::Slider::Max>(1.0f),
-				RegisterMetamember<SerializationCls::DerefSerialize>(true)
+				RegisterMetamember<UI::Slider::Max>(1.0f)
 			)
 		.property("SunY", &C_SunLight::m_SunY)
 			(
@@ -35,8 +35,7 @@ RTTR_REGISTRATION
 				RegisterMetaclass<MetaGUI::Slider>(),
 				RegisterMetamember<UI::Slider::Name>("Sun Y:"),
 				RegisterMetamember<UI::Slider::Min>(-1.0f),
-				RegisterMetamember<UI::Slider::Max>(1.0f),
-				RegisterMetamember<SerializationCls::DerefSerialize>(true)
+				RegisterMetamember<UI::Slider::Max>(1.0f)
 			)
 		.property("SunZ", &C_SunLight::m_SunZ)
 			(
@@ -44,8 +43,7 @@ RTTR_REGISTRATION
 				RegisterMetaclass<MetaGUI::Slider>(),
 				RegisterMetamember<UI::Slider::Name>("Sun Z:"),
 				RegisterMetamember<UI::Slider::Min>(-1.0f),
-				RegisterMetamember<UI::Slider::Max>(1.0f),
-				RegisterMetamember<SerializationCls::DerefSerialize>(true)
+				RegisterMetamember<UI::Slider::Max>(1.0f)
 			)
 		.property("SunColor", &C_SunLight::m_SunColor)
 			(
@@ -59,8 +57,7 @@ RTTR_REGISTRATION
 				RegisterMetaclass<MetaGUI::Slider>(),
 				RegisterMetamember<UI::Slider::Name>("Asymmetric factor:"),
 				RegisterMetamember<UI::Slider::Min>(0.f),
-				RegisterMetamember<UI::Slider::Max>(1.0f),
-				RegisterMetamember<SerializationCls::DerefSerialize>(true)
+				RegisterMetamember<UI::Slider::Max>(1.0f)
 			)
 		.property("DiscMultiplier", &C_SunLight::m_AsymetricFactor)
 			(
@@ -68,8 +65,7 @@ RTTR_REGISTRATION
 				RegisterMetaclass<MetaGUI::Slider>(),
 				RegisterMetamember<UI::Slider::Name>("Disc multiplier:"),
 				RegisterMetamember<UI::Slider::Min>(1.f),
-				RegisterMetamember<UI::Slider::Max>(20.0f),
-				RegisterMetamember<SerializationCls::DerefSerialize>(true)
+				RegisterMetamember<UI::Slider::Max>(20.0f)
 			);
 
 	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_SunLight>>();
@@ -79,6 +75,7 @@ RTTR_REGISTRATION
 		return std::static_pointer_cast<GLEngine::Entity::I_Component>(ptr);
 	});
 }
+// clang-format on
 #pragma endregion registration
 
 namespace GLEngine::Renderer {

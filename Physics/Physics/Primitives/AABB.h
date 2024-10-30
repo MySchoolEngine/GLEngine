@@ -138,7 +138,7 @@ public:
 		Add(glm::vec3(pos.x, pos.y, pos.z - 1));
 	}
 
-	constexpr void updateWithTriangle(const glm::vec4* triangleVertices)
+	constexpr void updateWithTriangle(const glm::vec3* triangleVertices)
 	{
 		Add(triangleVertices[0]);
 		Add(triangleVertices[1]);

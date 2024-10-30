@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Renderer/Textures/TextureStorage.h>
+#include <Renderer/Textures/Storage/TextureStorage.h>
 
 namespace GLEngine::GLRenderer::Textures {
 

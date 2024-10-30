@@ -39,19 +39,19 @@ float T_GeometryTraits::GetArea(const Physics::Primitives::S_Plane&)
 }
 
 //=================================================================================
-glm::vec3 T_GeometryTraits::SamplePoint(const Physics::Primitives::S_Disc& disc, I_Sampler* rnd)
+glm::vec3 T_GeometryTraits::SamplePoint(const Physics::Primitives::S_Disc& disc, I_Sampler& rnd)
 {
 	const auto ligthRadius = disc.radius;
-	const auto samplePoint = ligthRadius * SampleConcentricDisc(rnd->GetV2());
+	const auto samplePoint = ligthRadius * SampleConcentricDisc(rnd.GetV2());
 	const auto lightFrame  = S_Frame(disc.plane.normal);
 	return disc.plane.origin + samplePoint.x * lightFrame.Tangnt() + samplePoint.y * lightFrame.Bitangent();
 }
 
 //=================================================================================
-glm::vec3 T_GeometryTraits::SamplePoint(const Physics::Primitives::S_Triangle& triangle, I_Sampler* rnd)
+glm::vec3 T_GeometryTraits::SamplePoint(const Physics::Primitives::S_Triangle& triangle, I_Sampler& rnd)
 {
-	auto areaX = rnd->GetD();
-	auto areaY = rnd->GetD();
+	auto areaX = rnd.GetD();
+	auto areaY = rnd.GetD();
 
 	if (areaX + areaY >= 1.f)
 	{

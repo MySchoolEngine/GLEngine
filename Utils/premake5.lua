@@ -13,6 +13,7 @@ project "Utils"
 	includedirs
 	{
 		"../Core",
+		"../Physics",
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.GLM}",
 	}

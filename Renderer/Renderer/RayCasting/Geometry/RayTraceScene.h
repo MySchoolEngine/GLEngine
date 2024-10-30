@@ -13,13 +13,15 @@ struct S_Ray;
 }
 
 namespace GLEngine::Renderer {
+class C_ImplicitBlob;
 class C_RayIntersection;
-class I_RayGeometryObject;
-class TextureResource;
-class I_TextureViewStorage;
-class I_DebugDraw;
 class C_Trimesh;
+class I_DebugDraw;
 class I_MaterialInterface;
+class I_RayGeometryObject;
+class I_TextureViewStorage;
+class TextureResource;
+class BVH;
 
 namespace MeshData {
 struct Mesh;
@@ -44,7 +46,7 @@ public:
 	void			   AddObejct(std::shared_ptr<I_RayGeometryObject>&& object);
 	void			   AddLight(std::shared_ptr<RayTracing::C_AreaLight>&& light);
 	void			   AddLight(std::shared_ptr<RayTracing::C_PointLight>&& light);
-	void			   AddMesh(const MeshData::Mesh& mesh, const MeshData::Material& material);
+	void			   AddMesh(const MeshData::Mesh& mesh, const MeshData::Material& material, const BVH* bvh = nullptr);
 
 	void ForEachLight(std::function<void(const std::reference_wrapper<const RayTracing::I_RayLight>& light)> fnc) const;
 
@@ -64,8 +66,10 @@ private:
 	std::vector<std::unique_ptr<I_MaterialInterface>>	   m_Materials;
 	// aux
 	std::vector<std::shared_ptr<C_Trimesh>> m_Trimeshes;
+	std::shared_ptr<C_ImplicitBlob>			m_Blob;
 
 	Core::LoadingQuery m_LoadingMeshes;
+	Core::LoadingQuery m_LoadingBVH;
 	Core::LoadingQuery m_LoadingTextures;
 
 	std::unique_ptr<I_MaterialInterface>& AddMaterial(const MeshData::Material& material);
