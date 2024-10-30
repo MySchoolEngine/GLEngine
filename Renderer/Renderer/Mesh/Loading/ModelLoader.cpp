@@ -403,11 +403,6 @@ std::mutex& ModelLoader::GetMutex()
 	return m_Mutex;
 }
 
-//=================================================================================
-void ModelLoader::_loadArmatureData(const aiNode* currentNode, const glm::mat4& currentTransform, MeshData::Mesh& mesh)
-{
-}
-
 std::mutex ModelLoader::m_Mutex;
 
 } // namespace GLEngine::Renderer::Mesh

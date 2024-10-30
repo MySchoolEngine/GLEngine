@@ -2,6 +2,7 @@
 
 #include <Renderer/Animation/Joint.h>
 #include <Renderer/Colours.h>
+#include <Renderer/RendererApi.h>
 
 // This interface should be implemented in each API
 // Only responsibility of this class is visualization of primitives:
@@ -24,7 +25,7 @@ struct S_Joint;
 class C_Skeleton;
 class I_Pose;
 
-class I_DebugDraw {
+class RENDERER_API_EXPORT I_DebugDraw {
 public:
 	virtual ~I_DebugDraw();
 	virtual void DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, const Colours::T_Colour& color = Colours::black)										= 0;
