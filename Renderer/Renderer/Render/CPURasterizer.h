@@ -18,8 +18,8 @@ private:
 	void BresenhamVertical(const Colours::T_Colour& colour, glm::ivec2 p1, glm::ivec2 p2);
 	void XiaolinWu(const Colours::T_Colour& colour, glm::ivec2 p1, glm::ivec2 p2);
 
-	void					QueueFloodFill(const Colours::T_Colour& colour, const glm::ivec2& p);
-	void					ScanLineFloodFill(const Colours::T_Colour& colour, const glm::ivec2& p);
+	void					QueueFloodFill(const Colours::T_Colour& colour, const glm::uvec2& p);
+	void					ScanLineFloodFill(const Colours::T_Colour& colour, const glm::uvec2& p);
 	Renderer::C_TextureView m_view;
 };
 } // namespace GLEngine::Renderer

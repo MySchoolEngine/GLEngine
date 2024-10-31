@@ -65,7 +65,7 @@ template <class internalFormat> std::uint8_t C_TextureViewStorageCPU<internalFor
 	{
 		return static_cast<std::uint8_t>(std::distance(m_Channels.begin(), it));
 	}
-	return 0; // wrong
+	return -1; // wrong
 }
 
 //=================================================================================

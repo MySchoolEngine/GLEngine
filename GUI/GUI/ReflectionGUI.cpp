@@ -11,7 +11,7 @@ void DrawText(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	::ImGui::Text(prop.get_value(obj).convert<std::string*>()->c_str());
+	::ImGui::Text((char*)prop.get_value(obj).get_wrapped_value<std::string>().c_str());
 }
 
 //=================================================================================
@@ -19,7 +19,7 @@ bool DrawVec3(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	return ::ImGui::InputFloat3(GetMetadataMember<UI::Vec3::Name>(prop).c_str(), (float*)(prop.get_value(obj).convert<glm::vec3*>()));
+	return ::ImGui::InputFloat3(GetMetadataMember<UI::Vec3::Name>(prop).c_str(), (float*)(&prop.get_value(obj).get_wrapped_value<glm::vec3>()));
 }
 
 //=================================================================================
@@ -27,7 +27,7 @@ bool DrawCheckbox(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	return ::ImGui::Checkbox(GetMetadataMember<UI::Checkbox::Name>(prop).c_str(), (prop.get_value(obj).convert<bool*>()));
+	return ::ImGui::Checkbox(GetMetadataMember<UI::Checkbox::Name>(prop).c_str(), (bool*)(&prop.get_value(obj).get_wrapped_value<bool>()));
 }
 
 //=================================================================================
@@ -35,7 +35,8 @@ bool DrawSlider(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	return ::ImGui::SliderFloat(GetMetadataMember<UI::Slider::Name>(prop).c_str(), (prop.get_value(obj).convert<float*>()), GetMetadataMember<UI::Slider::Min>(prop),
+	return ::ImGui::SliderFloat(GetMetadataMember<UI::Slider::Name>(prop).c_str(), (float*)(&prop.get_value(obj).get_wrapped_value<float>()),
+								GetMetadataMember<UI::Slider::Min>(prop),
 								GetMetadataMember<UI::Slider::Max>(prop));
 }
 
@@ -53,7 +54,8 @@ bool DrawAngle(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	return ::ImGui::SliderAngle(GetMetadataMember<UI::Angle::Name>(prop).c_str(), (prop.get_value(obj).convert<float*>()), GetMetadataMember<UI::Angle::Min>(prop),
+	return ::ImGui::SliderAngle(GetMetadataMember<UI::Angle::Name>(prop).c_str(), (float*)(&prop.get_value(obj).get_wrapped_value<float>()),
+								GetMetadataMember<UI::Angle::Min>(prop),
 								GetMetadataMember<UI::Angle::Max>(prop));
 }
 
@@ -62,7 +64,7 @@ bool DrawColour(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	return ::ImGui::ColorEdit3(GetMetadataMember<UI::Colour::Name>(prop).c_str(), (float*)(prop.get_value(obj).convert<glm::vec3*>()));
+	return ::ImGui::ColorEdit3(GetMetadataMember<UI::Colour::Name>(prop).c_str(), (float*)(&prop.get_value(obj).get_wrapped_value<glm::vec3>()));
 }
 
 //=================================================================================

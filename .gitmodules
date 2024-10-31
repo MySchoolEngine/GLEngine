@@ -42,7 +42,7 @@
 	url = https://github.com/graeme-hill/crossguid
 [submodule "vendor/RTTR"]
 	path = vendor/RTTR
-	url = https://github.com/rttrorg/rttr
+	url = https://github.com/RohacekD/rttr
 [submodule "vendor/libpng"]
 	path = vendor/libpng
 	url = https://github.com/glennrp/libpng

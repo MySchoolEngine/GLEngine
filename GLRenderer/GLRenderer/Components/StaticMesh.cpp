@@ -28,6 +28,7 @@
 #include <imgui.h>
 #include <rttr/registration>
 
+// clang-format off
 RTTR_REGISTRATION
 {
 	using namespace GLEngine::GLRenderer::Components;
@@ -43,12 +44,14 @@ RTTR_REGISTRATION
 		.property("Material", &C_StaticMesh::m_Material)
 		.property("Shader", &C_StaticMesh::GetShader, &C_StaticMesh::SetShader)
 		.property("ShadowPassShader", &C_StaticMesh::GetShadowShader, &C_StaticMesh::SetShadowShader);
+
 	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_StaticMesh>>();
 	rttr::type::register_converter_func([](std::shared_ptr<C_StaticMesh> ptr, bool& ok) -> std::shared_ptr<GLEngine::Entity::I_Component> {
 		ok = true;
 		return std::static_pointer_cast<GLEngine::Entity::I_Component>(ptr);
 	});
 }
+// clang-format on
 
 namespace GLEngine::GLRenderer::Components {
 
@@ -279,7 +282,7 @@ void C_StaticMesh::SetMeshFile(const std::filesystem::path meshfile)
 //=================================================================================
 std::filesystem::path C_StaticMesh::GetMeshFile() const
 {
-	return m_MeshResource.GetResource().GetFilePath();
+	return m_MeshResource.GetFilepath();
 }
 
 } // namespace GLEngine::GLRenderer::Components

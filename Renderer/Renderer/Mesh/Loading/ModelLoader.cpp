@@ -307,7 +307,7 @@ void ModelLoader::_loadSingleMeshFromAimesh(const aiMesh* aiMesh, Renderer::Mesh
 	{
 		aiFace* f = &aiMesh->mFaces[i];
 
-		glm::vec4* newPositions	 = &(mesh.vertices[VERTICES_PER_TRIANGLE * i]);
+		glm::vec3* newPositions	 = &(mesh.vertices[VERTICES_PER_TRIANGLE * i]);
 		glm::vec3* newNormals	 = &(mesh.normals[VERTICES_PER_TRIANGLE * i]);
 		glm::vec2* newTcoords	 = &(mesh.texcoords[VERTICES_PER_TRIANGLE * i]);
 		glm::vec3* newTangents	 = &(mesh.tangent[VERTICES_PER_TRIANGLE * i]);
@@ -345,7 +345,7 @@ void ModelLoader::_assignMeshMaterial(Renderer::MeshData::Mesh& mesh, const aiMe
 //=================================================================================
 void ModelLoader::_getFacePosNormalTcoords(const aiFace* face,
 										   const aiMesh* mesh,
-										   glm::vec4*	 pos,
+										   glm::vec3*	 pos,
 										   glm::vec3*	 normal,
 										   glm::vec2*	 tcoords,
 										   glm::vec3*	 ttangents,
@@ -369,7 +369,6 @@ void ModelLoader::_getFacePosNormalTcoords(const aiFace* face,
 		pos[i].x = p.x;
 		pos[i].y = p.y;
 		pos[i].z = p.z;
-		pos[i].w = 1.0;
 
 		normal[i].x = n.x;
 		normal[i].y = n.y;
