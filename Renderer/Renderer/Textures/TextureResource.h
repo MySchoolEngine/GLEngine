@@ -7,6 +7,8 @@
 
 #include <Utils/Serialization/XMLDeserialize.h>
 
+#include <Utils/Reflection/Metadata.h>
+
 namespace GLEngine::Renderer {
 class I_TextureViewStorage;
 
@@ -35,3 +37,21 @@ public:
 	virtual std::vector<std::string>		GetSupportedExtensions() const override;
 };
 } // namespace GLEngine::Renderer
+
+#include <Core/Resources/ResourceHandle.h>
+namespace Utils::Reflection::UI {
+template <> struct UIMetaclassToType<MetaGUI::Texture> {
+	using type = GLEngine::Core::ResourceHandle<GLEngine::Renderer::TextureResource>;
+};
+
+enum class Texture
+{
+	Name,
+};
+} // namespace UI
+
+namespace Utils::Reflection
+{
+REGISTER_META_CLASS(UI::Texture, MetaGUI);
+REGISTER_META_MEMBER_TYPE(UI::Texture::Name, std::string);
+}

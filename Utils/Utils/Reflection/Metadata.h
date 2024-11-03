@@ -147,6 +147,7 @@ enum class MetaGUI
   Colour,
   Vec3,
   Checkbox,
+  Texture,
   Text,
   CustomGUIWidget, //-> function<bool(rttr::instance, rttr::property)>
 };

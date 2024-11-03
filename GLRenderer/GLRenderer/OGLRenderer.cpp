@@ -271,7 +271,10 @@ void* C_OGLRenderer::GetTextureGUIHandle(Renderer::Handle<Renderer::Texture> tex
 //=================================================================================
 void C_OGLRenderer::SetTextureSampler(Renderer::Handle<Renderer::Texture> dstTexture, Renderer::Handle<Renderer::Sampler> srcSampler)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	if (auto* texture = m_GPUResourceManager.GetTexture(dstTexture)) {
+
+	//texture->setsampler
+	}
 }
 
 } // namespace GLEngine::GLRenderer

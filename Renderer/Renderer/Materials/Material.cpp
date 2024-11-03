@@ -29,7 +29,16 @@ RTTR_REGISTRATION
 		.property("Roughness", &C_Material::m_Roughness)(rttr::policy::prop::bind_as_ptr, RegisterMetaclass<MetaGUI::Slider>(), RegisterMetamember<UI::Slider::Name>("Roughness:"),
 														 RegisterMetamember<UI::Slider::Min>(0.f), RegisterMetamember<UI::Slider::Max>(1.0f),
 														 RegisterMetamember<SerializationCls::DerefSerialize>(true))
-		.property("ColorMap", &C_Material::GetColorMapPath, &C_Material::SetColorMapPath)
+		.property("ColorMapRes", &C_Material::m_ColorMapRes)(
+			rttr::policy::prop::bind_as_ptr,
+			RegisterMetaclass<MetaGUI::Texture>(),
+			RegisterMetamember<UI::Texture::Name>("Colour map"),
+			RegisterMetamember<SerializationCls::DerefSerialize>(true))
+		.property("NormalMapRes", &C_Material::m_NormalMapRes)(
+			rttr::policy::prop::bind_as_ptr,
+			RegisterMetaclass<MetaGUI::Texture>(),
+			RegisterMetamember<UI::Texture::Name>("Normal map"),
+			RegisterMetamember<SerializationCls::DerefSerialize>(true))
 		.property("NormalMap", &C_Material::GetNormalMapPath, &C_Material::SetNormalMapPath)
 		.property("RoughnessMap", &C_Material::GetRoughnessMapPath, &C_Material::SetRoughnessMapPath)
 		.property("Shininess", &C_Material::GetShininess, &C_Material::SetShininess);
@@ -53,6 +62,7 @@ C_Material::C_Material(const std::string& name)
 	, m_Textures({GUI::C_Texture{m_ColorMap}, GUI::C_Texture{m_NormalMap}, GUI::C_Texture{m_RoughnessMap}})
 {
 	SetTextureCB();
+	SetColorMapPath("Models/Bricks01/REGULAR/1K/Bricks01_COL_VAR1_1K.bmp");
 }
 
 //=================================================================================
@@ -69,6 +79,7 @@ C_Material::C_Material(const MeshData::Material& material)
 	, m_Textures({GUI::C_Texture{m_ColorMap}, GUI::C_Texture{m_NormalMap}, GUI::C_Texture{m_RoughnessMap}})
 {
 	SetTextureCB();
+	SetColorMapPath("Models/Bricks01/REGULAR/1K/Bricks01_COL_VAR1_1K.bmp");
 }
 
 //=================================================================================
@@ -85,6 +96,7 @@ C_Material::C_Material(C_Material&& other)
 	, m_Textures({GUI::C_Texture{m_ColorMap}, GUI::C_Texture{m_NormalMap}, GUI::C_Texture{m_RoughnessMap}})
 {
 	SetTextureCB();
+	SetColorMapPath("Models/Bricks01/REGULAR/1K/Bricks01_COL_VAR1_1K.bmp");
 }
 
 //=================================================================================
@@ -266,6 +278,9 @@ void C_Material::Update()
 
 		SetColorMap(colorMap);
 	}
+	if (m_ColorMap && m_ColorMapRes.IsFailed()) {
+		SetColorMap(nullptr);
+	}
 	if (m_NormalMap == nullptr && m_NormalMapRes.IsReady())
 	{
 		auto&				  resource = m_NormalMapRes.GetResource();
@@ -282,6 +297,10 @@ void C_Material::Update()
 
 		SetNormalMap(normalMap);
 	}
+	if (m_NormalMap && m_NormalMapRes.IsFailed())
+	{
+		SetNormalMap(nullptr);
+	}
 	if (m_RoughnessMap == nullptr && m_RoughnessRes.IsReady())
 	{
 		auto&				  resource	= m_RoughnessRes.GetResource();
@@ -297,6 +316,10 @@ void C_Material::Update()
 		roughnessMap->SetTexData2D(0, (&storage));
 
 		SetRoughnessMap(roughnessMap);
+	}
+	if (m_RoughnessMap && m_RoughnessRes.IsFailed())
+	{
+		SetRoughnessMap(nullptr);
 	}
 }
 
