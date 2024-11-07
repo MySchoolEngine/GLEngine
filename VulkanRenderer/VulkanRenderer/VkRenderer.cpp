@@ -8,7 +8,7 @@
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
 #include <Renderer/Resources/ResourceManager.h>
-#include <Renderer/Textures/TextureStorage.h>
+#include <Renderer/Textures/Storage/TextureLinearStorage.h>
 
 namespace GLEngine::VkRenderer {
 

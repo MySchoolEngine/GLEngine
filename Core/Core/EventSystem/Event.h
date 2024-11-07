@@ -136,6 +136,6 @@ template <Core::E_EventCategory e, typename retType = typename EventCategoryBase
 } // namespace GLEngine
 
 //=================================================================================
-template <> struct ::Utils::enable_BitField_operators<GLEngine::Core::E_EventCategory> {
+template <> struct Utils::enable_BitField_operators<GLEngine::Core::E_EventCategory> {
 	static constexpr bool enable = true;
 };

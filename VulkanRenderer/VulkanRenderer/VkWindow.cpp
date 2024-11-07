@@ -12,7 +12,7 @@
 #include <Renderer/Cameras/OrbitalCamera.h>
 #include <Renderer/Components/StaticMeshHandles.h>
 #include <Renderer/Mesh/Scene.h>
-#include <Renderer/Textures/TextureStorage.h>
+#include <Renderer/Textures/Storage/TextureLinearStorage.h>
 #include <Renderer/Viewport.h>
 #include <Renderer/Windows/RayTrace.h>
 
