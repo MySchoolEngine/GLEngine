@@ -96,6 +96,7 @@ private:
 	GUID																m_FrameStatsGUID;
 	GUID																m_ConsoleWindowGUID;
 	GUID																m_RayTraceGUID;
+	GUID																m_ImageEditorGUID;
 	GUID																m_EntityEditorGUID;
 	GUID																m_EntitiesWindowGUID;
 	GUID																m_HDRSettingsGUID;
@@ -104,7 +105,6 @@ private:
 	std::unique_ptr<C_MainPassTechnique>	 m_MainPass;
 	std::shared_ptr<C_ShadowMapTechnique>	 m_ShadowPass;
 	std::shared_ptr<C_SunShadowMapTechnique> m_SunShadow;
-	Renderer::C_RayTraceWindow*				 m_RayTraceWindow;
 
 	std::shared_ptr<Renderer::C_StaticMeshHandles> handlesMesh;
 

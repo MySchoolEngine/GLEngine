@@ -1,6 +1,8 @@
 #pragma once
 
 #include <Core/CoreApi.h>
+#include <Core/EventSystem/Layer.h>
+#include <Core/Resources/Metafile.h>
 #include <Core/Resources/Resource.h>
 #include <Core/Resources/ResourceHandle.h>
 #include <Core/Resources/ResourceLoader.h>
@@ -10,7 +12,7 @@
 
 namespace GLEngine::Core {
 
-class CORE_API_EXPORT C_ResourceManager {
+class CORE_API_EXPORT C_ResourceManager : public C_Layer {
 	template <class ResourceType> using T_Handle = typename std::enable_if_t<std::is_base_of_v<Resource, ResourceType>, ResourceHandle<ResourceType>>;
 
 public:
@@ -24,6 +26,8 @@ public:
 	void UnloadUnusedResources();
 	void UpdatePendingLoads();
 
+	void OnEvent(I_Event& event) override;
+
 	// transfers ptr ownership to the manager
 	void RegisterResourceType(const I_ResourceLoader* loader);
 
@@ -33,12 +37,17 @@ public:
 private:
 	C_ResourceManager();
 
+	C_Metafile&		  GetOrCreateMetafile(const std::filesystem::path& resource);
+	const C_Metafile* GetMetafile(const std::filesystem::path& resource) const;
+	C_Metafile*		  GetOrLoadMetafile(const std::filesystem::path& resource);
+
 	void AddResourceToUnusedList(const std::shared_ptr<Resource>& resource);
 
 	const I_ResourceLoader*	  GetLoaderForExt(const std::string& ext) const;
 	std::shared_ptr<Resource> GetResourcePtr(const std::filesystem::path& filepath);
 
 	std::map<std::filesystem::path, std::shared_ptr<Resource>>		m_Resources;
+	std::map<std::filesystem::path, C_Metafile>						m_Metafile; //< no access from outside of resource manager
 	std::shared_mutex												m_Mutex;
 	std::vector<std::pair<std::shared_ptr<Resource>, unsigned int>> m_UnusedList;
 	std::shared_mutex												m_FinishedLoadsMutes;

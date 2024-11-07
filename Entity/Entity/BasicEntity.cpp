@@ -10,8 +10,8 @@ RTTR_REGISTRATION
 {
 	rttr::registration::class_<GLEngine::Entity::C_BasicEntity>("C_BasicEntity")
 		.constructor<std::string>()(rttr::policy::ctor::as_std_shared_ptr)
-		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
-		.method("AfterDeserialize", &GLEngine::Entity::C_BasicEntity::AfterDeserialize)();
+		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr);
+		//.method("AfterDeserialize", &GLEngine::Entity::C_BasicEntity::AfterDeserialize)();
 
 	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<GLEngine::Entity::C_BasicEntity>>();
 }

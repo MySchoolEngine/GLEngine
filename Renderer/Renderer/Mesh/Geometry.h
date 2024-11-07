@@ -45,8 +45,8 @@ public:
 	{
 		Mesh mesh;
 		mesh.vertices.reserve(3 * 4);
-		const glm::vec4 top(0, height, 0, 1);
-		const glm::vec4 bottom(0, -height, 0, 1);
+		const glm::vec3 top(0, height, 0);
+		const glm::vec3 bottom(0, -height, 0);
 
 		const auto getNormalBinromal = [&]() {
 			auto	   it	  = mesh.vertices.rbegin();
@@ -66,43 +66,43 @@ public:
 			mesh.bitangent.push_back(realBitang);
 		};
 		mesh.vertices.emplace_back(top);
-		mesh.vertices.emplace_back(width, 0, -width, 1);
-		mesh.vertices.emplace_back(-width, 0, -width, 1);
+		mesh.vertices.emplace_back(width, 0, -width);
+		mesh.vertices.emplace_back(-width, 0, -width);
 		getNormalBinromal();
 
 		mesh.vertices.emplace_back(top);
-		mesh.vertices.emplace_back(width, 0, width, 1);
-		mesh.vertices.emplace_back(width, 0, -width, 1);
+		mesh.vertices.emplace_back(width, 0, width);
+		mesh.vertices.emplace_back(width, 0, -width);
 		getNormalBinromal();
 
 		mesh.vertices.emplace_back(top);
-		mesh.vertices.emplace_back(-width, 0, width, 1);
-		mesh.vertices.emplace_back(width, 0, width, 1);
+		mesh.vertices.emplace_back(-width, 0, width);
+		mesh.vertices.emplace_back(width, 0, width);
 		getNormalBinromal();
 
 		mesh.vertices.emplace_back(top);
-		mesh.vertices.emplace_back(-width, 0, -width, 1);
-		mesh.vertices.emplace_back(-width, 0, width, 1);
+		mesh.vertices.emplace_back(-width, 0, -width);
+		mesh.vertices.emplace_back(-width, 0, width);
 		getNormalBinromal();
 
 		mesh.vertices.emplace_back(bottom);
-		mesh.vertices.emplace_back(-width, 0, -width, 1);
-		mesh.vertices.emplace_back(width, 0, -width, 1);
+		mesh.vertices.emplace_back(-width, 0, -width);
+		mesh.vertices.emplace_back(width, 0, -width);
 		getNormalBinromal();
 
 		mesh.vertices.emplace_back(bottom);
-		mesh.vertices.emplace_back(width, 0, width, 1);
-		mesh.vertices.emplace_back(-width, 0, width, 1);
+		mesh.vertices.emplace_back(width, 0, width);
+		mesh.vertices.emplace_back(-width, 0, width);
 		getNormalBinromal();
 
 		mesh.vertices.emplace_back(bottom);
-		mesh.vertices.emplace_back(width, 0, -width, 1);
-		mesh.vertices.emplace_back(width, 0, width, 1);
+		mesh.vertices.emplace_back(width, 0, -width);
+		mesh.vertices.emplace_back(width, 0, width);
 		getNormalBinromal();
 
 		mesh.vertices.emplace_back(bottom);
-		mesh.vertices.emplace_back(-width, 0, width, 1);
-		mesh.vertices.emplace_back(-width, 0, -width, 1);
+		mesh.vertices.emplace_back(-width, 0, width);
+		mesh.vertices.emplace_back(-width, 0, -width);
 		getNormalBinromal();
 
 		for (int i = 0; i < mesh.vertices.size(); ++i)
@@ -121,12 +121,12 @@ private:
 		const auto rightEdge  = leftEdge + size;
 		const auto topEdge	  = 1.0f - (size * yPos);
 		const auto bottomEdge = topEdge - size;
-		mesh.vertices.emplace_back(rightEdge, 0, topEdge, 1);	 // 3
-		mesh.vertices.emplace_back(leftEdge, 0, bottomEdge, 1);	 // 2
-		mesh.vertices.emplace_back(leftEdge, 0, topEdge, 1);	 // 1
-		mesh.vertices.emplace_back(rightEdge, 0, topEdge, 1);	 // 6 = 3
-		mesh.vertices.emplace_back(rightEdge, 0, bottomEdge, 1); // 5
-		mesh.vertices.emplace_back(leftEdge, 0, bottomEdge, 1);	 // 4 = 2
+		mesh.vertices.emplace_back(rightEdge, 0, topEdge);		// 3
+		mesh.vertices.emplace_back(leftEdge, 0, bottomEdge);	// 2
+		mesh.vertices.emplace_back(leftEdge, 0, topEdge);		// 1
+		mesh.vertices.emplace_back(rightEdge, 0, topEdge);		// 6 = 3
+		mesh.vertices.emplace_back(rightEdge, 0, bottomEdge);	// 5
+		mesh.vertices.emplace_back(leftEdge, 0, bottomEdge);	// 4 = 2
 
 		// I am drawing square [-1,1][-1,1] so I need to divide size by 2
 		// clamp is needed due to float imprecision

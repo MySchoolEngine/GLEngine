@@ -17,7 +17,7 @@ void DrawText(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	::ImGui::Text(prop.get_value(obj).convert<std::string*>()->c_str());
+	::ImGui::Text((char*)prop.get_value(obj).get_wrapped_value<std::string>().c_str());
 }
 
 //=================================================================================
@@ -25,7 +25,7 @@ bool DrawVec3(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	return ::ImGui::InputFloat3(GetMetadataMember<UI::Vec3::Name>(prop).c_str(), (float*)(prop.get_value(obj).convert<glm::vec3*>()));
+	return ::ImGui::InputFloat3(GetMetadataMember<UI::Vec3::Name>(prop).c_str(), (float*)(&prop.get_value(obj).get_wrapped_value<glm::vec3>()));
 }
 
 //=================================================================================
@@ -33,7 +33,7 @@ bool DrawCheckbox(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	return ::ImGui::Checkbox(GetMetadataMember<UI::Checkbox::Name>(prop).c_str(), (prop.get_value(obj).convert<bool*>()));
+	return ::ImGui::Checkbox(GetMetadataMember<UI::Checkbox::Name>(prop).c_str(), (bool*)(&prop.get_value(obj).get_wrapped_value<bool>()));
 }
 
 //=================================================================================
@@ -41,8 +41,18 @@ bool DrawSlider(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	return ::ImGui::SliderFloat(GetMetadataMember<UI::Slider::Name>(prop).c_str(), (prop.get_value(obj).convert<float*>()), GetMetadataMember<UI::Slider::Min>(prop),
+	return ::ImGui::SliderFloat(GetMetadataMember<UI::Slider::Name>(prop).c_str(), (float*)(&prop.get_value(obj).get_wrapped_value<float>()),
+								GetMetadataMember<UI::Slider::Min>(prop),
 								GetMetadataMember<UI::Slider::Max>(prop));
+}
+
+//=================================================================================
+bool DrawSliderInt(rttr::instance& obj, const rttr::property& prop)
+{
+	using namespace ::Utils::Reflection;
+
+	return ::ImGui::SliderInt(GetMetadataMember<UI::SliderInt::Name>(prop).c_str(), (prop.get_value(obj).convert<int*>()), GetMetadataMember<UI::SliderInt::Min>(prop),
+							  GetMetadataMember<UI::SliderInt::Max>(prop));
 }
 
 //=================================================================================
@@ -50,7 +60,8 @@ bool DrawAngle(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	return ::ImGui::SliderAngle(GetMetadataMember<UI::Angle::Name>(prop).c_str(), (prop.get_value(obj).convert<float*>()), GetMetadataMember<UI::Angle::Min>(prop),
+	return ::ImGui::SliderAngle(GetMetadataMember<UI::Angle::Name>(prop).c_str(), (float*)(&prop.get_value(obj).get_wrapped_value<float>()),
+								GetMetadataMember<UI::Angle::Min>(prop),
 								GetMetadataMember<UI::Angle::Max>(prop));
 }
 
@@ -59,7 +70,7 @@ bool DrawColour(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	return ::ImGui::ColorEdit3(GetMetadataMember<UI::Colour::Name>(prop).c_str(), (float*)(prop.get_value(obj).convert<glm::vec3*>()));
+	return ::ImGui::ColorEdit3(GetMetadataMember<UI::Colour::Name>(prop).c_str(), (float*)(&prop.get_value(obj).get_wrapped_value<glm::vec3>()));
 }
 
 //=================================================================================
@@ -67,7 +78,7 @@ bool DrawTextureResource(rttr::instance& obj, const rttr::property& prop)
 {
 	const static std::size_t maxStringLen = 23; // found out by experiment
 
-	auto*		   resource = (Core::ResourceHandle<Renderer::TextureResource>*)(prop.get_value(obj).convert<Core::ResourceHandle<Renderer::TextureResource>*>());
+	auto& resource = const_cast<Core::ResourceHandle<Renderer::TextureResource>&>(prop.get_value(obj).get_wrapped_value<Core::ResourceHandle<Renderer::TextureResource>>());
 	bool		   ret		= false;
 	const ImVec2   drawAreaSz(std::min(300.f, ImGui::GetWindowWidth()), 74);
 	const ImVec2   canvas_p0 = ImGui::GetCursorPos();
@@ -85,7 +96,7 @@ bool DrawTextureResource(rttr::instance& obj, const rttr::property& prop)
 	ImGui::Text("Image placeholder");
 	ImGui::EndChildFrame();
 	ImGui::SetCursorPos(ImVec2{74, 12});
-	auto filename = resource->GetFilePath().generic_string();
+	auto filename = resource.GetFilePath().generic_string();
 	if (filename.size() > maxStringLen) {
 		filename.erase(0, filename.size() - maxStringLen + 3);
 		filename = std::string("...") + filename;
@@ -95,12 +106,12 @@ bool DrawTextureResource(rttr::instance& obj, const rttr::property& prop)
 	ImGui::PopStyleVar(2);
 	ImGui::Button("Load image");
 
-	if (resource->IsReady())
+	if (resource.IsReady())
 	{
-		if (DrawSquareButton(draw_list, canvas_pos + ImVec2(drawAreaSz.x, 0) - ImVec2(20, -4), E_ButtonType::Cross) && io.MouseReleased[0] && resource->IsReady())
+		if (DrawSquareButton(draw_list, canvas_pos + ImVec2(drawAreaSz.x, 0) - ImVec2(20, -4), E_ButtonType::Cross) && io.MouseReleased[0] && resource.IsReady())
 		{
 			ret		  = true;
-			*resource = {};
+			resource = {};
 		}
 	}
 
@@ -124,11 +135,36 @@ std::vector<rttr::property> DrawAllPropertyGUI(rttr::instance& obj)
 		return {};
 	}
 
-	for (const auto& prop : obj.get_type().get_properties())
+	rttr::type type = obj.get_type().get_raw_type();
+	if (type.get_derived_classes().empty() == false)
+		type = obj.get_derived_type();
+
+	std::map<std::string, std::vector<rttr::property>> collapsableHeaders;
+	for (auto& prop : type.get_properties())
 	{
-		if (DrawPropertyGUI(obj, prop))
+		if (HasMetadataMember<MetaGUIInfo::CollapsableGroup>(prop))
 		{
-			changedVals.emplace_back(prop);
+			collapsableHeaders[GetMetadataMember<MetaGUIInfo::CollapsableGroup>(prop)].emplace_back(prop);
+		}
+		else
+		{
+			if (DrawPropertyGUI(obj, prop))
+			{
+				changedVals.emplace_back(prop);
+			}
+		}
+	}
+	for (auto& collapsableHeader : collapsableHeaders)
+	{
+		if (::ImGui::CollapsingHeader(collapsableHeader.first.c_str()))
+		{
+			for (auto& prop : collapsableHeader.second)
+			{
+				if (DrawPropertyGUI(obj, prop))
+				{
+					changedVals.emplace_back(prop);
+				}
+			}
 		}
 	}
 	return changedVals;
@@ -154,6 +190,10 @@ bool DrawPropertyGUI(rttr::instance& obj, const rttr::property& prop)
 	{
 		return DrawSlider(obj, prop);
 	}
+	else if (UI::IsUIMetaclass<MetaGUI::SliderInt>(prop))
+	{
+		return DrawSliderInt(obj, prop);
+	}
 	else if (UI::IsUIMetaclass<MetaGUI::Angle>(prop))
 	{
 		return DrawAngle(obj, prop);
@@ -167,7 +207,11 @@ bool DrawPropertyGUI(rttr::instance& obj, const rttr::property& prop)
 	{
 		return DrawTextureResource(obj, prop);
 	}
-	return false;
+	else
+	{
+		rttr::instance ins{prop.get_value(obj)};
+		return GUI::DrawAllPropertyGUI(ins).empty() == false; // this will not return changed properties
+	}
 }
 
 } // namespace GLEngine::GUI

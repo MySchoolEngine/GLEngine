@@ -65,7 +65,7 @@ template <class internalFormat> std::uint8_t C_TextureViewStorageCPU<internalFor
 	{
 		return static_cast<std::uint8_t>(std::distance(m_Channels.begin(), it));
 	}
-	return 0;
+	return -1; // wrong
 }
 
 //=================================================================================
@@ -116,6 +116,19 @@ template <class internalFormat> void C_TextureViewStorageCPU<internalFormat>::Se
 	auto									   it = m_Data.begin();
 	std::advance(it, position * m_Elements);
 	std::copy_n(static_cast<const internalFormat*>(&realValue.x), m_Elements, it);
+}
+
+//=================================================================================
+template <class internalFormat> inline void C_TextureViewStorageCPU<internalFormat>::FillLineSpan(const glm::vec3& colour, unsigned int line, unsigned int start, unsigned int end)
+{
+	glm::vec<4, internalFormat, glm::defaultp> realValue(Swizzle(glm::vec4{colour, 1.f}));
+	auto									   it		= m_Data.begin();
+	auto									   position = line * GetDimensions().x + start;
+	std::advance(it, position * m_Elements);
+	for (unsigned int i = start; i <= end; ++i, it += m_Elements)
+	{
+		std::copy_n(static_cast<const internalFormat*>(&realValue.x), m_Elements, it);
+	}
 }
 
 //=================================================================================

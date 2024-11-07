@@ -1,7 +1,6 @@
 #include <Utils/Logging/LoggingMacros.h>
 #include <Utils/Reflection/Metadata.h>
 #include <Utils/STLAfx.h>
-#include <Utils/Serialization/GLMRTTI.h>
 #include <Utils/Serialization/SerializationTraits.h>
 #include <Utils/Serialization/XMLDeserialize.h>
 
@@ -53,6 +52,12 @@ rttr::variant C_XMLDeserializer::DeserializeNode(const pugi::xml_node& node, rtt
 		DeserializeProperty(prop, var, node);
 	}
 
+
+	if (auto method = var2.get_type().get_method("AfterDeserialize"))
+	{
+		method.invoke(var);
+	}
+
 	return var;
 }
 
@@ -61,12 +66,57 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 {
 	auto type = prop.get_type();
 	using namespace ::Utils::Reflection;
-	if (HasMetadataMember<SerializationCls::DerefSerialize>(prop))
+
+	if (auto deserializeStringFunction = rttr::type::get_global_method("DeserializeString", {rttr::type::get<const std::string&>(), type}))
 	{
-		GLE_ASSERT(type.is_pointer(), "Cannot dereference {}", type);
-		GLE_ASSERT(!IsAtomicType(type) || (IsAtomicType(type) && type != rttr::type::get<std::string>()), "Does not work, you probably wrnogly reflected data.");
-		type = type.get_raw_type();
+		const auto propertyName = prop.get_name().to_string();
+		auto	   inlineType	= type;
+		if (inlineType.is_wrapper())
+			inlineType = inlineType.get_wrapped_type();
+		if (inlineType.get_raw_type().is_sequential_container())
+		{
+			if (const auto seqContainerNode = node.child(propertyName.c_str()))
+			{
+				auto var  = prop.get_value(owner);
+				auto view = var.create_sequential_view();
+				deserializeStringFunction.invoke({}, std::string(seqContainerNode.text().as_string()), var);
+
+				return;
+			}
+			else if (HasMetadataMember<SerializationCls::MandatoryProperty>(prop))
+			{
+				CORE_LOG(E_Level::Warning, E_Context::Core, "Missing attribute for property {}", prop);
+			}
+		}
+		else
+		{
+			if (const auto attribute = node.attribute(propertyName.c_str()))
+			{
+				auto		  var		   = prop.get_value(owner);
+				rttr::variant return_value = deserializeStringFunction.invoke({}, std::string(attribute.as_string()), var);
+				if (!return_value.is_valid() || !return_value.is_type<bool>() || return_value.get_value<bool>() != true)
+				{
+					CORE_LOG(E_Level::Error, E_Context::Core, "Wrong format for property {}.", prop);
+					return;
+				}
+				if (!prop.set_value(owner, var))
+				{
+					GLE_ASSERT(false, "Wrong type used {}", var.get_type());
+				}
+				return;
+			}
+			else if (HasMetadataMember<SerializationCls::MandatoryProperty>(prop))
+			{
+				CORE_LOG(E_Level::Warning, E_Context::Core, "Missing attribute for property {}", prop);
+			}
+		}
+		// this gives second chance for such properties that have been saved before
+		// the introduction of this option
 	}
+
+	if (type.is_wrapper())
+		type = type.get_wrapped_type();
+
 	if (IsAtomicType(type))
 	{
 		const auto propertyName = prop.get_name().to_string();
@@ -145,12 +195,14 @@ void C_XMLDeserializer::DeserializeArray(const pugi::xml_node& child, rttr::vari
 		if (type.is_valid() == false)
 			continue;
 		auto var = type.create();
+		GLE_ASSERT(var.is_valid(), "Cannot create {} var", type);
 		DeserializeNode(childNode, var);
-		var.convert(view.get_value_type());
+		GLE_ASSERT(var.convert(view.get_value_type()), "Cannot convert variable {} to {}", var.get_type(), view.get_value_type());
+		GLE_ASSERT(var.is_valid(), "Cannot create {} var", type);
 		const auto iter = view.insert(view.end(), var);
 		if (iter == view.end())
 		{
-			CORE_LOG(E_Level::Error, E_Context::Core, "Failed to insert item into the array.");
+			CORE_LOG(E_Level::Error, E_Context::Core, "Failed to insert item {} into the array.", type);
 		}
 		FinishDeserialization(type, var);
 		index++;

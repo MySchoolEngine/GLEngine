@@ -5,9 +5,9 @@
 
 layout(location = 0) in vec4 vertex;
 layout(location = 1) in vec3 normal;
-// layout(location = 2) in vec2 texCoord;
-// layout(location = 3) in vec3 tangent;
-// layout(location = 4) in vec3 bitangent;
+layout(location = 2) in vec2 texCoord;
+layout(location = 3) in vec3 tangent;
+layout(location = 4) in vec3 bitangent;
 
 // per frame
 #include "../include/frameConstants.glsl"
@@ -31,7 +31,7 @@ void main()
 	normalOUT	= mat3(transpose(inverse(modelMatrix))) * normal;
 	// texCoordOUT = texCoord;
 
-	vec4 worldCoord = modelMatrix * vertex;
+	vec4 worldCoord =  vertex;
 
 	// TBN = mat3(tangent, bitangent, normal);
 

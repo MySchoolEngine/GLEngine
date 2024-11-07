@@ -9,10 +9,10 @@ namespace GLEngine::Renderer::MeshData {
 
 //=================================================================================
 struct Material {
-	glm::vec4 ambient;
-	glm::vec4 diffuse;
-	glm::vec4 specular;
-	float	  shininess;
+	Colours::T_Colour ambient;
+	glm::vec4		  diffuse;
+	Colours::T_Colour specular;
+	float			  shininess;
 
 	// Index to a texture array
 	// If negative - material has no texture
@@ -32,13 +32,13 @@ struct SkeletonData {
 		std::vector<JointID> children;
 	};
 
-	using T_BoneIndex = unsigned int;
+	using T_BoneIndex							 = unsigned int;
 	inline constexpr static T_BoneIndex BadIndex = static_cast<T_BoneIndex>(-1);
 	static_assert(std::is_unsigned<T_BoneIndex>::value);
-	std::vector<glm::ivec3>			jointIndices;
-	std::vector<glm::vec3>			weights;
-	std::vector<BoneInfo>			bones;
-	std::map<JointID, T_BoneIndex>	boneMapping;
+	std::vector<glm::ivec3>		   jointIndices;
+	std::vector<glm::vec3>		   weights;
+	std::vector<BoneInfo>		   bones;
+	std::map<JointID, T_BoneIndex> boneMapping;
 
 	void AddBoneData(int vertexID, int boneID, float weight)
 	{
@@ -66,7 +66,7 @@ struct SkeletonData {
 
 //=================================================================================
 struct Mesh {
-	std::vector<glm::vec4> vertices;
+	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
 	std::vector<glm::vec2> texcoords;
 	std::vector<glm::vec3> tangent;

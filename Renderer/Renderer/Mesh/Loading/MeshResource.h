@@ -26,7 +26,7 @@ public:
 	MeshData::Scene&	   GetScene();
 	const MeshData::Scene& GetScene() const;
 
-	const std::vector<std::filesystem::path>& GetTextureNames() const; // shoudl be handeled better
+	const std::vector<std::filesystem::path>& GetTextureNames() const; // should be handled better
 
 private:
 	std::shared_ptr<Renderer::MeshData::Scene> m_Scene;

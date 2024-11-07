@@ -5,7 +5,8 @@
 namespace GLEngine::Core {
 
 //=================================================================================
-C_ResourceManager::C_ResourceManager()
+C_ResourceManager::C_ResourceManager() 
+: C_Layer("ResourceManager")
 {
 }
 
@@ -105,6 +106,14 @@ void C_ResourceManager::UpdatePendingLoads()
 }
 
 //=================================================================================
+void C_ResourceManager::OnEvent(I_Event& event)
+{
+	for (auto& resource : m_Resources) {
+		resource.second->OnEvent(event);
+	}
+}
+
+//=================================================================================
 void C_ResourceManager::UnloadUnusedResources()
 {
 	std::unique_lock lock(m_Mutex);
@@ -142,6 +151,56 @@ void C_ResourceManager::UnloadUnusedResources()
 		}
 	);
 	m_UnusedList.erase(retainedEnd, m_UnusedList.end());
+}
+
+//=================================================================================
+C_Metafile& C_ResourceManager::GetOrCreateMetafile(const std::filesystem::path& resource)
+{
+	const auto metafileName = C_Metafile::GetMetafileName(resource);
+	if (m_Metafile.find(metafileName) == m_Metafile.end())
+	{
+		// try to load and create
+		C_Metafile newFile(resource);
+		if (newFile.Load() == false) {
+			// populate it
+
+			// save it
+			newFile.Save();
+		}
+		m_Metafile.emplace(metafileName, newFile);
+	}
+	return m_Metafile[metafileName];
+}
+
+//=================================================================================
+const C_Metafile* C_ResourceManager::GetMetafile(const std::filesystem::path& resource) const
+{
+	const auto metafileName = C_Metafile::GetMetafileName(resource);
+	if (m_Metafile.find(metafileName) == m_Metafile.end())
+	{
+		return nullptr;
+	}
+	return &m_Metafile.at(metafileName);
+}
+
+//=================================================================================
+C_Metafile* C_ResourceManager::GetOrLoadMetafile(const std::filesystem::path& resource)
+{
+	const auto metafileName = C_Metafile::GetMetafileName(resource);
+	if (m_Metafile.find(metafileName) == m_Metafile.end())
+	{
+		// try to load and create
+		C_Metafile newFile(resource);
+		if (newFile.Load())
+		{
+			m_Metafile.emplace(metafileName, newFile);
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+	return &m_Metafile.at(metafileName);
 }
 
 //=================================================================================

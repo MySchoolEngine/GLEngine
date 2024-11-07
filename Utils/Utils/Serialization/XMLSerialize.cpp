@@ -1,6 +1,5 @@
 #include <Utils/Logging/LoggingMacros.h>
 #include <Utils/Reflection/Metadata.h>
-#include <Utils/Serialization/GLMRTTI.h>
 #include <Utils/Serialization/SerializationTraits.h>
 #include <Utils/Serialization/XMLSerialize.h>
 
@@ -44,16 +43,48 @@ pugi::xml_node C_XMLSerializer::SerializeObject(const rttr::instance& obj2, pugi
 void C_XMLSerializer::WriteProperty(const rttr::property& prop, const rttr::instance& var, pugi::xml_node parent)
 {
 	using namespace ::Utils::Reflection;
-	auto		  type		= prop.get_type();
+	rttr::type	  type		= prop.get_type();
 	rttr::variant propValue = prop.get_value(var);
-	if (HasMetadataMember<SerializationCls::DerefSerialize>(prop))
-	{
-		GLE_ASSERT(type.is_pointer(), "Cannot dereference {}", type);
-		type = type.get_raw_type();
+	if (type.is_wrapper())
+		type = type.get_wrapped_type();
+
+	if (auto defaultValue = prop.get_metadata("SerializationDefaultValue")) {
+		auto defaultValueType = defaultValue.get_type();
+		GLE_ASSERT(defaultValueType == type, "Type of default value doesn't match property type {}", prop);
+		if (defaultValue == propValue) {
+			return; // skip 
+		}
 	}
-	if (IsAtomicType(type) && IsEmpty(type, propValue) == false)
+
+	if (IsAtomicType(type))
 	{
-		WriteAtomics(type, propValue, parent.append_attribute(prop.get_name().to_string().c_str()));
+		if (IsEmpty(type, propValue) == false)
+			WriteAtomics(type, propValue, parent.append_attribute(prop.get_name().to_string().c_str()));
+	}
+	else if (auto serializeStringFunction = rttr::type::get_global_method("SerializeString", {prop.get_type(), rttr::type::get<std::reference_wrapper<std::string>>()}))
+	{
+		std::string stringRet;
+		rttr::variant stringVar = std::ref(stringRet);
+		if (type.get_raw_type().is_sequential_container())
+		{
+			const auto view = propValue.create_sequential_view();
+			if (view.is_empty())
+				return;
+
+			pugi::xml_node		seqContainerNode = parent.append_child(prop.get_name().to_string().c_str());
+
+			const rttr::variant returnValue		 = serializeStringFunction.invoke({}, propValue, stringVar);
+			GLE_ASSERT(returnValue.is_valid(), "Wrong type for SerializeString");
+			seqContainerNode.text().set(stringRet.c_str());
+		}
+		else
+		{
+			pugi::xml_attribute attr = parent.append_attribute(prop.get_name().to_string().c_str());
+
+			const rttr::variant returnValue = serializeStringFunction.invoke({}, propValue, stringVar);
+			GLE_ASSERT(returnValue.is_valid() && returnValue.is_type<bool>() && returnValue.get_value<bool>() == true, "Wrong type for SerializeString");
+			attr.set_value(stringRet.c_str());
+		}
 	}
 	else if (propValue.is_sequential_container())
 	{
@@ -180,10 +211,15 @@ void C_XMLSerializer::WriteArray(const rttr::variant_sequential_view& view, pugi
 {
 	for (const auto& item : view)
 	{
-		const rttr::instance obj  = item.extract_wrapped_value();
-		const rttr::instance ins  = obj.get_type().get_raw_type().is_wrapper() ? obj.get_wrapped_instance() : obj;
-		auto				 node = parent.append_child(GetNodeName(ins.get_derived_type()).to_string().c_str());
-		SerializeObject(ins, node);
+		rttr::variant		obj	 = item.extract_wrapped_value();
+		const rttr::variant ins	 = obj.get_type().get_raw_type().is_wrapper() ? obj.extract_wrapped_value() : obj;
+		rttr::type			type = ins.get_type();
+
+		if (rttr::instance(ins).get_type().get_raw_type().get_derived_classes().empty() == false)
+			type = rttr::instance(ins).get_derived_type();
+		GLE_ASSERT(ins.is_valid(), "invalid");
+		auto node = parent.append_child(GetNodeName(type).to_string().c_str());
+		SerializeObject(obj, node);
 	}
 }
 
@@ -191,16 +227,17 @@ void C_XMLSerializer::WriteArray(const rttr::variant_sequential_view& view, pugi
 rttr::string_view C_XMLSerializer::GetNodeName(const rttr::type& type)
 {
 	rttr::type rawType = type;
-	if (rawType.is_pointer())
+	while (rawType.is_pointer() || rawType.is_wrapper())
 	{
-		rawType = rawType.get_raw_type();
+		if (rawType.is_pointer())
+		{
+			rawType = rawType.get_raw_type();
+		}
+		if (rawType.is_wrapper())
+		{
+			rawType = rawType.get_wrapped_type();
+		}
 	}
-	if (rawType.is_wrapper())
-	{
-		rawType = rawType.get_wrapped_type();
-	}
-	if (rawType.is_pointer())
-		rawType = rawType.get_raw_type();
 
 	return rawType.get_name();
 }

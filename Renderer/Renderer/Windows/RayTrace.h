@@ -5,7 +5,7 @@
 #include <Renderer/RayCasting/RayRenderer.h>
 #include <Renderer/RendererApi.h>
 #include <Renderer/Resources/RenderResourceHandle.h>
-#include <Renderer/Textures/TextureStorage.h>
+#include <Renderer/Textures/Storage/TextureLinearStorage.h>
 
 #include <GUI/GUIWindow.h>
 #include <GUI/Image.h>

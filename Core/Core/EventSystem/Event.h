@@ -24,6 +24,9 @@ enum class E_EventType
 	WindowResized,
 	UserDefined,
 	Entity,
+	ResourceCreatedEvent,
+	ResourceModifiedEvent,
+	ResourceUnloadedEvent,
 };
 
 //=================================================================================
@@ -37,14 +40,24 @@ enum class E_EventCategory
 	MouseButton	 = BIT(4),
 	UserDefined	 = BIT(5),
 	EntitySystem = BIT(6),
+	Resource	 = BIT(7),
 };
 
 //=================================================================================
 // helpful macros taken from TheCherno's code
-#define EVENT_CLASS_TYPE(type)                                                                                                                                                     \
+#define EVENT_CLASS_TYPE_ONLY(type)                                                                                                                                                \
 	static E_EventType	GetStaticType() { return E_EventType::type; }                                                                                                              \
 	virtual E_EventType GetType() const override { return GetStaticType(); }                                                                                                       \
 	virtual const char* GetName() const override { return #type; }
+
+#define EVENT_CLASS_TYPE_NAME(type, name)                                                                                                                                          \
+	static E_EventType	GetStaticType() { return E_EventType::name; }                                                                                                              \
+	virtual E_EventType GetType() const override { return GetStaticType(); }                                                                                                       \
+	virtual const char* GetName() const override { return name; }
+
+#define GET_MACRO(_1, _2, NAME, ...) NAME
+#define EVENT_CLASS_TYPE(...)		 GET_MACRO(__VA_ARGS__, EVENT_CLASS_TYPE_NAME, EVENT_CLASS_TYPE_ONLY)(__VA_ARGS__)
+
 
 #define EVENT_CLASS_CATEGORY(category)                                                                                                                                             \
 	virtual ::Utils::C_BitField<E_EventCategory> GetCategories() const override { return category; }

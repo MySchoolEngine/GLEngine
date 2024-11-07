@@ -62,6 +62,7 @@ enum class E_BlendFactor : std::uint8_t
 };
 
 //=================================================================================
+// Source is colour written by fragment shader
 enum class E_BlendFunction : std::uint8_t
 {
 	Add,			 //< Result = Src + Dst

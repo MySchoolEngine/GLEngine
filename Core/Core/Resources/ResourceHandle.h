@@ -41,6 +41,8 @@ public:
 	const ResourceType& GetResource() const;
 	ResourceType&		GetResource();
 
+	const std::filesystem::path& GetFilepath() const;
+
 	void AfterDeserialize(GLEngine::Utils::C_XMLDeserializer::DeserializeCtx& ctx);
 
 	RTTR_ENABLE(ResourceHandleBase);

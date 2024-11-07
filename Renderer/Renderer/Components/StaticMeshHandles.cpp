@@ -85,13 +85,13 @@ void C_StaticMeshHandles::Update()
 	}
 	if (m_Pipeline.IsValid() == false)
 	{
-
+		GLE_TODO("6-11-2024", "RohacekD", "Can we validate the definition with shaders?");
 		m_Pipeline = Core::C_Application::Get().GetActiveRenderer().GetRM().createPipeline(PipelineDescriptor{
 		.primitiveType = Renderer::E_RenderPrimitives::TriangleList,
-		.bindingCount = 3,
+		.bindingCount = 5,
 		.vertexInput   = {{
 							  .binding = 0,
-							  .type	   = Renderer::T_TypeShaderDataType_v<glm::vec4>
+							  .type	   = Renderer::T_TypeShaderDataType_v<glm::vec3>
 						  },
 						  {
 							  .binding = 1,
@@ -101,30 +101,18 @@ void C_StaticMeshHandles::Update()
 							  .binding = 2,
 							  .type	   = Renderer::T_TypeShaderDataType_v<glm::vec2>
 						  },
-						  //{
-							//  .binding = 3,
-							//  .type	   = Renderer::T_TypeShaderDataType_v<glm::vec3>
-						  //},
-						  //{
-							//  .binding = 4,
-							//  .type	   = Renderer::T_TypeShaderDataType_v<glm::vec3>
-						  //},
+						  {
+							  .binding = 3,
+							  .type	   = Renderer::T_TypeShaderDataType_v<glm::vec3>
+						  },
+						  {
+							  .binding = 4,
+							  .type	   = Renderer::T_TypeShaderDataType_v<glm::vec3>
+						  },
 			},
-		.shader =  "basic",
+		.shader =  "handles",
 		// .colorAttachementFormat = GetTextureFormat(m_SwapChainImageFormat), no need for OpenGL and will be solved for Vulkan
 	});
-		// create model data uniform buffer
-		{
-			constexpr auto	matSize	   = sizeof(glm::mat4);
-			const auto		bufferSize = matSize + sizeof(int);
-			I_Renderer&		renderer   = Core::C_Application::Get().GetActiveRenderer();
-			ResouceManager& rm		   = renderer.GetRM();
-			m_ModelDataHandle		   = rm.createBuffer(BufferDescriptor{
-				 .size	= bufferSize,
-				 .type	= E_BufferType::Uniform,
-				 .usage = E_ResourceUsage::Dynamic,
-			 });
-		}
 	}
 	if (m_Meshes.empty() == true && m_MeshResource.IsReady())
 	{
@@ -190,7 +178,6 @@ void C_StaticMeshHandles::Render(Renderer3D& renderer) const
 	{
 		for (auto& meshContainer : m_Meshes)
 		{
-			// needs pipeline as well
 			renderer.Draw(RenderCall3D{
 				.ModelMatrix   = GetComponentModelMatrix(),
 				.NumPrimities  = meshContainer.m_NumPrimitives,

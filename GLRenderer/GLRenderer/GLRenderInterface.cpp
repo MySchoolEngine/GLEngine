@@ -47,23 +47,39 @@ void C_GLRenderInterface::Render(const Renderer::RenderCall3D& call)
 	renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&]() {
 			glBindVertexArray(m_VAOid);
+			GLPipeline* pipeline = glRM.GetPipeline(call.PipelineHandle);
 
-			for (int i = 0; i < 2; ++i)
+			for (int i = 0; i < pipeline->GetDesc().vertexInput.size(); ++i)
 			{
+				const Renderer::AttributeDescriptor& vertexDesc = pipeline->GetDesc().vertexInput[i];
 				auto* buffer = glRM.GetBuffer(call.Buffers[i]);
 				buffer->bind();
-				// read those from pipeline!
-				if (i == 0)
-					glVertexAttribPointer(i, 4, T_TypeToGL<glm::vec4>::value, GL_FALSE, 0, nullptr);
-				else
-					glVertexAttribPointer(i, 4, T_TypeToGL<glm::vec3>::value, GL_FALSE, 0, nullptr);
+				switch (vertexDesc.type)
+				{
+				case Renderer::E_ShaderDataType::Float:
+					glVertexAttribPointer(i, T_GLNumComponenets_v<float>, T_TypeToGL<float>::value, GL_FALSE, 0, nullptr);
+					break;
+				case Renderer::E_ShaderDataType::Vec2:
+					glVertexAttribPointer(i, T_GLNumComponenets_v<glm::vec2>, T_TypeToGL<glm::vec2>::value, GL_FALSE, 0, nullptr);
+					break;
+				case Renderer::E_ShaderDataType::Vec3:
+					glVertexAttribPointer(i, T_GLNumComponenets_v<glm::vec3>, T_TypeToGL<glm::vec3>::value, GL_FALSE, 0, nullptr);
+					break;
+				case Renderer::E_ShaderDataType::Vec4:
+					glVertexAttribPointer(i, T_GLNumComponenets_v<glm::vec4>, T_TypeToGL<glm::vec4>::value, GL_FALSE, 0, nullptr);
+					break;
+				default:
+					GLE_ERROR("Unknown shader data type");
+					break;
+				}
 				glEnableVertexAttribArray(i);
+				buffer->unbind();
 			}
 
 			glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(call.NumPrimities));
 
 
-			for (int i = 0; i < 2; ++i)
+			for (int i = 0; i < 5; ++i)
 			{
 				auto* buffer = glRM.GetBuffer(call.Buffers[i]);
 				buffer->unbind();

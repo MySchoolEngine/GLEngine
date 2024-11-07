@@ -3,17 +3,17 @@
 #include <GUI/Input/Transformations.h>
 
 #include <Utils/Reflection/Metadata.h>
+#include <Utils/Serialization/SerializationUtils.h>
 
 #include <GUI/ReflectionGUI.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 
-#include <Utils/Serialization/GLMRTTI.h>
-
 #include <rttr/registration>
 #include <rttr/type>
 
+// clang-format off
 RTTR_REGISTRATION
 {
 	using namespace ::Utils::Reflection;
@@ -22,25 +22,31 @@ RTTR_REGISTRATION
 		.constructor<>()(rttr::policy::ctor::as_object)
 		.property("Translation", &C_Transformations::m_Translation)
 			(
-				rttr::policy::prop::bind_as_ptr, 
+				rttr::policy::prop::as_reference_wrapper, 
 				RegisterMetaclass<MetaGUI::Vec3>(), 
-				RegisterMetamember<UI::Vec3::Name>("Translate")
+				RegisterMetamember<UI::Vec3::Name>("Translate"),
+				REGISTER_DEFAULT_VALUE(glm::vec3(0.f, 0.f, 0.f))
 			)
 		.property("Rotation", &C_Transformations::m_Rotation)
 			(
-				rttr::policy::prop::bind_as_ptr, 
+				rttr::policy::prop::as_reference_wrapper, 
 				RegisterMetaclass<MetaGUI::Vec3>(), 
 				RegisterMetamember<UI::Vec3::Name>("Rotation"),
 				RegisterMetamember<SerializationCls::NoSerialize>(true)
 			)
 		.property("Scale", &C_Transformations::m_Scale)
 			(
-				rttr::policy::prop::bind_as_ptr, 
-				RegisterMetaclass<MetaGUI::Vec3>(), 
-				RegisterMetamember<UI::Vec3::Name>("Scale")
+				rttr::policy::prop::as_reference_wrapper,
+				RegisterMetaclass<MetaGUI::Vec3>(),
+				RegisterMetamember<UI::Vec3::Name>("Scale"),
+				REGISTER_DEFAULT_VALUE(glm::vec3(1.f, 1.f, 1.f))
 			)
-		.property("RotationDeg", &C_Transformations::GetRotationDeg, &C_Transformations::SetRotationDeg);
+		.property("RotationDeg", &C_Transformations::GetRotationDeg, &C_Transformations::SetRotationDeg)
+			(
+				REGISTER_DEFAULT_VALUE(glm::vec3(0.f, 0.f, 0.f))
+			);
 }
+// clang-format on
 
 namespace GLEngine::GUI::Input {
 
