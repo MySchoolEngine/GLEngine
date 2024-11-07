@@ -4,8 +4,12 @@
 #include <GUI/ReflectionGUI.h>
 
 #include <Renderer/Textures/TextureResource.h>
+#include <Renderer/IRenderer.h>
 
 #include <Core/Resources/ResourceHandle.h>
+#include <Core/Application.h>
+
+#include <filesystem>
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -76,9 +80,12 @@ bool DrawColour(rttr::instance& obj, const rttr::property& prop)
 //=================================================================================
 bool DrawTextureResource(rttr::instance& obj, const rttr::property& prop)
 {
+	using namespace ::Utils::Reflection;
+
 	const static std::size_t maxStringLen = 23; // found out by experiment
 
 	auto& resource = const_cast<Core::ResourceHandle<Renderer::TextureResource>&>(prop.get_value(obj).get_wrapped_value<Core::ResourceHandle<Renderer::TextureResource>>());
+	const auto propertyName = GetMetadataMember<UI::Texture::Name>(prop);
 	bool		   ret		= false;
 	const ImVec2   drawAreaSz(std::min(300.f, ImGui::GetWindowWidth()), 74);
 	const ImVec2   canvas_p0 = ImGui::GetCursorPos();
@@ -90,33 +97,44 @@ bool DrawTextureResource(rttr::instance& obj, const rttr::property& prop)
 	const ImGuiIO& io		  = ImGui::GetIO();
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{0, 0});
-	ImGui::BeginChildFrame(1, drawAreaSz); // todo id
-	ImGui::SetCursorPos(ImVec2{2, 2});
-	ImGui::BeginChildFrame(2, {70, 70}); // todo id
-	ImGui::Text("Image placeholder");
-	ImGui::EndChildFrame();
-	ImGui::SetCursorPos(ImVec2{74, 12});
-	auto filename = resource.GetFilePath().generic_string();
-	if (filename.size() > maxStringLen) {
-		filename.erase(0, filename.size() - maxStringLen + 3);
-		filename = std::string("...") + filename;
-	}
-	ImGui::Text(filename.c_str());
-	ImGui::SetCursorPos(ImVec2{74, 42});
-	ImGui::PopStyleVar(2);
-	ImGui::Button("Load image");
-
-	if (resource.IsReady())
+	
 	{
-		if (DrawSquareButton(draw_list, canvas_pos + ImVec2(drawAreaSz.x, 0) - ImVec2(20, -4), E_ButtonType::Cross) && io.MouseReleased[0] && resource.IsReady())
+		auto filename = resource.GetFilePath().generic_string();
+		ImGui::BeginChildFrame(std::hash<std::string>{}(propertyName + filename), drawAreaSz);
+
+		GLE_TODO("7-11-2024", "RohacekD", "handle empty handles");
+
+		ImGui::SetCursorPos(ImVec2{2, 2});
 		{
-			ret		  = true;
-			resource = {};
+			ImGui::BeginChildFrame(std::hash<std::string>{}(propertyName + filename + "_preview"), {70, 70});
+			//auto GUIHandle = Core::C_Application::Get().GetActiveRenderer().GetTextureGUIHandle(resource);
+			ImGui::Text("Image placeholder");
+			ImGui::EndChildFrame();
 		}
+		ImGui::SetCursorPos(ImVec2{74, 12});
+		if (filename.size() > maxStringLen)
+		{
+			filename.erase(0, filename.size() - maxStringLen + 3);
+			filename = std::string("...") + filename;
+		}
+		ImGui::Text(filename.c_str());
+		ImGui::SetCursorPos(ImVec2{74, 42});
+		ImGui::PopStyleVar(2);
+		ImGui::Button("Load image");
+
+		if (resource.IsReady())
+		{
+			if (DrawSquareButton(draw_list, canvas_pos + ImVec2(drawAreaSz.x, 0) - ImVec2(20, -4), E_ButtonType::Cross) && io.MouseReleased[0] && resource.IsReady())
+			{
+				ret		 = true;
+				resource = {};
+			}
+		}
+
+
+		ImGui::EndChildFrame();
 	}
 
-
-	ImGui::EndChildFrame();
 	ImGui::SetCursorPos(canvas_p0);
 	ImGui::ItemSize(imageRect);
 	return false;

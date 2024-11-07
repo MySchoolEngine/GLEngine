@@ -5,8 +5,6 @@
 #include <Renderer/Textures/DeviceTexture.h>
 #include <Renderer/Textures/TextureResource.h>
 
-#include <GUI/Texture.h>
-
 #include <Core/Resources/ResourceHandle.h>
 
 #include <Utils/RefCounter.h>
@@ -63,7 +61,6 @@ public:
 	void Update();
 
 private:
-	void SetTextureCB();
 
 	friend class C_MaterialManager;
 
@@ -76,7 +73,6 @@ private:
 	std::shared_ptr<I_DeviceTexture>				m_ColorMap;
 	std::shared_ptr<I_DeviceTexture>				m_NormalMap;
 	std::shared_ptr<I_DeviceTexture>				m_RoughnessMap;
-	std::array<GUI::C_Texture, 3>					m_Textures;
 	mutable bool									m_Changed : 1; // mutable because of const-ness of DrawGUI
 	int												m_MaterialIndex;
 	float											m_Shininess;
