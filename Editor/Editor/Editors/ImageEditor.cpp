@@ -55,9 +55,9 @@ C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 		const auto textureSelectorGUID = NextGUID();
 		auto*	   textureSelectWindow = new GUI::C_FileDialogWindow(
 			 ".bmp,.hdr,.ppm", "Save image as...",
-			 [&, textureSelectorGUID](const std::filesystem::path& texture) {
+			 [&, textureSelectorGUID](const std::filesystem::path& texture, GUI::C_GUIManager& guiMgr) {
 				 // TODO save here
-				 guiMGR.DestroyWindow(textureSelectorGUID);
+				 guiMgr.DestroyWindow(textureSelectorGUID);
 			 },
 			 textureSelectorGUID, "./Images");
 		guiMGR.AddCustomWindow(textureSelectWindow);

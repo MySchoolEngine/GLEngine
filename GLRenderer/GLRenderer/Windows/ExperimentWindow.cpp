@@ -38,6 +38,7 @@
 #include <Renderer/Textures/TextureView.h>
 #include <Renderer/Windows/RayTrace.h>
 
+#include <Editor/Editors/ImageEditor.h>
 #include <Editor/EntityEditor/EntitiesWindow.h>
 #include <Editor/EntityEditor/EntityEditor.h>
 
@@ -46,8 +47,6 @@
 
 #include <Physics/Primitives/Intersection.h>
 #include <Physics/Primitives/Ray.h>
-
-#include <Editor/Editors/ImageEditor.h>
 
 #include <Entity/BasicEntity.h>
 #include <Entity/ComponentManager.h>
@@ -150,7 +149,6 @@ void C_ExplerimentWindow::Update()
 	const auto camera = m_CamManager.GetActiveCamera();
 	GLE_ASSERT(camera, "No active camera");
 
-	handlesMesh->Update();
 	handlesMesh->Render(m_3DRenderer);
 
 	// ======
@@ -384,9 +382,9 @@ void C_ExplerimentWindow::OnAppInit()
 		const auto levelSelectorGUID = NextGUID();
 		auto*	   levelSelectWindwo = new GUI::C_FileDialogWindow(
 			 ".xml", "Select level",
-			 [&, levelSelectorGUID](const std::filesystem::path& level) {
+			 [&, levelSelectorGUID](const std::filesystem::path& level, GUI::C_GUIManager& guiMgr) {
 				 SetupWorld(level);
-				 m_ImGUI->GetGUIMgr().DestroyWindow(levelSelectorGUID);
+				 guiMgr.DestroyWindow(levelSelectorGUID);
 			 },
 			 levelSelectorGUID, "./Levels");
 		guiMGR.AddCustomWindow(levelSelectWindwo);
@@ -565,10 +563,9 @@ bool C_ExplerimentWindow::SaveLevelAs()
 	const auto levelSelectorGUID = NextGUID();
 	auto*	   levelPathSelect	 = new GUI::C_FileDialogWindow(
 		   ".xml", "Select level",
-		   [&, levelSelectorGUID](const std::filesystem::path& level) {
-			   m_ImGUI->GetGUIMgr().DestroyWindow(levelSelectorGUID);
-
+		   [&, levelSelectorGUID](const std::filesystem::path& level, GUI::C_GUIManager& guiMgr) {
 			   SaveLevel(level);
+			   guiMgr.DestroyWindow(levelSelectorGUID);
 		   },
 		   levelSelectorGUID, "./Levels");
 	guiMGR.AddCustomWindow(levelPathSelect);

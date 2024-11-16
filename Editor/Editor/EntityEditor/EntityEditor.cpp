@@ -38,10 +38,10 @@ EntityEditor::EntityEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 	const auto entityDialogGUID = NextGUID();
 	m_FileDialog				= new GUI::C_FileDialogWindow(
 		   Core::Filesystem::entityFile.generic_string(), "Select file",
-		   [&, entityDialogGUID](const std::filesystem::path& entityFile) {
+		   [&, entityDialogGUID](const std::filesystem::path& entityFile, GUI::C_GUIManager& guiMgr) {
 			   m_FileDialogPath = entityFile;
 			   m_FileDialog->SetVisible(false);
-			   // guiMGR.DestroyWindow(entityDialogGUID);
+			   guiMgr.DestroyWindow(entityDialogGUID);
 		   },
 		   entityDialogGUID, Core::Filesystem::entityFolder);
 

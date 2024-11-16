@@ -60,9 +60,9 @@ C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<I_CameraComponent>
 		const auto textureSelectorGUID = NextGUID();
 		auto*	   textureSelectWindow = new GUI::C_FileDialogWindow(
 			 ".bmp,.hdr,.ppm", "Save image as...",
-			 [&, textureSelectorGUID](const std::filesystem::path& texture) {
+			 [&, textureSelectorGUID](const std::filesystem::path& texture, GUI::C_GUIManager& guiMgr) {
 				 SaveCurrentImage(texture);
-				 guiMGR.DestroyWindow(textureSelectorGUID);
+				 guiMgr.DestroyWindow(textureSelectorGUID);
 			 },
 			 textureSelectorGUID, "./Images");
 		guiMGR.AddCustomWindow(textureSelectWindow);

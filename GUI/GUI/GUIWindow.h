@@ -6,8 +6,9 @@
 #include <Core/GUID.h>
 
 namespace GLEngine::GUI {
+class C_GUIManager;
 
-class GUI_API_EXPORT C_Window : public I_GUIPart {
+class GUI_API_EXPORT C_Window {
 public:
 	using T_GUIPartRef = std::reference_wrapper<I_GUIPart>;
 	using T_GUIMenu	   = std::reference_wrapper<Menu::C_Menu>;
@@ -17,7 +18,7 @@ public:
 	virtual ~C_Window() = default;
 
 	virtual void			 Update() {}
-	virtual bool			 Draw() const override;
+	virtual bool			 Draw(C_GUIManager& guiMgr) const;
 	void					 SetVisible(bool enable = true);
 	[[nodiscard]] bool		 IsVisible() const;
 	GUID					 AddComponent(T_GUIPartRef component);

@@ -28,7 +28,7 @@ C_EntitiesWindow::C_EntitiesWindow(GUID guid, std::shared_ptr<Entity::C_EntityMa
 C_EntitiesWindow::~C_EntitiesWindow() = default;
 
 //=================================================================================
-bool C_EntitiesWindow::Draw() const
+bool C_EntitiesWindow::Draw(GUI::C_GUIManager& guiMgr) const
 {
 	ImGui::Begin(m_Name.c_str(), &m_IsVisible);
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));

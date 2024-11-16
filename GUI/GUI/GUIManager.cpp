@@ -29,7 +29,7 @@ void C_GUIManager::OnUpdate()
 	{
 		if (it.second->IsVisible())
 		{
-			it.second->Draw();
+			it.second->Draw(*this);
 		}
 	}
 }

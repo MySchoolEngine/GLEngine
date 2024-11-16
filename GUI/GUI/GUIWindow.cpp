@@ -16,7 +16,7 @@ C_Window::C_Window(GUID guid, const std::string& name)
 }
 
 //=================================================================================
-bool C_Window::Draw() const
+bool C_Window::Draw(C_GUIManager& guiMgr) const
 {
 	ImGuiWindowFlags flags = 0;
 	if (!m_Menus.empty())

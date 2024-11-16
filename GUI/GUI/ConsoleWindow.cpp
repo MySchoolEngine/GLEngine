@@ -35,7 +35,7 @@ void C_ConsoleWindow::Log(Utils::Logging::E_Level level, Utils::Logging::E_Conte
 }
 
 //=================================================================================
-bool C_ConsoleWindow::Draw() const
+bool C_ConsoleWindow::Draw(C_GUIManager& guiMgr) const
 {
 	::ImGui::Begin(m_Name.c_str(), &m_IsVisible);
 	static const char* levels[]			 = {"Error", "Warning", "Info", "Debug", "None"};
