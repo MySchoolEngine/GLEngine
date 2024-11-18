@@ -3,6 +3,7 @@
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
 #include <Renderer/Resources/RenderResourceHandle.h>
+#include <Renderer/Textures/TextureManager.h>
 
 namespace GLEngine::Renderer {
 
@@ -65,6 +66,7 @@ public:
 	virtual ResouceManager& GetRM()		= 0;
 
 	virtual void* GetTextureGUIHandle(Handle<Texture> texture) { return nullptr; }
+	virtual C_TextureManager& GetTextureManager() { return C_TextureManager::CreateInstance(GetDevice()); }
 	// another one for destroy needed
 
 	virtual E_PassType GetCurrentPassType() const = 0;

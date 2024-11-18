@@ -24,6 +24,8 @@ public:
 	[[nodiscard]] bool operator==(const Handle& other) const { return m_index == other.m_index; };
 	[[nodiscard]] bool operator!=(const Handle& other) const { return m_index != other.m_index; };
 
+	explicit operator bool() const { return IsValid(); }
+
 private:
 	explicit Handle(index_t index)
 		: m_index(index)

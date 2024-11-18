@@ -1,8 +1,12 @@
 #include <RendererStdafx.h>
 
 #include <Renderer/IDevice.h>
+#include <Renderer/IRenderer.h>
+#include <Renderer/Resources/ResourceManager.h>
 #include <Renderer/Textures/TextureLoader.h>
 #include <Renderer/Textures/TextureManager.h>
+
+#include <Core/Application.h>
 
 namespace GLEngine::Renderer {
 std::filesystem::path C_TextureManager::s_ErrorTextureFile = "Models/Error.bmp";
@@ -16,23 +20,71 @@ C_TextureManager& C_TextureManager::CreateInstance(I_Device& device)
 }
 
 //=================================================================================
-I_DeviceTexture* C_TextureManager::GetOrCreateTexture(const Core::ResourceHandle<Renderer::TextureResource> resource)
+Handle<Texture> C_TextureManager::GetOrCreateTexture(const Core::ResourceHandle<Renderer::TextureResource> resource)
 {
-	//auto it = m_Textures.find(resource);
-	//if (it != m_Textures.end())
-	//{
-	//	return it->second.get();
-	//}
-	//m_Textures[resource] = m_ErrorTexture;
+	auto it = m_Textures.find(resource);
+	if (it != m_Textures.end())
+	{
+		return it->second;
+	}
+
+	if (resource.IsReady())
+	{
+		auto&		renderer	= Core::C_Application::Get().GetActiveRenderer();
+		const auto& resourcePtr = resource.GetResource();
+		const auto& storage		= resourcePtr.GetStorage();
+
+		auto GPUSamplerHandle = renderer.GetRM().createSampler(SamplerDescriptor2D{
+			.m_FilterMin = E_TextureFilter::Linear,
+			.m_FilterMag = E_TextureFilter::Linear,
+			.m_WrapS	 = E_WrapFunction::Repeat,
+			.m_WrapT	 = E_WrapFunction::Repeat,
+			.m_WrapU	 = E_WrapFunction::Repeat,
+		});
+
+		Handle<Texture> handle = renderer.GetRM().createTexture(
+			TextureDescriptor{.name			 = resource.GetFilePath().generic_string(),
+							  .width		 = storage.GetDimensions().x,
+							  .height		 = storage.GetDimensions().y,
+							  .type			 = E_TextureType::TEXTURE_2D,
+							  .format		 = Renderer::GetClosestFormat(storage.GetChannels(), !Renderer::IsIntegral(storage.GetStorageType())),
+							  .m_bStreamable = false});
+		renderer.SetTextureSampler(handle, GPUSamplerHandle);
+		// upload texture
+		renderer.SetTextureData(handle, storage);
+		m_Textures.emplace(resource, handle);
+		return handle;
+	}
+	else
+	{
+		m_ToLoad.push_back(resource);
+	}
+
+	// m_Textures[resource] = m_ErrorTexture;
 
 	// if (resource.IsReady())
 	// 	m_Textures[resource] = CreateTexture(resource);
 
-	m_ToLoad.push_back(resource);
+	// we need to check the resource have been loaded into the memory, and than load it onto the GPU
 
-	return nullptr;
+
+	return {};
 }
 
+//=================================================================================
+Handle<Texture> C_TextureManager::GetTexture(const Core::ResourceHandle<TextureResource> resource) const
+{
+	if (!resource)
+		return {};
+	auto it = m_Textures.find(resource);
+	if (it != m_Textures.end())
+	{
+		return it->second;
+	}
+	return {};
+}
+
+//=================================================================================
 void C_TextureManager::Update()
 {
 }
@@ -73,18 +125,18 @@ C_TextureManager::C_TextureManager(I_Device& device)
 	}
 }
 
+//=================================================================================
 std::shared_ptr<I_DeviceTexture> C_TextureManager::CreateTexture(Core::ResourceHandle<Renderer::TextureResource> resource)
 {
 	GLE_ASSERT(resource.IsReady(), "Resource not ready yet.");
-	I_TextureViewStorage& storage  = resource.GetResource().GetStorage();
-	auto				  texture = m_Device.CreateTextureHandle(
-		Renderer::TextureDescriptor{
-			.name		  = resource.GetFilePath().generic_string(),
-			.width		  = storage.GetDimensions().x,
-			.height		  = storage.GetDimensions().y,
-			.type		  = Renderer::E_TextureType::TEXTURE_2D,
-			.format		  = Renderer::GetClosestFormat(storage.GetChannels(),!Renderer::IsIntegral(storage.GetStorageType())),
-			.m_bStreamable = false});
+	I_TextureViewStorage& storage = resource.GetResource().GetStorage();
+	auto				  texture
+		= m_Device.CreateTextureHandle(Renderer::TextureDescriptor{.name   = resource.GetFilePath().generic_string(),
+																   .width  = storage.GetDimensions().x,
+																   .height = storage.GetDimensions().y,
+																   .type   = Renderer::E_TextureType::TEXTURE_2D,
+																   .format = Renderer::GetClosestFormat(storage.GetChannels(), !Renderer::IsIntegral(storage.GetStorageType())),
+																   .m_bStreamable = false});
 	if (!m_Device.AllocateTexture(*texture.get()))
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Cannot allocate memory for texture '{}'", resource.GetFilePath());

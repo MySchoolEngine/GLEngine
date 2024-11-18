@@ -48,5 +48,14 @@ public:
 	RTTR_ENABLE(ResourceHandleBase);
 };
 
+// for usage in maps
+template <is_resource ResourceType>
+struct ResourceHandleCmp {
+	bool operator()(const ResourceHandle<ResourceType>& lhs, const ResourceHandle<ResourceType>& rhs) const
+	{
+		return lhs.GetFilepath() < rhs.GetFilepath();
+	}
+};
+
 } // namespace GLEngine::Core
 #include <Core/Resources/ResourceHandle.inl>
