@@ -122,7 +122,13 @@ void C_TrimeshModel::AfterDeserialize()
 }
 
 //=================================================================================
-std::shared_ptr<GLEngine::Core::Resource> TrimeshModelTrimesh::CreateResource() const
+std::unique_ptr<Core::I_ResourceLoader> C_TrimeshModel::GetLoader()
+{
+	return std::make_unique<TrimeshModelTrimesh>();
+}
+
+//=================================================================================
+std::shared_ptr<Core::Resource> TrimeshModelTrimesh::CreateResource() const
 {
 	return std::make_shared<C_TrimeshModel>();
 }

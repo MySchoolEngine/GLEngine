@@ -71,7 +71,7 @@ C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 	renderer.SetTextureData(m_DeviceImage, m_Storage);
 
 	std::thread([&]() {
-		Utils::HighResolutionTimer timer;
+		::Utils::HighResolutionTimer timer;
 		timer.reset();
 		Renderer::C_TextureView view(&m_Storage);
 		view.EnableBlending();

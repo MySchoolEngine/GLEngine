@@ -20,7 +20,7 @@ public:
 	};
 
 	explicit C_GLClear(E_ClearBits bits);
-	explicit C_GLClear(Utils::C_BitField<E_ClearBits> bits);
+	explicit C_GLClear(::Utils::C_BitField<E_ClearBits> bits);
 
 	//===========================================
 	// Renderer::I_RenderCommand
@@ -30,9 +30,9 @@ public:
 	[[nodiscard]] virtual std::string			  GetDescriptor() const override;
 
 protected:
-	int EnumToFlags(Utils::C_BitField<E_ClearBits> bits) const;
+	int EnumToFlags(::Utils::C_BitField<E_ClearBits> bits) const;
 
-	Utils::C_BitField<E_ClearBits> m_Bits;
+	::Utils::C_BitField<E_ClearBits> m_Bits;
 };
 
 } // namespace GLEngine::GLRenderer::Commands

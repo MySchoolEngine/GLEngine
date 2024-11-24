@@ -46,6 +46,7 @@ public:
 
 	[[nodiscard]] virtual bool IsAllocated() const override;
 	void					   SetReadyToUse() { m_IsPresentOnGPU = true; }
+	bool					   IsPresentOnGPU() const { return m_IsPresentOnGPU; }
 
 	// TODO move to Commands or remove due to new API
 	void bind() const;

@@ -59,6 +59,12 @@ I_TextureViewStorage& TextureResource::GetStorage()
 }
 
 //=================================================================================
+std::unique_ptr<GLEngine::Core::I_ResourceLoader> TextureResource::GetLoader()
+{
+	return std::make_unique<TextureLoader>();
+}
+
+//=================================================================================
 std::shared_ptr<Core::Resource> TextureLoader::CreateResource() const
 {
 	return std::make_shared<TextureResource>();

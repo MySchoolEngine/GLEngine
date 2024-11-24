@@ -5,6 +5,7 @@
 #include <Renderer/Materials/Material.h>
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/Textures/Storage/TextureStorage.h>
+#include <Renderer/Textures/TextureManager.h>
 
 #include <GUI/ReflectionGUI.h>
 
@@ -70,9 +71,6 @@ C_Material::C_Material(const std::string& name)
 	: m_Name(name)
 	, m_Color(Colours::white)
 	, m_Roughness(0.5f)
-	, m_ColorMap(nullptr)
-	, m_NormalMap(nullptr)
-	, m_RoughnessMap(nullptr)
 	, m_Changed(true)
 	, m_MaterialIndex(-1)
 	, m_Shininess(32.f)
@@ -85,14 +83,10 @@ C_Material::C_Material(const MeshData::Material& material)
 	: m_Name(material.m_Name)
 	, m_Color(material.diffuse)
 	, m_Roughness(0.5f)
-	, m_ColorMap(nullptr)
-	, m_NormalMap(nullptr)
-	, m_RoughnessMap(nullptr)
 	, m_Changed(true)
 	, m_MaterialIndex(-1)
 	, m_Shininess(material.shininess)
 {
-	SetColorMapPath("Models/Bricks01/REGULAR/1K/Bricks01_COL_VAR1_1K.bmp");
 }
 
 //=================================================================================
@@ -100,6 +94,9 @@ C_Material::C_Material(C_Material&& other)
 	: m_Name(std::move(other.m_Name))
 	, m_Color(other.m_Color)
 	, m_Roughness(other.m_Roughness)
+	, m_ColorMapRes(other.m_ColorMapRes)
+	, m_NormalMapRes(other.m_NormalMapRes)
+	, m_RoughnessRes(other.m_RoughnessRes)
 	, m_ColorMap(other.m_ColorMap)
 	, m_NormalMap(other.m_NormalMap)
 	, m_RoughnessMap(other.m_RoughnessMap)
@@ -107,7 +104,6 @@ C_Material::C_Material(C_Material&& other)
 	, m_MaterialIndex(other.m_MaterialIndex)
 	, m_Shininess(other.GetShininess())
 {
-	SetColorMapPath("Models/Bricks01/REGULAR/1K/Bricks01_COL_VAR1_1K.bmp");
 }
 
 //=================================================================================
@@ -140,14 +136,10 @@ void C_Material::SetRoughness(float roughness)
 	m_Roughness = roughness;
 }
 
+GLE_TODO("16-11-2024", "RohacekD", "move to handles and make debug for deallocated handles");
 //=================================================================================
-void C_Material::SetNormalMap(std::shared_ptr<I_DeviceTexture> texture)
+void C_Material::SetNormalMap(Handle<Texture> texture)
 {
-	if (m_NormalMap)
-	{
-		auto& device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
-		device.DestroyTexture(*m_NormalMap.get());
-	}
 	m_NormalMap	  = texture;
 	m_Changed = true;
 }
@@ -160,14 +152,9 @@ void C_Material::SetNormalMapPath(const std::filesystem::path& path)
 }
 
 //=================================================================================
-void C_Material::SetRoughnessMap(std::shared_ptr<I_DeviceTexture> texture)
+void C_Material::SetRoughnessMap(Handle<Texture> texture)
 {
-	if (m_RoughnessMap)
-	{
-		auto& device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
-		device.DestroyTexture(*m_RoughnessMap.get());
-	}
-	m_Roughness	   = 1.0f;
+	m_Roughness = 1.0f;
 	m_RoughnessMap = texture;
 	m_Changed = true;
 }
@@ -180,15 +167,10 @@ void C_Material::SetRoughnessMapPath(const std::filesystem::path& path)
 }
 
 //=================================================================================
-void C_Material::SetColorMap(std::shared_ptr<I_DeviceTexture> texture)
+void C_Material::SetColorMap(Handle<Texture> texture)
 {
-	if (m_ColorMap)
-	{
-		auto& device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
-		device.DestroyTexture(*m_ColorMap.get());
-	}
 	m_ColorMap	  = texture;
-	m_Color		  = Colours::white;
+	m_Color	  = Colours::white;
 	m_Changed = true;
 }
 
@@ -248,64 +230,47 @@ const std::filesystem::path& C_Material::GetRoughnessMapPath() const
 void C_Material::Update()
 {
 	auto& device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
-	// load textures?
-	if (m_ColorMap == nullptr && m_ColorMapRes.IsReady())
+	auto& tMGR = C_TextureManager::CreateInstance(device);
+
+	const auto needsUpdateTexture = [&tMGR](Core::ResourceHandle<TextureResource> resHandle, Handle<Texture> GPUHandle) {
+		auto currTexture = tMGR.GetTexture(resHandle);
+		return resHandle.IsReady() && (currTexture != GPUHandle || !currTexture);
+	};
+
+	// color map is loaded but not set
+	if (needsUpdateTexture(m_ColorMapRes, m_ColorMap))
 	{
-		auto&				  resource = m_ColorMapRes.GetResource();
-		I_TextureViewStorage& storage  = resource.GetStorage();
-		auto				  colorMap = device.CreateTextureHandle(
-			 Renderer::TextureDescriptor{resource.GetFilePath().generic_string(), storage.GetDimensions().x, storage.GetDimensions().y, Renderer::E_TextureType::TEXTURE_2D,
-										 Renderer::GetClosestFormat(storage.GetChannels(), !Renderer::IsIntegral(storage.GetStorageType())), false});
-		if (!device.AllocateTexture(*colorMap.get())) {
-			CORE_LOG(E_Level::Error, E_Context::Render, "Cannot allocate memory for texture '{}' in material '{}'", resource.GetFilePath(), GetName());
-			return;
-		}
-		colorMap->SetTexData2D(0, (&storage));
+		Handle<Texture> colorMap = tMGR.GetOrCreateTexture(m_ColorMapRes);
 
 		SetColorMap(colorMap);
 	}
-	if (m_ColorMap && m_ColorMapRes.IsFailed()) {
-		SetColorMap(nullptr);
-	}
-	if (m_NormalMap == nullptr && m_NormalMapRes.IsReady())
+	if (m_ColorMap.IsValid() && m_ColorMapRes.IsFailed())
 	{
-		auto&				  resource = m_NormalMapRes.GetResource();
-		I_TextureViewStorage& storage  = resource.GetStorage();
-		auto				  normalMap = device.CreateTextureHandle(
-			 Renderer::TextureDescriptor{resource.GetFilePath().generic_string(), storage.GetDimensions().x, storage.GetDimensions().y, Renderer::E_TextureType::TEXTURE_2D,
-										 Renderer::GetClosestFormat(storage.GetChannels(), !Renderer::IsIntegral(storage.GetStorageType())), false});
-		if (!device.AllocateTexture(*normalMap.get()))
-		{
-			CORE_LOG(E_Level::Error, E_Context::Render, "Cannot allocate memory for texture '{}' in material '{}'", resource.GetFilePath(), GetName());
-			return;
-		}
-		normalMap->SetTexData2D(0, (&storage));
+		SetColorMap({});
+	}
+
+	// normal map is loaded but not set
+	if (needsUpdateTexture(m_NormalMapRes, m_NormalMap))
+	{
+		Handle<Texture> normalMap = tMGR.GetOrCreateTexture(m_NormalMapRes);
 
 		SetNormalMap(normalMap);
 	}
-	if (m_NormalMap && m_NormalMapRes.IsFailed())
+	if (m_NormalMap.IsValid() && m_NormalMapRes.IsFailed())
 	{
-		SetNormalMap(nullptr);
+		SetNormalMap({});
 	}
-	if (m_RoughnessMap == nullptr && m_RoughnessRes.IsReady())
+
+	// Roughness map is loaded but not set
+	if (needsUpdateTexture(m_RoughnessRes, m_RoughnessMap))
 	{
-		auto&				  resource	= m_RoughnessRes.GetResource();
-		I_TextureViewStorage& storage	= resource.GetStorage();
-		auto				  roughnessMap = device.CreateTextureHandle(
-			 Renderer::TextureDescriptor{resource.GetFilePath().generic_string(), storage.GetDimensions().x, storage.GetDimensions().y, Renderer::E_TextureType::TEXTURE_2D,
-										 Renderer::GetClosestFormat(storage.GetChannels(), !Renderer::IsIntegral(storage.GetStorageType())), false});
-		if (!device.AllocateTexture(*roughnessMap.get()))
-		{
-			CORE_LOG(E_Level::Error, E_Context::Render, "Cannot allocate memory for texture '{}' in material '{}'", resource.GetFilePath(), GetName());
-			return;
-		}
-		roughnessMap->SetTexData2D(0, (&storage));
+		Handle<Texture> roughnessMap = tMGR.GetOrCreateTexture(m_RoughnessRes);
 
 		SetRoughnessMap(roughnessMap);
 	}
-	if (m_RoughnessMap && m_RoughnessRes.IsFailed())
+	if (m_RoughnessMap.IsValid() && m_RoughnessRes.IsFailed())
 	{
-		SetRoughnessMap(nullptr);
+		SetRoughnessMap({});
 	}
 }
 

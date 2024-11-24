@@ -19,8 +19,9 @@ public:
 
 	MeshResource();
 
-	virtual bool Load(const std::filesystem::path& filepath) override;
-	virtual bool Reload() override;
+	[[nodiscard]] virtual bool							  Load(const std::filesystem::path& filepath) override;
+	[[nodiscard]] virtual bool							  Reload() override;
+	[[nodiscard]] std::unique_ptr<Core::I_ResourceLoader> GetLoader() override;
 
 	// First check GetState to avoid SEGFAULTs
 	MeshData::Scene&	   GetScene();

@@ -22,6 +22,8 @@ public:
 	Shaders::C_StructDescriptor GetDescriptionImpl() const;
 	std::string					GetNameImpl() const;
 
-	void Update(const Renderer::C_Material& material);
+	// Returns true, if material successfully update
+	// failure could happen as the texture is not yet uploaded to GPU
+	[[nodiscard]] bool Update(const Renderer::C_Material& material);
 };
 } // namespace GLEngine::GLRenderer::Material

@@ -2,11 +2,15 @@
 
 #include <GUI/GUIManager.h>
 #include <GUI/GUIWindow.h>
+#include <GUI/ReflectionGUI.h>
 
 namespace GLEngine::GUI {
 
 //=================================================================================
-C_GUIManager::C_GUIManager() = default;
+C_GUIManager::C_GUIManager()
+{
+	SetGUIManager(*this);
+}
 
 //=================================================================================
 C_GUIManager::~C_GUIManager()

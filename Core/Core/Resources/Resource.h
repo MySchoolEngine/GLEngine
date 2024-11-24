@@ -70,8 +70,10 @@ template <class T, class TBaseRes> concept IsBuildableResource = requires(T t, T
 
 template <typename T> concept BuildableResource = requires(T t)
 {
-	IsBeDerivedResource<T> && IsBuildableResource<T, typename T::T_BaseResource>;
+	IsBeDerivedResource<T>&& IsBuildableResource<T, typename T::T_BaseResource>;
 };
+
+class I_ResourceLoader;
 
 // derived resources should take base resource as only constructor argument
 class CORE_API_EXPORT Resource : public I_EventReciever {
@@ -79,9 +81,10 @@ public:
 	Resource();
 	virtual ~Resource();
 
-	[[nodiscard]] virtual bool Load(const std::filesystem::path& filepath) = 0;
-	[[nodiscard]] virtual bool Reload()									   = 0;
-	[[nodiscard]] bool		   Save() const
+	[[nodiscard]] virtual std::unique_ptr<I_ResourceLoader> GetLoader()									= 0;
+	[[nodiscard]] virtual bool								Load(const std::filesystem::path& filepath) = 0;
+	[[nodiscard]] virtual bool								Reload()									= 0;
+	[[nodiscard]] bool										Save() const
 	{
 		if (!m_Dirty)
 			return true;
@@ -104,7 +107,7 @@ protected:
 
 	virtual bool SaveInternal() const { return false; }
 
-	bool				  m_Dirty = false;
+	bool m_Dirty = false;
 
 private:
 	ResourceState m_State = ResourceState::Empty;

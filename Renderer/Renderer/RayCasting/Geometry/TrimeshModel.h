@@ -20,9 +20,10 @@ public:
 	using T_BaseResource = MeshResource;
 	C_TrimeshModel()	 = default;
 
-	[[nodiscard]] static constexpr bool IsDerived() { return true; }
-	[[nodiscard]] bool					Load(const std::filesystem::path& filepath) override;
-	[[nodiscard]] bool					Reload() override;
+	[[nodiscard]] static constexpr bool					  IsDerived() { return true; }
+	[[nodiscard]] bool									  Load(const std::filesystem::path& filepath) override;
+	[[nodiscard]] bool									  Reload() override;
+	[[nodiscard]] std::unique_ptr<Core::I_ResourceLoader> GetLoader() override;
 
 	[[nodiscard]] bool Build(Core::ResourceHandle<MeshResource> hanlde);
 

@@ -5,9 +5,8 @@
 #include <Core/Resources/Resource.h>
 #include <Core/Resources/ResourceLoader.h>
 
-#include <Utils/Serialization/XMLDeserialize.h>
-
 #include <Utils/Reflection/Metadata.h>
+#include <Utils/Serialization/XMLDeserialize.h>
 
 namespace GLEngine::Renderer {
 class I_TextureViewStorage;
@@ -18,8 +17,9 @@ public:
 	TextureResource();
 	~TextureResource();
 
-	virtual bool Load(const std::filesystem::path& filepath) override;
-	virtual bool Reload() override;
+	[[nodiscard]] virtual bool							  Load(const std::filesystem::path& filepath) override;
+	[[nodiscard]] virtual bool							  Reload() override;
+	[[nodiscard]] std::unique_ptr<Core::I_ResourceLoader> GetLoader() override;
 
 	// First check GetState to avoid SEGFAULTs
 	const I_TextureViewStorage& GetStorage() const;
@@ -48,10 +48,9 @@ enum class Texture
 {
 	Name,
 };
-} // namespace UI
+} // namespace Utils::Reflection::UI
 
-namespace Utils::Reflection
-{
+namespace Utils::Reflection {
 REGISTER_META_CLASS(UI::Texture, MetaGUI);
 REGISTER_META_MEMBER_TYPE(UI::Texture::Name, std::string);
-}
+} // namespace Utils::Reflection

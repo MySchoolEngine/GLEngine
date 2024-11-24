@@ -69,7 +69,13 @@ const std::vector<std::filesystem::path>& MeshResource::GetTextureNames() const
 }
 
 //=================================================================================
-std::shared_ptr<GLEngine::Core::Resource> MeshLoader::CreateResource() const
+std::unique_ptr<Core::I_ResourceLoader> MeshResource::GetLoader()
+{
+	return std::make_unique<MeshLoader>();
+}
+
+//=================================================================================
+std::shared_ptr<Core::Resource> MeshLoader::CreateResource() const
 {
 	return std::make_shared<MeshResource>();
 }

@@ -1,20 +1,24 @@
 #include <GUIStdafx.h>
 
+#include <GUI/FileDialogWindow.h>
+#include <GUI/GUIManager.h>
 #include <GUI/GUIUtils.h>
 #include <GUI/ReflectionGUI.h>
 
-#include <Renderer/Textures/TextureResource.h>
 #include <Renderer/IRenderer.h>
+#include <Renderer/Textures/TextureManager.h>
+#include <Renderer/Textures/TextureResource.h>
 
-#include <Core/Resources/ResourceHandle.h>
 #include <Core/Application.h>
+#include <Core/Resources/ResourceHandle.h>
 
 #include <filesystem>
-
 #include <imgui.h>
 #include <imgui_internal.h>
 
 namespace GLEngine::GUI {
+
+static C_GUIManager* s_GUIMgr = nullptr;
 
 //=================================================================================
 void DrawText(rttr::instance& obj, const rttr::property& prop)
@@ -46,8 +50,7 @@ bool DrawSlider(rttr::instance& obj, const rttr::property& prop)
 	using namespace ::Utils::Reflection;
 
 	return ::ImGui::SliderFloat(GetMetadataMember<UI::Slider::Name>(prop).c_str(), (float*)(&prop.get_value(obj).get_wrapped_value<float>()),
-								GetMetadataMember<UI::Slider::Min>(prop),
-								GetMetadataMember<UI::Slider::Max>(prop));
+								GetMetadataMember<UI::Slider::Min>(prop), GetMetadataMember<UI::Slider::Max>(prop));
 }
 
 //=================================================================================
@@ -65,8 +68,7 @@ bool DrawAngle(rttr::instance& obj, const rttr::property& prop)
 	using namespace ::Utils::Reflection;
 
 	return ::ImGui::SliderAngle(GetMetadataMember<UI::Angle::Name>(prop).c_str(), (float*)(&prop.get_value(obj).get_wrapped_value<float>()),
-								GetMetadataMember<UI::Angle::Min>(prop),
-								GetMetadataMember<UI::Angle::Max>(prop));
+								GetMetadataMember<UI::Angle::Min>(prop), GetMetadataMember<UI::Angle::Max>(prop));
 }
 
 //=================================================================================
@@ -82,12 +84,13 @@ bool DrawTextureResource(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	const static std::size_t maxStringLen = 23; // found out by experiment
+	const static std::size_t maxStringLen = 40; // found out by experiment
 
-	auto& resource = const_cast<Core::ResourceHandle<Renderer::TextureResource>&>(prop.get_value(obj).get_wrapped_value<Core::ResourceHandle<Renderer::TextureResource>>());
-	const auto propertyName = GetMetadataMember<UI::Texture::Name>(prop);
-	bool		   ret		= false;
-	const ImVec2   drawAreaSz(std::min(300.f, ImGui::GetWindowWidth()), 74);
+	std::reference_wrapper<Core::ResourceHandle<Renderer::TextureResource>> resource
+		= const_cast<Core::ResourceHandle<Renderer::TextureResource>&>(prop.get_value(obj).get_wrapped_value<Core::ResourceHandle<Renderer::TextureResource>>());
+	const auto	   propertyName = GetMetadataMember<UI::Texture::Name>(prop);
+	bool		   ret			= false;
+	const ImVec2   drawAreaSz(std::min(380.f, ImGui::GetWindowWidth()), 74);
 	const ImVec2   canvas_p0 = ImGui::GetCursorPos();
 	const ImRect   imageRect(canvas_p0, canvas_p0 + drawAreaSz);
 	const bool	   is_hovered = ImGui::IsItemHovered(); // Hovered
@@ -97,37 +100,79 @@ bool DrawTextureResource(rttr::instance& obj, const rttr::property& prop)
 	const ImGuiIO& io		  = ImGui::GetIO();
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{0, 0});
-	
+
 	{
-		auto filename = resource.GetFilePath().generic_string();
+		auto filename = resource.get().GetFilePath().generic_string();
 		ImGui::BeginChildFrame(std::hash<std::string>{}(propertyName + filename), drawAreaSz);
 
 		GLE_TODO("7-11-2024", "RohacekD", "handle empty handles");
 
 		ImGui::SetCursorPos(ImVec2{2, 2});
 		{
-			ImGui::BeginChildFrame(std::hash<std::string>{}(propertyName + filename + "_preview"), {70, 70});
-			//auto GUIHandle = Core::C_Application::Get().GetActiveRenderer().GetTextureGUIHandle(resource);
-			ImGui::Text("Image placeholder");
+			const ImVec2& previewSize{70, 70};
+			ImGui::BeginChildFrame(std::hash<std::string>{}(propertyName + filename + "_preview"), previewSize);
+			if (resource.get())
+			{
+				auto& tMGR			 = Core::C_Application::Get().GetActiveRenderer().GetTextureManager();
+				auto  rendererHandle = tMGR.GetOrCreateTexture(resource);
+				auto* GUIHandle		 = Core::C_Application::Get().GetActiveRenderer().GetTextureGUIHandle(rendererHandle);
+				ImGui::Image((void*)(intptr_t)(GUIHandle), previewSize);
+			}
 			ImGui::EndChildFrame();
 		}
-		ImGui::SetCursorPos(ImVec2{74, 12});
-		if (filename.size() > maxStringLen)
+		ImGui::SetCursorPos(ImVec2{74, 6});
+		ImGui::Text(propertyName.c_str());
+		if (filename.size() > maxStringLen && filename.empty() == false)
 		{
 			filename.erase(0, filename.size() - maxStringLen + 3);
 			filename = std::string("...") + filename;
 		}
-		ImGui::Text(filename.c_str());
-		ImGui::SetCursorPos(ImVec2{74, 42});
-		ImGui::PopStyleVar(2);
-		ImGui::Button("Load image");
-
-		if (resource.IsReady())
+		else
 		{
-			if (DrawSquareButton(draw_list, canvas_pos + ImVec2(drawAreaSz.x, 0) - ImVec2(20, -4), E_ButtonType::Cross) && io.MouseReleased[0] && resource.IsReady())
+			ImGui::Text("Empty");
+		}
+		ImGui::Text(filename.c_str());
+		const std::string loadImageText{"Load image"};
+		const ImGuiStyle& style			 = GImGui->Style;
+		const auto		  buttonTextSize = ImGui::CalcTextSize(loadImageText.c_str(), nullptr, true);
+		const auto		  buttonSize	 = ImVec2(buttonTextSize.x + style.FramePadding.x * 2.0f, buttonTextSize.y + style.FramePadding.y * 2.0f);
+		ImGui::SetCursorPos(drawAreaSz - (buttonSize + ImVec2(14, 14)));
+		ImGui::PopStyleVar(2);
+		if (ImGui::Button(loadImageText.c_str()))
+		{
+			// TODO:
+			//	[ ] Create generic file gui window
+			//	[ ] Get extensions
+
+			auto&			   rm		  = Core::C_ResourceManager::Instance();
+			auto			   extensions = rm.GetSupportedExtesnions(Renderer::TextureResource::GetResourceTypeHash());
+			std::ostringstream oss;
+			std::copy(extensions.begin(), extensions.end(), std::ostream_iterator<std::string>(oss, ", "));
+			const std::string extensionsO = oss.str();
+
+			const std::string extesnionsList(extensionsO.substr(0, extensionsO.size() - 2));
+			const auto		  imageLoaderGUID	 = NextGUID();
+			auto*			  resourcePathSelect = new GUI::C_FileDialogWindow(
+				".jpg, .png", "Select image",
+				[resource, imageLoaderGUID, prop, obj](const std::filesystem::path& path, GUI::C_GUIManager& guiMgr) mutable {
+					// lets pass GUI MGR as argument
+					auto& rm	   = Core::C_ResourceManager::Instance();
+					resource.get() = rm.LoadResource<Renderer::TextureResource>(path);
+
+					prop.set_value(obj, resource);
+					guiMgr.DestroyWindow(imageLoaderGUID);
+				},
+				imageLoaderGUID, "./Images");
+			s_GUIMgr->AddCustomWindow(resourcePathSelect);
+			resourcePathSelect->SetVisible();
+		}
+
+		if (resource.get().IsReady())
+		{
+			if (DrawSquareButton(draw_list, canvas_pos + ImVec2(drawAreaSz.x, 0) - ImVec2(20, -4), E_ButtonType::Cross) && io.MouseReleased[0] && resource.get().IsReady())
 			{
-				ret		 = true;
-				resource = {};
+				ret			   = true;
+				resource.get() = {};
 			}
 		}
 
@@ -230,6 +275,11 @@ bool DrawPropertyGUI(rttr::instance& obj, const rttr::property& prop)
 		rttr::instance ins{prop.get_value(obj)};
 		return GUI::DrawAllPropertyGUI(ins).empty() == false; // this will not return changed properties
 	}
+}
+
+void SetGUIManager(C_GUIManager& mgr)
+{
+	s_GUIMgr = &mgr;
 }
 
 } // namespace GLEngine::GUI
