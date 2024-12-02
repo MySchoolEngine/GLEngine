@@ -117,13 +117,11 @@ C_ExplerimentWindow::~C_ExplerimentWindow()
 //=================================================================================
 void C_ExplerimentWindow::Update()
 {
-	bool open = true;
 	m_EditorLayer.SetCamera(m_CamManager.GetActiveCamera());
 	m_ImGUI->FrameBegin();
 	m_LayerStack.OnUpdate();
 	Core::C_ResourceManager::Instance().UpdatePendingLoads();
 	Renderer::C_MaterialManager::Instance().Update();
-	::ImGui::ShowDemoWindow(&open);
 
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.Reset();

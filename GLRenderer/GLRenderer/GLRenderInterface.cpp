@@ -79,7 +79,7 @@ void C_GLRenderInterface::Render(const Renderer::RenderCall3D& call)
 			glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(call.NumPrimities));
 
 
-			for (int i = 0; i < 5; ++i)
+			for (int i = 0; i < pipeline->GetDesc().vertexInput.size(); ++i)
 			{
 				auto* buffer = glRM.GetBuffer(call.Buffers[i]);
 				buffer->unbind();
