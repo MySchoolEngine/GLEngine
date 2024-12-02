@@ -11,6 +11,7 @@
 
 #include <Core/Application.h>
 #include <Core/Resources/ResourceHandle.h>
+#include <Core/Resources/ResourceManager.h>
 
 #include <filesystem>
 #include <imgui.h>

@@ -5,6 +5,7 @@
 #include <Renderer/Mesh/Scene.h>
 
 #include <Core/Resources/ResourceHandle.h>
+#include <Core/Resources/ResourceManager.h>
 
 #include <rttr/registration>
 

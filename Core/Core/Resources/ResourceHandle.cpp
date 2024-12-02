@@ -7,6 +7,7 @@
 
 #include <rttr/registration>
 
+// clang-format off
 RTTR_REGISTRATION
 {
 	using namespace GLEngine::Core;
@@ -17,6 +18,7 @@ RTTR_REGISTRATION
 		.constructor<>()()
 		.property("Resource", &ResourceHandleBase::m_Resource);
 }
+// clang-format on
 
 namespace GLEngine::Core {
 
