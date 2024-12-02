@@ -117,11 +117,11 @@ void C_OGLRenderer::ClearCommandBuffers()
 	m_CommandQueue->clear();
 	m_TransferQueue.clear();
 	const auto avgDrawCommands = m_DrawCommands.Avg();
-	m_GUITexts[Utils::ToIndex(E_GUITexts::AvgDrawCommands)].UpdateText(avgDrawCommands);
-	m_GUITexts[Utils::ToIndex(E_GUITexts::MinMax)].UpdateText(*std::min_element(m_DrawCommands.cbegin(), m_DrawCommands.cend()),
+	m_GUITexts[::Utils::ToIndex(E_GUITexts::AvgDrawCommands)].UpdateText(avgDrawCommands);
+	m_GUITexts[::Utils::ToIndex(E_GUITexts::MinMax)].UpdateText(*std::min_element(m_DrawCommands.cbegin(), m_DrawCommands.cend()),
 															  *std::max_element(m_DrawCommands.cbegin(), m_DrawCommands.cend()));
-	m_GUITexts[Utils::ToIndex(E_GUITexts::DrawCalls)].UpdateText(drawCallsNum);
-	m_GUITexts[Utils::ToIndex(E_GUITexts::UBOMemoryUsage)].UpdateText(Buffers::C_UniformBuffersManager::Instance().GetUsedMemory());
+	m_GUITexts[::Utils::ToIndex(E_GUITexts::DrawCalls)].UpdateText(drawCallsNum);
+	m_GUITexts[::Utils::ToIndex(E_GUITexts::UBOMemoryUsage)].UpdateText(Buffers::C_UniformBuffersManager::Instance().GetUsedMemory());
 
 	if (m_PreviousCatchErrorsVal != m_CatchErrors)
 	{
@@ -153,10 +153,10 @@ GUID C_OGLRenderer::SetupControls(GUI::C_GUIManager& guiMan)
 	renderStats->AddComponent(m_DrawCommands);
 	renderStats->AddComponent(m_CatchErrors);
 	renderStats->AddComponent(m_Wireframe);
-	renderStats->AddComponent(m_GUITexts[Utils::ToIndex(E_GUITexts::AvgDrawCommands)]);
-	renderStats->AddComponent(m_GUITexts[Utils::ToIndex(E_GUITexts::MinMax)]);
-	renderStats->AddComponent(m_GUITexts[Utils::ToIndex(E_GUITexts::DrawCalls)]);
-	renderStats->AddComponent(m_GUITexts[Utils::ToIndex(E_GUITexts::UBOMemoryUsage)]);
+	renderStats->AddComponent(m_GUITexts[::Utils::ToIndex(E_GUITexts::AvgDrawCommands)]);
+	renderStats->AddComponent(m_GUITexts[::Utils::ToIndex(E_GUITexts::MinMax)]);
+	renderStats->AddComponent(m_GUITexts[::Utils::ToIndex(E_GUITexts::DrawCalls)]);
+	renderStats->AddComponent(m_GUITexts[::Utils::ToIndex(E_GUITexts::UBOMemoryUsage)]);
 
 	renderStats->AddMenu(m_Windows);
 

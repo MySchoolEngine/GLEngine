@@ -133,6 +133,7 @@ GUID C_TextureManager::SetupControls(GUI::C_GUIManager& guiMGR)
 	m_Window		= guiMGR.CreateGUIWindow("Texture manager");
 	auto* shaderMan = guiMGR.GetWindow(m_Window);
 
+	GLE_TODO("02-12-2024", "RohacekD", "Use new API for texture rendering?");
 	m_TextureList = std::make_unique<GUI::C_LambdaPart>([&]() {
 		for (auto& texture : m_Textures)
 		{
