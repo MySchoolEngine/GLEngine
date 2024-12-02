@@ -136,7 +136,6 @@ void C_Material::SetRoughness(float roughness)
 	m_Roughness = roughness;
 }
 
-GLE_TODO("16-11-2024", "RohacekD", "move to handles and make debug for deallocated handles");
 //=================================================================================
 void C_Material::SetNormalMap(Handle<Texture> texture)
 {
