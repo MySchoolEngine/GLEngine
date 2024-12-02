@@ -7,6 +7,13 @@
 
 // #include <Core/Resources/ResourceManager.h>
 #define DECLARE_RESOURCE_TYPE(resourceType)                                                                                                                                        \
+	namespace GLEngine::Core {                                                                                                                                                     \
+	template <> void ResourceHandle<resourceType>::AfterDeserialize(GLEngine::Utils::C_XMLDeserializer::DeserializeCtx& ctx)                                                       \
+	{                                                                                                                                                                              \
+		auto& rm = C_ResourceManager::Instance();                                                                                                                                  \
+		*this	 = rm.LoadResource<resourceType>(GetFilePath());                                                                                                                   \
+	}                                                                                                                                                                              \
+	}                                                                                                                                                                              \
 	RTTR_REGISTRATION                                                                                                                                                              \
 	{                                                                                                                                                                              \
 		using namespace GLEngine::Core;                                                                                                                                            \
@@ -24,13 +31,6 @@
 			ok = true;                                                                                                                                                             \
 			return std::static_pointer_cast<Resource>(ptr);                                                                                                                        \
 		});                                                                                                                                                                        \
-	}                                                                                                                                                                              \
-	namespace GLEngine::Core {                                                                                                                                                     \
-	template <> void ResourceHandle<resourceType>::AfterDeserialize(GLEngine::Utils::C_XMLDeserializer::DeserializeCtx& ctx)                                                       \
-	{                                                                                                                                                                              \
-		auto& rm = C_ResourceManager::Instance();                                                                                                                                  \
-		*this	 = rm.LoadResource<resourceType>(GetFilePath());                                                                                                                   \
-	}                                                                                                                                                                              \
 	}
 
 namespace GLEngine::Core {

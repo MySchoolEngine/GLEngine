@@ -11,6 +11,15 @@
 
 #include <rttr/registration>
 
+
+namespace GLEngine::Core {
+template <> void ResourceHandle<GLEngine::Renderer::C_TrimeshModel>::AfterDeserialize(GLEngine::Utils::C_XMLDeserializer::DeserializeCtx& ctx)
+{
+	auto& rm = C_ResourceManager::Instance();
+	*this	 = rm.LoadResource<GLEngine::Renderer::C_TrimeshModel>(GetFilePath());
+}
+} // namespace GLEngine::Core
+
 // clang-format off
 RTTR_REGISTRATION
 {
@@ -29,14 +38,6 @@ RTTR_REGISTRATION
 		});
 }
 // clang-format on
-
-namespace GLEngine::Core {
-template <> void ResourceHandle<GLEngine::Renderer::C_TrimeshModel>::AfterDeserialize(GLEngine::Utils::C_XMLDeserializer::DeserializeCtx& ctx)
-{
-	auto& rm = C_ResourceManager::Instance();
-	*this	 = rm.LoadResource<GLEngine::Renderer::C_TrimeshModel>(GetFilePath());
-}
-} // namespace GLEngine::Core
 
 namespace GLEngine::Renderer {
 
