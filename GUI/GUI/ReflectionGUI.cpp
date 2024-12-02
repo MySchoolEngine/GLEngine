@@ -84,13 +84,13 @@ bool DrawTextureResource(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	const static std::size_t maxStringLen = 40; // found out by experiment
+	const static std::size_t maxStringLen = 30; // found out by experiment
 
 	std::reference_wrapper<Core::ResourceHandle<Renderer::TextureResource>> resource
 		= const_cast<Core::ResourceHandle<Renderer::TextureResource>&>(prop.get_value(obj).get_wrapped_value<Core::ResourceHandle<Renderer::TextureResource>>());
 	const auto	   propertyName = GetMetadataMember<UI::Texture::Name>(prop);
 	bool		   ret			= false;
-	const ImVec2   drawAreaSz(std::min(380.f, ImGui::GetWindowWidth()), 74);
+	const ImVec2   drawAreaSz(std::min(380.f, ImGui::GetWindowWidth()), 88);
 	const ImVec2   canvas_p0 = ImGui::GetCursorPos();
 	const ImRect   imageRect(canvas_p0, canvas_p0 + drawAreaSz);
 	const bool	   is_hovered = ImGui::IsItemHovered(); // Hovered
@@ -103,14 +103,12 @@ bool DrawTextureResource(rttr::instance& obj, const rttr::property& prop)
 
 	{
 		auto filename = resource.get().GetFilePath().generic_string();
-		ImGui::BeginChildFrame(std::hash<std::string>{}(propertyName + filename), drawAreaSz);
-
-		GLE_TODO("7-11-2024", "RohacekD", "handle empty handles");
+		ImGui::BeginChildFrame(ImGuiID{static_cast<unsigned int>(std::hash<std::string>{}(propertyName + filename))}, drawAreaSz);
 
 		ImGui::SetCursorPos(ImVec2{2, 2});
 		{
-			const ImVec2& previewSize{70, 70};
-			ImGui::BeginChildFrame(std::hash<std::string>{}(propertyName + filename + "_preview"), previewSize);
+			const ImVec2& previewSize{drawAreaSz.y - 4, drawAreaSz.y - 4};
+			ImGui::BeginChildFrame(ImGuiID{static_cast<unsigned int>(std::hash<std::string>{}(propertyName + filename + "_preview"))}, previewSize);
 			if (resource.get())
 			{
 				auto& tMGR			 = Core::C_Application::Get().GetActiveRenderer().GetTextureManager();
@@ -120,7 +118,7 @@ bool DrawTextureResource(rttr::instance& obj, const rttr::property& prop)
 			}
 			ImGui::EndChildFrame();
 		}
-		ImGui::SetCursorPos(ImVec2{74, 6});
+		ImGui::SetCursorPos(ImVec2{drawAreaSz.y + 2, 6});
 		ImGui::Text(propertyName.c_str());
 		if (filename.size() > maxStringLen && filename.empty() == false)
 		{
@@ -131,6 +129,7 @@ bool DrawTextureResource(rttr::instance& obj, const rttr::property& prop)
 		{
 			ImGui::Text("Empty");
 		}
+		ImGui::SetCursorPos(ImVec2{drawAreaSz.y + 2, 30});
 		ImGui::Text(filename.c_str());
 		const std::string loadImageText{"Load image"};
 		const ImGuiStyle& style			 = GImGui->Style;
@@ -142,10 +141,11 @@ bool DrawTextureResource(rttr::instance& obj, const rttr::property& prop)
 		{
 			// TODO:
 			//	[ ] Create generic file gui window
-			//	[ ] Get extensions
 
-			auto&			   rm		  = Core::C_ResourceManager::Instance();
-			auto			   extensions = rm.GetSupportedExtesnions(Renderer::TextureResource::GetResourceTypeHash());
+			auto&			   rm			= Core::C_ResourceManager::Instance();
+			const auto		   resourceType = rttr::type::get<Renderer::TextureResource>();
+			const auto		   x			= resourceType.get_method("GetResourceTypeHashStatic").invoke({}).get_value<std::size_t>();
+			auto			   extensions	= rm.GetSupportedExtesnions(x);
 			std::ostringstream oss;
 			std::copy(extensions.begin(), extensions.end(), std::ostream_iterator<std::string>(oss, ", "));
 			const std::string extensionsO = oss.str();
@@ -153,7 +153,7 @@ bool DrawTextureResource(rttr::instance& obj, const rttr::property& prop)
 			const std::string extesnionsList(extensionsO.substr(0, extensionsO.size() - 2));
 			const auto		  imageLoaderGUID	 = NextGUID();
 			auto*			  resourcePathSelect = new GUI::C_FileDialogWindow(
-				".jpg, .png", "Select image",
+				extensionsO, "Select image",
 				[resource, imageLoaderGUID, prop, obj](const std::filesystem::path& path, GUI::C_GUIManager& guiMgr) mutable {
 					// lets pass GUI MGR as argument
 					auto& rm	   = Core::C_ResourceManager::Instance();

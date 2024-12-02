@@ -13,7 +13,10 @@
 			.constructor<>()(rttr::policy::ctor::as_object)                                                                                                                        \
 			.method("AfterDeserialize", &ResourceHandle<resourceType>::AfterDeserialize)();                                                                                        \
                                                                                                                                                                                    \
-		rttr::registration::class_<resourceType>(#resourceType).constructor<>()(rttr::policy::ctor::as_std_shared_ptr);                                                            \
+		rttr::registration::class_<resourceType>(#resourceType)                                                                                                                    \
+			.method("GetResourceTypeHash", &resourceType::GetResourceTypeHash)                                                                                                     \
+			.method("GetResourceTypeHashStatic", &resourceType::GetResourceTypeHashStatic)                                                                                         \
+			.constructor<>()(rttr::policy::ctor::as_std_shared_ptr);                                                                                                               \
                                                                                                                                                                                    \
 		rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<resourceType>>();                                                                                  \
 		rttr::type::register_converter_func([](std::shared_ptr<resourceType> ptr, bool& ok) -> std::shared_ptr<Resource> {                                                         \
@@ -26,16 +29,17 @@ namespace GLEngine::Core {
 
 #define DEFINE_RESOURCE_TYPE(resourceType)                                                                                                                                         \
 public:                                                                                                                                                                            \
-	static std::size_t GetResourceTypeHash()                                                                                                                                       \
+	inline static std::size_t GetResourceTypeHashStatic()                                                                                                                          \
 	{                                                                                                                                                                              \
 		static std::size_t hash = std::hash<std::string>{}(#resourceType);                                                                                                         \
 		return hash;                                                                                                                                                               \
 	}                                                                                                                                                                              \
-	static std::string& GetResrourceTypeName()                                                                                                                                     \
+	inline static std::string& GetResrourceTypeName()                                                                                                                              \
 	{                                                                                                                                                                              \
 		static std::string name(#resourceType);                                                                                                                                    \
 		return name;                                                                                                                                                               \
 	}                                                                                                                                                                              \
+	std::size_t GetResourceTypeHash() const override { return resourceType::GetResourceTypeHashStatic(); }                                                                         \
 	RTTR_ENABLE(Core::Resource)                                                                                                                                                    \
 public:
 
@@ -84,6 +88,7 @@ public:
 	[[nodiscard]] virtual std::unique_ptr<I_ResourceLoader> GetLoader()									= 0;
 	[[nodiscard]] virtual bool								Load(const std::filesystem::path& filepath) = 0;
 	[[nodiscard]] virtual bool								Reload()									= 0;
+	[[nodiscard]] virtual std::size_t						GetResourceTypeHash() const					= 0;
 	[[nodiscard]] bool										Save() const
 	{
 		if (!m_Dirty)

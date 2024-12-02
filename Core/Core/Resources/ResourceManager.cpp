@@ -209,4 +209,12 @@ bool I_ResourceLoader::LoadResource(const std::filesystem::path& filepath, std::
 	return resource->Load(filepath);
 }
 
+//=================================================================================
+std::vector<std::string> C_ResourceManager::GetSupportedExtesnions(std::size_t x) const
+{
+	auto it = m_TypeIdToLoader.find(x);
+	GLE_ASSERT(m_TypeIdToLoader.find(x) != m_TypeIdToLoader.end(), "Unregistered type");
+	return it->second->GetSupportedExtensions();
+}
+
 } // namespace GLEngine::Core
