@@ -61,3 +61,6 @@ Example shows property used for GUI but it is being saved through other property
 	RegisterMetamember<SerializationCls::NoSerialize>(true)
 )
 ```
+
+#### Ignoring default values
+If you want to avoid serialization of default values put `REGISTER_DEFAULT_VALUE(GLEngine::Core::ResourceHandle<TextureResource>())` to your metadata. This requres implementation of valid `operator==` and call of `rttr::type::register_equal_comparator`.

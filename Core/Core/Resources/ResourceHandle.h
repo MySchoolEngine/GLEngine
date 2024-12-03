@@ -45,6 +45,8 @@ public:
 
 	void AfterDeserialize(GLEngine::Utils::C_XMLDeserializer::DeserializeCtx& ctx);
 
+	bool operator==(const ResourceHandle other) const { return m_Resource == other.m_Resource; }
+
 	RTTR_ENABLE(ResourceHandleBase);
 };
 

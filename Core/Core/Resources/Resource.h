@@ -24,6 +24,7 @@
 			ok = true;                                                                                                                                                             \
 			return std::static_pointer_cast<Resource>(ptr);                                                                                                                        \
 		});                                                                                                                                                                        \
+		rttr::type::register_equal_comparator<ResourceHandle<resourceType>>();                                                                                                 \
 	}
 
 namespace GLEngine::Core {

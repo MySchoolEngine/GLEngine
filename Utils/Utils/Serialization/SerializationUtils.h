@@ -25,4 +25,5 @@ template <class T> bool SerializeString(std::reference_wrapper<T> vec, std::refe
 	rttr::registration::method("SerializeString", rttr::select_overload<bool(const type&, std::reference_wrapper<std::string>)>(&SerializeString));                                \
 	rttr::registration::method("SerializeString", rttr::select_overload<bool(const std::reference_wrapper<type>, std::reference_wrapper<std::string>)>(&SerializeString))
 
+// This requres implementation of valid `operator==` and call of `rttr::type::register_equal_comparator`.
 #define REGISTER_DEFAULT_VALUE(value) rttr::metadata("SerializationDefaultValue", value)

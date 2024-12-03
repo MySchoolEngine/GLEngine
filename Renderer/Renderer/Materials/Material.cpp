@@ -12,6 +12,8 @@
 #include <Core/Application.h>
 #include <Core/Resources/ResourceManager.h>
 
+#include <Utils/Serialization/SerializationUtils.h>
+
 #include <imgui.h>
 #include <rttr/registration>
 
@@ -47,15 +49,18 @@ RTTR_REGISTRATION
 		.property("ColorMapRes", &C_Material::m_ColorMapRes)(
 			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::Texture>(),
-			RegisterMetamember<UI::Texture::Name>("Colour map"))
+			RegisterMetamember<UI::Texture::Name>("Colour map"),
+			REGISTER_DEFAULT_VALUE(GLEngine::Core::ResourceHandle<TextureResource>()))
 		.property("NormalMapRes", &C_Material::m_NormalMapRes)(
 			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::Texture>(),
-			RegisterMetamember<UI::Texture::Name>("Normal map"))
+			RegisterMetamember<UI::Texture::Name>("Normal map"),
+			REGISTER_DEFAULT_VALUE(GLEngine::Core::ResourceHandle<TextureResource>()))
 		.property("RoughnessMapRes", &C_Material::m_RoughnessRes)(
 			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::Texture>(),
-			RegisterMetamember<UI::Texture::Name>("Roughness map"))
+			RegisterMetamember<UI::Texture::Name>("Roughness map"),
+			REGISTER_DEFAULT_VALUE(GLEngine::Core::ResourceHandle<TextureResource>()))
 		.property("NormalMap", &C_Material::GetNormalMapPath, &C_Material::SetNormalMapPath)
 		.property("RoughnessMap", &C_Material::GetRoughnessMapPath, &C_Material::SetRoughnessMapPath)
 		.property("Shininess", &C_Material::GetShininess, &C_Material::SetShininess);
@@ -139,8 +144,8 @@ void C_Material::SetRoughness(float roughness)
 //=================================================================================
 void C_Material::SetNormalMap(Handle<Texture> texture)
 {
-	m_NormalMap	  = texture;
-	m_Changed = true;
+	m_NormalMap = texture;
+	m_Changed	= true;
 }
 
 //=================================================================================
@@ -153,9 +158,9 @@ void C_Material::SetNormalMapPath(const std::filesystem::path& path)
 //=================================================================================
 void C_Material::SetRoughnessMap(Handle<Texture> texture)
 {
-	m_Roughness = 1.0f;
+	m_Roughness	   = 1.0f;
 	m_RoughnessMap = texture;
-	m_Changed = true;
+	m_Changed	   = true;
 }
 
 //=================================================================================
@@ -168,9 +173,9 @@ void C_Material::SetRoughnessMapPath(const std::filesystem::path& path)
 //=================================================================================
 void C_Material::SetColorMap(Handle<Texture> texture)
 {
-	m_ColorMap	  = texture;
-	m_Color	  = Colours::white;
-	m_Changed = true;
+	m_ColorMap = texture;
+	m_Color	   = Colours::white;
+	m_Changed  = true;
 }
 
 //=================================================================================
@@ -229,7 +234,7 @@ const std::filesystem::path& C_Material::GetRoughnessMapPath() const
 void C_Material::Update()
 {
 	auto& device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
-	auto& tMGR = C_TextureManager::CreateInstance(device);
+	auto& tMGR	 = C_TextureManager::CreateInstance(device);
 
 	const auto needsUpdateTexture = [&tMGR](Core::ResourceHandle<TextureResource> resHandle, Handle<Texture> GPUHandle) {
 		auto currTexture = tMGR.GetTexture(resHandle);

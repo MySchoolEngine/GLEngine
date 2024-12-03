@@ -36,6 +36,8 @@ RTTR_REGISTRATION
 			ok = true;                                                                                                                                                
 			return std::static_pointer_cast<Resource>(ptr);                                                                                                           
 		});
+
+		rttr::type::register_equal_comparator<ResourceHandle<GLEngine::Renderer::C_TrimeshModel>>();
 }
 // clang-format on
 
