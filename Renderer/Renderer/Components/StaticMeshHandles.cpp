@@ -123,7 +123,6 @@ void C_StaticMeshHandles::Update()
 			auto& meshContainer			  = m_Meshes.emplace_back();
 			meshContainer.m_NumPrimitives = static_cast<uint32_t>(mesh.vertices.size());
 			// load buffer
-			auto& mesh = m_MeshResource.GetResource().GetScene().meshes[0];
 
 			I_Renderer&		renderer = Core::C_Application::Get().GetActiveRenderer();
 			ResouceManager& rm		 = renderer.GetRM();
