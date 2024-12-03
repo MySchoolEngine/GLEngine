@@ -49,6 +49,7 @@ workspace "Engine"
 	
 	workspace_files{
 		"vendor/GLM/util/glm.natvis",
+		"vendor/projects/crossguid/crossguid.natvis",
 		"vendor/ImGui/misc/natvis/imgui.natvis",
 		"vendor/pugixml/contrib/natvis/pugixml.natvis",
 		"vendor/projects/RTTR/rttr.natvis",

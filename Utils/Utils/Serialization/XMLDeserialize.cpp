@@ -52,12 +52,6 @@ rttr::variant C_XMLDeserializer::DeserializeNode(const pugi::xml_node& node, rtt
 		DeserializeProperty(prop, var, node);
 	}
 
-
-	if (auto method = var2.get_type().get_method("AfterDeserialize"))
-	{
-		method.invoke(var);
-	}
-
 	return var;
 }
 
