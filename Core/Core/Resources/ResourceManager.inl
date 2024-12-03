@@ -23,7 +23,7 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 				return {};
 			}
 			GLE_TODO("08. 05. 2024", "RohacekD", "Propagate isBlocking, when we have job futures");
-			auto baseResource = LoadResource<ResourceType::T_BaseResource>(metafile->GetOriginalFileName(), true);
+			auto baseResource = LoadResource<typename ResourceType::T_BaseResource>(metafile->GetOriginalFileName(), true);
 			// this will cause problems if loaded previously as non blocking
 			if (baseResource.IsFailed())
 			{
@@ -69,12 +69,17 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 					if constexpr (IsBeDerivedResource<ResourceType> && BuildableResource<ResourceType>)
 					{
 						C_Metafile* metafile	   = GetOrLoadMetafile(filepath);
-						auto			  baseResource = LoadResource<ResourceType::T_BaseResource>(metafile->GetOriginalFileName(), true);
+						auto			  baseResource = LoadResource<typename ResourceType::T_BaseResource>(metafile->GetOriginalFileName(), true);
 						if (std::dynamic_pointer_cast<ResourceType>(resource)->Build(baseResource)) {
 							resource->m_State = ResourceState::Ready;
-							resource->Save();
+							if (!resource->Save()) {
+								CORE_LOG(E_Level::Error, E_Context::Core, "Cannot save resource {}", resource->GetFilePath());
+							}
 							metafile->AddDerivedResource(filepath);
-							metafile->Save();
+							if (!metafile->Save())
+							{
+								CORE_LOG(E_Level::Error, E_Context::Core, "Cannot save resource metafile {}", metafile->GetMetafileName(resource->GetFilePath()));
+							}
 
 							// ResourceHandle<ResourceType> resourceHandle(resource);
 							// ResourceCreatedEvent		 event(resourceHandle);
