@@ -44,6 +44,8 @@ bool C_FileDialogWindow::Draw(C_GUIManager& guiMgr) const
 			m_WantToBeDestroyed = true;
 		}
 	}
+	if (m_WantToBeDestroyed)
+		ImGuiFileDialog::Instance()->Close();
 	return false; // todo
 }
 
