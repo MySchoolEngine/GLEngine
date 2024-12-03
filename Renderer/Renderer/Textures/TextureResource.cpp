@@ -1,14 +1,22 @@
 #include <RendererStdafx.h>
 
+#include <Renderer/Textures/Storage/TextureStorage.h>
 #include <Renderer/Textures/TextureLoader.h>
 #include <Renderer/Textures/TextureResource.h>
-#include <Renderer/Textures/Storage/TextureStorage.h>
 
 #include <Core/Resources/ResourceHandle.h>
 #include <Core/Resources/ResourceManager.h>
 
 #include <rttr/registration>
 
+
+namespace GLEngine::Core {
+template <> void ResourceHandle<GLEngine::Renderer::TextureResource>::AfterDeserialize(GLEngine::Utils::C_XMLDeserializer::DeserializeCtx& ctx)
+{
+	auto& rm = C_ResourceManager::Instance();
+	*this	 = rm.LoadResource<GLEngine::Renderer::TextureResource>(GetFilePath());
+}
+} // namespace GLEngine::Core
 DECLARE_RESOURCE_TYPE(GLEngine::Renderer::TextureResource)
 
 namespace GLEngine::Renderer {
