@@ -28,7 +28,7 @@ struct TextureDescriptor {
 	bool m_bStreamable = true;
 
 	std::uint8_t m_Levels	   = 1; //< Num mip maps
-	std::uint8_t m_NumSamples  = 1; //< Multisampled textures
+	std::uint8_t m_NumSamples  = 1; //< Multi-sampled textures
 	std::uint8_t m_NumTextures = 1; //< used for arrays
 };
 

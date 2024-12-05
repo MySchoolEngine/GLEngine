@@ -1,7 +1,6 @@
 #include <GUIStdafx.h>
 
 #include <GUI/ConsoleWindow.h>
-#include <GUI/GUIPart.h>
 
 #include <Utils/Logging/Filter.h>
 
@@ -12,7 +11,7 @@ namespace GLEngine::GUI {
 std::array<ImVec4, 4> C_ConsoleWindow::s_LevelColors = {ImVec4(1, 0, 0, 1), ImVec4(1, 0.8f, 0, 1), ImVec4(1, 1, 1, 1), ImVec4(0.7f, 0.7f, 0.7f, 1.0)};
 
 //=================================================================================
-C_ConsoleWindow::C_ConsoleWindow(GUID guid)
+C_ConsoleWindow::C_ConsoleWindow(const GUID guid)
 	: C_Window(guid, "Console")
 	, m_LastLogIndex(m_Logs.size() - 1)
 {
@@ -22,16 +21,15 @@ C_ConsoleWindow::C_ConsoleWindow(GUID guid)
 //=================================================================================
 C_ConsoleWindow::~C_ConsoleWindow()
 {
-
 	Utils::Logging::C_LoggingSystem::Instance().RemoveLogger(this);
 }
 
 //=================================================================================
-void C_ConsoleWindow::Log(Utils::Logging::E_Level level, Utils::Logging::E_Context context, int line, const char* file, const std::string& text)
+void C_ConsoleWindow::Log(const Utils::Logging::E_Level level, const Utils::Logging::E_Context context, const int line, const char* file, const std::string& text)
 {
 	m_LastLogIndex++;
 	m_LastLogIndex %= m_Logs.size();
-	m_Logs[m_LastLogIndex] = Utils::Logging::S_Data{text, file, line, level, context};
+	m_Logs[m_LastLogIndex] = Utils::Logging::S_Data{.m_Text = text, .m_File = file, .m_Line = line, .m_Level = level, .m_Context = context};
 }
 
 //=================================================================================
@@ -40,28 +38,28 @@ bool C_ConsoleWindow::Draw(C_GUIManager& guiMgr) const
 	::ImGui::Begin(m_Name.c_str(), &m_IsVisible);
 	static const char* levels[]			 = {"Error", "Warning", "Info", "Debug", "None"};
 	static const char* contexts[]		 = {"Core", "Render", "Entity", "None"};
-	static const char* current_level	 = levels[4];
-	static const char* current_context	 = contexts[3];
+	static const char* currentLevel		 = levels[4];
+	static const char* currentContext	 = contexts[3];
 	static int		   selectedLevelId	 = 4;
 	static int		   selectedContextId = 3;
-	using levelUnderlying				 = std::underlying_type_t<Utils::Logging::E_Level>;
-	using contextUnderlying				 = std::underlying_type_t<Utils::Logging::E_Context>;
+	using T_LevelUnderlying				 = std::underlying_type_t<Utils::Logging::E_Level>;
+	using T_ContextUnderlying			 = std::underlying_type_t<Utils::Logging::E_Context>;
 
-	static char m_SpawningName[255] = {0};
+	static char spawningName[255] = {0};
 
 	static std::unique_ptr<Utils::Logging::C_Filter> filter = std::make_unique<Utils::Logging::C_PassAllFilter>();
 
-	if (::ImGui::BeginCombo("##level", current_level))
+	if (::ImGui::BeginCombo("##level", currentLevel))
 	{
 		for (int n = 0; n < sizeof(levels) / sizeof(char*); n++)
 		{
-			bool is_selected = (current_level == levels[n]);
-			if (::ImGui::Selectable(levels[n], is_selected))
+			const bool isSelected = (currentLevel == levels[n]);
+			if (::ImGui::Selectable(levels[n], isSelected))
 			{
-				current_level	= levels[n];
+				currentLevel	= levels[n];
 				selectedLevelId = n;
 			}
-			if (is_selected)
+			if (isSelected)
 			{
 				::ImGui::SetItemDefaultFocus();
 			}
@@ -70,17 +68,17 @@ bool C_ConsoleWindow::Draw(C_GUIManager& guiMgr) const
 	}
 
 
-	if (::ImGui::BeginCombo("##context", current_context))
+	if (::ImGui::BeginCombo("##context", currentContext))
 	{
 		for (int n = 0; n < sizeof(contexts) / sizeof(char*); n++)
 		{
-			bool is_selected = (current_context == contexts[n]);
-			if (::ImGui::Selectable(contexts[n], is_selected))
+			const bool isSelected = (currentContext == contexts[n]);
+			if (::ImGui::Selectable(contexts[n], isSelected))
 			{
-				current_context	  = contexts[n];
+				currentContext	  = contexts[n];
 				selectedContextId = n;
 			}
-			if (is_selected)
+			if (isSelected)
 			{
 				::ImGui::SetItemDefaultFocus();
 			}
@@ -89,7 +87,7 @@ bool C_ConsoleWindow::Draw(C_GUIManager& guiMgr) const
 	}
 
 
-	::ImGui::InputText("Filtered text", m_SpawningName, 255);
+	::ImGui::InputText("Filtered text", spawningName, 255);
 
 	Utils::Logging::C_Filter* innerFilter(nullptr);
 
@@ -99,10 +97,10 @@ bool C_ConsoleWindow::Draw(C_GUIManager& guiMgr) const
 		innerFilter = new C_NegationFilter(new C_ContextFilter(static_cast<E_Context>(selectedContextId)));
 	}
 
-	if (strlen(m_SpawningName) != 0)
+	if (strlen(spawningName) != 0)
 	{
 		using namespace Utils::Logging;
-		innerFilter = new C_TextFilter(m_SpawningName, innerFilter);
+		innerFilter = new C_TextFilter(spawningName, innerFilter);
 	}
 
 
@@ -131,7 +129,7 @@ bool C_ConsoleWindow::Draw(C_GUIManager& guiMgr) const
 		}
 		if (!filter->Filter(data))
 			continue;
-		::ImGui::TextColored(s_LevelColors[static_cast<levelUnderlying>(data.m_Level)], "%s", data.m_Text.c_str());
+		::ImGui::TextColored(s_LevelColors[static_cast<T_LevelUnderlying>(data.m_Level)], "%s", data.m_Text.c_str());
 	}
 	::ImGui::SetScrollHereY(1.0f);
 	::ImGui::EndChild();

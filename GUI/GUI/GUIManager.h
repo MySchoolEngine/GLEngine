@@ -30,13 +30,13 @@ public:
 	void DestroyWindow(GUID guid);
 	void OnUpdate();
 
-	template <class T, class... Args> std::reference_wrapper<GUI::Menu::C_MenuItem> CreateMenuItem(Args&&... args);
+	template <class T, class... Args> std::reference_wrapper<Menu::C_MenuItem> CreateMenuItem(Args&&... args);
 
 private:
 	void DestroyPossibleWindows();
 
-	std::unordered_map<GUID, GUI::C_Window*>			m_Windwos;
-	std::vector<std::unique_ptr<GUI::Menu::C_MenuItem>> m_MenuItems;
+	std::unordered_map<GUID, C_Window*>			m_Windows;
+	std::vector<std::unique_ptr<Menu::C_MenuItem>> m_MenuItems;
 };
 
 } // namespace GLEngine::GUI

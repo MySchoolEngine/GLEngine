@@ -9,7 +9,7 @@ class I_CameraComponent;
 class I_TextureViewStorage;
 
 // Renderer should do exactly what name says. Render image.
-// In this state renderer is also integrator, which is suboptimal. I would also like to have 
+// In this state renderer is also integrator, which is suboptimal. I would also like to have
 // renderer capable of progressive probe updates that should internally use path or other integrator
 class RENDERER_API_EXPORT C_RayRenderer {
 public:
@@ -31,19 +31,19 @@ public:
 
 	[[nodiscard]] std::size_t GetProcessedPixels() const;
 
-	void SetMaxPathDepth(std::size_t depth) { m_MaxDepth = depth; }
+	void SetMaxPathDepth(const std::size_t depth) { m_MaxDepth = depth; }
 
 	// if you are using mutex to sync data should call those two methods
 	// under the lock
-	[[nodiscard]] bool NewResultAviable() const { return m_NewResultAviable; }
-	void			   SetResultConsumed() { m_NewResultAviable = false; }
+	[[nodiscard]] bool NewResultAvailable() const { return m_NewResultAvailable; }
+	void			   SetResultConsumed() { m_NewResultAvailable = false; }
 
 private:
-	void							AddSample(const glm::uvec2 coord, C_TextureView view, const glm::vec3 sample);
-	void							UpdateView(unsigned int sourceLine, unsigned int numLines, C_TextureView& source, C_TextureView& target, unsigned int numSamples);
-	std::size_t						m_ProcessedPixels;
-	std::size_t						m_MaxDepth;
-	bool							m_NewResultAviable;
-	const C_RayTraceScene&			m_Scene;
+	static void			   AddSample(const glm::uvec2 coord, C_TextureView view, const glm::vec3 sample);
+	void				   UpdateView(unsigned int sourceLine, unsigned int numLines, const C_TextureView& source, C_TextureView& target, unsigned int numSamples);
+	std::size_t			   m_ProcessedPixels;
+	std::size_t			   m_MaxDepth;
+	bool				   m_NewResultAvailable;
+	const C_RayTraceScene& m_Scene;
 };
 } // namespace GLEngine::Renderer

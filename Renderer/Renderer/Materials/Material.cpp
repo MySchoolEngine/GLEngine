@@ -95,7 +95,7 @@ C_Material::C_Material(const MeshData::Material& material)
 }
 
 //=================================================================================
-C_Material::C_Material(C_Material&& other)
+C_Material::C_Material(C_Material&& other) noexcept
 	: m_Name(std::move(other.m_Name))
 	, m_Color(other.m_Color)
 	, m_Roughness(other.m_Roughness)
@@ -112,9 +112,9 @@ C_Material::C_Material(C_Material&& other)
 }
 
 //=================================================================================
-C_Material C_Material::clone() const
+C_Material C_Material::Clone() const
 {
-	return C_Material("");
+	return C_Material{""};
 }
 
 //=================================================================================
@@ -136,7 +136,7 @@ void C_Material::SetDiffuseColor(const Colours::T_Colour& color)
 }
 
 //=================================================================================
-void C_Material::SetRoughness(float roughness)
+void C_Material::SetRoughness(const float roughness)
 {
 	m_Roughness = roughness;
 }

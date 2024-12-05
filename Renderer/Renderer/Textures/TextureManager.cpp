@@ -20,7 +20,7 @@ C_TextureManager& C_TextureManager::CreateInstance(I_Device& device)
 }
 
 //=================================================================================
-Handle<Texture> C_TextureManager::GetOrCreateTexture(const Core::ResourceHandle<Renderer::TextureResource> resource)
+Handle<Texture> C_TextureManager::GetOrCreateTexture(const Core::ResourceHandle<TextureResource> resource)
 {
 	auto it = m_Textures.find(resource);
 	if (it != m_Textures.end())
@@ -34,7 +34,7 @@ Handle<Texture> C_TextureManager::GetOrCreateTexture(const Core::ResourceHandle<
 		const auto& resourcePtr = resource.GetResource();
 		const auto& storage		= resourcePtr.GetStorage();
 
-		auto GPUSamplerHandle = renderer.GetRM().createSampler(SamplerDescriptor2D{
+		const auto GPUSamplerHandle = renderer.GetRM().createSampler(SamplerDescriptor2D{
 			.m_FilterMin = E_TextureFilter::Linear,
 			.m_FilterMag = E_TextureFilter::Linear,
 			.m_WrapS	 = E_WrapFunction::Repeat,
@@ -42,13 +42,12 @@ Handle<Texture> C_TextureManager::GetOrCreateTexture(const Core::ResourceHandle<
 			.m_WrapU	 = E_WrapFunction::Repeat,
 		});
 
-		Handle<Texture> handle = renderer.GetRM().createTexture(
-			TextureDescriptor{.name			 = resource.GetFilePath().generic_string(),
-							  .width		 = storage.GetDimensions().x,
-							  .height		 = storage.GetDimensions().y,
-							  .type			 = E_TextureType::TEXTURE_2D,
-							  .format		 = Renderer::GetClosestFormat(storage.GetChannels(), !Renderer::IsIntegral(storage.GetStorageType())),
-							  .m_bStreamable = false});
+		Handle<Texture> handle = renderer.GetRM().createTexture(TextureDescriptor{.name			 = resource.GetFilePath().generic_string(),
+																				  .width		 = storage.GetDimensions().x,
+																				  .height		 = storage.GetDimensions().y,
+																				  .type			 = E_TextureType::TEXTURE_2D,
+																				  .format		 = GetClosestFormat(storage.GetChannels(), !IsIntegral(storage.GetStorageType())),
+																				  .m_bStreamable = false});
 		renderer.SetTextureSampler(handle, GPUSamplerHandle);
 		// upload texture
 		renderer.SetTextureData(handle, storage);
@@ -65,7 +64,7 @@ Handle<Texture> C_TextureManager::GetOrCreateTexture(const Core::ResourceHandle<
 	// if (resource.IsReady())
 	// 	m_Textures[resource] = CreateTexture(resource);
 
-	// we need to check the resource have been loaded into the memory, and than load it onto the GPU
+	// we need to check the resource have been loaded into the memory, and then load it onto the GPU
 
 
 	return {};
@@ -95,48 +94,47 @@ C_TextureManager::C_TextureManager(I_Device& device)
 {
 	// identity texture
 	{
-		const Renderer::TextureDescriptor desc{.name		  = "Identity texture",
-											   .width		  = 1,
-											   .height		  = 1,
-											   .type		  = Renderer::E_TextureType::TEXTURE_2D,
-											   .format		  = Renderer::E_TextureFormat::RGBA16f,
-											   .m_bStreamable = false};
+		const TextureDescriptor desc{.name			= "Identity texture",
+									 .width			= 1,
+									 .height		= 1,
+									 .type			= E_TextureType::TEXTURE_2D,
+									 .format		= E_TextureFormat::RGBA16f,
+									 .m_bStreamable = false};
 
 		m_IdentityTexture = m_Device.CreateTextureHandle(desc);
 	}
 	// error texture
 	{
-		Renderer::Textures::TextureLoader tl;
-		const auto						  buffer = tl.loadTexture(s_ErrorTextureFile.generic_string().c_str());
+		Textures::TextureLoader tl;
+		const auto				buffer = tl.loadTexture(s_ErrorTextureFile.generic_string().c_str());
 		if (!buffer)
 		{
 			CORE_LOG(E_Level::Error, E_Context::Render, "Could not load texture '{}'", s_ErrorTextureFile.generic_string());
 			return;
 		}
 
-		const Renderer::TextureDescriptor desc{.name		  = s_ErrorTextureFile.generic_string(),
-											   .width		  = buffer->GetDimensions().x,
-											   .height		  = buffer->GetDimensions().y,
-											   .type		  = Renderer::E_TextureType::TEXTURE_2D,
-											   .format		  = Renderer::E_TextureFormat::RGBA32f,
-											   .m_bStreamable = false};
+		const TextureDescriptor desc{.name			= s_ErrorTextureFile.generic_string(),
+									 .width			= buffer->GetDimensions().x,
+									 .height		= buffer->GetDimensions().y,
+									 .type			= E_TextureType::TEXTURE_2D,
+									 .format		= E_TextureFormat::RGBA32f,
+									 .m_bStreamable = false};
 
 		m_ErrorTexture = m_Device.CreateTextureHandle(desc);
 	}
 }
 
 //=================================================================================
-std::shared_ptr<I_DeviceTexture> C_TextureManager::CreateTexture(Core::ResourceHandle<Renderer::TextureResource> resource)
+std::shared_ptr<I_DeviceTexture> C_TextureManager::CreateTexture(Core::ResourceHandle<TextureResource> resource)
 {
 	GLE_ASSERT(resource.IsReady(), "Resource not ready yet.");
-	I_TextureViewStorage& storage = resource.GetResource().GetStorage();
-	auto				  texture
-		= m_Device.CreateTextureHandle(Renderer::TextureDescriptor{.name   = resource.GetFilePath().generic_string(),
-																   .width  = storage.GetDimensions().x,
-																   .height = storage.GetDimensions().y,
-																   .type   = Renderer::E_TextureType::TEXTURE_2D,
-																   .format = Renderer::GetClosestFormat(storage.GetChannels(), !Renderer::IsIntegral(storage.GetStorageType())),
-																   .m_bStreamable = false});
+	const I_TextureViewStorage& storage = resource.GetResource().GetStorage();
+	auto						texture = m_Device.CreateTextureHandle(TextureDescriptor{.name	 = resource.GetFilePath().generic_string(),
+																	 .width	 = storage.GetDimensions().x,
+																	 .height = storage.GetDimensions().y,
+																	 .type	 = E_TextureType::TEXTURE_2D,
+																	 .format = GetClosestFormat(storage.GetChannels(), !IsIntegral(storage.GetStorageType())),
+																	 .m_bStreamable = false});
 	if (!m_Device.AllocateTexture(*texture.get()))
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Cannot allocate memory for texture '{}'", resource.GetFilePath());

@@ -55,8 +55,7 @@ bool C_TrimeshModel::Load(const std::filesystem::path& filepath)
 	m_Filepath = filepath;
 	pugi::xml_document doc;
 
-	pugi::xml_parse_result result;
-	result = doc.load_file(m_Filepath.c_str());
+	pugi::xml_parse_result result = doc.load_file(m_Filepath.c_str());
 	if (!result.status == pugi::status_ok)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Core, "Can't open config file for trimesh name: {}", m_Filepath);
@@ -75,12 +74,12 @@ bool C_TrimeshModel::Load(const std::filesystem::path& filepath)
 }
 
 //=================================================================================
-bool C_TrimeshModel::Build(Core::ResourceHandle<MeshResource> hanlde)
+bool C_TrimeshModel::Build(Core::ResourceHandle<MeshResource> handle)
 {
-	GLE_ASSERT(hanlde.IsReady(), "Building trimesh before MeshResource loaded.");
-	if (!hanlde.IsReady())
+	GLE_ASSERT(handle.IsReady(), "Building trimesh before MeshResource loaded.");
+	if (!handle.IsReady())
 		return false;
-	for (auto& mesh : hanlde.GetResource().GetScene().meshes)
+	for (auto& mesh : handle.GetResource().GetScene().meshes)
 	{
 		auto& trimesh = m_Trimeshes.emplace_back();
 		// need to do something with material
@@ -91,7 +90,7 @@ bool C_TrimeshModel::Build(Core::ResourceHandle<MeshResource> hanlde)
 		if (trimesh.GetNumTriangles() > 10)
 		{
 			::Utils::HighResolutionTimer BVHBuildTime;
-			auto&						 bvh = m_BVHs.emplace_back(new BVH(trimesh));
+			const auto&					 bvh = m_BVHs.emplace_back(new BVH(trimesh));
 			bvh->Build();
 
 			CORE_LOG(E_Level::Info, E_Context::Render, "BVH trimesh {} build time {}ms", mesh.m_name, BVHBuildTime.getElapsedTimeFromLastQueryMilliseconds());

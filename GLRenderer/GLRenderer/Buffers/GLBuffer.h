@@ -17,9 +17,9 @@
 namespace GLEngine::GLRenderer {
 class GLBuffer {
 public:
-	GLBuffer(const Renderer::BufferDescriptor& desc)
+	explicit GLBuffer(const Renderer::BufferDescriptor& desc)
 		: desc(desc)
-		, m_id(0)
+		, m_ID(0)
 		, m_MappedMemory(nullptr)
 	{
 	}
@@ -35,7 +35,7 @@ public:
 
 private:
 	const Renderer::BufferDescriptor desc;
-	GLuint							 m_id;
+	GLuint							 m_ID;
 	void*							 m_MappedMemory;
 
 	friend class GLResourceManager;
@@ -70,10 +70,10 @@ public:
 	virtual void AllocateMemory(const std::size_t size, GLenum usage, const void* data = nullptr) override;
 
 	//=================================================================================
-	virtual void NameBuffer(const std::string& name) const override { glObjectLabel(GL_BUFFER, m_id, static_cast<GLsizei>(name.length()), name.c_str()); }
+	virtual void NameBuffer(const std::string& name) const override { glObjectLabel(GL_BUFFER, m_ID, static_cast<GLsizei>(name.length()), name.c_str()); }
 
 protected:
-	GLuint m_id;
+	GLuint m_ID;
 };
 
 } // namespace GLEngine::GLRenderer::Buffers

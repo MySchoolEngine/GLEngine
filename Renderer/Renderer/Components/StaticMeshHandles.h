@@ -20,16 +20,16 @@ public:
 	C_StaticMeshHandles();
 	virtual ~C_StaticMeshHandles() = default;
 
-	virtual void						PerformDraw() const override;
-	virtual bool						HasDebugDrawGUI() const override;
-	virtual std::string_view			GetDebugComponentName() const override;
-	virtual Physics::Primitives::S_AABB GetAABB() const override;
-	virtual void						OnEvent(Core::I_Event& event) override;
-	virtual void						Update() override;
-	void								Render(Renderer3D& renderer) const;
-	void								SetMeshFile(const std::filesystem::path meshfile);
-	std::filesystem::path				GetMeshFile() const;
-	void								DebugDrawGUI() override;
+	void						PerformDraw() const override;
+	bool						HasDebugDrawGUI() const override;
+	std::string_view			GetDebugComponentName() const override;
+	Physics::Primitives::S_AABB GetAABB() const override;
+	void						OnEvent(Core::I_Event& event) override;
+	void						Update() override;
+	void						Render(Renderer3D& renderer) const;
+	void						SetMeshFile(const std::filesystem::path meshfile);
+	std::filesystem::path		GetMeshFile() const;
+	void						DebugDrawGUI() override;
 
 	RTTR_ENABLE(Renderer::I_RenderableComponent);
 
@@ -43,10 +43,10 @@ private:
 		Handle<Buffer> m_BitangentHandle;
 		uint32_t	   m_NumPrimitives;
 	};
-	Core::ResourceHandle<MeshResource>	  m_MeshResource;
-	std::vector<MeshContainer>			  m_Meshes;
-	Handle<Pipeline>					  m_Pipeline;
-	std::shared_ptr<Renderer::C_Material> m_Material;
+	Core::ResourceHandle<MeshResource> m_MeshResource;
+	std::vector<MeshContainer>		   m_Meshes;
+	Handle<Pipeline>				   m_Pipeline;
+	std::shared_ptr<C_Material>		   m_Material;
 
 	RTTR_REGISTRATION_FRIEND;
 };

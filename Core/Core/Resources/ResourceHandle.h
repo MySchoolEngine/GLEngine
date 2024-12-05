@@ -11,8 +11,27 @@ namespace GLEngine::Core {
 class CORE_API_EXPORT ResourceHandleBase {
 public:
 	ResourceHandleBase();
-	ResourceHandleBase(std::shared_ptr<Resource> resource);
+	explicit ResourceHandleBase(const std::shared_ptr<Resource>& resource);
 	virtual ~ResourceHandleBase();
+	ResourceHandleBase(ResourceHandleBase&& other) noexcept;
+	ResourceHandleBase(const ResourceHandleBase& other);
+
+	ResourceHandleBase& operator=(const ResourceHandleBase& other)
+	{
+		if (this == &other)
+			return *this;
+		m_Resource = other.m_Resource;
+		return *this;
+	}
+
+	ResourceHandleBase& operator=(ResourceHandleBase&& other) noexcept
+	{
+		if (this == &other)
+			return *this;
+		m_Resource = std::move(other.m_Resource);
+		return *this;
+	}
+
 	[[nodiscard]] ResourceState GetState() const;
 	[[nodiscard]] bool			IsReady() const;
 	[[nodiscard]] bool			IsLoading() const;
@@ -30,10 +49,10 @@ protected:
 };
 
 // this forces include of ResourceType definition into headers, can I move it somewhere else?
-template <class ResourceType> requires(is_resource<ResourceType>) class ResourceHandle : public ResourceHandleBase {
+template <class ResourceType> requires(is_resource<ResourceType>) class ResourceHandle final : public ResourceHandleBase {
 public:
 	ResourceHandle() = default;
-	ResourceHandle(std::shared_ptr<ResourceType> resource)
+	explicit ResourceHandle(std::shared_ptr<ResourceType> resource)
 		: ResourceHandleBase(resource)
 	{
 	}

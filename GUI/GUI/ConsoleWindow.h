@@ -6,13 +6,13 @@
 #include <Utils/Logging/ILogger.h>
 
 namespace GLEngine::GUI {
-class GUI_API_EXPORT C_ConsoleWindow : public C_Window, public ::Utils::Logging::I_Logger {
+class GUI_API_EXPORT C_ConsoleWindow final : public C_Window, public ::Utils::Logging::I_Logger {
 public:
 	explicit C_ConsoleWindow(GUID guid);
 	virtual ~C_ConsoleWindow();
 
-	virtual void Log(::Utils::Logging::E_Level level, ::Utils::Logging::E_Context context, int line, const char* file, const std::string& text) override;
-	virtual bool Draw(C_GUIManager& guiMgr) const override;
+	void Log(::Utils::Logging::E_Level level, ::Utils::Logging::E_Context context, int line, const char* file, const std::string& text) override;
+	bool Draw(C_GUIManager& guiMgr) const override;
 
 private:
 	//@todo replace with stack vector once we have 'em

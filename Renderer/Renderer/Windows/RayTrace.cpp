@@ -18,6 +18,7 @@
 
 #include <Utils/HighResolutionTimer.h>
 
+#include <algorithm>
 #include <imgui.h>
 
 namespace GLEngine::Renderer {
@@ -28,21 +29,21 @@ constexpr static unsigned int  s_Coef			 = 1; // 28 max
 constexpr static unsigned int  s_ProbeSize		 = 64;
 
 //=================================================================================
-C_RayTraceWindow::C_RayTraceWindow(GUID guid, std::shared_ptr<I_CameraComponent> camera, GUI::C_GUIManager& guiMGR)
+C_RayTraceWindow::C_RayTraceWindow(const GUID guid, const std::shared_ptr<I_CameraComponent>& camera, GUI::C_GUIManager& guiMGR)
 	: GUI::C_Window(guid, "Ray tracing")
 	, m_Camera(camera)
 	, m_ImageStorage(s_ImageResolution.x / s_Coef, s_ImageResolution.y / s_Coef, 4)
-	, m_ProbeStorage(s_ProbeSize + 2, s_ProbeSize + 2, 3)
 	, m_SamplesStorage(s_ImageResolution.x / s_Coef, s_ImageResolution.y / s_Coef, 3)
 	, m_HeatMapStorage(1, s_ImageResolution.y / s_Coef, 1)
 	, m_HeatMapNormalizedStorage(1, s_ImageResolution.y / s_Coef, 3)
+	, m_Scene()
 	, m_NumCycleSamples(0)
 	, m_Running(false)
 	, m_RunningCycle(false)
-	, m_Scene()
+	, m_DepthSlider(3, 1, 100, "Max path depth")
 	, m_Renderer(nullptr)
 	, m_ProbeRenderer(nullptr)
-	, m_DepthSlider(3, 1, 100, "Max path depth")
+	, m_ProbeStorage(s_ProbeSize + 2, s_ProbeSize + 2, 3)
 	, m_GUIImage({})
 	, m_GUIHeatMapImage({})
 	, m_GUIImageProbe({})
@@ -77,15 +78,15 @@ void C_RayTraceWindow::CreateTextures(I_Renderer& renderer)
 {
 	{
 		// final image
-		m_GPUImageHandle	  = renderer.GetRM().createTexture(TextureDescriptor{
-			 .name			= "rayTrace",
-			 .width			= s_ImageResolution.x / s_Coef,
-			 .height		= s_ImageResolution.y / s_Coef,
-			 .type			= E_TextureType::TEXTURE_2D,
-			 .format		= E_TextureFormat::RGBA32f,
-			 .m_bStreamable = false,
-		 });
-		auto GPUSamplerHandle = renderer.GetRM().createSampler(SamplerDescriptor2D{
+		m_GPUImageHandle			= renderer.GetRM().createTexture(TextureDescriptor{
+			   .name		  = "rayTrace",
+			   .width		  = s_ImageResolution.x / s_Coef,
+			   .height		  = s_ImageResolution.y / s_Coef,
+			   .type		  = E_TextureType::TEXTURE_2D,
+			   .format		  = E_TextureFormat::RGBA32f,
+			   .m_bStreamable = false,
+		   });
+		const auto GPUSamplerHandle = renderer.GetRM().createSampler(SamplerDescriptor2D{
 			.m_FilterMin = E_TextureFilter::Linear,
 			.m_FilterMag = E_TextureFilter::Linear,
 			.m_WrapS	 = Renderer ::E_WrapFunction::Repeat,
@@ -100,15 +101,15 @@ void C_RayTraceWindow::CreateTextures(I_Renderer& renderer)
 
 	// heatmap
 	{
-		m_GPUHeatMapHandle	  = renderer.GetRM().createTexture(TextureDescriptor{
-			   .name		  = "heatMap",
-			   .width		  = 1,
-			   .height		  = s_ImageResolution.y / s_Coef,
-			   .type		  = E_TextureType::TEXTURE_2D,
-			   .format		  = E_TextureFormat::RGBA32f, // todo this used to not contain alpha channel
-			   .m_bStreamable = false,
-		   });
-		auto GPUSamplerHandle = renderer.GetRM().createSampler(SamplerDescriptor2D{
+		m_GPUHeatMapHandle			= renderer.GetRM().createTexture(TextureDescriptor{
+			 .name			= "heatMap",
+			 .width			= 1,
+			 .height		= s_ImageResolution.y / s_Coef,
+			 .type			= E_TextureType::TEXTURE_2D,
+			 .format		= E_TextureFormat::RGBA32f, // todo this used to not contain alpha channel
+			 .m_bStreamable = false,
+		 });
+		const auto GPUSamplerHandle = renderer.GetRM().createSampler(SamplerDescriptor2D{
 			.m_FilterMin = E_TextureFilter::Nearest,
 			.m_FilterMag = E_TextureFilter::Nearest,
 			.m_WrapS	 = Renderer ::E_WrapFunction::Repeat,
@@ -156,7 +157,6 @@ C_RayTraceWindow::~C_RayTraceWindow()
 void C_RayTraceWindow::SetScene(Entity::C_EntityManager& world)
 {
 	m_Scene.ClearScene();
-
 }
 
 //=================================================================================
@@ -223,7 +223,7 @@ void C_RayTraceWindow::RunUntilStop()
 //=================================================================================
 void C_RayTraceWindow::Clear()
 {
-	const glm::vec4 color{Colours::black, 1.f};
+	constexpr glm::vec4 color{Colours::black, 1.f};
 	C_TextureView(&m_ImageStorage).ClearColor(color);
 	C_TextureView(&m_HeatMapStorage).ClearColor(color);
 	C_TextureView(&m_HeatMapNormalizedStorage).ClearColor(color);
@@ -324,15 +324,15 @@ void C_RayTraceWindow::UploadStorage()
 	if (!m_Renderer)
 		return;
 	// This method should only check whether renderer has any presentable update
-	// and if so, than upload it, also this should only be called from main thread
+	// and if so, then upload it, also this should only be called from main thread
 	// so add assert here
-	if (m_Renderer->NewResultAviable())
+	if (m_Renderer->NewResultAvailable())
 		RecalculateHeatMap();
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
 
 	if (m_ImageLock.try_lock())
 	{
-		if (m_Renderer->NewResultAviable())
+		if (m_Renderer->NewResultAvailable())
 		{
 			renderer.SetTextureData(m_GPUImageHandle, m_ImageStorage);
 			renderer.SetTextureData(m_GPUHeatMapHandle, m_HeatMapNormalizedStorage);
@@ -401,14 +401,12 @@ void C_RayTraceWindow::RecalculateHeatMap()
 	for (unsigned int row = 0; row < heatMap.GetDimensions().y; ++row)
 	{
 		const auto sample = heatMap.Get<float>(glm::uvec2{0, row}, Renderer::E_TextureChannel::Red);
-		if (sample < min)
-			min = sample;
-		if (sample > max)
-			max = sample;
+		min				  = std::min(sample, min);
+		max				  = std::max(sample, max);
 	}
-	const float				interval  = max - min;
-	const Colours::T_Colour minColour = Colours::green;
-	const Colours::T_Colour maxColour = Colours::red;
+	const float					interval  = max - min;
+	constexpr Colours::T_Colour minColour = Colours::green;
+	constexpr Colours::T_Colour maxColour = Colours::red;
 	for (unsigned int row = 0; row < heatMap.GetDimensions().y; ++row)
 	{
 		const auto sample = heatMap.Get<float>(glm::uvec2{0, row}, Renderer::E_TextureChannel::Red);

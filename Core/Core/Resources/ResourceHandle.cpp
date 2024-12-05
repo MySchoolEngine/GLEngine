@@ -23,7 +23,7 @@ RTTR_REGISTRATION
 namespace GLEngine::Core {
 
 //=================================================================================
-ResourceHandleBase::ResourceHandleBase(std::shared_ptr<Resource> resource)
+ResourceHandleBase::ResourceHandleBase(const std::shared_ptr<Resource>& resource)
 	: m_Resource(resource)
 {
 }
@@ -52,6 +52,12 @@ ResourceHandleBase::~ResourceHandleBase()
 }
 
 //=================================================================================
+ResourceHandleBase::ResourceHandleBase(ResourceHandleBase&& other) noexcept = default;
+
+//=================================================================================
+ResourceHandleBase::ResourceHandleBase(const ResourceHandleBase& other) = default;
+
+//=================================================================================
 bool ResourceHandleBase::IsReady() const
 {
 	return GetState() == ResourceState::Ready;
@@ -74,6 +80,6 @@ const std::filesystem::path& ResourceHandleBase::GetFilePath() const
 {
 	if (m_Resource)
 		return m_Resource->GetFilePath();
-	return "";
+	return R"()";
 }
 } // namespace GLEngine::Core

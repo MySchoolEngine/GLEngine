@@ -77,7 +77,7 @@ void C_D3D12Renderer::SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer
 }
 
 //=================================================================================
-Renderer::ResouceManager& C_D3D12Renderer::GetRM()
+Renderer::ResourceManager& C_D3D12Renderer::GetRM()
 {
 	throw std::logic_error("The method or operation is not implemented.");
 }

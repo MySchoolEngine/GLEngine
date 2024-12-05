@@ -10,10 +10,10 @@
 #include <rttr/registration>
 
 namespace GLEngine::Core {
-template <> void ResourceHandle<GLEngine::Renderer::MeshResource>::AfterDeserialize(GLEngine::Utils::C_XMLDeserializer::DeserializeCtx& ctx)
+template <> void ResourceHandle<Renderer::MeshResource>::AfterDeserialize(GLEngine::Utils::C_XMLDeserializer::DeserializeCtx& ctx)
 {
 	auto& rm = C_ResourceManager::Instance();
-	*this	 = rm.LoadResource<GLEngine::Renderer::MeshResource>(GetFilePath());
+	*this	 = rm.LoadResource<Renderer::MeshResource>(GetFilePath());
 }
 } // namespace GLEngine::Core
 DECLARE_RESOURCE_TYPE(GLEngine::Renderer::MeshResource)
@@ -28,12 +28,12 @@ MeshResource::MeshResource() = default;
 bool MeshResource::Load(const std::filesystem::path& filepath)
 {
 	// This does not have to be shared ptr
-	m_Scene	   = std::make_shared<Renderer::MeshData::Scene>();
+	m_Scene	   = std::make_shared<MeshData::Scene>();
 	m_Filepath = filepath;
 	Mesh::ModelLoader ml;
 	std::lock_guard	  lock(ml.GetMutex());
 	ml.Reset();
-	return ml.addModelFromFileToScene(m_Filepath, m_Scene, m_TexuterNames);
+	return ml.addModelFromFileToScene(m_Filepath, m_Scene, m_TextureNames);
 }
 
 //=================================================================================
@@ -42,12 +42,12 @@ bool MeshResource::Reload()
 	Mesh::ModelLoader ml;
 	std::lock_guard	  lock(ml.GetMutex());
 	ml.Reset();
-	auto							   newScene = std::make_shared<Renderer::MeshData::Scene>();
+	const auto						   newScene = std::make_shared<MeshData::Scene>();
 	std::vector<std::filesystem::path> newTextures;
 	if (ml.addModelFromFileToScene(m_Filepath, newScene, newTextures))
 	{
 		m_Scene		   = newScene;
-		m_TexuterNames = newTextures;
+		m_TextureNames = newTextures;
 		return true;
 	}
 
@@ -73,7 +73,7 @@ const MeshData::Scene& MeshResource::GetScene() const
 const std::vector<std::filesystem::path>& MeshResource::GetTextureNames() const
 {
 	GLE_ASSERT(IsReady(), "Dereferencing unloaded resource.");
-	return m_TexuterNames;
+	return m_TextureNames;
 }
 
 //=================================================================================

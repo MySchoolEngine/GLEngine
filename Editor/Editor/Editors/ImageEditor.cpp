@@ -24,9 +24,8 @@
 #include <imgui_internal.h>
 
 namespace GLEngine::Editor {
-
-const static glm::vec2	s_ImageDrawArea{800, 800};
-const static glm::uvec2 s_BackgroundDim{2, 2};
+static constexpr glm::vec2	s_ImageDrawArea{800, 800};
+static constexpr glm::uvec2 s_BackgroundDim{2, 2};
 
 //=================================================================================
 C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR)
@@ -93,7 +92,7 @@ C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 		//}
 		m_bDone		= true;
 		m_bModified = true;
-		CORE_LOG(E_Level::Info, E_Context::Render, "Line render time {}", float(timer.getElapsedTimeFromLastQueryMilliseconds()) / 1000.f);
+		CORE_LOG(E_Level::Info, E_Context::Render, "Line render time {}", static_cast<float>(timer.getElapsedTimeFromLastQueryMilliseconds()) / 1000.f);
 	}).detach();
 }
 
@@ -162,7 +161,7 @@ void C_ImageEditor::CreateTextures(Renderer::I_Renderer& renderer)
 {
 	using namespace Renderer;
 	{
-		auto GPUSamplerHandle = renderer.GetRM().createSampler(SamplerDescriptor2D{
+		const auto GPUSamplerHandle = renderer.GetRM().createSampler(SamplerDescriptor2D{
 			.m_FilterMin = E_TextureFilter::Linear,
 			.m_FilterMag = E_TextureFilter::Linear,
 			.m_WrapS	 = E_WrapFunction::Repeat,

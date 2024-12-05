@@ -7,11 +7,11 @@
 namespace GLEngine::GUI {
 
 //=================================================================================
-C_Window::C_Window(GUID guid, const std::string& name)
-	: m_GUID(guid)
-	, m_Name(name)
-	, m_IsVisible(false)
+C_Window::C_Window(const GUID guid, std::string name)
+	: m_IsVisible(false)
 	, m_WantToBeDestroyed(false)
+	, m_Name(std::move(name))
+	, m_GUID(guid)
 {
 }
 
@@ -92,9 +92,9 @@ void C_Window::DrawMenus() const
 	{
 		if (::ImGui::BeginMenuBar())
 		{
-			for (const auto& menu : m_Menus)
+			for (const auto& [guid, menu] : m_Menus)
 			{
-				menu.second.get().Draw();
+				menu.get().Draw();
 			}
 			::ImGui::EndMenuBar();
 		}

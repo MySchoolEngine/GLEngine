@@ -10,7 +10,7 @@ namespace GLEngine::Core {
 class CORE_API_EXPORT C_Metafile {
 public:
 	C_Metafile() = default;
-	C_Metafile(const std::filesystem::path& originalFile);
+	explicit C_Metafile(const std::filesystem::path& originalFile);
 
 	const std::filesystem::path& GetOriginalFileName() const { return m_OriginalFilename; }
 

@@ -9,9 +9,14 @@
 #include <slot_map/slot_map.h>
 
 namespace GLEngine::Renderer {
-class ResouceManager {
+class ResourceManager {
 public:
-	virtual ~ResouceManager() noexcept = default;
+	ResourceManager()								  = default;
+	virtual ~ResourceManager() noexcept				  = default;
+	ResourceManager(const ResourceManager& other)	  = delete;
+	ResourceManager(ResourceManager&& other) noexcept = delete;
+	ResourceManager& operator=(const ResourceManager& other) = delete;
+	ResourceManager& operator=(ResourceManager&& other) noexcept = delete;
 
 	[[nodiscard]] virtual Handle<Shader>   createShader(const std::filesystem::path& path) = 0;
 	virtual void						   destoryShader(Handle<Shader> handle)			   = 0;
@@ -31,7 +36,7 @@ public:
 	{ /*
 		GLE_ERROR(m_Map.empty());*/
 	}
-	ConcreteResource* GetResource(Handle<Badge> handle) { return m_Map.get(handle.m_index); }
+	ConcreteResource* GetResource(Handle<Badge> handle) { return m_Map.get(handle.m_Index); }
 
 	template <class... Args> Handle<Badge> CreateNew(Args... args)
 	{
@@ -39,7 +44,7 @@ public:
 		return Handle<Badge>(index);
 	}
 
-	void RemoveHandle(Handle<Badge> handle) { m_Map.erase(handle.m_index); }
+	void RemoveHandle(Handle<Badge> handle) { m_Map.erase(handle.m_Index); }
 
 private:
 	// question is, whether the badge should be generic one, or specific, specific one would make Handle API specific, but would avoid making mistakes

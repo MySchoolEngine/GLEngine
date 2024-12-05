@@ -10,8 +10,6 @@
 #include <GUI/GUIManager.h>
 #include <GUI/GUIWindow.h>
 
-#include <pugixml.hpp>
-
 #include <imgui.h>
 
 namespace GLEngine::GLRenderer::Shaders {
@@ -53,14 +51,14 @@ void C_ShaderManager::Update()
 	if (m_LastUpdate + m_Timeout < currentTime)
 	{
 		m_ActiveShader.reset();
-		for (auto& program : m_Programs)
+		for (auto& [name, shader] : m_Programs)
 		{
-			if (!program.second->IsExpired())
+			if (!shader->IsExpired())
 			{
 				continue;
 			}
 
-			ReloadProgram(program.first, program.second);
+			ReloadProgram(name, shader);
 		}
 		m_LastUpdate = currentTime;
 	}
@@ -96,13 +94,13 @@ C_ShaderManager::T_ShaderPtr C_ShaderManager::GetProgram(const std::string& name
 }
 
 //=================================================================================
-bool C_ShaderManager::ShaderLoaded(const std::string& name)
+bool C_ShaderManager::ShaderLoaded(const std::string& name) const
 {
-	return m_Programs.find(name) != m_Programs.end();
+	return m_Programs.contains(name);
 }
 
 //=================================================================================
-void C_ShaderManager::ActivateShader(T_ShaderPtr shader)
+void C_ShaderManager::ActivateShader(const T_ShaderPtr& shader)
 {
 	if (shader == nullptr)
 	{
@@ -131,9 +129,9 @@ std::string C_ShaderManager::ShadersStatistics() const
 {
 	std::stringstream ss;
 	ss << "Loaded shaders: " << m_Programs.size() << std::endl;
-	for (auto& shader : m_Programs)
+	for (const auto& [name, shader] : m_Programs)
 	{
-		ss << shader.first << " used by " << shader.second.use_count() - 1 << std::endl;
+		ss << name << " used by " << shader.use_count() - 1 << std::endl;
 		ss << "->\tHas stages:" << std::endl;
 	}
 	return ss.str();
@@ -188,7 +186,7 @@ GLuint C_ShaderManager::LoadProgram(const std::filesystem::path& name, C_ShaderC
 }
 
 //=================================================================================
-void C_ShaderManager::ReloadProgram(const std::string& programName, std::shared_ptr<C_ShaderProgram> program) const
+void C_ShaderManager::ReloadProgram(const std::string& programName, const std::shared_ptr<C_ShaderProgram>& program) const
 {
 	C_ShaderCompiler compiler(m_PreprocessorOutput.GetValue());
 	try

@@ -14,7 +14,7 @@ public:
 	using T_GUIMenu	   = std::reference_wrapper<Menu::C_Menu>;
 
 public:
-	C_Window(GUID guid, const std::string& name);
+	C_Window(GUID guid, std::string name);
 	virtual ~C_Window() = default;
 
 	virtual void			 Update() {}

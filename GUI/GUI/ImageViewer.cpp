@@ -2,17 +2,17 @@
 
 #include <GUI/ImageViewer.h>
 
-#include <imgui.h>
 #include <Renderer/IRenderer.h>
 
 #include <Core/Application.h>
 
+#include <imgui.h>
 #include <imgui_internal.h>
 
 namespace GLEngine::GUI {
 
 //=================================================================================
-C_ImageViewer::C_ImageViewer(Renderer::Handle<Renderer::Texture> texture)
+C_ImageViewer::C_ImageViewer(const Renderer::Handle<Renderer::Texture> texture)
 	: m_texture(texture)
 	, m_Zoom(2.f)
 	, m_GUIHandle(nullptr)
@@ -33,11 +33,11 @@ bool C_ImageViewer::Draw() const
 	const ImVec2 canvas_p0 = ImGui::GetCursorPos();
 	const ImRect imageRect(canvas_p0, canvas_p0 + drawAreaSz);
 	ImGui::InvisibleButton("canvas", drawAreaSz, ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight);
-	const bool is_hovered = ImGui::IsItemHovered(); // Hovered
-	const bool is_active  = ImGui::IsItemActive();	// Held
+	const bool isHovered = ImGui::IsItemHovered(); // Hovered
+	const bool isActive	 = ImGui::IsItemActive();  // Held
 	ImGui::SetCursorPos(canvas_p0);
 	ImRect zoomArea({0, 0}, {1, 1});
-	if (is_hovered)
+	if (isHovered)
 	{
 		// mouse pos is defined in screen space
 		const auto mousePos = ImGui::GetMousePos() - ImGui::GetCursorScreenPos();
@@ -62,7 +62,7 @@ bool C_ImageViewer::Draw() const
 
 	// === minimap ===
 	// show only when zoomed and mouse over
-	if (is_hovered && m_Zoom != 1.f)
+	if (isHovered && m_Zoom != 1.f)
 	{
 		constexpr float offsetFromCorner = 10.f;
 		constexpr float maxWidth		 = 250.f;
@@ -75,8 +75,8 @@ bool C_ImageViewer::Draw() const
 
 		// rect
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
-		ImVec2		 minPos(width * zoomArea.Min.x, height * zoomArea.Min.y);
-		ImVec2		 maxPos(width * zoomArea.Max.x, height * zoomArea.Max.y);
+		const ImVec2 minPos(width * zoomArea.Min.x, height * zoomArea.Min.y);
+		const ImVec2 maxPos(width * zoomArea.Max.x, height * zoomArea.Max.y);
 
 		window->DrawList->AddRect(screenSpacePos + minPos, screenSpacePos + maxPos, ImGui::ColorConvertFloat4ToU32(ImVec4(1.f, 0.f, 0.f, .5f)), 0.0f);
 	}

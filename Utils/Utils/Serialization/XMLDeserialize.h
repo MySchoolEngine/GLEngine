@@ -48,7 +48,7 @@ private:
 	rttr::variant DeserializeAtomic(const pugi::xml_attribute& attr, const rttr::type& type);
 	void		  DeserializeArray(const pugi::xml_node& child, rttr::variant_sequential_view& view);
 	void		  DeserializeAssociativeArray(const pugi::xml_node& child, rttr::variant_associative_view& view);
-	void		  FinishDeserialization(const rttr::type& type, rttr::variant& var);
+	void		  FinishDeserialization(const rttr::type& type, const rttr::variant& var);
 
 	DeserializeCtx m_Ctx;
 };

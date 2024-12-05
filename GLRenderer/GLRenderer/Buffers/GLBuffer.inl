@@ -6,13 +6,13 @@ namespace GLEngine::GLRenderer::Buffers {
 //=================================================================================
 template <GLenum TYPE> C_GLBuffer<TYPE>::C_GLBuffer()
 {
-	glGenBuffers(1, &m_id);
+	glGenBuffers(1, &m_ID);
 }
 
 //=================================================================================
 template <GLenum TYPE> C_GLBuffer<TYPE>::~C_GLBuffer()
 {
-	glDeleteBuffers(1, &m_id);
+	glDeleteBuffers(1, &m_ID);
 }
 
 //=================================================================================
@@ -24,7 +24,7 @@ template <GLenum TYPE> void C_GLBuffer<TYPE>::unbind() const
 //=================================================================================
 template <GLenum TYPE> void C_GLBuffer<TYPE>::bind() const
 {
-	glBindBuffer(TYPE, m_id);
+	glBindBuffer(TYPE, m_ID);
 }
 
 //=================================================================================
@@ -66,7 +66,7 @@ inline GLenum GLBuffer::GetUsage() const
 //=================================================================================
 inline void GLBuffer::bind() const
 {
-	glBindBuffer(GetType(), m_id);
+	glBindBuffer(GetType(), m_ID);
 }
 
 //=================================================================================

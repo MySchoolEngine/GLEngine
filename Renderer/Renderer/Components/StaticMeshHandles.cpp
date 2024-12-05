@@ -111,12 +111,12 @@ void C_StaticMeshHandles::Update()
 						  },
 			},
 		.shader =  "handles",
-		// .colorAttachementFormat = GetTextureFormat(m_SwapChainImageFormat), no need for OpenGL and will be solved for Vulkan
+		// .colorAttachmentFormat = GetTextureFormat(m_SwapChainImageFormat), no need for OpenGL and will be solved for Vulkan
 	});
 	}
 	if (m_Meshes.empty() == true && m_MeshResource.IsReady())
 	{
-		auto& scene = m_MeshResource.GetResource().GetScene();
+		const auto& scene = m_MeshResource.GetResource().GetScene();
 		m_Meshes.reserve(scene.meshes.size());
 		for (auto& mesh : scene.meshes)
 		{
@@ -125,7 +125,7 @@ void C_StaticMeshHandles::Update()
 			// load buffer
 
 			I_Renderer&		renderer = Core::C_Application::Get().GetActiveRenderer();
-			ResouceManager& rm		 = renderer.GetRM();
+			ResourceManager& rm		 = renderer.GetRM();
 
 			const auto positionsSize		= static_cast<uint32_t>(sizeof(mesh.vertices[0]) * mesh.vertices.size());
 			meshContainer.m_PositionsHandle = rm.createBuffer(BufferDescriptor{

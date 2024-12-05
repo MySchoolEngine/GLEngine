@@ -2,8 +2,6 @@
 
 #include <Renderer/Shaders/ShaderPreprocessor.h>
 
-#include <fmt/format.h>
-
 namespace GLEngine::Renderer::Shaders {
 
 //=================================================================================
@@ -25,13 +23,13 @@ C_ShaderPreprocessor::~C_ShaderPreprocessor() = default;
 //=================================================================================
 void C_ShaderPreprocessor::Define(const std::string& symbol, const std::string& value)
 {
-	m_defines[symbol] = value;
+	m_Defines[symbol] = value;
 }
 
 //=================================================================================
 bool C_ShaderPreprocessor::IsDefined(const std::string& name) const
 {
-	return m_defines.find(name) != m_defines.end();
+	return m_Defines.contains(name);
 }
 
 //=================================================================================
@@ -83,7 +81,7 @@ void C_ShaderPreprocessor::IncludesFiles(std::string& content, const std::filesy
 }
 
 //=================================================================================
-void C_ShaderPreprocessor::CodeGeneration(std::string& content)
+void C_ShaderPreprocessor::CodeGeneration(std::string& content) const
 {
 	std::smatch m;
 	std::string result;
@@ -114,9 +112,9 @@ void C_ShaderPreprocessor::GetDefines(std::string& content)
 }
 
 //=================================================================================
-void C_ShaderPreprocessor::ReplaceConstants(std::string& content)
+void C_ShaderPreprocessor::ReplaceConstants(std::string& content) const
 {
-	for (const auto& define : m_defines)
+	for (const auto& define : m_Defines)
 	{
 		size_t index = 0;
 		while (true)
@@ -148,7 +146,7 @@ bool C_ShaderPreprocessor::_loadFile(const std::filesystem::path& file, std::str
 }
 
 //=================================================================================
-void C_ShaderPreprocessor::ResolveIfStatements(std::string& content)
+void C_ShaderPreprocessor::ResolveIfStatements(std::string& content) const
 {
 	std::smatch m;
 	std::string result;

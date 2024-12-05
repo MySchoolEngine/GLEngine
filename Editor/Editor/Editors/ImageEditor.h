@@ -18,11 +18,11 @@ class C_ImageEditorTool;
 class EDITOR_API_EXPORT C_ImageEditor : public GUI::C_Window {
 public:
 	C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR);
-	~C_ImageEditor();
-	virtual void Update() override;
+	~C_ImageEditor() override;
+	void Update() override;
 
 protected:
-	virtual void DrawComponents() const override;
+	void DrawComponents() const override;
 
 	bool ToggleHistogram();
 	void SetupToolPreview();

@@ -19,8 +19,8 @@ public:
 
 	MeshResource();
 
-	[[nodiscard]] virtual bool							  Load(const std::filesystem::path& filepath) override;
-	[[nodiscard]] virtual bool							  Reload() override;
+	[[nodiscard]] bool							  Load(const std::filesystem::path& filepath) override;
+	[[nodiscard]] bool							  Reload() override;
 	[[nodiscard]] std::unique_ptr<Core::I_ResourceLoader> GetLoader() override;
 
 	// First check GetState to avoid SEGFAULTs
@@ -30,8 +30,8 @@ public:
 	const std::vector<std::filesystem::path>& GetTextureNames() const; // should be handled better
 
 private:
-	std::shared_ptr<Renderer::MeshData::Scene> m_Scene;
-	std::vector<std::filesystem::path>		   m_TexuterNames;
+	std::shared_ptr<MeshData::Scene>   m_Scene;
+	std::vector<std::filesystem::path> m_TextureNames;
 
 	RTTR_REGISTRATION_FRIEND;
 };

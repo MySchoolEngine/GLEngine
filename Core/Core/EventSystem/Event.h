@@ -8,7 +8,7 @@ namespace GLEngine {
 namespace Core {
 
 //=================================================================================
-enum class E_EventType
+enum class E_EventType : std::uint8_t
 {
 	None = 0,
 	KeyPressed,
@@ -30,7 +30,7 @@ enum class E_EventType
 };
 
 //=================================================================================
-enum class E_EventCategory
+enum class E_EventCategory : std::uint8_t
 {
 	None		 = 0,
 	Application	 = BIT(0),
@@ -70,9 +70,9 @@ public:
 	virtual ::Utils::C_BitField<E_EventCategory> GetCategories() const = 0;
 	virtual const char*							 GetName() const	   = 0;
 
-	inline bool IsInCategory(E_EventCategory category) const { return GetCategories() & category; }
+	inline bool IsInCategory(const E_EventCategory category) const { return GetCategories() & category; }
 
-	bool m_Handeld = false;
+	bool m_Handled = false;
 };
 
 //=================================================================================
@@ -92,13 +92,13 @@ private:
 //=================================================================================
 class CORE_API_EXPORT C_EntityEvent : public I_Event {
 public:
-	enum class EntityEvent
+	enum class EntityEvent : std::uint8_t
 	{
 		Spawned,
 		Despawned,
 
 		// Editor
-		Seleced,
+		Selected,
 
 		// Entity system
 		LevelLoaded,
@@ -128,9 +128,9 @@ inline std::ostream& operator<<(std::ostream& os, const I_Event& e)
 template <Core::E_EventCategory> class EventCategoryBase {
 };
 
-template <Core::E_EventCategory e, typename retType = typename EventCategoryBase<e>::type> constexpr retType& event_base_cast(Core::I_Event& comp)
+template <Core::E_EventCategory e, typename RetType = typename EventCategoryBase<e>::type> constexpr RetType& event_base_cast(Core::I_Event& comp)
 {
-	return static_cast<retType&>(comp);
+	return static_cast<RetType&>(comp);
 }
 
 } // namespace GLEngine

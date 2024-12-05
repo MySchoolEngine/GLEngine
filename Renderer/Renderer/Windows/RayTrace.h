@@ -10,7 +10,6 @@
 #include <GUI/GUIWindow.h>
 #include <GUI/Image.h>
 #include <GUI/ImageViewer.h>
-#include <GUI/Input/Button.h>
 #include <GUI/Input/CheckBoxValue.h>
 #include <GUI/Input/Slider.h>
 #include <GUI/Input/Vector.h>
@@ -24,9 +23,9 @@ class I_CameraComponent;
 class I_DebugDraw;
 class I_Renderer;
 
-class RENDERER_API_EXPORT C_RayTraceWindow : public GUI::C_Window {
+class RENDERER_API_EXPORT C_RayTraceWindow final : public GUI::C_Window {
 public:
-	C_RayTraceWindow(GUID guid, std::shared_ptr<I_CameraComponent> camera, GUI::C_GUIManager& guiMGR);
+	C_RayTraceWindow(GUID guid, const std::shared_ptr<I_CameraComponent>& camera, GUI::C_GUIManager& guiMGR);
 	~C_RayTraceWindow();
 
 	void SetScene(Entity::C_EntityManager& world);
@@ -41,20 +40,20 @@ public:
 
 	bool IsRunning() const;
 
-	virtual void			   RequestDestroy() override;
-	[[nodiscard]] virtual bool CanDestroy() const override;
-	void					   Update() override;
+	void			   RequestDestroy() override;
+	[[nodiscard]] bool CanDestroy() const override;
+	void			   Update() override;
 
 	Handle<Texture> GetTexture() { return m_GPUProbeHandle; }
 	glm::vec3		GetProbePosition() { return m_ProbePosition.GetValue(); }
 
 private:
-	virtual void DrawComponents() const override;
-	void		 UploadStorage();
-	void		 SaveCurrentImage(const std::filesystem::path& texture);
-	bool		 StillLoadingScene() const;
-	void		 RecalculateHeatMap();
-	void		 CreateTextures(I_Renderer& renderer);
+	void DrawComponents() const override;
+	void UploadStorage();
+	void SaveCurrentImage(const std::filesystem::path& texture);
+	bool StillLoadingScene() const;
+	void RecalculateHeatMap();
+	void CreateTextures(I_Renderer& renderer);
 
 	std::shared_ptr<I_CameraComponent> m_Camera; // TODO: Should be weak? What should I do when camera moves?
 	Handle<Texture>					   m_GPUImageHandle;

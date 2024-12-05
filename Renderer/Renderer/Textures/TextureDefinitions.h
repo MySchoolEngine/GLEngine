@@ -11,7 +11,7 @@ namespace GLEngine::Renderer {
 
 //=================================================================================
 // MinMag filters
-enum class E_TextureFilter : char
+enum class E_TextureFilter : std::uint8_t
 {
 	Linear,
 	Nearest,
@@ -56,7 +56,7 @@ enum class E_BlendFactor : std::uint8_t
 	DestinationAlpha,
 	InvDestinationAlpha,
 	AlphaConstant,	  //< glBlendColor, ID3D12GraphicsCommandList::OMSetBlendFactor
-	InvAphaConstant,  //< glBlendColor, ID3D12GraphicsCommandList::OMSetBlendFactor
+	InvAlphaConstant,  //< glBlendColor, ID3D12GraphicsCommandList::OMSetBlendFactor
 	ColorConstant,	  //< glBlendColor, ID3D12GraphicsCommandList::OMSetBlendFactor
 	InvColorConstant, //< glBlendColor, ID3D12GraphicsCommandList::OMSetBlendFactor
 };
@@ -110,7 +110,7 @@ enum class E_TextureFormat
 };
 
 //=================================================================================
-enum class E_TextureTypes
+enum class E_TextureTypes : std::uint8_t
 {
 	IntegralNormalized, //[ 0,1]
 	Integral,
@@ -119,7 +119,7 @@ enum class E_TextureTypes
 	Floating,
 };
 
-[[nodiscard]] constexpr bool IsIntegral(E_TextureTypes e)
+[[nodiscard]] constexpr bool IsIntegral(const E_TextureTypes e)
 {
 	if (e == E_TextureTypes::Floating)
 		return false;
@@ -315,7 +315,7 @@ inline T_Channels GetOrderedChannels(const std::uint8_t numChannels)
 }
 
 //=================================================================================
-inline E_TextureFormat GetClosestFormat(const T_Channels& channels, bool isFloatingPoint)
+inline E_TextureFormat GetClosestFormat(const T_Channels& channels, const bool isFloatingPoint)
 {
 	GLE_ASSERT(isFloatingPoint, "Engine doesn't support integer textures yet.");
 	const auto numChannels = GetNumberChannels(channels);
@@ -338,7 +338,7 @@ inline E_TextureFormat GetClosestFormat(const T_Channels& channels, bool isFloat
 //=================================================================================
 //=================================================================================
 //=================================================================================
-enum class E_WrapFunction
+enum class E_WrapFunction : std::uint8_t
 {
 	ClampToEdge,
 	ClampToBorder,

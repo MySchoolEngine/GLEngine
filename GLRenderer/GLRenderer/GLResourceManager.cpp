@@ -24,8 +24,8 @@ Renderer::Handle<Renderer::Buffer> GLResourceManager::createBuffer(const Rendere
 	{
 		const GLenum usage		= buffer->GetUsage(); // todo
 		const GLenum bufferType = buffer->GetType();
-		glGenBuffers(1, &buffer->m_id);
-		glBindBuffer(bufferType, buffer->m_id);
+		glGenBuffers(1, &buffer->m_ID);
+		glBindBuffer(bufferType, buffer->m_ID);
 		glBufferData(bufferType, desc.size, nullptr, usage);
 		glBindBuffer(bufferType, 0);
 		// todo mapping
@@ -39,7 +39,7 @@ void GLResourceManager::destroyBuffer(const Renderer::Handle<Renderer::Buffer>& 
 {
 	auto* buffer = m_BufferPool.GetResource(handle);
 	GLE_ASSERT(buffer, "Resource already destroyed");
-	glDeleteBuffers(1, &buffer->m_id);
+	glDeleteBuffers(1, &buffer->m_ID);
 	m_BufferPool.RemoveHandle(handle);
 }
 

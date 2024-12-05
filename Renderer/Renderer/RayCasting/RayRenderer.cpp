@@ -12,10 +12,10 @@ namespace GLEngine::Renderer {
 
 //=================================================================================
 C_RayRenderer::C_RayRenderer(const C_RayTraceScene& scene)
-	: m_Scene(scene)
-	, m_ProcessedPixels(0)
+	: m_ProcessedPixels(0)
 	, m_MaxDepth(3)
-	, m_NewResultAviable(false)
+	, m_NewResultAvailable(false)
+	, m_Scene(scene)
 {
 }
 
@@ -92,9 +92,9 @@ void C_RayRenderer::Render(I_CameraComponent&	 camera,
 }
 
 //=================================================================================
-void C_RayRenderer::UpdateView(unsigned int sourceLine, unsigned int numLines, C_TextureView& source, C_TextureView& target, unsigned int numSamples)
+void C_RayRenderer::UpdateView(unsigned int sourceLine, const unsigned int numLines, const C_TextureView& source, C_TextureView& target, const unsigned int numSamples)
 {
-	// basic restriction is that source line has N+1 samples
+	// basic restriction is that source line has N+1 samples, 
 	// so I need to carry 1/(N+1) part of it to the next lines
 	// this holds even for 1st sample on source line
 	const auto dim = target.GetDimensions();
@@ -110,7 +110,7 @@ void C_RayRenderer::UpdateView(unsigned int sourceLine, unsigned int numLines, C
 			target.Set({x, i}, glm::sqrt((sourceLineVal * denominator + previousLineVal) * denominator));
 		}
 	}
-	m_NewResultAviable = true;
+	m_NewResultAvailable = true;
 }
 
 //=================================================================================

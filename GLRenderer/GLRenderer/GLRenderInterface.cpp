@@ -31,7 +31,7 @@ C_GLRenderInterface::~C_GLRenderInterface()
 void C_GLRenderInterface::Render(const Renderer::RenderCall3D& call)
 {
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
-	auto& glRM	   = static_cast<C_OGLRenderer&>(renderer).GetRMGL();
+	auto& glRM	   = static_cast<C_OGLRenderer&>(renderer).GetRMGR();
 
 	GLPipeline* pipeline = glRM.GetPipeline(call.PipelineHandle);
 	GLE_ASSERT(pipeline, "No pipeline set");
@@ -47,7 +47,6 @@ void C_GLRenderInterface::Render(const Renderer::RenderCall3D& call)
 	renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&]() {
 			glBindVertexArray(m_VAOid);
-			GLPipeline* pipeline = glRM.GetPipeline(call.PipelineHandle);
 
 			for (int i = 0; i < pipeline->GetDesc().vertexInput.size(); ++i)
 			{

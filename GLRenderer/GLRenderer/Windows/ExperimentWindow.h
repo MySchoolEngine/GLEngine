@@ -5,9 +5,7 @@
 #include <GLRenderer/GLFW/GLFWoGLWindow.h>
 #include <GLRenderer/MainPassTechnique.h>
 #include <GLRenderer/ShadowMapPass.h>
-#include <GLRenderer/Textures/Texture.h>
 
-#include <Renderer/Mesh/Curve.h>
 #include <Renderer/Renderer3D.h>
 
 #include <Editor/EditorLayer.h>
@@ -16,7 +14,6 @@
 #include <GUI/Input/CheckBoxValue.h>
 #include <GUI/Input/Slider.h>
 #include <GUI/Menu/Menu.h>
-#include <GUI/Menu/MenuItem.h>
 #include <GUI/PlotLine.h>
 #include <GUI/Text.h>
 
@@ -44,12 +41,12 @@ class C_RenderInterface;
 class C_GLRenderInterface;
 
 namespace Windows {
-class C_ExplerimentWindow : public GLFW::C_GLFWoGLWindow {
+class C_ExperimentWindow : public GLFW::C_GLFWoGLWindow {
 	using T_Base = GLFW::C_GLFWoGLWindow;
 
 public:
-	explicit C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo);
-	virtual ~C_ExplerimentWindow();
+	explicit C_ExperimentWindow(const Core::S_WindowInfo& wndInfo);
+	virtual ~C_ExperimentWindow();
 	//=================================================================================
 	virtual void Update() override;
 
@@ -69,7 +66,7 @@ private:
 	void OnAppInit();
 	void MouseSelect();
 
-	void sampleTime(double new_sample);
+	void SampleTime(double newSample);
 
 	std::shared_ptr<Entity::C_EntityManager> m_World;
 	std::weak_ptr<Entity::I_Entity>			 m_Player;
@@ -81,7 +78,7 @@ private:
 	//===========================
 	// GUI
 	//===========================
-	enum class E_GUITexts
+	enum class E_GUITexts : std::uint8_t
 	{
 		AvgFrametime,
 		AvgFps,
@@ -105,8 +102,6 @@ private:
 	std::unique_ptr<C_MainPassTechnique>	 m_MainPass;
 	std::shared_ptr<C_ShadowMapTechnique>	 m_ShadowPass;
 	std::shared_ptr<C_SunShadowMapTechnique> m_SunShadow;
-
-	std::shared_ptr<Renderer::C_StaticMeshHandles> handlesMesh;
 
 	std::unique_ptr<C_Framebuffer>		 m_HDRFBO;
 	std::unique_ptr<C_Framebuffer>		 m_HDRFBOAtmosphere;

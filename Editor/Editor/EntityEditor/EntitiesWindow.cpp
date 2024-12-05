@@ -45,7 +45,7 @@ bool C_EntitiesWindow::Draw(GUI::C_GUIManager& guiMgr) const
 			ImGui::Selectable(entity->GetName().c_str(), &selected);
 			if (selected)
 			{
-				Core::C_EntityEvent event(entity->GetID(), Core::C_EntityEvent::EntityEvent::Seleced);
+				Core::C_EntityEvent event(entity->GetID(), Core::C_EntityEvent::EntityEvent::Selected);
 				Core::C_Application::Get().OnEvent(event);
 				if (m_SelectedEntity == entity->GetID())
 					m_SelectedEntity = GUID::INVALID_GUID;

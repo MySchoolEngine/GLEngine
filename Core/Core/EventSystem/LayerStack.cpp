@@ -26,7 +26,7 @@ void C_LayerStack::OnEvent(Core::I_Event& event)
 	for (auto& layer : m_Layers)
 	{
 		layer->OnEvent(event);
-		if (event.m_Handeld)
+		if (event.m_Handled)
 			break;
 	}
 }

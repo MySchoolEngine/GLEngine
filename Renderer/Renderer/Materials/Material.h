@@ -20,13 +20,13 @@ struct Material;
 namespace GLEngine::Renderer {
 class RENDERER_API_EXPORT C_Material : ::Utils::RefCounted<::Utils::SingleThreadCounter> {
 public:
-	C_Material(const std::string& name);
-	C_Material(const MeshData::Material& material);
+	explicit C_Material(const std::string& name);
+	explicit C_Material(const MeshData::Material& material);
 	C_Material(const C_Material& other) = delete;
 	C_Material& operator=(const C_Material& other) = delete;
-	C_Material(C_Material&& other);
+	C_Material(C_Material&& other) noexcept;
 
-	C_Material clone() const;
+	C_Material Clone() const;
 	bool	   IsChanged() const;
 	void	   CleanChangeFlag();
 

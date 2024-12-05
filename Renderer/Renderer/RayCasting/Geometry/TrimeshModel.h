@@ -25,7 +25,7 @@ public:
 	[[nodiscard]] bool									  Reload() override;
 	[[nodiscard]] std::unique_ptr<Core::I_ResourceLoader> GetLoader() override;
 
-	[[nodiscard]] bool Build(Core::ResourceHandle<MeshResource> hanlde);
+	[[nodiscard]] bool Build(Core::ResourceHandle<MeshResource> handle);
 
 	bool SupportSaving() const override;
 

@@ -23,7 +23,7 @@ public:
 	//=================================================================================
 	Renderer::E_PassType	  GetCurrentPassType() const override;
 	Renderer::I_Device&		  GetDevice() override;
-	Renderer::ResouceManager& GetRM() override;
+	Renderer::ResourceManager& GetRM() override;
 
 
 

@@ -7,7 +7,6 @@
 #include <GLRenderer/Textures/TextureManager.h>
 
 #include <Renderer/IRenderer.h>
-#include <Renderer/Resources/ResourceManager.h>
 
 #include <Core/Application.h>
 
@@ -43,11 +42,11 @@ std::string C_PhongMaterial::GetNameImpl() const
 bool C_PhongMaterial::Update(const Renderer::C_Material& material)
 {
 	bool	   result			  = true;
-	auto&	   gRM				  = static_cast<C_OGLRenderer&>(Core::C_Application::Get().GetActiveRenderer()).GetRMGL();
+	auto&	   gRM				  = static_cast<C_OGLRenderer&>(Core::C_Application::Get().GetActiveRenderer()).GetRMGR();
 	const auto identity			  = Textures::C_TextureManager::Instance().GetIdentityTexture();
-	auto	   colorHandle		  = material.GetColorMap();
-	auto	   normalMapHandle	  = material.GetNormalMap();
-	auto	   roughnessMapHandle = material.GetRoughnessMap();
+	const auto colorHandle		  = material.GetColorMap();
+	const auto normalMapHandle	  = material.GetNormalMap();
+	const auto roughnessMapHandle = material.GetRoughnessMap();
 
 	auto color		  = gRM.GetTexture(colorHandle);
 	auto normalMap	  = gRM.GetTexture(normalMapHandle);

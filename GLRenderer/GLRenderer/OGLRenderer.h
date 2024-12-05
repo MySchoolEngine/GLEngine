@@ -56,11 +56,11 @@ public:
 	void						SetTextureSampler(Renderer::Handle<Renderer::Texture> dstTexture, Renderer::Handle<Renderer::Sampler> srcSampler) override;
 	void*						GetTextureGUIHandle(Renderer::Handle<Renderer::Texture> texture) override;
 
-	Renderer::ResouceManager& GetRM() override;
-	GLResourceManager&		  GetRMGL();
+	Renderer::ResourceManager& GetRM() override;
+	GLResourceManager&		  GetRMGR();
 
 private:
-	void CaputreCommands() const;
+	void CaptureCommands() const;
 
 	bool											 m_Locked = false;
 	std::vector<Renderer::I_Renderer::T_CommandPtr>* m_CommandQueue;
@@ -79,7 +79,7 @@ private:
 
 	C_GLDevice& m_Device;
 
-	enum class E_GUITexts
+	enum class E_GUITexts : std::uint8_t
 	{
 		AvgDrawCommands,
 		MinMax,

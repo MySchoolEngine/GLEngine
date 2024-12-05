@@ -17,7 +17,7 @@ private:
 	Renderer::PipelineDescriptor m_Desc;
 };
 
-class GLResourceManager : public Renderer::ResouceManager {
+class GLResourceManager : public Renderer::ResourceManager {
 public:
 	void Init(C_GLDevice* device);
 

@@ -8,7 +8,7 @@
 namespace GLEngine::Renderer {
 
 class I_Device;
-class ResouceManager;
+class ResourceManager;
 class I_TextureViewStorage;
 
 enum class E_PassType
@@ -63,7 +63,7 @@ public:
 	virtual void SetTextureSampler(Handle<Texture> dstTexture, Handle<Sampler> srcSampler) = 0;
 
 	virtual I_Device&		GetDevice() = 0;
-	virtual ResouceManager& GetRM()		= 0;
+	virtual ResourceManager& GetRM()		= 0;
 
 	virtual void* GetTextureGUIHandle(Handle<Texture> texture) { return nullptr; }
 	virtual C_TextureManager& GetTextureManager() { return C_TextureManager::CreateInstance(GetDevice()); }

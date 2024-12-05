@@ -12,7 +12,7 @@
 
 namespace GLEngine::Core {
 
-class CORE_API_EXPORT C_ResourceManager : public C_Layer {
+class CORE_API_EXPORT C_ResourceManager final : public C_Layer {
 	template <class ResourceType> using T_Handle = typename std::enable_if_t<std::is_base_of_v<Resource, ResourceType>, ResourceHandle<ResourceType>>;
 
 public:
@@ -22,7 +22,7 @@ public:
 
 	void Destroy();
 
-	// not needed as I run single threaded so far and does not care about memory in this moment
+	// not needed as I run single threaded so far and does not care about memory at this moment
 	void UnloadUnusedResources();
 	void UpdatePendingLoads();
 

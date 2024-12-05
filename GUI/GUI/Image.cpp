@@ -11,7 +11,7 @@
 namespace GLEngine::GUI {
 
 //=================================================================================
-C_Image::C_Image(Renderer::Handle<Renderer::Texture> handle)
+C_Image::C_Image(const Renderer::Handle<Renderer::Texture> handle)
 	: m_texture(handle)
 	, m_Zoom(2.f)
 	, m_GUIHandle(nullptr)

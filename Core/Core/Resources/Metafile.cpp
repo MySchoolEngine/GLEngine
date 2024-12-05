@@ -32,9 +32,7 @@ bool C_Metafile::Load()
 	pugi::xml_document doc;
 
 	const auto			   metafileName = GetMetafileName(m_OriginalFilename);
-	pugi::xml_parse_result result;
-	result = doc.load_file(metafileName.generic_string().c_str());
-	if (!result.status == pugi::status_ok)
+	if (const pugi::xml_parse_result result = doc.load_file(metafileName.generic_string().c_str()); !result.status == pugi::status_ok)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Core, "Can't open config meta file for name: {}", metafileName);
 		return false;

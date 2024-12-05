@@ -43,14 +43,14 @@ public:
 	void operator=(const C_RayTraceScene&) = delete;
 
 	[[nodiscard]] bool Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, float offset = 0.f) const;
-	void			   AddObejct(std::shared_ptr<I_RayGeometryObject>&& object);
+	void			   AddObject(std::shared_ptr<I_RayGeometryObject>&& object);
 	void			   AddLight(std::shared_ptr<RayTracing::C_AreaLight>&& light);
 	void			   AddLight(std::shared_ptr<RayTracing::C_PointLight>&& light);
 	void			   AddMesh(const MeshData::Mesh& mesh, const MeshData::Material& material, const BVH* bvh = nullptr);
 
 	void ForEachLight(std::function<void(const std::reference_wrapper<const RayTracing::I_RayLight>& light)> fnc) const;
 
-	const C_TextureView GetTextureView(int textureID) const;
+	[[nodiscard]] C_TextureView GetTextureView(int textureID) const;
 
 	void DebugDraw(I_DebugDraw* dd) const;
 
