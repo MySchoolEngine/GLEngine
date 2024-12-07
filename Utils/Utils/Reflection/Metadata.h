@@ -155,6 +155,8 @@ enum class MetaGUI
 	Checkbox,
   Texture,
 	Text,
+	EnumSelect,
+	EnumSelectOptional,
 	CustomGUIWidget, //-> function<bool(rttr::instance, rttr::property)>
 };
 REGISTER_META_CLASS(MetaGUI, Metatype);
@@ -195,7 +197,8 @@ template <> struct UIMetaclassToType<MetaGUI::Colour> {
 template <> struct UIMetaclassToType<MetaGUI::Vec3> {
 	using type = glm::vec3;
 };
-template <> struct UIMetaclassToType<MetaGUI::Checkbox> {
+template <> struct UIMetaclassToType<MetaGUI::Checkbox>
+{
 	using type = bool;
 };
 template <> struct UIMetaclassToType<MetaGUI::Text> {
@@ -209,9 +212,24 @@ template <MetaGUI Class> [[nodiscard]] bool IsUIMetaclass(const rttr::property& 
 	{
 		// Those are actually compile time problems. So I do not include it into the result as it should be checked before committing.
 		GLE_ASSERT(prop.get_type().is_wrapper(), "Property for UI needs to be rttr::policy::prop::as_reference_wrapper in order to ImGui make work.");
+		const auto propertyType = prop.get_type().get_wrapped_type();
 		// unfortunately, it is impossible to check this during registration
-		GLE_ASSERT(rttr::type::get<UIMetaclassToType_t<Class>>() == prop.get_type().get_wrapped_type(), "Property has wrong type expected '{}' passed '{}'",
-				   rttr::type::get<UIMetaclassToType_t<Class>>(), prop.get_type().get_wrapped_type());
+		if constexpr (Class == MetaGUI::EnumSelect || Class == MetaGUI::EnumSelectOptional)
+		{
+			// pass anything
+			if constexpr (Class==MetaGUI::EnumSelect)
+				GLE_ASSERT(propertyType.is_enumeration(), "Property registered as enum: {}", propertyType);
+			if constexpr (Class == MetaGUI::EnumSelectOptional)
+			{
+				GLE_ASSERT(propertyType.is_wrapper(), "Property registered as optional: {}", propertyType);
+				GLE_ASSERT(propertyType.get_wrapped_type().get_raw_type().is_enumeration(), "Property registered as optional enum: {}", propertyType);
+			}
+		}
+		else
+		{
+			GLE_ASSERT(rttr::type::get<UIMetaclassToType_t<Class>>() == propertyType, "Property has wrong type expected '{}' passed '{}'",
+				rttr::type::get<UIMetaclassToType_t<Class>>(), propertyType);
+		}
 	}
 	return isRightClass;
 }
@@ -262,6 +280,17 @@ enum class Text
 {
 };
 
+enum class EnumSelect
+{
+	Name,
+};
+
+enum class EnumSelectOptional
+{
+	Name,
+	OptionalName,
+};
+
 enum class CustomGUIWidget
 {
 	DrawFunction,
@@ -291,6 +320,13 @@ REGISTER_META_CLASS(UI::Checkbox, MetaGUI);
 REGISTER_META_MEMBER_TYPE(UI::Checkbox::Name, std::string);
 
 REGISTER_META_CLASS(UI::Text, MetaGUI);
+
+REGISTER_META_CLASS(UI::EnumSelect, MetaGUI);
+REGISTER_META_MEMBER_TYPE(UI::EnumSelect::Name, std::string);
+
+REGISTER_META_CLASS(UI::EnumSelectOptional, MetaGUI);
+REGISTER_META_MEMBER_TYPE(UI::EnumSelectOptional::Name, std::string);
+REGISTER_META_MEMBER_TYPE(UI::EnumSelectOptional::OptionalName, std::string);
 
 REGISTER_META_CLASS(UI::CustomGUIWidget, MetaGUI); // for whole types
 REGISTER_META_MEMBER_TYPE(UI::CustomGUIWidget::DrawFunction, std::function<void(rttr::instance&)>);

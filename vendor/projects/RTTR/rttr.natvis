@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="rttr::detail::type_data">
+	  <DisplayString>{name,s}</DisplayString>
+  </Type>
   <Type Name="rttr::type">
     <DisplayString Condition="m_type_data->is_valid">{m_type_data->name}</DisplayString>
     <DisplayString Condition="m_type_data->is_valid == false">Invalid type</DisplayString>
     <Expand>
       <Item Name="[Name]">m_type_data->name</Item>
+      <Item Name="[Wrapped type]" Condition="m_type_data->wrapped_type != nullptr &amp;&amp; m_type_data->wrapped_type->is_valid">*m_type_data->wrapped_type</Item>
       <Synthetic Name="[IsClass]">
         <DisplayString Condition="m_type_data->m_type_traits[0]">true</DisplayString>
         <DisplayString Condition="m_type_data->m_type_traits[0] == 0">false</DisplayString>

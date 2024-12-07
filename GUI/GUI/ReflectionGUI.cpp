@@ -55,6 +55,81 @@ bool DrawSlider(rttr::instance& obj, const rttr::property& prop)
 }
 
 //=================================================================================
+bool DrawEnumSelect(rttr::instance& obj, const rttr::property& prop)
+{
+	using namespace ::Utils::Reflection;
+
+	auto currentValue = prop.get_value(obj);
+	auto& currentValRef = (int&)currentValue.get_wrapped_value<int>();
+
+	bool changed = false;
+
+	const auto enumeration = prop.get_type().get_wrapped_type().get_enumeration();
+	if (::ImGui::BeginCombo(GetMetadataMember<UI::EnumSelect::Name>(prop).c_str(), enumeration.value_to_name(currentValue.extract_wrapped_value()).data()))
+	{
+		const auto range = enumeration.get_values();
+		auto it = range.begin();
+		for (int n = 0; n < range.size(); n++, it++)
+		{
+			bool is_selected = (currentValue == *it);
+			if (::ImGui::Selectable(enumeration.value_to_name(*it).data(), is_selected))
+			{
+				changed = true;
+				currentValRef = (*it).get_wrapped_value<int>();
+			}
+			if (is_selected)
+			{
+				::ImGui::SetItemDefaultFocus();
+			}
+		}
+		::ImGui::EndCombo();
+	}
+	return changed;
+}
+
+//=================================================================================
+bool DrawEnumSelectOptional(rttr::instance& obj, const rttr::property& prop)
+{
+	using namespace ::Utils::Reflection;
+
+	auto currentValue = prop.get_value(obj);
+	auto& currentValRef = (std::optional<int>&)currentValue.get_wrapped_value<std::optional<int>>();
+
+	bool changed = false;
+
+	const auto enumeration = prop.get_type().get_wrapped_type().get_wrapped_type().get_raw_type().get_enumeration();
+	if (::ImGui::BeginCombo(GetMetadataMember<UI::EnumSelectOptional::Name>(prop).c_str(), currentValRef.has_value() ? enumeration.value_to_name(currentValRef.value()).data() : GetMetadataMember<UI::EnumSelectOptional::OptionalName>(prop).c_str()))
+	{
+		const auto range = enumeration.get_values();
+		auto it = range.begin();
+		for (int n = 0; n < range.size(); n++, it++)
+		{
+			bool is_selected = (currentValue == *it); // todo wrong
+			if (::ImGui::Selectable(enumeration.value_to_name(*it).data(), is_selected))
+			{
+				changed = true;
+				currentValRef = (*it).get_wrapped_value<int>();
+			}
+			if (is_selected)
+			{
+				::ImGui::SetItemDefaultFocus();
+			}
+		}
+		if (::ImGui::Selectable(GetMetadataMember<UI::EnumSelectOptional::OptionalName>(prop).c_str(), !currentValRef.has_value()))
+		{
+			changed = true;
+			currentValRef.reset();
+		}
+		if (currentValRef.has_value() == false)
+		{
+			::ImGui::SetItemDefaultFocus();
+		}
+		::ImGui::EndCombo();
+	}
+	return changed;
+}
+
+//=================================================================================
 bool DrawSliderInt(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
@@ -270,6 +345,14 @@ bool DrawPropertyGUI(rttr::instance& obj, const rttr::property& prop)
 	else if (UI::IsUIMetaclass<MetaGUI::Texture>(prop))
 	{
 		return DrawTextureResource(obj, prop);
+	}
+	else if (UI::IsUIMetaclass<MetaGUI::EnumSelectOptional>(prop))
+	{
+		return DrawEnumSelectOptional(obj, prop);
+	}
+	else if (UI::IsUIMetaclass<MetaGUI::EnumSelect>(prop))
+	{
+		return DrawEnumSelect(obj, prop);
 	}
 	else
 	{
