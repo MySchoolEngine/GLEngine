@@ -434,7 +434,7 @@ void C_VkRenderer::SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer, s
 }
 
 //=================================================================================
-Renderer::ResouceManager& C_VkRenderer::GetRM()
+Renderer::ResourceManager& C_VkRenderer::GetRM()
 {
 	return m_GPUResourceManager;
 }

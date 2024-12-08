@@ -14,8 +14,8 @@ public:
 	using T_StageHandle = StageHandle;
 	using T_Paths		= std::vector<std::filesystem::path>;
 
-	ShaderCompilerTrait(const std::ios_base::openmode additionalOpenmode = {})
-		: m_additionalOpenmode(additionalOpenmode)
+	ShaderCompilerTrait(const std::ios_base::openmode additionalOpenMode = {})
+		: m_AdditionalOpenMode(additionalOpenMode)
 	{}
 
 	virtual ~ShaderCompilerTrait() = default;
@@ -40,7 +40,7 @@ protected:
 		= 0;
 
 	T_Paths					m_TouchedFiles;
-	std::ios_base::openmode m_additionalOpenmode;
+	std::ios_base::openmode m_AdditionalOpenMode;
 };
 
 //=================================================================================
@@ -180,7 +180,7 @@ template <class StageHandle> typename ShaderCompilerTrait<StageHandle>::T_Paths 
 //=================================================================================
 template <class StageHandle> bool ShaderCompilerTrait<StageHandle>::_loadFile(const std::filesystem::path& file, std::vector<char>& content)
 {
-	std::ifstream stream(file, std::ios::ate | m_additionalOpenmode); // this one needs to be tested with vulkan implementation
+	std::ifstream stream(file, std::ios::ate | m_AdditionalOpenMode); // this one needs to be tested with vulkan implementation
 
 	if (stream.fail())
 		return false;

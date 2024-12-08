@@ -52,7 +52,7 @@ public:
 	void  TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, VkCommandPool& commandPool);
 	void* GetTextureGUIHandle(Renderer::Handle<Renderer::Texture> texture) override;
 
-	Renderer::ResouceManager& GetRM() override;
+	Renderer::ResourceManager& GetRM() override;
 	C_VkResourceManager&	  GetRMVK();
 
 private:

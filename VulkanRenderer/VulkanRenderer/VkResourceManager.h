@@ -13,7 +13,7 @@ class C_VkDevice;
 class C_VkTexture;
 class C_VkSampler;
 
-class C_VkResourceManager : public Renderer::ResouceManager {
+class C_VkResourceManager : public Renderer::ResourceManager {
 public:
 	C_VkResourceManager();
 	~C_VkResourceManager() noexcept;
