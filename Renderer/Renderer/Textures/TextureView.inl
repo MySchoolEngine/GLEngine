@@ -60,7 +60,7 @@ template <class T, class Filter, typename /*= std::enable_if_t<glm::type<T>::is_
 	T ret;
 	for (std::uint8_t i = 0; i < std::min(static_cast<std::uint8_t>(glm::type<T>::components), m_Storage->GetNumElements()); ++i)
 	{
-		ret[i] = Get<typename T::value_type, Filter>(uv, static_cast<E_TextureChannel>(i));
+		ret[i] = Get<typename T::value_type, Filter>(uv, static_cast<E_TextureChannel>(BIT(i)));
 	}
 	return ret;
 }
