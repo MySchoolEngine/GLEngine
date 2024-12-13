@@ -6,7 +6,10 @@
 #include <Renderer/Resources/RenderResourceHandle.h>
 
 #include <filesystem>
+#pragma warning(push)
+#pragma warning(disable : 4996)
 #include <slot_map/slot_map.h>
+#pragma warning(pop) 
 
 namespace GLEngine::Renderer {
 class ResourceManager {

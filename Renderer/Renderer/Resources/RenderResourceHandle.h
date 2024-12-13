@@ -1,6 +1,9 @@
 #pragma once
 
+#pragma warning(push)
+#pragma warning(disable : 4996)
 #include <slot_map/slot_map.h>
+#pragma warning(pop) 
 
 namespace GLEngine::Renderer {
 template <class Badge> using resource_index_t = dod::slot_map_key32<Badge>;

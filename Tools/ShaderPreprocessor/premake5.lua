@@ -14,6 +14,7 @@ project "ShaderPreprocessor"
 	Link("Renderer")
 	Link("GLRenderer")
 	Link("GUI")
+	Link("Editor")
 	LinkDependency("ImGui")
 	LinkDependency("pugixml")
 	LinkDependency("RTTR")
@@ -25,6 +26,8 @@ project "ShaderPreprocessor"
 	}
 	
 	filter "system:windows"
+		cppdialect "C++17"
+		systemversion "latest"
 		postbuildcommands
 		{
 			("{COPY} \"%{cfg.buildtarget.directory}/../Entity/Entity.dll\" \"%{cfg.buildtarget.directory}\""),

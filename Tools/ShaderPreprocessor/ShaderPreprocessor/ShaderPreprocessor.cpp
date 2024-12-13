@@ -16,7 +16,7 @@ class C_ShaderCompiler : public GLEngine::Renderer::ShaderCompilerTrait<std::str
 	using T_Base = GLEngine::Renderer::ShaderCompilerTrait<std::string>;
 public:
 	C_ShaderCompiler()
-		: T_Base(std::ios::binary)
+		: T_Base()
 	{}
 	void ReleaseStage(T_StageHandle& stage) override
 	{
@@ -76,7 +76,7 @@ int main(int argc, char** argv)
 			logging.AddLogger(new Utils::Logging::C_CoutLogger());
 		}
 		PrepareFolder(gs_OutputFolder);
-		std::ofstream batfile(gs_OutputFolder / "compile.bat");
+		std::ofstream batFile(gs_OutputFolder / "compile.bat");
 
 		std::vector<C_ShaderLoader<std::string>::T_ShaderStage> stages;
 		if (!loader.LoadAllStages(argv[2], stages))
@@ -137,14 +137,14 @@ int main(int argc, char** argv)
 			auto outputFilename = filename;
 			outputFilename.replace_extension("spv");
 
-			batfile << gs_GLSLC.generic_string()
+			batFile << gs_GLSLC.generic_string()
 				<< " -fshader-stage=" << stageArgument
 				<< " " << (relativeFolder / filename).generic_string()
 				<< " -o " << (relativeFolder / outputFilename).generic_string() << "\n";
 		}
 
-		batfile << "pause\n";
-		batfile.close();
+		batFile << "pause\n";
+		batFile.close();
 		CORE_LOG(E_Level::Info, E_Context::Core, "Successfully created bat file");
 	}
 	else
