@@ -51,6 +51,18 @@ VkFormat GetVkInternalFormat(const Renderer::E_TextureFormat format)
 		return VkFormat::VK_FORMAT_R8G8_SINT;
 	case Renderer::E_TextureFormat::R8i:
 		return VkFormat::VK_FORMAT_R8_SINT;
+	case Renderer::E_TextureFormat::RGBA8isrgb:
+		return VkFormat::VK_FORMAT_A8B8G8R8_SRGB_PACK32;
+	case Renderer::E_TextureFormat::BGRA8isrgb:
+		return VkFormat::VK_FORMAT_B8G8R8A8_SRGB;
+	case Renderer::E_TextureFormat::RGB8isrgb:
+		return VkFormat::VK_FORMAT_R8G8B8_SRGB;
+	case Renderer::E_TextureFormat::RG8isrgb:
+		return VkFormat::VK_FORMAT_R8G8_SRGB;
+	case Renderer::E_TextureFormat::R8isrgb:
+		return VkFormat::VK_FORMAT_R8_SRGB;
+	case Renderer::E_TextureFormat::Count:
+		GLE_ASSERT(false, "Renderer::E_TextureFormat::Count used as texture format");
 	case Renderer::E_TextureFormat::D32f:
 	case Renderer::E_TextureFormat::D24S8:
 	case Renderer::E_TextureFormat::D24:
