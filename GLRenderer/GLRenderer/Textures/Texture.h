@@ -85,7 +85,7 @@ public:
 	void* GetGPUHandle() override;
 
 	friend class C_TextureManager;
-	friend class C_GLDevice;
+	friend class ::GLEngine::GLRenderer::C_GLDevice;
 
 	RTTR_ENABLE(Renderer::I_DeviceTexture);
 	RTTR_REGISTRATION_FRIEND;
