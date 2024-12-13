@@ -83,15 +83,15 @@ void C_RayTraceWindow::CreateTextures(I_Renderer& renderer)
 			   .width		  = s_ImageResolution.x / s_Coef,
 			   .height		  = s_ImageResolution.y / s_Coef,
 			   .type		  = E_TextureType::TEXTURE_2D,
-			   .format		  = E_TextureFormat::RGBA32f,
+			   .format		  = E_TextureFormat::RGB32f,
 			   .m_bStreamable = false,
 		   });
 		const auto GPUSamplerHandle = renderer.GetRM().createSampler(SamplerDescriptor2D{
 			.m_FilterMin = E_TextureFilter::Linear,
 			.m_FilterMag = E_TextureFilter::Linear,
-			.m_WrapS	 = Renderer ::E_WrapFunction::Repeat,
-			.m_WrapT	 = Renderer ::E_WrapFunction::Repeat,
-			.m_WrapU	 = Renderer ::E_WrapFunction::Repeat,
+			.m_WrapS	 = E_WrapFunction::Repeat,
+			.m_WrapT	 = E_WrapFunction::Repeat,
+			.m_WrapU	 = E_WrapFunction::Repeat,
 		});
 		renderer.SetTextureSampler(m_GPUImageHandle, GPUSamplerHandle);
 		// TODO: still need to setup sampler
@@ -106,15 +106,15 @@ void C_RayTraceWindow::CreateTextures(I_Renderer& renderer)
 			 .width			= 1,
 			 .height		= s_ImageResolution.y / s_Coef,
 			 .type			= E_TextureType::TEXTURE_2D,
-			 .format		= E_TextureFormat::RGBA32f, // todo this used to not contain alpha channel
+			 .format		= E_TextureFormat::RGB32f,
 			 .m_bStreamable = false,
 		 });
 		const auto GPUSamplerHandle = renderer.GetRM().createSampler(SamplerDescriptor2D{
 			.m_FilterMin = E_TextureFilter::Nearest,
 			.m_FilterMag = E_TextureFilter::Nearest,
-			.m_WrapS	 = Renderer ::E_WrapFunction::Repeat,
-			.m_WrapT	 = Renderer ::E_WrapFunction::Repeat,
-			.m_WrapU	 = Renderer ::E_WrapFunction::Repeat,
+			.m_WrapS	 = E_WrapFunction::Repeat,
+			.m_WrapT	 = E_WrapFunction::Repeat,
+			.m_WrapU	 = E_WrapFunction::Repeat,
 		});
 		renderer.SetTextureSampler(m_GPUHeatMapHandle, GPUSamplerHandle);
 		m_GUIHeatMapImage = GUI::C_Image(m_GPUHeatMapHandle);
@@ -127,15 +127,15 @@ void C_RayTraceWindow::CreateTextures(I_Renderer& renderer)
 			 .width		   = s_ProbeSize + 2,
 			 .height	   = s_ProbeSize + 2,
 			 .type		   = E_TextureType::TEXTURE_2D,
-			 .format	   = E_TextureFormat::RGBA32f, // todo this used to not contain alpha channel
+			 .format	   = E_TextureFormat::RGB32f,
 			 .m_NumSamples = false,
 		 });
 		auto GPUSamplerHandle = renderer.GetRM().createSampler(SamplerDescriptor2D{
 			.m_FilterMin = E_TextureFilter::Nearest,
 			.m_FilterMag = E_TextureFilter::Nearest,
-			.m_WrapS	 = Renderer ::E_WrapFunction::Repeat,
-			.m_WrapT	 = Renderer ::E_WrapFunction::Repeat,
-			.m_WrapU	 = Renderer ::E_WrapFunction::Repeat,
+			.m_WrapS	 = E_WrapFunction::Repeat,
+			.m_WrapT	 = E_WrapFunction::Repeat,
+			.m_WrapU	 = E_WrapFunction::Repeat,
 		});
 		renderer.SetTextureSampler(m_GPUProbeHandle, GPUSamplerHandle);
 		m_GUIImageProbe = GUI::C_Image(m_GPUHeatMapHandle);
