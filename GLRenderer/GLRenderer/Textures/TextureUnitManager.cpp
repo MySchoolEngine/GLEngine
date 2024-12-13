@@ -46,7 +46,7 @@ void C_TextureUnitManger::BindTextureToUnit(const C_Texture& texture, unsigned i
 //=================================================================================
 bool C_TextureUnitManger::UnitHasTexture(unsigned int unit) const
 {
-	return m_TextureUnits.find(unit) != m_TextureUnits.end();
+	return m_TextureUnits.contains(unit);
 }
 
 //=================================================================================

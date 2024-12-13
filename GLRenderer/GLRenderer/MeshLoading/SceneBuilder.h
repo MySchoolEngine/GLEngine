@@ -45,7 +45,7 @@ public:
 
 private:
 	glm::vec3	ReadPositionNode(const pugi::xml_node& node) const noexcept;
-	std::string GetFolderpath(const std::string& filePath) const;
+	std::string GetFolderPath(const std::string& filePath) const;
 	std::string GetFilePart(const std::string& filePath) const;
 
 	std::vector<std::shared_ptr<Renderer::I_DeviceTexture>> m_textures;

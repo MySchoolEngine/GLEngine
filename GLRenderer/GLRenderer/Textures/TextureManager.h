@@ -43,7 +43,7 @@ public:
 	[[nodiscard]] T_TexturePtr GetIdentityTexture();
 
 private:
-	C_TextureManager(Renderer::I_Device& device);
+	explicit C_TextureManager(Renderer::I_Device& device);
 
 	using T_TextureMap = std::map<std::string, T_TexturePtr>;
 	T_TextureMap m_Textures;

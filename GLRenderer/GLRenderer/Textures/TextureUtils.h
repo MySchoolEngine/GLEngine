@@ -4,7 +4,7 @@
 
 namespace GLEngine::GLRenderer::Textures {
 
-inline GLenum GetFormat(Renderer::T_Channels channels, bool isIntegral)
+inline GLenum GetFormat(const Renderer::T_Channels channels, const bool isIntegral)
 {
 	using namespace GLEngine::Renderer;
 	if (channels == T_Channels{E_TextureChannel::Red, E_TextureChannel::Green, E_TextureChannel::Blue, E_TextureChannel::Alpha})

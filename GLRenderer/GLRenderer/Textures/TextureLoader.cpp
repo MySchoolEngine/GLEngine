@@ -18,7 +18,7 @@
 namespace GLEngine::GLRenderer::Textures {
 
 //=================================================================================
-std::shared_ptr<GLRenderer::Textures::C_Texture> TextureLoader::LoadAndInitTexture(const std::filesystem::path& path)
+std::shared_ptr<C_Texture> TextureLoader::LoadAndInitTexture(const std::filesystem::path& path)
 {
 	gli::texture Texture = gli::load(path.generic_string());
 	if (Texture.empty())

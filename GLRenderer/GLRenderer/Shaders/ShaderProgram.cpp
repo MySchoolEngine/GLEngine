@@ -12,7 +12,7 @@
 namespace GLEngine::GLRenderer::Shaders {
 
 //=================================================================================
-C_ShaderProgram::C_ShaderProgram(GLuint program)
+C_ShaderProgram::C_ShaderProgram(const GLuint program)
 	: m_Program(program)
 {
 	GLE_ASSERT(program != 0, "Invalid shader program");

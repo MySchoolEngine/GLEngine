@@ -10,15 +10,15 @@ template <> inline int C_ShaderProgram::FindLocation(const char* name)
 	GLint location = -1;
 	auto  hash	   = std::hash<std::string>{}(name);
 
-	const auto it = m_uniformMap.find(hash);
-	if (it != m_uniformMap.end())
+	const auto it = m_UniformMap.find(hash);
+	if (it != m_UniformMap.end())
 	{
 		location = it->second;
 	}
 	else
 	{
 		location		   = glGetUniformLocation(m_Program, name);
-		m_uniformMap[hash] = location;
+		m_UniformMap[hash] = location;
 	}
 
 #if _DEBUG
@@ -37,15 +37,15 @@ template <> inline int C_ShaderProgram::FindLocation(const std::string& name)
 	GLint location = -1;
 	auto  hash	   = std::hash<std::string>{}(name);
 
-	const auto it = m_uniformMap.find(hash);
-	if (it != m_uniformMap.end())
+	const auto it = m_UniformMap.find(hash);
+	if (it != m_UniformMap.end())
 	{
 		location = it->second;
 	}
 	else
 	{
 		location		   = glGetUniformLocation(m_Program, name.c_str());
-		m_uniformMap[hash] = location;
+		m_UniformMap[hash] = location;
 	}
 
 #if _DEBUG

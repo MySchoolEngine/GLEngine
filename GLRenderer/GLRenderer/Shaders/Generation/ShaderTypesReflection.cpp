@@ -13,9 +13,7 @@ C_ShaderTypesReflection& C_ShaderTypesReflection::Instance()
 }
 
 //=================================================================================
-C_ShaderTypesReflection::C_ShaderTypesReflection()
-{
-}
+C_ShaderTypesReflection::C_ShaderTypesReflection() = default;
 
 //=================================================================================
 const C_StructDescriptor C_ShaderTypesReflection::GetStructDescription(const std::string& name) const

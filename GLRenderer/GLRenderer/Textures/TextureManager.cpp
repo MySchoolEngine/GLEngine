@@ -19,10 +19,10 @@ std::filesystem::path C_TextureManager::s_ErrorTextureFile = "Models/Error.bmp";
 
 //=================================================================================
 C_TextureManager::C_TextureManager(Renderer::I_Device& device)
-	: m_Window(GUID::INVALID_GUID)
+	: m_ErrorTexture(nullptr)
 	, m_IdentityTexture(nullptr)
-	, m_ErrorTexture(nullptr)
 	, m_Device(device)
+	, m_Window(GUID::INVALID_GUID)
 {
 	// preload fallback textures
 	{
@@ -34,7 +34,7 @@ C_TextureManager::C_TextureManager(Renderer::I_Device& device)
 		if (GetDevice().AllocateTexture(*m_IdentityTexture.get()))
 		{
 			Renderer::C_TextureViewStorageCPU<float> storage(1, 1, 4);
-			Renderer::C_TextureView							view(&storage);
+			Renderer::C_TextureView					 view(&storage);
 			view.Set<glm::vec4>(glm::ivec2(0, 0), glm::vec4(255, 255, 255, 0));
 			m_IdentityTexture->SetTexData2D(0, &storage);
 		}
@@ -50,14 +50,13 @@ C_TextureManager::C_TextureManager(Renderer::I_Device& device)
 			return;
 		}
 
-		const Renderer::TextureDescriptor desc{
-			s_ErrorTextureFile.generic_string(), 
-			buffer->GetDimensions().x,
-			buffer->GetDimensions().y,
-			Renderer::E_TextureType::TEXTURE_2D,
-			Renderer::E_TextureFormat::RGBA32f, 
-			false,
-			9};
+		const Renderer::TextureDescriptor desc{.name		  = s_ErrorTextureFile.generic_string(),
+											   .width		  = buffer->GetDimensions().x,
+											   .height		  = buffer->GetDimensions().y,
+											   .type		  = Renderer::E_TextureType::TEXTURE_2D,
+											   .format		  = Renderer::E_TextureFormat::RGBA32f,
+											   .m_bStreamable = false,
+											   .m_Levels	  = 9};
 
 		m_ErrorTexture = std::make_shared<C_Texture>(desc);
 		if (GetDevice().AllocateTexture(*m_ErrorTexture.get()))
@@ -74,7 +73,7 @@ C_TextureManager::C_TextureManager(Renderer::I_Device& device)
 C_TextureManager& C_TextureManager::Instance(Renderer::I_Device* device)
 {
 	static C_TextureManager instance(*device); // Guaranteed to be destroyed.
-									  // Instantiated on first use.
+											   // Instantiated on first use.
 	return instance;
 }
 

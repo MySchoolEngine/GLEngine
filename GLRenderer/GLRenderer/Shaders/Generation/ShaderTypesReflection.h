@@ -25,7 +25,6 @@ private:
 };
 
 class GL_RENDERER_API_EXPORT C_GLCodeProvider final : public Renderer::Shaders::I_CodeProvider {
-public:
 private:
 	[[nodiscard]] std::string GetStructCode(const std::string& name) const override;
 };

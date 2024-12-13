@@ -7,7 +7,7 @@ namespace GLEngine::GLRenderer::Shaders {
 //=================================================================================
 class S_MemberDescriptor {
 public:
-	constexpr S_MemberDescriptor(std::string_view name, std::string_view type)
+	constexpr S_MemberDescriptor(const std::string_view name, const std::string_view type)
 		: m_Name(name)
 		, m_Type(type)
 	{
@@ -35,7 +35,7 @@ private:
 };
 
 //=================================================================================
-template <class T, class MemType> void C_StructDescriptor::Push(std::string_view name, MemType T::*member)
+template <class T, class MemType> void C_StructDescriptor::Push(const std::string_view name, MemType T::*member)
 {
 	Push(S_MemberDescriptor(name, T_TypeToGLSL_v<MemType>));
 }
