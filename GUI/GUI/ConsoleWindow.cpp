@@ -143,6 +143,7 @@ bool C_ConsoleWindow::Draw(C_GUIManager& guiMgr) const
 	std::size_t i = ((m_LastLogIndex + 1) % m_Logs.size());
 	do
 	{
+		i		   = i % m_Logs.size();
 		auto& data = m_Logs[i];
 
 		if (!data.m_Text.empty() && filter->Filter(data))
@@ -160,7 +161,7 @@ bool C_ConsoleWindow::Draw(C_GUIManager& guiMgr) const
 			}
 
 		}
-		i = ((i + 1) % m_Logs.size());
+		i = i + 1;
 	} while (i != m_LastLogIndex + 1);
 	::ImGui::SetScrollHereY(1.0f);
 	::ImGui::EndChild();
