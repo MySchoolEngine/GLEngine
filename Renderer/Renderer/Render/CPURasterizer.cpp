@@ -7,13 +7,13 @@
 namespace GLEngine::Renderer {
 
 //=================================================================================
-C_CPURasterizer::C_CPURasterizer(Renderer::C_TextureView& view)
+C_CPURasterizer::C_CPURasterizer(const C_TextureView& view)
 	: m_view(view)
 {
 }
 
 //=================================================================================
-void C_CPURasterizer::DrawLine(const Colours::T_Colour& colour, const glm::ivec2& p1, const glm::ivec2& p2, bool antiAliased)
+void C_CPURasterizer::DrawLine(const Colours::T_Colour& colour, const glm::ivec2& p1, const glm::ivec2& p2, const bool antiAliased)
 {
 	if (antiAliased)
 	{
@@ -33,7 +33,7 @@ void C_CPURasterizer::DrawLine(const Colours::T_Colour& colour, const glm::ivec2
 }
 
 //=================================================================================
-void C_CPURasterizer::DrawCircle(const Colours::T_Colour& colour, const glm::ivec2& p, float radius, bool antiAliased)
+void C_CPURasterizer::DrawCircle(const Colours::T_Colour& colour, const glm::ivec2& p, const float radius, const bool antiAliased)
 {
 	if (antiAliased)
 	{

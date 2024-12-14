@@ -86,6 +86,13 @@ public:
 	 */
 	void FillLineSpan(const Colours::T_Colour& colour, unsigned int line, unsigned int start, unsigned int end);
 
+	/**
+	 * 
+	 * @param coord				Top left is (0;0), right bottom is @GetDimenssions - (1;1)
+	 * @return uv				[u;v] \in [<0;1>;<0;1>]
+	 *							The (0;0) lies bottom left and (1;1) top right
+	 */
+	[[nodiscard]] glm::vec2 GetUVForPixel(const glm::uvec2& coord) const;
 protected:
 	[[nodiscard]] std::size_t GetAddress(const glm::uvec2& coord) const;
 	[[nodiscard]] std::size_t GetPixelAddress(const glm::uvec2& coord) const;
