@@ -231,7 +231,7 @@ bool C_Texture::IsAllocated() const
 }
 
 //=================================================================================
-void C_Texture::SetName(const std::string& name)
+void C_Texture::SetName(std::string name)
 {
 	m_Desc.name = name;
 }

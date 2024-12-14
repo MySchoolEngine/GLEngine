@@ -55,7 +55,7 @@ public:
 	[[nodiscard]] glm::uvec2 GetDimensions() const override { return {m_Desc.width, m_Desc.height}; }
 	void					 SetWidth(const unsigned int width) { m_Desc.width = width; }
 	void					 SetHeight(const unsigned int height) { m_Desc.height = height; }
-	void					 SetName(const std::string& name);
+	void					 SetName(std::string name);
 	std::string				 GetName();
 
 	[[nodiscard]] void* GetDeviceTextureHandle() const override;
