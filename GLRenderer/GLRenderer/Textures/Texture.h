@@ -41,7 +41,7 @@ public:
 	explicit C_Texture(const Renderer::TextureDescriptor& desc);
 	C_Texture(const C_Texture&) = delete;
 	C_Texture(C_Texture&& t);
-	void operator=(C_Texture&& rhs);
+	void operator=(C_Texture&& rhs) noexcept;
 	virtual ~C_Texture();
 
 	[[nodiscard]] bool IsAllocated() const override;
