@@ -6,18 +6,19 @@
 #include <Core/GUID.h>
 
 namespace GLEngine::GUI {
+class C_GUIManager;
 
-class GUI_API_EXPORT C_Window : public I_GUIPart {
+class GUI_API_EXPORT C_Window {
 public:
 	using T_GUIPartRef = std::reference_wrapper<I_GUIPart>;
 	using T_GUIMenu	   = std::reference_wrapper<Menu::C_Menu>;
 
 public:
-	C_Window(GUID guid, const std::string& name);
+	C_Window(GUID guid, std::string name);
 	virtual ~C_Window() = default;
 
 	virtual void			 Update() {}
-	virtual void			 Draw() const override;
+	virtual bool			 Draw(C_GUIManager& guiMgr) const;
 	void					 SetVisible(bool enable = true);
 	[[nodiscard]] bool		 IsVisible() const;
 	GUID					 AddComponent(T_GUIPartRef component);
@@ -32,7 +33,10 @@ public:
 	[[nodiscard]] virtual bool CanDestroy() const { return true; }
 
 protected:
+	virtual void		 OnSetVisible() {}
+	virtual void		 OnHide() {}
 	virtual void DrawComponents() const;
+	void		 DrawMenus() const;
 
 	mutable bool m_IsVisible; // cant be bit field as it is being referenced inside
 	mutable bool m_WantToBeDestroyed : 1;

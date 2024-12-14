@@ -15,15 +15,15 @@ class C_Material;
 
 class RENDERER_API_EXPORT C_GeomComponent : public I_RenderableComponent {
 public:
-	C_GeomComponent(std::shared_ptr<Entity::I_Entity> owner);
+	C_GeomComponent(const std::shared_ptr<Entity::I_Entity>& owner);
 	virtual ~C_GeomComponent();
-	virtual void SetupGeometry(const MeshData::Mesh& mesh)				 = 0;
-	virtual void SetupMaterial(const Utils::Parsing::MaterialData& data) = 0;
+	virtual void SetupGeometry(const MeshData::Mesh& mesh)				   = 0;
+	virtual void SetupMaterial(const ::Utils::Parsing::MaterialData& data) = 0;
 
-	virtual void			   DebugDrawGUI() override;
-	[[nodiscard]] virtual bool HasDebugDrawGUI() const override;
+	void			   DebugDrawGUI() override;
+	[[nodiscard]] bool HasDebugDrawGUI() const override;
 
-	virtual std::string_view GetDebugComponentName() const override;
+	std::string_view GetDebugComponentName() const override;
 
 protected:
 	std::shared_ptr<C_Material> m_Material;

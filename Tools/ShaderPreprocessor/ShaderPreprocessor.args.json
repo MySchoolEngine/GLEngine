@@ -1,0 +1,14 @@
+{
+  "FileVersion": 2,
+  "Id": "438b221b-2f6f-e370-98cf-ddc384d2cdf2",
+  "Items": [
+    {
+      "Id": "75e68c1c-8ee4-47ea-8c66-b7f17bd4cc54",
+      "Command": "-s handles.xml"
+    },
+    {
+      "Id": "10b3a275-573c-40a2-acb0-f78f34375e9e",
+      "Command": "-s basicVulkanSources.xml"
+    }
+  ]
+}

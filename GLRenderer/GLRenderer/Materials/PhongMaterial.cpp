@@ -1,9 +1,14 @@
 #include <GLRendererStdafx.h>
 
 #include <GLRenderer/Materials/PhongMaterial.h>
+#include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/Shaders/Generation/ShaderTypesReflection.h>
 #include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/Textures/TextureManager.h>
+
+#include <Renderer/IRenderer.h>
+
+#include <Core/Application.h>
 
 namespace GLEngine::GLRenderer::Material {
 
@@ -34,14 +39,21 @@ std::string C_PhongMaterial::GetNameImpl() const
 }
 
 //=================================================================================
-void C_PhongMaterial::Update(const Renderer::C_Material& material)
+bool C_PhongMaterial::Update(const Renderer::C_Material& material)
 {
-	const auto identity		= Textures::C_TextureManager::Instance().GetIdentityTexture();
-	auto	   color		= std::dynamic_pointer_cast<Textures::C_Texture>(material.GetColorMap());
-	auto	   normalMap	= std::dynamic_pointer_cast<Textures::C_Texture>(material.GetNormalMap());
-	auto	   roughnessMap = std::dynamic_pointer_cast<Textures::C_Texture>(material.GetRoughnessMap());
+	bool	   result			  = true;
+	auto&	   gRM				  = static_cast<C_OGLRenderer&>(Core::C_Application::Get().GetActiveRenderer()).GetRMGR();
+	const auto identity			  = Textures::C_TextureManager::Instance().GetIdentityTexture();
+	const auto colorHandle		  = material.GetColorMap();
+	const auto normalMapHandle	  = material.GetNormalMap();
+	const auto roughnessMapHandle = material.GetRoughnessMap();
+
+	auto color		  = gRM.GetTexture(colorHandle);
+	auto normalMap	  = gRM.GetTexture(normalMapHandle);
+	auto roughnessMap = gRM.GetTexture(roughnessMapHandle);
 	if (color)
 	{
+		result &= color->IsPresentOnGPU();
 		m_ColorMap = color->CreateHandle();
 		color->MakeHandleResident();
 	}
@@ -53,19 +65,23 @@ void C_PhongMaterial::Update(const Renderer::C_Material& material)
 	m_NormalMap	   = identity->GetHandle();
 	if (normalMap)
 	{
+		result &= normalMap->IsPresentOnGPU();
 		m_NormalMap = normalMap->CreateHandle();
 		normalMap->MakeHandleResident();
-		m_UseNormalMap = true;
+		m_UseNormalMap = normalMap->IsPresentOnGPU();
 	}
 	m_RoughnessMap = identity->GetHandle();
 	if (roughnessMap)
 	{
+		result &= roughnessMap->IsPresentOnGPU();
 		m_RoughnessMap = roughnessMap->CreateHandle();
 		roughnessMap->MakeHandleResident();
 	}
 	m_ModelColor = material.GetColor();
 	m_Roughness	 = material.GetRoughness();
 	m_Shininess	 = material.GetShininess();
+
+	return result;
 }
 
 } // namespace GLEngine::GLRenderer::Material

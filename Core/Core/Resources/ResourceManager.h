@@ -12,7 +12,7 @@
 
 namespace GLEngine::Core {
 
-class CORE_API_EXPORT C_ResourceManager : public C_Layer {
+class CORE_API_EXPORT C_ResourceManager final : public C_Layer {
 	template <class ResourceType> using T_Handle = typename std::enable_if_t<std::is_base_of_v<Resource, ResourceType>, ResourceHandle<ResourceType>>;
 
 public:
@@ -22,7 +22,7 @@ public:
 
 	void Destroy();
 
-	// not needed as I run single threaded so far and does not care about memory in this moment
+	// not needed as I run single threaded so far and does not care about memory at this moment
 	void UnloadUnusedResources();
 	void UpdatePendingLoads();
 
@@ -33,32 +33,34 @@ public:
 
 	template <class ResourceType> T_Handle<ResourceType> LoadResource(const std::filesystem::path filepath, bool isBlocking = false);
 	template <class ResourceType> T_Handle<ResourceType> GetResource(const std::filesystem::path& filepath);
+	virtual std::vector<std::string> GetSupportedExtesnions(std::size_t) const;
 
 private:
 	C_ResourceManager();
 
-	C_Metafile& GetOrCreateMetafile(const std::filesystem::path& resource);
+	C_Metafile&		  GetOrCreateMetafile(const std::filesystem::path& resource);
 	const C_Metafile* GetMetafile(const std::filesystem::path& resource) const;
-	C_Metafile* GetOrLoadMetafile(const std::filesystem::path& resource);
+	C_Metafile*		  GetOrLoadMetafile(const std::filesystem::path& resource);
 
 	void AddResourceToUnusedList(const std::shared_ptr<Resource>& resource);
 
 	const I_ResourceLoader*	  GetLoaderForExt(const std::string& ext) const;
 	std::shared_ptr<Resource> GetResourcePtr(const std::filesystem::path& filepath);
 
-	std::map<std::filesystem::path, std::shared_ptr<Resource>> m_Resources;
-	std::map<std::filesystem::path, C_Metafile>				   m_Metafile; //< no access from outside of resource manager
-	std::shared_mutex										   m_Mutex;
-	std::vector<std::shared_ptr<Resource>>					   m_UnusedList;
-	std::shared_mutex										   m_FinishedLoadsMutes;
-	std::vector<std::shared_ptr<Resource>>					   m_FinishedLoads;
-	std::vector<std::shared_ptr<Resource>>					   m_FailedLoads;
+	std::map<std::filesystem::path, std::shared_ptr<Resource>>		m_Resources;
+	std::map<std::filesystem::path, C_Metafile>						m_Metafile; //< no access from outside of resource manager
+	std::shared_mutex												m_Mutex;
+	std::vector<std::pair<std::shared_ptr<Resource>, unsigned int>> m_UnusedList;
+	std::shared_mutex												m_FinishedLoadsMutes;
+	std::vector<std::shared_ptr<Resource>>							m_FinishedLoads;
+	std::vector<std::shared_ptr<Resource>>							m_FailedLoads;
 
 	std::map<std::string, const I_ResourceLoader*> m_ExtToLoaders;
 	std::map<std::size_t, const I_ResourceLoader*> m_TypeIdToLoader;
 
 	unsigned int					 m_UpdatesSinceLastRemove{0};
 	const inline static unsigned int s_NumUpdatesBetweenUnloading{10};
+	const inline static unsigned int s_UpdatesBeforeDelete{5};
 
 	friend class ResourceHandleBase; // still not sure about this, I don't think I need to befriend anyone to achieve this
 };

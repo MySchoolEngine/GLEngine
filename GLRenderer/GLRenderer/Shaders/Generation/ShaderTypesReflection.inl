@@ -3,7 +3,7 @@
 namespace GLEngine::GLRenderer::Shaders {
 
 //=================================================================================
-template <class T> void GLEngine::GLRenderer::Shaders::C_ShaderTypesReflection::Register()
+template <class T> void C_ShaderTypesReflection::Register()
 {
 	static_assert(sizeof(T) % (sizeof(float) * 4) == 0, "Buffer must be aligned to four floats for GPU");
 	T obj;

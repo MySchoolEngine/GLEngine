@@ -1,5 +1,7 @@
 #pragma once
 
+#include <GLRenderer/GLResourceManager.h>
+
 #include <Renderer/IRenderer.h>
 
 #include <GUI/Input/Button.h>
@@ -31,12 +33,8 @@ public:
 	// Renderer::I_Renderer
 	//=================================================================================
 	virtual void AddCommand(Renderer::I_Renderer::T_CommandPtr) override;
-	virtual void AddTransferCommand(T_CommandPtr) override;
-	virtual void AddBatch(Renderer::I_Renderer::T_BatchPtr) override;
+	virtual void AddTransferCommand(T_CommandPtr) override; //< obsolete
 
-	virtual void SortCommands() override;
-	virtual void ExtractData() override;
-	virtual void TransformData() override;
 	virtual void Commit() const override;
 	virtual void ClearCommandBuffers() override;
 
@@ -51,11 +49,18 @@ public:
 	virtual Renderer::E_PassType GetCurrentPassType() const override;
 	virtual void				 SetCurrentPassType(Renderer::E_PassType type) override;
 
-	bool WantWireframe() const { return m_Wireframe.GetValue(); }
+	bool						WantWireframe() const { return m_Wireframe.GetValue(); }
 	virtual Renderer::I_Device& GetDevice() override;
+	void						SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer, std::size_t numBytes, const void* data) override;
+	void						SetTextureData(Renderer::Handle<Renderer::Texture> dstTexture, const Renderer::I_TextureViewStorage& storage) override;
+	void						SetTextureSampler(Renderer::Handle<Renderer::Texture> dstTexture, Renderer::Handle<Renderer::Sampler> srcSampler) override;
+	void*						GetTextureGUIHandle(Renderer::Handle<Renderer::Texture> texture) override;
+
+	Renderer::ResourceManager& GetRM() override;
+	GLResourceManager&		  GetRMGR();
 
 private:
-	void CaputreCommands() const;
+	void CaptureCommands() const;
 
 	bool											 m_Locked = false;
 	std::vector<Renderer::I_Renderer::T_CommandPtr>* m_CommandQueue;
@@ -70,9 +75,11 @@ private:
 	bool											 m_PreviousCatchErrorsVal;
 	Renderer::E_PassType							 m_CurrentPass;
 
+	GLResourceManager m_GPUResourceManager;
+
 	C_GLDevice& m_Device;
 
-	enum class E_GUITexts
+	enum class E_GUITexts : std::uint8_t
 	{
 		AvgDrawCommands,
 		MinMax,

@@ -3,17 +3,13 @@
 #include <Renderer/Materials/Material.h>
 #include <Renderer/Materials/MaterialManager.h>
 #include <Renderer/Mesh/GeomComponent.h>
-#include <Renderer/Mesh/Geometry.h>
 
 #include <Utils/Parsing/MaterialParser.h>
-#include <Utils/Parsing/MatrixParse.h>
-
-#include <pugixml.hpp>
 
 namespace GLEngine::Renderer {
 
 //=================================================================================
-C_GeomComponent::C_GeomComponent(std::shared_ptr<Entity::I_Entity> owner)
+C_GeomComponent::C_GeomComponent(const std::shared_ptr<Entity::I_Entity>& owner)
 	: I_RenderableComponent(owner)
 {
 }
@@ -28,7 +24,7 @@ std::string_view C_GeomComponent::GetDebugComponentName() const
 }
 
 //=================================================================================
-void C_GeomComponent::SetupMaterial(const Utils::Parsing::MaterialData& data)
+void C_GeomComponent::SetupMaterial(const ::Utils::Parsing::MaterialData& data)
 {
 	auto& materialManager = C_MaterialManager::Instance();
 	m_Material			  = materialManager.GetMaterial("GeomComponent");

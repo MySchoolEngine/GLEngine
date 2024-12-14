@@ -4,7 +4,7 @@
 
 #include <Utils/STLAfx.h>
 
-// rendering dependend things
+// rendering dependent things
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 

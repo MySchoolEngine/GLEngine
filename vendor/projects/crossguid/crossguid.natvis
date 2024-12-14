@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="GLEngine::GUID">
+    <DisplayString>{{{m_Guid._bytes[0],nvoXb}{m_Guid._bytes[1],nvoXb}{m_Guid._bytes[2],nvoXb}{m_Guid._bytes[3],nvoXb}-{m_Guid._bytes[4],nvoXb}{m_Guid._bytes[5],nvoXb}-{m_Guid._bytes[6],nvoXb}{m_Guid._bytes[7],nvoXb}-{m_Guid._bytes[8],nvoXb}{m_Guid._bytes[9],nvoXb}-{m_Guid._bytes[10],nvoXb}{m_Guid._bytes[11],nvoXb}{m_Guid._bytes[12],nvoXb}{m_Guid._bytes[13],nvoXb}{m_Guid._bytes[14],nvoXb}{m_Guid._bytes[15],nvoXb}}}</DisplayString>
+  </Type>
+</AutoVisualizer>

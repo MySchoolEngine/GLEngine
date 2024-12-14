@@ -138,7 +138,7 @@ void C_GLDevice::DestroyTexture(Renderer::I_DeviceTexture& texture)
 	GLE_ASSERT(textureGL, "Wrong API texture passed in");
 	auto tex = textureGL->GetTexture();
 	glDeleteTextures(1, &tex);
-	textureGL->m_texture = 0;
+	textureGL->m_Texture = 0;
 	DestroySampler(textureGL->m_DefaultSampler);
 	textureGL->m_IsPresentOnGPU = false;
 }

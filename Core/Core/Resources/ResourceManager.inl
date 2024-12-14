@@ -8,8 +8,8 @@ namespace GLEngine::Core {
 //=================================================================================
 template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_ResourceManager::LoadResource(const std::filesystem::path filepath, bool isBlocking /*= false*/)
 {
-	// if resource is derived, than we first need to load base resource
-	// metafile will be update with newly created resource only after the derived resource is loaded
+	// if resource is derived, then we first need to load base resource
+	// metafile will be updated with newly created resource only after the derived resource is loaded
 	if constexpr (IsBeDerivedResource<ResourceType>)
 	{
 		if (ResourceType::IsDerived())
@@ -23,8 +23,8 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 				return {};
 			}
 			GLE_TODO("08. 05. 2024", "RohacekD", "Propagate isBlocking, when we have job futures");
-			auto baseResource = LoadResource<ResourceType::T_BaseResource>(metafile->GetOriginalFileName(), true);
-			// this will cause problems if loaded previously as non blocking
+			auto baseResource = LoadResource<typename ResourceType::T_BaseResource>(metafile->GetOriginalFileName(), true);
+			// this will cause problems if loaded previously as non-blocking
 			if (baseResource.IsFailed())
 			{
 				CORE_LOG(E_Level::Error, E_Context::Core, "No metafile for derived resource. Please, load base resource first.");
@@ -41,8 +41,8 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 		if (auto resource = GetResourcePtr(filepath))
 		{
 			std::shared_ptr<ResourceType> concreteResource = std::static_pointer_cast<ResourceType>(resource);
-			GLE_ASSERT(concreteResource, "Cannoc cast to the concrete resource type");
-			return {concreteResource};
+			GLE_ASSERT(concreteResource, "Cannot cast to the concrete resource type");
+			return T_Handle<ResourceType>{concreteResource};
 		}
 		const auto* loader = GetLoaderForExt(filepath.extension().string());
 		if (!loader)
@@ -69,12 +69,17 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 					if constexpr (IsBeDerivedResource<ResourceType> && BuildableResource<ResourceType>)
 					{
 						C_Metafile* metafile	   = GetOrLoadMetafile(filepath);
-						auto			  baseResource = LoadResource<ResourceType::T_BaseResource>(metafile->GetOriginalFileName(), true);
+						auto			  baseResource = LoadResource<typename ResourceType::T_BaseResource>(metafile->GetOriginalFileName(), true);
 						if (std::dynamic_pointer_cast<ResourceType>(resource)->Build(baseResource)) {
 							resource->m_State = ResourceState::Ready;
-							resource->Save();
+							if (!resource->Save()) {
+								CORE_LOG(E_Level::Error, E_Context::Core, "Cannot save resource {}", resource->GetFilePath());
+							}
 							metafile->AddDerivedResource(filepath);
-							metafile->Save();
+							if (!metafile->Save())
+							{
+								CORE_LOG(E_Level::Error, E_Context::Core, "Cannot save resource metafile {}", metafile->GetMetafileName(resource->GetFilePath()));
+							}
 
 							// ResourceHandle<ResourceType> resourceHandle(resource);
 							// ResourceCreatedEvent		 event(resourceHandle);
@@ -119,7 +124,7 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 		}
 
 		concreteResource = std::static_pointer_cast<ResourceType>(resource);
-		GLE_ASSERT(concreteResource, "Cannoc cast to the concrete resource type");
+		GLE_ASSERT(concreteResource, "Cannot cast to the concrete resource type");
 	}
 	const C_Metafile&			 metafile = GetOrCreateMetafile(filepath);
 	ResourceHandle<ResourceType> resourceHandle(concreteResource);

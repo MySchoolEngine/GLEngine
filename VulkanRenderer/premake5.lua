@@ -13,6 +13,8 @@ project "VulkanRenderer"
 	Link("GLFWWindowManager")
 	Link("Core")
 	Link("Entity")
+	Link("Editor")
+	Link("GUI")
 	LinkDependency("pugixml")
 	LinkDependency("ImGui")
 	LinkDependency("RTTR")
@@ -25,6 +27,7 @@ project "VulkanRenderer"
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.GLFW}",
+		"%{wks.location}/%{IncludeDir.slot_map}",
 	}
 
 	libdirs { GetVulkanBasePath().."/Lib" }
@@ -35,6 +38,10 @@ project "VulkanRenderer"
 	}
 
 	filter "system:windows"
+		defines
+		{
+			"IMGUI_API=__declspec(dllimport)",
+		}
 
 		postbuildcommands
 		{

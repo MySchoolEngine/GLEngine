@@ -1,6 +1,5 @@
 Standard: c++17
 BreakConstructorInitializers: BeforeComma
-BinPackArguments: false
 BraceWrapping:
   AfterControlStatement: true
   AfterFunction: true

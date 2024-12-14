@@ -29,14 +29,14 @@ namespace GLRenderer::Shaders {
 class C_ShaderProgram;
 class C_ShaderCompiler;
 
-// I just wanna have some statistics and also save some loading time and memory
+// I just want to have some statistics and also save some loading time and memory
 /** ==============================================
  * @class C_ShaderManager
  *
- * @brief	All the shaders in application should be build through this manager.
+ * @brief	All the shaders in application should be built through this manager.
  *
  * Holds all shaders in application, can print statistics about shaders usage.
- * Also it is possible to refresh every m_Timeout defined intervals all shaders
+ * Also, it is possible to refresh every m_Timeout defined intervals all shaders
  * for better shader develop.
  *
  * @author 	Dominik Rohacek
@@ -63,9 +63,9 @@ public:
 	void Update();
 
 	T_ShaderPtr GetProgram(const std::string& name);
-	bool		ShaderLoaded(const std::string& name);
+	bool		ShaderLoaded(const std::string& name) const;
 
-	void ActivateShader(T_ShaderPtr shader);
+	void ActivateShader(const T_ShaderPtr& shader);
 	void DeactivateShader();
 
 	std::string ShadersStatistics() const;
@@ -78,7 +78,7 @@ private:
 
 	GLuint LoadProgram(const std::filesystem::path& name, C_ShaderCompiler& compiler) const;
 
-	void ReloadProgram(const std::string& programName, std::shared_ptr<C_ShaderProgram> program) const;
+	void ReloadProgram(const std::string& programName, const std::shared_ptr<C_ShaderProgram>& program) const;
 
 	using T_ProgramMap = std::map<std::string, std::shared_ptr<C_ShaderProgram>>;
 

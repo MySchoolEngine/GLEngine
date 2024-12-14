@@ -86,17 +86,20 @@ GUID C_MaterialManager::SetupControls(GUI::C_GUIManager& guiMGR)
 	auto* materialMan = guiMGR.GetWindow(m_Window);
 
 	m_MaterialsList = std::make_unique<GUI::C_LambdaPart>([&]() {
+		bool changed = false;
 		for (const auto& material : m_Materials)
 		{
 			if (::ImGui::CollapsingHeader(material->GetName().c_str()))
 			{
-				material->DrawGUI();
+				changed |= material->DrawGUI();
 				if (::ImGui::Button("Save"))
 				{
 					SaveMaterial(material->GetName(), std::filesystem::path("Materials") / (material->GetName() + ".xml"));
 				}
+				// todo if changed should register clone
 			}
 		}
+		return changed;
 	});
 
 	materialMan->AddComponent(*m_MaterialsList.get());

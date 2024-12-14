@@ -147,8 +147,8 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shar
 			if (material.IsChanged())
 			{
 				materialsHaveChanged = true;
-				matUBO->m_PhongMaterials[i].Update(material);
-				material.CleanChangeFlag();
+				if(matUBO->m_PhongMaterials[i].Update(material))
+					material.CleanChangeFlag();
 			}
 			++i;
 		});

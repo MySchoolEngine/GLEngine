@@ -15,7 +15,7 @@ std::string S_MemberDescriptor::Generate() const
 //=================================================================================
 // C_StructDescriptor
 //=================================================================================
-C_StructDescriptor::C_StructDescriptor(std::string_view name)
+C_StructDescriptor::C_StructDescriptor(const std::string_view name)
 	: m_Name(name)
 {
 }

@@ -25,13 +25,13 @@ class C_Framebuffer {
 public:
 	~C_Framebuffer();
 
-	template <E_FramebufferTarget target = E_FramebufferTarget::Framebuffer> void Bind();
-	template <E_FramebufferTarget target = E_FramebufferTarget::Framebuffer> void Unbind();
+	template <E_FramebufferTarget Target = E_FramebufferTarget::Framebuffer> void Bind();
+	template <E_FramebufferTarget Target = E_FramebufferTarget::Framebuffer> void Unbind();
 
-	template <E_FramebufferTarget target = E_FramebufferTarget::Framebuffer> void AttachTexture(GLenum attachement, std::shared_ptr<Textures::C_Texture> texture);
-	[[nodiscard]] std::shared_ptr<Textures::C_Texture>							  GetAttachement(GLenum attachement);
+	template <E_FramebufferTarget Target = E_FramebufferTarget::Framebuffer> void AttachTexture(GLenum attachment, std::shared_ptr<Textures::C_Texture> texture);
+	[[nodiscard]] std::shared_ptr<Textures::C_Texture>							  GetAttachment(GLenum attachments);
 
-	template <E_FramebufferTarget target = E_FramebufferTarget::Framebuffer> [[nodiscard]] std::future<bool> CheckCompleteness() const;
+	template <E_FramebufferTarget Target = E_FramebufferTarget::Framebuffer> [[nodiscard]] std::future<bool> CheckCompleteness() const;
 
 	[[nodiscard]] bool NeedCheck() const;
 	void			   SetChecked();
@@ -42,7 +42,7 @@ private:
 	explicit C_Framebuffer(const std::string_view name, bool defaultRendertarget = false);
 	GLuint												   m_FBO;
 	bool												   m_DirtyFlag;
-	std::map<GLenum, std::shared_ptr<Textures::C_Texture>> m_attachements;
+	std::map<GLenum, std::shared_ptr<Textures::C_Texture>> m_Attachments;
 
 	friend class C_GLDevice;
 };

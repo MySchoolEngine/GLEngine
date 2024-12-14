@@ -36,7 +36,7 @@ const float			C_SunShadowMapTechnique::s_ZOffset		 = 0.001f;
 
 
 //=================================================================================
-C_SunShadowMapTechnique::C_SunShadowMapTechnique(std::shared_ptr<Renderer::C_SunLight> light)
+C_SunShadowMapTechnique::C_SunShadowMapTechnique(const std::shared_ptr<Renderer::C_SunLight>& light)
 	: m_Sun(light)
 {
 	m_FrameConstUBO = std::dynamic_pointer_cast<Buffers::UBO::C_FrameConstantsBuffer>(Buffers::C_UniformBuffersManager::Instance().GetBufferByName("frameConst"));
@@ -46,7 +46,7 @@ C_SunShadowMapTechnique::C_SunShadowMapTechnique(std::shared_ptr<Renderer::C_Sun
 	m_Framebuffer = std::unique_ptr<C_Framebuffer>(device.AllocateFramebuffer("sunShadowMapping"));
 
 
-	const bool storeAlbedoForShadowMap = true;
+	constexpr bool storeAlbedoForShadowMap = true;
 	if (storeAlbedoForShadowMap)
 	{
 		auto HDRTexture = std::make_shared<Textures::C_Texture>(
@@ -105,14 +105,14 @@ void C_SunShadowMapTechnique::Render(const Entity::C_EntityManager& world, Rende
 	C_DebugDraw::Instance().DrawAABB(aabb, glm::vec3(1, 1, 1));
 
 	const auto sun		= m_Sun.lock();
-	const auto left		= glm::vec3(1, 0, 0);
+	constexpr auto left		= glm::vec3(1, 0, 0);
 	auto	   sunToTop = glm::normalize(glm::cross(left, sun->GetSunDirection()));
 	if (sunToTop == glm::vec3(0.f))
 	{
 		sunToTop = glm::vec3(0, 1, 0);
 	}
 
-	const auto sunCenter	= glm::vec3(0.f);
+	constexpr auto sunCenter	= glm::vec3(0.f);
 	const auto sunDirection = glm::normalize(sun->GetSunDirection());
 
 	const auto toLightSpace = glm::lookAt(sunDirection, sunCenter, sunToTop);
@@ -174,8 +174,8 @@ void C_SunShadowMapTechnique::Render(const Entity::C_EntityManager& world, Rende
 			auto renderableComponentsRange = entity->GetComponents(Entity::E_ComponentType::Graphical);
 			for (const auto& it : renderableComponentsRange)
 			{
-				const auto rendarebleComp = component_cast<Entity::E_ComponentType::Graphical>(it);
-				const auto compSphere	  = rendarebleComp->GetAABB().GetSphere();
+				const auto renderableComp = component_cast<Entity::E_ComponentType::Graphical>(it);
+				const auto compSphere	  = renderableComp->GetAABB().GetSphere();
 				component_cast<Entity::E_ComponentType::Graphical>(it)->PerformDraw();
 			}
 		}
@@ -195,13 +195,13 @@ void C_SunShadowMapTechnique::Render(const Entity::C_EntityManager& world, Rende
 //=================================================================================
 std::shared_ptr<GLEngine::GLRenderer::Textures::C_Texture> C_SunShadowMapTechnique::GetAlbedoTexture() const
 {
-	return m_Framebuffer->GetAttachement(GL_COLOR_ATTACHMENT0);
+	return m_Framebuffer->GetAttachment(GL_COLOR_ATTACHMENT0);
 }
 
 //=================================================================================
 std::shared_ptr<GLEngine::GLRenderer::Textures::C_Texture> C_SunShadowMapTechnique::GetZBuffer() const
 {
-	return m_Framebuffer->GetAttachement(GL_DEPTH_ATTACHMENT);
+	return m_Framebuffer->GetAttachment(GL_DEPTH_ATTACHMENT);
 }
 
 //=================================================================================

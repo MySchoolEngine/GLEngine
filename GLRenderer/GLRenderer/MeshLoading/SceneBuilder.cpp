@@ -43,7 +43,7 @@ C_SceneBuilder::C_SceneBuilder()
 /*
 std::shared_ptr<render::C_Scene> C_SceneBuilder::LoadScene(const std::string& sceneDefinitionFile)
 {
-	m_sceneFolder = GetFolderpath(sceneDefinitionFile);
+	m_sceneFolder = GetFolderPath(sceneDefinitionFile);
 
 	pugi::xml_parse_result result;
 	pugi::xml_document document;
@@ -108,7 +108,7 @@ std::shared_ptr<C_Scene> C_SceneBuilder::LoadModel(const pugi::xml_node& node)
 	//	modelMatrix = glm::translate(modelMatrix, ReadPositionNode(positionNode));
 	//}
 
-	auto path = (m_sceneFolder + "/" + GetFolderpath(node.attribute("file").as_string()));
+	auto path = (m_sceneFolder + "/" + GetFolderPath(node.attribute("file").as_string()));
 
 	if (!sl->addModelFromFileToScene(path.c_str(), GetFilePart(node.attribute("file").as_string()).c_str(), scene, modelMatrix))
 	{
@@ -206,7 +206,7 @@ glm::vec3 C_SceneBuilder::ReadPositionNode(const pugi::xml_node& node) const noe
 }
 
 //=================================================================================
-std::string C_SceneBuilder::GetFolderpath(const std::string& filePath) const
+std::string C_SceneBuilder::GetFolderPath(const std::string& filePath) const
 {
 	std::size_t found = filePath.find_last_of("/\\");
 

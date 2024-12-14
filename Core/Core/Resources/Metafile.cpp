@@ -1,6 +1,7 @@
 #include <CoreStdafx.h>
 
 #include <Core/Resources/Metafile.h>
+#include <Core/Resources/ResourceManager.h>
 
 #include <Utils/Serialization/XMLDeserialize.h>
 #include <Utils/Serialization/XMLSerialize.h>
@@ -31,15 +32,13 @@ bool C_Metafile::Load()
 	pugi::xml_document doc;
 
 	const auto			   metafileName = GetMetafileName(m_OriginalFilename);
-	pugi::xml_parse_result result;
-	result = doc.load_file(metafileName.generic_string().c_str());
-	if (!result.status == pugi::status_ok)
+	if (const pugi::xml_parse_result result = doc.load_file(metafileName.generic_string().c_str()); !result.status == pugi::status_ok)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Core, "Can't open config meta file for name: {}", metafileName);
 		return false;
 	}
 
-	Utils::C_XMLDeserializer d;
+	Utils::C_XMLDeserializer d(Core::C_ResourceManager::Instance());
 	auto					 newThis = d.Deserialize<C_Metafile>(doc);
 	if (newThis.has_value() == false)
 	{

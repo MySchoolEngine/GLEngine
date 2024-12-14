@@ -2,47 +2,75 @@
 
 #include <GUI/FileDialogWindow.h>
 
-#include <ImGuiFileDialog/ImGuiFileDialog.h>
+#include <ImGuiFileDialog.h>
 
 namespace GLEngine::GUI {
 
 //=================================================================================
 C_FileDialogWindow::C_FileDialogWindow(const std::string&										fileType,
 									   const std::string&										windowName,
-									   const std::function<void(const std::filesystem::path&)>& succesCallback,
+									   const std::function<void(const std::filesystem::path&, C_GUIManager&)>& succesCallback,
 									   GUID														guid,
 									   const std::filesystem::path&								basePath)
 	: C_Window(guid, windowName)
 	, m_WindowName(windowName)
+	, m_WindowTitle(windowName)
+	, m_BasePath(basePath)
+	, m_fileType(fileType)
 	, m_SuccessCallback(succesCallback)
 {
-	igfd::ImGuiFileDialog::Instance()->OpenDialog(m_WindowName, windowName.c_str(), fileType.c_str(), basePath.generic_string(), "");
 }
 
 //=================================================================================
 C_FileDialogWindow::~C_FileDialogWindow()
 {
-	igfd::ImGuiFileDialog::Instance()->CloseDialog(m_WindowName);
 }
 
 //=================================================================================
-void C_FileDialogWindow::Draw() const
+bool C_FileDialogWindow::Draw(C_GUIManager& guiMgr) const
 {
 	// display
-	if (igfd::ImGuiFileDialog::Instance()->FileDialog(m_WindowName))
+	if (ImGuiFileDialog::Instance()->Display(m_WindowName))
 	{
 		// action if OK
-		if (igfd::ImGuiFileDialog::Instance()->IsOk == true)
+		if (ImGuiFileDialog::Instance()->IsOk() == true)
 		{
-			const std::filesystem::path filePathName = igfd::ImGuiFileDialog::Instance()->GetFilePathName();
-			const std::filesystem::path filePath	 = igfd::ImGuiFileDialog::Instance()->GetCurrentPath();
-			m_SuccessCallback(filePath / filePathName);
+			const std::filesystem::path filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+			const std::filesystem::path filePath	 = ImGuiFileDialog::Instance()->GetCurrentPath();
+			m_SuccessCallback(filePath / filePathName, guiMgr);
 		}
 		else
 		{
 			m_WantToBeDestroyed = true;
 		}
 	}
+	if (m_WantToBeDestroyed)
+		ImGuiFileDialog::Instance()->Close();
+	return false; // todo
+}
+
+//=================================================================================
+void C_FileDialogWindow::SetTitle(const std::string& windowTitle)
+{
+	m_WindowTitle = windowTitle;
+}
+
+//=================================================================================
+void C_FileDialogWindow::SetBasePath(const std::filesystem::path& basePath)
+{
+	m_BasePath = basePath;
+}
+
+//=================================================================================
+void C_FileDialogWindow::OnSetVisible()
+{
+	ImGuiFileDialog::Instance()->OpenDialog(m_WindowName, m_WindowTitle, m_fileType.c_str(), m_BasePath.generic_string(), "");
+}
+
+//=================================================================================
+void C_FileDialogWindow::OnHide()
+{
+	ImGuiFileDialog::Instance()->Close();
 }
 
 } // namespace GLEngine::GUI

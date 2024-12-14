@@ -92,7 +92,7 @@ inline GLenum GetBlendFactor(Renderer::E_BlendFactor e)
 		return GL_ONE_MINUS_DST_ALPHA;
 	case Renderer::E_BlendFactor::AlphaConstant:
 		return GL_CONSTANT_COLOR;
-	case Renderer::E_BlendFactor::InvAphaConstant:
+	case Renderer::E_BlendFactor::InvAlphaConstant:
 		return GL_ONE_MINUS_CONSTANT_COLOR;
 	case Renderer::E_BlendFactor::ColorConstant:
 		return GL_CONSTANT_ALPHA;

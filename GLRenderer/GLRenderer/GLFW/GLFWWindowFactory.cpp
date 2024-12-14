@@ -17,7 +17,7 @@ std::shared_ptr<Core::I_Window> C_GLFWWindowFactory::GetWindow(const Core::S_Win
 	}
 	if (wndInfo.m_WindowClass == "ExperimentWindow")
 	{
-		return std::make_shared<Windows::C_ExplerimentWindow>(wndInfo);
+		return std::make_shared<Windows::C_ExperimentWindow>(wndInfo);
 	}
 	return nullptr;
 }

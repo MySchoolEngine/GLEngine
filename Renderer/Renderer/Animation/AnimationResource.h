@@ -9,10 +9,11 @@ namespace GLEngine::Renderer {
 
 class RENDERER_API_EXPORT AnimationResource : public Core::Resource {
 public:
-	DECLARE_RESOURCE_TYPE(AnimationResource)
+	DEFINE_RESOURCE_TYPE(AnimationResource)
 
-	virtual bool Load(const std::filesystem::path& filepath) override;
-	virtual bool Reload() override;
+	[[nodiscard]] virtual bool Load(const std::filesystem::path& filepath) override;
+	[[nodiscard]] virtual bool Reload() override;
+	[[nodiscard]] std::unique_ptr<Core::I_ResourceLoader> GetLoader() override;
 };
 
 class RENDERER_API_EXPORT AnimationLoader : public Core::ResourceLoader<AnimationResource> {

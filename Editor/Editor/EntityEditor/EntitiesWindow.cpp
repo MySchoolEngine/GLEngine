@@ -1,26 +1,26 @@
-#include <EntityStdafx.h>
+#include <EditorStdafx.h>
 
-#include <Entity/BasicEntity.h>
-#include <Entity/EntitiesWindow.h>
-#include <Entity/EntityManager.h>
+#include <Editor/EntityEditor/EntitiesWindow.h>
 
 #include <GUI/GUIUtils.h>
 
-#include <Core/EventSystem/Event.h>
+#include <Entity/BasicEntity.h>
+#include <Entity/EntityManager.h>
+
 #include <Core/Application.h>
+#include <Core/EventSystem/Event.h>
 
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
 
-namespace GLEngine::Entity {
+namespace GLEngine::Editor {
 
 //=================================================================================
-C_EntitiesWindow::C_EntitiesWindow(GUID guid, std::shared_ptr<C_EntityManager>& world)
+C_EntitiesWindow::C_EntitiesWindow(GUID guid, std::shared_ptr<Entity::C_EntityManager>& world)
 	: GUI::C_Window(guid, "Entities")
 	, m_World(world)
 	, m_SelectedEntity(GUID::INVALID_GUID)
-	, m_EntityTypeSelector("Entity class", rttr::type::get<I_Entity>().get_name().data())
-	, m_ComponentTypeSelector("Component class", rttr::type::get<I_Component>().get_name().data())
+	, m_EntityTypeSelector("Entity class", rttr::type::get<Entity::I_Entity>().get_name().data())
 {
 }
 
@@ -28,7 +28,7 @@ C_EntitiesWindow::C_EntitiesWindow(GUID guid, std::shared_ptr<C_EntityManager>& 
 C_EntitiesWindow::~C_EntitiesWindow() = default;
 
 //=================================================================================
-void C_EntitiesWindow::Draw() const
+bool C_EntitiesWindow::Draw(GUI::C_GUIManager& guiMgr) const
 {
 	ImGui::Begin(m_Name.c_str(), &m_IsVisible);
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
@@ -45,7 +45,7 @@ void C_EntitiesWindow::Draw() const
 			ImGui::Selectable(entity->GetName().c_str(), &selected);
 			if (selected)
 			{
-				Core::C_EntityEvent event(entity->GetID(), Core::C_EntityEvent::EntityEvent::Seleced);
+				Core::C_EntityEvent event(entity->GetID(), Core::C_EntityEvent::EntityEvent::Selected);
 				Core::C_Application::Get().OnEvent(event);
 				if (m_SelectedEntity == entity->GetID())
 					m_SelectedEntity = GUID::INVALID_GUID;
@@ -79,60 +79,25 @@ void C_EntitiesWindow::Draw() const
 			else
 			{
 				auto entityVar = type.create({entityName});
-				auto entity	   = entityVar.convert<std::shared_ptr<I_Entity>>();
+				auto entity	   = entityVar.convert<std::shared_ptr<Entity::I_Entity>>();
 				world->AddEntity(entity);
 				m_SelectedEntity = entity->GetID();
-				entityName = "";
+				entityName		 = "";
 			}
 		}
 
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 		ImGui::EndChild();
+		ImGui::BeginChild("SelectedEntity", ImVec2(0, 0), true);
+		ImGui::PopStyleVar();
 
 
 		// here should be way how to add components
 		auto entity = world->GetEntity(m_SelectedEntity);
-		if (entity)
-		{
-			ImGui::BeginChild("SelectedEntity", ImVec2(0, 0), true);
-			ImGui::PopStyleVar();
-			ImGui::Text("%s", entity->GetName().c_str());
-			int i = 0;
-			for (auto& component : *entity)
-			{
-				ImGui::PushID(i);
-				if (component.second->HasDebugDrawGUI())
-					component.second->DebugDrawComponentGUI();
-				ImGui::PopID();
-				++i;
-			}
-
-			ImGui::BeginChild("AddComponent", ImVec2(0, 100), true);
-			m_ComponentTypeSelector.Draw();
-			if (ImGui::Button("Add component"))
-			{
-				const auto type = rttr::type::get_by_name(m_ComponentTypeSelector.GetSelectedTypeName());
-				if (type.is_valid() == false)
-				{
-					CORE_LOG(E_Level::Error, E_Context::Entity, "Type {} doesn't exists.", m_ComponentTypeSelector.GetSelectedTypeName());
-				}
-				else
-				{
-					auto component = type.create();
-					if (component)
-					{
-						auto componentPtr = component.convert<std::shared_ptr<I_Component>>();
-						componentPtr->SetParent(entity);
-						entity->AddComponent(componentPtr);
-					}
-					else
-						CORE_LOG(E_Level::Error, E_Context::Entity, "Cannot instantiate component '{}'.", m_ComponentTypeSelector.GetSelectedTypeName());
-				}
-			}
-			ImGui::EndChild();
-			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-			ImGui::EndChild();
-		}
+		m_ComponentEditor.SetEntity(entity);
+		m_ComponentEditor.Draw();
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+		ImGui::EndChild();
 	}
 	else
 	{
@@ -143,14 +108,15 @@ void C_EntitiesWindow::Draw() const
 
 	ImGui::PopStyleVar();
 	ImGui::End();
+	return false;
 }
 
 //=================================================================================
-void C_EntitiesWindow::SetWorld(std::shared_ptr<C_EntityManager> world)
+void C_EntitiesWindow::SetWorld(std::shared_ptr<Entity::C_EntityManager> world)
 {
 	m_World = world;
 	// entity removed anyway
 	m_SelectedEntity = GUID::INVALID_GUID;
 }
 
-} // namespace GLEngine::Entity
+} // namespace GLEngine::Editor

@@ -24,10 +24,9 @@ private:
 	std::map<std::string, C_StructDescriptor> m_StructReflections;
 };
 
-class GL_RENDERER_API_EXPORT C_GLCodeProvider : public Renderer::Shaders::I_CodeProvider {
-public:
+class GL_RENDERER_API_EXPORT C_GLCodeProvider final : public Renderer::Shaders::I_CodeProvider {
 private:
-	std::string GetStructCode(const std::string& name) const override;
+	[[nodiscard]] std::string GetStructCode(const std::string& name) const override;
 };
 
 } // namespace GLEngine::GLRenderer::Shaders

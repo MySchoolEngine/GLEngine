@@ -2,10 +2,14 @@
 
 #include <Renderer/IRenderBatch.h>
 #include <Renderer/IRenderCommand.h>
+#include <Renderer/Resources/RenderResourceHandle.h>
+#include <Renderer/Textures/TextureManager.h>
 
 namespace GLEngine::Renderer {
 
 class I_Device;
+class ResourceManager;
+class I_TextureViewStorage;
 
 enum class E_PassType
 {
@@ -33,31 +37,6 @@ public:
 	virtual void Lock(bool lock = true)			  = 0;
 	virtual void AddCommand(T_CommandPtr)		  = 0;
 	virtual void AddTransferCommand(T_CommandPtr) = 0;
-	virtual void AddBatch(T_BatchPtr)			  = 0;
-
-	/** ==============================================
-	 * @method:    SortCommands
-	 * @return:    void
-	 * @brief	   Reorganize all commands for better performance
-	 ** ==============================================*/
-	virtual void SortCommands() = 0;
-
-	/** ==============================================
-	 * @method:    ExtractData
-	 * @return:    void
-	 * @brief	   By now we should have all commands to render the frame
-	 *			   and we start with extraction of I_RawGPUData
-	 ** ==============================================*/
-	virtual void ExtractData() = 0;
-
-	/** ==============================================
-	 * @method:    TransformData
-	 * @return:    void
-	 * @brief	   After we collected all data, we have time to transform them
-	 *			   in this time the simulation thread is free to change
-	 *			   it's renderable data
-	 ** ==============================================*/
-	virtual void TransformData() = 0;
 
 	/** ==============================================
 	 * @method:    Commit
@@ -73,10 +52,25 @@ public:
 	 ** ==============================================*/
 	virtual void ClearCommandBuffers() = 0;
 
-	virtual I_Device& GetDevice() = 0;
+	/** ==============================================
+	 * @method:    SetBufferData
+	 * @return:    void
+	 * @brief	   Copy data into GPU buffer.
+	 ** ==============================================*/
+	virtual void SetBufferData(Handle<Buffer> dstBuffer, std::size_t numBytes, const void* data) = 0;
+	virtual void SetTextureData(Handle<Texture> dstTexture, const I_TextureViewStorage& storage) {}
+
+	virtual void SetTextureSampler(Handle<Texture> dstTexture, Handle<Sampler> srcSampler) = 0;
+
+	virtual I_Device&		GetDevice() = 0;
+	virtual ResourceManager& GetRM()		= 0;
+
+	virtual void* GetTextureGUIHandle(Handle<Texture> texture) { return nullptr; }
+	virtual C_TextureManager& GetTextureManager() { return C_TextureManager::CreateInstance(GetDevice()); }
+	// another one for destroy needed
 
 	virtual E_PassType GetCurrentPassType() const = 0;
-	virtual void	   SetCurrentPassType(Renderer::E_PassType type) {}
+	virtual void	   SetCurrentPassType(E_PassType type) {}
 };
 
 } // namespace GLEngine::Renderer

@@ -13,12 +13,22 @@
 
 class C_ShaderCompiler : public GLEngine::Renderer::ShaderCompilerTrait<std::string>
 {
+	using T_Base = GLEngine::Renderer::ShaderCompilerTrait<std::string>;
+public:
+	C_ShaderCompiler()
+		: T_Base()
+	{}
+	void ReleaseStage(T_StageHandle& stage) override
+	{
+		// nothing
+	}
 protected:
-	bool compileShaderStageInternal(T_StageHandle& stage, const std::filesystem::path& filepath, const GLEngine::Renderer::E_ShaderStage shaderStage, std::string& content) override
+	bool compileShaderStageInternal(T_StageHandle& stage, const std::filesystem::path& filepath, const GLEngine::Renderer::E_ShaderStage shaderStage, std::vector<char>& content, const std::string& entryPoint) override
 	{
 		GLEngine::Renderer::Shaders::C_ShaderPreprocessor preproces(std::make_unique<GLEngine::GLRenderer::Shaders::C_GLCodeProvider>());
 		preproces.Define("VULKAN", "1");
-		stage = preproces.PreprocessFile(content, filepath.parent_path());
+		std::string strContent(content.begin(), content.end());
+		stage = preproces.PreprocessFile(strContent, filepath.parent_path());
 
 		return preproces.WasSuccessful();
 	}
@@ -66,7 +76,7 @@ int main(int argc, char** argv)
 			logging.AddLogger(new Utils::Logging::C_CoutLogger());
 		}
 		PrepareFolder(gs_OutputFolder);
-		std::ofstream batfile(gs_OutputFolder / "compile.bat");
+		std::ofstream batFile(gs_OutputFolder / "compile.bat");
 
 		std::vector<C_ShaderLoader<std::string>::T_ShaderStage> stages;
 		if (!loader.LoadAllStages(argv[2], stages))
@@ -127,14 +137,15 @@ int main(int argc, char** argv)
 			auto outputFilename = filename;
 			outputFilename.replace_extension("spv");
 
-			batfile << gs_GLSLC.generic_string()
+			batFile << gs_GLSLC.generic_string()
 				<< " -fshader-stage=" << stageArgument
 				<< " " << (relativeFolder / filename).generic_string()
-				<< " -o " << (relativeFolder / outputFilename).generic_string()  << "\n";
+				<< " -o " << (relativeFolder / outputFilename).generic_string() << "\n";
 		}
 
-		batfile << "pause\n";
-		batfile.close();
+		batFile << "pause\n";
+		batFile.close();
+		CORE_LOG(E_Level::Info, E_Context::Core, "Successfully created bat file");
 	}
 	else
 	{

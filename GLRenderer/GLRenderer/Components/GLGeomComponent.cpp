@@ -63,27 +63,15 @@ void C_GLGeomComponent::PerformDraw() const
 }
 
 //=================================================================================
-void C_GLGeomComponent::SetupMaterial(const Utils::Parsing::MaterialData& data)
+void C_GLGeomComponent::SetupMaterial(const ::Utils::Parsing::MaterialData& data)
 {
 	C_GeomComponent::SetupMaterial(data);
 	auto& shmgr = Shaders::C_ShaderManager::Instance();
 	m_Shader	= shmgr.GetProgram(data.m_MaterialName);
 
-	auto& tmgr = Textures::C_TextureManager::Instance();
-
 	if (!data.m_ColorMap.empty())
 	{
-		auto colorMap = tmgr.GetTexture(data.m_ColorMap);
-		if (colorMap)
-		{
-			m_Material->SetDiffuseColor(glm::vec3(1.0f));
-
-			colorMap->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
-			colorMap->SetFilter(Renderer::E_TextureFilter::LinearMipMapLinear, Renderer::E_TextureFilter::Linear);
-			colorMap->GenerateMipMaps();
-
-			m_Material->SetColorMap(colorMap);
-		}
+		m_Material->SetColorMapPath(data.m_ColorMap);
 	}
 }
 

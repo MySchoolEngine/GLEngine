@@ -2,34 +2,38 @@
 
 #include <GUI/GUIManager.h>
 #include <GUI/GUIWindow.h>
+#include <GUI/ReflectionGUI.h>
 
 namespace GLEngine::GUI {
 
 //=================================================================================
-C_GUIManager::C_GUIManager() = default;
+C_GUIManager::C_GUIManager()
+{
+	SetGUIManager(*this);
+}
 
 //=================================================================================
 C_GUIManager::~C_GUIManager()
 {
 	GLE_ASSERT(CanBeDestroyed(), "Destroying unprepared windows.");
 	DestroyPossibleWindows();
-	GLE_ASSERT(m_Windwos.empty(), "Undestroyed windows.");
+	GLE_ASSERT(m_Windows.empty(), "Undestroyed windows.");
 }
 
 //=================================================================================
 void C_GUIManager::OnUpdate()
 {
-	for (auto& it : m_Windwos)
+	for (auto& [guid, window] : m_Windows)
 	{
-		it.second->Update();
+		window->Update();
 	}
 	DestroyPossibleWindows();
 
-	for (auto& it : m_Windwos)
+	for (auto& [guid, window] : m_Windows)
 	{
-		if (it.second->IsVisible())
+		if (window->IsVisible())
 		{
-			it.second->Draw();
+			window->Draw(*this);
 		}
 	}
 }
@@ -37,16 +41,15 @@ void C_GUIManager::OnUpdate()
 //=================================================================================
 GUID C_GUIManager::CreateGUIWindow(const std::string& name)
 {
-	GUID guid		= NextGUID();
-	m_Windwos[guid] = new GUI::C_Window(guid, name);
+	const GUID guid		= NextGUID();
+	m_Windows[guid] = new C_Window(guid, name);
 	return guid;
 }
 
 //=================================================================================
-GUI::C_Window* C_GUIManager::GetWindow(GUID guid) const
+C_Window* C_GUIManager::GetWindow(const GUID guid) const
 {
-	auto it = m_Windwos.find(guid);
-	if (it != m_Windwos.end())
+	if (const auto it = m_Windows.find(guid); it != m_Windows.end())
 	{
 		return (it->second);
 	}
@@ -54,10 +57,10 @@ GUI::C_Window* C_GUIManager::GetWindow(GUID guid) const
 }
 
 //=================================================================================
-void C_GUIManager::DestroyWindow(GUID guid)
+void C_GUIManager::DestroyWindow(const GUID guid)
 {
-	auto it = m_Windwos.find(guid);
-	if (it == m_Windwos.end())
+	auto it = m_Windows.find(guid);
+	if (it == m_Windows.end())
 	{
 		return;
 	}
@@ -66,28 +69,28 @@ void C_GUIManager::DestroyWindow(GUID guid)
 }
 
 //=================================================================================
-void C_GUIManager::AddCustomWindow(GUI::C_Window* window)
+void C_GUIManager::AddCustomWindow(C_Window* window)
 {
-	m_Windwos[window->GetGuid()] = window;
+	m_Windows[window->GetGuid()] = window;
 }
 
 //=================================================================================
 bool C_GUIManager::CanBeDestroyed() const
 {
-	return std::all_of(m_Windwos.begin(), m_Windwos.end(), [](const auto& window) -> bool { return window.second->WantDestroy(); });
+	return std::all_of(m_Windows.begin(), m_Windows.end(), [](const auto& window) -> bool { return window.second->WantDestroy(); });
 }
 
 //=================================================================================
 void C_GUIManager::RequestDestroy()
 {
-	std::for_each(m_Windwos.begin(), m_Windwos.end(), [](const auto& window) { window.second->RequestDestroy(); });
+	std::for_each(m_Windows.begin(), m_Windows.end(), [](const auto& window) { window.second->RequestDestroy(); });
 }
 
 //=================================================================================
 void C_GUIManager::DestroyPossibleWindows()
 {
 	std::vector<GUID> toDelete(5);
-	std::for_each(m_Windwos.begin(), m_Windwos.end(), [&](const auto& window) {
+	std::for_each(m_Windows.begin(), m_Windows.end(), [&](const auto& window) {
 		auto* windowPtr = window.second;
 		if (windowPtr->WantDestroy() && windowPtr->CanDestroy())
 		{
@@ -95,7 +98,7 @@ void C_GUIManager::DestroyPossibleWindows()
 			toDelete.push_back(window.first);
 		}
 	});
-	std::for_each(toDelete.begin(), toDelete.end(), [&](const auto& guid) { m_Windwos.erase(guid); });
+	std::for_each(toDelete.begin(), toDelete.end(), [&](const auto& guid) { m_Windows.erase(guid); });
 }
 
 } // namespace GLEngine::GUI

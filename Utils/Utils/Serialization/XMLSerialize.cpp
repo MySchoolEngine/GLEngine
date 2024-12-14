@@ -15,14 +15,14 @@ pugi::xml_document C_XMLSerializer::Serialize(const rttr::instance obj)
 	if (!obj.is_valid())
 		return {};
 
-	pugi::xml_document doc;
-	pugi::xml_node	   node = doc.append_child(GetNodeName(obj.get_type()).to_string().c_str());
+	pugi::xml_document	 doc;
+	const pugi::xml_node node = doc.append_child(GetNodeName(obj.get_type()).to_string().c_str());
 	SerializeObject(obj, node);
 	return doc;
 }
 
 //=================================================================================
-pugi::xml_node C_XMLSerializer::SerializeObject(const rttr::instance& obj2, pugi::xml_node node)
+pugi::xml_node C_XMLSerializer::SerializeObject(const rttr::instance& obj2, const pugi::xml_node node)
 {
 	using namespace ::Utils::Reflection;
 	const rttr::instance obj = obj2.get_type().get_raw_type().is_wrapper() ? obj2.get_wrapped_instance() : obj2;
@@ -48,11 +48,13 @@ void C_XMLSerializer::WriteProperty(const rttr::property& prop, const rttr::inst
 	if (type.is_wrapper())
 		type = type.get_wrapped_type();
 
-	if (auto defaultValue = prop.get_metadata("SerializationDefaultValue")) {
+	if (auto defaultValue = prop.get_metadata("SerializationDefaultValue"))
+	{
 		auto defaultValueType = defaultValue.get_type();
 		GLE_ASSERT(defaultValueType == type, "Type of default value doesn't match property type {}", prop);
-		if (defaultValue == propValue) {
-			return; // skip 
+		if (defaultValue == propValue)
+		{
+			return; // skip
 		}
 	}
 
@@ -63,7 +65,7 @@ void C_XMLSerializer::WriteProperty(const rttr::property& prop, const rttr::inst
 	}
 	else if (auto serializeStringFunction = rttr::type::get_global_method("SerializeString", {prop.get_type(), rttr::type::get<std::reference_wrapper<std::string>>()}))
 	{
-		std::string stringRet;
+		std::string	  stringRet;
 		rttr::variant stringVar = std::ref(stringRet);
 		if (type.get_raw_type().is_sequential_container())
 		{
@@ -71,9 +73,9 @@ void C_XMLSerializer::WriteProperty(const rttr::property& prop, const rttr::inst
 			if (view.is_empty())
 				return;
 
-			pugi::xml_node		seqContainerNode = parent.append_child(prop.get_name().to_string().c_str());
+			pugi::xml_node seqContainerNode = parent.append_child(prop.get_name().to_string().c_str());
 
-			const rttr::variant returnValue		 = serializeStringFunction.invoke({}, propValue, stringVar);
+			const rttr::variant returnValue = serializeStringFunction.invoke({}, propValue, stringVar);
 			GLE_ASSERT(returnValue.is_valid(), "Wrong type for SerializeString");
 			seqContainerNode.text().set(stringRet.c_str());
 		}
@@ -104,7 +106,25 @@ void C_XMLSerializer::WriteProperty(const rttr::property& prop, const rttr::inst
 	}
 	else
 	{
-		SerializeObject(propValue, parent.append_child(prop.get_name().to_string().c_str()));
+		auto propNode = parent.append_child(prop.get_name().to_string().c_str());
+		if (type.get_raw_type().is_wrapper())
+		{
+			auto value = propValue;
+			while (value.get_type().is_wrapper())
+				value = value.extract_wrapped_value();
+
+			auto propType = prop.get_type();
+			while (propType.is_wrapper())
+				propType = propType.get_wrapped_type();
+
+			if (propType.is_pointer())
+				propType = propType.get_raw_type();
+
+			auto typeWrapped = rttr::instance(value).get_derived_type();
+			if (typeWrapped.is_derived_from(propType) && typeWrapped != propType)
+				propNode.append_attribute("derivedTypeCast").set_value(typeWrapped.get_name().data());
+		}
+		SerializeObject(propValue, propNode);
 	}
 }
 
@@ -179,8 +199,8 @@ void C_XMLSerializer::WriteAtomics(const rttr::type& type, const rttr::variant& 
 		}
 		else
 		{
-			ok		   = false;
-			auto value = obj.to_uint64(&ok);
+			ok				 = false;
+			const auto value = obj.to_uint64(&ok);
 			if (ok)
 				attr.set_value(value);
 			// GLE_ASSERT(ok, "Wrong enum serialized");

@@ -56,7 +56,7 @@ namespace GLEngine::DX12Renderer {
 		return D3D12_BLEND_INV_DEST_ALPHA;
 	case Renderer::E_BlendFactor::AlphaConstant:
 		return D3D12_BLEND_BLEND_FACTOR;
-	case Renderer::E_BlendFactor::InvAphaConstant:
+	case Renderer::E_BlendFactor::InvAlphaConstant:
 		return D3D12_BLEND_INV_BLEND_FACTOR;
 	case Renderer::E_BlendFactor::ColorConstant:
 		return D3D12_BLEND_BLEND_FACTOR;

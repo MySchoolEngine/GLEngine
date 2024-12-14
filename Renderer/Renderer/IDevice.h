@@ -36,13 +36,13 @@ public:
 
 	using T_TextureHandle = std::shared_ptr<I_DeviceTexture>;
 
-	[[nodiscard]]virtual bool AllocateTexture(I_DeviceTexture& texture) = 0;
-	virtual void							DestroyTexture(I_DeviceTexture& texture) = 0;
+	[[nodiscard]] virtual bool AllocateTexture(I_DeviceTexture& texture) = 0;
+	virtual void			   DestroyTexture(I_DeviceTexture& texture)	 = 0;
 
 	virtual T_TextureHandle CreateTextureHandle(const TextureDescriptor& desc) = 0; // temporary until better handles introduced
 
-	[[nodiscard]] virtual bool AllocateSampler(I_TextureSampler2D& texture) = 0;
-	virtual void							 DestroySampler(I_TextureSampler2D& texture)	= 0;
-	[[nodiscard]] virtual std::size_t GetAllocatedMemory() const = 0;
+	[[nodiscard]] virtual bool		  AllocateSampler(I_TextureSampler2D& texture) = 0;
+	virtual void					  DestroySampler(I_TextureSampler2D& texture)  = 0;
+	[[nodiscard]] virtual std::size_t GetAllocatedMemory() const				   = 0;
 };
 } // namespace GLEngine::Renderer

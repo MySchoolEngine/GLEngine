@@ -31,18 +31,18 @@ public:
 
 protected:
 	void IncludesFiles(std::string& content, const std::filesystem::path& filepath);
-	void CodeGeneration(std::string& content);
-	void ReplaceConstants(std::string& content);
+	void CodeGeneration(std::string& content) const;
+	void ReplaceConstants(std::string& content) const;
 	void GetDefines(std::string& content);
 
-	void ResolveIfStatements(std::string& content);
+	void ResolveIfStatements(std::string& content) const;
 
 	bool _loadFile(const std::filesystem::path& file, std::string& content);
 
 	using T_Defines = std::map<std::string, std::string>;
 #pragma warning(push)
 #pragma warning(disable : 4251)
-	T_Defines m_defines;
+	T_Defines m_Defines;
 
 	std::unique_ptr<I_CodeProvider> m_CodeProvider;
 

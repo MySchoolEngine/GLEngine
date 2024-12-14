@@ -1,8 +1,6 @@
 #include <RendererStdafx.h>
 
 #include <Renderer/Colours.h>
-#include <Renderer/Mesh/Loading/ModelLoader.h>
-#include <Renderer/RayCasting/Geometry/GeometryList.h>
 #include <Renderer/RayCasting/Geometry/RayTraceScene.h>
 #include <Renderer/RayCasting/Geometry/SceneGeometry.h>
 #include <Renderer/RayCasting/Geometry/Trimesh.h>
@@ -11,7 +9,6 @@
 #include <Renderer/RayCasting/Light/RayPointLight.h>
 #include <Renderer/RayCasting/Material/DiffuseMaterial.h>
 #include <Renderer/RayCasting/RayIntersection.h>
-#include <Renderer/Textures/Storage/TextureStorage.h>
 #include <Renderer/Textures/TextureResource.h>
 
 #include <Physics/Primitives/Disc.h>
@@ -62,7 +59,7 @@ C_RayTraceScene::C_RayTraceScene()
 		trimesh->AddTriangle(triangle1, {glm::vec2(0.0f, 1.0f), glm::vec2(1.0f, 1.0f), glm::vec2(1.0f, 0.0f)});
 		trimesh->SetMaterial(brickMat);
 
-		AddObejct(trimesh);
+		AddObject(trimesh);
 	}
 
 	DISABLE
@@ -72,8 +69,8 @@ C_RayTraceScene::C_RayTraceScene()
 		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, 1.5f, 3.f}, {3.f, 1.5f, -3.f}, {3.f, 1.5f, 3.f}));
 		triangle->SetMaterial(whiteMat);
 		triangle1->SetMaterial(whiteMat);
-		AddObejct(triangle);
-		AddObejct(triangle1);
+		AddObject(triangle);
+		AddObject(triangle1);
 	}
 
 	DISABLE
@@ -83,8 +80,8 @@ C_RayTraceScene::C_RayTraceScene()
 		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, -1.5f, 3.f}, {-3.f, 1.5f, -3.f}, {-3.f, 1.5f, 3.f}));
 		triangle->SetMaterial(redMat);
 		triangle1->SetMaterial(redMat);
-		AddObejct(triangle);
-		AddObejct(triangle1);
+		AddObject(triangle);
+		AddObject(triangle1);
 	}
 
 	DISABLE
@@ -94,8 +91,8 @@ C_RayTraceScene::C_RayTraceScene()
 		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({3.f, -1.5f, 3.f}, {3.f, 1.5f, 3.f}, {3.f, 1.5f, -3.f}));
 		triangle->SetMaterial(greenMat);
 		triangle1->SetMaterial(greenMat);
-		AddObejct(triangle);
-		AddObejct(triangle1);
+		AddObject(triangle);
+		AddObject(triangle1);
 	}
 
 	DISABLE
@@ -105,8 +102,8 @@ C_RayTraceScene::C_RayTraceScene()
 		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, -1.5f, -3.f}, {3.f, 1.5f, -3.f}, {-3.f, 1.5f, -3.f}));
 		triangle->SetMaterial(whiteMat);
 		triangle1->SetMaterial(whiteMat);
-		AddObejct(triangle);
-		AddObejct(triangle1);
+		AddObject(triangle);
+		AddObject(triangle1);
 	}
 
 	if (false)
@@ -114,7 +111,7 @@ C_RayTraceScene::C_RayTraceScene()
 		// sphere
 		auto sphere = std::make_shared<C_Primitive<S_Sphere>>(S_Sphere{{-1.5f, -1.f, -1.5f}, 1.f});
 		sphere->SetMaterial(blueMirrorMat);
-		AddObejct(std::move(sphere));
+		AddObject(std::move(sphere));
 	}
 
 	if (false)
@@ -122,7 +119,7 @@ C_RayTraceScene::C_RayTraceScene()
 		// sphere
 		auto sphere = std::make_shared<C_Primitive<S_Sphere>>(S_Sphere{{.8f, 0.f, .5f}, 1.f});
 		sphere->SetMaterial(blueMat);
-		AddObejct(std::move(sphere));
+		AddObject(std::move(sphere));
 	}
 
 	constexpr bool discLight = false;
@@ -172,17 +169,17 @@ C_RayTraceScene::C_RayTraceScene()
 	auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, 0.f, 3.f}, {3.f, 0.f, -3.f}, {-3.f, 0.f, -3.f}));
 	auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, 0.f, 3.f}, {3.f, 0.f, 3.f}, {3.f, 0.f, -3.f}));
 	triangle->SetMaterial(mat1);
-	AddObejct(triangle);
+	AddObject(triangle);
 	triangle->SetMaterial(mat1);
-	AddObejct(triangle1);
+	AddObject(triangle1);
 
 	// plane->SetMaterial(mat3);
-	// AddObejct(std::move(plane));
+	// AddObject(std::move(plane));
 
 	static const auto normal2 = glm::vec3(0, 0, -1);
 	auto			  sphere  = std::make_shared<C_Primitive<S_Sphere>>(S_Sphere{{0.f, 0.f, 0.f}, 1.f});
 	sphere->SetMaterial(mat2);
-	AddObejct(std::move(sphere));
+	AddObject(std::move(sphere));
 
 	// lights
 	const glm::vec3 lightNormal = glm::normalize(glm::vec3(0, -1.0, 1.0));
@@ -236,7 +233,7 @@ bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInte
 }
 
 //=================================================================================
-void C_RayTraceScene::AddObejct(std::shared_ptr<I_RayGeometryObject>&& object)
+void C_RayTraceScene::AddObject(std::shared_ptr<I_RayGeometryObject>&& object)
 {
 	m_Objects.emplace_back(std::move(object));
 }
@@ -244,7 +241,7 @@ void C_RayTraceScene::AddObejct(std::shared_ptr<I_RayGeometryObject>&& object)
 //=================================================================================
 void C_RayTraceScene::AddLight(std::shared_ptr<RayTracing::C_AreaLight>&& light)
 {
-	AddObejct(std::move(light->GetGeometry()));
+	AddObject(std::move(light->GetGeometry()));
 
 	m_AreaLights.emplace_back(std::move(light));
 }
@@ -265,7 +262,7 @@ void C_RayTraceScene::ForEachLight(std::function<void(const std::reference_wrapp
 //=================================================================================
 void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh, const MeshData::Material& material, const BVH* bvh)
 {
-	Utils::HighResolutionTimer renderTime;
+	::Utils::HighResolutionTimer renderTime;
 	using namespace Physics::Primitives;
 //#define OLD_TRIMESH
 #ifdef OLD_TRIMESH
@@ -278,20 +275,20 @@ void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh, const MeshData::Materi
 	}
 
 	list->GetAABB() = mesh.bbox;
-	AddObejct(list);
+	AddObject(list);
 #else
 	auto trimesh = std::make_shared<C_Trimesh>();
 	trimesh->SetMaterial(AddMaterial(material).get());
 	trimesh->AddMesh(mesh);
 	trimesh->SetTransformation(glm::translate(glm::mat4(1.f), glm::vec3(0, -1.5f, 0)) * glm::scale(glm::mat4(1.f), glm::vec3(0.5f, 0.5f, 0.5f)));
 	m_Trimeshes.push_back(trimesh);
-	AddObejct(trimesh);
+	AddObject(trimesh);
 #endif
 	CORE_LOG(E_Level::Info, E_Context::Render, "Raytracing add mesh: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
 }
 
 //=================================================================================
-const C_TextureView C_RayTraceScene::GetTextureView(int textureID) const
+C_TextureView C_RayTraceScene::GetTextureView(const int textureID) const
 {
 	// because the truly const texture view is not implemented I need const cast here
 	auto view = C_TextureView(const_cast<I_TextureViewStorage*>(&(m_Textures[textureID].GetResource().GetStorage())));
@@ -305,7 +302,7 @@ const C_TextureView C_RayTraceScene::GetTextureView(int textureID) const
 void C_RayTraceScene::DebugDraw(I_DebugDraw* dd) const
 {
 	std::for_each(m_Trimeshes.begin(), m_Trimeshes.end(), [&](const auto& trimesh) { trimesh->DebugDraw(dd); });
-	//m_Blob->DebugDraw(*dd);
+	// m_Blob->DebugDraw(*dd);
 }
 
 //=================================================================================
@@ -348,6 +345,17 @@ void C_RayTraceScene::BuildScene()
 			}
 		}
 	}
+}
+
+void C_RayTraceScene::ClearScene()
+{
+	m_Objects.clear();
+	m_AreaLights.clear();
+	m_PointLights.clear();
+	m_Textures.clear();
+	m_Meshes.clear();
+	m_Materials.clear();
+	m_Trimeshes.clear();
 }
 
 //=================================================================================

@@ -335,7 +335,7 @@ bool C_TerrainMesh::HasDebugDrawGUI() const
 //=================================================================================
 void C_TerrainMesh::OnEvent(Core::I_Event& event)
 {
-	event.m_Handeld = true;
+	event.m_Handled = true;
 	m_Selected		= !m_Selected;
 	m_QueuedUpdate	= m_Selected;
 }

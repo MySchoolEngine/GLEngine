@@ -8,6 +8,7 @@
 #include <Renderer/IDevice.h>
 #include <Renderer/IRenderer.h>
 #include <Renderer/Render/CPURasterizer.h>
+#include <Renderer/Resources/ResourceManager.h>
 #include <Renderer/Textures/TextureView.h>
 
 #include <GUI/FileDialogWindow.h>
@@ -23,79 +24,53 @@
 #include <imgui_internal.h>
 
 namespace GLEngine::Editor {
-
-const static glm::vec2	s_ImageDrawArea{800, 800};
-const static glm::uvec2 s_BackgroundDim{2, 2};
+static constexpr glm::vec2	s_ImageDrawArea{800, 800};
+static constexpr glm::uvec2 s_BackgroundDim{2, 2};
 
 //=================================================================================
 C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 	: GUI::C_Window(guid, "Image editor")
 	, m_Storage(1024, 1024, 4)
-	, m_GUIImage(nullptr)
+	, m_GUIImage({})
 	, m_FileMenu("File")
 	, m_Tools("Tools")
-	, m_DeviceImage(nullptr)
-	, m_Background(nullptr)
 {
-	auto&							  device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
-	const Renderer::TextureDescriptor desc{.name		  = "Editor image",
-										   .width		  = 1024,
-										   .height		  = 1024,
-										   .type		  = Renderer::E_TextureType::TEXTURE_2D,
-										   .format		  = Renderer::E_TextureFormat::RGBA32f,
-										   .m_bStreamable = false};
-	const Renderer::TextureDescriptor descTransparent{.name			 = "Transparent background",
-													  .width		 = s_BackgroundDim.x,
-													  .height		 = s_BackgroundDim.y,
-													  .type			 = Renderer::E_TextureType::TEXTURE_2D,
-													  .format		 = Renderer::E_TextureFormat::RGB32f,
-													  .m_bStreamable = false};
-
-	m_DeviceImage = device.CreateTextureHandle(desc);
-	m_Background  = device.CreateTextureHandle(descTransparent);
-	device.AllocateTexture(*m_DeviceImage.get());
-	device.AllocateTexture(*m_Background.get());
-	m_Storage.SetAll(glm::vec4(Colours::white, 0.f));
-	{
-		Renderer::C_TextureViewStorageCPU<float> storage(s_BackgroundDim.x, s_BackgroundDim.y, 3);
-		storage.SetAll(glm::vec4(Colours::white, 0.f));
-		Renderer::C_TextureView view(&storage);
-
-		view.Set(glm::ivec2{0, 0}, glm::vec3{Colours::gray});
-		view.Set(glm::ivec2{1, 1}, glm::vec3{Colours::gray});
-
-		m_Background->SetTexData2D(0, &storage);
-		m_Background->SetWrap(Renderer::E_WrapFunction::Repeat, Renderer::E_WrapFunction::Repeat);
-		m_Background->SetFilter(Renderer::E_TextureFilter::Nearest, Renderer::E_TextureFilter::Nearest);
-	}
+	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
+	CreateTextures(renderer);
 
 	AddMenu(m_FileMenu);
 	AddMenu(m_Tools);
 
 	m_Tools.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Histogram", std::bind(&C_ImageEditor::ToggleHistogram, this)));
-	m_Tools.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Brick", [&]() { m_ActiveTool = std::make_unique<C_BrickGenerator>(Renderer::C_TextureView(&m_Storage)); }));
-	m_Tools.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Blur", [&]() { m_ActiveTool = std::make_unique<C_GaussianBlur>(Renderer::C_TextureView(&m_Storage)); }));
-	std::reference_wrapper<GUI::Menu::C_MenuItem> createMenuItem = guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Save as...", [&]() {
+	m_Tools.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Brick", [&]() {
+		m_ActiveTool = std::make_unique<C_BrickGenerator>(Renderer::C_TextureView(&m_Storage));
+		return true;
+	}));
+	m_Tools.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Blur", [&]() {
+		m_ActiveTool = std::make_unique<C_GaussianBlur>(Renderer::C_TextureView(&m_Storage));
+		return true;
+	}));
+	std::reference_wrapper<GUI::Menu::C_MenuItem> createMenuItem = guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>(std::string("Save as..."), [&]() {
 		const auto textureSelectorGUID = NextGUID();
 		auto*	   textureSelectWindow = new GUI::C_FileDialogWindow(
 			 ".bmp,.hdr,.ppm", "Save image as...",
-			 [&, textureSelectorGUID](const std::filesystem::path& texture) {
+			 [&, textureSelectorGUID](const std::filesystem::path& texture, GUI::C_GUIManager& guiMgr) {
 				 // TODO save here
-
-				 guiMGR.DestroyWindow(textureSelectorGUID);
+				 guiMgr.DestroyWindow(textureSelectorGUID);
 			 },
 			 textureSelectorGUID, "./Images");
 		guiMGR.AddCustomWindow(textureSelectWindow);
 		textureSelectWindow->SetVisible();
+		return false;
 	});
 	m_FileMenu.AddMenuItem(createMenuItem);
 
-	m_GUIImage = new GUI::C_ImageViewer(*m_DeviceImage.get());
-	m_GUIImage->SetSize({800, 800});
-	m_DeviceImage->SetTexData2D(0, &m_Storage);
+	m_GUIImage = GUI::C_ImageViewer(m_DeviceImage);
+	m_GUIImage.SetSize({800, 800});
+	renderer.SetTextureData(m_DeviceImage, m_Storage);
 
 	std::thread([&]() {
-		Utils::HighResolutionTimer timer;
+		::Utils::HighResolutionTimer timer;
 		timer.reset();
 		Renderer::C_TextureView view(&m_Storage);
 		view.EnableBlending();
@@ -117,16 +92,15 @@ C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 		//}
 		m_bDone		= true;
 		m_bModified = true;
-		CORE_LOG(E_Level::Info, E_Context::Render, "Line render time {}", float(timer.getElapsedTimeFromLastQueryMilliseconds()) / 1000.f);
+		CORE_LOG(E_Level::Info, E_Context::Render, "Line render time {}", static_cast<float>(timer.getElapsedTimeFromLastQueryMilliseconds()) / 1000.f);
 	}).detach();
 }
 
 //=================================================================================
 C_ImageEditor::~C_ImageEditor()
 {
-	delete m_GUIImage;
-	auto& device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
-	device.DestroyTexture(*m_DeviceImage.get());
+	auto& rm = Core::C_Application::Get().GetActiveRenderer().GetRM();
+	rm.destoryTexture(m_DeviceImage);
 }
 
 //=================================================================================
@@ -140,7 +114,8 @@ void C_ImageEditor::Update()
 		{
 			CORE_LOG(E_Level::Info, E_Context::Render, "Updates: {}", numUpdates);
 		}
-		m_DeviceImage->SetTexData2D(0, &m_Storage); // possibly miss last update
+		auto& renderer = Core::C_Application::Get().GetActiveRenderer();
+		renderer.SetTextureData(m_DeviceImage, m_Storage);
 		m_bFinish = m_bDone;
 	}
 }
@@ -148,21 +123,20 @@ void C_ImageEditor::Update()
 //=================================================================================
 void C_ImageEditor::DrawComponents() const
 {
-	const ImVec2 canvas_p0 = ImGui::GetCursorPos();
-	ImGui::Image((void*)(intptr_t)(m_Background->GetGPUHandle()), {s_ImageDrawArea.x, s_ImageDrawArea.y}, {0, 0},
+	const ImVec2 canvas_p0			 = ImGui::GetCursorPos();
+	void*		 BackgroundGUIHandle = Core::C_Application::Get().GetActiveRenderer().GetTextureGUIHandle(m_Background);
+	ImGui::Image((void*)(intptr_t)(BackgroundGUIHandle), {s_ImageDrawArea.x, s_ImageDrawArea.y}, {0, 0},
 				 {s_ImageDrawArea.x / (s_BackgroundDim.x * 5), s_ImageDrawArea.y / (s_BackgroundDim.y * 5)});
 	ImGui::SetCursorPos(canvas_p0);
-	m_GUIImage->Draw();
+	m_GUIImage.Draw();
 	::ImGui::SameLine();
 	if (m_ActiveTool)
 	{
 		::ImGui::BeginChild("ImageTools");
 		rttr::instance obj(m_ActiveTool.get());
-		if (GUI::DrawAllPropertyGUI(obj).empty() == false)
+		if (GUI::DrawAllPropertyGUI(obj).empty() == false) {}
+		if (ImGui::Button("Apply"))
 		{
-			
-		}
-		if (ImGui::Button("Apply")) {
 			m_ActiveTool->Apply();
 			m_bFinish = false; // hack
 		}
@@ -170,13 +144,69 @@ void C_ImageEditor::DrawComponents() const
 	}
 }
 
-void C_ImageEditor::ToggleHistogram()
+//=================================================================================
+bool C_ImageEditor::ToggleHistogram()
 {
 	CORE_LOG(E_Level::Error, E_Context::Core, "Histogram.");
+	return false;
 }
 
+//=================================================================================
 void C_ImageEditor::SetupToolPreview()
 {
+}
+
+//=================================================================================
+void C_ImageEditor::CreateTextures(Renderer::I_Renderer& renderer)
+{
+	using namespace Renderer;
+	{
+		const auto GPUSamplerHandle = renderer.GetRM().createSampler(SamplerDescriptor2D{
+			.m_FilterMin = E_TextureFilter::Linear,
+			.m_FilterMag = E_TextureFilter::Linear,
+			.m_WrapS	 = E_WrapFunction::Repeat,
+			.m_WrapT	 = E_WrapFunction::Repeat,
+			.m_WrapU	 = E_WrapFunction::Repeat,
+		});
+
+		m_DeviceImage = renderer.GetRM().createTexture(TextureDescriptor{.name			= "Editor image",
+																		 .width			= 1024,
+																		 .height		= 1024,
+																		 .type			= E_TextureType::TEXTURE_2D,
+																		 .format		= E_TextureFormat::RGBA32f,
+																		 .m_bStreamable = false});
+		renderer.SetTextureSampler(m_DeviceImage, GPUSamplerHandle);
+	}
+
+	{
+		auto GPUSamplerHandle = renderer.GetRM().createSampler(SamplerDescriptor2D{
+			.m_FilterMin = E_TextureFilter::Nearest,
+			.m_FilterMag = E_TextureFilter::Nearest,
+			.m_WrapS	 = E_WrapFunction::Repeat,
+			.m_WrapT	 = E_WrapFunction::Repeat,
+			.m_WrapU	 = E_WrapFunction::Repeat,
+		});
+		m_Background		  = renderer.GetRM().createTexture(Renderer::TextureDescriptor{.name		  = "Transparent background",
+																				   .width		  = s_BackgroundDim.x,
+																				   .height		  = s_BackgroundDim.y,
+																				   .type		  = Renderer::E_TextureType::TEXTURE_2D,
+																				   .format		  = Renderer::E_TextureFormat::RGB32f,
+																				   .m_bStreamable = false});
+		renderer.SetTextureSampler(m_Background, GPUSamplerHandle);
+	}
+
+
+	m_Storage.SetAll(glm::vec4(Colours::white, 0.f));
+	{
+		Renderer::C_TextureViewStorageCPU<float> storage(s_BackgroundDim.x, s_BackgroundDim.y, 3);
+		storage.SetAll(glm::vec4(Colours::white, 0.f));
+		Renderer::C_TextureView view(&storage);
+
+		view.Set(glm::ivec2{0, 0}, glm::vec3{Colours::gray});
+		view.Set(glm::ivec2{1, 1}, glm::vec3{Colours::gray});
+
+		renderer.SetTextureData(m_Background, storage);
+	}
 }
 
 } // namespace GLEngine::Editor

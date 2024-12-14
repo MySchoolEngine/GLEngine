@@ -11,6 +11,8 @@
 #include <GLRenderer/Components/SkeletalMesh.h>
 #include <GLRenderer/Components/SkyBox.h>
 #include <GLRenderer/Debug.h>
+#include <GLRenderer/GLRenderInterface.h>
+#include <GLRenderer/GLResourceManager.h>
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 #include <GLRenderer/ImGui/GLImGUILayer.h>
 #include <GLRenderer/Materials/MaterialBuffer.h>
@@ -24,16 +26,20 @@
 #include <GLRenderer/Textures/TextureManager.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 #include <GLRenderer/Windows/ExperimentWindow.h>
-#include <GLRenderer/Windows/RayTrace.h>
 
 #include <Renderer/Cameras/OrbitalCamera.h>
+#include <Renderer/Components/StaticMeshHandles.h>
 #include <Renderer/Lights/SunLight.h>
 #include <Renderer/Materials/MaterialManager.h>
 #include <Renderer/Mesh/Loading/MeshResource.h>
-#include <Renderer/Mesh/Scene.h>
 #include <Renderer/RayCasting/Geometry/TrimeshModel.h>
 #include <Renderer/Textures/TextureResource.h>
 #include <Renderer/Textures/TextureView.h>
+#include <Renderer/Windows/RayTrace.h>
+
+#include <Editor/Editors/ImageEditor.h>
+#include <Editor/EntityEditor/EntitiesWindow.h>
+#include <Editor/EntityEditor/EntityEditor.h>
 
 #include <GUI/ConsoleWindow.h>
 #include <GUI/FileDialogWindow.h>
@@ -41,12 +47,8 @@
 #include <Physics/Primitives/Intersection.h>
 #include <Physics/Primitives/Ray.h>
 
-#include <Editor/Editors/ImageEditor.h>
-
 #include <Entity/BasicEntity.h>
 #include <Entity/ComponentManager.h>
-#include <Entity/EntitiesWindow.h>
-#include <Entity/IComponent.h>
 
 #include <Core/EventSystem/Event/AppEvent.h>
 #include <Core/EventSystem/Event/KeyboardEvents.h>
@@ -60,14 +62,12 @@
 
 #include <glm/gtx/transform.hpp>
 
-#include <pugixml.hpp>
-
 #include <imgui.h>
 
 namespace GLEngine::GLRenderer::Windows {
 
 //=================================================================================
-C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
+C_ExperimentWindow::C_ExperimentWindow(const Core::S_WindowInfo& wndInfo)
 	: C_GLFWoGLWindow(wndInfo)
 	, m_LayerStack(std::string("ExperimentalWindowLayerStack"))
 	, m_Samples("Frame Times")
@@ -103,7 +103,7 @@ C_ExplerimentWindow::C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo)
 }
 
 //=================================================================================
-C_ExplerimentWindow::~C_ExplerimentWindow()
+C_ExperimentWindow::~C_ExperimentWindow()
 {
 	static_cast<C_OGLRenderer*>(m_renderer.get())->DestroyControls(m_ImGUI->GetGUIMgr());
 	m_CamManager.DestroyControls(m_ImGUI->GetGUIMgr());
@@ -111,7 +111,7 @@ C_ExplerimentWindow::~C_ExplerimentWindow()
 };
 
 //=================================================================================
-void C_ExplerimentWindow::Update()
+void C_ExperimentWindow::Update()
 {
 	m_EditorLayer.SetCamera(m_CamManager.GetActiveCamera());
 	m_ImGUI->FrameBegin();
@@ -133,7 +133,7 @@ void C_ExplerimentWindow::Update()
 
 	if (auto* rayTraceWindow = m_ImGUI->GetGUIMgr().GetWindow(m_RayTraceGUID); rayTraceWindow)
 	{
-		static_cast<C_RayTraceWindow*>(rayTraceWindow)->DebugDraw(&C_DebugDraw::Instance());
+		static_cast<Renderer::C_RayTraceWindow*>(rayTraceWindow)->DebugDraw(&C_DebugDraw::Instance());
 	}
 
 	m_World->OnUpdate();
@@ -155,14 +155,18 @@ void C_ExplerimentWindow::Update()
 	}
 	else
 	{
-		auto& tmgr = Textures::C_TextureManager::Instance();
-		m_MainPass->SetSunShadowMap(tmgr.GetIdentityTexture()->GetHandle());
+		auto& tMGR = Textures::C_TextureManager::Instance();
+		m_MainPass->SetSunShadowMap(tMGR.GetIdentityTexture()->GetHandle());
 	}
 	// ======
 	// World render
 	// ======
 	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
 	m_MainPass->Render(*m_World.get(), camera, GetWidth(), GetHeight());
+	{
+		RenderDoc::C_DebugScope s("Handles draw");
+		m_3DRenderer.Commit(*m_RenderInterfaceHandles.get());
+	}
 	m_HDRFBO->Unbind<E_FramebufferTarget::Draw>();
 
 	// ======
@@ -173,8 +177,8 @@ void C_ExplerimentWindow::Update()
 	{
 		m_HDRFBO->Bind<E_FramebufferTarget::Read>();
 
-		auto				  HDRTexture = m_HDRFBO->GetAttachement(GL_COLOR_ATTACHMENT0);
-		auto				  worldDepth = m_HDRFBO->GetAttachement(GL_DEPTH_ATTACHMENT);
+		const auto			  HDRTexture = m_HDRFBO->GetAttachment(GL_COLOR_ATTACHMENT0);
+		const auto			  worldDepth = m_HDRFBO->GetAttachment(GL_DEPTH_ATTACHMENT);
 		const FullScreenSetup fsSetup{
 			.shaderName = "atmosphere",
 			.shaderSetup =
@@ -188,13 +192,13 @@ void C_ExplerimentWindow::Update()
 		m_RenderInterface->RenderFullScreen(fsSetup);
 		m_HDRFBO->Unbind<E_FramebufferTarget::Read>();
 
-		HDRTexturePtr = m_HDRFBOAtmosphere->GetAttachement(GL_COLOR_ATTACHMENT0).get();
+		HDRTexturePtr = m_HDRFBOAtmosphere->GetAttachment(GL_COLOR_ATTACHMENT0).get();
 		m_HDRFBOAtmosphere->Bind<E_FramebufferTarget::Read>();
 	}
 	else
 	{
 		m_HDRFBO->Bind<E_FramebufferTarget::Read>();
-		HDRTexturePtr = m_HDRFBO->GetAttachement(GL_COLOR_ATTACHMENT0).get();
+		HDRTexturePtr = m_HDRFBO->GetAttachment(GL_COLOR_ATTACHMENT0).get();
 	}
 
 	// ======
@@ -238,36 +242,35 @@ void C_ExplerimentWindow::Update()
 	}
 
 	// commit of final commands - from commit few lines above
-	m_renderer->SortCommands();
 	m_renderer->Commit();
 	m_renderer->ClearCommandBuffers();
 	glfwSwapBuffers(m_Window);
-	sampleTime(float(m_FrameTimer.getElapsedTimeFromLastQueryMilliseconds()));
+	SampleTime(static_cast<float>(m_FrameTimer.getElapsedTimeFromLastQueryMilliseconds()));
 }
 
 //=================================================================================
-void C_ExplerimentWindow::sampleTime(double new_sample)
+void C_ExperimentWindow::SampleTime(const double newSample)
 {
-	m_Samples.Sample(static_cast<float>(new_sample));
+	m_Samples.Sample(static_cast<float>(newSample));
 }
 
 //=================================================================================
-void C_ExplerimentWindow::OnEvent(Core::I_Event& event)
+void C_ExperimentWindow::OnEvent(Core::I_Event& event)
 {
 	RenderDoc::C_DebugScope s("OnEvent-Fail");
 	// base can make filtering
 	T_Base::OnEvent(event);
 
 	Core::C_EventDispatcher d(event);
-	d.Dispatch<Core::C_AppEvent>(std::bind(&C_ExplerimentWindow::OnAppEvent, this, std::placeholders::_1));
-	d.Dispatch<Core::C_WindowResizedEvent>(std::bind(&C_ExplerimentWindow::OnWindowResized, this, std::placeholders::_1));
+	d.Dispatch<Core::C_AppEvent>(std::bind(&C_ExperimentWindow::OnAppEvent, this, std::placeholders::_1));
+	d.Dispatch<Core::C_WindowResizedEvent>(std::bind(&C_ExperimentWindow::OnWindowResized, this, std::placeholders::_1));
 
 	m_LayerStack.OnEvent(event);
 	m_World->OnEvent(event);
 }
 
 //=================================================================================
-void C_ExplerimentWindow::OnAppInit()
+void C_ExperimentWindow::OnAppInit()
 {
 	m_FrameTimer.reset();
 	m_MainPass = std::make_unique<C_MainPassTechnique>();
@@ -285,6 +288,8 @@ void C_ExplerimentWindow::OnAppInit()
 
 	m_RenderInterface
 		= std::make_unique<C_RenderInterface>(Shaders::C_ShaderManager::Instance(), Textures::C_TextureUnitManger::Instance(), *static_cast<C_OGLRenderer*>(m_renderer.get()));
+
+	m_RenderInterfaceHandles = std::make_unique<C_GLRenderInterface>();
 
 	SetupWorld("Levels/cornellBox.xml");
 
@@ -323,11 +328,21 @@ void C_ExplerimentWindow::OnAppInit()
 		consoleWindow->SetVisible();
 	}
 
+
+	{
+		m_EntityEditorGUID = NextGUID();
+
+		auto* entities = new Editor::EntityEditor(m_EntityEditorGUID, guiMGR);
+
+		guiMGR.AddCustomWindow(entities);
+		entities->SetVisible();
+	}
+
 	// Entity window
 	{
 		m_EntitiesWindowGUID = NextGUID();
 
-		auto entitiesWindow = new Entity::C_EntitiesWindow(m_EntitiesWindowGUID, m_World);
+		auto entitiesWindow = new Editor::C_EntitiesWindow(m_EntitiesWindowGUID, m_World);
 		guiMGR.AddCustomWindow(entitiesWindow);
 		entitiesWindow->SetVisible();
 	}
@@ -352,23 +367,25 @@ void C_ExplerimentWindow::OnAppInit()
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("New level", [&]() {
 		m_World->ClearLevel();
 		AddMandatoryWorldParts();
+		return true;
 	}));
 
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Open level", [&]() {
 		const auto levelSelectorGUID = NextGUID();
-		auto*	   levelSelectWindwo = new GUI::C_FileDialogWindow(
+		auto*	   levelSelectWindow = new GUI::C_FileDialogWindow(
 			 ".xml", "Select level",
-			 [&, levelSelectorGUID](const std::filesystem::path& level) {
+			 [&, levelSelectorGUID](const std::filesystem::path& level, GUI::C_GUIManager& guiMgr) {
 				 SetupWorld(level);
-				 m_ImGUI->GetGUIMgr().DestroyWindow(levelSelectorGUID);
+				 guiMgr.DestroyWindow(levelSelectorGUID);
 			 },
 			 levelSelectorGUID, "./Levels");
-		guiMGR.AddCustomWindow(levelSelectWindwo);
-		levelSelectWindwo->SetVisible();
+		guiMGR.AddCustomWindow(levelSelectWindow);
+		levelSelectWindow->SetVisible();
+		return false;
 	}));
 
-	auto& tmgr = Textures::C_TextureManager::Instance();
-	tmgr.GetIdentityTexture()->MakeHandleResident(); // Hack, I need to have active renderer because of lack of dependency injection
+	auto& tMGR = Textures::C_TextureManager::Instance();
+	tMGR.GetIdentityTexture()->MakeHandleResident(); // Hack, I need to have active renderer because of lack of dependency injection
 
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Save Level", [&]() {
 		const auto filename = m_World->GetFilename();
@@ -380,28 +397,30 @@ void C_ExplerimentWindow::OnAppInit()
 		{
 			SaveLevel(filename);
 		}
+		return false;
 	}));
-	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Save Level As", std::bind(&C_ExplerimentWindow::SaveLevelAs, this)));
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Save Level As", std::bind(&C_ExperimentWindow::SaveLevelAs, this)));
 
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("HDR Settings", m_HDRSettingsGUID, guiMGR));
 
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Ray tracing", [&]() {
 		if (guiMGR.GetWindow(m_RayTraceGUID) != nullptr)
 		{
-			return;
+			return false;
 		}
 		m_RayTraceGUID = NextGUID();
 
-		auto* rayTraceWindow = new C_RayTraceWindow(m_RayTraceGUID, m_CamManager.GetActiveCamera(), guiMGR);
+		auto* rayTraceWindow = new Renderer::C_RayTraceWindow(m_RayTraceGUID, m_CamManager.GetActiveCamera(), guiMGR);
 
 		guiMGR.AddCustomWindow(rayTraceWindow);
 		rayTraceWindow->SetVisible(true);
+		return false;
 	}));
 
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Image editor", [&]() {
 		if (guiMGR.GetWindow(m_ImageEditorGUID) != nullptr)
 		{
-			return;
+			return false;
 		}
 		m_ImageEditorGUID = NextGUID();
 
@@ -409,6 +428,7 @@ void C_ExplerimentWindow::OnAppInit()
 
 		guiMGR.AddCustomWindow(imageEditorWindow);
 		imageEditorWindow->SetVisible(true);
+		return false;
 	}));
 
 	const auto rendererWindow = static_cast<C_OGLRenderer*>(m_renderer.get())->SetupControls(guiMGR);
@@ -420,14 +440,14 @@ void C_ExplerimentWindow::OnAppInit()
 	const auto materialManager = Renderer::C_MaterialManager::Instance().SetupControls(guiMGR);
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Material manager", materialManager, guiMGR));
 
-	CORE_LOG(E_Level::Info, E_Context::Render, "Experiment window setup time was {}", float(m_FrameTimer.getElapsedTimeFromLastQueryMilliseconds()) / 1000.f);
+	CORE_LOG(E_Level::Info, E_Context::Render, "Experiment window setup time was {}", static_cast<float>(m_FrameTimer.getElapsedTimeFromLastQueryMilliseconds()) / 1000.f);
 }
 
 //=================================================================================
-bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
+bool C_ExperimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 {
 	{
-		auto						HDRTexture = m_HDRFBO->GetAttachement(GL_COLOR_ATTACHMENT0);
+		auto						HDRTexture = m_HDRFBO->GetAttachment(GL_COLOR_ATTACHMENT0);
 		Renderer::TextureDescriptor descHDR	   = HDRTexture->GetDescriptor();
 		descHDR.width						   = event.GetWidth();
 		descHDR.height						   = event.GetHeight();
@@ -438,7 +458,7 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 	}
 
 	{
-		auto						depthStencilTexture = m_HDRFBO->GetAttachement(GL_DEPTH_ATTACHMENT);
+		auto						depthStencilTexture = m_HDRFBO->GetAttachment(GL_DEPTH_ATTACHMENT);
 		Renderer::TextureDescriptor descDepth			= depthStencilTexture->GetDescriptor();
 		descDepth.width									= event.GetWidth();
 		descDepth.height								= event.GetHeight();
@@ -450,7 +470,7 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 
 	if (m_HDRFBOAtmosphere)
 	{
-		auto						HDRTexture = m_HDRFBOAtmosphere->GetAttachement(GL_COLOR_ATTACHMENT0);
+		auto						HDRTexture = m_HDRFBOAtmosphere->GetAttachment(GL_COLOR_ATTACHMENT0);
 		Renderer::TextureDescriptor descHDR	   = HDRTexture->GetDescriptor();
 		descHDR.width						   = event.GetWidth();
 		descHDR.height						   = event.GetHeight();
@@ -466,19 +486,18 @@ bool C_ExplerimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 }
 
 //=================================================================================
-void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
+void C_ExperimentWindow::SetupWorld(const std::filesystem::path& level)
 {
 	pugi::xml_document doc;
 
-	pugi::xml_parse_result result;
-	result = doc.load_file(level.c_str());
+	pugi::xml_parse_result result = doc.load_file(level.c_str());
 	if (!result.status == pugi::status_ok)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Core, "Can't open config file for level name: {}", level);
 		return;
 	}
 
-	Utils::C_XMLDeserializer d;
+	Utils::C_XMLDeserializer d(Core::C_ResourceManager::Instance());
 	auto					 newWorld = d.Deserialize<std::shared_ptr<Entity::C_EntityManager>>(doc);
 	if (newWorld.has_value() == false)
 	{
@@ -488,9 +507,9 @@ void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 	m_World.swap(newWorld.value());
 	m_World->SetFilename(level);
 
-	auto& guiMGR	  = m_ImGUI->GetGUIMgr();
+	const auto& guiMGR	  = m_ImGUI->GetGUIMgr();
 	auto* entitiesWnd = guiMGR.GetWindow(m_EntitiesWindowGUID);
-	if (auto* entitiesWindow = dynamic_cast<Entity::C_EntitiesWindow*>(entitiesWnd))
+	if (auto* entitiesWindow = dynamic_cast<Editor::C_EntitiesWindow*>(entitiesWnd))
 	{
 		entitiesWindow->SetWorld(m_World);
 	}
@@ -507,7 +526,7 @@ void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 		m_HDRFBOAtmosphere = std::unique_ptr<C_Framebuffer>(m_Device->AllocateFramebuffer("Atmosphere"));
 		const Renderer::TextureDescriptor HDRTextureDef{
 			"hdrTextureAtmosphere", GetWidth(), GetHeight(), Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::RGBA16f, false};
-		auto HDRTexture = std::make_shared<Textures::C_Texture>(HDRTextureDef);
+		const auto HDRTexture = std::make_shared<Textures::C_Texture>(HDRTextureDef);
 		m_Device->AllocateTexture(*HDRTexture.get());
 
 		HDRTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
@@ -520,7 +539,7 @@ void C_ExplerimentWindow::SetupWorld(const std::filesystem::path& level)
 }
 
 //=================================================================================
-void C_ExplerimentWindow::SaveLevel(const std::filesystem::path& filename)
+void C_ExperimentWindow::SaveLevel(const std::filesystem::path& filename)
 {
 	Utils::C_XMLSerializer s;
 	const auto			   str = s.Serialize(m_World);
@@ -529,35 +548,35 @@ void C_ExplerimentWindow::SaveLevel(const std::filesystem::path& filename)
 }
 
 //=================================================================================
-void C_ExplerimentWindow::SaveLevelAs()
+bool C_ExperimentWindow::SaveLevelAs()
 {
 	auto&	   guiMGR			 = m_ImGUI->GetGUIMgr();
 	const auto levelSelectorGUID = NextGUID();
 	auto*	   levelPathSelect	 = new GUI::C_FileDialogWindow(
 		   ".xml", "Select level",
-		   [&, levelSelectorGUID](const std::filesystem::path& level) {
-			   m_ImGUI->GetGUIMgr().DestroyWindow(levelSelectorGUID);
-
+		   [&, levelSelectorGUID](const std::filesystem::path& level, GUI::C_GUIManager& guiMgr) {
 			   SaveLevel(level);
+			   guiMgr.DestroyWindow(levelSelectorGUID);
 		   },
 		   levelSelectorGUID, "./Levels");
 	guiMGR.AddCustomWindow(levelPathSelect);
 	levelPathSelect->SetVisible();
+	return false;
 }
 
 //=================================================================================
-void C_ExplerimentWindow::AddMandatoryWorldParts()
+void C_ExperimentWindow::AddMandatoryWorldParts()
 {
 	m_Player = m_World->GetOrCreateEntity("Player");
 
 	auto player = m_Player.lock();
 	if (player)
 	{
-		auto cameras = player->GetComponents(Entity::E_ComponentType::Camera);
+		const auto cameras = player->GetComponents(Entity::E_ComponentType::Camera);
 		for (auto i = cameras.size(); i < 2; ++i)
 		{
-			float zoom		   = 5.0f;
-			auto  playerCamera = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
+			constexpr float zoom		 = 5.0f;
+			auto			playerCamera = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
 			playerCamera->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
 			playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
 			playerCamera->Update();
@@ -569,22 +588,12 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 		m_CamManager.SetDebugCamera(std::static_pointer_cast<Renderer::I_CameraComponent>(*camIt));
 	}
 
-
-	auto runner = m_World->GetOrCreateEntity("runner");
-	{
-		auto skeletalMesh = std::make_shared<Components::C_SkeletalMesh>(runner, "model.dae");
-		skeletalMesh->SetComponentMatrix(glm::translate(glm::mat4{1.f}, glm::vec3(0, -1, 0)) * glm::rotate(glm::half_pi<float>(), glm::vec3(1.f, .0f, .0f))
-										 * glm::scale(glm::vec3{0.2f}));
-		runner->AddComponent(skeletalMesh);
-	}
-
-
 	{
 		// create default atmosphere
-		auto entity = m_World->GetEntity("atmosphere");
+		const auto entity = m_World->GetEntity("atmosphere");
 		if (entity)
 		{
-			if (auto sunLight = entity->GetComponent<Entity::E_ComponentType::Light>())
+			if (const auto sunLight = entity->GetComponent<Entity::E_ComponentType::Light>())
 			{
 				m_SunShadow = std::make_shared<C_SunShadowMapTechnique>(std::static_pointer_cast<Renderer::C_SunLight>(sunLight));
 			}
@@ -601,7 +610,7 @@ void C_ExplerimentWindow::AddMandatoryWorldParts()
 }
 
 //=================================================================================
-void C_ExplerimentWindow::MouseSelect()
+void C_ExperimentWindow::MouseSelect()
 {
 	// this code should go to the editor layer one day
 	if (m_ImGUI->CapturingMouse())
@@ -625,14 +634,14 @@ void C_ExplerimentWindow::MouseSelect()
 		if (entity)
 		{
 			// todo: entities window needs to know that as well
-			Core::C_EntityEvent event(entity->GetID(), Core::C_EntityEvent::EntityEvent::Seleced);
+			Core::C_EntityEvent event(entity->GetID(), Core::C_EntityEvent::EntityEvent::Selected);
 			entity->OnEvent(event);
 		}
 	}
 }
 
 //=================================================================================
-bool C_ExplerimentWindow::OnAppEvent(Core::C_AppEvent& event)
+bool C_ExperimentWindow::OnAppEvent(Core::C_AppEvent& event)
 {
 	if (event.GetEventType() == Core::C_AppEvent::E_Type::AppInit)
 	{
@@ -655,7 +664,7 @@ bool C_ExplerimentWindow::OnAppEvent(Core::C_AppEvent& event)
 }
 
 //=================================================================================
-bool C_ExplerimentWindow::CanClose() const
+bool C_ExperimentWindow::CanClose() const
 {
 	return m_LayerStack.ReadyForDestroy();
 }

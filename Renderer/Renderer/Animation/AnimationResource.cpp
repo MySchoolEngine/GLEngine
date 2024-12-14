@@ -17,6 +17,12 @@ bool AnimationResource::Reload()
 }
 
 //=================================================================================
+std::unique_ptr<Core::I_ResourceLoader> AnimationResource::GetLoader()
+{
+	return std::make_unique<AnimationLoader>();
+}
+
+//=================================================================================
 std::shared_ptr<Core::Resource> AnimationLoader::CreateResource() const
 {
 	return std::make_shared<AnimationResource>();

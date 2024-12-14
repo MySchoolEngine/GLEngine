@@ -10,8 +10,9 @@
 namespace GLEngine::GLFWManager {
 
 //=================================================================================
-C_GLFWWindow::C_GLFWWindow()
+C_GLFWWindow::C_GLFWWindow(Core::E_Driver driver)
 	: m_Window(nullptr)
+	, m_Driver(driver)
 {
 	m_Data.m_GUID = GetGUID();
 }

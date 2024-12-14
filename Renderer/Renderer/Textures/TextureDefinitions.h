@@ -1,7 +1,9 @@
 #pragma once
 
-#include <Utils/Logging/LoggingMacros.h>
 #include <Core/CoreMacros.h>
+
+#include <Utils/BitField.h>
+#include <Utils/Logging/LoggingMacros.h>
 
 #include <array>
 
@@ -9,7 +11,7 @@ namespace GLEngine::Renderer {
 
 //=================================================================================
 // MinMag filters
-enum class E_TextureFilter : char
+enum class E_TextureFilter : std::uint8_t
 {
 	Linear,
 	Nearest,
@@ -20,21 +22,28 @@ enum class E_TextureFilter : char
 };
 
 //=================================================================================
-enum class E_TextureChannel
+enum class E_TextureChannel : std::uint8_t
 {
-	Red,
-	Green,
-	Blue,
-	Alpha,
-	None,
+	Red	  = BIT(0),
+	Green = BIT(1),
+	Blue  = BIT(2),
+	Alpha = BIT(3),
+	None  = BIT(4),
 };
 
-using T_Channels = std::array<E_TextureChannel, 4>;
+using T_Channels	 = std::array<E_TextureChannel, 4>;		  // When order of channels is needed
+using T_ChannelsBits = ::Utils::C_BitField<E_TextureChannel>; // When order independent
+} // namespace GLEngine::Renderer
+// Enable bit field for channels for ease of use
+template <> struct Utils::enable_BitField_operators<GLEngine::Renderer::E_TextureChannel> {
+	static constexpr bool enable = true;
+};
+namespace GLEngine::Renderer {
 
 //=================================================================================
 // Blending
 //=================================================================================
-enum class E_BlendFactor
+enum class E_BlendFactor : std::uint8_t
 {
 	Zero,
 	One,
@@ -47,14 +56,14 @@ enum class E_BlendFactor
 	DestinationAlpha,
 	InvDestinationAlpha,
 	AlphaConstant,	  //< glBlendColor, ID3D12GraphicsCommandList::OMSetBlendFactor
-	InvAphaConstant,  //< glBlendColor, ID3D12GraphicsCommandList::OMSetBlendFactor
+	InvAlphaConstant,  //< glBlendColor, ID3D12GraphicsCommandList::OMSetBlendFactor
 	ColorConstant,	  //< glBlendColor, ID3D12GraphicsCommandList::OMSetBlendFactor
 	InvColorConstant, //< glBlendColor, ID3D12GraphicsCommandList::OMSetBlendFactor
 };
 
 //=================================================================================
 // Source is colour written by fragment shader
-enum class E_BlendFunction
+enum class E_BlendFunction : std::uint8_t
 {
 	Add,			 //< Result = Src + Dst
 	Subtract,		 //< Result = Src - Dst
@@ -86,6 +95,11 @@ enum class E_TextureFormat
 	RGB8i,
 	RG8i,
 	R8i,
+	RGBA8isrgb, // std::uint8_t srgb
+	BGRA8isrgb,
+	RGB8isrgb,
+	RG8isrgb,
+	R8isrgb,
 
 	D24S8, // depth 24 stencil 8
 	D32f,
@@ -96,7 +110,7 @@ enum class E_TextureFormat
 };
 
 //=================================================================================
-enum class E_TextureTypes
+enum class E_TextureTypes : std::uint8_t
 {
 	IntegralNormalized, //[ 0,1]
 	Integral,
@@ -105,7 +119,7 @@ enum class E_TextureTypes
 	Floating,
 };
 
-[[nodiscard]] constexpr bool IsIntegral(E_TextureTypes e)
+[[nodiscard]] constexpr bool IsIntegral(const E_TextureTypes e)
 {
 	if (e == E_TextureTypes::Floating)
 		return false;
@@ -122,6 +136,8 @@ inline std::uint8_t GetNumberChannels(const E_TextureFormat format)
 	case E_TextureFormat::RGBA32i:
 	case E_TextureFormat::RGBA16i:
 	case E_TextureFormat::RGBA8i:
+	case E_TextureFormat::RGBA8isrgb:
+	case E_TextureFormat::BGRA8isrgb:
 		return 4;
 		break;
 	case E_TextureFormat::RGB32f:
@@ -129,6 +145,7 @@ inline std::uint8_t GetNumberChannels(const E_TextureFormat format)
 	case E_TextureFormat::RGB32i:
 	case E_TextureFormat::RGB16i:
 	case E_TextureFormat::RGB8i:
+	case E_TextureFormat::RGB8isrgb:
 		return 3;
 		break;
 	case E_TextureFormat::RG32f:
@@ -136,6 +153,7 @@ inline std::uint8_t GetNumberChannels(const E_TextureFormat format)
 	case E_TextureFormat::RG32i:
 	case E_TextureFormat::RG16i:
 	case E_TextureFormat::RG8i:
+	case E_TextureFormat::RG8isrgb:
 		return 2;
 		break;
 	case E_TextureFormat::R32f:
@@ -143,6 +161,7 @@ inline std::uint8_t GetNumberChannels(const E_TextureFormat format)
 	case E_TextureFormat::R32i:
 	case E_TextureFormat::R16i:
 	case E_TextureFormat::R8i:
+	case E_TextureFormat::R8isrgb:
 		return 1;
 		break;
 	case E_TextureFormat::D24S8:
@@ -182,6 +201,11 @@ inline constexpr bool IsDepthFormat(const Renderer::E_TextureFormat format)
 	case E_TextureFormat::R32i:
 	case E_TextureFormat::R16i:
 	case E_TextureFormat::R8i:
+	case E_TextureFormat::RGBA8isrgb:
+	case E_TextureFormat::BGRA8isrgb:
+	case E_TextureFormat::RGB8isrgb:
+	case E_TextureFormat::RG8isrgb:
+	case E_TextureFormat::R8isrgb:
 		return false;
 	case E_TextureFormat::D24S8:
 	case E_TextureFormat::D32f:
@@ -236,24 +260,30 @@ inline T_Channels GetChannels(const E_TextureFormat format)
 	case E_TextureFormat::RGBA32i:
 	case E_TextureFormat::RGBA16i:
 	case E_TextureFormat::RGBA8i:
+	case E_TextureFormat::RGBA8isrgb:
 		return {E_TextureChannel::Red, E_TextureChannel::Green, E_TextureChannel::Blue, E_TextureChannel::Alpha};
+	case E_TextureFormat::BGRA8isrgb:
+		return {E_TextureChannel::Blue, E_TextureChannel::Green, E_TextureChannel::Red, E_TextureChannel::Alpha};
 	case E_TextureFormat::RGB32f:
 	case E_TextureFormat::RG16f:
 	case E_TextureFormat::RGB32i:
 	case E_TextureFormat::RGB16i:
 	case E_TextureFormat::RGB8i:
+	case E_TextureFormat::RGB8isrgb:
 		return {E_TextureChannel::Red, E_TextureChannel::Green, E_TextureChannel::Blue, E_TextureChannel::None};
 	case E_TextureFormat::RG32f:
 	case E_TextureFormat::RGB16f:
 	case E_TextureFormat::RG32i:
 	case E_TextureFormat::RG16i:
 	case E_TextureFormat::RG8i:
+	case E_TextureFormat::RG8isrgb:
 		return {E_TextureChannel::Red, E_TextureChannel::Green, E_TextureChannel::None, E_TextureChannel::None};
 	case E_TextureFormat::R32f:
 	case E_TextureFormat::R16f:
 	case E_TextureFormat::R32i:
 	case E_TextureFormat::R16i:
 	case E_TextureFormat::R8i:
+	case E_TextureFormat::R8isrgb:
 		return {E_TextureChannel::Red, E_TextureChannel::None, E_TextureChannel::None, E_TextureChannel::None};
 	case E_TextureFormat::D24S8:
 	case E_TextureFormat::D32f:
@@ -285,7 +315,7 @@ inline T_Channels GetOrderedChannels(const std::uint8_t numChannels)
 }
 
 //=================================================================================
-inline E_TextureFormat GetClosestFormat(const T_Channels& channels, bool isFloatingPoint)
+inline E_TextureFormat GetClosestFormat(const T_Channels& channels, const bool isFloatingPoint)
 {
 	GLE_ASSERT(isFloatingPoint, "Engine doesn't support integer textures yet.");
 	const auto numChannels = GetNumberChannels(channels);
@@ -308,7 +338,7 @@ inline E_TextureFormat GetClosestFormat(const T_Channels& channels, bool isFloat
 //=================================================================================
 //=================================================================================
 //=================================================================================
-enum class E_WrapFunction
+enum class E_WrapFunction : std::uint8_t
 {
 	ClampToEdge,
 	ClampToBorder,

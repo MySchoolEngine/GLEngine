@@ -23,7 +23,7 @@ template <class ResourceType>
 requires(is_resource<ResourceType>)
 class ResourceLoader : public I_ResourceLoader {
 public:
-	virtual std::size_t GetResourceTypeID() const final { return ResourceType::GetResourceTypeHash(); }
+	virtual std::size_t GetResourceTypeID() const final { return ResourceType::GetResourceTypeHashStatic(); }
 };
 
 } // namespace GLEngine::Core

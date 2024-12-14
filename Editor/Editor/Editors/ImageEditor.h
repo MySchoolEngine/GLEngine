@@ -9,7 +9,8 @@
 
 namespace GLEngine::Renderer {
 class I_DeviceTexture;
-}
+class I_Renderer;
+} // namespace GLEngine::Renderer
 
 namespace GLEngine::Editor {
 class C_ImageEditorTool;
@@ -17,22 +18,24 @@ class C_ImageEditorTool;
 class EDITOR_API_EXPORT C_ImageEditor : public GUI::C_Window {
 public:
 	C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR);
-	~C_ImageEditor();
-	virtual void Update() override;
+	~C_ImageEditor() override;
+	void Update() override;
 
 protected:
-	virtual void DrawComponents() const override;
+	void DrawComponents() const override;
 
-	void ToggleHistogram();
+	bool ToggleHistogram();
 	void SetupToolPreview();
 
 private:
-	Renderer::C_TextureViewStorageCPU<float>   m_Storage;
-	GUI::C_ImageViewer*						   m_GUIImage; // view
-	GUI::Menu::C_Menu						   m_FileMenu;
-	GUI::Menu::C_Menu						   m_Tools;
-	std::shared_ptr<Renderer::I_DeviceTexture> m_DeviceImage; // should not be owning ptr
-	std::shared_ptr<Renderer::I_DeviceTexture> m_Background;  // should not be owning ptr
+	void CreateTextures(Renderer::I_Renderer& renderer);
+
+	Renderer::C_TextureViewStorageCPU<float> m_Storage;
+	GUI::C_ImageViewer						 m_GUIImage; // view
+	GUI::Menu::C_Menu						 m_FileMenu;
+	GUI::Menu::C_Menu						 m_Tools;
+	Renderer::Handle<Renderer::Texture>		 m_DeviceImage;
+	Renderer::Handle<Renderer::Texture>		 m_Background;
 
 
 	std::unique_ptr<C_ImageEditorTool> m_ActiveTool;

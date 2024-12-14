@@ -11,7 +11,7 @@ namespace GLEngine {
 namespace Renderer {
 class RENDERER_API_EXPORT I_RenderableComponent : public Entity::I_Component {
 public:
-	explicit I_RenderableComponent(std::shared_ptr<Entity::I_Entity> owner)
+	explicit I_RenderableComponent(const std::shared_ptr<Entity::I_Entity>& owner)
 		: Entity::I_Component(owner)
 	{
 	}

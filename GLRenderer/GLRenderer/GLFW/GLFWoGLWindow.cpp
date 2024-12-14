@@ -11,7 +11,8 @@ namespace GLEngine::GLRenderer::GLFW {
 
 //=================================================================================
 C_GLFWoGLWindow::C_GLFWoGLWindow(const Core::S_WindowInfo& wndInfo)
-	: m_renderer(nullptr)
+	: GLFWManager::C_GLFWWindow(Core::E_Driver::OpenGL)
+	, m_renderer(nullptr)
 {
 	Init(wndInfo);
 }

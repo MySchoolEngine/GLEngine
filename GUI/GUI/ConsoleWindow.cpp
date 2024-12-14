@@ -1,7 +1,6 @@
 #include <GUIStdafx.h>
 
 #include <GUI/ConsoleWindow.h>
-#include <GUI/GUIPart.h>
 
 #include <GUI/ReflectionGUI.h>
 
@@ -73,7 +72,7 @@ namespace GLEngine::GUI
 std::array<ImVec4, 4> C_ConsoleWindow::s_LevelColors = { ImVec4(1, 0, 0, 1), ImVec4(1, 0.8f, 0, 1), ImVec4(1, 1, 1, 1), ImVec4(0.7f, 0.7f, 0.7f, 1.0) };
 
 //=================================================================================
-C_ConsoleWindow::C_ConsoleWindow(GUID guid)
+C_ConsoleWindow::C_ConsoleWindow(const GUID guid)
 	: C_Window(guid, "Console")
 	, m_LastLogIndex(m_Logs.size() - 1)
 	, m_Level(Utils::Logging::E_Level::Info)
@@ -84,20 +83,19 @@ C_ConsoleWindow::C_ConsoleWindow(GUID guid)
 //=================================================================================
 C_ConsoleWindow::~C_ConsoleWindow()
 {
-
 	Utils::Logging::C_LoggingSystem::Instance().RemoveLogger(this);
 }
 
 //=================================================================================
-void C_ConsoleWindow::Log(Utils::Logging::E_Level level, Utils::Logging::E_Context context, int line, const char* file, const std::string& text)
+void C_ConsoleWindow::Log(const Utils::Logging::E_Level level, const Utils::Logging::E_Context context, const int line, const char* file, const std::string& text)
 {
 	m_LastLogIndex++;
 	m_LastLogIndex %= m_Logs.size();
-	m_Logs[m_LastLogIndex] = Utils::Logging::S_Data{ text, file, line, level, context };
+	m_Logs[m_LastLogIndex] = Utils::Logging::S_Data{.m_Text = text, .m_File = file, .m_Line = line, .m_Level = level, .m_Context = context};
 }
 
 //=================================================================================
-void C_ConsoleWindow::Draw() const
+bool C_ConsoleWindow::Draw(C_GUIManager& guiMgr) const
 {
 	::ImGui::Begin(m_Name.c_str(), &m_IsVisible);
 	rttr::instance obj(*this);
@@ -145,6 +143,7 @@ void C_ConsoleWindow::Draw() const
 	std::size_t i = ((m_LastLogIndex + 1) % m_Logs.size());
 	do
 	{
+		i		   = i % m_Logs.size();
 		auto& data = m_Logs[i];
 
 		if (!data.m_Text.empty() && filter->Filter(data))
@@ -162,11 +161,12 @@ void C_ConsoleWindow::Draw() const
 			}
 
 		}
-		i = ((i + 1) % m_Logs.size());
+		i = i + 1;
 	} while (i != m_LastLogIndex + 1);
 	::ImGui::SetScrollHereY(1.0f);
 	::ImGui::EndChild();
 	::ImGui::End();
+	return false;
 }
 
 } // namespace GLEngine::GUI

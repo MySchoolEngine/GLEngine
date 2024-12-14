@@ -87,7 +87,7 @@ private:
 	std::filesystem::file_time_type GetLastUpdate() const;
 #endif
 	GLuint						 m_Program;
-	std::map<std::size_t, GLint> m_uniformMap;
+	std::map<std::size_t, GLint> m_UniformMap;
 	bool						 m_bIsActive : 1;
 
 

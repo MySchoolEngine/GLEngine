@@ -1,0 +1,40 @@
+Report
+Advanced Machine Learning for Rendering
+
+SkyGAN - Tobias Rittig
+https://cgg.mff.cuni.cz/publications/skygan-towards-realistic-cloud-imagery-for-image-based-lighting/
+
+Fluidymation: Stylizing Animations Using Natural Dynamics of Artistic Media
+https://dcgi.fel.cvut.cz/home/sykorad/fluidymation.html
+
+Day 2
+Lukáš Gajdošech: Evolution of Fusion on High-Quality 3D Data
+
+
+Ivo Ihrke
+From Computational Photography to Computational Imaging: A Personal Journey
+- 
+
+Tomáš Iser: Affordable Spectral Measurements of Translucent Materials
+https://cgg.mff.cuni.cz/publications/affordable-spectral-measurements-of-translucent-materials/
+Very interesting approach how to measure the spectral properties of the material. They developed a simple tool to measure the properties of materials using diffuse lights, LED diode, spectrometer and 3D printed tool. The tool has three slots. The first slot has a black background, the second with white background and the third is hollow to shine a collimated beam of light from the back. This way you can measure scattering and absorption using black and white backgrounds and using the backlight you can estimate phase function.
+This can be simply done for completely smooth surfaces, but the roughness of the material would affect the measurement. To avoid this they proposed to immerse the material in the oil and sandwich it between two microscope slides.
+
+Jan Čejka: Supporting HDR Displays in Practice
+
+Jan Byška: Interactive Exploration of Long Molecular Dynamic Simulations
+This presentation shows approaches to UX improvements of complex scientific tools. Their tool is designed to show very long molecular simulations. The usual use case of such a tool is to visualise the result of some simulation to allow scientists to explore interesting parts of the simulation (creation of new molecule, separation of cloned molecule etc.). Such simulation could be lengthy and chaotic and the user usually wants to simulate numerous setups and then choose one that is most interesting. Improvement could lead to faster iteration time in the research. 
+They have chosen to allow users to compose functions, that define fitness functions and showed a graph of it. Then, they used this function to lead the user's attention to the most interesting events by:
+1) Changing the time scale of the replay
+2) Changing the scale of POI
+3) Changing the visualization style (with low success as scientists are used to some representations)
+The interesting part is that some motion blur could help users to get a grasp of general trends in a chaotic environment. But what I found most useful for us, is that this approach is not so different from what we are trying to achieve in the animation editor. We already have channels that can help our animators to spot problems in the assets. Maybe changing the time scale of the replay in offline replays when some chaotic movement of bones happens could help as well. But realistically our animations are usually too short to see some improvement.
+
+Andrii Yermakov: Audio-Based Vehicle Recognition
+https://dspace.cvut.cz/bitstream/handle/10467/101446/F3-DP-2022-Yermakov-Andrii-audio_based_vehicle_recognition.pdf?sequence=-1
+This presentation focused on counting car pass bys using only a microphone instead of visual recognition. The approach they choose is by training a neural network to recognize types of vehicles (lorry vs passenger car) according to their signature sound. Even thou they achieved acceptable precision I found this approach way too clunky.
+They converted the audio signal to a spectrogram and then used a natural network trained for visual data to classify those images. One of interesting improvements was usage of backloop on the final device, where they used results of the neural network from the device to strengthen learned knowlage. This is given by fact that generally trained network on data set from different recording devices is less accurate than one trained on data from installed audio recording device.
+
+Oskar Elek: Monte Carlo Physarum Machine: Using an Interactive Simulation and Visualization of 3D Slime Mold for Mapping the Cosmic Web
+https://arxiv.org/ftp/arxiv/papers/2204/2204.01256.pdf
+

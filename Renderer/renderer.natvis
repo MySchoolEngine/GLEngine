@@ -10,13 +10,17 @@
   </Type>
 
   <Type Name="GLEngine::Renderer::MeshResource">
-    <DisplayString>Mesh: {m_Filepath._Text}, {m_State}</DisplayString>
+    <DisplayString>Mesh: {m_Filepath._Text}, {m_State,en}</DisplayString>
     <Expand>
       <Item Name="[Filepath]">m_Filepath._Text</Item>
       <Item Name="[Scene]">*m_Scene._Ptr</Item>
       <Item Name="[Texture names]">m_TexuterNames</Item>
-      <Item Name="[State]">m_State</Item>
+      <Item Name="[State]">m_State,en</Item>
     </Expand>
+  </Type>
+
+  <Type Name="GLEngine::Renderer::Handle&lt;*&gt;">
+    <DisplayString Condition="m_index.raw == 0">null</DisplayString>
   </Type>
 
   <Type Name="GLEngine::Renderer::C_Trimesh">
@@ -26,11 +30,11 @@
   </Type>
 
   <Type Name="GLEngine::Renderer::TextureResource">
-    <DisplayString>Texture: {m_Filepath._Text}, {m_State}</DisplayString>
+    <DisplayString>Texture: {m_Filepath._Text}, {m_State,en}</DisplayString>
     <Expand>
       <Item Name="[Filepath]">m_Filepath._Text</Item>
       <Item Name="[Texture]">*m_TextureStorage</Item>
-      <Item Name="[State]">m_State</Item>
+      <Item Name="[State]">m_State,en</Item>
     </Expand>
   </Type>
 

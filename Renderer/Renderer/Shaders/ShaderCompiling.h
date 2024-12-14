@@ -14,22 +14,33 @@ public:
 	using T_StageHandle = StageHandle;
 	using T_Paths		= std::vector<std::filesystem::path>;
 
+	ShaderCompilerTrait(const std::ios_base::openmode additionalOpenMode = {})
+		: m_AdditionalOpenMode(additionalOpenMode)
+	{}
+
 	virtual ~ShaderCompilerTrait() = default;
 
 	// Compiles a single shader from a file
 	// errorLog - reference to a string, where error message will be stored, in
 	// case the compilation fails
-	bool compileShaderStage(T_StageHandle& stage, const std::filesystem::path& filepath, const Renderer::E_ShaderStage shaderStage);
+	bool		 compileShaderStage(T_StageHandle& stage, const std::filesystem::path& filepath, const Renderer::E_ShaderStage shaderStage);
+	virtual void ReleaseStage(T_StageHandle& stage) = 0;
 
 	T_Paths GetTouchedFiles() const;
 
 	virtual void Reset();
 
 protected:
-	bool		 _loadFile(const std::filesystem::path& file, std::string& content);
-	virtual bool compileShaderStageInternal(T_StageHandle& stage, const std::filesystem::path& filepath, const Renderer::E_ShaderStage shaderStage, std::string& content) = 0;
+	bool		 _loadFile(const std::filesystem::path& file, std::vector<char>& content);
+	virtual bool compileShaderStageInternal(T_StageHandle&				  stage,
+											const std::filesystem::path&  filepath,
+											const Renderer::E_ShaderStage shaderStage,
+											std::vector<char>&			  content,
+											const std::string&			  entryPoint)
+		= 0;
 
-	T_Paths m_TouchedFiles;
+	T_Paths					m_TouchedFiles;
+	std::ios_base::openmode m_AdditionalOpenMode;
 };
 
 //=================================================================================
@@ -96,6 +107,7 @@ private:
 		{
 			CORE_LOG(E_Level::Error, E_Context::Render, "--Compilation error");
 			CORE_LOG(E_Level::Error, E_Context::Render, "{}", filename);
+			m_Compiler.ReleaseStage(shader);
 			return false;
 		}
 		stagePair = {stage, shader};
@@ -134,7 +146,7 @@ private:
 };
 
 //=================================================================================
-template <class StageHandle> const std::filesystem::path C_ShaderLoader<StageHandle>::s_ShadersFolder = "shaders/";
+template <class StageHandle> const std::filesystem::path C_ShaderLoader<StageHandle>::s_ShadersFolder = "Shaders/";
 
 //=================================================================================
 // ShaderCompilerTrait
@@ -142,7 +154,7 @@ template <class StageHandle> const std::filesystem::path C_ShaderLoader<StageHan
 template <class StageHandle>
 bool ShaderCompilerTrait<StageHandle>::compileShaderStage(T_StageHandle& stage, const std::filesystem::path& filepath, const Renderer::E_ShaderStage shaderStage)
 {
-	std::string src;
+	std::vector<char> src;
 	if (!_loadFile(filepath, src))
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Failed to open shader file: {}", filepath.generic_string());
@@ -150,7 +162,7 @@ bool ShaderCompilerTrait<StageHandle>::compileShaderStage(T_StageHandle& stage, 
 	}
 	m_TouchedFiles.emplace_back(filepath);
 
-	return compileShaderStageInternal(stage, filepath, shaderStage, src);
+	return compileShaderStageInternal(stage, filepath, shaderStage, src, "main");
 }
 
 //=================================================================================
@@ -166,15 +178,19 @@ template <class StageHandle> typename ShaderCompilerTrait<StageHandle>::T_Paths 
 }
 
 //=================================================================================
-template <class StageHandle> bool ShaderCompilerTrait<StageHandle>::_loadFile(const std::filesystem::path& file, std::string& content)
+template <class StageHandle> bool ShaderCompilerTrait<StageHandle>::_loadFile(const std::filesystem::path& file, std::vector<char>& content)
 {
-	std::ifstream stream(file);
+	std::ifstream stream(file, std::ios::ate | m_AdditionalOpenMode); // this one needs to be tested with vulkan implementation
 
 	if (stream.fail())
 		return false;
 
-	content = std::string(std::istream_iterator<char>(stream >> std::noskipws), std::istream_iterator<char>());
-	stream.close(); // dr
+	const std::size_t fileSize = (size_t)stream.tellg();
+	content.resize(fileSize);
+	stream.seekg(0);
+	stream.read(content.data(), fileSize);
+
+	stream.close();
 	return true;
 }
 

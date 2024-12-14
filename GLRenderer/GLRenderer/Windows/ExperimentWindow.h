@@ -5,15 +5,15 @@
 #include <GLRenderer/GLFW/GLFWoGLWindow.h>
 #include <GLRenderer/MainPassTechnique.h>
 #include <GLRenderer/ShadowMapPass.h>
-#include <GLRenderer/Textures/Texture.h>
 
-#include <Renderer/Mesh/Curve.h>
+#include <Renderer/Renderer3D.h>
+
+#include <Editor/EditorLayer.h>
 
 #include <GUI/GUIWindow.h>
 #include <GUI/Input/CheckBoxValue.h>
 #include <GUI/Input/Slider.h>
 #include <GUI/Menu/Menu.h>
-#include <GUI/Menu/MenuItem.h>
 #include <GUI/PlotLine.h>
 #include <GUI/Text.h>
 
@@ -23,30 +23,30 @@
 
 #include <Utils/HighResolutionTimer.h>
 
-#include <Editor/EditorLayer.h>
-
 namespace GLEngine::Core {
 class C_AppEvent;
 class C_WindowResizedEvent;
 } // namespace GLEngine::Core
 namespace GLEngine::Renderer {
 class I_CameraComponent;
-}
+class C_StaticMeshHandles;
+class C_RayTraceWindow;
+} // namespace GLEngine::Renderer
 
 namespace GLEngine::GLRenderer {
 class C_GLImGUILayer;
-class C_RayTraceWindow;
 class C_Framebuffer;
 class C_SunShadowMapTechnique;
 class C_RenderInterface;
+class C_GLRenderInterface;
 
 namespace Windows {
-class C_ExplerimentWindow : public GLFW::C_GLFWoGLWindow {
+class C_ExperimentWindow : public GLFW::C_GLFWoGLWindow {
 	using T_Base = GLFW::C_GLFWoGLWindow;
 
 public:
-	explicit C_ExplerimentWindow(const Core::S_WindowInfo& wndInfo);
-	virtual ~C_ExplerimentWindow();
+	explicit C_ExperimentWindow(const Core::S_WindowInfo& wndInfo);
+	virtual ~C_ExperimentWindow();
 	//=================================================================================
 	virtual void Update() override;
 
@@ -61,24 +61,24 @@ protected:
 private:
 	void SetupWorld(const std::filesystem::path& level);
 	void SaveLevel(const std::filesystem::path& filename);
-	void SaveLevelAs();
+	bool SaveLevelAs();
 	void AddMandatoryWorldParts();
 	void OnAppInit();
 	void MouseSelect();
 
-	void sampleTime(double new_sample);
+	void SampleTime(double newSample);
 
 	std::shared_ptr<Entity::C_EntityManager> m_World;
 	std::weak_ptr<Entity::I_Entity>			 m_Player;
 	Core::C_LayerStack						 m_LayerStack;
 	Temporar::C_CameraManager				 m_CamManager;
 	C_GLImGUILayer*							 m_ImGUI;
-	::Utils::HighResolutionTimer				 m_FrameTimer;
+	::Utils::HighResolutionTimer			 m_FrameTimer;
 
 	//===========================
 	// GUI
 	//===========================
-	enum class E_GUITexts
+	enum class E_GUITexts : std::uint8_t
 	{
 		AvgFrametime,
 		AvgFps,
@@ -94,6 +94,7 @@ private:
 	GUID																m_ConsoleWindowGUID;
 	GUID																m_RayTraceGUID;
 	GUID																m_ImageEditorGUID;
+	GUID																m_EntityEditorGUID;
 	GUID																m_EntitiesWindowGUID;
 	GUID																m_HDRSettingsGUID;
 	GUI::Menu::C_Menu													m_Windows;
@@ -102,11 +103,14 @@ private:
 	std::shared_ptr<C_ShadowMapTechnique>	 m_ShadowPass;
 	std::shared_ptr<C_SunShadowMapTechnique> m_SunShadow;
 
-	std::unique_ptr<C_Framebuffer>	   m_HDRFBO;
-	std::unique_ptr<C_Framebuffer>	   m_HDRFBOAtmosphere;
-	std::unique_ptr<C_RenderInterface> m_RenderInterface;
+	std::unique_ptr<C_Framebuffer>		 m_HDRFBO;
+	std::unique_ptr<C_Framebuffer>		 m_HDRFBOAtmosphere;
+	std::unique_ptr<C_RenderInterface>	 m_RenderInterface;
+	std::unique_ptr<C_GLRenderInterface> m_RenderInterfaceHandles;
 
 	Editor::C_EditorLayer m_EditorLayer;
+
+	Renderer::Renderer3D m_3DRenderer;
 };
 
 } // namespace Windows

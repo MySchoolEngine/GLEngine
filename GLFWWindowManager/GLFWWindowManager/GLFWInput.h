@@ -38,6 +38,6 @@ protected:
 	std::array<GLFWcursor*, static_cast<std::size_t>(E_MouseCursor::Count)> m_MouseCursors;
 };
 
-[[nodiscard]] Utils::C_BitField<Core::E_KeyModifiers> TranslateGLFWModifiers(int mods);
+[[nodiscard]] ::Utils::C_BitField<Core::E_KeyModifiers> TranslateGLFWModifiers(int mods);
 
 } // namespace GLEngine::GLFWManager
