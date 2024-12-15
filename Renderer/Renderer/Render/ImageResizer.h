@@ -8,6 +8,6 @@ class RENDERER_API_EXPORT C_ImageResizer {
 public:
 
 	static void SincDownsampling(const C_TextureView& source, C_TextureView& result);
-	static void BilinearDownsampling(const C_TextureView& source, C_TextureView& result);
+	static void BilinearDownsampling(const C_TextureView& source, C_TextureView& result, bool bKeepRatio);
 };
 } // namespace GLEngine::Renderer
