@@ -26,8 +26,6 @@ bool C_ImageViewer::Draw() const
 	if (m_texture.IsValid() == false)
 		return false;
 	// drawing area
-	const auto io = ImGui::GetIO();
-	m_Zoom		  = std::clamp(m_Zoom + io.MouseWheel / 10.f, 1.f, 10.f);
 
 	const ImVec2 drawAreaSz(m_Size.x, m_Size.y);
 	const ImVec2 canvas_p0 = ImGui::GetCursorPos();
@@ -39,6 +37,9 @@ bool C_ImageViewer::Draw() const
 	ImRect zoomArea({0, 0}, {1, 1});
 	if (isHovered)
 	{
+		const auto io = ImGui::GetIO();
+		m_Zoom = std::clamp(m_Zoom + io.MouseWheel / 10.f, 1.f, 10.f);
+		::ImGui::SetItemKeyOwner(ImGuiKey_MouseWheelY);
 		// mouse pos is defined in screen space
 		const auto mousePos = ImGui::GetMousePos() - ImGui::GetCursorScreenPos();
 		ImVec2	   mouseUV(mousePos.x / drawAreaSz.x, mousePos.y / drawAreaSz.y);
@@ -71,7 +72,7 @@ bool C_ImageViewer::Draw() const
 		const ImVec2	minimapDrawAreaSz(width, height);
 		ImGui::SetCursorPos(canvas_p0 + ImVec2(drawAreaSz.x - offsetFromCorner - minimapDrawAreaSz.x, offsetFromCorner));
 		const ImVec2 screenSpacePos = ImGui::GetCursorScreenPos();
-		ImGui::Image((void*)(intptr_t)(m_GUIHandle), minimapDrawAreaSz);
+		ImGui::Image((void*)(intptr_t)(m_GUIHandle), minimapDrawAreaSz, {0, 0}, {1, 1}, {1, 1, 1, 1}, {1, 0, 0, 1});
 
 		// rect
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
