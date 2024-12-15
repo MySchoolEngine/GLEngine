@@ -14,7 +14,6 @@ protected:
 		: storage(3, 3, 3)
 		, view(&storage)
 	{}
-	auto GetPixelCoord(const glm::vec2& uv) const { return view.GetPixelCoord(uv); }
 	auto	  GetPixelCoord(const glm::vec2& uv) const { return view.GetPixelCoord(uv); }
 	bool	  IsOutsideBorders(const glm::uvec2& uv) const { return view.IsOutsideBorders(uv); }
 	glm::vec3 GetVec3(const glm::vec2& uv) const { return view.Get<glm::vec3, T_Bilinear>(uv); }
