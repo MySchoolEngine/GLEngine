@@ -263,7 +263,6 @@ void C_RayTraceWindow::Update()
 //=================================================================================
 void C_RayTraceWindow::DrawComponents() const
 {
-	const auto dim = m_ImageStorage.GetDimensions();
 	m_GUIImage.Draw();
 	ImGui::SameLine();
 	m_GUIHeatMapImage.Draw();
