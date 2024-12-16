@@ -91,4 +91,7 @@ function SetupProject(projectName)
 	{
 		"BUILD_"..string.upper(tostring(projectName)).."_DLL",
 	}
+	filter "action:gmake*"
+		disablewarnings "unknown-pragmas"
+	filter {}
 end

@@ -11,9 +11,9 @@ C_TextureView::C_TextureView(I_TextureViewStorage* storage)
 	: m_Storage(storage)
 	, m_BorderColor(1, 0, 1, 0)
 	, m_WrapFunction(E_WrapFunction::Repeat)
+	, m_Rect(0, 0, storage ? storage->GetDimensions().x : 0, storage ? storage->GetDimensions().y : 0)
 	, m_EnableBlending(false)
-	, m_BlendOperation(E_BlendFunction::Add)
-	, m_Rect(0, 0, storage?storage->GetDimensions().x:0, storage?storage->GetDimensions().y:0) // todo check if correct
+	, m_BlendOperation(E_BlendFunction::Add) // todo check if correct
 {
 }
 
@@ -22,6 +22,15 @@ void C_TextureView::FillLineSpan(const Colours::T_Colour& colour, unsigned int l
 {
 	if (line > 0 && line < m_Storage->GetDimensions().y - 1)
 		m_Storage->FillLineSpan(colour, line, std::max(start, 0u), std::min(end, m_Storage->GetDimensions().x - 1));
+}
+
+//=================================================================================
+glm::vec2 C_TextureView::GetUVForPixel(const glm::uvec2& coord) const
+{
+	const auto onePixel = glm::vec2{1.f, 1.f} / glm::vec2{GetDimensions()};
+	float	   u		= coord.x * onePixel.x;
+	float	   v		= 1.f - (coord.y * onePixel.y);
+	return glm::vec2{u, v} + glm::vec2{onePixel.x * 0.5f, -onePixel.y * 0.5f};
 }
 
 //=================================================================================
@@ -104,8 +113,8 @@ bool C_TextureView::UseBorderColor() const
 //=================================================================================
 glm::uvec2 C_TextureView::ClampCoordinates(const glm::ivec2& uv) const
 {
-	const glm::ivec2 dim  = m_Rect.GetSize();
-	glm::ivec2 result = uv;
+	const glm::ivec2 dim	= m_Rect.GetSize();
+	glm::ivec2		 result = uv;
 	switch (m_WrapFunction)
 	{
 	case E_WrapFunction::ClampToEdge:
@@ -136,7 +145,7 @@ glm::uvec2 C_TextureView::ClampCoordinates(const glm::ivec2& uv) const
 			result.y = dim.y - result.y;
 		}
 	}
-	break;	
+	break;
 	case E_WrapFunction::ClampToBorder:
 	default:
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unsupported");

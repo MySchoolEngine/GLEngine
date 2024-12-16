@@ -14,8 +14,8 @@ protected:
 		: storage(3, 3, 3)
 		, view(&storage)
 	{}
-	auto GetPixelCoord(const glm::vec2& uv) const { return view.GetPixelCoord(uv); }
-	bool IsOutsideBorders(const glm::uvec2& uv) const { return view.IsOutsideBorders(uv); }
+	auto	  GetPixelCoord(const glm::vec2& uv) const { return view.GetPixelCoord(uv); }
+	bool	  IsOutsideBorders(const glm::uvec2& uv) const { return view.IsOutsideBorders(uv); }
 	glm::vec3 GetVec3(const glm::vec2& uv) const { return view.Get<glm::vec3, T_Bilinear>(uv); }
 
 	C_TextureViewStorageCPU<std::uint8_t> storage;
@@ -32,9 +32,9 @@ TEST_F(TextureViewFixture, Border)
 	constexpr glm::vec2 bottomLeft(0, 0);
 	constexpr glm::vec2 topRight(1, 1);
 	constexpr glm::vec2 outside(1.1, 1);
-	const auto		sampleBottomLeft = view.Get<std::uint8_t, T_Nearest>(bottomLeft, E_TextureChannel::Red);
-	const auto		sampleTopRight	 = view.Get<std::uint8_t, T_Nearest>(topRight, E_TextureChannel::Red);
-	const auto		sampleOutside	 = view.Get<std::uint8_t, T_Nearest>(outside, E_TextureChannel::Red);
+	const auto			sampleBottomLeft = view.Get<std::uint8_t, T_Nearest>(bottomLeft, E_TextureChannel::Red);
+	const auto			sampleTopRight	 = view.Get<std::uint8_t, T_Nearest>(topRight, E_TextureChannel::Red);
+	const auto			sampleOutside	 = view.Get<std::uint8_t, T_Nearest>(outside, E_TextureChannel::Red);
 	EXPECT_EQ(sampleBottomLeft, 1);
 	EXPECT_EQ(sampleTopRight, 1);
 	EXPECT_EQ(sampleOutside, 0);
@@ -42,11 +42,11 @@ TEST_F(TextureViewFixture, Border)
 
 TEST_F(TextureViewFixture, IsOutsideBorders)
 {
-	EXPECT_EQ(IsOutsideBorders({0, 0}),		false);
-	EXPECT_EQ(IsOutsideBorders({1, 1}),		false);
-	EXPECT_EQ(IsOutsideBorders({2, 2}),		false);
-	EXPECT_EQ(IsOutsideBorders({-1, 1}),	true);
-	EXPECT_EQ(IsOutsideBorders({5, 0}),		true);
+	EXPECT_EQ(IsOutsideBorders({0, 0}), false);
+	EXPECT_EQ(IsOutsideBorders({1, 1}), false);
+	EXPECT_EQ(IsOutsideBorders({2, 2}), false);
+	EXPECT_EQ(IsOutsideBorders({-1, 1}), true);
+	EXPECT_EQ(IsOutsideBorders({5, 0}), true);
 }
 
 TEST_F(TextureViewFixture, UseBorderColor)
@@ -60,7 +60,6 @@ TEST_F(TextureViewFixture, UseBorderColor)
 	view.SetWrapFunction(E_WrapFunction::Repeat);
 	EXPECT_EQ(view.UseBorderColor(), false);
 }
-
 TEST_F(TextureViewFixture, GetPixelCoord)
 {
 	// keep in mind orientation described in C_TextureView::GetPixelCoord
@@ -79,5 +78,12 @@ TEST_F(TextureViewFixture, Get_ChannelsCorrectness)
 	EXPECT_EQ(GetVec3({0.f, 1.f}), Colours::white);
 	EXPECT_EQ(GetVec3({1.f, 0.f}), Colours::white);
 	EXPECT_EQ(GetVec3({1.f, 1.f}), Colours::white);
+}
+TEST_F(TextureViewFixture, GetUVForPixel)
+{
+	EXPECT_PRED_FORMAT2(AssertVec2AlmostEq<float>, view.GetUVForPixel({0, 0}), glm::vec2(1.f / 6.f, 1.f - (1.f / 6.f)));
+	EXPECT_PRED_FORMAT2(AssertVec2AlmostEq<float>, view.GetUVForPixel({0, 2}), glm::vec2(1.f / 6.f, 1.f / 6.f));
+	EXPECT_PRED_FORMAT2(AssertVec2AlmostEq<float>, view.GetUVForPixel({2, 0}), glm::vec2(1.f - (1.f / 6.f), 1.f - (1.f / 6.f)));
+	EXPECT_PRED_FORMAT2(AssertVec2AlmostEq<float>, view.GetUVForPixel({2, 2}), glm::vec2(1.f - (1.f / 6.f), 1.f / 6.f));
 }
 } // namespace GLEngine::Renderer
