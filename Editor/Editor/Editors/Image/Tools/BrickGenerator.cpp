@@ -32,7 +32,7 @@ RTTR_REGISTRATION
 			RegisterMetamember<UI::SliderInt::Name>("Brick offset:"),
 			RegisterMetamember<UI::SliderInt::Min>(1),
 			RegisterMetamember<UI::SliderInt::Max>(100))
-#pragma region Randomness
+//#pragma region Randomness
 		.property("RowHeightDeviation", &C_BrickGenerator::m_RowHeightDeviation)(
 			rttr::policy::prop::bind_as_ptr,
 			RegisterMetaclass<MetaGUI::SliderInt>(),
@@ -61,7 +61,7 @@ RTTR_REGISTRATION
 			RegisterMetamember<UI::SliderInt::Name>("Mortar height deviation:"),
 			RegisterMetamember<UI::SliderInt::Min>(1),
 			RegisterMetamember<UI::SliderInt::Max>(100))
-#pragma endregion
+//#pragma endregion
 		.property("MortarThickness", &C_BrickGenerator::m_MortarThickness)(
 			rttr::policy::prop::bind_as_ptr,
 			RegisterMetaclass<MetaGUI::SliderInt>(),
