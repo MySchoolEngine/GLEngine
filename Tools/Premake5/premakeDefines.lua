@@ -93,4 +93,5 @@ function SetupProject(projectName)
 	}
 	filter "action:gmake*"
 		disablewarnings "unknown-pragmas"
+	filter {}
 end
