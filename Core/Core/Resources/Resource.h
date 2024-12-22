@@ -98,8 +98,8 @@ class Resource;
 
 template <typename T> concept IsBeDerivedResource = requires(T t)
 {
-	std::derived_from<T, Resource>;
-	std::derived_from<typename T::T_BaseResource, Resource>;
+	requires std::derived_from<T, Resource>;
+	requires std::derived_from<typename T::T_BaseResource, Resource>;
 	{
 		t.IsDerived()
 	} -> std::convertible_to<bool>; // defined as static function
@@ -114,7 +114,7 @@ template <class T, class TBaseRes> concept IsBuildableResource = requires(T t, T
 
 template <typename T> concept BuildableResource = requires(T t)
 {
-	IsBeDerivedResource<T>&& IsBuildableResource<T, typename T::T_BaseResource>;
+	requires IsBeDerivedResource<T>&& IsBuildableResource<T, typename T::T_BaseResource>;
 };
 
 class I_ResourceLoader;

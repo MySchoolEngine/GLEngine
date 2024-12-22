@@ -17,9 +17,7 @@ public:
 							 guid,
 							 GetResourceDataPath())
 		, m_Resource(resource)
-	{
-		// little static assert
-	}
+	{}
 
 private:
 	static std::string GetResourcePaths()
@@ -37,7 +35,7 @@ private:
 	{
 		if constexpr (requires { requires ResourceType::GetResourceDataPath() != ""; })
 		{
-			const auto resourceType				 = rttr::type::get<ResourceType>();
+			const auto resourceType = rttr::type::get<ResourceType>();
 			if (auto getResourceDataPathMethod = resourceType.get_method("GetResourceDataPath"))
 			{
 				return getResourceDataPathMethod.invoke({}).template get_value<std::string_view>();
