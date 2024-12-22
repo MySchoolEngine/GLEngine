@@ -1,12 +1,13 @@
 #include <GUIStdafx.h>
 
 #include <GUI/FileDialogWindow.h>
-#include <GUI/ResourceDialogWindow.h>
 #include <GUI/GUIManager.h>
 #include <GUI/GUIUtils.h>
 #include <GUI/ReflectionGUI.h>
+#include <GUI/ResourceDialogWindow.h>
 
 #include <Renderer/IRenderer.h>
+#include <Renderer/Mesh/Loading/MeshResource.h>
 #include <Renderer/Textures/TextureManager.h>
 #include <Renderer/Textures/TextureResource.h>
 
@@ -158,15 +159,16 @@ bool DrawColour(rttr::instance& obj, const rttr::property& prop)
 }
 
 //=================================================================================
-bool DrawTextureResource(rttr::instance& obj, const rttr::property& prop)
+template<Core::is_resource resourceType, class MetaClassEnum>
+bool DrawResource(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	static constexpr std::size_t maxStringLen = 30; // found out by experiment
+	static constexpr std::size_t s_MaxStringLen = 30; // found out by experiment
 
 	std::reference_wrapper resource
-		= const_cast<Core::ResourceHandle<Renderer::TextureResource>&>(prop.get_value(obj).get_wrapped_value<Core::ResourceHandle<Renderer::TextureResource>>());
-	const auto	   propertyName = GetMetadataMember<UI::Texture::Name>(prop);
+		= const_cast<Core::ResourceHandle<resourceType>&>(prop.get_value(obj).get_wrapped_value<Core::ResourceHandle<resourceType>>());
+	const auto	   propertyName = GetMetadataMember<MetaClassEnum::Name>(prop);
 	bool		   ret			= false;
 	const ImVec2   drawAreaSz(std::min(380.f, ImGui::GetWindowWidth()), 88);
 	const ImVec2   canvasP0 = ImGui::GetCursorPos();
@@ -185,22 +187,25 @@ bool DrawTextureResource(rttr::instance& obj, const rttr::property& prop)
 
 		ImGui::SetCursorPos(ImVec2{2, 2});
 		{
-			const ImVec2& previewSize{drawAreaSz.y - 4, drawAreaSz.y - 4};
+			const ImVec2 previewSize{drawAreaSz.y - 4, drawAreaSz.y - 4};
 			ImGui::BeginChildFrame(ImGuiID{static_cast<unsigned int>(std::hash<std::string>{}(propertyName + filename + "_preview"))}, previewSize);
-			if (resource.get())
+			if constexpr (std::is_same_v<resourceType, Renderer::TextureResource>)
 			{
-				auto& tMGR			 = Core::C_Application::Get().GetActiveRenderer().GetTextureManager();
-				auto  rendererHandle = tMGR.GetOrCreateTexture(resource);
-				auto* GUIHandle		 = Core::C_Application::Get().GetActiveRenderer().GetTextureGUIHandle(rendererHandle);
-				ImGui::Image((void*)(intptr_t)(GUIHandle), previewSize);
+				if (resource.get())
+				{
+					auto& tMGR = Core::C_Application::Get().GetActiveRenderer().GetTextureManager();
+					auto  rendererHandle = tMGR.GetOrCreateTexture(resource);
+					auto* GUIHandle = Core::C_Application::Get().GetActiveRenderer().GetTextureGUIHandle(rendererHandle);
+					ImGui::Image((void*)(intptr_t)(GUIHandle), previewSize);
+				}
 			}
 			ImGui::EndChildFrame();
 		}
 		ImGui::SetCursorPos(ImVec2{drawAreaSz.y + 2, 6});
 		ImGui::TextUnformatted(propertyName.c_str());
-		if (filename.size() > maxStringLen && filename.empty() == false)
+		if (filename.size() > s_MaxStringLen && filename.empty() == false)
 		{
-			filename.erase(0, filename.size() - maxStringLen + 3);
+			filename.erase(0, filename.size() - s_MaxStringLen + 3);
 			filename = std::string("...") + filename;
 		}
 		else
@@ -209,7 +214,16 @@ bool DrawTextureResource(rttr::instance& obj, const rttr::property& prop)
 		}
 		ImGui::SetCursorPos(ImVec2{drawAreaSz.y + 2, 30});
 		ImGui::TextUnformatted(filename.c_str());
-		const std::string loadImageText{"Load image"};
+		std::string loadImageText;
+		if constexpr (std::is_same_v<resourceType, Renderer::TextureResource>)
+		{
+			loadImageText = "Load image";
+		}
+		else if constexpr (std::is_same_v<resourceType, Renderer::MeshResource>)
+		{
+			loadImageText = "Load model";
+		}
+
 		const ImGuiStyle& style			 = GImGui->Style;
 		const auto		  buttonTextSize = ImGui::CalcTextSize(loadImageText.c_str(), nullptr, true);
 		const auto		  buttonSize	 = ImVec2(buttonTextSize.x + style.FramePadding.x * 2.0f, buttonTextSize.y + style.FramePadding.y * 2.0f);
@@ -328,7 +342,11 @@ bool DrawPropertyGUI(rttr::instance& obj, const rttr::property& prop)
 	}
 	else if (UI::IsUIMetaclass<MetaGUI::Texture>(prop))
 	{
-		return DrawTextureResource(obj, prop);
+		return DrawResource<Renderer::TextureResource, UI::Texture>(obj, prop);
+	}
+	else if (UI::IsUIMetaclass<MetaGUI::MeshResource>(prop))
+	{
+		return DrawResource<Renderer::MeshResource, UI::MeshResource>(obj, prop);
 	}
 	else if (UI::IsUIMetaclass<MetaGUI::EnumSelectOptional>(prop))
 	{

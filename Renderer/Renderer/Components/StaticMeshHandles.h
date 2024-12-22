@@ -20,16 +20,16 @@ public:
 	C_StaticMeshHandles();
 	virtual ~C_StaticMeshHandles() = default;
 
-	void						PerformDraw() const override;
-	bool						HasDebugDrawGUI() const override;
-	std::string_view			GetDebugComponentName() const override;
-	Physics::Primitives::S_AABB GetAABB() const override;
-	void						OnEvent(Core::I_Event& event) override;
-	void						Update() override;
-	void						Render(Renderer3D& renderer) const;
-	void						SetMeshFile(const std::filesystem::path meshfile);
-	std::filesystem::path		GetMeshFile() const;
-	void						DebugDrawGUI() override;
+	void						 PerformDraw() const override;
+	bool						 HasDebugDrawGUI() const override;
+	std::string_view			 GetDebugComponentName() const override;
+	Physics::Primitives::S_AABB	 GetAABB() const override;
+	void						 OnEvent(Core::I_Event& event) override;
+	void						 Update() override;
+	void						 Render(Renderer3D& renderer) const;
+	void						 SetMeshFile(const std::filesystem::path& meshFile);
+	const std::filesystem::path& GetMeshFile() const;
+	void						 DebugDrawGUI() override;
 
 	RTTR_ENABLE(Renderer::I_RenderableComponent);
 

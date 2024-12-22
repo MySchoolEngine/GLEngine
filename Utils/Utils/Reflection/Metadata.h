@@ -35,8 +35,8 @@ template <auto Type> using MemberType_t = typename MemberType<Type>::type;
 template <auto Type> struct MemberIsOptional : std::false_type {};
 template <auto Type> constexpr bool MemberIsOptional_v = MemberIsOptional<Type>::value;
 
-#define REGISTER_META_CLASS(cls, Parent) \
-template <> struct ParentMetatype<cls> { using type = Parent; }; \
+#define REGISTER_META_CLASS(cls, Parent)							\
+template <> struct ParentMetatype<cls> { using type = Parent; };	\
 template <> struct IsMetadataName<cls> : std::true_type {}
 
 template <class MetaClass> concept IsMetaclassConcept = IsMetadataName_v<MetaClass>;
@@ -117,7 +117,7 @@ template <auto Class, class Enum = decltype(Class)> requires IsMetaclassConcept<
 // Registration
 //=================================================================================
 template <auto Member, class Type, class Enum = decltype(Member)>
-requires IsMetaclassConcept<Enum> && IsCorrectMetaClassMemberType<Member, Type> rttr::detail::metadata RegisterMetamember(const Type& value)
+requires IsMetaclassConcept<Enum>&& IsCorrectMetaClassMemberType<Member, Type> rttr::detail::metadata RegisterMetamember(const Type& value)
 {
 	static_assert(std::is_enum_v<Enum>, "Member name could be only enum class.");
 	static_assert(IsMetadataName_v<Enum>, "Given member name must be registered meta member.");
@@ -136,24 +136,22 @@ template <auto MetaClass, class Enum = decltype(MetaClass)> requires IsMetaclass
 //=================================================================================
 // Definitions
 //=================================================================================
-enum class Metatype
-{
+enum class Metatype {
 	Serialization,
 	GUI,	 // -> MetaGUI
 	GUIInfo, // -> MetaGUIInfo
 };
-template <> struct IsMetadataName<Metatype> : std::true_type {
-};
+template <> struct IsMetadataName<Metatype> : std::true_type {};
 
-enum class MetaGUI
-{
+enum class MetaGUI : std::uint8_t {
 	Slider,
 	SliderInt,
 	Angle,
 	Colour,
 	Vec3,
 	Checkbox,
-  Texture,
+	Texture,
+	MeshResource,
 	Text,
 	EnumSelect,
 	EnumSelectOptional,
@@ -161,8 +159,7 @@ enum class MetaGUI
 };
 REGISTER_META_CLASS(MetaGUI, Metatype);
 
-enum class SerializationCls
-{
+enum class SerializationCls : std::uint8_t {
 	NoSerialize,
 	DerefSerialize, // dereference before serialization
 	MandatoryProperty,
@@ -171,16 +168,14 @@ REGISTER_META_CLASS(SerializationCls, Metatype);
 REGISTER_META_MEMBER_TYPE(SerializationCls::NoSerialize, bool);
 REGISTER_META_MEMBER_TYPE(SerializationCls::MandatoryProperty, bool);
 
-enum class MetaGUIInfo
-{
+enum class MetaGUIInfo {
 	CollapsableGroup, // name of group
 };
 REGISTER_META_CLASS(MetaGUIInfo, Metatype);
 REGISTER_META_MEMBER_TYPE(MetaGUIInfo::CollapsableGroup, std::string);
 
 namespace UI {
-template <MetaGUI Class> struct UIMetaclassToType {
-};
+template <MetaGUI Class> struct UIMetaclassToType {};
 template <MetaGUI Class> using UIMetaclassToType_t = typename UIMetaclassToType<Class>::type;
 template <> struct UIMetaclassToType<MetaGUI::Slider> {
 	using type = float;
@@ -197,13 +192,14 @@ template <> struct UIMetaclassToType<MetaGUI::Colour> {
 template <> struct UIMetaclassToType<MetaGUI::Vec3> {
 	using type = glm::vec3;
 };
-template <> struct UIMetaclassToType<MetaGUI::Checkbox>
-{
+template <> struct UIMetaclassToType<MetaGUI::Checkbox> {
 	using type = bool;
 };
 template <> struct UIMetaclassToType<MetaGUI::Text> {
 	using type = std::string;
 };
+
+
 //=================================================================================
 template <MetaGUI Class> [[nodiscard]] bool IsUIMetaclass(const rttr::property& prop)
 {
@@ -217,7 +213,7 @@ template <MetaGUI Class> [[nodiscard]] bool IsUIMetaclass(const rttr::property& 
 		if constexpr (Class == MetaGUI::EnumSelect || Class == MetaGUI::EnumSelectOptional)
 		{
 			// pass anything
-			if constexpr (Class==MetaGUI::EnumSelect)
+			if constexpr (Class == MetaGUI::EnumSelect)
 				GLE_ASSERT(propertyType.is_enumeration(), "Property registered as enum: {}", propertyType);
 			if constexpr (Class == MetaGUI::EnumSelectOptional)
 			{
@@ -228,7 +224,7 @@ template <MetaGUI Class> [[nodiscard]] bool IsUIMetaclass(const rttr::property& 
 		else
 		{
 			GLE_ASSERT(rttr::type::get<UIMetaclassToType_t<Class>>() == propertyType, "Property has wrong type expected '{}' passed '{}'",
-				rttr::type::get<UIMetaclassToType_t<Class>>(), propertyType);
+					   rttr::type::get<UIMetaclassToType_t<Class>>(), propertyType);
 		}
 	}
 	return isRightClass;
@@ -240,59 +236,49 @@ template <MetaGUI Class, class Type> [[nodiscard]] bool IsTypeUIMetaClass(Type&&
 	return detail::GetMetadata<Class>(arg).is_valid();
 }
 
-enum class Slider
-{
+enum class Slider {
 	Name,
 	Min,
 	Max,
 };
 
-enum class SliderInt
-{
+enum class SliderInt {
 	Name,
 	Min,
 	Max,
 };
 
-enum class Angle
-{
+enum class Angle {
 	Name,
 	Min,
 	Max,
 };
 
-enum class Colour
-{
+enum class Colour {
 	Name,
 };
 
-enum class Vec3
-{
+enum class Vec3 {
 	Name,
 };
 
-enum class Checkbox
-{
+enum class Checkbox {
 	Name,
 };
 
-enum class Text
-{
+enum class Text {
 };
 
-enum class EnumSelect
-{
+enum class EnumSelect {
 	Name,
 };
 
-enum class EnumSelectOptional
-{
+enum class EnumSelectOptional {
 	Name,
 	OptionalName,
 };
 
-enum class CustomGUIWidget
-{
+enum class CustomGUIWidget {
 	DrawFunction,
 };
 } // namespace UI

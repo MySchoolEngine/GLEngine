@@ -7,15 +7,18 @@
 #include <Renderer/Mesh/Loading/ModelLoader.h>
 #include <Renderer/Resources/ResourceManager.h>
 
+#include <GUI/ReflectionGUI.h>
+
 #include <Core/Application.h>
-#include <Core/Resources/LoadingQuery.h>
 #include <Core/Resources/ResourceManager.h>
 
 #include <Utils/Reflection/Metadata.h>
+#include <Utils/Serialization/SerializationUtils.h>
 
 #include <imgui.h>
 #include <rttr/registration>
 
+// clang-format off
 RTTR_REGISTRATION
 {
 	using namespace GLEngine::Renderer;
@@ -23,8 +26,14 @@ RTTR_REGISTRATION
 
 	rttr::registration::class_<C_StaticMeshHandles>("C_StaticMeshHandles")
 		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
-		.property("MeshFile", &C_StaticMeshHandles::GetMeshFile, &C_StaticMeshHandles::SetMeshFile)(RegisterMetamember<SerializationCls::MandatoryProperty>(true))
+		.property("MeshFile", &C_StaticMeshHandles::GetMeshFile, &C_StaticMeshHandles::SetMeshFile)(
+			RegisterMetamember<SerializationCls::MandatoryProperty>(true))
 		.property("Material", &C_StaticMeshHandles::m_Material)
+		.property("NormalMapRes", &C_StaticMeshHandles::m_MeshResource)(
+			rttr::policy::prop::as_reference_wrapper,
+			RegisterMetaclass<MetaGUI::MeshResource>(),
+			RegisterMetamember<UI::MeshResource::Name>("Model"),
+			REGISTER_DEFAULT_VALUE(GLEngine::Core::ResourceHandle<MeshResource>()))
 		//.property("Shader", &C_StaticMesh::GetShader, &C_StaticMesh::SetShader)
 		;
 	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_StaticMeshHandles>>();
@@ -33,6 +42,7 @@ RTTR_REGISTRATION
 		return std::static_pointer_cast<GLEngine::Entity::I_Component>(ptr);
 	});
 }
+// clang-format on
 
 namespace GLEngine::Renderer {
 
@@ -124,8 +134,8 @@ void C_StaticMeshHandles::Update()
 			meshContainer.m_NumPrimitives = static_cast<uint32_t>(mesh.vertices.size());
 			// load buffer
 
-			I_Renderer&		renderer = Core::C_Application::Get().GetActiveRenderer();
-			ResourceManager& rm		 = renderer.GetRM();
+			I_Renderer&		 renderer = Core::C_Application::Get().GetActiveRenderer();
+			ResourceManager& rm		  = renderer.GetRM();
 
 			const auto positionsSize		= static_cast<uint32_t>(sizeof(mesh.vertices[0]) * mesh.vertices.size());
 			meshContainer.m_PositionsHandle = rm.createBuffer(BufferDescriptor{
@@ -190,18 +200,19 @@ void C_StaticMeshHandles::Render(Renderer3D& renderer) const
 }
 
 //=================================================================================
-void C_StaticMeshHandles::SetMeshFile(const std::filesystem::path meshfile)
+void C_StaticMeshHandles::SetMeshFile(const std::filesystem::path& meshFile)
 {
 	auto& rm   = Core::C_ResourceManager::Instance();
-	auto  path = meshfile;
-	if (meshfile.generic_string().find("Models") == std::string::npos)
-		path = std::filesystem::path("Models") / meshfile;
+	auto  path = meshFile;
+	if (meshFile.generic_string().find("Models") == std::string::npos)
+		path = std::filesystem::path("Models") / meshFile;
 	m_MeshResource = rm.LoadResource<Renderer::MeshResource>(path);
 }
 
 //=================================================================================
-std::filesystem::path C_StaticMeshHandles::GetMeshFile() const
+const std::filesystem::path& C_StaticMeshHandles::GetMeshFile() const
 {
+	// todo will fail if resource not loaded
 	return m_MeshResource.GetResource().GetFilePath();
 }
 
@@ -220,6 +231,10 @@ void C_StaticMeshHandles::DebugDrawGUI()
 	else if (m_MeshResource.IsFailed())
 	{
 		::ImGui::TextColored(ImVec4(1, 0, 0, 1), "Failed");
+	}
+	rttr::instance obj(*this);
+	if (GUI::DrawAllPropertyGUI(obj).empty() == false)
+	{
 	}
 }
 

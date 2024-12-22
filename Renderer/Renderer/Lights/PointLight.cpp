@@ -24,7 +24,7 @@ RTTR_REGISTRATION
 		.constructor<>()
 		.property("Intensity", &C_PointLight::m_Intensity)
   		  (
-			  rttr::policy::prop::bind_as_ptr,
+			  rttr::policy::prop::as_reference_wrapper,
 			  RegisterMetaclass<MetaGUI::Slider>(),
 			  RegisterMetamember<UI::Slider::Name>("Intensity:"),
 			  RegisterMetamember<UI::Slider::Min>(0.f),
@@ -32,7 +32,7 @@ RTTR_REGISTRATION
 		  )
 		.property("Color", &C_PointLight::m_Color)
 		(
-			rttr::policy::prop::bind_as_ptr,
+			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::Colour>(),
 			RegisterMetamember<UI::Colour::Name>("Colour:")
 		);

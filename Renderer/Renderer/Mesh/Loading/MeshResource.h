@@ -6,6 +6,8 @@
 #include <Core/Resources/Resource.h>
 #include <Core/Resources/ResourceLoader.h>
 
+#include <Utils/Reflection/Metadata.h>
+
 #include <rttr/registration_friend.h>
 
 namespace GLEngine::Renderer {
@@ -41,3 +43,23 @@ public:
 	virtual std::vector<std::string>		GetSupportedExtensions() const override;
 };
 } // namespace GLEngine::Renderer
+
+
+#include <Core/Resources/ResourceHandle.h>
+
+namespace Utils::Reflection::UI {
+template <> struct UIMetaclassToType<MetaGUI::MeshResource> {
+	using type = GLEngine::Core::ResourceHandle<GLEngine::Renderer::MeshResource>;
+};
+
+enum class MeshResource : std::uint8_t {
+	Name,
+};
+} // namespace Utils::Reflection::UI
+
+namespace Utils::Reflection
+{
+REGISTER_META_CLASS(UI::MeshResource, MetaGUI);
+
+REGISTER_META_MEMBER_TYPE(UI::MeshResource::Name, std::string);
+} // namespace Utils::Reflection
