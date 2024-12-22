@@ -26,7 +26,7 @@ private:
 	{
 		auto&			   rm			= Core::C_ResourceManager::Instance();
 		const auto		   resourceType = rttr::type::get<ResourceType>();
-		const auto		   x			= resourceType.get_method("GetResourceTypeHashStatic").invoke({}).get_value<std::size_t>();
+		const auto		   x			= resourceType.get_method("GetResourceTypeHashStatic").invoke({}).template get_value<std::size_t>();
 		auto			   extensions	= rm.GetSupportedExtensions(x);
 		std::ostringstream oss;
 		std::ranges::copy(extensions, std::ostream_iterator<std::string>(oss, ", "));
