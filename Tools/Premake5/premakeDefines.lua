@@ -19,6 +19,8 @@ function ProjectFiles(projectName)
 		"%{prj.location}/"..tostring(projectName).."/**.cpp",
 		"%{prj.location}/"..tostring(projectName).."/**.inl",
 		"premake5.lua",
+		".clang-format",
+		"*.natvis",
 	}
 
 	includedirs

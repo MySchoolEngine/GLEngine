@@ -1,82 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
-  <Type Name="rttr::detail::type_data">
-	  <DisplayString>{name,s}</DisplayString>
-  </Type>
-  <Type Name="rttr::type">
-    <DisplayString Condition="m_type_data->is_valid">{m_type_data->name}</DisplayString>
-    <DisplayString Condition="m_type_data->is_valid == false">Invalid type</DisplayString>
-    <Expand>
-      <Item Name="[Name]">m_type_data->name</Item>
-      <Item Name="[Wrapped type]" Condition="m_type_data->wrapped_type != nullptr &amp;&amp; m_type_data->wrapped_type->is_valid">*m_type_data->wrapped_type</Item>
-      <Synthetic Name="[IsClass]">
-        <DisplayString Condition="m_type_data->m_type_traits[0]">true</DisplayString>
-        <DisplayString Condition="m_type_data->m_type_traits[0] == 0">false</DisplayString>
-      </Synthetic>
-      <Synthetic Name="[IsEnum]">
-        <DisplayString Condition="m_type_data->m_type_traits[1]">true</DisplayString>
-        <DisplayString Condition="m_type_data->m_type_traits[1] == 0">false</DisplayString>
-      </Synthetic>
-      <Synthetic Name="[IsArray]">
-        <DisplayString Condition="m_type_data->m_type_traits[2]">true</DisplayString>
-        <DisplayString Condition="m_type_data->m_type_traits[2] == 0">false</DisplayString>
-      </Synthetic>
-      <Synthetic Name="[IsPointer]">
-        <DisplayString Condition="m_type_data->m_type_traits[3]">true</DisplayString>
-        <DisplayString Condition="m_type_data->m_type_traits[3] == 0">false</DisplayString>
-      </Synthetic>
-      <Synthetic Name="[IsFunctionPointer]">
-        <DisplayString Condition="m_type_data->m_type_traits[4]">true</DisplayString>
-        <DisplayString Condition="m_type_data->m_type_traits[4] == 0">false</DisplayString>
-      </Synthetic>
-      <Synthetic Name="[IsMemberObjectPointer]">
-        <DisplayString Condition="m_type_data->m_type_traits[5]">true</DisplayString>
-        <DisplayString Condition="m_type_data->m_type_traits[5] == 0">false</DisplayString>
-      </Synthetic>
-      <Synthetic Name="[IsMemberFunctionPointer]">
-        <DisplayString Condition="m_type_data->m_type_traits[6]">true</DisplayString>
-        <DisplayString Condition="m_type_data->m_type_traits[6] == 0">false</DisplayString>
-      </Synthetic>
-      <Synthetic Name="[IsAssociativeContainer]">
-        <DisplayString Condition="m_type_data->m_type_traits[7]">true</DisplayString>
-        <DisplayString Condition="m_type_data->m_type_traits[7] == 0">false</DisplayString>
-      </Synthetic>
-      <Synthetic Name="[IsSequentialContainer]">
-        <DisplayString Condition="m_type_data->m_type_traits[8]">true</DisplayString>
-        <DisplayString Condition="m_type_data->m_type_traits[8] == 0">false</DisplayString>
-      </Synthetic>
-      <Synthetic Name="[IsTemplateInstantiation]">
-        <DisplayString Condition="m_type_data->m_type_traits[9]">true</DisplayString>
-        <DisplayString Condition="m_type_data->m_type_traits[9] == 0">false</DisplayString>
-      </Synthetic>
-    </Expand>
-  </Type>
+	<Type Name="rttr::detail::type_data">
+		<DisplayString>{name,s}</DisplayString>
+	</Type>
+	<Type Name="rttr::type">
+		<Intrinsic Name="isClass" Expression="m_type_data->m_type_traits[0]"/>
+		<Intrinsic Name="numBasetypes" Expression="isClass() ? m_type_data->m_class_data.m_base_types._Mypair._Myval2._Mylast - m_type_data->m_class_data.m_base_types._Mypair._Myval2._Myfirst : 0"/>
+		<DisplayString Condition="m_type_data->is_valid &amp;&amp; !isClass()">{m_type_data->name}</DisplayString>
 
-  <Type Name="rttr::property">
-    <DisplayString>{m_wrapper->m_declaring_type} {m_wrapper->m_name.m_data,s}</DisplayString>
-    <Expand>
-      <Item Name="[Type]">m_wrapper->m_declaring_type</Item>
-      <Item Name="[Name]">m_wrapper->m_name.m_data,s</Item>
-    </Expand>
-  </Type>
+		<!-- Classes-->
+		<DisplayString Condition="m_type_data->is_valid &amp;&amp; isClass() &amp;&amp; numBasetypes() == 1" ExcludeView="simple">{m_type_data->name}:{m_type_data->m_class_data.m_base_types[0]}</DisplayString>
+		<DisplayString Condition="m_type_data->is_valid &amp;&amp; isClass() &amp;&amp; numBasetypes() > 1" ExcludeView="simple">{m_type_data->name}:Multiple parents</DisplayString>
+		<DisplayString Condition="m_type_data->is_valid &amp;&amp; isClass() &amp;&amp; numBasetypes() == 0">{m_type_data->name}</DisplayString>
+		<DisplayString Condition="m_type_data->is_valid &amp;&amp; isClass()" IncludeView="simple">{m_type_data->name}</DisplayString>
 
-  <Type Name="rttr::array_range&lt;*,*&gt;">
-    <DisplayString>{{ size={m_end - m_begin} }}</DisplayString>
-    <Expand>
-      <Item Name="[size]" ExcludeView="simple">m_end - m_begin</Item>
-      <ArrayItems>
-        <Size>m_end - m_begin</Size>
-        <ValuePointer>m_begin</ValuePointer>
-      </ArrayItems>
-    </Expand>
-  </Type>
 
-  <Type Name="rttr::instance">
-    <Intrinsic Name="type" Expression="(m_data_container.m_type.m_type_data->name)" />
-    <Expand>
-      <Item Name="[type]">m_data_container.m_type</Item>
-      <Item Name="[value]">m_data_container.m_data_address</Item>
-    </Expand>
-  </Type>
+		<DisplayString Condition="m_type_data->is_valid == false">Invalid type</DisplayString>
+		<Expand>
+			<Item Name="[Name]">m_type_data->name</Item>
+			<Item Name="[Base types]" Condition="m_type_data->m_type_traits[0] &amp;&amp; m_type_data->m_class_data.m_base_types.size() > 1">
+				m_type_data->m_class_data.m_base_types
+			</Item>
+			<Item Name="[Base types]" Condition="m_type_data->m_type_traits[0] &amp;&amp; m_type_data->m_class_data.m_base_types.size() == 1">
+				m_type_data->m_class_data.m_base_types[0]
+			</Item>
+			<Synthetic Name="[Base types]" Condition="m_type_data->m_type_traits[0] &amp;&amp; m_type_data->m_class_data.m_base_types.size() == 0">
+				<DisplayString>None</DisplayString>
+			</Synthetic>
+			<Item Name="[Methods]" Condition="m_type_data->m_type_traits[0]">
+				m_type_data->m_class_data.m_methods,view(simple)
+			</Item>
+			<Item Name="[Properties]" Condition="m_type_data->m_type_traits[0]">
+				m_type_data->m_class_data.m_properties,view(simple)
+			</Item>
+			<Item Name="[Wrapped type]" Condition="m_type_data->wrapped_type != nullptr &amp;&amp; m_type_data->wrapped_type->is_valid">*m_type_data->wrapped_type</Item>
+			<Synthetic Name="[IsClass]">
+				<DisplayString Condition="m_type_data->m_type_traits[0]">true</DisplayString>
+				<DisplayString Condition="m_type_data->m_type_traits[0] == 0">false</DisplayString>
+			</Synthetic>
+			<Synthetic Name="[IsEnum]">
+				<DisplayString Condition="m_type_data->m_type_traits[1]">true</DisplayString>
+				<DisplayString Condition="m_type_data->m_type_traits[1] == 0">false</DisplayString>
+			</Synthetic>
+			<Synthetic Name="[IsArray]">
+				<DisplayString Condition="m_type_data->m_type_traits[2]">true</DisplayString>
+				<DisplayString Condition="m_type_data->m_type_traits[2] == 0">false</DisplayString>
+			</Synthetic>
+			<Synthetic Name="[IsPointer]">
+				<DisplayString Condition="m_type_data->m_type_traits[3]">true</DisplayString>
+				<DisplayString Condition="m_type_data->m_type_traits[3] == 0">false</DisplayString>
+			</Synthetic>
+			<Synthetic Name="[IsFunctionPointer]">
+				<DisplayString Condition="m_type_data->m_type_traits[4]">true</DisplayString>
+				<DisplayString Condition="m_type_data->m_type_traits[4] == 0">false</DisplayString>
+			</Synthetic>
+			<Synthetic Name="[IsMemberObjectPointer]">
+				<DisplayString Condition="m_type_data->m_type_traits[5]">true</DisplayString>
+				<DisplayString Condition="m_type_data->m_type_traits[5] == 0">false</DisplayString>
+			</Synthetic>
+			<Synthetic Name="[IsMemberFunctionPointer]">
+				<DisplayString Condition="m_type_data->m_type_traits[6]">true</DisplayString>
+				<DisplayString Condition="m_type_data->m_type_traits[6] == 0">false</DisplayString>
+			</Synthetic>
+			<Synthetic Name="[IsAssociativeContainer]">
+				<DisplayString Condition="m_type_data->m_type_traits[7]">true</DisplayString>
+				<DisplayString Condition="m_type_data->m_type_traits[7] == 0">false</DisplayString>
+			</Synthetic>
+			<Synthetic Name="[IsSequentialContainer]">
+				<DisplayString Condition="m_type_data->m_type_traits[8]">true</DisplayString>
+				<DisplayString Condition="m_type_data->m_type_traits[8] == 0">false</DisplayString>
+			</Synthetic>
+			<Synthetic Name="[IsTemplateInstantiation]">
+				<DisplayString Condition="m_type_data->m_type_traits[9]">true</DisplayString>
+				<DisplayString Condition="m_type_data->m_type_traits[9] == 0">false</DisplayString>
+			</Synthetic>
+		</Expand>
+	</Type>
+
+	<Type Name="rttr::method">
+		<DisplayString>{m_wrapper->m_declaring_type,view(simple)}::{m_wrapper->m_signature}</DisplayString>
+		<Expand>
+			<Item Name="[Name]">m_wrapper->m_name</Item>
+			<Item Name="[Declaring type]">m_wrapper->m_declaring_type</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="rttr::property">
+		<DisplayString>{m_wrapper->m_declaring_type}::{m_wrapper->m_name.m_data,s}</DisplayString>
+		<Expand>
+			<Item Name="[Declaring type]">m_wrapper->m_declaring_type</Item>
+			<Item Name="[Name]">m_wrapper->m_name.m_data,s</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="rttr::array_range&lt;*,*&gt;">
+		<DisplayString>{{ size={m_end - m_begin} }}</DisplayString>
+		<Expand>
+			<Item Name="[size]" ExcludeView="simple">m_end - m_begin</Item>
+			<ArrayItems>
+				<Size>m_end - m_begin</Size>
+				<ValuePointer>m_begin</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+
+	<Type Name="rttr::instance">
+		<Intrinsic Name="type" Expression="(m_data_container.m_type.m_type_data->name)" />
+		<Expand>
+			<Item Name="[type]">m_data_container.m_type</Item>
+			<Item Name="[value]">m_data_container.m_data_address</Item>
+		</Expand>
+	</Type>
 </AutoVisualizer>

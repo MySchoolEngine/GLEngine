@@ -1,9 +1,10 @@
-Standard: c++17
+Standard: c++20
 BreakConstructorInitializers: BeforeComma
 BraceWrapping:
   AfterControlStatement: true
   AfterFunction: true
   BeforeElse: true
+  AfterClass: false
 BreakBeforeBraces: Custom
 FixNamespaceComments: false
 MaxEmptyLinesToKeep: 2
@@ -37,11 +38,9 @@ AlignConsecutiveMacros: true #hopefully not really used
 AlignTrailingComments: true
 AlignConsecutiveDeclarations: true
 BreakBeforeBinaryOperators: true
-FixNamespaceComments: true
 CompactNamespaces: true #only cause it is simple to change it to nested one later
 
 UseTab: Always
-AlignConsecutiveDeclarations: true
 
 SortIncludes: true
 IncludeBlocks: Regroup

@@ -5,7 +5,6 @@ BraceWrapping:
   AfterFunction: true
   BeforeElse: true
 BreakBeforeBraces: Custom
-FixNamespaceComments: false
 MaxEmptyLinesToKeep: 2
 
 IndentWidth: 4
