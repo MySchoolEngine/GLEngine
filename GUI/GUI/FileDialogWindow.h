@@ -7,10 +7,10 @@ class GUI_API_EXPORT C_FileDialogWindow : public C_Window {
 public:
 	explicit C_FileDialogWindow(const std::string&														fileType,
 								const std::string&														windowName,
-								const std::function<void(const std::filesystem::path&, C_GUIManager&)>& succesCallback,
+								const std::function<void(const std::filesystem::path&, C_GUIManager&)>& successCallback,
 								GUID																	guid,
 								const std::filesystem::path&											basePath = "."); // data folder by default
-	virtual ~C_FileDialogWindow();
+	~C_FileDialogWindow() override;
 	virtual bool Draw(C_GUIManager& guiMgr) const override;
 
 	void SetTitle(const std::string& windowTitle);

@@ -9,7 +9,7 @@ namespace GLEngine::GUI {
 //=================================================================================
 C_FileDialogWindow::C_FileDialogWindow(const std::string&										fileType,
 									   const std::string&										windowName,
-									   const std::function<void(const std::filesystem::path&, C_GUIManager&)>& succesCallback,
+									   const std::function<void(const std::filesystem::path&, C_GUIManager&)>& successCallback,
 									   GUID														guid,
 									   const std::filesystem::path&								basePath)
 	: C_Window(guid, windowName)
@@ -17,14 +17,12 @@ C_FileDialogWindow::C_FileDialogWindow(const std::string&										fileType,
 	, m_WindowTitle(windowName)
 	, m_BasePath(basePath)
 	, m_fileType(fileType)
-	, m_SuccessCallback(succesCallback)
+	, m_SuccessCallback(successCallback)
 {
 }
 
 //=================================================================================
-C_FileDialogWindow::~C_FileDialogWindow()
-{
-}
+C_FileDialogWindow::~C_FileDialogWindow() = default;
 
 //=================================================================================
 bool C_FileDialogWindow::Draw(C_GUIManager& guiMgr) const

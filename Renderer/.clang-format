@@ -6,10 +6,12 @@ BraceWrapping:
   BeforeElse: true
   AfterClass: false
 BreakBeforeBraces: Custom
-FixNamespaceComments: false
+FixNamespaceComments: true
 MaxEmptyLinesToKeep: 2
 
 IndentWidth: 4
+IndentPPDirectives: BeforeHash
+NamespaceIndentation: None
 TabWidth: 4
 ConstructorInitializerIndentWidth: 4
 AllowAllConstructorInitializersOnNextLine: false
@@ -21,7 +23,6 @@ BinPackArguments: true
 BinPackParameters: false
 ColumnLimit: 180
 AccessModifierOffset: -4
-IndentPPDirectives: BeforeHash
 
 #BitFieldColonSpacing: Both
 PointerAlignment: Left
@@ -31,6 +32,7 @@ SpacesInParentheses: false
 SpacesInContainerLiterals: false
 SpacesInConditionalStatement: false
 SpacesInAngles: false
+SpaceBeforeCaseColon: false
 AllowShortFunctionsOnASingleLine: InlineOnly
 AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: true
@@ -38,7 +40,7 @@ AlignConsecutiveMacros: true #hopefully not really used
 AlignTrailingComments: true
 AlignConsecutiveDeclarations: true
 BreakBeforeBinaryOperators: true
-CompactNamespaces: true #only cause it is simple to change it to nested one later
+CompactNamespaces: false
 
 UseTab: Always
 

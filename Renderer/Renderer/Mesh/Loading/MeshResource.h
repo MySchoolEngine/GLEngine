@@ -2,25 +2,24 @@
 
 #include <Renderer/RendererApi.h>
 
+#include <Core/Filesystem/Paths.h>
 #include <Core/Resources/Resource.h>
 #include <Core/Resources/ResourceLoader.h>
 
 #include <rttr/registration_friend.h>
 
 namespace GLEngine::Renderer {
-
 namespace MeshData {
 struct Scene;
 }
 
 class RENDERER_API_EXPORT MeshResource : public Core::Resource {
 public:
-	DEFINE_RESOURCE_TYPE(MeshResource)
-
+	DEFINE_RESOURCE_WITH_PATH_TYPE(MeshResource, Core::Filesystem::modelFolder)
 	MeshResource();
 
-	[[nodiscard]] bool							  Load(const std::filesystem::path& filepath) override;
-	[[nodiscard]] bool							  Reload() override;
+	[[nodiscard]] bool									  Load(const std::filesystem::path& filepath) override;
+	[[nodiscard]] bool									  Reload() override;
 	[[nodiscard]] std::unique_ptr<Core::I_ResourceLoader> GetLoader() override;
 
 	// First check GetState to avoid SEGFAULTs
