@@ -1,7 +1,12 @@
 
 # Change Log
 All notable changes to this project will be documented in this file.
- 
+
+
+## [Unreleased] - 22-12-2024
+### Added
+- `GLEngine::GUI::C_ResourceDialogWindow` generic resource file dialog
+
 ## [Unreleased] - 17-11-2024
 
 This version started long ago and aimed for more API agnostic approach to rendering. Aiming for rendering through handles and allow me to optimase the rendering in the future without writing API specific code.
