@@ -40,7 +40,7 @@ private:
 			const auto resourceType				 = rttr::type::get<ResourceType>();
 			if (auto getResourceDataPathMethod = resourceType.get_method("GetResourceDataPath"))
 			{
-				return getResourceDataPathMethod.invoke({}).get_value<std::string_view>();
+				return getResourceDataPathMethod.invoke({}).template get_value<std::string_view>();
 			}
 			else
 			{
