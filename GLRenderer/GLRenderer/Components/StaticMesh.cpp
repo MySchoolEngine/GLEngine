@@ -157,13 +157,15 @@ void C_StaticMesh::DebugDrawGUI()
 	{
 		::ImGui::Text("Still loading");
 	}
-	else if (m_MeshResource.IsFailed())
-	{
-		::ImGui::TextColored(ImVec4(1, 0, 0, 1), "Failed");
-	}
 	rttr::instance obj(*this);
-	if (GUI::DrawAllPropertyGUI(obj).empty() == false)
+	const auto changedProps = GUI::DrawAllPropertyGUI(obj);
+	if (changedProps.empty() == false)
 	{
+		const auto thisType = rttr::type::get<C_StaticMesh>();
+		if (std::ranges::contains(changedProps, thisType.get_property("ModelRes")))
+		{
+			m_Mesh.clear();
+		}
 	}
 }
 
