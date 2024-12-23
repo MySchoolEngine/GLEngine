@@ -21,6 +21,7 @@
 
 #include <Utils/Reflection/Metadata.h>
 #include <Utils/Serialization/SerializationUtils.h>
+#include <Utils/StdVectorUtils.h>
 
 #include <imgui.h>
 #include <rttr/registration>
@@ -158,11 +159,11 @@ void C_StaticMesh::DebugDrawGUI()
 		::ImGui::Text("Still loading");
 	}
 	rttr::instance obj(*this);
-	const auto changedProps = GUI::DrawAllPropertyGUI(obj);
+	const auto	   changedProps = GUI::DrawAllPropertyGUI(obj);
 	if (changedProps.empty() == false)
 	{
 		const auto thisType = rttr::type::get<C_StaticMesh>();
-		if (std::ranges::contains(changedProps, thisType.get_property("ModelRes")))
+		if (::Utils::contains(changedProps, thisType.get_property("ModelRes")))
 		{
 			m_Mesh.clear();
 		}

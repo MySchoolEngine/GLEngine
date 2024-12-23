@@ -34,14 +34,14 @@ bool C_Window::Draw(C_GUIManager& guiMgr) const
 //=================================================================================
 void C_Window::DrawComponents() const
 {
-	for (const auto& component : m_Components)
+	for (const auto& component : m_Components | std::views::values)
 	{
-		component.second.get().Draw();
+		component.get().Draw();
 	}
 }
 
 //=================================================================================
-void C_Window::SetVisible(bool enable /*= true*/)
+void C_Window::SetVisible(const bool enable /*= true*/)
 {
 	if (m_IsVisible != enable) {
 		if (enable)
@@ -69,7 +69,7 @@ GUID C_Window::AddComponent(C_Window::T_GUIPartRef component)
 //=================================================================================
 I_GUIPart* C_Window::GetComponent(GUID guid) const
 {
-	const auto& it = std::find_if(m_Components.begin(), m_Components.end(), [&guid](const auto& pair) { return pair.first == guid; });
+	const auto& it = std::ranges::find_if(m_Components, [&guid](const auto& pair) { return pair.first == guid; });
 	if (it != m_Components.end())
 	{
 		return &(it->second.get());
@@ -92,7 +92,7 @@ void C_Window::DrawMenus() const
 	{
 		if (::ImGui::BeginMenuBar())
 		{
-			for (const auto& [guid, menu] : m_Menus)
+			for (const auto& menu : m_Menus | std::views::values)
 			{
 				menu.get().Draw();
 			}

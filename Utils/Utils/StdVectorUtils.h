@@ -55,9 +55,18 @@ template <typename T, typename S> void removeIndicesFromVector(std::vector<T>& v
 	return removeIndicesFromVector(v, std::begin(rm), std::end(rm));
 }
 
+//=================================================================================
 template <class T, class S> [[nodiscard]] bool contains(const std::set<T>& v, const S& val)
 {
-	if (v.find(val) != v.end())
+	if (v.contains(val))
+		return true;
+	return false;
+}
+
+//=================================================================================
+template <class T, class S> [[nodiscard]] bool contains(const std::vector<T>& v, const S& val)
+{
+	if (std::find(v.begin(), v.end(), val) != v.end())
 		return true;
 	return false;
 }
