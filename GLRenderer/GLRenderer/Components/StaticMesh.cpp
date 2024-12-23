@@ -39,7 +39,7 @@ RTTR_REGISTRATION
 			RegisterMetamember<SerializationCls::MandatoryProperty>(true)
 		)
 		.property("Material", &C_StaticMesh::m_Material)
-		.property("NormalMapRes", &C_StaticMesh::m_MeshResource)(
+		.property("ModelRes", &C_StaticMesh::m_MeshResource)(
 			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::MeshResource>(),
 			RegisterMetamember<UI::MeshResource::Name>("Model"),
