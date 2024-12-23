@@ -33,9 +33,8 @@ bool C_FileDialogWindow::Draw(C_GUIManager& guiMgr) const
 		// action if OK
 		if (ImGuiFileDialog::Instance()->IsOk() == true)
 		{
-			const std::filesystem::path filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
-			const std::filesystem::path filePath	 = ImGuiFileDialog::Instance()->GetCurrentPath();
-			m_SuccessCallback(filePath / filePathName, guiMgr);
+			const std::filesystem::path filePathName = std::filesystem::relative(ImGuiFileDialog::Instance()->GetFilePathName());
+			m_SuccessCallback(filePathName, guiMgr);
 		}
 		else
 		{
