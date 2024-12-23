@@ -13,7 +13,6 @@ public:
 	using T_GUIPartRef = std::reference_wrapper<I_GUIPart>;
 	using T_GUIMenu	   = std::reference_wrapper<Menu::C_Menu>;
 
-public:
 	C_Window(GUID guid, std::string name);
 	virtual ~C_Window() = default;
 
@@ -33,9 +32,9 @@ public:
 	[[nodiscard]] virtual bool CanDestroy() const { return true; }
 
 protected:
-	virtual void		 OnSetVisible() {}
-	virtual void		 OnHide() {}
-	virtual void		 DrawComponents() const;
+	virtual void OnSetVisible() {}
+	virtual void OnHide() {}
+	virtual void DrawComponents() const;
 	void		 DrawMenus() const;
 
 	mutable bool m_IsVisible; // cant be bit field as it is being referenced inside

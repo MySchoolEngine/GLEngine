@@ -10,8 +10,7 @@
 namespace GLEngine::GUI::Input {
 class GUI_API_EXPORT C_Transformations : public I_GUIPart {
 public:
-	enum class E_Transorms
-	{
+	enum class E_Transorms {
 		Translate = 1,
 		Rotate	  = 2,
 		Scale	  = 4,
@@ -35,7 +34,7 @@ public:
 	void						   SetRotationDeg(glm::vec3 rotation);
 
 private:
-	::Utils::C_BitField<E_Transorms> m_enabledTransforms;
+	::Utils::C_BitField<E_Transorms> m_EnabledTransforms;
 	glm::vec3						 m_Translation;
 	glm::vec3						 m_Rotation; //< in rad
 	glm::vec3						 m_Scale;

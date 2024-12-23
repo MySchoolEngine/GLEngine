@@ -16,15 +16,16 @@ C_Menu::~C_Menu() = default;
 //=================================================================================
 bool C_Menu::Draw() const
 {
+	bool ret = false;
 	if (::ImGui::BeginMenu(m_Label.c_str()))
 	{
-		for (const auto& item : m_MenuItems)
+		for (const auto& menuItem : m_MenuItems | std::views::values)
 		{
-			item.second.get().Draw();
+			ret |= menuItem.get().Draw();
 		}
 		::ImGui::EndMenu();
 	}
-	return false;
+	return ret;
 }
 
 //=================================================================================

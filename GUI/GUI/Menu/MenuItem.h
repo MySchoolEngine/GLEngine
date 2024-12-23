@@ -15,7 +15,7 @@ public:
 	 */
 	C_MenuItem(const std::string& label, const std::function<bool()>& callback, const std::string& shortcut = "");
 
-	virtual bool Draw() const override;
+	bool Draw() const override;
 
 private:
 	std::string			  m_Label;
@@ -23,7 +23,7 @@ private:
 	std::function<bool()> m_Callback;
 };
 
-class GUI_API_EXPORT C_MenuItemOpenWindow : public C_MenuItem {
+class GUI_API_EXPORT C_MenuItemOpenWindow final : public C_MenuItem {
 public:
 	C_MenuItemOpenWindow(const std::string& label, GUID window, const C_GUIManager& guiMGR, const std::string& shortcut = "");
 };

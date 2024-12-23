@@ -12,9 +12,9 @@ public:
 								std::filesystem::path													basePath = "."); // data folder by default
 	~C_FileDialogWindow() override;
 	C_FileDialogWindow(const C_FileDialogWindow&) = delete;
-	C_FileDialogWindow(C_FileDialogWindow&&) = delete;
-	void operator=(const C_FileDialogWindow&) = delete;
-	void operator=(C_FileDialogWindow&&) = delete;
+	C_FileDialogWindow(C_FileDialogWindow&&)	  = delete;
+	void operator=(const C_FileDialogWindow&)	  = delete;
+	void operator=(C_FileDialogWindow&&)		  = delete;
 
 	bool Draw(C_GUIManager& guiMgr) const override;
 

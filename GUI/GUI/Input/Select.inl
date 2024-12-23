@@ -36,20 +36,21 @@ template <class Key> void C_Select<Key>::AddValue(const Key& key, const std::str
 template <class Key> bool C_Select<Key>::Draw() const
 {
 	bool changed = false;
-	m_Previous = m_Selected;
+	m_Previous	 = m_Selected;
 	if (::ImGui::BeginCombo(m_Name.c_str(), m_Selected->second.c_str()))
 	{
-		for (auto it = m_Values.begin(); it != m_Values.end(); it++)
+		for (auto it = m_Values.begin(); it != m_Values.end(); ++it)
 		{
-			bool is_selected = it == m_Selected;
-			if (ImGui::Selectable(it->second.c_str(), is_selected))
+			bool isSelected = it == m_Selected;
+			if (ImGui::Selectable(it->second.c_str(), isSelected))
 			{
-				if (m_Selected != it) {
+				if (m_Selected != it)
+				{
 					m_Selected = it;
 					changed	   = true;
 				}
 			}
-			if (is_selected)
+			if (isSelected)
 			{
 				::ImGui::SetItemDefaultFocus();
 			}

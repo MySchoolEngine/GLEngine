@@ -11,11 +11,14 @@ class GUI_API_EXPORT C_Menu : public I_GUIPart {
 public:
 	using T_GUIMenuItem = std::reference_wrapper<C_MenuItem>;
 
-public:
 	explicit C_Menu(std::string&& label);
-	~C_Menu();
+	~C_Menu() override;
 
-	virtual bool Draw() const override;
+	/**
+	 *
+	 * @return true if any item have been called
+	 */
+	bool Draw() const override;
 
 	virtual GUID AddMenuItem(std::reference_wrapper<C_MenuItem> menuItem);
 

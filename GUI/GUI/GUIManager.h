@@ -14,8 +14,10 @@ class GUI_API_EXPORT C_GUIManager {
 public:
 	C_GUIManager();
 	~C_GUIManager();
-	C_GUIManager(const C_GUIManager&) = delete;
-	C_GUIManager(C_GUIManager&&)	  = delete;
+	C_GUIManager(const C_GUIManager&)	= delete;
+	C_GUIManager(C_GUIManager&&)		= delete;
+	void operator=(const C_GUIManager&) = delete;
+	void operator=(C_GUIManager&&)		= delete;
 
 	GUID CreateGUIWindow(const std::string& name);
 	void AddCustomWindow(C_Window* window);
@@ -35,7 +37,7 @@ public:
 private:
 	void DestroyPossibleWindows();
 
-	std::unordered_map<GUID, C_Window*>			m_Windows;
+	std::unordered_map<GUID, C_Window*>			   m_Windows;
 	std::vector<std::unique_ptr<Menu::C_MenuItem>> m_MenuItems;
 };
 

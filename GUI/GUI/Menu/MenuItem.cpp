@@ -9,8 +9,8 @@ namespace GLEngine::GUI::Menu {
 //=================================================================================
 C_MenuItem::C_MenuItem(const std::string& label, const std::function<bool()>& callback, const std::string& shortcut)
 	: m_Label(label)
-	, m_Callback(callback)
 	, m_Shortcut(shortcut)
+	, m_Callback(callback)
 {
 }
 
@@ -25,7 +25,7 @@ bool C_MenuItem::Draw() const
 }
 
 //=================================================================================
-const auto openWindow = [](GUID id, const C_GUIManager& guiMGR) {
+const auto s_OpenWindow = [](GUID id, const C_GUIManager& guiMGR) {
 	if (auto* window = guiMGR.GetWindow(id))
 	{
 		window->SetVisible(true);
@@ -35,7 +35,7 @@ const auto openWindow = [](GUID id, const C_GUIManager& guiMGR) {
 
 //=================================================================================
 C_MenuItemOpenWindow::C_MenuItemOpenWindow(const std::string& label, GUID window, const C_GUIManager& guiMGR, const std::string& shortcut /*= ""*/)
-	: C_MenuItem(label, std::bind(openWindow, window, std::cref(guiMGR)), shortcut)
+	: C_MenuItem(label, std::bind(s_OpenWindow, window, std::cref(guiMGR)), shortcut)
 {
 }
 

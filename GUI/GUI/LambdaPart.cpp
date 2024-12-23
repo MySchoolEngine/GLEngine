@@ -6,7 +6,7 @@
 namespace GLEngine::GUI {
 
 //=================================================================================
-C_LambdaPart::C_LambdaPart(std::function<bool()> lambda)
+C_LambdaPart::C_LambdaPart(const std::function<bool()>& lambda)
 	: m_Lambda(lambda)
 {
 }

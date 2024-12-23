@@ -1,7 +1,5 @@
 #pragma once
 
-#include <GUIStdafx.h>
-
 #include <GUI/GUIPart.h>
 
 namespace GLEngine::GUI {
@@ -12,7 +10,7 @@ template <int samples> class C_PlotLine : public I_GUIPart {
 
 public:
 	explicit C_PlotLine(std::string&& name);
-	virtual bool		Draw() const override;
+	bool				Draw() const override;
 	void				Sample(float sample);
 	[[nodiscard]] float Avg() const;
 	[[nodiscard]] float LastSample() const;

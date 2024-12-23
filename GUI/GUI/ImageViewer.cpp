@@ -13,7 +13,7 @@ namespace GLEngine::GUI {
 
 //=================================================================================
 C_ImageViewer::C_ImageViewer(const Renderer::Handle<Renderer::Texture> texture)
-	: m_texture(texture)
+	: m_Texture(texture)
 	, m_Zoom(2.f)
 	, m_GUIHandle(nullptr)
 {
@@ -23,17 +23,17 @@ C_ImageViewer::C_ImageViewer(const Renderer::Handle<Renderer::Texture> texture)
 bool C_ImageViewer::Draw() const
 {
 	// TODO
-	if (m_texture.IsValid() == false)
+	if (m_Texture.IsValid() == false)
 		return false;
 	// drawing area
 
 	const ImVec2 drawAreaSz(m_Size.x, m_Size.y);
-	const ImVec2 canvas_p0 = ImGui::GetCursorPos();
-	const ImRect imageRect(canvas_p0, canvas_p0 + drawAreaSz);
+	const ImVec2 canvasP0 = ImGui::GetCursorPos();
+	const ImRect imageRect(canvasP0, canvasP0 + drawAreaSz);
 	ImGui::InvisibleButton("canvas", drawAreaSz, ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight);
 	const bool isHovered = ImGui::IsItemHovered(); // Hovered
 	const bool isActive	 = ImGui::IsItemActive();  // Held
-	ImGui::SetCursorPos(canvas_p0);
+	ImGui::SetCursorPos(canvasP0);
 	ImRect zoomArea({0, 0}, {1, 1});
 	if (isHovered)
 	{
@@ -54,12 +54,10 @@ bool C_ImageViewer::Draw() const
 
 	if (!m_GUIHandle)
 	{
-		m_GUIHandle = Core::C_Application::Get().GetActiveRenderer().GetTextureGUIHandle(m_texture);
+		m_GUIHandle = Core::C_Application::Get().GetActiveRenderer().GetTextureGUIHandle(m_Texture);
 	}
 
 	ImGui::Image((void*)(intptr_t)(m_GUIHandle), drawAreaSz, zoomArea.Min, zoomArea.Max);
-
-	const ImVec2 canvas_final = ImGui::GetCursorPos();
 
 	// === minimap ===
 	// show only when zoomed and mouse over
@@ -70,7 +68,7 @@ bool C_ImageViewer::Draw() const
 		const float		width			 = std::min(drawAreaSz.x / 5.f, maxWidth);
 		const float		height			 = width * (m_Size.y / m_Size.x);
 		const ImVec2	minimapDrawAreaSz(width, height);
-		ImGui::SetCursorPos(canvas_p0 + ImVec2(drawAreaSz.x - offsetFromCorner - minimapDrawAreaSz.x, offsetFromCorner));
+		ImGui::SetCursorPos(canvasP0 + ImVec2(drawAreaSz.x - offsetFromCorner - minimapDrawAreaSz.x, offsetFromCorner));
 		const ImVec2 screenSpacePos = ImGui::GetCursorScreenPos();
 		ImGui::Image((void*)(intptr_t)(m_GUIHandle), minimapDrawAreaSz, {0, 0}, {1, 1}, {1, 1, 1, 1}, {1, 0, 0, 1});
 
@@ -81,7 +79,7 @@ bool C_ImageViewer::Draw() const
 
 		window->DrawList->AddRect(screenSpacePos + minPos, screenSpacePos + maxPos, ImGui::ColorConvertFloat4ToU32(ImVec4(1.f, 0.f, 0.f, .5f)), 0.0f);
 	}
-	ImGui::SetCursorPos(canvas_p0);
+	ImGui::SetCursorPos(canvasP0);
 	ImGui::ItemSize(imageRect);
 	return false;
 }

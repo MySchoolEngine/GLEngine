@@ -13,9 +13,8 @@ C_Vec3::C_Vec3(std::string&& name, glm::vec3 val)
 //=================================================================================
 bool C_Vec3::Draw() const
 {
-	float* col;
-	col = &(m_Value.x);
-	return ::ImGui::InputFloat3(m_name.c_str(), col);
+	float* col = &(m_Value.x);
+	return ::ImGui::InputFloat3(m_Name.c_str(), col);
 }
 
 //=================================================================================

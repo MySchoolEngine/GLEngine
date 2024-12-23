@@ -11,7 +11,6 @@
 #include <glm/gtx/matrix_decompose.hpp>
 
 #include <rttr/registration>
-#include <rttr/type>
 
 // clang-format off
 RTTR_REGISTRATION
@@ -53,7 +52,7 @@ namespace GLEngine::GUI::Input {
 
 //=================================================================================
 C_Transformations::C_Transformations(glm::mat4 transformation, ::Utils::C_BitField<E_Transorms> enableTransforms)
-	: m_enabledTransforms(enableTransforms)
+	: m_EnabledTransforms(enableTransforms)
 	, m_Translation(glm::vec3(0.f))
 	, m_Rotation(glm::vec3(0.f))
 	, m_Scale(glm::vec3(1.f, 1.f, 1.f))
@@ -63,7 +62,7 @@ C_Transformations::C_Transformations(glm::mat4 transformation, ::Utils::C_BitFie
 
 //=================================================================================
 C_Transformations::C_Transformations()
-	: m_enabledTransforms({E_Transorms::Translate, E_Transorms::Rotate, E_Transorms::Scale})
+	: m_EnabledTransforms({E_Transorms::Translate, E_Transorms::Rotate, E_Transorms::Scale})
 	, m_Translation(glm::vec3(0.f))
 	, m_Rotation(glm::vec3(0.f))
 	, m_Scale(glm::vec3(1.f, 1.f, 1.f))
@@ -75,15 +74,15 @@ bool C_Transformations::Draw() const
 {
 	bool		   changed = false;
 	rttr::instance obj(*this);
-	if (m_enabledTransforms.CheckFlag(E_Transorms::Translate))
+	if (m_EnabledTransforms.CheckFlag(E_Transorms::Translate))
 	{
 		changed |= GUI::DrawPropertyGUI(obj, rttr::type::get<C_Transformations>().get_property("Translation"));
 	}
-	if (m_enabledTransforms.CheckFlag(E_Transorms::Rotate))
+	if (m_EnabledTransforms.CheckFlag(E_Transorms::Rotate))
 	{
 		changed |= GUI::DrawPropertyGUI(obj, rttr::type::get<C_Transformations>().get_property("Rotation"));
 	}
-	if (m_enabledTransforms.CheckFlag(E_Transorms::Scale))
+	if (m_EnabledTransforms.CheckFlag(E_Transorms::Scale))
 	{
 		changed |= GUI::DrawPropertyGUI(obj, rttr::type::get<C_Transformations>().get_property("Scale"));
 	}
@@ -94,17 +93,17 @@ bool C_Transformations::Draw() const
 glm::mat4 C_Transformations::GetMatrix() const
 {
 	glm::mat4 transform(1.f);
-	if (m_enabledTransforms.CheckFlag(E_Transorms::Translate))
+	if (m_EnabledTransforms.CheckFlag(E_Transorms::Translate))
 	{
 		transform = glm::translate(transform, m_Translation);
 	}
-	if (m_enabledTransforms.CheckFlag(E_Transorms::Rotate))
+	if (m_EnabledTransforms.CheckFlag(E_Transorms::Rotate))
 	{
 		transform = glm::rotate(transform, m_Rotation.x, glm::vec3(1, 0, 0));
 		transform = glm::rotate(transform, m_Rotation.y, glm::vec3(0, 1, 0));
 		transform = glm::rotate(transform, m_Rotation.z, glm::vec3(0, 0, 1));
 	}
-	if (m_enabledTransforms.CheckFlag(E_Transorms::Scale))
+	if (m_EnabledTransforms.CheckFlag(E_Transorms::Scale))
 	{
 		transform = glm::scale(transform, m_Scale);
 	}
@@ -146,7 +145,7 @@ void C_Transformations::SetMatrix(const glm::mat4& mat)
 //=================================================================================
 void C_Transformations::SetEnabledTransforms(::Utils::C_BitField<E_Transorms> enableTransforms)
 {
-	m_enabledTransforms = enableTransforms;
+	m_EnabledTransforms = enableTransforms;
 }
 
 //=================================================================================

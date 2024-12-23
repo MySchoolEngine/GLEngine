@@ -7,11 +7,11 @@
 namespace GLEngine::GUI {
 class GUI_API_EXPORT C_Texture : public I_GUIPart {
 public:
-	C_Texture(std::weak_ptr<Renderer::I_DeviceTexture> texture, const glm::uvec2& dim = {256, 256});
+	C_Texture(const std::weak_ptr<Renderer::I_DeviceTexture>& texture, const glm::uvec2& dim = {256, 256});
 
-	virtual bool Draw() const override;
+	bool Draw() const override;
 
-	void SetOnTextureCleanCB(std::function<void()> cb);
+	void SetOnTextureCleanCB(const std::function<void()>& cb);
 
 private:
 	std::weak_ptr<Renderer::I_DeviceTexture> m_Texture;

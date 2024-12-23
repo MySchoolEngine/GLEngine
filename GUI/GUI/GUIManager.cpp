@@ -23,13 +23,13 @@ C_GUIManager::~C_GUIManager()
 //=================================================================================
 void C_GUIManager::OnUpdate()
 {
-	for (auto& [guid, window] : m_Windows)
+	for (auto* window : m_Windows | std::views::values)
 	{
 		window->Update();
 	}
 	DestroyPossibleWindows();
 
-	for (auto& [guid, window] : m_Windows)
+	for (auto* window : m_Windows | std::views::values)
 	{
 		if (window->IsVisible())
 		{
@@ -59,7 +59,7 @@ C_Window* C_GUIManager::GetWindow(const GUID guid) const
 //=================================================================================
 void C_GUIManager::DestroyWindow(const GUID guid)
 {
-	auto it = m_Windows.find(guid);
+	const auto it = m_Windows.find(guid);
 	if (it == m_Windows.end())
 	{
 		return;
@@ -77,20 +77,20 @@ void C_GUIManager::AddCustomWindow(C_Window* window)
 //=================================================================================
 bool C_GUIManager::CanBeDestroyed() const
 {
-	return std::all_of(m_Windows.begin(), m_Windows.end(), [](const auto& window) -> bool { return window.second->WantDestroy(); });
+	return std::ranges::all_of(m_Windows, [](const auto& window) -> bool { return window.second->WantDestroy(); });
 }
 
 //=================================================================================
 void C_GUIManager::RequestDestroy()
 {
-	std::for_each(m_Windows.begin(), m_Windows.end(), [](const auto& window) { window.second->RequestDestroy(); });
+	std::ranges::for_each(m_Windows, [](const auto& window) { window.second->RequestDestroy(); });
 }
 
 //=================================================================================
 void C_GUIManager::DestroyPossibleWindows()
 {
 	std::vector<GUID> toDelete(5);
-	std::for_each(m_Windows.begin(), m_Windows.end(), [&](const auto& window) {
+	std::ranges::for_each(m_Windows, [&](const auto& window) {
 		auto* windowPtr = window.second;
 		if (windowPtr->WantDestroy() && windowPtr->CanDestroy())
 		{
@@ -98,7 +98,7 @@ void C_GUIManager::DestroyPossibleWindows()
 			toDelete.push_back(window.first);
 		}
 	});
-	std::for_each(toDelete.begin(), toDelete.end(), [&](const auto& guid) { m_Windows.erase(guid); });
+	std::ranges::for_each(toDelete, [&](const auto& guid) { m_Windows.erase(guid); });
 }
 
 } // namespace GLEngine::GUI

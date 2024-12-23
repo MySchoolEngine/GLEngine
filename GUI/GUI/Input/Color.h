@@ -1,29 +1,30 @@
 #pragma once
 
 #include <GUI/GUIPart.h>
+
 #include <Renderer/Colours.h>
 
-#include <rttr/registration_friend.h>
 #include <rttr/registration.h>
+#include <rttr/registration_friend.h>
 
 namespace GLEngine::GUI::Input {
 
 template <class T> class C_ColorBase : public I_GUIPart {
 public:
 	C_ColorBase(std::string&& name, T def)
-		: m_name(std::move(name))
+		: m_Name(std::move(name))
 		, m_Color(def)
 	{
 	}
 
 	[[nodiscard]] const T& GetValue() const { return m_Color; }
-	void				   SetValue(T&& value) { m_Color = value; }
+	void				   SetValue(T&& value) { m_Color = std::move(value); }
 
 	void operator=(const T& val) { m_Color = val; }
-	void operator=(T&& val) { m_Color = val; }
+	void operator=(T&& val) { m_Color = std::move(val); }
 
 protected:
-	std::string m_name;
+	std::string m_Name;
 	mutable T	m_Color;
 };
 

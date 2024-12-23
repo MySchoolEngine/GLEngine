@@ -8,12 +8,12 @@ namespace GLEngine::GUI {
 class C_FormatedText : public I_GUIPart {
 public:
 	GUI_API_EXPORT C_FormatedText(const std::string& formatText);
-	~C_FormatedText() = default;
+	~C_FormatedText() override = default;
 
-	GUI_API_EXPORT C_FormatedText(const C_FormatedText&& other);
+	GUI_API_EXPORT C_FormatedText(const C_FormatedText&& other) noexcept;
 	GUI_API_EXPORT C_FormatedText(const C_FormatedText& other);
 
-	virtual bool Draw() const override;
+	bool Draw() const override;
 
 	GUI_API_EXPORT [[nodiscard]] const std::string_view GetCurrentText() const;
 

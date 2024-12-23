@@ -19,7 +19,7 @@ bool C_FormatedText::Draw() const
 }
 
 //=================================================================================
-C_FormatedText::C_FormatedText(const C_FormatedText&& other)
+C_FormatedText::C_FormatedText(const C_FormatedText&& other) noexcept
 	: m_FormatText(std::move(other.m_FormatText))
 	, m_PrintString(std::move(other.m_PrintString))
 {

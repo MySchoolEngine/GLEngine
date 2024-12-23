@@ -2,7 +2,7 @@
 
 #include <GUI/Input/Color.h>
 
-
+// clang-format off
 RTTR_REGISTRATION
 {
 	using namespace GLEngine::GUI::Input;
@@ -15,6 +15,7 @@ RTTR_REGISTRATION
 		.constructor<std::string&&, glm::vec4>()
 		.property("Colour", &C_ColorRBGA::m_Color);
 }
+// clang-format on
 
 namespace GLEngine::GUI::Input {
 
@@ -23,9 +24,8 @@ namespace GLEngine::GUI::Input {
 //=================================================================================
 bool C_ColorRBG::Draw() const
 {
-	float* col;
-	col = &(m_Color.x);
-	return ::ImGui::ColorEdit3(m_name.c_str(), col);
+	float* col = &(m_Color.x);
+	return ::ImGui::ColorEdit3(m_Name.c_str(), col);
 }
 
 //=================================================================================
@@ -33,9 +33,8 @@ bool C_ColorRBG::Draw() const
 //=================================================================================
 bool C_ColorRBGA::Draw() const
 {
-	float* col;
-	col = &(m_Color.x);
-	return ::ImGui::ColorEdit4(m_name.c_str(), col);
+	float* col = &(m_Color.x);
+	return ::ImGui::ColorEdit4(m_Name.c_str(), col);
 }
 
 } // namespace GLEngine::GUI::Input

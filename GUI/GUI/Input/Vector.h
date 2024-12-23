@@ -7,16 +7,16 @@ namespace GLEngine::GUI::Input {
 template <class T> class C_Vector : public I_GUIPart {
 public:
 	C_Vector(std::string&& name, T val)
-		: m_name(std::move(name))
+		: m_Name(std::move(name))
 		, m_Value(val)
 	{
 	}
 
 	[[nodiscard]] const T& GetValue() const { return m_Value; }
-	void				   SetValue(T&& value) { m_Value = value; }
+	void				   SetValue(T&& value) { m_Value = std::move(value); }
 
 protected:
-	std::string m_name;
+	std::string m_Name;
 	mutable T	m_Value;
 };
 

@@ -26,23 +26,23 @@ namespace GUI {
 class GUI_API_EXPORT C_ImGuiLayer : public Core::C_Layer {
 public:
 	C_ImGuiLayer(GUID window);
-	virtual ~C_ImGuiLayer();
+	~C_ImGuiLayer() override;
 
 	//=================================================================================
-	virtual void OnAttach() override;
-	virtual void OnDetach() override;
-	virtual void OnUpdate() override;
+	void OnAttach() override;
+	void OnDetach() override;
+	void OnUpdate() override;
 
 	virtual void FrameBegin();
 
 	virtual void FrameEnd(Core::I_Input& input);
 
-	virtual void OnEvent(Core::I_Event& event) override;
+	void OnEvent(Core::I_Event& event) override;
 
-	bool CapturingMouse() const;
+	[[nodiscard]] bool CapturingMouse() const;
 
-	[[nodiscard]] GUI::C_GUIManager& GetGUIMgr();
-	[[nodiscard]] virtual bool		 ReadyForDestroy() const override;
+	[[nodiscard]] C_GUIManager& GetGUIMgr();
+	[[nodiscard]] bool			ReadyForDestroy() const override;
 
 private:
 	bool			   OnKeyPressed(Core::C_KeyPressedEvent& event);
@@ -59,9 +59,9 @@ protected:
 
 	ImDrawData* GetRenderData();
 
-	GUID			  m_Window;
-	GUI::C_GUIManager m_GUIMgr;
-	float			  m_Time;
+	GUID		 m_Window;
+	C_GUIManager m_GUIMgr;
+	float		 m_Time;
 };
 } // namespace GUI
 } // namespace GLEngine

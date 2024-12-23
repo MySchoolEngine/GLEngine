@@ -17,7 +17,7 @@
 namespace GLEngine::GUI {
 
 //=================================================================================
-C_ImGuiLayer::C_ImGuiLayer(GUID window)
+C_ImGuiLayer::C_ImGuiLayer(const GUID window)
 	: Core::C_Layer("ImGui")
 	, m_Window(window)
 	, m_Time(0.0f)
@@ -120,9 +120,9 @@ void C_ImGuiLayer::OnUpdate()
 //=================================================================================
 void C_ImGuiLayer::FrameBegin()
 {
-	auto	 window = Core::C_Application::Get().GetWndMgr().GetWindow(m_Window);
-	ImGuiIO& io		= ::ImGui::GetIO();
-	io.DisplaySize	= ImVec2(static_cast<float>(window->GetWidth()), static_cast<float>(window->GetHeight()));
+	const auto window = Core::C_Application::Get().GetWndMgr().GetWindow(m_Window);
+	ImGuiIO&   io	  = ::ImGui::GetIO();
+	io.DisplaySize	  = ImVec2(static_cast<float>(window->GetWidth()), static_cast<float>(window->GetHeight()));
 
 	::ImGui::NewFrame();
 }
@@ -191,7 +191,7 @@ bool C_ImGuiLayer::OnTextEvent(Core::C_TextInputEvent& event)
 {
 	ImGuiIO& io = ::ImGui::GetIO();
 	if (event.GetCodePoint() > 0 && event.GetCodePoint() < 0x10000)
-		io.AddInputCharacter((unsigned short)event.GetCodePoint());
+		io.AddInputCharacter(static_cast<unsigned short>(event.GetCodePoint()));
 
 	return io.WantCaptureKeyboard;
 }
@@ -262,10 +262,10 @@ void C_ImGuiLayer::UpdateMouseCursor(Core::I_Input& input)
 	ImGuiIO& io = ImGui::GetIO();
 	if ((io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange) == 0)
 	{
-		ImGuiMouseCursor_ imgui_cursor = static_cast<ImGuiMouseCursor_>(ImGui::GetMouseCursor());
-		if (imgui_cursor != ImGuiMouseCursor_None)
+		const ImGuiMouseCursor_ imguiCursor = static_cast<ImGuiMouseCursor_>(ImGui::GetMouseCursor());
+		if (imguiCursor != ImGuiMouseCursor_None)
 		{
-			switch (imgui_cursor)
+			switch (imguiCursor)
 			{
 			case ImGuiMouseCursor_Arrow:
 				input.SetMouseCursor(Core::I_Input::E_MouseCursor::Arrow);
