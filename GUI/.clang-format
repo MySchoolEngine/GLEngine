@@ -40,7 +40,6 @@ FixNamespaceComments: true
 CompactNamespaces: true #only cause it is simple to change it to nested one later
 
 UseTab: Always
-AlignConsecutiveDeclarations: true
 
 SortIncludes: true
 IncludeBlocks: Regroup

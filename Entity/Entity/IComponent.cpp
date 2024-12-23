@@ -9,14 +9,17 @@
 #include <imgui_internal.h>
 #include <rttr/registration>
 
+// clang-format off
 RTTR_REGISTRATION
 {
 	using namespace GLEngine::Entity;
 
 	rttr::registration::class_<I_Component>("I_Component")
 		.property("Transformation", &I_Component::m_Transformation)
+		(rttr::policy::prop::as_reference_wrapper)
 		.method("SetParent", &I_Component::SetParent);
 }
+// clang-format on
 
 namespace GLEngine::Entity {
 

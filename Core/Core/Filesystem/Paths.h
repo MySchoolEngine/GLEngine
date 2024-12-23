@@ -1,9 +1,10 @@
 #pragma once
 
 namespace GLEngine::Core::Filesystem {
-inline const static std::filesystem::path entityFile = ".ent";
-inline const static std::filesystem::path entityFolder = "./Entities";
-inline const static std::filesystem::path imageFolder = "./Images";
-inline const static std::filesystem::path modelFolder = "./Models";
-inline const static std::filesystem::path levelsFolder = "./Levels";
+// see DEFINE_RESOURCE_WITH_PATH_TYPE
+inline constexpr static std::string_view entityFile{ ".ent" };
+inline constexpr static std::string_view entityFolder("./Entities");
+inline constexpr static std::string_view imageFolder("./Images");
+inline constexpr static std::string_view modelFolder("./Models");
+inline constexpr static std::string_view levelsFolder("./Levels");
 }

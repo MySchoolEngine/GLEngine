@@ -33,7 +33,7 @@ public:
 
 	template <class ResourceType> T_Handle<ResourceType> LoadResource(const std::filesystem::path filepath, bool isBlocking = false);
 	template <class ResourceType> T_Handle<ResourceType> GetResource(const std::filesystem::path& filepath);
-	virtual std::vector<std::string> GetSupportedExtesnions(std::size_t) const;
+	virtual std::vector<std::string> GetSupportedExtensions(const std::size_t) const;
 
 private:
 	C_ResourceManager();

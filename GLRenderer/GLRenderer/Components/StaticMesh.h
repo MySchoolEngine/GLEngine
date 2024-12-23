@@ -5,9 +5,6 @@
 #include <Renderer/IRenderableComponent.h>
 #include <Renderer/Mesh/Loading/MeshResource.h>
 
-#include <GUI/Input/Color.h>
-#include <GUI/Input/Slider.h>
-
 #include <Core/Resources/ResourceHandle.h>
 
 #include <rttr/registration.h>
@@ -32,11 +29,11 @@ class C_StaticMeshResource;
 namespace Components {
 class C_StaticMesh : public Renderer::I_RenderableComponent {
 public:
-	C_StaticMesh(std::string meshFile, std::string_view shader, std::shared_ptr<Entity::I_Entity> owner);
+	C_StaticMesh(std::string meshFile, std::string_view shader, const std::shared_ptr<Entity::I_Entity>& owner);
 	C_StaticMesh();
-	C_StaticMesh(Core::ResourceHandle<Renderer::MeshResource> meshHandle,
+	C_StaticMesh(const Core::ResourceHandle<Renderer::MeshResource>& meshHandle,
 				 std::string_view							  shader,
-				 std::shared_ptr<Entity::I_Entity>			  owner,
+				 const std::shared_ptr<Entity::I_Entity>&			 owner,
 				 const Renderer::MeshData::Material*		  material = nullptr);
 	~C_StaticMesh();
 	virtual void									  PerformDraw() const override;
@@ -53,7 +50,7 @@ public:
 	void				  SetMeshFile(const std::filesystem::path meshfile);
 	std::filesystem::path GetMeshFile() const;
 
-	void SetMaterial(std::shared_ptr<Renderer::C_Material> material);
+	void SetMaterial(const std::shared_ptr<Renderer::C_Material>& material);
 
 	virtual void Update() override;
 

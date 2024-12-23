@@ -7,24 +7,22 @@
 namespace GLEngine::GUI {
 
 //=================================================================================
-C_FileDialogWindow::C_FileDialogWindow(const std::string&										fileType,
-									   const std::string&										windowName,
-									   const std::function<void(const std::filesystem::path&, C_GUIManager&)>& succesCallback,
-									   GUID														guid,
-									   const std::filesystem::path&								basePath)
+C_FileDialogWindow::C_FileDialogWindow(std::string															   fileType,
+									   const std::string&													   windowName,
+									   const std::function<void(const std::filesystem::path&, C_GUIManager&)>& successCallback,
+									   const GUID																	   guid,
+									   std::filesystem::path												   basePath)
 	: C_Window(guid, windowName)
 	, m_WindowName(windowName)
 	, m_WindowTitle(windowName)
-	, m_BasePath(basePath)
-	, m_fileType(fileType)
-	, m_SuccessCallback(succesCallback)
+	, m_BasePath(std::move(basePath))
+	, m_FileType(std::move(fileType))
+	, m_SuccessCallback(successCallback)
 {
 }
 
 //=================================================================================
-C_FileDialogWindow::~C_FileDialogWindow()
-{
-}
+C_FileDialogWindow::~C_FileDialogWindow() = default;
 
 //=================================================================================
 bool C_FileDialogWindow::Draw(C_GUIManager& guiMgr) const
@@ -35,9 +33,8 @@ bool C_FileDialogWindow::Draw(C_GUIManager& guiMgr) const
 		// action if OK
 		if (ImGuiFileDialog::Instance()->IsOk() == true)
 		{
-			const std::filesystem::path filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
-			const std::filesystem::path filePath	 = ImGuiFileDialog::Instance()->GetCurrentPath();
-			m_SuccessCallback(filePath / filePathName, guiMgr);
+			const std::filesystem::path filePathName = std::filesystem::relative(ImGuiFileDialog::Instance()->GetFilePathName());
+			m_SuccessCallback(filePathName, guiMgr);
 		}
 		else
 		{
@@ -64,7 +61,7 @@ void C_FileDialogWindow::SetBasePath(const std::filesystem::path& basePath)
 //=================================================================================
 void C_FileDialogWindow::OnSetVisible()
 {
-	ImGuiFileDialog::Instance()->OpenDialog(m_WindowName, m_WindowTitle, m_fileType.c_str(), m_BasePath.generic_string(), "");
+	ImGuiFileDialog::Instance()->OpenDialog(m_WindowName, m_WindowTitle, m_FileType.c_str(), m_BasePath.generic_string(), "");
 }
 
 //=================================================================================

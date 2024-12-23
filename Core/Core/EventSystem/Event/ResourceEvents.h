@@ -23,7 +23,7 @@ protected:
 	ResourceHandleBase m_Handle;
 };
 
-template <class ResourceType> requires(is_resource<ResourceType>)
+template <is_resource ResourceType>
 class ResourceEvent : public BaseResourceEvent {
 public:
 	ResourceEvent(ResourceHandle<ResourceType> handle)

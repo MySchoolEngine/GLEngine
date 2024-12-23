@@ -35,7 +35,7 @@ public:
 protected:
 	virtual void		 OnSetVisible() {}
 	virtual void		 OnHide() {}
-	virtual void DrawComponents() const;
+	virtual void		 DrawComponents() const;
 	void		 DrawMenus() const;
 
 	mutable bool m_IsVisible; // cant be bit field as it is being referenced inside

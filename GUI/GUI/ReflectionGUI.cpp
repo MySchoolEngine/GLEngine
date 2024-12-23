@@ -4,8 +4,10 @@
 #include <GUI/GUIManager.h>
 #include <GUI/GUIUtils.h>
 #include <GUI/ReflectionGUI.h>
+#include <GUI/ResourceDialogWindow.h>
 
 #include <Renderer/IRenderer.h>
+#include <Renderer/Mesh/Loading/MeshResource.h>
 #include <Renderer/Textures/TextureManager.h>
 #include <Renderer/Textures/TextureResource.h>
 
@@ -18,6 +20,7 @@
 #include <imgui_internal.h>
 
 namespace GLEngine::GUI {
+namespace {
 
 static C_GUIManager* s_GUIMgr = nullptr;
 
@@ -26,7 +29,7 @@ void DrawText(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	::ImGui::Text((char*)prop.get_value(obj).get_wrapped_value<std::string>().c_str());
+	::ImGui::TextUnformatted(prop.get_value(obj).get_wrapped_value<std::string>().c_str());
 }
 
 //=================================================================================
@@ -69,15 +72,15 @@ bool DrawEnumSelect(rttr::instance& obj, const rttr::property& prop)
 	{
 		const auto range = enumeration.get_values();
 		auto it = range.begin();
-		for (int n = 0; n < range.size(); n++, it++)
+		for (int n = 0; n < range.size(); n++, ++it)
 		{
-			bool is_selected = (currentValue == *it);
-			if (::ImGui::Selectable(enumeration.value_to_name(*it).data(), is_selected))
+			const bool isSelected = (currentValue == *it);
+			if (::ImGui::Selectable(enumeration.value_to_name(*it).data(), isSelected))
 			{
 				changed = true;
-				currentValRef = (*it).get_wrapped_value<int>();
+				currentValRef = it->get_wrapped_value<int>();
 			}
-			if (is_selected)
+			if (isSelected)
 			{
 				::ImGui::SetItemDefaultFocus();
 			}
@@ -102,15 +105,15 @@ bool DrawEnumSelectOptional(rttr::instance& obj, const rttr::property& prop)
 	{
 		const auto range = enumeration.get_values();
 		auto it = range.begin();
-		for (int n = 0; n < range.size(); n++, it++)
+		for (int n = 0; n < range.size(); n++, ++it)
 		{
-			bool is_selected = (currentValue == *it); // todo wrong
-			if (::ImGui::Selectable(enumeration.value_to_name(*it).data(), is_selected))
+			const bool isSelected = (currentValue == *it); // todo wrong
+			if (::ImGui::Selectable(enumeration.value_to_name(*it).data(), isSelected))
 			{
 				changed = true;
-				currentValRef = (*it).get_wrapped_value<int>();
+				currentValRef = it->get_wrapped_value<int>();
 			}
-			if (is_selected)
+			if (isSelected)
 			{
 				::ImGui::SetItemDefaultFocus();
 			}
@@ -156,24 +159,25 @@ bool DrawColour(rttr::instance& obj, const rttr::property& prop)
 }
 
 //=================================================================================
-bool DrawTextureResource(rttr::instance& obj, const rttr::property& prop)
+template<Core::is_resource resourceType, class MetaClassEnum>
+bool DrawResource(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	const static std::size_t maxStringLen = 30; // found out by experiment
+	static constexpr std::size_t s_MaxStringLen = 30; // found out by experiment
 
-	std::reference_wrapper<Core::ResourceHandle<Renderer::TextureResource>> resource
-		= const_cast<Core::ResourceHandle<Renderer::TextureResource>&>(prop.get_value(obj).get_wrapped_value<Core::ResourceHandle<Renderer::TextureResource>>());
-	const auto	   propertyName = GetMetadataMember<UI::Texture::Name>(prop);
+	std::reference_wrapper resource
+		= const_cast<Core::ResourceHandle<resourceType>&>(prop.get_value(obj).get_wrapped_value<Core::ResourceHandle<resourceType>>());
+	const auto	   propertyName = GetMetadataMember<MetaClassEnum::Name>(prop);
 	bool		   ret			= false;
 	const ImVec2   drawAreaSz(std::min(380.f, ImGui::GetWindowWidth()), 88);
-	const ImVec2   canvas_p0 = ImGui::GetCursorPos();
-	const ImRect   imageRect(canvas_p0, canvas_p0 + drawAreaSz);
-	const bool	   is_hovered = ImGui::IsItemHovered(); // Hovered
-	const bool	   is_active  = ImGui::IsItemActive();	// Held
-	ImDrawList*	   draw_list  = ImGui::GetWindowDrawList();
-	const auto	   canvas_pos = ImGui::GetCursorScreenPos();
-	const ImGuiIO& io		  = ImGui::GetIO();
+	const ImVec2   canvasP0 = ImGui::GetCursorPos();
+	const ImRect   imageRect(canvasP0, canvasP0 + drawAreaSz);
+	const bool	   isHovered = ImGui::IsItemHovered(); // Hovered
+	const bool	   isActive  = ImGui::IsItemActive();	// Held
+	ImDrawList*	   drawList  = ImGui::GetWindowDrawList();
+	const auto	   canvasPos = ImGui::GetCursorScreenPos();
+	const ImGuiIO& io		 = ImGui::GetIO();
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{0, 0});
 
@@ -183,31 +187,43 @@ bool DrawTextureResource(rttr::instance& obj, const rttr::property& prop)
 
 		ImGui::SetCursorPos(ImVec2{2, 2});
 		{
-			const ImVec2& previewSize{drawAreaSz.y - 4, drawAreaSz.y - 4};
+			const ImVec2 previewSize{drawAreaSz.y - 4, drawAreaSz.y - 4};
 			ImGui::BeginChildFrame(ImGuiID{static_cast<unsigned int>(std::hash<std::string>{}(propertyName + filename + "_preview"))}, previewSize);
-			if (resource.get())
+			if constexpr (std::is_same_v<resourceType, Renderer::TextureResource>)
 			{
-				auto& tMGR			 = Core::C_Application::Get().GetActiveRenderer().GetTextureManager();
-				auto  rendererHandle = tMGR.GetOrCreateTexture(resource);
-				auto* GUIHandle		 = Core::C_Application::Get().GetActiveRenderer().GetTextureGUIHandle(rendererHandle);
-				ImGui::Image((void*)(intptr_t)(GUIHandle), previewSize);
+				if (resource.get())
+				{
+					auto& tMGR = Core::C_Application::Get().GetActiveRenderer().GetTextureManager();
+					auto  rendererHandle = tMGR.GetOrCreateTexture(resource);
+					auto* GUIHandle = Core::C_Application::Get().GetActiveRenderer().GetTextureGUIHandle(rendererHandle);
+					ImGui::Image((void*)(intptr_t)(GUIHandle), previewSize);
+				}
 			}
 			ImGui::EndChildFrame();
 		}
 		ImGui::SetCursorPos(ImVec2{drawAreaSz.y + 2, 6});
-		ImGui::Text(propertyName.c_str());
-		if (filename.size() > maxStringLen && filename.empty() == false)
+		ImGui::TextUnformatted(propertyName.c_str());
+		if (filename.size() > s_MaxStringLen && filename.empty() == false)
 		{
-			filename.erase(0, filename.size() - maxStringLen + 3);
+			filename.erase(0, filename.size() - s_MaxStringLen + 3);
 			filename = std::string("...") + filename;
 		}
 		else
 		{
-			ImGui::Text("Empty");
+			ImGui::TextUnformatted("Empty");
 		}
 		ImGui::SetCursorPos(ImVec2{drawAreaSz.y + 2, 30});
-		ImGui::Text(filename.c_str());
-		const std::string loadImageText{"Load image"};
+		ImGui::TextUnformatted(filename.c_str());
+		std::string loadImageText;
+		if constexpr (std::is_same_v<resourceType, Renderer::TextureResource>)
+		{
+			loadImageText = "Load image";
+		}
+		else if constexpr (std::is_same_v<resourceType, Renderer::MeshResource>)
+		{
+			loadImageText = "Load model";
+		}
+
 		const ImGuiStyle& style			 = GImGui->Style;
 		const auto		  buttonTextSize = ImGui::CalcTextSize(loadImageText.c_str(), nullptr, true);
 		const auto		  buttonSize	 = ImVec2(buttonTextSize.x + style.FramePadding.x * 2.0f, buttonTextSize.y + style.FramePadding.y * 2.0f);
@@ -217,35 +233,16 @@ bool DrawTextureResource(rttr::instance& obj, const rttr::property& prop)
 		{
 			// TODO:
 			//	[ ] Create generic file gui window
+			const auto imageLoaderGUID	  = NextGUID();
+			auto*	   resourcePathSelect = new C_ResourceDialogWindow(resource, "Select image", imageLoaderGUID);
 
-			auto&			   rm			= Core::C_ResourceManager::Instance();
-			const auto		   resourceType = rttr::type::get<Renderer::TextureResource>();
-			const auto		   x			= resourceType.get_method("GetResourceTypeHashStatic").invoke({}).get_value<std::size_t>();
-			auto			   extensions	= rm.GetSupportedExtesnions(x);
-			std::ostringstream oss;
-			std::copy(extensions.begin(), extensions.end(), std::ostream_iterator<std::string>(oss, ", "));
-			const std::string extensionsO = oss.str();
-
-			const std::string extesnionsList(extensionsO.substr(0, extensionsO.size() - 2));
-			const auto		  imageLoaderGUID	 = NextGUID();
-			auto*			  resourcePathSelect = new GUI::C_FileDialogWindow(
-				extensionsO, "Select image",
-				[resource, imageLoaderGUID, prop, obj](const std::filesystem::path& path, GUI::C_GUIManager& guiMgr) mutable {
-					// lets pass GUI MGR as argument
-					auto& rm	   = Core::C_ResourceManager::Instance();
-					resource.get() = rm.LoadResource<Renderer::TextureResource>(path);
-
-					prop.set_value(obj, resource);
-					guiMgr.DestroyWindow(imageLoaderGUID);
-				},
-				imageLoaderGUID, "./Images");
 			s_GUIMgr->AddCustomWindow(resourcePathSelect);
 			resourcePathSelect->SetVisible();
 		}
 
 		if (resource.get().IsReady())
 		{
-			if (DrawSquareButton(draw_list, canvas_pos + ImVec2(drawAreaSz.x, 0) - ImVec2(20, -4), E_ButtonType::Cross) && io.MouseReleased[0] && resource.get().IsReady())
+			if (DrawSquareButton(drawList, canvasPos + ImVec2(drawAreaSz.x, 0) - ImVec2(20, -4), E_ButtonType::Cross) && io.MouseReleased[0] && resource.get().IsReady())
 			{
 				ret			   = true;
 				resource.get() = {};
@@ -256,9 +253,10 @@ bool DrawTextureResource(rttr::instance& obj, const rttr::property& prop)
 		ImGui::EndChildFrame();
 	}
 
-	ImGui::SetCursorPos(canvas_p0);
+	ImGui::SetCursorPos(canvasP0);
 	ImGui::ItemSize(imageRect);
-	return false;
+	return ret;
+}
 }
 
 //=================================================================================
@@ -344,7 +342,11 @@ bool DrawPropertyGUI(rttr::instance& obj, const rttr::property& prop)
 	}
 	else if (UI::IsUIMetaclass<MetaGUI::Texture>(prop))
 	{
-		return DrawTextureResource(obj, prop);
+		return DrawResource<Renderer::TextureResource, UI::Texture>(obj, prop);
+	}
+	else if (UI::IsUIMetaclass<MetaGUI::MeshResource>(prop))
+	{
+		return DrawResource<Renderer::MeshResource, UI::MeshResource>(obj, prop);
 	}
 	else if (UI::IsUIMetaclass<MetaGUI::EnumSelectOptional>(prop))
 	{
