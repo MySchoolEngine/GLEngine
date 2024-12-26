@@ -11,7 +11,8 @@
 #include <GLRenderer/Components/SkeletalMesh.h>
 #include <GLRenderer/Components/SkyBox.h>
 #include <GLRenderer/Debug.h>
-#include <GLRenderer/GLRenderInterface.h>
+#include <GLRenderer/GLRenderInterface3D.h>
+#include <GLRenderer/GLRendererInterface2D.h>
 #include <GLRenderer/GLResourceManager.h>
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 #include <GLRenderer/ImGui/GLImGUILayer.h>
@@ -166,6 +167,8 @@ void C_ExperimentWindow::Update()
 	{
 		RenderDoc::C_DebugScope s("Handles draw");
 		m_3DRenderer.Commit(*m_RenderInterfaceHandles.get());
+		m_2DRenderer.Commit(*m_2DRenderInterfaceHandles.get());
+		m_2DRenderer.Clear();
 	}
 	m_HDRFBO->Unbind<E_FramebufferTarget::Draw>();
 
@@ -289,7 +292,8 @@ void C_ExperimentWindow::OnAppInit()
 	m_RenderInterface
 		= std::make_unique<C_RenderInterface>(Shaders::C_ShaderManager::Instance(), Textures::C_TextureUnitManger::Instance(), *static_cast<C_OGLRenderer*>(m_renderer.get()));
 
-	m_RenderInterfaceHandles = std::make_unique<C_GLRenderInterface>();
+	m_RenderInterfaceHandles   = std::make_unique<C_GLRenderInterface3D>();
+	m_2DRenderInterfaceHandles = std::make_unique<C_GLRendererInterface2D>(glm::uvec2{ GetWidth(), GetHeight() });
 
 	SetupWorld("Levels/cornellBox.xml");
 

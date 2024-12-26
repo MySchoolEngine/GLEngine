@@ -22,10 +22,10 @@ struct RenderCall3D {
 	Handle<Pipeline>			  PipelineHandle;
 };
 
-class RenderInterface {
+class I_RenderInterface3D {
 public:
-	RenderInterface()		   = default;
-	virtual ~RenderInterface() = default;
+	I_RenderInterface3D()		   = default;
+	virtual ~I_RenderInterface3D() = default;
 
 	// I need to draw, draw instanced etc.
 	virtual void Render(const RenderCall3D& call) = 0;
@@ -37,7 +37,7 @@ public:
 	// somewhere I need to get render camera
 	void Draw(RenderCall3D&& call); // 1]
 	void Clear();
-	void Commit(RenderInterface& interface); // resource manager needed
+	void Commit(I_RenderInterface3D& interface); // resource manager needed
 
 private:
 	std::vector<RenderCall3D> m_DrawCalls;

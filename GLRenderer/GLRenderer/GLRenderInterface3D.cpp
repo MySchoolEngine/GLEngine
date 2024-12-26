@@ -1,7 +1,7 @@
 #include <GLRendererStdafx.h>
 
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
-#include <GLRenderer/GLRenderInterface.h>
+#include <GLRenderer/GLRenderInterface3D.h>
 #include <GLRenderer/GLResourceManager.h>
 #include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
@@ -14,7 +14,7 @@
 namespace GLEngine::GLRenderer {
 
 //=================================================================================
-C_GLRenderInterface::C_GLRenderInterface()
+C_GLRenderInterface3D::C_GLRenderInterface3D()
 {
 	glGenVertexArrays(1, &m_VAOid);
 	const static std::string name("defaultVAO");
@@ -22,13 +22,13 @@ C_GLRenderInterface::C_GLRenderInterface()
 }
 
 //=================================================================================
-C_GLRenderInterface::~C_GLRenderInterface()
+C_GLRenderInterface3D::~C_GLRenderInterface3D()
 {
 	glDeleteVertexArrays(1, &m_VAOid);
 }
 
 //=================================================================================
-void C_GLRenderInterface::Render(const Renderer::RenderCall3D& call)
+void C_GLRenderInterface3D::Render(const Renderer::RenderCall3D& call)
 {
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
 	auto& glRM	   = static_cast<C_OGLRenderer&>(renderer).GetRMGR();

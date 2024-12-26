@@ -6,6 +6,7 @@
 #include <GLRenderer/MainPassTechnique.h>
 #include <GLRenderer/ShadowMapPass.h>
 
+#include <Renderer/Renderer2D.h>
 #include <Renderer/Renderer3D.h>
 
 #include <Editor/EditorLayer.h>
@@ -38,7 +39,8 @@ class C_GLImGUILayer;
 class C_Framebuffer;
 class C_SunShadowMapTechnique;
 class C_RenderInterface;
-class C_GLRenderInterface;
+class C_GLRenderInterface3D;
+class C_GLRendererInterface2D;
 
 namespace Windows {
 class C_ExperimentWindow : public GLFW::C_GLFWoGLWindow {
@@ -78,8 +80,7 @@ private:
 	//===========================
 	// GUI
 	//===========================
-	enum class E_GUITexts : std::uint8_t
-	{
+	enum class E_GUITexts : std::uint8_t {
 		AvgFrametime,
 		AvgFps,
 		MinMaxFrametime,
@@ -103,14 +104,16 @@ private:
 	std::shared_ptr<C_ShadowMapTechnique>	 m_ShadowPass;
 	std::shared_ptr<C_SunShadowMapTechnique> m_SunShadow;
 
-	std::unique_ptr<C_Framebuffer>		 m_HDRFBO;
-	std::unique_ptr<C_Framebuffer>		 m_HDRFBOAtmosphere;
-	std::unique_ptr<C_RenderInterface>	 m_RenderInterface;
-	std::unique_ptr<C_GLRenderInterface> m_RenderInterfaceHandles;
+	std::unique_ptr<C_Framebuffer>			 m_HDRFBO;
+	std::unique_ptr<C_Framebuffer>			 m_HDRFBOAtmosphere;
+	std::unique_ptr<C_RenderInterface>		 m_RenderInterface;
+	std::unique_ptr<C_GLRenderInterface3D>	 m_RenderInterfaceHandles;
+	std::unique_ptr<C_GLRendererInterface2D> m_2DRenderInterfaceHandles;
 
 	Editor::C_EditorLayer m_EditorLayer;
 
-	Renderer::Renderer3D m_3DRenderer;
+	Renderer::Renderer3D   m_3DRenderer;
+	Renderer::C_Renderer2D m_2DRenderer;
 };
 
 } // namespace Windows
