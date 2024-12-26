@@ -1,11 +1,9 @@
-#include <gtest/gtest.h>
+#include <RendererTestStdafx.h>
 
 #include <Renderer/Colours.h>
 #include <Renderer/Textures/Filtering/LinearFiltering.h>
 #include <Renderer/Textures/Storage/TextureLinearStorage.h>
 #include <Renderer/Textures/TextureView.h>
-
-#include <RendererTest/GlmPrinters.h>
 
 namespace GLEngine::Renderer {
 class TextureViewFixture : public ::testing::Test {
