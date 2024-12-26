@@ -6,7 +6,7 @@ namespace GLEngine::Renderer::MeshData {
 
 class C_Geometry {
 public:
-	[[nodiscard]] static Mesh CreatePlane(int subdivisions = 0)
+	[[nodiscard]] static Mesh CreatePlane(const float size = 2.f, const int subdivisions = 0)
 	{
 		GLE_ASSERT(subdivisions >= 0, "Can't subdivide by negative number.");
 		Mesh mesh;
@@ -14,16 +14,16 @@ public:
 
 		if (subdivisions == 0)
 		{
-			AddSquare(mesh, 2.0, 0, 0);
+			AddSquare(mesh, size, 0, 0, subdivisions + 1);
 		}
 		else
 		{
-			const auto squareSize = 2.0f / subdivisions;
+			const auto squareSize = size / subdivisions;
 			for (int i = 0; i < subdivisions; ++i)
 			{
 				for (int j = 0; j < subdivisions; ++j)
 				{
-					AddSquare(mesh, squareSize, i, j);
+					AddSquare(mesh, squareSize, i, j, subdivisions);
 				}
 			}
 		}
@@ -105,7 +105,7 @@ public:
 		mesh.vertices.emplace_back(-width, 0, -width);
 		getNormalBinromal();
 
-		for (int i = 0; i < mesh.vertices.size(); ++i)
+		for (std::size_t i = 0; i < mesh.vertices.size(); ++i)
 		{
 			mesh.texcoords.emplace_back(1, 0);
 		}
@@ -114,26 +114,27 @@ public:
 	}
 
 private:
-	static void AddSquare(Mesh& mesh, float size, int xPos, int yPos)
+	static void AddSquare(Mesh& mesh, const float size, const int xPos, const int yPos, const int subdivisions)
 	{
 		GLE_ASSERT(size > 0.0, "Negative square size not supported");
 		const auto leftEdge	  = -1.0f + (size * xPos);
 		const auto rightEdge  = leftEdge + size;
 		const auto topEdge	  = 1.0f - (size * yPos);
 		const auto bottomEdge = topEdge - size;
-		mesh.vertices.emplace_back(rightEdge, 0, topEdge);		// 3
-		mesh.vertices.emplace_back(leftEdge, 0, bottomEdge);	// 2
-		mesh.vertices.emplace_back(leftEdge, 0, topEdge);		// 1
-		mesh.vertices.emplace_back(rightEdge, 0, topEdge);		// 6 = 3
-		mesh.vertices.emplace_back(rightEdge, 0, bottomEdge);	// 5
-		mesh.vertices.emplace_back(leftEdge, 0, bottomEdge);	// 4 = 2
+		mesh.vertices.emplace_back(rightEdge, 0, topEdge);	  // 3
+		mesh.vertices.emplace_back(leftEdge, 0, bottomEdge);  // 2
+		mesh.vertices.emplace_back(leftEdge, 0, topEdge);	  // 1
+		mesh.vertices.emplace_back(rightEdge, 0, topEdge);	  // 6 = 3
+		mesh.vertices.emplace_back(rightEdge, 0, bottomEdge); // 5
+		mesh.vertices.emplace_back(leftEdge, 0, bottomEdge);  // 4 = 2
 
 		// I am drawing square [-1,1][-1,1] so I need to divide size by 2
 		// clamp is needed due to float imprecision
-		const auto uvLeftEdge	= std::clamp(0.0 + (size / 2.0) * xPos, 0.0, 1.0);
-		const auto uvRightEdge	= std::clamp(uvLeftEdge + (size / 2.0), 0.0, 1.0);
-		const auto uvTopEdge	= std::clamp(1.0f - (size / 2.0) * yPos, 0.0, 1.0);
-		const auto uvBottomEdge = std::clamp(uvTopEdge - (size / 2.0), 0.0, 1.0);
+		const float divisionSize = 1.f / subdivisions;
+		const auto	uvLeftEdge	 = std::clamp(0.0 + divisionSize * xPos, 0.0, 1.0);
+		const auto	uvRightEdge	 = std::clamp(uvLeftEdge + divisionSize, 0.0, 1.0);
+		const auto	uvTopEdge	 = std::clamp(1.0 - (divisionSize * yPos), 0.0, 1.0);
+		const auto	uvBottomEdge = std::clamp(uvTopEdge - divisionSize, 0.0, 1.0);
 
 		mesh.texcoords.emplace_back(uvRightEdge, uvTopEdge);
 		mesh.texcoords.emplace_back(uvLeftEdge, uvBottomEdge);
