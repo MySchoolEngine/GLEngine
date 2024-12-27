@@ -1,8 +1,10 @@
 ﻿#include <GLRendererStdafx.h>
 
-#include <GLRenderer/Shaders/ShaderManager.h>
+#include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/GLRendererInterface2D.h>
+#include <GLRenderer/Helpers/RenderHelpers.h>
 #include <GLRenderer/OGLRenderer.h>
+#include <GLRenderer/Shaders/ShaderManager.h>
 
 #include <Renderer/IRenderer.h>
 #include <Renderer/Mesh/Geometry.h>
@@ -11,9 +13,6 @@
 
 #include <Core/Application.h>
 #include <Core/Resources/ResourceManager.h>
-
-#include "Commands/HACK/LambdaCommand.h"
-#include "Helpers/RenderHelpers.h"
 
 
 namespace GLEngine::GLRenderer {
