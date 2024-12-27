@@ -137,7 +137,7 @@ bool DrawSliderInt(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	return ::ImGui::SliderInt(GetMetadataMember<UI::SliderInt::Name>(prop).c_str(), (prop.get_value(obj).convert<int*>()), GetMetadataMember<UI::SliderInt::Min>(prop),
+	return ::ImGui::SliderInt(GetMetadataMember<UI::SliderInt::Name>(prop).c_str(), (int*)(&prop.get_value(obj).get_wrapped_value<int>()), GetMetadataMember<UI::SliderInt::Min>(prop),
 							  GetMetadataMember<UI::SliderInt::Max>(prop));
 }
 
