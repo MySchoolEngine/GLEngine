@@ -176,6 +176,7 @@ std::uint64_t C_Texture::CreateHandle()
 	{
 		m_Handle = glGetTextureSamplerHandleARB(m_Texture, m_DefaultSampler.m_Sampler);
 	}
+	GLE_ASSERT(m_IsPresentOnGPU, "CreateHandle before upload to GPU");
 	return GetHandle();
 }
 

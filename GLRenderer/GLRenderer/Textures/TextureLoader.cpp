@@ -60,6 +60,7 @@ std::shared_ptr<C_Texture> TextureLoader::LoadAndInitTexture(const std::filesyst
 		{
 			glTextureSubImage2D(texture->GetTexture(), static_cast<GLint>(Level), 0, 0, Extent.x, Extent.y, Format.External, Format.Type, Texture.data(0, 0, Level));
 		}
+		texture->SetReadyToUse();
 	}
 
 
