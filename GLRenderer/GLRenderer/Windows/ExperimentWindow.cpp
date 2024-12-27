@@ -11,7 +11,8 @@
 #include <GLRenderer/Components/SkeletalMesh.h>
 #include <GLRenderer/Components/SkyBox.h>
 #include <GLRenderer/Debug.h>
-#include <GLRenderer/GLRenderInterface.h>
+#include <GLRenderer/GLRenderInterface3D.h>
+#include <GLRenderer/GLRendererInterface2D.h>
 #include <GLRenderer/GLResourceManager.h>
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 #include <GLRenderer/ImGui/GLImGUILayer.h>
@@ -26,6 +27,7 @@
 #include <GLRenderer/Textures/TextureManager.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 #include <GLRenderer/Windows/ExperimentWindow.h>
+#include <GLRenderer/Windows/WaterRendering.h>
 
 #include <Renderer/Cameras/OrbitalCamera.h>
 #include <Renderer/Components/StaticMeshHandles.h>
@@ -105,7 +107,7 @@ C_ExperimentWindow::C_ExperimentWindow(const Core::S_WindowInfo& wndInfo)
 //=================================================================================
 C_ExperimentWindow::~C_ExperimentWindow()
 {
-	static_cast<C_OGLRenderer*>(m_renderer.get())->DestroyControls(m_ImGUI->GetGUIMgr());
+	dynamic_cast<C_OGLRenderer*>(m_renderer.get())->DestroyControls(m_ImGUI->GetGUIMgr());
 	m_CamManager.DestroyControls(m_ImGUI->GetGUIMgr());
 	Renderer::C_MaterialManager::Instance().DestroyControls(m_ImGUI->GetGUIMgr());
 };
@@ -133,7 +135,7 @@ void C_ExperimentWindow::Update()
 
 	if (auto* rayTraceWindow = m_ImGUI->GetGUIMgr().GetWindow(m_RayTraceGUID); rayTraceWindow)
 	{
-		static_cast<Renderer::C_RayTraceWindow*>(rayTraceWindow)->DebugDraw(&C_DebugDraw::Instance());
+		dynamic_cast<Renderer::C_RayTraceWindow*>(rayTraceWindow)->DebugDraw(&C_DebugDraw::Instance());
 	}
 
 	m_World->OnUpdate();
@@ -150,13 +152,13 @@ void C_ExperimentWindow::Update()
 	{
 		// shadow pass
 		m_SunShadow->Render(*m_World.get(), camera.get());
-		m_MainPass->SetSunShadowMap(m_SunShadow->GetZBuffer()->GetHandle());
+		m_MainPass->SetSunShadowMap(m_SunShadow->GetZBuffer());
 		m_MainPass->SetSunViewProjection(m_SunShadow->GetLastViewProjection());
 	}
 	else
 	{
 		auto& tMGR = Textures::C_TextureManager::Instance();
-		m_MainPass->SetSunShadowMap(tMGR.GetIdentityTexture()->GetHandle());
+		m_MainPass->SetSunShadowMap(tMGR.GetIdentityTextureHandle());
 	}
 	// ======
 	// World render
@@ -166,13 +168,15 @@ void C_ExperimentWindow::Update()
 	{
 		RenderDoc::C_DebugScope s("Handles draw");
 		m_3DRenderer.Commit(*m_RenderInterfaceHandles.get());
+		m_2DRenderer.Commit(*m_2DRenderInterfaceHandles.get());
+		m_2DRenderer.Clear();
 	}
 	m_HDRFBO->Unbind<E_FramebufferTarget::Draw>();
 
 	// ======
 	// Atmosphere render
 	// ======
-	Renderer::I_DeviceTexture* HDRTexturePtr = nullptr;
+	Renderer::Handle<Renderer::Texture> HDRTexturePtr;
 	if (m_HDRFBOAtmosphere)
 	{
 		m_HDRFBO->Bind<E_FramebufferTarget::Read>();
@@ -186,19 +190,19 @@ void C_ExperimentWindow::Update()
 					shader.SetUniform("hdrBuffer", 0);
 					shader.SetUniform("depthBuffer", 1);
 				},
-			.inputTextures = {HDRTexture.get(), worldDepth.get()},
+			.inputTextures = {HDRTexture, worldDepth},
 			.renderTarget  = *m_HDRFBOAtmosphere.get(),
 		};
 		m_RenderInterface->RenderFullScreen(fsSetup);
 		m_HDRFBO->Unbind<E_FramebufferTarget::Read>();
 
-		HDRTexturePtr = m_HDRFBOAtmosphere->GetAttachment(GL_COLOR_ATTACHMENT0).get();
+		HDRTexturePtr = m_HDRFBOAtmosphere->GetAttachment(GL_COLOR_ATTACHMENT0);
 		m_HDRFBOAtmosphere->Bind<E_FramebufferTarget::Read>();
 	}
 	else
 	{
 		m_HDRFBO->Bind<E_FramebufferTarget::Read>();
-		HDRTexturePtr = m_HDRFBO->GetAttachment(GL_COLOR_ATTACHMENT0).get();
+		HDRTexturePtr = m_HDRFBO->GetAttachment(GL_COLOR_ATTACHMENT0);
 	}
 
 	// ======
@@ -272,6 +276,7 @@ void C_ExperimentWindow::OnEvent(Core::I_Event& event)
 //=================================================================================
 void C_ExperimentWindow::OnAppInit()
 {
+	m_renderer->Commit(); // to upload default textures before anything else
 	m_FrameTimer.reset();
 	m_MainPass = std::make_unique<C_MainPassTechnique>();
 	{
@@ -289,25 +294,42 @@ void C_ExperimentWindow::OnAppInit()
 	m_RenderInterface
 		= std::make_unique<C_RenderInterface>(Shaders::C_ShaderManager::Instance(), Textures::C_TextureUnitManger::Instance(), *static_cast<C_OGLRenderer*>(m_renderer.get()));
 
-	m_RenderInterfaceHandles = std::make_unique<C_GLRenderInterface>();
+	m_RenderInterfaceHandles   = std::make_unique<C_GLRenderInterface3D>();
+	m_2DRenderInterfaceHandles = std::make_unique<C_GLRendererInterface2D>(glm::uvec2{GetWidth(), GetHeight()});
 
 	SetupWorld("Levels/cornellBox.xml");
 
 #pragma region FBOSteup
 	{
-		m_HDRFBO = std::unique_ptr<C_Framebuffer>(m_Device->AllocateFramebuffer("HDR"));
-		const Renderer::TextureDescriptor HDRTextureDef{"hdrTexture", GetWidth(), GetHeight(), Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::RGBA16f, false};
-		auto							  HDRTexture = std::make_shared<Textures::C_Texture>(HDRTextureDef);
-		m_Device->AllocateTexture(*HDRTexture.get());
+		using namespace Renderer;
+		ResourceManager& rrm		= m_renderer->GetRM();
+		m_HDRFBO					= std::unique_ptr<C_Framebuffer>(m_Device->AllocateFramebuffer("HDR"));
+		const auto gpuSamplerHandle = rrm.createSampler(SamplerDescriptor2D{
+			.m_FilterMin = E_TextureFilter::Linear,
+			.m_FilterMag = E_TextureFilter::Linear,
+			.m_WrapS	 = E_WrapFunction::Repeat,
+			.m_WrapT	 = E_WrapFunction::Repeat,
+			.m_WrapU	 = E_WrapFunction::Repeat,
+		});
 
-		HDRTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
-		// ~HDRTexture setup
+		const TextureDescriptor HDRTextureDef{.name			 = "hdrTexture",
+											  .width		 = GetWidth(),
+											  .height		 = GetHeight(),
+											  .type			 = E_TextureType::TEXTURE_2D,
+											  .format		 = E_TextureFormat::RGBA16f,
+											  .m_bStreamable = false};
+		auto					HDRTexture = rrm.createTexture(HDRTextureDef);
+		m_renderer->SetTextureSampler(HDRTexture, gpuSamplerHandle);
+
 		m_HDRFBO->AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
 
-		const Renderer::TextureDescriptor hdrDepthTextureDef{
-			"hdrDepthTexture", GetWidth(), GetHeight(), Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::D16, false};
-		auto depthStencilTexture = std::make_shared<Textures::C_Texture>(hdrDepthTextureDef);
-		m_Device->AllocateTexture(*depthStencilTexture.get());
+		const TextureDescriptor hdrDepthTextureDef{.name		  = "hdrDepthTexture",
+												   .width		  = GetWidth(),
+												   .height		  = GetHeight(),
+												   .type		  = E_TextureType::TEXTURE_2D,
+												   .format		  = E_TextureFormat::D16,
+												   .m_bStreamable = false};
+		auto					depthStencilTexture = rrm.createTexture(hdrDepthTextureDef);
 
 		// depthStencilTexture->SetTexParameter(GL_COMPARE_REF_TO_TEXTURE, GL_COMPARE_REF_TO_TEXTURE);
 		// depthStencilTexture->SetTexParameter(GL_TEXTURE_COMPARE_FUNC, GL_NEVER);
@@ -417,6 +439,20 @@ void C_ExperimentWindow::OnAppInit()
 		return false;
 	}));
 
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Water rendering", [&]() {
+		if (guiMGR.GetWindow(m_WaterRenderingGUID) != nullptr)
+		{
+			return false;
+		}
+		m_WaterRenderingGUID = NextGUID();
+
+		auto* waterRendering = new C_WaterRendering(m_WaterRenderingGUID, guiMGR, *m_Device.get());
+
+		guiMGR.AddCustomWindow(waterRendering);
+		waterRendering->SetVisible(true);
+		return false;
+	}));
+
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Image editor", [&]() {
 		if (guiMGR.GetWindow(m_ImageEditorGUID) != nullptr)
 		{
@@ -431,7 +467,7 @@ void C_ExperimentWindow::OnAppInit()
 		return false;
 	}));
 
-	const auto rendererWindow = static_cast<C_OGLRenderer*>(m_renderer.get())->SetupControls(guiMGR);
+	const auto rendererWindow = dynamic_cast<C_OGLRenderer*>(m_renderer.get())->SetupControls(guiMGR);
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItemOpenWindow>("Renderer", rendererWindow, guiMGR));
 
 	const auto camManager = m_CamManager.SetupControls(guiMGR);
@@ -446,38 +482,47 @@ void C_ExperimentWindow::OnAppInit()
 //=================================================================================
 bool C_ExperimentWindow::OnWindowResized(Core::C_WindowResizedEvent& event)
 {
+	GLE_TODO("26-12-2024", "RohacekD", "Get descriptors from handles instead for more API agnostic approach");
+	auto& glRM = dynamic_cast<C_OGLRenderer*>(m_renderer.get())->GetRMGR();
 	{
-		auto						HDRTexture = m_HDRFBO->GetAttachment(GL_COLOR_ATTACHMENT0);
-		Renderer::TextureDescriptor descHDR	   = HDRTexture->GetDescriptor();
-		descHDR.width						   = event.GetWidth();
-		descHDR.height						   = event.GetHeight();
-		m_Device->DestroyTexture(*HDRTexture.get());
-		HDRTexture = std::make_shared<Textures::C_Texture>(descHDR);
-		m_Device->AllocateTexture(*HDRTexture.get());
-		m_HDRFBO->AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
+		GLE_TODO("26-12-2024", "RohacekD", "Preserve sampler");
+		auto						HDRTextureHandle = m_HDRFBO->GetAttachment(GL_COLOR_ATTACHMENT0);
+		auto*						HDRTexture		 = glRM.GetTexture(HDRTextureHandle);
+		Renderer::TextureDescriptor descHDR			 = HDRTexture->GetDescriptor();
+		descHDR.width								 = event.GetWidth();
+		descHDR.height								 = event.GetHeight();
+
+		glRM.destoryTexture(HDRTextureHandle);
+		HDRTextureHandle = glRM.createTexture(descHDR);
+
+		m_HDRFBO->AttachTexture(GL_COLOR_ATTACHMENT0, HDRTextureHandle);
 	}
 
 	{
-		auto						depthStencilTexture = m_HDRFBO->GetAttachment(GL_DEPTH_ATTACHMENT);
-		Renderer::TextureDescriptor descDepth			= depthStencilTexture->GetDescriptor();
-		descDepth.width									= event.GetWidth();
-		descDepth.height								= event.GetHeight();
-		m_Device->DestroyTexture(*depthStencilTexture.get());
-		depthStencilTexture = std::make_shared<Textures::C_Texture>(descDepth);
-		m_Device->AllocateTexture(*depthStencilTexture.get());
-		m_HDRFBO->AttachTexture(GL_DEPTH_ATTACHMENT, depthStencilTexture);
+		auto						depthStencilTextureHandle = m_HDRFBO->GetAttachment(GL_DEPTH_ATTACHMENT);
+		auto*						depthStencilTexture		  = glRM.GetTexture(depthStencilTextureHandle);
+		Renderer::TextureDescriptor descDepth				  = depthStencilTexture->GetDescriptor();
+		descDepth.width										  = event.GetWidth();
+		descDepth.height									  = event.GetHeight();
+
+		glRM.destoryTexture(depthStencilTextureHandle);
+		depthStencilTextureHandle = glRM.createTexture(descDepth);
+
+		m_HDRFBO->AttachTexture(GL_DEPTH_ATTACHMENT, depthStencilTextureHandle);
 	}
 
 	if (m_HDRFBOAtmosphere)
 	{
-		auto						HDRTexture = m_HDRFBOAtmosphere->GetAttachment(GL_COLOR_ATTACHMENT0);
-		Renderer::TextureDescriptor descHDR	   = HDRTexture->GetDescriptor();
-		descHDR.width						   = event.GetWidth();
-		descHDR.height						   = event.GetHeight();
-		m_Device->DestroyTexture(*HDRTexture.get());
-		HDRTexture = std::make_shared<Textures::C_Texture>(descHDR);
-		m_Device->AllocateTexture(*HDRTexture.get());
-		m_HDRFBOAtmosphere->AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
+		auto						HDRTextureHandle = m_HDRFBOAtmosphere->GetAttachment(GL_COLOR_ATTACHMENT0);
+		auto*						HDRTexture		 = glRM.GetTexture(HDRTextureHandle);
+		Renderer::TextureDescriptor descHDR			 = HDRTexture->GetDescriptor();
+		descHDR.width								 = event.GetWidth();
+		descHDR.height								 = event.GetHeight();
+
+		glRM.destoryTexture(HDRTextureHandle);
+		HDRTextureHandle = glRM.createTexture(descHDR);
+
+		m_HDRFBOAtmosphere->AttachTexture(GL_COLOR_ATTACHMENT0, HDRTextureHandle);
 	}
 
 	m_EditorLayer.SetViewport({0, 0, GetSize()});
@@ -507,8 +552,8 @@ void C_ExperimentWindow::SetupWorld(const std::filesystem::path& level)
 	m_World.swap(newWorld.value());
 	m_World->SetFilename(level);
 
-	const auto& guiMGR	  = m_ImGUI->GetGUIMgr();
-	auto* entitiesWnd = guiMGR.GetWindow(m_EntitiesWindowGUID);
+	const auto& guiMGR		= m_ImGUI->GetGUIMgr();
+	auto*		entitiesWnd = guiMGR.GetWindow(m_EntitiesWindowGUID);
 	if (auto* entitiesWindow = dynamic_cast<Editor::C_EntitiesWindow*>(entitiesWnd))
 	{
 		entitiesWindow->SetWorld(m_World);
@@ -523,13 +568,24 @@ void C_ExperimentWindow::SetupWorld(const std::filesystem::path& level)
 	// FBO for atmosphere
 	if (m_World->GetEntity("atmosphere"))
 	{
-		m_HDRFBOAtmosphere = std::unique_ptr<C_Framebuffer>(m_Device->AllocateFramebuffer("Atmosphere"));
-		const Renderer::TextureDescriptor HDRTextureDef{
-			"hdrTextureAtmosphere", GetWidth(), GetHeight(), Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::RGBA16f, false};
-		const auto HDRTexture = std::make_shared<Textures::C_Texture>(HDRTextureDef);
-		m_Device->AllocateTexture(*HDRTexture.get());
-
-		HDRTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
+		using namespace Renderer;
+		ResourceManager& rrm			  = m_renderer->GetRM();
+		const auto		 gpuSamplerHandle = rrm.createSampler(SamplerDescriptor2D{
+				  .m_FilterMin = E_TextureFilter::Linear,
+				  .m_FilterMag = E_TextureFilter::Linear,
+				  .m_WrapS	   = E_WrapFunction::Repeat,
+				  .m_WrapT	   = E_WrapFunction::Repeat,
+				  .m_WrapU	   = E_WrapFunction::Repeat,
+		  });
+		m_HDRFBOAtmosphere				  = std::unique_ptr<C_Framebuffer>(m_Device->AllocateFramebuffer("Atmosphere"));
+		const TextureDescriptor HDRTextureDef{.name			 = "hdrTextureAtmosphere",
+											  .width		 = GetWidth(),
+											  .height		 = GetHeight(),
+											  .type			 = E_TextureType::TEXTURE_2D,
+											  .format		 = E_TextureFormat::RGBA16f,
+											  .m_bStreamable = false};
+		const auto				HDRTexture = rrm.createTexture(HDRTextureDef);
+		m_renderer->SetTextureSampler(HDRTexture, gpuSamplerHandle);
 		m_HDRFBOAtmosphere->AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
 	}
 	else
@@ -654,6 +710,7 @@ bool C_ExperimentWindow::OnAppEvent(Core::C_AppEvent& event)
 		auto& guiMGR = m_ImGUI->GetGUIMgr();
 		guiMGR.DestroyWindow(m_EntitiesWindowGUID);
 		guiMGR.DestroyWindow(m_RayTraceGUID);
+		guiMGR.DestroyWindow(m_WaterRenderingGUID);
 		guiMGR.DestroyWindow(m_ConsoleWindowGUID);
 		guiMGR.DestroyWindow(m_FrameStatsGUID);
 		guiMGR.DestroyWindow(m_HDRSettingsGUID);

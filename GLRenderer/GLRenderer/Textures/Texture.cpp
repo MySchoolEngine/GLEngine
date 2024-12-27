@@ -4,6 +4,7 @@
 #include <GLRenderer/Commands/Textures/GetTexImage.h>
 #include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 #include <GLRenderer/Helpers/TextureHelpers.h>
+#include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/Textures/TextureManager.h>
 #include <GLRenderer/Textures/TextureUtils.h>
@@ -176,6 +177,7 @@ std::uint64_t C_Texture::CreateHandle()
 	{
 		m_Handle = glGetTextureSamplerHandleARB(m_Texture, m_DefaultSampler.m_Sampler);
 	}
+	GLE_ASSERT(m_IsPresentOnGPU, "CreateHandle before upload to GPU");
 	return GetHandle();
 }
 
@@ -246,6 +248,19 @@ std::string C_Texture::GetName()
 void* C_Texture::GetGPUHandle()
 {
 	return (void*)(intptr_t)(GetTexture());
+}
+
+//=================================================================================
+void C_Texture::SetSampler(Renderer::Handle<Renderer::Sampler> handle)
+{
+	auto& renderer = dynamic_cast<C_OGLRenderer&>(Core::C_Application::Get().GetActiveRenderer());
+	if (m_Desc.format == Renderer::E_TextureFormat::D16)
+	{
+		SetFilter(Renderer::E_TextureFilter::Nearest, Renderer::E_TextureFilter::Nearest);
+	}
+	else
+	SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
+	//renderer.GetRMGR().GetTexture()
 }
 
 } // namespace GLEngine::GLRenderer::Textures

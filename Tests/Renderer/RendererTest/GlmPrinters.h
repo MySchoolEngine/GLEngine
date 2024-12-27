@@ -1,10 +1,10 @@
 #pragma once
 
+#include <gtest/gtest.h>
+
 #include <glm/glm.hpp>
 
-#include <iostream>
-
-template<class RawType>
+template <class RawType>
 testing::AssertionResult AssertVec2AlmostEq(const char*								   lhs_expression,
 											const char*								   rhs_expression,
 											const glm::vec<2, RawType, glm::defaultp>& lhs_value,
@@ -43,5 +43,4 @@ inline std::ostream& operator<<(std::ostream& stream, const vec4& vec)
 {
 	return stream << "glm::vec4(" << vec.x << ", " << vec.y << ", " << vec.z << ", " << vec.w << ")";
 }
-}
-
+} // namespace glm

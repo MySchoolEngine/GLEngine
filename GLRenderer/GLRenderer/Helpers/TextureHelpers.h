@@ -6,7 +6,7 @@
 #include <Renderer/Descriptors/TextureDescriptor.h>
 
 namespace GLEngine::GLRenderer {
-inline GLint GetTextureType(Renderer::E_TextureType e)
+inline GLint GetTextureType(const Renderer::E_TextureType e)
 {
 	switch (e)
 	{
@@ -45,7 +45,7 @@ inline std::uint8_t GetNumberOfChannels(GLint pixelFormat)
 }
 
 //=================================================================================
-inline GLenum GetBlendFunction(Renderer::E_BlendFunction e)
+inline GLenum GetBlendFunction(const Renderer::E_BlendFunction e)
 {
 	switch (e)
 	{
@@ -66,7 +66,7 @@ inline GLenum GetBlendFunction(Renderer::E_BlendFunction e)
 }
 
 //=================================================================================
-inline GLenum GetBlendFactor(Renderer::E_BlendFactor e)
+inline GLenum GetBlendFactor(const Renderer::E_BlendFactor e)
 {
 	switch (e)
 	{

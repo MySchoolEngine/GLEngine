@@ -13,7 +13,6 @@
 #include <GLRenderer/Textures/TextureUnitManager.h>
 
 #include <Renderer/ICameraComponent.h>
-#include <Renderer/ILight.h>
 #include <Renderer/IRenderableComponent.h>
 #include <Renderer/IRenderer.h>
 #include <Renderer/Lights/AreaLight.h>
@@ -37,11 +36,11 @@ C_MainPassTechnique::C_MainPassTechnique()
 {
 	m_FrameConstUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>("frameConst");
 	m_LightsUBO		= Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<C_LightsBuffer>("lightsUni");
-	m_MatterialsUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Material::C_MaterialsBuffer>("materials");
+	m_MaterialsUBO	= Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Material::C_MaterialsBuffer>("materials");
 }
 
 //=================================================================================
-void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shared_ptr<Renderer::I_CameraComponent> camera, unsigned int widht, unsigned int height)
+void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shared_ptr<Renderer::I_CameraComponent> camera, unsigned int width, unsigned int height)
 {
 	RenderDoc::C_DebugScope s("C_MainPassTechnique::Render");
 	const auto				camFrustum	   = camera->GetFrustum();
@@ -55,7 +54,7 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shar
 		RenderDoc::C_DebugScope s("Window prepare");
 		using namespace Commands;
 		renderer.AddCommand(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth));
-		renderer.AddCommand(std::make_unique<C_GLViewport>(Renderer::C_Viewport(0, 0, widht, height)));
+		renderer.AddCommand(std::make_unique<C_GLViewport>(Renderer::C_Viewport(0, 0, width, height)));
 		if (static_cast<C_OGLRenderer*>(&renderer)->WantWireframe())
 		{
 			renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([&]() { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }, "Change polygon mode"));
@@ -122,12 +121,14 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shar
 			const auto sunLight = std::dynamic_pointer_cast<Renderer::C_SunLight>(lightIt);
 			if (sunLight)
 			{
+				auto& glRM			 = dynamic_cast<C_OGLRenderer&>(renderer).GetRMGR();
+				auto* sunShadowMapGL = glRM.GetTexture(m_SunShadowMap);
 				m_LightsUBO->GetSunLight().SetSunPosition(sunLight->GetSunDirection());
 				m_LightsUBO->GetSunLight().m_SunColor			 = sunLight->GetSunColor();
 				m_LightsUBO->GetSunLight().m_AsymetricFactor	 = sunLight->AtmosphereAsymetricFactor();
 				m_LightsUBO->GetSunLight().m_SunDiscMultiplier	 = sunLight->SunDiscMultiplier();
 				m_LightsUBO->GetSunLight().m_LightViewProjection = m_SunViewProjection;
-				m_LightsUBO->GetSunLight().m_SunShadowMap		 = m_SunShadowMap;
+				m_LightsUBO->GetSunLight().m_SunShadowMap		 = sunShadowMapGL->GetHandle();
 				m_LightsUBO->GetSunLight().m_SunlightPresent	 = 1;
 				sunLightFound									 = true;
 
@@ -143,11 +144,11 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shar
 	bool materialsHaveChanged = false;
 	{
 		int i = 0;
-		Renderer::C_MaterialManager::Instance().ForEachMaterial([&matUBO = m_MatterialsUBO, &i, &materialsHaveChanged](Renderer::C_Material& material) {
+		Renderer::C_MaterialManager::Instance().ForEachMaterial([&matUBO = m_MaterialsUBO, &i, &materialsHaveChanged](Renderer::C_Material& material) {
 			if (material.IsChanged())
 			{
 				materialsHaveChanged = true;
-				if(matUBO->m_PhongMaterials[i].Update(material))
+				if (matUBO->m_PhongMaterials[i].Update(material))
 					material.CleanChangeFlag();
 			}
 			++i;
@@ -171,8 +172,8 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shar
 				m_LightsUBO->UploadData();
 				m_LightsUBO->Activate(true);
 				if (materialsHaveChanged)
-					m_MatterialsUBO->UploadData();
-				m_MatterialsUBO->Activate(true);
+					m_MaterialsUBO->UploadData();
+				m_MaterialsUBO->Activate(true);
 			},
 			"MainPass - upload UBOs"));
 	}
@@ -184,8 +185,8 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shar
 			auto renderableComponentsRange = entity->GetComponents(Entity::E_ComponentType::Graphical);
 			for (const auto& it : renderableComponentsRange)
 			{
-				const auto rendarebleComp = component_cast<Entity::E_ComponentType::Graphical>(it);
-				const auto compSphere	  = rendarebleComp->GetAABB().GetSphere();
+				const auto renderableComp = component_cast<Entity::E_ComponentType::Graphical>(it);
+				const auto compSphere	  = renderableComp->GetAABB().GetSphere();
 				if (compSphere.IsColliding(camBox))
 					component_cast<Entity::E_ComponentType::Graphical>(it)->PerformDraw();
 			}
@@ -204,7 +205,7 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shar
 }
 
 //=================================================================================
-void C_MainPassTechnique::SetSunShadowMap(std::uint64_t sunShadowMapHandle)
+void C_MainPassTechnique::SetSunShadowMap(Renderer::Handle<Renderer::Texture> sunShadowMapHandle)
 {
 	m_SunShadowMap = sunShadowMapHandle;
 }

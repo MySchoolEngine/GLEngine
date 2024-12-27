@@ -17,7 +17,7 @@ void Renderer3D::Clear()
 }
 
 //=================================================================================
-void Renderer3D::Commit(RenderInterface& interface)
+void Renderer3D::Commit(I_RenderInterface3D& interface)
 {
 	// please, KISS, I want to see improvements as I go. No sorting, no binning, no instancing.
 	// I will implement it later

@@ -18,6 +18,7 @@
 #include <GLRenderer/Textures/Sampler.h>
 
 #include <Renderer/Descriptors/TextureDescriptor.h>
+#include <Renderer/Resources/RenderResourceHandle.h>
 #include <Renderer/Textures/DeviceTexture.h>
 
 #include <rttr/registration.h>
@@ -83,6 +84,7 @@ public:
 	void SetTexData2D(int level, const Renderer::C_TextureView tex) override;
 
 	void* GetGPUHandle() override;
+	void  SetSampler(Renderer::Handle<Renderer::Sampler> handle);
 
 	friend class C_TextureManager;
 	friend class ::GLEngine::GLRenderer::C_GLDevice;

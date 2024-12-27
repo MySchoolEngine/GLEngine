@@ -1,10 +1,14 @@
 #include <GLRendererStdafx.h>
 
+#include <GLRenderer/Commands/HACK/LambdaCommand.h>
+#include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/Textures/TextureManager.h>
 
 #include <Renderer/Descriptors/TextureDescriptor.h>
 #include <Renderer/IDevice.h>
+#include <Renderer/IRenderer.h>
+#include <Renderer/Resources/ResourceManager.h>
 #include <Renderer/Textures/Storage/TextureLinearStorage.h>
 #include <Renderer/Textures/TextureLoader.h>
 #include <Renderer/Textures/TextureView.h>
@@ -12,33 +16,42 @@
 #include <GUI/GUIManager.h>
 #include <GUI/GUIWindow.h>
 
+#include <Core/Application.h>
+
 #include <imgui.h>
 
 namespace GLEngine::GLRenderer::Textures {
 std::filesystem::path C_TextureManager::s_ErrorTextureFile = "Models/Error.bmp";
 
 //=================================================================================
-C_TextureManager::C_TextureManager(Renderer::I_Device& device)
-	: m_ErrorTexture(nullptr)
-	, m_IdentityTexture(nullptr)
+C_TextureManager::C_TextureManager(Renderer::I_Renderer& renderer, Renderer::I_Device& device)
+	: m_IdentityStorage(1, 1, 4)
+	, m_ErrorTexture(nullptr)
 	, m_Device(device)
 	, m_Window(GUID::INVALID_GUID)
 {
 	// preload fallback textures
 	{
+		auto& glRM = dynamic_cast<C_OGLRenderer&>(renderer).GetRMGR();
 		// Identity
-		const Renderer::TextureDescriptor desc{"Identity texture", 1, 1, Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::RGBA16f, false};
+		const Renderer::TextureDescriptor desc{.name		  = "Identity texture",
+											   .width		  = 1,
+											   .height		  = 1,
+											   .type		  = Renderer::E_TextureType::TEXTURE_2D,
+											   .format		  = Renderer::E_TextureFormat::RGBA16f,
+											   .m_bStreamable = false};
 
-		m_IdentityTexture = std::make_shared<C_Texture>(desc);
+		m_IdentityTexture = glRM.createTexture(desc);
 
-		if (GetDevice().AllocateTexture(*m_IdentityTexture.get()))
+		if (m_IdentityTexture)
 		{
-			Renderer::C_TextureViewStorageCPU<float> storage(1, 1, 4);
-			Renderer::C_TextureView					 view(&storage);
+			Renderer::C_TextureView view(&m_IdentityStorage);
 			view.Set<glm::vec4>(glm::ivec2(0, 0), glm::vec4(255, 255, 255, 0));
-			m_IdentityTexture->SetTexData2D(0, &storage);
+			renderer.SetTextureData(m_IdentityTexture, m_IdentityStorage);
 		}
-		m_IdentityTexture->CreateHandle();
+		auto* glIdentityTexture = glRM.GetTexture(m_IdentityTexture);
+		GLE_TODO("27-12-2024", "RohacekD", "This is nasty hack. Calling this here woudl cause getting error texture (Identity wasn't uploaded to GPU yet)");
+		renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([glIdentityTexture]() { glIdentityTexture->CreateHandle(); }, "Create identity handle"));
 	}
 	{
 		// error texture
@@ -70,10 +83,10 @@ C_TextureManager::C_TextureManager(Renderer::I_Device& device)
 }
 
 //=================================================================================
-C_TextureManager& C_TextureManager::Instance(Renderer::I_Device* device)
+C_TextureManager& C_TextureManager::Instance(Renderer::I_Renderer* renderer, Renderer::I_Device* device)
 {
-	static C_TextureManager instance(*device); // Guaranteed to be destroyed.
-											   // Instantiated on first use.
+	static C_TextureManager instance(*renderer, *device); // Guaranteed to be destroyed.
+														  // Instantiated on first use.
 	return instance;
 }
 
@@ -103,13 +116,13 @@ C_TextureManager::T_TexturePtr C_TextureManager::CreateTexture(const Renderer::I
 	// todo proper format:
 	// 1] from metadata
 	// 2] if not present than it should do immediate load - slow version
-	const Renderer::TextureDescriptor desc{name,
-										   tex->GetDimensions().x,
-										   tex->GetDimensions().y,
-										   Renderer::E_TextureType::TEXTURE_2D,
-										   Renderer::GetClosestFormat(tex->GetChannels(), !Renderer::IsIntegral(tex->GetStorageType())),
-										   true,
-										   10};
+	const Renderer::TextureDescriptor desc{.name		  = name,
+										   .width		  = tex->GetDimensions().x,
+										   .height		  = tex->GetDimensions().y,
+										   .type		  = Renderer::E_TextureType::TEXTURE_2D,
+										   .format		  = Renderer::GetClosestFormat(tex->GetChannels(), !Renderer::IsIntegral(tex->GetStorageType())),
+										   .m_bStreamable = true,
+										   .m_Levels	  = 10};
 	auto							  texture = std::make_shared<Textures::C_Texture>(desc);
 	if (GetDevice().AllocateTexture(*texture.get()))
 	{
@@ -134,14 +147,14 @@ GUID C_TextureManager::SetupControls(GUI::C_GUIManager& guiMGR)
 
 	GLE_TODO("02-12-2024", "RohacekD", "Use new API for texture rendering?");
 	m_TextureList = std::make_unique<GUI::C_LambdaPart>([&]() {
-		for (auto& texture : m_Textures)
+		for (auto& [name, texture] : m_Textures)
 		{
 			bool selected = false;
-			::ImGui::Selectable(texture.first.c_str(), &selected);
-			ImGui::Image((void*)(intptr_t)(texture.second->GetTexture()), ImVec2(128, 128));
+			::ImGui::Selectable(name.c_str(), &selected);
+			ImGui::Image((void*)(intptr_t)(texture->GetTexture()), ImVec2(128, 128));
 			if (selected)
 			{
-				ReloadTexture(texture.first, texture.second);
+				ReloadTexture(name, texture);
 			}
 		}
 		return false; // TODO?
@@ -181,9 +194,17 @@ C_TextureManager::T_TexturePtr C_TextureManager::GetErrorTexture()
 }
 
 //=================================================================================
-C_TextureManager::T_TexturePtr C_TextureManager::GetIdentityTexture()
+C_Texture* C_TextureManager::GetIdentityTexture()
 {
 	GLE_ASSERT(m_IdentityTexture, "This texture should be preloaded on engine start");
+	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
+	auto& glRM	   = dynamic_cast<C_OGLRenderer&>(renderer).GetRMGR();
+	return glRM.GetTexture(m_IdentityTexture);
+}
+
+//=================================================================================
+Renderer::Handle<Renderer::Texture> C_TextureManager::GetIdentityTextureHandle()
+{
 	return m_IdentityTexture;
 }
 

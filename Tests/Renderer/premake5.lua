@@ -6,7 +6,9 @@ project "RendererTest"
 	staticruntime "off"
 
 	SetupProject("RendererTest")
-	
+
+	PrecompiledHeaders("RendererTest")
+
 	Link("Renderer")
 	Link("Utils")
 	links { "gtest_main" }
@@ -16,15 +18,17 @@ project "RendererTest"
 	includedirs
 	{
 		"%{wks.location}/vendor/gtest/googletest/include",
+		"%{wks.location}/vendor/gtest/googlemock/include",
 		"%{wks.location}/Core",
 		"%{wks.location}/Utils",
+		"%{wks.location}/Physics",
 		"%{wks.location}/%{IncludeDir.GLM}",
 		"%{wks.location}/%{IncludeDir.fmt}",
 		"%{wks.location}/%{IncludeDir.RTTR}",
 	}
 	files
 	{
-		"%{wks.location}/vendor/gtest/googletest/src/gtest_main.cc",
+		"%{prj.location}/TestMain.cpp",
 	}
 
 	CopyLib("Core")

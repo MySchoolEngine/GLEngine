@@ -1,9 +1,5 @@
 #pragma once
 
-namespace GLEngine::Renderer {
-class I_DeviceTexture;
-}
-
 namespace GLEngine::GLRenderer {
 class C_OGLRenderer;
 class C_Framebuffer;
@@ -19,10 +15,10 @@ class C_StaticMeshResource;
 }
 
 struct FullScreenSetup {
-	std::string									   shaderName;
-	std::function<void(Shaders::C_ShaderProgram&)> shaderSetup;
-	std::vector<Renderer::I_DeviceTexture*>		   inputTextures;
-	C_Framebuffer&								   renderTarget;
+	std::string										 shaderName;
+	std::function<void(Shaders::C_ShaderProgram&)>	 shaderSetup;
+	std::vector<Renderer::Handle<Renderer::Texture>> inputTextures;
+	C_Framebuffer&									 renderTarget;
 };
 class C_RenderInterface {
 public:

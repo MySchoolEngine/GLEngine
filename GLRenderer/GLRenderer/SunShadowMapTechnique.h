@@ -10,9 +10,6 @@ class I_CameraComponent;
 } // namespace GLEngine::Renderer
 
 namespace GLEngine::GLRenderer {
-namespace Textures {
-class C_Texture;
-}
 namespace Buffers::UBO {
 class C_FrameConstantsBuffer;
 }
@@ -22,11 +19,11 @@ class C_Framebuffer;
 class C_SunShadowMapTechnique final {
 public:
 	C_SunShadowMapTechnique(const std::shared_ptr<Renderer::C_SunLight>& light);
-	~C_SunShadowMapTechnique(); // = defualt
+	~C_SunShadowMapTechnique(); // = default
 
 	void								 Render(const Entity::C_EntityManager& world, Renderer::I_CameraComponent* camera);
-	std::shared_ptr<Textures::C_Texture> GetZBuffer() const;
-	std::shared_ptr<Textures::C_Texture> GetAlbedoTexture() const;
+	Renderer::Handle<Renderer::Texture>	 GetZBuffer() const;
+	Renderer::Handle<Renderer::Texture>	 GetAlbedoTexture() const;
 
 	glm::mat4 GetLastViewProjection() const;
 

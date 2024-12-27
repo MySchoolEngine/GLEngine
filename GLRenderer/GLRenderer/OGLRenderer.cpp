@@ -48,8 +48,8 @@ C_OGLRenderer::C_OGLRenderer(C_GLDevice& device)
 		glDebugMessageCallback(MessageCallback, nullptr);
 	}
 
-	auto& tMGR = Textures::C_TextureManager::Instance(&device);
 	m_GPUResourceManager.Init(&device);
+	auto& tMGR = Textures::C_TextureManager::Instance(this, &device);
 }
 
 //=================================================================================
@@ -272,7 +272,7 @@ void* C_OGLRenderer::GetTextureGUIHandle(Renderer::Handle<Renderer::Texture> tex
 void C_OGLRenderer::SetTextureSampler(Renderer::Handle<Renderer::Texture> dstTexture, Renderer::Handle<Renderer::Sampler> srcSampler)
 {
 	if (auto* texture = m_GPUResourceManager.GetTexture(dstTexture)) {
-		//texture->SetSampler
+		texture->SetSampler(srcSampler);
 	}
 }
 
