@@ -71,7 +71,7 @@ Handle<Texture> C_TextureManager::GetOrCreateTexture(const Core::ResourceHandle<
 }
 
 //=================================================================================
-Handle<Texture> C_TextureManager::GetTexture(const Core::ResourceHandle<TextureResource> resource) const
+Handle<Texture> C_TextureManager::GetTexture(const Core::ResourceHandle<TextureResource>& resource) const
 {
 	if (!resource)
 		return {};

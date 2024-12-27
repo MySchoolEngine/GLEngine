@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Renderer/RendererApi.h>
-
 #include <Renderer/Resources/RenderResourceHandle.h>
 #include <Renderer/Textures/DeviceTexture.h>
 #include <Renderer/Textures/TextureResource.h>
@@ -18,11 +17,11 @@ public:
 	static C_TextureManager& CreateInstance(I_Device& device);
 	// this class is multi-tone and we want to avoid copy
 	C_TextureManager(C_TextureManager const&) = delete;
-	void operator=(C_TextureManager const&) = delete;
+	void operator=(C_TextureManager const&)	  = delete;
 
 	// virtual to be accessible from other modules
-	[[nodiscard]] virtual Handle<Texture> GetOrCreateTexture(const Core::ResourceHandle<Renderer::TextureResource> resource);
-	[[nodiscard]] Handle<Texture> GetTexture(const Core::ResourceHandle<Renderer::TextureResource> resource) const;
+	[[nodiscard]] virtual Handle<Texture> GetOrCreateTexture(const Core::ResourceHandle<TextureResource> resource);
+	[[nodiscard]] Handle<Texture>		  GetTexture(const Core::ResourceHandle<TextureResource>& resource) const;
 
 	void Update();
 
@@ -33,11 +32,11 @@ public:
 private:
 	C_TextureManager(I_Device& device);
 
-	[[nodiscard]] std::shared_ptr<I_DeviceTexture> CreateTexture(Core::ResourceHandle<Renderer::TextureResource>);
+	[[nodiscard]] std::shared_ptr<I_DeviceTexture> CreateTexture(Core::ResourceHandle<TextureResource>);
 
-	Renderer::I_Device&																											   m_Device;
-	std::map<Core::ResourceHandle<Renderer::TextureResource>, Handle<Texture>, Core::ResourceHandleCmp<Renderer::TextureResource>> m_Textures;
-	std::vector<Core::ResourceHandle<Renderer::TextureResource>>																   m_ToLoad;
+	I_Device&																								   m_Device;
+	std::map<Core::ResourceHandle<TextureResource>, Handle<Texture>, Core::ResourceHandleCmp<TextureResource>> m_Textures;
+	std::vector<Core::ResourceHandle<TextureResource>>														   m_ToLoad;
 
 	std::shared_ptr<I_DeviceTexture> m_ErrorTexture;
 	std::shared_ptr<I_DeviceTexture> m_IdentityTexture;

@@ -1,6 +1,6 @@
 ﻿#include <GLRendererStdafx.h>
 
-#include <GLREnderer/Shaders/ShaderManager.h>
+#include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/GLRendererInterface2D.h>
 #include <GLRenderer/OGLRenderer.h>
 
