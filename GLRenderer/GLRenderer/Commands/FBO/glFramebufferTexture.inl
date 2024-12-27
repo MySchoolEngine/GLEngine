@@ -1,12 +1,15 @@
 #pragma once
 
 #include <GLRenderer/Textures/Texture.h>
+#include <GLRenderer/OGLRenderer.h>
+
+#include <Core/Application.h>
 
 namespace GLEngine::GLRenderer::Commands {
 
 //=================================================================================
 template <E_FramebufferTarget framebuffer>
-C_glFramebufferTexture<framebuffer>::C_glFramebufferTexture(GLenum attachment, std::shared_ptr<Textures::C_Texture> texture)
+C_glFramebufferTexture<framebuffer>::C_glFramebufferTexture(const GLenum attachment, const Renderer::Handle<Renderer::Texture> texture)
 	: m_Attachement(attachment)
 	, m_Texture(texture)
 {
@@ -15,7 +18,11 @@ C_glFramebufferTexture<framebuffer>::C_glFramebufferTexture(GLenum attachment, s
 //=================================================================================
 template <E_FramebufferTarget framebuffer> void C_glFramebufferTexture<framebuffer>::Commit()
 {
-	glFramebufferTexture(T_FramebufferTarget<framebuffer>::value, m_Attachement, m_Texture->GetTexture(), 0);
+	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
+	auto& glRM = dynamic_cast<C_OGLRenderer&>(renderer).GetRMGR();
+	auto* texture = glRM.GetTexture(m_Texture);
+
+	glFramebufferTexture(T_FramebufferTarget<framebuffer>::value, m_Attachement, texture->GetTexture(), 0);
 }
 
 //=================================================================================
@@ -27,7 +34,10 @@ template <E_FramebufferTarget framebuffer> Renderer::I_RenderCommand::E_Type C_g
 //=================================================================================
 template <E_FramebufferTarget framebuffer> std::string GLEngine::GLRenderer::Commands::C_glFramebufferTexture<framebuffer>::GetDescriptor() const
 {
-	return fmt::format("glFramebufferTexture {} {}", m_Attachement, m_Texture->GetTexture());
+	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
+	auto& glRM = dynamic_cast<C_OGLRenderer&>(renderer).GetRMGR();
+	auto* texture = glRM.GetTexture(m_Texture);
+	return fmt::format("glFramebufferTexture {} {}", m_Attachement, texture->GetTexture());
 }
 
 } // namespace GLEngine::GLRenderer::Commands

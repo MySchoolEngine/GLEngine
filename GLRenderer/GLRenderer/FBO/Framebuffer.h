@@ -13,13 +13,9 @@
 
 #pragma once
 
-#include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
+#include <Renderer/Resources/RenderResourceHandle.h>
 
 namespace GLEngine::GLRenderer {
-
-namespace Textures {
-class C_Texture;
-}
 
 class C_Framebuffer {
 public:
@@ -28,8 +24,8 @@ public:
 	template <E_FramebufferTarget Target = E_FramebufferTarget::Framebuffer> void Bind();
 	template <E_FramebufferTarget Target = E_FramebufferTarget::Framebuffer> void Unbind();
 
-	template <E_FramebufferTarget Target = E_FramebufferTarget::Framebuffer> void AttachTexture(GLenum attachment, std::shared_ptr<Textures::C_Texture> texture);
-	[[nodiscard]] std::shared_ptr<Textures::C_Texture>							  GetAttachment(GLenum attachments);
+	template <E_FramebufferTarget Target = E_FramebufferTarget::Framebuffer> void AttachTexture(GLenum attachment, Renderer::Handle<Renderer::Texture> texture);
+	[[nodiscard]] Renderer::Handle<Renderer::Texture>							  GetAttachment(GLenum attachments);
 
 	template <E_FramebufferTarget Target = E_FramebufferTarget::Framebuffer> [[nodiscard]] std::future<bool> CheckCompleteness() const;
 
@@ -39,10 +35,10 @@ public:
 	bool IsDefaultRenderTarget() const { return m_FBO == 0; }
 
 private:
-	explicit C_Framebuffer(const std::string_view name, bool defaultRendertarget = false);
-	GLuint												   m_FBO;
-	bool												   m_DirtyFlag;
-	std::map<GLenum, std::shared_ptr<Textures::C_Texture>> m_Attachments;
+	explicit C_Framebuffer(const std::string_view name, bool defaultRenderTarget = false);
+	GLuint												  m_FBO;
+	bool												  m_DirtyFlag;
+	std::map<GLenum, Renderer::Handle<Renderer::Texture>> m_Attachments;
 
 	friend class C_GLDevice;
 };

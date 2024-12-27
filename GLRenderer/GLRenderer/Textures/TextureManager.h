@@ -1,15 +1,15 @@
 #pragma once
 
+#include <Renderer/Resources/RenderResourceHandle.h>
+#include <Renderer/Textures/Storage/TextureLinearStorage.h>
+
 #include <GUI/LambdaPart.h>
 
 
 namespace GLEngine::Renderer {
-class I_TextureViewStorage;
 class I_Device;
-}
-namespace GLEngine::Renderer::MeshData {
-struct Texture;
-}
+class I_Renderer;
+} // namespace GLEngine::Renderer
 namespace GLEngine::GUI {
 class C_GUIManager;
 }
@@ -23,11 +23,11 @@ class C_TextureManager {
 public:
 	// Singleton stuff
 	// TODO: make it multi-tone as you would want to create one texture manager for each API
-	C_TextureManager(C_TextureManager const&)	   = delete;
-	void								   operator=(C_TextureManager const&) = delete;
+	C_TextureManager(C_TextureManager const&) = delete;
+	void operator=(C_TextureManager const&)	  = delete;
 
 	// Dependency injection here should allow me one day move away from singleton
-	[[nodiscard]] static C_TextureManager& Instance(Renderer::I_Device* device = nullptr);
+	[[nodiscard]] static C_TextureManager& Instance(Renderer::I_Renderer* renderer = nullptr, Renderer::I_Device* device = nullptr);
 
 	[[nodiscard]] T_TexturePtr GetTexture(const std::string& name);
 	[[nodiscard]] T_TexturePtr CreateTexture(const Renderer::I_TextureViewStorage* tex, const std::string& name);
@@ -40,17 +40,19 @@ public:
 
 	[[nodiscard]] T_TexturePtr GetErrorTexture();
 	// 1x1 px white texture
-	[[nodiscard]] T_TexturePtr GetIdentityTexture();
+	[[nodiscard]] C_Texture*						  GetIdentityTexture();
+	[[nodiscard]] Renderer::Handle<Renderer::Texture> GetIdentityTextureHandle();
 
 private:
-	explicit C_TextureManager(Renderer::I_Device& device);
+	explicit C_TextureManager(Renderer::I_Renderer& renderer, Renderer::I_Device& device);
 
 	using T_TextureMap = std::map<std::string, T_TexturePtr>;
 	T_TextureMap m_Textures;
 
-	T_TexturePtr				 m_ErrorTexture;
-	T_TexturePtr				 m_IdentityTexture;
-	static std::filesystem::path s_ErrorTextureFile;
+	Renderer::C_TextureViewStorageCPU<float> m_IdentityStorage; // needs to live somewhere to survive until upload
+	T_TexturePtr							 m_ErrorTexture;
+	Renderer::Handle<Renderer::Texture>		 m_IdentityTexture;
+	static std::filesystem::path			 s_ErrorTextureFile;
 
 	void ReloadTexture(const std::string& name, T_TexturePtr& texture);
 

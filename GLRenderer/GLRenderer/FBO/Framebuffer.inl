@@ -21,7 +21,7 @@ template <E_FramebufferTarget Target /*= E_FramebufferTarget::Framebuffer*/> voi
 }
 
 //=================================================================================
-template <E_FramebufferTarget Target /*= E_FramebufferTarget::Framebuffer*/> void C_Framebuffer::AttachTexture(GLenum attachment, std::shared_ptr<Textures::C_Texture> texture)
+template <E_FramebufferTarget Target /*= E_FramebufferTarget::Framebuffer*/> void C_Framebuffer::AttachTexture(GLenum attachment, Renderer::Handle<Renderer::Texture> texture)
 {
 	GLE_ASSERT(!IsDefaultRenderTarget(), "Cant attach to default render-target.");
 	const auto it = m_Attachments.find(attachment);

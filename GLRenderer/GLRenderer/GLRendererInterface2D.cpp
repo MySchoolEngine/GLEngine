@@ -106,7 +106,8 @@ void C_GLRendererInterface2D::Render(const Renderer::RenderCall2D& call)
 			shaderProgram->SetUniform("Position", glm::vec2(call.Position));
 			glDisable(GL_DEPTH_TEST);
 			glBindVertexArray(m_VAOid);
-			glDrawArrays(GL_TRIANGLES, 0, 6 * 4);
+			glViewport(0, 0, m_RenderTargetSize.x, m_RenderTargetSize.y);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
 			glBindVertexArray(0);
 			glEnable(GL_DEPTH_TEST);
 		},

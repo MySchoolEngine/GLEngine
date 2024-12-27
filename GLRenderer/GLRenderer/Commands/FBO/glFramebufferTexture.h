@@ -1,27 +1,24 @@
 #pragma once
 
 #include <Renderer/IRenderCommand.h>
-
-namespace GLEngine::GLRenderer::Textures {
-class C_Texture;
-}
+#include <Renderer/Resources/RenderResourceHandle.h>
 
 namespace GLEngine::GLRenderer::Commands {
 template <E_FramebufferTarget framebuffer> class C_glFramebufferTexture : public Renderer::I_RenderCommand {
 public:
-	C_glFramebufferTexture(GLenum attachment, std::shared_ptr<Textures::C_Texture> texture);
+	C_glFramebufferTexture(const GLenum attachment, const Renderer::Handle<Renderer::Texture> texture);
 
 
 	//=================================================================================
 	// Renderer::I_RenderCommand
 	//=================================================================================
-	virtual void								  Commit() override;
-	virtual E_Type								  GetType() const override;
-	[[nodiscard]] virtual std::string			  GetDescriptor() const override;
+	void					  Commit() override;
+	E_Type					  GetType() const override;
+	[[nodiscard]] std::string GetDescriptor() const override;
 
 private:
-	GLenum								 m_Attachement;
-	std::shared_ptr<Textures::C_Texture> m_Texture;
+	GLenum								m_Attachement;
+	Renderer::Handle<Renderer::Texture> m_Texture;
 };
 
 } // namespace GLEngine::GLRenderer::Commands

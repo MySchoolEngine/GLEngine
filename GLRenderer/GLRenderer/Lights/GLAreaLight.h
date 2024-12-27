@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Renderer/Resources/RenderResourceHandle.h>
+
 #include <Renderer/Lights/AreaLight.h>
 
 namespace GLEngine::GLRenderer {
@@ -10,9 +12,9 @@ class C_Texture;
 class C_GLAreaLight : public Renderer::C_AreaLight {
 public:
 	explicit C_GLAreaLight(std::shared_ptr<Entity::I_Entity> owner);
-	const std::shared_ptr<Textures::C_Texture>& GetShadowMap() const;
+	Renderer::Handle<Renderer::Texture> GetShadowMap() const;
 
 private:
-	std::shared_ptr<Textures::C_Texture> m_ShadowMap;
+	Renderer::Handle<Renderer::Texture> m_ShadowMap;
 };
 } // namespace GLEngine::GLRenderer

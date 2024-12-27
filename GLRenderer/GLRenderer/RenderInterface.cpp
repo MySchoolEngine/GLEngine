@@ -57,7 +57,8 @@ bool C_RenderInterface::RenderFullScreen(const FullScreenSetup& setup)
 	for (const auto& texture : setup.inputTextures)
 	{
 		// needs cast
-		m_tm.BindTextureToUnit(*static_cast<Textures::C_Texture*>(texture), i++);
+		auto* glTexture = m_renderer.GetRMGR().GetTexture(texture);
+		m_tm.BindTextureToUnit(*glTexture, i++);
 	}
 	m_renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([setup, shader]() { setup.shaderSetup(*(shader.get())); }, "Update full-screen pass shader"));
 

@@ -4,22 +4,21 @@
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/FBO/Framebuffer.h>
+#include <GLRenderer/OGLDevice.h>
 #include <GLRenderer/SunShadowMapTechnique.h>
 #include <GLRenderer/Textures/Texture.h>
-#include <GLRenderer/OGLDevice.h>
 
 /// temporal
 #include <GLRenderer/Commands/GLClear.h>
 #include <GLRenderer/Commands/GLCullFace.h>
 #include <GLRenderer/Commands/GLViewport.h>
-#include <GLRenderer/Commands/GlClearColor.h>
 /// ~temporal
 
 #include <Renderer/ICameraComponent.h>
+#include <Renderer/IDevice.h>
 #include <Renderer/IRenderableComponent.h>
 #include <Renderer/IRenderer.h>
 #include <Renderer/Lights/SunLight.h>
-#include <Renderer/IDevice.h>
 
 #include <Physics/Primitives/Frustum.h>
 
@@ -41,7 +40,9 @@ C_SunShadowMapTechnique::C_SunShadowMapTechnique(const std::shared_ptr<Renderer:
 {
 	m_FrameConstUBO = std::dynamic_pointer_cast<Buffers::UBO::C_FrameConstantsBuffer>(Buffers::C_UniformBuffersManager::Instance().GetBufferByName("frameConst"));
 
-	auto& device = static_cast<C_GLDevice&>(Core::C_Application::Get().GetActiveRenderer().GetDevice());
+	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
+	auto& device   = dynamic_cast<C_GLDevice&>(renderer.GetDevice());
+	auto& glRM	   = dynamic_cast<C_OGLRenderer&>(renderer).GetRMGR();
 
 	m_Framebuffer = std::unique_ptr<C_Framebuffer>(device.AllocateFramebuffer("sunShadowMapping"));
 
@@ -49,21 +50,31 @@ C_SunShadowMapTechnique::C_SunShadowMapTechnique(const std::shared_ptr<Renderer:
 	constexpr bool storeAlbedoForShadowMap = true;
 	if (storeAlbedoForShadowMap)
 	{
-		auto HDRTexture = std::make_shared<Textures::C_Texture>(
-			Renderer::TextureDescriptor{"hdrTexture", s_ShadowMapSize, s_ShadowMapSize, Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::RGBA16f, false});
+		using namespace Renderer;
+		const auto				gpuSamplerHandle = renderer.GetRM().createSampler(SamplerDescriptor2D{
+						 .m_FilterMin = E_TextureFilter::Linear,
+						 .m_FilterMag = E_TextureFilter::Linear,
+						 .m_WrapS	  = E_WrapFunction::Repeat,
+						 .m_WrapT	  = E_WrapFunction::Repeat,
+						 .m_WrapU	  = E_WrapFunction::Repeat,
+		 });
+		const TextureDescriptor textureDescriptor{.name			 = "hdrTexture",
+												  .width		 = s_ShadowMapSize,
+												  .height		 = s_ShadowMapSize,
+												  .type			 = E_TextureType::TEXTURE_2D,
+												  .format		 = E_TextureFormat::RGBA16f,
+												  .m_bStreamable = false};
 
-		device.AllocateTexture(*HDRTexture.get());
+		auto hdrTexture = renderer.GetRM().createTexture(textureDescriptor);
+		renderer.SetTextureSampler(hdrTexture, gpuSamplerHandle);
 
-		// HDRTexture setup
-		HDRTexture->SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
-		// ~HDRTexture setup
-		m_Framebuffer->AttachTexture(GL_COLOR_ATTACHMENT0, HDRTexture);
-		HDRTexture->CreateHandle();
-		HDRTexture->MakeHandleResident(true);
+		m_Framebuffer->AttachTexture(GL_COLOR_ATTACHMENT0, hdrTexture);
+		auto* glTexture = glRM.GetTexture(hdrTexture);
+		glTexture->CreateHandle();
+		glTexture->MakeHandleResident(true);
 	}
 	else
 	{
-		auto& renderer = (Core::C_Application::Get()).GetActiveRenderer();
 		m_Framebuffer->Bind();
 		renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([=]() {
 			glDrawBuffer(GL_NONE);
@@ -72,22 +83,36 @@ C_SunShadowMapTechnique::C_SunShadowMapTechnique(const std::shared_ptr<Renderer:
 		m_Framebuffer->Bind();
 	}
 
-	auto depthTexture = std::make_shared<Textures::C_Texture>(
-		Renderer::TextureDescriptor{"sunShadowMap", s_ShadowMapSize, s_ShadowMapSize, Renderer::E_TextureType::TEXTURE_2D, Renderer::E_TextureFormat::D16, false});
+	{
+		using namespace Renderer;
+		const auto		  gpuSamplerHandle = renderer.GetRM().createSampler(SamplerDescriptor2D{
+				   .m_FilterMin = E_TextureFilter::Nearest,
+				   .m_FilterMag = E_TextureFilter::Nearest,
+				   .m_WrapS		= E_WrapFunction::ClampToBorder,
+				   .m_WrapT		= E_WrapFunction::ClampToBorder,
+				   .m_WrapU		= E_WrapFunction::ClampToBorder,
+		   });
+		TextureDescriptor shadowMapDesc{.name		   = "sunShadowMap",
+										.width		   = s_ShadowMapSize,
+										.height		   = s_ShadowMapSize,
+										.type		   = E_TextureType::TEXTURE_2D,
+										.format		   = E_TextureFormat::D16,
+										.m_bStreamable = false};
 
-	device.AllocateTexture(*depthTexture.get());
+		auto  depthTexture	 = renderer.GetRM().createTexture(shadowMapDesc);
+		renderer.SetTextureSampler(depthTexture, gpuSamplerHandle);
+		auto* glDepthTexture = glRM.GetTexture(depthTexture);
 
 
-	depthTexture->SetFilter(Renderer::E_TextureFilter::Nearest, Renderer::E_TextureFilter::Nearest);
-	// depthTexture->SetTexParameter(GL_TEXTURE_BORDER_COLOR, glm::vec4(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max(),
-	// std::numeric_limits<float>::max()));
-	depthTexture->SetWrap(Renderer::E_WrapFunction::ClampToBorder, Renderer::E_WrapFunction::ClampToBorder);
+		// depthTexture->SetTexParameter(GL_TEXTURE_BORDER_COLOR, glm::vec4(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max(),
+		// std::numeric_limits<float>::max()));
 
-	m_Framebuffer->AttachTexture(GL_DEPTH_ATTACHMENT, depthTexture);
-	depthTexture->SetReadyToUse();
+		m_Framebuffer->AttachTexture(GL_DEPTH_ATTACHMENT, depthTexture);
+		glDepthTexture->SetReadyToUse();
 
-	depthTexture->CreateHandle();
-	depthTexture->MakeHandleResident(true);
+		glDepthTexture->CreateHandle();
+		glDepthTexture->MakeHandleResident(true);
+	}
 }
 
 //=================================================================================
@@ -104,16 +129,16 @@ void C_SunShadowMapTechnique::Render(const Entity::C_EntityManager& world, Rende
 
 	C_DebugDraw::Instance().DrawAABB(aabb, glm::vec3(1, 1, 1));
 
-	const auto sun		= m_Sun.lock();
+	const auto	   sun		= m_Sun.lock();
 	constexpr auto left		= glm::vec3(1, 0, 0);
-	auto	   sunToTop = glm::normalize(glm::cross(left, sun->GetSunDirection()));
+	auto		   sunToTop = glm::normalize(glm::cross(left, sun->GetSunDirection()));
 	if (sunToTop == glm::vec3(0.f))
 	{
 		sunToTop = glm::vec3(0, 1, 0);
 	}
 
 	constexpr auto sunCenter	= glm::vec3(0.f);
-	const auto sunDirection = glm::normalize(sun->GetSunDirection());
+	const auto	   sunDirection = glm::normalize(sun->GetSunDirection());
 
 	const auto toLightSpace = glm::lookAt(sunDirection, sunCenter, sunToTop);
 
@@ -127,16 +152,16 @@ void C_SunShadowMapTechnique::Render(const Entity::C_EntityManager& world, Rende
 
 	const auto sunCamPos = glm::inverse(toLightSpace) * glm::vec4(middleOfFace, 1.f);
 
-	const Physics::Primitives::C_Frustum lightFrust(glm::vec3(sunCamPos) / sunCamPos.w + sunDirection * s_ZOffset, sunToTop, -sunDirection, s_ZOffset, depth + s_ZOffset,
+	const Physics::Primitives::C_Frustum lightFrustum(glm::vec3(sunCamPos) / sunCamPos.w + sunDirection * s_ZOffset, sunToTop, -sunDirection, s_ZOffset, depth + s_ZOffset,
 													width / height, 0);
 
-	const auto lightView = lightFrust.GetViewMatrix();
+	const auto lightView = lightFrustum.GetViewMatrix();
 
 	const auto lightProjectionMatrix = glm::ortho(-width / 2.0f,  // left
 												  width / 2.0f,	  // right
 												  -height / 2.0f, // bottom
 												  height / 2.0f,  // top
-												  lightFrust.GetNear(), lightFrust.GetFar());
+												  lightFrustum.GetNear(), lightFrustum.GetFar());
 
 	m_LastViewProject = lightProjectionMatrix * lightView;
 
@@ -148,26 +173,26 @@ void C_SunShadowMapTechnique::Render(const Entity::C_EntityManager& world, Rende
 	{
 		using namespace Commands;
 		renderer.AddCommand(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth));
-		renderer.AddCommand(std::make_unique<C_GLViewport>(Renderer::C_Viewport(0, 0, GetZBuffer()->GetDimensions())));
+		renderer.AddCommand(std::make_unique<C_GLViewport>(Renderer::C_Viewport(0, 0, { s_ShadowMapSize, s_ShadowMapSize })));
 		renderer.AddCommand(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Back));
 	}
 
 	{
 		RenderDoc::C_DebugScope s("UBO Upload");
 		renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
-			[=]() {
+			[&]() {
 				m_FrameConstUBO->SetView(lightView);
 				m_FrameConstUBO->SetProjection(lightProjectionMatrix);
-				m_FrameConstUBO->SetCameraPosition(glm::vec4(lightFrust.GetPosition(), 1.0f));
-				m_FrameConstUBO->SetNearPlane(lightFrust.GetNear());
-				m_FrameConstUBO->SetFarPlane(lightFrust.GetFar());
+				m_FrameConstUBO->SetCameraPosition(glm::vec4(lightFrustum.GetPosition(), 1.0f));
+				m_FrameConstUBO->SetNearPlane(lightFrustum.GetNear());
+				m_FrameConstUBO->SetFarPlane(lightFrustum.GetFar());
 				m_FrameConstUBO->UploadData();
 				m_FrameConstUBO->Activate(true);
 			},
 			"MainPass - upload UBOs"));
 	}
 	{
-		const auto				entitiesInView = world.GetEntities(lightFrust);
+		const auto				entitiesInView = world.GetEntities(lightFrustum);
 		RenderDoc::C_DebugScope s("Commit geometry");
 		for (auto& entity : entitiesInView)
 		{
@@ -175,7 +200,6 @@ void C_SunShadowMapTechnique::Render(const Entity::C_EntityManager& world, Rende
 			for (const auto& it : renderableComponentsRange)
 			{
 				const auto renderableComp = component_cast<Entity::E_ComponentType::Graphical>(it);
-				const auto compSphere	  = renderableComp->GetAABB().GetSphere();
 				component_cast<Entity::E_ComponentType::Graphical>(it)->PerformDraw();
 			}
 		}
@@ -184,7 +208,8 @@ void C_SunShadowMapTechnique::Render(const Entity::C_EntityManager& world, Rende
 	m_Framebuffer->Unbind<E_FramebufferTarget::Draw>();
 	renderer.SetCurrentPassType(Renderer::E_PassType::FinalPass);
 
-	GetZBuffer()->GenerateMipMaps();
+	auto& glRM = dynamic_cast<C_OGLRenderer&>(renderer).GetRMGR();
+	glRM.GetTexture(GetZBuffer())->GenerateMipMaps();
 
 	{
 		using namespace Commands;
@@ -193,13 +218,13 @@ void C_SunShadowMapTechnique::Render(const Entity::C_EntityManager& world, Rende
 }
 
 //=================================================================================
-std::shared_ptr<GLEngine::GLRenderer::Textures::C_Texture> C_SunShadowMapTechnique::GetAlbedoTexture() const
+Renderer::Handle<Renderer::Texture> C_SunShadowMapTechnique::GetAlbedoTexture() const
 {
 	return m_Framebuffer->GetAttachment(GL_COLOR_ATTACHMENT0);
 }
 
 //=================================================================================
-std::shared_ptr<GLEngine::GLRenderer::Textures::C_Texture> C_SunShadowMapTechnique::GetZBuffer() const
+Renderer::Handle<Renderer::Texture> C_SunShadowMapTechnique::GetZBuffer() const
 {
 	return m_Framebuffer->GetAttachment(GL_DEPTH_ATTACHMENT);
 }

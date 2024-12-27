@@ -130,11 +130,11 @@ std::shared_ptr<I_DeviceTexture> C_TextureManager::CreateTexture(Core::ResourceH
 	GLE_ASSERT(resource.IsReady(), "Resource not ready yet.");
 	const I_TextureViewStorage& storage = resource.GetResource().GetStorage();
 	auto						texture = m_Device.CreateTextureHandle(TextureDescriptor{.name	 = resource.GetFilePath().generic_string(),
-																	 .width	 = storage.GetDimensions().x,
-																	 .height = storage.GetDimensions().y,
-																	 .type	 = E_TextureType::TEXTURE_2D,
-																	 .format = GetClosestFormat(storage.GetChannels(), !IsIntegral(storage.GetStorageType())),
-																	 .m_bStreamable = false});
+																						 .width	 = storage.GetDimensions().x,
+																						 .height = storage.GetDimensions().y,
+																						 .type	 = E_TextureType::TEXTURE_2D,
+																						 .format = GetClosestFormat(storage.GetChannels(), !IsIntegral(storage.GetStorageType())),
+																						 .m_bStreamable = false});
 	if (!m_Device.AllocateTexture(*texture.get()))
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Cannot allocate memory for texture '{}'", resource.GetFilePath());

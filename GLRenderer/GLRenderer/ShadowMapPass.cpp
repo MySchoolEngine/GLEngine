@@ -71,83 +71,84 @@ void C_ShadowMapTechnique::Render()
 	auto&					renderer = (Core::C_Application::Get()).GetActiveRenderer();
 	renderer.SetCurrentPassType(Renderer::E_PassType::ShadowPass);
 
-	const auto areaLigh = std::dynamic_pointer_cast<C_GLAreaLight>(m_Light);
-	const auto frustum	= areaLigh->GetShadingFrustum();
-	if (!areaLigh)
+	const auto areaLight = std::dynamic_pointer_cast<C_GLAreaLight>(m_Light);
+	const auto frustum	= areaLight->GetShadingFrustum();
+	GLE_TODO("26-12-2024", "RohacekD", "There is no support for shadow maps in area light");
+	if (!areaLight || true)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Wrong type of light");
 		return;
 	}
 
 
-	const auto left	  = glm::normalize(glm::cross(frustum.GetForeward(), frustum.GetUpVector()));
-	const auto pos	  = frustum.GetPosition();
-	const auto up	  = frustum.GetUpVector();
-	const auto width  = areaLigh->GetWidth() / 2.0f;
-	const auto height = areaLigh->GetHeight() / 2.0f;
-
-	m_FrameConstUBO->SetView(glm::lookAt(pos, pos + frustum.GetForeward(), up));
-	m_FrameConstUBO->SetProjection(glm::ortho(-width, width, -height, height, frustum.GetNear(), frustum.GetFar()));
-	m_FrameConstUBO->SetCameraPosition(glm::vec4(frustum.GetPosition(), 1.0f));
-
-	m_ShadowPassFBO->AttachTexture(GL_DEPTH_ATTACHMENT, areaLigh->GetShadowMap());
-	m_ShadowPassFBO->Bind<E_FramebufferTarget::Draw>();
-
-	if (m_ShadowPassFBO->NeedCheck())
-	{
-		// terribly ineffective
-		auto	   completeness = m_ShadowPassFBO->CheckCompleteness<E_FramebufferTarget::Draw>();
-		const auto lambda		= [](std::future<bool>&& completeness) {
-			  if (!completeness.get())
-			  {
-				  CORE_LOG(E_Level::Error, E_Context::Render, "Shadow map fbo is uncomplete");
-			  }
-		};
-
-		m_ShadowPassFBO->SetChecked();
-
-		std::thread completenessCheck(lambda, std::move(completeness));
-		completenessCheck.detach();
-	}
-
-
-	{
-		RenderDoc::C_DebugScope s("Shadow map prepare");
-		using namespace Commands;
-		renderer.AddCommand(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth));
-		Renderer::C_Viewport shadowMapViewPort(0, 0, 512, 512);
-		renderer.AddCommand(std::make_unique<C_GLViewport>(shadowMapViewPort));
-		renderer.AddCommand(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Back));
-	}
-
-	{
-		RenderDoc::C_DebugScope s("UBO Upload");
-		renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
-			[&]() {
-				m_FrameConstUBO->UploadData();
-				m_FrameConstUBO->Activate(true);
-			},
-			"ShadowPass UBO upload"));
-	}
-
-	const auto entitiesInView = m_WorldToRender->GetEntities(frustum);
-
-	{
-		RenderDoc::C_DebugScope s("Commit geometry");
-		for (auto& entity : entitiesInView)
-		{
-			if (auto renderable = entity->GetComponent<Entity::E_ComponentType::Graphical>())
-			{
-				renderable->PerformDraw();
-			}
-		}
-	}
-	m_ShadowPassFBO->Unbind<E_FramebufferTarget::Draw>();
-
-	{
-		using namespace Commands;
-		renderer.AddCommand(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Front));
-	}
+	// const auto left	  = glm::normalize(glm::cross(frustum.GetForeward(), frustum.GetUpVector()));
+	// const auto pos	  = frustum.GetPosition();
+	// const auto up	  = frustum.GetUpVector();
+	// const auto width  = areaLight->GetWidth() / 2.0f;
+	// const auto height = areaLight->GetHeight() / 2.0f;
+	// 
+	// m_FrameConstUBO->SetView(glm::lookAt(pos, pos + frustum.GetForeward(), up));
+	// m_FrameConstUBO->SetProjection(glm::ortho(-width, width, -height, height, frustum.GetNear(), frustum.GetFar()));
+	// m_FrameConstUBO->SetCameraPosition(glm::vec4(frustum.GetPosition(), 1.0f));
+	// 
+	// m_ShadowPassFBO->AttachTexture(GL_DEPTH_ATTACHMENT, areaLight->GetShadowMap());
+	// m_ShadowPassFBO->Bind<E_FramebufferTarget::Draw>();
+	// 
+	// if (m_ShadowPassFBO->NeedCheck())
+	// {
+	// 	// terribly ineffective
+	// 	auto	   completeness = m_ShadowPassFBO->CheckCompleteness<E_FramebufferTarget::Draw>();
+	// 	const auto lambda		= [](std::future<bool>&& completeness) {
+	// 		  if (!completeness.get())
+	// 		  {
+	// 			  CORE_LOG(E_Level::Error, E_Context::Render, "Shadow map fbo is uncomplete");
+	// 		  }
+	// 	};
+	// 
+	// 	m_ShadowPassFBO->SetChecked();
+	// 
+	// 	std::thread completenessCheck(lambda, std::move(completeness));
+	// 	completenessCheck.detach();
+	// }
+	// 
+	// 
+	// {
+	// 	RenderDoc::C_DebugScope s("Shadow map prepare");
+	// 	using namespace Commands;
+	// 	renderer.AddCommand(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth));
+	// 	Renderer::C_Viewport shadowMapViewPort(0, 0, 512, 512);
+	// 	renderer.AddCommand(std::make_unique<C_GLViewport>(shadowMapViewPort));
+	// 	renderer.AddCommand(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Back));
+	// }
+	// 
+	// {
+	// 	RenderDoc::C_DebugScope s("UBO Upload");
+	// 	renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+	// 		[&]() {
+	// 			m_FrameConstUBO->UploadData();
+	// 			m_FrameConstUBO->Activate(true);
+	// 		},
+	// 		"ShadowPass UBO upload"));
+	// }
+	// 
+	// const auto entitiesInView = m_WorldToRender->GetEntities(frustum);
+	// 
+	// {
+	// 	RenderDoc::C_DebugScope s("Commit geometry");
+	// 	for (auto& entity : entitiesInView)
+	// 	{
+	// 		if (auto renderable = entity->GetComponent<Entity::E_ComponentType::Graphical>())
+	// 		{
+	// 			renderable->PerformDraw();
+	// 		}
+	// 	}
+	// }
+	// m_ShadowPassFBO->Unbind<E_FramebufferTarget::Draw>();
+	// 
+	// {
+	// 	using namespace Commands;
+	// 	renderer.AddCommand(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Front));
+	// }
 }
 
 } // namespace GLEngine::GLRenderer

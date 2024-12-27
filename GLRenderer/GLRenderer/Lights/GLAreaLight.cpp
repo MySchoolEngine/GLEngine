@@ -8,9 +8,9 @@ namespace GLEngine::GLRenderer {
 
 //=================================================================================
 C_GLAreaLight::C_GLAreaLight(std::shared_ptr<Entity::I_Entity> owner)
-	: Renderer::C_AreaLight(owner)
+	: C_AreaLight(std::move(owner))
 	//, m_ShadowMap(Textures::C_TextureManager::Instance().CreateEmptyTexture(owner->GetName() + "_ShadowMap"))
-	, m_ShadowMap(Textures::C_TextureManager::Instance().GetIdentityTexture())
+	, m_ShadowMap(Textures::C_TextureManager::Instance().GetIdentityTextureHandle())
 {
 	// m_ShadowMap->bind();
 	// m_ShadowMap->SetDimensions({512, 512});
@@ -21,7 +21,7 @@ C_GLAreaLight::C_GLAreaLight(std::shared_ptr<Entity::I_Entity> owner)
 }
 
 //=================================================================================
-const std::shared_ptr<Textures::C_Texture>& C_GLAreaLight::GetShadowMap() const
+Renderer::Handle<Renderer::Texture> C_GLAreaLight::GetShadowMap() const
 {
 	return m_ShadowMap;
 }
