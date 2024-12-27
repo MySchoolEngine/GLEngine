@@ -94,6 +94,7 @@ private:
 	GUID																m_FrameStatsGUID;
 	GUID																m_ConsoleWindowGUID;
 	GUID																m_RayTraceGUID;
+	GUID																m_WaterRenderingGUID;
 	GUID																m_ImageEditorGUID;
 	GUID																m_EntityEditorGUID;
 	GUID																m_EntitiesWindowGUID;

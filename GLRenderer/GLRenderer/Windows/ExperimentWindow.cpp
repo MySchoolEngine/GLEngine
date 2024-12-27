@@ -27,6 +27,7 @@
 #include <GLRenderer/Textures/TextureManager.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 #include <GLRenderer/Windows/ExperimentWindow.h>
+#include <GLRenderer/Windows/WaterRendering.h>
 
 #include <Renderer/Cameras/OrbitalCamera.h>
 #include <Renderer/Components/StaticMeshHandles.h>
@@ -438,6 +439,20 @@ void C_ExperimentWindow::OnAppInit()
 		return false;
 	}));
 
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Water rendering", [&]() {
+		if (guiMGR.GetWindow(m_WaterRenderingGUID) != nullptr)
+		{
+			return false;
+		}
+		m_WaterRenderingGUID = NextGUID();
+
+		auto* waterRendering = new C_WaterRendering(m_WaterRenderingGUID, guiMGR, *m_Device.get());
+
+		guiMGR.AddCustomWindow(waterRendering);
+		waterRendering->SetVisible(true);
+		return false;
+	}));
+
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Image editor", [&]() {
 		if (guiMGR.GetWindow(m_ImageEditorGUID) != nullptr)
 		{
@@ -695,6 +710,7 @@ bool C_ExperimentWindow::OnAppEvent(Core::C_AppEvent& event)
 		auto& guiMGR = m_ImGUI->GetGUIMgr();
 		guiMGR.DestroyWindow(m_EntitiesWindowGUID);
 		guiMGR.DestroyWindow(m_RayTraceGUID);
+		guiMGR.DestroyWindow(m_WaterRenderingGUID);
 		guiMGR.DestroyWindow(m_ConsoleWindowGUID);
 		guiMGR.DestroyWindow(m_FrameStatsGUID);
 		guiMGR.DestroyWindow(m_HDRSettingsGUID);
