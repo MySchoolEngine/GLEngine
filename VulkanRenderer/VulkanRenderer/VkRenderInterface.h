@@ -5,7 +5,8 @@
 namespace GLEngine::VkRenderer {
 class C_VkRenderer;
 class C_Pipeline;
-class C_VkRenderInterface : public Renderer::RenderInterface {
+class C_VkRenderInterface : public Renderer::I_RenderInterface3D
+{
 public:
 	C_VkRenderInterface();
 	~C_VkRenderInterface();
