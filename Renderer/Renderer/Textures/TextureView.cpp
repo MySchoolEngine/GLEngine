@@ -200,13 +200,13 @@ void C_TextureView::DrawPixel(const glm::uvec2& coord, glm::vec4&& colour)
 {
 	if (!m_EnableBlending || colour.a >= 1.f)
 	{
-		Set(coord, glm::vec3{colour});
+		Set(coord, std::move(colour));
 	}
 	else
 	{
 		const auto currentCol = Get<glm::vec4>(coord);
 		const auto alpha	  = colour.a;
-		Set(coord, BlendFunctionFactory::GetBlendFunction(m_BlendOperation)(glm::vec3(currentCol) * (1.f - alpha), glm::vec3{colour} * alpha));
+		Set(coord, glm::vec4(BlendFunctionFactory::GetBlendFunction(m_BlendOperation)(glm::vec3(currentCol) * (1.f - alpha), glm::vec3{colour} * alpha), 1.f));
 	}
 }
 

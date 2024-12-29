@@ -124,6 +124,7 @@ protected:
 	E_BlendFunction		  m_BlendOperation;
 
 	friend class TextureViewFixture;
+	friend class TextureViewWithAlphaFixture;
 };
 
 template <> glm::vec4  C_TextureView::GetBorderColor() const;

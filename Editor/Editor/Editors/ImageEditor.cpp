@@ -198,7 +198,7 @@ void C_ImageEditor::CreateTextures(Renderer::I_Renderer& renderer)
 
 	m_Storage.SetAll(glm::vec4(Colours::white, 0.f));
 	{
-		Renderer::C_TextureViewStorageCPU<float> storage(s_BackgroundDim.x, s_BackgroundDim.y, 3);
+		static Renderer::C_TextureViewStorageCPU<float> storage(s_BackgroundDim.x, s_BackgroundDim.y, 3);
 		storage.SetAll(glm::vec4(Colours::white, 0.f));
 		Renderer::C_TextureView view(&storage);
 
