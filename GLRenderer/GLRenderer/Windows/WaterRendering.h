@@ -1,10 +1,12 @@
-#pragma once
+﻿#pragma once
 #include <Renderer/Renderer2D.h>
 #include <Renderer/Resources/RenderResourceHandle.h>
 #include <Renderer/Textures/Storage/TextureLinearStorage.h>
 
 #include <GUI/GUIWindow.h>
 #include <GUI/ImageViewer.h>
+
+#include <Utils/HighResolutionTimer.h>
 
 #include <rttr/registration.h>
 #include <rttr/registration_friend.h>
@@ -27,7 +29,15 @@ protected:
 	void DrawComponents() const override;
 
 private:
+	struct Particle {
+		glm::vec2 Position;
+		glm::vec2 Velocity{0.f, 0.f};
+
+		void Move(const float t) { Position += Velocity * t; }
+	};
+
 	void Simulate();
+	void Collision(Particle& particle, const float t);
 	void Setup();
 
 	GUI::C_ImageViewer						 m_Image;
@@ -40,7 +50,11 @@ private:
 
 	Renderer::Handle<Renderer::Texture>		 m_WorldOverlay;
 	Renderer::C_TextureViewStorageCPU<float> m_OverlayStorage;
-	bool				   m_bRunSimulation;
-	mutable bool		   m_bScheduledSetup;
+
+	std::vector<Particle>				 m_Particles;
+	int									 m_NumParticles;
+	bool								 m_bRunSimulation;
+	mutable bool						 m_bScheduledSetup;
+	mutable ::Utils::HighResolutionTimer m_Timer;
 };
 } // namespace GLEngine::GLRenderer

@@ -1,4 +1,4 @@
-#include <GLRendererStdafx.h>
+﻿#include <GLRendererStdafx.h>
 
 #include <GLRenderer/Commands/GLClear.h>
 #include <GLRenderer/FBO/Framebuffer.h>
@@ -13,6 +13,9 @@
 #include <Editor/Editors/Image/Tools/BrickGenerator.h>
 
 #include <GUI/ReflectionGUI.h>
+
+#include <Physics/2D/Plane2D.h>
+#include <Physics/Constants.h>
 
 #include <Core/Application.h>
 
@@ -33,7 +36,7 @@ RTTR_REGISTRATION
 			RegisterMetamember<UI::SliderInt::Name>("Num particles:"),
 			RegisterMetamember<UI::SliderInt::Min>(1),
 			RegisterMetamember<UI::SliderInt::Max>(100))
-		.property("NumParticles", &C_WaterRendering::m_NumParticles)(
+		.property("RunSimulation", &C_WaterRendering::m_bRunSimulation)(
 			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::Checkbox>(),
 			RegisterMetamember<UI::Checkbox::Name>("Run simulation"));
@@ -153,12 +156,63 @@ void C_WaterRendering::DrawComponents() const
 		{
 			m_bScheduledSetup = true;
 		}
+		if (::Utils::contains(changed, rttr::type::get<C_WaterRendering>().get_property("RunSimulation")))
+		{
+			m_Timer.reset();
+		}
 	}
 }
 
 //=================================================================================
 void C_WaterRendering::Simulate()
 {
+	const float t = static_cast<float>(m_Timer.getElapsedTimeFromLastQueryMilliseconds()) / 1000.f;
+	for (auto& particle : m_Particles)
+	{
+		particle.Velocity += glm::vec2{0.f, -Physics::Constants::g * t};
+		particle.Move(t);
+		Collision(particle, t);
+	}
+}
+
+//=================================================================================
+void C_WaterRendering::Collision(Particle& particle, const float t)
+{
+	constexpr static float dampingFactor = .9f;
+
+	const Physics::Primitives::Plane2D Floor{.Normal = glm::normalize(glm::vec2{0.5f, 0.5f}), .Position = {200, 200}};
+	const Physics::Primitives::Plane2D Floor1{.Normal = glm::normalize(glm::vec2{-0.5f, 0.5f}), .Position = {600, 200}};
+	const auto						   previousPos = particle.Position - t * particle.Velocity;
+	// need to move position by -Normal * particle size
+	// detect exact contact point
+	// calculate resulting vector
+
+	{
+		// Real-time rendering 4th edition - 25.9 Collision Response
+		const float Sc = Floor.DistanceToLine(previousPos);
+		const float Se = Floor.DistanceToLine(particle.Position);
+		if (Sc * Se <= 0 || Sc <= s_ParticleSize.x / 2 || Se <= s_ParticleSize.x / 2)
+		{
+			const float t_freeMove = (Sc - s_ParticleSize.x / 2) / (Sc - Se);
+			particle.Position	   = previousPos;
+			particle.Move(t * t_freeMove);
+			particle.Velocity = glm::reflect(particle.Velocity, Floor.Normal) * dampingFactor;
+			particle.Move(t * (1.f - t_freeMove));
+		}
+	}
+	{
+		// Real-time rendering 4th edition - 25.9 Collision Response
+		const float Sc = Floor1.DistanceToLine(previousPos);
+		const float Se = Floor1.DistanceToLine(particle.Position);
+		if (Sc * Se <= 0 || Sc <= s_ParticleSize.x / 2 || Se <= s_ParticleSize.x / 2)
+		{
+			const float t_freeMove = (Sc - s_ParticleSize.x / 2) / (Sc - Se);
+			particle.Position	   = previousPos;
+			particle.Move(t * t_freeMove);
+			particle.Velocity = glm::reflect(particle.Velocity, Floor1.Normal) * dampingFactor;
+			particle.Move(t * (1.f - t_freeMove));
+		}
+	}
 }
 
 //=================================================================================
@@ -171,7 +225,7 @@ void C_WaterRendering::Setup()
 	constexpr float padding		 = 5.f;
 	constexpr auto	center		 = s_Dimensions / 2u;
 	constexpr auto	completeSize = 10.f * s_ParticleSize + 9.f * glm::vec2{padding, padding};
-	constexpr auto	topLeft		 = center - glm::uvec2{completeSize} / 2u;
+	constexpr auto	topLeft		 = glm::uvec2{glm::ivec2{center} + glm::ivec2{-completeSize.x, completeSize.y} / 2};
 	constexpr auto	ParticleSize = padding + s_ParticleSize;
 
 	for (int i = 0; i < m_NumParticles; ++i)
@@ -211,7 +265,7 @@ void C_WaterRendering::Update()
 	for (const auto& particle : m_Particles)
 	{
 		m_2DRenderer.Draw(Renderer::RenderCall2D{
-			.Position		= particle,
+			.Position		= particle.Position,
 			.Size			= s_ParticleSize,
 			.Rotation		= 0.f,
 			.PipelineHandle = m_Pipeline,
