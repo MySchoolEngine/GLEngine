@@ -1,4 +1,4 @@
-﻿#include <GLRendererStdafx.h>
+#include <GLRendererStdafx.h>
 
 #include <GLRenderer/Commands/GLClear.h>
 #include <GLRenderer/FBO/Framebuffer.h>
@@ -8,6 +8,7 @@
 #include <GLRenderer/Windows/WaterRendering.h>
 
 #include <Renderer/Descriptors/TextureDescriptor.h>
+#include <Renderer/Render/CPURasterizer.h>
 
 #include <Editor/Editors/Image/Tools/BrickGenerator.h>
 
@@ -51,20 +52,23 @@ C_WaterRendering::C_WaterRendering(GUID guid, GUI::C_GUIManager& guiMGR, C_GLDev
 	, m_Image({})
 	, m_NumParticles(1)
 	, m_bScheduledSetup(true)
+	, m_OverlayStorage(s_Dimensions.x, s_Dimensions.y, 4)
 {
 	auto&					   renderer = Core::C_Application::Get().GetActiveRenderer();
 	Renderer::ResourceManager& rrm		= renderer.GetRM();
 
+
+	const auto gpuSamplerHandle = rrm.createSampler(Renderer::SamplerDescriptor2D{
+		.m_FilterMin = Renderer::E_TextureFilter::Linear,
+		.m_FilterMag = Renderer::E_TextureFilter::Linear,
+		.m_WrapS	 = Renderer::E_WrapFunction::Repeat,
+		.m_WrapT	 = Renderer::E_WrapFunction::Repeat,
+		.m_WrapU	 = Renderer::E_WrapFunction::Repeat,
+	});
+
 	// Texture
 	{
 		using namespace Renderer;
-		const auto gpuSamplerHandle = rrm.createSampler(SamplerDescriptor2D{
-			.m_FilterMin = E_TextureFilter::Linear,
-			.m_FilterMag = E_TextureFilter::Linear,
-			.m_WrapS	 = E_WrapFunction::Repeat,
-			.m_WrapT	 = E_WrapFunction::Repeat,
-			.m_WrapU	 = E_WrapFunction::Repeat,
-		});
 
 		const TextureDescriptor waterRenderingDef{.name			 = "WaterRendering",
 												  .width		 = s_Dimensions.x,
@@ -83,6 +87,28 @@ C_WaterRendering::C_WaterRendering(GUID guid, GUI::C_GUIManager& guiMGR, C_GLDev
 												   .m_bStreamable = false};
 		m_DeviceDepthImage = rrm.createTexture(hdrDepthTextureDef);
 		renderer.SetTextureSampler(m_DeviceDepthImage, gpuSamplerHandle);
+	}
+
+	// overlay
+	{
+		using namespace Renderer;
+		const TextureDescriptor waterOverlayDef{.name		   = "WaterRenderingOverlay",
+												.width		   = s_Dimensions.x,
+												.height		   = s_Dimensions.y,
+												.type		   = E_TextureType::TEXTURE_2D,
+												.format		   = E_TextureFormat::RGBA32f,
+												.m_bStreamable = false};
+
+		m_WorldOverlay = rrm.createTexture(waterOverlayDef);
+		// renderer.SetTextureSampler(m_WorldOverlay, gpuSamplerHandle);
+
+
+		C_TextureView view(&m_OverlayStorage);
+		view.EnableBlending(true);
+		C_CPURasterizer rasterizer(view);
+		rasterizer.DrawLine(Colours::white, glm::ivec2{0, s_Dimensions.y - 400}, glm::ivec2{400, s_Dimensions.y - 1}, true);
+		rasterizer.DrawLine(Colours::white, glm::ivec2{s_Dimensions.x - 1, s_Dimensions.y - 400}, glm::ivec2{s_Dimensions.x - 400, s_Dimensions.y - 1}, true);
+		renderer.SetTextureData(m_WorldOverlay, m_OverlayStorage);
 	}
 
 	// FBO
@@ -112,6 +138,7 @@ C_WaterRendering::C_WaterRendering(GUID guid, GUI::C_GUIManager& guiMGR, C_GLDev
 
 	m_Image = GUI::C_ImageViewer(m_DeviceImage);
 	m_Image.SetSize(s_Dimensions);
+	m_Image.AddOverlay(m_WorldOverlay);
 }
 
 //=================================================================================

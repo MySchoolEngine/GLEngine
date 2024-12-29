@@ -1,6 +1,7 @@
-﻿#pragma once
+#pragma once
 #include <Renderer/Renderer2D.h>
 #include <Renderer/Resources/RenderResourceHandle.h>
+#include <Renderer/Textures/Storage/TextureLinearStorage.h>
 
 #include <GUI/GUIWindow.h>
 #include <GUI/ImageViewer.h>
@@ -37,8 +38,8 @@ private:
 	Renderer::Handle<Renderer::Texture>		 m_DeviceImage;
 	Renderer::Handle<Renderer::Texture>		 m_DeviceDepthImage;
 
-	std::vector<glm::vec2> m_Particles;
-	int					   m_NumParticles;
+	Renderer::Handle<Renderer::Texture>		 m_WorldOverlay;
+	Renderer::C_TextureViewStorageCPU<float> m_OverlayStorage;
 	bool				   m_bRunSimulation;
 	mutable bool		   m_bScheduledSetup;
 };
