@@ -52,12 +52,19 @@ bool C_ImageViewer::Draw() const
 	// todo - minimap - done
 	//      - channels
 
+	auto& activeRenderer = Core::C_Application::Get().GetActiveRenderer();
 	if (!m_GUIHandle)
 	{
-		m_GUIHandle = Core::C_Application::Get().GetActiveRenderer().GetTextureGUIHandle(m_Texture);
+		m_GUIHandle = activeRenderer.GetTextureGUIHandle(m_Texture);
 	}
 
 	ImGui::Image((void*)(intptr_t)(m_GUIHandle), drawAreaSz, zoomArea.Min, zoomArea.Max);
+	for (auto overlay : m_Overlays)
+	{
+		const auto overlayHandle = activeRenderer.GetTextureGUIHandle(overlay);
+		ImGui::SetCursorPos(canvasP0);
+		ImGui::Image((void*)(intptr_t)(overlayHandle), drawAreaSz, zoomArea.Min, zoomArea.Max);
+	}
 
 	// === minimap ===
 	// show only when zoomed and mouse over
@@ -71,6 +78,13 @@ bool C_ImageViewer::Draw() const
 		ImGui::SetCursorPos(canvasP0 + ImVec2(drawAreaSz.x - offsetFromCorner - minimapDrawAreaSz.x, offsetFromCorner));
 		const ImVec2 screenSpacePos = ImGui::GetCursorScreenPos();
 		ImGui::Image((void*)(intptr_t)(m_GUIHandle), minimapDrawAreaSz, {0, 0}, {1, 1}, {1, 1, 1, 1}, {1, 0, 0, 1});
+
+		for (auto overlay : m_Overlays)
+		{
+			const auto overlayHandle = activeRenderer.GetTextureGUIHandle(overlay);
+			ImGui::SetCursorPos(canvasP0 + ImVec2(drawAreaSz.x - offsetFromCorner - minimapDrawAreaSz.x, offsetFromCorner));
+			ImGui::Image((void*)(intptr_t)(overlayHandle), minimapDrawAreaSz, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 }, { 1, 0, 0, 1 });
+		}
 
 		// rect
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
@@ -88,6 +102,21 @@ bool C_ImageViewer::Draw() const
 void C_ImageViewer::SetSize(const glm::vec2 dim)
 {
 	m_Size = dim;
+}
+
+//=================================================================================
+void C_ImageViewer::AddOverlay(Renderer::Handle<Renderer::Texture> texture)
+{
+	m_Overlays.emplace_back(texture);
+}
+
+//=================================================================================
+void C_ImageViewer::PopOverlay()
+{
+	if (m_Overlays.empty() == false)
+	{
+		m_Overlays.pop_back();
+	}
 }
 
 } // namespace GLEngine::GUI
