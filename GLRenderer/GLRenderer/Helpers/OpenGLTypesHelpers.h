@@ -207,6 +207,8 @@ inline constexpr GLenum GetBufferType(const Renderer::E_BufferType bufferType)
 		return GL_INDEX_ARRAY;
 	case Renderer::E_BufferType::Uniform:
 		return GL_UNIFORM_BUFFER;
+	case Renderer::E_BufferType::DrawIndirect:
+		return GL_DRAW_INDIRECT_BUFFER;
 	default:
 		GLE_ERROR("Unknown buffer type.")
 		break;
