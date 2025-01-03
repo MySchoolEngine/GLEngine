@@ -8,18 +8,20 @@
 // Asserts
 //======================================================
 #ifdef GL_ENGINE_DEBUG
-	#define GLE_ASSERT(expr, message, ...)                                                                                                                                         \
+#define GLE_ASSERT(expr, message, ...)                                                                                                                                             \
 		if (!(expr))                                                                                                                                                               \
 		{                                                                                                                                                                          \
 			CORE_LOG(E_Level::Error, E_Context::Core, "Assert failed: " message, ##__VA_ARGS__);                                                                                   \
 			GL_DebugBreak();                                                                                                                                                       \
-		}
+		}                                                                                                                                                                          \
+		void ANONYMOUS_FUNCTION_ASSERTION()
 #else
 	#define GLE_ASSERT(expr, message, ...)                                                                                                                                         \
 		if (!(expr))                                                                                                                                                               \
 		{                                                                                                                                                                          \
 			CORE_LOG(E_Level::Error, E_Context::Core, "Assert failed: " message, ##__VA_ARGS__);                                                                                   \
-		}
+		}                                                                                                                                                                          \
+		void ANONYMOUS_FUNCTION_ASSERTION()
 #endif
 
 #define GLE_ERROR(message, ...) GLE_ASSERT(false, message, ##__VA_ARGS__)
