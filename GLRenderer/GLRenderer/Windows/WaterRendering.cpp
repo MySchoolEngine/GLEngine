@@ -59,10 +59,10 @@ RTTR_REGISTRATION
 
 namespace GLEngine::GLRenderer {
 
-static constexpr bool       s_SimulateOnGPU = false;
-static constexpr glm::vec2  s_ParticleSize(30, 30);
+static constexpr bool		s_SimulateOnGPU = true;
+static constexpr float		s_ParticleSize{30};
 static constexpr glm::uvec2 s_Dimensions{800, 600};
-static constexpr bool       s_indexed = false;
+static constexpr bool		s_indexed = false;
 
 //=================================================================================
 C_WaterRendering::C_WaterRendering(GUID guid, GUI::C_GUIManager& guiMGR, C_GLDevice& device)
@@ -199,6 +199,7 @@ void C_WaterRendering::Simulate()
 				auto& glRM     = renderer.GetRMGR();
 				program->SetUniform("deltaTime", t);
 				program->SetUniform("numParticles", m_NumParticles);
+				program->SetUniform("particleRadius", s_ParticleSize / 2);
 
 				auto*      buffer           = glRM.GetBuffer(m_ParticlesHandle);
 				const auto uboBlockLocation = program->FindUniformBlockLocation("particlesUBO");
@@ -241,9 +242,9 @@ void C_WaterRendering::Collision(Particle& particle, const float t)
 		// Real-time rendering 4th edition - 25.9 Collision Response
 		const float Sc = plane.DistanceToLine(previousPos);
 		const float Se = plane.DistanceToLine(particle.Position);
-		if (Sc * Se <= 0 || Sc <= s_ParticleSize.x / 2 || Se <= s_ParticleSize.x / 2)
+		if (Sc * Se <= 0 || Sc <= s_ParticleSize / 2 || Se <= s_ParticleSize / 2)
 		{
-			const float t_freeMove = (Sc - s_ParticleSize.x / 2) / (Sc - Se);
+			const float t_freeMove = (Sc - s_ParticleSize / 2) / (Sc - Se);
 			particle.Position      = previousPos;
 			particle.Move(t * t_freeMove);
 			particle.Velocity = glm::reflect(particle.Velocity, plane.Normal) * dampingFactor;
@@ -269,7 +270,7 @@ void C_WaterRendering::Setup()
 	constexpr auto  center       = s_Dimensions / 2u;
 	constexpr auto  completeSize = 10.f * s_ParticleSize + 9.f * glm::vec2{padding, padding};
 	constexpr auto  topLeft      = glm::uvec2{glm::ivec2{center} + glm::ivec2{-completeSize.x, completeSize.y} / 2};
-	constexpr auto  ParticleSize = padding + s_ParticleSize;
+	constexpr auto	ParticleSize = glm::vec2{padding + s_ParticleSize, padding + s_ParticleSize};
 
 	for (int i = 0; i < m_NumParticles; ++i)
 	{
@@ -325,7 +326,7 @@ float C_WaterRendering::GetLocalDensity(const Particle& samplingParticle) const
 	float density = 0.f;
 	for (const auto& particle : m_Particles)
 	{
-		const float distance = glm::distance(particle.Position, samplingParticle.Position) / s_ParticleSize.x;
+		const float distance = glm::distance(particle.Position, samplingParticle.Position);
 		density += SmoothingKernel(m_DensityRadius, distance);
 	}
 	return density;
@@ -371,7 +372,7 @@ void C_WaterRendering::Update()
 			const auto density = GetLocalDensity(particle) / m_DensityDivisor;
 			m_2DRenderer.Draw(Renderer::RenderCall2D{
 				.Position = {particle.Position},
-				.Size = s_ParticleSize,
+				.Size			= {s_ParticleSize, s_ParticleSize},
 				.Rotation = 0.f,
 				.PipelineHandle = m_Pipeline,
 				.Colour = glm::mix(Colours::blue, Colours::red, density),
@@ -382,7 +383,7 @@ void C_WaterRendering::Update()
 	{
 		m_2DRenderer.Draw(Renderer::RenderCall2D{
 			.Position = {200, 200},
-			.Size = s_ParticleSize,
+			.Size			= {s_ParticleSize, s_ParticleSize},
 			.Rotation = 0.f,
 			.PipelineHandle = m_Pipeline,
 			.Colour = Colours::red,

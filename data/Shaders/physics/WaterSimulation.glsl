@@ -11,6 +11,7 @@ layout(std430, binding = 5) buffer particlesUBO
 };
 
 uniform float deltaTime;
+uniform float particleRadius;
 uniform int numParticles;
 
 void main(){
@@ -33,9 +34,9 @@ void main(){
 	{
 		const float Sc = DistanceToPlane(planes[i], previousPos);
 		const float Se = DistanceToPlane(planes[i], particle.Position);
-		if(Sc*Se <= 0 || Sc <= 15 || Se <= 15)
+		if(Sc*Se <= 0 || Sc <= particleRadius || Se <= particleRadius)
 		{
-			const float t_freeMove = (Sc - 15) / (Sc - Se);
+			const float t_freeMove = (Sc - particleRadius) / (Sc - Se);
 			particle.Position      = previousPos;
 			MoveParticle(particle, deltaTime * t_freeMove);
 			particle.Velocity = reflect(particle.Velocity, planes[i].Normal) * dampingFactor;
