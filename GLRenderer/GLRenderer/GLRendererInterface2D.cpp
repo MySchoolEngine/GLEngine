@@ -1,4 +1,4 @@
-﻿#include <GLRendererStdafx.h>
+#include <GLRendererStdafx.h>
 
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/GLRendererInterface2D.h>
@@ -54,14 +54,14 @@ C_GLRendererInterface2D::C_GLRendererInterface2D(const glm::uvec2 size)
 	{
 		auto* buffer = glRM.GetBuffer(m_PlaneVertHandle);
 		buffer->bind();
-		glVertexAttribPointer(0, T_GLNumComponenets_v<glm::vec3>, T_TypeToGL<glm::vec3>::value, GL_FALSE, 0, nullptr);
+		glVertexAttribPointer(0, T_GLNumComponents_v<glm::vec3>, T_TypeToGL<glm::vec3>::value, GL_FALSE, 0, nullptr);
 
 		glEnableVertexAttribArray(0);
 	}
 	{
 		auto* buffer = glRM.GetBuffer(m_UVVertHandle);
 		buffer->bind();
-		glVertexAttribPointer(1, T_GLNumComponenets_v<glm::vec2>, T_TypeToGL<glm::vec2>::value, GL_FALSE, 0, nullptr);
+		glVertexAttribPointer(1, T_GLNumComponents_v<glm::vec2>, T_TypeToGL<glm::vec2>::value, GL_FALSE, 0, nullptr);
 
 		glEnableVertexAttribArray(1);
 	}

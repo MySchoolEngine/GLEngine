@@ -6,13 +6,14 @@ namespace GLEngine::GLRenderer {
 
 struct FormatDescriptor {
 	bool		 Compressed : 1;
-	bool		 Intagral : 1;
+	bool		 Integral : 1;
 	GLenum		 glUnderlyingType;
 	GLenum		 glInternalFormat;
 	GLenum		 glExternalFormat;
 	std::uint8_t numComponents;
 };
 
+namespace {
 // clang-format off
 static FormatDescriptor const TextureFormatDesc[] = {
 	{false, false,GL_FLOAT, GL_RGBA32F,	GL_RGBA,4},							// E_TextureFormat::RGBA32f
@@ -52,14 +53,14 @@ static FormatDescriptor const TextureFormatDesc[] = {
 	{false, false, GL_HALF_FLOAT,		 GL_DEPTH_COMPONENT16,	GL_NONE, 1},// E_TextureFormat::D16
 };
 // clang-format on
-
-constexpr std::size_t Count = sizeof(TextureFormatDesc) / sizeof(FormatDescriptor);
-static_assert(Count == static_cast<std::underlying_type_t<Renderer::E_TextureFormat>>(Renderer::E_TextureFormat::Count), "Each format has to have descriptor");
+constexpr std::size_t s_Count = sizeof(TextureFormatDesc) / sizeof(FormatDescriptor);
+static_assert(s_Count == static_cast<std::underlying_type_t<Renderer::E_TextureFormat>>(Renderer::E_TextureFormat::Count), "Each format has to have descriptor");
 
 //=================================================================================
-inline constexpr const FormatDescriptor& GetFormatDescriptor(const Renderer::E_TextureFormat format)
+constexpr const FormatDescriptor& GetFormatDescriptor(const Renderer::E_TextureFormat format)
 {
 	return TextureFormatDesc[static_cast<std::underlying_type_t<Renderer::E_TextureFormat>>(format)];
+}
 }
 
 //=================================================================================

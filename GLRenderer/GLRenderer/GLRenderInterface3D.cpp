@@ -56,16 +56,16 @@ void C_GLRenderInterface3D::Render(const Renderer::RenderCall3D& call)
 				switch (vertexDesc.type)
 				{
 				case Renderer::E_ShaderDataType::Float:
-					glVertexAttribPointer(i, T_GLNumComponenets_v<float>, T_TypeToGL<float>::value, GL_FALSE, 0, nullptr);
+					glVertexAttribPointer(i, T_GLNumComponents_v<float>, T_TypeToGL<float>::value, GL_FALSE, 0, nullptr);
 					break;
 				case Renderer::E_ShaderDataType::Vec2:
-					glVertexAttribPointer(i, T_GLNumComponenets_v<glm::vec2>, T_TypeToGL<glm::vec2>::value, GL_FALSE, 0, nullptr);
+					glVertexAttribPointer(i, T_GLNumComponents_v<glm::vec2>, T_TypeToGL<glm::vec2>::value, GL_FALSE, 0, nullptr);
 					break;
 				case Renderer::E_ShaderDataType::Vec3:
-					glVertexAttribPointer(i, T_GLNumComponenets_v<glm::vec3>, T_TypeToGL<glm::vec3>::value, GL_FALSE, 0, nullptr);
+					glVertexAttribPointer(i, T_GLNumComponents_v<glm::vec3>, T_TypeToGL<glm::vec3>::value, GL_FALSE, 0, nullptr);
 					break;
 				case Renderer::E_ShaderDataType::Vec4:
-					glVertexAttribPointer(i, T_GLNumComponenets_v<glm::vec4>, T_TypeToGL<glm::vec4>::value, GL_FALSE, 0, nullptr);
+					glVertexAttribPointer(i, T_GLNumComponents_v<glm::vec4>, T_TypeToGL<glm::vec4>::value, GL_FALSE, 0, nullptr);
 					break;
 				default:
 					GLE_ERROR("Unknown shader data type");
