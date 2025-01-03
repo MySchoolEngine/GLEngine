@@ -32,6 +32,12 @@ public:
 
 	void   bind() const;
 	void   unbind() const;
+	/**
+	 * Binds buffer to indexed array of bound buffers
+	 * https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBindBufferBase.xhtml
+	 * @param index index in the array of buffers
+	 */
+	void   BindBase(unsigned int index);
 
 private:
 	const Renderer::BufferDescriptor desc;
