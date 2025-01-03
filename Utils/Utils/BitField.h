@@ -3,7 +3,7 @@
 #include <type_traits>
 
 namespace Utils {
-template <class Enum, typename = typename std::enable_if<std::is_enum<Enum>::value>::type> class C_BitField {
+template <class Enum, typename = std::enable_if_t<std::is_enum_v<Enum>>> class C_BitField {
 	using value_type = typename std::underlying_type<Enum>::type;
 
 public:
@@ -88,9 +88,9 @@ public:
 
 	[[nodiscard]] bool operator&(const Enum bit) const { return CheckFlag(bit); }
 
-	[[nodiscard]] operator const Enum() const { return m_Flags; }
+	[[nodiscard]] explicit operator const Enum() const { return m_Flags; }
 
-	[[nodiscard]] operator Enum&() { return m_Flags; }
+	[[nodiscard]] explicit operator Enum&() { return m_Flags; }
 
 	[[nodiscard]] value_type GetFlags() const { return m_Flags; }
 
@@ -103,14 +103,16 @@ template <typename Enum> struct enable_BitField_operators {
 };
 } // namespace Utils
 
-template <typename Enum> typename std::enable_if<Utils::enable_BitField_operators<Enum>::enable, Utils::C_BitField<Enum>>::type operator|(Enum lhs, Enum rhs)
+template <typename Enum> Utils::C_BitField<Enum> operator|(Enum lhs, Enum rhs)
+requires Utils::enable_BitField_operators<Enum>::enable
 {
 	Utils::C_BitField<Enum> field(lhs);
 	field.SetFlag(rhs);
 	return field;
 }
 
-template <typename Enum> typename std::enable_if<Utils::enable_BitField_operators<Enum>::enable, Utils::C_BitField<Enum>>::type operator&(Enum lhs, Enum rhs)
+template <typename Enum> Utils::C_BitField<Enum> operator&(Enum lhs, Enum rhs)
+requires Utils::enable_BitField_operators<Enum>::enable
 {
 	Utils::C_BitField<Enum> field;
 	if (lhs == rhs)

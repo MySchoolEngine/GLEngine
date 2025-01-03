@@ -236,49 +236,58 @@ template <MetaGUI Class, class Type> [[nodiscard]] bool IsTypeUIMetaClass(Type&&
 	return detail::GetMetadata<Class>(arg).is_valid();
 }
 
-enum class Slider {
+enum class Slider : std::uint8_t{
 	Name,
 	Min,
 	Max,
 };
 
-enum class SliderInt {
+enum class SliderInt : std::uint8_t
+{
 	Name,
 	Min,
 	Max,
 };
 
-enum class Angle {
+enum class Angle : std::uint8_t
+{
 	Name,
 	Min,
 	Max,
 };
 
-enum class Colour {
+enum class Colour : std::uint8_t
+{
 	Name,
 };
 
-enum class Vec3 {
+enum class Vec3 : std::uint8_t
+{
 	Name,
 };
 
-enum class Checkbox {
+enum class Checkbox : std::uint8_t
+{
 	Name,
 };
 
-enum class Text {
+enum class Text : std::uint8_t
+{
 };
 
-enum class EnumSelect {
+enum class EnumSelect : std::uint8_t
+{
 	Name,
 };
 
-enum class EnumSelectOptional {
+enum class EnumSelectOptional : std::uint8_t
+{
 	Name,
 	OptionalName,
 };
 
-enum class CustomGUIWidget {
+enum class CustomGUIWidget : std::uint8_t
+{
 	DrawFunction,
 };
 } // namespace UI
