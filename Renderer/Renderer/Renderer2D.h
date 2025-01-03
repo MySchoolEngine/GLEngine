@@ -7,10 +7,13 @@ namespace GLEngine::Renderer {
 
 // binning first happens by shader, later by geometry
 struct RenderCall2D {
-	glm::uvec2		 Position; // center of square sized 1x1 units
-	glm::vec2		 Size;
-	float			 Rotation;
-	Handle<Pipeline> PipelineHandle;
+	glm::uvec2		  Position; // center of square sized 1x1 units
+	glm::vec2		  Size;
+	float			  Rotation;
+	Handle<Pipeline>  PipelineHandle;
+	Colours::T_Colour Colour;
+	Handle<Buffer>	  IndirectBuff = {};
+	Handle<Buffer>	  HackedArray  = {};
 };
 
 

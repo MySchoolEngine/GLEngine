@@ -1,4 +1,6 @@
 ﻿#pragma once
+
+#include <Renderer/Render/IndirectDraw.h>
 #include <Renderer/Renderer2D.h>
 #include <Renderer/Resources/RenderResourceHandle.h>
 #include <Renderer/Textures/Storage/TextureLinearStorage.h>
@@ -36,9 +38,12 @@ private:
 		void Move(const float t) { Position += Velocity * t; }
 	};
 
-	void Simulate();
-	void Collision(Particle& particle, const float t);
-	void Setup();
+	void  Simulate();
+	void  Collision(Particle& particle, const float t);
+	void  Setup();
+	float GetLocalDensity(const Particle& samplingParticle) const;
+
+	float SmoothingKernel(const float radius, const float distance) const;
 
 	GUI::C_ImageViewer						 m_Image;
 	std::unique_ptr<C_Framebuffer>			 m_FBO;
@@ -47,12 +52,18 @@ private:
 	Renderer::Handle<Renderer::Pipeline>	 m_Pipeline;
 	Renderer::Handle<Renderer::Texture>		 m_DeviceImage;
 	Renderer::Handle<Renderer::Texture>		 m_DeviceDepthImage;
+	Renderer::Handle<Renderer::Buffer>		 m_IndirectHandle;
+	Renderer::Handle<Renderer::Buffer>		 m_ParticlesHandle;
+	std::vector<Renderer::IndirectDraw>		 m_IndirectData;
+	Renderer::IndirectDraw					 drawCmd;
 
 	Renderer::Handle<Renderer::Texture>		 m_WorldOverlay;
 	Renderer::C_TextureViewStorageCPU<float> m_OverlayStorage;
 
 	std::vector<Particle>				 m_Particles;
 	int									 m_NumParticles;
+	float								 m_DensityRadius;
+	float								 m_DensityDivisor;
 	bool								 m_bRunSimulation;
 	mutable bool						 m_bScheduledSetup;
 	mutable ::Utils::HighResolutionTimer m_Timer;
