@@ -6,7 +6,6 @@ BraceWrapping:
   BeforeElse: true
 BreakBeforeBraces: Custom
 MaxEmptyLinesToKeep: 2
-BreakTemplateDeclarationsStyle: MultiLine
 
 IndentWidth: 4
 TabWidth: 4
