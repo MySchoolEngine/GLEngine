@@ -149,16 +149,16 @@ C_WaterRendering::C_WaterRendering(GUID guid, GUI::C_GUIManager& guiMGR, C_GLDev
 	{
 		using namespace Renderer;
 		m_Pipeline = rrm.createPipeline(PipelineDescriptor{.primitiveType = E_RenderPrimitives::TriangleList,
-		                                                   .blending = {BlendingDescriptor{.enable = true,
-		                                                                                   .blendColorFunction = E_BlendFunction::Add,
-		                                                                                   .srcColorFactor = E_BlendFactor::SourceAlpha,
-		                                                                                   .dstColorFactor = E_BlendFactor::InvSourceAlpha,
-		                                                                                   .blendAlphaFunction = E_BlendFunction::Add, // todo
-		                                                                                   .srcAlphaFactor = E_BlendFactor::One,
-		                                                                                   .dstAlphaFactor = E_BlendFactor::Zero}},
-		                                                   .bindingCount = 1,
-		                                                   .vertexInput = {{.binding = 0, .type = T_TypeShaderDataType_v<glm::vec3>}},
-		                                                   .shader = "2D"});
+														   .blending	  = {BlendingDescriptor{.enable				= true,
+																								.blendColorFunction = E_BlendFunction::Add,
+																								.srcColorFactor		= E_BlendFactor::SourceAlpha,
+																								.dstColorFactor		= E_BlendFactor::InvSourceAlpha,
+																								.blendAlphaFunction = E_BlendFunction::Add, // todo
+																								.srcAlphaFactor		= E_BlendFactor::One,
+																								.dstAlphaFactor		= E_BlendFactor::Zero}},
+														   .bindingCount  = 1,
+														   .vertexInput	  = {{.binding = 0, .type = T_TypeShaderDataType_v<glm::vec3>}},
+														   .shader		  = "2D"});
 	}
 	m_2DRenderInterfaceHandles = std::make_unique<C_GLRendererInterface2D>(s_Dimensions);
 
@@ -173,7 +173,7 @@ void C_WaterRendering::DrawComponents() const
 {
 	m_Image.Draw();
 	rttr::instance obj(*this);
-	auto           changed = GUI::DrawAllPropertyGUI(obj);
+	auto		   changed = GUI::DrawAllPropertyGUI(obj);
 	if (changed.empty() == false)
 	{
 		if (::Utils::contains(changed, rttr::type::get<C_WaterRendering>().get_property("NumParticles"))
@@ -203,12 +203,12 @@ void C_WaterRendering::Simulate()
 			auto& renderer = dynamic_cast<C_OGLRenderer&>(Core::C_Application::Get().GetActiveRenderer());
 			renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([&, program, t]() {
 				auto& renderer = dynamic_cast<C_OGLRenderer&>(Core::C_Application::Get().GetActiveRenderer());
-				auto& glRM     = renderer.GetRMGR();
+				auto& glRM	   = renderer.GetRMGR();
 				program->SetUniform("deltaTime", t);
 				program->SetUniform("numParticles", m_NumParticles);
 				program->SetUniform("particleRadius", m_ParticleRadius);
 
-				auto*      buffer           = glRM.GetBuffer(m_ParticlesHandle);
+				auto*	   buffer			= glRM.GetBuffer(m_ParticlesHandle);
 				const auto uboBlockLocation = program->FindUniformBlockLocation("particlesUBO");
 				buffer->BindBase(5);
 				// 100 comes from size of local group
@@ -252,7 +252,7 @@ void C_WaterRendering::Collision(Particle& particle, const float t)
 		if (Sc * Se <= 0 || Sc <= m_ParticleRadius || Se <= m_ParticleRadius)
 		{
 			const float t_freeMove = (Sc - m_ParticleRadius) / (Sc - Se);
-			particle.Position      = previousPos;
+			particle.Position	   = previousPos;
 			particle.Move(t * t_freeMove);
 			particle.Velocity = glm::reflect(particle.Velocity, plane.Normal) * dampingFactor;
 			// if (i == 1)
@@ -273,22 +273,22 @@ void C_WaterRendering::Setup()
 	m_Particles.clear();
 	m_Particles.reserve(m_NumParticles);
 
-	constexpr float padding      = 5.f;
-	constexpr auto  center       = s_Dimensions / 2u;
+	constexpr float padding		 = 5.f;
+	constexpr auto	center		 = s_Dimensions / 2u;
 	const auto		completeSize = 10.f * m_ParticleRadius * 2.f + 9.f * glm::vec2{padding, padding};
-	const auto		topLeft      = glm::uvec2{glm::ivec2{center} + glm::ivec2{-completeSize.x, completeSize.y} / 2};
+	const auto		topLeft		 = glm::uvec2{glm::ivec2{center} + glm::ivec2{-completeSize.x, completeSize.y} / 2};
 	const auto		ParticleSize = glm::vec2{padding + m_ParticleRadius * 2.f, padding + m_ParticleRadius * 2.f};
 
 	for (int i = 0; i < m_NumParticles; ++i)
 	{
-		const int line   = i / 10;
+		const int line	 = i / 10;
 		const int column = i % 10;
 
 		m_Particles.emplace_back(glm::vec2{topLeft} + glm::vec2{ParticleSize.x * column, ParticleSize.y * line});
 	}
 
-	auto&                      renderer = Core::C_Application::Get().GetActiveRenderer();
-	Renderer::ResourceManager& rrm      = renderer.GetRM();
+	auto&					   renderer = Core::C_Application::Get().GetActiveRenderer();
+	Renderer::ResourceManager& rrm		= renderer.GetRM();
 	{
 		if (m_IndirectHandle)
 		{
@@ -296,18 +296,18 @@ void C_WaterRendering::Setup()
 		}
 
 		drawCmd = {
-			.vertexCount = 6,
+			.vertexCount   = 6,
 			.instanceCount = static_cast<std::uint32_t>(m_NumParticles),
-			.firstVertex = 0,
+			.firstVertex   = 0,
 			.firstInstance = 0,
 		};
 
-		const auto indirectBufferSize = static_cast<unsigned int>(sizeof(Renderer::IndirectDraw));
-		m_IndirectHandle              = rrm.createBuffer(Renderer::BufferDescriptor{
-			.size = indirectBufferSize,
-			.type = Renderer::E_BufferType::DrawIndirect,
-			.usage = Renderer::E_ResourceUsage::Immutable,
-		});
+		constexpr auto indirectBufferSize = static_cast<unsigned int>(sizeof(Renderer::IndirectDraw));
+		m_IndirectHandle				  = rrm.createBuffer(Renderer::BufferDescriptor{
+							 .size	= indirectBufferSize,
+							 .type	= Renderer::E_BufferType::DrawIndirect,
+							 .usage = Renderer::E_ResourceUsage::Immutable,
+		 });
 		renderer.SetBufferData(m_IndirectHandle, indirectBufferSize, &drawCmd);
 	}
 
@@ -318,11 +318,11 @@ void C_WaterRendering::Setup()
 		}
 
 		const auto particlesBuffer = static_cast<unsigned int>(sizeof(Particle) * m_NumParticles);
-		m_ParticlesHandle          = rrm.createBuffer(Renderer::BufferDescriptor{
-			.size = particlesBuffer,
-			.type = Renderer::E_BufferType::ShaderStorage,
-			.usage = Renderer::E_ResourceUsage::Dynamic,
-		});
+		m_ParticlesHandle		   = rrm.createBuffer(Renderer::BufferDescriptor{
+					 .size	= particlesBuffer,
+					 .type	= Renderer::E_BufferType::ShaderStorage,
+					 .usage = Renderer::E_ResourceUsage::Dynamic,
+		 });
 		renderer.SetBufferData(m_ParticlesHandle, particlesBuffer, m_Particles.data());
 	}
 }
@@ -342,8 +342,8 @@ float C_WaterRendering::GetLocalDensity(const Particle& samplingParticle) const
 //=================================================================================
 float C_WaterRendering::SmoothingKernel(const float radius, const float distance) const
 {
-	const auto  volume = (glm::pi<float>() * std::pow(radius, 8)) / 4.f;
-	const float val    = std::max(0.f, radius - distance);
+	const auto	volume = (glm::pi<float>() * std::pow(radius, 8)) / 4.f;
+	const float val	   = std::max(0.f, radius - distance);
 	return val / volume;
 }
 
@@ -378,28 +378,28 @@ void C_WaterRendering::Update()
 		{
 			const auto density = GetLocalDensity(particle) / m_DensityDivisor;
 			m_2DRenderer.Draw(Renderer::RenderCall2D{
-				.Position = {particle.Position},
+				.Position		= {particle.Position},
 				.Size			= {m_ParticleRadius * 2.f, m_ParticleRadius * 2.f},
-				.Rotation = 0.f,
+				.Rotation		= 0.f,
 				.PipelineHandle = m_Pipeline,
-				.Colour = glm::mix(Colours::blue, Colours::red, density),
+				.Colour			= glm::mix(Colours::blue, Colours::red, density),
 			});
 		}
 	}
 	else
 	{
 		m_2DRenderer.Draw(Renderer::RenderCall2D{
-			.Position = {200, 200},
+			.Position		= {200, 200},
 			.Size			= {m_ParticleRadius * 2.f, m_ParticleRadius * 2.f},
-			.Rotation = 0.f,
+			.Rotation		= 0.f,
 			.PipelineHandle = m_Pipeline,
-			.Colour = Colours::red,
-			.IndirectBuff = m_IndirectHandle,
-			.HackedArray = m_ParticlesHandle,
+			.Colour			= Colours::red,
+			.IndirectBuff	= m_IndirectHandle,
+			.HackedArray	= m_ParticlesHandle,
 		});
 		if (!s_SimulateOnGPU)
 		{
-			auto&      renderer        = Core::C_Application::Get().GetActiveRenderer();
+			auto&	   renderer		   = Core::C_Application::Get().GetActiveRenderer();
 			const auto particlesBuffer = static_cast<unsigned int>(sizeof(Particle) * m_NumParticles);
 			renderer.SetBufferData(m_ParticlesHandle, particlesBuffer, m_Particles.data());
 		}
