@@ -129,6 +129,16 @@ template <class N> void C_ShaderProgram::SetUniform(N name, const glm::vec2& val
 }
 
 //=================================================================================
+template <class N> void C_ShaderProgram::SetUniform(N name, const glm::uvec2& value)
+{
+	auto loc = FindLocation(name);
+	if (loc >= 0)
+	{
+		glUniform2uiv(loc, 1, glm::value_ptr(value));
+	}
+}
+
+//=================================================================================
 template <class N> void C_ShaderProgram::SetUniform(N name, const std::vector<float>& value)
 {
 	auto loc = FindLocation(name);
