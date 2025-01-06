@@ -59,11 +59,18 @@ bool C_ImageViewer::Draw() const
 	}
 
 	ImGui::Image((void*)(intptr_t)(m_GUIHandle), drawAreaSz, zoomArea.Min, zoomArea.Max);
-	for (auto overlay : m_Overlays)
+	for (auto [overlay, flipVertically] : m_Overlays)
 	{
 		const auto overlayHandle = activeRenderer.GetTextureGUIHandle(overlay);
 		ImGui::SetCursorPos(canvasP0);
-		ImGui::Image((void*)(intptr_t)(overlayHandle), drawAreaSz, zoomArea.Min, zoomArea.Max);
+		if (flipVertically)
+		{
+			ImGui::Image((void*)(intptr_t)(overlayHandle), drawAreaSz, {zoomArea.Min.x, 1.f - zoomArea.Min.y}, {zoomArea.Max.x, 1.f - zoomArea.Max.y});
+		}
+		else
+		{
+			ImGui::Image((void*)(intptr_t)(overlayHandle), drawAreaSz, zoomArea.Min, zoomArea.Max);
+		}
 	}
 
 	// === minimap ===
@@ -79,11 +86,18 @@ bool C_ImageViewer::Draw() const
 		const ImVec2 screenSpacePos = ImGui::GetCursorScreenPos();
 		ImGui::Image((void*)(intptr_t)(m_GUIHandle), minimapDrawAreaSz, {0, 0}, {1, 1}, {1, 1, 1, 1}, {1, 0, 0, 1});
 
-		for (auto overlay : m_Overlays)
+		for (auto [overlay, flipVertically] : m_Overlays)
 		{
 			const auto overlayHandle = activeRenderer.GetTextureGUIHandle(overlay);
 			ImGui::SetCursorPos(canvasP0 + ImVec2(drawAreaSz.x - offsetFromCorner - minimapDrawAreaSz.x, offsetFromCorner));
-			ImGui::Image((void*)(intptr_t)(overlayHandle), minimapDrawAreaSz, { 0, 0 }, { 1, 1 }, { 1, 1, 1, 1 }, { 1, 0, 0, 1 });
+			if (flipVertically)
+			{
+				ImGui::Image((void*)(intptr_t)(overlayHandle), minimapDrawAreaSz, {0, 1}, {1, 0}, {1, 1, 1, 1}, {1, 0, 0, 1});
+			}
+			else
+			{
+				ImGui::Image((void*)(intptr_t)(overlayHandle), minimapDrawAreaSz, {0, 0}, {1, 1}, {1, 1, 1, 1}, {1, 0, 0, 1});
+			}
 		}
 
 		// rect
@@ -105,9 +119,9 @@ void C_ImageViewer::SetSize(const glm::vec2 dim)
 }
 
 //=================================================================================
-void C_ImageViewer::AddOverlay(Renderer::Handle<Renderer::Texture> texture)
+void C_ImageViewer::AddOverlay(Renderer::Handle<Renderer::Texture> texture, bool flipVertically)
 {
-	m_Overlays.emplace_back(texture);
+	m_Overlays.emplace_back(texture, flipVertically);
 }
 
 //=================================================================================

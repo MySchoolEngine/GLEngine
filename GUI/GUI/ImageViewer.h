@@ -11,14 +11,18 @@ public:
 	bool Draw() const override;
 
 	void SetSize(const glm::vec2 dim);
-	void AddOverlay(Renderer::Handle<Renderer::Texture> texture);
+	void AddOverlay(Renderer::Handle<Renderer::Texture> texture, bool flipVertically = false);
 	void PopOverlay();
 
 private:
+	struct Overlay {
+		Renderer::Handle<Renderer::Texture> m_Handle;
+		bool								m_bFlipVertically = false;
+	};
 	Renderer::Handle<Renderer::Texture>				 m_Texture;
 	glm::vec2										 m_Size; //< Size of GUI, not the image
 	mutable float									 m_Zoom;
 	mutable void*									 m_GUIHandle;
-	std::vector<Renderer::Handle<Renderer::Texture>> m_Overlays;
+	std::vector<Overlay>							 m_Overlays;
 };
 } // namespace GLEngine::GUI
