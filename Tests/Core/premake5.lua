@@ -18,6 +18,7 @@ project "CoreTest"
 		"%{wks.location}/vendor/gtest/googletest/include",
 		"%{wks.location}/Core",
 		"%{wks.location}/Utils",
+		"%{wks.location}/Physics",
 		"%{wks.location}/%{IncludeDir.GLM}",
 		"%{wks.location}/%{IncludeDir.fmt}",
 		"%{wks.location}/%{IncludeDir.RTTR}",

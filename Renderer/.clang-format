@@ -32,7 +32,6 @@ SpacesInParentheses: false
 SpacesInContainerLiterals: false
 SpacesInConditionalStatement: false
 SpacesInAngles: false
-SpaceBeforeCaseColon: false
 AllowShortFunctionsOnASingleLine: InlineOnly
 AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: true

@@ -1,4 +1,4 @@
-﻿#include <GLRendererStdafx.h>
+#include <GLRendererStdafx.h>
 
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/GLRendererInterface2D.h>
@@ -8,7 +8,6 @@
 
 #include <Renderer/IRenderer.h>
 #include <Renderer/Mesh/Geometry.h>
-#include <Renderer/Mesh/Loading/MeshResource.h>
 #include <Renderer/Resources/ResourceManager.h>
 
 #include <Core/Application.h>

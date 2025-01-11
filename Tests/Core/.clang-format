@@ -5,7 +5,6 @@ BraceWrapping:
   AfterFunction: true
   BeforeElse: true
 BreakBeforeBraces: Custom
-FixNamespaceComments: false
 MaxEmptyLinesToKeep: 2
 
 IndentWidth: 4
@@ -35,7 +34,6 @@ AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: true
 AlignConsecutiveMacros: true #hopefully not really used
 AlignTrailingComments: true
-AlignConsecutiveDeclarations: true
 BreakBeforeBinaryOperators: true
 FixNamespaceComments: true
 CompactNamespaces: true #only cause it is simple to change it to nested one later

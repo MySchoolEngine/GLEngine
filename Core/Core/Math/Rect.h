@@ -1,5 +1,9 @@
 #pragma once
 
+#include <Core/CoreApi.h>
+
+#include <Physics/2D/Plane2D.h>
+
 #include <glm/vec2.hpp>
 
 #include <algorithm>
@@ -10,11 +14,11 @@ namespace GLEngine::Core {
 
 /**
  * Represent rectangle inside of an image. In order to be valid needs to have width and height > 0.
- * 
+ *
  * Top < Bottom
  * Left < Right
  */
-struct S_Rect {
+struct CORE_API_EXPORT S_Rect {
 public:
 	constexpr S_Rect()
 		: x(0)
@@ -33,13 +37,24 @@ public:
 
 	[[nodiscard]] constexpr S_Rect GetIntersection(const S_Rect& other) const
 	{
-		const int top	= std::max(y, other.y);
+		const int top  = std::max(y, other.y);
 		const int left = std::max(x, other.x);
 		return {top, left, std::min(Bottom(), other.Bottom()) - top + 1, std::min(Right(), other.Right()) - left + 1};
 	}
 
+	/**
+	 * @brief This function incorrectly counts on Top > Bottom but holds Left < Right
+	 * This behaviour should be fixed one day, but physical world 2D relies on that.
+	 *
+	 * @param origin		- Origin of the 2d Plane. Have to be inside the rect.
+	 * @param direction		- It doesn't matter the orientation as long as it is tangent of the plane
+	 * @param intersects	- Return of the intersections
+	 * @return true if intersection happens
+	 */
+	[[nodiscard]] bool IntersectionPlane(const glm::vec2& origin, const glm::vec2& direction, std::array<glm::ivec2, 2>& intersects) const;
+
 	[[nodiscard]] constexpr bool Contains(const glm::vec2& point) const { return point.x > x && point.y > y && (point.x - x) < width && (point.y - y) < height; }
-	[[nodiscard]] constexpr bool Contains(const glm::ivec2& point) const { return point.x > x && point.y > y && (point.x - x) < width && (point.y - y) < height; }
+	[[nodiscard]] constexpr bool Contains(const glm::ivec2& point) const { return point.x >= x && point.y >= y && (point.x - x) < width && (point.y - y) < height; }
 
 	constexpr glm::uvec2 TopLeft() const { return glm::uvec2(Top(), Left()); }
 	constexpr glm::uvec2 TopRight() const { return glm::uvec2(Top(), Right()); }
