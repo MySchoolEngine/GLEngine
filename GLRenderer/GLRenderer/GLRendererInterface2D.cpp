@@ -1,4 +1,4 @@
-#include <GLRendererStdafx.h>
+﻿#include <GLRendererStdafx.h>
 
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/GLRendererInterface2D.h>
@@ -116,9 +116,7 @@ void C_GLRendererInterface2D::Render(const Renderer::RenderCall2D& call)
 				// glBindBuffer(GL_ARRAY_BUFFER, 0);
 				// glVertexAttribDivisor(2, 1);
 				// glVertexAttribDivisor(3, 1);
-				const auto uboBlockLocation = shaderProgram->FindUniformBlockLocation("particlesUBO");
 				hacked->BindBase(5);
-				glUniformBlockBinding(shaderProgram->GetProgram(), uboBlockLocation, 5);
 
 				glDrawArraysIndirect(GL_TRIANGLES, nullptr);
 				// glDisableVertexAttribArray(2);

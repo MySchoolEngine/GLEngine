@@ -31,7 +31,7 @@ C_GLRenderInterface3D::~C_GLRenderInterface3D()
 void C_GLRenderInterface3D::Render(const Renderer::RenderCall3D& call)
 {
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
-	auto& glRM	   = static_cast<C_OGLRenderer&>(renderer).GetRMGR();
+	auto& glRM     = dynamic_cast<C_OGLRenderer&>(renderer).GetRMGR();
 
 	GLPipeline* pipeline = glRM.GetPipeline(call.PipelineHandle);
 	GLE_ASSERT(pipeline, "No pipeline set");
@@ -51,7 +51,7 @@ void C_GLRenderInterface3D::Render(const Renderer::RenderCall3D& call)
 			for (int i = 0; i < pipeline->GetDesc().vertexInput.size(); ++i)
 			{
 				const Renderer::AttributeDescriptor& vertexDesc = pipeline->GetDesc().vertexInput[i];
-				auto* buffer = glRM.GetBuffer(call.Buffers[i]);
+				auto*                                buffer     = glRM.GetBuffer(call.Buffers[i]);
 				buffer->bind();
 				switch (vertexDesc.type)
 				{
