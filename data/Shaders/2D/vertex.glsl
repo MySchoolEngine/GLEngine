@@ -12,6 +12,8 @@ struct Particle
 {
 	vec2 Position;
 	vec2 Velocity;
+	float LocalDensity;
+	float gap;
 };
 
 
@@ -43,6 +45,6 @@ void main()
 	scale[3][1] = Position.y;
 	vec4 worldCoord = scale * vec4(vertex.xz, 0.0, 1.0);
 	texCoordOUT = texCoord;
-	ColourOUT = vec3(abs(Velocity)/10, 0);
+	ColourOUT = vec3(length(Velocity)/200, 0, 0);
 	gl_Position = ProjectionMatrix * worldCoord;
 }
