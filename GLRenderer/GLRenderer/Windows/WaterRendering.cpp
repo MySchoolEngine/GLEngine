@@ -601,7 +601,8 @@ void C_WaterRendering::Update()
 				shader.SetUniform("Dimensions", s_Dimensions);
 				shader.SetUniform("PressureMultiplier", m_PressureMultiplier);
 			},
-		.renderTarget = *m_FBO,
+		.inputTextures = {},
+		.renderTarget  = *m_FBO,
 	};
 	m_RenderInterface->RenderFullScreen(fsSetup);
 	m_FBO->Bind<E_FramebufferTarget::Draw>();
