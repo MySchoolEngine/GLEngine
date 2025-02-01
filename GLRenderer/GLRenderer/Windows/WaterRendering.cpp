@@ -462,6 +462,24 @@ float C_WaterRendering::SmoothingKernelDerivative(const float radius, const floa
 }
 
 //=================================================================================
+float C_WaterRendering::SharpSmoothingKernel(const float radius, const float distance)
+{
+	const float volume = (glm::pi<float>() * std::pow(radius, 4.f)) / 6.f;
+	const float value  = std::max(0.f, radius - distance);
+	return value * value / volume;
+}
+
+//=================================================================================
+float C_WaterRendering::SharpSmoothingKernelDerivative(const float radius, const float distance)
+{
+	if (distance >= radius)
+		return 0;
+
+	const float scale = -12.f / (std::pow(radius, 4.f) * glm::pi<float>());
+	return (distance - radius) * scale;
+}
+
+//=================================================================================
 float C_WaterRendering::ConvertDensityToPressure(const float density) const
 {
 	constexpr float desiredDensity = 1.f;
@@ -479,9 +497,9 @@ glm::vec2 C_WaterRendering::CalculatePressureForce(const glm::vec2& pos) const
 		if (distance == 0.0)
 			continue;
 		const glm::vec2 dir			 = (m_Particles[i].Position - pos) / distance;
-		const float		slope		 = SmoothingKernelDerivative(m_DensityRadius, distance);
+		const float		slope		 = SharpSmoothingKernelDerivative(m_DensityRadius, distance);
 		const float		localDensity = m_Particles[i].LocalDensity;
-		if (localDensity == 0.f)
+		if (localDensity < 1e-4f)
 		{
 			continue;
 		}

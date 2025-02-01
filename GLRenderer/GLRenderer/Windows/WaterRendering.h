@@ -51,6 +51,8 @@ private:
 
 	[[nodiscard]] static float SmoothingKernel(const float radius, const float distance);
 	[[nodiscard]] static float SmoothingKernelDerivative(const float radius, const float distance);
+	[[nodiscard]] static float SharpSmoothingKernel(const float radius, const float distance);
+	[[nodiscard]] static float SharpSmoothingKernelDerivative(const float radius, const float distance);
 	[[nodiscard]] glm::vec2	   CalculatePressureForce(const glm::vec2& pos) const;
 	float					   ConvertDensityToPressure(const float density) const;
 
