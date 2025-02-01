@@ -54,7 +54,7 @@ RTTR_REGISTRATION
 			RegisterMetaclass<MetaGUI::Slider>(),
 			RegisterMetamember<UI::Slider::Name>("Pressure multiplier:"),
 			RegisterMetamember<UI::Slider::Min>(1.f),
-			RegisterMetamember<UI::Slider::Max>(100.f))
+			RegisterMetamember<UI::Slider::Max>(500.f))
 		.property("DensityDivisor", &C_WaterRendering::m_DensityDivisor)(
 			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::Slider>(),
@@ -73,10 +73,20 @@ RTTR_REGISTRATION
 			RegisterMetamember<UI::Slider::Name>("Particle radius:"),
 			RegisterMetamember<UI::Slider::Min>(1.f),
 			RegisterMetamember<UI::Slider::Max>(100.f))
+		.property("DesiredPressure", &C_WaterRendering::m_DesiredPressure)(
+			rttr::policy::prop::as_reference_wrapper,
+			RegisterMetaclass<MetaGUI::Slider>(),
+			RegisterMetamember<UI::Slider::Name>("Desired pressure:"),
+			RegisterMetamember<UI::Slider::Min>(1.f),
+			RegisterMetamember<UI::Slider::Max>(500.f))
 		.property("RunSimulation", &C_WaterRendering::m_bRunSimulation)(
 			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::Checkbox>(),
-			RegisterMetamember<UI::Checkbox::Name>("Run simulation"));
+			RegisterMetamember<UI::Checkbox::Name>("Run simulation"))
+		.property("ApplyGravitation", &C_WaterRendering::m_bGravitation)(
+			rttr::policy::prop::as_reference_wrapper,
+			RegisterMetaclass<MetaGUI::Checkbox>(),
+			RegisterMetamember<UI::Checkbox::Name>("Apply gravitation"));
 }
 // clang-format on
 
@@ -94,17 +104,20 @@ static const std::array		s_Planes  = {
 static const Core::S_Rect s_CollisionRect{20, 20, s_Dimensions.x - 40, s_Dimensions.y - 40};
 
 //=================================================================================
-C_WaterRendering::C_WaterRendering(GUID guid, GUI::C_GUIManager& guiMGR, C_GLDevice& device)
+C_WaterRendering::C_WaterRendering(const GUID guid, GUI::C_GUIManager& guiMGR, C_GLDevice& device)
 	: C_Window(guid, "Water rendering")
 	, m_Image({})
+	, m_DrawCmd()
 	, m_OverlayStorage(s_Dimensions.x, s_Dimensions.y, 4)
-	, m_NumParticles(1)
-	, m_DensityRadius(1.f)
-	, m_PressureMultiplier(1.f)
+	, m_NumParticles(100)
+	, m_DensityRadius(100.f)
+	, m_PressureMultiplier(500.f)
 	, m_DensityDivisor(6.25f)
 	, m_ParticleRadius(5.f)
+	, m_DesiredPressure(100.f)
 	, m_ParticleMass(1.f)
 	, m_bRunSimulation(false)
+	, m_bGravitation(false)
 	, m_bScheduledSetup(true)
 {
 	auto&					   renderer = Core::C_Application::Get().GetActiveRenderer();
@@ -259,6 +272,7 @@ void C_WaterRendering::Simulate()
 	{
 		for (auto& particle : m_Particles)
 		{
+			if (m_bGravitation)
 			particle.Velocity += glm::vec2{0.f, -Physics::Constants::g * t};
 
 			particle.LocalDensity		  = GetLocalDensity(particle.Position);
@@ -457,7 +471,7 @@ float C_WaterRendering::SmoothingKernelDerivative(const float radius, const floa
 	if (distance >= radius)
 		return 0;
 	const float val	  = std::max(0.f, radius * radius - distance * distance);
-	const float scale = -24.f / (glm::pi<float>() * pow(radius, 8));
+	const float scale = -24.f / (glm::pi<float>() * pow(radius, 8.f));
 	return -scale * distance * val * val; // minus to keep derivation positive
 }
 
@@ -482,8 +496,7 @@ float C_WaterRendering::SharpSmoothingKernelDerivative(const float radius, const
 //=================================================================================
 float C_WaterRendering::ConvertDensityToPressure(const float density) const
 {
-	constexpr float desiredDensity = 1.f;
-	const float		delta		   = density - desiredDensity;
+	const float delta = density - m_DesiredPressure;
 	return delta * m_PressureMultiplier;
 }
 

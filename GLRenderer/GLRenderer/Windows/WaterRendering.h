@@ -78,8 +78,10 @@ private:
 	float								 m_PressureMultiplier;
 	float								 m_DensityDivisor;
 	float								 m_ParticleRadius;
+	float								 m_DesiredPressure;
 	float								 m_ParticleMass;
 	bool								 m_bRunSimulation;
+	bool								 m_bGravitation;
 	mutable bool						 m_bScheduledSetup;
 	mutable ::Utils::HighResolutionTimer m_Timer;
 };
