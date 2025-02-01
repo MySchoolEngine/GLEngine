@@ -85,7 +85,7 @@ static const std::array		s_Planes  = {
 	 Physics::Primitives::Plane2D{.Normal = glm::normalize(glm::vec2{-0.5f, 0.5f}), .Position = {s_Dimensions.x - 200, 200}},
 	 // Physics::Primitives::Plane2D{.Normal = glm::normalize(glm::vec2{0, 1.f}), .Position = {0, 200}}
 };
-static const Core::S_Rect s_rect{20, 20, s_Dimensions.y - 40, s_Dimensions.x - 40};
+static const Core::S_Rect s_CollisionRect{20, 20, s_Dimensions.x - 40, s_Dimensions.y - 40};
 
 //=================================================================================
 C_WaterRendering::C_WaterRendering(GUID guid, GUI::C_GUIManager& guiMGR, C_GLDevice& device)
@@ -152,11 +152,11 @@ C_WaterRendering::C_WaterRendering(GUID guid, GUI::C_GUIManager& guiMGR, C_GLDev
 		C_TextureView view(&m_OverlayStorage);
 		view.EnableBlending(true);
 
-		for (const auto& plane : s_Planes)
-		{
-			C_PhysicsRenderer::Render(view, plane, Colours::white);
-		}
-		C_PhysicsRenderer::Render(view, s_rect, Colours::white);
+		// for (const auto& plane : s_Planes)
+		// {
+		// 	C_PhysicsRenderer::Render(view, plane, Colours::white);
+		// }
+		C_PhysicsRenderer::Render(view, s_CollisionRect, Colours::white);
 		// C_CPURasterizer rasterizer(view);
 		// rasterizer.DrawLine(Colours::white, glm::ivec2{400, 0}, glm::ivec2{0, 400}, true);
 		// rasterizer.DrawLine(Colours::white, glm::ivec2{400, 0}, glm::ivec2{s_Dimensions.x-1, 400}, true);
@@ -279,6 +279,48 @@ void C_WaterRendering::Collision(Particle& particle, const float t)
 	// detect exact contact point
 	// calculate resulting vector
 
+	static const std::array Planes = {
+		Physics::Primitives::Plane2D{.Normal = glm::normalize(glm::vec2{0.f, 1.f}), .Position = {0, s_CollisionRect.Top()}},
+		Physics::Primitives::Plane2D{.Normal = glm::normalize(glm::vec2{0.f, -1.f}), .Position = {0, s_CollisionRect.Bottom()}},
+		Physics::Primitives::Plane2D{.Normal = glm::normalize(glm::vec2{1.f, 0.f}), .Position = {s_CollisionRect.Left(), 0}},
+		Physics::Primitives::Plane2D{.Normal = glm::normalize(glm::vec2{-1.f, 0.f}), .Position = {s_CollisionRect.Right(), 0}},
+	};
+
+	bool collisionInLastIteration = true;
+	while (collisionInLastIteration)
+	{
+		collisionInLastIteration = false;
+		struct {
+			float								Sc = std::numeric_limits<float>::max();
+			float								Se;
+			const Physics::Primitives::Plane2D* plane;
+		} closest;
+		for (const auto& plane : Planes)
+		{
+			// Real-time rendering 4th edition - 25.9 Collision Response
+			const float Sc = plane.DistanceToLine(previousPos);
+			const float Se = plane.DistanceToLine(particle.Position);
+			if (Sc * Se <= 0 || Sc <= m_ParticleRadius || Se <= m_ParticleRadius)
+			{
+				collisionInLastIteration = true;
+				if (Sc < closest.Sc)
+					closest					   = {.Sc = Sc, .Se = Se, .plane = &plane};
+			}
+		}
+
+		if (collisionInLastIteration)
+		{
+			const float tFreeMove = (closest.Sc - m_ParticleRadius) / (closest.Sc - closest.Se);
+			particle.Position	  = previousPos;
+			particle.Move(t * tFreeMove);
+			particle.Velocity = glm::reflect(particle.Velocity, closest.plane->Normal) * dampingFactor;
+
+			particle.Move(t * (1.f - tFreeMove));
+		}
+	}
+
+
+	return;
 	static int i = 0;
 	for (auto plane : s_Planes)
 	{
