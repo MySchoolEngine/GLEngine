@@ -2,6 +2,8 @@
 
 #include <Physics/2D/Plane2D.h>
 
+#include <GlmPrinters.h>
+
 #include <gtest/gtest.h>
 
 
@@ -29,12 +31,12 @@ TEST(Rect, Edges)
 }
 TEST(Rect, Corners)
 {
-	S_Rect rect(1, 1, 5, 5);
+	S_Rect rect(1, 1, 5, 50);
 
-	// EXPECT_EQ(rect.TopLeft(), glm::uvec2{1, 1});
-	// EXPECT_EQ(rect.TopRight(), glm::uvec2{1, 5});
-	// EXPECT_EQ(rect.BottomLeft(), glm::uvec2{5, 1});
-	// EXPECT_EQ(rect.BottomRight(), glm::uvec2{5, 5});
+	EXPECT_EQ(rect.TopLeft(), glm::uvec2(1, 1));
+	EXPECT_EQ(rect.TopRight(), glm::uvec2(5, 1));
+	EXPECT_EQ(rect.BottomLeft(), glm::uvec2(1, 50));
+	EXPECT_EQ(rect.BottomRight(), glm::uvec2(5, 50));
 }
 
 TEST(Rect, IntersectionPlane)

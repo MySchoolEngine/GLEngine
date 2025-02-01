@@ -25,6 +25,7 @@ project "RendererTest"
 		"%{wks.location}/%{IncludeDir.GLM}",
 		"%{wks.location}/%{IncludeDir.fmt}",
 		"%{wks.location}/%{IncludeDir.RTTR}",
+		"%{wks.location}/Tests/CommonTestUtils",
 	}
 	files
 	{

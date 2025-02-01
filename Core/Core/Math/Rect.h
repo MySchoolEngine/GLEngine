@@ -62,10 +62,10 @@ public:
 		return uPoint.x >= x && uPoint.y >= y && (uPoint.x - x) < width && (uPoint.y - y) < height;
 	}
 
-	constexpr glm::uvec2 TopLeft() const { return glm::uvec2(Top(), Left()); }
-	constexpr glm::uvec2 TopRight() const { return glm::uvec2(Top(), Right()); }
-	constexpr glm::uvec2 BottomLeft() const { return glm::uvec2(Bottom(), Left()); }
-	constexpr glm::uvec2 BottomRight() const { return glm::uvec2(Bottom(), Right()); }
+	constexpr glm::uvec2 TopLeft() const { return		glm::uvec2(Left() ,Top()); }
+	constexpr glm::uvec2 TopRight() const { return		glm::uvec2(Right(), Top()); }
+	constexpr glm::uvec2 BottomLeft() const { return	glm::uvec2(Left(), Bottom()); }
+	constexpr glm::uvec2 BottomRight() const { return	glm::uvec2(Right(),Bottom()); }
 
 	constexpr unsigned int Top() const { return y; }
 	constexpr unsigned int Bottom() const { return y + height - 1; }
