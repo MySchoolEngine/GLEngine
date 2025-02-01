@@ -242,6 +242,11 @@ void C_WaterRendering::Simulate()
 {
 	const float t = static_cast<float>(m_Timer.getElapsedTimeFromLastQueryMilliseconds()) / 1000.f;
 
+	if (t > 0.5f)
+	{
+		return; // ignore long frames
+	}
+
 	if constexpr (s_SimulateOnGPU)
 	{
 		Shaders::C_ShaderManager& shm	  = Shaders::C_ShaderManager::Instance();
