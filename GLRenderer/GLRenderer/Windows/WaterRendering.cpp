@@ -24,6 +24,7 @@
 #include <Physics/Constants.h>
 
 #include <Core/Application.h>
+#include <Core/Math/Rect.h>
 
 #include <Utils/StdVectorUtils.h>
 
@@ -84,6 +85,7 @@ static const std::array		s_Planes  = {
 	 Physics::Primitives::Plane2D{.Normal = glm::normalize(glm::vec2{-0.5f, 0.5f}), .Position = {s_Dimensions.x - 200, 200}},
 	 // Physics::Primitives::Plane2D{.Normal = glm::normalize(glm::vec2{0, 1.f}), .Position = {0, 200}}
 };
+static const Core::S_Rect s_rect{20, 20, s_Dimensions.y - 40, s_Dimensions.x - 40};
 
 //=================================================================================
 C_WaterRendering::C_WaterRendering(GUID guid, GUI::C_GUIManager& guiMGR, C_GLDevice& device)
@@ -150,8 +152,11 @@ C_WaterRendering::C_WaterRendering(GUID guid, GUI::C_GUIManager& guiMGR, C_GLDev
 		C_TextureView view(&m_OverlayStorage);
 		view.EnableBlending(true);
 
-		C_PhysicsRenderer::Render(view, s_Planes[0], Colours::white);
-		C_PhysicsRenderer::Render(view, s_Planes[1], Colours::white);
+		for (const auto& plane : s_Planes)
+		{
+			C_PhysicsRenderer::Render(view, plane, Colours::white);
+		}
+		C_PhysicsRenderer::Render(view, s_rect, Colours::white);
 		// C_CPURasterizer rasterizer(view);
 		// rasterizer.DrawLine(Colours::white, glm::ivec2{400, 0}, glm::ivec2{0, 400}, true);
 		// rasterizer.DrawLine(Colours::white, glm::ivec2{400, 0}, glm::ivec2{s_Dimensions.x-1, 400}, true);
