@@ -53,12 +53,12 @@ std::size_t C_TextureView::GetPixelAddress(const glm::uvec2& coord) const
 glm::vec2 C_TextureView::GetPixelCoord(const glm::vec2& uv) const
 {
 	// coord in rect + top left of the rect
-	float u = (uv.x * (m_Rect.GetWidth()));
-	float v = ((1 - uv.y) * m_Rect.GetHeight());
+	float u = (uv.x * (static_cast<float>(m_Rect.GetWidth())));
+	float v = ((1 - uv.y) * static_cast<float>(m_Rect.GetHeight()));
 	if (uv.x == 1.f)
-		u = m_Rect.Right();
+		u = static_cast<float>(m_Rect.Right());
 	if (uv.y == 0.f)
-		v = m_Rect.Bottom();
+		v = static_cast<float>(m_Rect.Bottom());
 	return {std::floor(u), std::floor(v)};
 }
 
