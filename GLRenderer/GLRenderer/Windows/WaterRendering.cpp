@@ -61,6 +61,12 @@ RTTR_REGISTRATION
 			RegisterMetamember<UI::Slider::Name>("Density divisor:"),
 			RegisterMetamember<UI::Slider::Min>(1.f),
 			RegisterMetamember<UI::Slider::Max>(100.f))
+		.property("ParticleMass", &C_WaterRendering::m_ParticleMass)(
+			rttr::policy::prop::as_reference_wrapper,
+			RegisterMetaclass<MetaGUI::Slider>(),
+			RegisterMetamember<UI::Slider::Name>("Particle mass:"),
+			RegisterMetamember<UI::Slider::Min>(1.f),
+			RegisterMetamember<UI::Slider::Max>(100.f))
 		.property("ParticleRadius", &C_WaterRendering::m_ParticleRadius)(
 			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::Slider>(),
@@ -76,7 +82,7 @@ RTTR_REGISTRATION
 
 namespace GLEngine::GLRenderer {
 
-constexpr float				s_Mass			= 10.f;
+static constexpr bool		s_SimulateOnGPU = false;
 static constexpr bool		s_SimulateOnGPU = true;
 static constexpr glm::uvec2 s_Dimensions{800, 600};
 static constexpr bool		s_indexed = false;
@@ -97,6 +103,7 @@ C_WaterRendering::C_WaterRendering(GUID guid, GUI::C_GUIManager& guiMGR, C_GLDev
 	, m_PressureMultiplier(1.f)
 	, m_DensityDivisor(6.25f)
 	, m_ParticleRadius(5.f)
+	, m_ParticleMass(1.f)
 	, m_bRunSimulation(false)
 	, m_bScheduledSetup(true)
 {
@@ -353,7 +360,7 @@ float C_WaterRendering::GetLocalDensity(const glm::vec2& position) const
 		const float distance = glm::distance(m_Particles[i].Position, position);
 		if (distance == 0.f)
 			continue;
-		density += s_Mass * SmoothingKernel(m_DensityRadius, distance);
+		density += m_ParticleMass * SmoothingKernel(m_DensityRadius, distance);
 	}
 	return density;
 }
@@ -431,7 +438,7 @@ float C_WaterRendering::GetLocalDensity(const Particle& samplingParticle) const
 	for (const auto& particle : m_Particles)
 	{
 		const float distance = glm::distance(particle.Position, samplingParticle.Position);
-		density += s_Mass * SmoothingKernel(m_DensityRadius, distance);
+		density += m_ParticleMass * SmoothingKernel(m_DensityRadius, distance);
 	}
 	return density;
 }
@@ -478,7 +485,7 @@ glm::vec2 C_WaterRendering::CalculatePressureForce(const glm::vec2& pos) const
 		{
 			continue;
 		}
-		pressureForce += ConvertDensityToPressure(localDensity) * dir * slope * s_Mass / localDensity;
+		pressureForce += ConvertDensityToPressure(localDensity) * dir * slope * m_ParticleMass / localDensity;
 	}
 	return pressureForce;
 }

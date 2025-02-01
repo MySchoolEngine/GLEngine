@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Renderer/Render/IndirectDraw.h>
 #include <Renderer/Renderer2D.h>
@@ -21,7 +21,7 @@ class C_Framebuffer;
 
 class C_WaterRendering : public GUI::C_Window {
 public:
-	C_WaterRendering(GUID guid, GUI::C_GUIManager& guiMGR, C_GLDevice& device);
+	C_WaterRendering(const GUID guid, GUI::C_GUIManager& guiMGR, C_GLDevice& device);
 
 	void			   RequestDestroy() override;
 	[[nodiscard]] bool CanDestroy() const override;
@@ -76,6 +76,7 @@ private:
 	float								 m_PressureMultiplier;
 	float								 m_DensityDivisor;
 	float								 m_ParticleRadius;
+	float								 m_ParticleMass;
 	bool								 m_bRunSimulation;
 	mutable bool						 m_bScheduledSetup;
 	mutable ::Utils::HighResolutionTimer m_Timer;
