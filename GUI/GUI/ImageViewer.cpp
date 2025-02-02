@@ -38,7 +38,7 @@ bool C_ImageViewer::Draw() const
 	if (isHovered)
 	{
 		const auto io = ImGui::GetIO();
-		m_Zoom = std::clamp(m_Zoom + io.MouseWheel / 10.f, 1.f, 10.f);
+		m_Zoom		  = std::clamp(m_Zoom + io.MouseWheel / 10.f, 1.f, 10.f);
 		::ImGui::SetItemKeyOwner(ImGuiKey_MouseWheelY);
 		// mouse pos is defined in screen space
 		const auto mousePos = ImGui::GetMousePos() - ImGui::GetCursorScreenPos();
@@ -53,24 +53,26 @@ bool C_ImageViewer::Draw() const
 	//      - channels
 
 	auto& activeRenderer = Core::C_Application::Get().GetActiveRenderer();
+	if (m_Background.Handle.IsValid())
+	{
+		ImRect	   scaledZoomArea(ImVec2{zoomArea.Min.x / m_Background.Scale.x, zoomArea.Min.y / m_Background.Scale.y},
+								  ImVec2{zoomArea.Max.x / m_Background.Scale.x, zoomArea.Max.y / m_Background.Scale.y});
+		const auto backgroundHandle = activeRenderer.GetTextureGUIHandle(m_Background.Handle);
+		ImGui::Image((void*)(intptr_t)(backgroundHandle), drawAreaSz, scaledZoomArea.Min, scaledZoomArea.Max);
+	}
+
 	if (!m_GUIHandle)
 	{
 		m_GUIHandle = activeRenderer.GetTextureGUIHandle(m_Texture);
 	}
 
+	ImGui::SetCursorPos(canvasP0);
 	ImGui::Image((void*)(intptr_t)(m_GUIHandle), drawAreaSz, zoomArea.Min, zoomArea.Max);
-	for (auto [overlay, flipVertically] : m_Overlays)
+	for (auto [overlay, flipVertically, scale] : m_Overlays)
 	{
 		const auto overlayHandle = activeRenderer.GetTextureGUIHandle(overlay);
 		ImGui::SetCursorPos(canvasP0);
-		if (flipVertically)
-		{
-			ImGui::Image((void*)(intptr_t)(overlayHandle), drawAreaSz, {zoomArea.Min.x, 1.f - zoomArea.Min.y}, {zoomArea.Max.x, 1.f - zoomArea.Max.y});
-		}
-		else
-		{
-			ImGui::Image((void*)(intptr_t)(overlayHandle), drawAreaSz, zoomArea.Min, zoomArea.Max);
-		}
+		DrawImageWithCorrectAxis(overlayHandle, drawAreaSz, zoomArea, flipVertically);
 	}
 
 	// === minimap ===
@@ -84,20 +86,25 @@ bool C_ImageViewer::Draw() const
 		const ImVec2	minimapDrawAreaSz(width, height);
 		ImGui::SetCursorPos(canvasP0 + ImVec2(drawAreaSz.x - offsetFromCorner - minimapDrawAreaSz.x, offsetFromCorner));
 		const ImVec2 screenSpacePos = ImGui::GetCursorScreenPos();
+
+		if (m_Background.Handle.IsValid())
+		{
+			ImRect	   scaledZoomArea({0, 0},
+								  ImVec2{1.f / m_Background.Scale.x, 1.f / m_Background.Scale.y});
+			const auto backgroundHandle = activeRenderer.GetTextureGUIHandle(m_Background.Handle);
+			ImGui::Image((void*)(intptr_t)(backgroundHandle), minimapDrawAreaSz, scaledZoomArea.Min, scaledZoomArea.Max);
+		}
+
+
+		
+		ImGui::SetCursorPos(canvasP0 + ImVec2(drawAreaSz.x - offsetFromCorner - minimapDrawAreaSz.x, offsetFromCorner));
 		ImGui::Image((void*)(intptr_t)(m_GUIHandle), minimapDrawAreaSz, {0, 0}, {1, 1}, {1, 1, 1, 1}, {1, 0, 0, 1});
 
-		for (auto [overlay, flipVertically] : m_Overlays)
+		for (auto [overlay, flipVertically, scale] : m_Overlays)
 		{
 			const auto overlayHandle = activeRenderer.GetTextureGUIHandle(overlay);
 			ImGui::SetCursorPos(canvasP0 + ImVec2(drawAreaSz.x - offsetFromCorner - minimapDrawAreaSz.x, offsetFromCorner));
-			if (flipVertically)
-			{
-				ImGui::Image((void*)(intptr_t)(overlayHandle), minimapDrawAreaSz, {0, 1}, {1, 0}, {1, 1, 1, 1}, {1, 0, 0, 1});
-			}
-			else
-			{
-				ImGui::Image((void*)(intptr_t)(overlayHandle), minimapDrawAreaSz, {0, 0}, {1, 1}, {1, 1, 1, 1}, {1, 0, 0, 1});
-			}
+			DrawImageWithCorrectAxis(overlayHandle, minimapDrawAreaSz, ImRect(ImVec2{0, 0}, ImVec2{1, 1}), flipVertically);
 		}
 
 		// rect
@@ -133,4 +140,26 @@ void C_ImageViewer::PopOverlay()
 	}
 }
 
+//=================================================================================
+void C_ImageViewer::DrawImageWithCorrectAxis(void* const imageGPUHandle, const ImVec2& drawArea, const ImRect& rect, bool flipVertically)
+{
+	if (flipVertically)
+	{
+		ImGui::Image((void*)(intptr_t)(imageGPUHandle), drawArea, {rect.Min.x, 1.f - rect.Min.y}, {rect.Max.x, 1.f - rect.Max.y});
+	}
+	else
+	{
+		ImGui::Image((void*)(intptr_t)(imageGPUHandle), drawArea, rect.Min, rect.Max);
+	}
+}
+
+//=================================================================================
+void C_ImageViewer::SetBackground(Renderer::Handle<Renderer::Texture> texture, const glm::vec2& scale)
+{
+	m_Background = {
+		.Handle			 = texture,
+		.bFlipVertically = false,
+		.Scale			 = scale,
+	};
+}
 } // namespace GLEngine::GUI

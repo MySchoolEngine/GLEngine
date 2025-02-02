@@ -67,6 +67,7 @@ C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 
 	m_GUIImage = GUI::C_ImageViewer(m_DeviceImage);
 	m_GUIImage.SetSize({800, 800});
+	m_GUIImage.SetBackground(m_Background, {1. / (s_BackgroundDim.x * 15.f), 1. / (s_BackgroundDim.x * 15.f)});
 	renderer.SetTextureData(m_DeviceImage, m_Storage);
 
 	std::thread([&]() {
@@ -123,11 +124,6 @@ void C_ImageEditor::Update()
 //=================================================================================
 void C_ImageEditor::DrawComponents() const
 {
-	const ImVec2 canvas_p0			 = ImGui::GetCursorPos();
-	void*		 BackgroundGUIHandle = Core::C_Application::Get().GetActiveRenderer().GetTextureGUIHandle(m_Background);
-	ImGui::Image((void*)(intptr_t)(BackgroundGUIHandle), {s_ImageDrawArea.x, s_ImageDrawArea.y}, {0, 0},
-				 {s_ImageDrawArea.x / (s_BackgroundDim.x * 5), s_ImageDrawArea.y / (s_BackgroundDim.y * 5)});
-	ImGui::SetCursorPos(canvas_p0);
 	m_GUIImage.Draw();
 	::ImGui::SameLine();
 	if (m_ActiveTool)
