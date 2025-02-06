@@ -17,8 +17,8 @@ namespace GLEngine::GLRenderer {
 C_GLRenderInterface3D::C_GLRenderInterface3D()
 {
 	glGenVertexArrays(1, &m_VAOid);
-	const static std::string name("defaultVAO");
-	glObjectLabel(GL_VERTEX_ARRAY, m_VAOid, static_cast<GLsizei>(name.length()), name.c_str());
+	const static std::string s_Name("defaultVAO");
+	glObjectLabel(GL_VERTEX_ARRAY, m_VAOid, static_cast<GLsizei>(s_Name.length()), s_Name.c_str());
 }
 
 //=================================================================================

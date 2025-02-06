@@ -18,7 +18,7 @@ namespace GLEngine::Core {
  * Top < Bottom
  * Left < Right
  */
-struct CORE_API_EXPORT S_Rect {
+struct CORE_API_EXPORT S_Rect final {
 public:
 	constexpr S_Rect()
 		: x(0)

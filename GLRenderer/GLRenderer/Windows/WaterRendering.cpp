@@ -93,7 +93,6 @@ RTTR_REGISTRATION
 namespace GLEngine::GLRenderer {
 
 static constexpr bool		s_SimulateOnGPU = false;
-static constexpr bool		s_SimulateOnGPU = true;
 static constexpr glm::uvec2 s_Dimensions{800, 600};
 static constexpr bool		s_indexed = false;
 static const std::array		s_Planes  = {
@@ -101,7 +100,7 @@ static const std::array		s_Planes  = {
 	 Physics::Primitives::Plane2D{.Normal = glm::normalize(glm::vec2{-0.5f, 0.5f}), .Position = {s_Dimensions.x - 200, 200}},
 	 // Physics::Primitives::Plane2D{.Normal = glm::normalize(glm::vec2{0, 1.f}), .Position = {0, 200}}
 };
-static const Core::S_Rect s_CollisionRect{20, 20, s_Dimensions.x - 40, s_Dimensions.y - 40};
+static constexpr Core::S_Rect s_CollisionRect{20, 20, s_Dimensions.x - 40, s_Dimensions.y - 40};
 
 //=================================================================================
 C_WaterRendering::C_WaterRendering(const GUID guid, GUI::C_GUIManager& guiMGR, C_GLDevice& device)
@@ -123,18 +122,16 @@ C_WaterRendering::C_WaterRendering(const GUID guid, GUI::C_GUIManager& guiMGR, C
 	auto&					   renderer = Core::C_Application::Get().GetActiveRenderer();
 	Renderer::ResourceManager& rrm		= renderer.GetRM();
 
-
-	const auto gpuSamplerHandle = rrm.createSampler(Renderer::SamplerDescriptor2D{
-		.m_FilterMin = Renderer::E_TextureFilter::Linear,
-		.m_FilterMag = Renderer::E_TextureFilter::Linear,
-		.m_WrapS	 = Renderer::E_WrapFunction::Repeat,
-		.m_WrapT	 = Renderer::E_WrapFunction::Repeat,
-		.m_WrapU	 = Renderer::E_WrapFunction::Repeat,
-	});
-
 	// Texture
 	{
 		using namespace Renderer;
+		const auto gpuSamplerHandle = rrm.createSampler(SamplerDescriptor2D{
+			.m_FilterMin = E_TextureFilter::Linear,
+			.m_FilterMag = E_TextureFilter::Linear,
+			.m_WrapS	 = E_WrapFunction::Repeat,
+			.m_WrapT	 = E_WrapFunction::Repeat,
+			.m_WrapU	 = E_WrapFunction::Repeat,
+		});
 
 		const TextureDescriptor waterRenderingDef{.name			 = "WaterRendering",
 												  .width		 = s_Dimensions.x,
@@ -196,12 +193,12 @@ C_WaterRendering::C_WaterRendering(const GUID guid, GUI::C_GUIManager& guiMGR, C
 		using namespace Renderer;
 		m_Pipeline = rrm.createPipeline(PipelineDescriptor{.primitiveType = E_RenderPrimitives::TriangleList,
 														   .blending	  = {BlendingDescriptor{.enable				= true,
-																								.blendColorFunction = E_BlendFunction::Add,
-																								.srcColorFactor		= E_BlendFactor::SourceAlpha,
-																								.dstColorFactor		= E_BlendFactor::InvSourceAlpha,
-																								.blendAlphaFunction = E_BlendFunction::Add, // todo
-																								.srcAlphaFactor		= E_BlendFactor::One,
-																								.dstAlphaFactor		= E_BlendFactor::Zero}},
+																							.blendColorFunction = E_BlendFunction::Add,
+																							.srcColorFactor		= E_BlendFactor::SourceAlpha,
+																							.dstColorFactor		= E_BlendFactor::InvSourceAlpha,
+																							.blendAlphaFunction = E_BlendFunction::Add, // todo
+																							.srcAlphaFactor		= E_BlendFactor::One,
+																							.dstAlphaFactor		= E_BlendFactor::Zero}},
 														   .bindingCount  = 1,
 														   .vertexInput	  = {{.binding = 0, .type = T_TypeShaderDataType_v<glm::vec3>}},
 														   .shader		  = "2D"});
@@ -279,7 +276,7 @@ void C_WaterRendering::Simulate()
 		for (auto& particle : m_Particles)
 		{
 			if (m_bGravitation)
-			particle.Velocity += glm::vec2{0.f, -Physics::Constants::g * t};
+				particle.Velocity += glm::vec2{0.f, -Physics::Constants::g * t};
 
 			particle.LocalDensity		  = GetLocalDensity(particle.Position);
 			const glm::vec2 pressureForce = CalculatePressureForce(particle.Position);
@@ -329,9 +326,11 @@ void C_WaterRendering::Collision(Particle& particle, const float t)
 			const float Se = plane.DistanceToLine(particle.Position);
 			if (Sc * Se <= 0 || Sc <= m_ParticleRadius || Se <= m_ParticleRadius)
 			{
-				collisionInLastIteration = true;
 				if (Sc < closest.Sc)
-					closest					   = {.Sc = Sc, .Se = Se, .plane = &plane};
+				{
+					closest					 = {.Sc = Sc, .Se = Se, .plane = &plane};
+					collisionInLastIteration = true;
+				}
 			}
 		}
 
@@ -343,30 +342,6 @@ void C_WaterRendering::Collision(Particle& particle, const float t)
 			particle.Velocity = glm::reflect(particle.Velocity, closest.plane->Normal) * dampingFactor;
 
 			particle.Move(t * (1.f - tFreeMove));
-		}
-	}
-
-
-	return;
-	static int i = 0;
-	for (auto plane : s_Planes)
-	{
-		// Real-time rendering 4th edition - 25.9 Collision Response
-		const float Sc = plane.DistanceToLine(previousPos);
-		const float Se = plane.DistanceToLine(particle.Position);
-		if (Sc * Se <= 0 || Sc <= m_ParticleRadius || Se <= m_ParticleRadius)
-		{
-			const float tFreeMove = (Sc - m_ParticleRadius) / (Sc - Se);
-			particle.Position	  = previousPos;
-			particle.Move(t * tFreeMove);
-			particle.Velocity = glm::reflect(particle.Velocity, plane.Normal) * dampingFactor;
-			// if (i == 1)
-			// {
-			// 	m_bRunSimulation = false;
-			// 	return;
-			// }
-			particle.Move(t * (1.f - tFreeMove));
-			++i;
 		}
 	}
 }
@@ -428,9 +403,9 @@ void C_WaterRendering::Setup()
 
 		constexpr auto indirectBufferSize = static_cast<unsigned int>(sizeof(Renderer::IndirectDraw));
 		m_IndirectHandle				  = rrm.createBuffer(Renderer::BufferDescriptor{
-							 .size	= indirectBufferSize,
-							 .type	= Renderer::E_BufferType::DrawIndirect,
-							 .usage = Renderer::E_ResourceUsage::Immutable,
+			 .size	= indirectBufferSize,
+			 .type	= Renderer::E_BufferType::DrawIndirect,
+			 .usage = Renderer::E_ResourceUsage::Immutable,
 		 });
 		renderer.SetBufferData(m_IndirectHandle, indirectBufferSize, &m_DrawCmd);
 	}
@@ -443,9 +418,9 @@ void C_WaterRendering::Setup()
 
 		const auto particlesBuffer = static_cast<unsigned int>(sizeof(Particle) * m_NumParticles);
 		m_ParticlesHandle		   = rrm.createBuffer(Renderer::BufferDescriptor{
-					 .size	= particlesBuffer,
-					 .type	= Renderer::E_BufferType::ShaderStorage,
-					 .usage = Renderer::E_ResourceUsage::Dynamic,
+			 .size	= particlesBuffer,
+			 .type	= Renderer::E_BufferType::ShaderStorage,
+			 .usage = Renderer::E_ResourceUsage::Dynamic,
 		 });
 		renderer.SetBufferData(m_ParticlesHandle, particlesBuffer, m_Particles.data());
 	}

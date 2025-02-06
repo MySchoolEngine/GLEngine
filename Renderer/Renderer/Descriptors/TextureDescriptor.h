@@ -6,7 +6,7 @@
 
 namespace GLEngine::Renderer {
 
-enum class E_TextureType
+enum class E_TextureType : std::uint8_t
 {
 	TEXTURE_2D,
 	TEXTURE_2D_ARRAY,

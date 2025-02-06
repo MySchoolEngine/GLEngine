@@ -24,7 +24,6 @@
 #include <imgui_internal.h>
 
 namespace GLEngine::Editor {
-static constexpr glm::vec2	s_ImageDrawArea{800, 800};
 static constexpr glm::uvec2 s_BackgroundDim{2, 2};
 
 //=================================================================================

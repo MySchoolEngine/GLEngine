@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Renderer/Render/IndirectDraw.h>
 #include <Renderer/Renderer2D.h>
