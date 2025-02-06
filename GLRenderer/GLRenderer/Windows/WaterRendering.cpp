@@ -212,6 +212,7 @@ C_WaterRendering::C_WaterRendering(const GUID guid, GUI::C_GUIManager& guiMGR, C
 	m_Image = GUI::C_ImageViewer(m_DeviceImage);
 	m_Image.SetSize(s_Dimensions);
 	m_Image.AddOverlay(m_WorldOverlay, true);
+	m_Image.ShowLayers(true);
 
 	m_RenderInterface
 		= std::make_unique<C_RenderInterface>(Shaders::C_ShaderManager::Instance(), Textures::C_TextureUnitManger::Instance(), dynamic_cast<C_OGLRenderer&>(renderer));

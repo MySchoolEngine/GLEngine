@@ -27,6 +27,7 @@ public:
 	virtual void						   destoryPipeline(Handle<Pipeline> handle) {}
 	[[nodiscard]] virtual Handle<Texture>  createTexture(const TextureDescriptor& desc)	  = 0;
 	virtual void						   destoryTexture(Handle<Texture> handle)		  = 0;
+	virtual const TextureDescriptor*	   getDescriptor(Handle<Texture> handle) { return nullptr; }
 	[[nodiscard]] virtual Handle<Buffer>   createBuffer(const BufferDescriptor& desc)	  = 0;
 	virtual void						   destroyBuffer(const Handle<Buffer>& handle)	  = 0;
 	[[nodiscard]] virtual Handle<Sampler>  createSampler(const SamplerDescriptor2D& desc) = 0;

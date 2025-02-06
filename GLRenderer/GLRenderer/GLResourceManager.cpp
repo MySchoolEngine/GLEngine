@@ -10,7 +10,8 @@ namespace GLEngine::GLRenderer {
 Renderer::Handle<Renderer::Texture> GLResourceManager::createTexture(const Renderer::TextureDescriptor& desc)
 {
 	auto handle = m_TexturePool.CreateNew(desc);
-	if (auto* texture = m_TexturePool.GetResource(handle)) {
+	if (auto* texture = m_TexturePool.GetResource(handle))
+	{
 		m_Device->AllocateTexture(*texture);
 	}
 	return handle;
@@ -74,6 +75,16 @@ void GLResourceManager::destoryTexture(Renderer::Handle<Renderer::Texture> handl
 		m_Device->DestroyTexture(*texture);
 	}
 	m_TexturePool.RemoveHandle(handle);
+}
+
+//=================================================================================
+const Renderer::TextureDescriptor* GLResourceManager::getDescriptor(Renderer::Handle<Renderer::Texture> handle)
+{
+	if (auto* texture = GetTexture(handle))
+	{
+		return &texture->GetDescriptor();
+	}
+	return nullptr;
 }
 
 //=================================================================================

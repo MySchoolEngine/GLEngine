@@ -3,6 +3,7 @@
 #include <GUI/ImageViewer.h>
 
 #include <Renderer/IRenderer.h>
+#include <Renderer/Resources/ResourceManager.h>
 
 #include <Core/Application.h>
 
@@ -10,6 +11,11 @@
 #include <imgui_internal.h>
 
 namespace GLEngine::GUI {
+// constants
+namespace {
+constexpr ImVec2 s_textureRect{380.f, 88.f};
+constexpr ImVec2 s_texturePreviewSize{s_textureRect.y - 4.f, s_textureRect.y - 4.f};
+} // namespace
 
 //=================================================================================
 C_ImageViewer::C_ImageViewer(const Renderer::Handle<Renderer::Texture> texture)
@@ -56,7 +62,7 @@ bool C_ImageViewer::Draw() const
 	if (m_Background.Handle.IsValid())
 	{
 		ImRect	   scaledZoomArea(ImVec2{zoomArea.Min.x / m_Background.Scale.x, zoomArea.Min.y / m_Background.Scale.y},
-								  ImVec2{zoomArea.Max.x / m_Background.Scale.x, zoomArea.Max.y / m_Background.Scale.y});
+							  ImVec2{zoomArea.Max.x / m_Background.Scale.x, zoomArea.Max.y / m_Background.Scale.y});
 		const auto backgroundHandle = activeRenderer.GetTextureGUIHandle(m_Background.Handle);
 		ImGui::Image((void*)(intptr_t)(backgroundHandle), drawAreaSz, scaledZoomArea.Min, scaledZoomArea.Max);
 	}
@@ -67,9 +73,12 @@ bool C_ImageViewer::Draw() const
 	}
 
 	ImGui::SetCursorPos(canvasP0);
-	ImGui::Image((void*)(intptr_t)(m_GUIHandle), drawAreaSz, zoomArea.Min, zoomArea.Max);
-	for (auto [overlay, flipVertically, scale] : m_Overlays)
+	if (m_bShowImage)
+		ImGui::Image((void*)(intptr_t)(m_GUIHandle), drawAreaSz, zoomArea.Min, zoomArea.Max);
+	for (auto [overlay, scale, flipVertically, Show] : m_Overlays)
 	{
+		if (!Show)
+			continue;
 		const auto overlayHandle = activeRenderer.GetTextureGUIHandle(overlay);
 		ImGui::SetCursorPos(canvasP0);
 		DrawImageWithCorrectAxis(overlayHandle, drawAreaSz, zoomArea, flipVertically);
@@ -89,19 +98,22 @@ bool C_ImageViewer::Draw() const
 
 		if (m_Background.Handle.IsValid())
 		{
-			ImRect	   scaledZoomArea({0, 0},
-								  ImVec2{1.f / m_Background.Scale.x, 1.f / m_Background.Scale.y});
+			ImRect	   scaledZoomArea({0, 0}, ImVec2{1.f / m_Background.Scale.x, 1.f / m_Background.Scale.y});
 			const auto backgroundHandle = activeRenderer.GetTextureGUIHandle(m_Background.Handle);
 			ImGui::Image((void*)(intptr_t)(backgroundHandle), minimapDrawAreaSz, scaledZoomArea.Min, scaledZoomArea.Max);
 		}
 
 
-		
 		ImGui::SetCursorPos(canvasP0 + ImVec2(drawAreaSz.x - offsetFromCorner - minimapDrawAreaSz.x, offsetFromCorner));
-		ImGui::Image((void*)(intptr_t)(m_GUIHandle), minimapDrawAreaSz, {0, 0}, {1, 1}, {1, 1, 1, 1}, {1, 0, 0, 1});
+		ImVec4 tintColor{1, 1, 1, 1};
+		if (!m_bShowImage)
+			tintColor.w = 0; // hides the image, but still allows to draw the outline
+		ImGui::Image((void*)(intptr_t)(m_GUIHandle), minimapDrawAreaSz, {0, 0}, {1, 1}, tintColor, {1, 0, 0, 1});
 
-		for (auto [overlay, flipVertically, scale] : m_Overlays)
+		for (auto [overlay, scale, flipVertically, Show] : m_Overlays)
 		{
+			if (!Show)
+				continue;
 			const auto overlayHandle = activeRenderer.GetTextureGUIHandle(overlay);
 			ImGui::SetCursorPos(canvasP0 + ImVec2(drawAreaSz.x - offsetFromCorner - minimapDrawAreaSz.x, offsetFromCorner));
 			DrawImageWithCorrectAxis(overlayHandle, minimapDrawAreaSz, ImRect(ImVec2{0, 0}, ImVec2{1, 1}), flipVertically);
@@ -114,8 +126,36 @@ bool C_ImageViewer::Draw() const
 
 		window->DrawList->AddRect(screenSpacePos + minPos, screenSpacePos + maxPos, ImGui::ColorConvertFloat4ToU32(ImVec4(1.f, 0.f, 0.f, .5f)), 0.0f);
 	}
+	if (m_bShowLayers)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{0, 0});
+
+		// Set pos instead of same line
+		ImGui::SetCursorPos(canvasP0 + ImVec2{m_Size.x + 5, 0});
+		// should have some kind of uniqueness there
+		const ImVec2 SideBarSize{390.f, drawAreaSz.y};
+		ImGui::BeginChildFrame(ImGuiID{static_cast<unsigned int>(std::hash<std::string>{}("TextureViewerLayers_ToolBar"))}, SideBarSize);
+
+		DrawLayerBox(m_Texture, m_bShowImage, activeRenderer);
+		for (auto& overlayDefinition : m_Overlays)
+		{
+			DrawLayerBox(overlayDefinition.Handle, overlayDefinition.bShow, activeRenderer);
+		}
+		ImGui::EndChildFrame();
+		ImGui::PopStyleVar(2);
+	}
 	ImGui::SetCursorPos(canvasP0);
-	ImGui::ItemSize(imageRect);
+	if (!m_bShowLayers)
+	{
+		ImGui::ItemSize(imageRect); // should have the width of show layers as well
+	}
+	else
+	{
+		ImRect elementSizeWithLayers = imageRect;
+		elementSizeWithLayers.Max += {s_textureRect.x, 0};
+		ImGui::ItemSize(elementSizeWithLayers);
+	}
 	return false;
 }
 
@@ -128,7 +168,7 @@ void C_ImageViewer::SetSize(const glm::vec2 dim)
 //=================================================================================
 void C_ImageViewer::AddOverlay(Renderer::Handle<Renderer::Texture> texture, bool flipVertically)
 {
-	m_Overlays.emplace_back(texture, flipVertically);
+	m_Overlays.emplace_back(texture, glm::vec2(1.f, 1.f), flipVertically);
 }
 
 //=================================================================================
@@ -138,6 +178,30 @@ void C_ImageViewer::PopOverlay()
 	{
 		m_Overlays.pop_back();
 	}
+}
+
+//=================================================================================
+void C_ImageViewer::ShowLayers(bool show)
+{
+	m_bShowLayers = show;
+}
+
+//=================================================================================
+void C_ImageViewer::DrawLayerBox(Renderer::Handle<Renderer::Texture> handle, bool& show, Renderer::I_Renderer& activeRenderer)
+{
+	auto& resMGR	= activeRenderer.GetRM();
+	auto* layerDesc = resMGR.getDescriptor(handle);
+	if (ImGui::BeginChildFrame(ImGuiID{static_cast<unsigned int>(std::hash<std::string>{}("TextureViewerLayers_" + layerDesc->name))}, s_textureRect))
+	{
+		ImGui::SetCursorPos(ImVec2{2, 2});
+		const auto overlayHandle = activeRenderer.GetTextureGUIHandle(handle);
+		ImGui::BeginChildFrame(static_cast<unsigned int>(std::hash<std::string>{}("TextureViewerLayers_Preview_" + layerDesc->name)), s_texturePreviewSize);
+		ImGui::Image((void*)(intptr_t)(overlayHandle), s_texturePreviewSize, {0, 0}, {1, 1}, {1, 1, 1, 1});
+		ImGui::EndChildFrame();
+		ImGui::SameLine();
+		ImGui::Checkbox("Show", &show);
+	}
+	ImGui::EndChildFrame();
 }
 
 //=================================================================================
@@ -158,8 +222,8 @@ void C_ImageViewer::SetBackground(Renderer::Handle<Renderer::Texture> texture, c
 {
 	m_Background = {
 		.Handle			 = texture,
-		.bFlipVertically = false,
 		.Scale			 = scale,
+		.bFlipVertically = false,
 	};
 }
 } // namespace GLEngine::GUI

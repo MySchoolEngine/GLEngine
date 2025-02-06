@@ -26,6 +26,7 @@ public:
 	[[nodiscard]] virtual Renderer::Handle<Renderer::Pipeline> createPipeline(const Renderer::PipelineDescriptor& desc) override;
 	virtual void											   destoryPipeline(Renderer::Handle<Renderer::Pipeline> handle) override;
 	[[nodiscard]] virtual Renderer::Handle<Renderer::Texture>  createTexture(const Renderer::TextureDescriptor& desc) override;
+	virtual const Renderer::TextureDescriptor*				   getDescriptor(Renderer::Handle<Renderer::Texture> handle) override;
 	virtual void											   destoryTexture(Renderer::Handle<Renderer::Texture> handle) override;
 	[[nodiscard]] virtual Renderer::Handle<Renderer::Buffer>   createBuffer(const Renderer::BufferDescriptor& desc) override;
 	virtual void											   destroyBuffer(const Renderer::Handle<Renderer::Buffer>& handle) override;
