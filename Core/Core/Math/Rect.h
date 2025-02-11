@@ -6,6 +6,7 @@
 
 #include <glm/vec2.hpp>
 
+#include <cmath>
 #include <algorithm>
 #include <rttr/registration.h>
 #include <rttr/registration_friend.h>
@@ -13,12 +14,12 @@
 namespace GLEngine::Core {
 
 /**
- * Represent rectangle inside of an image. In order to be valid needs to have width and height > 0.
+ * Represent rectangle inside an image. In order to be valid needs to have width and height > 0.
  *
  * Top < Bottom
  * Left < Right
  */
-struct CORE_API_EXPORT S_Rect final {
+struct S_Rect final {
 public:
 	constexpr S_Rect()
 		: x(0)
@@ -51,12 +52,12 @@ public:
 	 * @param intersects	- Return of the intersections
 	 * @return true if intersection happens
 	 */
-	[[nodiscard]] bool IntersectionPlane(const glm::vec2& origin, const glm::vec2& direction, std::array<glm::ivec2, 2>& intersects) const;
+	[[nodiscard]] inline bool IntersectionPlane(const glm::vec2& origin, const glm::vec2& direction, std::array<glm::ivec2, 2>& intersects) const;
 
 	[[nodiscard]] constexpr bool Contains(const glm::vec2& point) const { return point.x > x && point.y > y && (point.x - x) < width && (point.y - y) < height; }
 	[[nodiscard]] constexpr bool Contains(const glm::ivec2& point) const
 	{
-		if (std::signbit(point.x) || std::signbit(point.y))
+		if (point.x<0 || point.y < 0)
 			return false; // smaller than 0
 		glm::uvec2 uPoint = point;
 		return uPoint.x >= x && uPoint.y >= y && (uPoint.x - x) < width && (uPoint.y - y) < height;
@@ -89,3 +90,5 @@ private:
 };
 
 } // namespace GLEngine::Core
+
+#include <Core/Math/Rect.inl>
