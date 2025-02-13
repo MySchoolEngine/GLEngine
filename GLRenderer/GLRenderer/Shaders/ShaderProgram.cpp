@@ -33,7 +33,7 @@ C_ShaderProgram::C_ShaderProgram(C_ShaderProgram&& rhs)
 }
 
 //=================================================================================
-void C_ShaderProgram::operator=(C_ShaderProgram&& rhs)
+C_ShaderProgram& C_ShaderProgram::operator=(C_ShaderProgram&& rhs)
 {
 	SetName(rhs.m_name);
 #if _DEBUG
@@ -45,6 +45,7 @@ void C_ShaderProgram::operator=(C_ShaderProgram&& rhs)
 	m_bIsActive = rhs.m_bIsActive;
 
 	rhs.m_Program = 0;
+	return *this;
 }
 
 //=================================================================================

@@ -20,12 +20,12 @@ namespace Components {
 class C_GLGeomComponent : public Renderer::C_GeomComponent {
 public:
 	explicit C_GLGeomComponent(std::shared_ptr<Entity::I_Entity> owner);
-	virtual ~C_GLGeomComponent();
+	~C_GLGeomComponent() override;
 	//=================================================================================
-	void											  SetupMaterial(const ::Utils::Parsing::MaterialData& data) override;
-	void											  SetupGeometry(const Renderer::MeshData::Mesh& mesh) override;
-	void											  PerformDraw() const override;
-	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override;
+	void									  SetupMaterial(const ::Utils::Parsing::MaterialData& data) override;
+	void									  SetupGeometry(const Renderer::MeshData::Mesh& mesh) override;
+	void									  PerformDraw() const override;
+	[[nodiscard]] Physics::Primitives::S_AABB GetAABB() const override;
 
 private:
 	std::shared_ptr<Mesh::C_StaticMeshResource> m_Mesh;

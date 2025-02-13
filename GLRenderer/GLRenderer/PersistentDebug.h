@@ -4,8 +4,10 @@ namespace GLEngine::GLRenderer {
 
 class C_PersistentDebug {
 public:
-	C_PersistentDebug(C_PersistentDebug const&) = delete;
+	C_PersistentDebug(C_PersistentDebug const&)					  = delete;
+	C_PersistentDebug(C_PersistentDebug&&)						  = delete;
 	void					  operator=(C_PersistentDebug const&) = delete;
+	void					  operator=(C_PersistentDebug&&)	  = delete;
 	static C_PersistentDebug& Instance();
 	~C_PersistentDebug() = default;
 

@@ -10,8 +10,8 @@
 #include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 
-#include <Renderer/Animation/Skeleton.h>
 #include <Renderer/Animation/IPose.h>
+#include <Renderer/Animation/Skeleton.h>
 #include <Renderer/IRenderer.h>
 #include <Renderer/Mesh/Geometry.h>
 
@@ -49,7 +49,6 @@ const char* glErrorCodeToString(unsigned int code)
 		codeToStr(GL_OUT_OF_MEMORY);
 	default:
 		return "bad value";
-		break;
 	}
 }
 
@@ -61,7 +60,6 @@ const char* glErrorTypeToString(GLenum code)
 		codeToStr(GL_DEBUG_TYPE_ERROR);
 	default:
 		return "bad value";
-		break;
 	}
 }
 
@@ -192,7 +190,7 @@ void C_DebugDraw::DrawLines(const std::vector<glm::vec4>& pairs, const Colours::
 //=================================================================================
 void C_DebugDraw::DrawBone(const glm::vec3& position, const Renderer::S_Joint& joint)
 {
-	const auto		locTransformation = glm::inverse((joint.m_InverseBindTransfomr));
+	const auto		locTransformation = glm::inverse((joint.m_InverseBindTransform));
 	const glm::vec4 modelDest		  = (locTransformation * glm::vec4(0.f, 0.f, 0.0f, 1.f));
 	const glm::vec3 dest			  = glm::vec3(modelDest / modelDest.w);
 	const glm::vec3 boneOffset		  = dest - position;
@@ -217,7 +215,7 @@ void C_DebugDraw::DrawBone(const glm::vec3& position, const Renderer::S_Joint& j
 	tangent				 = glm::normalize(tangent);
 	const auto bitangent = glm::cross(tangent, boneOffset);
 
-	const float		bumpSize = .05f;
+	constexpr float bumpSize = .05f;
 	const glm::vec3 Offset1	 = tangent * bumpSize;
 	const glm::vec3 Offset2	 = bitangent * bumpSize;
 
@@ -252,7 +250,7 @@ void C_DebugDraw::DrawBone(const glm::vec3& position, const Renderer::S_Joint& j
 //=================================================================================
 void C_DebugDraw::DrawSkeleton(const glm::vec3& root, const Renderer::C_Skeleton& skeleton)
 {
-	const auto		locTransformation = glm::inverse((skeleton.m_Root->m_InverseBindTransfomr));
+	const auto		locTransformation = glm::inverse((skeleton.m_Root->m_InverseBindTransform));
 	const glm::vec4 modelDest		  = (locTransformation * glm::vec4(0.f, 0.f, 0.0f, 1.f));
 	const glm::vec3 dest			  = glm::vec3(modelDest / modelDest.w);
 	const glm::vec3 boneOffset		  = dest - root;
@@ -266,13 +264,12 @@ void C_DebugDraw::DrawSkeleton(const glm::vec3& root, const Renderer::C_Skeleton
 //=================================================================================
 void C_DebugDraw::DrawPose(const Renderer::C_Skeleton& skeleton, const Renderer::I_Pose& pose, const glm::mat4& mat)
 {
-	auto transforms = pose.GetLocalSpaceTransofrms();
-	glm::vec4  zero(0.f, 0.f, 0.f, 1.f);
+	const auto			transforms = pose.GetLocalSpaceTransofrms();
+	constexpr glm::vec4 zero(0.f, 0.f, 0.f, 1.f);
 
-	const Renderer::S_Joint& rootJoint = skeleton.GetRoot();
+	const Renderer::S_Joint&														 rootJoint = skeleton.GetRoot();
 	std::function<void(const Renderer::S_Joint&, const glm::mat4&, const glm::vec4)> drawChildren;
-	drawChildren = [&](const Renderer::S_Joint& joint, const glm::mat4& parent, const glm::vec4& pos)
-	{
+	drawChildren = [&](const Renderer::S_Joint& joint, const glm::mat4& parent, const glm::vec4& pos) {
 		for (const auto& child : joint.m_Children)
 		{
 			const auto		fullTransform = parent * transforms[child.m_Id];
@@ -285,11 +282,11 @@ void C_DebugDraw::DrawPose(const Renderer::C_Skeleton& skeleton, const Renderer:
 }
 
 //=================================================================================
-void C_DebugDraw::DrawAxis(const glm::vec3& origin, const glm::vec3& up, const glm::vec3& foreward, const glm::mat4& modelMatrix)
+void C_DebugDraw::DrawAxis(const glm::vec3& origin, const glm::vec3& up, const glm::vec3& forward, const glm::mat4& modelMatrix)
 {
-	glm::vec3  rightVec			  = toVec4(glm::normalize(glm::cross(glm::vec3(up), glm::vec3(foreward))));
-	const auto originInModelSpace = modelMatrix * glm::vec4(origin, 1.0f);
-	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + foreward), 1.0f), Colours::blue);
+	const glm::vec3 rightVec		   = toVec4(glm::normalize(glm::cross(glm::vec3(up), glm::vec3(forward))));
+	const auto		originInModelSpace = modelMatrix * glm::vec4(origin, 1.0f);
+	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + forward), 1.0f), Colours::blue);
 	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + up), 1.0f), Colours::green);
 	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + rightVec), 1.0f), Colours::red);
 }
@@ -297,7 +294,7 @@ void C_DebugDraw::DrawAxis(const glm::vec3& origin, const glm::vec3& up, const g
 //=================================================================================
 void C_DebugDraw::DrawGrid(const glm::vec4& origin, unsigned short linesToSide, const glm::mat4& modelMatrix /*= glm::mat4(1.0f)*/)
 {
-	int limit = linesToSide;
+	const int limit = linesToSide;
 	// cross for center
 	DrawLine(origin + glm::vec4(-limit, 0, 0, 1.f), origin + glm::vec4(limit, 0, 0, 1.f));
 	DrawLine(origin + glm::vec4(0, 0, -limit, 1.f), origin + glm::vec4(0, 0, limit, 1.f));
@@ -319,7 +316,7 @@ void C_DebugDraw::DrawFrustum(const Physics::Primitives::C_Frustum& frust, const
 {
 	const auto& position = frust.GetPosition();
 	const auto& upVector = frust.GetUpVector();
-	const auto& forward	 = frust.GetForeward();
+	const auto& forward	 = frust.GetForward();
 	const auto	fnear	 = frust.GetNear();
 	const auto	ffar	 = frust.GetFar();
 	const auto	fov		 = frust.GetFov();

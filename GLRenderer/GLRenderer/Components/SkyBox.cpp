@@ -1,10 +1,8 @@
 #include <GLRendererStdafx.h>
 
-#include <GLRenderer/Buffers/GLBuffer.h>
 #include <GLRenderer/CameraManager.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/Components/SkyBox.h>
-#include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
@@ -21,7 +19,7 @@
 namespace GLEngine::GLRenderer::Components {
 
 //=================================================================================
-C_SkyBox::C_SkyBox(std::shared_ptr<Entity::I_Entity> owner)
+C_SkyBox::C_SkyBox(const std::shared_ptr<Entity::I_Entity>& owner)
 	: Renderer::I_RenderableComponent(owner)
 //, m_Textures("Skybox", GL_TEXTURE_CUBE_MAP)
 {

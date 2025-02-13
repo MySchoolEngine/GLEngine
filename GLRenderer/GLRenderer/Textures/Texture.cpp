@@ -39,7 +39,7 @@ C_Texture::C_Texture(const Renderer::TextureDescriptor& desc)
 }
 
 //=================================================================================
-C_Texture::C_Texture(C_Texture&& t)
+C_Texture::C_Texture(C_Texture&& t) noexcept
 	: Renderer::I_DeviceTexture(std::move(t))
 	, m_DefaultSampler(t.m_DefaultSampler)
 {
@@ -74,7 +74,7 @@ void C_Texture::operator=(C_Texture&& rhs) noexcept
 C_Texture::~C_Texture()
 {
 	CORE_LOG(E_Level::Debug, E_Context::Render, "Texture being deleted name: {}", m_Desc.name);
-	GLE_ASSERT(m_Texture == 0, "Descruting the texture that haven't been cleared before. This will leak memory.");
+	GLE_ASSERT(m_Texture == 0, "Destructing the texture that haven't been cleared before. This will leak memory.");
 	Clean();
 }
 

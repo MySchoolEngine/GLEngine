@@ -2,8 +2,6 @@
 
 #include <Renderer/IRenderCommand.h>
 
-#include <Core/CoreMacros.h>
-
 #include <Utils/BitField.h>
 
 
@@ -11,8 +9,7 @@ namespace GLEngine::GLRenderer::Commands {
 
 class C_GLClear : public Renderer::I_RenderCommand {
 public:
-	enum class E_ClearBits : std::uint8_t
-	{
+	enum class E_ClearBits : std::uint8_t {
 		Color	= 1,
 		Depth	= 2,
 		Accum	= 4, // actually I think this is not supported
@@ -25,9 +22,9 @@ public:
 	//===========================================
 	// Renderer::I_RenderCommand
 	//===========================================
-	virtual void								  Commit() override;
-	virtual E_Type								  GetType() const override;
-	[[nodiscard]] virtual std::string			  GetDescriptor() const override;
+	void					  Commit() override;
+	E_Type					  GetType() const override;
+	[[nodiscard]] std::string GetDescriptor() const override;
 
 protected:
 	int EnumToFlags(::Utils::C_BitField<E_ClearBits> bits) const;

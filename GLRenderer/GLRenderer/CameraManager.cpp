@@ -15,8 +15,8 @@ C_CameraManager::C_CameraManager()
 	: Core::C_Layer("CameraManager")
 	, m_ActiveCamera(nullptr)
 	, m_DebugCamera(nullptr)
-	, m_UseDebugCam(false, "Use debug cam")
 	, m_Window(GUID::INVALID_GUID)
+	, m_UseDebugCam(false, "Use debug cam")
 {
 }
 

@@ -7,6 +7,7 @@
 #include <Renderer/Resources/ResourceManager.h>
 
 namespace GLEngine::GLRenderer {
+class C_GLDevice;
 
 class GLPipeline {
 public:
@@ -21,17 +22,17 @@ class GLResourceManager : public Renderer::ResourceManager {
 public:
 	void Init(C_GLDevice* device);
 
-	[[nodiscard]] virtual Renderer::Handle<Renderer::Shader>   createShader(const std::filesystem::path& path) override;
-	virtual void											   destoryShader(Renderer::Handle<Renderer::Shader> handle) override;
-	[[nodiscard]] virtual Renderer::Handle<Renderer::Pipeline> createPipeline(const Renderer::PipelineDescriptor& desc) override;
-	virtual void											   destoryPipeline(Renderer::Handle<Renderer::Pipeline> handle) override;
-	[[nodiscard]] virtual Renderer::Handle<Renderer::Texture>  createTexture(const Renderer::TextureDescriptor& desc) override;
-	virtual const Renderer::TextureDescriptor*				   getDescriptor(Renderer::Handle<Renderer::Texture> handle) override;
-	virtual void											   destoryTexture(Renderer::Handle<Renderer::Texture> handle) override;
-	[[nodiscard]] virtual Renderer::Handle<Renderer::Buffer>   createBuffer(const Renderer::BufferDescriptor& desc) override;
-	virtual void											   destroyBuffer(const Renderer::Handle<Renderer::Buffer>& handle) override;
-	[[nodiscard]] virtual Renderer::Handle<Renderer::Sampler>  createSampler(const Renderer::SamplerDescriptor2D& desc) override;
-	virtual void											   destroySampler(const Renderer::Handle<Renderer::Sampler>& handle) override;
+	[[nodiscard]] Renderer::Handle<Renderer::Shader>   createShader(const std::filesystem::path& path) override;
+	void											   destoryShader(Renderer::Handle<Renderer::Shader> handle) override;
+	[[nodiscard]] Renderer::Handle<Renderer::Pipeline> createPipeline(const Renderer::PipelineDescriptor& desc) override;
+	void											   destoryPipeline(Renderer::Handle<Renderer::Pipeline> handle) override;
+	[[nodiscard]] Renderer::Handle<Renderer::Texture>  createTexture(const Renderer::TextureDescriptor& desc) override;
+	const Renderer::TextureDescriptor*				   getDescriptor(Renderer::Handle<Renderer::Texture> handle) override;
+	void											   destoryTexture(Renderer::Handle<Renderer::Texture> handle) override;
+	[[nodiscard]] Renderer::Handle<Renderer::Buffer>   createBuffer(const Renderer::BufferDescriptor& desc) override;
+	void											   destroyBuffer(const Renderer::Handle<Renderer::Buffer>& handle) override;
+	[[nodiscard]] Renderer::Handle<Renderer::Sampler>  createSampler(const Renderer::SamplerDescriptor2D& desc) override;
+	void											   destroySampler(const Renderer::Handle<Renderer::Sampler>& handle) override;
 
 	GLBuffer*				  GetBuffer(const Renderer::Handle<Renderer::Buffer>& handle);
 	Shaders::C_ShaderProgram* GetShader(const Renderer::Handle<Renderer::Shader>& handle);
@@ -44,6 +45,6 @@ private:
 	Renderer::ResourcePool<Renderer::Buffer, GLBuffer>									m_BufferPool;
 	Renderer::ResourcePool<Renderer::Pipeline, GLPipeline>								m_PipelinePool;
 
-	C_GLDevice* m_Device;
+	C_GLDevice* m_Device = nullptr;
 };
 } // namespace GLEngine::GLRenderer

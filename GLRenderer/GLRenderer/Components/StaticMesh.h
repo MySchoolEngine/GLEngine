@@ -32,16 +32,16 @@ public:
 	C_StaticMesh(std::string meshFile, std::string_view shader, const std::shared_ptr<Entity::I_Entity>& owner);
 	C_StaticMesh();
 	C_StaticMesh(const Core::ResourceHandle<Renderer::MeshResource>& meshHandle,
-				 std::string_view							  shader,
+				 std::string_view									 shader,
 				 const std::shared_ptr<Entity::I_Entity>&			 owner,
-				 const Renderer::MeshData::Material*		  material = nullptr);
-	~C_StaticMesh();
-	virtual void									  PerformDraw() const override;
-	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override;
+				 const Renderer::MeshData::Material*				 material = nullptr);
+	~C_StaticMesh() override;
+	void									  PerformDraw() const override;
+	[[nodiscard]] Physics::Primitives::S_AABB GetAABB() const override;
 
-	void					 DebugDrawGUI() override;
-	virtual std::string_view GetDebugComponentName() const override;
-	virtual bool			 HasDebugDrawGUI() const override;
+	void			 DebugDrawGUI() override;
+	std::string_view GetDebugComponentName() const override;
+	bool			 HasDebugDrawGUI() const override;
 
 	void				  SetShader(const std::string shader);
 	std::string			  GetShader() const;
@@ -52,7 +52,7 @@ public:
 
 	void SetMaterial(const std::shared_ptr<Renderer::C_Material>& material);
 
-	virtual void Update() override;
+	void Update() override;
 
 	RTTR_ENABLE(Renderer::I_RenderableComponent);
 

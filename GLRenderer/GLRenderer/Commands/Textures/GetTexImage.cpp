@@ -21,7 +21,7 @@ C_GetTexImage::C_GetTexImage(std::promise<std::unique_ptr<Renderer::I_TextureVie
 	, m_Format(format)
 	, m_Type(type)
 	, m_Width(width)
-	, m_Hegiht(height)
+	, m_Height(height)
 	, m_Channels(channels)
 {
 }
@@ -30,13 +30,13 @@ C_GetTexImage::C_GetTexImage(std::promise<std::unique_ptr<Renderer::I_TextureVie
 void C_GetTexImage::Commit()
 {
 	// TODO also needs update to the glGetTextureImage
-	auto buffer = std::make_unique<Renderer::C_TextureViewStorageCPU<std::uint8_t>>(m_Width, m_Hegiht, m_Channels);
+	auto buffer = std::make_unique<Renderer::C_TextureViewStorageCPU<std::uint8_t>>(m_Width, m_Height, m_Channels);
 	glGetTexImage(m_Target, m_Level, m_Format, m_Type, buffer->GetData());
 	m_Promise.set_value(std::move(buffer));
 }
 
 //=================================================================================
-GLEngine::Renderer::I_RenderCommand::E_Type C_GetTexImage::GetType() const
+Renderer::I_RenderCommand::E_Type C_GetTexImage::GetType() const
 {
 	return Renderer::I_RenderCommand::E_Type::StateChange;
 }

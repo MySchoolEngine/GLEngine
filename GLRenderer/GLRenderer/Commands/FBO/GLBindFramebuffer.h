@@ -6,7 +6,7 @@
 
 namespace GLEngine::GLRenderer::Commands {
 
-template <E_FramebufferTarget framebuffer> class C_GLBindFramebuffer : public Renderer::I_RenderCommand {
+template <E_FramebufferTarget Framebuffer> class C_GLBindFramebuffer final : public Renderer::I_RenderCommand {
 public:
 	explicit C_GLBindFramebuffer(GLuint FBO);
 
@@ -14,12 +14,12 @@ public:
 	//=================================================================================
 	// Renderer::I_RenderCommand
 	//=================================================================================
-	virtual void								  Commit() override;
-	virtual E_Type								  GetType() const override;
+	void   Commit() override;
+	E_Type GetType() const override;
 
 
 	//=================================================================================
-	[[nodiscard]] virtual std::string GetDescriptor() const override { return std::string("BindFramebuffer") + std::to_string(m_FBO); }
+	[[nodiscard]] std::string GetDescriptor() const override { return std::string("BindFramebuffer") + std::to_string(m_FBO); }
 
 private:
 	GLuint m_FBO;

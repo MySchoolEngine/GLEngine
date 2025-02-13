@@ -40,6 +40,9 @@ C_TerrainEntity::C_TerrainEntity(const std::string& name)
 }
 
 //=================================================================================
+C_TerrainEntity::~C_TerrainEntity() = default;
+
+//=================================================================================
 Entity::I_Entity::T_ComponentRange C_TerrainEntity::GetComponents(Entity::E_ComponentType type) const
 {
 	auto iterLow = m_Components->equal_range(type);

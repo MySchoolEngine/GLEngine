@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Renderer/Resources/RenderResourceHandle.h>
+
 namespace GLEngine::Entity {
 class C_EntityManager;
 }

@@ -31,7 +31,7 @@ public:
 	C_ShaderProgram& operator=(C_ShaderProgram& other) = delete;
 	C_ShaderProgram(C_ShaderProgram& rhs)			   = delete;
 	C_ShaderProgram(C_ShaderProgram&& rhs);
-	void operator=(C_ShaderProgram&& rhs);
+	C_ShaderProgram& operator=(C_ShaderProgram&& rhs);
 	virtual ~C_ShaderProgram();
 
 	bool IsActive() const { return m_bIsActive; }

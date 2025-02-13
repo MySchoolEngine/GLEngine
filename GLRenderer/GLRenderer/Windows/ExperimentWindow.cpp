@@ -9,7 +9,6 @@
 #include <GLRenderer/Commands/GlClearColor.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/Components/SkeletalMesh.h>
-#include <GLRenderer/Components/SkyBox.h>
 #include <GLRenderer/Debug.h>
 #include <GLRenderer/GLRenderInterface3D.h>
 #include <GLRenderer/GLRendererInterface2D.h>
@@ -30,7 +29,6 @@
 #include <GLRenderer/Windows/WaterRendering.h>
 
 #include <Renderer/Cameras/OrbitalCamera.h>
-#include <Renderer/Components/StaticMeshHandles.h>
 #include <Renderer/Lights/SunLight.h>
 #include <Renderer/Materials/MaterialManager.h>
 #include <Renderer/Mesh/Loading/MeshResource.h>
@@ -71,18 +69,18 @@ namespace GLEngine::GLRenderer::Windows {
 //=================================================================================
 C_ExperimentWindow::C_ExperimentWindow(const Core::S_WindowInfo& wndInfo)
 	: C_GLFWoGLWindow(wndInfo)
+	, m_World(std::make_shared<Entity::C_EntityManager>())
 	, m_LayerStack(std::string("ExperimentalWindowLayerStack"))
 	, m_Samples("Frame Times")
 	, m_GammaSlider(2.2f, 1.f, 5.f, "Gamma")
 	, m_ExposureSlider(1.f, .1f, 10.f, "Exposure")
 	, m_VSync(true)
-	, m_HDRFBO(nullptr)
-	, m_HDRFBOAtmosphere(nullptr)
-	, m_World(std::make_shared<Entity::C_EntityManager>())
-	, m_MainPass(nullptr)
-	, m_ShadowPass(nullptr)
 	, m_GUITexts({{GUI::C_FormatedText("Avg frame time {:.2f}"), GUI::C_FormatedText("Avg fps {:.2f}"), GUI::C_FormatedText("Min/max frametime {:.2f}/{:.2f}")}})
 	, m_Windows(std::string("Windows"))
+	, m_MainPass(nullptr)
+	, m_ShadowPass(nullptr)
+	, m_HDRFBO(nullptr)
+	, m_HDRFBOAtmosphere(nullptr)
 	, m_EditorLayer(*&C_DebugDraw::Instance(), GetInput(), {0, 0, GetSize()}) //< viewport could be different from windowsize in the future
 {
 	glfwMakeContextCurrent(m_Window);

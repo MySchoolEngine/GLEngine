@@ -144,7 +144,7 @@ void C_GLDevice::DestroyTexture(Renderer::I_DeviceTexture& texture)
 }
 
 //=================================================================================
-bool C_GLDevice::HasExtension(const std::string_view ext) const
+bool C_GLDevice::HasExtension(std::string_view ext) const
 {
 	GLint count;
 	glGetIntegerv(GL_NUM_EXTENSIONS, &count);

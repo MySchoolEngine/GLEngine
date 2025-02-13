@@ -19,7 +19,7 @@ protected:
 
 template <int BUFFERS> class C_GLVAO : public I_GLVAOBase {
 public:
-	virtual ~C_GLVAO() = default;
+	~C_GLVAO() override = default;
 
 	template <int INDEX> using T_EnableIndex = typename std::enable_if<(INDEX < BUFFERS), void>::type;
 

@@ -4,7 +4,7 @@
 #include <Renderer/Resources/RenderResourceHandle.h>
 
 namespace GLEngine::GLRenderer::Commands {
-template <E_FramebufferTarget framebuffer> class C_glFramebufferTexture : public Renderer::I_RenderCommand {
+template <E_FramebufferTarget framebuffer> class C_glFramebufferTexture final : public Renderer::I_RenderCommand {
 public:
 	C_glFramebufferTexture(const GLenum attachment, const Renderer::Handle<Renderer::Texture> texture);
 
@@ -17,7 +17,7 @@ public:
 	[[nodiscard]] std::string GetDescriptor() const override;
 
 private:
-	GLenum								m_Attachement;
+	GLenum								m_Attachment;
 	Renderer::Handle<Renderer::Texture> m_Texture;
 };
 

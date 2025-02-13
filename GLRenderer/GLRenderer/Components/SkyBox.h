@@ -1,6 +1,5 @@
 #pragma once
 
-#include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/VAO/VAO.h>
 
 #include <Renderer/IRenderableComponent.h>
@@ -9,7 +8,7 @@ namespace GLEngine::GLRenderer::Components {
 
 class C_SkyBox : public Renderer::I_RenderableComponent {
 public:
-	enum class E_Side
+	enum class E_Side : std::uint8_t
 	{
 		Right	= 0,
 		Left	= 1,
@@ -18,19 +17,19 @@ public:
 		Back	= 4,
 		Forward = 5,
 	};
-	explicit C_SkyBox(std::shared_ptr<Entity::I_Entity> owner);
+	explicit C_SkyBox(const std::shared_ptr<Entity::I_Entity>& owner);
 	void AddTexture(E_Side side, const std::filesystem::path& filename);
 
 	//==========================================
 	// Renderer::I_RenderableComponent
 	//==========================================
-	virtual void PerformDraw() const override;
+	void PerformDraw() const override;
 
-	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override;
+	[[nodiscard]] Physics::Primitives::S_AABB GetAABB() const override;
 
 
-	virtual std::string_view GetDebugComponentName() const override;
-	virtual bool			 HasDebugDrawGUI() const override;
+	std::string_view GetDebugComponentName() const override;
+	bool			 HasDebugDrawGUI() const override;
 
 private:
 	//Textures::C_Texture							 m_Textures;

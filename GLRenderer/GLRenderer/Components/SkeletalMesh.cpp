@@ -2,10 +2,8 @@
 
 #include <GLRenderer/Buffers/UBO/JointTransformsUBO.h>
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
-#include <GLRenderer/Commands/HACK/DrawStaticMesh.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/Components/SkeletalMesh.h>
-#include <GLRenderer/Mesh/StaticMeshResource.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/Textures/Texture.h>
@@ -29,13 +27,13 @@ namespace GLEngine::GLRenderer::Components {
 //=================================================================================
 C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, const std::filesystem::path& meshFile, const std::filesystem::path& meshFolder)
 	: Renderer::I_RenderableComponent(owner)
-	, m_RenderMesh(true, "Render mesh")
-	, m_RunAnimation(true, "Run animation")
+	, m_ColorMap(nullptr)
 	, m_ColorMapGUI(m_ColorMap)
 	, m_Animation(0)
-	, m_AnimationProgress(.0f, .0f, 1.f, "Animation progress")
 	, m_TransformationUBO(nullptr)
-	, m_ColorMap(nullptr)
+	, m_RenderMesh(true, "Render mesh")
+	, m_RunAnimation(true, "Run animation")
+	, m_AnimationProgress(.0f, .0f, 1.f, "Animation progress")
 	, m_triangles(0)
 {
 	m_ColorMapGUI.SetOnTextureCleanCB([&]() {

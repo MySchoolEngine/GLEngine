@@ -12,6 +12,7 @@ class I_Window;
 
 class I_WindowFactory {
 public:
+	virtual ~I_WindowFactory() = default;
 	/** ==============================================
 	 * @method:    GetWindow
 	 * @return:    std::shared_ptr<Core::I_Window>

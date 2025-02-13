@@ -30,9 +30,10 @@ class I_DeviceTexture {
 public:
 	using T_TexBufferFuture = std::future<std::unique_ptr<I_TextureViewStorage>>;
 
-	I_DeviceTexture(const TextureDescriptor& desc)
-		: m_Desc(desc)
-	{}
+	explicit I_DeviceTexture(TextureDescriptor desc)
+		: m_Desc(std::move(desc))
+	{
+	}
 	I_DeviceTexture(I_DeviceTexture&&)			  = default;
 	I_DeviceTexture& operator=(I_DeviceTexture&&) = default;
 	virtual ~I_DeviceTexture()					  = default;

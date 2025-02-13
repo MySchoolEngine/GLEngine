@@ -18,15 +18,15 @@ class C_TerrainMesh;
 class C_TerrainEntity : public Entity::I_Entity {
 public:
 	C_TerrainEntity(const std::string& name = "Terrain");
-	~C_TerrainEntity() = default;
+	~C_TerrainEntity() override;
 
 	using T_TerrainPtr = std::shared_ptr<Components::C_TerrainMesh>;
 
 	//=================================================================================
-	[[nodiscard]] virtual Entity::I_Entity::T_ComponentRange GetComponents(Entity::E_ComponentType type) const override;
-	virtual void											 OnEvent(Core::I_Event& event) override;
+	[[nodiscard]] Entity::I_Entity::T_ComponentRange GetComponents(Entity::E_ComponentType type) const override;
+	void											 OnEvent(Core::I_Event& event) override;
 
-	virtual void Update() override;
+	void Update() override;
 
 	void AddPatch(T_TerrainPtr);
 	void AddPatch(glm::ivec2 coord);
@@ -56,7 +56,7 @@ public:
 		float						m_Inertia = 0.65f;
 	};
 
-	[[nodiscard]] virtual glm::vec3 GetPosition() const override;
+	[[nodiscard]] glm::vec3 GetPosition() const override;
 
 
 	//=================================================================================

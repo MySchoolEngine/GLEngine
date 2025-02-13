@@ -1,11 +1,10 @@
 #include <GLRendererStdafx.h>
 
 #include <GLRenderer/Buffers/UBO/RainDataBuffer.h>
-#include <GLRenderer/Buffers/UniformBuffersManager.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/Components/TerrainMesh.h>
 #include <GLRenderer/Debug.h>
-#include <GLRenderer/PersistentDebug.h>
+#include <GLRenderer/Mesh/TerrainMeshResource.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
 #include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
@@ -36,24 +35,16 @@ namespace GLEngine::GLRenderer::Components {
 //=================================================================================
 C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 	: Renderer::I_RenderableComponent(nullptr)
-	, m_Noise(
-			Renderer::TextureDescriptor{
-				"TerrainNoise", 
-				dim, dim, 
-				Renderer::E_TextureType::TEXTURE_2D_ARRAY, 
-				Renderer::E_TextureFormat::R32f,			// could be R16f but TODO find why it doesn't work
-				false, 
-				1, 1, 
-				2 + s_numSedimentLayer
-			}
-		)
 	, m_Coord(0, 0)
+	, m_Noise(Renderer::TextureDescriptor{"TerrainNoise", dim, dim, Renderer::E_TextureType::TEXTURE_2D_ARRAY,
+										  Renderer::E_TextureFormat::R32f, // could be R16f but TODO find why it doesn't work
+										  false, 1, 1, 2 + s_numSedimentLayer})
 	, m_Stats(3)
 	, m_RainData(std::make_shared<decltype(m_RainData)::element_type>("rainData", 4, dim))
-	, m_HasTexture(false, "Use texture")
 	, m_QueuedUpdate(false)
 	, m_QueueSimulation(false)
 	, m_Selected(false)
+	, m_HasTexture(false, "Use texture")
 {
 	auto& device = Core::C_Application::Get().GetActiveRenderer().GetDevice();
 
@@ -72,15 +63,15 @@ C_TerrainMesh::C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings)
 //=================================================================================
 C_TerrainMesh::C_TerrainMesh(Textures::C_Texture&& texture)
 	: Renderer::I_RenderableComponent(nullptr)
-	, m_Noise(std::move(texture))
 	, m_Coord(0, 0)
+	, m_Noise(std::move(texture))
 	, m_Stats(3)
 	, m_RainData(std::make_shared<decltype(m_RainData)::element_type>("rainData", 1, dim))
-	, m_HasTexture(false, "Use texture")
+	, m_Settings(nullptr)
 	, m_QueuedUpdate(false)
 	, m_QueueSimulation(false)
 	, m_Selected(false)
-	, m_Settings(nullptr)
+	, m_HasTexture(false, "Use texture")
 {
 	m_Terrain = std::make_shared<Mesh::C_TerrainMeshResource>();
 
@@ -309,13 +300,8 @@ void C_TerrainMesh::DebugDraw()
 	if (m_Selected)
 	{
 		::ImGui::Begin("Terrain ", &m_Selected);
-			::ImGui::Image((void*)GetTexture().GetTexture(),
-			{
-				256,
-				256
-			},
-			{ 0,1 }, { 1,0 });
-			m_HasTexture.Draw();
+		::ImGui::Image((void*)GetTexture().GetTexture(), {256, 256}, {0, 1}, {1, 0});
+		m_HasTexture.Draw();
 		::ImGui::End();
 	}
 }

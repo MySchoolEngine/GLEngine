@@ -1,7 +1,5 @@
 #pragma once
 
-#include <GLRendererStdafx.h>
-
 #include <Renderer/Definitions.h>
 #include <Renderer/Textures/Storage/TextureStorage.h>
 #include <Renderer/Textures/TextureDefinitions.h>
