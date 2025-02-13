@@ -19,6 +19,21 @@ protected:
 	C_TextureViewStorageCPU<std::uint8_t> storage;
 	C_TextureView						  view;
 };
+class TextureViewWithAlphaFixture : public ::testing::Test
+{
+protected:
+	TextureViewWithAlphaFixture()
+		: storage(3, 3, 4)
+		, view(&storage)
+	{
+	}
+	auto	  GetPixelCoord(const glm::vec2& uv) const { return view.GetPixelCoord(uv); }
+	bool	  IsOutsideBorders(const glm::uvec2& uv) const { return view.IsOutsideBorders(uv); }
+	glm::vec3 GetVec3(const glm::vec2& uv) const { return view.Get<glm::vec3, T_Bilinear>(uv); }
+
+	C_TextureViewStorageCPU<std::uint8_t> storage;
+	C_TextureView						  view;
+};
 
 TEST_F(TextureViewFixture, Border)
 {
@@ -58,6 +73,7 @@ TEST_F(TextureViewFixture, UseBorderColor)
 	view.SetWrapFunction(E_WrapFunction::Repeat);
 	EXPECT_EQ(view.UseBorderColor(), false);
 }
+
 TEST_F(TextureViewFixture, GetPixelCoord)
 {
 	// keep in mind orientation described in C_TextureView::GetPixelCoord
@@ -83,5 +99,17 @@ TEST_F(TextureViewFixture, GetUVForPixel)
 	EXPECT_PRED_FORMAT2(AssertVec2AlmostEq<float>, view.GetUVForPixel({0, 2}), glm::vec2(1.f / 6.f, 1.f / 6.f));
 	EXPECT_PRED_FORMAT2(AssertVec2AlmostEq<float>, view.GetUVForPixel({2, 0}), glm::vec2(1.f - (1.f / 6.f), 1.f - (1.f / 6.f)));
 	EXPECT_PRED_FORMAT2(AssertVec2AlmostEq<float>, view.GetUVForPixel({2, 2}), glm::vec2(1.f - (1.f / 6.f), 1.f / 6.f));
+}
+
+TEST_F(TextureViewWithAlphaFixture, EnableBlending)
+{
+	view.EnableBlending(true);
+	glm::uvec2 coord{1, 1};
+	view.DrawPixel(coord, glm::vec4{ Colours::white, 1.f}); // there was a bug when alpha channel haven't got propagated
+	EXPECT_EQ(view.Get<glm::vec4>(coord), glm::vec4( 1,1,1,1 ));
+
+
+	view.ClearColor({ Colours::white, 1.f });
+	EXPECT_EQ(view.Get<glm::vec4>(glm::uvec2(0,0)), glm::vec4(1, 1, 1, 1));
 }
 } // namespace GLEngine::Renderer

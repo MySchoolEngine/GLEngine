@@ -192,6 +192,7 @@ void C_ShaderManager::ReloadProgram(const std::string& programName, const std::s
 	try
 	{
 		*(program) = std::move(C_ShaderProgram(LoadProgram(std::filesystem::path(programName), compiler)));
+		program->SetName(programName);
 #if _DEBUG
 		program->SetPaths(compiler.GetTouchedFiles());
 #endif

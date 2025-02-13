@@ -37,21 +37,20 @@ void C_CPURasterizer::DrawCircle(const Colours::T_Colour& colour, const glm::ive
 {
 	if (antiAliased)
 	{
-		float t1 = radius / 16;
-		float t2 = 0.f;
-		int	  y	 = 0;
-		int	  x	 = radius;
-		float xIntersect = 0.f;
+		float t1		 = radius / 16;
+		float t2		 = 0.f;
+		int	  y			 = 0;
+		int	  x			 = radius;
 		while (x >= y)
 		{
-			m_view.Set(p + glm::ivec2{x, y}, glm::vec3{colour});
-			m_view.Set(p + glm::ivec2{x, -y}, glm::vec3{colour});
-			m_view.Set(p + glm::ivec2{-x, -y}, glm::vec3{colour});
-			m_view.Set(p + glm::ivec2{-x, y}, glm::vec3{colour});
-			m_view.Set(p + glm::ivec2{y, x}, glm::vec3{colour});
-			m_view.Set(p + glm::ivec2{y, -x}, glm::vec3{colour});
-			m_view.Set(p + glm::ivec2{-y, -x}, glm::vec3{colour});
-			m_view.Set(p + glm::ivec2{-y, x}, glm::vec3{colour});
+			m_view.Set(p + glm::ivec2{x, y}, glm::vec4{colour, 1.f});
+			m_view.Set(p + glm::ivec2{x, -y}, glm::vec4{colour, 1.f});
+			m_view.Set(p + glm::ivec2{-x, -y}, glm::vec4{colour, 1.f});
+			m_view.Set(p + glm::ivec2{-x, y}, glm::vec4{colour, 1.f});
+			m_view.Set(p + glm::ivec2{y, x}, glm::vec4{colour, 1.f});
+			m_view.Set(p + glm::ivec2{y, -x}, glm::vec4{colour, 1.f});
+			m_view.Set(p + glm::ivec2{-y, -x}, glm::vec4{colour, 1.f});
+			m_view.Set(p + glm::ivec2{-y, x}, glm::vec4{colour, 1.f});
 			++y;
 			t1 = t1 + y;
 			t2 = t1 - x;
@@ -70,14 +69,14 @@ void C_CPURasterizer::DrawCircle(const Colours::T_Colour& colour, const glm::ive
 		int	  x	 = radius;
 		while (x >= y)
 		{
-			m_view.Set(p + glm::ivec2{x, y}, glm::vec3{colour});
-			m_view.Set(p + glm::ivec2{x, -y}, glm::vec3{colour});
-			m_view.Set(p + glm::ivec2{-x, -y}, glm::vec3{colour});
-			m_view.Set(p + glm::ivec2{-x, y}, glm::vec3{colour});
-			m_view.Set(p + glm::ivec2{y, x}, glm::vec3{colour});
-			m_view.Set(p + glm::ivec2{y, -x}, glm::vec3{colour});
-			m_view.Set(p + glm::ivec2{-y, -x}, glm::vec3{colour});
-			m_view.Set(p + glm::ivec2{-y, x}, glm::vec3{colour});
+			m_view.Set(p + glm::ivec2{x, y}, glm::vec4{colour, 1.f});
+			m_view.Set(p + glm::ivec2{x, -y}, glm::vec4{colour, 1.f});
+			m_view.Set(p + glm::ivec2{-x, -y}, glm::vec4{colour, 1.f});
+			m_view.Set(p + glm::ivec2{-x, y}, glm::vec4{colour, 1.f});
+			m_view.Set(p + glm::ivec2{y, x}, glm::vec4{colour, 1.f});
+			m_view.Set(p + glm::ivec2{y, -x}, glm::vec4{colour, 1.f});
+			m_view.Set(p + glm::ivec2{-y, -x}, glm::vec4{colour, 1.f});
+			m_view.Set(p + glm::ivec2{-y, x}, glm::vec4{colour, 1.f});
 			++y;
 			t1 = t1 + y;
 			t2 = t1 - x;
@@ -115,7 +114,7 @@ void C_CPURasterizer::QueueFloodFill(const Colours::T_Colour& colour, const glm:
 		open.pop();
 		for (const auto& dir : dirs)
 		{
-			const auto		testCoord	 = current + dir;
+			const auto testCoord = current + dir;
 			if (!m_view.GetRect().Contains(testCoord))
 				continue;
 			const glm::vec3 testedColour = m_view.Get<glm::vec3>(glm::uvec2{testCoord});
@@ -133,7 +132,7 @@ void C_CPURasterizer::ScanLineFloodFill(const Colours::T_Colour& colour, const g
 {
 	const glm::vec3		   clearColor = m_view.Get<glm::vec3>(p);
 	std::queue<glm::uvec2> open;
-	const auto			   scanLine = [&](int min, int max, int line) {
+	const auto			   scanLine = [&](const int min, const int max, const int line) {
 		bool spanAdded = false;
 		for (int i = min; i < max; ++i)
 		{
@@ -149,11 +148,11 @@ void C_CPURasterizer::ScanLineFloodFill(const Colours::T_Colour& colour, const g
 		}
 	};
 	open.push(p);
-	m_view.Set(p, glm::vec3{colour});
+	m_view.Set(p, glm::vec4{colour, 1.f});
 	while (open.empty() == false)
 	{
 		glm::ivec2				current = open.front();
-		const static glm::ivec2 leftStep{1, 0};
+		static constexpr glm::ivec2 leftStep{1, 0};
 		open.pop();
 		glm::ivec2 leftCurrent = current;
 		while (m_view.Get<glm::vec3>(glm::uvec2{leftCurrent - leftStep}) == clearColor && leftCurrent.x > 0)
@@ -192,7 +191,7 @@ void C_CPURasterizer::BresenhamHorizontal(const Colours::T_Colour& colour, glm::
 
 	for (int x = p1.x; x <= p2.x; ++x)
 	{
-		m_view.Set(glm::ivec2(x, y), glm::vec3(colour));
+		m_view.Set(glm::ivec2(x, y), glm::vec4(colour, 1.f));
 		if (pred > 0)
 		{
 			y += ydelta;
@@ -218,19 +217,19 @@ void C_CPURasterizer::BresenhamVertical(const Colours::T_Colour& colour, glm::iv
 	const int	 dy		= p2.y - p1.y;
 	unsigned int x		= p1.x;
 	int			 pred	= 2 * dx - dy;
-	int			 xdelta = 1;
+	int			 xDelta = 1;
 	if (dx < 0)
 	{
 		dx	   = -dx;
-		xdelta = -xdelta;
+		xDelta = -xDelta;
 	}
 
 	for (int y = p1.y; y <= p2.y; ++y)
 	{
-		m_view.Set(glm::ivec2(x, y), glm::vec3(colour));
+		m_view.Set(glm::ivec2(x, y), glm::vec4(colour, 1.f));
 		if (pred > 0)
 		{
-			x += xdelta;
+			x += xDelta;
 			pred = pred + 2 * dx - 2 * dy;
 		}
 		else
@@ -243,7 +242,7 @@ void C_CPURasterizer::BresenhamVertical(const Colours::T_Colour& colour, glm::iv
 //=================================================================================
 void C_CPURasterizer::XiaolinWu(const Colours::T_Colour& colour, glm::ivec2 p1, glm::ivec2 p2)
 {
-	bool vertical = std::abs(p2.y - p1.y) > std::abs(p2.x - p1.x);
+	const bool vertical = std::abs(p2.y - p1.y) > std::abs(p2.x - p1.x);
 	if (vertical)
 	{
 		std::swap(p1.x, p1.y);
@@ -254,7 +253,7 @@ void C_CPURasterizer::XiaolinWu(const Colours::T_Colour& colour, glm::ivec2 p1, 
 		std::swap(p1, p2);
 	}
 
-	int		  dx	   = p2.x - p1.x;
+	const int dx	   = p2.x - p1.x;
 	const int dy	   = p2.y - p1.y;
 	float	  gradient = 1.0f;
 	if (dx != 0)

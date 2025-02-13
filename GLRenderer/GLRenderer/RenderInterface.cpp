@@ -49,7 +49,10 @@ bool C_RenderInterface::RenderFullScreen(const FullScreenSetup& setup)
 	setup.renderTarget.Bind<E_FramebufferTarget::Draw>();
 	auto shader = m_shmgr.GetProgram(setup.shaderName);
 	if (!shader)
+	{
+		GLE_ERROR("Render fullscreen failed because of errors in shader.");
 		return false;
+	}
 
 	m_shmgr.ActivateShader(shader);
 
@@ -60,7 +63,16 @@ bool C_RenderInterface::RenderFullScreen(const FullScreenSetup& setup)
 		auto* glTexture = m_renderer.GetRMGR().GetTexture(texture);
 		m_tm.BindTextureToUnit(*glTexture, i++);
 	}
-	m_renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([setup, shader]() { setup.shaderSetup(*(shader.get())); }, "Update full-screen pass shader"));
+	m_renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+		[&, setup]() {
+			auto shader = m_shmgr.GetProgram(setup.shaderName);
+			if (!shader)
+			{
+				GLE_ERROR("Render fullscreen failed because of errors in shader.");
+				return false;
+			}
+		setup.shaderSetup(*(shader.get()));
+		}, "Update full-screen pass shader"));
 
 	m_renderer.AddCommand(std::make_unique<Commands::HACK::C_DrawStaticMesh>(m_ScreenQuad));
 

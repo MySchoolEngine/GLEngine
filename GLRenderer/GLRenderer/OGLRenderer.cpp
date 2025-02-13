@@ -243,7 +243,7 @@ void C_OGLRenderer::SetTextureData(const Renderer::Handle<Renderer::Texture> dst
 {
 	if (auto* texture = m_GPUResourceManager.GetTexture(dstTexture))
 	{
-		AddTransferCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([texture, storage = &storage]() { texture->SetTexData2D(0, storage); }, "RT buffer"));
+		AddTransferCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([texture, storage = &storage]() { texture->SetTexData2D(0, storage); texture->GenerateMipMaps(); }, "RT buffer"));
 	}
 }
 

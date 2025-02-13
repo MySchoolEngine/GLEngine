@@ -35,7 +35,6 @@ project "Sandbox"
 
 	filter "system:windows"
 		kind "WindowedApp"
-		cppdialect "C++17"
 		systemversion "latest"
 		Link("DX12Renderer")
 

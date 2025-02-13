@@ -43,4 +43,9 @@ inline std::ostream& operator<<(std::ostream& stream, const vec4& vec)
 {
 	return stream << "glm::vec4(" << vec.x << ", " << vec.y << ", " << vec.z << ", " << vec.w << ")";
 }
+
+inline std::ostream& operator<<(std::ostream& stream, const uvec2& vec)
+{
+	return stream << "glm::uvec2(" << vec.x << ", " << vec.y << ")";
+}
 } // namespace glm

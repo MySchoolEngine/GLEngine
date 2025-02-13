@@ -19,6 +19,7 @@ project "Core"
 	{
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmt}",
+		"../Physics",
 	}
 
 	filter "system:windows"

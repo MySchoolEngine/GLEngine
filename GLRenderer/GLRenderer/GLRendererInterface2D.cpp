@@ -8,7 +8,6 @@
 
 #include <Renderer/IRenderer.h>
 #include <Renderer/Mesh/Geometry.h>
-#include <Renderer/Mesh/Loading/MeshResource.h>
 #include <Renderer/Resources/ResourceManager.h>
 
 #include <Core/Application.h>
@@ -29,7 +28,7 @@ C_GLRendererInterface2D::C_GLRendererInterface2D(const glm::uvec2 size)
 	Renderer::ResourceManager& rrm		= renderer.GetRM();
 
 	{
-		const auto mesh = Renderer::MeshData::C_Geometry::CreatePlane(1, 1);
+		const auto mesh = Renderer::MeshData::C_Geometry::CreatePlane(1.f, 1);
 
 		const auto positionsSize = static_cast<uint32_t>(sizeof(mesh.vertices[0]) * mesh.vertices.size());
 		m_PlaneVertHandle		 = rrm.createBuffer(Renderer::BufferDescriptor{
@@ -54,14 +53,14 @@ C_GLRendererInterface2D::C_GLRendererInterface2D(const glm::uvec2 size)
 	{
 		auto* buffer = glRM.GetBuffer(m_PlaneVertHandle);
 		buffer->bind();
-		glVertexAttribPointer(0, T_GLNumComponenets_v<glm::vec3>, T_TypeToGL<glm::vec3>::value, GL_FALSE, 0, nullptr);
+		glVertexAttribPointer(0, T_GLNumComponents_v<glm::vec3>, T_TypeToGL<glm::vec3>::value, GL_FALSE, 0, nullptr);
 
 		glEnableVertexAttribArray(0);
 	}
 	{
 		auto* buffer = glRM.GetBuffer(m_UVVertHandle);
 		buffer->bind();
-		glVertexAttribPointer(1, T_GLNumComponenets_v<glm::vec2>, T_TypeToGL<glm::vec2>::value, GL_FALSE, 0, nullptr);
+		glVertexAttribPointer(1, T_GLNumComponents_v<glm::vec2>, T_TypeToGL<glm::vec2>::value, GL_FALSE, 0, nullptr);
 
 		glEnableVertexAttribArray(1);
 	}
@@ -99,14 +98,36 @@ void C_GLRendererInterface2D::Render(const Renderer::RenderCall2D& call)
 			if (pipeline->GetDesc().blending.empty() == false)
 				SetBlendFunction(0, pipeline->GetDesc().blending[0]);
 
-			glm::mat4 projection = glm::ortho(0.0f, m_RenderTargetSize.x, m_RenderTargetSize.y, 0.0f, -1.0f, 1.0f);
+			glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(m_RenderTargetSize.x), static_cast<float>(m_RenderTargetSize.y), 0.0f, -1.0f, 1.0f);
 			shaderProgram->SetUniform("ProjectionMatrix", projection);
-			shaderProgram->SetUniform("Size", call.Size);
-			shaderProgram->SetUniform("Position", glm::vec2(call.Position));
 			glDisable(GL_DEPTH_TEST);
 			glBindVertexArray(m_VAOid);
 			glViewport(0, 0, m_RenderTargetSize.x, m_RenderTargetSize.y);
-			glDrawArrays(GL_TRIANGLES, 0, 6);
+			shaderProgram->SetUniform("Size", call.Size);
+			if (call.IndirectBuff)
+			{
+				auto* buffer = glRM.GetBuffer(call.IndirectBuff);
+				buffer->bind();
+				auto* hacked = glRM.GetBuffer(call.HackedArray);
+				// glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+				// glEnableVertexAttribArray(2);
+				// glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)2);
+				// glEnableVertexAttribArray(3);
+				// glBindBuffer(GL_ARRAY_BUFFER, 0);
+				// glVertexAttribDivisor(2, 1);
+				// glVertexAttribDivisor(3, 1);
+				hacked->BindBase(5);
+
+				glDrawArraysIndirect(GL_TRIANGLES, nullptr);
+				// glDisableVertexAttribArray(2);
+				// glDisableVertexAttribArray(3);
+			}
+			else
+			{
+				shaderProgram->SetUniform("Position", glm::vec2(call.Position));
+				shaderProgram->SetUniform("Colour", call.Colour);
+				glDrawArrays(GL_TRIANGLES, 0, 6);
+			}
 			glBindVertexArray(0);
 			glEnable(GL_DEPTH_TEST);
 		},

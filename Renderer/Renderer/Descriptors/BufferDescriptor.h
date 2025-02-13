@@ -7,7 +7,12 @@ enum class E_BufferType : std::uint8_t
 {
 	Vertex,
 	Index,
-	Uniform
+	Uniform,
+	DrawIndirect,
+	DispatchIndirect,
+	AtomicBuffer,
+	ShaderStorage,
+	TransformFeedback,
 };
 
 enum class E_ResourceUsage : std::uint8_t

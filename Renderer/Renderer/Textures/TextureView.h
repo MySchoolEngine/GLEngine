@@ -58,7 +58,7 @@ public:
 	[[nodiscard]] E_WrapFunction GetWrapFunction() const;
 	void						 SetWrapFunction(E_WrapFunction wrap);
 
-	void SetRect(const Core::S_Rect& rect);
+	void				SetRect(const Core::S_Rect& rect);
 	const Core::S_Rect& GetRect() const;
 
 	void EnableBlending(bool enable = true);
@@ -117,13 +117,14 @@ protected:
 
 	I_TextureViewStorage* m_Storage; // not owning ptr
 	glm::vec4			  m_BorderColor;
-	E_WrapFunction		  m_WrapFunction;
 	Core::S_Rect		  m_Rect;
 
-	bool				  m_EnableBlending;
-	E_BlendFunction		  m_BlendOperation;
+	bool			m_EnableBlending;
+	E_BlendFunction m_BlendOperation;
+	E_WrapFunction	m_WrapFunction;
 
 	friend class TextureViewFixture;
+	friend class TextureViewWithAlphaFixture;
 };
 
 template <> glm::vec4  C_TextureView::GetBorderColor() const;

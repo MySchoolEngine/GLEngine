@@ -19,7 +19,6 @@ inline GLint GetTextureType(const Renderer::E_TextureType e)
 	default:
 		CORE_LOG(E_Level::Error, E_Context::Render, "Unknown texture target: {}", e);
 		return GL_TEXTURE_2D;
-		break;
 	}
 }
 

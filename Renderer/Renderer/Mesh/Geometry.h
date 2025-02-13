@@ -117,9 +117,11 @@ private:
 	static void AddSquare(Mesh& mesh, const float size, const int xPos, const int yPos, const int subdivisions)
 	{
 		GLE_ASSERT(size > 0.0, "Negative square size not supported");
-		const auto leftEdge	  = -1.0f + (size * xPos);
+		const float divisionSize = 1.f / subdivisions;
+		const float halfSize = size / 2.f;
+		const auto leftEdge	  = -halfSize + (size * xPos);
 		const auto rightEdge  = leftEdge + size;
-		const auto topEdge	  = 1.0f - (size * yPos);
+		const auto topEdge	  = halfSize - (size * yPos);
 		const auto bottomEdge = topEdge - size;
 		mesh.vertices.emplace_back(rightEdge, 0, topEdge);	  // 3
 		mesh.vertices.emplace_back(leftEdge, 0, bottomEdge);  // 2
@@ -130,7 +132,6 @@ private:
 
 		// I am drawing square [-1,1][-1,1] so I need to divide size by 2
 		// clamp is needed due to float imprecision
-		const float divisionSize = 1.f / subdivisions;
 		const auto	uvLeftEdge	 = std::clamp(0.0 + divisionSize * xPos, 0.0, 1.0);
 		const auto	uvRightEdge	 = std::clamp(uvLeftEdge + divisionSize, 0.0, 1.0);
 		const auto	uvTopEdge	 = std::clamp(1.0 - (divisionSize * yPos), 0.0, 1.0);

@@ -86,7 +86,7 @@ void C_TextureUnitManger::BindImageToUnit(const C_Texture& image, unsigned int u
 	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::C_GLActivateTexture>(unit));
 
 	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
-		[&image, unit, access]() { glBindImageTexture(unit, image.GetTexture(), 0, GL_TRUE, 0, AccesRightsToEnum(access), GL_R32F); },
+		[&image, unit, access]() { glBindImageTexture(unit, image.GetTexture(), 0, GL_TRUE, 0, AccessRightsToEnum(access), GL_R32F); },
 		fmt::format("BindImageToUnit - {} -> {}", image.GetTexture(), unit)));
 
 	m_ImageUnits[unit] = image.GetTexture();

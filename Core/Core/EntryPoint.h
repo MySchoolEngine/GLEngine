@@ -31,7 +31,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	auto app = GLEngine::Core::CreateApplication();
 	app->LoadArgs(0, NULL);
 	app->Init(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
-	app->OnEvent(GLEngine::Core::C_AppEvent(GLEngine::Core::C_AppEvent::E_Type::AppInit));
+	GLEngine::Core::C_AppEvent event(GLEngine::Core::C_AppEvent::E_Type::AppInit);
+	app->OnEvent(event);
 	app->Run();
 	CORE_LOG(E_Level::Info, E_Context::Core, "App ended");
 	delete app;

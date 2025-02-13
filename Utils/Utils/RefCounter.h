@@ -18,10 +18,10 @@ public:
 		: m_UseCount(0)
 	{
 	}
-	constexpr void		  AddRef() { m_UseCount++; }
-	constexpr void		  RemCount() { m_UseCount--; }
+	constexpr void        AddRef() { ++m_UseCount; }
+	constexpr void        RemCount() { --m_UseCount; }
 	constexpr std::size_t UseCount() const { return m_UseCount; }
-	constexpr bool		  IsReferenced() const { return m_UseCount != 0; }
+	constexpr bool        IsReferenced() const { return m_UseCount != 0; }
 
 private:
 	typename ThreadPolicy::T_CounterType m_UseCount;

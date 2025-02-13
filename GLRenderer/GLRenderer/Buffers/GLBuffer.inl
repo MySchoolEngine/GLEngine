@@ -76,6 +76,14 @@ inline void GLBuffer::unbind() const
 }
 
 //=================================================================================
+inline void GLBuffer::BindBase(unsigned int index)
+{
+	using enum Renderer::E_BufferType;
+	GLE_ASSERT(desc.type == AtomicBuffer || desc.type == ShaderStorage || desc.type == Uniform || desc.type == TransformFeedback, "Unsupported buffer type.");
+	glBindBufferBase(GetType(), index, m_ID);
+}
+
+//=================================================================================
 inline uint32_t GLBuffer::GetSize() const
 {
 	return desc.size;

@@ -58,53 +58,53 @@ template <> struct T_TypeToGL<glm::ivec4>	{	static constexpr GLenum value = GL_I
 
 //=================================================================================
 // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glVertexAttribPointer.xhtml
-template <GLenum type> struct T_GLTypeIsIntegral : public std::false_type {};
+template <GLenum type> struct T_GLTypeIsIntegral			: std::false_type {};
 
-template <> struct T_GLTypeIsIntegral<GL_BYTE> : public std::true_type {};
-template <> struct T_GLTypeIsIntegral<GL_UNSIGNED_BYTE> : public std::true_type {};
-template <> struct T_GLTypeIsIntegral<GL_SHORT> : public std::true_type {};
-template <> struct T_GLTypeIsIntegral<GL_UNSIGNED_SHORT> : public std::true_type {};
-template <> struct T_GLTypeIsIntegral<GL_INT> : public std::true_type {};
-template <> struct T_GLTypeIsIntegral<GL_UNSIGNED_INT> : public std::true_type {};
+template <> struct T_GLTypeIsIntegral<GL_BYTE>				: std::true_type {};
+template <> struct T_GLTypeIsIntegral<GL_UNSIGNED_BYTE>		: std::true_type {};
+template <> struct T_GLTypeIsIntegral<GL_SHORT>				: std::true_type {};
+template <> struct T_GLTypeIsIntegral<GL_UNSIGNED_SHORT>	: std::true_type {};
+template <> struct T_GLTypeIsIntegral<GL_INT>				: std::true_type {};
+template <> struct T_GLTypeIsIntegral<GL_UNSIGNED_INT>		: std::true_type {};
 
 template <GLenum type> inline constexpr bool T_GLTypeIsIntegral_v = T_GLTypeIsIntegral<type>::value;
 
 //=================================================================================
-template <GLenum type> struct T_GLTypeIsDouble : public std::false_type {};
+template <GLenum type> struct T_GLTypeIsDouble :  std::false_type {};
 
-template <> struct T_GLTypeIsDouble<GL_DOUBLE> : public std::true_type {};
+template <> struct T_GLTypeIsDouble<GL_DOUBLE> :  std::true_type {};
 
 template <GLenum type> inline constexpr bool T_GLTypeIsDouble_v = T_GLTypeIsDouble<type>::value;
 
 //=================================================================================
-template <class T> struct T_GLNumComponenets;
+template <class T> struct T_GLNumComponents;
 
-template <> struct T_GLNumComponenets<unsigned char>  {	static constexpr std::size_t value = 1;};
-template <> struct T_GLNumComponenets<char>			  {	static constexpr std::size_t value = 1;};
+template <> struct T_GLNumComponents<unsigned char>		{	static constexpr std::size_t value = 1;};
+template <> struct T_GLNumComponents<char>				{	static constexpr std::size_t value = 1;};
 
-template <> struct T_GLNumComponenets<float>		  {	static constexpr std::size_t value = 1;};
-template <> struct T_GLNumComponenets<double>		  {	static constexpr std::size_t value = 1;};
+template <> struct T_GLNumComponents<float>				{	static constexpr std::size_t value = 1;};
+template <> struct T_GLNumComponents<double>			{	static constexpr std::size_t value = 1;};
 
-template <> struct T_GLNumComponenets<int>			  {	static constexpr std::size_t value = 1;};
-template <> struct T_GLNumComponenets<unsigned int>	  {	static constexpr std::size_t value = 1;};
+template <> struct T_GLNumComponents<int>				{	static constexpr std::size_t value = 1;};
+template <> struct T_GLNumComponents<unsigned int>		{	static constexpr std::size_t value = 1;};
 
-template <> struct T_GLNumComponenets<short>		  {	static constexpr std::size_t value = 1;};
-template <> struct T_GLNumComponenets<unsigned short> {	static constexpr std::size_t value = 1;};
+template <> struct T_GLNumComponents<short>				{	static constexpr std::size_t value = 1;};
+template <> struct T_GLNumComponents<unsigned short>	{	static constexpr std::size_t value = 1;};
 
-template <> struct T_GLNumComponenets<glm::vec1>	  {	static constexpr std::size_t value = 1;};
-template <> struct T_GLNumComponenets<glm::vec2>	  {	static constexpr std::size_t value = 2;};
-template <> struct T_GLNumComponenets<glm::vec3>	  {	static constexpr std::size_t value = 3;};
-template <> struct T_GLNumComponenets<glm::vec4>	  {	static constexpr std::size_t value = 4;};
+template <> struct T_GLNumComponents<glm::vec1>			{	static constexpr std::size_t value = 1;};
+template <> struct T_GLNumComponents<glm::vec2>			{	static constexpr std::size_t value = 2;};
+template <> struct T_GLNumComponents<glm::vec3>			{	static constexpr std::size_t value = 3;};
+template <> struct T_GLNumComponents<glm::vec4>			{	static constexpr std::size_t value = 4;};
 
-template <> struct T_GLNumComponenets<glm::ivec1>	  {	static constexpr std::size_t value = 1;};
-template <> struct T_GLNumComponenets<glm::ivec2>	  {	static constexpr std::size_t value = 2;};
-template <> struct T_GLNumComponenets<glm::ivec3>	  {	static constexpr std::size_t value = 3;};
-template <> struct T_GLNumComponenets<glm::ivec4>	  {	static constexpr std::size_t value = 4;};
+template <> struct T_GLNumComponents<glm::ivec1>		{	static constexpr std::size_t value = 1;};
+template <> struct T_GLNumComponents<glm::ivec2>		{	static constexpr std::size_t value = 2;};
+template <> struct T_GLNumComponents<glm::ivec3>		{	static constexpr std::size_t value = 3;};
+template <> struct T_GLNumComponents<glm::ivec4>		{	static constexpr std::size_t value = 4;};
 
-template <class type> inline constexpr std::size_t T_GLNumComponenets_v = T_GLNumComponenets<type>::value;
+template <class type> inline constexpr std::size_t T_GLNumComponents_v = T_GLNumComponents<type>::value;
 
 //=================================================================================
-enum class E_FramebufferTarget
+enum class E_FramebufferTarget : std::uint8_t
 {
 	Framebuffer,
 	Read,
@@ -137,8 +137,8 @@ constexpr GLenum WrapFunctionToEnum(const Renderer::E_WrapFunction wrap)
 	return GL_INVALID_VALUE;
 }
 
-template <Renderer::E_WrapFunction wrapFunction> struct T_WrapFunction {
-	static constexpr GLenum value = WrapFunctionToEnum(wrapFunction);
+template <Renderer::E_WrapFunction WrapFunction> struct T_WrapFunction {
+	static constexpr GLenum value = WrapFunctionToEnum(WrapFunction);
 };
 
 //=================================================================================
@@ -207,10 +207,19 @@ inline constexpr GLenum GetBufferType(const Renderer::E_BufferType bufferType)
 		return GL_INDEX_ARRAY;
 	case Renderer::E_BufferType::Uniform:
 		return GL_UNIFORM_BUFFER;
+	case Renderer::E_BufferType::DrawIndirect:
+		return GL_DRAW_INDIRECT_BUFFER;
+	case Renderer::E_BufferType::AtomicBuffer:
+		return GL_ATOMIC_COUNTER_BUFFER;
+	case Renderer::E_BufferType::ShaderStorage:
+		return GL_SHADER_STORAGE_BUFFER;
+	case Renderer::E_BufferType::TransformFeedback:
+		return GL_TRANSFORM_FEEDBACK_BUFFER;
+	case Renderer::E_BufferType::DispatchIndirect:
+		return GL_DISPATCH_INDIRECT_BUFFER;
 	default:
-		GLE_ERROR("Unknown buffer type.")
+		GLE_ERROR("Unknown buffer type.");
 		break;
-
 	}
 	return GL_INVALID_VALUE;
 }
@@ -225,19 +234,16 @@ enum class E_OpenGLAccess : char
 };
 
 //=================================================================================
-constexpr GLenum AccesRightsToEnum(const E_OpenGLAccess access)
+constexpr GLenum AccessRightsToEnum(const E_OpenGLAccess access)
 {
 	switch (access)
 	{
 	case E_OpenGLAccess::Read:
 		return GL_READ_ONLY;
-		break;
 	case E_OpenGLAccess::Write:
 		return GL_WRITE_ONLY;
-		break;
 	case E_OpenGLAccess::ReadWrite:
 		return GL_READ_WRITE;
-		break;
 	}
 	return GL_INVALID_VALUE;
 }

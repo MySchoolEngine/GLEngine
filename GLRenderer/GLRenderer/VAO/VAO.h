@@ -34,15 +34,15 @@ public:
 		{
 			if constexpr (T_GLTypeIsIntegral_v<T_TypeToGL<T>::value>)
 			{
-				glVertexAttribIPointer(INDEX, T_GLNumComponenets_v<T>, T_TypeToGL<T>::value, 0, nullptr);
+				glVertexAttribIPointer(INDEX, T_GLNumComponents_v<T>, T_TypeToGL<T>::value, 0, nullptr);
 			}
 			else if (T_GLTypeIsDouble_v<T_TypeToGL<T>::value>)
 			{
-				glVertexAttribLPointer(INDEX, T_GLNumComponenets_v<T>, T_TypeToGL<T>::value, 0, nullptr);
+				glVertexAttribLPointer(INDEX, T_GLNumComponents_v<T>, T_TypeToGL<T>::value, 0, nullptr);
 			}
 			else
 			{
-				glVertexAttribPointer(INDEX, T_GLNumComponenets_v<T>, T_TypeToGL<T>::value, GL_FALSE, 0, nullptr);
+				glVertexAttribPointer(INDEX, T_GLNumComponents_v<T>, T_TypeToGL<T>::value, GL_FALSE, 0, nullptr);
 			}
 		}
 		m_Buffers[INDEX]->unbind();

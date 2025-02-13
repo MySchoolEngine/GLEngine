@@ -73,7 +73,7 @@ enum class E_BlendFunction : std::uint8_t
 };
 
 //=================================================================================
-enum class E_TextureFormat
+enum class E_TextureFormat : std::uint8_t
 {
 	RGBA32f, // float
 	RGB32f,

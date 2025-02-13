@@ -117,13 +117,13 @@ void C_ExperimentWindow::Update()
 {
 	m_EditorLayer.SetCamera(m_CamManager.GetActiveCamera());
 	m_ImGUI->FrameBegin();
+	Shaders::C_ShaderManager::Instance().Update(); // update before GUI as GUI can issue some commands containing old shaders
 	m_LayerStack.OnUpdate();
 	Core::C_ResourceManager::Instance().UpdatePendingLoads();
 	Renderer::C_MaterialManager::Instance().Update();
 
 	auto& tm = Textures::C_TextureUnitManger::Instance();
 	tm.Reset();
-	Shaders::C_ShaderManager::Instance().Update();
 	// MouseSelect();
 
 	const auto avgMsPerFrame = m_Samples.Avg();
