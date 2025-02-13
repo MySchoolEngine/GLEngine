@@ -2,7 +2,6 @@
 
 #include <Renderer/RendererApi.h>
 
-#include <Physics/2D/LineSegment.h>
 #include <Physics/2D/Plane2D.h>
 
 namespace GLEngine::Renderer {

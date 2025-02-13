@@ -49,6 +49,3 @@ RTTR_REGISTRATION
 		;
 }
 // clang-format on
-
-namespace GLEngine::Core {
-} // namespace GLEngine::Core

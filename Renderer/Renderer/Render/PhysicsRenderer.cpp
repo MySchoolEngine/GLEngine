@@ -5,8 +5,6 @@
 
 #include <Core/Math/Rect.h>
 
-#include <glm/gtx/intersect.hpp>
-
 namespace GLEngine::Renderer {
 void C_PhysicsRenderer::Render(C_TextureView& view, const Physics::Primitives::Plane2D& plane, const Colours::T_Colour& colour)
 {
