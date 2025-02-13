@@ -22,7 +22,7 @@ layout(std140, binding = 5) buffer particlesUBO
 
 bool isInEps(float x)
 {
-	return x > 0 && x < 0.1f;
+	return x > 0 && x < 100.f;
 }
 
 #include "ParticleCalculations.glsl"
