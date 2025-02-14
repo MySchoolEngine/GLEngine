@@ -18,7 +18,7 @@
 
 namespace GLEngine::Renderer::Cameras {
 //=================================================================================
-FreelookCamera::FreelookCamera(std::shared_ptr<Entity::I_Entity>& owner)
+FreelookCamera::FreelookCamera(const std::shared_ptr<Entity::I_Entity>& owner)
 	: I_CameraComponent(owner)
 	, _cameraMovementSpeed(1)
 	, m_Flags()
@@ -151,13 +151,13 @@ void FreelookCamera::handleInputMessage(CameraMessage msg)
 //=================================================================================
 void FreelookCamera::Update()
 {
-	float t = (float)_timer.getElapsedTimeFromLastQuerySeconds();
+	const float t = (float)_timer.getElapsedTimeFromLastQuerySeconds();
 
 	glm::mat4 m = glm::mat4(1);
 	if (_yaw != 0 || _pitch != 0)
 	{
-		glm::quat p = glm::angleAxis(_pitch, _left);
-		glm::quat q = glm::angleAxis(-_yaw, glm::vec3(0, 1, 0));
+		const glm::quat p = glm::angleAxis(_pitch, _left);
+		const glm::quat q = glm::angleAxis(-_yaw, glm::vec3(0, 1, 0));
 
 		m		   = glm::mat4_cast(glm::normalize(q * p));
 		m_rotation = glm::normalize(m_rotation * glm::normalize(q * p));
@@ -281,8 +281,8 @@ bool FreelookCamera::HasDebugDrawGUI() const
 //=================================================================================
 Physics::Primitives::S_AABB FreelookCamera::GetAABB() const
 {
-	Physics::Primitives::C_Frustum frust(_position, _up, _view, m_nearZ, m_farZ, GetAspectRatio(), GetFov());
-	return frust.GetAABB();
+	Physics::Primitives::C_Frustum frustum(_position, _up, _view, m_nearZ, m_farZ, GetAspectRatio(), GetFov());
+	return frustum.GetAABB();
 }
 
 //=================================================================================
@@ -384,7 +384,7 @@ bool FreelookCamera::OnKeyReleased(Core::C_KeyReleasedEvent& event)
 }
 
 //=================================================================================
-glm::mat4 FreelookCamera::GetScreenToworldMatrix() const
+glm::mat4 FreelookCamera::GetScreenToWorldMatrix() const
 {
 	return _ScreenToWorld;
 }

@@ -21,7 +21,7 @@ template <int BUFFERS> class C_GLVAO : public I_GLVAOBase {
 public:
 	~C_GLVAO() override = default;
 
-	template <int INDEX> using T_EnableIndex = typename std::enable_if<(INDEX < BUFFERS), void>::type;
+	template <int INDEX> using T_EnableIndex = typename std::enable_if_t<(INDEX < BUFFERS), void>;
 
 	template <int INDEX, GLenum BUFFERTYPE, class T, typename = T_EnableIndex<INDEX>> void SetBuffer(const std::vector<T>& data)
 	{

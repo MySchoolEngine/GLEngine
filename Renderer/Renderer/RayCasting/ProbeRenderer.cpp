@@ -26,7 +26,7 @@ C_ProbeRenderer::C_ProbeRenderer(const C_RayTraceScene& scene, unsigned int samp
 	: m_SamplesPerRender(samplesPerRender)
 	, m_Hysteresis(0.f)
 	, m_Scene(scene)
-	, m_NewResultAviable(false)
+	, m_NewResultAvailable(false)
 {
 }
 
@@ -108,7 +108,7 @@ void C_ProbeRenderer::Render(I_TextureViewStorage& texture, const glm::vec3 prob
 			imageView.Set({x, y}, m_Hysteresis * oldValue + newValue * (1.f - m_Hysteresis));
 		}
 	}
-	m_NewResultAviable = true;
+	m_NewResultAvailable = true;
 	m_Hysteresis	   = 0.95f;
 }
 

@@ -41,11 +41,11 @@ public:
 
 	const std::filesystem::path& GetFilePath() const;
 
-	RTTR_ENABLE();
+	RTTR_ENABLE()
 
 protected:
 	std::shared_ptr<Resource> m_Resource; // nullptr only when no loader exists
-	RTTR_REGISTRATION_FRIEND;
+	RTTR_REGISTRATION_FRIEND
 };
 
 // this forces include of ResourceType definition into headers, can I move it somewhere else?
@@ -62,11 +62,11 @@ public:
 
 	const std::filesystem::path& GetFilepath() const;
 
-	void AfterDeserialize(GLEngine::Utils::C_XMLDeserializer::DeserializeCtx& ctx);
+	void AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx);
 
 	bool operator==(const ResourceHandle other) const { return m_Resource == other.m_Resource; }
 
-	RTTR_ENABLE(ResourceHandleBase);
+	RTTR_ENABLE(ResourceHandleBase)
 };
 
 // for usage in maps

@@ -6,7 +6,6 @@
 
 #include <GUI/GUIManager.h>
 #include <GUI/GUIWindow.h>
-#include <GUI/Input/Button.h>
 
 namespace GLEngine::GLRenderer::Temporar {
 
@@ -24,13 +23,13 @@ C_CameraManager::C_CameraManager()
 C_CameraManager::~C_CameraManager() = default;
 
 //=================================================================================
-void C_CameraManager::ActivateCamera(std::shared_ptr<Renderer::I_CameraComponent> camera)
+void C_CameraManager::ActivateCamera(const std::shared_ptr<Renderer::I_CameraComponent>& camera)
 {
 	m_ActiveCamera = camera;
 }
 
 //=================================================================================
-void C_CameraManager::SetDebugCamera(std::shared_ptr<Renderer::I_CameraComponent> camera)
+void C_CameraManager::SetDebugCamera(const std::shared_ptr<Renderer::I_CameraComponent>& camera)
 {
 	m_DebugCamera = camera;
 }
@@ -78,6 +77,7 @@ GUID C_CameraManager::SetupControls(GUI::C_GUIManager& guiMGR)
 void C_CameraManager::DestroyControls(GUI::C_GUIManager& guiMGR)
 {
 	guiMGR.DestroyWindow(m_Window);
+	m_Window = GUID();
 }
 
 } // namespace GLEngine::GLRenderer::Temporar

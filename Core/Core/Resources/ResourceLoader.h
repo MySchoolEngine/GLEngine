@@ -12,7 +12,7 @@ public:
 	[[nodiscard]] virtual std::shared_ptr<Resource> CreateResource() const = 0;
 	bool											LoadResource(const std::filesystem::path& filepath, std::shared_ptr<Resource>& resource) const;
 	/**
-	 * List of supported extensions accompanied with the dot.
+	 * List of supported extensions accompanied by the dot.
 	 */
 	virtual std::vector<std::string> GetSupportedExtensions() const = 0;
 	virtual std::size_t				 GetResourceTypeID() const		= 0;

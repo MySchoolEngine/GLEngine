@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Renderer/Mesh/Scene.h>
 #include <Renderer/RayCasting/Material/MaterialInterface.h>
 
 namespace GLEngine::Physics::Primitives {

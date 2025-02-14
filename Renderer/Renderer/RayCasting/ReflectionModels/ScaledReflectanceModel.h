@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Renderer/RayCasting/RayTracingSettings.h>
 #include <Renderer/RayCasting/ReflectionModels/IReflectionModel.h>
 
 namespace GLEngine::Renderer {

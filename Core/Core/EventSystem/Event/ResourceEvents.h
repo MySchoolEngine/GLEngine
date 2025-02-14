@@ -14,7 +14,7 @@ public:
 	BaseResourceEvent(ResourceHandleBase handle)
 		: m_Handle(handle)
 	{}
-	~BaseResourceEvent() = default;
+	~BaseResourceEvent() override = default;
 
 
 	::Utils::C_BitField<E_EventCategory> GetCategories() const override { return {E_EventCategory::Resource}; }
@@ -30,7 +30,7 @@ public:
 		: BaseResourceEvent(handle)
 	{
 	}
-	~ResourceEvent() = default;
+	~ResourceEvent() override = default;
 
 	ResourceHandle<ResourceType> GetResourceHandle() const { return dynamic_cast<ResourceHandle<ResourceType>>(m_Handle); }
 };
@@ -42,9 +42,9 @@ public:
 		: ResourceEvent<ResourceType>(handle)
 	{
 	}
-	~ResourceCreatedEvent() = default;
+	~ResourceCreatedEvent() override = default;
 
-	EVENT_CLASS_TYPE(ResourceCreatedEvent);
+	EVENT_CLASS_TYPE(ResourceCreatedEvent)
 };
 
 template <class ResourceType> requires(is_resource<ResourceType>)
@@ -54,9 +54,9 @@ public:
 		: ResourceEvent<ResourceType>(handle)
 	{
 	}
-	~ResourceUnloadedEvent() = default;
+	~ResourceUnloadedEvent() override = default;
 
-	EVENT_CLASS_TYPE(ResourceUnloadedEvent);
+	EVENT_CLASS_TYPE(ResourceUnloadedEvent)
 };
 
 template <class ResourceType> requires(is_resource<ResourceType>)
@@ -66,9 +66,9 @@ public:
 		: ResourceEvent<ResourceType>(handle)
 	{
 	}
-	~ResourceModifiedEvent() = default;
+	~ResourceModifiedEvent() override = default;
 
-	EVENT_CLASS_TYPE(ResourceModifiedEvent);
+	EVENT_CLASS_TYPE(ResourceModifiedEvent)
 };
 
 } // namespace Core

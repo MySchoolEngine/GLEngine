@@ -20,7 +20,7 @@ namespace GLEngine::GLRenderer {
 
 // TODO: broken as hell
 //=================================================================================
-C_ShadowMapTechnique::C_ShadowMapTechnique(std::shared_ptr<Entity::C_EntityManager> world, std::shared_ptr<Renderer::I_Light>& light, Renderer::I_Device& device)
+C_ShadowMapTechnique::C_ShadowMapTechnique(const std::shared_ptr<Entity::C_EntityManager>& world, const std::shared_ptr<Renderer::I_Light>& light, Renderer::I_Device& device)
 	: m_WorldToRender(world)
 	, m_Light(light)
 	, m_ShadowPassFBO(static_cast<C_GLDevice&>(device).AllocateFramebuffer("ShadowPassFBO"))

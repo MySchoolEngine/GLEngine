@@ -20,12 +20,12 @@ C_ShaderProgram::C_ShaderProgram(const GLuint program)
 
 //=================================================================================
 C_ShaderProgram::C_ShaderProgram(C_ShaderProgram&& rhs)
-	: m_bIsActive(rhs.m_bIsActive)
-	, m_name(std::move(rhs.m_name))
+	: m_Name(std::move(rhs.m_Name))
 #if _DEBUG
 	, m_LastUpdate(std::move(rhs.m_LastUpdate))
 	, m_Paths(std::move(rhs.m_Paths))
 #endif
+	, m_bIsActive(rhs.m_bIsActive)
 {
 	DestroyProgram();
 	m_Program	  = rhs.m_Program;
@@ -35,7 +35,7 @@ C_ShaderProgram::C_ShaderProgram(C_ShaderProgram&& rhs)
 //=================================================================================
 C_ShaderProgram& C_ShaderProgram::operator=(C_ShaderProgram&& rhs)
 {
-	SetName(rhs.m_name);
+	SetName(rhs.m_Name);
 #if _DEBUG
 	m_LastUpdate = std::move(rhs.m_LastUpdate);
 	m_Paths		 = std::move(rhs.m_Paths);
@@ -130,7 +130,7 @@ void C_ShaderProgram::BindUBO(std::shared_ptr<Buffers::C_UniformBuffer> ubo) con
 //=================================================================================
 void C_ShaderProgram::SetName(const std::string& name) noexcept
 {
-	m_name = name;
+	m_Name = name;
 #if _DEBUG
 	glObjectLabel(GL_PROGRAM, m_Program, static_cast<GLsizei>(name.length()), name.c_str());
 #endif
@@ -139,7 +139,7 @@ void C_ShaderProgram::SetName(const std::string& name) noexcept
 //=================================================================================
 std::string C_ShaderProgram::GetName() const
 {
-	return m_name;
+	return m_Name;
 }
 
 } // namespace GLEngine::GLRenderer::Shaders

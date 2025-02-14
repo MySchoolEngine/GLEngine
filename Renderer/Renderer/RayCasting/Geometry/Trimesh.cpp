@@ -1,6 +1,7 @@
 #include <RendererStdafx.h>
 
 #include <Renderer/DebugDraw.h>
+#include <Renderer/Mesh/Scene.h>
 #include <Renderer/RayCasting/Geometry/Trimesh.h>
 #include <Renderer/RayCasting/RayIntersection.h>
 

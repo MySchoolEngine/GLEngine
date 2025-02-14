@@ -20,7 +20,7 @@ public:
 	// Core::I_Input
 	//==========================================================
 	[[nodiscard]] virtual bool IsKeyPressed(int keycode) const override;
-	[[nodiscard]] virtual bool IsMosueButtonPresse(int key) const override;
+	[[nodiscard]] virtual bool IsMouseButtonPressed(int key) const override;
 	/**
 	 * Returns mouse position in screen space
 	 * Top left = (0,0)

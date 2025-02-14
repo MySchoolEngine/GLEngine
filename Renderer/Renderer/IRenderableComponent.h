@@ -15,10 +15,10 @@ public:
 		: Entity::I_Component(owner)
 	{
 	}
-	virtual ~I_RenderableComponent() = default;
+	~I_RenderableComponent() override = default;
 
 	virtual void					PerformDraw() const = 0;
-	virtual Entity::E_ComponentType GetType() const override { return Entity::E_ComponentType::Graphical; }
+	Entity::E_ComponentType GetType() const override { return Entity::E_ComponentType::Graphical; }
 
 	RTTR_ENABLE(Entity::I_Component);
 };

@@ -8,8 +8,8 @@ namespace GLEngine::Core {
 //=================================================================================
 void LoadingQuery::AddHandle(ResourceHandleBase handle)
 {
-	// only add such hanldes, that are not loaded yet
-	// can also avoid dead locks in some situations
+	// only add such handles, that are not loaded yet
+	// can also avoid deadlocks in some situations
 	if (handle.IsLoading())
 		m_handles.push_back(handle);}
 

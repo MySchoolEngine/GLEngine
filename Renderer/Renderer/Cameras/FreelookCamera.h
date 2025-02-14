@@ -11,8 +11,7 @@
 // When "W" is released (user put off the finger from "W" key), call handleInputMessage(CAMERA_FORWARD_UP)
 // The UP and DOWN indicates whether the button was pressed or released
 // Camera update method will handle the message
-enum class CameraMessage : std::uint8_t
-{
+enum class CameraMessage : std::uint8_t {
 	CAMERA_FORWARD_UP = 0,
 	CAMERA_FORWARD_DOWN,
 	CAMERA_BACKWARD_UP,
@@ -47,25 +46,25 @@ struct S_AABB;
 namespace Renderer::Cameras {
 class RENDERER_API_EXPORT FreelookCamera : public I_CameraComponent {
 public:
-	explicit FreelookCamera(std::shared_ptr<Entity::I_Entity>& owner);
-	virtual ~FreelookCamera(); // = default;
+	explicit FreelookCamera(const std::shared_ptr<Entity::I_Entity>& owner);
+	~FreelookCamera() override; // = default;
 
 	//=============================================================
 	// Renderer::I_CameraComponent
 	//=============================================================
-	[[nodiscard]] virtual glm::mat4 GetScreenToworldMatrix() const override;
-	[[nodiscard]] virtual glm::mat4 GetViewProjectionMatrix() const override;
-	[[nodiscard]] virtual glm::mat4 GetProjectionMatrix() const override;
-	[[nodiscard]] virtual glm::mat4 GetViewMatrix() const override;
-	[[nodiscard]] virtual glm::quat GetRotation() const override;
-	[[nodiscard]] virtual glm::vec3 GetDirection() const override;
-	[[nodiscard]] virtual glm::vec3 GetPosition() const override;
+	[[nodiscard]] glm::mat4 GetScreenToWorldMatrix() const override;
+	[[nodiscard]] glm::mat4 GetViewProjectionMatrix() const override;
+	[[nodiscard]] glm::mat4 GetProjectionMatrix() const override;
+	[[nodiscard]] glm::mat4 GetViewMatrix() const override;
+	[[nodiscard]] glm::quat GetRotation() const override;
+	[[nodiscard]] glm::vec3 GetDirection() const override;
+	[[nodiscard]] glm::vec3 GetPosition() const override;
 
-	[[nodiscard]] virtual Physics::Primitives::C_Frustum GetFrustum() const override;
+	[[nodiscard]] Physics::Primitives::C_Frustum GetFrustum() const override;
 
-	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override;
+	[[nodiscard]] Physics::Primitives::S_AABB GetAABB() const override;
 
-	// Use these 2 function to setup the camera
+	// Use these 2 function to set up the camera
 	// FOVY in degrees
 	void setupCameraProjection(float nearZ, float farZ, float aspectRatio, float fovYDeg);
 	void positionCamera(const glm::vec3& camPosition, const glm::vec3& focusPoint, const glm::vec3& upDirection = glm::vec3(0, 1, 0));
@@ -76,7 +75,7 @@ public:
 	void resetButtons();
 
 	// Update method - call every time when camera data needs updating
-	virtual void Update() override;
+	void Update() override;
 
 	// Inherited via I_Camera
 	// virtual void debugDraw() const override;
@@ -84,19 +83,19 @@ public:
 	[[nodiscard]] float getMovementSpeed() const;
 
 	// from I_Camera
-	[[nodiscard]] virtual float GetFar() const override;
+	[[nodiscard]] float			GetFar() const override;
 	virtual void				SetFar(float Far);
-	[[nodiscard]] virtual float GetNear() const override;
+	[[nodiscard]] float			GetNear() const override;
 	virtual void				SetNear(float Near);
 	[[nodiscard]] virtual float GetFov() const;
 	virtual void				SetFov(float fov);
 	[[nodiscard]] virtual float GetAspectRatio() const;
 
 	//=================================================================================
-	virtual void						   DebugDrawGUI() override;
-	[[nodiscard]] virtual bool			   HasDebugDrawGUI() const override;
-	[[nodiscard]] virtual std::string_view GetDebugComponentName() const override;
-	virtual void						   OnEvent(Core::I_Event& event) override;
+	void						   DebugDrawGUI() override;
+	[[nodiscard]] bool			   HasDebugDrawGUI() const override;
+	[[nodiscard]] std::string_view GetDebugComponentName() const override;
+	void						   OnEvent(Core::I_Event& event) override;
 
 protected:
 	[[nodiscard]] bool OnKeyPressed(Core::C_KeyPressedEvent& event);
@@ -106,8 +105,7 @@ private:
 	void  CreateProjection();
 	float _cameraMovementSpeed;
 
-	enum class CameraDirectionFlags
-	{
+	enum class CameraDirectionFlags {
 		CAMERA_FORWARD_BIT	= 1,
 		CAMERA_BACKWARD_BIT = 2,
 		CAMERA_LEFT_BIT		= 4,

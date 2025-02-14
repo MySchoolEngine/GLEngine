@@ -10,10 +10,10 @@ namespace GLEngine::Renderer {
 C_TextureView::C_TextureView(I_TextureViewStorage* storage)
 	: m_Storage(storage)
 	, m_BorderColor(1, 0, 1, 0)
-	, m_WrapFunction(E_WrapFunction::Repeat)
 	, m_Rect(0, 0, storage ? storage->GetDimensions().x : 0, storage ? storage->GetDimensions().y : 0)
 	, m_EnableBlending(false)
-	, m_BlendOperation(E_BlendFunction::Add) // todo check if correct
+	, m_BlendOperation(E_BlendFunction::Add)
+	, m_WrapFunction(E_WrapFunction::Repeat) // todo check if correct
 {
 }
 
@@ -220,8 +220,8 @@ const glm::uvec2 C_TextureView::GetDimensions() const
 // C_OctahedralTextureView
 //=================================================================================
 C_OctahedralTextureView::C_OctahedralTextureView(C_TextureView view, std::size_t size)
-	: m_View(view)
-	, m_Size(size)
+	: m_Size(size)
+	, m_View(view)
 {
 }
 

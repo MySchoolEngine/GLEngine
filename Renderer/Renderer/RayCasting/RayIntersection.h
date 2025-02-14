@@ -18,7 +18,7 @@ public:
 	[[nodiscard]] const S_Frame&					GetFrame() const;
 	[[nodiscard]] const Physics::Primitives::S_Ray& GetRay() const;
 	[[nodiscard]] const glm::vec3&					GetIntersectionPoint() const;
-	[[nodiscard]] const float						GetRayLength() const;
+	[[nodiscard]] float								GetRayLength() const;
 	void											SetRayLength(float t) { m_RayLength = t; }
 
 	void									 SetMaterial(const I_MaterialInterface* material);

@@ -10,6 +10,9 @@
 
 namespace GLEngine::Renderer {
 class I_DebugDraw;
+namespace MeshData {
+struct Mesh;
+}
 
 class C_Trimesh : public I_RayGeometryObject {
 public:

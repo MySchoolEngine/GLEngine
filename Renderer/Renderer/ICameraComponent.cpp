@@ -12,7 +12,7 @@ RTTR_REGISTRATION
 }
 
 //=================================================================================
-I_CameraComponent::I_CameraComponent(std::shared_ptr<Entity::I_Entity> owner)
+I_CameraComponent::I_CameraComponent(const std::shared_ptr<Entity::I_Entity>& owner)
 	: Entity::I_Component(owner)
 {
 }
@@ -24,7 +24,7 @@ I_CameraComponent::~I_CameraComponent() = default;
 Physics::Primitives::S_Ray I_CameraComponent::GetRay(const glm::vec2& screenPos) const
 {
 	const glm::vec4 ssFar = glm::vec4(screenPos.x, screenPos.y, 1.0, 1.0);
-	const auto		mat	  = GetScreenToworldMatrix();
+	const auto		mat	  = GetScreenToWorldMatrix();
 
 	auto wFar = mat * ssFar;
 	wFar /= wFar.w;

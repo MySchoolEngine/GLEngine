@@ -22,16 +22,17 @@ public:
 		, m_Shape(std::make_unique<Geometry<primitiveT>>(shape))
 	{
 	}
-	[[nodiscard]] virtual Colours::T_Colour SampleLi(const C_RayIntersection& intersection, I_Sampler& rnd, S_VisibilityTester& vis, float* pdf) const override;
-	[[nodiscard]] virtual Colours::T_Colour Le() const override;
-	virtual bool							IsDeltaLight() const override { return false; }
-	virtual float							Pdf_Li(const glm::vec3& wi) const override;
+	[[nodiscard]] Colours::T_Colour SampleLi(const C_RayIntersection& intersection, I_Sampler& rnd, S_VisibilityTester& vis, float* pdf) const override;
+	[[nodiscard]] Colours::T_Colour Le() const override;
+	bool							IsDeltaLight() const override { return false; }
+	float							Pdf_Li(const glm::vec3& wi) const override;
 
 	[[nodiscard]] std::shared_ptr<I_RayGeometryObject> GetGeometry() const;
 
 private:
 	// type erasure due to bad architecture
 	struct GeometryBase {
+		virtual ~GeometryBase()														   = default;
 		virtual float								 Area() const					   = 0;
 		virtual glm::vec3							 Normal() const					   = 0;
 		virtual glm::vec3							 SamplePoint(I_Sampler& rnd) const = 0;
@@ -40,14 +41,15 @@ private:
 
 	template <class primitiveT>
 	struct Geometry : public GeometryBase {
-		Geometry(std::shared_ptr<C_Primitive<primitiveT>> pShape)
+		explicit Geometry(std::shared_ptr<C_Primitive<primitiveT>> pShape)
 			: shape(pShape)
 		{
 		}
-		virtual float								 Area() const override { return shape->Area(); }
-		virtual glm::vec3							 Normal() const override { return RayTracing::T_GeometryTraits::GetNormal(shape->m_Primitive); }
-		virtual glm::vec3							 SamplePoint(I_Sampler& rnd) const override { return RayTracing::T_GeometryTraits::SamplePoint(shape->m_Primitive, rnd); }
-		virtual std::shared_ptr<I_RayGeometryObject> GetGeometry() const override { return shape; }
+		~Geometry() override = default;
+		float								 Area() const override { return shape->Area(); }
+		glm::vec3							 Normal() const override { return RayTracing::T_GeometryTraits::GetNormal(shape->m_Primitive); }
+		glm::vec3							 SamplePoint(I_Sampler& rnd) const override { return RayTracing::T_GeometryTraits::SamplePoint(shape->m_Primitive, rnd); }
+		std::shared_ptr<I_RayGeometryObject> GetGeometry() const override { return shape; }
 
 		std::shared_ptr<C_Primitive<primitiveT>> shape;
 	};

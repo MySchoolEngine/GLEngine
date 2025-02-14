@@ -80,7 +80,7 @@ public:
 #endif
 
 private:
-	std::string						   m_name;
+	std::string						   m_Name;
 #if _DEBUG
 	std::filesystem::file_time_type	   m_LastUpdate;
 	std::vector<std::filesystem::path> m_Paths;

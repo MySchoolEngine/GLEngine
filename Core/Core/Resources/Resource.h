@@ -123,7 +123,7 @@ class I_ResourceLoader;
 class CORE_API_EXPORT Resource : public I_EventReciever {
 public:
 	Resource();
-	virtual ~Resource();
+	~Resource() override;
 
 	[[nodiscard]] virtual std::unique_ptr<I_ResourceLoader> GetLoader()									= 0;
 	[[nodiscard]] virtual bool								Load(const std::filesystem::path& filepath) = 0;

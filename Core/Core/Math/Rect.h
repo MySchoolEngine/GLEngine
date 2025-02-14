@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Core/CoreApi.h>
-
 #include <Physics/2D/Plane2D.h>
 
 #include <glm/vec2.hpp>
@@ -59,7 +57,7 @@ public:
 	{
 		if (point.x<0 || point.y < 0)
 			return false; // smaller than 0
-		glm::uvec2 uPoint = point;
+		const glm::uvec2 uPoint = point;
 		return uPoint.x >= x && uPoint.y >= y && (uPoint.x - x) < width && (uPoint.y - y) < height;
 	}
 
@@ -85,8 +83,8 @@ private:
 	unsigned int x, y;
 	unsigned int width, height;
 
-	RTTR_ENABLE();
-	RTTR_REGISTRATION_FRIEND;
+	RTTR_ENABLE()
+	RTTR_REGISTRATION_FRIEND
 };
 
 } // namespace GLEngine::Core

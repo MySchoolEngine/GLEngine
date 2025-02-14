@@ -8,7 +8,6 @@
 #include <Physics/Primitives/Frustum.h>
 
 #include <Utils/Parsing/ColorParsing.h>
-#include <Utils/Parsing/MatrixParse.h>
 
 #include <rttr/registration.h>
 
@@ -51,7 +50,7 @@ namespace GLEngine::Renderer {
 //=================================================================================
 // C_PointLight
 //=================================================================================
-C_PointLight::C_PointLight(std::shared_ptr<Entity::I_Entity> owner)
+C_PointLight::C_PointLight(const std::shared_ptr<Entity::I_Entity>& owner)
 	: Renderer::I_Light(owner)
 	, m_Intensity(1.f)
 	, m_Color(Colours::white)
@@ -59,7 +58,7 @@ C_PointLight::C_PointLight(std::shared_ptr<Entity::I_Entity> owner)
 }
 
 //=================================================================================
-C_PointLight::C_PointLight(std::shared_ptr<Entity::I_Entity> owner, const MeshData::Light& def)
+C_PointLight::C_PointLight(const std::shared_ptr<Entity::I_Entity>& owner, const MeshData::Light& def)
 	: Renderer::I_Light(owner)
 	, m_Intensity(1.f)
 	, m_Color(def.m_Color)

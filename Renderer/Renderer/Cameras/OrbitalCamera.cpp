@@ -83,12 +83,12 @@ RTTR_REGISTRATION
 namespace GLEngine::Renderer::Cameras {
 
 //=================================================================================
-C_OrbitalCamera::C_OrbitalCamera(std::shared_ptr<Entity::I_Entity> owner)
+C_OrbitalCamera::C_OrbitalCamera(const std::shared_ptr<Entity::I_Entity>& owner)
 	: I_CameraComponent(owner)
-	, m_ControlSpeed(glm::radians(0.5f))
-	, _angleYRad(0.0f)
-	, _angleXRad(0.0f)
 	, _zoom()
+	, _angleXRad(0.0f)
+	, _angleYRad(0.0f)
+	, m_ControlSpeed(glm::radians(0.5f))
 {
 	_pos = _view = _up = _left = glm::vec3(0);
 	m_Transformation.SetEnabledTransforms(GUI::Input::C_Transformations::E_Transorms::Translate);
@@ -97,14 +97,14 @@ C_OrbitalCamera::C_OrbitalCamera(std::shared_ptr<Entity::I_Entity> owner)
 //=================================================================================
 C_OrbitalCamera::C_OrbitalCamera()
 	: I_CameraComponent(nullptr)
-	, m_ControlSpeed(glm::radians(0.5f))
-	, _angleYRad(0.f)
-	, _angleXRad(glm::half_pi<float>())
-	, _zoom(5.0f)
+	, _fovy(glm::radians(90.f))
 	, _nearZ(0.1f)
 	, _farZ(100.f)
 	, _aspect(1.85546875f)
-	, _fovy(glm::radians(90.f))
+	, _zoom(5.0f)
+	, _angleXRad(glm::half_pi<float>())
+	, _angleYRad(0.f)
+	, m_ControlSpeed(glm::radians(0.5f))
 {
 }
 
@@ -112,7 +112,7 @@ C_OrbitalCamera::C_OrbitalCamera()
 C_OrbitalCamera::~C_OrbitalCamera() = default;
 
 //=================================================================================
-void C_OrbitalCamera::setupCameraView(float zoom, glm::vec3 center, float angleXDeg, float angleYDeg)
+void C_OrbitalCamera::SetupCameraView(const float zoom, const glm::vec3 center, const float angleXDeg, const float angleYDeg)
 {
 	_zoom = zoom;
 
@@ -122,7 +122,7 @@ void C_OrbitalCamera::setupCameraView(float zoom, glm::vec3 center, float angleX
 }
 
 //=================================================================================
-void C_OrbitalCamera::setupCameraProjection(float nearZ, float farZ, float aspectRatio, float fovY)
+void C_OrbitalCamera::SetupCameraProjection(float nearZ, float farZ, float aspectRatio, float fovY)
 {
 	_nearZ	= (nearZ);
 	_farZ	= (farZ);
@@ -131,7 +131,7 @@ void C_OrbitalCamera::setupCameraProjection(float nearZ, float farZ, float aspec
 }
 
 //=================================================================================
-void C_OrbitalCamera::adjustOrientation(float dx, float dy)
+void C_OrbitalCamera::AdjustOrientation(float dx, float dy)
 {
 	_angleXRad += dx;
 	_angleYRad += dy;
@@ -139,7 +139,7 @@ void C_OrbitalCamera::adjustOrientation(float dx, float dy)
 }
 
 //=================================================================================
-void C_OrbitalCamera::adjustZoom(int d)
+void C_OrbitalCamera::AdjustZoom(int d)
 {
 	float c = 1.1f;
 	_zoom	= d < 0 ? _zoom * c : _zoom / c;
@@ -211,23 +211,23 @@ bool C_OrbitalCamera::OnKeyEvent(Core::C_KeyEvent& event)
 	// Rotations
 	if (event.GetKeyCode() == GLFW_KEY_DOWN)
 	{
-		adjustOrientation(0.0f, -m_ControlSpeed);
+		AdjustOrientation(0.0f, -m_ControlSpeed);
 		Update();
 		return true;
 	}
 	if (event.GetKeyCode() == GLFW_KEY_UP)
 	{
-		adjustOrientation(0.0f, m_ControlSpeed);
+		AdjustOrientation(0.0f, m_ControlSpeed);
 		return true;
 	}
 	if (event.GetKeyCode() == GLFW_KEY_LEFT)
 	{
-		adjustOrientation(m_ControlSpeed, 0.0f);
+		AdjustOrientation(m_ControlSpeed, 0.0f);
 		return true;
 	}
 	if (event.GetKeyCode() == GLFW_KEY_RIGHT)
 	{
-		adjustOrientation(-m_ControlSpeed, 0.0f);
+		AdjustOrientation(-m_ControlSpeed, 0.0f);
 		return true;
 	}
 
@@ -272,12 +272,12 @@ bool C_OrbitalCamera::OnKeyPressed(Core::C_KeyPressedEvent& event)
 	// Zoom
 	if (event.GetKeyCode() == GLFW_KEY_MINUS || event.GetKeyCode() == GLFW_KEY_KP_SUBTRACT)
 	{
-		adjustZoom(-2);
+		AdjustZoom(-2);
 		return true;
 	}
 	if (event.GetKeyCode() == GLFW_KEY_KP_ADD)
 	{
-		adjustZoom(+2);
+		AdjustZoom(+2);
 		return true;
 	}
 	return false;
@@ -296,7 +296,7 @@ bool C_OrbitalCamera::OnKeyRepeated(Core::C_KeyRepeatedEvent& event)
 //=================================================================================
 bool C_OrbitalCamera::OnMouseScroll(Core::C_MouseScrollEvent& event)
 {
-	adjustZoom(static_cast<int>(-event.GetYOffset() * 10));
+	AdjustZoom(static_cast<int>(-event.GetYOffset() * 10));
 	return true;
 }
 
@@ -376,7 +376,7 @@ Physics::Primitives::C_Frustum C_OrbitalCamera::GetFrustum() const
 }
 
 //=================================================================================
-glm::mat4 C_OrbitalCamera::GetScreenToworldMatrix() const
+glm::mat4 C_OrbitalCamera::GetScreenToWorldMatrix() const
 {
 	return _ScreenToWorld;
 }

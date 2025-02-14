@@ -81,7 +81,7 @@ RTTR_REGISTRATION
 namespace GLEngine::Renderer {
 
 //=================================================================================
-C_SunLight::C_SunLight(std::shared_ptr<Entity::I_Entity> owner)
+C_SunLight::C_SunLight(const std::shared_ptr<Entity::I_Entity>& owner)
 	: I_Light(owner)
 	, m_SunX(0.437f)
 	, m_SunY(0.056f)

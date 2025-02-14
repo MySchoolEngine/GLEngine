@@ -312,15 +312,15 @@ void C_DebugDraw::DrawGrid(const glm::vec4& origin, unsigned short linesToSide, 
 }
 
 //=================================================================================
-void C_DebugDraw::DrawFrustum(const Physics::Primitives::C_Frustum& frust, const Colours::T_Colour& color)
+void C_DebugDraw::DrawFrustum(const Physics::Primitives::C_Frustum& frustum, const Colours::T_Colour& color)
 {
-	const auto& position = frust.GetPosition();
-	const auto& upVector = frust.GetUpVector();
-	const auto& forward	 = frust.GetForward();
-	const auto	fnear	 = frust.GetNear();
-	const auto	ffar	 = frust.GetFar();
-	const auto	fov		 = frust.GetFov();
-	const auto	aspect	 = frust.GetAspect();
+	const auto& position = frustum.GetPosition();
+	const auto& upVector = frustum.GetUpVector();
+	const auto& forward	 = frustum.GetForward();
+	const auto	fnear	 = frustum.GetNear();
+	const auto	ffar	 = frustum.GetFar();
+	const auto	fov		 = frustum.GetFov();
+	const auto	aspect	 = frustum.GetAspect();
 
 	const glm::vec3 nearCenter = glm::vec3(position + (forward * fnear));
 	const glm::vec3 farCenter  = glm::vec3(position + (forward * ffar));
@@ -439,8 +439,8 @@ void C_DebugDraw::DrawMergedGeoms()
 		},
 		"C_DebugDraw::DrawMergedGeoms"));
 	shdManager.DeactivateShader();
-	auto AABBprogram = shdManager.GetProgram(s_DebugShaderName);
-	shdManager.ActivateShader(AABBprogram);
+	auto AABBProgram = shdManager.GetProgram(s_DebugShaderName);
+	shdManager.ActivateShader(AABBProgram);
 
 	renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[this]() {
@@ -452,9 +452,9 @@ void C_DebugDraw::DrawMergedGeoms()
 	for (int i = 0; i < m_AABBTransform.size(); ++i)
 	{
 		renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
-			[this, AABBprogram, i]() {
-				AABBprogram->SetUniform("modelMatrix", m_AABBTransform[i]);
-				AABBprogram->SetUniform("colorIN", m_AABBColor[i]);
+			[this, AABBProgram, i]() {
+				AABBProgram->SetUniform("modelMatrix", m_AABBTransform[i]);
+				AABBProgram->SetUniform("colorIN", m_AABBColor[i]);
 
 				glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, 0);
 				glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, (GLvoid*)(4 * sizeof(GLushort)));

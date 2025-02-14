@@ -5,8 +5,6 @@
 #include <Renderer/RayCasting/Geometry/Trimesh.h>
 #include <Renderer/RendererApi.h>
 
-#include <Physics/Primitives/AABB.h>
-
 #include <Core/Resources/Resource.h>
 #include <Core/Resources/ResourceHandle.h>
 #include <Core/Resources/ResourceLoader.h>
@@ -44,7 +42,7 @@ private:
 
 class RENDERER_API_EXPORT TrimeshModelTrimesh : public Core::ResourceLoader<C_TrimeshModel> {
 public:
-	virtual std::shared_ptr<Core::Resource> CreateResource() const override;
-	virtual std::vector<std::string>		GetSupportedExtensions() const override;
+	std::shared_ptr<Core::Resource> CreateResource() const override;
+	std::vector<std::string>		GetSupportedExtensions() const override;
 };
 } // namespace GLEngine::Renderer

@@ -1,9 +1,6 @@
 #pragma once
 
-#include <CoreStdafx.h>
-
 #include <Core/EventSystem/Event.h>
-#include <Core/IWindow.h>
 
 namespace GLEngine {
 namespace Core {
@@ -12,10 +9,10 @@ namespace Core {
 // Input event is window dependent
 class C_InputEvent : public I_Event {
 public:
-	virtual ::Utils::C_BitField<E_EventCategory> GetCategories() const override { return GetInputCategory() | E_EventCategory::Input; }
+	::Utils::C_BitField<E_EventCategory> GetCategories() const override { return GetInputCategory() | E_EventCategory::Input; }
 
-	// window which trigged this event
-	inline GUID GetWindowGUID() const { return m_WindowID; };
+	// window which trigger this event
+	inline GUID GetWindowGUID() const { return m_WindowID; }
 
 protected:
 	C_InputEvent(GUID window)

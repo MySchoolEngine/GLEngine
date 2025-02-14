@@ -81,7 +81,7 @@ C_ExperimentWindow::C_ExperimentWindow(const Core::S_WindowInfo& wndInfo)
 	, m_ShadowPass(nullptr)
 	, m_HDRFBO(nullptr)
 	, m_HDRFBOAtmosphere(nullptr)
-	, m_EditorLayer(*&C_DebugDraw::Instance(), GetInput(), {0, 0, GetSize()}) //< viewport could be different from windowsize in the future
+	, m_EditorLayer(*&C_DebugDraw::Instance(), GetInput(), {0, 0, GetSize()}) //< viewport could be different from window size in the future
 {
 	glfwMakeContextCurrent(m_Window);
 
@@ -631,8 +631,8 @@ void C_ExperimentWindow::AddMandatoryWorldParts()
 		{
 			constexpr float zoom		 = 5.0f;
 			auto			playerCamera = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
-			playerCamera->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
-			playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
+			playerCamera->SetupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
+			playerCamera->SetupCameraView(zoom, glm::vec3(0.0f), 90, 0);
 			playerCamera->Update();
 			player->AddComponent(playerCamera);
 		}

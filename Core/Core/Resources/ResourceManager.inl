@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Core/Application.h>
 #include <Core/EventSystem/Event/ResourceEvents.h>
 #include <Core/Resources/Metafile.h>
 

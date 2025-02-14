@@ -10,16 +10,16 @@
 #include <type_traits>
 
 namespace GLEngine::Core {
-template <class... Managers> class C_WindwoManager : public I_WindowManager {
+template <class... Managers> class C_WindowManager : public I_WindowManager {
 public:
-	C_WindwoManager(C_Application::EventCallbackFn callback)
+	explicit C_WindowManager(const C_Application::EventCallbackFn& callback)
 		: I_WindowManager(callback)
 		, m_UpdatingManager(nullptr)
 	{
 	}
 
 	//=================================================================================
-	virtual ~C_WindwoManager() = default;
+	~C_WindowManager() override = default;
 
 	//=================================================================================
 	template <class T, typename = std::enable_if_t<std::disjunction_v<std::is_same<T, Managers>...>>> void AddManager(T* manager)
@@ -28,7 +28,7 @@ public:
 	}
 
 	//=================================================================================
-	[[nodiscard]] virtual std::shared_ptr<I_Window> OpenNewWindow(const S_WindowInfo& info) override
+	[[nodiscard]] std::shared_ptr<I_Window> OpenNewWindow(const S_WindowInfo& info) override
 	{
 		for (auto& mgr : m_Managers)
 		{
@@ -44,7 +44,7 @@ public:
 
 
 	//=================================================================================
-	[[nodiscard]] virtual std::shared_ptr<I_Window> GetWindow(GUID guid) const override
+	[[nodiscard]] std::shared_ptr<I_Window> GetWindow(GUID guid) const override
 	{
 		for (auto& mgr : m_Managers)
 		{
@@ -60,7 +60,7 @@ public:
 
 
 	//=================================================================================
-	virtual void Update() override
+	void Update() override
 	{
 		for (const auto& manager : m_Managers)
 		{
@@ -73,14 +73,14 @@ public:
 	}
 
 	//=================================================================================
-	[[nodiscard]] virtual unsigned int NumWindows() const override
+	[[nodiscard]] unsigned int NumWindows() const override
 	{
 		return std::accumulate(m_Managers.begin(), m_Managers.end(), 0,
 							   [](unsigned int val, const auto& manager) -> unsigned int { return val + (manager == nullptr ? 0 : manager->NumWindows()); });
 	}
 
 	//=================================================================================
-	[[nodiscard]] virtual Renderer::I_Renderer* ActiveRendererPtr() override
+	[[nodiscard]] Renderer::I_Renderer* ActiveRendererPtr() override
 	{
 		if (!m_UpdatingManager)
 		{
@@ -90,7 +90,7 @@ public:
 	}
 
 	//=================================================================================
-	virtual Renderer::I_Renderer& GetActiveRenderer() override
+	Renderer::I_Renderer& GetActiveRenderer() override
 	{
 		GLE_ASSERT(m_UpdatingManager, "Getting renderer outside of update!");
 		return m_UpdatingManager->GetActiveRenderer();
@@ -98,7 +98,7 @@ public:
 
 
 	//=================================================================================
-	virtual void OnEvent(Core::I_Event& event) override
+	void OnEvent(I_Event& event) override
 	{
 		auto updateManager = m_UpdatingManager;
 		for (const auto& manager : m_Managers)

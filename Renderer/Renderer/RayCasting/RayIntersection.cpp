@@ -9,9 +9,9 @@ C_RayIntersection::C_RayIntersection(S_Frame&& frame, glm::vec3&& point, Physics
 	: m_Frame(frame)
 	, m_Point(point)
 	, m_Ray(ray)
+	, m_UV({0.f, 0.f})
 	, m_Material(nullptr)
 	, m_Light(nullptr)
-	, m_UV({0.f, 0.f})
 {
 }
 
@@ -40,7 +40,7 @@ void C_RayIntersection::SetMaterial(const I_MaterialInterface* material)
 }
 
 //=================================================================================
-const float C_RayIntersection::GetRayLength() const
+float C_RayIntersection::GetRayLength() const
 {
 	return m_RayLength;
 }
@@ -64,7 +64,7 @@ const GLEngine::Renderer::S_Frame& C_RayIntersection::GetFrame() const
 }
 
 //=================================================================================
-const std::shared_ptr<GLEngine::Renderer::RayTracing::I_RayLight> C_RayIntersection::GetLight() const
+const std::shared_ptr<RayTracing::I_RayLight> C_RayIntersection::GetLight() const
 {
 	return m_Light;
 }

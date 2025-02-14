@@ -19,8 +19,8 @@ public:
 	C_CameraManager();
 	~C_CameraManager() override; // = default
 
-	void										 ActivateCamera(std::shared_ptr<Renderer::I_CameraComponent> camera);
-	void										 SetDebugCamera(std::shared_ptr<Renderer::I_CameraComponent> camera);
+	void										 ActivateCamera(const std::shared_ptr<Renderer::I_CameraComponent>& camera);
+	void										 SetDebugCamera(const std::shared_ptr<Renderer::I_CameraComponent>& camera);
 	std::shared_ptr<Renderer::I_CameraComponent> GetActiveCamera() const;
 	std::shared_ptr<Renderer::I_CameraComponent> GetMainCamera() const { return m_ActiveCamera; }
 

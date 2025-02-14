@@ -167,7 +167,7 @@ void C_ShaderPreprocessor::ResolveIfStatements(std::string& content) const
 		const auto negation = (m[2].length() == 0);
 		if (IsDefined(m[4]) == negation)
 		{
-			// look for next endif thats obviously bug
+			// look for next endif that's obviously bug
 			result += endIfMatch.prefix().str();
 		}
 		content = endIfMatch.suffix().str();

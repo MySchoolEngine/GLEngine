@@ -5,7 +5,6 @@
 #include <Renderer/Descriptors/TextureDescriptor.h>
 #include <Renderer/Resources/RenderResourceHandle.h>
 
-#include <filesystem>
 #pragma warning(push)
 #pragma warning(disable : 4996)
 #include <slot_map/slot_map.h>
@@ -36,7 +35,7 @@ public:
 
 template <class Badge, class ConcreteResource> class ResourcePool final {
 public:
-	virtual ~ResourcePool() final
+	~ResourcePool()
 	{ /*
 		GLE_ERROR(m_Map.empty());*/
 	}

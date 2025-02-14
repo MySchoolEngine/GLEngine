@@ -2,6 +2,7 @@
 
 #include <Renderer/RayCasting/Geometry/BVH.h>
 #include <Renderer/RayCasting/Geometry/TrimeshModel.h>
+#include <Renderer/Mesh/Scene.h>
 
 #include <Core/Resources/ResourceManager.h>
 

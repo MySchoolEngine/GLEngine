@@ -90,7 +90,6 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shar
 				const auto frustum = areaLight->GetShadingFrustum();
 
 
-				const auto left	  = glm::normalize(glm::cross(frustum.GetForward(), frustum.GetUpVector()));
 				const auto pos	  = frustum.GetPosition();
 				const auto up	  = frustum.GetUpVector();
 				const auto width  = areaLight->GetWidth() / 2.0f;
@@ -123,7 +122,7 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shar
 				auto* sunShadowMapGL = glRM.GetTexture(m_SunShadowMap);
 				m_LightsUBO->GetSunLight().SetSunPosition(sunLight->GetSunDirection());
 				m_LightsUBO->GetSunLight().m_SunColor			 = sunLight->GetSunColor();
-				m_LightsUBO->GetSunLight().m_AsymetricFactor	 = sunLight->AtmosphereAsymetricFactor();
+				m_LightsUBO->GetSunLight().m_AsymmetricFactor	 = sunLight->AtmosphereAsymetricFactor();
 				m_LightsUBO->GetSunLight().m_SunDiscMultiplier	 = sunLight->SunDiscMultiplier();
 				m_LightsUBO->GetSunLight().m_LightViewProjection = m_SunViewProjection;
 				m_LightsUBO->GetSunLight().m_SunShadowMap		 = sunShadowMapGL->GetHandle();

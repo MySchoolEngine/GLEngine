@@ -12,13 +12,13 @@ class C_Pose : public I_Pose {
 public:
 	explicit C_Pose(std::vector<S_BoneKeyframe>&& keyframe);
 
-	[[nodiscard]] virtual const glm::mat4		 GetLocalSpaceTransform(int boneID) const override;
-	virtual void								 SetLocalSpaceTransform(const glm::mat4& transform, int boneID) override;
-	[[nodiscard]] virtual std::vector<glm::mat4> GetLocalSpaceTransofrms() const override;
+	[[nodiscard]] const glm::mat4		 GetLocalSpaceTransform(int boneID) const override;
+	void								 SetLocalSpaceTransform(const glm::mat4& transform, int boneID) override;
+	[[nodiscard]] std::vector<glm::mat4> GetLocalSpaceTransofrms() const override;
 
 	void Blend(const C_Pose& other, float weight);
 
 private:
-	std::vector<S_BoneKeyframe> m_keyFrame;
+	std::vector<S_BoneKeyframe> m_KeyFrame;
 };
 } // namespace GLEngine::Renderer
