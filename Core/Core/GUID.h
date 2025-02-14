@@ -31,7 +31,7 @@ public:
 	[[nodiscard]] std::string toString() const;
 	[[nodiscard]]			  operator std::string() const;
 
-	void swap(GUID& guid);
+	void swap(GUID& guid) noexcept;
 
 	[[nodiscard]] std::size_t hash() const;
 

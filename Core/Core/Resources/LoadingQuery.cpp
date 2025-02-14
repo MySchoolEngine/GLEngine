@@ -6,17 +6,17 @@
 namespace GLEngine::Core {
 
 //=================================================================================
-void LoadingQuery::AddHandle(ResourceHandleBase handle)
+void LoadingQuery::AddHandle(const ResourceHandleBase& handle)
 {
 	// only add such handles, that are not loaded yet
 	// can also avoid deadlocks in some situations
 	if (handle.IsLoading())
-		m_handles.push_back(handle);}
+		m_Handles.push_back(handle);}
 
 //=================================================================================
 bool LoadingQuery::IsDone() const
 {
-	return std::all_of(m_handles.begin(), m_handles.end(), [](auto& handle) { return handle.IsLoading() == false; });
+	return std::all_of(m_Handles.begin(), m_Handles.end(), [](auto& handle) { return handle.IsLoading() == false; });
 }
 
 }

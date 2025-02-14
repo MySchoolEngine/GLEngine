@@ -6,11 +6,11 @@
 namespace GLEngine::Core {
 class CORE_API_EXPORT LoadingQuery {
 public:
-	void AddHandle(ResourceHandleBase handle);
+	void AddHandle(const ResourceHandleBase& handle);
 	[[nodiscard]] bool IsDone() const;
 	[[nodiscard]] explicit operator bool() const { return IsDone(); }
 
 private:
-	std::vector<ResourceHandleBase> m_handles;
+	std::vector<ResourceHandleBase> m_Handles;
 };
 }

@@ -120,7 +120,7 @@ template <typename T> concept BuildableResource = requires(T t)
 class I_ResourceLoader;
 
 // derived resources should take base resource as only constructor argument
-class CORE_API_EXPORT Resource : public I_EventReciever {
+class CORE_API_EXPORT Resource : public I_EventReceiver {
 public:
 	Resource();
 	~Resource() override;

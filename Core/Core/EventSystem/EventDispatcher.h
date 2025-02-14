@@ -1,10 +1,6 @@
 #pragma once
 
-#include <CoreStdafx.h>
-
 #include <Core/EventSystem/Event.h>
-
-#include <Utils/BitField.h>
 
 
 // strongly inspirited by Hazel

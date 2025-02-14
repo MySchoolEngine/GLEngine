@@ -7,7 +7,6 @@
 #include <Utils/Serialization/XMLSerialize.h>
 
 #include <rttr/registration>
-#include <rttr/type>
 
 RTTR_REGISTRATION
 {

@@ -24,7 +24,7 @@ class C_Viewport;
 
 namespace GLEngine::Editor {
 
-class EDITOR_API_EXPORT C_CurveEditor : public Core::I_EventReciever {
+class EDITOR_API_EXPORT C_CurveEditor : public Core::I_EventReceiver {
 public:
 	C_CurveEditor(Renderer::C_Curve& curve, const Core::I_Input& input);
 

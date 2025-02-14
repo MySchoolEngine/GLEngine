@@ -10,13 +10,17 @@
 #include <type_traits>
 
 namespace GLEngine::Core {
-template <class... Managers> class C_WindowManager : public I_WindowManager {
+template <class... Managers> class C_WindowManager final : public I_WindowManager {
 public:
 	explicit C_WindowManager(const C_Application::EventCallbackFn& callback)
 		: I_WindowManager(callback)
 		, m_UpdatingManager(nullptr)
 	{
 	}
+	C_WindowManager(const C_WindowManager& other)				 = default;
+	C_WindowManager(C_WindowManager&& other) noexcept			 = default;
+	C_WindowManager& operator=(const C_WindowManager& other)	 = default;
+	C_WindowManager& operator=(C_WindowManager&& other) noexcept = default;
 
 	//=================================================================================
 	~C_WindowManager() override = default;

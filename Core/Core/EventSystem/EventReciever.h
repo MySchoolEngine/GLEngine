@@ -5,9 +5,9 @@
 namespace GLEngine::Core {
 class I_Event;
 
-class CORE_API_EXPORT I_EventReciever {
+class CORE_API_EXPORT I_EventReceiver {
 public:
-	virtual ~I_EventReciever();
+	virtual ~I_EventReceiver();
 	virtual void OnEvent(I_Event& event) = 0;
 };
 

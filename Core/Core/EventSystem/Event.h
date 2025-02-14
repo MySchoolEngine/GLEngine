@@ -98,7 +98,7 @@ public:
 class CORE_API_EXPORT C_UserEvent : public I_Event {
 public:
 	explicit C_UserEvent(const std::string& name);
-	virtual ~C_UserEvent();
+	~C_UserEvent() override;
 
 	E_EventType							 GetType() const override;
 	::Utils::C_BitField<E_EventCategory> GetCategories() const override;

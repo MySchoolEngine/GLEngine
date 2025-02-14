@@ -5,8 +5,6 @@
 #if CORE_PLATFORM == CORE_PLATFORM_WIN
 
 	#ifdef GL_ENGINE_DEBUG
-		#include <fcntl.h>
-		#include <io.h>
 		#include <stdio.h>
 		#include <windows.h>
 	#endif

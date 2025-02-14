@@ -21,7 +21,7 @@ enum class E_ComponentType
 	Camera,
 };
 
-class ENTITY_API_EXPORT I_Entity : public Core::I_EventReciever {
+class ENTITY_API_EXPORT I_Entity : public Core::I_EventReceiver {
 protected:
 	using T_ComponentsContainer = std::multimap<E_ComponentType, T_ComponentPtr>*;
 	using T_ComponentIter		= std::remove_pointer<T_ComponentsContainer>::type::iterator;

@@ -5,6 +5,6 @@
 
 namespace GLEngine::Core {
 
-I_EventReciever::~I_EventReciever() = default;
+I_EventReceiver::~I_EventReceiver() = default;
 
 }

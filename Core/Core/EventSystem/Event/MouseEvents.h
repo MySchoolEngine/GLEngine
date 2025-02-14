@@ -1,7 +1,5 @@
 #pragma once
 
-#include <CoreStdafx.h>
-
 #include <Core/EventSystem/Event/InputEvents.h>
 #include <Core/InputDefinitions.h>
 

@@ -19,7 +19,7 @@ class I_Input;
 /************************************************************************/
 class CORE_API_EXPORT I_Window : public C_Layer {
 public:
-	virtual ~I_Window();
+	~I_Window() override;
 	[[nodiscard]] virtual unsigned int	 GetWidth() const  = 0;
 	[[nodiscard]] virtual unsigned int	 GetHeight() const = 0;
 	[[nodiscard]] virtual glm::uvec2	 GetSize() const   = 0;

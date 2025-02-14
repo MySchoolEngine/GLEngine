@@ -27,7 +27,7 @@ public:
 class I_WindowManager : public C_Layer {
 public:
 	CORE_API_EXPORT I_WindowManager(C_Application::EventCallbackFn callback);
-	CORE_API_EXPORT virtual ~I_WindowManager();
+	CORE_API_EXPORT ~I_WindowManager() override;
 	virtual std::shared_ptr<I_Window> OpenNewWindow(const S_WindowInfo& info) = 0;
 	virtual std::shared_ptr<I_Window> GetWindow(GUID guid) const			  = 0;
 	CORE_API_EXPORT virtual void	  AddWindowFactory(I_WindowFactory* wf);
@@ -40,9 +40,9 @@ public:
 protected:
 	CORE_API_EXPORT std::shared_ptr<I_Window> ConstructWindow(const S_WindowInfo& info) const;
 
-	Core::C_Application::EventCallbackFn m_EventCallback;
+	C_Application::EventCallbackFn m_EventCallback;
 
 private:
-	std::vector<I_WindowFactory*>* m_Facotries;
+	std::vector<I_WindowFactory*>* m_Factories;
 };
 } // namespace GLEngine::Core

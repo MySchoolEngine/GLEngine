@@ -6,7 +6,7 @@
 
 namespace GLEngine::Core {
 
-class CORE_API_EXPORT C_Layer : public I_EventReciever {
+class CORE_API_EXPORT C_Layer : public I_EventReceiver {
 public:
 	explicit C_Layer(const std::string& name);
 	~C_Layer() override = default;
