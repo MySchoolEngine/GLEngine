@@ -91,7 +91,7 @@ C_OrbitalCamera::C_OrbitalCamera(const std::shared_ptr<Entity::I_Entity>& owner)
 	, m_ControlSpeed(glm::radians(0.5f))
 {
 	_pos = _view = _up = _left = glm::vec3(0);
-	m_Transformation.SetEnabledTransforms(GUI::Input::C_Transformations::E_Transorms::Translate);
+	m_Transformation.SetEnabledTransforms(GUI::Input::C_Transformations::E_Transforms::Translate);
 }
 
 //=================================================================================
