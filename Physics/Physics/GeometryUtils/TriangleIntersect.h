@@ -7,10 +7,10 @@
 
 namespace GLEngine::Physics {
 
-template <class triangleDef> float TraingleRayIntersect(const triangleDef& vertices, const Primitives::S_Ray& ray, glm::vec2* barycentric = nullptr)
+template <class TriangleDef> float TriangleRayIntersect(const TriangleDef& vertices, const Primitives::S_Ray& ray, glm::vec2* barycentric = nullptr)
 {
-	// Möller–Trumbore intersection algorithm
-	const float EPSILON = 0.0000001f;
+	// Moller-Trumbore intersection algorithm
+	constexpr float EPSILON = 0.0000001f;
 	using namespace glm;
 	const vec3	edge1 = vertices[1] - vertices[0]; //TODO: precalculate? and measure
 	const vec3	edge2 = vertices[2] - vertices[0]; //TODO: precalculate? and measure

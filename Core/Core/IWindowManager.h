@@ -26,7 +26,7 @@ public:
 //=================================================================================
 class I_WindowManager : public C_Layer {
 public:
-	CORE_API_EXPORT I_WindowManager(C_Application::EventCallbackFn callback);
+	CORE_API_EXPORT I_WindowManager(const C_Application::EventCallbackFn& callback);
 	CORE_API_EXPORT ~I_WindowManager() override;
 	virtual std::shared_ptr<I_Window> OpenNewWindow(const S_WindowInfo& info) = 0;
 	virtual std::shared_ptr<I_Window> GetWindow(GUID guid) const			  = 0;
