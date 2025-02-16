@@ -70,7 +70,12 @@ C_SunShadowMapTechnique::C_SunShadowMapTechnique(const std::shared_ptr<Renderer:
 
 		m_Framebuffer->AttachTexture(GL_COLOR_ATTACHMENT0, hdrTexture);
 		auto* glTexture = glRM.GetTexture(hdrTexture);
-		glTexture->CreateHandle();
+		glTexture->SetReadyToUse();
+		GLE_TODO("27-12-2024", "RohacekD", "This is nasty hack. Calling this here woudl cause getting error texture (Identity wasn't uploaded to GPU yet)");
+		renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+			[glTexture]() {
+				glTexture->CreateHandle();
+			}, "Create identity handle"));
 		glTexture->MakeHandleResident(true);
 	}
 	else
@@ -99,7 +104,7 @@ C_SunShadowMapTechnique::C_SunShadowMapTechnique(const std::shared_ptr<Renderer:
 										.format		   = E_TextureFormat::D16,
 										.m_bStreamable = false};
 
-		auto  depthTexture	 = renderer.GetRM().createTexture(shadowMapDesc);
+		auto depthTexture = renderer.GetRM().createTexture(shadowMapDesc);
 		renderer.SetTextureSampler(depthTexture, gpuSamplerHandle);
 		auto* glDepthTexture = glRM.GetTexture(depthTexture);
 
@@ -153,7 +158,7 @@ void C_SunShadowMapTechnique::Render(const Entity::C_EntityManager& world, Rende
 	const auto sunCamPos = glm::inverse(toLightSpace) * glm::vec4(middleOfFace, 1.f);
 
 	const Physics::Primitives::C_Frustum lightFrustum(glm::vec3(sunCamPos) / sunCamPos.w + sunDirection * s_ZOffset, sunToTop, -sunDirection, s_ZOffset, depth + s_ZOffset,
-													width / height, 0);
+													  width / height, 0);
 
 	const auto lightView = lightFrustum.GetViewMatrix();
 
@@ -173,7 +178,7 @@ void C_SunShadowMapTechnique::Render(const Entity::C_EntityManager& world, Rende
 	{
 		using namespace Commands;
 		renderer.AddCommand(std::make_unique<C_GLClear>(C_GLClear::E_ClearBits::Color | C_GLClear::E_ClearBits::Depth));
-		renderer.AddCommand(std::make_unique<C_GLViewport>(Renderer::C_Viewport(0, 0, { s_ShadowMapSize, s_ShadowMapSize })));
+		renderer.AddCommand(std::make_unique<C_GLViewport>(Renderer::C_Viewport(0, 0, {s_ShadowMapSize, s_ShadowMapSize})));
 		renderer.AddCommand(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Back));
 	}
 
