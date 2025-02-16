@@ -3,6 +3,8 @@
 #include <Entity/IComponent.h>
 #include <Entity/IEntity.h>
 
+#include <Utils/Serialization/SerializationUtils.h>
+
 #include <pugixml.hpp>
 
 #include <imgui.h>
@@ -16,6 +18,9 @@ RTTR_REGISTRATION
 
 	rttr::registration::class_<I_Component>("I_Component")
 		.property("Transformation", &I_Component::m_Transformation)
+		(
+			REGISTER_DEFAULT_VALUE(GLEngine::GUI::Input::C_Transformations{})
+		)
 		(rttr::policy::prop::as_reference_wrapper)
 		.method("SetParent", &I_Component::SetParent);
 }
@@ -24,9 +29,9 @@ RTTR_REGISTRATION
 namespace GLEngine::Entity {
 
 //=================================================================================
-I_Component::I_Component(std::shared_ptr<I_Entity> owner)
-	: m_Owner(owner)
-	, m_Transformation(glm::mat4(1.f))
+I_Component::I_Component(const std::shared_ptr<I_Entity>& owner)
+	: m_Transformation(glm::mat4(1.f))
+	, m_Owner(owner)
 {
 }
 

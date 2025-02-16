@@ -7,7 +7,6 @@
 #include <Core/EventSystem/EventReciever.h>
 
 #include <rttr/type>
-#include <rttr/registration_friend.h>
 
 namespace pugi {
 class xml_node;
@@ -27,17 +26,17 @@ enum class E_ComponentType;
 //=================================================================================
 class ENTITY_API_EXPORT I_Component : public Core::I_EventReceiver {
 public:
-	explicit I_Component(std::shared_ptr<I_Entity> owner);
-	virtual ~I_Component()								  = default;
+	explicit I_Component(const std::shared_ptr<I_Entity>& owner);
+	~I_Component() override								  = default;
 	[[nodiscard]] virtual E_ComponentType GetType() const = 0;
 
-	virtual void OnEvent(Core::I_Event& event) override {}
+	void OnEvent(Core::I_Event& event) override {}
 
-	virtual void Update(){};
-	virtual void PostUpdate(){};
+	virtual void Update() {};
+	virtual void PostUpdate() {};
 
-	// draws inside of prepared window
-	virtual void			   DebugDrawGUI(){};
+	// draws inside prepared window
+	virtual void			   DebugDrawGUI() {};
 	void					   DebugDrawComponentGUI();
 	[[nodiscard]] virtual bool HasDebugDrawGUI() const = 0;
 	// should return name used for component in debug
@@ -57,8 +56,8 @@ protected:
 
 private:
 	std::weak_ptr<I_Entity> m_Owner;
-	RTTR_ENABLE();
-	RTTR_REGISTRATION_FRIEND;
+	RTTR_ENABLE()
+	RTTR_REGISTRATION_FRIEND
 };
 
 } // namespace Entity
@@ -67,8 +66,7 @@ private:
 using T_ComponentPtr = std::shared_ptr<Entity::I_Component>;
 
 //=================================================================================
-template <Entity::E_ComponentType e> class ComponenetBase {
-};
+template <Entity::E_ComponentType e> class ComponenetBase {};
 
 template <Entity::E_ComponentType e, typename retType = typename ComponenetBase<e>::type, typename ret = std::shared_ptr<retType>> constexpr ret component_cast(T_ComponentPtr comp)
 {
