@@ -28,5 +28,6 @@ public:
 	uint32_t		size;
 	E_BufferType	type;
 	E_ResourceUsage usage;
+	std::string		name = "";
 };
 } // namespace GLEngine::Renderer
