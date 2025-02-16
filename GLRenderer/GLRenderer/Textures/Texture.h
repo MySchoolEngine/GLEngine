@@ -21,7 +21,6 @@
 #include <Renderer/Resources/RenderResourceHandle.h>
 #include <Renderer/Textures/DeviceTexture.h>
 
-#include <rttr/registration.h>
 #include <rttr/registration_friend.h>
 
 namespace GLEngine::Renderer {

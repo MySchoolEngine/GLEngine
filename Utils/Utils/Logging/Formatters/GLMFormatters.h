@@ -2,7 +2,10 @@
 
 #include <glm/glm.hpp>
 
+#pragma warning(push)
+#pragma warning(disable : 4996)
 #include <fmt/format.h>
+#pragma warning(pop)
 
 template <> struct fmt::formatter<glm::vec4> {
 	constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }

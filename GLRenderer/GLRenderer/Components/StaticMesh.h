@@ -7,7 +7,6 @@
 
 #include <Core/Resources/ResourceHandle.h>
 
-#include <rttr/registration.h>
 #include <rttr/registration_friend.h>
 
 namespace GLEngine {

@@ -9,8 +9,6 @@
 
 #include <Utils/Parsing/ColorParsing.h>
 
-#include <rttr/registration.h>
-
 #pragma region registration
 // clang-format off
 RTTR_REGISTRATION

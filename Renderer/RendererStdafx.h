@@ -13,4 +13,8 @@
 #include <Renderer/RendererApi.h>
 #include <Renderer/Colours.h>
 
+#pragma warning(push)
+#pragma warning(disable : 4996)
 #include <rttr/registration.h>
+#include <rttr/registration_friend.h>
+#pragma warning(pop)

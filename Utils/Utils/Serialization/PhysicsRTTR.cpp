@@ -6,8 +6,6 @@
 
 #include <Utils/Serialization/SerializationUtils.h>
 
-#include <rttr/registration>
-
 // clang-format off
 RTTR_REGISTRATION
 {
