@@ -21,7 +21,7 @@
 namespace GLEngine::GLRenderer::Buffers::UBO {
 class C_FrameConstantsBuffer final : public C_UniformBuffer {
 public:
-	C_FrameConstantsBuffer(const std::string& blockName, unsigned int index, Renderer::ResourceManager& resourceManager);
+	C_FrameConstantsBuffer(const std::string& blockName, unsigned int index);
 
 	[[nodiscard]] std::size_t GetBufferSize() const override;
 	const void*				  Data() const override;

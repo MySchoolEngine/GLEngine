@@ -7,8 +7,8 @@
 namespace GLEngine::GLRenderer::Buffers::UBO {
 
 //=================================================================================
-C_JointTramsformsUBO::C_JointTramsformsUBO(const std::string& blockName, unsigned int index, const std::size_t numJoints, Renderer::ResourceManager& resourceManager)
-	: C_UniformBuffer(blockName, index, resourceManager)
+C_JointTramsformsUBO::C_JointTramsformsUBO(const std::string& blockName, unsigned int index, const std::size_t numJoints)
+	: C_UniformBuffer(blockName, index)
 {
 	m_JointTransforms.resize(numJoints);
 }

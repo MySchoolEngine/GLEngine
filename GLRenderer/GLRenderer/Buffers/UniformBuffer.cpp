@@ -10,7 +10,7 @@
 namespace GLEngine::GLRenderer::Buffers {
 
 //=================================================================================
-C_UniformBuffer::C_UniformBuffer(const std::string& blockName, unsigned int index, Renderer::ResourceManager& resourceManager)
+C_UniformBuffer::C_UniformBuffer(const std::string& blockName, unsigned int index)
 	: m_index(static_cast<GLuint>(index))
 	, m_blockName(blockName)
 	, m_active(false)
@@ -21,6 +21,18 @@ C_UniformBuffer::C_UniformBuffer(const std::string& blockName, unsigned int inde
 void C_UniformBuffer::UploadData(Renderer::I_Renderer& renderer) const
 {
 	renderer.SetBufferData(m_Handle, GetBufferSize(), Data());
+}
+
+//=================================================================================
+void C_UniformBuffer::PrepareBuffer(Renderer::ResourceManager& resourceManager)
+{
+	m_Handle = resourceManager.createBuffer(Renderer::BufferDescriptor{.size  = static_cast<uint32_t>(GetBufferSize()),
+																	   .type  = Renderer::E_BufferType::Uniform,
+																	   .usage = Renderer::E_ResourceUsage::Dynamic,
+																	   .name  = m_blockName});
+	// bind buffer base here
+	auto& glResourceManager = dynamic_cast<GLResourceManager&>(resourceManager);
+	glResourceManager.GetBuffer(m_Handle)->BindBase(GetIndex());
 }
 
 //=================================================================================

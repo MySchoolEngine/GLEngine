@@ -2,19 +2,13 @@
 
 #include <GLRenderer/Buffers/UBO/RainDataBuffer.h>
 
-#include <Renderer/Resources/ResourceManager.h>
-
 namespace GLEngine::GLRenderer::Buffers::UBO {
 
 //=================================================================================
-C_RainDataBuffer::C_RainDataBuffer(const std::string& blockName, unsigned int index, unsigned int textureDimension, Renderer::ResourceManager& resourceManager)
-	: C_UniformBuffer(blockName, index, resourceManager)
+C_RainDataBuffer::C_RainDataBuffer(const std::string& blockName, unsigned int index, unsigned int textureDimension)
+	: C_UniformBuffer(blockName, index)
 	, m_TextureDimension(textureDimension)
 {
-	m_Handle = resourceManager.createBuffer(Renderer::BufferDescriptor{.size  = static_cast<uint32_t>(GetBufferSize()),
-																	   .type  = Renderer::E_BufferType::Uniform,
-																	   .usage = Renderer::E_ResourceUsage::Dynamic,
-																	   .name  = blockName});
 }
 
 //=================================================================================

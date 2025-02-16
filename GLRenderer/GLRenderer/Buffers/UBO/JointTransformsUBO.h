@@ -7,7 +7,7 @@
 namespace GLEngine::GLRenderer::Buffers::UBO {
 class C_JointTramsformsUBO : public C_UniformBuffer {
 public:
-	C_JointTramsformsUBO(const std::string& blockName, unsigned int index, const std::size_t numJoints, Renderer::ResourceManager& resourceManager);
+	C_JointTramsformsUBO(const std::string& blockName, unsigned int index, const std::size_t numJoints);
 	void SetTransforms(std::vector<Renderer::S_BoneKeyframe>&& boneKeyframes);
 
 
