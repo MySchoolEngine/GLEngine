@@ -5,6 +5,9 @@
 #include <GLRenderer/Lights/PointLightStruct.h>
 #include <GLRenderer/Lights/SunLight.h>
 
+namespace GLEngine::Renderer {
+class I_Renderer;
+}
 namespace GLEngine::GLRenderer {
 namespace Textures {
 class C_Texture;
@@ -12,9 +15,10 @@ class C_Texture;
 
 class C_LightsBuffer final : public Buffers::C_UniformBuffer {
 public:
-	C_LightsBuffer(const std::string& blockName, unsigned int index);
-	void					  UploadData() const override;
+	C_LightsBuffer(const std::string& blockName, unsigned int index, Renderer::ResourceManager& resourceManager);
+
 	[[nodiscard]] std::size_t GetBufferSize() const override;
+	const void*				  Data() const override;
 
 	void SetPointLight(S_PointLight pl, std::size_t index) { m_PointLight[index] = pl; }
 

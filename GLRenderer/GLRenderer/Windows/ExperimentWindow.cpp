@@ -276,7 +276,7 @@ void C_ExperimentWindow::OnAppInit()
 {
 	m_renderer->Commit(); // to upload default textures before anything else
 	m_FrameTimer.reset();
-	m_MainPass = std::make_unique<C_MainPassTechnique>();
+	m_MainPass = std::make_unique<C_MainPassTechnique>(m_renderer->GetRM());
 	{
 		using namespace Commands;
 		m_renderer->AddCommand(std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::DEPTH_TEST));
@@ -287,7 +287,7 @@ void C_ExperimentWindow::OnAppInit()
 		m_renderer->AddCommand(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Front));
 	}
 
-	Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_ModelData>("modelData");
+	Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_ModelData>("modelData", m_renderer->GetRM());
 
 	m_RenderInterface
 		= std::make_unique<C_RenderInterface>(Shaders::C_ShaderManager::Instance(), Textures::C_TextureUnitManger::Instance(), *static_cast<C_OGLRenderer*>(m_renderer.get()));

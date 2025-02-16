@@ -191,8 +191,8 @@ void C_SunShadowMapTechnique::Render(const Entity::C_EntityManager& world, Rende
 				m_FrameConstUBO->SetCameraPosition(glm::vec4(lightFrustum.GetPosition(), 1.0f));
 				m_FrameConstUBO->SetNearPlane(lightFrustum.GetNear());
 				m_FrameConstUBO->SetFarPlane(lightFrustum.GetFar());
-				m_FrameConstUBO->UploadData();
-				m_FrameConstUBO->Activate(true);
+				m_FrameConstUBO->UploadData(renderer);
+				m_FrameConstUBO->Activate(renderer.GetRM(), true);
 			},
 			"MainPass - upload UBOs"));
 	}
