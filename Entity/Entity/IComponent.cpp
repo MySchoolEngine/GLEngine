@@ -19,6 +19,7 @@ RTTR_REGISTRATION
 	rttr::registration::class_<I_Component>("I_Component")
 		.property("Transformation", &I_Component::m_Transformation)
 		(
+			rttr::policy::prop::as_reference_wrapper, 
 			REGISTER_DEFAULT_VALUE(GLEngine::GUI::Input::C_Transformations{})
 		)
 		(rttr::policy::prop::as_reference_wrapper)
