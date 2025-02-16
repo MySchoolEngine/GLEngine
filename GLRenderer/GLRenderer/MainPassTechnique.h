@@ -7,6 +7,7 @@ class C_EntityManager;
 }
 
 namespace GLEngine::Renderer {
+class ResourceManager;
 class I_CameraComponent;
 }
 
@@ -24,7 +25,7 @@ class C_MaterialsBuffer;
 
 class C_MainPassTechnique {
 public:
-	explicit C_MainPassTechnique();
+	explicit C_MainPassTechnique(Renderer::ResourceManager& resourceManager);
 	void Render(const Entity::C_EntityManager& world, std::shared_ptr<Renderer::I_CameraComponent> camera, unsigned int width, unsigned int height);
 	void SetSunShadowMap(Renderer::Handle<Renderer::Texture> sunShadowMapHandle);
 	void SetSunViewProjection(glm::mat4 viewProjection);

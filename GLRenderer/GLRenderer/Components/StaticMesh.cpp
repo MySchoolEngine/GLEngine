@@ -144,7 +144,8 @@ void C_StaticMesh::PerformDraw() const
 			{
 				modelDataUbo->SetModelMatrix(GetComponentModelMatrix());
 				modelDataUbo->SetMaterialIndex(matIndex);
-				modelDataUbo->UploadData();
+				modelDataUbo->UploadData(renderer);
+				modelDataUbo->Activate(renderer.GetRM(), true);
 			}
 		},
 		"Per object data upload"));
