@@ -23,7 +23,7 @@ RTTR_REGISTRATION
 		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
 		.property("SunX", &C_SunLight::m_SunX)
 			(
-				rttr::policy::prop::bind_as_ptr,
+				rttr::policy::prop::as_reference_wrapper,
 				RegisterMetaclass<MetaGUI::Slider>(),
 				RegisterMetamember<UI::Slider::Name>("Sun X:"),
 				RegisterMetamember<UI::Slider::Min>(-1.0f),
@@ -31,7 +31,7 @@ RTTR_REGISTRATION
 			)
 		.property("SunY", &C_SunLight::m_SunY)
 			(
-				rttr::policy::prop::bind_as_ptr,
+				rttr::policy::prop::as_reference_wrapper,
 				RegisterMetaclass<MetaGUI::Slider>(),
 				RegisterMetamember<UI::Slider::Name>("Sun Y:"),
 				RegisterMetamember<UI::Slider::Min>(-1.0f),
@@ -39,7 +39,7 @@ RTTR_REGISTRATION
 			)
 		.property("SunZ", &C_SunLight::m_SunZ)
 			(
-				rttr::policy::prop::bind_as_ptr,
+				rttr::policy::prop::as_reference_wrapper,
 				RegisterMetaclass<MetaGUI::Slider>(),
 				RegisterMetamember<UI::Slider::Name>("Sun Z:"),
 				RegisterMetamember<UI::Slider::Min>(-1.0f),
@@ -47,13 +47,13 @@ RTTR_REGISTRATION
 			)
 		.property("SunColor", &C_SunLight::m_SunColor)
 			(
-				rttr::policy::prop::bind_as_ptr,
+				rttr::policy::prop::as_reference_wrapper,
 				RegisterMetaclass<MetaGUI::Colour>(),
 				RegisterMetamember<UI::Colour::Name>("Sun color")
 			)
 		.property("AsymmetricFactor", &C_SunLight::m_AsymetricFactor)
 			(
-				rttr::policy::prop::bind_as_ptr,
+				rttr::policy::prop::as_reference_wrapper,
 				RegisterMetaclass<MetaGUI::Slider>(),
 				RegisterMetamember<UI::Slider::Name>("Asymmetric factor:"),
 				RegisterMetamember<UI::Slider::Min>(0.f),
@@ -61,7 +61,7 @@ RTTR_REGISTRATION
 			)
 		.property("DiscMultiplier", &C_SunLight::m_AsymetricFactor)
 			(
-				rttr::policy::prop::bind_as_ptr,
+				rttr::policy::prop::as_reference_wrapper,
 				RegisterMetaclass<MetaGUI::Slider>(),
 				RegisterMetamember<UI::Slider::Name>("Disc multiplier:"),
 				RegisterMetamember<UI::Slider::Min>(1.f),
