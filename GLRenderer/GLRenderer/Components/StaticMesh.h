@@ -46,7 +46,7 @@ public:
 	std::string			  GetShader() const;
 	void				  SetShadowShader(const std::string shader);
 	std::string			  GetShadowShader() const;
-	void				  SetMeshFile(const std::filesystem::path meshfile);
+	void				  SetMeshFile(const std::filesystem::path meshFile);
 	std::filesystem::path GetMeshFile() const;
 
 	void SetMaterial(const std::shared_ptr<Renderer::C_Material>& material);
