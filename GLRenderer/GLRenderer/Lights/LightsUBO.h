@@ -15,7 +15,7 @@ class C_Texture;
 
 class C_LightsBuffer final : public Buffers::C_UniformBuffer {
 public:
-	C_LightsBuffer(const std::string& blockName, unsigned int index, Renderer::ResourceManager& resourceManager);
+	C_LightsBuffer(const std::string& blockName, unsigned int index);
 
 	[[nodiscard]] std::size_t GetBufferSize() const override;
 	const void*				  Data() const override;

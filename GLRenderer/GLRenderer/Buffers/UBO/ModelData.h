@@ -5,7 +5,7 @@
 namespace GLEngine::GLRenderer::Buffers::UBO {
 class C_ModelData : public C_UniformBuffer {
 public:
-	C_ModelData(const std::string& blockName, unsigned int index, Renderer::ResourceManager& resourceManager);
+	C_ModelData(const std::string& blockName, unsigned int index);
 
 	void SetModelMatrix(const glm::mat4& mat) { m_ModelMatrix = mat; }
 	void SetMaterialIndex(int index) { m_MaterialIndex = index; }

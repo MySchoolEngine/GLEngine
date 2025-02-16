@@ -1,23 +1,13 @@
 #include <GLRendererStdafx.h>
 
 #include <GLRenderer/Materials/MaterialBuffer.h>
-#include <GLRenderer/GLResourceManager.h>
-
-#include <Renderer/Resources/ResourceManager.h>
 
 namespace GLEngine::GLRenderer::Material {
 
 //=================================================================================
-C_MaterialsBuffer::C_MaterialsBuffer(const std::string& blockName, unsigned int index, Renderer::ResourceManager& resourceManager)
-	: Buffers::C_UniformBuffer(blockName, index, resourceManager)
+C_MaterialsBuffer::C_MaterialsBuffer(const std::string& blockName, unsigned int index)
+	: Buffers::C_UniformBuffer(blockName, index)
 {
-	m_Handle = resourceManager.createBuffer(Renderer::BufferDescriptor{.size  = static_cast<uint32_t>(GetBufferSize()),
-																	   .type  = Renderer::E_BufferType::Uniform,
-																	   .usage = Renderer::E_ResourceUsage::Dynamic,
-																	   .name  = blockName});
-	// bind buffer base here
-	auto& glResourceManager = dynamic_cast<GLResourceManager&>(resourceManager);
-	glResourceManager.GetBuffer(m_Handle)->BindBase(GetIndex());
 }
 
 //=================================================================================

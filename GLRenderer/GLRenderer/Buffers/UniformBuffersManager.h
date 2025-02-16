@@ -12,6 +12,10 @@
 #pragma once
 
 
+namespace GLEngine::Renderer {
+class ResourceManager;
+}
+
 namespace GLEngine::GLRenderer {
 
 namespace Shaders {
@@ -41,7 +45,7 @@ public:
 	using T_UBOSmartPtr = std::shared_ptr<C_UniformBuffer>;
 
 	// Singleton stuff
-	C_UniformBuffersManager(C_UniformBuffersManager const&) = delete;
+	C_UniformBuffersManager(C_UniformBuffersManager const&)					  = delete;
 	void							operator=(C_UniformBuffersManager const&) = delete;
 	static C_UniformBuffersManager& Instance();
 
@@ -49,7 +53,7 @@ public:
 	void Clear();
 
 	void													  BindUBOs(const Shaders::C_ShaderProgram* program) const;
-	template <class T, typename... Params> std::shared_ptr<T> CreateUniformBuffer(const std::string& name, Params&&... params);
+	template <class T, typename... Params> std::shared_ptr<T> CreateUniformBuffer(Renderer::ResourceManager& resourceManager, const std::string& name, Params&&... params);
 	// should be used only in debug
 	T_UBOSmartPtr GetBufferByName(const std::string& name) const;
 
@@ -67,11 +71,13 @@ private:
 };
 
 //=================================================================================
-template <class T, typename... Params> std::shared_ptr<T> C_UniformBuffersManager::CreateUniformBuffer(const std::string& name, Params&&... params)
+template <class T, typename... Params>
+std::shared_ptr<T> C_UniformBuffersManager::CreateUniformBuffer(Renderer::ResourceManager& resourceManager, const std::string& name, Params&&... params)
 {
 	GLE_ASSERT(m_BindingPoint.size() < m_MaxBindingPoints, "Too many uniform buffers");
 	auto ubo = std::make_shared<T>(name, static_cast<unsigned int>(m_BindingPoint.size()), std::forward<Params>(params)...);
 	GLE_ASSERT(ubo, "Unable to allocate UBO {}", name);
+	ubo->PrepareBuffer(resourceManager);
 	m_BindingPoint.push_back(ubo);
 	m_UsedMemory += ubo->GetBufferSize();
 
