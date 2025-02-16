@@ -63,7 +63,8 @@ C_SkeletalMesh::C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, const st
 
 	// setup joint transforms
 	auto& UBOMan		= Buffers::C_UniformBuffersManager::Instance();
-	m_TransformationUBO = UBOMan.CreateUniformBuffer<Buffers::UBO::C_JointTramsformsUBO>("jointTransforms", m_Skeleton.GetNumBones());
+	m_TransformationUBO
+		= UBOMan.CreateUniformBuffer<Buffers::UBO::C_JointTramsformsUBO>("jointTransforms", m_Skeleton.GetNumBones(), Core::C_Application::Get().GetActiveRenderer().GetRM());
 
 	// m_TransformationUBO->SetTransforms(m_Animation.GetTransform(0.f));
 

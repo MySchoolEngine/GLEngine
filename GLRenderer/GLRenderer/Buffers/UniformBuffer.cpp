@@ -1,43 +1,43 @@
 #include <GLRendererStdafx.h>
 
 #include <GLRenderer/Buffers/UniformBuffer.h>
+#include <GLRenderer/GLResourceManager.h>
+
+#include <Renderer/IRenderer.h>
+#include <Renderer/Resources/ResourceManager.h>
 
 
 namespace GLEngine::GLRenderer::Buffers {
 
 //=================================================================================
-C_UniformBuffer::C_UniformBuffer(const std::string& blockName, unsigned int index)
+C_UniformBuffer::C_UniformBuffer(const std::string& blockName, unsigned int index, Renderer::ResourceManager& resourceManager)
 	: m_index(static_cast<GLuint>(index))
 	, m_blockName(blockName)
 	, m_active(false)
 {
-	C_GLBuffer<GL_UNIFORM_BUFFER>::bind();
-	glObjectLabel(GL_BUFFER, m_ID, static_cast<GLsizei>(blockName.size()), blockName.c_str());
-	C_GLBuffer<GL_UNIFORM_BUFFER>::unbind();
-
-	glBindBufferBase(GL_UNIFORM_BUFFER, GetIndex(), m_ID);
 }
 
 //=================================================================================
-void C_UniformBuffer::Activate(bool activate)
+void C_UniformBuffer::UploadData(Renderer::I_Renderer& renderer) const
 {
+	renderer.SetBufferData(m_Handle, GetBufferSize(), Data());
+}
+
+//=================================================================================
+void C_UniformBuffer::Activate(Renderer::ResourceManager& resourceManager, bool activate)
+{
+	// bind buffer base here
+	auto& glResourceManager = dynamic_cast<GLResourceManager&>(resourceManager);
 	if (activate)
 	{
-		bind();
+		glResourceManager.GetBuffer(m_Handle)->bind();
 		m_active = true;
 	}
 	else
 	{
-		unbind();
+		glResourceManager.GetBuffer(m_Handle)->unbind();
 		m_active = false;
 	}
-}
-
-//=================================================================================
-void C_UniformBuffer::AllocateMemory(bool dynamicUsage, const void* initialData /*= nullptr*/)
-{
-	const auto usage = dynamicUsage ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
-	T_Base::AllocateMemory(GetBufferSize(), usage, initialData);
 }
 
 } // namespace GLEngine::GLRenderer::Buffers

@@ -2,34 +2,33 @@
 
 #include <GLRenderer/Buffers/UBO/RainDataBuffer.h>
 
+#include <Renderer/Resources/ResourceManager.h>
+
 namespace GLEngine::GLRenderer::Buffers::UBO {
 
 //=================================================================================
-C_RainDataBuffer::C_RainDataBuffer(const std::string& blockName, unsigned int index, unsigned int textureDimension)
-	: C_UniformBuffer(blockName, index)
+C_RainDataBuffer::C_RainDataBuffer(const std::string& blockName, unsigned int index, unsigned int textureDimension, Renderer::ResourceManager& resourceManager)
+	: C_UniformBuffer(blockName, index, resourceManager)
 	, m_TextureDimension(textureDimension)
 {
-	AllocateMemory(true, m_RainDrops.data());
+	m_Handle = resourceManager.createBuffer(Renderer::BufferDescriptor{.size  = static_cast<uint32_t>(GetBufferSize()),
+																	   .type  = Renderer::E_BufferType::Uniform,
+																	   .usage = Renderer::E_ResourceUsage::Dynamic,
+																	   .name  = blockName});
 }
 
 //=================================================================================
 std::size_t C_RainDataBuffer::GetBufferSize() const
 {
-	const auto bytes = sizeof(m_RainDrops);
+	constexpr auto bytes = sizeof(m_RainDrops);
 
 	return bytes;
 }
 
 //=================================================================================
-void C_RainDataBuffer::UploadData() const
+const void* C_RainDataBuffer::Data() const
 {
-	bind();
-	auto* data = (char*)glMapBuffer(GetBufferType(), GL_WRITE_ONLY);
-
-	memcpy(data, m_RainDrops.data(), GetBufferSize());
-
-	glUnmapBuffer(GetBufferType());
-	unbind();
+	return m_RainDrops.data();
 }
 
 //=================================================================================

@@ -53,7 +53,7 @@ void C_GLGeomComponent::PerformDraw() const
 			{
 				modelDataUbo->SetModelMatrix(GetComponentModelMatrix());
 				modelDataUbo->SetMaterialIndex(matIndex);
-				modelDataUbo->UploadData();
+				modelDataUbo->UploadData(renderer);
 			}
 			ErrorCheck();
 		},

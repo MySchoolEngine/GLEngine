@@ -36,7 +36,7 @@ public:
 
 	bool IsActive() const { return m_bIsActive; }
 
-	void BindUBO(std::shared_ptr<Buffers::C_UniformBuffer>) const;
+	void BindUBO(const std::shared_ptr<Buffers::C_UniformBuffer>&) const;
 
 	void SetName(const std::string& name) noexcept;
 	std::string GetName() const;
