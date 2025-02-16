@@ -65,7 +65,8 @@ bool C_EntitiesWindow::Draw(GUI::C_GUIManager& guiMgr) const
 
 		m_EntityTypeSelector.Draw();
 		static std::string entityName;
-		if (ImGui::Button("Spawn") || ImGui::InputText("Entity name", &entityName))
+		ImGui::InputText("Entity name", &entityName);
+		if (ImGui::Button("Spawn") && !entityName.empty())
 		{
 			const auto type = rttr::type::get_by_name(m_EntityTypeSelector.GetSelectedTypeName());
 			if (entityName.empty())
