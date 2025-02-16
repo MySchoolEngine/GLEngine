@@ -19,20 +19,27 @@
 #include <GLRenderer/Buffers/UniformBuffer.h>
 
 namespace GLEngine::GLRenderer::Buffers::UBO {
-class C_FrameConstantsBuffer : public C_UniformBuffer {
+class C_FrameConstantsBuffer final : public C_UniformBuffer {
 public:
-	C_FrameConstantsBuffer(const std::string& blockName, unsigned int index);
-
-	void UploadData() const override;
+	C_FrameConstantsBuffer(const std::string& blockName, unsigned int index, Renderer::ResourceManager& resourceManager);
 
 	[[nodiscard]] std::size_t GetBufferSize() const override;
+	const void*				  Data() const override;
 
 	[[nodiscard]] const glm::vec4& GetCameraPosition() const { return m_CameraPosition; }
 	void						   SetCameraPosition(const glm::vec4& val) { m_CameraPosition = val; }
 	[[nodiscard]] const glm::mat4& GetView() const { return m_ViewMat; }
-	void						   SetView(const glm::mat4& val) { m_ViewMat = val; }
+	void						   SetView(const glm::mat4& val)
+	{
+		m_ViewMat = val;
+		UpdateViewProjection();
+	}
 	[[nodiscard]] const glm::mat4& GetProjection() const { return m_ProjectionMat; }
-	void						   SetProjection(const glm::mat4& val) { m_ProjectionMat = val; }
+	void						   SetProjection(const glm::mat4& val)
+	{
+		m_ProjectionMat = val;
+		UpdateViewProjection();
+	}
 
 	[[nodiscard]] float GetAmbientStrength() const { return m_AmbientStrength; }
 	void				SetAmbientStrength(float strength) { m_AmbientStrength = strength; }
@@ -42,9 +49,12 @@ public:
 	void SetFarPlane(float distance) { m_FarPlane = distance; }
 
 private:
-	glm::vec4 m_CameraPosition;
-	glm::mat4 m_ViewMat;
+	void UpdateViewProjection();
+
 	glm::mat4 m_ProjectionMat;
+	glm::mat4 m_ViewMat;
+	glm::mat4 m_viewProjectionMatrix;
+	glm::vec4 m_CameraPosition;
 	float	  m_AmbientStrength;
 	float	  m_Time;
 	float	  m_NearPlane;

@@ -118,7 +118,7 @@ void C_ShaderProgram::DestroyProgram()
 }
 
 //=================================================================================
-void C_ShaderProgram::BindUBO(std::shared_ptr<Buffers::C_UniformBuffer> ubo) const
+void C_ShaderProgram::BindUBO(const std::shared_ptr<Buffers::C_UniformBuffer>& ubo) const
 {
 	int uboBlockLocation = FindUniformBlockLocation(ubo->GetBlockName().c_str());
 	if (uboBlockLocation > 0)

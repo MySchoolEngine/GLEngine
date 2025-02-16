@@ -15,7 +15,7 @@
 #include <Renderer/Descriptors/BufferDescriptor.h>
 
 namespace GLEngine::GLRenderer {
-class GLBuffer {
+class GLBuffer final {
 public:
 	explicit GLBuffer(const Renderer::BufferDescriptor& desc)
 		: desc(desc)
