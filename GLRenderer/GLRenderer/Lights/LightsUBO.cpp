@@ -1,26 +1,16 @@
 #include <GLRendererStdafx.h>
 
-#include <GLRenderer/GLResourceManager.h>
 #include <GLRenderer/Lights/LightsUBO.h>
 #include <GLRenderer/Textures/Texture.h>
 #include <GLRenderer/Textures/TextureLoader.h>
-
-#include <Renderer/Resources/ResourceManager.h>
 
 
 namespace GLEngine::GLRenderer {
 
 //=================================================================================
-C_LightsBuffer::C_LightsBuffer(const std::string& blockName, unsigned int index, Renderer::ResourceManager& resourceManager)
-	: C_UniformBuffer(blockName, index, resourceManager)
+C_LightsBuffer::C_LightsBuffer(const std::string& blockName, unsigned int index)
+	: C_UniformBuffer(blockName, index)
 {
-	m_Handle = resourceManager.createBuffer(Renderer::BufferDescriptor{.size  = static_cast<uint32_t>(GetBufferSize()),
-																	   .type  = Renderer::E_BufferType::Uniform,
-																	   .usage = Renderer::E_ResourceUsage::Dynamic,
-																	   .name  = blockName});
-	// bind buffer base here
-	auto& glResourceManager = dynamic_cast<GLResourceManager&>(resourceManager);
-	glResourceManager.GetBuffer(m_Handle)->BindBase(GetIndex());
 
 	Textures::TextureLoader tl;
 
