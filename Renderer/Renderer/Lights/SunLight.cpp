@@ -5,11 +5,10 @@
 
 #include <GUI/ReflectionGUI.h>
 
-#include <Utils/Reflection/Metadata.h>
-
 #include <Physics/Primitives/Frustum.h>
 
-#include <rttr/registration>
+#include <Utils/Reflection/Metadata.h>
+#include <Utils/Serialization/SerializationUtils.h>
 
 #pragma region registration
 // clang-format off
@@ -49,7 +48,8 @@ RTTR_REGISTRATION
 			(
 				rttr::policy::prop::as_reference_wrapper,
 				RegisterMetaclass<MetaGUI::Colour>(),
-				RegisterMetamember<UI::Colour::Name>("Sun color")
+				RegisterMetamember<UI::Colour::Name>("Sun color"),
+				REGISTER_DEFAULT_VALUE(GLEngine::Colours::white)
 			)
 		.property("AsymmetricFactor", &C_SunLight::m_AsymetricFactor)
 			(
@@ -65,7 +65,8 @@ RTTR_REGISTRATION
 				RegisterMetaclass<MetaGUI::Slider>(),
 				RegisterMetamember<UI::Slider::Name>("Disc multiplier:"),
 				RegisterMetamember<UI::Slider::Min>(1.f),
-				RegisterMetamember<UI::Slider::Max>(20.0f)
+				RegisterMetamember<UI::Slider::Max>(20.0f),
+				REGISTER_DEFAULT_VALUE(1.f)
 			);
 
 	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_SunLight>>();
