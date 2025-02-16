@@ -5,17 +5,17 @@
 
 namespace GLEngine::GLRenderer::Commands::HACK {
 
-class C_LambdaCommand : public Renderer::I_RenderCommand {
+class C_LambdaCommand final : public Renderer::I_RenderCommand {
 public:
-	explicit C_LambdaCommand(std::function<void(void)> fnc, const std::string& name = "");
+	explicit C_LambdaCommand(const std::function<void(void)>& fnc, const std::string& name = "");
 
 	//=================================================================================
-	virtual void								  Commit() override;
-	virtual E_Type								  GetType() const override;
+	void								  Commit() override;
+	E_Type								  GetType() const override;
 
 
 	//=================================================================================
-	[[nodiscard]] virtual std::string GetDescriptor() const override;
+	[[nodiscard]] std::string GetDescriptor() const override;
 
 private:
 	std::string				  m_Name;

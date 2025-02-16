@@ -9,11 +9,11 @@ public:
 	static C_GLBindTexture UnbindTarget(GLenum target);
 
 	//=================================================================================
-	virtual void								  Commit() override;
-	virtual E_Type								  GetType() const override;
+	void   Commit() override;
+	E_Type GetType() const override;
 
 	//=================================================================================
-	[[nodiscard]] virtual std::string GetDescriptor() const override;
+	[[nodiscard]] std::string GetDescriptor() const override;
 
 private:
 	GLenum m_Target;

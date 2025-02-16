@@ -8,7 +8,7 @@ namespace GLEngine::GLRenderer::Buffers::UBO {
 class C_TerrainStats : public C_ShaderStorageBuffer {
 public:
 	explicit C_TerrainStats(unsigned int index);
-	~C_TerrainStats() = default;
+	~C_TerrainStats() override = default;
 
 
 	float min;
@@ -17,9 +17,9 @@ public:
 	//==============================================
 	// C_ShaderStorageBuffer
 	//==============================================
-	virtual void UploadData() const override;
-	virtual void DownloadData() override;
-	virtual void ClearBuffer() override;
+	void UploadData() const override;
+	void DownloadData() override;
+	void ClearBuffer() override;
 };
 
 } // namespace GLEngine::GLRenderer::Buffers::UBO

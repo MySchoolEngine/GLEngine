@@ -7,11 +7,11 @@ namespace GLEngine::Renderer {
 //=================================================================================
 bool C_PSOCache::HasPipelineCached(const PipelineDescriptor& desc) const
 {
-	return m_Cache.find(std::hash<PipelineDescriptor>{}(desc)) != m_Cache.end();
+	return m_Cache.contains(std::hash<PipelineDescriptor>{}(desc));
 }
 
 //=================================================================================
-void C_PSOCache::CachePipeline(const PipelineDescriptor& desc, Handle<Pipeline> handle)
+void C_PSOCache::CachePipeline(const PipelineDescriptor& desc, const Handle<Pipeline> handle)
 {
 	m_Cache[std::hash<PipelineDescriptor>{}(desc)] = handle;
 }

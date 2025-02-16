@@ -1,6 +1,7 @@
 #include <RendererStdafx.h>
 
 #include <Renderer/Colours.h>
+#include <Renderer/Mesh/Scene.h>
 #include <Renderer/RayCasting/Geometry/RayTraceScene.h>
 #include <Renderer/RayCasting/Geometry/SceneGeometry.h>
 #include <Renderer/RayCasting/Geometry/Trimesh.h>
@@ -33,21 +34,21 @@ C_RayTraceScene::C_RayTraceScene()
 	m_Textures.emplace_back(rm.LoadResource<TextureResource>(std::filesystem::path(R"(Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp)")));
 	m_LoadingTextures.AddHandle(m_Textures[0]);
 
-	static const MeshData::Material red{glm::vec4{}, glm::vec4{Colours::red, 0}, glm::vec4{}, 0.f, -1, -1, "red"};
-	static const MeshData::Material green{glm::vec4{}, glm::vec4{Colours::green, 0}, glm::vec4{}, 0.f, -1, -1, "green"};
-	static const MeshData::Material white{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, -1, -1, "white"};
-	static const MeshData::Material brick{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, 0, -1, "brick"}; // brick texture
-	static const MeshData::Material blue{glm::vec4{}, glm::vec4{Colours::blue, 0}, glm::vec4{}, 0.f, -1, -1, "blue"};
-	static const MeshData::Material blueMirror{glm::vec4{}, glm::vec4{Colours::blue, 0}, glm::vec4{}, 1.f, -1, -1, "blueMirror"};
-	static const MeshData::Material black{glm::vec4{}, glm::vec4{Colours::black, 0.f}, glm::vec4{}, 0.f, -1, -1, "black"};
+	static const MeshData::Material s_Red{glm::vec4{}, glm::vec4{Colours::red, 0}, glm::vec4{}, 0.f, -1, -1, "red"};
+	static const MeshData::Material s_Green{glm::vec4{}, glm::vec4{Colours::green, 0}, glm::vec4{}, 0.f, -1, -1, "green"};
+	static const MeshData::Material s_White{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, -1, -1, "white"};
+	static const MeshData::Material s_Brick{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, 0, -1, "brick"}; // brick texture
+	static const MeshData::Material s_Blue{glm::vec4{}, glm::vec4{Colours::blue, 0}, glm::vec4{}, 0.f, -1, -1, "blue"};
+	static const MeshData::Material s_BlueMirror{glm::vec4{}, glm::vec4{Colours::blue, 0}, glm::vec4{}, 1.f, -1, -1, "blueMirror"};
+	static const MeshData::Material s_Black{glm::vec4{}, glm::vec4{Colours::black, 0.f}, glm::vec4{}, 0.f, -1, -1, "black"};
 
-	auto* redMat		= AddMaterial(red).get();
-	auto* greenMat		= AddMaterial(green).get();
-	auto* whiteMat		= AddMaterial(white).get();
-	auto* brickMat		= AddMaterial(brick).get();
-	auto* blueMat		= AddMaterial(blue).get();
-	auto* blueMirrorMat = AddMaterial(blueMirror).get();
-	auto* blackMat		= AddMaterial(black).get();
+	auto* redMat		= AddMaterial(s_Red).get();
+	auto* greenMat		= AddMaterial(s_Green).get();
+	auto* whiteMat		= AddMaterial(s_White).get();
+	auto* brickMat		= AddMaterial(s_Brick).get();
+	auto* blueMat		= AddMaterial(s_Blue).get();
+	auto* blueMirrorMat = AddMaterial(s_BlueMirror).get();
+	auto* blackMat		= AddMaterial(s_Black).get();
 
 	DISABLE
 	{
@@ -208,7 +209,7 @@ bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInte
 
 		[[nodiscard]] bool operator<(const S_IntersectionInfo& a) const { return t < a.t; }
 	};
-	S_IntersectionInfo closestIntersect{C_RayIntersection(), std::numeric_limits<float>::max(), nullptr};
+	S_IntersectionInfo closestIntersect{.intersection = C_RayIntersection(), .t = std::numeric_limits<float>::max(), .object = nullptr};
 
 	std::for_each(m_Objects.begin(), m_Objects.end(), [&](const auto& object) {
 		C_RayIntersection inter;
@@ -241,7 +242,7 @@ void C_RayTraceScene::AddObject(std::shared_ptr<I_RayGeometryObject>&& object)
 //=================================================================================
 void C_RayTraceScene::AddLight(std::shared_ptr<RayTracing::C_AreaLight>&& light)
 {
-	AddObject(std::move(light->GetGeometry()));
+	AddObject(light->GetGeometry());
 
 	m_AreaLights.emplace_back(std::move(light));
 }
@@ -253,7 +254,7 @@ void C_RayTraceScene::AddLight(std::shared_ptr<RayTracing::C_PointLight>&& light
 }
 
 //=================================================================================
-void C_RayTraceScene::ForEachLight(std::function<void(const std::reference_wrapper<const RayTracing::I_RayLight>& light)> fnc) const
+void C_RayTraceScene::ForEachLight(const std::function<void(const std::reference_wrapper<const RayTracing::I_RayLight>& light)>& fnc) const
 {
 	std::for_each(m_AreaLights.begin(), m_AreaLights.end(), [&](const std::shared_ptr<RayTracing::C_AreaLight>& light) { fnc(*(light.get())); });
 	std::for_each(m_PointLights.begin(), m_PointLights.end(), [&](const std::shared_ptr<RayTracing::C_PointLight>& light) { fnc(*(light.get())); });
@@ -264,7 +265,7 @@ void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh, const MeshData::Materi
 {
 	::Utils::HighResolutionTimer renderTime;
 	using namespace Physics::Primitives;
-//#define OLD_TRIMESH
+// #define OLD_TRIMESH
 #ifdef OLD_TRIMESH
 	auto list = std::make_shared<C_GeometryList>();
 	for (auto it = mesh.vertices.begin(); it != mesh.vertices.end(); it += 3)

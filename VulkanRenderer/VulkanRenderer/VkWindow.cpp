@@ -731,8 +731,8 @@ void C_VkWindow::SetupGUI()
 		auto  cameras = player->GetComponents(Entity::E_ComponentType::Camera);
 		float zoom	  = 5.0f;
 		playerCamera  = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
-		playerCamera->setupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
-		playerCamera->setupCameraView(zoom, glm::vec3(0.0f), 90, 0);
+		playerCamera->SetupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
+		playerCamera->SetupCameraView(zoom, glm::vec3(0.0f), 90, 0);
 		playerCamera->Update();
 		player->AddComponent(playerCamera);
 	}

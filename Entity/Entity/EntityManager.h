@@ -22,7 +22,7 @@ namespace Entity {
 class I_Entity;
 class I_ComponentBuilderFactory;
 
-class ENTITY_API_EXPORT C_EntityManager : public Core::I_EventReciever {
+class ENTITY_API_EXPORT C_EntityManager : public Core::I_EventReceiver {
 public:
 	C_EntityManager();
 	~C_EntityManager();

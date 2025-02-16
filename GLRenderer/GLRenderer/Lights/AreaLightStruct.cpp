@@ -15,11 +15,11 @@ const auto ptlReg = []() {
 S_AreaLight::S_AreaLight()
 	: m_LightMat(1.f)
 	, m_Pos(0.f)
-	, m_Width(10.f)
-	, m_Height(10.f)
 	, m_Normal(0.f)
 	, m_Intensity(0.0f)
 	, m_Color(Colours::white)
+	, m_Width(10.f)
+	, m_Height(10.f)
 {
 }
 

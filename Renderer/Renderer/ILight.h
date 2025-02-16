@@ -19,9 +19,9 @@ public:
 		: Entity::I_Component(owner)
 	{
 	}
-	virtual ~I_Light() = default;
+	~I_Light() override = default;
 
-	[[nodiscard]] virtual Entity::E_ComponentType GetType() const override { return Entity::E_ComponentType::Light; }
+	[[nodiscard]] Entity::E_ComponentType GetType() const override { return Entity::E_ComponentType::Light; }
 
 	virtual Physics::Primitives::C_Frustum GetShadingFrustum() const = 0;
 

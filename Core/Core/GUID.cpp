@@ -27,7 +27,6 @@ GUID::GUID(std::string_view fromString)
 
 //=================================================================================
 GUID::GUID()
-	: m_Guid()
 {
 }
 
@@ -50,7 +49,7 @@ std::string GUID::toString() const
 }
 
 //=================================================================================
-void GUID::swap(GUID& guid)
+void GUID::swap(GUID& guid) noexcept
 {
 	m_Guid.swap(guid.m_Guid);
 }

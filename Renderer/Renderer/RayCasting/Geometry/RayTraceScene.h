@@ -48,7 +48,7 @@ public:
 	void			   AddLight(std::shared_ptr<RayTracing::C_PointLight>&& light);
 	void			   AddMesh(const MeshData::Mesh& mesh, const MeshData::Material& material, const BVH* bvh = nullptr);
 
-	void ForEachLight(std::function<void(const std::reference_wrapper<const RayTracing::I_RayLight>& light)> fnc) const;
+	void ForEachLight(const std::function<void(const std::reference_wrapper<const RayTracing::I_RayLight>& light)>& fnc) const;
 
 	[[nodiscard]] C_TextureView GetTextureView(int textureID) const;
 

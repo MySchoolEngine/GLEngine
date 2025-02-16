@@ -8,7 +8,6 @@
 
 #include <Core/Resources/ResourceHandle.h>
 
-#include <rttr/registration.h>
 #include <rttr/registration_friend.h>
 
 namespace GLEngine::Renderer {
@@ -18,7 +17,7 @@ class C_Material;
 class RENDERER_API_EXPORT C_StaticMeshHandles : public I_RenderableComponent {
 public:
 	C_StaticMeshHandles();
-	virtual ~C_StaticMeshHandles() = default;
+	~C_StaticMeshHandles() override = default;
 
 	void						 PerformDraw() const override;
 	bool						 HasDebugDrawGUI() const override;

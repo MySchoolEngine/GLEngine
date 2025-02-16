@@ -40,7 +40,7 @@ void C_CPURasterizer::DrawCircle(const Colours::T_Colour& colour, const glm::ive
 		float t1		 = radius / 16;
 		float t2		 = 0.f;
 		int	  y			 = 0;
-		int	  x			 = radius;
+		int	  x			 = static_cast<int>(radius);
 		while (x >= y)
 		{
 			m_view.Set(p + glm::ivec2{x, y}, glm::vec4{colour, 1.f});
@@ -66,7 +66,7 @@ void C_CPURasterizer::DrawCircle(const Colours::T_Colour& colour, const glm::ive
 		float t1 = radius / 16;
 		float t2 = 0.f;
 		int	  y	 = 0;
-		int	  x	 = radius;
+		int	  x	 = static_cast<int>(radius);
 		while (x >= y)
 		{
 			m_view.Set(p + glm::ivec2{x, y}, glm::vec4{colour, 1.f});

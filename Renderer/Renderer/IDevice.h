@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Renderer/Descriptors/TextureDescriptor.h>
-#include <Renderer/RendererApi.h>
 #include <Renderer/Textures/DeviceTexture.h>
 #include <Renderer/Textures/TextureSampler.h>
 
@@ -28,6 +26,7 @@
  */
 
 namespace GLEngine::Renderer {
+struct TextureDescriptor;
 class I_Device {
 public:
 	I_Device()			= default;

@@ -119,7 +119,7 @@ protected:
 			info.m_name = "ExperimentWindow";
 			info.m_WindowClass = "ExperimentWindow";
 			info.m_MinorVersion = 4;
-			info.m_Maximalize = true;
+			info.m_Maximize = true;
 
 			m_WndMgr->OpenNewWindow(info);
 		}
@@ -131,7 +131,7 @@ protected:
 			S_VkWindowInfo info(640, 480);
 			info.m_name = "VkWindow";
 			info.m_WindowClass = "VkWindow";
-			info.m_Maximalize = true;
+			info.m_Maximize = true;
 
 			m_WndMgr->OpenNewWindow(info);
 		}
@@ -145,9 +145,9 @@ protected:
 	}
 private:
 #if CORE_PLATFORM == CORE_PLATFORM_WIN
-	GLEngine::Core::C_WindwoManager<GLEngine::GLFWManager::C_GLFWWindowManager, GLEngine::DX12Renderer::C_D3D12WindowManager>* m_WndMgr;
+	GLEngine::Core::C_WindowManager<GLEngine::GLFWManager::C_GLFWWindowManager, GLEngine::DX12Renderer::C_D3D12WindowManager>* m_WndMgr;
 #else
-	GLEngine::Core::C_WindwoManager<GLEngine::GLFWManager::C_GLFWWindowManager>* m_WndMgr;
+	GLEngine::Core::C_WindowManager<GLEngine::GLFWManager::C_GLFWWindowManager>* m_WndMgr;
 #endif
 };
 

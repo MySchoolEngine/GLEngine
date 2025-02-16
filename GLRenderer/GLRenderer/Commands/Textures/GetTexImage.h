@@ -22,8 +22,8 @@ public:
 	//=================================================================================
 	// Renderer::I_RenderCommand
 	//=================================================================================
-	virtual void								  Commit() override;
-	virtual E_Type								  GetType() const override;
+	void								  Commit() override;
+	E_Type								  GetType() const override;
 
 	//=================================================================================
 	[[nodiscard]] virtual std::string GetDescriptor() const override;
@@ -35,7 +35,7 @@ private:
 	GLenum														  m_Format;
 	GLenum														  m_Type;
 	std::size_t													  m_Width;
-	std::size_t													  m_Hegiht;
+	std::size_t													  m_Height;
 	std::uint8_t												  m_Channels;
 };
 

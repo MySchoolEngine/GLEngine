@@ -20,7 +20,7 @@ class C_FrameConstantsBuffer;
 // completly broken now
 class C_ShadowMapTechnique {
 public:
-	C_ShadowMapTechnique(std::shared_ptr<Entity::C_EntityManager> world, std::shared_ptr<Renderer::I_Light>& light, Renderer::I_Device& device);
+	C_ShadowMapTechnique(const std::shared_ptr<Entity::C_EntityManager>& world, const std::shared_ptr<Renderer::I_Light>& light, Renderer::I_Device& device);
 	~C_ShadowMapTechnique();
 	void Render();
 

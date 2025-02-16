@@ -40,7 +40,7 @@ void C_FrameConstantsBuffer::UploadData() const
 
 	if (!data)
 	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Trying to map unexistant buffer.");
+		CORE_LOG(E_Level::Error, E_Context::Render, "Trying to map un-existent buffer.");
 		return;
 	}
 

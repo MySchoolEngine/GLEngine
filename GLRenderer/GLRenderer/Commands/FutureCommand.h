@@ -21,9 +21,9 @@ public:
 	//======================================
 	// Renderer::I_RenderCommand
 	//======================================
-	virtual void								  Commit() override;
-	virtual E_Type								  GetType() const override { return E_Type::Undefined; }
-	[[nodiscard]] virtual std::string			  GetDescriptor() const override;
+	void					  Commit() override;
+	E_Type					  GetType() const override { return E_Type::Undefined; }
+	[[nodiscard]] std::string GetDescriptor() const override;
 
 	[[nodiscard]] std::future<retT> GetFuture() { return m_Promise.get_future(); }
 

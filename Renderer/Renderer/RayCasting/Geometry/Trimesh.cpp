@@ -1,6 +1,7 @@
 #include <RendererStdafx.h>
 
 #include <Renderer/DebugDraw.h>
+#include <Renderer/Mesh/Scene.h>
 #include <Renderer/RayCasting/Geometry/Trimesh.h>
 #include <Renderer/RayCasting/RayIntersection.h>
 
@@ -87,7 +88,7 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 	for (int i = 0; i < m_Vertices.size(); i += 3)
 	{
 		const glm::vec3* triDef = &(m_Vertices[i]);
-		const auto		 length = Physics::TraingleRayIntersect(triDef, ray, &barycentric);
+		const auto		 length = Physics::TriangleRayIntersect(triDef, ray, &barycentric);
 		if (length > 0.0f)
 		{
 			if (closestIntersect.t < length)

@@ -7,7 +7,7 @@
 namespace GLEngine::Renderer {
 
 //=================================================================================
-std::unique_ptr<GLEngine::Renderer::I_Renderer> F_RendererFacotry::GetRenderer()
+std::unique_ptr<GLEngine::Renderer::I_Renderer> F_RendererFactory::GetRenderer()
 {
 	return nullptr;
 	// return std::make_unique<GLRenderer::C_OGLRenderer>();

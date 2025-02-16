@@ -20,7 +20,7 @@ class C_UniformBuffer : public C_GLBuffer<GL_UNIFORM_BUFFER> {
 public:
 	using T_Base = C_GLBuffer<GL_UNIFORM_BUFFER>;
 	C_UniformBuffer(const std::string& blockName, unsigned int index);
-	virtual ~C_UniformBuffer() = default;
+	~C_UniformBuffer() override = default;
 
 	void AllocateMemory(bool dynamicUsage, const void* initialData = nullptr);
 

@@ -25,7 +25,7 @@ class I_Entity;
 enum class E_ComponentType;
 
 //=================================================================================
-class ENTITY_API_EXPORT I_Component : public Core::I_EventReciever {
+class ENTITY_API_EXPORT I_Component : public Core::I_EventReceiver {
 public:
 	explicit I_Component(std::shared_ptr<I_Entity> owner);
 	virtual ~I_Component()								  = default;

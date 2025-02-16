@@ -88,7 +88,13 @@ C_StaticMesh::C_StaticMesh()
 	, m_Material(nullptr)
 {
 	SetShader("basicTracing"); // TODO
-	Renderer::MeshData::Material material{glm::vec4{1.0f, 0.0f, 0.f, 0.f}, glm::vec4{1.0f, 0.0f, 0.f, 0.f}, glm::vec4{1.0f, 0.0f, 0.f, 0.f}, .5f, -1, -1, "Default"};
+	const Renderer::MeshData::Material material{.ambient			= glm::vec4{1.0f, 0.0f, 0.f, 0.f},
+												.diffuse			= glm::vec4{1.0f, 0.0f, 0.f, 0.f},
+												.specular			= glm::vec4{1.0f, 0.0f, 0.f, 0.f},
+												.shininess			= .5f,
+												.textureIndex		= -1,
+												.noramlTextureIndex = -1,
+												.m_Name				= "Default"};
 	SetMaterial(material);
 }
 

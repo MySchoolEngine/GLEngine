@@ -19,6 +19,7 @@ class RENDERER_API_EXPORT MeshResource : public Core::Resource {
 public:
 	DEFINE_RESOURCE_WITH_PATH_TYPE(MeshResource, Core::Filesystem::modelFolder)
 	MeshResource();
+	~MeshResource() override = default;
 
 	[[nodiscard]] bool									  Load(const std::filesystem::path& filepath) override;
 	[[nodiscard]] bool									  Reload() override;
@@ -39,8 +40,8 @@ private:
 
 class RENDERER_API_EXPORT MeshLoader : public Core::ResourceLoader<MeshResource> {
 public:
-	virtual std::shared_ptr<Core::Resource> CreateResource() const override;
-	virtual std::vector<std::string>		GetSupportedExtensions() const override;
+	std::shared_ptr<Core::Resource> CreateResource() const override;
+	std::vector<std::string>		GetSupportedExtensions() const override;
 };
 } // namespace GLEngine::Renderer
 

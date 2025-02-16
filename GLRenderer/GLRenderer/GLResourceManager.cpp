@@ -1,7 +1,6 @@
 #include <GLRendererStdafx.h>
 
 #include <GLRenderer/GLResourceManager.h>
-#include <GLRenderer/Helpers/OpenGLTypesHelpers.h>
 #include <GLRenderer/OGLDevice.h>
 
 namespace GLEngine::GLRenderer {

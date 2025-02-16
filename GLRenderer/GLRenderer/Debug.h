@@ -114,25 +114,25 @@ public:
 	C_DebugDraw(C_DebugDraw const&) = delete;
 	void				operator=(C_DebugDraw const&) = delete;
 	static C_DebugDraw& Instance();
-	~C_DebugDraw();
+	~C_DebugDraw() override;
 
 	void Clear();
 
 
-	virtual void DrawPoint(const glm::vec3& point, const Colours::T_Colour& color = Colours::black, const glm::mat4& modelMatrix = glm::mat4(1.0f)) override;
-	virtual void DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, const Colours::T_Colour& color = Colours::black) override;
-	virtual void DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, const Colours::T_Colour& colorA, const Colours::T_Colour& colorB) override;
-	virtual void DrawLines(const std::vector<glm::vec4>& pairs, const Colours::T_Colour& color = Colours::black) override;
-	virtual void DrawAABB(const Physics::Primitives::S_AABB& bbox, const Colours::T_Colour& color = Colours::black, const glm::mat4& modelMatrix = glm::mat4(1.0f)) override;
+	void DrawPoint(const glm::vec3& point, const Colours::T_Colour& color = Colours::black, const glm::mat4& modelMatrix = glm::mat4(1.0f)) override;
+	void DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, const Colours::T_Colour& color = Colours::black) override;
+	void DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, const Colours::T_Colour& colorA, const Colours::T_Colour& colorB) override;
+	void DrawLines(const std::vector<glm::vec4>& pairs, const Colours::T_Colour& color = Colours::black) override;
+	void DrawAABB(const Physics::Primitives::S_AABB& bbox, const Colours::T_Colour& color = Colours::black, const glm::mat4& modelMatrix = glm::mat4(1.0f)) override;
 
-	virtual void DrawBone(const glm::vec3& position, const Renderer::S_Joint& joint) override;
-	virtual void DrawSkeleton(const glm::vec3& root, const Renderer::C_Skeleton& skeleton) override;
-	virtual void DrawPose(const Renderer::C_Skeleton& skeleton, const Renderer::I_Pose& pose, const glm::mat4& mat) override;
+	void DrawBone(const glm::vec3& position, const Renderer::S_Joint& joint) override;
+	void DrawSkeleton(const glm::vec3& root, const Renderer::C_Skeleton& skeleton) override;
+	void DrawPose(const Renderer::C_Skeleton& skeleton, const Renderer::I_Pose& pose, const glm::mat4& mat) override;
 
-	virtual void DrawAxis(const glm::vec3& origin, const glm::vec3& up, const glm::vec3& foreward, const glm::mat4& modelMatrix = glm::mat4(1.0f)) override;
+	void DrawAxis(const glm::vec3& origin, const glm::vec3& up, const glm::vec3& forward, const glm::mat4& modelMatrix = glm::mat4(1.0f)) override;
 	void		 DrawGrid(const glm::vec4& origin, unsigned short linesToSide, const glm::mat4& modelMatrix = glm::mat4(1.0f));
 
-	void DrawFrustum(const Physics::Primitives::C_Frustum& frust, const Colours::T_Colour& color = Colours::black);
+	void DrawFrustum(const Physics::Primitives::C_Frustum& frustum, const Colours::T_Colour& color = Colours::black);
 
 	void ProbeDebug(const glm::vec3& position, float size, std::shared_ptr<Textures::C_Texture> texture);
 

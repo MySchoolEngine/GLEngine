@@ -5,7 +5,7 @@
 
 namespace GLEngine::Renderer {
 
-class RENDERER_API_EXPORT F_RendererFacotry {
+class RENDERER_API_EXPORT F_RendererFactory {
 public:
 	static std::unique_ptr<Renderer::I_Renderer> GetRenderer();
 };

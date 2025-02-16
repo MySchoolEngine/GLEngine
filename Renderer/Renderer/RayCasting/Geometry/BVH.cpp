@@ -244,7 +244,7 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection
 	for (unsigned int i = node->firstTrig; i <= node->lastTrig; i += 3)
 	{
 		const glm::vec3* triDef = &(m_Storage->at(i));
-		const auto		 length = Physics::TraingleRayIntersect(triDef, ray, &barycentric);
+		const auto		 length = Physics::TriangleRayIntersect(triDef, ray, &barycentric);
 		if (length > 0.0f)
 		{
 			if (closestIntersect.t < length)

@@ -7,7 +7,6 @@
 #include <GLRenderer/OGLRenderer.h>
 #include <GLRenderer/RenderInterface.h>
 #include <GLRenderer/Shaders/ShaderManager.h>
-#include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 
 namespace GLEngine::GLRenderer {

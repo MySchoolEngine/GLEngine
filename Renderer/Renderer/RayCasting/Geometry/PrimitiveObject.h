@@ -19,7 +19,7 @@ public:
 	{
 	}
 
-	[[nodiscard]] virtual bool Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const override
+	[[nodiscard]] bool Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const override
 	{
 		const auto t = m_Primitive.IntersectImpl(ray);
 		if (t <= 0)
@@ -30,7 +30,7 @@ public:
 		intersection.SetRayLength(t);
 		return true;
 	}
-	[[nodiscard]] virtual float Area() const override { return m_Area; }
+	[[nodiscard]] float Area() const override { return m_Area; }
 
 	T m_Primitive;
 

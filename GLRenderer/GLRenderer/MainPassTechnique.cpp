@@ -5,12 +5,10 @@
 #include <GLRenderer/Commands/GLClear.h>
 #include <GLRenderer/Commands/GLViewport.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
-#include <GLRenderer/Lights/GLAreaLight.h>
 #include <GLRenderer/Lights/LightsUBO.h>
 #include <GLRenderer/MainPassTechnique.h>
 #include <GLRenderer/Materials/MaterialBuffer.h>
 #include <GLRenderer/OGLRenderer.h>
-#include <GLRenderer/Textures/TextureUnitManager.h>
 
 #include <Renderer/ICameraComponent.h>
 #include <Renderer/IRenderableComponent.h>
@@ -92,21 +90,20 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shar
 				const auto frustum = areaLight->GetShadingFrustum();
 
 
-				const auto left	  = glm::normalize(glm::cross(frustum.GetForeward(), frustum.GetUpVector()));
 				const auto pos	  = frustum.GetPosition();
 				const auto up	  = frustum.GetUpVector();
 				const auto width  = areaLight->GetWidth() / 2.0f;
 				const auto height = areaLight->GetHeight() / 2.0f;
 
-				const auto dirX = glm::cross(frustum.GetForeward(), up);
+				const auto dirX = glm::cross(frustum.GetForward(), up);
 
 				S_AreaLight light;
-				light.m_LightMat	  = glm::ortho(-width, width, -height, height, frustum.GetNear(), frustum.GetFar()) * glm::lookAt(pos, pos + frustum.GetForeward(), up);
+				light.m_LightMat	  = glm::ortho(-width, width, -height, height, frustum.GetNear(), frustum.GetFar()) * glm::lookAt(pos, pos + frustum.GetForward(), up);
 				light.m_Pos			  = pos;
 				light.m_ShadowMap	  = static_cast<int>(areaLightIndex);
 				light.m_Width		  = width;
 				light.m_Height		  = height;
-				light.m_Normal		  = frustum.GetForeward();
+				light.m_Normal		  = frustum.GetForward();
 				light.m_DirY		  = up;
 				light.m_DirX		  = dirX;
 				light.m_Color		  = areaLight->DiffuseColour();
@@ -125,7 +122,7 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shar
 				auto* sunShadowMapGL = glRM.GetTexture(m_SunShadowMap);
 				m_LightsUBO->GetSunLight().SetSunPosition(sunLight->GetSunDirection());
 				m_LightsUBO->GetSunLight().m_SunColor			 = sunLight->GetSunColor();
-				m_LightsUBO->GetSunLight().m_AsymetricFactor	 = sunLight->AtmosphereAsymetricFactor();
+				m_LightsUBO->GetSunLight().m_AsymmetricFactor	 = sunLight->AtmosphereAsymetricFactor();
 				m_LightsUBO->GetSunLight().m_SunDiscMultiplier	 = sunLight->SunDiscMultiplier();
 				m_LightsUBO->GetSunLight().m_LightViewProjection = m_SunViewProjection;
 				m_LightsUBO->GetSunLight().m_SunShadowMap		 = sunShadowMapGL->GetHandle();

@@ -23,14 +23,14 @@ namespace GLEngine::GLRenderer::Components {
 class C_SkeletalMesh : public Renderer::I_RenderableComponent {
 public:
 	C_SkeletalMesh(std::shared_ptr<Entity::I_Entity> owner, const std::filesystem::path& meshFile, const std::filesystem::path& meshFolder = "Models");
-	~C_SkeletalMesh();
-	virtual void PerformDraw() const override;
-	virtual void Update() override;
+	~C_SkeletalMesh() override;
+	void PerformDraw() const override;
+	void Update() override;
 
-	virtual void									  DebugDrawGUI() override;
-	virtual bool									  HasDebugDrawGUI() const override;
-	virtual std::string_view						  GetDebugComponentName() const override;
-	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override;
+	void									  DebugDrawGUI() override;
+	bool									  HasDebugDrawGUI() const override;
+	std::string_view						  GetDebugComponentName() const override;
+	[[nodiscard]] Physics::Primitives::S_AABB GetAABB() const override;
 
 	void						 SetColorMapPath(const std::filesystem::path& path);
 	const std::filesystem::path& GetColorMapPath() const;

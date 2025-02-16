@@ -1,39 +1,37 @@
 #include <CoreStdafx.h>
 
 #include <Core/IWindowManager.h>
-#include <Core/WindowInfo.h>
-
 
 namespace GLEngine::Core {
 
 //=================================================================================
-I_WindowManager::I_WindowManager(C_Application::EventCallbackFn callback)
-	: Core::C_Layer("WindowManager")
+I_WindowManager::I_WindowManager(const C_Application::EventCallbackFn& callback)
+	: C_Layer("WindowManager")
 	, m_EventCallback(callback)
-	, m_Facotries(new std::remove_pointer<decltype(m_Facotries)>::type)
+	, m_Factories(new std::remove_pointer_t<decltype(m_Factories)>)
 {
 }
 
 //=================================================================================
 I_WindowManager::~I_WindowManager()
 {
-	for (auto* wf : *m_Facotries)
+	for (auto* wf : *m_Factories)
 	{
 		delete wf;
 	}
-	delete m_Facotries;
+	delete m_Factories;
 }
 
 //=================================================================================
 void I_WindowManager::AddWindowFactory(I_WindowFactory* wf)
 {
-	m_Facotries->emplace_back(std::move(wf));
+	m_Factories->emplace_back(std::move(wf));
 }
 
 //=================================================================================
-std::shared_ptr<Core::I_Window> I_WindowManager::ConstructWindow(const S_WindowInfo& info) const
+std::shared_ptr<I_Window> I_WindowManager::ConstructWindow(const S_WindowInfo& info) const
 {
-	for (const auto* wf : *m_Facotries)
+	for (const auto* wf : *m_Factories)
 	{
 		auto window = wf->GetWindow(info);
 		if (window)

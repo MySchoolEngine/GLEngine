@@ -1,8 +1,11 @@
 #pragma once
 
+#pragma warning(push)
+#pragma warning(disable : 4996)
 #include <fmt/format.h>
-
 #include <rttr/type>
+#pragma warning(pop)
+
 
 template <> struct fmt::formatter<rttr::string_view> {
 	constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }

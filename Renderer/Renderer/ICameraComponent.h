@@ -18,14 +18,14 @@ namespace Renderer {
 
 class RENDERER_API_EXPORT I_CameraComponent : public Entity::I_Component {
 public:
-	explicit I_CameraComponent(std::shared_ptr<Entity::I_Entity> owner);
-	virtual ~I_CameraComponent(); // = default;
-	virtual Entity::E_ComponentType GetType() const override;
+	explicit I_CameraComponent(const std::shared_ptr<Entity::I_Entity>& owner);
+	~I_CameraComponent() override; // = default;
+	Entity::E_ComponentType GetType() const override;
 
-	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override;
+	[[nodiscard]] Physics::Primitives::S_AABB GetAABB() const override;
 
 	[[nodiscard]] virtual glm::mat4 GetViewProjectionMatrix() const = 0;
-	[[nodiscard]] virtual glm::mat4 GetScreenToworldMatrix() const	= 0;
+	[[nodiscard]] virtual glm::mat4 GetScreenToWorldMatrix() const	= 0;
 	[[nodiscard]] virtual glm::mat4 GetProjectionMatrix() const		= 0;
 	[[nodiscard]] virtual glm::mat4 GetViewMatrix() const			= 0;
 	[[nodiscard]] virtual glm::quat GetRotation() const				= 0;

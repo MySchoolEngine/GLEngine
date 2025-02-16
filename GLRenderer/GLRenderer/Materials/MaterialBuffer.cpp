@@ -16,7 +16,7 @@ void C_MaterialsBuffer::UploadData() const
 {
 	bind();
 	constexpr auto phongMaterialsSize = sizeof(m_PhongMaterials);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, phongMaterialsSize, &(m_PhongMaterials[0]));
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, phongMaterialsSize, m_PhongMaterials.data());
 	unbind();
 }
 

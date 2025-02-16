@@ -38,10 +38,10 @@ ModelLoader::ModelLoader()
 ModelLoader::~ModelLoader() = default;
 
 //=================================================================================
-bool ModelLoader::addModelFromFileToScene(const std::filesystem::path&				 path,
-										  std::shared_ptr<Renderer::MeshData::Scene> scene,
-										  std::vector<std::filesystem::path>&		 textureRegister,
-										  glm::mat4									 sceneTransform)
+bool ModelLoader::addModelFromFileToScene(const std::filesystem::path&						path,
+										  const std::shared_ptr<Renderer::MeshData::Scene>& scene,
+										  std::vector<std::filesystem::path>&				textureRegister,
+										  const glm::mat4&									sceneTransform)
 {
 	const auto loadedScene = _tryOpenFile(path);
 

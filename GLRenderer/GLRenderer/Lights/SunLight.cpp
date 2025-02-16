@@ -16,9 +16,9 @@ S_SunLight::S_SunLight()
 	: m_SunPosition(0, 1, 0)
 	, m_SunDiscMultiplier(1.f)
 	, m_SunColor(Colours::white)
-	, m_AsymetricFactor(0.6f)
-	, m_SunShadowMap(0)
+	, m_AsymmetricFactor(0.6f)
 	, m_SunlightPresent(1)
+	, m_SunShadowMap(0)
 {
 }
 
@@ -29,7 +29,7 @@ Shaders::C_StructDescriptor S_SunLight::GetDescriptionImpl() const
 	ret.Push("position", &S_SunLight::m_SunPosition);
 	ret.Push("discMultiplier", &S_SunLight::m_SunDiscMultiplier);
 	ret.Push("color", &S_SunLight::m_SunColor);
-	ret.Push("asymetricFactor", &S_SunLight::m_AsymetricFactor);
+	ret.Push("asymetricFactor", &S_SunLight::m_AsymmetricFactor);
 	ret.Push("viewProjection", &S_SunLight::m_LightViewProjection);
 	ret.Push("sunlightPresent", &S_SunLight::m_SunlightPresent);
 	ret.Push("sunShadowMap", &S_SunLight::m_SunShadowMap);

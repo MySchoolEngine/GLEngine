@@ -23,9 +23,9 @@ class C_FrameConstantsBuffer : public C_UniformBuffer {
 public:
 	C_FrameConstantsBuffer(const std::string& blockName, unsigned int index);
 
-	virtual void UploadData() const override;
+	void UploadData() const override;
 
-	[[nodiscard]] virtual std::size_t GetBufferSize() const override;
+	[[nodiscard]] std::size_t GetBufferSize() const override;
 
 	[[nodiscard]] const glm::vec4& GetCameraPosition() const { return m_CameraPosition; }
 	void						   SetCameraPosition(const glm::vec4& val) { m_CameraPosition = val; }

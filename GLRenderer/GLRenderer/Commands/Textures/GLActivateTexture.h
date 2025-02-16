@@ -8,11 +8,11 @@ public:
 	explicit C_GLActivateTexture(unsigned int unit);
 
 	//=================================================================================
-	virtual void								  Commit() override;
-	virtual E_Type								  GetType() const override;
+	void   Commit() override;
+	E_Type GetType() const override;
 
 	//=================================================================================
-	[[nodiscard]] virtual std::string GetDescriptor() const override;
+	[[nodiscard]] std::string GetDescriptor() const override;
 
 private:
 	unsigned int m_Unit;

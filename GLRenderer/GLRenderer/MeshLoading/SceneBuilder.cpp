@@ -184,7 +184,7 @@ std::shared_ptr<Renderer::I_DeviceTexture> C_SceneBuilder::LoadTexture(const Ren
 	// 	name,
 	// 	texture.GetDimensions().x,
 	// 	texture.GetDimensions().y,
-	// 	Renderer::E_TextureType::TEXTUE_2D,
+	// 	Renderer::E_TextureType::TEXTURE_2D,
 	// 	Renderer::E_TextureFormat::RGBA8i
 	// };
 	//

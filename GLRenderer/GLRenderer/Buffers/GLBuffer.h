@@ -66,17 +66,17 @@ public:
 template <GLenum TYPE> class C_GLBuffer : public I_GLBufferBase {
 public:
 	C_GLBuffer();
-	virtual ~C_GLBuffer();
+	~C_GLBuffer() override;
 
-	virtual void bind() const override;
-	virtual void unbind() const override;
+	void bind() const override;
+	void unbind() const override;
 
 	constexpr GLenum GetBufferType() const noexcept;
 
-	virtual void AllocateMemory(const std::size_t size, GLenum usage, const void* data = nullptr) override;
+	void AllocateMemory(const std::size_t size, GLenum usage, const void* data = nullptr) override;
 
 	//=================================================================================
-	virtual void NameBuffer(const std::string& name) const override { glObjectLabel(GL_BUFFER, m_ID, static_cast<GLsizei>(name.length()), name.c_str()); }
+	void NameBuffer(const std::string& name) const override { glObjectLabel(GL_BUFFER, m_ID, static_cast<GLsizei>(name.length()), name.c_str()); }
 
 protected:
 	GLuint m_ID;

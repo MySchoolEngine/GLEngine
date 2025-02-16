@@ -11,10 +11,11 @@ public:
 		: m_Desc(desc)
 	{
 	}
+	virtual ~I_TextureSampler2D() = default;
 
-	virtual void SetWrap(Renderer::E_WrapFunction wrapS, Renderer::E_WrapFunction wrapT) = 0;
-	virtual void SetFilter(Renderer::E_TextureFilter min, Renderer::E_TextureFilter mag) = 0;
-	virtual void SetBorderColor(const glm::vec4& color)									 = 0;
+	virtual void SetWrap(E_WrapFunction wrapS, E_WrapFunction wrapT) = 0;
+	virtual void SetFilter(E_TextureFilter min, E_TextureFilter mag) = 0;
+	virtual void SetBorderColor(const glm::vec4& color)				 = 0;
 
 protected:
 	SamplerDescriptor2D m_Desc;

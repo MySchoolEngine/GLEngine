@@ -25,7 +25,7 @@ protected:
 	int									m_KeyCode;
 	::Utils::C_BitField<E_KeyModifiers> m_Modifiers;
 
-	virtual ::Utils::C_BitField<E_EventCategory> GetInputCategory() const override { return E_EventCategory::Keyboard; }
+	::Utils::C_BitField<E_EventCategory> GetInputCategory() const override { return E_EventCategory::Keyboard; }
 };
 
 //=================================================================================
@@ -37,7 +37,7 @@ public:
 	{
 	}
 
-	EVENT_CLASS_TYPE(KeyPressed);
+	EVENT_CLASS_TYPE(KeyPressed)
 };
 
 //=================================================================================
@@ -49,7 +49,7 @@ public:
 	{
 	}
 
-	EVENT_CLASS_TYPE(KeyRepeated);
+	EVENT_CLASS_TYPE(KeyRepeated)
 };
 
 //=================================================================================
@@ -61,7 +61,7 @@ public:
 	{
 	}
 
-	EVENT_CLASS_TYPE(KeyReleased);
+	EVENT_CLASS_TYPE(KeyReleased)
 };
 
 
@@ -76,11 +76,11 @@ public:
 
 	inline int GetCodePoint() const { return m_Codepoint; }
 
-	EVENT_CLASS_TYPE(TextInput);
+	EVENT_CLASS_TYPE(TextInput)
 
 protected:
 	unsigned int m_Codepoint;
 
-	virtual ::Utils::C_BitField<E_EventCategory> GetInputCategory() const override { return E_EventCategory::Keyboard; }
+	::Utils::C_BitField<E_EventCategory> GetInputCategory() const override { return E_EventCategory::Keyboard; }
 };
 } // namespace GLEngine::Core

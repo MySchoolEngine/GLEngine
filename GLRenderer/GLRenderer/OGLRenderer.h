@@ -13,9 +13,6 @@
 #include <Core/CoreMacros.h>
 
 namespace GLEngine {
-namespace GUI {
-class C_MenuItem;
-}
 
 namespace GUI::Menu {
 class C_MenuItem;
@@ -27,37 +24,37 @@ class C_GLDevice;
 class C_OGLRenderer : public Renderer::I_Renderer {
 public:
 	C_OGLRenderer(C_GLDevice&);
-	virtual ~C_OGLRenderer() override;
+	~C_OGLRenderer() override;
 
 	//=================================================================================
 	// Renderer::I_Renderer
 	//=================================================================================
-	virtual void AddCommand(Renderer::I_Renderer::T_CommandPtr) override;
-	virtual void AddTransferCommand(T_CommandPtr) override; //< obsolete
+	void AddCommand(Renderer::I_Renderer::T_CommandPtr) override;
+	void AddTransferCommand(T_CommandPtr) override; //< obsolete
 
-	virtual void Commit() const override;
-	virtual void ClearCommandBuffers() override;
+	void Commit() const override;
+	void ClearCommandBuffers() override;
 
 
 	//=================================================================================
-	virtual void Lock(bool lock = true) override;
+	void Lock(bool lock = true) override;
 
 	GUID SetupControls(GUI::C_GUIManager& guiMan);
 	void DestroyControls(GUI::C_GUIManager& guiMan);
 
 	//=================================================================================
-	virtual Renderer::E_PassType GetCurrentPassType() const override;
-	virtual void				 SetCurrentPassType(Renderer::E_PassType type) override;
+	Renderer::E_PassType GetCurrentPassType() const override;
+	void				 SetCurrentPassType(Renderer::E_PassType type) override;
 
-	bool						WantWireframe() const { return m_Wireframe.GetValue(); }
-	virtual Renderer::I_Device& GetDevice() override;
-	void						SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer, std::size_t numBytes, const void* data) override;
-	void						SetTextureData(Renderer::Handle<Renderer::Texture> dstTexture, const Renderer::I_TextureViewStorage& storage) override;
-	void						SetTextureSampler(Renderer::Handle<Renderer::Texture> dstTexture, Renderer::Handle<Renderer::Sampler> srcSampler) override;
-	void*						GetTextureGUIHandle(Renderer::Handle<Renderer::Texture> texture) override;
+	bool				WantWireframe() const { return m_Wireframe.GetValue(); }
+	Renderer::I_Device& GetDevice() override;
+	void				SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer, std::size_t numBytes, const void* data) override;
+	void				SetTextureData(Renderer::Handle<Renderer::Texture> dstTexture, const Renderer::I_TextureViewStorage& storage) override;
+	void				SetTextureSampler(Renderer::Handle<Renderer::Texture> dstTexture, Renderer::Handle<Renderer::Sampler> srcSampler) override;
+	void*				GetTextureGUIHandle(Renderer::Handle<Renderer::Texture> texture) override;
 
 	Renderer::ResourceManager& GetRM() override;
-	GLResourceManager&		  GetRMGR();
+	GLResourceManager&		   GetRMGR();
 
 private:
 	void CaptureCommands() const;
@@ -79,8 +76,7 @@ private:
 
 	C_GLDevice& m_Device;
 
-	enum class E_GUITexts : std::uint8_t
-	{
+	enum class E_GUITexts : std::uint8_t {
 		AvgDrawCommands,
 		MinMax,
 		DrawCalls,

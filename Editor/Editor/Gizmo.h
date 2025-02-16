@@ -18,7 +18,7 @@ class I_CameraComponent;
 namespace GLEngine::Editor {
 class C_MousePickingHelper;
 
-class C_Gizmo : Core::I_EventReciever {
+class C_Gizmo : Core::I_EventReceiver {
 public:
 	C_Gizmo(const glm::vec3& position, const Core::I_Input& input);
 

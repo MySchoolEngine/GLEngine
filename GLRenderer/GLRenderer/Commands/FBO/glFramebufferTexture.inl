@@ -10,7 +10,7 @@ namespace GLEngine::GLRenderer::Commands {
 //=================================================================================
 template <E_FramebufferTarget framebuffer>
 C_glFramebufferTexture<framebuffer>::C_glFramebufferTexture(const GLenum attachment, const Renderer::Handle<Renderer::Texture> texture)
-	: m_Attachement(attachment)
+	: m_Attachment(attachment)
 	, m_Texture(texture)
 {
 }
@@ -22,7 +22,7 @@ template <E_FramebufferTarget framebuffer> void C_glFramebufferTexture<framebuff
 	auto& glRM = dynamic_cast<C_OGLRenderer&>(renderer).GetRMGR();
 	auto* texture = glRM.GetTexture(m_Texture);
 
-	glFramebufferTexture(T_FramebufferTarget<framebuffer>::value, m_Attachement, texture->GetTexture(), 0);
+	glFramebufferTexture(T_FramebufferTarget<framebuffer>::value, m_Attachment, texture->GetTexture(), 0);
 }
 
 //=================================================================================
@@ -37,7 +37,7 @@ template <E_FramebufferTarget framebuffer> std::string GLEngine::GLRenderer::Com
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
 	auto& glRM = dynamic_cast<C_OGLRenderer&>(renderer).GetRMGR();
 	auto* texture = glRM.GetTexture(m_Texture);
-	return fmt::format("glFramebufferTexture {} {}", m_Attachement, texture->GetTexture());
+	return fmt::format("glFramebufferTexture {} {}", m_Attachment, texture->GetTexture());
 }
 
 } // namespace GLEngine::GLRenderer::Commands

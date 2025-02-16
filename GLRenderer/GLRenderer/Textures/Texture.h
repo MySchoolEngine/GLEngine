@@ -21,7 +21,6 @@
 #include <Renderer/Resources/RenderResourceHandle.h>
 #include <Renderer/Textures/DeviceTexture.h>
 
-#include <rttr/registration.h>
 #include <rttr/registration_friend.h>
 
 namespace GLEngine::Renderer {
@@ -41,9 +40,9 @@ class C_Texture : public Renderer::I_DeviceTexture {
 public:
 	explicit C_Texture(const Renderer::TextureDescriptor& desc);
 	C_Texture(const C_Texture&) = delete;
-	C_Texture(C_Texture&& t);
+	C_Texture(C_Texture&& t) noexcept;
 	void operator=(C_Texture&& rhs) noexcept;
-	virtual ~C_Texture();
+	~C_Texture() override;
 
 	[[nodiscard]] bool IsAllocated() const override;
 	void			   SetReadyToUse() { m_IsPresentOnGPU = true; }

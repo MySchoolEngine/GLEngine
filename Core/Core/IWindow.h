@@ -19,13 +19,13 @@ class I_Input;
 /************************************************************************/
 class CORE_API_EXPORT I_Window : public C_Layer {
 public:
-	virtual ~I_Window();
+	~I_Window() override;
 	[[nodiscard]] virtual unsigned int	 GetWidth() const  = 0;
 	[[nodiscard]] virtual unsigned int	 GetHeight() const = 0;
 	[[nodiscard]] virtual glm::uvec2	 GetSize() const   = 0;
 	[[nodiscard]] virtual const I_Input& GetInput() const  = 0;
 	/**
-	 * Transforms screen space coordinates to clip space
+	 * Transforms screen space coordinates to clip space.
 	 * Clip space have (0,0) in the middle of viewport
 	 */
 	[[nodiscard]] virtual glm::vec2 ToClipSpace(const glm::vec2& screenCoord) const = 0;
@@ -36,13 +36,13 @@ public:
 	 * @method:    Init
 	 * @fullName:  Core::I_Window::Init
 	 * @return:    void
-	 * @param: 	   const S_WindowInfo & - should be corresponding subcalss
+	 * @param: 	   const S_WindowInfo & - should be corresponding subclass
 	 * @brief
 	 ** ==============================================*/
 	virtual void Init(const S_WindowInfo& wndInfo)	= 0;
 	virtual void SetTitle(const std::string& title) = 0;
 
-	inline void SetEventCallback(C_Application::EventCallbackFn callback) { m_Data.m_EventCallback = callback; }
+	inline void SetEventCallback(const C_Application::EventCallbackFn& callback) { m_Data.m_EventCallback = callback; }
 
 	[[nodiscard]] virtual bool WantClose() const = 0;
 	[[nodiscard]] virtual bool CanClose() const { return true; }

@@ -5,8 +5,6 @@
 #if CORE_PLATFORM == CORE_PLATFORM_WIN
 
 	#ifdef GL_ENGINE_DEBUG
-		#include <fcntl.h>
-		#include <io.h>
 		#include <stdio.h>
 		#include <windows.h>
 	#endif
@@ -29,7 +27,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	CORE_LOG(E_Level::Info, E_Context::Core, "Initialized");
 
 	auto app = GLEngine::Core::CreateApplication();
-	app->LoadArgs(0, NULL);
+	app->LoadArgs(0, nullptr);
 	app->Init(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 	GLEngine::Core::C_AppEvent event(GLEngine::Core::C_AppEvent::E_Type::AppInit);
 	app->OnEvent(event);

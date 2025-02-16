@@ -48,13 +48,13 @@ class C_ExperimentWindow : public GLFW::C_GLFWoGLWindow {
 
 public:
 	explicit C_ExperimentWindow(const Core::S_WindowInfo& wndInfo);
-	virtual ~C_ExperimentWindow();
+	~C_ExperimentWindow() override;
 	//=================================================================================
-	virtual void Update() override;
+	void Update() override;
 
 	//=================================================================================
-	virtual void			   OnEvent(Core::I_Event& event) override;
-	[[nodiscard]] virtual bool CanClose() const override;
+	void			   OnEvent(Core::I_Event& event) override;
+	[[nodiscard]] bool CanClose() const override;
 
 protected:
 	bool OnAppEvent(Core::C_AppEvent& event);

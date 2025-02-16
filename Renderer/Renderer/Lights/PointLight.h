@@ -20,8 +20,8 @@ struct Light;
 //=============================================================
 class RENDERER_API_EXPORT C_PointLight : public I_Light {
 public:
-	explicit C_PointLight(std::shared_ptr<Entity::I_Entity> owner);
-	C_PointLight(std::shared_ptr<Entity::I_Entity> owner, const MeshData::Light& def);
+	explicit C_PointLight(const std::shared_ptr<Entity::I_Entity>& owner);
+	C_PointLight(const std::shared_ptr<Entity::I_Entity>& owner, const MeshData::Light& def);
 	C_PointLight();
 	virtual ~C_PointLight();
 

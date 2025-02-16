@@ -9,3 +9,9 @@
 #include <Core/CoreMacros.h>
 #include <Core/CoreApi.h>
 #include <Core/CoreEnums.h>
+
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#include <rttr/registration.h>
+#include <rttr/registration_friend.h>
+#pragma warning(pop)

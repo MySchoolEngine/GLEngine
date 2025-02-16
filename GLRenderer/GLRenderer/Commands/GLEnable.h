@@ -2,10 +2,6 @@
 
 #include <Renderer/IRenderCommand.h>
 
-#include <Core/CoreMacros.h>
-
-#include <Utils/BitField.h>
-
 namespace GLEngine::GLRenderer::Commands {
 
 class C_GLEnable : public Renderer::I_RenderCommand {
@@ -29,9 +25,9 @@ public:
 	//===========================================
 	// Renderer::I_RenderCommand
 	//===========================================
-	virtual void								  Commit() override;
-	virtual E_Type								  GetType() const override;
-	[[nodiscard]] virtual std::string			  GetDescriptor() const override;
+	void								  Commit() override;
+	E_Type								  GetType() const override;
+	[[nodiscard]] std::string			  GetDescriptor() const override;
 
 protected:
 	E_GLEnableValues m_Value;

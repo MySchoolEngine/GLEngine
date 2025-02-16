@@ -74,7 +74,7 @@ void C_GLFWWindow::Init(const Core::S_WindowInfo& wndInfo)
 	if (code != GLFW_NO_ERROR)
 		CORE_LOG(E_Level::Error, E_Context::Core, "{}", code);
 
-	if (wndInfo.m_Maximalize)
+	if (wndInfo.m_Maximize)
 	{
 		int xpos, ypos;
 		glfwGetMonitorWorkarea(primary, &xpos, &ypos, &width, &height);

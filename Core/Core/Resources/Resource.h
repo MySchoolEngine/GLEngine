@@ -120,10 +120,10 @@ template <typename T> concept BuildableResource = requires(T t)
 class I_ResourceLoader;
 
 // derived resources should take base resource as only constructor argument
-class CORE_API_EXPORT Resource : public I_EventReciever {
+class CORE_API_EXPORT Resource : public I_EventReceiver {
 public:
 	Resource();
-	virtual ~Resource();
+	~Resource() override;
 
 	[[nodiscard]] virtual std::unique_ptr<I_ResourceLoader> GetLoader()									= 0;
 	[[nodiscard]] virtual bool								Load(const std::filesystem::path& filepath) = 0;

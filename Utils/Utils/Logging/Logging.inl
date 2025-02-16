@@ -5,7 +5,10 @@
 #include <Utils/Logging/Formatters/rttr.h>
 #include <Utils/Logging/ILogger.h>
 
+#pragma warning(push)
+#pragma warning(disable : 4996)
 #include <fmt/format.h>
+#pragma warning(pop)
 
 namespace Utils::Logging {
 

@@ -30,7 +30,7 @@ bool C_GLFWInput::IsKeyPressed(int keycode) const
 }
 
 //=================================================================================
-bool C_GLFWInput::IsMosueButtonPresse(int key) const
+bool C_GLFWInput::IsMouseButtonPressed(int key) const
 {
 	auto state = glfwGetMouseButton(m_Window, key);
 	return state == GLFW_PRESS;

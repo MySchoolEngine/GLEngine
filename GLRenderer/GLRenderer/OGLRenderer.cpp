@@ -28,19 +28,19 @@ C_OGLRenderer::C_OGLRenderer(C_GLDevice& device)
 	, m_DrawCommands("Draw commands")
 	, m_CatchErrors(false, "Catch errors")
 	, m_Wireframe(false, "Render wireframe")
-	, m_PreviousCatchErrorsVal(false)
-	, m_CurrentPass(Renderer::E_PassType::FinalPass)
-	, m_GUITexts({{GUI::C_FormatedText("Avg draw commands: {:.2f}"), GUI::C_FormatedText("Min/max {:.2f}/{:.2f}"), GUI::C_FormatedText("Draw calls: {}"),
-				   GUI::C_FormatedText("UBO memory usage: {}B")}})
 	, m_ScreenCaptureList("Capture frame commands",
 						  [&]() {
 							  m_OutputCommandList = true;
 							  return false; // this value is not being saved
 						  })
-	, m_Window(GUID::INVALID_GUID)
-	, m_Windows(std::string("Windows"))
+	, m_PreviousCatchErrorsVal(false)
+	, m_CurrentPass(Renderer::E_PassType::FinalPass)
 	, m_GPUResourceManager()
 	, m_Device(device)
+	, m_GUITexts({{GUI::C_FormatedText("Avg draw commands: {:.2f}"), GUI::C_FormatedText("Min/max {:.2f}/{:.2f}"), GUI::C_FormatedText("Draw calls: {}"),
+				   GUI::C_FormatedText("UBO memory usage: {}B")}})
+	, m_Window(GUID::INVALID_GUID)
+	, m_Windows(std::string("Windows"))
 {
 	if (m_CatchErrors)
 	{

@@ -14,7 +14,7 @@ struct S_OpenGLWindowInfo : public Core::S_WindowInfo {
 	unsigned int m_MajorVersion = 4;
 	unsigned int m_MinorVersion = 3;
 
-	virtual Core::E_Driver GetDriver() const override { return Core::E_Driver::OpenGL; }
+	Core::E_Driver GetDriver() const override { return Core::E_Driver::OpenGL; }
 };
 
 } // namespace GLEngine::GLRenderer::GLFW

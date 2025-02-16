@@ -1,12 +1,11 @@
 #pragma once
 
-#include <Core/Application.h>
 #include <Core/EventSystem/Event/ResourceEvents.h>
 #include <Core/Resources/Metafile.h>
 
 namespace GLEngine::Core {
 //=================================================================================
-template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_ResourceManager::LoadResource(const std::filesystem::path filepath, bool isBlocking /*= false*/)
+template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_ResourceManager::LoadResource(const std::filesystem::path& filepath, bool isBlocking /*= false*/)
 {
 	// if resource is derived, then we first need to load base resource
 	// metafile will be updated with newly created resource only after the derived resource is loaded

@@ -17,10 +17,10 @@ namespace GLRenderer::Temporar {
 class C_CameraManager : public Core::C_Layer {
 public:
 	C_CameraManager();
-	virtual ~C_CameraManager(); // = default
+	~C_CameraManager() override; // = default
 
-	void										 ActivateCamera(std::shared_ptr<Renderer::I_CameraComponent> camera);
-	void										 SetDebugCamera(std::shared_ptr<Renderer::I_CameraComponent> camera);
+	void										 ActivateCamera(const std::shared_ptr<Renderer::I_CameraComponent>& camera);
+	void										 SetDebugCamera(const std::shared_ptr<Renderer::I_CameraComponent>& camera);
 	std::shared_ptr<Renderer::I_CameraComponent> GetActiveCamera() const;
 	std::shared_ptr<Renderer::I_CameraComponent> GetMainCamera() const { return m_ActiveCamera; }
 
@@ -28,7 +28,7 @@ public:
 	//==================================================
 	// Core::C_Layer
 	//==================================================
-	virtual void OnEvent(Core::I_Event& event) override;
+	void OnEvent(Core::I_Event& event) override;
 
 	GUID SetupControls(GUI::C_GUIManager& guiMGR);
 	void DestroyControls(GUI::C_GUIManager& guiMGR);

@@ -7,7 +7,7 @@ namespace GLEngine::Renderer {
 //=================================================================================
 void C_Renderer2D::Draw(RenderCall2D&& call)
 {
-	m_DrawCalls.emplace_back(call);
+	m_DrawCalls.emplace_back(std::move(call));
 }
 
 //=================================================================================

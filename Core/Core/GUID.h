@@ -2,7 +2,6 @@
 
 #include <Core/CoreApi.h>
 
-#include <rttr/type>
 #include <crossguid/guid.hpp>
 
 namespace GLEngine {
@@ -31,7 +30,7 @@ public:
 	[[nodiscard]] std::string toString() const;
 	[[nodiscard]]			  operator std::string() const;
 
-	void swap(GUID& guid);
+	void swap(GUID& guid) noexcept;
 
 	[[nodiscard]] std::size_t hash() const;
 

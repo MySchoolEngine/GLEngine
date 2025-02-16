@@ -1,7 +1,5 @@
 #pragma once
 
-#include <CoreStdafx.h>
-
 #include <Core/EventSystem/Event/InputEvents.h>
 #include <Core/InputDefinitions.h>
 
@@ -20,8 +18,8 @@ public:
 	inline double GetXOffset() const { return dx; }
 	inline double GetYOffset() const { return dy; }
 
-	virtual Utils::C_BitField<E_EventCategory> GetInputCategory() const override { return E_EventCategory::Mouse; }
-	EVENT_CLASS_TYPE(MouseScroll);
+	Utils::C_BitField<E_EventCategory> GetInputCategory() const override { return E_EventCategory::Mouse; }
+	EVENT_CLASS_TYPE(MouseScroll)
 
 private:
 	double dx, dy;
@@ -41,9 +39,9 @@ public:
 	[[nodiscard]] inline float	   GetPosY() const { return m_PosY; }
 	[[nodiscard]] inline glm::vec2 GetPosition() const { return {GetPosX(), GetPosY()}; }
 
-	virtual Utils::C_BitField<E_EventCategory> GetInputCategory() const override { return E_EventCategory::Mouse; }
+	Utils::C_BitField<E_EventCategory> GetInputCategory() const override { return E_EventCategory::Mouse; }
 
-	EVENT_CLASS_TYPE(MouseMoved);
+	EVENT_CLASS_TYPE(MouseMoved)
 
 private:
 	float m_PosX;
@@ -55,7 +53,7 @@ class C_MouseButtonEvent : public C_InputEvent {
 public:
 	int GetMouseButton() const { return m_button; }
 
-	virtual Utils::C_BitField<E_EventCategory> GetInputCategory() const override { return E_EventCategory::Mouse | E_EventCategory::MouseButton; }
+	Utils::C_BitField<E_EventCategory> GetInputCategory() const override { return E_EventCategory::Mouse | E_EventCategory::MouseButton; }
 
 	virtual Utils::C_BitField<E_KeyModifiers> GetModifiers() const { return m_Modifiers; }
 
@@ -80,7 +78,7 @@ public:
 	{
 	}
 
-	EVENT_CLASS_TYPE(MouseButtonReleased);
+	EVENT_CLASS_TYPE(MouseButtonReleased)
 };
 
 //=============================================================
@@ -92,7 +90,7 @@ public:
 	{
 	}
 
-	EVENT_CLASS_TYPE(MouseButtonPressed);
+	EVENT_CLASS_TYPE(MouseButtonPressed)
 };
 
 } // namespace GLEngine::Core

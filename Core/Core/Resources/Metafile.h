@@ -7,7 +7,7 @@
 
 // I want to store version, all derived resources, crc, icon, filename...
 namespace GLEngine::Core {
-class CORE_API_EXPORT C_Metafile {
+class CORE_API_EXPORT C_Metafile final {
 public:
 	C_Metafile() = default;
 	explicit C_Metafile(const std::filesystem::path& originalFile);
@@ -21,8 +21,8 @@ public:
 	[[nodiscard]] bool Load();
 	[[nodiscard]] bool Save() const;
 
-	RTTR_ENABLE();
-	RTTR_REGISTRATION_FRIEND;
+	RTTR_ENABLE()
+	RTTR_REGISTRATION_FRIEND
 
 private:
 	std::filesystem::path m_OriginalFilename; //< some resources can have multiple different filetypes

@@ -2,7 +2,6 @@
 
 #include <GLRenderer/Buffers/UBO/TerrainStats.h>
 #include <GLRenderer/Entities/TerrainEntity.h>
-#include <GLRenderer/Mesh/TerrainMeshResource.h>
 #include <GLRenderer/Textures/Texture.h>
 
 #include <Renderer/IRenderableComponent.h>
@@ -15,6 +14,9 @@ struct S_AABB;
 } // namespace Physics::Primitives
 
 namespace GLRenderer {
+namespace Mesh {
+class C_TerrainMeshResource;
+}
 namespace Buffers::UBO {
 class C_RainDataBuffer;
 } // namespace Buffers::UBO
@@ -25,10 +27,10 @@ class C_TerrainMesh : public Renderer::I_RenderableComponent {
 public:
 	explicit C_TerrainMesh(C_TerrainEntity::S_TerrainSettings* settings);
 	explicit C_TerrainMesh(Textures::C_Texture&& texture);
-	~C_TerrainMesh();
+	~C_TerrainMesh() override;
 
 	void					 SetSettings(C_TerrainEntity::S_TerrainSettings* settings);
-	virtual void			 PerformDraw() const override;
+	void					 PerformDraw() const override;
 	void					 SetCoord(glm::ivec2 coord);
 	[[nodiscard]] glm::ivec2 GetCoord() const { return m_Coord; }
 
@@ -43,13 +45,13 @@ public:
 	void DebugDraw();
 
 
-	virtual std::string_view GetDebugComponentName() const override;
-	virtual bool			 HasDebugDrawGUI() const override;
+	std::string_view GetDebugComponentName() const override;
+	bool			 HasDebugDrawGUI() const override;
 	//=================================================================================
-	virtual void OnEvent(Core::I_Event& event) override;
+	void OnEvent(Core::I_Event& event) override;
 
 	//=================================================================================
-	[[nodiscard]] virtual Physics::Primitives::S_AABB GetAABB() const override;
+	[[nodiscard]] Physics::Primitives::S_AABB GetAABB() const override;
 
 protected:
 	std::shared_ptr<Mesh::C_TerrainMeshResource>	m_Terrain;

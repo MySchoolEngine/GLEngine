@@ -4,7 +4,6 @@
 #include <Renderer/Textures/TextureDefinitions.h>
 
 #include <rttr/registration_friend.h>
-#include <rttr/registration.h>
 
 #include <glm/glm.hpp>
 
@@ -30,9 +29,10 @@ class I_DeviceTexture {
 public:
 	using T_TexBufferFuture = std::future<std::unique_ptr<I_TextureViewStorage>>;
 
-	I_DeviceTexture(const TextureDescriptor& desc)
-		: m_Desc(desc)
-	{}
+	explicit I_DeviceTexture(TextureDescriptor desc)
+		: m_Desc(std::move(desc))
+	{
+	}
 	I_DeviceTexture(I_DeviceTexture&&)			  = default;
 	I_DeviceTexture& operator=(I_DeviceTexture&&) = default;
 	virtual ~I_DeviceTexture()					  = default;
@@ -66,6 +66,6 @@ public:
 protected:
 	TextureDescriptor m_Desc;
 
-	RTTR_ENABLE();
+	RTTR_ENABLE()
 };
 } // namespace GLEngine::Renderer

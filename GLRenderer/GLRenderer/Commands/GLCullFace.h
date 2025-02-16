@@ -4,10 +4,9 @@
 
 namespace GLEngine::GLRenderer::Commands {
 
-class C_GLCullFace : public Renderer::I_RenderCommand {
+class C_GLCullFace final : public Renderer::I_RenderCommand {
 public:
-	enum class E_FaceMode : std::uint8_t
-	{
+	enum class E_FaceMode : std::uint8_t {
 		Front,
 		Back,
 		FrontAndBack,
@@ -19,9 +18,9 @@ public:
 	//===========================================
 	// Renderer::I_RenderCommand
 	//===========================================
-	virtual void								  Commit() override;
-	virtual E_Type								  GetType() const override;
-	[[nodiscard]] std::string					  GetDescriptor() const override;
+	void					  Commit() override;
+	E_Type					  GetType() const override;
+	[[nodiscard]] std::string GetDescriptor() const override;
 
 protected:
 	E_FaceMode m_Mode;

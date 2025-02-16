@@ -1,9 +1,13 @@
 #include <glm/glm.hpp>
 
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#include <rttr/registration.h>
 #include <fmt/format.h>
+#pragma warning(pop)
+
 
 #include <optional>
-#include <rttr/registration>
 #include <sstream>
 
 bool SerializeString(const glm::vec2& vec, std::string& ret)

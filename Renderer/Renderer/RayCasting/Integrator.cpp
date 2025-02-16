@@ -112,7 +112,6 @@ Colours::T_Colour C_PathIntegrator::Li_PathTrace(Physics::Primitives::S_Ray ray,
 			break;
 
 		const auto& frame	 = intersect.GetFrame();
-		const auto& point	 = intersect.GetIntersectionPoint();
 		const auto* material = intersect.GetMaterial();
 
 		const auto model = material->GetScatteringFunction(intersect, *alloc);
@@ -213,7 +212,6 @@ C_PathIntegrator::EstimateDirect(const C_RayIntersection& intersection, const Ra
 	float			  scatteringPdf = 0;
 	auto			  vis			= RayTracing::S_VisibilityTester(glm::vec3(), glm::vec3());
 
-	const auto& point	 = intersection.GetIntersectionPoint();
 	const auto* material = intersection.GetMaterial();
 	const auto& frame	 = intersection.GetFrame();
 	const auto	model	 = material->GetScatteringFunction(intersection, *alloc); // this should be way before to avoid allocation

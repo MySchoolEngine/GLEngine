@@ -28,7 +28,7 @@ class C_UniformBuffer;
  * @brief	Manages UBO's over application.
  *
  * @note	This class is intended to store and bind UBO's to
- *			shader programs. Also possibly prints some statistics
+ *			shader programs. Also, possibly prints some statistics
  *
  * @todo	It would be nice to extend statistics to memory usage details
  *

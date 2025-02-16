@@ -26,7 +26,7 @@ class I_Renderer;
 class RENDERER_API_EXPORT C_RayTraceWindow final : public GUI::C_Window {
 public:
 	C_RayTraceWindow(GUID guid, const std::shared_ptr<I_CameraComponent>& camera, GUI::C_GUIManager& guiMGR);
-	~C_RayTraceWindow();
+	~C_RayTraceWindow() override;
 
 	void SetScene(Entity::C_EntityManager& world);
 
@@ -44,8 +44,8 @@ public:
 	[[nodiscard]] bool CanDestroy() const override;
 	void			   Update() override;
 
-	Handle<Texture> GetTexture() { return m_GPUProbeHandle; }
-	glm::vec3		GetProbePosition() { return m_ProbePosition.GetValue(); }
+	Handle<Texture> GetTexture() const { return m_GPUProbeHandle; }
+	glm::vec3		GetProbePosition() const { return m_ProbePosition.GetValue(); }
 
 private:
 	void DrawComponents() const override;

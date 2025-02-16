@@ -2,33 +2,25 @@
 
 #include <GLRenderer/Buffers/UBO/FrameConstantsBuffer.h>
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
-#include <GLRenderer/Commands/GLClear.h>
-#include <GLRenderer/Commands/GLCullFace.h>
-#include <GLRenderer/Commands/GLViewport.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/Lights/GLAreaLight.h>
 #include <GLRenderer/ShadowMapPass.h>
 #include <GLRenderer/OGLDevice.h>
 
-#include <Renderer/ICameraComponent.h>
 #include <Renderer/ILight.h>
-#include <Renderer/IRenderableComponent.h>
 #include <Renderer/IRenderer.h>
 
 #include <Physics/Primitives/Frustum.h>
 
 #include <Entity/EntityManager.h>
-#include <Entity/IEntity.h>
 
 #include <Core/Application.h>
-
-#include <glm/gtc/matrix_transform.hpp>
 
 namespace GLEngine::GLRenderer {
 
 // TODO: broken as hell
 //=================================================================================
-C_ShadowMapTechnique::C_ShadowMapTechnique(std::shared_ptr<Entity::C_EntityManager> world, std::shared_ptr<Renderer::I_Light>& light, Renderer::I_Device& device)
+C_ShadowMapTechnique::C_ShadowMapTechnique(const std::shared_ptr<Entity::C_EntityManager>& world, const std::shared_ptr<Renderer::I_Light>& light, Renderer::I_Device& device)
 	: m_WorldToRender(world)
 	, m_Light(light)
 	, m_ShadowPassFBO(static_cast<C_GLDevice&>(device).AllocateFramebuffer("ShadowPassFBO"))
@@ -36,7 +28,7 @@ C_ShadowMapTechnique::C_ShadowMapTechnique(std::shared_ptr<Entity::C_EntityManag
 	m_FrameConstUBO = std::dynamic_pointer_cast<Buffers::UBO::C_FrameConstantsBuffer>(Buffers::C_UniformBuffersManager::Instance().GetBufferByName("frameConst"));
 	if (!m_FrameConstUBO)
 	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "UBO with name 'frameConst' either dosn't exists, or doesn't match type");
+		CORE_LOG(E_Level::Error, E_Context::Render, "UBO with name 'frameConst' either doesn't exists, or doesn't match type");
 	}
 
 
@@ -81,13 +73,13 @@ void C_ShadowMapTechnique::Render()
 	}
 
 
-	// const auto left	  = glm::normalize(glm::cross(frustum.GetForeward(), frustum.GetUpVector()));
+	// const auto left	  = glm::normalize(glm::cross(frustum.GetForward(), frustum.GetUpVector()));
 	// const auto pos	  = frustum.GetPosition();
 	// const auto up	  = frustum.GetUpVector();
 	// const auto width  = areaLight->GetWidth() / 2.0f;
 	// const auto height = areaLight->GetHeight() / 2.0f;
 	// 
-	// m_FrameConstUBO->SetView(glm::lookAt(pos, pos + frustum.GetForeward(), up));
+	// m_FrameConstUBO->SetView(glm::lookAt(pos, pos + frustum.GetForward(), up));
 	// m_FrameConstUBO->SetProjection(glm::ortho(-width, width, -height, height, frustum.GetNear(), frustum.GetFar()));
 	// m_FrameConstUBO->SetCameraPosition(glm::vec4(frustum.GetPosition(), 1.0f));
 	// 
@@ -101,7 +93,7 @@ void C_ShadowMapTechnique::Render()
 	// 	const auto lambda		= [](std::future<bool>&& completeness) {
 	// 		  if (!completeness.get())
 	// 		  {
-	// 			  CORE_LOG(E_Level::Error, E_Context::Render, "Shadow map fbo is uncomplete");
+	// 			  CORE_LOG(E_Level::Error, E_Context::Render, "Shadow map fbo is uncompleted");
 	// 		  }
 	// 	};
 	// 

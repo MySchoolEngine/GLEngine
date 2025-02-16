@@ -3,14 +3,12 @@
 #include <Renderer/Colours.h>
 #include <Renderer/RendererApi.h>
 #include <Renderer/Resources/RenderResourceHandle.h>
-#include <Renderer/Textures/DeviceTexture.h>
 #include <Renderer/Textures/TextureResource.h>
 
 #include <Core/Resources/ResourceHandle.h>
 
 #include <Utils/RefCounter.h>
 
-#include <rttr/registration.h>
 #include <rttr/registration_friend.h>
 
 namespace GLEngine::Renderer::MeshData {

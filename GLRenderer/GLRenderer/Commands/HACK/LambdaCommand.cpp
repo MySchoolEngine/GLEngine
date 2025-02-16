@@ -7,12 +7,10 @@
 #include <Core/Application.h>
 
 namespace GLEngine::GLRenderer::Commands::HACK {
-
-
 //=================================================================================
-C_LambdaCommand::C_LambdaCommand(std::function<void(void)> fnc, const std::string& name)
-	: m_fnc(fnc)
-	, m_Name(name)
+C_LambdaCommand::C_LambdaCommand(const std::function<void(void)>& fnc, const std::string& name)
+	: m_Name(name)
+	, m_fnc(fnc)
 {
 }
 

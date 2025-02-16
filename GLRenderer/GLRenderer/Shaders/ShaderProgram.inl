@@ -24,7 +24,7 @@ template <> inline int C_ShaderProgram::FindLocation(const char* name)
 #if _DEBUG
 	if (location < 0)
 	{
-		CORE_LOG(E_Level::Warning, E_Context::Render, "Program '{}' doesn't have uniform: {}", m_name, name);
+		CORE_LOG(E_Level::Warning, E_Context::Render, "Program '{}' doesn't have uniform: {}", m_Name, name);
 	}
 #endif
 
@@ -51,7 +51,7 @@ template <> inline int C_ShaderProgram::FindLocation(const std::string& name)
 #if _DEBUG
 	if (location < 0)
 	{
-		CORE_LOG(E_Level::Warning, E_Context::Render, "Program '{}' doesn't have uniform: {}", m_name, name);
+		CORE_LOG(E_Level::Warning, E_Context::Render, "Program '{}' doesn't have uniform: {}", m_Name, name);
 	}
 #endif
 
