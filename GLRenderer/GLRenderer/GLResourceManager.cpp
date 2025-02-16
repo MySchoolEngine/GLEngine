@@ -28,6 +28,10 @@ Renderer::Handle<Renderer::Buffer> GLResourceManager::createBuffer(const Rendere
 		glBindBuffer(bufferType, buffer->m_ID);
 		glBufferData(bufferType, desc.size, nullptr, usage);
 		glBindBuffer(bufferType, 0);
+		if (desc.name.empty())
+		{
+			glObjectLabel(GL_BUFFER, buffer->m_ID, static_cast<GLsizei>(desc.name.length()), desc.name.c_str());
+		}
 		// todo mapping
 		// https://www.cppstories.com/2015/01/persistent-mapped-buffers-in-opengl/
 	}
