@@ -1,5 +1,9 @@
 #include <filesystem>
-#include <rttr/registration>
+
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#include <rttr/registration.h>
+#pragma warning(pop)
 
 
 bool SerializeString(const std::vector<float>& vec, std::string& ret)

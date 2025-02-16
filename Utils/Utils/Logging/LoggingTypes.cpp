@@ -1,6 +1,9 @@
 #include <Utils/Logging/LoggingTypes.h>
 
+#pragma warning(push)
+#pragma warning(disable : 4996)
 #include <rttr/registration.h>
+#pragma warning(pop)
 
 RTTR_REGISTRATION
 {
