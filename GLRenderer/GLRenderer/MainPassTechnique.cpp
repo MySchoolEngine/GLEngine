@@ -32,9 +32,9 @@ namespace GLEngine::GLRenderer {
 //=================================================================================
 C_MainPassTechnique::C_MainPassTechnique(Renderer::ResourceManager& resourceManager)
 {
-	m_FrameConstUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>("frameConst", resourceManager);
-	m_LightsUBO		= Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<C_LightsBuffer>("lightsUni", resourceManager);
-	m_MaterialsUBO	= Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Material::C_MaterialsBuffer>("materials", resourceManager);
+	m_FrameConstUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>(resourceManager, "frameConst");
+	m_LightsUBO		= Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<C_LightsBuffer>(resourceManager, "lightsUni");
+	m_MaterialsUBO	= Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Material::C_MaterialsBuffer>(resourceManager, "materials");
 }
 
 //=================================================================================

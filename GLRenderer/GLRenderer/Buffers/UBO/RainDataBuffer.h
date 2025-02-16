@@ -6,7 +6,7 @@ namespace GLEngine::GLRenderer::Buffers::UBO {
 
 class C_RainDataBuffer final : public C_UniformBuffer {
 public:
-	C_RainDataBuffer(const std::string& blockName, unsigned int index, unsigned int textureDimension, Renderer::ResourceManager& resourceManager);
+	C_RainDataBuffer(const std::string& blockName, unsigned int index, unsigned int textureDimension);
 
 	[[nodiscard]] std::size_t GetBufferSize() const override;
 	const void*				  Data() const override;

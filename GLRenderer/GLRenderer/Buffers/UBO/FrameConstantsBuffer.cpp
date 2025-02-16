@@ -1,9 +1,6 @@
 #include <GLRendererStdafx.h>
 
 #include <GLRenderer/Buffers/UBO/FrameConstantsBuffer.h>
-#include <GLRenderer/GLResourceManager.h>
-
-#include <Renderer/Resources/ResourceManager.h>
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -11,18 +8,11 @@
 namespace GLEngine::GLRenderer::Buffers::UBO {
 
 //=================================================================================
-C_FrameConstantsBuffer::C_FrameConstantsBuffer(const std::string& blockName, unsigned int index, Renderer::ResourceManager& resourceManager)
-	: C_UniformBuffer(blockName, index, resourceManager)
+C_FrameConstantsBuffer::C_FrameConstantsBuffer(const std::string& blockName, unsigned int index)
+	: C_UniformBuffer(blockName, index)
 	, m_AmbientStrength(0.1f)
 	, m_Time(0.0f)
 {
-	m_Handle = resourceManager.createBuffer(Renderer::BufferDescriptor{.size  = static_cast<uint32_t>(GetBufferSize()),
-																	   .type  = Renderer::E_BufferType::Uniform,
-																	   .usage = Renderer::E_ResourceUsage::Dynamic,
-																	   .name  = blockName});
-	// bind buffer base here
-	auto& glResourceManager = dynamic_cast<GLResourceManager&>(resourceManager);
-	glResourceManager.GetBuffer(m_Handle)->BindBase(GetIndex());
 }
 
 //=================================================================================
