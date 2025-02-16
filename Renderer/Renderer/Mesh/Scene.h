@@ -27,6 +27,7 @@ struct SkeletonData {
 	struct BoneInfo {
 		JointID	  ID;
 		glm::mat4 modelSpace;
+		glm::mat4 localSpace;
 
 		JointID				 parent;
 		std::vector<JointID> children;
