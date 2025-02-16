@@ -63,6 +63,8 @@ public:
 
 	constexpr void ToggleFlag(const Enum flag) { m_Flags ^= static_cast<value_type>(flag); }
 
+	bool operator==(const C_BitField& other) const { return m_Flags == other.m_Flags; }
+
 	C_BitField& operator|=(const Enum bit) { return (this = this | bit); }
 
 	C_BitField operator|(const C_BitField bit) const
