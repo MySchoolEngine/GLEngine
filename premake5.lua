@@ -168,6 +168,7 @@ group "Tools"
 group ""
 
 --include "Animation"
+include "AI"
 include "Core"
 include "Sandbox"
 include "Editor"
