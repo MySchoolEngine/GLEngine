@@ -2,6 +2,7 @@
 
 #include <AI/BT/BTUtils.h>
 
+#include <AI/AIApi.h>
 namespace GLEngine::AI {
 class C_BehavioralTree;
 /**
@@ -10,11 +11,11 @@ class C_BehavioralTree;
  *
  * We need to get parent of current node in order to inform parent about the finish of current node.
  */
-class C_BehaviourTreeExecutor {
+class AI_API_EXPORT C_BehaviourTreeExecutor {
 public:
 	C_BehaviourTreeExecutor(C_BehavioralTree* tree);
-	template <class Context> Context* StartNewInstance(T_BTNodeID nodeID);
-	template <class Context> Context* GetContext(T_BTNodeInstanceID nodeInstanceID);
+	template <class Context> Context* StartNewInstance(T_BTNodeID nodeID) { return nullptr; }
+	template <class Context> Context* GetContext(T_BTNodeInstanceID nodeInstanceID) { return nullptr; }
 
 	void Update(float deltaT);
 

@@ -8,6 +8,7 @@ project "AI"
 	SetupProject("AI")
 	PrecompiledHeaders("AI")
 
+	Link("Core")
 	Link("Entity")
 	Link("Utils")
 	Link("Renderer")

@@ -13,6 +13,6 @@ void C_BehaviourTreeExecutor::Update(float deltaT)
 		
 	}
 
-	std::remove()
+	//std::remove()
 }
 } // namespace GLEngine::AI

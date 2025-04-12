@@ -2,6 +2,7 @@
 
 #include <AI/BT/BehaviourTreeExecutor.h>
 #include <AI/BT/BTUtils.h>
+#include <AI/AIApi.h>
 
 namespace GLEngine::AI {
 
@@ -13,9 +14,11 @@ struct UpdateConfig {
 	// also getter for the context
 };
 
-class I_BehavioralNode {
+class AI_API_EXPORT I_BehavioralNode {
 public:
-	I_BehavioralNode(T_BTNodeID id);
+	explicit I_BehavioralNode(T_BTNodeID id)
+		: m_ID(id)
+	{}
 	virtual ~I_BehavioralNode() = default;
 	void AddChild(T_BTNodeID);
 
@@ -30,6 +33,9 @@ public:
 	 */
 	virtual UpdateResult Update(UpdateConfig&) = 0;
 	virtual void OnFinished(UpdateConfig& updateCfg) = 0;
+
+protected:
+	T_BTNodeID m_ID;
 };
 /**
  * @brief This class should not hold the state. State is stored in context.
@@ -47,6 +53,10 @@ public:
 		 */
 		Active,
 	};
+	explicit BehavioralNode(T_BTNodeID id)
+		: I_BehavioralNode(id)
+	{
+	}
 	UpdateResult Update(UpdateConfig&) override
 	{
 		// I will get the context from executor
@@ -94,17 +104,24 @@ protected:
  *		* May depend on how the first is executed
  */
 struct C_BranchNodeBTCtx;
-class C_BranchNodeBT : public BehavioralNode<C_BranchNodeBTCtx> {
+class AI_API_EXPORT C_BranchNodeBT : public BehavioralNode<C_BranchNodeBTCtx> {
 public:
+	explicit C_BranchNodeBT(T_BTNodeID id)
+		: BehavioralNode<C_BranchNodeBTCtx>(id)
+	{
+	}
+	~C_BranchNodeBT() override = default;
 	NodeActivity GetNodeActivity() const override { return NodeActivity::Passive; }
-
+	UpdateResult Update(UpdateConfig&) override { return UpdateResult::Finished; } // TODO: implement
+	void		 OnFinished(UpdateConfig& updateCfg) override {}
+	UpdateResult Update(C_BranchNodeBTCtx* ctx) override { return UpdateResult::Finished; }
 
 private:
 	T_BTNodeID m_Child1;
 	T_BTNodeID m_Child2;
 	// condition
 };
-struct C_BranchNodeBTCtx {
+struct AI_API_EXPORT C_BranchNodeBTCtx {
 	T_BTNodeInstanceID activeChild;
 };
 

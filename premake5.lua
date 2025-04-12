@@ -132,6 +132,7 @@ NonDllLib["crossguid"] = true
 NonDllLib["GLFW"] = true
 
 group "Tests"
+	include "Tests/AI"
 	include "Tests/Core"
 	include "Tests/Renderer"
 	include "Tests/Utils"
