@@ -3,11 +3,10 @@
 #include <Renderer/Descriptors/TextureDescriptor.h>
 #include <Renderer/Textures/TextureDefinitions.h>
 
-#include <rttr/registration_friend.h>
-
 #include <glm/glm.hpp>
 
 #include <future>
+#include <rttr/registration_friend.h>
 
 // Textures uses lazy load. This means they are constructed with @TextureDescriptor
 // and lives as empty shells. The textures are allocated only through @I_Device
@@ -38,7 +37,7 @@ public:
 	virtual ~I_DeviceTexture()					  = default;
 
 	//< correct implementation would involve GPU calls. Should be implemented on I_Device
-	I_DeviceTexture(const I_DeviceTexture&) = default;
+	I_DeviceTexture(const I_DeviceTexture&)			   = default;
 	I_DeviceTexture& operator=(const I_DeviceTexture&) = delete;
 
 	[[nodiscard]] virtual bool IsAllocated() const = 0;

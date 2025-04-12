@@ -28,7 +28,7 @@ protected:
 	mutable T	m_Color;
 };
 
-class C_ColorRBG : public C_ColorBase<Colours::T_Colour> {
+class C_ColorRBG final : public C_ColorBase<Colours::T_Colour> {
 public:
 	C_ColorRBG(std::string&& name, Colours::T_Colour def)
 		: C_ColorBase(std::move(name), (def))

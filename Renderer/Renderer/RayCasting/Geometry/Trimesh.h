@@ -14,10 +14,10 @@ namespace MeshData {
 struct Mesh;
 }
 
-class C_Trimesh : public I_RayGeometryObject {
+class C_Trimesh final : public I_RayGeometryObject {
 public:
 	C_Trimesh();
-	virtual ~C_Trimesh();
+	~C_Trimesh() override;
 	[[nodiscard]] virtual bool Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const override;
 
 	float Area() const override { return 0.0f; }
@@ -37,8 +37,7 @@ public:
 
 	void DebugDraw(I_DebugDraw* dd) const;
 
-	RTTR_ENABLE();
-	RTTR_REGISTRATION_FRIEND;
+	RTTR_REGISTRATION_FRIEND
 
 private:
 	std::vector<glm::vec3>		m_Vertices;

@@ -24,9 +24,7 @@ struct S_Triangle final : public T_Intersectable<S_Triangle> {
 
 	std::array<glm::vec3, 3> m_p;
 
-	RTTR_ENABLE()
 	RTTR_REGISTRATION_FRIEND
-
 private:
 	glm::vec3 m_Normal;
 	float	  m_Area;

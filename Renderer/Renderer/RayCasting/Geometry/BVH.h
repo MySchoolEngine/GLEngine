@@ -28,7 +28,6 @@ public:
 
 	void Build();
 
-	RTTR_ENABLE();
 	RTTR_REGISTRATION_FRIEND;
 
 private:
@@ -41,8 +40,6 @@ private:
 		unsigned int				firstTrig, lastTrig; // index of first vertex
 
 		constexpr unsigned int NumTrig() const { return (lastTrig - firstTrig) / 3 + 1; }
-		RTTR_ENABLE();
-		RTTR_REGISTRATION_FRIEND;
 	};
 	[[nodiscard]] bool IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, const BVHNode* node) const;
 	void			   DebugDrawNode(I_DebugDraw* dd, const glm::mat4& modelMatrix, const BVHNode* node, unsigned int level) const;
