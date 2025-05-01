@@ -6,6 +6,7 @@ BraceWrapping:
   BeforeElse: true
 BreakBeforeBraces: Custom
 MaxEmptyLinesToKeep: 2
+LineEnding: DeriveCRLF
 
 IndentWidth: 4
 TabWidth: 4

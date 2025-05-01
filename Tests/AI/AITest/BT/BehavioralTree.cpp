@@ -1,7 +1,8 @@
 #include <AITestStdafx.h>
 
-#include <AI/BT/BehavioralTree.h>
 #include <AI/BT/BehavioralNode.h>
+#include <AI/BT/BehavioralTree.h>
+#include <AI/BT/Nodes/BranchNodeBT.h>
 #include <gmock/gmock.h>
 
 
@@ -12,14 +13,15 @@ protected:
 
 	~C_BehavioralTreeFixture() override = default;
 
-
 	C_BehavioralTree m_BehavioralTree;
 };
 
 TEST_F(C_BehavioralTreeFixture, AddNode)
 {
 	EXPECT_EQ(m_BehavioralTree.GetNumNodes(), 0);
-	auto id = m_BehavioralTree.AddNode<C_BranchNodeBT>();
+	const auto id = m_BehavioralTree.AddNode<C_BranchNodeBT>();
 	EXPECT_EQ(m_BehavioralTree.GetNumNodes(), 1);
+	const auto node = m_BehavioralTree.GetNode(id);
+	EXPECT_EQ(id, node->GetID());
 }
-} // namespace GLEngine::Core
+} // namespace GLEngine::AI
