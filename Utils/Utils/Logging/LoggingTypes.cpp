@@ -8,6 +8,7 @@
 RTTR_REGISTRATION
 {
 	rttr::registration::enumeration<Utils::Logging::E_Context>("E_Context")(
+		rttr::value("AI",			Utils::Logging::E_Context::AI), 
 		rttr::value("Core",			Utils::Logging::E_Context::Core), 
 		rttr::value("Render",		Utils::Logging::E_Context::Render),
 		rttr::value("Entity",		Utils::Logging::E_Context::Entity)

@@ -4,6 +4,7 @@ namespace Utils::Logging {
 
 enum class E_Context
 {
+	AI,
 	Core,
 	Render,
 	Entity,
