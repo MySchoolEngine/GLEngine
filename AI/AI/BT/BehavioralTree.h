@@ -31,13 +31,14 @@ public:
 	}
 
 	/**
-	 * @brief Adds a child to the parent node. If the parent node is not a branch, it will generate error.
-	 * @param parent
-	 * @param child
+	 * @brief Adds a child to the parent node. If the parent node is a leaf, it will generate error.
+	 * @param parent Parent node
+	 * @param child  Child
+	 * @param index  Index of the branch
 	 * @return true if successful
 	 */
-	bool			  AddChild(T_BTNodeID parent, T_BTNodeID child);
-	I_BehavioralNode* GetNode(T_BTNodeID nodeID) { return nullptr; }
+	bool			  AddChild(T_BTNodeID parent, T_BTNodeID child, const unsigned int index);
+	I_BehavioralNode* GetNode(const T_BTNodeID nodeID);
 	bool			  LoadFromResource(const std::string& resourcePath); // New function declaration
 
 	// Core::Resource overrides
