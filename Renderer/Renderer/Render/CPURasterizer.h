@@ -12,6 +12,8 @@ public:
 	void DrawLine(const Colours::T_Colour& colour, const glm::ivec2& p1, const glm::ivec2& p2, bool antiAliased = false);
 	void DrawCircle(const Colours::T_Colour& colour, const glm::ivec2& p, float radius, bool antiAliased = false);
 	void FloodFill(const Colours::T_Colour& colour, const glm::ivec2& p);
+	void DrawTriangle(const Colours::T_Colour& colour, const std::array<glm::ivec2, 3>& triangle);
+	void DrawAABox(const Colours::T_Colour& colour, const Core::S_Rect& rect);
 
 private:
 	void BresenhamHorizontal(const Colours::T_Colour& colour, glm::ivec2 p1, glm::ivec2 p2);

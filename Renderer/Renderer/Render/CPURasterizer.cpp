@@ -96,6 +96,54 @@ void C_CPURasterizer::FloodFill(const Colours::T_Colour& colour, const glm::ivec
 }
 
 //=================================================================================
+void C_CPURasterizer::DrawTriangle(const Colours::T_Colour& colour, const std::array<glm::ivec2, 3>& triangle)
+{
+	const auto sign = [](const glm::ivec2& p1, const glm::ivec2& p2, const glm::ivec2& p3) { return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y); };
+
+	const auto PointInTriangle = [&sign](const glm::ivec2& pt, const std::array<glm::ivec2, 3>& triangle) {
+		const int d1 = sign(pt, triangle[0], triangle[1]);
+		const int d2 = sign(pt, triangle[1], triangle[2]);
+		const int d3 = sign(pt, triangle[2], triangle[0]);
+
+		const bool has_neg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+		const bool has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+
+		return !(has_neg && has_pos);
+	};
+
+	const auto boundingBox = Core::S_Rect::GetEnvelope(triangle);
+	const auto rasterSpace = boundingBox.GetIntersection(m_view.GetRect());
+	for (unsigned int y = rasterSpace.Top(); y <= rasterSpace.Bottom(); ++y)
+	{
+		unsigned int x = rasterSpace.Left();
+		while (x <= rasterSpace.Right())
+		{
+			if (PointInTriangle({x, y}, triangle))
+				break;
+			++x;
+		}
+		unsigned int start = x;
+		while (x <= rasterSpace.Right())
+		{
+			if (!PointInTriangle({x, y}, triangle))
+				break;
+			++x;
+		}
+		m_view.FillLineSpan(colour, y, start, x - 1);
+	}
+}
+
+//=================================================================================
+void C_CPURasterizer::DrawAABox(const Colours::T_Colour& colour, const Core::S_Rect& rect)
+{
+	// TODO: clamp raster space to the image space
+	for (unsigned int x = rect.Top(); x <= rect.Bottom(); ++x)
+	{
+		m_view.FillLineSpan(colour, x, rect.Left(), rect.Right());
+	}
+}
+
+//=================================================================================
 void C_CPURasterizer::QueueFloodFill(const Colours::T_Colour& colour, const glm::uvec2& p)
 {
 	const glm::vec3		   clearColor = m_view.Get<glm::vec3>(p);
