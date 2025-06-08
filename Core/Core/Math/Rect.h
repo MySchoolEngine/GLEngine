@@ -4,8 +4,8 @@
 
 #include <glm/vec2.hpp>
 
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 #include <rttr/registration.h>
 #include <rttr/registration_friend.h>
 
@@ -26,6 +26,7 @@ public:
 		, height(0)
 	{
 	}
+
 	constexpr S_Rect(int x, int y, unsigned int width, unsigned int height)
 		: x(x)
 		, y(y)
@@ -38,7 +39,7 @@ public:
 	{
 		const int top  = std::max(y, other.y);
 		const int left = std::max(x, other.x);
-		return {top, left, std::min(Bottom(), other.Bottom()) - top + 1, std::min(Right(), other.Right()) - left + 1};
+		return {left, top, std::min(Right(), other.Right()) - left + 1, std::min(Bottom(), other.Bottom()) - top + 1};
 	}
 
 	/**
@@ -53,18 +54,19 @@ public:
 	[[nodiscard]] inline bool IntersectionPlane(const glm::vec2& origin, const glm::vec2& direction, std::array<glm::ivec2, 2>& intersects) const;
 
 	[[nodiscard]] constexpr bool Contains(const glm::vec2& point) const { return point.x > x && point.y > y && (point.x - x) < width && (point.y - y) < height; }
+
 	[[nodiscard]] constexpr bool Contains(const glm::ivec2& point) const
 	{
-		if (point.x<0 || point.y < 0)
+		if (point.x < 0 || point.y < 0)
 			return false; // smaller than 0
 		const glm::uvec2 uPoint = point;
 		return uPoint.x >= x && uPoint.y >= y && (uPoint.x - x) < width && (uPoint.y - y) < height;
 	}
 
-	constexpr glm::uvec2 TopLeft() const { return		glm::uvec2(Left() ,Top()); }
-	constexpr glm::uvec2 TopRight() const { return		glm::uvec2(Right(), Top()); }
-	constexpr glm::uvec2 BottomLeft() const { return	glm::uvec2(Left(), Bottom()); }
-	constexpr glm::uvec2 BottomRight() const { return	glm::uvec2(Right(),Bottom()); }
+	constexpr glm::uvec2 TopLeft() const { return glm::uvec2(Left(), Top()); }
+	constexpr glm::uvec2 TopRight() const { return glm::uvec2(Right(), Top()); }
+	constexpr glm::uvec2 BottomLeft() const { return glm::uvec2(Left(), Bottom()); }
+	constexpr glm::uvec2 BottomRight() const { return glm::uvec2(Right(), Bottom()); }
 
 	constexpr unsigned int Top() const { return y; }
 	constexpr unsigned int Bottom() const { return y + height - 1; }

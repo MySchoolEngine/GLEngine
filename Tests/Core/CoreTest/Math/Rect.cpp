@@ -40,6 +40,18 @@ TEST(Rect, Corners)
 	EXPECT_EQ(rect.BottomLeft(), glm::uvec2(1, 50));
 	EXPECT_EQ(rect.BottomRight(), glm::uvec2(5, 50));
 }
+TEST(Rect, GetIntersection)
+{
+	constexpr S_Rect rect(600, 0, 550, 26401);
+	constexpr S_Rect rect1(0, 0, 1024, 1024);
+	const auto result = rect.GetIntersection(rect1);
+
+	EXPECT_EQ(result.Top(), 0);
+	EXPECT_EQ(result.Left(), 600);
+	EXPECT_EQ(result.Bottom(), 1023);
+	EXPECT_EQ(result.Right(), 1023);
+	EXPECT_EQ(result.GetHeight(), 1024);
+}
 
 TEST(Rect, IntersectionPlane)
 {
