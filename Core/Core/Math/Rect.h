@@ -73,6 +73,24 @@ public:
 	constexpr unsigned int Left() const { return x; }
 	constexpr unsigned int Right() const { return x + width - 1; }
 
+	constexpr static S_Rect GetEnvelope(const std::ranges::forward_range auto& c)
+	{
+		int top	   = std::numeric_limits<int>::max();
+		int left   = std::numeric_limits<int>::max();
+		int bottom = std::numeric_limits<int>::min();
+		int right  = std::numeric_limits<int>::min();
+		for (const auto& point : c)
+		{
+			top	   = std::min(top, point.y);
+			left   = std::min(left, point.x);
+			bottom = std::max(bottom, point.y);
+			right  = std::max(right, point.x);
+		}
+		left = std::max(left, 0);
+		top	 = std::max(top, 0);
+		return {left, top, static_cast<unsigned int>(right - left) + 1, static_cast<unsigned int>(bottom - top) + 1};
+	}
+
 	constexpr glm::uvec2   GetSize() const { return {width, height}; }
 	constexpr unsigned int GetArea() const { return width * height; }
 
