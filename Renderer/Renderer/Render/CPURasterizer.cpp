@@ -33,24 +33,50 @@ void C_CPURasterizer::DrawLine(const Colours::T_Colour& colour, const glm::ivec2
 }
 
 //=================================================================================
-void C_CPURasterizer::DrawCircle(const Colours::T_Colour& colour, const glm::ivec2& p, const float radius, const bool antiAliased)
+void C_CPURasterizer::DrawCircle(const CircleColorSettings& colourSettings, const glm::ivec2& p, const float radius, const bool antiAliased)
+{
+	if (colourSettings.bFill == false)
+	{
+		DrawCircleOutline(colourSettings, p, radius, antiAliased);
+	}
+	else
+	{
+		glm::vec2 center{p};
+		for (int x = p.x-radius;x < p.x+radius;++x)
+		{
+			for (int y = p.y - radius; y < p.y + radius; ++y)
+			{
+				const glm::vec2 pos{x, y};
+				const auto dist = glm::distance(center, pos);
+				if (dist > radius)
+				{
+					continue;
+				}
+				m_view.Set(pos, glm::vec4{colourSettings.Colour, colourSettings.FalloffFunc(dist/radius)});
+			}
+		}
+	}
+}
+
+//=================================================================================
+void C_CPURasterizer::DrawCircleOutline(const CircleColorSettings& colourSettings, const glm::ivec2& p, float radius, bool antiAliased)
 {
 	if (antiAliased)
 	{
-		float t1		 = radius / 16;
-		float t2		 = 0.f;
-		int	  y			 = 0;
-		int	  x			 = static_cast<int>(radius);
+		float t1 = radius / 16;
+		float t2 = 0.f;
+		int	  y	 = 0;
+		int	  x	 = static_cast<int>(radius);
 		while (x >= y)
 		{
-			m_view.Set(p + glm::ivec2{x, y}, glm::vec4{colour, 1.f});
-			m_view.Set(p + glm::ivec2{x, -y}, glm::vec4{colour, 1.f});
-			m_view.Set(p + glm::ivec2{-x, -y}, glm::vec4{colour, 1.f});
-			m_view.Set(p + glm::ivec2{-x, y}, glm::vec4{colour, 1.f});
-			m_view.Set(p + glm::ivec2{y, x}, glm::vec4{colour, 1.f});
-			m_view.Set(p + glm::ivec2{y, -x}, glm::vec4{colour, 1.f});
-			m_view.Set(p + glm::ivec2{-y, -x}, glm::vec4{colour, 1.f});
-			m_view.Set(p + glm::ivec2{-y, x}, glm::vec4{colour, 1.f});
+			m_view.Set(p + glm::ivec2{x, y}, glm::vec4{colourSettings.Colour, 1.f});
+			m_view.Set(p + glm::ivec2{x, -y}, glm::vec4{colourSettings.Colour, 1.f});
+			m_view.Set(p + glm::ivec2{-x, -y}, glm::vec4{colourSettings.Colour, 1.f});
+			m_view.Set(p + glm::ivec2{-x, y}, glm::vec4{colourSettings.Colour, 1.f});
+			m_view.Set(p + glm::ivec2{y, x}, glm::vec4{colourSettings.Colour, 1.f});
+			m_view.Set(p + glm::ivec2{y, -x}, glm::vec4{colourSettings.Colour, 1.f});
+			m_view.Set(p + glm::ivec2{-y, -x}, glm::vec4{colourSettings.Colour, 1.f});
+			m_view.Set(p + glm::ivec2{-y, x}, glm::vec4{colourSettings.Colour, 1.f});
 			++y;
 			t1 = t1 + y;
 			t2 = t1 - x;
@@ -69,14 +95,14 @@ void C_CPURasterizer::DrawCircle(const Colours::T_Colour& colour, const glm::ive
 		int	  x	 = static_cast<int>(radius);
 		while (x >= y)
 		{
-			m_view.Set(p + glm::ivec2{x, y}, glm::vec4{colour, 1.f});
-			m_view.Set(p + glm::ivec2{x, -y}, glm::vec4{colour, 1.f});
-			m_view.Set(p + glm::ivec2{-x, -y}, glm::vec4{colour, 1.f});
-			m_view.Set(p + glm::ivec2{-x, y}, glm::vec4{colour, 1.f});
-			m_view.Set(p + glm::ivec2{y, x}, glm::vec4{colour, 1.f});
-			m_view.Set(p + glm::ivec2{y, -x}, glm::vec4{colour, 1.f});
-			m_view.Set(p + glm::ivec2{-y, -x}, glm::vec4{colour, 1.f});
-			m_view.Set(p + glm::ivec2{-y, x}, glm::vec4{colour, 1.f});
+			m_view.Set(p + glm::ivec2{x, y}, glm::vec4{colourSettings.Colour, 1.f});
+			m_view.Set(p + glm::ivec2{x, -y}, glm::vec4{colourSettings.Colour, 1.f});
+			m_view.Set(p + glm::ivec2{-x, -y}, glm::vec4{colourSettings.Colour, 1.f});
+			m_view.Set(p + glm::ivec2{-x, y}, glm::vec4{colourSettings.Colour, 1.f});
+			m_view.Set(p + glm::ivec2{y, x}, glm::vec4{colourSettings.Colour, 1.f});
+			m_view.Set(p + glm::ivec2{y, -x}, glm::vec4{colourSettings.Colour, 1.f});
+			m_view.Set(p + glm::ivec2{-y, -x}, glm::vec4{colourSettings.Colour, 1.f});
+			m_view.Set(p + glm::ivec2{-y, x}, glm::vec4{colourSettings.Colour, 1.f});
 			++y;
 			t1 = t1 + y;
 			t2 = t1 - x;
@@ -136,7 +162,6 @@ void C_CPURasterizer::DrawTriangle(const Colours::T_Colour& colour, const std::a
 //=================================================================================
 void C_CPURasterizer::DrawAABox(const Colours::T_Colour& colour, const Core::S_Rect& rect)
 {
-	// TODO: clamp raster space to the image space
 	for (unsigned int x = rect.Top(); x <= rect.Bottom(); ++x)
 	{
 		m_view.FillLineSpan(colour, x, rect.Left(), rect.Right());
@@ -321,8 +346,15 @@ void C_CPURasterizer::XiaolinWu(const Colours::T_Colour& colour, glm::ivec2 p1, 
 		{
 			// needs alpha blending
 			const auto fraction = fract(yIntersect);
-			m_view.DrawPixel(glm::ivec2(std::floor(yIntersect), x), glm::vec4(colour, 1.f - fraction));
-			m_view.DrawPixel(glm::ivec2(std::floor(yIntersect) + 1, x), glm::vec4(colour, fraction));
+
+			if (m_view.GetRect().Contains(glm::ivec2(std::floor(yIntersect), x)))
+			{
+				m_view.DrawPixel(glm::ivec2(std::floor(yIntersect), x), glm::vec4(colour, 1.f - fraction));
+			}
+			if (m_view.GetRect().Contains(glm::ivec2(std::floor(yIntersect) + 1, x)))
+			{
+				m_view.DrawPixel(glm::ivec2(std::floor(yIntersect) + 1, x), glm::vec4(colour, fraction));
+			}
 			yIntersect = yIntersect + gradient;
 		}
 	}
@@ -332,8 +364,14 @@ void C_CPURasterizer::XiaolinWu(const Colours::T_Colour& colour, glm::ivec2 p1, 
 		{
 			// needs alpha blending
 			const auto fraction = fract(yIntersect);
-			m_view.DrawPixel(glm::ivec2(x, std::floor(yIntersect)), glm::vec4(colour, 1.f - fraction));
-			m_view.DrawPixel(glm::ivec2(x, std::floor(yIntersect) + 1), glm::vec4(colour, fraction));
+			if (m_view.GetRect().Contains(glm::ivec2(x, std::floor(yIntersect))))
+			{
+				m_view.DrawPixel(glm::ivec2(x, std::floor(yIntersect)), glm::vec4(colour, 1.f - fraction));
+			}
+			if (m_view.GetRect().Contains(glm::ivec2(x, std::floor(yIntersect) + 1)))
+			{
+				m_view.DrawPixel(glm::ivec2(x, std::floor(yIntersect) + 1), glm::vec4(colour, fraction));
+			}
 			yIntersect = yIntersect + gradient;
 		}
 	}
