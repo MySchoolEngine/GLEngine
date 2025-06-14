@@ -23,12 +23,21 @@ bool C_Window::Draw(C_GUIManager& guiMgr) const
 	{
 		flags |= ImGuiWindowFlags_MenuBar;
 	}
-	::ImGui::Begin(m_Name.c_str(), &m_IsVisible, flags);
+	bool visibilityBefore = m_IsVisible;
+	::ImGui::Begin(m_Name.c_str(), &visibilityBefore, flags);
 	DrawMenus();
 
 	DrawComponents();
 	::ImGui::End();
+	// due to imgui behaviour we need to const cast
+	const_cast<C_Window*>(this)->SetVisible(visibilityBefore);
 	return false; // todo!
+}
+
+//=================================================================================
+void C_Window::OnHide()
+{
+	RequestDestroy();
 }
 
 //=================================================================================
@@ -43,7 +52,8 @@ void C_Window::DrawComponents() const
 //=================================================================================
 void C_Window::SetVisible(const bool enable /*= true*/)
 {
-	if (m_IsVisible != enable) {
+	if (m_IsVisible != enable)
+	{
 		if (enable)
 			OnSetVisible();
 		else

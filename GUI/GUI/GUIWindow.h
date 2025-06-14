@@ -8,6 +8,11 @@
 namespace GLEngine::GUI {
 class C_GUIManager;
 
+/**
+ * Class representing GUI window. Base for editors and editor utilities
+ *
+ * Default behaviour is to destroy window on hide.
+ */
 class GUI_API_EXPORT C_Window {
 public:
 	using T_GUIPartRef = std::reference_wrapper<I_GUIPart>;
@@ -27,18 +32,26 @@ public:
 
 	GUID AddMenu(T_GUIMenu menuItem);
 
-	virtual void			   RequestDestroy() { m_WantToBeDestroyed = true; }
-	[[nodiscard]] bool		   WantDestroy() const { return m_WantToBeDestroyed; }
+	/**
+	 * Called when requesting destruction. Can be overloaded to start deallocation of the resources.
+	 */
+	virtual void	   RequestDestroy() { m_WantToBeDestroyed = true; }
+	[[nodiscard]] bool WantDestroy() const { return m_WantToBeDestroyed; }
+	/**
+	 * Can be derived in order to wait until all resources are freed. E.g. threads
+	 * @return true if possible to destroy window
+	 */
 	[[nodiscard]] virtual bool CanDestroy() const { return true; }
 
 protected:
 	virtual void OnSetVisible() {}
-	virtual void OnHide() {}
+	virtual void OnHide();
 	virtual void DrawComponents() const;
 	void		 DrawMenus() const;
 
 	mutable bool m_IsVisible; // cant be bit field as it is being referenced inside
 	mutable bool m_WantToBeDestroyed : 1;
+	bool		 m_bDestroyOnHide : 1 = true;
 	std::string	 m_Name;
 	GUID		 m_GUID;
 
