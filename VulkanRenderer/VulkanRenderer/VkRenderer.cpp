@@ -261,8 +261,13 @@ void C_VkRenderer::CopyBuffer(VkBuffer srcBuffer, Renderer::Handle<Renderer::Buf
 //=================================================================================
 void C_VkRenderer::SetTextureData(Renderer::Handle<Renderer::Texture> dstTexture, const Renderer::I_TextureViewStorage& storage)
 {
-	const glm::uvec2   dim		 = storage.GetDimensions();
-	const VkDeviceSize imageSize = dim.x * dim.y * 4 * sizeof(float); // todo, could be different type
+	C_VkTexture* pdstTexture = m_GPUResourceManager.GetTexture(dstTexture);
+	const auto&	 texDesc	 = pdstTexture->GetDesc();
+	GLE_ASSERT(storage.GetNumElements() == Renderer::GetNumberChannels(texDesc.format), "Not matching number of elements");
+
+	const glm::uvec2 dim = storage.GetDimensions();
+
+	const VkDeviceSize imageSize = dim.x * dim.y * storage.GetNumElements() * sizeof(float); // todo, could be different type
 
 	VkBuffer	   stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
@@ -274,8 +279,6 @@ void C_VkRenderer::SetTextureData(Renderer::Handle<Renderer::Texture> dstTexture
 	vkMapMemory(GetDeviceVK(), stagingBufferMemory, 0, imageSize, 0, &data);
 	memcpy(data, storage.GetData(), static_cast<size_t>(imageSize));
 	vkUnmapMemory(GetDeviceVK(), stagingBufferMemory);
-
-	C_VkTexture* pdstTexture = m_GPUResourceManager.GetTexture(dstTexture);
 
 	// formats should be deduced from desc
 	TransitionImageLayout(pdstTexture->textureImage, GetTextureFormat(pdstTexture->m_Desc.format), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -413,7 +416,8 @@ VkQueue C_VkRenderer::GetTransferQueue() const
 void C_VkRenderer::SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer, std::size_t numBytes, const void* data)
 {
 	auto* buffer = m_GPUResourceManager.GetBuffer(dstBuffer);
-	if (buffer->GetDesc().usage == Renderer::E_ResourceUsage::Persistent) {
+	if (buffer->GetDesc().usage == Renderer::E_ResourceUsage::Persistent)
+	{
 		buffer->UploadData(data, numBytes);
 		return;
 	}
@@ -460,7 +464,8 @@ void* C_VkRenderer::GetTextureGUIHandle(Renderer::Handle<Renderer::Texture> text
 //=================================================================================
 void C_VkRenderer::SetTextureSampler(Renderer::Handle<Renderer::Texture> dstTexture, Renderer::Handle<Renderer::Sampler> srcSampler)
 {
-	if (auto* texture = m_GPUResourceManager.GetTexture(dstTexture)) {
+	if (auto* texture = m_GPUResourceManager.GetTexture(dstTexture))
+	{
 		texture->SetSampler(srcSampler);
 	}
 }

@@ -13,6 +13,8 @@ public:
 	void								SetSampler(Renderer::Handle<Renderer::Sampler> sampler);
 	Renderer::Handle<Renderer::Sampler> GetSampler() const;
 
+	const Renderer::TextureDescriptor& GetDesc() const { return m_Desc; }
+
 	VkImageView GetView() const;
 
 private:

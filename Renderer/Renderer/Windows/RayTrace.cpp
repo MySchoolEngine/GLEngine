@@ -32,7 +32,7 @@ constexpr static unsigned int  s_ProbeSize		 = 64;
 C_RayTraceWindow::C_RayTraceWindow(const GUID guid, const std::shared_ptr<I_CameraComponent>& camera, GUI::C_GUIManager& guiMGR)
 	: GUI::C_Window(guid, "Ray tracing")
 	, m_Camera(camera)
-	, m_ImageStorage(s_ImageResolution.x / s_Coef, s_ImageResolution.y / s_Coef, 4)
+	, m_ImageStorage(s_ImageResolution.x / s_Coef, s_ImageResolution.y / s_Coef, 3)
 	, m_SamplesStorage(s_ImageResolution.x / s_Coef, s_ImageResolution.y / s_Coef, 3)
 	, m_HeatMapStorage(1, s_ImageResolution.y / s_Coef, 1)
 	, m_HeatMapNormalizedStorage(1, s_ImageResolution.y / s_Coef, 3)
