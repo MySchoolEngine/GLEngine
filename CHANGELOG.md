@@ -2,12 +2,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [Unreleased] - 14-05-2025
+## [Unreleased] - 14-06-2025
 ### Added
 - `Editor::C_ImageEditor` to Vulkan configuration
 ### Fixed
 - `C_VkRenderer::SetTextureData` reflects number of channels
 - `C_VkTexture` caching GUI handle
+- `GUI::C_Windwow` correct destruction
 
 ## [Unreleased] - 13-02-2025
 
