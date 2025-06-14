@@ -2,6 +2,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - 14-05-2025
+### Fixed
+- `C_VkRenderer::SetTextureData` reflects number of channels
+
 ## [Unreleased] - 13-02-2025
 
 Goal of this branch was to create water simulation. Unfortunatelly I have faild and want to move on. One day I will be hopefully able to continue.
