@@ -126,6 +126,7 @@ private:
 
 	GUID m_EntitiesWindowGUID;
 	GUID						m_RayTraceGUID;
+	GUID						m_ImageEditorGUID;
 	Renderer::C_RayTraceWindow* m_RayTraceWindow;
 
 

@@ -453,10 +453,14 @@ void* C_VkRenderer::GetTextureGUIHandle(Renderer::Handle<Renderer::Texture> text
 {
 	if (auto* texture = m_GPUResourceManager.GetTexture(textureHanlde))
 	{
-		if (auto* sampler = m_GPUResourceManager.GetSampler(texture->GetSampler()))
+		if (texture->GetGUIHandle() == VK_NULL_HANDLE)
 		{
-			return ImGui_ImplVulkan_AddTexture(sampler->textureSampler, texture->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+			if (auto* sampler = m_GPUResourceManager.GetSampler(texture->GetSampler()))
+			{
+				texture->SetGUIHandle(ImGui_ImplVulkan_AddTexture(sampler->textureSampler, texture->GetView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+			}
 		}
+		return texture->GetGUIHandle();
 	}
 	return VK_NULL_HANDLE;
 }

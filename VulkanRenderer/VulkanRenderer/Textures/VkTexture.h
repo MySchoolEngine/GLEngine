@@ -1,8 +1,7 @@
 #pragma once
 
-#include <Renderer/Textures/DeviceTexture.h>
-
 #include <Renderer/Resources/RenderResourceHandle.h>
+#include <Renderer/Textures/DeviceTexture.h>
 
 namespace GLEngine::VkRenderer {
 class C_VkTexture {
@@ -17,6 +16,9 @@ public:
 
 	VkImageView GetView() const;
 
+	void			SetGUIHandle(VkDescriptorSet guiHandle) { GUIHandle = guiHandle; }
+	VkDescriptorSet GetGUIHandle() const { return GUIHandle; }
+
 private:
 	Renderer::TextureDescriptor m_Desc;
 	VkImage						textureImage;
@@ -24,6 +26,8 @@ private:
 	VkImageView					textureImageView;
 	// add sampler
 	Renderer::Handle<Renderer::Sampler> m_TextureSampler;
+
+	VkDescriptorSet GUIHandle = VK_NULL_HANDLE;
 
 	friend class C_VkResourceManager;
 	friend class C_VkRenderer; // todo remove
