@@ -16,12 +16,14 @@
 #include <Renderer/Viewport.h>
 #include <Renderer/Windows/RayTrace.h>
 
-#include <Editor/EntityEditor/EntitiesWindow.h>
 #include <Entity/EntityManager.h>
 
 #include <Core/EventSystem/Event/AppEvent.h>
 #include <Core/EventSystem/EventDispatcher.h>
 #include <Core/Resources/ResourceManager.h>
+
+#include <Editor/Editors/ImageEditor.h>
+#include <Editor/EntityEditor/EntitiesWindow.h>
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
@@ -757,6 +759,16 @@ void C_VkWindow::SetupGUI()
 
 		guiMGR.AddCustomWindow(m_RayTraceWindow);
 		m_RayTraceWindow->SetVisible();
+	}
+
+	// Image editor
+	{
+		m_ImageEditorGUID = NextGUID();
+
+		auto* imageEditorWindow = new Editor::C_ImageEditor(m_ImageEditorGUID, guiMGR);
+
+		guiMGR.AddCustomWindow(imageEditorWindow);
+		imageEditorWindow->SetVisible();
 	}
 }
 
