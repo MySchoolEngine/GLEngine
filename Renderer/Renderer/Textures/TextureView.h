@@ -83,6 +83,8 @@ public:
 
 	/**
 	 * Fills line span including start and end pixel
+	 *
+	 * Safe to use outside the view rect
 	 */
 	void FillLineSpan(const Colours::T_Colour& colour, unsigned int line, unsigned int start, unsigned int end);
 
