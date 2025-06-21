@@ -11,6 +11,8 @@ public:
 	C_CPURasterizer(const C_TextureView& view);
 	void DrawLine(const Colours::T_Colour& colour, const glm::ivec2& p1, const glm::ivec2& p2, bool antiAliased = false);
 	struct CircleColorSettings {
+		CircleColorSettings(const Colours::T_Colour& c)
+			: Colour(c) {} // TODO Just compilation fix
 		const Colours::T_Colour&	Colour;
 		std::function<float(float)> FalloffFunc = [](float) { return 1.f; };
 		bool						bFill		= false;
