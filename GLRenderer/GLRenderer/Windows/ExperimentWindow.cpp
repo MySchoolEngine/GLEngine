@@ -162,7 +162,7 @@ void C_ExperimentWindow::Update()
 	// World render
 	// ======
 	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
-	m_MainPass->Render(*m_World.get(), camera, GetWidth(), GetHeight());
+	m_MainPass->Render(*m_World.get(), camera, GetWidth(), GetHeight(), C_DebugDraw::Instance(), *m_RenderInterfaceHandles.get());
 	{
 		RenderDoc::C_DebugScope s("Handles draw");
 		m_3DRenderer.Commit(*m_RenderInterfaceHandles.get());
