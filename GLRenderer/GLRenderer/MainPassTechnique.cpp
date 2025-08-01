@@ -10,6 +10,8 @@
 #include <GLRenderer/Materials/MaterialBuffer.h>
 #include <GLRenderer/OGLRenderer.h>
 
+#include <Renderer/Components/StaticMeshHandles.h>
+#include <Renderer/DebugDraw.h>
 #include <Renderer/ICameraComponent.h>
 #include <Renderer/IRenderableComponent.h>
 #include <Renderer/IRenderer.h>
@@ -38,7 +40,12 @@ C_MainPassTechnique::C_MainPassTechnique(Renderer::ResourceManager& resourceMana
 }
 
 //=================================================================================
-void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shared_ptr<Renderer::I_CameraComponent> camera, unsigned int width, unsigned int height)
+void C_MainPassTechnique::Render(const Entity::C_EntityManager&				  world,
+								 std::shared_ptr<Renderer::I_CameraComponent> camera,
+								 unsigned int								  width,
+								 unsigned int								  height,
+								 Renderer::I_DebugDraw&						  dd,
+								 Renderer::I_RenderInterface3D&				  renderInterface3D)
 {
 	RenderDoc::C_DebugScope s("C_MainPassTechnique::Render");
 	const auto				camFrustum	   = camera->GetFrustum();
@@ -80,7 +87,7 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shar
 				m_LightsUBO->SetPointLight(pl, pointLightIndex);
 				++pointLightIndex;
 
-				C_DebugDraw::Instance().DrawPoint(glm::vec4(pos, 1.0), pointLight->GetColor());
+				dd.DrawPoint(glm::vec4(pos, 1.0), pointLight->GetColor());
 			}
 
 			const auto areaLight = std::dynamic_pointer_cast<Renderer::C_AreaLight>(lightIt);
@@ -111,7 +118,7 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shar
 				light.m_SpecularColor = areaLight->SpecularColour();
 				light.m_Intensity	  = 1.f;
 
-				areaLight->DebugDraw(&C_DebugDraw::Instance());
+				areaLight->DebugDraw(&dd);
 				m_LightsUBO->SetAreaLight(light, areaLightIndex);
 				++areaLightIndex;
 			}
@@ -130,8 +137,8 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shar
 				m_LightsUBO->GetSunLight().m_SunlightPresent	 = 1;
 				sunLightFound									 = true;
 
-				C_DebugDraw::Instance().DrawPoint(sunLight->GetSunDirection(), Colours::yellow);
-				C_DebugDraw::Instance().DrawLine({0.f, 0.f, 0.f}, sunLight->GetSunDirection(), Colours::yellow);
+				dd.DrawPoint(sunLight->GetSunDirection(), Colours::yellow);
+				dd.DrawLine({0.f, 0.f, 0.f}, sunLight->GetSunDirection(), Colours::yellow);
 			}
 		}
 	}
@@ -187,8 +194,21 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shar
 				const auto compSphere	  = renderableComp->GetAABB().GetSphere();
 				if (compSphere.IsColliding(camBox))
 					component_cast<Entity::E_ComponentType::Graphical>(it)->PerformDraw();
+
+				const auto staticMeshHandles = std::dynamic_pointer_cast<Renderer::C_StaticMeshHandles>(it);
+				if (staticMeshHandles)
+				{
+					staticMeshHandles->Render(m_3DRenderer);
+				}
 			}
 		}
+	}
+
+	// I am not using modelData here
+	{
+		RenderDoc::C_DebugScope scope3DRenderer("3D Renderer");
+		m_3DRenderer.Commit(renderInterface3D);
+		m_3DRenderer.Clear();
 	}
 
 	{
