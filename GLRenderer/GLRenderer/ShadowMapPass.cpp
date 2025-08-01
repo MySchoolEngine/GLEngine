@@ -3,7 +3,6 @@
 #include <GLRenderer/Buffers/UBO/FrameConstantsBuffer.h>
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
-#include <GLRenderer/Lights/GLAreaLight.h>
 #include <GLRenderer/ShadowMapPass.h>
 #include <GLRenderer/OGLDevice.h>
 
@@ -63,14 +62,14 @@ void C_ShadowMapTechnique::Render()
 	auto&					renderer = (Core::C_Application::Get()).GetActiveRenderer();
 	renderer.SetCurrentPassType(Renderer::E_PassType::ShadowPass);
 
-	const auto areaLight = std::dynamic_pointer_cast<C_GLAreaLight>(m_Light);
-	const auto frustum	= areaLight->GetShadingFrustum();
-	GLE_TODO("26-12-2024", "RohacekD", "There is no support for shadow maps in area light");
-	if (!areaLight || true)
-	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Wrong type of light");
-		return;
-	}
+	// const auto areaLight = std::dynamic_pointer_cast<C_GLAreaLight>(m_Light);
+	// const auto frustum	= areaLight->GetShadingFrustum();
+	// GLE_TODO("26-12-2024", "RohacekD", "There is no support for shadow maps in area light");
+	// if (!areaLight || true)
+	// {
+	// 	CORE_LOG(E_Level::Error, E_Context::Render, "Wrong type of light");
+	// 	return;
+	// }
 
 
 	// const auto left	  = glm::normalize(glm::cross(frustum.GetForward(), frustum.GetUpVector()));
