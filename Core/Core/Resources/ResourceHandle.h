@@ -60,8 +60,6 @@ public:
 	const ResourceType& GetResource() const;
 	ResourceType&		GetResource();
 
-	const std::filesystem::path& GetFilepath() const;
-
 	void AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx);
 
 	bool operator==(const ResourceHandle other) const { return m_Resource == other.m_Resource; }
@@ -74,7 +72,7 @@ template <is_resource ResourceType>
 struct ResourceHandleCmp {
 	bool operator()(const ResourceHandle<ResourceType>& lhs, const ResourceHandle<ResourceType>& rhs) const
 	{
-		return lhs.GetFilepath() < rhs.GetFilepath();
+		return lhs.GetFilePath() < rhs.GetFilePath();
 	}
 };
 
