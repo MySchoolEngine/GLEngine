@@ -1,8 +1,8 @@
 #include <RendererStdafx.h>
 
+#include <Renderer/Mesh/Scene.h>
 #include <Renderer/RayCasting/Geometry/BVH.h>
 #include <Renderer/RayCasting/Geometry/TrimeshModel.h>
-#include <Renderer/Mesh/Scene.h>
 
 #include <Core/Resources/ResourceManager.h>
 
@@ -14,10 +14,13 @@
 
 
 namespace GLEngine::Core {
-template <> void ResourceHandle<GLEngine::Renderer::C_TrimeshModel>::AfterDeserialize(GLEngine::Utils::C_XMLDeserializer::DeserializeCtx& ctx)
+template <> void ResourceHandle<Renderer::C_TrimeshModel>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
 {
 	auto& rm = C_ResourceManager::Instance();
-	*this	 = rm.LoadResource<GLEngine::Renderer::C_TrimeshModel>(GetFilePath());
+	if (GetFilePath() != "")
+	{
+		*this = rm.LoadResource<Renderer::C_TrimeshModel>(GetFilePath());
+	}
 }
 } // namespace GLEngine::Core
 

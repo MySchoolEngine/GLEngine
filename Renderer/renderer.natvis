@@ -43,6 +43,7 @@
     <Expand>
       <Item Name="[Dimensions]">m_Dimensions</Item>
       <Item Name="[Channels]">m_Channels</Item>
+      <Item Name="[Texture type]">GetStorageType()</Item>
     </Expand>
   </Type>
 

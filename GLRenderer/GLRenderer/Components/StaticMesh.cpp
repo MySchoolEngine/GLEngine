@@ -295,7 +295,7 @@ void C_StaticMesh::SetMeshFile(const std::filesystem::path meshFile)
 std::filesystem::path C_StaticMesh::GetMeshFile() const
 {
 	if (m_MeshResource.IsReady())
-		return m_MeshResource.GetFilepath();
+		return m_MeshResource.GetFilePath();
 	return {};
 }
 

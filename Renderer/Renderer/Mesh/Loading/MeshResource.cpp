@@ -10,10 +10,13 @@
 #include <rttr/registration>
 
 namespace GLEngine::Core {
-template <> void ResourceHandle<Renderer::MeshResource>::AfterDeserialize(GLEngine::Utils::C_XMLDeserializer::DeserializeCtx& ctx)
+template <> void ResourceHandle<Renderer::MeshResource>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
 {
 	auto& rm = C_ResourceManager::Instance();
-	*this	 = rm.LoadResource<Renderer::MeshResource>(GetFilePath());
+	if (GetFilePath() != "")
+	{
+		*this = rm.LoadResource<Renderer::MeshResource>(GetFilePath());
+	}
 }
 } // namespace GLEngine::Core
 DECLARE_RESOURCE_TYPE(GLEngine::Renderer::MeshResource)
