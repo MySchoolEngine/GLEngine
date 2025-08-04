@@ -14,8 +14,8 @@
 namespace GLEngine::Renderer {
 class RENDERER_API_EXPORT C_TrimeshModel : public Core::Resource {
 public:
-	DEFINE_RESOURCE_TYPE(MeshResource)
-	using T_BaseResource = MeshResource;
+	DEFINE_RESOURCE_TYPE(C_TrimeshModel)
+	using T_BaseResource = C_TrimeshModel;
 	C_TrimeshModel()	 = default;
 
 	[[nodiscard]] static constexpr bool					  IsDerived() { return true; }
