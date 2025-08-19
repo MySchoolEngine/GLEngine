@@ -45,7 +45,9 @@ void C_GLRenderInterface3D::Render(const Renderer::RenderCall3D& call)
 	shm.ActivateShader(shm.GetProgram(pipeline->GetDesc().shader));
 
 	renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
-		[&]() {
+		[&, this, call]() {
+			GLPipeline* pipeline = glRM.GetPipeline(call.PipelineHandle);
+			GLE_ASSERT(pipeline, "No pipeline set");
 			glBindVertexArray(m_VAOid);
 
 			for (int i = 0; i < pipeline->GetDesc().vertexInput.size(); ++i)
