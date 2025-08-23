@@ -239,6 +239,17 @@ void C_OGLRenderer::SetBufferData(const Renderer::Handle<Renderer::Buffer> dstBu
 }
 
 //=================================================================================
+void C_OGLRenderer::SetBufferSubData(Renderer::Handle<Renderer::Buffer> dstBuffer, std::size_t numBytes, std::size_t offset, const void* data)
+{
+	auto* buffer = m_GPUResourceManager.GetBuffer(dstBuffer);
+	GLE_ASSERT(buffer->GetDesc().usage != Renderer::E_ResourceUsage::Persistent, "Not implemented");
+	GLE_ASSERT(buffer, "Buffer does not exist");
+	buffer->bind();
+	glBufferSubData(buffer->GetType(), offset, numBytes, data);
+	buffer->unbind();
+}
+
+//=================================================================================
 void C_OGLRenderer::SetTextureData(const Renderer::Handle<Renderer::Texture> dstTexture, const Renderer::I_TextureViewStorage& storage)
 {
 	if (auto* texture = m_GPUResourceManager.GetTexture(dstTexture))
@@ -262,7 +273,8 @@ GLResourceManager& C_OGLRenderer::GetRMGR()
 //=================================================================================
 void* C_OGLRenderer::GetTextureGUIHandle(Renderer::Handle<Renderer::Texture> textureHandle)
 {
-	if (auto* texture = m_GPUResourceManager.GetTexture(textureHandle)) {
+	if (auto* texture = m_GPUResourceManager.GetTexture(textureHandle))
+	{
 		return texture->GetGPUHandle();
 	}
 	return nullptr;
