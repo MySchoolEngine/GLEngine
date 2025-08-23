@@ -1,5 +1,7 @@
 #include <GLRendererStdafx.h>
 
+#include <GLRenderer/Buffers/UBO/ModelData.h>
+#include <GLRenderer/Buffers/UniformBuffersManager.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
 #include <GLRenderer/GLRenderInterface3D.h>
 #include <GLRenderer/GLResourceManager.h>
@@ -31,7 +33,7 @@ C_GLRenderInterface3D::~C_GLRenderInterface3D()
 void C_GLRenderInterface3D::Render(const Renderer::RenderCall3D& call)
 {
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
-	auto& glRM     = dynamic_cast<C_OGLRenderer&>(renderer).GetRMGR();
+	auto& glRM	   = dynamic_cast<C_OGLRenderer&>(renderer).GetRMGR();
 
 	GLPipeline* pipeline = glRM.GetPipeline(call.PipelineHandle);
 	GLE_ASSERT(pipeline, "No pipeline set");
@@ -53,7 +55,7 @@ void C_GLRenderInterface3D::Render(const Renderer::RenderCall3D& call)
 			for (int i = 0; i < pipeline->GetDesc().vertexInput.size(); ++i)
 			{
 				const Renderer::AttributeDescriptor& vertexDesc = pipeline->GetDesc().vertexInput[i];
-				auto*                                buffer     = glRM.GetBuffer(call.Buffers[i]);
+				auto*								 buffer		= glRM.GetBuffer(call.Buffers[i]);
 				buffer->bind();
 				switch (vertexDesc.type)
 				{
@@ -75,6 +77,14 @@ void C_GLRenderInterface3D::Render(const Renderer::RenderCall3D& call)
 				}
 				glEnableVertexAttribArray(i);
 				buffer->unbind();
+			}
+			auto modelData = Buffers::C_UniformBuffersManager::Instance().GetBufferByName("modelData");
+			if (auto modelDataUbo = std::dynamic_pointer_cast<Buffers::UBO::C_ModelData>(modelData))
+			{
+				modelDataUbo->SetModelMatrix(call.ModelMatrix);
+				modelDataUbo->SetMaterialIndex(call.MaterialIndex);
+				modelDataUbo->UploadData(renderer);
+				modelDataUbo->Activate(renderer.GetRM(), true);
 			}
 
 			glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(call.NumPrimities));
