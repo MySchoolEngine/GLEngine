@@ -88,9 +88,9 @@ C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
 
 	auto staticMeshHandle = m_World->GetOrCreateEntity("handles");
 	{
-		handlesMesh = std::make_shared<Renderer::C_StaticMeshHandles>();
-		handlesMesh->SetParent(staticMeshHandle);
-		staticMeshHandle->AddComponent(handlesMesh);
+		m_HandlesMesh = std::make_shared<Renderer::C_StaticMeshHandles>();
+		m_HandlesMesh->SetParent(staticMeshHandle);
+		staticMeshHandle->AddComponent(m_HandlesMesh);
 	}
 
 
@@ -105,7 +105,7 @@ C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
 		.Queue			= m_renderer->GetGraphicsQueue(),
 		.PipelineCache	= VK_NULL_HANDLE,
 		.MinImageCount	= swapChainSupport.capabilities.minImageCount,
-		.ImageCount		= imageCount,
+		.ImageCount		= m_ImageCount,
 		.RenderPass		= pipeline->GetRenderPass(),
 		.CommandBuffer	= m_CommandBuffer[0],
 	});
@@ -131,7 +131,7 @@ C_VkWindow::~C_VkWindow()
 	}
 	DestroySwapchain();
 	vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
-	vkDestroyDescriptorPool(m_renderer->GetDeviceVK(), descriptorPool, nullptr);
+	vkDestroyDescriptorPool(m_renderer->GetDeviceVK(), m_DescriptorPool, nullptr);
 	// m_Pipeline.destroy(m_renderer->GetDevice());
 	m_renderer.reset(nullptr);
 	// image cleanup
@@ -148,8 +148,8 @@ void C_VkWindow::Update()
 	bool show = true;
 	ImGui::ShowDemoWindow(&show);
 	Core::C_ResourceManager::Instance().UpdatePendingLoads();
-	handlesMesh->Update();
-	handlesMesh->Render(m_3DRenderer);
+	m_HandlesMesh->Update();
+	m_HandlesMesh->Render(m_3DRenderer);
 
 	vkWaitForFences(m_renderer->GetDeviceVK(), 1, &m_InFlightFence[currentFrame], VK_TRUE, UINT64_MAX);
 
@@ -252,17 +252,17 @@ void C_VkWindow::CreateSwapChain()
 	glm::ivec2				 size		   = GetSize();
 	const VkExtent2D		 extent		   = ChooseSwapExtent(swapChainSupport.capabilities, {static_cast<uint32_t>(size.x), static_cast<uint32_t>(size.y)});
 
-	imageCount = swapChainSupport.capabilities.minImageCount + 1;
-	if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
+	m_ImageCount = swapChainSupport.capabilities.minImageCount + 1;
+	if (swapChainSupport.capabilities.maxImageCount > 0 && m_ImageCount > swapChainSupport.capabilities.maxImageCount)
 	{
-		imageCount = swapChainSupport.capabilities.maxImageCount;
+		m_ImageCount = swapChainSupport.capabilities.maxImageCount;
 	}
 
 	VkSwapchainCreateInfoKHR createInfo{};
 	createInfo.sType   = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 	createInfo.surface = m_Surface;
 
-	createInfo.minImageCount	= imageCount;
+	createInfo.minImageCount	= m_ImageCount;
 	createInfo.imageFormat		= surfaceFormat.format;
 	createInfo.imageColorSpace	= surfaceFormat.colorSpace;
 	createInfo.imageExtent		= extent;
@@ -289,9 +289,9 @@ void C_VkWindow::CreateSwapChain()
 	}
 
 
-	vkGetSwapchainImagesKHR(m_renderer->GetDeviceVK(), m_SwapChain, &imageCount, nullptr);
-	m_SwapChainImages.resize(imageCount);
-	vkGetSwapchainImagesKHR(m_renderer->GetDeviceVK(), m_SwapChain, &imageCount, m_SwapChainImages.data());
+	vkGetSwapchainImagesKHR(m_renderer->GetDeviceVK(), m_SwapChain, &m_ImageCount, nullptr);
+	m_SwapChainImages.resize(m_ImageCount);
+	vkGetSwapchainImagesKHR(m_renderer->GetDeviceVK(), m_SwapChain, &m_ImageCount, m_SwapChainImages.data());
 
 	m_SwapChainImageFormat = surfaceFormat.format;
 	m_SwapChainExtent	   = extent;
@@ -522,7 +522,7 @@ void C_VkWindow::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t ima
 	const VkRect2D scissor{.offset = {0, 0}, .extent = {viewport.GetResolution().x, viewport.GetResolution().y}};
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-	m_RenderInterface.BeginRender(commandBuffer, descriptorSets[currentFrame], pipeline);
+	m_RenderInterface.BeginRender(commandBuffer, m_DescriptorSets[currentFrame], pipeline);
 	m_3DRenderer.Commit(m_RenderInterface);
 	m_RenderInterface.EndRender();
 
@@ -612,7 +612,7 @@ void C_VkWindow::CreateDescriptorPool()
 		.poolSizeCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT),
 		.pPoolSizes	   = poolSizes.data(),
 	};
-	if (const auto result = vkCreateDescriptorPool(m_renderer->GetDeviceVK(), &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
+	if (const auto result = vkCreateDescriptorPool(m_renderer->GetDeviceVK(), &poolInfo, nullptr, &m_DescriptorPool) != VK_SUCCESS)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "failed to create descriptor pool. {}", result);
 		return;
@@ -626,13 +626,13 @@ void C_VkWindow::CreateDescriptorSets()
 	std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, pipeline->GetDescriptorSetLayout());
 	const VkDescriptorSetAllocateInfo  allocInfo{
 		 .sType				 = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-		 .descriptorPool	 = descriptorPool,
+		 .descriptorPool	 = m_DescriptorPool,
 		 .descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT),
 		 .pSetLayouts		 = layouts.data(),
 	 };
 
-	descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
-	if (const auto result = vkAllocateDescriptorSets(m_renderer->GetDeviceVK(), &allocInfo, descriptorSets.data()) != VK_SUCCESS)
+	m_DescriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
+	if (const auto result = vkAllocateDescriptorSets(m_renderer->GetDeviceVK(), &allocInfo, m_DescriptorSets.data()) != VK_SUCCESS)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "failed to allocate descriptor sets. {}", result);
 		return;
@@ -656,7 +656,7 @@ void C_VkWindow::CreateDescriptorSets()
 
 		const VkWriteDescriptorSet descriptorUniform{
 			.sType			 = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-			.dstSet			 = descriptorSets[i],
+			.dstSet			 = m_DescriptorSets[i],
 			.dstBinding		 = 0,
 			.dstArrayElement = 0,
 			.descriptorCount = 1,
@@ -666,7 +666,7 @@ void C_VkWindow::CreateDescriptorSets()
 
 		const VkWriteDescriptorSet descriptorImage{
 			.sType			 = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-			.dstSet			 = descriptorSets[i],
+			.dstSet			 = m_DescriptorSets[i],
 			.dstBinding		 = 1,
 			.dstArrayElement = 0,
 			.descriptorCount = 1,
@@ -732,11 +732,11 @@ void C_VkWindow::SetupGUI()
 	{
 		auto  cameras = player->GetComponents(Entity::E_ComponentType::Camera);
 		float zoom	  = 5.0f;
-		playerCamera  = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
-		playerCamera->SetupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
-		playerCamera->SetupCameraView(zoom, glm::vec3(0.0f), 90, 0);
-		playerCamera->Update();
-		player->AddComponent(playerCamera);
+		m_PlayerCamera  = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
+		m_PlayerCamera->SetupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
+		m_PlayerCamera->SetupCameraView(zoom, glm::vec3(0.0f), 90, 0);
+		m_PlayerCamera->Update();
+		player->AddComponent(m_PlayerCamera);
 	}
 
 	auto& guiMGR = m_ImGUI.GetGUIMgr();
@@ -755,7 +755,7 @@ void C_VkWindow::SetupGUI()
 	{
 		m_RayTraceGUID = NextGUID();
 
-		m_RayTraceWindow = new Renderer::C_RayTraceWindow(m_RayTraceGUID, playerCamera, guiMGR);
+		m_RayTraceWindow = new Renderer::C_RayTraceWindow(m_RayTraceGUID, m_PlayerCamera, guiMGR);
 
 		guiMGR.AddCustomWindow(m_RayTraceWindow);
 		m_RayTraceWindow->SetVisible();
