@@ -23,7 +23,7 @@ public:
 	// Compiles a single shader from a file
 	// errorLog - reference to a string, where error message will be stored, in
 	// case the compilation fails
-	bool		 compileShaderStage(T_StageHandle& stage, const std::filesystem::path& filepath, const Renderer::E_ShaderStage shaderStage);
+	bool		 compileShaderStage(T_StageHandle& stage, const std::filesystem::path& filepath, const E_ShaderStage shaderStage);
 	virtual void ReleaseStage(T_StageHandle& stage) = 0;
 
 	T_Paths GetTouchedFiles() const;
@@ -34,7 +34,7 @@ protected:
 	bool		 _loadFile(const std::filesystem::path& file, std::vector<char>& content);
 	virtual bool compileShaderStageInternal(T_StageHandle&				  stage,
 											const std::filesystem::path&  filepath,
-											const Renderer::E_ShaderStage shaderStage,
+											const E_ShaderStage shaderStage,
 											std::vector<char>&			  content,
 											const std::string&			  entryPoint)
 		= 0;
@@ -87,19 +87,19 @@ private:
 
 		const std::string_view stageAttribute = node.attribute("stage").value();
 
-		Renderer::E_ShaderStage stage = Renderer::E_ShaderStage::Vertex;
+		E_ShaderStage stage = E_ShaderStage::Vertex;
 		if (stageAttribute == "vertex")
-			stage = Renderer::E_ShaderStage::Vertex;
+			stage = E_ShaderStage::Vertex;
 		else if (stageAttribute == "fragment")
-			stage = Renderer::E_ShaderStage::Fragment;
+			stage = E_ShaderStage::Fragment;
 		else if (stageAttribute == "geometry")
-			stage = Renderer::E_ShaderStage::Geometry;
+			stage = E_ShaderStage::Geometry;
 		else if (stageAttribute == "compute")
-			stage = Renderer::E_ShaderStage::Compute;
+			stage = E_ShaderStage::Compute;
 		else if (stageAttribute == "tess-control")
-			stage = Renderer::E_ShaderStage::TesselationControl;
+			stage = E_ShaderStage::TesselationControl;
 		else if (stageAttribute == "tess-evaluation")
-			stage = Renderer::E_ShaderStage::TesselationEvaluation;
+			stage = E_ShaderStage::TesselationEvaluation;
 
 		const auto filename = s_ShadersFolder / std::filesystem::path(node.first_child().value());
 
@@ -152,7 +152,7 @@ template <class StageHandle> const std::filesystem::path C_ShaderLoader<StageHan
 // ShaderCompilerTrait
 //=================================================================================
 template <class StageHandle>
-bool ShaderCompilerTrait<StageHandle>::compileShaderStage(T_StageHandle& stage, const std::filesystem::path& filepath, const Renderer::E_ShaderStage shaderStage)
+bool ShaderCompilerTrait<StageHandle>::compileShaderStage(T_StageHandle& stage, const std::filesystem::path& filepath, const E_ShaderStage shaderStage)
 {
 	std::vector<char> src;
 	if (!_loadFile(filepath, src))
