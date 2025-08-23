@@ -47,6 +47,7 @@ public:
 	void SetTextureSampler(Renderer::Handle<Renderer::Texture> dstTexture, Renderer::Handle<Renderer::Sampler> srcSampler) override;
 
 	void CopyBuffer(VkBuffer srcBuffer, Renderer::Handle<Renderer::Buffer> dstBuffer, VkDeviceSize size, VkCommandPool& commandPool);
+	void SetBufferSubData(Renderer::Handle<Renderer::Buffer> dstBuffer, std::size_t numBytes, std::size_t offset, const void* data) override;
 	// copy whole image, blocking operation, should go to async, have options to copy just parts of image etc.
 	void  CopyBufferToImage(VkBuffer srcBuffer, VkImage image, uint32_t width, uint32_t height, VkCommandPool& commandPool);
 	void  TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, VkCommandPool& commandPool);

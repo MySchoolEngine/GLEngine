@@ -21,10 +21,11 @@ public:
 	void SetTextureSampler(Renderer::Handle<Renderer::Texture> dstTexture, Renderer::Handle<Renderer::Sampler> srcSampler) override;
 
 	//=================================================================================
-	Renderer::E_PassType	  GetCurrentPassType() const override;
-	Renderer::I_Device&		  GetDevice() override;
+	Renderer::E_PassType	   GetCurrentPassType() const override;
+	Renderer::I_Device&		   GetDevice() override;
 	Renderer::ResourceManager& GetRM() override;
-
+	void					   SetBufferSubData(Renderer::Handle<Renderer::Buffer> dstBuffer, std::size_t numBytes, std::size_t offset, const void* data) override
+	{}
 
 
 private:

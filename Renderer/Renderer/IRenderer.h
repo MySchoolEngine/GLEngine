@@ -58,6 +58,7 @@ public:
 	 * @brief	   Copy data into GPU buffer.
 	 ** ==============================================*/
 	virtual void SetBufferData(Handle<Buffer> dstBuffer, std::size_t numBytes, const void* data) = 0;
+	virtual void SetBufferSubData(Handle<Buffer> dstBuffer, std::size_t numBytes, std::size_t offset, const void* data) = 0;
 	virtual void SetTextureData(Handle<Texture> dstTexture, const I_TextureViewStorage& storage) {}
 
 	virtual void SetTextureSampler(Handle<Texture> dstTexture, Handle<Sampler> srcSampler) = 0;

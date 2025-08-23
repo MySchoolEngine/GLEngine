@@ -49,6 +49,7 @@ public:
 	bool				WantWireframe() const { return m_Wireframe.GetValue(); }
 	Renderer::I_Device& GetDevice() override;
 	void				SetBufferData(Renderer::Handle<Renderer::Buffer> dstBuffer, std::size_t numBytes, const void* data) override;
+	void				SetBufferSubData(Renderer::Handle<Renderer::Buffer> dstBuffer, std::size_t numBytes, std::size_t offset, const void* data) override;
 	void				SetTextureData(Renderer::Handle<Renderer::Texture> dstTexture, const Renderer::I_TextureViewStorage& storage) override;
 	void				SetTextureSampler(Renderer::Handle<Renderer::Texture> dstTexture, Renderer::Handle<Renderer::Sampler> srcSampler) override;
 	void*				GetTextureGUIHandle(Renderer::Handle<Renderer::Texture> texture) override;
