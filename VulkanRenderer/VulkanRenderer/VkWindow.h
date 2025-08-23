@@ -100,9 +100,9 @@ private:
 
 	Renderer::Handle<Renderer::Pipeline> m_PipelineHandle;
 
-	std::vector<VkSemaphore>		   m_ImageAvailableSemaphore;
-	std::vector<VkSemaphore>		   m_RenderFinishedSemaphore;
-	std::vector<VkFence>			   m_InFlightFence;
+	std::vector<VkSemaphore> m_ImageAvailableSemaphore;
+	std::vector<VkSemaphore> m_RenderFinishedSemaphore;
+	std::vector<VkFence>	 m_InFlightFence;
 
 	Core::ResourceHandle<Renderer::MeshResource>	m_MeshHandle;
 	Core::ResourceHandle<Renderer::TextureResource> m_TextureHandle;
@@ -115,26 +115,26 @@ private:
 
 	// Uniform buffers
 	std::vector<Renderer::Handle<Renderer::Buffer>> m_UniformBuffers;
-	VkDescriptorPool								descriptorPool;
-	std::vector<VkDescriptorSet>					descriptorSets;
+	VkDescriptorPool								m_DescriptorPool;
+	std::vector<VkDescriptorSet>					m_DescriptorSets;
 
 	VkSurfaceKHR_T* m_Surface;
 
 	VkInstance_T* m_Instance;
 
-	uint32_t imageCount;
+	uint32_t m_ImageCount;
 
-	GUID m_EntitiesWindowGUID;
+	GUID						m_EntitiesWindowGUID;
 	GUID						m_RayTraceGUID;
 	GUID						m_ImageEditorGUID;
 	Renderer::C_RayTraceWindow* m_RayTraceWindow;
 
 
 	// SCENE RELATED STUFF
-	Renderer::Renderer3D						   m_3DRenderer;
-	std::shared_ptr<Entity::C_EntityManager>	   m_World;
-	std::shared_ptr<Renderer::C_StaticMeshHandles> handlesMesh;
-	std::shared_ptr<Renderer::Cameras::C_OrbitalCamera> playerCamera;
+	Renderer::Renderer3D								m_3DRenderer;
+	std::shared_ptr<Entity::C_EntityManager>			m_World;
+	std::shared_ptr<Renderer::C_StaticMeshHandles>		m_HandlesMesh;
+	std::shared_ptr<Renderer::Cameras::C_OrbitalCamera> m_PlayerCamera;
 
 	C_VkRenderInterface m_RenderInterface;
 };
