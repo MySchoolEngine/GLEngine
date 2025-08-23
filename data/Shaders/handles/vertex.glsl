@@ -21,19 +21,19 @@ layout(binding = 2) uniform modelData
 
 //=================================================================================
 layout(location = 0) out vec3 normalOUT;
-// layout(location = 1) out vec2 texCoordOUT;
-// layout(location = 2) out vec4 worldCoord;
-// layout(location = 3) out mat3 TBN;
+layout(location = 1) out vec2 texCoordOUT;
+layout(location = 2) out vec4 worldCoord;
+layout(location = 3) out mat3 TBN;
 
 //=================================================================================
 void main()
 {
 	normalOUT	= mat3(transpose(inverse(modelMatrix))) * normal;
-	// texCoordOUT = texCoord;
+	texCoordOUT = texCoord;
 
-	vec4 worldCoord =  vertex;
+	worldCoord = modelMatrix * vertex;
 
-	// TBN = mat3(tangent, bitangent, normal);
+	TBN = mat3(tangent, bitangent, normal);
 
 	gl_Position = frame.viewProjectionMatrix * worldCoord; // tohle je reálná hloubka
 }
