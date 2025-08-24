@@ -7,10 +7,14 @@ project "UtilsTest"
 
 	SetupProject("UtilsTest")
 	
+	PrecompiledHeaders("UtilsTest")
+	
+	Link("Core")
 	Link("Utils")
 	links { "gtest_main" }
 
 	LinkDependency("RTTR")
+	LinkDependency("pugixml")
 
 	includedirs
 	{
@@ -23,5 +27,5 @@ project "UtilsTest"
 	}
 	files
 	{
-		"%{wks.location}/vendor/gtest/googletest/src/gtest_main.cc",
+		"%{prj.location}/TestMain.cpp",
 	}
