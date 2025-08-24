@@ -50,6 +50,9 @@ jobs:
             sudo Tools/Premake5/premake5 gmake2
       - name: Build
         run: make config=${{ matrix.config.config }} -j6
+      - name: Test
+        run: |
+            ./bin/${{ matrix.configuration }}-linux-x86_64/UtilsTest/UtilsTest
   msvc:
     name: MSVC api=${{ matrix.glfwapi }} config=${{ matrix.configuration }}
     runs-on: windows-latest
@@ -78,3 +81,4 @@ jobs:
         run: |
             bin\${{ matrix.configuration }}-windows-x86_64\CoreTest\CoreTest.exe
             bin\${{ matrix.configuration }}-windows-x86_64\RendererTest\RendererTest.exe
+            bin\${{ matrix.configuration }}-windows-x86_64\UtilsTest\UtilsTest.exe
