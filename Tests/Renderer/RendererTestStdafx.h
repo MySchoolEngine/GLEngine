@@ -10,6 +10,6 @@
 #include <Core/CoreEnums.h>
 
 #include <glm/glm.hpp>
-#include <GlmPrinters.h>
+#include <CommonTestUtils/GlmPrinters.h>
 
 #include <gtest/gtest.h>

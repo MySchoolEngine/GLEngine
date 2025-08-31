@@ -11,9 +11,13 @@ project "RendererTest"
 
 	Link("Renderer")
 	Link("Utils")
+	Link("Entity")
+	Link("Core")
+	Link("GUI")
 	links { "gtest_main" }
 
 	LinkDependency("RTTR")
+	LinkDependency("pugixml")
 
 	includedirs
 	{
@@ -25,6 +29,7 @@ project "RendererTest"
 		"%{wks.location}/%{IncludeDir.GLM}",
 		"%{wks.location}/%{IncludeDir.fmt}",
 		"%{wks.location}/%{IncludeDir.RTTR}",
+		"%{wks.location}/%{IncludeDir.slot_map}",
 		"%{wks.location}/Tests/CommonTestUtils",
 	}
 	files
