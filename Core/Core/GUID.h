@@ -3,6 +3,7 @@
 #include <Core/CoreApi.h>
 
 #include <crossguid/guid.hpp>
+#include <rttr/registration_friend.h>
 
 namespace GLEngine {
 
@@ -37,7 +38,11 @@ public:
 private:
 	xg::Guid m_Guid;
 
+	void SetID(std::string ID);
+
 	CORE_API_EXPORT friend bool operator<(const GUID& lhs, const GUID& rhs);
+
+	RTTR_REGISTRATION_FRIEND;
 };
 
 CORE_API_EXPORT GUID NextGUID();
