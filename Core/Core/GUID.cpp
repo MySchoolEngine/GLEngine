@@ -8,7 +8,7 @@ RTTR_REGISTRATION
 	rttr::registration::class_<GLEngine::GUID>("GUID")
 		.constructor<>()
 		.constructor<std::string_view>()
-		.property_readonly("ID", &GLEngine::GUID::toString);
+		.property("ID", &GLEngine::GUID::toString, &GLEngine::GUID::SetID);
 }
 
 namespace GLEngine {
@@ -46,6 +46,12 @@ bool GUID::isValid() const
 std::string GUID::toString() const
 {
 	return m_Guid.str();
+}
+
+//=================================================================================
+void GUID::SetID(std::string ID)
+{
+	m_Guid = xg::Guid(ID);
 }
 
 //=================================================================================

@@ -5,6 +5,6 @@
 #include <Utils/STLAfx.h>
 
 #include <glm/glm.hpp>
-#include <GlmPrinters.h>
+#include <CommonTestUtils/GlmPrinters.h>
 
 #include <gtest/gtest.h>

@@ -2,7 +2,7 @@
 
 #include <Physics/2D/Plane2D.h>
 
-#include <GlmPrinters.h>
+#include <CommonTestUtils/GlmPrinters.h>
 
 #include <gtest/gtest.h>
 
