@@ -52,7 +52,7 @@ jobs:
         run: make config=${{ matrix.config.config }} -j6
       - name: Test
         run: |
-            ./bin/${{ matrix.configuration }}-linux-x86_64/UtilsTest/UtilsTest
+            ./bin/${{ matrix.config.config }}-linux-x86_64/UtilsTest/UtilsTest
   msvc:
     name: MSVC api=${{ matrix.glfwapi }} config=${{ matrix.configuration }}
     runs-on: windows-latest
