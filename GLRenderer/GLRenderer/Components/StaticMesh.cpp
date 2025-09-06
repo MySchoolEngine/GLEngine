@@ -144,7 +144,8 @@ void C_StaticMesh::PerformDraw() const
 			{
 				modelDataUbo->SetModelMatrix(GetComponentModelMatrix());
 				modelDataUbo->SetMaterialIndex(matIndex);
-				modelDataUbo->UploadData();
+				modelDataUbo->UploadData(renderer);
+				modelDataUbo->Activate(renderer.GetRM(), true);
 			}
 		},
 		"Per object data upload"));
@@ -279,12 +280,14 @@ std::string C_StaticMesh::GetShadowShader() const
 }
 
 //=================================================================================
-void C_StaticMesh::SetMeshFile(const std::filesystem::path meshfile)
+void C_StaticMesh::SetMeshFile(const std::filesystem::path meshFile)
 {
+	if (meshFile.empty())
+		return;
 	auto& rm   = Core::C_ResourceManager::Instance();
-	auto  path = meshfile;
-	if (meshfile.generic_string().find("Models") == std::string::npos)
-		path = std::filesystem::path("Models") / meshfile;
+	auto  path = meshFile;
+	if (meshFile.generic_string().find("Models") == std::string::npos)
+		path = std::filesystem::path("Models") / meshFile;
 	m_MeshResource = rm.LoadResource<Renderer::MeshResource>(path);
 }
 
@@ -292,7 +295,7 @@ void C_StaticMesh::SetMeshFile(const std::filesystem::path meshfile)
 std::filesystem::path C_StaticMesh::GetMeshFile() const
 {
 	if (m_MeshResource.IsReady())
-		return m_MeshResource.GetFilepath();
+		return m_MeshResource.GetFilePath();
 	return {};
 }
 

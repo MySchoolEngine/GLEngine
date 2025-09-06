@@ -5,7 +5,6 @@ BraceWrapping:
   AfterFunction: true
   BeforeElse: true
 BreakBeforeBraces: Custom
-FixNamespaceComments: false
 MaxEmptyLinesToKeep: 2
 
 IndentWidth: 4
@@ -41,7 +40,6 @@ FixNamespaceComments: true
 CompactNamespaces: true #only cause it is simple to change it to nested one later
 
 UseTab: Always
-AlignConsecutiveDeclarations: true
 
 SortIncludes: true
 IncludeBlocks: Regroup

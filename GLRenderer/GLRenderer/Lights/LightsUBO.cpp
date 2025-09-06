@@ -11,7 +11,6 @@ namespace GLEngine::GLRenderer {
 C_LightsBuffer::C_LightsBuffer(const std::string& blockName, unsigned int index)
 	: C_UniformBuffer(blockName, index)
 {
-	AllocateMemory(true, &(m_PointLight[0].m_Position));
 
 	Textures::TextureLoader tl;
 
@@ -50,11 +49,9 @@ std::size_t C_LightsBuffer::GetBufferSize() const
 }
 
 //=================================================================================
-void C_LightsBuffer::UploadData() const
+const void* C_LightsBuffer::Data() const
 {
-	bind();
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, GetBufferSize(), &(m_PointLight[0].m_Position));
-	unbind();
+	return &(m_PointLight[0].m_Position);
 }
 
 //=================================================================================

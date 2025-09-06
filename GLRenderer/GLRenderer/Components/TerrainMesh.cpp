@@ -246,6 +246,7 @@ void C_TerrainMesh::Simulate()
 
 	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[this, program]() {
+			auto& renderer = Core::C_Application::Get().GetActiveRenderer();
 			program->SetUniform("numDrops", static_cast<int>(m_Settings->m_Drops));
 			program->SetUniform("numSteps", static_cast<int>(m_Settings->m_NumSteps));
 			program->SetUniform("inertia", m_Settings->m_Inertia);
@@ -253,12 +254,12 @@ void C_TerrainMesh::Simulate()
 			program->SetUniform("evaporate", static_cast<float>(m_Settings->m_Evaporation));
 			program->SetUniform("startingSpeed", static_cast<float>(m_Settings->m_InitWater));
 			program->SetUniform("initialWater", static_cast<float>(m_Settings->m_StartingSpeed));
-			m_RainData->UploadData();
-			m_RainData->Activate(true);
+			m_RainData->UploadData(renderer);
+			m_RainData->Activate(renderer.GetRM(), true);
 
 			glDispatchCompute(1, 1, 1);
 			glMemoryBarrier(GL_ALL_BARRIER_BITS);
-			m_RainData->Activate(false);
+			m_RainData->Activate(renderer.GetRM(), false);
 			// generate new droplets
 			m_RainData->GenerateDrops();
 		},

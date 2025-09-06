@@ -1,11 +1,10 @@
 #include <GUIStdafx.h>
 
 #include <GUI/Input/Transformations.h>
+#include <GUI/ReflectionGUI.h>
 
 #include <Utils/Reflection/Metadata.h>
 #include <Utils/Serialization/SerializationUtils.h>
-
-#include <GUI/ReflectionGUI.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
@@ -51,7 +50,7 @@ namespace GLEngine::GUI::Input {
 
 
 //=================================================================================
-C_Transformations::C_Transformations(glm::mat4 transformation, ::Utils::C_BitField<E_Transorms> enableTransforms)
+C_Transformations::C_Transformations(glm::mat4 transformation, ::Utils::C_BitField<E_Transforms> enableTransforms)
 	: m_EnabledTransforms(enableTransforms)
 	, m_Translation(glm::vec3(0.f))
 	, m_Rotation(glm::vec3(0.f))
@@ -62,7 +61,7 @@ C_Transformations::C_Transformations(glm::mat4 transformation, ::Utils::C_BitFie
 
 //=================================================================================
 C_Transformations::C_Transformations()
-	: m_EnabledTransforms({E_Transorms::Translate, E_Transorms::Rotate, E_Transorms::Scale})
+	: m_EnabledTransforms({E_Transforms::Translate, E_Transforms::Rotate, E_Transforms::Scale})
 	, m_Translation(glm::vec3(0.f))
 	, m_Rotation(glm::vec3(0.f))
 	, m_Scale(glm::vec3(1.f, 1.f, 1.f))
@@ -74,15 +73,15 @@ bool C_Transformations::Draw() const
 {
 	bool		   changed = false;
 	rttr::instance obj(*this);
-	if (m_EnabledTransforms.CheckFlag(E_Transorms::Translate))
+	if (m_EnabledTransforms.CheckFlag(E_Transforms::Translate))
 	{
 		changed |= GUI::DrawPropertyGUI(obj, rttr::type::get<C_Transformations>().get_property("Translation"));
 	}
-	if (m_EnabledTransforms.CheckFlag(E_Transorms::Rotate))
+	if (m_EnabledTransforms.CheckFlag(E_Transforms::Rotate))
 	{
 		changed |= GUI::DrawPropertyGUI(obj, rttr::type::get<C_Transformations>().get_property("Rotation"));
 	}
-	if (m_EnabledTransforms.CheckFlag(E_Transorms::Scale))
+	if (m_EnabledTransforms.CheckFlag(E_Transforms::Scale))
 	{
 		changed |= GUI::DrawPropertyGUI(obj, rttr::type::get<C_Transformations>().get_property("Scale"));
 	}
@@ -93,17 +92,17 @@ bool C_Transformations::Draw() const
 glm::mat4 C_Transformations::GetMatrix() const
 {
 	glm::mat4 transform(1.f);
-	if (m_EnabledTransforms.CheckFlag(E_Transorms::Translate))
+	if (m_EnabledTransforms.CheckFlag(E_Transforms::Translate))
 	{
 		transform = glm::translate(transform, m_Translation);
 	}
-	if (m_EnabledTransforms.CheckFlag(E_Transorms::Rotate))
+	if (m_EnabledTransforms.CheckFlag(E_Transforms::Rotate))
 	{
 		transform = glm::rotate(transform, m_Rotation.x, glm::vec3(1, 0, 0));
 		transform = glm::rotate(transform, m_Rotation.y, glm::vec3(0, 1, 0));
 		transform = glm::rotate(transform, m_Rotation.z, glm::vec3(0, 0, 1));
 	}
-	if (m_EnabledTransforms.CheckFlag(E_Transorms::Scale))
+	if (m_EnabledTransforms.CheckFlag(E_Transforms::Scale))
 	{
 		transform = glm::scale(transform, m_Scale);
 	}
@@ -143,7 +142,7 @@ void C_Transformations::SetMatrix(const glm::mat4& mat)
 }
 
 //=================================================================================
-void C_Transformations::SetEnabledTransforms(::Utils::C_BitField<E_Transorms> enableTransforms)
+void C_Transformations::SetEnabledTransforms(::Utils::C_BitField<E_Transforms> enableTransforms)
 {
 	m_EnabledTransforms = enableTransforms;
 }
@@ -176,6 +175,12 @@ glm::vec3 C_Transformations::GetRotationDeg() const
 void C_Transformations::SetRotationDeg(glm::vec3 rotation)
 {
 	m_Rotation = glm::radians(rotation);
+}
+
+//=================================================================================
+bool C_Transformations::operator==(const C_Transformations& other) const
+{
+	return m_EnabledTransforms == other.m_EnabledTransforms && m_Translation == other.m_Translation && m_Rotation == other.m_Rotation && m_Scale == other.m_Scale;
 }
 
 } // namespace GLEngine::GUI::Input

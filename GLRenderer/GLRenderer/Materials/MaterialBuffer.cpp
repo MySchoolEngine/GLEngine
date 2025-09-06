@@ -8,22 +8,18 @@ namespace GLEngine::GLRenderer::Material {
 C_MaterialsBuffer::C_MaterialsBuffer(const std::string& blockName, unsigned int index)
 	: Buffers::C_UniformBuffer(blockName, index)
 {
-	AllocateMemory(true, &(m_PhongMaterials[0]));
-}
-
-//=================================================================================
-void C_MaterialsBuffer::UploadData() const
-{
-	bind();
-	constexpr auto phongMaterialsSize = sizeof(m_PhongMaterials);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, phongMaterialsSize, m_PhongMaterials.data());
-	unbind();
 }
 
 //=================================================================================
 std::size_t C_MaterialsBuffer::GetBufferSize() const
 {
 	return sizeof(m_PhongMaterials);
+}
+
+//=================================================================================
+const void* C_MaterialsBuffer::Data() const
+{
+	return m_PhongMaterials.data();
 }
 
 } // namespace GLEngine::GLRenderer::Material

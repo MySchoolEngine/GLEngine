@@ -31,6 +31,9 @@
 			<Item Name="[Methods]" Condition="m_type_data->m_type_traits[0]">
 				m_type_data->m_class_data.m_methods,view(simple)
 			</Item>
+			<Item Name="[Raw Type Methods]" Condition="m_type_data->m_type_traits[3] &amp;&amp; m_type_data->raw_type_data->m_type_traits[0]">
+				m_type_data->raw_type_data->m_class_data.m_methods,view(simple)
+			</Item>
 			<Item Name="[Properties]" Condition="m_type_data->m_type_traits[0]">
 				m_type_data->m_class_data.m_properties,view(simple)
 			</Item>
@@ -83,6 +86,7 @@
 		<Expand>
 			<Item Name="[Name]">m_wrapper->m_name</Item>
 			<Item Name="[Declaring type]">m_wrapper->m_declaring_type</Item>
+      <Item Name="[Signature]">m_wrapper->m_signature</Item>
 		</Expand>
 	</Type>
 

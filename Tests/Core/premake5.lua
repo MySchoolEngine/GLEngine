@@ -12,6 +12,7 @@ project "CoreTest"
 	links { "gtest_main" }
 
 	LinkDependency("RTTR")
+	LinkDependency("pugixml")
 
 	includedirs
 	{

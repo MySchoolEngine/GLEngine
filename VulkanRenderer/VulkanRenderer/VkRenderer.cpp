@@ -259,6 +259,11 @@ void C_VkRenderer::CopyBuffer(VkBuffer srcBuffer, Renderer::Handle<Renderer::Buf
 }
 
 //=================================================================================
+void C_VkRenderer::SetBufferSubData(Renderer::Handle<Renderer::Buffer> dstBuffer, std::size_t numBytes, std::size_t offset, const void* data)
+{
+}
+
+//=================================================================================
 void C_VkRenderer::SetTextureData(Renderer::Handle<Renderer::Texture> dstTexture, const Renderer::I_TextureViewStorage& storage)
 {
 	C_VkTexture* pdstTexture = m_GPUResourceManager.GetTexture(dstTexture);

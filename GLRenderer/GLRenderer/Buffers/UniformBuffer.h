@@ -15,19 +15,26 @@
 
 #include <GLRenderer/Buffers/GLBuffer.h>
 
+#include <Renderer/Resources/RenderResourceHandle.h>
+
+namespace GLEngine::Renderer {
+class I_Renderer;
+class ResourceManager;
+} // namespace GLEngine::Renderer
 namespace GLEngine::GLRenderer::Buffers {
-class C_UniformBuffer : public C_GLBuffer<GL_UNIFORM_BUFFER> {
+class C_UniformBuffer {
 public:
 	using T_Base = C_GLBuffer<GL_UNIFORM_BUFFER>;
 	C_UniformBuffer(const std::string& blockName, unsigned int index);
-	~C_UniformBuffer() override = default;
+	virtual ~C_UniformBuffer() = default;
 
-	void AllocateMemory(bool dynamicUsage, const void* initialData = nullptr);
-
-	virtual void					  UploadData() const	= 0;
 	[[nodiscard]] virtual std::size_t GetBufferSize() const = 0;
+	virtual const void*				  Data() const			= 0;
 
-	void		Activate(bool activate = true);
+	void UploadData(Renderer::I_Renderer& renderer) const;
+	void PrepareBuffer(Renderer::ResourceManager& resourceManager);
+
+	void		Activate(Renderer::ResourceManager& resourceManager, bool activate = true);
 	inline bool IsActive() const { return m_active; }
 
 	const std::string& GetBlockName() const { return m_blockName; }
@@ -37,8 +44,9 @@ public:
 	void   SetIndex(GLuint val) { m_index = val; }
 
 private:
-	GLuint		m_index;
-	std::string m_blockName;
-	bool		m_active;
+	GLuint							   m_index;
+	std::string						   m_blockName;
+	bool							   m_active;
+	Renderer::Handle<Renderer::Buffer> m_Handle;
 };
 } // namespace GLEngine::GLRenderer::Buffers

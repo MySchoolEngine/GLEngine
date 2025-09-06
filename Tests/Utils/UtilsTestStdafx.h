@@ -4,11 +4,6 @@
 
 #include <Utils/STLAfx.h>
 
-#include <Core/GUID.h>
-
-#include <Core/CoreMacros.h>
-#include <Core/CoreEnums.h>
-
 #include <glm/glm.hpp>
 #include <CommonTestUtils/GlmPrinters.h>
 

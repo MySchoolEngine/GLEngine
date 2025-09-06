@@ -9,27 +9,20 @@ C_RainDataBuffer::C_RainDataBuffer(const std::string& blockName, unsigned int in
 	: C_UniformBuffer(blockName, index)
 	, m_TextureDimension(textureDimension)
 {
-	AllocateMemory(true, m_RainDrops.data());
 }
 
 //=================================================================================
 std::size_t C_RainDataBuffer::GetBufferSize() const
 {
-	const auto bytes = sizeof(m_RainDrops);
+	constexpr auto bytes = sizeof(m_RainDrops);
 
 	return bytes;
 }
 
 //=================================================================================
-void C_RainDataBuffer::UploadData() const
+const void* C_RainDataBuffer::Data() const
 {
-	bind();
-	auto* data = (char*)glMapBuffer(GetBufferType(), GL_WRITE_ONLY);
-
-	memcpy(data, m_RainDrops.data(), GetBufferSize());
-
-	glUnmapBuffer(GetBufferType());
-	unbind();
+	return m_RainDrops.data();
 }
 
 //=================================================================================

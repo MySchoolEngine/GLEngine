@@ -10,6 +10,8 @@
 #include <GLRenderer/Materials/MaterialBuffer.h>
 #include <GLRenderer/OGLRenderer.h>
 
+#include <Renderer/Components/StaticMeshHandles.h>
+#include <Renderer/DebugDraw.h>
 #include <Renderer/ICameraComponent.h>
 #include <Renderer/IRenderableComponent.h>
 #include <Renderer/IRenderer.h>
@@ -30,15 +32,20 @@
 namespace GLEngine::GLRenderer {
 
 //=================================================================================
-C_MainPassTechnique::C_MainPassTechnique()
+C_MainPassTechnique::C_MainPassTechnique(Renderer::ResourceManager& resourceManager)
 {
-	m_FrameConstUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>("frameConst");
-	m_LightsUBO		= Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<C_LightsBuffer>("lightsUni");
-	m_MaterialsUBO	= Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Material::C_MaterialsBuffer>("materials");
+	m_FrameConstUBO = Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_FrameConstantsBuffer>(resourceManager, "frameConst");
+	m_LightsUBO		= Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<C_LightsBuffer>(resourceManager, "lightsUni");
+	m_MaterialsUBO	= Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Material::C_MaterialsBuffer>(resourceManager, "materials");
 }
 
 //=================================================================================
-void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shared_ptr<Renderer::I_CameraComponent> camera, unsigned int width, unsigned int height)
+void C_MainPassTechnique::Render(const Entity::C_EntityManager&				  world,
+								 std::shared_ptr<Renderer::I_CameraComponent> camera,
+								 unsigned int								  width,
+								 unsigned int								  height,
+								 Renderer::I_DebugDraw&						  dd,
+								 Renderer::I_RenderInterface3D&				  renderInterface3D)
 {
 	RenderDoc::C_DebugScope s("C_MainPassTechnique::Render");
 	const auto				camFrustum	   = camera->GetFrustum();
@@ -48,6 +55,7 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shar
 	auto& renderer = (Core::C_Application::Get()).GetActiveRenderer();
 	renderer.SetCurrentPassType(Renderer::E_PassType::FinalPass);
 
+	// this is going to be graph node
 	{
 		RenderDoc::C_DebugScope s("Window prepare");
 		using namespace Commands;
@@ -79,7 +87,7 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shar
 				m_LightsUBO->SetPointLight(pl, pointLightIndex);
 				++pointLightIndex;
 
-				C_DebugDraw::Instance().DrawPoint(glm::vec4(pos, 1.0), pointLight->GetColor());
+				dd.DrawPoint(glm::vec4(pos, 1.0), pointLight->GetColor());
 			}
 
 			const auto areaLight = std::dynamic_pointer_cast<Renderer::C_AreaLight>(lightIt);
@@ -110,7 +118,7 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shar
 				light.m_SpecularColor = areaLight->SpecularColour();
 				light.m_Intensity	  = 1.f;
 
-				areaLight->DebugDraw(&C_DebugDraw::Instance());
+				areaLight->DebugDraw(&dd);
 				m_LightsUBO->SetAreaLight(light, areaLightIndex);
 				++areaLightIndex;
 			}
@@ -129,8 +137,8 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shar
 				m_LightsUBO->GetSunLight().m_SunlightPresent	 = 1;
 				sunLightFound									 = true;
 
-				C_DebugDraw::Instance().DrawPoint(sunLight->GetSunDirection(), Colours::yellow);
-				C_DebugDraw::Instance().DrawLine({0.f, 0.f, 0.f}, sunLight->GetSunDirection(), Colours::yellow);
+				dd.DrawPoint(sunLight->GetSunDirection(), Colours::yellow);
+				dd.DrawLine({0.f, 0.f, 0.f}, sunLight->GetSunDirection(), Colours::yellow);
 			}
 		}
 	}
@@ -164,13 +172,13 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shar
 				m_FrameConstUBO->SetNearPlane(camera->GetNear());
 				m_FrameConstUBO->SetFarPlane(camera->GetFar());
 				m_FrameConstUBO->SetFrameTime(static_cast<float>(glfwGetTime()));
-				m_FrameConstUBO->UploadData();
-				m_FrameConstUBO->Activate(true);
-				m_LightsUBO->UploadData();
-				m_LightsUBO->Activate(true);
+				m_FrameConstUBO->UploadData(renderer);
+				m_FrameConstUBO->Activate(renderer.GetRM(), true);
+				m_LightsUBO->UploadData(renderer);
+				m_LightsUBO->Activate(renderer.GetRM(), true);
 				if (materialsHaveChanged)
-					m_MaterialsUBO->UploadData();
-				m_MaterialsUBO->Activate(true);
+					m_MaterialsUBO->UploadData(renderer);
+				m_MaterialsUBO->Activate(renderer.GetRM(), true);
 			},
 			"MainPass - upload UBOs"));
 	}
@@ -186,8 +194,21 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager& world, std::shar
 				const auto compSphere	  = renderableComp->GetAABB().GetSphere();
 				if (compSphere.IsColliding(camBox))
 					component_cast<Entity::E_ComponentType::Graphical>(it)->PerformDraw();
+
+				const auto staticMeshHandles = std::dynamic_pointer_cast<Renderer::C_StaticMeshHandles>(it);
+				if (staticMeshHandles)
+				{
+					staticMeshHandles->Render(m_3DRenderer);
+				}
 			}
 		}
+	}
+
+	// I am not using modelData here
+	{
+		RenderDoc::C_DebugScope scope3DRenderer("3D Renderer");
+		m_3DRenderer.Commit(renderInterface3D);
+		m_3DRenderer.Clear();
 	}
 
 	{

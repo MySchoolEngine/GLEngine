@@ -54,8 +54,11 @@ bool C_PhongMaterial::Update(const Renderer::C_Material& material)
 	if (color)
 	{
 		result &= color->IsPresentOnGPU();
-		m_ColorMap = color->CreateHandle();
-		color->MakeHandleResident();
+		if (color->IsPresentOnGPU())
+		{
+			m_ColorMap = color->CreateHandle();
+			color->MakeHandleResident();
+		}
 	}
 	else
 	{
@@ -66,16 +69,22 @@ bool C_PhongMaterial::Update(const Renderer::C_Material& material)
 	if (normalMap)
 	{
 		result &= normalMap->IsPresentOnGPU();
-		m_NormalMap = normalMap->CreateHandle();
-		normalMap->MakeHandleResident();
+		if (normalMap->IsPresentOnGPU())
+		{
+			m_NormalMap = normalMap->CreateHandle();
+			normalMap->MakeHandleResident();
+		}
 		m_UseNormalMap = normalMap->IsPresentOnGPU();
 	}
 	m_RoughnessMap = identity->GetHandle();
 	if (roughnessMap)
 	{
 		result &= roughnessMap->IsPresentOnGPU();
-		m_RoughnessMap = roughnessMap->CreateHandle();
-		roughnessMap->MakeHandleResident();
+		if (roughnessMap->IsPresentOnGPU())
+		{
+			m_RoughnessMap = roughnessMap->CreateHandle();
+			roughnessMap->MakeHandleResident();
+		}
 	}
 	m_ModelColor = material.GetColor();
 	m_Roughness	 = material.GetRoughness();

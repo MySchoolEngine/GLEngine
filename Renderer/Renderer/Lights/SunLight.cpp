@@ -5,11 +5,10 @@
 
 #include <GUI/ReflectionGUI.h>
 
-#include <Utils/Reflection/Metadata.h>
-
 #include <Physics/Primitives/Frustum.h>
 
-#include <rttr/registration>
+#include <Utils/Reflection/Metadata.h>
+#include <Utils/Serialization/SerializationUtils.h>
 
 #pragma region registration
 // clang-format off
@@ -23,7 +22,7 @@ RTTR_REGISTRATION
 		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
 		.property("SunX", &C_SunLight::m_SunX)
 			(
-				rttr::policy::prop::bind_as_ptr,
+				rttr::policy::prop::as_reference_wrapper,
 				RegisterMetaclass<MetaGUI::Slider>(),
 				RegisterMetamember<UI::Slider::Name>("Sun X:"),
 				RegisterMetamember<UI::Slider::Min>(-1.0f),
@@ -31,7 +30,7 @@ RTTR_REGISTRATION
 			)
 		.property("SunY", &C_SunLight::m_SunY)
 			(
-				rttr::policy::prop::bind_as_ptr,
+				rttr::policy::prop::as_reference_wrapper,
 				RegisterMetaclass<MetaGUI::Slider>(),
 				RegisterMetamember<UI::Slider::Name>("Sun Y:"),
 				RegisterMetamember<UI::Slider::Min>(-1.0f),
@@ -39,7 +38,7 @@ RTTR_REGISTRATION
 			)
 		.property("SunZ", &C_SunLight::m_SunZ)
 			(
-				rttr::policy::prop::bind_as_ptr,
+				rttr::policy::prop::as_reference_wrapper,
 				RegisterMetaclass<MetaGUI::Slider>(),
 				RegisterMetamember<UI::Slider::Name>("Sun Z:"),
 				RegisterMetamember<UI::Slider::Min>(-1.0f),
@@ -47,13 +46,14 @@ RTTR_REGISTRATION
 			)
 		.property("SunColor", &C_SunLight::m_SunColor)
 			(
-				rttr::policy::prop::bind_as_ptr,
+				rttr::policy::prop::as_reference_wrapper,
 				RegisterMetaclass<MetaGUI::Colour>(),
-				RegisterMetamember<UI::Colour::Name>("Sun color")
+				RegisterMetamember<UI::Colour::Name>("Sun color"),
+				REGISTER_DEFAULT_VALUE(GLEngine::Colours::white)
 			)
 		.property("AsymmetricFactor", &C_SunLight::m_AsymetricFactor)
 			(
-				rttr::policy::prop::bind_as_ptr,
+				rttr::policy::prop::as_reference_wrapper,
 				RegisterMetaclass<MetaGUI::Slider>(),
 				RegisterMetamember<UI::Slider::Name>("Asymmetric factor:"),
 				RegisterMetamember<UI::Slider::Min>(0.f),
@@ -61,11 +61,12 @@ RTTR_REGISTRATION
 			)
 		.property("DiscMultiplier", &C_SunLight::m_AsymetricFactor)
 			(
-				rttr::policy::prop::bind_as_ptr,
+				rttr::policy::prop::as_reference_wrapper,
 				RegisterMetaclass<MetaGUI::Slider>(),
 				RegisterMetamember<UI::Slider::Name>("Disc multiplier:"),
 				RegisterMetamember<UI::Slider::Min>(1.f),
-				RegisterMetamember<UI::Slider::Max>(20.0f)
+				RegisterMetamember<UI::Slider::Max>(20.0f),
+				REGISTER_DEFAULT_VALUE(1.f)
 			);
 
 	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_SunLight>>();

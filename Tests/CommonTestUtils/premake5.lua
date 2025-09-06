@@ -1,31 +1,21 @@
 include "../../Tools/Premake5/premakeDefines.lua"
 
-project "UtilsTest"
-	kind "ConsoleApp"
+project "CommonTestUtils"
+	kind "None"
 	language "C++"
-	staticruntime "off"
 
-	SetupProject("UtilsTest")
-	
-	PrecompiledHeaders("UtilsTest")
-	
-	Link("Core")
-	Link("Utils")
-	links { "gtest_main" }
-
-	LinkDependency("RTTR")
-	LinkDependency("pugixml")
+	SetupProject("CommonTestUtils")
 
 	includedirs
 	{
 		"%{wks.location}/vendor/gtest/googletest/include",
+		"%{wks.location}/vendor/gtest/googlemock/include",
+		"%{wks.location}/Core",
 		"%{wks.location}/Utils",
+		"%{wks.location}/Physics",
 		"%{wks.location}/%{IncludeDir.GLM}",
 		"%{wks.location}/%{IncludeDir.fmt}",
 		"%{wks.location}/%{IncludeDir.RTTR}",
+		"%{wks.location}/%{IncludeDir.slot_map}",
 		"%{wks.location}/Tests/CommonTestUtils",
-	}
-	files
-	{
-		"%{prj.location}/TestMain.cpp",
 	}

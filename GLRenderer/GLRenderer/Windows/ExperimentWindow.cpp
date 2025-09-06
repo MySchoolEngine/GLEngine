@@ -162,7 +162,7 @@ void C_ExperimentWindow::Update()
 	// World render
 	// ======
 	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
-	m_MainPass->Render(*m_World.get(), camera, GetWidth(), GetHeight());
+	m_MainPass->Render(*m_World.get(), camera, GetWidth(), GetHeight(), C_DebugDraw::Instance(), *m_RenderInterfaceHandles.get());
 	{
 		RenderDoc::C_DebugScope s("Handles draw");
 		m_3DRenderer.Commit(*m_RenderInterfaceHandles.get());
@@ -276,7 +276,7 @@ void C_ExperimentWindow::OnAppInit()
 {
 	m_renderer->Commit(); // to upload default textures before anything else
 	m_FrameTimer.reset();
-	m_MainPass = std::make_unique<C_MainPassTechnique>();
+	m_MainPass = std::make_unique<C_MainPassTechnique>(m_renderer->GetRM());
 	{
 		using namespace Commands;
 		m_renderer->AddCommand(std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::DEPTH_TEST));
@@ -287,7 +287,7 @@ void C_ExperimentWindow::OnAppInit()
 		m_renderer->AddCommand(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Front));
 	}
 
-	Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_ModelData>("modelData");
+	Buffers::C_UniformBuffersManager::Instance().CreateUniformBuffer<Buffers::UBO::C_ModelData>(m_renderer->GetRM(), "modelData");
 
 	m_RenderInterface
 		= std::make_unique<C_RenderInterface>(Shaders::C_ShaderManager::Instance(), Textures::C_TextureUnitManger::Instance(), *static_cast<C_OGLRenderer*>(m_renderer.get()));

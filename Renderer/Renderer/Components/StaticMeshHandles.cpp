@@ -185,7 +185,7 @@ void C_StaticMeshHandles::Render(Renderer3D& renderer) const
 {
 	if (m_MeshResource.IsReady() && m_Material)
 	{
-		for (auto& meshContainer : m_Meshes)
+		for (const auto& meshContainer : m_Meshes)
 		{
 			renderer.Draw(RenderCall3D{
 				.ModelMatrix   = GetComponentModelMatrix(),

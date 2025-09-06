@@ -85,7 +85,9 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 		{
 			if (const auto attribute = node.attribute(propertyName.c_str()))
 			{
+				auto ownerType = owner.get_type();
 				auto				var			 = prop.get_value(owner);
+				var.convert(prop.get_type());
 				const rttr::variant return_value = deserializeStringFunction.invoke({}, std::string(attribute.as_string()), var);
 				if (!return_value.is_valid() || !return_value.is_type<bool>() || return_value.get_value<bool>() != true)
 				{
@@ -114,7 +116,10 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 	{
 		const auto propertyName = prop.get_name().to_string();
 		if (const auto attribute = node.attribute(propertyName.c_str()))
-			prop.set_value(owner, DeserializeAtomic(attribute, type));
+		{
+			const bool result = prop.set_value(owner, DeserializeAtomic(attribute, type));
+			GLE_ASSERT(result, "Cannot set property {} to the type {}", propertyName, owner.get_type());
+		}
 		else
 		{
 			// support old attributes as elements
@@ -122,7 +127,8 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 			{
 				if (const auto attribute = childNode.attribute(propertyName.c_str()))
 				{
-					prop.set_value(owner, DeserializeAtomic(attribute, type));
+					const bool result = prop.set_value(owner, DeserializeAtomic(attribute, type));
+					GLE_ASSERT(result, "Cannot set property {} to the type {}", propertyName, owner.get_type());
 				}
 				else
 				{
@@ -165,14 +171,15 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 				GLE_ASSERT(var.is_valid(), "Type {} cannot be instantiated.", type);
 				auto varNode = DeserializeNode(child, var);
 				FinishDeserialization(type, varNode);
-				GLE_ASSERT(varNode.convert(prop.get_type()), "Cannot convert");
-				GLE_ASSERT(prop.set_value(owner, varNode), "Cannot assign property {}", prop);
+				GLE_ASSERT(varNode.convert(prop.get_type()), "Cannot convert");//todo: Does this work on release?
+				GLE_ASSERT(prop.set_value(owner, varNode), "Cannot assign property {}", prop);//todo: Does this work on release?
 			}
 			else
 			{
 				auto varNode = DeserializeNode(child, var);
 				FinishDeserialization(type, varNode);
-				prop.set_value(owner, varNode);
+				const bool result = prop.set_value(owner, varNode);
+				GLE_ASSERT(result, "Cannot set property {} to the type {}", prop.get_name().to_string(), owner.get_type());
 			}
 		}
 	}
@@ -275,6 +282,9 @@ void C_XMLDeserializer::FinishDeserialization(const rttr::type& type, const rttr
 		}
 		else
 		{
+			GLE_ASSERT(method.get_parameter_infos().size() == 1, "Expect only one parameter for 'AfterDeserialize' method");
+			GLE_ASSERT(method.get_parameter_infos().begin()->get_type() == rttr::type::get<DeserializeCtx>(),
+					   "Expect the only one parameter for 'AfterDeserialize' method to be {}", rttr::type::get<DeserializeCtx>());
 			method.invoke(var, m_Ctx);
 		}
 	}

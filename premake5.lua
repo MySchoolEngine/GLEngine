@@ -135,6 +135,9 @@ group "Tests"
 	include "Tests/Core"
 	include "Tests/Renderer"
 	include "Tests/Utils"
+if _TARGET_OS ~= "linux" then
+		include "Tests/CommonTestUtils"
+end
 group "Dependencies"
   include "vendor/GLFW"
   include "vendor/Glad"
