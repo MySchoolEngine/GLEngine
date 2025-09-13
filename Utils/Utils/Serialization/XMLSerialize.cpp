@@ -221,7 +221,14 @@ void C_XMLSerializer::WriteArray(const rttr::variant_sequential_view& view, pugi
 			type = rttr::instance(ins).get_derived_type();
 		GLE_ASSERT(ins.is_valid(), "invalid");
 		auto node = parent.append_child(GetNodeName(type).to_string().c_str());
-		SerializeObject(obj, node);
+		if (IsAtomicType(type))
+		{
+			WriteAtomics(type, obj, node.append_attribute(GetNodeName(type).to_string().c_str()));
+		}
+		else
+		{
+			SerializeObject(obj, node);
+		}
 	}
 }
 

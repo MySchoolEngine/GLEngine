@@ -117,7 +117,9 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 		const auto propertyName = prop.get_name().to_string();
 		if (const auto attribute = node.attribute(propertyName.c_str()))
 		{
-			const bool result = prop.set_value(owner, DeserializeAtomic(attribute, type));
+			rttr::variant var	   = prop.get_value(owner);
+			DeserializeAtomic(attribute, type, var);
+			const bool result = prop.set_value(owner, var);
 			GLE_ASSERT(result, "Cannot set property {} to the type {}", propertyName, owner.get_type());
 		}
 		else
@@ -125,9 +127,12 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 			// support old attributes as elements
 			if (const auto childNode = node.child(propertyName.c_str()))
 			{
+				CORE_LOG(E_Level::Warning, E_Context::Core, "Deprecated way to serialize atomic values as elements. Will be saved in the new way {}.", prop);
 				if (const auto attribute = childNode.attribute(propertyName.c_str()))
 				{
-					const bool result = prop.set_value(owner, DeserializeAtomic(attribute, type));
+					rttr::variant var = prop.get_value(owner);
+					DeserializeAtomic(attribute, type, var);
+					const bool result = prop.set_value(owner, var);
 					GLE_ASSERT(result, "Cannot set property {} to the type {}", propertyName, owner.get_type());
 				}
 				else
@@ -149,6 +154,8 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 		auto	   var	 = prop.get_value(owner);
 		auto	   view	 = var.create_sequential_view();
 		DeserializeArray(child, view);
+		const bool result = prop.set_value(owner, var);
+		GLE_ASSERT(result, "Cannot set property {} to the type {}", prop.get_name(), owner.get_type());
 	}
 	else if (type.get_raw_type().is_associative_container())
 	{
@@ -156,6 +163,8 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 		auto	   var	 = prop.get_value(owner);
 		auto	   view	 = var.create_associative_view();
 		DeserializeAssociativeArray(child, view);
+		const bool result = prop.set_value(owner, var);
+		GLE_ASSERT(result, "Cannot set property {} to the type {}", prop.get_name(), owner.get_type());
 	}
 	else
 	{
@@ -194,15 +203,29 @@ void C_XMLDeserializer::DeserializeArray(const pugi::xml_node& child, rttr::vari
 		const auto type = rttr::type::get_by_name(childNode.name());
 		if (type.is_valid() == false)
 			continue;
-		auto var = type.create();
-		GLE_ASSERT(var.is_valid(), "Cannot create {} var", type);
-		DeserializeNode(childNode, var);
-		GLE_ASSERT(var.convert(view.get_value_type()), "Cannot convert variable {} to {}", var.get_type(), view.get_value_type());
-		GLE_ASSERT(var.is_valid(), "Cannot create {} var", type);
-		const auto it = view.insert(view.end(), var);
-		if (it == view.end())
+
+		rttr::variant var;
+		if (IsAtomicType(type))
 		{
-			CORE_LOG(E_Level::Error, E_Context::Core, "Failed to insert item {} into the array.", type);
+			DeserializeAtomic(childNode.attribute(childNode.name()), type, var);
+			GLE_ASSERT(var.convert(view.get_value_type()), "Cannot convert variable {} to {}", var.get_type(), view.get_value_type());
+			GLE_ASSERT(var.is_valid(), "Cannot create {} var", type);
+			const auto it = view.insert(view.end(), var);
+			view.set_value(index, var);
+		}
+		else
+		{
+			var = type.create();
+			GLE_ASSERT(var.is_valid(), "Cannot create {} var", type);
+			DeserializeNode(childNode, var);
+			GLE_ASSERT(var.convert(view.get_value_type()), "Cannot convert variable {} to {}", var.get_type(), view.get_value_type());
+			GLE_ASSERT(var.is_valid(), "Cannot create {} var", type);
+
+			const auto it = view.insert(view.end(), var);
+			if (it == view.end())
+			{
+				CORE_LOG(E_Level::Error, E_Context::Core, "Failed to insert item {} into the array.", type);
+			}
 		}
 		FinishDeserialization(type, var);
 		index++;
@@ -289,45 +312,119 @@ void C_XMLDeserializer::FinishDeserialization(const rttr::type& type, const rttr
 		}
 	}
 }
-
+namespace {
+template <class T>
+const auto setter = [](rttr::variant& instance, const auto& value) {
+	if (instance.get_type().is_wrapper())
+	{
+		rttr::variant_cast<std::reference_wrapper<T>>(instance).get() = value;
+	}
+	else
+	{
+		instance = value;
+	}
+};
+}
 //=================================================================================
-rttr::variant C_XMLDeserializer::DeserializeAtomic(const pugi::xml_attribute& attr, const rttr::type& type)
+void C_XMLDeserializer::DeserializeAtomic(const pugi::xml_attribute& attr, const rttr::type& type, rttr::variant& instance)
 {
+
 	if (attr)
 	{
 		if (type == rttr::type::get<bool>())
-			return attr.as_bool();
+		{
+			setter<bool>(instance, attr.as_bool());
+			return;
+		}
 		else if (type == rttr::type::get<char>())
-			return attr.as_bool();
+		{
+			setter<char>(instance, static_cast<char>(attr.as_string()[0]));
+			return;
+		}
+		else if (type == rttr::type::get<short>())
+		{
+			setter<short>(instance, static_cast<short>(attr.as_int()));
+			return;
+		}
 		else if (type == rttr::type::get<int8_t>())
-			return attr.as_int();
+		{
+			setter<int8_t>(instance, attr.as_int());
+			return;
+		}
 		else if (type == rttr::type::get<int16_t>())
-			return attr.as_int();
+		{
+			setter<int16_t>(instance, attr.as_int());
+			return;
+		}
 		else if (type == rttr::type::get<int32_t>())
-			return attr.as_int();
+		{
+			setter<int32_t>(instance, attr.as_int());
+			return;
+		}
 		else if (type == rttr::type::get<int64_t>())
-			return attr.as_llong();
+		{
+			setter<int64_t>(instance, attr.as_llong());
+			return;
+		}
+		else if (type == rttr::type::get<long>())
+		{
+			setter<int64_t>(instance, static_cast<long>(attr.as_llong()));
+			return;
+		}
 		else if (type == rttr::type::get<uint8_t>())
-			return attr.as_uint();
+		{
+			setter<uint8_t>(instance, attr.as_uint());
+			return;
+		}
 		else if (type == rttr::type::get<uint16_t>())
-			return attr.as_uint();
+		{
+			setter<uint16_t>(instance, attr.as_uint());
+			return;
+		}
 		else if (type == rttr::type::get<uint32_t>())
-			return attr.as_uint();
+		{
+			setter<uint32_t>(instance, attr.as_uint());
+			return;
+		}
 		else if (type == rttr::type::get<uint64_t>())
-			return attr.as_ullong();
+		{
+			setter<uint64_t>(instance, attr.as_ullong());
+			return;
+		}
 		else if (type == rttr::type::get<float>())
-			return attr.as_float();
+		{
+			setter<float>(instance, attr.as_float());
+			return;
+		}
 		else if (type == rttr::type::get<double>())
-			return attr.as_double();
+		{
+			setter<double>(instance, attr.as_double());
+			return;
+		}
 		else if (type == rttr::type::get<std::string>())
-			return std::string(attr.as_string());
+		{
+			setter<std::string>(instance, std::string(attr.as_string()));
+			return;
+		}
 		else if (type == rttr::type::get<std::filesystem::path>())
-			return std::filesystem::path(attr.as_string());
+		{
+			setter<std::filesystem::path>(instance, std::filesystem::path(attr.as_string()));
+			return;
+		}
 		else if (type.is_enumeration())
-			return type.get_enumeration().name_to_value(attr.as_string());
+		{
+			if (instance.get_type().is_wrapper())
+			{
+				rttr::variant_cast<std::reference_wrapper<int>>(instance).get() = type.get_enumeration().name_to_value(attr.as_string()).convert(type.get_enumeration().get_underlying_type());
+			}
+			else
+			{
+				instance = type.get_enumeration().name_to_value(attr.as_string());
+			}
+			return;
+		}
 	}
 	CORE_LOG(E_Level::Error, E_Context::Core, "Unknown atomics type {} attribute {}", type, attr.name());
-	return {};
 }
 
 } // namespace GLEngine::Utils
