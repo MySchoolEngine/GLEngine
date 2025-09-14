@@ -1,8 +1,7 @@
 #pragma once
 
+#include <Renderer/Renderer3D.h>
 #include <Renderer/Resources/RenderResourceHandle.h>
-
-#include "Renderer/Renderer3D.h"
 
 namespace GLEngine::Entity {
 class C_EntityManager;
@@ -33,7 +32,7 @@ public:
 				unsigned int								 width,
 				unsigned int								 height,
 				Renderer::I_DebugDraw&						 dd,
-				Renderer::I_RenderInterface3D& renderInterface3D);
+				Renderer::I_RenderInterface3D&				 renderInterface3D);
 	void SetSunShadowMap(Renderer::Handle<Renderer::Texture> sunShadowMapHandle);
 	void SetSunViewProjection(glm::mat4 viewProjection);
 
