@@ -1,3 +1,5 @@
+#include <CoreTestStdafx.h>
+
 #include <Core/Math/Rect.h>
 
 #include <Physics/2D/Plane2D.h>

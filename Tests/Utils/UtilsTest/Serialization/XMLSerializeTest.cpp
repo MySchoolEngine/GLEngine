@@ -3,6 +3,8 @@
 #include <Utils/Reflection/Metadata.h>
 #include <Utils/Serialization/XMLSerialize.h>
 
+#include <CommonTestUtils/XMLSerializeFixture.h>
+
 
 struct GlmVec3 {
 	glm::vec3 vec;
@@ -55,20 +57,6 @@ RTTR_REGISTRATION
 // clang-format on
 
 namespace GLEngine::Utils {
-class XMLSerializeFixture : public ::testing::Test {
-public:
-	static std::string ToString(const pugi::xml_document& doc)
-	{
-		std::stringstream ss;
-		doc.save(ss);
-		return ss.str();
-	}
-
-protected:
-	C_XMLSerializer serializer;
-};
-
-
 TEST_F(XMLSerializeFixture, RootName)
 {
 	GlmVec3	   v{.vec = {1, 2, 3}};
