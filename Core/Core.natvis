@@ -42,9 +42,11 @@
     <DisplayString Condition="!m_Resource._Ptr">invalid</DisplayString>
     <Expand>
       <Item Name="[resource]" Condition="m_Resource._Ptr">*(($T1*)m_Resource._Ptr)</Item>
+      <Item Name="[Filepath]" Condition="m_Resource._Ptr">m_Resource._Ptr->m_Filepath</Item>
     </Expand>
   </Type>
+
   <Type Name="GLEngine::Core::Resource">
-    <DisplayString>{m_State,en}</DisplayString>
+    <DisplayString>{m_State,en} - {m_Filepath}</DisplayString>
   </Type>
 </AutoVisualizer>
