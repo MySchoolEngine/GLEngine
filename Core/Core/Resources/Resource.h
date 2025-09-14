@@ -5,6 +5,11 @@
 
 #include <rttr/registration_friend.h>
 
+#include <cstdint>
+#include <concepts>
+#include <memory>
+#include <filesystem>
+
 // #include <Core/Resources/ResourceManager.h>
 #define DECLARE_RESOURCE_TYPE(resourceType)                                                                                                                                        \
 	RTTR_REGISTRATION                                                                                                                                                              \
