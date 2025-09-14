@@ -65,6 +65,8 @@ IncludeCategories:
     Priority:        16
   - Regex:           '^<Utils/.*>'
     Priority:        17
+  - Regex:           '^<CommonTestUtils.*>'
+    Priority:        18
   - Regex:           '^<glm.*>'
     Priority:        55
   - Regex:           '^<gli/gli.hpp>$'

@@ -1,3 +1,5 @@
+#include <CoreTestStdafx.h>
+
 #include <Core/GUID.h>
 
 #include <CommonTestUtils/XMLDeserializeFixture.h>

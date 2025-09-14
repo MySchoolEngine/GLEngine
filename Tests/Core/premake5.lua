@@ -7,6 +7,8 @@ project "CoreTest"
 
 	SetupProject("CoreTest")
 	
+	PrecompiledHeaders("CoreTest")
+	
 	Link("Utils")
 	Link("Core")
 	links { "gtest_main" }
@@ -27,5 +29,5 @@ project "CoreTest"
 	}
 	files
 	{
-		"%{wks.location}/vendor/gtest/googletest/src/gtest_main.cc",
+		"%{prj.location}/TestMain.cpp",
 	}
