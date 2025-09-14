@@ -42,7 +42,7 @@ private:
 
 	CORE_API_EXPORT friend bool operator<(const GUID& lhs, const GUID& rhs);
 
-	RTTR_REGISTRATION_FRIEND;
+	RTTR_REGISTRATION_FRIEND
 };
 
 CORE_API_EXPORT GUID NextGUID();
