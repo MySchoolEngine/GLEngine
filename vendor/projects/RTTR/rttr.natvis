@@ -116,4 +116,12 @@
 			<Item Name="[value]">m_data_container.m_data_address</Item>
 		</Expand>
 	</Type>
+  <Type Name="rttr::variant">
+    <Expand>
+      <Item Name="[SmallObject]">*(void**)&amp;m_data</Item>
+    </Expand>
+  </Type>
+  <Type Name="rttr::constructor">
+    <DisplayString>{m_wrapper->m_signature}</DisplayString>
+  </Type>
 </AutoVisualizer>
