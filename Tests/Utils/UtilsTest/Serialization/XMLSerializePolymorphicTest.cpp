@@ -28,9 +28,9 @@ public:
 	RTTR_ENABLE(BaseShape)
 };
 
-class Rectangle : public BaseShape {
+class RectangleTest : public BaseShape {
 public:
-	Rectangle() = default;
+	RectangleTest() = default;
 
 	float width	 = 0.0f;
 	float height = 0.0f;
@@ -71,10 +71,10 @@ RTTR_REGISTRATION
 	.constructor<>()(rttr::policy::ctor::as_object)
 		.property("radius", &Circle::radius);
 
-	rttr::registration::class_<Rectangle>("Rectangle")
+	rttr::registration::class_<RectangleTest>("RectangleTest")
 		.constructor<>()
-		.property("width", &Rectangle::width)
-		.property("height", &Rectangle::height);
+		.property("width", &RectangleTest::width)
+		.property("height", &RectangleTest::height);
 
 	rttr::registration::class_<Triangle>("Triangle")
 		.constructor<>()
@@ -120,7 +120,7 @@ TEST_F(XMLSerializeFixture, SerializeCircle)
 
 TEST_F(XMLSerializeFixture, SerializeRectangle)
 {
-	const auto rectangle = std::make_shared<Rectangle>();
+	const auto rectangle = std::make_shared<RectangleTest>();
 	rectangle->id		 = 2;
 	rectangle->name		 = "TestRectangle";
 	rectangle->width	 = 10.0f;
@@ -188,7 +188,7 @@ TEST_F(XMLSerializeFixture, SerializeMultipleShapes)
 	circle->name   = "Circle1";
 	circle->radius = 3.0f;
 
-	auto rectangle	  = std::make_shared<Rectangle>();
+	auto rectangle	  = std::make_shared<RectangleTest>();
 	rectangle->id	  = 2;
 	rectangle->name	  = "Rectangle1";
 	rectangle->width  = 7.0f;
