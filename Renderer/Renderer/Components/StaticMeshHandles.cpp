@@ -26,11 +26,10 @@ RTTR_REGISTRATION
 
 	rttr::registration::class_<C_StaticMeshHandles>("C_StaticMeshHandles")
 		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
-		.property("MeshFile", &C_StaticMeshHandles::GetMeshFile, &C_StaticMeshHandles::SetMeshFile)(
-			RegisterMetamember<SerializationCls::MandatoryProperty>(true))
 		.property("Material", &C_StaticMeshHandles::m_Material)
 		.property("ModelRes", &C_StaticMeshHandles::m_MeshResource)(
 			rttr::policy::prop::as_reference_wrapper,
+			RegisterMetamember<SerializationCls::MandatoryProperty>(true),
 			RegisterMetaclass<MetaGUI::MeshResource>(),
 			RegisterMetamember<UI::MeshResource::Name>("Model"),
 			REGISTER_DEFAULT_VALUE(GLEngine::Core::ResourceHandle<MeshResource>()))

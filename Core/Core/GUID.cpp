@@ -6,7 +6,7 @@
 RTTR_REGISTRATION
 {
 	rttr::registration::class_<GLEngine::GUID>("GUID")
-		.constructor<>()
+		.constructor<>()(rttr::policy::ctor::as_object)
 		.constructor<std::string_view>()
 		.property("ID", &GLEngine::GUID::toString, &GLEngine::GUID::SetID);
 }

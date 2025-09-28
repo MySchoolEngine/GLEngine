@@ -107,6 +107,7 @@ void C_XMLSerializer::WriteProperty(const rttr::property& prop, const rttr::inst
 	else
 	{
 		auto propNode = parent.append_child(prop.get_name().to_string().c_str());
+		const auto type		= prop.get_type();
 		if (type.get_raw_type().is_wrapper())
 		{
 			auto value = propValue;

@@ -24,6 +24,7 @@ RTTR_REGISTRATION
 	using namespace Utils::Reflection;
 
 	rttr::registration::class_<C_Material>("C_Material")
+		.constructor<>() // for deserialization purposes
 		.constructor<std::string>()
 		.property("Name", &C_Material::m_Name)
 		.property("NameTitle", &C_Material::m_Name)
@@ -62,8 +63,11 @@ RTTR_REGISTRATION
 			RegisterMetamember<UI::Texture::Name>("Roughness map"),
 			REGISTER_DEFAULT_VALUE(GLEngine::Core::ResourceHandle<TextureResource>()))
 		.property("NormalMap", &C_Material::GetNormalMapPath, &C_Material::SetNormalMapPath)
+		(RegisterMetamember<SerializationCls::NoSerialize>(true))
 		.property("RoughnessMap", &C_Material::GetRoughnessMapPath, &C_Material::SetRoughnessMapPath)
-		.property("Shininess", &C_Material::GetShininess, &C_Material::SetShininess);
+		(RegisterMetamember<SerializationCls::NoSerialize>(true))
+		.property("Shininess", &C_Material::GetShininess, &C_Material::SetShininess)
+		(RegisterMetamember<SerializationCls::NoSerialize>(true));
 
 	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_Material>>();
 }
@@ -91,6 +95,12 @@ C_Material::C_Material(const MeshData::Material& material)
 	, m_Changed(true)
 	, m_MaterialIndex(-1)
 	, m_Shininess(material.shininess)
+{
+}
+
+//=================================================================================
+C_Material::C_Material()
+	: C_Material("")
 {
 }
 
