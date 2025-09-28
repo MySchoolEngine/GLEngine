@@ -4,7 +4,11 @@
 
 #include <pugixml.hpp>
 
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#pragma warning(disable : 4506)
 #include <rttr/type>
+#pragma warning(pop)
 
 namespace GLEngine::Utils {
 class UTILS_API_EXPORT C_XMLSerializer {

@@ -20,6 +20,7 @@ class RENDERER_API_EXPORT C_Material : ::Utils::RefCounted<::Utils::SingleThread
 public:
 	explicit C_Material(const std::string& name);
 	explicit C_Material(const MeshData::Material& material);
+	C_Material();
 	C_Material(const C_Material& other) = delete;
 	C_Material& operator=(const C_Material& other) = delete;
 	C_Material(C_Material&& other) noexcept;

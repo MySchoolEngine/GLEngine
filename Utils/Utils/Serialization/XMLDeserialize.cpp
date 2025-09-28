@@ -40,15 +40,23 @@ rttr::variant C_XMLDeserializer::DeserializeDoc(const pugi::xml_document& docume
 rttr::variant C_XMLDeserializer::DeserializeNode(const pugi::xml_node& node, rttr::variant& var)
 {
 	using namespace ::Utils::Reflection;
-	const rttr::instance var2 = var.get_type().get_raw_type().is_wrapper() ? rttr::instance(var).get_wrapped_instance() : rttr::instance(var);
-	// CORE_LOG(E_Level::Error, E_Context::Core, "{}", var2.get_type());
+	auto				 owner = var;
+	const rttr::instance var2  = var.get_type().get_raw_type().is_wrapper() ? rttr::instance(var).get_wrapped_instance() : rttr::instance(var);
 
-	for (auto& prop : var2.get_type().get_properties())
+	auto type = var2.get_type();
+	if (type.is_pointer())
+		type = type.get_raw_type();
+	if (type.is_wrapper())
+		type = type.get_wrapped_type();
+
+	GLE_ASSERT(type.is_valid() == true, "Trying to deserialize invalid type {}", type);
+
+	for (auto& prop : type.get_properties())
 	{
 		if (HasMetadataMember<SerializationCls::NoSerialize>(prop))
 			continue;
 
-		DeserializeProperty(prop, var, node);
+		DeserializeProperty(prop, owner, node);
 	}
 
 	return var;
@@ -86,7 +94,7 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 			if (const auto attribute = node.attribute(propertyName.c_str()))
 			{
 				auto ownerType = owner.get_type();
-				auto				var			 = prop.get_value(owner);
+				auto var	   = prop.get_value(owner);
 				var.convert(prop.get_type());
 				const rttr::variant return_value = deserializeStringFunction.invoke({}, std::string(attribute.as_string()), var);
 				if (!return_value.is_valid() || !return_value.is_type<bool>() || return_value.get_value<bool>() != true)
@@ -117,7 +125,17 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 		const auto propertyName = prop.get_name().to_string();
 		if (const auto attribute = node.attribute(propertyName.c_str()))
 		{
-			rttr::variant var	   = prop.get_value(owner);
+			rttr::variant var;
+			if (owner.get_type().is_wrapper())
+			{
+				var = prop.get_value(owner.extract_wrapped_value());
+			}
+			else
+			{
+				var = prop.get_value(owner);
+			}
+
+			const auto t = owner.get_type();
 			DeserializeAtomic(attribute, type, var);
 			const bool result = prop.set_value(owner, var);
 			GLE_ASSERT(result, "Cannot set property {} to the type {}", propertyName, owner.get_type());
@@ -171,25 +189,58 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 		const auto child = node.child(prop.get_name().to_string().c_str());
 		if (child)
 		{
-			auto var = prop.get_value(owner);
-			if (!child.attribute("derivedTypeCast").empty())
+			const auto constructPointer = [](const pugi::xml_node& currentNode, const rttr::type& fallbackType) {
+				const pugi::char_t* className	= nullptr;
+				rttr::type			derivedType = fallbackType;
+				if (!currentNode.attribute("derivedTypeCast").empty())
+				{
+					className	= currentNode.attribute("derivedTypeCast").as_string();
+					derivedType = rttr::type::get_by_name(className);
+				}
+				GLE_ASSERT(derivedType, "Type {} does not exists", className);
+				GLE_ASSERT(derivedType.get_constructors().empty() == false, "No constructors for type {}", derivedType);
+				return derivedType.create();
+			};
+			rttr::variant var;
+			if (prop.get_type().is_pointer())
 			{
-				auto typeCast = rttr::type::get_by_name(child.attribute("derivedTypeCast").as_string());
-				GLE_ASSERT(typeCast, "Type {} does not exists", child.attribute("derivedTypeCast").as_string());
-				var = typeCast.create();
-				GLE_ASSERT(var.is_valid(), "Type {} cannot be instantiated.", type);
-				auto varNode = DeserializeNode(child, var);
-				FinishDeserialization(type, varNode);
-				GLE_ASSERT(varNode.convert(prop.get_type()), "Cannot convert");//todo: Does this work on release?
-				GLE_ASSERT(prop.set_value(owner, varNode), "Cannot assign property {}", prop);//todo: Does this work on release?
+				var = constructPointer(child, prop.get_type());
+			}
+			else if (prop.get_type().is_wrapper())
+			{
+				const auto wrappedType = prop.get_type().get_wrapped_type();
+				// shared pointer
+				if (wrappedType.is_pointer())
+				{
+					var = constructPointer(child, wrappedType.get_raw_type());
+				}
+				else if (wrappedType.is_wrapper())
+				{
+					if (wrappedType.get_wrapped_type().is_pointer())
+					{
+						GLE_ASSERT(!wrappedType.get_wrapped_type().get_raw_type().get_constructors().empty(), "No constructors for type {}", prop.get_type());
+						var = constructPointer(child, wrappedType.get_wrapped_type().get_raw_type());
+					}
+				}
+				else
+				{
+					// reference wrapper
+					var = prop.get_value(owner);
+				}
 			}
 			else
 			{
-				auto varNode = DeserializeNode(child, var);
-				FinishDeserialization(type, varNode);
-				const bool result = prop.set_value(owner, varNode);
-				GLE_ASSERT(result, "Cannot set property {} to the type {}", prop.get_name().to_string(), owner.get_type());
+				var = prop.get_value(owner);
 			}
+
+			GLE_ASSERT(var.is_valid(), "Invalid value type {} for property {}", prop.get_type(), prop);
+
+			auto varNode = DeserializeNode(child, var);
+			FinishDeserialization(type, varNode);
+			const auto conversionResult = varNode.convert(prop.get_type());
+			GLE_ASSERT(conversionResult, "Cannot convert");
+			const bool result = prop.set_value(owner, varNode);
+			GLE_ASSERT(result, "Cannot set property {} to the type {}", prop.get_name().to_string(), owner.get_type());
 		}
 	}
 }
@@ -248,7 +299,7 @@ void C_XMLDeserializer::DeserializeAssociativeArray(const pugi::xml_node& child,
 		rttr::variant valueVar;
 		if (IsAtomicType(keyType))
 		{
-			keyVar = DeserializeAtomic(childNode.child("key").attribute("value"), keyType);
+			DeserializeAtomic(childNode.child("key").attribute("value"), keyType, keyVar);
 			if (!keyVar.is_valid())
 				CORE_LOG(E_Level::Error, E_Context::Core, "Failed to deserialize atomic type key.");
 		}
@@ -257,7 +308,7 @@ void C_XMLDeserializer::DeserializeAssociativeArray(const pugi::xml_node& child,
 
 		if (IsAtomicType(valueType))
 		{
-			valueVar = DeserializeAtomic(childNode.child("value").attribute("value"), valueType);
+			DeserializeAtomic(childNode.child("value").attribute("value"), valueType, valueVar);
 			if (!valueVar.is_valid())
 				CORE_LOG(E_Level::Error, E_Context::Core, "FAILED.");
 		}
@@ -328,7 +379,6 @@ const auto setter = [](rttr::variant& instance, const auto& value) {
 //=================================================================================
 void C_XMLDeserializer::DeserializeAtomic(const pugi::xml_attribute& attr, const rttr::type& type, rttr::variant& instance)
 {
-
 	if (attr)
 	{
 		if (type == rttr::type::get<bool>())
@@ -415,7 +465,8 @@ void C_XMLDeserializer::DeserializeAtomic(const pugi::xml_attribute& attr, const
 		{
 			if (instance.get_type().is_wrapper())
 			{
-				rttr::variant_cast<std::reference_wrapper<int>>(instance).get() = type.get_enumeration().name_to_value(attr.as_string()).convert(type.get_enumeration().get_underlying_type());
+				rttr::variant_cast<std::reference_wrapper<int>>(instance).get()
+					= type.get_enumeration().name_to_value(attr.as_string()).convert(type.get_enumeration().get_underlying_type());
 			}
 			else
 			{

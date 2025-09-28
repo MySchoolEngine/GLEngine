@@ -226,12 +226,12 @@ TEST_F(XMLSerializeFixture, SerializeMultipleShapes)
 
 	// Count and validate each shape in the vector
 	int shapeCount = 0;
-	for (auto child : shapesNode.children("item"))
+	for (auto child : shapesNode.children())
 	{
 		shapeCount++;
 		EXPECT_TRUE(child);
 
-		auto derivedType = child.attribute("derivedTypeCast").value();
+		auto derivedType = child.name();
 		auto id			 = child.attribute("id").as_int();
 
 		if (strcmp(derivedType, "Circle") == 0)

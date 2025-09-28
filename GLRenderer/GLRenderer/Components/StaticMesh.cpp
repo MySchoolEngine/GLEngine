@@ -35,10 +35,6 @@ RTTR_REGISTRATION
 	rttr::registration::class_<C_StaticMesh>("C_StaticMesh")
 		.constructor<std::string, std::string_view, std::shared_ptr<GLEngine::Entity::I_Entity>>()
 		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
-		.property("MeshFile", &C_StaticMesh::GetMeshFile, &C_StaticMesh::SetMeshFile)
-		(
-			RegisterMetamember<SerializationCls::MandatoryProperty>(true)
-		)
 		.property("Material", &C_StaticMesh::m_Material)
 		.property("ModelRes", &C_StaticMesh::m_MeshResource)(
 			rttr::policy::prop::as_reference_wrapper,
