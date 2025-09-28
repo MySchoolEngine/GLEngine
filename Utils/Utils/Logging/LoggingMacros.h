@@ -8,5 +8,5 @@
 	#define CORE_LOG(level, ctx, message, ...)                                                                                                                                     \
 		::Utils::Logging::C_LoggingSystem::Instance().Log(::Utils::Logging::level, ::Utils::Logging::ctx, __LINE__, __FILENAME__, message, ##__VA_ARGS__)
 #else
-	#define CORE_LOG(level, ctx, message, ...)
+	#define CORE_LOG(level, ctx, message, ...) static_assert(true, "")
 #endif
