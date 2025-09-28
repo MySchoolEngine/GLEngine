@@ -140,7 +140,7 @@ TEST_F(XMLSerializeFixture, SerializeRectangle)
 
 	auto shapeNode = root.child("shape");
 	EXPECT_TRUE(shapeNode);
-	EXPECT_STREQ("Rectangle", shapeNode.attribute("derivedTypeCast").value()) << "Missing derived type for instantiation";
+	EXPECT_STREQ("RectangleTest", shapeNode.attribute("derivedTypeCast").value()) << "Missing derived type for instantiation";
 	EXPECT_EQ(2, shapeNode.attribute("id").as_int());
 	EXPECT_STREQ("TestRectangle", shapeNode.attribute("name").value());
 	EXPECT_FLOAT_EQ(10.0f, shapeNode.attribute("width").as_float());
@@ -240,7 +240,7 @@ TEST_F(XMLSerializeFixture, SerializeMultipleShapes)
 			EXPECT_STREQ("Circle1", child.attribute("name").value());
 			EXPECT_FLOAT_EQ(3.0f, child.attribute("radius").as_float());
 		}
-		else if (strcmp(derivedType, "Rectangle") == 0)
+		else if (strcmp(derivedType, "RectangleTest") == 0)
 		{
 			EXPECT_EQ(2, id);
 			EXPECT_STREQ("Rectangle1", child.attribute("name").value());
