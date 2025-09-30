@@ -127,7 +127,10 @@
   <Type Name="rttr::argument">
     <DisplayString>{m_variant}</DisplayString>
     <Expand>
-      <Item Name="[value]" Condition='m_type.m_type_data->is_valid &amp;&amp; strcmp(m_type.m_type_data->name._Mypair._Myval2._Bx._Buf,"std::string") == 0'>(const std::string*)m_data</Item>
+      <Item Name="[value]" Condition='m_type.m_type_data->is_valid &amp;&amp; strcmp(m_type.m_type_data->name._Mypair._Myval2._Bx._Buf,"std::string") == 0'>*(const std::string*)m_data</Item>
+      <Item Name="[value]" Condition='m_type.m_type_data->is_valid &amp;&amp; strcmp(m_type.m_type_data->name._Mypair._Myval2._Bx._Buf,"float") == 0'>*(float*)m_data</Item>
+      <Item Name="[value]" Condition='m_type.m_type_data->is_valid &amp;&amp; strcmp(m_type.m_type_data->name._Mypair._Myval2._Bx._Buf,"int") == 0'>*(int*)m_data</Item>
+      <Item Name="[value]" Condition='m_type.m_type_data->is_valid &amp;&amp; strcmp(m_type.m_type_data->name._Mypair._Myval2._Bx._Buf,"GUID") == 0'>*(GUID*)m_data</Item>
       <Item Name='[type]'>m_type</Item>
       <Item Name='[variant]'>m_variant</Item>
     </Expand>
