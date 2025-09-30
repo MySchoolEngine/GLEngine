@@ -40,7 +40,6 @@ rttr::variant C_XMLDeserializer::DeserializeDoc(const pugi::xml_document& docume
 rttr::variant C_XMLDeserializer::DeserializeNode(const pugi::xml_node& node, rttr::variant& var)
 {
 	using namespace ::Utils::Reflection;
-	auto				 owner = var;
 	const rttr::instance var2  = var.get_type().get_raw_type().is_wrapper() ? rttr::instance(var).get_wrapped_instance() : rttr::instance(var);
 
 	auto type = var2.get_type();
@@ -56,7 +55,7 @@ rttr::variant C_XMLDeserializer::DeserializeNode(const pugi::xml_node& node, rtt
 		if (HasMetadataMember<SerializationCls::NoSerialize>(prop))
 			continue;
 
-		DeserializeProperty(prop, owner, node);
+		DeserializeProperty(prop, var, node);
 	}
 
 	return var;
@@ -135,7 +134,6 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 				var = prop.get_value(owner);
 			}
 
-			const auto t = owner.get_type();
 			DeserializeAtomic(attribute, type, var);
 			const bool result = prop.set_value(owner, var);
 			GLE_ASSERT(result, "Cannot set property {} to the type {}", propertyName, owner.get_type());
