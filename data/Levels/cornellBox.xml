@@ -1,186 +1,144 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <EntityManager>
 	<Entities>
-		<C_BasicEntity name="Player" ID="dfc9800f-c6cc-428b-a5f2-6c532f1ec4d3">
+		<C_BasicEntity name="Player">
+			<ID ID="7498db6e-8faa-4059-a94c-b4fd2ca60f20" />
 			<components>
 				<item>
 					<key value="Camera" />
 					<value>
-						<C_OrbitalCamera YAngle="90" XAngle="90" Zoom="5" />
+						<C_OrbitalCamera nearZ="0.100000001" farZ="100" aspectZ="1.85546875" YAngle="0" XAngle="1.57079637" Zoom="6.04999971" />
 					</value>
 				</item>
 				<item>
 					<key value="Camera" />
 					<value>
-						<C_OrbitalCamera YAngle="90" XAngle="90" Zoom="5" />
+						<C_OrbitalCamera nearZ="0.100000001" farZ="100" aspectZ="1.85546875" YAngle="0" XAngle="1.57079637" Zoom="5" />
 					</value>
 				</item>
 			</components>
 		</C_BasicEntity>
 		<C_BasicEntity name="floor">
+			<ID ID="0f1102d5-de01-4062-a0ae-35ab6d93c561" />
 			<components>
 				<item>
 					<key value="Graphical" />
 					<value>
-						<C_StaticMesh MeshFile="plane.obj" Shader="basicTracing" ShadowPassShader="shadowPass">
-							<Transformation>
-								<Translation x="0" y="-1.5" z="0" />
-								<RotationDeg x="0" y="-0" z="0" />
-								<Scale x="1" y="1" z="1" />
-							</Transformation>
-							<Material Name="floor_Material" Roughness="1" Shininess="0">
-								<Color>
-									<Colour x="1" y="1" z="1" />
-								</Color>
+						<C_StaticMeshHandles Shader="basicTracing">
+							<Transformation Translation="(0.0,-1.5,0.0)" />
+							<Material Name="Floor" Color="(1.0,1.0,1.0)" Roughness="0.463999987" Shininess="500">
+								<ColorMapRes>
+									<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR1_1K.bmp" />
+								</ColorMapRes>
+								<NormalMapRes>
+									<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Bricks01\REGULAR\1K\Bricks01_NRM_1K.bmp" />
+								</NormalMapRes>
+								<RoughnessMapRes>
+									<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Bricks01\REGULAR\1K\Bricks01_ROUGHNESS_1K.bmp" />
+								</RoughnessMapRes>
 							</Material>
-						</C_StaticMesh>
+							<ModelRes>
+								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/plane.obj" />
+							</ModelRes>
+						</C_StaticMeshHandles>
 					</value>
 				</item>
 			</components>
 		</C_BasicEntity>
 		<C_BasicEntity name="ceiling">
+			<ID ID="129663ae-4f69-436b-bab0-79b037ff218a" />
 			<components>
 				<item>
 					<key value="Graphical" />
 					<value>
-						<C_StaticMesh MeshFile="model.dae" Shader="basicTracing" ShadowPassShader="shadowPass">
-							<Transformation>
-								<Translation x="0" y="1.5" z="0" />
-								<RotationDeg x="180" y="-0" z="0" />
-								<Scale x="1" y="1" z="1" />
-							</Transformation>
-							<Material Name="floor_Material" Roughness="1" Shininess="0">
-								<Color>
-									<Colour x="1" y="1" z="1" />
-								</Color>
-							</Material>
-						</C_StaticMesh>
+						<C_StaticMeshHandles>
+							<Transformation Translation="(0.0,1.5,0.0)" RotationDeg="(180.0,-0.0,0.0)" />
+							<Material />
+							<ModelRes>
+								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\model.dae" />
+							</ModelRes>
+						</C_StaticMeshHandles>
 					</value>
 				</item>
 			</components>
 		</C_BasicEntity>
 		<C_BasicEntity name="left">
+			<ID ID="7950f51a-8b62-47c1-969f-d768933ce9a1" />
 			<components>
 				<item>
 					<key value="Graphical" />
 					<value>
-						<C_StaticMesh MeshFile="plane.obj" Shader="basicTracing" ShadowPassShader="shadowPass">
-							<Transformation>
-								<Translation x="3" y="0" z="0" />
-								<RotationDeg x="0" y="-0" z="90" />
-								<Scale x="0.5" y="1" z="1" />
-							</Transformation>
-							<Material Name="left_Material" Roughness="1" Shininess="0">
-								<Color>
-									<Colour x="0" y="1" z="0" />
-								</Color>
-							</Material>
-						</C_StaticMesh>
+						<C_StaticMeshHandles>
+							<Transformation Translation="(3.0,0.0,0.0)" Scale="(0.5,1.0,1.0)" RotationDeg="(0.0,-0.0,90.0)" />
+							<Material />
+							<ModelRes>
+								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/plane.obj" />
+							</ModelRes>
+						</C_StaticMeshHandles>
 					</value>
 				</item>
 			</components>
 		</C_BasicEntity>
 		<C_BasicEntity name="right">
+			<ID ID="51841144-1820-40e5-9ea9-5aede6e8d59e" />
 			<components>
 				<item>
 					<key value="Graphical" />
 					<value>
-						<C_StaticMesh MeshFile="plane.obj" Shader="basicTracing" ShadowPassShader="shadowPass">
-							<Transformation>
-								<Translation x="-3" y="0" z="0" />
-								<RotationDeg x="0" y="-0" z="-90" />
-								<Scale x="0.5" y="1" z="1" />
-							</Transformation>
-							<Material Name="left_Material" Roughness="1" Shininess="0">
-								<Color>
-									<Colour x="1" y="0" z="0" />
-								</Color>
-							</Material>
-						</C_StaticMesh>
+						<C_StaticMeshHandles>
+							<Transformation Translation="(-3.0,0.0,0.0)" Scale="(0.5,1.0,1.0)" RotationDeg="(0.0,-0.0,-90.0)" />
+							<Material />
+							<ModelRes>
+								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/plane.obj" />
+							</ModelRes>
+						</C_StaticMeshHandles>
 					</value>
 				</item>
 			</components>
 		</C_BasicEntity>
 		<C_BasicEntity name="back">
-			<translate sid="location">0 0 -3</translate>
-			<rotate>1 0 0 90</rotate>
-			<scale>1 1 0.5</scale>
+			<ID ID="b2eb95fc-247b-4999-8fbe-383ed2444759" />
 			<components>
 				<item>
 					<key value="Graphical" />
 					<value>
-						<C_StaticMesh MeshFile="plane.obj" Shader="basicTracing" ShadowPassShader="shadowPass">
-							<Transformation>
-								<Translation x="0" y="0" z="-3" />
-								<RotationDeg x="90" y="0" z="0" />
-								<Scale x="1" y="1" z="0.5" />
-							</Transformation>
-							<Material Name="back_Material" Roughness="1" Shininess="0">
-								<Color>
-									<Colour x="1" y="1" z="1" />
-								</Color>
-							</Material>
-						</C_StaticMesh>
+						<C_StaticMeshHandles>
+							<Transformation Translation="(0.0,0.0,-3.0)" Scale="(1.0,1.0,0.5)" RotationDeg="(90.0,0.0,0.0)" />
+							<Material />
+							<ModelRes>
+								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/plane.obj" />
+							</ModelRes>
+						</C_StaticMeshHandles>
 					</value>
 				</item>
 			</components>
 		</C_BasicEntity>
-		<!--<C_BasicEntity name="sphere1">
-			<translate sid="location">-1.5 -1.0 -1.5</translate>
-			<components>
-				<C_StaticMesh MeshFile="sphere.obj" Shader="basicTracing" ShadowPassShader="shadowPass">
-					<color>0 0 1</color>
-				</C_StaticMesh>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="sphere2">
-			<translate sid="location">0.8 0.0 0.5</translate>
-			<components>
-				<C_StaticMesh MeshFile="sphere.obj" Shader="basicTracing" ShadowPassShader="shadowPass">
-					<color>0 0 1</color>
-				</C_StaticMesh>
-			</components>
-		</C_BasicEntity>-->
-
 		<C_BasicEntity name="light">
+			<ID ID="d734b0f1-d660-4315-8e2f-33f8975f46b7" />
 			<components>
 				<item>
 					<key value="Light" />
 					<value>
-						<C_AreaLight Width="2.0" Height="2.0">
-							<Transformation>
-								<Translation x="0" y="1.49" z="0" />
-								<RotationDeg x="-90" y="-0" z="0" />
-							</Transformation>
-							<DiffuseColour>
-									<Colour x="1" y="0" z="0" />
-							</DiffuseColour>
-							<SpecColour>
-									<Colour x="1" y="1" z="1" />
-							</SpecColour>
+						<C_AreaLight Width="1" Height="1" DiffuseColour="(1.0,1.0,1.0)" SpecColour="(1.0,1.0,1.0)">
+							<Transformation Translation="(0.0,1.49,0.0)" RotationDeg="(-90.0,-0.0,0.0)" />
 						</C_AreaLight>
 					</value>
 				</item>
 			</components>
 		</C_BasicEntity>
-
 		<C_BasicEntity name="dragonHead">
+			<ID ID="a76132ee-5975-4cb9-bace-01786a613f37" />
 			<components>
 				<item>
 					<key value="Graphical" />
 					<value>
-						<C_StaticMesh MeshFile="dragon/Dragon_Busts_Gerhald3D.obj" Shader="basicTracing" ShadowPassShader="shadowPass">
-							<Transformation>
-								<Translation x="0" y="-1.5" z="0" />
-								<RotationDeg x="0" y="-0" z="0" />
-								<Scale x="0.5" y="0.5" z="0.5" />
-							</Transformation>
-							<Material Name="floor_Material" Roughness="1" Shininess="0">
-								<Color>
-									<Colour x="1" y="1" z="1" />
-								</Color>
-							</Material>
-						</C_StaticMesh>
+						<C_StaticMeshHandles>
+							<Transformation Translation="(0.0,-1.5,0.0)" Scale="(0.5,0.5,0.5)" />
+							<Material />
+							<ModelRes>
+								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\dragon/Dragon_Busts_Gerhald3D.obj" />
+							</ModelRes>
+						</C_StaticMeshHandles>
 					</value>
 				</item>
 			</components>
