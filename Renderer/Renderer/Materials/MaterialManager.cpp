@@ -58,6 +58,13 @@ std::shared_ptr<C_Material> C_MaterialManager::RegisterMaterial(C_Material&& mat
 }
 
 //=================================================================================
+void C_MaterialManager::RegisterMaterial(const std::shared_ptr<C_Material>& material)
+{
+	m_Materials.push_back(material);
+	m_Materials.back()->SetMaterialIndex(static_cast<int>(m_Materials.size()) - 1);
+}
+
+//=================================================================================
 void C_MaterialManager::UnregisterMaterial(std::shared_ptr<C_Material>& material)
 {
 	const int matIndex = material->GetMaterialIndex();

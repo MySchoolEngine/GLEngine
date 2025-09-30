@@ -84,7 +84,6 @@ C_Material::C_Material(const std::string& name)
 	, m_MaterialIndex(-1)
 	, m_Shininess(32.f)
 {
-	SetColorMapPath("Models/Bricks01/REGULAR/1K/Bricks01_COL_VAR1_1K.bmp");
 }
 
 //=================================================================================
