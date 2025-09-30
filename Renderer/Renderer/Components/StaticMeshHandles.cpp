@@ -119,7 +119,7 @@ void C_StaticMeshHandles::Update()
 							  .type	   = Renderer::T_TypeShaderDataType_v<glm::vec3>
 						  },
 			},
-		.shader =  "handles",
+		.shader =  "basicTracing",
 		// .colorAttachmentFormat = GetTextureFormat(m_SwapChainImageFormat), no need for OpenGL and will be solved for Vulkan
 	});
 	}
