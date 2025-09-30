@@ -7,7 +7,7 @@
 				<item>
 					<key value="Camera" />
 					<value>
-						<C_OrbitalCamera nearZ="0.100000001" farZ="100" aspectZ="1.85546875" YAngle="0" XAngle="1.57079637" Zoom="6.04999971" />
+						<C_OrbitalCamera nearZ="0.100000001" farZ="100" aspectZ="1.85546875" YAngle="0" XAngle="1.57079637" Zoom="5.5" />
 					</value>
 				</item>
 				<item>
@@ -24,9 +24,9 @@
 				<item>
 					<key value="Graphical" />
 					<value>
-						<C_StaticMeshHandles Shader="basicTracing">
+						<C_StaticMeshHandles>
 							<Transformation Translation="(0.0,-1.5,0.0)" />
-							<Material Name="Floor" Color="(1.0,1.0,1.0)" Roughness="0.463999987" Shininess="500">
+							<Material Name="Floor" Color="(1.0,1.0,1.0)" Roughness="1">
 								<ColorMapRes>
 									<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR1_1K.bmp" />
 								</ColorMapRes>
@@ -53,7 +53,7 @@
 					<value>
 						<C_StaticMeshHandles>
 							<Transformation Translation="(0.0,1.5,0.0)" RotationDeg="(180.0,-0.0,0.0)" />
-							<Material />
+							<Material Color="(1.0,1.0,1.0)" Roughness="0.5" />
 							<ModelRes>
 								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\model.dae" />
 							</ModelRes>
@@ -70,7 +70,7 @@
 					<value>
 						<C_StaticMeshHandles>
 							<Transformation Translation="(3.0,0.0,0.0)" Scale="(0.5,1.0,1.0)" RotationDeg="(0.0,-0.0,90.0)" />
-							<Material />
+							<Material Color="(1.0,0.0,0.0)" Roughness="0.5" />
 							<ModelRes>
 								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/plane.obj" />
 							</ModelRes>
@@ -87,7 +87,7 @@
 					<value>
 						<C_StaticMeshHandles>
 							<Transformation Translation="(-3.0,0.0,0.0)" Scale="(0.5,1.0,1.0)" RotationDeg="(0.0,-0.0,-90.0)" />
-							<Material />
+							<Material Color="(0.0,1.0,0.019801855)" Roughness="0.5" />
 							<ModelRes>
 								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/plane.obj" />
 							</ModelRes>
@@ -97,14 +97,14 @@
 			</components>
 		</C_BasicEntity>
 		<C_BasicEntity name="back">
-			<ID ID="b2eb95fc-247b-4999-8fbe-383ed2444759" />
+			<ID ID="72d107f4-c1b7-41b1-84ea-401692a25086" />
 			<components>
 				<item>
 					<key value="Graphical" />
 					<value>
 						<C_StaticMeshHandles>
 							<Transformation Translation="(0.0,0.0,-3.0)" Scale="(1.0,1.0,0.5)" RotationDeg="(90.0,0.0,0.0)" />
-							<Material />
+							<Material Color="(1.0,1.0,1.0)" Roughness="0.5" />
 							<ModelRes>
 								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/plane.obj" />
 							</ModelRes>
@@ -134,7 +134,7 @@
 					<value>
 						<C_StaticMeshHandles>
 							<Transformation Translation="(0.0,-1.5,0.0)" Scale="(0.5,0.5,0.5)" />
-							<Material />
+							<Material Color="(1.0,1.0,1.0)" Roughness="0.5" />
 							<ModelRes>
 								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\dragon/Dragon_Busts_Gerhald3D.obj" />
 							</ModelRes>
