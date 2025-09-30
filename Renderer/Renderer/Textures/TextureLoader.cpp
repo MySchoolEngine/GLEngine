@@ -21,6 +21,7 @@ std::mutex TextureLoader::m_Mutex;
 //=================================================================================
 bool TextureLoader::loadTexture(const std::filesystem::path& path, MeshData::Texture& t)
 {
+	std::lock_guard lock(m_Mutex);
 	Init();
 
 	auto					image = ilLoadTexture(path);
@@ -56,6 +57,7 @@ bool TextureLoader::loadTexture(const std::filesystem::path& path, MeshData::Tex
 std::unique_ptr<I_TextureViewStorage> TextureLoader::loadTexture(const std::filesystem::path& path)
 {
 	// memory leak, ilDeleteImage(image); could be skipped
+	std::lock_guard lock(m_Mutex);
 	Init();
 
 	auto					image = ilLoadTexture(path);
