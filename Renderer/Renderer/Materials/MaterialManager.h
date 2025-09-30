@@ -23,7 +23,7 @@ public:
 	[[nodiscard]] std::shared_ptr<C_Material>		GetMaterial(const std::string& name);
 	[[nodiscard]] std::shared_ptr<const C_Material> GetMaterial(const std::string& name) const;
 	[[nodiscard]] std::shared_ptr<C_Material>		RegisterMaterial(C_Material&& material);
-	[[nodiscard]] void								RegisterMaterial(const std::shared_ptr<C_Material>& material);
+	void											RegisterMaterial(const std::shared_ptr<C_Material>& material);
 	void											UnregisterMaterial(std::shared_ptr<C_Material>& material);
 
 	using T_MaterialEnumerator = std::function<void(C_Material&)>;

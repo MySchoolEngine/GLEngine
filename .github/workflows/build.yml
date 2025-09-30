@@ -8,10 +8,11 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-  
+
+
 jobs:
-  GCC:
-    name: ${{ matrix.config.name }}
+  GCCBuild:
+    name: ${{ matrix.config.name }} Build
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -19,11 +20,13 @@ jobs:
         config:
         - {
             name: "Ubuntu GCC Debug",
-            config: "debug",
+            config: "Debug",
+            lowerCase: "debug",
           }
         - {
             name: "Ubuntu GCC Release",
-            config: "release",
+            config: "Release",
+            lowerCase: "release",
           }
     steps:
       - uses: actions/checkout@v2
@@ -49,10 +52,40 @@ jobs:
             sudo chmod +x Tools/Premake5/premake5
             sudo Tools/Premake5/premake5 gmake2
       - name: Build
-        run: make config=${{ matrix.config.config }} -j6
-      - name: Test
+        run: make config=${{ matrix.config.lowerCase }} -j6
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ubuntu-${{ matrix.config.config }}-Tests
+          path: bin/${{ matrix.config.config }}-linux-x86_64/
+  GCCTest:
+    name: ${{ matrix.config.name }} Test ${{ matrix.test }}
+    needs: GCCBuild
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "Ubuntu GCC Debug",
+            config: "Debug",
+            lowerCase: "debug",
+          }
+        - {
+            name: "Ubuntu GCC Release",
+            config: "Release",
+            lowerCase: "release",
+          }
+        test: ["CoreTest", "RendererTest", "UtilsTest"]
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Ubuntu-${{ matrix.config.config }}-Tests
+      - name: Test ${{ matrix.config.test }}
         run: |
-            ./bin/${{ matrix.config.config }}-linux-x86_64/UtilsTest/UtilsTest
+            sudo chmod +x ${{ matrix.test }}/${{ matrix.test }}
+            ${{ matrix.test }}/${{ matrix.test }}
   msvc:
     name: MSVC api=${{ matrix.glfwapi }} config=${{ matrix.configuration }}
     runs-on: windows-latest

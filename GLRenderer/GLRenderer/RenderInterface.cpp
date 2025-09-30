@@ -68,7 +68,6 @@ bool C_RenderInterface::RenderFullScreen(const FullScreenSetup& setup)
 			if (!shader)
 			{
 				GLE_ERROR("Render fullscreen failed because of errors in shader.");
-				return false;
 			}
 		setup.shaderSetup(*(shader.get()));
 		}, "Update full-screen pass shader"));

@@ -16,8 +16,6 @@ project "UtilsTest"
 	LinkDependency("RTTR")
 	LinkDependency("pugixml")
 
-	buildoptions { "/bigobj" }
-
 	includedirs
 	{
 		"%{wks.location}/vendor/gtest/googletest/include",
@@ -31,3 +29,6 @@ project "UtilsTest"
 	{
 		"%{prj.location}/TestMain.cpp",
 	}
+
+	filter "action:vs*"
+		buildoptions { "/bigobj" }
