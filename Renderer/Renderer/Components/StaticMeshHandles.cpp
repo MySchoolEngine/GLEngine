@@ -33,6 +33,7 @@ RTTR_REGISTRATION
 			RegisterMetaclass<MetaGUI::MeshResource>(),
 			RegisterMetamember<UI::MeshResource::Name>("Model"),
 			REGISTER_DEFAULT_VALUE(GLEngine::Core::ResourceHandle<MeshResource>()))
+		.method("AfterDeserialize", &C_StaticMeshHandles::AfterDeserialize)()
 		//.property("Shader", &C_StaticMesh::GetShader, &C_StaticMesh::SetShader)
 		;
 	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_StaticMeshHandles>>();
@@ -234,6 +235,16 @@ void C_StaticMeshHandles::DebugDrawGUI()
 	rttr::instance obj(*this);
 	if (GUI::DrawAllPropertyGUI(obj).empty() == false)
 	{
+	}
+}
+
+//=================================================================================
+void C_StaticMeshHandles::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
+{
+	auto& materialManager = C_MaterialManager::Instance();
+	if (m_Material)
+	{
+		materialManager.RegisterMaterial(m_Material);
 	}
 }
 

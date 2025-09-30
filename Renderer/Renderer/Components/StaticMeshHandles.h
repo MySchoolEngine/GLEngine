@@ -30,6 +30,8 @@ public:
 	const std::filesystem::path& GetMeshFile() const;
 	void						 DebugDrawGUI() override;
 
+	void AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx);
+
 	RTTR_ENABLE(Renderer::I_RenderableComponent);
 
 
