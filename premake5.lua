@@ -102,11 +102,10 @@ workspace "Engine"
 			"GL_ENGINE_DEBUG",
 		}
 
-	filter "configurations:ASAN"
+	filter { "configurations:ASAN", "action:vs*" }
 		editandcontinue "Off"
-		filter "action:vs*"
-			buildoptions { "/fsanitize=address", "/Zi" }
-			flags { "NoIncrementalLink" }
+		buildoptions { "/fsanitize=address", "/Zi" }
+		flags { "NoIncrementalLink" }
 
 	filter "configurations:Release"
 		runtime "Release"
