@@ -63,9 +63,9 @@ bool ModelLoader::addModelFromFileToScene(const std::filesystem::path&						path
 		}
 	}
 
-	_importer->FreeScene();
-
 	_numMaterialsPreviouslyLoaded += loadedScene->mNumMaterials;
+
+	_importer->FreeScene();
 
 	return true;
 }
