@@ -30,7 +30,8 @@ workspace "Engine"
 
 	configurations{
 		"Debug",
-		"Release"
+		"Release",
+		"ASAN",
 	}
   
 	defines{
@@ -100,6 +101,12 @@ workspace "Engine"
 			"DEBUG",
 			"GL_ENGINE_DEBUG",
 		}
+
+	filter "configurations:ASAN"
+		editandcontinue "Off"
+		filter "action:vs*"
+			buildoptions { "/fsanitize=address", "/Zi" }
+			flags { "NoIncrementalLink" }
 
 	filter "configurations:Release"
 		runtime "Release"
