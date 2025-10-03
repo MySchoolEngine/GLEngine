@@ -21,6 +21,12 @@ You can run both DirectX and OpenGL renderers side by side but in case of Vulkan
 premake5 --glfwapi=vulkan vs2019
 ```
 
+## Memory sanitazer
+If you want to use memory sanitazer, please use Asan configuration and add path to the ASAN DLLs to your PATH variable. E.g.:
+```
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\bin\Hostx64\x64
+```
+
 ## Features
 
 *  OpenGL rednerer
