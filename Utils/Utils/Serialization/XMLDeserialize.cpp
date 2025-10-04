@@ -92,7 +92,6 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 		{
 			if (const auto attribute = node.attribute(propertyName.c_str()))
 			{
-				auto ownerType = owner.get_type();
 				auto var	   = prop.get_value(owner);
 				var.convert(prop.get_type());
 				const rttr::variant return_value = deserializeStringFunction.invoke({}, std::string(attribute.as_string()), var);
