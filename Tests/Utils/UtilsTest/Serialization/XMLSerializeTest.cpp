@@ -59,7 +59,7 @@ RTTR_REGISTRATION
 namespace GLEngine::Utils {
 TEST_F(XMLSerializeFixture, RootName)
 {
-	GlmVec3	   v{.vec = {1, 2, 3}};
+	GlmVec3	   v { .vec = {1, 2, 3}, .vecNoSerialize = {4, 5, 6} };
 	const auto xmlDoc	= serializer.Serialize(v);
 	const auto rootNode = xmlDoc.root().first_child();
 	EXPECT_EQ(rootNode.name(), std::string("GlmVec3")) << ToString(xmlDoc);
@@ -86,14 +86,14 @@ TEST_F(XMLSerializeFixture, REGISTER_SERIALIZATION)
 TEST_F(XMLSerializeFixture, AtomicTypesArrayStructSerialize)
 {
 	AtomicTypesArrayStruct structObj{};
-	structObj.m_IntArray = {1, 2, 3};
-	structObj.m_FloatArray = {1.5f, 2.5f};
+	structObj.m_IntArray	= {1, 2, 3};
+	structObj.m_FloatArray	= {1.5f, 2.5f};
 	structObj.m_DoubleArray = {1.1, 2.2, 3.3, 4.4};
-	structObj.m_BoolArray = {true, false};
+	structObj.m_BoolArray	= {true, false};
 	structObj.m_StringArray = {"hello", "world", "test"};
-	structObj.m_EnumArray = {TestEnum::Value1, TestEnum::Value3};
+	structObj.m_EnumArray	= {TestEnum::Value1, TestEnum::Value3};
 
-	const auto xmlDoc = serializer.Serialize(structObj);
+	const auto xmlDoc	= serializer.Serialize(structObj);
 	const auto rootNode = xmlDoc.root().first_child();
 
 	EXPECT_EQ(rootNode.name(), std::string("AtomicTypesArrayStruct")) << ToString(xmlDoc);
@@ -102,7 +102,7 @@ TEST_F(XMLSerializeFixture, AtomicTypesArrayStructSerialize)
 	auto intArrayNode = rootNode.child("intArray");
 	EXPECT_TRUE(intArrayNode) << ToString(xmlDoc);
 	auto intChildren = intArrayNode.children("int");
-	int intIndex = 0;
+	int	 intIndex	 = 0;
 	for (auto child : intChildren)
 	{
 		EXPECT_EQ(child.attribute("int").as_int(), structObj.m_IntArray[intIndex]) << ToString(xmlDoc);
@@ -114,7 +114,7 @@ TEST_F(XMLSerializeFixture, AtomicTypesArrayStructSerialize)
 	auto floatArrayNode = rootNode.child("floatArray");
 	EXPECT_TRUE(floatArrayNode) << ToString(xmlDoc);
 	auto floatChildren = floatArrayNode.children("float");
-	int floatIndex = 0;
+	int	 floatIndex	   = 0;
 	for (auto child : floatChildren)
 	{
 		EXPECT_FLOAT_EQ(child.attribute("float").as_float(), structObj.m_FloatArray[floatIndex]) << ToString(xmlDoc);
@@ -126,7 +126,7 @@ TEST_F(XMLSerializeFixture, AtomicTypesArrayStructSerialize)
 	auto doubleArrayNode = rootNode.child("doubleArray");
 	EXPECT_TRUE(doubleArrayNode) << ToString(xmlDoc);
 	auto doubleChildren = doubleArrayNode.children("double");
-	int doubleIndex = 0;
+	int	 doubleIndex	= 0;
 	for (auto child : doubleChildren)
 	{
 		EXPECT_DOUBLE_EQ(child.attribute("double").as_double(), structObj.m_DoubleArray[doubleIndex]) << ToString(xmlDoc);
@@ -138,7 +138,7 @@ TEST_F(XMLSerializeFixture, AtomicTypesArrayStructSerialize)
 	auto boolArrayNode = rootNode.child("boolArray");
 	EXPECT_TRUE(boolArrayNode) << ToString(xmlDoc);
 	auto boolChildren = boolArrayNode.children("bool");
-	int boolIndex = 0;
+	int	 boolIndex	  = 0;
 	for (auto child : boolChildren)
 	{
 		EXPECT_EQ(child.attribute("bool").as_bool(), structObj.m_BoolArray[boolIndex]) << ToString(xmlDoc);
@@ -150,7 +150,7 @@ TEST_F(XMLSerializeFixture, AtomicTypesArrayStructSerialize)
 	auto stringArrayNode = rootNode.child("stringArray");
 	EXPECT_TRUE(stringArrayNode) << ToString(xmlDoc);
 	auto stringChildren = stringArrayNode.children("std::string");
-	int stringIndex = 0;
+	int	 stringIndex	= 0;
 	for (auto child : stringChildren)
 	{
 		EXPECT_EQ(child.attribute("std::string").as_string(), structObj.m_StringArray[stringIndex]) << ToString(xmlDoc);
@@ -161,8 +161,8 @@ TEST_F(XMLSerializeFixture, AtomicTypesArrayStructSerialize)
 	// Test enum array serialization
 	auto enumArrayNode = rootNode.child("enumArray");
 	EXPECT_TRUE(enumArrayNode) << ToString(xmlDoc);
-	auto enumChildren = enumArrayNode.children("TestEnum");
-	int enumIndex = 0;
+	auto					   enumChildren	 = enumArrayNode.children("TestEnum");
+	int						   enumIndex	 = 0;
 	std::array<std::string, 2> expectedEnums = {"Value1", "Value3"};
 	for (auto child : enumChildren)
 	{
