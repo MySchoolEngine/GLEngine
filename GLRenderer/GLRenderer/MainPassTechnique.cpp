@@ -204,7 +204,6 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager&				  world,
 		}
 	}
 
-	// I am not using modelData here
 	{
 		RenderDoc::C_DebugScope scope3DRenderer("3D Renderer");
 		m_3DRenderer.Commit(renderInterface3D);
