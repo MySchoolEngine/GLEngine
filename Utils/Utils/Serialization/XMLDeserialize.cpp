@@ -143,10 +143,10 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 			if (const auto childNode = node.child(propertyName.c_str()))
 			{
 				CORE_LOG(E_Level::Warning, E_Context::Core, "Deprecated way to serialize atomic values as elements. Will be saved in the new way {}.", prop);
-				if (const auto attribute = childNode.attribute(propertyName.c_str()))
+				if (const auto attributeDeprecated = childNode.attribute(propertyName.c_str()))
 				{
 					rttr::variant var = prop.get_value(owner);
-					DeserializeAtomic(attribute, type, var);
+					DeserializeAtomic(attributeDeprecated, type, var);
 					const bool result = prop.set_value(owner, var);
 					GLE_ASSERT(result, "Cannot set property {} to the type {}", propertyName, owner.get_type());
 				}

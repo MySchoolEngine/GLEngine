@@ -81,7 +81,7 @@ template <auto Member, class Enum = decltype(Member), class Type> requires IsMet
 	const auto metadata = detail::GetMetadata<Member>(prop);
 	if constexpr (!MemberIsOptional_v<Member>)
 	{
-		GLE_ASSERT(metadata.is_valid(), "Mandatory property metamember missing.");
+		GLE_ASSERT(metadata.is_valid(), "Mandatory property meta-member missing.");
 	}
 	return metadata.template get_value<MemberType_t<Member>>();
 }
@@ -92,7 +92,7 @@ template <class Enum> requires IsMetaclassConcept<Enum> rttr::variant GetMetadat
 	static_assert(std::is_enum_v<Enum>, "Only enum accepted");
 	static_assert(IsMetadataName_v<Enum>, "Given member name must be registered meta member.");
 	const auto metadata = prop.get_metadata(member);
-	GLE_ASSERT(MemberIsOptional_v<member> || metadata.is_valid(), "Mandatory property metamember missing.");
+	GLE_ASSERT(MemberIsOptional_v<member> || metadata.is_valid(), "Mandatory property meta-member missing.");
 	return metadata;
 }
 

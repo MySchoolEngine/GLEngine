@@ -31,7 +31,7 @@ MaterialData C_MaterialParser::ParseMaterialData(const pugi::xml_node& node)
 
 	if (auto roughnessMap = node.child("roughnessMap"))
 	{
-		data.m_RoughtnessMap = roughnessMap.child_value();
+		data.m_RoughnessMap = roughnessMap.child_value();
 	}
 
 	if (auto colorMap = node.child("colorMap"))
