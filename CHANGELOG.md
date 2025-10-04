@@ -2,6 +2,15 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - 04-10-2025
+### Added
+- Handles rendering support
+### Fixed
+- Serialization
+### Removed
+- Old static mesh rendering
+
+
 ## [Unreleased] - 14-06-2025
 ### Added
 - `Editor::C_ImageEditor` to Vulkan configuration
