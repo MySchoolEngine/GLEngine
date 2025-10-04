@@ -41,12 +41,12 @@ public:
 		return Secondary::deallocate(p, n);
 	}
 
-	typename std::enable_if<Traits::has_owns<Primary>::value && Traits::has_owns<Secondary>::value, bool>::type bool owns(pointer p)
+	typename std::enable_if_t<Traits::has_owns<Primary>::value && Traits::has_owns<Secondary>::value, bool> owns(pointer p)
 	{
 		return Primary::owns(p) || Secondary::owns(p);
 	}
 
-	typename std::enable_if<Traits::has_deallocate_all<Primary>::value && Traits::has_deallocate_all<Secondary>::value, void>::type deallocateAll()
+	typename std::enable_if_t<Traits::has_deallocate_all<Primary>::value && Traits::has_deallocate_all<Secondary>::value, void> deallocateAll()
 	{
 		Primary::deallocateAll();
 		Secondary::deallocateAll();

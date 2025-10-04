@@ -133,13 +133,13 @@ template <class T> struct Range {
 	{
 	}
 
-	Range(Range&& other)
+	Range(Range&& other) noexcept
 		: m_begin(other.m_begin)
 		, m_end(other.m_end)
 	{
 	}
 
-	Range& operator=(Range& other)
+	Range& operator=(const Range& other)
 	{
 		m_begin = other.m_begin;
 		m_end	= other.m_end;

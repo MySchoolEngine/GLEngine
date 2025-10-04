@@ -11,7 +11,7 @@ struct MaterialData {
 	glm::vec3	m_Color			= glm::vec3(1, 0, 0);
 	float		m_Roughness		= 0;
 	std::string m_ColorMap		= "";
-	std::string m_RoughtnessMap = "";
+	std::string m_RoughnessMap = "";
 	std::string m_NormalMap		= "";
 	std::string m_MaterialName	= "basic";
 };
