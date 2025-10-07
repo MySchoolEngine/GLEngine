@@ -39,7 +39,7 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 		std::unique_lock lock(m_Mutex);
 		if (auto resource = GetResourcePtr(filepath))
 		{
-			std::shared_ptr<ResourceType> concreteResource = std::static_pointer_cast<ResourceType>(resource);
+			concreteResource = std::dynamic_pointer_cast<ResourceType>(resource);
 			GLE_ASSERT(concreteResource, "Cannot cast to the concrete resource type");
 			return T_Handle<ResourceType>{concreteResource};
 		}
@@ -122,7 +122,7 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 			}
 		}
 
-		concreteResource = std::static_pointer_cast<ResourceType>(resource);
+		concreteResource = std::dynamic_pointer_cast<ResourceType>(resource);
 		GLE_ASSERT(concreteResource, "Cannot cast to the concrete resource type");
 	}
 	const C_Metafile&			 metafile = GetOrCreateMetafile(filepath);
