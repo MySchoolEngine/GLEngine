@@ -187,7 +187,32 @@ TEST_F(ResourceManagerFixture, UnloadUnusedResourcesAfterScopeExit)
 
 	// After scope exit, handle is destroyed, resource should be unused
 	FlushAllUnused(manager);
+
+TEST_F(ResourceManagerFixture, LoadResourceAsync)
+{
+	auto& manager = C_ResourceManager::Instance();
 	EXPECT_TRUE(IsResourcesEmpty(manager));
+	EXPECT_TRUE(IsUnusedListEmpty(manager));
+	EXPECT_TRUE(IsFinishedLoadsEmpty(manager));
+
+	manager.RegisterResourceType(new TestResourceLoader);
+
+	// Load resource asynchronously (non-blocking)
+	const auto handle = manager.LoadResource<TestResource>(testPathTest, false);
+
+	// Right after load request, should be loading
+	EXPECT_TRUE(handle.IsLoading()) << "Handle should be in loading state immediately after async load request";
+	EXPECT_FALSE(handle.IsReady()) << "Handle should not be ready immediately after async load request";
+
+	// Wait for load to complete (TestResource has 100ms delay)
+	std::this_thread::sleep_for(std::chrono::milliseconds(120));
+
+	// Process finished loads
+	manager.UpdatePendingLoads();
+
+	// Now should be ready
+	EXPECT_TRUE(handle.IsReady()) << "Handle should be ready after async load completes and UpdatePendingLoads is called";
+	EXPECT_FALSE(handle.IsLoading()) << "Handle should no longer be in loading state after load completes";
 }
 
 TEST_F(ResourceManagerFixture, LoadBuildableResource)
