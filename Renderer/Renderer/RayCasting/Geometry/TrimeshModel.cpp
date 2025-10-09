@@ -78,12 +78,9 @@ bool C_TrimeshModel::Load(const std::filesystem::path& filepath)
 }
 
 //=================================================================================
-bool C_TrimeshModel::Build(Core::ResourceHandle<MeshResource> handle)
+bool C_TrimeshModel::Build(const MeshResource& handle)
 {
-	GLE_ASSERT(handle.IsReady(), "Building trimesh before MeshResource loaded.");
-	if (!handle.IsReady())
-		return false;
-	for (auto& mesh : handle.GetResource().GetScene().meshes)
+	for (auto& mesh : handle.GetScene().meshes)
 	{
 		auto& trimesh = m_Trimeshes.emplace_back();
 		// need to do something with material
