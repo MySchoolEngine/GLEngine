@@ -82,6 +82,30 @@ TEST_F(ResourceManagerFixture, AddingLoaders)
 	manager.RegisterResourceType(new TestResource2Loader);
 	EXPECT_NE(GetLoaderForExt(manager, ".test2"), nullptr);
 	EXPECT_EQ(GetLoaderForExt(manager, ".not-existent"), nullptr);
+
+TEST_F(ResourceManagerFixture, GetSupportedExtensions)
+{
+	auto& manager = C_ResourceManager::Instance();
+	manager.RegisterResourceType(new TestResourceLoader);
+	manager.RegisterResourceType(new TestResource2Loader);
+	manager.RegisterResourceType(new TestResourceBuildableLoader);
+
+	// Get extensions for TestResource
+	auto testExts = manager.GetSupportedExtensions(TestResource::GetResourceTypeHashStatic());
+	EXPECT_EQ(testExts.size(), 2) << "TestResource should support 2 extensions";
+	EXPECT_TRUE(std::find(testExts.begin(), testExts.end(), ".test") != testExts.end()) << "TestResource should support .test extension";
+	EXPECT_TRUE(std::find(testExts.begin(), testExts.end(), ".test-slow") != testExts.end()) << "TestResource should support .test-slow extension";
+
+	// Get extensions for TestResource2
+	auto test2Exts = manager.GetSupportedExtensions(TestResource2::GetResourceTypeHashStatic());
+	EXPECT_EQ(test2Exts.size(), 2) << "TestResource2 should support 2 extensions";
+	EXPECT_TRUE(std::find(test2Exts.begin(), test2Exts.end(), ".test2") != test2Exts.end()) << "TestResource2 should support .test2 extension";
+	EXPECT_TRUE(std::find(test2Exts.begin(), test2Exts.end(), ".test2-2") != test2Exts.end()) << "TestResource2 should support .test2-2 extension";
+
+	// Get extensions for TestResourceBuildable
+	auto buildableExts = manager.GetSupportedExtensions(TestResourceBuildable::GetResourceTypeHashStatic());
+	EXPECT_EQ(buildableExts.size(), 1) << "TestResourceBuildable should support 1 extension";
+	EXPECT_EQ(buildableExts[0], ".testbuild") << "TestResourceBuildable should support .testbuild extension";
 }
 
 TEST_F(ResourceManagerFixture, LoadResourceWithWrongLoader)
