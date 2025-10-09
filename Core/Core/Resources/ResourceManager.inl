@@ -77,7 +77,7 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 						{
 							CORE_LOG(E_Level::Error, E_Context::Core, "File {} doesn't load properly, thus cannot build derived resource {}", metafile->GetOriginalFileName(),
 									 filepath);
-							// TODO Clean created resource
+							RemoveResource(resource);
 							return {};
 						}
 						if (std::dynamic_pointer_cast<ResourceType>(resource)->Build(baseResourceHandle.GetResource()))

@@ -23,12 +23,25 @@ public:
 		EXPECT_TRUE(IsResourcesEmpty(manager));
 		EXPECT_TRUE(IsUnusedListEmpty(manager));
 		EXPECT_TRUE(IsFinishedLoadsEmpty(manager));
+		VerifyNoMetaFilesExist();
 	}
 
 	void TearDown() override
 	{
 		// Clean up resources after each test
 		FlushAllUnused(C_ResourceManager::Instance());
+
+		// Delete metafiles created during tests
+		const auto metafileTest = C_Metafile::GetMetafileName(testPathTest);
+		const auto metafileTest2 = C_Metafile::GetMetafileName(testPathTest2);
+		const auto metafileTestBuildable = C_Metafile::GetMetafileName(testPathTestBuildable);
+
+		std::error_code ec;
+		std::filesystem::remove(metafileTest, ec);
+		std::filesystem::remove(metafileTest2, ec);
+		std::filesystem::remove(metafileTestBuildable, ec);
+
+		VerifyNoMetaFilesExist();
 	}
 
 	// Helper methods to access private members
@@ -76,6 +89,24 @@ public:
 		{
 			manager.UnloadUnusedResources();
 		}
+	}
+
+	/**
+	 * @brief Verifies that no .meta files exist in the current directory.
+	 */
+	static void VerifyNoMetaFilesExist()
+	{
+		std::error_code ec;
+		bool hasMetaFiles = false;
+		for (const auto& entry : std::filesystem::directory_iterator(".", ec))
+		{
+			if (entry.path().extension() == ".meta")
+			{
+				hasMetaFiles = true;
+				break;
+			}
+		}
+		EXPECT_FALSE(hasMetaFiles) << "No .meta files should exist in working directory";
 	}
 };
 
@@ -214,7 +245,10 @@ TEST_F(ResourceManagerFixture, LoadBuildableResource)
 	manager.RegisterResourceType(new TestResourceBuildableLoader);
 
 	// Load buildable resource (it should build from base resource)
-	const auto handleTest	   = manager.LoadResource<TestResource>(testPathTest, true);
+	{
+		// required as we cannot load the parent resource from the name of buildable one
+		const auto handleTest = manager.LoadResource<TestResource>(testPathTest, true);
+	}
 	const auto handleBuildable = manager.LoadResource<TestResourceBuildable>(testPathTestBuildable, true);
 
 	// Verify it was built successfully
@@ -235,11 +269,20 @@ TEST_F(ResourceManagerFixture, LoadBuildableResourceWithWrongExtension)
 	manager.RegisterResourceType(new TestResourceBuildableLoader);
 
 	// Try to load TestResourceBuildable with .test extension (wrong loader)
-	const auto handle = manager.LoadResource<TestResourceBuildable>(testPathTest, true);
+	{
+		// required as we cannot load the parent resource from the name of buildable one
+		const auto handle = manager.LoadResource<TestResource>(testPathTest, true);
+	}
+	const auto handleBuildable = manager.LoadResource<TestResourceBuildable>(testPathTest, true);
+	{
+		// required as we cannot load the parent resource from the name of buildable one
+		FlushAllUnused(C_ResourceManager::Instance());
+	}
 
 	// Should fail because .test extension is for TestResource, not TestResourceBuildable
-	EXPECT_FALSE(handle.IsReady()) << "Loading TestResourceBuildable with .test extension should fail (wrong loader)";
-	EXPECT_TRUE(handle.IsFailed()) << "Handle should be in failed state when extension doesn't match resource type";
+	EXPECT_FALSE(handleBuildable.IsReady()) << "Loading TestResourceBuildable with .test extension should fail (wrong loader)";
+	EXPECT_TRUE(handleBuildable.IsFailed()) << "Handle should be in failed state when extension doesn't match resource type";
+	EXPECT_TRUE(IsResourcesEmpty(manager)) << "This should not create any resource";
 }
 
 } // namespace GLEngine::Core
