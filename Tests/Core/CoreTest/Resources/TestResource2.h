@@ -5,30 +5,29 @@
 #include <Core/Resources/ResourceLoader.h>
 
 namespace GLEngine::Core {
-class TestResource : public Resource {
+class TestResource2 : public Resource {
 public:
-	DEFINE_RESOURCE_TYPE(TestResource)
-	TestResource()
-		: testData(42)
-		, testName("DefaultTest")
+	DEFINE_RESOURCE_TYPE(TestResource2)
+	TestResource2()
+		: value(100)
+		, description("DefaultDescription")
 	{
 	}
 
 	[[nodiscard]] bool Load(const std::filesystem::path& filepath) override
 	{
 		m_Filepath = filepath;
-		// Simulate slow loading
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		return true;
 	}
 	[[nodiscard]] bool								Reload() override { return false; }
 	[[nodiscard]] std::unique_ptr<I_ResourceLoader> GetLoader() override { return nullptr; }
 
-	int			testData = 0;
-	std::string testName;
+	int			value = 0;
+	std::string description;
 };
 
-class TestResourceLoader : public ResourceLoader<TestResource> {
+
+class TestResource2Loader : public ResourceLoader<TestResource2> {
 public:
 	std::shared_ptr<Resource> CreateResource() const override;
 	std::vector<std::string>  GetSupportedExtensions() const override;

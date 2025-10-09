@@ -64,6 +64,7 @@ private:
 	inline static constexpr unsigned int s_UpdatesBeforeDelete{5};
 
 	friend class ResourceHandleBase; // still not sure about this, I don't think I need to befriend anyone to achieve this
+	friend class ResourceManagerFixture;
 };
 
 } // namespace GLEngine::Core
