@@ -143,9 +143,13 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 {
 	if (auto resource = GetResourcePtr(filepath))
 	{
-		return {resource};
+		auto concreteResource = std::dynamic_pointer_cast<ResourceType>(resource);
+		GLE_ASSERT(concreteResource, "Cannot cast to the concrete resource type");
+		if (!concreteResource)
+			return {};
+		return T_Handle<ResourceType>{concreteResource};
 	}
-	return {};
+	return T_Handle<ResourceType>{};
 }
 
 } // namespace GLEngine::Core
