@@ -130,27 +130,34 @@ void C_ResourceManager::UnloadUnusedResources()
 		if (resourcePair.first.use_count() == 2)
 		{
 			// should be deleted
-			auto it		 = m_Resources.begin();
-			bool deleted = false;
-			while (it != m_Resources.end())
-			{
-				if (it->second == resourcePair.first)
-				{
-					CORE_LOG(E_Level::Info, E_Context::Core, "Removing resource {}", it->first);
-					m_Resources.erase(it);
-					deleted = true;
-					break;
-				}
-				++it;
-			}
+			const bool deleted = RemoveResource(resourcePair.first);
 			GLE_ASSERT(deleted, "Unused resource not in resources");
 		}
 	}
 	auto retainedEnd = std::remove_if(m_UnusedList.begin(), m_UnusedList.end(), [](const std::pair<std::shared_ptr<Resource>, unsigned int>& unusedResource) { 
-				return unusedResource.first.use_count() <= 2;
+				return unusedResource.first.use_count() < 2;
 		}
 	);
 	m_UnusedList.erase(retainedEnd, m_UnusedList.end());
+}
+
+//=================================================================================
+bool C_ResourceManager::RemoveResource(std::shared_ptr<Resource> resource)
+{
+	auto it		 = m_Resources.begin();
+	bool deleted = false;
+	while (it != m_Resources.end())
+	{
+		if (it->second == resource)
+		{
+			CORE_LOG(E_Level::Info, E_Context::Core, "Removing resource {}", it->first);
+			m_Resources.erase(it);
+			deleted = true;
+			break;
+		}
+		++it;
+	}
+	return deleted;
 }
 
 //=================================================================================

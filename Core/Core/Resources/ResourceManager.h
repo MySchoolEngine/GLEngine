@@ -33,6 +33,13 @@ public:
 	void RegisterResourceType(const I_ResourceLoader* loader);
 
 	template <class ResourceType> T_Handle<ResourceType> LoadResource(const std::filesystem::path& filepath, bool isBlocking = false);
+
+	/**
+	 * @brief This function will not try to load anything. Only returns handle if the resource is already loaded.
+	 * @tparam ResourceType
+	 * @param filepath
+	 * @return
+	 */
 	template <class ResourceType> T_Handle<ResourceType> GetResource(const std::filesystem::path& filepath);
 	std::vector<std::string>							 GetSupportedExtensions(const std::size_t) const;
 
@@ -42,6 +49,13 @@ private:
 	C_Metafile&		  GetOrCreateMetafile(const std::filesystem::path& resource);
 	const C_Metafile* GetMetafile(const std::filesystem::path& resource) const;
 	C_Metafile*		  GetOrLoadMetafile(const std::filesystem::path& resource);
+
+	/**
+	 * @brief Be careful, removes the pointer to the resource from the resource list.
+	 * @param resource
+	 * @return return true if success
+	 */
+	bool RemoveResource(std::shared_ptr<Resource> resource);
 
 	void AddResourceToUnusedList(const std::shared_ptr<Resource>& resource);
 

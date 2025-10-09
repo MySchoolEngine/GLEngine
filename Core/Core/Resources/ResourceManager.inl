@@ -40,7 +40,11 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 		if (auto resource = GetResourcePtr(filepath))
 		{
 			concreteResource = std::dynamic_pointer_cast<ResourceType>(resource);
-			GLE_ASSERT(concreteResource, "Cannot cast to the concrete resource type");
+			if (!concreteResource)
+			{
+				CORE_LOG(E_Level::Error, E_Context::Core, "Resource {} is of different type than requested.", filepath);
+				return {};
+			}
 			return T_Handle<ResourceType>{concreteResource};
 		}
 		const auto* loader = GetLoaderForExt(filepath.extension().string());
@@ -123,10 +127,14 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 		}
 
 		concreteResource = std::dynamic_pointer_cast<ResourceType>(resource);
-		GLE_ASSERT(concreteResource, "Cannot cast to the concrete resource type");
+		if (!concreteResource)
+		{
+			CORE_LOG(E_Level::Error, E_Context::Core, "Resource {} is of different type than requested.", filepath);
+			RemoveResource(resource); // TODO shouldn't been added?
+			return {};
+		}
 	}
 	const C_Metafile&			 metafile = GetOrCreateMetafile(filepath);
-	ResourceHandle<ResourceType> resourceHandle(concreteResource);
 	return ResourceHandle<ResourceType>(concreteResource);
 }
 
