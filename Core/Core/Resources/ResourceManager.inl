@@ -72,8 +72,16 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 					if constexpr (IsBeDerivedResource<ResourceType> && BuildableResource<ResourceType>)
 					{
 						C_Metafile* metafile	   = GetOrLoadMetafile(filepath);
-						auto			  baseResource = LoadResource<typename ResourceType::T_BaseResource>(metafile->GetOriginalFileName(), true);
-						if (std::dynamic_pointer_cast<ResourceType>(resource)->Build(baseResource)) {
+						const auto	baseResourceHandle = LoadResource<typename ResourceType::T_BaseResource>(metafile->GetOriginalFileName(), true);
+						if (baseResourceHandle.IsReady() == false)
+						{
+							CORE_LOG(E_Level::Error, E_Context::Core, "File {} doesn't load properly, thus cannot build derived resource {}", metafile->GetOriginalFileName(),
+									 filepath);
+							// TODO Clean created resource
+							return {};
+						}
+						if (std::dynamic_pointer_cast<ResourceType>(resource)->Build(baseResourceHandle.GetResource()))
+						{
 							resource->m_State = ResourceState::Ready;
 							if (!resource->Save()) {
 								CORE_LOG(E_Level::Error, E_Context::Core, "Cannot save resource {}", resource->GetFilePath());
