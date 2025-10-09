@@ -4,6 +4,9 @@
 #include <Core/Resources/ResourceHandle.h>
 #include <Core/Resources/ResourceLoader.h>
 
+#include <chrono>
+#include <thread>
+
 namespace GLEngine::Core {
 class TestResource : public Resource {
 public:

@@ -1,9 +1,11 @@
-﻿#include <CoreTestStdafx.h>
+#include <CoreTestStdafx.h>
 
 #include <Core/Resources/ResourceManager.h>
+#include <Core/Resources/Metafile.h>
 
 #include <CoreTest/Resources/TestResource.h>
 #include <CoreTest/Resources/TestResource2.h>
+#include <CoreTest/Resources/TestResourceBuildable.h>
 
 namespace GLEngine::Core {
 
@@ -12,6 +14,7 @@ public:
 	// Test file paths
 	static inline const std::filesystem::path testPathTest2 = "test_resource.test2";
 	static inline const std::filesystem::path testPathTest = "test_resource.test";
+	static inline const std::filesystem::path testPathTestBuildable = "test_resource.testbuild";
 
 	void SetUp() override
 	{
@@ -41,6 +44,11 @@ public:
 		return manager.GetMetafile(resource);
 	}
 
+	static C_Metafile& GetOrCreateMetafile(C_ResourceManager& manager, const std::filesystem::path& resource)
+	{
+		return manager.GetOrCreateMetafile(resource);
+	}
+
 	static bool IsResourcesEmpty(const C_ResourceManager& manager)
 	{
 		return manager.m_Resources.empty();
@@ -67,14 +75,6 @@ public:
 		}
 	}
 };
-
-// TODO: Implement tests once resource loaders are set up
-// Test ideas:
-// - LoadResource: Load a resource and verify it's cached
-// - GetResource: Retrieve already loaded resource
-// - UnloadUnusedResources: Verify unused resources are cleaned up
-// - RegisterResourceType: Register custom loader and load resource with it
-// - GetSupportedExtensions: Verify registered extensions
 
 TEST_F(ResourceManagerFixture, AddingLoaders)
 {
@@ -164,6 +164,48 @@ TEST_F(ResourceManagerFixture, UnloadUnusedResourcesAfterScopeExit)
 	// After scope exit, handle is destroyed, resource should be unused
 	FlushAllUnused(manager);
 	EXPECT_TRUE(IsResourcesEmpty(manager));
+}
+
+TEST_F(ResourceManagerFixture, LoadBuildableResource)
+{
+	auto& manager = C_ResourceManager::Instance();
+	EXPECT_TRUE(IsResourcesEmpty(manager));
+	EXPECT_TRUE(IsUnusedListEmpty(manager));
+	EXPECT_TRUE(IsFinishedLoadsEmpty(manager));
+
+	manager.RegisterResourceType(new TestResourceLoader);
+	manager.RegisterResourceType(new TestResourceBuildableLoader);
+
+	// Load buildable resource (it should build from base resource)
+	const auto handleTest	   = manager.LoadResource<TestResource>(testPathTest, true);
+	const auto handleBuildable = manager.LoadResource<TestResourceBuildable>(testPathTestBuildable, true);
+
+	// Verify it was built successfully
+	EXPECT_TRUE(handleBuildable.IsReady()) << "Buildable resource should be ready after building from base resource";
+	EXPECT_FALSE(handleBuildable.IsFailed()) << "Buildable resource should not be in failed state";
+
+	// Verify built data (TestResource has testData=42, buildable doubles it)
+	auto& buildable = handleBuildable.GetResource();
+	EXPECT_EQ(buildable.builtData, 84) << "Built data should be 84 (base testData 42 * 2)"; // 42 * 2
+	EXPECT_EQ(buildable.builtName, "Built_DefaultTest") << "Built name should be prefixed with 'Built_'";
+}
+
+TEST_F(ResourceManagerFixture, LoadBuildableResourceWithWrongExtension)
+{
+	auto& manager = C_ResourceManager::Instance();
+	EXPECT_TRUE(IsResourcesEmpty(manager));
+	EXPECT_TRUE(IsUnusedListEmpty(manager));
+	EXPECT_TRUE(IsFinishedLoadsEmpty(manager));
+
+	manager.RegisterResourceType(new TestResourceLoader);
+	manager.RegisterResourceType(new TestResourceBuildableLoader);
+
+	// Try to load TestResourceBuildable with .test extension (wrong loader)
+	const auto handle = manager.LoadResource<TestResourceBuildable>(testPathTest, true);
+
+	// Should fail because .test extension is for TestResource, not TestResourceBuildable
+	EXPECT_FALSE(handle.IsReady()) << "Loading TestResourceBuildable with .test extension should fail (wrong loader)";
+	EXPECT_TRUE(handle.IsFailed()) << "Handle should be in failed state when extension doesn't match resource type";
 }
 
 } // namespace GLEngine::Core
