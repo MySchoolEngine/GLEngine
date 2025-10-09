@@ -91,7 +91,10 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 						else
 							resource->m_State = ResourceState::Failed;
 					}
-					resource->m_State = ResourceState::Failed;
+					else
+					{
+						resource->m_State = ResourceState::Failed;
+					}
 				}
 			}
 			else
