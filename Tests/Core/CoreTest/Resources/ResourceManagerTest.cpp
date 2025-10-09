@@ -1,4 +1,4 @@
-#include <CoreTestStdafx.h>
+﻿#include <CoreTestStdafx.h>
 
 #include <Core/Resources/ResourceManager.h>
 #include <Core/Resources/Metafile.h>
@@ -12,7 +12,7 @@ namespace GLEngine::Core {
 class ResourceManagerFixture : public ::testing::Test {
 public:
 	// Test file paths
-	static inline const std::filesystem::path testPathTest2 = "test_resource.test2";
+	static inline const std::filesystem::path testPathTest2 = "test_resource2.test2";
 	static inline const std::filesystem::path testPathTest = "test_resource.test";
 	static inline const std::filesystem::path testPathTestBuildable = "test_resource.testbuild";
 
