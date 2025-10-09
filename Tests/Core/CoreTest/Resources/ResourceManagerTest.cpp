@@ -20,6 +20,9 @@ public:
 	{
 		// Get singleton instance
 		auto& manager = C_ResourceManager::Instance();
+		EXPECT_TRUE(IsResourcesEmpty(manager));
+		EXPECT_TRUE(IsUnusedListEmpty(manager));
+		EXPECT_TRUE(IsFinishedLoadsEmpty(manager));
 	}
 
 	void TearDown() override
@@ -80,8 +83,9 @@ TEST_F(ResourceManagerFixture, AddingLoaders)
 {
 	auto& manager = C_ResourceManager::Instance();
 	manager.RegisterResourceType(new TestResource2Loader);
-	EXPECT_NE(GetLoaderForExt(manager, ".test2"), nullptr);
-	EXPECT_EQ(GetLoaderForExt(manager, ".not-existent"), nullptr);
+	EXPECT_NE(GetLoaderForExt(manager, ".test2"), nullptr) << "Loader for .test2 extension should be registered";
+	EXPECT_EQ(GetLoaderForExt(manager, ".not-existent"), nullptr) << "Loader for non-existent extension should return nullptr";
+}
 
 TEST_F(ResourceManagerFixture, GetSupportedExtensions)
 {
@@ -91,19 +95,19 @@ TEST_F(ResourceManagerFixture, GetSupportedExtensions)
 	manager.RegisterResourceType(new TestResourceBuildableLoader);
 
 	// Get extensions for TestResource
-	auto testExts = manager.GetSupportedExtensions(TestResource::GetResourceTypeHashStatic());
+	const auto testExts = manager.GetSupportedExtensions(TestResource::GetResourceTypeHashStatic());
 	EXPECT_EQ(testExts.size(), 2) << "TestResource should support 2 extensions";
 	EXPECT_TRUE(std::find(testExts.begin(), testExts.end(), ".test") != testExts.end()) << "TestResource should support .test extension";
 	EXPECT_TRUE(std::find(testExts.begin(), testExts.end(), ".test-slow") != testExts.end()) << "TestResource should support .test-slow extension";
 
 	// Get extensions for TestResource2
-	auto test2Exts = manager.GetSupportedExtensions(TestResource2::GetResourceTypeHashStatic());
+	const auto test2Exts = manager.GetSupportedExtensions(TestResource2::GetResourceTypeHashStatic());
 	EXPECT_EQ(test2Exts.size(), 2) << "TestResource2 should support 2 extensions";
 	EXPECT_TRUE(std::find(test2Exts.begin(), test2Exts.end(), ".test2") != test2Exts.end()) << "TestResource2 should support .test2 extension";
 	EXPECT_TRUE(std::find(test2Exts.begin(), test2Exts.end(), ".test2-2") != test2Exts.end()) << "TestResource2 should support .test2-2 extension";
 
 	// Get extensions for TestResourceBuildable
-	auto buildableExts = manager.GetSupportedExtensions(TestResourceBuildable::GetResourceTypeHashStatic());
+	const auto buildableExts = manager.GetSupportedExtensions(TestResourceBuildable::GetResourceTypeHashStatic());
 	EXPECT_EQ(buildableExts.size(), 1) << "TestResourceBuildable should support 1 extension";
 	EXPECT_EQ(buildableExts[0], ".testbuild") << "TestResourceBuildable should support .testbuild extension";
 }
@@ -111,89 +115,76 @@ TEST_F(ResourceManagerFixture, GetSupportedExtensions)
 TEST_F(ResourceManagerFixture, LoadResourceWithWrongLoader)
 {
 	auto& manager = C_ResourceManager::Instance();
-	EXPECT_TRUE(IsResourcesEmpty(manager));
-	EXPECT_TRUE(IsUnusedListEmpty(manager));
-	EXPECT_TRUE(IsFinishedLoadsEmpty(manager));
 
 	manager.RegisterResourceType(new TestResource2Loader);
 	manager.RegisterResourceType(new TestResourceLoader);
 
 	const auto handle = manager.LoadResource<TestResource2>(testPathTest, true);
-	EXPECT_FALSE(handle.IsReady());
-	EXPECT_TRUE(handle.IsFailed());
+	EXPECT_FALSE(handle.IsReady()) << "Loading .test file as TestResource2 should fail (wrong loader)";
+	EXPECT_TRUE(handle.IsFailed()) << "Handle should be in failed state when loaded with wrong type";
 }
 
 TEST_F(ResourceManagerFixture, LoadResourceCorrectly)
 {
 	auto& manager = C_ResourceManager::Instance();
-	EXPECT_TRUE(IsResourcesEmpty(manager));
-	EXPECT_TRUE(IsUnusedListEmpty(manager));
-	EXPECT_TRUE(IsFinishedLoadsEmpty(manager));
 
 	manager.RegisterResourceType(new TestResource2Loader);
 	manager.RegisterResourceType(new TestResourceLoader);
 
 	const auto handle = manager.LoadResource<TestResource2>(testPathTest2, true);
-	EXPECT_TRUE(handle.IsReady());
+	EXPECT_TRUE(handle.IsReady()) << "TestResource2 should load successfully from .test2 file";
 
 	// Verify resource is cached
 	auto cachedResource = GetResourcePtr(manager, testPathTest2);
-	EXPECT_NE(cachedResource, nullptr);
+	EXPECT_NE(cachedResource, nullptr) << "Loaded resource should be cached in manager";
 
 	const auto handle1 = manager.GetResource<TestResource2>(testPathTest2);
-	EXPECT_EQ(handle, handle1);
+	EXPECT_EQ(handle, handle1) << "GetResource should return the same handle as LoadResource for already loaded resource";
 }
 
 TEST_F(ResourceManagerFixture, LoadAlreadyLoadedResourceWithWrongType)
 {
 	auto& manager = C_ResourceManager::Instance();
-	EXPECT_TRUE(IsResourcesEmpty(manager));
-	EXPECT_TRUE(IsUnusedListEmpty(manager));
-	EXPECT_TRUE(IsFinishedLoadsEmpty(manager));
 
 	manager.RegisterResourceType(new TestResource2Loader);
 	manager.RegisterResourceType(new TestResourceLoader);
 
 	// First load with correct type
 	const auto handle = manager.LoadResource<TestResource2>(testPathTest2, true);
-	EXPECT_TRUE(handle.IsReady());
+	EXPECT_TRUE(handle.IsReady()) << "First load with correct type should succeed";
 
 	// Try to load the same resource with wrong type
 	const auto handleWrongType = manager.LoadResource<TestResource>(testPathTest2, true);
-	EXPECT_FALSE(handleWrongType.IsReady());
-	EXPECT_TRUE(handleWrongType.IsFailed());
+	EXPECT_FALSE(handleWrongType.IsReady()) << "Loading already loaded resource with wrong type should fail";
+	EXPECT_TRUE(handleWrongType.IsFailed()) << "Handle should be in failed state when type mismatch occurs";
 }
 
 TEST_F(ResourceManagerFixture, UnloadUnusedResourcesAfterScopeExit)
 {
 	auto& manager = C_ResourceManager::Instance();
-	EXPECT_TRUE(IsResourcesEmpty(manager));
-	EXPECT_TRUE(IsUnusedListEmpty(manager));
-	EXPECT_TRUE(IsFinishedLoadsEmpty(manager));
 
 	manager.RegisterResourceType(new TestResource2Loader);
 
 	{
 		// Load resource in inner scope
 		const auto handle = manager.LoadResource<TestResource2>(testPathTest2, true);
-		EXPECT_TRUE(handle.IsReady());
-		EXPECT_FALSE(IsResourcesEmpty(manager));
+		EXPECT_TRUE(handle.IsReady()) << "Resource should load successfully in inner scope";
+		EXPECT_FALSE(IsResourcesEmpty(manager)) << "Resource should be cached while handle exists";
 
 		// Handle goes out of scope here
 	}
-	EXPECT_FALSE(IsResourcesEmpty(manager));
+	EXPECT_FALSE(IsResourcesEmpty(manager)) << "Resource should still be cached immediately after handle destruction";
 	manager.UnloadUnusedResources();
-	EXPECT_FALSE(IsResourcesEmpty(manager));
+	EXPECT_FALSE(IsResourcesEmpty(manager)) << "Resource should still exist after first UnloadUnusedResources call (delayed cleanup)";
 
 	// After scope exit, handle is destroyed, resource should be unused
 	FlushAllUnused(manager);
+	EXPECT_TRUE(IsResourcesEmpty(manager)) << "Resource should be removed after full flush of unused resources";
+}
 
 TEST_F(ResourceManagerFixture, LoadResourceAsync)
 {
 	auto& manager = C_ResourceManager::Instance();
-	EXPECT_TRUE(IsResourcesEmpty(manager));
-	EXPECT_TRUE(IsUnusedListEmpty(manager));
-	EXPECT_TRUE(IsFinishedLoadsEmpty(manager));
 
 	manager.RegisterResourceType(new TestResourceLoader);
 
@@ -218,9 +209,6 @@ TEST_F(ResourceManagerFixture, LoadResourceAsync)
 TEST_F(ResourceManagerFixture, LoadBuildableResource)
 {
 	auto& manager = C_ResourceManager::Instance();
-	EXPECT_TRUE(IsResourcesEmpty(manager));
-	EXPECT_TRUE(IsUnusedListEmpty(manager));
-	EXPECT_TRUE(IsFinishedLoadsEmpty(manager));
 
 	manager.RegisterResourceType(new TestResourceLoader);
 	manager.RegisterResourceType(new TestResourceBuildableLoader);
@@ -242,9 +230,6 @@ TEST_F(ResourceManagerFixture, LoadBuildableResource)
 TEST_F(ResourceManagerFixture, LoadBuildableResourceWithWrongExtension)
 {
 	auto& manager = C_ResourceManager::Instance();
-	EXPECT_TRUE(IsResourcesEmpty(manager));
-	EXPECT_TRUE(IsUnusedListEmpty(manager));
-	EXPECT_TRUE(IsFinishedLoadsEmpty(manager));
 
 	manager.RegisterResourceType(new TestResourceLoader);
 	manager.RegisterResourceType(new TestResourceBuildableLoader);
