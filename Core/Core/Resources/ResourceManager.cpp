@@ -23,7 +23,7 @@ void C_ResourceManager::Destroy()
 {
 	// TODO: cleanup maps
 	// cleanup loaders
-	for (auto [typeID, loader] : m_TypeIdToLoader)
+	for (const auto& [typeID, loader] : m_TypeIdToLoader)
 	{
 		delete loader;
 	}
@@ -37,6 +37,7 @@ void C_ResourceManager::RegisterResourceType(const I_ResourceLoader* loader)
 	if (auto it = m_TypeIdToLoader.find(loader->GetResourceTypeID()); it != m_TypeIdToLoader.end())
 	{
 		CORE_LOG(E_Level::Error, E_Context::Core, "Loader for this type already registered");
+		delete loader;
 		return;
 	}
 	m_TypeIdToLoader[loader->GetResourceTypeID()] = loader;
@@ -144,20 +145,16 @@ void C_ResourceManager::UnloadUnusedResources()
 //=================================================================================
 bool C_ResourceManager::RemoveResource(std::shared_ptr<Resource> resource)
 {
-	auto it		 = m_Resources.begin();
-	bool deleted = false;
-	while (it != m_Resources.end())
+	auto it = std::find_if(m_Resources.begin(), m_Resources.end(),
+		[&resource](const auto& pair) { return pair.second == resource; });
+
+	if (it != m_Resources.end())
 	{
-		if (it->second == resource)
-		{
-			CORE_LOG(E_Level::Info, E_Context::Core, "Removing resource {}", it->first);
-			m_Resources.erase(it);
-			deleted = true;
-			break;
-		}
-		++it;
+		CORE_LOG(E_Level::Info, E_Context::Core, "Removing resource {}", it->first);
+		m_Resources.erase(it);
+		return true;
 	}
-	return deleted;
+	return false;
 }
 
 //=================================================================================

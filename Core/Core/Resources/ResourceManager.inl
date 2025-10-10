@@ -145,7 +145,7 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 			return {};
 		}
 	}
-	const C_Metafile&			 metafile = GetOrCreateMetafile(filepath);
+	GetOrCreateMetafile(filepath);
 	return ResourceHandle<ResourceType>(concreteResource);
 }
 
