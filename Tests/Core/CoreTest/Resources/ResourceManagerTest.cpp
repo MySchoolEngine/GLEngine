@@ -285,4 +285,89 @@ TEST_F(ResourceManagerFixture, LoadBuildableResourceWithWrongExtension)
 	EXPECT_TRUE(IsResourcesEmpty(manager)) << "This should not create any resource";
 }
 
+TEST_F(ResourceManagerFixture, GetAllMetafilesEmpty)
+{
+	auto& manager = C_ResourceManager::Instance();
+
+	const auto metafiles = manager.GetAllMetafiles();
+	EXPECT_TRUE(metafiles.empty()) << "GetAllMetafiles should return empty vector when no metafiles exist";
+}
+
+TEST_F(ResourceManagerFixture, GetAllMetafilesWithCreatedMetafiles)
+{
+	auto& manager = C_ResourceManager::Instance();
+
+	// Create and save metafile for TestResource
+	C_Metafile metafile1(testPathTest);
+	EXPECT_TRUE(metafile1.Save()) << "Should save metafile for TestResource";
+
+	// Check that one metafile is found
+	auto metafiles = manager.GetAllMetafiles();
+	EXPECT_EQ(metafiles.size(), 1) << "Should find one metafile after creating TestResource metafile";
+
+	// Create and save metafile for TestResource2
+	C_Metafile metafile2(testPathTest2);
+	EXPECT_TRUE(metafile2.Save()) << "Should save metafile for TestResource2";
+
+	// Check that two metafiles are found
+	metafiles = manager.GetAllMetafiles();
+	EXPECT_EQ(metafiles.size(), 2) << "Should find two metafiles after creating TestResource and TestResource2 metafiles";
+}
+
+TEST_F(ResourceManagerFixture, GetAllMetafilesNonRecursive)
+{
+	auto& manager = C_ResourceManager::Instance();
+
+	// Create metafile in current directory
+	C_Metafile metafile1(testPathTest);
+	EXPECT_TRUE(metafile1.Save()) << "Should save metafile in current directory";
+
+	// Scan non-recursively
+	auto metafiles = manager.GetAllMetafiles(".", false);
+	EXPECT_EQ(metafiles.size(), 1) << "Should find one metafile in current directory (non-recursive)";
+}
+
+TEST_F(ResourceManagerFixture, GetAllMetafilesRecursive)
+{
+	auto& manager = C_ResourceManager::Instance();
+
+	// Create subdirectory
+	std::error_code ec;
+	std::filesystem::create_directory("subdir", ec);
+	EXPECT_FALSE(ec) << "Should create subdirectory successfully";
+
+	// Create metafile in current directory
+	C_Metafile metafile1(testPathTest);
+	EXPECT_TRUE(metafile1.Save()) << "Should save metafile in current directory";
+
+	// Create metafile in subdirectory
+	C_Metafile metafile2("subdir/test_resource_sub.test2");
+	EXPECT_TRUE(metafile2.Save()) << "Should save metafile in subdirectory";
+
+	// Scan recursively
+	auto metafiles = manager.GetAllMetafiles(".", true);
+	EXPECT_EQ(metafiles.size(), 2) << "Should find two metafiles when scanning recursively";
+
+	// Scan non-recursively
+	metafiles = manager.GetAllMetafiles(".", false);
+	EXPECT_EQ(metafiles.size(), 1) << "Should find only one metafile when scanning non-recursively (excludes subdirectory)";
+
+	// Clean up subdirectory
+	std::filesystem::remove("subdir/test_resource_sub.meta", ec);
+	std::filesystem::remove_all("subdir", ec);
+}
+
+TEST_F(ResourceManagerFixture, GetAllMetafilesNonExistentFolder)
+{
+	auto& manager = C_ResourceManager::Instance();
+
+	// Try to scan non-existent folder
+	auto metafiles = manager.GetAllMetafiles("non_existent_folder_12345", false);
+	EXPECT_TRUE(metafiles.empty()) << "GetAllMetafiles should return empty vector for non-existent folder";
+
+	// Try recursive scan on non-existent folder
+	metafiles = manager.GetAllMetafiles("non_existent_folder_12345", true);
+	EXPECT_TRUE(metafiles.empty()) << "GetAllMetafiles should return empty vector for non-existent folder (recursive)";
+}
+
 } // namespace GLEngine::Core

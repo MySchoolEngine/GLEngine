@@ -42,6 +42,7 @@ public:
 	 */
 	template <class ResourceType> T_Handle<ResourceType> GetResource(const std::filesystem::path& filepath);
 	std::vector<std::string>							 GetSupportedExtensions(const std::size_t) const;
+	std::vector<C_Metafile>								 GetAllMetafiles(const std::filesystem::path& path = ".", bool recursive = false);
 
 private:
 	C_ResourceManager();
