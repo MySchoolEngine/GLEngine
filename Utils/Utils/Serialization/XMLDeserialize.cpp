@@ -362,7 +362,7 @@ void C_XMLDeserializer::FinishDeserialization(const rttr::type& type, const rttr
 }
 namespace {
 template <class T>
-const auto setter = [](rttr::variant& instance, const auto& value) {
+const auto setter = [](rttr::variant& instance, const T& value) {
 	if (instance.get_type().is_wrapper())
 	{
 		rttr::variant_cast<std::reference_wrapper<T>>(instance).get() = value;
