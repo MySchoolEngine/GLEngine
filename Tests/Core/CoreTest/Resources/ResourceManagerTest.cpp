@@ -30,6 +30,7 @@ public:
 	{
 		// Clean up resources after each test
 		FlushAllUnused(C_ResourceManager::Instance());
+		C_ResourceManager::Instance().Destroy();
 
 		// Delete metafiles created during tests
 		const auto metafileTest = C_Metafile::GetMetafileName(testPathTest);
