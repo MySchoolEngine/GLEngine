@@ -2,6 +2,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - 12-10-2025
+### Fixed
+- Resource manager with buildable resources
+
 ## [Unreleased] - 04-10-2025
 ### Added
 - Handles rendering support
