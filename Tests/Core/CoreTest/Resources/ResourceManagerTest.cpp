@@ -20,17 +20,16 @@ public:
 	{
 		// Get singleton instance
 		auto& manager = C_ResourceManager::Instance();
-		EXPECT_TRUE(IsResourcesEmpty(manager));
-		EXPECT_TRUE(IsUnusedListEmpty(manager));
-		EXPECT_TRUE(IsFinishedLoadsEmpty(manager));
+		VerifyEmptyLists(manager, "SetUp");
 		VerifyNoMetaFilesExist();
 	}
 
 	void TearDown() override
 	{
+		auto& manager = C_ResourceManager::Instance();
 		// Clean up resources after each test
-		FlushAllUnused(C_ResourceManager::Instance());
-		C_ResourceManager::Instance().Destroy();
+		FlushAllUnused(manager);
+		manager.Destroy();
 
 		// Delete metafiles created during tests
 		const auto metafileTest = C_Metafile::GetMetafileName(testPathTest);
@@ -43,6 +42,7 @@ public:
 		std::filesystem::remove(metafileTestBuildable, ec);
 
 		VerifyNoMetaFilesExist();
+		VerifyEmptyLists(manager, "TearDown");
 	}
 
 	// Helper methods to access private members
@@ -81,6 +81,16 @@ public:
 		return manager.m_FinishedLoads.empty();
 	}
 
+	static bool IsExtToLoadersEmpty(const C_ResourceManager& manager)
+	{
+		return manager.m_ExtToLoaders.empty();
+	}
+
+	static bool IsTypeIdToLoaderEmpty(const C_ResourceManager& manager)
+	{
+		return manager.m_TypeIdToLoader.empty();
+	}
+
 	/**
 	 * @brief Calls UnloadUnusedResources s_UpdatesBeforeDelete times to fully flush all unused resources.
 	 */
@@ -109,10 +119,18 @@ public:
 		}
 		EXPECT_FALSE(hasMetaFiles) << "No .meta files should exist in working directory";
 	}
+
+	static void VerifyEmptyLists(const C_ResourceManager& manager, const std::string& stage)
+	{
+		EXPECT_TRUE(IsResourcesEmpty(manager)) << stage;
+		EXPECT_TRUE(IsUnusedListEmpty(manager)) << stage;
+		EXPECT_TRUE(IsFinishedLoadsEmpty(manager)) << stage;
+		EXPECT_TRUE(IsExtToLoadersEmpty(manager)) << stage;
+		EXPECT_TRUE(IsTypeIdToLoaderEmpty(manager)) << stage;
+	}
 };
 
-// disabled due to errors on Linux, Will be fixed once I have access to Linux machine
-TEST_F(ResourceManagerFixture, DISABLED_AddingLoaders)
+TEST_F(ResourceManagerFixture, AddingLoaders)
 {
 	auto& manager = C_ResourceManager::Instance();
 	manager.RegisterResourceType(new TestResource2Loader);
