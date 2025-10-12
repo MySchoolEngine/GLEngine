@@ -14,10 +14,11 @@ namespace GLEngine::Core {
 
 class CORE_API_EXPORT C_ResourceManager final : public C_Layer {
 	template <class ResourceType> using T_Handle = std::enable_if_t<std::is_base_of_v<Resource, ResourceType>, ResourceHandle<ResourceType>>;
+
 public:
-	C_ResourceManager(const C_ResourceManager& other)									  = delete;
-	C_ResourceManager(C_ResourceManager&& other) noexcept								  = delete;
-	C_ResourceManager&						operator=(const C_ResourceManager& other)	  = delete;
+	C_ResourceManager(const C_ResourceManager& other)	  = delete;
+	C_ResourceManager(C_ResourceManager&& other) noexcept = delete;
+	C_ResourceManager&						operator=(const C_ResourceManager& other) = delete;
 	C_ResourceManager&						operator=(C_ResourceManager&& other) noexcept = delete;
 	[[nodiscard]] static C_ResourceManager& Instance();
 
@@ -33,8 +34,16 @@ public:
 	void RegisterResourceType(const I_ResourceLoader* loader);
 
 	template <class ResourceType> T_Handle<ResourceType> LoadResource(const std::filesystem::path& filepath, bool isBlocking = false);
+
+	/**
+	 * @brief This function will not try to load anything. Only returns handle if the resource is already loaded.
+	 * @tparam ResourceType
+	 * @param filepath
+	 * @return
+	 */
 	template <class ResourceType> T_Handle<ResourceType> GetResource(const std::filesystem::path& filepath);
 	std::vector<std::string>							 GetSupportedExtensions(const std::size_t) const;
+	std::vector<C_Metafile>								 GetAllMetafiles(const std::filesystem::path& path = ".", bool recursive = false);
 
 private:
 	C_ResourceManager();
@@ -42,6 +51,13 @@ private:
 	C_Metafile&		  GetOrCreateMetafile(const std::filesystem::path& resource);
 	const C_Metafile* GetMetafile(const std::filesystem::path& resource) const;
 	C_Metafile*		  GetOrLoadMetafile(const std::filesystem::path& resource);
+
+	/**
+	 * @brief Be careful, removes the pointer to the resource from the resource list.
+	 * @param resource
+	 * @return return true if success
+	 */
+	bool RemoveResource(std::shared_ptr<Resource> resource);
 
 	void AddResourceToUnusedList(const std::shared_ptr<Resource>& resource);
 
@@ -64,6 +80,8 @@ private:
 	inline static constexpr unsigned int s_UpdatesBeforeDelete{5};
 
 	friend class ResourceHandleBase; // still not sure about this, I don't think I need to befriend anyone to achieve this
+	friend class ResourceManagerFixture;
+	friend class ResourceHandleFixture;
 };
 
 } // namespace GLEngine::Core

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Renderer/RendererApi.h>
+
 #include <Renderer/RayCasting/Frame.h>
 #include <Renderer/RayCasting/Material/MaterialInterface.h>
 

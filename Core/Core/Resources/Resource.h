@@ -163,6 +163,7 @@ protected:
 private:
 	ResourceState m_State = ResourceState::Empty;
 	friend class C_ResourceManager;
+	friend class ResourceHandleFixture;
 
 	RTTR_REGISTRATION_FRIEND
 };

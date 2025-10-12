@@ -14,7 +14,7 @@
 namespace GLEngine::Renderer {
 class RENDERER_API_EXPORT C_TrimeshModel : public Core::Resource {
 public:
-	DEFINE_RESOURCE_TYPE(MeshResource)
+	DEFINE_RESOURCE_TYPE(C_TrimeshModel)
 	using T_BaseResource = MeshResource;
 	C_TrimeshModel()	 = default;
 
@@ -23,7 +23,7 @@ public:
 	[[nodiscard]] bool									  Reload() override;
 	[[nodiscard]] std::unique_ptr<Core::I_ResourceLoader> GetLoader() override;
 
-	[[nodiscard]] bool Build(Core::ResourceHandle<MeshResource> handle);
+	[[nodiscard]] bool Build(const MeshResource& handle);
 
 	bool SupportSaving() const override;
 
@@ -37,7 +37,6 @@ protected:
 private:
 	std::vector<C_Trimesh> m_Trimeshes;
 	std::vector<BVH*>	   m_BVHs;
-	std::filesystem::path  m_Filepath;
 };
 
 class RENDERER_API_EXPORT TrimeshModelTrimesh : public Core::ResourceLoader<C_TrimeshModel> {
