@@ -22,7 +22,7 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 				return {};
 			}
 			GLE_TODO("08. 05. 2024", "RohacekD", "Propagate isBlocking, when we have job futures");
-			auto baseResource = LoadResource<typename ResourceType::T_BaseResource>(metafile->GetOriginalFileName(), true);
+			const auto baseResource = LoadResource<typename ResourceType::T_BaseResource>(metafile->GetOriginalFileName(), true);
 			// this will cause problems if loaded previously as non-blocking
 			if (baseResource.IsFailed())
 			{
@@ -37,7 +37,7 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 	// lock maps, as we want to make this in atomic manner
 	{
 		std::unique_lock lock(m_Mutex);
-		if (auto resource = GetResourcePtr(filepath))
+		if (const auto resource = GetResourcePtr(filepath))
 		{
 			concreteResource = std::dynamic_pointer_cast<ResourceType>(resource);
 			if (!concreteResource)
@@ -71,7 +71,7 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 				{
 					if constexpr (IsBeDerivedResource<ResourceType> && BuildableResource<ResourceType>)
 					{
-						C_Metafile* metafile	   = GetOrLoadMetafile(filepath);
+						C_Metafile* metafile		   = GetOrLoadMetafile(filepath);
 						const auto	baseResourceHandle = LoadResource<typename ResourceType::T_BaseResource>(metafile->GetOriginalFileName(), true);
 						if (baseResourceHandle.IsReady() == false)
 						{
@@ -83,7 +83,8 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 						if (std::dynamic_pointer_cast<ResourceType>(resource)->Build(baseResourceHandle.GetResource()))
 						{
 							resource->m_State = ResourceState::Ready;
-							if (!resource->Save()) {
+							if (!resource->Save())
+							{
 								CORE_LOG(E_Level::Error, E_Context::Core, "Cannot save resource {}", resource->GetFilePath());
 							}
 							metafile->AddDerivedResource(filepath);
@@ -121,9 +122,9 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 					if (result)
 					{
 						m_FinishedLoads.push_back(resource);
-						//ResourceHandle<ResourceType> resourceHandle(resource);
-						//ResourceCreatedEvent event(resourceHandle);
-						//C_Application::Get().OnEvent(event);
+						// ResourceHandle<ResourceType> resourceHandle(resource);
+						// ResourceCreatedEvent event(resourceHandle);
+						// C_Application::Get().OnEvent(event);
 					}
 					else
 					{

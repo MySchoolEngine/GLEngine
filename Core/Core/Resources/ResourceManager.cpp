@@ -5,8 +5,8 @@
 namespace GLEngine::Core {
 
 //=================================================================================
-C_ResourceManager::C_ResourceManager() 
-: C_Layer("ResourceManager")
+C_ResourceManager::C_ResourceManager()
+	: C_Layer("ResourceManager")
 {
 }
 
@@ -23,7 +23,7 @@ void C_ResourceManager::Destroy()
 {
 	// TODO: cleanup maps
 	// cleanup loaders
-	for (const auto& [typeID, loader] : m_TypeIdToLoader)
+	for (const auto& loader : m_TypeIdToLoader | std::views::values)
 	{
 		delete loader;
 	}
@@ -52,7 +52,7 @@ void C_ResourceManager::RegisterResourceType(const I_ResourceLoader* loader)
 const I_ResourceLoader* C_ResourceManager::GetLoaderForExt(const std::string& ext) const
 {
 	GLE_ASSERT(ext[0] == '.', "Extension needs to contain dot.");
-	if (auto loader = m_ExtToLoaders.find(ext); loader != m_ExtToLoaders.end())
+	if (const auto loader = m_ExtToLoaders.find(ext); loader != m_ExtToLoaders.end())
 	{
 		return loader->second;
 	}
@@ -62,7 +62,7 @@ const I_ResourceLoader* C_ResourceManager::GetLoaderForExt(const std::string& ex
 //=================================================================================
 std::shared_ptr<Resource> C_ResourceManager::GetResourcePtr(const std::filesystem::path& filepath)
 {
-	if (auto resource = m_Resources.find(filepath); resource != m_Resources.end())
+	if (const auto resource = m_Resources.find(filepath); resource != m_Resources.end())
 	{
 		return resource->second;
 	}
@@ -109,8 +109,9 @@ void C_ResourceManager::UpdatePendingLoads()
 //=================================================================================
 void C_ResourceManager::OnEvent(I_Event& event)
 {
-	for (auto& resource : m_Resources) {
-		resource.second->OnEvent(event);
+	for (const auto& resource : m_Resources | std::views::values)
+	{
+		resource->OnEvent(event);
 	}
 }
 
@@ -120,33 +121,30 @@ void C_ResourceManager::UnloadUnusedResources()
 	std::unique_lock lock(m_Mutex);
 	// if resource is still loading, we need to finish loading
 	// it is referenced from the job system, so it will be deleted after load
-	for (auto& resourcePair : m_UnusedList)
+	for (auto& [resourcePtr, numUpdates] : m_UnusedList)
 	{
 		// 1 reference in m_Resources, second in m_UnusedList
-		if (resourcePair.second < s_UpdatesBeforeDelete)
+		if (numUpdates < s_UpdatesBeforeDelete)
 		{
-			++resourcePair.second;
+			++numUpdates;
 			continue;
 		}
-		if (resourcePair.first.use_count() == 2)
+		if (resourcePtr.use_count() == 2)
 		{
 			// should be deleted
-			const bool deleted = RemoveResource(resourcePair.first);
+			const bool deleted = RemoveResource(resourcePtr);
 			GLE_ASSERT(deleted, "Unused resource not in resources");
 		}
 	}
-	auto retainedEnd = std::remove_if(m_UnusedList.begin(), m_UnusedList.end(), [](const std::pair<std::shared_ptr<Resource>, unsigned int>& unusedResource) { 
-				return unusedResource.first.use_count() < 2;
-		}
-	);
+	const auto retainedEnd = std::remove_if(m_UnusedList.begin(), m_UnusedList.end(),
+											[](const std::pair<std::shared_ptr<Resource>, unsigned int>& unusedResource) { return unusedResource.first.use_count() < 2; });
 	m_UnusedList.erase(retainedEnd, m_UnusedList.end());
 }
 
 //=================================================================================
 bool C_ResourceManager::RemoveResource(std::shared_ptr<Resource> resource)
 {
-	auto it = std::find_if(m_Resources.begin(), m_Resources.end(),
-		[&resource](const auto& pair) { return pair.second == resource; });
+	const auto it = std::find_if(m_Resources.begin(), m_Resources.end(), [&resource](const auto& pair) { return pair.second == resource; });
 
 	if (it != m_Resources.end())
 	{
@@ -161,11 +159,12 @@ bool C_ResourceManager::RemoveResource(std::shared_ptr<Resource> resource)
 C_Metafile& C_ResourceManager::GetOrCreateMetafile(const std::filesystem::path& resource)
 {
 	const auto metafileName = C_Metafile::GetMetafileName(resource);
-	if (m_Metafile.find(metafileName) == m_Metafile.end())
+	if (!m_Metafile.contains(metafileName))
 	{
 		// try to load and create
 		C_Metafile newFile(resource);
-		if (newFile.Load() == false) {
+		if (newFile.Load() == false)
+		{
 			// populate it
 
 			// save it
@@ -180,7 +179,7 @@ C_Metafile& C_ResourceManager::GetOrCreateMetafile(const std::filesystem::path& 
 const C_Metafile* C_ResourceManager::GetMetafile(const std::filesystem::path& resource) const
 {
 	const auto metafileName = C_Metafile::GetMetafileName(resource);
-	if (m_Metafile.find(metafileName) == m_Metafile.end())
+	if (!m_Metafile.contains(metafileName))
 	{
 		return nullptr;
 	}
@@ -191,7 +190,7 @@ const C_Metafile* C_ResourceManager::GetMetafile(const std::filesystem::path& re
 C_Metafile* C_ResourceManager::GetOrLoadMetafile(const std::filesystem::path& resource)
 {
 	const auto metafileName = C_Metafile::GetMetafileName(resource);
-	if (m_Metafile.find(metafileName) == m_Metafile.end())
+	if (!m_Metafile.contains(metafileName))
 	{
 		// try to load and create
 		C_Metafile newFile(resource);
@@ -216,7 +215,7 @@ bool I_ResourceLoader::LoadResource(const std::filesystem::path& filepath, std::
 //=================================================================================
 std::vector<std::string> C_ResourceManager::GetSupportedExtensions(const std::size_t x) const
 {
-	auto it = m_TypeIdToLoader.find(x);
+	const auto it = m_TypeIdToLoader.find(x);
 	GLE_ASSERT(m_TypeIdToLoader.contains(x), "Unregistered type");
 	return it->second->GetSupportedExtensions();
 }
@@ -225,7 +224,7 @@ std::vector<std::string> C_ResourceManager::GetSupportedExtensions(const std::si
 std::vector<C_Metafile> C_ResourceManager::GetAllMetafiles(const std::filesystem::path& path, bool recursive)
 {
 	std::vector<C_Metafile> metafiles;
-	std::error_code ec;
+	std::error_code			ec;
 
 	if (recursive)
 	{
@@ -240,7 +239,7 @@ std::vector<C_Metafile> C_ResourceManager::GetAllMetafiles(const std::filesystem
 				C_Metafile metafile(basePath);
 				if (metafile.Load())
 				{
-					const auto metafileName = entry.path();
+					const auto& metafileName = entry.path();
 					m_Metafile[metafileName] = metafile;
 					metafiles.push_back(metafile);
 				}
@@ -260,7 +259,7 @@ std::vector<C_Metafile> C_ResourceManager::GetAllMetafiles(const std::filesystem
 				C_Metafile metafile(basePath);
 				if (metafile.Load())
 				{
-					const auto metafileName = entry.path();
+					const auto& metafileName = entry.path();
 					m_Metafile[metafileName] = metafile;
 					metafiles.push_back(metafile);
 				}

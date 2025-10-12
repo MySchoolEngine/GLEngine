@@ -14,10 +14,11 @@ namespace GLEngine::Core {
 
 class CORE_API_EXPORT C_ResourceManager final : public C_Layer {
 	template <class ResourceType> using T_Handle = std::enable_if_t<std::is_base_of_v<Resource, ResourceType>, ResourceHandle<ResourceType>>;
+
 public:
-	C_ResourceManager(const C_ResourceManager& other)									  = delete;
-	C_ResourceManager(C_ResourceManager&& other) noexcept								  = delete;
-	C_ResourceManager&						operator=(const C_ResourceManager& other)	  = delete;
+	C_ResourceManager(const C_ResourceManager& other)	  = delete;
+	C_ResourceManager(C_ResourceManager&& other) noexcept = delete;
+	C_ResourceManager&						operator=(const C_ResourceManager& other) = delete;
 	C_ResourceManager&						operator=(C_ResourceManager&& other) noexcept = delete;
 	[[nodiscard]] static C_ResourceManager& Instance();
 
