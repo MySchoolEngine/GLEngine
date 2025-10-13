@@ -40,7 +40,7 @@ rttr::variant C_XMLDeserializer::DeserializeDoc(const pugi::xml_document& docume
 rttr::variant C_XMLDeserializer::DeserializeNode(const pugi::xml_node& node, rttr::variant& var)
 {
 	using namespace ::Utils::Reflection;
-	const rttr::instance var2  = var.get_type().get_raw_type().is_wrapper() ? rttr::instance(var).get_wrapped_instance() : rttr::instance(var);
+	const rttr::instance var2 = var.get_type().get_raw_type().is_wrapper() ? rttr::instance(var).get_wrapped_instance() : rttr::instance(var);
 
 	auto type = var2.get_type();
 	if (type.is_pointer())
@@ -92,7 +92,7 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 		{
 			if (const auto attribute = node.attribute(propertyName.c_str()))
 			{
-				auto var	   = prop.get_value(owner);
+				auto var = prop.get_value(owner);
 				var.convert(prop.get_type());
 				const rttr::variant return_value = deserializeStringFunction.invoke({}, std::string(attribute.as_string()), var);
 				if (!return_value.is_valid() || !return_value.is_type<bool>() || return_value.get_value<bool>() != true)
@@ -303,41 +303,51 @@ void C_XMLDeserializer::DeserializeAssociativeArray(const pugi::xml_node& child,
 		else
 			CORE_LOG(E_Level::Error, E_Context::Core, "Well, not implemented. Yet?");
 
-		if (IsAtomicType(valueType))
+		if (view.is_key_only_type() == false)
 		{
-			DeserializeAtomic(childNode.child("value").attribute("value"), valueType, valueVar);
-			if (!valueVar.is_valid())
-				CORE_LOG(E_Level::Error, E_Context::Core, "FAILED.");
+			if (IsAtomicType(valueType))
+			{
+				DeserializeAtomic(childNode.child("value").attribute("value"), valueType, valueVar);
+				if (!valueVar.is_valid())
+					CORE_LOG(E_Level::Error, E_Context::Core, "FAILED.");
+			}
+			else
+			{
+				auto valueNode = childNode.child("value");
+				if (!valueNode)
+				{
+					CORE_LOG(E_Level::Error, E_Context::Core, "Missing value node in associative array.");
+				}
+				const auto node = *valueNode.children().begin();
+				const auto type = rttr::type::get_by_name(node.name());
+				if (type.is_valid() == false)
+					continue;
+				valueVar = type.create();
+				if (!valueVar.is_valid())
+				{
+					CORE_LOG(E_Level::Error, E_Context::Core, "Could not instantiate type '{}'", type);
+					continue;
+				}
+				valueVar = DeserializeNode(node, valueVar);
+				if (!valueVar.convert(view.get_value_type()))
+				{
+					CORE_LOG(E_Level::Error, E_Context::Core, "Cannot convert to the value type {} to {}.", valueVar.get_type(), view.get_value_type());
+					continue;
+				}
+				FinishDeserialization(type, valueVar);
+			}
+
+			if (view.insert(keyVar, valueVar).second == false)
+			{
+				CORE_LOG(E_Level::Error, E_Context::Core, "Something happened.");
+			}
 		}
 		else
 		{
-			auto valueNode = childNode.child("value");
-			if (!valueNode)
+			if (view.insert(keyVar).second == false)
 			{
-				CORE_LOG(E_Level::Error, E_Context::Core, "Missing value node in associative array.");
+				CORE_LOG(E_Level::Error, E_Context::Core, "Something happened.");
 			}
-			const auto node = *valueNode.children().begin();
-			const auto type = rttr::type::get_by_name(node.name());
-			if (type.is_valid() == false)
-				continue;
-			valueVar = type.create();
-			if (!valueVar.is_valid())
-			{
-				CORE_LOG(E_Level::Error, E_Context::Core, "Could not instantiate type '{}'", type);
-				continue;
-			}
-			valueVar = DeserializeNode(node, valueVar);
-			if (!valueVar.convert(view.get_value_type()))
-			{
-				CORE_LOG(E_Level::Error, E_Context::Core, "Cannot convert to the value type {} to {}.", valueVar.get_type(), view.get_value_type());
-				continue;
-			}
-			FinishDeserialization(type, valueVar);
-		}
-
-		if (view.insert(keyVar, valueVar).second == false)
-		{
-			CORE_LOG(E_Level::Error, E_Context::Core, "Something happened.");
 		}
 	}
 }
