@@ -2,6 +2,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - 14-10-2025
+### Added
+- Added support for std::set for serialize/deserialize
+
 ## [Unreleased] - 12-10-2025
 ### Fixed
 - Resource manager with buildable resources
