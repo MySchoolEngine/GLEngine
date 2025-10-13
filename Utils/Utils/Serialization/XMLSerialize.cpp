@@ -106,7 +106,7 @@ void C_XMLSerializer::WriteProperty(const rttr::property& prop, const rttr::inst
 	}
 	else
 	{
-		auto propNode = parent.append_child(prop.get_name().to_string().c_str());
+		auto	   propNode = parent.append_child(prop.get_name().to_string().c_str());
 		const auto type		= prop.get_type();
 		if (type.get_raw_type().is_wrapper())
 		{
@@ -273,6 +273,7 @@ void C_XMLSerializer::WriteAssociativeArray(const rttr::variant_associative_view
 				SerializeObject(key, keyNode.append_child(GetNodeName(type).to_string().c_str()));
 			}
 		}
+		if (view.is_key_only_type() == false)
 		{
 			auto		  valueNode = itemNode.append_child("value");
 			rttr::variant value		= item.second;

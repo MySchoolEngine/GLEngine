@@ -83,6 +83,12 @@ struct MapStruct {
 	std::map<std::string, TestEnum>						   m_StringToEnumMap;
 	std::map<int, TestEnum>								   m_IntToEnumMap;
 };
+
+struct SetTypesStruct {
+	std::set<int>		  m_IntSet;
+	std::set<std::string> m_StringSet;
+	std::set<TestEnum>	  m_EnumSet;
+};
 // clang-format off
 RTTR_REGISTRATION
 {
@@ -214,6 +220,12 @@ RTTR_REGISTRATION
 		.property("enumToStringMap", &MapStruct::m_EnumToStringMap)
 		.property("stringToEnumMap", &MapStruct::m_StringToEnumMap)
 		.property("intToEnumMap", &MapStruct::m_IntToEnumMap);
+
+	rttr::registration::class_<SetTypesStruct>("SetTypesStruct")
+		.constructor<>()
+		.property("intSet", &SetTypesStruct::m_IntSet)
+		.property("stringSet", &SetTypesStruct::m_StringSet)
+		.property("enumSet", &SetTypesStruct::m_EnumSet);
 }
 // clang-format on
 
@@ -730,6 +742,72 @@ TEST_F(XMLDeserializeFixture, MapStructDeserialize)
 		EXPECT_EQ(obj->m_IntToEnumMap.size(), 2);
 		EXPECT_EQ(obj->m_IntToEnumMap.at(0), TestEnum::Value1);
 		EXPECT_EQ(obj->m_IntToEnumMap.at(2), TestEnum::Value3);
+	}
+}
+
+TEST_F(XMLDeserializeFixture, SetTypesStructDeserialize)
+{
+	const pugi::xml_document doc = ConstructDocument(R"x(
+<?xml version="1.0"?>
+<SetTypesStruct>
+	<intSet>
+		<item>
+			<key value="1" />
+		</item>
+		<item>
+			<key value="2" />
+		</item>
+		<item>
+			<key value="3" />
+		</item>
+		<item>
+			<key value="5" />
+		</item>
+	</intSet>
+	<stringSet>
+		<item>
+			<key value="Models/lada/lada.tri" />
+		</item>
+		<item>
+			<key value="hello" />
+		</item>
+		<item>
+			<key value="world" />
+		</item>
+	</stringSet>
+	<enumSet>
+		<item>
+			<key value="Value1" />
+		</item>
+		<item>
+			<key value="Value3" />
+		</item>
+	</enumSet>
+</SetTypesStruct>)x");
+
+	const auto result = deserializer.Deserialize<std::shared_ptr<SetTypesStruct>>(doc);
+	EXPECT_TRUE(result.has_value());
+	if (result.has_value())
+	{
+		const auto& obj = result.value();
+
+		// Test int set
+		EXPECT_EQ(obj->m_IntSet.size(), 4);
+		EXPECT_TRUE(obj->m_IntSet.contains(1));
+		EXPECT_TRUE(obj->m_IntSet.contains(2));
+		EXPECT_TRUE(obj->m_IntSet.contains(3));
+		EXPECT_TRUE(obj->m_IntSet.contains(5));
+
+		// Test string set
+		EXPECT_EQ(obj->m_StringSet.size(), 3);
+		EXPECT_TRUE(obj->m_StringSet.contains("Models/lada/lada.tri"));
+		EXPECT_TRUE(obj->m_StringSet.contains("hello"));
+		EXPECT_TRUE(obj->m_StringSet.contains("world"));
+
+		// Test enum set
+		EXPECT_EQ(obj->m_EnumSet.size(), 2);
+		EXPECT_TRUE(obj->m_EnumSet.contains(TestEnum::Value1));
+		EXPECT_TRUE(obj->m_EnumSet.contains(TestEnum::Value3));
 	}
 }
 
