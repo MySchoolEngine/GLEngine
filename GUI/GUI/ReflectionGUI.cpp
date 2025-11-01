@@ -41,6 +41,14 @@ bool DrawVec3(rttr::instance& obj, const rttr::property& prop)
 }
 
 //=================================================================================
+bool DrawiVec2(rttr::instance& obj, const rttr::property& prop)
+{
+	using namespace ::Utils::Reflection;
+
+	return ::ImGui::InputInt2(GetMetadataMember<UI::iVec2::Name>(prop).c_str(), (int*)(&prop.get_value(obj).get_wrapped_value<glm::ivec2>()));
+}
+
+//=================================================================================
 bool DrawCheckbox(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
@@ -314,6 +322,10 @@ bool DrawPropertyGUI(rttr::instance& obj, const rttr::property& prop)
 	if (UI::IsUIMetaclass<MetaGUI::Vec3>(prop))
 	{
 		return DrawVec3(obj, prop);
+	}
+	else if (UI::IsUIMetaclass<MetaGUI::iVec2>(prop))
+	{
+		return DrawiVec2(obj, prop);
 	}
 	else if (UI::IsUIMetaclass<MetaGUI::Checkbox>(prop))
 	{
