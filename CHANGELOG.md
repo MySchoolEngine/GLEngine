@@ -2,6 +2,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+
+## [Unreleased] - 01-11-2025
+### Added
+- Image editor radial wave generation
+- Image editor file saving
+### Fixed
+- Brick generator GUI
+
 ## [Unreleased] - 14-10-2025
 ### Added
 - Added support for std::set for serialize/deserialize
