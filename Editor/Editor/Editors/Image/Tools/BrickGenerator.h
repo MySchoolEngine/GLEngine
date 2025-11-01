@@ -12,11 +12,11 @@ namespace GLEngine::Editor {
 class C_BrickGenerator : public C_ImageEditorTool {
 public:
 	C_BrickGenerator(Renderer::C_TextureView view);
-	RTTR_ENABLE(C_ImageEditorTool);
-	RTTR_REGISTRATION_FRIEND;
 
 	void Apply() override;
 
+	RTTR_ENABLE(C_ImageEditorTool)
+	RTTR_REGISTRATION_FRIEND
 private:
 	int m_RowHeight;
 	int m_BrickWidth;

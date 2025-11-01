@@ -1,6 +1,7 @@
 #include <EditorStdafx.h>
 
 #include <Editor/Editors/Image/Tools/BrickGenerator.h>
+#include <Editor/Editors/Image/Tools/WaveGenerator.h>
 #include <Editor/Editors/ImageEditor.h>
 #include <Editor/Editors/ImageEditorTool.h>
 
@@ -9,6 +10,7 @@
 #include <Renderer/IRenderer.h>
 #include <Renderer/Render/CPURasterizer.h>
 #include <Renderer/Resources/ResourceManager.h>
+#include <Renderer/Textures/TextureLoader.h>
 #include <Renderer/Textures/TextureView.h>
 
 #include <GUI/FileDialogWindow.h>
@@ -49,12 +51,18 @@ C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 		m_ActiveTool = std::make_unique<C_GaussianBlur>(Renderer::C_TextureView(&m_Storage));
 		return true;
 	}));
+	m_Tools.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Wave", [&]() {
+		m_ActiveTool = std::make_unique<C_WaveGenerator>(Renderer::C_TextureView(&m_Storage));
+		return true;
+	}));
 	std::reference_wrapper<GUI::Menu::C_MenuItem> createMenuItem = guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>(std::string("Save as..."), [&]() {
 		const auto textureSelectorGUID = NextGUID();
 		auto*	   textureSelectWindow = new GUI::C_FileDialogWindow(
 			 ".bmp,.hdr,.ppm", "Save image as...",
 			 [&, textureSelectorGUID](const std::filesystem::path& texture, GUI::C_GUIManager& guiMgr) {
 				 // TODO save here
+				 Renderer::Textures::TextureLoader tl;
+				 tl.SaveTexture(texture, &m_Storage);
 				 guiMgr.DestroyWindow(textureSelectorGUID);
 			 },
 			 textureSelectorGUID, "./Images");
@@ -182,11 +190,11 @@ void C_ImageEditor::CreateTextures(Renderer::I_Renderer& renderer)
 			.m_WrapU	 = E_WrapFunction::Repeat,
 		});
 		m_Background		  = renderer.GetRM().createTexture(Renderer::TextureDescriptor{.name		  = "Transparent background",
-																				   .width		  = s_BackgroundDim.x,
-																				   .height		  = s_BackgroundDim.y,
-																				   .type		  = Renderer::E_TextureType::TEXTURE_2D,
-																				   .format		  = Renderer::E_TextureFormat::RGB32f,
-																				   .m_bStreamable = false});
+																						   .width		  = s_BackgroundDim.x,
+																						   .height		  = s_BackgroundDim.y,
+																						   .type		  = Renderer::E_TextureType::TEXTURE_2D,
+																						   .format		  = Renderer::E_TextureFormat::RGB32f,
+																						   .m_bStreamable = false});
 		renderer.SetTextureSampler(m_Background, GPUSamplerHandle);
 	}
 

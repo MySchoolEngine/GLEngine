@@ -16,6 +16,7 @@ namespace GLEngine::Editor {
 // this.
 class C_ImageEditorTool {
 public:
+	virtual ~C_ImageEditorTool() = default;
 	// reflection GUI create the view
 	// needs access to the storage
 	C_ImageEditorTool(Renderer::C_TextureView view); // can be performed on whole image or just part of it

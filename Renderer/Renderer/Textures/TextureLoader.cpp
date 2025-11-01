@@ -162,7 +162,18 @@ bool TextureLoader::SaveTexture(const std::filesystem::path& path, I_TextureView
 	ilGenImages(1, &image);
 	ilBindImage(image);
 
-	ilTexImage(view->GetDimensions().x, view->GetDimensions().y, 1, view->GetNumElements(), IL_RGB, IL_FLOAT, view->GetData());
+	if (view->GetChannels() == T_Channels{E_TextureChannel::Red, E_TextureChannel::Green, E_TextureChannel::Blue, E_TextureChannel::None})
+	{
+		ilTexImage(view->GetDimensions().x, view->GetDimensions().y, 1, view->GetNumElements(), IL_RGB, IL_FLOAT, view->GetData());
+	}
+	else if (view->GetChannels() == T_Channels{E_TextureChannel::Red, E_TextureChannel::Green, E_TextureChannel::Blue, E_TextureChannel::Alpha})
+	{
+		ilTexImage(view->GetDimensions().x, view->GetDimensions().y, 1, view->GetNumElements(), IL_RGBA, IL_FLOAT, view->GetData());
+	}
+	else
+	{
+		GLE_ERROR("Unknown format");
+	}
 	Utils::C_ScopeFinalizer finalizer([image]() { ilDeleteImage(image); });
 
 	bool result;

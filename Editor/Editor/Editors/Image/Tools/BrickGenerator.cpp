@@ -15,47 +15,47 @@ RTTR_REGISTRATION
 
 	rttr::registration::class_<C_BrickGenerator>("C_BrickGenerator")
 		.property("Height", &C_BrickGenerator::m_RowHeight)(
-			rttr::policy::prop::bind_as_ptr,
+			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::SliderInt>(),
 			RegisterMetamember<UI::SliderInt::Name>("Row height:"),
 			RegisterMetamember<UI::SliderInt::Min>(1),
 			RegisterMetamember<UI::SliderInt::Max>(100))
 		.property("BrickWidth", &C_BrickGenerator::m_BrickWidth)(
-			rttr::policy::prop::bind_as_ptr,
+			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::SliderInt>(),
 			RegisterMetamember<UI::SliderInt::Name>("Row width:"),
 			RegisterMetamember<UI::SliderInt::Min>(1),
 			RegisterMetamember<UI::SliderInt::Max>(100))
 		.property("BrickOffset", &C_BrickGenerator::m_BrickOffset)(
-			rttr::policy::prop::bind_as_ptr,
+			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::SliderInt>(),
 			RegisterMetamember<UI::SliderInt::Name>("Brick offset:"),
 			RegisterMetamember<UI::SliderInt::Min>(1),
 			RegisterMetamember<UI::SliderInt::Max>(100))
 //#pragma region Randomness
 		.property("RowHeightDeviation", &C_BrickGenerator::m_RowHeightDeviation)(
-			rttr::policy::prop::bind_as_ptr,
+			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::SliderInt>(),
 			RegisterMetamember<MetaGUIInfo::CollapsableGroup>("Randomness"),
 			RegisterMetamember<UI::SliderInt::Name>("Row height deviation:"),
 			RegisterMetamember<UI::SliderInt::Min>(1),
 			RegisterMetamember<UI::SliderInt::Max>(100))
 		.property("BrickWidthDeviation", &C_BrickGenerator::m_BrickWidthDeviation)(
-			rttr::policy::prop::bind_as_ptr,
+			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::SliderInt>(),
 			RegisterMetamember<MetaGUIInfo::CollapsableGroup>("Randomness"),
 			RegisterMetamember<UI::SliderInt::Name>("Brick width deviation:"),
 			RegisterMetamember<UI::SliderInt::Min>(1),
 			RegisterMetamember<UI::SliderInt::Max>(100))
 		.property("MortarWidthDeviation", &C_BrickGenerator::m_MortarWidthDeviation)(
-			rttr::policy::prop::bind_as_ptr,
+			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::SliderInt>(),
 			RegisterMetamember<MetaGUIInfo::CollapsableGroup>("Randomness"),
 			RegisterMetamember<UI::SliderInt::Name>("Mortar width deviation:"),
 			RegisterMetamember<UI::SliderInt::Min>(1),
 			RegisterMetamember<UI::SliderInt::Max>(100))
 		.property("MortarHeightDeviation", &C_BrickGenerator::m_MortarHeightDeviation)(
-			rttr::policy::prop::bind_as_ptr,
+			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::SliderInt>(),
 			RegisterMetamember<MetaGUIInfo::CollapsableGroup>("Randomness"),
 			RegisterMetamember<UI::SliderInt::Name>("Mortar height deviation:"),
@@ -63,17 +63,17 @@ RTTR_REGISTRATION
 			RegisterMetamember<UI::SliderInt::Max>(100))
 //#pragma endregion
 		.property("MortarThickness", &C_BrickGenerator::m_MortarThickness)(
-			rttr::policy::prop::bind_as_ptr,
+			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::SliderInt>(),
 			RegisterMetamember<UI::SliderInt::Name>("Mortar thickness:"),
 			RegisterMetamember<UI::SliderInt::Min>(1),
 			RegisterMetamember<UI::SliderInt::Max>(100))
 		.property("BrickColour", &C_BrickGenerator::m_BrickColour)(
-			rttr::policy::prop::bind_as_ptr,
+			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::Colour>(),
 			RegisterMetamember<UI::Colour::Name>("Brick colour:"))
 		.property("MortarColour", &C_BrickGenerator::m_MortarColour)(
-			rttr::policy::prop::bind_as_ptr,
+			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::Colour>(),
 			RegisterMetamember<UI::Colour::Name>("Mortar colour:")
 			);

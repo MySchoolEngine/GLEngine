@@ -149,6 +149,7 @@ enum class MetaGUI : std::uint8_t {
 	Angle,
 	Colour,
 	Vec3,
+	iVec2,
 	Checkbox,
 	Texture,
 	MeshResource,
@@ -191,6 +192,9 @@ template <> struct UIMetaclassToType<MetaGUI::Colour> {
 };
 template <> struct UIMetaclassToType<MetaGUI::Vec3> {
 	using type = glm::vec3;
+};
+template <> struct UIMetaclassToType<MetaGUI::iVec2> {
+	using type = glm::ivec2;
 };
 template <> struct UIMetaclassToType<MetaGUI::Checkbox> {
 	using type = bool;
@@ -266,6 +270,10 @@ enum class Vec3 : std::uint8_t
 	Name,
 };
 
+enum class iVec2 : std::uint8_t {
+	Name,
+};
+
 enum class Checkbox : std::uint8_t
 {
 	Name,
@@ -310,6 +318,9 @@ REGISTER_META_MEMBER_TYPE(UI::Colour::Name, std::string);
 
 REGISTER_META_CLASS(UI::Vec3, MetaGUI);
 REGISTER_META_MEMBER_TYPE(UI::Vec3::Name, std::string);
+
+REGISTER_META_CLASS(UI::iVec2, MetaGUI);
+REGISTER_META_MEMBER_TYPE(UI::iVec2::Name, std::string);
 
 REGISTER_META_CLASS(UI::Checkbox, MetaGUI);
 REGISTER_META_MEMBER_TYPE(UI::Checkbox::Name, std::string);
