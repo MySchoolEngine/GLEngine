@@ -10,6 +10,7 @@
 #include <Renderer/IRenderer.h>
 #include <Renderer/Render/CPURasterizer.h>
 #include <Renderer/Resources/ResourceManager.h>
+#include <Renderer/Textures/TextureLoader.h>
 #include <Renderer/Textures/TextureView.h>
 
 #include <GUI/FileDialogWindow.h>
@@ -60,6 +61,8 @@ C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 			 ".bmp,.hdr,.ppm", "Save image as...",
 			 [&, textureSelectorGUID](const std::filesystem::path& texture, GUI::C_GUIManager& guiMgr) {
 				 // TODO save here
+				 Renderer::Textures::TextureLoader tl;
+				 tl.SaveTexture(texture, &m_Storage);
 				 guiMgr.DestroyWindow(textureSelectorGUID);
 			 },
 			 textureSelectorGUID, "./Images");
