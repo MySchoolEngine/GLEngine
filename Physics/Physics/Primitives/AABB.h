@@ -170,6 +170,26 @@ public:
 		return (extent.x * extent.y + extent.y * extent.z + extent.z * extent.x) * 2.f;
 	}
 
+	[[nodiscard]] constexpr bool Contains(const glm::vec3& point) const
+	{
+		if (!m_Initialised)
+		{
+			return false;
+		}
+		return point.x >= m_Min.x && point.x <= m_Max.x &&
+			   point.y >= m_Min.y && point.y <= m_Max.y &&
+			   point.z >= m_Min.z && point.z <= m_Max.z;
+	}
+
+	[[nodiscard]] constexpr bool Contains(const S_AABB& other) const
+	{
+		if (!m_Initialised || !other.m_Initialised)
+		{
+			return false;
+		}
+		return Contains(other.m_Min) && Contains(other.m_Max);
+	}
+
 	glm::vec3 m_Min;
 	glm::vec3 m_Max;
 	bool	  m_Initialised;
