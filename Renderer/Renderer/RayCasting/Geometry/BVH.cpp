@@ -74,6 +74,30 @@ void BVH::Build()
 }
 
 //=================================================================================
+unsigned int BVH::ComputeMaxDepth() const
+{
+	if (m_Nodes.empty())
+		return 0;
+
+	std::function<unsigned int(const BVHNode&)> computeDepth = [&](const BVHNode& node) -> unsigned int {
+		if (node.IsLeaf())
+			return 1;
+
+		unsigned int leftDepth	= 0;
+		unsigned int rightDepth = 0;
+
+		if (node.left != s_InvalidBVHNode)
+			leftDepth = computeDepth(m_Nodes[node.left]);
+		if (node.right != s_InvalidBVHNode)
+			rightDepth = computeDepth(m_Nodes[node.right]);
+
+		return 1 + std::max(leftDepth, rightDepth);
+	};
+
+	return computeDepth(m_Nodes[0]);
+}
+
+//=================================================================================
 void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<glm::vec3>& centroids)
 {
 	if (level > 10)
@@ -168,7 +192,7 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<
 	right.firstTrig = leftSorting + 3; // not using rightSorting to count in all triangles
 	right.lastTrig	= node.lastTrig;
 
-	GLE_ASSERT(left.NumTrig() + right.NumTrig() == node.NumTrig(), "The children nodes triangels sum should be equal to parent trigs.");
+	GLE_ASSERT(left.NumTrig() + right.NumTrig() == node.NumTrig(), "The children nodes triangles sum should be equal to parent trigs.");
 
 	// build AABBs
 	for (unsigned int i = left.firstTrig; i < left.lastTrig + 3; ++i)

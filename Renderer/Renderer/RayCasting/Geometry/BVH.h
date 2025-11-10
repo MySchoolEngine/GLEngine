@@ -28,8 +28,9 @@ public:
 
 	void Build();
 
-	RTTR_ENABLE();
-	RTTR_REGISTRATION_FRIEND;
+	unsigned int ComputeMaxDepth() const;
+
+	RTTR_REGISTRATION_FRIEND
 
 private:
 	using T_BVHNodeID							  = unsigned short;
@@ -40,9 +41,9 @@ private:
 		T_BVHNodeID					right = s_InvalidBVHNode;
 		unsigned int				firstTrig, lastTrig; // index of first vertex
 
-		constexpr unsigned int NumTrig() const { return (lastTrig - firstTrig) / 3 + 1; }
-		RTTR_ENABLE();
-		RTTR_REGISTRATION_FRIEND;
+		[[nodiscard]] bool IsLeaf() const { return left == s_InvalidBVHNode && right == s_InvalidBVHNode; }
+
+		[[nodiscard]] constexpr unsigned int NumTrig() const { return (lastTrig - firstTrig) / 3 + 1; }
 	};
 	[[nodiscard]] bool IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, const BVHNode* node) const;
 	void			   DebugDrawNode(I_DebugDraw* dd, const glm::mat4& modelMatrix, const BVHNode* node, unsigned int level) const;
