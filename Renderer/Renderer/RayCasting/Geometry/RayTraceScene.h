@@ -52,7 +52,7 @@ public:
 
 	[[nodiscard]] C_TextureView GetTextureView(int textureID) const;
 
-	void DebugDraw(I_DebugDraw* dd) const;
+	void DebugDraw(I_DebugDraw& dd) const;
 
 	[[nodiscard]] bool IsLoaded() const;
 	void			   BuildScene(); //< Call after fully loaded

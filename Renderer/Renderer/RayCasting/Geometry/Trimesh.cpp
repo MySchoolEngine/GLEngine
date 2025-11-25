@@ -117,7 +117,7 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 
 	intersection = closestIntersect.intersection;
 	intersection.TransformRayAndPoint(m_Transofrm);
-	intersection.SetRayLength(glm::distance(intersection.GetRay().origin, intersection.GetIntersectionPoint())); // todo tady mohu použít length ne?
+	intersection.SetRayLength(glm::distance(intersection.GetRay().origin, intersection.GetIntersectionPoint())); // todo tady mohu pouï¿½ï¿½t length ne?
 	return true;
 }
 
@@ -140,7 +140,7 @@ void C_Trimesh::SetTransformation(glm::mat4 mat)
 }
 
 //=================================================================================
-void C_Trimesh::DebugDraw(I_DebugDraw* dd) const
+void C_Trimesh::DebugDraw(I_DebugDraw& dd) const
 {
 	if (m_BVH)
 		m_BVH->DebugDraw(dd, m_Transofrm);

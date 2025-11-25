@@ -30,7 +30,7 @@ public:
 
 	void SetScene(Entity::C_EntityManager& world);
 
-	void DebugDraw(I_DebugDraw* dd) const;
+	void DebugDraw(I_DebugDraw& dd) const;
 
 	void RayTrace();
 	void Clear();

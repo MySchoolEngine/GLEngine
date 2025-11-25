@@ -35,7 +35,7 @@ public:
 
 	std::size_t GetNumTriangles() const;
 
-	void DebugDraw(I_DebugDraw* dd) const;
+	void DebugDraw(I_DebugDraw& dd) const;
 
 	RTTR_ENABLE();
 	RTTR_REGISTRATION_FRIEND;
