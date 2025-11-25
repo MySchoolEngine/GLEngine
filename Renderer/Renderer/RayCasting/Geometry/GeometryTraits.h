@@ -33,6 +33,8 @@ public:
 	static void FillIntersection(const Physics::Primitives::S_Disc& disc, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection);
 	static void FillIntersection(const Physics::Primitives::S_Sphere& sphere, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection);
 	static void FillIntersection(const Physics::Primitives::S_Triangle& triangle, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection);
+
+	static void BarycentricInterpolation(const glm::vec2& barycentric, const glm::vec2* attribute, glm::vec2& result);
 };
 
 } // namespace GLEngine::Renderer::RayTracing
