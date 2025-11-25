@@ -204,12 +204,12 @@ bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInte
 {
 	struct S_IntersectionInfo {
 		C_RayIntersection	 intersection;
-		float				 t;
-		I_RayGeometryObject* object;
+		float				 t		= std::numeric_limits<float>::infinity();
+		I_RayGeometryObject* object = nullptr;
 
 		[[nodiscard]] bool operator<(const S_IntersectionInfo& a) const { return t < a.t; }
 	};
-	S_IntersectionInfo closestIntersect{.intersection = C_RayIntersection(), .t = std::numeric_limits<float>::max(), .object = nullptr};
+	S_IntersectionInfo closestIntersect{.intersection = C_RayIntersection()};
 
 	std::for_each(m_Objects.begin(), m_Objects.end(), [&](const auto& object) {
 		C_RayIntersection inter;
@@ -220,7 +220,7 @@ bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInte
 		}
 	});
 
-	if (closestIntersect.t == std::numeric_limits<float>::max())
+	if (std::isinf(closestIntersect.t))
 		return false;
 
 	intersection  = closestIntersect.intersection;

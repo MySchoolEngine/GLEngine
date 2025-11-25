@@ -256,14 +256,14 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection
 	// we are in the leaf node
 	struct S_IntersectionInfo {
 		C_RayIntersection intersection;
-		float			  t;
+		float			  t = std::numeric_limits<float>::infinity();
 
 		[[nodiscard]] bool operator<(const S_IntersectionInfo& a) const { return t < a.t; }
 	};
-	S_IntersectionInfo closestIntersect{C_RayIntersection(), std::numeric_limits<float>::max()};
+	S_IntersectionInfo closestIntersect{.intersection = C_RayIntersection()};
 
 	glm::vec2 barycentric;
-	auto&	  storage = *m_Storage;
+	const auto&	  storage = *m_Storage;
 
 	for (unsigned int i = node->firstTrig; i <= node->lastTrig; i += 3)
 	{
@@ -276,15 +276,15 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection
 				continue;
 			}
 			auto	   normal = glm::cross(storage[i + 1] - storage[i], storage[i + 2] - storage[i]);
-			const auto area	  = glm::length(normal) / 2.f;
+			//const auto area	  = glm::length(normal) / 2.f;
 			normal			  = glm::normalize(normal);
 			C_RayIntersection inter(S_Frame(normal), ray.origin + length * ray.direction, Physics::Primitives::S_Ray(ray));
 			inter.SetRayLength(length);
 
-			closestIntersect = {inter, length};
+			closestIntersect = {.intersection = inter, .t = length};
 		}
 	}
-	if (closestIntersect.t == std::numeric_limits<float>::max())
+	if (std::isinf(closestIntersect.t))
 		return false;
 
 
