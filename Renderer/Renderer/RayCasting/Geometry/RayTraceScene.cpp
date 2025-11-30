@@ -76,22 +76,22 @@ C_RayTraceScene::C_RayTraceScene()
 
 	DISABLE
 	{
-		// left wall - red
+		// left wall - green
 		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, -1.5f, 3.f}, {-3.f, -1.5f, -3.f}, {-3.f, 1.5f, -3.f}));
 		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, -1.5f, 3.f}, {-3.f, 1.5f, -3.f}, {-3.f, 1.5f, 3.f}));
-		triangle->SetMaterial(redMat);
-		triangle1->SetMaterial(redMat);
+		triangle->SetMaterial(greenMat);
+		triangle1->SetMaterial(greenMat);
 		AddObject(triangle);
 		AddObject(triangle1);
 	}
 
 	DISABLE
 	{
-		// left wall - green
+		// left wall - red
 		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({3.f, -1.5f, 3.f}, {3.f, 1.5f, -3.f}, {3.f, -1.5f, -3.f}));
 		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({3.f, -1.5f, 3.f}, {3.f, 1.5f, 3.f}, {3.f, 1.5f, -3.f}));
-		triangle->SetMaterial(greenMat);
-		triangle1->SetMaterial(greenMat);
+		triangle->SetMaterial(redMat);
+		triangle1->SetMaterial(redMat);
 		AddObject(triangle);
 		AddObject(triangle1);
 	}
