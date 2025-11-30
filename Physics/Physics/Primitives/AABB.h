@@ -11,15 +11,14 @@ namespace GLEngine::Physics::Primitives {
 struct S_AABB : public T_Intersectable<S_AABB> {
 public:
 	constexpr S_AABB()
-		: m_Min(0.0f, 0.0f, 0.0f)
-		, m_Max(0.0f, 0.0f, 0.0f)
-		, m_Initialised(false)
+		: m_Min(std::numeric_limits<float>::infinity())
+		, m_Max(std::numeric_limits<float>::infinity())
 	{
 	}
 
 	[[nodiscard]] inline float IntersectImpl(const S_Ray& ray) const
 	{
-		if (!m_Initialised)
+		if (!IsInitialized())
 		{
 			return -1.0f;
 		}
@@ -93,10 +92,9 @@ public:
 
 	constexpr void Add(const glm::vec3& point)
 	{
-		if (!m_Initialised)
+		if (!IsInitialized())
 		{
 			m_Min = m_Max = point;
-			m_Initialised = true;
 			return;
 		}
 
@@ -111,7 +109,7 @@ public:
 	constexpr void Add(const glm::vec4& point) { Add(glm::vec3(point)); }
 	constexpr void Add(const S_AABB& bbox)
 	{
-		if (!bbox.m_Initialised)
+		if (!bbox.IsInitialized())
 		{
 			return;
 		}
@@ -144,7 +142,7 @@ public:
 	}
 	[[nodiscard]] constexpr S_AABB getTransformedAABB(const glm::mat4& matrix) const
 	{
-		if (!m_Initialised)
+		if (!IsInitialized())
 		{
 			return {};
 		}
@@ -172,7 +170,7 @@ public:
 
 	[[nodiscard]] constexpr bool Contains(const glm::vec3& point) const
 	{
-		if (!m_Initialised)
+		if (!IsInitialized())
 		{
 			return false;
 		}
@@ -183,15 +181,20 @@ public:
 
 	[[nodiscard]] constexpr bool Contains(const S_AABB& other) const
 	{
-		if (!m_Initialised || !other.m_Initialised)
+		if (!IsInitialized() || !other.IsInitialized())
 		{
 			return false;
 		}
 		return Contains(other.m_Min) && Contains(other.m_Max);
 	}
 
+	[[nodiscard]] constexpr bool IsInitialized() const
+	{
+		// std::isinf is constexpr only after C++23
+		return m_Min.x != std::numeric_limits<float>::infinity();
+	}
+
 	glm::vec3 m_Min;
 	glm::vec3 m_Max;
-	bool	  m_Initialised;
 };
 } // namespace GLEngine::Physics::Primitives
