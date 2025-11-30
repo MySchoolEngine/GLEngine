@@ -63,7 +63,7 @@ void BVH::Build()
 	root.lastTrig  = static_cast<unsigned int>(m_Storage->size()) - 3;
 	std::vector<glm::vec3> centroids;
 	centroids.reserve(root.NumTrig());
-	const auto			   trigCenter = [](const glm::vec3* triDef) { return (triDef[0] + triDef[1] + triDef[2]) / 3.f; };
+	const auto trigCenter = [](const glm::vec3* triDef) { return (triDef[0] + triDef[1] + triDef[2]) / 3.f; };
 
 	for (unsigned int i = root.firstTrig; i < root.lastTrig + 3; i += 3)
 	{
@@ -118,7 +118,7 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<
 		for (unsigned int i = m_Nodes[nodeId].firstTrig; i < m_Nodes[nodeId].lastTrig + 3; i += 3)
 		{
 			const glm::vec3* triDef			 = &(m_Storage->at(i));
-			const float		 currentCentroid = centroids[i/3][axe];
+			const float		 currentCentroid = centroids[i / 3][axe];
 			const float		 cost			 = CalcSAHCost(m_Nodes[nodeId], axe, currentCentroid, centroids);
 			if (cost < bestCost)
 			{
@@ -129,7 +129,8 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<
 			}
 		}
 	}
-	if (bestCost >= parentCost) {
+	if (bestCost >= parentCost)
+	{
 		return;
 	}
 	m_Nodes.emplace_back();
@@ -139,12 +140,12 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<
 	const T_BVHNodeID rightNodeId = static_cast<T_BVHNodeID>(m_Nodes.size()) - 1;
 	m_Nodes[nodeId].right		  = rightNodeId;
 	// now I can store references, because I am not adding new elements
-	auto&			   left	   = m_Nodes[leftNodeId];
-	auto&			   right   = m_Nodes[rightNodeId];
-	auto&			   node	   = m_Nodes[nodeId];
+	auto& left	= m_Nodes[leftNodeId];
+	auto& right = m_Nodes[rightNodeId];
+	auto& node	= m_Nodes[nodeId];
 
-	const unsigned int axis = bestAxis;
-	const float average = bestAverage;
+	const unsigned int axis	   = bestAxis;
+	const float		   average = bestAverage;
 
 	unsigned int leftSorting = node.firstTrig, rightSorting = node.lastTrig;
 	while (leftSorting < rightSorting)
@@ -211,47 +212,48 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<
 //=================================================================================
 bool BVH::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
 {
-	return IntersectNode(ray, intersection, &m_Nodes[0]);
+	return IntersectNode(ray, intersection, m_Nodes[0]);
 }
 
 //=================================================================================
-bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, const BVHNode* node) const
+bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, const BVHNode& node) const
 {
-	if (node->aabb.IntersectImpl(ray) <= 0.f)
-		return false;
-	else
+	// I am not sure about the inside
+	if (!node.aabb.Contains(ray.origin) && node.aabb.IntersectImpl(ray) <= 0.f)
 	{
-		if (node->left != s_InvalidBVHNode || node->right != s_InvalidBVHNode)
+		return false;
+	}
+
+	if (node.IsLeaf() == false)
+	{
+		// we can have hit from both sides as sides can overlap
+		C_RayIntersection intersections[2];
+		bool			  intersectionsResults[2] = {false, false};
+		if (node.left != s_InvalidBVHNode)
+			intersectionsResults[0] = IntersectNode(ray, intersections[0], m_Nodes[node.left]);
+		if (node.right != s_InvalidBVHNode)
+			intersectionsResults[1] = IntersectNode(ray, intersections[1], m_Nodes[node.right]);
+		// find closer intersection
+		if (intersectionsResults[0] && intersectionsResults[1])
 		{
-			// we can have hit from both sides as sides can overlap
-			C_RayIntersection intersections[2];
-			bool			  intersectionsResults[2] = {false, false};
-			if (node->left != s_InvalidBVHNode)
-				intersectionsResults[0] = IntersectNode(ray, intersections[0], &m_Nodes[node->left]);
-			if (node->right != s_InvalidBVHNode)
-				intersectionsResults[1] = IntersectNode(ray, intersections[1], &m_Nodes[node->right]);
-			// find closer intersection
-			if (intersectionsResults[0] && intersectionsResults[1])
-			{
-				if (intersections[0].GetRayLength() < intersections[1].GetRayLength())
-				{
-					intersection = intersections[0];
-				}
-				else
-				{
-					intersection = intersections[1];
-				}
-			}
-			else if (intersectionsResults[0])
+			if (intersections[0].GetRayLength() < intersections[1].GetRayLength())
 			{
 				intersection = intersections[0];
 			}
-			else if (intersectionsResults[1])
+			else
 			{
 				intersection = intersections[1];
 			}
-			return intersectionsResults[0] || intersectionsResults[1];
 		}
+		else if (intersectionsResults[0])
+		{
+			intersection = intersections[0];
+		}
+		else if (intersectionsResults[1])
+		{
+			intersection = intersections[1];
+		}
+		return intersectionsResults[0] || intersectionsResults[1];
 	}
 	// we are in the leaf node
 	struct S_IntersectionInfo {
@@ -262,10 +264,10 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection
 	};
 	S_IntersectionInfo closestIntersect{.intersection = C_RayIntersection()};
 
-	glm::vec2 barycentric;
-	const auto&	  storage = *m_Storage;
+	glm::vec2	barycentric;
+	const auto& storage = *m_Storage;
 
-	for (unsigned int i = node->firstTrig; i <= node->lastTrig; i += 3)
+	for (unsigned int i = node.firstTrig; i <= node.lastTrig; i += 3)
 	{
 		const glm::vec3* triDef = &(m_Storage->at(i));
 		const auto		 length = Physics::TriangleRayIntersect(triDef, ray, &barycentric);
@@ -275,9 +277,9 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection
 			{
 				continue;
 			}
-			auto	   normal = glm::cross(storage[i + 1] - storage[i], storage[i + 2] - storage[i]);
-			//const auto area	  = glm::length(normal) / 2.f;
-			normal			  = glm::normalize(normal);
+			auto normal = glm::cross(storage[i + 1] - storage[i], storage[i + 2] - storage[i]);
+			// const auto area	  = glm::length(normal) / 2.f;
+			normal = glm::normalize(normal);
 			C_RayIntersection inter(S_Frame(normal), ray.origin + length * ray.direction, Physics::Primitives::S_Ray(ray));
 			inter.SetRayLength(length);
 
@@ -305,16 +307,9 @@ void BVH::DebugDrawNode(I_DebugDraw& dd, const glm::mat4& modelMatrix, const BVH
 {
 	// can be simple loop
 	static Colours::T_Colour colours[] = {
-		Colours::black,
-		Colours::green,
-		Colours::blue,
-		Colours::red,
-		Colours::gray,
-		Colours::purple,
-		Colours::yellow,
-		Colours::white,
+		Colours::black, Colours::green, Colours::blue, Colours::red, Colours::gray, Colours::purple, Colours::yellow, Colours::white,
 	};
-	constexpr static auto numColours			   = (sizeof(colours) / sizeof(Colours::T_Colour));
+	constexpr static auto	 numColours	   = (sizeof(colours) / sizeof(Colours::T_Colour));
 	const Colours::T_Colour& currentColour = colours[level < numColours ? level : numColours - 1];
 	dd.DrawAABB(node.aabb, currentColour, modelMatrix);
 	if (node.left != s_InvalidBVHNode)
