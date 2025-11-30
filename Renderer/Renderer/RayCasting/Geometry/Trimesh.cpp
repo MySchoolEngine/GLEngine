@@ -2,6 +2,7 @@
 
 #include <Renderer/DebugDraw.h>
 #include <Renderer/Mesh/Scene.h>
+#include <Renderer/RayCasting/Geometry/GeometryTraits.h>
 #include <Renderer/RayCasting/Geometry/Trimesh.h>
 #include <Renderer/RayCasting/RayIntersection.h>
 
@@ -31,6 +32,49 @@ C_Trimesh::C_Trimesh() = default;
 
 //=================================================================================
 C_Trimesh::~C_Trimesh() = default;
+
+//=================================================================================
+C_Trimesh::C_Trimesh(const C_Trimesh& other)
+	: I_RayGeometryObject(other)
+{
+	*this = other;
+}
+
+//=================================================================================
+C_Trimesh::C_Trimesh(C_Trimesh&& other) noexcept
+{
+	*this = std::move(other);
+}
+
+//=================================================================================
+C_Trimesh& C_Trimesh::operator=(const C_Trimesh& other)
+{
+	if (this != &other)
+	{
+		m_Vertices	   = other.m_Vertices;
+		m_TexCoords	   = other.m_TexCoords;
+		m_AABB		   = other.m_AABB;
+		m_Transofrm	   = other.m_Transofrm;
+		m_TransofrmInv = other.m_TransofrmInv;
+		m_BVH		   = other.m_BVH;
+	}
+	return *this;
+}
+
+//=================================================================================
+C_Trimesh& C_Trimesh::operator=(C_Trimesh&& other) noexcept
+{
+	if (this != &other)
+	{
+		m_Vertices	   = other.m_Vertices;
+		m_TexCoords	   = other.m_TexCoords;
+		m_AABB		   = other.m_AABB;
+		m_Transofrm	   = other.m_Transofrm;
+		m_TransofrmInv = other.m_TransofrmInv;
+		m_BVH		   = other.m_BVH;
+	}
+	return *this;
+}
 
 //=================================================================================
 void C_Trimesh::AddTriangle(const Physics::Primitives::S_Triangle& triangle)
@@ -118,7 +162,7 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 
 	intersection = closestIntersect.intersection;
 	intersection.TransformRayAndPoint(m_Transofrm);
-	intersection.SetRayLength(glm::distance(intersection.GetRay().origin, intersection.GetIntersectionPoint())); // todo tady mohu pouï¿½ï¿½t length ne?
+	intersection.SetRayLength(glm::distance(intersection.GetRay().origin, intersection.GetIntersectionPoint())); // todo tady mohu použít length ne?
 	return true;
 }
 

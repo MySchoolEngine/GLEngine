@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Renderer/Mesh/Loading/MeshResource.h>
+#include <Renderer/RayCasting/Geometry/TrimeshModel.h>
 #include <Renderer/RendererApi.h>
 #include <Renderer/Textures/TextureResource.h>
 #include <Renderer/Textures/TextureView.h>
@@ -13,6 +13,7 @@ struct S_Ray;
 }
 
 namespace GLEngine::Renderer {
+class C_TrimeshModel;
 class C_ImplicitBlob;
 class C_RayIntersection;
 class C_Trimesh;
@@ -46,7 +47,7 @@ public:
 	void			   AddObject(std::shared_ptr<I_RayGeometryObject>&& object);
 	void			   AddLight(std::shared_ptr<RayTracing::C_AreaLight>&& light);
 	void			   AddLight(std::shared_ptr<RayTracing::C_PointLight>&& light);
-	void			   AddMesh(const MeshData::Mesh& mesh, const MeshData::Material& material, const BVH* bvh = nullptr);
+	void			   AddMesh(const Core::ResourceHandle<C_TrimeshModel> trimesh, const MeshData::Material& material);
 
 	void ForEachLight(const std::function<void(const std::reference_wrapper<const RayTracing::I_RayLight>& light)>& fnc) const;
 
@@ -63,7 +64,7 @@ private:
 	std::vector<std::shared_ptr<RayTracing::C_AreaLight>>  m_AreaLights;
 	std::vector<std::shared_ptr<RayTracing::C_PointLight>> m_PointLights;
 	std::vector<Core::ResourceHandle<TextureResource>>	   m_Textures;
-	std::vector<Core::ResourceHandle<MeshResource>>		   m_Meshes;
+	std::vector<Core::ResourceHandle<C_TrimeshModel>>	   m_Meshes;
 	std::vector<std::unique_ptr<I_MaterialInterface>>	   m_Materials;
 	// aux
 	std::vector<std::shared_ptr<C_Trimesh>> m_Trimeshes;

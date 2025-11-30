@@ -27,6 +27,8 @@ public:
 
 	bool SupportSaving() const override;
 
+	const std::vector<C_Trimesh>& GetTrimeshes() const { return m_Trimeshes; }
+
 	void AfterDeserialize();
 
 	RTTR_REGISTRATION_FRIEND;
@@ -44,4 +46,7 @@ public:
 	std::shared_ptr<Core::Resource> CreateResource() const override;
 	std::vector<std::string>		GetSupportedExtensions() const override;
 };
+
+static_assert(Core::IsBeDerivedResource<C_TrimeshModel>, "Cant be buildable");
+static_assert(Core::IsBuildableResource<C_TrimeshModel, C_TrimeshModel::T_BaseResource>, "Cant be buildable");
 } // namespace GLEngine::Renderer
