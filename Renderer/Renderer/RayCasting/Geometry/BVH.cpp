@@ -293,19 +293,17 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection
 }
 
 //=================================================================================
-void BVH::DebugDraw(I_DebugDraw* dd, const glm::mat4& modelMatrix) const
+void BVH::DebugDraw(I_DebugDraw& dd, const glm::mat4& modelMatrix) const
 {
 	if (m_Nodes.empty())
 		return;
-	DebugDrawNode(dd, modelMatrix, &m_Nodes[0], 0);
+	DebugDrawNode(dd, modelMatrix, m_Nodes[0], 0);
 }
 
 //=================================================================================
-void BVH::DebugDrawNode(I_DebugDraw* dd, const glm::mat4& modelMatrix, const BVHNode* node, unsigned int level) const
+void BVH::DebugDrawNode(I_DebugDraw& dd, const glm::mat4& modelMatrix, const BVHNode& node, unsigned int level) const
 {
 	// can be simple loop
-	if (!node)
-		return;
 	static Colours::T_Colour colours[] = {
 		Colours::black,
 		Colours::green,
@@ -318,11 +316,11 @@ void BVH::DebugDrawNode(I_DebugDraw* dd, const glm::mat4& modelMatrix, const BVH
 	};
 	constexpr static auto numColours			   = (sizeof(colours) / sizeof(Colours::T_Colour));
 	const Colours::T_Colour& currentColour = colours[level < numColours ? level : numColours - 1];
-	dd->DrawAABB(node->aabb, currentColour, modelMatrix);
-	if (node->left != s_InvalidBVHNode)
-		DebugDrawNode(dd, modelMatrix, &m_Nodes[node->left], level + 1);
-	if (node->right != s_InvalidBVHNode)
-		DebugDrawNode(dd, modelMatrix, &m_Nodes[node->right], level + 1);
+	dd.DrawAABB(node.aabb, currentColour, modelMatrix);
+	if (node.left != s_InvalidBVHNode)
+		DebugDrawNode(dd, modelMatrix, m_Nodes[node.left], level + 1);
+	if (node.right != s_InvalidBVHNode)
+		DebugDrawNode(dd, modelMatrix, m_Nodes[node.right], level + 1);
 }
 
 //=================================================================================
