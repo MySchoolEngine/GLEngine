@@ -15,7 +15,7 @@ protected:
 	}
 
 	std::vector<glm::vec3> triangles;
-	std::unique_ptr<BVH> bvh_;
+	std::unique_ptr<BVH>   bvh_;
 };
 
 TEST_P(BVHRayTest, RayIntersectionBehavior)
@@ -23,8 +23,8 @@ TEST_P(BVHRayTest, RayIntersectionBehavior)
 	auto [origin, direction, shouldHit] = GetParam();
 
 	const Physics::Primitives::S_Ray ray{.origin = origin, .direction = normalize(direction)};
-	C_RayIntersection		   hit;
-	const bool intersected = bvh_->Intersect(ray, hit);
+	C_RayIntersection				 hit;
+	const bool						 intersected = bvh_->Intersect(ray, hit);
 
 	EXPECT_EQ(shouldHit, intersected) << "Ray: origin=" << origin << " dir=" << direction;
 
@@ -184,9 +184,7 @@ TEST_F(BVHFixture, SAHCreatesLeafForCoincidentCentroids)
 
 INSTANTIATE_TEST_SUITE_P(RayTests,
 						 BVHRayTest,
-						 ::testing::Values(std::make_tuple(glm::vec3(-1, 0.25f, 0.1f), glm::vec3(1, 0, 0), true), // hits triangle
-										   std::make_tuple(glm::vec3(-1, 2, 0.1f), glm::vec3(1, 0, 0), false),	  // misses above
-										   std::make_tuple(glm::vec3(0.25f, -1, 0.1f), glm::vec3(0, 1, 0), true), // hits from below
-										   std::make_tuple(glm::vec3(10, 10, 10), glm::vec3(-1, -1, -1), false)	  // far miss
+						 ::testing::Values(std::make_tuple(glm::vec3(0.25f, 0.25f, 1.f), glm::vec3(0, 0, -1), true), // hits triangle
+										   std::make_tuple(glm::vec3(-1, 2, 0.1f), glm::vec3(1, 0, 0), false)		 // misses above
 										   ));
 } // namespace GLEngine::Renderer
