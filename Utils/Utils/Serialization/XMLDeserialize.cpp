@@ -64,16 +64,35 @@ rttr::variant C_XMLDeserializer::DeserializeNode(const pugi::xml_node& node, rtt
 //=================================================================================
 void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::variant& owner, const pugi::xml_node& node)
 {
-	auto type = prop.get_type();
 	using namespace ::Utils::Reflection;
 
-	if (auto deserializeStringFunction = rttr::type::get_global_method("DeserializeString", {rttr::type::get<const std::string&>(), type}))
+	auto type = prop.get_type();
+
+	if (type.is_wrapper())
+		type = type.get_wrapped_type();
+	const auto	  propertyName = prop.get_name().to_string();
+	rttr::variant propValue	   = prop.get_value(owner);
+
+	if (auto defaultValue = prop.get_metadata("SerializationDefaultValue"))
 	{
-		const auto propertyName = prop.get_name().to_string();
-		auto	   inlineType	= type;
-		if (inlineType.is_wrapper())
-			inlineType = inlineType.get_wrapped_type();
-		if (inlineType.get_raw_type().is_sequential_container())
+		GLE_TODO("30-11-2025", "RohacekD", "Make it work for all types");
+		if (IsAtomicType(type))
+		{
+			const auto defaultValueType = defaultValue.get_type();
+			GLE_ASSERT(defaultValueType == type, "Type of default value doesn't match property type {}", prop);
+			if (defaultValue != propValue)
+			{
+				const auto conversionResult = defaultValue.convert(prop.get_type());
+				GLE_ASSERT(conversionResult, "Cannot convert");
+				const bool result = prop.set_value(owner, defaultValue);
+				GLE_ASSERT(result, "Cannot set property {} to the type {}", propertyName, owner.get_type());
+			}
+		}
+	}
+
+	if (auto deserializeStringFunction = rttr::type::get_global_method("DeserializeString", {rttr::type::get<const std::string&>(), prop.get_type()}))
+	{
+		if (type.get_raw_type().is_sequential_container())
 		{
 			if (const auto seqContainerNode = node.child(propertyName.c_str()))
 			{
@@ -115,12 +134,8 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 		// the introduction of this option
 	}
 
-	if (type.is_wrapper())
-		type = type.get_wrapped_type();
-
 	if (IsAtomicType(type))
 	{
-		const auto propertyName = prop.get_name().to_string();
 		if (const auto attribute = node.attribute(propertyName.c_str()))
 		{
 			rttr::variant var;

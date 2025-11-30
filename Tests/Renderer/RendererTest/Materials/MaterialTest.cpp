@@ -20,6 +20,20 @@ TEST_F(XMLDeserializeFixture, LoadMaterial)
 </C_StaticMeshHandles>)x");
 
 	const auto result = deserializer.Deserialize<std::shared_ptr<C_StaticMeshHandles>>(doc);
+EXPECT_TRUE(result.has_value());
+}
+
+TEST_F(XMLDeserializeFixture, LoadMaterial_DefaultTransform)
+{
+	RecordProperty("description", "Transformation has default value that should be applied if tag is missing");
+	const pugi::xml_document doc = ConstructDocument(R"x(
+<?xml version="1.0"?>
+<C_StaticMeshHandles>
+	<Material Name="None" Color="(1.0,1.0,1.0)" Roughness="0.5" Shininess="500">
+	</Material>
+</C_StaticMeshHandles>)x");
+
+	const auto result = deserializer.Deserialize<std::shared_ptr<C_StaticMeshHandles>>(doc);
 	EXPECT_TRUE(result.has_value());
 }
 } // namespace GLEngine::Renderer

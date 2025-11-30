@@ -162,13 +162,13 @@ C_RayTraceScene::C_RayTraceScene()
 
 	if (false)
 	{
-		auto& meshHandle = m_Meshes.emplace_back(rm.LoadResource<MeshResource>(R"(Models/sword/baphomet-sword-mostruario.obj)"));
+		auto& meshHandle = m_Meshes.emplace_back(rm.LoadResource<C_TrimeshModel>(R"(Models/sword/baphomet-sword-mostruario.obj)"));
 		m_LoadingMeshes.AddHandle(meshHandle);
 	}
 
 	if (true)
 	{
-		auto& meshHandle = m_Meshes.emplace_back(rm.LoadResource<MeshResource>(R"(Models/KoboldRig/Kobold_Rig_.obj)"));
+		auto& meshHandle = m_Meshes.emplace_back(rm.LoadResource<C_TrimeshModel>(R"(Models/lada/lada.tri)", true));
 		m_LoadingMeshes.AddHandle(meshHandle);
 	}
 #else
