@@ -124,18 +124,21 @@ void C_StaticMeshHandles::Update()
 		// .colorAttachmentFormat = GetTextureFormat(m_SwapChainImageFormat), no need for OpenGL and will be solved for Vulkan
 	});
 	}
-	if (m_Meshes.empty() == true && m_MeshResource.IsReady())
+	if (m_MeshResource.IsReady() && m_MeshResourceLive != m_MeshResource)
 	{
+		CleanRenderData();
+		m_MeshResourceLive = m_MeshResource;
+
 		const auto& scene = m_MeshResource.GetResource().GetScene();
 		m_Meshes.reserve(scene.meshes.size());
+
+		I_Renderer&		 renderer = Core::C_Application::Get().GetActiveRenderer();
+		ResourceManager& rm		  = renderer.GetRM();
 		for (auto& mesh : scene.meshes)
 		{
 			auto& meshContainer			  = m_Meshes.emplace_back();
 			meshContainer.m_NumPrimitives = static_cast<uint32_t>(mesh.vertices.size());
 			// load buffer
-
-			I_Renderer&		 renderer = Core::C_Application::Get().GetActiveRenderer();
-			ResourceManager& rm		  = renderer.GetRM();
 
 			const auto positionsSize		= static_cast<uint32_t>(sizeof(mesh.vertices[0]) * mesh.vertices.size());
 			meshContainer.m_PositionsHandle = rm.createBuffer(BufferDescriptor{
@@ -178,6 +181,22 @@ void C_StaticMeshHandles::Update()
 			renderer.SetBufferData(meshContainer.m_BitangentHandle, bitangentSize, mesh.bitangent.data());
 		}
 	}
+}
+
+//=================================================================================
+void C_StaticMeshHandles::CleanRenderData()
+{
+	I_Renderer&		 renderer = Core::C_Application::Get().GetActiveRenderer();
+	ResourceManager& rm		  = renderer.GetRM();
+	for (auto& meshContainer : m_Meshes)
+	{
+		rm.destroyBuffer(meshContainer.m_PositionsHandle);
+		rm.destroyBuffer(meshContainer.m_NormalsHandle);
+		rm.destroyBuffer(meshContainer.m_TexCoordsHandle);
+		rm.destroyBuffer(meshContainer.m_TangentHandle);
+		rm.destroyBuffer(meshContainer.m_BitangentHandle);
+	}
+	m_Meshes.clear();
 }
 
 //=================================================================================
