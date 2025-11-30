@@ -101,7 +101,6 @@ bool C_TrimeshModel::Build(const MeshResource& handle)
 		{
 			m_BVHs.push_back(nullptr);
 		}
-		break;
 	}
 	m_Dirty = true;
 	return true;
