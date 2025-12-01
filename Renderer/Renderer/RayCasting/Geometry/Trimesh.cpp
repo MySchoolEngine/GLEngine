@@ -21,6 +21,7 @@ RTTR_REGISTRATION
 	rttr::registration::class_<C_Trimesh>("Trimesh")
 		.constructor<>()(rttr::policy::ctor::as_object)
 		.property("Vertices", &C_Trimesh::m_Vertices)(rttr::policy::prop::as_reference_wrapper)
+		.property("TexCoords", &C_Trimesh::m_TexCoords)(rttr::policy::prop::as_reference_wrapper)
 		.property("Transofrm", &C_Trimesh::m_Transofrm)(rttr::policy::prop::as_reference_wrapper, REGISTER_DEFAULT_VALUE(glm::mat4(1.f)))
 		.property("AABB", &C_Trimesh::m_AABB);
 }
@@ -140,7 +141,7 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 				continue;
 			}
 			auto	   normal = glm::cross(m_Vertices[i + 1] - m_Vertices[i], m_Vertices[i + 2] - m_Vertices[i]);
-			const auto area	  = glm::length(normal) / 2.f;
+			//const auto area	  = glm::length(normal) / 2.f;
 			normal			  = glm::normalize(normal);
 			C_RayIntersection inter(S_Frame(normal), ray.origin + length * ray.direction, Physics::Primitives::S_Ray(ray));
 			if (!m_TexCoords.empty())
@@ -152,7 +153,7 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 			}
 			inter.SetMaterial(&GetMaterial());
 
-			closestIntersect = {inter, length};
+			closestIntersect = {.intersection = inter, .t = length};
 		}
 	}
 
@@ -171,6 +172,7 @@ void C_Trimesh::AddMesh(const MeshData::Mesh& mesh)
 {
 	m_Vertices.reserve(mesh.vertices.size());
 	m_Vertices = mesh.vertices;
+	m_TexCoords = mesh.texcoords;
 	m_AABB	   = mesh.bbox;
 	GLE_ASSERT(m_Vertices.size() % 3 == 0, "Wrong number of vertices.");
 }
