@@ -53,6 +53,8 @@ private:
 
 	[[nodiscard]] float CalcSAHCost(const BVHNode& parent, const unsigned int axis, const float splitPos, std::vector<glm::vec3>& centroids) const;
 
+	[[nodiscard]] unsigned int PartitionTriangles(std::vector<glm::vec3>& centroids, unsigned int first, unsigned int last, int axis, float splitPos);
+
 	/**
 	 * @brief
 	 * @param triangleIndex index into the lookup table
@@ -63,6 +65,9 @@ private:
 	std::vector<glm::vec3>*	  m_Storage;
 	std::vector<unsigned int> m_LookupTable; // index to triangle, to get first vertex multiply * 3
 	std::vector<BVHNode>	  m_Nodes;
+
+	static constexpr unsigned int s_MaxDepth	= 10;
+	static constexpr unsigned int s_MinLeafSize = 20;
 
 	friend class C_TrimeshModel;
 	friend class BVHFixture;

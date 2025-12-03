@@ -102,11 +102,11 @@ unsigned int BVH::ComputeMaxDepth() const
 //=================================================================================
 void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<glm::vec3>& centroids)
 {
-	if (level > 10)
+	if (level > s_MaxDepth)
 		return;
 
 	// limit nodes that's too small
-	if (m_Nodes[nodeId].NumTrig() <= 20)
+	if (m_Nodes[nodeId].NumTrig() <= s_MinLeafSize)
 		return;
 
 	// try finding better than average
@@ -114,17 +114,17 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<
 	float		bestCost	= std::numeric_limits<float>::max();
 	float		bestAverage = 0.f;
 	int			bestAxis	= 0;
-	for (int axe = 0; axe < 3; ++axe)
+	for (int axis = 0; axis < 3; ++axis)
 	{
 		for (unsigned int i = m_Nodes[nodeId].firstTrig; i < m_Nodes[nodeId].lastTrig; ++i)
 		{
-			const float currentCentroid = centroids[i][axe];
-			const float cost			= CalcSAHCost(m_Nodes[nodeId], axe, currentCentroid, centroids);
+			const float currentCentroid = centroids[i][axis];
+			const float cost			= CalcSAHCost(m_Nodes[nodeId], axis, currentCentroid, centroids);
 			if (cost < bestCost)
 			{
 				bestCost	= cost;
 				bestAverage = currentCentroid;
-				bestAxis	= axe;
+				bestAxis	= axis;
 			}
 		}
 	}
@@ -143,49 +143,12 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<
 	auto&		right = m_Nodes[rightNodeId];
 	const auto& node  = m_Nodes[nodeId];
 
-	const int	axis	= bestAxis;
-	const float average = bestAverage;
-
-	unsigned int leftSorting = node.firstTrig, rightSorting = node.lastTrig;
-	while (leftSorting < rightSorting)
-	{
-		// find left candidate to swap
-		if (centroids[leftSorting][axis] < average)
-		{
-			++leftSorting;
-			continue;
-		}
-		// find right candidate for swap
-		while (true)
-		{
-			if (centroids[rightSorting][axis] < average)
-			{
-				break;
-			}
-			--rightSorting;
-		}
-		if (leftSorting < rightSorting)
-		{
-			// swap
-			std::swap(centroids[leftSorting], centroids[rightSorting]);
-			std::swap(m_LookupTable[leftSorting], m_LookupTable[rightSorting]);
-		}
-	}
-	if (leftSorting >= rightSorting)
-	{
-		if (centroids[leftSorting][axis] < average)
-		{
-			++rightSorting;
-		}
-		else
-		{
-			--leftSorting;
-		}
-	}
+	// Partition triangles around the split position
+	const unsigned int lastLeftIndex = PartitionTriangles(centroids, node.firstTrig, node.lastTrig, bestAxis, bestAverage);
 
 	left.firstTrig	= node.firstTrig;
-	left.lastTrig	= leftSorting;
-	right.firstTrig = leftSorting + 1; // not using rightSorting to count in all triangles
+	left.lastTrig	= lastLeftIndex;
+	right.firstTrig = lastLeftIndex + 1;
 	right.lastTrig	= node.lastTrig;
 
 	GLE_ASSERT(left.NumTrig() + right.NumTrig() == node.NumTrig(), "The children nodes triangles sum should be equal to parent trigs.");
@@ -221,7 +184,7 @@ bool BVH::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& in
 //=================================================================================
 bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, const BVHNode& node) const
 {
-	// I am not sure about the inside
+	// Early out: if ray origin is outside AABB and doesn't intersect it
 	if (!node.aabb.Contains(ray.origin) && node.aabb.IntersectImpl(ray) <= 0.f)
 	{
 		return false;
@@ -345,6 +308,36 @@ float BVH::CalcSAHCost(const BVHNode& parent, const unsigned int axis, const flo
 	}
 	const float cost = leftCount * left.Area() + rightCount * right.Area();
 	return cost > 0.f ? cost : std::numeric_limits<float>::max();
+}
+
+//=================================================================================
+unsigned int BVH::PartitionTriangles(std::vector<glm::vec3>& centroids, unsigned int first, unsigned int last, int axis, float splitPos)
+{
+	unsigned int left  = first;
+	unsigned int right = last;
+
+	while (left < right)
+	{
+		// Find element on left that belongs on right
+		while (left < right && centroids[left][axis] < splitPos)
+			++left;
+
+		// Find element on right that belongs on left
+		while (left < right && centroids[right][axis] >= splitPos)
+			--right;
+
+		if (left < right)
+		{
+			std::swap(centroids[left], centroids[right]);
+			std::swap(m_LookupTable[left], m_LookupTable[right]);
+		}
+	}
+
+	// Adjust boundary
+	if (centroids[left][axis] < splitPos)
+		++left;
+
+	return left - 1; // Returns last index of left partition
 }
 
 //=================================================================================
