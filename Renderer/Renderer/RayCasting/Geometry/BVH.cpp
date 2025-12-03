@@ -12,7 +12,8 @@ RTTR_REGISTRATION
 	using namespace GLEngine::Renderer;
 	rttr::registration::class_<BVH>("BVH")
 		.constructor<>()(rttr::policy::ctor::as_raw_ptr)
-		.property("Nodes", &BVH::m_Nodes)(rttr::policy::prop::bind_as_ptr);
+		.property("Nodes", &BVH::m_Nodes)(rttr::policy::prop::bind_as_ptr)
+		.property("LookUpTable", &BVH::m_LookupTable)(rttr::policy::prop::bind_as_ptr);
 	
 	rttr::registration::class_<BVH::BVHNode>("BVHNode")
 		.constructor<>()(rttr::policy::ctor::as_object)
@@ -60,15 +61,16 @@ void BVH::Build()
 	for (const auto& vertex : *m_Storage)
 		root.aabb.Add(vertex);
 	root.firstTrig = 0;
-	root.lastTrig  = static_cast<unsigned int>(m_Storage->size()) - 3;
+	root.lastTrig  = static_cast<unsigned int>(m_Storage->size()) / 3 - 1;
 	std::vector<glm::vec3> centroids;
 	centroids.reserve(root.NumTrig());
 	const auto trigCenter = [](const glm::vec3* triDef) { return (triDef[0] + triDef[1] + triDef[2]) / 3.f; };
 
-	for (unsigned int i = root.firstTrig; i < root.lastTrig + 3; i += 3)
+	for (unsigned int i = 0; i < m_Storage->size() / 3; ++i)
 	{
-		const glm::vec3* triDef = &(m_Storage->at(i));
+		const glm::vec3* triDef = &(m_Storage->at(i * 3));
 		centroids.emplace_back(trigCenter(triDef));
+		m_LookupTable.emplace_back(i);
 	}
 	SplitBVHNodeNaive(0, 0, centroids);
 }
@@ -103,29 +105,26 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<
 	if (level > 10)
 		return;
 
-	// limit nodes thats too small
+	// limit nodes that's too small
 	if (m_Nodes[nodeId].NumTrig() <= 20)
 		return;
 
 	// try finding better than average
-	const float	 parentCost	 = m_Nodes[nodeId].aabb.Area() * m_Nodes[nodeId].NumTrig();
-	float		 bestCost	 = std::numeric_limits<float>::max();
-	float		 bestAverage = 0.f;
-	unsigned int bestAxis	 = 0;
-	unsigned int bestTrig	 = 0;
-	for (unsigned int axe = 0; axe < 3; ++axe)
+	const float parentCost	= m_Nodes[nodeId].aabb.Area() * static_cast<float>(m_Nodes[nodeId].NumTrig());
+	float		bestCost	= std::numeric_limits<float>::max();
+	float		bestAverage = 0.f;
+	int			bestAxis	= 0;
+	for (int axe = 0; axe < 3; ++axe)
 	{
-		for (unsigned int i = m_Nodes[nodeId].firstTrig; i < m_Nodes[nodeId].lastTrig + 3; i += 3)
+		for (unsigned int i = m_Nodes[nodeId].firstTrig; i < m_Nodes[nodeId].lastTrig; ++i)
 		{
-			const glm::vec3* triDef			 = &(m_Storage->at(i));
-			const float		 currentCentroid = centroids[i / 3][axe];
-			const float		 cost			 = CalcSAHCost(m_Nodes[nodeId], axe, currentCentroid, centroids);
+			const float currentCentroid = centroids[i][axe];
+			const float cost			= CalcSAHCost(m_Nodes[nodeId], axe, currentCentroid, centroids);
 			if (cost < bestCost)
 			{
 				bestCost	= cost;
 				bestAverage = currentCentroid;
 				bestAxis	= axe;
-				bestTrig	= i;
 			}
 		}
 	}
@@ -140,69 +139,71 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<
 	const T_BVHNodeID rightNodeId = static_cast<T_BVHNodeID>(m_Nodes.size()) - 1;
 	m_Nodes[nodeId].right		  = rightNodeId;
 	// now I can store references, because I am not adding new elements
-	auto& left	= m_Nodes[leftNodeId];
-	auto& right = m_Nodes[rightNodeId];
-	auto& node	= m_Nodes[nodeId];
+	auto&		left  = m_Nodes[leftNodeId];
+	auto&		right = m_Nodes[rightNodeId];
+	const auto& node  = m_Nodes[nodeId];
 
-	const unsigned int axis	   = bestAxis;
-	const float		   average = bestAverage;
+	const int	axis	= bestAxis;
+	const float average = bestAverage;
 
 	unsigned int leftSorting = node.firstTrig, rightSorting = node.lastTrig;
 	while (leftSorting < rightSorting)
 	{
 		// find left candidate to swap
-		if (centroids[leftSorting / 3][axis] < average)
+		if (centroids[leftSorting][axis] < average)
 		{
-			leftSorting += 3;
+			++leftSorting;
 			continue;
 		}
 		// find right candidate for swap
 		while (true)
 		{
-			if (centroids[rightSorting / 3][axis] < average)
+			if (centroids[rightSorting][axis] < average)
 			{
 				break;
 			}
-			rightSorting -= 3;
+			--rightSorting;
 		}
 		if (leftSorting < rightSorting)
 		{
-			auto& storage = *m_Storage;
 			// swap
-			GLE_TODO("19-05-2024", "RohacekD", "Needs to scrumble ather attributes as well.");
-			std::swap(storage[leftSorting], storage[rightSorting]);
-			std::swap(storage[leftSorting + 1], storage[rightSorting + 1]);
-			std::swap(storage[leftSorting + 2], storage[rightSorting + 2]);
-			std::swap(centroids[leftSorting / 3], centroids[rightSorting / 3]);
+			std::swap(centroids[leftSorting], centroids[rightSorting]);
+			std::swap(m_LookupTable[leftSorting], m_LookupTable[rightSorting]);
 		}
 	}
 	if (leftSorting >= rightSorting)
 	{
-		if (centroids[leftSorting / 3][axis] < average)
+		if (centroids[leftSorting][axis] < average)
 		{
-			rightSorting += 3;
+			++rightSorting;
 		}
 		else
 		{
-			leftSorting -= 3;
+			--leftSorting;
 		}
 	}
 
 	left.firstTrig	= node.firstTrig;
 	left.lastTrig	= leftSorting;
-	right.firstTrig = leftSorting + 3; // not using rightSorting to count in all triangles
+	right.firstTrig = leftSorting + 1; // not using rightSorting to count in all triangles
 	right.lastTrig	= node.lastTrig;
 
 	GLE_ASSERT(left.NumTrig() + right.NumTrig() == node.NumTrig(), "The children nodes triangles sum should be equal to parent trigs.");
 
 	// build AABBs
-	for (unsigned int i = left.firstTrig; i < left.lastTrig + 3; ++i)
+	for (unsigned int i = left.firstTrig; i < left.lastTrig + 1; ++i)
 	{
-		left.aabb.Add((*m_Storage)[i]);
+		const glm::vec3* triDef = GetTriangleDefinition(i);
+		left.aabb.Add(triDef[0]);
+		left.aabb.Add(triDef[1]);
+		left.aabb.Add(triDef[2]);
 	}
-	for (unsigned int i = right.firstTrig; i < right.lastTrig + 3; ++i)
+	for (unsigned int i = right.firstTrig; i < right.lastTrig + 1; ++i)
 	{
-		right.aabb.Add((*m_Storage)[i]);
+		const glm::vec3* triDef = GetTriangleDefinition(i);
+		right.aabb.Add(triDef[0]);
+		right.aabb.Add(triDef[1]);
+		right.aabb.Add(triDef[2]);
 	}
 
 	SplitBVHNodeNaive(leftNodeId, level + 1, centroids);
@@ -212,6 +213,8 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<
 //=================================================================================
 bool BVH::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
 {
+	if (m_Nodes.empty())
+		return false;
 	return IntersectNode(ray, intersection, m_Nodes[0]);
 }
 
@@ -264,12 +267,11 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection
 	};
 	S_IntersectionInfo closestIntersect{.intersection = C_RayIntersection()};
 
-	glm::vec2	barycentric;
-	const auto& storage = *m_Storage;
+	glm::vec2 barycentric;
 
-	for (unsigned int i = node.firstTrig; i <= node.lastTrig; i += 3)
+	for (unsigned int i = node.firstTrig; i <= node.lastTrig; ++i)
 	{
-		const glm::vec3* triDef = &(m_Storage->at(i));
+		const glm::vec3* triDef = GetTriangleDefinition(i);
 		const auto		 length = Physics::TriangleRayIntersect(triDef, ray, &barycentric);
 		if (length > 0.0f)
 		{
@@ -277,7 +279,7 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection
 			{
 				continue;
 			}
-			auto normal = glm::cross(storage[i + 1] - storage[i], storage[i + 2] - storage[i]);
+			auto normal = glm::cross(triDef[1] - triDef[0], triDef[2] - triDef[0]);
 			// const auto area	  = glm::length(normal) / 2.f;
 			normal = glm::normalize(normal);
 			C_RayIntersection inter(S_Frame(normal), ray.origin + length * ray.direction, Physics::Primitives::S_Ray(ray));
@@ -323,10 +325,10 @@ float BVH::CalcSAHCost(const BVHNode& parent, const unsigned int axis, const flo
 {
 	Physics::Primitives::S_AABB left, right;
 	unsigned int				leftCount = 0, rightCount = 0;
-	for (unsigned int i = parent.firstTrig; i < parent.lastTrig + 3; i += 3)
+	for (unsigned int i = parent.firstTrig; i < parent.lastTrig + 1; ++i)
 	{
-		const glm::vec3* triDef = &(m_Storage->at(i));
-		if (centroids[i / 3][axis] < splitPos)
+		const glm::vec3* triDef = GetTriangleDefinition(i);
+		if (centroids[i][axis] < splitPos)
 		{
 			left.Add(triDef[0]);
 			left.Add(triDef[1]);
@@ -343,6 +345,13 @@ float BVH::CalcSAHCost(const BVHNode& parent, const unsigned int axis, const flo
 	}
 	const float cost = leftCount * left.Area() + rightCount * right.Area();
 	return cost > 0.f ? cost : std::numeric_limits<float>::max();
+}
+
+//=================================================================================
+const glm::vec3* BVH::GetTriangleDefinition(const unsigned int triangleIndex) const
+{
+	const auto lookupPosition = m_LookupTable[triangleIndex];
+	return &(m_Storage->at(lookupPosition * 3));
 }
 
 } // namespace GLEngine::Renderer

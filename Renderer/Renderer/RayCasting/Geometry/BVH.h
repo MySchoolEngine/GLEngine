@@ -40,11 +40,11 @@ private:
 		Physics::Primitives::S_AABB aabb;
 		T_BVHNodeID					left  = s_InvalidBVHNode;
 		T_BVHNodeID					right = s_InvalidBVHNode;
-		unsigned int				firstTrig, lastTrig; // index of first vertex
+		unsigned int				firstTrig, lastTrig; // Index to look-up table
 
 		[[nodiscard]] bool IsLeaf() const { return left == s_InvalidBVHNode && right == s_InvalidBVHNode; }
 
-		[[nodiscard]] constexpr unsigned int NumTrig() const { return (lastTrig - firstTrig) / 3 + 1; }
+		[[nodiscard]] constexpr unsigned int NumTrig() const { return (lastTrig - firstTrig) + 1; }
 	};
 	[[nodiscard]] bool IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, const BVHNode& node) const;
 	void			   DebugDrawNode(I_DebugDraw& dd, const glm::mat4& modelMatrix, const BVHNode& node, unsigned int level) const;
@@ -53,8 +53,15 @@ private:
 
 	[[nodiscard]] float CalcSAHCost(const BVHNode& parent, const unsigned int axis, const float splitPos, std::vector<glm::vec3>& centroids) const;
 
+	/**
+	 * @brief
+	 * @param triangleIndex index into the lookup table
+	 * @return
+	 */
+	[[nodiscard]] const glm::vec3* GetTriangleDefinition(const unsigned int triangleIndex) const;
+
 	std::vector<glm::vec3>*	  m_Storage;
-	std::vector<unsigned int> m_LookupTable;
+	std::vector<unsigned int> m_LookupTable; // index to triangle, to get first vertex multiply * 3
 	std::vector<BVHNode>	  m_Nodes;
 
 	friend class C_TrimeshModel;
