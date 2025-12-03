@@ -8,7 +8,7 @@ namespace GLEngine::Renderer {
 //=================================================================================
 bool C_GeometryList::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
 {
-	if (m_AABB.IntersectImpl(ray) <= 0.f)
+	if (!m_AABB.Intersects(ray))
 		return false;
 	struct S_IntersectionInfo {
 		C_RayIntersection					 intersection;

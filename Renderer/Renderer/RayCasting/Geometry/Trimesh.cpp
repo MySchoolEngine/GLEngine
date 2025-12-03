@@ -116,7 +116,7 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 		return false;
 	}
 
-	if (m_AABB.IntersectImpl(rayIn) <= 0.f)
+	if (!m_AABB.Intersects(ray))
 		return false;
 
 	struct S_IntersectionInfo {

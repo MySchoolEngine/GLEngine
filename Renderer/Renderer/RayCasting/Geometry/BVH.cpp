@@ -185,7 +185,7 @@ bool BVH::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& in
 bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, const BVHNode& node) const
 {
 	// Early out: if ray origin is outside AABB and doesn't intersect it
-	if (!node.aabb.Contains(ray.origin) && node.aabb.IntersectImpl(ray) <= 0.f)
+	if (!node.aabb.Contains(ray.origin) && !node.aabb.Intersects(ray))
 	{
 		return false;
 	}

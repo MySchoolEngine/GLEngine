@@ -16,6 +16,50 @@ public:
 	{
 	}
 
+	[[nodiscard]] constexpr bool Intersects(const S_Ray& ray) const noexcept
+	{
+		if (!IsInitialized())
+		{
+			return false;
+		}
+
+		// Fast slab test - optimized for boolean result
+		float tmin = 0.0f;
+		float tmax = std::numeric_limits<float>::max();
+
+		for (int i = 0; i < 3; ++i)
+		{
+			if (std::abs(ray.direction[i]) < 1e-8f)
+			{
+				// Ray is parallel to slab - check if origin is within slab
+				if (ray.origin[i] < m_Min[i] || ray.origin[i] > m_Max[i])
+					return false;
+			}
+			else
+			{
+				// Compute intersection t values of ray with near and far plane of slab
+				const float invD = 1.0f / ray.direction[i];
+				float t1 = (m_Min[i] - ray.origin[i]) * invD;
+				float t2 = (m_Max[i] - ray.origin[i]) * invD;
+
+				// Make t1 the intersection with near plane, t2 with far plane
+				if (t1 > t2)
+					std::swap(t1, t2);
+
+				// Compute intersection of slab interval with ray interval
+				tmin = std::max(tmin, t1);
+				tmax = std::min(tmax, t2);
+
+				// Exit if ray misses box
+				if (tmin > tmax)
+					return false;
+			}
+		}
+
+		// Ray intersects all 3 slabs
+		return tmax >= 0.0f;
+	}
+
 	[[nodiscard]] inline float IntersectImpl(const S_Ray& ray) const
 	{
 		if (!IsInitialized())
