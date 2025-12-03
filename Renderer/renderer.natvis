@@ -99,7 +99,7 @@
   <Type Name="GLEngine::Renderer::BVH::BVHNode">
     <Intrinsic Name="hasLeft"  Expression="left  != GLEngine::Renderer::BVH::s_InvalidBVHNode"/>
     <Intrinsic Name="hasRight" Expression="right != GLEngine::Renderer::BVH::s_InvalidBVHNode"/>
-    <Intrinsic Name="numTris" Expression="(lastTrig-firstTrig)/3+1"/>
+    <Intrinsic Name="numTris" Expression="(lastTrig-firstTrig)+1"/>
     <DisplayString Condition="hasLeft() || hasRight()">{aabb}: {numTris()} tris</DisplayString>
     <DisplayString Condition="!hasLeft() &amp;&amp; !hasRight()">{aabb}: {numTris()} tris - leaf</DisplayString>
     <Expand>
