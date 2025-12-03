@@ -102,7 +102,7 @@ void C_Trimesh::AddTriangle(const Physics::Primitives::S_Triangle& triangle, con
 //=================================================================================
 bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersection& intersection) const
 {
-	const auto ray = Physics::Primitives::S_Ray{m_TransofrmInv * glm::vec4(rayIn.origin, 1.f), rayIn.direction};
+	const auto ray = Physics::Primitives::S_Ray{.origin = m_TransofrmInv * glm::vec4(rayIn.origin, 1.f), .direction = rayIn.direction};
 
 	if (m_BVH)
 	{
@@ -121,12 +121,12 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 
 	struct S_IntersectionInfo {
 		C_RayIntersection intersection;
-		float			  t;
+		float			  t = std::numeric_limits<float>::max();
 
 		[[nodiscard]] bool operator<(const S_IntersectionInfo& a) const { return t < a.t; }
 	};
 
-	S_IntersectionInfo closestIntersect{C_RayIntersection(), std::numeric_limits<float>::max()};
+	S_IntersectionInfo closestIntersect { .intersection = C_RayIntersection(), .t = std::numeric_limits<float>::infinity() };
 
 	glm::vec2 barycentric;
 
@@ -157,7 +157,7 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 		}
 	}
 
-	if (closestIntersect.t == std::numeric_limits<float>::max())
+	if (std::isinf(closestIntersect.t))
 		return false;
 
 
