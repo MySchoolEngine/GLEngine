@@ -1213,4 +1213,313 @@ TEST_F(BVHFixture, DepthIsConsistentAcrossBuilds)
 	EXPECT_EQ(depth1, depth2) << "Building same geometry should produce same depth";
 }
 
+// ============================================================================
+// Triangle Index Output Tests
+// ============================================================================
+
+TEST_F(BVHFixture, ReturnsCorrectTriangleIndex_SingleTriangle)
+{
+	std::vector<glm::vec3> triangles = {glm::vec3(0, 0, 0), glm::vec3(1, 0, 0), glm::vec3(0, 1, 0)};
+
+	const BVH bvh(triangles);
+
+	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.25f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	C_RayIntersection					 hit;
+	unsigned int						 triangleIndex = 999; // Initialize with invalid value
+
+	const bool intersected = bvh.Intersect(ray, hit, &triangleIndex);
+
+	ASSERT_TRUE(intersected);
+	EXPECT_EQ(triangleIndex, 0u) << "Should return triangle index 0 for the only triangle";
+}
+
+TEST_F(BVHFixture, ReturnsCorrectTriangleIndex_MultipleTriangles)
+{
+	// Create 5 triangles in a row
+	std::vector<glm::vec3> triangles;
+	for (int i = 0; i < 5; i++)
+	{
+		triangles.emplace_back(i, 0, 0);
+		triangles.emplace_back(i + 1, 0, 0);
+		triangles.emplace_back(i, 1, 0);
+	}
+
+	const BVH bvh(triangles);
+
+	// Test hitting each triangle
+	for (int i = 0; i < 5; i++)
+	{
+		const Physics::Primitives::S_Ray ray{.origin = glm::vec3(i + 0.25f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+		C_RayIntersection				 hit;
+		unsigned int					 triangleIndex = 999;
+
+		const bool intersected = bvh.Intersect(ray, hit, &triangleIndex);
+
+		ASSERT_TRUE(intersected) << "Ray should hit triangle " << i;
+		EXPECT_EQ(triangleIndex, static_cast<unsigned int>(i)) << "Should return correct triangle index for triangle " << i;
+	}
+}
+
+TEST_F(BVHFixture, TriangleIndexNullptrDoesNotCrash)
+{
+	std::vector<glm::vec3> triangles = {glm::vec3(0, 0, 0), glm::vec3(1, 0, 0), glm::vec3(0, 1, 0)};
+
+	const BVH bvh(triangles);
+
+	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.25f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	C_RayIntersection					 hit;
+
+	// Should not crash when passing nullptr for triangle index
+	EXPECT_TRUE(bvh.Intersect(ray, hit, nullptr));
+}
+
+TEST_F(BVHFixture, ReturnsClosestTriangleIndex)
+{
+	// Two overlapping triangles at different depths
+	std::vector<glm::vec3> triangles = {// Triangle 0 at z=0 (closer)
+											glm::vec3(0, 0, 0), glm::vec3(1, 0, 0), glm::vec3(0, 1, 0),
+											// Triangle 1 at z=1 (farther)
+											glm::vec3(0, 0, 1), glm::vec3(1, 0, 1), glm::vec3(0, 1, 1)};
+
+	const BVH bvh(triangles);
+
+	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.25f, 0.25f, -1.0f), .direction = glm::vec3(0, 0, 1)};
+	C_RayIntersection					 hit;
+	unsigned int						 triangleIndex = 999;
+
+	const bool intersected = bvh.Intersect(ray, hit, &triangleIndex);
+
+	ASSERT_TRUE(intersected);
+	EXPECT_EQ(triangleIndex, 0u) << "Should return the closest triangle (index 0)";
+	EXPECT_NEAR(hit.GetRayLength(), 1.0f, EPSILON);
+}
+
+// ============================================================================
+// Barycentric Coordinate Output Tests
+// ============================================================================
+
+TEST_F(BVHFixture, ReturnsBarycentricCoordinates_TriangleCenter)
+{
+	std::vector<glm::vec3> triangles = {glm::vec3(0, 0, 0), glm::vec3(1, 0, 0), glm::vec3(0, 1, 0)};
+
+	const BVH bvh(triangles);
+
+	// Ray hitting the center of the triangle
+	// Center is at (1/3, 1/3) in barycentric coords
+	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(1.0f / 3.0f, 1.0f / 3.0f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	C_RayIntersection					 hit;
+	glm::vec2							 barycentric(999.f, 999.f);
+
+	const bool intersected = bvh.Intersect(ray, hit, nullptr, &barycentric);
+
+	ASSERT_TRUE(intersected);
+	// Barycentric coords at center should be approximately (1/3, 1/3)
+	// (w = 1 - u - v = 1/3 as well)
+	EXPECT_NEAR(barycentric.x, 1.0f / 3.0f, 0.01f) << "Barycentric U should be ~1/3 at triangle center";
+	EXPECT_NEAR(barycentric.y, 1.0f / 3.0f, 0.01f) << "Barycentric V should be ~1/3 at triangle center";
+}
+
+TEST_F(BVHFixture, ReturnsBarycentricCoordinates_Vertex0)
+{
+	std::vector<glm::vec3> triangles = {glm::vec3(0, 0, 0), glm::vec3(1, 0, 0), glm::vec3(0, 1, 0)};
+
+	const BVH bvh(triangles);
+
+	// Ray hitting vertex 0 at (0, 0, 0)
+	// Barycentric should be (0, 0) meaning w=1
+	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.0f, 0.0f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	C_RayIntersection					 hit;
+	glm::vec2							 barycentric(999.f, 999.f);
+
+	const bool intersected = bvh.Intersect(ray, hit, nullptr, &barycentric);
+
+	ASSERT_TRUE(intersected);
+	EXPECT_NEAR(barycentric.x, 0.0f, 0.01f) << "Barycentric U should be 0 at vertex 0";
+	EXPECT_NEAR(barycentric.y, 0.0f, 0.01f) << "Barycentric V should be 0 at vertex 0";
+}
+
+TEST_F(BVHFixture, ReturnsBarycentricCoordinates_Vertex1)
+{
+	std::vector<glm::vec3> triangles = {glm::vec3(0, 0, 0), glm::vec3(1, 0, 0), glm::vec3(0, 1, 0)};
+
+	const BVH bvh(triangles);
+
+	// Ray hitting vertex 1 at (1, 0, 0)
+	// Barycentric should be (1, 0) meaning full weight on vertex 1
+	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(1.0f, 0.0f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	C_RayIntersection					 hit;
+	glm::vec2							 barycentric(999.f, 999.f);
+
+	const bool intersected = bvh.Intersect(ray, hit, nullptr, &barycentric);
+
+	ASSERT_TRUE(intersected);
+	EXPECT_NEAR(barycentric.x, 1.0f, 0.01f) << "Barycentric U should be 1 at vertex 1";
+	EXPECT_NEAR(barycentric.y, 0.0f, 0.01f) << "Barycentric V should be 0 at vertex 1";
+}
+
+TEST_F(BVHFixture, ReturnsBarycentricCoordinates_Vertex2)
+{
+	std::vector<glm::vec3> triangles = {glm::vec3(0, 0, 0), glm::vec3(1, 0, 0), glm::vec3(0, 1, 0)};
+
+	const BVH bvh(triangles);
+
+	// Ray hitting vertex 2 at (0, 1, 0)
+	// Barycentric should be (0, 1) meaning full weight on vertex 2
+	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.0f, 1.0f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	C_RayIntersection					 hit;
+	glm::vec2							 barycentric(999.f, 999.f);
+
+	const bool intersected = bvh.Intersect(ray, hit, nullptr, &barycentric);
+
+	ASSERT_TRUE(intersected);
+	EXPECT_NEAR(barycentric.x, 0.0f, 0.01f) << "Barycentric U should be 0 at vertex 2";
+	EXPECT_NEAR(barycentric.y, 1.0f, 0.01f) << "Barycentric V should be 1 at vertex 2";
+}
+
+TEST_F(BVHFixture, ReturnsBarycentricCoordinates_EdgeMidpoint)
+{
+	std::vector<glm::vec3> triangles = {glm::vec3(0, 0, 0), glm::vec3(1, 0, 0), glm::vec3(0, 1, 0)};
+
+	const BVH bvh(triangles);
+
+	// Ray hitting midpoint of edge between vertex 0 and vertex 1 at (0.5, 0, 0)
+	// Barycentric should be (0.5, 0) meaning half weight on vertex 0 and half on vertex 1
+	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.5f, 0.0f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	C_RayIntersection					 hit;
+	glm::vec2							 barycentric(999.f, 999.f);
+
+	const bool intersected = bvh.Intersect(ray, hit, nullptr, &barycentric);
+
+	ASSERT_TRUE(intersected);
+	EXPECT_NEAR(barycentric.x, 0.5f, 0.01f) << "Barycentric U should be 0.5 at edge midpoint";
+	EXPECT_NEAR(barycentric.y, 0.0f, 0.01f) << "Barycentric V should be 0 at edge midpoint";
+}
+
+TEST_F(BVHFixture, BarycentricNullptrDoesNotCrash)
+{
+	std::vector<glm::vec3> triangles = {glm::vec3(0, 0, 0), glm::vec3(1, 0, 0), glm::vec3(0, 1, 0)};
+
+	const BVH bvh(triangles);
+
+	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.25f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	C_RayIntersection					 hit;
+
+	// Should not crash when passing nullptr for barycentric coords
+	EXPECT_TRUE(bvh.Intersect(ray, hit, nullptr, nullptr));
+}
+
+TEST_F(BVHFixture, BarycentricCoordinatesAreValid)
+{
+	std::vector<glm::vec3> triangles = {glm::vec3(0, 0, 0), glm::vec3(1, 0, 0), glm::vec3(0, 1, 0)};
+
+	const BVH bvh(triangles);
+
+	// Test multiple points across the triangle
+	std::vector<glm::vec2> testPoints = {glm::vec2(0.1f, 0.1f), glm::vec2(0.3f, 0.3f), glm::vec2(0.2f, 0.5f), glm::vec2(0.6f, 0.1f)};
+
+	for (const auto& point : testPoints)
+	{
+		const Physics::Primitives::S_Ray ray{.origin = glm::vec3(point.x, point.y, 1.0f), .direction = glm::vec3(0, 0, -1)};
+		C_RayIntersection				 hit;
+		glm::vec2						 barycentric;
+
+		if (bvh.Intersect(ray, hit, nullptr, &barycentric))
+		{
+			// Valid barycentric coords must satisfy: u >= 0, v >= 0, u + v <= 1
+			EXPECT_GE(barycentric.x, 0.0f) << "Barycentric U must be >= 0";
+			EXPECT_GE(barycentric.y, 0.0f) << "Barycentric V must be >= 0";
+			EXPECT_LE(barycentric.x + barycentric.y, 1.01f) << "Barycentric U + V must be <= 1 (with small tolerance)";
+		}
+	}
+}
+
+// ============================================================================
+// Combined Functionality Tests
+// ============================================================================
+
+TEST_F(BVHFixture, ReturnsBothTriangleIndexAndBarycentric)
+{
+	std::vector<glm::vec3> triangles = {glm::vec3(0, 0, 0), glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), glm::vec3(2, 0, 0), glm::vec3(3, 0, 0),
+											glm::vec3(2, 1, 0)};
+
+	const BVH bvh(triangles);
+
+	const Physics::Primitives::S_Ray ray{.origin = glm::vec3(2.25f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	C_RayIntersection				 hit;
+	unsigned int					 triangleIndex = 999;
+	glm::vec2						 barycentric(999.f, 999.f);
+
+	const bool intersected = bvh.Intersect(ray, hit, &triangleIndex, &barycentric);
+
+	ASSERT_TRUE(intersected);
+	EXPECT_EQ(triangleIndex, 1u) << "Should hit triangle 1";
+
+	// Verify barycentric coords are valid
+	EXPECT_GE(barycentric.x, 0.0f);
+	EXPECT_GE(barycentric.y, 0.0f);
+	EXPECT_LE(barycentric.x + barycentric.y, 1.01f);
+}
+
+TEST_F(BVHFixture, TriangleIndexAndBarycentricConsistentAcrossTree)
+{
+	// Create complex scene with multiple levels in BVH tree
+	std::vector<glm::vec3> triangles;
+	for (int i = 0; i < 30; i++)
+	{
+		triangles.emplace_back(i, 0, 0);
+		triangles.emplace_back(i + 1, 0, 0);
+		triangles.emplace_back(i, 1, 0);
+	}
+
+	const BVH bvh(triangles);
+
+	// Test hitting triangle at various depths in the tree
+	for (int i = 0; i < 30; i++)
+	{
+		const Physics::Primitives::S_Ray ray{.origin = glm::vec3(i + 0.25f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+		C_RayIntersection				 hit;
+		unsigned int					 triangleIndex = 999;
+		glm::vec2						 barycentric;
+
+		const bool intersected = bvh.Intersect(ray, hit, &triangleIndex, &barycentric);
+
+		ASSERT_TRUE(intersected) << "Should hit triangle " << i;
+		EXPECT_EQ(triangleIndex, static_cast<unsigned int>(i)) << "Should return correct triangle index";
+
+		// Barycentric coords should be valid
+		EXPECT_GE(barycentric.x, 0.0f) << "Invalid barycentric U for triangle " << i;
+		EXPECT_GE(barycentric.y, 0.0f) << "Invalid barycentric V for triangle " << i;
+		EXPECT_LE(barycentric.x + barycentric.y, 1.01f) << "Invalid barycentric sum for triangle " << i;
+	}
+}
+
+TEST_F(BVHFixture, BarycentricAllowsTextureCoordinateInterpolation)
+{
+	// Single triangle with known texture coordinates
+	std::vector<glm::vec3> triangles = {glm::vec3(0, 0, 0), glm::vec3(1, 0, 0), glm::vec3(0, 1, 0)};
+
+	const BVH bvh(triangles);
+
+	// Simulate texture coordinates for the triangle
+	const glm::vec2 texCoord0(0.0f, 0.0f);
+	const glm::vec2 texCoord1(1.0f, 0.0f);
+	const glm::vec2 texCoord2(0.0f, 1.0f);
+
+	// Hit the triangle at various points
+	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.5f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	C_RayIntersection					 hit;
+	glm::vec2							 barycentric;
+
+	const bool intersected = bvh.Intersect(ray, hit, nullptr, &barycentric);
+	ASSERT_TRUE(intersected);
+
+	// Interpolate texture coordinates using barycentric coords
+	const float	  w			 = 1.0f - barycentric.x - barycentric.y;
+	const glm::vec2 interpTexCoord = texCoord0 * w + texCoord1 * barycentric.x + texCoord2 * barycentric.y;
+
+	// At hit point (0.5, 0.25), we expect interpolated tex coord to be approximately (0.5, 0.25)
+	EXPECT_NEAR(interpTexCoord.x, 0.5f, 0.1f);
+	EXPECT_NEAR(interpTexCoord.y, 0.25f, 0.1f);
+}
+
 } // namespace GLEngine::Renderer

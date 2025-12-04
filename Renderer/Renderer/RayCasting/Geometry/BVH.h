@@ -23,6 +23,8 @@ public:
 	BVH(); // ONLY for deserialization
 	~BVH();
 	[[nodiscard]] bool Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const;
+	[[nodiscard]] bool
+	Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, unsigned int* outTriangleIndex = nullptr, glm::vec2* outBarycentric = nullptr) const;
 
 	void DebugDraw(I_DebugDraw& dd, const glm::mat4& modelMatrix) const;
 
@@ -46,8 +48,9 @@ private:
 
 		[[nodiscard]] constexpr unsigned int NumTrig() const { return (lastTrig - firstTrig) + 1; }
 	};
-	[[nodiscard]] bool IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, const BVHNode& node) const;
-	void			   DebugDrawNode(I_DebugDraw& dd, const glm::mat4& modelMatrix, const BVHNode& node, unsigned int level) const;
+	[[nodiscard]] bool
+	IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, const BVHNode& node, unsigned int* outTriangleIndex, glm::vec2* outBarycentric) const;
+	void DebugDrawNode(I_DebugDraw& dd, const glm::mat4& modelMatrix, const BVHNode& node, unsigned int level) const;
 	// using NodeID because the vector is being reallocated on the way
 	void SplitBVHNodeNaive(T_BVHNodeID node, unsigned int level, std::vector<glm::vec3>& centroids);
 

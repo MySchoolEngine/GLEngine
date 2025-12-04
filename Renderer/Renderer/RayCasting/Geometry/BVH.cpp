@@ -174,15 +174,16 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<
 }
 
 //=================================================================================
-bool BVH::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
+bool BVH::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, unsigned int* outTriangleIndex, glm::vec2* outBarycentric) const
 {
 	if (m_Nodes.empty())
 		return false;
-	return IntersectNode(ray, intersection, m_Nodes[0]);
+	return IntersectNode(ray, intersection, m_Nodes[0], outTriangleIndex, outBarycentric);
 }
 
 //=================================================================================
-bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, const BVHNode& node) const
+bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, const BVHNode& node, unsigned int* outTriangleIndex,
+						glm::vec2* outBarycentric) const
 {
 	// Early out: if ray origin is outside AABB and doesn't intersect it
 	if (!node.aabb.Contains(ray.origin) && !node.aabb.Intersects(ray))
@@ -194,37 +195,49 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection
 	{
 		// we can have hit from both sides as sides can overlap
 		C_RayIntersection intersections[2];
+		unsigned int	  triangleIndices[2] = {0, 0};
+		glm::vec2		  barycentrics[2]	 = {glm::vec2(0.f), glm::vec2(0.f)};
 		bool			  intersectionsResults[2] = {false, false};
+
 		if (node.left != s_InvalidBVHNode)
-			intersectionsResults[0] = IntersectNode(ray, intersections[0], m_Nodes[node.left]);
+			intersectionsResults[0] = IntersectNode(ray, intersections[0], m_Nodes[node.left], &triangleIndices[0], &barycentrics[0]);
 		if (node.right != s_InvalidBVHNode)
-			intersectionsResults[1] = IntersectNode(ray, intersections[1], m_Nodes[node.right]);
+			intersectionsResults[1] = IntersectNode(ray, intersections[1], m_Nodes[node.right], &triangleIndices[1], &barycentrics[1]);
+
 		// find closer intersection
 		if (intersectionsResults[0] && intersectionsResults[1])
 		{
-			if (intersections[0].GetRayLength() < intersections[1].GetRayLength())
-			{
-				intersection = intersections[0];
-			}
-			else
-			{
-				intersection = intersections[1];
-			}
+			const int closestChild = (intersections[0].GetRayLength() < intersections[1].GetRayLength()) ? 0 : 1;
+			intersection			= intersections[closestChild];
+			if (outTriangleIndex)
+				*outTriangleIndex = triangleIndices[closestChild];
+			if (outBarycentric)
+				*outBarycentric = barycentrics[closestChild];
 		}
 		else if (intersectionsResults[0])
 		{
 			intersection = intersections[0];
+			if (outTriangleIndex)
+				*outTriangleIndex = triangleIndices[0];
+			if (outBarycentric)
+				*outBarycentric = barycentrics[0];
 		}
 		else if (intersectionsResults[1])
 		{
 			intersection = intersections[1];
+			if (outTriangleIndex)
+				*outTriangleIndex = triangleIndices[1];
+			if (outBarycentric)
+				*outBarycentric = barycentrics[1];
 		}
 		return intersectionsResults[0] || intersectionsResults[1];
 	}
 	// we are in the leaf node
 	struct S_IntersectionInfo {
 		C_RayIntersection intersection;
-		float			  t = std::numeric_limits<float>::infinity();
+		float			  t				 = std::numeric_limits<float>::infinity();
+		unsigned int	  triangleIndex	 = 0;
+		glm::vec2		  barycentric	 = glm::vec2(0.f);
 
 		[[nodiscard]] bool operator<(const S_IntersectionInfo& a) const { return t < a.t; }
 	};
@@ -248,14 +261,20 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection
 			C_RayIntersection inter(S_Frame(normal), ray.origin + length * ray.direction, Physics::Primitives::S_Ray(ray));
 			inter.SetRayLength(length);
 
-			closestIntersect = {.intersection = inter, .t = length};
+			closestIntersect = {.intersection = inter, .t = length, .triangleIndex = m_LookupTable[i], .barycentric = barycentric};
 		}
 	}
 	if (std::isinf(closestIntersect.t))
 		return false;
 
-
 	intersection = closestIntersect.intersection;
+
+	// Output triangle index and barycentric coordinates if requested
+	if (outTriangleIndex)
+		*outTriangleIndex = closestIntersect.triangleIndex;
+	if (outBarycentric)
+		*outBarycentric = closestIntersect.barycentric;
+
 	return true;
 }
 
