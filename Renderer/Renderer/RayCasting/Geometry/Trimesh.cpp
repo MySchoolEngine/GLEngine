@@ -106,11 +106,17 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 
 	if (m_BVH)
 	{
-		if (m_BVH->Intersect(ray, intersection))
+		glm::vec2 barycentric;
+		unsigned int triangleIndex;
+		if (m_BVH->Intersect(ray, intersection, &triangleIndex, &barycentric))
 		{
 			intersection.SetMaterial(&GetMaterial());
 			intersection.TransformRayAndPoint(m_Transofrm);
 			intersection.SetRayLength(glm::distance(intersection.GetRay().origin, intersection.GetIntersectionPoint()));
+			glm::vec2		 uv;
+			const glm::vec2* triUV = &(m_TexCoords[triangleIndex]);
+			RayTracing::T_GeometryTraits::BarycentricInterpolation(barycentric, triUV, uv);
+			intersection.SetUV(uv);
 			return true;
 		}
 		return false;
