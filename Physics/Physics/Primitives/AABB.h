@@ -29,7 +29,7 @@ public:
 
 		for (int i = 0; i < 3; ++i)
 		{
-			if (std::abs(ray.direction[i]) < 1e-8f)
+			if (std::abs(ray.direction[i]) < s_RayDirectionEpsilon)
 			{
 				// Ray is parallel to slab - check if origin is within slab
 				if (ray.origin[i] < m_Min[i] || ray.origin[i] > m_Max[i])
@@ -103,7 +103,7 @@ public:
 		}
 
 		for (int i = 0; i < 3; i++)
-			if (quadrant[i] != E_QuadrantName::MIDDLE && ray.direction[i] != 0.)
+			if (quadrant[i] != E_QuadrantName::MIDDLE && std::abs(ray.direction[i]) >= s_RayDirectionEpsilon)
 				maxT[i] = (candidatePlane[i] - ray.origin[i]) / ray.direction[i];
 			else
 				maxT[i] = -1.;
@@ -240,5 +240,8 @@ public:
 
 	glm::vec3 m_Min;
 	glm::vec3 m_Max;
+
+private:
+	static constexpr float s_RayDirectionEpsilon = 1e-8f;
 };
 } // namespace GLEngine::Physics::Primitives
