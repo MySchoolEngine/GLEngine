@@ -22,7 +22,14 @@ public:
 	explicit BVH(C_Trimesh& trimesh);
 	BVH(); // ONLY for deserialization
 	~BVH();
-	[[nodiscard]] bool Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const;
+	/**
+	 * @brief Test ray intersection against the BVH
+	 * @param ray Ray to test
+	 * @param intersection Intersection result (if hit)
+	 * @param outTriangleIndex Optional output: original triangle index in the mesh
+	 * @param outBarycentric Optional output: barycentric coordinates (u, v) within triangle
+	 * @return true if ray intersects any triangle
+	 */
 	[[nodiscard]] bool
 	Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, unsigned int* outTriangleIndex = nullptr, glm::vec2* outBarycentric = nullptr) const;
 
@@ -30,6 +37,10 @@ public:
 
 	void Build();
 
+	/**
+	 * @brief Computes maximum depth of the BVH tree
+	 * @return Maximum depth from root to deepest leaf, or 0 if empty
+	 */
 	unsigned int ComputeMaxDepth() const;
 
 	RTTR_REGISTRATION_FRIEND
@@ -54,14 +65,34 @@ private:
 	// using NodeID because the vector is being reallocated on the way
 	void SplitBVHNodeNaive(T_BVHNodeID node, unsigned int level, std::vector<glm::vec3>& centroids);
 
+	/**
+	 * @brief Calculates Surface Area Heuristic (SAH) cost for a potential split
+	 * 
+	 * @param parent Parent node to split
+	 * @param axis Axis to split on (0=X, 1=Y, 2=Z)
+	 * @param splitPos Position along axis to split at
+	 * @param centroids Triangle centroids for partitioning
+	 * @return SAH cost (lower is better), or max float if invalid split
+	 */
 	[[nodiscard]] float CalcSAHCost(const BVHNode& parent, const unsigned int axis, const float splitPos, std::vector<glm::vec3>& centroids) const;
 
+	/**
+	 * @brief Partitions triangles around a split position (quicksort-style)
+	 * 
+	 * @param centroids Triangle centroids to partition (modified in-place)
+	 * @param first First triangle index in range
+	 * @param last Last triangle index in range
+	 * @param axis Axis to partition on (0=X, 1=Y, 2=Z)
+	 * @param splitPos Split position along axis
+	 * @return Last index of left partition
+	 */
 	[[nodiscard]] unsigned int PartitionTriangles(std::vector<glm::vec3>& centroids, unsigned int first, unsigned int last, int axis, float splitPos);
 
 	/**
-	 * @brief
-	 * @param triangleIndex index into the lookup table
-	 * @return
+	 * @brief Gets pointer to triangle vertices from lookup table
+	 * 
+	 * @param triangleIndex Index into the lookup table
+	 * @return Pointer to first vertex of triangle (array of 3 vec3)
 	 */
 	[[nodiscard]] const glm::vec3* GetTriangleDefinition(const unsigned int triangleIndex) const;
 
