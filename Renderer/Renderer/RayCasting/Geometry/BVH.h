@@ -39,7 +39,7 @@ public:
 
 	/**
 	 * @brief Computes maximum depth of the BVH tree
-	 * @return Maximum depth from root to deepest leaf, or 0 if empty
+	 * @return Maximum depth from root to the deepest leaf, or 0 if empty
 	 */
 	unsigned int ComputeMaxDepth() const;
 
@@ -74,7 +74,7 @@ private:
 	 * @param centroids Triangle centroids for partitioning
 	 * @return SAH cost (lower is better), or max float if invalid split
 	 */
-	[[nodiscard]] float CalcSAHCost(const BVHNode& parent, const unsigned int axis, const float splitPos, std::vector<glm::vec3>& centroids) const;
+	[[nodiscard]] float CalcSAHCost(const BVHNode& parent, const unsigned int axis, const float splitPos, const std::vector<glm::vec3>& centroids) const;
 
 	/**
 	 * @brief Partitions triangles around a split position (quicksort-style)

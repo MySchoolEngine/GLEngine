@@ -303,7 +303,7 @@ void BVH::DebugDrawNode(I_DebugDraw& dd, const glm::mat4& modelMatrix, const BVH
 }
 
 //=================================================================================
-float BVH::CalcSAHCost(const BVHNode& parent, const unsigned int axis, const float splitPos, std::vector<glm::vec3>& centroids) const
+float BVH::CalcSAHCost(const BVHNode& parent, const unsigned int axis, const float splitPos, const std::vector<glm::vec3>& centroids) const
 {
 	Physics::Primitives::S_AABB left, right;
 	unsigned int				leftCount = 0, rightCount = 0;
