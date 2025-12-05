@@ -16,9 +16,13 @@ struct Mesh;
 
 class C_Trimesh : public I_RayGeometryObject {
 public:
+	C_Trimesh(const C_Trimesh& other);
+	C_Trimesh(C_Trimesh&& other) noexcept;
+	C_Trimesh& operator=(const C_Trimesh& other);
+	C_Trimesh& operator=(C_Trimesh&& other) noexcept;
 	C_Trimesh();
-	virtual ~C_Trimesh();
-	[[nodiscard]] virtual bool Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const override;
+	~C_Trimesh() override;
+	[[nodiscard]] bool Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const override;
 
 	float Area() const override { return 0.0f; }
 
@@ -35,7 +39,7 @@ public:
 
 	std::size_t GetNumTriangles() const;
 
-	void DebugDraw(I_DebugDraw* dd) const;
+	void DebugDraw(I_DebugDraw& dd) const;
 
 	RTTR_ENABLE();
 	RTTR_REGISTRATION_FRIEND;

@@ -1,12 +1,14 @@
 ﻿#include <UtilsTestStdafx.h>
 
 #include <Utils/Reflection/Metadata.h>
+#include <Utils/Serialization/SerializationUtils.h>
 #include <Utils/Serialization/XMLDeserialize.h>
+
+#include <CommonTestUtils/XMLDeserializeFixture.h>
 
 #include <pugixml.hpp>
 
 #include "../../../../Renderer/Renderer/Colours.h"
-#include <CommonTestUtils/XMLDeserializeFixture.h>
 
 
 struct GlmVec3 {
@@ -89,6 +91,11 @@ struct SetTypesStruct {
 	std::set<std::string> m_StringSet;
 	std::set<TestEnum>	  m_EnumSet;
 };
+
+struct DefaultValueStruct {
+	bool WrongBool = false; // REGISTER_DEFAULT_VALUE(true)
+};
+
 // clang-format off
 RTTR_REGISTRATION
 {
@@ -226,6 +233,11 @@ RTTR_REGISTRATION
 		.property("intSet", &SetTypesStruct::m_IntSet)
 		.property("stringSet", &SetTypesStruct::m_StringSet)
 		.property("enumSet", &SetTypesStruct::m_EnumSet);
+
+	rttr::registration::class_<DefaultValueStruct>("DefaultValueStruct")
+		.constructor<>()
+		.property("wrongBool", &DefaultValueStruct::WrongBool)(REGISTER_DEFAULT_VALUE(true))
+		;
 }
 // clang-format on
 
@@ -282,7 +294,7 @@ TEST_F(XMLDeserializeFixture, RefWrapperStructDeserialize)
 		EXPECT_TRUE(obj->m_Bool);
 		EXPECT_EQ(obj->m_Char, 'A');
 		EXPECT_EQ(obj->m_UInt, 100u);
-		//EXPECT_EQ(obj->m_Long, 123456789L);
+		// EXPECT_EQ(obj->m_Long, 123456789L);
 		EXPECT_EQ(obj->m_Short, 255);
 
 		// Test string type
@@ -327,7 +339,7 @@ TEST_F(XMLDeserializeFixture, DISABLED_AtomicTypesStructDeserialize)
 		EXPECT_TRUE(obj->m_Bool);
 		EXPECT_EQ(obj->m_Char, 'A');
 		EXPECT_EQ(obj->m_UInt, 100u);
-		//EXPECT_EQ(obj->m_Long, 123456789L);
+		// EXPECT_EQ(obj->m_Long, 123456789L);
 		EXPECT_EQ(obj->m_Short, 255);
 
 		// Test string type
@@ -419,7 +431,7 @@ TEST_F(XMLDeserializeFixture, DISABLED_RefWrapperStructDeserializeChildElements)
 		EXPECT_TRUE(obj->m_Bool);
 		EXPECT_EQ(obj->m_Char, 'A');
 		EXPECT_EQ(obj->m_UInt, 100u);
-		//EXPECT_EQ(obj->m_Long, 123456789L);
+		// EXPECT_EQ(obj->m_Long, 123456789L);
 		EXPECT_EQ(obj->m_Short, 255);
 
 		// Test string type
@@ -808,6 +820,24 @@ TEST_F(XMLDeserializeFixture, SetTypesStructDeserialize)
 		EXPECT_EQ(obj->m_EnumSet.size(), 2);
 		EXPECT_TRUE(obj->m_EnumSet.contains(TestEnum::Value1));
 		EXPECT_TRUE(obj->m_EnumSet.contains(TestEnum::Value3));
+	}
+}
+
+TEST_F(XMLDeserializeFixture, DefaultValueStruct_WrongBool)
+{
+	const pugi::xml_document doc = ConstructDocument(R"x(
+<?xml version="1.0"?>
+<DefaultValueStruct>
+</DefaultValueStruct>)x");
+
+	const auto result = deserializer.Deserialize<std::shared_ptr<DefaultValueStruct>>(doc);
+	EXPECT_TRUE(result.has_value());
+	if (result.has_value())
+	{
+		const auto& obj = result.value();
+
+		// Test int set
+		EXPECT_TRUE(obj->WrongBool);
 	}
 }
 

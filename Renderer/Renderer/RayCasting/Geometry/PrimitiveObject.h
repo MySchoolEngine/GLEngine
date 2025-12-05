@@ -9,9 +9,29 @@
 #include <Physics/Primitives/Sphere.h>
 #include <Physics/Primitives/Triangle.h>
 
+// The idea here is to lazy evaluate a lot of interesction calculations
+// but e.g. triangle provides barycentric coordinates.
+// Also, I would like to store additional info inside the triangle
+
+
 namespace GLEngine::Renderer {
 
-template <class T, typename = decltype(std::declval<T>().IntersectImpl(std::declval<const Physics::Primitives::S_Ray&>()))> class C_Primitive : public I_RayGeometryObject {
+template <typename T> concept IntersectableConcept = requires(T t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection)
+{
+	{
+		t.IntersectImpl(ray, intersection)
+	}
+	->std::convertible_to<float>;
+}
+|| requires(T t, const Physics::Primitives::S_Ray& ray)
+{
+	{
+		t.IntersectImpl(ray)
+	}
+	->std::convertible_to<float>;
+};
+
+template <IntersectableConcept T> class C_Primitive : public I_RayGeometryObject {
 public:
 	C_Primitive(T primitive)
 		: m_Primitive(primitive)

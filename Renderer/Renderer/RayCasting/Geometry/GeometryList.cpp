@@ -8,7 +8,7 @@ namespace GLEngine::Renderer {
 //=================================================================================
 bool C_GeometryList::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
 {
-	if (m_AABB.IntersectImpl(ray) <= 0.f)
+	if (!m_AABB.Intersects(ray))
 		return false;
 	struct S_IntersectionInfo {
 		C_RayIntersection					 intersection;
@@ -17,7 +17,7 @@ bool C_GeometryList::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInter
 
 		[[nodiscard]] bool operator<(const S_IntersectionInfo& a) const { return t < a.t; }
 	};
-	S_IntersectionInfo closestIntersect{C_RayIntersection(), std::numeric_limits<float>::max()};
+	S_IntersectionInfo closestIntersect{.intersection = C_RayIntersection(), .t = std::numeric_limits<float>::infinity(), .object = nullptr};
 
 
 	std::for_each(m_Geometry.begin(), m_Geometry.end(), [&](const auto& object) {
@@ -30,7 +30,7 @@ bool C_GeometryList::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInter
 		}
 	});
 
-	if (closestIntersect.t == std::numeric_limits<float>::max())
+	if (std::isinf(closestIntersect.t))
 		return false;
 
 

@@ -378,7 +378,7 @@ void C_RayTraceWindow::SaveCurrentImage(const std::filesystem::path& texture)
 }
 
 //=================================================================================
-void C_RayTraceWindow::DebugDraw(I_DebugDraw* dd) const
+void C_RayTraceWindow::DebugDraw(I_DebugDraw& dd) const
 {
 	if (m_DebugDraw)
 		m_Scene.DebugDraw(dd);

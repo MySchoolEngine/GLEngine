@@ -101,7 +101,6 @@ bool C_TrimeshModel::Build(const MeshResource& handle)
 		{
 			m_BVHs.push_back(nullptr);
 		}
-		break;
 	}
 	m_Dirty = true;
 	return true;
@@ -124,7 +123,6 @@ bool C_TrimeshModel::SaveInternal() const
 //=================================================================================
 void C_TrimeshModel::AfterDeserialize()
 {
-	CORE_LOG(E_Level::Error, E_Context::Core, "Invalid resource {}.", m_Filepath);
 	for (int i = 0; i < m_BVHs.size() && i < m_Trimeshes.size(); ++i)
 	{
 		m_BVHs[i]->m_Storage = &m_Trimeshes[i].m_Vertices;

@@ -2,6 +2,17 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - 05-12-2025
+### Added
+- UV Coordinates to BVH
+- Static mesh handles now handles the change of mesh asset
+- Stylized Nature MegaKit[Standard] - asset pack
+### Fixed
+- AABB Serialization
+- Load of buildable resource without loading parent one
+- Default value applied on deserialize for Atomics
+### Improvements
+- AABB Size smaller by 1/3
 
 ## [Unreleased] - 01-11-2025
 ### Added

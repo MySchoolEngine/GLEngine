@@ -11,15 +11,58 @@ namespace GLEngine::Physics::Primitives {
 struct S_AABB : public T_Intersectable<S_AABB> {
 public:
 	constexpr S_AABB()
-		: m_Min(0.0f, 0.0f, 0.0f)
-		, m_Max(0.0f, 0.0f, 0.0f)
-		, m_Initialised(false)
+		: m_Min(std::numeric_limits<float>::infinity())
+		, m_Max(std::numeric_limits<float>::infinity())
 	{
+	}
+
+	[[nodiscard]] constexpr bool Intersects(const S_Ray& ray) const noexcept
+	{
+		if (!IsInitialized())
+		{
+			return false;
+		}
+
+		// Fast slab test - optimized for boolean result
+		float tmin = 0.0f;
+		float tmax = std::numeric_limits<float>::max();
+
+		for (int i = 0; i < 3; ++i)
+		{
+			if (std::abs(ray.direction[i]) < s_RayDirectionEpsilon)
+			{
+				// Ray is parallel to slab - check if origin is within slab
+				if (ray.origin[i] < m_Min[i] || ray.origin[i] > m_Max[i])
+					return false;
+			}
+			else
+			{
+				// Compute intersection t values of ray with near and far plane of slab
+				const float invD = 1.0f / ray.direction[i];
+				float t1 = (m_Min[i] - ray.origin[i]) * invD;
+				float t2 = (m_Max[i] - ray.origin[i]) * invD;
+
+				// Make t1 the intersection with near plane, t2 with far plane
+				if (t1 > t2)
+					std::swap(t1, t2);
+
+				// Compute intersection of slab interval with ray interval
+				tmin = std::max(tmin, t1);
+				tmax = std::min(tmax, t2);
+
+				// Exit if ray misses box
+				if (tmin > tmax)
+					return false;
+			}
+		}
+
+		// Ray intersects all 3 slabs
+		return tmax >= 0.0f;
 	}
 
 	[[nodiscard]] inline float IntersectImpl(const S_Ray& ray) const
 	{
-		if (!m_Initialised)
+		if (!IsInitialized())
 		{
 			return -1.0f;
 		}
@@ -60,7 +103,7 @@ public:
 		}
 
 		for (int i = 0; i < 3; i++)
-			if (quadrant[i] != E_QuadrantName::MIDDLE && ray.direction[i] != 0.)
+			if (quadrant[i] != E_QuadrantName::MIDDLE && std::abs(ray.direction[i]) >= s_RayDirectionEpsilon)
 				maxT[i] = (candidatePlane[i] - ray.origin[i]) / ray.direction[i];
 			else
 				maxT[i] = -1.;
@@ -93,10 +136,9 @@ public:
 
 	constexpr void Add(const glm::vec3& point)
 	{
-		if (!m_Initialised)
+		if (!IsInitialized())
 		{
 			m_Min = m_Max = point;
-			m_Initialised = true;
 			return;
 		}
 
@@ -111,7 +153,7 @@ public:
 	constexpr void Add(const glm::vec4& point) { Add(glm::vec3(point)); }
 	constexpr void Add(const S_AABB& bbox)
 	{
-		if (!bbox.m_Initialised)
+		if (!bbox.IsInitialized())
 		{
 			return;
 		}
@@ -144,7 +186,7 @@ public:
 	}
 	[[nodiscard]] constexpr S_AABB getTransformedAABB(const glm::mat4& matrix) const
 	{
-		if (!m_Initialised)
+		if (!IsInitialized())
 		{
 			return {};
 		}
@@ -170,8 +212,36 @@ public:
 		return (extent.x * extent.y + extent.y * extent.z + extent.z * extent.x) * 2.f;
 	}
 
+	[[nodiscard]] constexpr bool Contains(const glm::vec3& point) const
+	{
+		if (!IsInitialized())
+		{
+			return false;
+		}
+		return point.x >= m_Min.x && point.x <= m_Max.x &&
+			   point.y >= m_Min.y && point.y <= m_Max.y &&
+			   point.z >= m_Min.z && point.z <= m_Max.z;
+	}
+
+	[[nodiscard]] constexpr bool Contains(const S_AABB& other) const
+	{
+		if (!IsInitialized() || !other.IsInitialized())
+		{
+			return false;
+		}
+		return Contains(other.m_Min) && Contains(other.m_Max);
+	}
+
+	[[nodiscard]] constexpr bool IsInitialized() const
+	{
+		// std::isinf is constexpr only after C++23
+		return m_Min.x != std::numeric_limits<float>::infinity();
+	}
+
 	glm::vec3 m_Min;
 	glm::vec3 m_Max;
-	bool	  m_Initialised;
+
+private:
+	static constexpr float s_RayDirectionEpsilon = 1e-8f;
 };
 } // namespace GLEngine::Physics::Primitives

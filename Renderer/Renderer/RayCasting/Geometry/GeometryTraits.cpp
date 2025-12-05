@@ -93,6 +93,12 @@ void T_GeometryTraits::FillIntersection(const Physics::Primitives::S_Triangle& t
 }
 
 //=================================================================================
+void T_GeometryTraits::BarycentricInterpolation(const glm::vec2& barycentric, const glm::vec2* attribute, glm::vec2& result)
+{
+	result = barycentric.x * attribute[1] + barycentric.y * attribute[2] + (1 - barycentric.x - barycentric.y) * attribute[0];
+}
+
+//=================================================================================
 glm::vec3 T_GeometryTraits::GetNormal(const Physics::Primitives::S_Triangle& triangle)
 {
 	return triangle.GetNormal();

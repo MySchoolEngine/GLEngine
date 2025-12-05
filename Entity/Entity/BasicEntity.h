@@ -14,7 +14,7 @@ class ENTITY_API_EXPORT C_BasicEntity : public I_Entity, public std::enable_shar
 public:
 	explicit C_BasicEntity(std::string name);
 	explicit C_BasicEntity();
-	virtual ~C_BasicEntity();
+	~C_BasicEntity() override;
 
 	virtual void Update() override;
 	virtual void PostUpdate() override;

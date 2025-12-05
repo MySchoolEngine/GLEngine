@@ -19,8 +19,6 @@
 #include <Core/Resources/LoadingQuery.h>
 #include <Core/Resources/ResourceManager.h>
 
-#include <Utils/HighResolutionTimer.h>
-
 #define DISABLE if (true)
 
 namespace GLEngine::Renderer {
@@ -76,22 +74,22 @@ C_RayTraceScene::C_RayTraceScene()
 
 	DISABLE
 	{
-		// left wall - red
+		// left wall - green
 		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, -1.5f, 3.f}, {-3.f, -1.5f, -3.f}, {-3.f, 1.5f, -3.f}));
 		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, -1.5f, 3.f}, {-3.f, 1.5f, -3.f}, {-3.f, 1.5f, 3.f}));
-		triangle->SetMaterial(redMat);
-		triangle1->SetMaterial(redMat);
+		triangle->SetMaterial(greenMat);
+		triangle1->SetMaterial(greenMat);
 		AddObject(triangle);
 		AddObject(triangle1);
 	}
 
 	DISABLE
 	{
-		// left wall - green
+		// left wall - red
 		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({3.f, -1.5f, 3.f}, {3.f, 1.5f, -3.f}, {3.f, -1.5f, -3.f}));
 		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({3.f, -1.5f, 3.f}, {3.f, 1.5f, 3.f}, {3.f, 1.5f, -3.f}));
-		triangle->SetMaterial(greenMat);
-		triangle1->SetMaterial(greenMat);
+		triangle->SetMaterial(redMat);
+		triangle1->SetMaterial(redMat);
 		AddObject(triangle);
 		AddObject(triangle1);
 	}
@@ -101,6 +99,18 @@ C_RayTraceScene::C_RayTraceScene()
 		// back wall
 		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, -1.5f, -3.f}, {3.f, -1.5f, -3.f}, {3.f, 1.5f, -3.f}));
 		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, -1.5f, -3.f}, {3.f, 1.5f, -3.f}, {-3.f, 1.5f, -3.f}));
+		triangle->SetMaterial(whiteMat);
+		triangle1->SetMaterial(whiteMat);
+		AddObject(triangle);
+		AddObject(triangle1);
+	}
+
+	DISABLE
+	if (false)
+	{
+		// shader
+		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-2.f, -1.5f, 1.f + .3f}, {2.f, -1.5f, 1.f + .3f}, {2.f, 1.5f, 1.f + .3f}));
+		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-2.f, -1.5f, 1.f + .3f}, {2.f, 1.5f, 1.f + .3f}, {-2.f, 1.5f, 1.f + .3f}));
 		triangle->SetMaterial(whiteMat);
 		triangle1->SetMaterial(whiteMat);
 		AddObject(triangle);
@@ -152,13 +162,13 @@ C_RayTraceScene::C_RayTraceScene()
 
 	if (false)
 	{
-		auto& meshHandle = m_Meshes.emplace_back(rm.LoadResource<MeshResource>(R"(Models/sword/baphomet-sword-mostruario.obj)"));
+		auto& meshHandle = m_Meshes.emplace_back(rm.LoadResource<C_TrimeshModel>(R"(Models/sword/baphomet-sword-mostruario.obj)"));
 		m_LoadingMeshes.AddHandle(meshHandle);
 	}
 
 	if (true)
 	{
-		auto& meshHandle = m_Meshes.emplace_back(rm.LoadResource<MeshResource>(R"(Models/KoboldRig/Kobold_Rig_.obj)"));
+		auto& meshHandle = m_Meshes.emplace_back(rm.LoadResource<C_TrimeshModel>(R"(Models/lada/lada.tri)", true));
 		m_LoadingMeshes.AddHandle(meshHandle);
 	}
 #else
@@ -204,12 +214,12 @@ bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInte
 {
 	struct S_IntersectionInfo {
 		C_RayIntersection	 intersection;
-		float				 t;
-		I_RayGeometryObject* object;
+		float				 t		= std::numeric_limits<float>::infinity();
+		I_RayGeometryObject* object = nullptr;
 
 		[[nodiscard]] bool operator<(const S_IntersectionInfo& a) const { return t < a.t; }
 	};
-	S_IntersectionInfo closestIntersect{.intersection = C_RayIntersection(), .t = std::numeric_limits<float>::max(), .object = nullptr};
+	S_IntersectionInfo closestIntersect{.intersection = C_RayIntersection()};
 
 	std::for_each(m_Objects.begin(), m_Objects.end(), [&](const auto& object) {
 		C_RayIntersection inter;
@@ -220,7 +230,7 @@ bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInte
 		}
 	});
 
-	if (closestIntersect.t == std::numeric_limits<float>::max())
+	if (std::isinf(closestIntersect.t))
 		return false;
 
 	intersection  = closestIntersect.intersection;
@@ -261,31 +271,17 @@ void C_RayTraceScene::ForEachLight(const std::function<void(const std::reference
 }
 
 //=================================================================================
-void C_RayTraceScene::AddMesh(const MeshData::Mesh& mesh, const MeshData::Material& material, const BVH* bvh)
+void C_RayTraceScene::AddMesh(const Core::ResourceHandle<C_TrimeshModel> trimesh, const MeshData::Material& material)
 {
-	::Utils::HighResolutionTimer renderTime;
-	using namespace Physics::Primitives;
-// #define OLD_TRIMESH
-#ifdef OLD_TRIMESH
-	auto list = std::make_shared<C_GeometryList>();
-	for (auto it = mesh.vertices.begin(); it != mesh.vertices.end(); it += 3)
+	for (const auto& iter : trimesh.GetResource().GetTrimeshes())
 	{
-		auto triangle = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle(glm::vec3(*it), glm::vec3(*(it + 1)), glm::vec3(*(it + 2))));
-		triangle->SetMaterial(material);
-		list->AddObject(triangle);
+		auto trimeshPtr = std::make_shared<C_Trimesh>();
+		*trimeshPtr		= iter;
+		trimeshPtr->SetMaterial(AddMaterial(material).get());
+		trimeshPtr->SetTransformation(glm::translate(glm::mat4(1.f), glm::vec3(0, -1.5f, 0)) * glm::scale(glm::mat4(1.f), glm::vec3(0.5f, 0.5f, 0.5f)));
+		m_Trimeshes.push_back(trimeshPtr);
+		AddObject(trimeshPtr);
 	}
-
-	list->GetAABB() = mesh.bbox;
-	AddObject(list);
-#else
-	auto trimesh = std::make_shared<C_Trimesh>();
-	trimesh->SetMaterial(AddMaterial(material).get());
-	trimesh->AddMesh(mesh);
-	trimesh->SetTransformation(glm::translate(glm::mat4(1.f), glm::vec3(0, -1.5f, 0)) * glm::scale(glm::mat4(1.f), glm::vec3(0.5f, 0.5f, 0.5f)));
-	m_Trimeshes.push_back(trimesh);
-	AddObject(trimesh);
-#endif
-	CORE_LOG(E_Level::Info, E_Context::Render, "Raytracing add mesh: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
 }
 
 //=================================================================================
@@ -300,7 +296,7 @@ C_TextureView C_RayTraceScene::GetTextureView(const int textureID) const
 }
 
 //=================================================================================
-void C_RayTraceScene::DebugDraw(I_DebugDraw* dd) const
+void C_RayTraceScene::DebugDraw(I_DebugDraw& dd) const
 {
 	std::for_each(m_Trimeshes.begin(), m_Trimeshes.end(), [&](const auto& trimesh) { trimesh->DebugDraw(dd); });
 	// m_Blob->DebugDraw(*dd);
@@ -315,39 +311,22 @@ bool C_RayTraceScene::IsLoaded() const
 //=================================================================================
 void C_RayTraceScene::BuildScene()
 {
+	static const MeshData::Material s_White{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, -1, -1, "white"};
+
 	auto& rm = Core::C_ResourceManager::Instance();
 	if (m_LoadingMeshes.IsDone())
 	{
-		for (const auto& meshHandle : m_Meshes)
+		for (const auto& trimeshHandle : m_Meshes)
 		{
-			GLE_ASSERT(meshHandle.IsLoading() == false, "At this point all the handles should be loaded!");
-			if (!meshHandle)
+			if (!trimeshHandle)
 				continue;
 
-			for (auto& mesh : meshHandle.GetResource().GetScene().meshes)
-			{
-				// intentional copy as I need to re-number the textures
-				m_LoadingTextures.AddHandle(m_Textures[0]);
-				const auto&		   scene = meshHandle.GetResource().GetScene();
-				MeshData::Material mat	 = scene.materials[mesh.materialIndex];
-
-				if (mat.textureIndex != -1)
-				{
-					m_Textures.emplace_back(rm.LoadResource<TextureResource>(std::filesystem::path(meshHandle.GetResource().GetTextureNames()[mat.textureIndex])));
-					mat.textureIndex = static_cast<int>(m_Textures.size()) - 1;
-				}
-				if (mat.noramlTextureIndex != -1)
-				{
-					m_Textures.emplace_back(rm.LoadResource<TextureResource>(std::filesystem::path(meshHandle.GetResource().GetTextureNames()[mat.textureIndex])));
-					mat.noramlTextureIndex = static_cast<int>(m_Textures.size()) - 1;
-				}
-				mat.shininess = 0.f;
-				AddMesh(mesh, mat);
-			}
+			AddMesh(trimeshHandle, s_White);
 		}
 	}
 }
 
+//=================================================================================
 void C_RayTraceScene::ClearScene()
 {
 	m_Objects.clear();

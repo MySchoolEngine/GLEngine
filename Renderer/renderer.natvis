@@ -86,20 +86,20 @@
 
   <Type Name="GLEngine::Renderer::BVH">
     <Intrinsic Name="numNodes" Expression="m_Nodes._Mypair._Myval2._Mylast - m_Nodes._Mypair._Myval2._Myfirst"/>
-    <Intrinsic Name="numVertices" Expression="m_Storage._Mypair._Myval2._Mylast - m_Storage._Mypair._Myval2._Myfirst"/>
+    <Intrinsic Name="numVertices" Expression="(size_t)(m_Storage->_Mypair._Myval2._Mylast - m_Storage->_Mypair._Myval2._Myfirst)"/>
     <DisplayString Condition="numNodes() == 0">{numVertices()} - tris - not init</DisplayString>
     <DisplayString Condition="numNodes() != 0">{numVertices()} - tris, {numNodes()} nodes</DisplayString>
     <Expand>
       <Item Name="[Root]" Condition="numNodes() != 0">m_Nodes[0]</Item>
       <Item Name="[Nodes]" Condition="numNodes() != 0">m_Nodes</Item>
-      <Item Name="[Storage]">m_Storage</Item>
+      <Item Name="[Storage]">*m_Storage</Item>
     </Expand>
   </Type>
 
   <Type Name="GLEngine::Renderer::BVH::BVHNode">
     <Intrinsic Name="hasLeft"  Expression="left  != GLEngine::Renderer::BVH::s_InvalidBVHNode"/>
     <Intrinsic Name="hasRight" Expression="right != GLEngine::Renderer::BVH::s_InvalidBVHNode"/>
-    <Intrinsic Name="numTris" Expression="(lastTrig-firstTrig)/3+1"/>
+    <Intrinsic Name="numTris" Expression="(lastTrig-firstTrig)+1"/>
     <DisplayString Condition="hasLeft() || hasRight()">{aabb}: {numTris()} tris</DisplayString>
     <DisplayString Condition="!hasLeft() &amp;&amp; !hasRight()">{aabb}: {numTris()} tris - leaf</DisplayString>
     <Expand>

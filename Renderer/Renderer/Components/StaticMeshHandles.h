@@ -36,6 +36,8 @@ public:
 
 
 private:
+	void CleanRenderData();
+
 	struct MeshContainer {
 		Handle<Buffer> m_PositionsHandle;
 		Handle<Buffer> m_NormalsHandle;
@@ -45,6 +47,7 @@ private:
 		uint32_t	   m_NumPrimitives;
 	};
 	Core::ResourceHandle<MeshResource> m_MeshResource;
+	Core::ResourceHandle<MeshResource> m_MeshResourceLive;
 	std::vector<MeshContainer>		   m_Meshes;
 	Handle<Pipeline>				   m_Pipeline;
 	std::shared_ptr<C_Material>		   m_Material;

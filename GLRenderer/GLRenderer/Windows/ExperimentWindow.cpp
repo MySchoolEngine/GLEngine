@@ -133,7 +133,7 @@ void C_ExperimentWindow::Update()
 
 	if (auto* rayTraceWindow = m_ImGUI->GetGUIMgr().GetWindow(m_RayTraceGUID); rayTraceWindow)
 	{
-		dynamic_cast<Renderer::C_RayTraceWindow*>(rayTraceWindow)->DebugDraw(&C_DebugDraw::Instance());
+		dynamic_cast<Renderer::C_RayTraceWindow*>(rayTraceWindow)->DebugDraw(C_DebugDraw::Instance());
 	}
 
 	m_World->OnUpdate();

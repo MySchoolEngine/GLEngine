@@ -13,7 +13,6 @@ RTTR_REGISTRATION
 
 	rttr::registration::class_<S_AABB>("AABB")
 		.constructor<>()(rttr::policy::ctor::as_object)
-		.property("init", &S_AABB::m_Initialised)(REGISTER_DEFAULT_VALUE(true))
 		.property("min", &S_AABB::m_Min)(REGISTER_DEFAULT_VALUE(glm::vec3(0.f)))
 		.property("max", &S_AABB::m_Max)(REGISTER_DEFAULT_VALUE(glm::vec3(0.f)));
 

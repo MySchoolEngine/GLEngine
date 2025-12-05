@@ -9,8 +9,8 @@ class C_GeometryList : public I_RayGeometryObject {
 public:
 	C_GeometryList() = default;
 
-	[[nodiscard]] virtual bool Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const override;
-	[[nodiscard]] virtual float Area() const override { return 0.f; }
+	[[nodiscard]] bool Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const override;
+	[[nodiscard]] float Area() const override { return 0.f; }
 
 	void AddObject(std::shared_ptr<I_RayGeometryObject>&& object);
 
