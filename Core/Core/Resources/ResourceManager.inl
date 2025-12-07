@@ -128,6 +128,33 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 					}
 					else
 					{
+						if constexpr (IsBeDerivedResource<ResourceType> && BuildableResource<ResourceType>)
+						{
+							C_Metafile* metafile		   = GetOrLoadMetafile(filepath);
+							const auto	baseResourceHandle = GetResource<typename ResourceType::T_BaseResource>(metafile->GetOriginalFileName());
+							if (baseResourceHandle.IsReady() == false)
+							{
+								CORE_LOG(E_Level::Error, E_Context::Core,
+										 "File {} is not already loaded, thus cannot build derived resource {}. Buildable resources are only supported in non-async calls.",
+										 metafile->GetOriginalFileName(), filepath);
+								RemoveResource(resource);
+								// put to failed
+								m_FailedLoads.push_back(resource);
+								return;
+							}
+							if (std::dynamic_pointer_cast<ResourceType>(resource)->Build(baseResourceHandle.GetResource()))
+							{
+								if (!resource->Save())
+								{
+									CORE_LOG(E_Level::Error, E_Context::Core, "Cannot save resource {}", resource->GetFilePath());
+								}
+								metafile->AddDerivedResource(filepath);
+								m_FinishedLoads.push_back(resource);
+								return;
+							}
+
+							CORE_LOG(E_Level::Error, E_Context::Core, "Buildable resource is not possible to load async {}", filepath);
+						}
 						// put to failed
 						m_FailedLoads.push_back(resource);
 					}

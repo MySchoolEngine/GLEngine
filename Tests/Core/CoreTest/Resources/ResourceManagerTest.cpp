@@ -281,6 +281,32 @@ TEST_F(ResourceManagerFixture, LoadBuildableResource)
 	EXPECT_EQ(buildable.builtName, "Built_DefaultTest") << "Built name should be prefixed with 'Built_'";
 }
 
+TEST_F(ResourceManagerFixture, LoadBuildableResourceAsync)
+{
+	// so far, we only support building such resources, that have parent resource already loaded
+	auto& manager = C_ResourceManager::Instance();
+
+	manager.RegisterResourceType(new TestResourceLoader);
+	manager.RegisterResourceType(new TestResourceBuildableLoader);
+
+	// required as we cannot load the parent resource from the name of buildable one
+	const auto handleTest	   = manager.LoadResource<TestResource>(testPathTest, true);
+	const auto handleBuildable = manager.LoadResource<TestResourceBuildable>(testPathTestBuildable, false);
+
+	// Verify it was built successfully
+	EXPECT_TRUE(handleBuildable.IsLoading()) << "Buildable resource should be in loading state immediately after async load request";
+	EXPECT_FALSE(handleBuildable.IsFailed()) << "Buildable resource should not be in failed state";
+	// Wait for load to complete (TestResource has 100ms delay)
+	std::this_thread::sleep_for(std::chrono::milliseconds(120));
+
+	// Process finished loads
+	manager.UpdatePendingLoads();
+
+	// Now should be ready
+	EXPECT_TRUE(handleBuildable.IsReady()) << "Handle should be ready after async load completes and UpdatePendingLoads is called";
+	EXPECT_FALSE(handleBuildable.IsLoading()) << "Handle should no longer be in loading state after load completes";
+}
+
 TEST_F(ResourceManagerFixture, LoadBuildableResourceWithWrongExtension)
 {
 	auto& manager = C_ResourceManager::Instance();
