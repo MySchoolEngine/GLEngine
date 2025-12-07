@@ -165,7 +165,7 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager&				  world,
 		RenderDoc::C_DebugScope s("UBO Upload");
 		m_LightsUBO->MakeHandlesResident();
 		renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
-			[&, materialsHaveChanged]() {
+			[&, materialsHaveChanged, camera]() {
 				m_FrameConstUBO->SetView(camera->GetViewMatrix());
 				m_FrameConstUBO->SetProjection(camera->GetProjectionMatrix());
 				m_FrameConstUBO->SetCameraPosition(glm::vec4(camera->GetPosition(), 1.0f));

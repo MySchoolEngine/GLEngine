@@ -14,7 +14,7 @@ RTTR_REGISTRATION
 	rttr::registration::class_<C_ImageEditorTool>("C_ImageEditorTool");
 	rttr::registration::class_<C_GaussianBlur>("C_GaussianBlur")
 		.property("Sigma", &C_GaussianBlur::m_Sigma)(
-			rttr::policy::prop::bind_as_ptr,
+			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::Slider>(),
 			RegisterMetamember<UI::Slider::Name>("Sigma:"),
 			RegisterMetamember<UI::Slider::Min>(0.001f),
