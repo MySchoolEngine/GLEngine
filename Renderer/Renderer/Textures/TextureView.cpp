@@ -34,10 +34,10 @@ glm::vec2 C_TextureView::GetUVForPixel(const glm::uvec2& coord) const
 }
 
 //=================================================================================
-std::size_t C_TextureView::GetAddress(const glm::uvec2& uv) const
+std::size_t C_TextureView::GetAddress(const glm::uvec2& coord) const
 {
 	const auto dim = m_Storage->GetDimensions();
-	return (static_cast<std::size_t>(dim.x) * uv.y + uv.x) * m_Storage->GetNumElements();
+	return (static_cast<std::size_t>(dim.x) * coord.y + coord.x) * m_Storage->GetNumElements();
 }
 
 //=================================================================================
@@ -111,17 +111,17 @@ bool C_TextureView::UseBorderColor() const
 }
 
 //=================================================================================
-glm::uvec2 C_TextureView::ClampCoordinates(const glm::ivec2& uv) const
+glm::uvec2 C_TextureView::ClampCoordinates(const glm::ivec2& coord) const
 {
 	const glm::ivec2 dim	= m_Rect.GetSize();
-	glm::ivec2		 result = uv;
+	glm::ivec2		 result = coord;
 	switch (m_WrapFunction)
 	{
 	case E_WrapFunction::ClampToEdge:
 		result = glm::clamp(result, {0, 0}, dim);
 		break;
 	case E_WrapFunction::Repeat: {
-		result = uv % dim;
+		result = coord % dim;
 		if (result.x < 0)
 		{
 			result.x = dim.x + result.x;
@@ -133,8 +133,8 @@ glm::uvec2 C_TextureView::ClampCoordinates(const glm::ivec2& uv) const
 	}
 	break;
 	case E_WrapFunction::MirroredRepeat: {
-		const auto numRepeats = uv / (dim + glm::ivec2{1, 1});
-		result				  = uv - numRepeats * dim;
+		const auto numRepeats = coord / (dim + glm::ivec2{1, 1});
+		result				  = coord - numRepeats * dim;
 		// odd repeats -> e.g. second repeat -> mirror
 		if (numRepeats.x % 2 == 1)
 		{
