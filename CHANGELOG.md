@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - 05-12-2025
+### Fixed
+- Buildable resrource now tries to load if possible
+- Heatmap in Ray trace window visible
+- Bump OpenGL 4.4 -> 4.5 to make it work on integrated graphics
+
+## [Unreleased] - 05-12-2025
 ### Added
 - UV Coordinates to BVH
 - Static mesh handles now handles the change of mesh asset
