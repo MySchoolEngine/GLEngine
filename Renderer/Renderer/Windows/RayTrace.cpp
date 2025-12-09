@@ -118,6 +118,7 @@ void C_RayTraceWindow::CreateTextures(I_Renderer& renderer)
 		});
 		renderer.SetTextureSampler(m_GPUHeatMapHandle, GPUSamplerHandle);
 		m_GUIHeatMapImage = GUI::C_Image(m_GPUHeatMapHandle);
+		m_GUIHeatMapImage.SetSize({15, s_ImageResolution.y / s_Coef});
 	}
 
 	// probe
@@ -399,7 +400,7 @@ void C_RayTraceWindow::RecalculateHeatMap()
 	float				max = std::numeric_limits<float>::min();
 	for (unsigned int row = 0; row < heatMap.GetDimensions().y; ++row)
 	{
-		const auto sample = heatMap.Get<float>(glm::uvec2{0, row}, Renderer::E_TextureChannel::Red);
+		const auto sample = heatMap.Get<float>(glm::uvec2{0, row}, E_TextureChannel::Red);
 		min				  = std::min(sample, min);
 		max				  = std::max(sample, max);
 	}
@@ -408,7 +409,7 @@ void C_RayTraceWindow::RecalculateHeatMap()
 	constexpr Colours::T_Colour maxColour = Colours::red;
 	for (unsigned int row = 0; row < heatMap.GetDimensions().y; ++row)
 	{
-		const auto sample = heatMap.Get<float>(glm::uvec2{0, row}, Renderer::E_TextureChannel::Red);
+		const auto sample = heatMap.Get<float>(glm::uvec2{0, row}, E_TextureChannel::Red);
 		result.Set(glm::uvec2{0, row}, glm::mix(minColour, maxColour, (sample - min) / interval));
 	}
 }
