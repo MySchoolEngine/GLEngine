@@ -1,16 +1,3 @@
-# Blender v2.81 (sub 16) OBJ File: 'test1.blend'
-# www.blender.org
-mtllib test1.mtl
-o Plane
-v -6.184729 0.000000 6.184729
-v 6.184729 0.000000 6.184729
-v -6.184729 0.000000 -6.184729
-v 6.184729 0.000000 -6.184729
-vt 0.000000 0.000000
-vt 1.000000 0.000000
-vt 1.000000 1.000000
-vt 0.000000 1.000000
-vn 0.0000 1.0000 0.0000
-usemtl Plane_material
-s off
-f 1/1/1 2/2/1 4/3/1 3/4/1
+version https://git-lfs.github.com/spec/v1
+oid sha256:e53347fccef918639a2727f0bc199357a9ef5b6c72169c1ea6588a8ee00afaa1
+size 390

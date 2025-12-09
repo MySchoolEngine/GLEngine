@@ -68,3 +68,4 @@ data/Models/**/*.png filter=lfs diff=lfs merge=lfs -text
 data/Models/**/*.obj filter=lfs diff=lfs merge=lfs -text
 data/Models/**/*.mtl filter=lfs diff=lfs merge=lfs -text
 data/Models/**/*.bin filter=lfs diff=lfs merge=lfs -text
+data/Models/**/*.obj filter=lfs diff=lfs merge=lfs -text
