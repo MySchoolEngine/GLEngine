@@ -121,7 +121,8 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 		return false;
 	}
 
-	if (!m_AABB.Intersects(ray))
+	// AABB is translated to the world-space
+	if (!m_AABB.Intersects(rayIn))
 		return false;
 
 	struct S_IntersectionInfo {
@@ -168,7 +169,7 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 
 	intersection = closestIntersect.intersection;
 	intersection.TransformRayAndPoint(m_Transofrm);
-	intersection.SetRayLength(glm::distance(intersection.GetRay().origin, intersection.GetIntersectionPoint())); // todo tady mohu použít length ne?
+	intersection.SetRayLength(glm::distance(intersection.GetRay().origin, intersection.GetIntersectionPoint())); // todo tady mohu pouï¿½ï¿½t length ne?
 	return true;
 }
 
