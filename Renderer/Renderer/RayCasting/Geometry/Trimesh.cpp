@@ -21,29 +21,39 @@ RTTR_REGISTRATION
 		.constructor<>()(rttr::policy::ctor::as_object)
 		.property("Vertices", &C_Trimesh::m_Vertices)(rttr::policy::prop::as_reference_wrapper)
 		.property("TexCoords", &C_Trimesh::m_TexCoords)(rttr::policy::prop::as_reference_wrapper)
-		.property("Transofrm", &C_Trimesh::m_Transofrm)(rttr::policy::prop::as_reference_wrapper, REGISTER_DEFAULT_VALUE(glm::mat4(1.f)))
+		.property("Transform", &C_Trimesh::m_Transform)(rttr::policy::prop::as_reference_wrapper, REGISTER_DEFAULT_VALUE(glm::mat4(1.f)))
+		.method("AfterDeserialize", &C_Trimesh::AfterDeserialize)()
 		.property("AABB", &C_Trimesh::m_AABB);
 }
 // clang-format on
 
+// TODO: missing after deserialize for e.g. Inv Transform
 namespace GLEngine::Renderer {
 //=================================================================================
 C_Trimesh::C_Trimesh() = default;
 
 //=================================================================================
-C_Trimesh::~C_Trimesh() = default;
-
-//=================================================================================
 C_Trimesh::C_Trimesh(const C_Trimesh& other)
 	: I_RayGeometryObject(other)
+	, m_Vertices(other.m_Vertices)
+	, m_TexCoords(other.m_TexCoords)
+	, m_AABB(other.m_AABB)
+	, m_Transform(other.m_Transform)
+	, m_TransformInv(other.m_TransformInv)
+	, m_BVH(other.m_BVH)
 {
-	*this = other;
 }
 
 //=================================================================================
 C_Trimesh::C_Trimesh(C_Trimesh&& other) noexcept
+	: I_RayGeometryObject(other)
+	, m_Vertices(std::move(other.m_Vertices))
+	, m_TexCoords(std::move(other.m_TexCoords))
+	, m_AABB(std::move(other.m_AABB))
+	, m_Transform(other.m_Transform)
+	, m_TransformInv(other.m_TransformInv)
+	, m_BVH(other.m_BVH)
 {
-	*this = std::move(other);
 }
 
 //=================================================================================
@@ -54,8 +64,8 @@ C_Trimesh& C_Trimesh::operator=(const C_Trimesh& other)
 		m_Vertices	   = other.m_Vertices;
 		m_TexCoords	   = other.m_TexCoords;
 		m_AABB		   = other.m_AABB;
-		m_Transofrm	   = other.m_Transofrm;
-		m_TransofrmInv = other.m_TransofrmInv;
+		m_Transform	   = other.m_Transform;
+		m_TransformInv = other.m_TransformInv;
 		m_BVH		   = other.m_BVH;
 	}
 	return *this;
@@ -66,14 +76,92 @@ C_Trimesh& C_Trimesh::operator=(C_Trimesh&& other) noexcept
 {
 	if (this != &other)
 	{
-		m_Vertices	   = other.m_Vertices;
-		m_TexCoords	   = other.m_TexCoords;
-		m_AABB		   = other.m_AABB;
-		m_Transofrm	   = other.m_Transofrm;
-		m_TransofrmInv = other.m_TransofrmInv;
+		m_Vertices	   = std::move(other.m_Vertices);
+		m_TexCoords	   = std::move(other.m_TexCoords);
+		m_AABB		   = std::move(other.m_AABB);
+		m_Transform	   = other.m_Transform;
+		m_TransformInv = other.m_TransformInv;
 		m_BVH		   = other.m_BVH;
 	}
 	return *this;
+}
+
+//=================================================================================
+C_Trimesh::~C_Trimesh() = default;
+
+//=================================================================================
+bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersection& intersection) const
+{
+	const auto ray = Physics::Primitives::S_Ray{.origin = m_TransformInv * glm::vec4(rayIn.origin, 1.f), .direction = rayIn.direction};
+
+	if (m_BVH)
+	{
+		glm::vec2	 barycentric;
+		unsigned int triangleIndex;
+		if (m_BVH->Intersect(ray, intersection, &triangleIndex, &barycentric))
+		{
+			intersection.SetMaterial(&GetMaterial());
+			intersection.TransformRayAndPoint(m_Transform);
+			intersection.SetRayLength(glm::distance(intersection.GetRay().origin, intersection.GetIntersectionPoint()));
+			glm::vec2		 uv;
+			const glm::vec2* triUV = &(m_TexCoords[triangleIndex]);
+			RayTracing::T_GeometryTraits::BarycentricInterpolation(barycentric, triUV, uv);
+			intersection.SetUV(uv);
+			return true;
+		}
+		return false;
+	}
+
+	// AABB is translated to the world-space
+	if (!m_AABB.Intersects(rayIn))
+		return false;
+
+	struct S_IntersectionInfo {
+		C_RayIntersection intersection;
+		float			  t = std::numeric_limits<float>::max();
+
+		[[nodiscard]] bool operator<(const S_IntersectionInfo& a) const { return t < a.t; }
+	};
+
+	S_IntersectionInfo closestIntersect{.intersection = C_RayIntersection(), .t = std::numeric_limits<float>::infinity()};
+
+	glm::vec2  barycentric;
+	const auto vertexCount = m_Vertices.size();
+
+	for (int i = 0; i < vertexCount; i += 3)
+	{
+		const glm::vec3* triDef = &(m_Vertices[i]);
+		const auto		 length = Physics::TriangleRayIntersect(triDef, ray, &barycentric);
+		if (length > 0.0f)
+		{
+			if (closestIntersect.t < length)
+			{
+				continue;
+			}
+			auto normal = glm::cross(m_Vertices[i + 1] - m_Vertices[i], m_Vertices[i + 2] - m_Vertices[i]);
+			normal		= glm::normalize(normal);
+			C_RayIntersection inter(S_Frame(normal), ray.origin + length * ray.direction, Physics::Primitives::S_Ray(ray));
+			if (!m_TexCoords.empty())
+			{
+				glm::vec2		 uv;
+				const glm::vec2* triUV = &(m_TexCoords[i]);
+				RayTracing::T_GeometryTraits::BarycentricInterpolation(barycentric, triUV, uv);
+				inter.SetUV(uv);
+			}
+			inter.SetMaterial(&GetMaterial());
+
+			closestIntersect = {.intersection = inter, .t = length};
+		}
+	}
+
+	if (std::isinf(closestIntersect.t))
+		return false;
+
+
+	intersection = closestIntersect.intersection;
+	intersection.TransformRayAndPoint(m_Transform);
+	intersection.SetRayLength(closestIntersect.t);
+	return true;
 }
 
 //=================================================================================
@@ -99,104 +187,27 @@ void C_Trimesh::AddTriangle(const Physics::Primitives::S_Triangle& triangle, con
 }
 
 //=================================================================================
-bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersection& intersection) const
-{
-	const auto ray = Physics::Primitives::S_Ray{.origin = m_TransofrmInv * glm::vec4(rayIn.origin, 1.f), .direction = rayIn.direction};
-
-	if (m_BVH)
-	{
-		glm::vec2 barycentric;
-		unsigned int triangleIndex;
-		if (m_BVH->Intersect(ray, intersection, &triangleIndex, &barycentric))
-		{
-			intersection.SetMaterial(&GetMaterial());
-			intersection.TransformRayAndPoint(m_Transofrm);
-			intersection.SetRayLength(glm::distance(intersection.GetRay().origin, intersection.GetIntersectionPoint()));
-			glm::vec2		 uv;
-			const glm::vec2* triUV = &(m_TexCoords[triangleIndex]);
-			RayTracing::T_GeometryTraits::BarycentricInterpolation(barycentric, triUV, uv);
-			intersection.SetUV(uv);
-			return true;
-		}
-		return false;
-	}
-
-	// AABB is translated to the world-space
-	if (!m_AABB.Intersects(rayIn))
-		return false;
-
-	struct S_IntersectionInfo {
-		C_RayIntersection intersection;
-		float			  t = std::numeric_limits<float>::max();
-
-		[[nodiscard]] bool operator<(const S_IntersectionInfo& a) const { return t < a.t; }
-	};
-
-	S_IntersectionInfo closestIntersect { .intersection = C_RayIntersection(), .t = std::numeric_limits<float>::infinity() };
-
-	glm::vec2 barycentric;
-
-	for (int i = 0; i < m_Vertices.size(); i += 3)
-	{
-		const glm::vec3* triDef = &(m_Vertices[i]);
-		const auto		 length = Physics::TriangleRayIntersect(triDef, ray, &barycentric);
-		if (length > 0.0f)
-		{
-			if (closestIntersect.t < length)
-			{
-				continue;
-			}
-			auto	   normal = glm::cross(m_Vertices[i + 1] - m_Vertices[i], m_Vertices[i + 2] - m_Vertices[i]);
-			//const auto area	  = glm::length(normal) / 2.f;
-			normal			  = glm::normalize(normal);
-			C_RayIntersection inter(S_Frame(normal), ray.origin + length * ray.direction, Physics::Primitives::S_Ray(ray));
-			if (!m_TexCoords.empty())
-			{
-				glm::vec2		 uv;
-				const glm::vec2* triUV = &(m_TexCoords[i]);
-				RayTracing::T_GeometryTraits::BarycentricInterpolation(barycentric, triUV, uv);
-				inter.SetUV(uv);
-			}
-			inter.SetMaterial(&GetMaterial());
-
-			closestIntersect = {.intersection = inter, .t = length};
-		}
-	}
-
-	if (std::isinf(closestIntersect.t))
-		return false;
-
-
-	intersection = closestIntersect.intersection;
-	intersection.TransformRayAndPoint(m_Transofrm);
-	intersection.SetRayLength(glm::distance(intersection.GetRay().origin, intersection.GetIntersectionPoint())); // todo tady mohu pou��t length ne?
-	return true;
-}
-
-//=================================================================================
 void C_Trimesh::AddMesh(const MeshData::Mesh& mesh)
 {
-	m_Vertices.reserve(mesh.vertices.size());
-	m_Vertices = mesh.vertices;
+	m_Vertices	= mesh.vertices;
 	m_TexCoords = mesh.texcoords;
-	m_AABB	   = mesh.bbox;
+	m_AABB		= mesh.bbox;
 	GLE_ASSERT(m_Vertices.size() % 3 == 0, "Wrong number of vertices.");
 }
 
 //=================================================================================
-void C_Trimesh::SetTransformation(glm::mat4 mat)
+void C_Trimesh::SetBVH(const BVH* bvh)
 {
-	auto invMat	   = glm::inverse(mat);
-	m_AABB		   = m_AABB.getTransformedAABB(mat);
-	m_Transofrm	   = mat;
-	m_TransofrmInv = invMat;
+	m_BVH = bvh;
 }
 
 //=================================================================================
-void C_Trimesh::DebugDraw(I_DebugDraw& dd) const
+void C_Trimesh::SetTransformation(const glm::mat4& mat)
 {
-	if (m_BVH)
-		m_BVH->DebugDraw(dd, m_Transofrm);
+	auto invMat	   = glm::inverse(mat);
+	m_AABB		   = m_AABB.getTransformedAABB(mat);
+	m_Transform	   = mat;
+	m_TransformInv = invMat;
 }
 
 //=================================================================================
@@ -206,9 +217,17 @@ std::size_t C_Trimesh::GetNumTriangles() const
 }
 
 //=================================================================================
-void C_Trimesh::SetBVH(const BVH* bvh)
+void C_Trimesh::DebugDraw(I_DebugDraw& dd) const
 {
-	m_BVH = bvh;
+	if (m_BVH)
+		m_BVH->DebugDraw(dd, m_Transform);
+}
+
+//=================================================================================
+void C_Trimesh::AfterDeserialize()
+{
+	auto invMat = glm::inverse(m_Transform);
+	m_TransformInv = invMat;
 }
 
 } // namespace GLEngine::Renderer
