@@ -15,27 +15,6 @@ struct S_Triangle final : public T_Intersectable<S_Triangle> {
 		CollinearPoints,
 	};
 
-	S_Triangle(const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2)
-		: m_p({p0, p1, p2})
-	{
-		const auto normal = glm::cross(m_p[1] - m_p[0], m_p[2] - m_p[0]);
-		const auto length = glm::length(normal);
-		m_Area			  = length / 2.f;
-
-		// Check for degenerate triangle (collinear points)
-		constexpr float EPSILON = 1e-8f;
-		if (length > EPSILON)
-		{
-			m_Normal = glm::normalize(normal);
-		}
-		else
-		{
-			// Degenerate triangle - use default normal
-			m_Normal = glm::vec3(0.0f, 0.0f, 1.0f);
-			GLE_ASSERT(false, "Triangle constructor called with collinear points, resulting in degenerate triangle");
-		}
-	}
-
 	[[nodiscard]] static std::expected<S_Triangle, CreateError> Create(const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2)
 	{
 		S_Triangle ret;
