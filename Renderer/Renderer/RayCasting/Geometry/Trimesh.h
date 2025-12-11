@@ -16,12 +16,13 @@ struct Mesh;
 
 class C_Trimesh : public I_RayGeometryObject {
 public:
+	C_Trimesh();
 	C_Trimesh(const C_Trimesh& other);
 	C_Trimesh(C_Trimesh&& other) noexcept;
 	C_Trimesh& operator=(const C_Trimesh& other);
 	C_Trimesh& operator=(C_Trimesh&& other) noexcept;
-	C_Trimesh();
 	~C_Trimesh() override;
+
 	[[nodiscard]] bool Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const override;
 
 	float Area() const override { return 0.0f; }
@@ -35,21 +36,22 @@ public:
 	[[nodiscard]] Physics::Primitives::S_AABB&		 GetAABB() { return m_AABB; }
 
 	// only scale and translate
-	void SetTransformation(glm::mat4 mat);
+	void SetTransformation(const glm::mat4& mat);
 
-	std::size_t GetNumTriangles() const;
+	[[nodiscard]] std::size_t GetNumTriangles() const;
 
 	void DebugDraw(I_DebugDraw& dd) const;
 
-	RTTR_ENABLE();
-	RTTR_REGISTRATION_FRIEND;
+	RTTR_ENABLE()
+	RTTR_REGISTRATION_FRIEND
 
 private:
+	void						AfterDeserialize();
 	std::vector<glm::vec3>		m_Vertices;
 	std::vector<glm::vec2>		m_TexCoords;
 	Physics::Primitives::S_AABB m_AABB;
-	glm::mat4					m_Transofrm	   = glm::mat4(1.f);
-	glm::mat4					m_TransofrmInv = glm::mat4(1.f);
+	glm::mat4					m_Transform	   = glm::mat4(1.f);
+	glm::mat4					m_TransformInv = glm::mat4(1.f);
 	const BVH*					m_BVH		   = nullptr;
 	friend class BVH;
 	friend class C_TrimeshModel;
