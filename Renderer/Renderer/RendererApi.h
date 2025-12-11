@@ -4,7 +4,11 @@
 	#error "CORE_PLATFORM not defined"
 #endif
 
-#if WIN32
+#if defined(RENDERER_STATIC_BUILD)
+	// Static library build - no DLL import/export needed
+	#define RENDERER_API_EXPORT
+	#define RENDERER_TEMPLATE_EXPORT
+#elif WIN32
 	#ifdef BUILD_RENDERER_DLL
 		#define RENDERER_API_EXPORT __declspec(dllexport)
 	#else

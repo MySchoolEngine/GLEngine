@@ -9,7 +9,8 @@ project "RendererTest"
 
 	PrecompiledHeaders("RendererTest")
 
-	Link("Renderer")
+	-- Link against RendererStatic instead of Renderer DLL
+	Link("Renderer", true)  -- true = static library
 	Link("Utils")
 	Link("Entity")
 	Link("Core")
