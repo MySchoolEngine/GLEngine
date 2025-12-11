@@ -10,6 +10,11 @@ newoption {
    },
 }
 
+newoption {
+	trigger = "skiptests",
+	description = "Skip building test projects and static library variants"
+}
+
 VULKAN_SDK = os.getenv("VULKAN_SDK")
 
 function GetVulkanBasePath()
@@ -137,12 +142,14 @@ NonDllLib["pugixml"] = true
 NonDllLib["crossguid"] = true
 NonDllLib["GLFW"] = true
 
-group "Tests"
-	include "Tests/Core"
-	include "Tests/Renderer"
-	include "Tests/Utils"
-if _TARGET_OS ~= "linux" then
-		include "Tests/CommonTestUtils"
+if not _OPTIONS["skiptests"] then
+	group "Tests"
+		include "Tests/Core"
+		include "Tests/Renderer"
+		include "Tests/Utils"
+		if _TARGET_OS ~= "linux" then
+			include "Tests/CommonTestUtils"
+		end
 end
 group "Dependencies"
   include "vendor/GLFW"

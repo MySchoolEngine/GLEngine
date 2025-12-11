@@ -1,49 +1,65 @@
 include "../Tools/Premake5/premakeDefines.lua"
 
-project "Renderer"
-	kind "SharedLib"
-	language "C++"
-	staticruntime "off"
-	
-	SetupProject("Renderer")
-	
-	PrecompiledHeaders("Renderer")
-	
-	Link("Utils")
-	Link("Entity")
-	Link("Core")
-	Link("GUI")
---	Link("Animation")
-	
-	LinkDependency("Assimp")
-	LinkDependency("ImGui")
-	LinkDependency("pugixml")
-	LinkDependency("RTTR")
+-- Helper function to create Renderer project (DLL or Static)
+-- isStatic == true => Generate production DLL
+function CreateRendererProject(projectName, isStatic)
+	project(projectName)
+		if isStatic then
+			kind "StaticLib"
+			defines { "RENDERER_STATIC_BUILD" }
+		else
+			kind "SharedLib"
+		end
 
-	includedirs
-	{
-		"%{wks.location}/Physics",
-		"%{wks.location}/%{IncludeDir.GLM}",
-		"%{wks.location}/%{IncludeDir.GLFW}",
-		"%{wks.location}/%{IncludeDir.fmt}",
-		"%{wks.location}/%{IncludeDir.DevIL}",
-		"%{wks.location}/%{IncludeDir.slot_map}",
+		language "C++"
 
-		"%{wks.location}/vendor/projects/Assimp"
-	}
+		SetupProject("Renderer")  -- Uses "Renderer" as source path
 
-	links 
-	{
-		"DevIL-IL",
-	}
+		PrecompiledHeaders("Renderer")
 
-	filter "system:windows"
-		defines
+		Link("Utils")
+		Link("Entity")
+		Link("Core")
+		Link("GUI")
+--		Link("Animation")
+
+		LinkDependency("Assimp")
+		LinkDependency("ImGui")
+		LinkDependency("pugixml")
+		LinkDependency("RTTR")
+
+		includedirs
 		{
-			"BUILD_RENDERER_DLL",
+			"%{wks.location}/Physics",
+			"%{wks.location}/%{IncludeDir.GLM}",
+			"%{wks.location}/%{IncludeDir.GLFW}",
+			"%{wks.location}/%{IncludeDir.fmt}",
+			"%{wks.location}/%{IncludeDir.DevIL}",
+			"%{wks.location}/%{IncludeDir.slot_map}",
+
+			"%{wks.location}/vendor/projects/Assimp"
 		}
 
-		postbuildcommands
+		links
 		{
-			("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\""),
+			"DevIL-IL",
 		}
+
+		filter "system:windows"
+			if not isStatic then
+				defines { "BUILD_RENDERER_DLL" }
+				postbuildcommands
+				{
+					("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\"")
+				}
+			end
+		filter {}
+end
+
+
+if not _OPTIONS["skiptests"] then
+	group "Tests/StaticLibs"
+		CreateRendererProject("RendererStatic", true)
+	group""
+end
+CreateRendererProject("Renderer", false)

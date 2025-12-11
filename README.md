@@ -21,6 +21,18 @@ You can run both DirectX and OpenGL renderers side by side but in case of Vulkan
 premake5 --glfwapi=vulkan vs2019
 ```
 
+### Skip tests (faster builds)
+
+If you want to skip building test projects and static library variants (used for testing internal types), you can use:
+```
+premake5 --skiptests vs2019
+```
+
+This option can be combined with other options:
+```
+premake5 --glfwapi=vulkan --skiptests vs2019
+```
+
 ## Memory sanitazer
 If you want to use memory sanitazer, please use Asan configuration and add path to the ASAN DLLs to your PATH variable. E.g.:
 ```

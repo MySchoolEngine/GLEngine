@@ -4,11 +4,17 @@
 #include <Physics/Primitives/Intersectable.h>
 #include <Physics/Primitives/Ray.h>
 
+#include <expected>
 #include <rttr/registration_friend.h>
 
 namespace GLEngine::Physics::Primitives {
 
 struct S_Triangle final : public T_Intersectable<S_Triangle> {
+	enum class CreateError : std::uint8_t
+	{
+		CollinearPoints,
+	};
+
 	S_Triangle(const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2)
 		: m_p({p0, p1, p2})
 	{
@@ -30,6 +36,24 @@ struct S_Triangle final : public T_Intersectable<S_Triangle> {
 		}
 	}
 
+	[[nodiscard]] static std::expected<S_Triangle, CreateError> Create(const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2)
+	{
+		S_Triangle ret;
+		ret.m_p			  = {p0, p1, p2};
+		const auto normal = glm::cross(p1 - p0, p2 - p0);
+		const auto length = glm::length(normal);
+		ret.m_Area		  = length / 2.f;
+
+		// Check for degenerate triangle (collinear points)
+		constexpr float EPSILON = 1e-8f;
+		if (length <= EPSILON)
+		{
+			return std::unexpected(CreateError::CollinearPoints);
+		}
+		ret.m_Normal = glm::normalize(normal);
+		return ret;
+	}
+
 	[[nodiscard]] inline float IntersectImpl(const S_Ray& ray) const
 	{
 		glm::vec2  barycentric;
@@ -49,6 +73,7 @@ struct S_Triangle final : public T_Intersectable<S_Triangle> {
 	RTTR_REGISTRATION_FRIEND
 
 private:
+	S_Triangle() = default;
 	glm::vec3 m_Normal;
 	float	  m_Area;
 };

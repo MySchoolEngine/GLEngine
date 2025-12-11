@@ -54,17 +54,24 @@ function CopyDependencyLib(depName)
 	end
 end
 
-function Link(projectName)
+function Link(projectName, isStatic)
+	isStatic = isStatic or false  -- Default to false (DLL)
+
 	includedirs("%{wks.location}/" .. projectName)
-	-- error("%{prj.location}")
-	libdirs { "%{wks.location}/bin/" .. outputdir .. "/" .. projectName }
 
-
-	links
-	{
-		projectName,
-	}
-	CopyLib(projectName)
+	if isStatic then
+		-- Link against static library variant
+		local staticProjectName = projectName .. "Static"
+		libdirs { "%{wks.location}/bin/" .. outputdir .. "/" .. staticProjectName }
+		links { staticProjectName }
+		defines { string.upper(projectName) .. "_STATIC_BUILD" }
+		-- No need to copy static libs
+	else
+		-- Link against DLL
+		libdirs { "%{wks.location}/bin/" .. outputdir .. "/" .. projectName }
+		links { projectName }
+		CopyLib(projectName)
+	end
 end
 
 function LinkDependency(depName)
