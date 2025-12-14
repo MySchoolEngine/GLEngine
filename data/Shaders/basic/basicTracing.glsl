@@ -342,7 +342,10 @@ void main()
 	FragPos = worldCoord.xyz / worldCoord.w;
 
     usedColor = CURRENT_MATERIAL.modelColor;
-	usedColor *= texture(CURRENT_MATERIAL.colorMap, texCoordOUT).xyz;
+    vec4 textureColour = texture(CURRENT_MATERIAL.colorMap, texCoordOUT);
+	usedColor *= textureColour.xyz;
+	if(textureColour.a < 0.001)
+		discard;
 
 	const vec3 norm = GetNormal(texCoordOUT, phong[materialIndex], TBN, normalOUT);
 
@@ -364,5 +367,5 @@ void main()
 		result += CalculatePointLight(pLight[i], norm);
 	}
 
-	fragColor = vec4(result, 1.0);
+	fragColor = vec4(result, textureColour.a);
 }
