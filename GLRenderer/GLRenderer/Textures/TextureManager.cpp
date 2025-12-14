@@ -46,7 +46,7 @@ C_TextureManager::C_TextureManager(Renderer::I_Renderer& renderer, Renderer::I_D
 		if (m_IdentityTexture)
 		{
 			Renderer::C_TextureView view(&m_IdentityStorage);
-			view.Set<glm::vec4>(glm::ivec2(0, 0), glm::vec4(255, 255, 255, 0));
+			view.Set<glm::vec4>(glm::ivec2(0, 0), glm::vec4(1, 1, 1, 1));
 			renderer.SetTextureData(m_IdentityTexture, m_IdentityStorage);
 		}
 		auto* glIdentityTexture = glRM.GetTexture(m_IdentityTexture);
