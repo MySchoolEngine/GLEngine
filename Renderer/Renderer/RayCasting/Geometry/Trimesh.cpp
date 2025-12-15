@@ -103,6 +103,10 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 			intersection.SetMaterial(&GetMaterial());
 			intersection.TransformRayAndPoint(m_Transform);
 			intersection.SetRayLength(glm::distance(intersection.GetRay().origin, intersection.GetIntersectionPoint()));
+			if (m_AlphaMask.IsReady())
+			{
+				intersection.SetAlphaMask(C_TextureView(const_cast<I_TextureViewStorage*>(&m_AlphaMask.GetResource().GetStorage())));
+			}
 			glm::vec2		 uv;
 			const glm::vec2* triUV = &(m_TexCoords[triangleIndex]);
 			RayTracing::T_GeometryTraits::BarycentricInterpolation(barycentric, triUV, uv);
@@ -161,6 +165,10 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 	intersection = closestIntersect.intersection;
 	intersection.TransformRayAndPoint(m_Transform);
 	intersection.SetRayLength(closestIntersect.t);
+	if (m_AlphaMask.IsReady())
+	{
+		intersection.SetAlphaMask(C_TextureView(const_cast<I_TextureViewStorage*>(&m_AlphaMask.GetResource().GetStorage())));
+	}
 	return true;
 }
 
@@ -226,7 +234,7 @@ void C_Trimesh::DebugDraw(I_DebugDraw& dd) const
 //=================================================================================
 void C_Trimesh::AfterDeserialize()
 {
-	auto invMat = glm::inverse(m_Transform);
+	auto invMat	   = glm::inverse(m_Transform);
 	m_TransformInv = invMat;
 }
 
