@@ -3,6 +3,7 @@
 #include <Renderer/RayCasting/Frame.h>
 #include <Renderer/RayCasting/Material/MaterialInterface.h>
 #include <Renderer/RendererApi.h>
+#include <Renderer/Textures/TextureView.h>
 
 #include <Physics/Primitives/Ray.h>
 
@@ -34,7 +35,7 @@ public:
 
 	/**
 	 * @brief Do not transfer the ownership
-	 * @param material 
+	 * @param material
 	 */
 	void									 SetMaterial(const I_MaterialInterface* material);
 	[[nodiscard]] const I_MaterialInterface* GetMaterial() const;
@@ -49,6 +50,10 @@ public:
 
 	void TransformRayAndPoint(const glm::mat4& mat);
 
+	void				SetAlphaMask(const C_TextureView& view) { m_AlphaMask = view; }
+	[[nodiscard]] bool	HasAlphaMask() const { return m_AlphaMask.has_value(); }
+	[[nodiscard]] float GetAlpha(const glm::vec2& uv) const { return m_AlphaMask->Get<float>(uv, E_TextureChannel::Alpha); }
+
 private:
 	S_Frame									m_Frame;
 	glm::vec3								m_Point;
@@ -56,6 +61,7 @@ private:
 	glm::vec2								m_UV		= {0.f, 0.f};
 	float									m_RayLength = std::numeric_limits<float>::infinity();
 	const I_MaterialInterface*				m_Material	= nullptr; // not owning
-	std::shared_ptr<RayTracing::I_RayLight> m_Light		= nullptr;
+	std::optional<C_TextureView>			m_AlphaMask;
+	std::shared_ptr<RayTracing::I_RayLight> m_Light = nullptr;
 };
 } // namespace GLEngine::Renderer
