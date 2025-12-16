@@ -16,17 +16,17 @@
 
 namespace GLEngine::Renderer {
 
-template <typename T> concept IntersectableConcept = requires(T t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection)
+template <typename T> concept IntersectableConcept = requires(T t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, const float tMax)
 {
 	{
-		t.IntersectImpl(ray, intersection)
+		t.IntersectImpl(ray, intersection, tMax)
 	}
 	->std::convertible_to<float>;
 }
-|| requires(T t, const Physics::Primitives::S_Ray& ray)
+|| requires(T t, const Physics::Primitives::S_Ray& ray, const float tMax)
 {
 	{
-		t.IntersectImpl(ray)
+		t.IntersectImpl(ray, tMax)
 	}
 	->std::convertible_to<float>;
 };
@@ -39,9 +39,9 @@ public:
 	{
 	}
 
-	[[nodiscard]] bool Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const override
+	[[nodiscard]] bool Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, const float tMax) const override
 	{
-		const auto t = m_Primitive.IntersectImpl(ray);
+		const auto t = m_Primitive.IntersectImpl(ray, tMax);
 		if (t <= 0)
 			return false;
 

@@ -13,9 +13,9 @@ class C_RayIntersection;
 
 class I_RayGeometryObject {
 public:
-	virtual ~I_RayGeometryObject()																						= default;
-	[[nodiscard]] virtual bool	Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const = 0;
-	[[nodiscard]] virtual float Area() const																			= 0;
+	virtual ~I_RayGeometryObject()																										  = default;
+	[[nodiscard]] virtual bool	Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, const float tMax) const = 0;
+	[[nodiscard]] virtual float Area() const																							  = 0;
 	[[nodiscard]] float			Pdf() const { return 1.f / Area(); }
 
 	void				 SetMaterial(I_MaterialInterface* material) { m_MaterialInter = material; }
@@ -31,6 +31,6 @@ protected:
 	Core::ResourceHandle<TextureResource> m_AlphaMask;
 
 private:
-	I_MaterialInterface*				  m_MaterialInter = nullptr;
+	I_MaterialInterface* m_MaterialInter = nullptr;
 };
 } // namespace GLEngine::Renderer
