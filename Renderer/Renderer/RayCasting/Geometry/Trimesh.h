@@ -23,7 +23,7 @@ public:
 	C_Trimesh& operator=(C_Trimesh&& other) noexcept;
 	~C_Trimesh() override;
 
-	[[nodiscard]] bool Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const override;
+	[[nodiscard]] bool Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, const float tMax) const override;
 
 	float Area() const override { return 0.0f; }
 

@@ -90,12 +90,16 @@ C_Trimesh& C_Trimesh::operator=(C_Trimesh&& other) noexcept
 C_Trimesh::~C_Trimesh() = default;
 
 //=================================================================================
-bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersection& intersection) const
+bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersection& intersection, const float tMax) const
 {
 	const auto ray = Physics::Primitives::S_Ray{.origin = m_TransformInv * glm::vec4(rayIn.origin, 1.f), .direction = rayIn.direction};
 
 	if (m_BVH)
 	{
+		// if there is BVH the object is big enough to spend some time on following test
+		if (const auto tAABB = m_AABB.IntersectImpl(rayIn); tAABB > tMax || tAABB < 0.f)
+			return false;
+
 		glm::vec2	 barycentric;
 		unsigned int triangleIndex;
 		if (m_BVH->Intersect(ray, intersection, &triangleIndex, &barycentric))

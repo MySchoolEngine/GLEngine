@@ -223,7 +223,7 @@ bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInte
 
 	std::for_each(m_Objects.begin(), m_Objects.end(), [&](const auto& object) {
 		C_RayIntersection inter;
-		if (object->Intersect(ray, inter))
+		if (object->Intersect(ray, inter, closestIntersect.t))
 		{
 			if (inter.GetRayLength() >= offset && inter.GetRayLength() < closestIntersect.t)
 				closestIntersect = {inter, inter.GetRayLength(), object.get()};

@@ -1,12 +1,10 @@
 #pragma once
 
-#include <Physics/Primitives/Intersectable.h>
-
 #define GLM_GTX_intersect
 #include <glm/gtx/intersect.hpp>
 
 namespace GLEngine::Physics::Primitives {
-struct S_Sphere : public T_Intersectable<S_Sphere> {
+struct S_Sphere final {
 public:
 	S_Sphere() = default;
 	constexpr S_Sphere(const glm::vec3& position, float radius)
@@ -15,7 +13,7 @@ public:
 	{
 	}
 
-	[[nodiscard]] inline float IntersectImpl(const S_Ray& ray) const
+	[[nodiscard]] inline float IntersectImpl(const S_Ray& ray, const float tMax) const
 	{
 		float t = 0.0f;
 		if (glm::intersectRaySphere(ray.origin, ray.direction, m_position, m_radius * m_radius, t))
