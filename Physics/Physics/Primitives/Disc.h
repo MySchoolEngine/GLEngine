@@ -1,13 +1,12 @@
 #pragma once
 
-#include <Physics/Primitives/Intersectable.h>
 #include <Physics/Primitives/Plane.h>
 #include <Physics/Primitives/Ray.h>
 
 namespace GLEngine::Physics::Primitives {
 struct S_Ray;
 
-struct S_Disc : public T_Intersectable<S_Disc> {
+struct S_Disc {
 	constexpr S_Disc(glm::vec3 _normal, glm::vec3 _center, float _radius)
 		: plane(_normal, _center)
 		, radius(_radius)
@@ -15,18 +14,19 @@ struct S_Disc : public T_Intersectable<S_Disc> {
 	}
 	S_Plane					   plane;
 	float					   radius;
-	[[nodiscard]] inline float IntersectImpl(const S_Ray& ray) const
+	[[nodiscard]] inline float IntersectImpl(const S_Ray& ray, const float tMax) const
 	{
 		const auto t = plane.IntersectImpl(ray);
-		if (t > 0.0)
+		if (t > tMax || t < 0.0)
 		{
-			const auto p  = ray.origin + ray.direction * t;
-			const auto v  = p - plane.origin;
-			const auto d2 = glm::dot(v, v);
-			if (std::sqrt(d2) <= radius)
-				return t;
+			return -1.f;
 		}
 
+		const auto p  = ray.origin + ray.direction * t;
+		const auto v  = p - plane.origin;
+		const auto d2 = glm::dot(v, v);
+		if (std::sqrt(d2) <= radius)
+			return t;
 		return -1.f;
 	}
 };

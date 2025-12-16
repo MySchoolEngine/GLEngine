@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Physics/GeometryUtils/TriangleIntersect.h>
-#include <Physics/Primitives/Intersectable.h>
 #include <Physics/Primitives/Ray.h>
 
 #include <expected>
@@ -9,7 +8,7 @@
 
 namespace GLEngine::Physics::Primitives {
 
-struct S_Triangle final : public T_Intersectable<S_Triangle> {
+struct S_Triangle final {
 	enum class CreateError : std::uint8_t
 	{
 		CollinearPoints,
@@ -33,11 +32,11 @@ struct S_Triangle final : public T_Intersectable<S_Triangle> {
 		return ret;
 	}
 
-	[[nodiscard]] inline float IntersectImpl(const S_Ray& ray) const
+	[[nodiscard]] float IntersectImpl(const S_Ray& ray, const float tMax) const
 	{
 		glm::vec2  barycentric;
 		const auto distance = TriangleRayIntersect(m_p, ray, &barycentric);
-		if (distance < 0)
+		if (distance < 0 || distance > tMax)
 			return distance;
 
 
