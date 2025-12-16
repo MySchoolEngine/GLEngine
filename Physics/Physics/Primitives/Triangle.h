@@ -8,7 +8,7 @@
 
 namespace GLEngine::Physics::Primitives {
 
-struct S_Triangle final : public T_Intersectable<S_Triangle> {
+struct S_Triangle final {
 	enum class CreateError : std::uint8_t
 	{
 		CollinearPoints,

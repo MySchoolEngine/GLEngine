@@ -55,18 +55,7 @@ bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInte
 		if (object->Intersect(ray, inter, closestIntersect.t))
 		{
 			if (inter.GetRayLength() >= offset && inter.GetRayLength() < closestIntersect.t)
-			{
-				// alpha test here! doesn't work for mashes that are not planear, if it hits in BVH first the alpha masked
-				// surface, but bvh contains mash that is not masked it will ignore it
-				if (inter.HasAlphaMask())
-				{
-					if (inter.GetAlpha(inter.GetUV()) < 0.5)
-					{
-						return;
-					}
-				}
 				closestIntersect = {inter, inter.GetRayLength(), object.get()};
-			}
 		}
 	});
 

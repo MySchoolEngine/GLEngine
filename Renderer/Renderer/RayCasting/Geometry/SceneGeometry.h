@@ -31,6 +31,6 @@ protected:
 	Core::ResourceHandle<TextureResource> m_AlphaMask;
 
 private:
-	I_MaterialInterface*				  m_MaterialInter = nullptr;
+	I_MaterialInterface* m_MaterialInter = nullptr;
 };
 } // namespace GLEngine::Renderer
