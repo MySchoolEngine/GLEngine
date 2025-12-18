@@ -380,6 +380,52 @@ void C_RayTraceScene::TestScene()
 }
 
 //=================================================================================
+//=================================================================================
+bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, float offset) const
+{
+	struct S_IntersectionInfo {
+		C_RayIntersection	 intersection;
+		float				 t		= std::numeric_limits<float>::infinity();
+		I_RayGeometryObject* object = nullptr;
+
+		[[nodiscard]] bool operator<(const S_IntersectionInfo& a) const { return t < a.t; }
+	};
+	S_IntersectionInfo closestIntersect{.intersection = C_RayIntersection()};
+
+	std::for_each(m_Objects.begin(), m_Objects.end(), [&](const auto& object) {
+		C_RayIntersection inter;
+		if (object->Intersect(ray, inter, closestIntersect.t))
+		{
+			if (inter.GetRayLength() >= offset && inter.GetRayLength() < closestIntersect.t)
+			{
+				// alpha test here! doesn't work for mashes that are not planear, if it hits in BVH first the alpha masked
+				// surface, but bvh contains mash that is not masked it will ignore it
+				if (inter.HasAlphaMask())
+				{
+					if (inter.GetAlpha(inter.GetUV()) < 0.5)
+					{
+						return;
+					}
+				}
+				closestIntersect = {inter, inter.GetRayLength(), object.get()};
+			}
+		}
+	});
+
+	if (std::isinf(closestIntersect.t))
+		return false;
+
+	intersection  = closestIntersect.intersection;
+	const auto it = std::find_if(m_AreaLights.begin(), m_AreaLights.end(),
+								 [&](const std::shared_ptr<RayTracing::C_AreaLight>& other) { return other->GetGeometry().get() == closestIntersect.object; });
+	if (it != m_AreaLights.end())
+	{
+		intersection.SetLight(*it);
+	}
+	return true;
+}
+
+//=================================================================================
 std::unique_ptr<I_MaterialInterface>& C_RayTraceScene::AddMaterial(const MeshData::Material& material)
 {
 	if (material.shininess == 0.f)
