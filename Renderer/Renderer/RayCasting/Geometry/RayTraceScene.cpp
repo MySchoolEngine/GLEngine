@@ -20,6 +20,12 @@
 #include <Core/Resources/ResourceManager.h>
 
 #define DISABLE if (true)
+enum TextureIndices
+{
+	Bricks,
+	Leaves,
+	Bark
+};
 
 namespace GLEngine::Renderer {
 #define CORNELL
@@ -31,19 +37,27 @@ C_RayTraceScene::C_RayTraceScene()
 	auto& rm = Core::C_ResourceManager::Instance();
 	m_Textures.emplace_back(rm.LoadResource<TextureResource>(std::filesystem::path(R"(Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp)")));
 	m_LoadingTextures.AddHandle(m_Textures[0]);
+	m_Textures.emplace_back(rm.LoadResource<TextureResource>(std::filesystem::path(R"(Models\Stylized Nature MegaKit[Standard]\Textures\Leaves_NormalTree_C.png)")));
+	m_LoadingTextures.AddHandle(m_Textures[1]);
+	m_Textures.emplace_back(rm.LoadResource<TextureResource>(std::filesystem::path(R"(Models\Stylized Nature MegaKit[Standard]\Textures\Bark_NormalTree.png)")));
+	m_LoadingTextures.AddHandle(m_Textures[1]);
+
 
 	static const MeshData::Material s_Red{glm::vec4{}, glm::vec4{Colours::red, 0}, glm::vec4{}, 0.f, -1, -1, "red"};
 	static const MeshData::Material s_Green{glm::vec4{}, glm::vec4{Colours::green, 0}, glm::vec4{}, 0.f, -1, -1, "green"};
 	static const MeshData::Material s_White{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, -1, -1, "white"};
-	static const MeshData::Material s_Brick{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, 0, -1, "brick"}; // brick texture
+	static const MeshData::Material s_Brick{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, TextureIndices::Bricks, -1, "brick"}; // brick texture
 	static const MeshData::Material s_Blue{glm::vec4{}, glm::vec4{Colours::blue, 0}, glm::vec4{}, 0.f, -1, -1, "blue"};
 	static const MeshData::Material s_BlueMirror{glm::vec4{}, glm::vec4{Colours::blue, 0}, glm::vec4{}, 1.f, -1, -1, "blueMirror"};
 	static const MeshData::Material s_Black{glm::vec4{}, glm::vec4{Colours::black, 0.f}, glm::vec4{}, 0.f, -1, -1, "black"};
+	static const MeshData::Material s_Leaves{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, TextureIndices::Leaves, -1, "leaves"}; // brick texture
+
 
 	auto* redMat		= AddMaterial(s_Red).get();
 	auto* greenMat		= AddMaterial(s_Green).get();
 	auto* whiteMat		= AddMaterial(s_White).get();
 	auto* brickMat		= AddMaterial(s_Brick).get();
+	auto* leavesMat		= AddMaterial(s_Leaves).get();
 	auto* blueMat		= AddMaterial(s_Blue).get();
 	auto* blueMirrorMat = AddMaterial(s_BlueMirror).get();
 	auto* blackMat		= AddMaterial(s_Black).get();
@@ -97,8 +111,8 @@ C_RayTraceScene::C_RayTraceScene()
 	DISABLE
 	{
 		// back wall
-		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, -1.5f, -3.f}, {3.f, -1.5f, -3.f}, {3.f, 1.5f, -3.f}));
-		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-3.f, -1.5f, -3.f}, {3.f, 1.5f, -3.f}, {-3.f, 1.5f, -3.f}));
+		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle::Create({-3.f, -1.5f, -3.f}, {3.f, -1.5f, -3.f}, {3.f, 1.5f, -3.f}).value());
+		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle::Create({-3.f, -1.5f, -3.f}, {3.f, 1.5f, -3.f}, {-3.f, 1.5f, -3.f}).value());
 		triangle->SetMaterial(whiteMat);
 		triangle1->SetMaterial(whiteMat);
 		AddObject(triangle);
@@ -108,9 +122,25 @@ C_RayTraceScene::C_RayTraceScene()
 	DISABLE
 	if (false)
 	{
+		auto trimesh = std::make_shared<C_Trimesh>();
+		// alpha wall
+		auto triangle  = S_Triangle::Create({-3.f, -1.5f, 3.f}, {3.f, -1.5f, 3.f}, {3.f, 1.5f, 3.f});
+		auto triangle1 = S_Triangle::Create({-3.f, -1.5f, 3.f}, {3.f, 1.5f, 3.f}, {-3.f, 1.5f, 3.f});
+
+		trimesh->AddTriangle(triangle.value(), {glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 0.0f), glm::vec2(1.0f, 1.0f)});
+		trimesh->AddTriangle(triangle1.value(), {glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 1.0f), glm::vec2(0.0f, 1.0f)});
+		trimesh->SetMaterial(leavesMat);
+		trimesh->SetAlphaMask(m_Textures[0]);
+
+		AddObject(trimesh);
+	}
+
+	DISABLE
+	if (false)
+	{
 		// shader
-		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-2.f, -1.5f, 1.f + .3f}, {2.f, -1.5f, 1.f + .3f}, {2.f, 1.5f, 1.f + .3f}));
-		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-2.f, -1.5f, 1.f + .3f}, {2.f, 1.5f, 1.f + .3f}, {-2.f, 1.5f, 1.f + .3f}));
+		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle::Create({-2.f, -1.5f, 1.f + .3f}, {2.f, -1.5f, 1.f + .3f}, {2.f, 1.5f, 1.f + .3f}).value());
+		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle::Create({-2.f, -1.5f, 1.f + .3f}, {2.f, 1.5f, 1.f + .3f}, {-2.f, 1.5f, 1.f + .3f}).value());
 		triangle->SetMaterial(whiteMat);
 		triangle1->SetMaterial(whiteMat);
 		AddObject(triangle);
@@ -149,8 +179,8 @@ C_RayTraceScene::C_RayTraceScene()
 	else
 	{
 		// ceiling
-		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-1.f, 1.5f - .01f, 1.f}, {-1.f, 1.5f - .01f, -1.f}, {1.f, 1.5f - .01f, -1.f}));
-		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle({-1.f, 1.5f - .01f, 1.f}, {1.f, 1.5f - .01f, -1.f}, {1.f, 1.5f - .01f, 1.f}));
+		auto triangle  = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle::Create({-1.f, 1.5f - .01f, 1.f}, {-1.f, 1.5f - .01f, -1.f}, {1.f, 1.5f - .01f, -1.f}).value());
+		auto triangle1 = std::make_shared<C_Primitive<S_Triangle>>(S_Triangle::Create({-1.f, 1.5f - .01f, 1.f}, {1.f, 1.5f - .01f, -1.f}, {1.f, 1.5f - .01f, 1.f}).value());
 		triangle->SetMaterial(whiteMat);
 		triangle1->SetMaterial(whiteMat);
 		float power		= 1.2f;
@@ -168,7 +198,8 @@ C_RayTraceScene::C_RayTraceScene()
 
 	if (true)
 	{
-		auto& meshHandle = m_Meshes.emplace_back(rm.LoadResource<C_TrimeshModel>(R"(Models/lada/lada.tri)", true));
+		auto&		meshHandle = m_Meshes.emplace_back(rm.LoadResource<C_TrimeshModel>(R"(Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_1.tri)", true));
+		static auto backup	   = meshHandle;
 		m_LoadingMeshes.AddHandle(meshHandle);
 	}
 #else
@@ -226,7 +257,18 @@ bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInte
 		if (object->Intersect(ray, inter, closestIntersect.t))
 		{
 			if (inter.GetRayLength() >= offset && inter.GetRayLength() < closestIntersect.t)
+			{
+				// alpha test here! doesn't work for mashes that are not planear, if it hits in BVH first the alpha masked
+				// surface, but bvh contains mash that is not masked it will ignore it
+				if (inter.HasAlphaMask())
+				{
+					if (inter.GetAlpha(inter.GetUV()) < 0.5)
+					{
+						return;
+					}
+				}
 				closestIntersect = {inter, inter.GetRayLength(), object.get()};
+			}
 		}
 	});
 
@@ -273,14 +315,23 @@ void C_RayTraceScene::ForEachLight(const std::function<void(const std::reference
 //=================================================================================
 void C_RayTraceScene::AddMesh(const Core::ResourceHandle<C_TrimeshModel> trimesh, const MeshData::Material& material)
 {
+	static const MeshData::Material s_TreeBark{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, TextureIndices::Bark, -1, "white"};
+	static const MeshData::Material s_TreeLeaves{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, TextureIndices::Leaves, -1, "white"};
+
+	bool used = false;
 	for (const auto& iter : trimesh.GetResource().GetTrimeshes())
 	{
 		auto trimeshPtr = std::make_shared<C_Trimesh>();
 		*trimeshPtr		= iter;
-		trimeshPtr->SetMaterial(AddMaterial(material).get());
+		trimeshPtr->SetMaterial(AddMaterial(used ? s_TreeLeaves : s_TreeBark).get());
+		if (used)
+		{
+			trimeshPtr->SetAlphaMask(m_Textures[1]);
+		}
 		trimeshPtr->SetTransformation(glm::translate(glm::mat4(1.f), glm::vec3(0, -1.5f, 0)) * glm::scale(glm::mat4(1.f), glm::vec3(0.5f, 0.5f, 0.5f)));
 		m_Trimeshes.push_back(trimeshPtr);
 		AddObject(trimeshPtr);
+		used = true;
 	}
 }
 
@@ -311,17 +362,20 @@ bool C_RayTraceScene::IsLoaded() const
 //=================================================================================
 void C_RayTraceScene::BuildScene()
 {
-	static const MeshData::Material s_White{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, -1, -1, "white"};
+	static const MeshData::Material s_TreeBark{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, 1, -1, "white"};
+	static const MeshData::Material s_TreeLeaves{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, 2, -1, "white"};
 
 	auto& rm = Core::C_ResourceManager::Instance();
 	if (m_LoadingMeshes.IsDone())
 	{
+		bool used = false;
 		for (const auto& trimeshHandle : m_Meshes)
 		{
 			if (!trimeshHandle)
 				continue;
 
-			AddMesh(trimeshHandle, s_White);
+			AddMesh(trimeshHandle, used ? s_TreeBark : s_TreeLeaves);
+			used = true;
 		}
 	}
 }
