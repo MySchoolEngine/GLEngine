@@ -5,9 +5,9 @@
 
 #include <Renderer/Mesh/Curve.h>
 
-#include <GUI/Input/Select.h>
-
 #include <Core/EventSystem/EventReciever.h>
+
+#include <rttr/registration_friend.h>
 
 namespace GLEngine::Core {
 class I_Input;
@@ -33,6 +33,7 @@ public:
 
 	void Draw(Renderer::I_DebugDraw& dd) const;
 
+	RTTR_REGISTRATION_FRIEND
 private:
 	bool OnMouseKeyPressed(Core::C_MouseButtonPressed& event);
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
@@ -40,7 +41,7 @@ private:
 	void			   AddPointToSelected(std::size_t idx);
 	void			   RemovePointToSelected(std::size_t idx);
 	[[nodiscard]] bool IsPointSelected(std::size_t idx) const;
-	void			   UpdateGizmoPozition();
+	void			   UpdateGizmoPosition();
 	/**
 	 * Line segments are indexed from 1. Index n means that points n-1 and n is selected.
 	 */
@@ -57,13 +58,13 @@ private:
 		SmoothBezier,
 	};
 
-	GUI::Input::C_Select<E_InterpolationType> m_Select;
+	E_InterpolationType m_Select;
 
 	int					  m_MouseOverPoint;
-	std::set<std::size_t> m_Selectedpoints;
+	std::set<std::size_t> m_SelectedPoints;
 
 	int m_MouseOverLineSegment;
 
-	std::unique_ptr<Renderer::I_CurveFunction<glm::vec3>> m_interpol;
+	mutable std::unique_ptr<Renderer::I_CurveFunction<glm::vec3>> m_interpol;
 };
 } // namespace GLEngine::Editor
