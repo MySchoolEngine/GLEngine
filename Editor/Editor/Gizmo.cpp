@@ -164,18 +164,13 @@ glm::vec3 C_Gizmo::GetAxe(const E_Direction dir) const
 	{
 	case E_Direction::Right:
 		return {1, 0, 0};
-		break;
 	case E_Direction::Up:
 		return {0, 1, 0};
-		break;
 	case E_Direction::Forward:
 		return {0, 0, 1};
-		break;
-	default:
-		GLE_ASSERT(false, "This should not happen");
-		return {};
-		break;
 	}
+	GLE_ASSERT(false, "This should not happen");
+	return {};
 }
 
 } // namespace GLEngine::Editor

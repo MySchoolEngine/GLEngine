@@ -40,7 +40,7 @@ private:
 	[[nodiscard]] bool OnMouseMoved(Core::C_MouseMoved& event);
 	[[nodiscard]] bool OnKeyPressed(Core::C_KeyPressedEvent& event);
 
-	enum class E_Direction
+	enum class E_Direction : std::uint8_t
 	{
 		Right,
 		Up,
