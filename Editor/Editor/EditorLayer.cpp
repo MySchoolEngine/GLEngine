@@ -15,9 +15,9 @@ C_EditorLayer::C_EditorLayer(Renderer::I_DebugDraw& dd, const Core::I_Input& dir
 	: Core::C_Layer("Editor Layer")
 	, m_dd(dd)
 	, m_Input(directInput)
+	, m_Viewport(viewport)
 	, m_CurveEditing(nullptr)
 	, m_AnimationEditing(nullptr)
-	, m_Viewport(viewport)
 {
 }
 

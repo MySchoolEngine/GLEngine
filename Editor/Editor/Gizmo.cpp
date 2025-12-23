@@ -19,8 +19,8 @@ namespace GLEngine::Editor {
 //=================================================================================
 C_Gizmo::C_Gizmo(const glm::vec3& position, const Core::I_Input& input)
 	: m_Position(position)
-	, m_ControllingGizmo(false)
 	, m_DiffSinceLastFrame(0.f)
+	, m_ControllingGizmo(false)
 	, m_Input(input)
 	, m_LastMousePosition(0.f)
 	, m_MouseOffset(0.f)
