@@ -1,16 +1,14 @@
 #include <EditorStdafx.h>
 
-#include <Editor/CurveEditor.h>
+#include <Editor/Editors/WorldView/AABBEditor.h>
 #include <Editor/Utils/MousePicking.h>
 
 #include <Renderer/Colours.h>
 #include <Renderer/DebugDraw.h>
 #include <Renderer/ICameraComponent.h>
-#include <Renderer/Mesh/Curve.h>
 #include <Renderer/Render/CurveRenderer.h>
 #include <Renderer/Viewport.h>
 
-#include <GUI/Input/Slider.h>
 #include <GUI/ReflectionGUI.h>
 
 #include <Core/EventSystem/Event/KeyboardEvents.h>
@@ -21,58 +19,31 @@
 #include <Utils/StdVectorUtils.h>
 
 #include <GLFW/glfw3.h>
-#include <imgui.h>
-#include <rttr/registration>
-
-// clang-format off
-RTTR_REGISTRATION
-{
-	using namespace GLEngine::Editor;
-	using namespace Utils::Reflection;
-
-	rttr::registration::class_<C_CurveEditor>("C_BrickGenerator")
-		.property("InterpolationSelect", &C_CurveEditor::m_Select)(
-			rttr::policy::prop::as_reference_wrapper,
-			RegisterMetaclass<MetaGUI::EnumSelect>(),
-			RegisterMetamember<UI::EnumSelect::Name>("Interpolation type:"));
-	
-	rttr::registration::enumeration<C_CurveEditor::E_InterpolationType>("C_CurveEditor::E_InterpolationType")(
-		rttr::value("Linear",		C_CurveEditor::E_InterpolationType::Linear),
-		rttr::value("Bezier",		C_CurveEditor::E_InterpolationType::Bezier),
-		rttr::value("SmoothBezier",	C_CurveEditor::E_InterpolationType::SmoothBezier)
-	);
-}
-// clang-format on
 
 namespace GLEngine::Editor {
 
 //=================================================================================
-C_CurveEditor::C_CurveEditor(Renderer::C_Curve& curve, const Core::I_Input& input)
+C_AABBEditor::C_AABBEditor(Physics::Primitives::S_AABB& curve, const Core::I_Input& input)
 	: I_EventReceiver()
-	, m_Curve(curve)
+	, m_AABB(curve)
 	, m_Input(input)
-	, m_Select(E_InterpolationType::Bezier)
 	, m_MouseOverPoint(-1)
 	, m_MouseOverLineSegment(-1)
-	, m_interpol(std::make_unique<Renderer::C_BezierCurveInterpolation<Renderer::C_Curve>>(m_Curve))
 {
 }
 
 //=================================================================================
-void C_CurveEditor::OnEvent(Core::I_Event& event)
+void C_AABBEditor::OnEvent(Core::I_Event& event)
 {
 	if (m_Gizmo)
 		m_Gizmo->OnEvent(event);
 	Core::C_EventDispatcher d(event);
-	d.Dispatch<Core::C_MouseButtonPressed>(std::bind(&C_CurveEditor::OnMouseKeyPressed, this, std::placeholders::_1));
-	d.Dispatch<Core::C_KeyPressedEvent>(std::bind(&C_CurveEditor::OnKeyPressed, this, std::placeholders::_1));
+	d.Dispatch<Core::C_MouseButtonPressed>(std::bind(&C_AABBEditor::OnMouseKeyPressed, this, std::placeholders::_1));
 }
 
 //=================================================================================
-void C_CurveEditor::Draw(Renderer::I_DebugDraw& dd) const
+void C_AABBEditor::Draw(Renderer::I_DebugDraw& dd) const
 {
-	if (m_Curve.GetNumControlPoints() == 0)
-		return;
 	int	 i		  = 0;
 	auto previous = m_Curve.GetControlPoint(0);
 	// Render the edited line for user to see what is being edited
@@ -107,36 +78,7 @@ void C_CurveEditor::Draw(Renderer::I_DebugDraw& dd) const
 		++i;
 	});
 
-	static GUI::Input::C_Slider slider(0.f, 0.f, 1.f, "Progress");
-
-	ImGui::Begin("CurveEditor");
-	rttr::instance obj(*this);
-
-	const auto changed = GUI::DrawAllPropertyGUI(obj);
-	if (changed.empty() == false)
-	{
-		if (Utils::contains(changed, rttr::type::get<C_CurveEditor>().get_property("InterpolationSelect")))
-		{
-			switch (m_Select)
-			{
-				using namespace Renderer;
-
-			case E_InterpolationType::Bezier:
-				m_interpol = std::make_unique<C_BezierCurveInterpolation<C_Curve>>(m_Curve, true);
-				break;
-			case E_InterpolationType::SmoothBezier:
-				m_interpol = std::make_unique<C_SmoothBezierCurveInterpolation<C_Curve>>(m_Curve, true);
-				break;
-			case E_InterpolationType::Linear:
-				m_interpol = std::make_unique<C_LinearCurveInterpolation<C_Curve>>(m_Curve);
-				break;
-			}
-		}
-	}
-	std::ignore = slider.Draw();
-	ImGui::End();
-
-	dd.DrawPoint(m_interpol->GetPointInTime(slider.GetValue()), Colours::yellow);
+	dd.DrawAABB(m_AABB, Colours::white);
 
 	Renderer::C_3DCurveRenderer curveRenderer(dd);
 
@@ -147,7 +89,7 @@ void C_CurveEditor::Draw(Renderer::I_DebugDraw& dd) const
 }
 
 //=================================================================================
-void C_CurveEditor::OnUpdate(const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewport)
+void C_AABBEditor::OnUpdate(const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewport)
 {
 	C_MousePickingHelper mousePicking(m_Input, camera, viewport);
 
@@ -180,7 +122,7 @@ void C_CurveEditor::OnUpdate(const Renderer::I_CameraComponent& camera, const Re
 }
 
 //=================================================================================
-bool C_CurveEditor::OnMouseKeyPressed(Core::C_MouseButtonPressed& event)
+bool C_AABBEditor::OnMouseKeyPressed(Core::C_MouseButtonPressed& event)
 {
 	if (event.GetMouseButton() == GLFW_MOUSE_BUTTON_1) // todo correct enum for mouse buttons
 	{
@@ -239,69 +181,31 @@ bool C_CurveEditor::OnMouseKeyPressed(Core::C_MouseButtonPressed& event)
 }
 
 //=================================================================================
-bool C_CurveEditor::OnKeyPressed(Core::C_KeyPressedEvent& event)
-{
-	if (event.GetKeyCode() == GLFW_KEY_DELETE && !m_SelectedPoints.empty())
-	{
-		m_Curve.RemoveControlPoint(m_SelectedPoints);
-		m_SelectedPoints.clear();
-		m_Gizmo.reset();
-		return true;
-	}
-	else if (event.GetKeyCode() == GLFW_KEY_A && event.GetModifiers() & Core::E_KeyModifiers::Control)
-	{
-		m_SelectedPoints.clear();
-		const auto curveLength = m_Curve.GetNumControlPoints();
-		for (unsigned int i = 0; i < curveLength; ++i)
-		{
-			m_SelectedPoints.insert(i);
-		}
-		UpdateGizmoPosition();
-		return true;
-	}
-	else if (event.GetKeyCode() == GLFW_KEY_KP_ADD && event.GetModifiers() & Core::E_KeyModifiers::Control)
-	{
-		// will add one point to the end of the curve at the direction of last two points
-		const auto curveLength	 = m_Curve.GetNumControlPoints();
-		const auto lineBeginning = m_Curve.GetControlPoint(curveLength - 2);
-		const auto lineEnd		 = m_Curve.GetControlPoint(curveLength - 1);
-		const auto newPoint		 = lineEnd + (lineEnd - lineBeginning);
-		m_Curve.AddControlPoint(curveLength, newPoint);
-
-		m_SelectedPoints.clear();
-		m_SelectedPoints.insert(curveLength);
-		UpdateGizmoPosition();
-		return true;
-	}
-	return false;
-}
-
-//=================================================================================
-bool C_CurveEditor::IsPointSelected(std::size_t idx) const
+bool C_AABBEditor::IsPointSelected(std::size_t idx) const
 {
 	return Utils::contains(m_SelectedPoints, idx);
 }
 
 //=================================================================================
-void C_CurveEditor::AddPointToSelected(std::size_t idx)
+void C_AABBEditor::AddPointToSelected(std::size_t idx)
 {
 	m_SelectedPoints.insert(idx);
 }
 
 //=================================================================================
-void C_CurveEditor::RemovePointToSelected(std::size_t idx)
+void C_AABBEditor::RemovePointToSelected(std::size_t idx)
 {
 	m_SelectedPoints.erase(idx);
 }
 
 //=================================================================================
-bool C_CurveEditor::IsLineSegmentSelected(std::size_t idx) const
+bool C_AABBEditor::IsLineSegmentSelected(std::size_t idx) const
 {
 	return IsPointSelected(idx - 1) && IsPointSelected(idx);
 }
 
 //=================================================================================
-void C_CurveEditor::UpdateGizmoPosition()
+void C_AABBEditor::UpdateGizmoPosition()
 {
 	// no gizmo needed
 	if (m_SelectedPoints.empty())

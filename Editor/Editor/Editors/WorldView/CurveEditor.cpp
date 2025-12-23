@@ -1,6 +1,6 @@
 #include <EditorStdafx.h>
 
-#include <Editor/CurveEditor.h>
+#include <Editor/Editors/WorldView/CurveEditor.h>
 #include <Editor/Utils/MousePicking.h>
 
 #include <Renderer/Colours.h>
@@ -30,7 +30,7 @@ RTTR_REGISTRATION
 	using namespace GLEngine::Editor;
 	using namespace Utils::Reflection;
 
-	rttr::registration::class_<C_CurveEditor>("C_BrickGenerator")
+	rttr::registration::class_<C_CurveEditor>("C_CurveEditor")
 		.property("InterpolationSelect", &C_CurveEditor::m_Select)(
 			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::EnumSelect>(),

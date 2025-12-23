@@ -1,8 +1,8 @@
 #include <EditorStdafx.h>
 
 #include <Editor/AnimationEditor.h>
-#include <Editor/CurveEditor.h>
 #include <Editor/EditorLayer.h>
+#include <Editor/Editors/WorldView/CurveEditor.h>
 
 #include <Renderer/DebugDraw.h>
 

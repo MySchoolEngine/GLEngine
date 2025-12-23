@@ -28,7 +28,7 @@ class EDITOR_API_EXPORT C_CurveEditor : public Core::I_EventReceiver {
 public:
 	C_CurveEditor(Renderer::C_Curve& curve, const Core::I_Input& input);
 
-	virtual void OnEvent(Core::I_Event& event) override;
+	void OnEvent(Core::I_Event& event) override;
 	void		 OnUpdate(const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewport);
 
 	void Draw(Renderer::I_DebugDraw& dd) const;
