@@ -76,6 +76,7 @@ bool DrawEnumSelect(rttr::instance& obj, const rttr::property& prop)
 	bool changed = false;
 
 	const auto enumeration = prop.get_type().get_wrapped_type().get_enumeration();
+	GLE_ASSERT(enumeration.is_valid(), "Enumeration {} not registered", prop.get_type().get_wrapped_type());
 	if (::ImGui::BeginCombo(GetMetadataMember<UI::EnumSelect::Name>(prop).c_str(), enumeration.value_to_name(currentValue.extract_wrapped_value()).data()))
 	{
 		const auto range = enumeration.get_values();
@@ -109,6 +110,7 @@ bool DrawEnumSelectOptional(rttr::instance& obj, const rttr::property& prop)
 	bool changed = false;
 
 	const auto enumeration = prop.get_type().get_wrapped_type().get_wrapped_type().get_raw_type().get_enumeration();
+	GLE_ASSERT(enumeration.is_valid(), "Enumeration {} not registered", prop.get_type().get_wrapped_type());
 	if (::ImGui::BeginCombo(GetMetadataMember<UI::EnumSelectOptional::Name>(prop).c_str(), currentValRef.has_value() ? enumeration.value_to_name(currentValRef.value()).data() : GetMetadataMember<UI::EnumSelectOptional::OptionalName>(prop).c_str()))
 	{
 		const auto range = enumeration.get_values();
