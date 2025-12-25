@@ -11,6 +11,8 @@
 
 #include <GUI/ReflectionGUI.h>
 
+#include <Physics/Primitives/AABB.h>
+
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/Event/MouseEvents.h>
 #include <Core/EventSystem/EventDispatcher.h>
@@ -23,12 +25,11 @@
 namespace GLEngine::Editor {
 
 //=================================================================================
-C_AABBEditor::C_AABBEditor(Physics::Primitives::S_AABB& curve, const Core::I_Input& input)
+C_AABBEditor::C_AABBEditor(Physics::Primitives::S_AABB& aabb, const Core::I_Input& input)
 	: I_EventReceiver()
-	, m_AABB(curve)
+	, m_AABB(aabb)
 	, m_Input(input)
-	, m_MouseOverPoint(-1)
-	, m_MouseOverLineSegment(-1)
+	, m_MouseOverLineSegment({})
 {
 }
 
@@ -44,45 +45,19 @@ void C_AABBEditor::OnEvent(Core::I_Event& event)
 //=================================================================================
 void C_AABBEditor::Draw(Renderer::I_DebugDraw& dd) const
 {
-	int	 i		  = 0;
-	auto previous = m_Curve.GetControlPoint(0);
-	// Render the edited line for user to see what is being edited
-	m_Curve.ForEachControlPoint([&](const glm::vec3& current) {
-		if (m_MouseOverLineSegment == i)
+	ForEachEdge([&](const AABBEdges edge) {
+		const auto [begin, end]	 = GetEdge(edge);
+		Colours::T_Colour colour = Colours::white;
+		if (m_MouseOverLineSegment.has_value() && m_MouseOverLineSegment.value() == edge)
 		{
-			dd.DrawLine(previous, current, Colours::red);
+			colour = Colours::Editing::mouseOver;
 		}
-		else if (IsLineSegmentSelected(i))
+		if (m_SelectedEdge.has_value() && m_SelectedEdge.value() == edge)
 		{
-			dd.DrawLine(previous, current, Colours::blue);
+			colour = Colours::Editing::selected;
 		}
-		else
-		{
-			dd.DrawLine(previous, current, Colours::white);
-		}
-
-		if (i == m_MouseOverPoint)
-		{
-			dd.DrawPoint(current, Colours::red);
-		}
-		else if (IsPointSelected(i))
-		{
-			dd.DrawPoint(current, Colours::blue);
-		}
-		else
-		{
-			dd.DrawPoint(current, Colours::white);
-		}
-		previous = current;
-
-		++i;
+		dd.DrawLine(begin, end, colour);
 	});
-
-	dd.DrawAABB(m_AABB, Colours::white);
-
-	Renderer::C_3DCurveRenderer curveRenderer(dd);
-
-	curveRenderer.Draw(*m_interpol, Colours::black, Colours::white, 100);
 
 	if (m_Gizmo)
 		m_Gizmo->Draw(dd);
@@ -97,26 +72,19 @@ void C_AABBEditor::OnUpdate(const Renderer::I_CameraComponent& camera, const Ren
 	{
 		m_Gizmo->OnUpdate(camera, mousePicking);
 
-		std::for_each(m_SelectedPoints.begin(), m_SelectedPoints.end(),
-					  [&](const std::size_t idx) { m_Curve.SetControlPoint(idx, m_Curve.GetControlPoint(idx) + m_Gizmo->GetPositionDiff()); });
+		// std::for_each(m_SelectedPoints.begin(), m_SelectedPoints.end(),
+		// 			  [&](const std::size_t idx) { m_Curve.SetControlPoint(idx, m_Curve.GetControlPoint(idx) + m_Gizmo->GetPositionDiff()); });
 
 		if (m_Gizmo->IsBeingControlled())
 			return;
 	}
 
-	// Feed all the interactable points to the helper
-	const auto numControlPoints = m_Curve.GetNumControlPoints();
-	for (unsigned int i = 0; i < numControlPoints; ++i)
-	{
-		mousePicking.Point(m_Curve.GetControlPoint(i), [&, i]() { m_MouseOverPoint = i; });
-		if (i > 0)
-		{
-			mousePicking.LineSegment(m_Curve.GetControlPoint(i - 1), m_Curve.GetControlPoint(i), [&, i]() { m_MouseOverLineSegment = i; });
-		}
-	}
+	ForEachEdge([&](const AABBEdges edge) {
+		const auto [begin, end] = GetEdge(edge);
+		mousePicking.LineSegment(begin, end, [&, edge]() { m_MouseOverLineSegment = edge; });
+	});
 
-	m_MouseOverPoint	   = -1;
-	m_MouseOverLineSegment = -1;
+	m_MouseOverLineSegment = {};
 
 	mousePicking.SelectInteraction();
 }
@@ -128,51 +96,12 @@ bool C_AABBEditor::OnMouseKeyPressed(Core::C_MouseButtonPressed& event)
 	{
 		if (m_Gizmo && m_Gizmo->IsBeingControlled())
 			return false;
-		// will be adding/removing from the set
-		if (event.GetModifiers() & Core::E_KeyModifiers::Control)
+
+		if (m_MouseOverLineSegment.has_value())
 		{
-			if (m_MouseOverPoint >= 0)
-			{
-				if (IsPointSelected(m_MouseOverPoint))
-				{
-					RemovePointToSelected(m_MouseOverPoint);
-				}
-				else
-				{
-					AddPointToSelected(m_MouseOverPoint);
-				}
-			}
-			else if (m_MouseOverLineSegment >= 0)
-			{
-				// if either of points is part of selection than add both
-				// if one of the points is part of selection than add other
-				// if both are part of the selection than remove both
-				// if (IsPointSelected())
-				if (IsLineSegmentSelected(m_MouseOverLineSegment))
-				{
-					RemovePointToSelected(m_MouseOverLineSegment - 1);
-					RemovePointToSelected(m_MouseOverLineSegment);
-				}
-				else
-				{
-					AddPointToSelected(m_MouseOverLineSegment - 1);
-					AddPointToSelected(m_MouseOverLineSegment);
-				}
-			}
+			m_SelectedEdge = m_MouseOverLineSegment.value();
 		}
-		else
-		{
-			m_SelectedPoints.clear();
-			if (m_MouseOverPoint >= 0)
-			{
-				AddPointToSelected(m_MouseOverPoint);
-			}
-			else if (m_MouseOverLineSegment >= 0)
-			{
-				AddPointToSelected(m_MouseOverLineSegment - 1);
-				AddPointToSelected(m_MouseOverLineSegment);
-			}
-		}
+
 
 		UpdateGizmoPosition();
 		return true;
@@ -181,56 +110,77 @@ bool C_AABBEditor::OnMouseKeyPressed(Core::C_MouseButtonPressed& event)
 }
 
 //=================================================================================
-bool C_AABBEditor::IsPointSelected(std::size_t idx) const
-{
-	return Utils::contains(m_SelectedPoints, idx);
-}
-
-//=================================================================================
-void C_AABBEditor::AddPointToSelected(std::size_t idx)
-{
-	m_SelectedPoints.insert(idx);
-}
-
-//=================================================================================
-void C_AABBEditor::RemovePointToSelected(std::size_t idx)
-{
-	m_SelectedPoints.erase(idx);
-}
-
-//=================================================================================
-bool C_AABBEditor::IsLineSegmentSelected(std::size_t idx) const
-{
-	return IsPointSelected(idx - 1) && IsPointSelected(idx);
-}
-
-//=================================================================================
 void C_AABBEditor::UpdateGizmoPosition()
 {
 	// no gizmo needed
-	if (m_SelectedPoints.empty())
+	if (m_SelectedEdge.has_value() == false)
 	{
 		m_Gizmo.reset();
 	}
 	else
 	{
-		// 1] calculate mean point
-		// 2] update position
-		glm::vec3 meanPoint(0, 0, 0);
-		for (const auto idx : m_SelectedPoints)
+		if (m_SelectedEdge.has_value())
 		{
-			meanPoint += m_Curve.GetControlPoint(idx);
-		}
-		meanPoint /= m_SelectedPoints.size();
-		if (!m_Gizmo)
-		{
-			m_Gizmo.emplace(meanPoint, m_Input);
-		}
-		else
-		{
-			m_Gizmo->SetPosition(meanPoint);
+			const auto [begin, end] = GetEdge(m_SelectedEdge.value());
+			const auto center		= (begin + end) / 2.f;
+
+			m_Gizmo.emplace(center, m_Input);
 		}
 	}
+}
+
+//=================================================================================
+template <class Func> void C_AABBEditor::ForEachEdge(const Func& fnc)
+{
+	using type = std::underlying_type_t<AABBEdges>;
+	for (type i = 0; i < std::to_underlying(AABBEdges::Last); ++i)
+	{
+		fnc(static_cast<AABBEdges>(i));
+	}
+}
+
+//=================================================================================
+std::array<glm::vec3, 2> C_AABBEditor::GetEdge(const AABBEdges edge) const
+{
+	const auto left	 = m_AABB.m_Min.x;
+	const auto right = m_AABB.m_Max.x;
+
+	const auto top	  = m_AABB.m_Max.y;
+	const auto bottom = m_AABB.m_Min.y;
+
+	const auto front = m_AABB.m_Min.z;
+	const auto back	 = m_AABB.m_Max.z;
+
+	switch (edge)
+	{
+	case AABBEdges::TopLeft:
+		return {{{left, top, front}, {left, top, back}}};
+	case AABBEdges::TopRight:
+		return {{{right, top, front}, {right, top, back}}};
+	case AABBEdges::TopFront:
+		return {{{left, top, front}, {right, top, front}}};
+	case AABBEdges::TopBack:
+		return {{{left, top, back}, {right, top, back}}};
+	case AABBEdges::BottomLeft:
+		return {{{left, bottom, front}, {left, bottom, back}}};
+	case AABBEdges::BottomRight:
+		return {{{right, bottom, front}, {right, bottom, back}}};
+	case AABBEdges::BottomFront:
+		return {{{left, bottom, front}, {right, bottom, front}}};
+	case AABBEdges::BottomBack:
+		return {{{left, bottom, back}, {right, bottom, back}}};
+	case AABBEdges::FrontLeft:
+		return {{{left, top, front}, {left, bottom, front}}};
+	case AABBEdges::FrontRight:
+		return {{{right, top, front}, {right, bottom, front}}};
+	case AABBEdges::BackLeft:
+		return {{{left, top, back}, {left, bottom, back}}};
+	case AABBEdges::BackRight:
+		return {{{right, top, back}, {right, bottom, back}}};
+	}
+
+	GLE_ERROR("Unsupported value");
+	return {};
 }
 
 } // namespace GLEngine::Editor

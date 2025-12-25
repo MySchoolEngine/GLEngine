@@ -29,7 +29,7 @@ namespace GLEngine::Editor {
 
 class EDITOR_API_EXPORT C_AABBEditor : public Core::I_EventReceiver {
 public:
-	C_AABBEditor(Physics::Primitives::S_AABB& curve, const Core::I_Input& input);
+	C_AABBEditor(Physics::Primitives::S_AABB& aabb, const Core::I_Input& input);
 
 	void OnEvent(Core::I_Event& event) override;
 	void OnUpdate(const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewport);
@@ -39,21 +39,40 @@ public:
 private:
 	bool OnMouseKeyPressed(Core::C_MouseButtonPressed& event);
 
-	void			   AddPointToSelected(std::size_t idx);
-	void			   RemovePointToSelected(std::size_t idx);
-	[[nodiscard]] bool IsPointSelected(std::size_t idx) const;
 	void			   UpdateGizmoPosition();
-	/**
-	 * Line segments are indexed from 1. Index n means that points n-1 and n is selected.
-	 */
-	[[nodiscard]] bool			 IsLineSegmentSelected(std::size_t idx) const;
+
 	Physics::Primitives::S_AABB& m_AABB;
 	std::optional<C_Gizmo>		 m_Gizmo;
 	const Core::I_Input&		 m_Input;
 
-	int					  m_MouseOverPoint;
-	std::set<std::size_t> m_SelectedPoints;
+	// front for those enums is -z
+	enum class AABBEdges : std::uint8_t {
+		TopLeft = 0,
+		TopRight,
+		TopFront,
+		TopBack,
 
-	int m_MouseOverLineSegment;
+		// sides
+		FrontLeft,
+		FrontRight,
+		BackLeft,
+		BackRight,
+
+		BottomLeft,
+		BottomRight,
+		BottomFront,
+		BottomBack,
+
+		Last,
+	};
+
+	std::array<glm::vec3, 2> GetEdge(const AABBEdges edge) const;
+	template<class Func>
+	static void ForEachEdge(const Func& fnc);
+
+	std::optional<AABBEdges> m_SelectedEdge;
+
+
+	std::optional<AABBEdges> m_MouseOverLineSegment;
 };
 } // namespace GLEngine::Editor
