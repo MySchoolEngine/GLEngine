@@ -16,4 +16,10 @@ inline constexpr static auto cyan	= T_Colour(0, 1, 1);
 inline constexpr static auto yellow = T_Colour(1, 1, 0);
 inline constexpr static auto gray	= T_Colour(169.0 / 255.0, 169.0 / 255.0, 169.0 / 255.0);
 
+namespace Editing {
+
+inline constexpr static auto mouseOver = red;
+inline constexpr static auto selected  = blue;
+}
+
 } // namespace GLEngine::Colours

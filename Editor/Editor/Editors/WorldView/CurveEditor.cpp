@@ -79,11 +79,11 @@ void C_CurveEditor::Draw(Renderer::I_DebugDraw& dd) const
 	m_Curve.ForEachControlPoint([&](const glm::vec3& current) {
 		if (m_MouseOverLineSegment == i)
 		{
-			dd.DrawLine(previous, current, Colours::red);
+			dd.DrawLine(previous, current, Colours::Editing::mouseOver);
 		}
 		else if (IsLineSegmentSelected(i))
 		{
-			dd.DrawLine(previous, current, Colours::blue);
+			dd.DrawLine(previous, current, Colours::Editing::selected);
 		}
 		else
 		{
@@ -92,11 +92,11 @@ void C_CurveEditor::Draw(Renderer::I_DebugDraw& dd) const
 
 		if (i == m_MouseOverPoint)
 		{
-			dd.DrawPoint(current, Colours::red);
+			dd.DrawPoint(current, Colours::Editing::mouseOver);
 		}
 		else if (IsPointSelected(i))
 		{
-			dd.DrawPoint(current, Colours::blue);
+			dd.DrawPoint(current, Colours::Editing::selected);
 		}
 		else
 		{
