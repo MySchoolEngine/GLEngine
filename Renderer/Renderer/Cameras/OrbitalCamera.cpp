@@ -25,8 +25,6 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/transform.hpp>
 
-#include <rttr/registration>
-
 // TODO: here only for key codes.
 #include <GLFW/glfw3.h>
 #include <stdexcept>

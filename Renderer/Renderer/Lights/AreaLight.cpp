@@ -12,8 +12,6 @@
 
 #include <glm/gtx/matrix_decompose.hpp>
 
-#include <rttr/registration>
-
 #pragma region registration
 // clang-format off
 RTTR_REGISTRATION

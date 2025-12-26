@@ -2,8 +2,6 @@
 
 #include <Core/Resources/Resource.h>
 
-#include <rttr/registration>
-
 // clang-format off
 RTTR_REGISTRATION
 {

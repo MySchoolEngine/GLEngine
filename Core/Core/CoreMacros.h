@@ -62,3 +62,20 @@
 #else
 	#define GLE_TODO(date, UseName, todoMessage)
 #endif
+
+//======================================================
+// Warning macros
+//======================================================
+#define GL_PUSH_WARNINGS()
+#ifdef __GNUC__
+	#pragma GCC diagnostic push
+#elif _MSC_VER 
+	#pragma warning(push)
+#endif
+
+#define GL_POP_WARNINGS()
+#ifdef __GNUC__
+	#pragma GCC diagnostic pop
+#elif _MSC_VER
+	#pragma warning(pop)
+#endif

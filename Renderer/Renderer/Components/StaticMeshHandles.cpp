@@ -16,7 +16,6 @@
 #include <Utils/Serialization/SerializationUtils.h>
 
 #include <imgui.h>
-#include <rttr/registration>
 
 // clang-format off
 RTTR_REGISTRATION

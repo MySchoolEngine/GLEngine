@@ -1,10 +1,14 @@
 #pragma once
+#include <Core/CoreMacros.h>
 
-#pragma warning(push)
+GL_PUSH_WARNINGS()
 #pragma warning(disable : 4996)
 #include <fmt/format.h>
+#ifdef __GNUC__
+	#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 #include <rttr/type>
-#pragma warning(pop)
+GL_POP_WARNINGS()
 
 
 template <> struct fmt::formatter<rttr::string_view> {

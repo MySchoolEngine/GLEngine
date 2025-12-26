@@ -6,8 +6,6 @@
 #include <Utils/Serialization/XMLDeserialize.h>
 #include <Utils/Serialization/XMLSerialize.h>
 
-#include <rttr/registration>
-
 RTTR_REGISTRATION
 {
 	using namespace GLEngine::Core;
