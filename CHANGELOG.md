@@ -3,7 +3,9 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - 26-12-2025
-Switched to C++23
+### Updates
+- Switched to C++23
+- Updated premake5 to 5.0.0-beta7
 ### Added
 - AABB editor #270
 - Disable for directiosn in gizmo
