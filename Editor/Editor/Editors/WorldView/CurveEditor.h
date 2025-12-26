@@ -29,7 +29,7 @@ public:
 	C_CurveEditor(Renderer::C_Curve& curve, const Core::I_Input& input);
 
 	void OnEvent(Core::I_Event& event) override;
-	void		 OnUpdate(const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewport);
+	void OnUpdate(const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewport);
 
 	void Draw(Renderer::I_DebugDraw& dd) const;
 
@@ -51,8 +51,7 @@ private:
 	const Core::I_Input&   m_Input;
 
 
-	enum class E_InterpolationType
-	{
+	enum class E_InterpolationType : std::uint8_t {
 		Linear,
 		Bezier,
 		SmoothBezier,

@@ -35,7 +35,7 @@ public:
 private:
 	bool OnMouseKeyPressed(Core::C_MouseButtonPressed& event);
 
-	void			   UpdateGizmoPosition();
+	void UpdateGizmoPosition();
 
 	Physics::Primitives::S_AABB& m_AABB;
 	std::optional<C_Gizmo>		 m_Gizmo;
@@ -62,15 +62,15 @@ private:
 		Last,
 	};
 
-	std::array<glm::vec3, 2> GetEdge(const AABBEdges edge) const;
-	template<class Func>
-	static void ForEachEdge(const Func& fnc);
+	std::array<glm::vec3, 2>		  GetEdge(const AABBEdges edge) const;
+	template <class Func> static void ForEachEdge(const Func& fnc);
 
 	static C_Gizmo::E_Direction DisabledDirection(AABBEdges edge);
 
+	void ApplyOffset(const glm::vec3& offset);
+	static AABBEdges SwapByDirection(C_Gizmo::E_Direction dir, AABBEdges edge);
+
 	std::optional<AABBEdges> m_SelectedEdge;
-
-
 	std::optional<AABBEdges> m_MouseOverLineSegment;
 };
 } // namespace GLEngine::Editor

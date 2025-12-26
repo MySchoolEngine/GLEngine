@@ -71,8 +71,8 @@ void C_AABBEditor::OnUpdate(const Renderer::I_CameraComponent& camera, const Ren
 	{
 		m_Gizmo->OnUpdate(camera, mousePicking);
 
-		// std::for_each(m_SelectedPoints.begin(), m_SelectedPoints.end(),
-		// 			  [&](const std::size_t idx) { m_Curve.SetControlPoint(idx, m_Curve.GetControlPoint(idx) + m_Gizmo->GetPositionDiff()); });
+		// apply movement
+		ApplyOffset(m_Gizmo->GetPositionDiff());
 
 		if (m_Gizmo->IsBeingControlled())
 			return;
@@ -98,7 +98,7 @@ bool C_AABBEditor::OnMouseKeyPressed(Core::C_MouseButtonPressed& event)
 
 		if (m_MouseOverLineSegment.has_value())
 		{
-			m_SelectedEdge = m_MouseOverLineSegment.value();
+			m_SelectedEdge = m_MouseOverLineSegment;
 		}
 
 
@@ -183,11 +183,12 @@ std::array<glm::vec3, 2> C_AABBEditor::GetEdge(const AABBEdges edge) const
 	return {};
 }
 
+//=================================================================================
 C_Gizmo::E_Direction C_AABBEditor::DisabledDirection(AABBEdges edge)
 {
 	switch (edge)
 	{
-	using enum C_Gizmo::E_Direction;
+		using enum C_Gizmo::E_Direction;
 
 	case AABBEdges::TopLeft:
 	case AABBEdges::TopRight:
@@ -213,6 +214,203 @@ C_Gizmo::E_Direction C_AABBEditor::DisabledDirection(AABBEdges edge)
 	}
 
 	GLE_ERROR("Unsupported value");
+	return {};
+}
+
+//=================================================================================
+void C_AABBEditor::ApplyOffset(const glm::vec3& offset)
+{
+	GLE_ASSERT(m_SelectedEdge.has_value(), "trying to move edge when not selected");
+	// break it by the axis!
+
+	// x -> left to right
+	if (offset.x != 0.f)
+	{
+		switch (*m_SelectedEdge)
+		{
+			using enum AABBEdges;
+		case BottomLeft:
+		case BackLeft:
+		case FrontLeft:
+		case TopLeft: {
+			m_AABB.m_Min.x += offset.x;
+			if (m_AABB.m_Min.x > m_AABB.m_Max.x)
+			{
+				m_SelectedEdge = SwapByDirection(C_Gizmo::E_Direction::Right, *m_SelectedEdge);
+				std::swap(m_AABB.m_Min.x, m_AABB.m_Max.x);
+			}
+			break;
+		}
+
+		case TopRight:
+		case FrontRight:
+		case BackRight:
+		case BottomRight: {
+			m_AABB.m_Max.x += offset.x;
+			if (m_AABB.m_Min.x > m_AABB.m_Max.x)
+			{
+				m_SelectedEdge = SwapByDirection(C_Gizmo::E_Direction::Right, *m_SelectedEdge);
+				std::swap(m_AABB.m_Min.x, m_AABB.m_Max.x);
+			}
+			break;
+		}
+		default:
+			break;
+		}
+		return;
+	}
+
+	// y -> Bottom -> top
+	if (offset.y != 0.f)
+	{
+		switch (*m_SelectedEdge)
+		{
+			using enum AABBEdges;
+		case BottomLeft:
+		case BottomRight:
+		case BottomFront:
+		case BottomBack: {
+			m_AABB.m_Min.y += offset.y;
+			if (m_AABB.m_Min.y > m_AABB.m_Max.y)
+			{
+				m_SelectedEdge = SwapByDirection(C_Gizmo::E_Direction::Up, *m_SelectedEdge);
+				std::swap(m_AABB.m_Min.y, m_AABB.m_Max.y);
+			}
+			break;
+		}
+		case TopLeft:
+		case TopRight:
+		case TopFront:
+		case TopBack: {
+			m_AABB.m_Max.y += offset.y;
+			if (m_AABB.m_Min.y > m_AABB.m_Max.y)
+			{
+				m_SelectedEdge = SwapByDirection(C_Gizmo::E_Direction::Up, *m_SelectedEdge);
+				std::swap(m_AABB.m_Min.y, m_AABB.m_Max.y);
+			}
+			break;
+		}
+		default:
+			break;
+		}
+		return;
+	}
+
+	// z -> Front to back
+	if (offset.z != 0.f)
+	{
+		switch (*m_SelectedEdge)
+		{
+			using enum AABBEdges;
+
+		case TopFront:
+		case BottomFront:
+		case FrontLeft:
+		case FrontRight: {
+			m_AABB.m_Min.z += offset.z;
+			if (m_AABB.m_Min.z > m_AABB.m_Max.z)
+			{
+				m_SelectedEdge = SwapByDirection(C_Gizmo::E_Direction::Forward, *m_SelectedEdge);
+				std::swap(m_AABB.m_Min.z, m_AABB.m_Max.z);
+			}
+			break;
+		}
+		case TopBack:
+		case BottomBack:
+		case BackLeft:
+		case BackRight: {
+			m_AABB.m_Max.z += offset.z;
+			if (m_AABB.m_Min.z > m_AABB.m_Max.z)
+			{
+				m_SelectedEdge = SwapByDirection(C_Gizmo::E_Direction::Forward, *m_SelectedEdge);
+				std::swap(m_AABB.m_Min.z, m_AABB.m_Max.z);
+			}
+			break;
+		}
+		default:
+			break;
+		}
+		return;
+	}
+}
+
+//=================================================================================
+C_AABBEditor::AABBEdges C_AABBEditor::SwapByDirection(C_Gizmo::E_Direction dir, AABBEdges edge)
+{
+	switch (dir)
+	{
+		using enum C_Gizmo::E_Direction;
+		using enum AABBEdges;
+	case Right:
+		switch (edge)
+		{
+		case BottomLeft:
+			return BottomRight;
+		case BackLeft:
+			return BackRight;
+		case FrontLeft:
+			return FrontRight;
+		case TopLeft:
+			return TopRight;
+		case BottomRight:
+			return BottomLeft;
+		case BackRight:
+			return BackLeft;
+		case FrontRight:
+			return FrontLeft;
+		case TopRight:
+			return TopLeft;
+		default:
+			GLE_ERROR("Cannot be switched by this direction");
+		}
+		break;
+	case Up:
+		switch (edge)
+		{
+		case TopLeft:
+			return BottomLeft;
+		case TopRight:
+			return BottomRight;
+		case TopFront:
+			return BottomFront;
+		case TopBack:
+			return BottomBack;
+		case BottomLeft:
+			return TopLeft;
+		case BottomRight:
+			return TopRight;
+		case BottomFront:
+			return TopFront;
+		case BottomBack:
+			return TopBack;
+		default:
+			GLE_ERROR("Cannot be switched by this direction");
+		}
+		break;
+	case Forward:
+		switch (edge)
+		{
+		case TopFront:
+			return TopBack;
+		case TopBack:
+			return TopFront;
+		case FrontLeft:
+			return BackLeft;
+		case FrontRight:
+			return BackRight;
+		case BackLeft:
+			return FrontLeft;
+		case BackRight:
+			return FrontRight;
+		case BottomFront:
+			return BottomBack;
+		case BottomBack:
+			return BottomFront;
+		default:
+			GLE_ERROR("Cannot be switched by this direction");
+		}
+		break;
+	}
 	return {};
 }
 
