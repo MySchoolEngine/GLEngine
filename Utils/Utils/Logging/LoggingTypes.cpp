@@ -1,9 +1,14 @@
 #include <Utils/Logging/LoggingTypes.h>
 
-#pragma warning(push)
+#include <Core/CoreMacros.h>
+
+GL_PUSH_WARNINGS()
 #pragma warning(disable : 4996)
+#ifdef __GNUC__
+	#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 #include <rttr/registration.h>
-#pragma warning(pop)
+GL_POP_WARNINGS()
 
 RTTR_REGISTRATION
 {

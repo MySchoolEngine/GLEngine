@@ -13,8 +13,11 @@
 #include <Renderer/RendererApi.h>
 #include <Renderer/Colours.h>
 
-#pragma warning(push)
+GL_PUSH_WARNINGS()
 #pragma warning(disable : 4996)
+#ifdef __GNUC__
+	#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 #include <rttr/registration.h>
 #include <rttr/registration_friend.h>
-#pragma warning(pop)
+GL_POP_WARNINGS()

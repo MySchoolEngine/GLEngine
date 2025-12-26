@@ -1,10 +1,15 @@
+#include <Core/CoreMacros.h>
+
 #include <glm/glm.hpp>
 
-#pragma warning(push)
+GL_PUSH_WARNINGS()
 #pragma warning(disable : 4996)
+#ifdef __GNUC__
+	#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 #include <rttr/registration.h>
 #include <fmt/format.h>
-#pragma warning(pop)
+GL_POP_WARNINGS()
 
 
 #include <optional>

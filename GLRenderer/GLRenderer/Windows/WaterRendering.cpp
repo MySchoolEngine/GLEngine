@@ -28,8 +28,6 @@
 
 #include <Utils/StdVectorUtils.h>
 
-#include <rttr/registration>
-
 // clang-format off
 RTTR_REGISTRATION
 {

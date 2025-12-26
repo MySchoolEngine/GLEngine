@@ -1,7 +1,6 @@
 #include <CoreStdafx.h>
 
 #include <Core/GUID.h>
-#include <rttr/registration.h>
 
 RTTR_REGISTRATION
 {

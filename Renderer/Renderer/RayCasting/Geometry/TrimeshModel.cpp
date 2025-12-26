@@ -10,8 +10,6 @@
 #include <Utils/Serialization/XMLDeserialize.h>
 #include <Utils/Serialization/XMLSerialize.h>
 
-#include <rttr/registration>
-
 
 namespace GLEngine::Core {
 template <> void ResourceHandle<Renderer::C_TrimeshModel>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)

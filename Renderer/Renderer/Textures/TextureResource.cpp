@@ -7,8 +7,6 @@
 #include <Core/Resources/ResourceHandle.h>
 #include <Core/Resources/ResourceManager.h>
 
-#include <rttr/registration>
-
 
 namespace GLEngine::Core {
 template <> void ResourceHandle<Renderer::TextureResource>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
