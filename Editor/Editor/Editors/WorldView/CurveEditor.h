@@ -5,9 +5,9 @@
 
 #include <Renderer/Mesh/Curve.h>
 
-#include <GUI/Input/Select.h>
-
 #include <Core/EventSystem/EventReciever.h>
+
+#include <rttr/registration_friend.h>
 
 namespace GLEngine::Core {
 class I_Input;
@@ -28,11 +28,12 @@ class EDITOR_API_EXPORT C_CurveEditor : public Core::I_EventReceiver {
 public:
 	C_CurveEditor(Renderer::C_Curve& curve, const Core::I_Input& input);
 
-	virtual void OnEvent(Core::I_Event& event) override;
-	void		 OnUpdate(const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewport);
+	void OnEvent(Core::I_Event& event) override;
+	void OnUpdate(const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewport);
 
 	void Draw(Renderer::I_DebugDraw& dd) const;
 
+	RTTR_REGISTRATION_FRIEND
 private:
 	bool OnMouseKeyPressed(Core::C_MouseButtonPressed& event);
 	bool OnKeyPressed(Core::C_KeyPressedEvent& event);
@@ -40,7 +41,7 @@ private:
 	void			   AddPointToSelected(std::size_t idx);
 	void			   RemovePointToSelected(std::size_t idx);
 	[[nodiscard]] bool IsPointSelected(std::size_t idx) const;
-	void			   UpdateGizmoPozition();
+	void			   UpdateGizmoPosition();
 	/**
 	 * Line segments are indexed from 1. Index n means that points n-1 and n is selected.
 	 */
@@ -50,20 +51,19 @@ private:
 	const Core::I_Input&   m_Input;
 
 
-	enum class E_InterpolationType
-	{
+	enum class E_InterpolationType : std::uint8_t {
 		Linear,
 		Bezier,
 		SmoothBezier,
 	};
 
-	GUI::Input::C_Select<E_InterpolationType> m_Select;
+	E_InterpolationType m_Select;
 
 	int					  m_MouseOverPoint;
-	std::set<std::size_t> m_Selectedpoints;
+	std::set<std::size_t> m_SelectedPoints;
 
 	int m_MouseOverLineSegment;
 
-	std::unique_ptr<Renderer::I_CurveFunction<glm::vec3>> m_interpol;
+	mutable std::unique_ptr<Renderer::I_CurveFunction<glm::vec3>> m_interpol;
 };
 } // namespace GLEngine::Editor

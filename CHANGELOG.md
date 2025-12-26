@@ -2,6 +2,16 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - 26-12-2025
+### Updates
+- Switched to C++23
+- Updated premake5 to 5.0.0-beta7
+### Added
+- AABB editor #270
+- Disable for directiosn in gizmo
+### Fixed
+- Reflection GUI on non registered enums show asserts
+
 ## [Unreleased] - 05-12-2025
 ### Fixed
 - Buildable resrource now tries to load if possible

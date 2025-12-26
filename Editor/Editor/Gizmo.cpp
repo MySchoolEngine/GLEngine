@@ -19,11 +19,12 @@ namespace GLEngine::Editor {
 //=================================================================================
 C_Gizmo::C_Gizmo(const glm::vec3& position, const Core::I_Input& input)
 	: m_Position(position)
-	, m_ControllingGizmo(false)
 	, m_DiffSinceLastFrame(0.f)
+	, m_ControllingGizmo(false)
 	, m_Input(input)
 	, m_LastMousePosition(0.f)
 	, m_MouseOffset(0.f)
+	, m_DisabledDirs({false, false, false})
 {
 }
 
@@ -81,10 +82,21 @@ void C_Gizmo::OnUpdate(const Renderer::I_CameraComponent& camera, C_MousePicking
 //=================================================================================
 void C_Gizmo::Draw(Renderer::I_DebugDraw& dd) const
 {
-	const auto selectedMouseOverDirection = m_MouseOverDirection.has_value() ? static_cast<int>(m_MouseOverDirection.value()) : -1;
-	dd.DrawLine(m_Position, m_Position + glm::vec3{1, 0, 0}, (selectedMouseOverDirection == 0) ? Colours::yellow : Colours::red);
-	dd.DrawLine(m_Position, m_Position + glm::vec3{0, 1, 0}, (selectedMouseOverDirection == 1) ? Colours::yellow : Colours::green);
-	dd.DrawLine(m_Position, m_Position + glm::vec3{0, 0, 1}, (selectedMouseOverDirection == 2) ? Colours::yellow : Colours::blue);
+	const static auto drawDir					 = [&](const E_Direction dir) {
+		   Colours::T_Colour colour = GetAxe(dir);
+		   if (m_MouseOverDirection.has_value() && dir == m_MouseOverDirection.value())
+		   {
+			   colour = Colours::Editing::mouseOver;
+		   }
+		   if (DirDisabled(dir))
+		   {
+			   colour = Colours::Editing::disabled;
+		   }
+		   dd.DrawLine(m_Position, m_Position + GetAxe(dir), colour);
+	};
+	drawDir(E_Direction::Forward);
+	drawDir(E_Direction::Up);
+	drawDir(E_Direction::Right);
 }
 
 //=================================================================================
@@ -106,7 +118,7 @@ void C_Gizmo::OnEvent(Core::I_Event& event)
 //=================================================================================
 bool C_Gizmo::OnMouseKeyPressed(Core::C_MouseButtonPressed& event)
 {
-	if (IsMouseOverGizmo())
+	if (IsMouseOverGizmo() && DirDisabled(m_MouseOverDirection.value()) == false)
 	{
 		m_ControllingGizmo	= true;
 		m_LastMousePosition = m_Input.GetClipSpaceMouseCoord();
@@ -150,6 +162,18 @@ bool C_Gizmo::IsBeingControlled() const
 }
 
 //=================================================================================
+void C_Gizmo::DisableDir(const E_Direction dir, bool disable)
+{
+	m_DisabledDirs[std::to_underlying(dir)] = disable;
+}
+
+//=================================================================================
+bool C_Gizmo::DirDisabled(const E_Direction dir) const
+{
+	return m_DisabledDirs[std::to_underlying(dir)];
+}
+
+//=================================================================================
 glm::vec3 C_Gizmo::GetPositionDiff() const
 {
 	if (IsBeingControlled())
@@ -164,18 +188,13 @@ glm::vec3 C_Gizmo::GetAxe(const E_Direction dir) const
 	{
 	case E_Direction::Right:
 		return {1, 0, 0};
-		break;
 	case E_Direction::Up:
 		return {0, 1, 0};
-		break;
 	case E_Direction::Forward:
 		return {0, 0, 1};
-		break;
-	default:
-		GLE_ASSERT(false, "This should not happen");
-		return {};
-		break;
 	}
+	GLE_ASSERT(false, "This should not happen");
+	return {};
 }
 
 } // namespace GLEngine::Editor

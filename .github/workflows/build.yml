@@ -107,7 +107,7 @@ jobs:
           git submodule update
       - name: Generate solution
         shell: cmd
-        run: Tools\Premake5\premake5.exe --glfwapi=${{ matrix.glfwapi }} vs2019
+        run: Tools\Premake5\premake5.exe --glfwapi=${{ matrix.glfwapi }} vs2022
       - name: Build
         shell: cmd
         run: msbuild Engine.sln /p:Configuration=${{ matrix.configuration }} -maxCpuCount

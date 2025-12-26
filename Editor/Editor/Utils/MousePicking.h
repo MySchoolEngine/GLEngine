@@ -10,15 +10,11 @@ class I_CameraComponent;
 } // namespace GLEngine::Renderer
 
 namespace GLEngine::Editor {
-[[nodiscard]] float
-ScreenSpaceDistance(const glm::vec3& point, const glm::vec2& mousePosition, const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewPort, float& depth);
-[[nodiscard]] float ScreenSpaceDistanceToLine(const glm::vec3&					 a,
-											  const glm::vec3&					 b,
-											  const glm::vec2&					 mousePosition,
-											  const Renderer::I_CameraComponent& camera,
-											  const Renderer::C_Viewport&		 viewPort,
-											  float&							 depth);
 
+/**
+ * This class facilitate simple mouse interaction. It is meant as a helper not a long-lived  object.
+ * You feed it all the possible interactions and then you call SelectInteraction to evaluate the interactions
+ */
 class C_MousePickingHelper {
 public:
 	C_MousePickingHelper(const Core::I_Input& input, const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewPort);

@@ -1,6 +1,6 @@
 #include <EditorStdafx.h>
 
-#include <Editor/CurveEditor.h>
+#include <Editor/Editors/WorldView/CurveEditor.h>
 #include <Editor/Utils/MousePicking.h>
 
 #include <Renderer/Colours.h>
@@ -11,6 +11,7 @@
 #include <Renderer/Viewport.h>
 
 #include <GUI/Input/Slider.h>
+#include <GUI/ReflectionGUI.h>
 
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/Event/MouseEvents.h>
@@ -21,20 +22,40 @@
 
 #include <GLFW/glfw3.h>
 #include <imgui.h>
+#include <rttr/registration>
+
+// clang-format off
+RTTR_REGISTRATION
+{
+	using namespace GLEngine::Editor;
+	using namespace Utils::Reflection;
+
+	rttr::registration::class_<C_CurveEditor>("C_CurveEditor")
+		.property("InterpolationSelect", &C_CurveEditor::m_Select)(
+			rttr::policy::prop::as_reference_wrapper,
+			RegisterMetaclass<MetaGUI::EnumSelect>(),
+			RegisterMetamember<UI::EnumSelect::Name>("Interpolation type:"));
+	
+	rttr::registration::enumeration<C_CurveEditor::E_InterpolationType>("C_CurveEditor::E_InterpolationType")(
+		rttr::value("Linear",		C_CurveEditor::E_InterpolationType::Linear),
+		rttr::value("Bezier",		C_CurveEditor::E_InterpolationType::Bezier),
+		rttr::value("SmoothBezier",	C_CurveEditor::E_InterpolationType::SmoothBezier)
+	);
+}
+// clang-format on
 
 namespace GLEngine::Editor {
 
 //=================================================================================
 C_CurveEditor::C_CurveEditor(Renderer::C_Curve& curve, const Core::I_Input& input)
-	: m_Curve(curve)
+	: I_EventReceiver()
+	, m_Curve(curve)
 	, m_Input(input)
+	, m_Select(E_InterpolationType::Bezier)
 	, m_MouseOverPoint(-1)
 	, m_MouseOverLineSegment(-1)
-	, m_interpol(std::make_unique<Renderer::C_LinearCurveInterpolation<Renderer::C_Curve>>(m_Curve))
-	, m_Select("Interpolation type", E_InterpolationType::Linear, "Linear")
+	, m_interpol(std::make_unique<Renderer::C_BezierCurveInterpolation<Renderer::C_Curve>>(m_Curve))
 {
-	m_Select.AddValue(E_InterpolationType::Bezier, "Bezier");
-	m_Select.AddValue(E_InterpolationType::SmoothBezier, "Smooth Bezier");
 }
 
 //=================================================================================
@@ -54,14 +75,15 @@ void C_CurveEditor::Draw(Renderer::I_DebugDraw& dd) const
 		return;
 	int	 i		  = 0;
 	auto previous = m_Curve.GetControlPoint(0);
+	// Render the edited line for user to see what is being edited
 	m_Curve.ForEachControlPoint([&](const glm::vec3& current) {
 		if (m_MouseOverLineSegment == i)
 		{
-			dd.DrawLine(previous, current, Colours::red);
+			dd.DrawLine(previous, current, Colours::Editing::mouseOver);
 		}
 		else if (IsLineSegmentSelected(i))
 		{
-			dd.DrawLine(previous, current, Colours::blue);
+			dd.DrawLine(previous, current, Colours::Editing::selected);
 		}
 		else
 		{
@@ -70,11 +92,11 @@ void C_CurveEditor::Draw(Renderer::I_DebugDraw& dd) const
 
 		if (i == m_MouseOverPoint)
 		{
-			dd.DrawPoint(current, Colours::red);
+			dd.DrawPoint(current, Colours::Editing::mouseOver);
 		}
 		else if (IsPointSelected(i))
 		{
-			dd.DrawPoint(current, Colours::blue);
+			dd.DrawPoint(current, Colours::Editing::selected);
 		}
 		else
 		{
@@ -88,8 +110,30 @@ void C_CurveEditor::Draw(Renderer::I_DebugDraw& dd) const
 	static GUI::Input::C_Slider slider(0.f, 0.f, 1.f, "Progress");
 
 	ImGui::Begin("CurveEditor");
-	m_Select.Draw();
-	slider.Draw();
+	rttr::instance obj(*this);
+
+	const auto changed = GUI::DrawAllPropertyGUI(obj);
+	if (changed.empty() == false)
+	{
+		if (Utils::contains(changed, rttr::type::get<C_CurveEditor>().get_property("InterpolationSelect")))
+		{
+			switch (m_Select)
+			{
+				using namespace Renderer;
+
+			case E_InterpolationType::Bezier:
+				m_interpol = std::make_unique<C_BezierCurveInterpolation<C_Curve>>(m_Curve, true);
+				break;
+			case E_InterpolationType::SmoothBezier:
+				m_interpol = std::make_unique<C_SmoothBezierCurveInterpolation<C_Curve>>(m_Curve, true);
+				break;
+			case E_InterpolationType::Linear:
+				m_interpol = std::make_unique<C_LinearCurveInterpolation<C_Curve>>(m_Curve);
+				break;
+			}
+		}
+	}
+	std::ignore = slider.Draw();
 	ImGui::End();
 
 	dd.DrawPoint(m_interpol->GetPointInTime(slider.GetValue()), Colours::yellow);
@@ -105,40 +149,22 @@ void C_CurveEditor::Draw(Renderer::I_DebugDraw& dd) const
 //=================================================================================
 void C_CurveEditor::OnUpdate(const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewport)
 {
-	if (m_Select.Changed())
-	{
-		switch (m_Select.GetSelectedValue())
-		{
-		case E_InterpolationType::Bezier:
-			m_interpol = std::make_unique<Renderer::C_BezierCurveInterpolation<Renderer::C_Curve>>(m_Curve, true);
-			break;
-		case E_InterpolationType::SmoothBezier:
-			m_interpol = std::make_unique<Renderer::C_SmoothBezierCurveInterpolation<Renderer::C_Curve>>(m_Curve, true);
-			break;
-		case E_InterpolationType::Linear:
-		default:
-			m_interpol = std::make_unique<Renderer::C_LinearCurveInterpolation<Renderer::C_Curve>>(m_Curve);
-			break;
-		}
-	}
-
 	C_MousePickingHelper mousePicking(m_Input, camera, viewport);
 
 	if (m_Gizmo)
 	{
 		m_Gizmo->OnUpdate(camera, mousePicking);
 
-		std::for_each(m_Selectedpoints.begin(), m_Selectedpoints.end(),
+		std::for_each(m_SelectedPoints.begin(), m_SelectedPoints.end(),
 					  [&](const std::size_t idx) { m_Curve.SetControlPoint(idx, m_Curve.GetControlPoint(idx) + m_Gizmo->GetPositionDiff()); });
 
 		if (m_Gizmo->IsBeingControlled())
 			return;
 	}
 
-	const auto mousePosition = m_Input.GetClipSpaceMouseCoord();
-
+	// Feed all the interactable points to the helper
 	const auto numControlPoints = m_Curve.GetNumControlPoints();
-	for (int i = 0; i < numControlPoints; ++i)
+	for (unsigned int i = 0; i < numControlPoints; ++i)
 	{
 		mousePicking.Point(m_Curve.GetControlPoint(i), [&, i]() { m_MouseOverPoint = i; });
 		if (i > 0)
@@ -194,7 +220,7 @@ bool C_CurveEditor::OnMouseKeyPressed(Core::C_MouseButtonPressed& event)
 		}
 		else
 		{
-			m_Selectedpoints.clear();
+			m_SelectedPoints.clear();
 			if (m_MouseOverPoint >= 0)
 			{
 				AddPointToSelected(m_MouseOverPoint);
@@ -206,7 +232,7 @@ bool C_CurveEditor::OnMouseKeyPressed(Core::C_MouseButtonPressed& event)
 			}
 		}
 
-		UpdateGizmoPozition();
+		UpdateGizmoPosition();
 		return true;
 	}
 	return false;
@@ -215,21 +241,22 @@ bool C_CurveEditor::OnMouseKeyPressed(Core::C_MouseButtonPressed& event)
 //=================================================================================
 bool C_CurveEditor::OnKeyPressed(Core::C_KeyPressedEvent& event)
 {
-	if (event.GetKeyCode() == GLFW_KEY_DELETE && !m_Selectedpoints.empty())
+	if (event.GetKeyCode() == GLFW_KEY_DELETE && !m_SelectedPoints.empty())
 	{
-		m_Curve.RemoveControlPoint(m_Selectedpoints);
-		m_Selectedpoints.clear();
+		m_Curve.RemoveControlPoint(m_SelectedPoints);
+		m_SelectedPoints.clear();
 		m_Gizmo.reset();
 		return true;
 	}
 	else if (event.GetKeyCode() == GLFW_KEY_A && event.GetModifiers() & Core::E_KeyModifiers::Control)
 	{
-		m_Selectedpoints.clear();
+		m_SelectedPoints.clear();
 		const auto curveLength = m_Curve.GetNumControlPoints();
-		for (int i = 0; i < curveLength; ++i)
+		for (unsigned int i = 0; i < curveLength; ++i)
 		{
-			m_Selectedpoints.insert(i);
+			m_SelectedPoints.insert(i);
 		}
+		UpdateGizmoPosition();
 		return true;
 	}
 	else if (event.GetKeyCode() == GLFW_KEY_KP_ADD && event.GetModifiers() & Core::E_KeyModifiers::Control)
@@ -241,9 +268,9 @@ bool C_CurveEditor::OnKeyPressed(Core::C_KeyPressedEvent& event)
 		const auto newPoint		 = lineEnd + (lineEnd - lineBeginning);
 		m_Curve.AddControlPoint(curveLength, newPoint);
 
-		m_Selectedpoints.clear();
-		m_Selectedpoints.insert(curveLength);
-		UpdateGizmoPozition();
+		m_SelectedPoints.clear();
+		m_SelectedPoints.insert(curveLength);
+		UpdateGizmoPosition();
 		return true;
 	}
 	return false;
@@ -252,19 +279,19 @@ bool C_CurveEditor::OnKeyPressed(Core::C_KeyPressedEvent& event)
 //=================================================================================
 bool C_CurveEditor::IsPointSelected(std::size_t idx) const
 {
-	return Utils::contains(m_Selectedpoints, idx);
+	return Utils::contains(m_SelectedPoints, idx);
 }
 
 //=================================================================================
 void C_CurveEditor::AddPointToSelected(std::size_t idx)
 {
-	m_Selectedpoints.insert(idx);
+	m_SelectedPoints.insert(idx);
 }
 
 //=================================================================================
 void C_CurveEditor::RemovePointToSelected(std::size_t idx)
 {
-	m_Selectedpoints.erase(idx);
+	m_SelectedPoints.erase(idx);
 }
 
 //=================================================================================
@@ -274,10 +301,10 @@ bool C_CurveEditor::IsLineSegmentSelected(std::size_t idx) const
 }
 
 //=================================================================================
-void C_CurveEditor::UpdateGizmoPozition()
+void C_CurveEditor::UpdateGizmoPosition()
 {
 	// no gizmo needed
-	if (m_Selectedpoints.empty())
+	if (m_SelectedPoints.empty())
 	{
 		m_Gizmo.reset();
 	}
@@ -286,11 +313,11 @@ void C_CurveEditor::UpdateGizmoPozition()
 		// 1] calculate mean point
 		// 2] update position
 		glm::vec3 meanPoint(0, 0, 0);
-		for (const auto idx : m_Selectedpoints)
+		for (const auto idx : m_SelectedPoints)
 		{
 			meanPoint += m_Curve.GetControlPoint(idx);
 		}
-		meanPoint /= m_Selectedpoints.size();
+		meanPoint /= m_SelectedPoints.size();
 		if (!m_Gizmo)
 		{
 			m_Gizmo.emplace(meanPoint, m_Input);
