@@ -13,7 +13,6 @@
 
 #include <Physics/Primitives/AABB.h>
 
-#include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/Event/MouseEvents.h>
 #include <Core/EventSystem/EventDispatcher.h>
 #include <Core/Input.h>
@@ -125,6 +124,7 @@ void C_AABBEditor::UpdateGizmoPosition()
 			const auto center		= (begin + end) / 2.f;
 
 			m_Gizmo.emplace(center, m_Input);
+			m_Gizmo->DisableDir(DisabledDirection(*m_SelectedEdge));
 		}
 	}
 }
@@ -177,6 +177,39 @@ std::array<glm::vec3, 2> C_AABBEditor::GetEdge(const AABBEdges edge) const
 		return {{{left, top, back}, {left, bottom, back}}};
 	case AABBEdges::BackRight:
 		return {{{right, top, back}, {right, bottom, back}}};
+	}
+
+	GLE_ERROR("Unsupported value");
+	return {};
+}
+
+C_Gizmo::E_Direction C_AABBEditor::DisabledDirection(AABBEdges edge)
+{
+	switch (edge)
+	{
+	using enum C_Gizmo::E_Direction;
+
+	case AABBEdges::TopLeft:
+	case AABBEdges::TopRight:
+		return Forward;
+
+	case AABBEdges::TopFront:
+	case AABBEdges::TopBack:
+		return Right;
+
+	case AABBEdges::FrontLeft:
+	case AABBEdges::FrontRight:
+	case AABBEdges::BackLeft:
+	case AABBEdges::BackRight:
+		return Up;
+
+	case AABBEdges::BottomLeft:
+	case AABBEdges::BottomRight:
+		return Forward;
+
+	case AABBEdges::BottomFront:
+	case AABBEdges::BottomBack:
+		return Right;
 	}
 
 	GLE_ERROR("Unsupported value");

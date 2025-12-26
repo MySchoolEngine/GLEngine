@@ -3,11 +3,7 @@
 #include <Editor/EditorApi.h>
 #include <Editor/Gizmo.h>
 
-#include <Renderer/Mesh/Curve.h>
-
 #include <Core/EventSystem/EventReciever.h>
-
-#include <rttr/registration_friend.h>
 
 namespace GLEngine::Physics::Primitives {
 struct S_AABB;
@@ -69,6 +65,8 @@ private:
 	std::array<glm::vec3, 2> GetEdge(const AABBEdges edge) const;
 	template<class Func>
 	static void ForEachEdge(const Func& fnc);
+
+	static C_Gizmo::E_Direction DisabledDirection(AABBEdges edge);
 
 	std::optional<AABBEdges> m_SelectedEdge;
 

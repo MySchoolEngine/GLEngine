@@ -22,6 +22,12 @@ class C_Gizmo : Core::I_EventReceiver {
 public:
 	C_Gizmo(const glm::vec3& position, const Core::I_Input& input);
 
+	enum class E_Direction : std::uint8_t {
+		Right,
+		Up,
+		Forward
+	};
+
 	[[nodiscard]] glm::vec3 GetPosition() const;
 	void					SetPosition(const glm::vec3& position);
 
@@ -32,6 +38,10 @@ public:
 	[[nodiscard]] bool		IsMouseOverGizmo() const;
 	[[nodiscard]] bool		IsBeingControlled() const;
 
+	void DisableDir(const E_Direction dir, bool disable = true);
+
+	[[nodiscard]] bool DirDisabled(E_Direction dir) const;
+
 	void OnEvent(Core::I_Event& event) override;
 
 private:
@@ -39,13 +49,6 @@ private:
 	[[nodiscard]] bool OnMouseKeyReleased(Core::C_MouseButtonReleased& event);
 	[[nodiscard]] bool OnMouseMoved(Core::C_MouseMoved& event);
 	[[nodiscard]] bool OnKeyPressed(Core::C_KeyPressedEvent& event);
-
-	enum class E_Direction : std::uint8_t
-	{
-		Right,
-		Up,
-		Forward
-	};
 	[[nodiscard]] glm::vec3 GetAxe(const E_Direction dir) const;
 
 	glm::vec3				   m_Position;
@@ -55,5 +58,6 @@ private:
 	const Core::I_Input&	   m_Input;
 	glm::vec2				   m_LastMousePosition; //< In clip space
 	glm::vec2				   m_MouseOffset;		//< In clip space
+	std::array<bool, 3>		   m_DisabledDirs;
 };
 } // namespace GLEngine::Editor
