@@ -47,7 +47,7 @@ float ScreenSpaceDistanceToLine(const glm::vec3&				   a,
 	const auto clipSpaceA = glm::vec2(AinFrustum.x * resolution.x, AinFrustum.y * resolution.y) / AinFrustum.w;
 	const auto clipSpaceB = glm::vec2(BinFrustum.x * resolution.x, BinFrustum.y * resolution.y) / BinFrustum.w;
 
-	// if this doesn't work than save the mean value but it could affect T like intersecting line segments
+	// if this doesn't work than save the mean value, but it could affect T like intersecting line segments
 	depth = std::min(AinFrustum.z / AinFrustum.w, BinFrustum.z / BinFrustum.w);
 
 	return glm::distance(glm::closestPointOnLine(mouseScreenCoordinate, clipSpaceA, clipSpaceB), mouseScreenCoordinate);

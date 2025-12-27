@@ -31,7 +31,27 @@ public:
 	[[nodiscard]] glm::vec3 GetPosition() const;
 	void					SetPosition(const glm::vec3& position);
 
+	/**
+	 * Main update point for gizmo. Note, that Draw needs to be called separately.
+	 * 
+	 * Usage example:
+	 * C_MousePickingHelper mousePicking(m_Input, *camera.get(), m_Viewport);
+	 * fill in other interactable objects...
+	 * OnUpdate(camera, mousePicking);
+	 * mousePicking.SelectInteraction();
+	 * 
+	 * @param camera 
+	 * @param mouseHelper This is being passed in to allow user to merge multiple interactions
+	 */
 	void OnUpdate(const Renderer::I_CameraComponent& camera, C_MousePickingHelper& mouseHelper);
+
+	/**
+	 * Draw the gizmo. Note, that this needs to be called outside the OnUpdate method.
+	 *
+	 * @todo Would not work on Release, the I_DebugDraw is optimised away
+	 * 
+	 * @param dd 
+	 */
 	void Draw(Renderer::I_DebugDraw& dd) const;
 
 	[[nodiscard]] glm::vec3 GetPositionDiff() const;

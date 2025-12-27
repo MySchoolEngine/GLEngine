@@ -18,7 +18,7 @@ public:
 
 	void SetWorld(std::shared_ptr<Entity::C_EntityManager> world);
 
-	virtual bool Draw(GUI::C_GUIManager& guiMgr) const override;
+	bool Draw(GUI::C_GUIManager& guiMgr) const override;
 
 private:
 	std::weak_ptr<Entity::C_EntityManager> m_World;

@@ -13,7 +13,7 @@ namespace GLEngine::Editor {
 
 /**
  * This class facilitate simple mouse interaction. It is meant as a helper not a long-lived  object.
- * You feed it all the possible interactions and then you call SelectInteraction to evaluate the interactions
+ * You feed it all the possible interactions, and then you call SelectInteraction to evaluate the interactions
  */
 class C_MousePickingHelper {
 public:
@@ -34,11 +34,11 @@ private:
 
 	// some structure with distance, depth and interactionID
 	struct Interaction {
-		Interaction(float _distance, float _depth, std::uint8_t _priority, const T_Callback& _cb)
+		Interaction(float _distance, float _depth, std::uint8_t _priority, T_Callback _cb)
 			: distance(_distance)
 			, depth(_depth)
 			, priority(_priority)
-			, cb(_cb)
+			, cb(std::move(_cb))
 		{
 		}
 		float		 distance;
@@ -48,6 +48,6 @@ private:
 	};
 	std::vector<Interaction> m_Interactions;
 
-	inline const static float s_MaxDistanceToInteraction = 35.f; //< in pixels
+	static constexpr float s_MaxDistanceToInteraction = 35.f; //< in pixels
 };
 } // namespace GLEngine::Editor
