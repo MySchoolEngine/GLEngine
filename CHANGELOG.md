@@ -2,6 +2,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+
+## [Unreleased] - 27-12-2025
+### Added
+- Gizmo for selected entity #272
+
 ## [Unreleased] - 26-12-2025
 ### Updates
 - Switched to C++23
