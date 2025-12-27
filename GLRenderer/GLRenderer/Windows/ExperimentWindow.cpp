@@ -81,7 +81,7 @@ C_ExperimentWindow::C_ExperimentWindow(const Core::S_WindowInfo& wndInfo)
 	, m_ShadowPass(nullptr)
 	, m_HDRFBO(nullptr)
 	, m_HDRFBOAtmosphere(nullptr)
-	, m_EditorLayer(*&C_DebugDraw::Instance(), GetInput(), {0, 0, GetSize()}) //< viewport could be different from window size in the future
+	, m_EditorLayer(*&C_DebugDraw::Instance(), GetInput(), {0, 0, GetSize()}, m_World) //< viewport could be different from window size in the future
 {
 	glfwMakeContextCurrent(m_Window);
 
@@ -556,6 +556,7 @@ void C_ExperimentWindow::SetupWorld(const std::filesystem::path& level)
 	{
 		entitiesWindow->SetWorld(m_World);
 	}
+	m_EditorLayer.SetWorld(m_World);
 
 	AddMandatoryWorldParts();
 

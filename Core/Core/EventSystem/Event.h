@@ -124,6 +124,9 @@ public:
 
 	explicit C_EntityEvent(GUID guid, EntityEvent type);
 
+	EntityEvent GetEventType() const { return m_Type; }
+	GUID		GetEntity() const { return m_Entity; }
+
 	EVENT_CLASS_TYPE(Entity)
 	EVENT_CLASS_CATEGORY(E_EventCategory::EntitySystem)
 
