@@ -33,7 +33,7 @@ public:
 
 private:
 	std::shared_ptr<MeshData::Scene>   m_Scene;
-	std::vector<std::filesystem::path> m_TextureNames;
+	std::vector<std::filesystem::path> m_TextureNames; // question is whether this is needed here as it already lives in the scene
 
 	RTTR_REGISTRATION_FRIEND;
 };
