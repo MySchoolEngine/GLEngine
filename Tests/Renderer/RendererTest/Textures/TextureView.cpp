@@ -6,12 +6,16 @@
 #include <Renderer/Textures/TextureView.h>
 
 namespace GLEngine::Renderer {
+/**
+ * Fixture with default 3x3 RGB storage
+ */
 class TextureViewFixture : public ::testing::Test {
 protected:
 	TextureViewFixture()
 		: storage(3, 3, 3)
 		, view(&storage)
-	{}
+	{
+	}
 	auto	  GetPixelCoord(const glm::vec2& uv) const { return view.GetPixelCoord(uv); }
 	bool	  IsOutsideBorders(const glm::uvec2& uv) const { return view.IsOutsideBorders(uv); }
 	glm::vec3 GetVec3(const glm::vec2& uv) const { return view.Get<glm::vec3, T_Bilinear>(uv); }
@@ -19,8 +23,7 @@ protected:
 	C_TextureViewStorageCPU<std::uint8_t> storage;
 	C_TextureView						  view;
 };
-class TextureViewWithAlphaFixture : public ::testing::Test
-{
+class TextureViewWithAlphaFixture : public ::testing::Test {
 protected:
 	TextureViewWithAlphaFixture()
 		: storage(3, 3, 4)
@@ -100,16 +103,21 @@ TEST_F(TextureViewFixture, GetUVForPixel)
 	EXPECT_PRED_FORMAT2(AssertVec2AlmostEq<float>, view.GetUVForPixel({2, 0}), glm::vec2(1.f - (1.f / 6.f), 1.f - (1.f / 6.f)));
 	EXPECT_PRED_FORMAT2(AssertVec2AlmostEq<float>, view.GetUVForPixel({2, 2}), glm::vec2(1.f - (1.f / 6.f), 1.f / 6.f));
 }
+TEST_F(TextureViewFixture, FillLineSpan)
+{
+	view.FillLineSpan(Colours::red, 2, 1, 1);
+	EXPECT_EQ(view.Get<std::uint8_t>(glm::uvec2{1, 2}, E_TextureChannel::Red), 1);
+}
 
 TEST_F(TextureViewWithAlphaFixture, EnableBlending)
 {
 	view.EnableBlending(true);
 	glm::uvec2 coord{1, 1};
-	view.DrawPixel(coord, glm::vec4{ Colours::white, 1.f}); // there was a bug when alpha channel haven't got propagated
-	EXPECT_EQ(view.Get<glm::vec4>(coord), glm::vec4( 1,1,1,1 ));
+	view.DrawPixel(coord, glm::vec4{Colours::white, 1.f}); // there was a bug when alpha channel haven't got propagated
+	EXPECT_EQ(view.Get<glm::vec4>(coord), glm::vec4(1, 1, 1, 1));
 
 
-	view.ClearColor({ Colours::white, 1.f });
-	EXPECT_EQ(view.Get<glm::vec4>(glm::uvec2(0,0)), glm::vec4(1, 1, 1, 1));
+	view.ClearColor({Colours::white, 1.f});
+	EXPECT_EQ(view.Get<glm::vec4>(glm::uvec2(0, 0)), glm::vec4(1, 1, 1, 1));
 }
 } // namespace GLEngine::Renderer
