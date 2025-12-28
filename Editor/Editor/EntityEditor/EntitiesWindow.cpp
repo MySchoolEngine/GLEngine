@@ -41,16 +41,15 @@ bool C_EntitiesWindow::Draw(GUI::C_GUIManager& guiMgr) const
 
 		for (const auto& entity : world->GetEntities())
 		{
-			bool selected = false;
-			ImGui::Selectable(entity->GetName().c_str(), &selected);
-			if (selected)
+			const bool selected = entity->GetID() == m_SelectedEntity;
+			if (ImGui::Selectable(entity->GetName().c_str(), selected))
 			{
-				Core::C_EntityEvent event(entity->GetID(), Core::C_EntityEvent::EntityEvent::Selected);
-				Core::C_Application::Get().OnEvent(event);
 				if (m_SelectedEntity == entity->GetID())
 					m_SelectedEntity = GUID::INVALID_GUID;
 				else
 					m_SelectedEntity = entity->GetID();
+				Core::C_EntityEvent event(m_SelectedEntity, Core::C_EntityEvent::EntityEvent::Selected);
+				Core::C_Application::Get().OnEvent(event);
 			}
 		}
 		ImGui::EndChild();
@@ -65,8 +64,7 @@ bool C_EntitiesWindow::Draw(GUI::C_GUIManager& guiMgr) const
 
 		m_EntityTypeSelector.Draw();
 		static std::string entityName;
-		ImGui::InputText("Entity name", &entityName);
-		if (ImGui::Button("Spawn") && !entityName.empty())
+		if ((ImGui::InputText("Entity name", &entityName, ImGuiInputTextFlags_EnterReturnsTrue) || ImGui::Button("Spawn")) && !entityName.empty())
 		{
 			const auto type = rttr::type::get_by_name(m_EntityTypeSelector.GetSelectedTypeName());
 			if (entityName.empty())
@@ -82,6 +80,9 @@ bool C_EntitiesWindow::Draw(GUI::C_GUIManager& guiMgr) const
 				auto entityVar = type.create({entityName});
 				auto entity	   = entityVar.convert<std::shared_ptr<Entity::I_Entity>>();
 				world->AddEntity(entity);
+
+				Core::C_EntityEvent event(entity->GetID(), Core::C_EntityEvent::EntityEvent::Selected);
+				Core::C_Application::Get().OnEvent(event);
 				m_SelectedEntity = entity->GetID();
 				entityName		 = "";
 			}
