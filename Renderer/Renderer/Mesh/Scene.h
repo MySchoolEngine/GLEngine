@@ -17,7 +17,7 @@ struct Material {
 	// Index to a texture array
 	// If negative - material has no texture
 	int textureIndex	   = -1;
-	int noramlTextureIndex = -1;
+	int normalTextureIndex = -1;
 
 	std::string m_Name;
 };
@@ -111,8 +111,8 @@ struct Scene {
 	std::vector<Mesh>  meshes;
 	std::vector<Light> lights;
 
-	std::vector<Material>	 materials;
-	std::vector<std::string> textures;
+	std::vector<Material>			   materials;
+	std::vector<std::filesystem::path> textures;
 
 	Physics::Primitives::S_AABB bbox;
 };

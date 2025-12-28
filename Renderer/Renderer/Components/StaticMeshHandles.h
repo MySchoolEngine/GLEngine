@@ -46,11 +46,11 @@ private:
 		Handle<Buffer> m_BitangentHandle;
 		uint32_t	   m_NumPrimitives;
 	};
-	Core::ResourceHandle<MeshResource> m_MeshResource;
-	Core::ResourceHandle<MeshResource> m_MeshResourceLive;
-	std::vector<MeshContainer>		   m_Meshes;
-	Handle<Pipeline>				   m_Pipeline;
-	std::shared_ptr<C_Material>		   m_Material;
+	Core::ResourceHandle<MeshResource>		 m_MeshResource;
+	Core::ResourceHandle<MeshResource>		 m_MeshResourceLive;
+	std::vector<MeshContainer>				 m_Meshes;
+	Handle<Pipeline>						 m_Pipeline;
+	std::vector<std::shared_ptr<C_Material>> m_Materials;
 
 	RTTR_REGISTRATION_FRIEND;
 };

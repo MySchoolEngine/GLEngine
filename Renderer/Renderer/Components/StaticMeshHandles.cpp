@@ -25,7 +25,7 @@ RTTR_REGISTRATION
 
 	rttr::registration::class_<C_StaticMeshHandles>("C_StaticMeshHandles")
 		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
-		.property("Material", &C_StaticMeshHandles::m_Material)
+		.property("Materials", &C_StaticMeshHandles::m_Materials)
 		.property("ModelRes", &C_StaticMeshHandles::m_MeshResource)(
 			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetamember<SerializationCls::MandatoryProperty>(true),
@@ -48,9 +48,8 @@ namespace GLEngine::Renderer {
 //=================================================================================
 C_StaticMeshHandles::C_StaticMeshHandles()
 	: I_RenderableComponent(nullptr)
-	, m_Material(nullptr)
 {
-	SetMeshFile(R"(Models/sphere.obj)");
+
 }
 
 //=================================================================================
@@ -88,10 +87,6 @@ Physics::Primitives::S_AABB C_StaticMeshHandles::GetAABB() const
 //=================================================================================
 void C_StaticMeshHandles::Update()
 {
-	if (m_MeshResource.IsReady() && !m_Material)
-	{
-		m_Material = Renderer::C_MaterialManager::Instance().RegisterMaterial(Renderer::C_Material(m_MeshResource.GetResource().GetScene().materials[0]));
-	}
 	if (m_Pipeline.IsValid() == false)
 	{
 		GLE_TODO("6-11-2024", "RohacekD", "Can we validate the definition with shaders?");
@@ -126,15 +121,45 @@ void C_StaticMeshHandles::Update()
 	if (m_MeshResource.IsReady() && m_MeshResourceLive != m_MeshResource)
 	{
 		CleanRenderData();
+		
 		m_MeshResourceLive = m_MeshResource;
 
 		const auto& scene = m_MeshResource.GetResource().GetScene();
+
+		// if we are loading from new resource, there will be no materials loaded, so we will try to load them from the
+		// source file, otherwise we don't want to do it, as there could be materials from the load level
+		const bool loadMaterials = m_Materials.empty();
+
+		std::vector<std::shared_ptr<C_Material>> materials;
+		if (loadMaterials)
+		{
+			materials.reserve(scene.materials.size());
+			for (const auto& material : scene.materials)
+			{
+				auto& mat = materials.emplace_back(C_MaterialManager::Instance().RegisterMaterial(C_Material(material)));
+				if (material.textureIndex >= 0)
+				{
+					mat->SetColorMapPath(scene.textures[material.textureIndex]);
+				}
+				if (material.normalTextureIndex >= 0)
+				{
+					mat->SetNormalMapPath(scene.textures[material.normalTextureIndex]);
+				}
+			}
+		}
+
 		m_Meshes.reserve(scene.meshes.size());
+		m_Materials.resize(scene.meshes.size());
 
 		I_Renderer&		 renderer = Core::C_Application::Get().GetActiveRenderer();
 		ResourceManager& rm		  = renderer.GetRM();
-		for (auto& mesh : scene.meshes)
+		for (const auto&& [idx, mesh] : scene.meshes | std::ranges::views::enumerate)
 		{
+			if (loadMaterials)
+			{
+				m_Materials[idx] = materials[mesh.materialIndex];
+			}
+
 			auto& meshContainer			  = m_Meshes.emplace_back();
 			meshContainer.m_NumPrimitives = static_cast<uint32_t>(mesh.vertices.size());
 			// load buffer
@@ -201,14 +226,14 @@ void C_StaticMeshHandles::CleanRenderData()
 //=================================================================================
 void C_StaticMeshHandles::Render(Renderer3D& renderer) const
 {
-	if (m_MeshResource.IsReady() && m_Material)
+	if (m_MeshResource.IsReady())
 	{
-		for (const auto& meshContainer : m_Meshes)
+		for (const auto&& [meshContainer, material] : std::ranges::zip_view(m_Meshes, m_Materials))
 		{
 			renderer.Draw(RenderCall3D{
 				.ModelMatrix   = GetComponentModelMatrix(),
 				.NumPrimities  = meshContainer.m_NumPrimitives,
-				.MaterialIndex = m_Material->GetMaterialIndex(),
+				.MaterialIndex = material->GetMaterialIndex(),
 				.Buffers
 				= {meshContainer.m_PositionsHandle, meshContainer.m_NormalsHandle, meshContainer.m_TexCoordsHandle, meshContainer.m_TangentHandle, meshContainer.m_BitangentHandle},
 				.PipelineHandle = m_Pipeline,
@@ -237,10 +262,12 @@ const std::filesystem::path& C_StaticMeshHandles::GetMeshFile() const
 //=================================================================================
 void C_StaticMeshHandles::DebugDrawGUI()
 {
-	if (::ImGui::CollapsingHeader("Material"))
+	if (::ImGui::CollapsingHeader("Materials"))
 	{
-		if (m_Material)
-			m_Material->DrawGUI();
+		for (const auto& material : m_Materials)
+		{
+			material->DrawGUI();
+		}
 	}
 	if (m_MeshResource.IsLoading())
 	{
@@ -260,9 +287,9 @@ void C_StaticMeshHandles::DebugDrawGUI()
 void C_StaticMeshHandles::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
 {
 	auto& materialManager = C_MaterialManager::Instance();
-	if (m_Material)
+	for (const auto& material : m_Materials)
 	{
-		materialManager.RegisterMaterial(m_Material);
+		materialManager.RegisterMaterial(material);
 	}
 }
 

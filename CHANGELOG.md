@@ -3,9 +3,16 @@
 All notable changes to this project will be documented in this file.
 
 
+## [Unreleased] - 28-12-2025
+### Added
+- Support for multiple materials in `C_StaticMeshHandles` [#261](/../../issues/261)
+- Load materials with textures from mesh resources [#262](/../../issues/262)
+### Fixed
+- Materials in [Stylized Nature Mega Kit[Standard]](data/Models/Stylized%20Nature%20MegaKit[Standard])
+
 ## [Unreleased] - 27-12-2025
 ### Added
-- Gizmo for selected entity #272
+- Gizmo for selected entity [#272](/../../issues/272)
 
 ## [Unreleased] - 26-12-2025
 ### Updates

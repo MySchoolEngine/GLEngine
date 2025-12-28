@@ -4,16 +4,20 @@
 #include <Entity/IComponent.h>
 #include <Entity/ComponentManager.h>
 
+#include <Utils/Serialization/SerializationUtils.h>
+
 #include <rttr/registration>
 
 RTTR_REGISTRATION
 {
-	rttr::registration::class_<GLEngine::Entity::C_BasicEntity>("C_BasicEntity")
+	using namespace GLEngine::Entity;
+	rttr::registration::class_<C_BasicEntity>("C_BasicEntity")
 		.constructor<std::string>()(rttr::policy::ctor::as_std_shared_ptr)
 		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
-		.method("AfterDeserialize", &GLEngine::Entity::C_BasicEntity::AfterDeserialize)();
+		.property("ModelMatrix", &C_BasicEntity::m_ModelMatrix)(REGISTER_DEFAULT_VALUE(glm::mat4(1.f)))
+		.method("AfterDeserialize", &C_BasicEntity::AfterDeserialize)();
 
-	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<GLEngine::Entity::C_BasicEntity>>();
+	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_BasicEntity>>();
 }
 
 namespace GLEngine::Entity {

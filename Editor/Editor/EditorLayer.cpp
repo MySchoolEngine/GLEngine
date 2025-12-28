@@ -149,6 +149,15 @@ bool C_EditorLayer::OnEntityEvent(Core::C_EntityEvent& event)
 				m_EntityGizmo.emplace(entity->GetPosition(), m_Input);
 			}
 		}
+		else
+		{
+			m_EntityGizmo.reset();
+		}
+	}
+	if (event.GetEventType() == Core::C_EntityEvent::EntityEvent::LevelLoaded)
+	{
+		m_SelectedEntity = {};
+		m_EntityGizmo.reset();
 	}
 
 	return false;

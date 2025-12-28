@@ -26,17 +26,19 @@
 					<value>
 						<C_StaticMeshHandles>
 							<Transformation Translation="(0.0,-1.5,0.0)" />
-							<Material Name="Floor" Color="(1.0,1.0,1.0)" Roughness="1">
-								<ColorMapRes>
-									<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR1_1K.bmp" />
-								</ColorMapRes>
-								<NormalMapRes>
-									<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Bricks01\REGULAR\1K\Bricks01_NRM_1K.bmp" />
-								</NormalMapRes>
-								<RoughnessMapRes>
-									<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Bricks01\REGULAR\1K\Bricks01_ROUGHNESS_1K.bmp" />
-								</RoughnessMapRes>
-							</Material>
+							<Materials>
+								<C_Material Name="Floor" Color="(1.0,1.0,1.0)" Roughness="1">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR1_1K.jpg" />
+									</ColorMapRes>
+									<NormalMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Bricks01\REGULAR\1K\Bricks01_NRM_1K.jpg" />
+									</NormalMapRes>
+									<RoughnessMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Bricks01\REGULAR\1K\Bricks01_ROUGHNESS_1K.jpg" />
+									</RoughnessMapRes>
+								</C_Material>
+							</Materials>
 							<ModelRes>
 								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/plane.obj" />
 							</ModelRes>
@@ -47,20 +49,6 @@
 		</C_BasicEntity>
 		<C_BasicEntity name="ceiling">
 			<ID ID="129663ae-4f69-436b-bab0-79b037ff218a" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(0.0,1.5,0.0)" RotationDeg="(180.0,-0.0,0.0)" />
-							<Material Color="(1.0,1.0,1.0)" Roughness="0.5" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\model.dae" />
-							</ModelRes>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
 		</C_BasicEntity>
 		<C_BasicEntity name="left">
 			<ID ID="7950f51a-8b62-47c1-969f-d768933ce9a1" />
@@ -70,7 +58,9 @@
 					<value>
 						<C_StaticMeshHandles>
 							<Transformation Translation="(3.0,0.0,0.0)" Scale="(0.5,1.0,1.0)" RotationDeg="(0.0,-0.0,90.0)" />
-							<Material Color="(1.0,0.0,0.0)" Roughness="0.5" />
+							<Materials>
+								<C_Material Name="None" Color="(1.0,0.0,0.0)" Roughness="0.5" />
+							</Materials>
 							<ModelRes>
 								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/plane.obj" />
 							</ModelRes>
@@ -87,7 +77,9 @@
 					<value>
 						<C_StaticMeshHandles>
 							<Transformation Translation="(-3.0,0.0,0.0)" Scale="(0.5,1.0,1.0)" RotationDeg="(0.0,-0.0,-90.0)" />
-							<Material Color="(0.0,1.0,0.019801855)" Roughness="0.5" />
+							<Materials>
+								<C_Material Name="None" Color="(0.0,1.0,0.019801855)" Roughness="0.5" />
+							</Materials>
 							<ModelRes>
 								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/plane.obj" />
 							</ModelRes>
@@ -104,7 +96,9 @@
 					<value>
 						<C_StaticMeshHandles>
 							<Transformation Translation="(0.0,0.0,-3.0)" Scale="(1.0,1.0,0.5)" RotationDeg="(90.0,0.0,0.0)" />
-							<Material Color="(1.0,1.0,1.0)" Roughness="0.5" />
+							<Materials>
+								<C_Material Name="None" Color="(1.0,1.0,1.0)" Roughness="0.5" />
+							</Materials>
 							<ModelRes>
 								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/plane.obj" />
 							</ModelRes>
@@ -126,17 +120,28 @@
 				</item>
 			</components>
 		</C_BasicEntity>
-		<C_BasicEntity name="dragonHead">
-			<ID ID="a76132ee-5975-4cb9-bace-01786a613f37" />
+		<C_BasicEntity name="tree" ModelMatrix="((1.0,0.0,0.0,0.0)(0.0,1.0,0.0,0.0)(0.0,0.0,1.0,0.0)(0.0,-1.4838175,0.0,1.0))">
+			<ID ID="c2332ac4-6b42-43ca-87b5-715cc9f6f2df" />
 			<components>
 				<item>
 					<key value="Graphical" />
 					<value>
 						<C_StaticMeshHandles>
-							<Transformation Translation="(0.0,-1.5,0.0)" Scale="(0.5,0.5,0.5)" />
-							<Material Color="(1.0,1.0,1.0)" Roughness="0.5" />
+							<Transformation Scale="(0.5,0.5,0.5)" />
+							<Materials>
+								<C_Material Name="Bark_NormalTree" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\../Textures/Bark_NormalTree.png" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="Leaves_NormalTree" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\../Textures/Leaves_NormalTree_C.png" />
+									</ColorMapRes>
+								</C_Material>
+							</Materials>
 							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\dragon/Dragon_Busts_Gerhald3D.obj" />
+								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_1.obj" />
 							</ModelRes>
 						</C_StaticMeshHandles>
 					</value>
