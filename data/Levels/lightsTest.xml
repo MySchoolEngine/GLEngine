@@ -1,13 +1,2004 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<World>
+<?xml version="1.0"?>
+<EntityManager>
 	<Entities>
-		<Entity name="Player">
-			<Components>
-				<PointLight intensity="700.0">
-					<translate sid="location">3 1 0</translate>
-				</PointLight>
-			</Components>
-		</Entity>
-		<ExternEntity name="sphere" filePath="Sponza/sponza.obj" />
+		<C_BasicEntity name="Player">
+			<ID ID="129f536b-7a30-4696-bdf8-2e77f9f047e6" />
+			<components>
+				<item>
+					<key value="Camera" />
+					<value>
+						<C_OrbitalCamera nearZ="0.100000001" farZ="1000" aspectZ="1.87134504" YAngle="0.34906593" XAngle="-1.35262656" Zoom="5">
+							<Transformation />
+						</C_OrbitalCamera>
+					</value>
+				</item>
+				<item>
+					<key value="Camera" />
+					<value>
+						<C_OrbitalCamera nearZ="0.100000001" farZ="1000" aspectZ="1.87134504" YAngle="0" XAngle="1.57079637" Zoom="5">
+							<Transformation />
+						</C_OrbitalCamera>
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
+		<C_BasicEntity name="sponza">
+			<ID ID="309737e5-4090-4088-b64d-faaba9805e2b" />
+			<components>
+				<item>
+					<key value="Graphical" />
+					<value>
+						<C_StaticMeshHandles>
+							<Materials>
+								<C_Material Name="vase_hanging" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_hanging.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_hanging" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_hanging.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="chain" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/chain_texture.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="chain" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/chain_texture.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="roof" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_roof_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="roof" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_roof_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="bricks" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/spnza_bricks_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="leaf" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_thorn_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="leaf" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_thorn_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="leaf" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_thorn_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="ceiling" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_ceiling_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="bricks" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/spnza_bricks_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="bricks" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/spnza_bricks_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="ceiling" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_ceiling_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_hanging" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_hanging.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_hanging" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_hanging.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_hanging" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_hanging.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="Material__57" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_plant.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_round" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_round.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_hanging" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_hanging.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_hanging" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_hanging.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="chain" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/chain_texture.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_hanging" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_hanging.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="chain" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/chain_texture.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="Material__57" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_plant.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_round" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_round.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="Material__57" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_plant.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_round" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_round.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_hanging" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_hanging.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="chain" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/chain_texture.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="chain" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/chain_texture.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="Material__57" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_plant.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_round" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_round.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="Material__298" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/background.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="Material__25" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures\lion.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="bricks" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/spnza_bricks_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_hanging" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_hanging.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="Material__57" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_plant.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_round" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_round.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="Material__57" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_plant.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_round" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_round.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="Material__57" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_plant.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_round" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_round.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_dif.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_dif.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_dif.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_dif.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="Material__298" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/background.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="Material__25" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures\lion.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="fabric_a" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_fabric_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="fabric_d" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_fabric_blue_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="leaf" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_thorn_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="leaf" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_thorn_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="fabric_d" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_fabric_blue_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="fabric_a" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_fabric_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="fabric_e" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_fabric_green_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="fabric_e" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_fabric_green_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_hanging" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_hanging.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="ceiling" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_ceiling_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="ceiling" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_ceiling_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="ceiling" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_ceiling_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="ceiling" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_ceiling_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="ceiling" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_ceiling_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_hanging" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_hanging.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_hanging" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_hanging.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="chain" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/chain_texture.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_hanging" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_hanging.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="chain" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/chain_texture.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_hanging" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_hanging.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_hanging" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_hanging.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="chain" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/chain_texture.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="chain" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/chain_texture.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="chain" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/chain_texture.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="bricks" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/spnza_bricks_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="bricks" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/spnza_bricks_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="bricks" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/spnza_bricks_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="chain" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/chain_texture.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="bricks" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/spnza_bricks_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="Material__47" Color="(0.4704,0.4704,0.4704)" Roughness="0.5" />
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="floor" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_floor_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="ceiling" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_ceiling_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_a" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_a" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_a" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_a" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_a" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_a" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_a" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_a" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="ceiling" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_ceiling_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="Material__298" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/background.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="Material__57" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_plant.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_round" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_round.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="leaf" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_thorn_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="bricks" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/spnza_bricks_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="bricks" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/spnza_bricks_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="leaf" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_thorn_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="leaf" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_thorn_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="fabric_d" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_fabric_blue_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="fabric_e" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_fabric_green_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="ceiling" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_ceiling_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="ceiling" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_ceiling_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="ceiling" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_ceiling_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_a" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_a" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="arch" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_arch_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="chain" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/chain_texture.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="chain" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/chain_texture.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_hanging" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_hanging.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_hanging" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_hanging.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_hanging" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_hanging.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="chain" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/chain_texture.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="chain" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/chain_texture.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="vase_hanging" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/vase_hanging.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="bricks" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/spnza_bricks_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="details" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_details_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="details" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_details_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="details" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_details_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="bricks" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/spnza_bricks_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="details" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_details_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="details" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_details_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="bricks" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/spnza_bricks_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_a" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_a" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="bricks" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/spnza_bricks_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="floor" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_floor_a_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="fabric_f" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_curtain_green_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="fabric_g" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_curtain_blue_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="fabric_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_curtain_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="fabric_f" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_curtain_green_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="fabric_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_curtain_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="fabric_f" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_curtain_green_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="fabric_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_curtain_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="fabric_g" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_curtain_blue_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_c_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="flagpole" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_flagpole_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="fabric_g" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_curtain_blue_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="fabric_c" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_curtain_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="column_b" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Sponza\textures/sponza_column_b_diff.tga" />
+									</ColorMapRes>
+								</C_Material>
+							</Materials>
+							<ModelRes>
+								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Sponza\sponza.obj" />
+							</ModelRes>
+						</C_StaticMeshHandles>
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
 	</Entities>
-</World>
+</EntityManager>

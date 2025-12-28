@@ -1,19 +1,93 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<World>
+<?xml version="1.0"?>
+<EntityManager>
 	<Entities>
-		<Entity name="ground">
-			<scale>5 1 5</scale>
-			<Components>
-				<staticMesh filePath="plane.obj" material="basicTracing" shadowPassShader="shadowPass">
-					<colorMap>Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp</colorMap>
-					<roughnessMap>Models\Bricks01\REGULAR\1K\Bricks01_ROUGHNESS_1K.bmp</roughnessMap>
-					<normalMap>Models\Bricks01\REGULAR\1K\Bricks01_NRM_1K.bmp</normalMap>
-				</staticMesh>
-			</Components>
-		</Entity>
-		<Entity name="atmosphere"></Entity>
-		<ExternEntity name="car" filePath="lada/lada.obj" material="basicTracing">
-			<translate sid="location">0 3 0</translate>
-		</ExternEntity>
+		<C_BasicEntity name="ground">
+			<ID ID="1d1b487c-1866-483e-b750-ee88c99db5e6" />
+			<components>
+				<item>
+					<key value="Graphical" />
+					<value>
+						<C_StaticMeshHandles>
+							<Transformation Translation="(0.0,-1.5,0.0)" />
+							<Materials>
+								<C_Material Name="Floor" Color="(1.0,1.0,1.0)" Roughness="1">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.jpg" />
+									</ColorMapRes>
+									<NormalMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Bricks01\REGULAR\1K\Bricks01_NRM_1K.jpg" />
+									</NormalMapRes>
+									<RoughnessMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Bricks01\REGULAR\1K\Bricks01_ROUGHNESS_1K.jpg" />
+									</RoughnessMapRes>
+								</C_Material>
+							</Materials>
+							<ModelRes>
+								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/plane.obj" />
+							</ModelRes>
+						</C_StaticMeshHandles>
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
+		<C_BasicEntity name="atmosphere">
+			<ID ID="93a1493c-e061-4c79-a2e0-fac68c0264e9" />
+			<components>
+				<item>
+					<key value="Light" />
+					<value>
+						<C_SunLight SunX="0.437000006" SunY="0.164000005" SunZ="-0.347000003" AsymmetricFactor="0.949999988" DiscMultiplier="0.949999988" />
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
+		<C_BasicEntity name="Player">
+			<ID ID="5dc81b15-fa43-4fd1-8145-89791da5ba7a" />
+			<components>
+				<item>
+					<key value="Camera" />
+					<value>
+						<C_OrbitalCamera nearZ="0.100000001" farZ="1000" aspectZ="1.87134504" YAngle="0.0698131695" XAngle="1.57079637" Zoom="5">
+							<Transformation />
+						</C_OrbitalCamera>
+					</value>
+				</item>
+				<item>
+					<key value="Camera" />
+					<value>
+						<C_OrbitalCamera nearZ="0.100000001" farZ="1000" aspectZ="1.87134504" YAngle="0" XAngle="1.57079637" Zoom="5">
+							<Transformation />
+						</C_OrbitalCamera>
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
+		<C_BasicEntity name="tree" ModelMatrix="((1.0,0.0,0.0,0.0)(0.0,1.0,0.0,0.0)(0.0,0.0,1.0,0.0)(0.0,-1.443522,0.0,1.0))">
+			<ID ID="99397105-50fb-48fb-85c8-5f49ab9746bc" />
+			<components>
+				<item>
+					<key value="Graphical" />
+					<value>
+						<C_StaticMeshHandles>
+							<Materials>
+								<C_Material Name="Bark_NormalTree" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\../Textures/Bark_NormalTree.png" />
+									</ColorMapRes>
+								</C_Material>
+								<C_Material Name="Leaves_NormalTree" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\../Textures/Leaves_NormalTree_C.png" />
+									</ColorMapRes>
+								</C_Material>
+							</Materials>
+							<ModelRes>
+								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_5.obj" />
+							</ModelRes>
+						</C_StaticMeshHandles>
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
 	</Entities>
-</World>
+</EntityManager>

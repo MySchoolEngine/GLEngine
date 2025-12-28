@@ -7,13 +7,13 @@
 				<item>
 					<key value="Camera" />
 					<value>
-						<C_OrbitalCamera YAngle="0" XAngle="90" Zoom="5" />
+						<C_OrbitalCamera nearZ="0.100000001" farZ="100" aspectZ="1.85546875" YAngle="0.366519243" XAngle="91.265564" Zoom="5" />
 					</value>
 				</item>
 				<item>
 					<key value="Camera" />
 					<value>
-						<C_OrbitalCamera YAngle="0" XAngle="90" Zoom="5" />
+						<C_OrbitalCamera nearZ="0.100000001" farZ="100" aspectZ="1.85546875" YAngle="0" XAngle="90" Zoom="5" />
 					</value>
 				</item>
 			</components>
@@ -24,39 +24,37 @@
 				<item>
 					<key value="Graphical" />
 					<value>
-						<C_StaticMesh MeshFile="tree/Tree.obj">
-							<Transformation>
-								<Translation x="0" y="0" z="0" />
-								<Rotation x="0" y="-0" z="0" />
-								<Scale x="1" y="1" z="1" />
-							</Transformation>
-							<Material Name="floor_Material" Roughness="1" Shininess="32">
-								<Color>
-									<Colour x="1" y="1" z="1" />
-								</Color>
-								<ColorMap Name="Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp" />
-								<NormalMap Name="Models\Bricks01\REGULAR\1K\Bricks01_NRM_1K.bmp" />
-								<RoughnessMap Name="Models\Bricks01\REGULAR\1K\Bricks01_ROUGHNESS_1K.bmp" />
-							</Material>
-						</C_StaticMesh>
+						<C_StaticMeshHandles>
+							<Materials>
+								<C_Material Name="floor_Material" Color="(0.0,1.0,0.019801855)" Roughness="1" />
+							</Materials>
+							<ModelRes>
+								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/tree/Tree.obj" />
+							</ModelRes>
+						</C_StaticMeshHandles>
 					</value>
+				</item>
+				<item>
 					<key value="Graphical" />
 					<value>
-						<C_StaticMesh MeshFile="plane.obj">
-							<Transformation>
-								<Translation x="0" y="0" z="0" />
-								<Rotation x="0" y="-0" z="0" />
-								<Scale x="1" y="1" z="1" />
-							</Transformation>
-							<Material Name="floor_Material" Roughness="1" Shininess="32">
-								<Color>
-									<Colour x="1" y="1" z="1" />
-								</Color>
-								<ColorMap Name="Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.bmp" />
-								<NormalMap Name="Models\Bricks01\REGULAR\1K\Bricks01_NRM_1K.bmp" />
-								<RoughnessMap Name="Models\Bricks01\REGULAR\1K\Bricks01_ROUGHNESS_1K.bmp" />
-							</Material>
-						</C_StaticMesh>
+						<C_StaticMeshHandles>
+							<Materials>
+								<C_Material Name="floor_Material" Color="(1.0,1.0,1.0)" Roughness="1">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.jpg" />
+									</ColorMapRes>
+									<NormalMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Bricks01\REGULAR\1K\Bricks01_NRM_1K.jpg" />
+									</NormalMapRes>
+									<RoughnessMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Bricks01\REGULAR\1K\Bricks01_ROUGHNESS_1K.jpg" />
+									</RoughnessMapRes>
+								</C_Material>
+							</Materials>
+							<ModelRes>
+								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/plane.obj" />
+							</ModelRes>
+						</C_StaticMeshHandles>
 					</value>
 				</item>
 			</components>
@@ -67,55 +65,41 @@
 				<item>
 					<key value="Graphical" />
 					<value>
-						<C_StaticMesh MeshFile="sphere.obj">
-							<Transformation>
-								<Translation x="0" y="0" z="0" />
-								<Rotation x="0" y="-0" z="0" />
-								<Scale x="1" y="1" z="1" />
-							</Transformation>
-							<Material Name="sphere_Material" Roughness="0.829999983" Shininess="32">
-								<Color>
-									<Colour x="0" y="0" z="1" />
-								</Color>
-								<ColorMap />
-								<NormalMap />
-								<RoughnessMap />
-							</Material>
-						</C_StaticMesh>
+						<C_StaticMeshHandles>
+							<Materials>
+								<C_Material Name="floor_Material" Color="(0.0,0.0,1.0)" Roughness="0.829999983" />
+							</Materials>
+							<ModelRes>
+								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/sphere.obj" />
+							</ModelRes>
+						</C_StaticMeshHandles>
 					</value>
 				</item>
 				<item>
 					<key value="Light" />
 					<value>
-						<C_AreaLight Width="5" Height="2">
-							<DiffuseColour x="1" y="0" z="0" />
-							<SpecColour x="1" y="1" z="0" />
+						<C_AreaLight Width="5" Height="2" DiffuseColour="(1.0,0.0,0.0)" SpecColour="(1.0,1.0,0.0)">
+							<Transformation Translation="(0.0,0.0,2.5)" />
 						</C_AreaLight>
 					</value>
 				</item>
 			</components>
 		</C_BasicEntity>
-		<C_BasicEntity name="wall">
+		<C_BasicEntity name="wall" ModelMatrix="((1.0,0.0,0.0,0.0)(0.0,1.0,0.0,0.0)(0.0,0.0,1.0,0.0)(2.0857952,0.0,-0.02143085,1.0))">
 			<ID ID="2c395df2-5594-4fd5-8a2f-e3776d9aae3b" />
 			<components>
 				<item>
 					<key value="Graphical" />
 					<value>
-						<C_StaticMesh MeshFile="plane.obj">
-							<Transformation>
-								<Translation x="0" y="0" z="0" />
-								<Rotation x="0" y="-0" z="0" />
-								<Scale x="1" y="1" z="1" />
-							</Transformation>
-							<Material Name="wall_Material" Roughness="0.00999999978" Shininess="32">
-								<Color>
-									<Colour x="0.140000001" y="0.140000001" z="0.140000001" />
-								</Color>
-								<ColorMap />
-								<NormalMap />
-								<RoughnessMap />
-							</Material>
-						</C_StaticMesh>
+						<C_StaticMeshHandles>
+							<Transformation RotationDeg="(0.0,-0.0,89.09493)" />
+							<Materials>
+								<C_Material Name="wall_Material" Color="(0.14,0.14,0.14)" Roughness="0" />
+							</Materials>
+							<ModelRes>
+								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/plane.obj" />
+							</ModelRes>
+						</C_StaticMeshHandles>
 					</value>
 				</item>
 			</components>
@@ -126,9 +110,7 @@
 				<item>
 					<key value="Light" />
 					<value>
-						<C_PointLight Intensity="30">
-							<Color x="0.400000006" y="0.300000012" z="0.100000001" />
-						</C_PointLight>
+						<C_PointLight Intensity="11.9689999" Color="(0.4,0.3,0.1)" />
 					</value>
 				</item>
 			</components>
@@ -139,9 +121,7 @@
 				<item>
 					<key value="Light" />
 					<value>
-						<C_PointLight Intensity="700">
-							<Color x="0" y="0.600000024" z="0.100000001" />
-						</C_PointLight>
+						<C_PointLight Intensity="4.63399982" Color="(0.0,0.6,0.1)" />
 					</value>
 				</item>
 			</components>
@@ -152,9 +132,7 @@
 				<item>
 					<key value="Light" />
 					<value>
-						<C_PointLight Intensity="233">
-							<Color x="1" y="1" z="1" />
-						</C_PointLight>
+						<C_PointLight Intensity="5.40600014" Color="(1.0,1.0,1.0)" />
 					</value>
 				</item>
 			</components>
