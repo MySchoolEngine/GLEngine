@@ -34,6 +34,8 @@ public:
 
 private:
 	glm::mat4 m_ModelMatrix;
+
+	RTTR_REGISTRATION_FRIEND
 };
 
 } // namespace GLEngine::Entity

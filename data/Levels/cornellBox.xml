@@ -120,7 +120,7 @@
 				</item>
 			</components>
 		</C_BasicEntity>
-		<C_BasicEntity name="tree">
+		<C_BasicEntity name="tree" ModelMatrix="((1.0,0.0,0.0,0.0)(0.0,1.0,0.0,0.0)(0.0,0.0,1.0,0.0)(0.0,-1.4838175,0.0,1.0))">
 			<ID ID="c2332ac4-6b42-43ca-87b5-715cc9f6f2df" />
 			<components>
 				<item>
