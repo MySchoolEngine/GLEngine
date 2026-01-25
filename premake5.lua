@@ -1,3 +1,4 @@
+require "vendor/premake-export-compile-commands/export-compile-commands"
 include "Tools/Premake5/workspaceFiles.lua"
 
 newoption {

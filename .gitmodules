@@ -52,3 +52,6 @@
 [submodule "vendor/gtest"]
 	path = vendor/gtest
 	url = https://github.com/google/googletest
+[submodule "vendor/premake-export-compile-commands"]
+	path = vendor/premake-export-compile-commands
+	url = https://github.com/tarruda/premake-export-compile-commands
