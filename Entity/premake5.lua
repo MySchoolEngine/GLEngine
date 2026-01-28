@@ -13,6 +13,13 @@ project "Entity"
 	Link("Core")
 	Link("GUI")
 
+	uses
+	{
+		"Core",
+		"Utils",
+		"GUI",
+	}
+
 	LinkDependency("ImGui")
 	LinkDependency("pugixml")
 	LinkDependency("RTTR")
@@ -35,4 +42,10 @@ project "Entity"
 		postbuildcommands
 		{
 			("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\"")
+		}
+
+	usage "PUBLIC"
+		uses
+		{
+			"DULib",
 		}

@@ -15,6 +15,7 @@ project "Editor"
 	Link("GUI")
 	Link("Renderer")
 --	Link("Animation")
+	uses{"Core"}
 	
 	LinkDependency("ImGui")
 	LinkDependency("pugixml")

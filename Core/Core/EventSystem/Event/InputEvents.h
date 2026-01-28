@@ -2,6 +2,8 @@
 
 #include <Core/EventSystem/Event.h>
 
+#include <DULib/BitField.h>
+
 namespace GLEngine {
 namespace Core {
 
@@ -9,7 +11,7 @@ namespace Core {
 // Input event is window dependent
 class C_InputEvent : public I_Event {
 public:
-	::Utils::C_BitField<E_EventCategory> GetCategories() const override { return GetInputCategory() | E_EventCategory::Input; }
+	DULib::BitField<E_EventCategory> GetCategories() const override { return GetInputCategory() | E_EventCategory::Input; }
 
 	// window which trigger this event
 	inline GUID GetWindowGUID() const { return m_WindowID; }
@@ -20,7 +22,7 @@ protected:
 	{
 	}
 
-	virtual ::Utils::C_BitField<E_EventCategory> GetInputCategory() const = 0;
+	virtual DULib::BitField<E_EventCategory> GetInputCategory() const = 0;
 
 private:
 	GUID m_WindowID;

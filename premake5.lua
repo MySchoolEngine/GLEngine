@@ -148,6 +148,7 @@ end
 group "Dependencies"
   include "vendor/GLFW"
   include "vendor/Glad"
+  include "vendor/DULib/include"
   include "vendor/projects/crossguid"
   include "vendor/projects/DevIL"
   include "vendor/projects/gtest"

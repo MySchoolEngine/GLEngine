@@ -14,6 +14,14 @@ project "DX12Renderer"
 	Link("Renderer")
 	Link("Core")
 
+	uses
+	{
+		"Entity",
+		"Utils",
+		"Renderer",
+		"Core",
+	}
+
 	LinkDependency("pugixml")
 	LinkDependency("RTTR")
 

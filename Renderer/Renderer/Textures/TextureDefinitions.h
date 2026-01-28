@@ -2,9 +2,9 @@
 
 #include <Core/CoreMacros.h>
 
-#include <Utils/BitField.h>
 #include <Utils/Logging/LoggingMacros.h>
 
+#include <DULib/BitField.h>
 #include <array>
 
 namespace GLEngine::Renderer {
@@ -31,12 +31,16 @@ enum class E_TextureChannel : std::uint8_t
 	None  = BIT(4),
 };
 
-using T_Channels	 = std::array<E_TextureChannel, 4>;		  // When order of channels is needed
-using T_ChannelsBits = ::Utils::C_BitField<E_TextureChannel>; // When order independent
+using T_Channels	 = std::array<E_TextureChannel, 4>;	  // When order of channels is needed
+using T_ChannelsBits = DULib::BitField<E_TextureChannel>; // When order independent
 } // namespace GLEngine::Renderer
 // Enable bit field for channels for ease of use
-template <> struct Utils::enable_BitField_operators<GLEngine::Renderer::E_TextureChannel> {
+template <> struct DULib::enable_BitField_operators<GLEngine::Renderer::E_TextureChannel> {
 	static constexpr bool enable = true;
+};
+
+template <> struct DULib::BitField_UsedBitsCounter<GLEngine::Renderer::E_TextureChannel> {
+	static constexpr std::size_t usedBits = 5;
 };
 namespace GLEngine::Renderer {
 
@@ -56,7 +60,7 @@ enum class E_BlendFactor : std::uint8_t
 	DestinationAlpha,
 	InvDestinationAlpha,
 	AlphaConstant,	  //< glBlendColor, ID3D12GraphicsCommandList::OMSetBlendFactor
-	InvAlphaConstant,  //< glBlendColor, ID3D12GraphicsCommandList::OMSetBlendFactor
+	InvAlphaConstant, //< glBlendColor, ID3D12GraphicsCommandList::OMSetBlendFactor
 	ColorConstant,	  //< glBlendColor, ID3D12GraphicsCommandList::OMSetBlendFactor
 	InvColorConstant, //< glBlendColor, ID3D12GraphicsCommandList::OMSetBlendFactor
 };

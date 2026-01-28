@@ -80,7 +80,7 @@ void C_GLFWInput::SetMouseCursor(E_MouseCursor cursor)
 }
 
 //=================================================================================
-Utils::C_BitField<Core::E_KeyModifiers> TranslateGLFWModifiers(int mods)
+DULib::BitField<Core::E_KeyModifiers> TranslateGLFWModifiers(int mods)
 {
 	return static_cast<Core::E_KeyModifiers>(mods);
 }

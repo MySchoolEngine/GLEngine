@@ -16,6 +16,8 @@ project "UtilsTest"
 	LinkDependency("RTTR")
 	LinkDependency("pugixml")
 
+	uses{"DULib"}
+
 	includedirs
 	{
 		"%{wks.location}/vendor/gtest/googletest/include",

@@ -55,3 +55,6 @@
 [submodule "vendor/premake-export-compile-commands"]
 	path = vendor/premake-export-compile-commands
 	url = https://github.com/tarruda/premake-export-compile-commands
+[submodule "vendor/DULib"]
+	path = vendor/DULib
+	url = https://github.com/RohacekD/DULib
