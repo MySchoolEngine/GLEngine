@@ -21,13 +21,13 @@ void C_LayerStack::PushLayer(C_Layer* layer)
 }
 
 //=================================================================================
-void C_LayerStack::OnEvent(Core::I_Event& event)
+void C_LayerStack::OnEvent(I_Event& event)
 {
 	for (auto& layer : m_Layers)
 	{
-		layer->OnEvent(event);
 		if (event.m_Handled)
 			break;
+		layer->OnEvent(event);
 	}
 }
 
