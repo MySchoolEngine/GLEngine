@@ -44,6 +44,6 @@ Reason: Bear in mind you want to comunicate usage of the class first, than imple
 
 This project is not fully tested. But unit test proven to be useful to keep at least basic invariants intact even during biggest changes. Rule of thumb I am trying to follow is when I encounter bug I write a unit test to fixate the invariant by it. I am trying to implement unit tests at least for the basic building block of this engine.
 
-**TEST.1 Test structure** - Place tests to separate projects following naming convention of engine projects. Tests should be placed to source files named same way as engine sources. This could be broken by moving of files in the engine, but helps to keep track of test placemennt. Tests are executed during CI and fail of the test will block Pull requests.
+**TEST.1 Test structure** - Place tests to separate projects following naming convention of engine projects. Tests should be placed to source files named same way as engine sources. This could be broken by moving of files in the engine, but helps to keep track of test placemennt. Tests are executed during CI and fail of the test will block Pull requests. See: [Tests/readme](Tests/readme.md)
 
 **TEST.2 Private functions testing** - When testing private functions of the class use fixture that is set as `friend class` of the tested class.

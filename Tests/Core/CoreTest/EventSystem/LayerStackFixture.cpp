@@ -11,7 +11,7 @@ namespace GLEngine::Core {
 // LayerStack Test Fixture
 //=================================================================================
 
-class LayerStackTest : public ::testing::Test {
+class LayerStackFixture : public ::testing::Test {
 protected:
 	void SetUp() override
 	{
@@ -39,7 +39,7 @@ protected:
 // PushLayer Tests
 //=================================================================================
 
-TEST_F(LayerStackTest, AddingLayerIncludesItInUpdates)
+TEST_F(LayerStackFixture, AddingLayerIncludesItInUpdates)
 {
 	C_LayerStack stack("TestStack");
 	stack.PushLayer(layer1);
@@ -49,7 +49,7 @@ TEST_F(LayerStackTest, AddingLayerIncludesItInUpdates)
 	EXPECT_EQ(layer1->onUpdateCallCount, 1);
 }
 
-TEST_F(LayerStackTest, MultipleLayersAllReceiveUpdates)
+TEST_F(LayerStackFixture, MultipleLayersAllReceiveUpdates)
 {
 	C_LayerStack stack("TestStack");
 	stack.PushLayer(layer1);
@@ -67,7 +67,7 @@ TEST_F(LayerStackTest, MultipleLayersAllReceiveUpdates)
 // OnUpdate Tests
 //=================================================================================
 
-TEST_F(LayerStackTest, OnUpdateCallsAllLayers)
+TEST_F(LayerStackFixture, OnUpdateCallsAllLayers)
 {
 	C_LayerStack stack("TestStack");
 	stack.PushLayer(layer1);
@@ -79,7 +79,7 @@ TEST_F(LayerStackTest, OnUpdateCallsAllLayers)
 	EXPECT_EQ(layer2->onUpdateCallCount, 1);
 }
 
-TEST_F(LayerStackTest, OnUpdateCallsInPushOrder)
+TEST_F(LayerStackFixture, OnUpdateCallsInPushOrder)
 {
 	C_LayerStack stack("TestStack");
 
@@ -127,7 +127,7 @@ TEST_F(LayerStackTest, OnUpdateCallsInPushOrder)
 	delete tracking3;
 }
 
-TEST_F(LayerStackTest, OnUpdateWorksOnEmptyStack)
+TEST_F(LayerStackFixture, OnUpdateWorksOnEmptyStack)
 {
 	C_LayerStack stack("TestStack");
 
@@ -135,7 +135,7 @@ TEST_F(LayerStackTest, OnUpdateWorksOnEmptyStack)
 	stack.OnUpdate();
 }
 
-TEST_F(LayerStackTest, OnUpdateCalledMultipleTimes)
+TEST_F(LayerStackFixture, OnUpdateCalledMultipleTimes)
 {
 	C_LayerStack stack("TestStack");
 	stack.PushLayer(layer1);
@@ -151,7 +151,7 @@ TEST_F(LayerStackTest, OnUpdateCalledMultipleTimes)
 // OnEvent Propagation Tests
 //=================================================================================
 
-TEST_F(LayerStackTest, EventPropagatesToAllLayersWhenNoneHandle)
+TEST_F(LayerStackFixture, EventPropagatesToAllLayersWhenNoneHandle)
 {
 	C_LayerStack stack("TestStack");
 	stack.PushLayer(layer1);
@@ -166,7 +166,7 @@ TEST_F(LayerStackTest, EventPropagatesToAllLayersWhenNoneHandle)
 	EXPECT_TRUE(layer3->ReceivedEvent(&event));
 }
 
-TEST_F(LayerStackTest, EventPropagationStopsWhenHandled)
+TEST_F(LayerStackFixture, EventPropagationStopsWhenHandled)
 {
 	C_LayerStack stack("TestStack");
 	stack.PushLayer(layer1);
@@ -183,7 +183,7 @@ TEST_F(LayerStackTest, EventPropagationStopsWhenHandled)
 	EXPECT_TRUE(event.m_Handled);
 }
 
-TEST_F(LayerStackTest, FirstLayerCanHandleAndStopPropagation)
+TEST_F(LayerStackFixture, FirstLayerCanHandleAndStopPropagation)
 {
 	C_LayerStack stack("TestStack");
 	layer1->shouldHandleEvent = true;
@@ -200,7 +200,7 @@ TEST_F(LayerStackTest, FirstLayerCanHandleAndStopPropagation)
 	EXPECT_TRUE(event.m_Handled);
 }
 
-TEST_F(LayerStackTest, MiddleLayerCanHandleAndStopPropagation)
+TEST_F(LayerStackFixture, MiddleLayerCanHandleAndStopPropagation)
 {
 	C_LayerStack stack("TestStack");
 	stack.PushLayer(layer1);
@@ -216,7 +216,7 @@ TEST_F(LayerStackTest, MiddleLayerCanHandleAndStopPropagation)
 	EXPECT_FALSE(layer3->ReceivedEvent(&event));
 }
 
-TEST_F(LayerStackTest, LastLayerCanHandle)
+TEST_F(LayerStackFixture, LastLayerCanHandle)
 {
 	C_LayerStack stack("TestStack");
 	stack.PushLayer(layer1);
@@ -233,7 +233,7 @@ TEST_F(LayerStackTest, LastLayerCanHandle)
 	EXPECT_TRUE(event.m_Handled);
 }
 
-TEST_F(LayerStackTest, OnEventWorksOnEmptyStack)
+TEST_F(LayerStackFixture, OnEventWorksOnEmptyStack)
 {
 	C_LayerStack stack("TestStack");
 	C_TestEvent	 event;
@@ -244,7 +244,7 @@ TEST_F(LayerStackTest, OnEventWorksOnEmptyStack)
 	EXPECT_FALSE(event.m_Handled);
 }
 
-TEST_F(LayerStackTest, PreHandledEventNotPropagated)
+TEST_F(LayerStackFixture, PreHandledEventNotPropagated)
 {
 	C_LayerStack stack("TestStack");
 	stack.PushLayer(layer1);
@@ -264,7 +264,7 @@ TEST_F(LayerStackTest, PreHandledEventNotPropagated)
 // ReadyForDestroy Tests
 //=================================================================================
 
-TEST_F(LayerStackTest, ReadyForDestroyReturnsTrueWhenAllLayersReady)
+TEST_F(LayerStackFixture, ReadyForDestroyReturnsTrueWhenAllLayersReady)
 {
 	C_LayerStack stack("TestStack");
 	stack.PushLayer(layer1);
@@ -275,7 +275,7 @@ TEST_F(LayerStackTest, ReadyForDestroyReturnsTrueWhenAllLayersReady)
 	EXPECT_TRUE(stack.ReadyForDestroy());
 }
 
-TEST_F(LayerStackTest, ReadyForDestroyReturnsFalseWhenAnyLayerNotReady)
+TEST_F(LayerStackFixture, ReadyForDestroyReturnsFalseWhenAnyLayerNotReady)
 {
 	C_LayerStack stack("TestStack");
 	stack.PushLayer(layer1);
@@ -286,7 +286,7 @@ TEST_F(LayerStackTest, ReadyForDestroyReturnsFalseWhenAnyLayerNotReady)
 	EXPECT_FALSE(stack.ReadyForDestroy());
 }
 
-TEST_F(LayerStackTest, ReadyForDestroyReturnsFalseWhenFirstLayerNotReady)
+TEST_F(LayerStackFixture, ReadyForDestroyReturnsFalseWhenFirstLayerNotReady)
 {
 	C_LayerStack stack("TestStack");
 	layer1->readyForDestroy = false;
@@ -296,7 +296,7 @@ TEST_F(LayerStackTest, ReadyForDestroyReturnsFalseWhenFirstLayerNotReady)
 	EXPECT_FALSE(stack.ReadyForDestroy());
 }
 
-TEST_F(LayerStackTest, ReadyForDestroyReturnsFalseWhenLastLayerNotReady)
+TEST_F(LayerStackFixture, ReadyForDestroyReturnsFalseWhenLastLayerNotReady)
 {
 	C_LayerStack stack("TestStack");
 	stack.PushLayer(layer1);
@@ -307,13 +307,13 @@ TEST_F(LayerStackTest, ReadyForDestroyReturnsFalseWhenLastLayerNotReady)
 	EXPECT_FALSE(stack.ReadyForDestroy());
 }
 
-TEST_F(LayerStackTest, ReadyForDestroyReturnsTrueOnEmptyStack)
+TEST_F(LayerStackFixture, ReadyForDestroyReturnsTrueOnEmptyStack)
 {
 	C_LayerStack stack("TestStack");
 	EXPECT_TRUE(stack.ReadyForDestroy());
 }
 
-TEST_F(LayerStackTest, ReadyForDestroyRespondsToLayerStateChanges)
+TEST_F(LayerStackFixture, ReadyForDestroyRespondsToLayerStateChanges)
 {
 	C_LayerStack stack("TestStack");
 	stack.PushLayer(layer1);
@@ -331,13 +331,13 @@ TEST_F(LayerStackTest, ReadyForDestroyRespondsToLayerStateChanges)
 // LayerStack as Layer Tests
 //=================================================================================
 
-TEST_F(LayerStackTest, LayerStackHasName)
+TEST_F(LayerStackFixture, LayerStackHasName)
 {
 	C_LayerStack stack("MyStack");
 	EXPECT_EQ(stack.GetName(), "MyStack");
 }
 
-TEST_F(LayerStackTest, LayerStackDefaultReadyForDestroy)
+TEST_F(LayerStackFixture, LayerStackDefaultReadyForDestroy)
 {
 	C_LayerStack stack("TestStack");
 	// Empty stack should be ready
@@ -348,7 +348,7 @@ TEST_F(LayerStackTest, LayerStackDefaultReadyForDestroy)
 // Multiple Events Tests
 //=================================================================================
 
-TEST_F(LayerStackTest, MultipleEventsHandledIndependently)
+TEST_F(LayerStackFixture, MultipleEventsHandledIndependently)
 {
 	C_LayerStack stack("TestStack");
 	stack.PushLayer(layer1);
@@ -365,7 +365,7 @@ TEST_F(LayerStackTest, MultipleEventsHandledIndependently)
 	EXPECT_EQ(layer2->GetReceivedEventCount(), 2);
 }
 
-TEST_F(LayerStackTest, EventHandlingStateResetsBetweenEvents)
+TEST_F(LayerStackFixture, EventHandlingStateResetsBetweenEvents)
 {
 	C_LayerStack stack("TestStack");
 	layer1->shouldHandleEvent = true;
