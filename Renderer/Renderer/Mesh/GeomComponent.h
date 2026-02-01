@@ -8,18 +8,18 @@
 
 namespace GLEngine::Renderer {
 class Renderer3D;
-
 class C_Material;
 
 class C_GeomComponent : public I_RenderableComponent {
 public:
-	void Update() override;
 	C_GeomComponent();
 	C_GeomComponent(const std::shared_ptr<Entity::I_Entity>& owner);
 	~C_GeomComponent() override;
-	void SetupGeometry(const MeshData::Mesh& mesh);
-	void Render(Renderer3D& renderer) const;
-	void PerformDraw() const override {}
+
+	void						Update() override;
+	void						SetupGeometry(const MeshData::Mesh& mesh);
+	void						Render(Renderer3D& renderer) const;
+	void						PerformDraw() const override {}
 	Physics::Primitives::S_AABB GetAABB() const override;
 
 	void			   AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx);
