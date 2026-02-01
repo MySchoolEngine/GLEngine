@@ -19,6 +19,8 @@ project "VulkanRenderer"
 	LinkDependency("ImGui")
 	LinkDependency("RTTR")
 
+	uses{"Core"}
+
 	includedirs
 	{
 		".",
