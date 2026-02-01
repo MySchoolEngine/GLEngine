@@ -11,7 +11,7 @@ C_GLClear::C_GLClear(E_ClearBits bits)
 }
 
 //=================================================================================
-C_GLClear::C_GLClear(Utils::C_BitField<E_ClearBits> bits)
+C_GLClear::C_GLClear(DULib::BitField<E_ClearBits> bits)
 	: m_Bits(bits)
 {
 }
@@ -36,7 +36,7 @@ std::string C_GLClear::GetDescriptor() const
 }
 
 //=================================================================================
-int C_GLClear::EnumToFlags(Utils::C_BitField<E_ClearBits>) const
+int C_GLClear::EnumToFlags(DULib::BitField<E_ClearBits>) const
 {
 	int ret = 0;
 	if (m_Bits.CheckFlag(E_ClearBits::Color))

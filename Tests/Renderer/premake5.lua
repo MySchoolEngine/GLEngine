@@ -15,6 +15,14 @@ project "RendererTest"
 	Link("Core")
 	Link("GUI")
 	links { "gtest_main" }
+	uses
+	{
+		"Renderer",
+		"Utils",
+		"Entity",
+		"Core",
+		"GUI",
+	}
 
 	LinkDependency("RTTR")
 	LinkDependency("pugixml")

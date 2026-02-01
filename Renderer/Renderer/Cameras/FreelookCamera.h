@@ -2,8 +2,9 @@
 
 #include <Renderer/ICameraComponent.h>
 
-#include <Utils/BitField.h>
 #include <Utils/HighResolutionTimer.h>
+
+#include <DULib/BitField.h>
 
 // Button indicator
 // F.e. I have a "W" bound as a camera forward movement
@@ -11,7 +12,8 @@
 // When "W" is released (user put off the finger from "W" key), call handleInputMessage(CAMERA_FORWARD_UP)
 // The UP and DOWN indicates whether the button was pressed or released
 // Camera update method will handle the message
-enum class CameraMessage : std::uint8_t {
+enum class CameraMessage : std::uint8_t
+{
 	CAMERA_FORWARD_UP = 0,
 	CAMERA_FORWARD_DOWN,
 	CAMERA_BACKWARD_UP,
@@ -105,17 +107,18 @@ private:
 	void  CreateProjection();
 	float _cameraMovementSpeed;
 
-	enum class CameraDirectionFlags {
-		CAMERA_FORWARD_BIT	= 1,
-		CAMERA_BACKWARD_BIT = 2,
-		CAMERA_LEFT_BIT		= 4,
-		CAMERA_RIGHT_BIT	= 8,
-		CAMERA_UP_BIT		= 16,
-		CAMERA_DOWN_BIT		= 32
+	enum class CameraDirectionFlags : std::uint8_t
+	{
+		CAMERA_FORWARD_BIT	= BIT(0),
+		CAMERA_BACKWARD_BIT = BIT(1),
+		CAMERA_LEFT_BIT		= BIT(2),
+		CAMERA_RIGHT_BIT	= BIT(3),
+		CAMERA_UP_BIT		= BIT(4),
+		CAMERA_DOWN_BIT		= BIT(5)
 	};
 
-	Utils::C_BitField<CameraDirectionFlags> m_Flags;
-	float									_yaw, _pitch; // camera angles
+	DULib::BitField<CameraDirectionFlags> m_Flags;
+	float								  _yaw, _pitch; // camera angles
 
 	Utils::HighResolutionTimer _timer;
 
@@ -138,3 +141,13 @@ private:
 };
 } // namespace Renderer::Cameras
 } // namespace GLEngine
+
+
+//=================================================================================
+template <> struct DULib::enable_BitField_operators<GLEngine::Renderer::Cameras::FreelookCamera::CameraDirectionFlags> {
+	static constexpr bool enable = true;
+};
+
+template <> struct DULib::BitField_UsedBitsCounter<GLEngine::Renderer::Cameras::FreelookCamera::CameraDirectionFlags> {
+	static constexpr std::size_t usedBits = 6;
+};

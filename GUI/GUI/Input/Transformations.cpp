@@ -50,8 +50,8 @@ namespace GLEngine::GUI::Input {
 
 
 //=================================================================================
-C_Transformations::C_Transformations(glm::mat4 transformation, ::Utils::C_BitField<E_Transforms> enableTransforms)
-	: m_EnabledTransforms(enableTransforms)
+C_Transformations::C_Transformations(const glm::mat4& transformation, DULib::BitField<E_Transforms> enableTransforms)
+	: m_EnabledTransforms(std::move(enableTransforms))
 	, m_Translation(glm::vec3(0.f))
 	, m_Rotation(glm::vec3(0.f))
 	, m_Scale(glm::vec3(1.f, 1.f, 1.f))
@@ -142,7 +142,7 @@ void C_Transformations::SetMatrix(const glm::mat4& mat)
 }
 
 //=================================================================================
-void C_Transformations::SetEnabledTransforms(::Utils::C_BitField<E_Transforms> enableTransforms)
+void C_Transformations::SetEnabledTransforms(DULib::BitField<E_Transforms> enableTransforms)
 {
 	m_EnabledTransforms = enableTransforms;
 }

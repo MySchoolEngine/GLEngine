@@ -10,9 +10,19 @@ project "Physics"
 	includedirs
 	{
 		"../Core",
-		"../%{IncludeDir.GLM}",
-		"../%{IncludeDir.fmt}",
 	}
+	
+	usage "PUBLIC"
+		includedirs
+		{
+			"%{wks.location}/%{IncludeDir.GLM}",
+			"%{wks.location}/%{IncludeDir.fmt}",
+		}
+	usage "INTERFACE"
+		includedirs
+		{
+			"."
+		}
 
 	--filter "system:windows"
 		-- postbuildcommands

@@ -24,13 +24,13 @@ C_UserEvent::C_UserEvent(const std::string& name)
 //=================================================================================
 E_EventType C_UserEvent::GetType() const
 {
-	return Core::E_EventType::UserDefined;
+	return E_EventType::UserDefined;
 }
 
 //=================================================================================
-Utils::C_BitField<GLEngine::Core::E_EventCategory> C_UserEvent::GetCategories() const
+DULib::BitField<E_EventCategory> C_UserEvent::GetCategories() const
 {
-	return Utils::C_BitField<E_EventCategory>(E_EventCategory::UserDefined);
+	return DULib::BitField(E_EventCategory::UserDefined);
 }
 
 //=================================================================================

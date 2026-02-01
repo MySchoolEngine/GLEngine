@@ -17,7 +17,7 @@ public:
 	~BaseResourceEvent() override = default;
 
 
-	::Utils::C_BitField<E_EventCategory> GetCategories() const override { return {E_EventCategory::Resource}; }
+	DULib::BitField<E_EventCategory> GetCategories() const override { return {E_EventCategory::Resource}; }
 
 protected:
 	ResourceHandleBase m_Handle;

@@ -14,6 +14,7 @@ project "Renderer"
 	Link("Core")
 	Link("GUI")
 --	Link("Animation")
+	uses{"Core"}
 	
 	LinkDependency("Assimp")
 	LinkDependency("ImGui")

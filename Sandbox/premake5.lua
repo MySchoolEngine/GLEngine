@@ -19,6 +19,13 @@ project "Sandbox"
 		Link("VulkanRenderer")
 	end
 
+	uses
+	{
+		"Core",
+		"Utils",
+		"GLRenderer",
+	}
+
 	files
 	{
 		"SandboxStdafx.cpp",
