@@ -19,6 +19,7 @@
 #include <Renderer/Lights/PointLight.h>
 #include <Renderer/Lights/SunLight.h>
 #include <Renderer/Materials/MaterialManager.h>
+#include <Renderer/Mesh/GeomComponent.h>
 
 #include <Physics/Primitives/Frustum.h>
 
@@ -199,6 +200,11 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager&				  world,
 				if (staticMeshHandles)
 				{
 					staticMeshHandles->Render(m_3DRenderer);
+				}
+				const auto geomMeshHandles = std::dynamic_pointer_cast<Renderer::C_GeomComponent>(it);
+				if (geomMeshHandles)
+				{
+					geomMeshHandles->Render(m_3DRenderer);
 				}
 			}
 		}
