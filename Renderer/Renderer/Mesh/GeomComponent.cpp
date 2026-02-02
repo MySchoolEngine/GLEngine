@@ -112,6 +112,7 @@ void C_GeomComponent::Update()
 //=================================================================================
 void C_GeomComponent::SetupGeometry(const MeshData::Mesh& mesh)
 {
+	m_AABB					  = mesh.bbox;
 	I_Renderer&		 renderer = Core::C_Application::Get().GetActiveRenderer();
 	ResourceManager& rm		  = renderer.GetRM();
 
@@ -181,7 +182,7 @@ void C_GeomComponent::Render(Renderer3D& renderer) const
 //=================================================================================
 Physics::Primitives::S_AABB C_GeomComponent::GetAABB() const
 {
-	return {glm::vec3{-1.f}, glm::vec3{1.f}};
+	return m_AABB;
 }
 
 //=================================================================================

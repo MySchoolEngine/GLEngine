@@ -3,6 +3,7 @@
 #include <Renderer/IRenderableComponent.h>
 #include <Renderer/Materials/Material.h>
 #include <Renderer/Mesh/Scene.h>
+#include <Renderer/RendererApi.h>
 
 #include <Utils/Parsing/MaterialParser.h>
 
@@ -10,7 +11,7 @@ namespace GLEngine::Renderer {
 class Renderer3D;
 class C_Material;
 
-class C_GeomComponent : public I_RenderableComponent {
+class RENDERER_API_EXPORT C_GeomComponent : public I_RenderableComponent {
 public:
 	C_GeomComponent();
 	C_GeomComponent(const std::shared_ptr<Entity::I_Entity>& owner);
@@ -41,7 +42,7 @@ protected:
 	MeshContainer				m_Mesh;
 	Handle<Pipeline>			m_Pipeline;
 	std::shared_ptr<C_Material> m_Material;
-
+	Physics::Primitives::S_AABB m_AABB;
 
 	RTTR_REGISTRATION_FRIEND
 };
