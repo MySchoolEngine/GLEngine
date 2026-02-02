@@ -2,6 +2,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - 28-12-2025
+### Added
+- Move `C_GeomComponent` to the new rendering API [#285](/../../issues/285)
+
 
 ## [Unreleased] - 28-12-2025
 ### Added
