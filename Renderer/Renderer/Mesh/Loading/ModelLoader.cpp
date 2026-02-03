@@ -413,6 +413,4 @@ std::mutex& ModelLoader::GetMutex()
 	return m_Mutex;
 }
 
-std::mutex ModelLoader::m_Mutex;
-
 } // namespace GLEngine::Renderer::Mesh

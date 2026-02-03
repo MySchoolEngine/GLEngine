@@ -18,7 +18,6 @@ S_Joint::S_Joint(const S_Joint& other)
 	, m_InverseLocalBindTransform(other.m_InverseLocalBindTransform)
 	, m_Id(other.m_Id)
 	, m_Children(other.m_Children)
-	, m_Id(other.m_Id)
 {
 	CORE_LOG(E_Level::Info, E_Context::Render, "Copying bone: {}", m_Id.GetName());
 }
@@ -29,7 +28,6 @@ S_Joint::S_Joint(S_Joint&& other) noexcept
 	, m_InverseLocalBindTransform(std::move(other.m_InverseLocalBindTransform))
 	, m_Id(other.m_Id)
 	, m_Children(std::move(other.m_Children))
-	, m_Id(other.m_Id)
 {
 	CORE_LOG(E_Level::Info, E_Context::Render, "Movin' bone: {}", m_Id.GetName());
 }

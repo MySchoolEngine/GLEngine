@@ -86,7 +86,7 @@ void I_DebugDraw::DrawFrustum(const Physics::Primitives::C_Frustum& frust, const
 {
 	const auto& position = frust.GetPosition();
 	const auto& upVector = frust.GetUpVector();
-	const auto& forward	 = frust.GetForeward();
+	const auto& forward	 = frust.GetForward();
 	const auto	fnear	 = frust.GetNear();
 	const auto	ffar	 = frust.GetFar();
 	const auto	fov		 = frust.GetFov();

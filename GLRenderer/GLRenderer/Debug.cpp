@@ -90,7 +90,7 @@ void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum se
 }
 
 //=================================================================================
-Renderer::I_DebugDraw& C_DebugDraw::Instance()
+C_DebugDraw& C_DebugDraw::Instance()
 {
 	static C_DebugDraw instance; // Guaranteed to be destroyed.
 								 // Instantiated on first use.
@@ -213,93 +213,6 @@ void C_DebugDraw::DrawAxis(const glm::vec3& origin, const glm::vec3& up, const g
 	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + forward), 1.0f), Colours::blue);
 	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + up), 1.0f), Colours::green);
 	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + rightVec), 1.0f), Colours::red);
-}
-
-//=================================================================================
-void C_DebugDraw::DrawGrid(const glm::vec4& origin, unsigned short linesToSide, const glm::mat4& modelMatrix /*= glm::mat4(1.0f)*/)
-{
-	const int limit = linesToSide;
-	// cross for center
-	DrawLine(origin + glm::vec4(-limit, 0, 0, 1.f), origin + glm::vec4(limit, 0, 0, 1.f));
-	DrawLine(origin + glm::vec4(0, 0, -limit, 1.f), origin + glm::vec4(0, 0, limit, 1.f));
-
-	for (int i = 1; i <= limit; ++i)
-	{
-		// lines in positive direction from origin
-		DrawLine(origin + glm::vec4(-limit, 0, i, 1.f), origin + glm::vec4(limit, 0, i, 1.f));
-		DrawLine(origin + glm::vec4(i, 0, -limit, 1.f), origin + glm::vec4(i, 0, limit, 1.f));
-
-		// lines in negative direction from origin
-		DrawLine(origin + glm::vec4(-limit, 0, -i, 1.f), origin + glm::vec4(limit, 0, -i, 1.f));
-		DrawLine(origin + glm::vec4(-i, 0, -limit, 1.f), origin + glm::vec4(-i, 0, limit, 1.f));
-	}
-}
-
-//=================================================================================
-void C_DebugDraw::DrawFrustum(const Physics::Primitives::C_Frustum& frustum, const Colours::T_Colour& color)
-{
-	const auto& position = frustum.GetPosition();
-	const auto& upVector = frustum.GetUpVector();
-	const auto& forward	 = frustum.GetForward();
-	const auto	fnear	 = frustum.GetNear();
-	const auto	ffar	 = frustum.GetFar();
-	const auto	fov		 = frustum.GetFov();
-	const auto	aspect	 = frustum.GetAspect();
-
-	const glm::vec3 nearCenter = glm::vec3(position + (forward * fnear));
-	const glm::vec3 farCenter  = glm::vec3(position + (forward * ffar));
-
-	const glm::vec3 left = glm::cross(upVector, forward);
-
-	const float tanHalfHFOV = tanf(glm::radians(fov / 2.0f));
-	const float tanHalfVFOV = tanf(glm::radians((fov * aspect) / 2.0f));
-
-	const float xn = fnear * tanHalfVFOV;
-	const float xf = ffar * tanHalfVFOV;
-	const float yn = fnear * tanHalfHFOV;
-	const float yf = ffar * tanHalfHFOV;
-
-	const auto nlt = glm::vec4(nearCenter + (xn * left) + upVector * yn, 1.0f);
-	const auto nrt = glm::vec4(nearCenter - (xn * left) + upVector * yn, 1.0f);
-	const auto nlb = glm::vec4(nearCenter + (xn * left) - upVector * yn, 1.0f);
-	const auto nrb = glm::vec4(nearCenter - (xn * left) - upVector * yn, 1.0f);
-	const auto flt = glm::vec4(farCenter + (xf * left) + upVector * yf, 1.0f);
-	const auto frt = glm::vec4(farCenter - (xf * left) + upVector * yf, 1.0f);
-	const auto flb = glm::vec4(farCenter + (xf * left) - upVector * yf, 1.0f);
-	const auto frb = glm::vec4(farCenter - (xf * left) - upVector * yf, 1.0f);
-
-	std::vector<glm::vec4> lines;
-	lines.push_back(nlt);
-	lines.push_back(nrt);
-	lines.push_back(nlb);
-	lines.push_back(nrb);
-	lines.push_back(nlt);
-	lines.push_back(nlb);
-	lines.push_back(nrt);
-	lines.push_back(nrb);
-
-	lines.push_back(flt);
-	lines.push_back(frt);
-	lines.push_back(flb);
-	lines.push_back(frb);
-	lines.push_back(flt);
-	lines.push_back(flb);
-	lines.push_back(frt);
-	lines.push_back(frb);
-
-	lines.push_back(nlt);
-	lines.push_back(flt);
-	lines.push_back(nrt);
-	lines.push_back(frt);
-	lines.push_back(nlb);
-	lines.push_back(flb);
-	lines.push_back(nrb);
-	lines.push_back(frb);
-
-	DrawLines(lines, color);
-	DrawPoint(position);
-	DrawLine(position, position + forward, Colours::green);
-	DrawLine(position, position + upVector, Colours::red);
 }
 
 //=================================================================================
