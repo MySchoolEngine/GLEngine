@@ -285,6 +285,6 @@ void main()
 	vec3 viewDir  = normalize(-omegaIn);
 
 	vec3 result	  = vec3(0, 0, 0);
-	result = CalculatAreaLight(pAreaLight[0], normalOUT, viewDir, FragPos);
+	result = CalculatAreaLight(pAreaLight[0], normalOUT.xyz, viewDir, FragPos);
 	fragColor = vec4(result, 1.0);
 }

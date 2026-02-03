@@ -243,7 +243,17 @@ void ModelLoader::_loadSkeletonFromAiScene(const aiMesh* aiMesh, MeshData::Mesh&
 }
 
 //=================================================================================
-void ModelLoader::_loadMeshesFromAiScene(const aiScene* loadedScene, std::shared_ptr<MeshData::Scene> scene, const glm::mat4& sceneTransform)
+void ModelLoader::_loadArmatureData(const aiNode* currentNode, const glm::mat4& currentTransform, MeshData::Mesh& mesh)
+{
+	JointID nodeID(std::string(currentNode->mName.data));
+	const auto	boneIndex = mesh.skeleton.GetBoneIndex(nodeID);
+	if (boneIndex != MeshData::SkeletonData::BadIndex) {
+ 		mesh.skeleton.bones[boneIndex].localSpace = currentTransform;
+	}
+}
+
+//=================================================================================
+void ModelLoader::_loadMeshesFromAiScene(const aiScene* loadedScene, std::shared_ptr<Renderer::MeshData::Scene> scene, const glm::mat4& sceneTransform)
 {
 	const aiNode* currentNode	   = loadedScene->mRootNode;
 	glm::mat4	  currentTransform = sceneTransform * _aiMatrixToGlm(loadedScene->mRootNode->mTransformation);
@@ -254,8 +264,8 @@ void ModelLoader::_loadMeshesFromAiScene(const aiScene* loadedScene, std::shared
 
 		_loadNodeMeshes(currentNode, currentTransform, loadedScene->mMeshes, scene->meshes);
 
-		// todo index
-		//_loadArmatureData(currentNode, currentTransform, scene->meshes[0]);
+		if (scene->meshes.empty() == false)
+			_loadArmatureData(currentNode, currentTransform, scene->meshes[0]);
 
 		_getNextNodeAndTransform(currentNode, currentTransform);
 	}
@@ -401,11 +411,6 @@ void ModelLoader::_getFacePosNormalTcoords(const aiFace* face,
 std::mutex& ModelLoader::GetMutex()
 {
 	return m_Mutex;
-}
-
-//=================================================================================
-void ModelLoader::_loadArmatureData(const aiNode* currentNode, const glm::mat4& currentTransform, MeshData::Mesh& mesh)
-{
 }
 
 } // namespace GLEngine::Renderer::Mesh
