@@ -35,7 +35,7 @@ C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 	: GUI::C_Window(guid, "Image editor")
 	, m_Storage(1024, 1024, 4)
 	, m_Histogram(255, 1, 1)
-	, m_GUIImage(nullptr)
+	, m_GUIImage({})
 	, m_FileMenu("File")
 	, m_Tools("Tools")
 {
@@ -45,7 +45,7 @@ C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 	AddMenu(m_FileMenu);
 	AddMenu(m_Tools);
 
-	m_Tools.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Histogram", std::bind(&C_ImageEditor::ToggleHistogram, this)));
+	m_Tools.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Histogram", [this] { return ToggleHistogram(); }));
 	m_Tools.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Brick", [&]() {
 		m_ActiveTool = std::make_unique<C_BrickGenerator>(Renderer::C_TextureView(&m_Storage));
 		return true;
@@ -58,9 +58,11 @@ C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 		m_ActiveTool = std::make_unique<C_WaveGenerator>(Renderer::C_TextureView(&m_Storage));
 		return true;
 	}));
+	m_Tools.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Perlin Noise", [&]() {
+		m_ActiveTool = std::make_unique<C_PerlinNoise>(Renderer::C_TextureView(&m_Storage));
+		return true;
+	}));
 	std::reference_wrapper<GUI::Menu::C_MenuItem> createMenuItem = guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>(std::string("Save as..."), [&]() {
-	m_Tools.AddMenuItem(
-		guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Perlin Noise", [&]() { m_ActiveTool = std::make_unique<C_PerlinNoise>(Renderer::C_TextureView(&m_Storage)); }));
 		const auto textureSelectorGUID = NextGUID();
 		auto*	   textureSelectWindow = new GUI::C_FileDialogWindow(
 			 ".bmp,.hdr,.ppm", "Save image as...",
@@ -141,7 +143,7 @@ void C_ImageEditor::DrawComponents() const
 	m_GUIImage.Draw();
 	::ImGui::SameLine();
 	::ImGui::BeginChild("ImageTools");
-	::ImGui::PlotHistogram("Luminance histogram", (const float*)m_Histogram.GetData(), 255, 0, nullptr, std::numeric_limits<float>::min(), std::numeric_limits<float>::max(), {0, 50});
+	::ImGui::PlotHistogram("Luminance histogram", static_cast<const float*>(m_Histogram.GetData()), 255, 0, nullptr, std::numeric_limits<float>::min(), std::numeric_limits<float>::max(), {0, 50});
 	if (m_ActiveTool)
 	{
 		rttr::instance obj(m_ActiveTool.get());
