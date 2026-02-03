@@ -177,15 +177,15 @@ public:
 	{
 		switch (function)
 		{
-		case GLEngine::Renderer::E_BlendFunction::Add:
+		case E_BlendFunction::Add:
 			return [](const glm::vec3& dst, const glm::vec3& src) { return src + dst; };
-		case GLEngine::Renderer::E_BlendFunction::Subtract:
+		case E_BlendFunction::Subtract:
 			return [](const glm::vec3& dst, const glm::vec3& src) { return src - dst; };
-		case GLEngine::Renderer::E_BlendFunction::ReverseSubtract:
+		case E_BlendFunction::ReverseSubtract:
 			return [](const glm::vec3& dst, const glm::vec3& src) { return dst - src; };
-		case GLEngine::Renderer::E_BlendFunction::Min:
+		case E_BlendFunction::Min:
 			return [](const glm::vec3& dst, const glm::vec3& src) { return glm::min(dst, src); };
-		case GLEngine::Renderer::E_BlendFunction::Max:
+		case E_BlendFunction::Max:
 			return [](const glm::vec3& dst, const glm::vec3& src) { return glm::max(dst, src); };
 		default:
 			GLE_ASSERT(false, "Unknown blend function.");
