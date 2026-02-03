@@ -25,6 +25,11 @@ void C_CPUCompute::ComputeHistogram(const C_TextureView view, C_TextureView targ
 			for (unsigned int y = 0; y < view.GetDimensions().y; ++y) {
 				const glm::vec3 val = view.Get<glm::vec3>(glm::uvec2{x, y});
 				const auto		valLuminance = Colours::ToLuminance(val);
+				if (valLuminance > 1.f)
+				{
+					CORE_LOG(E_Level::Error, E_Context::Render, "Currently our histogram does not support denormalized textures.");
+					continue;
+				}
 				int				bucket		 = valLuminance / bucketSize;
 				target.Set(glm::ivec2{bucket, 0}, target.Get<float>(glm::uvec2{bucket, 0}, E_TextureChannel::Red) + 1.f, E_TextureChannel::Red);
 			}
