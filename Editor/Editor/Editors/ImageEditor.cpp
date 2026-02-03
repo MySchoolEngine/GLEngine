@@ -1,6 +1,7 @@
 #include <EditorStdafx.h>
 
 #include <Editor/Editors/Image/Tools/BrickGenerator.h>
+#include <Editor/Editors/Image/Tools/PerlinNoiseGenerator.h>
 #include <Editor/Editors/Image/Tools/WaveGenerator.h>
 #include <Editor/Editors/ImageEditor.h>
 #include <Editor/Editors/ImageEditorTool.h>
@@ -56,6 +57,8 @@ C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR)
 		return true;
 	}));
 	std::reference_wrapper<GUI::Menu::C_MenuItem> createMenuItem = guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>(std::string("Save as..."), [&]() {
+	m_Tools.AddMenuItem(
+		guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Perlin Noise", [&]() { m_ActiveTool = std::make_unique<C_PerlinNoise>(Renderer::C_TextureView(&m_Storage)); }));
 		const auto textureSelectorGUID = NextGUID();
 		auto*	   textureSelectWindow = new GUI::C_FileDialogWindow(
 			 ".bmp,.hdr,.ppm", "Save image as...",
