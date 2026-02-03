@@ -2,10 +2,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [Unreleased] - 28-12-2025
+## [Unreleased] - 02-02-2026
+### Added
+- Perlin noise generator for iamge editor
+
+## [Unreleased] - 02-02-2026
 ### Added
 - Move `C_GeomComponent` to the new rendering API [#285](/../../issues/285)
-
 
 ## [Unreleased] - 28-12-2025
 ### Added
