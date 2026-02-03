@@ -10,14 +10,45 @@
 #include <memory>
 #include <filesystem>
 
+
+/**
+ * Allows usage of resource handle inside the automatic deserialization. Actively loads resource after class deserialization.
+ * 
+ * @param resourceType 
+ */
+#define DEFINE_RESOURCE_HANDLE_METHODS(resourceType)                                                                                                                               \
+	namespace GLEngine::Core {                                                                                                                                                     \
+	template <> void ResourceHandle<resourceType>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)                                                                 \
+	{                                                                                                                                                                              \
+		*this = ctx.m_ResMng.LoadResource<resourceType>(GetFilePath());                                                                                                            \
+	}                                                                                                                                                                              \
+	} // namespace GLEngine::Core
+
+#define DECLARE_RESOURCE_CONVERTOR(resourceType)                                                                                                                                   \
+	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<resourceType>>();                                                                                      \
+	rttr::type::register_converter_func([](std::shared_ptr<resourceType> ptr, bool& ok) -> std::shared_ptr<Resource> {                                                             \
+		ok = true;                                                                                                                                                                 \
+		return std::static_pointer_cast<Resource>(ptr);                                                                                                                            \
+	});                                                                                                                                                                            \
+	rttr::type::register_equal_comparator<ResourceHandle<resourceType>>()
+
+
+/**
+ * Registration of concrete resource handle.
+ *
+ * @param resourceType
+ */
+#define REGISTRATION_RESOURCE_HANDLE(resourceType)                                                                                                                                 \
+	rttr::registration::class_<ResourceHandle<resourceType>>((resourceType::GetResrourceTypeName() + "Handle").c_str())                                                            \
+		.constructor<>()(rttr::policy::ctor::as_object)                                                                                                                            \
+		.method("AfterDeserialize", &ResourceHandle<resourceType>::AfterDeserialize)()
+
 // #include <Core/Resources/ResourceManager.h>
 #define DECLARE_RESOURCE_TYPE(resourceType)                                                                                                                                        \
 	RTTR_REGISTRATION                                                                                                                                                              \
 	{                                                                                                                                                                              \
 		using namespace GLEngine::Core;                                                                                                                                            \
-		rttr::registration::class_<ResourceHandle<resourceType>>((resourceType::GetResrourceTypeName() + "Handle").c_str())                                                        \
-			.constructor<>()(rttr::policy::ctor::as_object)                                                                                                                        \
-			.method("AfterDeserialize", &ResourceHandle<resourceType>::AfterDeserialize)();                                                                                        \
+		REGISTRATION_RESOURCE_HANDLE(resourceType);                                                                                                                                \
                                                                                                                                                                                    \
 		if constexpr (requires { requires resourceType::GetResourceDataPath() != ""; })                                                                                            \
 		{                                                                                                                                                                          \
@@ -35,15 +66,15 @@
 				.constructor<>()(rttr::policy::ctor::as_std_shared_ptr);                                                                                                           \
 		}                                                                                                                                                                          \
                                                                                                                                                                                    \
-		rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<resourceType>>();                                                                                  \
-		rttr::type::register_converter_func([](std::shared_ptr<resourceType> ptr, bool& ok) -> std::shared_ptr<Resource> {                                                         \
-			ok = true;                                                                                                                                                             \
-			return std::static_pointer_cast<Resource>(ptr);                                                                                                                        \
-		});                                                                                                                                                                        \
-		rttr::type::register_equal_comparator<ResourceHandle<resourceType>>();                                                                                                     \
+		DECLARE_RESOURCE_CONVERTOR(resourceType);                                                                                                                                  \
 	}
 
 namespace GLEngine::Core {
+/**
+ * Use inside the resource class body/
+ * 
+ * @param resourceType 
+ */
 #define DEFINE_RESOURCE_TYPE(resourceType)                                                                                                                                         \
 public:                                                                                                                                                                            \
 	inline static constexpr std::string_view GetResourceDataPath()                                                                                                                 \

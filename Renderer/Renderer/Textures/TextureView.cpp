@@ -20,7 +20,7 @@ C_TextureView::C_TextureView(I_TextureViewStorage* storage)
 //=================================================================================
 void C_TextureView::FillLineSpan(const Colours::T_Colour& colour, unsigned int line, unsigned int start, unsigned int end)
 {
-	if (line > 0 && line < m_Storage->GetDimensions().y - 1)
+	if (line > 0 && line <= m_Storage->GetDimensions().y - 1)
 		m_Storage->FillLineSpan(colour, line, std::max(start, 0u), std::min(end, m_Storage->GetDimensions().x - 1));
 }
 

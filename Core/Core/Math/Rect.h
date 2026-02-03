@@ -4,8 +4,8 @@
 
 #include <glm/vec2.hpp>
 
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 #include <rttr/registration.h>
 #include <rttr/registration_friend.h>
 
@@ -26,6 +26,7 @@ public:
 		, height(0)
 	{
 	}
+
 	constexpr S_Rect(int x, int y, unsigned int width, unsigned int height)
 		: x(x)
 		, y(y)
@@ -38,7 +39,7 @@ public:
 	{
 		const int top  = std::max(y, other.y);
 		const int left = std::max(x, other.x);
-		return {top, left, std::min(Bottom(), other.Bottom()) - top + 1, std::min(Right(), other.Right()) - left + 1};
+		return {left, top, std::min(Right(), other.Right()) - left + 1, std::min(Bottom(), other.Bottom()) - top + 1};
 	}
 
 	/**
@@ -53,23 +54,42 @@ public:
 	[[nodiscard]] inline bool IntersectionPlane(const glm::vec2& origin, const glm::vec2& direction, std::array<glm::ivec2, 2>& intersects) const;
 
 	[[nodiscard]] constexpr bool Contains(const glm::vec2& point) const { return point.x > x && point.y > y && (point.x - x) < width && (point.y - y) < height; }
+
 	[[nodiscard]] constexpr bool Contains(const glm::ivec2& point) const
 	{
-		if (point.x<0 || point.y < 0)
+		if (point.x < 0 || point.y < 0)
 			return false; // smaller than 0
 		const glm::uvec2 uPoint = point;
 		return uPoint.x >= x && uPoint.y >= y && (uPoint.x - x) < width && (uPoint.y - y) < height;
 	}
 
-	constexpr glm::uvec2 TopLeft() const { return		glm::uvec2(Left() ,Top()); }
-	constexpr glm::uvec2 TopRight() const { return		glm::uvec2(Right(), Top()); }
-	constexpr glm::uvec2 BottomLeft() const { return	glm::uvec2(Left(), Bottom()); }
-	constexpr glm::uvec2 BottomRight() const { return	glm::uvec2(Right(),Bottom()); }
+	constexpr glm::uvec2 TopLeft() const { return glm::uvec2(Left(), Top()); }
+	constexpr glm::uvec2 TopRight() const { return glm::uvec2(Right(), Top()); }
+	constexpr glm::uvec2 BottomLeft() const { return glm::uvec2(Left(), Bottom()); }
+	constexpr glm::uvec2 BottomRight() const { return glm::uvec2(Right(), Bottom()); }
 
 	constexpr unsigned int Top() const { return y; }
 	constexpr unsigned int Bottom() const { return y + height - 1; }
 	constexpr unsigned int Left() const { return x; }
 	constexpr unsigned int Right() const { return x + width - 1; }
+
+	constexpr static S_Rect GetEnvelope(const std::ranges::forward_range auto& c)
+	{
+		int top	   = std::numeric_limits<int>::max();
+		int left   = std::numeric_limits<int>::max();
+		int bottom = std::numeric_limits<int>::min();
+		int right  = std::numeric_limits<int>::min();
+		for (const auto& point : c)
+		{
+			top	   = std::min(top, point.y);
+			left   = std::min(left, point.x);
+			bottom = std::max(bottom, point.y);
+			right  = std::max(right, point.x);
+		}
+		left = std::max(left, 0);
+		top	 = std::max(top, 0);
+		return {left, top, static_cast<unsigned int>(right - left) + 1, static_cast<unsigned int>(bottom - top) + 1};
+	}
 
 	constexpr glm::uvec2   GetSize() const { return {width, height}; }
 	constexpr unsigned int GetArea() const { return width * height; }

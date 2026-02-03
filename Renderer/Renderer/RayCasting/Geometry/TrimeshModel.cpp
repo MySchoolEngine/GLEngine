@@ -11,35 +11,23 @@
 #include <Utils/Serialization/XMLSerialize.h>
 
 
-namespace GLEngine::Core {
-template <> void ResourceHandle<Renderer::C_TrimeshModel>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
-{
-	auto& rm = C_ResourceManager::Instance();
-	if (GetFilePath() != "")
-	{
-		*this = rm.LoadResource<Renderer::C_TrimeshModel>(GetFilePath());
-	}
-}
-} // namespace GLEngine::Core
+DEFINE_RESOURCE_HANDLE_METHODS(GLEngine::Renderer::C_TrimeshModel)
 
 // clang-format off
 RTTR_REGISTRATION
 {
 	using namespace GLEngine::Renderer;
 	using namespace GLEngine::Core;
+
+	REGISTRATION_RESOURCE_HANDLE(C_TrimeshModel);
+
 	rttr::registration::class_<C_TrimeshModel>((C_TrimeshModel::GetResrourceTypeName() + "Handle").c_str())
 		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
 		.method("AfterDeserialize", &C_TrimeshModel::AfterDeserialize)
 		.property("Trimeshes", &C_TrimeshModel::m_Trimeshes)(rttr::policy::prop::bind_as_ptr)
 		.property("BVHs", &C_TrimeshModel::m_BVHs)(rttr::policy::prop::bind_as_ptr);
 
-		rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_TrimeshModel>>();
-		rttr::type::register_converter_func([](std::shared_ptr<C_TrimeshModel> ptr, bool& ok) -> std::shared_ptr<Resource> {                                          
-			ok = true;                                                                                                                                                
-			return std::static_pointer_cast<Resource>(ptr);                                                                                                           
-		});
-
-		rttr::type::register_equal_comparator<ResourceHandle<GLEngine::Renderer::C_TrimeshModel>>();
+		DECLARE_RESOURCE_CONVERTOR(C_TrimeshModel);
 }
 // clang-format on
 
