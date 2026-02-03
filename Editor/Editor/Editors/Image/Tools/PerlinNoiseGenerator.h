@@ -21,7 +21,7 @@ private:
 	float Noise(const glm::uvec2& coord, float freq);
 
 	int		m_Frequency = 1;
-	float	m_Persistance = 0.5;
+	float	m_Persistence = 0.5;
 };
 
 } // namespace GLEngine::Editor
