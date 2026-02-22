@@ -41,8 +41,9 @@ bool C_EntitiesWindow::Draw(GUI::C_GUIManager& guiMgr) const
 
 		for (const auto& entity : world->GetEntities())
 		{
-			const bool selected = entity->GetID() == m_SelectedEntity;
-			if (ImGui::Selectable(entity->GetName().c_str(), selected))
+			const auto entityGUID = entity->GetID();
+			const bool selected	  = entityGUID == m_SelectedEntity;
+			if (ImGui::Selectable((entity->GetName() + "##" + entityGUID.toString()).c_str(), selected))
 			{
 				if (m_SelectedEntity == entity->GetID())
 					m_SelectedEntity = GUID::INVALID_GUID;
