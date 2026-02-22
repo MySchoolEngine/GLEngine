@@ -11,6 +11,7 @@
 #include <Core/EventSystem/Event.h>
 
 #include <imgui.h>
+#include <imgui_internal.h>
 #include <misc/cpp/imgui_stdlib.h>
 
 namespace GLEngine::Editor {
@@ -45,12 +46,19 @@ bool C_EntitiesWindow::Draw(GUI::C_GUIManager& guiMgr) const
 			const bool selected	  = entityGUID == m_SelectedEntity;
 			if (ImGui::Selectable((entity->GetName() + "##" + entityGUID.toString()).c_str(), selected))
 			{
-				if (m_SelectedEntity == entity->GetID())
-					m_SelectedEntity = GUID::INVALID_GUID;
+				if (m_SelectedEntity == entityGUID)
+					SelectEntity(GUID::INVALID_GUID);
 				else
-					m_SelectedEntity = entity->GetID();
-				Core::C_EntityEvent event(m_SelectedEntity, Core::C_EntityEvent::EntityEvent::Selected);
-				Core::C_Application::Get().OnEvent(event);
+					SelectEntity(entityGUID);
+			}
+			if (ImGui::BeginPopupContextItem(nullptr, ImGuiPopupFlags_MouseButtonRight))
+			{
+				SelectEntity(entityGUID);
+				if (ImGui::MenuItem("Remove"))
+				{
+					world->RemoveEntity(entityGUID);
+				}
+				ImGui::EndPopup();
 			}
 		}
 		ImGui::EndChild();
@@ -82,10 +90,8 @@ bool C_EntitiesWindow::Draw(GUI::C_GUIManager& guiMgr) const
 				auto entity	   = entityVar.convert<std::shared_ptr<Entity::I_Entity>>();
 				world->AddEntity(entity);
 
-				Core::C_EntityEvent event(entity->GetID(), Core::C_EntityEvent::EntityEvent::Selected);
-				Core::C_Application::Get().OnEvent(event);
-				m_SelectedEntity = entity->GetID();
-				entityName		 = "";
+				SelectEntity(entity->GetID());
+				entityName = "";
 			}
 		}
 
@@ -115,11 +121,22 @@ bool C_EntitiesWindow::Draw(GUI::C_GUIManager& guiMgr) const
 }
 
 //=================================================================================
+void C_EntitiesWindow::SelectEntity(GUID id) const
+{
+	if (m_SelectedEntity != id)
+	{
+		m_SelectedEntity = id;
+		Core::C_EntityEvent event(m_SelectedEntity, Core::C_EntityEvent::EntityEvent::Selected);
+		Core::C_Application::Get().OnEvent(event);
+	}
+}
+
+//=================================================================================
 void C_EntitiesWindow::SetWorld(std::shared_ptr<Entity::C_EntityManager> world)
 {
 	m_World = world;
 	// entity removed anyway
-	m_SelectedEntity = GUID::INVALID_GUID;
+	SelectEntity(GUID::INVALID_GUID);
 }
 
 } // namespace GLEngine::Editor
