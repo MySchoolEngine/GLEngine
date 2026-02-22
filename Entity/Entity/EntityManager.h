@@ -33,6 +33,7 @@ public:
 	[[nodiscard]] const std::vector<std::shared_ptr<I_Entity>>& GetEntities() const;
 	void														ClearLevel();
 	void														AddEntity(std::shared_ptr<I_Entity> entity);
+	void														RemoveEntity(GUID id);
 	void														OnUpdate();
 	[[nodiscard]] Physics::Primitives::S_RayIntersection		Select(const Physics::Primitives::S_Ray& ray);
 
@@ -46,6 +47,7 @@ public:
 private:
 	std::filesystem::path				   m_Filename;
 	std::vector<std::shared_ptr<I_Entity>> m_Entities;
+	std::set<GUID>						   m_ToBeRemoved;
 };
 
 } // namespace Entity
