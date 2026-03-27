@@ -200,7 +200,8 @@ bool DrawResource(rttr::instance& obj, const rttr::property& prop)
 		{
 			if (ImGui::AcceptDragDropPayload("RESOURCE_PATH", ImGuiDragDropFlags_AcceptPeekOnly))
 			{
-				// highlight green — compatible type hovering
+				ImGui::GetForegroundDrawList()->AddRectFilled(imageRect.Min, imageRect.Max, IM_COL32(0, 255, 0, 40));
+				ImGui::GetForegroundDrawList()->AddRect(imageRect.Min, imageRect.Max, IM_COL32(0, 255, 0, 255), 0.0f, 0, 2.0f);
 			}
 			if (auto* p = ImGui::AcceptDragDropPayload("RESOURCE_PATH"))
 			{
