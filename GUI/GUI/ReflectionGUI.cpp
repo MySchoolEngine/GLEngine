@@ -181,19 +181,35 @@ bool DrawResource(rttr::instance& obj, const rttr::property& prop)
 	const auto	   propertyName = GetMetadataMember<MetaClassEnum::Name>(prop);
 	bool		   ret			= false;
 	const ImVec2   drawAreaSz(std::min(380.f, ImGui::GetWindowWidth()), 88);
-	const ImVec2   canvasP0 = ImGui::GetCursorPos();
-	const ImRect   imageRect(canvasP0, canvasP0 + drawAreaSz);
+	const ImVec2   canvasP0  = ImGui::GetCursorPos();
+	const auto	   canvasPos = ImGui::GetCursorScreenPos();
+	const ImRect   imageRect(canvasPos, canvasPos + drawAreaSz);
 	const bool	   isHovered = ImGui::IsItemHovered(); // Hovered
 	const bool	   isActive  = ImGui::IsItemActive();	// Held
 	ImDrawList*	   drawList  = ImGui::GetWindowDrawList();
-	const auto	   canvasPos = ImGui::GetCursorScreenPos();
 	const ImGuiIO& io		 = ImGui::GetIO();
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{0, 0});
 
 	{
 		auto filename = resource.get().GetFilePath().generic_string();
-		ImGui::BeginChildFrame(ImGuiID{static_cast<unsigned int>(std::hash<std::string>{}(propertyName + filename))}, drawAreaSz);
+		ImGuiID FrameID		 = ImGuiID{static_cast<unsigned int>(std::hash<std::string>{}(propertyName + filename))};
+		ImGui::BeginChildFrame(FrameID, drawAreaSz);
+
+		if (ImGui::BeginDragDropTargetCustom(imageRect, FrameID))
+		{
+			if (ImGui::AcceptDragDropPayload("RESOURCE_PATH", ImGuiDragDropFlags_AcceptPeekOnly))
+			{
+				// highlight green — compatible type hovering
+			}
+			if (auto* p = ImGui::AcceptDragDropPayload("RESOURCE_PATH"))
+			{
+				const std::filesystem::path droppedPath(static_cast<const char*>(p->Data));
+				resource.get() = Core::C_ResourceManager::Instance().LoadResource<resourceType>(droppedPath);
+				ret			   = true;
+			}
+			ImGui::EndDragDropTarget();
+		}
 
 		ImGui::SetCursorPos(ImVec2{2, 2});
 		{
