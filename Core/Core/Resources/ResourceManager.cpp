@@ -49,14 +49,27 @@ void C_ResourceManager::RegisterResourceType(const I_ResourceLoader* loader)
 }
 
 //=================================================================================
-const I_ResourceLoader* C_ResourceManager::GetLoaderForExt(const std::string& ext) const
+std::optional<std::reference_wrapper<const I_ResourceLoader>> C_ResourceManager::GetLoaderForExt(const std::string& ext) const
 {
-	GLE_ASSERT(ext[0] == '.', "Extension needs to contain dot.");
+	if (ext.empty() || ext[0] != '.')
+	{
+		return std::nullopt;
+	}
 	if (const auto loader = m_ExtToLoaders.find(ext); loader != m_ExtToLoaders.end())
 	{
-		return loader->second;
+		return std::ref(*loader->second);
 	}
-	return nullptr;
+	return std::nullopt;
+}
+
+//=================================================================================
+std::optional<std::reference_wrapper<const I_ResourceLoader>> C_ResourceManager::GetLoaderForTypeID(const std::size_t typeId) const
+{
+	if (const auto it = m_TypeIdToLoader.find(typeId); it != m_TypeIdToLoader.end())
+	{
+		return std::ref(*it->second);
+	}
+	return std::nullopt;
 }
 
 //=================================================================================

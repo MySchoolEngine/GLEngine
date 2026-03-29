@@ -47,13 +47,14 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 			}
 			return T_Handle<ResourceType>{concreteResource};
 		}
-		const auto* loader = GetLoaderForExt(filepath.extension().string());
-		if (!loader)
+		const auto loaderOpt = GetLoaderForExt(filepath.extension().string());
+		if (!loaderOpt)
 		{
 			CORE_LOG(E_Level::Error, E_Context::Core, "No loader specified for {}", filepath.extension());
 			return {};
 		}
-		auto resource = loader->CreateResource();
+		const auto loader	= loaderOpt.value();
+		auto resource = loader.get().CreateResource();
 		if (resource)
 		{
 			resource->m_State	  = ResourceState::Loading;
@@ -63,7 +64,7 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 			lock.unlock();
 			if (isBlocking)
 			{
-				if (loader->LoadResource(filepath, resource))
+				if (loader.get().LoadResource(filepath, resource))
 				{
 					resource->m_State = ResourceState::Ready;
 				}
@@ -110,13 +111,13 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 			{
 				// run thread, will need job manager once finished
 				std::packaged_task<void(std::shared_ptr<Resource>)> load([this, filepath](std::shared_ptr<Resource> resource) {
-					const auto* loader = GetLoaderForExt(filepath.extension().string());
+					const auto loader = GetLoaderForExt(filepath.extension().string());
 					if (!loader)
 					{
 						CORE_LOG(E_Level::Error, E_Context::Core, "No loader specified for {}", filepath.extension());
 						return;
 					}
-					const bool result = loader->LoadResource(filepath, resource);
+					const bool result = loader->get().LoadResource(filepath, resource);
 
 					std::lock_guard lock(m_FinishedLoadsMutes);
 					if (result)

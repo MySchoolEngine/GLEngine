@@ -45,12 +45,6 @@ public:
 		VerifyEmptyLists(manager, "TearDown");
 	}
 
-	// Helper methods to access private members
-	static const I_ResourceLoader* GetLoaderForExt(const C_ResourceManager& manager, const std::string& ext)
-	{
-		return manager.GetLoaderForExt(ext);
-	}
-
 	static std::shared_ptr<Resource> GetResourcePtr(C_ResourceManager& manager, const std::filesystem::path& filepath)
 	{
 		return manager.GetResourcePtr(filepath);
@@ -134,8 +128,8 @@ TEST_F(ResourceManagerFixture, AddingLoaders)
 {
 	auto& manager = C_ResourceManager::Instance();
 	manager.RegisterResourceType(new TestResource2Loader);
-	EXPECT_NE(GetLoaderForExt(manager, ".test2"), nullptr) << "Loader for .test2 extension should be registered";
-	EXPECT_EQ(GetLoaderForExt(manager, ".not-existent"), nullptr) << "Loader for non-existent extension should return nullptr";
+	EXPECT_TRUE(manager.GetLoaderForExt(".test2").has_value()) << "Loader for .test2 extension should be registered";
+	EXPECT_FALSE(manager.GetLoaderForExt(".not-existent").has_value()) << "Loader for non-existent extension should return nullptr";
 }
 
 TEST_F(ResourceManagerFixture, GetSupportedExtensions)

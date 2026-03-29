@@ -196,17 +196,21 @@ bool DrawResource(rttr::instance& obj, const rttr::property& prop)
 		ImGuiID FrameID		 = ImGuiID{static_cast<unsigned int>(std::hash<std::string>{}(propertyName + filename))};
 		ImGui::BeginChildFrame(FrameID, drawAreaSz);
 
-		if (ImGui::BeginDragDropTargetCustom(imageRect, FrameID))
+		auto& resMgr = Core::C_ResourceManager::Instance();
+		const auto loader = resMgr.GetLoaderForType<resourceType>();
+
+		if (loader.has_value() && ImGui::BeginDragDropTargetCustom(imageRect, FrameID))
 		{
-			if (ImGui::AcceptDragDropPayload("RESOURCE_PATH", ImGuiDragDropFlags_AcceptPeekOnly))
+			const auto dragDropLabel = loader.transform([](const auto& l) { return l.get().DragAndDropLabel(); }).value();
+			if (ImGui::AcceptDragDropPayload(dragDropLabel.c_str(), ImGuiDragDropFlags_AcceptPeekOnly))
 			{
 				ImGui::GetForegroundDrawList()->AddRectFilled(imageRect.Min, imageRect.Max, IM_COL32(0, 255, 0, 40));
 				ImGui::GetForegroundDrawList()->AddRect(imageRect.Min, imageRect.Max, IM_COL32(0, 255, 0, 255), 0.0f, 0, 2.0f);
 			}
-			if (auto* p = ImGui::AcceptDragDropPayload("RESOURCE_PATH"))
+			if (auto* p = ImGui::AcceptDragDropPayload(dragDropLabel.c_str()))
 			{
 				const std::filesystem::path droppedPath(static_cast<const char*>(p->Data));
-				resource.get() = Core::C_ResourceManager::Instance().LoadResource<resourceType>(droppedPath);
+				resource.get() = resMgr.LoadResource<resourceType>(droppedPath);
 				ret			   = true;
 			}
 			ImGui::EndDragDropTarget();

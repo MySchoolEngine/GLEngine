@@ -1,6 +1,7 @@
 #include <EditorStdafx.h>
 
 #include <Editor/Editors/ResourceManager/ResourceManagerWindow.h>
+#include <Core/Resources/ResourceManager.h>
 
 #include <imgui.h>
 
@@ -134,10 +135,16 @@ void C_ResourceManagerWindow::OnResourceDoubleClicked(const std::filesystem::pat
 //=================================================================================
 void C_ResourceManagerWindow::HandleResourceDragDrop(const std::filesystem::path& path) const
 {
+	const auto& resMgr = Core::C_ResourceManager::Instance();
+	auto		loader = resMgr.GetLoaderForExt(path.extension().generic_string());
+	if (loader.has_value() == false)
+	{
+		return;
+	}
 	if (ImGui::BeginDragDropSource())
 	{
 		const std::string pathStr = path.string();
-		ImGui::SetDragDropPayload("RESOURCE_PATH", pathStr.c_str(), pathStr.size() + 1);
+		ImGui::SetDragDropPayload(loader->get().DragAndDropLabel().c_str(), pathStr.c_str(), pathStr.size() + 1);
 		ImGui::Text("%s", path.filename().string().c_str());
 		ImGui::EndDragDropSource();
 	}

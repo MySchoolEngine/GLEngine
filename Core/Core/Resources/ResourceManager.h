@@ -7,6 +7,8 @@
 #include <Core/Resources/ResourceHandle.h>
 #include <Core/Resources/ResourceLoader.h>
 
+#include <expected>
+#include <functional>
 #include <shared_mutex>
 #include <type_traits>
 
@@ -45,6 +47,32 @@ public:
 	std::vector<std::string>							 GetSupportedExtensions(const std::size_t) const;
 	std::vector<C_Metafile>								 GetAllMetafiles(const std::filesystem::path& path = ".", bool recursive = false);
 
+	/**
+	 * @brief Returns the loader registered for the given file extension.
+	 * @param ext File extension including the leading dot (e.g. ".png", ".obj").
+	 * @return An engaged optional holding a reference to the loader, or std::nullopt if
+	 *         @p ext is empty, does not start with '.', or has no registered loader.
+	 *         The reference is valid only as long as the manager has not been destroyed.
+	 * @note The returned reference_wrapper prevents accidental deletion of the loader.
+	 */
+	[[nodiscard]] std::optional<std::reference_wrapper<const I_ResourceLoader>>
+		GetLoaderForExt(const std::string& ext) const;
+
+	/**
+	 * @brief Returns the loader registered for the given resource type.
+	 * @tparam ResourceType Must satisfy is_resource.
+	 * @return An engaged optional holding a reference to the loader, or std::nullopt if
+	 *         no loader has been registered for @p ResourceType.
+	 *         The reference is valid only as long as the manager has not been destroyed.
+	 * @note The returned reference_wrapper prevents accidental deletion of the loader.
+	 */
+	template <class ResourceType>
+		requires is_resource<ResourceType>
+	[[nodiscard]] std::optional<std::reference_wrapper<const I_ResourceLoader>> GetLoaderForType() const
+	{
+		return GetLoaderForTypeID(ResourceType::GetResourceTypeHashStatic());
+	}
+
 private:
 	C_ResourceManager();
 
@@ -61,7 +89,7 @@ private:
 
 	void AddResourceToUnusedList(const std::shared_ptr<Resource>& resource);
 
-	const I_ResourceLoader*	  GetLoaderForExt(const std::string& ext) const;
+	std::optional<std::reference_wrapper<const I_ResourceLoader>> GetLoaderForTypeID(std::size_t typeId) const;
 	std::shared_ptr<Resource> GetResourcePtr(const std::filesystem::path& filepath);
 
 	std::map<std::filesystem::path, std::shared_ptr<Resource>>		m_Resources;
