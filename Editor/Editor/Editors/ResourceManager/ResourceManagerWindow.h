@@ -26,9 +26,11 @@ private:
 	void DrawFolderTree(const std::filesystem::path& dir) const;
 	void DrawContentPanel() const;
 
+	void DrawGridItem(const std::filesystem::path& path, float iconSize) const;
+
 	void OnFolderSelected(const std::filesystem::path& path) const;
 	void OnResourceDoubleClicked(const std::filesystem::path& path) const;
-	void HandleResourceDragDrop(const std::filesystem::path& path) const;
+	void HandleResourceDragDrop(const std::filesystem::path& path, float iconSize) const;
 
 	std::filesystem::path						  m_RootPath;
 	mutable std::filesystem::path				  m_SelectedFolder;
