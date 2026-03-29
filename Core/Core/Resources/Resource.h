@@ -129,6 +129,8 @@ class CORE_API_EXPORT Resource : public I_EventReceiver {
 public:
 	Resource();
 	~Resource() override;
+	Resource(const Resource&) = delete; // we are pointing to the file and copy does not make sense, we should have some kind of Clone(path) function instead
+	Resource& operator=(const Resource&) = delete;
 
 	[[nodiscard]] virtual std::unique_ptr<I_ResourceLoader> GetLoader()									= 0;
 	[[nodiscard]] virtual bool								Load(const std::filesystem::path& filepath) = 0;
