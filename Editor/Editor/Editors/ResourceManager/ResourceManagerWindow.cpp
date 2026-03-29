@@ -19,6 +19,16 @@ const char* GetIconForPath(const std::filesystem::path& path)
 		return ICON_FA_CUBE;
 	return ICON_FA_FILE;
 }
+
+void DrawIconCentered(ImDrawList* drawList, ImVec2 rectMin, float rectSize, const char* iconStr)
+{
+	ImFont*		 font	   = GLEngine::GUI::C_ImGuiLayer::GetLargeIconFont();
+	const float	 fontSize  = font ? 32.0f : 16.0f;
+	ImFont*		 renderFont = font ? font : ImGui::GetFont();
+	const ImVec2 textSize  = renderFont->CalcTextSizeA(fontSize, FLT_MAX, 0.f, iconStr);
+	const ImVec2 textPos(rectMin.x + (rectSize - textSize.x) * 0.5f, rectMin.y + (rectSize - textSize.y) * 0.5f);
+	drawList->AddText(renderFont, fontSize, textPos, IM_COL32(200, 200, 200, 210), iconStr);
+}
 } // namespace
 
 // TODO First of all, for the drag and drop, I will need to define the IDs for draggable things inside of the editor.
@@ -118,9 +128,9 @@ void C_ResourceManagerWindow::DrawContentPanel() const
 	constexpr float padding	 = 12.0f;
 	constexpr float cellW	 = iconSize + padding;
 	const float		cellH	 = iconSize + ImGui::GetTextLineHeightWithSpacing() + 4.0f;
-	const int		numCols	 = std::max(1, (int)(ImGui::GetContentRegionAvail().x / cellW));
+	const int		numCols	 = std::max(1, static_cast<int>(ImGui::GetContentRegionAvail().x / cellW));
 
-	for (int i = 0; i < (int)m_FolderContents.size(); i++)
+	for (int i = 0; i < static_cast<int>(m_FolderContents.size()); i++)
 	{
 		const int col = i % numCols;
 		const int row = i / numCols;
@@ -129,7 +139,7 @@ void C_ResourceManagerWindow::DrawContentPanel() const
 	}
 
 	// Advance cursor past all rows so the child window scrolls correctly
-	const int numRows = ((int)m_FolderContents.size() + numCols - 1) / numCols;
+	const int numRows = (static_cast<int>(m_FolderContents.size()) + numCols - 1) / numCols;
 	ImGui::SetCursorPos(ImVec2(0.f, numRows * cellH));
 	ImGui::Dummy(ImVec2(0.f, 0.f));
 }
@@ -149,15 +159,7 @@ void C_ResourceManagerWindow::DrawGridItem(const std::filesystem::path& path, fl
 	ImGui::GetWindowDrawList()->AddRect(rMin, rMax, borderColor, 4.0f, 0, 1.5f);
 
 	// Draw FA icon centered in the cell via draw list - no new ImGui item, InvisibleButton stays as drag source
-	{
-		const char* iconStr		 = GetIconForPath(path);
-		ImFont*		font		 = GUI::C_ImGuiLayer::GetLargeIconFont();
-		const float renderSize	 = font ? 32.0f : 16.0f;
-		ImFont*		renderFont	 = font ? font : ImGui::GetFont();
-		const ImVec2 textSize	 = renderFont->CalcTextSizeA(renderSize, FLT_MAX, 0.f, iconStr);
-		const ImVec2 textPos(rMin.x + (iconSize - textSize.x) * 0.5f, rMin.y + (iconSize - textSize.y) * 0.5f);
-		ImGui::GetWindowDrawList()->AddText(renderFont, renderSize, textPos, IM_COL32(200, 200, 200, 210), iconStr);
-	}
+	DrawIconCentered(ImGui::GetWindowDrawList(), rMin, iconSize, GetIconForPath(path));
 
 	HandleResourceDragDrop(path, iconSize);
 
@@ -218,14 +220,7 @@ void C_ResourceManagerWindow::HandleResourceDragDrop(const std::filesystem::path
 		ImGui::Dummy(ImVec2(iconSize, iconSize));
 		ImGui::GetWindowDrawList()->AddRect(iconScreenPos, iconScreenPos + ImVec2(iconSize, iconSize), IM_COL32(200, 200, 200, 255), 4.0f, 0, 1.5f);
 
-		{
-			const char*		iconStr			= GetIconForPath(path);
-			ImFont*			font			= ImGui::GetFont();
-			constexpr float renderFontSize	= 28.0f;
-			const ImVec2	textSize		= font->CalcTextSizeA(renderFontSize, FLT_MAX, 0.f, iconStr);
-			const ImVec2	textPos(iconScreenPos.x + (iconSize - textSize.x) * 0.5f, iconScreenPos.y + (iconSize - textSize.y) * 0.5f);
-			ImGui::GetWindowDrawList()->AddText(font, renderFontSize, textPos, IM_COL32(200, 200, 200, 210), iconStr);
-		}
+		DrawIconCentered(ImGui::GetWindowDrawList(), iconScreenPos, iconSize, GetIconForPath(path));
 
 		ImGui::SetCursorPos(ImVec2(previewStart.x + (cellW - textW) * 0.5f, ImGui::GetCursorPosY()));
 		ImGui::TextUnformatted(label.c_str());
