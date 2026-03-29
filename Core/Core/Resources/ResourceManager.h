@@ -53,7 +53,6 @@ public:
 	 * @return An engaged optional holding a reference to the loader, or std::nullopt if
 	 *         @p ext is empty, does not start with '.', or has no registered loader.
 	 *         The reference is valid only as long as the manager has not been destroyed.
-	 * @note The returned reference_wrapper prevents accidental deletion of the loader.
 	 */
 	[[nodiscard]] std::optional<std::reference_wrapper<const I_ResourceLoader>>
 		GetLoaderForExt(const std::string& ext) const;
@@ -64,14 +63,9 @@ public:
 	 * @return An engaged optional holding a reference to the loader, or std::nullopt if
 	 *         no loader has been registered for @p ResourceType.
 	 *         The reference is valid only as long as the manager has not been destroyed.
-	 * @note The returned reference_wrapper prevents accidental deletion of the loader.
 	 */
 	template <class ResourceType>
-		requires is_resource<ResourceType>
-	[[nodiscard]] std::optional<std::reference_wrapper<const I_ResourceLoader>> GetLoaderForType() const
-	{
-		return GetLoaderForTypeID(ResourceType::GetResourceTypeHashStatic());
-	}
+		requires is_resource<ResourceType> [[nodiscard]] std::optional<std::reference_wrapper<const I_ResourceLoader>> GetLoaderForType() const;
 
 private:
 	C_ResourceManager();

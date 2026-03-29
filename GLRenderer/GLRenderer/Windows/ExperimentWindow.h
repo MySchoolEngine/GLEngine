@@ -96,6 +96,7 @@ private:
 	GUID																m_RayTraceGUID;
 	GUID																m_WaterRenderingGUID;
 	GUID																m_ImageEditorGUID;
+	GUID																m_ResourceWindowGUID;
 	GUID																m_EntityEditorGUID;
 	GUID																m_EntitiesWindowGUID;
 	GUID																m_HDRSettingsGUID;

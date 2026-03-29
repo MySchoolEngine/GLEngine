@@ -192,4 +192,13 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 	return T_Handle<ResourceType>{};
 }
 
+//=================================================================================
+template <class ResourceType>
+requires is_resource<ResourceType> [[nodiscard]] std::optional<std::reference_wrapper<const I_ResourceLoader>> C_ResourceManager::GetLoaderForType() const
+{
+	// use rttr to avoid linking all libraries together
+	const auto resourceType = rttr::type::get<ResourceType>();
+	const auto x			= resourceType.get_method("GetResourceTypeHashStatic").invoke({}).template get_value<std::size_t>();
+	return GetLoaderForTypeID(x);
+}
 } // namespace GLEngine::Core
