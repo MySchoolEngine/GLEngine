@@ -4,6 +4,22 @@
 #include <Core/Resources/ResourceManager.h>
 
 #include <imgui.h>
+#include <IconsFontAwesome6.h>
+#include <GUI/ImGuiLayer.h>
+
+namespace {
+const char* GetIconForPath(const std::filesystem::path& path)
+{
+	if (std::filesystem::is_directory(path))
+		return ICON_FA_FOLDER;
+	const auto ext = path.extension().string();
+	if (ext == ".png" || ext == ".jpg" || ext == ".jpeg" || ext == ".hdr" || ext == ".tga")
+		return ICON_FA_FILE_IMAGE;
+	if (ext == ".obj" || ext == ".fbx" || ext == ".gltf" || ext == ".glb")
+		return ICON_FA_CUBE;
+	return ICON_FA_FILE;
+}
+} // namespace
 
 // TODO First of all, for the drag and drop, I will need to define the IDs for draggable things inside of the editor.
 // It will need to contain the information about the drug thing being resourced and its type. So it will be tied to the resource type.
@@ -72,7 +88,8 @@ void C_ResourceManagerWindow::DrawFolderTree(const std::filesystem::path& dir) c
 		if (!hasSubDirs)
 			flags |= ImGuiTreeNodeFlags_Leaf;
 
-		const bool nodeOpen = ImGui::TreeNodeEx(entry.path().filename().string().c_str(), flags);
+		const std::string treeLabel = std::string(ICON_FA_FOLDER) + "  " + entry.path().filename().string();
+		const bool		  nodeOpen	= ImGui::TreeNodeEx(treeLabel.c_str(), flags);
 
 		if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
 			OnFolderSelected(entry.path());
@@ -130,6 +147,17 @@ void C_ResourceManagerWindow::DrawGridItem(const std::filesystem::path& path, fl
 	const ImVec2 rMax		 = ImGui::GetItemRectMax();
 	const ImU32	 borderColor = ImGui::IsItemHovered() ? IM_COL32(200, 200, 200, 255) : IM_COL32(110, 110, 110, 255);
 	ImGui::GetWindowDrawList()->AddRect(rMin, rMax, borderColor, 4.0f, 0, 1.5f);
+
+	// Draw FA icon centered in the cell via draw list - no new ImGui item, InvisibleButton stays as drag source
+	{
+		const char* iconStr		 = GetIconForPath(path);
+		ImFont*		font		 = GUI::C_ImGuiLayer::GetLargeIconFont();
+		const float renderSize	 = font ? 32.0f : 16.0f;
+		ImFont*		renderFont	 = font ? font : ImGui::GetFont();
+		const ImVec2 textSize	 = renderFont->CalcTextSizeA(renderSize, FLT_MAX, 0.f, iconStr);
+		const ImVec2 textPos(rMin.x + (iconSize - textSize.x) * 0.5f, rMin.y + (iconSize - textSize.y) * 0.5f);
+		ImGui::GetWindowDrawList()->AddText(renderFont, renderSize, textPos, IM_COL32(200, 200, 200, 210), iconStr);
+	}
 
 	HandleResourceDragDrop(path, iconSize);
 
@@ -189,6 +217,15 @@ void C_ResourceManagerWindow::HandleResourceDragDrop(const std::filesystem::path
 		const ImVec2 iconScreenPos = ImGui::GetCursorScreenPos();
 		ImGui::Dummy(ImVec2(iconSize, iconSize));
 		ImGui::GetWindowDrawList()->AddRect(iconScreenPos, iconScreenPos + ImVec2(iconSize, iconSize), IM_COL32(200, 200, 200, 255), 4.0f, 0, 1.5f);
+
+		{
+			const char*		iconStr			= GetIconForPath(path);
+			ImFont*			font			= ImGui::GetFont();
+			constexpr float renderFontSize	= 28.0f;
+			const ImVec2	textSize		= font->CalcTextSizeA(renderFontSize, FLT_MAX, 0.f, iconStr);
+			const ImVec2	textPos(iconScreenPos.x + (iconSize - textSize.x) * 0.5f, iconScreenPos.y + (iconSize - textSize.y) * 0.5f);
+			ImGui::GetWindowDrawList()->AddText(font, renderFontSize, textPos, IM_COL32(200, 200, 200, 210), iconStr);
+		}
 
 		ImGui::SetCursorPos(ImVec2(previewStart.x + (cellW - textW) * 0.5f, ImGui::GetCursorPosY()));
 		ImGui::TextUnformatted(label.c_str());

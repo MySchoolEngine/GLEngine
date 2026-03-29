@@ -5,6 +5,7 @@
 #include <Core/EventSystem/Layer.h>
 
 struct ImDrawData;
+struct ImFont;
 
 namespace GLEngine {
 
@@ -44,6 +45,8 @@ public:
 	[[nodiscard]] C_GUIManager& GetGUIMgr();
 	[[nodiscard]] bool			ReadyForDestroy() const override;
 
+	[[nodiscard]] static ImFont* GetLargeIconFont() { return s_LargeIconFont; }
+
 private:
 	bool			   OnKeyPressed(Core::C_KeyPressedEvent& event);
 	bool			   OnKeyReleased(Core::C_KeyReleasedEvent& event);
@@ -62,6 +65,8 @@ protected:
 	GUID		 m_Window;
 	C_GUIManager m_GUIMgr;
 	float		 m_Time;
+
+	static ImFont* s_LargeIconFont;
 };
 } // namespace GUI
 } // namespace GLEngine

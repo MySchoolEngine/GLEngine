@@ -1,0 +1,1 @@
+Folder svgs was removed for smaller footprint.
