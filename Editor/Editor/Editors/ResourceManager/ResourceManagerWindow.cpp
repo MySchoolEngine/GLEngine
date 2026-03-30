@@ -7,6 +7,14 @@
 #include <IconsFontAwesome6.h>
 #include <GUI/ImGuiLayer.h>
 
+#ifdef WIN32
+#include <windows.h>
+#elif __linux__
+#include <sys/inotify.h>
+#include <sys/select.h>
+#include <unistd.h>
+#endif
+
 namespace {
 const char* GetIconForPath(const std::filesystem::path& path)
 {
@@ -45,12 +53,75 @@ C_ResourceManagerWindow::C_ResourceManagerWindow(GUID guid, GUI::C_GUIManager& g
 	, m_SelectedFolder(m_RootPath)
 	, m_GUIManager(guiMgr)
 {
+	StartWatcher(m_SelectedFolder);
+}
+
+//=================================================================================
+C_ResourceManagerWindow::~C_ResourceManagerWindow()
+{
+	StopWatcher();
 }
 
 //=================================================================================
 void C_ResourceManagerWindow::Update()
 {
-	// placeholder for future filesystem watcher
+	if (m_ChangePending.exchange(false))
+		m_ContentDirty = true;
+}
+
+//=================================================================================
+void C_ResourceManagerWindow::StopWatcher() const
+{
+	m_WatcherRunning.store(false);
+	if (m_WatcherThread.joinable())
+		m_WatcherThread.join();
+}
+
+//=================================================================================
+void C_ResourceManagerWindow::StartWatcher(const std::filesystem::path& path) const
+{
+	StopWatcher();
+	m_WatcherRunning.store(true);
+	m_WatcherThread = std::thread([this, path]()
+	{
+#ifdef WIN32
+		HANDLE handle = FindFirstChangeNotificationW(
+			path.wstring().c_str(), FALSE,
+			FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE);
+		if (handle == INVALID_HANDLE_VALUE)
+			return;
+		while (m_WatcherRunning.load())
+		{
+			const DWORD result = WaitForSingleObject(handle, 250);
+			if (result == WAIT_OBJECT_0)
+			{
+				m_ChangePending.store(true);
+				FindNextChangeNotification(handle);
+			}
+		}
+		FindCloseChangeNotification(handle);
+#elif __linux__
+		const int fd = inotify_init1(IN_NONBLOCK);
+		if (fd == -1)
+			return;
+		inotify_add_watch(fd, path.string().c_str(),
+						  IN_CREATE | IN_DELETE | IN_MOVED_FROM | IN_MOVED_TO | IN_CLOSE_WRITE);
+		char buf[4096];
+		while (m_WatcherRunning.load())
+		{
+			fd_set	fds;
+			FD_ZERO(&fds);
+			FD_SET(fd, &fds);
+			timeval tv{0, 250000};
+			if (select(fd + 1, &fds, nullptr, nullptr, &tv) > 0)
+			{
+				read(fd, buf, sizeof(buf));
+				m_ChangePending.store(true);
+			}
+		}
+		close(fd);
+#endif
+	});
 }
 
 //=================================================================================
@@ -183,6 +254,7 @@ void C_ResourceManagerWindow::OnFolderSelected(const std::filesystem::path& path
 {
 	m_SelectedFolder = path;
 	m_ContentDirty	 = true;
+	StartWatcher(path);
 }
 
 //=================================================================================
