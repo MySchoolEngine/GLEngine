@@ -204,12 +204,8 @@ void C_ImageEditor::OpenImage(Core::ResourceHandle<Renderer::TextureResource> ha
 
 	auto& tab = CreateTab(handle, dim.x, dim.y);
 
-	// TODO make clone that would be faster
-	// Pixel-by-pixel copy into float storage (handles any source format)
-	tab.m_Storage.emplace(dim.x, dim.y, nChannels);
-	const std::size_t numPixels = static_cast<std::size_t>(dim.x) * dim.y;
-	for (std::size_t i = 0; i < numPixels; ++i)
-		tab.m_Storage->SetPixel(srcStorage.GetPixel(i), i);
+
+	tab.m_Storage = dynamic_cast<const Renderer::C_TextureViewStorageCPU<float>&>(srcStorage).Duplicate();
 
 	tab.m_TabLabel	 = handle.GetFilePath().filename().string();
 	tab.m_bNeedsSync = true;
@@ -357,7 +353,6 @@ void C_ImageEditor::DrawComponents() const
 
 			if (ImGui::BeginTabItem(label.c_str(), &open))
 			{
-				// TODO if we switch tabs, what about tools?
 				m_ActiveTabIndex = i;
 				DrawTabContent(tab);
 				ImGui::EndTabItem();

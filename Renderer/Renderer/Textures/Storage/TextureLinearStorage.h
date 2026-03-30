@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Renderer/Textures/TextureDefinitions.h>
 #include <Renderer/Textures/Storage/TextureStorage.h>
+#include <Renderer/Textures/TextureDefinitions.h>
 
 namespace GLEngine::Renderer {
 //=================================================================================
@@ -9,6 +9,11 @@ template <class internalFormat> class C_TextureViewStorageCPU : public I_Texture
 public:
 	C_TextureViewStorageCPU(std::size_t width, std::size_t height, std::uint8_t elements);
 	~C_TextureViewStorageCPU() override;
+
+	C_TextureViewStorageCPU(const C_TextureViewStorageCPU& other)	  = default;
+	C_TextureViewStorageCPU(C_TextureViewStorageCPU&& other) noexcept = default;
+	C_TextureViewStorageCPU& operator=(const C_TextureViewStorageCPU& other) = default;
+	C_TextureViewStorageCPU& operator=(C_TextureViewStorageCPU&& other) noexcept = default;
 
 	[[nodiscard]] float		GetF(std::size_t position) const override;
 	[[nodiscard]] int		GetI(std::size_t position) const override;
@@ -23,8 +28,8 @@ public:
 
 	[[nodiscard]] const void* GetData() const override;
 	[[nodiscard]] void*		  GetData() override;
-	const void				  SetData(const void* data, std::size_t pixels) override;
-	void							  SetAll(const glm::vec4& value) override;
+	void					  SetData(const void* data, std::size_t pixels) override;
+	void					  SetAll(const glm::vec4& value) override;
 
 	// todo allow swizzle
 	[[nodiscard]] std::uint8_t	 GetChannelOffset(E_TextureChannel element) const override;
@@ -34,6 +39,8 @@ public:
 	 * Fills line span including start and end pixel
 	 */
 	void FillLineSpan(const glm::vec3& colour, unsigned int line, unsigned int start, unsigned int end) override;
+
+	[[nodiscard]] C_TextureViewStorageCPU Duplicate() const { return *this; }
 
 protected:
 	void SetInternal(double value, std::size_t position) override;
