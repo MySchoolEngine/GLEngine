@@ -459,7 +459,8 @@ void C_ExperimentWindow::OnAppInit()
 		}
 		m_ImageEditorGUID = NextGUID();
 
-		auto* imageEditorWindow = new Editor::C_ImageEditor(m_ImageEditorGUID, guiMGR);
+		auto* imageEditorWindow = new Editor::C_ImageEditor(m_ImageEditorGUID, guiMGR,
+			[this](Core::I_Event& e) { OnEvent(e); });
 
 		guiMGR.AddCustomWindow(imageEditorWindow);
 		imageEditorWindow->SetVisible(true);
@@ -472,7 +473,8 @@ void C_ExperimentWindow::OnAppInit()
 		}
 		m_ResourceWindowGUID = NextGUID();
 
-		auto* resourceManagerWindow = new Editor::C_ResourceManagerWindow(m_ResourceWindowGUID, guiMGR, ".");
+		auto* resourceManagerWindow = new Editor::C_ResourceManagerWindow(m_ResourceWindowGUID, guiMGR, ".",
+			[this](Core::I_Event& e) { OnEvent(e); });
 
 		guiMGR.AddCustomWindow(resourceManagerWindow);
 		resourceManagerWindow->SetVisible(true);
