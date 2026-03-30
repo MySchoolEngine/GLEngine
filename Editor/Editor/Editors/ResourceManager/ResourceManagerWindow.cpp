@@ -132,7 +132,20 @@ void C_ResourceManagerWindow::DrawComponents() const
 	const float contentPanelW = totalWidth - folderPanelW - ImGui::GetStyle().ItemSpacing.x;
 
 	ImGui::BeginChild("##FolderTree", ImVec2(folderPanelW, 0)/*, ImGuiChildFlags_Border*/);
-	DrawFolderTree(m_RootPath);
+
+	ImGuiTreeNodeFlags rootFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen;
+	if (m_SelectedFolder == m_RootPath)
+		rootFlags |= ImGuiTreeNodeFlags_Selected;
+	const std::string rootLabel = std::string(ICON_FA_FOLDER) + "  " + m_RootPath.filename().string();
+	const bool		  rootOpen	= ImGui::TreeNodeEx(rootLabel.c_str(), rootFlags);
+	if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+		OnFolderSelected(m_RootPath);
+	if (rootOpen)
+	{
+		DrawFolderTree(m_RootPath);
+		ImGui::TreePop();
+	}
+
 	ImGui::EndChild();
 
 	ImGui::SameLine();
