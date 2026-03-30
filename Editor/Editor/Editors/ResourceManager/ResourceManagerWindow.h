@@ -4,8 +4,11 @@
 
 #include <GUI/GUIWindow.h>
 
+#include <Core/EventSystem/Event.h>
+
 #include <atomic>
 #include <filesystem>
+#include <functional>
 #include <thread>
 #include <vector>
 
@@ -17,7 +20,9 @@ namespace GLEngine::Editor {
 
 class EDITOR_API_EXPORT C_ResourceManagerWindow final : public GUI::C_Window {
 public:
-	C_ResourceManagerWindow(GUID guid, GUI::C_GUIManager& guiMgr, std::filesystem::path rootPath);
+	using T_EventCallback = std::function<void(Core::I_Event&)>;
+
+	C_ResourceManagerWindow(GUID guid, GUI::C_GUIManager& guiMgr, std::filesystem::path rootPath, T_EventCallback eventCallback = {});
 	~C_ResourceManagerWindow() override;
 
 	void Update() override;
@@ -38,16 +43,18 @@ private:
 	void StartWatcher(const std::filesystem::path& path) const;
 	void StopWatcher() const;
 
-	std::filesystem::path						  m_RootPath;
-	mutable std::filesystem::path				  m_SelectedFolder;
-	mutable std::vector<std::filesystem::path>	  m_FolderContents;
-	mutable bool								  m_ContentDirty = true;
+	std::filesystem::path					   m_RootPath;
+	mutable std::filesystem::path			   m_SelectedFolder;
+	mutable std::vector<std::filesystem::path> m_FolderContents;
+	mutable bool							   m_ContentDirty = true;
 
 	mutable std::thread		  m_WatcherThread;
 	mutable std::atomic<bool> m_WatcherRunning{false};
 	mutable std::atomic<bool> m_ChangePending{false};
 
 	GUI::C_GUIManager& m_GUIManager;
+	T_EventCallback	   m_EventCallback;
+	mutable GUID	   m_ImageEditorGUID;
 };
 
 } // namespace GLEngine::Editor

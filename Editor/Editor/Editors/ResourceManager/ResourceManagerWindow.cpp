@@ -1,18 +1,24 @@
 #include <EditorStdafx.h>
 
+#include <Editor/Editors/ImageEditor.h>
 #include <Editor/Editors/ResourceManager/ResourceManagerWindow.h>
-#include <Core/Resources/ResourceManager.h>
 
-#include <imgui.h>
-#include <IconsFontAwesome6.h>
+#include <Renderer/Textures/TextureResource.h>
+
 #include <GUI/ImGuiLayer.h>
 
+#include <Core/Resources/ResourceManager.h>
+
+#include <IconsFontAwesome6.h>
+#include <imgui.h>
+#include <set>
+
 #ifdef WIN32
-#include <windows.h>
+	#include <windows.h>
 #elif __linux__
-#include <sys/inotify.h>
-#include <sys/select.h>
-#include <unistd.h>
+	#include <sys/inotify.h>
+	#include <sys/select.h>
+	#include <unistd.h>
 #endif
 
 namespace {
@@ -30,10 +36,10 @@ const char* GetIconForPath(const std::filesystem::path& path)
 
 void DrawIconCentered(ImDrawList* drawList, ImVec2 rectMin, float rectSize, const char* iconStr)
 {
-	ImFont*		 font	   = GLEngine::GUI::C_ImGuiLayer::GetLargeIconFont();
-	const float	 fontSize  = font ? 32.0f : 16.0f;
+	ImFont*		 font		= GLEngine::GUI::C_ImGuiLayer::GetLargeIconFont();
+	const float	 fontSize	= font ? 32.0f : 16.0f;
 	ImFont*		 renderFont = font ? font : ImGui::GetFont();
-	const ImVec2 textSize  = renderFont->CalcTextSizeA(fontSize, FLT_MAX, 0.f, iconStr);
+	const ImVec2 textSize	= renderFont->CalcTextSizeA(fontSize, FLT_MAX, 0.f, iconStr);
 	const ImVec2 textPos(rectMin.x + (rectSize - textSize.x) * 0.5f, rectMin.y + (rectSize - textSize.y) * 0.5f);
 	drawList->AddText(renderFont, fontSize, textPos, IM_COL32(200, 200, 200, 210), iconStr);
 }
@@ -47,11 +53,12 @@ void DrawIconCentered(ImDrawList* drawList, ImVec2 rectMin, float rectSize, cons
 namespace GLEngine::Editor {
 
 //=================================================================================
-C_ResourceManagerWindow::C_ResourceManagerWindow(GUID guid, GUI::C_GUIManager& guiMgr, std::filesystem::path rootPath)
+C_ResourceManagerWindow::C_ResourceManagerWindow(GUID guid, GUI::C_GUIManager& guiMgr, std::filesystem::path rootPath, T_EventCallback eventCallback)
 	: GUI::C_Window(guid, "Resource Manager")
 	, m_RootPath(std::move(rootPath))
 	, m_SelectedFolder(m_RootPath)
 	, m_GUIManager(guiMgr)
+	, m_EventCallback(std::move(eventCallback))
 {
 	StartWatcher(m_SelectedFolder);
 }
@@ -82,12 +89,9 @@ void C_ResourceManagerWindow::StartWatcher(const std::filesystem::path& path) co
 {
 	StopWatcher();
 	m_WatcherRunning.store(true);
-	m_WatcherThread = std::thread([this, path]()
-	{
+	m_WatcherThread = std::thread([this, path]() {
 #ifdef WIN32
-		HANDLE handle = FindFirstChangeNotificationW(
-			path.wstring().c_str(), FALSE,
-			FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE);
+		HANDLE handle = FindFirstChangeNotificationW(path.wstring().c_str(), FALSE, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE);
 		if (handle == INVALID_HANDLE_VALUE)
 			return;
 		while (m_WatcherRunning.load())
@@ -104,12 +108,11 @@ void C_ResourceManagerWindow::StartWatcher(const std::filesystem::path& path) co
 		const int fd = inotify_init1(IN_NONBLOCK);
 		if (fd == -1)
 			return;
-		inotify_add_watch(fd, path.string().c_str(),
-						  IN_CREATE | IN_DELETE | IN_MOVED_FROM | IN_MOVED_TO | IN_CLOSE_WRITE);
+		inotify_add_watch(fd, path.string().c_str(), IN_CREATE | IN_DELETE | IN_MOVED_FROM | IN_MOVED_TO | IN_CLOSE_WRITE);
 		char buf[4096];
 		while (m_WatcherRunning.load())
 		{
-			fd_set	fds;
+			fd_set fds;
 			FD_ZERO(&fds);
 			FD_SET(fd, &fds);
 			timeval tv{0, 250000};
@@ -131,7 +134,7 @@ void C_ResourceManagerWindow::DrawComponents() const
 	const float folderPanelW  = totalWidth * 0.3f;
 	const float contentPanelW = totalWidth - folderPanelW - ImGui::GetStyle().ItemSpacing.x;
 
-	ImGui::BeginChild("##FolderTree", ImVec2(folderPanelW, 0)/*, ImGuiChildFlags_Border*/);
+	ImGui::BeginChild("##FolderTree", ImVec2(folderPanelW, 0) /*, ImGuiChildFlags_Border*/);
 
 	ImGuiTreeNodeFlags rootFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen;
 	if (m_SelectedFolder == m_RootPath)
@@ -150,7 +153,7 @@ void C_ResourceManagerWindow::DrawComponents() const
 
 	ImGui::SameLine();
 
-	ImGui::BeginChild("##ContentPanel", ImVec2(contentPanelW, 0)/*, ImGuiChildFlags_Border*/);
+	ImGui::BeginChild("##ContentPanel", ImVec2(contentPanelW, 0) /*, ImGuiChildFlags_Border*/);
 	DrawContentPanel();
 	ImGui::EndChild();
 }
@@ -164,8 +167,8 @@ void C_ResourceManagerWindow::DrawFolderTree(const std::filesystem::path& dir) c
 		if (!entry.is_directory())
 			continue;
 
-		const bool isSelected  = (entry.path() == m_SelectedFolder);
-		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
+		const bool		   isSelected = (entry.path() == m_SelectedFolder);
+		ImGuiTreeNodeFlags flags	  = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
 		if (isSelected)
 			flags |= ImGuiTreeNodeFlags_Selected;
 
@@ -273,10 +276,29 @@ void C_ResourceManagerWindow::OnFolderSelected(const std::filesystem::path& path
 //=================================================================================
 void C_ResourceManagerWindow::OnResourceDoubleClicked(const std::filesystem::path& path) const
 {
-	// TODO: dispatch to appropriate editor based on file extension
-	// e.g. .png/.jpg/.hdr -> C_ImageEditor
-	// Use m_GUIManager to create and show the editor window
-	(void)path;
+	auto&							   resMgr = Core::C_ResourceManager::Instance();
+	auto							   loader = resMgr.GetLoaderForExt(path.extension().generic_string());
+	if (loader.has_value() == false)
+		return;
+
+	// currently I only support image resources
+	if (Renderer::TextureResource::GetResourceTypeHashStatic() != loader->get().GetResourceTypeID())
+		return;
+
+	auto handle = resMgr.LoadResource<Renderer::TextureResource>(path);
+
+	auto* existing = dynamic_cast<C_ImageEditor*>(m_GUIManager.GetWindow(m_ImageEditorGUID));
+	if (existing)
+	{
+		existing->OpenImage(handle);
+	}
+	else
+	{
+		m_ImageEditorGUID = NextGUID();
+		auto* editor	  = new C_ImageEditor(m_ImageEditorGUID, m_GUIManager, m_EventCallback, handle);
+		m_GUIManager.AddCustomWindow(editor);
+		editor->SetVisible(true);
+	}
 }
 
 //=================================================================================
