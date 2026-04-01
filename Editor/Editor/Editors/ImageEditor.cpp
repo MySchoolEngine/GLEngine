@@ -117,8 +117,7 @@ C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR, T_EventCallba
 	AddMenu(m_FileMenu);
 	AddMenu(m_ToolsdMenu);
 
-	if (initialResource.IsReady())
-		OpenImage(initialResource);
+	OpenImage(std::move(initialResource));
 	// If no initial resource the window shows the empty state message in DrawComponents
 }
 
@@ -191,24 +190,26 @@ void C_ImageEditor::OpenImage(Core::ResourceHandle<Renderer::TextureResource> ha
 		}
 	}
 
-	if (!handle.IsReady())
-	{
-		// Resource not yet ready — nothing to show yet
-		// TODO: handle async loading by polling in Update()
+	if (handle.IsFailed())
 		return;
+
+	const std::string filename = handle.GetFilePath().filename().string();
+
+	if (handle.IsReady())
+	{
+		const auto& srcStorage = handle.GetResource().GetStorage();
+		const auto	dim		   = srcStorage.GetDimensions();
+		auto&		tab		   = CreateTab(handle, dim.x, dim.y);
+		tab.m_Storage		   = dynamic_cast<const Renderer::C_TextureViewStorageCPU<float>&>(srcStorage).Duplicate();
+		tab.m_TabLabel		   = filename;
+		tab.m_bNeedsSync	   = true;
 	}
-
-	const auto& srcStorage = handle.GetResource().GetStorage();
-	const auto	dim		   = srcStorage.GetDimensions();
-	const auto	nChannels  = srcStorage.GetNumElements();
-
-	auto& tab = CreateTab(handle, dim.x, dim.y);
-
-
-	tab.m_Storage = dynamic_cast<const Renderer::C_TextureViewStorageCPU<float>&>(srcStorage).Duplicate();
-
-	tab.m_TabLabel	 = handle.GetFilePath().filename().string();
-	tab.m_bNeedsSync = true;
+	else
+	{
+		// Resource still loading — create a 1x1 placeholder and poll in Update()
+		auto& tab	  = CreateTab(handle, 1, 1);
+		tab.m_TabLabel = filename + " (loading)";
+	}
 }
 
 //=================================================================================
@@ -242,6 +243,7 @@ void C_ImageEditor::DestroyTabResources(S_ImageTab& tab) const
 	auto& rm = Core::C_Application::Get().GetActiveRenderer().GetRM();
 	if (tab.m_DeviceImage.IsValid())
 		rm.destoryTexture(tab.m_DeviceImage);
+	tab.m_ResourceHandle = {};
 }
 
 //=================================================================================
@@ -318,8 +320,50 @@ bool C_ImageEditor::CanDestroy() const
 //=================================================================================
 void C_ImageEditor::Update()
 {
+	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
+
 	for (auto& tab : m_Tabs)
 	{
+		// Poll pending resource loads (resource handle present but storage not yet copied)
+		if (tab.m_ResourceHandle && !tab.m_Storage)
+		{
+			if (tab.m_ResourceHandle.IsReady())
+			{
+				const auto& srcStorage = tab.m_ResourceHandle.GetResource().GetStorage();
+				const auto	dim		   = srcStorage.GetDimensions();
+
+				// Recreate GPU texture with correct dimensions
+				DestroyTabResources(tab);
+				const auto samplerHandle = renderer.GetRM().createSampler(Renderer::SamplerDescriptor2D{
+					.m_FilterMin = Renderer::E_TextureFilter::Linear,
+					.m_FilterMag = Renderer::E_TextureFilter::Linear,
+					.m_WrapS	 = Renderer::E_WrapFunction::Repeat,
+					.m_WrapT	 = Renderer::E_WrapFunction::Repeat,
+					.m_WrapU	 = Renderer::E_WrapFunction::Repeat,
+				});
+				tab.m_DeviceImage = renderer.GetRM().createTexture(Renderer::TextureDescriptor{
+					.name		   = "Editor image",
+					.width		   = dim.x,
+					.height		   = dim.y,
+					.type		   = Renderer::E_TextureType::TEXTURE_2D,
+					.format		   = Renderer::E_TextureFormat::RGBA32f,
+					.m_bStreamable = false});
+				renderer.SetTextureSampler(tab.m_DeviceImage, samplerHandle);
+				tab.m_GUIImage.emplace(tab.m_DeviceImage);
+				tab.m_GUIImage->SetSize({800, 800});
+				tab.m_GUIImage->SetBackground(m_Background, {1.f / (s_BackgroundDim.x * 15.f), 1.f / (s_BackgroundDim.x * 15.f)});
+
+				tab.m_Storage  = dynamic_cast<const Renderer::C_TextureViewStorageCPU<float>&>(srcStorage).Duplicate();
+				tab.m_TabLabel = tab.m_ResourceHandle.GetFilePath().filename().string();
+				tab.m_bNeedsSync = true;
+			}
+			else if (tab.m_ResourceHandle.IsFailed())
+			{
+				tab.m_TabLabel = tab.m_ResourceHandle.GetFilePath().filename().string() + " (failed)";
+			}
+			// else: still loading — check again next frame
+		}
+
 		if (!tab.m_bNeedsSync)
 			continue;
 		SyncTabToGPU(tab);
