@@ -201,4 +201,16 @@ requires is_resource<ResourceType> [[nodiscard]] std::optional<std::reference_wr
 	const auto x			= resourceType.get_method("GetResourceTypeHashStatic").invoke({}).template get_value<std::size_t>();
 	return GetLoaderForTypeID(x);
 }
+
+//=================================================================================
+template <is_resource ResourceType> [[nodiscard]] bool C_ResourceManager::IsResourceType(const std::filesystem::path& path) const
+{
+	const auto loader = GetLoaderForExt(path.extension().generic_string());
+	if (loader.has_value() == false)
+		return false;
+
+	// currently I only support image resources
+	return ResourceType::GetResourceTypeHashStatic() == loader->get().GetResourceTypeID();
+}
+
 } // namespace GLEngine::Core

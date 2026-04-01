@@ -67,6 +67,8 @@ public:
 	template <class ResourceType>
 		requires is_resource<ResourceType> [[nodiscard]] std::optional<std::reference_wrapper<const I_ResourceLoader>> GetLoaderForType() const;
 
+	template <is_resource ResourceType> [[nodiscard]] bool IsResourceType(const std::filesystem::path& path) const;
+
 private:
 	C_ResourceManager();
 
