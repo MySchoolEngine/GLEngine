@@ -3,6 +3,7 @@
 #include <Editor/Editors/ImageEditor.h>
 #include <Editor/Editors/ResourceManager/ResourceManagerWindow.h>
 
+#include <Renderer/RayCasting/Geometry/TrimeshModel.h>
 #include <Renderer/Textures/TextureResource.h>
 
 #include <GUI/ImGuiLayer.h>
@@ -27,10 +28,21 @@ const char* GetIconForPath(const std::filesystem::path& path)
 	if (std::filesystem::is_directory(path))
 		return ICON_FA_FOLDER;
 	const auto ext = path.extension().string();
-	if (ext == ".png" || ext == ".jpg" || ext == ".jpeg" || ext == ".hdr" || ext == ".tga")
-		return ICON_FA_FILE_IMAGE;
-	if (ext == ".obj" || ext == ".fbx" || ext == ".gltf" || ext == ".glb")
+
+	auto& resMgr = GLEngine::Core::C_ResourceManager::Instance();
+	if (resMgr.IsResourceType<GLEngine::Renderer::MeshResource>(path))
+	{
 		return ICON_FA_CUBE;
+	}
+	if (resMgr.IsResourceType<GLEngine::Renderer::C_TrimeshModel>(path))
+	{
+		return ICON_FA_BOXES_STACKED;
+	}
+	if (resMgr.IsResourceType<GLEngine::Renderer::TextureResource>(path))
+	{
+		return ICON_FA_FILE_IMAGE;
+	}
+
 	return ICON_FA_FILE;
 }
 
@@ -276,14 +288,11 @@ void C_ResourceManagerWindow::OnFolderSelected(const std::filesystem::path& path
 //=================================================================================
 void C_ResourceManagerWindow::OnResourceDoubleClicked(const std::filesystem::path& path) const
 {
-	auto&							   resMgr = Core::C_ResourceManager::Instance();
-	auto							   loader = resMgr.GetLoaderForExt(path.extension().generic_string());
-	if (loader.has_value() == false)
+	auto& resMgr = Core::C_ResourceManager::Instance();
+	if (!resMgr.IsResourceType<Renderer::TextureResource>(path))
+	{
 		return;
-
-	// currently I only support image resources
-	if (Renderer::TextureResource::GetResourceTypeHashStatic() != loader->get().GetResourceTypeID())
-		return;
+	}
 
 	auto handle = resMgr.LoadResource<Renderer::TextureResource>(path);
 
