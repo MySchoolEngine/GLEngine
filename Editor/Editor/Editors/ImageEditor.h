@@ -80,6 +80,6 @@ private:
 
 	// unique_ptr per tab so the vector is moveable regardless of S_ImageTab's move semantics
 	mutable std::vector<S_ImageTab> m_Tabs;
-	mutable int										 m_ActiveTabIndex = 0;
+	mutable unsigned int										 m_ActiveTabIndex = 0;
 };
 } // namespace GLEngine::Editor

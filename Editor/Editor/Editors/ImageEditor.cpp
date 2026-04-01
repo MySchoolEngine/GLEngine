@@ -28,6 +28,7 @@
 #include <Utils/HighResolutionTimer.h>
 
 #include <imgui_internal.h>
+#include <utility>
 
 namespace GLEngine::Editor {
 static constexpr glm::uvec2 s_BackgroundDim{2, 2};
@@ -151,7 +152,7 @@ C_ImageEditor::S_ImageTab& C_ImageEditor::CreateTab(Core::ResourceHandle<Rendere
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
 
 	auto& tab			 = m_Tabs.emplace_back();
-	tab.m_ResourceHandle = handle;
+	tab.m_ResourceHandle = std::move(handle);
 
 	// Create per-tab GPU texture
 	const auto samplerHandle = renderer.GetRM().createSampler(Renderer::SamplerDescriptor2D{
@@ -181,7 +182,7 @@ C_ImageEditor::S_ImageTab& C_ImageEditor::CreateTab(Core::ResourceHandle<Rendere
 void C_ImageEditor::OpenImage(Core::ResourceHandle<Renderer::TextureResource> handle)
 {
 	// Deduplication: if already open, just switch focus
-	for (int i = 0; i < static_cast<int>(m_Tabs.size()); ++i)
+	for (unsigned int i = 0; i < m_Tabs.size(); ++i)
 	{
 		if (m_Tabs[i].m_ResourceHandle == handle)
 		{
@@ -388,7 +389,7 @@ void C_ImageEditor::DrawComponents() const
 
 	if (ImGui::BeginTabBar("##ImageTabs", ImGuiTabBarFlags_AutoSelectNewTabs))
 	{
-		for (int i = 0; i < static_cast<int>(m_Tabs.size()); ++i)
+		for (unsigned int i = 0; i < m_Tabs.size(); ++i)
 		{
 			auto& tab = m_Tabs[i];
 
@@ -406,7 +407,7 @@ void C_ImageEditor::DrawComponents() const
 			{
 				DestroyTabResources(tab);
 				m_Tabs.erase(m_Tabs.begin() + i);
-				if (m_ActiveTabIndex >= static_cast<int>(m_Tabs.size()))
+				if (m_ActiveTabIndex >= m_Tabs.size())
 					m_ActiveTabIndex = std::max(0, static_cast<int>(m_Tabs.size()) - 1);
 				--i;
 			}
