@@ -36,7 +36,7 @@ static constexpr glm::uvec2 s_BackgroundDim{2, 2};
 C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR, T_EventCallback eventCallback, Core::ResourceHandle<Renderer::TextureResource> initialResource)
 	: GUI::C_Window(guid, "Image editor")
 	, m_FileMenu("File")
-	, m_ToolsdMenu("Tools")
+	, m_ToolsMenu("Tools")
 	, m_GUIManager(guiMGR)
 	, m_EventCallback(std::move(eventCallback))
 {
@@ -85,28 +85,28 @@ C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR, T_EventCallba
 	}));
 
 	// === Playground Menu ===
-	m_ToolsdMenu.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Brick", [this]() {
+	m_ToolsMenu.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Brick", [this]() {
 		if (m_Tabs.empty())
 			return false;
 		auto& tab		 = ActiveTab();
 		tab.m_ActiveTool = std::make_unique<C_BrickGenerator>(Renderer::C_TextureView(&*tab.m_Storage));
 		return true;
 	}));
-	m_ToolsdMenu.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Blur", [this]() {
+	m_ToolsMenu.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Blur", [this]() {
 		if (m_Tabs.empty())
 			return false;
 		auto& tab		 = ActiveTab();
 		tab.m_ActiveTool = std::make_unique<C_GaussianBlur>(Renderer::C_TextureView(&*tab.m_Storage));
 		return true;
 	}));
-	m_ToolsdMenu.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Wave", [this]() {
+	m_ToolsMenu.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Wave", [this]() {
 		if (m_Tabs.empty())
 			return false;
 		auto& tab		 = ActiveTab();
 		tab.m_ActiveTool = std::make_unique<C_WaveGenerator>(Renderer::C_TextureView(&*tab.m_Storage));
 		return true;
 	}));
-	m_ToolsdMenu.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Perlin Noise", [this]() {
+	m_ToolsMenu.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Perlin Noise", [this]() {
 		if (m_Tabs.empty())
 			return false;
 		auto& tab		 = ActiveTab();
@@ -115,7 +115,7 @@ C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR, T_EventCallba
 	}));
 
 	AddMenu(m_FileMenu);
-	AddMenu(m_ToolsdMenu);
+	AddMenu(m_ToolsMenu);
 
 	OpenImage(std::move(initialResource));
 	// If no initial resource the window shows the empty state message in DrawComponents

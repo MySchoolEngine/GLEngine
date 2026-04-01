@@ -74,7 +74,7 @@ private:
 	// Shared checkerboard background across all tabs
 	Renderer::Handle<Renderer::Texture> m_Background;
 	GUI::Menu::C_Menu					m_FileMenu;
-	GUI::Menu::C_Menu					m_ToolsdMenu;
+	GUI::Menu::C_Menu					m_ToolsMenu;
 	GUI::C_GUIManager&					m_GUIManager;
 	T_EventCallback						m_EventCallback;
 
