@@ -9,7 +9,7 @@ namespace GLEngine {
 
 // wrapper to allow change of guid implementation
 // and avoid linking crossguid to all modules
-class CORE_API_EXPORT GUID {
+class CORE_API_EXPORT GUID final {
 public:
 	explicit GUID(std::string_view fromString);
 	GUID(xg::Guid);
