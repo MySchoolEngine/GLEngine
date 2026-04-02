@@ -244,7 +244,6 @@ void C_ImageEditor::DestroyTabResources(S_ImageTab& tab) const
 	auto& rm = Core::C_Application::Get().GetActiveRenderer().GetRM();
 	if (tab.m_DeviceImage.IsValid())
 		rm.destoryTexture(tab.m_DeviceImage);
-	tab.m_ResourceHandle = {};
 }
 
 //=================================================================================
@@ -268,7 +267,7 @@ void C_ImageEditor::SaveTab(S_ImageTab& tab)
 		return;
 
 	Renderer::Textures::TextureLoader tl;
-	if (tl.SaveTexture(tab.m_ResourceHandle.GetFilePath(), &*tab.m_Storage))
+	if (tl.SaveTexture(tab.m_ResourceHandle.GetFilePath(), &*tab.m_Storage, true))
 	{
 		tab.m_bModified = false;
 		if (m_EventCallback)
@@ -290,7 +289,7 @@ void C_ImageEditor::SaveTabAs(S_ImageTab& tab)
 		 ".bmp,.hdr,.ppm", "Save image as...",
 		 [this, &tab, dialogGUID](const std::filesystem::path& savePath, GUI::C_GUIManager& guiMgr) {
 			 Renderer::Textures::TextureLoader tl;
-			 if (tl.SaveTexture(savePath, &*tab.m_Storage))
+			 if (tl.SaveTexture(savePath, &*tab.m_Storage, false))
 			 {
 				 // Register with ResourceManager and update handle
 				 tab.m_ResourceHandle = Core::C_ResourceManager::Instance().LoadResource<Renderer::TextureResource>(savePath, true);
