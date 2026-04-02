@@ -271,14 +271,16 @@ void C_RayTraceScene::ForEachLight(const std::function<void(const std::reference
 }
 
 //=================================================================================
-void C_RayTraceScene::AddMesh(const Core::ResourceHandle<C_TrimeshModel> trimesh, const MeshData::Material& material)
+void C_RayTraceScene::AddMesh(const Core::ResourceHandle<C_TrimeshModel> trimesh,
+							   const MeshData::Material&                   material,
+							   const glm::mat4&                            transform)
 {
 	for (const auto& iter : trimesh.GetResource().GetTrimeshes())
 	{
 		auto trimeshPtr = std::make_shared<C_Trimesh>();
 		*trimeshPtr		= iter;
 		trimeshPtr->SetMaterial(AddMaterial(material).get());
-		trimeshPtr->SetTransformation(glm::translate(glm::mat4(1.f), glm::vec3(0, -1.5f, 0)) * glm::scale(glm::mat4(1.f), glm::vec3(0.5f, 0.5f, 0.5f)));
+		trimeshPtr->SetTransformation(transform);
 		m_Trimeshes.push_back(trimeshPtr);
 		AddObject(trimeshPtr);
 	}
@@ -312,8 +314,10 @@ bool C_RayTraceScene::IsLoaded() const
 void C_RayTraceScene::BuildScene()
 {
 	static const MeshData::Material s_White{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, -1, -1, "white"};
+	const glm::mat4 cornellTransform =
+		glm::translate(glm::mat4(1.f), glm::vec3(0, -1.5f, 0)) *
+		glm::scale(glm::mat4(1.f), glm::vec3(0.5f, 0.5f, 0.5f));
 
-	auto& rm = Core::C_ResourceManager::Instance();
 	if (m_LoadingMeshes.IsDone())
 	{
 		for (const auto& trimeshHandle : m_Meshes)
@@ -321,7 +325,7 @@ void C_RayTraceScene::BuildScene()
 			if (!trimeshHandle)
 				continue;
 
-			AddMesh(trimeshHandle, s_White);
+			AddMesh(trimeshHandle, s_White, cornellTransform);
 		}
 	}
 }
