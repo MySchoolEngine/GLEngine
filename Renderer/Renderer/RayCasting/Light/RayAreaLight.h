@@ -3,6 +3,8 @@
 #include <Renderer/RayCasting/Geometry/PrimitiveObject.h>
 #include <Renderer/RayCasting/Light/ILight.h>
 
+#include <Renderer/RendererApi.h>
+
 namespace GLEngine::Physics::Primitives {
 struct S_Disc;
 } // namespace GLEngine::Physics::Primitives
@@ -14,7 +16,7 @@ class C_RayIntersection;
 } // namespace GLEngine::Renderer
 
 namespace GLEngine::Renderer::RayTracing {
-class C_AreaLight : public I_RayLight {
+class RENDERER_API_EXPORT C_AreaLight : public I_RayLight {
 public:
 	template <class primitiveT>
 	C_AreaLight(const Colours::T_Colour& radiance, const std::shared_ptr<C_Primitive<primitiveT>>& shape)
