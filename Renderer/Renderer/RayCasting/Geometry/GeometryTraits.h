@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Renderer/RendererApi.h>
+
 namespace GLEngine::Physics::Primitives {
 struct S_Plane;
 struct S_Disc;
@@ -15,7 +17,7 @@ class C_RayIntersection;
 
 namespace GLEngine::Renderer::RayTracing {
 
-class T_GeometryTraits {
+class RENDERER_API_EXPORT T_GeometryTraits {
 public:
 	static float GetArea(const Physics::Primitives::S_Plane&);
 	static float GetArea(const Physics::Primitives::S_Disc& disc);
