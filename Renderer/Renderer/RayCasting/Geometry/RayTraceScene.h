@@ -61,6 +61,8 @@ public:
 	void			   BuildScene(); //< Call after fully loaded
 	void			   ClearScene();
 
+	std::unique_ptr<I_MaterialInterface>& AddMaterial(const MeshData::Material& material);
+
 private:
 	std::vector<std::shared_ptr<I_RayGeometryObject>>	   m_Objects;
 	std::vector<std::shared_ptr<RayTracing::C_AreaLight>>  m_AreaLights;
@@ -75,8 +77,6 @@ private:
 	Core::LoadingQuery m_LoadingMeshes;
 	Core::LoadingQuery m_LoadingBVH;
 	Core::LoadingQuery m_LoadingTextures;
-
-	std::unique_ptr<I_MaterialInterface>& AddMaterial(const MeshData::Material& material);
 };
 
 } // namespace GLEngine::Renderer

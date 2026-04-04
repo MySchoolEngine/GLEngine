@@ -5,14 +5,18 @@
 #include <Renderer/IDevice.h>
 #include <Renderer/IRenderer.h>
 #include <Renderer/RayCasting/Geometry/TrimeshModel.h>
-#include <Renderer/RayCasting/Light/RayPointLight.h>
+#include <Renderer/RayCasting/Geometry/PrimitiveObject.h>
+#include <Renderer/RayCasting/Light/RayAreaLight.h>
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/Colours.h>
 #include <Renderer/Textures/TextureView.h>
+#include <Renderer/Resources/ResourceManager.h>
 
 #include <Physics/Primitives/AABB.h>
 
 #include <Core/Application.h>
+
+#include <imgui.h>
 
 #include <algorithm>
 #include <chrono>
@@ -71,28 +75,25 @@ void C_TrimeshPreviewWindow::SetupScene()
 	for (const auto& trimesh : m_Model.GetResource().GetTrimeshes())
 		combinedAABB.Add(trimesh.GetAABB());
 
-	static const MeshData::Material s_White{
-		glm::vec4{}, glm::vec4{Renderer::Colours::white, 0.f}, glm::vec4{}, 0.f, -1, -1, "white"};
+	static const Renderer::MeshData::Material s_White{
+		glm::vec4{}, glm::vec4{Colours::white, 0.f}, glm::vec4{}, 0.f, -1, -1, "white"};
 	m_Scene.AddMesh(m_Model, s_White); // identity transform (default from Task 1)
 
 	const auto    sphere = combinedAABB.GetSphere();
-	const float   r      = sphere.radius;
-	const glm::vec3 c    = sphere.position;
+	const float   r      = sphere.m_radius;
+	const glm::vec3 c    = sphere.m_position;
 
-	// Key light: warm, top-right-front
-	m_Scene.AddLight(std::make_shared<Renderer::RayTracing::C_PointLight>(
-		c + glm::vec3(r * 2.f, r * 2.f, r * 2.f),
-		glm::vec3(1.f, 0.95f, 0.9f) * 2.f));
+	// One overhead disc area light centred above the mesh
+	static const Renderer::MeshData::Material s_Black{
+		glm::vec4{}, glm::vec4{Colours::black, 0.f}, glm::vec4{}, 0.f, -1, -1, "black"};
 
-	// Fill light: cool, top-left-front
-	m_Scene.AddLight(std::make_shared<Renderer::RayTracing::C_PointLight>(
-		c + glm::vec3(-r * 2.f, r * 1.f, r * 2.f),
-		glm::vec3(0.8f, 0.85f, 1.f)));
-
-	// Rim/back light: neutral, high behind
-	m_Scene.AddLight(std::make_shared<Renderer::RayTracing::C_PointLight>(
-		c + glm::vec3(0.f, r * 1.5f, -r * 3.f),
-		glm::vec3(1.f, 1.f, 1.f) * 1.5f));
+	const glm::vec3 lightNormal = glm::normalize(glm::vec3(0.f, -1.f, 0.f));
+	auto disc = Physics::Primitives::S_Disc(lightNormal, c + glm::vec3(0.f, r * 3.f, 0.f), r * 1.5f);
+	disc.plane.twoSided = false;
+	auto discPrimitive  = std::make_shared<Renderer::C_Primitive<Physics::Primitives::S_Disc>>(disc);
+	discPrimitive->SetMaterial(m_Scene.AddMaterial(s_Black).get());
+	m_Scene.AddLight(std::make_shared<Renderer::RayTracing::C_AreaLight>(
+		glm::vec3(1.f, 1.f, 1.f) * 5.f, discPrimitive));
 
 	SetupCamera(combinedAABB);
 
@@ -103,8 +104,8 @@ void C_TrimeshPreviewWindow::SetupScene()
 void C_TrimeshPreviewWindow::SetupCamera(const Physics::Primitives::S_AABB& combinedAABB)
 {
 	const auto    sphere   = combinedAABB.GetSphere();
-	const float   r        = sphere.radius > 0.f ? sphere.radius : 1.f;
-	const glm::vec3 center = sphere.position;
+	const float   r        = sphere.m_radius > 0.f ? sphere.m_radius : 1.f;
+	const glm::vec3 center = sphere.m_position;
 
 	const float distance = r * 3.f;
 
@@ -116,6 +117,107 @@ void C_TrimeshPreviewWindow::SetupCamera(const Physics::Primitives::S_AABB& comb
 	m_Camera.SetupCameraView(distance, center, 45.f, 35.f);
 	m_Camera.SetupCameraProjection(nearZ, farZ, 1.f /*square aspect*/, fovY);
 	m_Camera.Update();
+}
+
+//=================================================================================
+void C_TrimeshPreviewWindow::UploadStorage()
+{
+	if (!m_Renderer)
+		return;
+
+	if (m_ImageLock.try_lock())
+	{
+		if (m_Renderer->NewResultAvailable())
+		{
+			Core::C_Application::Get().GetActiveRenderer()
+				.SetTextureData(m_GPUImageHandle, m_ImageStorage);
+			m_Renderer->SetResultConsumed();
+		}
+		m_ImageLock.unlock();
+	}
+}
+
+//=================================================================================
+void C_TrimeshPreviewWindow::Update()
+{
+	if (!IsVisible() && !m_Running.load())
+	{
+		m_WantToBeDestroyed = true;
+		return;
+	}
+	UploadStorage();
+}
+
+//=================================================================================
+void C_TrimeshPreviewWindow::DrawComponents() const
+{
+	m_GUIImage.Draw();
+
+	const int samples = m_NumSamples.load();
+	if (m_Running.load())
+	{
+		ImGui::ProgressBar(static_cast<float>(samples) / s_TargetSamples,
+						   ImVec2(-1.f, 0.f));
+		ImGui::Text("Rendering... %d / %d samples", samples, s_TargetSamples);
+	}
+	else
+	{
+		ImGui::Text("Done — %d samples", samples);
+		if (ImGui::Button("Re-render"))
+			const_cast<C_TrimeshPreviewWindow*>(this)->StartRender();
+	}
+}
+
+//=================================================================================
+void C_TrimeshPreviewWindow::StartRender()
+{
+	if (m_Running.load())
+		return;
+
+	m_NumSamples.store(0);
+	m_StopRequested.store(false);
+	m_Running.store(true);
+
+	std::thread([this]() {
+		while (!m_StopRequested.load())
+		{
+			const int samplesBefore = m_NumSamples.load();
+			if (samplesBefore >= s_TargetSamples)
+				break;
+
+			m_Renderer->Render(m_Camera,
+							   m_ImageStorage,
+							   m_SamplesStorage,
+							   &m_ImageLock,
+							   samplesBefore);
+			m_NumSamples.fetch_add(1);
+		}
+		m_Running.store(false);
+	}).detach();
+}
+
+//=================================================================================
+C_TrimeshPreviewWindow::~C_TrimeshPreviewWindow()
+{
+	m_StopRequested.store(true);
+	while (m_Running.load())
+		std::this_thread::sleep_for(std::chrono::milliseconds(5));
+
+	auto& rm = Core::C_Application::Get().GetActiveRenderer().GetRM();
+	rm.destoryTexture(m_GPUImageHandle);
+}
+
+//=================================================================================
+void C_TrimeshPreviewWindow::RequestDestroy()
+{
+	GUI::C_Window::RequestDestroy();
+	m_StopRequested.store(true);
+}
+
+//=================================================================================
+bool C_TrimeshPreviewWindow::CanDestroy() const
+{
+	return !m_Running.load();
 }
 
 } // namespace GLEngine::Editor

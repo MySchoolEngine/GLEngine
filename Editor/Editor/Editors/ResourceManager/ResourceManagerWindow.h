@@ -39,6 +39,8 @@ private:
 	void OnFolderSelected(const std::filesystem::path& path) const;
 	void OnResourceDoubleClicked(const std::filesystem::path& path) const;
 	void HandleResourceDragDrop(const std::filesystem::path& path, float iconSize) const;
+	void HandleContextMenu(const std::filesystem::path& path) const;
+	void ExportTrimesh(const std::filesystem::path& path) const;
 
 	void StartWatcher(const std::filesystem::path& path) const;
 	void StopWatcher() const;
@@ -55,6 +57,7 @@ private:
 	GUI::C_GUIManager& m_GUIManager;
 	T_EventCallback	   m_EventCallback;
 	mutable GUID	   m_ImageEditorGUID;
+	mutable GUID	   m_TrimeshPreviewGUID;
 };
 
 } // namespace GLEngine::Editor

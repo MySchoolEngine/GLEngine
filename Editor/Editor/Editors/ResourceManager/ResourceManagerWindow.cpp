@@ -2,6 +2,7 @@
 
 #include <Editor/Editors/ImageEditor.h>
 #include <Editor/Editors/ResourceManager/ResourceManagerWindow.h>
+#include <Editor/Editors/TrimeshPreview/TrimeshPreviewWindow.h>
 
 #include <Renderer/RayCasting/Geometry/TrimeshModel.h>
 #include <Renderer/Textures/TextureResource.h>
@@ -261,6 +262,7 @@ void C_ResourceManagerWindow::DrawGridItem(const std::filesystem::path& path, fl
 	DrawIconCentered(ImGui::GetWindowDrawList(), rMin, iconSize, GetIconForPath(path));
 
 	HandleResourceDragDrop(path, iconSize);
+	HandleContextMenu(path);
 
 	if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 	{
@@ -289,24 +291,42 @@ void C_ResourceManagerWindow::OnFolderSelected(const std::filesystem::path& path
 void C_ResourceManagerWindow::OnResourceDoubleClicked(const std::filesystem::path& path) const
 {
 	auto& resMgr = Core::C_ResourceManager::Instance();
-	if (!resMgr.IsResourceType<Renderer::TextureResource>(path))
+	if (resMgr.IsResourceType<Renderer::TextureResource>(path))
 	{
+		auto handle = resMgr.LoadResource<Renderer::TextureResource>(path);
+
+		auto* existing = dynamic_cast<C_ImageEditor*>(m_GUIManager.GetWindow(m_ImageEditorGUID));
+		if (existing)
+		{
+			existing->OpenImage(handle);
+		}
+		else
+		{
+			m_ImageEditorGUID = NextGUID();
+			auto* editor	  = new C_ImageEditor(m_ImageEditorGUID, m_GUIManager, m_EventCallback, handle);
+			m_GUIManager.AddCustomWindow(editor);
+			editor->SetVisible(true);
+		}
 		return;
 	}
 
-	auto handle = resMgr.LoadResource<Renderer::TextureResource>(path);
+	// --- Trimesh → Trimesh Preview ---
+	if (resMgr.IsResourceType<Renderer::C_TrimeshModel>(path))
+	{
+		// Don't reopen if already showing this model
+		if (m_GUIManager.GetWindow(m_TrimeshPreviewGUID) != nullptr)
+			return;
 
-	auto* existing = dynamic_cast<C_ImageEditor*>(m_GUIManager.GetWindow(m_ImageEditorGUID));
-	if (existing)
-	{
-		existing->OpenImage(handle);
-	}
-	else
-	{
-		m_ImageEditorGUID = NextGUID();
-		auto* editor	  = new C_ImageEditor(m_ImageEditorGUID, m_GUIManager, m_EventCallback, handle);
-		m_GUIManager.AddCustomWindow(editor);
-		editor->SetVisible(true);
+		auto handle = resMgr.LoadResource<Renderer::C_TrimeshModel>(path, /*isBlocking=*/true);
+		if (!handle.IsReady())
+			return;
+
+		m_TrimeshPreviewGUID = NextGUID();
+		auto* preview        = new C_TrimeshPreviewWindow(m_TrimeshPreviewGUID,
+														  m_GUIManager,
+														  std::move(handle));
+		m_GUIManager.AddCustomWindow(preview);
+		preview->SetVisible(true);
 	}
 }
 
@@ -343,6 +363,53 @@ void C_ResourceManagerWindow::HandleResourceDragDrop(const std::filesystem::path
 
 		ImGui::EndDragDropSource();
 	}
+}
+
+//=================================================================================
+void C_ResourceManagerWindow::HandleContextMenu(const std::filesystem::path& path) const
+{
+	if (std::filesystem::is_directory(path))
+		return;
+
+	auto& resMgr = Core::C_ResourceManager::Instance();
+
+	const bool hasEditor = resMgr.IsResourceType<Renderer::TextureResource>(path) || resMgr.IsResourceType<Renderer::C_TrimeshModel>(path);
+	const bool isMesh	 = resMgr.IsResourceType<Renderer::MeshResource>(path);
+
+	if (!hasEditor && !isMesh)
+		return;
+
+	if (ImGui::BeginPopupContextItem())
+	{
+		if (hasEditor && ImGui::MenuItem("Open"))
+			OnResourceDoubleClicked(path);
+
+		if (isMesh && ImGui::MenuItem("Export Trimesh"))
+			ExportTrimesh(path);
+
+		ImGui::EndPopup();
+	}
+}
+
+//=================================================================================
+void C_ResourceManagerWindow::ExportTrimesh(const std::filesystem::path& path) const
+{
+	auto& resMgr = Core::C_ResourceManager::Instance();
+
+	// Load the base mesh first — this creates/populates the shared .meta file
+	// (lada.obj and lada.tri share lada.meta) so the derived-resource build
+	// flow can locate the base when we request the trimesh below.
+	const auto meshHandle = resMgr.LoadResource<Renderer::MeshResource>(path, /*isBlocking=*/true);
+	if (!meshHandle.IsReady())
+		return;
+
+	// Same directory, same stem, .tri extension
+	auto triPath = path.parent_path() / path.stem();
+	triPath.replace_extension(".tri");
+
+	// ResourceManager will find lada.meta (already in-memory), load the base mesh,
+	// call C_TrimeshModel::Build(), and save the .tri file.
+	resMgr.LoadResource<Renderer::C_TrimeshModel>(triPath, /*isBlocking=*/true);
 }
 
 } // namespace GLEngine::Editor
