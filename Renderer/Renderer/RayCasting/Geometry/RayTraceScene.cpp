@@ -271,7 +271,7 @@ void C_RayTraceScene::ForEachLight(const std::function<void(const std::reference
 }
 
 //=================================================================================
-void C_RayTraceScene::AddMesh(const Core::ResourceHandle<C_TrimeshModel> trimesh,
+void C_RayTraceScene::AddMesh(const Core::ResourceHandle<C_TrimeshModel>& trimesh,
 							   const MeshData::Material&                   material,
 							   const glm::mat4&                            transform)
 {
