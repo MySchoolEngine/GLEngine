@@ -24,17 +24,17 @@ namespace GLEngine::Editor {
 
 class EDITOR_API_EXPORT C_TrimeshPreviewWindow final : public GUI::C_Window {
 public:
-	C_TrimeshPreviewWindow(GUID guid,
-						   GUI::C_GUIManager&                              guiMGR,
-						   Core::ResourceHandle<Renderer::C_TrimeshModel> model);
+	C_TrimeshPreviewWindow(GUID guid, GUI::C_GUIManager& guiMGR, Core::ResourceHandle<Renderer::C_TrimeshModel> model);
 	~C_TrimeshPreviewWindow() override;
 
-	C_TrimeshPreviewWindow(const C_TrimeshPreviewWindow&)			 = delete;
-	C_TrimeshPreviewWindow& operator=(const C_TrimeshPreviewWindow&) = delete;
+	C_TrimeshPreviewWindow(const C_TrimeshPreviewWindow& other)		= delete;
+	C_TrimeshPreviewWindow(C_TrimeshPreviewWindow&& other) noexcept = delete;
+	C_TrimeshPreviewWindow& operator=(const C_TrimeshPreviewWindow& other) = delete;
+	C_TrimeshPreviewWindow& operator=(C_TrimeshPreviewWindow&& other) noexcept = delete;
 
-	void RequestDestroy() override;
+	void			   RequestDestroy() override;
 	[[nodiscard]] bool CanDestroy() const override;
-	void Update() override;
+	void			   Update() override;
 
 private:
 	void DrawComponents() const override;
@@ -44,21 +44,21 @@ private:
 	void UploadStorage();
 
 	Core::ResourceHandle<Renderer::C_TrimeshModel> m_Model;
-	Renderer::C_RayTraceScene                      m_Scene;
-	Renderer::Cameras::C_OrbitalCamera             m_Camera;
-	std::unique_ptr<Renderer::C_RayRenderer>       m_Renderer;
+	Renderer::C_RayTraceScene					   m_Scene;
+	Renderer::Cameras::C_OrbitalCamera			   m_Camera;
+	std::unique_ptr<Renderer::C_RayRenderer>	   m_Renderer;
 
-	Renderer::Handle<Renderer::Texture>      m_GPUImageHandle;
+	Renderer::Handle<Renderer::Texture>		 m_GPUImageHandle;
 	Renderer::C_TextureViewStorageCPU<float> m_ImageStorage;
 	Renderer::C_TextureViewStorageCPU<float> m_SamplesStorage;
-	GUI::C_ImageViewer                       m_GUIImage;
+	GUI::C_ImageViewer						 m_GUIImage;
 
-	std::mutex        m_ImageLock;
+	std::mutex		  m_ImageLock;
 	std::atomic<int>  m_NumSamples{0};
 	std::atomic<bool> m_Running{false};
 	std::atomic<bool> m_StopRequested{false};
 
-	static constexpr int        s_TargetSamples = 128;
+	static constexpr int		s_TargetSamples = 128;
 	static constexpr glm::uvec2 s_Resolution{512, 512};
 };
 

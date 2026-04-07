@@ -75,8 +75,13 @@ void C_TrimeshPreviewWindow::SetupScene()
 	for (const auto& trimesh : m_Model.GetResource().GetTrimeshes())
 		combinedAABB.Add(trimesh.GetAABB());
 
-	static const Renderer::MeshData::Material s_White{
-		glm::vec4{}, glm::vec4{Colours::white, 0.f}, glm::vec4{}, 0.f, -1, -1, "white"};
+	static const Renderer::MeshData::Material s_White{.ambient			  = glm::vec4{},
+													  .diffuse			  = glm::vec4{Colours::white, 0.f},
+													  .specular			  = glm::vec4{},
+													  .shininess		  = 0.f,
+													  .textureIndex		  = -1,
+													  .normalTextureIndex = -1,
+													  .m_Name			  = "white"};
 	m_Scene.AddMesh(m_Model, s_White); // identity transform (default from Task 1)
 
 	const auto    sphere = combinedAABB.GetSphere();
@@ -84,8 +89,13 @@ void C_TrimeshPreviewWindow::SetupScene()
 	const glm::vec3 c    = sphere.m_position;
 
 	// One overhead disc area light centred above the mesh
-	static const Renderer::MeshData::Material s_Black{
-		glm::vec4{}, glm::vec4{Colours::black, 0.f}, glm::vec4{}, 0.f, -1, -1, "black"};
+	static const Renderer::MeshData::Material s_Black{.ambient			  = glm::vec4{},
+													  .diffuse			  = glm::vec4{Colours::black, 0.f},
+													  .specular			  = glm::vec4{},
+													  .shininess		  = 0.f,
+													  .textureIndex		  = -1,
+													  .normalTextureIndex = -1,
+													  .m_Name			  = "black"};
 
 	const glm::vec3 lightNormal = glm::normalize(glm::vec3(0.f, -1.f, 0.f));
 	auto disc = Physics::Primitives::S_Disc(lightNormal, c + glm::vec3(0.f, r * 3.f, 0.f), r * 1.5f);
@@ -151,7 +161,7 @@ void C_TrimeshPreviewWindow::Update()
 //=================================================================================
 void C_TrimeshPreviewWindow::DrawComponents() const
 {
-	m_GUIImage.Draw();
+	std::ignore = m_GUIImage.Draw();
 
 	const int samples = m_NumSamples.load();
 	if (m_Running.load())
