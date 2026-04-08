@@ -111,9 +111,15 @@ jobs:
       - name: Build
         shell: cmd
         run: msbuild Engine.sln /p:Configuration=${{ matrix.configuration }} -maxCpuCount
-      - name: Test
+      - name: Test core
         shell: cmd
         run: |
             bin\${{ matrix.configuration }}-windows-x86_64\CoreTest\CoreTest.exe
+      - name: Test renderer
+        shell: cmd
+        run: |
             bin\${{ matrix.configuration }}-windows-x86_64\RendererTest\RendererTest.exe
+      - name: Test Utils
+        shell: cmd
+        run: |
             bin\${{ matrix.configuration }}-windows-x86_64\UtilsTest\UtilsTest.exe
