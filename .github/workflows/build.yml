@@ -111,15 +111,27 @@ jobs:
       - name: Build
         shell: cmd
         run: msbuild Engine.sln /p:Configuration=${{ matrix.configuration }} -maxCpuCount
-      - name: Test core
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-${{ matrix.configuration }}-${{ matrix.glfwapi }}-Tests
+          path: bin\${{ matrix.configuration }}-windows-x86_64/
+  msvcTest:
+    name: MSVC config=${{ matrix.configuration }} ${{ matrix.test }} # once dependant on API add it here
+    runs-on: windows-latest
+    needs: msvc
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [debug, release]
+        # glfwapi: [opengl, vulkan] not yet dependent on API
+        test: ["CoreTest", "RendererTest", "UtilsTest"]
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Windows-${{ matrix.configuration }}-opengl-Tests # API goes here
+      - name: Test
         shell: cmd
         run: |
-            bin\${{ matrix.configuration }}-windows-x86_64\CoreTest\CoreTest.exe
-      - name: Test renderer
-        shell: cmd
-        run: |
-            bin\${{ matrix.configuration }}-windows-x86_64\RendererTest\RendererTest.exe
-      - name: Test Utils
-        shell: cmd
-        run: |
-            bin\${{ matrix.configuration }}-windows-x86_64\UtilsTest\UtilsTest.exe
+            ${{ matrix.test }}\${{ matrix.test }}.exe
