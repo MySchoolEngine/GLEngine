@@ -51,7 +51,7 @@ template <class internalFormat> void* C_TextureViewStorageCPU<internalFormat>::G
 }
 
 //=================================================================================
-template <class internalFormat> const void C_TextureViewStorageCPU<internalFormat>::SetData(const void* data, std::size_t pixels)
+template <class internalFormat> void C_TextureViewStorageCPU<internalFormat>::SetData(const void* data, std::size_t pixels)
 {
 	GLE_ASSERT(pixels == m_Data.size() / m_Elements, "Larger image than buffer");
 	memcpy(m_Data.data(), data, pixels * sizeof(internalFormat) * m_Elements);

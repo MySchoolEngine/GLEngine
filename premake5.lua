@@ -131,6 +131,7 @@ IncludeDir["Assimp"] = "vendor/Assimp/include"
 IncludeDir["crossguid"] = "vendor/crossguid/include"
 IncludeDir["RTTR"] = {"vendor/RTTR/src", "vendor/projects/RTTR"}
 IncludeDir["slot_map"] = "vendor/slot_map"
+IncludeDir["IconFontCppHeaders"] = "vendor/IconFontCppHeaders"
 
 -- could be header only or static lib
 NonDllLib = {}

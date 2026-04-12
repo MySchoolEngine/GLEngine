@@ -154,7 +154,7 @@ unsigned int TextureLoader::ilLoadTexture(const std::filesystem::path& path)
 }
 
 //=================================================================================
-bool TextureLoader::SaveTexture(const std::filesystem::path& path, I_TextureViewStorage* view)
+bool TextureLoader::SaveTexture(const std::filesystem::path& path, I_TextureViewStorage* view, bool overwrite)
 {
 	Init();
 
@@ -175,6 +175,15 @@ bool TextureLoader::SaveTexture(const std::filesystem::path& path, I_TextureView
 		GLE_ERROR("Unknown format");
 	}
 	Utils::C_ScopeFinalizer finalizer([image]() { ilDeleteImage(image); });
+
+	if (overwrite)
+	{
+		ilEnable(IL_FILE_OVERWRITE);
+	}
+	else
+	{
+		ilDisable(IL_FILE_OVERWRITE);
+	}
 
 	bool result;
 #if CORE_PLATFORM == CORE_PLATFORM_WIN

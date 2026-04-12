@@ -58,3 +58,6 @@
 [submodule "vendor/DULib"]
 	path = vendor/DULib
 	url = https://github.com/RohacekD/DULib
+[submodule "vendor/IconFontCppHeaders"]
+	path = vendor/IconFontCppHeaders
+	url = https://github.com/juliettef/IconFontCppHeaders.git

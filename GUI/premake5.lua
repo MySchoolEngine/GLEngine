@@ -25,6 +25,7 @@ project "GUI"
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.ImGuiFileDialog}",
 		"%{wks.location}/%{IncludeDir.slot_map}",
+		"%{wks.location}/%{IncludeDir.IconFontCppHeaders}",
 	}
 
 	filter "system:windows"

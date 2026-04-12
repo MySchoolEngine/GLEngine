@@ -10,6 +10,11 @@ class RENDERER_API_EXPORT I_TextureViewStorage {
 public:
 	I_TextureViewStorage(std::size_t width, std::size_t height);
 	virtual ~I_TextureViewStorage();
+
+	I_TextureViewStorage(const I_TextureViewStorage& other)		= default;
+	I_TextureViewStorage(I_TextureViewStorage&& other) noexcept = default;
+	I_TextureViewStorage& operator=(const I_TextureViewStorage& other) = default;
+	I_TextureViewStorage& operator=(I_TextureViewStorage&& other) noexcept = default;
 	/**
 	 * @param	position	element position in row by row and element after element
 	 * @returns	float		value on given position
@@ -50,7 +55,7 @@ public:
 
 	[[nodiscard]] virtual const void* GetData() const							 = 0;
 	[[nodiscard]] virtual void*		  GetData()									 = 0;
-	virtual const void				  SetData(const void* data, std::size_t len) = 0;
+	virtual void				  SetData(const void* data, std::size_t len) = 0;
 
 	/**
 	 * @returns	uint8_t	Number of channels

@@ -32,6 +32,7 @@ project "Editor"
 		"../%{IncludeDir.fmt}",
 		"../%{IncludeDir.GLFW}", -- for key names
 		"%{wks.location}/%{IncludeDir.slot_map}",
+		"%{wks.location}/%{IncludeDir.IconFontCppHeaders}",
 	}
 
 

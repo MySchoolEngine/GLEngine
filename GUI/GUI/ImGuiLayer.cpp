@@ -2,6 +2,10 @@
 
 #include <GUI/ImGuiLayer.h>
 
+#include <IconsFontAwesome6.h>
+
+#include <imgui.h>
+
 #include <Core/Application.h>
 #include <Core/EventSystem/Event/AppEvent.h>
 #include <Core/EventSystem/Event/KeyboardEvents.h>
@@ -15,6 +19,8 @@
 #include <imgui.h>
 
 namespace GLEngine::GUI {
+
+ImFont* C_ImGuiLayer::s_LargeIconFont = nullptr;
 
 //=================================================================================
 C_ImGuiLayer::C_ImGuiLayer(const GUID window)
@@ -62,7 +68,19 @@ void C_ImGuiLayer::OnAttach()
 	io.KeyMap[ImGuiKey_Z]		   = GLFW_KEY_Z;
 
 	io.FontDefault = io.Fonts->AddFontFromFileTTF("Fonts/Roboto/Roboto-Regular.ttf", 18.0f);
-	// io.Fonts->AddFontFromFileTTF("Fonts/material-design-icons/font/MaterialIcons-Regular.ttf", 18.0f);
+
+	ImFontConfig iconsConfig;
+	iconsConfig.MergeMode		 = true;
+	iconsConfig.GlyphMinAdvanceX = 16.0f;
+	iconsConfig.PixelSnapH		 = true;
+	static const ImWchar iconsRanges[] = {ICON_MIN_FA, ICON_MAX_16_FA, 0};
+	io.Fonts->AddFontFromFileTTF("Fonts/FontAwesome/ttfs/fa-solid-900.ttf", 16.0f, &iconsConfig, iconsRanges);
+
+	// Large icon font — standalone (not merged), used for grid/panel icons
+	ImFontConfig largeIconsConfig;
+	largeIconsConfig.GlyphMinAdvanceX = 32.0f;
+	largeIconsConfig.PixelSnapH		  = true;
+	s_LargeIconFont					  = io.Fonts->AddFontFromFileTTF("Fonts/FontAwesome/ttfs/fa-solid-900.ttf", 32.0f, &largeIconsConfig, iconsRanges);
 
 	auto& style = ImGui::GetStyle();
 

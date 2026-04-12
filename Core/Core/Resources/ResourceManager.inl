@@ -7,13 +7,14 @@ namespace GLEngine::Core {
 //=================================================================================
 template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_ResourceManager::LoadResource(const std::filesystem::path& filepath, bool isBlocking /*= false*/)
 {
+	const auto filepathNormalized = filepath.lexically_normal();
 	// if resource is derived, then we first need to load base resource
 	// metafile will be updated with newly created resource only after the derived resource is loaded
 	if constexpr (IsBeDerivedResource<ResourceType>)
 	{
 		if (ResourceType::IsDerived())
 		{
-			const C_Metafile* metafile = GetOrLoadMetafile(filepath);
+			const C_Metafile* metafile = GetOrLoadMetafile(filepathNormalized);
 			// we need to first load base resource, this can be only done with metafile
 			GLE_TODO("08. 05. 2024", "RohacekD", "If we have base resource with only one extension we can load it even without the metafile");
 			if (!metafile)
@@ -37,33 +38,34 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 	// lock maps, as we want to make this in atomic manner
 	{
 		std::unique_lock lock(m_Mutex);
-		if (const auto resource = GetResourcePtr(filepath))
+		if (const auto resource = GetResourcePtr(filepathNormalized))
 		{
 			concreteResource = std::dynamic_pointer_cast<ResourceType>(resource);
 			if (!concreteResource)
 			{
-				CORE_LOG(E_Level::Error, E_Context::Core, "Resource {} is of different type than requested.", filepath);
+				CORE_LOG(E_Level::Error, E_Context::Core, "Resource {} is of different type than requested.", filepathNormalized);
 				return {};
 			}
 			return T_Handle<ResourceType>{concreteResource};
 		}
-		const auto* loader = GetLoaderForExt(filepath.extension().string());
-		if (!loader)
+		const auto loaderOpt = GetLoaderForExt(filepathNormalized.extension().string());
+		if (!loaderOpt)
 		{
-			CORE_LOG(E_Level::Error, E_Context::Core, "No loader specified for {}", filepath.extension());
+			CORE_LOG(E_Level::Error, E_Context::Core, "No loader specified for {}", filepathNormalized.extension());
 			return {};
 		}
-		auto resource = loader->CreateResource();
+		const auto loader	= loaderOpt.value();
+		auto resource = loader.get().CreateResource();
 		if (resource)
 		{
 			resource->m_State	  = ResourceState::Loading;
-			m_Resources[filepath] = resource;
+			m_Resources[filepathNormalized] = resource;
 			// once all maps updated, we have to unlock, as loaders can also trigger resource loading
 			// TODO: How do we propagate information isBlocking to consequent loads?
 			lock.unlock();
 			if (isBlocking)
 			{
-				if (loader->LoadResource(filepath, resource))
+				if (loader.get().LoadResource(filepathNormalized, resource))
 				{
 					resource->m_State = ResourceState::Ready;
 				}
@@ -71,12 +73,12 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 				{
 					if constexpr (IsBeDerivedResource<ResourceType> && BuildableResource<ResourceType>)
 					{
-						C_Metafile* metafile		   = GetOrLoadMetafile(filepath);
+						C_Metafile* metafile		   = GetOrLoadMetafile(filepathNormalized);
 						const auto	baseResourceHandle = LoadResource<typename ResourceType::T_BaseResource>(metafile->GetOriginalFileName(), true);
 						if (baseResourceHandle.IsReady() == false)
 						{
 							CORE_LOG(E_Level::Error, E_Context::Core, "File {} doesn't load properly, thus cannot build derived resource {}", metafile->GetOriginalFileName(),
-									 filepath);
+									 filepathNormalized);
 							RemoveResource(resource);
 							return {};
 						}
@@ -87,7 +89,7 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 							{
 								CORE_LOG(E_Level::Error, E_Context::Core, "Cannot save resource {}", resource->GetFilePath());
 							}
-							metafile->AddDerivedResource(filepath);
+							metafile->AddDerivedResource(filepathNormalized);
 							if (!metafile->Save())
 							{
 								CORE_LOG(E_Level::Error, E_Context::Core, "Cannot save resource metafile {}", metafile->GetMetafileName(resource->GetFilePath()));
@@ -109,14 +111,14 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 			else
 			{
 				// run thread, will need job manager once finished
-				std::packaged_task<void(std::shared_ptr<Resource>)> load([this, filepath](std::shared_ptr<Resource> resource) {
-					const auto* loader = GetLoaderForExt(filepath.extension().string());
+				std::packaged_task<void(std::shared_ptr<Resource>)> load([this, filepathNormalized](std::shared_ptr<Resource> resource) {
+					const auto loader = GetLoaderForExt(filepathNormalized.extension().string());
 					if (!loader)
 					{
-						CORE_LOG(E_Level::Error, E_Context::Core, "No loader specified for {}", filepath.extension());
+						CORE_LOG(E_Level::Error, E_Context::Core, "No loader specified for {}", filepathNormalized.extension());
 						return;
 					}
-					const bool result = loader->LoadResource(filepath, resource);
+					const bool result = loader->get().LoadResource(filepathNormalized, resource);
 
 					std::lock_guard lock(m_FinishedLoadsMutes);
 					if (result)
@@ -130,13 +132,13 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 					{
 						if constexpr (IsBeDerivedResource<ResourceType> && BuildableResource<ResourceType>)
 						{
-							C_Metafile* metafile		   = GetOrLoadMetafile(filepath);
+							C_Metafile* metafile		   = GetOrLoadMetafile(filepathNormalized);
 							const auto	baseResourceHandle = GetResource<typename ResourceType::T_BaseResource>(metafile->GetOriginalFileName());
 							if (baseResourceHandle.IsReady() == false)
 							{
 								CORE_LOG(E_Level::Error, E_Context::Core,
 										 "File {} is not already loaded, thus cannot build derived resource {}. Buildable resources are only supported in non-async calls.",
-										 metafile->GetOriginalFileName(), filepath);
+										 metafile->GetOriginalFileName(), filepathNormalized);
 								RemoveResource(resource);
 								// put to failed
 								m_FailedLoads.push_back(resource);
@@ -148,12 +150,12 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 								{
 									CORE_LOG(E_Level::Error, E_Context::Core, "Cannot save resource {}", resource->GetFilePath());
 								}
-								metafile->AddDerivedResource(filepath);
+								metafile->AddDerivedResource(filepathNormalized);
 								m_FinishedLoads.push_back(resource);
 								return;
 							}
 
-							CORE_LOG(E_Level::Error, E_Context::Core, "Buildable resource is not possible to load async {}", filepath);
+							CORE_LOG(E_Level::Error, E_Context::Core, "Buildable resource is not possible to load async {}", filepathNormalized);
 						}
 						// put to failed
 						m_FailedLoads.push_back(resource);
@@ -168,19 +170,20 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 		concreteResource = std::dynamic_pointer_cast<ResourceType>(resource);
 		if (!concreteResource)
 		{
-			CORE_LOG(E_Level::Error, E_Context::Core, "Resource {} is of different type than requested.", filepath);
+			CORE_LOG(E_Level::Error, E_Context::Core, "Resource {} is of different type than requested.", filepathNormalized);
 			RemoveResource(resource); // TODO shouldn't been added?
 			return {};
 		}
 	}
-	GetOrCreateMetafile(filepath);
+	GetOrCreateMetafile(filepathNormalized);
 	return ResourceHandle<ResourceType>(concreteResource);
 }
 
 //=================================================================================
 template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_ResourceManager::GetResource(const std::filesystem::path& filepath)
 {
-	if (auto resource = GetResourcePtr(filepath))
+	const auto filepathNormalized = filepath.lexically_normal();
+	if (auto resource = GetResourcePtr(filepathNormalized))
 	{
 		auto concreteResource = std::dynamic_pointer_cast<ResourceType>(resource);
 		GLE_ASSERT(concreteResource, "Cannot cast to the concrete resource type");
@@ -189,6 +192,27 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 		return T_Handle<ResourceType>{concreteResource};
 	}
 	return T_Handle<ResourceType>{};
+}
+
+//=================================================================================
+template <class ResourceType>
+requires is_resource<ResourceType> [[nodiscard]] std::optional<std::reference_wrapper<const I_ResourceLoader>> C_ResourceManager::GetLoaderForType() const
+{
+	// use rttr to avoid linking all libraries together
+	const auto resourceType = rttr::type::get<ResourceType>();
+	const auto x			= resourceType.get_method("GetResourceTypeHashStatic").invoke({}).template get_value<std::size_t>();
+	return GetLoaderForTypeID(x);
+}
+
+//=================================================================================
+template <is_resource ResourceType> [[nodiscard]] bool C_ResourceManager::IsResourceType(const std::filesystem::path& path) const
+{
+	const auto loader = GetLoaderForExt(path.extension().generic_string());
+	if (loader.has_value() == false)
+		return false;
+
+	// currently I only support image resources
+	return ResourceType::GetResourceTypeHashStatic() == loader->get().GetResourceTypeID();
 }
 
 } // namespace GLEngine::Core

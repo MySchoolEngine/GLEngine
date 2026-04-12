@@ -21,13 +21,14 @@ public:
 	 */
 	virtual std::vector<std::string> GetSupportedExtensions() const = 0;
 	virtual std::size_t				 GetResourceTypeID() const		= 0;
+	virtual std::string				 DragAndDropLabel() const		= 0;
 };
 
 // To create loader, please inherit from this loader and register with manager
 template <class ResourceType> requires(is_resource<ResourceType>) class ResourceLoader : public I_ResourceLoader {
 public:
-	~ResourceLoader() override = default;
 	std::size_t GetResourceTypeID() const final { return ResourceType::GetResourceTypeHashStatic(); }
+	std::string DragAndDropLabel() const final { return "RESOURCE_" + ResourceType::GetResrourceTypeName(); }
 };
 
 } // namespace GLEngine::Core

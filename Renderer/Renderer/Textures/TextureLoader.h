@@ -16,7 +16,7 @@ public:
 	[[nodiscard]] bool loadTexture(const std::filesystem::path& path, MeshData::Texture& t);
 	// The pointer is owning, caller is responsible for deleting it
 	[[nodiscard]] std::unique_ptr<I_TextureViewStorage> loadTexture(const std::filesystem::path& path);
-	bool												SaveTexture(const std::filesystem::path& path, I_TextureViewStorage*);
+	bool												SaveTexture(const std::filesystem::path& path, I_TextureViewStorage*, bool overwrite = false);
 
 private:
 	static std::mutex m_Mutex;

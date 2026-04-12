@@ -38,6 +38,7 @@
 #include <Renderer/Windows/RayTrace.h>
 
 #include <Editor/Editors/ImageEditor.h>
+#include <Editor/Editors/ResourceManager/ResourceManagerWindow.h>
 #include <Editor/EntityEditor/EntitiesWindow.h>
 #include <Editor/EntityEditor/EntityEditor.h>
 
@@ -458,10 +459,25 @@ void C_ExperimentWindow::OnAppInit()
 		}
 		m_ImageEditorGUID = NextGUID();
 
-		auto* imageEditorWindow = new Editor::C_ImageEditor(m_ImageEditorGUID, guiMGR);
+		auto* imageEditorWindow = new Editor::C_ImageEditor(m_ImageEditorGUID, guiMGR,
+			[this](Core::I_Event& e) { OnEvent(e); });
 
 		guiMGR.AddCustomWindow(imageEditorWindow);
 		imageEditorWindow->SetVisible(true);
+		return false;
+	}));
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Resource window", [&]() {
+		if (guiMGR.GetWindow(m_ResourceWindowGUID) != nullptr)
+		{
+			return false;
+		}
+		m_ResourceWindowGUID = NextGUID();
+
+		auto* resourceManagerWindow = new Editor::C_ResourceManagerWindow(m_ResourceWindowGUID, guiMGR, ".",
+			[this](Core::I_Event& e) { OnEvent(e); });
+
+		guiMGR.AddCustomWindow(resourceManagerWindow);
+		resourceManagerWindow->SetVisible(true);
 		return false;
 	}));
 

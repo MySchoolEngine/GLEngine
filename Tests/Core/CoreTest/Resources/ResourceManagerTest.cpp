@@ -45,12 +45,6 @@ public:
 		VerifyEmptyLists(manager, "TearDown");
 	}
 
-	// Helper methods to access private members
-	static const I_ResourceLoader* GetLoaderForExt(const C_ResourceManager& manager, const std::string& ext)
-	{
-		return manager.GetLoaderForExt(ext);
-	}
-
 	static std::shared_ptr<Resource> GetResourcePtr(C_ResourceManager& manager, const std::filesystem::path& filepath)
 	{
 		return manager.GetResourcePtr(filepath);
@@ -134,8 +128,8 @@ TEST_F(ResourceManagerFixture, AddingLoaders)
 {
 	auto& manager = C_ResourceManager::Instance();
 	manager.RegisterResourceType(new TestResource2Loader);
-	EXPECT_NE(GetLoaderForExt(manager, ".test2"), nullptr) << "Loader for .test2 extension should be registered";
-	EXPECT_EQ(GetLoaderForExt(manager, ".not-existent"), nullptr) << "Loader for non-existent extension should return nullptr";
+	EXPECT_TRUE(manager.GetLoaderForExt(".test2").has_value()) << "Loader for .test2 extension should be registered";
+	EXPECT_FALSE(manager.GetLoaderForExt(".not-existent").has_value()) << "Loader for non-existent extension should return nullptr";
 }
 
 TEST_F(ResourceManagerFixture, GetSupportedExtensions)
@@ -414,6 +408,73 @@ TEST_F(ResourceManagerFixture, GetAllMetafilesNonExistentFolder)
 	// Try recursive scan on non-existent folder
 	metafiles = manager.GetAllMetafiles("non_existent_folder_12345", true);
 	EXPECT_TRUE(metafiles.empty()) << "GetAllMetafiles should return empty vector for non-existent folder (recursive)";
+}
+
+TEST_F(ResourceManagerFixture, IsResourceType_MatchingType)
+{
+	auto& manager = C_ResourceManager::Instance();
+	manager.RegisterResourceType(new TestResourceLoader);
+
+	EXPECT_TRUE(manager.IsResourceType<TestResource>(testPathTest)) << ".test extension should match TestResource";
+}
+
+TEST_F(ResourceManagerFixture, IsResourceType_WrongType)
+{
+	auto& manager = C_ResourceManager::Instance();
+	manager.RegisterResourceType(new TestResourceLoader);
+	manager.RegisterResourceType(new TestResource2Loader);
+
+	EXPECT_FALSE(manager.IsResourceType<TestResource2>(testPathTest)) << ".test extension should not match TestResource2";
+	EXPECT_FALSE(manager.IsResourceType<TestResource>(testPathTest2)) << ".test2 extension should not match TestResource";
+}
+
+TEST_F(ResourceManagerFixture, IsResourceType_UnregisteredExtension)
+{
+	auto& manager = C_ResourceManager::Instance();
+	manager.RegisterResourceType(new TestResourceLoader);
+
+	EXPECT_FALSE(manager.IsResourceType<TestResource>("file.unknown")) << "Unregistered extension should return false";
+}
+
+TEST_F(ResourceManagerFixture, IsResourceType_NoExtension)
+{
+	auto& manager = C_ResourceManager::Instance();
+	manager.RegisterResourceType(new TestResourceLoader);
+
+	EXPECT_FALSE(manager.IsResourceType<TestResource>("file_without_extension")) << "Path with no extension should return false";
+}
+
+TEST_F(ResourceManagerFixture, IsResourceType_NoLoadersRegistered)
+{
+	auto& manager = C_ResourceManager::Instance();
+
+	EXPECT_FALSE(manager.IsResourceType<TestResource>(testPathTest)) << "Should return false when no loaders are registered";
+	EXPECT_FALSE(manager.IsResourceType<TestResource2>(testPathTest2)) << "Should return false when no loaders are registered";
+}
+
+TEST_F(ResourceManagerFixture, IsResourceType_MultipleExtensionsForSameType)
+{
+	auto& manager = C_ResourceManager::Instance();
+	manager.RegisterResourceType(new TestResourceLoader); // supports .test and .test-slow
+
+	EXPECT_TRUE(manager.IsResourceType<TestResource>(testPathTest)) << ".test should match TestResource";
+	EXPECT_TRUE(manager.IsResourceType<TestResource>("file.test-slow")) << ".test-slow should also match TestResource";
+}
+
+TEST_F(ResourceManagerFixture, IsResourceType_MultipleTypesRegistered)
+{
+	auto& manager = C_ResourceManager::Instance();
+	manager.RegisterResourceType(new TestResourceLoader);
+	manager.RegisterResourceType(new TestResource2Loader);
+	manager.RegisterResourceType(new TestResourceBuildableLoader);
+
+	EXPECT_TRUE(manager.IsResourceType<TestResource>(testPathTest)) << ".test should match TestResource";
+	EXPECT_TRUE(manager.IsResourceType<TestResource2>(testPathTest2)) << ".test2 should match TestResource2";
+	EXPECT_TRUE(manager.IsResourceType<TestResourceBuildable>(testPathTestBuildable)) << ".testbuild should match TestResourceBuildable";
+
+	EXPECT_FALSE(manager.IsResourceType<TestResource>(testPathTest2)) << ".test2 should not match TestResource";
+	EXPECT_FALSE(manager.IsResourceType<TestResource2>(testPathTest)) << ".test should not match TestResource2";
+	EXPECT_FALSE(manager.IsResourceType<TestResourceBuildable>(testPathTest)) << ".test should not match TestResourceBuildable";
 }
 
 } // namespace GLEngine::Core

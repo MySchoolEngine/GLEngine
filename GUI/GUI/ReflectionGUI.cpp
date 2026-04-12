@@ -181,19 +181,40 @@ bool DrawResource(rttr::instance& obj, const rttr::property& prop)
 	const auto	   propertyName = GetMetadataMember<MetaClassEnum::Name>(prop);
 	bool		   ret			= false;
 	const ImVec2   drawAreaSz(std::min(380.f, ImGui::GetWindowWidth()), 88);
-	const ImVec2   canvasP0 = ImGui::GetCursorPos();
-	const ImRect   imageRect(canvasP0, canvasP0 + drawAreaSz);
+	const ImVec2   canvasP0  = ImGui::GetCursorPos();
+	const auto	   canvasPos = ImGui::GetCursorScreenPos();
+	const ImRect   imageRect(canvasPos, canvasPos + drawAreaSz);
 	const bool	   isHovered = ImGui::IsItemHovered(); // Hovered
 	const bool	   isActive  = ImGui::IsItemActive();	// Held
 	ImDrawList*	   drawList  = ImGui::GetWindowDrawList();
-	const auto	   canvasPos = ImGui::GetCursorScreenPos();
 	const ImGuiIO& io		 = ImGui::GetIO();
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{0, 0});
 
 	{
 		auto filename = resource.get().GetFilePath().generic_string();
-		ImGui::BeginChildFrame(ImGuiID{static_cast<unsigned int>(std::hash<std::string>{}(propertyName + filename))}, drawAreaSz);
+		ImGuiID FrameID		 = ImGuiID{static_cast<unsigned int>(std::hash<std::string>{}(propertyName + filename))};
+		ImGui::BeginChildFrame(FrameID, drawAreaSz);
+
+		auto& resMgr = Core::C_ResourceManager::Instance();
+		const auto loader = resMgr.GetLoaderForType<resourceType>();
+
+		if (loader.has_value() && ImGui::BeginDragDropTargetCustom(imageRect, FrameID))
+		{
+			const auto dragDropLabel = loader.transform([](const auto& l) { return l.get().DragAndDropLabel(); }).value();
+			if (ImGui::AcceptDragDropPayload(dragDropLabel.c_str(), ImGuiDragDropFlags_AcceptPeekOnly))
+			{
+				ImGui::GetForegroundDrawList()->AddRectFilled(imageRect.Min, imageRect.Max, IM_COL32(0, 255, 0, 40));
+				ImGui::GetForegroundDrawList()->AddRect(imageRect.Min, imageRect.Max, IM_COL32(0, 255, 0, 255), 0.0f, 0, 2.0f);
+			}
+			if (auto* p = ImGui::AcceptDragDropPayload(dragDropLabel.c_str()))
+			{
+				const std::filesystem::path droppedPath(static_cast<const char*>(p->Data));
+				resource.get() = resMgr.LoadResource<resourceType>(droppedPath);
+				ret			   = true;
+			}
+			ImGui::EndDragDropTarget();
+		}
 
 		ImGui::SetCursorPos(ImVec2{2, 2});
 		{

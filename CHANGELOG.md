@@ -2,6 +2,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - 08-04-2026
+### Added
+- Resource view window
+- Trimesh viewer
+- Image editor used as Texture view from resource view window
+
 ## [Unreleased] - 02-02-2026
 ### Added
 - Perlin noise generator for iamge editor
