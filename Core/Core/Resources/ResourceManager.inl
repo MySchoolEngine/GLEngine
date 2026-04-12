@@ -7,7 +7,7 @@ namespace GLEngine::Core {
 //=================================================================================
 template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_ResourceManager::LoadResource(const std::filesystem::path& filepath, bool isBlocking /*= false*/)
 {
-	const auto filepathNormalized = std::filesystem::relative(filepath, "./");
+	const auto filepathNormalized = filepath.lexically_normal();
 	// if resource is derived, then we first need to load base resource
 	// metafile will be updated with newly created resource only after the derived resource is loaded
 	if constexpr (IsBeDerivedResource<ResourceType>)
@@ -182,7 +182,7 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 //=================================================================================
 template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_ResourceManager::GetResource(const std::filesystem::path& filepath)
 {
-	const auto filepathNormalized = std::filesystem::relative(filepath, "./");
+	const auto filepathNormalized = filepath.lexically_normal();
 	if (auto resource = GetResourcePtr(filepathNormalized))
 	{
 		auto concreteResource = std::dynamic_pointer_cast<ResourceType>(resource);
