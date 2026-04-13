@@ -143,6 +143,7 @@ group "Tests"
 	include "Tests/Core"
 	include "Tests/Renderer"
 	include "Tests/Utils"
+	include "Tests/Entity"
 if _TARGET_OS ~= "linux" then
 		include "Tests/CommonTestUtils"
 end
