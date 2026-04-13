@@ -13,6 +13,7 @@ project "EntityTest"
 	Link("Core")
 	Link("Utils")
 	Link("GUI")
+	Link("Renderer")
 	links { "gtest_main" }
 
 	uses
