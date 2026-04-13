@@ -2,6 +2,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - 13-04-2026
+### Added
+- Remove entity from scene [#276](/../../issues/276)
+
 ## [Unreleased] - 08-04-2026
 ### Added
 - Resource view window
