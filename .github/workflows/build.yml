@@ -2,6 +2,10 @@ name: build
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [ master ]
@@ -31,20 +35,21 @@ jobs:
             lowerCase: "release",
           }
     steps:
-      - uses: actions/checkout@v2
-      - name: Get submodules
-        run: |
-          git submodule init
-          git submodule update
-      - name: Set up g++-14
-        run: |
-          cd /usr/bin && sudo ln -f g++-14 g++
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+      - name: Cache apt packages
+        uses: actions/cache@v4 # TODO: pin to SHA
+        with:
+          path: /var/cache/apt/archives
+          key: apt-${{ runner.os }}-xorg-uuid
       - name: update
         run: sudo apt update
-      - name: check version
+      - name: Set compiler
         run: |
-          g++ --version
-          gcc --version
+          sudo apt-get install -y g++-14
+          echo "CC=gcc-14" >> $GITHUB_ENV
+          echo "CXX=g++-14" >> $GITHUB_ENV
       - name: Get X11
         run: sudo apt-get install xorg-dev
       - name: Get uuid
@@ -56,10 +61,11 @@ jobs:
       - name: Build
         run: make config=${{ matrix.config.lowerCase }} -j6
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: Ubuntu-${{ matrix.config.config }}-Tests
           path: bin/${{ matrix.config.config }}-linux-x86_64/
+          retention-days: 1
   GCCTest:
     name: ${{ matrix.config.name }} Test ${{ matrix.test }}
     needs: GCCBuild
@@ -81,7 +87,7 @@ jobs:
         test: ["CoreTest", "RendererTest", "UtilsTest"]
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.2.1
         with:
           name: Ubuntu-${{ matrix.config.config }}-Tests
       - name: Test ${{ matrix.config.test }}
@@ -98,13 +104,10 @@ jobs:
         glfwapi: [opengl, vulkan]
     steps:
       - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
-      - uses: actions/checkout@v2
-      - name: Get submodules
-        shell: cmd
-        run: |
-          git submodule init
-          git submodule update
+        uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2.0.0
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
       - name: Generate solution
         shell: cmd
         run: Tools\Premake5\premake5.exe --glfwapi=${{ matrix.glfwapi }} vs2022
@@ -112,10 +115,11 @@ jobs:
         shell: cmd
         run: msbuild Engine.sln /p:Configuration=${{ matrix.configuration }} -maxCpuCount
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: Windows-${{ matrix.configuration }}-${{ matrix.glfwapi }}-Tests
           path: bin\${{ matrix.configuration }}-windows-x86_64/
+          retention-days: 1
   msvcTest:
     name: MSVC config=${{ matrix.configuration }} ${{ matrix.test }} # once dependant on API add it here
     runs-on: windows-latest
@@ -128,7 +132,7 @@ jobs:
         test: ["CoreTest", "RendererTest", "UtilsTest"]
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.2.1
         with:
           name: Windows-${{ matrix.configuration }}-opengl-Tests # API goes here
       - name: Test
