@@ -143,9 +143,11 @@ group "Tests"
 	include "Tests/Core"
 	include "Tests/Renderer"
 	include "Tests/Utils"
+	-- include "Tests/Entity" -- for some reason GUI typeinfo does not work on GCC
 if _TARGET_OS ~= "linux" then
 		include "Tests/CommonTestUtils"
 end
+
 group "Dependencies"
   include "vendor/GLFW"
   include "vendor/Glad"

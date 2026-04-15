@@ -21,6 +21,8 @@ public:
 	bool Draw(GUI::C_GUIManager& guiMgr) const override;
 
 private:
+	void SelectEntity(GUID id) const;
+
 	std::weak_ptr<Entity::C_EntityManager> m_World;
 	mutable GUID						   m_SelectedEntity;
 	GUI::Input::C_TypeSelector			   m_EntityTypeSelector;

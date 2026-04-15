@@ -11,13 +11,10 @@
 #include <Physics/Primitives/Ray.h>
 
 #include <Utils/Parsing/MatrixParse.h>
-
-#include <pugixml.hpp>
+#include <Utils/StdVectorUtils.h>
 
 #include <imgui.h>
-
 #include <rttr/registration>
-#include <rttr/type>
 
 RTTR_REGISTRATION
 {
@@ -35,7 +32,8 @@ namespace GLEngine::Entity {
 //=================================================================================
 C_EntityManager::C_EntityManager()
 	: m_Filename("")
-{}
+{
+}
 
 //=================================================================================
 C_EntityManager::~C_EntityManager() = default;
@@ -47,7 +45,12 @@ std::shared_ptr<I_Entity> C_EntityManager::GetEntity(GUID id) const
 	{
 		return nullptr;
 	}
-	return *std::find_if(m_Entities.begin(), m_Entities.end(), [id](const std::shared_ptr<I_Entity>& entity) { return entity->GetID() == id; });
+	const auto it = std::find_if(m_Entities.begin(), m_Entities.end(), [id](const std::shared_ptr<I_Entity>& entity) { return entity->GetID() == id; });
+	if (it == m_Entities.end())
+	{
+		return nullptr;
+	}
+	return *it;
 }
 
 //=================================================================================
@@ -101,8 +104,30 @@ void C_EntityManager::AddEntity(std::shared_ptr<I_Entity> entity)
 }
 
 //=================================================================================
+void C_EntityManager::RemoveEntity(GUID id)
+{
+	m_ToBeRemoved.emplace(id);
+}
+
+//=================================================================================
 void C_EntityManager::OnUpdate()
 {
+	// Remove entities in bulk
+	if (m_ToBeRemoved.empty() == false)
+	{
+		std::ranges::for_each(m_Entities, [&](const std::shared_ptr<I_Entity>& entity) {
+			if (Utils::contains(m_ToBeRemoved, entity->GetID()))
+			{
+				entity->OnSceneRemove();
+			}
+		});
+		const auto itToRemove
+			= std::ranges::remove_if(m_Entities, [&](const std::shared_ptr<I_Entity>& entity) { return Utils::contains(m_ToBeRemoved, entity->GetID()); }).begin();
+		m_Entities.erase(itToRemove, m_Entities.end());
+		m_ToBeRemoved.clear();
+	}
+
+
 	for (auto& entity : m_Entities)
 	{
 		entity->Update();
@@ -168,7 +193,8 @@ std::filesystem::path C_EntityManager::GetFilename() const
 //=================================================================================
 void C_EntityManager::OnEvent(Core::I_Event& event)
 {
-	for (auto& entity : m_Entities) {
+	for (auto& entity : m_Entities)
+	{
 		entity->OnEvent(event);
 	}
 }
