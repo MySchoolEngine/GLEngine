@@ -64,7 +64,8 @@ function Link(projectName, isStatic)
 		local staticProjectName = projectName .. "Static"
 		libdirs { "%{wks.location}/bin/" .. outputdir .. "/" .. staticProjectName }
 		links { staticProjectName }
-		defines { string.upper(projectName) .. "_STATIC_BUILD" }
+		usage "PUBLIC"
+			defines { string.upper(projectName) .. "_STATIC_BUILD" }
 		-- No need to copy static libs
 	else
 		-- Link against DLL
