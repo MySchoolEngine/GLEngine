@@ -59,8 +59,12 @@ end
 
 
 if not _OPTIONS["skiptests"] then
-	group "Tests/StaticLibs"
-		CreateRendererProject("RendererStatic", true)
-	group""
+	-- currently we do not have static libraries support on GCC
+	-- they compile, but are not used, for more refere to RendererTest/premake5.lua
+	filter "action:vs*"
+		group "Tests/StaticLibs"
+			CreateRendererProject("RendererStatic", true)
+		group""
+	filter{}
 end
 CreateRendererProject("Renderer", false)

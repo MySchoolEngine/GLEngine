@@ -1,5 +1,7 @@
 #include <RendererTestStdafx.h>
 
+#ifdef RENDERER_STATIC_BUILD
+
 #include <Renderer/RayCasting/Geometry/BVH.h>
 
 namespace GLEngine::Renderer {
@@ -1523,3 +1525,5 @@ TEST_F(BVHFixture, BarycentricAllowsTextureCoordinateInterpolation)
 }
 
 } // namespace GLEngine::Renderer
+
+#endif
