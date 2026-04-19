@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - 13-04-2026
 ### Added
+- Alpha test in real-time renderer
+- Alpha test in ray-tracer
+### Build
+- Export `_STATIC_BUILD` to uses
+- Statically link `Renderer` to `RendererTest`
+
+## [Unreleased] - 13-04-2026
+### Added
 - Remove entity from scene [#276](/../../issues/276)
 
 ## [Unreleased] - 08-04-2026
