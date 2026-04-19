@@ -6,7 +6,7 @@
 namespace GLEngine::Renderer {
 
 //=================================================================================
-bool C_GeometryList::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection) const
+bool C_GeometryList::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, const float tMax) const
 {
 	if (!m_AABB.Intersects(ray))
 		return false;
@@ -23,7 +23,7 @@ bool C_GeometryList::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInter
 	std::for_each(m_Geometry.begin(), m_Geometry.end(), [&](const auto& object) {
 		constexpr auto	  offset = 1e-3f;
 		C_RayIntersection inter;
-		if (object->Intersect(ray, inter))
+		if (object->Intersect(ray, inter, tMax))
 		{
 			if (inter.GetRayLength() >= offset && inter.GetRayLength() < closestIntersect.t)
 				closestIntersect = {inter, inter.GetRayLength(), object};

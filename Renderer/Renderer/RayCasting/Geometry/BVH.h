@@ -15,7 +15,7 @@ class C_Trimesh;
  * 1) Load file - In that case we need to set vertices from trimesh
  * 2) Build		- First set the pointer to the BVH and lately explicitly build
  */
-class RENDERER_API_EXPORT BVH final {
+class BVH final {
 public:
 	// BVH is not owning struct, but can modify order of elements in the storage
 	explicit BVH(std::vector<glm::vec3>& storage);

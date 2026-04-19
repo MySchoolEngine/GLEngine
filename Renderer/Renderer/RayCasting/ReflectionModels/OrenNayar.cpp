@@ -60,6 +60,8 @@ Colours::T_Colour C_OrenNayarModel::f(const glm::vec3& wi, const glm::vec3& wo) 
 Colours::T_Colour C_OrenNayarModel::SampleF(const glm::vec3& wi, glm::vec3& wo, const S_Frame& frame, const glm::vec2& rng, float* pdf) const
 {
 	wo = CosineSampleHemisphere(rng);
+	if (wo.y < 0.f)
+		wo.y = -wo.y;
 	*pdf = Pdf(wi, wo);
 	return f(wi, wo);
 }

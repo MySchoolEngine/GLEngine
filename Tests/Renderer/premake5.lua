@@ -9,7 +9,15 @@ project "RendererTest"
 
 	PrecompiledHeaders("RendererTest")
 
-	Link("Renderer")
+	-- Link against RendererStatic instead of Renderer DLL
+	
+	-- for GCC we need to compile either everything or nothing statically
+	-- Static linkage allows us to test non-DLL exported types
+	filter "action:gmake*"
+		Link("Renderer", false)  -- true = static library
+	filter "action:vs*"
+		Link("Renderer", true)  -- true = static library
+	filter {}
 	Link("Utils")
 	Link("Entity")
 	Link("Core")

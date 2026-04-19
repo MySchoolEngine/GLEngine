@@ -1,40 +1,42 @@
 #pragma once
 
 #include <Physics/GeometryUtils/TriangleIntersect.h>
-#include <Physics/Primitives/Intersectable.h>
 #include <Physics/Primitives/Ray.h>
 
+#include <expected>
 #include <rttr/registration_friend.h>
 
 namespace GLEngine::Physics::Primitives {
 
-struct S_Triangle final : public T_Intersectable<S_Triangle> {
-	S_Triangle(const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2)
-		: m_p({p0, p1, p2})
+struct S_Triangle final {
+	enum class CreateError : std::uint8_t
 	{
-		const auto normal = glm::cross(m_p[1] - m_p[0], m_p[2] - m_p[0]);
+		CollinearPoints,
+	};
+
+	[[nodiscard]] static std::expected<S_Triangle, CreateError> Create(const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2)
+	{
+		S_Triangle ret;
+		ret.m_p			  = {p0, p1, p2};
+		const auto normal = glm::cross(p1 - p0, p2 - p0);
 		const auto length = glm::length(normal);
-		m_Area			  = length / 2.f;
+		ret.m_Area		  = length / 2.f;
 
 		// Check for degenerate triangle (collinear points)
 		constexpr float EPSILON = 1e-8f;
-		if (length > EPSILON)
+		if (length <= EPSILON)
 		{
-			m_Normal = glm::normalize(normal);
+			return std::unexpected(CreateError::CollinearPoints);
 		}
-		else
-		{
-			// Degenerate triangle - use default normal
-			m_Normal = glm::vec3(0.0f, 0.0f, 1.0f);
-			GLE_ASSERT(false, "Triangle constructor called with collinear points, resulting in degenerate triangle");
-		}
+		ret.m_Normal = glm::normalize(normal);
+		return ret;
 	}
 
-	[[nodiscard]] inline float IntersectImpl(const S_Ray& ray) const
+	[[nodiscard]] float IntersectImpl(const S_Ray& ray, const float tMax) const
 	{
 		glm::vec2  barycentric;
 		const auto distance = TriangleRayIntersect(m_p, ray, &barycentric);
-		if (distance < 0)
+		if (distance < 0 || distance > tMax)
 			return distance;
 
 
@@ -49,6 +51,7 @@ struct S_Triangle final : public T_Intersectable<S_Triangle> {
 	RTTR_REGISTRATION_FRIEND
 
 private:
+	S_Triangle() = default;
 	glm::vec3 m_Normal;
 	float	  m_Area;
 };
