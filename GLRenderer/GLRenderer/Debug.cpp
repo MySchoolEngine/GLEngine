@@ -15,8 +15,6 @@
 #include <Renderer/IRenderer.h>
 #include <Renderer/Mesh/Geometry.h>
 
-#include <Physics/Primitives/Frustum.h>
-
 #include <Core/Application.h>
 
 #include <Utils/DebugBreak.h>
@@ -169,7 +167,6 @@ void C_DebugDraw::DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, con
 {
 	DrawLine(pointA, pointB, color, color);
 }
-
 //=================================================================================
 void C_DebugDraw::DrawLine(const glm::vec3& pointA, const glm::vec3& pointB, const Colours::T_Colour& colorA, const Colours::T_Colour& colorB)
 {
@@ -188,97 +185,24 @@ void C_DebugDraw::DrawLines(const std::vector<glm::vec4>& pairs, const Colours::
 }
 
 //=================================================================================
-void C_DebugDraw::DrawBone(const glm::vec3& position, const Renderer::S_Joint& joint)
-{
-	const auto		locTransformation = glm::inverse((joint.m_InverseBindTransform));
-	const glm::vec4 modelDest		  = (locTransformation * glm::vec4(0.f, 0.f, 0.0f, 1.f));
-	const glm::vec3 dest			  = glm::vec3(modelDest / modelDest.w);
-	const glm::vec3 boneOffset		  = dest - position;
-
-	const float bumpFactor	 = .33f;
-	const auto	BumpPosition = position + boneOffset * bumpFactor;
-
-	glm::vec3 tangent;
-
-	auto c1 = glm::cross(boneOffset, glm::vec3(0.0, 0.0, 1.0));
-	auto c2 = glm::cross(boneOffset, glm::vec3(0.0, 1.0, 0.0));
-
-	if (glm::length(c1) > glm::length(c2))
-	{
-		tangent = c1;
-	}
-	else
-	{
-		tangent = c2;
-	}
-
-	tangent				 = glm::normalize(tangent);
-	const auto bitangent = glm::cross(tangent, boneOffset);
-
-	constexpr float bumpSize = .05f;
-	const glm::vec3 Offset1	 = tangent * bumpSize;
-	const glm::vec3 Offset2	 = bitangent * bumpSize;
-
-
-	DrawLine(position, BumpPosition, Colours::white);
-	DrawLine(BumpPosition, dest, Colours::green);
-
-	// square around the bump
-	DrawLine(BumpPosition + Offset1 + Offset2, BumpPosition + Offset1 - Offset2);
-	DrawLine(BumpPosition + Offset1 + Offset2, BumpPosition - Offset1 + Offset2);
-	DrawLine(BumpPosition - Offset1 + Offset2, BumpPosition - Offset1 - Offset2);
-	DrawLine(BumpPosition + Offset1 - Offset2, BumpPosition - Offset1 - Offset2);
-
-	// pos to bump
-	DrawLine(position, BumpPosition + Offset1 + Offset2);
-	DrawLine(position, BumpPosition + Offset1 - Offset2);
-	DrawLine(position, BumpPosition - Offset1 - Offset2);
-	DrawLine(position, BumpPosition - Offset1 + Offset2);
-
-	// bump to dest
-	DrawLine(dest, BumpPosition + Offset1 + Offset2);
-	DrawLine(dest, BumpPosition + Offset1 - Offset2);
-	DrawLine(dest, BumpPosition - Offset1 - Offset2);
-	DrawLine(dest, BumpPosition - Offset1 + Offset2);
-
-	for (const auto& child : joint.m_Children)
-	{
-		DrawBone(dest, child);
-	}
-}
-
-//=================================================================================
-void C_DebugDraw::DrawSkeleton(const glm::vec3& root, const Renderer::C_Skeleton& skeleton)
-{
-	const auto		locTransformation = glm::inverse((skeleton.m_Root->m_InverseBindTransform));
-	const glm::vec4 modelDest		  = (locTransformation * glm::vec4(0.f, 0.f, 0.0f, 1.f));
-	const glm::vec3 dest			  = glm::vec3(modelDest / modelDest.w);
-	const glm::vec3 boneOffset		  = dest - root;
-
-	for (const auto& child : skeleton.m_Root->m_Children)
-	{
-		DrawBone(root + boneOffset, child);
-	}
-}
-
-//=================================================================================
 void C_DebugDraw::DrawPose(const Renderer::C_Skeleton& skeleton, const Renderer::I_Pose& pose, const glm::mat4& mat)
 {
-	const auto			transforms = pose.GetLocalSpaceTransofrms();
-	constexpr glm::vec4 zero(0.f, 0.f, 0.f, 1.f);
-
-	const Renderer::S_Joint&														 rootJoint = skeleton.GetRoot();
-	std::function<void(const Renderer::S_Joint&, const glm::mat4&, const glm::vec4)> drawChildren;
-	drawChildren = [&](const Renderer::S_Joint& joint, const glm::mat4& parent, const glm::vec4& pos) {
-		for (const auto& child : joint.m_Children)
-		{
-			const auto		fullTransform = parent * transforms[child.m_Id];
-			const glm::vec4 childPos	  = fullTransform * zero;
-			DrawLine(pos, childPos, Colours::cyan);
-			drawChildren(child, fullTransform, childPos);
-		}
-	};
-	drawChildren(rootJoint, mat * transforms[rootJoint.m_Id], mat * transforms[rootJoint.m_Id] * zero);
+	// auto transforms = pose.GetLocalSpaceTransofrms();
+	// glm::vec4  zero(0.f, 0.f, 0.f, 1.f);
+	//
+	// const Renderer::S_Joint& rootJoint = skeleton.GetRoot();
+	// std::function<void(const Renderer::S_Joint&, const glm::mat4&, const glm::vec4)> drawChildren;
+	// drawChildren = [&](const Renderer::S_Joint& joint, const glm::mat4& parent, const glm::vec4& pos)
+	// {
+	// 	for (const auto& child : joint.m_Children)
+	// 	{
+	// 		const auto		fullTransform = parent * transforms[child.m_Id];
+	// 		const glm::vec4 childPos	  = fullTransform * zero;
+	// 		DrawLine(pos, childPos, Colours::cyan);
+	// 		drawChildren(child, fullTransform, childPos);
+	// 	}
+	// };
+	// drawChildren(rootJoint, mat * transforms[rootJoint.m_Id], mat * transforms[rootJoint.m_Id] * zero);
 }
 
 //=================================================================================
@@ -289,93 +213,6 @@ void C_DebugDraw::DrawAxis(const glm::vec3& origin, const glm::vec3& up, const g
 	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + forward), 1.0f), Colours::blue);
 	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + up), 1.0f), Colours::green);
 	DrawLine(originInModelSpace, modelMatrix * glm::vec4((origin + rightVec), 1.0f), Colours::red);
-}
-
-//=================================================================================
-void C_DebugDraw::DrawGrid(const glm::vec4& origin, unsigned short linesToSide, const glm::mat4& modelMatrix /*= glm::mat4(1.0f)*/)
-{
-	const int limit = linesToSide;
-	// cross for center
-	DrawLine(origin + glm::vec4(-limit, 0, 0, 1.f), origin + glm::vec4(limit, 0, 0, 1.f));
-	DrawLine(origin + glm::vec4(0, 0, -limit, 1.f), origin + glm::vec4(0, 0, limit, 1.f));
-
-	for (int i = 1; i <= limit; ++i)
-	{
-		// lines in positive direction from origin
-		DrawLine(origin + glm::vec4(-limit, 0, i, 1.f), origin + glm::vec4(limit, 0, i, 1.f));
-		DrawLine(origin + glm::vec4(i, 0, -limit, 1.f), origin + glm::vec4(i, 0, limit, 1.f));
-
-		// lines in negative direction from origin
-		DrawLine(origin + glm::vec4(-limit, 0, -i, 1.f), origin + glm::vec4(limit, 0, -i, 1.f));
-		DrawLine(origin + glm::vec4(-i, 0, -limit, 1.f), origin + glm::vec4(-i, 0, limit, 1.f));
-	}
-}
-
-//=================================================================================
-void C_DebugDraw::DrawFrustum(const Physics::Primitives::C_Frustum& frustum, const Colours::T_Colour& color)
-{
-	const auto& position = frustum.GetPosition();
-	const auto& upVector = frustum.GetUpVector();
-	const auto& forward	 = frustum.GetForward();
-	const auto	fnear	 = frustum.GetNear();
-	const auto	ffar	 = frustum.GetFar();
-	const auto	fov		 = frustum.GetFov();
-	const auto	aspect	 = frustum.GetAspect();
-
-	const glm::vec3 nearCenter = glm::vec3(position + (forward * fnear));
-	const glm::vec3 farCenter  = glm::vec3(position + (forward * ffar));
-
-	const glm::vec3 left = glm::cross(upVector, forward);
-
-	const float tanHalfHFOV = tanf(glm::radians(fov / 2.0f));
-	const float tanHalfVFOV = tanf(glm::radians((fov * aspect) / 2.0f));
-
-	const float xn = fnear * tanHalfVFOV;
-	const float xf = ffar * tanHalfVFOV;
-	const float yn = fnear * tanHalfHFOV;
-	const float yf = ffar * tanHalfHFOV;
-
-	const auto nlt = glm::vec4(nearCenter + (xn * left) + upVector * yn, 1.0f);
-	const auto nrt = glm::vec4(nearCenter - (xn * left) + upVector * yn, 1.0f);
-	const auto nlb = glm::vec4(nearCenter + (xn * left) - upVector * yn, 1.0f);
-	const auto nrb = glm::vec4(nearCenter - (xn * left) - upVector * yn, 1.0f);
-	const auto flt = glm::vec4(farCenter + (xf * left) + upVector * yf, 1.0f);
-	const auto frt = glm::vec4(farCenter - (xf * left) + upVector * yf, 1.0f);
-	const auto flb = glm::vec4(farCenter + (xf * left) - upVector * yf, 1.0f);
-	const auto frb = glm::vec4(farCenter - (xf * left) - upVector * yf, 1.0f);
-
-	std::vector<glm::vec4> lines;
-	lines.push_back(nlt);
-	lines.push_back(nrt);
-	lines.push_back(nlb);
-	lines.push_back(nrb);
-	lines.push_back(nlt);
-	lines.push_back(nlb);
-	lines.push_back(nrt);
-	lines.push_back(nrb);
-
-	lines.push_back(flt);
-	lines.push_back(frt);
-	lines.push_back(flb);
-	lines.push_back(frb);
-	lines.push_back(flt);
-	lines.push_back(flb);
-	lines.push_back(frt);
-	lines.push_back(frb);
-
-	lines.push_back(nlt);
-	lines.push_back(flt);
-	lines.push_back(nrt);
-	lines.push_back(frt);
-	lines.push_back(nlb);
-	lines.push_back(flb);
-	lines.push_back(nrb);
-	lines.push_back(frb);
-
-	DrawLines(lines, color);
-	DrawPoint(position);
-	DrawLine(position, position + forward, Colours::green);
-	DrawLine(position, position + upVector, Colours::red);
 }
 
 //=================================================================================

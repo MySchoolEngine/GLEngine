@@ -5,31 +5,31 @@
 namespace GLEngine::Renderer {
 
 //=================================================================================
-S_Joint::S_Joint(const std::size_t index, const std::string& name, const glm::mat4& localBindTransform)
-	: m_Name(name)
+S_Joint::S_Joint(const std::string& name, glm::mat4 localBindTransform)
+	: m_Id(name)
+	, m_InverseLocalBindTransform(glm::mat4(1.f))
 	, m_InverseBindTransform(localBindTransform)
-	, m_Id(index)
 {
 }
 
 //=================================================================================
 S_Joint::S_Joint(const S_Joint& other)
-	: m_Name(other.m_Name)
-	, m_InverseBindTransform(other.m_InverseBindTransform)
-	, m_Children(other.m_Children)
+	: m_InverseBindTransform(other.m_InverseBindTransform)
+	, m_InverseLocalBindTransform(other.m_InverseLocalBindTransform)
 	, m_Id(other.m_Id)
+	, m_Children(other.m_Children)
 {
-	CORE_LOG(E_Level::Info, E_Context::Render, "Copying bone: {}", m_Name);
+	CORE_LOG(E_Level::Info, E_Context::Render, "Copying bone: {}", m_Id.GetName());
 }
 
 //=================================================================================
 S_Joint::S_Joint(S_Joint&& other) noexcept
-	: m_Name(std::move(other.m_Name))
-	, m_InverseBindTransform(std::move(other.m_InverseBindTransform))
-	, m_Children(std::move(other.m_Children))
+	: m_InverseBindTransform(std::move(other.m_InverseBindTransform))
+	, m_InverseLocalBindTransform(std::move(other.m_InverseLocalBindTransform))
 	, m_Id(other.m_Id)
+	, m_Children(std::move(other.m_Children))
 {
-	CORE_LOG(E_Level::Info, E_Context::Render, "Movin' bone: {}", m_Name);
+	CORE_LOG(E_Level::Info, E_Context::Render, "Movin' bone: {}", m_Id.GetName());
 }
 
 //=================================================================================
@@ -41,16 +41,30 @@ glm::mat4 S_Joint::GetAnimatedTransform() const
 }
 
 //=================================================================================
-void S_Joint::ApplyPoseToJoints(std::vector<glm::mat4>& poseData, const glm::mat4& parentTransform) const
+// JointID
+//=================================================================================
+JointID::JointID(const std::string& name)
+	: m_Name(name)
+	, m_ID(std::hash<std::string>{}(name))
 {
-	const auto& currentLocalPose = poseData[m_Id];
-	const auto& currentPose		 = parentTransform * currentLocalPose;
-	for (const auto& child : m_Children)
-	{
-		child.ApplyPoseToJoints(poseData, currentPose);
-	}
-	const auto& newPose = currentPose * m_InverseBindTransform;
-	poseData[m_Id]		= newPose;
+}
+
+//=================================================================================
+bool JointID::operator==(const JointID& other) const
+{
+	return m_ID == other.m_ID;
+}
+
+//=================================================================================
+bool JointID::operator!=(const JointID& other) const
+{
+	return m_ID != other.m_ID;
+}
+
+//=================================================================================
+bool JointID::operator<(const JointID& other) const
+{
+	return m_ID < other.m_ID;
 }
 
 } // namespace GLEngine::Renderer

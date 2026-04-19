@@ -23,7 +23,7 @@ void C_Pose::SetLocalSpaceTransform(const glm::mat4& transform, int boneID)
 }
 
 //=================================================================================
-std::vector<glm::mat4> C_Pose::GetLocalSpaceTransofrms() const
+std::vector<glm::mat4> C_Pose::GetMSTransofrms() const
 {
 	std::vector<glm::mat4> transofrms;
 	transofrms.resize(m_KeyFrame.size());
