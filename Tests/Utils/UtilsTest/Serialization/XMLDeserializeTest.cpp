@@ -96,6 +96,10 @@ struct DefaultValueStruct {
 	bool WrongBool = false; // REGISTER_DEFAULT_VALUE(true)
 };
 
+struct VectorOfFloats {
+	std::vector<float> m_FloatVec{1.f, 2.f};
+};
+
 // clang-format off
 RTTR_REGISTRATION
 {
@@ -238,6 +242,10 @@ RTTR_REGISTRATION
 		.constructor<>()
 		.property("wrongBool", &DefaultValueStruct::WrongBool)(REGISTER_DEFAULT_VALUE(true))
 		;
+
+	rttr::registration::class_<VectorOfFloats>("VectorOfFloats")
+		.constructor<>()
+		.property("FloatVec", &VectorOfFloats::m_FloatVec);
 }
 // clang-format on
 
@@ -442,6 +450,22 @@ TEST_F(XMLDeserializeFixture, DISABLED_RefWrapperStructDeserializeChildElements)
 
 		// Test filesystem::path type
 		EXPECT_EQ(obj->m_Path, std::filesystem::path("test/path/file.txt"));
+	}
+}
+
+TEST_F(XMLDeserializeFixture, REGISTER_SERIALIZATION_VecFloat)
+{
+	const pugi::xml_document doc = ConstructDocument(R"x(
+<?xml version="1.0"?>
+<VectorOfFloats>
+	<FloatVec>1,2</FloatVec>
+</VectorOfFloats>)x");
+	const auto				 result = deserializer.Deserialize<std::shared_ptr<VectorOfFloats>>(doc);
+	EXPECT_TRUE(result.has_value());
+	if (result.has_value())
+	{
+		EXPECT_EQ(result.value()->m_FloatVec[0], 1.f);
+		EXPECT_EQ(result.value()->m_FloatVec[1], 2.f);
 	}
 }
 

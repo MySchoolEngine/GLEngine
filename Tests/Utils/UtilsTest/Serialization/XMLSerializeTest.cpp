@@ -33,6 +33,10 @@ struct SetTypesStruct {
 	std::set<TestEnum>	  m_EnumSet;
 };
 
+struct VectorOfFloats {
+	std::vector<float> m_FloatVec{1.f, 2.f};
+};
+
 // clang-format off
 RTTR_REGISTRATION
 {
@@ -65,6 +69,10 @@ RTTR_REGISTRATION
 		.property("intSet", &SetTypesStruct::m_IntSet)
 		.property("stringSet", &SetTypesStruct::m_StringSet)
 		.property("enumSet", &SetTypesStruct::m_EnumSet);
+
+	rttr::registration::class_<VectorOfFloats>("VectorOfFloats")
+		.constructor<>()
+		.property("FloatVec", &VectorOfFloats::m_FloatVec);
 }
 // clang-format on
 
@@ -93,6 +101,17 @@ TEST_F(XMLSerializeFixture, REGISTER_SERIALIZATION)
 	EXPECT_EQ(rootNode.name(), std::string("GlmVec3")) << ToString(xmlDoc);
 	EXPECT_TRUE(rootNode.attribute("vec")) << ToString(xmlDoc);
 	EXPECT_EQ(rootNode.attribute("vec").as_string(), std::string("(1.0,2.0,3.0)")) << ToString(xmlDoc);
+}
+
+TEST_F(XMLSerializeFixture, REGISTER_SERIALIZATION_VecFloat)
+{
+	const VectorOfFloats		 vector;
+	const auto					 xmlDoc	  = serializer.Serialize(vector);
+	const auto					 rootNode = xmlDoc.root().first_child();
+	EXPECT_EQ(rootNode.name(), std::string("VectorOfFloats")) << ToString(xmlDoc);
+	const auto floatArrayNode = rootNode.child("FloatVec");
+	EXPECT_TRUE(floatArrayNode) << ToString(xmlDoc);
+	EXPECT_EQ(floatArrayNode.text().as_string(), std::string("1,2")) << ToString(xmlDoc);
 }
 
 TEST_F(XMLSerializeFixture, AtomicTypesArrayStructSerialize)
