@@ -1,7 +1,18 @@
+---
+name: Pull request
+about: Create a pull request
+title: ''
+labels: ''
+assignees: ''
+
+---
+
+
 # Describe the contribution
 
+
 ## Fixed issues
-- 
+- #(issue)
 
 ## Informations
 
