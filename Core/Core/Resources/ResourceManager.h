@@ -54,8 +54,7 @@ public:
 	 *         @p ext is empty, does not start with '.', or has no registered loader.
 	 *         The reference is valid only as long as the manager has not been destroyed.
 	 */
-	[[nodiscard]] std::optional<std::reference_wrapper<const I_ResourceLoader>>
-		GetLoaderForExt(const std::string& ext) const;
+	[[nodiscard]] std::optional<std::reference_wrapper<const I_ResourceLoader>> GetLoaderForExt(const std::string& ext) const;
 
 	/**
 	 * @brief Returns the loader registered for the given resource type.
@@ -64,8 +63,7 @@ public:
 	 *         no loader has been registered for @p ResourceType.
 	 *         The reference is valid only as long as the manager has not been destroyed.
 	 */
-	template <class ResourceType>
-		requires is_resource<ResourceType> [[nodiscard]] std::optional<std::reference_wrapper<const I_ResourceLoader>> GetLoaderForType() const;
+	template <class ResourceType> requires is_resource<ResourceType> [[nodiscard]] std::optional<std::reference_wrapper<const I_ResourceLoader>> GetLoaderForType() const;
 
 	template <is_resource ResourceType> [[nodiscard]] bool IsResourceType(const std::filesystem::path& path) const;
 
@@ -86,15 +84,15 @@ private:
 	void AddResourceToUnusedList(const std::shared_ptr<Resource>& resource);
 
 	std::optional<std::reference_wrapper<const I_ResourceLoader>> GetLoaderForTypeID(std::size_t typeId) const;
-	std::shared_ptr<Resource> GetResourcePtr(const std::filesystem::path& filepath);
+	std::shared_ptr<Resource>									  GetResourcePtr(const std::filesystem::path& filepath);
 
-	std::map<std::filesystem::path, std::shared_ptr<Resource>>		m_Resources;
-	std::map<std::filesystem::path, C_Metafile>						m_Metafile; //< no access from outside of resource manager
-	std::shared_mutex												m_Mutex;
-	std::vector<std::pair<std::shared_ptr<Resource>, unsigned int>> m_UnusedList;
-	std::shared_mutex												m_FinishedLoadsMutes;
-	std::vector<std::shared_ptr<Resource>>							m_FinishedLoads;
-	std::vector<std::shared_ptr<Resource>>							m_FailedLoads;
+	std::map<std::filesystem::path, std::shared_ptr<Resource>>	  m_Resources;
+	std::map<std::filesystem::path, C_Metafile>					  m_Metafile; //< no access from outside of resource manager
+	std::shared_mutex											  m_Mutex;
+	std::list<std::pair<std::shared_ptr<Resource>, unsigned int>> m_UnusedList; // list does not invalidate the iterators on push_back
+	std::shared_mutex											  m_FinishedLoadsMutes;
+	std::vector<std::shared_ptr<Resource>>						  m_FinishedLoads;
+	std::vector<std::shared_ptr<Resource>>						  m_FailedLoads;
 
 	std::map<std::string, const I_ResourceLoader*> m_ExtToLoaders;
 	std::map<std::size_t, const I_ResourceLoader*> m_TypeIdToLoader;

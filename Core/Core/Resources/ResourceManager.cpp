@@ -85,7 +85,6 @@ std::shared_ptr<Resource> C_ResourceManager::GetResourcePtr(const std::filesyste
 //=================================================================================
 void C_ResourceManager::AddResourceToUnusedList(const std::shared_ptr<Resource>& resource)
 {
-	std::unique_lock lock(m_Mutex);
 	GLE_ASSERT(resource.use_count() == 2, "Trying to get rid of resource that is still used by others.");
 	m_UnusedList.emplace_back(resource, 0);
 }
@@ -131,7 +130,6 @@ void C_ResourceManager::OnEvent(I_Event& event)
 //=================================================================================
 void C_ResourceManager::UnloadUnusedResources()
 {
-	std::unique_lock lock(m_Mutex);
 	// if resource is still loading, we need to finish loading
 	// it is referenced from the job system, so it will be deleted after load
 	for (auto& [resourcePtr, numUpdates] : m_UnusedList)
