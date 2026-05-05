@@ -11,6 +11,7 @@
 
 #include <Renderer/Cameras/OrbitalCamera.h>
 #include <Renderer/Components/StaticMeshHandles.h>
+#include <Renderer/Materials/MaterialResource.h>
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/Textures/Storage/TextureLinearStorage.h>
 #include <Renderer/Viewport.h>
@@ -63,6 +64,7 @@ C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
 	auto& rm = Core::C_ResourceManager::Instance();
 	rm.RegisterResourceType(new Renderer::TextureLoader());
 	rm.RegisterResourceType(new Renderer::MeshLoader());
+	rm.RegisterResourceType(new Renderer::MaterialResourceLoader());
 
 	CreateWindowSurface();
 	m_renderer = std::make_unique<C_VkRenderer>(m_Instance, m_Surface);
