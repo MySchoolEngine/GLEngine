@@ -477,4 +477,81 @@ TEST_F(ResourceManagerFixture, IsResourceType_MultipleTypesRegistered)
 	EXPECT_FALSE(manager.IsResourceType<TestResourceBuildable>(testPathTest)) << ".test should not match TestResourceBuildable";
 }
 
+TEST_F(ResourceManagerFixture, LoadDerivedResourceSyncWhileBaseIsAsyncLoading)
+{
+	// Simulates: mesh is loading async, and we try to sync-load a material (derived from mesh)
+	auto& manager = C_ResourceManager::Instance();
+
+	manager.RegisterResourceType(new TestResourceLoader);
+	manager.RegisterResourceType(new TestResourceBuildableLoader);
+
+	// Pre-create test_resource.meta by loading TestResource sync once.
+	// Both test_resource.test and test_resource.testbuild share the same metafile
+	// (GetMetafileName replaces extension with .meta), so this is the prerequisite.
+	{
+		const auto preload = manager.LoadResource<TestResource>(testPathTest, true);
+		EXPECT_TRUE(preload.IsReady()) << "Pre-load of TestResource should succeed";
+	}
+	FlushAllUnused(manager); // Fully evict TestResource from m_Resources
+
+	// Start async load of TestResource (100ms simulated delay)
+	const auto handleBase = manager.LoadResource<TestResource>(testPathTest, false);
+	EXPECT_TRUE(handleBase.IsLoading()) << "TestResource should be in Loading state immediately after async request";
+
+	// Immediately try to sync load TestResourceBuildable while base is still loading.
+	// The sync path: finds base in m_Resources (Loading), returns Loading handle (does not block),
+	// then tries to Build — but base.IsReady()==false → RemoveResource → returns {} (null handle).
+	// A null handle has IsFailed()==true because GetState() returns Failed when m_Resource==nullptr.
+	const auto handleBuildable = manager.LoadResource<TestResourceBuildable>(testPathTestBuildable, true);
+	EXPECT_FALSE(handleBuildable.IsReady()) << "Buildable should not be ready when base is still loading";
+	EXPECT_TRUE(handleBuildable.IsFailed()) << "Sync load of derived resource fails when base is not yet Ready";
+
+	// Wait for base async load to complete
+	std::this_thread::sleep_for(std::chrono::milliseconds(120));
+	manager.UpdatePendingLoads();
+
+	EXPECT_TRUE(handleBase.IsReady()) << "TestResource should be ready after async load completes";
+}
+
+TEST_F(ResourceManagerFixture, LoadDerivedResourceAsyncWhileBaseIsAsyncLoading)
+{
+	// Simulates: mesh is loading async, and we also start an async load of a material (derived from mesh).
+	// The async buildable thread runs before UpdatePendingLoads() can promote the base to Ready,
+	// so the buildable thread sees the base as Loading and fails.
+	auto& manager = C_ResourceManager::Instance();
+
+	manager.RegisterResourceType(new TestResourceLoader);
+	manager.RegisterResourceType(new TestResourceBuildableLoader);
+
+	// Pre-create test_resource.meta (prerequisite for derived resource loading)
+	{
+		const auto preload = manager.LoadResource<TestResource>(testPathTest, true);
+		EXPECT_TRUE(preload.IsReady()) << "Pre-load of TestResource should succeed";
+	}
+	FlushAllUnused(manager);
+
+	// Start async load of TestResource (100ms simulated delay)
+	const auto handleBase = manager.LoadResource<TestResource>(testPathTest, false);
+	EXPECT_TRUE(handleBase.IsLoading()) << "TestResource should be in Loading state immediately after async request";
+
+	// Immediately start async load of TestResourceBuildable while base is still loading.
+	// The returned handle is initially Loading (resource was added to m_Resources before thread launch).
+	const auto handleBuildable = manager.LoadResource<TestResourceBuildable>(testPathTestBuildable, false);
+	EXPECT_TRUE(handleBuildable.IsLoading()) << "Buildable should be in Loading state immediately after async request";
+	EXPECT_FALSE(handleBuildable.IsReady()) << "Buildable should not be ready immediately";
+
+	// Wait for both threads to complete.
+	// - TestResource thread: finishes after 100ms, pushes to m_FinishedLoads
+	// - Buildable thread: finishes quickly; GetResource<TestResource>() sees Loading state
+	//   (UpdatePendingLoads not yet called → base still Loading in m_Resources) → fails
+	std::this_thread::sleep_for(std::chrono::milliseconds(120));
+	manager.UpdatePendingLoads();
+
+	EXPECT_TRUE(handleBase.IsReady()) << "TestResource should be ready after async load completes";
+	// Buildable fails: its thread ran before UpdatePendingLoads() promoted base to Ready.
+	// GetResource<TestResource>() returned a Loading handle → IsReady()==false → RemoveResource + m_FailedLoads
+	EXPECT_TRUE(handleBuildable.IsFailed()) << "Async buildable should fail because base was not Ready when its thread ran";
+	EXPECT_FALSE(handleBuildable.IsReady()) << "Buildable should not be ready";
+}
+
 } // namespace GLEngine::Core
