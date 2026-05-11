@@ -25,7 +25,7 @@ bool TextureLoader::loadTexture(const std::filesystem::path& path, MeshData::Tex
 	Init();
 
 	auto					image = ilLoadTexture(path);
-	Utils::C_ScopeFinalizer finalizer([image]() { ilDeleteImage(image); });
+	::Utils::C_ScopeFinalizer finalizer([image]() { ilDeleteImage(image); });
 	const ILenum			Error = ilGetError();
 
 	if (Error != IL_NO_ERROR)
@@ -61,7 +61,7 @@ std::unique_ptr<I_TextureViewStorage> TextureLoader::loadTexture(const std::file
 	Init();
 
 	auto					image = ilLoadTexture(path);
-	Utils::C_ScopeFinalizer finalizer([image]() { ilDeleteImage(image); });
+	::Utils::C_ScopeFinalizer finalizer([image]() { ilDeleteImage(image); });
 	const ILenum			Error = ilGetError();
 
 	if (Error != IL_NO_ERROR)
@@ -174,7 +174,7 @@ bool TextureLoader::SaveTexture(const std::filesystem::path& path, I_TextureView
 	{
 		GLE_ERROR("Unknown format");
 	}
-	Utils::C_ScopeFinalizer finalizer([image]() { ilDeleteImage(image); });
+	::Utils::C_ScopeFinalizer finalizer([image]() { ilDeleteImage(image); });
 
 	if (overwrite)
 	{

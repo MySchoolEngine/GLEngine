@@ -70,11 +70,11 @@ protected:
 	GUI::Input::C_Slider<int> m_Iterations{1000, 1, 10000, "Iterations"};
 	int						  m_CurrentIteration;
 
-	S_TerrainSettings			m_Settings;
-	bool						Controls;
-	GUI::Input::C_CheckBoxValue Visualise;
-	GUI::Input::C_CheckBoxValue DebugDrawDroplets;
-	Utils::HighResolutionTimer	m_timer;
+	S_TerrainSettings			 m_Settings;
+	bool						 Controls;
+	GUI::Input::C_CheckBoxValue	 Visualise;
+	GUI::Input::C_CheckBoxValue	 DebugDrawDroplets;
+	::Utils::HighResolutionTimer m_timer;
 };
 
 } // namespace GLEngine::GLRenderer
