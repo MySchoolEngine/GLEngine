@@ -20,7 +20,6 @@ public:
 
 	MaterialResource() = default;
 
-	// IsDerived = true: auto-build is attempted when loading via ResourceManager.
 	// Build() returns false for meshes with >1 materials — use MeshMaterialExtractor instead.
 	[[nodiscard]] static constexpr bool IsDerived() { return true; }
 
@@ -30,6 +29,12 @@ public:
 
 	// Build from a single-material mesh. Returns false (and does nothing) for multi-material meshes.
 	[[nodiscard]] bool Build(const MeshResource& mesh);
+
+	// Builds PBR material data from a single MeshData::Material entry and its texture list.
+	// Used by Build() and MeshMaterialExtractor to avoid duplication.
+	[[nodiscard]] static std::shared_ptr<I_MaterialData> BuildPBRData(
+		const MeshData::Material&					  mat,
+		const std::vector<std::filesystem::path>& textures);
 
 	bool SupportSaving() const override { return true; }
 

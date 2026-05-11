@@ -60,6 +60,35 @@ RTTR_REGISTRATION
 namespace GLEngine::Renderer {
 
 //=================================================================================
+std::shared_ptr<I_MaterialData> MaterialResource::BuildPBRData(const MeshData::Material& mat, const std::vector<std::filesystem::path>& textures)
+{
+	auto data = std::make_shared<C_PBRMaterialData>(mat.m_Name);
+	data->SetColor(mat.diffuse);
+
+	// shininess → roughness: invert and normalize (shininess 0 = rough, 128+ = smooth)
+	const float roughness = 1.f - std::clamp(mat.shininess / 128.f, 0.f, 1.f);
+	data->SetRoughness(roughness);
+
+	auto& rm = Core::C_ResourceManager::Instance();
+
+	if (mat.textureIndex >= 0 && static_cast<std::size_t>(mat.textureIndex) < textures.size())
+	{
+		const auto& texPath = textures[static_cast<std::size_t>(mat.textureIndex)];
+		if (!texPath.empty())
+			data->SetColorMapRes(rm.LoadResource<TextureResource>(texPath));
+	}
+
+	if (mat.normalTextureIndex >= 0 && static_cast<std::size_t>(mat.normalTextureIndex) < textures.size())
+	{
+		const auto& normalPath = textures[static_cast<std::size_t>(mat.normalTextureIndex)];
+		if (!normalPath.empty())
+			data->SetNormalMapRes(rm.LoadResource<TextureResource>(normalPath));
+	}
+
+	return data;
+}
+
+//=================================================================================
 bool MaterialResource::Build(const MeshResource& mesh)
 {
 	if (!mesh.IsReady())
@@ -72,34 +101,10 @@ bool MaterialResource::Build(const MeshResource& mesh)
 	if (scene.materials.size() != 1)
 		return false;
 
-	const auto& mat	 = scene.materials[0];
-	auto		data = std::make_shared<C_PBRMaterialData>(mat.m_Name);
-
-	data->SetColor(mat.diffuse);
-
-	// shininess → roughness: invert and normalize (shininess 0 = rough, 128+ = smooth)
-	const float roughness = 1.f - std::clamp(mat.shininess / 128.f, 0.f, 1.f);
-	data->SetRoughness(roughness);
-
-	auto& rm = Core::C_ResourceManager::Instance();
-
-	if (mat.textureIndex >= 0 && static_cast<std::size_t>(mat.textureIndex) < scene.textures.size())
-	{
-		const auto& texPath = scene.textures[static_cast<std::size_t>(mat.textureIndex)];
-		if (!texPath.empty())
-			data->SetColorMapRes(rm.LoadResource<TextureResource>(texPath));
-	}
-
-	if (mat.normalTextureIndex >= 0 && static_cast<std::size_t>(mat.normalTextureIndex) < scene.textures.size())
-	{
-		const auto& normalPath = scene.textures[static_cast<std::size_t>(mat.normalTextureIndex)];
-		if (!normalPath.empty())
-			data->SetNormalMapRes(rm.LoadResource<TextureResource>(normalPath));
-	}
-
-	m_MaterialName = mat.m_Name;
-	m_Material	   = std::move(data);
-	m_Dirty		   = true;
+	const auto& mat = scene.materials[0];
+	m_MaterialName	= mat.m_Name;
+	m_Material		= BuildPBRData(mat, scene.textures);
+	m_Dirty			= true;
 	return true;
 }
 
