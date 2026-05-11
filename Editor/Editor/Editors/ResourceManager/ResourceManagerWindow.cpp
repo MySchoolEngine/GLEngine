@@ -4,6 +4,7 @@
 #include <Editor/Editors/ResourceManager/ResourceManagerWindow.h>
 #include <Editor/Editors/TrimeshPreview/TrimeshPreviewWindow.h>
 
+#include <Renderer/Materials/MeshMaterialExtractor.h>
 #include <Renderer/RayCasting/Geometry/TrimeshModel.h>
 #include <Renderer/Textures/TextureResource.h>
 
@@ -42,6 +43,10 @@ const char* GetIconForPath(const std::filesystem::path& path)
 	if (resMgr.IsResourceType<GLEngine::Renderer::TextureResource>(path))
 	{
 		return ICON_FA_FILE_IMAGE;
+	}
+	if (resMgr.IsResourceType<GLEngine::Renderer::MaterialResource>(path))
+	{
+		return ICON_FA_TROWEL_BRICKS;
 	}
 
 	return ICON_FA_FILE;
@@ -322,9 +327,7 @@ void C_ResourceManagerWindow::OnResourceDoubleClicked(const std::filesystem::pat
 			return;
 
 		m_TrimeshPreviewGUID = NextGUID();
-		auto* preview        = new C_TrimeshPreviewWindow(m_TrimeshPreviewGUID,
-														  m_GUIManager,
-														  std::move(handle));
+		auto* preview		 = new C_TrimeshPreviewWindow(m_TrimeshPreviewGUID, m_GUIManager, std::move(handle));
 		m_GUIManager.AddCustomWindow(preview);
 		preview->SetVisible(true);
 	}
@@ -387,6 +390,9 @@ void C_ResourceManagerWindow::HandleContextMenu(const std::filesystem::path& pat
 		if (isMesh && ImGui::MenuItem("Export Trimesh"))
 			ExportTrimesh(path);
 
+		if (isMesh && ImGui::MenuItem("Export Materials"))
+			ExportMaterials(path);
+
 		ImGui::EndPopup();
 	}
 }
@@ -410,6 +416,21 @@ void C_ResourceManagerWindow::ExportTrimesh(const std::filesystem::path& path) c
 	// ResourceManager will find lada.meta (already in-memory), load the base mesh,
 	// call C_TrimeshModel::Build(), and save the .tri file.
 	resMgr.LoadResource<Renderer::C_TrimeshModel>(triPath, /*isBlocking=*/true);
+}
+
+//=================================================================================
+void C_ResourceManagerWindow::ExportMaterials(const std::filesystem::path& path) const
+{
+	auto& resMgr = Core::C_ResourceManager::Instance();
+
+	// Load the base mesh first — this creates/populates the shared .meta file
+	// (lada.obj and lada.tri share lada.meta) so the derived-resource build
+	// flow can locate the base when we request the trimesh below.
+	const auto meshHandle = resMgr.LoadResource<Renderer::MeshResource>(path, /*isBlocking=*/true);
+	if (!meshHandle.IsReady())
+		return;
+
+	Renderer::ExtractMaterialsFromMesh(meshHandle.GetResource(), path.parent_path());
 }
 
 } // namespace GLEngine::Editor
