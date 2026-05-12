@@ -1,7 +1,7 @@
 ﻿#include <CoreTestStdafx.h>
 
-#include <Core/Resources/ResourceManager.h>
 #include <Core/Resources/Metafile.h>
+#include <Core/Resources/ResourceManager.h>
 
 #include <CoreTest/Resources/TestResource.h>
 #include <CoreTest/Resources/TestResource2.h>
@@ -12,8 +12,8 @@ namespace GLEngine::Core {
 class ResourceManagerFixture : public ::testing::Test {
 public:
 	// Test file paths
-	static inline const std::filesystem::path testPathTest2 = "test_resource2.test2";
-	static inline const std::filesystem::path testPathTest = "test_resource.test";
+	static inline const std::filesystem::path testPathTest2			= "test_resource2.test2";
+	static inline const std::filesystem::path testPathTest			= "test_resource.test";
 	static inline const std::filesystem::path testPathTestBuildable = "test_resource.testbuild";
 
 	void SetUp() override
@@ -32,8 +32,8 @@ public:
 		manager.Destroy();
 
 		// Delete metafiles created during tests
-		const auto metafileTest = C_Metafile::GetMetafileName(testPathTest);
-		const auto metafileTest2 = C_Metafile::GetMetafileName(testPathTest2);
+		const auto metafileTest			 = C_Metafile::GetMetafileName(testPathTest);
+		const auto metafileTest2		 = C_Metafile::GetMetafileName(testPathTest2);
 		const auto metafileTestBuildable = C_Metafile::GetMetafileName(testPathTestBuildable);
 
 		std::error_code ec;
@@ -45,45 +45,21 @@ public:
 		VerifyEmptyLists(manager, "TearDown");
 	}
 
-	static std::shared_ptr<Resource> GetResourcePtr(C_ResourceManager& manager, const std::filesystem::path& filepath)
-	{
-		return manager.GetResourcePtr(filepath);
-	}
+	static std::shared_ptr<Resource> GetResourcePtr(C_ResourceManager& manager, const std::filesystem::path& filepath) { return manager.GetResourcePtr(filepath); }
 
-	static const C_Metafile* GetMetafile(const C_ResourceManager& manager, const std::filesystem::path& resource)
-	{
-		return manager.GetMetafile(resource);
-	}
+	static const C_Metafile* GetMetafile(const C_ResourceManager& manager, const std::filesystem::path& resource) { return manager.GetMetafile(resource); }
 
-	static C_Metafile& GetOrCreateMetafile(C_ResourceManager& manager, const std::filesystem::path& resource)
-	{
-		return manager.GetOrCreateMetafile(resource);
-	}
+	static C_Metafile& GetOrCreateMetafile(C_ResourceManager& manager, const std::filesystem::path& resource) { return manager.GetOrCreateMetafile(resource); }
 
-	static bool IsResourcesEmpty(const C_ResourceManager& manager)
-	{
-		return manager.m_Resources.empty();
-	}
+	static bool IsResourcesEmpty(const C_ResourceManager& manager) { return manager.m_Resources.empty(); }
 
-	static bool IsUnusedListEmpty(const C_ResourceManager& manager)
-	{
-		return manager.m_UnusedList.empty();
-	}
+	static bool IsUnusedListEmpty(const C_ResourceManager& manager) { return manager.m_UnusedList.empty(); }
 
-	static bool IsFinishedLoadsEmpty(const C_ResourceManager& manager)
-	{
-		return manager.m_FinishedLoads.empty();
-	}
+	static bool IsFinishedLoadsEmpty(const C_ResourceManager& manager) { return manager.m_FinishedLoads.empty(); }
 
-	static bool IsExtToLoadersEmpty(const C_ResourceManager& manager)
-	{
-		return manager.m_ExtToLoaders.empty();
-	}
+	static bool IsExtToLoadersEmpty(const C_ResourceManager& manager) { return manager.m_ExtToLoaders.empty(); }
 
-	static bool IsTypeIdToLoaderEmpty(const C_ResourceManager& manager)
-	{
-		return manager.m_TypeIdToLoader.empty();
-	}
+	static bool IsTypeIdToLoaderEmpty(const C_ResourceManager& manager) { return manager.m_TypeIdToLoader.empty(); }
 
 	/**
 	 * @brief Calls UnloadUnusedResources s_UpdatesBeforeDelete times to fully flush all unused resources.
@@ -102,7 +78,7 @@ public:
 	static void VerifyNoMetaFilesExist()
 	{
 		std::error_code ec;
-		bool hasMetaFiles = false;
+		bool			hasMetaFiles = false;
 		for (const auto& entry : std::filesystem::directory_iterator(".", ec))
 		{
 			if (entry.path().extension() == ".meta")
@@ -507,7 +483,7 @@ TEST_F(ResourceManagerFixture, LoadDerivedResourceSyncWhileBaseIsAsyncLoading)
 	EXPECT_TRUE(handleBuildable.IsFailed()) << "Sync load of derived resource fails when base is not yet Ready";
 
 	// Wait for base async load to complete
-	std::this_thread::sleep_for(std::chrono::milliseconds(120));
+	std::this_thread::sleep_for(TestResource::s_LoadTime * 2);
 	manager.UpdatePendingLoads();
 
 	EXPECT_TRUE(handleBase.IsReady()) << "TestResource should be ready after async load completes";
@@ -544,7 +520,7 @@ TEST_F(ResourceManagerFixture, LoadDerivedResourceAsyncWhileBaseIsAsyncLoading)
 	// - TestResource thread: finishes after 100ms, pushes to m_FinishedLoads
 	// - Buildable thread: finishes quickly; GetResource<TestResource>() sees Loading state
 	//   (UpdatePendingLoads not yet called → base still Loading in m_Resources) → fails
-	std::this_thread::sleep_for(std::chrono::milliseconds(120));
+	std::this_thread::sleep_for(TestResource::s_LoadTime * 2);
 	manager.UpdatePendingLoads();
 
 	EXPECT_TRUE(handleBase.IsReady()) << "TestResource should be ready after async load completes";
@@ -552,6 +528,35 @@ TEST_F(ResourceManagerFixture, LoadDerivedResourceAsyncWhileBaseIsAsyncLoading)
 	// GetResource<TestResource>() returned a Loading handle → IsReady()==false → RemoveResource + m_FailedLoads
 	EXPECT_TRUE(handleBuildable.IsFailed()) << "Async buildable should fail because base was not Ready when its thread ran";
 	EXPECT_FALSE(handleBuildable.IsReady()) << "Buildable should not be ready";
+}
+
+TEST_F(ResourceManagerFixture, HandleRemovedBeforeUpdatePendingLoads)
+{
+	auto& manager = C_ResourceManager::Instance();
+
+	manager.RegisterResourceType(new TestResourceLoader);
+	{
+		// Start async load of TestResource (100ms simulated delay)
+		const auto handleBase = manager.LoadResource<TestResource>(testPathTest, false);
+		EXPECT_TRUE(handleBase.IsLoading());
+	}
+	std::this_thread::sleep_for(TestResource::s_LoadTime * 2);
+
+	EXPECT_FALSE(IsResourcesEmpty(manager)) << testPathTest << " should be still loading";
+	EXPECT_TRUE(IsUnusedListEmpty(manager));
+	EXPECT_FALSE(IsFinishedLoadsEmpty(manager)) << testPathTest << " should be still loading";
+
+	manager.UpdatePendingLoads();
+
+	EXPECT_FALSE(IsResourcesEmpty(manager)) << testPathTest << " should still live due to C_ResourceManager::s_UpdatesBeforeDelete";
+	EXPECT_FALSE(IsUnusedListEmpty(manager)) << testPathTest << " should be unused after UpdatePendingLoads";
+	EXPECT_TRUE(IsFinishedLoadsEmpty(manager)) << testPathTest << " should not be loading anymore";
+
+	FlushAllUnused(manager);
+
+	EXPECT_TRUE(IsResourcesEmpty(manager)) << testPathTest << " should be out of memory by now";
+	EXPECT_TRUE(IsUnusedListEmpty(manager)) << testPathTest << " should be out of memory by now";
+	EXPECT_TRUE(IsFinishedLoadsEmpty(manager)) << testPathTest << " should be out of memory by now";
 }
 
 } // namespace GLEngine::Core

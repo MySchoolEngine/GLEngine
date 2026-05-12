@@ -100,6 +100,10 @@ void C_ResourceManager::UpdatePendingLoads()
 	for (const auto& resource : m_FinishedLoads)
 	{
 		resource->m_State = ResourceState::Ready;
+		if (resource.use_count() == 2)
+		{
+			AddResourceToUnusedList(resource);
+		}
 	}
 	for (const auto& resource : m_FailedLoads)
 	{

@@ -21,7 +21,7 @@ public:
 	{
 		m_Filepath = filepath;
 		// Simulate slow loading
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		std::this_thread::sleep_for(s_LoadTime);
 		return true;
 	}
 	[[nodiscard]] bool								Reload() override { return false; }
@@ -29,6 +29,8 @@ public:
 
 	int			testData = 0;
 	std::string testName;
+
+	constexpr static std::chrono::milliseconds s_LoadTime = std::chrono::milliseconds(100);
 };
 
 class TestResourceLoader : public ResourceLoader<TestResource> {
