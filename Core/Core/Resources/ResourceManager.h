@@ -104,6 +104,7 @@ private:
 	friend class ResourceHandleBase; // still not sure about this, I don't think I need to befriend anyone to achieve this
 	friend class ResourceManagerFixture;
 	friend class ResourceHandleFixture;
+	friend class ResourcePropertyLoadingFixture; // Required for unit test access to private members
 };
 
 } // namespace GLEngine::Core

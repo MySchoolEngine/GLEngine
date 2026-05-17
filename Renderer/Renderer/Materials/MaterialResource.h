@@ -8,15 +8,24 @@
 #include <Core/Resources/ResourceHandle.h>
 #include <Core/Resources/ResourceLoader.h>
 
+#include <Utils/Reflection/Metadata.h>
+
 #include <memory>
 #include <rttr/registration_friend.h>
 
 namespace GLEngine::Renderer {
+namespace MeshData {
+struct Material;
+}
 
+/**
+ * @brief
+ *
+ * @todo It would be good to consider, whether we should be derived from MeshResource
+ */
 class RENDERER_API_EXPORT MaterialResource : public Core::Resource {
 public:
 	DEFINE_RESOURCE_TYPE(MaterialResource)
-	using T_BaseResource = MeshResource;
 
 	MaterialResource() = default;
 
@@ -27,14 +36,9 @@ public:
 	[[nodiscard]] bool									  Reload() override;
 	[[nodiscard]] std::unique_ptr<Core::I_ResourceLoader> GetLoader() override;
 
-	// Build from a single-material mesh. Returns false (and does nothing) for multi-material meshes.
-	[[nodiscard]] bool Build(const MeshResource& mesh);
-
 	// Builds PBR material data from a single MeshData::Material entry and its texture list.
 	// Used by Build() and MeshMaterialExtractor to avoid duplication.
-	[[nodiscard]] static std::shared_ptr<I_MaterialData> BuildPBRData(
-		const MeshData::Material&					  mat,
-		const std::vector<std::filesystem::path>& textures);
+	[[nodiscard]] static std::shared_ptr<I_MaterialData> BuildPBRData(const MeshData::Material& mat, const std::vector<std::filesystem::path>& textures);
 
 	bool SupportSaving() const override { return true; }
 
@@ -75,7 +79,21 @@ public:
 	std::vector<std::string>		GetSupportedExtensions() const override;
 };
 
-static_assert(Core::IsBeDerivedResource<MaterialResource>, "MaterialResource must satisfy IsBeDerivedResource");
-static_assert(Core::IsBuildableResource<MaterialResource, MaterialResource::T_BaseResource>, "MaterialResource must satisfy IsBuildableResource");
-
 } // namespace GLEngine::Renderer
+
+namespace Utils::Reflection::UI {
+template <> struct UIMetaclassToType<MetaGUI::MaterialResource> {
+	using type = GLEngine::Core::ResourceHandle<GLEngine::Renderer::MaterialResource>;
+};
+
+enum class MaterialResource : std::uint8_t
+{
+	Name,
+};
+} // namespace Utils::Reflection::UI
+
+namespace Utils::Reflection {
+REGISTER_META_CLASS(UI::MaterialResource, MetaGUI);
+
+REGISTER_META_MEMBER_TYPE(UI::MaterialResource::Name, std::string);
+} // namespace Utils::Reflection

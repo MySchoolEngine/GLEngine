@@ -89,26 +89,6 @@ std::shared_ptr<I_MaterialData> MaterialResource::BuildPBRData(const MeshData::M
 }
 
 //=================================================================================
-bool MaterialResource::Build(const MeshResource& mesh)
-{
-	if (!mesh.IsReady())
-		return false;
-
-	const auto& scene = mesh.GetScene();
-
-	// Auto-build only for single-material meshes.
-	// For multi-material meshes use MeshMaterialExtractor.
-	if (scene.materials.size() != 1)
-		return false;
-
-	const auto& mat = scene.materials[0];
-	m_MaterialName	= mat.m_Name;
-	m_Material		= BuildPBRData(mat, scene.textures);
-	m_Dirty			= true;
-	return true;
-}
-
-//=================================================================================
 bool MaterialResource::Load(const std::filesystem::path& filepath)
 {
 	m_Filepath = filepath;
