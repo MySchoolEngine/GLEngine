@@ -1,6 +1,6 @@
 ﻿#include <CoreTestStdafx.h>
 
-#include <CoreTest/Resources/TestResource2.h>
+#include <CoreTest/Resources/TestClasses/TestResource2.h>
 
 namespace GLEngine::Core {
 template <> void ResourceHandle<TestResource2>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)

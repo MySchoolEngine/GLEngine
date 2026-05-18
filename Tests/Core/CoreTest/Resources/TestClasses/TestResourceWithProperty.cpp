@@ -1,6 +1,6 @@
 #include <CoreTestStdafx.h>
 
-#include <CoreTest/Resources/TestResourceWithProperty.h>
+#include <CoreTest/Resources/TestClasses/TestResourceWithProperty.h>
 
 namespace GLEngine::Core {
 

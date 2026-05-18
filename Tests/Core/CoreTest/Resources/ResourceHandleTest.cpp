@@ -3,8 +3,8 @@
 #include <Core/Resources/ResourceHandle.h>
 #include <Core/Resources/ResourceManager.h>
 
-#include <CoreTest/Resources/TestResource.h>
-#include <CoreTest/Resources/TestResource2.h>
+#include <CoreTest/Resources/TestClasses/DelayTestResource.h>
+#include <CoreTest/Resources/TestClasses/TestResource2.h>
 
 namespace GLEngine::Core {
 
@@ -37,21 +37,21 @@ public:
 
 TEST_F(ResourceHandleFixture, DefaultConstruct)
 {
-	ResourceHandle<TestResource> handle;
+	ResourceHandle<DelayTestResource> handle;
 	EXPECT_FALSE(handle.IsReady());
 }
 
 TEST_F(ResourceHandleFixture, IsValid)
 {
-	ResourceHandle<TestResource> handle = CreateResourceHandle<TestResource>(std::make_shared<TestResource>());
+	ResourceHandle<DelayTestResource> handle = CreateResourceHandle<DelayTestResource>(std::make_shared<DelayTestResource>());
 	EXPECT_TRUE(handle.IsReady());
 }
 
 TEST_F(ResourceHandleFixture, EqualityWithSameResource)
 {
-	auto						 resource = std::make_shared<TestResource>();
-	ResourceHandle<TestResource> handle1  = CreateResourceHandle<TestResource>(resource);
-	ResourceHandle<TestResource> handle2  = CreateResourceHandle<TestResource>(resource);
+	auto						 resource = std::make_shared<DelayTestResource>();
+	ResourceHandle<DelayTestResource> handle1  = CreateResourceHandle<DelayTestResource>(resource);
+	ResourceHandle<DelayTestResource> handle2  = CreateResourceHandle<DelayTestResource>(resource);
 
 	EXPECT_EQ(handle1, handle2);
 }

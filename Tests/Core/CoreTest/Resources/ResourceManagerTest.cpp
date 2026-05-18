@@ -3,9 +3,9 @@
 #include <Core/Resources/Metafile.h>
 #include <Core/Resources/ResourceManager.h>
 
-#include <CoreTest/Resources/TestResource.h>
-#include <CoreTest/Resources/TestResource2.h>
-#include <CoreTest/Resources/TestResourceBuildable.h>
+#include <CoreTest/Resources/TestClasses/DelayTestResource.h>
+#include <CoreTest/Resources/TestClasses/TestResource2.h>
+#include <CoreTest/Resources/TestClasses/TestResourceBuildable.h>
 
 namespace GLEngine::Core {
 
@@ -111,15 +111,15 @@ TEST_F(ResourceManagerFixture, AddingLoaders)
 TEST_F(ResourceManagerFixture, GetSupportedExtensions)
 {
 	auto& manager = C_ResourceManager::Instance();
-	manager.RegisterResourceType(new TestResourceLoader);
+	manager.RegisterResourceType(new DelayTestResourceLoader);
 	manager.RegisterResourceType(new TestResource2Loader);
 	manager.RegisterResourceType(new TestResourceBuildableLoader);
 
-	// Get extensions for TestResource
-	const auto testExts = manager.GetSupportedExtensions(TestResource::GetResourceTypeHashStatic());
-	EXPECT_EQ(testExts.size(), 2) << "TestResource should support 2 extensions";
-	EXPECT_TRUE(std::find(testExts.begin(), testExts.end(), ".test") != testExts.end()) << "TestResource should support .test extension";
-	EXPECT_TRUE(std::find(testExts.begin(), testExts.end(), ".test-slow") != testExts.end()) << "TestResource should support .test-slow extension";
+	// Get extensions for DelayTestResource
+	const auto testExts = manager.GetSupportedExtensions(DelayTestResource::GetResourceTypeHashStatic());
+	EXPECT_EQ(testExts.size(), 2) << "DelayTestResource should support 2 extensions";
+	EXPECT_TRUE(std::find(testExts.begin(), testExts.end(), ".test") != testExts.end()) << "DelayTestResource should support .test extension";
+	EXPECT_TRUE(std::find(testExts.begin(), testExts.end(), ".test-slow") != testExts.end()) << "DelayTestResource should support .test-slow extension";
 
 	// Get extensions for TestResource2
 	const auto test2Exts = manager.GetSupportedExtensions(TestResource2::GetResourceTypeHashStatic());
@@ -138,7 +138,7 @@ TEST_F(ResourceManagerFixture, LoadResourceWithWrongLoader)
 	auto& manager = C_ResourceManager::Instance();
 
 	manager.RegisterResourceType(new TestResource2Loader);
-	manager.RegisterResourceType(new TestResourceLoader);
+	manager.RegisterResourceType(new DelayTestResourceLoader);
 
 	const auto handle = manager.LoadResource<TestResource2>(testPathTest, true);
 	EXPECT_FALSE(handle.IsReady()) << "Loading .test file as TestResource2 should fail (wrong loader)";
@@ -150,7 +150,7 @@ TEST_F(ResourceManagerFixture, LoadResourceCorrectly)
 	auto& manager = C_ResourceManager::Instance();
 
 	manager.RegisterResourceType(new TestResource2Loader);
-	manager.RegisterResourceType(new TestResourceLoader);
+	manager.RegisterResourceType(new DelayTestResourceLoader);
 
 	const auto handle = manager.LoadResource<TestResource2>(testPathTest2, true);
 	EXPECT_TRUE(handle.IsReady()) << "TestResource2 should load successfully from .test2 file";
@@ -168,14 +168,14 @@ TEST_F(ResourceManagerFixture, LoadAlreadyLoadedResourceWithWrongType)
 	auto& manager = C_ResourceManager::Instance();
 
 	manager.RegisterResourceType(new TestResource2Loader);
-	manager.RegisterResourceType(new TestResourceLoader);
+	manager.RegisterResourceType(new DelayTestResourceLoader);
 
 	// First load with correct type
 	const auto handle = manager.LoadResource<TestResource2>(testPathTest2, true);
 	EXPECT_TRUE(handle.IsReady()) << "First load with correct type should succeed";
 
 	// Try to load the same resource with wrong type
-	const auto handleWrongType = manager.LoadResource<TestResource>(testPathTest2, true);
+	const auto handleWrongType = manager.LoadResource<DelayTestResource>(testPathTest2, true);
 	EXPECT_FALSE(handleWrongType.IsReady()) << "Loading already loaded resource with wrong type should fail";
 	EXPECT_TRUE(handleWrongType.IsFailed()) << "Handle should be in failed state when type mismatch occurs";
 }
@@ -207,16 +207,16 @@ TEST_F(ResourceManagerFixture, LoadResourceAsync)
 {
 	auto& manager = C_ResourceManager::Instance();
 
-	manager.RegisterResourceType(new TestResourceLoader);
+	manager.RegisterResourceType(new DelayTestResourceLoader);
 
 	// Load resource asynchronously (non-blocking)
-	const auto handle = manager.LoadResource<TestResource>(testPathTest, false);
+	const auto handle = manager.LoadResource<DelayTestResource>(testPathTest, false);
 
 	// Right after load request, should be loading
 	EXPECT_TRUE(handle.IsLoading()) << "Handle should be in loading state immediately after async load request";
 	EXPECT_FALSE(handle.IsReady()) << "Handle should not be ready immediately after async load request";
 
-	// Wait for load to complete (TestResource has 100ms delay)
+	// Wait for load to complete (DelayTestResource has 100ms delay)
 	std::this_thread::sleep_for(std::chrono::milliseconds(120));
 
 	// Process finished loads
@@ -231,13 +231,13 @@ TEST_F(ResourceManagerFixture, LoadBuildableResource)
 {
 	auto& manager = C_ResourceManager::Instance();
 
-	manager.RegisterResourceType(new TestResourceLoader);
+	manager.RegisterResourceType(new DelayTestResourceLoader);
 	manager.RegisterResourceType(new TestResourceBuildableLoader);
 
 	// Load buildable resource (it should build from base resource)
 	{
 		// required as we cannot load the parent resource from the name of buildable one
-		const auto handleTest = manager.LoadResource<TestResource>(testPathTest, true);
+		const auto handleTest = manager.LoadResource<DelayTestResource>(testPathTest, true);
 	}
 	const auto handleBuildable = manager.LoadResource<TestResourceBuildable>(testPathTestBuildable, true);
 
@@ -245,7 +245,7 @@ TEST_F(ResourceManagerFixture, LoadBuildableResource)
 	EXPECT_TRUE(handleBuildable.IsReady()) << "Buildable resource should be ready after building from base resource";
 	EXPECT_FALSE(handleBuildable.IsFailed()) << "Buildable resource should not be in failed state";
 
-	// Verify built data (TestResource has testData=42, buildable doubles it)
+	// Verify built data (DelayTestResource has testData=42, buildable doubles it)
 	auto& buildable = handleBuildable.GetResource();
 	EXPECT_EQ(buildable.builtData, 84) << "Built data should be 84 (base testData 42 * 2)"; // 42 * 2
 	EXPECT_EQ(buildable.builtName, "Built_DefaultTest") << "Built name should be prefixed with 'Built_'";
@@ -256,17 +256,17 @@ TEST_F(ResourceManagerFixture, LoadBuildableResourceAsync)
 	// so far, we only support building such resources, that have parent resource already loaded
 	auto& manager = C_ResourceManager::Instance();
 
-	manager.RegisterResourceType(new TestResourceLoader);
+	manager.RegisterResourceType(new DelayTestResourceLoader);
 	manager.RegisterResourceType(new TestResourceBuildableLoader);
 
 	// required as we cannot load the parent resource from the name of buildable one
-	const auto handleTest	   = manager.LoadResource<TestResource>(testPathTest, true);
+	const auto handleTest	   = manager.LoadResource<DelayTestResource>(testPathTest, true);
 	const auto handleBuildable = manager.LoadResource<TestResourceBuildable>(testPathTestBuildable, false);
 
 	// Verify it was built successfully
 	EXPECT_TRUE(handleBuildable.IsLoading()) << "Buildable resource should be in loading state immediately after async load request";
 	EXPECT_FALSE(handleBuildable.IsFailed()) << "Buildable resource should not be in failed state";
-	// Wait for load to complete (TestResource has 100ms delay)
+	// Wait for load to complete (DelayTestResource has 100ms delay)
 	std::this_thread::sleep_for(std::chrono::milliseconds(120));
 
 	// Process finished loads
@@ -281,13 +281,13 @@ TEST_F(ResourceManagerFixture, LoadBuildableResourceWithWrongExtension)
 {
 	auto& manager = C_ResourceManager::Instance();
 
-	manager.RegisterResourceType(new TestResourceLoader);
+	manager.RegisterResourceType(new DelayTestResourceLoader);
 	manager.RegisterResourceType(new TestResourceBuildableLoader);
 
 	// Try to load TestResourceBuildable with .test extension (wrong loader)
 	{
 		// required as we cannot load the parent resource from the name of buildable one
-		const auto handle = manager.LoadResource<TestResource>(testPathTest, true);
+		const auto handle = manager.LoadResource<DelayTestResource>(testPathTest, true);
 	}
 	const auto handleBuildable = manager.LoadResource<TestResourceBuildable>(testPathTest, true);
 	{
@@ -295,7 +295,7 @@ TEST_F(ResourceManagerFixture, LoadBuildableResourceWithWrongExtension)
 		FlushAllUnused(C_ResourceManager::Instance());
 	}
 
-	// Should fail because .test extension is for TestResource, not TestResourceBuildable
+	// Should fail because .test extension is for DelayTestResource, not TestResourceBuildable
 	EXPECT_FALSE(handleBuildable.IsReady()) << "Loading TestResourceBuildable with .test extension should fail (wrong loader)";
 	EXPECT_TRUE(handleBuildable.IsFailed()) << "Handle should be in failed state when extension doesn't match resource type";
 	EXPECT_TRUE(IsResourcesEmpty(manager)) << "This should not create any resource";
@@ -313,13 +313,13 @@ TEST_F(ResourceManagerFixture, GetAllMetafilesWithCreatedMetafiles)
 {
 	auto& manager = C_ResourceManager::Instance();
 
-	// Create and save metafile for TestResource
+	// Create and save metafile for DelayTestResource
 	C_Metafile metafile1(testPathTest);
-	EXPECT_TRUE(metafile1.Save()) << "Should save metafile for TestResource";
+	EXPECT_TRUE(metafile1.Save()) << "Should save metafile for DelayTestResource";
 
 	// Check that one metafile is found
 	auto metafiles = manager.GetAllMetafiles();
-	EXPECT_EQ(metafiles.size(), 1) << "Should find one metafile after creating TestResource metafile";
+	EXPECT_EQ(metafiles.size(), 1) << "Should find one metafile after creating DelayTestResource metafile";
 
 	// Create and save metafile for TestResource2
 	C_Metafile metafile2(testPathTest2);
@@ -327,7 +327,7 @@ TEST_F(ResourceManagerFixture, GetAllMetafilesWithCreatedMetafiles)
 
 	// Check that two metafiles are found
 	metafiles = manager.GetAllMetafiles();
-	EXPECT_EQ(metafiles.size(), 2) << "Should find two metafiles after creating TestResource and TestResource2 metafiles";
+	EXPECT_EQ(metafiles.size(), 2) << "Should find two metafiles after creating DelayTestResource and TestResource2 metafiles";
 }
 
 TEST_F(ResourceManagerFixture, GetAllMetafilesNonRecursive)
@@ -389,66 +389,66 @@ TEST_F(ResourceManagerFixture, GetAllMetafilesNonExistentFolder)
 TEST_F(ResourceManagerFixture, IsResourceType_MatchingType)
 {
 	auto& manager = C_ResourceManager::Instance();
-	manager.RegisterResourceType(new TestResourceLoader);
+	manager.RegisterResourceType(new DelayTestResourceLoader);
 
-	EXPECT_TRUE(manager.IsResourceType<TestResource>(testPathTest)) << ".test extension should match TestResource";
+	EXPECT_TRUE(manager.IsResourceType<DelayTestResource>(testPathTest)) << ".test extension should match DelayTestResource";
 }
 
 TEST_F(ResourceManagerFixture, IsResourceType_WrongType)
 {
 	auto& manager = C_ResourceManager::Instance();
-	manager.RegisterResourceType(new TestResourceLoader);
+	manager.RegisterResourceType(new DelayTestResourceLoader);
 	manager.RegisterResourceType(new TestResource2Loader);
 
 	EXPECT_FALSE(manager.IsResourceType<TestResource2>(testPathTest)) << ".test extension should not match TestResource2";
-	EXPECT_FALSE(manager.IsResourceType<TestResource>(testPathTest2)) << ".test2 extension should not match TestResource";
+	EXPECT_FALSE(manager.IsResourceType<DelayTestResource>(testPathTest2)) << ".test2 extension should not match DelayTestResource";
 }
 
 TEST_F(ResourceManagerFixture, IsResourceType_UnregisteredExtension)
 {
 	auto& manager = C_ResourceManager::Instance();
-	manager.RegisterResourceType(new TestResourceLoader);
+	manager.RegisterResourceType(new DelayTestResourceLoader);
 
-	EXPECT_FALSE(manager.IsResourceType<TestResource>("file.unknown")) << "Unregistered extension should return false";
+	EXPECT_FALSE(manager.IsResourceType<DelayTestResource>("file.unknown")) << "Unregistered extension should return false";
 }
 
 TEST_F(ResourceManagerFixture, IsResourceType_NoExtension)
 {
 	auto& manager = C_ResourceManager::Instance();
-	manager.RegisterResourceType(new TestResourceLoader);
+	manager.RegisterResourceType(new DelayTestResourceLoader);
 
-	EXPECT_FALSE(manager.IsResourceType<TestResource>("file_without_extension")) << "Path with no extension should return false";
+	EXPECT_FALSE(manager.IsResourceType<DelayTestResource>("file_without_extension")) << "Path with no extension should return false";
 }
 
 TEST_F(ResourceManagerFixture, IsResourceType_NoLoadersRegistered)
 {
 	auto& manager = C_ResourceManager::Instance();
 
-	EXPECT_FALSE(manager.IsResourceType<TestResource>(testPathTest)) << "Should return false when no loaders are registered";
+	EXPECT_FALSE(manager.IsResourceType<DelayTestResource>(testPathTest)) << "Should return false when no loaders are registered";
 	EXPECT_FALSE(manager.IsResourceType<TestResource2>(testPathTest2)) << "Should return false when no loaders are registered";
 }
 
 TEST_F(ResourceManagerFixture, IsResourceType_MultipleExtensionsForSameType)
 {
 	auto& manager = C_ResourceManager::Instance();
-	manager.RegisterResourceType(new TestResourceLoader); // supports .test and .test-slow
+	manager.RegisterResourceType(new DelayTestResourceLoader); // supports .test and .test-slow
 
-	EXPECT_TRUE(manager.IsResourceType<TestResource>(testPathTest)) << ".test should match TestResource";
-	EXPECT_TRUE(manager.IsResourceType<TestResource>("file.test-slow")) << ".test-slow should also match TestResource";
+	EXPECT_TRUE(manager.IsResourceType<DelayTestResource>(testPathTest)) << ".test should match DelayTestResource";
+	EXPECT_TRUE(manager.IsResourceType<DelayTestResource>("file.test-slow")) << ".test-slow should also match DelayTestResource";
 }
 
 TEST_F(ResourceManagerFixture, IsResourceType_MultipleTypesRegistered)
 {
 	auto& manager = C_ResourceManager::Instance();
-	manager.RegisterResourceType(new TestResourceLoader);
+	manager.RegisterResourceType(new DelayTestResourceLoader);
 	manager.RegisterResourceType(new TestResource2Loader);
 	manager.RegisterResourceType(new TestResourceBuildableLoader);
 
-	EXPECT_TRUE(manager.IsResourceType<TestResource>(testPathTest)) << ".test should match TestResource";
+	EXPECT_TRUE(manager.IsResourceType<DelayTestResource>(testPathTest)) << ".test should match DelayTestResource";
 	EXPECT_TRUE(manager.IsResourceType<TestResource2>(testPathTest2)) << ".test2 should match TestResource2";
 	EXPECT_TRUE(manager.IsResourceType<TestResourceBuildable>(testPathTestBuildable)) << ".testbuild should match TestResourceBuildable";
 
-	EXPECT_FALSE(manager.IsResourceType<TestResource>(testPathTest2)) << ".test2 should not match TestResource";
+	EXPECT_FALSE(manager.IsResourceType<DelayTestResource>(testPathTest2)) << ".test2 should not match DelayTestResource";
 	EXPECT_FALSE(manager.IsResourceType<TestResource2>(testPathTest)) << ".test should not match TestResource2";
 	EXPECT_FALSE(manager.IsResourceType<TestResourceBuildable>(testPathTest)) << ".test should not match TestResourceBuildable";
 }
@@ -458,21 +458,21 @@ TEST_F(ResourceManagerFixture, LoadDerivedResourceSyncWhileBaseIsAsyncLoading)
 	// Simulates: mesh is loading async, and we try to sync-load a material (derived from mesh)
 	auto& manager = C_ResourceManager::Instance();
 
-	manager.RegisterResourceType(new TestResourceLoader);
+	manager.RegisterResourceType(new DelayTestResourceLoader);
 	manager.RegisterResourceType(new TestResourceBuildableLoader);
 
-	// Pre-create test_resource.meta by loading TestResource sync once.
+	// Pre-create test_resource.meta by loading DelayTestResource sync once.
 	// Both test_resource.test and test_resource.testbuild share the same metafile
 	// (GetMetafileName replaces extension with .meta), so this is the prerequisite.
 	{
-		const auto preload = manager.LoadResource<TestResource>(testPathTest, true);
-		EXPECT_TRUE(preload.IsReady()) << "Pre-load of TestResource should succeed";
+		const auto preload = manager.LoadResource<DelayTestResource>(testPathTest, true);
+		EXPECT_TRUE(preload.IsReady()) << "Pre-load of DelayTestResource should succeed";
 	}
-	FlushAllUnused(manager); // Fully evict TestResource from m_Resources
+	FlushAllUnused(manager); // Fully evict DelayTestResource from m_Resources
 
-	// Start async load of TestResource (100ms simulated delay)
-	const auto handleBase = manager.LoadResource<TestResource>(testPathTest, false);
-	EXPECT_TRUE(handleBase.IsLoading()) << "TestResource should be in Loading state immediately after async request";
+	// Start async load of DelayTestResource (100ms simulated delay)
+	const auto handleBase = manager.LoadResource<DelayTestResource>(testPathTest, false);
+	EXPECT_TRUE(handleBase.IsLoading()) << "DelayTestResource should be in Loading state immediately after async request";
 
 	// Immediately try to sync load TestResourceBuildable while base is still loading.
 	// The sync path: finds base in m_Resources (Loading), returns Loading handle (does not block),
@@ -483,10 +483,10 @@ TEST_F(ResourceManagerFixture, LoadDerivedResourceSyncWhileBaseIsAsyncLoading)
 	EXPECT_TRUE(handleBuildable.IsFailed()) << "Sync load of derived resource fails when base is not yet Ready";
 
 	// Wait for base async load to complete
-	std::this_thread::sleep_for(TestResource::s_LoadTime * 2);
+	std::this_thread::sleep_for(DelayTestResource::s_LoadTime * 2);
 	manager.UpdatePendingLoads();
 
-	EXPECT_TRUE(handleBase.IsReady()) << "TestResource should be ready after async load completes";
+	EXPECT_TRUE(handleBase.IsReady()) << "DelayTestResource should be ready after async load completes";
 }
 
 TEST_F(ResourceManagerFixture, LoadDerivedResourceAsyncWhileBaseIsAsyncLoading)
@@ -496,19 +496,19 @@ TEST_F(ResourceManagerFixture, LoadDerivedResourceAsyncWhileBaseIsAsyncLoading)
 	// so the buildable thread sees the base as Loading and fails.
 	auto& manager = C_ResourceManager::Instance();
 
-	manager.RegisterResourceType(new TestResourceLoader);
+	manager.RegisterResourceType(new DelayTestResourceLoader);
 	manager.RegisterResourceType(new TestResourceBuildableLoader);
 
 	// Pre-create test_resource.meta (prerequisite for derived resource loading)
 	{
-		const auto preload = manager.LoadResource<TestResource>(testPathTest, true);
-		EXPECT_TRUE(preload.IsReady()) << "Pre-load of TestResource should succeed";
+		const auto preload = manager.LoadResource<DelayTestResource>(testPathTest, true);
+		EXPECT_TRUE(preload.IsReady()) << "Pre-load of DelayTestResource should succeed";
 	}
 	FlushAllUnused(manager);
 
-	// Start async load of TestResource (100ms simulated delay)
-	const auto handleBase = manager.LoadResource<TestResource>(testPathTest, false);
-	EXPECT_TRUE(handleBase.IsLoading()) << "TestResource should be in Loading state immediately after async request";
+	// Start async load of DelayTestResource (100ms simulated delay)
+	const auto handleBase = manager.LoadResource<DelayTestResource>(testPathTest, false);
+	EXPECT_TRUE(handleBase.IsLoading()) << "DelayTestResource should be in Loading state immediately after async request";
 
 	// Immediately start async load of TestResourceBuildable while base is still loading.
 	// The returned handle is initially Loading (resource was added to m_Resources before thread launch).
@@ -517,15 +517,15 @@ TEST_F(ResourceManagerFixture, LoadDerivedResourceAsyncWhileBaseIsAsyncLoading)
 	EXPECT_FALSE(handleBuildable.IsReady()) << "Buildable should not be ready immediately";
 
 	// Wait for both threads to complete.
-	// - TestResource thread: finishes after 100ms, pushes to m_FinishedLoads
-	// - Buildable thread: finishes quickly; GetResource<TestResource>() sees Loading state
+	// - DelayTestResource thread: finishes after 100ms, pushes to m_FinishedLoads
+	// - Buildable thread: finishes quickly; GetResource<DelayTestResource>() sees Loading state
 	//   (UpdatePendingLoads not yet called → base still Loading in m_Resources) → fails
-	std::this_thread::sleep_for(TestResource::s_LoadTime * 2);
+	std::this_thread::sleep_for(DelayTestResource::s_LoadTime * 2);
 	manager.UpdatePendingLoads();
 
-	EXPECT_TRUE(handleBase.IsReady()) << "TestResource should be ready after async load completes";
+	EXPECT_TRUE(handleBase.IsReady()) << "DelayTestResource should be ready after async load completes";
 	// Buildable fails: its thread ran before UpdatePendingLoads() promoted base to Ready.
-	// GetResource<TestResource>() returned a Loading handle → IsReady()==false → RemoveResource + m_FailedLoads
+	// GetResource<DelayTestResource>() returned a Loading handle → IsReady()==false → RemoveResource + m_FailedLoads
 	EXPECT_TRUE(handleBuildable.IsFailed()) << "Async buildable should fail because base was not Ready when its thread ran";
 	EXPECT_FALSE(handleBuildable.IsReady()) << "Buildable should not be ready";
 }
@@ -534,13 +534,13 @@ TEST_F(ResourceManagerFixture, HandleRemovedBeforeUpdatePendingLoads)
 {
 	auto& manager = C_ResourceManager::Instance();
 
-	manager.RegisterResourceType(new TestResourceLoader);
+	manager.RegisterResourceType(new DelayTestResourceLoader);
 	{
-		// Start async load of TestResource (100ms simulated delay)
-		const auto handleBase = manager.LoadResource<TestResource>(testPathTest, false);
+		// Start async load of DelayTestResource (100ms simulated delay)
+		const auto handleBase = manager.LoadResource<DelayTestResource>(testPathTest, false);
 		EXPECT_TRUE(handleBase.IsLoading());
 	}
-	std::this_thread::sleep_for(TestResource::s_LoadTime * 2);
+	std::this_thread::sleep_for(DelayTestResource::s_LoadTime * 2);
 
 	EXPECT_FALSE(IsResourcesEmpty(manager)) << testPathTest << " should be still loading";
 	EXPECT_TRUE(IsUnusedListEmpty(manager));

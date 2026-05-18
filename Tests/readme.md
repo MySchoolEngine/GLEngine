@@ -7,6 +7,8 @@
     - [All Tests](#all-tests)
   - [Adding New Tests](#adding-new-tests)
     - [Create Test File](#create-test-file)
+    - [Supporting classes](#supporting-classes)
+    - [Fixture classes](#fixture-classes)
   - [Test Naming Conventions](#test-naming-conventions)
     - [Test Suites](#test-suites)
     - [Test Names](#test-names)
@@ -83,6 +85,13 @@ TEST(MyClass, MethodBehavior)
 
 } // namespace GLEngine::Core
 ```
+
+
+### Supporting classes
+If you need mock or some dummy classes for your tests, simply create new directory in the directory structure shadowing the original module structure named `TestClasses` and put theme there to keep structure clean.
+
+### Fixture classes
+If you share fixtures between multiple files, put them in `Fixtures` directory within common directory that shares the fixture.
 
 ## Test Naming Conventions
 

@@ -1,17 +1,17 @@
 ﻿#include <CoreTestStdafx.h>
 
-#include <CoreTest/Resources/TestResourceBuildable.h>
+#include <CoreTest/Resources/TestClasses/TestResourceBuildable.h>
 
 namespace GLEngine::Core {
 
-bool TestResourceBuildable::Load(const std::filesystem::path& filepath)
+bool TestResourceBuildable::Load(const std::filesystem::path& filepath, LoadCtx& ctx)
 {
 	m_Filepath = filepath;
 	// Buildable resources don't load directly, they are built
 	return false;
 }
 
-bool TestResourceBuildable::Build(const TestResource& baseResource)
+bool TestResourceBuildable::Build(const DelayTestResource& baseResource)
 {
 	// Build from base resource
 	builtData = baseResource.testData * 2;

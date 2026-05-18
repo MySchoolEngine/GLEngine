@@ -4,13 +4,13 @@
 #include <Core/Resources/ResourceHandle.h>
 #include <Core/Resources/ResourceLoader.h>
 
-#include <CoreTest/Resources/TestResource.h>
+#include <CoreTest/Resources/TestClasses/DelayTestResource.h>
 
 namespace GLEngine::Core {
 class TestResourceBuildable : public Resource {
 public:
 	DEFINE_RESOURCE_TYPE(TestResourceBuildable)
-	using T_BaseResource = TestResource;
+	using T_BaseResource = DelayTestResource;
 
 	TestResourceBuildable()
 		: builtData(0)
@@ -19,11 +19,11 @@ public:
 	}
 
 	[[nodiscard]] static constexpr bool					  IsDerived() { return true; }
-	[[nodiscard]] bool									  Load(const std::filesystem::path& filepath) override;
+	[[nodiscard]] bool									  Load(const std::filesystem::path& filepath, LoadCtx& ctx) override;
 	[[nodiscard]] bool									  Reload() override { return false; }
 	[[nodiscard]] std::unique_ptr<I_ResourceLoader>		  GetLoader() override { return nullptr; }
 
-	[[nodiscard]] bool Build(const TestResource& baseResource);
+	[[nodiscard]] bool Build(const DelayTestResource& baseResource);
 
 	bool SupportSaving() const override { return true; }
 

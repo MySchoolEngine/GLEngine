@@ -5,8 +5,8 @@
 #include <Core/Resources/ResourceLoader.h>
 #include <Core/Resources/ResourceManager.h>
 
-#include <CoreTest/Resources/TestResource.h>
-#include <CoreTest/Resources/TestResource2.h>
+#include <CoreTest/Resources/TestClasses/DelayTestResource.h>
+#include <CoreTest/Resources/TestClasses/TestResource2.h>
 
 namespace GLEngine::Core {
 
@@ -41,7 +41,7 @@ public:
 
 	TestResourceWithProperty() = default;
 
-	[[nodiscard]] bool Load(const std::filesystem::path& filepath) override
+	[[nodiscard]] bool Load(const std::filesystem::path& filepath, LoadCtx& ctx) override
 	{
 		m_Filepath = filepath;
 
@@ -52,7 +52,8 @@ public:
 		//     while the outer Load() thread is still running.
 		// Whether the outer itself is loaded blocking or not is controlled by
 		// the caller of LoadResource<TestResourceWithProperty>(..., isBlocking).
-		m_InnerHandle = C_ResourceManager::Instance().LoadResource<TestResource2>(m_InnerResourcePath, false);
+		m_InnerHandle = ctx.m_ResMng.LoadResource<TestResource2>(m_InnerResourcePath, ctx.m_isBlocking);
+		ctx.m_Query.AddHandle(m_InnerHandle);
 
 		return true;
 	}
