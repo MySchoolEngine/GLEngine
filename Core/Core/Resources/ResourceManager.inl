@@ -55,17 +55,18 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 			return {};
 		}
 		const auto loader	= loaderOpt.value();
-		auto resource = loader.get().CreateResource();
+		auto	   resource = loader.get().CreateResource();
 		if (resource)
 		{
-			resource->m_State	  = ResourceState::Loading;
+			resource->m_State				= ResourceState::Loading;
 			m_Resources[filepathNormalized] = resource;
 			// once all maps updated, we have to unlock, as loaders can also trigger resource loading
 			// TODO: How do we propagate information isBlocking to consequent loads?
 			lock.unlock();
 			if (isBlocking)
 			{
-				if (loader.get().LoadResource(filepathNormalized, resource))
+				I_ResourceLoader::LoadCtx ctx{.m_ResMng = *this, .m_Query = {}, .m_isBlocking = true};
+				if (loader.get().LoadResource(filepathNormalized, resource, ctx))
 				{
 					resource->m_State = ResourceState::Ready;
 				}
@@ -118,7 +119,8 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 						CORE_LOG(E_Level::Error, E_Context::Core, "No loader specified for {}", filepathNormalized.extension());
 						return;
 					}
-					const bool result = loader->get().LoadResource(filepathNormalized, resource);
+					I_ResourceLoader::LoadCtx ctx{.m_ResMng = *this, .m_Query = {}, .m_isBlocking = false};
+					const bool result = loader->get().LoadResource(filepathNormalized, resource, ctx);
 
 					std::lock_guard lock(m_FinishedLoadsMutes);
 					if (result)

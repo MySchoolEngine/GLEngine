@@ -32,7 +32,7 @@ public:
 	// Build() returns false for meshes with >1 materials — use MeshMaterialExtractor instead.
 	[[nodiscard]] static constexpr bool IsDerived() { return true; }
 
-	[[nodiscard]] bool									  Load(const std::filesystem::path& filepath) override;
+	[[nodiscard]] bool									  Load(const std::filesystem::path& filepath, LoadCtx& ctx) override;
 	[[nodiscard]] bool									  Reload() override;
 	[[nodiscard]] std::unique_ptr<Core::I_ResourceLoader> GetLoader() override;
 

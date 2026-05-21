@@ -52,7 +52,7 @@ bool C_TrimeshModel::Reload()
 }
 
 //=================================================================================
-bool C_TrimeshModel::Load(const std::filesystem::path& filepath)
+bool C_TrimeshModel::Load(const std::filesystem::path& filepath, LoadCtx& ctx)
 {
 	m_Filepath = filepath;
 	pugi::xml_document doc;
@@ -63,7 +63,7 @@ bool C_TrimeshModel::Load(const std::filesystem::path& filepath)
 		CORE_LOG(E_Level::Error, E_Context::Core, "Can't open config file for trimesh name: {}", m_Filepath);
 		return false;
 	}
-	Utils::C_XMLDeserializer d(Core::C_ResourceManager::Instance());
+	Utils::C_XMLDeserializer d(ctx.m_ResMng);
 	auto					 newTrimesh = d.Deserialize<std::shared_ptr<C_TrimeshModel>>(doc);
 	if (newTrimesh.has_value() == false)
 	{

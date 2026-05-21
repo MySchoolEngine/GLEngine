@@ -19,7 +19,7 @@ public:
 	C_TrimeshModel()	 = default;
 
 	[[nodiscard]] static constexpr bool					  IsDerived() { return true; }
-	[[nodiscard]] bool									  Load(const std::filesystem::path& filepath) override;
+	[[nodiscard]] bool									  Load(const std::filesystem::path& filepath, LoadCtx& ctx) override;
 	[[nodiscard]] bool									  Reload() override;
 	[[nodiscard]] std::unique_ptr<Core::I_ResourceLoader> GetLoader() override;
 

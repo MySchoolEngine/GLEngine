@@ -46,6 +46,7 @@ public:
 protected:
 	std::shared_ptr<Resource> m_Resource; // nullptr only when no loader exists
 	RTTR_REGISTRATION_FRIEND
+	friend class ResourceManagerBaseFixture;
 };
 
 // this forces include of ResourceType definition into headers, can I move it somewhere else?

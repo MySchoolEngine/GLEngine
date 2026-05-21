@@ -3,12 +3,11 @@
 #include <Core/CoreApi.h>
 #include <Core/EventSystem/EventReciever.h>
 
-#include <rttr/registration_friend.h>
-
-#include <cstdint>
 #include <concepts>
-#include <memory>
+#include <cstdint>
 #include <filesystem>
+#include <memory>
+#include <rttr/registration_friend.h>
 
 // #include <Core/Resources/ResourceManager.h>
 #define DECLARE_RESOURCE_TYPE(resourceType)                                                                                                                                        \
@@ -44,6 +43,8 @@
 	}
 
 namespace GLEngine::Core {
+class LoadingQuery;
+class C_ResourceManager;
 #define DEFINE_RESOURCE_TYPE(resourceType)                                                                                                                                         \
 public:                                                                                                                                                                            \
 	inline static constexpr std::string_view GetResourceDataPath()                                                                                                                 \
@@ -92,7 +93,8 @@ public:                                                                         
 public:
 
 
-enum class ResourceState : std::uint8_t {
+enum class ResourceState : std::uint8_t
+{
 	Empty,
 	Loading,
 	Ready,
@@ -127,15 +129,20 @@ class I_ResourceLoader;
 // derived resources should take base resource as only constructor argument
 class CORE_API_EXPORT Resource : public I_EventReceiver {
 public:
+	struct LoadCtx {
+		C_ResourceManager& m_ResMng;
+		LoadingQuery&	   m_Query;
+		bool			   m_isBlocking;
+	};
 	Resource();
 	~Resource() override;
 	Resource(const Resource&) = delete; // we are pointing to the file and copy does not make sense, we should have some kind of Clone(path) function instead
 	Resource& operator=(const Resource&) = delete;
 
-	[[nodiscard]] virtual std::unique_ptr<I_ResourceLoader> GetLoader()									= 0;
-	[[nodiscard]] virtual bool								Load(const std::filesystem::path& filepath) = 0;
-	[[nodiscard]] virtual bool								Reload()									= 0;
-	[[nodiscard]] virtual std::size_t						GetResourceTypeHash() const					= 0;
+	[[nodiscard]] virtual std::unique_ptr<I_ResourceLoader> GetLoader()												  = 0;
+	[[nodiscard]] virtual bool								Load(const std::filesystem::path& filepath, LoadCtx& ctx) = 0;
+	[[nodiscard]] virtual bool								Reload()												  = 0;
+	[[nodiscard]] virtual std::size_t						GetResourceTypeHash() const								  = 0;
 
 	[[nodiscard]] bool Save() const
 	{
@@ -165,7 +172,7 @@ protected:
 private:
 	ResourceState m_State = ResourceState::Empty;
 	friend class C_ResourceManager;
-	friend class ResourceHandleFixture;
+	friend class ResourceManagerBaseFixture;
 
 	RTTR_REGISTRATION_FRIEND
 };

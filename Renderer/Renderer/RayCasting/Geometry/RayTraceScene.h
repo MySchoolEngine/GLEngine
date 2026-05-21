@@ -75,7 +75,6 @@ private:
 	std::shared_ptr<C_ImplicitBlob>			m_Blob;
 
 	Core::LoadingQuery m_LoadingMeshes;
-	Core::LoadingQuery m_LoadingBVH;
 	Core::LoadingQuery m_LoadingTextures;
 };
 

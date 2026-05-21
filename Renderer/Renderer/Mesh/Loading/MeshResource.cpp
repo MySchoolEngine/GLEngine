@@ -26,7 +26,7 @@ namespace GLEngine::Renderer {
 MeshResource::MeshResource() = default;
 
 //=================================================================================
-bool MeshResource::Load(const std::filesystem::path& filepath)
+bool MeshResource::Load(const std::filesystem::path& filepath, LoadCtx& ctx)
 {
 	// This does not have to be shared ptr
 	m_Scene	   = std::make_shared<MeshData::Scene>();

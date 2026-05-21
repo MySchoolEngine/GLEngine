@@ -32,7 +32,7 @@ TextureResource::TextureResource()
 TextureResource::~TextureResource() = default;
 
 //=================================================================================
-bool TextureResource::Load(const std::filesystem::path& filepath)
+bool TextureResource::Load(const std::filesystem::path& filepath, LoadCtx& ctx)
 {
 	Textures::TextureLoader tl;
 

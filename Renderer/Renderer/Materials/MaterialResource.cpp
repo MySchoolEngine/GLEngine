@@ -89,7 +89,7 @@ std::shared_ptr<I_MaterialData> MaterialResource::BuildPBRData(const MeshData::M
 }
 
 //=================================================================================
-bool MaterialResource::Load(const std::filesystem::path& filepath)
+bool MaterialResource::Load(const std::filesystem::path& filepath, LoadCtx& ctx)
 {
 	m_Filepath = filepath;
 	pugi::xml_document doc;
@@ -101,7 +101,7 @@ bool MaterialResource::Load(const std::filesystem::path& filepath)
 		return false;
 	}
 
-	Utils::C_XMLDeserializer d(Core::C_ResourceManager::Instance());
+	Utils::C_XMLDeserializer d(ctx.m_ResMng);
 	auto					 loaded = d.Deserialize<std::shared_ptr<MaterialResource>>(doc);
 	if (!loaded.has_value())
 	{
