@@ -4,15 +4,9 @@
 
 #include <CoreTest/Resources/TestClasses/DelayTestResource.h>
 
-namespace GLEngine::Core {
-template <> void ResourceHandle<DelayTestResource>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
-{
-	if (GetFilePath() != "")
-	{
-		*this = ctx.m_ResMng.LoadResource<DelayTestResource>(GetFilePath(), ctx.bLoadHandlesInstantly);
-	}
-}
+DECLARE_RESOURCE_HANDLE_AFTER_DESERIALIZE(DelayTestResource)
 
+namespace GLEngine::Core {
 std::shared_ptr<Resource> DelayTestResourceLoader::CreateResource() const
 {
 	return std::make_shared<DelayTestResource>();

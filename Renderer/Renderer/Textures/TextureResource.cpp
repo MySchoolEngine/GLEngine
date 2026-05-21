@@ -7,16 +7,7 @@
 #include <Core/Resources/ResourceHandle.h>
 #include <Core/Resources/ResourceManager.h>
 
-
-namespace GLEngine::Core {
-template <> void ResourceHandle<Renderer::TextureResource>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
-{
-	if (GetFilePath() != "")
-	{
-		*this = ctx.m_ResMng.LoadResource<Renderer::TextureResource>(GetFilePath());
-	}
-}
-} // namespace GLEngine::Core
+DECLARE_RESOURCE_HANDLE_AFTER_DESERIALIZE(Renderer::TextureResource)
 DECLARE_RESOURCE_TYPE(GLEngine::Renderer::TextureResource)
 
 namespace GLEngine::Renderer {

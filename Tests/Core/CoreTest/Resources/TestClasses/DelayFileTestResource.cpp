@@ -2,10 +2,11 @@
 
 #include <CoreTest/Resources/TestClasses/DelayFileTestResource.h>
 
+#include <Core/Resources/ResourceManager.h>
+
+DECLARE_RESOURCE_HANDLE_AFTER_DESERIALIZE(DelayFileTestResource)
+
 namespace GLEngine::Core {
-template <> void ResourceHandle<DelayFileTestResource>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
-{
-}
 
 std::shared_ptr<Resource> TestResourceLoader::CreateResource() const
 {

@@ -14,11 +14,7 @@ std::vector<std::string> TestResourceWithPropertyLoader::GetSupportedExtensions(
 	return {".testprop"};
 }
 
-template <>
-void ResourceHandle<TestResourceWithProperty>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
-{
-}
-
 } // namespace GLEngine::Core
 
+DECLARE_RESOURCE_HANDLE_AFTER_DESERIALIZE(TestResourceWithProperty)
 DECLARE_RESOURCE_TYPE(GLEngine::Core::TestResourceWithProperty)

@@ -28,16 +28,9 @@ RTTR_REGISTRATION
 }
 // clang-format on
 
-namespace GLEngine::Core {
+DECLARE_RESOURCE_HANDLE_AFTER_DESERIALIZE(TestResourceWithPropertyFile)
 
-template <> void ResourceHandle<TestResourceWithPropertyFile>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
-{
-	auto& rm = C_ResourceManager::Instance();
-	if (GetFilePath() != "")
-	{
-		*this = rm.LoadResource<TestResourceWithPropertyFile>(GetFilePath());
-	}
-}
+namespace GLEngine::Core {
 
 std::shared_ptr<Resource> TestResourceWithPropertyFileLoader::CreateResource() const
 {

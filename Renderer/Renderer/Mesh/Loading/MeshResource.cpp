@@ -7,15 +7,7 @@
 #include <Core/Resources/ResourceHandle.h>
 #include <Core/Resources/ResourceManager.h>
 
-namespace GLEngine::Core {
-template <> void ResourceHandle<Renderer::MeshResource>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
-{
-	if (GetFilePath() != "")
-	{
-		*this = ctx.m_ResMng.LoadResource<Renderer::MeshResource>(GetFilePath());
-	}
-}
-} // namespace GLEngine::Core
+DECLARE_RESOURCE_HANDLE_AFTER_DESERIALIZE(Renderer::MeshResource)
 DECLARE_RESOURCE_TYPE(GLEngine::Renderer::MeshResource)
 
 namespace GLEngine::Renderer {

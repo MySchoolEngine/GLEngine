@@ -15,16 +15,7 @@
 
 #include "Utils/Serialization/XMLSerialize.h"
 
-// Specialization so ResourceHandle<MaterialResource> reloads after XML deserialization
-namespace GLEngine::Core {
-template <> void ResourceHandle<Renderer::MaterialResource>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
-{
-	if (GetFilePath() != "")
-	{
-		*this = ctx.m_ResMng.LoadResource<Renderer::MaterialResource>(GetFilePath());
-	}
-}
-} // namespace GLEngine::Core
+DECLARE_RESOURCE_HANDLE_AFTER_DESERIALIZE(Renderer::MaterialResource)
 
 // clang-format off
 RTTR_REGISTRATION

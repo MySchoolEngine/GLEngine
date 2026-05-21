@@ -1,6 +1,10 @@
 ﻿#include <CoreTestStdafx.h>
 
+#include <Core/Resources/ResourceManager.h>
+
 #include <CoreTest/Resources/TestClasses/TestResourceBuildable.h>
+
+DECLARE_RESOURCE_HANDLE_AFTER_DESERIALIZE(TestResourceBuildable)
 
 namespace GLEngine::Core {
 
@@ -33,11 +37,6 @@ std::shared_ptr<Resource> TestResourceBuildableLoader::CreateResource() const
 std::vector<std::string> TestResourceBuildableLoader::GetSupportedExtensions() const
 {
 	return {".testbuild"};
-}
-
-template <>
-void ResourceHandle<TestResourceBuildable>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
-{
 }
 
 } // namespace GLEngine::Core

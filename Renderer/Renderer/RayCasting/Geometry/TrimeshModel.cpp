@@ -11,15 +11,7 @@
 #include <Utils/Serialization/XMLSerialize.h>
 
 
-namespace GLEngine::Core {
-template <> void ResourceHandle<Renderer::C_TrimeshModel>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
-{
-	if (GetFilePath() != "")
-	{
-		*this = ctx.m_ResMng.LoadResource<Renderer::C_TrimeshModel>(GetFilePath());
-	}
-}
-} // namespace GLEngine::Core
+DECLARE_RESOURCE_HANDLE_AFTER_DESERIALIZE(Renderer::C_TrimeshModel)
 
 // clang-format off
 RTTR_REGISTRATION

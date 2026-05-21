@@ -92,6 +92,18 @@ public:                                                                         
 	RTTR_ENABLE(Core::Resource)                                                                                                                                                    \
 public:
 
+// Declares AfterDeserialize
+// needs #include <Core/Resources/ResourceManager.h> to be included
+#define DECLARE_RESOURCE_HANDLE_AFTER_DESERIALIZE(resourceType)                                                                                                                    \
+namespace GLEngine::Core {                                                                                                                                                         \
+	template <> void ResourceHandle<resourceType>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)                                                                 \
+	{                                                                                                                                                                              \
+		if (GetFilePath() != "")                                                                                                                                                   \
+		{                                                                                                                                                                          \
+			*this = ctx.m_ResMng.LoadResource<resourceType>(GetFilePath(), ctx.bLoadHandlesInstantly);                                                                             \
+		}                                                                                                                                                                          \
+	}                                                                                                                                                                              \
+} // namespace GLEngine::Core
 
 enum class ResourceState : std::uint8_t
 {

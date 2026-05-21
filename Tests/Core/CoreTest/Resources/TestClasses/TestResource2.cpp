@@ -4,14 +4,10 @@
 
 #include <CoreTest/Resources/TestClasses/TestResource2.h>
 
+DECLARE_RESOURCE_HANDLE_AFTER_DESERIALIZE(TestResource2)
+
 namespace GLEngine::Core {
-template <> void ResourceHandle<TestResource2>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
-{
-	if (GetFilePath() != "")
-	{
-		*this = ctx.m_ResMng.LoadResource<TestResource2>(GetFilePath(), ctx.bLoadHandlesInstantly);
-	}
-}
+
 std::shared_ptr<Resource> TestResource2Loader::CreateResource() const
 {
 	return std::make_shared<TestResource2>();
