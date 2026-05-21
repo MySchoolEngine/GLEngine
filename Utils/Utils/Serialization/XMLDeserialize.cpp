@@ -13,8 +13,8 @@
 namespace GLEngine::Utils {
 
 //=================================================================================
-C_XMLDeserializer::C_XMLDeserializer(Core::C_ResourceManager& resMng)
-	: m_Ctx({resMng})
+C_XMLDeserializer::C_XMLDeserializer(Core::C_ResourceManager& resMng, bool loadHandlesInstantly)
+	: m_Ctx({resMng, loadHandlesInstantly})
 {
 }
 

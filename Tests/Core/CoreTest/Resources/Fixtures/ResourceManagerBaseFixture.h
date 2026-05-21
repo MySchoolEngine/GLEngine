@@ -35,6 +35,7 @@ public:
 
 		for (const auto& path : m_FilesToDelete)
 			RemoveFileIfExists(path);
+		VerifyNoMetaFilesExist();
 		VerifyManagerEmpty(manager, "TearDown");
 	}
 
@@ -86,6 +87,19 @@ public:
 		EXPECT_TRUE(manager.m_FinishedLoads.empty()) << stage << ": m_FinishedLoads should be empty";
 		EXPECT_TRUE(manager.m_ExtToLoaders.empty()) << stage << ": m_ExtToLoaders should be empty";
 		EXPECT_TRUE(manager.m_TypeIdToLoader.empty()) << stage << ": m_TypeIdToLoader should be empty";
+	}
+
+	/**
+	 * @brief Verifies that no .meta files exist in the current directory.
+	 */
+	static void VerifyNoMetaFilesExist()
+	{
+		std::error_code ec;
+		bool			hasMetaFiles = false;
+		for (const auto& entry : std::filesystem::directory_iterator(".", ec))
+		{
+			EXPECT_FALSE(entry.path().extension() == ".meta") << "No .meta files should exist in working directory" << entry;
+		}
 	}
 
 private:

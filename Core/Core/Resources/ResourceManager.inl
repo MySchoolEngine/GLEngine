@@ -125,6 +125,8 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 					std::lock_guard lock(m_FinishedLoadsMutes);
 					if (result)
 					{
+						while (ctx.m_Query.IsDone() == false)
+							;
 						m_FinishedLoads.push_back(resource);
 						// ResourceHandle<ResourceType> resourceHandle(resource);
 						// ResourceCreatedEvent event(resourceHandle);

@@ -7,10 +7,9 @@
 namespace GLEngine::Core {
 template <> void ResourceHandle<TestResource2>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
 {
-	auto& rm = C_ResourceManager::Instance();
 	if (GetFilePath() != "")
 	{
-		*this = rm.LoadResource<TestResource2>(GetFilePath());
+		*this = ctx.m_ResMng.LoadResource<TestResource2>(GetFilePath(), ctx.bLoadHandlesInstantly);
 	}
 }
 std::shared_ptr<Resource> TestResource2Loader::CreateResource() const

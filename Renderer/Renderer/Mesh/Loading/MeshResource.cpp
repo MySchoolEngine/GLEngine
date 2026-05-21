@@ -10,10 +10,9 @@
 namespace GLEngine::Core {
 template <> void ResourceHandle<Renderer::MeshResource>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
 {
-	auto& rm = C_ResourceManager::Instance();
 	if (GetFilePath() != "")
 	{
-		*this = rm.LoadResource<Renderer::MeshResource>(GetFilePath());
+		*this = ctx.m_ResMng.LoadResource<Renderer::MeshResource>(GetFilePath());
 	}
 }
 } // namespace GLEngine::Core

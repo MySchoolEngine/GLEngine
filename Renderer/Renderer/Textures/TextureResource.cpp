@@ -11,10 +11,9 @@
 namespace GLEngine::Core {
 template <> void ResourceHandle<Renderer::TextureResource>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
 {
-	auto& rm = C_ResourceManager::Instance();
 	if (GetFilePath() != "")
 	{
-		*this = rm.LoadResource<Renderer::TextureResource>(GetFilePath());
+		*this = ctx.m_ResMng.LoadResource<Renderer::TextureResource>(GetFilePath());
 	}
 }
 } // namespace GLEngine::Core

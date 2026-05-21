@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <TestResourceWithPropertyFileHandle FilePath="ResourceLoadSaveFixture\dummyFilledSave.fileprop">
 	<m_InnerHandle>
-		<Resource derivedTypeCast="GLEngine::Core::TestResource2" FilePath="test_resource.test2" />
+		<Resource derivedTypeCast="GLEngine::Core::DelayTestResource" FilePath="test_resource.test" />
 	</m_InnerHandle>
 </TestResourceWithPropertyFileHandle>

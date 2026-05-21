@@ -276,7 +276,7 @@ void EntityEditor::OpenEntity(const std::filesystem::path& path)
 		return;
 	}
 
-	Utils::C_XMLDeserializer ds(Core::C_ResourceManager::Instance());
+	Utils::C_XMLDeserializer ds(Core::C_ResourceManager::Instance(), true);
 	auto loadEntity = ds.Deserialize<std::shared_ptr<Entity::C_BasicEntity>>(doc);
 	if (loadEntity.has_value() == false)
 	{

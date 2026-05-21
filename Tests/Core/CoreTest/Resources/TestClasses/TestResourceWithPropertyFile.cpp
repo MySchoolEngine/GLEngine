@@ -15,7 +15,7 @@ RTTR_REGISTRATION
 		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
 		.property("m_InnerHandle", &TestResourceWithPropertyFile::m_InnerHandle)(
 			rttr::policy::prop::as_reference_wrapper,
-			REGISTER_DEFAULT_VALUE(GLEngine::Core::ResourceHandle<TestResource2>()))
+			REGISTER_DEFAULT_VALUE(GLEngine::Core::ResourceHandle<DelayTestResource>()))
 		;
 
 		rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<TestResourceWithPropertyFile>>();

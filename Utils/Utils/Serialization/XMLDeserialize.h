@@ -26,7 +26,7 @@ class xml_attribute;
 namespace GLEngine::Utils {
 class UTILS_API_EXPORT C_XMLDeserializer {
 public:
-	C_XMLDeserializer(Core::C_ResourceManager& resMng);
+	C_XMLDeserializer(Core::C_ResourceManager& resMng, bool loadHandlesInstantly);
 	template <class T> std::optional<T> Deserialize(const pugi::xml_document& document)
 	{
 		auto var = DeserializeDoc(document);
@@ -39,6 +39,7 @@ public:
 
 	struct DeserializeCtx {
 		Core::C_ResourceManager& m_ResMng;
+		bool					 bLoadHandlesInstantly;
 	};
 
 private:

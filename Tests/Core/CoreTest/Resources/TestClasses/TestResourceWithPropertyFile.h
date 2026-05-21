@@ -29,7 +29,7 @@ public:
 			CORE_LOG(E_Level::Error, E_Context::Core, "Can't open config file for trimesh name: {}", m_Filepath);
 			return false;
 		}
-		Utils::C_XMLDeserializer d(ctx.m_ResMng);
+		Utils::C_XMLDeserializer d(ctx.m_ResMng, ctx.m_isBlocking);
 		auto					 newTrimesh = d.Deserialize<std::shared_ptr<TestResourceWithPropertyFile>>(doc);
 		if (newTrimesh.has_value() == false)
 		{
@@ -46,7 +46,7 @@ public:
 
 
 	// Observable result after loading.
-	ResourceHandle<TestResource2> m_InnerHandle;
+	ResourceHandle<DelayTestResource> m_InnerHandle;
 
 protected:
 	bool SaveInternal() const override

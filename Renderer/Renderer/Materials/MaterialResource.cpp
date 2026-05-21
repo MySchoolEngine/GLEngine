@@ -19,10 +19,9 @@
 namespace GLEngine::Core {
 template <> void ResourceHandle<Renderer::MaterialResource>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
 {
-	auto& rm = C_ResourceManager::Instance();
 	if (GetFilePath() != "")
 	{
-		*this = rm.LoadResource<Renderer::MaterialResource>(GetFilePath());
+		*this = ctx.m_ResMng.LoadResource<Renderer::MaterialResource>(GetFilePath());
 	}
 }
 } // namespace GLEngine::Core
@@ -101,7 +100,7 @@ bool MaterialResource::Load(const std::filesystem::path& filepath, LoadCtx& ctx)
 		return false;
 	}
 
-	Utils::C_XMLDeserializer d(ctx.m_ResMng);
+	Utils::C_XMLDeserializer d(ctx.m_ResMng, ctx.m_isBlocking);
 	auto					 loaded = d.Deserialize<std::shared_ptr<MaterialResource>>(doc);
 	if (!loaded.has_value())
 	{

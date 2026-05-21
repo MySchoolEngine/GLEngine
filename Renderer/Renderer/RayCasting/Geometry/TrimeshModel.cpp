@@ -14,10 +14,9 @@
 namespace GLEngine::Core {
 template <> void ResourceHandle<Renderer::C_TrimeshModel>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
 {
-	auto& rm = C_ResourceManager::Instance();
 	if (GetFilePath() != "")
 	{
-		*this = rm.LoadResource<Renderer::C_TrimeshModel>(GetFilePath());
+		*this = ctx.m_ResMng.LoadResource<Renderer::C_TrimeshModel>(GetFilePath());
 	}
 }
 } // namespace GLEngine::Core
@@ -63,7 +62,7 @@ bool C_TrimeshModel::Load(const std::filesystem::path& filepath, LoadCtx& ctx)
 		CORE_LOG(E_Level::Error, E_Context::Core, "Can't open config file for trimesh name: {}", m_Filepath);
 		return false;
 	}
-	Utils::C_XMLDeserializer d(ctx.m_ResMng);
+	Utils::C_XMLDeserializer d(ctx.m_ResMng, ctx.m_isBlocking);
 	auto					 newTrimesh = d.Deserialize<std::shared_ptr<C_TrimeshModel>>(doc);
 	if (newTrimesh.has_value() == false)
 	{

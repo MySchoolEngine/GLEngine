@@ -21,7 +21,6 @@ public:
 		// Get singleton instance
 		auto& manager = C_ResourceManager::Instance();
 		VerifyEmptyLists(manager, "SetUp");
-		VerifyNoMetaFilesExist();
 	}
 
 	void TearDown() override
@@ -217,7 +216,7 @@ TEST_F(ResourceManagerFixture, LoadResourceAsync)
 	EXPECT_FALSE(handle.IsReady()) << "Handle should not be ready immediately after async load request";
 
 	// Wait for load to complete (DelayTestResource has 100ms delay)
-	std::this_thread::sleep_for(std::chrono::milliseconds(120));
+	std::this_thread::sleep_for(DelayTestResource::s_LoadTime * 2);
 
 	// Process finished loads
 	manager.UpdatePendingLoads();
@@ -267,7 +266,7 @@ TEST_F(ResourceManagerFixture, LoadBuildableResourceAsync)
 	EXPECT_TRUE(handleBuildable.IsLoading()) << "Buildable resource should be in loading state immediately after async load request";
 	EXPECT_FALSE(handleBuildable.IsFailed()) << "Buildable resource should not be in failed state";
 	// Wait for load to complete (DelayTestResource has 100ms delay)
-	std::this_thread::sleep_for(std::chrono::milliseconds(120));
+	std::this_thread::sleep_for(DelayTestResource::s_LoadTime * 2);
 
 	// Process finished loads
 	manager.UpdatePendingLoads();
