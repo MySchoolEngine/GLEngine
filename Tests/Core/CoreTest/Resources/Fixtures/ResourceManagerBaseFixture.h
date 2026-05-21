@@ -3,10 +3,9 @@
 #include <Core/Resources/Metafile.h>
 #include <Core/Resources/ResourceManager.h>
 
-#include <gtest/gtest.h>
-
 #include <chrono>
 #include <filesystem>
+#include <gtest/gtest.h>
 #include <string>
 #include <thread>
 #include <vector>
@@ -22,7 +21,6 @@ namespace GLEngine::Core {
 //   - Helpers: FlushAllUnused, RemoveMetafileIfExists, VerifyManagerEmpty.
 class ResourceManagerBaseFixture : public ::testing::Test {
 public:
-
 	void SetUp() override
 	{
 		auto& manager = C_ResourceManager::Instance();
@@ -41,10 +39,16 @@ public:
 	}
 
 	// Register a path to be deleted during TearDown.
-	void DeleteOnTearDown(const std::filesystem::path& path)
+	void DeleteOnTearDown(const std::filesystem::path& path) { m_FilesToDelete.push_back(path); }
+
+	template <class ResourceType> static ResourceHandle<ResourceType> CreateResourceHandle(std::shared_ptr<ResourceType> resource)
 	{
-		m_FilesToDelete.push_back(path);
+		resource->m_State = ResourceState::Ready;
+		return ResourceHandle<ResourceType>(resource);
 	}
+
+	static void SetFilePath(const std::shared_ptr<Resource>& resource, const std::filesystem::path& filepath) { resource->m_Filepath = filepath; }
+	static void SetDirty(const std::shared_ptr<Resource>& resource) { resource->m_Dirty = true; }
 
 	// ---------------------------------------------------------------------------
 	// Helpers
@@ -58,7 +62,8 @@ public:
 		{
 			const auto numResourcesBefore = manager.m_Resources.size();
 			manager.UpdatePendingLoads();
-			if (manager.m_Resources.size() == 0)
+			// manager.m_UnusedList.size() is there due to resources created by hand (std::make_shared<DelayTestResource>())
+			if (manager.m_Resources.size() + manager.m_UnusedList.size() == 0)
 				break;
 			if (numResourcesBefore != manager.m_Resources.size())
 				i = 0;

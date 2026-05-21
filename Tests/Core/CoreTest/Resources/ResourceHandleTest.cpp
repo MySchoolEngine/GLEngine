@@ -4,35 +4,12 @@
 #include <Core/Resources/ResourceManager.h>
 
 #include <CoreTest/Resources/TestClasses/DelayTestResource.h>
-#include <CoreTest/Resources/TestClasses/TestResource2.h>
+#include <CoreTest/Resources/Fixtures/ResourceManagerBaseFixture.h>
 
 namespace GLEngine::Core {
 
-class ResourceHandleFixture : public ::testing::Test {
+class ResourceHandleFixture : public ResourceManagerBaseFixture {
 public:
-	template <class ResourceType> static ResourceHandle<ResourceType> CreateResourceHandle(std::shared_ptr<ResourceType> resource)
-	{
-		resource->m_State = ResourceState::Ready;
-		return ResourceHandle<ResourceType>(resource);
-	}
-
-	void TearDown() override
-	{
-		auto& manager = C_ResourceManager::Instance();
-		// Clean up resources after each test
-		FlushAllUnused(manager);
-	}
-
-	/**
-	 * @brief Calls UnloadUnusedResources s_UpdatesBeforeDelete times to fully flush all unused resources.
-	 */
-	static void FlushAllUnused(C_ResourceManager& manager)
-	{
-		for (unsigned int i = 0; i <= C_ResourceManager::s_UpdatesBeforeDelete; ++i)
-		{
-			manager.UnloadUnusedResources();
-		}
-	}
 };
 
 TEST_F(ResourceHandleFixture, DefaultConstruct)

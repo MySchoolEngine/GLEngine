@@ -1,10 +1,17 @@
 ﻿#include <CoreTestStdafx.h>
 
+#include <Core/Resources/ResourceManager.h>
+
 #include <CoreTest/Resources/TestClasses/TestResource2.h>
 
 namespace GLEngine::Core {
 template <> void ResourceHandle<TestResource2>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
 {
+	auto& rm = C_ResourceManager::Instance();
+	if (GetFilePath() != "")
+	{
+		*this = rm.LoadResource<TestResource2>(GetFilePath());
+	}
 }
 std::shared_ptr<Resource> TestResource2Loader::CreateResource() const
 {
