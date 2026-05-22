@@ -115,6 +115,11 @@ enum class ResourceState : std::uint8_t
 
 class Resource;
 
+template <class T> concept IsResource = requires(T t)
+{
+	requires std::derived_from<T, Resource>;
+};
+
 template <typename T> concept IsBeDerivedResource = requires(T t)
 {
 	requires std::derived_from<T, Resource>;
@@ -189,5 +194,4 @@ private:
 	RTTR_REGISTRATION_FRIEND
 };
 
-template <class ResourceType> concept is_resource = std::is_base_of_v<Resource, ResourceType>;
 } // namespace GLEngine::Core

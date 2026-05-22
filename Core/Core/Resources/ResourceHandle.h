@@ -50,7 +50,7 @@ protected:
 };
 
 // this forces include of ResourceType definition into headers, can I move it somewhere else?
-template <class ResourceType> requires(is_resource<ResourceType>) class ResourceHandle final : public ResourceHandleBase {
+template <IsResource ResourceType> class ResourceHandle final : public ResourceHandleBase {
 public:
 	ResourceHandle() = default;
 	explicit ResourceHandle(std::shared_ptr<ResourceType> resource)
@@ -69,7 +69,7 @@ public:
 };
 
 // for usage in maps
-template <is_resource ResourceType>
+template <IsResource ResourceType>
 struct ResourceHandleCmp {
 	bool operator()(const ResourceHandle<ResourceType>& lhs, const ResourceHandle<ResourceType>& rhs) const
 	{

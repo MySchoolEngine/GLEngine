@@ -15,8 +15,6 @@
 namespace GLEngine::Core {
 
 class CORE_API_EXPORT C_ResourceManager final : public C_Layer {
-	template <class ResourceType> using T_Handle = std::enable_if_t<std::is_base_of_v<Resource, ResourceType>, ResourceHandle<ResourceType>>;
-
 public:
 	C_ResourceManager(const C_ResourceManager& other)	  = delete;
 	C_ResourceManager(C_ResourceManager&& other) noexcept = delete;
@@ -35,17 +33,31 @@ public:
 	// transfers ptr ownership to the manager
 	void RegisterResourceType(const I_ResourceLoader* loader);
 
-	template <class ResourceType> T_Handle<ResourceType> LoadResource(const std::filesystem::path& filepath, bool isBlocking = false);
+	template <IsResource ResourceType> ResourceHandle<ResourceType> LoadResource(const std::filesystem::path& filepath, bool isBlocking = false);
 
+	/**
+	 * @brief Creates new resource of type ResourceType if resource with filepath does not exist. Invalid handle otherwise.
+	 *
+	 * @tparam ResourceType
+	 * @param filepath
+	 * @return valid handle if resource with the filepath does not exist
+	 */
+	template <IsResource ResourceType> [[nodiscard]] ResourceHandle<ResourceType> CreateNewResource(const std::filesystem::path& filepath);
 	/**
 	 * @brief This function will not try to load anything. Only returns handle if the resource is already loaded.
 	 * @tparam ResourceType
 	 * @param filepath
 	 * @return
 	 */
-	template <class ResourceType> T_Handle<ResourceType> GetResource(const std::filesystem::path& filepath);
-	std::vector<std::string>							 GetSupportedExtensions(const std::size_t) const;
-	std::vector<C_Metafile>								 GetAllMetafiles(const std::filesystem::path& path = ".", bool recursive = false);
+	template <IsResource ResourceType> ResourceHandle<ResourceType> GetResource(const std::filesystem::path& filepath);
+	/**
+	 * @brief Due to cross DLL boundaries this function cannot be called directly with the type (from GUI) so
+	 * this allows to use call of following methods through the reflection.
+	 * @param hash - ResourceType::GetResourceTypeHashStatic or ResourceLoader::GetResourceTypeID
+	 * @return list of supported extensions.
+	 */
+	std::vector<std::string> GetSupportedExtensions(const std::size_t hash) const;
+	std::vector<C_Metafile>	 GetAllMetafiles(const std::filesystem::path& path = ".", bool recursive = false);
 
 	/**
 	 * @brief Returns the loader registered for the given file extension.
@@ -63,9 +75,9 @@ public:
 	 *         no loader has been registered for @p ResourceType.
 	 *         The reference is valid only as long as the manager has not been destroyed.
 	 */
-	template <class ResourceType> requires is_resource<ResourceType> [[nodiscard]] std::optional<std::reference_wrapper<const I_ResourceLoader>> GetLoaderForType() const;
+	template <IsResource ResourceType> [[nodiscard]] std::optional<std::reference_wrapper<const I_ResourceLoader>> GetLoaderForType() const;
 
-	template <is_resource ResourceType> [[nodiscard]] bool IsResourceType(const std::filesystem::path& path) const;
+	template <IsResource ResourceType> [[nodiscard]] bool IsResourceType(const std::filesystem::path& path) const;
 
 private:
 	C_ResourceManager();

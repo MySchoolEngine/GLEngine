@@ -32,7 +32,7 @@ public:
 };
 
 // To create loader, please inherit from this loader and register with manager
-template <class ResourceType> requires(is_resource<ResourceType>) class ResourceLoader : public I_ResourceLoader {
+template <IsResource ResourceType> class ResourceLoader : public I_ResourceLoader {
 public:
 	std::size_t GetResourceTypeID() const final { return ResourceType::GetResourceTypeHashStatic(); }
 	std::string DragAndDropLabel() const final { return "RESOURCE_" + ResourceType::GetResrourceTypeName(); }

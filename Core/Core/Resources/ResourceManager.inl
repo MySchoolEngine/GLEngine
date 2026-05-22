@@ -5,7 +5,7 @@
 
 namespace GLEngine::Core {
 //=================================================================================
-template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_ResourceManager::LoadResource(const std::filesystem::path& filepath, bool isBlocking /*= false*/)
+template <IsResource ResourceType> ResourceHandle<ResourceType> C_ResourceManager::LoadResource(const std::filesystem::path& filepath, bool isBlocking /*= false*/)
 {
 	const auto filepathNormalized = filepath.lexically_normal();
 	// if resource is derived, then we first need to load base resource
@@ -46,7 +46,7 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 				CORE_LOG(E_Level::Error, E_Context::Core, "Resource {} is of different type than requested.", filepathNormalized);
 				return {};
 			}
-			return T_Handle<ResourceType>{concreteResource};
+			return ResourceHandle<ResourceType>{concreteResource};
 		}
 		const auto loaderOpt = GetLoaderForExt(filepathNormalized.extension().string());
 		if (!loaderOpt)
@@ -120,7 +120,7 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 						return;
 					}
 					I_ResourceLoader::LoadCtx ctx{.m_ResMng = *this, .m_Query = {}, .m_isBlocking = false};
-					const bool result = loader->get().LoadResource(filepathNormalized, resource, ctx);
+					const bool				  result = loader->get().LoadResource(filepathNormalized, resource, ctx);
 
 					std::lock_guard lock(m_FinishedLoadsMutes);
 					if (result)
@@ -184,7 +184,7 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 }
 
 //=================================================================================
-template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_ResourceManager::GetResource(const std::filesystem::path& filepath)
+template <IsResource ResourceType> ResourceHandle<ResourceType> C_ResourceManager::GetResource(const std::filesystem::path& filepath)
 {
 	const auto filepathNormalized = filepath.lexically_normal();
 	if (auto resource = GetResourcePtr(filepathNormalized))
@@ -193,14 +193,56 @@ template <class ResourceType> C_ResourceManager::T_Handle<ResourceType> C_Resour
 		GLE_ASSERT(concreteResource, "Cannot cast to the concrete resource type");
 		if (!concreteResource)
 			return {};
-		return T_Handle<ResourceType>{concreteResource};
+		return ResourceHandle<ResourceType>{concreteResource};
 	}
-	return T_Handle<ResourceType>{};
+	return ResourceHandle<ResourceType>{};
 }
 
 //=================================================================================
-template <class ResourceType>
-requires is_resource<ResourceType> [[nodiscard]] std::optional<std::reference_wrapper<const I_ResourceLoader>> C_ResourceManager::GetLoaderForType() const
+template <IsResource ResourceType> ResourceHandle<ResourceType> C_ResourceManager::CreateNewResource(const std::filesystem::path& filepath)
+{
+	const auto filepathNormalized = filepath.lexically_normal();
+	if (std::filesystem::exists(filepathNormalized))
+		return {};
+	else
+	{
+		std::unique_lock lock(m_Mutex);
+		// check if we already have the resource loaded, it could be created, but not exist as a file
+		// in the filesystem
+		if (const auto resource = GetResource<ResourceType>(filepathNormalized))
+		{
+			// TODO should I differentiate this state?
+			return {};
+		}
+
+		const auto loaderOpt = GetLoaderForExt(filepathNormalized.extension().string());
+		if (!loaderOpt)
+		{
+			CORE_LOG(E_Level::Error, E_Context::Core, "No loader specified for {}", filepathNormalized.extension());
+			return {};
+		}
+		const auto loader	= loaderOpt.value();
+		auto	   resource = loader.get().CreateResource();
+		if (resource)
+		{
+			resource->m_Dirty = true;
+			resource->m_State = ResourceState::Ready;
+
+			std::shared_ptr<ResourceType> concreteResource = std::dynamic_pointer_cast<ResourceType>(resource);
+			if (!concreteResource)
+			{
+				GLE_ASSERT(concreteResource, "Resource {} is of different type than requested. Given we have loader for that type this should not happen.", filepathNormalized);
+				return {};
+			}
+			m_Resources[filepathNormalized] = resource;
+			return ResourceHandle<ResourceType>(concreteResource);
+		}
+	}
+	return {};
+}
+
+//=================================================================================
+template <IsResource ResourceType> [[nodiscard]] std::optional<std::reference_wrapper<const I_ResourceLoader>> C_ResourceManager::GetLoaderForType() const
 {
 	// use rttr to avoid linking all libraries together
 	const auto resourceType = rttr::type::get<ResourceType>();
@@ -209,7 +251,7 @@ requires is_resource<ResourceType> [[nodiscard]] std::optional<std::reference_wr
 }
 
 //=================================================================================
-template <is_resource ResourceType> [[nodiscard]] bool C_ResourceManager::IsResourceType(const std::filesystem::path& path) const
+template <IsResource ResourceType> [[nodiscard]] bool C_ResourceManager::IsResourceType(const std::filesystem::path& path) const
 {
 	const auto loader = GetLoaderForExt(path.extension().generic_string());
 	if (loader.has_value() == false)

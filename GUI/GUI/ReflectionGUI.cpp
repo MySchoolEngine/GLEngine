@@ -169,7 +169,7 @@ bool DrawColour(rttr::instance& obj, const rttr::property& prop)
 }
 
 //=================================================================================
-template<Core::is_resource resourceType, class MetaClassEnum>
+template<Core::IsResource resourceType, class MetaClassEnum>
 bool DrawResource(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
