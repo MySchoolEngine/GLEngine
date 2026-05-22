@@ -9,6 +9,7 @@
 #include <Physics/GeometryUtils/TriangleIntersect.h>
 
 #include <Utils/Range.h>
+#include <Utils/Reflection/Metadata.h>
 #include <Utils/Serialization/SerializationUtils.h>
 
 #include <algorithm>
@@ -17,10 +18,18 @@
 RTTR_REGISTRATION
 {
 	using namespace GLEngine::Renderer;
+	using namespace Utils::Reflection;
+
 	rttr::registration::class_<C_Trimesh>("Trimesh")
 		.constructor<>()(rttr::policy::ctor::as_object)
 		.property("Vertices", &C_Trimesh::m_Vertices)(rttr::policy::prop::as_reference_wrapper)
 		.property("TexCoords", &C_Trimesh::m_TexCoords)(rttr::policy::prop::as_reference_wrapper)
+		.property("Material", &C_Trimesh::m_Material)(
+			rttr::policy::prop::as_reference_wrapper,
+			RegisterMetamember<SerializationCls::MandatoryProperty>(true),
+			RegisterMetaclass<MetaGUI::MaterialResource>(),
+			RegisterMetamember<UI::MaterialResource::Name>("Model"),
+			REGISTER_DEFAULT_VALUE(GLEngine::Core::ResourceHandle<MaterialResource>()))
 		.property("Transform", &C_Trimesh::m_Transform)(rttr::policy::prop::as_reference_wrapper, REGISTER_DEFAULT_VALUE(glm::mat4(1.f)))
 		.method("AfterDeserialize", &C_Trimesh::AfterDeserialize)()
 		.property("AABB", &C_Trimesh::m_AABB);
@@ -41,6 +50,7 @@ C_Trimesh::C_Trimesh(const C_Trimesh& other)
 	, m_Transform(other.m_Transform)
 	, m_TransformInv(other.m_TransformInv)
 	, m_BVH(other.m_BVH)
+	, m_Material(other.m_Material)
 {
 }
 
@@ -53,6 +63,7 @@ C_Trimesh::C_Trimesh(C_Trimesh&& other) noexcept
 	, m_Transform(other.m_Transform)
 	, m_TransformInv(other.m_TransformInv)
 	, m_BVH(other.m_BVH)
+	, m_Material(other.m_Material)
 {
 }
 
@@ -211,6 +222,12 @@ void C_Trimesh::AddMesh(const MeshData::Mesh& mesh)
 void C_Trimesh::SetBVH(const BVH* bvh)
 {
 	m_BVH = bvh;
+}
+
+//=================================================================================
+void C_Trimesh::SetMaterialHandle(const Core::ResourceHandle<MaterialResource>& material)
+{
+	m_Material = material;
 }
 
 //=================================================================================

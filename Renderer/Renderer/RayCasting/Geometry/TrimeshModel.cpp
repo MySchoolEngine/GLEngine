@@ -1,5 +1,6 @@
 #include <RendererStdafx.h>
 
+#include <Renderer/Materials/MeshMaterialExtractor.h>
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/RayCasting/Geometry/BVH.h>
 #include <Renderer/RayCasting/Geometry/TrimeshModel.h>
@@ -69,12 +70,14 @@ bool C_TrimeshModel::Load(const std::filesystem::path& filepath, LoadCtx& ctx)
 //=================================================================================
 bool C_TrimeshModel::Build(const MeshResource& handle)
 {
-	for (auto& mesh : handle.GetScene().meshes)
+	auto materials = ExtractMaterialsFromMesh(handle);
+	for (const auto& [mesh, material] : std::views::zip(handle.GetScene().meshes, materials))
 	{
 		auto& trimesh = m_Trimeshes.emplace_back();
 		// need to do something with material
 		trimesh.AddMesh(mesh);
 		trimesh.SetTransformation(mesh.modelMatrix);
+		trimesh.SetMaterialHandle(material);
 
 		// bvh if needed
 		if (trimesh.GetNumTriangles() > 10)

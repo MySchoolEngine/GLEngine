@@ -166,7 +166,14 @@ public:
 		if (!m_Dirty)
 			return true;
 		if (SupportSaving())
-			return SaveInternal();
+		{
+			if ( SaveInternal())
+			{
+				m_Dirty = false;
+				m_State = ResourceState::Ready;
+				return true;
+			}
+		}
 		return false;
 	}
 
@@ -184,10 +191,11 @@ protected:
 
 	virtual bool SaveInternal() const { return false; }
 
-	bool m_Dirty = false;
+	mutable bool m_Dirty = false;
 
 private:
-	ResourceState m_State = ResourceState::Empty;
+	// TODO mutable only until we have saving inside the resource manager
+	mutable ResourceState m_State = ResourceState::Empty;
 	friend class C_ResourceManager;
 	friend class ResourceManagerBaseFixture;
 

@@ -227,6 +227,7 @@ template <IsResource ResourceType> ResourceHandle<ResourceType> C_ResourceManage
 		{
 			resource->m_Dirty = true;
 			resource->m_State = ResourceState::Ready;
+			resource->m_Filepath = filepathNormalized;
 
 			std::shared_ptr<ResourceType> concreteResource = std::dynamic_pointer_cast<ResourceType>(resource);
 			if (!concreteResource)

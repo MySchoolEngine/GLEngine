@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Renderer/Materials/MaterialResource.h>
 #include <Renderer/RayCasting/Geometry/BVH.h>
 #include <Renderer/RayCasting/Geometry/SceneGeometry.h>
 
@@ -32,6 +33,8 @@ public:
 	void AddMesh(const MeshData::Mesh& mesh);
 	void SetBVH(const BVH* bvh);
 
+	void SetMaterialHandle(const Core::ResourceHandle<MaterialResource>& material);
+
 	[[nodiscard]] const Physics::Primitives::S_AABB& GetAABB() const { return m_AABB; }
 	[[nodiscard]] Physics::Primitives::S_AABB&		 GetAABB() { return m_AABB; }
 
@@ -46,13 +49,14 @@ public:
 	RTTR_REGISTRATION_FRIEND
 
 private:
-	void						AfterDeserialize();
-	std::vector<glm::vec3>		m_Vertices;
-	std::vector<glm::vec2>		m_TexCoords;
-	Physics::Primitives::S_AABB m_AABB;
-	glm::mat4					m_Transform	   = glm::mat4(1.f);
-	glm::mat4					m_TransformInv = glm::mat4(1.f);
-	const BVH*					m_BVH		   = nullptr;
+	void								   AfterDeserialize();
+	std::vector<glm::vec3>				   m_Vertices;
+	std::vector<glm::vec2>				   m_TexCoords;
+	Physics::Primitives::S_AABB			   m_AABB;
+	glm::mat4							   m_Transform	  = glm::mat4(1.f);
+	glm::mat4							   m_TransformInv = glm::mat4(1.f);
+	const BVH*							   m_BVH		  = nullptr;
+	Core::ResourceHandle<MaterialResource> m_Material;
 	friend class BVH;
 	friend class C_TrimeshModel;
 };
