@@ -18,6 +18,6 @@ class MaterialResource;
 //
 // For single-material meshes prefer rm.LoadResource<MaterialResource>(meshPath) instead
 // — it auto-builds via the derived resource system.
-RENDERER_API_EXPORT std::vector<Core::ResourceHandle<MaterialResource>> ExtractMaterialsFromMesh(const MeshResource& mesh, const std::filesystem::path& outputDir);
+RENDERER_API_EXPORT std::vector<Core::ResourceHandle<MaterialResource>> ExtractMaterialsFromMesh(const MeshResource& mesh);
 
 } // namespace GLEngine::Renderer

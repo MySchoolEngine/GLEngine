@@ -10,7 +10,7 @@
 namespace GLEngine::Renderer {
 
 //=================================================================================
-std::vector<Core::ResourceHandle<MaterialResource>> ExtractMaterialsFromMesh(const MeshResource& mesh, const std::filesystem::path& outputDir)
+std::vector<Core::ResourceHandle<MaterialResource>> ExtractMaterialsFromMesh(const MeshResource& mesh)
 {
 	std::vector<Core::ResourceHandle<MaterialResource>> result;
 
@@ -19,32 +19,26 @@ std::vector<Core::ResourceHandle<MaterialResource>> ExtractMaterialsFromMesh(con
 
 	const auto& scene	 = mesh.GetScene();
 	auto&		rm		 = Core::C_ResourceManager::Instance();
-	const auto	meshStem = mesh.GetFilePath().stem().string();
 
 	for (std::size_t i = 0; i < scene.materials.size(); ++i)
 	{
 		const auto& mat = scene.materials[i];
 
-		// Prefer material name for the filename, fall back to index
-		std::string matName = mat.m_Name.empty() ? ("material" + std::to_string(i)) : mat.m_Name;
-
-		// Sanitize for filesystem: replace spaces and path separators
-		for (auto& c : matName)
-		{
-			if (c == ' ' || c == '/' || c == '\\')
-				c = '_';
-		}
-
-		const auto outputPath = outputDir / (meshStem + "-" + matName + ".glmat");
+		const auto outputPath = MaterialResource::GetOutputPath(mesh, i);
 
 		// Create a MaterialResource, populate it, and save to disk
-		auto matRes = std::make_shared<MaterialResource>();
-		matRes->SetMaterialName(mat.m_Name);
-		matRes->SetMaterialData(MaterialResource::BuildPBRData(mat, scene.textures));
-		matRes->InitAndSave(outputPath);
+		auto matHandle = rm.CreateNewResource<MaterialResource>(outputPath);
+		auto& matRes	   = matHandle.GetResource();
+		matRes.SetMaterialName(mat.m_Name);
+		matRes.SetMaterialData(MaterialResource::BuildPBRData(mat, scene.textures));
+		if (!matRes.Save())
+		{
+			CORE_LOG(E_Level::Error, E_Context::Render, "Material resource cannot be saved {}", matRes.GetFilePath());
+			continue;
+		}
 
 		// Load back through ResourceManager so it is properly tracked and deduplicated
-		result.push_back(rm.LoadResource<MaterialResource>(outputPath, /*isBlocking=*/true));
+		result.push_back(matHandle);
 	}
 
 	return result;

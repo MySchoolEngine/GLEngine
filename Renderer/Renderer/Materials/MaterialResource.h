@@ -39,6 +39,8 @@ public:
 	// Builds PBR material data from a single MeshData::Material entry and its texture list.
 	// Used by Build() and MeshMaterialExtractor to avoid duplication.
 	[[nodiscard]] static std::shared_ptr<I_MaterialData> BuildPBRData(const MeshData::Material& mat, const std::vector<std::filesystem::path>& textures);
+	static std::filesystem::path						 GetOutputPath(const MeshResource& mesh, unsigned int matIndex);
+	static std::string									 GetNormalizedMaterialName(const std::string& matName, unsigned int matIndex);
 
 	bool SupportSaving() const override { return true; }
 
@@ -51,14 +53,6 @@ public:
 	I_MaterialData*		  GetMaterialData() { return m_Material.get(); }
 	const I_MaterialData* GetMaterialData() const { return m_Material.get(); }
 	void				  SetMaterialData(std::shared_ptr<I_MaterialData> data) { m_Material = std::move(data); }
-
-	// Used by MeshMaterialExtractor to set the filepath and trigger initial save
-	void InitAndSave(const std::filesystem::path& path)
-	{
-		m_Filepath = path;
-		m_Dirty	   = true;
-		Save();
-	}
 
 	bool DrawGUI();
 

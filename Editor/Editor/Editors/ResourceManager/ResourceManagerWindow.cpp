@@ -430,7 +430,7 @@ void C_ResourceManagerWindow::ExportMaterials(const std::filesystem::path& path)
 	if (!meshHandle.IsReady())
 		return;
 
-	Renderer::ExtractMaterialsFromMesh(meshHandle.GetResource(), path.parent_path());
+	Renderer::ExtractMaterialsFromMesh(meshHandle.GetResource());
 }
 
 } // namespace GLEngine::Editor

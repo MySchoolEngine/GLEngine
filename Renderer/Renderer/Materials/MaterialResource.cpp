@@ -79,6 +79,32 @@ std::shared_ptr<I_MaterialData> MaterialResource::BuildPBRData(const MeshData::M
 }
 
 //=================================================================================
+std::filesystem::path MaterialResource::GetOutputPath(const MeshResource& mesh, unsigned int matIndex)
+{
+	const auto meshStem = mesh.GetFilePath().stem().string();
+	const auto outputDir = mesh.GetFilePath().parent_path();
+	const auto& mat		  = mesh.GetScene().materials[matIndex];
+
+	const std::string matName = GetNormalizedMaterialName(mat.m_Name, matIndex);
+	return outputDir / (meshStem + "-" + matName + ".glmat");
+}
+
+//=================================================================================
+std::string MaterialResource::GetNormalizedMaterialName(const std::string& matName, unsigned int matIndex)
+{
+	// Prefer material name for the filename, fall back to index
+	std::string materialName = matName.empty() ? ("material" + std::to_string(matIndex)) : matName;
+
+	// Sanitize for filesystem: replace spaces and path separators
+	for (auto& c : materialName)
+	{
+		if (c == ' ' || c == '/' || c == '\\')
+			c = '_';
+	}
+	return materialName;
+}
+
+//=================================================================================
 bool MaterialResource::Load(const std::filesystem::path& filepath, LoadCtx& ctx)
 {
 	m_Filepath = filepath;
@@ -108,7 +134,8 @@ bool MaterialResource::Load(const std::filesystem::path& filepath, LoadCtx& ctx)
 //=================================================================================
 bool MaterialResource::Reload()
 {
-	return Load(m_Filepath);
+	return false;
+//	return Load(m_Filepath);
 }
 
 //=================================================================================
