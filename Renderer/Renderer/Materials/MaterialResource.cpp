@@ -24,9 +24,14 @@ RTTR_REGISTRATION
 	using namespace GLEngine::Renderer;
 	using namespace Utils::Reflection;
 
-	rttr::registration::class_<MaterialResource>(
-			(MaterialResource::GetResrourceTypeName() + "Handle").c_str())
+	rttr::registration::class_<ResourceHandle<MaterialResource>>((MaterialResource::GetResrourceTypeName() + "Handle").c_str())
+		.constructor<>()(rttr::policy::ctor::as_object)
+		.method("AfterDeserialize", &ResourceHandle<MaterialResource>::AfterDeserialize)();
+
+	rttr::registration::class_<MaterialResource>("MaterialResource")
 		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
+		.method("GetResourceTypeHash", &MaterialResource::GetResourceTypeHash)
+		.method("GetResourceTypeHashStatic", &MaterialResource::GetResourceTypeHashStatic)
 		.property("MaterialName", &MaterialResource::m_MaterialName)
 		(
 			rttr::policy::prop::as_reference_wrapper,
@@ -81,8 +86,8 @@ std::shared_ptr<I_MaterialData> MaterialResource::BuildPBRData(const MeshData::M
 //=================================================================================
 std::filesystem::path MaterialResource::GetOutputPath(const MeshResource& mesh, unsigned int matIndex)
 {
-	const auto meshStem = mesh.GetFilePath().stem().string();
-	const auto outputDir = mesh.GetFilePath().parent_path();
+	const auto	meshStem  = mesh.GetFilePath().stem().string();
+	const auto	outputDir = mesh.GetFilePath().parent_path();
 	const auto& mat		  = mesh.GetScene().materials[matIndex];
 
 	const std::string matName = GetNormalizedMaterialName(mat.m_Name, matIndex);
@@ -135,7 +140,7 @@ bool MaterialResource::Load(const std::filesystem::path& filepath, LoadCtx& ctx)
 bool MaterialResource::Reload()
 {
 	return false;
-//	return Load(m_Filepath);
+	//	return Load(m_Filepath);
 }
 
 //=================================================================================
