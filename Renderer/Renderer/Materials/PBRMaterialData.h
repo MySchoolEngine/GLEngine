@@ -20,10 +20,15 @@ public:
 	const std::string& GetName() const { return m_Name; }
 
 	void SetColor(const Colours::T_Colour& color) { m_Color = color; }
+	const Colours::T_Colour& GetColour() const { return m_Color; }
 	void SetRoughness(float roughness) { m_Roughness = roughness; }
-	void SetColorMapRes(Core::ResourceHandle<TextureResource> handle) { m_ColorMapRes = handle; }
-	void SetNormalMapRes(Core::ResourceHandle<TextureResource> handle) { m_NormalMapRes = handle; }
-	void SetRoughnessMapRes(Core::ResourceHandle<TextureResource> handle) { m_RoughnessMapRes = handle; }
+	float					 GetRoughness() const { return m_Roughness; }
+	void SetColorMapRes(const Core::ResourceHandle<TextureResource>& handle) { m_ColorMapRes = handle; }
+	const Core::ResourceHandle<TextureResource>& GetColorMapRes() const { return m_ColorMapRes; }
+	void										 SetNormalMapRes(const Core::ResourceHandle<TextureResource>& handle) { m_NormalMapRes = handle; }
+	const Core::ResourceHandle<TextureResource>& GetNormalMapRes() const { return m_NormalMapRes; }
+	void SetRoughnessMapRes(const Core::ResourceHandle<TextureResource>& handle) { m_RoughnessMapRes = handle; }
+	const Core::ResourceHandle<TextureResource>& GetRoughnessMapRes() const { return m_RoughnessMapRes; }
 
 	RTTR_ENABLE(I_MaterialData)
 	RTTR_REGISTRATION_FRIEND

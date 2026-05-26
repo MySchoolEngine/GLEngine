@@ -1,6 +1,7 @@
 #include <RendererStdafx.h>
 
 #include <Renderer/Colours.h>
+#include <Renderer/Materials/PBRMaterialData.h>
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/RayCasting/Geometry/RayTraceScene.h>
 #include <Renderer/RayCasting/Geometry/SceneGeometry.h>
@@ -313,23 +314,16 @@ void C_RayTraceScene::ForEachLight(const std::function<void(const std::reference
 }
 
 //=================================================================================
-void C_RayTraceScene::AddMesh(const Core::ResourceHandle<C_TrimeshModel>& trimesh,
-							   const MeshData::Material&                   material,
-							   const glm::mat4&                            transform)
+void C_RayTraceScene::AddMesh(const Core::ResourceHandle<C_TrimeshModel>& trimesh, const glm::mat4& transform)
 {
-	static const MeshData::Material s_TreeBark{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, TextureIndices::Bark, -1, "white"};
-	static const MeshData::Material s_TreeLeaves{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, TextureIndices::Leaves, -1, "white"};
-
-	bool used = false;
 	for (const auto& iter : trimesh.GetResource().GetTrimeshes())
 	{
 		auto trimeshPtr = std::make_shared<C_Trimesh>();
 		*trimeshPtr		= iter;
-		trimeshPtr->SetMaterial(AddMaterial(material).get());
+		trimeshPtr->SetMaterial(AddMaterial(iter.GetMaterialHandle()).get());
 		trimeshPtr->SetTransformation(transform);
 		m_Trimeshes.push_back(trimeshPtr);
 		AddObject(trimeshPtr);
-		used = true;
 	}
 }
 
@@ -360,22 +354,16 @@ bool C_RayTraceScene::IsLoaded() const
 //=================================================================================
 void C_RayTraceScene::BuildScene()
 {
-	static const MeshData::Material s_TreeBark{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, 1, -1, "white"};
-	static const MeshData::Material s_TreeLeaves{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, 2, -1, "white"};
-	const glm::mat4 cornellTransform =
-		glm::translate(glm::mat4(1.f), glm::vec3(0, -1.5f, 0)) *
-		glm::scale(glm::mat4(1.f), glm::vec3(0.5f, 0.5f, 0.5f));
+	const glm::mat4 cornellTransform = glm::translate(glm::mat4(1.f), glm::vec3(0, -1.5f, 0)) * glm::scale(glm::mat4(1.f), glm::vec3(0.5f, 0.5f, 0.5f));
 
 	if (m_LoadingMeshes.IsDone())
 	{
-		bool used = false;
 		for (const auto& trimeshHandle : m_Meshes)
 		{
 			if (!trimeshHandle)
 				continue;
 
-			AddMesh(trimeshHandle, used ? s_TreeBark : s_TreeLeaves, cornellTransform);
-			used = true;
+			AddMesh(trimeshHandle, cornellTransform);
 		}
 	}
 }
@@ -408,6 +396,23 @@ std::unique_ptr<I_MaterialInterface>& C_RayTraceScene::AddMaterial(const MeshDat
 	{
 		// todo glossy mat
 		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(material.diffuse));
+	}
+}
+
+//=================================================================================
+std::unique_ptr<I_MaterialInterface>& C_RayTraceScene::AddMaterial(const Core::ResourceHandle<MaterialResource>& material)
+{
+	const auto* mat	   = material.GetResource().GetMaterialData();
+	const auto* matPBR = dynamic_cast<const C_PBRMaterialData*>(mat);
+	if (matPBR->GetRoughness() > .5f)
+	{
+		const Core::ResourceHandle<TextureResource> texture = matPBR->GetColorMapRes();
+		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(matPBR->GetColour(), texture));
+	}
+	else
+	{
+		// todo glossy mat
+		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(matPBR->GetColour()));
 	}
 }
 

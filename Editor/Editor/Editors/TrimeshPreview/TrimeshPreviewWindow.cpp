@@ -75,14 +75,7 @@ void C_TrimeshPreviewWindow::SetupScene()
 	for (const auto& trimesh : m_Model.GetResource().GetTrimeshes())
 		combinedAABB.Add(trimesh.GetAABB());
 
-	static const Renderer::MeshData::Material s_White{.ambient			  = glm::vec4{},
-													  .diffuse			  = glm::vec4{Colours::white, 0.f},
-													  .specular			  = glm::vec4{},
-													  .shininess		  = 0.f,
-													  .textureIndex		  = -1,
-													  .normalTextureIndex = -1,
-													  .m_Name			  = "white"};
-	m_Scene.AddMesh(m_Model, s_White); // identity transform (default from Task 1)
+	m_Scene.AddMesh(m_Model); // identity transform (default from Task 1)
 
 	const auto    sphere = combinedAABB.GetSphere();
 	const float   r      = sphere.m_radius;
