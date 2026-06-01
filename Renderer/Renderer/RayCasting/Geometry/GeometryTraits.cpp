@@ -69,7 +69,9 @@ glm::vec3 T_GeometryTraits::SamplePoint(const Physics::Primitives::S_Triangle& t
 void T_GeometryTraits::FillIntersection(const Physics::Primitives::S_Plane& plane, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection)
 {
 	const auto normal = (glm::dot(plane.normal, -ray.direction) > 0 ? plane.normal : -plane.normal);
-	intersection	  = C_RayIntersection(S_Frame(normal), ray.origin + ray.direction * t, Physics::Primitives::S_Ray(ray));
+	intersection				 = C_RayIntersection(S_Frame(normal), ray.origin + ray.direction * t, Physics::Primitives::S_Ray(ray));
+	const auto intersectionPoint = ray.origin + ray.direction * t;
+	intersection.SetUV({intersectionPoint.x, intersectionPoint.z});
 }
 
 //=================================================================================

@@ -311,7 +311,7 @@ bool C_OrbitalCamera::OnMousePress(Core::C_MouseButtonPressed& event)
 		const Physics::Primitives::S_Ray	   ray = GetRay(clipPosition);
 		constexpr Physics::Primitives::S_Plane ground{glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 0.f};
 
-		const auto intersect = ground.IntersectImpl(ray);
+		const auto intersect = ground.IntersectImpl(ray, std::numeric_limits<float>::max());
 
 		if (intersect > 0)
 		{
