@@ -177,6 +177,8 @@ public:
 		return false;
 	}
 
+	bool IsModified() const {return m_Dirty;}
+
 	[[nodiscard]] ResourceState GetState() const;
 	[[nodiscard]] bool			IsReady() const;
 
