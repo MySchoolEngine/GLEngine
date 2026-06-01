@@ -48,6 +48,10 @@ public:
 		RayTracing::T_GeometryTraits::FillIntersection(m_Primitive, t, ray, intersection);
 		intersection.SetMaterial(&GetMaterial());
 		intersection.SetRayLength(t);
+		if (m_AlphaMask)
+		{
+			intersection.SetAlphaMask(C_TextureView(&const_cast<I_TextureViewStorage&>(m_AlphaMask.GetResource().GetStorage())));
+		}
 		return true;
 	}
 	[[nodiscard]] float Area() const override { return m_Area; }
@@ -56,5 +60,6 @@ public:
 
 private:
 	float m_Area;
+
 };
 } // namespace GLEngine::Renderer
