@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string_view>
+
 namespace GLEngine::Core::Filesystem {
 // see DEFINE_RESOURCE_WITH_PATH_TYPE
 inline constexpr static std::string_view entityFile{ ".ent" };

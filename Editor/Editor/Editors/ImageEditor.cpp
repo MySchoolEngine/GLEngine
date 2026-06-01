@@ -304,7 +304,7 @@ void C_ImageEditor::SaveTabAs(S_ImageTab& tab)
 			 }
 			 guiMgr.DestroyWindow(dialogGUID);
 		 },
-		 dialogGUID, "./Images");
+		 dialogGUID, Renderer::TextureResource::GetResourceDataPath());
 	m_GUIManager.AddCustomWindow(dialog);
 	dialog->SetVisible();
 }
