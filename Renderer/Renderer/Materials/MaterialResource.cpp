@@ -160,6 +160,7 @@ bool MaterialResource::DrawGUI()
 	if (m_Material)
 		changed |= m_Material->DrawGUI();
 
+	m_Dirty |= changed;
 	return changed;
 }
 
