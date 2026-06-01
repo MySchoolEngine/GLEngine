@@ -59,6 +59,7 @@ private:
 	T_EventCallback	   m_EventCallback;
 	mutable GUID	   m_ImageEditorGUID;
 	mutable GUID	   m_TrimeshPreviewGUID;
+	mutable GUID	   m_MaterialPreviewGUID;
 };
 
 } // namespace GLEngine::Editor

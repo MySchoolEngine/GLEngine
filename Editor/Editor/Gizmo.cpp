@@ -53,7 +53,7 @@ void C_Gizmo::OnUpdate(const Renderer::I_CameraComponent& camera, C_MousePicking
 		const auto ProjectedPosition = [&](const glm::vec2& mousePos, const glm::vec3& planeNormal) {
 			const auto					 ray = camera.GetRay(mousePos);
 			Physics::Primitives::S_Plane plane(planeNormal, m_Position);
-			const auto					 depth = plane.IntersectImpl(ray);
+			const auto					 depth = plane.IntersectImpl(ray, std::numeric_limits<float>::max());
 			return ray.origin + ray.direction * depth;
 		};
 

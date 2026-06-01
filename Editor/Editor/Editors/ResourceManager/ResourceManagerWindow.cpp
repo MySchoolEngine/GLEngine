@@ -3,7 +3,9 @@
 #include <Editor/Editors/ImageEditor.h>
 #include <Editor/Editors/ResourceManager/ResourceManagerWindow.h>
 #include <Editor/Editors/TrimeshPreview/TrimeshPreviewWindow.h>
+#include <Editor/Editors/MaterialPreview/MaterialPreviewWindow.h>
 
+#include <Renderer/Materials/MaterialResource.h>
 #include <Renderer/Materials/MeshMaterialExtractor.h>
 #include <Renderer/RayCasting/Geometry/TrimeshModel.h>
 #include <Renderer/Textures/TextureResource.h>
@@ -330,6 +332,23 @@ void C_ResourceManagerWindow::OnResourceDoubleClicked(const std::filesystem::pat
 		auto* preview		 = new C_TrimeshPreviewWindow(m_TrimeshPreviewGUID, m_GUIManager, std::move(handle));
 		m_GUIManager.AddCustomWindow(preview);
 		preview->SetVisible(true);
+		return;
+	}
+
+	// --- Material → Material Preview ---
+	if (resMgr.IsResourceType<Renderer::MaterialResource>(path))
+	{
+		if (m_GUIManager.GetWindow(m_MaterialPreviewGUID) != nullptr)
+			return;
+
+		auto handle = resMgr.LoadResource<Renderer::MaterialResource>(path, /*isBlocking=*/true);
+		if (!handle.IsReady())
+			return;
+
+		m_MaterialPreviewGUID = NextGUID();
+		auto* preview		  = new C_MaterialPreviewWindow(m_MaterialPreviewGUID, m_GUIManager, std::move(handle));
+		m_GUIManager.AddCustomWindow(preview);
+		preview->SetVisible(true);
 	}
 }
 
@@ -376,7 +395,7 @@ void C_ResourceManagerWindow::HandleContextMenu(const std::filesystem::path& pat
 
 	auto& resMgr = Core::C_ResourceManager::Instance();
 
-	const bool hasEditor = resMgr.IsResourceType<Renderer::TextureResource>(path) || resMgr.IsResourceType<Renderer::C_TrimeshModel>(path);
+	const bool hasEditor = resMgr.IsResourceType<Renderer::TextureResource>(path) || resMgr.IsResourceType<Renderer::C_TrimeshModel>(path) || resMgr.IsResourceType<Renderer::MaterialResource>(path);
 	const bool isMesh	 = resMgr.IsResourceType<Renderer::MeshResource>(path);
 
 	if (!hasEditor && !isMesh)
