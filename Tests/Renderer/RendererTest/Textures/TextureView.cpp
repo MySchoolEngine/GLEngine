@@ -112,4 +112,16 @@ TEST_F(TextureViewWithAlphaFixture, EnableBlending)
 	view.ClearColor({ Colours::white, 1.f });
 	EXPECT_EQ(view.Get<glm::vec4>(glm::uvec2(0,0)), glm::vec4(1, 1, 1, 1));
 }
+
+TEST_F(TextureViewWithAlphaFixture, FillLineExtremes)
+{
+	const auto& dim = storage.GetDimensions();
+	view.FillLineSpan(Colours::red, 0, 0, dim.x + 4);
+	EXPECT_EQ(view.Get<glm::vec3>(glm::uvec2{0, 0}), Colours::red);
+	EXPECT_EQ(view.Get<glm::vec3>(glm::uvec2{5, 0}), Colours::red);
+
+	view.FillLineSpan(Colours::green, dim.y - 1, 0, 5);
+	EXPECT_EQ(view.Get<glm::vec3>(glm::uvec2{2, 2}), Colours::green);
+	view.FillLineSpan(Colours::green, dim.y, 0, 5); // should not crash
+}
 } // namespace GLEngine::Renderer

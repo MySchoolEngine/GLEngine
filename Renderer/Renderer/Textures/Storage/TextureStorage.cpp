@@ -39,7 +39,7 @@ void I_TextureViewStorage::Set(int value, std::size_t position)
 }
 
 //=================================================================================
-glm::uvec2 I_TextureViewStorage::GetDimensions() const
+const glm::uvec2& I_TextureViewStorage::GetDimensions() const
 {
 	return m_Dimensions;
 }

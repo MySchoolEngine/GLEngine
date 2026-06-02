@@ -63,7 +63,7 @@ public:
 	[[nodiscard]] virtual std::uint8_t GetNumElements() const							= 0;
 	[[nodiscard]] virtual std::uint8_t GetChannelOffset(E_TextureChannel element) const = 0;
 
-	[[nodiscard]] glm::uvec2 GetDimensions() const;
+	[[nodiscard]] const glm::uvec2& GetDimensions() const;
 
 	/************************************************************************/
 	/* Swizzle                                                              */
