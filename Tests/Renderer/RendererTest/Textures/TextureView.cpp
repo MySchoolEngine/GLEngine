@@ -11,16 +11,17 @@ protected:
 	TextureViewFixture()
 		: storage(3, 3, 3)
 		, view(&storage)
-	{}
-	auto	  GetPixelCoord(const glm::vec2& uv) const { return view.GetPixelCoord(uv); }
-	bool	  IsOutsideBorders(const glm::uvec2& uv) const { return view.IsOutsideBorders(uv); }
-	glm::vec3 GetVec3(const glm::vec2& uv) const { return view.Get<glm::vec3, T_Bilinear>(uv); }
+	{
+	}
+	auto					GetPixelCoord(const glm::vec2& uv) const { return view.GetPixelCoord(uv); }
+	bool					IsOutsideBorders(const glm::uvec2& uv) const { return view.IsOutsideBorders(uv); }
+	glm::vec3				GetVec3(const glm::vec2& uv) const { return view.Get<glm::vec3, T_Bilinear>(uv); }
+	template <class T> auto ClampCoordinates(const T& coord) const { return view.ClampCoordinates(coord); }
 
 	C_TextureViewStorageCPU<std::uint8_t> storage;
 	C_TextureView						  view;
 };
-class TextureViewWithAlphaFixture : public ::testing::Test
-{
+class TextureViewWithAlphaFixture : public ::testing::Test {
 protected:
 	TextureViewWithAlphaFixture()
 		: storage(3, 3, 4)
@@ -105,15 +106,15 @@ TEST_F(TextureViewWithAlphaFixture, EnableBlending)
 {
 	view.EnableBlending(true);
 	glm::uvec2 coord{1, 1};
-	view.DrawPixel(coord, glm::vec4{ Colours::white, 1.f}); // there was a bug when alpha channel haven't got propagated
-	EXPECT_EQ(view.Get<glm::vec4>(coord), glm::vec4( 1,1,1,1 ));
+	view.DrawPixel(coord, glm::vec4{Colours::white, 1.f}); // there was a bug when alpha channel haven't got propagated
+	EXPECT_EQ(view.Get<glm::vec4>(coord), glm::vec4(1, 1, 1, 1));
 
 
-	view.ClearColor({ Colours::white, 1.f });
-	EXPECT_EQ(view.Get<glm::vec4>(glm::uvec2(0,0)), glm::vec4(1, 1, 1, 1));
+	view.ClearColor({Colours::white, 1.f});
+	EXPECT_EQ(view.Get<glm::vec4>(glm::uvec2(0, 0)), glm::vec4(1, 1, 1, 1));
 }
 
-TEST_F(TextureViewWithAlphaFixture, FillLineExtremes)
+TEST_F(TextureViewFixture, FillLine_Extremes)
 {
 	const auto& dim = storage.GetDimensions();
 	view.FillLineSpan(Colours::red, 0, 0, dim.x + 4);
@@ -123,5 +124,23 @@ TEST_F(TextureViewWithAlphaFixture, FillLineExtremes)
 	view.FillLineSpan(Colours::green, dim.y - 1, 0, 5);
 	EXPECT_EQ(view.Get<glm::vec3>(glm::uvec2{2, 2}), Colours::green);
 	view.FillLineSpan(Colours::green, dim.y, 0, 5); // should not crash
+}
+
+TEST_F(TextureViewFixture, ClampToEdge_Extremes)
+{
+	view.SetWrapFunction(E_WrapFunction::ClampToEdge);
+	const auto&		 dim	   = storage.GetDimensions();
+	const glm::uvec2 maxCoords = dim - glm::uvec2{1, 1};
+	EXPECT_EQ(ClampCoordinates(glm::ivec2{5, 5}), maxCoords);
+	EXPECT_EQ(ClampCoordinates(glm::ivec2{-5, -5}), glm::uvec2(0));
+}
+
+TEST_F(TextureViewFixture, Repeat)
+{
+	view.SetWrapFunction(E_WrapFunction::Repeat);
+	const auto&		 dim	   = storage.GetDimensions();
+	const glm::uvec2 maxCoords = dim - glm::uvec2{1, 1};
+	EXPECT_EQ(ClampCoordinates(dim), glm::uvec2(0));
+	EXPECT_EQ(ClampCoordinates(glm::ivec2(-3, 0)), glm::uvec2(0, 0));
 }
 } // namespace GLEngine::Renderer

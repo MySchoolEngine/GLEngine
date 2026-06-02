@@ -118,7 +118,7 @@ glm::uvec2 C_TextureView::ClampCoordinates(const glm::ivec2& coord) const
 	switch (m_WrapFunction)
 	{
 	case E_WrapFunction::ClampToEdge:
-		result = glm::clamp(result, {0, 0}, dim);
+		result = glm::clamp(result, {0, 0}, dim - glm::ivec2{1, 1});
 		break;
 	case E_WrapFunction::Repeat: {
 		result = coord % dim;
