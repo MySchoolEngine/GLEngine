@@ -6,6 +6,7 @@
 #include <Renderer/IRenderer.h>
 #include <Renderer/RayCasting/Geometry/TrimeshModel.h>
 #include <Renderer/RayCasting/Geometry/PrimitiveObject.h>
+#include <Renderer/RayCasting/RayGeneration/C_InterleavedLinesFactory.h>
 #include <Renderer/RayCasting/Light/RayAreaLight.h>
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/Colours.h>
@@ -192,7 +193,8 @@ void C_TrimeshPreviewWindow::StartRender()
 							   m_ImageStorage,
 							   m_SamplesStorage,
 							   &m_ImageLock,
-							   samplesBefore);
+							   samplesBefore,
+							   Renderer::C_InterleavedLinesFactory{4});
 			m_NumSamples.fetch_add(1);
 		}
 		m_Running.store(false);

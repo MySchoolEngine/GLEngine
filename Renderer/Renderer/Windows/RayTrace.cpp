@@ -3,6 +3,7 @@
 #include <Renderer/ICameraComponent.h>
 #include <Renderer/IDevice.h>
 #include <Renderer/IRenderer.h>
+#include <Renderer/RayCasting/RayGeneration/C_InterleavedLinesFactory.h>
 #include <Renderer/RayCasting/RayRenderer.h>
 #include <Renderer/Resources/ResourceManager.h>
 #include <Renderer/Textures/TextureLoader.h>
@@ -169,7 +170,8 @@ void C_RayTraceWindow::RayTrace()
 	std::packaged_task<void()> rayTrace([&]() {
 		::Utils::HighResolutionTimer renderTime;
 		m_Renderer->SetMaxPathDepth(m_DepthSlider);
-		m_Renderer->Render(*m_Camera, m_ImageStorage, m_SamplesStorage, &m_ImageLock, m_NumCycleSamples, {.rowHeatMap = &m_HeatMapStorage});
+		m_Renderer->Render(*m_Camera, m_ImageStorage, m_SamplesStorage, &m_ImageLock, m_NumCycleSamples,
+						   C_InterleavedLinesFactory{4}, {.rowHeatMap = &m_HeatMapStorage});
 		CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
 		m_Running = false;
 		RecalculateHeatMap();
@@ -210,7 +212,8 @@ void C_RayTraceWindow::RunUntilStop()
 		{
 			::Utils::HighResolutionTimer renderTime;
 			m_Renderer->SetMaxPathDepth(m_DepthSlider);
-			m_Renderer->Render(*m_Camera, m_ImageStorage, m_SamplesStorage, &m_ImageLock, m_NumCycleSamples);
+			m_Renderer->Render(*m_Camera, m_ImageStorage, m_SamplesStorage, &m_ImageLock, m_NumCycleSamples,
+							   C_InterleavedLinesFactory{4});
 			CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
 			m_NumCycleSamples++;
 			RecalculateHeatMap();

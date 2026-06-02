@@ -9,6 +9,7 @@
 #include <Renderer/Materials/PBRMaterialData.h>
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/RayCasting/Geometry/PrimitiveObject.h>
+#include <Renderer/RayCasting/RayGeneration/C_InterleavedLinesFactory.h>
 #include <Renderer/RayCasting/Light/RayAreaLight.h>
 #include <Renderer/Resources/ResourceManager.h>
 #include <Renderer/Textures/TextureView.h>
@@ -308,7 +309,8 @@ void C_MaterialPreviewWindow::StartRender()
 			if (samplesBefore >= s_TargetSamples)
 				break;
 
-			m_Renderer->Render(m_Camera, m_ImageStorage, m_SamplesStorage, &m_ImageLock, samplesBefore);
+			m_Renderer->Render(m_Camera, m_ImageStorage, m_SamplesStorage, &m_ImageLock, samplesBefore,
+							   Renderer::C_InterleavedLinesFactory{4});
 			m_NumSamples.fetch_add(1);
 		}
 		m_Running.store(false);

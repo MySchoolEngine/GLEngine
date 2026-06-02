@@ -1,8 +1,12 @@
 #pragma once
 
 #include <Renderer/RayCasting/Geometry/RayTraceScene.h>
+#include <Renderer/RayCasting/RayGeneration/Generator.h>
+#include <Renderer/RayCasting/RayGeneration/RenderWorkUnit.h>
 #include <Renderer/RendererApi.h>
 #include <Renderer/Textures/TextureView.h>
+
+#include <functional>
 
 namespace GLEngine::Renderer {
 class I_CameraComponent;
@@ -21,12 +25,15 @@ public:
 		[[nodiscard]] bool	  CheckTargets(const I_TextureViewStorage& mainTarget) const;
 	};
 
-	// @var storageMutex is optional, if present the writes to the weighted will be synchronized
+	// @param generatorFactory  called with image dimensions; returns a generator that
+	//                          yields S_RenderWorkUnit values in the desired traversal order.
+	// @param storageMutex      optional; if present, writes to weightedImage are synchronized.
 	void Render(I_CameraComponent&	  camera,
 				I_TextureViewStorage& weightedImage,
 				I_TextureViewStorage& storage,
 				std::mutex*			  storageMutex,
 				int					  numSamplesBefore,
+				std::function<Generator<S_RenderWorkUnit>(glm::uvec2)> generatorFactory,
 				AdditionalTargets	  additional = {nullptr});
 
 	[[nodiscard]] std::size_t GetProcessedPixels() const;
@@ -40,7 +47,7 @@ public:
 
 private:
 	static void			   AddSample(const glm::uvec2 coord, C_TextureView view, const glm::vec3 sample);
-	void				   UpdateView(unsigned int sourceLine, unsigned int numLines, const C_TextureView& source, C_TextureView& target, unsigned int numSamples);
+	void				   UpdateView(const S_RenderWorkUnit& unit, const C_TextureView& source, C_TextureView& target, unsigned int numSamples);
 	std::size_t			   m_ProcessedPixels;
 	std::size_t			   m_MaxDepth;
 	bool				   m_NewResultAvailable;
