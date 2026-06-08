@@ -28,7 +28,7 @@ RayTracingSettings::T_ReflPtr C_DiffuseMaterial::GetScatteringFunction(const C_R
 	if (m_DiffuseTexture.IsReady())
 	{
 		// mutable because I don't have purely read only texture view
-		diffuseColour = C_TextureView(const_cast<I_TextureViewStorage*>(&m_DiffuseTexture.GetResource().GetStorage())).Get<Colours::T_Colour, T_Bilinear>(uv);
+		diffuseColour = C_TextureView(const_cast<I_TextureViewStorage*>(&m_DiffuseTexture.GetResource().GetStorage())).Sample<Colours::T_Colour, T_Bilinear>(uv);
 	}
 	return std::unique_ptr<C_OrenNayarModel, RayTracingSettings::T_ReflAlloc::delete_policy<>>(new (alloc.allocate(sizeof(C_OrenNayarModel))) C_OrenNayarModel(diffuseColour, 8.f),
 																							   RayTracingSettings::T_ReflAlloc::delete_policy{});

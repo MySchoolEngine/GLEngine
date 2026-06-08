@@ -23,7 +23,7 @@ void C_CPUCompute::ComputeHistogram(const C_TextureView view, C_TextureView targ
 		for (unsigned int x = 0; x < view.GetDimensions().x; ++x)
 		{
 			for (unsigned int y = 0; y < view.GetDimensions().y; ++y) {
-				const glm::vec3 val = view.Get<glm::vec3>(glm::uvec2{x, y});
+				const glm::vec3 val = view.Get<glm::vec3>({x, y});
 				const auto		valLuminance = Colours::ToLuminance(val);
 				if (valLuminance > 1.f)
 				{
@@ -31,7 +31,7 @@ void C_CPUCompute::ComputeHistogram(const C_TextureView view, C_TextureView targ
 					continue;
 				}
 				int				bucket		 = valLuminance / bucketSize;
-				target.Set(glm::ivec2{bucket, 0}, target.Get<float>(glm::uvec2{bucket, 0}, E_TextureChannel::Red) + 1.f, E_TextureChannel::Red);
+				target.Set(glm::ivec2{bucket, 0}, target.Get<float>({bucket, 0}, E_TextureChannel::Red) + 1.f, E_TextureChannel::Red);
 			}
 		}
 	}

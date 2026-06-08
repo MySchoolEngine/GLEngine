@@ -44,15 +44,21 @@ struct T_Nearest;
 //=================================================================================
 class RENDERER_API_EXPORT C_TextureView {
 public:
+	using UVVec			= glm::vec2;
+	using TSVec			= glm::ivec2;
+	using PixelCoordVec = glm::ivec2;
+
 	explicit C_TextureView(I_TextureViewStorage* storage);
-	template <class T, class Filter = T_Nearest> [[nodiscard]] T													Get(const glm::vec2& uv, E_TextureChannel element) const;
-	template <class T> [[nodiscard]] T																				Get(const glm::uvec2& coord, E_TextureChannel element) const;
-	template <class T, class Filter = T_Nearest, typename = std::enable_if_t<glm::type<T>::is_vec>> [[nodiscard]] T Get(const glm::vec2& uv) const;
+	template <class T, class Filter = T_Nearest> [[nodiscard]] T													Sample(const UVVec& uv, E_TextureChannel element) const;
+	template <class T, class Filter = T_Nearest, typename = std::enable_if_t<glm::type<T>::is_vec>> [[nodiscard]] T Sample(const UVVec& uv) const;
+
+	template <class T> [[nodiscard]] T Get(const PixelCoordVec& coord, E_TextureChannel element) const;
 	/**
+	 * @todo this is not true, fix the comment
 	 * Needs to be glm::uint2 because there is no negative address space.
 	 * The user is responsible for checking for positiveness off coordinates
 	 */
-	template <class T, typename = std::enable_if_t<glm::type<T>::is_vec>> [[nodiscard]] T Get(const glm::uvec2& coord) const;
+	template <class T, typename = std::enable_if_t<glm::type<T>::is_vec>> [[nodiscard]] T Get(const PixelCoordVec& coord) const;
 	template <class T> [[nodiscard]] T													  GetBorderColor() const;
 
 	[[nodiscard]] E_WrapFunction GetWrapFunction() const;
@@ -79,7 +85,7 @@ public:
 	/**
 	 * Supports blending.
 	 */
-	void DrawPixel(const glm::uvec2& coord, glm::vec4&& colour);
+	void DrawPixel(const PixelCoordVec& coord, glm::vec4&& colour);
 
 	/**
 	 * Fills line span including start and end pixel
@@ -103,7 +109,13 @@ protected:
 	 * @returns [float, float]	uv -> [<0.5;width-0.5);<0.5;height-0.5>] value mapped to the pixel address space
 	 *							pointing center of the pixel.
 	 */
-	[[nodiscard]] glm::vec2 GetPixelCoord(const glm::vec2& uv) const;
+	[[nodiscard]] glm::vec2 GetPixelCoord(const UVVec& uv) const;
+	/**
+	 * @param	uv				[u;v] \in [<0;1>;<0;1>]
+	 *							The (0;0) lies bottom left and (1;1) top right
+	 * @returns [float, float]	uv -> [R;R] position within texture space
+	 */
+	[[nodiscard]] glm::vec2 ToTextureSpace(const UVVec& uv) const;
 	/**
 	 * @param	coord			Pixel coordinate
 	 * @returns					true if coord lies inside the image false otherwise

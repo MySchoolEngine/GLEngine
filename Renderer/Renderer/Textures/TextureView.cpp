@@ -36,7 +36,7 @@ glm::vec2 C_TextureView::GetUVForPixel(const glm::uvec2& coord) const
 //=================================================================================
 std::size_t C_TextureView::GetAddress(const glm::uvec2& coord) const
 {
-	const auto dim = m_Storage->GetDimensions();
+	const auto& dim = m_Storage->GetDimensions();
 	return (static_cast<std::size_t>(dim.x) * coord.y + coord.x) * m_Storage->GetNumElements();
 }
 
@@ -44,7 +44,7 @@ std::size_t C_TextureView::GetAddress(const glm::uvec2& coord) const
 std::size_t C_TextureView::GetPixelAddress(const glm::uvec2& coord) const
 {
 	GLE_ASSERT(coord.x < m_Rect.GetWidth() && coord.y < m_Rect.GetHeight(), "Outside of bounds");
-	const auto dim			  = m_Storage->GetDimensions();
+	const auto& dim			  = m_Storage->GetDimensions();
 	const auto addressInImage = coord + glm::uvec2{m_Rect.TopLeft()};
 	return (static_cast<std::size_t>(dim.x) * addressInImage.y + addressInImage.x);
 }
@@ -63,7 +63,15 @@ glm::vec2 C_TextureView::GetPixelCoord(const glm::vec2& uv) const
 }
 
 //=================================================================================
-bool C_TextureView::IsOutsideBorders(const glm::ivec2& coord) const
+glm::vec2 C_TextureView::ToTextureSpace(const glm::vec2& uv) const
+{
+	float x = (uv.x * (static_cast<float>(m_Rect.GetWidth())));
+	float y = ((1 - uv.y) * static_cast<float>(m_Rect.GetHeight()));
+	return {x - 0.5f, y - 0.5f};
+}
+
+//=================================================================================
+bool C_TextureView::IsOutsideBorders(const TSVec& coord) const
 {
 	return (coord.x < 0 || coord.y < 0 || coord.x >= static_cast<int>(m_Rect.GetWidth()) || coord.y >= static_cast<int>(m_Rect.GetHeight()));
 }
@@ -196,7 +204,7 @@ public:
 };
 
 //=================================================================================
-void C_TextureView::DrawPixel(const glm::uvec2& coord, glm::vec4&& colour)
+void C_TextureView::DrawPixel(const PixelCoordVec& coord, glm::vec4&& colour)
 {
 	if (!m_EnableBlending || colour.a >= 1.f)
 	{

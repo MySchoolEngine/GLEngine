@@ -50,9 +50,6 @@ void C_RayRenderer::Render(I_CameraComponent&	  camera,
 
 	for (const auto& unit : generatorFactory(dim))
 	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Rendering [{},{})-[{},{})",
-				 unit.renderMin.x, unit.renderMin.y, unit.renderMax.x, unit.renderMax.y);
-
 		for (unsigned int y = unit.renderMin.y; y < unit.renderMax.y; ++y)
 		{
 			for (unsigned int x = unit.renderMin.x; x < unit.renderMax.x; ++x)
@@ -63,8 +60,8 @@ void C_RayRenderer::Render(I_CameraComponent&	  camera,
 				++m_ProcessedPixels;
 				if (additional.rowHeatMap) // should be before add sample :( but before TraceRay
 				{
-					const auto previousValue = heatMapView.Get<glm::vec3>(glm::uvec2{0, y});
-					heatMapView.Set(glm::uvec2{0, y}, previousValue + glm::vec3{renderTime.getElapsedTimeFromLastQueryMilliseconds(), 0, 0});
+					const auto previousValue = heatMapView.Get<glm::vec3>(glm::ivec2{0, y});
+					heatMapView.Set({0, y}, previousValue + glm::vec3{renderTime.getElapsedTimeFromLastQueryMilliseconds(), 0, 0});
 				}
 			}
 		}
@@ -91,17 +88,17 @@ void C_RayRenderer::UpdateView(const S_RenderWorkUnit& unit, const C_TextureView
 		// sqrt for gamma correction with gamma = 2
 		for (unsigned int y = unit.renderMin.y; y < unit.renderMax.y; ++y)
 		{
-			const auto val = source.Get<glm::vec3>(glm::uvec2{x, y});
+			const auto val = source.Get<glm::vec3>({x, y});
 			target.Set({x, y}, glm::sqrt(val * denominator));
 		}
 
 		// Fill-in preview rows beyond the rendered region (interleaved pattern only).
 		// Uses the last rendered row blended with what was previously in source.
 		const auto lastRenderedRow = unit.renderMax.y - 1;
-		const auto sourceLineVal   = source.Get<glm::vec3>(glm::uvec2{x, lastRenderedRow});
+		const auto sourceLineVal   = source.Get<glm::vec3>({x, lastRenderedRow});
 		for (unsigned int i = unit.renderMax.y; i < unit.viewMax.y; ++i)
 		{
-			const auto previousLineVal = source.Get<glm::vec3>(glm::uvec2{x, i});
+			const auto previousLineVal = source.Get<glm::vec3>({x, i});
 			target.Set({x, i}, glm::sqrt((sourceLineVal * denominator + previousLineVal) * denominator));
 		}
 	}
@@ -109,7 +106,7 @@ void C_RayRenderer::UpdateView(const S_RenderWorkUnit& unit, const C_TextureView
 }
 
 //=================================================================================
-void C_RayRenderer::AddSample(const glm::uvec2 coord, C_TextureView view, const glm::vec3 sample)
+void C_RayRenderer::AddSample(const glm::ivec2 coord, C_TextureView view, const glm::vec3 sample)
 {
 	const auto previousValue = view.Get<glm::vec4>(coord);
 	view.Set(coord, previousValue + glm::vec4(sample, 0.f));

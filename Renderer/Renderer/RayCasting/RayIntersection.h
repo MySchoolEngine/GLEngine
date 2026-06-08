@@ -52,7 +52,7 @@ public:
 
 	void				SetAlphaMask(const C_TextureView& view) { m_AlphaMask = view; }
 	[[nodiscard]] bool	HasAlphaMask() const { return m_AlphaMask.has_value(); }
-	[[nodiscard]] float GetAlpha(const glm::vec2& uv) const { return m_AlphaMask->Get<float>(uv, E_TextureChannel::Alpha); }
+	[[nodiscard]] float GetAlpha(const glm::vec2& uv) const { return m_AlphaMask->Sample<float>(uv, E_TextureChannel::Alpha); }
 
 private:
 	S_Frame									m_Frame;

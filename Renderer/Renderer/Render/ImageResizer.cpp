@@ -24,7 +24,7 @@ void C_ImageResizer::BilinearDownsampling(const C_TextureView& source, C_Texture
 			for (unsigned int y = 0; y < resultDim.y; ++y)
 			{
 				const glm::vec2 uv	   = result.GetUVForPixel({x, y});
-				auto			sample = source.Get<glm::vec4, T_Bilinear>(uv);
+				auto			sample = source.Sample<glm::vec4, T_Bilinear>(uv);
 				result.Set<glm::vec4>({x, y}, std::move(sample));
 			}
 		}
@@ -68,7 +68,7 @@ void C_ImageResizer::BilinearDownsampling(const C_TextureView& source, C_Texture
 						map(x, (XOffset / 2), 0, resultDim.x - (XOffset / 2), resultDim.x - 1),
 						map(y, (YOffset / 2), 0, resultDim.y - (YOffset / 2), resultDim.y - 1)
 					});
-				auto sample = source.Get<glm::vec4, T_Bilinear>(uv);
+				auto sample = source.Sample<glm::vec4, T_Bilinear>(uv);
 				result.Set<glm::vec4>({x, y}, std::move(sample));
 			}
 		}
