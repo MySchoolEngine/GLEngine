@@ -80,6 +80,11 @@ public:
 	 * @returns	true	if ordered RGBA with trailing channels possible missing. false otherwise
 	 */
 	[[nodiscard]] bool IsSwizzled() const;
+	/**
+	 * @returns	true if any pixel has a non-opaque alpha value, false if the alpha channel
+	 *			is absent or all pixels are fully opaque.
+	 */
+	[[nodiscard]] bool CheckAlphaChannelUsage() const;
 
 	[[nodiscard]] virtual E_TextureTypes GetStorageType() const = 0;
 

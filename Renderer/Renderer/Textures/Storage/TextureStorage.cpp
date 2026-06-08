@@ -68,6 +68,26 @@ void I_TextureViewStorage::SetChannels(T_Channels swizzle)
 }
 
 //=================================================================================
+bool I_TextureViewStorage::CheckAlphaChannelUsage() const
+{
+	const auto alphaIt = std::find(m_Channels.begin(), m_Channels.end(), E_TextureChannel::Alpha);
+	if (alphaIt == m_Channels.end())
+		return false;
+
+	const auto	alphaOffset = static_cast<std::size_t>(std::distance(m_Channels.begin(), alphaIt));
+	const auto	numElements = GetNumElements();
+	const auto	totalPixels = static_cast<std::size_t>(m_Dimensions.x) * m_Dimensions.y;
+	const float opaqueValue = (GetStorageType() == E_TextureTypes::Floating) ? 1.0f : 255.0f;
+
+	for (std::size_t i = 0; i < totalPixels; ++i)
+	{
+		if (GetF(i * numElements + alphaOffset) < opaqueValue)
+			return true;
+	}
+	return false;
+}
+
+//=================================================================================
 glm::vec4 I_TextureViewStorage::Swizzle(const glm::vec4& value) const
 {
 	if (!IsSwizzled())

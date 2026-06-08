@@ -322,6 +322,11 @@ void C_RayTraceScene::AddMesh(const Core::ResourceHandle<C_TrimeshModel>& trimes
 		*trimeshPtr		= iter;
 		trimeshPtr->SetMaterial(AddMaterial(iter.GetMaterialHandle()).get());
 		trimeshPtr->SetTransformation(transform);
+		if (auto* pbrData = dynamic_cast<const C_PBRMaterialData*>(iter.GetMaterialHandle().GetResource().GetMaterialData()))
+		{
+			if (pbrData->GetUseTransparency())
+				trimeshPtr->SetAlphaMask(pbrData->GetColorMapRes());
+		}
 		m_Trimeshes.push_back(trimeshPtr);
 		AddObject(trimeshPtr);
 	}

@@ -29,6 +29,8 @@ public:
 	const Core::ResourceHandle<TextureResource>& GetNormalMapRes() const { return m_NormalMapRes; }
 	void SetRoughnessMapRes(const Core::ResourceHandle<TextureResource>& handle) { m_RoughnessMapRes = handle; }
 	const Core::ResourceHandle<TextureResource>& GetRoughnessMapRes() const { return m_RoughnessMapRes; }
+	void SetUseTransparency(bool value) { m_UseTransparency = value; }
+	bool GetUseTransparency() const { return m_UseTransparency; }
 
 	RTTR_ENABLE(I_MaterialData)
 	RTTR_REGISTRATION_FRIEND
@@ -37,6 +39,7 @@ private:
 	std::string							  m_Name;
 	Colours::T_Colour					  m_Color{Colours::white};
 	float								  m_Roughness{0.5f};
+	bool								  m_UseTransparency{false};
 	Core::ResourceHandle<TextureResource> m_ColorMapRes;
 	Core::ResourceHandle<TextureResource> m_NormalMapRes;
 	Core::ResourceHandle<TextureResource> m_RoughnessMapRes;

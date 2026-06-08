@@ -36,6 +36,13 @@ RTTR_REGISTRATION
 			RegisterMetamember<UI::Slider::Min>(0.f),
 			RegisterMetamember<UI::Slider::Max>(1.0f)
 		)
+		.property("UseTransparency", &C_PBRMaterialData::m_UseTransparency)
+		(
+			rttr::policy::prop::as_reference_wrapper,
+			RegisterMetaclass<MetaGUI::Checkbox>(),
+			RegisterMetamember<UI::Checkbox::Name>("Use transparency:"),
+			REGISTER_DEFAULT_VALUE(false)
+		)
 		.property("ColorMapRes", &C_PBRMaterialData::m_ColorMapRes)
 		(
 			rttr::policy::prop::as_reference_wrapper,

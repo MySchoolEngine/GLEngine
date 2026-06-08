@@ -3,6 +3,7 @@
 #include <Renderer/Materials/MaterialResource.h>
 #include <Renderer/Materials/PBRMaterialData.h>
 #include <Renderer/Mesh/Scene.h>
+#include <Renderer/Textures/Storage/TextureStorage.h>
 #include <Renderer/Textures/TextureResource.h>
 
 #include <GUI/ReflectionGUI.h>
@@ -12,8 +13,7 @@
 
 #include <Utils/Reflection/Metadata.h>
 #include <Utils/Serialization/SerializationUtils.h>
-
-#include "Utils/Serialization/XMLSerialize.h"
+#include <Utils/Serialization/XMLSerialize.h>
 
 DECLARE_RESOURCE_HANDLE_AFTER_DESERIALIZE(Renderer::MaterialResource)
 
@@ -70,7 +70,12 @@ std::shared_ptr<I_MaterialData> MaterialResource::BuildPBRData(const MeshData::M
 	{
 		const auto& texPath = textures[static_cast<std::size_t>(mat.textureIndex)];
 		if (!texPath.empty())
-			data->SetColorMapRes(rm.LoadResource<TextureResource>(texPath));
+		{
+			auto colorMap = rm.LoadResource<TextureResource>(texPath, true);
+			if (colorMap.IsReady())
+				data->SetUseTransparency(colorMap.GetResource().GetStorage().CheckAlphaChannelUsage());
+			data->SetColorMapRes(colorMap);
+		}
 	}
 
 	if (mat.normalTextureIndex >= 0 && static_cast<std::size_t>(mat.normalTextureIndex) < textures.size())
