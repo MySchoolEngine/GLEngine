@@ -41,6 +41,7 @@ public:
 	void			   RequestDestroy() override;
 	[[nodiscard]] bool CanDestroy() const override;
 	void			   Update() override;
+	void			   OnHide() override;
 
 private:
 	void DrawComponents() const override;

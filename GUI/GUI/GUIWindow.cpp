@@ -29,6 +29,11 @@ bool C_Window::Draw(C_GUIManager& guiMgr) const
 
 	DrawComponents();
 	::ImGui::End();
+	// visibility was changed from the window itself
+	if (m_IsVisible == false)
+	{
+		return false;
+	}
 	// due to imgui behaviour we need to const cast
 	const_cast<C_Window*>(this)->SetVisible(visibilityBefore);
 	return false; // todo!
@@ -38,6 +43,7 @@ bool C_Window::Draw(C_GUIManager& guiMgr) const
 void C_Window::OnHide()
 {
 	RequestDestroy();
+	m_IsVisible = false;
 }
 
 //=================================================================================
@@ -59,7 +65,6 @@ void C_Window::SetVisible(const bool enable /*= true*/)
 		else
 			OnHide();
 	}
-	m_IsVisible = enable;
 }
 
 //=================================================================================

@@ -234,6 +234,37 @@ void C_MaterialPreviewWindow::DrawComponents() const
 		if (ImGui::Button("Re-render"))
 			self->StartRender();
 	}
+
+	if (m_bWaitingForModal)
+	{
+		ImGui::OpenPopup("Confirm##Close");
+		self->m_bWaitingForModal = false;
+	}
+
+	if (ImGui::BeginPopupModal("Confirm##Close", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text("Material was modified, are you sure you want to close?");
+		ImGui::Separator();
+
+		if (ImGui::Button("Yes", ImVec2(120, 0)))
+		{
+			// TODO should this be just on working copy and not on a live one?
+			self->m_Material.GetResource().Reload();
+			self->m_Material = {};
+			self->SetVisible(false);
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Save", ImVec2(120, 0)))
+		{
+			self->m_Material.GetResource().Save();
+			self->m_Material = {};
+			self->SetVisible(false);
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::EndPopup();
+	}
 }
 
 //=================================================================================
@@ -331,10 +362,22 @@ C_MaterialPreviewWindow::~C_MaterialPreviewWindow()
 //=================================================================================
 void C_MaterialPreviewWindow::RequestDestroy()
 {
-	if (m_Material.IsReady() && m_Material.GetResource().IsModified()) {}
-
-	GUI::C_Window::RequestDestroy();
 	m_StopRequested.store(true);
+}
+
+//=================================================================================
+void C_MaterialPreviewWindow::OnHide()
+{
+	// we postpone hiding, if material was modified
+	if (m_Material.IsReady() && m_Material.GetResource().IsModified())
+	{
+		m_bWaitingForModal = true;
+		m_IsVisible		   = true;
+	}
+	else
+	{
+		C_Window::OnHide();
+	}
 }
 
 //=================================================================================
