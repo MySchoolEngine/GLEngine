@@ -52,7 +52,11 @@ public:
 
 	I_MaterialData*		  GetMaterialData() { return m_Material.get(); }
 	const I_MaterialData* GetMaterialData() const { return m_Material.get(); }
-	void				  SetMaterialData(std::shared_ptr<I_MaterialData> data) { m_Material = std::move(data); }
+	void				  SetMaterialData(std::shared_ptr<I_MaterialData> data)
+	{
+		m_Material = std::move(data);
+		m_Dirty	   = true;
+	}
 
 	bool DrawGUI();
 

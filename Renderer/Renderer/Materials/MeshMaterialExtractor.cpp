@@ -10,7 +10,7 @@
 namespace GLEngine::Renderer {
 
 //=================================================================================
-std::vector<Core::ResourceHandle<MaterialResource>> ExtractMaterialsFromMesh(const MeshResource& mesh)
+std::vector<Core::ResourceHandle<MaterialResource>> ExtractMaterialsFromMesh(const MeshResource& mesh, bool forceRebuild)
 {
 	std::vector<Core::ResourceHandle<MaterialResource>> result;
 
@@ -28,6 +28,12 @@ std::vector<Core::ResourceHandle<MaterialResource>> ExtractMaterialsFromMesh(con
 
 		// Create a MaterialResource, populate it, and save to disk
 		auto matHandle = rm.CreateNewResource<MaterialResource>(outputPath);
+		if (!matHandle && !forceRebuild)
+			continue;
+		if (!matHandle)
+		{
+			matHandle = rm.LoadResource<MaterialResource>(outputPath, true);
+		}
 		auto& matRes	   = matHandle.GetResource();
 		matRes.SetMaterialName(mat.m_Name);
 		matRes.SetMaterialData(MaterialResource::BuildPBRData(mat, scene.textures));

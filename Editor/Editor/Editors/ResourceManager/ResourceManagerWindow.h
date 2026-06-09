@@ -41,7 +41,7 @@ private:
 	void HandleResourceDragDrop(const std::filesystem::path& path, float iconSize) const;
 	void HandleContextMenu(const std::filesystem::path& path) const;
 	void ExportTrimesh(const std::filesystem::path& path) const;
-	void ExportMaterials(const std::filesystem::path& path) const;
+	void ExportMaterials(const std::filesystem::path& path, bool reexport) const;
 
 	void StartWatcher(const std::filesystem::path& path) const;
 	void StopWatcher() const;

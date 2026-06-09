@@ -5,7 +5,6 @@
 
 #include <Core/Resources/ResourceHandle.h>
 
-#include <filesystem>
 #include <vector>
 
 namespace GLEngine::Renderer {
@@ -18,6 +17,6 @@ class MaterialResource;
 //
 // For single-material meshes prefer rm.LoadResource<MaterialResource>(meshPath) instead
 // — it auto-builds via the derived resource system.
-RENDERER_API_EXPORT std::vector<Core::ResourceHandle<MaterialResource>> ExtractMaterialsFromMesh(const MeshResource& mesh);
+RENDERER_API_EXPORT std::vector<Core::ResourceHandle<MaterialResource>> ExtractMaterialsFromMesh(const MeshResource& mesh, bool forceRebuild = false);
 
 } // namespace GLEngine::Renderer

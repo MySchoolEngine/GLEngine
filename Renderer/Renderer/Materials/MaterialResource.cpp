@@ -82,7 +82,7 @@ std::shared_ptr<I_MaterialData> MaterialResource::BuildPBRData(const MeshData::M
 	{
 		const auto& normalPath = textures[static_cast<std::size_t>(mat.normalTextureIndex)];
 		if (!normalPath.empty())
-			data->SetNormalMapRes(rm.LoadResource<TextureResource>(normalPath));
+			data->SetNormalMapRes(rm.LoadResource<TextureResource>(normalPath, true));
 	}
 
 	return data;

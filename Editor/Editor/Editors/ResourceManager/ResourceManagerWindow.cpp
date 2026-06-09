@@ -410,7 +410,10 @@ void C_ResourceManagerWindow::HandleContextMenu(const std::filesystem::path& pat
 			ExportTrimesh(path);
 
 		if (isMesh && ImGui::MenuItem("Export Materials"))
-			ExportMaterials(path);
+			ExportMaterials(path, false);
+
+		if (isMesh && ImGui::MenuItem("Force export Materials"))
+			ExportMaterials(path, true);
 
 		ImGui::EndPopup();
 	}
@@ -434,11 +437,11 @@ void C_ResourceManagerWindow::ExportTrimesh(const std::filesystem::path& path) c
 
 	// ResourceManager will find lada.meta (already in-memory), load the base mesh,
 	// call C_TrimeshModel::Build(), and save the .tri file.
-	resMgr.LoadResource<Renderer::C_TrimeshModel>(triPath, /*isBlocking=*/true);
+	resMgr.LoadResource<Renderer::C_TrimeshModel>(triPath, /*isBlocking=*/false);
 }
 
 //=================================================================================
-void C_ResourceManagerWindow::ExportMaterials(const std::filesystem::path& path) const
+void C_ResourceManagerWindow::ExportMaterials(const std::filesystem::path& path, bool reexport) const
 {
 	auto& resMgr = Core::C_ResourceManager::Instance();
 
@@ -449,7 +452,7 @@ void C_ResourceManagerWindow::ExportMaterials(const std::filesystem::path& path)
 	if (!meshHandle.IsReady())
 		return;
 
-	Renderer::ExtractMaterialsFromMesh(meshHandle.GetResource());
+	Renderer::ExtractMaterialsFromMesh(meshHandle.GetResource(), reexport);
 }
 
 } // namespace GLEngine::Editor
