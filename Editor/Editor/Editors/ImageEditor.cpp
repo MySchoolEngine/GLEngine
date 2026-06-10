@@ -395,7 +395,7 @@ void C_ImageEditor::DrawComponents() const
 	m_TabbedView.Draw(
 		"##ImageTabs",
 		[this](S_ImageTab& tab) { DrawTabContent(tab); },
-		[this](S_ImageTab& tab) { SaveTab(tab); },
+		[this](S_ImageTab& tab) { const_cast<C_ImageEditor*>(this)->SaveTab(tab); },
 		[this](S_ImageTab& tab) { DestroyTabResources(tab); });
 
 	if (m_bCloseRequested)
@@ -416,7 +416,7 @@ void C_ImageEditor::DrawComponents() const
 				ImGui::Separator();
 				if (ImGui::Button("Save", ImVec2(100, 0)))
 				{
-					SaveTab(tab);
+					const_cast<C_ImageEditor*>(this)->SaveTab(tab);
 					ImGui::CloseCurrentPopup();
 				}
 				ImGui::SameLine();
@@ -441,7 +441,7 @@ void C_ImageEditor::DrawComponents() const
 		if (allClean)
 		{
 			m_bCloseRequested = false;
-			GUI::C_Window::OnHide();
+			const_cast<C_ImageEditor*>(this)->GUI::C_Window::OnHide();
 		}
 	}
 }
