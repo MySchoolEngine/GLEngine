@@ -320,18 +320,23 @@ void C_ResourceManagerWindow::OnResourceDoubleClicked(const std::filesystem::pat
 	// --- Trimesh → Trimesh Preview ---
 	if (resMgr.IsResourceType<Renderer::C_TrimeshModel>(path))
 	{
-		// Don't reopen if already showing this model
-		if (m_GUIManager.GetWindow(m_TrimeshPreviewGUID) != nullptr)
-			return;
-
 		auto handle = resMgr.LoadResource<Renderer::C_TrimeshModel>(path, /*isBlocking=*/true);
 		if (!handle.IsReady())
 			return;
 
-		m_TrimeshPreviewGUID = NextGUID();
-		auto* preview		 = new C_TrimeshPreviewWindow(m_TrimeshPreviewGUID, m_GUIManager, std::move(handle));
-		m_GUIManager.AddCustomWindow(preview);
-		preview->SetVisible(true);
+		if (auto* win = static_cast<C_TrimeshPreviewWindow*>(m_GUIManager.GetWindow(m_TrimeshPreviewGUID)))
+		{
+			win->OpenModel(std::move(handle));
+			win->SetVisible(true);
+		}
+		else
+		{
+			m_TrimeshPreviewGUID = NextGUID();
+			auto* preview		 = new C_TrimeshPreviewWindow(m_TrimeshPreviewGUID, m_GUIManager);
+			preview->OpenModel(std::move(handle));
+			m_GUIManager.AddCustomWindow(preview);
+			preview->SetVisible(true);
+		}
 		return;
 	}
 
