@@ -132,6 +132,67 @@ public:
 
 	[[nodiscard]] bool HasTabs() const { return !m_Tabs.empty(); }
 
+	// --- Editor-close workflow ---
+	// Call from OnHide() when any modified tab should block the window closing.
+	void RequestEditorClose() const { m_bEditorCloseRequested = true; }
+	[[nodiscard]] bool IsEditorCloseRequested() const { return m_bEditorCloseRequested; }
+
+	// Draws sequential Save/Discard/Cancel popups, one per modified tab.
+	// Call from DrawComponents() each frame while close is requested.
+	// saveFn(TabT&)   — called on Save; should set tab.m_bModified = false on success
+	// onAllClean()    — called once all tabs are unmodified (e.g. GUI::C_Window::OnHide())
+	// popupPrefix     — unique ImGui ID suffix (e.g. "##ImageClose") to avoid popup ID collisions
+	template <typename SaveFn, typename CleanFn>
+	void DrawEditorCloseModals(std::string_view popupPrefix, SaveFn&& saveFn, CleanFn&& onAllClean) const
+	{
+		if (!m_bEditorCloseRequested)
+			return;
+
+		for (unsigned int i = 0; i < m_Tabs.size(); ++i)
+		{
+			auto& tab = m_Tabs[i];
+			if (!tab.m_bModified)
+				continue;
+
+			const std::string popupId = std::string("Save changes?") + popupPrefix.data() + std::to_string(i);
+			if (!ImGui::IsPopupOpen(popupId.c_str()))
+				ImGui::OpenPopup(popupId.c_str());
+
+			if (ImGui::BeginPopupModal(popupId.c_str(), nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+			{
+				ImGui::Text("Save changes to \"%s\"?", tab.m_TabLabel.c_str());
+				ImGui::Separator();
+				if (ImGui::Button("Save", ImVec2(100, 0)))
+				{
+					saveFn(tab);
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Discard", ImVec2(100, 0)))
+				{
+					tab.m_bModified = false;
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Cancel", ImVec2(100, 0)))
+				{
+					m_bEditorCloseRequested = false;
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
+			}
+			break; // one popup at a time
+		}
+
+		const bool allClean = std::none_of(m_Tabs.begin(), m_Tabs.end(),
+			[](const TabT& t) { return t.m_bModified; });
+		if (allClean)
+		{
+			m_bEditorCloseRequested = false;
+			onAllClean();
+		}
+	}
+
 	TabT&		ActiveTab() { return m_Tabs[m_ActiveTabIndex]; }
 	const TabT& ActiveTab() const { return m_Tabs[m_ActiveTabIndex]; }
 
@@ -169,7 +230,8 @@ private:
 			m_ActiveTabIndex = static_cast<unsigned int>(m_Tabs.size()) - 1;
 	}
 
-	mutable unsigned int m_ActiveTabIndex = 0;
+	mutable unsigned int m_ActiveTabIndex		= 0;
+	mutable bool		 m_bEditorCloseRequested = false;
 };
 
 } // namespace GLEngine::GUI

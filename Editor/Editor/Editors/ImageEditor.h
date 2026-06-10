@@ -81,6 +81,5 @@ private:
 	T_EventCallback						m_EventCallback;
 
 	mutable GUI::C_TabbedView<S_ImageTab> m_TabbedView;
-	mutable bool						  m_bCloseRequested = false;
 };
 } // namespace GLEngine::Editor

@@ -1,6 +1,7 @@
 #include <EditorStdafx.h>
 
 #include <Editor/Editors/MaterialPreview/MaterialPreviewWindow.h>
+#include <Editor/Editors/RayPreviewState.h>
 
 #include <Renderer/Colours.h>
 #include <Renderer/IDevice.h>
@@ -15,6 +16,7 @@
 #include <Renderer/Textures/TextureView.h>
 
 #include <GUI/GUIManager.h>
+#include <GUI/ImageViewer.h>
 #include <GUI/ResourceDialogWindow.h>
 
 #include <Physics/Primitives/Disc.h>
@@ -38,7 +40,6 @@ C_MaterialPreviewWindow::C_MaterialPreviewWindow(GUID guid, GUI::C_GUIManager& g
 	, m_FileMenu("File")
 	, m_GUIManager(guiMGR)
 {
-	// === File Menu ===
 	m_FileMenu.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("New material", [this]() {
 		NewMaterial();
 		return true;
@@ -62,21 +63,14 @@ C_MaterialPreviewWindow::C_MaterialPreviewWindow(GUID guid, GUI::C_GUIManager& g
 //=================================================================================
 C_MaterialPreviewWindow::~C_MaterialPreviewWindow()
 {
-	auto& rm = Core::C_Application::Get().GetActiveRenderer().GetRM();
 	for (auto& tab : m_TabbedView.m_Tabs)
-	{
-		if (!tab.m_Data)
-			continue;
-		StopTab(*tab.m_Data);
-		if (tab.m_Data->m_GPUImageHandle.IsValid())
-			rm.destoryTexture(tab.m_Data->m_GPUImageHandle);
-	}
+		if (tab.m_Data)
+			DestroyTabResources(tab);
 }
 
 //=================================================================================
 void C_MaterialPreviewWindow::OpenMaterial(Core::ResourceHandle<Renderer::MaterialResource> handle)
 {
-	// Deduplication: switch to the tab if already open
 	if (m_TabbedView.TrySwitchTo([&](const S_MaterialTab& t) {
 			return t.m_Data && t.m_Data->m_Material == handle;
 		}))
@@ -87,43 +81,10 @@ void C_MaterialPreviewWindow::OpenMaterial(Core::ResourceHandle<Renderer::Materi
 	tab.m_Data->m_Material = std::move(handle);
 	tab.m_TabLabel	   = tab.m_Data->m_Material.GetFilePath().filename().string();
 
-	CreateTabResources(*tab.m_Data);
+	CreateRayPreviewState(tab.m_Data->m_Render, s_Resolution, "materialPreview",
+						  Renderer::E_TextureFormat::RGB32f);
 	SetupScene(*tab.m_Data);
 	StartRender(*tab.m_Data);
-}
-
-//=================================================================================
-void C_MaterialPreviewWindow::CreateTabResources(S_MaterialTabData& data)
-{
-	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
-
-	data.m_ImageStorage.emplace(s_Resolution.x, s_Resolution.y, 3);
-	data.m_SamplesStorage.emplace(s_Resolution.x, s_Resolution.y, 3);
-
-	data.m_GPUImageHandle = renderer.GetRM().createTexture(Renderer::TextureDescriptor{
-		.name		   = "materialPreview",
-		.width		   = s_Resolution.x,
-		.height		   = s_Resolution.y,
-		.type		   = Renderer::E_TextureType::TEXTURE_2D,
-		.format		   = Renderer::E_TextureFormat::RGB32f,
-		.m_bStreamable = false,
-	});
-	const auto samplerHandle = renderer.GetRM().createSampler(Renderer::SamplerDescriptor2D{
-		.m_FilterMin = Renderer::E_TextureFilter::Linear,
-		.m_FilterMag = Renderer::E_TextureFilter::Linear,
-		.m_WrapS	 = Renderer::E_WrapFunction::Repeat,
-		.m_WrapT	 = Renderer::E_WrapFunction::Repeat,
-		.m_WrapU	 = Renderer::E_WrapFunction::Repeat,
-	});
-	renderer.SetTextureSampler(data.m_GPUImageHandle, samplerHandle);
-
-	data.m_GUIImage.emplace(data.m_GPUImageHandle);
-	data.m_GUIImage->SetSize({s_Resolution.x, s_Resolution.y});
-
-	constexpr glm::vec4 black{0.f, 0.f, 0.f, 1.f};
-	Renderer::C_TextureView(&*data.m_ImageStorage).ClearColor(black);
-	Renderer::C_TextureView(&*data.m_SamplesStorage).ClearColor(black);
-	renderer.SetTextureData(data.m_GPUImageHandle, *data.m_ImageStorage);
 }
 
 //=================================================================================
@@ -163,7 +124,7 @@ void C_MaterialPreviewWindow::SetupScene(S_MaterialTabData& data)
 	discPrimitive->SetMaterial(data.m_Scene.AddMaterial(s_Black).get());
 	data.m_Scene.AddLight(std::make_shared<Renderer::RayTracing::C_AreaLight>(glm::vec3(1.f, 1.f, 1.f), discPrimitive));
 
-	data.m_Renderer = std::make_unique<Renderer::C_RayRenderer>(data.m_Scene);
+	data.m_Render.m_Renderer = std::make_unique<Renderer::C_RayRenderer>(data.m_Scene);
 }
 
 //=================================================================================
@@ -172,23 +133,6 @@ void C_MaterialPreviewWindow::SetupCamera()
 	m_Camera.SetupCameraView(3.f, glm::vec3(0.f), 45.f, 35.f);
 	m_Camera.SetupCameraProjection(2.f, 4.f, 1.f, 40.f);
 	m_Camera.Update();
-}
-
-//=================================================================================
-void C_MaterialPreviewWindow::UploadStorage(S_MaterialTabData& data)
-{
-	if (!data.m_Renderer)
-		return;
-
-	if (data.m_ImageLock.try_lock())
-	{
-		if (data.m_Renderer->NewResultAvailable())
-		{
-			Core::C_Application::Get().GetActiveRenderer().SetTextureData(data.m_GPUImageHandle, *data.m_ImageStorage);
-			data.m_Renderer->SetResultConsumed();
-		}
-		data.m_ImageLock.unlock();
-	}
 }
 
 //=================================================================================
@@ -201,7 +145,7 @@ void C_MaterialPreviewWindow::Update()
 		auto& data = *tab.m_Data;
 		if (data.m_RebuildPending.exchange(false))
 			RebuildAndRestart(data);
-		UploadStorage(data);
+		UploadPreviewStorage(data.m_Render);
 	}
 }
 
@@ -223,52 +167,13 @@ void C_MaterialPreviewWindow::DrawComponents() const
 		},
 		[this](S_MaterialTab& tab) { const_cast<C_MaterialPreviewWindow*>(this)->DestroyTabResources(tab); });
 
-	if (m_bCloseRequested)
-	{
-		for (unsigned int i = 0; i < m_TabbedView.m_Tabs.size(); ++i)
-		{
-			auto& tab = m_TabbedView.m_Tabs[i];
-			if (!tab.m_bModified)
-				continue;
-
-			const std::string popupId = std::string("Save changes?##MatClose") + std::to_string(i);
-			if (!ImGui::IsPopupOpen(popupId.c_str()))
-				ImGui::OpenPopup(popupId.c_str());
-
-			if (ImGui::BeginPopupModal(popupId.c_str(), nullptr, ImGuiWindowFlags_AlwaysAutoResize))
-			{
-				ImGui::Text("Save changes to \"%s\"?", tab.m_TabLabel.c_str());
-				ImGui::Separator();
-				if (ImGui::Button("Save", ImVec2(100, 0)))
-				{
-					if (tab.m_Data)
-						const_cast<C_MaterialPreviewWindow*>(this)->SaveMaterial(*tab.m_Data);
-					ImGui::CloseCurrentPopup();
-				}
-				ImGui::SameLine();
-				if (ImGui::Button("Discard", ImVec2(100, 0)))
-				{
-					tab.m_bModified = false;
-					ImGui::CloseCurrentPopup();
-				}
-				ImGui::SameLine();
-				if (ImGui::Button("Cancel", ImVec2(100, 0)))
-				{
-					m_bCloseRequested = false;
-					ImGui::CloseCurrentPopup();
-				}
-				ImGui::EndPopup();
-			}
-			break; // one at a time
-		}
-
-		const bool allClean = std::none_of(m_TabbedView.m_Tabs.begin(), m_TabbedView.m_Tabs.end(), [](const S_MaterialTab& t) { return t.m_bModified; });
-		if (allClean)
-		{
-			m_bCloseRequested = false;
-			const_cast<C_MaterialPreviewWindow*>(this)->GUI::C_Window::OnHide();
-		}
-	}
+	m_TabbedView.DrawEditorCloseModals(
+		"##MatClose",
+		[this](S_MaterialTab& tab) {
+			if (tab.m_Data)
+				const_cast<C_MaterialPreviewWindow*>(this)->SaveMaterial(*tab.m_Data);
+		},
+		[this] { const_cast<C_MaterialPreviewWindow*>(this)->GUI::C_Window::OnHide(); });
 }
 
 //=================================================================================
@@ -280,8 +185,8 @@ void C_MaterialPreviewWindow::DrawTabContent(const S_MaterialTab& tab) const
 	if (data.m_Material.IsReady() && data.m_Material.GetResource().IsModified())
 		ImGui::Text("Material modified");
 
-	if (data.m_GUIImage)
-		std::ignore = data.m_GUIImage->Draw();
+	if (data.m_Render.m_GUIImage)
+		std::ignore = data.m_Render.m_GUIImage->Draw();
 
 	// Shape selector
 	ImGui::Text("Shape:");
@@ -324,41 +229,22 @@ void C_MaterialPreviewWindow::DrawTabContent(const S_MaterialTab& tab) const
 
 	ImGui::Separator();
 
-	// Render progress
-	const int samples = data.m_NumSamples.load();
-	if (data.m_Running.load())
-	{
-		ImGui::ProgressBar(static_cast<float>(samples) / s_TargetSamples, ImVec2(-1.f, 0.f));
-		ImGui::Text("Rendering... %d / %d samples", samples, s_TargetSamples);
-	}
-	else
-	{
-		ImGui::Text("Done \xe2\x80\x94 %d samples", samples);
-		if (ImGui::Button("Re-render"))
-			self->StartRender(const_cast<S_MaterialTabData&>(data));
-	}
+	if (DrawRenderProgress(data.m_Render, s_TargetSamples))
+		self->StartRender(const_cast<S_MaterialTabData&>(data));
 }
 
 //=================================================================================
 void C_MaterialPreviewWindow::RebuildAndRestart(S_MaterialTabData& data)
 {
-	StopTab(data);
-	data.m_StopRequested.store(false);
+	StopPreviewRender(data.m_Render);
+	data.m_Render.m_StopRequested.store(false);
 
 	constexpr glm::vec4 black{0.f, 0.f, 0.f, 1.f};
-	Renderer::C_TextureView(&*data.m_ImageStorage).ClearColor(black);
-	Renderer::C_TextureView(&*data.m_SamplesStorage).ClearColor(black);
+	Renderer::C_TextureView(&*data.m_Render.m_ImageStorage).ClearColor(black);
+	Renderer::C_TextureView(&*data.m_Render.m_SamplesStorage).ClearColor(black);
 
 	SetupScene(data);
 	StartRender(data);
-}
-
-//=================================================================================
-void C_MaterialPreviewWindow::StopTab(S_MaterialTabData& data)
-{
-	data.m_StopRequested.store(true);
-	while (data.m_Running.load())
-		std::this_thread::sleep_for(std::chrono::milliseconds(5));
 }
 
 //=================================================================================
@@ -366,10 +252,7 @@ void C_MaterialPreviewWindow::DestroyTabResources(S_MaterialTab& tab)
 {
 	if (!tab.m_Data)
 		return;
-	StopTab(*tab.m_Data);
-	auto& rm = Core::C_Application::Get().GetActiveRenderer().GetRM();
-	if (tab.m_Data->m_GPUImageHandle.IsValid())
-		rm.destoryTexture(tab.m_Data->m_GPUImageHandle);
+	DestroyRayPreviewState(tab.m_Data->m_Render);
 }
 
 //=================================================================================
@@ -425,25 +308,29 @@ void C_MaterialPreviewWindow::SaveMaterialAs(S_MaterialTabData& data)
 //=================================================================================
 void C_MaterialPreviewWindow::StartRender(S_MaterialTabData& data)
 {
-	if (data.m_Running.load())
+	if (data.m_Render.m_Running.load())
 		return;
 
-	data.m_NumSamples.store(0);
-	data.m_StopRequested.store(false);
-	data.m_Running.store(true);
+	data.m_Render.m_NumSamples.store(0);
+	data.m_Render.m_StopRequested.store(false);
+	data.m_Render.m_Running.store(true);
 
 	std::thread([&data, this]() {
-		while (!data.m_StopRequested.load())
+		while (!data.m_Render.m_StopRequested.load())
 		{
-			const int samplesBefore = data.m_NumSamples.load();
+			const int samplesBefore = data.m_Render.m_NumSamples.load();
 			if (samplesBefore >= s_TargetSamples)
 				break;
 
-			data.m_Renderer->Render(m_Camera, *data.m_ImageStorage, *data.m_SamplesStorage, &data.m_ImageLock, samplesBefore,
-									Renderer::C_InterleavedLinesFactory{4});
-			data.m_NumSamples.fetch_add(1);
+			data.m_Render.m_Renderer->Render(m_Camera,
+											 *data.m_Render.m_ImageStorage,
+											 *data.m_Render.m_SamplesStorage,
+											 &data.m_Render.m_ImageLock,
+											 samplesBefore,
+											 Renderer::C_InterleavedLinesFactory{4});
+			data.m_Render.m_NumSamples.fetch_add(1);
 		}
-		data.m_Running.store(false);
+		data.m_Render.m_Running.store(false);
 	}).detach();
 }
 
@@ -452,7 +339,7 @@ void C_MaterialPreviewWindow::RequestDestroy()
 {
 	for (auto& tab : m_TabbedView.m_Tabs)
 		if (tab.m_Data)
-			tab.m_Data->m_StopRequested.store(true);
+			tab.m_Data->m_Render.m_StopRequested.store(true);
 	m_WantToBeDestroyed = true;
 }
 
@@ -462,7 +349,7 @@ void C_MaterialPreviewWindow::OnHide()
 	const bool anyModified = std::any_of(m_TabbedView.m_Tabs.begin(), m_TabbedView.m_Tabs.end(), [](const S_MaterialTab& t) { return t.m_bModified; });
 	if (anyModified)
 	{
-		m_bCloseRequested = true;
+		m_TabbedView.RequestEditorClose();
 		return;
 	}
 	GUI::C_Window::OnHide();
@@ -471,7 +358,7 @@ void C_MaterialPreviewWindow::OnHide()
 //=================================================================================
 bool C_MaterialPreviewWindow::CanDestroy() const
 {
-	return std::none_of(m_TabbedView.m_Tabs.begin(), m_TabbedView.m_Tabs.end(), [](const S_MaterialTab& t) { return t.m_Data && t.m_Data->m_Running.load(); });
+	return std::none_of(m_TabbedView.m_Tabs.begin(), m_TabbedView.m_Tabs.end(), [](const S_MaterialTab& t) { return t.m_Data && t.m_Data->m_Render.m_Running.load(); });
 }
 
 } // namespace GLEngine::Editor

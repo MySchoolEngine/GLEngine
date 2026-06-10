@@ -1,23 +1,18 @@
 #pragma once
 
 #include <Editor/EditorApi.h>
+#include <Editor/Editors/RayPreviewState.h>
 
 #include <Renderer/Cameras/OrbitalCamera.h>
 #include <Renderer/RayCasting/Geometry/RayTraceScene.h>
-#include <Renderer/RayCasting/RayRenderer.h>
-#include <Renderer/Resources/RenderResourceHandle.h>
-#include <Renderer/Textures/Storage/TextureLinearStorage.h>
 
 #include <GUI/GUIWindow.h>
-#include <GUI/ImageViewer.h>
 #include <GUI/TabbedView.h>
 
 #include <Core/Resources/ResourceHandle.h>
 
 #include <atomic>
 #include <memory>
-#include <mutex>
-#include <optional>
 
 namespace GLEngine::Renderer {
 class C_TrimeshModel;
@@ -50,19 +45,9 @@ private:
 	struct S_TrimeshTabData {
 		Core::ResourceHandle<Renderer::C_TrimeshModel> m_Model;
 
-		Renderer::C_RayTraceScene					 m_Scene;
-		Renderer::Cameras::C_OrbitalCamera			 m_Camera; // PER-TAB — geometry-dependent
-		std::unique_ptr<Renderer::C_RayRenderer>	 m_Renderer;
-
-		Renderer::Handle<Renderer::Texture>						  m_GPUImageHandle;
-		std::optional<Renderer::C_TextureViewStorageCPU<float>>   m_ImageStorage;
-		std::optional<Renderer::C_TextureViewStorageCPU<float>>   m_SamplesStorage;
-		std::optional<GUI::C_ImageViewer>						  m_GUIImage;
-
-		std::mutex		  m_ImageLock;
-		std::atomic<int>  m_NumSamples{0};
-		std::atomic<bool> m_Running{false};
-		std::atomic<bool> m_StopRequested{false};
+		Renderer::C_RayTraceScene		   m_Scene;
+		Renderer::Cameras::C_OrbitalCamera m_Camera; // PER-TAB — geometry-dependent
+		S_RayPreviewState				   m_Render;  // GPU handle, storage, image viewer, render thread state
 	};
 
 	// Satisfies TabbedViewTab. Moveable because S_TrimeshTabData is behind a unique_ptr.
@@ -75,12 +60,9 @@ private:
 	void DrawComponents() const override;
 	void DrawTabContent(const S_TrimeshTab& tab) const;
 
-	void CreateTabResources(S_TrimeshTabData& data);
 	void SetupScene(S_TrimeshTabData& data);
 	void SetupCamera(S_TrimeshTabData& data);
 	void StartRender(S_TrimeshTabData& data);
-	void UploadStorage(S_TrimeshTabData& data);
-	void StopTab(S_TrimeshTabData& data);
 	void DestroyTabResources(S_TrimeshTab& tab);
 
 	mutable GUI::C_TabbedView<S_TrimeshTab> m_TabbedView;
