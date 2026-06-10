@@ -85,6 +85,13 @@ std::shared_ptr<I_MaterialData> MaterialResource::BuildPBRData(const MeshData::M
 			data->SetNormalMapRes(rm.LoadResource<TextureResource>(normalPath, true));
 	}
 
+	if (mat.roughnessTextureIndex >= 0 && static_cast<std::size_t>(mat.roughnessTextureIndex) < textures.size())
+	{
+		const auto& roughnessPath = textures[static_cast<std::size_t>(mat.roughnessTextureIndex)];
+		if (!roughnessPath.empty())
+			data->SetRoughnessMapRes(rm.LoadResource<TextureResource>(roughnessPath, true));
+	}
+
 	return data;
 }
 

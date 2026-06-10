@@ -196,14 +196,14 @@ void C_RayTraceScene::TestScene()
 	m_LoadingTextures.AddHandle(m_Textures[1]);
 
 
-	static const MeshData::Material s_Red{glm::vec4{}, glm::vec4{Colours::red, 0}, glm::vec4{}, 0.f, -1, -1, "red"};
-	static const MeshData::Material s_Green{glm::vec4{}, glm::vec4{Colours::green, 0}, glm::vec4{}, 0.f, -1, -1, "green"};
-	static const MeshData::Material s_White{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, -1, -1, "white"};
-	static const MeshData::Material s_Brick{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, TextureIndices::Bricks, -1, "brick"}; // brick texture
-	static const MeshData::Material s_Blue{glm::vec4{}, glm::vec4{Colours::blue, 0}, glm::vec4{}, 0.f, -1, -1, "blue"};
-	static const MeshData::Material s_BlueMirror{glm::vec4{}, glm::vec4{Colours::blue, 0}, glm::vec4{}, 1.f, -1, -1, "blueMirror"};
-	static const MeshData::Material s_Black{glm::vec4{}, glm::vec4{Colours::black, 0.f}, glm::vec4{}, 0.f, -1, -1, "black"};
-	static const MeshData::Material s_Leaves{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, TextureIndices::Leaves, -1, "leaves"}; // brick texture
+	static const MeshData::Material s_Red{glm::vec4{}, glm::vec4{Colours::red, 0}, glm::vec4{}, 0.f, -1, -1, -1, "red"};
+	static const MeshData::Material s_Green{glm::vec4{}, glm::vec4{Colours::green, 0}, glm::vec4{}, 0.f, -1, -1, -1, "green"};
+	static const MeshData::Material s_White{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, -1, -1, -1, "white"};
+	static const MeshData::Material s_Brick{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, TextureIndices::Bricks, -1, -1, "brick"}; // brick texture
+	static const MeshData::Material s_Blue{glm::vec4{}, glm::vec4{Colours::blue, 0}, glm::vec4{}, 0.f, -1, -1, -1, "blue"};
+	static const MeshData::Material s_BlueMirror{glm::vec4{}, glm::vec4{Colours::blue, 0}, glm::vec4{}, 1.f, -1, -1, -1, "blueMirror"};
+	static const MeshData::Material s_Black{glm::vec4{}, glm::vec4{Colours::black, 0.f}, glm::vec4{}, 0.f, -1, -1, -1, "black"};
+	static const MeshData::Material s_Leaves{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, TextureIndices::Leaves, -1, -1, "leaves"}; // brick texture
 
 
 	auto* redMat		= AddMaterial(s_Red).get();

@@ -18,6 +18,7 @@ struct Material {
 	// If negative - material has no texture
 	int textureIndex	   = -1;
 	int normalTextureIndex = -1;
+	int roughnessTextureIndex = -1;
 
 	std::string m_Name;
 };
