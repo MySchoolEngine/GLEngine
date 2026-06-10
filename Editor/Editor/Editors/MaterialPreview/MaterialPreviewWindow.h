@@ -74,6 +74,7 @@ private:
 	std::atomic<int>  m_NumSamples{0};
 	std::atomic<bool> m_Running{false};
 	std::atomic<bool> m_StopRequested{false};
+	bool			  m_bWaitingForModal{false};
 
 	// GPU rasterizer placeholder — extend this enum when GPU path is implemented
 	enum class E_RenderMode
