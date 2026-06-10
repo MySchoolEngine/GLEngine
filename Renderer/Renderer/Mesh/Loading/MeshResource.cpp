@@ -83,7 +83,7 @@ std::shared_ptr<Core::Resource> MeshLoader::CreateResource() const
 //=================================================================================
 std::vector<std::string> MeshLoader::GetSupportedExtensions() const
 {
-	return {".obj", ".dae"};
+	return {".obj", ".dae", ".gltf"};
 }
 
 } // namespace GLEngine::Renderer
