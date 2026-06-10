@@ -8,6 +8,7 @@
 
 #include <GUI/GUIWindow.h>
 #include <GUI/ImageViewer.h>
+#include <GUI/TabbedView.h>
 
 #include <Core/EventSystem/Event.h>
 #include <Core/Resources/ResourceHandle.h>
@@ -78,8 +79,6 @@ private:
 	GUI::C_GUIManager&					m_GUIManager;
 	T_EventCallback						m_EventCallback;
 
-	// unique_ptr per tab so the vector is moveable regardless of S_ImageTab's move semantics
-	mutable std::vector<S_ImageTab> m_Tabs;
-	mutable unsigned int										 m_ActiveTabIndex = 0;
+	mutable GUI::C_TabbedView<S_ImageTab> m_TabbedView;
 };
 } // namespace GLEngine::Editor
