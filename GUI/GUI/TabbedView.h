@@ -2,6 +2,7 @@
 
 #include <imgui.h>
 
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -24,9 +25,8 @@ concept TabbedViewTab = requires(T t) {
 template <TabbedViewTab TabT>
 class C_TabbedView {
 public:
-	// Renders the tab bar.
-	// drawContent(TabT&) — called for the active tab's body.
-	// onClose(TabT&)     — called before a closed tab is erased (use for resource cleanup).
+	// Renders the tab bar without save confirmation.
+	// onClose(TabT&) — called before a closed tab is erased regardless of m_bModified.
 	template <typename DrawFn, typename CloseFn>
 	void Draw(std::string_view barId, DrawFn&& drawContent, CloseFn&& onClose, ImGuiTabBarFlags flags = ImGuiTabBarFlags_AutoSelectNewTabs) const
 	{
@@ -48,13 +48,85 @@ public:
 				if (!open)
 				{
 					onClose(tab);
-					m_Tabs.erase(m_Tabs.begin() + i);
-					if (m_ActiveTabIndex >= m_Tabs.size())
-						m_ActiveTabIndex = static_cast<unsigned int>(m_Tabs.size()) > 0 ? static_cast<unsigned int>(m_Tabs.size()) - 1 : 0;
+					EraseTab(i);
 					--i;
 				}
 			}
 			ImGui::EndTabBar();
+		}
+	}
+
+	// Renders the tab bar with save confirmation for modified tabs.
+	// onSave(TabT&)    — called when user clicks Save; tab is closed only if m_bModified becomes false.
+	// onDiscard(TabT&) — called for resource cleanup when user clicks Discard or tab is unmodified.
+	template <typename DrawFn, typename SaveFn, typename DiscardFn>
+	void Draw(std::string_view barId, DrawFn&& drawContent, SaveFn&& onSave, DiscardFn&& onDiscard, ImGuiTabBarFlags flags = ImGuiTabBarFlags_AutoSelectNewTabs) const
+	{
+		if (ImGui::BeginTabBar(barId.data(), flags))
+		{
+			for (unsigned int i = 0; i < m_Tabs.size(); ++i)
+			{
+				auto&			  tab	= m_Tabs[i];
+				const std::string label = tab.m_TabLabel + (tab.m_bModified ? " *" : "") + "##tab" + std::to_string(i);
+				bool			  open	= true;
+
+				if (ImGui::BeginTabItem(label.c_str(), &open))
+				{
+					m_ActiveTabIndex = i;
+					drawContent(tab);
+					ImGui::EndTabItem();
+				}
+
+				if (!open && !m_PendingCloseIndex)
+				{
+					if (tab.m_bModified)
+					{
+						m_PendingCloseIndex = i;
+						ImGui::OpenPopup("Save changes?##TabClose");
+					}
+					else
+					{
+						onDiscard(tab);
+						EraseTab(i);
+						--i;
+					}
+				}
+			}
+			ImGui::EndTabBar();
+		}
+
+		if (m_PendingCloseIndex)
+		{
+			if (ImGui::BeginPopupModal("Save changes?##TabClose", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+			{
+				auto& pendingTab = m_Tabs[*m_PendingCloseIndex];
+				ImGui::Text("Save changes to \"%s\"?", pendingTab.m_TabLabel.c_str());
+				ImGui::Separator();
+
+				if (ImGui::Button("Save", ImVec2(100, 0)))
+				{
+					onSave(pendingTab);
+					if (!pendingTab.m_bModified)
+						EraseTab(*m_PendingCloseIndex);
+					m_PendingCloseIndex.reset();
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Discard", ImVec2(100, 0)))
+				{
+					onDiscard(pendingTab);
+					EraseTab(*m_PendingCloseIndex);
+					m_PendingCloseIndex.reset();
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Cancel", ImVec2(100, 0)))
+				{
+					m_PendingCloseIndex.reset();
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
+			}
 		}
 	}
 
@@ -86,9 +158,17 @@ public:
 		return false;
 	}
 
-	mutable std::vector<TabT> m_Tabs;
+	mutable std::vector<TabT>			 m_Tabs;
+	mutable std::optional<unsigned int>  m_PendingCloseIndex;
 
 private:
+	void EraseTab(unsigned int i) const
+	{
+		m_Tabs.erase(m_Tabs.begin() + i);
+		if (m_ActiveTabIndex >= m_Tabs.size() && !m_Tabs.empty())
+			m_ActiveTabIndex = static_cast<unsigned int>(m_Tabs.size()) - 1;
+	}
+
 	mutable unsigned int m_ActiveTabIndex = 0;
 };
 

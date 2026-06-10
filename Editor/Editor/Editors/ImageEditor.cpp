@@ -135,6 +135,18 @@ C_ImageEditor::~C_ImageEditor()
 }
 
 //=================================================================================
+void C_ImageEditor::OnHide()
+{
+	const bool anyModified = std::any_of(m_TabbedView.m_Tabs.begin(), m_TabbedView.m_Tabs.end(), [](const S_ImageTab& t) { return t.m_bModified; });
+	if (anyModified)
+	{
+		m_bCloseRequested = true;
+		return; // stay visible — DrawComponents will process tabs one by one
+	}
+	GUI::C_Window::OnHide();
+}
+
+//=================================================================================
 C_ImageEditor::S_ImageTab& C_ImageEditor::ActiveTab()
 {
 	return m_TabbedView.ActiveTab();
@@ -383,7 +395,55 @@ void C_ImageEditor::DrawComponents() const
 	m_TabbedView.Draw(
 		"##ImageTabs",
 		[this](S_ImageTab& tab) { DrawTabContent(tab); },
+		[this](S_ImageTab& tab) { SaveTab(tab); },
 		[this](S_ImageTab& tab) { DestroyTabResources(tab); });
+
+	if (m_bCloseRequested)
+	{
+		for (unsigned int i = 0; i < m_TabbedView.m_Tabs.size(); ++i)
+		{
+			auto& tab = m_TabbedView.m_Tabs[i];
+			if (!tab.m_bModified)
+				continue;
+
+			const std::string popupId = std::string("Save changes?##EditorClose") + std::to_string(i);
+			if (!ImGui::IsPopupOpen(popupId.c_str()))
+				ImGui::OpenPopup(popupId.c_str());
+
+			if (ImGui::BeginPopupModal(popupId.c_str(), nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+			{
+				ImGui::Text("Save changes to \"%s\"?", tab.m_TabLabel.c_str());
+				ImGui::Separator();
+				if (ImGui::Button("Save", ImVec2(100, 0)))
+				{
+					SaveTab(tab);
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Discard", ImVec2(100, 0)))
+				{
+					tab.m_bModified = false;
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Cancel", ImVec2(100, 0)))
+				{
+					m_bCloseRequested = false;
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
+			}
+			break; // one at a time
+		}
+
+		// All tabs resolved — proceed with actual close
+		const bool allClean = std::none_of(m_TabbedView.m_Tabs.begin(), m_TabbedView.m_Tabs.end(), [](const S_ImageTab& t) { return t.m_bModified; });
+		if (allClean)
+		{
+			m_bCloseRequested = false;
+			GUI::C_Window::OnHide();
+		}
+	}
 }
 
 //=================================================================================
