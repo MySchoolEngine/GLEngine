@@ -72,6 +72,8 @@ C_RayTraceWindow::C_RayTraceWindow(const GUID guid, const std::shared_ptr<I_Came
 		return false;
 	}));
 	CreateTextures(Core::C_Application::Get().GetActiveRenderer());
+
+	m_Scene.TestScene();
 }
 
 //=================================================================================

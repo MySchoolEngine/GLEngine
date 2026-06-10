@@ -60,6 +60,10 @@ public:
 	void			   BuildScene(); //< Call after fully loaded
 	void			   ClearScene();
 
+	// preapares test scene for raytracer
+	// TODO Remove
+	void TestScene();
+
 	std::unique_ptr<I_MaterialInterface>& AddMaterial(const MeshData::Material& material);
 	std::unique_ptr<I_MaterialInterface>& AddMaterial(const Core::ResourceHandle<MaterialResource>& material);
 

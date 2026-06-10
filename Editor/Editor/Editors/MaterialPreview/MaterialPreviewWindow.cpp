@@ -87,8 +87,6 @@ void C_MaterialPreviewWindow::OpenMaterial(Core::ResourceHandle<Renderer::Materi
 //=================================================================================
 void C_MaterialPreviewWindow::SetupScene(S_MaterialTabData& data)
 {
-	data.m_Scene.ClearScene();
-
 	if (!data.m_Material.IsReady())
 		return;
 
@@ -242,6 +240,7 @@ void C_MaterialPreviewWindow::RebuildAndRestart(S_MaterialTabData& data)
 	Renderer::C_TextureView(&*data.m_Render.m_ImageStorage).ClearColor(black);
 	Renderer::C_TextureView(&*data.m_Render.m_SamplesStorage).ClearColor(black);
 
+	data.m_Scene.ClearScene();
 	SetupScene(data);
 	StartRender(data);
 }

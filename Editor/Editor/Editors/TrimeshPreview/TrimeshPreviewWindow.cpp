@@ -66,8 +66,6 @@ void C_TrimeshPreviewWindow::OpenModel(Core::ResourceHandle<Renderer::C_TrimeshM
 //=================================================================================
 void C_TrimeshPreviewWindow::SetupScene(S_TrimeshTabData& data)
 {
-	data.m_Scene.ClearScene();
-
 	Physics::Primitives::S_AABB combinedAABB;
 	for (const auto& trimesh : data.m_Model.GetResource().GetTrimeshes())
 		combinedAABB.Add(trimesh.GetAABB());
