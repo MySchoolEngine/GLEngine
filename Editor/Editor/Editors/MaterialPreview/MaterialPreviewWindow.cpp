@@ -23,9 +23,6 @@
 #include <Physics/Primitives/Plane.h>
 #include <Physics/Primitives/Sphere.h>
 
-#include <Core/Application.h>
-
-#include "../../../../vendor/Assimp/code/AssetLib/M3D/m3d.h"
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -138,6 +135,8 @@ void C_MaterialPreviewWindow::SetupCamera()
 //=================================================================================
 void C_MaterialPreviewWindow::Update()
 {
+	if (m_WantToBeDestroyed)
+		return;
 	for (auto& tab : m_TabbedView.m_Tabs)
 	{
 		if (!tab.m_Data)

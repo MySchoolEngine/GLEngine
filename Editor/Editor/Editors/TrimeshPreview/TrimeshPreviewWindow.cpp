@@ -160,6 +160,8 @@ void C_TrimeshPreviewWindow::DestroyTabResources(S_TrimeshTab& tab)
 //=================================================================================
 void C_TrimeshPreviewWindow::Update()
 {
+	if (m_WantToBeDestroyed)
+		return;
 	for (auto& tab : m_TabbedView.m_Tabs)
 		if (tab.m_Data)
 			UploadPreviewStorage(tab.m_Data->m_Render);
