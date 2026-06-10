@@ -6,7 +6,7 @@
 #include <Renderer/IRenderer.h>
 #include <Renderer/RayCasting/Geometry/TrimeshModel.h>
 #include <Renderer/RayCasting/Geometry/PrimitiveObject.h>
-#include <Renderer/RayCasting/RayGeneration/C_InterleavedLinesFactory.h>
+#include <Renderer/RayCasting/RayGeneration/InterleavedLinesFactory.h>
 #include <Renderer/RayCasting/Light/RayAreaLight.h>
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/Colours.h>

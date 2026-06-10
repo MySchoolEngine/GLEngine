@@ -1,6 +1,6 @@
 #include <RendererStdafx.h>
 
-#include <Renderer/RayCasting/RayGeneration/C_InterleavedLinesFactory.h>
+#include <Renderer/RayCasting/RayGeneration/InterleavedLinesFactory.h>
 
 namespace GLEngine::Renderer {
 

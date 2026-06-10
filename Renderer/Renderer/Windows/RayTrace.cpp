@@ -3,7 +3,7 @@
 #include <Renderer/ICameraComponent.h>
 #include <Renderer/IDevice.h>
 #include <Renderer/IRenderer.h>
-#include <Renderer/RayCasting/RayGeneration/C_InterleavedLinesFactory.h>
+#include <Renderer/RayCasting/RayGeneration/InterleavedLinesFactory.h>
 #include <Renderer/RayCasting/RayRenderer.h>
 #include <Renderer/Resources/ResourceManager.h>
 #include <Renderer/Textures/TextureLoader.h>

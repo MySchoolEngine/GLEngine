@@ -9,7 +9,7 @@
 #include <Renderer/Materials/PBRMaterialData.h>
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/RayCasting/Geometry/PrimitiveObject.h>
-#include <Renderer/RayCasting/RayGeneration/C_InterleavedLinesFactory.h>
+#include <Renderer/RayCasting/RayGeneration/InterleavedLinesFactory.h>
 #include <Renderer/RayCasting/Light/RayAreaLight.h>
 #include <Renderer/Resources/ResourceManager.h>
 #include <Renderer/Textures/TextureView.h>
