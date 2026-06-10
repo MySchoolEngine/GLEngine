@@ -75,40 +75,40 @@ C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR, T_EventCallba
 		return true;
 	}));
 	m_FileMenu.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Save", [this]() {
-		if (!m_Tabs.empty())
+		if (m_TabbedView.HasTabs())
 			SaveTab(ActiveTab());
 		return true;
 	}));
 	m_FileMenu.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Save As...", [this]() {
-		if (!m_Tabs.empty())
+		if (m_TabbedView.HasTabs())
 			SaveTabAs(ActiveTab());
 		return true;
 	}));
 
 	// === Playground Menu ===
 	m_ToolsMenu.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Brick", [this]() {
-		if (m_Tabs.empty())
+		if (!m_TabbedView.HasTabs())
 			return false;
 		auto& tab		 = ActiveTab();
 		tab.m_ActiveTool = std::make_unique<C_BrickGenerator>(Renderer::C_TextureView(&*tab.m_Storage));
 		return true;
 	}));
 	m_ToolsMenu.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Blur", [this]() {
-		if (m_Tabs.empty())
+		if (!m_TabbedView.HasTabs())
 			return false;
 		auto& tab		 = ActiveTab();
 		tab.m_ActiveTool = std::make_unique<C_GaussianBlur>(Renderer::C_TextureView(&*tab.m_Storage));
 		return true;
 	}));
 	m_ToolsMenu.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Wave", [this]() {
-		if (m_Tabs.empty())
+		if (!m_TabbedView.HasTabs())
 			return false;
 		auto& tab		 = ActiveTab();
 		tab.m_ActiveTool = std::make_unique<C_WaveGenerator>(Renderer::C_TextureView(&*tab.m_Storage));
 		return true;
 	}));
 	m_ToolsMenu.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Perlin Noise", [this]() {
-		if (m_Tabs.empty())
+		if (!m_TabbedView.HasTabs())
 			return false;
 		auto& tab		 = ActiveTab();
 		tab.m_ActiveTool = std::make_unique<C_PerlinNoise>(Renderer::C_TextureView(&*tab.m_Storage));
@@ -125,7 +125,7 @@ C_ImageEditor::C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR, T_EventCallba
 //=================================================================================
 C_ImageEditor::~C_ImageEditor()
 {
-	for (auto& tab : m_Tabs)
+	for (auto& tab : m_TabbedView.m_Tabs)
 	{
 		DestroyTabResources(tab);
 	}
@@ -135,15 +135,27 @@ C_ImageEditor::~C_ImageEditor()
 }
 
 //=================================================================================
+void C_ImageEditor::OnHide()
+{
+	const bool anyModified = std::any_of(m_TabbedView.m_Tabs.begin(), m_TabbedView.m_Tabs.end(), [](const S_ImageTab& t) { return t.m_bModified; });
+	if (anyModified)
+	{
+		m_TabbedView.RequestEditorClose();
+		return;
+	}
+	GUI::C_Window::OnHide();
+}
+
+//=================================================================================
 C_ImageEditor::S_ImageTab& C_ImageEditor::ActiveTab()
 {
-	return m_Tabs[m_ActiveTabIndex];
+	return m_TabbedView.ActiveTab();
 }
 
 //=================================================================================
 const C_ImageEditor::S_ImageTab& C_ImageEditor::ActiveTab() const
 {
-	return m_Tabs[m_ActiveTabIndex];
+	return m_TabbedView.ActiveTab();
 }
 
 //=================================================================================
@@ -151,7 +163,7 @@ C_ImageEditor::S_ImageTab& C_ImageEditor::CreateTab(Core::ResourceHandle<Rendere
 {
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
 
-	auto& tab			 = m_Tabs.emplace_back();
+	auto& tab			 = m_TabbedView.EmplaceTab();
 	tab.m_ResourceHandle = std::move(handle);
 
 	// Create per-tab GPU texture
@@ -182,14 +194,8 @@ C_ImageEditor::S_ImageTab& C_ImageEditor::CreateTab(Core::ResourceHandle<Rendere
 void C_ImageEditor::OpenImage(Core::ResourceHandle<Renderer::TextureResource> handle)
 {
 	// Deduplication: if already open, just switch focus
-	for (unsigned int i = 0; i < m_Tabs.size(); ++i)
-	{
-		if (m_Tabs[i].m_ResourceHandle == handle)
-		{
-			m_ActiveTabIndex = i;
-			return;
-		}
-	}
+	if (m_TabbedView.TrySwitchTo([&](const S_ImageTab& t) { return t.m_ResourceHandle == handle; }))
+		return;
 
 	if (handle.IsFailed())
 		return;
@@ -314,7 +320,7 @@ bool C_ImageEditor::CanDestroy() const
 {
 	// Block destruction while any tab has unsaved changes
 	// TODO: show "Save before closing?" dialog
-	return std::none_of(m_Tabs.begin(), m_Tabs.end(), [](const S_ImageTab& t) { return t.m_bModified; });
+	return std::none_of(m_TabbedView.m_Tabs.begin(), m_TabbedView.m_Tabs.end(), [](const S_ImageTab& t) { return t.m_bModified; });
 }
 
 //=================================================================================
@@ -322,7 +328,7 @@ void C_ImageEditor::Update()
 {
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
 
-	for (auto& tab : m_Tabs)
+	for (auto& tab : m_TabbedView.m_Tabs)
 	{
 		// Poll pending resource loads (resource handle present but storage not yet copied)
 		if (tab.m_ResourceHandle && !tab.m_Storage)
@@ -380,39 +386,22 @@ void C_ImageEditor::Update()
 //=================================================================================
 void C_ImageEditor::DrawComponents() const
 {
-	if (m_Tabs.empty())
+	if (!m_TabbedView.HasTabs())
 	{
 		ImGui::TextUnformatted("No images open. Use File > New Image or File > Save As.");
 		return;
 	}
 
-	if (ImGui::BeginTabBar("##ImageTabs", ImGuiTabBarFlags_AutoSelectNewTabs))
-	{
-		for (unsigned int i = 0; i < m_Tabs.size(); ++i)
-		{
-			auto& tab = m_Tabs[i];
+	m_TabbedView.Draw(
+		"##ImageTabs",
+		[this](S_ImageTab& tab) { DrawTabContent(tab); },
+		[this](S_ImageTab& tab) { const_cast<C_ImageEditor*>(this)->SaveTab(tab); },
+		[this](S_ImageTab& tab) { DestroyTabResources(tab); });
 
-			const std::string label = tab.m_TabLabel + (tab.m_bModified ? " *" : "") + "##tab" + std::to_string(i);
-			bool			  open	= true;
-
-			if (ImGui::BeginTabItem(label.c_str(), &open))
-			{
-				m_ActiveTabIndex = i;
-				DrawTabContent(tab);
-				ImGui::EndTabItem();
-			}
-
-			if (!open)
-			{
-				DestroyTabResources(tab);
-				m_Tabs.erase(m_Tabs.begin() + i);
-				if (m_ActiveTabIndex >= m_Tabs.size())
-					m_ActiveTabIndex = std::max(0, static_cast<int>(m_Tabs.size()) - 1);
-				--i;
-			}
-		}
-		ImGui::EndTabBar();
-	}
+	m_TabbedView.DrawEditorCloseModals(
+		"##ImageClose",
+		[this](S_ImageTab& tab) { const_cast<C_ImageEditor*>(this)->SaveTab(tab); },
+		[this] { const_cast<C_ImageEditor*>(this)->GUI::C_Window::OnHide(); });
 }
 
 //=================================================================================
