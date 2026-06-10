@@ -28,13 +28,13 @@ public:
 	// @param generatorFactory  called with image dimensions; returns a generator that
 	//                          yields S_RenderWorkUnit values in the desired traversal order.
 	// @param storageMutex      optional; if present, writes to weightedImage are synchronized.
-	void Render(I_CameraComponent&	  camera,
-				I_TextureViewStorage& weightedImage,
-				I_TextureViewStorage& storage,
-				std::mutex*			  storageMutex,
-				int					  numSamplesBefore,
+	void Render(I_CameraComponent&									   camera,
+				I_TextureViewStorage&								   weightedImage,
+				I_TextureViewStorage&								   storage,
+				std::mutex*											   storageMutex,
+				int													   numSamplesBefore,
 				std::function<Generator<S_RenderWorkUnit>(glm::uvec2)> generatorFactory,
-				AdditionalTargets	  additional = {nullptr});
+				AdditionalTargets									   additional = {nullptr});
 
 	[[nodiscard]] std::size_t GetProcessedPixels() const;
 
