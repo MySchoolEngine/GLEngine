@@ -338,17 +338,23 @@ void C_ResourceManagerWindow::OnResourceDoubleClicked(const std::filesystem::pat
 	// --- Material → Material Preview ---
 	if (resMgr.IsResourceType<Renderer::MaterialResource>(path))
 	{
-		if (m_GUIManager.GetWindow(m_MaterialPreviewGUID) != nullptr)
-			return;
-
 		auto handle = resMgr.LoadResource<Renderer::MaterialResource>(path, /*isBlocking=*/true);
 		if (!handle.IsReady())
 			return;
 
-		m_MaterialPreviewGUID = NextGUID();
-		auto* preview		  = new C_MaterialPreviewWindow(m_MaterialPreviewGUID, m_GUIManager, std::move(handle));
-		m_GUIManager.AddCustomWindow(preview);
-		preview->SetVisible(true);
+		if (auto* win = static_cast<C_MaterialPreviewWindow*>(m_GUIManager.GetWindow(m_MaterialPreviewGUID)))
+		{
+			win->OpenMaterial(std::move(handle));
+			win->SetVisible(true);
+		}
+		else
+		{
+			m_MaterialPreviewGUID = NextGUID();
+			auto* preview		  = new C_MaterialPreviewWindow(m_MaterialPreviewGUID, m_GUIManager);
+			preview->OpenMaterial(std::move(handle));
+			m_GUIManager.AddCustomWindow(preview);
+			preview->SetVisible(true);
+		}
 	}
 }
 
