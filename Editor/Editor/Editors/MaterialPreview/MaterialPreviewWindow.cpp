@@ -217,7 +217,8 @@ void C_MaterialPreviewWindow::DrawComponents() const
 
 	// Material properties
 	if (m_Material.IsReady())
-		self->m_Material.GetResource().DrawGUI();
+		if (self->m_Material.GetResource().DrawGUI())
+			self->RebuildAndRestart();
 
 	ImGui::Separator();
 
