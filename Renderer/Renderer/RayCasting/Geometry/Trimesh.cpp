@@ -123,7 +123,7 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 				intersection.SetAlphaMask(C_TextureView(const_cast<I_TextureViewStorage*>(&m_AlphaMask.GetResource().GetStorage())));
 			}
 			glm::vec2		 uv;
-			const glm::vec2* triUV = &(m_TexCoords[triangleIndex]);
+			const glm::vec2* triUV = &(m_TexCoords[triangleIndex * 3]);
 			RayTracing::T_GeometryTraits::BarycentricInterpolation(barycentric, triUV, uv);
 			intersection.SetUV(uv);
 			return true;
