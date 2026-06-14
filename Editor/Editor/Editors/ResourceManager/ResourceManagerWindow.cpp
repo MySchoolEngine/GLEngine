@@ -54,6 +54,31 @@ const char* GetIconForPath(const std::filesystem::path& path)
 	return ICON_FA_FILE;
 }
 
+const char* GetTypeNameForPath(const std::filesystem::path& path)
+{
+	if (std::filesystem::is_directory(path))
+		return "Folder";
+	auto& resMgr = GLEngine::Core::C_ResourceManager::Instance();
+	if (resMgr.IsResourceType<GLEngine::Renderer::MeshResource>(path))
+		return "Mesh";
+	if (resMgr.IsResourceType<GLEngine::Renderer::C_TrimeshModel>(path))
+		return "Trimesh Model";
+	if (resMgr.IsResourceType<GLEngine::Renderer::TextureResource>(path))
+		return "Texture";
+	if (resMgr.IsResourceType<GLEngine::Renderer::MaterialResource>(path))
+		return "Material";
+	return "File";
+}
+
+std::string FormatFileSize(std::uintmax_t bytes)
+{
+	if (bytes < 1024)
+		return std::to_string(bytes) + " B";
+	if (bytes < 1024 * 1024)
+		return std::to_string(bytes / 1024) + " KB";
+	return std::to_string(bytes / (1024 * 1024)) + " MB";
+}
+
 void DrawIconCentered(ImDrawList* drawList, ImVec2 rectMin, float rectSize, const char* iconStr)
 {
 	ImFont*		 font		= GLEngine::GUI::C_ImGuiLayer::GetLargeIconFont();
@@ -227,7 +252,11 @@ void C_ResourceManagerWindow::DrawContentPanel() const
 		m_FolderContents.clear();
 		std::error_code ec;
 		for (const auto& entry : std::filesystem::directory_iterator(m_SelectedFolder, ec))
+		{
+			if (entry.is_regular_file() && entry.path().extension() == ".meta")
+				continue;
 			m_FolderContents.push_back(entry.path());
+		}
 		m_ContentDirty = false;
 	}
 
@@ -267,6 +296,21 @@ void C_ResourceManagerWindow::DrawGridItem(const std::filesystem::path& path, fl
 
 	// Draw FA icon centered in the cell via draw list - no new ImGui item, InvisibleButton stays as drag source
 	DrawIconCentered(ImGui::GetWindowDrawList(), rMin, iconSize, GetIconForPath(path));
+
+	if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
+	{
+		ImGui::BeginTooltip();
+		ImGui::TextUnformatted(path.filename().string().c_str());
+		ImGui::TextDisabled("%s", GetTypeNameForPath(path));
+		if (!isDir)
+		{
+			std::error_code ec;
+			const auto		sz = std::filesystem::file_size(path, ec);
+			if (!ec)
+				ImGui::TextDisabled("%s", FormatFileSize(sz).c_str());
+		}
+		ImGui::EndTooltip();
+	}
 
 	HandleResourceDragDrop(path, iconSize);
 	HandleContextMenu(path);
