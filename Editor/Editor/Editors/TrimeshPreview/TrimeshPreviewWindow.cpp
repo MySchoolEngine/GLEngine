@@ -92,6 +92,11 @@ void C_TrimeshPreviewWindow::SetupScene(S_TrimeshTabData& data)
 	data.m_Scene.AddLight(std::make_shared<Renderer::RayTracing::C_AreaLight>(
 		glm::vec3(1.f, 1.f, 1.f) * 5.f, discPrimitive));
 
+	AddDebugTargets(data.m_Render,
+					{E_DebugTarget::Normals, E_DebugTarget::UV},
+					s_Resolution, "trimeshPreview",
+					Renderer::E_TextureFormat::RGB32f, /*createViewer=*/true);
+
 	SetupCamera(data);
 
 	data.m_Render.m_Renderer = std::make_unique<Renderer::C_RayRenderer>(data.m_Scene);
@@ -140,7 +145,8 @@ void C_TrimeshPreviewWindow::StartRender(S_TrimeshTabData& data)
 											 *data.m_Render.m_SamplesStorage,
 											 &data.m_Render.m_ImageLock,
 											 samplesBefore,
-											 Renderer::C_InterleavedLinesFactory{4});
+											 Renderer::C_InterleavedLinesFactory{4},
+											 data.m_Render.BuildAdditionalTargets());
 			data.m_Render.m_NumSamples.fetch_add(1);
 		}
 		data.m_Render.m_Running.store(false);
@@ -186,13 +192,34 @@ void C_TrimeshPreviewWindow::DrawTabContent(const S_TrimeshTab& tab) const
 	if (!tab.m_Data)
 		return;
 
-	const S_TrimeshTabData& data = *tab.m_Data;
+	S_TrimeshTabData& data = *tab.m_Data;
 
-	if (data.m_Render.m_GUIImage)
-		std::ignore = data.m_Render.m_GUIImage->Draw();
+	int mode = static_cast<int>(data.m_PreviewMode);
+	ImGui::RadioButton("Color", &mode, static_cast<int>(E_PreviewMode::Color));
+	ImGui::SameLine();
+	ImGui::RadioButton("Normals", &mode, static_cast<int>(E_PreviewMode::Normals));
+	ImGui::SameLine();
+	ImGui::RadioButton("UV", &mode, static_cast<int>(E_PreviewMode::UV));
+	data.m_PreviewMode = static_cast<E_PreviewMode>(mode);
+
+	const GUI::C_ImageViewer* viewer = nullptr;
+	switch (data.m_PreviewMode)
+	{
+	case E_PreviewMode::Color: viewer = data.m_Render.m_GUIImage.get(); break;
+	case E_PreviewMode::Normals:
+		if (const auto* s = data.m_Render.GetDebugTarget(E_DebugTarget::Normals))
+			viewer = s->m_Viewer.get();
+		break;
+	case E_PreviewMode::UV:
+		if (const auto* s = data.m_Render.GetDebugTarget(E_DebugTarget::UV))
+			viewer = s->m_Viewer.get();
+		break;
+	}
+	if (viewer)
+		std::ignore = viewer->Draw();
 
 	if (DrawRenderProgress(data.m_Render, s_TargetSamples))
-		const_cast<C_TrimeshPreviewWindow*>(this)->StartRender(*tab.m_Data);
+		const_cast<C_TrimeshPreviewWindow*>(this)->StartRender(data);
 }
 
 //=================================================================================

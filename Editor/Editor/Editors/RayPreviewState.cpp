@@ -17,6 +17,20 @@
 
 namespace GLEngine::Editor {
 
+namespace {
+//=================================================================================
+std::string DebugTargetSuffix(E_DebugTarget t)
+{
+	switch (t)
+	{
+	case E_DebugTarget::RowHeatMap: return "_RowHeatMap";
+	case E_DebugTarget::Normals:	return "_Normals";
+	case E_DebugTarget::UV:			return "_UV";
+	}
+	return "_Unknown";
+}
+} // namespace
+
 //=================================================================================
 void CreateRayPreviewState(S_RayPreviewState& state,
 						   glm::uvec2		  resolution,
@@ -55,6 +69,86 @@ void CreateRayPreviewState(S_RayPreviewState& state,
 }
 
 //=================================================================================
+const S_DebugBuffer* S_RayPreviewState::GetDebugTarget(E_DebugTarget t) const
+{
+	const auto it = m_DebugTargets.find(t);
+	return it != m_DebugTargets.end() ? &it->second : nullptr;
+}
+
+//=================================================================================
+S_DebugBuffer* S_RayPreviewState::GetDebugTarget(E_DebugTarget t)
+{
+	const auto it = m_DebugTargets.find(t);
+	return it != m_DebugTargets.end() ? &it->second : nullptr;
+}
+
+//=================================================================================
+Renderer::C_RayRenderer::AdditionalTargets S_RayPreviewState::BuildAdditionalTargets()
+{
+	Renderer::C_RayRenderer::AdditionalTargets out{};
+	auto get = [&](E_DebugTarget t) -> Renderer::I_TextureViewStorage* {
+		const auto it = m_DebugTargets.find(t);
+		return (it != m_DebugTargets.end() && it->second.m_Storage) ? &(it->second.m_Storage.value()) : nullptr;
+	};
+	out.rowHeatMap = get(E_DebugTarget::RowHeatMap);
+	out.normalsMap = get(E_DebugTarget::Normals);
+	out.uvMap	   = get(E_DebugTarget::UV);
+	return out;
+}
+
+//=================================================================================
+void AddDebugTarget(S_RayPreviewState&		 state,
+					E_DebugTarget			 target,
+					glm::uvec2				 resolution,
+					std::string_view		 name,
+					Renderer::E_TextureFormat format,
+					bool					 createViewer)
+{
+	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
+
+	const auto samplerHandle = renderer.GetRM().createSampler(Renderer::SamplerDescriptor2D{
+		.m_FilterMin = Renderer::E_TextureFilter::Linear,
+		.m_FilterMag = Renderer::E_TextureFilter::Linear,
+		.m_WrapS	 = Renderer::E_WrapFunction::Repeat,
+		.m_WrapT	 = Renderer::E_WrapFunction::Repeat,
+		.m_WrapU	 = Renderer::E_WrapFunction::Repeat,
+	});
+
+	auto& slot		  = state.m_DebugTargets[target];
+	slot.m_GPUHandle  = renderer.GetRM().createTexture(Renderer::TextureDescriptor{
+		 .name		   = std::string(name),
+		 .width		   = resolution.x,
+		 .height	   = resolution.y,
+		 .type		   = Renderer::E_TextureType::TEXTURE_2D,
+		 .format	   = format,
+		 .m_bStreamable = false,
+	 });
+	renderer.SetTextureSampler(slot.m_GPUHandle, samplerHandle);
+
+	slot.m_Storage.emplace(resolution.x, resolution.y, 3);
+	Renderer::C_TextureView(&*slot.m_Storage).ClearColor({0.f, 0.f, 0.f, 1.f});
+	renderer.SetTextureData(slot.m_GPUHandle, *slot.m_Storage);
+
+	if (createViewer)
+	{
+		slot.m_Viewer = std::make_unique<GUI::C_ImageViewer>(slot.m_GPUHandle);
+		slot.m_Viewer->SetSize({resolution.x, resolution.y});
+	}
+}
+
+//=================================================================================
+void AddDebugTargets(S_RayPreviewState&				state,
+					 const std::set<E_DebugTarget>& targets,
+					 glm::uvec2						resolution,
+					 std::string_view				namePrefix,
+					 Renderer::E_TextureFormat		format,
+					 bool							createViewer)
+{
+	for (const auto t : targets)
+		AddDebugTarget(state, t, resolution, std::string(namePrefix) + DebugTargetSuffix(t), format, createViewer);
+}
+
+//=================================================================================
 void StopPreviewRender(S_RayPreviewState& state)
 {
 	state.m_StopRequested.store(true);
@@ -69,6 +163,11 @@ void DestroyRayPreviewState(S_RayPreviewState& state)
 	auto& rm = Core::C_Application::Get().GetActiveRenderer().GetRM();
 	if (state.m_GPUImageHandle.IsValid())
 		rm.destoryTexture(state.m_GPUImageHandle);
+	for (auto& [key, slot] : state.m_DebugTargets)
+	{
+		if (slot.m_GPUHandle.IsValid())
+			rm.destoryTexture(slot.m_GPUHandle);
+	}
 }
 
 //=================================================================================
@@ -81,8 +180,13 @@ void UploadPreviewStorage(S_RayPreviewState& state)
 	{
 		if (state.m_Renderer->NewResultAvailable())
 		{
-			Core::C_Application::Get().GetActiveRenderer()
-				.SetTextureData(state.m_GPUImageHandle, *state.m_ImageStorage);
+			auto& renderer = Core::C_Application::Get().GetActiveRenderer();
+			renderer.SetTextureData(state.m_GPUImageHandle, *state.m_ImageStorage);
+			for (auto& [key, slot] : state.m_DebugTargets)
+			{
+				if (slot.m_Storage && slot.m_GPUHandle.IsValid())
+					renderer.SetTextureData(slot.m_GPUHandle, *slot.m_Storage);
+			}
 			state.m_Renderer->SetResultConsumed();
 		}
 		state.m_ImageLock.unlock();

@@ -41,6 +41,8 @@ private:
 	static constexpr int		s_TargetSamples = 128;
 	static constexpr glm::uvec2 s_Resolution{512, 512};
 
+	enum class E_PreviewMode { Color, Normals, UV };
+
 	// Non-moveable per-tab render state, heap-allocated via unique_ptr in S_TrimeshTab.
 	struct S_TrimeshTabData {
 		Core::ResourceHandle<Renderer::C_TrimeshModel> m_Model;
@@ -48,6 +50,8 @@ private:
 		Renderer::C_RayTraceScene		   m_Scene;
 		Renderer::Cameras::C_OrbitalCamera m_Camera; // PER-TAB — geometry-dependent
 		S_RayPreviewState				   m_Render;  // GPU handle, storage, image viewer, render thread state
+
+		E_PreviewMode m_PreviewMode = E_PreviewMode::Color;
 	};
 
 	// Satisfies TabbedViewTab. Moveable because S_TrimeshTabData is behind a unique_ptr.
