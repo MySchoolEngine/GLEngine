@@ -63,6 +63,28 @@ void C_RayRenderer::Render(I_CameraComponent&	  camera,
 					const auto previousValue = heatMapView.Get<glm::vec3>(glm::ivec2{0, y});
 					heatMapView.Set({0, y}, previousValue + glm::vec3{renderTime.getElapsedTimeFromLastQueryMilliseconds(), 0, 0});
 				}
+				if (numSamplesBefore == 0)
+				{
+					C_RayIntersection intersection;
+					bool			  hit = false;
+					if (additional.normalsMap || additional.uvMap)
+					{
+						hit = m_Scene.Intersect(ray, intersection);
+					}
+					if (hit)
+					{
+						if (additional.normalsMap)
+						{
+							auto normalView = C_TextureView(additional.normalsMap);
+							normalView.Set({x, y}, intersection.GetFrame().Normal());
+						}
+						if (additional.uvMap)
+						{
+							auto uvView = C_TextureView(additional.uvMap);
+							uvView.Set({x, y}, glm::vec3{intersection.GetUV(), 0.f});
+						}
+					}
+				}
 			}
 		}
 
@@ -120,9 +142,14 @@ std::size_t C_RayRenderer::GetProcessedPixels() const
 //=================================================================================
 bool C_RayRenderer::AdditionalTargets::CheckTargets(const I_TextureViewStorage& mainTarget) const
 {
+	bool ok = true;
 	if (rowHeatMap)
-		return rowHeatMap->GetDimensions().x == 1 && rowHeatMap->GetDimensions().y == mainTarget.GetDimensions().y;
-	return true;
+		ok &= rowHeatMap->GetDimensions().x == 1 && rowHeatMap->GetDimensions().y == mainTarget.GetDimensions().y;
+	if (normalsMap)
+		ok &= normalsMap->GetDimensions() == mainTarget.GetDimensions();
+	if (uvMap)
+		ok &= normalsMap->GetDimensions() == mainTarget.GetDimensions();
+	return ok;
 }
 
 } // namespace GLEngine::Renderer

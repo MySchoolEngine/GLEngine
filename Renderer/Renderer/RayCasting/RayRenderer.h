@@ -22,6 +22,8 @@ public:
 
 	struct AdditionalTargets {
 		I_TextureViewStorage* rowHeatMap = nullptr;
+		I_TextureViewStorage* normalsMap = nullptr;
+		I_TextureViewStorage* uvMap = nullptr;
 		[[nodiscard]] bool	  CheckTargets(const I_TextureViewStorage& mainTarget) const;
 	};
 
