@@ -72,7 +72,7 @@ std::shared_ptr<Core::Resource> TextureLoader::CreateResource() const
 //=================================================================================
 std::vector<std::string> TextureLoader::GetSupportedExtensions() const
 {
-	return {".png", ".jpg", ".bmp", ".tga"};
+	return {".png", ".jpg", ".bmp", ".tga", ".ppm"};
 }
 
 } // namespace GLEngine::Renderer
