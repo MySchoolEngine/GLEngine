@@ -39,8 +39,9 @@ protected:
 TEST_F(TextureViewFixture, Border)
 {
 	C_TextureViewStorageCPU<std::uint8_t> storage(1, 1, 3);
+	C_TextureView						  view(&storage);
+
 	storage.SetPixel(glm::vec4(Colours::white, 0.f), 0);
-	C_TextureView view(&storage);
 	view.SetBorderColor(glm::vec4(Colours::black, 0.f));
 	view.SetWrapFunction(E_WrapFunction::ClampToBorder);
 	constexpr glm::vec2 bottomLeft(0, 0);
@@ -80,10 +81,10 @@ TEST_F(TextureViewFixture, GetPixelCoord)
 	// keep in mind orientation described in C_TextureView::GetPixelCoord
 	// and size of the view == (3;3)
 	EXPECT_EQ(GetPixelCoord({0.5, 0.5}), glm::vec2(1, 1));
-	EXPECT_EQ(GetPixelCoord({0.0, 0.0}), glm::vec2(0, 2));
-	EXPECT_EQ(GetPixelCoord({1.0, 1.0}), glm::vec2(2, 0));
-	EXPECT_EQ(GetPixelCoord({0.0, 1.0}), glm::vec2(0, 0));
-	EXPECT_EQ(GetPixelCoord({1.0, 0.0}), glm::vec2(2, 2));
+	EXPECT_EQ(GetPixelCoord({0.0, 0.0}), glm::vec2(0, 0));
+	EXPECT_EQ(GetPixelCoord({1.0, 1.0}), glm::vec2(2, 2));
+	EXPECT_EQ(GetPixelCoord({0.0, 1.0}), glm::vec2(0, 2));
+	EXPECT_EQ(GetPixelCoord({1.0, 0.0}), glm::vec2(2, 0));
 }
 
 TEST_F(TextureViewFixture, Get_ChannelsCorrectness)
@@ -167,11 +168,11 @@ TEST_F(TextureViewFixture, Nearest_Vector_ExactColors)
 	// pixel (x,y) linear index = y*3 + x  (3x3 storage)
 	// UV centres: (0,0)->(1/6,5/6), (1,0)->(1/2,5/6), (1,1)->(1/2,1/2)
 	view.ClearColor({Colours::black, 0.f});
-	storage.SetPixel(glm::vec4(Colours::red, 0.f), 0);	  // pixel (0,0)
+	storage.SetPixel(glm::vec4(Colours::red, 0.f), 0);	 // pixel (0,0)
 	storage.SetPixel(glm::vec4(Colours::green, 0.f), 1); // pixel (1,0)
-	storage.SetPixel(glm::vec4(Colours::blue, 0.f), 4);  // pixel (1,1)
-	EXPECT_EQ((view.Sample<glm::vec3, T_Nearest>(glm::vec2(1.f / 6.f, 5.f / 6.f))), Colours::red);
-	EXPECT_EQ((view.Sample<glm::vec3, T_Nearest>(glm::vec2(0.5f, 5.f / 6.f))), Colours::green);
+	storage.SetPixel(glm::vec4(Colours::blue, 0.f), 4);	 // pixel (1,1)
+	EXPECT_EQ((view.Sample<glm::vec3, T_Nearest>(glm::vec2(1.f / 6.f, 1.f / 6.f))), Colours::red);
+	EXPECT_EQ((view.Sample<glm::vec3, T_Nearest>(glm::vec2(0.5f, 1.f / 6.f))), Colours::green);
 	EXPECT_EQ((view.Sample<glm::vec3, T_Nearest>(glm::vec2(0.5f, 0.5f))), Colours::blue);
 }
 
@@ -205,7 +206,7 @@ TEST_F(TextureViewFixture, Bilinear_Vector_HalfwayHorizontal)
 	// Q11=pixel(0,1)=red, Q21=pixel(1,1)=blue; R1=mix(red,blue,0.5)=(0.5,0,0.5)
 	// weights.y=0 -> no vertical contribution
 	view.ClearColor({Colours::black, 0.f});
-	storage.SetPixel(glm::vec4(Colours::red, 0.f), 3);	 // pixel (0,1) — index = 1*3+0 = 3
+	storage.SetPixel(glm::vec4(Colours::red, 0.f), 3);	// pixel (0,1) — index = 1*3+0 = 3
 	storage.SetPixel(glm::vec4(Colours::blue, 0.f), 4); // pixel (1,1) — index = 1*3+1 = 4
 	EXPECT_EQ((view.Sample<glm::vec3, T_Bilinear>(glm::vec2(1.f / 3.f, 0.5f))), glm::vec3(0.5f, 0.f, 0.5f));
 }
@@ -216,18 +217,18 @@ TEST_F(TextureViewFixture, Bilinear_Vector_HalfwayVertical)
 	// Q11=pixel(1,0)=red, Q12=pixel(1,1)=blue; result=mix(red,blue,0.5)=(0.5,0,0.5)
 	// weights.x=0 -> no horizontal contribution
 	view.ClearColor({Colours::black, 0.f});
-	storage.SetPixel(glm::vec4(Colours::red, 0.f), 1);	 // pixel (1,0) — index = 0*3+1 = 1
+	storage.SetPixel(glm::vec4(Colours::red, 0.f), 1);	// pixel (1,0) — index = 0*3+1 = 1
 	storage.SetPixel(glm::vec4(Colours::blue, 0.f), 4); // pixel (1,1) — index = 1*3+1 = 4
-	EXPECT_EQ((view.Sample<glm::vec3, T_Bilinear>(glm::vec2(0.5f, 2.f / 3.f))), glm::vec3(0.5f, 0.f, 0.5f));
+	EXPECT_EQ((view.Sample<glm::vec3, T_Bilinear>(glm::vec2(0.5f, 1.f / 3.f))), glm::vec3(0.5f, 0.f, 0.5f));
 }
 
 TEST_F(TextureView2x2Fixture, Bilinear_Vector_FourCornerMix)
 {
 	// UV(0.5,0.5): weights=(0.5,0.5) -> 25% each corner
 	// 0.25*red + 0.25*green + 0.25*blue + 0.25*white = (0.5, 0.5, 0.5)
-	storage.SetPixel(glm::vec4(Colours::red, 0.f), 0);	  // pixel (0,0)
+	storage.SetPixel(glm::vec4(Colours::red, 0.f), 0);	 // pixel (0,0)
 	storage.SetPixel(glm::vec4(Colours::green, 0.f), 1); // pixel (1,0)
-	storage.SetPixel(glm::vec4(Colours::blue, 0.f), 2);  // pixel (0,1)
+	storage.SetPixel(glm::vec4(Colours::blue, 0.f), 2);	 // pixel (0,1)
 	storage.SetPixel(glm::vec4(Colours::white, 0.f), 3); // pixel (1,1)
 	EXPECT_EQ((view.Sample<glm::vec3, T_Bilinear>(glm::vec2(0.5f, 0.5f))), glm::vec3(0.5f, 0.5f, 0.5f));
 }
@@ -264,7 +265,27 @@ TEST_F(TextureView2x2Fixture, Bilinear_BorderColor_HalfBlend)
 	view.ClearColor({Colours::white, 0.f});
 	view.SetBorderColor(glm::vec4(0.f, 0.f, 0.f, 0.f));
 	view.SetWrapFunction(E_WrapFunction::ClampToBorder);
-	EXPECT_EQ((view.Sample<glm::vec3, T_Bilinear>(glm::vec2(1.0f, 0.75f))), glm::vec3(0.5f, 0.5f, 0.5f));
+	EXPECT_EQ((view.Sample<glm::vec3, T_Bilinear>(glm::vec2(1, 0.75f))), glm::vec3(0.5f, 0.5f, 0.5f));
+}
+
+TEST_F(TextureView2x2Fixture, Bilinear_BorderColor_LeftToPixelCenter)
+{
+	// we hit here right bottom pixel, but to the left from its center
+	// 0.75 makes it to be in the center of the pixel
+	view.ClearColor({Colours::white, 0.f});
+	view.SetBorderColor(glm::vec4(0.f, 0.f, 0.f, 0.f));
+	view.SetWrapFunction(E_WrapFunction::ClampToBorder);
+	EXPECT_EQ((view.Sample<glm::vec3, T_Bilinear>(glm::vec2(5.f/8.f, 0.75f))), Colours::white);
+}
+
+TEST_F(TextureView2x2Fixture, Bilinear_BorderColor_AbovePixelCenter)
+{
+	// we hit here right bottom pixel, but above its center
+	// 0.75 makes it to be in the center of the pixel
+	view.ClearColor({Colours::white, 0.f});
+	view.SetBorderColor(glm::vec4(0.f, 0.f, 0.f, 0.f));
+	view.SetWrapFunction(E_WrapFunction::ClampToBorder);
+	EXPECT_EQ((view.Sample<glm::vec3, T_Bilinear>(glm::vec2(0.75f, 5.f / 8.f))), Colours::white);
 }
 
 TEST_F(TextureView2x2Fixture, Bilinear_BorderColor_HalfBlend_InRightTopPixelOfFilter)
@@ -275,7 +296,7 @@ TEST_F(TextureView2x2Fixture, Bilinear_BorderColor_HalfBlend_InRightTopPixelOfFi
 	view.ClearColor({Colours::white, 0.f});
 	view.SetBorderColor(glm::vec4(0.f, 0.f, 0.f, 0.f));
 	view.SetWrapFunction(E_WrapFunction::ClampToBorder);
-	EXPECT_EQ((view.Sample<glm::vec3, T_Bilinear>(glm::vec2(0.25f - 0.5f/4.f, 0.75f))), glm::vec3(0.5f, 0.5f, 0.5f));
+	EXPECT_EQ((view.Sample<glm::vec3, T_Bilinear>(glm::vec2(0.25f - 0.5f / 4.f, 0.75f))), glm::vec3(0.75, 0.75, 0.75));
 }
 
 TEST_F(TextureView2x2Fixture, Bilinear_BorderColor_QuarterBlend)

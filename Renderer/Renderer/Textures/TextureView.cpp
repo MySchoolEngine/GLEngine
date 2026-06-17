@@ -52,22 +52,29 @@ std::size_t C_TextureView::GetPixelAddress(const glm::uvec2& coord) const
 //=================================================================================
 glm::vec2 C_TextureView::GetPixelCoord(const glm::vec2& uv) const
 {
+	// TODO that would be nice, but my texture storage have fliped V
 	// coord in rect + top left of the rect
-	float u = (uv.x * (static_cast<float>(m_Rect.GetWidth())));
-	float v = ((1 - uv.y) * static_cast<float>(m_Rect.GetHeight()));
-	if (uv.x == 1.f)
-		u = static_cast<float>(m_Rect.Right());
-	if (uv.y == 0.f)
-		v = static_cast<float>(m_Rect.Bottom());
+	//float u = (uv.x * (static_cast<float>(m_Rect.GetWidth())));
+	//float v = ((1 - uv.y) * static_cast<float>(m_Rect.GetHeight()));
+	float u = uv.x * static_cast<float>(m_Rect.GetWidth());
+	float v = uv.y * static_cast<float>(m_Rect.GetHeight());
+	if (uv.x == 1)
+		u = static_cast<float>(m_Rect.GetWidth() - 1);
+	if (uv.y == 1)
+		v = static_cast<float>(m_Rect.GetHeight() - 1);
+
 	return {std::floor(u), std::floor(v)};
 }
 
 //=================================================================================
 glm::vec2 C_TextureView::ToTextureSpace(const glm::vec2& uv) const
 {
+	// TODO that would be nice, but my texture storage have fliped V
+	// float x = (uv.x * (static_cast<float>(m_Rect.GetWidth())));
+	// float y = ((1 - uv.y) * static_cast<float>(m_Rect.GetHeight()));
 	float x = (uv.x * (static_cast<float>(m_Rect.GetWidth())));
-	float y = ((1 - uv.y) * static_cast<float>(m_Rect.GetHeight()));
-	return {x - 0.5f, y - 0.5f};
+	float y = (uv.y * static_cast<float>(m_Rect.GetHeight()));
+	return {x, y};
 }
 
 //=================================================================================
