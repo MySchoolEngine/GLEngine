@@ -63,7 +63,7 @@ bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInte
 				{
 					if (inter.GetAlpha(inter.GetUV()) < 0.5)
 					{
-						localRay = localRay.OffsetRay(inter.GetRayLength() + 1e-4);
+						localRay = localRay.OffsetRay(inter.GetRayLength() + 1e-4f);
 						continue;
 					}
 				}

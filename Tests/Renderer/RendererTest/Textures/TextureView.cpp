@@ -132,7 +132,6 @@ TEST_F(TextureView3x3Fixture, Repeat)
 {
 	view.SetWrapFunction(E_WrapFunction::Repeat);
 	const auto&		 dim	   = storage.GetDimensions();
-	const glm::uvec2 maxCoords = dim - glm::uvec2{1, 1};
 	EXPECT_EQ(ClampCoordinates(dim), glm::uvec2(0));
 	EXPECT_EQ(ClampCoordinates(glm::ivec2(-3, 0)), glm::uvec2(0, 0));
 }
