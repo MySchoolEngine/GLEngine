@@ -25,6 +25,7 @@ protected:
 using TextureViewWithAlphaFixture = TextureViewFixture<3, 3, 4>;
 using TextureView3x3Fixture		  = TextureViewFixture<3, 3, 3>;
 using TextureView2x2Fixture		  = TextureViewFixture<2, 2, 3>;
+using TextureView2x3Fixture		  = TextureViewFixture<2, 3, 3>;
 
 TEST_F(TextureView3x3Fixture, Border)
 {
@@ -136,13 +137,13 @@ TEST_F(TextureView3x3Fixture, Repeat)
 }
 
 // ----- T_Nearest: both Sample variants -----
-// UV pixel-centre formula (3x3): uv.x=(px+0.5)/3, uv.y=1-(py+0.5)/3
-// Correct pixel coord via: px=uv.x*3-0.5, py=(1-uv.y)*3-0.5  (continuous, no floor)
+// UV pixel-centre formula (3x3): uv.x=(px+0.5)/3, uv.y=(py+0.5)/3  (no Y flip)
+// Correct pixel coord via: px=uv.x*3-0.5, py=uv.y*3-0.5  (continuous, no floor)
 
 TEST_F(TextureView3x3Fixture, Nearest_Vector_ExactColors)
 {
 	// pixel (x,y) linear index = y*3 + x  (3x3 storage)
-	// UV centres: (0,0)->(1/6,5/6), (1,0)->(1/2,5/6), (1,1)->(1/2,1/2)
+	// UV centres: (0,0)->(1/6,1/6), (1,0)->(1/2,1/6), (1,1)->(1/2,1/2)
 	view.ClearColor({Colours::black, 0.f});
 	storage.SetPixel(glm::vec4(Colours::red, 0.f), 0);	 // pixel (0,0)
 	storage.SetPixel(glm::vec4(Colours::green, 0.f), 1); // pixel (1,0)
@@ -154,7 +155,7 @@ TEST_F(TextureView3x3Fixture, Nearest_Vector_ExactColors)
 
 TEST_F(TextureView3x3Fixture, Nearest_SingleChannel_ExactValue)
 {
-	// Channel overload: GetPixelCoord maps UV to flipped pixel space.
+	// Channel overload: GetPixelCoord maps UV to pixel space.
 	// UV(0.5,0.5) -> GetPixelCoord -> floor(1.5,1.5) = pixel(1,1) = index 4.
 	view.ClearColor({Colours::black, 0.f});
 	storage.SetPixel(glm::vec4(Colours::red, 0.f), 4); // pixel (1,1)
@@ -163,10 +164,10 @@ TEST_F(TextureView3x3Fixture, Nearest_SingleChannel_ExactValue)
 }
 
 // ----- T_Bilinear: vector variant -----
-// Pixel centres in UV for a 3x3: uv=(px+0.5)/3, uv.y=1-(py+0.5)/3
+// Pixel centres in UV for a 3x3: uv.x=(px+0.5)/3, uv.y=(py+0.5)/3  (no Y flip)
 // Midpoints between centres (bilinear weight=0.5 in that axis):
 //   (0,1)<->(1,1): uv=(1/3, 0.5) -> pixelCoord=(0.5,1.0), weights=(0.5,0)
-//   (1,0)<->(1,1): uv=(0.5, 2/3) -> pixelCoord=(1.0,0.5), weights=(0,0.5)
+//   (1,0)<->(1,1): uv=(0.5, 1/3) -> pixelCoord=(1.0,0.5), weights=(0,0.5)
 
 TEST_F(TextureView3x3Fixture, Bilinear_Vector_AtPixelCenter_NoMixing)
 {
@@ -189,7 +190,7 @@ TEST_F(TextureView3x3Fixture, Bilinear_Vector_HalfwayHorizontal)
 
 TEST_F(TextureView3x3Fixture, Bilinear_Vector_HalfwayVertical)
 {
-	// UV(0.5, 2/3) -> pixelCoord=(1.0, 0.5), weights=(0, 0.5), leftTopCoord=(1,0)
+	// UV(0.5, 1/3) -> pixelCoord=(1.0, 0.5), weights=(0, 0.5), leftTopCoord=(1,0)
 	// Q11=pixel(1,0)=red, Q12=pixel(1,1)=blue; result=mix(red,blue,0.5)=(0.5,0,0.5)
 	// weights.x=0 -> no horizontal contribution
 	view.ClearColor({Colours::black, 0.f});
@@ -230,13 +231,14 @@ TEST_F(TextureView3x3Fixture, Bilinear_SingleChannel_MatchesNearestViaFlooredCoo
 // filtering are replaced by the border colour before the weighted blend is computed.
 // The border colour therefore contributes proportionally to the sample weights.
 //
-// 2x2 UV centres: (1,0) -> uv=(0.75, 0.75). Midpoints to the right column (x=1.5, 1.25
-// in pixel space) map to uv.x=(1.5+0.5)/2=1.0 and uv.x=(1.25+0.5)/2=0.875 respectively.
+// 2x2 UV centres (no Y flip): (1,0) -> uv=(0.75, 0.25), (1,1) -> uv=(0.75, 0.75).
+// Midpoints to the right of column 1 (px_cont=1.5 and 1.25) map to
+// uv.x=(1.5+0.5)/2=1.0 and uv.x=(1.25+0.5)/2=0.875 respectively.
 
 TEST_F(TextureView2x2Fixture, Bilinear_BorderColor_HalfBlend)
 {
-	// UV(1.0, 0.75) -> pixelCoord=(1.5, 0.0), weights=(0.5, 0), leftTopCoord=(1,0)
-	// Q11=pixel(1,0)=white(in), Q21=pixel(2,0)=border=black(out)
+	// UV(1.0, 0.75) -> pixelCoord=(1.5, 1.0), weights=(0.5, 0), leftTopCoord=(1,1)
+	// Q11=pixel(1,1)=white(in), Q21=pixel(2,1)=border=black(out)
 	// R1=mix(white,black,0.5)=(0.5,0.5,0.5); weights.y=0 -> result=R1
 	view.ClearColor({Colours::white, 0.f});
 	view.SetBorderColor(glm::vec4(0.f, 0.f, 0.f, 0.f));
@@ -266,9 +268,9 @@ TEST_F(TextureView2x2Fixture, Bilinear_BorderColor_AbovePixelCenter)
 
 TEST_F(TextureView2x2Fixture, Bilinear_BorderColor_HalfBlend_InRightTopPixelOfFilter)
 {
-	// UV(0.25f - 0.5f/4.f, 0.75) -> pixelCoord=(1.5, 0.0), weights=(0.5, 0), leftTopCoord=(1,0)
-	// Q11=pixel(1,0)=white(in), Q21=pixel(2,0)=border=black(out)
-	// R1=mix(white,black,0.5)=(0.5,0.5,0.5); weights.y=0 -> result=R1
+	// UV(0.125, 0.75) -> pixelCoord=(-0.25, 1.0), leftTopCoord=(-1,1) [x OOB left]
+	// weights=(fract(-0.25), 0) = (0.75, 0); Q11=border=black, Q21=pixel(0,1)=white
+	// R1=mix(black,white,0.75)=(0.75,0.75,0.75); weights.y=0 -> result=R1
 	view.ClearColor({Colours::white, 0.f});
 	view.SetBorderColor(glm::vec4(0.f, 0.f, 0.f, 0.f));
 	view.SetWrapFunction(E_WrapFunction::ClampToBorder);
@@ -277,12 +279,97 @@ TEST_F(TextureView2x2Fixture, Bilinear_BorderColor_HalfBlend_InRightTopPixelOfFi
 
 TEST_F(TextureView2x2Fixture, Bilinear_BorderColor_QuarterBlend)
 {
-	// UV(0.875, 0.75) -> pixelCoord=(1.25, 0.0), weights=(0.25, 0), leftTopCoord=(1,0)
-	// Q11=white(in), Q21=border=black(out): mix(white,black,0.25)=(0.75,0.75,0.75)
+	// UV(0.875, 0.75) -> pixelCoord=(1.25, 1.0), weights=(0.25, 0), leftTopCoord=(1,1)
+	// Q11=pixel(1,1)=white(in), Q21=border=black(out): mix(white,black,0.25)=(0.75,0.75,0.75)
 	view.ClearColor({Colours::white, 0.f});
 	view.SetBorderColor(glm::vec4(0.f, 0.f, 0.f, 0.f));
 	view.SetWrapFunction(E_WrapFunction::ClampToBorder);
 	EXPECT_EQ((view.Sample<glm::vec3, T_Bilinear>(glm::vec2(0.875f, 0.75f))), glm::vec3(0.75f, 0.75f, 0.75f));
+}
+
+
+//=================================================================================
+// 2x3 fixture — non-square (width < height) tests confirming that GetPixelCoord,
+// T_Nearest, and T_Bilinear each scale x and y axes independently.
+//
+// No Y flip for either filter: px_cont = uv.x*w - 0.5, py_cont = uv.y*h - 0.5
+//   x-centres for w=2: uv.x = (px+0.5)/2 → {0.25, 0.75}
+//   y-centres for h=3: uv.y = (py+0.5)/3 → {1/6, 1/2, 5/6}
+//
+// Linear index: py*2 + px
+
+TEST_F(TextureView2x3Fixture, GetPixelCoord_Corners)
+{
+	// Full coordinate range maps to the correct pixel corners.
+	EXPECT_EQ(GetPixelCoord({0.f, 0.f}), glm::vec2(0, 0));
+	EXPECT_EQ(GetPixelCoord({1.f, 0.f}), glm::vec2(1, 0));
+	EXPECT_EQ(GetPixelCoord({0.f, 1.f}), glm::vec2(0, 2));
+	EXPECT_EQ(GetPixelCoord({1.f, 1.f}), glm::vec2(1, 2));
+}
+
+TEST_F(TextureView2x3Fixture, GetPixelCoord_XAndYScaleIndependently)
+{
+	// UV(0.5, 0.5): x lands on the rightmost column (floor(0.5*2)=1),
+	// but y lands on the middle row (floor(0.5*3)=1) — not the last row.
+	EXPECT_EQ(GetPixelCoord({0.5f, 0.5f}), glm::vec2(1, 1));
+
+	// UV.x=0.75 → floor(0.75*2)=1; if height (3) were used for x instead,
+	// floor(0.75*3)=2 which is out of range — a detectable wrong result.
+	EXPECT_EQ(GetPixelCoord({0.75f, 0.f}), glm::vec2(1, 0));
+
+	// UV.y=2/3 → floor(2/3*3)=2; if width (2) were used for y instead,
+	// floor(2/3*2)=1 — also a detectable wrong result.
+	EXPECT_EQ(GetPixelCoord({0.f, 2.f / 3.f}), glm::vec2(0, 2));
+}
+
+TEST_F(TextureView2x3Fixture, Nearest_AsymmetricPixelCenters)
+{
+	// x-centres for w=2: {0.25, 0.75}; y-centres for h=3: {1/6, 1/2, 5/6}.
+	// Sampling at each centre must return the exact pixel color without
+	// bleeding — this breaks if x/y dimensions are swapped internally.
+	view.ClearColor({Colours::black, 0.f});
+	storage.SetPixel(glm::vec4(Colours::red,   0.f), 0); // pixel (0,0) — index 0*2+0=0
+	storage.SetPixel(glm::vec4(Colours::green, 0.f), 1); // pixel (1,0) — index 0*2+1=1
+	storage.SetPixel(glm::vec4(Colours::blue,  0.f), 4); // pixel (0,2) — index 2*2+0=4
+
+	EXPECT_EQ((view.Sample<glm::vec3, T_Nearest>(glm::vec2(0.25f, 1.f / 6.f))), Colours::red);
+	EXPECT_EQ((view.Sample<glm::vec3, T_Nearest>(glm::vec2(0.75f, 1.f / 6.f))), Colours::green);
+	EXPECT_EQ((view.Sample<glm::vec3, T_Nearest>(glm::vec2(0.25f, 5.f / 6.f))), Colours::blue);
+}
+
+TEST_F(TextureView2x3Fixture, Bilinear_HorizontalHalfBlend)
+{
+	// UV(0.5, 1/6): px_cont=0.5*2-0.5=0.5, py_cont=(1/6)*3-0.5=0
+	// weights=(0.5, 0), leftTopCoord=(0,0)
+	// Q11=pixel(0,0)=red, Q21=pixel(1,0)=blue → mix(red,blue,0.5)=(0.5,0,0.5)
+	// (Compare: same blend in 3x3 uses uv.x=1/3; here uv.x=0.5 because w=2.)
+	view.ClearColor({Colours::black, 0.f});
+	storage.SetPixel(glm::vec4(Colours::red,  0.f), 0); // pixel (0,0) — index 0
+	storage.SetPixel(glm::vec4(Colours::blue, 0.f), 1); // pixel (1,0) — index 1
+	EXPECT_EQ((view.Sample<glm::vec3, T_Bilinear>(glm::vec2(0.5f, 1.f / 6.f))), glm::vec3(0.5f, 0.f, 0.5f));
+}
+
+TEST_F(TextureView2x3Fixture, Bilinear_VerticalHalfBlend)
+{
+	// UV(0.25, 1/3): px_cont=0.25*2-0.5=0, py_cont=(1/3)*3-0.5=0.5
+	// weights=(0, 0.5), leftTopCoord=(0,0)
+	// Q11=pixel(0,0)=red, Q12=pixel(0,1)=blue → mix(red,blue,0.5)=(0.5,0,0.5)
+	view.ClearColor({Colours::black, 0.f});
+	storage.SetPixel(glm::vec4(Colours::red,  0.f), 0); // pixel (0,0) — index 0
+	storage.SetPixel(glm::vec4(Colours::blue, 0.f), 2); // pixel (0,1) — index 1*2+0=2
+	EXPECT_EQ((view.Sample<glm::vec3, T_Bilinear>(glm::vec2(0.25f, 1.f / 3.f))), glm::vec3(0.5f, 0.f, 0.5f));
+}
+
+TEST_F(TextureView2x3Fixture, Bilinear_FourCornerEqualMix)
+{
+	// UV(0.5, 1/3): px_cont=0.5, py_cont=0.5, weights=(0.5, 0.5)
+	// 25% each: Q11=(0,0)=red, Q21=(1,0)=green, Q12=(0,1)=blue, Q22=(1,1)=white
+	// 0.25*(1,0,0)+(0,1,0)+(0,0,1)+(1,1,1) = (0.5,0.5,0.5)
+	storage.SetPixel(glm::vec4(Colours::red,   0.f), 0); // pixel (0,0) — index 0
+	storage.SetPixel(glm::vec4(Colours::green, 0.f), 1); // pixel (1,0) — index 1
+	storage.SetPixel(glm::vec4(Colours::blue,  0.f), 2); // pixel (0,1) — index 2
+	storage.SetPixel(glm::vec4(Colours::white, 0.f), 3); // pixel (1,1) — index 3
+	EXPECT_EQ((view.Sample<glm::vec3, T_Bilinear>(glm::vec2(0.5f, 1.f / 3.f))), glm::vec3(0.5f, 0.5f, 0.5f));
 }
 
 } // namespace GLEngine::Renderer
