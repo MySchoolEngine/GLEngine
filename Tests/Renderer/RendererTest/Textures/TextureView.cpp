@@ -26,6 +26,7 @@ using TextureViewWithAlphaFixture = TextureViewFixture<3, 3, 4>;
 using TextureView3x3Fixture		  = TextureViewFixture<3, 3, 3>;
 using TextureView2x2Fixture		  = TextureViewFixture<2, 2, 3>;
 using TextureView2x3Fixture		  = TextureViewFixture<2, 3, 3>;
+using TextureView1x1Fixture		  = TextureViewFixture<1, 1, 3>;
 
 TEST_F(TextureView3x3Fixture, Border)
 {
@@ -370,6 +371,21 @@ TEST_F(TextureView2x3Fixture, Bilinear_FourCornerEqualMix)
 	storage.SetPixel(glm::vec4(Colours::blue,  0.f), 2); // pixel (0,1) — index 2
 	storage.SetPixel(glm::vec4(Colours::white, 0.f), 3); // pixel (1,1) — index 3
 	EXPECT_EQ((view.Sample<glm::vec3, T_Bilinear>(glm::vec2(0.5f, 1.f / 3.f))), glm::vec3(0.5f, 0.5f, 0.5f));
+}
+
+
+//=================================================================================
+// 1x1 fixture — degenerate case: GetPixelCoord must always return (0,0)
+// regardless of UV, since (0,0) is the only valid pixel coordinate.
+
+TEST_F(TextureView1x1Fixture, GetPixelCoord_AlwaysOrigin)
+{
+	EXPECT_EQ(GetPixelCoord({0.f,  0.f }),  glm::vec2(0, 0)); // bottom-left
+	EXPECT_EQ(GetPixelCoord({1.f,  1.f }),  glm::vec2(0, 0)); // top-right (clamped from floor(1,1))
+	EXPECT_EQ(GetPixelCoord({0.5f, 0.5f}),  glm::vec2(0, 0)); // centre
+	EXPECT_EQ(GetPixelCoord({0.f,  1.f }),  glm::vec2(0, 0)); // off-axis corners
+	EXPECT_EQ(GetPixelCoord({1.f,  0.f }),  glm::vec2(0, 0));
+	EXPECT_EQ(GetPixelCoord({0.25f, 0.75f}), glm::vec2(0, 0)); // arbitrary interior UV
 }
 
 } // namespace GLEngine::Renderer
