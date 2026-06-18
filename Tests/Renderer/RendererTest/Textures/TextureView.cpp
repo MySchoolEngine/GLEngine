@@ -6,10 +6,10 @@
 #include <Renderer/Textures/TextureView.h>
 
 namespace GLEngine::Renderer {
-class TextureViewFixture : public ::testing::Test {
+template <int w, int h, int ch> class TextureViewFixture : public ::testing::Test {
 protected:
 	TextureViewFixture()
-		: storage(3, 3, 3)
+		: storage(w, h, ch)
 		, view(&storage)
 	{
 	}
@@ -21,22 +21,12 @@ protected:
 	C_TextureViewStorageCPU<std::uint8_t> storage;
 	C_TextureView						  view;
 };
-class TextureViewWithAlphaFixture : public ::testing::Test {
-protected:
-	TextureViewWithAlphaFixture()
-		: storage(3, 3, 4)
-		, view(&storage)
-	{
-	}
-	auto	  GetPixelCoord(const glm::vec2& uv) const { return view.GetPixelCoord(uv); }
-	bool	  IsOutsideBorders(const glm::uvec2& uv) const { return view.IsOutsideBorders(uv); }
-	glm::vec3 GetVec3(const glm::vec2& uv) const { return view.Sample<glm::vec3, T_Bilinear>(uv); }
 
-	C_TextureViewStorageCPU<std::uint8_t> storage;
-	C_TextureView						  view;
-};
+using TextureViewWithAlphaFixture = TextureViewFixture<3, 3, 4>;
+using TextureView3x3Fixture		  = TextureViewFixture<3, 3, 3>;
+using TextureView2x2Fixture		  = TextureViewFixture<2, 2, 3>;
 
-TEST_F(TextureViewFixture, Border)
+TEST_F(TextureView3x3Fixture, Border)
 {
 	C_TextureViewStorageCPU<std::uint8_t> storage(1, 1, 3);
 	C_TextureView						  view(&storage);
@@ -55,7 +45,7 @@ TEST_F(TextureViewFixture, Border)
 	EXPECT_EQ(sampleOutside, 0);
 }
 
-TEST_F(TextureViewFixture, IsOutsideBorders)
+TEST_F(TextureView3x3Fixture, IsOutsideBorders)
 {
 	EXPECT_EQ(IsOutsideBorders({0, 0}), false);
 	EXPECT_EQ(IsOutsideBorders({1, 1}), false);
@@ -64,7 +54,7 @@ TEST_F(TextureViewFixture, IsOutsideBorders)
 	EXPECT_EQ(IsOutsideBorders({5, 0}), true);
 }
 
-TEST_F(TextureViewFixture, UseBorderColor)
+TEST_F(TextureView3x3Fixture, UseBorderColor)
 {
 	view.SetWrapFunction(E_WrapFunction::ClampToBorder);
 	EXPECT_EQ(view.UseBorderColor(), true);
@@ -76,7 +66,7 @@ TEST_F(TextureViewFixture, UseBorderColor)
 	EXPECT_EQ(view.UseBorderColor(), false);
 }
 
-TEST_F(TextureViewFixture, GetPixelCoord)
+TEST_F(TextureView3x3Fixture, GetPixelCoord)
 {
 	// keep in mind orientation described in C_TextureView::GetPixelCoord
 	// and size of the view == (3;3)
@@ -87,7 +77,7 @@ TEST_F(TextureViewFixture, GetPixelCoord)
 	EXPECT_EQ(GetPixelCoord({1.0, 0.0}), glm::vec2(2, 0));
 }
 
-TEST_F(TextureViewFixture, Get_ChannelsCorrectness)
+TEST_F(TextureView3x3Fixture, Get_ChannelsCorrectness)
 {
 	view.ClearColor({Colours::white, 0.f});
 	EXPECT_EQ(GetVec3({0.f, 0.f}), Colours::white);
@@ -95,7 +85,7 @@ TEST_F(TextureViewFixture, Get_ChannelsCorrectness)
 	EXPECT_EQ(GetVec3({1.f, 0.f}), Colours::white);
 	EXPECT_EQ(GetVec3({1.f, 1.f}), Colours::white);
 }
-TEST_F(TextureViewFixture, GetUVForPixel)
+TEST_F(TextureView3x3Fixture, GetUVForPixel)
 {
 	EXPECT_PRED_FORMAT2(AssertVec2AlmostEq<float>, view.GetUVForPixel({0, 0}), glm::vec2(1.f / 6.f, 1.f - (1.f / 6.f)));
 	EXPECT_PRED_FORMAT2(AssertVec2AlmostEq<float>, view.GetUVForPixel({0, 2}), glm::vec2(1.f / 6.f, 1.f / 6.f));
@@ -115,7 +105,7 @@ TEST_F(TextureViewWithAlphaFixture, EnableBlending)
 	EXPECT_EQ(view.Get<glm::vec4>(C_TextureView::PixelCoordVec(0, 0)), glm::vec4(1, 1, 1, 1));
 }
 
-TEST_F(TextureViewFixture, FillLine_Extremes)
+TEST_F(TextureView3x3Fixture, FillLine_Extremes)
 {
 	const auto& dim = storage.GetDimensions();
 	view.FillLineSpan(Colours::red, 0, 0, dim.x + 4);
@@ -127,7 +117,7 @@ TEST_F(TextureViewFixture, FillLine_Extremes)
 	view.FillLineSpan(Colours::green, dim.y, 0, 5); // should not crash
 }
 
-TEST_F(TextureViewFixture, ClampToEdge_Extremes)
+TEST_F(TextureView3x3Fixture, ClampToEdge_Extremes)
 {
 	view.SetWrapFunction(E_WrapFunction::ClampToEdge);
 	const auto&		 dim	   = storage.GetDimensions();
@@ -136,7 +126,7 @@ TEST_F(TextureViewFixture, ClampToEdge_Extremes)
 	EXPECT_EQ(ClampCoordinates(glm::ivec2{-5, -5}), glm::uvec2(0));
 }
 
-TEST_F(TextureViewFixture, Repeat)
+TEST_F(TextureView3x3Fixture, Repeat)
 {
 	view.SetWrapFunction(E_WrapFunction::Repeat);
 	const auto&		 dim	   = storage.GetDimensions();
@@ -145,25 +135,11 @@ TEST_F(TextureViewFixture, Repeat)
 	EXPECT_EQ(ClampCoordinates(glm::ivec2(-3, 0)), glm::uvec2(0, 0));
 }
 
-//=================================================================================
-// 2x2 fixture — used for four-corner and border-blend bilinear tests.
-class TextureView2x2Fixture : public ::testing::Test {
-protected:
-	TextureView2x2Fixture()
-		: storage(2, 2, 3)
-		, view(&storage)
-	{
-	}
-
-	C_TextureViewStorageCPU<std::uint8_t> storage;
-	C_TextureView						  view;
-};
-
 // ----- T_Nearest: both Sample variants -----
 // UV pixel-centre formula (3x3): uv.x=(px+0.5)/3, uv.y=1-(py+0.5)/3
 // Correct pixel coord via: px=uv.x*3-0.5, py=(1-uv.y)*3-0.5  (continuous, no floor)
 
-TEST_F(TextureViewFixture, Nearest_Vector_ExactColors)
+TEST_F(TextureView3x3Fixture, Nearest_Vector_ExactColors)
 {
 	// pixel (x,y) linear index = y*3 + x  (3x3 storage)
 	// UV centres: (0,0)->(1/6,5/6), (1,0)->(1/2,5/6), (1,1)->(1/2,1/2)
@@ -176,7 +152,7 @@ TEST_F(TextureViewFixture, Nearest_Vector_ExactColors)
 	EXPECT_EQ((view.Sample<glm::vec3, T_Nearest>(glm::vec2(0.5f, 0.5f))), Colours::blue);
 }
 
-TEST_F(TextureViewFixture, Nearest_SingleChannel_ExactValue)
+TEST_F(TextureView3x3Fixture, Nearest_SingleChannel_ExactValue)
 {
 	// Channel overload: GetPixelCoord maps UV to flipped pixel space.
 	// UV(0.5,0.5) -> GetPixelCoord -> floor(1.5,1.5) = pixel(1,1) = index 4.
@@ -192,7 +168,7 @@ TEST_F(TextureViewFixture, Nearest_SingleChannel_ExactValue)
 //   (0,1)<->(1,1): uv=(1/3, 0.5) -> pixelCoord=(0.5,1.0), weights=(0.5,0)
 //   (1,0)<->(1,1): uv=(0.5, 2/3) -> pixelCoord=(1.0,0.5), weights=(0,0.5)
 
-TEST_F(TextureViewFixture, Bilinear_Vector_AtPixelCenter_NoMixing)
+TEST_F(TextureView3x3Fixture, Bilinear_Vector_AtPixelCenter_NoMixing)
 {
 	// UV(0.5,0.5) -> pixelCoord=(1.0,1.0), weights=fract(1,1)=(0,0) -> Q11=pixel(1,1)
 	view.ClearColor({Colours::white, 0.f});
@@ -200,7 +176,7 @@ TEST_F(TextureViewFixture, Bilinear_Vector_AtPixelCenter_NoMixing)
 	EXPECT_EQ((view.Sample<glm::vec3, T_Bilinear>(glm::vec2(0.5f, 0.5f))), Colours::red);
 }
 
-TEST_F(TextureViewFixture, Bilinear_Vector_HalfwayHorizontal)
+TEST_F(TextureView3x3Fixture, Bilinear_Vector_HalfwayHorizontal)
 {
 	// UV(1/3, 0.5) -> pixelCoord=(0.5, 1.0), weights=(0.5, 0), leftTopCoord=(0,1)
 	// Q11=pixel(0,1)=red, Q21=pixel(1,1)=blue; R1=mix(red,blue,0.5)=(0.5,0,0.5)
@@ -211,7 +187,7 @@ TEST_F(TextureViewFixture, Bilinear_Vector_HalfwayHorizontal)
 	EXPECT_EQ((view.Sample<glm::vec3, T_Bilinear>(glm::vec2(1.f / 3.f, 0.5f))), glm::vec3(0.5f, 0.f, 0.5f));
 }
 
-TEST_F(TextureViewFixture, Bilinear_Vector_HalfwayVertical)
+TEST_F(TextureView3x3Fixture, Bilinear_Vector_HalfwayVertical)
 {
 	// UV(0.5, 2/3) -> pixelCoord=(1.0, 0.5), weights=(0, 0.5), leftTopCoord=(1,0)
 	// Q11=pixel(1,0)=red, Q12=pixel(1,1)=blue; result=mix(red,blue,0.5)=(0.5,0,0.5)
@@ -238,7 +214,7 @@ TEST_F(TextureView2x2Fixture, Bilinear_Vector_FourCornerMix)
 // coords before passing to the filter, so bilinear weights are always (0,0).
 // Bilinear through this path behaves identically to T_Nearest.
 
-TEST_F(TextureViewFixture, Bilinear_SingleChannel_MatchesNearestViaFlooredCoord)
+TEST_F(TextureView3x3Fixture, Bilinear_SingleChannel_MatchesNearestViaFlooredCoord)
 {
 	// UV(0.25,0.5) -> GetPixelCoord: floor(0.75,1.5)=pixel(0,1)=index 3=red
 	// Bilinear weights=(0,0), result=exact pixel; same as T_Nearest.
@@ -275,7 +251,7 @@ TEST_F(TextureView2x2Fixture, Bilinear_BorderColor_LeftToPixelCenter)
 	view.ClearColor({Colours::white, 0.f});
 	view.SetBorderColor(glm::vec4(0.f, 0.f, 0.f, 0.f));
 	view.SetWrapFunction(E_WrapFunction::ClampToBorder);
-	EXPECT_EQ((view.Sample<glm::vec3, T_Bilinear>(glm::vec2(5.f/8.f, 0.75f))), Colours::white);
+	EXPECT_EQ((view.Sample<glm::vec3, T_Bilinear>(glm::vec2(5.f / 8.f, 0.75f))), Colours::white);
 }
 
 TEST_F(TextureView2x2Fixture, Bilinear_BorderColor_AbovePixelCenter)
