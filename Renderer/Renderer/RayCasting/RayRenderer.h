@@ -36,7 +36,7 @@ public:
 				std::mutex*											   storageMutex,
 				int													   numSamplesBefore,
 				std::function<Generator<S_RenderWorkUnit>(glm::uvec2)> generatorFactory,
-				AdditionalTargets									   additional = {nullptr});
+				AdditionalTargets									   additional = AdditionalTargets());
 
 	[[nodiscard]] std::size_t GetProcessedPixels() const;
 

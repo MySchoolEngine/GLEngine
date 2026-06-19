@@ -72,11 +72,11 @@ TEST_F(TextureView3x3Fixture, GetPixelCoord)
 {
 	// keep in mind orientation described in C_TextureView::GetPixelCoord
 	// and size of the view == (3;3)
-	EXPECT_EQ(GetPixelCoord({0.5, 0.5}), glm::vec2(1, 1));
-	EXPECT_EQ(GetPixelCoord({0.0, 0.0}), glm::vec2(0, 0));
-	EXPECT_EQ(GetPixelCoord({1.0, 1.0}), glm::vec2(2, 2));
-	EXPECT_EQ(GetPixelCoord({0.0, 1.0}), glm::vec2(0, 2));
-	EXPECT_EQ(GetPixelCoord({1.0, 0.0}), glm::vec2(2, 0));
+	EXPECT_EQ(GetPixelCoord({0.5, 0.5}), glm::ivec2(1, 1));
+	EXPECT_EQ(GetPixelCoord({0.0, 0.0}), glm::ivec2(0, 0));
+	EXPECT_EQ(GetPixelCoord({1.0, 1.0}), glm::ivec2(2, 2));
+	EXPECT_EQ(GetPixelCoord({0.0, 1.0}), glm::ivec2(0, 2));
+	EXPECT_EQ(GetPixelCoord({1.0, 0.0}), glm::ivec2(2, 0));
 }
 
 TEST_F(TextureView3x3Fixture, Get_ChannelsCorrectness)
@@ -301,25 +301,25 @@ TEST_F(TextureView2x2Fixture, Bilinear_BorderColor_QuarterBlend)
 TEST_F(TextureView2x3Fixture, GetPixelCoord_Corners)
 {
 	// Full coordinate range maps to the correct pixel corners.
-	EXPECT_EQ(GetPixelCoord({0.f, 0.f}), glm::vec2(0, 0));
-	EXPECT_EQ(GetPixelCoord({1.f, 0.f}), glm::vec2(1, 0));
-	EXPECT_EQ(GetPixelCoord({0.f, 1.f}), glm::vec2(0, 2));
-	EXPECT_EQ(GetPixelCoord({1.f, 1.f}), glm::vec2(1, 2));
+	EXPECT_EQ(GetPixelCoord({0.f, 0.f}), glm::ivec2(0, 0));
+	EXPECT_EQ(GetPixelCoord({1.f, 0.f}), glm::ivec2(1, 0));
+	EXPECT_EQ(GetPixelCoord({0.f, 1.f}), glm::ivec2(0, 2));
+	EXPECT_EQ(GetPixelCoord({1.f, 1.f}), glm::ivec2(1, 2));
 }
 
 TEST_F(TextureView2x3Fixture, GetPixelCoord_XAndYScaleIndependently)
 {
 	// UV(0.5, 0.5): x lands on the rightmost column (floor(0.5*2)=1),
 	// but y lands on the middle row (floor(0.5*3)=1) — not the last row.
-	EXPECT_EQ(GetPixelCoord({0.5f, 0.5f}), glm::vec2(1, 1));
+	EXPECT_EQ(GetPixelCoord({0.5f, 0.5f}), glm::ivec2(1, 1));
 
 	// UV.x=0.75 → floor(0.75*2)=1; if height (3) were used for x instead,
 	// floor(0.75*3)=2 which is out of range — a detectable wrong result.
-	EXPECT_EQ(GetPixelCoord({0.75f, 0.f}), glm::vec2(1, 0));
+	EXPECT_EQ(GetPixelCoord({0.75f, 0.f}), glm::ivec2(1, 0));
 
 	// UV.y=2/3 → floor(2/3*3)=2; if width (2) were used for y instead,
 	// floor(2/3*2)=1 — also a detectable wrong result.
-	EXPECT_EQ(GetPixelCoord({0.f, 2.f / 3.f}), glm::vec2(0, 2));
+	EXPECT_EQ(GetPixelCoord({0.f, 2.f / 3.f}), glm::ivec2(0, 2));
 }
 
 TEST_F(TextureView2x3Fixture, Nearest_AsymmetricPixelCenters)
@@ -379,12 +379,12 @@ TEST_F(TextureView2x3Fixture, Bilinear_FourCornerEqualMix)
 
 TEST_F(TextureView1x1Fixture, GetPixelCoord_AlwaysOrigin)
 {
-	EXPECT_EQ(GetPixelCoord({0.f,  0.f }),  glm::vec2(0, 0)); // bottom-left
-	EXPECT_EQ(GetPixelCoord({1.f,  1.f }),  glm::vec2(0, 0)); // top-right (clamped from floor(1,1))
-	EXPECT_EQ(GetPixelCoord({0.5f, 0.5f}),  glm::vec2(0, 0)); // centre
-	EXPECT_EQ(GetPixelCoord({0.f,  1.f }),  glm::vec2(0, 0)); // off-axis corners
-	EXPECT_EQ(GetPixelCoord({1.f,  0.f }),  glm::vec2(0, 0));
-	EXPECT_EQ(GetPixelCoord({0.25f, 0.75f}), glm::vec2(0, 0)); // arbitrary interior UV
+	EXPECT_EQ(GetPixelCoord({0.f,  0.f }),  glm::ivec2(0, 0)); // bottom-left
+	EXPECT_EQ(GetPixelCoord({1.f,  1.f }),  glm::ivec2(0, 0)); // top-right (clamped from floor(1,1))
+	EXPECT_EQ(GetPixelCoord({0.5f, 0.5f}),  glm::ivec2(0, 0)); // centre
+	EXPECT_EQ(GetPixelCoord({0.f,  1.f }),  glm::ivec2(0, 0)); // off-axis corners
+	EXPECT_EQ(GetPixelCoord({1.f,  0.f }),  glm::ivec2(0, 0));
+	EXPECT_EQ(GetPixelCoord({0.25f, 0.75f}), glm::ivec2(0, 0)); // arbitrary interior UV
 }
 
 } // namespace GLEngine::Renderer
