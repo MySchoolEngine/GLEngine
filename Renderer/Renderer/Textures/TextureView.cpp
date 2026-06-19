@@ -50,7 +50,7 @@ std::size_t C_TextureView::GetPixelAddress(const glm::uvec2& coord) const
 }
 
 //=================================================================================
-glm::vec2 C_TextureView::GetPixelCoord(const glm::vec2& uv) const
+C_TextureView::PixelCoordVec C_TextureView::GetPixelCoord(const glm::vec2& uv) const
 {
 	// TODO that would be nice, but my texture storage have fliped V
 	// coord in rect + top left of the rect
@@ -126,10 +126,10 @@ bool C_TextureView::UseBorderColor() const
 }
 
 //=================================================================================
-glm::uvec2 C_TextureView::ClampCoordinates(const glm::ivec2& coord) const
+glm::uvec2 C_TextureView::ClampCoordinates(const PixelCoordVec& coord) const
 {
 	const glm::ivec2 dim	= m_Rect.GetSize();
-	glm::ivec2		 result = coord;
+	PixelCoordVec	 result = coord;
 	switch (m_WrapFunction)
 	{
 	case E_WrapFunction::ClampToEdge:

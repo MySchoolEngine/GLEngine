@@ -54,9 +54,8 @@ public:
 
 	template <class T> [[nodiscard]] T Get(const PixelCoordVec& coord, E_TextureChannel element) const;
 	/**
-	 * @todo this is not true, fix the comment
-	 * Needs to be glm::uint2 because there is no negative address space.
-	 * The user is responsible for checking for positiveness off coordinates
+	 * @param coord		Pixel coordinate in [0, dimensions-1].
+	 *					Caller is responsible for keeping coord within bounds.
 	 */
 	template <class T, typename = std::enable_if_t<glm::type<T>::is_vec>> [[nodiscard]] T Get(const PixelCoordVec& coord) const;
 	template <class T> [[nodiscard]] T													  GetBorderColor() const;
@@ -105,15 +104,14 @@ protected:
 	[[nodiscard]] std::size_t GetPixelAddress(const glm::uvec2& coord) const;
 	/**
 	 * @param	uv				[u;v] \in [<0;1>;<0;1>]
-	 *							The (0;0) lies bottom left and (1;1) top right
-	 * @returns [float, float]	uv -> [<0.5;width-0.5);<0.5;height-0.5>] value mapped to the pixel address space
-	 *							pointing center of the pixel.
+	 *							The (0;0) lies top left and (1;1) bottom right (no Y flip)
+	 * @returns					Integer pixel coordinate floor(uv * dims), clamped to [0, dims-1].
 	 */
-	[[nodiscard]] glm::vec2 GetPixelCoord(const UVVec& uv) const;
+	[[nodiscard]] PixelCoordVec GetPixelCoord(const UVVec& uv) const;
 	/**
 	 * @param	uv				[u;v] \in [<0;1>;<0;1>]
-	 *							The (0;0) lies bottom left and (1;1) top right
-	 * @returns [float, float]	uv -> [R;R] position within texture space
+	 *							The (0;0) lies top left and (1;1) bottom right (no Y flip)
+	 * @returns [float, float]	Continuous pixel coordinate: (uv.x*w - 0.5, uv.y*h - 0.5)
 	 */
 	[[nodiscard]] glm::vec2 ToTextureSpace(const UVVec& uv) const;
 	/**
@@ -125,7 +123,7 @@ protected:
 	 * @param	coord			Pixel coordinate
 	 * @returns					Pixel coordinate based on wrap function
 	 */
-	[[nodiscard]] glm::uvec2 ClampCoordinates(const glm::ivec2& coord) const;
+	[[nodiscard]] glm::uvec2 ClampCoordinates(const PixelCoordVec& coord) const;
 
 
 	I_TextureViewStorage* m_Storage; // not owning ptr
