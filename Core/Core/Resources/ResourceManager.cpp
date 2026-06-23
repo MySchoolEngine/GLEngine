@@ -92,7 +92,7 @@ void C_ResourceManager::AddResourceToUnusedList(const std::shared_ptr<Resource>&
 //=================================================================================
 void C_ResourceManager::UpdatePendingLoads()
 {
-	if (!m_FinishedLoadsMutes.try_lock())
+	if (!m_FinishedLoadsMutex.try_lock())
 	{
 		return;
 	}
@@ -112,7 +112,7 @@ void C_ResourceManager::UpdatePendingLoads()
 
 	m_FinishedLoads.clear();
 	m_FailedLoads.clear();
-	m_FinishedLoadsMutes.unlock();
+	m_FinishedLoadsMutex.unlock();
 
 	if (m_UpdatesSinceLastRemove > s_NumUpdatesBetweenUnloading)
 	{

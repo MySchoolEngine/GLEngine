@@ -19,14 +19,14 @@ RTTR_REGISTRATION
 {
 	using namespace GLEngine::Renderer;
 	using namespace GLEngine::Core;
-	rttr::registration::class_<C_TrimeshModel>((C_TrimeshModel::GetResrourceTypeName() + "Handle").c_str())
+	rttr::registration::class_<C_TrimeshModel>((C_TrimeshModel::GetResourceTypeName() + "Handle").c_str())
 		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
 		.method("AfterDeserialize", &C_TrimeshModel::AfterDeserialize)
 		.property("Trimeshes", &C_TrimeshModel::m_Trimeshes)(rttr::policy::prop::bind_as_ptr)
 		.property("BVHs", &C_TrimeshModel::m_BVHs)(rttr::policy::prop::bind_as_ptr);
 
 		rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_TrimeshModel>>();
-		rttr::type::register_converter_func([](std::shared_ptr<C_TrimeshModel> ptr, bool& ok) -> std::shared_ptr<Resource> {                                          
+		rttr::type::register_converter_func([](std::shared_ptr<C_TrimeshModel> ptr, bool& ok) -> std::shared_ptr<Resource> {
 			ok = true;                                                                                                                                                
 			return std::static_pointer_cast<Resource>(ptr);                                                                                                           
 		});

@@ -24,7 +24,7 @@ RTTR_REGISTRATION
 	using namespace GLEngine::Renderer;
 	using namespace Utils::Reflection;
 
-	rttr::registration::class_<ResourceHandle<MaterialResource>>((MaterialResource::GetResrourceTypeName() + "Handle").c_str())
+	rttr::registration::class_<ResourceHandle<MaterialResource>>((MaterialResource::GetResourceTypeName() + "Handle").c_str())
 		.constructor<>()(rttr::policy::ctor::as_object)
 		.method("AfterDeserialize", &ResourceHandle<MaterialResource>::AfterDeserialize)();
 

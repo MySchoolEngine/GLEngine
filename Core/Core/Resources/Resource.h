@@ -14,7 +14,7 @@
 	RTTR_REGISTRATION                                                                                                                                                              \
 	{                                                                                                                                                                              \
 		using namespace GLEngine::Core;                                                                                                                                            \
-		rttr::registration::class_<ResourceHandle<resourceType>>((resourceType::GetResrourceTypeName() + "Handle").c_str())                                                        \
+		rttr::registration::class_<ResourceHandle<resourceType>>((resourceType::GetResourceTypeName() + "Handle").c_str())                                                         \
 			.constructor<>()(rttr::policy::ctor::as_object)                                                                                                                        \
 			.method("AfterDeserialize", &ResourceHandle<resourceType>::AfterDeserialize)();                                                                                        \
                                                                                                                                                                                    \
@@ -56,7 +56,7 @@ public:                                                                         
 		static std::size_t hash = std::hash<std::string>{}(#resourceType);                                                                                                         \
 		return hash;                                                                                                                                                               \
 	}                                                                                                                                                                              \
-	inline static std::string& GetResrourceTypeName()                                                                                                                              \
+	inline static std::string& GetResourceTypeName()                                                                                                                               \
 	{                                                                                                                                                                              \
 		static std::string name(#resourceType);                                                                                                                                    \
 		return name;                                                                                                                                                               \
@@ -80,7 +80,7 @@ public:                                                                         
 		static std::size_t hash = std::hash<std::string>{}(#resourceType);                                                                                                         \
 		return hash;                                                                                                                                                               \
 	}                                                                                                                                                                              \
-	inline static std::string& GetResrourceTypeName()                                                                                                                              \
+	inline static std::string& GetResourceTypeName()                                                                                                                               \
 	{                                                                                                                                                                              \
 		static std::string name(#resourceType);                                                                                                                                    \
 		return name;                                                                                                                                                               \

@@ -102,7 +102,7 @@ private:
 	std::map<std::filesystem::path, C_Metafile>					  m_Metafile; //< no access from outside of resource manager
 	std::shared_mutex											  m_Mutex;
 	std::list<std::pair<std::shared_ptr<Resource>, unsigned int>> m_UnusedList; // list does not invalidate the iterators on push_back
-	std::shared_mutex											  m_FinishedLoadsMutes;
+	std::shared_mutex											  m_FinishedLoadsMutex;
 	std::vector<std::shared_ptr<Resource>>						  m_FinishedLoads;
 	std::vector<std::shared_ptr<Resource>>						  m_FailedLoads;
 

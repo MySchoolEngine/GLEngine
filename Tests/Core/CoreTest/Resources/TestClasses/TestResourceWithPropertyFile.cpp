@@ -11,7 +11,7 @@
 RTTR_REGISTRATION
 {
 	using namespace GLEngine::Core;
-	rttr::registration::class_<TestResourceWithPropertyFile>((TestResourceWithPropertyFile::GetResrourceTypeName() + "Handle").c_str())
+	rttr::registration::class_<TestResourceWithPropertyFile>((TestResourceWithPropertyFile::GetResourceTypeName() + "Handle").c_str())
 		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
 		.property("m_InnerHandle", &TestResourceWithPropertyFile::m_InnerHandle)(
 			rttr::policy::prop::as_reference_wrapper,
