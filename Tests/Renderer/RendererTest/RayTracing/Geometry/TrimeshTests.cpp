@@ -672,4 +672,60 @@ TEST_F(TrimeshFixture, CopyHasSameIntersectionBehavior)
 	}
 }
 
+// ============================================================================
+// Material Handle Tests
+// ============================================================================
+
+TEST_F(TrimeshFixture, MaterialHandleDefaultIsEmpty)
+{
+	C_Trimesh trimesh;
+
+	EXPECT_FALSE(trimesh.GetMaterialHandle().IsReady());
+}
+
+TEST_F(TrimeshFixture, SetGetMaterialHandleRoundTrip)
+{
+	C_Trimesh trimesh;
+	Core::ResourceHandle<MaterialResource> handle(std::make_shared<MaterialResource>());
+
+	trimesh.SetMaterialHandle(handle);
+
+	EXPECT_TRUE(trimesh.GetMaterialHandle() == handle);
+}
+
+TEST_F(TrimeshFixture, CopyConstructorPreservesMaterialHandle)
+{
+	C_Trimesh original;
+	Core::ResourceHandle<MaterialResource> handle(std::make_shared<MaterialResource>());
+	original.SetMaterialHandle(handle);
+
+	C_Trimesh copy(original);
+
+	EXPECT_TRUE(copy.GetMaterialHandle() == handle);
+}
+
+TEST_F(TrimeshFixture, CopyAssignmentPreservesMaterialHandle)
+{
+	C_Trimesh original;
+	Core::ResourceHandle<MaterialResource> handle(std::make_shared<MaterialResource>());
+	original.SetMaterialHandle(handle);
+
+	C_Trimesh target;
+	target = original;
+
+	EXPECT_TRUE(target.GetMaterialHandle() == handle);
+}
+
+TEST_F(TrimeshFixture, MoveAssignmentPreservesMaterialHandle)
+{
+	C_Trimesh original;
+	Core::ResourceHandle<MaterialResource> handle(std::make_shared<MaterialResource>());
+	original.SetMaterialHandle(handle);
+
+	C_Trimesh target;
+	target = std::move(original);
+
+	EXPECT_TRUE(target.GetMaterialHandle() == handle);
+}
+
 } // namespace GLEngine::Renderer
