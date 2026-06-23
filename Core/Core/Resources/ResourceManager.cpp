@@ -242,44 +242,35 @@ std::vector<C_Metafile> C_ResourceManager::GetAllMetafiles(const std::filesystem
 	std::vector<C_Metafile> metafiles;
 	std::error_code			ec;
 
+	const auto processEntry = [&](const std::filesystem::directory_entry& entry) {
+		if (entry.is_regular_file() && entry.path().extension() == ".meta")
+		{
+			// Remove .meta extension to get the base resource path
+			auto basePath = entry.path();
+			basePath.replace_extension("");
+
+			C_Metafile metafile(basePath);
+			if (metafile.Load())
+			{
+				const auto& metafileName = entry.path();
+				m_Metafile[metafileName] = metafile;
+				metafiles.push_back(metafile);
+			}
+		}
+	};
+
 	if (recursive)
 	{
 		for (const auto& entry : std::filesystem::recursive_directory_iterator(path, ec))
 		{
-			if (entry.is_regular_file() && entry.path().extension() == ".meta")
-			{
-				// Remove .meta extension to get the base resource path
-				auto basePath = entry.path();
-				basePath.replace_extension("");
-
-				C_Metafile metafile(basePath);
-				if (metafile.Load())
-				{
-					const auto& metafileName = entry.path();
-					m_Metafile[metafileName] = metafile;
-					metafiles.push_back(metafile);
-				}
-			}
+			processEntry(entry);
 		}
 	}
 	else
 	{
 		for (const auto& entry : std::filesystem::directory_iterator(path, ec))
 		{
-			if (entry.is_regular_file() && entry.path().extension() == ".meta")
-			{
-				// Remove .meta extension to get the base resource path
-				auto basePath = entry.path();
-				basePath.replace_extension("");
-
-				C_Metafile metafile(basePath);
-				if (metafile.Load())
-				{
-					const auto& metafileName = entry.path();
-					m_Metafile[metafileName] = metafile;
-					metafiles.push_back(metafile);
-				}
-			}
+			processEntry(entry);
 		}
 	}
 
