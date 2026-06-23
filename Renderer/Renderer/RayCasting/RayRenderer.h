@@ -21,12 +21,13 @@ public:
 	~C_RayRenderer();
 
 	struct AdditionalTargets {
-		AdditionalTargets()				 = default;
 		I_TextureViewStorage* rowHeatMap = nullptr;
 		I_TextureViewStorage* normalsMap = nullptr;
 		I_TextureViewStorage* uvMap = nullptr;
 		[[nodiscard]] bool	  CheckTargets(const I_TextureViewStorage& mainTarget) const;
 	};
+	// workaround for https://stackoverflow.com/questions/53408962/try-to-understand-compiler-error-message-default-member-initializer-required-be
+	static AdditionalTargets DefaultAdditionalTargets() { return {}; }
 
 	// @param generatorFactory  called with image dimensions; returns a generator that
 	//                          yields S_RenderWorkUnit values in the desired traversal order.
@@ -37,7 +38,7 @@ public:
 				std::mutex*											   storageMutex,
 				int													   numSamplesBefore,
 				std::function<Generator<S_RenderWorkUnit>(glm::uvec2)> generatorFactory,
-				AdditionalTargets									   additional = AdditionalTargets());
+				AdditionalTargets									   additional = DefaultAdditionalTargets());
 
 	[[nodiscard]] std::size_t GetProcessedPixels() const;
 
