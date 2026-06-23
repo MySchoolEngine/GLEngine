@@ -66,4 +66,49 @@ TEST_F(TextureStorageFixture, GetPixel)
 TEST_F(TextureStorageFixture, SetAll)
 {
 }
+
+// CheckAlphaChannelUsage — float storage, all alpha = 1.0f → no transparency
+TEST_F(TextureStorageFixture, CheckAlphaChannelUsage_FullyOpaqueFloat)
+{
+	C_TextureViewStorageCPU<float> storage(2, 2, 4);
+	// SetPixel takes RGBA in [0,1] for float storage
+	storage.SetPixel({0.5f, 0.5f, 0.5f, 1.0f}, 0);
+	storage.SetPixel({0.2f, 0.8f, 0.1f, 1.0f}, 1);
+	storage.SetPixel({1.0f, 0.0f, 0.0f, 1.0f}, 2);
+	storage.SetPixel({0.0f, 1.0f, 0.0f, 1.0f}, 3);
+	EXPECT_FALSE(storage.CheckAlphaChannelUsage());
+}
+
+// CheckAlphaChannelUsage — float storage, one pixel alpha < 1.0f → transparency detected
+TEST_F(TextureStorageFixture, CheckAlphaChannelUsage_PartiallyTransparentFloat)
+{
+	C_TextureViewStorageCPU<float> storage(2, 2, 4);
+	storage.SetPixel({0.5f, 0.5f, 0.5f, 1.0f}, 0);
+	storage.SetPixel({0.2f, 0.8f, 0.1f, 0.5f}, 1); // semi-transparent
+	storage.SetPixel({1.0f, 0.0f, 0.0f, 1.0f}, 2);
+	storage.SetPixel({0.0f, 1.0f, 0.0f, 1.0f}, 3);
+	EXPECT_TRUE(storage.CheckAlphaChannelUsage());
+}
+
+TEST_F(TextureStorageFixture, CheckAlphaChannelUsage_FullyOpaqueInteger)
+{
+	C_TextureViewStorageCPU<std::uint8_t> storage(2, 2, 4);
+	// SetPixel casts the float vec4 to uint8; values in [0,255] range expected
+	storage.SetPixel({128.f, 64.f, 32.f, 255.f}, 0);
+	storage.SetPixel({200.f, 100.f, 50.f, 255.f}, 1);
+	storage.SetPixel({255.f,   0.f,  0.f, 255.f}, 2);
+	storage.SetPixel({  0.f, 255.f,  0.f, 255.f}, 3);
+	EXPECT_FALSE(storage.CheckAlphaChannelUsage());
+}
+
+// CheckAlphaChannelUsage — uint8 storage, one pixel alpha < 255 → transparency detected
+TEST_F(TextureStorageFixture, CheckAlphaChannelUsage_PartiallyTransparentInteger)
+{
+	C_TextureViewStorageCPU<std::uint8_t> storage(2, 2, 4);
+	storage.SetPixel({128.f, 64.f, 32.f, 255.f}, 0);
+	storage.SetPixel({200.f, 100.f, 50.f, 128.f}, 1); // semi-transparent
+	storage.SetPixel({255.f,   0.f,  0.f, 255.f}, 2);
+	storage.SetPixel({  0.f, 255.f,  0.f, 255.f}, 3);
+	EXPECT_TRUE(storage.CheckAlphaChannelUsage());
+}
 } // namespace GLEngine::Renderer
