@@ -74,8 +74,7 @@ public:
 	void			   SetBorderColor(const glm::vec4& color);
 	[[nodiscard]] bool UseBorderColor() const;
 
-	// I_DeviceTexture
-	[[nodiscard]] virtual const glm::uvec2 GetDimensions() const; // override;
+	[[nodiscard]] const glm::uvec2 GetDimensions() const;
 
 	[[nodiscard]] const I_TextureViewStorage* const GetStorage() const;
 

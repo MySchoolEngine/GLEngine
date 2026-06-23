@@ -83,7 +83,6 @@ private:
 	unsigned int x, y;
 	unsigned int width, height;
 
-	RTTR_ENABLE()
 	RTTR_REGISTRATION_FRIEND
 };
 
