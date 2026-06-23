@@ -21,6 +21,7 @@ public:
 	~C_RayRenderer();
 
 	struct AdditionalTargets {
+		AdditionalTargets()				 = default;
 		I_TextureViewStorage* rowHeatMap = nullptr;
 		I_TextureViewStorage* normalsMap = nullptr;
 		I_TextureViewStorage* uvMap = nullptr;
