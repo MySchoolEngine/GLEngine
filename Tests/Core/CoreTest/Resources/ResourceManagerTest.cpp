@@ -1,7 +1,6 @@
 ﻿#include <CoreTestStdafx.h>
 
-#include <Core/Resources/Metafile.h>
-#include <Core/Resources/ResourceManager.h>
+#include <CoreTest/Resources/Fixtures/ResourceManagerBaseFixture.h>
 
 #include <CoreTest/Resources/TestClasses/DelayTestResource.h>
 #include <CoreTest/Resources/TestClasses/TestResource2.h>
@@ -9,7 +8,7 @@
 
 namespace GLEngine::Core {
 
-class ResourceManagerFixture : public ::testing::Test {
+class ResourceManagerFixture : public ResourceManagerBaseFixture {
 public:
 	// Test file paths
 	static inline const std::filesystem::path testPathTest2			= "test_resource2.test2";
@@ -18,30 +17,10 @@ public:
 
 	void SetUp() override
 	{
-		// Get singleton instance
-		auto& manager = C_ResourceManager::Instance();
-		VerifyEmptyLists(manager, "SetUp");
-	}
-
-	void TearDown() override
-	{
-		auto& manager = C_ResourceManager::Instance();
-		// Clean up resources after each test
-		FlushAllUnused(manager);
-		manager.Destroy();
-
-		// Delete metafiles created during tests
-		const auto metafileTest			 = C_Metafile::GetMetafileName(testPathTest);
-		const auto metafileTest2		 = C_Metafile::GetMetafileName(testPathTest2);
-		const auto metafileTestBuildable = C_Metafile::GetMetafileName(testPathTestBuildable);
-
-		std::error_code ec;
-		std::filesystem::remove(metafileTest, ec);
-		std::filesystem::remove(metafileTest2, ec);
-		std::filesystem::remove(metafileTestBuildable, ec);
-
-		VerifyNoMetaFilesExist();
-		VerifyEmptyLists(manager, "TearDown");
+		DeleteOnTearDown(C_Metafile::GetMetafileName(testPathTest));
+		DeleteOnTearDown(C_Metafile::GetMetafileName(testPathTest2));
+		DeleteOnTearDown(C_Metafile::GetMetafileName(testPathTestBuildable));
+		ResourceManagerBaseFixture::SetUp();
 	}
 
 	static std::shared_ptr<Resource> GetResourcePtr(C_ResourceManager& manager, const std::filesystem::path& filepath) { return manager.GetResourcePtr(filepath); }
@@ -59,44 +38,6 @@ public:
 	static bool IsExtToLoadersEmpty(const C_ResourceManager& manager) { return manager.m_ExtToLoaders.empty(); }
 
 	static bool IsTypeIdToLoaderEmpty(const C_ResourceManager& manager) { return manager.m_TypeIdToLoader.empty(); }
-
-	/**
-	 * @brief Calls UnloadUnusedResources s_UpdatesBeforeDelete times to fully flush all unused resources.
-	 */
-	static void FlushAllUnused(C_ResourceManager& manager)
-	{
-		for (unsigned int i = 0; i <= C_ResourceManager::s_UpdatesBeforeDelete; ++i)
-		{
-			manager.UnloadUnusedResources();
-		}
-	}
-
-	/**
-	 * @brief Verifies that no .meta files exist in the current directory.
-	 */
-	static void VerifyNoMetaFilesExist()
-	{
-		std::error_code ec;
-		bool			hasMetaFiles = false;
-		for (const auto& entry : std::filesystem::directory_iterator(".", ec))
-		{
-			if (entry.path().extension() == ".meta")
-			{
-				hasMetaFiles = true;
-				break;
-			}
-		}
-		EXPECT_FALSE(hasMetaFiles) << "No .meta files should exist in working directory";
-	}
-
-	static void VerifyEmptyLists(const C_ResourceManager& manager, const std::string& stage)
-	{
-		EXPECT_TRUE(IsResourcesEmpty(manager)) << stage;
-		EXPECT_TRUE(IsUnusedListEmpty(manager)) << stage;
-		EXPECT_TRUE(IsFinishedLoadsEmpty(manager)) << stage;
-		EXPECT_TRUE(IsExtToLoadersEmpty(manager)) << stage;
-		EXPECT_TRUE(IsTypeIdToLoaderEmpty(manager)) << stage;
-	}
 };
 
 TEST_F(ResourceManagerFixture, AddingLoaders)
