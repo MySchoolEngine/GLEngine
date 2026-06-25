@@ -32,7 +32,6 @@ void I_TextureViewStorage::Set(int value, std::size_t position)
 {
 	if (position >= static_cast<std::size_t>(m_Dimensions.x) * m_Dimensions.y * GetNumElements())
 	{
-		CORE_LOG(E_Level::Info, E_Context::Render, "Writing outside of texture buffer. Result would be discarded.");
 		return;
 	}
 	SetInternal(value, position);

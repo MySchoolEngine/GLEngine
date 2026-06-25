@@ -87,9 +87,8 @@ template <> inline glm::vec3 C_TextureView::GetBorderColor() const
 template <class T> void C_TextureView::Set(const glm::uvec2& coord, const T val, E_TextureChannel element)
 {
 	const auto& dim = m_Storage->GetDimensions();
-	if (coord.x < 0 || coord.x > dim.x || coord.y < 0 || coord.y > dim.y)
+	if (coord.x < 0 || coord.x >= dim.x || coord.y < 0 || coord.y >= dim.y)
 	{
-		CORE_LOG(E_Level::Info, E_Context::Render, "Writing outside of texture buffer. Result would be discarded.");
 		return;
 	}
 

@@ -387,4 +387,10 @@ TEST_F(TextureView1x1Fixture, GetPixelCoord_AlwaysOrigin)
 	EXPECT_EQ(GetPixelCoord({0.25f, 0.75f}), glm::ivec2(0, 0)); // arbitrary interior UV
 }
 
+TEST_F(TextureView1x1Fixture, Set_OutsideTheDim)
+{
+	// TODO there should be no log/crahs
+	view.Set({1, 1}, 1, E_TextureChannel::Red);
+}
+
 } // namespace GLEngine::Renderer
