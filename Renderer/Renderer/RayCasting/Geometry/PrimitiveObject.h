@@ -60,6 +60,5 @@ public:
 
 private:
 	float m_Area;
-
 };
 } // namespace GLEngine::Renderer

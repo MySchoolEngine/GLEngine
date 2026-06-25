@@ -23,8 +23,8 @@ public:
 	using T_TerrainPtr = std::shared_ptr<Components::C_TerrainMesh>;
 
 	//=================================================================================
-	[[nodiscard]] Entity::I_Entity::T_ComponentRange GetComponents(Entity::E_ComponentType type) const override;
-	void											 OnEvent(Core::I_Event& event) override;
+	[[nodiscard]] T_ComponentRange GetComponents(Entity::E_ComponentType type) const override;
+	void						   OnEvent(Core::I_Event& event) override;
 
 	void Update() override;
 

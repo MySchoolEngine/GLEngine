@@ -69,12 +69,8 @@ public:
 };
 
 // for usage in maps
-template <IsResource ResourceType>
-struct ResourceHandleCmp {
-	bool operator()(const ResourceHandle<ResourceType>& lhs, const ResourceHandle<ResourceType>& rhs) const
-	{
-		return lhs.GetFilePath() < rhs.GetFilePath();
-	}
+template <IsResource ResourceType> struct ResourceHandleCmp {
+	bool operator()(const ResourceHandle<ResourceType>& lhs, const ResourceHandle<ResourceType>& rhs) const { return lhs.GetFilePath() < rhs.GetFilePath(); }
 };
 
 } // namespace GLEngine::Core

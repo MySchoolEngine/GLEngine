@@ -1,17 +1,22 @@
 #pragma once
 
 #include <imgui.h>
-
 #include <optional>
 #include <string>
 #include <vector>
 
 namespace GLEngine::GUI {
 
-template <typename T>
-concept TabbedViewTab = requires(T t) {
-	{ t.m_TabLabel } -> std::convertible_to<std::string>;
-	{ t.m_bModified } -> std::convertible_to<bool>;
+template <typename T> concept TabbedViewTab = requires(T t)
+{
+	{
+		t.m_TabLabel
+	}
+	->std::convertible_to<std::string>;
+	{
+		t.m_bModified
+	}
+	->std::convertible_to<bool>;
 };
 
 /**
@@ -22,8 +27,7 @@ concept TabbedViewTab = requires(T t) {
  *   std::string m_TabLabel
  *   bool        m_bModified
  */
-template <TabbedViewTab TabT>
-class C_TabbedView {
+template <TabbedViewTab TabT> class C_TabbedView {
 public:
 	// Renders the tab bar without save confirmation.
 	// onClose(TabT&) — called before a closed tab is erased regardless of m_bModified.
@@ -134,7 +138,7 @@ public:
 
 	// --- Editor-close workflow ---
 	// Call from OnHide() when any modified tab should block the window closing.
-	void RequestEditorClose() const { m_bEditorCloseRequested = true; }
+	void			   RequestEditorClose() const { m_bEditorCloseRequested = true; }
 	[[nodiscard]] bool IsEditorCloseRequested() const { return m_bEditorCloseRequested; }
 
 	// Draws sequential Save/Discard/Cancel popups, one per modified tab.
@@ -142,8 +146,7 @@ public:
 	// saveFn(TabT&)   — called on Save; should set tab.m_bModified = false on success
 	// onAllClean()    — called once all tabs are unmodified (e.g. GUI::C_Window::OnHide())
 	// popupPrefix     — unique ImGui ID suffix (e.g. "##ImageClose") to avoid popup ID collisions
-	template <typename SaveFn, typename CleanFn>
-	void DrawEditorCloseModals(std::string_view popupPrefix, SaveFn&& saveFn, CleanFn&& onAllClean) const
+	template <typename SaveFn, typename CleanFn> void DrawEditorCloseModals(std::string_view popupPrefix, SaveFn&& saveFn, CleanFn&& onAllClean) const
 	{
 		if (!m_bEditorCloseRequested)
 			return;
@@ -184,8 +187,7 @@ public:
 			break; // one popup at a time
 		}
 
-		const bool allClean = std::none_of(m_Tabs.begin(), m_Tabs.end(),
-			[](const TabT& t) { return t.m_bModified; });
+		const bool allClean = std::none_of(m_Tabs.begin(), m_Tabs.end(), [](const TabT& t) { return t.m_bModified; });
 		if (allClean)
 		{
 			m_bEditorCloseRequested = false;
@@ -198,15 +200,10 @@ public:
 
 	// Constructs a new tab in-place and returns a reference to it.
 	// Note: invalidates all existing references (vector may reallocate).
-	template <typename... Args>
-	TabT& EmplaceTab(Args&&... args)
-	{
-		return m_Tabs.emplace_back(std::forward<Args>(args)...);
-	}
+	template <typename... Args> TabT& EmplaceTab(Args&&... args) { return m_Tabs.emplace_back(std::forward<Args>(args)...); }
 
 	// Switches to the first tab satisfying pred. Returns true if found.
-	template <typename Pred>
-	bool TrySwitchTo(Pred&& pred)
+	template <typename Pred> bool TrySwitchTo(Pred&& pred)
 	{
 		for (unsigned int i = 0; i < m_Tabs.size(); ++i)
 		{
@@ -219,8 +216,8 @@ public:
 		return false;
 	}
 
-	mutable std::vector<TabT>			 m_Tabs;
-	mutable std::optional<unsigned int>  m_PendingCloseIndex;
+	mutable std::vector<TabT>			m_Tabs;
+	mutable std::optional<unsigned int> m_PendingCloseIndex;
 
 private:
 	void EraseTab(unsigned int i) const
@@ -230,7 +227,7 @@ private:
 			m_ActiveTabIndex = static_cast<unsigned int>(m_Tabs.size()) - 1;
 	}
 
-	mutable unsigned int m_ActiveTabIndex		= 0;
+	mutable unsigned int m_ActiveTabIndex		 = 0;
 	mutable bool		 m_bEditorCloseRequested = false;
 };
 

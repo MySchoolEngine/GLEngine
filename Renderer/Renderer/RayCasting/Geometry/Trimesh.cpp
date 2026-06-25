@@ -55,9 +55,9 @@ C_Trimesh::C_Trimesh(const C_Trimesh& other)
 {
 	if (other.m_BVH)
 	{
-		m_BVH				= new BVH();
-		m_BVH->m_Storage	= &m_Vertices;
-		m_BVH->m_Nodes		= other.m_BVH->m_Nodes;
+		m_BVH				 = new BVH();
+		m_BVH->m_Storage	 = &m_Vertices;
+		m_BVH->m_Nodes		 = other.m_BVH->m_Nodes;
 		m_BVH->m_LookupTable = other.m_BVH->m_LookupTable;
 	}
 }

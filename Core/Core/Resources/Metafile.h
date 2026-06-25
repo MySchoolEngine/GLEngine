@@ -25,7 +25,7 @@ public:
 	RTTR_REGISTRATION_FRIEND
 
 private:
-	std::filesystem::path m_OriginalFilename; //< some resources can have multiple different filetypes
+	std::filesystem::path			m_OriginalFilename; //< some resources can have multiple different filetypes
 	std::set<std::filesystem::path> m_DerivedResources;
 };
 } // namespace GLEngine::Core

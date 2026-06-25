@@ -20,9 +20,9 @@ public:
 	ModelLoader();
 	~ModelLoader();
 
-	[[nodiscard]] bool addModelFromFileToScene(const std::filesystem::path&		   path,
+	[[nodiscard]] bool addModelFromFileToScene(const std::filesystem::path&			   path,
 											   const std::shared_ptr<MeshData::Scene>& scene,
-											   std::vector<std::filesystem::path>& textureNames,
+											   std::vector<std::filesystem::path>&	   textureNames,
 											   const glm::mat4&						   sceneTransform = glm::mat4(1));
 
 	void		Reset();

@@ -46,7 +46,8 @@ template <> struct UIMetaclassToType<MetaGUI::Texture> {
 	using type = GLEngine::Core::ResourceHandle<GLEngine::Renderer::TextureResource>;
 };
 
-enum class Texture : std::uint8_t {
+enum class Texture : std::uint8_t
+{
 	Name,
 };
 } // namespace Utils::Reflection::UI

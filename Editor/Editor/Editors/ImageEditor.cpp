@@ -214,7 +214,7 @@ void C_ImageEditor::OpenImage(Core::ResourceHandle<Renderer::TextureResource> ha
 	else
 	{
 		// Resource still loading — create a 1x1 placeholder and poll in Update()
-		auto& tab	  = CreateTab(handle, 1, 1);
+		auto& tab	   = CreateTab(handle, 1, 1);
 		tab.m_TabLabel = filename + " (loading)";
 	}
 }
@@ -235,7 +235,7 @@ void C_ImageEditor::NewImage(std::uint32_t width, std::uint32_t height)
 		timer.reset();
 		Renderer::C_TextureView view(&*tab.m_Storage);
 		view.EnableBlending();
-		constexpr glm::uvec2		  center{512, 512};
+		constexpr glm::uvec2	  center{512, 512};
 		Renderer::C_CPURasterizer rasterizer(view);
 		rasterizer.DrawCircle(Colours::red, center, 200);
 		rasterizer.DrawCircle(Colours::red, center, 400);
@@ -347,20 +347,19 @@ void C_ImageEditor::Update()
 					.m_WrapT	 = Renderer::E_WrapFunction::Repeat,
 					.m_WrapU	 = Renderer::E_WrapFunction::Repeat,
 				});
-				tab.m_DeviceImage = renderer.GetRM().createTexture(Renderer::TextureDescriptor{
-					.name		   = "Editor image",
-					.width		   = dim.x,
-					.height		   = dim.y,
-					.type		   = Renderer::E_TextureType::TEXTURE_2D,
-					.format		   = Renderer::E_TextureFormat::RGBA32f,
-					.m_bStreamable = false});
+				tab.m_DeviceImage		 = renderer.GetRM().createTexture(Renderer::TextureDescriptor{.name			 = "Editor image",
+																								  .width		 = dim.x,
+																								  .height		 = dim.y,
+																								  .type			 = Renderer::E_TextureType::TEXTURE_2D,
+																								  .format		 = Renderer::E_TextureFormat::RGBA32f,
+																								  .m_bStreamable = false});
 				renderer.SetTextureSampler(tab.m_DeviceImage, samplerHandle);
 				tab.m_GUIImage.emplace(tab.m_DeviceImage);
 				tab.m_GUIImage->SetSize({800, 800});
 				tab.m_GUIImage->SetBackground(m_Background, {1.f / (s_BackgroundDim.x * 15.f), 1.f / (s_BackgroundDim.x * 15.f)});
 
-				tab.m_Storage  = dynamic_cast<const Renderer::C_TextureViewStorageCPU<float>&>(srcStorage).Duplicate();
-				tab.m_TabLabel = tab.m_ResourceHandle.GetFilePath().filename().string();
+				tab.m_Storage	 = dynamic_cast<const Renderer::C_TextureViewStorageCPU<float>&>(srcStorage).Duplicate();
+				tab.m_TabLabel	 = tab.m_ResourceHandle.GetFilePath().filename().string();
 				tab.m_bNeedsSync = true;
 			}
 			else if (tab.m_ResourceHandle.IsFailed())
@@ -393,15 +392,11 @@ void C_ImageEditor::DrawComponents() const
 	}
 
 	m_TabbedView.Draw(
-		"##ImageTabs",
-		[this](S_ImageTab& tab) { DrawTabContent(tab); },
-		[this](S_ImageTab& tab) { const_cast<C_ImageEditor*>(this)->SaveTab(tab); },
+		"##ImageTabs", [this](S_ImageTab& tab) { DrawTabContent(tab); }, [this](S_ImageTab& tab) { const_cast<C_ImageEditor*>(this)->SaveTab(tab); },
 		[this](S_ImageTab& tab) { DestroyTabResources(tab); });
 
 	m_TabbedView.DrawEditorCloseModals(
-		"##ImageClose",
-		[this](S_ImageTab& tab) { const_cast<C_ImageEditor*>(this)->SaveTab(tab); },
-		[this] { const_cast<C_ImageEditor*>(this)->GUI::C_Window::OnHide(); });
+		"##ImageClose", [this](S_ImageTab& tab) { const_cast<C_ImageEditor*>(this)->SaveTab(tab); }, [this] { const_cast<C_ImageEditor*>(this)->GUI::C_Window::OnHide(); });
 }
 
 //=================================================================================

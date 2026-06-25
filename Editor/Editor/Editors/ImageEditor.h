@@ -33,7 +33,7 @@ public:
 	C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR, T_EventCallback eventCallback = {}, Core::ResourceHandle<Renderer::TextureResource> initialResource = {});
 	~C_ImageEditor() override;
 
-	C_ImageEditor(const C_ImageEditor&)			   = delete;
+	C_ImageEditor(const C_ImageEditor&) = delete;
 	C_ImageEditor& operator=(const C_ImageEditor&) = delete;
 
 	// Opens a resource as a new tab. If already open, switches focus.

@@ -31,9 +31,9 @@ public:
 	C_MaterialPreviewWindow(GUID guid, GUI::C_GUIManager& guiMGR);
 	~C_MaterialPreviewWindow() override;
 
-	C_MaterialPreviewWindow(const C_MaterialPreviewWindow&)				= delete;
-	C_MaterialPreviewWindow(C_MaterialPreviewWindow&&) noexcept			= delete;
-	C_MaterialPreviewWindow& operator=(const C_MaterialPreviewWindow&)	 = delete;
+	C_MaterialPreviewWindow(const C_MaterialPreviewWindow&)		= delete;
+	C_MaterialPreviewWindow(C_MaterialPreviewWindow&&) noexcept = delete;
+	C_MaterialPreviewWindow& operator=(const C_MaterialPreviewWindow&) = delete;
 	C_MaterialPreviewWindow& operator=(C_MaterialPreviewWindow&&) noexcept = delete;
 
 	// Opens the material in a new tab. Switches focus if already open.
@@ -68,9 +68,9 @@ private:
 
 	// Satisfies TabbedViewTab. Moveable because S_MaterialTabData is behind a unique_ptr.
 	struct S_MaterialTab {
-		std::string							  m_TabLabel;
-		bool								  m_bModified = false;
-		std::unique_ptr<S_MaterialTabData>	  m_Data;
+		std::string						   m_TabLabel;
+		bool							   m_bModified = false;
+		std::unique_ptr<S_MaterialTabData> m_Data;
 	};
 
 	void DrawComponents() const override;

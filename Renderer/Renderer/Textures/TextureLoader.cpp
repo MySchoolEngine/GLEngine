@@ -24,9 +24,9 @@ bool TextureLoader::loadTexture(const std::filesystem::path& path, MeshData::Tex
 	std::lock_guard lock(m_Mutex);
 	Init();
 
-	auto					image = ilLoadTexture(path);
+	auto					  image = ilLoadTexture(path);
 	::Utils::C_ScopeFinalizer finalizer([image]() { ilDeleteImage(image); });
-	const ILenum			Error = ilGetError();
+	const ILenum			  Error = ilGetError();
 
 	if (Error != IL_NO_ERROR)
 	{
@@ -60,9 +60,9 @@ std::unique_ptr<I_TextureViewStorage> TextureLoader::loadTexture(const std::file
 	std::lock_guard lock(m_Mutex);
 	Init();
 
-	auto					image = ilLoadTexture(path);
+	auto					  image = ilLoadTexture(path);
 	::Utils::C_ScopeFinalizer finalizer([image]() { ilDeleteImage(image); });
-	const ILenum			Error = ilGetError();
+	const ILenum			  Error = ilGetError();
 
 	if (Error != IL_NO_ERROR)
 	{

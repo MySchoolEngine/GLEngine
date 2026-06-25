@@ -23,13 +23,13 @@ C_RayRenderer::C_RayRenderer(const C_RayTraceScene& scene)
 C_RayRenderer::~C_RayRenderer() = default;
 
 //=================================================================================
-void C_RayRenderer::Render(I_CameraComponent&	  camera,
-						   I_TextureViewStorage&  weightedImage,
-						   I_TextureViewStorage&  storage,
-						   std::mutex*			  storageMutex,
-						   int					  numSamplesBefore,
+void C_RayRenderer::Render(I_CameraComponent&									  camera,
+						   I_TextureViewStorage&								  weightedImage,
+						   I_TextureViewStorage&								  storage,
+						   std::mutex*											  storageMutex,
+						   int													  numSamplesBefore,
 						   std::function<Generator<S_RenderWorkUnit>(glm::uvec2)> generatorFactory,
-						   AdditionalTargets	  additional)
+						   AdditionalTargets									  additional)
 {
 	GLE_ASSERT(additional.CheckTargets(storage), "Wrong additional target passed");
 	const auto dim	  = storage.GetDimensions();
@@ -55,7 +55,7 @@ void C_RayRenderer::Render(I_CameraComponent&	  camera,
 			for (unsigned int x = unit.renderMin.x; x < unit.renderMax.x; ++x)
 			{
 				::Utils::HighResolutionTimer renderTime;
-				const auto				   ray = GetRay(glm::vec2{x, y} + (2.f * rnd.GetV2() - glm::vec2(1.f, 1.f)) / 2.f);
+				const auto					 ray = GetRay(glm::vec2{x, y} + (2.f * rnd.GetV2() - glm::vec2(1.f, 1.f)) / 2.f);
 				AddSample({x, y}, textureView, integrator.TraceRay(ray, rnd));
 				++m_ProcessedPixels;
 				if (additional.rowHeatMap) // should be before add sample :( but before TraceRay

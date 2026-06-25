@@ -44,8 +44,8 @@ std::size_t C_TextureView::GetAddress(const glm::uvec2& coord) const
 std::size_t C_TextureView::GetPixelAddress(const glm::uvec2& coord) const
 {
 	GLE_ASSERT(coord.x < m_Rect.GetWidth() && coord.y < m_Rect.GetHeight(), "Outside of bounds");
-	const auto& dim			  = m_Storage->GetDimensions();
-	const auto addressInImage = coord + glm::uvec2{m_Rect.TopLeft()};
+	const auto& dim			   = m_Storage->GetDimensions();
+	const auto	addressInImage = coord + glm::uvec2{m_Rect.TopLeft()};
 	return (static_cast<std::size_t>(dim.x) * addressInImage.y + addressInImage.x);
 }
 
@@ -54,8 +54,8 @@ C_TextureView::PixelCoordVec C_TextureView::GetPixelCoord(const glm::vec2& uv) c
 {
 	// TODO that would be nice, but my texture storage have fliped V
 	// coord in rect + top left of the rect
-	//float u = (uv.x * (static_cast<float>(m_Rect.GetWidth())));
-	//float v = ((1 - uv.y) * static_cast<float>(m_Rect.GetHeight()));
+	// float u = (uv.x * (static_cast<float>(m_Rect.GetWidth())));
+	// float v = ((1 - uv.y) * static_cast<float>(m_Rect.GetHeight()));
 	float u = uv.x * static_cast<float>(m_Rect.GetWidth());
 	float v = uv.y * static_cast<float>(m_Rect.GetHeight());
 	if (uv.x == 1)

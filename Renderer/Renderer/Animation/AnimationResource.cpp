@@ -34,4 +34,4 @@ std::vector<std::string> AnimationLoader::GetSupportedExtensions() const
 	return {".dae"};
 }
 
-}
+} // namespace GLEngine::Renderer

@@ -37,10 +37,10 @@ void C_CPURasterizer::DrawCircle(const Colours::T_Colour& colour, const glm::ive
 {
 	if (antiAliased)
 	{
-		float t1		 = radius / 16;
-		float t2		 = 0.f;
-		int	  y			 = 0;
-		int	  x			 = static_cast<int>(radius);
+		float t1 = radius / 16;
+		float t2 = 0.f;
+		int	  y	 = 0;
+		int	  x	 = static_cast<int>(radius);
 		while (x >= y)
 		{
 			m_view.Set(p + glm::ivec2{x, y}, glm::vec4{colour, 1.f});
@@ -151,7 +151,7 @@ void C_CPURasterizer::ScanLineFloodFill(const Colours::T_Colour& colour, const g
 	m_view.Set(p, glm::vec4{colour, 1.f});
 	while (open.empty() == false)
 	{
-		glm::ivec2				current = open.front();
+		glm::ivec2					current = open.front();
 		static constexpr glm::ivec2 leftStep{1, 0};
 		open.pop();
 		glm::ivec2 leftCurrent = current;

@@ -225,8 +225,8 @@ template <IsResource ResourceType> ResourceHandle<ResourceType> C_ResourceManage
 		auto	   resource = loader.get().CreateResource();
 		if (resource)
 		{
-			resource->m_Dirty = true;
-			resource->m_State = ResourceState::Ready;
+			resource->m_Dirty	 = true;
+			resource->m_State	 = ResourceState::Ready;
 			resource->m_Filepath = filepathNormalized;
 
 			std::shared_ptr<ResourceType> concreteResource = std::dynamic_pointer_cast<ResourceType>(resource);

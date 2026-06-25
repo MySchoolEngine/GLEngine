@@ -12,7 +12,7 @@
 namespace GLEngine::Renderer {
 //=================================================================================
 C_DiffuseMaterial::C_DiffuseMaterial(Colours::T_Colour colour, Core::ResourceHandle<TextureResource> diffuseTexture)
-	: m_DiffuseColour(colour) 
+	: m_DiffuseColour(colour)
 	, m_DiffuseTexture(diffuseTexture)
 {
 }

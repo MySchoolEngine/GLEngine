@@ -68,18 +68,15 @@ C_MaterialPreviewWindow::~C_MaterialPreviewWindow()
 //=================================================================================
 void C_MaterialPreviewWindow::OpenMaterial(Core::ResourceHandle<Renderer::MaterialResource> handle)
 {
-	if (m_TabbedView.TrySwitchTo([&](const S_MaterialTab& t) {
-			return t.m_Data && t.m_Data->m_Material == handle;
-		}))
+	if (m_TabbedView.TrySwitchTo([&](const S_MaterialTab& t) { return t.m_Data && t.m_Data->m_Material == handle; }))
 		return;
 
-	auto& tab		   = m_TabbedView.EmplaceTab();
-	tab.m_Data		   = std::make_unique<S_MaterialTabData>();
+	auto& tab			   = m_TabbedView.EmplaceTab();
+	tab.m_Data			   = std::make_unique<S_MaterialTabData>();
 	tab.m_Data->m_Material = std::move(handle);
-	tab.m_TabLabel	   = tab.m_Data->m_Material.GetFilePath().filename().string();
+	tab.m_TabLabel		   = tab.m_Data->m_Material.GetFilePath().filename().string();
 
-	CreateRayPreviewState(tab.m_Data->m_Render, s_Resolution, "materialPreview",
-						  Renderer::E_TextureFormat::RGB32f);
+	CreateRayPreviewState(tab.m_Data->m_Render, s_Resolution, "materialPreview", Renderer::E_TextureFormat::RGB32f);
 	SetupScene(*tab.m_Data);
 	StartRender(*tab.m_Data);
 }
@@ -156,8 +153,7 @@ void C_MaterialPreviewWindow::DrawComponents() const
 	}
 
 	m_TabbedView.Draw(
-		"##MaterialTabs",
-		[this](S_MaterialTab& tab) { DrawTabContent(tab); },
+		"##MaterialTabs", [this](S_MaterialTab& tab) { DrawTabContent(tab); },
 		[this](S_MaterialTab& tab) {
 			if (tab.m_Data)
 				const_cast<C_MaterialPreviewWindow*>(this)->SaveMaterial(*tab.m_Data);
@@ -260,7 +256,7 @@ void C_MaterialPreviewWindow::NewMaterial()
 	auto*	   dialog	  = new GUI::C_FileDialogWindow(
 		 ".glmat", "Save material as...",
 		 [this, dialogGUID](const std::filesystem::path& savePath, GUI::C_GUIManager& guiMgr) {
-			 auto& rm		  = Core::C_ResourceManager::Instance();
+			 auto& rm		   = Core::C_ResourceManager::Instance();
 			 auto  newResource = rm.CreateNewResource<Renderer::MaterialResource>(savePath);
 			 if (newResource.IsReady())
 			 {
@@ -320,11 +316,7 @@ void C_MaterialPreviewWindow::StartRender(S_MaterialTabData& data)
 			if (samplesBefore >= s_TargetSamples)
 				break;
 
-			data.m_Render.m_Renderer->Render(m_Camera,
-											 *data.m_Render.m_ImageStorage,
-											 *data.m_Render.m_SamplesStorage,
-											 &data.m_Render.m_ImageLock,
-											 samplesBefore,
+			data.m_Render.m_Renderer->Render(m_Camera, *data.m_Render.m_ImageStorage, *data.m_Render.m_SamplesStorage, &data.m_Render.m_ImageLock, samplesBefore,
 											 Renderer::C_InterleavedLinesFactory{4});
 			data.m_Render.m_NumSamples.fetch_add(1);
 		}

@@ -67,7 +67,7 @@ private:
 
 	/**
 	 * @brief Calculates Surface Area Heuristic (SAH) cost for a potential split
-	 * 
+	 *
 	 * @param parent Parent node to split
 	 * @param axis Axis to split on (0=X, 1=Y, 2=Z)
 	 * @param splitPos Position along axis to split at
@@ -78,7 +78,7 @@ private:
 
 	/**
 	 * @brief Partitions triangles around a split position (quicksort-style)
-	 * 
+	 *
 	 * @param centroids Triangle centroids to partition (modified in-place)
 	 * @param first First triangle index in range
 	 * @param last Last triangle index in range
@@ -90,7 +90,7 @@ private:
 
 	/**
 	 * @brief Gets pointer to triangle vertices from lookup table
-	 * 
+	 *
 	 * @param triangleIndex Index into the lookup table
 	 * @return Pointer to first vertex of triangle (array of 3 vec3)
 	 */

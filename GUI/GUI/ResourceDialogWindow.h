@@ -17,7 +17,8 @@ public:
 							 guid,
 							 GetResourceDataPath())
 		, m_Resource(resource)
-	{}
+	{
+	}
 
 private:
 	static std::string GetResourcePaths()

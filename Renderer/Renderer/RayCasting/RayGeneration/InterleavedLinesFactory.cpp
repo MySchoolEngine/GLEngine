@@ -30,10 +30,10 @@ Generator<S_RenderWorkUnit> C_InterleavedLinesFactory::operator()(glm::uvec2 ima
 		if (interleavedLines == 1)
 			break;
 
-		toNextLine		  = interleavedLines;
+		toNextLine = interleavedLines;
 		interleavedLines /= 2;
-		currentStartLine  = interleavedLines;
-		numViewLines	  = interleavedLines;
+		currentStartLine = interleavedLines;
+		numViewLines	 = interleavedLines;
 	} while (true);
 }
 

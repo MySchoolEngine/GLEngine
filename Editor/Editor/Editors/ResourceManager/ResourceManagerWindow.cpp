@@ -1,9 +1,9 @@
 #include <EditorStdafx.h>
 
 #include <Editor/Editors/ImageEditor.h>
+#include <Editor/Editors/MaterialPreview/MaterialPreviewWindow.h>
 #include <Editor/Editors/ResourceManager/ResourceManagerWindow.h>
 #include <Editor/Editors/TrimeshPreview/TrimeshPreviewWindow.h>
-#include <Editor/Editors/MaterialPreview/MaterialPreviewWindow.h>
 
 #include <Renderer/Materials/MaterialResource.h>
 #include <Renderer/Materials/MeshMaterialExtractor.h>
@@ -450,8 +450,9 @@ void C_ResourceManagerWindow::HandleContextMenu(const std::filesystem::path& pat
 
 	auto& resMgr = Core::C_ResourceManager::Instance();
 
-	const bool hasEditor = resMgr.IsResourceType<Renderer::TextureResource>(path) || resMgr.IsResourceType<Renderer::C_TrimeshModel>(path) || resMgr.IsResourceType<Renderer::MaterialResource>(path);
-	const bool isMesh	 = resMgr.IsResourceType<Renderer::MeshResource>(path);
+	const bool hasEditor = resMgr.IsResourceType<Renderer::TextureResource>(path) || resMgr.IsResourceType<Renderer::C_TrimeshModel>(path)
+						   || resMgr.IsResourceType<Renderer::MaterialResource>(path);
+	const bool isMesh = resMgr.IsResourceType<Renderer::MeshResource>(path);
 
 	if (!hasEditor && !isMesh)
 		return;

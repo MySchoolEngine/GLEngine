@@ -2,17 +2,16 @@
 
 #include <Editor/Editors/RayPreviewState.h>
 
-#include <imgui.h>
+#include <Renderer/IRenderer.h>
+#include <Renderer/Resources/ResourceManager.h>
+#include <Renderer/Textures/TextureView.h>
 
 #include <GUI/ImageViewer.h>
-
-#include <Renderer/IRenderer.h>
-#include <Renderer/Textures/TextureView.h>
-#include <Renderer/Resources/ResourceManager.h>
 
 #include <Core/Application.h>
 
 #include <chrono>
+#include <imgui.h>
 #include <thread>
 
 namespace GLEngine::Editor {
@@ -23,30 +22,30 @@ std::string DebugTargetSuffix(E_DebugTarget t)
 {
 	switch (t)
 	{
-	case E_DebugTarget::RowHeatMap: return "_RowHeatMap";
-	case E_DebugTarget::Normals:	return "_Normals";
-	case E_DebugTarget::UV:			return "_UV";
+	case E_DebugTarget::RowHeatMap:
+		return "_RowHeatMap";
+	case E_DebugTarget::Normals:
+		return "_Normals";
+	case E_DebugTarget::UV:
+		return "_UV";
 	}
 	return "_Unknown";
 }
 } // namespace
 
 //=================================================================================
-void CreateRayPreviewState(S_RayPreviewState& state,
-						   glm::uvec2		  resolution,
-						   std::string_view	  name,
-						   Renderer::E_TextureFormat format)
+void CreateRayPreviewState(S_RayPreviewState& state, glm::uvec2 resolution, std::string_view name, Renderer::E_TextureFormat format)
 {
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
 
-	state.m_GPUImageHandle = renderer.GetRM().createTexture(Renderer::TextureDescriptor{
-		.name		   = std::string(name),
-		.width		   = resolution.x,
-		.height		   = resolution.y,
-		.type		   = Renderer::E_TextureType::TEXTURE_2D,
-		.format		   = format,
-		.m_bStreamable = false,
-	});
+	state.m_GPUImageHandle	 = renderer.GetRM().createTexture(Renderer::TextureDescriptor{
+		  .name			 = std::string(name),
+		  .width		 = resolution.x,
+		  .height		 = resolution.y,
+		  .type			 = Renderer::E_TextureType::TEXTURE_2D,
+		  .format		 = format,
+		  .m_bStreamable = false,
+	  });
 	const auto samplerHandle = renderer.GetRM().createSampler(Renderer::SamplerDescriptor2D{
 		.m_FilterMin = Renderer::E_TextureFilter::Linear,
 		.m_FilterMag = Renderer::E_TextureFilter::Linear,
@@ -86,9 +85,9 @@ S_DebugBuffer* S_RayPreviewState::GetDebugTarget(E_DebugTarget t)
 Renderer::C_RayRenderer::AdditionalTargets S_RayPreviewState::BuildAdditionalTargets()
 {
 	Renderer::C_RayRenderer::AdditionalTargets out{};
-	auto get = [&](E_DebugTarget t) -> Renderer::I_TextureViewStorage* {
-		const auto it = m_DebugTargets.find(t);
-		return (it != m_DebugTargets.end() && it->second.m_Storage) ? &(it->second.m_Storage.value()) : nullptr;
+	auto									   get = [&](E_DebugTarget t) -> Renderer::I_TextureViewStorage* {
+		  const auto it = m_DebugTargets.find(t);
+		  return (it != m_DebugTargets.end() && it->second.m_Storage) ? &(it->second.m_Storage.value()) : nullptr;
 	};
 	out.rowHeatMap = get(E_DebugTarget::RowHeatMap);
 	out.normalsMap = get(E_DebugTarget::Normals);
@@ -97,12 +96,7 @@ Renderer::C_RayRenderer::AdditionalTargets S_RayPreviewState::BuildAdditionalTar
 }
 
 //=================================================================================
-void AddDebugTarget(S_RayPreviewState&		 state,
-					E_DebugTarget			 target,
-					glm::uvec2				 resolution,
-					std::string_view		 name,
-					Renderer::E_TextureFormat format,
-					bool					 createViewer)
+void AddDebugTarget(S_RayPreviewState& state, E_DebugTarget target, glm::uvec2 resolution, std::string_view name, Renderer::E_TextureFormat format, bool createViewer)
 {
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
 
@@ -114,15 +108,15 @@ void AddDebugTarget(S_RayPreviewState&		 state,
 		.m_WrapU	 = Renderer::E_WrapFunction::Repeat,
 	});
 
-	auto& slot		  = state.m_DebugTargets[target];
-	slot.m_GPUHandle  = renderer.GetRM().createTexture(Renderer::TextureDescriptor{
-		 .name		   = std::string(name),
-		 .width		   = resolution.x,
-		 .height	   = resolution.y,
-		 .type		   = Renderer::E_TextureType::TEXTURE_2D,
-		 .format	   = format,
-		 .m_bStreamable = false,
-	 });
+	auto& slot		 = state.m_DebugTargets[target];
+	slot.m_GPUHandle = renderer.GetRM().createTexture(Renderer::TextureDescriptor{
+		.name		   = std::string(name),
+		.width		   = resolution.x,
+		.height		   = resolution.y,
+		.type		   = Renderer::E_TextureType::TEXTURE_2D,
+		.format		   = format,
+		.m_bStreamable = false,
+	});
 	renderer.SetTextureSampler(slot.m_GPUHandle, samplerHandle);
 
 	slot.m_Storage.emplace(resolution.x, resolution.y, 3);

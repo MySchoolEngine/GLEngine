@@ -17,8 +17,8 @@ std::vector<Core::ResourceHandle<MaterialResource>> ExtractMaterialsFromMesh(con
 	if (!mesh.IsReady())
 		return result;
 
-	const auto& scene	 = mesh.GetScene();
-	auto&		rm		 = Core::C_ResourceManager::Instance();
+	const auto& scene = mesh.GetScene();
+	auto&		rm	  = Core::C_ResourceManager::Instance();
 
 	for (std::size_t i = 0; i < scene.materials.size(); ++i)
 	{
@@ -34,7 +34,7 @@ std::vector<Core::ResourceHandle<MaterialResource>> ExtractMaterialsFromMesh(con
 		{
 			matHandle = rm.LoadResource<MaterialResource>(outputPath, true);
 		}
-		auto& matRes	   = matHandle.GetResource();
+		auto& matRes = matHandle.GetResource();
 		matRes.SetMaterialName(mat.m_Name);
 		matRes.SetMaterialData(MaterialResource::BuildPBRData(mat, scene.textures));
 		if (!matRes.Save())

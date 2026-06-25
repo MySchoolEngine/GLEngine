@@ -55,7 +55,7 @@ public:
 
 	[[nodiscard]] virtual const void* GetData() const							 = 0;
 	[[nodiscard]] virtual void*		  GetData()									 = 0;
-	virtual void				  SetData(const void* data, std::size_t len) = 0;
+	virtual void					  SetData(const void* data, std::size_t len) = 0;
 
 	/**
 	 * @returns	uint8_t	Number of channels

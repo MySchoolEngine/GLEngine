@@ -33,7 +33,7 @@ public:
 	void AddMesh(const MeshData::Mesh& mesh);
 	void SetBVH(BVH* bvh);
 
-	void SetMaterialHandle(const Core::ResourceHandle<MaterialResource>& material);
+	void										  SetMaterialHandle(const Core::ResourceHandle<MaterialResource>& material);
 	const Core::ResourceHandle<MaterialResource>& GetMaterialHandle() const { return m_Material; }
 
 	[[nodiscard]] const Physics::Primitives::S_AABB& GetAABB() const { return m_AABB; }

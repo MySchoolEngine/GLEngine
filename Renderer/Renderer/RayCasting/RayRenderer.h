@@ -23,7 +23,7 @@ public:
 	struct AdditionalTargets {
 		I_TextureViewStorage* rowHeatMap = nullptr;
 		I_TextureViewStorage* normalsMap = nullptr;
-		I_TextureViewStorage* uvMap = nullptr;
+		I_TextureViewStorage* uvMap		 = nullptr;
 		[[nodiscard]] bool	  CheckTargets(const I_TextureViewStorage& mainTarget) const;
 	};
 	// workaround for https://stackoverflow.com/questions/53408962/try-to-understand-compiler-error-message-default-member-initializer-required-be

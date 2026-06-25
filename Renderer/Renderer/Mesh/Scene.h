@@ -16,8 +16,8 @@ struct Material {
 
 	// Index to a texture array
 	// If negative - material has no texture
-	int textureIndex	   = -1;
-	int normalTextureIndex = -1;
+	int textureIndex		  = -1;
+	int normalTextureIndex	  = -1;
 	int roughnessTextureIndex = -1;
 
 	std::string m_Name;

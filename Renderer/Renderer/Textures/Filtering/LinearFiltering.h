@@ -58,8 +58,8 @@ template <class T> [[nodiscard]] inline auto T_Bilinear::FilteredGet(const glm::
 //=================================================================================
 template <class T, typename> auto T_Bilinear::FilteredGet(const glm::vec2& pixelCoord, const C_TextureView& view) const
 {
-	auto fract		= glm::fract(pixelCoord);
-	auto weights		  = glm::vec2(1.5f) - fract;
+	auto fract		  = glm::fract(pixelCoord);
+	auto weights	  = glm::vec2(1.5f) - fract;
 	auto leftTopCoord = glm::ivec2(glm::floor(pixelCoord));
 
 	if (fract.x < 0.5f)
@@ -73,10 +73,10 @@ template <class T, typename> auto T_Bilinear::FilteredGet(const glm::vec2& pixel
 		weights.y -= 1.f;
 	}
 
-	const auto Q11			= view.Get<T>(leftTopCoord);
-	const auto Q12			= view.Get<T>(leftTopCoord + glm::ivec2(0, 1));
-	const auto Q21			= view.Get<T>(leftTopCoord + glm::ivec2(1, 0));
-	const auto Q22			= view.Get<T>(leftTopCoord + glm::ivec2(1, 1));
+	const auto Q11 = view.Get<T>(leftTopCoord);
+	const auto Q12 = view.Get<T>(leftTopCoord + glm::ivec2(0, 1));
+	const auto Q21 = view.Get<T>(leftTopCoord + glm::ivec2(1, 0));
+	const auto Q22 = view.Get<T>(leftTopCoord + glm::ivec2(1, 1));
 
 	const auto R1 = glm::mix(Q21, Q11, weights.x);
 	const auto R2 = glm::mix(Q22, Q12, weights.x);

@@ -133,8 +133,7 @@ protected:
 	E_BlendFunction m_BlendOperation;
 	E_WrapFunction	m_WrapFunction;
 
-	template<int, int, int>
-	friend class TextureViewFixture;
+	template <int, int, int> friend class TextureViewFixture;
 };
 
 template <> glm::vec4  C_TextureView::GetBorderColor() const;
