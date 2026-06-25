@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Renderer/Mesh/Loading/MeshResource.h>
-#include <Renderer/RayCasting/Geometry/BVH.h>
 #include <Renderer/RayCasting/Geometry/Trimesh.h>
 #include <Renderer/RendererApi.h>
 
@@ -29,8 +28,6 @@ public:
 
 	const std::vector<C_Trimesh>& GetTrimeshes() const { return m_Trimeshes; }
 
-	void AfterDeserialize();
-
 	RTTR_REGISTRATION_FRIEND;
 
 protected:
@@ -38,7 +35,6 @@ protected:
 
 private:
 	std::vector<C_Trimesh> m_Trimeshes;
-	std::vector<BVH*>	   m_BVHs;
 };
 
 class RENDERER_API_EXPORT TrimeshModelTrimesh : public Core::ResourceLoader<C_TrimeshModel> {

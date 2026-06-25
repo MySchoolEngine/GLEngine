@@ -103,7 +103,7 @@ private:
 	static constexpr unsigned int s_MaxDepth	= 10;
 	static constexpr unsigned int s_MinLeafSize = 20;
 
-	friend class C_TrimeshModel;
+	friend class C_Trimesh;
 	friend class BVHFixture;
 };
 } // namespace GLEngine::Renderer
