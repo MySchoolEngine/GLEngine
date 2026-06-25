@@ -6,89 +6,9 @@
 
 #include <CommonTestUtils/XMLSerializeFixture.h>
 
+#include <UtilsTest/Serialization/DummyStructs_Polymorphic.h>
+
 #include <memory>
-
-class BaseShape {
-public:
-	BaseShape()			 = default;
-	virtual ~BaseShape() = default;
-
-	int			id = 0;
-	std::string name;
-
-	RTTR_ENABLE()
-};
-
-class Circle : public BaseShape {
-public:
-	Circle() = default;
-
-	float radius = 0.0f;
-
-	RTTR_ENABLE(BaseShape)
-};
-
-class RectangleTest : public BaseShape {
-public:
-	RectangleTest() = default;
-
-	float width	 = 0.0f;
-	float height = 0.0f;
-
-	RTTR_ENABLE(BaseShape)
-};
-
-class Triangle : public BaseShape {
-public:
-	Triangle() = default;
-
-	float base	 = 0.0f;
-	float height = 0.0f;
-	float angle	 = 0.0f;
-
-	RTTR_ENABLE(BaseShape)
-};
-
-class ShapeContainer {
-public:
-	ShapeContainer() = default;
-
-	std::shared_ptr<BaseShape>				shape;
-	std::vector<std::shared_ptr<BaseShape>> shapes;
-	std::string								containerName;
-
-	RTTR_ENABLE()
-};
-
-// clang-format off
-RTTR_REGISTRATION
-{
-	rttr::registration::class_<BaseShape>("BaseShape")
-		.property("id", &BaseShape::id)
-		.property("name", &BaseShape::name);
-
-	rttr::registration::class_<Circle>("Circle")
-	.constructor<>()(rttr::policy::ctor::as_object)
-		.property("radius", &Circle::radius);
-
-	rttr::registration::class_<RectangleTest>("RectangleTest")
-		.constructor<>()
-		.property("width", &RectangleTest::width)
-		.property("height", &RectangleTest::height);
-
-	rttr::registration::class_<Triangle>("Triangle")
-		.constructor<>()
-		.property("base", &Triangle::base)
-		.property("height", &Triangle::height)
-		.property("angle", &Triangle::angle);
-
-	rttr::registration::class_<ShapeContainer>("ShapeContainer")
-		.constructor<>()
-		.property("shape", &ShapeContainer::shape)
-		.property("shapes", &ShapeContainer::shapes)
-		.property("containerName", &ShapeContainer::containerName);
-}
-// clang-format on
 
 namespace GLEngine::Utils {
 TEST_F(XMLSerializeFixture, SerializeCircle)
@@ -149,7 +69,7 @@ TEST_F(XMLSerializeFixture, SerializeRectangle)
 
 TEST_F(XMLSerializeFixture, SerializeTriangle)
 {
-	const auto triangle = std::make_shared<Triangle>();
+	const auto triangle = std::make_shared<TriangleTest>();
 	triangle->id		= 3;
 	triangle->name		= "TestTriangle";
 	triangle->base		= 6.0f;
@@ -170,7 +90,7 @@ TEST_F(XMLSerializeFixture, SerializeTriangle)
 
 	auto shapeNode = root.child("shape");
 	EXPECT_TRUE(shapeNode);
-	EXPECT_STREQ("Triangle", shapeNode.attribute("derivedTypeCast").value()) << "Missing derived type for instantiation";
+	EXPECT_STREQ("TriangleTest", shapeNode.attribute("derivedTypeCast").value()) << "Missing derived type for instantiation";
 	EXPECT_EQ(3, shapeNode.attribute("id").as_int());
 	EXPECT_STREQ("TestTriangle", shapeNode.attribute("name").value());
 	EXPECT_FLOAT_EQ(6.0f, shapeNode.attribute("base").as_float());
@@ -194,7 +114,7 @@ TEST_F(XMLSerializeFixture, SerializeMultipleShapes)
 	rectangle->width  = 7.0f;
 	rectangle->height = 5.0f;
 
-	auto triangle	 = std::make_shared<Triangle>();
+	auto triangle	 = std::make_shared<TriangleTest>();
 	triangle->id	 = 3;
 	triangle->name	 = "Triangle1";
 	triangle->base	 = 4.0f;
@@ -247,7 +167,7 @@ TEST_F(XMLSerializeFixture, SerializeMultipleShapes)
 			EXPECT_FLOAT_EQ(7.0f, child.attribute("width").as_float());
 			EXPECT_FLOAT_EQ(5.0f, child.attribute("height").as_float());
 		}
-		else if (strcmp(derivedType, "Triangle") == 0)
+		else if (strcmp(derivedType, "TriangleTest") == 0)
 		{
 			EXPECT_EQ(3, id);
 			EXPECT_STREQ("Triangle1", child.attribute("name").value());
@@ -262,5 +182,56 @@ TEST_F(XMLSerializeFixture, SerializeMultipleShapes)
 	}
 
 	EXPECT_EQ(3, shapeCount) << "Expected 3 shapes in the vector";
+}
+
+TEST_F(XMLSerializeFixture, SerializePointerProperty)
+{
+	PointerContainer container;
+	container.basePtr	= new Circle();
+	container.circlePtr = new Circle();
+	auto serializedXml	= serializer.Serialize(container);
+	ASSERT_FALSE(serializedXml.empty());
+
+	// Validate XML structure
+	auto root = serializedXml.child("PointerContainer");
+	EXPECT_TRUE(root);
+
+	// validate the base pointer property
+	{
+		auto basePtr = root.child("basePtr");
+		EXPECT_TRUE(basePtr);
+		auto typeCaseAttr = basePtr.attribute("derivedTypeCast");
+		EXPECT_TRUE(typeCaseAttr) << "Missing type case property";
+	}
+
+	// validate the circle pointer property
+	{
+		auto basePtr = root.child("circlePtr");
+		EXPECT_TRUE(basePtr);
+		auto typeCaseAttr = basePtr.attribute("derivedTypeCast");
+		EXPECT_FALSE(typeCaseAttr) << "No need for the type cast property";
+	}
+
+	delete container.basePtr;
+	delete container.circlePtr;
+}
+
+TEST_F(XMLSerializeFixture, SerializeNullPointerProperty)
+{
+	PointerContainer container;
+	container.basePtr	= nullptr;
+	container.circlePtr = new Circle();
+	auto serializedXml	= serializer.Serialize(container);
+	ASSERT_FALSE(serializedXml.empty());
+
+	// Validate XML structure
+	auto root = serializedXml.child("PointerContainer");
+	EXPECT_TRUE(root);
+
+	// validate the base pointer property
+	{
+		auto basePtr = root.child("basePtr");
+		EXPECT_FALSE(basePtr) << "Null ptr is not being serialized";
+	}
 }
 } // namespace GLEngine::Utils

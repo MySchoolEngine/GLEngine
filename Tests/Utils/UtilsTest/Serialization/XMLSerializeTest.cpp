@@ -1,80 +1,10 @@
 #include <UtilsTestStdafx.h>
 
-#include <Utils/Reflection/Metadata.h>
 #include <Utils/Serialization/XMLSerialize.h>
 
 #include <CommonTestUtils/XMLSerializeFixture.h>
 
-
-struct GlmVec3 {
-	glm::vec3 vec;
-	glm::vec3 vecNoSerialize;
-};
-
-enum class TestEnum
-{
-	Value1,
-	Value2,
-	Value3
-};
-
-struct AtomicTypesArrayStruct {
-	std::array<int, 3>		   m_IntArray;
-	std::array<float, 2>	   m_FloatArray;
-	std::array<double, 4>	   m_DoubleArray;
-	std::array<bool, 2>		   m_BoolArray;
-	std::array<std::string, 3> m_StringArray;
-	std::array<TestEnum, 2>	   m_EnumArray;
-};
-
-struct SetTypesStruct {
-	std::set<int>		  m_IntSet;
-	std::set<std::string> m_StringSet;
-	std::set<TestEnum>	  m_EnumSet;
-};
-
-struct VectorOfFloats {
-	std::vector<float> m_FloatVec{1.f, 2.f};
-};
-
-// clang-format off
-RTTR_REGISTRATION
-{
-	
-	rttr::registration::class_<GlmVec3>("GlmVec3")
-		.property("vecNoSerialize", &GlmVec3::vecNoSerialize)
-		(
-			Utils::Reflection::RegisterMetamember<Utils::Reflection::SerializationCls::NoSerialize>(true)
-		)
-		.property("vec", &GlmVec3::vec);
-	
-	rttr::registration::enumeration<TestEnum>("TestEnum")
-		(
-			rttr::value("Value1", TestEnum::Value1),
-			rttr::value("Value2", TestEnum::Value2),
-			rttr::value("Value3", TestEnum::Value3)
-		);
-
-	rttr::registration::class_<AtomicTypesArrayStruct>("AtomicTypesArrayStruct")
-		.constructor<>()
-		.property("intArray", &AtomicTypesArrayStruct::m_IntArray)
-		.property("floatArray", &AtomicTypesArrayStruct::m_FloatArray)
-		.property("doubleArray", &AtomicTypesArrayStruct::m_DoubleArray)
-		.property("boolArray", &AtomicTypesArrayStruct::m_BoolArray)
-		.property("stringArray", &AtomicTypesArrayStruct::m_StringArray)
-		.property("enumArray", &AtomicTypesArrayStruct::m_EnumArray);
-
-	rttr::registration::class_<SetTypesStruct>("SetTypesStruct")
-		.constructor<>()
-		.property("intSet", &SetTypesStruct::m_IntSet)
-		.property("stringSet", &SetTypesStruct::m_StringSet)
-		.property("enumSet", &SetTypesStruct::m_EnumSet);
-
-	rttr::registration::class_<VectorOfFloats>("VectorOfFloats")
-		.constructor<>()
-		.property("FloatVec", &VectorOfFloats::m_FloatVec);
-}
-// clang-format on
+#include <UtilsTest/Serialization/DummyStructs.h>
 
 namespace GLEngine::Utils {
 TEST_F(XMLSerializeFixture, RootName)

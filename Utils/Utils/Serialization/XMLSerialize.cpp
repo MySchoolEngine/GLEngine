@@ -106,6 +106,11 @@ void C_XMLSerializer::WriteProperty(const rttr::property& prop, const rttr::inst
 	}
 	else
 	{
+		if (propValue.is_valid() == false || rttr::instance(propValue).is_valid() == false)
+		{
+			// we can skip null pointers
+			return;
+		}
 		auto	   propNode = parent.append_child(prop.get_name().to_string().c_str());
 		const auto type		= prop.get_type();
 		if (type.get_raw_type().is_wrapper())
@@ -124,6 +129,16 @@ void C_XMLSerializer::WriteProperty(const rttr::property& prop, const rttr::inst
 			auto typeWrapped = rttr::instance(value).get_derived_type();
 			if (typeWrapped.is_derived_from(propType) && typeWrapped != propType)
 				propNode.append_attribute("derivedTypeCast").set_value(typeWrapped.get_name().data());
+		}
+		// for raw pointers to store concrete type
+		if (type.is_pointer())
+		{
+			const auto innerType = type.get_raw_type();
+			const auto typeConcrete = rttr::instance(propValue).get_derived_type();
+			if (typeConcrete != innerType)
+			{
+				propNode.append_attribute("derivedTypeCast").set_value(typeConcrete.get_name().data());
+			}
 		}
 		SerializeObject(propValue, propNode);
 	}
@@ -214,6 +229,7 @@ void C_XMLSerializer::WriteArray(const rttr::variant_sequential_view& view, pugi
 {
 	for (const auto& item : view)
 	{
+		// TODO this causes resource copy
 		rttr::variant		obj	 = item.extract_wrapped_value();
 		const rttr::variant ins	 = obj.get_type().get_raw_type().is_wrapper() ? obj.extract_wrapped_value() : obj;
 		rttr::type			type = ins.get_type();
