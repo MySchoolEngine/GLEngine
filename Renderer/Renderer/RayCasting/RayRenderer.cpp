@@ -128,7 +128,7 @@ void C_RayRenderer::UpdateView(const S_RenderWorkUnit& unit, const C_TextureView
 }
 
 //=================================================================================
-void C_RayRenderer::AddSample(const glm::ivec2 coord, C_TextureView view, const glm::vec3 sample)
+void C_RayRenderer::AddSample(const glm::ivec2 coord, C_TextureView& view, const glm::vec3 sample)
 {
 	const auto previousValue = view.Get<glm::vec4>(coord);
 	view.Set(coord, previousValue + glm::vec4(sample, 0.f));
