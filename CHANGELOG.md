@@ -2,6 +2,33 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - 26-06-2026
+### Added
+- GLTF added to supported formats
+- PPM added to supported formats
+- Basic support to load nested `C_Resource`
+    - Only finishes load after all internal resources loaded as well
+- `DECLARE_RESOURCE_HANDLE_AFTER_DESERIALIZE` and `DECLARE_RESOURCE_TYPE` convenience macros
+- `IsBlocking` is propagated in the `ResourceManager::LoadResource`
+- Material editor
+- Tri-planear texture mapping for `S_Spehre`
+- Normal and rougness maps loading from `ModelLoader`
+- Re-export of materials
+- `GUI::C_TabbedView`
+### Fixed
+- Alpha test in ray-tracer
+- Wrong UV mapping in `C_TextureView`
+- GUI crash on release
+- Bilinear filtering errors
+- Allow raw pointers in properties (XML de/serialization)
+- Shorter serialization for `glm::vec2`, `glm::vec4` and `std::vector`s of `unsigned int`, `int`, `double`
+- `C_TextureView::Set(..., E_TextureChannel element)` off by one error
+### Removed
+- `C_RayTraceScene` no longer loads with default scene. Moved to `C_RayTraceScene::TestScene`
+### Updated libraries
+- Update Assimp loader to 6.0.5
+
+
 ## [Unreleased] - 13-04-2026
 ### Added
 - Alpha test in real-time renderer
