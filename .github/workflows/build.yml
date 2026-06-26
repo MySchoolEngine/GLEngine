@@ -35,11 +35,11 @@ jobs:
             lowerCase: "release",
           }
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           submodules: true
       - name: Cache apt packages
-        uses: actions/cache@v4 # TODO: pin to SHA
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6
         with:
           path: /var/cache/apt/archives
           key: apt-${{ runner.os }}-xorg-uuid
@@ -60,8 +60,15 @@ jobs:
             sudo Tools/Premake5/premake5 gmake2
       - name: Build
         run: make config=${{ matrix.config.lowerCase }} -j6
+      - name: Copy TestData
+        run: |
+          for test in Core Renderer Utils; do
+            if [ -d "Tests/$test/TestData" ]; then
+              cp -r "Tests/$test/TestData" "bin/${{ matrix.config.config }}-linux-x86_64/${test}Test/"
+            fi
+          done
       - name: Upload artifact
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: Ubuntu-${{ matrix.config.config }}-Tests
           path: bin/${{ matrix.config.config }}-linux-x86_64/
@@ -87,13 +94,15 @@ jobs:
         test: ["CoreTest", "RendererTest", "UtilsTest"] #, "EntityTest"]
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.2.1
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: Ubuntu-${{ matrix.config.config }}-Tests
       - name: Test ${{ matrix.config.test }}
         run: |
             sudo chmod +x ${{ matrix.test }}/${{ matrix.test }}
-            ${{ matrix.test }}/${{ matrix.test }}
+            mkdir -p ${{ matrix.test }}/TestData
+            cd ${{ matrix.test }}/TestData
+            ./../${{ matrix.test }}
   msvc:
     name: MSVC api=${{ matrix.glfwapi }} config=${{ matrix.configuration }}
     runs-on: windows-latest
@@ -104,8 +113,8 @@ jobs:
         glfwapi: [opengl, vulkan]
     steps:
       - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2.0.0
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: microsoft/setup-msbuild@30375c66a4eea26614e0d39710365f22f8b0af57 # v3.0.0
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           submodules: true
       - name: Generate solution
@@ -114,8 +123,14 @@ jobs:
       - name: Build
         shell: cmd
         run: msbuild Engine.sln /p:Configuration=${{ matrix.configuration }} -maxCpuCount
+      - name: Copy TestData
+        shell: cmd
+        run: |
+          if exist "Tests\Core\TestData" xcopy /E /I /Y "Tests\Core\TestData" "bin\${{ matrix.configuration }}-windows-x86_64\CoreTest\TestData\"
+          if exist "Tests\Renderer\TestData" xcopy /E /I /Y "Tests\Renderer\TestData" "bin\${{ matrix.configuration }}-windows-x86_64\RendererTest\TestData\"
+          if exist "Tests\Utils\TestData" xcopy /E /I /Y "Tests\Utils\TestData" "bin\${{ matrix.configuration }}-windows-x86_64\UtilsTest\TestData\"
       - name: Upload artifact
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: Windows-${{ matrix.configuration }}-${{ matrix.glfwapi }}-Tests
           path: bin\${{ matrix.configuration }}-windows-x86_64/
@@ -132,10 +147,12 @@ jobs:
         test: ["CoreTest", "RendererTest", "UtilsTest"] #, "EntityTest"]
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.2.1
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: Windows-${{ matrix.configuration }}-opengl-Tests # API goes here
       - name: Test
         shell: cmd
         run: |
-            ${{ matrix.test }}\${{ matrix.test }}.exe
+            if not exist "${{ matrix.test }}\TestData" mkdir "${{ matrix.test }}\TestData"
+            cd ${{ matrix.test }}\TestData
+            ..\${{ matrix.test }}.exe

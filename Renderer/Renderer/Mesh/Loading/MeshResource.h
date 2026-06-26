@@ -21,7 +21,7 @@ public:
 	MeshResource();
 	~MeshResource() override = default;
 
-	[[nodiscard]] bool									  Load(const std::filesystem::path& filepath) override;
+	[[nodiscard]] bool									  Load(const std::filesystem::path& filepath, LoadCtx& ctx) override;
 	[[nodiscard]] bool									  Reload() override;
 	[[nodiscard]] std::unique_ptr<Core::I_ResourceLoader> GetLoader() override;
 
@@ -53,13 +53,13 @@ template <> struct UIMetaclassToType<MetaGUI::MeshResource> {
 	using type = GLEngine::Core::ResourceHandle<GLEngine::Renderer::MeshResource>;
 };
 
-enum class MeshResource : std::uint8_t {
+enum class MeshResource : std::uint8_t
+{
 	Name,
 };
 } // namespace Utils::Reflection::UI
 
-namespace Utils::Reflection
-{
+namespace Utils::Reflection {
 REGISTER_META_CLASS(UI::MeshResource, MetaGUI);
 
 REGISTER_META_MEMBER_TYPE(UI::MeshResource::Name, std::string);

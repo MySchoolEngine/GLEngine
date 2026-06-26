@@ -46,7 +46,7 @@ C_TerrainEntity::~C_TerrainEntity() = default;
 Entity::I_Entity::T_ComponentRange C_TerrainEntity::GetComponents(Entity::E_ComponentType type) const
 {
 	auto iterLow = m_Components->equal_range(type);
-	return {Utils::MapValueIterator(std::move(iterLow.first)), Utils::MapValueIterator(std::move(iterLow.second))};
+	return {::Utils::MapValueIterator(std::move(iterLow.first)), ::Utils::MapValueIterator(std::move(iterLow.second))};
 }
 
 //=================================================================================
@@ -219,7 +219,7 @@ void C_TerrainEntity::DrawControls()
 void C_TerrainEntity::WholeTerrain(std::function<void(T_TerrainPtr)> lambda)
 {
 	// auto range = GetComponents(Entity::E_ComponentType::Graphical);
-	std::for_each(Utils::MapValueIterator(m_Patches.begin()), Utils::MapValueIterator(m_Patches.end()), lambda);
+	std::for_each(::Utils::MapValueIterator(m_Patches.begin()), ::Utils::MapValueIterator(m_Patches.end()), lambda);
 }
 
 //=================================================================================

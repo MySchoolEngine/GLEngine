@@ -10,7 +10,7 @@ namespace GLEngine::GUI {
 C_FileDialogWindow::C_FileDialogWindow(std::string															   fileType,
 									   const std::string&													   windowName,
 									   const std::function<void(const std::filesystem::path&, C_GUIManager&)>& successCallback,
-									   const GUID																	   guid,
+									   const GUID															   guid,
 									   std::filesystem::path												   basePath)
 	: C_Window(guid, windowName)
 	, m_WindowName(windowName)
@@ -62,12 +62,14 @@ void C_FileDialogWindow::SetBasePath(const std::filesystem::path& basePath)
 void C_FileDialogWindow::OnSetVisible()
 {
 	ImGuiFileDialog::Instance()->OpenDialog(m_WindowName, m_WindowTitle, m_FileType.c_str(), m_BasePath.generic_string(), "");
+	m_IsVisible = true;
 }
 
 //=================================================================================
 void C_FileDialogWindow::OnHide()
 {
 	ImGuiFileDialog::Instance()->Close();
+	m_IsVisible = false;
 }
 
 } // namespace GLEngine::GUI

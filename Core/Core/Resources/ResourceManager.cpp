@@ -85,7 +85,6 @@ std::shared_ptr<Resource> C_ResourceManager::GetResourcePtr(const std::filesyste
 //=================================================================================
 void C_ResourceManager::AddResourceToUnusedList(const std::shared_ptr<Resource>& resource)
 {
-	std::unique_lock lock(m_Mutex);
 	GLE_ASSERT(resource.use_count() == 2, "Trying to get rid of resource that is still used by others.");
 	m_UnusedList.emplace_back(resource, 0);
 }
@@ -93,7 +92,7 @@ void C_ResourceManager::AddResourceToUnusedList(const std::shared_ptr<Resource>&
 //=================================================================================
 void C_ResourceManager::UpdatePendingLoads()
 {
-	if (!m_FinishedLoadsMutes.try_lock())
+	if (!m_FinishedLoadsMutex.try_lock())
 	{
 		return;
 	}
@@ -101,6 +100,10 @@ void C_ResourceManager::UpdatePendingLoads()
 	for (const auto& resource : m_FinishedLoads)
 	{
 		resource->m_State = ResourceState::Ready;
+		if (resource.use_count() == 2)
+		{
+			AddResourceToUnusedList(resource);
+		}
 	}
 	for (const auto& resource : m_FailedLoads)
 	{
@@ -109,7 +112,7 @@ void C_ResourceManager::UpdatePendingLoads()
 
 	m_FinishedLoads.clear();
 	m_FailedLoads.clear();
-	m_FinishedLoadsMutes.unlock();
+	m_FinishedLoadsMutex.unlock();
 
 	if (m_UpdatesSinceLastRemove > s_NumUpdatesBetweenUnloading)
 	{
@@ -131,7 +134,6 @@ void C_ResourceManager::OnEvent(I_Event& event)
 //=================================================================================
 void C_ResourceManager::UnloadUnusedResources()
 {
-	std::unique_lock lock(m_Mutex);
 	// if resource is still loading, we need to finish loading
 	// it is referenced from the job system, so it will be deleted after load
 	for (auto& [resourcePtr, numUpdates] : m_UnusedList)
@@ -220,9 +222,10 @@ C_Metafile* C_ResourceManager::GetOrLoadMetafile(const std::filesystem::path& re
 }
 
 //=================================================================================
-bool I_ResourceLoader::LoadResource(const std::filesystem::path& filepath, std::shared_ptr<Resource>& resource) const
+bool I_ResourceLoader::LoadResource(const std::filesystem::path& filepath, std::shared_ptr<Resource>& resource, LoadCtx ctx) const
 {
-	return resource->Load(filepath);
+	Resource::LoadCtx resourceCtx{.m_ResMng = ctx.m_ResMng, .m_Query = ctx.m_Query, .m_isBlocking = ctx.m_isBlocking};
+	return resource->Load(filepath, resourceCtx);
 }
 
 //=================================================================================
@@ -239,44 +242,35 @@ std::vector<C_Metafile> C_ResourceManager::GetAllMetafiles(const std::filesystem
 	std::vector<C_Metafile> metafiles;
 	std::error_code			ec;
 
+	const auto processEntry = [&](const std::filesystem::directory_entry& entry) {
+		if (entry.is_regular_file() && entry.path().extension() == ".meta")
+		{
+			// Remove .meta extension to get the base resource path
+			auto basePath = entry.path();
+			basePath.replace_extension("");
+
+			C_Metafile metafile(basePath);
+			if (metafile.Load())
+			{
+				const auto& metafileName = entry.path();
+				m_Metafile[metafileName] = metafile;
+				metafiles.push_back(metafile);
+			}
+		}
+	};
+
 	if (recursive)
 	{
 		for (const auto& entry : std::filesystem::recursive_directory_iterator(path, ec))
 		{
-			if (entry.is_regular_file() && entry.path().extension() == ".meta")
-			{
-				// Remove .meta extension to get the base resource path
-				auto basePath = entry.path();
-				basePath.replace_extension("");
-
-				C_Metafile metafile(basePath);
-				if (metafile.Load())
-				{
-					const auto& metafileName = entry.path();
-					m_Metafile[metafileName] = metafile;
-					metafiles.push_back(metafile);
-				}
-			}
+			processEntry(entry);
 		}
 	}
 	else
 	{
 		for (const auto& entry : std::filesystem::directory_iterator(path, ec))
 		{
-			if (entry.is_regular_file() && entry.path().extension() == ".meta")
-			{
-				// Remove .meta extension to get the base resource path
-				auto basePath = entry.path();
-				basePath.replace_extension("");
-
-				C_Metafile metafile(basePath);
-				if (metafile.Load())
-				{
-					const auto& metafileName = entry.path();
-					m_Metafile[metafileName] = metafile;
-					metafiles.push_back(metafile);
-				}
-			}
+			processEntry(entry);
 		}
 	}
 

@@ -41,6 +41,7 @@ private:
 	void HandleResourceDragDrop(const std::filesystem::path& path, float iconSize) const;
 	void HandleContextMenu(const std::filesystem::path& path) const;
 	void ExportTrimesh(const std::filesystem::path& path) const;
+	void ExportMaterials(const std::filesystem::path& path, bool reexport) const;
 
 	void StartWatcher(const std::filesystem::path& path) const;
 	void StopWatcher() const;
@@ -58,6 +59,7 @@ private:
 	T_EventCallback	   m_EventCallback;
 	mutable GUID	   m_ImageEditorGUID;
 	mutable GUID	   m_TrimeshPreviewGUID;
+	mutable GUID	   m_MaterialPreviewGUID;
 };
 
 } // namespace GLEngine::Editor

@@ -1,72 +1,10 @@
 #include <UtilsTestStdafx.h>
 
-#include <Utils/Reflection/Metadata.h>
 #include <Utils/Serialization/XMLSerialize.h>
 
 #include <CommonTestUtils/XMLSerializeFixture.h>
 
-
-struct GlmVec3 {
-	glm::vec3 vec;
-	glm::vec3 vecNoSerialize;
-};
-
-enum class TestEnum
-{
-	Value1,
-	Value2,
-	Value3
-};
-
-struct AtomicTypesArrayStruct {
-	std::array<int, 3>		   m_IntArray;
-	std::array<float, 2>	   m_FloatArray;
-	std::array<double, 4>	   m_DoubleArray;
-	std::array<bool, 2>		   m_BoolArray;
-	std::array<std::string, 3> m_StringArray;
-	std::array<TestEnum, 2>	   m_EnumArray;
-};
-
-struct SetTypesStruct {
-	std::set<int>		  m_IntSet;
-	std::set<std::string> m_StringSet;
-	std::set<TestEnum>	  m_EnumSet;
-};
-
-// clang-format off
-RTTR_REGISTRATION
-{
-	
-	rttr::registration::class_<GlmVec3>("GlmVec3")
-		.property("vecNoSerialize", &GlmVec3::vecNoSerialize)
-		(
-			Utils::Reflection::RegisterMetamember<Utils::Reflection::SerializationCls::NoSerialize>(true)
-		)
-		.property("vec", &GlmVec3::vec);
-	
-	rttr::registration::enumeration<TestEnum>("TestEnum")
-		(
-			rttr::value("Value1", TestEnum::Value1),
-			rttr::value("Value2", TestEnum::Value2),
-			rttr::value("Value3", TestEnum::Value3)
-		);
-
-	rttr::registration::class_<AtomicTypesArrayStruct>("AtomicTypesArrayStruct")
-		.constructor<>()
-		.property("intArray", &AtomicTypesArrayStruct::m_IntArray)
-		.property("floatArray", &AtomicTypesArrayStruct::m_FloatArray)
-		.property("doubleArray", &AtomicTypesArrayStruct::m_DoubleArray)
-		.property("boolArray", &AtomicTypesArrayStruct::m_BoolArray)
-		.property("stringArray", &AtomicTypesArrayStruct::m_StringArray)
-		.property("enumArray", &AtomicTypesArrayStruct::m_EnumArray);
-
-	rttr::registration::class_<SetTypesStruct>("SetTypesStruct")
-		.constructor<>()
-		.property("intSet", &SetTypesStruct::m_IntSet)
-		.property("stringSet", &SetTypesStruct::m_StringSet)
-		.property("enumSet", &SetTypesStruct::m_EnumSet);
-}
-// clang-format on
+#include <UtilsTest/Serialization/DummyStructs.h>
 
 namespace GLEngine::Utils {
 TEST_F(XMLSerializeFixture, RootName)
@@ -93,6 +31,17 @@ TEST_F(XMLSerializeFixture, REGISTER_SERIALIZATION)
 	EXPECT_EQ(rootNode.name(), std::string("GlmVec3")) << ToString(xmlDoc);
 	EXPECT_TRUE(rootNode.attribute("vec")) << ToString(xmlDoc);
 	EXPECT_EQ(rootNode.attribute("vec").as_string(), std::string("(1.0,2.0,3.0)")) << ToString(xmlDoc);
+}
+
+TEST_F(XMLSerializeFixture, REGISTER_SERIALIZATION_VecFloat)
+{
+	const VectorOfFloats		 vector;
+	const auto					 xmlDoc	  = serializer.Serialize(vector);
+	const auto					 rootNode = xmlDoc.root().first_child();
+	EXPECT_EQ(rootNode.name(), std::string("VectorOfFloats")) << ToString(xmlDoc);
+	const auto floatArrayNode = rootNode.child("FloatVec");
+	EXPECT_TRUE(floatArrayNode) << ToString(xmlDoc);
+	EXPECT_EQ(floatArrayNode.text().as_string(), std::string("1,2")) << ToString(xmlDoc);
 }
 
 TEST_F(XMLSerializeFixture, AtomicTypesArrayStructSerialize)

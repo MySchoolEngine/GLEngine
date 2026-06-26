@@ -1,6 +1,7 @@
 #include <RendererStdafx.h>
 
 #include <Renderer/Colours.h>
+#include <Renderer/Materials/PBRMaterialData.h>
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/RayCasting/Geometry/RayTraceScene.h>
 #include <Renderer/RayCasting/Geometry/SceneGeometry.h>
@@ -32,6 +33,162 @@ namespace GLEngine::Renderer {
 //=================================================================================
 C_RayTraceScene::C_RayTraceScene()
 {
+}
+
+//=================================================================================
+C_RayTraceScene::~C_RayTraceScene() = default;
+
+//=================================================================================
+bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, float offset) const
+{
+	struct S_IntersectionInfo {
+		C_RayIntersection	 intersection;
+		float				 t		= std::numeric_limits<float>::infinity();
+		I_RayGeometryObject* object = nullptr;
+
+		[[nodiscard]] bool operator<(const S_IntersectionInfo& a) const { return t < a.t; }
+	};
+	S_IntersectionInfo closestIntersect{.intersection = C_RayIntersection()};
+
+	std::for_each(m_Objects.begin(), m_Objects.end(), [&](const auto& object) {
+		C_RayIntersection inter;
+		auto			  localRay = ray;
+		while (object->Intersect(localRay, inter, closestIntersect.t))
+		{
+			if (inter.GetRayLength() >= offset && inter.GetRayLength() < closestIntersect.t)
+			{
+				// alpha test here! doesn't work for mashes that are not planear, if it hits in BVH first the alpha masked
+				// surface, but bvh contains mash that is not masked it will ignore it
+				if (inter.HasAlphaMask())
+				{
+					if (inter.GetAlpha(inter.GetUV()) < 0.5)
+					{
+						localRay = localRay.OffsetRay(inter.GetRayLength() + 1e-4f);
+						continue;
+					}
+				}
+				closestIntersect = {inter, inter.GetRayLength(), object.get()};
+				return;
+			}
+			return;
+		}
+	});
+
+	if (std::isinf(closestIntersect.t))
+		return false;
+
+	intersection  = closestIntersect.intersection;
+	const auto it = std::find_if(m_AreaLights.begin(), m_AreaLights.end(),
+								 [&](const std::shared_ptr<RayTracing::C_AreaLight>& other) { return other->GetGeometry().get() == closestIntersect.object; });
+	if (it != m_AreaLights.end())
+	{
+		intersection.SetLight(*it);
+	}
+	return true;
+}
+
+//=================================================================================
+void C_RayTraceScene::AddObject(std::shared_ptr<I_RayGeometryObject>&& object)
+{
+	m_Objects.emplace_back(std::move(object));
+}
+
+//=================================================================================
+void C_RayTraceScene::AddLight(std::shared_ptr<RayTracing::C_AreaLight>&& light)
+{
+	AddObject(light->GetGeometry());
+
+	m_AreaLights.emplace_back(std::move(light));
+}
+
+//=================================================================================
+void C_RayTraceScene::AddLight(std::shared_ptr<RayTracing::C_PointLight>&& light)
+{
+	m_PointLights.emplace_back(std::move(light));
+}
+
+//=================================================================================
+void C_RayTraceScene::ForEachLight(const std::function<void(const std::reference_wrapper<const RayTracing::I_RayLight>& light)>& fnc) const
+{
+	std::for_each(m_AreaLights.begin(), m_AreaLights.end(), [&](const std::shared_ptr<RayTracing::C_AreaLight>& light) { fnc(*(light.get())); });
+	std::for_each(m_PointLights.begin(), m_PointLights.end(), [&](const std::shared_ptr<RayTracing::C_PointLight>& light) { fnc(*(light.get())); });
+}
+
+//=================================================================================
+void C_RayTraceScene::AddMesh(const Core::ResourceHandle<C_TrimeshModel>& trimesh, const glm::mat4& transform)
+{
+	for (const auto& iter : trimesh.GetResource().GetTrimeshes())
+	{
+		auto trimeshPtr = std::make_shared<C_Trimesh>();
+		*trimeshPtr		= iter;
+		trimeshPtr->SetMaterial(AddMaterial(iter.GetMaterialHandle()).get());
+		trimeshPtr->SetTransformation(transform);
+		if (auto* pbrData = dynamic_cast<const C_PBRMaterialData*>(iter.GetMaterialHandle().GetResource().GetMaterialData()))
+		{
+			if (pbrData->GetUseTransparency())
+				trimeshPtr->SetAlphaMask(pbrData->GetColorMapRes());
+		}
+		m_Trimeshes.push_back(trimeshPtr);
+		AddObject(trimeshPtr);
+	}
+}
+
+//=================================================================================
+C_TextureView C_RayTraceScene::GetTextureView(const int textureID) const
+{
+	// because the truly const texture view is not implemented I need const cast here
+	auto view = C_TextureView(const_cast<I_TextureViewStorage*>(&(m_Textures[textureID].GetResource().GetStorage())));
+	view.SetRect({10, 10, 50, 50});
+	view.SetBorderColor({0, 0, 0, 0});
+	view.SetWrapFunction(E_WrapFunction::ClampToBorder);
+	return view;
+}
+
+//=================================================================================
+void C_RayTraceScene::DebugDraw(I_DebugDraw& dd) const
+{
+	std::for_each(m_Trimeshes.begin(), m_Trimeshes.end(), [&](const auto& trimesh) { trimesh->DebugDraw(dd); });
+	// m_Blob->DebugDraw(*dd);
+}
+
+//=================================================================================
+bool C_RayTraceScene::IsLoaded() const
+{
+	return m_LoadingMeshes.IsDone() && m_LoadingTextures.IsDone();
+}
+
+//=================================================================================
+void C_RayTraceScene::BuildScene()
+{
+	const glm::mat4 cornellTransform = glm::translate(glm::mat4(1.f), glm::vec3(0, -1.5f, 0)) * glm::scale(glm::mat4(1.f), glm::vec3(0.5f, 0.5f, 0.5f));
+
+	if (m_LoadingMeshes.IsDone())
+	{
+		for (const auto& trimeshHandle : m_Meshes)
+		{
+			if (!trimeshHandle)
+				continue;
+
+			AddMesh(trimeshHandle, cornellTransform);
+		}
+	}
+}
+
+//=================================================================================
+void C_RayTraceScene::ClearScene()
+{
+	m_Objects.clear();
+	m_AreaLights.clear();
+	m_PointLights.clear();
+	m_Textures.clear();
+	m_Meshes.clear();
+	m_Materials.clear();
+	m_Trimeshes.clear();
+}
+
+//=================================================================================
+void C_RayTraceScene::TestScene()
+{
 	using namespace Physics::Primitives;
 #ifdef CORNELL
 	auto& rm = Core::C_ResourceManager::Instance();
@@ -43,14 +200,14 @@ C_RayTraceScene::C_RayTraceScene()
 	m_LoadingTextures.AddHandle(m_Textures[1]);
 
 
-	static const MeshData::Material s_Red{glm::vec4{}, glm::vec4{Colours::red, 0}, glm::vec4{}, 0.f, -1, -1, "red"};
-	static const MeshData::Material s_Green{glm::vec4{}, glm::vec4{Colours::green, 0}, glm::vec4{}, 0.f, -1, -1, "green"};
-	static const MeshData::Material s_White{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, -1, -1, "white"};
-	static const MeshData::Material s_Brick{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, TextureIndices::Bricks, -1, "brick"}; // brick texture
-	static const MeshData::Material s_Blue{glm::vec4{}, glm::vec4{Colours::blue, 0}, glm::vec4{}, 0.f, -1, -1, "blue"};
-	static const MeshData::Material s_BlueMirror{glm::vec4{}, glm::vec4{Colours::blue, 0}, glm::vec4{}, 1.f, -1, -1, "blueMirror"};
-	static const MeshData::Material s_Black{glm::vec4{}, glm::vec4{Colours::black, 0.f}, glm::vec4{}, 0.f, -1, -1, "black"};
-	static const MeshData::Material s_Leaves{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, TextureIndices::Leaves, -1, "leaves"}; // brick texture
+	static const MeshData::Material s_Red{glm::vec4{}, glm::vec4{Colours::red, 0}, glm::vec4{}, 0.f, -1, -1, -1, "red"};
+	static const MeshData::Material s_Green{glm::vec4{}, glm::vec4{Colours::green, 0}, glm::vec4{}, 0.f, -1, -1, -1, "green"};
+	static const MeshData::Material s_White{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, -1, -1, -1, "white"};
+	static const MeshData::Material s_Brick{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, TextureIndices::Bricks, -1, -1, "brick"}; // brick texture
+	static const MeshData::Material s_Blue{glm::vec4{}, glm::vec4{Colours::blue, 0}, glm::vec4{}, 0.f, -1, -1, -1, "blue"};
+	static const MeshData::Material s_BlueMirror{glm::vec4{}, glm::vec4{Colours::blue, 0}, glm::vec4{}, 1.f, -1, -1, -1, "blueMirror"};
+	static const MeshData::Material s_Black{glm::vec4{}, glm::vec4{Colours::black, 0.f}, glm::vec4{}, 0.f, -1, -1, -1, "black"};
+	static const MeshData::Material s_Leaves{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, TextureIndices::Leaves, -1, -1, "leaves"}; // brick texture
 
 
 	auto* redMat		= AddMaterial(s_Red).get();
@@ -238,161 +395,6 @@ C_RayTraceScene::C_RayTraceScene()
 }
 
 //=================================================================================
-C_RayTraceScene::~C_RayTraceScene() = default;
-
-//=================================================================================
-bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, float offset) const
-{
-	struct S_IntersectionInfo {
-		C_RayIntersection	 intersection;
-		float				 t		= std::numeric_limits<float>::infinity();
-		I_RayGeometryObject* object = nullptr;
-
-		[[nodiscard]] bool operator<(const S_IntersectionInfo& a) const { return t < a.t; }
-	};
-	S_IntersectionInfo closestIntersect{.intersection = C_RayIntersection()};
-
-	std::for_each(m_Objects.begin(), m_Objects.end(), [&](const auto& object) {
-		C_RayIntersection inter;
-		if (object->Intersect(ray, inter, closestIntersect.t))
-		{
-			if (inter.GetRayLength() >= offset && inter.GetRayLength() < closestIntersect.t)
-			{
-				// alpha test here! doesn't work for mashes that are not planear, if it hits in BVH first the alpha masked
-				// surface, but bvh contains mash that is not masked it will ignore it
-				if (inter.HasAlphaMask())
-				{
-					if (inter.GetAlpha(inter.GetUV()) < 0.5)
-					{
-						return;
-					}
-				}
-				closestIntersect = {inter, inter.GetRayLength(), object.get()};
-			}
-		}
-	});
-
-	if (std::isinf(closestIntersect.t))
-		return false;
-
-	intersection  = closestIntersect.intersection;
-	const auto it = std::find_if(m_AreaLights.begin(), m_AreaLights.end(),
-								 [&](const std::shared_ptr<RayTracing::C_AreaLight>& other) { return other->GetGeometry().get() == closestIntersect.object; });
-	if (it != m_AreaLights.end())
-	{
-		intersection.SetLight(*it);
-	}
-	return true;
-}
-
-//=================================================================================
-void C_RayTraceScene::AddObject(std::shared_ptr<I_RayGeometryObject>&& object)
-{
-	m_Objects.emplace_back(std::move(object));
-}
-
-//=================================================================================
-void C_RayTraceScene::AddLight(std::shared_ptr<RayTracing::C_AreaLight>&& light)
-{
-	AddObject(light->GetGeometry());
-
-	m_AreaLights.emplace_back(std::move(light));
-}
-
-//=================================================================================
-void C_RayTraceScene::AddLight(std::shared_ptr<RayTracing::C_PointLight>&& light)
-{
-	m_PointLights.emplace_back(std::move(light));
-}
-
-//=================================================================================
-void C_RayTraceScene::ForEachLight(const std::function<void(const std::reference_wrapper<const RayTracing::I_RayLight>& light)>& fnc) const
-{
-	std::for_each(m_AreaLights.begin(), m_AreaLights.end(), [&](const std::shared_ptr<RayTracing::C_AreaLight>& light) { fnc(*(light.get())); });
-	std::for_each(m_PointLights.begin(), m_PointLights.end(), [&](const std::shared_ptr<RayTracing::C_PointLight>& light) { fnc(*(light.get())); });
-}
-
-//=================================================================================
-void C_RayTraceScene::AddMesh(const Core::ResourceHandle<C_TrimeshModel>& trimesh,
-							   const MeshData::Material&                   material,
-							   const glm::mat4&                            transform)
-{
-	static const MeshData::Material s_TreeBark{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, TextureIndices::Bark, -1, "white"};
-	static const MeshData::Material s_TreeLeaves{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, TextureIndices::Leaves, -1, "white"};
-
-	bool used = false;
-	for (const auto& iter : trimesh.GetResource().GetTrimeshes())
-	{
-		auto trimeshPtr = std::make_shared<C_Trimesh>();
-		*trimeshPtr		= iter;
-		trimeshPtr->SetMaterial(AddMaterial(material).get());
-		trimeshPtr->SetTransformation(transform);
-		m_Trimeshes.push_back(trimeshPtr);
-		AddObject(trimeshPtr);
-		used = true;
-	}
-}
-
-//=================================================================================
-C_TextureView C_RayTraceScene::GetTextureView(const int textureID) const
-{
-	// because the truly const texture view is not implemented I need const cast here
-	auto view = C_TextureView(const_cast<I_TextureViewStorage*>(&(m_Textures[textureID].GetResource().GetStorage())));
-	view.SetRect({10, 10, 50, 50});
-	view.SetBorderColor({0, 0, 0, 0});
-	view.SetWrapFunction(E_WrapFunction::ClampToBorder);
-	return view;
-}
-
-//=================================================================================
-void C_RayTraceScene::DebugDraw(I_DebugDraw& dd) const
-{
-	std::for_each(m_Trimeshes.begin(), m_Trimeshes.end(), [&](const auto& trimesh) { trimesh->DebugDraw(dd); });
-	// m_Blob->DebugDraw(*dd);
-}
-
-//=================================================================================
-bool C_RayTraceScene::IsLoaded() const
-{
-	return m_LoadingMeshes.IsDone() && m_LoadingTextures.IsDone();
-}
-
-//=================================================================================
-void C_RayTraceScene::BuildScene()
-{
-	static const MeshData::Material s_TreeBark{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, 1, -1, "white"};
-	static const MeshData::Material s_TreeLeaves{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, 2, -1, "white"};
-	const glm::mat4 cornellTransform =
-		glm::translate(glm::mat4(1.f), glm::vec3(0, -1.5f, 0)) *
-		glm::scale(glm::mat4(1.f), glm::vec3(0.5f, 0.5f, 0.5f));
-
-	if (m_LoadingMeshes.IsDone())
-	{
-		bool used = false;
-		for (const auto& trimeshHandle : m_Meshes)
-		{
-			if (!trimeshHandle)
-				continue;
-
-			AddMesh(trimeshHandle, used ? s_TreeBark : s_TreeLeaves, cornellTransform);
-			used = true;
-		}
-	}
-}
-
-//=================================================================================
-void C_RayTraceScene::ClearScene()
-{
-	m_Objects.clear();
-	m_AreaLights.clear();
-	m_PointLights.clear();
-	m_Textures.clear();
-	m_Meshes.clear();
-	m_Materials.clear();
-	m_Trimeshes.clear();
-}
-
-//=================================================================================
 std::unique_ptr<I_MaterialInterface>& C_RayTraceScene::AddMaterial(const MeshData::Material& material)
 {
 	if (material.shininess == 0.f)
@@ -408,6 +410,28 @@ std::unique_ptr<I_MaterialInterface>& C_RayTraceScene::AddMaterial(const MeshDat
 	{
 		// todo glossy mat
 		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(material.diffuse));
+	}
+}
+
+//=================================================================================
+std::unique_ptr<I_MaterialInterface>& C_RayTraceScene::AddMaterial(const Core::ResourceHandle<MaterialResource>& material)
+{
+	if (material.IsReady() == false)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "Material is not loaded");
+		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(Colours::cyan));
+	}
+	const auto* mat	   = material.GetResource().GetMaterialData();
+	const auto* matPBR = dynamic_cast<const C_PBRMaterialData*>(mat);
+	if (matPBR->GetRoughness() > .5f)
+	{
+		const Core::ResourceHandle<TextureResource> texture = matPBR->GetColorMapRes();
+		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(matPBR->GetColour(), texture));
+	}
+	else
+	{
+		// todo glossy mat
+		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(matPBR->GetColour()));
 	}
 }
 

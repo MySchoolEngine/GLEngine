@@ -4,6 +4,7 @@
 
 #include <Renderer/Resources/RenderResourceHandle.h>
 
+#include <imgui.h>
 
 namespace GLEngine::Renderer {
 class I_Renderer;

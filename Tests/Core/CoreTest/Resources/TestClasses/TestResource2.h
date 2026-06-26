@@ -5,6 +5,9 @@
 #include <Core/Resources/ResourceLoader.h>
 
 namespace GLEngine::Core {
+/**
+ * @brief This resource loads instantly.
+ */
 class TestResource2 : public Resource {
 public:
 	DEFINE_RESOURCE_TYPE(TestResource2)
@@ -14,7 +17,7 @@ public:
 	{
 	}
 
-	[[nodiscard]] bool Load(const std::filesystem::path& filepath) override
+	[[nodiscard]] bool Load(const std::filesystem::path& filepath, LoadCtx& ctx) override
 	{
 		m_Filepath = filepath;
 		return true;

@@ -1,5 +1,6 @@
 #include <RendererStdafx.h>
 
+#include <Renderer/Materials/MeshMaterialExtractor.h>
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/RayCasting/Geometry/BVH.h>
 #include <Renderer/RayCasting/Geometry/TrimeshModel.h>
@@ -11,32 +12,21 @@
 #include <Utils/Serialization/XMLSerialize.h>
 
 
-namespace GLEngine::Core {
-template <> void ResourceHandle<Renderer::C_TrimeshModel>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
-{
-	auto& rm = C_ResourceManager::Instance();
-	if (GetFilePath() != "")
-	{
-		*this = rm.LoadResource<Renderer::C_TrimeshModel>(GetFilePath());
-	}
-}
-} // namespace GLEngine::Core
+DECLARE_RESOURCE_HANDLE_AFTER_DESERIALIZE(Renderer::C_TrimeshModel)
 
 // clang-format off
 RTTR_REGISTRATION
 {
 	using namespace GLEngine::Renderer;
 	using namespace GLEngine::Core;
-	rttr::registration::class_<C_TrimeshModel>((C_TrimeshModel::GetResrourceTypeName() + "Handle").c_str())
+	rttr::registration::class_<C_TrimeshModel>((C_TrimeshModel::GetResourceTypeName() + "Handle").c_str())
 		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
-		.method("AfterDeserialize", &C_TrimeshModel::AfterDeserialize)
-		.property("Trimeshes", &C_TrimeshModel::m_Trimeshes)(rttr::policy::prop::bind_as_ptr)
-		.property("BVHs", &C_TrimeshModel::m_BVHs)(rttr::policy::prop::bind_as_ptr);
+		.property("Trimeshes", &C_TrimeshModel::m_Trimeshes)(rttr::policy::prop::bind_as_ptr);
 
 		rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_TrimeshModel>>();
-		rttr::type::register_converter_func([](std::shared_ptr<C_TrimeshModel> ptr, bool& ok) -> std::shared_ptr<Resource> {                                          
-			ok = true;                                                                                                                                                
-			return std::static_pointer_cast<Resource>(ptr);                                                                                                           
+		rttr::type::register_converter_func([](std::shared_ptr<C_TrimeshModel> ptr, bool& ok) -> std::shared_ptr<Resource> {
+			ok = true;
+			return std::static_pointer_cast<Resource>(ptr);
 		});
 
 		rttr::type::register_equal_comparator<ResourceHandle<GLEngine::Renderer::C_TrimeshModel>>();
@@ -52,7 +42,7 @@ bool C_TrimeshModel::Reload()
 }
 
 //=================================================================================
-bool C_TrimeshModel::Load(const std::filesystem::path& filepath)
+bool C_TrimeshModel::Load(const std::filesystem::path& filepath, LoadCtx& ctx)
 {
 	m_Filepath = filepath;
 	pugi::xml_document doc;
@@ -63,7 +53,7 @@ bool C_TrimeshModel::Load(const std::filesystem::path& filepath)
 		CORE_LOG(E_Level::Error, E_Context::Core, "Can't open config file for trimesh name: {}", m_Filepath);
 		return false;
 	}
-	Utils::C_XMLDeserializer d(Core::C_ResourceManager::Instance());
+	Utils::C_XMLDeserializer d(ctx.m_ResMng, ctx.m_isBlocking);
 	auto					 newTrimesh = d.Deserialize<std::shared_ptr<C_TrimeshModel>>(doc);
 	if (newTrimesh.has_value() == false)
 	{
@@ -71,33 +61,30 @@ bool C_TrimeshModel::Load(const std::filesystem::path& filepath)
 		return false;
 	}
 	std::swap(newTrimesh->get()->m_Trimeshes, m_Trimeshes);
-	std::swap(newTrimesh->get()->m_BVHs, m_BVHs);
 	return true;
 }
 
 //=================================================================================
 bool C_TrimeshModel::Build(const MeshResource& handle)
 {
-	for (auto& mesh : handle.GetScene().meshes)
+	auto materials = ExtractMaterialsFromMesh(handle);
+	m_Trimeshes.resize(handle.GetScene().meshes.size());
+	for (const auto& [mesh, material, trimesh] : std::views::zip(handle.GetScene().meshes, materials, m_Trimeshes))
 	{
-		auto& trimesh = m_Trimeshes.emplace_back();
 		// need to do something with material
 		trimesh.AddMesh(mesh);
 		trimesh.SetTransformation(mesh.modelMatrix);
+		trimesh.SetMaterialHandle(material);
 
 		// bvh if needed
 		if (trimesh.GetNumTriangles() > 10)
 		{
 			::Utils::HighResolutionTimer BVHBuildTime;
-			const auto&					 bvh = m_BVHs.emplace_back(new BVH(trimesh));
+			auto*						 bvh = new BVH(trimesh);
 			bvh->Build();
 
 			CORE_LOG(E_Level::Info, E_Context::Render, "BVH trimesh {} build time {}ms", mesh.m_name, BVHBuildTime.getElapsedTimeFromLastQueryMilliseconds());
 			trimesh.SetBVH(bvh);
-		}
-		else
-		{
-			m_BVHs.push_back(nullptr);
 		}
 	}
 	m_Dirty = true;
@@ -118,15 +105,6 @@ bool C_TrimeshModel::SaveInternal() const
 	return str.save_file(m_Filepath.c_str());
 }
 
-//=================================================================================
-void C_TrimeshModel::AfterDeserialize()
-{
-	for (int i = 0; i < m_BVHs.size() && i < m_Trimeshes.size(); ++i)
-	{
-		m_BVHs[i]->m_Storage = &m_Trimeshes[i].m_Vertices;
-		m_Trimeshes[i].m_BVH = m_BVHs[i];
-	}
-}
 
 //=================================================================================
 std::unique_ptr<Core::I_ResourceLoader> C_TrimeshModel::GetLoader()

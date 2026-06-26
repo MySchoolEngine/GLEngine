@@ -76,8 +76,9 @@ bool ResourceHandleBase::IsFailed() const
 //=================================================================================
 const std::filesystem::path& ResourceHandleBase::GetFilePath() const
 {
+	const static std::filesystem::path s_Empty{""};
 	if (m_Resource)
 		return m_Resource->GetFilePath();
-	return R"()";
+	return s_Empty;
 }
 } // namespace GLEngine::Core

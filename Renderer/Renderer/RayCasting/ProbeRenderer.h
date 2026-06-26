@@ -22,6 +22,5 @@ private:
 	float				   m_Hysteresis;
 	const C_RayTraceScene& m_Scene;
 	bool				   m_NewResultAvailable;
-
 };
 } // namespace GLEngine::Renderer

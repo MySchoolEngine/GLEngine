@@ -44,7 +44,7 @@ public:
 	[[nodiscard]] virtual bool CanDestroy() const { return true; }
 
 protected:
-	virtual void OnSetVisible() {}
+	virtual void OnSetVisible() { m_IsVisible = true; }
 	virtual void OnHide();
 	virtual void DrawComponents() const;
 	void		 DrawMenus() const;

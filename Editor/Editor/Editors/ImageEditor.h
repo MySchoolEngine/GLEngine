@@ -8,6 +8,7 @@
 
 #include <GUI/GUIWindow.h>
 #include <GUI/ImageViewer.h>
+#include <GUI/TabbedView.h>
 
 #include <Core/EventSystem/Event.h>
 #include <Core/Resources/ResourceHandle.h>
@@ -32,7 +33,7 @@ public:
 	C_ImageEditor(GUID guid, GUI::C_GUIManager& guiMGR, T_EventCallback eventCallback = {}, Core::ResourceHandle<Renderer::TextureResource> initialResource = {});
 	~C_ImageEditor() override;
 
-	C_ImageEditor(const C_ImageEditor&)			   = delete;
+	C_ImageEditor(const C_ImageEditor&) = delete;
 	C_ImageEditor& operator=(const C_ImageEditor&) = delete;
 
 	// Opens a resource as a new tab. If already open, switches focus.
@@ -44,6 +45,7 @@ public:
 	bool CanDestroy() const override;
 
 protected:
+	void OnHide() override;
 	void DrawComponents() const override;
 
 private:
@@ -78,8 +80,6 @@ private:
 	GUI::C_GUIManager&					m_GUIManager;
 	T_EventCallback						m_EventCallback;
 
-	// unique_ptr per tab so the vector is moveable regardless of S_ImageTab's move semantics
-	mutable std::vector<S_ImageTab> m_Tabs;
-	mutable unsigned int										 m_ActiveTabIndex = 0;
+	mutable GUI::C_TabbedView<S_ImageTab> m_TabbedView;
 };
 } // namespace GLEngine::Editor

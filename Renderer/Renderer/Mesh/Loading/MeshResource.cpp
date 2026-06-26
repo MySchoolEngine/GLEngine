@@ -7,16 +7,7 @@
 #include <Core/Resources/ResourceHandle.h>
 #include <Core/Resources/ResourceManager.h>
 
-namespace GLEngine::Core {
-template <> void ResourceHandle<Renderer::MeshResource>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
-{
-	auto& rm = C_ResourceManager::Instance();
-	if (GetFilePath() != "")
-	{
-		*this = rm.LoadResource<Renderer::MeshResource>(GetFilePath());
-	}
-}
-} // namespace GLEngine::Core
+DECLARE_RESOURCE_HANDLE_AFTER_DESERIALIZE(Renderer::MeshResource)
 DECLARE_RESOURCE_TYPE(GLEngine::Renderer::MeshResource)
 
 namespace GLEngine::Renderer {
@@ -26,7 +17,7 @@ namespace GLEngine::Renderer {
 MeshResource::MeshResource() = default;
 
 //=================================================================================
-bool MeshResource::Load(const std::filesystem::path& filepath)
+bool MeshResource::Load(const std::filesystem::path& filepath, LoadCtx& ctx)
 {
 	// This does not have to be shared ptr
 	m_Scene	   = std::make_shared<MeshData::Scene>();
@@ -92,7 +83,7 @@ std::shared_ptr<Core::Resource> MeshLoader::CreateResource() const
 //=================================================================================
 std::vector<std::string> MeshLoader::GetSupportedExtensions() const
 {
-	return {".obj", ".dae"};
+	return {".obj", ".dae", ".gltf"};
 }
 
 } // namespace GLEngine::Renderer

@@ -68,8 +68,10 @@ glm::vec3 T_GeometryTraits::SamplePoint(const Physics::Primitives::S_Triangle& t
 //=================================================================================
 void T_GeometryTraits::FillIntersection(const Physics::Primitives::S_Plane& plane, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection)
 {
-	const auto normal = (glm::dot(plane.normal, -ray.direction) > 0 ? plane.normal : -plane.normal);
-	intersection	  = C_RayIntersection(S_Frame(normal), ray.origin + ray.direction * t, Physics::Primitives::S_Ray(ray));
+	const auto normal			 = (glm::dot(plane.normal, -ray.direction) > 0 ? plane.normal : -plane.normal);
+	intersection				 = C_RayIntersection(S_Frame(normal), ray.origin + ray.direction * t, Physics::Primitives::S_Ray(ray));
+	const auto intersectionPoint = ray.origin + ray.direction * t;
+	intersection.SetUV({intersectionPoint.x, intersectionPoint.z});
 }
 
 //=================================================================================
@@ -84,6 +86,19 @@ void T_GeometryTraits::FillIntersection(const Physics::Primitives::S_Sphere& sph
 	const auto intersectionPoint = ray.origin + ray.direction * t;
 	const auto normal			 = (intersectionPoint - sphere.m_position) / sphere.m_radius;
 	intersection				 = C_RayIntersection(S_Frame(normal), glm::vec3(intersectionPoint), Physics::Primitives::S_Ray(ray));
+	// normal is normalized object space coordinate
+	glm::vec3 blend_weights = glm::abs(normal) - 0.2f;
+	blend_weights *= 7;
+	blend_weights = glm::pow(blend_weights, glm::vec3{3.f});
+	blend_weights = glm::max(glm::vec3{0}, blend_weights);
+	blend_weights /= glm::dot(blend_weights, glm::vec3{1.f});
+
+	const glm::vec2 UV_YZ = glm::vec2{normal.y, normal.z} * blend_weights.x;
+	const glm::vec2 UV_XZ = glm::vec2{normal.x, normal.z} * blend_weights.y;
+	const glm::vec2 UV_XY = glm::vec2{normal.x, normal.y} * blend_weights.z;
+
+
+	intersection.SetUV(UV_XY + UV_XZ + UV_YZ);
 }
 
 //=================================================================================

@@ -7,7 +7,7 @@
 namespace GLEngine::Renderer {
 
 //=================================================================================
-template <class T, class Filter /*= T_Nearest*/> [[nodiscard]] T C_TextureView::Get(const glm::vec2& uv, E_TextureChannel element) const
+template <class T, class Filter /*= T_Nearest*/> [[nodiscard]] T C_TextureView::Sample(const glm::vec2& uv, E_TextureChannel element) const
 {
 	// get pixel coord is wrong, it needs to convert UV to pixel coord, but [1,1] maps to bottom right pixel
 	const auto pixelCoord = GetPixelCoord(uv);
@@ -15,7 +15,16 @@ template <class T, class Filter /*= T_Nearest*/> [[nodiscard]] T C_TextureView::
 }
 
 //=================================================================================
-template <> inline std::uint8_t C_TextureView::Get<std::uint8_t>(const glm::uvec2& uv, E_TextureChannel element) const
+template <class T, class Filter, class /*= std::enable_if_t<glm::type<T>::is_vec>*/> T C_TextureView::Sample(const glm::vec2& uv) const
+{
+	// TODO: border colour could be handled simpler
+	const auto pixelCoord = ToTextureSpace(uv);
+	T		   ret		  = Filter().template FilteredGet<T>(pixelCoord, *this);
+	return ret;
+}
+
+//=================================================================================
+template <> inline std::uint8_t C_TextureView::Get<std::uint8_t>(const PixelCoordVec& uv, E_TextureChannel element) const
 {
 	glm::uvec2 coord = uv;
 	if (IsOutsideBorders(uv))
@@ -28,7 +37,7 @@ template <> inline std::uint8_t C_TextureView::Get<std::uint8_t>(const glm::uvec
 }
 
 //=================================================================================
-template <> inline float C_TextureView::Get<float>(const glm::uvec2& uv, E_TextureChannel element) const
+template <> inline float C_TextureView::Get<float>(const PixelCoordVec& uv, E_TextureChannel element) const
 {
 	glm::uvec2 coord = uv;
 	if (IsOutsideBorders(uv))
@@ -41,28 +50,19 @@ template <> inline float C_TextureView::Get<float>(const glm::uvec2& uv, E_Textu
 }
 
 //=================================================================================
-template <class T, typename /*= std::enable_if_t<glm::type<T>::is_vec>*/> T C_TextureView::Get(const glm::uvec2& uv) const
+template <class T, typename /*= std::enable_if_t<glm::type<T>::is_vec>*/> T C_TextureView::Get(const PixelCoordVec& coord) const
 {
-	glm::uvec2 coord = uv;
-	if (IsOutsideBorders(uv))
-		if (UseBorderColor())
-			return GetBorderColor<T>();
-		else
-			coord = ClampCoordinates(uv);
-
-	return m_Storage->GetPixel(GetPixelAddress(coord));
-}
-
-//=================================================================================
-template <class T, class Filter, typename /*= std::enable_if_t<glm::type<T>::is_vec>*/> T C_TextureView::Get(const glm::vec2& uv) const
-{
-	// TODO: border colour could be handled simpler
-	T ret;
-	for (std::uint8_t i = 0; i < std::min(static_cast<std::uint8_t>(glm::type<T>::components), m_Storage->GetNumElements()); ++i)
+	PixelCoordVec coordClamped = coord;
+	if (IsOutsideBorders(coord))
 	{
-		ret[i] = Get<typename T::value_type, Filter>(uv, static_cast<E_TextureChannel>(BIT(i)));
+		if (UseBorderColor())
+		{
+			return GetBorderColor<T>();
+		}
+		coordClamped = ClampCoordinates(coord);
 	}
-	return ret;
+
+	return m_Storage->GetPixel(GetPixelAddress(coordClamped));
 }
 
 //=================================================================================
@@ -86,10 +86,9 @@ template <> inline glm::vec3 C_TextureView::GetBorderColor() const
 //=================================================================================
 template <class T> void C_TextureView::Set(const glm::uvec2& coord, const T val, E_TextureChannel element)
 {
-	const auto dim = m_Storage->GetDimensions();
-	if (coord.x < 0 || coord.x > dim.x || coord.y < 0 || coord.y > dim.y)
+	const auto& dim = m_Storage->GetDimensions();
+	if (coord.x < 0 || coord.x >= dim.x || coord.y < 0 || coord.y >= dim.y)
 	{
-		CORE_LOG(E_Level::Info, E_Context::Render, "Writing outside of texture buffer. Result would be discarded.");
 		return;
 	}
 

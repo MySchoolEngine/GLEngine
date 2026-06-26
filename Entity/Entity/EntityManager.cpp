@@ -171,7 +171,7 @@ Physics::Primitives::S_RayIntersection C_EntityManager::Select(const Physics::Pr
 		constexpr S_Plane plane{glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), -1};
 		S_RayIntersection intersection;
 		intersection.entityId		   = GUID::INVALID_GUID;
-		intersection.distance		   = plane.IntersectImpl(ray);
+		intersection.distance		   = plane.IntersectImpl(ray, std::numeric_limits<float>::max());
 		intersection.intersectionPoint = ray.origin + ray.direction * intersection.distance;
 		intersection.ray			   = ray;
 		return intersection;

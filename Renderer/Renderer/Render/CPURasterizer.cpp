@@ -37,10 +37,10 @@ void C_CPURasterizer::DrawCircle(const Colours::T_Colour& colour, const glm::ive
 {
 	if (antiAliased)
 	{
-		float t1		 = radius / 16;
-		float t2		 = 0.f;
-		int	  y			 = 0;
-		int	  x			 = static_cast<int>(radius);
+		float t1 = radius / 16;
+		float t2 = 0.f;
+		int	  y	 = 0;
+		int	  x	 = static_cast<int>(radius);
 		while (x >= y)
 		{
 			m_view.Set(p + glm::ivec2{x, y}, glm::vec4{colour, 1.f});
@@ -96,7 +96,7 @@ void C_CPURasterizer::FloodFill(const Colours::T_Colour& colour, const glm::ivec
 }
 
 //=================================================================================
-void C_CPURasterizer::QueueFloodFill(const Colours::T_Colour& colour, const glm::uvec2& p)
+void C_CPURasterizer::QueueFloodFill(const Colours::T_Colour& colour, const glm::ivec2& p)
 {
 	const glm::vec3		   clearColor = m_view.Get<glm::vec3>(p);
 	std::queue<glm::ivec2> open;
@@ -117,7 +117,7 @@ void C_CPURasterizer::QueueFloodFill(const Colours::T_Colour& colour, const glm:
 			const auto testCoord = current + dir;
 			if (!m_view.GetRect().Contains(testCoord))
 				continue;
-			const glm::vec3 testedColour = m_view.Get<glm::vec3>(glm::uvec2{testCoord});
+			const glm::vec3 testedColour = m_view.Get<glm::vec3>(testCoord);
 			if (testedColour == clearColor)
 			{
 				m_view.Set(current + dir, glm::vec3{colour});
@@ -128,7 +128,7 @@ void C_CPURasterizer::QueueFloodFill(const Colours::T_Colour& colour, const glm:
 }
 
 //=================================================================================
-void C_CPURasterizer::ScanLineFloodFill(const Colours::T_Colour& colour, const glm::uvec2& p)
+void C_CPURasterizer::ScanLineFloodFill(const Colours::T_Colour& colour, const glm::ivec2& p)
 {
 	const glm::vec3		   clearColor = m_view.Get<glm::vec3>(p);
 	std::queue<glm::uvec2> open;
@@ -136,7 +136,7 @@ void C_CPURasterizer::ScanLineFloodFill(const Colours::T_Colour& colour, const g
 		bool spanAdded = false;
 		for (int i = min; i < max; ++i)
 		{
-			if (m_view.Get<glm::vec3>(glm::uvec2{i, line}) != clearColor)
+			if (m_view.Get<glm::vec3>(glm::ivec2{i, line}) != clearColor)
 			{
 				spanAdded = false;
 			}
@@ -151,15 +151,15 @@ void C_CPURasterizer::ScanLineFloodFill(const Colours::T_Colour& colour, const g
 	m_view.Set(p, glm::vec4{colour, 1.f});
 	while (open.empty() == false)
 	{
-		glm::ivec2				current = open.front();
+		glm::ivec2					current = open.front();
 		static constexpr glm::ivec2 leftStep{1, 0};
 		open.pop();
 		glm::ivec2 leftCurrent = current;
-		while (m_view.Get<glm::vec3>(glm::uvec2{leftCurrent - leftStep}) == clearColor && leftCurrent.x > 0)
+		while (m_view.Get<glm::vec3>(leftCurrent - leftStep) == clearColor && leftCurrent.x > 0)
 		{
 			leftCurrent -= leftStep;
 		}
-		while (m_view.Get<glm::vec3>(glm::uvec2{leftCurrent - leftStep}) == clearColor && m_view.GetRect().Contains(current))
+		while (m_view.Get<glm::vec3>(leftCurrent - leftStep) == clearColor && m_view.GetRect().Contains(current))
 		{
 			current += leftStep;
 		}

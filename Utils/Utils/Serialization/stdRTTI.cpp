@@ -1,6 +1,7 @@
 #include <Core/CoreMacros.h>
 
 #include <filesystem>
+#include <ranges>
 
 GL_PUSH_WARNINGS()
 #pragma warning(disable : 4996)
@@ -10,16 +11,52 @@ GL_PUSH_WARNINGS()
 #include <rttr/registration.h>
 GL_POP_WARNINGS()
 
-
-bool SerializeString(const std::vector<float>& vec, std::string& ret)
+template <class T> bool SerializeString(const std::vector<T>& vec, std::string& ret)
 {
-	ret = std::string("(") + ")";
+	std::stringstream ss(ret);
+	std::for_each(std::begin(vec), std::end(vec), [&ss, sep = ""](T x) mutable {
+		ss << sep << x;
+		sep = ",";
+	});
+	ret = ss.str();
 	return true;
 }
 
-bool DeserializeString(const std::string& str, std::vector<float>& vec)
+template <class T> bool SerializeString(std::vector<T>* vec, std::string& ret)
 {
-	return false;
+	std::stringstream ss(ret);
+	std::for_each(std::begin(*vec), std::end(*vec), [&ss, sep = ""](T x) mutable {
+		ss << sep << x;
+		sep = ",";
+	});
+	ret = ss.str();
+	return true;
+}
+
+template <class T> bool DeserializeString(const std::string& str, std::vector<T>& vec)
+{
+	std::stringstream ss(str);
+	while (ss.good())
+	{
+		T val;
+		ss >> val;
+		ss.get(); // removes delimiter
+		vec.push_back(val);
+	}
+	return true;
+}
+
+template <class T> bool DeserializeString(const std::string& str, std::vector<T>* vec)
+{
+	std::stringstream ss(str);
+	while (ss.good())
+	{
+		T val;
+		ss >> val;
+		ss.get(); // removes delimiter
+		vec->push_back(val);
+	}
+	return true;
 }
 
 #include <Utils/Serialization/SerializationUtils.h>
@@ -33,5 +70,13 @@ RTTR_REGISTRATION
 		return path.string();
 	});
 
+	REGISTER_SERIALIZATION(std::vector<unsigned int>);
+	REGISTER_SERIALIZATION(std::vector<int>);
 	REGISTER_SERIALIZATION(std::vector<float>);
+	REGISTER_SERIALIZATION(std::vector<double>);
+
+	REGISTER_SERIALIZATION_PTR(std::vector<unsigned int>);
+	REGISTER_SERIALIZATION_PTR(std::vector<int>);
+	REGISTER_SERIALIZATION_PTR(std::vector<float>);
+	REGISTER_SERIALIZATION_PTR(std::vector<double>);
 }

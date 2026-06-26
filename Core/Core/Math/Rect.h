@@ -4,8 +4,8 @@
 
 #include <glm/vec2.hpp>
 
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 #include <rttr/registration.h>
 #include <rttr/registration_friend.h>
 
@@ -55,16 +55,16 @@ public:
 	[[nodiscard]] constexpr bool Contains(const glm::vec2& point) const { return point.x > x && point.y > y && (point.x - x) < width && (point.y - y) < height; }
 	[[nodiscard]] constexpr bool Contains(const glm::ivec2& point) const
 	{
-		if (point.x<0 || point.y < 0)
+		if (point.x < 0 || point.y < 0)
 			return false; // smaller than 0
 		const glm::uvec2 uPoint = point;
 		return uPoint.x >= x && uPoint.y >= y && (uPoint.x - x) < width && (uPoint.y - y) < height;
 	}
 
-	constexpr glm::uvec2 TopLeft() const { return		glm::uvec2(Left() ,Top()); }
-	constexpr glm::uvec2 TopRight() const { return		glm::uvec2(Right(), Top()); }
-	constexpr glm::uvec2 BottomLeft() const { return	glm::uvec2(Left(), Bottom()); }
-	constexpr glm::uvec2 BottomRight() const { return	glm::uvec2(Right(),Bottom()); }
+	constexpr glm::uvec2 TopLeft() const { return glm::uvec2(Left(), Top()); }
+	constexpr glm::uvec2 TopRight() const { return glm::uvec2(Right(), Top()); }
+	constexpr glm::uvec2 BottomLeft() const { return glm::uvec2(Left(), Bottom()); }
+	constexpr glm::uvec2 BottomRight() const { return glm::uvec2(Right(), Bottom()); }
 
 	constexpr unsigned int Top() const { return y; }
 	constexpr unsigned int Bottom() const { return y + height - 1; }
@@ -83,7 +83,6 @@ private:
 	unsigned int x, y;
 	unsigned int width, height;
 
-	RTTR_ENABLE()
 	RTTR_REGISTRATION_FRIEND
 };
 

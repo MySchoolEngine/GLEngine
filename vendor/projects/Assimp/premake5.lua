@@ -15,6 +15,7 @@ project "Assimp"
     includedirs
     {
         ContribDir.."/zlib",
+        ContribDir.."/utf8cpp/source",
         ContribDir.."/irrXML",
         UnzipIncludeDir,
         OpenDDLParserDir.."/include",
@@ -38,7 +39,6 @@ project "Assimp"
         ContribDir.."/clipper/clipper.cpp",
 
         UnzipIncludeDir.."/crypt.h",
-        UnzipIncludeDir.."/crypt.c",
         UnzipIncludeDir.."/ioapi.h",
         UnzipIncludeDir.."/ioapi.c",
         UnzipIncludeDir.."/unzip.h",
@@ -61,15 +61,14 @@ project "Assimp"
     {
          "../../Assimp/code/AssetLib/MDL/HalfLife/**.h",  -- no Half-Life please
          "../../Assimp/code/AssetLib/MDL/HalfLife/**.cpp",-- no Half-Life please
+         "../../Assimp/code/AssetLib/USD/**.h",           -- no USD/tinyusdz
+         "../../Assimp/code/AssetLib/USD/**.cpp",         -- no USD/tinyusdz
     }
 
 
     defines
     {
         "ASSIMP_BUILD_NO_C4D_IMPORTER",
-        "ASSIMP_BUILD_NO_IFC_IMPORTER",
-        "ASSIMP_BUILD_NO_GLTF_IMPORTER", -- one day I'd like to fix this, some rapidjson problems
-        "ASSIMP_BUILD_NO_GLTF_EXPORTER", -- one day I'd like to fix this, some rapidjson problems
         -- 3DS
         "ASSIMP_BUILD_NO_3DS_IMPORTER", -- not used right now, faster build
         "ASSIMP_BUILD_NO_3DS_EXPORTER", -- not used right now, faster build
@@ -88,11 +87,21 @@ project "Assimp"
         "ASSIMP_BUILD_NO_HMP_IMPORTER", -- gets broken after removing Half-Life 1 loader
         "ASSIMP_BUILD_NO_IFC_IMPORTER", -- not used right now, faster build
         "ASSIMP_BUILD_NO_ASSJSON_EXPORTER", -- not used right now, build does not work
+
+        -- M3D
+        "ASSIMP_BUILD_NO_M3D_IMPORTER", -- not used right now, build does not work
+        "ASSIMP_BUILD_NO_M3D_EXPORTER", -- not used right now, build does not work
+
+        -- VRML
+        "ASSIMP_BUILD_NO_VRML_IMPORTER", -- not used right now, build does not work
+
+        -- USD
+        "ASSIMP_BUILD_NO_USD_IMPORTER",  -- requires tinyusdz, not needed
+
         "ASSIMP_BUILD_DLL_EXPORT",
         "OPENDDLPARSER_BUILD",
-        "VER_MAJOR=5",
-        "VER_MINOR=2",
-        "VER_PATCH=4",
+
+        "RAPIDJSON_HAS_STDSTRING", --required in GLTF2
     }
 
     links

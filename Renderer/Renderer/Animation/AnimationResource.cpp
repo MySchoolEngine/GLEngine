@@ -5,7 +5,7 @@
 namespace GLEngine::Renderer {
 
 //=================================================================================
-bool AnimationResource::Load(const std::filesystem::path& filepath)
+bool AnimationResource::Load(const std::filesystem::path& filepath, LoadCtx& ctx)
 {
 	return false;
 }
@@ -34,4 +34,4 @@ std::vector<std::string> AnimationLoader::GetSupportedExtensions() const
 	return {".dae"};
 }
 
-}
+} // namespace GLEngine::Renderer

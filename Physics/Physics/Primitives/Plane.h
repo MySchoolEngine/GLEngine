@@ -24,7 +24,7 @@ struct S_Plane : public T_Intersectable<S_Plane> {
 	glm::vec3				   normal;
 	glm::vec3				   origin;
 	bool					   twoSided : 1;
-	[[nodiscard]] inline float IntersectImpl(const S_Ray& ray) const
+	[[nodiscard]] inline float IntersectImpl(const S_Ray& ray, const float tMax) const
 	{
 		const auto useNormal = ((glm::dot(-ray.direction, normal) < 0 && twoSided) ? -normal : normal);
 		if (glm::dot(-ray.direction, useNormal) < 0.0)
@@ -32,7 +32,10 @@ struct S_Plane : public T_Intersectable<S_Plane> {
 			return -1;
 		}
 
-		return (glm::dot(origin - ray.origin, useNormal)) / (glm::dot(useNormal, ray.direction));
+		const float dist = (glm::dot(origin - ray.origin, useNormal)) / (glm::dot(useNormal, ray.direction));
+		if (dist > tMax)
+			return -1;
+		return dist;
 	}
 };
 } // namespace GLEngine::Physics::Primitives

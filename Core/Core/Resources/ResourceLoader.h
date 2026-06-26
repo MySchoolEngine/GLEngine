@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/CoreApi.h>
+#include <Core/Resources/LoadingQuery.h>
 #include <Core/Resources/Resource.h>
 
 namespace GLEngine::Core {
@@ -8,14 +9,20 @@ namespace GLEngine::Core {
 // this forces me, to group different extensions under one loader
 class CORE_API_EXPORT I_ResourceLoader {
 public:
-	I_ResourceLoader()													   = default;
-	I_ResourceLoader(const I_ResourceLoader& other)						   = default;
-	I_ResourceLoader(I_ResourceLoader&& other) noexcept					   = default;
-	I_ResourceLoader& operator=(const I_ResourceLoader& other)			   = default;
+	struct LoadCtx {
+		C_ResourceManager& m_ResMng;
+		LoadingQuery	   m_Query;
+		bool			   m_isBlocking;
+	};
+
+	I_ResourceLoader()									= default;
+	I_ResourceLoader(const I_ResourceLoader& other)		= default;
+	I_ResourceLoader(I_ResourceLoader&& other) noexcept = default;
+	I_ResourceLoader& operator=(const I_ResourceLoader& other) = default;
 	I_ResourceLoader& operator=(I_ResourceLoader&& other) noexcept		   = default;
 	virtual ~I_ResourceLoader()											   = default;
 	[[nodiscard]] virtual std::shared_ptr<Resource> CreateResource() const = 0;
-	bool											LoadResource(const std::filesystem::path& filepath, std::shared_ptr<Resource>& resource) const;
+	bool											LoadResource(const std::filesystem::path& filepath, std::shared_ptr<Resource>& resource, LoadCtx ctx) const;
 	/**
 	 * List of supported extensions accompanied by the dot.
 	 */
@@ -25,10 +32,10 @@ public:
 };
 
 // To create loader, please inherit from this loader and register with manager
-template <class ResourceType> requires(is_resource<ResourceType>) class ResourceLoader : public I_ResourceLoader {
+template <IsResource ResourceType> class ResourceLoader : public I_ResourceLoader {
 public:
 	std::size_t GetResourceTypeID() const final { return ResourceType::GetResourceTypeHashStatic(); }
-	std::string DragAndDropLabel() const final { return "RESOURCE_" + ResourceType::GetResrourceTypeName(); }
+	std::string DragAndDropLabel() const final { return "RESOURCE_" + ResourceType::GetResourceTypeName(); }
 };
 
 } // namespace GLEngine::Core

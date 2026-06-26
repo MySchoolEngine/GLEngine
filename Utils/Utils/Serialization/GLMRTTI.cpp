@@ -7,8 +7,8 @@ GL_PUSH_WARNINGS()
 #ifdef __GNUC__
 	#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
-#include <rttr/registration.h>
 #include <fmt/format.h>
+#include <rttr/registration.h>
 GL_POP_WARNINGS()
 
 
@@ -47,7 +47,7 @@ bool SerializeString(const glm::mat4& mat, std::string& ret)
 	return true;
 }
 
-bool SerializeString(const std::vector<glm::vec3>& vec, std::string& ret)
+template <class T> bool SerializeString(const std::vector<T>& vec, std::string& ret)
 {
 	for (const auto& v : vec)
 	{
@@ -112,14 +112,14 @@ bool DeserializeString(const std::string& str, glm::mat4& mat)
 	for (int i = 0; i < 4; ++i)
 	{
 		endOfVec = str.find_first_of(')', pos);
-		if(!DeserializeString(str.substr(pos, endOfVec - pos + 1), mat[i]))
+		if (!DeserializeString(str.substr(pos, endOfVec - pos + 1), mat[i]))
 			return false;
 		pos = endOfVec + 1;
 	}
 	return true;
 }
 
-bool DeserializeString(const std::string& str, std::vector<glm::vec3>& ret)
+template <class T> bool DeserializeString(const std::string& str, std::vector<T>& ret)
 {
 	if (str[0] != '(' || str[str.length() - 1] != ')')
 		return false; // wrong format
@@ -129,7 +129,7 @@ bool DeserializeString(const std::string& str, std::vector<glm::vec3>& ret)
 	while (endOfVec = str.find_first_of(')', pos), endOfVec != std::string::npos)
 	{
 		std::stringstream ss(str.substr(pos + 1, endOfVec - 1 - pos));
-		glm::vec3		  vec;
+		T				  vec;
 		if (!DeserializeFloatList(ss, vec))
 			return false;
 		ret.push_back(vec);
@@ -167,6 +167,9 @@ RTTR_REGISTRATION
 	REGISTER_SERIALIZATION(glm::vec3);
 	REGISTER_SERIALIZATION(glm::vec4);
 	REGISTER_SERIALIZATION(glm::mat4);
+	REGISTER_SERIALIZATION(std::vector<glm::vec2>);
 	REGISTER_SERIALIZATION(std::vector<glm::vec3>);
+	REGISTER_SERIALIZATION(std::vector<glm::vec4>);
+	//REGISTER_SERIALIZATION(std::vector<glm::mat4>);
 }
 // clang-format on

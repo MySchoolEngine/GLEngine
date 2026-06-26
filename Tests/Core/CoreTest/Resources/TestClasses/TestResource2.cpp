@@ -1,11 +1,13 @@
 ﻿#include <CoreTestStdafx.h>
 
-#include <CoreTest/Resources/TestResource2.h>
+#include <Core/Resources/ResourceManager.h>
+
+#include <CoreTest/Resources/TestClasses/TestResource2.h>
+
+DECLARE_RESOURCE_HANDLE_AFTER_DESERIALIZE(TestResource2)
 
 namespace GLEngine::Core {
-template <> void ResourceHandle<TestResource2>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
-{
-}
+
 std::shared_ptr<Resource> TestResource2Loader::CreateResource() const
 {
 	return std::make_shared<TestResource2>();

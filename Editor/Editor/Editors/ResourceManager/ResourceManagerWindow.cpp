@@ -1,9 +1,12 @@
 #include <EditorStdafx.h>
 
 #include <Editor/Editors/ImageEditor.h>
+#include <Editor/Editors/MaterialPreview/MaterialPreviewWindow.h>
 #include <Editor/Editors/ResourceManager/ResourceManagerWindow.h>
 #include <Editor/Editors/TrimeshPreview/TrimeshPreviewWindow.h>
 
+#include <Renderer/Materials/MaterialResource.h>
+#include <Renderer/Materials/MeshMaterialExtractor.h>
 #include <Renderer/RayCasting/Geometry/TrimeshModel.h>
 #include <Renderer/Textures/TextureResource.h>
 
@@ -43,8 +46,37 @@ const char* GetIconForPath(const std::filesystem::path& path)
 	{
 		return ICON_FA_FILE_IMAGE;
 	}
+	if (resMgr.IsResourceType<GLEngine::Renderer::MaterialResource>(path))
+	{
+		return ICON_FA_TROWEL_BRICKS;
+	}
 
 	return ICON_FA_FILE;
+}
+
+const char* GetTypeNameForPath(const std::filesystem::path& path)
+{
+	if (std::filesystem::is_directory(path))
+		return "Folder";
+	auto& resMgr = GLEngine::Core::C_ResourceManager::Instance();
+	if (resMgr.IsResourceType<GLEngine::Renderer::MeshResource>(path))
+		return "Mesh";
+	if (resMgr.IsResourceType<GLEngine::Renderer::C_TrimeshModel>(path))
+		return "Trimesh Model";
+	if (resMgr.IsResourceType<GLEngine::Renderer::TextureResource>(path))
+		return "Texture";
+	if (resMgr.IsResourceType<GLEngine::Renderer::MaterialResource>(path))
+		return "Material";
+	return "File";
+}
+
+std::string FormatFileSize(std::uintmax_t bytes)
+{
+	if (bytes < 1024)
+		return std::to_string(bytes) + " B";
+	if (bytes < 1024 * 1024)
+		return std::to_string(bytes / 1024) + " KB";
+	return std::to_string(bytes / (1024 * 1024)) + " MB";
 }
 
 void DrawIconCentered(ImDrawList* drawList, ImVec2 rectMin, float rectSize, const char* iconStr)
@@ -220,7 +252,11 @@ void C_ResourceManagerWindow::DrawContentPanel() const
 		m_FolderContents.clear();
 		std::error_code ec;
 		for (const auto& entry : std::filesystem::directory_iterator(m_SelectedFolder, ec))
+		{
+			if (entry.is_regular_file() && entry.path().extension() == ".meta")
+				continue;
 			m_FolderContents.push_back(entry.path());
+		}
 		m_ContentDirty = false;
 	}
 
@@ -260,6 +296,21 @@ void C_ResourceManagerWindow::DrawGridItem(const std::filesystem::path& path, fl
 
 	// Draw FA icon centered in the cell via draw list - no new ImGui item, InvisibleButton stays as drag source
 	DrawIconCentered(ImGui::GetWindowDrawList(), rMin, iconSize, GetIconForPath(path));
+
+	if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
+	{
+		ImGui::BeginTooltip();
+		ImGui::TextUnformatted(path.filename().string().c_str());
+		ImGui::TextDisabled("%s", GetTypeNameForPath(path));
+		if (!isDir)
+		{
+			std::error_code ec;
+			const auto		sz = std::filesystem::file_size(path, ec);
+			if (!ec)
+				ImGui::TextDisabled("%s", FormatFileSize(sz).c_str());
+		}
+		ImGui::EndTooltip();
+	}
 
 	HandleResourceDragDrop(path, iconSize);
 	HandleContextMenu(path);
@@ -313,20 +364,46 @@ void C_ResourceManagerWindow::OnResourceDoubleClicked(const std::filesystem::pat
 	// --- Trimesh → Trimesh Preview ---
 	if (resMgr.IsResourceType<Renderer::C_TrimeshModel>(path))
 	{
-		// Don't reopen if already showing this model
-		if (m_GUIManager.GetWindow(m_TrimeshPreviewGUID) != nullptr)
-			return;
-
 		auto handle = resMgr.LoadResource<Renderer::C_TrimeshModel>(path, /*isBlocking=*/true);
 		if (!handle.IsReady())
 			return;
 
-		m_TrimeshPreviewGUID = NextGUID();
-		auto* preview        = new C_TrimeshPreviewWindow(m_TrimeshPreviewGUID,
-														  m_GUIManager,
-														  std::move(handle));
-		m_GUIManager.AddCustomWindow(preview);
-		preview->SetVisible(true);
+		if (auto* win = static_cast<C_TrimeshPreviewWindow*>(m_GUIManager.GetWindow(m_TrimeshPreviewGUID)))
+		{
+			win->OpenModel(std::move(handle));
+			win->SetVisible(true);
+		}
+		else
+		{
+			m_TrimeshPreviewGUID = NextGUID();
+			auto* preview		 = new C_TrimeshPreviewWindow(m_TrimeshPreviewGUID, m_GUIManager);
+			preview->OpenModel(std::move(handle));
+			m_GUIManager.AddCustomWindow(preview);
+			preview->SetVisible(true);
+		}
+		return;
+	}
+
+	// --- Material → Material Preview ---
+	if (resMgr.IsResourceType<Renderer::MaterialResource>(path))
+	{
+		auto handle = resMgr.LoadResource<Renderer::MaterialResource>(path, /*isBlocking=*/true);
+		if (!handle.IsReady())
+			return;
+
+		if (auto* win = static_cast<C_MaterialPreviewWindow*>(m_GUIManager.GetWindow(m_MaterialPreviewGUID)))
+		{
+			win->OpenMaterial(std::move(handle));
+			win->SetVisible(true);
+		}
+		else
+		{
+			m_MaterialPreviewGUID = NextGUID();
+			auto* preview		  = new C_MaterialPreviewWindow(m_MaterialPreviewGUID, m_GUIManager);
+			preview->OpenMaterial(std::move(handle));
+			m_GUIManager.AddCustomWindow(preview);
+			preview->SetVisible(true);
+		}
 	}
 }
 
@@ -373,8 +450,9 @@ void C_ResourceManagerWindow::HandleContextMenu(const std::filesystem::path& pat
 
 	auto& resMgr = Core::C_ResourceManager::Instance();
 
-	const bool hasEditor = resMgr.IsResourceType<Renderer::TextureResource>(path) || resMgr.IsResourceType<Renderer::C_TrimeshModel>(path);
-	const bool isMesh	 = resMgr.IsResourceType<Renderer::MeshResource>(path);
+	const bool hasEditor = resMgr.IsResourceType<Renderer::TextureResource>(path) || resMgr.IsResourceType<Renderer::C_TrimeshModel>(path)
+						   || resMgr.IsResourceType<Renderer::MaterialResource>(path);
+	const bool isMesh = resMgr.IsResourceType<Renderer::MeshResource>(path);
 
 	if (!hasEditor && !isMesh)
 		return;
@@ -386,6 +464,12 @@ void C_ResourceManagerWindow::HandleContextMenu(const std::filesystem::path& pat
 
 		if (isMesh && ImGui::MenuItem("Export Trimesh"))
 			ExportTrimesh(path);
+
+		if (isMesh && ImGui::MenuItem("Export Materials"))
+			ExportMaterials(path, false);
+
+		if (isMesh && ImGui::MenuItem("Force export Materials"))
+			ExportMaterials(path, true);
 
 		ImGui::EndPopup();
 	}
@@ -409,7 +493,22 @@ void C_ResourceManagerWindow::ExportTrimesh(const std::filesystem::path& path) c
 
 	// ResourceManager will find lada.meta (already in-memory), load the base mesh,
 	// call C_TrimeshModel::Build(), and save the .tri file.
-	resMgr.LoadResource<Renderer::C_TrimeshModel>(triPath, /*isBlocking=*/true);
+	resMgr.LoadResource<Renderer::C_TrimeshModel>(triPath, /*isBlocking=*/false);
+}
+
+//=================================================================================
+void C_ResourceManagerWindow::ExportMaterials(const std::filesystem::path& path, bool reexport) const
+{
+	auto& resMgr = Core::C_ResourceManager::Instance();
+
+	// Load the base mesh first — this creates/populates the shared .meta file
+	// (lada.obj and lada.tri share lada.meta) so the derived-resource build
+	// flow can locate the base when we request the trimesh below.
+	const auto meshHandle = resMgr.LoadResource<Renderer::MeshResource>(path, /*isBlocking=*/true);
+	if (!meshHandle.IsReady())
+		return;
+
+	Renderer::ExtractMaterialsFromMesh(meshHandle.GetResource(), reexport);
 }
 
 } // namespace GLEngine::Editor

@@ -31,6 +31,7 @@
 #include <Renderer/Cameras/OrbitalCamera.h>
 #include <Renderer/Lights/SunLight.h>
 #include <Renderer/Materials/MaterialManager.h>
+#include <Renderer/Materials/MaterialResource.h>
 #include <Renderer/Mesh/Loading/MeshResource.h>
 #include <Renderer/RayCasting/Geometry/TrimeshModel.h>
 #include <Renderer/Textures/TextureResource.h>
@@ -101,6 +102,7 @@ C_ExperimentWindow::C_ExperimentWindow(const Core::S_WindowInfo& wndInfo)
 	rm.RegisterResourceType(new Renderer::TextureLoader());
 	rm.RegisterResourceType(new Renderer::MeshLoader());
 	rm.RegisterResourceType(new Renderer::TrimeshModelTrimesh());
+	rm.RegisterResourceType(new Renderer::MaterialResourceLoader());
 }
 
 //=================================================================================
@@ -556,7 +558,7 @@ void C_ExperimentWindow::SetupWorld(const std::filesystem::path& level)
 		return;
 	}
 
-	Utils::C_XMLDeserializer d(Core::C_ResourceManager::Instance());
+	Utils::C_XMLDeserializer d(Core::C_ResourceManager::Instance(), false);
 	auto					 newWorld = d.Deserialize<std::shared_ptr<Entity::C_EntityManager>>(doc);
 	if (newWorld.has_value() == false)
 	{

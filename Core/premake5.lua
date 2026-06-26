@@ -19,7 +19,6 @@ project "Core"
 	{
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmt}",
-		"../Physics",
 	}
 
 	filter "system:windows"
@@ -33,3 +32,7 @@ project "Core"
 	filter ""
 	usage "PUBLIC"
 		uses{"DULib"}
+		includedirs
+		{
+			"../Physics",
+		}

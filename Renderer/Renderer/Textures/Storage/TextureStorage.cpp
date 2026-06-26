@@ -32,14 +32,13 @@ void I_TextureViewStorage::Set(int value, std::size_t position)
 {
 	if (position >= static_cast<std::size_t>(m_Dimensions.x) * m_Dimensions.y * GetNumElements())
 	{
-		CORE_LOG(E_Level::Info, E_Context::Render, "Writing outside of texture buffer. Result would be discarded.");
 		return;
 	}
 	SetInternal(value, position);
 }
 
 //=================================================================================
-glm::uvec2 I_TextureViewStorage::GetDimensions() const
+const glm::uvec2& I_TextureViewStorage::GetDimensions() const
 {
 	return m_Dimensions;
 }
@@ -65,6 +64,26 @@ void I_TextureViewStorage::SetChannels(T_Channels swizzle)
 {
 	GLE_TODO("29.03.2024", "RohacekD", "Add checks for uniqueness and validity")
 	m_Channels = swizzle;
+}
+
+//=================================================================================
+bool I_TextureViewStorage::CheckAlphaChannelUsage() const
+{
+	const auto alphaIt = std::find(m_Channels.begin(), m_Channels.end(), E_TextureChannel::Alpha);
+	if (alphaIt == m_Channels.end())
+		return false;
+
+	const auto	alphaOffset = static_cast<std::size_t>(std::distance(m_Channels.begin(), alphaIt));
+	const auto	numElements = GetNumElements();
+	const auto	totalPixels = static_cast<std::size_t>(m_Dimensions.x) * m_Dimensions.y;
+	const float opaqueValue = (GetStorageType() == E_TextureTypes::Floating) ? 1.0f : 255.0f;
+
+	for (std::size_t i = 0; i < totalPixels; ++i)
+	{
+		if (GetF(i * numElements + alphaOffset) < opaqueValue)
+			return true;
+	}
+	return false;
 }
 
 //=================================================================================

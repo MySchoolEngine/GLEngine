@@ -55,7 +55,7 @@ public:
 
 	[[nodiscard]] virtual const void* GetData() const							 = 0;
 	[[nodiscard]] virtual void*		  GetData()									 = 0;
-	virtual void				  SetData(const void* data, std::size_t len) = 0;
+	virtual void					  SetData(const void* data, std::size_t len) = 0;
 
 	/**
 	 * @returns	uint8_t	Number of channels
@@ -63,7 +63,7 @@ public:
 	[[nodiscard]] virtual std::uint8_t GetNumElements() const							= 0;
 	[[nodiscard]] virtual std::uint8_t GetChannelOffset(E_TextureChannel element) const = 0;
 
-	[[nodiscard]] glm::uvec2 GetDimensions() const;
+	[[nodiscard]] const glm::uvec2& GetDimensions() const;
 
 	/************************************************************************/
 	/* Swizzle                                                              */
@@ -80,6 +80,11 @@ public:
 	 * @returns	true	if ordered RGBA with trailing channels possible missing. false otherwise
 	 */
 	[[nodiscard]] bool IsSwizzled() const;
+	/**
+	 * @returns	true if any pixel has a non-opaque alpha value, false if the alpha channel
+	 *			is absent or all pixels are fully opaque.
+	 */
+	[[nodiscard]] bool CheckAlphaChannelUsage() const;
 
 	[[nodiscard]] virtual E_TextureTypes GetStorageType() const = 0;
 

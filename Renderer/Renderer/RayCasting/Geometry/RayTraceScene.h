@@ -47,9 +47,7 @@ public:
 	void			   AddObject(std::shared_ptr<I_RayGeometryObject>&& object);
 	void			   AddLight(std::shared_ptr<RayTracing::C_AreaLight>&& light);
 	void			   AddLight(std::shared_ptr<RayTracing::C_PointLight>&& light);
-	void			   AddMesh(const Core::ResourceHandle<C_TrimeshModel>& trimesh,
-							   const MeshData::Material&                   material,
-							   const glm::mat4&                            transform = glm::mat4(1.f));
+	void			   AddMesh(const Core::ResourceHandle<C_TrimeshModel>& trimesh, const glm::mat4& transform = glm::mat4(1.f));
 
 	void ForEachLight(const std::function<void(const std::reference_wrapper<const RayTracing::I_RayLight>& light)>& fnc) const;
 
@@ -61,7 +59,12 @@ public:
 	void			   BuildScene(); //< Call after fully loaded
 	void			   ClearScene();
 
+	// preapares test scene for raytracer
+	// TODO Remove
+	void TestScene();
+
 	std::unique_ptr<I_MaterialInterface>& AddMaterial(const MeshData::Material& material);
+	std::unique_ptr<I_MaterialInterface>& AddMaterial(const Core::ResourceHandle<MaterialResource>& material);
 
 private:
 	std::vector<std::shared_ptr<I_RayGeometryObject>>	   m_Objects;
@@ -75,7 +78,6 @@ private:
 	std::shared_ptr<C_ImplicitBlob>			m_Blob;
 
 	Core::LoadingQuery m_LoadingMeshes;
-	Core::LoadingQuery m_LoadingBVH;
 	Core::LoadingQuery m_LoadingTextures;
 };
 

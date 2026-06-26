@@ -99,8 +99,15 @@ void ModelLoader::_loadMaterialsFromAiscene(const aiScene* loadedScene, std::sha
 		const std::filesystem::path texName = _getMaterialDiffuseTextureName(loadedScene->mMaterials[i]);
 		m.textureIndex						= _getTextureIndexAndAddToRegister(texName, textureRegister);
 
-		const auto dispTexName = _getMaterialNormalTextureName(loadedScene->mMaterials[i]);
-		m.normalTextureIndex   = _getTextureIndexAndAddToRegister(dispTexName, textureRegister);
+		{
+			const auto dispTexName = _getMaterialNormalTextureName(loadedScene->mMaterials[i]);
+			m.normalTextureIndex   = _getTextureIndexAndAddToRegister(dispTexName, textureRegister);
+		}
+
+		{
+			const auto roughnessTexName = _getMaterialRoughnessTextureName(loadedScene->mMaterials[i]);
+			m.roughnessTextureIndex		= _getTextureIndexAndAddToRegister(roughnessTexName, textureRegister);
+		}
 		scene->materials.push_back(m);
 	}
 }
@@ -179,6 +186,18 @@ std::string ModelLoader::_getMaterialNormalTextureName(const aiMaterial* materia
 	{
 		aiString tpath;
 		material->GetTexture(aiTextureType_NORMALS, 0, &tpath);
+		return tpath.C_Str();
+	}
+
+	return "";
+}
+
+//=================================================================================
+std::filesystem::path ModelLoader::_getMaterialRoughnessTextureName(const aiMaterial* material)
+{
+	aiString tpath;
+	if (material && material->GetTexture(AI_MATKEY_ROUGHNESS_TEXTURE, &tpath) == aiReturn_SUCCESS)
+	{
 		return tpath.C_Str();
 	}
 

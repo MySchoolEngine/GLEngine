@@ -1,0 +1,197 @@
+#include <RendererStdafx.h>
+
+#include <Renderer/Materials/MaterialResource.h>
+#include <Renderer/Materials/PBRMaterialData.h>
+#include <Renderer/Mesh/Scene.h>
+#include <Renderer/Textures/Storage/TextureStorage.h>
+#include <Renderer/Textures/TextureResource.h>
+
+#include <GUI/ReflectionGUI.h>
+
+#include <Core/Resources/ResourceHandle.h>
+#include <Core/Resources/ResourceManager.h>
+
+#include <Utils/Reflection/Metadata.h>
+#include <Utils/Serialization/SerializationUtils.h>
+#include <Utils/Serialization/XMLSerialize.h>
+
+DECLARE_RESOURCE_HANDLE_AFTER_DESERIALIZE(Renderer::MaterialResource)
+
+// clang-format off
+RTTR_REGISTRATION
+{
+	using namespace GLEngine::Core;
+	using namespace GLEngine::Renderer;
+	using namespace Utils::Reflection;
+
+	rttr::registration::class_<ResourceHandle<MaterialResource>>((MaterialResource::GetResourceTypeName() + "Handle").c_str())
+		.constructor<>()(rttr::policy::ctor::as_object)
+		.method("AfterDeserialize", &ResourceHandle<MaterialResource>::AfterDeserialize)();
+
+	rttr::registration::class_<MaterialResource>("MaterialResource")
+		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
+		.method("GetResourceTypeHash", &MaterialResource::GetResourceTypeHash)
+		.method("GetResourceTypeHashStatic", &MaterialResource::GetResourceTypeHashStatic)
+		.property("MaterialName", &MaterialResource::m_MaterialName)
+		(
+			rttr::policy::prop::as_reference_wrapper,
+			RegisterMetaclass<MetaGUI::Text>(),
+			RegisterMetamember<SerializationCls::NoSerialize>(true)
+		)
+		.property("ShaderPath", &MaterialResource::m_ShaderPath)
+		.property("Material", &MaterialResource::m_Material)
+		;
+
+	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<MaterialResource>>();
+	rttr::type::register_converter_func(
+		[](std::shared_ptr<MaterialResource> ptr, bool& ok) -> std::shared_ptr<Resource> {
+			ok = true;
+			return std::static_pointer_cast<Resource>(ptr);
+		});
+	rttr::type::register_equal_comparator<ResourceHandle<MaterialResource>>();
+}
+// clang-format on
+
+namespace GLEngine::Renderer {
+
+//=================================================================================
+std::shared_ptr<I_MaterialData> MaterialResource::BuildPBRData(const MeshData::Material& mat, const std::vector<std::filesystem::path>& textures)
+{
+	auto data = std::make_shared<C_PBRMaterialData>(mat.m_Name);
+	data->SetColor(mat.diffuse);
+
+	// shininess → roughness: invert and normalize (shininess 0 = rough, 128+ = smooth)
+	const float roughness = 1.f - std::clamp(mat.shininess / 128.f, 0.f, 1.f);
+	data->SetRoughness(roughness);
+
+	auto& rm = Core::C_ResourceManager::Instance();
+
+	if (mat.textureIndex >= 0 && static_cast<std::size_t>(mat.textureIndex) < textures.size())
+	{
+		const auto& texPath = textures[static_cast<std::size_t>(mat.textureIndex)];
+		if (!texPath.empty())
+		{
+			auto colorMap = rm.LoadResource<TextureResource>(texPath, true);
+			if (colorMap.IsReady())
+				data->SetUseTransparency(colorMap.GetResource().GetStorage().CheckAlphaChannelUsage());
+			data->SetColorMapRes(colorMap);
+		}
+	}
+
+	if (mat.normalTextureIndex >= 0 && static_cast<std::size_t>(mat.normalTextureIndex) < textures.size())
+	{
+		const auto& normalPath = textures[static_cast<std::size_t>(mat.normalTextureIndex)];
+		if (!normalPath.empty())
+			data->SetNormalMapRes(rm.LoadResource<TextureResource>(normalPath, true));
+	}
+
+	if (mat.roughnessTextureIndex >= 0 && static_cast<std::size_t>(mat.roughnessTextureIndex) < textures.size())
+	{
+		const auto& roughnessPath = textures[static_cast<std::size_t>(mat.roughnessTextureIndex)];
+		if (!roughnessPath.empty())
+			data->SetRoughnessMapRes(rm.LoadResource<TextureResource>(roughnessPath, true));
+	}
+
+	return data;
+}
+
+//=================================================================================
+std::filesystem::path MaterialResource::GetOutputPath(const MeshResource& mesh, unsigned int matIndex)
+{
+	const auto	meshStem  = mesh.GetFilePath().stem().string();
+	const auto	outputDir = mesh.GetFilePath().parent_path();
+	const auto& mat		  = mesh.GetScene().materials[matIndex];
+
+	const std::string matName = GetNormalizedMaterialName(mat.m_Name, matIndex);
+	return outputDir / (meshStem + "-" + matName + ".glmat");
+}
+
+//=================================================================================
+std::string MaterialResource::GetNormalizedMaterialName(const std::string& matName, unsigned int matIndex)
+{
+	// Prefer material name for the filename, fall back to index
+	std::string materialName = matName.empty() ? ("material" + std::to_string(matIndex)) : matName;
+
+	// Sanitize for filesystem: replace spaces and path separators
+	for (auto& c : materialName)
+	{
+		if (c == ' ' || c == '/' || c == '\\')
+			c = '_';
+	}
+	return materialName;
+}
+
+//=================================================================================
+bool MaterialResource::Load(const std::filesystem::path& filepath, LoadCtx& ctx)
+{
+	m_Filepath = filepath;
+	pugi::xml_document doc;
+
+	pugi::xml_parse_result result = doc.load_file(m_Filepath.c_str());
+	if (result.status != pugi::status_ok)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Core, "Can't open material file: {}", m_Filepath);
+		return false;
+	}
+
+	Utils::C_XMLDeserializer d(ctx.m_ResMng, ctx.m_isBlocking);
+	auto					 loaded = d.Deserialize<std::shared_ptr<MaterialResource>>(doc);
+	if (!loaded.has_value())
+	{
+		CORE_LOG(E_Level::Error, E_Context::Core, "XML {} is not a valid MaterialResource.", m_Filepath);
+		return false;
+	}
+
+	m_MaterialName = loaded->get()->m_MaterialName;
+	m_ShaderPath   = loaded->get()->m_ShaderPath;
+	m_Material	   = std::move(loaded->get()->m_Material);
+	return true;
+}
+
+//=================================================================================
+bool MaterialResource::Reload()
+{
+	return false;
+	//	return Load(m_Filepath);
+}
+
+//=================================================================================
+bool MaterialResource::SaveInternal() const
+{
+	Utils::C_XMLSerializer s;
+	const auto			   doc = s.Serialize(*this);
+	return doc.save_file(m_Filepath.c_str());
+}
+
+//=================================================================================
+bool MaterialResource::DrawGUI()
+{
+	rttr::instance obj(*this);
+	bool		   changed = GUI::DrawAllPropertyGUI(obj).empty() == false;
+
+	if (m_Material)
+		changed |= m_Material->DrawGUI();
+
+	m_Dirty |= changed;
+	return changed;
+}
+
+//=================================================================================
+std::unique_ptr<Core::I_ResourceLoader> MaterialResource::GetLoader()
+{
+	return std::make_unique<MaterialResourceLoader>();
+}
+
+//=================================================================================
+std::shared_ptr<Core::Resource> MaterialResourceLoader::CreateResource() const
+{
+	return std::make_shared<MaterialResource>();
+}
+
+//=================================================================================
+std::vector<std::string> MaterialResourceLoader::GetSupportedExtensions() const
+{
+	return {".glmat"};
+}
+
+} // namespace GLEngine::Renderer

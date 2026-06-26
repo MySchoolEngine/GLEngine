@@ -70,7 +70,7 @@ bool DrawEnumSelect(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	auto currentValue = prop.get_value(obj);
+	auto  currentValue	= prop.get_value(obj);
 	auto& currentValRef = (int&)currentValue.get_wrapped_value<int>();
 
 	bool changed = false;
@@ -80,13 +80,13 @@ bool DrawEnumSelect(rttr::instance& obj, const rttr::property& prop)
 	if (::ImGui::BeginCombo(GetMetadataMember<UI::EnumSelect::Name>(prop).c_str(), enumeration.value_to_name(currentValue.extract_wrapped_value()).data()))
 	{
 		const auto range = enumeration.get_values();
-		auto it = range.begin();
+		auto	   it	 = range.begin();
 		for (int n = 0; n < range.size(); n++, ++it)
 		{
 			const bool isSelected = (currentValue == *it);
 			if (::ImGui::Selectable(enumeration.value_to_name(*it).data(), isSelected))
 			{
-				changed = true;
+				changed		  = true;
 				currentValRef = it->get_wrapped_value<int>();
 			}
 			if (isSelected)
@@ -104,23 +104,25 @@ bool DrawEnumSelectOptional(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	auto currentValue = prop.get_value(obj);
+	auto  currentValue	= prop.get_value(obj);
 	auto& currentValRef = (std::optional<int>&)currentValue.get_wrapped_value<std::optional<int>>();
 
 	bool changed = false;
 
 	const auto enumeration = prop.get_type().get_wrapped_type().get_wrapped_type().get_raw_type().get_enumeration();
 	GLE_ASSERT(enumeration.is_valid(), "Enumeration {} not registered", prop.get_type().get_wrapped_type());
-	if (::ImGui::BeginCombo(GetMetadataMember<UI::EnumSelectOptional::Name>(prop).c_str(), currentValRef.has_value() ? enumeration.value_to_name(currentValRef.value()).data() : GetMetadataMember<UI::EnumSelectOptional::OptionalName>(prop).c_str()))
+	if (::ImGui::BeginCombo(GetMetadataMember<UI::EnumSelectOptional::Name>(prop).c_str(), currentValRef.has_value()
+																							   ? enumeration.value_to_name(currentValRef.value()).data()
+																							   : GetMetadataMember<UI::EnumSelectOptional::OptionalName>(prop).c_str()))
 	{
 		const auto range = enumeration.get_values();
-		auto it = range.begin();
+		auto	   it	 = range.begin();
 		for (int n = 0; n < range.size(); n++, ++it)
 		{
 			const bool isSelected = (currentValue == *it); // todo wrong
 			if (::ImGui::Selectable(enumeration.value_to_name(*it).data(), isSelected))
 			{
-				changed = true;
+				changed		  = true;
 				currentValRef = it->get_wrapped_value<int>();
 			}
 			if (isSelected)
@@ -147,8 +149,8 @@ bool DrawSliderInt(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	return ::ImGui::SliderInt(GetMetadataMember<UI::SliderInt::Name>(prop).c_str(), (int*)(&prop.get_value(obj).get_wrapped_value<int>()), GetMetadataMember<UI::SliderInt::Min>(prop),
-							  GetMetadataMember<UI::SliderInt::Max>(prop));
+	return ::ImGui::SliderInt(GetMetadataMember<UI::SliderInt::Name>(prop).c_str(), (int*)(&prop.get_value(obj).get_wrapped_value<int>()),
+							  GetMetadataMember<UI::SliderInt::Min>(prop), GetMetadataMember<UI::SliderInt::Max>(prop));
 }
 
 //=================================================================================
@@ -169,34 +171,32 @@ bool DrawColour(rttr::instance& obj, const rttr::property& prop)
 }
 
 //=================================================================================
-template<Core::is_resource resourceType, class MetaClassEnum>
-bool DrawResource(rttr::instance& obj, const rttr::property& prop)
+template <Core::IsResource resourceType, class MetaClassEnum> bool DrawResource(rttr::instance& obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
 	static constexpr std::size_t s_MaxStringLen = 30; // found out by experiment
 
-	std::reference_wrapper resource
-		= const_cast<Core::ResourceHandle<resourceType>&>(prop.get_value(obj).get_wrapped_value<Core::ResourceHandle<resourceType>>());
-	const auto	   propertyName = GetMetadataMember<MetaClassEnum::Name>(prop);
-	bool		   ret			= false;
-	const ImVec2   drawAreaSz(std::min(380.f, ImGui::GetWindowWidth()), 88);
-	const ImVec2   canvasP0  = ImGui::GetCursorPos();
-	const auto	   canvasPos = ImGui::GetCursorScreenPos();
-	const ImRect   imageRect(canvasPos, canvasPos + drawAreaSz);
-	const bool	   isHovered = ImGui::IsItemHovered(); // Hovered
-	const bool	   isActive  = ImGui::IsItemActive();	// Held
-	ImDrawList*	   drawList  = ImGui::GetWindowDrawList();
-	const ImGuiIO& io		 = ImGui::GetIO();
+	std::reference_wrapper resource		= const_cast<Core::ResourceHandle<resourceType>&>(prop.get_value(obj).get_wrapped_value<Core::ResourceHandle<resourceType>>());
+	const auto			   propertyName = GetMetadataMember<MetaClassEnum::Name>(prop);
+	bool				   ret			= false;
+	const ImVec2		   drawAreaSz(std::min(380.f, ImGui::GetWindowWidth()), 88);
+	const ImVec2		   canvasP0	 = ImGui::GetCursorPos();
+	const auto			   canvasPos = ImGui::GetCursorScreenPos();
+	const ImRect		   imageRect(canvasPos, canvasPos + drawAreaSz);
+	const bool			   isHovered = ImGui::IsItemHovered(); // Hovered
+	const bool			   isActive	 = ImGui::IsItemActive();  // Held
+	ImDrawList*			   drawList	 = ImGui::GetWindowDrawList();
+	const ImGuiIO&		   io		 = ImGui::GetIO();
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{0, 0});
 
 	{
-		auto filename = resource.get().GetFilePath().generic_string();
-		ImGuiID FrameID		 = ImGuiID{static_cast<unsigned int>(std::hash<std::string>{}(propertyName + filename))};
+		auto	filename = resource.get().GetFilePath().generic_string();
+		ImGuiID FrameID	 = ImGuiID{static_cast<unsigned int>(std::hash<std::string>{}(propertyName + filename))};
 		ImGui::BeginChildFrame(FrameID, drawAreaSz);
 
-		auto& resMgr = Core::C_ResourceManager::Instance();
+		auto&	   resMgr = Core::C_ResourceManager::Instance();
 		const auto loader = resMgr.GetLoaderForType<resourceType>();
 
 		if (loader.has_value() && ImGui::BeginDragDropTargetCustom(imageRect, FrameID))
@@ -224,9 +224,9 @@ bool DrawResource(rttr::instance& obj, const rttr::property& prop)
 			{
 				if (resource.get())
 				{
-					auto& tMGR = Core::C_Application::Get().GetActiveRenderer().GetTextureManager();
+					auto& tMGR			 = Core::C_Application::Get().GetActiveRenderer().GetTextureManager();
 					auto  rendererHandle = tMGR.GetOrCreateTexture(resource);
-					auto* GUIHandle = Core::C_Application::Get().GetActiveRenderer().GetTextureGUIHandle(rendererHandle);
+					auto* GUIHandle		 = Core::C_Application::Get().GetActiveRenderer().GetTextureGUIHandle(rendererHandle);
 					ImGui::Image((void*)(intptr_t)(GUIHandle), previewSize);
 				}
 			}
@@ -288,7 +288,7 @@ bool DrawResource(rttr::instance& obj, const rttr::property& prop)
 	ImGui::ItemSize(imageRect);
 	return ret;
 }
-}
+} // namespace
 
 //=================================================================================
 std::vector<rttr::property> DrawAllPropertyGUI(rttr::instance& obj)

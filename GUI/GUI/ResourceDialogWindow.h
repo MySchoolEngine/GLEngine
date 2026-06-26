@@ -8,7 +8,7 @@
 
 
 namespace GLEngine::GUI {
-template <Core::is_resource ResourceType> class C_ResourceDialogWindow final : public C_FileDialogWindow {
+template <Core::IsResource ResourceType> class C_ResourceDialogWindow final : public C_FileDialogWindow {
 public:
 	C_ResourceDialogWindow(std::reference_wrapper<Core::ResourceHandle<ResourceType>> resource, const std::string& windowName, const GUID& guid)
 		: C_FileDialogWindow(GetResourcePaths(),
@@ -17,7 +17,8 @@ public:
 							 guid,
 							 GetResourceDataPath())
 		, m_Resource(resource)
-	{}
+	{
+	}
 
 private:
 	static std::string GetResourcePaths()

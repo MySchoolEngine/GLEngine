@@ -13,8 +13,8 @@
 namespace GLEngine::Utils {
 
 //=================================================================================
-C_XMLDeserializer::C_XMLDeserializer(Core::C_ResourceManager& resMng)
-	: m_Ctx({resMng})
+C_XMLDeserializer::C_XMLDeserializer(Core::C_ResourceManager& resMng, bool loadHandlesInstantly)
+	: m_Ctx({resMng, loadHandlesInstantly})
 {
 }
 
@@ -204,6 +204,10 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 			const auto constructPointer = [](const pugi::xml_node& currentNode, const rttr::type& fallbackType) {
 				const pugi::char_t* className	= nullptr;
 				rttr::type			derivedType = fallbackType;
+				if (derivedType.is_pointer())
+				{
+					derivedType = derivedType.get_raw_type();
+				}
 				if (!currentNode.attribute("derivedTypeCast").empty())
 				{
 					className	= currentNode.attribute("derivedTypeCast").as_string();

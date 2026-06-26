@@ -23,21 +23,20 @@ C_RayRenderer::C_RayRenderer(const C_RayTraceScene& scene)
 C_RayRenderer::~C_RayRenderer() = default;
 
 //=================================================================================
-void C_RayRenderer::Render(I_CameraComponent&	 camera,
-						   I_TextureViewStorage& weightedImage,
-						   I_TextureViewStorage& storage,
-						   std::mutex*			 storageMutex,
-						   int					 numSamplesBefore,
-						   AdditionalTargets	 additional)
+void C_RayRenderer::Render(I_CameraComponent&									  camera,
+						   I_TextureViewStorage&								  weightedImage,
+						   I_TextureViewStorage&								  storage,
+						   std::mutex*											  storageMutex,
+						   int													  numSamplesBefore,
+						   std::function<Generator<S_RenderWorkUnit>(glm::uvec2)> generatorFactory,
+						   AdditionalTargets									  additional)
 {
 	GLE_ASSERT(additional.CheckTargets(storage), "Wrong additional target passed");
 	const auto dim	  = storage.GetDimensions();
 	m_ProcessedPixels = 0;
 
 	C_PathIntegrator integrator(m_Scene);
-
-
-	C_STDSampler rnd(0.f, 1.f);
+	C_STDSampler	 rnd(0.f, 1.f);
 
 	const auto GetRay = [&](const glm::vec2& screenCoord) {
 		const float x = (2.0f * screenCoord.x) / dim.x - 1.0f;
@@ -49,64 +48,79 @@ void C_RayRenderer::Render(I_CameraComponent&	 camera,
 	auto weightedView = C_TextureView(&weightedImage);
 	auto heatMapView  = C_TextureView(additional.rowHeatMap);
 
-	int interleavedLines = 4;
-	int currentStartLine = 0;
-	int numProcessLines	 = interleavedLines;
-	int toNextLine		 = interleavedLines;
-
-	do
+	for (const auto& unit : generatorFactory(dim))
 	{
-		CORE_LOG(E_Level::Error, E_Context::Render, "Rendering every {} starting {}", interleavedLines, currentStartLine);
-		for (unsigned int y = currentStartLine; y < dim.y; y += toNextLine)
+		for (unsigned int y = unit.renderMin.y; y < unit.renderMax.y; ++y)
 		{
-			for (unsigned int x = 0; x < dim.x; ++x)
+			for (unsigned int x = unit.renderMin.x; x < unit.renderMax.x; ++x)
 			{
 				::Utils::HighResolutionTimer renderTime;
-				const auto				   ray = GetRay(glm::vec2{x, y} + (2.f * rnd.GetV2() - glm::vec2(1.f, 1.f)) / 2.f);
+				const auto					 ray = GetRay(glm::vec2{x, y} + (2.f * rnd.GetV2() - glm::vec2(1.f, 1.f)) / 2.f);
 				AddSample({x, y}, textureView, integrator.TraceRay(ray, rnd));
 				++m_ProcessedPixels;
 				if (additional.rowHeatMap) // should be before add sample :( but before TraceRay
 				{
-					const auto previousValue = heatMapView.Get<glm::vec3>(glm::uvec2{0, y});
-					heatMapView.Set(glm::uvec2{0, y}, previousValue + glm::vec3{renderTime.getElapsedTimeFromLastQueryMilliseconds(), 0, 0});
+					const auto previousValue = heatMapView.Get<glm::vec3>(glm::ivec2{0, y});
+					heatMapView.Set({0, y}, previousValue + glm::vec3{renderTime.getElapsedTimeFromLastQueryMilliseconds(), 0, 0});
+				}
+				if (numSamplesBefore == 0)
+				{
+					C_RayIntersection intersection;
+					bool			  hit = false;
+					if (additional.normalsMap || additional.uvMap)
+					{
+						hit = m_Scene.Intersect(ray, intersection);
+					}
+					if (hit)
+					{
+						if (additional.normalsMap)
+						{
+							auto normalView = C_TextureView(additional.normalsMap);
+							normalView.Set({x, y}, intersection.GetFrame().Normal());
+						}
+						if (additional.uvMap)
+						{
+							auto uvView = C_TextureView(additional.uvMap);
+							uvView.Set({x, y}, glm::vec3{intersection.GetUV(), 0.f});
+						}
+					}
 				}
 			}
-
-			if (storageMutex)
-			{
-				std::lock_guard<std::mutex> lock(*storageMutex);
-				UpdateView(y, numProcessLines, textureView, weightedView, numSamplesBefore);
-			}
-			else
-			{
-				UpdateView(y, numProcessLines, textureView, weightedView, numSamplesBefore);
-			}
 		}
-		if (interleavedLines == 1)
-			break;
-		toNextLine = interleavedLines;
-		interleavedLines /= 2;
-		currentStartLine = interleavedLines;
-		numProcessLines	 = interleavedLines;
-	} while (true);
+
+		if (storageMutex)
+		{
+			std::lock_guard<std::mutex> lock(*storageMutex);
+			UpdateView(unit, textureView, weightedView, numSamplesBefore);
+		}
+		else
+		{
+			UpdateView(unit, textureView, weightedView, numSamplesBefore);
+		}
+	}
 }
 
 //=================================================================================
-void C_RayRenderer::UpdateView(unsigned int sourceLine, const unsigned int numLines, const C_TextureView& source, C_TextureView& target, const unsigned int numSamples)
+void C_RayRenderer::UpdateView(const S_RenderWorkUnit& unit, const C_TextureView& source, C_TextureView& target, const unsigned int numSamples)
 {
-	// basic restriction is that source line has N+1 samples, 
-	// so I need to carry 1/(N+1) part of it to the next lines
-	// this holds even for 1st sample on source line
-	const auto dim = target.GetDimensions();
-	for (unsigned int x = 0; x < dim.x; ++x)
+	const auto denominator = 1.0f / static_cast<float>(numSamples + 1);
+
+	for (unsigned int x = unit.renderMin.x; x < unit.renderMax.x; ++x)
 	{
 		// sqrt for gamma correction with gamma = 2
-		const auto denominator	 = 1.0f / static_cast<float>(numSamples + 1);
-		const auto sourceLineVal = source.Get<glm::vec3>(glm::uvec2{x, sourceLine});
-		target.Set({x, sourceLine}, glm::sqrt(sourceLineVal * denominator));
-		for (unsigned int i = sourceLine + 1; i < std::min(dim.y, sourceLine + numLines); ++i)
+		for (unsigned int y = unit.renderMin.y; y < unit.renderMax.y; ++y)
 		{
-			const auto previousLineVal = source.Get<glm::vec3>(glm::uvec2{x, i});
+			const auto val = source.Get<glm::vec3>({x, y});
+			target.Set({x, y}, glm::sqrt(val * denominator));
+		}
+
+		// Fill-in preview rows beyond the rendered region (interleaved pattern only).
+		// Uses the last rendered row blended with what was previously in source.
+		const auto lastRenderedRow = unit.renderMax.y - 1;
+		const auto sourceLineVal   = source.Get<glm::vec3>({x, lastRenderedRow});
+		for (unsigned int i = unit.renderMax.y; i < unit.viewMax.y; ++i)
+		{
+			const auto previousLineVal = source.Get<glm::vec3>({x, i});
 			target.Set({x, i}, glm::sqrt((sourceLineVal * denominator + previousLineVal) * denominator));
 		}
 	}
@@ -114,7 +128,7 @@ void C_RayRenderer::UpdateView(unsigned int sourceLine, const unsigned int numLi
 }
 
 //=================================================================================
-void C_RayRenderer::AddSample(const glm::uvec2 coord, C_TextureView view, const glm::vec3 sample)
+void C_RayRenderer::AddSample(const glm::ivec2 coord, C_TextureView& view, const glm::vec3 sample)
 {
 	const auto previousValue = view.Get<glm::vec4>(coord);
 	view.Set(coord, previousValue + glm::vec4(sample, 0.f));
@@ -128,9 +142,14 @@ std::size_t C_RayRenderer::GetProcessedPixels() const
 //=================================================================================
 bool C_RayRenderer::AdditionalTargets::CheckTargets(const I_TextureViewStorage& mainTarget) const
 {
+	bool ok = true;
 	if (rowHeatMap)
-		return rowHeatMap->GetDimensions().x == 1 && rowHeatMap->GetDimensions().y == mainTarget.GetDimensions().y;
-	return true;
+		ok &= rowHeatMap->GetDimensions().x == 1 && rowHeatMap->GetDimensions().y == mainTarget.GetDimensions().y;
+	if (normalsMap)
+		ok &= normalsMap->GetDimensions() == mainTarget.GetDimensions();
+	if (uvMap)
+		ok &= normalsMap->GetDimensions() == mainTarget.GetDimensions();
+	return ok;
 }
 
 } // namespace GLEngine::Renderer

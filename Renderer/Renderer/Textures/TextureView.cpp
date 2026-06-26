@@ -20,7 +20,7 @@ C_TextureView::C_TextureView(I_TextureViewStorage* storage)
 //=================================================================================
 void C_TextureView::FillLineSpan(const Colours::T_Colour& colour, unsigned int line, unsigned int start, unsigned int end)
 {
-	if (line > 0 && line < m_Storage->GetDimensions().y - 1)
+	if (line < m_Storage->GetDimensions().y)
 		m_Storage->FillLineSpan(colour, line, std::max(start, 0u), std::min(end, m_Storage->GetDimensions().x - 1));
 }
 
@@ -36,7 +36,7 @@ glm::vec2 C_TextureView::GetUVForPixel(const glm::uvec2& coord) const
 //=================================================================================
 std::size_t C_TextureView::GetAddress(const glm::uvec2& coord) const
 {
-	const auto dim = m_Storage->GetDimensions();
+	const auto& dim = m_Storage->GetDimensions();
 	return (static_cast<std::size_t>(dim.x) * coord.y + coord.x) * m_Storage->GetNumElements();
 }
 
@@ -44,26 +44,41 @@ std::size_t C_TextureView::GetAddress(const glm::uvec2& coord) const
 std::size_t C_TextureView::GetPixelAddress(const glm::uvec2& coord) const
 {
 	GLE_ASSERT(coord.x < m_Rect.GetWidth() && coord.y < m_Rect.GetHeight(), "Outside of bounds");
-	const auto dim			  = m_Storage->GetDimensions();
-	const auto addressInImage = coord + glm::uvec2{m_Rect.TopLeft()};
+	const auto& dim			   = m_Storage->GetDimensions();
+	const auto	addressInImage = coord + glm::uvec2{m_Rect.TopLeft()};
 	return (static_cast<std::size_t>(dim.x) * addressInImage.y + addressInImage.x);
 }
 
 //=================================================================================
-glm::vec2 C_TextureView::GetPixelCoord(const glm::vec2& uv) const
+C_TextureView::PixelCoordVec C_TextureView::GetPixelCoord(const glm::vec2& uv) const
 {
+	// TODO that would be nice, but my texture storage have fliped V
 	// coord in rect + top left of the rect
-	float u = (uv.x * (static_cast<float>(m_Rect.GetWidth())));
-	float v = ((1 - uv.y) * static_cast<float>(m_Rect.GetHeight()));
-	if (uv.x == 1.f)
-		u = static_cast<float>(m_Rect.Right());
-	if (uv.y == 0.f)
-		v = static_cast<float>(m_Rect.Bottom());
+	// float u = (uv.x * (static_cast<float>(m_Rect.GetWidth())));
+	// float v = ((1 - uv.y) * static_cast<float>(m_Rect.GetHeight()));
+	float u = uv.x * static_cast<float>(m_Rect.GetWidth());
+	float v = uv.y * static_cast<float>(m_Rect.GetHeight());
+	if (uv.x == 1)
+		u = static_cast<float>(m_Rect.GetWidth() - 1);
+	if (uv.y == 1)
+		v = static_cast<float>(m_Rect.GetHeight() - 1);
+
 	return {std::floor(u), std::floor(v)};
 }
 
 //=================================================================================
-bool C_TextureView::IsOutsideBorders(const glm::ivec2& coord) const
+glm::vec2 C_TextureView::ToTextureSpace(const glm::vec2& uv) const
+{
+	// TODO that would be nice, but my texture storage have fliped V
+	// float x = (uv.x * (static_cast<float>(m_Rect.GetWidth())));
+	// float y = ((1 - uv.y) * static_cast<float>(m_Rect.GetHeight()));
+	float x = (uv.x * (static_cast<float>(m_Rect.GetWidth())));
+	float y = (uv.y * static_cast<float>(m_Rect.GetHeight()));
+	return {x, y};
+}
+
+//=================================================================================
+bool C_TextureView::IsOutsideBorders(const TSVec& coord) const
 {
 	return (coord.x < 0 || coord.y < 0 || coord.x >= static_cast<int>(m_Rect.GetWidth()) || coord.y >= static_cast<int>(m_Rect.GetHeight()));
 }
@@ -111,14 +126,14 @@ bool C_TextureView::UseBorderColor() const
 }
 
 //=================================================================================
-glm::uvec2 C_TextureView::ClampCoordinates(const glm::ivec2& coord) const
+glm::uvec2 C_TextureView::ClampCoordinates(const PixelCoordVec& coord) const
 {
 	const glm::ivec2 dim	= m_Rect.GetSize();
-	glm::ivec2		 result = coord;
+	PixelCoordVec	 result = coord;
 	switch (m_WrapFunction)
 	{
 	case E_WrapFunction::ClampToEdge:
-		result = glm::clamp(result, {0, 0}, dim);
+		result = glm::clamp(result, {0, 0}, dim - glm::ivec2{1, 1});
 		break;
 	case E_WrapFunction::Repeat: {
 		result = coord % dim;
@@ -196,7 +211,7 @@ public:
 };
 
 //=================================================================================
-void C_TextureView::DrawPixel(const glm::uvec2& coord, glm::vec4&& colour)
+void C_TextureView::DrawPixel(const PixelCoordVec& coord, glm::vec4&& colour)
 {
 	if (!m_EnableBlending || colour.a >= 1.f)
 	{

@@ -20,9 +20,9 @@ public:
 	ModelLoader();
 	~ModelLoader();
 
-	[[nodiscard]] bool addModelFromFileToScene(const std::filesystem::path&		   path,
+	[[nodiscard]] bool addModelFromFileToScene(const std::filesystem::path&			   path,
 											   const std::shared_ptr<MeshData::Scene>& scene,
-											   std::vector<std::filesystem::path>& textureNames,
+											   std::vector<std::filesystem::path>&	   textureNames,
 											   const glm::mat4&						   sceneTransform = glm::mat4(1));
 
 	void		Reset();
@@ -46,6 +46,7 @@ private:
 	float				  _getMaterialFloatComponent(const aiMaterial* const material, const char* key, unsigned type, unsigned index);
 	std::filesystem::path _getMaterialDiffuseTextureName(const aiMaterial* material);
 	std::string			  _getMaterialNormalTextureName(const aiMaterial* material);
+	std::filesystem::path _getMaterialRoughnessTextureName(const aiMaterial* material);
 	int					  _getTextureIndexAndAddToRegister(const std::filesystem::path& name, std::vector<std::filesystem::path>& textureNames);
 
 	void _loadMeshesFromAiScene(const aiScene* loadedScene, std::shared_ptr<MeshData::Scene> scene, const glm::mat4& sceneTransform);

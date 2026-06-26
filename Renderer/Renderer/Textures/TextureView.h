@@ -44,15 +44,20 @@ struct T_Nearest;
 //=================================================================================
 class RENDERER_API_EXPORT C_TextureView {
 public:
+	using UVVec			= glm::vec2;
+	using TSVec			= glm::ivec2;
+	using PixelCoordVec = glm::ivec2;
+
 	explicit C_TextureView(I_TextureViewStorage* storage);
-	template <class T, class Filter = T_Nearest> [[nodiscard]] T													Get(const glm::vec2& uv, E_TextureChannel element) const;
-	template <class T> [[nodiscard]] T																				Get(const glm::uvec2& coord, E_TextureChannel element) const;
-	template <class T, class Filter = T_Nearest, typename = std::enable_if_t<glm::type<T>::is_vec>> [[nodiscard]] T Get(const glm::vec2& uv) const;
+	template <class T, class Filter = T_Nearest> [[nodiscard]] T													Sample(const UVVec& uv, E_TextureChannel element) const;
+	template <class T, class Filter = T_Nearest, typename = std::enable_if_t<glm::type<T>::is_vec>> [[nodiscard]] T Sample(const UVVec& uv) const;
+
+	template <class T> [[nodiscard]] T Get(const PixelCoordVec& coord, E_TextureChannel element) const;
 	/**
-	 * Needs to be glm::uint2 because there is no negative address space.
-	 * The user is responsible for checking for positiveness off coordinates
+	 * @param coord		Pixel coordinate in [0, dimensions-1].
+	 *					Caller is responsible for keeping coord within bounds.
 	 */
-	template <class T, typename = std::enable_if_t<glm::type<T>::is_vec>> [[nodiscard]] T Get(const glm::uvec2& coord) const;
+	template <class T, typename = std::enable_if_t<glm::type<T>::is_vec>> [[nodiscard]] T Get(const PixelCoordVec& coord) const;
 	template <class T> [[nodiscard]] T													  GetBorderColor() const;
 
 	[[nodiscard]] E_WrapFunction GetWrapFunction() const;
@@ -69,8 +74,7 @@ public:
 	void			   SetBorderColor(const glm::vec4& color);
 	[[nodiscard]] bool UseBorderColor() const;
 
-	// I_DeviceTexture
-	[[nodiscard]] virtual const glm::uvec2 GetDimensions() const; // override;
+	[[nodiscard]] const glm::uvec2 GetDimensions() const;
 
 	[[nodiscard]] const I_TextureViewStorage* const GetStorage() const;
 
@@ -79,7 +83,7 @@ public:
 	/**
 	 * Supports blending.
 	 */
-	void DrawPixel(const glm::uvec2& coord, glm::vec4&& colour);
+	void DrawPixel(const PixelCoordVec& coord, glm::vec4&& colour);
 
 	/**
 	 * Fills line span including start and end pixel
@@ -99,11 +103,16 @@ protected:
 	[[nodiscard]] std::size_t GetPixelAddress(const glm::uvec2& coord) const;
 	/**
 	 * @param	uv				[u;v] \in [<0;1>;<0;1>]
-	 *							The (0;0) lies bottom left and (1;1) top right
-	 * @returns [float, float]	uv -> [<0.5;width-0.5);<0.5;height-0.5>] value mapped to the pixel address space
-	 *							pointing center of the pixel.
+	 *							The (0;0) lies top left and (1;1) bottom right (no Y flip)
+	 * @returns					Integer pixel coordinate floor(uv * dims), clamped to [0, dims-1].
 	 */
-	[[nodiscard]] glm::vec2 GetPixelCoord(const glm::vec2& uv) const;
+	[[nodiscard]] PixelCoordVec GetPixelCoord(const UVVec& uv) const;
+	/**
+	 * @param	uv				[u;v] \in [<0;1>;<0;1>]
+	 *							The (0;0) lies top left and (1;1) bottom right (no Y flip)
+	 * @returns [float, float]	Continuous pixel coordinate: (uv.x*w - 0.5, uv.y*h - 0.5)
+	 */
+	[[nodiscard]] glm::vec2 ToTextureSpace(const UVVec& uv) const;
 	/**
 	 * @param	coord			Pixel coordinate
 	 * @returns					true if coord lies inside the image false otherwise
@@ -113,7 +122,7 @@ protected:
 	 * @param	coord			Pixel coordinate
 	 * @returns					Pixel coordinate based on wrap function
 	 */
-	[[nodiscard]] glm::uvec2 ClampCoordinates(const glm::ivec2& coord) const;
+	[[nodiscard]] glm::uvec2 ClampCoordinates(const PixelCoordVec& coord) const;
 
 
 	I_TextureViewStorage* m_Storage; // not owning ptr
@@ -124,8 +133,7 @@ protected:
 	E_BlendFunction m_BlendOperation;
 	E_WrapFunction	m_WrapFunction;
 
-	friend class TextureViewFixture;
-	friend class TextureViewWithAlphaFixture;
+	template <int, int, int> friend class TextureViewFixture;
 };
 
 template <> glm::vec4  C_TextureView::GetBorderColor() const;

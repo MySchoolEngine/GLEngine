@@ -23,8 +23,8 @@ public:
 	using T_TerrainPtr = std::shared_ptr<Components::C_TerrainMesh>;
 
 	//=================================================================================
-	[[nodiscard]] Entity::I_Entity::T_ComponentRange GetComponents(Entity::E_ComponentType type) const override;
-	void											 OnEvent(Core::I_Event& event) override;
+	[[nodiscard]] T_ComponentRange GetComponents(Entity::E_ComponentType type) const override;
+	void						   OnEvent(Core::I_Event& event) override;
 
 	void Update() override;
 
@@ -70,11 +70,11 @@ protected:
 	GUI::Input::C_Slider<int> m_Iterations{1000, 1, 10000, "Iterations"};
 	int						  m_CurrentIteration;
 
-	S_TerrainSettings			m_Settings;
-	bool						Controls;
-	GUI::Input::C_CheckBoxValue Visualise;
-	GUI::Input::C_CheckBoxValue DebugDrawDroplets;
-	Utils::HighResolutionTimer	m_timer;
+	S_TerrainSettings			 m_Settings;
+	bool						 Controls;
+	GUI::Input::C_CheckBoxValue	 Visualise;
+	GUI::Input::C_CheckBoxValue	 DebugDrawDroplets;
+	::Utils::HighResolutionTimer m_timer;
 };
 
 } // namespace GLEngine::GLRenderer

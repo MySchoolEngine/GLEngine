@@ -9,6 +9,7 @@
 #include <Physics/GeometryUtils/TriangleIntersect.h>
 
 #include <Utils/Range.h>
+#include <Utils/Reflection/Metadata.h>
 #include <Utils/Serialization/SerializationUtils.h>
 
 #include <algorithm>
@@ -17,13 +18,22 @@
 RTTR_REGISTRATION
 {
 	using namespace GLEngine::Renderer;
+	using namespace Utils::Reflection;
+
 	rttr::registration::class_<C_Trimesh>("Trimesh")
 		.constructor<>()(rttr::policy::ctor::as_object)
 		.property("Vertices", &C_Trimesh::m_Vertices)(rttr::policy::prop::as_reference_wrapper)
 		.property("TexCoords", &C_Trimesh::m_TexCoords)(rttr::policy::prop::as_reference_wrapper)
+		.property("Material", &C_Trimesh::m_Material)(
+			rttr::policy::prop::as_reference_wrapper,
+			RegisterMetamember<SerializationCls::MandatoryProperty>(true),
+			RegisterMetaclass<MetaGUI::MaterialResource>(),
+			RegisterMetamember<UI::MaterialResource::Name>("Model"),
+			REGISTER_DEFAULT_VALUE(GLEngine::Core::ResourceHandle<MaterialResource>()))
 		.property("Transform", &C_Trimesh::m_Transform)(rttr::policy::prop::as_reference_wrapper, REGISTER_DEFAULT_VALUE(glm::mat4(1.f)))
 		.method("AfterDeserialize", &C_Trimesh::AfterDeserialize)()
-		.property("AABB", &C_Trimesh::m_AABB);
+		.property("AABB", &C_Trimesh::m_AABB)
+		.property("BVH", &C_Trimesh::m_BVH);
 }
 // clang-format on
 
@@ -40,8 +50,16 @@ C_Trimesh::C_Trimesh(const C_Trimesh& other)
 	, m_AABB(other.m_AABB)
 	, m_Transform(other.m_Transform)
 	, m_TransformInv(other.m_TransformInv)
-	, m_BVH(other.m_BVH)
+	, m_BVH(nullptr)
+	, m_Material(other.m_Material)
 {
+	if (other.m_BVH)
+	{
+		m_BVH				 = new BVH();
+		m_BVH->m_Storage	 = &m_Vertices;
+		m_BVH->m_Nodes		 = other.m_BVH->m_Nodes;
+		m_BVH->m_LookupTable = other.m_BVH->m_LookupTable;
+	}
 }
 
 //=================================================================================
@@ -52,8 +70,11 @@ C_Trimesh::C_Trimesh(C_Trimesh&& other) noexcept
 	, m_AABB(std::move(other.m_AABB))
 	, m_Transform(other.m_Transform)
 	, m_TransformInv(other.m_TransformInv)
-	, m_BVH(other.m_BVH)
+	, m_BVH(std::exchange(other.m_BVH, nullptr))
+	, m_Material(other.m_Material)
 {
+	if (m_BVH)
+		m_BVH->m_Storage = &m_Vertices;
 }
 
 //=================================================================================
@@ -61,12 +82,21 @@ C_Trimesh& C_Trimesh::operator=(const C_Trimesh& other)
 {
 	if (this != &other)
 	{
+		delete m_BVH;
 		m_Vertices	   = other.m_Vertices;
 		m_TexCoords	   = other.m_TexCoords;
 		m_AABB		   = other.m_AABB;
 		m_Transform	   = other.m_Transform;
 		m_TransformInv = other.m_TransformInv;
-		m_BVH		   = other.m_BVH;
+		m_Material	   = other.m_Material;
+		m_BVH		   = nullptr;
+		if (other.m_BVH)
+		{
+			m_BVH				 = new BVH();
+			m_BVH->m_Storage	 = &m_Vertices;
+			m_BVH->m_Nodes		 = other.m_BVH->m_Nodes;
+			m_BVH->m_LookupTable = other.m_BVH->m_LookupTable;
+		}
 	}
 	return *this;
 }
@@ -76,18 +106,25 @@ C_Trimesh& C_Trimesh::operator=(C_Trimesh&& other) noexcept
 {
 	if (this != &other)
 	{
+		delete m_BVH;
 		m_Vertices	   = std::move(other.m_Vertices);
 		m_TexCoords	   = std::move(other.m_TexCoords);
 		m_AABB		   = std::move(other.m_AABB);
 		m_Transform	   = other.m_Transform;
 		m_TransformInv = other.m_TransformInv;
-		m_BVH		   = other.m_BVH;
+		m_BVH		   = std::exchange(other.m_BVH, nullptr);
+		m_Material	   = other.m_Material;
+		if (m_BVH)
+			m_BVH->m_Storage = &m_Vertices;
 	}
 	return *this;
 }
 
 //=================================================================================
-C_Trimesh::~C_Trimesh() = default;
+C_Trimesh::~C_Trimesh()
+{
+	delete m_BVH;
+}
 
 //=================================================================================
 bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersection& intersection, const float tMax) const
@@ -112,7 +149,7 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 				intersection.SetAlphaMask(C_TextureView(const_cast<I_TextureViewStorage*>(&m_AlphaMask.GetResource().GetStorage())));
 			}
 			glm::vec2		 uv;
-			const glm::vec2* triUV = &(m_TexCoords[triangleIndex]);
+			const glm::vec2* triUV = &(m_TexCoords[triangleIndex * 3]);
 			RayTracing::T_GeometryTraits::BarycentricInterpolation(barycentric, triUV, uv);
 			intersection.SetUV(uv);
 			return true;
@@ -208,9 +245,16 @@ void C_Trimesh::AddMesh(const MeshData::Mesh& mesh)
 }
 
 //=================================================================================
-void C_Trimesh::SetBVH(const BVH* bvh)
+void C_Trimesh::SetBVH(BVH* bvh)
 {
+	delete m_BVH;
 	m_BVH = bvh;
+}
+
+//=================================================================================
+void C_Trimesh::SetMaterialHandle(const Core::ResourceHandle<MaterialResource>& material)
+{
+	m_Material = material;
 }
 
 //=================================================================================
@@ -238,8 +282,9 @@ void C_Trimesh::DebugDraw(I_DebugDraw& dd) const
 //=================================================================================
 void C_Trimesh::AfterDeserialize()
 {
-	auto invMat	   = glm::inverse(m_Transform);
-	m_TransformInv = invMat;
+	m_TransformInv = glm::inverse(m_Transform);
+	if (m_BVH)
+		m_BVH->m_Storage = &m_Vertices;
 }
 
 } // namespace GLEngine::Renderer

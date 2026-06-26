@@ -7,17 +7,7 @@
 #include <Core/Resources/ResourceHandle.h>
 #include <Core/Resources/ResourceManager.h>
 
-
-namespace GLEngine::Core {
-template <> void ResourceHandle<Renderer::TextureResource>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
-{
-	auto& rm = C_ResourceManager::Instance();
-	if (GetFilePath() != "")
-	{
-		*this = rm.LoadResource<Renderer::TextureResource>(GetFilePath());
-	}
-}
-} // namespace GLEngine::Core
+DECLARE_RESOURCE_HANDLE_AFTER_DESERIALIZE(Renderer::TextureResource)
 DECLARE_RESOURCE_TYPE(GLEngine::Renderer::TextureResource)
 
 namespace GLEngine::Renderer {
@@ -32,7 +22,7 @@ TextureResource::TextureResource()
 TextureResource::~TextureResource() = default;
 
 //=================================================================================
-bool TextureResource::Load(const std::filesystem::path& filepath)
+bool TextureResource::Load(const std::filesystem::path& filepath, LoadCtx& ctx)
 {
 	Textures::TextureLoader tl;
 
@@ -82,7 +72,7 @@ std::shared_ptr<Core::Resource> TextureLoader::CreateResource() const
 //=================================================================================
 std::vector<std::string> TextureLoader::GetSupportedExtensions() const
 {
-	return {".png", ".jpg", ".bmp", ".tga"};
+	return {".png", ".jpg", ".bmp", ".tga", ".ppm"};
 }
 
 } // namespace GLEngine::Renderer

@@ -16,8 +16,9 @@ struct S_Disc {
 	float					   radius;
 	[[nodiscard]] inline float IntersectImpl(const S_Ray& ray, const float tMax) const
 	{
-		const auto t = plane.IntersectImpl(ray);
-		if (t > tMax || t < 0.0)
+		const auto t = plane.IntersectImpl(ray, tMax);
+		// t > tMax does not need to be checked, plane already implements that
+		if (t < 0.0)
 		{
 			return -1.f;
 		}

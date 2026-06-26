@@ -18,7 +18,7 @@ public:
 	TextureResource();
 	~TextureResource() override;
 
-	[[nodiscard]] bool									  Load(const std::filesystem::path& filepath) override;
+	[[nodiscard]] bool									  Load(const std::filesystem::path& filepath, LoadCtx& ctx) override;
 	[[nodiscard]] bool									  Reload() override;
 	[[nodiscard]] std::unique_ptr<Core::I_ResourceLoader> GetLoader() override;
 
@@ -46,7 +46,8 @@ template <> struct UIMetaclassToType<MetaGUI::Texture> {
 	using type = GLEngine::Core::ResourceHandle<GLEngine::Renderer::TextureResource>;
 };
 
-enum class Texture : std::uint8_t {
+enum class Texture : std::uint8_t
+{
 	Name,
 };
 } // namespace Utils::Reflection::UI

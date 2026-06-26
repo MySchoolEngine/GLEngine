@@ -89,11 +89,11 @@ void C_ProbeRenderer::Render(I_TextureViewStorage& texture, const glm::vec3 prob
 				ix -= 1;
 				iy -= 1;
 			}
-			
+
 			const glm::vec2 coord = (glm::vec2(ix, iy) + glm::vec2(0.5, 0.5)) * (2.0f / float(perProbeResolution)) - glm::vec2(1.0f, 1.0f);
 
-			const auto		pixelDir = oct_to_float32x3(coord);
-			glm::vec4		output(0.f);
+			const auto pixelDir = oct_to_float32x3(coord);
+			glm::vec4  output(0.f);
 			for (unsigned int i = 0; i < m_SamplesPerRender; ++i)
 			{
 				const auto& res	  = results[i];
@@ -103,13 +103,13 @@ void C_ProbeRenderer::Render(I_TextureViewStorage& texture, const glm::vec3 prob
 				if (weight >= 1e-4)
 					output += glm::vec4(res.radiance * weight, weight);
 			}
-			const auto		oldValue = imageView.Get<glm::vec3>(glm::uvec2{x, y});
+			const auto		oldValue = imageView.Get<glm::vec3>({x, y});
 			const glm::vec3 newValue = glm::vec3(output) / output.w;
 			imageView.Set({x, y}, m_Hysteresis * oldValue + newValue * (1.f - m_Hysteresis));
 		}
 	}
 	m_NewResultAvailable = true;
-	m_Hysteresis	   = 0.95f;
+	m_Hysteresis		 = 0.95f;
 }
 
 } // namespace GLEngine::Renderer

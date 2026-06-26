@@ -232,7 +232,7 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(const std::filesystem::path&			
 			if (id == "Armature")
 			{
 				// ignore rotation/scale matrices
-				auto modelMatrix = Utils::Parsing::C_MatrixParser::ParseTransformation(xmlNode);
+				auto modelMatrix = ::Utils::Parsing::C_MatrixParser::ParseTransformation(xmlNode);
 				if (std::distance(xmlNode.children("node").begin(), xmlNode.children("node").end()) != 1)
 				{
 					CORE_LOG(E_Level::Warning, E_Context::Render, "Skeleton definition should contain only 1 root joint");

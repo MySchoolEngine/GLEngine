@@ -13,7 +13,8 @@ class BaseResourceEvent : public I_Event {
 public:
 	BaseResourceEvent(ResourceHandleBase handle)
 		: m_Handle(handle)
-	{}
+	{
+	}
 	~BaseResourceEvent() override = default;
 
 
@@ -23,8 +24,7 @@ protected:
 	ResourceHandleBase m_Handle;
 };
 
-template <is_resource ResourceType>
-class ResourceEvent : public BaseResourceEvent {
+template <IsResource ResourceType> class ResourceEvent : public BaseResourceEvent {
 public:
 	ResourceEvent(ResourceHandle<ResourceType> handle)
 		: BaseResourceEvent(handle)
@@ -35,8 +35,7 @@ public:
 	ResourceHandle<ResourceType> GetResourceHandle() const { return dynamic_cast<ResourceHandle<ResourceType>>(m_Handle); }
 };
 
-template <class ResourceType> requires(is_resource<ResourceType>)
-class ResourceCreatedEvent : public ResourceEvent<ResourceType> {
+template <IsResource ResourceType> class ResourceCreatedEvent : public ResourceEvent<ResourceType> {
 public:
 	ResourceCreatedEvent(ResourceHandle<ResourceType> handle)
 		: ResourceEvent<ResourceType>(handle)
@@ -47,8 +46,7 @@ public:
 	EVENT_CLASS_TYPE(ResourceCreatedEvent)
 };
 
-template <class ResourceType> requires(is_resource<ResourceType>)
-class ResourceUnloadedEvent : public ResourceEvent<ResourceType> {
+template <IsResource ResourceType> class ResourceUnloadedEvent : public ResourceEvent<ResourceType> {
 public:
 	ResourceUnloadedEvent(ResourceHandle<ResourceType> handle)
 		: ResourceEvent<ResourceType>(handle)
@@ -59,8 +57,7 @@ public:
 	EVENT_CLASS_TYPE(ResourceUnloadedEvent)
 };
 
-template <class ResourceType> requires(is_resource<ResourceType>)
-class ResourceModifiedEvent : public ResourceEvent<ResourceType> {
+template <IsResource ResourceType> class ResourceModifiedEvent : public ResourceEvent<ResourceType> {
 public:
 	ResourceModifiedEvent(ResourceHandle<ResourceType> handle)
 		: ResourceEvent<ResourceType>(handle)

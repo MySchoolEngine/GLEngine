@@ -153,6 +153,7 @@ enum class MetaGUI : std::uint8_t {
 	Checkbox,
 	Texture,
 	MeshResource,
+	MaterialResource,
 	Text,
 	EnumSelect,
 	EnumSelectOptional,

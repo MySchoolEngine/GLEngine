@@ -6,7 +6,8 @@ project "CoreTest"
 	staticruntime "off"
 
 	SetupProject("CoreTest")
-	
+	debugdir ("TestData/")
+
 	PrecompiledHeaders("CoreTest")
 	
 	Link("Utils")
