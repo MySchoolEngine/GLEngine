@@ -8,6 +8,7 @@
   - [Adding New Tests](#adding-new-tests)
     - [Create Test File](#create-test-file)
     - [Supporting classes](#supporting-classes)
+    - [Test data](#test-data)
     - [Fixture classes](#fixture-classes)
   - [Test Naming Conventions](#test-naming-conventions)
     - [Test Suites](#test-suites)
@@ -89,6 +90,11 @@ TEST(MyClass, MethodBehavior)
 
 ### Supporting classes
 If you need mock or some dummy classes for your tests, simply create new directory in the directory structure shadowing the original module structure named `TestClasses` and put theme there to keep structure clean.
+
+## Test data
+If your test needs some data to run, you can put them inside the project folder next to the sources folder (e.g. `Tests/Core/TestData`). You can assume the working directory for the tests to be this folder. If the folder does not exists in your test project it will be created in GH Actions so you don't need to create it.
+
+Try to separate data per test source or fixture and keep the directory clean. If the test can be created without the data (e.g. putting file contents into the string inside test case) prefere it over file data.
 
 ### Fixture classes
 If you share fixtures between multiple files, put them in `Fixtures` directory within common directory that shares the fixture.
