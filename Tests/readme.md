@@ -17,6 +17,7 @@
   - [Available Test Fixtures](#available-test-fixtures)
     - [XMLSerializeFixture](#xmlserializefixture)
     - [XMLDeserializeFixture](#xmldeserializefixture)
+  - [Code coverage](#code-coverage)
   - [RTTR Registration for Reflection Testing](#rttr-registration-for-reflection-testing)
 <!--/TOC-->
 
@@ -157,6 +158,15 @@ TEST_F(XMLDeserializeFixture, MyTypeDeserializes)
     EXPECT_TRUE(result.has_value());
     EXPECT_EQ(result->value, 42);
 }
+```
+
+## Code coverage
+
+If you want to investigate code caverage the best way on windows/Visual studio is OpenCppCoverage. You can install it via `winget install OpenCppCoverage`.
+
+Example usage:
+```cmd
+OpenCppCoverage.exe --sources "Renderer\Renderer\Textures\TextureView.*" --export_type html:coverage_report bin\Debug-windows-x86_64\RendererTest\RendererTest.exe
 ```
 
 ## RTTR Registration for Reflection Testing
