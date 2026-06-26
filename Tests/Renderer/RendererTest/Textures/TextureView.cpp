@@ -110,6 +110,7 @@ TEST_F(TextureViewWithAlphaFixture, EnableBlending)
 TEST_F(TextureView3x3Fixture, FillLine_Extremes)
 {
 	const auto& dim = storage.GetDimensions();
+	view.SetWrapFunction(E_WrapFunction::ClampToEdge);
 	view.FillLineSpan(Colours::red, 0, 0, dim.x + 4);
 	EXPECT_EQ(view.Get<glm::vec3>(C_TextureView::PixelCoordVec{0, 0}), Colours::red);
 	EXPECT_EQ(view.Get<glm::vec3>(C_TextureView::PixelCoordVec{5, 0}), Colours::red);
