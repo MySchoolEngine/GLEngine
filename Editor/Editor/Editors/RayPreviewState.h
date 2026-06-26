@@ -23,6 +23,7 @@ class C_ImageViewer;
 
 namespace GLEngine::Renderer {
 enum class E_TextureFormat : std::uint8_t;
+class I_CameraComponent;
 } // namespace GLEngine::Renderer
 
 namespace GLEngine::Editor {
@@ -99,6 +100,11 @@ EDITOR_API_EXPORT void UploadPreviewStorage(S_RayPreviewState& state);
 // Draws ProgressBar + status text, or "Done" + Re-render button.
 // Returns true when the Re-render button is clicked.
 EDITOR_API_EXPORT bool DrawRenderProgress(const S_RayPreviewState& state, int targetSamples);
+
+// Spawns a detached render thread that loops until targetSamples is reached or m_StopRequested.
+// Centralises thread-lifetime management for all preview windows.
+// No-op if a render is already running.
+EDITOR_API_EXPORT void StartPreviewRender(S_RayPreviewState& state, Renderer::I_CameraComponent& camera, int targetSamples);
 
 // Allocates GPU texture + CPU storage (and optionally a C_ImageViewer) for one debug slot.
 // Safe to call multiple times with different targets.

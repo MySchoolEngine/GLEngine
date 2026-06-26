@@ -10,7 +10,6 @@
 #include <Renderer/RayCasting/Geometry/PrimitiveObject.h>
 #include <Renderer/RayCasting/Geometry/TrimeshModel.h>
 #include <Renderer/RayCasting/Light/RayAreaLight.h>
-#include <Renderer/RayCasting/RayGeneration/InterleavedLinesFactory.h>
 #include <Renderer/Resources/ResourceManager.h>
 
 #include <GUI/ImageViewer.h>
@@ -19,13 +18,10 @@
 
 #include <Core/Application.h>
 
-#include <Utils/HighResolutionTimer.h>
-
 #include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <imgui.h>
-#include <thread>
 
 namespace GLEngine::Editor {
 
@@ -120,28 +116,7 @@ void C_TrimeshPreviewWindow::SetupCamera(S_TrimeshTabData& data)
 //=================================================================================
 void C_TrimeshPreviewWindow::StartRender(S_TrimeshTabData& data)
 {
-	if (data.m_Render.m_Running.load())
-		return;
-
-	data.m_Render.m_NumSamples.store(0);
-	data.m_Render.m_StopRequested.store(false);
-	data.m_Render.m_Running.store(true);
-
-	std::thread([&data]() {
-		while (!data.m_Render.m_StopRequested.load())
-		{
-			const int samplesBefore = data.m_Render.m_NumSamples.load();
-			if (samplesBefore >= s_TargetSamples)
-				break;
-
-			::Utils::HighResolutionTimer timer;
-			data.m_Render.m_Renderer->Render(data.m_Camera, *data.m_Render.m_ImageStorage, *data.m_Render.m_SamplesStorage, &data.m_Render.m_ImageLock, samplesBefore,
-											 Renderer::C_InterleavedLinesFactory{4}, data.m_Render.BuildAdditionalTargets());
-			data.m_Render.m_NumSamples.fetch_add(1);
-			CORE_LOG(E_Level::Info, E_Context::Render, "One iteration took {}s", static_cast<float>(timer.getElapsedTimeFromLastQueryMilliseconds()) / 1000.f);
-		}
-		data.m_Render.m_Running.store(false);
-	}).detach();
+	StartPreviewRender(data.m_Render, data.m_Camera, s_TargetSamples);
 }
 
 //=================================================================================

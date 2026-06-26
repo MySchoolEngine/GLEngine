@@ -2,13 +2,17 @@
 
 #include <Editor/Editors/RayPreviewState.h>
 
+#include <Renderer/ICameraComponent.h>
 #include <Renderer/IRenderer.h>
+#include <Renderer/RayCasting/RayGeneration/InterleavedLinesFactory.h>
 #include <Renderer/Resources/ResourceManager.h>
 #include <Renderer/Textures/TextureView.h>
 
 #include <GUI/ImageViewer.h>
 
 #include <Core/Application.h>
+
+#include <Utils/HighResolutionTimer.h>
 
 #include <chrono>
 #include <imgui.h>
@@ -140,6 +144,33 @@ void AddDebugTargets(S_RayPreviewState&				state,
 {
 	for (const auto t : targets)
 		AddDebugTarget(state, t, resolution, std::string(namePrefix) + DebugTargetSuffix(t), format, createViewer);
+}
+
+//=================================================================================
+void StartPreviewRender(S_RayPreviewState& state, Renderer::I_CameraComponent& camera, int targetSamples)
+{
+	if (state.m_Running.load())
+		return;
+
+	state.m_NumSamples.store(0);
+	state.m_StopRequested.store(false);
+	state.m_Running.store(true);
+
+	std::thread([&state, &camera, targetSamples]() {
+		while (!state.m_StopRequested.load())
+		{
+			const int samplesBefore = state.m_NumSamples.load();
+			if (samplesBefore >= targetSamples)
+				break;
+
+			::Utils::HighResolutionTimer timer;
+			state.m_Renderer->Render(camera, *state.m_ImageStorage, *state.m_SamplesStorage, &state.m_ImageLock, samplesBefore,
+									 Renderer::C_InterleavedLinesFactory{4}, state.BuildAdditionalTargets());
+			state.m_NumSamples.fetch_add(1);
+			CORE_LOG(E_Level::Info, E_Context::Render, "One iteration took {}s", static_cast<float>(timer.getElapsedTimeFromLastQueryMilliseconds()) / 1000.f);
+		}
+		state.m_Running.store(false);
+	}).detach();
 }
 
 //=================================================================================

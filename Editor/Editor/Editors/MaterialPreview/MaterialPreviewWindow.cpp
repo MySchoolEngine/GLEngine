@@ -11,7 +11,6 @@
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/RayCasting/Geometry/PrimitiveObject.h>
 #include <Renderer/RayCasting/Light/RayAreaLight.h>
-#include <Renderer/RayCasting/RayGeneration/InterleavedLinesFactory.h>
 #include <Renderer/Resources/ResourceManager.h>
 #include <Renderer/Textures/TextureView.h>
 
@@ -27,7 +26,6 @@
 #include <chrono>
 #include <cmath>
 #include <imgui.h>
-#include <thread>
 
 namespace GLEngine::Editor {
 
@@ -302,26 +300,7 @@ void C_MaterialPreviewWindow::SaveMaterialAs(S_MaterialTabData& data)
 //=================================================================================
 void C_MaterialPreviewWindow::StartRender(S_MaterialTabData& data)
 {
-	if (data.m_Render.m_Running.load())
-		return;
-
-	data.m_Render.m_NumSamples.store(0);
-	data.m_Render.m_StopRequested.store(false);
-	data.m_Render.m_Running.store(true);
-
-	std::thread([&data, this]() {
-		while (!data.m_Render.m_StopRequested.load())
-		{
-			const int samplesBefore = data.m_Render.m_NumSamples.load();
-			if (samplesBefore >= s_TargetSamples)
-				break;
-
-			data.m_Render.m_Renderer->Render(m_Camera, *data.m_Render.m_ImageStorage, *data.m_Render.m_SamplesStorage, &data.m_Render.m_ImageLock, samplesBefore,
-											 Renderer::C_InterleavedLinesFactory{4});
-			data.m_Render.m_NumSamples.fetch_add(1);
-		}
-		data.m_Render.m_Running.store(false);
-	}).detach();
+	StartPreviewRender(data.m_Render, m_Camera, s_TargetSamples);
 }
 
 //=================================================================================
