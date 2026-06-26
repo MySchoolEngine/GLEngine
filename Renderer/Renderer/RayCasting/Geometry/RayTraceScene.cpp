@@ -416,6 +416,11 @@ std::unique_ptr<I_MaterialInterface>& C_RayTraceScene::AddMaterial(const MeshDat
 //=================================================================================
 std::unique_ptr<I_MaterialInterface>& C_RayTraceScene::AddMaterial(const Core::ResourceHandle<MaterialResource>& material)
 {
+	if (material.IsReady() == false)
+	{
+		CORE_LOG(E_Level::Error, E_Context::Render, "Material is not loaded");
+		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(Colours::cyan));
+	}
 	const auto* mat	   = material.GetResource().GetMaterialData();
 	const auto* matPBR = dynamic_cast<const C_PBRMaterialData*>(mat);
 	if (matPBR->GetRoughness() > .5f)
