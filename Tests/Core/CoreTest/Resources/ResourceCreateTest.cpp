@@ -22,7 +22,8 @@ TEST_F(ResourceCreateFixture, CreateFileNotExists)
 	manager.RegisterResourceType(new TestResource2Loader);
 	const auto newResource = manager.CreateNewResource<TestResource2>(s_TestFilepath / testPathTest);
 
-	EXPECT_TRUE(newResource.IsReady());
+	EXPECT_TRUE(newResource.has_value());
+	EXPECT_TRUE(newResource.value().IsReady());
 }
 
 TEST_F(ResourceCreateFixture, CreateFileExists)
@@ -45,7 +46,8 @@ TEST_F(ResourceCreateFixture, CreateFileAlreadyCreated)
 	manager.RegisterResourceType(new TestResource2Loader);
 	const auto newResource = manager.CreateNewResource<TestResource2>(s_TestFilepath / testPathTest);
 
-	EXPECT_TRUE(newResource.IsReady());
+	EXPECT_TRUE(newResource.has_value());
+	EXPECT_TRUE(newResource.value().IsReady());
 
 	const auto newResource2 = manager.CreateNewResource<TestResource2>(s_TestFilepath / testPathTest);
 	EXPECT_FALSE(newResource2);

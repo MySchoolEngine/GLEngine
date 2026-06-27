@@ -255,13 +255,12 @@ void C_MaterialPreviewWindow::NewMaterial()
 		 ".glmat", "Save material as...",
 		 [this, dialogGUID](const std::filesystem::path& savePath, GUI::C_GUIManager& guiMgr) {
 			 auto& rm		   = Core::C_ResourceManager::Instance();
-			 auto  newResource = rm.CreateNewResource<Renderer::MaterialResource>(savePath);
-			 if (newResource.IsReady())
-			 {
-				 newResource.GetResource().SetMaterialData(std::make_shared<Renderer::C_PBRMaterialData>());
-				 OpenMaterial(std::move(newResource));
-			 }
-			 guiMgr.DestroyWindow(dialogGUID);
+			 auto  newMaterial = rm.CreateNewResource<Renderer::MaterialResource>(savePath).transform([&](auto handle) {
+				  handle.GetResource().SetMaterialData(std::make_shared<Renderer::C_PBRMaterialData>());
+				  OpenMaterial(std::move(handle));
+				  guiMgr.DestroyWindow(dialogGUID);
+				  return handle;
+			  });
 		 },
 		 dialogGUID, Renderer::TextureResource::GetResourceDataPath());
 	m_GUIManager.AddCustomWindow(dialog);
