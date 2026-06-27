@@ -22,12 +22,13 @@ function CreateRendererProject(projectName, isStatic)
 		Link("Core")
 		Link("GUI")
 --		Link("Animation")
-		uses{"DULib"}
+		uses{"DULib", "Tracy"}
 
 		LinkDependency("Assimp")
 		LinkDependency("ImGui")
 		LinkDependency("pugixml")
 		LinkDependency("RTTR")
+		LinkDependency("Tracy")
 
 		includedirs
 		{

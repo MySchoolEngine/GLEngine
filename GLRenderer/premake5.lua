@@ -17,12 +17,13 @@ project "GLRenderer"
 	Link("Editor")
 --	Link("Animation") -- until the whole skeletal Animation could be moved outside of API specific implementation
 
-	uses{"Core"}
+	uses{"Core", "Tracy"}
 
 	LinkDependency("ImGui")
 	LinkDependency("pugixml")
 	LinkDependency("GLFW")
 	LinkDependency("RTTR")
+	LinkDependency("Tracy")
 
 	includedirs
 	{

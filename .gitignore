@@ -20,6 +20,8 @@ data/log.txt
 /OtherProjects/*
 vendor/projects/DevIL/bin-int/*
 
+Tools/tracy/*.exe
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 

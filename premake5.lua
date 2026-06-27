@@ -137,6 +137,7 @@ IncludeDir["crossguid"] = "vendor/crossguid/include"
 IncludeDir["RTTR"] = {"vendor/RTTR/src", "vendor/projects/RTTR"}
 IncludeDir["slot_map"] = "vendor/slot_map"
 IncludeDir["IconFontCppHeaders"] = "vendor/IconFontCppHeaders"
+IncludeDir["Tracy"] = "vendor/tracy/public"
 
 -- could be header only or static lib
 NonDllLib = {}
@@ -169,6 +170,7 @@ group "Dependencies"
   include "vendor/projects/libpng"
   include "vendor/projects/pugixml"
   include "vendor/projects/RTTR"
+  include "vendor/projects/Tracy"
 if _TARGET_OS ~= "linux" then
   include "vendor/projects/dirent"
 end

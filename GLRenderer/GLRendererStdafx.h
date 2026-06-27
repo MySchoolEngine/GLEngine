@@ -22,6 +22,8 @@
 
 #include <GLRenderer/GLRendererApi.h>
 
+#include <Core/Profiling/Profiler.h>
+
 #include <Renderer/Definitions.h>
 
 GL_PUSH_WARNINGS()

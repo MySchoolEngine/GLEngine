@@ -84,6 +84,7 @@ void C_OGLRenderer::AddTransferCommand(T_CommandPtr command)
 //=================================================================================
 void C_OGLRenderer::Commit() const
 {
+	GL_PROFILE_SCOPE_N("OGLRenderer::Commit");
 	{
 		std::lock_guard<std::mutex> guard(m_TransferQueueMTX);
 		for (auto& command : m_TransferQueue)

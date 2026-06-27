@@ -14,6 +14,8 @@ project "Core"
 	LinkDependency("crossguid")
 	LinkDependency("RTTR")
 	LinkDependency("pugixml")
+	LinkDependency("Tracy")
+	uses{"Tracy"}
 
 	includedirs
 	{

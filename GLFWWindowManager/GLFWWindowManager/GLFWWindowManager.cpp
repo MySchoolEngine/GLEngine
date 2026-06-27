@@ -56,6 +56,7 @@ std::shared_ptr<GLEngine::Core::I_Window> C_GLFWWindowManager::GetWindow(GUID gu
 //=================================================================================
 void C_GLFWWindowManager::Update()
 {
+	GL_PROFILE_SCOPE_N("WindowManager::Update");
 	// Ask windows to prepare for closing
 	std::for_each(m_Windows.begin(), m_Windows.end(), [&](const decltype(m_Windows)::value_type& window) {
 		if (!window->WantClose())

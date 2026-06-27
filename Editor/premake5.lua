@@ -15,11 +15,12 @@ project "Editor"
 	Link("GUI")
 	Link("Renderer")
 --	Link("Animation")
-	uses{"Core"}
+	uses{"Core", "Tracy"}
 	
 	LinkDependency("ImGui")
 	LinkDependency("pugixml")
 	LinkDependency("ImGuizmo")
+	LinkDependency("Tracy")
 
 	LinkDependency("RTTR")
 
