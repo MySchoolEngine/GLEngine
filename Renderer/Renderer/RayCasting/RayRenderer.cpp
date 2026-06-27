@@ -56,7 +56,10 @@ void C_RayRenderer::Render(I_CameraComponent&									  camera,
 			{
 				::Utils::HighResolutionTimer renderTime;
 				const auto					 ray = GetRay(glm::vec2{x, y} + (2.f * rnd.GetV2() - glm::vec2(1.f, 1.f)) / 2.f);
-				AddSample({x, y}, textureView, integrator.TraceRay(ray, rnd));
+				{
+					GL_PROFILE_SCOPE_N("TraceRay");
+					AddSample({x, y}, textureView, integrator.TraceRay(ray, rnd));
+				}
 				++m_ProcessedPixels;
 				if (additional.rowHeatMap) // should be before add sample :( but before TraceRay
 				{
@@ -90,6 +93,7 @@ void C_RayRenderer::Render(I_CameraComponent&									  camera,
 
 		if (storageMutex)
 		{
+			GL_PROFILE_SCOPE_N("Wait for mutex");
 			std::lock_guard<std::mutex> lock(*storageMutex);
 			UpdateView(unit, textureView, weightedView, numSamplesBefore);
 		}
@@ -103,6 +107,7 @@ void C_RayRenderer::Render(I_CameraComponent&									  camera,
 //=================================================================================
 void C_RayRenderer::UpdateView(const S_RenderWorkUnit& unit, const C_TextureView& source, C_TextureView& target, const unsigned int numSamples)
 {
+	GL_PROFILE_SCOPE_N("UpdateView");
 	const auto denominator = 1.0f / static_cast<float>(numSamples + 1);
 
 	for (unsigned int x = unit.renderMin.x; x < unit.renderMax.x; ++x)

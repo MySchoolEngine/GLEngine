@@ -12,8 +12,6 @@
 
 #include <Core/Application.h>
 
-#include <Utils/HighResolutionTimer.h>
-
 #include <chrono>
 #include <imgui.h>
 #include <thread>
@@ -157,17 +155,20 @@ void StartPreviewRender(S_RayPreviewState& state, Renderer::I_CameraComponent& c
 	state.m_Running.store(true);
 
 	std::thread([&state, &camera, targetSamples]() {
+		GL_PROFILE_THREAD_NAME("RayRenderThread");
 		while (!state.m_StopRequested.load())
 		{
 			const int samplesBefore = state.m_NumSamples.load();
 			if (samplesBefore >= targetSamples)
 				break;
 
-			::Utils::HighResolutionTimer timer;
-			state.m_Renderer->Render(camera, *state.m_ImageStorage, *state.m_SamplesStorage, &state.m_ImageLock, samplesBefore,
-									 Renderer::C_InterleavedLinesFactory{4}, state.BuildAdditionalTargets());
+			{
+				GL_PROFILE_SCOPE_N("RayRender::Render");
+				state.m_Renderer->Render(camera, *state.m_ImageStorage, *state.m_SamplesStorage, &state.m_ImageLock, samplesBefore,
+										 Renderer::C_InterleavedLinesFactory{4}, state.BuildAdditionalTargets());
+			}
 			state.m_NumSamples.fetch_add(1);
-			CORE_LOG(E_Level::Info, E_Context::Render, "One iteration took {}s", static_cast<float>(timer.getElapsedTimeFromLastQueryMilliseconds()) / 1000.f);
+			GL_PROFILE_FRAME_N("RaySample");
 		}
 		state.m_Running.store(false);
 	}).detach();
