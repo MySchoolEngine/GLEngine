@@ -6,11 +6,23 @@
 
 #include <Physics/GeometryUtils/TriangleIntersect.h>
 
+#include <glm/gtx/norm.inl>
+
+#include <queue>
+
 #ifdef TRACY_ENABLE
 namespace {
-thread_local int64_t tl_AABBChecks     = 0;
+thread_local int64_t tl_AABBChecks	   = 0;
+thread_local int64_t tl_AABBRejected   = 0;
 thread_local int64_t tl_TriangleChecks = 0;
+	#define ADD_AABB_TEST	  ++tl_AABBChecks;
+	#define ADD_AABB_REJECT	  ++tl_AABBRejected;
+	#define ADD_TRIANGLE_TEST ++tl_TriangleChecks;
 } // namespace
+#else
+	#define ADD_AABB_TEST
+	#define ADD_AABB_REJECT
+	#define ADD_TRIANGLE_TEST
 #endif
 
 // clang-format off
@@ -79,7 +91,7 @@ void BVH::Build()
 		centroids.emplace_back(trigCenter(triDef));
 		m_LookupTable.emplace_back(i);
 	}
-	SplitBVHNodeNaive(0, 0, centroids);
+	SplitBVHNodeNaive(0, 1, centroids);
 }
 
 //=================================================================================
@@ -109,7 +121,7 @@ unsigned int BVH::ComputeMaxDepth() const
 //=================================================================================
 void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<glm::vec3>& centroids)
 {
-	if (level > s_MaxDepth)
+	if (level >= s_MaxDepth)
 		return;
 
 	// limit nodes that's too small
@@ -187,122 +199,136 @@ bool BVH::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& in
 		return false;
 #ifdef TRACY_ENABLE
 	[[maybe_unused]] static const bool s_PlotsConfigured = []() {
-		TracyPlotConfig("RayAABBChecks",     tracy::PlotFormatType::Number, true, true, 0);
+		TracyPlotConfig("RayAABBChecks", tracy::PlotFormatType::Number, true, true, 0);
+		TracyPlotConfig("RayAABBRejected", tracy::PlotFormatType::Number, true, true, 0);
 		TracyPlotConfig("RayTriangleChecks", tracy::PlotFormatType::Number, true, true, 0);
 		return true;
 	}();
-	tl_AABBChecks     = 0;
+	tl_AABBChecks	  = 0;
+	tl_AABBRejected	  = 0;
 	tl_TriangleChecks = 0;
 #endif
 	const bool result = IntersectNode(ray, intersection, m_Nodes[0], outTriangleIndex, outBarycentric);
 #ifdef TRACY_ENABLE
-	TracyPlot("RayAABBChecks",     tl_AABBChecks);
+	TracyPlot("RayAABBChecks", tl_AABBChecks);
+	TracyPlot("RayAABBRejected", tl_AABBRejected);
 	TracyPlot("RayTriangleChecks", tl_TriangleChecks);
 #endif
 	return result;
 }
 
 //=================================================================================
-bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, const BVHNode& node, unsigned int* outTriangleIndex,
-						glm::vec2* outBarycentric) const
+bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray,
+						C_RayIntersection&				  intersection,
+						const BVHNode&					  node,
+						unsigned int*					  outTriangleIndex,
+						glm::vec2*						  outBarycentric) const
 {
-	// Early out: if ray origin is outside AABB and doesn't intersect it
-#ifdef TRACY_ENABLE
-	++tl_AABBChecks;
-#endif
-	if (!node.aabb.Contains(ray.origin) && !node.aabb.Intersects(ray))
-	{
-		return false;
-	}
+	std::array<T_BVHNodeID, s_MaxDepth + 1> nodeStack;
+	unsigned int							stackPointer = 0;
+	nodeStack[stackPointer++]							 = 0;
 
-	if (node.IsLeaf() == false)
-	{
-		// we can have hit from both sides as sides can overlap
-		C_RayIntersection intersections[2];
-		unsigned int	  triangleIndices[2] = {0, 0};
-		glm::vec2		  barycentrics[2]	 = {glm::vec2(0.f), glm::vec2(0.f)};
-		bool			  intersectionsResults[2] = {false, false};
-
-		if (node.left != s_InvalidBVHNode)
-			intersectionsResults[0] = IntersectNode(ray, intersections[0], m_Nodes[node.left], &triangleIndices[0], &barycentrics[0]);
-		if (node.right != s_InvalidBVHNode)
-			intersectionsResults[1] = IntersectNode(ray, intersections[1], m_Nodes[node.right], &triangleIndices[1], &barycentrics[1]);
-
-		// find closer intersection
-		if (intersectionsResults[0] && intersectionsResults[1])
-		{
-			const int closestChild = (intersections[0].GetRayLength() < intersections[1].GetRayLength()) ? 0 : 1;
-			intersection			= intersections[closestChild];
-			if (outTriangleIndex)
-				*outTriangleIndex = triangleIndices[closestChild];
-			if (outBarycentric)
-				*outBarycentric = barycentrics[closestChild];
-		}
-		else if (intersectionsResults[0])
-		{
-			intersection = intersections[0];
-			if (outTriangleIndex)
-				*outTriangleIndex = triangleIndices[0];
-			if (outBarycentric)
-				*outBarycentric = barycentrics[0];
-		}
-		else if (intersectionsResults[1])
-		{
-			intersection = intersections[1];
-			if (outTriangleIndex)
-				*outTriangleIndex = triangleIndices[1];
-			if (outBarycentric)
-				*outBarycentric = barycentrics[1];
-		}
-		return intersectionsResults[0] || intersectionsResults[1];
-	}
 	// we are in the leaf node
 	struct S_IntersectionInfo {
-		C_RayIntersection intersection;
-		float			  t				 = std::numeric_limits<float>::infinity();
-		unsigned int	  triangleIndex	 = 0;
-		glm::vec2		  barycentric	 = glm::vec2(0.f);
+		float		 t = std::numeric_limits<float>::infinity();
+		unsigned int triangleIndex;
+		glm::vec2	 barycentric;
 
 		[[nodiscard]] bool operator<(const S_IntersectionInfo& a) const { return t < a.t; }
 	};
-	S_IntersectionInfo closestIntersect{.intersection = C_RayIntersection()};
+	S_IntersectionInfo closestIntersect{};
 
-	glm::vec2 barycentric;
+	const auto calcDistance = [](const BVHNode& node, const glm::vec3& rayOrigin) {
+		const auto center = (node.aabb.m_Max - node.aabb.m_Min) / 2.f;
+		return glm::distance2(center, rayOrigin);
+	};
 
-	for (unsigned int i = node.firstTrig; i <= node.lastTrig; ++i)
+	while (stackPointer != 0)
 	{
-#ifdef TRACY_ENABLE
-		++tl_TriangleChecks;
-#endif
-		const glm::vec3* triDef = GetTriangleDefinition(i);
-		const auto		 length = Physics::TriangleRayIntersect(triDef, ray, &barycentric);
-		if (length > 0.0f)
+		const BVHNode& current = m_Nodes[nodeStack[--stackPointer]];
+		// Early out: if ray origin is outside AABB and doesn't intersect it
+		ADD_AABB_TEST
+		if (!current.aabb.Contains(ray.origin) && !current.aabb.Intersects(ray))
 		{
-			if (closestIntersect.t < length)
-			{
-				continue;
-			}
-			auto normal = glm::cross(triDef[1] - triDef[0], triDef[2] - triDef[0]);
-			// const auto area	  = glm::length(normal) / 2.f;
-			normal = glm::normalize(normal);
-			C_RayIntersection inter(S_Frame(normal), ray.origin + length * ray.direction, Physics::Primitives::S_Ray(ray));
-			inter.SetRayLength(length);
+			ADD_AABB_REJECT
+			continue;
+		}
+		if (std::sqrt(calcDistance(current, ray.origin)) > closestIntersect.t)
+		{
+			ADD_AABB_REJECT
+			continue;
+		}
 
-			closestIntersect = {.intersection = inter, .t = length, .triangleIndex = m_LookupTable[i], .barycentric = barycentric};
+		if (current.IsLeaf())
+		{
+			S_IntersectionInfo intersect;
+			// test the triangles
+			if (TestTriangles(ray, current, &intersect.triangleIndex, &intersect.barycentric, &intersect.t) && intersect < closestIntersect)
+			{
+				closestIntersect = intersect;
+			}
+		}
+		else
+		{
+			// distances are left squared as we do not care about exact number, but about the difference
+			float leftDistance	= calcDistance(m_Nodes[current.left], ray.origin);
+			float rightDistance = calcDistance(m_Nodes[current.right], ray.origin);
+			if (leftDistance < rightDistance)
+			{
+				nodeStack[stackPointer++] = current.right;
+				nodeStack[stackPointer++] = current.left;
+			}
+			else
+			{
+				nodeStack[stackPointer++] = current.left;
+				nodeStack[stackPointer++] = current.right;
+			}
 		}
 	}
+
 	if (std::isinf(closestIntersect.t))
 		return false;
 
-	intersection = closestIntersect.intersection;
+	const glm::vec3* triDef = GetTriangleDefinition(closestIntersect.triangleIndex);
+	auto			 normal = glm::cross(triDef[1] - triDef[0], triDef[2] - triDef[0]);
+	normal					= glm::normalize(normal);
+
+	intersection = C_RayIntersection(S_Frame(normal), ray.origin + closestIntersect.t * ray.direction, Physics::Primitives::S_Ray(ray));
+	intersection.SetRayLength(closestIntersect.t);
 
 	// Output triangle index and barycentric coordinates if requested
 	if (outTriangleIndex)
-		*outTriangleIndex = closestIntersect.triangleIndex;
+		*outTriangleIndex = m_LookupTable[closestIntersect.triangleIndex];
 	if (outBarycentric)
 		*outBarycentric = closestIntersect.barycentric;
 
 	return true;
+}
+
+//=================================================================================
+bool BVH::TestTriangles(const Physics::Primitives::S_Ray& ray, const BVHNode& node, unsigned int* outTriangleIndex, glm::vec2* outBarycentric, float* distance) const
+{
+	float closestT = std::numeric_limits<float>::infinity();
+	for (unsigned int i = node.firstTrig; i <= node.lastTrig; ++i)
+	{
+		glm::vec2 barycentric;
+		ADD_TRIANGLE_TEST
+		const glm::vec3* triDef = GetTriangleDefinition(i);
+		const auto		 length = Physics::TriangleRayIntersect(triDef, ray, &barycentric);
+		if (length > 0.0f)
+		{
+			if (closestT < length)
+			{
+				continue;
+			}
+
+			closestT		  = length;
+			*outBarycentric	  = barycentric;
+			*outTriangleIndex = i;
+		}
+	}
+	*distance = closestT;
+	return std::isinf(closestT) == false;
 }
 
 //=================================================================================

@@ -61,6 +61,8 @@ private:
 	};
 	[[nodiscard]] bool
 	IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, const BVHNode& node, unsigned int* outTriangleIndex, glm::vec2* outBarycentric) const;
+
+	[[nodiscard]] bool TestTriangles(const Physics::Primitives::S_Ray& ray, const BVHNode& node, unsigned int* outTriangleIndex, glm::vec2* outBarycentric, float* distance) const;
 	void DebugDrawNode(I_DebugDraw& dd, const glm::mat4& modelMatrix, const BVHNode& node, unsigned int level) const;
 	// using NodeID because the vector is being reallocated on the way
 	void SplitBVHNodeNaive(T_BVHNodeID node, unsigned int level, std::vector<glm::vec3>& centroids);
