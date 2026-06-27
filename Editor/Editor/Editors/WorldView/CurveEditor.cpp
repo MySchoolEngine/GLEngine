@@ -1,5 +1,6 @@
 #include <EditorStdafx.h>
 
+#include <Editor/EditorColours.h>
 #include <Editor/Editors/WorldView/CurveEditor.h>
 #include <Editor/Utils/MousePicking.h>
 

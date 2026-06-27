@@ -1,5 +1,6 @@
 #include <EditorStdafx.h>
 
+#include <Editor/EditorColours.h>
 #include <Editor/Editors/ImageEditor.h>
 #include <Editor/Editors/MaterialPreview/MaterialPreviewWindow.h>
 #include <Editor/Editors/ResourceManager/ResourceManagerWindow.h>
@@ -70,6 +71,22 @@ const char* GetTypeNameForPath(const std::filesystem::path& path)
 	return "File";
 }
 
+GLEngine::Colours::T_Colour GetColourForPath(const std::filesystem::path& path)
+{
+	if (std::filesystem::is_directory(path))
+		return GLEngine::Colours::white;
+	auto& resMgr = GLEngine::Core::C_ResourceManager::Instance();
+	if (resMgr.IsResourceType<GLEngine::Renderer::MeshResource>(path))
+		return GLEngine::Editor::Colours::Resources::Colour<GLEngine::Renderer::MeshResource>;
+	if (resMgr.IsResourceType<GLEngine::Renderer::C_TrimeshModel>(path))
+		return GLEngine::Editor::Colours::Resources::Colour<GLEngine::Renderer::C_TrimeshModel>;
+	if (resMgr.IsResourceType<GLEngine::Renderer::TextureResource>(path))
+		return GLEngine::Editor::Colours::Resources::Colour<GLEngine::Renderer::TextureResource>;
+	if (resMgr.IsResourceType<GLEngine::Renderer::MaterialResource>(path))
+		return GLEngine::Editor::Colours::Resources::Colour<GLEngine::Renderer::MaterialResource>;
+	return GLEngine::Colours::white;
+}
+
 std::string FormatFileSize(std::uintmax_t bytes)
 {
 	if (bytes < 1024)
@@ -79,14 +96,14 @@ std::string FormatFileSize(std::uintmax_t bytes)
 	return std::to_string(bytes / (1024 * 1024)) + " MB";
 }
 
-void DrawIconCentered(ImDrawList* drawList, ImVec2 rectMin, float rectSize, const char* iconStr)
+void DrawIconCentered(ImDrawList* drawList, ImVec2 rectMin, float rectSize, const char* iconStr, ImU32 colour)
 {
 	ImFont*		 font		= GLEngine::GUI::C_ImGuiLayer::GetLargeIconFont();
 	const float	 fontSize	= font ? 32.0f : 16.0f;
 	ImFont*		 renderFont = font ? font : ImGui::GetFont();
 	const ImVec2 textSize	= renderFont->CalcTextSizeA(fontSize, FLT_MAX, 0.f, iconStr);
 	const ImVec2 textPos(rectMin.x + (rectSize - textSize.x) * 0.5f, rectMin.y + (rectSize - textSize.y) * 0.5f);
-	drawList->AddText(renderFont, fontSize, textPos, IM_COL32(200, 200, 200, 210), iconStr);
+	drawList->AddText(renderFont, fontSize, textPos, colour, iconStr);
 }
 } // namespace
 
@@ -247,6 +264,18 @@ void C_ResourceManagerWindow::DrawFolderTree(const std::filesystem::path& dir) c
 //=================================================================================
 void C_ResourceManagerWindow::DrawContentPanel() const
 {
+	// --- Filter bar ---
+	static const char* s_TypeNames[] = {"All", "Folder", "Mesh", "Trimesh Model", "Texture", "Material", "File"};
+
+	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - 120.f);
+	ImGui::InputTextWithHint("##namefilter", ICON_FA_MAGNIFYING_GLASS " Search...", m_FilterName, sizeof(m_FilterName));
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(110.f);
+	ImGui::Combo("##typefilter", &m_FilterTypeIndex, s_TypeNames, IM_ARRAYSIZE(s_TypeNames));
+
+	const float filterBarH = ImGui::GetCursorPosY();
+
+	// --- Reload disk contents if needed ---
 	if (m_ContentDirty)
 	{
 		m_FolderContents.clear();
@@ -260,23 +289,44 @@ void C_ResourceManagerWindow::DrawContentPanel() const
 		m_ContentDirty = false;
 	}
 
+	// --- Build filtered view (no alloc on the hot path: just index pointers) ---
+	const bool		hasNameFilter  = m_FilterName[0] != '\0';
+	const char*		requiredType   = m_FilterTypeIndex > 0 ? s_TypeNames[m_FilterTypeIndex] : nullptr;
+	const auto		containsCI	   = [](std::string_view hay, std::string_view needle) {
+		return std::search(hay.begin(), hay.end(), needle.begin(), needle.end(),
+						   [](char a, char b) { return std::tolower((unsigned char)a) == std::tolower((unsigned char)b); })
+			   != hay.end();
+	};
+
+	std::vector<const std::filesystem::path*> filtered;
+	filtered.reserve(m_FolderContents.size());
+	for (const auto& path : m_FolderContents)
+	{
+		if (requiredType && std::strcmp(GetTypeNameForPath(path), requiredType) != 0)
+			continue;
+		if (hasNameFilter && !containsCI(path.filename().string(), m_FilterName))
+			continue;
+		filtered.push_back(&path);
+	}
+
+	// --- Grid ---
 	constexpr float iconSize = 64.0f;
 	constexpr float padding	 = 12.0f;
 	constexpr float cellW	 = iconSize + padding;
 	const float		cellH	 = iconSize + ImGui::GetTextLineHeightWithSpacing() + 4.0f;
 	const int		numCols	 = std::max(1, static_cast<int>(ImGui::GetContentRegionAvail().x / cellW));
 
-	for (int i = 0; i < static_cast<int>(m_FolderContents.size()); i++)
+	for (int i = 0; i < static_cast<int>(filtered.size()); i++)
 	{
 		const int col = i % numCols;
 		const int row = i / numCols;
-		ImGui::SetCursorPos(ImVec2(col * cellW, row * cellH));
-		DrawGridItem(m_FolderContents[i], iconSize);
+		ImGui::SetCursorPos(ImVec2(col * cellW, filterBarH + row * cellH));
+		DrawGridItem(*filtered[i], iconSize);
 	}
 
 	// Advance cursor past all rows so the child window scrolls correctly
-	const int numRows = (static_cast<int>(m_FolderContents.size()) + numCols - 1) / numCols;
-	ImGui::SetCursorPos(ImVec2(0.f, numRows * cellH));
+	const int numRows = (static_cast<int>(filtered.size()) + numCols - 1) / numCols;
+	ImGui::SetCursorPos(ImVec2(0.f, filterBarH + numRows * cellH));
 	ImGui::Dummy(ImVec2(0.f, 0.f));
 }
 
@@ -295,7 +345,9 @@ void C_ResourceManagerWindow::DrawGridItem(const std::filesystem::path& path, fl
 	ImGui::GetWindowDrawList()->AddRect(rMin, rMax, borderColor, 4.0f, 0, 1.5f);
 
 	// Draw FA icon centered in the cell via draw list - no new ImGui item, InvisibleButton stays as drag source
-	DrawIconCentered(ImGui::GetWindowDrawList(), rMin, iconSize, GetIconForPath(path));
+	const auto& col = GetColourForPath(path);
+	const ImU32 iconColour = IM_COL32(static_cast<int>(col.r * 255), static_cast<int>(col.g * 255), static_cast<int>(col.b * 255), 210);
+	DrawIconCentered(ImGui::GetWindowDrawList(), rMin, iconSize, GetIconForPath(path), iconColour);
 
 	if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
 	{
@@ -433,7 +485,9 @@ void C_ResourceManagerWindow::HandleResourceDragDrop(const std::filesystem::path
 		ImGui::Dummy(ImVec2(iconSize, iconSize));
 		ImGui::GetWindowDrawList()->AddRect(iconScreenPos, iconScreenPos + ImVec2(iconSize, iconSize), IM_COL32(200, 200, 200, 255), 4.0f, 0, 1.5f);
 
-		DrawIconCentered(ImGui::GetWindowDrawList(), iconScreenPos, iconSize, GetIconForPath(path));
+		const auto& dragCol = GetColourForPath(path);
+		const ImU32 dragIconColour = IM_COL32(static_cast<int>(dragCol.r * 255), static_cast<int>(dragCol.g * 255), static_cast<int>(dragCol.b * 255), 210);
+		DrawIconCentered(ImGui::GetWindowDrawList(), iconScreenPos, iconSize, GetIconForPath(path), dragIconColour);
 
 		ImGui::SetCursorPos(ImVec2(previewStart.x + (cellW - textW) * 0.5f, ImGui::GetCursorPosY()));
 		ImGui::TextUnformatted(label.c_str());

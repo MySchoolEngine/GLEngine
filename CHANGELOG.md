@@ -2,6 +2,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - 27-06-2026
+### Added
+- Filter for `ResourceManagerWindow`
+
 ## [Unreleased] - 26-06-2026
 ### Added
 - GLTF added to supported formats

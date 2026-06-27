@@ -51,6 +51,9 @@ private:
 	mutable std::vector<std::filesystem::path> m_FolderContents;
 	mutable bool							   m_ContentDirty = true;
 
+	mutable char m_FilterName[128] = {};
+	mutable int  m_FilterTypeIndex = 0; // 0 = All
+
 	mutable std::thread		  m_WatcherThread;
 	mutable std::atomic<bool> m_WatcherRunning{false};
 	mutable std::atomic<bool> m_ChangePending{false};
