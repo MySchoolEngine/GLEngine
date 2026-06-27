@@ -247,6 +247,18 @@ void C_ResourceManagerWindow::DrawFolderTree(const std::filesystem::path& dir) c
 //=================================================================================
 void C_ResourceManagerWindow::DrawContentPanel() const
 {
+	// --- Filter bar ---
+	static const char* s_TypeNames[] = {"All", "Folder", "Mesh", "Trimesh Model", "Texture", "Material", "File"};
+
+	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - 120.f);
+	ImGui::InputTextWithHint("##namefilter", ICON_FA_MAGNIFYING_GLASS " Search...", m_FilterName, sizeof(m_FilterName));
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(110.f);
+	ImGui::Combo("##typefilter", &m_FilterTypeIndex, s_TypeNames, IM_ARRAYSIZE(s_TypeNames));
+
+	const float filterBarH = ImGui::GetCursorPosY();
+
+	// --- Reload disk contents if needed ---
 	if (m_ContentDirty)
 	{
 		m_FolderContents.clear();
@@ -260,23 +272,44 @@ void C_ResourceManagerWindow::DrawContentPanel() const
 		m_ContentDirty = false;
 	}
 
+	// --- Build filtered view (no alloc on the hot path: just index pointers) ---
+	const bool		hasNameFilter  = m_FilterName[0] != '\0';
+	const char*		requiredType   = m_FilterTypeIndex > 0 ? s_TypeNames[m_FilterTypeIndex] : nullptr;
+	const auto		containsCI	   = [](std::string_view hay, std::string_view needle) {
+		return std::search(hay.begin(), hay.end(), needle.begin(), needle.end(),
+						   [](char a, char b) { return std::tolower((unsigned char)a) == std::tolower((unsigned char)b); })
+			   != hay.end();
+	};
+
+	std::vector<const std::filesystem::path*> filtered;
+	filtered.reserve(m_FolderContents.size());
+	for (const auto& path : m_FolderContents)
+	{
+		if (requiredType && std::strcmp(GetTypeNameForPath(path), requiredType) != 0)
+			continue;
+		if (hasNameFilter && !containsCI(path.filename().string(), m_FilterName))
+			continue;
+		filtered.push_back(&path);
+	}
+
+	// --- Grid ---
 	constexpr float iconSize = 64.0f;
 	constexpr float padding	 = 12.0f;
 	constexpr float cellW	 = iconSize + padding;
 	const float		cellH	 = iconSize + ImGui::GetTextLineHeightWithSpacing() + 4.0f;
 	const int		numCols	 = std::max(1, static_cast<int>(ImGui::GetContentRegionAvail().x / cellW));
 
-	for (int i = 0; i < static_cast<int>(m_FolderContents.size()); i++)
+	for (int i = 0; i < static_cast<int>(filtered.size()); i++)
 	{
 		const int col = i % numCols;
 		const int row = i / numCols;
-		ImGui::SetCursorPos(ImVec2(col * cellW, row * cellH));
-		DrawGridItem(m_FolderContents[i], iconSize);
+		ImGui::SetCursorPos(ImVec2(col * cellW, filterBarH + row * cellH));
+		DrawGridItem(*filtered[i], iconSize);
 	}
 
 	// Advance cursor past all rows so the child window scrolls correctly
-	const int numRows = (static_cast<int>(m_FolderContents.size()) + numCols - 1) / numCols;
-	ImGui::SetCursorPos(ImVec2(0.f, numRows * cellH));
+	const int numRows = (static_cast<int>(filtered.size()) + numCols - 1) / numCols;
+	ImGui::SetCursorPos(ImVec2(0.f, filterBarH + numRows * cellH));
 	ImGui::Dummy(ImVec2(0.f, 0.f));
 }
 
