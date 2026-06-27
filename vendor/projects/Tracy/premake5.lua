@@ -42,4 +42,5 @@ project "Tracy"
     usage "PUBLIC"
         filter "configurations:Debug"
             defines { "TRACY_ENABLE", "TRACY_IMPORTS" }
+            links{"Tracy"}
         filter {}

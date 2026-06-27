@@ -20,7 +20,9 @@ project "Editor"
 	LinkDependency("ImGui")
 	LinkDependency("pugixml")
 	LinkDependency("ImGuizmo")
-	LinkDependency("Tracy")
+	filter "configurations:Debug"
+		LinkDependency("Tracy")
+	filter {}
 
 	LinkDependency("RTTR")
 

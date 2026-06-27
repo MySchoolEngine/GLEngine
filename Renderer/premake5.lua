@@ -28,7 +28,9 @@ function CreateRendererProject(projectName, isStatic)
 		LinkDependency("ImGui")
 		LinkDependency("pugixml")
 		LinkDependency("RTTR")
-		LinkDependency("Tracy")
+		filter "configurations:Debug"
+			LinkDependency("Tracy")
+		filter {}
 
 		includedirs
 		{

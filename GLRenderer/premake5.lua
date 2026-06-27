@@ -23,7 +23,9 @@ project "GLRenderer"
 	LinkDependency("pugixml")
 	LinkDependency("GLFW")
 	LinkDependency("RTTR")
-	LinkDependency("Tracy")
+	filter "configurations:Debug"
+		LinkDependency("Tracy")
+	filter {}
 
 	includedirs
 	{
