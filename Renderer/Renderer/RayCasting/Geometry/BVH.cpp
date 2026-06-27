@@ -6,6 +6,13 @@
 
 #include <Physics/GeometryUtils/TriangleIntersect.h>
 
+#ifdef TRACY_ENABLE
+namespace {
+thread_local int64_t tl_AABBChecks     = 0;
+thread_local int64_t tl_TriangleChecks = 0;
+} // namespace
+#endif
+
 // clang-format off
 RTTR_REGISTRATION
 {
@@ -178,7 +185,21 @@ bool BVH::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& in
 {
 	if (m_Nodes.empty())
 		return false;
-	return IntersectNode(ray, intersection, m_Nodes[0], outTriangleIndex, outBarycentric);
+#ifdef TRACY_ENABLE
+	[[maybe_unused]] static const bool s_PlotsConfigured = []() {
+		TracyPlotConfig("RayAABBChecks",     tracy::PlotFormatType::Number, true, true, 0);
+		TracyPlotConfig("RayTriangleChecks", tracy::PlotFormatType::Number, true, true, 0);
+		return true;
+	}();
+	tl_AABBChecks     = 0;
+	tl_TriangleChecks = 0;
+#endif
+	const bool result = IntersectNode(ray, intersection, m_Nodes[0], outTriangleIndex, outBarycentric);
+#ifdef TRACY_ENABLE
+	TracyPlot("RayAABBChecks",     tl_AABBChecks);
+	TracyPlot("RayTriangleChecks", tl_TriangleChecks);
+#endif
+	return result;
 }
 
 //=================================================================================
@@ -186,6 +207,9 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection
 						glm::vec2* outBarycentric) const
 {
 	// Early out: if ray origin is outside AABB and doesn't intersect it
+#ifdef TRACY_ENABLE
+	++tl_AABBChecks;
+#endif
 	if (!node.aabb.Contains(ray.origin) && !node.aabb.Intersects(ray))
 	{
 		return false;
@@ -247,6 +271,9 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection
 
 	for (unsigned int i = node.firstTrig; i <= node.lastTrig; ++i)
 	{
+#ifdef TRACY_ENABLE
+		++tl_TriangleChecks;
+#endif
 		const glm::vec3* triDef = GetTriangleDefinition(i);
 		const auto		 length = Physics::TriangleRayIntersect(triDef, ray, &barycentric);
 		if (length > 0.0f)
