@@ -17,9 +17,13 @@ project "VulkanRenderer"
 	Link("GUI")
 	LinkDependency("pugixml")
 	LinkDependency("ImGui")
+	LinkDependency("GLFW")
 	LinkDependency("RTTR")
+	filter "configurations:Debug"
+		LinkDependency("Tracy")
+	filter {}
 
-	uses{"Core"}
+	uses{"Core", "Tracy"}
 
 	includedirs
 	{
@@ -43,6 +47,7 @@ project "VulkanRenderer"
 		defines
 		{
 			"IMGUI_API=__declspec(dllimport)",
+			"IMGUI_IMPL_API=",
 		}
 
 		postbuildcommands
