@@ -39,7 +39,7 @@ project "Tracy"
         symbols "On"
 
     filter {}
-    usage "PUBLIC"
+    usage "INTERFACE"
         filter "configurations:Debug"
             defines { "TRACY_ENABLE", "TRACY_IMPORTS" }
             links{"Tracy"}
