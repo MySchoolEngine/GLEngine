@@ -12,10 +12,12 @@ project "GLFWWindowManager"
 	Link("Utils")
 	Link("Core")
 	LinkDependency("RTTR")
+	LinkDependency("Tracy")
 	uses
 	{
 		"Core",
 		"Utils",
+		"Tracy",
 	}
 
 	includedirs

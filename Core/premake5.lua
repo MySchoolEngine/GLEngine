@@ -14,6 +14,7 @@ project "Core"
 	LinkDependency("crossguid")
 	LinkDependency("RTTR")
 	LinkDependency("pugixml")
+	uses{"Tracy"}
 
 	includedirs
 	{
@@ -36,3 +37,6 @@ project "Core"
 		{
 			"../Physics",
 		}
+	filter "configurations:Debug"
+		LinkDependency("Tracy")
+	filter ""

@@ -15,8 +15,11 @@ project "UtilsTest"
 
 	LinkDependency("RTTR")
 	LinkDependency("pugixml")
+	filter "configurations:Debug"
+		LinkDependency("Tracy")
+	filter {}
 
-	uses{"DULib"}
+	uses{"DULib", "Tracy"}
 
 	includedirs
 	{

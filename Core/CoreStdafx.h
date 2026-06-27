@@ -10,6 +10,8 @@
 #include <Core/CoreApi.h>
 #include <Core/CoreEnums.h>
 
+#include <Core/Profiling/Profiler.h>
+
 GL_PUSH_WARNINGS()
 #pragma warning(disable : 4996)
 #ifdef __GNUC__

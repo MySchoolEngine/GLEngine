@@ -26,6 +26,7 @@ void C_Application::Run()
 	while (wmng.NumWindows())
 	{
 		wmng.Update();
+		GL_PROFILE_FRAME();
 	}
 }
 

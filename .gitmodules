@@ -61,3 +61,6 @@
 [submodule "vendor/IconFontCppHeaders"]
 	path = vendor/IconFontCppHeaders
 	url = https://github.com/juliettef/IconFontCppHeaders.git
+[submodule "vendor/tracy"]
+	path = vendor/tracy
+	url = https://github.com/wolfpld/tracy

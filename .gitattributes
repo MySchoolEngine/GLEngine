@@ -2,7 +2,6 @@
 # Set default behavior to automatically normalize line endings.
 ###############################################################################
 * text=auto
-
 ###############################################################################
 # Set default behavior for command prompt diff.
 #
@@ -11,7 +10,6 @@
 # Note: This is only used by command line
 ###############################################################################
 #*.cs     diff=csharp
-
 ###############################################################################
 # Set the merge driver for project and solution files
 #
@@ -34,7 +32,6 @@
 #*.modelproj merge=binary
 #*.sqlproj   merge=binary
 #*.wwaproj   merge=binary
-
 ###############################################################################
 # behavior for image files
 #
@@ -43,7 +40,6 @@
 #*.jpg   binary
 #*.png   binary
 #*.gif   binary
-
 ###############################################################################
 # diff behavior for common document formats
 # 
@@ -69,3 +65,4 @@ data/Models/**/*.obj filter=lfs diff=lfs merge=lfs -text
 data/Models/**/*.mtl filter=lfs diff=lfs merge=lfs -text
 data/Models/**/*.bin filter=lfs diff=lfs merge=lfs -text
 data/Models/**/*.obj filter=lfs diff=lfs merge=lfs -text
+Tools/tracy/windows-0.13.1.zip filter=lfs diff=lfs merge=lfs -text

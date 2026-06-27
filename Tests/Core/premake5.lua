@@ -16,11 +16,15 @@ project "CoreTest"
 
 	LinkDependency("RTTR")
 	LinkDependency("pugixml")
+	filter "configurations:Debug"
+		LinkDependency("Tracy")
+	filter {}
 
 	uses
 	{
 		"DULib",
 		"Physics",
+		"Tracy",
 	}
 
 	includedirs

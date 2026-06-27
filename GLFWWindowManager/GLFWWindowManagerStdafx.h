@@ -30,3 +30,5 @@
 #include <Core/CoreMacros.h>
 
 #include <GLFWWindowManager/GLFWWindowManagerApi.h>
+
+#include <Core/Profiling/Profiler.h>
