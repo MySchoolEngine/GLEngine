@@ -14,6 +14,15 @@
 
 namespace GLEngine::Core {
 
+enum class CreateError
+{
+	AlreadyExists,  //< file already exists on disk
+	AlreadyTracked, //< resource is already tracked by the manager (but not yet on disk)
+	NoLoader,		//< no loader registered for the file extension — programming error
+	NullResource,	//< loader returned a null resource
+	TypeMismatch,	//< loader created a resource of a different type than requested
+};
+
 class CORE_API_EXPORT C_ResourceManager final : public C_Layer {
 public:
 	C_ResourceManager(const C_ResourceManager& other)	  = delete;
@@ -42,7 +51,7 @@ public:
 	 * @param filepath
 	 * @return valid handle if resource with the filepath does not exist
 	 */
-	template <IsResource ResourceType> [[nodiscard]] ResourceHandle<ResourceType> CreateNewResource(const std::filesystem::path& filepath);
+	template <IsResource ResourceType> [[nodiscard]] std::expected<ResourceHandle<ResourceType>, CreateError> CreateNewResource(const std::filesystem::path& filepath);
 	/**
 	 * @brief This function will not try to load anything. Only returns handle if the resource is already loaded.
 	 * @tparam ResourceType

@@ -26,14 +26,35 @@ std::vector<Core::ResourceHandle<MaterialResource>> ExtractMaterialsFromMesh(con
 
 		const auto outputPath = MaterialResource::GetOutputPath(mesh, i);
 
+		Core::ResourceHandle<MaterialResource> matHandle;
 		// Create a MaterialResource, populate it, and save to disk
-		auto matHandle = rm.CreateNewResource<MaterialResource>(outputPath);
-		if (!matHandle && !forceRebuild)
-			continue;
-		if (!matHandle)
+		auto newMat = rm.CreateNewResource<MaterialResource>(outputPath);
+
+		if (newMat.has_value() == false)
 		{
-			matHandle = rm.LoadResource<MaterialResource>(outputPath, true);
+			if (!forceRebuild)
+				continue; // do not force rewrite if not requested
+
+			// if it wasn't loaded because the resource already exists rewrite it
+			if (newMat.error() == Core::CreateError::AlreadyExists || newMat.error() == Core::CreateError::AlreadyTracked)
+			{
+				matHandle = rm.LoadResource<MaterialResource>(outputPath, true);
+			}
+			else
+			{
+				CORE_LOG(E_Level::Error, E_Context::Render, "Could not create resource {} due to {}", outputPath, newMat.error());
+			}
 		}
+		else
+		{
+			matHandle = newMat.value();
+		}
+
+		if (matHandle.IsReady() == false)
+		{
+			continue;
+		}
+
 		auto& matRes = matHandle.GetResource();
 		matRes.SetMaterialName(mat.m_Name);
 		matRes.SetMaterialData(MaterialResource::BuildPBRData(mat, scene.textures));

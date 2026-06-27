@@ -199,11 +199,12 @@ template <IsResource ResourceType> ResourceHandle<ResourceType> C_ResourceManage
 }
 
 //=================================================================================
-template <IsResource ResourceType> ResourceHandle<ResourceType> C_ResourceManager::CreateNewResource(const std::filesystem::path& filepath)
+template <IsResource ResourceType>
+std::expected<ResourceHandle<ResourceType>, CreateError> C_ResourceManager::CreateNewResource(const std::filesystem::path& filepath)
 {
 	const auto filepathNormalized = filepath.lexically_normal();
 	if (std::filesystem::exists(filepathNormalized))
-		return {};
+		return std::unexpected(CreateError::AlreadyExists);
 	else
 	{
 		std::unique_lock lock(m_Mutex);
@@ -211,15 +212,14 @@ template <IsResource ResourceType> ResourceHandle<ResourceType> C_ResourceManage
 		// in the filesystem
 		if (const auto resource = GetResource<ResourceType>(filepathNormalized))
 		{
-			// TODO should I differentiate this state?
-			return {};
+			return std::unexpected(CreateError::AlreadyTracked);
 		}
 
 		const auto loaderOpt = GetLoaderForExt(filepathNormalized.extension().string());
 		if (!loaderOpt)
 		{
 			CORE_LOG(E_Level::Error, E_Context::Core, "No loader specified for {}", filepathNormalized.extension());
-			return {};
+			return std::unexpected(CreateError::NoLoader);
 		}
 		const auto loader	= loaderOpt.value();
 		auto	   resource = loader.get().CreateResource();
@@ -233,13 +233,16 @@ template <IsResource ResourceType> ResourceHandle<ResourceType> C_ResourceManage
 			if (!concreteResource)
 			{
 				GLE_ASSERT(concreteResource, "Resource {} is of different type than requested. Given we have loader for that type this should not happen.", filepathNormalized);
-				return {};
+				return std::unexpected(CreateError::TypeMismatch);
 			}
 			m_Resources[filepathNormalized] = resource;
 			return ResourceHandle<ResourceType>(concreteResource);
 		}
+		else
+		{
+			return std::unexpected(CreateError::NullResource);
+		}
 	}
-	return {};
 }
 
 //=================================================================================
