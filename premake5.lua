@@ -16,6 +16,11 @@ newoption {
 	description = "Skip building test projects and static library variants"
 }
 
+newoption {
+	trigger = "benchmarks",
+	description = "Include benchmark projects (skipped by default)"
+}
+
 VULKAN_SDK = os.getenv("VULKAN_SDK")
 
 function GetVulkanBasePath()
@@ -138,6 +143,7 @@ IncludeDir["RTTR"] = {"vendor/RTTR/src", "vendor/projects/RTTR"}
 IncludeDir["slot_map"] = "vendor/slot_map"
 IncludeDir["IconFontCppHeaders"] = "vendor/IconFontCppHeaders"
 IncludeDir["Tracy"] = "vendor/tracy/public"
+IncludeDir["benchmark"] = "vendor/benchmark/include"
 
 -- could be header only or static lib
 NonDllLib = {}
@@ -157,6 +163,12 @@ if not _OPTIONS["skiptests"] then
 		end
 end
 
+if _OPTIONS["benchmarks"] then
+	group "Benchmarks"
+		include "Benchmarks"
+	group ""
+end
+
 group "Dependencies"
   include "vendor/GLFW"
   include "vendor/Glad"
@@ -164,6 +176,7 @@ group "Dependencies"
   include "vendor/projects/crossguid"
   include "vendor/projects/DevIL"
   include "vendor/projects/gtest"
+  include "vendor/projects/benchmark"
   include "vendor/projects/ImGui"
   include "vendor/projects/ImGuiFileDialog"
   include "vendor/projects/ImGuizmo"

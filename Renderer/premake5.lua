@@ -61,9 +61,10 @@ function CreateRendererProject(projectName, isStatic)
 end
 
 
-if not _OPTIONS["skiptests"] then
+if not _OPTIONS["skiptests"] or _OPTIONS["benchmarks"] then
 	-- currently we do not have static libraries support on GCC
 	-- they compile, but are not used, for more refere to RendererTest/premake5.lua
+	-- RendererStatic is also needed by Benchmarks to access non-exported types (e.g. BVH)
 	filter "action:vs*"
 		group "Tests/StaticLibs"
 			CreateRendererProject("RendererStatic", true)
