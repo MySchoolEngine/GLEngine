@@ -12,7 +12,7 @@ struct S_AABB : public T_Intersectable<S_AABB> {
 public:
 	constexpr S_AABB()
 		: m_Min(std::numeric_limits<float>::infinity())
-		, m_Max(std::numeric_limits<float>::infinity())
+		, m_Max(-std::numeric_limits<float>::infinity())
 	{
 	}
 
@@ -136,12 +136,6 @@ public:
 
 	constexpr void Add(const glm::vec3& point)
 	{
-		if (!IsInitialized())
-		{
-			m_Min = m_Max = point;
-			return;
-		}
-
 		m_Min.x = std::min(point.x, m_Min.x);
 		m_Min.y = std::min(point.y, m_Min.y);
 		m_Min.z = std::min(point.z, m_Min.z);
