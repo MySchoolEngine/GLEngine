@@ -154,15 +154,15 @@ public:
 		Add(bbox.m_Max);
 		Add(bbox.m_Min);
 	}
-	constexpr void Add(const S_Sphere& sphere)
+	void Add(const S_Sphere& sphere)
 	{
 		const auto pos = sphere.m_position;
-		Add(glm::vec3(pos.x + 1, pos.y, pos.z));
-		Add(glm::vec3(pos.x - 1, pos.y, pos.z));
-		Add(glm::vec3(pos.x, pos.y + 1, pos.z));
-		Add(glm::vec3(pos.x, pos.y - 1, pos.z));
-		Add(glm::vec3(pos.x, pos.y, pos.z + 1));
-		Add(glm::vec3(pos.x, pos.y, pos.z - 1));
+		Add(glm::vec3(pos.x + sphere.m_radius, pos.y, pos.z));
+		Add(glm::vec3(pos.x - sphere.m_radius, pos.y, pos.z));
+		Add(glm::vec3(pos.x, pos.y + sphere.m_radius, pos.z));
+		Add(glm::vec3(pos.x, pos.y - sphere.m_radius, pos.z));
+		Add(glm::vec3(pos.x, pos.y, pos.z + sphere.m_radius));
+		Add(glm::vec3(pos.x, pos.y, pos.z - sphere.m_radius));
 	}
 
 	constexpr void updateWithTriangle(const glm::vec3* triangleVertices)
