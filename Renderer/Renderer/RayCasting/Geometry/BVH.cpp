@@ -224,6 +224,14 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray,
 						unsigned int*					  outTriangleIndex,
 						glm::vec2*						  outBarycentric) const
 {
+	// Early out: if ray origin is outside AABB and doesn't intersect it
+	ADD_AABB_TEST
+	if (!node.aabb.Contains(ray.origin) && !node.aabb.Intersects(ray))
+	{
+		ADD_AABB_REJECT
+		return false;
+		;
+	}
 	std::array<T_BVHNodeID, s_MaxDepth + 1> nodeStack;
 	unsigned int							stackPointer = 0;
 	nodeStack[stackPointer++]							 = 0;
