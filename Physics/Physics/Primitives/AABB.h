@@ -5,6 +5,8 @@
 #include <Physics/Primitives/Sphere.h>
 
 #include <algorithm>
+#include <xmmintrin.h>
+#define VEC3TOSSE(vec) 0.f, vec.z, vec.y, vec.x
 
 namespace GLEngine::Physics::Primitives {
 
@@ -134,18 +136,20 @@ public:
 		return glm::distance(ray.origin, coord);
 	}
 
-	constexpr void Add(const glm::vec3& point)
+	void Add(const glm::vec3& point)
 	{
-		m_Min.x = std::min(point.x, m_Min.x);
-		m_Min.y = std::min(point.y, m_Min.y);
-		m_Min.z = std::min(point.z, m_Min.z);
-
-		m_Max.x = std::max(point.x, m_Max.x);
-		m_Max.y = std::max(point.y, m_Max.y);
-		m_Max.z = std::max(point.z, m_Max.z);
+		__m128			  pointm = _mm_set_ps(VEC3TOSSE(point));
+		__m128			  minm	 = _mm_set_ps(VEC3TOSSE(m_Min));
+		__m128			  maxm	 = _mm_set_ps(VEC3TOSSE(m_Max));
+		alignas(16) float min[4];
+		alignas(16) float max[4];
+		_mm_store_ps(min, _mm_min_ps(minm, pointm));
+		_mm_store_ps(max, _mm_max_ps(maxm, pointm));
+		memcpy(&m_Min, min, sizeof(float) * 3);
+		memcpy(&m_Max, max, sizeof(float) * 3);
 	}
-	constexpr void Add(const glm::vec4& point) { Add(glm::vec3(point)); }
-	constexpr void Add(const S_AABB& bbox)
+	void Add(const glm::vec4& point) { Add(glm::vec3(point)); }
+	void Add(const S_AABB& bbox)
 	{
 		if (!bbox.IsInitialized())
 		{
@@ -165,7 +169,7 @@ public:
 		Add(glm::vec3(pos.x, pos.y, pos.z - sphere.m_radius));
 	}
 
-	constexpr void updateWithTriangle(const glm::vec3* triangleVertices)
+	void updateWithTriangle(const glm::vec3* triangleVertices)
 	{
 		Add(triangleVertices[0]);
 		Add(triangleVertices[1]);
