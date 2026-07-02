@@ -282,7 +282,7 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray,
 {
 	// Early out: if ray origin is outside AABB and doesn't intersect it
 	ADD_AABB_TEST
-	if (!node.aabb.Contains(ray.origin) && !node.aabb.Intersects(ray))
+	if (!node.aabb.Contains(ray.origin) && std::isinf(node.aabb.Intersects(ray)))
 	{
 		ADD_AABB_REJECT
 		return false;
@@ -313,7 +313,7 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray,
 		// Early out: if ray origin is outside AABB and doesn't intersect it
 		ADD_AABB_TEST
 		const float tAABB = current.aabb.Intersects(ray);
-		if (tAABB > closestIntersect.t)
+		if (tAABB > closestIntersect.t || std::isinf(tAABB))
 		{
 			ADD_AABB_REJECT
 			continue;
