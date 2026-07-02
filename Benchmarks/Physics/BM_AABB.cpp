@@ -17,10 +17,10 @@ S_AABB MakeUnitBox()
 }
 
 // Ray along +Z that passes through the centre of the unit box
-constexpr S_Ray g_HitRay{{0.f, 0.f, -5.f}, {0.f, 0.f, 1.f}};
+S_Ray g_HitRay{{0.f, 0.f, -5.f}, {0.f, 0.f, 1.f}};
 
 // Ray along +Z that completely misses the unit box
-constexpr S_Ray g_MissRay{{10.f, 0.f, -5.f}, {0.f, 0.f, 1.f}};
+S_Ray g_MissRay{{10.f, 0.f, -5.f}, {0.f, 0.f, 1.f}};
 } // namespace
 
 // ---------------------------------------------------------------------------

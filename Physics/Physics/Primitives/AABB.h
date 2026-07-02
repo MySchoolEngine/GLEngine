@@ -18,48 +18,47 @@ public:
 	{
 	}
 
-	[[nodiscard]] constexpr bool Intersects(const S_Ray& ray) const noexcept
+	[[nodiscard]] float Intersects(const S_Ray& ray) const noexcept
 	{
 		if (!IsInitialized())
 		{
-			return false;
+			return std::numeric_limits<float>::infinity();
 		}
+		__m128 minm	  = _mm_set_ps(VEC3TOSSE(m_Min));
+		__m128 maxm	  = _mm_set_ps(VEC3TOSSE(m_Max));
+		__m128 raym	  = _mm_set_ps(VEC3TOSSE(ray.origin));
+		//__m128 invdm  = _mm_set_ps(VEC3TOSSE(ray.invDirection));
+		__m128 t1m	  = _mm_mul_ps(_mm_sub_ps(minm, raym), ray.invDirection);
+		__m128 t2m	  = _mm_mul_ps(_mm_sub_ps(maxm, raym), ray.invDirection);
+		__m128 tenter = _mm_min_ps(t1m, t2m);
+		__m128 texit  = _mm_max_ps(t1m, t2m);
 
-		// Fast slab test - optimized for boolean result
-		float tmin = 0.0f;
-		float tmax = std::numeric_limits<float>::max();
+		// Horizontal max of tenter (xyz only) → tmin
+		__m128 s1	= _mm_shuffle_ps(tenter, tenter, _MM_SHUFFLE(0, 0, 0, 1));
+		__m128 mx01 = _mm_max_ss(tenter, s1);
+		__m128 s2	= _mm_shuffle_ps(tenter, tenter, _MM_SHUFFLE(0, 0, 0, 2));
+		float  tmin = _mm_cvtss_f32(_mm_max_ss(mx01, s2));
 
-		for (int i = 0; i < 3; ++i)
-		{
-			if (std::abs(ray.direction[i]) < s_RayDirectionEpsilon)
-			{
-				// Ray is parallel to slab - check if origin is within slab
-				if (ray.origin[i] < m_Min[i] || ray.origin[i] > m_Max[i])
-					return false;
-			}
-			else
-			{
-				// Compute intersection t values of ray with near and far plane of slab
-				const float invD = 1.0f / ray.direction[i];
-				float t1 = (m_Min[i] - ray.origin[i]) * invD;
-				float t2 = (m_Max[i] - ray.origin[i]) * invD;
+		// Horizontal min of texit (xyz only) → tmax
+		s1			= _mm_shuffle_ps(texit, texit, _MM_SHUFFLE(0, 0, 0, 1));
+		__m128 mn01 = _mm_min_ss(texit, s1);
+		s2			= _mm_shuffle_ps(texit, texit, _MM_SHUFFLE(0, 0, 0, 2));
+		float tmax	= _mm_cvtss_f32(_mm_min_ss(mn01, s2));
 
-				// Make t1 the intersection with near plane, t2 with far plane
-				if (t1 > t2)
-					std::swap(t1, t2);
-
-				// Compute intersection of slab interval with ray interval
-				tmin = std::max(tmin, t1);
-				tmax = std::min(tmax, t2);
-
-				// Exit if ray misses box
-				if (tmin > tmax)
-					return false;
-			}
-		}
-
-		// Ray intersects all 3 slabs
-		return tmax >= 0.0f;
+		tmin = std::max(tmin, 0.f);
+		return (tmin <= tmax) ? tmin : std::numeric_limits<float>::infinity();
+		// float tmin = 0.0, tmax = INFINITY;
+		// 
+		// const glm::vec3 t1 = (m_Min - ray.origin) * ray.invDirection;
+		// const glm::vec3 t2 = (m_Max - ray.origin) * ray.invDirection;
+		// for (int d = 0; d < 3; ++d)
+		// {
+		// 
+		// 	tmin = std::min(std::max(t1[d], tmin), std::max(t2[d], tmin));
+		// 	tmax = std::max(std::min(t1[d], tmax), std::min(t2[d], tmax));
+		// }
+		// 
+		// return (tmin <= tmax) ? tmin : std::numeric_limits<float>::infinity();
 	}
 
 	[[nodiscard]] inline float IntersectImpl(const S_Ray& ray) const

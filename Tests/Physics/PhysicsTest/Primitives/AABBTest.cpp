@@ -404,6 +404,29 @@ TEST(AABB_Intersects, Intersects_UninitializedBox)
 	EXPECT_EQ(aabb.Intersects(ray), std::numeric_limits<float>::infinity());
 }
 
+TEST(AABB_Intersects, Intersects_UninitializedBox_NegativeDirection)
+{
+	const S_AABB aabb;
+	const S_Ray ray{{5.f, 5.f, 5.f}, {-1.f, 0.f, 0.f}};
+	EXPECT_EQ(aabb.Intersects(ray), std::numeric_limits<float>::infinity());
+}
+
+TEST(AABB_Intersects, Intersects_UninitializedBox_DiagonalDirection)
+{
+	const S_AABB aabb;
+	const glm::vec3 dir = glm::normalize(glm::vec3(1.f, 1.f, 1.f));
+	const S_Ray ray{{0.f, 0.f, 0.f}, dir};
+	EXPECT_EQ(aabb.Intersects(ray), std::numeric_limits<float>::infinity());
+}
+
+TEST(AABB_Intersects, Intersects_UninitializedBox_AxisAlignedAxes)
+{
+	// Ensure the guard fires for all three principal axes
+	const S_AABB aabb;
+	EXPECT_EQ(aabb.Intersects(S_Ray{{0.f, 0.f, 0.f}, {0.f, 1.f, 0.f}}), std::numeric_limits<float>::infinity());
+	EXPECT_EQ(aabb.Intersects(S_Ray{{0.f, 0.f, 0.f}, {0.f, 0.f, 1.f}}), std::numeric_limits<float>::infinity());
+}
+
 // =============================================================================
 // IntersectImpl — Graphics Gems ray-box algorithm
 // Returns distance to hit point (>0), 0.0 when inside, negative on miss.
@@ -449,6 +472,28 @@ TEST(AABB_IntersectImpl, IntersectImpl_Uninitialized)
 	const S_AABB aabb;
 	const S_Ray ray{{0.f, 0.f, 0.f}, {1.f, 0.f, 0.f}};
 	EXPECT_LT(aabb.IntersectImpl(ray), 0.f);
+}
+
+TEST(AABB_IntersectImpl, IntersectImpl_Uninitialized_NegativeDirection)
+{
+	const S_AABB aabb;
+	const S_Ray ray{{5.f, 5.f, 5.f}, {-1.f, 0.f, 0.f}};
+	EXPECT_LT(aabb.IntersectImpl(ray), 0.f);
+}
+
+TEST(AABB_IntersectImpl, IntersectImpl_Uninitialized_DiagonalDirection)
+{
+	const S_AABB aabb;
+	const glm::vec3 dir = glm::normalize(glm::vec3(1.f, 1.f, 1.f));
+	const S_Ray ray{{0.f, 0.f, 0.f}, dir};
+	EXPECT_LT(aabb.IntersectImpl(ray), 0.f);
+}
+
+TEST(AABB_IntersectImpl, IntersectImpl_Uninitialized_AxisAlignedAxes)
+{
+	const S_AABB aabb;
+	EXPECT_LT(aabb.IntersectImpl(S_Ray{{0.f, 0.f, 0.f}, {0.f, 1.f, 0.f}}), 0.f);
+	EXPECT_LT(aabb.IntersectImpl(S_Ray{{0.f, 0.f, 0.f}, {0.f, 0.f, 1.f}}), 0.f);
 }
 
 // =============================================================================

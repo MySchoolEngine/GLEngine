@@ -193,7 +193,7 @@ TEST_F(TrimeshFixture, RayIntersectsSingleTriangle)
 	trimesh.AddTriangle(tri);
 	trimesh.SetMaterial(testMaterial.get());
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.25f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.25f, 0.25f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection hit;
 
 	EXPECT_TRUE(trimesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
@@ -207,7 +207,7 @@ TEST_F(TrimeshFixture, RayMissesSingleTriangle)
 	auto tri = MakeTriangle();
 	trimesh.AddTriangle(tri);
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(10.0f, 10.0f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(10.0f, 10.0f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection hit;
 
 	EXPECT_FALSE(trimesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
@@ -225,7 +225,7 @@ TEST_F(TrimeshFixture, RayIntersectsClosestTriangle)
 	trimesh.AddTriangle(tri2);
 	trimesh.SetMaterial(testMaterial.get());
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.5f, 0.5f, -1.0f), .direction = glm::vec3(0, 0, 1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.5f, 0.5f, -1.0f), glm::vec3(0, 0, 1)};
 	C_RayIntersection hit;
 
 	const bool intersected = trimesh.Intersect(ray, hit, std::numeric_limits<float>::infinity());
@@ -241,7 +241,7 @@ TEST_F(TrimeshFixture, RayIntersectionDistance)
 	trimesh.AddTriangle(tri);
 	trimesh.SetMaterial(testMaterial.get());
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.25f, 0.25f, 0.0f), .direction = glm::vec3(0, 0, 1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.25f, 0.25f, 0.0f), glm::vec3(0, 0, 1)};
 	C_RayIntersection hit;
 
 	const bool intersected = trimesh.Intersect(ray, hit, std::numeric_limits<float>::infinity());
@@ -258,7 +258,7 @@ TEST_F(TrimeshFixture, RayIntersectionWithUVInterpolation)
 	trimesh.AddTriangle(tri, uvs);
 	trimesh.SetMaterial(testMaterial.get());
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.5f, 0.0f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.5f, 0.0f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection hit;
 
 	const bool intersected = trimesh.Intersect(ray, hit, std::numeric_limits<float>::infinity());
@@ -274,7 +274,7 @@ TEST_F(TrimeshFixture, EmptyTrimeshDoesNotIntersect)
 {
 	C_Trimesh trimesh;
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0, 0, 0), .direction = glm::vec3(0, 0, 1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0, 0, 0), glm::vec3(0, 0, 1)};
 	C_RayIntersection hit;
 
 	EXPECT_FALSE(trimesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
@@ -287,7 +287,7 @@ TEST_F(TrimeshFixture, RayAABBCulling)
 	trimesh.AddTriangle(tri);
 
 	// Ray that misses AABB entirely
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(-10, -10, 1), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(-10, -10, 1), glm::vec3(0, 0, -1)};
 	C_RayIntersection hit;
 
 	EXPECT_FALSE(trimesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
@@ -309,7 +309,7 @@ TEST_F(TrimeshFixture, SetTransformationTranslation)
 	trimesh.SetTransformation(transform);
 
 	// Ray should now hit at translated position
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(5.25f, 5.25f, 6.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(5.25f, 5.25f, 6.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection hit;
 
 	EXPECT_TRUE(trimesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
@@ -327,7 +327,7 @@ TEST_F(TrimeshFixture, SetTransformationScale)
 	trimesh.SetTransformation(transform);
 
 	// Triangle is now twice as large
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.5f, 0.5f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.5f, 0.5f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection hit;
 
 	EXPECT_TRUE(trimesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
@@ -364,7 +364,7 @@ TEST_F(TrimeshFixture, TransformedRayIntersectionDistance)
 	glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 5));
 	trimesh.SetTransformation(transform);
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.25f, 0.25f, 0.0f), .direction = glm::vec3(0, 0, 1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.25f, 0.25f, 0.0f), glm::vec3(0, 0, 1)};
 	C_RayIntersection hit;
 
 	const bool intersected = trimesh.Intersect(ray, hit, std::numeric_limits<float>::infinity());
@@ -386,7 +386,7 @@ TEST_F(TrimeshFixture, SetBVH)
 	// Note: BVH is managed externally, we just test that setter doesn't crash
 	trimesh.SetBVH(nullptr);
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.25f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.25f, 0.25f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection hit;
 
 	// Should still work without BVH (falls back to brute force)
@@ -428,7 +428,7 @@ TEST_F(TrimeshFixture, VeryLargeTriangle)
 	trimesh.AddTriangle(tri);
 	trimesh.SetMaterial(testMaterial.get());
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(1000, 1000, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(1000, 1000, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection hit;
 
 	EXPECT_TRUE(trimesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
@@ -442,7 +442,7 @@ TEST_F(TrimeshFixture, VerySmallTriangle)
 	trimesh.AddTriangle(tri);
 	trimesh.SetMaterial(testMaterial.get());
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(5e-7f, 5e-7f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(5e-7f, 5e-7f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection hit;
 
 	// Might or might not hit depending on precision
@@ -469,14 +469,14 @@ TEST_F(TrimeshFixture, MultipleTrianglesFormingQuad)
 
 	// Ray through first triangle
 	{
-		constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.25f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+		Physics::Primitives::S_Ray ray{glm::vec3(0.25f, 0.25f, 1.0f), glm::vec3(0, 0, -1)};
 		C_RayIntersection hit;
 		EXPECT_TRUE(trimesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
 	}
 
 	// Ray through second triangle
 	{
-		constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.75f, 0.75f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+		Physics::Primitives::S_Ray ray{glm::vec3(0.75f, 0.75f, 1.0f), glm::vec3(0, 0, -1)};
 		C_RayIntersection hit;
 		EXPECT_TRUE(trimesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
 	}
@@ -504,8 +504,8 @@ TEST_F(TrimeshFixture, ManyTriangles)
 	for (int i = 0; i < 10; ++i)
 	{
 		const Physics::Primitives::S_Ray ray{
-			.origin = glm::vec3(i * 10.0f + 0.25f, 0.25f, 1.0f),
-			.direction = glm::vec3(0, 0, -1)
+			glm::vec3(i * 10.0f + 0.25f, 0.25f, 1.0f),
+			glm::vec3(0, 0, -1)
 		};
 		C_RayIntersection hit;
 
@@ -525,7 +525,7 @@ TEST_F(TrimeshFixture, MaterialIsSetOnIntersection)
 	trimesh.SetMaterial(testMaterial.get());
 
 	// Material should be set through I_RayGeometryObject interface
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.25f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.25f, 0.25f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection hit;
 
 	const bool intersected = trimesh.Intersect(ray, hit, std::numeric_limits<float>::infinity());
@@ -546,7 +546,7 @@ TEST_F(TrimeshFixture, RayParallelToTriangle)
 	trimesh.AddTriangle(tri);
 
 	// Ray parallel to triangle plane
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.5f, 0.5f, 1.0f), .direction = glm::vec3(1, 0, 0)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.5f, 0.5f, 1.0f), glm::vec3(1, 0, 0)};
 	C_RayIntersection hit;
 
 	EXPECT_FALSE(trimesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
@@ -559,7 +559,7 @@ TEST_F(TrimeshFixture, RayFromBehindTriangle)
 	trimesh.AddTriangle(tri);
 
 	// Ray pointing away from triangle
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.5f, 0.5f, 1.0f), .direction = glm::vec3(0, 0, 1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.5f, 0.5f, 1.0f), glm::vec3(0, 0, 1)};
 	C_RayIntersection hit;
 
 	EXPECT_FALSE(trimesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
@@ -573,7 +573,7 @@ TEST_F(TrimeshFixture, RayHitsTriangleEdge)
 	trimesh.SetMaterial(testMaterial.get());
 
 	// Ray hitting edge between (0,0,0) and (1,0,0)
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.5f, 0.0f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.5f, 0.0f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection hit;
 
 	const bool intersected = trimesh.Intersect(ray, hit, std::numeric_limits<float>::infinity());
@@ -592,7 +592,7 @@ TEST_F(TrimeshFixture, RayHitsTriangleVertex)
 	trimesh.SetMaterial(testMaterial.get());
 
 	// Ray hitting vertex (0,0,0)
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.0f, 0.0f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection hit;
 
 	const bool intersected = trimesh.Intersect(ray, hit, std::numeric_limits<float>::infinity());
@@ -615,7 +615,7 @@ TEST_F(TrimeshFixture, NegativeCoordinates)
 	trimesh.AddTriangle(tri);
 	trimesh.SetMaterial(testMaterial.get());
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(-10, -10, -9), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(-10, -10, -9), glm::vec3(0, 0, -1)};
 	C_RayIntersection hit;
 
 	EXPECT_TRUE(trimesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
@@ -639,7 +639,7 @@ TEST_F(TrimeshFixture, MixedPositiveNegativeCoordinates)
 	EXPECT_EQ(trimesh.GetNumTriangles(), 10u);
 
 	// Test ray through origin
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0, 0, 1), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0, 0, 1), glm::vec3(0, 0, -1)};
 	C_RayIntersection hit;
 	EXPECT_TRUE(trimesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
 }
@@ -657,7 +657,7 @@ TEST_F(TrimeshFixture, CopyHasSameIntersectionBehavior)
 
 	C_Trimesh copy(original);
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.25f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.25f, 0.25f, 1.0f), glm::vec3(0, 0, -1)};
 
 	C_RayIntersection hitOriginal;
 	C_RayIntersection hitCopy;

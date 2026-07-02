@@ -24,7 +24,7 @@ TEST_P(BVHRayTest, RayIntersectionBehavior)
 {
 	auto [origin, direction, shouldHit] = GetParam();
 
-	const Physics::Primitives::S_Ray ray{.origin = origin, .direction = normalize(direction)};
+	const Physics::Primitives::S_Ray ray{origin, normalize(direction)};
 	C_RayIntersection				 hit;
 	const bool						 intersected = bvh_->Intersect(ray, hit);
 
@@ -248,7 +248,7 @@ TEST_F(BVHFixture, RayParallelToTriangle)
 	const BVH bvh(triangles);
 
 	// Ray parallel to triangle plane
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.5f, 0.5f, 1.0f), .direction = glm::vec3(1, 0, 0)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.5f, 0.5f, 1.0f), glm::vec3(1, 0, 0)};
 	C_RayIntersection					 hit;
 
 	EXPECT_FALSE(bvh.Intersect(ray, hit));
@@ -261,7 +261,7 @@ TEST_F(BVHFixture, RayHitsTriangleEdge)
 	const BVH bvh(triangles);
 
 	// Ray hitting the edge between vertices (0,0,0) and (1,0,0)
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.5f, 0.0f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.5f, 0.0f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection					 hit;
 
 	const bool intersected = bvh.Intersect(ray, hit);
@@ -279,7 +279,7 @@ TEST_F(BVHFixture, RayHitsTriangleVertex)
 	const BVH bvh(triangles);
 
 	// Ray hitting vertex (0,0,0)
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.0f, 0.0f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection					 hit;
 
 	const bool intersected = bvh.Intersect(ray, hit);
@@ -297,7 +297,7 @@ TEST_F(BVHFixture, RayStartsInsideBoundingBox)
 	const BVH bvh(triangles);
 
 	// Ray starting inside the bounding box but not hitting the triangle
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.5f, 0.5f, 0.5f), .direction = glm::vec3(0, 0, 1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0, 0, 1)};
 	C_RayIntersection					 hit;
 
 	EXPECT_FALSE(bvh.Intersect(ray, hit));
@@ -310,7 +310,7 @@ TEST_F(BVHFixture, RayOriginOnTriangleSurface)
 	const BVH bvh(triangles);
 
 	// Ray starting on the triangle surface
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.25f, 0.25f, 0.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.25f, 0.25f, 0.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection					 hit;
 
 	const bool intersected = bvh.Intersect(ray, hit);
@@ -332,7 +332,7 @@ TEST_F(BVHFixture, MultipleTrianglesAlongRay)
 	const BVH bvh(triangles);
 
 	// Ray should hit the first triangle
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.25f, 0.25f, -1.0f), .direction = glm::vec3(0, 0, 1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.25f, 0.25f, -1.0f), glm::vec3(0, 0, 1)};
 	C_RayIntersection					 hit;
 
 	const bool intersected = bvh.Intersect(ray, hit);
@@ -352,14 +352,14 @@ TEST_F(BVHFixture, RayFromDifferentDirections)
 
 	// Test from positive Z
 	{
-		constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.25f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+		Physics::Primitives::S_Ray ray{glm::vec3(0.25f, 0.25f, 1.0f), glm::vec3(0, 0, -1)};
 		C_RayIntersection					 hit;
 		EXPECT_TRUE(bvh.Intersect(ray, hit));
 	}
 
 	// Test from negative Z (backface)
 	{
-		constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.25f, 0.25f, -1.0f), .direction = glm::vec3(0, 0, 1)};
+		Physics::Primitives::S_Ray ray{glm::vec3(0.25f, 0.25f, -1.0f), glm::vec3(0, 0, 1)};
 		C_RayIntersection					 hit;
 		// Should hit (backface culling depends on implementation)
 		EXPECT_TRUE(bvh.Intersect(ray, hit)); // Just verify it doesn't crash
@@ -367,7 +367,7 @@ TEST_F(BVHFixture, RayFromDifferentDirections)
 
 	// Test from diagonal
 	{
-		const Physics::Primitives::S_Ray ray{.origin = glm::vec3(-1.0f, -1.0f, 1.0f), .direction = normalize(glm::vec3(1.25f, 1.25f, -1.0f))};
+		const Physics::Primitives::S_Ray ray{glm::vec3(-1.0f, -1.0f, 1.0f), normalize(glm::vec3(1.25f, 1.25f, -1.0f))};
 		C_RayIntersection				 hit;
 		EXPECT_TRUE(bvh.Intersect(ray, hit));
 	}
@@ -380,7 +380,7 @@ TEST_F(BVHFixture, GrazingAngleRay)
 	const BVH bvh(triangles);
 
 	// Ray at very shallow angle
-	const Physics::Primitives::S_Ray ray{.origin = glm::vec3(5.0f, 2.0f, 5.0f), .direction = normalize(glm::vec3(0, 0, -1))};
+	const Physics::Primitives::S_Ray ray{glm::vec3(5.0f, 2.0f, 5.0f), normalize(glm::vec3(0, 0, -1))};
 	C_RayIntersection				 hit;
 
 	const bool intersected = bvh.Intersect(ray, hit);
@@ -398,7 +398,7 @@ TEST_F(BVHFixture, EmptyGeometry)
 	const BVH bvh(triangles);
 
 	// Should not crash, ray should miss
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0, 0, 0), .direction = glm::vec3(0, 0, 1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0, 0, 0), glm::vec3(0, 0, 1)};
 	C_RayIntersection					 hit;
 
 	EXPECT_FALSE(bvh.Intersect(ray, hit));
@@ -411,7 +411,7 @@ TEST_F(BVHFixture, SingleTriangle)
 	const BVH bvh(triangles);
 
 	// Should intersect
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.25f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.25f, 0.25f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection					 hit;
 
 	EXPECT_TRUE(bvh.Intersect(ray, hit));
@@ -431,14 +431,14 @@ TEST_F(BVHFixture, CoplanarTriangles)
 
 	// Test hitting different triangles
 	{
-		constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.25f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+		Physics::Primitives::S_Ray ray{glm::vec3(0.25f, 0.25f, 1.0f), glm::vec3(0, 0, -1)};
 		C_RayIntersection					 hit;
 		EXPECT_TRUE(bvh.Intersect(ray, hit));
 		EXPECT_FLOAT_EQ(hit.GetRayLength(), 1.f);
 	}
 
 	{
-		constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(2.25f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+		Physics::Primitives::S_Ray ray{glm::vec3(2.25f, 0.25f, 1.0f), glm::vec3(0, 0, -1)};
 		C_RayIntersection					 hit;
 		EXPECT_TRUE(bvh.Intersect(ray, hit));
 		EXPECT_FLOAT_EQ(hit.GetRayLength(), 1.f);
@@ -452,7 +452,7 @@ TEST_F(BVHFixture, AxisAlignedTriangles)
 
 	const BVH bvh(triangles);
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.25f, 0.25f, 0.0f), .direction = glm::vec3(0, 0, 1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.25f, 0.25f, 0.0f), glm::vec3(0, 0, 1)};
 	C_RayIntersection					 hit;
 
 	const bool intersected = bvh.Intersect(ray, hit);
@@ -489,7 +489,7 @@ TEST_F(BVHFixture, LargeMesh)
 	{
 		float							 x = i * 2.0f + 0.5f;
 		float							 y = i * 1.5f + 0.5f;
-		const Physics::Primitives::S_Ray ray{.origin = glm::vec3(x, y, 1.0f), .direction = glm::vec3(0, 0, -1)};
+		const Physics::Primitives::S_Ray ray{glm::vec3(x, y, 1.0f), glm::vec3(0, 0, -1)};
 		C_RayIntersection				 hit;
 
 		EXPECT_TRUE(bvh.Intersect(ray, hit)) << "Failed at position (" << x << ", " << y << ")";
@@ -507,7 +507,7 @@ TEST_F(BVHFixture, ZeroAreaTriangle)
 
 	const BVH bvh(triangles);
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0, 0, 1), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0, 0, 1), glm::vec3(0, 0, -1)};
 	C_RayIntersection					 hit;
 
 	// Should not crash, behavior is implementation-defined
@@ -521,7 +521,7 @@ TEST_F(BVHFixture, CollinearTriangle)
 
 	const BVH bvh(triangles);
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(1, 0, 1), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(1, 0, 1), glm::vec3(0, 0, -1)};
 	C_RayIntersection					 hit;
 
 	// Should not crash, likely won't intersect
@@ -535,7 +535,7 @@ TEST_F(BVHFixture, VerySmallTriangle)
 
 	const BVH bvh(triangles);
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(5e-7f, 5e-7f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(5e-7f, 5e-7f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection					 hit;
 
 	// Should handle without crashing
@@ -549,7 +549,7 @@ TEST_F(BVHFixture, VeryLargeTriangle)
 
 	const BVH bvh(triangles);
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(1000, 1000, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(1000, 1000, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection					 hit;
 
 	const bool intersected = bvh.Intersect(ray, hit);
@@ -567,7 +567,7 @@ TEST_F(BVHFixture, ExtremeAspectRatioTriangle)
 
 	const BVH bvh(triangles);
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(50, 0.005f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(50, 0.005f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection					 hit;
 
 	EXPECT_TRUE(bvh.Intersect(ray, hit));
@@ -631,7 +631,7 @@ TEST_F(BVHFixture, DistanceAccuracy)
 
 	const BVH bvh(triangles);
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(1, 1, 0), .direction = glm::vec3(0, 0, 1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(1, 1, 0), glm::vec3(0, 0, 1)};
 	C_RayIntersection					 hit;
 
 	const bool intersected = bvh.Intersect(ray, hit);
@@ -651,7 +651,7 @@ TEST_F(BVHFixture, ClosestHitSelection)
 
 	const BVH bvh(triangles);
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0, 0, 0), .direction = glm::vec3(0, 0, 1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0, 0, 0), glm::vec3(0, 0, 1)};
 	C_RayIntersection					 hit;
 
 	const bool intersected = bvh.Intersect(ray, hit);
@@ -666,7 +666,7 @@ TEST_F(BVHFixture, RayMissesAllTriangles)
 	const BVH bvh(triangles);
 
 	// Ray completely missing the geometry
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(10, 10, 10), .direction = glm::vec3(1, 0, 0)};
+	Physics::Primitives::S_Ray ray{glm::vec3(10, 10, 10), glm::vec3(1, 0, 0)};
 	C_RayIntersection					 hit;
 
 	EXPECT_FALSE(bvh.Intersect(ray, hit));
@@ -679,7 +679,7 @@ TEST_F(BVHFixture, RayInOppositeDirection)
 	const BVH bvh(triangles);
 
 	// Ray pointing away from the triangle
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.5f, 0.5f, 1.0f), .direction = glm::vec3(0, 0, 1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.5f, 0.5f, 1.0f), glm::vec3(0, 0, 1)};
 	C_RayIntersection					 hit;
 
 	EXPECT_FALSE(bvh.Intersect(ray, hit));
@@ -814,7 +814,7 @@ TEST_F(BVHFixture, OverlappingTriangles)
 	EXPECT_TRUE(NoDuplicatePrimitives(bvh));
 
 	// Ray through the stack should hit the first one
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.25f, 0.25f, -1.0f), .direction = glm::vec3(0, 0, 1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.25f, 0.25f, -1.0f), glm::vec3(0, 0, 1)};
 	C_RayIntersection					 hit;
 	EXPECT_TRUE(bvh.Intersect(ray, hit));
 }
@@ -851,7 +851,7 @@ TEST_F(BVHFixture, TrianglesFormingCube)
 	// Test rays hitting different faces
 	{
 		// Ray hitting front face
-		constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.5f, 0.5f, 2.0f), .direction = glm::vec3(0, 0, -1)};
+		Physics::Primitives::S_Ray ray{glm::vec3(0.5f, 0.5f, 2.0f), glm::vec3(0, 0, -1)};
 		C_RayIntersection					 hit;
 		EXPECT_TRUE(bvh.Intersect(ray, hit));
 		EXPECT_NEAR(hit.GetRayLength(), 1.0f, EPSILON);
@@ -859,7 +859,7 @@ TEST_F(BVHFixture, TrianglesFormingCube)
 
 	{
 		// Ray from inside pointing out
-		constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.5f, 0.5f, 0.5f), .direction = glm::vec3(1, 0, 0)};
+		Physics::Primitives::S_Ray ray{glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1, 0, 0)};
 		C_RayIntersection					 hit;
 		EXPECT_TRUE(bvh.Intersect(ray, hit));
 	}
@@ -890,13 +890,13 @@ TEST_F(BVHFixture, HighlyUnbalancedDistribution)
 
 	// Both rays should work
 	{
-		constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(-1000, -1000, -999), .direction = glm::vec3(0, 0, -1)};
+		Physics::Primitives::S_Ray ray{glm::vec3(-1000, -1000, -999), glm::vec3(0, 0, -1)};
 		C_RayIntersection					 hit;
 		EXPECT_TRUE(bvh.Intersect(ray, hit));
 	}
 
 	{
-		constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.5f, 0.05f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+		Physics::Primitives::S_Ray ray{glm::vec3(0.5f, 0.05f, 1.0f), glm::vec3(0, 0, -1)};
 		C_RayIntersection					 hit;
 		EXPECT_TRUE(bvh.Intersect(ray, hit));
 	}
@@ -919,12 +919,12 @@ TEST_F(BVHFixture, AllTrianglesOnOneSide)
 	EXPECT_EQ(CountVerticesInLeaves(bvh), 50u);
 
 	// Ray from negative X should miss
-	constexpr Physics::Primitives::S_Ray rayMiss{.origin = glm::vec3(-10, 25, 1), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray rayMiss{glm::vec3(-10, 25, 1), glm::vec3(0, 0, -1)};
 	C_RayIntersection					 hitMiss;
 	EXPECT_FALSE(bvh.Intersect(rayMiss, hitMiss));
 
 	// Ray from positive X should hit
-	constexpr Physics::Primitives::S_Ray rayHit{.origin = glm::vec3(125, 25, 1), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray rayHit{glm::vec3(125, 25, 1), glm::vec3(0, 0, -1)};
 	C_RayIntersection					 hit;
 	EXPECT_TRUE(bvh.Intersect(rayHit, hit));
 }
@@ -939,7 +939,7 @@ TEST_F(BVHFixture, NegativeCoordinates)
 
 	const BVH bvh(triangles);
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(-10, -10, -9), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(-10, -10, -9), glm::vec3(0, 0, -1)};
 	C_RayIntersection					 hit;
 
 	EXPECT_TRUE(bvh.Intersect(ray, hit));
@@ -964,7 +964,7 @@ TEST_F(BVHFixture, MixedPositiveNegativeCoordinates)
 	EXPECT_TRUE(NoDuplicatePrimitives(bvh));
 
 	// Test ray through origin
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0, 0, 1), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0, 0, 1), glm::vec3(0, 0, -1)};
 	C_RayIntersection					 hit;
 	EXPECT_TRUE(bvh.Intersect(ray, hit));
 }
@@ -976,7 +976,7 @@ TEST_F(BVHFixture, TrianglesAtCoordinateExtremes)
 
 	const BVH bvh(triangles);
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(1e4f + 0.25f, 1e4f + 0.25f, 1e4f + 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(1e4f + 0.25f, 1e4f + 0.25f, 1e4f + 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection				 hit;
 
 	EXPECT_TRUE(bvh.Intersect(ray, hit));
@@ -1067,10 +1067,10 @@ TEST_F(BVHConsistencyTest, ConsistencyWithBruteForceSimple)
 
 	// Test multiple rays
 	std::vector<Physics::Primitives::S_Ray> rays = {
-		{.origin = glm::vec3(0.25f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)},
-		{.origin = glm::vec3(2.25f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)},
-		{.origin = glm::vec3(0.25f, 2.25f, 1.0f), .direction = glm::vec3(0, 0, -1)},
-		{.origin = glm::vec3(5.0f, 5.0f, 1.0f), .direction = glm::vec3(0, 0, -1)} // miss
+		{glm::vec3(0.25f, 0.25f, 1.0f), glm::vec3(0, 0, -1)},
+		{glm::vec3(2.25f, 0.25f, 1.0f), glm::vec3(0, 0, -1)},
+		{glm::vec3(0.25f, 2.25f, 1.0f), glm::vec3(0, 0, -1)},
+		{glm::vec3(5.0f, 5.0f, 1.0f), glm::vec3(0, 0, -1)} // miss
 	};
 
 	for (const auto& ray : rays)
@@ -1116,7 +1116,7 @@ TEST_F(BVHConsistencyTest, ConsistencyWithBruteForceComplex)
 	{
 		float							 x	 = i * 0.5f + 0.25f;
 		float							 y	 = (i % 7) * 0.7f + 0.25f;
-		const Physics::Primitives::S_Ray ray = {.origin = glm::vec3(x, y, 10.0f), .direction = glm::vec3(0, 0, -1)};
+		const Physics::Primitives::S_Ray ray = {glm::vec3(x, y, 10.0f), glm::vec3(0, 0, -1)};
 
 		C_RayIntersection bvhHit;
 		C_RayIntersection bruteHit;
@@ -1151,7 +1151,7 @@ TEST_F(BVHConsistencyTest, ShadowRayConsistency)
 	for (int i = 0; i < 20; i++)
 	{
 		// Ray from surface point upward (should miss)
-		const Physics::Primitives::S_Ray rayUp = {.origin = glm::vec3(i + 0.25f, 0.25f, 0.0f), .direction = glm::vec3(0, 0, 1)};
+		const Physics::Primitives::S_Ray rayUp = {glm::vec3(i + 0.25f, 0.25f, 0.0f), glm::vec3(0, 0, 1)};
 
 		C_RayIntersection bvhHit;
 		C_RayIntersection bruteHit;
@@ -1159,7 +1159,7 @@ TEST_F(BVHConsistencyTest, ShadowRayConsistency)
 		EXPECT_EQ(bvh.Intersect(rayUp, bvhHit), BruteForceIntersect(triangles, rayUp, bruteHit));
 
 		// Ray from above downward (should hit)
-		const Physics::Primitives::S_Ray rayDown = {.origin = glm::vec3(i + 0.25f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+		const Physics::Primitives::S_Ray rayDown = {glm::vec3(i + 0.25f, 0.25f, 1.0f), glm::vec3(0, 0, -1)};
 
 		EXPECT_EQ(bvh.Intersect(rayDown, bvhHit), BruteForceIntersect(triangles, rayDown, bruteHit));
 	}
@@ -1177,7 +1177,7 @@ TEST_F(BVHFixture, DoesNotMissTriangleAtBoundary)
 	const BVH bvh(triangles);
 
 	// Test ray hitting exactly at edge
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(5.0f, 0.0f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(5.0f, 0.0f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection					 hit;
 
 	EXPECT_TRUE(bvh.Intersect(ray, hit)) << "Should hit triangle at boundary";
@@ -1190,7 +1190,7 @@ TEST_F(BVHFixture, HandlesNearMissCorrectly)
 	const BVH bvh(triangles);
 
 	// Ray just barely missing the triangle
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(1.001f, 0.0f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(1.001f, 0.0f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection					 hit;
 
 	EXPECT_FALSE(bvh.Intersect(ray, hit)) << "Should miss triangle that's just outside";
@@ -1225,7 +1225,7 @@ TEST_F(BVHFixture, ReturnsCorrectTriangleIndex_SingleTriangle)
 
 	const BVH bvh(triangles);
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.25f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.25f, 0.25f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection					 hit;
 	unsigned int						 triangleIndex = 999; // Initialize with invalid value
 
@@ -1251,7 +1251,7 @@ TEST_F(BVHFixture, ReturnsCorrectTriangleIndex_MultipleTriangles)
 	// Test hitting each triangle
 	for (int i = 0; i < 5; i++)
 	{
-		const Physics::Primitives::S_Ray ray{.origin = glm::vec3(i + 0.25f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+		const Physics::Primitives::S_Ray ray{glm::vec3(i + 0.25f, 0.25f, 1.0f), glm::vec3(0, 0, -1)};
 		C_RayIntersection				 hit;
 		unsigned int					 triangleIndex = 999;
 
@@ -1268,7 +1268,7 @@ TEST_F(BVHFixture, TriangleIndexNullptrDoesNotCrash)
 
 	const BVH bvh(triangles);
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.25f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.25f, 0.25f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection					 hit;
 
 	// Should not crash when passing nullptr for triangle index
@@ -1285,7 +1285,7 @@ TEST_F(BVHFixture, ReturnsClosestTriangleIndex)
 
 	const BVH bvh(triangles);
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.25f, 0.25f, -1.0f), .direction = glm::vec3(0, 0, 1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.25f, 0.25f, -1.0f), glm::vec3(0, 0, 1)};
 	C_RayIntersection					 hit;
 	unsigned int						 triangleIndex = 999;
 
@@ -1308,7 +1308,7 @@ TEST_F(BVHFixture, ReturnsBarycentricCoordinates_TriangleCenter)
 
 	// Ray hitting the center of the triangle
 	// Center is at (1/3, 1/3) in barycentric coords
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(1.0f / 3.0f, 1.0f / 3.0f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(1.0f / 3.0f, 1.0f / 3.0f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection					 hit;
 	glm::vec2							 barycentric(999.f, 999.f);
 
@@ -1329,7 +1329,7 @@ TEST_F(BVHFixture, ReturnsBarycentricCoordinates_Vertex0)
 
 	// Ray hitting vertex 0 at (0, 0, 0)
 	// Barycentric should be (0, 0) meaning w=1
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.0f, 0.0f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection					 hit;
 	glm::vec2							 barycentric(999.f, 999.f);
 
@@ -1348,7 +1348,7 @@ TEST_F(BVHFixture, ReturnsBarycentricCoordinates_Vertex1)
 
 	// Ray hitting vertex 1 at (1, 0, 0)
 	// Barycentric should be (1, 0) meaning full weight on vertex 1
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(1.0f, 0.0f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection					 hit;
 	glm::vec2							 barycentric(999.f, 999.f);
 
@@ -1367,7 +1367,7 @@ TEST_F(BVHFixture, ReturnsBarycentricCoordinates_Vertex2)
 
 	// Ray hitting vertex 2 at (0, 1, 0)
 	// Barycentric should be (0, 1) meaning full weight on vertex 2
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.0f, 1.0f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection					 hit;
 	glm::vec2							 barycentric(999.f, 999.f);
 
@@ -1386,7 +1386,7 @@ TEST_F(BVHFixture, ReturnsBarycentricCoordinates_EdgeMidpoint)
 
 	// Ray hitting midpoint of edge between vertex 0 and vertex 1 at (0.5, 0, 0)
 	// Barycentric should be (0.5, 0) meaning half weight on vertex 0 and half on vertex 1
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.5f, 0.0f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.5f, 0.0f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection					 hit;
 	glm::vec2							 barycentric(999.f, 999.f);
 
@@ -1403,7 +1403,7 @@ TEST_F(BVHFixture, BarycentricNullptrDoesNotCrash)
 
 	const BVH bvh(triangles);
 
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.25f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.25f, 0.25f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection					 hit;
 
 	// Should not crash when passing nullptr for barycentric coords
@@ -1421,7 +1421,7 @@ TEST_F(BVHFixture, BarycentricCoordinatesAreValid)
 
 	for (const auto& point : testPoints)
 	{
-		const Physics::Primitives::S_Ray ray{.origin = glm::vec3(point.x, point.y, 1.0f), .direction = glm::vec3(0, 0, -1)};
+		const Physics::Primitives::S_Ray ray{glm::vec3(point.x, point.y, 1.0f), glm::vec3(0, 0, -1)};
 		C_RayIntersection				 hit;
 		glm::vec2						 barycentric;
 
@@ -1446,7 +1446,7 @@ TEST_F(BVHFixture, ReturnsBothTriangleIndexAndBarycentric)
 
 	const BVH bvh(triangles);
 
-	const Physics::Primitives::S_Ray ray{.origin = glm::vec3(2.25f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	const Physics::Primitives::S_Ray ray{glm::vec3(2.25f, 0.25f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection				 hit;
 	unsigned int					 triangleIndex = 999;
 	glm::vec2						 barycentric(999.f, 999.f);
@@ -1478,7 +1478,7 @@ TEST_F(BVHFixture, TriangleIndexAndBarycentricConsistentAcrossTree)
 	// Test hitting triangle at various depths in the tree
 	for (int i = 0; i < 30; i++)
 	{
-		const Physics::Primitives::S_Ray ray{.origin = glm::vec3(i + 0.25f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+		const Physics::Primitives::S_Ray ray{glm::vec3(i + 0.25f, 0.25f, 1.0f), glm::vec3(0, 0, -1)};
 		C_RayIntersection				 hit;
 		unsigned int					 triangleIndex = 999;
 		glm::vec2						 barycentric;
@@ -1508,7 +1508,7 @@ TEST_F(BVHFixture, BarycentricAllowsTextureCoordinateInterpolation)
 	const glm::vec2 texCoord2(0.0f, 1.0f);
 
 	// Hit the triangle at various points
-	constexpr Physics::Primitives::S_Ray ray{.origin = glm::vec3(0.5f, 0.25f, 1.0f), .direction = glm::vec3(0, 0, -1)};
+	Physics::Primitives::S_Ray ray{glm::vec3(0.5f, 0.25f, 1.0f), glm::vec3(0, 0, -1)};
 	C_RayIntersection					 hit;
 	glm::vec2							 barycentric;
 

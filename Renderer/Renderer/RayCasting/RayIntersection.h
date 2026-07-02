@@ -57,7 +57,7 @@ public:
 private:
 	S_Frame									m_Frame;
 	glm::vec3								m_Point;
-	Physics::Primitives::S_Ray				m_Ray;
+	Physics::Primitives::S_Ray				m_Ray		= {glm::vec3(0.f), glm::vec3(1.0, 0.0, 0.0)};
 	glm::vec2								m_UV		= {0.f, 0.f};
 	float									m_RayLength = std::numeric_limits<float>::infinity();
 	const I_MaterialInterface*				m_Material	= nullptr; // not owning
