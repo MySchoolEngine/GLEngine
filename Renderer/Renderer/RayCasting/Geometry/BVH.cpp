@@ -313,7 +313,7 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray,
 		{
 			S_IntersectionInfo intersect;
 			// test the triangles
-			if (TestTriangles(ray, current, &intersect.triangleIndex, &intersect.barycentric, &intersect.t) && intersect < closestIntersect)
+			if (TestTriangles(sseRay, current, &intersect.triangleIndex, &intersect.barycentric, &intersect.t) && intersect < closestIntersect)
 			{
 				closestIntersect = intersect;
 			}
@@ -356,7 +356,7 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray,
 }
 
 //=================================================================================
-bool BVH::TestTriangles(const Physics::Primitives::S_Ray& ray, const BVHNode& node, unsigned int* outTriangleIndex, glm::vec2* outBarycentric, float* distance) const
+bool BVH::TestTriangles(const Physics::Primitives::S_SSERay& ray, const BVHNode& node, unsigned int* outTriangleIndex, glm::vec2* outBarycentric, float* distance) const
 {
 	float closestT = std::numeric_limits<float>::infinity();
 	for (unsigned int i = node.firstTrig; i <= node.lastTrig; ++i)
