@@ -43,6 +43,21 @@ public:
 	 */
 	unsigned int ComputeMaxDepth() const;
 
+	struct S_BVHMetrics {
+		unsigned int minLeafDepth;
+		unsigned int maxLeafDepth;
+		float		 meanLeafDepth;
+		unsigned int minLeafTriangles;
+		unsigned int maxLeafTriangles;
+		float		 meanLeafTriangles;
+	};
+
+	/**
+	 * @brief Computes BVH leaf metrics (depth and triangle count statistics) in a single traversal
+	 * @return Struct with min/max/mean leaf depth and triangle counts, or zero-initialized if empty
+	 */
+	[[nodiscard]] S_BVHMetrics ComputeMetrics() const;
+
 	RTTR_REGISTRATION_FRIEND
 
 private:

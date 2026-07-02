@@ -284,7 +284,10 @@ void C_Trimesh::AfterDeserialize()
 {
 	m_TransformInv = glm::inverse(m_Transform);
 	if (m_BVH)
+	{
 		m_BVH->m_Storage = &m_Vertices;
+		CORE_LOG(E_Level::Info, E_Context::Render, "Loaded the BVH with depth of {}", m_BVH->ComputeMaxDepth());
+	}
 }
 
 } // namespace GLEngine::Renderer

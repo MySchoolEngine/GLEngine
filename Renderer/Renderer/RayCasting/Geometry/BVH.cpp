@@ -119,6 +119,62 @@ unsigned int BVH::ComputeMaxDepth() const
 }
 
 //=================================================================================
+BVH::S_BVHMetrics BVH::ComputeMetrics() const
+{
+	if (m_Nodes.empty())
+		return {};
+
+	S_BVHMetrics metrics{};
+	metrics.minLeafDepth	  = std::numeric_limits<unsigned int>::max();
+	metrics.minLeafTriangles  = std::numeric_limits<unsigned int>::max();
+	metrics.maxLeafDepth	  = 0;
+	metrics.maxLeafTriangles  = 0;
+
+	unsigned long long totalDepth	  = 0;
+	unsigned long long totalTriangles = 0;
+	unsigned int	   leafCount	  = 0;
+
+	// Stack stores (nodeIndex, depth)
+	std::vector<std::pair<T_BVHNodeID, unsigned int>> stack;
+	stack.reserve(s_MaxDepth * 2);
+	stack.emplace_back(0u, 1u);
+
+	while (!stack.empty())
+	{
+		auto [nodeId, depth] = stack.back();
+		stack.pop_back();
+
+		const BVHNode& node = m_Nodes[nodeId];
+		if (node.IsLeaf())
+		{
+			const unsigned int triCount = node.NumTrig();
+			metrics.minLeafDepth	 = std::min(metrics.minLeafDepth, depth);
+			metrics.maxLeafDepth	 = std::max(metrics.maxLeafDepth, depth);
+			metrics.minLeafTriangles = std::min(metrics.minLeafTriangles, triCount);
+			metrics.maxLeafTriangles = std::max(metrics.maxLeafTriangles, triCount);
+			totalDepth	  += depth;
+			totalTriangles += triCount;
+			++leafCount;
+		}
+		else
+		{
+			if (node.left != s_InvalidBVHNode)
+				stack.emplace_back(node.left, depth + 1);
+			if (node.right != s_InvalidBVHNode)
+				stack.emplace_back(node.right, depth + 1);
+		}
+	}
+
+	if (leafCount > 0)
+	{
+		metrics.meanLeafDepth	   = static_cast<float>(totalDepth) / static_cast<float>(leafCount);
+		metrics.meanLeafTriangles  = static_cast<float>(totalTriangles) / static_cast<float>(leafCount);
+	}
+
+	return metrics;
+}
+
+//=================================================================================
 void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<glm::vec3>& centroids)
 {
 	if (level >= s_MaxDepth)

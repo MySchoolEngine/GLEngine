@@ -29,13 +29,13 @@ std::vector<glm::vec3> GenerateGrid(int triCount)
 			const float x0 = static_cast<float>(i);
 			const float y0 = static_cast<float>(j);
 			// Triangle 1
-			verts.push_back({x0, y0, 0.f});
-			verts.push_back({x0 + 1.f, y0, 0.f});
-			verts.push_back({x0, y0 + 1.f, 0.f});
+			verts.emplace_back(x0, y0, 0.f);
+			verts.emplace_back(x0 + 1.f, y0, 0.f);
+			verts.emplace_back(x0, y0 + 1.f, 0.f);
 			// Triangle 2
-			verts.push_back({x0 + 1.f, y0, 0.f});
-			verts.push_back({x0 + 1.f, y0 + 1.f, 0.f});
-			verts.push_back({x0, y0 + 1.f, 0.f});
+			verts.emplace_back(x0 + 1.f, y0, 0.f);
+			verts.emplace_back(x0 + 1.f, y0 + 1.f, 0.f);
+			verts.emplace_back(x0, y0 + 1.f, 0.f);
 		}
 	}
 	return verts;
@@ -64,7 +64,6 @@ static void BM_BVH_Build(benchmark::State& state)
 		state.ResumeTiming();
 
 		GLEngine::Renderer::BVH bvh(storage);
-		bvh.Build();
 		benchmark::DoNotOptimize(bvh);
 	}
 }
@@ -81,12 +80,19 @@ static void BM_BVH_Intersect_Hit(benchmark::State& state)
 
 	auto					  storage = GenerateGrid(triCount);
 	GLEngine::Renderer::BVH   bvh(storage);
-	bvh.Build();
 
 	// Shoot straight down through the centre of the grid
 	const GLEngine::Physics::Primitives::S_Ray ray{
 		glm::vec3(side * 0.5f, side * 0.5f, 5.f),
 		glm::vec3(0.f, 0.f, -1.f)};
+
+	const auto metrics = bvh.ComputeMetrics();
+	state.counters["max depth"] = static_cast<double>(metrics.maxLeafDepth);
+	state.counters["mean depth"] = static_cast<double>(metrics.meanLeafDepth);
+	state.counters["min depth"] = static_cast<double>(metrics.minLeafDepth);
+	state.counters["max tris"] = static_cast<double>(metrics.maxLeafTriangles);
+	state.counters["mean tris"] = static_cast<double>(metrics.meanLeafTriangles);
+	state.counters["min tris"] = static_cast<double>(metrics.minLeafTriangles);
 
 	for (auto _ : state)
 	{
@@ -107,7 +113,6 @@ static void BM_BVH_Intersect_Miss(benchmark::State& state)
 
 	auto					  storage = GenerateGrid(triCount);
 	GLEngine::Renderer::BVH   bvh(storage);
-	bvh.Build();
 
 	// Shoot from far outside the grid
 	const GLEngine::Physics::Primitives::S_Ray ray{
