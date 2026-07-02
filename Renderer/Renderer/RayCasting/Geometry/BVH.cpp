@@ -10,19 +10,21 @@
 
 #include <queue>
 
+#define LIST_OF_COUNTERS(DO)                                                                                                                                                       \
+	DO(RayAABBChecks)                                                                                                                                                              \
+	DO(RayAABBRejected)                                                                                                                                                            \
+	DO(RayTriangleChecks)
+
 #ifdef TRACY_ENABLE
-namespace {
-thread_local int64_t tl_AABBChecks	   = 0;
-thread_local int64_t tl_AABBRejected   = 0;
-thread_local int64_t tl_TriangleChecks = 0;
-	#define ADD_AABB_TEST	  ++tl_AABBChecks;
-	#define ADD_AABB_REJECT	  ++tl_AABBRejected;
-	#define ADD_TRIANGLE_TEST ++tl_TriangleChecks;
-} // namespace
+DeclareTracyCounters(LIST_OF_COUNTERS);
+
+	#define ADD_AABB_TEST	  ++tl_RayAABBChecks
+	#define ADD_AABB_REJECT	  ++tl_RayAABBRejected
+	#define ADD_TRIANGLE_TEST ++tl_RayTriangleChecks
 #else
-	#define ADD_AABB_TEST
-	#define ADD_AABB_REJECT
-	#define ADD_TRIANGLE_TEST
+	#define ADD_AABB_TEST	  static_assert(true, "")
+	#define ADD_AABB_REJECT	  static_assert(true, "")
+	#define ADD_TRIANGLE_TEST static_assert(true, "")
 #endif
 
 // clang-format off
@@ -125,10 +127,10 @@ BVH::S_BVHMetrics BVH::ComputeMetrics() const
 		return {};
 
 	S_BVHMetrics metrics{};
-	metrics.minLeafDepth	  = std::numeric_limits<unsigned int>::max();
-	metrics.minLeafTriangles  = std::numeric_limits<unsigned int>::max();
-	metrics.maxLeafDepth	  = 0;
-	metrics.maxLeafTriangles  = 0;
+	metrics.minLeafDepth	 = std::numeric_limits<unsigned int>::max();
+	metrics.minLeafTriangles = std::numeric_limits<unsigned int>::max();
+	metrics.maxLeafDepth	 = 0;
+	metrics.maxLeafTriangles = 0;
 
 	unsigned long long totalDepth	  = 0;
 	unsigned long long totalTriangles = 0;
@@ -148,11 +150,11 @@ BVH::S_BVHMetrics BVH::ComputeMetrics() const
 		if (node.IsLeaf())
 		{
 			const unsigned int triCount = node.NumTrig();
-			metrics.minLeafDepth	 = std::min(metrics.minLeafDepth, depth);
-			metrics.maxLeafDepth	 = std::max(metrics.maxLeafDepth, depth);
-			metrics.minLeafTriangles = std::min(metrics.minLeafTriangles, triCount);
-			metrics.maxLeafTriangles = std::max(metrics.maxLeafTriangles, triCount);
-			totalDepth	  += depth;
+			metrics.minLeafDepth		= std::min(metrics.minLeafDepth, depth);
+			metrics.maxLeafDepth		= std::max(metrics.maxLeafDepth, depth);
+			metrics.minLeafTriangles	= std::min(metrics.minLeafTriangles, triCount);
+			metrics.maxLeafTriangles	= std::max(metrics.maxLeafTriangles, triCount);
+			totalDepth += depth;
 			totalTriangles += triCount;
 			++leafCount;
 		}
@@ -167,8 +169,8 @@ BVH::S_BVHMetrics BVH::ComputeMetrics() const
 
 	if (leafCount > 0)
 	{
-		metrics.meanLeafDepth	   = static_cast<float>(totalDepth) / static_cast<float>(leafCount);
-		metrics.meanLeafTriangles  = static_cast<float>(totalTriangles) / static_cast<float>(leafCount);
+		metrics.meanLeafDepth	  = static_cast<float>(totalDepth) / static_cast<float>(leafCount);
+		metrics.meanLeafTriangles = static_cast<float>(totalTriangles) / static_cast<float>(leafCount);
 	}
 
 	return metrics;
@@ -253,23 +255,10 @@ bool BVH::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& in
 {
 	if (m_Nodes.empty())
 		return false;
-#ifdef TRACY_ENABLE
-	[[maybe_unused]] static const bool s_PlotsConfigured = []() {
-		TracyPlotConfig("RayAABBChecks", tracy::PlotFormatType::Number, true, true, 0);
-		TracyPlotConfig("RayAABBRejected", tracy::PlotFormatType::Number, true, true, 0);
-		TracyPlotConfig("RayTriangleChecks", tracy::PlotFormatType::Number, true, true, 0);
-		return true;
-	}();
-	tl_AABBChecks	  = 0;
-	tl_AABBRejected	  = 0;
-	tl_TriangleChecks = 0;
-#endif
+	PlotTracyCounters(LIST_OF_COUNTERS);
+	ResetTracyCounters(LIST_OF_COUNTERS);
 	const bool result = IntersectNode(ray, intersection, m_Nodes[0], outTriangleIndex, outBarycentric);
-#ifdef TRACY_ENABLE
-	TracyPlot("RayAABBChecks", tl_AABBChecks);
-	TracyPlot("RayAABBRejected", tl_AABBRejected);
-	TracyPlot("RayTriangleChecks", tl_TriangleChecks);
-#endif
+	SendTracyCounters(LIST_OF_COUNTERS);
 	return result;
 }
 
@@ -281,10 +270,10 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray,
 						glm::vec2*						  outBarycentric) const
 {
 	// Early out: if ray origin is outside AABB and doesn't intersect it
-	ADD_AABB_TEST
+	ADD_AABB_TEST;
 	if (!node.aabb.Contains(ray.origin) && std::isinf(node.aabb.Intersects(ray)))
 	{
-		ADD_AABB_REJECT
+		ADD_AABB_REJECT;
 		return false;
 		;
 	}
@@ -311,11 +300,11 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray,
 	{
 		const BVHNode& current = m_Nodes[nodeStack[--stackPointer]];
 		// Early out: if ray origin is outside AABB and doesn't intersect it
-		ADD_AABB_TEST
+		ADD_AABB_TEST;
 		const float tAABB = current.aabb.Intersects(ray);
 		if (tAABB > closestIntersect.t || std::isinf(tAABB))
 		{
-			ADD_AABB_REJECT
+			ADD_AABB_REJECT;
 			continue;
 		}
 
@@ -372,7 +361,7 @@ bool BVH::TestTriangles(const Physics::Primitives::S_Ray& ray, const BVHNode& no
 	for (unsigned int i = node.firstTrig; i <= node.lastTrig; ++i)
 	{
 		glm::vec2 barycentric;
-		ADD_TRIANGLE_TEST
+		ADD_TRIANGLE_TEST;
 		const glm::vec3* triDef = GetTriangleDefinition(i);
 		const auto		 length = Physics::TriangleRayIntersect(triDef, ray, &barycentric);
 		if (length > 0.0f)
