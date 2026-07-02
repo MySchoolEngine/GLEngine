@@ -241,10 +241,6 @@ public:
 
 	[[nodiscard]] constexpr bool Contains(const glm::vec3& point) const
 	{
-		if (!IsInitialized())
-		{
-			return false;
-		}
 		return point.x >= m_Min.x && point.x <= m_Max.x &&
 			   point.y >= m_Min.y && point.y <= m_Max.y &&
 			   point.z >= m_Min.z && point.z <= m_Max.z;
