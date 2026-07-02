@@ -18,6 +18,36 @@ public:
 	{
 	}
 
+	[[nodiscard]] float Intersects(const S_SSERay& ray) const noexcept
+	{
+		if (!IsInitialized())
+		{
+			return std::numeric_limits<float>::infinity();
+		}
+		__m128 minm = _mm_set_ps(VEC3TOSSE(m_Min));
+		__m128 maxm = _mm_set_ps(VEC3TOSSE(m_Max));
+		//__m128 invdm  = _mm_set_ps(VEC3TOSSE(ray.invDirection));
+		__m128 t1m	  = _mm_mul_ps(_mm_sub_ps(minm, ray.origin.GetRaw()), ray.invDirection.GetRaw());
+		__m128 t2m	  = _mm_mul_ps(_mm_sub_ps(maxm, ray.origin.GetRaw()), ray.invDirection.GetRaw());
+		__m128 tenter = _mm_min_ps(t1m, t2m);
+		__m128 texit  = _mm_max_ps(t1m, t2m);
+
+		// Horizontal max of tenter (xyz only) → tmin
+		__m128 s1	= _mm_shuffle_ps(tenter, tenter, _MM_SHUFFLE(0, 0, 0, 1));
+		__m128 mx01 = _mm_max_ss(tenter, s1);
+		__m128 s2	= _mm_shuffle_ps(tenter, tenter, _MM_SHUFFLE(0, 0, 0, 2));
+		float  tmin = _mm_cvtss_f32(_mm_max_ss(mx01, s2));
+
+		// Horizontal min of texit (xyz only) → tmax
+		s1			= _mm_shuffle_ps(texit, texit, _MM_SHUFFLE(0, 0, 0, 1));
+		__m128 mn01 = _mm_min_ss(texit, s1);
+		s2			= _mm_shuffle_ps(texit, texit, _MM_SHUFFLE(0, 0, 0, 2));
+		float tmax	= _mm_cvtss_f32(_mm_min_ss(mn01, s2));
+
+		tmin = std::max(tmin, 0.f);
+		return (tmin <= tmax) ? tmin : std::numeric_limits<float>::infinity();
+	}
+
 	[[nodiscard]] float Intersects(const S_Ray& ray) const noexcept
 	{
 		if (!IsInitialized())

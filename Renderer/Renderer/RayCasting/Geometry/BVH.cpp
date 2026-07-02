@@ -269,9 +269,10 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray,
 						unsigned int*					  outTriangleIndex,
 						glm::vec2*						  outBarycentric) const
 {
+	const Physics::Primitives::S_SSERay sseRay(ray);
 	// Early out: if ray origin is outside AABB and doesn't intersect it
 	ADD_AABB_TEST;
-	if (!node.aabb.Contains(ray.origin) && std::isinf(node.aabb.Intersects(ray)))
+	if (!node.aabb.Contains(ray.origin) && std::isinf(node.aabb.Intersects(sseRay)))
 	{
 		ADD_AABB_REJECT;
 		return false;
@@ -301,7 +302,7 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray,
 		const BVHNode& current = m_Nodes[nodeStack[--stackPointer]];
 		// Early out: if ray origin is outside AABB and doesn't intersect it
 		ADD_AABB_TEST;
-		const float tAABB = current.aabb.Intersects(ray);
+		const float tAABB = current.aabb.Intersects(sseRay);
 		if (tAABB > closestIntersect.t || std::isinf(tAABB))
 		{
 			ADD_AABB_REJECT;

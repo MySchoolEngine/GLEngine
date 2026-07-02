@@ -2,6 +2,8 @@
 
 #include <Physics/Primitives/Ray.h>
 
+#include <Utils/SSE/SSEUtils.h>
+
 #include <glm/glm.hpp>
 
 
@@ -12,18 +14,18 @@ template <class TriangleDef> float TriangleRayIntersect(const TriangleDef& verti
 	// Moller-Trumbore intersection algorithm
 	constexpr float EPSILON = 0.0000001f;
 	using namespace glm;
-	const vec3	edge1 = vertices[1] - vertices[0]; //TODO: precalculate? and measure
-	const vec3	edge2 = vertices[2] - vertices[0]; //TODO: precalculate? and measure
+	const vec3	edge1 = vertices[1] - vertices[0]; // TODO: precalculate? and measure
+	const vec3	edge2 = vertices[2] - vertices[0]; // TODO: precalculate? and measure
 	const vec3	h	  = cross(ray.direction, edge2);
 	const float det	  = dot(edge1, h);
 	if (det > -EPSILON && det < EPSILON)
 		return -1.f; // This ray is parallel to this triangle.
 	const float invDet = 1.0f / det;
-	const vec3 s = ray.origin - vertices[0];
-	const float u = invDet * dot(s, h);
+	const vec3	s	   = ray.origin - vertices[0];
+	const float u	   = invDet * dot(s, h);
 	if (u < 0.0f || u > 1.0f)
 		return -1.f;
-	const vec3 q = cross(s, edge1);
+	const vec3	q = cross(s, edge1);
 	const float v = invDet * dot(ray.direction, q);
 	if (v < 0.0f || u + v > 1.0f)
 		return -1.f;
