@@ -129,7 +129,7 @@ C_Trimesh::~C_Trimesh()
 //=================================================================================
 bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersection& intersection, const float tMax) const
 {
-	const auto ray = Physics::Primitives::S_Ray{.origin = m_TransformInv * glm::vec4(rayIn.origin, 1.f), .direction = rayIn.direction};
+	const auto ray = Physics::Primitives::S_Ray{m_TransformInv * glm::vec4(rayIn.origin, 1.f), rayIn.direction};
 
 	if (m_BVH)
 	{
