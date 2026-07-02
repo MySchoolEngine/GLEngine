@@ -131,11 +131,11 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 {
 	const auto ray = Physics::Primitives::S_Ray{m_TransformInv * glm::vec4(rayIn.origin, 1.f), rayIn.direction};
 
+	if (const auto tAABB = m_AABB.Intersects(rayIn); tAABB > tMax || std::isinf(tAABB))
+		return false;
+
 	if (m_BVH)
 	{
-		// if there is BVH the object is big enough to spend some time on following test
-		if (const auto tAABB = m_AABB.IntersectImpl(rayIn); tAABB > tMax || tAABB < 0.f)
-			return false;
 
 		glm::vec2	 barycentric;
 		unsigned int triangleIndex;
@@ -156,10 +156,6 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 		}
 		return false;
 	}
-
-	// AABB is translated to the world-space
-	if (!m_AABB.Intersects(rayIn))
-		return false;
 
 	struct S_IntersectionInfo {
 		C_RayIntersection intersection;
