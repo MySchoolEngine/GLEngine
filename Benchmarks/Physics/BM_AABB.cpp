@@ -21,6 +21,9 @@ S_Ray g_HitRay{{0.f, 0.f, -5.f}, {0.f, 0.f, 1.f}};
 
 // Ray along +Z that completely misses the unit box
 S_Ray g_MissRay{{10.f, 0.f, -5.f}, {0.f, 0.f, 1.f}};
+
+S_SSERay g_SSEHitRay{ g_HitRay };
+S_SSERay g_SSEMissRay{ g_MissRay };
 } // namespace
 
 // ---------------------------------------------------------------------------
@@ -42,6 +45,22 @@ static void BM_AABB_Intersects_Miss(benchmark::State& state)
 		benchmark::DoNotOptimize(aabb.Intersects(g_MissRay));
 }
 BENCHMARK(BM_AABB_Intersects_Miss);
+
+static void BM_AABB_SSE_Intersects_Hit(benchmark::State& state)
+{
+	const S_AABB aabb = MakeUnitBox();
+	for (auto _ : state)
+		benchmark::DoNotOptimize(aabb.Intersects(g_SSEHitRay));
+}
+BENCHMARK(BM_AABB_SSE_Intersects_Hit);
+
+static void BM_AABB_SSE_Intersects_Miss(benchmark::State& state)
+{
+	const S_AABB aabb = MakeUnitBox();
+	for (auto _ : state)
+		benchmark::DoNotOptimize(aabb.Intersects(g_SSEMissRay));
+}
+BENCHMARK(BM_AABB_SSE_Intersects_Miss);
 
 // ---------------------------------------------------------------------------
 // IntersectImpl (Graphics Gems method)

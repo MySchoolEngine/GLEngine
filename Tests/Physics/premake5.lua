@@ -13,6 +13,7 @@ project "PhysicsTest"
 
 	uses { "Physics" }
 	
+	Link("Utils")
 	Link("Core")
 
 	LinkDependency("RTTR")
