@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Utils/SSE/SSEUtils.h>
+#include <Utils/SSE/Vec3.h>
 
 #include <xmmintrin.h>
 
@@ -33,7 +34,7 @@ struct S_SSERay {
 	S_SSERay(const glm::vec3& origin, const glm::vec3& direction)
 		: origin(origin)
 		, direction(direction)
-		, invDirection(::Utils::SSE::SSEVec3(1.f, 1.f, 1.f) / this->direction)
+		, invDirection(::Utils::SSE::Vec3(1.f, 1.f, 1.f) / this->direction)
 	{
 	}
 
@@ -42,8 +43,8 @@ struct S_SSERay {
 	{
 	}
 
-	::Utils::SSE::SSEVec3 origin;
-	::Utils::SSE::SSEVec3 direction;
-	::Utils::SSE::SSEVec3 invDirection;
+	::Utils::SSE::Vec3 origin;
+	::Utils::SSE::Vec3 direction;
+	::Utils::SSE::Vec3 invDirection;
 };
 } // namespace GLEngine::Physics::Primitives
