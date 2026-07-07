@@ -234,16 +234,12 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<
 	for (unsigned int i = left.firstTrig; i < left.lastTrig + 1; ++i)
 	{
 		const glm::vec3* triDef = GetTriangleDefinition(i);
-		left.aabb.Add(triDef[0]);
-		left.aabb.Add(triDef[1]);
-		left.aabb.Add(triDef[2]);
+		left.aabb.updateWithTriangle(triDef);
 	}
 	for (unsigned int i = right.firstTrig; i < right.lastTrig + 1; ++i)
 	{
 		const glm::vec3* triDef = GetTriangleDefinition(i);
-		right.aabb.Add(triDef[0]);
-		right.aabb.Add(triDef[1]);
-		right.aabb.Add(triDef[2]);
+		right.aabb.updateWithTriangle(triDef);
 	}
 
 	SplitBVHNodeNaive(leftNodeId, level + 1, centroids);
