@@ -1,4 +1,15 @@
 require "vendor/premake-export-compile-commands/export-compile-commands"
+
+-- Patch export-compile-commands to also copy debug.json -> compile_commands.json at root
+local _exportAction = premake.action.get("export-compile-commands")
+if _exportAction then
+	local _origExecute = _exportAction.execute
+	_exportAction.execute = function()
+		_origExecute()
+		os.copyfile("compile_commands/debug.json", "compile_commands.json")
+		print("Copied compile_commands/debug.json -> compile_commands.json")
+	end
+end
 include "Tools/Premake5/workspaceFiles.lua"
 
 newoption {
