@@ -36,8 +36,8 @@ struct IntersectParams {
 
 using IntersectTypes = ::testing::Types<
 	IntersectParams<S_AABB, S_Ray>,
-	IntersectParams<S_AABB, S_SSERay>
-	// IntersectParams<S_SSEAABB, S_SSERay>  — add when S_SSEAABB::Intersects is implemented
+	IntersectParams<S_AABB, S_SSERay>,
+	IntersectParams<S_SSEAABB, S_SSERay>
 >;
 
 template<class Params>
