@@ -32,13 +32,15 @@ std::vector<Core::ResourceHandle<MaterialResource>> ExtractMaterialsFromMesh(con
 
 		if (newMat.has_value() == false)
 		{
-			if (!forceRebuild)
-				continue; // do not force rewrite if not requested
-
-			// if it wasn't loaded because the resource already exists rewrite it
 			if (newMat.error() == Core::CreateError::AlreadyExists || newMat.error() == Core::CreateError::AlreadyTracked)
 			{
+				// Resource already on disk — load it; only re-save when forceRebuild is set
 				matHandle = rm.LoadResource<MaterialResource>(outputPath, true);
+				if (!forceRebuild)
+				{
+					result.push_back(matHandle);
+					continue;
+				}
 			}
 			else
 			{
@@ -52,6 +54,7 @@ std::vector<Core::ResourceHandle<MaterialResource>> ExtractMaterialsFromMesh(con
 
 		if (matHandle.IsReady() == false)
 		{
+			result.push_back({});
 			continue;
 		}
 
@@ -61,6 +64,7 @@ std::vector<Core::ResourceHandle<MaterialResource>> ExtractMaterialsFromMesh(con
 		if (!matRes.Save())
 		{
 			CORE_LOG(E_Level::Error, E_Context::Render, "Material resource cannot be saved {}", matRes.GetFilePath());
+			result.push_back({});
 			continue;
 		}
 
