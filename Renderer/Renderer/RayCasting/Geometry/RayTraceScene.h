@@ -63,9 +63,10 @@ public:
 	// TODO Remove
 	void TestScene();
 
+	std::unique_ptr<I_MaterialInterface>& AddMaterial(const Core::ResourceHandle<MaterialResource>& material);
+
 private:
 	std::unique_ptr<I_MaterialInterface>& AddMaterial(const MeshData::Material& material);
-	std::unique_ptr<I_MaterialInterface>& AddMaterial(const Core::ResourceHandle<MaterialResource>& material);
 	std::vector<std::shared_ptr<I_RayGeometryObject>>	   m_Objects;
 	std::vector<std::shared_ptr<RayTracing::C_AreaLight>>  m_AreaLights;
 	std::vector<std::shared_ptr<RayTracing::C_PointLight>> m_PointLights;
