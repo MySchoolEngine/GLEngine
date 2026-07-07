@@ -90,16 +90,16 @@ public:
 		tmin = std::max(tmin, 0.f);
 		return (tmin <= tmax) ? tmin : std::numeric_limits<float>::infinity();
 		// float tmin = 0.0, tmax = INFINITY;
-		// 
+		//
 		// const glm::vec3 t1 = (m_Min - ray.origin) * ray.invDirection;
 		// const glm::vec3 t2 = (m_Max - ray.origin) * ray.invDirection;
 		// for (int d = 0; d < 3; ++d)
 		// {
-		// 
+		//
 		// 	tmin = std::min(std::max(t1[d], tmin), std::max(t2[d], tmin));
 		// 	tmax = std::max(std::min(t1[d], tmax), std::min(t2[d], tmax));
 		// }
-		// 
+		//
 		// return (tmin <= tmax) ? tmin : std::numeric_limits<float>::infinity();
 	}
 
@@ -288,5 +288,96 @@ public:
 
 private:
 	static constexpr float s_RayDirectionEpsilon = 1e-8f;
+};
+
+struct S_SSEAABB {
+public:
+	S_SSEAABB()
+		: m_Min(std::numeric_limits<float>::infinity())
+		, m_Max(-std::numeric_limits<float>::infinity())
+	{
+	}
+
+	[[nodiscard]] float Intersects(const S_SSERay& ray) const noexcept
+	{
+		using namespace ::Utils::SSE;
+		if (!IsInitialized())
+		{
+			return std::numeric_limits<float>::infinity();
+		}
+		//__m128 invdm  = _mm_set_ps(VEC3TOSSE(ray.invDirection));
+		Vec3 t1m	  = m_Min - ray.origin * ray.invDirection;
+		__m128 t2m	  = _mm_mul_ps(_mm_sub_ps(m_Max.GetRaw(), ray.origin.GetRaw()), ray.invDirection.GetRaw());
+		__m128	tenter = _mm_min_ps(t1m.GetRaw(), t2m);
+		__m128 texit  = _mm_max_ps(t1m.GetRaw(), t2m);
+	
+		// Horizontal max of tenter (xyz only) → tmin
+		__m128 s1	= _mm_shuffle_ps(tenter, tenter, _MM_SHUFFLE(0, 0, 0, 1));
+		__m128 mx01 = _mm_max_ss(tenter, s1);
+		__m128 s2	= _mm_shuffle_ps(tenter, tenter, _MM_SHUFFLE(0, 0, 0, 2));
+		float  tmin = _mm_cvtss_f32(_mm_max_ss(mx01, s2));
+	
+		// Horizontal min of texit (xyz only) → tmax
+		s1			= _mm_shuffle_ps(texit, texit, _MM_SHUFFLE(0, 0, 0, 1));
+		__m128 mn01 = _mm_min_ss(texit, s1);
+		s2			= _mm_shuffle_ps(texit, texit, _MM_SHUFFLE(0, 0, 0, 2));
+		float tmax	= _mm_cvtss_f32(_mm_min_ss(mn01, s2));
+	
+		tmin = std::max(tmin, 0.f);
+		return (tmin <= tmax) ? tmin : std::numeric_limits<float>::infinity();
+	}
+
+	void Add(const ::Utils::SSE::Vec3& point)
+	{
+		m_Min = ::Utils::SSE::Vec3::min(m_Min, point);
+		m_Max = ::Utils::SSE::Vec3::max(m_Max, point);
+	}
+	void Add(const S_SSEAABB& bbox)
+	{
+		if (!bbox.IsInitialized())
+		{
+			return;
+		}
+		Add(bbox.m_Max);
+		Add(bbox.m_Min);
+	}
+	void updateWithTriangle(const glm::vec3* triangleVertices)
+	{
+		for (int i = 0; i < 3; ++i)
+		{
+			Add(::Utils::SSE::Vec3(triangleVertices[i]));
+		}
+	}
+
+	[[nodiscard]] float Area() const
+	{
+		const ::Utils::SSE::Vec3 extent = m_Max - m_Min;
+		// rotate components: (x,y,z,0) → (y,z,x,0)
+		const __m128 shuf = _mm_shuffle_ps(extent.GetRaw(), extent.GetRaw(), _MM_SHUFFLE(3, 0, 2, 1));
+		// pairwise multiply: (xy, yz, zx, 0)
+		__m128 prod = _mm_mul_ps(extent.GetRaw(), shuf);
+		// horizontal sum of 3 lanes into lane 0
+		prod = _mm_add_ss(prod, _mm_shuffle_ps(prod, prod, _MM_SHUFFLE(1, 1, 1, 1))); // xy+yz
+		prod = _mm_add_ss(prod, _mm_shuffle_ps(prod, prod, _MM_SHUFFLE(2, 2, 2, 2))); // +zx
+		return _mm_cvtss_f32(prod) * 2.f;
+	}
+
+	[[nodiscard]] bool Contains(const ::Utils::SSE::Vec3& point) const
+	{
+		__m128 ltMin = _mm_cmplt_ps(point.GetRaw(), m_Min.GetRaw()); // p < min
+		__m128 gtMax = _mm_cmpgt_ps(point.GetRaw(), m_Max.GetRaw()); // p > max
+		__m128 out	 = _mm_or_ps(ltMin, gtMax);
+		return (_mm_movemask_ps(out) & 0x7) == 0; 
+	}
+
+	[[nodiscard]] bool IsInitialized() const
+	{
+		__m128 inf = _mm_set1_ps(std::numeric_limits<float>::infinity());
+		__m128 cmp = _mm_cmpeq_ps(m_Min.GetRaw(), inf);
+		return (_mm_movemask_ps(cmp) & 0x7) == 0; // no xyz lane is +inf
+	}
+
+	::Utils::SSE::Vec3 m_Min;
+	::Utils::SSE::Vec3 m_Max;
 };
 } // namespace GLEngine::Physics::Primitives
