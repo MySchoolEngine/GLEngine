@@ -29,6 +29,12 @@ public:
 		//__m128 invdm  = _mm_set_ps(VEC3TOSSE(ray.invDirection));
 		__m128 t1m	  = _mm_mul_ps(_mm_sub_ps(minm, ray.origin.GetRaw()), ray.invDirection.GetRaw());
 		__m128 t2m	  = _mm_mul_ps(_mm_sub_ps(maxm, ray.origin.GetRaw()), ray.invDirection.GetRaw());
+		// 0 * ±inf = NaN when origin lies exactly on an AABB boundary and ray is parallel to that axis.
+		// Replace NaN in t1m with -inf (slab entry: no constraint) and in t2m with +inf (slab exit: no constraint).
+		__m128 nanMask = _mm_cmpunord_ps(t1m, t1m);
+		t1m = _mm_or_ps(_mm_andnot_ps(nanMask, t1m), _mm_and_ps(nanMask, _mm_set1_ps(-std::numeric_limits<float>::infinity())));
+		nanMask = _mm_cmpunord_ps(t2m, t2m);
+		t2m = _mm_or_ps(_mm_andnot_ps(nanMask, t2m), _mm_and_ps(nanMask, _mm_set1_ps(std::numeric_limits<float>::infinity())));
 		__m128 tenter = _mm_min_ps(t1m, t2m);
 		__m128 texit  = _mm_max_ps(t1m, t2m);
 
@@ -54,12 +60,18 @@ public:
 		{
 			return std::numeric_limits<float>::infinity();
 		}
-		__m128 minm	  = _mm_set_ps(VEC3TOSSE(m_Min));
-		__m128 maxm	  = _mm_set_ps(VEC3TOSSE(m_Max));
-		__m128 raym	  = _mm_set_ps(VEC3TOSSE(ray.origin));
+		__m128 minm = _mm_set_ps(VEC3TOSSE(m_Min));
+		__m128 maxm = _mm_set_ps(VEC3TOSSE(m_Max));
+		__m128 raym = _mm_set_ps(VEC3TOSSE(ray.origin));
 		//__m128 invdm  = _mm_set_ps(VEC3TOSSE(ray.invDirection));
 		__m128 t1m	  = _mm_mul_ps(_mm_sub_ps(minm, raym), ray.invDirection);
 		__m128 t2m	  = _mm_mul_ps(_mm_sub_ps(maxm, raym), ray.invDirection);
+		// 0 * ±inf = NaN when origin lies exactly on an AABB boundary and ray is parallel to that axis.
+		// Replace NaN in t1m with -inf (slab entry: no constraint) and in t2m with +inf (slab exit: no constraint).
+		__m128 nanMask = _mm_cmpunord_ps(t1m, t1m);
+		t1m = _mm_or_ps(_mm_andnot_ps(nanMask, t1m), _mm_and_ps(nanMask, _mm_set1_ps(-std::numeric_limits<float>::infinity())));
+		nanMask = _mm_cmpunord_ps(t2m, t2m);
+		t2m = _mm_or_ps(_mm_andnot_ps(nanMask, t2m), _mm_and_ps(nanMask, _mm_set1_ps(std::numeric_limits<float>::infinity())));
 		__m128 tenter = _mm_min_ps(t1m, t2m);
 		__m128 texit  = _mm_max_ps(t1m, t2m);
 
