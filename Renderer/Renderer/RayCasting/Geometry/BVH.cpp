@@ -408,23 +408,19 @@ void BVH::DebugDrawNode(I_DebugDraw& dd, const glm::mat4& modelMatrix, const BVH
 //=================================================================================
 float BVH::CalcSAHCost(const BVHNode& parent, const unsigned int axis, const float splitPos, const std::vector<glm::vec3>& centroids) const
 {
-	Physics::Primitives::S_AABB left, right;
+	Physics::Primitives::S_SSEAABB left, right;
 	unsigned int				leftCount = 0, rightCount = 0;
 	for (unsigned int i = parent.firstTrig; i < parent.lastTrig + 1; ++i)
 	{
 		const glm::vec3* triDef = GetTriangleDefinition(i);
 		if (centroids[i][axis] < splitPos)
 		{
-			left.Add(triDef[0]);
-			left.Add(triDef[1]);
-			left.Add(triDef[2]);
+			left.updateWithTriangle(triDef);
 			++leftCount;
 		}
 		else
 		{
-			right.Add(triDef[0]);
-			right.Add(triDef[1]);
-			right.Add(triDef[2]);
+			right.updateWithTriangle(triDef);
 			++rightCount;
 		}
 	}
