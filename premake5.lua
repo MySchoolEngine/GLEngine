@@ -104,6 +104,7 @@ workspace "Engine"
 			"CORE_PLATFORM=CORE_PLATFORM_LINUX"
 		}
 		links { "stdc++fs" }
+	filter "action:gmake*"
 		buildoptions { "-msse4.1" }
 
 	filter "configurations:Debug"

@@ -2,6 +2,7 @@
 #include <glm/vec3.hpp>
 
 #include <xmmintrin.h>
+#include <smmintrin.h>
 
 namespace Utils::SSE {
 inline __m128 ToSSE(const glm::vec3& vec)
@@ -19,6 +20,10 @@ class alignas(16) SSEVec3 {
 public:
 	SSEVec3()
 		: data(_mm_setzero_ps())
+	{
+	}
+	explicit SSEVec3(float val)
+		: data(_mm_set_ps(0.f, val, val, val))
 	{
 	}
 
@@ -41,6 +46,17 @@ public:
 	[[nodiscard]] SSEVec3 operator+(const SSEVec3& other) const { return _mm_add_ps(data, other.data); }
 	[[nodiscard]] SSEVec3 operator*(const SSEVec3& other) const { return _mm_mul_ps(data, other.data); }
 	[[nodiscard]] SSEVec3 operator/(const SSEVec3& other) const { return _mm_div_ps(data, other.data); }
+	[[nodiscard]] SSEVec3 operator*(const float val) const { return _mm_mul_ps(data, _mm_set1_ps(val)); }
+
+	[[nodiscard]] bool operator==(const SSEVec3& other) const
+	{
+		__m128 cmp	= _mm_cmpeq_ps(data, other.data);	// 0xFFFFFFFF per lane if equal, 0 if not
+		int	   mask = _mm_movemask_ps(cmp); // bit i = sign bit of lane i
+		return (mask & 0x7) == 0x7;
+	}
+
+	static SSEVec3 min(const SSEVec3& a, const SSEVec3& b) { return _mm_min_ps(a.data, b.data); }
+	static SSEVec3 max(const SSEVec3& a, const SSEVec3& b) { return _mm_max_ps(a.data, b.data); }
 
 	__m128 GetRaw() const { return data; }
 
