@@ -212,9 +212,21 @@ public:
 
 	void updateWithTriangle(const glm::vec3* triangleVertices)
 	{
-		Add(triangleVertices[0]);
-		Add(triangleVertices[1]);
-		Add(triangleVertices[2]);
+		__m128 minm = _mm_set_ps(VEC3TOSSE(m_Min));
+		__m128 maxm = _mm_set_ps(VEC3TOSSE(m_Max));
+		for (int i = 0; i < 3; ++i)
+		{
+			__m128 pointm = _mm_set_ps(VEC3TOSSE(triangleVertices[i]));
+
+			minm = _mm_min_ps(minm, pointm);
+			maxm = _mm_max_ps(maxm, pointm);
+		}
+		alignas(16) float min[4];
+		alignas(16) float max[4];
+		_mm_store_ps(min, minm);
+		_mm_store_ps(max, maxm);
+		memcpy(&m_Min, min, sizeof(float) * 3);
+		memcpy(&m_Max, max, sizeof(float) * 3);
 	}
 
 	[[nodiscard]] S_Sphere GetSphere() const
