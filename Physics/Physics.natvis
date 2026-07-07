@@ -40,4 +40,13 @@
       </Synthetic>
     </Expand>
   </Type>
+  <Type Name="GLEngine::Physics::Primitives::S_SSEAABB">
+    <Intrinsic Name="IsInitialized" Expression="!isinf(m_Min.data.m128_f32[0])"/>
+    <DisplayString Condition="IsInitialized()">{m_Min} - {m_Max}</DisplayString>
+    <DisplayString Condition="!IsInitialized()">invalid AABB</DisplayString>
+    <Expand>
+      <Item Name="[Min]" Condition="IsInitialized()">m_Min</Item>
+      <Item Name="[Max]" Condition="IsInitialized()">m_Max</Item>
+    </Expand>
+  </Type>
 </AutoVisualizer>
