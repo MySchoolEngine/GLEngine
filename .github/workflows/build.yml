@@ -44,7 +44,10 @@ jobs:
           path: /var/cache/apt/archives
           key: apt-${{ runner.os }}-xorg-uuid
       - name: update
-        run: sudo apt update
+        run: |
+          # Remove Microsoft repos that have signing issues on GitHub-hosted ubuntu-latest runners
+          sudo rm -f /etc/apt/sources.list.d/azure-cli.sources /etc/apt/sources.list.d/microsoft-prod.list
+          sudo apt update
       - name: Set compiler
         run: |
           sudo apt-get install -y g++-14
