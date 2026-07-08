@@ -54,7 +54,7 @@ public:
 		}
 		const Vec3 minm(m_Min);
 		const Vec3 maxm(m_Max);
-		const Vec3 originm(m_Max);
+		const Vec3 originm(ray.origin);
 		Vec3	   t1 = (minm - originm) * ray.invDirection;
 		Vec3	   t2 = (maxm - originm) * ray.invDirection;
 		// 0 * ±inf = NaN when origin lies exactly on an AABB boundary and ray is parallel to that axis.
@@ -342,10 +342,7 @@ public:
 
 	[[nodiscard]] bool Contains(const ::Utils::SSE::Vec3& point) const
 	{
-		__m128 ltMin = _mm_cmplt_ps(point.GetRaw(), m_Min.GetRaw()); // p < min
-		__m128 gtMax = _mm_cmpgt_ps(point.GetRaw(), m_Max.GetRaw()); // p > max
-		__m128 out	 = _mm_or_ps(ltMin, gtMax);
-		return (_mm_movemask_ps(out) & 0x7) == 0;
+		return point.IsInRange(m_Min, m_Max);
 	}
 
 	[[nodiscard]] bool IsInitialized() const

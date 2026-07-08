@@ -182,6 +182,57 @@ TEST(Vec3_ComponentMinMax, MinComponent_IgnoresWLane)
 #pragma endregion-- Vec3_ComponentMinMax
 
 // =============================================================================
+// IsInRange
+// Componentwise [min, max] check across xyz, bounds inclusive. The w lane must
+// never influence the result.
+// =============================================================================
+#pragma region--Vec3_IsInRange
+TEST(Vec3_IsInRange, PointStrictlyInside_ReturnsTrue)
+{
+	const Vec3 min(-1.f, -1.f, -1.f);
+	const Vec3 max(1.f, 1.f, 1.f);
+	EXPECT_TRUE(Vec3(0.f, 0.f, 0.f).IsInRange(min, max));
+}
+
+TEST(Vec3_IsInRange, PointOnMinBoundary_ReturnsTrue)
+{
+	const Vec3 min(-1.f, -1.f, -1.f);
+	const Vec3 max(1.f, 1.f, 1.f);
+	EXPECT_TRUE(Vec3(-1.f, -1.f, -1.f).IsInRange(min, max));
+}
+
+TEST(Vec3_IsInRange, PointOnMaxBoundary_ReturnsTrue)
+{
+	const Vec3 min(-1.f, -1.f, -1.f);
+	const Vec3 max(1.f, 1.f, 1.f);
+	EXPECT_TRUE(Vec3(1.f, 1.f, 1.f).IsInRange(min, max));
+}
+
+TEST(Vec3_IsInRange, PointBelowMinOnOneAxis_ReturnsFalse)
+{
+	const Vec3 min(-1.f, -1.f, -1.f);
+	const Vec3 max(1.f, 1.f, 1.f);
+	EXPECT_FALSE(Vec3(0.f, -1.1f, 0.f).IsInRange(min, max));
+}
+
+TEST(Vec3_IsInRange, PointAboveMaxOnOneAxis_ReturnsFalse)
+{
+	const Vec3 min(-1.f, -1.f, -1.f);
+	const Vec3 max(1.f, 1.f, 1.f);
+	EXPECT_FALSE(Vec3(0.f, 0.f, 1.1f).IsInRange(min, max));
+}
+
+TEST(Vec3_IsInRange, WLaneIgnored_DoesNotAffectResult)
+{
+	const Vec3 min(-1.f, -1.f, -1.f);
+	const Vec3 max(1.f, 1.f, 1.f);
+	// xyz = (0,0,0) is inside [min, max]; w = 100 is way outside but must be ignored.
+	const Vec3 point(_mm_set_ps(100.f, 0.f, 0.f, 0.f));
+	EXPECT_TRUE(point.IsInRange(min, max));
+}
+#pragma endregion-- Vec3_IsInRange
+
+// =============================================================================
 // Cross / Dot
 // =============================================================================
 #pragma region--Vec3_CrossDot

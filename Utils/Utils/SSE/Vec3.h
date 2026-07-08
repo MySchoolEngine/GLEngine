@@ -65,6 +65,21 @@ public:
 		return _mm_cvtss_f32(_mm_max_ss(mx01, s2));
 	}
 
+	/**
+	 * @brief Checks whether x, y and z each lie within [min, max], bounds inclusive.
+	 *
+	 * @param min Lower bound per component.
+	 * @param max Upper bound per component.
+	 * @return true if x, y and z are all within their respective [min, max] range.
+	 */
+	[[nodiscard]] bool IsInRange(const Vec3& min, const Vec3& max) const
+	{
+		__m128 ltMin = _mm_cmplt_ps(data, min.GetRaw()); // p < min
+		__m128 gtMax = _mm_cmpgt_ps(data, max.GetRaw()); // p > max
+		__m128 out	 = _mm_or_ps(ltMin, gtMax);
+		return (_mm_movemask_ps(out) & 0x7) == 0;
+	}
+
 	__m128 GetRaw() const { return data; }
 
 	[[nodiscard]] Vec3 Cross(const Vec3& other) const
