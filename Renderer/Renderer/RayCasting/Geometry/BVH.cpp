@@ -260,22 +260,23 @@ bool BVH::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& in
 
 //=================================================================================
 bool BVH::IntersectNode(const Physics::Primitives::S_SSERay& ray,
-						C_RayIntersection&				  intersection,
-						const BVHNode&					  node,
-						unsigned int*					  outTriangleIndex,
-						glm::vec2*						  outBarycentric) const
+						C_RayIntersection&					 intersection,
+						const BVHNode&						 node,
+						unsigned int*						 outTriangleIndex,
+						glm::vec2*							 outBarycentric) const
 {
 	// Early out: if ray origin is outside AABB and doesn't intersect it
 	ADD_AABB_TEST;
-	if (!node.aabb.Contains(ray.origin) && std::isinf(node.aabb.Intersects(ray)))
+	const float tAABB = node.aabb.Intersects(ray);
+	if (!node.aabb.Contains(ray.origin) && std::isinf(tAABB))
 	{
 		ADD_AABB_REJECT;
 		return false;
 		;
 	}
-	std::array<T_BVHNodeID, s_MaxDepth + 1> nodeStack;
-	unsigned int							stackPointer = 0;
-	nodeStack[stackPointer++]							 = 0;
+	std::array<std::pair<T_BVHNodeID, float>, s_MaxDepth + 1> nodeStack;
+	unsigned int											  stackPointer = 0;
+	nodeStack[stackPointer++]											   = {0, tAABB};
 
 	// we are in the leaf node
 	struct S_IntersectionInfo {
@@ -287,18 +288,11 @@ bool BVH::IntersectNode(const Physics::Primitives::S_SSERay& ray,
 	};
 	S_IntersectionInfo closestIntersect{};
 
-	const auto calcDistance = [](const BVHNode& node, const ::Utils::SSE::Vec3& rayOrigin) -> float {
-		const auto center = (node.aabb.m_Max - node.aabb.m_Min) / 2.f;
-		return ::Utils::SSE::distance2(center, rayOrigin);
-	};
-
 	while (stackPointer != 0)
 	{
-		const BVHNode& current = m_Nodes[nodeStack[--stackPointer]];
-		// Early out: if ray origin is outside AABB and doesn't intersect it
-		ADD_AABB_TEST;
-		const float tAABB = current.aabb.Intersects(ray);
-		if (tAABB > closestIntersect.t || std::isinf(tAABB))
+		const auto&	   currentPair = nodeStack[--stackPointer];
+		const BVHNode& current	   = m_Nodes[currentPair.first];
+		if (currentPair.second >= closestIntersect.t)
 		{
 			ADD_AABB_REJECT;
 			continue;
@@ -315,18 +309,22 @@ bool BVH::IntersectNode(const Physics::Primitives::S_SSERay& ray,
 		}
 		else
 		{
-			// distances are left squared as we do not care about exact number, but about the difference
-			float leftDistance	= calcDistance(m_Nodes[current.left], ray.origin);
+			const float tAABBLeft  = current.aabb.Intersects(ray);
+			const float tAABBRight = current.aabb.Intersects(ray);
 			float rightDistance = calcDistance(m_Nodes[current.right], ray.origin);
 			if (leftDistance < rightDistance)
 			{
 				nodeStack[stackPointer++] = current.right;
 				nodeStack[stackPointer++] = current.left;
+			if (tAABBLeft < tAABBRight)
+			{
+				nodeStack[stackPointer++] = {current.right, tAABBRight};
+				nodeStack[stackPointer++] = {current.left, tAABBLeft};
 			}
 			else
 			{
-				nodeStack[stackPointer++] = current.left;
-				nodeStack[stackPointer++] = current.right;
+				nodeStack[stackPointer++] = {current.left, tAABBLeft};
+				nodeStack[stackPointer++] = {current.right, tAABBRight};
 			}
 		}
 	}
