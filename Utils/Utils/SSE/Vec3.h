@@ -34,18 +34,30 @@ public:
 	{
 	}
 
+#pragma region--Arithmetic operators
 	[[nodiscard]] Vec3 operator-(const Vec3& other) const { return _mm_sub_ps(data, other.data); }
 	[[nodiscard]] Vec3 operator+(const Vec3& other) const { return _mm_add_ps(data, other.data); }
 	[[nodiscard]] Vec3 operator*(const Vec3& other) const { return _mm_mul_ps(data, other.data); }
 	[[nodiscard]] Vec3 operator/(const Vec3& other) const { return _mm_div_ps(data, other.data); }
 	[[nodiscard]] Vec3 operator*(const float val) const { return _mm_mul_ps(data, _mm_set1_ps(val)); }
+#pragma endregion-- Arithmetic operators
 
+	[[nodiscard]] bool operator!=(const Vec3& other) const { return !(*this == other); }
 	[[nodiscard]] bool operator==(const Vec3& other) const
 	{
 		__m128 cmp	= _mm_cmpeq_ps(data, other.data); // 0xFFFFFFFF per lane if equal, 0 if not
 		int	   mask = _mm_movemask_ps(cmp);			  // bit i = sign bit of lane i
 		return (mask & 0x7) == 0x7;
 	}
+
+#pragma region--Conversion operators
+	[[nodiscard]] explicit operator glm::vec3() const
+	{
+		alignas(16) float result[4];
+		_mm_store_ps(result, data);
+		return glm::vec3(result[0], result[1], result[2]);
+	}
+#pragma endregion-- Conversion operators
 
 	static Vec3 min(const Vec3& a, const Vec3& b) { return _mm_min_ps(a.data, b.data); }
 	static Vec3 max(const Vec3& a, const Vec3& b) { return _mm_max_ps(a.data, b.data); }
