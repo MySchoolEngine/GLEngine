@@ -1,5 +1,10 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
+#include <algorithm>
+#include <cmath>
+
 namespace GLEngine::Renderer {
 
 // Structure to simplify surface interaction code
