@@ -27,16 +27,16 @@ public:
 		__m128 minm = _mm_set_ps(VEC3TOSSE(m_Min));
 		__m128 maxm = _mm_set_ps(VEC3TOSSE(m_Max));
 		//__m128 invdm  = _mm_set_ps(VEC3TOSSE(ray.invDirection));
-		__m128 t1m	  = _mm_mul_ps(_mm_sub_ps(minm, ray.origin.GetRaw()), ray.invDirection.GetRaw());
-		__m128 t2m	  = _mm_mul_ps(_mm_sub_ps(maxm, ray.origin.GetRaw()), ray.invDirection.GetRaw());
+		__m128 t1m = _mm_mul_ps(_mm_sub_ps(minm, ray.origin.GetRaw()), ray.invDirection.GetRaw());
+		__m128 t2m = _mm_mul_ps(_mm_sub_ps(maxm, ray.origin.GetRaw()), ray.invDirection.GetRaw());
 		// 0 * ±inf = NaN when origin lies exactly on an AABB boundary and ray is parallel to that axis.
 		// Replace NaN in t1m with -inf (slab entry: no constraint) and in t2m with +inf (slab exit: no constraint).
 		__m128 nanMask = _mm_cmpunord_ps(t1m, t1m);
-		t1m = _mm_or_ps(_mm_andnot_ps(nanMask, t1m), _mm_and_ps(nanMask, _mm_set1_ps(-std::numeric_limits<float>::infinity())));
-		nanMask = _mm_cmpunord_ps(t2m, t2m);
-		t2m = _mm_or_ps(_mm_andnot_ps(nanMask, t2m), _mm_and_ps(nanMask, _mm_set1_ps(std::numeric_limits<float>::infinity())));
-		__m128 tenter = _mm_min_ps(t1m, t2m);
-		__m128 texit  = _mm_max_ps(t1m, t2m);
+		t1m			   = _mm_or_ps(_mm_andnot_ps(nanMask, t1m), _mm_and_ps(nanMask, _mm_set1_ps(-std::numeric_limits<float>::infinity())));
+		nanMask		   = _mm_cmpunord_ps(t2m, t2m);
+		t2m			   = _mm_or_ps(_mm_andnot_ps(nanMask, t2m), _mm_and_ps(nanMask, _mm_set1_ps(std::numeric_limits<float>::infinity())));
+		__m128 tenter  = _mm_min_ps(t1m, t2m);
+		__m128 texit   = _mm_max_ps(t1m, t2m);
 
 		// Horizontal max of tenter (xyz only) → tmin
 		__m128 s1	= _mm_shuffle_ps(tenter, tenter, _MM_SHUFFLE(0, 0, 0, 1));
@@ -64,16 +64,16 @@ public:
 		__m128 maxm = _mm_set_ps(VEC3TOSSE(m_Max));
 		__m128 raym = _mm_set_ps(VEC3TOSSE(ray.origin));
 		//__m128 invdm  = _mm_set_ps(VEC3TOSSE(ray.invDirection));
-		__m128 t1m	  = _mm_mul_ps(_mm_sub_ps(minm, raym), ray.invDirection);
-		__m128 t2m	  = _mm_mul_ps(_mm_sub_ps(maxm, raym), ray.invDirection);
+		__m128 t1m = _mm_mul_ps(_mm_sub_ps(minm, raym), ray.invDirection);
+		__m128 t2m = _mm_mul_ps(_mm_sub_ps(maxm, raym), ray.invDirection);
 		// 0 * ±inf = NaN when origin lies exactly on an AABB boundary and ray is parallel to that axis.
 		// Replace NaN in t1m with -inf (slab entry: no constraint) and in t2m with +inf (slab exit: no constraint).
 		__m128 nanMask = _mm_cmpunord_ps(t1m, t1m);
-		t1m = _mm_or_ps(_mm_andnot_ps(nanMask, t1m), _mm_and_ps(nanMask, _mm_set1_ps(-std::numeric_limits<float>::infinity())));
-		nanMask = _mm_cmpunord_ps(t2m, t2m);
-		t2m = _mm_or_ps(_mm_andnot_ps(nanMask, t2m), _mm_and_ps(nanMask, _mm_set1_ps(std::numeric_limits<float>::infinity())));
-		__m128 tenter = _mm_min_ps(t1m, t2m);
-		__m128 texit  = _mm_max_ps(t1m, t2m);
+		t1m			   = _mm_or_ps(_mm_andnot_ps(nanMask, t1m), _mm_and_ps(nanMask, _mm_set1_ps(-std::numeric_limits<float>::infinity())));
+		nanMask		   = _mm_cmpunord_ps(t2m, t2m);
+		t2m			   = _mm_or_ps(_mm_andnot_ps(nanMask, t2m), _mm_and_ps(nanMask, _mm_set1_ps(std::numeric_limits<float>::infinity())));
+		__m128 tenter  = _mm_min_ps(t1m, t2m);
+		__m128 texit   = _mm_max_ps(t1m, t2m);
 
 		// Horizontal max of tenter (xyz only) → tmin
 		__m128 s1	= _mm_shuffle_ps(tenter, tenter, _MM_SHUFFLE(0, 0, 0, 1));
@@ -111,7 +111,7 @@ public:
 		}
 
 		// https://github.com/erich666/GraphicsGems/blob/master/gems/RayBox.c
-		enum class E_QuadrantName : std::uint8_t{
+		enum class E_QuadrantName : std::uint8_t {
 			RIGHT,
 			LEFT,
 			MIDDLE
@@ -305,24 +305,29 @@ public:
 		{
 			return std::numeric_limits<float>::infinity();
 		}
-		//__m128 invdm  = _mm_set_ps(VEC3TOSSE(ray.invDirection));
-		Vec3 t1m	  = m_Min - ray.origin * ray.invDirection;
-		__m128 t2m	  = _mm_mul_ps(_mm_sub_ps(m_Max.GetRaw(), ray.origin.GetRaw()), ray.invDirection.GetRaw());
-		__m128	tenter = _mm_min_ps(t1m.GetRaw(), t2m);
-		__m128 texit  = _mm_max_ps(t1m.GetRaw(), t2m);
-	
+		Vec3 t1 = (m_Min - ray.origin) * ray.invDirection;
+		Vec3 t2 = (m_Max - ray.origin) * ray.invDirection;
+		// 0 * ±inf = NaN when origin lies exactly on an AABB boundary and ray is parallel to that axis.
+		// Replace NaN in t1 with -inf (slab entry: no constraint) and in t2 with +inf (slab exit: no constraint).
+		__m128 nanMask = _mm_cmpunord_ps(t1.GetRaw(), t1.GetRaw());
+		t1			   = _mm_or_ps(_mm_andnot_ps(nanMask, t1.GetRaw()), _mm_and_ps(nanMask, _mm_set1_ps(-std::numeric_limits<float>::infinity())));
+		nanMask		   = _mm_cmpunord_ps(t2.GetRaw(), t2.GetRaw());
+		t2			   = _mm_or_ps(_mm_andnot_ps(nanMask, t2.GetRaw()), _mm_and_ps(nanMask, _mm_set1_ps(std::numeric_limits<float>::infinity())));
+		Vec3 tenter	   = Vec3::min(t1, t2);
+		Vec3 texit	   = Vec3::max(t1, t2);
+
 		// Horizontal max of tenter (xyz only) → tmin
-		__m128 s1	= _mm_shuffle_ps(tenter, tenter, _MM_SHUFFLE(0, 0, 0, 1));
-		__m128 mx01 = _mm_max_ss(tenter, s1);
-		__m128 s2	= _mm_shuffle_ps(tenter, tenter, _MM_SHUFFLE(0, 0, 0, 2));
+		__m128 s1	= _mm_shuffle_ps(tenter.GetRaw(), tenter.GetRaw(), _MM_SHUFFLE(0, 0, 0, 1));
+		__m128 mx01 = _mm_max_ss(tenter.GetRaw(), s1);
+		__m128 s2	= _mm_shuffle_ps(tenter.GetRaw(), tenter.GetRaw(), _MM_SHUFFLE(0, 0, 0, 2));
 		float  tmin = _mm_cvtss_f32(_mm_max_ss(mx01, s2));
-	
+
 		// Horizontal min of texit (xyz only) → tmax
-		s1			= _mm_shuffle_ps(texit, texit, _MM_SHUFFLE(0, 0, 0, 1));
-		__m128 mn01 = _mm_min_ss(texit, s1);
-		s2			= _mm_shuffle_ps(texit, texit, _MM_SHUFFLE(0, 0, 0, 2));
+		s1			= _mm_shuffle_ps(texit.GetRaw(), texit.GetRaw(), _MM_SHUFFLE(0, 0, 0, 1));
+		__m128 mn01 = _mm_min_ss(texit.GetRaw(), s1);
+		s2			= _mm_shuffle_ps(texit.GetRaw(), texit.GetRaw(), _MM_SHUFFLE(0, 0, 0, 2));
 		float tmax	= _mm_cvtss_f32(_mm_min_ss(mn01, s2));
-	
+
 		tmin = std::max(tmin, 0.f);
 		return (tmin <= tmax) ? tmin : std::numeric_limits<float>::infinity();
 	}
@@ -367,7 +372,7 @@ public:
 		__m128 ltMin = _mm_cmplt_ps(point.GetRaw(), m_Min.GetRaw()); // p < min
 		__m128 gtMax = _mm_cmpgt_ps(point.GetRaw(), m_Max.GetRaw()); // p > max
 		__m128 out	 = _mm_or_ps(ltMin, gtMax);
-		return (_mm_movemask_ps(out) & 0x7) == 0; 
+		return (_mm_movemask_ps(out) & 0x7) == 0;
 	}
 
 	[[nodiscard]] bool IsInitialized() const

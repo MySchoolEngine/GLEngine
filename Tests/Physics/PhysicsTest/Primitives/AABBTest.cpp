@@ -462,6 +462,27 @@ TYPED_TEST(AABB_Intersects, Intersects_RayFromInside)
 	EXPECT_FLOAT_EQ(aabb.Intersects(ray), 0.0f);
 }
 
+TYPED_TEST(AABB_Intersects, Intersects_RayParallelToAxis_OriginOnBoundary)
+{
+	using AABBType = typename TestFixture::AABBType;
+	using RayType  = typename TestFixture::RayType;
+	using VecType  = typename TestFixture::VecType;
+
+	AABBType aabb;
+	aabb.Add(VecType(-1.f, -1.f, -1.f));
+	aabb.Add(VecType( 1.f,  1.f,  1.f));
+
+	// Ray travels along +x with its origin sitting exactly on the y = m_Min
+	// boundary. direction.y == 0 makes invDirection.y == +inf, and
+	// (m_Min.y - origin.y) == 0, so the slab math produces a 0 * inf == NaN
+	// intermediate that must be corrected before the min/max reduction.
+	const RayType ray{{0.f, -1.f, 0.f}, {1.f, 0.f, 0.f}};
+
+	// Origin lies on the box surface, so the ray is already "inside" — entry
+	// t is 0, not a miss.
+	EXPECT_FLOAT_EQ(aabb.Intersects(ray), 0.0f);
+}
+
 TYPED_TEST(AABB_Intersects, Intersects_UninitializedBox)
 {
 	using AABBType = typename TestFixture::AABBType;
