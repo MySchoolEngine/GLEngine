@@ -34,11 +34,22 @@ public:
 	{
 	}
 
+#pragma region--Component access
+	[[nodiscard]] float x() const { return _mm_cvtss_f32(data); }
+	[[nodiscard]] float y() const { return _mm_cvtss_f32(_mm_shuffle_ps(data, data, _MM_SHUFFLE(0, 0, 0, 1))); }
+	[[nodiscard]] float z() const { return _mm_cvtss_f32(_mm_shuffle_ps(data, data, _MM_SHUFFLE(0, 0, 0, 2))); }
+
+	void SetX(float val) { data = _mm_insert_ps(data, _mm_set_ss(val), 0x00); }
+	void SetY(float val) { data = _mm_insert_ps(data, _mm_set_ss(val), 0x10); }
+	void SetZ(float val) { data = _mm_insert_ps(data, _mm_set_ss(val), 0x20); }
+#pragma endregion-- Component access
+
 #pragma region--Arithmetic operators
 	[[nodiscard]] Vec3 operator-(const Vec3& other) const { return _mm_sub_ps(data, other.data); }
 	[[nodiscard]] Vec3 operator+(const Vec3& other) const { return _mm_add_ps(data, other.data); }
 	[[nodiscard]] Vec3 operator*(const Vec3& other) const { return _mm_mul_ps(data, other.data); }
 	[[nodiscard]] Vec3 operator/(const Vec3& other) const { return _mm_div_ps(data, other.data); }
+	[[nodiscard]] Vec3 operator/(const float val) const { return _mm_div_ps(data, _mm_set1_ps(val)); }
 	[[nodiscard]] Vec3 operator*(const float val) const { return _mm_mul_ps(data, _mm_set1_ps(val)); }
 #pragma endregion-- Arithmetic operators
 
@@ -105,4 +116,15 @@ public:
 
 	float Dot(const Vec3& other) const { return _mm_cvtss_f32(_mm_dp_ps(data, other.data, 0x71)); }
 };
+
+[[nodiscard]] inline float distance2(const Vec3& a, const Vec3& b)
+{
+	const Vec3 diff = a - b;
+	return diff.Dot(diff);
+}
+
+[[nodiscard]] inline Vec3 operator*(const float x, const Vec3& y)
+{
+	return y * x;
+}
 } // namespace Utils::SSE

@@ -80,7 +80,7 @@ void BVH::Build()
 
 	auto& root = m_Nodes.emplace_back();
 	for (const auto& vertex : *m_Storage)
-		root.aabb.Add(vertex);
+		root.aabb.Add(::Utils::SSE::Vec3(vertex));
 	root.firstTrig = 0;
 	root.lastTrig  = static_cast<unsigned int>(m_Storage->size()) / 3 - 1;
 	std::vector<glm::vec3> centroids;
@@ -253,22 +253,21 @@ bool BVH::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& in
 		return false;
 	PlotTracyCounters(LIST_OF_COUNTERS);
 	ResetTracyCounters(LIST_OF_COUNTERS);
-	const bool result = IntersectNode(ray, intersection, m_Nodes[0], outTriangleIndex, outBarycentric);
+	const bool result = IntersectNode(Physics::Primitives::S_SSERay(ray), intersection, m_Nodes[0], outTriangleIndex, outBarycentric);
 	SendTracyCounters(LIST_OF_COUNTERS);
 	return result;
 }
 
 //=================================================================================
-bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray,
+bool BVH::IntersectNode(const Physics::Primitives::S_SSERay& ray,
 						C_RayIntersection&				  intersection,
 						const BVHNode&					  node,
 						unsigned int*					  outTriangleIndex,
 						glm::vec2*						  outBarycentric) const
 {
-	const Physics::Primitives::S_SSERay sseRay(ray);
 	// Early out: if ray origin is outside AABB and doesn't intersect it
 	ADD_AABB_TEST;
-	if (!node.aabb.Contains(ray.origin) && std::isinf(node.aabb.Intersects(sseRay)))
+	if (!node.aabb.Contains(ray.origin) && std::isinf(node.aabb.Intersects(ray)))
 	{
 		ADD_AABB_REJECT;
 		return false;
@@ -288,9 +287,9 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray,
 	};
 	S_IntersectionInfo closestIntersect{};
 
-	const auto calcDistance = [](const BVHNode& node, const glm::vec3& rayOrigin) {
+	const auto calcDistance = [](const BVHNode& node, const ::Utils::SSE::Vec3& rayOrigin) -> float {
 		const auto center = (node.aabb.m_Max - node.aabb.m_Min) / 2.f;
-		return glm::distance2(center, rayOrigin);
+		return ::Utils::SSE::distance2(center, rayOrigin);
 	};
 
 	while (stackPointer != 0)
@@ -298,7 +297,7 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray,
 		const BVHNode& current = m_Nodes[nodeStack[--stackPointer]];
 		// Early out: if ray origin is outside AABB and doesn't intersect it
 		ADD_AABB_TEST;
-		const float tAABB = current.aabb.Intersects(sseRay);
+		const float tAABB = current.aabb.Intersects(ray);
 		if (tAABB > closestIntersect.t || std::isinf(tAABB))
 		{
 			ADD_AABB_REJECT;
@@ -309,7 +308,7 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray,
 		{
 			S_IntersectionInfo intersect;
 			// test the triangles
-			if (TestTriangles(sseRay, current, &intersect.triangleIndex, &intersect.barycentric, &intersect.t) && intersect < closestIntersect)
+			if (TestTriangles(ray, current, &intersect.triangleIndex, &intersect.barycentric, &intersect.t) && intersect < closestIntersect)
 			{
 				closestIntersect = intersect;
 			}
@@ -339,7 +338,7 @@ bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray,
 	auto			 normal = glm::cross(triDef[1] - triDef[0], triDef[2] - triDef[0]);
 	normal					= glm::normalize(normal);
 
-	intersection = C_RayIntersection(S_Frame(normal), ray.origin + closestIntersect.t * ray.direction, Physics::Primitives::S_Ray(ray));
+	intersection = C_RayIntersection(S_Frame(normal), static_cast<glm::vec3>(ray.origin + closestIntersect.t * ray.direction), Physics::Primitives::S_Ray(ray));
 	intersection.SetRayLength(closestIntersect.t);
 
 	// Output triangle index and barycentric coordinates if requested
@@ -394,7 +393,7 @@ void BVH::DebugDrawNode(I_DebugDraw& dd, const glm::mat4& modelMatrix, const BVH
 	};
 	constexpr static auto	 numColours	   = (sizeof(colours) / sizeof(Colours::T_Colour));
 	const Colours::T_Colour& currentColour = colours[level < numColours ? level : numColours - 1];
-	dd.DrawAABB(node.aabb, currentColour, modelMatrix);
+	//TODO: dd.DrawAABB(node.aabb, currentColour, modelMatrix);
 	if (node.left != s_InvalidBVHNode)
 		DebugDrawNode(dd, modelMatrix, m_Nodes[node.left], level + 1);
 	if (node.right != s_InvalidBVHNode)

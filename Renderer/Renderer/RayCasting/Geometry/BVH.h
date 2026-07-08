@@ -65,19 +65,20 @@ private:
 	constexpr static T_BVHNodeID s_InvalidBVHNode = static_cast<T_BVHNodeID>(-1);
 
 	struct BVHNode final {
-		Physics::Primitives::S_AABB aabb;
-		T_BVHNodeID					left  = s_InvalidBVHNode;
-		T_BVHNodeID					right = s_InvalidBVHNode;
-		unsigned int				firstTrig, lastTrig; // Index to look-up table
+		Physics::Primitives::S_SSEAABB aabb;
+		T_BVHNodeID					   left	 = s_InvalidBVHNode;
+		T_BVHNodeID					   right = s_InvalidBVHNode;
+		unsigned int				   firstTrig, lastTrig; // Index to look-up table
 
 		[[nodiscard]] bool IsLeaf() const { return left == s_InvalidBVHNode && right == s_InvalidBVHNode; }
 
 		[[nodiscard]] constexpr unsigned int NumTrig() const { return (lastTrig - firstTrig) + 1; }
 	};
 	[[nodiscard]] bool
-	IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, const BVHNode& node, unsigned int* outTriangleIndex, glm::vec2* outBarycentric) const;
+	IntersectNode(const Physics::Primitives::S_SSERay& ray, C_RayIntersection& intersection, const BVHNode& node, unsigned int* outTriangleIndex, glm::vec2* outBarycentric) const;
 
-	[[nodiscard]] bool TestTriangles(const Physics::Primitives::S_SSERay& ray, const BVHNode& node, unsigned int* outTriangleIndex, glm::vec2* outBarycentric, float* distance) const;
+	[[nodiscard]] bool
+		 TestTriangles(const Physics::Primitives::S_SSERay& ray, const BVHNode& node, unsigned int* outTriangleIndex, glm::vec2* outBarycentric, float* distance) const;
 	void DebugDrawNode(I_DebugDraw& dd, const glm::mat4& modelMatrix, const BVHNode& node, unsigned int level) const;
 	// using NodeID because the vector is being reallocated on the way
 	void SplitBVHNodeNaive(T_BVHNodeID node, unsigned int level, std::vector<glm::vec3>& centroids);
@@ -117,8 +118,8 @@ private:
 	std::vector<unsigned int> m_LookupTable; // index to triangle, to get first vertex multiply * 3
 	std::vector<BVHNode>	  m_Nodes;
 
-	static constexpr unsigned int s_MaxDepth	= 10;
-	static constexpr unsigned int s_MinLeafSize = 20;
+	static constexpr unsigned int s_MaxDepth	= 20;
+	static constexpr unsigned int s_MinLeafSize = 4;
 
 	friend class C_Trimesh;
 	friend class BVHFixture;

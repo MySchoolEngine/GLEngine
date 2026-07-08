@@ -36,6 +36,69 @@ TEST(Vec3_Construction, XYZConstructor_SetsComponents)
 #pragma endregion-- Vec3_Construction
 
 // =============================================================================
+// Component access
+// x()/y()/z() read individual lanes; SetX/SetY/SetZ mutate a single lane in
+// place without disturbing the others, including the w lane.
+// =============================================================================
+#pragma region--Vec3_ComponentAccess
+TEST(Vec3_ComponentAccess, Getters_ReturnConstructedComponents)
+{
+	const Vec3 v(1.f, 2.f, 3.f);
+	EXPECT_FLOAT_EQ(v.x(), 1.f);
+	EXPECT_FLOAT_EQ(v.y(), 2.f);
+	EXPECT_FLOAT_EQ(v.z(), 3.f);
+}
+
+TEST(Vec3_ComponentAccess, Getters_IgnoreWLane)
+{
+	// xyz = (1,2,3), w = 100 must not leak into any getter.
+	const Vec3 v(_mm_set_ps(100.f, 3.f, 2.f, 1.f));
+	EXPECT_FLOAT_EQ(v.x(), 1.f);
+	EXPECT_FLOAT_EQ(v.y(), 2.f);
+	EXPECT_FLOAT_EQ(v.z(), 3.f);
+}
+
+TEST(Vec3_ComponentAccess, SetX_UpdatesOnlyX)
+{
+	Vec3 v(1.f, 2.f, 3.f);
+	v.SetX(9.f);
+	EXPECT_FLOAT_EQ(v.x(), 9.f);
+	EXPECT_FLOAT_EQ(v.y(), 2.f);
+	EXPECT_FLOAT_EQ(v.z(), 3.f);
+}
+
+TEST(Vec3_ComponentAccess, SetY_UpdatesOnlyY)
+{
+	Vec3 v(1.f, 2.f, 3.f);
+	v.SetY(9.f);
+	EXPECT_FLOAT_EQ(v.x(), 1.f);
+	EXPECT_FLOAT_EQ(v.y(), 9.f);
+	EXPECT_FLOAT_EQ(v.z(), 3.f);
+}
+
+TEST(Vec3_ComponentAccess, SetZ_UpdatesOnlyZ)
+{
+	Vec3 v(1.f, 2.f, 3.f);
+	v.SetZ(9.f);
+	EXPECT_FLOAT_EQ(v.x(), 1.f);
+	EXPECT_FLOAT_EQ(v.y(), 2.f);
+	EXPECT_FLOAT_EQ(v.z(), 9.f);
+}
+
+TEST(Vec3_ComponentAccess, Setters_DoNotAffectWLane)
+{
+	Vec3 v(_mm_set_ps(42.f, 3.f, 2.f, 1.f)); // xyz = (1,2,3), w = 42
+	v.SetX(9.f);
+	v.SetY(8.f);
+	v.SetZ(7.f);
+
+	alignas(16) float raw[4];
+	_mm_store_ps(raw, v.GetRaw());
+	EXPECT_FLOAT_EQ(raw[3], 42.f);
+}
+#pragma endregion-- Vec3_ComponentAccess
+
+// =============================================================================
 // Arithmetic operators
 // =============================================================================
 #pragma region--Vec3_Arithmetic

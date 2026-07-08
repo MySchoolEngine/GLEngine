@@ -6,6 +6,7 @@
 #include <xmmintrin.h>
 
 namespace GLEngine::Physics::Primitives {
+struct S_SSERay;
 struct S_Ray {
 	// can't be constexpr as division by zero is valid here
 	S_Ray(const glm::vec3& origin, const glm::vec3& direction)
@@ -42,6 +43,8 @@ struct S_SSERay {
 		: S_SSERay(ray.origin, ray.direction)
 	{
 	}
+
+	explicit operator S_Ray() const { return S_Ray(static_cast<glm::vec3>(origin), static_cast<glm::vec3>(direction)); }
 
 	::Utils::SSE::Vec3 origin;
 	::Utils::SSE::Vec3 direction;
