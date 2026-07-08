@@ -20,35 +20,26 @@ public:
 
 	[[nodiscard]] float Intersects(const S_SSERay& ray) const noexcept
 	{
+		using namespace ::Utils::SSE;
 		if (!IsInitialized())
 		{
 			return std::numeric_limits<float>::infinity();
 		}
-		__m128 minm = _mm_set_ps(VEC3TOSSE(m_Min));
-		__m128 maxm = _mm_set_ps(VEC3TOSSE(m_Max));
-		//__m128 invdm  = _mm_set_ps(VEC3TOSSE(ray.invDirection));
-		__m128 t1m = _mm_mul_ps(_mm_sub_ps(minm, ray.origin.GetRaw()), ray.invDirection.GetRaw());
-		__m128 t2m = _mm_mul_ps(_mm_sub_ps(maxm, ray.origin.GetRaw()), ray.invDirection.GetRaw());
+		const Vec3 minm(m_Min);
+		const Vec3 maxm(m_Max);
+		Vec3	   t1 = (minm - ray.origin) * ray.invDirection;
+		Vec3	   t2 = (maxm - ray.origin) * ray.invDirection;
 		// 0 * ±inf = NaN when origin lies exactly on an AABB boundary and ray is parallel to that axis.
 		// Replace NaN in t1m with -inf (slab entry: no constraint) and in t2m with +inf (slab exit: no constraint).
-		__m128 nanMask = _mm_cmpunord_ps(t1m, t1m);
-		t1m			   = _mm_or_ps(_mm_andnot_ps(nanMask, t1m), _mm_and_ps(nanMask, _mm_set1_ps(-std::numeric_limits<float>::infinity())));
-		nanMask		   = _mm_cmpunord_ps(t2m, t2m);
-		t2m			   = _mm_or_ps(_mm_andnot_ps(nanMask, t2m), _mm_and_ps(nanMask, _mm_set1_ps(std::numeric_limits<float>::infinity())));
-		__m128 tenter  = _mm_min_ps(t1m, t2m);
-		__m128 texit   = _mm_max_ps(t1m, t2m);
+		__m128 nanMask = _mm_cmpunord_ps(t1.GetRaw(), t1.GetRaw());
+		t1			   = _mm_or_ps(_mm_andnot_ps(nanMask, t1.GetRaw()), _mm_and_ps(nanMask, _mm_set1_ps(-std::numeric_limits<float>::infinity())));
+		nanMask		   = _mm_cmpunord_ps(t2.GetRaw(), t2.GetRaw());
+		t2			   = _mm_or_ps(_mm_andnot_ps(nanMask, t2.GetRaw()), _mm_and_ps(nanMask, _mm_set1_ps(std::numeric_limits<float>::infinity())));
+		Vec3 tenter	   = Vec3::min(t1, t2);
+		Vec3 texit	   = Vec3::max(t1, t2);
 
-		// Horizontal max of tenter (xyz only) → tmin
-		__m128 s1	= _mm_shuffle_ps(tenter, tenter, _MM_SHUFFLE(0, 0, 0, 1));
-		__m128 mx01 = _mm_max_ss(tenter, s1);
-		__m128 s2	= _mm_shuffle_ps(tenter, tenter, _MM_SHUFFLE(0, 0, 0, 2));
-		float  tmin = _mm_cvtss_f32(_mm_max_ss(mx01, s2));
-
-		// Horizontal min of texit (xyz only) → tmax
-		s1			= _mm_shuffle_ps(texit, texit, _MM_SHUFFLE(0, 0, 0, 1));
-		__m128 mn01 = _mm_min_ss(texit, s1);
-		s2			= _mm_shuffle_ps(texit, texit, _MM_SHUFFLE(0, 0, 0, 2));
-		float tmax	= _mm_cvtss_f32(_mm_min_ss(mn01, s2));
+		float		tmin = tenter.MaxComponent();
+		const float tmax = texit.MinComponent();
 
 		tmin = std::max(tmin, 0.f);
 		return (tmin <= tmax) ? tmin : std::numeric_limits<float>::infinity();
@@ -56,36 +47,27 @@ public:
 
 	[[nodiscard]] float Intersects(const S_Ray& ray) const noexcept
 	{
+		using namespace ::Utils::SSE;
 		if (!IsInitialized())
 		{
 			return std::numeric_limits<float>::infinity();
 		}
-		__m128 minm = _mm_set_ps(VEC3TOSSE(m_Min));
-		__m128 maxm = _mm_set_ps(VEC3TOSSE(m_Max));
-		__m128 raym = _mm_set_ps(VEC3TOSSE(ray.origin));
-		//__m128 invdm  = _mm_set_ps(VEC3TOSSE(ray.invDirection));
-		__m128 t1m = _mm_mul_ps(_mm_sub_ps(minm, raym), ray.invDirection);
-		__m128 t2m = _mm_mul_ps(_mm_sub_ps(maxm, raym), ray.invDirection);
+		const Vec3 minm(m_Min);
+		const Vec3 maxm(m_Max);
+		const Vec3 originm(m_Max);
+		Vec3	   t1 = (minm - originm) * ray.invDirection;
+		Vec3	   t2 = (maxm - originm) * ray.invDirection;
 		// 0 * ±inf = NaN when origin lies exactly on an AABB boundary and ray is parallel to that axis.
 		// Replace NaN in t1m with -inf (slab entry: no constraint) and in t2m with +inf (slab exit: no constraint).
-		__m128 nanMask = _mm_cmpunord_ps(t1m, t1m);
-		t1m			   = _mm_or_ps(_mm_andnot_ps(nanMask, t1m), _mm_and_ps(nanMask, _mm_set1_ps(-std::numeric_limits<float>::infinity())));
-		nanMask		   = _mm_cmpunord_ps(t2m, t2m);
-		t2m			   = _mm_or_ps(_mm_andnot_ps(nanMask, t2m), _mm_and_ps(nanMask, _mm_set1_ps(std::numeric_limits<float>::infinity())));
-		__m128 tenter  = _mm_min_ps(t1m, t2m);
-		__m128 texit   = _mm_max_ps(t1m, t2m);
+		__m128 nanMask = _mm_cmpunord_ps(t1.GetRaw(), t1.GetRaw());
+		t1			   = _mm_or_ps(_mm_andnot_ps(nanMask, t1.GetRaw()), _mm_and_ps(nanMask, _mm_set1_ps(-std::numeric_limits<float>::infinity())));
+		nanMask		   = _mm_cmpunord_ps(t2.GetRaw(), t2.GetRaw());
+		t2			   = _mm_or_ps(_mm_andnot_ps(nanMask, t2.GetRaw()), _mm_and_ps(nanMask, _mm_set1_ps(std::numeric_limits<float>::infinity())));
+		Vec3 tenter	   = Vec3::min(t1, t2);
+		Vec3 texit	   = Vec3::max(t1, t2);
 
-		// Horizontal max of tenter (xyz only) → tmin
-		__m128 s1	= _mm_shuffle_ps(tenter, tenter, _MM_SHUFFLE(0, 0, 0, 1));
-		__m128 mx01 = _mm_max_ss(tenter, s1);
-		__m128 s2	= _mm_shuffle_ps(tenter, tenter, _MM_SHUFFLE(0, 0, 0, 2));
-		float  tmin = _mm_cvtss_f32(_mm_max_ss(mx01, s2));
-
-		// Horizontal min of texit (xyz only) → tmax
-		s1			= _mm_shuffle_ps(texit, texit, _MM_SHUFFLE(0, 0, 0, 1));
-		__m128 mn01 = _mm_min_ss(texit, s1);
-		s2			= _mm_shuffle_ps(texit, texit, _MM_SHUFFLE(0, 0, 0, 2));
-		float tmax	= _mm_cvtss_f32(_mm_min_ss(mn01, s2));
+		float		tmin = tenter.MaxComponent();
+		const float tmax = texit.MinComponent();
 
 		tmin = std::max(tmin, 0.f);
 		return (tmin <= tmax) ? tmin : std::numeric_limits<float>::infinity();
@@ -316,17 +298,8 @@ public:
 		Vec3 tenter	   = Vec3::min(t1, t2);
 		Vec3 texit	   = Vec3::max(t1, t2);
 
-		// Horizontal max of tenter (xyz only) → tmin
-		__m128 s1	= _mm_shuffle_ps(tenter.GetRaw(), tenter.GetRaw(), _MM_SHUFFLE(0, 0, 0, 1));
-		__m128 mx01 = _mm_max_ss(tenter.GetRaw(), s1);
-		__m128 s2	= _mm_shuffle_ps(tenter.GetRaw(), tenter.GetRaw(), _MM_SHUFFLE(0, 0, 0, 2));
-		float  tmin = _mm_cvtss_f32(_mm_max_ss(mx01, s2));
-
-		// Horizontal min of texit (xyz only) → tmax
-		s1			= _mm_shuffle_ps(texit.GetRaw(), texit.GetRaw(), _MM_SHUFFLE(0, 0, 0, 1));
-		__m128 mn01 = _mm_min_ss(texit.GetRaw(), s1);
-		s2			= _mm_shuffle_ps(texit.GetRaw(), texit.GetRaw(), _MM_SHUFFLE(0, 0, 0, 2));
-		float tmax	= _mm_cvtss_f32(_mm_min_ss(mn01, s2));
+		float		tmin = tenter.MaxComponent();
+		const float tmax = texit.MinComponent();
 
 		tmin = std::max(tmin, 0.f);
 		return (tmin <= tmax) ? tmin : std::numeric_limits<float>::infinity();

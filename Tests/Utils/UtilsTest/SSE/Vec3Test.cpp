@@ -138,6 +138,50 @@ TEST(Vec3_MinMax, Max_TakesComponentwiseMaximum)
 #pragma endregion-- Vec3_MinMax
 
 // =============================================================================
+// MinComponent / MaxComponent
+// Horizontal reduction across xyz — the w lane must never influence the result.
+// =============================================================================
+#pragma region--Vec3_ComponentMinMax
+TEST(Vec3_ComponentMinMax, MaxComponent_ReturnsLargestOfXYZ)
+{
+	const Vec3 v(4.f, 1.f, 7.f);
+	EXPECT_FLOAT_EQ(v.MaxComponent(), 7.f);
+}
+
+TEST(Vec3_ComponentMinMax, MinComponent_ReturnsSmallestOfXYZ)
+{
+	const Vec3 v(4.f, 1.f, 7.f);
+	EXPECT_FLOAT_EQ(v.MinComponent(), 1.f);
+}
+
+TEST(Vec3_ComponentMinMax, MaxComponent_HandlesNegativeComponents)
+{
+	const Vec3 v(-1.f, -5.f, -3.f);
+	EXPECT_FLOAT_EQ(v.MaxComponent(), -1.f);
+}
+
+TEST(Vec3_ComponentMinMax, MinComponent_HandlesNegativeComponents)
+{
+	const Vec3 v(-1.f, -5.f, -3.f);
+	EXPECT_FLOAT_EQ(v.MinComponent(), -5.f);
+}
+
+TEST(Vec3_ComponentMinMax, MaxComponent_IgnoresWLane)
+{
+	// _mm_set_ps(w, z, y, x) — xyz = (1,2,3), w = 100 is the largest lane but must not win.
+	const Vec3 v(_mm_set_ps(100.f, 3.f, 2.f, 1.f));
+	EXPECT_FLOAT_EQ(v.MaxComponent(), 3.f);
+}
+
+TEST(Vec3_ComponentMinMax, MinComponent_IgnoresWLane)
+{
+	// xyz = (1,2,3), w = -100 is the smallest lane but must not win.
+	const Vec3 v(_mm_set_ps(-100.f, 3.f, 2.f, 1.f));
+	EXPECT_FLOAT_EQ(v.MinComponent(), 1.f);
+}
+#pragma endregion-- Vec3_ComponentMinMax
+
+// =============================================================================
 // Cross / Dot
 // =============================================================================
 #pragma region--Vec3_CrossDot

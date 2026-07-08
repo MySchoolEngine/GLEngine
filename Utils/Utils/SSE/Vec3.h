@@ -50,6 +50,21 @@ public:
 	static Vec3 min(const Vec3& a, const Vec3& b) { return _mm_min_ps(a.data, b.data); }
 	static Vec3 max(const Vec3& a, const Vec3& b) { return _mm_max_ps(a.data, b.data); }
 
+	[[nodiscard]] float MinComponent() const
+	{
+		__m128 s1	= _mm_shuffle_ps(data, data, _MM_SHUFFLE(0, 0, 0, 1));
+		__m128 mn01 = _mm_min_ss(data, s1);
+		__m128 s2	= _mm_shuffle_ps(data, data, _MM_SHUFFLE(0, 0, 0, 2));
+		return _mm_cvtss_f32(_mm_min_ss(mn01, s2));
+	}
+	[[nodiscard]] float MaxComponent() const
+	{
+		__m128 s1	= _mm_shuffle_ps(data, data, _MM_SHUFFLE(0, 0, 0, 1));
+		__m128 mx01 = _mm_max_ss(data, s1);
+		__m128 s2	= _mm_shuffle_ps(data, data, _MM_SHUFFLE(0, 0, 0, 2));
+		return _mm_cvtss_f32(_mm_max_ss(mx01, s2));
+	}
+
 	__m128 GetRaw() const { return data; }
 
 	[[nodiscard]] Vec3 Cross(const Vec3& other) const
