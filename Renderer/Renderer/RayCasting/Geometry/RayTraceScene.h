@@ -63,10 +63,11 @@ public:
 	// TODO Remove
 	void TestScene();
 
+	// those two needs to be exposed due to material editor, will be fixed in the future
 	std::unique_ptr<I_MaterialInterface>& AddMaterial(const Core::ResourceHandle<MaterialResource>& material);
+	std::unique_ptr<I_MaterialInterface>& AddMaterial(const MeshData::Material& material);
 
 private:
-	std::unique_ptr<I_MaterialInterface>& AddMaterial(const MeshData::Material& material);
 	std::vector<std::shared_ptr<I_RayGeometryObject>>	   m_Objects;
 	std::vector<std::shared_ptr<RayTracing::C_AreaLight>>  m_AreaLights;
 	std::vector<std::shared_ptr<RayTracing::C_PointLight>> m_PointLights;
