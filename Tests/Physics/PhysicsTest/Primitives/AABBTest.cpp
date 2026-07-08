@@ -86,12 +86,12 @@ TYPED_TEST(AABB_AddPoint, AddSinglePoint_MinEqualsMax)
 TYPED_TEST(AABB_AddPoint, AddMultiplePoints_ExpandsMinAndMax)
 {
 	TypeParam aabb;
-	aabb.Add(TestFixture::VecType( 0.f, 0.f, 0.f ));
-	aabb.Add(TestFixture::VecType( 2.f, 3.f, 4.f ));
-	aabb.Add(TestFixture::VecType( -1.f, 5.f, 2.f ));
+	aabb.Add(typename TestFixture::VecType( 0.f, 0.f, 0.f ));
+	aabb.Add(typename TestFixture::VecType( 2.f, 3.f, 4.f ));
+	aabb.Add(typename TestFixture::VecType( -1.f, 5.f, 2.f ));
 
-	EXPECT_EQ(aabb.m_Min, TestFixture::VecType(-1.f, 0.f, 0.f));
-	EXPECT_EQ(aabb.m_Max, TestFixture::VecType(2.f, 5.f, 4.f));
+	EXPECT_EQ(aabb.m_Min, typename TestFixture::VecType(-1.f, 0.f, 0.f));
+	EXPECT_EQ(aabb.m_Max, typename TestFixture::VecType(2.f, 5.f, 4.f));
 }
 
 TEST(AABB_AddPoint, AddVec4Point_StripsWComponent)
@@ -147,85 +147,85 @@ TYPED_TEST(AABB_AddAABB, AddInitializedAABB_MergesCorrectly)
 TYPED_TEST(AABB_ContainsPoint, ContainsPoint_StrictlyInside)
 {
 	TypeParam aabb;
-	aabb.Add(TestFixture::VecType(-1.f));
-	aabb.Add(TestFixture::VecType(1.f));
-	EXPECT_TRUE(aabb.Contains(TestFixture::VecType(0.f, 0.f, 0.f)));
+	aabb.Add(typename TestFixture::VecType(-1.f));
+	aabb.Add(typename TestFixture::VecType(1.f));
+	EXPECT_TRUE(aabb.Contains(typename TestFixture::VecType(0.f, 0.f, 0.f)));
 }
 
 TYPED_TEST(AABB_ContainsPoint, ContainsPoint_OnMinXFace)
 {
 	TypeParam aabb;
-	aabb.Add(TestFixture::VecType(-1.f));
-	aabb.Add(TestFixture::VecType(1.f));
+	aabb.Add(typename TestFixture::VecType(-1.f));
+	aabb.Add(typename TestFixture::VecType(1.f));
 	// Boundary is inclusive (point.x >= m_Min.x)
-	EXPECT_TRUE(aabb.Contains(TestFixture::VecType(-1.f, 0.f, 0.f)));
+	EXPECT_TRUE(aabb.Contains(typename TestFixture::VecType(-1.f, 0.f, 0.f)));
 }
 
 TYPED_TEST(AABB_ContainsPoint, ContainsPoint_OnMaxXFace)
 {
 	TypeParam aabb;
-	aabb.Add(TestFixture::VecType(-1.f));
-	aabb.Add(TestFixture::VecType(1.f));
+	aabb.Add(typename TestFixture::VecType(-1.f));
+	aabb.Add(typename TestFixture::VecType(1.f));
 	// Boundary is inclusive (point.x <= m_Max.x)
-	EXPECT_TRUE(aabb.Contains(TestFixture::VecType(1.f, 0.f, 0.f)));
+	EXPECT_TRUE(aabb.Contains(typename TestFixture::VecType(1.f, 0.f, 0.f)));
 }
 
 TYPED_TEST(AABB_ContainsPoint, ContainsPoint_OnMinYFace)
 {
 	TypeParam aabb;
-	aabb.Add(TestFixture::VecType(-1.f));
-	aabb.Add(TestFixture::VecType(1.f));
-	EXPECT_TRUE(aabb.Contains(TestFixture::VecType(0.f, -1.f, 0.f)));
+	aabb.Add(typename TestFixture::VecType(-1.f));
+	aabb.Add(typename TestFixture::VecType(1.f));
+	EXPECT_TRUE(aabb.Contains(typename TestFixture::VecType(0.f, -1.f, 0.f)));
 }
 
 TYPED_TEST(AABB_ContainsPoint, ContainsPoint_OnMaxYFace)
 {
 	TypeParam aabb;
-	aabb.Add(TestFixture::VecType(-1.f));
-	aabb.Add(TestFixture::VecType(1.f));
-	EXPECT_TRUE(aabb.Contains(TestFixture::VecType(0.f, 1.f, 0.f)));
+	aabb.Add(typename TestFixture::VecType(-1.f));
+	aabb.Add(typename TestFixture::VecType(1.f));
+	EXPECT_TRUE(aabb.Contains(typename TestFixture::VecType(0.f, 1.f, 0.f)));
 }
 
 TYPED_TEST(AABB_ContainsPoint, ContainsPoint_OnMinZFace)
 {
 	TypeParam aabb;
-	aabb.Add(TestFixture::VecType(-1.f));
-	aabb.Add(TestFixture::VecType(1.f));
-	EXPECT_TRUE(aabb.Contains(TestFixture::VecType(0.f, 0.f, -1.f)));
+	aabb.Add(typename TestFixture::VecType(-1.f));
+	aabb.Add(typename TestFixture::VecType(1.f));
+	EXPECT_TRUE(aabb.Contains(typename TestFixture::VecType(0.f, 0.f, -1.f)));
 }
 
 TYPED_TEST(AABB_ContainsPoint, ContainsPoint_OnMaxZFace)
 {
 	TypeParam aabb;
-	aabb.Add(TestFixture::VecType(-1.f));
-	aabb.Add(TestFixture::VecType(1.f));
-	EXPECT_TRUE(aabb.Contains(TestFixture::VecType(0.f, 0.f, 1.f)));
+	aabb.Add(typename TestFixture::VecType(-1.f));
+	aabb.Add(typename TestFixture::VecType(1.f));
+	EXPECT_TRUE(aabb.Contains(typename TestFixture::VecType(0.f, 0.f, 1.f)));
 }
 
 TYPED_TEST(AABB_ContainsPoint, ContainsPoint_OnCorner)
 {
 	TypeParam aabb;
-	aabb.Add(TestFixture::VecType(-1.f));
-	aabb.Add(TestFixture::VecType(1.f));
+	aabb.Add(typename TestFixture::VecType(-1.f));
+	aabb.Add(typename TestFixture::VecType(1.f));
 	// All three axes at their limit simultaneously — still inside
-	EXPECT_TRUE(aabb.Contains(TestFixture::VecType(1.f, 1.f, 1.f)));
-	EXPECT_TRUE(aabb.Contains(TestFixture::VecType(-1.f, -1.f, -1.f)));
+	EXPECT_TRUE(aabb.Contains(typename TestFixture::VecType(1.f, 1.f, 1.f)));
+	EXPECT_TRUE(aabb.Contains(typename TestFixture::VecType(-1.f, -1.f, -1.f)));
 }
 
 TYPED_TEST(AABB_ContainsPoint, ContainsPoint_OutsideBox)
 {
 	TypeParam aabb;
-	aabb.Add(TestFixture::VecType(-1.f));
-	aabb.Add(TestFixture::VecType(1.f));
-	EXPECT_FALSE(aabb.Contains(TestFixture::VecType(2.f, 0.f, 0.f)));
-	EXPECT_FALSE(aabb.Contains(TestFixture::VecType(0.f, -2.f, 0.f)));
-	EXPECT_FALSE(aabb.Contains(TestFixture::VecType(0.f, 0.f, 1.1f)));
+	aabb.Add(typename TestFixture::VecType(-1.f));
+	aabb.Add(typename TestFixture::VecType(1.f));
+	EXPECT_FALSE(aabb.Contains(typename TestFixture::VecType(2.f, 0.f, 0.f)));
+	EXPECT_FALSE(aabb.Contains(typename TestFixture::VecType(0.f, -2.f, 0.f)));
+	EXPECT_FALSE(aabb.Contains(typename TestFixture::VecType(0.f, 0.f, 1.1f)));
 }
 
 TYPED_TEST(AABB_ContainsPoint, ContainsPoint_UninitializedBox)
 {
 	const TypeParam aabb;
-	EXPECT_FALSE(aabb.Contains(TestFixture::VecType(0.f, 0.f, 0.f)));
+	EXPECT_FALSE(aabb.Contains(typename TestFixture::VecType(0.f, 0.f, 0.f)));
 }
 #pragma endregion --AABB_ContainsPoint
 
