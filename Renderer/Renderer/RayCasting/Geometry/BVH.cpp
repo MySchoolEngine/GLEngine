@@ -311,20 +311,19 @@ bool BVH::IntersectNode(const Physics::Primitives::S_SSERay& ray,
 		{
 			const float tAABBLeft  = current.aabb.Intersects(ray);
 			const float tAABBRight = current.aabb.Intersects(ray);
-			float rightDistance = calcDistance(m_Nodes[current.right], ray.origin);
-			if (leftDistance < rightDistance)
-			{
-				nodeStack[stackPointer++] = current.right;
-				nodeStack[stackPointer++] = current.left;
 			if (tAABBLeft < tAABBRight)
 			{
-				nodeStack[stackPointer++] = {current.right, tAABBRight};
-				nodeStack[stackPointer++] = {current.left, tAABBLeft};
+				if (tAABBRight < closestIntersect.t)
+					nodeStack[stackPointer++] = {current.right, tAABBRight};
+				if (tAABBLeft < closestIntersect.t)
+					nodeStack[stackPointer++] = {current.left, tAABBLeft};
 			}
 			else
 			{
-				nodeStack[stackPointer++] = {current.left, tAABBLeft};
-				nodeStack[stackPointer++] = {current.right, tAABBRight};
+				if (tAABBLeft < closestIntersect.t)
+					nodeStack[stackPointer++] = {current.left, tAABBLeft};
+				if (tAABBRight < closestIntersect.t)
+					nodeStack[stackPointer++] = {current.right, tAABBRight};
 			}
 		}
 	}
@@ -391,7 +390,7 @@ void BVH::DebugDrawNode(I_DebugDraw& dd, const glm::mat4& modelMatrix, const BVH
 	};
 	constexpr static auto	 numColours	   = (sizeof(colours) / sizeof(Colours::T_Colour));
 	const Colours::T_Colour& currentColour = colours[level < numColours ? level : numColours - 1];
-	//TODO: dd.DrawAABB(node.aabb, currentColour, modelMatrix);
+	// TODO: dd.DrawAABB(node.aabb, currentColour, modelMatrix);
 	if (node.left != s_InvalidBVHNode)
 		DebugDrawNode(dd, modelMatrix, m_Nodes[node.left], level + 1);
 	if (node.right != s_InvalidBVHNode)
@@ -402,7 +401,7 @@ void BVH::DebugDrawNode(I_DebugDraw& dd, const glm::mat4& modelMatrix, const BVH
 float BVH::CalcSAHCost(const BVHNode& parent, const unsigned int axis, const float splitPos, const std::vector<glm::vec3>& centroids) const
 {
 	Physics::Primitives::S_SSEAABB left, right;
-	unsigned int				leftCount = 0, rightCount = 0;
+	unsigned int				   leftCount = 0, rightCount = 0;
 	for (unsigned int i = parent.firstTrig; i < parent.lastTrig + 1; ++i)
 	{
 		const glm::vec3* triDef = GetTriangleDefinition(i);
