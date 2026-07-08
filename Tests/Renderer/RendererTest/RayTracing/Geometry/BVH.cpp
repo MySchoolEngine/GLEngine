@@ -162,8 +162,8 @@ TEST_F(BVHFixture, SAHSelectsMinimumCostSplit)
 	const auto& rightNode	= GetRight(bvh, root);
 	const auto& leftBounds	= leftNode.aabb;
 	const auto& rightBounds = rightNode.aabb;
-	EXPECT_LT(leftBounds.m_Max.x, 90.0f);  // Left cluster in [0, 50]
-	EXPECT_GT(rightBounds.m_Min.x, 90.0f); // Right cluster in [100, 150]
+	EXPECT_LT(leftBounds.m_Max.x(), 90.0f); // Left cluster in [0, 50]
+	EXPECT_GT(rightBounds.m_Min.x(), 90.0f); // Right cluster in [100, 150]
 	EXPECT_EQ(leftNode.firstTrig, 0);
 	EXPECT_EQ(leftNode.lastTrig, 49);
 	EXPECT_EQ(rightNode.firstTrig, 50);
@@ -202,8 +202,8 @@ TEST_F(BVHFixture, SAHSelectsMinimumCostSplit_NeedsRearrangement)
 	const auto& rightNode	= GetRight(bvh, root);
 	const auto& leftBounds	= leftNode.aabb;
 	const auto& rightBounds = rightNode.aabb;
-	EXPECT_LT(leftBounds.m_Max.x, 90.0f);  // Left cluster in [0, 50]
-	EXPECT_GT(rightBounds.m_Min.x, 90.0f); // Right cluster in [100, 150]
+	EXPECT_LT(leftBounds.m_Max.x(), 90.0f);  // Left cluster in [0, 50]
+	EXPECT_GT(rightBounds.m_Min.x(), 90.0f); // Right cluster in [100, 150]
 	EXPECT_EQ(leftNode.firstTrig, 0);
 	EXPECT_EQ(leftNode.lastTrig, 49);
 	EXPECT_EQ(rightNode.firstTrig, 50);
