@@ -86,6 +86,17 @@ std::vector<GLEngine::Physics::Primitives::S_Ray> GenerateRaySpread(float side)
 	}
 	return rays;
 }
+
+static void AddMetrics(benchmark::State& state, const GLEngine::Renderer::BVH& bvh)
+{
+	const auto metrics			 = bvh.ComputeMetrics();
+	state.counters["max depth"]	 = static_cast<double>(metrics.maxLeafDepth);
+	state.counters["mean depth"] = static_cast<double>(metrics.meanLeafDepth);
+	state.counters["min depth"]	 = static_cast<double>(metrics.minLeafDepth);
+	state.counters["max tris"]	 = static_cast<double>(metrics.maxLeafTriangles);
+	state.counters["mean tris"]	 = static_cast<double>(metrics.meanLeafTriangles);
+	state.counters["min tris"]	 = static_cast<double>(metrics.minLeafTriangles);
+}
 } // namespace
 
 // ---------------------------------------------------------------------------
@@ -112,7 +123,6 @@ BENCHMARK(BM_BVH_Build)->Arg(100)->Arg(1'000)->Arg(10'000);
 // ---------------------------------------------------------------------------
 // BVH Intersect — ray hits the mesh
 // ---------------------------------------------------------------------------
-
 static void BM_BVH_Intersect_Hit(benchmark::State& state)
 {
 	const int	triCount = static_cast<int>(state.range(0));
@@ -124,13 +134,7 @@ static void BM_BVH_Intersect_Hit(benchmark::State& state)
 	// Shoot straight down through the centre of the grid
 	const GLEngine::Physics::Primitives::S_Ray ray{glm::vec3(side * 0.5f, side * 0.5f, 5.f), glm::vec3(0.f, 0.f, -1.f)};
 
-	const auto metrics			 = bvh.ComputeMetrics();
-	state.counters["max depth"]	 = static_cast<double>(metrics.maxLeafDepth);
-	state.counters["mean depth"] = static_cast<double>(metrics.meanLeafDepth);
-	state.counters["min depth"]	 = static_cast<double>(metrics.minLeafDepth);
-	state.counters["max tris"]	 = static_cast<double>(metrics.maxLeafTriangles);
-	state.counters["mean tris"]	 = static_cast<double>(metrics.meanLeafTriangles);
-	state.counters["min tris"]	 = static_cast<double>(metrics.minLeafTriangles);
+	AddMetrics(state, bvh);
 
 	for (auto _ : state)
 	{
@@ -174,6 +178,7 @@ static void BM_BVH_Intersect_Heightfield(benchmark::State& state)
 
 	auto					storage = GenerateHeightfield(triCount);
 	GLEngine::Renderer::BVH bvh(storage);
+	AddMetrics(state, bvh);
 
 	// Diagonal ray from above one corner towards the middle of the surface
 	const GLEngine::Physics::Primitives::S_Ray ray{glm::vec3(side * 0.2f, side * 0.3f, 8.f), glm::normalize(glm::vec3(0.4f, 0.3f, -1.f))};
@@ -197,6 +202,7 @@ static void BM_BVH_Intersect_RaySpread(benchmark::State& state)
 
 	auto					storage = GenerateHeightfield(triCount);
 	GLEngine::Renderer::BVH bvh(storage);
+	AddMetrics(state, bvh);
 
 	const auto rays = GenerateRaySpread(side);
 
