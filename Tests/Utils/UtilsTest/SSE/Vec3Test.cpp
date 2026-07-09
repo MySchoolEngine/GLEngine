@@ -323,4 +323,39 @@ TEST(Vec3_CrossDot, Dot_OrthogonalVectors_IsZero)
 }
 #pragma endregion-- Vec3_CrossDot
 
+// =============================================================================
+// distance2
+// Squared distance between two points; ignores the w lane, same as Dot.
+// =============================================================================
+#pragma region--Vec3_Distance2
+TEST(Vec3_Distance2, ReturnsSquaredDistanceBetweenPoints)
+{
+	const Vec3 a(0.f, 0.f, 0.f);
+	const Vec3 b(3.f, 4.f, 0.f);
+	EXPECT_FLOAT_EQ(distance2(a, b), 25.f);
+}
+
+TEST(Vec3_Distance2, IsZeroForIdenticalPoints)
+{
+	const Vec3 a(1.f, 2.f, 3.f);
+	EXPECT_FLOAT_EQ(distance2(a, a), 0.f);
+}
+
+TEST(Vec3_Distance2, GeneralCase_MatchesHandComputedValue)
+{
+	const Vec3 a(1.f, 2.f, 3.f);
+	const Vec3 b(4.f, 0.f, -2.f);
+	// (1-4)^2 + (2-0)^2 + (3-(-2))^2 = 9 + 4 + 25 = 38
+	EXPECT_FLOAT_EQ(distance2(a, b), 38.f);
+}
+
+TEST(Vec3_Distance2, IgnoresWLane)
+{
+	// xyz: (0,0,0) vs (3,4,0) → 25; w differs wildly but must not affect the result.
+	const Vec3 a(_mm_set_ps(1000.f, 0.f, 0.f, 0.f));
+	const Vec3 b(_mm_set_ps(-1000.f, 0.f, 4.f, 3.f));
+	EXPECT_FLOAT_EQ(distance2(a, b), 25.f);
+}
+#pragma endregion-- Vec3_Distance2
+
 } // namespace Utils::SSE
