@@ -12,7 +12,7 @@
       </ArrayItems>
     </Expand>
   </Type>
-  <Type Name="::Utils::SSE::SSEVec3">
+  <Type Name="::Utils::SSE::Vec3">
     <DisplayString>{{x={data.m128_f32[0],g} y={data.m128_f32[1],g} z={data.m128_f32[2],g}}}</DisplayString>
     <Expand>
       <Item Name="[x]">data.m128_f32[0]</Item>
