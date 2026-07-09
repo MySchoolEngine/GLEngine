@@ -36,6 +36,7 @@ struct S_Triangle final {
 	{
 		glm::vec2  barycentric;
 		const auto distance = TriangleRayIntersect(m_p, ray, &barycentric);
+		// TODO BUG!!
 		if (distance < 0 || distance > tMax)
 			return distance;
 
