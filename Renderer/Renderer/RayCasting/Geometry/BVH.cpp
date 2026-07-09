@@ -270,11 +270,10 @@ bool BVH::IntersectNode(const Physics::Primitives::S_SSERay& ray,
 	// Early out: if ray origin is outside AABB and doesn't intersect it
 	ADD_AABB_TEST;
 	const float tAABB = node.aabb.Intersects(ray);
-	if (!node.aabb.Contains(ray.origin) && std::isinf(tAABB))
+	if (std::isinf(tAABB))
 	{
 		ADD_AABB_REJECT;
 		return false;
-		;
 	}
 	std::array<std::pair<T_BVHNodeID, float>, s_MaxDepth + 1> nodeStack;
 	unsigned int											  stackPointer = 0;
@@ -368,13 +367,8 @@ bool BVH::TestTriangles(const Physics::Primitives::S_SSERay& ray, const BVHNode&
 		ADD_TRIANGLE_TEST;
 		const glm::vec3* triDef = GetTriangleDefinition(i);
 		const auto		 length = Physics::TriangleRayIntersect(triDef, ray, &barycentric);
-		if (length > 0.0f)
+		if (!std::isinf(length))
 		{
-			if (closestT < length)
-			{
-				continue;
-			}
-
 			closestT		  = length;
 			*outBarycentric	  = barycentric;
 			*outTriangleIndex = i;

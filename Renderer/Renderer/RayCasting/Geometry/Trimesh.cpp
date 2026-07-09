@@ -131,12 +131,8 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 {
 	const auto ray = Physics::Primitives::S_Ray{m_TransformInv * glm::vec4(rayIn.origin, 1.f), rayIn.direction};
 
-	if (const auto tAABB = m_AABB.Intersects(rayIn); tAABB > tMax || std::isinf(tAABB))
-		return false;
-
 	if (m_BVH)
 	{
-
 		glm::vec2	 barycentric;
 		unsigned int triangleIndex;
 		if (m_BVH->Intersect(ray, intersection, &triangleIndex, &barycentric))
@@ -157,6 +153,10 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 		return false;
 	}
 
+	// this check happens internally in BVH
+	if (const auto tAABB = m_AABB.Intersects(rayIn); tAABB > tMax || std::isinf(tAABB))
+		return false;
+
 	struct S_IntersectionInfo {
 		C_RayIntersection intersection;
 		float			  t = std::numeric_limits<float>::max();
@@ -173,12 +173,8 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 	{
 		const glm::vec3* triDef = &(m_Vertices[i]);
 		const auto		 length = Physics::TriangleRayIntersect(triDef, ray, &barycentric);
-		if (length > 0.0f)
+		if (!std::isinf(length))
 		{
-			if (closestIntersect.t < length)
-			{
-				continue;
-			}
 			auto normal = glm::cross(m_Vertices[i + 1] - m_Vertices[i], m_Vertices[i + 2] - m_Vertices[i]);
 			normal		= glm::normalize(normal);
 			C_RayIntersection inter(S_Frame(normal), ray.origin + length * ray.direction, Physics::Primitives::S_Ray(ray));
