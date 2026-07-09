@@ -19,10 +19,12 @@
 DeclareTracyCounters(LIST_OF_COUNTERS);
 
 	#define ADD_AABB_TEST	  ++tl_RayAABBChecks
+	#define ADD_AABB_TWO_TEST tl_RayAABBChecks += 2
 	#define ADD_AABB_REJECT	  ++tl_RayAABBRejected
 	#define ADD_TRIANGLE_TEST ++tl_RayTriangleChecks
 #else
 	#define ADD_AABB_TEST	  static_assert(true, "")
+	#define ADD_AABB_TWO_TEST static_assert(true, "")
 	#define ADD_AABB_REJECT	  static_assert(true, "")
 	#define ADD_TRIANGLE_TEST static_assert(true, "")
 #endif
@@ -309,21 +311,30 @@ bool BVH::IntersectNode(const Physics::Primitives::S_SSERay& ray,
 		}
 		else
 		{
-			const float tAABBLeft  = current.aabb.Intersects(ray);
-			const float tAABBRight = current.aabb.Intersects(ray);
+			ADD_AABB_TWO_TEST;
+			const float tAABBLeft  = m_Nodes[current.left].aabb.Intersects(ray);
+			const float tAABBRight = m_Nodes[current.right].aabb.Intersects(ray);
 			if (tAABBLeft < tAABBRight)
 			{
 				if (tAABBRight < closestIntersect.t)
 					nodeStack[stackPointer++] = {current.right, tAABBRight};
+				else
+					ADD_AABB_REJECT;
 				if (tAABBLeft < closestIntersect.t)
 					nodeStack[stackPointer++] = {current.left, tAABBLeft};
+				else
+					ADD_AABB_REJECT;
 			}
 			else
 			{
 				if (tAABBLeft < closestIntersect.t)
 					nodeStack[stackPointer++] = {current.left, tAABBLeft};
+				else
+					ADD_AABB_REJECT;
 				if (tAABBRight < closestIntersect.t)
 					nodeStack[stackPointer++] = {current.right, tAABBRight};
+				else
+					ADD_AABB_REJECT;
 			}
 		}
 	}
