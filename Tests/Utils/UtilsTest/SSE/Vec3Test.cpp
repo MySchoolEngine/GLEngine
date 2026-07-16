@@ -99,6 +99,55 @@ TEST(Vec3_ComponentAccess, Setters_DoNotAffectWLane)
 #pragma endregion-- Vec3_ComponentAccess
 
 // =============================================================================
+// operator[]
+// Indexed access must match x()/y()/z() and work on const instances.
+// =============================================================================
+#pragma region--Vec3_IndexOperator
+TEST(Vec3_IndexOperator, Index0_ReturnsX)
+{
+	const Vec3 v(1.f, 2.f, 3.f);
+	EXPECT_FLOAT_EQ(v[0], 1.f);
+}
+
+TEST(Vec3_IndexOperator, Index1_ReturnsY)
+{
+	const Vec3 v(1.f, 2.f, 3.f);
+	EXPECT_FLOAT_EQ(v[1], 2.f);
+}
+
+TEST(Vec3_IndexOperator, Index2_ReturnsZ)
+{
+	const Vec3 v(1.f, 2.f, 3.f);
+	EXPECT_FLOAT_EQ(v[2], 3.f);
+}
+
+TEST(Vec3_IndexOperator, MatchesXYZGetters)
+{
+	const Vec3 v(4.f, 5.f, 6.f);
+	EXPECT_FLOAT_EQ(v[0], v.x());
+	EXPECT_FLOAT_EQ(v[1], v.y());
+	EXPECT_FLOAT_EQ(v[2], v.z());
+}
+
+TEST(Vec3_IndexOperator, CallableOnConstReference)
+{
+	// Compile-time check: operator[] must be usable through a const Vec3&.
+	const Vec3	v(1.f, 2.f, 3.f);
+	const Vec3& ref = v;
+	EXPECT_FLOAT_EQ(ref[0], 1.f);
+}
+
+TEST(Vec3_IndexOperator, IgnoresWLaneAtIndices0To2)
+{
+	// _mm_set_ps(w, z, y, x) — xyz = (1,2,3), w = 100 must not leak into indices 0-2.
+	const Vec3 v(_mm_set_ps(100.f, 3.f, 2.f, 1.f));
+	EXPECT_FLOAT_EQ(v[0], 1.f);
+	EXPECT_FLOAT_EQ(v[1], 2.f);
+	EXPECT_FLOAT_EQ(v[2], 3.f);
+}
+#pragma endregion-- Vec3_IndexOperator
+
+// =============================================================================
 // Arithmetic operators
 // =============================================================================
 #pragma region--Vec3_Arithmetic

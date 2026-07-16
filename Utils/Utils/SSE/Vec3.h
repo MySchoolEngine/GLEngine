@@ -39,6 +39,13 @@ public:
 	[[nodiscard]] float y() const { return _mm_cvtss_f32(_mm_shuffle_ps(data, data, _MM_SHUFFLE(0, 0, 0, 1))); }
 	[[nodiscard]] float z() const { return _mm_cvtss_f32(_mm_shuffle_ps(data, data, _MM_SHUFFLE(0, 0, 0, 2))); }
 
+	[[nodiscard]] float operator[](int i) const
+	{
+		alignas(16) float v[4];
+		_mm_store_ps(v, data);
+		return v[i];
+	}
+
 	void SetX(float val) { data = _mm_insert_ps(data, _mm_set_ss(val), 0x00); }
 	void SetY(float val) { data = _mm_insert_ps(data, _mm_set_ss(val), 0x10); }
 	void SetZ(float val) { data = _mm_insert_ps(data, _mm_set_ss(val), 0x20); }
@@ -123,8 +130,10 @@ public:
 	return diff.Dot(diff);
 }
 
+#pragma region--Arithmetic operators
 [[nodiscard]] inline Vec3 operator*(const float x, const Vec3& y)
 {
 	return y * x;
 }
+#pragma endregion-- Arithmetic operators
 } // namespace Utils::SSE
