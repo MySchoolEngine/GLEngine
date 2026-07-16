@@ -366,27 +366,23 @@ bool BVH::IntersectNode(const Physics::Primitives::S_SSERay& ray,
 		else
 		{
 			ADD_AABB_TWO_TEST;
-			const float tAABBLeft  = m_Nodes[current.left].aabb.Intersects(ray);
-			const float tAABBRight = m_Nodes[current.right].aabb.Intersects(ray);
-			if (tAABBLeft < tAABBRight)
+			T_BVHNodeID child1 = current.left;
+			T_BVHNodeID child2 = current.right;
+			float tAABB1  = m_Nodes[child1].aabb.Intersects(ray);
+			float tAABB2 = m_Nodes[child2].aabb.Intersects(ray);
+			if (tAABB1 > tAABB2)
 			{
-				if (tAABBRight < closestIntersect.t)
-					nodeStack[stackPointer++] = {current.right, tAABBRight};
-				else
-					ADD_AABB_REJECT;
-				if (tAABBLeft < closestIntersect.t)
-					nodeStack[stackPointer++] = {current.left, tAABBLeft};
-				else
-					ADD_AABB_REJECT;
+				std::swap(child1, child2);
+				std::swap(tAABB1, tAABB2);
 			}
-			else
+			// not child1 is closer to the origin than child2
 			{
-				if (tAABBLeft < closestIntersect.t)
-					nodeStack[stackPointer++] = {current.left, tAABBLeft};
+				if (tAABB2 < closestIntersect.t)
+					nodeStack[stackPointer++] = {child2, tAABB2};
 				else
 					ADD_AABB_REJECT;
-				if (tAABBRight < closestIntersect.t)
-					nodeStack[stackPointer++] = {current.right, tAABBRight};
+				if (tAABB1 < closestIntersect.t)
+					nodeStack[stackPointer++] = {child1, tAABB1};
 				else
 					ADD_AABB_REJECT;
 			}
