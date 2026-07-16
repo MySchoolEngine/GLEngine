@@ -375,7 +375,7 @@ bool BVH::TestTriangles(const Physics::Primitives::S_SSERay& ray, const BVHNode&
 		ADD_TRIANGLE_TEST;
 		const glm::vec3* triDef = GetTriangleDefinition(i);
 		const auto		 length = Physics::TriangleRayIntersect(triDef, ray, &barycentric);
-		if (!std::isinf(length))
+		if (!std::isinf(length) && length < closestT)
 		{
 			closestT		  = length;
 			*outBarycentric	  = barycentric;

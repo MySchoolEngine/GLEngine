@@ -173,7 +173,7 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 	{
 		const glm::vec3* triDef = &(m_Vertices[i]);
 		const auto		 length = Physics::TriangleRayIntersect(triDef, ray, &barycentric);
-		if (!std::isinf(length))
+		if (!std::isinf(length) && length < closestIntersect.t)
 		{
 			auto normal = glm::cross(m_Vertices[i + 1] - m_Vertices[i], m_Vertices[i + 2] - m_Vertices[i]);
 			normal		= glm::normalize(normal);
