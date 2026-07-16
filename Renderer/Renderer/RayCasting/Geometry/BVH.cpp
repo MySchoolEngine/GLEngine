@@ -189,10 +189,10 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<
 		return;
 
 	// try finding better than average
-	const float parentCost	= m_Nodes[nodeId].aabb.Area() * static_cast<float>(m_Nodes[nodeId].NumTrig());
+	const float	   parentCost = m_Nodes[nodeId].aabb.Area() * static_cast<float>(m_Nodes[nodeId].NumTrig());
 	unsigned short bestAxis;
 	float		   bestAverage;
-	const float bestCost   = FindBestSplitPlane(nodeId, bestAxis, bestAverage, centroids);
+	const float	   bestCost = FindBestSplitPlane(nodeId, bestAxis, bestAverage, centroids);
 	if (bestCost >= parentCost)
 	{
 		return;
@@ -237,14 +237,61 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<
 //=================================================================================
 float BVH::FindBestSplitPlane(T_BVHNodeID nodeId, unsigned short& bestAxis, float& bestAverage, const std::vector<glm::vec3>& centroids) const
 {
-	float bestCost	  = std::numeric_limits<float>::max();
+	constexpr int s_Bins   = 8;
+	float		  bestCost = std::numeric_limits<float>::max();
+	const auto&	  node	   = m_Nodes[nodeId];
 
 	for (unsigned short axis = 0; axis < 3; ++axis)
 	{
-		for (unsigned int i = m_Nodes[nodeId].firstTrig; i < m_Nodes[nodeId].lastTrig; ++i)
+		// find bounds of centroids
+		float boundsMin = std::numeric_limits<float>::infinity();
+		float boundsMax = -std::numeric_limits<float>::infinity();
+		for (unsigned int i = node.firstTrig; i <= node.lastTrig; ++i)
 		{
-			const float currentCentroid = centroids[i][axis];
-			const float cost			= CalcSAHCost(m_Nodes[nodeId], axis, currentCentroid, centroids);
+			boundsMin = std::min(boundsMin, centroids[i][axis]);
+			boundsMax = std::max(boundsMax, centroids[i][axis]);
+		}
+		// early out for planear triangles
+		if (boundsMin == boundsMax)
+			continue;
+
+		struct Bin {
+			Physics::Primitives::S_SSEAABB aabb;
+			int							   triCount = 0;
+		};
+		// fill the bins
+		Bin	  bin[s_Bins];
+		float binScale = s_Bins / (boundsMax - boundsMin);
+		for (unsigned int i = node.firstTrig; i <= node.lastTrig; ++i)
+		{
+			const glm::vec3* triDef	  = GetTriangleDefinition(i);
+			const int		 binIndex = std::min(s_Bins - 1, static_cast<int>((centroids[i][axis] - boundsMin) * binScale));
+			bin[binIndex].triCount++;
+			bin[binIndex].aabb.updateWithTriangle(triDef);
+		}
+		// collect data for each plane between bins
+		float						   leftArea[s_Bins - 1], rightArea[s_Bins - 1];
+		int							   leftCount[s_Bins - 1], rightCount[s_Bins - 1];
+		Physics::Primitives::S_SSEAABB leftBox, rightBox;
+		int							   leftSum = 0, rightSum = 0;
+		for (int i = 0; i < s_Bins - 1; i++)
+		{
+			leftSum += bin[i].triCount;
+			leftCount[i] = leftSum;
+			leftBox.Add(bin[i].aabb);
+			leftArea[i] = leftBox.Area();
+			rightSum += bin[s_Bins - 1 - i].triCount;
+			rightCount[s_Bins - 2 - i] = rightSum;
+			rightBox.Add(bin[s_Bins - 1 - i].aabb);
+			rightArea[s_Bins - 2 - i] = rightBox.Area();
+		}
+		// calc SAH at each plane
+
+		const float scale = (boundsMax - boundsMin) / s_Bins;
+		for (unsigned int i = 0; i < s_Bins - 1; ++i)
+		{
+			const float cost			= leftCount[i] * leftArea[i] + rightCount[i] * rightArea[i];
+			const float currentCentroid = boundsMin + scale * (i + 1);
 			if (cost < bestCost)
 			{
 				bestCost	= cost;
