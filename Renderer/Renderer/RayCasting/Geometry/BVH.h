@@ -82,6 +82,7 @@ private:
 	void DebugDrawNode(I_DebugDraw& dd, const glm::mat4& modelMatrix, const BVHNode& node, unsigned int level) const;
 	// using NodeID because the vector is being reallocated on the way
 	void SplitBVHNodeNaive(T_BVHNodeID node, unsigned int level, std::vector<glm::vec3>& centroids);
+	float FindBestSplitPlane(T_BVHNodeID nodeId, unsigned short& bestAxis, float& bestAverage, const std::vector<glm::vec3>& centroids) const;
 
 	/**
 	 * @brief Calculates Surface Area Heuristic (SAH) cost for a potential split

@@ -190,23 +190,9 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<
 
 	// try finding better than average
 	const float parentCost	= m_Nodes[nodeId].aabb.Area() * static_cast<float>(m_Nodes[nodeId].NumTrig());
-	float		bestCost	= std::numeric_limits<float>::max();
-	float		bestAverage = 0.f;
-	int			bestAxis	= 0;
-	for (int axis = 0; axis < 3; ++axis)
-	{
-		for (unsigned int i = m_Nodes[nodeId].firstTrig; i < m_Nodes[nodeId].lastTrig; ++i)
-		{
-			const float currentCentroid = centroids[i][axis];
-			const float cost			= CalcSAHCost(m_Nodes[nodeId], axis, currentCentroid, centroids);
-			if (cost < bestCost)
-			{
-				bestCost	= cost;
-				bestAverage = currentCentroid;
-				bestAxis	= axis;
-			}
-		}
-	}
+	unsigned short bestAxis;
+	float		   bestAverage;
+	const float bestCost   = FindBestSplitPlane(nodeId, bestAxis, bestAverage, centroids);
 	if (bestCost >= parentCost)
 	{
 		return;
@@ -246,6 +232,28 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<
 
 	SplitBVHNodeNaive(leftNodeId, level + 1, centroids);
 	SplitBVHNodeNaive(rightNodeId, level + 1, centroids);
+}
+
+//=================================================================================
+float BVH::FindBestSplitPlane(T_BVHNodeID nodeId, unsigned short& bestAxis, float& bestAverage, const std::vector<glm::vec3>& centroids) const
+{
+	float bestCost	  = std::numeric_limits<float>::max();
+
+	for (unsigned short axis = 0; axis < 3; ++axis)
+	{
+		for (unsigned int i = m_Nodes[nodeId].firstTrig; i < m_Nodes[nodeId].lastTrig; ++i)
+		{
+			const float currentCentroid = centroids[i][axis];
+			const float cost			= CalcSAHCost(m_Nodes[nodeId], axis, currentCentroid, centroids);
+			if (cost < bestCost)
+			{
+				bestCost	= cost;
+				bestAverage = currentCentroid;
+				bestAxis	= axis;
+			}
+		}
+	}
+	return bestCost;
 }
 
 //=================================================================================
