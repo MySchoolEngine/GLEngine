@@ -1,4 +1,15 @@
 require "vendor/premake-export-compile-commands/export-compile-commands"
+
+-- Patch export-compile-commands to also copy debug.json -> compile_commands.json at root
+local _exportAction = premake.action.get("export-compile-commands")
+if _exportAction then
+	local _origExecute = _exportAction.execute
+	_exportAction.execute = function()
+		_origExecute()
+		os.copyfile("compile_commands/debug.json", "compile_commands.json")
+		print("Copied compile_commands/debug.json -> compile_commands.json")
+	end
+end
 include "Tools/Premake5/workspaceFiles.lua"
 
 newoption {
@@ -14,6 +25,11 @@ newoption {
 newoption {
 	trigger = "skiptests",
 	description = "Skip building test projects and static library variants"
+}
+
+newoption {
+	trigger = "benchmarks",
+	description = "Include benchmark projects (skipped by default)"
 }
 
 VULKAN_SDK = os.getenv("VULKAN_SDK")
@@ -99,6 +115,8 @@ workspace "Engine"
 			"CORE_PLATFORM=CORE_PLATFORM_LINUX"
 		}
 		links { "stdc++fs" }
+	filter "action:gmake*"
+		buildoptions { "-msse4.1" }
 
 	filter "configurations:Debug"
 		runtime "Debug"
@@ -138,6 +156,7 @@ IncludeDir["RTTR"] = {"vendor/RTTR/src", "vendor/projects/RTTR"}
 IncludeDir["slot_map"] = "vendor/slot_map"
 IncludeDir["IconFontCppHeaders"] = "vendor/IconFontCppHeaders"
 IncludeDir["Tracy"] = "vendor/tracy/public"
+IncludeDir["benchmark"] = "vendor/benchmark/include"
 
 -- could be header only or static lib
 NonDllLib = {}
@@ -150,10 +169,17 @@ if not _OPTIONS["skiptests"] then
 		include "Tests/Core"
 		include "Tests/Renderer"
 		include "Tests/Utils"
+		include "Tests/Physics"
 	    -- include "Tests/Entity" -- for some reason GUI typeinfo does not work on GCC
 		if _TARGET_OS ~= "linux" then
 			include "Tests/CommonTestUtils"
 		end
+end
+
+if _OPTIONS["benchmarks"] then
+	group "Benchmarks"
+		include "Benchmarks"
+	group ""
 end
 
 group "Dependencies"
@@ -163,6 +189,7 @@ group "Dependencies"
   include "vendor/projects/crossguid"
   include "vendor/projects/DevIL"
   include "vendor/projects/gtest"
+  include "vendor/projects/benchmark"
   include "vendor/projects/ImGui"
   include "vendor/projects/ImGuiFileDialog"
   include "vendor/projects/ImGuizmo"

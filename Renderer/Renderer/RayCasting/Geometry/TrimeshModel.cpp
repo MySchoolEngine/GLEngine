@@ -48,7 +48,7 @@ bool C_TrimeshModel::Load(const std::filesystem::path& filepath, LoadCtx& ctx)
 	pugi::xml_document doc;
 
 	pugi::xml_parse_result result = doc.load_file(m_Filepath.c_str());
-	if (!result.status == pugi::status_ok)
+	if (result.status != pugi::status_ok)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Core, "Can't open config file for trimesh name: {}", m_Filepath);
 		return false;

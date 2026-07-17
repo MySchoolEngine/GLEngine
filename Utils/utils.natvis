@@ -12,4 +12,12 @@
       </ArrayItems>
     </Expand>
   </Type>
+  <Type Name="::Utils::SSE::Vec3">
+    <DisplayString>{{x={data.m128_f32[0],g} y={data.m128_f32[1],g} z={data.m128_f32[2],g}}}</DisplayString>
+    <Expand>
+      <Item Name="[x]">data.m128_f32[0]</Item>
+      <Item Name="[y]">data.m128_f32[1]</Item>
+      <Item Name="[z]">data.m128_f32[2]</Item>
+    </Expand>
+  </Type>
 </AutoVisualizer>

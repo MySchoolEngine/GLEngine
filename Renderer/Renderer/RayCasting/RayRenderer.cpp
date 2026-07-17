@@ -153,7 +153,7 @@ bool C_RayRenderer::AdditionalTargets::CheckTargets(const I_TextureViewStorage& 
 	if (normalsMap)
 		ok &= normalsMap->GetDimensions() == mainTarget.GetDimensions();
 	if (uvMap)
-		ok &= normalsMap->GetDimensions() == mainTarget.GetDimensions();
+		ok &= uvMap->GetDimensions() == mainTarget.GetDimensions();
 	return ok;
 }
 

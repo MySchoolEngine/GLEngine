@@ -351,15 +351,23 @@ void C_ExperimentWindow::OnAppInit()
 		consoleWindow->SetVisible();
 	}
 
-
 	{
-		m_EntityEditorGUID = NextGUID();
+		m_ResourceWindowGUID = NextGUID();
 
-		auto* entities = new Editor::EntityEditor(m_EntityEditorGUID, guiMGR);
-
-		guiMGR.AddCustomWindow(entities);
-		entities->SetVisible();
+		auto resourceManagerWindow = new Editor::C_ResourceManagerWindow(m_ResourceWindowGUID, guiMGR, "Models\\Stylized Nature MegaKit[Standard]\\OBJ", [this](Core::I_Event& e) { OnEvent(e); });
+		guiMGR.AddCustomWindow(resourceManagerWindow);
+		resourceManagerWindow->SetVisible();
 	}
+
+
+	// {
+	// 	m_EntityEditorGUID = NextGUID();
+	// 
+	// 	auto* entities = new Editor::EntityEditor(m_EntityEditorGUID, guiMGR);
+	// 
+	// 	guiMGR.AddCustomWindow(entities);
+	// 	entities->SetVisible();
+	// }
 
 	// Entity window
 	{

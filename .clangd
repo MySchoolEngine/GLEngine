@@ -1,0 +1,9 @@
+CompileFlags:
+  Add:
+    - -std=c++23
+    - -Ivendor/DULib/include   # uses{} propagation not exported by premake plugin
+  Remove:
+    - -Wno-4251   # MSVC warning number; not valid in clang
+
+Diagnostics:
+  UnusedIncludes: None

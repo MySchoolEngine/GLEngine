@@ -6,11 +6,27 @@
 
 #include <Physics/GeometryUtils/TriangleIntersect.h>
 
+#include <glm/gtx/norm.inl>
+
+#include <queue>
+
+#define LIST_OF_COUNTERS(DO)                                                                                                                                                       \
+	DO(RayAABBChecks)                                                                                                                                                              \
+	DO(RayAABBRejected)                                                                                                                                                            \
+	DO(RayTriangleChecks)
+
 #ifdef TRACY_ENABLE
-namespace {
-thread_local int64_t tl_AABBChecks     = 0;
-thread_local int64_t tl_TriangleChecks = 0;
-} // namespace
+DeclareTracyCounters(LIST_OF_COUNTERS);
+
+	#define ADD_AABB_TEST	  ++tl_RayAABBChecks
+	#define ADD_AABB_TWO_TEST tl_RayAABBChecks += 2
+	#define ADD_AABB_REJECT	  ++tl_RayAABBRejected
+	#define ADD_TRIANGLE_TEST ++tl_RayTriangleChecks
+#else
+	#define ADD_AABB_TEST	  static_assert(true, "")
+	#define ADD_AABB_TWO_TEST static_assert(true, "")
+	#define ADD_AABB_REJECT	  static_assert(true, "")
+	#define ADD_TRIANGLE_TEST static_assert(true, "")
 #endif
 
 // clang-format off
@@ -66,7 +82,7 @@ void BVH::Build()
 
 	auto& root = m_Nodes.emplace_back();
 	for (const auto& vertex : *m_Storage)
-		root.aabb.Add(vertex);
+		root.aabb.Add(::Utils::SSE::Vec3(vertex));
 	root.firstTrig = 0;
 	root.lastTrig  = static_cast<unsigned int>(m_Storage->size()) / 3 - 1;
 	std::vector<glm::vec3> centroids;
@@ -79,7 +95,7 @@ void BVH::Build()
 		centroids.emplace_back(trigCenter(triDef));
 		m_LookupTable.emplace_back(i);
 	}
-	SplitBVHNodeNaive(0, 0, centroids);
+	SplitBVHNodeNaive(0, 1, centroids);
 }
 
 //=================================================================================
@@ -107,9 +123,65 @@ unsigned int BVH::ComputeMaxDepth() const
 }
 
 //=================================================================================
+BVH::S_BVHMetrics BVH::ComputeMetrics() const
+{
+	if (m_Nodes.empty())
+		return {};
+
+	S_BVHMetrics metrics{};
+	metrics.minLeafDepth	 = std::numeric_limits<unsigned int>::max();
+	metrics.minLeafTriangles = std::numeric_limits<unsigned int>::max();
+	metrics.maxLeafDepth	 = 0;
+	metrics.maxLeafTriangles = 0;
+
+	unsigned long long totalDepth	  = 0;
+	unsigned long long totalTriangles = 0;
+	unsigned int	   leafCount	  = 0;
+
+	// Stack stores (nodeIndex, depth)
+	std::vector<std::pair<T_BVHNodeID, unsigned int>> stack;
+	stack.reserve(s_MaxDepth * 2);
+	stack.emplace_back(0u, 1u);
+
+	while (!stack.empty())
+	{
+		auto [nodeId, depth] = stack.back();
+		stack.pop_back();
+
+		const BVHNode& node = m_Nodes[nodeId];
+		if (node.IsLeaf())
+		{
+			const unsigned int triCount = node.NumTrig();
+			metrics.minLeafDepth		= std::min(metrics.minLeafDepth, depth);
+			metrics.maxLeafDepth		= std::max(metrics.maxLeafDepth, depth);
+			metrics.minLeafTriangles	= std::min(metrics.minLeafTriangles, triCount);
+			metrics.maxLeafTriangles	= std::max(metrics.maxLeafTriangles, triCount);
+			totalDepth += depth;
+			totalTriangles += triCount;
+			++leafCount;
+		}
+		else
+		{
+			if (node.left != s_InvalidBVHNode)
+				stack.emplace_back(node.left, depth + 1);
+			if (node.right != s_InvalidBVHNode)
+				stack.emplace_back(node.right, depth + 1);
+		}
+	}
+
+	if (leafCount > 0)
+	{
+		metrics.meanLeafDepth	  = static_cast<float>(totalDepth) / static_cast<float>(leafCount);
+		metrics.meanLeafTriangles = static_cast<float>(totalTriangles) / static_cast<float>(leafCount);
+	}
+
+	return metrics;
+}
+
+//=================================================================================
 void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<glm::vec3>& centroids)
 {
-	if (level > s_MaxDepth)
+	if (level >= s_MaxDepth)
 		return;
 
 	// limit nodes that's too small
@@ -117,24 +189,10 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<
 		return;
 
 	// try finding better than average
-	const float parentCost	= m_Nodes[nodeId].aabb.Area() * static_cast<float>(m_Nodes[nodeId].NumTrig());
-	float		bestCost	= std::numeric_limits<float>::max();
-	float		bestAverage = 0.f;
-	int			bestAxis	= 0;
-	for (int axis = 0; axis < 3; ++axis)
-	{
-		for (unsigned int i = m_Nodes[nodeId].firstTrig; i < m_Nodes[nodeId].lastTrig; ++i)
-		{
-			const float currentCentroid = centroids[i][axis];
-			const float cost			= CalcSAHCost(m_Nodes[nodeId], axis, currentCentroid, centroids);
-			if (cost < bestCost)
-			{
-				bestCost	= cost;
-				bestAverage = currentCentroid;
-				bestAxis	= axis;
-			}
-		}
-	}
+	const float	   parentCost = m_Nodes[nodeId].aabb.Area() * static_cast<float>(m_Nodes[nodeId].NumTrig());
+	unsigned short bestAxis;
+	float		   bestAverage;
+	const float	   bestCost = FindBestSplitPlane(nodeId, bestAxis, bestAverage, centroids);
 	if (bestCost >= parentCost)
 	{
 		return;
@@ -164,16 +222,12 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<
 	for (unsigned int i = left.firstTrig; i < left.lastTrig + 1; ++i)
 	{
 		const glm::vec3* triDef = GetTriangleDefinition(i);
-		left.aabb.Add(triDef[0]);
-		left.aabb.Add(triDef[1]);
-		left.aabb.Add(triDef[2]);
+		left.aabb.updateWithTriangle(triDef);
 	}
 	for (unsigned int i = right.firstTrig; i < right.lastTrig + 1; ++i)
 	{
 		const glm::vec3* triDef = GetTriangleDefinition(i);
-		right.aabb.Add(triDef[0]);
-		right.aabb.Add(triDef[1]);
-		right.aabb.Add(triDef[2]);
+		right.aabb.updateWithTriangle(triDef);
 	}
 
 	SplitBVHNodeNaive(leftNodeId, level + 1, centroids);
@@ -181,128 +235,198 @@ void BVH::SplitBVHNodeNaive(T_BVHNodeID nodeId, unsigned int level, std::vector<
 }
 
 //=================================================================================
+float BVH::FindBestSplitPlane(T_BVHNodeID nodeId, unsigned short& bestAxis, float& bestAverage, const std::vector<glm::vec3>& centroids) const
+{
+	constexpr int s_Bins   = 8;
+	float		  bestCost = std::numeric_limits<float>::max();
+	const auto&	  node	   = m_Nodes[nodeId];
+
+	for (unsigned short axis = 0; axis < 3; ++axis)
+	{
+		// find bounds of centroids
+		float boundsMin = std::numeric_limits<float>::infinity();
+		float boundsMax = -std::numeric_limits<float>::infinity();
+		for (unsigned int i = node.firstTrig; i <= node.lastTrig; ++i)
+		{
+			boundsMin = std::min(boundsMin, centroids[i][axis]);
+			boundsMax = std::max(boundsMax, centroids[i][axis]);
+		}
+		// early out for planear triangles
+		if (boundsMin == boundsMax)
+			continue;
+
+		struct Bin {
+			Physics::Primitives::S_SSEAABB aabb;
+			int							   triCount = 0;
+		};
+		// fill the bins
+		Bin	  bin[s_Bins];
+		float binScale = s_Bins / (boundsMax - boundsMin);
+		for (unsigned int i = node.firstTrig; i <= node.lastTrig; ++i)
+		{
+			const glm::vec3* triDef	  = GetTriangleDefinition(i);
+			const int		 binIndex = std::min(s_Bins - 1, static_cast<int>((centroids[i][axis] - boundsMin) * binScale));
+			bin[binIndex].triCount++;
+			bin[binIndex].aabb.updateWithTriangle(triDef);
+		}
+		// collect data for each plane between bins
+		float						   leftArea[s_Bins - 1], rightArea[s_Bins - 1];
+		int							   leftCount[s_Bins - 1], rightCount[s_Bins - 1];
+		Physics::Primitives::S_SSEAABB leftBox, rightBox;
+		int							   leftSum = 0, rightSum = 0;
+		for (int i = 0; i < s_Bins - 1; i++)
+		{
+			leftSum += bin[i].triCount;
+			leftCount[i] = leftSum;
+			leftBox.Add(bin[i].aabb);
+			leftArea[i] = leftBox.Area();
+			rightSum += bin[s_Bins - 1 - i].triCount;
+			rightCount[s_Bins - 2 - i] = rightSum;
+			rightBox.Add(bin[s_Bins - 1 - i].aabb);
+			rightArea[s_Bins - 2 - i] = rightBox.Area();
+		}
+		// calc SAH at each plane
+
+		const float scale = (boundsMax - boundsMin) / s_Bins;
+		for (unsigned int i = 0; i < s_Bins - 1; ++i)
+		{
+			const float cost			= leftCount[i] * leftArea[i] + rightCount[i] * rightArea[i];
+			const float currentCentroid = boundsMin + scale * (i + 1);
+			if (cost < bestCost)
+			{
+				bestCost	= cost;
+				bestAverage = currentCentroid;
+				bestAxis	= axis;
+			}
+		}
+	}
+	return bestCost;
+}
+
+//=================================================================================
 bool BVH::Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, unsigned int* outTriangleIndex, glm::vec2* outBarycentric) const
 {
 	if (m_Nodes.empty())
 		return false;
-#ifdef TRACY_ENABLE
-	[[maybe_unused]] static const bool s_PlotsConfigured = []() {
-		TracyPlotConfig("RayAABBChecks",     tracy::PlotFormatType::Number, true, true, 0);
-		TracyPlotConfig("RayTriangleChecks", tracy::PlotFormatType::Number, true, true, 0);
-		return true;
-	}();
-	tl_AABBChecks     = 0;
-	tl_TriangleChecks = 0;
-#endif
-	const bool result = IntersectNode(ray, intersection, m_Nodes[0], outTriangleIndex, outBarycentric);
-#ifdef TRACY_ENABLE
-	TracyPlot("RayAABBChecks",     tl_AABBChecks);
-	TracyPlot("RayTriangleChecks", tl_TriangleChecks);
-#endif
+	PlotTracyCounters(LIST_OF_COUNTERS);
+	ResetTracyCounters(LIST_OF_COUNTERS);
+	const bool result = IntersectNode(Physics::Primitives::S_SSERay(ray), intersection, m_Nodes[0], outTriangleIndex, outBarycentric);
+	SendTracyCounters(LIST_OF_COUNTERS);
 	return result;
 }
 
 //=================================================================================
-bool BVH::IntersectNode(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, const BVHNode& node, unsigned int* outTriangleIndex,
-						glm::vec2* outBarycentric) const
+bool BVH::IntersectNode(const Physics::Primitives::S_SSERay& ray,
+						C_RayIntersection&					 intersection,
+						const BVHNode&						 node,
+						unsigned int*						 outTriangleIndex,
+						glm::vec2*							 outBarycentric) const
 {
 	// Early out: if ray origin is outside AABB and doesn't intersect it
-#ifdef TRACY_ENABLE
-	++tl_AABBChecks;
-#endif
-	if (!node.aabb.Contains(ray.origin) && !node.aabb.Intersects(ray))
+	ADD_AABB_TEST;
+	const float tAABB = node.aabb.Intersects(ray);
+	if (std::isinf(tAABB))
 	{
+		ADD_AABB_REJECT;
 		return false;
 	}
+	std::array<std::pair<T_BVHNodeID, float>, s_MaxDepth + 1> nodeStack;
+	unsigned int											  stackPointer = 0;
+	nodeStack[stackPointer++]											   = {0, tAABB};
 
-	if (node.IsLeaf() == false)
-	{
-		// we can have hit from both sides as sides can overlap
-		C_RayIntersection intersections[2];
-		unsigned int	  triangleIndices[2] = {0, 0};
-		glm::vec2		  barycentrics[2]	 = {glm::vec2(0.f), glm::vec2(0.f)};
-		bool			  intersectionsResults[2] = {false, false};
-
-		if (node.left != s_InvalidBVHNode)
-			intersectionsResults[0] = IntersectNode(ray, intersections[0], m_Nodes[node.left], &triangleIndices[0], &barycentrics[0]);
-		if (node.right != s_InvalidBVHNode)
-			intersectionsResults[1] = IntersectNode(ray, intersections[1], m_Nodes[node.right], &triangleIndices[1], &barycentrics[1]);
-
-		// find closer intersection
-		if (intersectionsResults[0] && intersectionsResults[1])
-		{
-			const int closestChild = (intersections[0].GetRayLength() < intersections[1].GetRayLength()) ? 0 : 1;
-			intersection			= intersections[closestChild];
-			if (outTriangleIndex)
-				*outTriangleIndex = triangleIndices[closestChild];
-			if (outBarycentric)
-				*outBarycentric = barycentrics[closestChild];
-		}
-		else if (intersectionsResults[0])
-		{
-			intersection = intersections[0];
-			if (outTriangleIndex)
-				*outTriangleIndex = triangleIndices[0];
-			if (outBarycentric)
-				*outBarycentric = barycentrics[0];
-		}
-		else if (intersectionsResults[1])
-		{
-			intersection = intersections[1];
-			if (outTriangleIndex)
-				*outTriangleIndex = triangleIndices[1];
-			if (outBarycentric)
-				*outBarycentric = barycentrics[1];
-		}
-		return intersectionsResults[0] || intersectionsResults[1];
-	}
 	// we are in the leaf node
 	struct S_IntersectionInfo {
-		C_RayIntersection intersection;
-		float			  t				 = std::numeric_limits<float>::infinity();
-		unsigned int	  triangleIndex	 = 0;
-		glm::vec2		  barycentric	 = glm::vec2(0.f);
+		float		 t = std::numeric_limits<float>::infinity();
+		unsigned int triangleIndex;
+		glm::vec2	 barycentric;
 
 		[[nodiscard]] bool operator<(const S_IntersectionInfo& a) const { return t < a.t; }
 	};
-	S_IntersectionInfo closestIntersect{.intersection = C_RayIntersection()};
+	S_IntersectionInfo closestIntersect{};
 
-	glm::vec2 barycentric;
-
-	for (unsigned int i = node.firstTrig; i <= node.lastTrig; ++i)
+	while (stackPointer != 0)
 	{
-#ifdef TRACY_ENABLE
-		++tl_TriangleChecks;
-#endif
-		const glm::vec3* triDef = GetTriangleDefinition(i);
-		const auto		 length = Physics::TriangleRayIntersect(triDef, ray, &barycentric);
-		if (length > 0.0f)
+		const auto&	   currentPair = nodeStack[--stackPointer];
+		const BVHNode& current	   = m_Nodes[currentPair.first];
+		if (currentPair.second >= closestIntersect.t)
 		{
-			if (closestIntersect.t < length)
-			{
-				continue;
-			}
-			auto normal = glm::cross(triDef[1] - triDef[0], triDef[2] - triDef[0]);
-			// const auto area	  = glm::length(normal) / 2.f;
-			normal = glm::normalize(normal);
-			C_RayIntersection inter(S_Frame(normal), ray.origin + length * ray.direction, Physics::Primitives::S_Ray(ray));
-			inter.SetRayLength(length);
+			ADD_AABB_REJECT;
+			continue;
+		}
 
-			closestIntersect = {.intersection = inter, .t = length, .triangleIndex = m_LookupTable[i], .barycentric = barycentric};
+		if (current.IsLeaf())
+		{
+			S_IntersectionInfo intersect;
+			// test the triangles
+			if (TestTriangles(ray, current, &intersect.triangleIndex, &intersect.barycentric, &intersect.t) && intersect < closestIntersect)
+			{
+				closestIntersect = intersect;
+			}
+		}
+		else
+		{
+			ADD_AABB_TWO_TEST;
+			T_BVHNodeID child1 = current.left;
+			T_BVHNodeID child2 = current.right;
+			float tAABB1  = m_Nodes[child1].aabb.Intersects(ray);
+			float tAABB2 = m_Nodes[child2].aabb.Intersects(ray);
+			if (tAABB1 > tAABB2)
+			{
+				std::swap(child1, child2);
+				std::swap(tAABB1, tAABB2);
+			}
+			// not child1 is closer to the origin than child2
+			{
+				if (tAABB2 < closestIntersect.t)
+					nodeStack[stackPointer++] = {child2, tAABB2};
+				else
+					ADD_AABB_REJECT;
+				if (tAABB1 < closestIntersect.t)
+					nodeStack[stackPointer++] = {child1, tAABB1};
+				else
+					ADD_AABB_REJECT;
+			}
 		}
 	}
+
 	if (std::isinf(closestIntersect.t))
 		return false;
 
-	intersection = closestIntersect.intersection;
+	const glm::vec3* triDef = GetTriangleDefinition(closestIntersect.triangleIndex);
+	auto			 normal = glm::cross(triDef[1] - triDef[0], triDef[2] - triDef[0]);
+	normal					= glm::normalize(normal);
+
+	intersection = C_RayIntersection(S_Frame(normal), static_cast<glm::vec3>(ray.origin + closestIntersect.t * ray.direction), Physics::Primitives::S_Ray(ray));
+	intersection.SetRayLength(closestIntersect.t);
 
 	// Output triangle index and barycentric coordinates if requested
 	if (outTriangleIndex)
-		*outTriangleIndex = closestIntersect.triangleIndex;
+		*outTriangleIndex = m_LookupTable[closestIntersect.triangleIndex];
 	if (outBarycentric)
 		*outBarycentric = closestIntersect.barycentric;
 
 	return true;
+}
+
+//=================================================================================
+bool BVH::TestTriangles(const Physics::Primitives::S_SSERay& ray, const BVHNode& node, unsigned int* outTriangleIndex, glm::vec2* outBarycentric, float* distance) const
+{
+	float closestT = std::numeric_limits<float>::infinity();
+	for (unsigned int i = node.firstTrig; i <= node.lastTrig; ++i)
+	{
+		glm::vec2 barycentric;
+		ADD_TRIANGLE_TEST;
+		const glm::vec3* triDef = GetTriangleDefinition(i);
+		const auto		 length = Physics::TriangleRayIntersect(triDef, ray, &barycentric);
+		if (!std::isinf(length) && length < closestT)
+		{
+			closestT		  = length;
+			*outBarycentric	  = barycentric;
+			*outTriangleIndex = i;
+		}
+	}
+	*distance = closestT;
+	return std::isinf(closestT) == false;
 }
 
 //=================================================================================
@@ -322,7 +446,7 @@ void BVH::DebugDrawNode(I_DebugDraw& dd, const glm::mat4& modelMatrix, const BVH
 	};
 	constexpr static auto	 numColours	   = (sizeof(colours) / sizeof(Colours::T_Colour));
 	const Colours::T_Colour& currentColour = colours[level < numColours ? level : numColours - 1];
-	dd.DrawAABB(node.aabb, currentColour, modelMatrix);
+	// TODO: dd.DrawAABB(node.aabb, currentColour, modelMatrix);
 	if (node.left != s_InvalidBVHNode)
 		DebugDrawNode(dd, modelMatrix, m_Nodes[node.left], level + 1);
 	if (node.right != s_InvalidBVHNode)
@@ -332,23 +456,19 @@ void BVH::DebugDrawNode(I_DebugDraw& dd, const glm::mat4& modelMatrix, const BVH
 //=================================================================================
 float BVH::CalcSAHCost(const BVHNode& parent, const unsigned int axis, const float splitPos, const std::vector<glm::vec3>& centroids) const
 {
-	Physics::Primitives::S_AABB left, right;
-	unsigned int				leftCount = 0, rightCount = 0;
+	Physics::Primitives::S_SSEAABB left, right;
+	unsigned int				   leftCount = 0, rightCount = 0;
 	for (unsigned int i = parent.firstTrig; i < parent.lastTrig + 1; ++i)
 	{
 		const glm::vec3* triDef = GetTriangleDefinition(i);
 		if (centroids[i][axis] < splitPos)
 		{
-			left.Add(triDef[0]);
-			left.Add(triDef[1]);
-			left.Add(triDef[2]);
+			left.updateWithTriangle(triDef);
 			++leftCount;
 		}
 		else
 		{
-			right.Add(triDef[0]);
-			right.Add(triDef[1]);
-			right.Add(triDef[2]);
+			right.updateWithTriangle(triDef);
 			++rightCount;
 		}
 	}

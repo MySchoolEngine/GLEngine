@@ -25,6 +25,9 @@ Tools/tracy/*.exe
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
+compile_commands/*
+compile_commands.json
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/

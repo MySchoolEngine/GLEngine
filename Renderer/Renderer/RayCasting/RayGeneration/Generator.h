@@ -7,15 +7,15 @@
 
 namespace GLEngine::Renderer {
 
-template <typename T> class RENDERER_API_EXPORT Generator {
+template <typename ValueType> class RENDERER_API_EXPORT Generator {
 public:
 	struct promise_type {
-		T current_value;
+		ValueType current_value;
 
 		Generator			get_return_object() noexcept { return Generator{std::coroutine_handle<promise_type>::from_promise(*this)}; }
 		std::suspend_always initial_suspend() noexcept { return {}; }
 		std::suspend_always final_suspend() noexcept { return {}; }
-		std::suspend_always yield_value(T value) noexcept(std::is_nothrow_move_assignable_v<T>)
+		std::suspend_always yield_value(ValueType value) noexcept(std::is_nothrow_move_assignable_v<ValueType>)
 		{
 			current_value = std::move(value);
 			return {};
@@ -45,8 +45,8 @@ public:
 			handle.resume();
 			return *this;
 		}
-		T&		 operator*() noexcept { return handle.promise().current_value; }
-		const T& operator*() const noexcept { return handle.promise().current_value; }
+		ValueType&		 operator*() noexcept { return handle.promise().current_value; }
+		const ValueType& operator*() const noexcept { return handle.promise().current_value; }
 	};
 
 	iterator begin()

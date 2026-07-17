@@ -61,9 +61,7 @@ Colours::T_Colour C_PathIntegrator::Li_Direct(const Physics::Primitives::S_Ray& 
 
 	GLE_ASSERT(wi.y > 0, "Wrong direction of the ray!");
 
-	Physics::Primitives::S_Ray rayY;
-	rayY.origin	   = point;
-	rayY.direction = frame.ToWorld(wi);
+	const Physics::Primitives::S_Ray rayY{point, frame.ToWorld(wi)};
 
 	if (!m_Scene.Intersect(rayY, intersectY, 1e-3f))
 		return LoDirect;

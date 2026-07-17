@@ -45,7 +45,7 @@ std::size_t C_TextureView::GetPixelAddress(const glm::uvec2& coord) const
 {
 	GLE_ASSERT(coord.x < m_Rect.GetWidth() && coord.y < m_Rect.GetHeight(), "Outside of bounds");
 	const auto& dim			   = m_Storage->GetDimensions();
-	const auto	addressInImage = coord + glm::uvec2{m_Rect.TopLeft()};
+	const auto	addressInImage = coord + m_Rect.TopLeft();
 	return (static_cast<std::size_t>(dim.x) * addressInImage.y + addressInImage.x);
 }
 

@@ -129,14 +129,10 @@ C_Trimesh::~C_Trimesh()
 //=================================================================================
 bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersection& intersection, const float tMax) const
 {
-	const auto ray = Physics::Primitives::S_Ray{.origin = m_TransformInv * glm::vec4(rayIn.origin, 1.f), .direction = rayIn.direction};
+	const auto ray = Physics::Primitives::S_Ray{m_TransformInv * glm::vec4(rayIn.origin, 1.f), rayIn.direction};
 
 	if (m_BVH)
 	{
-		// if there is BVH the object is big enough to spend some time on following test
-		if (const auto tAABB = m_AABB.IntersectImpl(rayIn); tAABB > tMax || tAABB < 0.f)
-			return false;
-
 		glm::vec2	 barycentric;
 		unsigned int triangleIndex;
 		if (m_BVH->Intersect(ray, intersection, &triangleIndex, &barycentric))
@@ -157,8 +153,8 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 		return false;
 	}
 
-	// AABB is translated to the world-space
-	if (!m_AABB.Intersects(rayIn))
+	// this check happens internally in BVH
+	if (const auto tAABB = m_AABB.Intersects(rayIn); tAABB > tMax || std::isinf(tAABB))
 		return false;
 
 	struct S_IntersectionInfo {
@@ -177,12 +173,8 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 	{
 		const glm::vec3* triDef = &(m_Vertices[i]);
 		const auto		 length = Physics::TriangleRayIntersect(triDef, ray, &barycentric);
-		if (length > 0.0f)
+		if (!std::isinf(length) && length < closestIntersect.t)
 		{
-			if (closestIntersect.t < length)
-			{
-				continue;
-			}
 			auto normal = glm::cross(m_Vertices[i + 1] - m_Vertices[i], m_Vertices[i + 2] - m_Vertices[i]);
 			normal		= glm::normalize(normal);
 			C_RayIntersection inter(S_Frame(normal), ray.origin + length * ray.direction, Physics::Primitives::S_Ray(ray));
@@ -284,7 +276,10 @@ void C_Trimesh::AfterDeserialize()
 {
 	m_TransformInv = glm::inverse(m_Transform);
 	if (m_BVH)
+	{
 		m_BVH->m_Storage = &m_Vertices;
+		CORE_LOG(E_Level::Info, E_Context::Render, "Loaded the BVH with depth of {}", m_BVH->ComputeMaxDepth());
+	}
 }
 
 } // namespace GLEngine::Renderer

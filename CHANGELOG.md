@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - 27-06-2026
 ### Added
+- AABB tests
+- Benchmarks option
+- SSE Vector
+- ClangD MCP for Claude
+
+## [Unreleased] - 27-06-2026
+### Added
 - Filter for `ResourceManagerWindow`
 
 ## [Unreleased] - 26-06-2026

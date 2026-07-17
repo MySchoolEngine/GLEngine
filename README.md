@@ -33,6 +33,24 @@ This option can be combined with other options:
 premake5 --glfwapi=vulkan --skiptests vs2019
 ```
 
+### Benchmarks
+
+Microbenchmarks are not built by default. Pass `--benchmarks` to include them:
+```
+premake5 --benchmarks vs2022
+```
+
+See [Benchmarks/readme.md](Benchmarks/readme.md) for details.
+
+### clangd / LSP support
+
+To generate `compile_commands.json` for clangd (used by editors and AI tools for code intelligence):
+```
+premake5 export-compile-commands
+```
+
+This automatically copies `compile_commands/debug.json` to the root `compile_commands.json`. Re-run after any premake changes.
+
 ## Memory sanitazer
 If you want to use memory sanitazer, please use Asan configuration and add path to the ASAN DLLs to your PATH variable. E.g.:
 ```

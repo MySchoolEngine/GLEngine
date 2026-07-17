@@ -44,7 +44,10 @@ jobs:
           path: /var/cache/apt/archives
           key: apt-${{ runner.os }}-xorg-uuid
       - name: update
-        run: sudo apt update
+        run: |
+          # Remove Microsoft repos that have signing issues on GitHub-hosted ubuntu-latest runners
+          sudo rm -f /etc/apt/sources.list.d/azure-cli.sources /etc/apt/sources.list.d/microsoft-prod.list
+          sudo apt update
       - name: Set compiler
         run: |
           sudo apt-get install -y g++-14
@@ -62,7 +65,7 @@ jobs:
         run: make config=${{ matrix.config.lowerCase }} -j6
       - name: Copy TestData
         run: |
-          for test in Core Renderer Utils; do
+          for test in Core Renderer Utils Physics; do
             if [ -d "Tests/$test/TestData" ]; then
               cp -r "Tests/$test/TestData" "bin/${{ matrix.config.config }}-linux-x86_64/${test}Test/"
             fi
@@ -91,7 +94,7 @@ jobs:
             config: "Release",
             lowerCase: "release",
           }
-        test: ["CoreTest", "RendererTest", "UtilsTest"] #, "EntityTest"]
+        test: ["CoreTest", "RendererTest", "UtilsTest", "PhysicsTest"] #, "EntityTest"]
     steps:
       - name: Download artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -129,6 +132,7 @@ jobs:
           if exist "Tests\Core\TestData" xcopy /E /I /Y "Tests\Core\TestData" "bin\${{ matrix.configuration }}-windows-x86_64\CoreTest\TestData\"
           if exist "Tests\Renderer\TestData" xcopy /E /I /Y "Tests\Renderer\TestData" "bin\${{ matrix.configuration }}-windows-x86_64\RendererTest\TestData\"
           if exist "Tests\Utils\TestData" xcopy /E /I /Y "Tests\Utils\TestData" "bin\${{ matrix.configuration }}-windows-x86_64\UtilsTest\TestData\"
+          if exist "Tests\Physics\TestData" xcopy /E /I /Y "Tests\Physics\TestData" "bin\${{ matrix.configuration }}-windows-x86_64\PhysicsTest\TestData\"
       - name: Upload artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
@@ -144,7 +148,7 @@ jobs:
       matrix:
         configuration: [debug, release]
         # glfwapi: [opengl, vulkan] not yet dependent on API
-        test: ["CoreTest", "RendererTest", "UtilsTest"] #, "EntityTest"]
+        test: ["CoreTest", "RendererTest", "UtilsTest", "PhysicsTest"] #, "EntityTest"]
     steps:
       - name: Download artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1

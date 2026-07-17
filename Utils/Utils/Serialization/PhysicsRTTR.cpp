@@ -16,6 +16,11 @@ RTTR_REGISTRATION
 		.property("min", &S_AABB::m_Min)(REGISTER_DEFAULT_VALUE(glm::vec3(0.f)))
 		.property("max", &S_AABB::m_Max)(REGISTER_DEFAULT_VALUE(glm::vec3(0.f)));
 
+	rttr::registration::class_<S_SSEAABB>("SSEAABB")
+		.constructor<>()(rttr::policy::ctor::as_object)
+		.property("min", &S_SSEAABB::m_Min)(REGISTER_DEFAULT_VALUE(::Utils::SSE::Vec3(0.f)))
+		.property("max", &S_SSEAABB::m_Max)(REGISTER_DEFAULT_VALUE(::Utils::SSE::Vec3(0.f)));
+
 	rttr::registration::class_<S_Sphere>("Sphere")
 		.constructor<>()(rttr::policy::ctor::as_object)
 		.property("position", &S_Sphere::m_position)

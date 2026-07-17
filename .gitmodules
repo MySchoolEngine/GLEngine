@@ -64,3 +64,6 @@
 [submodule "vendor/tracy"]
 	path = vendor/tracy
 	url = https://github.com/wolfpld/tracy
+[submodule "vendor/benchmark"]
+	path = vendor/benchmark
+	url = https://github.com/google/benchmark.git
