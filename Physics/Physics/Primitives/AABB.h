@@ -46,32 +46,7 @@ public:
 
 	[[nodiscard]] float Intersects(const S_Ray& ray) const noexcept
 	{
-		using namespace ::Utils::SSE;
-		if (!IsInitialized())
-		{
-			return std::numeric_limits<float>::infinity();
-		}
-		const Vec3 minm(m_Min);
-		const Vec3 maxm(m_Max);
-		const Vec3 originm(ray.origin);
-		Vec3	   dir(ray.direction);
-		Vec3	   invDirection = Vec3(1.f) / dir;
-		Vec3	   t1			= (minm - originm) * invDirection;
-		Vec3	   t2			= (maxm - originm) * invDirection;
-		// 0 * ±inf = NaN when origin lies exactly on an AABB boundary and ray is parallel to that axis.
-		// Replace NaN in t1m with -inf (slab entry: no constraint) and in t2m with +inf (slab exit: no constraint).
-		__m128 nanMask = _mm_cmpunord_ps(t1.GetRaw(), t1.GetRaw());
-		t1			   = _mm_or_ps(_mm_andnot_ps(nanMask, t1.GetRaw()), _mm_and_ps(nanMask, _mm_set1_ps(-std::numeric_limits<float>::infinity())));
-		nanMask		   = _mm_cmpunord_ps(t2.GetRaw(), t2.GetRaw());
-		t2			   = _mm_or_ps(_mm_andnot_ps(nanMask, t2.GetRaw()), _mm_and_ps(nanMask, _mm_set1_ps(std::numeric_limits<float>::infinity())));
-		Vec3 tenter	   = Vec3::min(t1, t2);
-		Vec3 texit	   = Vec3::max(t1, t2);
-
-		float		tmin = tenter.MaxComponent();
-		const float tmax = texit.MinComponent();
-
-		tmin = std::max(tmin, 0.f);
-		return (tmin <= tmax) ? tmin : std::numeric_limits<float>::infinity();
+		return Intersects(S_SSERay(ray));
 		// float tmin = 0.0, tmax = INFINITY;
 		//
 		// const glm::vec3 t1 = (m_Min - ray.origin) * ray.invDirection;

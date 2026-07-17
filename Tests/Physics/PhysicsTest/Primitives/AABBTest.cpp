@@ -552,7 +552,7 @@ TEST(AABB_IntersectImpl, IntersectImpl_RayMisses)
 
 	// Ray at y=0, z=0 — cannot reach box that starts at y=1, z=1
 	const S_Ray ray{{0.f, 0.f, 0.f}, {1.f, 0.f, 0.f}};
-	EXPECT_LT(aabb.IntersectImpl(ray), 0.f);
+	EXPECT_EQ(aabb.IntersectImpl(ray), std::numeric_limits<float>::infinity());
 }
 
 TEST(AABB_IntersectImpl, IntersectImpl_RayFromInside)
@@ -570,14 +570,14 @@ TEST(AABB_IntersectImpl, IntersectImpl_Uninitialized)
 {
 	const S_AABB aabb;
 	const S_Ray ray{{0.f, 0.f, 0.f}, {1.f, 0.f, 0.f}};
-	EXPECT_LT(aabb.IntersectImpl(ray), 0.f);
+	EXPECT_EQ(aabb.IntersectImpl(ray), std::numeric_limits<float>::infinity());
 }
 
 TEST(AABB_IntersectImpl, IntersectImpl_Uninitialized_NegativeDirection)
 {
 	const S_AABB aabb;
 	const S_Ray ray{{5.f, 5.f, 5.f}, {-1.f, 0.f, 0.f}};
-	EXPECT_LT(aabb.IntersectImpl(ray), 0.f);
+	EXPECT_EQ(aabb.IntersectImpl(ray), std::numeric_limits<float>::infinity());
 }
 
 TEST(AABB_IntersectImpl, IntersectImpl_Uninitialized_DiagonalDirection)
@@ -585,14 +585,14 @@ TEST(AABB_IntersectImpl, IntersectImpl_Uninitialized_DiagonalDirection)
 	const S_AABB aabb;
 	const glm::vec3 dir = glm::normalize(glm::vec3(1.f, 1.f, 1.f));
 	const S_Ray ray{{0.f, 0.f, 0.f}, dir};
-	EXPECT_LT(aabb.IntersectImpl(ray), 0.f);
+	EXPECT_EQ(aabb.IntersectImpl(ray), std::numeric_limits<float>::infinity());
 }
 
 TEST(AABB_IntersectImpl, IntersectImpl_Uninitialized_AxisAlignedAxes)
 {
 	const S_AABB aabb;
-	EXPECT_LT(aabb.IntersectImpl(S_Ray{{0.f, 0.f, 0.f}, {0.f, 1.f, 0.f}}), 0.f);
-	EXPECT_LT(aabb.IntersectImpl(S_Ray{{0.f, 0.f, 0.f}, {0.f, 0.f, 1.f}}), 0.f);
+	EXPECT_EQ(aabb.IntersectImpl(S_Ray{{0.f, 0.f, 0.f}, {0.f, 1.f, 0.f}}), std::numeric_limits<float>::infinity());
+	EXPECT_EQ(aabb.IntersectImpl(S_Ray{{0.f, 0.f, 0.f}, {0.f, 0.f, 1.f}}), std::numeric_limits<float>::infinity());
 }
 #pragma endregion --AABB_IntersectImpl
 
