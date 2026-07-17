@@ -9,6 +9,11 @@
 
 namespace GLEngine::Physics::Primitives {
 
+namespace detail {
+using namespace ::Utils::SSE;
+static float IntersectSSEAABB(const Vec3& min, const Vec3& max, const S_SSERay& ray);
+} // namespace detail
+
 struct S_AABB : public T_Intersectable<S_AABB> {
 public:
 	constexpr S_AABB()
@@ -24,24 +29,9 @@ public:
 		{
 			return std::numeric_limits<float>::infinity();
 		}
-		const Vec3 minm(m_Min);
-		const Vec3 maxm(m_Max);
-		Vec3	   t1 = (minm - ray.origin) * ray.invDirection;
-		Vec3	   t2 = (maxm - ray.origin) * ray.invDirection;
-		// 0 * ±inf = NaN when origin lies exactly on an AABB boundary and ray is parallel to that axis.
-		// Replace NaN in t1m with -inf (slab entry: no constraint) and in t2m with +inf (slab exit: no constraint).
-		__m128 nanMask = _mm_cmpunord_ps(t1.GetRaw(), t1.GetRaw());
-		t1			   = _mm_or_ps(_mm_andnot_ps(nanMask, t1.GetRaw()), _mm_and_ps(nanMask, _mm_set1_ps(-std::numeric_limits<float>::infinity())));
-		nanMask		   = _mm_cmpunord_ps(t2.GetRaw(), t2.GetRaw());
-		t2			   = _mm_or_ps(_mm_andnot_ps(nanMask, t2.GetRaw()), _mm_and_ps(nanMask, _mm_set1_ps(std::numeric_limits<float>::infinity())));
-		Vec3 tenter	   = Vec3::min(t1, t2);
-		Vec3 texit	   = Vec3::max(t1, t2);
-
-		float		tmin = tenter.MaxComponent();
-		const float tmax = texit.MinComponent();
-
-		tmin = std::max(tmin, 0.f);
-		return (tmin <= tmax) ? tmin : std::numeric_limits<float>::infinity();
+		const Vec3 min(m_Min);
+		const Vec3 max(m_Max);
+		return detail::IntersectSSEAABB(min, max, ray);
 	}
 
 	[[nodiscard]] float Intersects(const S_Ray& ray) const noexcept
@@ -67,8 +57,8 @@ public:
 	{
 		using namespace ::Utils::SSE;
 		const Vec3 pointm(point);
-		Vec3 minm(m_Min);
-		Vec3 maxm(m_Max);
+		Vec3	   minm(m_Min);
+		Vec3	   maxm(m_Max);
 		minm  = Vec3::min(minm, pointm);
 		maxm  = Vec3::max(maxm, pointm);
 		m_Min = static_cast<glm::vec3>(minm);
@@ -104,8 +94,8 @@ public:
 		{
 			const Vec3 pointm(triangleVertices[i]);
 
-			minm =Vec3::min(minm, pointm);
-			maxm =Vec3::max(maxm, pointm);
+			minm = Vec3::min(minm, pointm);
+			maxm = Vec3::max(maxm, pointm);
 		}
 		alignas(16) float min[4];
 		alignas(16) float max[4];
@@ -191,22 +181,7 @@ public:
 		{
 			return std::numeric_limits<float>::infinity();
 		}
-		Vec3 t1 = (m_Min - ray.origin) * ray.invDirection;
-		Vec3 t2 = (m_Max - ray.origin) * ray.invDirection;
-		// 0 * ±inf = NaN when origin lies exactly on an AABB boundary and ray is parallel to that axis.
-		// Replace NaN in t1 with -inf (slab entry: no constraint) and in t2 with +inf (slab exit: no constraint).
-		__m128 nanMask = _mm_cmpunord_ps(t1.GetRaw(), t1.GetRaw());
-		t1			   = _mm_or_ps(_mm_andnot_ps(nanMask, t1.GetRaw()), _mm_and_ps(nanMask, _mm_set1_ps(-std::numeric_limits<float>::infinity())));
-		nanMask		   = _mm_cmpunord_ps(t2.GetRaw(), t2.GetRaw());
-		t2			   = _mm_or_ps(_mm_andnot_ps(nanMask, t2.GetRaw()), _mm_and_ps(nanMask, _mm_set1_ps(std::numeric_limits<float>::infinity())));
-		Vec3 tenter	   = Vec3::min(t1, t2);
-		Vec3 texit	   = Vec3::max(t1, t2);
-
-		float		tmin = tenter.MaxComponent();
-		const float tmax = texit.MinComponent();
-
-		tmin = std::max(tmin, 0.f);
-		return (tmin <= tmax) ? tmin : std::numeric_limits<float>::infinity();
+		return detail::IntersectSSEAABB(m_Min, m_Max, ray);
 	}
 
 	void Add(const ::Utils::SSE::Vec3& point)
@@ -256,4 +231,28 @@ public:
 	::Utils::SSE::Vec3 m_Min;
 	::Utils::SSE::Vec3 m_Max;
 };
+
+
+namespace detail {
+using namespace ::Utils::SSE;
+static float IntersectSSEAABB(const Vec3& min, const Vec3& max, const S_SSERay& ray)
+{
+	Vec3 t1 = (min - ray.origin) * ray.invDirection;
+	Vec3 t2 = (max - ray.origin) * ray.invDirection;
+	// 0 * ±inf = NaN when origin lies exactly on an AABB boundary and ray is parallel to that axis.
+	// Replace NaN in t1m with -inf (slab entry: no constraint) and in t2m with +inf (slab exit: no constraint).
+	__m128 nanMask = _mm_cmpunord_ps(t1.GetRaw(), t1.GetRaw());
+	t1			   = _mm_or_ps(_mm_andnot_ps(nanMask, t1.GetRaw()), _mm_and_ps(nanMask, _mm_set1_ps(-std::numeric_limits<float>::infinity())));
+	nanMask		   = _mm_cmpunord_ps(t2.GetRaw(), t2.GetRaw());
+	t2			   = _mm_or_ps(_mm_andnot_ps(nanMask, t2.GetRaw()), _mm_and_ps(nanMask, _mm_set1_ps(std::numeric_limits<float>::infinity())));
+	Vec3 tenter	   = Vec3::min(t1, t2);
+	Vec3 texit	   = Vec3::max(t1, t2);
+
+	float		tmin = tenter.MaxComponent();
+	const float tmax = texit.MinComponent();
+
+	tmin = std::max(tmin, 0.f);
+	return (tmin <= tmax) ? tmin : std::numeric_limits<float>::infinity();
+}
+} // namespace detail
 } // namespace GLEngine::Physics::Primitives
