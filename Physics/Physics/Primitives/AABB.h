@@ -6,7 +6,6 @@
 
 #include <algorithm>
 #include <xmmintrin.h>
-#define VEC3TOSSE(vec) 0.f, vec.z, vec.y, vec.x
 
 namespace GLEngine::Physics::Primitives {
 
@@ -55,8 +54,10 @@ public:
 		const Vec3 minm(m_Min);
 		const Vec3 maxm(m_Max);
 		const Vec3 originm(ray.origin);
-		Vec3	   t1 = (minm - originm) * ray.invDirection;
-		Vec3	   t2 = (maxm - originm) * ray.invDirection;
+		Vec3	   dir(ray.direction);
+		Vec3	   invDirection = Vec3(1.f) / dir;
+		Vec3	   t1			= (minm - originm) * invDirection;
+		Vec3	   t2			= (maxm - originm) * invDirection;
 		// 0 * ±inf = NaN when origin lies exactly on an AABB boundary and ray is parallel to that axis.
 		// Replace NaN in t1m with -inf (slab entry: no constraint) and in t2m with +inf (slab exit: no constraint).
 		__m128 nanMask = _mm_cmpunord_ps(t1.GetRaw(), t1.GetRaw());
@@ -85,84 +86,12 @@ public:
 		// return (tmin <= tmax) ? tmin : std::numeric_limits<float>::infinity();
 	}
 
-	[[nodiscard]] inline float IntersectImpl(const S_Ray& ray) const
-	{
-		if (!IsInitialized())
-		{
-			return -1.0f;
-		}
-
-		// https://github.com/erich666/GraphicsGems/blob/master/gems/RayBox.c
-		enum class E_QuadrantName : std::uint8_t {
-			RIGHT,
-			LEFT,
-			MIDDLE
-		};
-		bool				 inside = true;
-		std::array<float, 3> candidatePlane;
-		std::array<float, 3> maxT;
-		E_QuadrantName		 quadrant[3];
-		for (int i = 0; i < 3; ++i)
-		{
-			if (ray.origin[i] < m_Min[i])
-			{
-				quadrant[i]		  = E_QuadrantName::LEFT;
-				candidatePlane[i] = m_Min[i];
-				inside			  = false;
-			}
-			else if (ray.origin[i] > m_Max[i])
-			{
-				quadrant[i]		  = E_QuadrantName::RIGHT;
-				candidatePlane[i] = m_Max[i];
-				inside			  = false;
-			}
-			else
-			{
-				quadrant[i] = E_QuadrantName::MIDDLE;
-			}
-		}
-
-		if (inside)
-		{
-			return 0.0f;
-		}
-
-		for (int i = 0; i < 3; i++)
-			if (quadrant[i] != E_QuadrantName::MIDDLE && std::abs(ray.direction[i]) >= s_RayDirectionEpsilon)
-				maxT[i] = (candidatePlane[i] - ray.origin[i]) / ray.direction[i];
-			else
-				maxT[i] = -1.;
-
-		int whichPlane = 0;
-		for (int i = 1; i < 3; i++)
-			if (maxT[whichPlane] < maxT[i])
-				whichPlane = i;
-
-		/* Check final candidate actually inside box */
-		if (maxT[whichPlane] < 0)
-			return maxT[whichPlane];
-
-		glm::vec3 coord;
-
-		for (int i = 0; i < 3; i++)
-			if (whichPlane != i)
-			{
-				coord[i] = ray.origin[i] + maxT[whichPlane] * ray.direction[i];
-				if (coord[i] < m_Min[i] || coord[i] > m_Max[i])
-					return -1.f;
-			}
-			else
-			{
-				coord[i] = candidatePlane[i];
-			}
-
-		return glm::distance(ray.origin, coord);
-	}
+	[[nodiscard]] float IntersectImpl(const S_Ray& ray) const { return Intersects(ray); }
 
 	void Add(const glm::vec3& point)
 	{
 		using namespace ::Utils::SSE;
-		Vec3 pointm(point);
+		const Vec3 pointm(point);
 		Vec3 minm(m_Min);
 		Vec3 maxm(m_Max);
 		minm  = Vec3::min(minm, pointm);
@@ -193,19 +122,20 @@ public:
 
 	void updateWithTriangle(const glm::vec3* triangleVertices)
 	{
-		__m128 minm = _mm_set_ps(VEC3TOSSE(m_Min));
-		__m128 maxm = _mm_set_ps(VEC3TOSSE(m_Max));
+		using namespace ::Utils::SSE;
+		Vec3 minm(m_Min);
+		Vec3 maxm(m_Max);
 		for (int i = 0; i < 3; ++i)
 		{
-			__m128 pointm = _mm_set_ps(VEC3TOSSE(triangleVertices[i]));
+			const Vec3 pointm(triangleVertices[i]);
 
-			minm = _mm_min_ps(minm, pointm);
-			maxm = _mm_max_ps(maxm, pointm);
+			minm =Vec3::min(minm, pointm);
+			maxm =Vec3::max(maxm, pointm);
 		}
 		alignas(16) float min[4];
 		alignas(16) float max[4];
-		_mm_store_ps(min, minm);
-		_mm_store_ps(max, maxm);
+		_mm_store_ps(min, minm.GetRaw());
+		_mm_store_ps(max, maxm.GetRaw());
 		memcpy(&m_Min, min, sizeof(float) * 3);
 		memcpy(&m_Max, max, sizeof(float) * 3);
 	}
