@@ -9,12 +9,10 @@ namespace GLEngine::Physics::Primitives {
 struct S_SSERay;
 struct S_Ray {
 	// can't be constexpr as division by zero is valid here
-	S_Ray(const glm::vec3& origin, const glm::vec3& direction)
+	constexpr S_Ray(const glm::vec3& origin, const glm::vec3& direction)
 		: origin(origin)
 		, direction(direction)
 	{
-		__m128 dir	 = ::Utils::SSE::ToSSE(direction);
-		invDirection = _mm_div_ps(_mm_set_ps(0, 1, 1, 1), dir);
 	}
 	/**
 	 * @brief This function serves for moving the ray e.g. when the original one hit transparent
@@ -27,10 +25,9 @@ struct S_Ray {
 
 	glm::vec3 origin;
 	glm::vec3 direction;
-	__m128	  invDirection;
 };
 
-struct S_SSERay {
+struct alignas(16) S_SSERay {
 	// can't be constexpr as division by zero is valid here
 	S_SSERay(const glm::vec3& origin, const glm::vec3& direction)
 		: origin(origin)
