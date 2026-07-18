@@ -212,9 +212,7 @@ void C_Trimesh::AddTriangle(const Physics::Primitives::S_Triangle& triangle)
 	m_Vertices.push_back(triangle.m_p[0]);
 	m_Vertices.push_back(triangle.m_p[1]);
 	m_Vertices.push_back(triangle.m_p[2]);
-	m_AABB.Add(triangle.m_p[0]);
-	m_AABB.Add(triangle.m_p[1]);
-	m_AABB.Add(triangle.m_p[2]);
+	m_AABB.updateWithTriangle(&(triangle.m_p[0]));
 }
 
 //=================================================================================
