@@ -14,14 +14,23 @@ inline std::ostream& operator<<(std::ostream& stream, const Vec3& vec)
 }
 } // namespace Utils::SSE
 
-template <class RawType>
-testing::AssertionResult AssertVec2AlmostEq(const char*								   lhs_expression,
-											const char*								   rhs_expression,
-											const glm::vec<2, RawType, glm::defaultp>& lhs_value,
-											const glm::vec<2, RawType, glm::defaultp>& rhs_value)
+template <glm::length_t L, class RawType>
+testing::AssertionResult AssertVecAlmostEq(const char*								  lhs_expression,
+										   const char*								  rhs_expression,
+										   const glm::vec<L, RawType, glm::defaultp>& lhs_value,
+										   const glm::vec<L, RawType, glm::defaultp>& rhs_value)
 {
-	const testing::internal::FloatingPoint<RawType> lhs_x(lhs_value.x), lhs_y(lhs_value.y), rhs_x(rhs_value.x), rhs_y(rhs_value.y);
-	if (lhs_x.AlmostEquals(rhs_x) && lhs_y.AlmostEquals(rhs_y))
+	bool allAlmostEqual = true;
+	for (glm::length_t i = 0; i < L; ++i)
+	{
+		const testing::internal::FloatingPoint<RawType> lhs_i(lhs_value[i]), rhs_i(rhs_value[i]);
+		if (!lhs_i.AlmostEquals(rhs_i))
+		{
+			allAlmostEqual = false;
+			break;
+		}
+	}
+	if (allAlmostEqual)
 	{
 		return testing::AssertionSuccess();
 	}
@@ -38,9 +47,10 @@ testing::AssertionResult AssertVec2AlmostEq(const char*								   lhs_expression
 }
 
 template <class RawType>
-testing::AssertionResult AssertVec2AlmostEq(const char* lhs_expression, const char* rhs_expression, const ::Utils::SSE::Vec3& lhs_value, const ::Utils::SSE::Vec3& rhs_value)
+testing::AssertionResult AssertSSEVec3AlmostEq(const char* lhs_expression, const char* rhs_expression, const ::Utils::SSE::Vec3& lhs_value, const ::Utils::SSE::Vec3& rhs_value)
 {
-	const testing::internal::FloatingPoint<RawType> lhs_x(lhs_value.x()), lhs_y(lhs_value.y()), lhs_z(lhs_value.z()), rhs_x(rhs_value.x()), rhs_y(rhs_value.y()), rhs_z(rhs_value.z());
+	const testing::internal::FloatingPoint<RawType> lhs_x(lhs_value.x()), lhs_y(lhs_value.y()), lhs_z(lhs_value.z()), rhs_x(rhs_value.x()), rhs_y(rhs_value.y()),
+		rhs_z(rhs_value.z());
 	if (lhs_x.AlmostEquals(rhs_x) && lhs_y.AlmostEquals(rhs_y) && lhs_z.AlmostEquals(rhs_z))
 	{
 		return testing::AssertionSuccess();
