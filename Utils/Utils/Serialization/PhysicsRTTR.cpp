@@ -13,13 +13,13 @@ RTTR_REGISTRATION
 
 	rttr::registration::class_<S_AABB>("AABB")
 		.constructor<>()(rttr::policy::ctor::as_object)
-		.property("min", &S_AABB::m_Min)(REGISTER_DEFAULT_VALUE(glm::vec3(0.f)))
-		.property("max", &S_AABB::m_Max)(REGISTER_DEFAULT_VALUE(glm::vec3(0.f)));
+		.property("min", &S_AABB::m_Min)(REGISTER_DEFAULT_VALUE(glm::vec3(std::numeric_limits<float>::infinity())))
+		.property("max", &S_AABB::m_Max)(REGISTER_DEFAULT_VALUE(glm::vec3(-std::numeric_limits<float>::infinity())));
 
 	rttr::registration::class_<S_SSEAABB>("SSEAABB")
 		.constructor<>()(rttr::policy::ctor::as_object)
-		.property("min", &S_SSEAABB::m_Min)(REGISTER_DEFAULT_VALUE(::Utils::SSE::Vec3(0.f)))
-		.property("max", &S_SSEAABB::m_Max)(REGISTER_DEFAULT_VALUE(::Utils::SSE::Vec3(0.f)));
+		.property("min", &S_SSEAABB::m_Min)(REGISTER_DEFAULT_VALUE(::Utils::SSE::Vec3(std::numeric_limits<float>::infinity())))
+		.property("max", &S_SSEAABB::m_Max)(REGISTER_DEFAULT_VALUE(::Utils::SSE::Vec3(-std::numeric_limits<float>::infinity())));
 
 	rttr::registration::class_<S_Sphere>("Sphere")
 		.constructor<>()(rttr::policy::ctor::as_object)

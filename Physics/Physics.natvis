@@ -2,6 +2,7 @@
 
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
   <Type Name="GLEngine::Physics::Primitives::S_AABB">
+    <AlternativeType Name="GLEngine::Physics::Primitives::S_SSEAABB"/>
     <Intrinsic Name="IsInitialized" Expression="isinf(m_Min.x)"/>
     <DisplayString Condition="IsInitialized()">{m_Min}-{m_Max}</DisplayString>
     <DisplayString Condition="!IsInitialized()">invalid AABB</DisplayString>
