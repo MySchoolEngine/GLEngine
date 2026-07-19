@@ -324,7 +324,7 @@ TEST_F(TrimeshFixture, SetTransformationTranslation)
 
 	// Translate by (5, 5, 5)
 	glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(5, 5, 5));
-	// trimesh.SetTransformation(transform);
+	trimesh.SetTransformation(transform);
 
 	// Ray should now hit at translated position
 	Physics::Primitives::S_Ray ray{glm::vec3(5.25f, 5.25f, 6.0f), glm::vec3(0, 0, -1)};
@@ -342,7 +342,7 @@ TEST_F(TrimeshFixture, SetTransformationScale)
 
 	// Scale by 2x
 	glm::mat4 transform = glm::scale(glm::mat4(1.0f), glm::vec3(2, 2, 2));
-	// trimesh.SetTransformation(transform);
+	trimesh.SetTransformation(transform);
 
 	// Triangle is now twice as large
 	Physics::Primitives::S_Ray ray{glm::vec3(0.5f, 0.5f, 1.0f), glm::vec3(0, 0, -1)};
@@ -361,7 +361,7 @@ TEST_F(TrimeshFixture, SetTransformationUpdatesAABB)
 
 	// Translate by (10, 10, 10)
 	glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(10, 10, 10));
-	// trimesh.SetTransformation(transform);
+	trimesh.SetTransformation(transform);
 
 	const auto& aabbAfter = trimesh.GetAABB();
 
@@ -380,7 +380,7 @@ TEST_F(TrimeshFixture, TransformedRayIntersectionDistance)
 
 	// Translate triangle to z=5
 	glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 5));
-	// trimesh.SetTransformation(transform);
+	trimesh.SetTransformation(transform);
 
 	Physics::Primitives::S_Ray ray{glm::vec3(0.25f, 0.25f, 0.0f), glm::vec3(0, 0, 1)};
 	C_RayIntersection		   hit;
@@ -509,8 +509,7 @@ TEST_F(TrimeshFixture, SetTransformationUniformScaleProducesCorrectPointAndNorma
 	const glm::mat4 transform = glm::scale(glm::mat4(1.0f), glm::vec3(2, 2, 2));
 	trimesh.SetTransformation(transform);
 
-	// (0.6, 0.6) is outside the local unit triangle (x + y > 1) but inside the doubled one (x + y <= 2).
-	const glm::vec3	  localPoint = glm::vec3(0.6f, 0.6f, 0.0f);
+	const glm::vec3	  localPoint = glm::vec3(0.3f, 0.3f, 0.0f);
 	const auto		  ray		 = MakeRayHitting(transform, localPoint, kLocalNormal);
 	C_RayIntersection hit;
 
@@ -521,7 +520,7 @@ TEST_F(TrimeshFixture, SetTransformationUniformScaleProducesCorrectPointAndNorma
 	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetFrame().Normal(), TransformNormal(transform, kLocalNormal));
 }
 
-TEST_F(TrimeshFixture, SetTransformationNonUniformScaleEnablesHitOutsideOriginalBounds)
+TEST_F(TrimeshFixture, SetTransformationNonUniformScaleProducesCorrectPoint)
 {
 	C_Trimesh trimesh;
 	auto	  tri = MakeTriangle();
@@ -530,8 +529,7 @@ TEST_F(TrimeshFixture, SetTransformationNonUniformScaleEnablesHitOutsideOriginal
 	const glm::mat4 transform = glm::scale(glm::mat4(1.0f), glm::vec3(1, 3, 1));
 	trimesh.SetTransformation(transform);
 
-	// (0.1, 2.0) is far outside the local unit triangle but inside the Y-stretched one.
-	const glm::vec3	  localPoint = glm::vec3(0.1f, 2.0f, 0.0f);
+	const glm::vec3	  localPoint = glm::vec3(0.2f, 0.3f, 0.0f);
 	const auto		  ray		 = MakeRayHitting(transform, localPoint, kLocalNormal);
 	C_RayIntersection hit;
 
