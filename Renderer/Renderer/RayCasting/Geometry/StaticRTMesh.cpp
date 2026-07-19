@@ -36,7 +36,7 @@ bool C_StaticRTMesh::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInter
 		return false;
 	intersection = bestIntersection;
 	// material
-	bestIntersection.SetMaterial(&GetMaterial());
+	intersection.SetMaterial(&GetMaterial());
 	// alpha mask
 	if (m_AlphaMask.IsReady())
 	{
@@ -44,7 +44,7 @@ bool C_StaticRTMesh::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInter
 	}
 	// todo normal correction
 
-	return false;
+	return true;
 }
 
 //=================================================================================

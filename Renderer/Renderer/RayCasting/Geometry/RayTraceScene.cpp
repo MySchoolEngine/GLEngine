@@ -5,6 +5,7 @@
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/RayCasting/Geometry/RayTraceScene.h>
 #include <Renderer/RayCasting/Geometry/SceneGeometry.h>
+#include <Renderer/RayCasting/Geometry/StaticRTMesh.h>
 #include <Renderer/RayCasting/Geometry/Trimesh.h>
 #include <Renderer/RayCasting/Light/ILight.h>
 #include <Renderer/RayCasting/Light/RayAreaLight.h>
@@ -21,8 +22,7 @@
 #include <Core/Resources/ResourceManager.h>
 
 #define DISABLE if (true)
-enum TextureIndices
-{
+enum TextureIndices {
 	Bricks,
 	Leaves,
 	Bark
@@ -117,20 +117,18 @@ void C_RayTraceScene::ForEachLight(const std::function<void(const std::reference
 //=================================================================================
 void C_RayTraceScene::AddMesh(const Core::ResourceHandle<C_TrimeshModel>& trimesh, const glm::mat4& transform)
 {
-	for (const auto& iter : trimesh.GetResource().GetTrimeshes())
+	auto RTTrimeshModel = std::make_shared<C_StaticRTMesh>(trimesh);
+	RTTrimeshModel->SetTransformation(transform);
+	auto material = AddMaterial(trimesh.GetResource().GetTrimeshes()[0].GetMaterialHandle()).get();
+	RTTrimeshModel->SetMaterial(material);
+	if (auto* pbrData = dynamic_cast<const C_PBRMaterialData*>(trimesh.GetResource().GetTrimeshes()[0].GetMaterialHandle().GetResource().GetMaterialData()))
 	{
-		auto trimeshPtr = std::make_shared<C_Trimesh>();
-		*trimeshPtr		= iter;
-		trimeshPtr->SetMaterial(AddMaterial(iter.GetMaterialHandle()).get());
-		trimeshPtr->SetTransformation(transform);
-		if (auto* pbrData = dynamic_cast<const C_PBRMaterialData*>(iter.GetMaterialHandle().GetResource().GetMaterialData()))
-		{
-			if (pbrData->GetUseTransparency())
-				trimeshPtr->SetAlphaMask(pbrData->GetColorMapRes());
-		}
-		m_Trimeshes.push_back(trimeshPtr);
-		AddObject(trimeshPtr);
+		if (pbrData->GetUseTransparency())
+			RTTrimeshModel->SetAlphaMask(pbrData->GetColorMapRes());
 	}
+	AddObject(RTTrimeshModel);
+
+	// TF Is that?	m_Trimeshes.push_back(trimeshPtr); => only for debug
 }
 
 //=================================================================================
@@ -227,9 +225,9 @@ void C_RayTraceScene::TestScene()
 		auto triangle1 = S_Triangle::Create({-3.f, -1.5f, 3.f}, {3.f, -1.5f, 3.f}, {3.f, -1.5f, -3.f});
 		trimesh->AddTriangle(triangle.value(), {glm::vec2(0.0f, 1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(0.0f, 0.0f)});
 		trimesh->AddTriangle(triangle1.value(), {glm::vec2(0.0f, 1.0f), glm::vec2(1.0f, 1.0f), glm::vec2(1.0f, 0.0f)});
-		trimesh->SetMaterial(brickMat);
-
-		AddObject(trimesh);
+		// trimesh->SetMaterial(brickMat);
+		//
+		// AddObject(trimesh);
 	}
 
 	DISABLE
@@ -286,10 +284,10 @@ void C_RayTraceScene::TestScene()
 
 		trimesh->AddTriangle(triangle.value(), {glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 0.0f), glm::vec2(1.0f, 1.0f)});
 		trimesh->AddTriangle(triangle1.value(), {glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 1.0f), glm::vec2(0.0f, 1.0f)});
-		trimesh->SetMaterial(leavesMat);
-		trimesh->SetAlphaMask(m_Textures[0]);
-
-		AddObject(trimesh);
+		// trimesh->SetMaterial(leavesMat);
+		// trimesh->SetAlphaMask(m_Textures[0]);
+		//
+		// AddObject(trimesh);
 	}
 
 	DISABLE
