@@ -134,13 +134,8 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 		if (m_BVH->Intersect(ray, intersection, &triangleIndex, &barycentric))
 		{
 			// TODO transform normal
-			// intersection.SetMaterial(&GetMaterial());
 			intersection.TransformRayAndPoint(m_Transform);
-			// intersection.SetRayLength(glm::distance(intersection.GetRay().origin, intersection.GetIntersectionPoint()));
-			// if (m_AlphaMask.IsReady())
-			// {
-			// 	intersection.SetAlphaMask(C_TextureView(const_cast<I_TextureViewStorage*>(&m_AlphaMask.GetResource().GetStorage())));
-			// }
+			intersection.SetRayLength(glm::distance(intersection.GetRay().origin, intersection.GetIntersectionPoint()));
 			// UVs if present
 			if (!m_TexCoords.empty())
 			{
@@ -210,10 +205,6 @@ bool C_Trimesh::IntersectBruteforce(const Physics::Primitives::S_Ray& rayIn, C_R
 		intersection.SetUV(uv);
 	}
 
-	// if (m_AlphaMask.IsReady())
-	//{
-	//	intersection.SetAlphaMask(C_TextureView(const_cast<I_TextureViewStorage*>(&m_AlphaMask.GetResource().GetStorage())));
-	// }
 	return true;
 }
 
