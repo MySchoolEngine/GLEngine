@@ -347,8 +347,7 @@ bool BVH::IntersectNode(const Physics::Primitives::S_SSERay& ray,
 		glm::vec2	 barycentric;
 
 		[[nodiscard]] bool operator<(const S_IntersectionInfo& a) const { return t < a.t; }
-	};
-	S_IntersectionInfo closestIntersect{};
+	} closestIntersect;
 
 	while (stackPointer != 0)
 	{
