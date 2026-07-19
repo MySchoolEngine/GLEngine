@@ -48,6 +48,10 @@ public:
 	[[nodiscard]] glm::vec2 GetUV() const { return m_UV; }
 	void					SetUV(const glm::vec2& UV) { m_UV = UV; }
 
+	/**
+	 * @brief Does not transform normal yet
+	 * @param mat
+	 */
 	void TransformRayAndPoint(const glm::mat4& mat);
 
 	void				SetAlphaMask(const C_TextureView& view) { m_AlphaMask = view; }
