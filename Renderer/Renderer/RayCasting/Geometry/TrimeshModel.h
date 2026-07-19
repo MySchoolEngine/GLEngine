@@ -22,6 +22,9 @@ public:
 	[[nodiscard]] bool									  Reload() override;
 	[[nodiscard]] std::unique_ptr<Core::I_ResourceLoader> GetLoader() override;
 
+	
+	[[nodiscard]] const Physics::Primitives::S_AABB& GetAABB() const { return Physics::Primitives::S_AABB(m_AABB); }
+
 	[[nodiscard]] bool Build(const MeshResource& handle);
 
 	bool SupportSaving() const override;
@@ -34,7 +37,10 @@ protected:
 	bool SaveInternal() const override;
 
 private:
-	std::vector<C_Trimesh> m_Trimeshes;
+	Physics::Primitives::S_SSEAABB m_AABB;
+	std::vector<C_Trimesh>		   m_Trimeshes;
+
+	friend class StaticRTMeshFixture; // test-only access to inject trimeshes without the full Build() pipeline
 };
 
 class RENDERER_API_EXPORT TrimeshModelTrimesh : public Core::ResourceLoader<C_TrimeshModel> {
