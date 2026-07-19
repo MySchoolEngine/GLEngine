@@ -37,15 +37,13 @@ RTTR_REGISTRATION
 }
 // clang-format on
 
-// TODO: missing after deserialize for e.g. Inv Transform
 namespace GLEngine::Renderer {
 //=================================================================================
 C_Trimesh::C_Trimesh() = default;
 
 //=================================================================================
 C_Trimesh::C_Trimesh(const C_Trimesh& other)
-	: I_RayGeometryObject(other)
-	, m_Vertices(other.m_Vertices)
+	: m_Vertices(other.m_Vertices)
 	, m_TexCoords(other.m_TexCoords)
 	, m_AABB(other.m_AABB)
 	, m_Transform(other.m_Transform)
@@ -64,8 +62,7 @@ C_Trimesh::C_Trimesh(const C_Trimesh& other)
 
 //=================================================================================
 C_Trimesh::C_Trimesh(C_Trimesh&& other) noexcept
-	: I_RayGeometryObject(other)
-	, m_Vertices(std::move(other.m_Vertices))
+	: m_Vertices(std::move(other.m_Vertices))
 	, m_TexCoords(std::move(other.m_TexCoords))
 	, m_AABB(std::move(other.m_AABB))
 	, m_Transform(other.m_Transform)
@@ -129,79 +126,94 @@ C_Trimesh::~C_Trimesh()
 //=================================================================================
 bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersection& intersection, const float tMax) const
 {
-	const auto ray = Physics::Primitives::S_Ray{m_TransformInv * glm::vec4(rayIn.origin, 1.f), rayIn.direction};
-
 	if (m_BVH)
 	{
+		const auto	 ray = rayIn.GetTransformedRay(m_TransformInv);
 		glm::vec2	 barycentric;
 		unsigned int triangleIndex;
 		if (m_BVH->Intersect(ray, intersection, &triangleIndex, &barycentric))
 		{
-			intersection.SetMaterial(&GetMaterial());
+			// TODO transform normal
+			// intersection.SetMaterial(&GetMaterial());
 			intersection.TransformRayAndPoint(m_Transform);
-			intersection.SetRayLength(glm::distance(intersection.GetRay().origin, intersection.GetIntersectionPoint()));
-			if (m_AlphaMask.IsReady())
+			// intersection.SetRayLength(glm::distance(intersection.GetRay().origin, intersection.GetIntersectionPoint()));
+			// if (m_AlphaMask.IsReady())
+			// {
+			// 	intersection.SetAlphaMask(C_TextureView(const_cast<I_TextureViewStorage*>(&m_AlphaMask.GetResource().GetStorage())));
+			// }
+			// UVs if present
+			if (!m_TexCoords.empty())
 			{
-				intersection.SetAlphaMask(C_TextureView(const_cast<I_TextureViewStorage*>(&m_AlphaMask.GetResource().GetStorage())));
+				glm::vec2		 uv;
+				const glm::vec2* triUV = &(m_TexCoords[triangleIndex * 3]);
+				RayTracing::T_GeometryTraits::BarycentricInterpolation(barycentric, triUV, uv);
+				intersection.SetUV(uv);
 			}
-			glm::vec2		 uv;
-			const glm::vec2* triUV = &(m_TexCoords[triangleIndex * 3]);
-			RayTracing::T_GeometryTraits::BarycentricInterpolation(barycentric, triUV, uv);
-			intersection.SetUV(uv);
 			return true;
 		}
 		return false;
 	}
 
+	return IntersectBruteforce(rayIn, intersection, tMax);
+}
+
+//=================================================================================
+bool C_Trimesh::IntersectBruteforce(const Physics::Primitives::S_Ray& rayIn, C_RayIntersection& intersection, const float tMax) const
+{
 	// this check happens internally in BVH
 	if (const auto tAABB = m_AABB.Intersects(rayIn); tAABB > tMax || std::isinf(tAABB))
 		return false;
 
+	const auto ray = rayIn.GetTransformedRay(m_TransformInv);
+
 	struct S_IntersectionInfo {
-		C_RayIntersection intersection;
-		float			  t = std::numeric_limits<float>::max();
-
-		[[nodiscard]] bool operator<(const S_IntersectionInfo& a) const { return t < a.t; }
-	};
-
-	S_IntersectionInfo closestIntersect{.intersection = C_RayIntersection(), .t = std::numeric_limits<float>::infinity()};
+		float		 t			= std::numeric_limits<float>::infinity();
+		unsigned int vertexBase = 0;
+		glm::vec2	 barycentric;
+	} closestIntersect;
 
 	glm::vec2  barycentric;
 	const auto vertexCount = m_Vertices.size();
 
-	for (int i = 0; i < vertexCount; i += 3)
+	for (unsigned int i = 0; i < vertexCount; i += 3)
 	{
 		const glm::vec3* triDef = &(m_Vertices[i]);
 		const auto		 length = Physics::TriangleRayIntersect(triDef, ray, &barycentric);
-		if (!std::isinf(length) && length < closestIntersect.t)
+		if (length < closestIntersect.t)
 		{
-			auto normal = glm::cross(m_Vertices[i + 1] - m_Vertices[i], m_Vertices[i + 2] - m_Vertices[i]);
-			normal		= glm::normalize(normal);
-			C_RayIntersection inter(S_Frame(normal), ray.origin + length * ray.direction, Physics::Primitives::S_Ray(ray));
-			if (!m_TexCoords.empty())
-			{
-				glm::vec2		 uv;
-				const glm::vec2* triUV = &(m_TexCoords[i]);
-				RayTracing::T_GeometryTraits::BarycentricInterpolation(barycentric, triUV, uv);
-				inter.SetUV(uv);
-			}
-			inter.SetMaterial(&GetMaterial());
+			// inter.SetMaterial(&GetMaterial());
 
-			closestIntersect = {.intersection = inter, .t = length};
+			closestIntersect = {.t = length, .vertexBase = i, .barycentric = barycentric};
 		}
 	}
 
 	if (std::isinf(closestIntersect.t))
 		return false;
 
+	const unsigned int i = closestIntersect.vertexBase;
+	// calculate normal
+	auto normal = glm::cross(m_Vertices[i + 1] - m_Vertices[i], m_Vertices[i + 2] - m_Vertices[i]);
+	normal		= glm::normalize(normal);
+	normal		= glm::transpose(m_TransformInv) * glm::vec4(normal, 0.f);
 
-	intersection = closestIntersect.intersection;
-	intersection.TransformRayAndPoint(m_Transform);
+	// initialize intersection
+	intersection = C_RayIntersection(S_Frame(normal), ray.origin + closestIntersect.t * ray.direction, Physics::Primitives::S_Ray(ray));
 	intersection.SetRayLength(closestIntersect.t);
-	if (m_AlphaMask.IsReady())
+	intersection.TransformRayAndPoint(m_Transform);
+
+	// UVs if present
+	if (!m_TexCoords.empty())
 	{
-		intersection.SetAlphaMask(C_TextureView(const_cast<I_TextureViewStorage*>(&m_AlphaMask.GetResource().GetStorage())));
+		glm::vec2		 uv;
+		const glm::vec2* triUV = &(m_TexCoords[i]);
+		RayTracing::T_GeometryTraits::BarycentricInterpolation(barycentric, triUV, uv);
+		intersection.SetUV(uv);
 	}
+
+	// if (m_AlphaMask.IsReady())
+	//{
+	//	intersection.SetAlphaMask(C_TextureView(const_cast<I_TextureViewStorage*>(&m_AlphaMask.GetResource().GetStorage())));
+	// }
 	return true;
 }
 

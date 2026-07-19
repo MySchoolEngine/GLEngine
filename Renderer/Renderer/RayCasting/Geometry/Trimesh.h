@@ -2,7 +2,6 @@
 
 #include <Renderer/Materials/MaterialResource.h>
 #include <Renderer/RayCasting/Geometry/BVH.h>
-#include <Renderer/RayCasting/Geometry/SceneGeometry.h>
 
 #include <Physics/Primitives/AABB.h>
 #include <Physics/Primitives/Triangle.h>
@@ -15,18 +14,16 @@ namespace MeshData {
 struct Mesh;
 }
 
-class C_Trimesh : public I_RayGeometryObject {
+class C_Trimesh final {
 public:
 	C_Trimesh();
 	C_Trimesh(const C_Trimesh& other);
 	C_Trimesh(C_Trimesh&& other) noexcept;
 	C_Trimesh& operator=(const C_Trimesh& other);
 	C_Trimesh& operator=(C_Trimesh&& other) noexcept;
-	~C_Trimesh() override;
+	~C_Trimesh();
 
-	[[nodiscard]] bool Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, const float tMax) const override;
-
-	float Area() const override { return 0.0f; }
+	[[nodiscard]] bool Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, const float tMax) const;
 
 	void AddTriangle(const Physics::Primitives::S_Triangle& triangle);
 	void AddTriangle(const Physics::Primitives::S_Triangle& triangle, const std::array<glm::vec2, 3>& uv);
@@ -38,19 +35,18 @@ public:
 
 	[[nodiscard]] const Physics::Primitives::S_AABB& GetAABB() const { return m_AABB; }
 	[[nodiscard]] Physics::Primitives::S_AABB&		 GetAABB() { return m_AABB; }
-
-	// only scale and translate
-	void SetTransformation(const glm::mat4& mat);
+	void											 SetTransformation(const glm::mat4& mat);
 
 	[[nodiscard]] std::size_t GetNumTriangles() const;
 
 	void DebugDraw(I_DebugDraw& dd) const;
 
-	RTTR_ENABLE()
 	RTTR_REGISTRATION_FRIEND
 
 private:
-	void								   AfterDeserialize();
+	void			   AfterDeserialize();
+	[[nodiscard]] bool IntersectBruteforce(const Physics::Primitives::S_Ray& rayIn, C_RayIntersection& intersection, const float tMax) const;
+
 	std::vector<glm::vec3>				   m_Vertices;
 	std::vector<glm::vec2>				   m_TexCoords;
 	Physics::Primitives::S_AABB			   m_AABB;
