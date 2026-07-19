@@ -75,7 +75,6 @@ private:
 	std::vector<Core::ResourceHandle<C_TrimeshModel>>	   m_Meshes;
 	std::vector<std::unique_ptr<I_MaterialInterface>>	   m_Materials;
 	// aux
-	std::vector<std::shared_ptr<C_Trimesh>> m_Trimeshes;
 	std::shared_ptr<C_ImplicitBlob>			m_Blob;
 
 	Core::LoadingQuery m_LoadingMeshes;

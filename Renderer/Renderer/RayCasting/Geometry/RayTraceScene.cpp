@@ -127,8 +127,6 @@ void C_RayTraceScene::AddMesh(const Core::ResourceHandle<C_TrimeshModel>& trimes
 			RTTrimeshModel->SetAlphaMask(pbrData->GetColorMapRes());
 	}
 	AddObject(RTTrimeshModel);
-
-	// TF Is that?	m_Trimeshes.push_back(trimeshPtr); => only for debug
 }
 
 //=================================================================================
@@ -145,7 +143,6 @@ C_TextureView C_RayTraceScene::GetTextureView(const int textureID) const
 //=================================================================================
 void C_RayTraceScene::DebugDraw(I_DebugDraw& dd) const
 {
-	std::for_each(m_Trimeshes.begin(), m_Trimeshes.end(), [&](const auto& trimesh) { trimesh->DebugDraw(dd); });
 	// m_Blob->DebugDraw(*dd);
 }
 
@@ -181,7 +178,6 @@ void C_RayTraceScene::ClearScene()
 	m_Textures.clear();
 	m_Meshes.clear();
 	m_Materials.clear();
-	m_Trimeshes.clear();
 }
 
 //=================================================================================
