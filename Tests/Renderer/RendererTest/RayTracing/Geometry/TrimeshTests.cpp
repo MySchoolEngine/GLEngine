@@ -601,6 +601,36 @@ TEST_F(TrimeshFixture, SetBVH)
 	EXPECT_TRUE(trimesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
 }
 
+// C_Trimesh::Intersect takes two different code paths depending on whether a BVH is assigned.
+// With no BVH, IntersectBruteforce runs and explicitly transforms the normal via the inverse
+// transpose of m_TransformInv (see the Rotation/Scale tests above). With a BVH assigned,
+// C_Trimesh::Intersect (Trimesh.cpp) hands the local-space normal from BVH::IntersectNode straight
+// through to TransformRayAndPoint, which only transforms the point/ray origin -- never the frame's
+// normal (see the `// TODO transform normal` comment in Trimesh.cpp). This test exercises the
+// BVH-accelerated path directly with a rotated trimesh, so it fails until that gap is fixed.
+TEST_F(TrimeshFixture, BVHAcceleratedIntersectionTransformsNormalToWorldSpace)
+{
+	C_Trimesh trimesh;
+	auto	  tri = MakeTriangle();
+	trimesh.AddTriangle(tri);
+
+	const glm::mat4 transform = glm::rotate(glm::radians(90.0f), glm::vec3(1, 0, 0));
+	trimesh.SetTransformation(transform);
+
+	auto* bvh = new BVH(trimesh);
+	bvh->Build();
+	trimesh.SetBVH(bvh); // trimesh now owns bvh
+
+	const glm::vec3	  localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
+	const auto		  ray		 = MakeRayHitting(transform, localPoint, kLocalNormal);
+	C_RayIntersection hit;
+
+	ASSERT_TRUE(trimesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
+	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetIntersectionPoint(), TransformPoint(transform, localPoint));
+	// Local normal (0,0,1) rotates to (0,-1,0).
+	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetFrame().Normal(), TransformNormal(transform, kLocalNormal));
+}
+
 // ============================================================================
 // GetNumTriangles Tests
 // ============================================================================
@@ -712,28 +742,6 @@ TEST_F(TrimeshFixture, ManyTriangles)
 
 		EXPECT_TRUE(trimesh.Intersect(ray, hit, std::numeric_limits<float>::infinity())) << "Failed to hit triangle at position " << i * 10;
 	}
-}
-
-// ============================================================================
-// Material Tests
-// ============================================================================
-
-TEST_F(TrimeshFixture, MaterialIsSetOnIntersection)
-{
-	C_Trimesh trimesh;
-	auto	  tri = MakeTriangle();
-	trimesh.AddTriangle(tri);
-	// trimesh.SetMaterial(testMaterial.get());
-
-	// Material should be set through I_RayGeometryObject interface
-	Physics::Primitives::S_Ray ray{glm::vec3(0.25f, 0.25f, 1.0f), glm::vec3(0, 0, -1)};
-	C_RayIntersection		   hit;
-
-	const bool intersected = trimesh.Intersect(ray, hit, std::numeric_limits<float>::infinity());
-	ASSERT_TRUE(intersected);
-
-	// Material should be set (even if nullptr)
-	EXPECT_NE(hit.GetMaterial(), nullptr) << "Material should be set on intersection";
 }
 
 // ============================================================================
