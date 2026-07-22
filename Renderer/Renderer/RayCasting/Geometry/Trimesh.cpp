@@ -144,6 +144,10 @@ bool C_Trimesh::Intersect(const Physics::Primitives::S_Ray& rayIn, C_RayIntersec
 				RayTracing::T_GeometryTraits::BarycentricInterpolation(barycentric, triUV, uv);
 				intersection.SetUV(uv);
 			}
+			// normal correction
+			auto normal = intersection.GetFrame().Normal();
+			normal		= glm::transpose(m_TransformInv) * glm::vec4(normal, 0.f);
+			intersection.SetFrame(S_Frame(normal));
 			return true;
 		}
 		return false;

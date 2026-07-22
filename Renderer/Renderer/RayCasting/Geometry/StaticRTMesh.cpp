@@ -1,4 +1,4 @@
-#include <RendererStdafx.h>
+﻿#include <RendererStdafx.h>
 
 #include <Renderer/RayCasting/Geometry/StaticRTMesh.h>
 
@@ -44,7 +44,11 @@ bool C_StaticRTMesh::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInter
 	{
 		intersection.SetAlphaMask(C_TextureView(const_cast<I_TextureViewStorage*>(&m_AlphaMask.GetResource().GetStorage())));
 	}
-	// todo normal correction
+	// normal correction
+	auto normal = intersection.GetFrame().Normal();
+	normal		= glm::transpose(m_InvTransform) * glm::vec4(normal, 0.f);
+	intersection.SetFrame(S_Frame(normal));
+	intersection.TransformRayAndPoint(m_Transform);
 
 	return true;
 }

@@ -23,6 +23,7 @@ public:
 	C_RayIntersection& operator=(const C_RayIntersection&) = default;
 	C_RayIntersection& operator=(C_RayIntersection&&) noexcept = default;
 
+	void											SetFrame(const S_Frame& frame) { m_Frame = frame; }
 	[[nodiscard]] const S_Frame&					GetFrame() const;
 	[[nodiscard]] const Physics::Primitives::S_Ray& GetRay() const;
 	[[nodiscard]] const glm::vec3&					GetIntersectionPoint() const;
