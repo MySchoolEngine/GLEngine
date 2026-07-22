@@ -1,4 +1,4 @@
-﻿#include <RendererStdafx.h>
+#include <RendererStdafx.h>
 
 #include <Renderer/RayCasting/Geometry/StaticRTMesh.h>
 
@@ -23,13 +23,15 @@ bool C_StaticRTMesh::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInter
 	const auto	rayTransformed = ray.GetTransformedRay(m_InvTransform);
 	const auto& trimeshes	   = m_TrimeshModel.GetResource().GetTrimeshes();
 	C_RayIntersection bestIntersection;
+	float			  tMaxCurrent = tMax;
 	for (const auto& trimesh : trimeshes)
 	{
 		C_RayIntersection intersectionCandidate;
-		if (trimesh.Intersect(rayTransformed, intersectionCandidate, bestIntersection.GetRayLength()))
+		if (trimesh.Intersect(rayTransformed, intersectionCandidate, tMaxCurrent))
 		{
 			// because we limit via bestIntersection.GetRayLength() this have to be better hit
 			bestIntersection = intersectionCandidate;
+			tMaxCurrent		 = std::min(tMax, bestIntersection.GetRayLength());
 		}
 	}
 	if (std::isinf(bestIntersection.GetRayLength()))
