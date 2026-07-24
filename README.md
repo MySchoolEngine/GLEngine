@@ -4,7 +4,7 @@
 
 ## About
 
-Personal rendering-engine project by David Roháček, built to explore real-time and offline rendering techniques from first principles.
+Personal rendering-engine project by Dominik Roháček, built to explore real-time and offline rendering techniques from first principles.
 
 [LinkedIn](https://www.linkedin.com/in/drohacek/) · [GitHub](https://github.com/RohacekD) · [Blog](https://cornercodes.com)
 
