@@ -117,9 +117,27 @@ void GLResourceManager::destoryPipeline(Renderer::Handle<Renderer::Pipeline> han
 }
 
 //=================================================================================
+Renderer::Handle<Renderer::ComputePipeline> GLResourceManager::createComputePipeline(const Renderer::ComputePipelineDescriptor& desc)
+{
+	return m_ComputePipelinePool.CreateNew(desc);
+}
+
+//=================================================================================
+void GLResourceManager::destroyComputePipeline(Renderer::Handle<Renderer::ComputePipeline> handle)
+{
+	m_ComputePipelinePool.RemoveHandle(handle);
+}
+
+//=================================================================================
 GLPipeline* GLResourceManager::GetPipeline(const Renderer::Handle<Renderer::Pipeline>& handle)
 {
 	return m_PipelinePool.GetResource(handle);
+}
+
+//=================================================================================
+const Renderer::ComputePipelineDescriptor& GLResourceManager::GetComputePipeline(const Renderer::Handle<Renderer::ComputePipeline>& handle)
+{
+	return *m_ComputePipelinePool.GetResource(handle);
 }
 
 //=================================================================================
