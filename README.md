@@ -67,7 +67,7 @@ Sky model based on Mie/Rayleigh phase functions — see the write-up comparing [
 
 ## Papers & Techniques
 
-Verified against the actual implementation, not just linked because they're relevant to the topic:
+Some of the techniques implemented in this project:
 
 *  **Linearly Transformed Cosines** — Heitz, Dupuy, Hill & Neubelt, SIGGRAPH 2016. Real-time analytic area-light shading. See `data/Shaders/basic/basicTracing.glsl` and `GLRenderer/GLRenderer/Lights/LightsUBO.cpp`.
 *  **Octahedral unit vector encoding** — Cigolle, Donow, Evangelakos, Mara, McGuire & Meyer, JCGT 2014. Compact normal/direction storage. See `Renderer/Renderer/Textures/TextureView.inl`.
@@ -145,7 +145,7 @@ Unit tests (Google Test) and microbenchmarks (Google Benchmark) both run against
 ## Documentation
 Most of the documentation can be found here on GitHub or in-code.
 
-Some user/programmer documentation can be found [here](https://rohacekd.github.io/GLEngine-Documentation/).
+Some user/programmer documentation can be found [here](https://rohacekd.github.io/GLEngine-Documentation/). (OBSOLETE)
 
 There's also a short [documentation](CodeDocumentation.md) for less obvious cases, to help with development.
 
