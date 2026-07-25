@@ -9,6 +9,7 @@ public:
 	{
 		StateChange,
 		DrawCall,
+		Compute,
 		Undefined,
 	};
 	virtual void					  Commit()				= 0;
