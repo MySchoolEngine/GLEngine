@@ -53,7 +53,7 @@ void C_GLRendererComputeInterface::Render(const Renderer::ComputeRenderCall& cal
 
 	Core::C_Application::Get().GetActiveRenderer().AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 		[&]() {
-			glDispatchCompute(dim / 16, dim / 16, 1);
+			glDispatchCompute(call.NumWorkgroups.x, call.NumWorkgroups.y, call.NumWorkgroups.z);
 			glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
 			// m_Noise.GenerateMipMaps();

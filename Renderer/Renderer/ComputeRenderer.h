@@ -8,6 +8,7 @@ namespace GLEngine::Renderer {
 struct ComputeRenderCall {
 	std::vector<Handle<Buffer>>	 Buffers;
 	std::vector<Handle<Texture>> Textures; // compress to one array using std::variant
+	glm::uvec3					 NumWorkgroups;
 	Handle<ComputePipeline>		 PipelineHandle;
 };
 
