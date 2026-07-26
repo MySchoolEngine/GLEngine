@@ -11,6 +11,9 @@ compileData.scor*
 data/obj/*
 data/log.txt
 
+# Ignore saved arguments
+*.args.json
+
 # User-specific files
 *.suo
 *.user
