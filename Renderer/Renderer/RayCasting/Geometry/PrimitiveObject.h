@@ -6,6 +6,7 @@
 
 #include <Physics/Primitives/Disc.h>
 #include <Physics/Primitives/Plane.h>
+#include <Physics/Primitives/Rectangle.h>
 #include <Physics/Primitives/Sphere.h>
 #include <Physics/Primitives/Triangle.h>
 

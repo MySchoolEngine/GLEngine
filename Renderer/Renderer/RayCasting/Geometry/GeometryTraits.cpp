@@ -9,6 +9,7 @@
 #include <Physics/Primitives/Disc.h>
 #include <Physics/Primitives/Plane.h>
 #include <Physics/Primitives/Ray.h>
+#include <Physics/Primitives/Rectangle.h>
 #include <Physics/Primitives/Sphere.h>
 #include <Physics/Primitives/Triangle.h>
 
@@ -39,12 +40,25 @@ float T_GeometryTraits::GetArea(const Physics::Primitives::S_Plane&)
 }
 
 //=================================================================================
+float T_GeometryTraits::GetArea(const Physics::Primitives::S_Rectangle& rect)
+{
+	return (2.f * rect.halfWidth) * (2.f * rect.halfHeight);
+}
+
+//=================================================================================
 glm::vec3 T_GeometryTraits::SamplePoint(const Physics::Primitives::S_Disc& disc, I_Sampler& rnd)
 {
 	const auto ligthRadius = disc.radius;
 	const auto samplePoint = ligthRadius * SampleConcentricDisc(rnd.GetV2());
 	const auto lightFrame  = S_Frame(disc.plane.normal);
 	return disc.plane.origin + samplePoint.x * lightFrame.Tangnt() + samplePoint.y * lightFrame.Bitangent();
+}
+
+//=================================================================================
+glm::vec3 T_GeometryTraits::SamplePoint(const Physics::Primitives::S_Rectangle& rect, I_Sampler& rnd)
+{
+	const auto v = rnd.GetV2();
+	return rect.plane.origin + (v.x * 2.f - 1.f) * rect.halfWidth * rect.right + (v.y * 2.f - 1.f) * rect.halfHeight * rect.up;
 }
 
 //=================================================================================
@@ -78,6 +92,12 @@ void T_GeometryTraits::FillIntersection(const Physics::Primitives::S_Plane& plan
 void T_GeometryTraits::FillIntersection(const Physics::Primitives::S_Disc& disc, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection)
 {
 	FillIntersection(disc.plane, t, ray, intersection);
+}
+
+//=================================================================================
+void T_GeometryTraits::FillIntersection(const Physics::Primitives::S_Rectangle& rect, float t, const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection)
+{
+	FillIntersection(rect.plane, t, ray, intersection);
 }
 
 //=================================================================================
@@ -129,6 +149,12 @@ glm::vec3 T_GeometryTraits::GetNormal(const Physics::Primitives::S_Plane& plane)
 glm::vec3 T_GeometryTraits::GetNormal(const Physics::Primitives::S_Disc& disc)
 {
 	return disc.plane.normal;
+}
+
+//=================================================================================
+glm::vec3 T_GeometryTraits::GetNormal(const Physics::Primitives::S_Rectangle& rect)
+{
+	return rect.plane.normal;
 }
 
 } // namespace GLEngine::Renderer::RayTracing
