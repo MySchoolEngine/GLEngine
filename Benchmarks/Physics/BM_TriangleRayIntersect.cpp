@@ -1,9 +1,9 @@
-#include <benchmark/benchmark.h>
-
-#include <glm/glm.hpp>
+#include <BenchmarksStdafx.h>
 
 #include <Physics/GeometryUtils/TriangleIntersect.h>
 #include <Physics/Primitives/Ray.h>
+
+#include <glm/glm.hpp>
 
 #include <array>
 
@@ -19,17 +19,17 @@ const std::array<glm::vec3, 3> g_Triangle = {
 };
 
 // Ray along -Z hitting the triangle centre
-S_Ray g_HitRay{ {0.2f, 0.2f, 5.f}, {0.f, 0.f, -1.f} };
+S_Ray g_HitRay{{0.2f, 0.2f, 5.f}, {0.f, 0.f, -1.f}};
 
 // Ray parallel to the triangle plane (will never intersect)
-S_Ray g_ParallelRay{ {0.f, 0.f, 1.f}, {1.f, 0.f, 0.f} };
+S_Ray g_ParallelRay{{0.f, 0.f, 1.f}, {1.f, 0.f, 0.f}};
 
 // Ray that misses (u/v out of range)
-S_Ray g_MissRay{ {5.f, 5.f, 5.f}, {0.f, 0.f, -1.f} };
+S_Ray g_MissRay{{5.f, 5.f, 5.f}, {0.f, 0.f, -1.f}};
 
-S_SSERay g_SSEHitRay{ g_HitRay };
-S_SSERay g_SSEParallelRay{ g_ParallelRay };
-S_SSERay g_SSEMissRay{ g_MissRay };
+S_SSERay g_SSEHitRay{g_HitRay};
+S_SSERay g_SSEParallelRay{g_ParallelRay};
+S_SSERay g_SSEMissRay{g_MissRay};
 } // namespace
 
 // ---------------------------------------------------------------------------

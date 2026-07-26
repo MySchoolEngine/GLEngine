@@ -1,9 +1,9 @@
-#include <benchmark/benchmark.h>
-
-#include <glm/glm.hpp>
+#include <BenchmarksStdafx.h>
 
 #include <Physics/Primitives/AABB.h>
 #include <Physics/Primitives/Ray.h>
+
+#include <glm/glm.hpp>
 
 using namespace GLEngine::Physics::Primitives;
 
@@ -22,8 +22,8 @@ S_Ray g_HitRay{{0.f, 0.f, -5.f}, {0.f, 0.f, 1.f}};
 // Ray along +Z that completely misses the unit box
 S_Ray g_MissRay{{10.f, 0.f, -5.f}, {0.f, 0.f, 1.f}};
 
-S_SSERay g_SSEHitRay{ g_HitRay };
-S_SSERay g_SSEMissRay{ g_MissRay };
+S_SSERay g_SSEHitRay{g_HitRay};
+S_SSERay g_SSEMissRay{g_MissRay};
 } // namespace
 
 // ---------------------------------------------------------------------------

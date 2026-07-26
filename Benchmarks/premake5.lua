@@ -7,13 +7,21 @@ project "Benchmarks"
 	
 	SetupProject("Benchmarks")
 
+	PrecompiledHeaders("Benchmarks")
+
 	files
 	{
 		"%{prj.location}/**.h",
 		"%{prj.location}/**.cpp",
 		"premake5.lua",
 	}
-	
+
+	removefiles
+	{
+		"%{prj.location}/.venv/**",
+		"%{prj.location}/results/**",
+	}
+
 	uses
 	{
 		"DULib",
