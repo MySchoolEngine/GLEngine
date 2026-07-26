@@ -2,7 +2,7 @@
 
 
 ## Registration
-Due to heavy usage of clang tidy I higly recomend to wrap any RTTR registration block into those comments.
+Due to heavy usage of clang tidy I highly recommend wrapping any RTTR registration block in those comments.
 
 ```cpp
 // clang-format off
@@ -43,10 +43,10 @@ RTTR_REGISTRATION
 // clang-format on
 ```
 
-For often repeated default values we can also define default values. They won't be seraialzed and when deserialize the property will be set to given value.
+For often repeated default values we can also define default values. They won't be serialized, and on deserialization the property will be set to the given value.
 
 ```cpp
-.property("Transofrm", &C_Trimesh::m_Transofrm)(REGISTER_DEFAULT_VALUE(glm::mat4(1.f)))
+.property("Transform", &C_Trimesh::m_Transform)(REGISTER_DEFAULT_VALUE(glm::mat4(1.f)))
 ```
 
 Sometimes we want to register some properties but not to serialize them when saving into XML. We allow such behaviour using metadata.
@@ -63,4 +63,4 @@ Example shows property used for GUI but it is being saved through other property
 ```
 
 #### Ignoring default values
-If you want to avoid serialization of default values put `REGISTER_DEFAULT_VALUE(GLEngine::Core::ResourceHandle<TextureResource>())` to your metadata. This requres implementation of valid `operator==` and call of `rttr::type::register_equal_comparator`.
+If you want to avoid serialization of default values put `REGISTER_DEFAULT_VALUE(GLEngine::Core::ResourceHandle<TextureResource>())` to your metadata. This requires implementation of a valid `operator==` and a call to `rttr::type::register_equal_comparator`.

@@ -23,8 +23,8 @@ Before pull request please run clang-tidy on your code (on windows you can use c
 
 ###### Classes
 
-**C.1 Declaration order** - First declare `public` part of the class and place constructors and destructors as first memeber functions. Than `protected` part and `private` as last part. 
-Reason: Bear in mind you want to comunicate usage of the class first, than implementation details. Programmer who will come to your header will most likely will be looking for usage of the class, not the implementation details such as member variables.
+**C.1 Declaration order** - First declare the `public` part of the class and place constructors and destructors as the first member functions. Then the `protected` part, and `private` as the last part. 
+Reason: Bear in mind you want to communicate usage of the class first, then implementation details. A programmer who comes to your header will most likely be looking for usage of the class, not implementation details such as member variables.
 
 **C2. Definition** - The source file should first state reflection of the class if present. Followd by static variables definition. The first member functions defined should be constructors and after them destructor. The order of member functions is not defined.
 
