@@ -22,7 +22,10 @@ CPU path tracer validated against the Cornell Box.
 
 <!-- screenshot: real-time OpenGL/DX12 PBR scene -->
 
+![Editor UI (world view, resource manager, material preview)](wikidata/EditorUI.png)
 <!-- screenshot: editor UI (world view, resource manager, material preview) -->
+
+Editor UI (world view, resource manager, material preview)
 
 ### Terrain erosion
 GPU hydraulic erosion simulation over tessellated terrain — [video demo](https://www.youtube.com/watch?v=UzMCD0z67uU).
