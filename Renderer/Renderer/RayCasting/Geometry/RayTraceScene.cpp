@@ -31,9 +31,7 @@ enum TextureIndices {
 namespace GLEngine::Renderer {
 #define CORNELL
 //=================================================================================
-C_RayTraceScene::C_RayTraceScene()
-{
-}
+C_RayTraceScene::C_RayTraceScene() = default;
 
 //=================================================================================
 C_RayTraceScene::~C_RayTraceScene() = default;
@@ -119,13 +117,7 @@ void C_RayTraceScene::AddMesh(const Core::ResourceHandle<C_TrimeshModel>& trimes
 {
 	auto RTTrimeshModel = std::make_shared<C_StaticRTMesh>(trimesh);
 	RTTrimeshModel->SetTransformation(transform);
-	auto material = AddMaterial(trimesh.GetResource().GetTrimeshes()[0].GetMaterialHandle()).get();
-	RTTrimeshModel->SetMaterial(material);
-	if (auto* pbrData = dynamic_cast<const C_PBRMaterialData*>(trimesh.GetResource().GetTrimeshes()[0].GetMaterialHandle().GetResource().GetMaterialData()))
-	{
-		if (pbrData->GetUseTransparency())
-			RTTrimeshModel->SetAlphaMask(pbrData->GetColorMapRes());
-	}
+	RTTrimeshModel->InitMaterials(*this);
 	AddObject(RTTrimeshModel);
 }
 
@@ -204,14 +196,14 @@ void C_RayTraceScene::TestScene()
 	static const MeshData::Material s_Leaves{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, TextureIndices::Leaves, -1, -1, "leaves"}; // brick texture
 
 
-	auto* redMat		= AddMaterial(s_Red).get();
-	auto* greenMat		= AddMaterial(s_Green).get();
-	auto* whiteMat		= AddMaterial(s_White).get();
-	auto* brickMat		= AddMaterial(s_Brick).get();
-	auto* leavesMat		= AddMaterial(s_Leaves).get();
-	auto* blueMat		= AddMaterial(s_Blue).get();
-	auto* blueMirrorMat = AddMaterial(s_BlueMirror).get();
-	auto* blackMat		= AddMaterial(s_Black).get();
+	auto* redMat		= AddMaterial(s_Red);
+	auto* greenMat		= AddMaterial(s_Green);
+	auto* whiteMat		= AddMaterial(s_White);
+	auto* brickMat		= AddMaterial(s_Brick);
+	auto* leavesMat		= AddMaterial(s_Leaves);
+	auto* blueMat		= AddMaterial(s_Blue);
+	auto* blueMirrorMat = AddMaterial(s_BlueMirror);
+	auto* blackMat		= AddMaterial(s_Black);
 
 	DISABLE
 	{
@@ -389,7 +381,7 @@ void C_RayTraceScene::TestScene()
 }
 
 //=================================================================================
-std::unique_ptr<I_MaterialInterface>& C_RayTraceScene::AddMaterial(const MeshData::Material& material)
+I_MaterialInterface* C_RayTraceScene::AddMaterial(const MeshData::Material& material)
 {
 	if (material.shininess == 0.f)
 	{
@@ -398,34 +390,34 @@ std::unique_ptr<I_MaterialInterface>& C_RayTraceScene::AddMaterial(const MeshDat
 		{
 			texture = m_Textures[material.textureIndex];
 		}
-		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(material.diffuse, texture));
+		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(material.diffuse, texture)).get();
 	}
 	else
 	{
 		// todo glossy mat
-		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(material.diffuse));
+		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(material.diffuse)).get();
 	}
 }
 
 //=================================================================================
-std::unique_ptr<I_MaterialInterface>& C_RayTraceScene::AddMaterial(const Core::ResourceHandle<MaterialResource>& material)
+I_MaterialInterface* C_RayTraceScene::AddMaterial(const Core::ResourceHandle<MaterialResource>& material)
 {
 	if (material.IsReady() == false)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Material is not loaded");
-		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(Colours::cyan));
+		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(Colours::cyan)).get();
 	}
 	const auto* mat	   = material.GetResource().GetMaterialData();
 	const auto* matPBR = dynamic_cast<const C_PBRMaterialData*>(mat);
 	if (matPBR->GetRoughness() > .5f)
 	{
 		const Core::ResourceHandle<TextureResource> texture = matPBR->GetColorMapRes();
-		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(matPBR->GetColour(), texture));
+		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(matPBR->GetColour(), texture)).get();
 	}
 	else
 	{
 		// todo glossy mat
-		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(matPBR->GetColour()));
+		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(matPBR->GetColour())).get();
 	}
 }
 

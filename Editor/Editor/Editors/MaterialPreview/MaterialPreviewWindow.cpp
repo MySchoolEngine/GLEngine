@@ -85,7 +85,7 @@ void C_MaterialPreviewWindow::SetupScene(S_MaterialTabData& data)
 	if (!data.m_Material.IsReady())
 		return;
 
-	auto&		matInterface = data.m_Scene.AddMaterial(data.m_Material);
+	auto*		matInterface = data.m_Scene.AddMaterial(data.m_Material);
 	const auto* matPBR		 = dynamic_cast<const Renderer::C_PBRMaterialData*>(data.m_Material.GetResource().GetMaterialData());
 
 	std::shared_ptr<Renderer::I_RayGeometryObject> prim;
@@ -94,7 +94,7 @@ void C_MaterialPreviewWindow::SetupScene(S_MaterialTabData& data)
 	else
 		prim = std::make_shared<Renderer::C_Primitive<Physics::Primitives::S_Plane>>(Physics::Primitives::S_Plane{glm::vec3(0.f, 1.f, 0.f), 0.f});
 
-	prim->SetMaterial(matInterface.get());
+	prim->SetMaterial(matInterface);
 	if (matPBR)
 		prim->SetAlphaMask(matPBR->GetColorMapRes());
 	data.m_Scene.AddObject(std::move(prim));
@@ -111,7 +111,7 @@ void C_MaterialPreviewWindow::SetupScene(S_MaterialTabData& data)
 	auto			disc		= Physics::Primitives::S_Disc(lightNormal, glm::vec3(0.f, 4.f, 0.f), 2.f);
 	disc.plane.twoSided			= false;
 	auto discPrimitive			= std::make_shared<Renderer::C_Primitive<Physics::Primitives::S_Disc>>(disc);
-	discPrimitive->SetMaterial(data.m_Scene.AddMaterial(s_Black).get());
+	discPrimitive->SetMaterial(data.m_Scene.AddMaterial(s_Black));
 	data.m_Scene.AddLight(std::make_shared<Renderer::RayTracing::C_AreaLight>(glm::vec3(1.f, 1.f, 1.f), discPrimitive));
 
 	data.m_Render.m_Renderer = std::make_unique<Renderer::C_RayRenderer>(data.m_Scene);

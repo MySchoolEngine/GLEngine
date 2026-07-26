@@ -23,7 +23,7 @@ public:
 	[[nodiscard]] std::unique_ptr<Core::I_ResourceLoader> GetLoader() override;
 
 	
-	[[nodiscard]] const Physics::Primitives::S_AABB& GetAABB() const { return Physics::Primitives::S_AABB(m_AABB); }
+	[[nodiscard]] Physics::Primitives::S_AABB GetAABB() const { return Physics::Primitives::S_AABB(m_AABB); }
 
 	[[nodiscard]] bool Build(const MeshResource& handle);
 
