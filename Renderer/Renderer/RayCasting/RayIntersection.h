@@ -11,16 +11,16 @@ namespace GLEngine::Renderer {
 namespace RayTracing {
 class I_RayLight;
 }
-class RENDERER_API_EXPORT C_RayIntersection {
+class RENDERER_API_EXPORT C_RayIntersection final {
 public:
 	C_RayIntersection(); //= default;
 	C_RayIntersection(const S_Frame& frame, const glm::vec3& point, const Physics::Primitives::S_Ray& ray);
 	~C_RayIntersection(); //= default;
 
 	// Explicitly default copy/move operations (or delete if not needed)
-	C_RayIntersection(const C_RayIntersection&)		= default;
-	C_RayIntersection(C_RayIntersection&&) noexcept = default;
-	C_RayIntersection& operator=(const C_RayIntersection&) = default;
+	C_RayIntersection(const C_RayIntersection&)				   = default;
+	C_RayIntersection(C_RayIntersection&&) noexcept			   = default;
+	C_RayIntersection& operator=(const C_RayIntersection&)	   = default;
 	C_RayIntersection& operator=(C_RayIntersection&&) noexcept = default;
 
 	void											SetFrame(const S_Frame& frame) { m_Frame = frame; }
@@ -30,6 +30,13 @@ public:
 	/**
 	 * @brief
 	 * @return Length from the \var m_Ray.origin to intersection, infinity if ray missed
+	 *
+	 * This is expected to be the parametric `t` from the ray equation `point = ray.origin +
+	 * t * ray.direction` in whichever space the intersection was found, NOT a Euclidean
+	 * glm::distance(origin, point) recomputation. The two only agree when ray.direction is unit
+	 * length. S_Ray::TransformRay deliberately scales direction by a transform's linear part without
+	 * renormalizing, specifically so that `t` measured in local/object space already equals the
+	 * caller's (e.g. world) space distance directly.
 	 */
 	[[nodiscard]] float GetRayLength() const;
 	void				SetRayLength(float t) { m_RayLength = t; }
@@ -50,8 +57,11 @@ public:
 	void					SetUV(const glm::vec2& UV) { m_UV = UV; }
 
 	/**
-	 * @brief Does not transform normal yet
+	 * @brief Transforms the ray (origin/direction) and intersection point by \p mat. Does not
+	 * transform the frame's normal (callers currently do that themselves, separately) and must NOT
+	 * touch RayLength -- see GetRayLength()'s docs for why the same `t` remains valid after this call.
 	 * @param mat
+	 * @todo should do normal transform for foolproof 
 	 */
 	void TransformRayAndPoint(const glm::mat4& mat);
 

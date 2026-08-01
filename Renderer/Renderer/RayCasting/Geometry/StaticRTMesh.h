@@ -26,5 +26,8 @@ private:
 	std::vector<I_MaterialInterface*>				   m_Materials;
 	std::vector<Core::ResourceHandle<TextureResource>> m_AlphaMaps;
 	// trimesh, maybe transformed AABB?
+
+	friend class StaticRTMeshFixture;		 // test-only access to populate m_Materials/m_AlphaMaps without the real InitMaterials() pipeline
+	friend class RayTraceSceneAlphaFixture; // test-only access to populate m_Materials/m_AlphaMaps without the real InitMaterials() pipeline
 };
 } // namespace GLEngine::Renderer

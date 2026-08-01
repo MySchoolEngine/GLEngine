@@ -30,7 +30,6 @@ bool C_StaticRTMesh::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInter
 		C_RayIntersection intersectionCandidate;
 		if (trimesh.Intersect(rayTransformed, intersectionCandidate, tMaxCurrent))
 		{
-			// because we limit via bestIntersection.GetRayLength() this have to be better hit
 			bestIntersection = intersectionCandidate;
 			tMaxCurrent		 = std::min(tMax, bestIntersection.GetRayLength());
 			bestMaterial	 = material;

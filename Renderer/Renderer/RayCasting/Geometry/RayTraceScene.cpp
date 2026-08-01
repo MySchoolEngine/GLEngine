@@ -50,10 +50,15 @@ bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInte
 
 	std::for_each(m_Objects.begin(), m_Objects.end(), [&](const auto& object) {
 		C_RayIntersection inter;
-		auto			  localRay = ray;
-		while (object->Intersect(localRay, inter, closestIntersect.t))
+		auto			  localRay		= ray;
+		float			  traveledSoFar = 0.f;
+		// closestIntersect.t is a *global* length (from the true ray origin), but localRay's origin
+		// moves with every alpha retry below, so both the tMax handed to Intersect() and the length
+		// read back from it are *local* to that offset origin.
+		while (object->Intersect(localRay, inter, closestIntersect.t - traveledSoFar))
 		{
-			if (inter.GetRayLength() >= offset && inter.GetRayLength() < closestIntersect.t)
+			const float globalLength = traveledSoFar + inter.GetRayLength();
+			if (globalLength >= offset && globalLength < closestIntersect.t)
 			{
 				// alpha test here! doesn't work for mashes that are not planear, if it hits in BVH first the alpha masked
 				// surface, but bvh contains mash that is not masked it will ignore it
@@ -61,11 +66,14 @@ bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInte
 				{
 					if (inter.GetAlpha(inter.GetUV()) < 0.5)
 					{
-						localRay = localRay.OffsetRay(inter.GetRayLength() + 1e-4f);
+						const float offsetRayOrigin = inter.GetRayLength() + 1e-4f;
+						localRay = localRay.OffsetRay(offsetRayOrigin);
+						traveledSoFar += offsetRayOrigin;
 						continue;
 					}
 				}
-				closestIntersect = {inter, inter.GetRayLength(), object.get()};
+				inter.SetRayLength(globalLength);
+				closestIntersect = {inter, globalLength, object.get()};
 				return;
 			}
 			return;
