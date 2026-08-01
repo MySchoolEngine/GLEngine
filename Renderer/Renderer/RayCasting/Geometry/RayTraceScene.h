@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Renderer/RayCasting/Geometry/TrimeshModel.h>
+#include <Renderer/RayCasting/Material/MaterialProviderInterface.h>
 #include <Renderer/RendererApi.h>
 #include <Renderer/Textures/TextureResource.h>
 #include <Renderer/Textures/TextureView.h>
@@ -35,11 +36,11 @@ class C_AreaLight;
 class C_PointLight;
 } // namespace RayTracing
 
-class RENDERER_API_EXPORT C_RayTraceScene {
+class RENDERER_API_EXPORT C_RayTraceScene : public I_MaterialProviderInterface {
 public:
 	C_RayTraceScene();
 	C_RayTraceScene(const C_RayTraceScene&) = delete;
-	~C_RayTraceScene();
+	~C_RayTraceScene() override;
 
 	void operator=(const C_RayTraceScene&) = delete;
 
@@ -64,8 +65,8 @@ public:
 	void TestScene();
 
 	// those two needs to be exposed due to material editor, will be fixed in the future
-	std::unique_ptr<I_MaterialInterface>& AddMaterial(const Core::ResourceHandle<MaterialResource>& material);
-	std::unique_ptr<I_MaterialInterface>& AddMaterial(const MeshData::Material& material);
+	I_MaterialInterface* AddMaterial(const Core::ResourceHandle<MaterialResource>& material) override;
+	I_MaterialInterface* AddMaterial(const MeshData::Material& material) override;
 
 private:
 	std::vector<std::shared_ptr<I_RayGeometryObject>>	   m_Objects;
@@ -75,8 +76,7 @@ private:
 	std::vector<Core::ResourceHandle<C_TrimeshModel>>	   m_Meshes;
 	std::vector<std::unique_ptr<I_MaterialInterface>>	   m_Materials;
 	// aux
-	std::vector<std::shared_ptr<C_Trimesh>> m_Trimeshes;
-	std::shared_ptr<C_ImplicitBlob>			m_Blob;
+	std::shared_ptr<C_ImplicitBlob> m_Blob;
 
 	Core::LoadingQuery m_LoadingMeshes;
 	Core::LoadingQuery m_LoadingTextures;

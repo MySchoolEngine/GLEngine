@@ -3,8 +3,6 @@
 #include <Utils/SSE/SSEUtils.h>
 #include <Utils/SSE/Vec3.h>
 
-#include <xmmintrin.h>
-
 namespace GLEngine::Physics::Primitives {
 struct S_SSERay;
 struct S_Ray {
@@ -22,6 +20,19 @@ struct S_Ray {
 	 * @return
 	 */
 	S_Ray OffsetRay(float offset) const { return {origin + (direction * offset), direction}; }
+
+	void TransformRay(const glm::mat4& invSpaceMat)
+	{
+		origin	  = invSpaceMat * glm::vec4(origin, 1.f);
+		direction = invSpaceMat * glm::vec4(direction, 0.f); // 0 to ignore translation
+	}
+
+	[[nodiscard]] S_Ray GetTransformedRay(const glm::mat4& invSpaceMat) const
+	{
+		S_Ray newRay = *this;
+		newRay.TransformRay(invSpaceMat);
+		return newRay;
+	}
 
 	glm::vec3 origin;
 	glm::vec3 direction;

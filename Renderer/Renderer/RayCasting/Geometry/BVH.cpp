@@ -6,6 +6,8 @@
 
 #include <Physics/GeometryUtils/TriangleIntersect.h>
 
+#include <Utils/Serialization/SerializationUtils.h>
+
 #include <glm/gtx/norm.inl>
 
 #include <queue>
@@ -42,7 +44,11 @@ RTTR_REGISTRATION
 		.constructor<>()(rttr::policy::ctor::as_object)
 		.property("AABB", &BVH::BVHNode::aabb)
 		.property("left", &BVH::BVHNode::left)
+		(
+			REGISTER_DEFAULT_VALUE(BVH::s_InvalidBVHNode))
 		.property("right", &BVH::BVHNode::right)
+		(
+			REGISTER_DEFAULT_VALUE(BVH::s_InvalidBVHNode))
 		.property("firstTrig", &BVH::BVHNode::firstTrig)
 		.property("lastTrig", &BVH::BVHNode::lastTrig);
 }
@@ -341,8 +347,7 @@ bool BVH::IntersectNode(const Physics::Primitives::S_SSERay& ray,
 		glm::vec2	 barycentric;
 
 		[[nodiscard]] bool operator<(const S_IntersectionInfo& a) const { return t < a.t; }
-	};
-	S_IntersectionInfo closestIntersect{};
+	} closestIntersect;
 
 	while (stackPointer != 0)
 	{
@@ -368,8 +373,8 @@ bool BVH::IntersectNode(const Physics::Primitives::S_SSERay& ray,
 			ADD_AABB_TWO_TEST;
 			T_BVHNodeID child1 = current.left;
 			T_BVHNodeID child2 = current.right;
-			float tAABB1  = m_Nodes[child1].aabb.Intersects(ray);
-			float tAABB2 = m_Nodes[child2].aabb.Intersects(ray);
+			float		tAABB1 = m_Nodes[child1].aabb.Intersects(ray);
+			float		tAABB2 = m_Nodes[child2].aabb.Intersects(ray);
 			if (tAABB1 > tAABB2)
 			{
 				std::swap(child1, child2);

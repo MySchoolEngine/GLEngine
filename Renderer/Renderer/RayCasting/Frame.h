@@ -55,6 +55,14 @@ public:
 
 	[[nodiscard]] glm::vec3 Reflect(const glm::vec3& wi) const { return glm::vec3(-wi.x, wi.y, -wi.z); }
 
+	void Transform(const glm::mat4& mat)
+	{
+		const auto transposed = glm::transpose(mat);
+		X					  = transposed * glm::vec4(X, 0.f);
+		Y					  = transposed * glm::vec4(Y, 0.f);
+		Z					  = transposed * glm::vec4(Z, 0.f);
+	}
+
 private:
 	glm::vec3 X;
 	glm::vec3 Y;

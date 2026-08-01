@@ -174,6 +174,12 @@ public:
 	{
 	}
 
+	explicit S_SSEAABB(const S_AABB& other)
+		: m_Min(other.m_Min)
+		, m_Max(other.m_Max)
+	{
+	}
+
 	[[nodiscard]] float Intersects(const S_SSERay& ray) const noexcept
 	{
 		using namespace ::Utils::SSE;
@@ -227,6 +233,33 @@ public:
 		__m128 cmp = _mm_cmpeq_ps(m_Min.GetRaw(), inf);
 		return (_mm_movemask_ps(cmp) & 0x7) == 0; // no xyz lane is +inf
 	}
+
+
+	[[nodiscard]] S_SSEAABB getTransformedAABB(const glm::mat4& matrix) const
+	{
+		using namespace ::Utils::SSE;
+		// TODO this should be simplified as well as non SSE version
+		if (!IsInitialized())
+		{
+			return {};
+		}
+		S_SSEAABB newBB;
+
+		Vec3 size = m_Max - m_Min;
+
+		newBB.Add(Vec3(matrix * glm::vec4(glm::vec3(m_Min) + glm::vec3(size.x(), 0.0f, 0.0f), 1.0f)));
+		newBB.Add(Vec3(matrix * glm::vec4(glm::vec3(m_Min) + glm::vec3(size.x(), size.y(), 0.0f), 1.0f)));
+		newBB.Add(Vec3(matrix * glm::vec4(glm::vec3(m_Min) + glm::vec3(size.x(), 0.0f, size.z()), 1.0f)));
+		newBB.Add(Vec3(matrix * glm::vec4(glm::vec3(m_Min) + glm::vec3(0.0f, size.y(), 0.0f), 1.0f)));
+		newBB.Add(Vec3(matrix * glm::vec4(glm::vec3(m_Min) + glm::vec3(0.0f, 0.0f, size.z()), 1.0f)));
+		newBB.Add(Vec3(matrix * glm::vec4(glm::vec3(m_Min) + glm::vec3(0.0f, size.y(), size.z()), 1.0f)));
+		newBB.Add(Vec3(matrix * glm::vec4(glm::vec3(m_Min), 1.0f)));
+		newBB.Add(Vec3(matrix * glm::vec4(glm::vec3(m_Max), 1.0f)));
+
+		return newBB;
+	}
+
+	[[nodiscard]] operator S_AABB() const { return S_AABB(); }
 
 	::Utils::SSE::Vec3 m_Min;
 	::Utils::SSE::Vec3 m_Max;

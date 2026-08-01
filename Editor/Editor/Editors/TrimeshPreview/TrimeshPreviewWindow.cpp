@@ -82,7 +82,7 @@ void C_TrimeshPreviewWindow::SetupScene(S_TrimeshTabData& data)
 	auto			disc		= Physics::Primitives::S_Disc(lightNormal, c + glm::vec3(0.f, r * 3.f, 0.f), r * 1.5f);
 	disc.plane.twoSided			= false;
 	auto discPrimitive			= std::make_shared<Renderer::C_Primitive<Physics::Primitives::S_Disc>>(disc);
-	discPrimitive->SetMaterial(data.m_Scene.AddMaterial(s_Black).get());
+	discPrimitive->SetMaterial(data.m_Scene.AddMaterial(s_Black));
 	data.m_Scene.AddLight(std::make_shared<Renderer::RayTracing::C_AreaLight>(glm::vec3(1.f, 1.f, 1.f) * 5.f, discPrimitive));
 
 	AddDebugTargets(data.m_Render, {E_DebugTarget::Normals, E_DebugTarget::UV}, s_Resolution, "trimeshPreview", Renderer::E_TextureFormat::RGB32f, /*createViewer=*/true);

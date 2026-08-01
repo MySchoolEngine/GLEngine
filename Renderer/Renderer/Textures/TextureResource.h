@@ -30,6 +30,7 @@ private:
 	std::unique_ptr<I_TextureViewStorage> m_TextureStorage;
 
 	RTTR_REGISTRATION_FRIEND;
+	friend class RayTraceSceneAlphaFixture; // test-only access to inject an in-memory storage without loading from disk
 };
 
 class RENDERER_API_EXPORT TextureLoader : public Core::ResourceLoader<TextureResource> {

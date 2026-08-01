@@ -13,7 +13,8 @@ public:
 	C_PointLight(const glm::vec3& position, const glm::vec3& intenstiy);
 	[[nodiscard]] Colours::T_Colour SampleLi(const C_RayIntersection& intersection, I_Sampler& rnd, S_VisibilityTester& vis, float* pdf) const override;
 	[[nodiscard]] Colours::T_Colour Le() const override;
-	virtual bool					IsDeltaLight() const override { return true; }
+	[[nodiscard]] bool				IsDeltaLight() const override { return true; }
+	[[nodiscard]] float				Pdf_Li(const glm::vec3& wi) const override { return 0.f; }
 
 private:
 	Colours::T_Colour m_Position;

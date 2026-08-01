@@ -1,3 +1,5 @@
+#include <BenchmarksStdafx.h>
+
 #include <Renderer/RayCasting/Geometry/BVH.h>
 #include <Renderer/RayCasting/RayIntersection.h>
 
@@ -5,7 +7,6 @@
 
 #include <glm/glm.hpp>
 
-#include <benchmark/benchmark.h>
 #include <cmath>
 #include <vector>
 

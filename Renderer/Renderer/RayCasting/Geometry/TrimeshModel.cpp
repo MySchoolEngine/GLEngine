@@ -21,7 +21,9 @@ RTTR_REGISTRATION
 	using namespace GLEngine::Core;
 	rttr::registration::class_<C_TrimeshModel>((C_TrimeshModel::GetResourceTypeName() + "Handle").c_str())
 		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
-		.property("Trimeshes", &C_TrimeshModel::m_Trimeshes)(rttr::policy::prop::bind_as_ptr);
+		.property("Trimeshes", &C_TrimeshModel::m_Trimeshes)(rttr::policy::prop::bind_as_ptr)
+		.property("AABB", &C_TrimeshModel::m_AABB)
+		;
 
 		rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_TrimeshModel>>();
 		rttr::type::register_converter_func([](std::shared_ptr<C_TrimeshModel> ptr, bool& ok) -> std::shared_ptr<Resource> {
@@ -67,13 +69,13 @@ bool C_TrimeshModel::Load(const std::filesystem::path& filepath, LoadCtx& ctx)
 //=================================================================================
 bool C_TrimeshModel::Build(const MeshResource& handle)
 {
+	m_AABB = {};
 	auto materials = ExtractMaterialsFromMesh(handle);
 	m_Trimeshes.resize(handle.GetScene().meshes.size());
 	for (const auto& [mesh, material, trimesh] : std::views::zip(handle.GetScene().meshes, materials, m_Trimeshes))
 	{
-		// need to do something with material
 		trimesh.AddMesh(mesh);
-		trimesh.SetTransformation(mesh.modelMatrix);
+		trimesh.SetTransformation(mesh.modelMatrix); // needed as every trimesh can be offset
 		trimesh.SetMaterialHandle(material);
 
 		// bvh if needed
@@ -86,6 +88,7 @@ bool C_TrimeshModel::Build(const MeshResource& handle)
 			CORE_LOG(E_Level::Info, E_Context::Render, "BVH trimesh {} build time {}ms", mesh.m_name, BVHBuildTime.getElapsedTimeFromLastQueryMilliseconds());
 			trimesh.SetBVH(bvh);
 		}
+		m_AABB.Add(Physics::Primitives::S_SSEAABB(trimesh.GetAABB()));
 	}
 	m_Dirty = true;
 	return true;

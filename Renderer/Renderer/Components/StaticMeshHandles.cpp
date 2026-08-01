@@ -49,7 +49,6 @@ namespace GLEngine::Renderer {
 C_StaticMeshHandles::C_StaticMeshHandles()
 	: I_RenderableComponent(nullptr)
 {
-
 }
 
 //=================================================================================
@@ -121,7 +120,7 @@ void C_StaticMeshHandles::Update()
 	if (m_MeshResource.IsReady() && m_MeshResourceLive != m_MeshResource)
 	{
 		CleanRenderData();
-		
+
 		m_MeshResourceLive = m_MeshResource;
 
 		const auto& scene = m_MeshResource.GetResource().GetScene();
@@ -257,6 +256,12 @@ const std::filesystem::path& C_StaticMeshHandles::GetMeshFile() const
 {
 	// todo will fail if resource not loaded
 	return m_MeshResource.GetResource().GetFilePath();
+}
+
+//=================================================================================
+bool C_StaticMeshHandles::IsMeshReady() const
+{
+	return m_MeshResource.IsReady();
 }
 
 //=================================================================================

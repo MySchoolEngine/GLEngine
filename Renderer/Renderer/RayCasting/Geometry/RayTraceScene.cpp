@@ -5,6 +5,7 @@
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/RayCasting/Geometry/RayTraceScene.h>
 #include <Renderer/RayCasting/Geometry/SceneGeometry.h>
+#include <Renderer/RayCasting/Geometry/StaticRTMesh.h>
 #include <Renderer/RayCasting/Geometry/Trimesh.h>
 #include <Renderer/RayCasting/Light/ILight.h>
 #include <Renderer/RayCasting/Light/RayAreaLight.h>
@@ -21,8 +22,7 @@
 #include <Core/Resources/ResourceManager.h>
 
 #define DISABLE if (true)
-enum TextureIndices
-{
+enum TextureIndices {
 	Bricks,
 	Leaves,
 	Bark
@@ -31,9 +31,7 @@ enum TextureIndices
 namespace GLEngine::Renderer {
 #define CORNELL
 //=================================================================================
-C_RayTraceScene::C_RayTraceScene()
-{
-}
+C_RayTraceScene::C_RayTraceScene() = default;
 
 //=================================================================================
 C_RayTraceScene::~C_RayTraceScene() = default;
@@ -52,10 +50,15 @@ bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInte
 
 	std::for_each(m_Objects.begin(), m_Objects.end(), [&](const auto& object) {
 		C_RayIntersection inter;
-		auto			  localRay = ray;
-		while (object->Intersect(localRay, inter, closestIntersect.t))
+		auto			  localRay		= ray;
+		float			  traveledSoFar = 0.f;
+		// closestIntersect.t is a *global* length (from the true ray origin), but localRay's origin
+		// moves with every alpha retry below, so both the tMax handed to Intersect() and the length
+		// read back from it are *local* to that offset origin.
+		while (object->Intersect(localRay, inter, closestIntersect.t - traveledSoFar))
 		{
-			if (inter.GetRayLength() >= offset && inter.GetRayLength() < closestIntersect.t)
+			const float globalLength = traveledSoFar + inter.GetRayLength();
+			if (globalLength >= offset && globalLength < closestIntersect.t)
 			{
 				// alpha test here! doesn't work for mashes that are not planear, if it hits in BVH first the alpha masked
 				// surface, but bvh contains mash that is not masked it will ignore it
@@ -63,11 +66,14 @@ bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInte
 				{
 					if (inter.GetAlpha(inter.GetUV()) < 0.5)
 					{
-						localRay = localRay.OffsetRay(inter.GetRayLength() + 1e-4f);
+						const float offsetRayOrigin = inter.GetRayLength() + 1e-4f;
+						localRay = localRay.OffsetRay(offsetRayOrigin);
+						traveledSoFar += offsetRayOrigin;
 						continue;
 					}
 				}
-				closestIntersect = {inter, inter.GetRayLength(), object.get()};
+				inter.SetRayLength(globalLength);
+				closestIntersect = {inter, globalLength, object.get()};
 				return;
 			}
 			return;
@@ -117,20 +123,10 @@ void C_RayTraceScene::ForEachLight(const std::function<void(const std::reference
 //=================================================================================
 void C_RayTraceScene::AddMesh(const Core::ResourceHandle<C_TrimeshModel>& trimesh, const glm::mat4& transform)
 {
-	for (const auto& iter : trimesh.GetResource().GetTrimeshes())
-	{
-		auto trimeshPtr = std::make_shared<C_Trimesh>();
-		*trimeshPtr		= iter;
-		trimeshPtr->SetMaterial(AddMaterial(iter.GetMaterialHandle()).get());
-		trimeshPtr->SetTransformation(transform);
-		if (auto* pbrData = dynamic_cast<const C_PBRMaterialData*>(iter.GetMaterialHandle().GetResource().GetMaterialData()))
-		{
-			if (pbrData->GetUseTransparency())
-				trimeshPtr->SetAlphaMask(pbrData->GetColorMapRes());
-		}
-		m_Trimeshes.push_back(trimeshPtr);
-		AddObject(trimeshPtr);
-	}
+	auto RTTrimeshModel = std::make_shared<C_StaticRTMesh>(trimesh);
+	RTTrimeshModel->SetTransformation(transform);
+	RTTrimeshModel->InitMaterials(*this);
+	AddObject(RTTrimeshModel);
 }
 
 //=================================================================================
@@ -147,7 +143,6 @@ C_TextureView C_RayTraceScene::GetTextureView(const int textureID) const
 //=================================================================================
 void C_RayTraceScene::DebugDraw(I_DebugDraw& dd) const
 {
-	std::for_each(m_Trimeshes.begin(), m_Trimeshes.end(), [&](const auto& trimesh) { trimesh->DebugDraw(dd); });
 	// m_Blob->DebugDraw(*dd);
 }
 
@@ -183,7 +178,6 @@ void C_RayTraceScene::ClearScene()
 	m_Textures.clear();
 	m_Meshes.clear();
 	m_Materials.clear();
-	m_Trimeshes.clear();
 }
 
 //=================================================================================
@@ -210,14 +204,14 @@ void C_RayTraceScene::TestScene()
 	static const MeshData::Material s_Leaves{glm::vec4{}, glm::vec4{Colours::white, 0}, glm::vec4{}, 0.f, TextureIndices::Leaves, -1, -1, "leaves"}; // brick texture
 
 
-	auto* redMat		= AddMaterial(s_Red).get();
-	auto* greenMat		= AddMaterial(s_Green).get();
-	auto* whiteMat		= AddMaterial(s_White).get();
-	auto* brickMat		= AddMaterial(s_Brick).get();
-	auto* leavesMat		= AddMaterial(s_Leaves).get();
-	auto* blueMat		= AddMaterial(s_Blue).get();
-	auto* blueMirrorMat = AddMaterial(s_BlueMirror).get();
-	auto* blackMat		= AddMaterial(s_Black).get();
+	auto* redMat		= AddMaterial(s_Red);
+	auto* greenMat		= AddMaterial(s_Green);
+	auto* whiteMat		= AddMaterial(s_White);
+	auto* brickMat		= AddMaterial(s_Brick);
+	auto* leavesMat		= AddMaterial(s_Leaves);
+	auto* blueMat		= AddMaterial(s_Blue);
+	auto* blueMirrorMat = AddMaterial(s_BlueMirror);
+	auto* blackMat		= AddMaterial(s_Black);
 
 	DISABLE
 	{
@@ -227,9 +221,9 @@ void C_RayTraceScene::TestScene()
 		auto triangle1 = S_Triangle::Create({-3.f, -1.5f, 3.f}, {3.f, -1.5f, 3.f}, {3.f, -1.5f, -3.f});
 		trimesh->AddTriangle(triangle.value(), {glm::vec2(0.0f, 1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(0.0f, 0.0f)});
 		trimesh->AddTriangle(triangle1.value(), {glm::vec2(0.0f, 1.0f), glm::vec2(1.0f, 1.0f), glm::vec2(1.0f, 0.0f)});
-		trimesh->SetMaterial(brickMat);
-
-		AddObject(trimesh);
+		// trimesh->SetMaterial(brickMat);
+		//
+		// AddObject(trimesh);
 	}
 
 	DISABLE
@@ -286,10 +280,10 @@ void C_RayTraceScene::TestScene()
 
 		trimesh->AddTriangle(triangle.value(), {glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 0.0f), glm::vec2(1.0f, 1.0f)});
 		trimesh->AddTriangle(triangle1.value(), {glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 1.0f), glm::vec2(0.0f, 1.0f)});
-		trimesh->SetMaterial(leavesMat);
-		trimesh->SetAlphaMask(m_Textures[0]);
-
-		AddObject(trimesh);
+		// trimesh->SetMaterial(leavesMat);
+		// trimesh->SetAlphaMask(m_Textures[0]);
+		//
+		// AddObject(trimesh);
 	}
 
 	DISABLE
@@ -395,7 +389,7 @@ void C_RayTraceScene::TestScene()
 }
 
 //=================================================================================
-std::unique_ptr<I_MaterialInterface>& C_RayTraceScene::AddMaterial(const MeshData::Material& material)
+I_MaterialInterface* C_RayTraceScene::AddMaterial(const MeshData::Material& material)
 {
 	if (material.shininess == 0.f)
 	{
@@ -404,34 +398,34 @@ std::unique_ptr<I_MaterialInterface>& C_RayTraceScene::AddMaterial(const MeshDat
 		{
 			texture = m_Textures[material.textureIndex];
 		}
-		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(material.diffuse, texture));
+		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(material.diffuse, texture)).get();
 	}
 	else
 	{
 		// todo glossy mat
-		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(material.diffuse));
+		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(material.diffuse)).get();
 	}
 }
 
 //=================================================================================
-std::unique_ptr<I_MaterialInterface>& C_RayTraceScene::AddMaterial(const Core::ResourceHandle<MaterialResource>& material)
+I_MaterialInterface* C_RayTraceScene::AddMaterial(const Core::ResourceHandle<MaterialResource>& material)
 {
 	if (material.IsReady() == false)
 	{
 		CORE_LOG(E_Level::Error, E_Context::Render, "Material is not loaded");
-		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(Colours::cyan));
+		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(Colours::cyan)).get();
 	}
 	const auto* mat	   = material.GetResource().GetMaterialData();
 	const auto* matPBR = dynamic_cast<const C_PBRMaterialData*>(mat);
 	if (matPBR->GetRoughness() > .5f)
 	{
 		const Core::ResourceHandle<TextureResource> texture = matPBR->GetColorMapRes();
-		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(matPBR->GetColour(), texture));
+		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(matPBR->GetColour(), texture)).get();
 	}
 	else
 	{
 		// todo glossy mat
-		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(matPBR->GetColour()));
+		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(matPBR->GetColour())).get();
 	}
 }
 

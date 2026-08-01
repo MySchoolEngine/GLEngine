@@ -2,6 +2,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - 01-08-2026
+### Added
+- `BuildSceneFromEntityManager`
+
 ## [Unreleased] - 27-06-2026
 ### Added
 - AABB tests
