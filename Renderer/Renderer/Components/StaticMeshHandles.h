@@ -28,6 +28,7 @@ public:
 	void						 Render(Renderer3D& renderer) const;
 	void						 SetMeshFile(const std::filesystem::path& meshFile);
 	const std::filesystem::path& GetMeshFile() const;
+	[[nodiscard]] bool			 IsMeshReady() const;
 	void						 DebugDrawGUI() override;
 
 	void AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx);

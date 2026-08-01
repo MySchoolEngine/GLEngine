@@ -3,6 +3,7 @@
 #include <Renderer/ICameraComponent.h>
 #include <Renderer/IDevice.h>
 #include <Renderer/IRenderer.h>
+#include <Renderer/RayCasting/Geometry/RayTraceSceneBuilder.h>
 #include <Renderer/RayCasting/RayGeneration/InterleavedLinesFactory.h>
 #include <Renderer/RayCasting/RayRenderer.h>
 #include <Renderer/Resources/ResourceManager.h>
@@ -61,12 +62,12 @@ C_RayTraceWindow::C_RayTraceWindow(const GUID guid, const std::shared_ptr<I_Came
 	m_FileMenu.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Save as...", [&]() {
 		const auto textureSelectorGUID = NextGUID();
 		auto*	   textureSelectWindow = new GUI::C_FileDialogWindow(
-			 ".bmp,.hdr,.ppm", "Save image as...",
-			 [&, textureSelectorGUID](const std::filesystem::path& texture, GUI::C_GUIManager& guiMgr) {
-				 SaveCurrentImage(texture);
-				 guiMgr.DestroyWindow(textureSelectorGUID);
-			 },
-			 textureSelectorGUID, "./Images");
+			".bmp,.hdr,.ppm", "Save image as...",
+			[&, textureSelectorGUID](const std::filesystem::path& texture, GUI::C_GUIManager& guiMgr) {
+				SaveCurrentImage(texture);
+				guiMgr.DestroyWindow(textureSelectorGUID);
+			},
+			textureSelectorGUID, "./Images");
 		guiMGR.AddCustomWindow(textureSelectWindow);
 		textureSelectWindow->SetVisible();
 		return false;
@@ -158,9 +159,11 @@ C_RayTraceWindow::~C_RayTraceWindow()
 }
 
 //=================================================================================
-void C_RayTraceWindow::SetScene(Entity::C_EntityManager& world)
+void C_RayTraceWindow::SetScene(const Entity::C_EntityManager& world)
 {
+	Clear();
 	m_Scene.ClearScene();
+	RayTracing::BuildSceneFromEntityManager(world, m_Scene);
 }
 
 //=================================================================================

@@ -28,7 +28,7 @@ public:
 	C_RayTraceWindow(GUID guid, const std::shared_ptr<I_CameraComponent>& camera, GUI::C_GUIManager& guiMGR);
 	~C_RayTraceWindow() override;
 
-	void SetScene(Entity::C_EntityManager& world);
+	void SetScene(const Entity::C_EntityManager& world);
 
 	void DebugDraw(I_DebugDraw& dd) const;
 
