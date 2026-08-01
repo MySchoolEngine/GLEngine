@@ -631,6 +631,39 @@ TEST_F(TrimeshFixture, BVHAcceleratedIntersectionTransformsNormalToWorldSpace)
 	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetFrame().Normal(), TransformNormal(transform, kLocalNormal));
 }
 
+// C_Trimesh::Intersect's BVH branch recomputes ray length via glm::distance(origin, point) *after*
+// TransformRayAndPoint(m_Transform) instead of trusting the parametric `t` BVH::IntersectNode already
+// set. Called directly like this (own m_Transform == the scale applied via SetTransformation),
+// TransformRayAndPoint correctly maps the BVH-local ray/point back into the same frame `ray` came in
+// (here, world space via MakeRayHitting), so the recomputed Euclidean distance is measured in a frame
+// where it's numerically correct -- this one-level case is not buggy. The bug instead needs a second,
+// *outer* transform layered on top by a caller (C_StaticRTMesh) whose own trimeshes keep m_Transform
+// at identity, so the recompute never gets undone; see StaticRTMeshTests.cpp's
+// BVHAcceleratedIntersectionWithUniformScale... test for that regression.
+TEST_F(TrimeshFixture, BVHAcceleratedIntersectionWithUniformScaleProducesCorrectRayLength)
+{
+	C_Trimesh trimesh;
+	auto	  tri = MakeTriangle();
+	trimesh.AddTriangle(tri);
+
+	const glm::mat4 transform = glm::scale(glm::mat4(1.0f), glm::vec3(2, 2, 2));
+	trimesh.SetTransformation(transform);
+
+	auto* bvh = new BVH(trimesh);
+	bvh->Build();
+	trimesh.SetBVH(bvh); // trimesh now owns bvh
+
+	const glm::vec3	  localPoint = glm::vec3(0.3f, 0.3f, 0.0f);
+	const auto		  ray		 = MakeRayHitting(transform, localPoint, kLocalNormal);
+	C_RayIntersection hit;
+
+	ASSERT_TRUE(trimesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
+	// MakeRayHitting places the ray exactly 1.0 world-space unit away from the hit point regardless of
+	// the mesh's own scale, so the true ray length must always come out as 1.0 here.
+	EXPECT_NEAR(hit.GetRayLength(), 1.0f, EPSILON);
+	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetIntersectionPoint(), TransformPoint(transform, localPoint));
+}
+
 // ============================================================================
 // GetNumTriangles Tests
 // ============================================================================

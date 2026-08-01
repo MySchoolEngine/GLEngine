@@ -10,21 +10,7 @@
 
 #include <glm/gtx/transform.hpp>
 
-namespace GLEngine::Core {
-// C_TrimeshModel normally becomes Ready via C_ResourceManager (a friend of Core::Resource) once
-// C_TrimeshModel::Build() finishes loading a mesh from disk. These tests build trimeshes directly
-// in memory and skip that pipeline entirely, so this mirrors the identically-named fixture in
-// Tests/Core/CoreTest/Resources/Fixtures/ResourceManagerBaseFixture.h to reuse the same friend
-// access to Resource::m_State without touching Core production headers.
-class ResourceManagerBaseFixture {
-public:
-	template <class ResourceType> static ResourceHandle<ResourceType> CreateResourceHandle(std::shared_ptr<ResourceType> resource)
-	{
-		resource->m_State = ResourceState::Ready;
-		return ResourceHandle<ResourceType>(resource);
-	}
-};
-} // namespace GLEngine::Core
+#include <RendererTest/RayTracing/Geometry/RTGeometryTestFixture.h>
 
 namespace GLEngine::Renderer {
 
@@ -32,14 +18,8 @@ namespace GLEngine::Renderer {
 // Test Fixture
 // ============================================================================
 
-class StaticRTMeshFixture : public ::testing::Test {
+class StaticRTMeshFixture : public RTGeometryTestFixture {
 protected:
-	static constexpr float EPSILON = 1e-4f;
-
-	void SetUp() override { testMaterial = std::make_unique<C_DiffuseMaterial>(glm::vec3(1.0f, 1.0f, 1.0f)); }
-
-	void TearDown() override { testMaterial.reset(); }
-
 	static glm::vec3 TransformPoint(const glm::mat4& transform, const glm::vec3& point) { return glm::vec3(transform * glm::vec4(point, 1.0f)); }
 
 	static glm::vec3 TransformDirection(const glm::mat4& transform, const glm::vec3& direction) { return glm::vec3(transform * glm::vec4(direction, 0.0f)); }
@@ -61,38 +41,51 @@ protected:
 		return glm::normalize(glm::vec3(glm::transpose(glm::inverse(transform)) * glm::vec4(normal, 0.0f)));
 	}
 
-	static C_Trimesh MakeTriangleMesh(const glm::vec3& v0 = glm::vec3(0, 0, 0), const glm::vec3& v1 = glm::vec3(1, 0, 0), const glm::vec3& v2 = glm::vec3(0, 1, 0))
-	{
-		C_Trimesh  trimesh;
-		const auto tri = Physics::Primitives::S_Triangle::Create(v0, v1, v2);
-		EXPECT_TRUE(tri.has_value());
-		trimesh.AddTriangle(tri.value());
-		return trimesh;
-	}
-
-	static Core::ResourceHandle<C_TrimeshModel> MakeModel(std::vector<C_Trimesh> trimeshes)
-	{
-		auto model		   = std::make_shared<C_TrimeshModel>();
-		model->m_Trimeshes = std::move(trimeshes);
-		return Core::ResourceManagerBaseFixture::CreateResourceHandle<C_TrimeshModel>(model);
-	}
-
 	// Single triangle occupying (0,0,0), (1,0,0), (0,1,0) in local/object space unless overridden.
-	C_StaticRTMesh MakeSingleTriangleMesh(const glm::vec3& v0 = glm::vec3(0, 0, 0), const glm::vec3& v1 = glm::vec3(1, 0, 0), const glm::vec3& v2 = glm::vec3(0, 1, 0))
+	[[nodiscard]] C_StaticRTMesh
+	MakeSingleTriangleMesh(const glm::vec3& v0 = glm::vec3(0, 0, 0), const glm::vec3& v1 = glm::vec3(1, 0, 0), const glm::vec3& v2 = glm::vec3(0, 1, 0)) const
 	{
 		std::vector<C_Trimesh> meshes;
 		meshes.push_back(MakeTriangleMesh(v0, v1, v2));
 		C_StaticRTMesh mesh(MakeModel(std::move(meshes)));
-		mesh.SetMaterial(testMaterial.get());
+		mesh.SetMaterial(m_Material.get());
+		// C_StaticRTMesh::Intersect iterates zip(trimeshes, m_Materials, m_AlphaMaps), so these need one
+		// entry per trimesh — normally populated by InitMaterials() from real MaterialResource handles,
+		// which these geometry/transform-focused tests don't need. StaticRTMeshFixture is a friend
+		// specifically so this can be filled in directly instead.
+		mesh.m_Materials.push_back(m_Material.get());
+		mesh.m_AlphaMaps.emplace_back();
+		return mesh;
+	}
+
+	// Same as MakeSingleTriangleMesh, but the single trimesh has a BVH attached, so
+	// C_StaticRTMesh::Intersect exercises C_Trimesh::Intersect's BVH-accelerated branch instead of
+	// IntersectBruteforce. This helper (not the TEST_F body) needs to populate m_Materials/m_AlphaMaps
+	// directly, since friendship isn't inherited: TEST_F bodies run in a gtest-generated subclass of
+	// StaticRTMeshFixture, which is not itself a friend of C_StaticRTMesh.
+	[[nodiscard]] C_StaticRTMesh
+	MakeSingleTriangleMeshWithBVH(const glm::vec3& v0 = glm::vec3(0, 0, 0), const glm::vec3& v1 = glm::vec3(1, 0, 0), const glm::vec3& v2 = glm::vec3(0, 1, 0)) const
+	{
+		C_Trimesh trimesh = MakeTriangleMesh(v0, v1, v2);
+		auto*	  bvh	  = new BVH(trimesh);
+		bvh->Build();
+		trimesh.SetBVH(bvh); // trimesh now owns bvh
+
+		std::vector<C_Trimesh> meshes;
+		meshes.push_back(std::move(trimesh));
+		C_StaticRTMesh mesh(MakeModel(std::move(meshes)));
+		mesh.SetMaterial(m_Material.get());
+		mesh.m_Materials.push_back(m_Material.get());
+		mesh.m_AlphaMaps.emplace_back();
 		return mesh;
 	}
 
 	// Builds a model made of two parts (e.g. a tree's trunk + crown), each carrying its own local
 	// placement transform baked in via C_Trimesh::SetTransformation(). This mirrors how a real
-	// multi-part model is authored: parts are offset relative to each other in the model's own
+	// multipart model is authored: parts are offset relative to each other in the model's own
 	// space, and the whole model is meant to move together as one unit via C_StaticRTMesh's own
 	// transform on top.
-	Core::ResourceHandle<C_TrimeshModel> MakeTwoPartModelHandle(const glm::mat4& partATransform, const glm::mat4& partBTransform)
+	static Core::ResourceHandle<C_TrimeshModel> MakeTwoPartModelHandle(const glm::mat4& partATransform, const glm::mat4& partBTransform)
 	{
 		C_Trimesh partA = MakeTriangleMesh();
 		partA.SetTransformation(partATransform);
@@ -105,16 +98,19 @@ protected:
 		return MakeModel(std::move(meshes));
 	}
 
-	C_StaticRTMesh MakeTwoPartModel(const glm::mat4& partATransform, const glm::mat4& partBTransform)
+	[[nodiscard]] C_StaticRTMesh MakeTwoPartModel(const glm::mat4& partATransform, const glm::mat4& partBTransform) const
 	{
 		C_StaticRTMesh mesh(MakeTwoPartModelHandle(partATransform, partBTransform));
-		mesh.SetMaterial(testMaterial.get());
+		mesh.SetMaterial(m_Material.get());
+		// One entry per trimesh (two parts) — see comment in MakeSingleTriangleMesh.
+		mesh.m_Materials.push_back(m_Material.get());
+		mesh.m_AlphaMaps.emplace_back();
+		mesh.m_Materials.push_back(m_Material.get());
+		mesh.m_AlphaMaps.emplace_back();
 		return mesh;
 	}
 
-	std::unique_ptr<C_DiffuseMaterial> testMaterial;
-
-	static constexpr glm::vec3 kLocalNormal = glm::vec3(0, 0, 1); // normal of the default triangle, (0,0,0)-(1,0,0)-(0,1,0)
+	static constexpr glm::vec3 s_LocalNormal = glm::vec3(0, 0, 1); // normal of the default triangle, (0,0,0)-(1,0,0)-(0,1,0)
 };
 
 // ============================================================================
@@ -125,10 +121,10 @@ TEST_F(StaticRTMeshFixture, IdentityTransformHitsUntransformedTriangle)
 {
 	C_StaticRTMesh mesh = MakeSingleTriangleMesh();
 
-	const glm::mat4	  identity	 = glm::mat4(1.0f);
-	const glm::vec3	  localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
-	const auto		  ray		 = MakeRayHitting(identity, localPoint, kLocalNormal);
-	C_RayIntersection hit;
+	constexpr glm::mat4 identity   = glm::mat4(1.0f);
+	constexpr glm::vec3 localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
+	const auto			ray		   = MakeRayHitting(identity, localPoint, s_LocalNormal);
+	C_RayIntersection	hit;
 
 	ASSERT_TRUE(mesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
 	EXPECT_NEAR(hit.GetRayLength(), 1.0f, EPSILON);
@@ -139,8 +135,8 @@ TEST_F(StaticRTMeshFixture, IdentityTransformMissesWhenRayDoesNotHitTriangle)
 {
 	C_StaticRTMesh mesh = MakeSingleTriangleMesh();
 
-	Physics::Primitives::S_Ray ray{glm::vec3(10.0f, 10.0f, 1.0f), glm::vec3(0, 0, -1)};
-	C_RayIntersection		   hit;
+	constexpr Physics::Primitives::S_Ray ray{glm::vec3(10.0f, 10.0f, 1.0f), glm::vec3(0, 0, -1)};
+	C_RayIntersection					 hit;
 
 	EXPECT_FALSE(mesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
 }
@@ -153,28 +149,28 @@ TEST_F(StaticRTMeshFixture, TranslationAlongXMovesHitPosition)
 {
 	C_StaticRTMesh mesh = MakeSingleTriangleMesh();
 
-	const glm::mat4 transform  = glm::translate(glm::mat4(1.0f), glm::vec3(5, 0, 0));
-	const glm::vec3 localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
+	const glm::mat4		transform  = glm::translate(glm::mat4(1.0f), glm::vec3(5, 0, 0));
+	constexpr glm::vec3 localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
 	mesh.SetTransformation(transform);
 
-	const auto		  ray = MakeRayHitting(transform, localPoint, kLocalNormal);
+	const auto		  ray = MakeRayHitting(transform, localPoint, s_LocalNormal);
 	C_RayIntersection hit;
 
 	ASSERT_TRUE(mesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
 	EXPECT_NEAR(hit.GetRayLength(), 1.0f, EPSILON);
 	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetIntersectionPoint(), TransformPoint(transform, localPoint));
-	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetFrame().Normal(), TransformNormal(transform, kLocalNormal));
+	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetFrame().Normal(), TransformNormal(transform, s_LocalNormal));
 }
 
 TEST_F(StaticRTMeshFixture, TranslationAlongYMovesHitPosition)
 {
 	C_StaticRTMesh mesh = MakeSingleTriangleMesh();
 
-	const glm::mat4 transform  = glm::translate(glm::mat4(1.0f), glm::vec3(0, 5, 0));
-	const glm::vec3 localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
+	const glm::mat4		transform  = glm::translate(glm::mat4(1.0f), glm::vec3(0, 5, 0));
+	constexpr glm::vec3 localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
 	mesh.SetTransformation(transform);
 
-	const auto		  ray = MakeRayHitting(transform, localPoint, kLocalNormal);
+	const auto		  ray = MakeRayHitting(transform, localPoint, s_LocalNormal);
 	C_RayIntersection hit;
 
 	ASSERT_TRUE(mesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
@@ -186,11 +182,11 @@ TEST_F(StaticRTMeshFixture, TranslationAlongZChangesRayLength)
 {
 	C_StaticRTMesh mesh = MakeSingleTriangleMesh();
 
-	const glm::mat4 transform  = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 5));
-	const glm::vec3 localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
+	const glm::mat4		transform  = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 5));
+	constexpr glm::vec3 localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
 	mesh.SetTransformation(transform);
 
-	const auto		  ray = MakeRayHitting(transform, localPoint, kLocalNormal, /*distance*/ 3.0f);
+	const auto		  ray = MakeRayHitting(transform, localPoint, s_LocalNormal, /*distance*/ 3.0f);
 	C_RayIntersection hit;
 
 	ASSERT_TRUE(mesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
@@ -204,8 +200,8 @@ TEST_F(StaticRTMeshFixture, TranslationCausesOriginalSpaceRayToMiss)
 	mesh.SetTransformation(glm::translate(glm::mat4(1.0f), glm::vec3(5, 5, 5)));
 
 	// Ray that used to hit the untransformed triangle should now miss, since the geometry moved away.
-	Physics::Primitives::S_Ray ray{glm::vec3(0.25f, 0.25f, 1.0f), glm::vec3(0, 0, -1)};
-	C_RayIntersection		   hit;
+	constexpr Physics::Primitives::S_Ray ray{glm::vec3(0.25f, 0.25f, 1.0f), glm::vec3(0, 0, -1)};
+	C_RayIntersection					 hit;
 
 	EXPECT_FALSE(mesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
 }
@@ -214,11 +210,11 @@ TEST_F(StaticRTMeshFixture, CombinedXYZTranslation)
 {
 	C_StaticRTMesh mesh = MakeSingleTriangleMesh();
 
-	const glm::mat4 transform  = glm::translate(glm::mat4(1.0f), glm::vec3(2, 3, 4));
-	const glm::vec3 localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
+	const glm::mat4		transform  = glm::translate(glm::mat4(1.0f), glm::vec3(2, 3, 4));
+	constexpr glm::vec3 localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
 	mesh.SetTransformation(transform);
 
-	const auto		  ray = MakeRayHitting(transform, localPoint, kLocalNormal);
+	const auto		  ray = MakeRayHitting(transform, localPoint, s_LocalNormal);
 	C_RayIntersection hit;
 
 	ASSERT_TRUE(mesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
@@ -234,18 +230,18 @@ TEST_F(StaticRTMeshFixture, Rotation90DegreesAroundZMovesHitPositionInPlane)
 {
 	C_StaticRTMesh mesh = MakeSingleTriangleMesh();
 
-	const glm::mat4 transform  = glm::rotate(glm::radians(90.0f), glm::vec3(0, 0, 1));
-	const glm::vec3 localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
+	const glm::mat4		transform  = glm::rotate(glm::radians(90.0f), glm::vec3(0, 0, 1));
+	constexpr glm::vec3 localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
 	mesh.SetTransformation(transform);
 
-	const auto		  ray = MakeRayHitting(transform, localPoint, kLocalNormal);
+	const auto		  ray = MakeRayHitting(transform, localPoint, s_LocalNormal);
 	C_RayIntersection hit;
 
 	ASSERT_TRUE(mesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
 	EXPECT_NEAR(hit.GetRayLength(), 1.0f, EPSILON);
 	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetIntersectionPoint(), TransformPoint(transform, localPoint));
 	// Rotation about Z does not tilt a Z-facing normal.
-	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetFrame().Normal(), TransformNormal(transform, kLocalNormal));
+	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetFrame().Normal(), TransformNormal(transform, s_LocalNormal));
 }
 
 TEST_F(StaticRTMeshFixture, Rotation90DegreesAroundZCausesOriginalSpaceRayToMiss)
@@ -263,18 +259,18 @@ TEST_F(StaticRTMeshFixture, Rotation90DegreesAroundXReorientsTriangleIntoXZPlane
 {
 	C_StaticRTMesh mesh = MakeSingleTriangleMesh();
 
-	const glm::mat4 transform  = glm::rotate(glm::radians(90.0f), glm::vec3(1, 0, 0));
-	const glm::vec3 localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
+	const glm::mat4		transform  = glm::rotate(glm::radians(90.0f), glm::vec3(1, 0, 0));
+	constexpr glm::vec3 localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
 	mesh.SetTransformation(transform);
 
-	const auto		  ray = MakeRayHitting(transform, localPoint, kLocalNormal);
+	const auto		  ray = MakeRayHitting(transform, localPoint, s_LocalNormal);
 	C_RayIntersection hit;
 
 	ASSERT_TRUE(mesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
 	EXPECT_NEAR(hit.GetRayLength(), 1.0f, EPSILON);
 	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetIntersectionPoint(), TransformPoint(transform, localPoint));
 	// Local normal (0,0,1) rotates to (0,-1,0).
-	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetFrame().Normal(), TransformNormal(transform, kLocalNormal));
+	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetFrame().Normal(), TransformNormal(transform, s_LocalNormal));
 
 	// A ray along the original (pre-rotation) facing direction is now parallel to the triangle and must miss.
 	Physics::Primitives::S_Ray originalRay{glm::vec3(0.25f, 0.25f, 1.0f), glm::vec3(0, 0, -1)};
@@ -286,18 +282,18 @@ TEST_F(StaticRTMeshFixture, Rotation90DegreesAroundYReorientsTriangleIntoYZPlane
 {
 	C_StaticRTMesh mesh = MakeSingleTriangleMesh();
 
-	const glm::mat4 transform  = glm::rotate(glm::radians(90.0f), glm::vec3(0, 1, 0));
-	const glm::vec3 localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
+	const glm::mat4		transform  = glm::rotate(glm::radians(90.0f), glm::vec3(0, 1, 0));
+	constexpr glm::vec3 localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
 	mesh.SetTransformation(transform);
 
-	const auto		  ray = MakeRayHitting(transform, localPoint, kLocalNormal);
+	const auto		  ray = MakeRayHitting(transform, localPoint, s_LocalNormal);
 	C_RayIntersection hit;
 
 	ASSERT_TRUE(mesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
 	EXPECT_NEAR(hit.GetRayLength(), 1.0f, EPSILON);
 	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetIntersectionPoint(), TransformPoint(transform, localPoint));
 	// Local normal (0,0,1) rotates to (1,0,0).
-	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetFrame().Normal(), TransformNormal(transform, kLocalNormal));
+	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetFrame().Normal(), TransformNormal(transform, s_LocalNormal));
 }
 
 TEST_F(StaticRTMeshFixture, RotationAboutAxisPreservesDistanceForPointOnThatAxis)
@@ -306,8 +302,8 @@ TEST_F(StaticRTMeshFixture, RotationAboutAxisPreservesDistanceForPointOnThatAxis
 	// Vertex (0,0,0) lies exactly on the Z rotation axis, so an arbitrary angle must not move it.
 	mesh.SetTransformation(glm::rotate(glm::radians(37.0f), glm::vec3(0, 0, 1)));
 
-	Physics::Primitives::S_Ray ray{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0, 0, -1)};
-	C_RayIntersection		   hit;
+	constexpr Physics::Primitives::S_Ray ray{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0, 0, -1)};
+	C_RayIntersection					 hit;
 
 	ASSERT_TRUE(mesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
 	EXPECT_NEAR(hit.GetRayLength(), 1.0f, EPSILON);
@@ -322,8 +318,8 @@ TEST_F(StaticRTMeshFixture, FullCircleRotationBehavesLikeIdentity)
 	C_StaticRTMesh mesh = MakeSingleTriangleMesh();
 	mesh.SetTransformation(glm::rotate(glm::radians(360.0f), glm::vec3(0, 1, 0)));
 
-	Physics::Primitives::S_Ray ray{glm::vec3(0.25f, 0.25f, 1.0f), glm::vec3(0, 0, -1)};
-	C_RayIntersection		   hit;
+	constexpr Physics::Primitives::S_Ray ray{glm::vec3(0.25f, 0.25f, 1.0f), glm::vec3(0, 0, -1)};
+	C_RayIntersection					 hit;
 
 	ASSERT_TRUE(mesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
 	EXPECT_NEAR(hit.GetRayLength(), 1.0f, EPSILON);
@@ -344,15 +340,15 @@ TEST_F(StaticRTMeshFixture, UniformScaleProducesCorrectHitPositionAndLength)
 	const glm::mat4 transform = glm::scale(glm::mat4(1.0f), glm::vec3(2, 2, 2));
 	mesh.SetTransformation(transform);
 
-	const glm::vec3	  localPoint = glm::vec3(0.3f, 0.3f, 0.0f);
-	const auto		  ray		 = MakeRayHitting(transform, localPoint, kLocalNormal);
-	C_RayIntersection hit;
+	constexpr glm::vec3 localPoint = glm::vec3(0.3f, 0.3f, 0.0f);
+	const auto			ray		   = MakeRayHitting(transform, localPoint, s_LocalNormal);
+	C_RayIntersection	hit;
 
 	ASSERT_TRUE(mesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
 	EXPECT_NEAR(hit.GetRayLength(), 1.0f, EPSILON);
 	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetIntersectionPoint(), TransformPoint(transform, localPoint));
 	// Uniform scale only needs renormalizing, not redirecting.
-	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetFrame().Normal(), TransformNormal(transform, kLocalNormal));
+	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetFrame().Normal(), TransformNormal(transform, s_LocalNormal));
 }
 
 TEST_F(StaticRTMeshFixture, RayHitsOriginalTriangleButMissesAfterUniformScaleDown)
@@ -361,8 +357,8 @@ TEST_F(StaticRTMeshFixture, RayHitsOriginalTriangleButMissesAfterUniformScaleDow
 	mesh.SetTransformation(glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f)));
 
 	// (0.3, 0.3) is inside the local unit triangle, but outside the half-scale one (x + y <= 0.5).
-	Physics::Primitives::S_Ray ray{glm::vec3(0.3f, 0.3f, 1.0f), glm::vec3(0, 0, -1)};
-	C_RayIntersection		   hit;
+	constexpr Physics::Primitives::S_Ray ray{glm::vec3(0.3f, 0.3f, 1.0f), glm::vec3(0, 0, -1)};
+	C_RayIntersection					 hit;
 
 	EXPECT_FALSE(mesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
 }
@@ -371,11 +367,11 @@ TEST_F(StaticRTMeshFixture, UniformScaleChangesRayLengthAlongZ)
 {
 	C_StaticRTMesh mesh = MakeSingleTriangleMesh(glm::vec3(0, 0, 1), glm::vec3(1, 0, 1), glm::vec3(0, 1, 1));
 
-	const glm::mat4 transform  = glm::scale(glm::mat4(1.0f), glm::vec3(2, 2, 2));
-	const glm::vec3 localPoint = glm::vec3(0.3f, 0.3f, 1.0f);
+	const glm::mat4		transform  = glm::scale(glm::mat4(1.0f), glm::vec3(2, 2, 2));
+	constexpr glm::vec3 localPoint = glm::vec3(0.3f, 0.3f, 1.0f);
 	mesh.SetTransformation(transform);
 
-	const auto		  ray = MakeRayHitting(transform, localPoint, kLocalNormal);
+	const auto		  ray = MakeRayHitting(transform, localPoint, s_LocalNormal);
 	C_RayIntersection hit;
 
 	ASSERT_TRUE(mesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
@@ -390,16 +386,16 @@ TEST_F(StaticRTMeshFixture, NonUniformScaleStretchesOnlyTheScaledAxis_Y)
 	const glm::mat4 transform = glm::scale(glm::mat4(1.0f), glm::vec3(1, 3, 1));
 	mesh.SetTransformation(transform);
 
-	const glm::vec3	  localPoint = glm::vec3(0.2f, 0.3f, 0.0f);
-	const auto		  ray		 = MakeRayHitting(transform, localPoint, kLocalNormal);
-	C_RayIntersection hit;
+	constexpr glm::vec3 localPoint = glm::vec3(0.2f, 0.3f, 0.0f);
+	const auto			ray		   = MakeRayHitting(transform, localPoint, s_LocalNormal);
+	C_RayIntersection	hit;
 
 	ASSERT_TRUE(mesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
 	EXPECT_NEAR(hit.GetRayLength(), 1.0f, EPSILON);
 	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetIntersectionPoint(), TransformPoint(transform, localPoint));
 	// Non-uniform scale needs the inverse-transpose, not a direct re-apply of scale, to keep the
 	// normal correct.
-	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetFrame().Normal(), TransformNormal(transform, kLocalNormal));
+	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetFrame().Normal(), TransformNormal(transform, s_LocalNormal));
 }
 
 TEST_F(StaticRTMeshFixture, NonUniformScaleStretchesOnlyTheScaledAxis_X)
@@ -409,9 +405,9 @@ TEST_F(StaticRTMeshFixture, NonUniformScaleStretchesOnlyTheScaledAxis_X)
 	const glm::mat4 transform = glm::scale(glm::mat4(1.0f), glm::vec3(3, 1, 1));
 	mesh.SetTransformation(transform);
 
-	const glm::vec3	  localPoint = glm::vec3(0.3f, 0.2f, 0.0f);
-	const auto		  ray		 = MakeRayHitting(transform, localPoint, kLocalNormal);
-	C_RayIntersection hit;
+	constexpr glm::vec3 localPoint = glm::vec3(0.3f, 0.2f, 0.0f);
+	const auto			ray		   = MakeRayHitting(transform, localPoint, s_LocalNormal);
+	C_RayIntersection	hit;
 
 	ASSERT_TRUE(mesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
 	EXPECT_NEAR(hit.GetRayLength(), 1.0f, EPSILON);
@@ -424,11 +420,45 @@ TEST_F(StaticRTMeshFixture, TMaxCullsHitBeyondMaxDistanceUnderScale)
 	mesh.SetTransformation(glm::scale(glm::mat4(1.0f), glm::vec3(2, 2, 2)));
 
 	// World hit is at distance 2 (triangle at local z=1, scaled to z=2).
-	Physics::Primitives::S_Ray ray{glm::vec3(0.3f, 0.3f, 0.0f), glm::vec3(0, 0, 1)};
-	C_RayIntersection		   hit;
+	constexpr Physics::Primitives::S_Ray ray{glm::vec3(0.3f, 0.3f, 0.0f), glm::vec3(0, 0, 1)};
+	C_RayIntersection					 hit;
 
 	EXPECT_FALSE(mesh.Intersect(ray, hit, 1.5f)) << "Hit is farther than tMax and should be culled";
 	EXPECT_TRUE(mesh.Intersect(ray, hit, 3.0f)) << "Hit is within tMax and should be found";
+}
+
+// C_Trimesh::Intersect's BVH branch recomputes ray length via glm::distance(origin, point) *after*
+// TransformRayAndPoint(m_Transform), instead of trusting the parametric `t` BVH::IntersectNode already
+// set (see TrimeshTests.cpp's BVHAcceleratedIntersectionWithUniformScaleProducesCorrectRayLength for
+// the direct, one-level case, which is NOT buggy: there, the trimesh's own m_Transform is the same
+// scale passed to SetTransformation, so TransformRayAndPoint correctly undoes it before the Euclidean
+// recompute runs).
+//
+// Here the trimesh is wrapped in a C_StaticRTMesh instead. C_StaticRTMesh::Intersect applies its OWN
+// outer scale by transforming the ray into static-mesh-local space *before* ever calling
+// trimesh.Intersect() -- so the ray's direction already carries the 1/scale factor when it reaches
+// C_Trimesh::Intersect. The wrapped C_Trimesh's own m_Transform is identity (a single-part model),
+// so TransformRayAndPoint(identity) is a no-op: the Euclidean recompute stays stuck measuring
+// distance in the scaled-direction frame and is never corrected back. C_StaticRTMesh::Intersect then
+// treats that wrong value as if it were already-correct world distance (per the same "local t equals
+// world distance" invariant IntersectBruteforce relies on), so it comes out wrong by exactly the scale
+// factor once C_StaticRTMesh applies its own (correct) point/ray transform on top.
+TEST_F(StaticRTMeshFixture, BVHAcceleratedUniformScaleThroughStaticRTMeshProducesCorrectRayLength)
+{
+	C_StaticRTMesh mesh = MakeSingleTriangleMeshWithBVH();
+
+	const glm::mat4		transform  = glm::scale(glm::mat4(1.0f), glm::vec3(2, 2, 2));
+	constexpr glm::vec3 localPoint = glm::vec3(0.3f, 0.3f, 0.0f);
+	mesh.SetTransformation(transform);
+
+	const auto		  ray = MakeRayHitting(transform, localPoint, s_LocalNormal);
+	C_RayIntersection hit;
+
+	ASSERT_TRUE(mesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
+	// MakeRayHitting places the ray exactly 1.0 world-space unit away from the hit point regardless of
+	// the mesh's own scale, so the true ray length must always come out as 1.0 here.
+	EXPECT_NEAR(hit.GetRayLength(), 1.0f, EPSILON);
+	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetIntersectionPoint(), TransformPoint(transform, localPoint));
 }
 
 // ============================================================================
@@ -439,11 +469,11 @@ TEST_F(StaticRTMeshFixture, CombinedTranslationAndScale)
 {
 	C_StaticRTMesh mesh = MakeSingleTriangleMesh();
 
-	const glm::mat4 transform  = glm::translate(glm::mat4(1.0f), glm::vec3(5, 5, 5)) * glm::scale(glm::mat4(1.0f), glm::vec3(2, 2, 2));
-	const glm::vec3 localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
+	const glm::mat4		transform  = glm::translate(glm::mat4(1.0f), glm::vec3(5, 5, 5)) * glm::scale(glm::mat4(1.0f), glm::vec3(2, 2, 2));
+	constexpr glm::vec3 localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
 	mesh.SetTransformation(transform);
 
-	const auto		  ray = MakeRayHitting(transform, localPoint, kLocalNormal);
+	const auto		  ray = MakeRayHitting(transform, localPoint, s_LocalNormal);
 	C_RayIntersection hit;
 
 	ASSERT_TRUE(mesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
@@ -455,11 +485,11 @@ TEST_F(StaticRTMeshFixture, CombinedTranslationAndRotation)
 {
 	C_StaticRTMesh mesh = MakeSingleTriangleMesh();
 
-	const glm::mat4 transform  = glm::translate(glm::mat4(1.0f), glm::vec3(5, 0, 0)) * glm::rotate(glm::radians(90.0f), glm::vec3(0, 0, 1));
-	const glm::vec3 localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
+	const glm::mat4		transform  = glm::translate(glm::mat4(1.0f), glm::vec3(5, 0, 0)) * glm::rotate(glm::radians(90.0f), glm::vec3(0, 0, 1));
+	constexpr glm::vec3 localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
 	mesh.SetTransformation(transform);
 
-	const auto		  ray = MakeRayHitting(transform, localPoint, kLocalNormal);
+	const auto		  ray = MakeRayHitting(transform, localPoint, s_LocalNormal);
 	C_RayIntersection hit;
 
 	ASSERT_TRUE(mesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
@@ -473,16 +503,16 @@ TEST_F(StaticRTMeshFixture, CombinedTranslationRotationAndScale)
 
 	const glm::mat4 transform
 		= glm::translate(glm::mat4(1.0f), glm::vec3(2, 0, 0)) * glm::rotate(glm::radians(90.0f), glm::vec3(0, 0, 1)) * glm::scale(glm::mat4(1.0f), glm::vec3(2, 2, 2));
-	const glm::vec3 localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
+	constexpr glm::vec3 localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
 	mesh.SetTransformation(transform);
 
-	const auto		  ray = MakeRayHitting(transform, localPoint, kLocalNormal);
+	const auto		  ray = MakeRayHitting(transform, localPoint, s_LocalNormal);
 	C_RayIntersection hit;
 
 	ASSERT_TRUE(mesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
 	EXPECT_NEAR(hit.GetRayLength(), 1.0f, EPSILON);
 	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetIntersectionPoint(), TransformPoint(transform, localPoint));
-	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetFrame().Normal(), TransformNormal(transform, kLocalNormal));
+	EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetFrame().Normal(), TransformNormal(transform, s_LocalNormal));
 }
 
 // ============================================================================
@@ -526,8 +556,8 @@ TEST_F(StaticRTMeshFixture, MultiPartModelEachPartKeepsItsOwnLocalPlacementAndNo
 {
 	// "Trunk" sits at the model's own origin; "crown" is offset+rotated within the model's own
 	// space, independent of wherever the whole model ends up being placed in the world.
-	const glm::mat4 trunkTransform = glm::mat4(1.0f);
-	const glm::mat4 crownTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0, 5, 0)) * glm::rotate(glm::radians(90.0f), glm::vec3(1, 0, 0));
+	constexpr glm::mat4 trunkTransform = glm::mat4(1.0f);
+	const glm::mat4		crownTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0, 5, 0)) * glm::rotate(glm::radians(90.0f), glm::vec3(1, 0, 0));
 
 	C_StaticRTMesh mesh = MakeTwoPartModel(trunkTransform, crownTransform);
 
@@ -535,32 +565,32 @@ TEST_F(StaticRTMeshFixture, MultiPartModelEachPartKeepsItsOwnLocalPlacementAndNo
 	const glm::mat4 worldTransform = glm::translate(glm::mat4(1.0f), glm::vec3(10, 0, 0));
 	mesh.SetTransformation(worldTransform);
 
-	const glm::vec3 localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
+	constexpr glm::vec3 localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
 
 	// Ray aimed at the trunk part: the intended world-space target accounts for both the trunk's
 	// own placement and the whole model's world transform.
 	{
 		const glm::mat4	  intendedWorldTransform = worldTransform * trunkTransform;
-		const auto		  ray					 = MakeRayHitting(intendedWorldTransform, localPoint, kLocalNormal);
+		const auto		  ray					 = MakeRayHitting(intendedWorldTransform, localPoint, s_LocalNormal);
 		C_RayIntersection hit;
 
 		ASSERT_TRUE(mesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
 		EXPECT_NEAR(hit.GetRayLength(), 1.0f, EPSILON);
 		// The whole model's world transform must compose with the trunk's own local placement.
 		EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetIntersectionPoint(), TransformPoint(intendedWorldTransform, localPoint));
-		EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetFrame().Normal(), TransformNormal(intendedWorldTransform, kLocalNormal));
+		EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetFrame().Normal(), TransformNormal(intendedWorldTransform, s_LocalNormal));
 	}
 
 	// Ray aimed at the crown part, using its own (different) local placement.
 	{
 		const glm::mat4	  intendedWorldTransform = worldTransform * crownTransform;
-		const auto		  ray					 = MakeRayHitting(intendedWorldTransform, localPoint, kLocalNormal);
+		const auto		  ray					 = MakeRayHitting(intendedWorldTransform, localPoint, s_LocalNormal);
 		C_RayIntersection hit;
 
 		ASSERT_TRUE(mesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
 		EXPECT_NEAR(hit.GetRayLength(), 1.0f, EPSILON);
 		EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetIntersectionPoint(), TransformPoint(intendedWorldTransform, localPoint));
-		EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetFrame().Normal(), TransformNormal(intendedWorldTransform, kLocalNormal));
+		EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetFrame().Normal(), TransformNormal(intendedWorldTransform, s_LocalNormal));
 	}
 }
 
@@ -573,24 +603,24 @@ TEST_F(StaticRTMeshFixture, MultiPartModelIdentityWorldTransformMatchesEachParts
 
 	C_StaticRTMesh mesh = MakeTwoPartModel(trunkTransform, crownTransform);
 
-	const glm::vec3 localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
+	constexpr glm::vec3 localPoint = glm::vec3(0.25f, 0.25f, 0.0f);
 
 	{
-		const auto		  ray = MakeRayHitting(trunkTransform, localPoint, kLocalNormal);
+		const auto		  ray = MakeRayHitting(trunkTransform, localPoint, s_LocalNormal);
 		C_RayIntersection hit;
 
 		ASSERT_TRUE(mesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
 		EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetIntersectionPoint(), TransformPoint(trunkTransform, localPoint));
-		EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetFrame().Normal(), TransformNormal(trunkTransform, kLocalNormal));
+		EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetFrame().Normal(), TransformNormal(trunkTransform, s_LocalNormal));
 	}
 
 	{
-		const auto		  ray = MakeRayHitting(crownTransform, localPoint, kLocalNormal);
+		const auto		  ray = MakeRayHitting(crownTransform, localPoint, s_LocalNormal);
 		C_RayIntersection hit;
 
 		ASSERT_TRUE(mesh.Intersect(ray, hit, std::numeric_limits<float>::infinity()));
 		EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetIntersectionPoint(), TransformPoint(crownTransform, localPoint));
-		EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetFrame().Normal(), TransformNormal(crownTransform, kLocalNormal));
+		EXPECT_PRED_FORMAT2((AssertVecAlmostEq<3, float>), hit.GetFrame().Normal(), TransformNormal(crownTransform, s_LocalNormal));
 	}
 }
 
