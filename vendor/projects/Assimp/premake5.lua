@@ -113,10 +113,7 @@ project "Assimp"
 	filter "system:windows"
         staticruntime "off"
 
-        postbuildcommands
-        {
-            ("{COPY} %{cfg.buildtarget.relpath} \"../../../bin/" .. outputdir .. "/Sandbox/\"")
-        }
+        CopyToSandbox()
         defines
         {
             "WINDOWS",

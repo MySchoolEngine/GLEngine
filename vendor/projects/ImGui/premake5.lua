@@ -44,10 +44,7 @@ project "ImGui"
             "IMGUI_API=__declspec(dllexport)",
         }
         
-        postbuildcommands
-        {
-            ("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\"")
-        }
+        CopyToSandbox()
     filter { "system:windows", "configurations:Release" }
         staticruntime "On"
         

@@ -50,7 +50,4 @@ project "VulkanRenderer"
 			"IMGUI_IMPL_API=",
 		}
 
-		postbuildcommands
-		{
-			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\""),
-		}
+		CopyToSandbox()

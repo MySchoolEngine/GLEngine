@@ -51,10 +51,7 @@ function CreateRendererProject(projectName, isStatic)
 		filter "system:windows"
 			if not isStatic then
 				defines { "BUILD_RENDERER_DLL" }
-				postbuildcommands
-				{
-					("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\"")
-				}
+				CopyToSandbox()
 			end
 		filter {}
 

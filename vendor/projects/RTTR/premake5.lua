@@ -40,10 +40,7 @@ project "RTTR"
 
 	filter "system:windows"
 
-        postbuildcommands
-        {
-            ("{COPY} %{cfg.buildtarget.relpath} \"../../../bin/" .. outputdir .. "/Sandbox/\"")
-        }
+        CopyToSandbox()
         filter "configurations:Debug"
             defines
             {

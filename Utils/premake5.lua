@@ -20,10 +20,7 @@ project "Utils"
 
 	filter "system:windows"
 		systemversion "latest"
-		postbuildcommands
-		{
-			("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\"")
-		}
+		CopyToSandbox()
 	filter {}
 
 	usage "PUBLIC"

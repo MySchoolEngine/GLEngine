@@ -38,6 +38,28 @@ if _TARGET_OS == "windows" then
 end
 end
 
+-- Many unrelated projects each copy their own build target into Sandbox/ so it has
+-- everything it needs to run. Under a parallel build (-m/-maxCpuCount) several of them
+-- can race to write into that shared, not-yet-existing directory at the same time, which
+-- intermittently fails with "xcopy ... exited with code 4". robocopy handles concurrent
+-- directory creation more gracefully and /R/W give it a few retries on transient failures;
+-- its exit codes 0-7 all mean success (see https://learn.microsoft.com/windows-server/administration/windows-commands/robocopy),
+-- so we normalize that into a plain 0/1 MSBuild expects.
+function CopyToSandbox()
+	if _TARGET_OS == "windows" then
+		-- robocopy treats "/" as its switch prefix, so unlike the {COPY} xcopy-based
+		-- helpers above, this path must be all-backslash or robocopy misparses it.
+		-- The trailing "." on each directory arg avoids a classic cmd.exe quoting trap:
+		-- a backslash right before a closing quote escapes the quote instead of ending
+		-- the path, which silently merges the source and destination arguments together.
+		local sandboxDir = "%{wks.location}\\bin\\" .. outputdir .. "\\Sandbox\\."
+		postbuildcommands
+		{
+			("robocopy \"%{cfg.buildtarget.directory}.\" \"" .. sandboxDir .. "\" \"%{cfg.buildtarget.name}\" /R:5 /W:1 /NP /NFL /NDL /NJH /NJS & if %errorlevel% geq 8 (exit /b 1) else (exit /b 0)")
+		}
+	end
+end
+
 function CopyDependencyLib(depName)
 	if _TARGET_OS == "windows" then
 	  if NonDllLib[depName] == nil then
