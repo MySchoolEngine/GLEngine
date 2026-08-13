@@ -22,7 +22,6 @@ function CreateRendererProject(projectName, isStatic)
 		Link("Core")
 		Link("GUI")
 --		Link("Animation")
-		uses{"DULib", "Tracy"}
 
 		LinkDependency("Assimp")
 		LinkDependency("ImGui")

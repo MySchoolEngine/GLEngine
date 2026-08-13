@@ -14,8 +14,6 @@ project "GUI"
 	LinkDependency("ImGui")
 	LinkDependency("RTTR")
 
-	uses{"Core"}
-
 	includedirs
 	{
 		"../Renderer",
