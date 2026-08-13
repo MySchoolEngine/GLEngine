@@ -8,15 +8,15 @@ project "ImGuizmo"
 
     includedirs
     {
-        "%{wks.location}/vendor/ImGuizmo",
+        "%{wks.location}/%{IncludeDir.ImGuizmo}",
         "%{wks.location}/%{IncludeDir.ImGui}",
         ".",
     }
 
 	files
 	{
-        "%{wks.location}/vendor/ImGuizmo/*.h",
-        "%{wks.location}/vendor/ImGuizmo/*.cpp",
+        "%{wks.location}/%{IncludeDir.ImGuizmo}/*.h",
+        "%{wks.location}/%{IncludeDir.ImGuizmo}/*.cpp",
     }
     
     filter "system:linux"
