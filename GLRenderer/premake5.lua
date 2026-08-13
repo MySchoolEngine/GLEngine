@@ -68,3 +68,8 @@ project "GLRenderer"
 
 	filter "system:linux"
 		pic "On"
+
+	filter {}
+
+	usage "PUBLIC"
+		uses{"Core", "Tracy"}

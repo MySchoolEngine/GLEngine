@@ -58,6 +58,9 @@ function CreateRendererProject(projectName, isStatic)
 				}
 			end
 		filter {}
+
+		usage "PUBLIC"
+			uses{"DULib", "Tracy"}
 end
 
 
