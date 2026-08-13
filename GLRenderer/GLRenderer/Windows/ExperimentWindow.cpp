@@ -401,6 +401,26 @@ void C_ExperimentWindow::OnAppInit()
 		return true;
 	}));
 
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Capture level for ray trace", [&]() {
+		Renderer::C_RayTraceWindow* rayTraceWindow = nullptr;
+		if (auto* window = m_ImGUI->GetGUIMgr().GetWindow(m_RayTraceGUID); window)
+		{
+			rayTraceWindow = dynamic_cast<Renderer::C_RayTraceWindow*>(window);
+		}
+		else
+		{
+			m_RayTraceGUID = NextGUID();
+
+			rayTraceWindow = new Renderer::C_RayTraceWindow(m_RayTraceGUID, m_CamManager.GetActiveCamera(), guiMGR);
+
+			guiMGR.AddCustomWindow(rayTraceWindow);
+		}
+
+		rayTraceWindow->SetVisible(true);
+		rayTraceWindow->SetScene(*m_World.get());
+		return true;
+	}));
+
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Open level", [&]() {
 		const auto levelSelectorGUID = NextGUID();
 		auto*	   levelSelectWindow = new GUI::C_FileDialogWindow(
