@@ -183,7 +183,10 @@ C_Metafile& C_ResourceManager::GetOrCreateMetafile(const std::filesystem::path& 
 			// populate it
 
 			// save it
-			newFile.Save();
+			if (newFile.Save() == false)
+			{
+				CORE_LOG(E_Level::Error, E_Context::Core, "Failed to save metafile {}", metafileName);
+			}
 		}
 		m_Metafile.emplace(metafileName, newFile);
 	}

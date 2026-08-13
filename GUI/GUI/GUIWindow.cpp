@@ -51,7 +51,8 @@ void C_Window::DrawComponents() const
 {
 	for (const auto& component : m_Components | std::views::values)
 	{
-		component.get().Draw();
+		// "was clicked" isn't propagated up through the window yet (see todo in Draw() above)
+		std::ignore = component.get().Draw();
 	}
 }
 

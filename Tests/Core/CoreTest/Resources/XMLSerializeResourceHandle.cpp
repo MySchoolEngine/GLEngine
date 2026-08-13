@@ -67,7 +67,7 @@ TEST_F(SerializeResourceHandle, WithResource)
 	auto			  testResource = std::make_shared<DelayTestResource>();
 	LoadingQuery	  q;
 	Resource::LoadCtx ctx{.m_ResMng = Core::C_ResourceManager::Instance(), .m_Query = q, .m_isBlocking = false};
-	testResource->Load(std::filesystem::path("test/path/resource.dat"), ctx);
+	ASSERT_TRUE(testResource->Load(std::filesystem::path("test/path/resource.dat"), ctx));
 	ResourceHandle<DelayTestResource> Handle(std::move(testResource));
 
 	const auto xmlDoc = serializer.Serialize(Handle);
@@ -87,7 +87,7 @@ TEST_F(SerializeResourceHandle, Container)
 	auto			  testResource = std::make_shared<DelayTestResource>();
 	LoadingQuery	  q;
 	Resource::LoadCtx ctx{.m_ResMng = Core::C_ResourceManager::Instance(), .m_Query = q, .m_isBlocking = false};
-	testResource->Load(std::filesystem::path("test/path/resource.dat"), ctx);
+	ASSERT_TRUE(testResource->Load(std::filesystem::path("test/path/resource.dat"), ctx));
 	ResourceHandle<DelayTestResource> Handle(std::move(testResource));
 
 	ResourceHandleContainer container;

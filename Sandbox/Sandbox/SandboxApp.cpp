@@ -107,7 +107,7 @@ protected:
 			info.m_name = "DX Window";
 			info.m_WindowClass = "D3D12";
 
-			m_WndMgr->OpenNewWindow(info);
+			std::ignore = m_WndMgr->OpenNewWindow(info); // window manager retains its own reference; the shared_ptr isn't needed here
 		}
 #endif
 
@@ -121,7 +121,7 @@ protected:
 			info.m_MinorVersion = 5;
 			info.m_Maximize = true;
 
-			m_WndMgr->OpenNewWindow(info);
+			std::ignore = m_WndMgr->OpenNewWindow(info); // window manager retains its own reference; the shared_ptr isn't needed here
 		}
 #else
 
