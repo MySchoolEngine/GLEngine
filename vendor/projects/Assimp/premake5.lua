@@ -122,10 +122,11 @@ project "Assimp"
             "/bigobj",
             "/MP",
         }
-        disablewarnings 
-        { 
+        disablewarnings
+        {
             "4996", -- The std::iterator class template (used as a base class to provide typedefs) is deprecated in C++17.
             "4065", -- switch statement contains 'default' but no 'case' labels
+            "4244", -- conversion from 'double' to 'ai_real' (assimp builds ai_real as float by default), possible loss of data
         }
         filter  "configurations:Release"
             defines
