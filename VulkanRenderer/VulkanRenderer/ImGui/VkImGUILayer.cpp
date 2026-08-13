@@ -46,7 +46,7 @@ void C_VkImGUILayer::Init(const VkGuiInit& init)
 	begin_info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 	vkBeginCommandBuffer(init.CommandBuffer, &begin_info);
 
-	ImGui_ImplVulkan_CreateFontsTexture(init.CommandBuffer);
+	ImGui_ImplVulkan_CreateFontsTexture();
 
 	VkSubmitInfo end_info = {
 		.sType				= VK_STRUCTURE_TYPE_SUBMIT_INFO,
@@ -57,7 +57,6 @@ void C_VkImGUILayer::Init(const VkGuiInit& init)
 	vkQueueSubmit(init.Queue, 1, &end_info, VK_NULL_HANDLE);
 
 	vkDeviceWaitIdle(init.Device);
-	ImGui_ImplVulkan_DestroyFontUploadObjects();
 }
 
 //=================================================================================
