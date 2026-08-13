@@ -13,6 +13,7 @@
 
 GL_PUSH_WARNINGS()
 #pragma warning(disable : 4996)
+#pragma warning(disable : 4506)
 #ifdef __GNUC__
 	#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
