@@ -26,10 +26,6 @@ project "irrXML"
 	filter "system:windows"
         staticruntime "On"
 
-        postbuildcommands
-        {
-            ("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\"")
-        }
         defines
         {
             "_SCL_SECURE_NO_WARNINGS",
