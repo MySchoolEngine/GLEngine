@@ -24,7 +24,7 @@ std::vector<Core::ResourceHandle<MaterialResource>> ExtractMaterialsFromMesh(con
 	{
 		const auto& mat = scene.materials[i];
 
-		const auto outputPath = MaterialResource::GetOutputPath(mesh, i);
+		const auto outputPath = MaterialResource::GetOutputPath(mesh, static_cast<unsigned int>(i));
 
 		Core::ResourceHandle<MaterialResource> matHandle;
 		// Create a MaterialResource, populate it, and save to disk

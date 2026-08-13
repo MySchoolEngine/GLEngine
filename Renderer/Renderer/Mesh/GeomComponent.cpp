@@ -116,7 +116,7 @@ void C_GeomComponent::SetupGeometry(const MeshData::Mesh& mesh)
 	I_Renderer&		 renderer = Core::C_Application::Get().GetActiveRenderer();
 	ResourceManager& rm		  = renderer.GetRM();
 
-	m_Mesh.m_NumPrimitives	 = mesh.vertices.size();
+	m_Mesh.m_NumPrimitives	 = static_cast<uint32_t>(mesh.vertices.size());
 	const auto positionsSize = static_cast<uint32_t>(sizeof(mesh.vertices[0]) * mesh.vertices.size());
 	m_Mesh.m_PositionsHandle = rm.createBuffer(BufferDescriptor{
 		.size  = positionsSize,
@@ -190,7 +190,9 @@ void C_GeomComponent::DebugDrawGUI()
 {
 	m_Material->DrawGUI();
 	rttr::instance obj(*this);
-	if (GUI::DrawAllPropertyGUI(obj).empty() == false) {}
+	if (GUI::DrawAllPropertyGUI(obj).empty() == false)
+	{
+	}
 }
 
 //=================================================================================

@@ -31,7 +31,7 @@ void C_CPUCompute::ComputeHistogram(const C_TextureView view, C_TextureView targ
 					CORE_LOG(E_Level::Error, E_Context::Render, "Currently our histogram does not support denormalized textures.");
 					continue;
 				}
-				int bucket = valLuminance / bucketSize;
+				int bucket = static_cast<int>(valLuminance / bucketSize);
 				target.Set(glm::ivec2{bucket, 0}, target.Get<float>({bucket, 0}, E_TextureChannel::Red) + 1.f, E_TextureChannel::Red);
 			}
 		}
