@@ -44,7 +44,6 @@ project "RendererTest"
 		"%{wks.location}/Physics",
 		"%{wks.location}/%{IncludeDir.GLM}",
 		"%{wks.location}/%{IncludeDir.fmt}",
-		"%{wks.location}/%{IncludeDir.RTTR}",
 		"%{wks.location}/%{IncludeDir.slot_map}",
 		"%{wks.location}/Tests/CommonTestUtils",
 	}
