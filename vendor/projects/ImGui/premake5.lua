@@ -49,7 +49,7 @@ project "ImGui"
             ("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\"")
         }
     filter { "system:windows", "configurations:Release" }
-        buildoptions "/MT"
+        staticruntime "On"
         
     filter "system:linux"
         defines
