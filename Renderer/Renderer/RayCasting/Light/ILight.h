@@ -1,5 +1,7 @@
 #pragma once
+
 #include <Renderer/Colours.h>
+#include <Renderer/RendererApi.h>
 
 namespace GLEngine::Renderer {
 class I_Sampler;
@@ -12,7 +14,7 @@ struct S_VisibilityTester;
 /**
  * http://www.pbr-book.org/3ed-2018/Light_Sources/Light_Interface.html
  */
-class I_RayLight {
+class RENDERER_API_EXPORT I_RayLight {
 public:
 	virtual ~I_RayLight() = default;
 	/**
@@ -28,7 +30,7 @@ public:
 	 */
 	virtual bool IsDeltaLight() const = 0;
 	/**
-	 * 
+	 *
 	 */
 	virtual float Pdf_Li(const glm::vec3& wi) const = 0;
 };

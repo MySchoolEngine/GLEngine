@@ -17,8 +17,6 @@ project "GLRenderer"
 	Link("Editor")
 --	Link("Animation") -- until the whole skeletal Animation could be moved outside of API specific implementation
 
-	uses{"Core", "Tracy"}
-
 	LinkDependency("ImGui")
 	LinkDependency("pugixml")
 	LinkDependency("GLFW")
@@ -56,10 +54,7 @@ project "GLRenderer"
 			"IMGUI_API=__declspec(dllimport)",
 		}
 
-		postbuildcommands
-		{
-			("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\""),
-		}
+		CopyToSandbox()
 
 		links
 		{
@@ -68,3 +63,8 @@ project "GLRenderer"
 
 	filter "system:linux"
 		pic "On"
+
+	filter {}
+
+	usage "PUBLIC"
+		uses{"Core", "Tracy"}

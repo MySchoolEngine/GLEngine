@@ -20,10 +20,7 @@ project "Tracy"
     filter "system:windows"
         systemversion "latest"
         links { "ws2_32", "dbghelp", "advapi32" }
-        postbuildcommands
-        {
-            ("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\"")
-        }
+        CopyToSandbox()
 
     filter "configurations:Debug"
         runtime "Debug"

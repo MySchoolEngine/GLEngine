@@ -41,11 +41,5 @@ project "GLFWWindowManager"
 		"IMGUI_IMPL_OPENGL_LOADER_GLAD"
 	}
 
-	filter "system:windows"
-		postbuildcommands
-		{
-			("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\""),
-		}
-
 	filter "system:linux"
 		pic "On"

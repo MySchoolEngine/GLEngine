@@ -2,9 +2,6 @@
 
 #include <Core/CoreApi.h>
 
-#include <rttr/registration_friend.h>
-#include <rttr/type>
-
 // I want to store version, all derived resources, crc, icon, filename...
 namespace GLEngine::Core {
 class CORE_API_EXPORT C_Metafile final {

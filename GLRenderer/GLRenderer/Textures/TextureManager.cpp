@@ -51,7 +51,11 @@ C_TextureManager::C_TextureManager(Renderer::I_Renderer& renderer, Renderer::I_D
 		}
 		auto* glIdentityTexture = glRM.GetTexture(m_IdentityTexture);
 		GLE_TODO("27-12-2024", "RohacekD", "This is nasty hack. Calling this here woudl cause getting error texture (Identity wasn't uploaded to GPU yet)");
-		renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>([glIdentityTexture]() { glIdentityTexture->CreateHandle(); }, "Create identity handle"));
+		renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
+			[glIdentityTexture]() {
+				std::ignore = glIdentityTexture->CreateHandle(); // side effect: caches the bindless handle, retrieved later via GetHandle()
+			},
+			"Create identity handle"));
 	}
 	{
 		// error texture

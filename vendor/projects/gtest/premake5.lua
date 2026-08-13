@@ -13,11 +13,6 @@ project "gtest_main"
 		cppdialect "C++17"
 		systemversion "latest"
 
-		postbuildcommands
-		{
-			("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\"")
-		}
-
 	filter "system:windows"
 		defines {"GTEST_OS_WINDOWS"}
 	filter "system:linux"

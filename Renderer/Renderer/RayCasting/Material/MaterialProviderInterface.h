@@ -3,11 +3,12 @@
 #include <Renderer/Materials/MaterialResource.h>
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/RayCasting/Material/MaterialInterface.h>
+#include <Renderer/RendererApi.h>
 
 #include <Core/Resources/ResourceHandle.h>
 
 namespace GLEngine::Renderer {
-class I_MaterialProviderInterface {
+class RENDERER_API_EXPORT I_MaterialProviderInterface {
 public:
 	I_MaterialProviderInterface()		   = default;
 	virtual ~I_MaterialProviderInterface() = default;

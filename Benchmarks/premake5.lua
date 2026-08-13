@@ -60,7 +60,6 @@ project "Benchmarks"
 		"%{wks.location}/%{IncludeDir.fmt}",
 		"%{wks.location}/%{IncludeDir.Tracy}",
 		"%{wks.location}/%{IncludeDir.slot_map}",
-		"%{wks.location}/%{IncludeDir.RTTR}",
 	}
 
 	filter "system:windows"

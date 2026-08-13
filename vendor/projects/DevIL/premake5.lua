@@ -52,10 +52,7 @@ project "DevIL-IL"
         cppdialect "C++17"
         staticruntime "On"
 
-        postbuildcommands
-        {
-            ("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\"")
-        }
+        CopyToSandbox()
         disablewarnings 
         { 
             "4101", -- sstrcpy

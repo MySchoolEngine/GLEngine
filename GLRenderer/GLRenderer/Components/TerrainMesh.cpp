@@ -301,7 +301,7 @@ void C_TerrainMesh::DebugDraw()
 	if (m_Selected)
 	{
 		::ImGui::Begin("Terrain ", &m_Selected);
-		::ImGui::Image((void*)GetTexture().GetTexture(), {256, 256}, {0, 1}, {1, 0});
+		::ImGui::Image((void*)(intptr_t)(GetTexture().GetTexture()), {256, 256}, {0, 1}, {1, 0});
 		m_HasTexture.Draw();
 		::ImGui::End();
 	}

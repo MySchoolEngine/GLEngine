@@ -78,11 +78,7 @@ project "libjpeg"
         cppdialect "C++17"
         staticruntime "On"
 
-        postbuildcommands
-        {
-            ("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\"")
-        }
-        disablewarnings 
+        disablewarnings
         { 
             "4267", --  conversion from 'size_t' to 'unsigned long', possible loss of data
         }

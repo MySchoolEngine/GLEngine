@@ -48,10 +48,7 @@ project "zlib"
 	filter "system:windows"
         staticruntime "On"
 
-        postbuildcommands
-        {
-            ("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\"")
-        }
+        CopyToSandbox()
         defines
         {
             "_CRT_SECURE_NO_DEPRECATE",

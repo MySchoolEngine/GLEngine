@@ -15,11 +15,6 @@ project "pugixml"
 		cppdialect "C++17"
 		systemversion "latest"
 
-		postbuildcommands
-		{
-			("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\"")
-		}
-
 	filter "system:linux"
 		pic "On"
 

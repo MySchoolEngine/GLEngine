@@ -36,7 +36,7 @@ void C_ImageResizer::BilinearDownsampling(const C_TextureView& source, C_Texture
 		// 		  * (input - input_start)
 
 		auto map = [](unsigned int value, unsigned int minIn, unsigned int minOut, unsigned int maxIn, unsigned int maxOut) -> unsigned int {
-			return minOut + ((maxOut - minOut) / (float)(maxIn - minIn)) * (value - minIn);
+			return static_cast<unsigned int>(minOut + ((maxOut - minOut) / (float)(maxIn - minIn)) * (value - minIn));
 		};
 		const auto	 sourceDim = source.GetDimensions();
 		unsigned int XOffset   = 0;

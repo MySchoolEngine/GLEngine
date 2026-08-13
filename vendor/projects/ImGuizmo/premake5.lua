@@ -8,20 +8,27 @@ project "ImGuizmo"
 
     includedirs
     {
-        "%{wks.location}/vendor/ImGuizmo",
+        "%{wks.location}/%{IncludeDir.ImGuizmo}",
         "%{wks.location}/%{IncludeDir.ImGui}",
         ".",
     }
 
 	files
 	{
-        "%{wks.location}/vendor/ImGuizmo/*.h",
-        "%{wks.location}/vendor/ImGuizmo/*.cpp",
+        "%{wks.location}/%{IncludeDir.ImGuizmo}/*.h",
+        "%{wks.location}/%{IncludeDir.ImGuizmo}/*.cpp",
     }
     
     filter "system:linux"
         pic "On"
-        
+
+    filter "system:windows"
+        disablewarnings
+        {
+            "4244", -- 'argument': conversion from 'float' to 'ImDrawFlags', possible loss of data (bit-flag param passed as float default)
+            "4005", -- 'IMGUI_DEFINE_MATH_OPERATORS': macro redefinition (also defined workspace-wide; GraphEditor.cpp redefines it locally)
+        }
+
     filter "configurations:Debug"
         runtime "Debug"
         symbols "on"

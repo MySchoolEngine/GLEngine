@@ -74,7 +74,7 @@ C_SunShadowMapTechnique::C_SunShadowMapTechnique(const std::shared_ptr<Renderer:
 		GLE_TODO("27-12-2024", "RohacekD", "This is nasty hack. Calling this here woudl cause getting error texture (Identity wasn't uploaded to GPU yet)");
 		renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 			[glTexture]() {
-				glTexture->CreateHandle();
+				std::ignore = glTexture->CreateHandle(); // side effect: caches the bindless handle, retrieved later via GetHandle()
 			}, "Create identity handle"));
 		glTexture->MakeHandleResident(true);
 	}
@@ -115,7 +115,7 @@ C_SunShadowMapTechnique::C_SunShadowMapTechnique(const std::shared_ptr<Renderer:
 		m_Framebuffer->AttachTexture(GL_DEPTH_ATTACHMENT, depthTexture);
 		glDepthTexture->SetReadyToUse();
 
-		glDepthTexture->CreateHandle();
+		std::ignore = glDepthTexture->CreateHandle(); // side effect: caches the bindless handle, retrieved later via GetHandle()
 		glDepthTexture->MakeHandleResident(true);
 	}
 }

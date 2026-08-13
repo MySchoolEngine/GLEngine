@@ -66,16 +66,18 @@
 //======================================================
 // Warning macros
 //======================================================
-#define GL_PUSH_WARNINGS()
 #ifdef __GNUC__
-	#pragma GCC diagnostic push
-#elif _MSC_VER 
-	#pragma warning(push)
+	#define GL_PUSH_WARNINGS() _Pragma("GCC diagnostic push")
+#elif _MSC_VER
+	#define GL_PUSH_WARNINGS() __pragma(warning(push))
+#else
+	#define GL_PUSH_WARNINGS()
 #endif
 
-#define GL_POP_WARNINGS()
 #ifdef __GNUC__
-	#pragma GCC diagnostic pop
+	#define GL_POP_WARNINGS() _Pragma("GCC diagnostic pop")
 #elif _MSC_VER
-	#pragma warning(pop)
+	#define GL_POP_WARNINGS() __pragma(warning(pop))
+#else
+	#define GL_POP_WARNINGS()
 #endif

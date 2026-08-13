@@ -14,8 +14,6 @@ project "GUI"
 	LinkDependency("ImGui")
 	LinkDependency("RTTR")
 
-	uses{"Core"}
-
 	includedirs
 	{
 		"../Renderer",
@@ -34,7 +32,8 @@ project "GUI"
 			"IMGUI_API=__declspec(dllimport)"
 		}
 
-		postbuildcommands
-		{
-			("{COPY} %{cfg.buildtarget.relpath} \"%{wks.location}/bin/" .. outputdir .. "/Sandbox/\""),
-		}
+		CopyToSandbox()
+	filter {}
+
+	usage "PUBLIC"
+		uses{"Core"}
