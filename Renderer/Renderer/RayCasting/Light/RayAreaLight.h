@@ -2,7 +2,6 @@
 
 #include <Renderer/RayCasting/Geometry/PrimitiveObject.h>
 #include <Renderer/RayCasting/Light/ILight.h>
-
 #include <Renderer/RendererApi.h>
 
 namespace GLEngine::Physics::Primitives {
@@ -20,14 +19,15 @@ class RENDERER_API_EXPORT C_AreaLight : public I_RayLight {
 public:
 	template <class primitiveT>
 	C_AreaLight(const Colours::T_Colour& radiance, const std::shared_ptr<C_Primitive<primitiveT>>& shape)
-		: m_Radiance(radiance)
+		: I_RayLight(LightType::AreaLight)
+		, m_Radiance(radiance)
 		, m_Shape(std::make_unique<Geometry<primitiveT>>(shape))
 	{
 	}
 	[[nodiscard]] Colours::T_Colour SampleLi(const C_RayIntersection& intersection, I_Sampler& rnd, S_VisibilityTester& vis, float* pdf) const override;
 	[[nodiscard]] Colours::T_Colour Le() const override;
-	bool							IsDeltaLight() const override { return false; }
-	float							Pdf_Li(const glm::vec3& wi) const override;
+	[[nodiscard]] float				Pdf_Li(const glm::vec3& wi) const override;
+	[[nodiscard]] Colours::T_Colour Lo(const glm::vec3& point, const glm::vec3& normal, const glm::vec2& uv, const glm::vec3& w) const override;
 
 	[[nodiscard]] std::shared_ptr<I_RayGeometryObject> GetGeometry() const;
 
@@ -41,8 +41,7 @@ private:
 		virtual std::shared_ptr<I_RayGeometryObject> GetGeometry() const			   = 0;
 	};
 
-	template <class primitiveT>
-	struct Geometry : public GeometryBase {
+	template <class primitiveT> struct Geometry : public GeometryBase {
 		explicit Geometry(std::shared_ptr<C_Primitive<primitiveT>> pShape)
 			: shape(pShape)
 		{
