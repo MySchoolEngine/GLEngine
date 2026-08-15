@@ -2,7 +2,7 @@
 
 #include <Renderer/ICameraComponent.h>
 #include <Renderer/RayCasting/Generator/Sampler.h>
-#include <Renderer/RayCasting/Integrator.h>
+#include <Renderer/RayCasting/PathIntegrator.h>
 #include <Renderer/RayCasting/RayRenderer.h>
 #include <Renderer/Textures/TextureView.h>
 
