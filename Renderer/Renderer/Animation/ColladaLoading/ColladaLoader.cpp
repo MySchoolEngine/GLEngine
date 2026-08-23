@@ -246,9 +246,10 @@ bool C_ColladaLoader::addModelFromDAEFileToScene(const std::filesystem::path&			
 					CORE_LOG(E_Level::Error, E_Context::Render, "Bone '{}' referenced in file '{}' doesn't exiests.", boneName, name);
 					return false;
 				}
-				skeleton.m_Root		= std::make_unique<S_Joint>(rootJoint->second);
-				skeleton.m_NumBones = m_JointNames.size();
-				if (!ParseChildrenJoints(*skeleton.m_Root.get(), rootNode, joints))
+				rootJoint->second.m_InverseLocalBindTransform = rootJoint->second.m_InverseBindTransform;
+				skeleton.m_Bones.emplace_back(rootJoint->second);
+				skeleton.m_Root = static_cast<T_BoneIndex>(skeleton.m_Bones.size() - 1);
+				if (!ParseChildrenJoints(skeleton, skeleton.m_Root, rootNode, joints))
 				{
 					CORE_LOG(E_Level::Error, E_Context::Render, "Errors in joint hierarchy definition in file: {}", name);
 				}
@@ -322,7 +323,7 @@ void C_ColladaLoader::LoadJointsInvMatrices(std::map<std::string, S_Joint>& join
 			for (const auto& name : m_JointNames)
 			{
 				const auto bindMatrix = glm::transpose(normalizinMatrix * floats.Get<glm::mat4>());
-				joints.insert({name, S_Joint(i, name, bindMatrix)});
+				joints.insert({name, S_Joint(name, bindMatrix)});
 				++i;
 			}
 		}
@@ -330,7 +331,7 @@ void C_ColladaLoader::LoadJointsInvMatrices(std::map<std::string, S_Joint>& join
 }
 
 //=================================================================================
-bool C_ColladaLoader::ParseChildrenJoints(S_Joint& parent, const pugi::xml_node& xmlParent, const std::map<std::string, S_Joint>& joints)
+bool C_ColladaLoader::ParseChildrenJoints(C_Skeleton& skeleton, T_BoneIndex parent, const pugi::xml_node& xmlParent, const std::map<std::string, S_Joint>& joints)
 {
 	for (const auto& node : xmlParent.children("node"))
 	{
@@ -342,8 +343,14 @@ bool C_ColladaLoader::ParseChildrenJoints(S_Joint& parent, const pugi::xml_node&
 			continue;
 			// return false;
 		}
-		auto& includedJoint = parent.m_Children.emplace_back(joint->second);
-		if (!ParseChildrenJoints(includedJoint, node, joints))
+		S_Joint& sJoint = skeleton.m_Bones.emplace_back(joint->second);
+		const S_Joint* parentJoint			   = skeleton.GetJoint(parent);
+		sJoint.m_Parent = parent;
+		sJoint.m_InverseLocalBindTransform	   = glm::inverse(parentJoint->m_InverseBindTransform) * sJoint.m_InverseBindTransform;
+		const T_BoneIndex boneIndex = static_cast<T_BoneIndex>(skeleton.m_Bones.size() - 1);
+		
+		skeleton.GetJoint(parent)->m_Children.emplace_back(static_cast<T_BoneIndex>(skeleton.m_Bones.size() - 1));
+		if (!ParseChildrenJoints(skeleton, boneIndex, node, joints))
 		{
 			return false;
 		}

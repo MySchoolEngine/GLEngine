@@ -11,7 +11,7 @@ public:
 	virtual ~I_Pose()																			  = default;
 	virtual const glm::mat4		   GetLocalSpaceTransform(int boneID) const						  = 0;
 	virtual void				   SetLocalSpaceTransform(const glm::mat4& transform, int boneID) = 0;
-	virtual std::vector<glm::mat4> GetLocalSpaceTransofrms() const								  = 0;
+	virtual std::vector<glm::mat4> GetMSTransofrms() const								  = 0;
 };
 
 } // namespace GLEngine::Renderer
