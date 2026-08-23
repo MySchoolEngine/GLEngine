@@ -158,6 +158,7 @@ enum class MetaGUI : std::uint8_t {
 	EnumSelect,
 	EnumSelectOptional,
 	CustomGUIWidget, //-> function<bool(rttr::instance, rttr::property)>
+	Array,			 // sequential containers (std::vector<T>, ...)
 };
 REGISTER_META_CLASS(MetaGUI, Metatype);
 
@@ -206,6 +207,29 @@ template <> struct UIMetaclassToType<MetaGUI::Text> {
 
 
 //=================================================================================
+// Checks a value's type against what Class expects, regardless of where it came from.
+template <MetaGUI Class> void AssertUIMetaclassValueType(const rttr::type& valueType)
+{
+	// unfortunately, it is impossible to check this during registration
+	if constexpr (Class == MetaGUI::EnumSelect || Class == MetaGUI::EnumSelectOptional)
+	{
+		// pass anything
+		if constexpr (Class == MetaGUI::EnumSelect)
+			GLE_ASSERT(valueType.is_enumeration(), "Property registered as enum: {}", valueType);
+		if constexpr (Class == MetaGUI::EnumSelectOptional)
+		{
+			GLE_ASSERT(valueType.is_wrapper(), "Property registered as optional: {}", valueType);
+			GLE_ASSERT(valueType.get_wrapped_type().get_raw_type().is_enumeration(), "Property registered as optional enum: {}", valueType);
+		}
+	}
+	else
+	{
+		GLE_ASSERT(rttr::type::get<UIMetaclassToType_t<Class>>() == valueType, "Property has wrong type expected '{}' passed '{}'",
+				   rttr::type::get<UIMetaclassToType_t<Class>>(), valueType);
+	}
+}
+
+//=================================================================================
 template <MetaGUI Class> [[nodiscard]] bool IsUIMetaclass(const rttr::property& prop)
 {
 	const auto isRightClass = IsMetaclass<Class>(prop);
@@ -213,24 +237,20 @@ template <MetaGUI Class> [[nodiscard]] bool IsUIMetaclass(const rttr::property& 
 	{
 		// Those are actually compile time problems. So I do not include it into the result as it should be checked before committing.
 		GLE_ASSERT(prop.get_type().is_wrapper(), "Property for UI needs to be rttr::policy::prop::as_reference_wrapper in order to ImGui make work.");
-		const auto propertyType = prop.get_type().get_wrapped_type();
-		// unfortunately, it is impossible to check this during registration
-		if constexpr (Class == MetaGUI::EnumSelect || Class == MetaGUI::EnumSelectOptional)
-		{
-			// pass anything
-			if constexpr (Class == MetaGUI::EnumSelect)
-				GLE_ASSERT(propertyType.is_enumeration(), "Property registered as enum: {}", propertyType);
-			if constexpr (Class == MetaGUI::EnumSelectOptional)
-			{
-				GLE_ASSERT(propertyType.is_wrapper(), "Property registered as optional: {}", propertyType);
-				GLE_ASSERT(propertyType.get_wrapped_type().get_raw_type().is_enumeration(), "Property registered as optional enum: {}", propertyType);
-			}
-		}
-		else
-		{
-			GLE_ASSERT(rttr::type::get<UIMetaclassToType_t<Class>>() == propertyType, "Property has wrong type expected '{}' passed '{}'",
-					   rttr::type::get<UIMetaclassToType_t<Class>>(), propertyType);
-		}
+		AssertUIMetaclassValueType<Class>(prop.get_type().get_wrapped_type());
+	}
+	return isRightClass;
+}
+
+//=================================================================================
+// Same tag check as IsUIMetaclass, but validates one container element's value instead of the property's.
+template <MetaGUI Class> [[nodiscard]] bool IsUIMetaclassForElement(const rttr::property& prop, const rttr::variant& elementVar)
+{
+	const auto isRightClass = IsMetaclass<Class>(prop);
+	if (isRightClass)
+	{
+		const auto elementType = elementVar.get_type();
+		AssertUIMetaclassValueType<Class>(elementType.is_wrapper() ? elementType.get_wrapped_type() : elementType);
 	}
 	return isRightClass;
 }
@@ -299,6 +319,13 @@ enum class CustomGUIWidget : std::uint8_t
 {
 	DrawFunction,
 };
+
+// Optional tag for std::vector<T> properties (rendered automatically either way); customizes label/Add button.
+enum class Array : std::uint8_t
+{
+	Name,	  // header label, defaults to the property name when absent
+	AllowAdd, // shows an "Add element" button when true, defaults to false
+};
 } // namespace UI
 REGISTER_META_CLASS(UI::Slider, MetaGUI);
 REGISTER_META_MEMBER_TYPE(UI::Slider::Name, std::string);
@@ -337,5 +364,11 @@ REGISTER_META_MEMBER_TYPE(UI::EnumSelectOptional::OptionalName, std::string);
 
 REGISTER_META_CLASS(UI::CustomGUIWidget, MetaGUI); // for whole types
 REGISTER_META_MEMBER_TYPE(UI::CustomGUIWidget::DrawFunction, std::function<void(rttr::instance&)>);
+
+REGISTER_META_CLASS(UI::Array, MetaGUI);
+REGISTER_META_MEMBER_TYPE(UI::Array::Name, std::string);
+REGISTER_META_MEMBER_TYPE(UI::Array::AllowAdd, bool);
+template <> struct MemberIsOptional<UI::Array::Name> : std::true_type {};
+template <> struct MemberIsOptional<UI::Array::AllowAdd> : std::true_type {};
 
 } // namespace Utils::Reflection

@@ -30,6 +30,6 @@ class C_GUIManager;
 
 GUI_API_EXPORT std::vector<rttr::property> DrawAllPropertyGUI(rttr::instance& obj);
 // return true when value changes
-GUI_API_EXPORT bool DrawPropertyGUI(rttr::instance& obj, const rttr::property& prop);
+GUI_API_EXPORT bool DrawPropertyGUI(rttr::instance obj, const rttr::property& prop);
 void				SetGUIManager(C_GUIManager& mgr);
 } // namespace GLEngine::GUI
