@@ -21,6 +21,8 @@ C_XMLDeserializer::C_XMLDeserializer(Core::C_ResourceManager& resMng, bool loadH
 //=================================================================================
 rttr::variant C_XMLDeserializer::DeserializeDoc(const pugi::xml_document& document)
 {
+	m_IsRootObject = true;
+
 	const auto rootNode = document.root().first_child();
 	const auto type		= rttr::type::get_by_name(rootNode.name());
 	if (type.is_valid() == false)
@@ -40,6 +42,9 @@ rttr::variant C_XMLDeserializer::DeserializeDoc(const pugi::xml_document& docume
 rttr::variant C_XMLDeserializer::DeserializeNode(const pugi::xml_node& node, rttr::variant& var)
 {
 	using namespace ::Utils::Reflection;
+	const bool isRoot = m_IsRootObject;
+	m_IsRootObject	  = false;
+
 	const rttr::instance var2 = var.get_type().get_raw_type().is_wrapper() ? rttr::instance(var).get_wrapped_instance() : rttr::instance(var);
 
 	auto type = var2.get_type();
@@ -50,9 +55,13 @@ rttr::variant C_XMLDeserializer::DeserializeNode(const pugi::xml_node& node, rtt
 
 	GLE_ASSERT(type.is_valid() == true, "Trying to deserialize invalid type {}", type);
 
+	const bool onlyDirect = !isRoot && HasMetadataMemberInHierarchy<SerializationCls::OnlyDirectSerialize>(type);
+
 	for (auto& prop : type.get_properties())
 	{
 		if (HasMetadataMember<SerializationCls::NoSerialize>(prop))
+			continue;
+		if (onlyDirect && HasMetadataMember<SerializationCls::AlwaysSerialize>(prop) == false)
 			continue;
 
 		DeserializeProperty(prop, var, node);
@@ -401,7 +410,7 @@ const auto setter = [](rttr::variant& instance, const T& value) {
 		instance = value;
 	}
 };
-}
+} // namespace
 //=================================================================================
 void C_XMLDeserializer::DeserializeAtomic(const pugi::xml_attribute& attr, const rttr::type& type, rttr::variant& instance)
 {

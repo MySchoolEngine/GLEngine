@@ -15,6 +15,8 @@ pugi::xml_document C_XMLSerializer::Serialize(const rttr::instance obj)
 	if (!obj.is_valid())
 		return {};
 
+	m_IsRootObject = true;
+
 	pugi::xml_document	 doc;
 	const pugi::xml_node node = doc.append_child(GetNodeName(obj.get_type()).to_string().c_str());
 	SerializeObject(obj, node);
@@ -25,12 +27,19 @@ pugi::xml_document C_XMLSerializer::Serialize(const rttr::instance obj)
 pugi::xml_node C_XMLSerializer::SerializeObject(const rttr::instance& obj2, const pugi::xml_node node)
 {
 	using namespace ::Utils::Reflection;
+	const bool isRoot = m_IsRootObject;
+	m_IsRootObject	  = false;
+
 	const rttr::instance obj = obj2.get_type().get_raw_type().is_wrapper() ? obj2.get_wrapped_instance() : obj2;
+
+	const bool onlyDirect = !isRoot && HasMetadataMemberInHierarchy<SerializationCls::OnlyDirectSerialize>(obj.get_derived_type());
 
 	const auto prop_list = obj.get_derived_type().get_properties();
 	for (auto prop : prop_list)
 	{
 		if (HasMetadataMember<SerializationCls::NoSerialize>(prop))
+			continue;
+		if (onlyDirect && HasMetadataMember<SerializationCls::AlwaysSerialize>(prop) == false)
 			continue;
 
 		WriteProperty(prop, obj, node);
