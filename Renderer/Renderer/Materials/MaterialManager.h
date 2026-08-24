@@ -16,7 +16,7 @@ class C_Material;
 class RENDERER_API_EXPORT C_MaterialManager {
 public:
 	// Singleton stuff
-	C_MaterialManager(C_MaterialManager const&)		= delete;
+	C_MaterialManager(C_MaterialManager const&)									= delete;
 	void									operator=(C_MaterialManager const&) = delete;
 	[[nodiscard]] static C_MaterialManager& Instance();
 
@@ -25,6 +25,9 @@ public:
 	[[nodiscard]] std::shared_ptr<C_Material>		RegisterMaterial(C_Material&& material);
 	void											RegisterMaterial(const std::shared_ptr<C_Material>& material);
 	void											UnregisterMaterial(std::shared_ptr<C_Material>& material);
+
+	// Fallback material used whenever a real material can't be resolved (e.g. missing/unready resource).
+	[[nodiscard]] const std::shared_ptr<C_Material>& GetErrorMaterial() const { return m_ErrorMaterial; }
 
 	using T_MaterialEnumerator = std::function<void(C_Material&)>;
 	void ForEachMaterial(const T_MaterialEnumerator& fn);
@@ -42,5 +45,6 @@ private:
 	GUID									 m_Window;
 	std::unique_ptr<GUI::C_LambdaPart>		 m_MaterialsList;
 	std::vector<std::shared_ptr<C_Material>> m_Materials;
+	std::shared_ptr<C_Material>				 m_ErrorMaterial;
 };
 } // namespace GLEngine::Renderer
