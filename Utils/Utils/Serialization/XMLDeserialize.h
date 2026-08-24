@@ -52,5 +52,6 @@ private:
 	void		  FinishDeserialization(const rttr::type& type, const rttr::variant& var);
 
 	DeserializeCtx m_Ctx;
+	bool		   m_IsRootObject = true;
 };
 } // namespace GLEngine::Utils

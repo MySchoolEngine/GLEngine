@@ -3,9 +3,9 @@
 /*****************************************************
 * NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE
 * Note that this whole project is learning oriented
-* thus you should not take this coding style as 
-* something good. Quite an opposite. This 
-* file contains my excursion into the template 
+* thus you should not take this coding style as
+* something good. Quite an opposite. This
+* file contains my excursion into the template
 * hell and taking it into the most absurd level.
 * NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE
 *****************************************************/
@@ -106,6 +106,22 @@ template <auto Member, class Enum = decltype(Member), class Type> requires IsMet
 }
 
 //=================================================================================
+// Same as HasMetadataMember, but also true if the metadata is present on any base class of t.
+// RTTR's own type::get_metadata() only checks the exact type, with no inheritance walk.
+template <auto Member, class Enum = decltype(Member)> requires IsMetaclassConcept<Enum> [[nodiscard]] bool HasMetadataMemberInHierarchy(const rttr::type& t)
+{
+	static_assert(IsMetadataName_v<Enum>, "Given member name must be registered meta member.");
+	if (HasMetadataMember<Member>(t))
+		return true;
+	for (const auto& base : t.get_base_classes())
+	{
+		if (HasMetadataMember<Member>(base))
+			return true;
+	}
+	return false;
+}
+
+//=================================================================================
 template <auto Class, class Enum = decltype(Class)> requires IsMetaclassConcept<Enum> [[nodiscard]] bool IsMetaclass(const rttr::property& prop)
 {
 	static_assert(std::is_enum_v<Enum>, "Class name could be only enum class.");
@@ -166,10 +182,20 @@ enum class SerializationCls : std::uint8_t {
 	NoSerialize,
 	DerefSerialize, // dereference before serialization
 	MandatoryProperty,
+	// Class-level tag (attach to a class_<T>(...) registration, not a property). When an instance of this
+	// class (or a class derived from it) is reached as a nested property - i.e. not the document root -
+	// only properties tagged AlwaysSerialize are written/read; everything else is skipped. Root instances
+	// are unaffected and serialize normally.
+	OnlyDirectSerialize,
+	// Property-level tag: opts a property back in even when its owning instance is under an
+	// OnlyDirectSerialize class and not the document root (e.g. Resource::FilePath).
+	AlwaysSerialize,
 };
 REGISTER_META_CLASS(SerializationCls, Metatype);
 REGISTER_META_MEMBER_TYPE(SerializationCls::NoSerialize, bool);
 REGISTER_META_MEMBER_TYPE(SerializationCls::MandatoryProperty, bool);
+REGISTER_META_MEMBER_TYPE(SerializationCls::OnlyDirectSerialize, bool);
+REGISTER_META_MEMBER_TYPE(SerializationCls::AlwaysSerialize, bool);
 
 enum class MetaGUIInfo {
 	CollapsableGroup, // name of group
