@@ -228,7 +228,7 @@ template <Core::IsResource resourceType, class MetaClassEnum> bool DrawResource(
 
 	static constexpr std::size_t s_MaxStringLen = 30; // found out by experiment
 
-	std::reference_wrapper resource = const_cast<Core::ResourceHandle<resourceType>&>(value.get_wrapped_value<Core::ResourceHandle<resourceType>>());
+	std::reference_wrapper resource = const_cast<Core::ResourceHandle<resourceType>&>(value.template get_wrapped_value<Core::ResourceHandle<resourceType>>());
 	bool				   ret		= false;
 	const ImVec2		   drawAreaSz(std::min(380.f, ImGui::GetWindowWidth()), 88);
 	const ImVec2		   canvasP0	 = ImGui::GetCursorPos();
