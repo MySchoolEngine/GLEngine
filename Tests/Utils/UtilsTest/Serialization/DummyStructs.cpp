@@ -150,5 +150,30 @@ RTTR_REGISTRATION
 		.constructor<>()
 		.property("wrongBool", &DefaultValueStruct::WrongBool)(REGISTER_DEFAULT_VALUE(true))
 		;
+
+	rttr::registration::class_<TrackedValue>("TrackedValue")
+		.constructor<>()(rttr::policy::ctor::as_object)
+		.property("payload", &TrackedValue::m_Payload);
+
+	rttr::registration::class_<TrackedStruct>("TrackedStruct")
+		.constructor<>()
+		.property("tracked", &TrackedStruct::m_Tracked)
+			(
+				rttr::policy::prop::as_reference_wrapper
+			);
+
+	rttr::registration::class_<TrackedVectorStruct>("TrackedVectorStruct")
+		.constructor<>()
+		.property("trackedVector", &TrackedVectorStruct::m_TrackedVector)
+			(
+				rttr::policy::prop::as_reference_wrapper
+			);
+
+	rttr::registration::class_<TrackedMapStruct>("TrackedMapStruct")
+		.constructor<>()
+		.property("trackedMap", &TrackedMapStruct::m_TrackedMap)
+			(
+				rttr::policy::prop::as_reference_wrapper
+			);
 }
 // clang-format on
