@@ -7,6 +7,7 @@
 #include <GUI/ResourceDialogWindow.h>
 
 #include <Renderer/IRenderer.h>
+#include <Renderer/Materials/MaterialResource.h>
 #include <Renderer/Mesh/Loading/MeshResource.h>
 #include <Renderer/Textures/TextureManager.h>
 #include <Renderer/Textures/TextureResource.h>
@@ -15,9 +16,13 @@
 #include <Core/Resources/ResourceHandle.h>
 #include <Core/Resources/ResourceManager.h>
 
+#include <Utils/Serialization/SerializationTraits.h>
+
+#include <cstdio>
 #include <filesystem>
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <optional>
 
 namespace GLEngine::GUI {
 namespace {
@@ -25,69 +30,101 @@ namespace {
 static C_GUIManager* s_GUIMgr = nullptr;
 
 //=================================================================================
-void DrawText(rttr::instance& obj, const rttr::property& prop)
+// Edits a wrapped value in place, or copies out/edits/reassigns a plain one.
+template <class T, class Func> bool EditValue(rttr::variant& value, Func&& func)
 {
-	using namespace ::Utils::Reflection;
-
-	::ImGui::TextUnformatted(prop.get_value(obj).get_wrapped_value<std::string>().c_str());
-}
-
-//=================================================================================
-bool DrawVec3(rttr::instance& obj, const rttr::property& prop)
-{
-	using namespace ::Utils::Reflection;
-
-	return ::ImGui::InputFloat3(GetMetadataMember<UI::Vec3::Name>(prop).c_str(), (float*)(&prop.get_value(obj).get_wrapped_value<glm::vec3>()));
-}
-
-//=================================================================================
-bool DrawiVec2(rttr::instance& obj, const rttr::property& prop)
-{
-	using namespace ::Utils::Reflection;
-
-	return ::ImGui::InputInt2(GetMetadataMember<UI::iVec2::Name>(prop).c_str(), (int*)(&prop.get_value(obj).get_wrapped_value<glm::ivec2>()));
-}
-
-//=================================================================================
-bool DrawCheckbox(rttr::instance& obj, const rttr::property& prop)
-{
-	using namespace ::Utils::Reflection;
-
-	return ::ImGui::Checkbox(GetMetadataMember<UI::Checkbox::Name>(prop).c_str(), (bool*)(&prop.get_value(obj).get_wrapped_value<bool>()));
-}
-
-//=================================================================================
-bool DrawSlider(rttr::instance& obj, const rttr::property& prop)
-{
-	using namespace ::Utils::Reflection;
-
-	return ::ImGui::SliderFloat(GetMetadataMember<UI::Slider::Name>(prop).c_str(), (float*)(&prop.get_value(obj).get_wrapped_value<float>()),
-								GetMetadataMember<UI::Slider::Min>(prop), GetMetadataMember<UI::Slider::Max>(prop));
-}
-
-//=================================================================================
-bool DrawEnumSelect(rttr::instance& obj, const rttr::property& prop)
-{
-	using namespace ::Utils::Reflection;
-
-	auto  currentValue	= prop.get_value(obj);
-	auto& currentValRef = (int&)currentValue.get_wrapped_value<int>();
-
-	bool changed = false;
-
-	const auto enumeration = prop.get_type().get_wrapped_type().get_enumeration();
-	GLE_ASSERT(enumeration.is_valid(), "Enumeration {} not registered", prop.get_type().get_wrapped_type());
-	if (::ImGui::BeginCombo(GetMetadataMember<UI::EnumSelect::Name>(prop).c_str(), enumeration.value_to_name(currentValue.extract_wrapped_value()).data()))
+	if (value.get_type().is_wrapper())
 	{
-		const auto range = enumeration.get_values();
-		auto	   it	 = range.begin();
-		for (int n = 0; n < range.size(); n++, ++it)
+		// get_wrapped_value() returns const T&, but the underlying storage is mutable here.
+		return func(const_cast<T&>(value.get_wrapped_value<T>()));
+	}
+	T local = value.get_value<T>();
+	if (func(local) == false)
+		return false;
+	value = local;
+	return true;
+}
+
+//=================================================================================
+// obj may own `prop` (property-level call) or be the value itself (array element);
+// try_convert first so the latter case doesn't hit an invalid get_value() result.
+template <class T> rttr::variant GetPropertyOrSelfValue(rttr::instance obj, const rttr::property& prop)
+{
+	if (auto* directPtr = obj.try_convert<T>())
+		return rttr::variant(std::ref(*directPtr));
+	return prop.get_value(obj);
+}
+
+//=================================================================================
+void DrawText(rttr::instance obj, const rttr::property& prop)
+{
+	auto value = GetPropertyOrSelfValue<std::string>(obj, prop);
+	const std::string text = value.get_type().is_wrapper() ? value.get_wrapped_value<std::string>() : value.get_value<std::string>();
+	::ImGui::TextUnformatted(text.c_str());
+}
+
+//=================================================================================
+bool DrawVec3(rttr::instance obj, const rttr::property& prop)
+{
+	using namespace ::Utils::Reflection;
+
+	auto value = GetPropertyOrSelfValue<glm::vec3>(obj, prop);
+	return EditValue<glm::vec3>(value, [&](glm::vec3& v) { return ::ImGui::InputFloat3(GetMetadataMember<UI::Vec3::Name>(prop).c_str(), (float*)&v); });
+}
+
+//=================================================================================
+bool DrawiVec2(rttr::instance obj, const rttr::property& prop)
+{
+	using namespace ::Utils::Reflection;
+
+	auto value = GetPropertyOrSelfValue<glm::ivec2>(obj, prop);
+	return EditValue<glm::ivec2>(value, [&](glm::ivec2& v) { return ::ImGui::InputInt2(GetMetadataMember<UI::iVec2::Name>(prop).c_str(), (int*)&v); });
+}
+
+//=================================================================================
+bool DrawCheckbox(rttr::instance obj, const rttr::property& prop)
+{
+	using namespace ::Utils::Reflection;
+
+	auto value = GetPropertyOrSelfValue<bool>(obj, prop);
+	return EditValue<bool>(value, [&](bool& v) { return ::ImGui::Checkbox(GetMetadataMember<UI::Checkbox::Name>(prop).c_str(), &v); });
+}
+
+//=================================================================================
+bool DrawSlider(rttr::instance obj, const rttr::property& prop)
+{
+	using namespace ::Utils::Reflection;
+
+	auto value = GetPropertyOrSelfValue<float>(obj, prop);
+	return EditValue<float>(value, [&](float& v) {
+		return ::ImGui::SliderFloat(GetMetadataMember<UI::Slider::Name>(prop).c_str(), &v, GetMetadataMember<UI::Slider::Min>(prop), GetMetadataMember<UI::Slider::Max>(prop));
+	});
+}
+
+//=================================================================================
+// Takes the value directly, not rttr::instance: the enum's concrete type isn't
+// known at compile time, so callers (including array elements) pass it as-is.
+bool DrawEnumSelectValue(rttr::variant& value, const std::string& label)
+{
+	const bool isWrapped	= value.get_type().is_wrapper();
+	const auto propertyType = isWrapped ? value.get_type().get_wrapped_type() : value.get_type();
+	const auto enumeration	= propertyType.get_enumeration();
+	GLE_ASSERT(enumeration.is_valid(), "Enumeration {} not registered", propertyType);
+
+	bool	   changed	   = false;
+	const auto currentName = isWrapped ? enumeration.value_to_name(value.extract_wrapped_value()) : enumeration.value_to_name(value);
+	if (::ImGui::BeginCombo(label.c_str(), currentName.data()))
+	{
+		for (const auto& candidate : enumeration.get_values())
 		{
-			const bool isSelected = (currentValue == *it);
-			if (::ImGui::Selectable(enumeration.value_to_name(*it).data(), isSelected))
+			const bool isSelected = (value == candidate);
+			if (::ImGui::Selectable(enumeration.value_to_name(candidate).data(), isSelected))
 			{
-				changed		  = true;
-				currentValRef = it->get_wrapped_value<int>();
+				changed = true;
+				if (isWrapped)
+					(int&)value.get_wrapped_value<int>() = candidate.get_wrapped_value<int>();
+				else
+					value = candidate;
 			}
 			if (isSelected)
 			{
@@ -100,30 +137,37 @@ bool DrawEnumSelect(rttr::instance& obj, const rttr::property& prop)
 }
 
 //=================================================================================
-bool DrawEnumSelectOptional(rttr::instance& obj, const rttr::property& prop)
+bool DrawEnumSelect(rttr::instance obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	auto  currentValue	= prop.get_value(obj);
-	auto& currentValRef = (std::optional<int>&)currentValue.get_wrapped_value<std::optional<int>>();
+	auto value = prop.get_value(obj);
+	return DrawEnumSelectValue(value, GetMetadataMember<UI::EnumSelect::Name>(prop));
+}
+
+//=================================================================================
+bool DrawEnumSelectOptional(rttr::instance obj, const rttr::property& prop)
+{
+	using namespace ::Utils::Reflection;
+
+	auto value = prop.get_value(obj);
+
+	auto& currentValRef = (std::optional<int>&)value.get_wrapped_value<std::optional<int>>();
 
 	bool changed = false;
 
-	const auto enumeration = prop.get_type().get_wrapped_type().get_wrapped_type().get_raw_type().get_enumeration();
-	GLE_ASSERT(enumeration.is_valid(), "Enumeration {} not registered", prop.get_type().get_wrapped_type());
-	if (::ImGui::BeginCombo(GetMetadataMember<UI::EnumSelectOptional::Name>(prop).c_str(), currentValRef.has_value()
-																							   ? enumeration.value_to_name(currentValRef.value()).data()
-																							   : GetMetadataMember<UI::EnumSelectOptional::OptionalName>(prop).c_str()))
+	const auto enumeration = value.get_type().get_wrapped_type().get_wrapped_type().get_raw_type().get_enumeration();
+	GLE_ASSERT(enumeration.is_valid(), "Enumeration {} not registered", value.get_type().get_wrapped_type());
+	if (::ImGui::BeginCombo(GetMetadataMember<UI::EnumSelectOptional::Name>(prop).c_str(),
+							currentValRef.has_value() ? enumeration.value_to_name(currentValRef.value()).data() : GetMetadataMember<UI::EnumSelectOptional::OptionalName>(prop).c_str()))
 	{
-		const auto range = enumeration.get_values();
-		auto	   it	 = range.begin();
-		for (int n = 0; n < range.size(); n++, ++it)
+		for (const auto& candidate : enumeration.get_values())
 		{
-			const bool isSelected = (currentValue == *it); // todo wrong
-			if (::ImGui::Selectable(enumeration.value_to_name(*it).data(), isSelected))
+			const bool isSelected = (value == candidate); // todo wrong
+			if (::ImGui::Selectable(enumeration.value_to_name(candidate).data(), isSelected))
 			{
 				changed		  = true;
-				currentValRef = it->get_wrapped_value<int>();
+				currentValRef = candidate.get_wrapped_value<int>();
 			}
 			if (isSelected)
 			{
@@ -145,41 +189,47 @@ bool DrawEnumSelectOptional(rttr::instance& obj, const rttr::property& prop)
 }
 
 //=================================================================================
-bool DrawSliderInt(rttr::instance& obj, const rttr::property& prop)
+bool DrawSliderInt(rttr::instance obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	return ::ImGui::SliderInt(GetMetadataMember<UI::SliderInt::Name>(prop).c_str(), (int*)(&prop.get_value(obj).get_wrapped_value<int>()),
-							  GetMetadataMember<UI::SliderInt::Min>(prop), GetMetadataMember<UI::SliderInt::Max>(prop));
+	auto value = GetPropertyOrSelfValue<int>(obj, prop);
+	return EditValue<int>(value, [&](int& v) {
+		return ::ImGui::SliderInt(GetMetadataMember<UI::SliderInt::Name>(prop).c_str(), &v, GetMetadataMember<UI::SliderInt::Min>(prop), GetMetadataMember<UI::SliderInt::Max>(prop));
+	});
 }
 
 //=================================================================================
-bool DrawAngle(rttr::instance& obj, const rttr::property& prop)
+bool DrawAngle(rttr::instance obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	return ::ImGui::SliderAngle(GetMetadataMember<UI::Angle::Name>(prop).c_str(), (float*)(&prop.get_value(obj).get_wrapped_value<float>()),
-								GetMetadataMember<UI::Angle::Min>(prop), GetMetadataMember<UI::Angle::Max>(prop));
+	auto value = GetPropertyOrSelfValue<float>(obj, prop);
+	return EditValue<float>(value, [&](float& v) {
+		return ::ImGui::SliderAngle(GetMetadataMember<UI::Angle::Name>(prop).c_str(), &v, GetMetadataMember<UI::Angle::Min>(prop), GetMetadataMember<UI::Angle::Max>(prop));
+	});
 }
 
 //=================================================================================
-bool DrawColour(rttr::instance& obj, const rttr::property& prop)
+bool DrawColour(rttr::instance obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
-	return ::ImGui::ColorEdit3(GetMetadataMember<UI::Colour::Name>(prop).c_str(), (float*)(&prop.get_value(obj).get_wrapped_value<glm::vec3>()));
+	auto value = GetPropertyOrSelfValue<glm::vec3>(obj, prop);
+	return EditValue<glm::vec3>(value, [&](glm::vec3& v) { return ::ImGui::ColorEdit3(GetMetadataMember<UI::Colour::Name>(prop).c_str(), (float*)&v); });
 }
 
 //=================================================================================
-template <Core::IsResource resourceType, class MetaClassEnum> bool DrawResource(rttr::instance& obj, const rttr::property& prop)
+template <Core::IsResource resourceType, class MetaClassEnum> bool DrawResource(rttr::instance obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
+
+	auto value = GetPropertyOrSelfValue<Core::ResourceHandle<resourceType>>(obj, prop);
 
 	static constexpr std::size_t s_MaxStringLen = 30; // found out by experiment
 
-	std::reference_wrapper resource		= const_cast<Core::ResourceHandle<resourceType>&>(prop.get_value(obj).get_wrapped_value<Core::ResourceHandle<resourceType>>());
-	const auto			   propertyName = GetMetadataMember<MetaClassEnum::Name>(prop);
-	bool				   ret			= false;
+	std::reference_wrapper resource = const_cast<Core::ResourceHandle<resourceType>&>(value.template get_wrapped_value<Core::ResourceHandle<resourceType>>());
+	bool				   ret		= false;
 	const ImVec2		   drawAreaSz(std::min(380.f, ImGui::GetWindowWidth()), 88);
 	const ImVec2		   canvasP0	 = ImGui::GetCursorPos();
 	const auto			   canvasPos = ImGui::GetCursorScreenPos();
@@ -193,7 +243,7 @@ template <Core::IsResource resourceType, class MetaClassEnum> bool DrawResource(
 
 	{
 		auto	filename = resource.get().GetFilePath().generic_string();
-		ImGuiID FrameID	 = ImGuiID{static_cast<unsigned int>(std::hash<std::string>{}(propertyName + filename))};
+		ImGuiID FrameID	 = ImGuiID{static_cast<unsigned int>(std::hash<std::string>{}(GetMetadataMember<MetaClassEnum::Name>(prop) + filename))};
 		ImGui::BeginChildFrame(FrameID, drawAreaSz);
 
 		auto&	   resMgr = Core::C_ResourceManager::Instance();
@@ -219,7 +269,7 @@ template <Core::IsResource resourceType, class MetaClassEnum> bool DrawResource(
 		ImGui::SetCursorPos(ImVec2{2, 2});
 		{
 			const ImVec2 previewSize{drawAreaSz.y - 4, drawAreaSz.y - 4};
-			ImGui::BeginChildFrame(ImGuiID{static_cast<unsigned int>(std::hash<std::string>{}(propertyName + filename + "_preview"))}, previewSize);
+			ImGui::BeginChildFrame(ImGuiID{static_cast<unsigned int>(std::hash<std::string>{}(GetMetadataMember<MetaClassEnum::Name>(prop) + filename + "_preview"))}, previewSize);
 			if constexpr (std::is_same_v<resourceType, Renderer::TextureResource>)
 			{
 				if (resource.get())
@@ -233,7 +283,7 @@ template <Core::IsResource resourceType, class MetaClassEnum> bool DrawResource(
 			ImGui::EndChildFrame();
 		}
 		ImGui::SetCursorPos(ImVec2{drawAreaSz.y + 2, 6});
-		ImGui::TextUnformatted(propertyName.c_str());
+		ImGui::TextUnformatted(GetMetadataMember<MetaClassEnum::Name>(prop).c_str());
 		if (filename.size() > s_MaxStringLen && filename.empty() == false)
 		{
 			filename.erase(0, filename.size() - s_MaxStringLen + 3);
@@ -253,6 +303,11 @@ template <Core::IsResource resourceType, class MetaClassEnum> bool DrawResource(
 		else if constexpr (std::is_same_v<resourceType, Renderer::MeshResource>)
 		{
 			loadImageText = "Load model";
+		}
+		else
+		{
+			// Fallback for any resource type not special-cased above
+			loadImageText = "Load";
 		}
 
 		const ImGuiStyle& style			 = GImGui->Style;
@@ -287,6 +342,114 @@ template <Core::IsResource resourceType, class MetaClassEnum> bool DrawResource(
 	ImGui::SetCursorPos(canvasP0);
 	ImGui::ItemSize(imageRect);
 	return ret;
+}
+
+//=================================================================================
+// Element-level twin of DrawPropertyGUI: tag lives on the container property, but edits the element directly.
+bool DrawArrayElementGUI(const rttr::property& prop, rttr::variant& elementVar)
+{
+	using namespace ::Utils::Reflection;
+
+	if (UI::IsUIMetaclassForElement<MetaGUI::Vec3>(prop, elementVar))
+	{
+		return DrawVec3(elementVar, prop);
+	}
+	else if (UI::IsUIMetaclassForElement<MetaGUI::iVec2>(prop, elementVar))
+	{
+		return DrawiVec2(elementVar, prop);
+	}
+	else if (UI::IsUIMetaclassForElement<MetaGUI::Checkbox>(prop, elementVar))
+	{
+		return DrawCheckbox(elementVar, prop);
+	}
+	else if (UI::IsUIMetaclassForElement<MetaGUI::Colour>(prop, elementVar))
+	{
+		return DrawColour(elementVar, prop);
+	}
+	else if (UI::IsUIMetaclassForElement<MetaGUI::Slider>(prop, elementVar))
+	{
+		return DrawSlider(elementVar, prop);
+	}
+	else if (UI::IsUIMetaclassForElement<MetaGUI::SliderInt>(prop, elementVar))
+	{
+		return DrawSliderInt(elementVar, prop);
+	}
+	else if (UI::IsUIMetaclassForElement<MetaGUI::Angle>(prop, elementVar))
+	{
+		return DrawAngle(elementVar, prop);
+	}
+	else if (UI::IsUIMetaclassForElement<MetaGUI::Text>(prop, elementVar))
+	{
+		DrawText(elementVar, prop);
+		return false;
+	}
+	else if (UI::IsUIMetaclassForElement<MetaGUI::EnumSelect>(prop, elementVar))
+	{
+		return DrawEnumSelectValue(elementVar, GetMetadataMember<UI::EnumSelect::Name>(prop));
+	}
+	else if (UI::IsUIMetaclassForElement<MetaGUI::Texture>(prop, elementVar))
+	{
+		return DrawResource<Renderer::TextureResource, UI::Texture>(elementVar, prop);
+	}
+	else if (UI::IsUIMetaclassForElement<MetaGUI::MeshResource>(prop, elementVar))
+	{
+		return DrawResource<Renderer::MeshResource, UI::MeshResource>(elementVar, prop);
+	}
+	else if (UI::IsUIMetaclassForElement<MetaGUI::MaterialResource>(prop, elementVar))
+	{
+		return DrawResource<Renderer::MaterialResource, UI::MaterialResource>(elementVar, prop);
+	}
+	return false;
+}
+
+//=================================================================================
+bool DrawSequentialContainer(rttr::instance obj, const rttr::property& prop)
+{
+	using namespace ::Utils::Reflection;
+
+	auto var  = prop.get_value(obj);
+	auto view = var.create_sequential_view();
+
+	const std::string label	   = HasMetadataMember<UI::Array::Name>(prop) ? GetMetadataMember<UI::Array::Name>(prop) : prop.get_name().to_string();
+	const bool		  allowAdd = HasMetadataMember<UI::Array::AllowAdd>(prop) && GetMetadataMember<UI::Array::AllowAdd>(prop);
+
+	bool changed = false;
+	if (::ImGui::CollapsingHeader(label.c_str()))
+	{
+		std::optional<std::size_t> removeIndex;
+		for (std::size_t i = 0; i < view.get_size(); ++i)
+		{
+			::ImGui::PushID(static_cast<int>(i));
+			::ImGui::TextUnformatted(std::to_string(i).c_str());
+			::ImGui::SameLine();
+
+			rttr::variant elementVar = view.get_value(i);
+			if (DrawArrayElementGUI(prop, elementVar))
+			{
+				view.set_value(i, elementVar);
+				changed = true;
+			}
+
+			::ImGui::SameLine();
+			if (::ImGui::SmallButton("-"))
+				removeIndex = i;
+			::ImGui::PopID();
+		}
+		if (removeIndex.has_value())
+		{
+			view.erase(view.begin() + static_cast<int>(*removeIndex));
+			changed = true;
+		}
+		if (allowAdd && ::ImGui::Button("+ Add"))
+		{
+			view.insert(view.end(), view.get_value_type().create());
+			changed = true;
+		}
+	}
+
+	if (changed)
+		prop.set_value(obj, var);
+	return changed;
 }
 } // namespace
 
@@ -339,10 +502,17 @@ std::vector<rttr::property> DrawAllPropertyGUI(rttr::instance& obj)
 }
 
 //=================================================================================
-bool DrawPropertyGUI(rttr::instance& obj, const rttr::property& prop)
+bool DrawPropertyGUI(rttr::instance obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
-	if (UI::IsUIMetaclass<MetaGUI::Vec3>(prop))
+	const auto propType = prop.get_type().get_raw_type();
+	// Check container-ness before any tag check: a vector may carry a Slider/Vec3/etc. tag for its elements.
+	const bool isArray = propType.is_sequential_container() || (propType.is_wrapper() && propType.get_wrapped_type().get_raw_type().is_sequential_container());
+	if (isArray)
+	{
+		return DrawSequentialContainer(obj, prop);
+	}
+	else if (UI::IsUIMetaclass<MetaGUI::Vec3>(prop))
 	{
 		return DrawVec3(obj, prop);
 	}
@@ -382,6 +552,10 @@ bool DrawPropertyGUI(rttr::instance& obj, const rttr::property& prop)
 	else if (UI::IsUIMetaclass<MetaGUI::MeshResource>(prop))
 	{
 		return DrawResource<Renderer::MeshResource, UI::MeshResource>(obj, prop);
+	}
+	else if (UI::IsUIMetaclass<MetaGUI::MaterialResource>(prop))
+	{
+		return DrawResource<Renderer::MaterialResource, UI::MaterialResource>(obj, prop);
 	}
 	else if (UI::IsUIMetaclass<MetaGUI::EnumSelectOptional>(prop))
 	{

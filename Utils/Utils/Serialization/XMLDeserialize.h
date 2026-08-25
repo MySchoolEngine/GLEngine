@@ -2,6 +2,7 @@
 
 #include <Utils/UtilsApi.h>
 
+#include <memory>
 #include <optional>
 #include <rttr/type>
 
@@ -34,6 +35,16 @@ public:
 		{
 			return var.convert<T>();
 		}
+		// type.create() commonly hands back a std::shared_ptr<T> (RTTR's default constructor policy
+		// is as_std_shared_ptr), for which there is no registered "unwrap to T by value" converter -
+		// nor should every deserializable type need to register one just to support this pattern. T
+		// is known statically here, so pull the shared_ptr out ourselves and move the pointee into
+		// the optional instead.
+		if (var.can_convert<std::shared_ptr<T>>())
+		{
+			if (auto ptr = var.convert<std::shared_ptr<T>>())
+				return std::optional<T>(std::move(*ptr));
+		}
 		return {};
 	}
 
@@ -52,5 +63,6 @@ private:
 	void		  FinishDeserialization(const rttr::type& type, const rttr::variant& var);
 
 	DeserializeCtx m_Ctx;
+	bool		   m_IsRootObject = true;
 };
 } // namespace GLEngine::Utils

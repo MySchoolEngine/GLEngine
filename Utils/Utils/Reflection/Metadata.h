@@ -3,9 +3,9 @@
 /*****************************************************
 * NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE
 * Note that this whole project is learning oriented
-* thus you should not take this coding style as 
-* something good. Quite an opposite. This 
-* file contains my excursion into the template 
+* thus you should not take this coding style as
+* something good. Quite an opposite. This
+* file contains my excursion into the template
 * hell and taking it into the most absurd level.
 * NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE
 *****************************************************/
@@ -106,6 +106,22 @@ template <auto Member, class Enum = decltype(Member), class Type> requires IsMet
 }
 
 //=================================================================================
+// Same as HasMetadataMember, but also true if the metadata is present on any base class of t.
+// RTTR's own type::get_metadata() only checks the exact type, with no inheritance walk.
+template <auto Member, class Enum = decltype(Member)> requires IsMetaclassConcept<Enum> [[nodiscard]] bool HasMetadataMemberInHierarchy(const rttr::type& t)
+{
+	static_assert(IsMetadataName_v<Enum>, "Given member name must be registered meta member.");
+	if (HasMetadataMember<Member>(t))
+		return true;
+	for (const auto& base : t.get_base_classes())
+	{
+		if (HasMetadataMember<Member>(base))
+			return true;
+	}
+	return false;
+}
+
+//=================================================================================
 template <auto Class, class Enum = decltype(Class)> requires IsMetaclassConcept<Enum> [[nodiscard]] bool IsMetaclass(const rttr::property& prop)
 {
 	static_assert(std::is_enum_v<Enum>, "Class name could be only enum class.");
@@ -158,6 +174,7 @@ enum class MetaGUI : std::uint8_t {
 	EnumSelect,
 	EnumSelectOptional,
 	CustomGUIWidget, //-> function<bool(rttr::instance, rttr::property)>
+	Array,			 // sequential containers (std::vector<T>, ...)
 };
 REGISTER_META_CLASS(MetaGUI, Metatype);
 
@@ -165,10 +182,20 @@ enum class SerializationCls : std::uint8_t {
 	NoSerialize,
 	DerefSerialize, // dereference before serialization
 	MandatoryProperty,
+	// Class-level tag (attach to a class_<T>(...) registration, not a property). When an instance of this
+	// class (or a class derived from it) is reached as a nested property - i.e. not the document root -
+	// only properties tagged AlwaysSerialize are written/read; everything else is skipped. Root instances
+	// are unaffected and serialize normally.
+	OnlyDirectSerialize,
+	// Property-level tag: opts a property back in even when its owning instance is under an
+	// OnlyDirectSerialize class and not the document root (e.g. Resource::FilePath).
+	AlwaysSerialize,
 };
 REGISTER_META_CLASS(SerializationCls, Metatype);
 REGISTER_META_MEMBER_TYPE(SerializationCls::NoSerialize, bool);
 REGISTER_META_MEMBER_TYPE(SerializationCls::MandatoryProperty, bool);
+REGISTER_META_MEMBER_TYPE(SerializationCls::OnlyDirectSerialize, bool);
+REGISTER_META_MEMBER_TYPE(SerializationCls::AlwaysSerialize, bool);
 
 enum class MetaGUIInfo {
 	CollapsableGroup, // name of group
@@ -206,6 +233,29 @@ template <> struct UIMetaclassToType<MetaGUI::Text> {
 
 
 //=================================================================================
+// Checks a value's type against what Class expects, regardless of where it came from.
+template <MetaGUI Class> void AssertUIMetaclassValueType(const rttr::type& valueType)
+{
+	// unfortunately, it is impossible to check this during registration
+	if constexpr (Class == MetaGUI::EnumSelect || Class == MetaGUI::EnumSelectOptional)
+	{
+		// pass anything
+		if constexpr (Class == MetaGUI::EnumSelect)
+			GLE_ASSERT(valueType.is_enumeration(), "Property registered as enum: {}", valueType);
+		if constexpr (Class == MetaGUI::EnumSelectOptional)
+		{
+			GLE_ASSERT(valueType.is_wrapper(), "Property registered as optional: {}", valueType);
+			GLE_ASSERT(valueType.get_wrapped_type().get_raw_type().is_enumeration(), "Property registered as optional enum: {}", valueType);
+		}
+	}
+	else
+	{
+		GLE_ASSERT(rttr::type::get<UIMetaclassToType_t<Class>>() == valueType, "Property has wrong type expected '{}' passed '{}'",
+				   rttr::type::get<UIMetaclassToType_t<Class>>(), valueType);
+	}
+}
+
+//=================================================================================
 template <MetaGUI Class> [[nodiscard]] bool IsUIMetaclass(const rttr::property& prop)
 {
 	const auto isRightClass = IsMetaclass<Class>(prop);
@@ -213,24 +263,20 @@ template <MetaGUI Class> [[nodiscard]] bool IsUIMetaclass(const rttr::property& 
 	{
 		// Those are actually compile time problems. So I do not include it into the result as it should be checked before committing.
 		GLE_ASSERT(prop.get_type().is_wrapper(), "Property for UI needs to be rttr::policy::prop::as_reference_wrapper in order to ImGui make work.");
-		const auto propertyType = prop.get_type().get_wrapped_type();
-		// unfortunately, it is impossible to check this during registration
-		if constexpr (Class == MetaGUI::EnumSelect || Class == MetaGUI::EnumSelectOptional)
-		{
-			// pass anything
-			if constexpr (Class == MetaGUI::EnumSelect)
-				GLE_ASSERT(propertyType.is_enumeration(), "Property registered as enum: {}", propertyType);
-			if constexpr (Class == MetaGUI::EnumSelectOptional)
-			{
-				GLE_ASSERT(propertyType.is_wrapper(), "Property registered as optional: {}", propertyType);
-				GLE_ASSERT(propertyType.get_wrapped_type().get_raw_type().is_enumeration(), "Property registered as optional enum: {}", propertyType);
-			}
-		}
-		else
-		{
-			GLE_ASSERT(rttr::type::get<UIMetaclassToType_t<Class>>() == propertyType, "Property has wrong type expected '{}' passed '{}'",
-					   rttr::type::get<UIMetaclassToType_t<Class>>(), propertyType);
-		}
+		AssertUIMetaclassValueType<Class>(prop.get_type().get_wrapped_type());
+	}
+	return isRightClass;
+}
+
+//=================================================================================
+// Same tag check as IsUIMetaclass, but validates one container element's value instead of the property's.
+template <MetaGUI Class> [[nodiscard]] bool IsUIMetaclassForElement(const rttr::property& prop, const rttr::variant& elementVar)
+{
+	const auto isRightClass = IsMetaclass<Class>(prop);
+	if (isRightClass)
+	{
+		const auto elementType = elementVar.get_type();
+		AssertUIMetaclassValueType<Class>(elementType.is_wrapper() ? elementType.get_wrapped_type() : elementType);
 	}
 	return isRightClass;
 }
@@ -299,6 +345,13 @@ enum class CustomGUIWidget : std::uint8_t
 {
 	DrawFunction,
 };
+
+// Optional tag for std::vector<T> properties (rendered automatically either way); customizes label/Add button.
+enum class Array : std::uint8_t
+{
+	Name,	  // header label, defaults to the property name when absent
+	AllowAdd, // shows an "Add element" button when true, defaults to false
+};
 } // namespace UI
 REGISTER_META_CLASS(UI::Slider, MetaGUI);
 REGISTER_META_MEMBER_TYPE(UI::Slider::Name, std::string);
@@ -337,5 +390,11 @@ REGISTER_META_MEMBER_TYPE(UI::EnumSelectOptional::OptionalName, std::string);
 
 REGISTER_META_CLASS(UI::CustomGUIWidget, MetaGUI); // for whole types
 REGISTER_META_MEMBER_TYPE(UI::CustomGUIWidget::DrawFunction, std::function<void(rttr::instance&)>);
+
+REGISTER_META_CLASS(UI::Array, MetaGUI);
+REGISTER_META_MEMBER_TYPE(UI::Array::Name, std::string);
+REGISTER_META_MEMBER_TYPE(UI::Array::AllowAdd, bool);
+template <> struct MemberIsOptional<UI::Array::Name> : std::true_type {};
+template <> struct MemberIsOptional<UI::Array::AllowAdd> : std::true_type {};
 
 } // namespace Utils::Reflection
