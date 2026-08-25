@@ -33,7 +33,7 @@ rttr::variant C_XMLDeserializer::DeserializeDoc(const pugi::xml_document& docume
 		CORE_LOG(E_Level::Error, E_Context::Core, "Invalid variant created. Probably needs ctor to be registered. Type = {}", type);
 		return {};
 	}
-	DeserializeNode(rootNode, var);
+	var = DeserializeNode(rootNode, var);
 	FinishDeserialization(type, var);
 	return var;
 }
@@ -67,7 +67,7 @@ rttr::variant C_XMLDeserializer::DeserializeNode(const pugi::xml_node& node, rtt
 		DeserializeProperty(prop, var, node);
 	}
 
-	return var;
+	return std::move(var);
 }
 
 //=================================================================================
@@ -147,15 +147,7 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 	{
 		if (const auto attribute = node.attribute(propertyName.c_str()))
 		{
-			rttr::variant var;
-			if (owner.get_type().is_wrapper())
-			{
-				var = prop.get_value(owner.extract_wrapped_value());
-			}
-			else
-			{
-				var = prop.get_value(owner);
-			}
+			rttr::variant var = prop.get_value(owner);
 
 			DeserializeAtomic(attribute, type, var);
 			const bool result = prop.set_value(owner, var);
@@ -227,6 +219,11 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 				return derivedType.create();
 			};
 			rttr::variant var;
+			// True only for the as_reference_wrapper branch below: there, var aliases owner's own
+			// member (prop.get_value() returns a reference into it, not a copy), so DeserializeNode
+			// already mutates that member in place through the alias. Writing it back afterwards via
+			// prop.set_value(owner, varNode) would just be a redundant self-assignment.
+			bool aliasesOwnerMember = false;
 			if (prop.get_type().is_pointer())
 			{
 				var = constructPointer(child, prop.get_type());
@@ -250,7 +247,8 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 				else
 				{
 					// reference wrapper
-					var = prop.get_value(owner);
+					var				   = prop.get_value(owner);
+					aliasesOwnerMember = true;
 				}
 			}
 			else
@@ -262,10 +260,13 @@ void C_XMLDeserializer::DeserializeProperty(const rttr::property& prop, rttr::va
 
 			auto varNode = DeserializeNode(child, var);
 			FinishDeserialization(type, varNode);
-			const auto conversionResult = varNode.convert(prop.get_type());
-			GLE_ASSERT(conversionResult, "Cannot convert");
-			const bool result = prop.set_value(owner, varNode);
-			GLE_ASSERT(result, "Cannot set property {} to the type {}", prop.get_name().to_string(), owner.get_type());
+			if (!aliasesOwnerMember)
+			{
+				const auto conversionResult = varNode.convert(prop.get_type());
+				GLE_ASSERT(conversionResult, "Cannot convert");
+				const bool result = prop.set_value(owner, varNode);
+				GLE_ASSERT(result, "Cannot set property {} to the type {}", prop.get_name().to_string(), owner.get_type());
+			}
 		}
 	}
 }
@@ -286,6 +287,7 @@ void C_XMLDeserializer::DeserializeArray(const pugi::xml_node& child, rttr::vari
 			DeserializeAtomic(childNode.attribute(childNode.name()), type, var);
 			GLE_ASSERT(var.convert(view.get_value_type()), "Cannot convert variable {} to {}", var.get_type(), view.get_value_type());
 			GLE_ASSERT(var.is_valid(), "Cannot create {} var", type);
+			FinishDeserialization(type, var);
 			const auto it = view.insert(view.end(), var);
 			view.set_value(index, var);
 		}
@@ -293,17 +295,17 @@ void C_XMLDeserializer::DeserializeArray(const pugi::xml_node& child, rttr::vari
 		{
 			var = type.create();
 			GLE_ASSERT(var.is_valid(), "Cannot create {} var", type);
-			DeserializeNode(childNode, var);
+			var = DeserializeNode(childNode, var);
 			GLE_ASSERT(var.convert(view.get_value_type()), "Cannot convert variable {} to {}", var.get_type(), view.get_value_type());
 			GLE_ASSERT(var.is_valid(), "Cannot create {} var", type);
+			FinishDeserialization(type, var);
 
-			const auto it = view.insert(view.end(), var);
+			const auto it = view.insert_move(view.end(), var);
 			if (it == view.end())
 			{
 				CORE_LOG(E_Level::Error, E_Context::Core, "Failed to insert item {} into the array.", type);
 			}
 		}
-		FinishDeserialization(type, var);
 		index++;
 	}
 }
@@ -365,7 +367,7 @@ void C_XMLDeserializer::DeserializeAssociativeArray(const pugi::xml_node& child,
 				FinishDeserialization(type, valueVar);
 			}
 
-			if (view.insert(keyVar, valueVar).second == false)
+			if (view.insert_move(keyVar, valueVar).second == false)
 			{
 				CORE_LOG(E_Level::Error, E_Context::Core, "Something happened.");
 			}

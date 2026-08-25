@@ -115,9 +115,15 @@ void C_XMLSerializer::WriteProperty(const rttr::property& prop, const rttr::inst
 	}
 	else
 	{
-		if (propValue.is_valid() == false || rttr::instance(propValue).is_valid() == false)
+		// For wrapper types (shared_ptr, etc.) rttr::instance(propValue).is_valid() only checks the
+		// address of the wrapper object itself, which is never null - it does not look at the wrapped
+		// pointee. A null wrapped pointer must be checked via the wrapped instance instead, otherwise a
+		// null shared_ptr property reaches get_derived_type() below and dereferences a null pointer.
+		const rttr::instance rawPropInstance(propValue);
+		const rttr::instance propInstance = rawPropInstance.get_type().get_raw_type().is_wrapper() ? rawPropInstance.get_wrapped_instance() : rawPropInstance;
+		if (propValue.is_valid() == false || propInstance.is_valid() == false)
 		{
-			// we can skip null pointers
+			// we can skip null pointers (raw or wrapped, e.g. a null shared_ptr)
 			return;
 		}
 		auto	   propNode = parent.append_child(prop.get_name().to_string().c_str());
