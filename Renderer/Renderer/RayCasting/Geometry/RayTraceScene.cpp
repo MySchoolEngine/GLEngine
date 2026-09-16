@@ -136,10 +136,21 @@ void C_RayTraceScene::ForEachInfiniteLight(const std::function<void(const std::r
 }
 
 //=================================================================================
+void C_RayTraceScene::AddMesh(const Core::ResourceHandle<C_TrimeshModel>&				 trimesh,
+							  const glm::mat4&											 transform,
+							  const std::vector<Core::ResourceHandle<MaterialResource>>& materialOverrides)
 {
 	auto RTTrimeshModel = std::make_shared<C_StaticRTMesh>(trimesh);
 	RTTrimeshModel->SetTransformation(transform);
-	RTTrimeshModel->InitMaterials(*this);
+
+	const auto&											trimeshes = trimesh.GetResource().GetTrimeshes();
+	std::vector<Core::ResourceHandle<MaterialResource>> materials;
+	materials.reserve(trimeshes.size());
+	for (std::size_t i = 0; i < trimeshes.size(); ++i)
+	{
+		materials.push_back(i < materialOverrides.size() && materialOverrides[i] ? materialOverrides[i] : trimeshes[i].GetMaterialHandle());
+	}
+	RTTrimeshModel->InitMaterials(*this, materials);
 	AddObject(RTTrimeshModel);
 }
 
