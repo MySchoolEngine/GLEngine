@@ -71,17 +71,19 @@ void C_StaticRTMesh::SetTransformation(const glm::mat4& mat)
 }
 
 //=================================================================================
-void C_StaticRTMesh::InitMaterials(I_MaterialProviderInterface& materialProvider)
+void C_StaticRTMesh::InitMaterials(I_MaterialProviderInterface& materialProvider, const std::vector<Core::ResourceHandle<MaterialResource>>& materials)
 {
 	if (m_TrimeshModel.IsReady() == false)
 		return;
 
-	m_Materials.reserve(m_TrimeshModel.GetResource().GetTrimeshes().size());
-	m_AlphaMaps.reserve(m_TrimeshModel.GetResource().GetTrimeshes().size());
-	for (const auto& trimesh : m_TrimeshModel.GetResource().GetTrimeshes())
+	GLE_ASSERT(materials.size() == m_TrimeshModel.GetResource().GetTrimeshes().size(), "InitMaterials requires exactly one material per trimesh.");
+
+	m_Materials.reserve(materials.size());
+	m_AlphaMaps.reserve(materials.size());
+	for (const auto& materialHandle : materials)
 	{
-		m_Materials.emplace_back(materialProvider.AddMaterial(trimesh.GetMaterialHandle()));
-		if (auto* pbrData = dynamic_cast<const C_PBRMaterialData*>(trimesh.GetMaterialHandle().GetResource().GetMaterialData()))
+		m_Materials.emplace_back(materialProvider.AddMaterial(materialHandle));
+		if (const auto* pbrData = dynamic_cast<const C_PBRMaterialData*>(materialHandle.GetResource().GetMaterialData()))
 		{
 			if (pbrData->GetUseTransparency())
 				m_AlphaMaps.emplace_back(pbrData->GetColorMapRes());
