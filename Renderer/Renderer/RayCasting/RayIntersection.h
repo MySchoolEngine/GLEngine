@@ -27,6 +27,8 @@ public:
 	[[nodiscard]] const S_Frame&					GetFrame() const;
 	[[nodiscard]] const Physics::Primitives::S_Ray& GetRay() const;
 	[[nodiscard]] const glm::vec3&					GetIntersectionPoint() const;
+
+	[[nodiscard]] const Physics::Primitives::S_Ray& SpawnRay(const glm::vec3& direction) const;
 	/**
 	 * @brief
 	 * @return Length from the \var m_Ray.origin to intersection, infinity if ray missed
