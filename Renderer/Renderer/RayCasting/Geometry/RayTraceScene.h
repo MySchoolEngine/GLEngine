@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Renderer/RayCasting/Geometry/TrimeshModel.h>
+#include <Renderer/RayCasting/Light/BackgroundLight.h>
 #include <Renderer/RayCasting/Material/MaterialProviderInterface.h>
 #include <Renderer/RendererApi.h>
 #include <Renderer/Textures/TextureResource.h>
@@ -48,7 +49,7 @@ public:
 	void			   AddObject(std::shared_ptr<I_RayGeometryObject>&& object);
 	void			   AddLight(std::shared_ptr<RayTracing::C_AreaLight>&& light);
 	void			   AddLight(std::shared_ptr<RayTracing::C_PointLight>&& light);
-	void			   AddMesh(const Core::ResourceHandle<C_TrimeshModel>& trimesh, const glm::mat4& transform = glm::mat4(1.f));
+	void			   AddLight(std::shared_ptr<RayTracing::C_BackgroundLight>&& light);
 
 	void ForEachLight(const std::function<void(const std::reference_wrapper<const RayTracing::I_RayLight>& light)>& fnc) const;
 
@@ -72,6 +73,7 @@ private:
 	std::vector<std::shared_ptr<I_RayGeometryObject>>	   m_Objects;
 	std::vector<std::shared_ptr<RayTracing::C_AreaLight>>  m_AreaLights;
 	std::vector<std::shared_ptr<RayTracing::C_PointLight>> m_PointLights;
+	std::vector<std::shared_ptr<RayTracing::C_BackgroundLight>> m_InfiniteLights;
 	std::vector<Core::ResourceHandle<TextureResource>>	   m_Textures;
 	std::vector<Core::ResourceHandle<C_TrimeshModel>>	   m_Meshes;
 	std::vector<std::unique_ptr<I_MaterialInterface>>	   m_Materials;
