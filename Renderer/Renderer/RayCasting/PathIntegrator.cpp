@@ -16,7 +16,7 @@ namespace GLEngine::Renderer {
 
 //=================================================================================
 C_PathIntegrator::C_PathIntegrator(const C_RayTraceScene& scene)
-	: m_Scene(scene)
+	: I_Integrator(scene)
 {
 }
 
