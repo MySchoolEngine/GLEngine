@@ -4,6 +4,8 @@
 #include <Renderer/IRenderer.h>
 #include <Renderer/Materials/Material.h>
 #include <Renderer/Materials/MaterialManager.h>
+#include <Renderer/Materials/MeshMaterialExtractor.h>
+#include <Renderer/Materials/PBRMaterialData.h>
 #include <Renderer/Mesh/Loading/ModelLoader.h>
 #include <Renderer/Resources/ResourceManager.h>
 
@@ -14,6 +16,7 @@
 
 #include <Utils/Reflection/Metadata.h>
 #include <Utils/Serialization/SerializationUtils.h>
+#include <Utils/StdVectorUtils.h>
 
 #include <imgui.h>
 
@@ -25,15 +28,17 @@ RTTR_REGISTRATION
 
 	rttr::registration::class_<C_StaticMeshHandles>("C_StaticMeshHandles")
 		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
-		.property("Materials", &C_StaticMeshHandles::m_Materials)
 		.property("ModelRes", &C_StaticMeshHandles::m_MeshResource)(
 			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetamember<SerializationCls::MandatoryProperty>(true),
 			RegisterMetaclass<MetaGUI::MeshResource>(),
 			RegisterMetamember<UI::MeshResource::Name>("Model"),
 			REGISTER_DEFAULT_VALUE(GLEngine::Core::ResourceHandle<MeshResource>()))
-		.method("AfterDeserialize", &C_StaticMeshHandles::AfterDeserialize)()
-		//.property("Shader", &C_StaticMesh::GetShader, &C_StaticMesh::SetShader)
+		.property("Materials", &C_StaticMeshHandles::m_MaterialHandles)(
+			rttr::policy::prop::as_reference_wrapper,
+			RegisterMetamember<SerializationCls::MandatoryProperty>(true),
+			RegisterMetaclass<MetaGUI::MaterialResource>(),
+			RegisterMetamember<UI::MaterialResource::Name>("Material"))
 		;
 	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<C_StaticMeshHandles>>();
 	rttr::type::register_converter_func([](std::shared_ptr<C_StaticMeshHandles> ptr, bool& ok) -> std::shared_ptr<GLEngine::Entity::I_Component> {
@@ -123,42 +128,14 @@ void C_StaticMeshHandles::Update()
 
 		m_MeshResourceLive = m_MeshResource;
 
+
 		const auto& scene = m_MeshResource.GetResource().GetScene();
-
-		// if we are loading from new resource, there will be no materials loaded, so we will try to load them from the
-		// source file, otherwise we don't want to do it, as there could be materials from the load level
-		const bool loadMaterials = m_Materials.empty();
-
-		std::vector<std::shared_ptr<C_Material>> materials;
-		if (loadMaterials)
-		{
-			materials.reserve(scene.materials.size());
-			for (const auto& material : scene.materials)
-			{
-				auto& mat = materials.emplace_back(C_MaterialManager::Instance().RegisterMaterial(C_Material(material)));
-				if (material.textureIndex >= 0)
-				{
-					mat->SetColorMapPath(scene.textures[material.textureIndex]);
-				}
-				if (material.normalTextureIndex >= 0)
-				{
-					mat->SetNormalMapPath(scene.textures[material.normalTextureIndex]);
-				}
-			}
-		}
-
 		m_Meshes.reserve(scene.meshes.size());
-		m_Materials.resize(scene.meshes.size());
 
 		I_Renderer&		 renderer = Core::C_Application::Get().GetActiveRenderer();
 		ResourceManager& rm		  = renderer.GetRM();
-		for (const auto&& [idx, mesh] : scene.meshes | std::ranges::views::enumerate)
+		for (const auto& mesh : scene.meshes)
 		{
-			if (loadMaterials)
-			{
-				m_Materials[idx] = materials[mesh.materialIndex];
-			}
-
 			auto& meshContainer			  = m_Meshes.emplace_back();
 			meshContainer.m_NumPrimitives = static_cast<uint32_t>(mesh.vertices.size());
 			// load buffer
@@ -204,6 +181,19 @@ void C_StaticMeshHandles::Update()
 			renderer.SetBufferData(meshContainer.m_BitangentHandle, bitangentSize, mesh.bitangent.data());
 		}
 	}
+
+
+	// if we are loading from new resource, there will be no materials loaded, so we will export each scene material
+	// as a MaterialResource (.glmat) and use those, otherwise we don't want to do it, as there could be materials
+	// from the load level
+	if (m_Materials.empty() || ::Utils::contains(m_Materials, nullptr))
+	{
+		if (m_MaterialHandles.empty())
+		{
+			CopyMaterialsFromSourceFile();
+		}
+		ConvertHandlesToMaterials();
+	}
 }
 
 //=================================================================================
@@ -227,12 +217,14 @@ void C_StaticMeshHandles::Render(Renderer3D& renderer) const
 {
 	if (m_MeshResource.IsReady())
 	{
+		auto& materialManager = C_MaterialManager::Instance();
+
 		for (const auto&& [meshContainer, material] : std::ranges::zip_view(m_Meshes, m_Materials))
 		{
 			renderer.Draw(RenderCall3D{
 				.ModelMatrix   = GetComponentModelMatrix(),
 				.NumPrimities  = meshContainer.m_NumPrimitives,
-				.MaterialIndex = material->GetMaterialIndex(),
+				.MaterialIndex = material ? material->GetMaterialIndex() : materialManager.GetErrorMaterial()->GetMaterialIndex(),
 				.Buffers
 				= {meshContainer.m_PositionsHandle, meshContainer.m_NormalsHandle, meshContainer.m_TexCoordsHandle, meshContainer.m_TangentHandle, meshContainer.m_BitangentHandle},
 				.PipelineHandle = m_Pipeline,
@@ -267,13 +259,6 @@ bool C_StaticMeshHandles::IsMeshReady() const
 //=================================================================================
 void C_StaticMeshHandles::DebugDrawGUI()
 {
-	if (::ImGui::CollapsingHeader("Materials"))
-	{
-		for (const auto& material : m_Materials)
-		{
-			material->DrawGUI();
-		}
-	}
 	if (m_MeshResource.IsLoading())
 	{
 		::ImGui::Text("Still loading");
@@ -283,18 +268,79 @@ void C_StaticMeshHandles::DebugDrawGUI()
 		::ImGui::TextColored(ImVec4(1, 0, 0, 1), "Failed");
 	}
 	rttr::instance obj(*this);
-	if (GUI::DrawAllPropertyGUI(obj).empty() == false)
+	const auto	   changedProperties = GUI::DrawAllPropertyGUI(obj);
+	if (changedProperties.empty() == false)
 	{
+		for (const auto& prop : changedProperties)
+		{
+			if (prop == rttr::type::get<C_StaticMeshHandles>().get_property("ModelRes"))
+			{
+				m_MaterialHandles.clear();
+				CopyMaterialsFromSourceFile();
+			}
+			if (prop == rttr::type::get<C_StaticMeshHandles>().get_property("Materials"))
+			{
+				// very crude way of doing this, but we do not know what index was changed
+				// once material manager works with handles this will be solved
+				m_Materials.clear();
+			}
+		}
 	}
 }
 
 //=================================================================================
-void C_StaticMeshHandles::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
+void C_StaticMeshHandles::CopyMaterialsFromSourceFile()
+{
+	if (m_MeshResource.IsReady() == false)
+		return;
+	// no materials set, use those from model
+	const auto materials = ExtractMaterialsFromMesh(m_MeshResource.GetResource());
+
+	const auto& scene = m_MeshResource.GetResource().GetScene();
+	m_MaterialHandles.assign(scene.meshes.size(), Core::ResourceHandle<MaterialResource>{});
+	for (const auto&& [idx, mesh] : scene.meshes | std::ranges::views::enumerate)
+	{
+		m_MaterialHandles[idx] = materials[mesh.materialIndex];
+	}
+}
+
+//=================================================================================
+std::shared_ptr<C_Material> C_StaticMeshHandles::ConvertHandleToMaterial(const Core::ResourceHandle<MaterialResource>& handle) const
 {
 	auto& materialManager = C_MaterialManager::Instance();
-	for (const auto& material : m_Materials)
+	if (!handle.IsReady())
 	{
-		materialManager.RegisterMaterial(material);
+		return nullptr;
+	}
+
+	const auto& materialResource = handle.GetResource();
+	auto		material		 = C_Material(materialResource.GetMaterialName());
+	if (const auto* pbrData = dynamic_cast<const C_PBRMaterialData*>(materialResource.GetMaterialData()))
+	{
+		material.SetDiffuseColor(pbrData->GetColour());
+		material.SetRoughness(pbrData->GetRoughness());
+		if (pbrData->GetColorMapRes())
+			material.SetColorMapPath(pbrData->GetColorMapRes().GetResource().GetFilePath());
+		if (pbrData->GetNormalMapRes())
+			material.SetNormalMapPath(pbrData->GetNormalMapRes().GetResource().GetFilePath());
+		if (pbrData->GetRoughnessMapRes())
+			material.SetRoughnessMapPath(pbrData->GetRoughnessMapRes().GetResource().GetFilePath());
+	}
+	return materialManager.RegisterMaterial(std::move(material));
+}
+
+//=================================================================================
+void C_StaticMeshHandles::ConvertHandlesToMaterials()
+{
+	auto& materialManager = C_MaterialManager::Instance();
+	for (auto& material : m_Materials)
+	{
+		materialManager.UnregisterMaterial(material);
+	}
+	m_Materials.assign(m_MaterialHandles.size(), nullptr);
+	for (int i = 0; i < m_MaterialHandles.size(); ++i)
+	{
+		m_Materials[i] = ConvertHandleToMaterial(m_MaterialHandles[i]);
 	}
 }
 
