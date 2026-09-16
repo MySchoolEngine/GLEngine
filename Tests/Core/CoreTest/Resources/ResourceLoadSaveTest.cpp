@@ -86,7 +86,9 @@ TEST_F(ResourceLoadSaveFixture, LoadDummyFilledInner_Delayed)
 		}
 	}
 	std::this_thread::sleep_for(DelayTestResource::s_LoadTime * 2);
-	manager.UpdatePendingLoads();
+	manager.UpdatePendingLoads(); // for the inner one
+	std::this_thread::sleep_for(DelayTestResource::s_LoadTime * 2);
+	manager.UpdatePendingLoads(); // for the outer one
 	const auto innerHandle = manager.GetResource<DelayTestResource>(testPathTest);
 	EXPECT_TRUE(innerHandle.IsReady());
 	EXPECT_TRUE(handleLoaded.IsReady());

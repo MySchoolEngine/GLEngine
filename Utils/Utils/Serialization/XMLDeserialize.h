@@ -2,6 +2,7 @@
 
 #include <Utils/UtilsApi.h>
 
+#include "Core/Resources/LoadingQuery.h"
 #include <memory>
 #include <optional>
 #include <rttr/type>
@@ -25,9 +26,15 @@ class xml_attribute;
 } // namespace pugi
 
 namespace GLEngine::Utils {
+struct DeserializeCtx {
+	Core::C_ResourceManager& m_ResMng;
+	Core::LoadingQuery&		 m_Query;
+	bool					 bLoadHandlesInstantly;
+};
+
 class UTILS_API_EXPORT C_XMLDeserializer {
 public:
-	C_XMLDeserializer(Core::C_ResourceManager& resMng, bool loadHandlesInstantly);
+	C_XMLDeserializer(Core::C_ResourceManager& resMng, Core::LoadingQuery& query, bool loadHandlesInstantly);
 	template <class T> std::optional<T> Deserialize(const pugi::xml_document& document)
 	{
 		auto var = DeserializeDoc(document);
@@ -47,11 +54,6 @@ public:
 		}
 		return {};
 	}
-
-	struct DeserializeCtx {
-		Core::C_ResourceManager& m_ResMng;
-		bool					 bLoadHandlesInstantly;
-	};
 
 private:
 	rttr::variant DeserializeDoc(const pugi::xml_document& document);

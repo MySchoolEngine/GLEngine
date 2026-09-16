@@ -7,8 +7,8 @@
 
 #include <Utils/Serialization/XMLSerialize.h>
 
+#include "Utils/Serialization/XMLDeserialize.h"
 #include <CoreTest/Resources/TestClasses/DelayTestResource.h>
-
 #include <map>
 #include <vector>
 
@@ -37,7 +37,7 @@ public:
 			CORE_LOG(E_Level::Error, E_Context::Core, "Can't open config file for TestResourceWithHandleContainers: {}", m_Filepath);
 			return false;
 		}
-		Utils::C_XMLDeserializer d(ctx.m_ResMng, ctx.m_isBlocking);
+		Utils::C_XMLDeserializer d(ctx.m_ResMng, ctx.m_Query, ctx.m_isBlocking);
 		auto					 loaded = d.Deserialize<std::shared_ptr<TestResourceWithHandleContainers>>(doc);
 		if (!loaded.has_value())
 		{

@@ -5,6 +5,7 @@
 #include <Core/Resources/ResourceLoader.h>
 #include <Core/Resources/ResourceManager.h>
 
+#include <Utils/Serialization/XMLDeserialize.h>
 #include <Utils/Serialization/XMLSerialize.h>
 
 #include <CoreTest/Resources/TestClasses/DelayTestResource.h>
@@ -29,7 +30,7 @@ public:
 			CORE_LOG(E_Level::Error, E_Context::Core, "Can't open config file for trimesh name: {}", m_Filepath);
 			return false;
 		}
-		Utils::C_XMLDeserializer d(ctx.m_ResMng, ctx.m_isBlocking);
+		Utils::C_XMLDeserializer d(ctx.m_ResMng, ctx.m_Query, ctx.m_isBlocking);
 		auto					 newTrimesh = d.Deserialize<std::shared_ptr<TestResourceWithPropertyFile>>(doc);
 		if (newTrimesh.has_value() == false)
 		{
