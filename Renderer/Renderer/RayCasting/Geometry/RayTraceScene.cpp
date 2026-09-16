@@ -114,6 +114,12 @@ void C_RayTraceScene::AddLight(std::shared_ptr<RayTracing::C_PointLight>&& light
 }
 
 //=================================================================================
+void C_RayTraceScene::AddLight(std::shared_ptr<RayTracing::C_BackgroundLight>&& light)
+{
+	m_InfiniteLights.emplace_back(std::move(light));
+}
+
+//=================================================================================
 void C_RayTraceScene::ForEachLight(const std::function<void(const std::reference_wrapper<const RayTracing::I_RayLight>& light)>& fnc) const
 {
 	std::for_each(m_AreaLights.begin(), m_AreaLights.end(), [&](const std::shared_ptr<RayTracing::C_AreaLight>& light) { fnc(*(light.get())); });
@@ -121,7 +127,15 @@ void C_RayTraceScene::ForEachLight(const std::function<void(const std::reference
 }
 
 //=================================================================================
-void C_RayTraceScene::AddMesh(const Core::ResourceHandle<C_TrimeshModel>& trimesh, const glm::mat4& transform)
+void C_RayTraceScene::ForEachInfiniteLight(const std::function<void(const std::reference_wrapper<const RayTracing::I_RayLight>& light)>& fnc) const
+{
+	for (const auto& light : m_InfiniteLights)
+	{
+		fnc(*light.get());
+	}
+}
+
+//=================================================================================
 {
 	auto RTTrimeshModel = std::make_shared<C_StaticRTMesh>(trimesh);
 	RTTrimeshModel->SetTransformation(transform);
@@ -175,6 +189,7 @@ void C_RayTraceScene::ClearScene()
 	m_Objects.clear();
 	m_AreaLights.clear();
 	m_PointLights.clear();
+	m_InfiniteLights.clear();
 	m_Textures.clear();
 	m_Meshes.clear();
 	m_Materials.clear();
