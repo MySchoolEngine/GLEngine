@@ -3,9 +3,11 @@
 #include <Core/CoreApi.h>
 #include <Core/Resources/Resource.h>
 
-#include <Utils/Serialization/XMLDeserialize.h>
-
 #include <rttr/registration_friend.h>
+
+namespace GLEngine::Utils {
+struct DeserializeCtx;
+}
 
 namespace GLEngine::Core {
 class CORE_API_EXPORT ResourceHandleBase {
@@ -61,7 +63,7 @@ public:
 	const ResourceType& GetResource() const;
 	ResourceType&		GetResource();
 
-	void AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx);
+	void AfterDeserialize(Utils::DeserializeCtx& ctx);
 
 	bool operator==(const ResourceHandle other) const { return m_Resource == other.m_Resource; }
 

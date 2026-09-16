@@ -1,10 +1,15 @@
 #include <UtilsTestStdafx.h>
 
+#include <Utils/Reflection/Metadata.h>
+
 #include <UtilsTest/Serialization/DummyStructs_Polymorphic.h>
 
 // clang-format off
 RTTR_REGISTRATION
 {
+	using namespace Utils::Reflection;
+
+
 	rttr::registration::class_<BaseShape>("BaseShape")
 		.property("id", &BaseShape::id)
 		.property("name", &BaseShape::name);
@@ -40,7 +45,33 @@ RTTR_REGISTRATION
 		.constructor<>()
 		.property("basePtr", &PointerContainer::basePtr)
 		.property("circlePtr", &PointerContainer::circlePtr);
-	
+
+	rttr::registration::class_<BaseResourceLike>("BaseResourceLike")
+	(
+		RegisterMetaclass<SerializationCls::OnlyDirectSerialize>()
+	)
+		.property("filePath", &BaseResourceLike::filePath)
+		(
+			RegisterMetamember<SerializationCls::AlwaysSerialize>(true)
+		)
+		.property("cache", &BaseResourceLike::cache);
+
+	rttr::registration::class_<DerivedResourceLike>("DerivedResourceLike")
+		.constructor<>()(rttr::policy::ctor::as_std_shared_ptr)
+		.property("extraData", &DerivedResourceLike::extraData);
+
+	rttr::registration::class_<ResourceHandleLikeContainer>("ResourceHandleLikeContainer")
+		.constructor<>()
+		.property("resource", &ResourceHandleLikeContainer::resource);
+
+	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<BaseResourceLike>>();
+	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<DerivedResourceLike>>();
+	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<ResourceHandleLikeContainer>>();
+	rttr::type::register_converter_func([](std::shared_ptr<DerivedResourceLike> ptr, bool& ok) -> std::shared_ptr<BaseResourceLike> {
+		ok = true;
+		return std::static_pointer_cast<BaseResourceLike>(ptr);
+	});
+
 	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<BaseShape>>();
 	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<RectangleTest>>();
 	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<TriangleTest>>();

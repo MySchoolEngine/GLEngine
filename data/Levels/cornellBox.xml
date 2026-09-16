@@ -26,22 +26,14 @@
 					<value>
 						<C_StaticMeshHandles>
 							<Transformation Translation="(0.0,-1.5,0.0)" />
-							<Materials>
-								<C_Material Name="Floor" Color="(1.0,1.0,1.0)" Roughness="1">
-									<ColorMapRes>
-										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR1_1K.jpg" />
-									</ColorMapRes>
-									<NormalMapRes>
-										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Bricks01\REGULAR\1K\Bricks01_NRM_1K.jpg" />
-									</NormalMapRes>
-									<RoughnessMapRes>
-										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Bricks01\REGULAR\1K\Bricks01_ROUGHNESS_1K.jpg" />
-									</RoughnessMapRes>
-								</C_Material>
-							</Materials>
 							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/plane.obj" />
+								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\plane.obj" />
 							</ModelRes>
+							<Materials>
+								<MaterialResourceHandle>
+									<Resource derivedTypeCast="MaterialResource" FilePath="Models\brick.glmat" />
+								</MaterialResourceHandle>
+							</Materials>
 						</C_StaticMeshHandles>
 					</value>
 				</item>
@@ -58,12 +50,14 @@
 					<value>
 						<C_StaticMeshHandles>
 							<Transformation Translation="(3.0,0.0,0.0)" Scale="(0.5,1.0,1.0)" RotationDeg="(0.0,-0.0,90.0)" />
-							<Materials>
-								<C_Material Name="None" Color="(1.0,0.0,0.0)" Roughness="0.5" />
-							</Materials>
 							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/plane.obj" />
+								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\plane.obj" />
 							</ModelRes>
+							<Materials>
+								<MaterialResourceHandle>
+									<Resource derivedTypeCast="MaterialResource" FilePath="Models\plane-None.glmat" />
+								</MaterialResourceHandle>
+							</Materials>
 						</C_StaticMeshHandles>
 					</value>
 				</item>
@@ -77,12 +71,14 @@
 					<value>
 						<C_StaticMeshHandles>
 							<Transformation Translation="(-3.0,0.0,0.0)" Scale="(0.5,1.0,1.0)" RotationDeg="(0.0,-0.0,-90.0)" />
-							<Materials>
-								<C_Material Name="None" Color="(0.0,1.0,0.019801855)" Roughness="0.5" />
-							</Materials>
 							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/plane.obj" />
+								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\plane.obj" />
 							</ModelRes>
+							<Materials>
+								<MaterialResourceHandle>
+									<Resource derivedTypeCast="MaterialResource" FilePath="Models\plane-None.glmat" />
+								</MaterialResourceHandle>
+							</Materials>
 						</C_StaticMeshHandles>
 					</value>
 				</item>
@@ -96,26 +92,15 @@
 					<value>
 						<C_StaticMeshHandles>
 							<Transformation Translation="(0.0,0.0,-3.0)" Scale="(1.0,1.0,0.5)" RotationDeg="(90.0,0.0,0.0)" />
-							<Materials>
-								<C_Material Name="None" Color="(1.0,1.0,1.0)" Roughness="0.5" />
-							</Materials>
 							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/plane.obj" />
+								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\plane.obj" />
 							</ModelRes>
+							<Materials>
+								<MaterialResourceHandle>
+									<Resource derivedTypeCast="MaterialResource" FilePath="Models\plane-None.glmat" />
+								</MaterialResourceHandle>
+							</Materials>
 						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="light">
-			<ID ID="d734b0f1-d660-4315-8e2f-33f8975f46b7" />
-			<components>
-				<item>
-					<key value="Light" />
-					<value>
-						<C_AreaLight Width="1" Height="1" DiffuseColour="(1.0,1.0,1.0)" SpecColour="(1.0,1.0,1.0)">
-							<Transformation Translation="(0.0,1.49,0.0)" RotationDeg="(-90.0,-0.0,0.0)" />
-						</C_AreaLight>
 					</value>
 				</item>
 			</components>
@@ -128,22 +113,37 @@
 					<value>
 						<C_StaticMeshHandles>
 							<Transformation Scale="(0.5,0.5,0.5)" />
-							<Materials>
-								<C_Material Name="Bark_NormalTree" Color="(1.0,1.0,1.0)" Roughness="0.5">
-									<ColorMapRes>
-										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\../Textures/Bark_NormalTree.png" />
-									</ColorMapRes>
-								</C_Material>
-								<C_Material Name="Leaves_NormalTree" Color="(1.0,1.0,1.0)" Roughness="0.5">
-									<ColorMapRes>
-										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\../Textures/Leaves_NormalTree_C.png" />
-									</ColorMapRes>
-								</C_Material>
-							</Materials>
 							<ModelRes>
 								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_1.obj" />
 							</ModelRes>
+							<Materials>
+								<MaterialResourceHandle>
+									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_1-Bark_NormalTree.glmat" />
+								</MaterialResourceHandle>
+								<MaterialResourceHandle>
+									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_1-Leaves_NormalTree.glmat" />
+								</MaterialResourceHandle>
+							</Materials>
 						</C_StaticMeshHandles>
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
+		<C_BasicEntity name="light" ModelMatrix="((1.0,0.0,0.0,0.0)(0.0,1.0,0.0,0.0)(0.0,0.0,1.0,0.0)(-2.1546416,1.4692063,0.0,1.0))">
+			<ID ID="46cfbc8d-f370-4b1b-802b-c1e76b4b8952" />
+			<components>
+				<item>
+					<key value="Light" />
+					<value>
+						<C_PointLight Intensity="1" Color="(1.0,1.0,1.0)" />
+					</value>
+				</item>
+				<item>
+					<key value="Light" />
+					<value>
+						<C_AreaLight Width="1" Height="1" DiffuseColour="(1.0,1.0,1.0)" SpecColour="(1.0,1.0,1.0)">
+							<Transformation RotationDeg="(-91.67325,-0.0,0.0)" />
+						</C_AreaLight>
 					</value>
 				</item>
 			</components>

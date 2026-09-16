@@ -1,8 +1,10 @@
 ﻿#include <CoreTestStdafx.h>
 
-#include <CoreTest/Resources/TestClasses/DelayFileTestResource.h>
-
 #include <Core/Resources/ResourceManager.h>
+
+#include <Utils/Serialization/XMLDeserialize.h>
+
+#include <CoreTest/Resources/TestClasses/DelayFileTestResource.h>
 
 DECLARE_RESOURCE_HANDLE_AFTER_DESERIALIZE(DelayFileTestResource)
 

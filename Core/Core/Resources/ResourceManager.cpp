@@ -225,7 +225,7 @@ C_Metafile* C_ResourceManager::GetOrLoadMetafile(const std::filesystem::path& re
 }
 
 //=================================================================================
-bool I_ResourceLoader::LoadResource(const std::filesystem::path& filepath, std::shared_ptr<Resource>& resource, LoadCtx ctx) const
+bool I_ResourceLoader::LoadResource(const std::filesystem::path& filepath, std::shared_ptr<Resource>& resource, LoadCtx& ctx) const
 {
 	Resource::LoadCtx resourceCtx{.m_ResMng = ctx.m_ResMng, .m_Query = ctx.m_Query, .m_isBlocking = ctx.m_isBlocking};
 	return resource->Load(filepath, resourceCtx);

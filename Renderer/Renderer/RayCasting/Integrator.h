@@ -17,20 +17,13 @@ namespace MeshData {
 struct Material;
 }
 
-class C_PathIntegrator {
+class I_Integrator {
 public:
-	C_PathIntegrator(const C_RayTraceScene& scene);
-	// main API of this class, allows to use of custom sampler
-	[[nodiscard]] Colours::T_Colour TraceRay(Physics::Primitives::S_Ray ray, I_Sampler& rnd);
+	I_Integrator(const C_RayTraceScene& scene);
+	virtual ~I_Integrator() = default;
 
-private:
-	[[nodiscard]] Colours::T_Colour Li_LightSampling(const Physics::Primitives::S_Ray& ray, I_Sampler& rnd, RayTracingSettings::T_ReflAlloc* alloc = nullptr);
-	[[nodiscard]] Colours::T_Colour Li_Direct(const Physics::Primitives::S_Ray& ray, I_Sampler& rnd, RayTracingSettings::T_ReflAlloc* alloc = nullptr);
-	[[nodiscard]] Colours::T_Colour Li_PathTrace(Physics::Primitives::S_Ray ray, I_Sampler& rnd, RayTracingSettings::T_ReflAlloc* alloc = nullptr);
-
-	[[nodiscard]] Colours::T_Colour
-	EstimateDirect(const C_RayIntersection& intersection, const RayTracing::I_RayLight& light, I_Sampler& rnd, RayTracingSettings::T_ReflAlloc* alloc = nullptr);
-
+	[[nodiscard]] virtual Colours::T_Colour TraceRay(Physics::Primitives::S_Ray ray, I_Sampler& rnd) = 0;
+protected:
 	const C_RayTraceScene& m_Scene;
 };
 } // namespace GLEngine::Renderer

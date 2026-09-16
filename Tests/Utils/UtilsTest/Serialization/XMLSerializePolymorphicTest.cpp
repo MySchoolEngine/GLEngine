@@ -7,7 +7,6 @@
 #include <CommonTestUtils/XMLSerializeFixture.h>
 
 #include <UtilsTest/Serialization/DummyStructs_Polymorphic.h>
-
 #include <memory>
 
 namespace GLEngine::Utils {
@@ -233,5 +232,23 @@ TEST_F(XMLSerializeFixture, SerializeNullPointerProperty)
 		auto basePtr = root.child("basePtr");
 		EXPECT_FALSE(basePtr) << "Null ptr is not being serialized";
 	}
+}
+
+TEST_F(XMLSerializeFixture, SerializeNullSharedPtrProperty)
+{
+	// A null shared_ptr property used to crash: unlike a null raw pointer, the address of a
+	// wrapper (shared_ptr) object itself is never null, so the pre-existing null check needs to
+	// unwrap the wrapper before it can see that the wrapped pointee is null.
+	ShapeContainer container;
+	container.containerName = "NullShapeContainer";
+	container.shape			= nullptr;
+
+	auto serializedXml = serializer.Serialize(container);
+	ASSERT_FALSE(serializedXml.empty());
+
+	auto root = serializedXml.child("ShapeContainer");
+	EXPECT_TRUE(root);
+	EXPECT_STREQ("NullShapeContainer", root.attribute("containerName").value());
+	EXPECT_FALSE(root.child("shape")) << "Null shared_ptr is not being serialized";
 }
 } // namespace GLEngine::Utils

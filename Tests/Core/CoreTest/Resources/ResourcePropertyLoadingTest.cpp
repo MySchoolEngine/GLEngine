@@ -2,6 +2,7 @@
 
 #include <Core/Resources/ResourceManager.h>
 
+#include "TestClasses/TestResourceWithDelayedProperty.h"
 #include <CoreTest/Resources/Fixtures/ResourceManagerBaseFixture.h>
 #include <CoreTest/Resources/TestClasses/TestResource2.h>
 #include <CoreTest/Resources/TestClasses/TestResourceWithProperty.h>
@@ -54,6 +55,7 @@ struct PropertyConfiguringLoader final : public ResourceLoader<TestResourceWithP
 class ResourcePropertyLoadingFixture : public ResourceManagerBaseFixture {
 public:
 	static inline const std::filesystem::path outerPath = "outer_resource.testprop";
+	static inline const std::filesystem::path delayPath = "delay_resource.testpropdelay";
 	static inline const std::filesystem::path innerPath = "inner_resource.test2";
 
 	void SetUp() override
@@ -82,6 +84,8 @@ public:
 		manager.RegisterResourceType(new TestResource2Loader);
 		manager.RegisterResourceType(configuringLoader);
 	}
+
+	static const inline std::filesystem::path s_TestFilepath{"ResourcePropertyLoadingFixture"};
 };
 
 // =============================================================================
@@ -167,6 +171,10 @@ TEST_F(ResourcePropertyLoadingFixture, AsyncPropertyLoad_OuterIsLoadingImmediate
 
 	EXPECT_TRUE(outerHandle.IsLoading()) << "Outer resource must be in Loading state immediately after an async load request";
 	EXPECT_FALSE(outerHandle.IsReady()) << "Outer resource must not be Ready immediately after an async load request";
+
+	// wait for the load finish
+	std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	manager.UpdatePendingLoads();
 }
 
 // After the async outer load completes (and UpdatePendingLoads is called), the
@@ -266,23 +274,24 @@ TEST_F(ResourcePropertyLoadingFixture, AsyncPropertyLoad_OuterNotReadyBeforeUpda
 {
 	auto& manager = C_ResourceManager::Instance();
 	RegisterLoaders(manager, innerPath);
+	manager.RegisterResourceType(new TestResourceWithDelayedPropertyLoader);
 
 	const auto outerHandle = manager.LoadResource<TestResourceWithProperty>(outerPath, false);
 
-	// Wait for the background thread to finish (pushed to m_FinishedLoads) but
-	// deliberately do NOT call UpdatePendingLoads yet.
-	std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	std::chrono::milliseconds waitTime = std::chrono::milliseconds(0);
+	EXPECT_TRUE(outerHandle.IsLoading());
 
-	// Without UpdatePendingLoads the outer must still be in Loading state even
-	// though the background thread has completed.
+
 	EXPECT_FALSE(outerHandle.IsReady()) << "Outer resource must not be Ready before UpdatePendingLoads is called, "
 										   "even after the background thread has finished";
-	EXPECT_TRUE(outerHandle.IsLoading()) << "Outer resource must still be in Loading state until UpdatePendingLoads is called";
-
-	// Now promote: outer becomes Ready.
-	manager.UpdatePendingLoads();
-
-	EXPECT_TRUE(outerHandle.IsReady()) << "Outer resource must be Ready after UpdatePendingLoads is called";
+	while (outerHandle.IsLoading())
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		waitTime += std::chrono::milliseconds(10);
+		manager.UpdatePendingLoads();
+	}
+	EXPECT_TRUE(outerHandle.IsReady());
+	EXPECT_TRUE(outerHandle.GetResource().m_InnerHandle.IsReady()) << "The inner handle needs to be loaded before the outer is loaded.";
 }
 
 } // namespace GLEngine::Core

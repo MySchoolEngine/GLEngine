@@ -202,7 +202,7 @@ bool C_GeomComponent::HasDebugDrawGUI() const
 }
 
 //=================================================================================
-void C_GeomComponent::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)
+void C_GeomComponent::AfterDeserialize(Utils::DeserializeCtx& ctx)
 {
 	auto& materialManager = C_MaterialManager::Instance();
 	materialManager.RegisterMaterial(m_Material);

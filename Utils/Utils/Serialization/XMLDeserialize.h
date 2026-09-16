@@ -2,6 +2,8 @@
 
 #include <Utils/UtilsApi.h>
 
+#include "Core/Resources/LoadingQuery.h"
+#include <memory>
 #include <optional>
 #include <rttr/type>
 
@@ -24,9 +26,15 @@ class xml_attribute;
 } // namespace pugi
 
 namespace GLEngine::Utils {
+struct DeserializeCtx {
+	Core::C_ResourceManager& m_ResMng;
+	Core::LoadingQuery&		 m_Query;
+	bool					 bLoadHandlesInstantly;
+};
+
 class UTILS_API_EXPORT C_XMLDeserializer {
 public:
-	C_XMLDeserializer(Core::C_ResourceManager& resMng, bool loadHandlesInstantly);
+	C_XMLDeserializer(Core::C_ResourceManager& resMng, Core::LoadingQuery& query, bool loadHandlesInstantly);
 	template <class T> std::optional<T> Deserialize(const pugi::xml_document& document)
 	{
 		auto var = DeserializeDoc(document);
@@ -34,13 +42,18 @@ public:
 		{
 			return var.convert<T>();
 		}
+		// type.create() commonly hands back a std::shared_ptr<T> (RTTR's default constructor policy
+		// is as_std_shared_ptr), for which there is no registered "unwrap to T by value" converter -
+		// nor should every deserializable type need to register one just to support this pattern. T
+		// is known statically here, so pull the shared_ptr out ourselves and move the pointee into
+		// the optional instead.
+		if (var.can_convert<std::shared_ptr<T>>())
+		{
+			if (auto ptr = var.convert<std::shared_ptr<T>>())
+				return std::optional<T>(std::move(*ptr));
+		}
 		return {};
 	}
-
-	struct DeserializeCtx {
-		Core::C_ResourceManager& m_ResMng;
-		bool					 bLoadHandlesInstantly;
-	};
 
 private:
 	rttr::variant DeserializeDoc(const pugi::xml_document& document);
@@ -52,5 +65,6 @@ private:
 	void		  FinishDeserialization(const rttr::type& type, const rttr::variant& var);
 
 	DeserializeCtx m_Ctx;
+	bool		   m_IsRootObject = true;
 };
 } // namespace GLEngine::Utils

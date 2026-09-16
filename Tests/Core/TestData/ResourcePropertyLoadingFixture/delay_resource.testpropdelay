@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<TestResourceWithDelayedProperty FilePath="ResourceLoadSaveFixture\delay_resource.testpropdelay">
+	<InnerHandle FilePath="ResourceLoadSaveFixture\delay_resource.test-slow" />
+</TestResourceWithDelayedProperty>

@@ -2,14 +2,23 @@
 
 #include <Core/Resources/Resource.h>
 
+#include <Utils/Reflection/Metadata.h>
+
 // clang-format off
 RTTR_REGISTRATION
 {
 	using namespace GLEngine::Core;
+	using namespace Utils::Reflection;
 
 	rttr::registration::class_<Resource>("Resource")
+	(
+		RegisterMetaclass<SerializationCls::OnlyDirectSerialize>()
+	)
 		.method("GetResourceTypeHash", &Resource::GetResourceTypeHash)
-		.property("FilePath", &Resource::m_Filepath);
+		.property("FilePath", &Resource::m_Filepath)
+		(
+			RegisterMetamember<SerializationCls::AlwaysSerialize>(true)
+		);
 
 
 	rttr::type::register_wrapper_converter_for_base_classes<std::shared_ptr<Resource>>();

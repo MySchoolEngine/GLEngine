@@ -67,3 +67,34 @@ public:
 	BaseShape* basePtr;
 	Circle*	   circlePtr;
 };
+
+// Models the Resource / MaterialResource OnlyDirectSerialize+AlwaysSerialize scenario:
+// BaseResourceLike is tagged OnlyDirectSerialize, so when an instance is reached as a nested
+// property (not the document root), only properties tagged AlwaysSerialize (filePath) survive;
+// cache and extraData (declared on the base and derived class respectively) are dropped.
+class BaseResourceLike {
+public:
+	BaseResourceLike()			= default;
+	virtual ~BaseResourceLike() = default;
+
+	std::string filePath;
+	std::string cache;
+
+	RTTR_ENABLE()
+};
+
+class DerivedResourceLike : public BaseResourceLike {
+public:
+	DerivedResourceLike() = default;
+
+	float extraData = 0.0f;
+
+	RTTR_ENABLE(BaseResourceLike)
+};
+
+class ResourceHandleLikeContainer {
+public:
+	ResourceHandleLikeContainer() = default;
+
+	std::shared_ptr<BaseResourceLike> resource;
+};

@@ -23,5 +23,7 @@ private:
 	void		   WriteAssociativeArray(const rttr::variant_associative_view& view, pugi::xml_node parent);
 
 	static rttr::string_view GetNodeName(const rttr::type& type);
+
+	bool m_IsRootObject = true;
 };
 } // namespace GLEngine::Utils

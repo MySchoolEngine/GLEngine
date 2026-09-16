@@ -10,10 +10,15 @@ class I_Sampler;
 namespace GLEngine::Renderer::RayTracing {
 class C_PointLight : public I_RayLight {
 public:
-	C_PointLight(const glm::vec3& position, const glm::vec3& intenstiy);
+	C_PointLight(const glm::vec3& position, const glm::vec3& intensity);
 	[[nodiscard]] Colours::T_Colour SampleLi(const C_RayIntersection& intersection, I_Sampler& rnd, S_VisibilityTester& vis, float* pdf) const override;
 	[[nodiscard]] Colours::T_Colour Le() const override;
-	[[nodiscard]] bool				IsDeltaLight() const override { return true; }
+	[[nodiscard]] Colours::T_Colour Lo(const glm::vec3& point, const glm::vec3& normal, const glm::vec2& uv, const glm::vec3& w) const override;
+	/**
+	 * @brief There is no probability of hitting infinitely small point
+	 * @param wi ignored
+	 * @return
+	 */
 	[[nodiscard]] float				Pdf_Li(const glm::vec3& wi) const override { return 0.f; }
 
 private:
