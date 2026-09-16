@@ -94,6 +94,14 @@ bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInte
 }
 
 //=================================================================================
+bool C_RayTraceScene::IntersectExists(const Physics::Primitives::S_Ray& ray, float offset) const
+{
+	GLE_TODO("15-08-2026", "RohacekD", "This should rather fast exit on first intersect");
+	C_RayIntersection Dummy;
+	return Intersect(ray, Dummy, offset);
+}
+
+//=================================================================================
 void C_RayTraceScene::AddObject(std::shared_ptr<I_RayGeometryObject>&& object)
 {
 	m_Objects.emplace_back(std::move(object));
@@ -192,6 +200,8 @@ void C_RayTraceScene::BuildScene()
 			AddMesh(trimeshHandle, cornellTransform);
 		}
 	}
+
+	// TODO TLAS
 }
 
 //=================================================================================
