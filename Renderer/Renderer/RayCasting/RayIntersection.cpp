@@ -48,6 +48,12 @@ const glm::vec3& C_RayIntersection::GetIntersectionPoint() const
 }
 
 //=================================================================================
+const Physics::Primitives::S_Ray& C_RayIntersection::SpawnRay(const glm::vec3& direction) const
+{
+	return {m_Point, m_Frame.ToWorld(direction)};
+}
+
+//=================================================================================
 const Physics::Primitives::S_Ray& C_RayIntersection::GetRay() const
 {
 	return m_Ray;
