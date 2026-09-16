@@ -60,7 +60,8 @@ float C_AreaLight::Pdf_Li(const glm::vec3& wi) const
 //=================================================================================
 Colours::T_Colour C_AreaLight::Lo(const glm::vec3& point, const glm::vec3& normal, const glm::vec2& uv, const glm::vec3& w) const
 {
-	return Colours::black;
+	// TODO implement image based lighting
+	return m_Radiance;
 }
 
 //=================================================================================
