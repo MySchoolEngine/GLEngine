@@ -23,7 +23,7 @@ public:
 	void						PerformDraw() const override {}
 	Physics::Primitives::S_AABB GetAABB() const override;
 
-	void			   AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx);
+	void			   AfterDeserialize(Utils::DeserializeCtx& ctx);
 	void			   DebugDrawGUI() override;
 	[[nodiscard]] bool HasDebugDrawGUI() const override;
 

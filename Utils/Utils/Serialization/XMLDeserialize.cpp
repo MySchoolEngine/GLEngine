@@ -13,8 +13,8 @@
 namespace GLEngine::Utils {
 
 //=================================================================================
-C_XMLDeserializer::C_XMLDeserializer(Core::C_ResourceManager& resMng, bool loadHandlesInstantly)
-	: m_Ctx({resMng, loadHandlesInstantly})
+C_XMLDeserializer::C_XMLDeserializer(Core::C_ResourceManager& resMng, Core::LoadingQuery& query, bool loadHandlesInstantly)
+	: m_Ctx({resMng, query, loadHandlesInstantly})
 {
 }
 

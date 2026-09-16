@@ -1,5 +1,7 @@
 #include <CoreTestStdafx.h>
 
+#include <Utils/Serialization/XMLDeserialize.h>
+
 #include <CoreTest/Resources/TestClasses/TestResourceWithProperty.h>
 
 namespace GLEngine::Core {

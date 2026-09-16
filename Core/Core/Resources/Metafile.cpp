@@ -35,7 +35,8 @@ bool C_Metafile::Load()
 		return false;
 	}
 
-	Utils::C_XMLDeserializer d(Core::C_ResourceManager::Instance(), true);
+	Core::LoadingQuery		 query;
+	Utils::C_XMLDeserializer d(Core::C_ResourceManager::Instance(), query, true);
 	auto					 newThis = d.Deserialize<C_Metafile>(doc);
 	if (newThis.has_value() == false)
 	{

@@ -134,7 +134,7 @@ bool MaterialResource::Load(const std::filesystem::path& filepath, LoadCtx& ctx)
 		return false;
 	}
 
-	Utils::C_XMLDeserializer d(ctx.m_ResMng, ctx.m_isBlocking);
+	Utils::C_XMLDeserializer d(ctx.m_ResMng, ctx.m_Query, ctx.m_isBlocking);
 	auto					 loaded = d.Deserialize<std::shared_ptr<MaterialResource>>(doc);
 	if (!loaded.has_value())
 	{

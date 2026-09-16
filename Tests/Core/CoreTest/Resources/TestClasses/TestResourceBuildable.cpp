@@ -2,6 +2,8 @@
 
 #include <Core/Resources/ResourceManager.h>
 
+#include <Utils/Serialization/XMLDeserialize.h>
+
 #include <CoreTest/Resources/TestClasses/TestResourceBuildable.h>
 
 DECLARE_RESOURCE_HANDLE_AFTER_DESERIALIZE(TestResourceBuildable)

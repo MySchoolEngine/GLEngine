@@ -354,7 +354,7 @@ void C_ExperimentWindow::OnAppInit()
 	{
 		m_ResourceWindowGUID = NextGUID();
 
-		auto resourceManagerWindow = new Editor::C_ResourceManagerWindow(m_ResourceWindowGUID, guiMGR, "Models\\Stylized Nature MegaKit[Standard]\\OBJ", [this](Core::I_Event& e) { OnEvent(e); });
+		auto resourceManagerWindow = new Editor::C_ResourceManagerWindow(m_ResourceWindowGUID, guiMGR, ".", [this](Core::I_Event& e) { OnEvent(e); });
 		guiMGR.AddCustomWindow(resourceManagerWindow);
 		resourceManagerWindow->SetVisible();
 	}
@@ -586,7 +586,8 @@ void C_ExperimentWindow::SetupWorld(const std::filesystem::path& level)
 		return;
 	}
 
-	Utils::C_XMLDeserializer d(Core::C_ResourceManager::Instance(), false);
+	Core::LoadingQuery		 query;
+	Utils::C_XMLDeserializer d(Core::C_ResourceManager::Instance(), query, false);
 	auto					 newWorld = d.Deserialize<std::shared_ptr<Entity::C_EntityManager>>(doc);
 	if (newWorld.has_value() == false)
 	{
