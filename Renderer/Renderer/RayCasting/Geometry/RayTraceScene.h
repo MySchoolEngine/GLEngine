@@ -46,6 +46,7 @@ public:
 	void operator=(const C_RayTraceScene&) = delete;
 
 	[[nodiscard]] bool Intersect(const Physics::Primitives::S_Ray& ray, C_RayIntersection& intersection, float offset = 0.f) const;
+	[[nodiscard]] bool IntersectExists(const Physics::Primitives::S_Ray& ray, float offset = 0.f) const;
 	void			   AddObject(std::shared_ptr<I_RayGeometryObject>&& object);
 	void			   AddLight(std::shared_ptr<RayTracing::C_AreaLight>&& light);
 	void			   AddLight(std::shared_ptr<RayTracing::C_PointLight>&& light);
