@@ -94,7 +94,7 @@ bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInte
 }
 
 //=================================================================================
-bool C_RayTraceScene::IntersectExists(const Physics::Primitives::S_Ray& ray, float offset) const
+bool C_RayTraceScene::IntersectExists(const Physics::Primitives::S_Ray& ray, float tmax) const
 {
 	GLE_TODO("15-08-2026", "RohacekD", "This should rather fast exit on first intersect");
 	C_RayIntersection Dummy;

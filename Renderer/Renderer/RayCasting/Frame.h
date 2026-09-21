@@ -32,28 +32,34 @@ public:
 	[[nodiscard]] constexpr glm::vec3 Bitangent() const;
 
 	// w is in local coords
-	[[nodiscard]] constexpr float CosTheta(const glm::vec3& w) const { return w.y; }
-	[[nodiscard]] constexpr float Cos2Theta(const glm::vec3& w) const { return w.y * w.y; }
-	[[nodiscard]] float			  AbsCosTheta(const glm::vec3& w) const { return std::abs(w.y); }
+	[[nodiscard]] static constexpr float CosTheta(const glm::vec3& w) { return w.y; }
+	[[nodiscard]] static constexpr float Cos2Theta(const glm::vec3& w) { return w.y * w.y; }
+	[[nodiscard]] static float			 AbsCosTheta(const glm::vec3& w) { return std::abs(w.y); }
 
-	[[nodiscard]] float			  SinTheta(const glm::vec3& w) const { return std::sqrt(Sin2Theta(w)); }
-	[[nodiscard]] constexpr float Sin2Theta(const glm::vec3& w) const { return std::max(0.f, 1.f - Cos2Theta(w)); }
+	[[nodiscard]] static float			 SinTheta(const glm::vec3& w) { return std::sqrt(Sin2Theta(w)); }
+	[[nodiscard]] static constexpr float Sin2Theta(const glm::vec3& w) { return std::max(0.f, 1.f - Cos2Theta(w)); }
 
-	[[nodiscard]] float TanTheta(const glm::vec3& w) const { return SinTheta(w) / CosTheta(w); }
-	[[nodiscard]] float Tan2Theta(const glm::vec3& w) const { return Sin2Theta(w) / Cos2Theta(w); }
+	[[nodiscard]] static float			 TanTheta(const glm::vec3& w) { return SinTheta(w) / CosTheta(w); }
+	[[nodiscard]] static constexpr float Tan2Theta(const glm::vec3& w) { return Sin2Theta(w) / Cos2Theta(w); }
 
-	[[nodiscard]] float SinPhi(const glm::vec3& w) const
+	[[nodiscard]] static float SinPhi(const glm::vec3& w)
 	{
 		const float sinTheta = SinTheta(w);
 		return sinTheta == 0.f ? 0.0f : glm::clamp(w.y / sinTheta, -1.f, 1.f);
 	}
-	[[nodiscard]] float CosPhi(const glm::vec3& w) const
+	[[nodiscard]] static float CosPhi(const glm::vec3& w)
 	{
 		const float sinTheta = SinTheta(w);
 		return sinTheta == 0.f ? 0.0f : glm::clamp(w.x / sinTheta, -1.f, 1.f);
 	}
 
-	[[nodiscard]] glm::vec3 Reflect(const glm::vec3& wi) const { return glm::vec3(-wi.x, wi.y, -wi.z); }
+	/**
+	 * @brief Works for vectors in local space and with respect to frames normal. Tests if both are on the same side
+	 * of the geometry.
+	 */
+	[[nodiscard]] static constexpr bool IsSameHemisphere(const glm::vec3& x, const glm::vec3& y) { return x.y * y.y > 0.f; }
+
+	[[nodiscard]] static glm::vec3 Reflect(const glm::vec3& wi) { return glm::vec3(-wi.x, wi.y, -wi.z); }
 
 	void Transform(const glm::mat4& mat)
 	{

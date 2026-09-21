@@ -9,11 +9,11 @@ struct S_Frame;
 class C_OrenNayarModel : public I_ReflectionModel {
 public:
 	C_OrenNayarModel(const Colours::T_Colour& colour, float sigmaDeg);
-	~C_OrenNayarModel();
+	~C_OrenNayarModel() override;
 
-	[[nodiscard]] virtual Colours::T_Colour f(const glm::vec3& wi, const glm::vec3& wo) const override;
-	[[nodiscard]] virtual Colours::T_Colour SampleF(const glm::vec3& wi, glm::vec3& wo, const S_Frame& frame, const glm::vec2& rng, float* pdf) const override;
-	[[nodiscard]] virtual float				Pdf(const glm::vec3& wi, const glm::vec3& wo) const override;
+	[[nodiscard]] Colours::T_Colour f(const glm::vec3& wi, const glm::vec3& wo) const override;
+	[[nodiscard]] Colours::T_Colour SampleF(const glm::vec3& wi, glm::vec3& wo, const S_Frame& frame, const glm::vec2& rng, float* pdf) const override;
+	[[nodiscard]] float				Pdf(const glm::vec3& wi, const glm::vec3& wo) const override;
 
 private:
 	Colours::T_Colour m_Colour;
