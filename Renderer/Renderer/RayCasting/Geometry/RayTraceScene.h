@@ -53,7 +53,7 @@ public:
 	void			   AddLight(std::shared_ptr<RayTracing::C_BackgroundLight>&& light);
 	void			   AddMesh(const Core::ResourceHandle<C_TrimeshModel>&				  trimesh,
 							   const glm::mat4&											  transform			= glm::mat4(1.f),
-							   const std::vector<Core::ResourceHandle<MaterialResource>>& materialOverrides = {});
+							   const std::span<const Core::ResourceHandle<MaterialResource>>& materialOverrides = {});
 
 	void ForEachLight(const std::function<void(const std::reference_wrapper<const RayTracing::I_RayLight>& light)>& fnc) const;
 	void ForEachInfiniteLight(const std::function<void(const std::reference_wrapper<const RayTracing::I_RayLight>& light)>& fnc) const;

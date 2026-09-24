@@ -32,6 +32,8 @@ public:
 	[[nodiscard]] bool			 IsMeshReady() const;
 	void						 DebugDrawGUI() override;
 
+	const std::vector<Core::ResourceHandle<MaterialResource>>& GetMaterials() const;
+
 	RTTR_ENABLE(Renderer::I_RenderableComponent);
 
 

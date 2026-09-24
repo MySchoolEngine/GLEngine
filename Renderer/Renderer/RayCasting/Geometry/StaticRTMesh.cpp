@@ -71,7 +71,7 @@ void C_StaticRTMesh::SetTransformation(const glm::mat4& mat)
 }
 
 //=================================================================================
-void C_StaticRTMesh::InitMaterials(I_MaterialProviderInterface& materialProvider, const std::vector<Core::ResourceHandle<MaterialResource>>& materials)
+void C_StaticRTMesh::InitMaterials(I_MaterialProviderInterface& materialProvider, const std::span<Core::ResourceHandle<MaterialResource>>& materials)
 {
 	if (m_TrimeshModel.IsReady() == false)
 		return;

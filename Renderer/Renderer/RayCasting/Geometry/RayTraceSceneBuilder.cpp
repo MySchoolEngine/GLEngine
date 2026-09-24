@@ -44,12 +44,7 @@ void ConvertMesh(const C_StaticMeshHandles& mesh, C_RayTraceScene& outScene)
 		return;
 	}
 
-	// The .tri bakes in whatever materials existed at build time - re-extract from the source mesh so
-	// edits to the scene's materials since then are reflected instead of the (possibly stale) trimesh ones.
-	const auto meshResourceHandle = Core::C_ResourceManager::Instance().LoadResource<MeshResource>(mesh.GetMeshFile(), /*isBlocking=*/true);
-	const auto materials = meshResourceHandle.IsReady() ? ExtractMaterialsFromMesh(meshResourceHandle.GetResource()) : std::vector<Core::ResourceHandle<MaterialResource>>{};
-
-	outScene.AddMesh(trimeshHandle, mesh.GetComponentModelMatrix(), materials);
+	outScene.AddMesh(trimeshHandle, mesh.GetComponentModelMatrix(), mesh.GetMaterials());
 }
 
 //=================================================================================

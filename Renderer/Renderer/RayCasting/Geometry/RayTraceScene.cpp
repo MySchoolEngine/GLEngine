@@ -144,9 +144,9 @@ void C_RayTraceScene::ForEachInfiniteLight(const std::function<void(const std::r
 }
 
 //=================================================================================
-void C_RayTraceScene::AddMesh(const Core::ResourceHandle<C_TrimeshModel>&				 trimesh,
-							  const glm::mat4&											 transform,
-							  const std::vector<Core::ResourceHandle<MaterialResource>>& materialOverrides)
+void C_RayTraceScene::AddMesh(const Core::ResourceHandle<C_TrimeshModel>&			   trimesh,
+							  const glm::mat4&										   transform,
+							  const std::span<const Core::ResourceHandle<MaterialResource>>& materialOverrides)
 {
 	auto RTTrimeshModel = std::make_shared<C_StaticRTMesh>(trimesh);
 	RTTrimeshModel->SetTransformation(transform);

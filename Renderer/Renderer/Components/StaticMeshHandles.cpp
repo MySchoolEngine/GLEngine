@@ -289,6 +289,12 @@ void C_StaticMeshHandles::DebugDrawGUI()
 }
 
 //=================================================================================
+const std::vector<Core::ResourceHandle<MaterialResource>>& C_StaticMeshHandles::GetMaterials() const
+{
+	return m_MaterialHandles;
+}
+
+//=================================================================================
 void C_StaticMeshHandles::CopyMaterialsFromSourceFile()
 {
 	if (m_MeshResource.IsReady() == false)

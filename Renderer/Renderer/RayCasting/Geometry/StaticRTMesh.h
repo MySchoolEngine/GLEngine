@@ -16,7 +16,7 @@ public:
 	[[nodiscard]] float Area() const override;
 	void				SetTransformation(const glm::mat4& mat);
 
-	void InitMaterials(I_MaterialProviderInterface& materialProvider, const std::vector<Core::ResourceHandle<MaterialResource>>& materials);
+	void InitMaterials(I_MaterialProviderInterface& materialProvider, const std::span<Core::ResourceHandle<MaterialResource>>& materials);
 
 private:
 	glm::mat4										   m_Transform	  = glm::mat4(1.f);
