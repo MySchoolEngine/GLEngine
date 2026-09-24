@@ -162,6 +162,7 @@ template <> struct IsMetadataName<Metatype> : std::true_type {};
 enum class MetaGUI : std::uint8_t {
 	Slider,
 	SliderInt,
+	SliderUint,
 	Angle,
 	Colour,
 	Vec3,
@@ -211,6 +212,9 @@ template <> struct UIMetaclassToType<MetaGUI::Slider> {
 };
 template <> struct UIMetaclassToType<MetaGUI::SliderInt> {
 	using type = int;
+};
+template <> struct UIMetaclassToType<MetaGUI::SliderUint> {
+	using type = unsigned int;
 };
 template <> struct UIMetaclassToType<MetaGUI::Angle> {
 	using type = float;
@@ -300,6 +304,12 @@ enum class SliderInt : std::uint8_t
 	Max,
 };
 
+enum class SliderUint : std::uint8_t {
+	Name,
+	Min,
+	Max,
+};
+
 enum class Angle : std::uint8_t
 {
 	Name,
@@ -361,6 +371,10 @@ REGISTER_META_CLASS(UI::SliderInt, MetaGUI);
 REGISTER_META_MEMBER_TYPE(UI::SliderInt::Name, std::string);
 REGISTER_META_MEMBER_TYPE(UI::SliderInt::Min, int);
 REGISTER_META_MEMBER_TYPE(UI::SliderInt::Max, int);
+REGISTER_META_CLASS(UI::SliderUint, MetaGUI);
+REGISTER_META_MEMBER_TYPE(UI::SliderUint::Name, std::string);
+REGISTER_META_MEMBER_TYPE(UI::SliderUint::Min, unsigned int);
+REGISTER_META_MEMBER_TYPE(UI::SliderUint::Max, unsigned int);
 
 REGISTER_META_CLASS(UI::Angle, MetaGUI);
 REGISTER_META_MEMBER_TYPE(UI::Angle::Name, std::string);

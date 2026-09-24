@@ -58,8 +58,8 @@ template <class T> rttr::variant GetPropertyOrSelfValue(rttr::instance obj, cons
 //=================================================================================
 void DrawText(rttr::instance obj, const rttr::property& prop)
 {
-	auto value = GetPropertyOrSelfValue<std::string>(obj, prop);
-	const std::string text = value.get_type().is_wrapper() ? value.get_wrapped_value<std::string>() : value.get_value<std::string>();
+	auto			  value = GetPropertyOrSelfValue<std::string>(obj, prop);
+	const std::string text	= value.get_type().is_wrapper() ? value.get_wrapped_value<std::string>() : value.get_value<std::string>();
 	::ImGui::TextUnformatted(text.c_str());
 }
 
@@ -158,8 +158,9 @@ bool DrawEnumSelectOptional(rttr::instance obj, const rttr::property& prop)
 
 	const auto enumeration = value.get_type().get_wrapped_type().get_wrapped_type().get_raw_type().get_enumeration();
 	GLE_ASSERT(enumeration.is_valid(), "Enumeration {} not registered", value.get_type().get_wrapped_type());
-	if (::ImGui::BeginCombo(GetMetadataMember<UI::EnumSelectOptional::Name>(prop).c_str(),
-							currentValRef.has_value() ? enumeration.value_to_name(currentValRef.value()).data() : GetMetadataMember<UI::EnumSelectOptional::OptionalName>(prop).c_str()))
+	if (::ImGui::BeginCombo(GetMetadataMember<UI::EnumSelectOptional::Name>(prop).c_str(), currentValRef.has_value()
+																							   ? enumeration.value_to_name(currentValRef.value()).data()
+																							   : GetMetadataMember<UI::EnumSelectOptional::OptionalName>(prop).c_str()))
 	{
 		for (const auto& candidate : enumeration.get_values())
 		{
@@ -195,7 +196,22 @@ bool DrawSliderInt(rttr::instance obj, const rttr::property& prop)
 
 	auto value = GetPropertyOrSelfValue<int>(obj, prop);
 	return EditValue<int>(value, [&](int& v) {
-		return ::ImGui::SliderInt(GetMetadataMember<UI::SliderInt::Name>(prop).c_str(), &v, GetMetadataMember<UI::SliderInt::Min>(prop), GetMetadataMember<UI::SliderInt::Max>(prop));
+		return ::ImGui::SliderInt(GetMetadataMember<UI::SliderInt::Name>(prop).c_str(), &v, GetMetadataMember<UI::SliderInt::Min>(prop),
+								  GetMetadataMember<UI::SliderInt::Max>(prop));
+	});
+}
+
+//=================================================================================
+bool DrawSliderUint(rttr::instance obj, const rttr::property& prop)
+{
+	using namespace ::Utils::Reflection;
+
+	auto value = GetPropertyOrSelfValue<unsigned int>(obj, prop);
+	return EditValue<unsigned int>(value, [&](unsigned int& v) {
+		const unsigned int minValue = GetMetadataMember<UI::SliderUint::Min>(prop);
+		const unsigned int maxValue = GetMetadataMember<UI::SliderUint::Max>(prop);
+		const auto		   label	= GetMetadataMember<UI::SliderUint::Name>(prop);
+		return ::ImGui::SliderScalar(label.c_str(), ImGuiDataType_U32, &v, &minValue, &maxValue);
 	});
 }
 
@@ -374,6 +390,10 @@ bool DrawArrayElementGUI(const rttr::property& prop, rttr::variant& elementVar)
 	{
 		return DrawSliderInt(elementVar, prop);
 	}
+	else if (UI::IsUIMetaclassForElement<MetaGUI::SliderUint>(prop, elementVar))
+	{
+		return DrawSliderUint(elementVar, prop);
+	}
 	else if (UI::IsUIMetaclassForElement<MetaGUI::Angle>(prop, elementVar))
 	{
 		return DrawAngle(elementVar, prop);
@@ -535,6 +555,10 @@ bool DrawPropertyGUI(rttr::instance obj, const rttr::property& prop)
 	else if (UI::IsUIMetaclass<MetaGUI::SliderInt>(prop))
 	{
 		return DrawSliderInt(obj, prop);
+	}
+	else if (UI::IsUIMetaclass<MetaGUI::SliderUint>(prop))
+	{
+		return DrawSliderUint(obj, prop);
 	}
 	else if (UI::IsUIMetaclass<MetaGUI::Angle>(prop))
 	{
