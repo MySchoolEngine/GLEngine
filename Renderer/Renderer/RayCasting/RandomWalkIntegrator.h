@@ -14,7 +14,7 @@ public:
 	[[nodiscard]] Colours::T_Colour TraceRay(Physics::Primitives::S_Ray ray, I_Sampler& rnd) override;
 
 private:
-	[[nodiscard]] Colours::T_Colour LiRandomWalk(Physics::Primitives::S_Ray ray, I_Sampler& rnd, int depth, RayTracingSettings::T_ReflAlloc* alloc);
+	[[nodiscard]] Colours::T_Colour LiRandomWalk(Physics::Primitives::S_Ray ray, I_Sampler& rnd, unsigned int depth, RayTracingSettings::T_ReflAlloc* alloc);
 
 	unsigned int m_MaxDepth = 3;
 };

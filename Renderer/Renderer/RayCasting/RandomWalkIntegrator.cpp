@@ -24,9 +24,8 @@ Colours::T_Colour RandomWalkIntegrator::TraceRay(Physics::Primitives::S_Ray ray,
 }
 
 //=================================================================================
-Colours::T_Colour RandomWalkIntegrator::LiRandomWalk(Physics::Primitives::S_Ray ray, I_Sampler& rnd, int depth, RayTracingSettings::T_ReflAlloc* alloc)
+Colours::T_Colour RandomWalkIntegrator::LiRandomWalk(Physics::Primitives::S_Ray ray, I_Sampler& rnd, unsigned int depth, RayTracingSettings::T_ReflAlloc* alloc)
 {
-
 	C_RayIntersection intersect;
 	// Intersect with scene
 	if (!m_Scene.Intersect(ray, intersect, 1e-3f))
@@ -41,7 +40,7 @@ Colours::T_Colour RandomWalkIntegrator::LiRandomWalk(Physics::Primitives::S_Ray 
 	glm::vec3 LoDirect(0.f);
 	if (intersect.IsLight())
 	{
-		auto light = intersect.GetLight();
+		const auto& light = intersect.GetLight();
 		LoDirect += light->Lo(intersect.GetIntersectionPoint(), intersect.GetFrame().Normal(), intersect.GetUV(), -ray.direction);
 	}
 
