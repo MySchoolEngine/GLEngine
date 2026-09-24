@@ -28,7 +28,7 @@ Colours::T_Colour C_PathIntegrator::TraceRay(Physics::Primitives::S_Ray ray, I_S
 }
 
 //=================================================================================
-Colours::T_Colour C_PathIntegrator::Li_Direct(const Physics::Primitives::S_Ray& ray, I_Sampler& rnd, RayTracingSettings::T_ReflAlloc* alloc)
+Colours::T_Colour C_PathIntegrator::Li_Direct(const Physics::Primitives::S_Ray& ray, I_Sampler& rnd, RayTracingSettings::T_ReflAlloc* alloc) const
 {
 	// this is basing the direction on BRDF somehow
 	glm::vec3 LoDirect(0.f);
@@ -41,7 +41,7 @@ Colours::T_Colour C_PathIntegrator::Li_Direct(const Physics::Primitives::S_Ray& 
 	// direct ray to the light intersection
 	if (intersect.IsLight())
 	{
-		auto light = intersect.GetLight();
+		const auto& light = intersect.GetLight();
 		LoDirect += light->Le();
 	}
 
@@ -65,8 +65,8 @@ Colours::T_Colour C_PathIntegrator::Li_Direct(const Physics::Primitives::S_Ray& 
 
 	if (intersectY.IsLight())
 	{
-		auto	   light	 = intersectY.GetLight();
-		const auto lightPart = wi.y * light->Le() / pdf;
+		const auto& light	  = intersectY.GetLight();
+		const auto	lightPart = wi.y * light->Le() / pdf;
 		LoDirect += glm::vec3(f.x * lightPart.x, f.y * lightPart.y, f.z * lightPart.z);
 	}
 
@@ -74,7 +74,7 @@ Colours::T_Colour C_PathIntegrator::Li_Direct(const Physics::Primitives::S_Ray& 
 }
 
 //=================================================================================
-Colours::T_Colour C_PathIntegrator::Li_PathTrace(Physics::Primitives::S_Ray ray, I_Sampler& rnd, RayTracingSettings::T_ReflAlloc* alloc)
+Colours::T_Colour C_PathIntegrator::Li_PathTrace(Physics::Primitives::S_Ray ray, I_Sampler& rnd, RayTracingSettings::T_ReflAlloc* alloc) const
 {
 	Colours::T_Colour LoDirect	 = Colours::black; // f in his example
 	Colours::T_Colour throughput = Colours::white;
@@ -98,7 +98,7 @@ Colours::T_Colour C_PathIntegrator::Li_PathTrace(Physics::Primitives::S_Ray ray,
 		{
 			if (intersect.IsLight())
 			{
-				auto light = intersect.GetLight();
+				const auto& light = intersect.GetLight();
 				LoDirect += throughput * light->Le();
 			}
 		}
@@ -149,7 +149,7 @@ Colours::T_Colour C_PathIntegrator::Li_PathTrace(Physics::Primitives::S_Ray ray,
 }
 
 //=================================================================================
-Colours::T_Colour C_PathIntegrator::Li_LightSampling(const Physics::Primitives::S_Ray& ray, I_Sampler& rnd, RayTracingSettings::T_ReflAlloc* alloc)
+Colours::T_Colour C_PathIntegrator::Li_LightSampling(const Physics::Primitives::S_Ray& ray, I_Sampler& rnd, RayTracingSettings::T_ReflAlloc* alloc) const
 {
 	// this simply samples from all the lights
 	C_RayIntersection intersect;
@@ -163,7 +163,7 @@ Colours::T_Colour C_PathIntegrator::Li_LightSampling(const Physics::Primitives::
 	// direct ray to the light intersection
 	if (intersect.IsLight())
 	{
-		auto light = intersect.GetLight();
+		const auto& light = intersect.GetLight();
 		LoDirect += light->Le();
 	}
 
@@ -199,7 +199,7 @@ inline float PowerHeuristic(int nf, float fPdf, int ng, float gPdf)
 }
 
 Colours::T_Colour
-C_PathIntegrator::EstimateDirect(const C_RayIntersection& intersection, const RayTracing::I_RayLight& light, I_Sampler& rnd, RayTracingSettings::T_ReflAlloc* alloc)
+C_PathIntegrator::EstimateDirect(const C_RayIntersection& intersection, const RayTracing::I_RayLight& light, I_Sampler& rnd, RayTracingSettings::T_ReflAlloc* alloc) const
 {
 	Colours::T_Colour LoDirect = Colours::black;
 	glm::vec3		  wi(0.f);
@@ -214,7 +214,7 @@ C_PathIntegrator::EstimateDirect(const C_RayIntersection& intersection, const Ra
 	const Colours::T_Colour illum = light.SampleLi(intersection, rnd, vis, &lightPdf);
 	if (illum != Colours::black && lightPdf > 0.f)
 	{
-		Colours::T_Colour f = model->SampleF(frame.ToLocal(intersection.GetRay().direction), wi, frame, rnd.GetV2(), &scatteringPdf) * wi.y;
+		const Colours::T_Colour f = model->SampleF(frame.ToLocal(intersection.GetRay().direction), wi, frame, rnd.GetV2(), &scatteringPdf) * wi.y;
 
 		if (f != Colours::black)
 		{
@@ -256,8 +256,8 @@ C_PathIntegrator::EstimateDirect(const C_RayIntersection& intersection, const Ra
 
 			Colours::T_Colour		   Li = Colours::black;
 			C_RayIntersection		   lightIntersect;
-			Physics::Primitives::S_Ray lightLigth(intersection.GetIntersectionPoint(), wi);
-			if (m_Scene.Intersect(lightLigth, lightIntersect))
+			Physics::Primitives::S_Ray lightLight(intersection.GetIntersectionPoint(), wi);
+			if (m_Scene.Intersect(lightLight, lightIntersect))
 			{
 				// check if we hit given light
 				if (lightIntersect.GetLight().get() == &light)
