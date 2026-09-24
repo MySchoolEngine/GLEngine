@@ -1,18 +1,16 @@
 #pragma once
 
+#include <Renderer/RendererApi.h>
+
 #include <Renderer/RayCasting/Geometry/RayTraceScene.h>
 #include <Renderer/RayCasting/ProbeRenderer.h>
 #include <Renderer/RayCasting/RayRenderer.h>
-#include <Renderer/RendererApi.h>
 #include <Renderer/Resources/RenderResourceHandle.h>
 #include <Renderer/Textures/Storage/TextureLinearStorage.h>
 
 #include <GUI/GUIWindow.h>
 #include <GUI/Image.h>
 #include <GUI/ImageViewer.h>
-#include <GUI/Input/CheckBoxValue.h>
-#include <GUI/Input/Slider.h>
-#include <GUI/Input/Vector.h>
 
 namespace GLEngine::Entity {
 class C_EntityManager;
@@ -45,8 +43,9 @@ public:
 	void			   Update() override;
 
 	Handle<Texture> GetTexture() const { return m_GPUProbeHandle; }
-	glm::vec3		GetProbePosition() const { return m_ProbePosition.GetValue(); }
+	glm::vec3		GetProbePosition() const { return m_ProbePosition; }
 
+	RTTR_REGISTRATION_FRIEND
 private:
 	void DrawComponents() const override;
 	void UploadStorage();
@@ -54,6 +53,8 @@ private:
 	bool StillLoadingScene() const;
 	void RecalculateHeatMap();
 	void CreateTextures(I_Renderer& renderer);
+
+	std::unique_ptr<I_Integrator> CreateIntegrator() const;
 
 	std::shared_ptr<I_CameraComponent> m_Camera; // TODO: Should be weak? What should I do when camera moves?
 	Handle<Texture>					   m_GPUImageHandle;
@@ -69,7 +70,7 @@ private:
 	int								 m_NumCycleSamples;	 // How many samples had been already used per pixel, Used for sampling
 	bool							 m_Running : 1;		 // Indicate that renderer is currently running
 	bool							 m_RunningCycle : 1; // Run until stop feature
-	GUI::Input::C_Slider<int>		 m_DepthSlider;		 // How many bounces should be traced
+	unsigned int					 m_Depth;			 // How many bounces should be traced
 	std::unique_ptr<C_RayRenderer>	 m_Renderer;
 	std::unique_ptr<C_ProbeRenderer> m_ProbeRenderer;
 	// std::shared_ptr<Textures::C_Texture>		 m_Probe;
@@ -78,8 +79,15 @@ private:
 	GUI::C_Image				   m_GUIHeatMapImage;
 	GUI::C_Image				   m_GUIImageProbe;
 	GUI::Menu::C_Menu			   m_FileMenu;
-	GUI::Input::C_CheckBoxValue	   m_DebugDraw;
-	GUI::Input::C_Vec3			   m_ProbePosition;
+	bool						   m_DebugDraw;
+	glm::vec3					   m_ProbePosition;
+
+	enum class IntegratorType : std::uint8_t {
+		RandomWalkIntegrator,
+		SimplePathIntegrator,
+		PathIntegrator
+	};
+	IntegratorType m_UsedIntegrator = IntegratorType::RandomWalkIntegrator;
 
 	std::mutex m_ImageLock;
 };

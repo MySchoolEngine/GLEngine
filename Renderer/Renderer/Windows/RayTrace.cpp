@@ -4,8 +4,11 @@
 #include <Renderer/IDevice.h>
 #include <Renderer/IRenderer.h>
 #include <Renderer/RayCasting/Geometry/RayTraceSceneBuilder.h>
+#include <Renderer/RayCasting/PathIntegrator.h>
+#include <Renderer/RayCasting/RandomWalkIntegrator.h>
 #include <Renderer/RayCasting/RayGeneration/InterleavedLinesFactory.h>
 #include <Renderer/RayCasting/RayRenderer.h>
+#include <Renderer/RayCasting/SimplePathIntegrator.h>
 #include <Renderer/Resources/ResourceManager.h>
 #include <Renderer/Textures/TextureLoader.h>
 #include <Renderer/Textures/TextureView.h>
@@ -13,6 +16,7 @@
 
 #include <GUI/FileDialogWindow.h>
 #include <GUI/GUIManager.h>
+#include <GUI/ReflectionGUI.h>
 
 #include <Entity/EntityManager.h>
 
@@ -22,6 +26,42 @@
 
 #include <algorithm>
 #include <imgui.h>
+
+// clang-format off
+RTTR_REGISTRATION
+{
+	using namespace GLEngine::Renderer;
+	using namespace Utils::Reflection;
+
+	
+	rttr::registration::enumeration<C_RayTraceWindow::IntegratorType>("C_RayTraceWindow::IntegratorType")(
+		rttr::value("RandomWalkIntegrator",	C_RayTraceWindow::IntegratorType::RandomWalkIntegrator),
+		rttr::value("SimplePathIntegrator",	C_RayTraceWindow::IntegratorType::SimplePathIntegrator),
+		rttr::value("PathIntegrator",		C_RayTraceWindow::IntegratorType::PathIntegrator)
+	);
+
+	rttr::registration::class_<C_RayTraceWindow>("C_RayTraceWindow")
+		.property("Depth", &C_RayTraceWindow::m_Depth)(
+			rttr::policy::prop::as_reference_wrapper,
+			RegisterMetaclass<MetaGUI::SliderUint>(),
+			RegisterMetamember<UI::SliderUint::Name>("Max path depth:"),
+			RegisterMetamember<UI::SliderUint::Min>(1),
+			RegisterMetamember<UI::SliderUint::Max>(100))
+		.property("Debug", &C_RayTraceWindow::m_DebugDraw)(
+			rttr::policy::prop::as_reference_wrapper,
+			RegisterMetaclass<MetaGUI::Checkbox>(),
+			RegisterMetamember<UI::Checkbox::Name>("Debug draw"))
+		.property("m_ProbePosition", &C_RayTraceWindow::m_ProbePosition)(
+			rttr::policy::prop::as_reference_wrapper,
+			RegisterMetaclass<MetaGUI::Vec3>(),
+			RegisterMetamember<UI::Vec3::Name>("Probe position"))
+		.property("m_UsedIntegrator", &C_RayTraceWindow::m_UsedIntegrator)(
+			rttr::policy::prop::as_reference_wrapper,
+			RegisterMetaclass<MetaGUI::EnumSelect>(),
+			RegisterMetamember<UI::EnumSelect::Name>("Integrator type"))
+	;
+}
+// clang-format on
 
 namespace GLEngine::Renderer {
 
@@ -42,7 +82,7 @@ C_RayTraceWindow::C_RayTraceWindow(const GUID guid, const std::shared_ptr<I_Came
 	, m_NumCycleSamples(0)
 	, m_Running(false)
 	, m_RunningCycle(false)
-	, m_DepthSlider(3, 1, 100, "Max path depth")
+	, m_Depth(3)
 	, m_Renderer(nullptr)
 	, m_ProbeRenderer(nullptr)
 	, m_ProbeStorage(s_ProbeSize + 2, s_ProbeSize + 2, 3)
@@ -50,8 +90,8 @@ C_RayTraceWindow::C_RayTraceWindow(const GUID guid, const std::shared_ptr<I_Came
 	, m_GUIHeatMapImage({})
 	, m_GUIImageProbe({})
 	, m_FileMenu("File")
-	, m_DebugDraw(false, "Debug draw")
-	, m_ProbePosition("Probe position", glm::vec3(1.f, 0.f, 0.f))
+	, m_DebugDraw(false)
+	, m_ProbePosition(1.f, 0.f, 0.f)
 {
 	m_GUIImage.SetSize(s_ImageResolution);
 	m_GUIHeatMapImage.SetSize({10, s_ImageResolution.y});
@@ -83,13 +123,13 @@ void C_RayTraceWindow::CreateTextures(I_Renderer& renderer)
 	{
 		// final image
 		m_GPUImageHandle			= renderer.GetRM().createTexture(TextureDescriptor{
-			   .name		  = "rayTrace",
-			   .width		  = s_ImageResolution.x / s_Coef,
-			   .height		  = s_ImageResolution.y / s_Coef,
-			   .type		  = E_TextureType::TEXTURE_2D,
-			   .format		  = E_TextureFormat::RGB32f,
-			   .m_bStreamable = false,
-		   });
+			.name		   = "rayTrace",
+			.width		   = s_ImageResolution.x / s_Coef,
+			.height		   = s_ImageResolution.y / s_Coef,
+			.type		   = E_TextureType::TEXTURE_2D,
+			.format		   = E_TextureFormat::RGB32f,
+			.m_bStreamable = false,
+		});
 		const auto GPUSamplerHandle = renderer.GetRM().createSampler(SamplerDescriptor2D{
 			.m_FilterMin = E_TextureFilter::Linear,
 			.m_FilterMag = E_TextureFilter::Linear,
@@ -106,13 +146,13 @@ void C_RayTraceWindow::CreateTextures(I_Renderer& renderer)
 	// heatmap
 	{
 		m_GPUHeatMapHandle			= renderer.GetRM().createTexture(TextureDescriptor{
-			 .name			= "heatMap",
-			 .width			= 1,
-			 .height		= s_ImageResolution.y / s_Coef,
-			 .type			= E_TextureType::TEXTURE_2D,
-			 .format		= E_TextureFormat::RGB32f,
-			 .m_bStreamable = false,
-		 });
+			.name		   = "heatMap",
+			.width		   = 1,
+			.height		   = s_ImageResolution.y / s_Coef,
+			.type		   = E_TextureType::TEXTURE_2D,
+			.format		   = E_TextureFormat::RGB32f,
+			.m_bStreamable = false,
+		});
 		const auto GPUSamplerHandle = renderer.GetRM().createSampler(SamplerDescriptor2D{
 			.m_FilterMin = E_TextureFilter::Nearest,
 			.m_FilterMag = E_TextureFilter::Nearest,
@@ -128,13 +168,13 @@ void C_RayTraceWindow::CreateTextures(I_Renderer& renderer)
 	// probe
 	{
 		m_GPUProbeHandle	  = renderer.GetRM().createTexture(TextureDescriptor{
-			 .name		   = "probeTexture",
-			 .width		   = s_ProbeSize + 2,
-			 .height	   = s_ProbeSize + 2,
-			 .type		   = E_TextureType::TEXTURE_2D,
-			 .format	   = E_TextureFormat::RGB32f,
-			 .m_NumSamples = false,
-		 });
+			.name		  = "probeTexture",
+			.width		  = s_ProbeSize + 2,
+			.height		  = s_ProbeSize + 2,
+			.type		  = E_TextureType::TEXTURE_2D,
+			.format		  = E_TextureFormat::RGB32f,
+			.m_NumSamples = false,
+		});
 		auto GPUSamplerHandle = renderer.GetRM().createSampler(SamplerDescriptor2D{
 			.m_FilterMin = E_TextureFilter::Nearest,
 			.m_FilterMag = E_TextureFilter::Nearest,
@@ -146,6 +186,21 @@ void C_RayTraceWindow::CreateTextures(I_Renderer& renderer)
 		m_GUIImageProbe = GUI::C_Image(m_GPUHeatMapHandle);
 	}
 	Clear();
+}
+
+//=================================================================================
+std::unique_ptr<I_Integrator> C_RayTraceWindow::CreateIntegrator() const
+{
+	switch (m_UsedIntegrator)
+	{
+	case IntegratorType::RandomWalkIntegrator:
+		return std::make_unique<RandomWalkIntegrator>(RandomWalkIntegrator::IntegratorSettings{.Scene = m_Scene, .MaxDepth = m_Depth});
+	case IntegratorType::SimplePathIntegrator:
+		return std::make_unique<SimplePathIntegrator>(SimplePathIntegrator::IntegratorSettings{.Scene = m_Scene, .MaxDepth = m_Depth});
+	case IntegratorType::PathIntegrator:
+		return std::make_unique<C_PathIntegrator>(m_Scene);
+	}
+	return nullptr;
 }
 
 //=================================================================================
@@ -174,8 +229,12 @@ void C_RayTraceWindow::RayTrace()
 		return;
 	std::packaged_task<void()> rayTrace([&]() {
 		::Utils::HighResolutionTimer renderTime;
-		m_Renderer->SetMaxPathDepth(m_DepthSlider);
-		m_Renderer->Render(*m_Camera, m_ImageStorage, m_SamplesStorage, &m_ImageLock, m_NumCycleSamples, C_InterleavedLinesFactory{4}, {.rowHeatMap = &m_HeatMapStorage});
+		m_Renderer->Render({.camera			  = *m_Camera,
+							.integrator		  = CreateIntegrator(),
+							.numSamplesBefore = m_NumCycleSamples,
+							.generatorFactory = C_InterleavedLinesFactory{4},
+							.additional		  = {.rowHeatMap = &m_HeatMapStorage}},
+						   m_ImageStorage, m_SamplesStorage, &m_ImageLock);
 		CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
 		m_Running = false;
 		RecalculateHeatMap();
@@ -215,8 +274,14 @@ void C_RayTraceWindow::RunUntilStop()
 		while (m_RunningCycle)
 		{
 			::Utils::HighResolutionTimer renderTime;
-			m_Renderer->SetMaxPathDepth(m_DepthSlider);
-			m_Renderer->Render(*m_Camera, m_ImageStorage, m_SamplesStorage, &m_ImageLock, m_NumCycleSamples, C_InterleavedLinesFactory{4});
+			m_Renderer->Render(
+				{
+					.camera			  = *m_Camera,
+					.integrator		  = CreateIntegrator(),
+					.numSamplesBefore = m_NumCycleSamples,
+					.generatorFactory = C_InterleavedLinesFactory{4},
+				},
+				m_ImageStorage, m_SamplesStorage, &m_ImageLock);
 			CORE_LOG(E_Level::Warning, E_Context::Render, "Ray trace: {}ms", renderTime.getElapsedTimeFromLastQueryMilliseconds());
 			m_NumCycleSamples++;
 			RecalculateHeatMap();
@@ -270,11 +335,10 @@ void C_RayTraceWindow::Update()
 //=================================================================================
 void C_RayTraceWindow::DrawComponents() const
 {
-	m_GUIImage.Draw();
+	std::ignore = m_GUIImage.Draw();
 	ImGui::SameLine();
-	m_GUIHeatMapImage.Draw();
-	m_GUIImageProbe.Draw();
-	m_ProbePosition.Draw();
+	std::ignore = m_GUIHeatMapImage.Draw();
+	std::ignore = m_GUIImageProbe.Draw();
 	if (StillLoadingScene())
 	{
 		ImGui::TextColored(ImVec4(1, 0, 0, 1), "Still loading scene.");
@@ -305,7 +369,9 @@ void C_RayTraceWindow::DrawComponents() const
 		{
 			m_ProbeRenderer->ResetProbe();
 		}
-		m_DepthSlider.Draw();
+		std::ignore = GUI::DrawPropertyGUI(*this, rttr::type::get<C_RayTraceWindow>().get_property("Depth"));
+		std::ignore = GUI::DrawPropertyGUI(*this, rttr::type::get<C_RayTraceWindow>().get_property("m_ProbePosition"));
+		std::ignore = GUI::DrawPropertyGUI(*this, rttr::type::get<C_RayTraceWindow>().get_property("m_UsedIntegrator"));
 	}
 	else
 	{
@@ -320,7 +386,7 @@ void C_RayTraceWindow::DrawComponents() const
 		}
 	}
 	ImGui::Text("Samples: %i", m_NumCycleSamples);
-	m_DebugDraw.Draw();
+	std::ignore = GUI::DrawPropertyGUI(*this, rttr::type::get<C_RayTraceWindow>().get_property("Debug"));
 }
 
 //=================================================================================
