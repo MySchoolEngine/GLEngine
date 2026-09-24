@@ -461,7 +461,8 @@ I_MaterialInterface* C_RayTraceScene::AddMaterial(const Core::ResourceHandle<Mat
 	else
 	{
 		// todo glossy mat
-		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(matPBR->GetColour())).get();
+		const Core::ResourceHandle<TextureResource> texture = matPBR->GetColorMapRes();
+		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(matPBR->GetColour(), texture)).get();
 	}
 }
 
