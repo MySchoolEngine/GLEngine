@@ -7,7 +7,7 @@
 #include <Renderer/RayCasting/Light/ILight.h>
 #include <Renderer/RayCasting/PathIntegrator.h>
 #include <Renderer/RayCasting/RayIntersection.h>
-#include <Renderer/RayCasting/ReflectionModels/OrenNayar.h>
+#include <Renderer/RayCasting/ReflectionModels/IReflectionModel.h>
 #include <Renderer/RayCasting/VisibilityTester.h>
 
 #include <glm/gtx/component_wise.hpp>
