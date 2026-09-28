@@ -104,7 +104,7 @@ bool DrawSlider(rttr::instance obj, const rttr::property& prop)
 //=================================================================================
 // Takes the value directly, not rttr::instance: the enum's concrete type isn't
 // known at compile time, so callers (including array elements) pass it as-is.
-bool DrawEnumSelectValue(rttr::variant& value, const std::string& label)
+template <class UnderlyingType> bool DrawEnumSelectValueTyped(rttr::variant& value, const std::string& label)
 {
 	const bool isWrapped	= value.get_type().is_wrapper();
 	const auto propertyType = isWrapped ? value.get_type().get_wrapped_type() : value.get_type();
@@ -122,7 +122,7 @@ bool DrawEnumSelectValue(rttr::variant& value, const std::string& label)
 			{
 				changed = true;
 				if (isWrapped)
-					(int&)value.get_wrapped_value<int>() = candidate.get_wrapped_value<int>();
+					(UnderlyingType&)value.get_wrapped_value<UnderlyingType>() = candidate.get_wrapped_value<UnderlyingType>();
 				else
 					value = candidate;
 			}
@@ -137,22 +137,46 @@ bool DrawEnumSelectValue(rttr::variant& value, const std::string& label)
 }
 
 //=================================================================================
+bool DrawEnumSelectValue(rttr::variant& value, const rttr::property& prop)
+{
+	using namespace ::Utils::Reflection;
+
+	const bool isWrapped	= value.get_type().is_wrapper();
+	const auto propertyType = isWrapped ? value.get_type().get_wrapped_type() : value.get_type();
+	const auto enumeration	= propertyType.get_enumeration();
+	switch (enumeration.get_underlying_type().get_sizeof())
+	{
+	case 1:
+		return DrawEnumSelectValueTyped<std::int8_t>(value, GetMetadataMember<UI::EnumSelect::Name>(prop));
+	case 2:
+		return DrawEnumSelectValueTyped<std::int16_t>(value, GetMetadataMember<UI::EnumSelect::Name>(prop));
+	case 4:
+		return DrawEnumSelectValueTyped<std::int32_t>(value, GetMetadataMember<UI::EnumSelect::Name>(prop));
+	case 8:
+		return DrawEnumSelectValueTyped<std::int64_t>(value, GetMetadataMember<UI::EnumSelect::Name>(prop));
+	default:
+		GLE_ERROR("Unsupported underlaying type");
+	}
+	return false;
+}
+
+//=================================================================================
 bool DrawEnumSelect(rttr::instance obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
 	auto value = prop.get_value(obj);
-	return DrawEnumSelectValue(value, GetMetadataMember<UI::EnumSelect::Name>(prop));
+	return DrawEnumSelectValue(value, prop);
 }
 
 //=================================================================================
-bool DrawEnumSelectOptional(rttr::instance obj, const rttr::property& prop)
+template <class UnderlyingType> bool DrawEnumSelectOptionalTyped(rttr::instance obj, const rttr::property& prop)
 {
 	using namespace ::Utils::Reflection;
 
 	auto value = prop.get_value(obj);
 
-	auto& currentValRef = (std::optional<int>&)value.get_wrapped_value<std::optional<int>>();
+	auto& currentValRef = (std::optional<UnderlyingType>&)value.get_wrapped_value<std::optional<UnderlyingType>>();
 
 	bool changed = false;
 
@@ -168,7 +192,7 @@ bool DrawEnumSelectOptional(rttr::instance obj, const rttr::property& prop)
 			if (::ImGui::Selectable(enumeration.value_to_name(candidate).data(), isSelected))
 			{
 				changed		  = true;
-				currentValRef = candidate.get_wrapped_value<int>();
+				currentValRef = candidate.get_wrapped_value<UnderlyingType>();
 			}
 			if (isSelected)
 			{
@@ -187,6 +211,32 @@ bool DrawEnumSelectOptional(rttr::instance obj, const rttr::property& prop)
 		::ImGui::EndCombo();
 	}
 	return changed;
+}
+
+//=================================================================================
+bool DrawEnumSelectOptional(rttr::instance obj, const rttr::property& prop)
+{
+	using namespace ::Utils::Reflection;
+
+	auto value = prop.get_value(obj);
+
+	const bool isWrapped	= value.get_type().is_wrapper();
+	const auto propertyType = isWrapped ? value.get_type().get_wrapped_type() : value.get_type();
+	const auto enumeration	= propertyType.get_enumeration();
+	switch (enumeration.get_underlying_type().get_sizeof())
+	{
+	case 1:
+		return DrawEnumSelectOptionalTyped<std::int8_t>(obj, prop);
+	case 2:
+		return DrawEnumSelectOptionalTyped<std::int16_t>(obj, prop);
+	case 4:
+		return DrawEnumSelectOptionalTyped<std::int32_t>(obj, prop);
+	case 8:
+		return DrawEnumSelectOptionalTyped<std::int64_t>(obj, prop);
+	default:
+		GLE_ERROR("Unsupported underlaying type");
+	}
+	return false;
 }
 
 //=================================================================================
@@ -405,7 +455,7 @@ bool DrawArrayElementGUI(const rttr::property& prop, rttr::variant& elementVar)
 	}
 	else if (UI::IsUIMetaclassForElement<MetaGUI::EnumSelect>(prop, elementVar))
 	{
-		return DrawEnumSelectValue(elementVar, GetMetadataMember<UI::EnumSelect::Name>(prop));
+		return DrawEnumSelectValue(elementVar, prop);
 	}
 	else if (UI::IsUIMetaclassForElement<MetaGUI::Texture>(prop, elementVar))
 	{
