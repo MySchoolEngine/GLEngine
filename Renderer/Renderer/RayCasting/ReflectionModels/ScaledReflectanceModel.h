@@ -13,6 +13,9 @@ public:
 	[[nodiscard]] Colours::T_Colour SampleF(const glm::vec3& wi, glm::vec3& wo, const S_Frame& frame, const glm::vec2& rng, float* pdf) const override;
 	[[nodiscard]] float				Pdf(const glm::vec3& wi, const glm::vec3& wo) const override;
 
+
+	[[nodiscard]] constexpr DULib::BitField<Type> GetType() override { return m_Model ? m_Model->GetType() : DULib::BitField<Type>{}; }
+
 private:
 	I_ReflectionModel* m_Model; //< Not owning, allocated by arena allocator
 	float			   m_Scale;
