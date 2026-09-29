@@ -221,7 +221,8 @@ bool DrawEnumSelectOptional(rttr::instance obj, const rttr::property& prop)
 	auto value = prop.get_value(obj);
 
 	const bool isWrapped	= value.get_type().is_wrapper();
-	const auto propertyType = isWrapped ? value.get_type().get_wrapped_type() : value.get_type();
+	const auto optionalPropertyType = isWrapped ? value.get_type().get_wrapped_type() : value.get_type();
+	const auto propertyType			= optionalPropertyType.get_wrapped_type().get_raw_type();
 	const auto enumeration	= propertyType.get_enumeration();
 	switch (enumeration.get_underlying_type().get_sizeof())
 	{
