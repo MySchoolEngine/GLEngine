@@ -40,7 +40,7 @@ public:
 	 * @param point
 	 * @param normal
 	 * @param uv
-	 * @param w
+	 * @param w direction that is facing outwards from the surface
 	 * @return
 	 */
 	[[nodiscard]] virtual Colours::T_Colour Lo(const glm::vec3& point, const glm::vec3& normal, const glm::vec2& uv, const glm::vec3& w) const = 0;
