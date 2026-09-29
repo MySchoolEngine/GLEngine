@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Renderer/RendererApi.h>
+
 #include <Renderer/Colours.h>
 #include <Renderer/RayCasting/RayTracingSettings.h>
 
@@ -17,12 +19,13 @@ namespace MeshData {
 struct Material;
 }
 
-class I_Integrator {
+class RENDERER_API_EXPORT I_Integrator {
 public:
 	I_Integrator(const C_RayTraceScene& scene);
 	virtual ~I_Integrator() = default;
 
 	[[nodiscard]] virtual Colours::T_Colour TraceRay(Physics::Primitives::S_Ray ray, I_Sampler& rnd) = 0;
+
 protected:
 	const C_RayTraceScene& m_Scene;
 };

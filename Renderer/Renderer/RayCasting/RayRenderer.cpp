@@ -2,7 +2,7 @@
 
 #include <Renderer/ICameraComponent.h>
 #include <Renderer/RayCasting/Generator/Sampler.h>
-#include <Renderer/RayCasting/PathIntegrator.h>
+#include <Renderer/RayCasting/Integrator.h>
 #include <Renderer/RayCasting/RayRenderer.h>
 #include <Renderer/Textures/TextureView.h>
 
@@ -13,7 +13,6 @@ namespace GLEngine::Renderer {
 //=================================================================================
 C_RayRenderer::C_RayRenderer(const C_RayTraceScene& scene)
 	: m_ProcessedPixels(0)
-	, m_MaxDepth(3)
 	, m_NewResultAvailable(false)
 	, m_Scene(scene)
 {
@@ -23,32 +22,25 @@ C_RayRenderer::C_RayRenderer(const C_RayTraceScene& scene)
 C_RayRenderer::~C_RayRenderer() = default;
 
 //=================================================================================
-void C_RayRenderer::Render(I_CameraComponent&									  camera,
-						   I_TextureViewStorage&								  weightedImage,
-						   I_TextureViewStorage&								  storage,
-						   std::mutex*											  storageMutex,
-						   int													  numSamplesBefore,
-						   std::function<Generator<S_RenderWorkUnit>(glm::uvec2)> generatorFactory,
-						   AdditionalTargets									  additional)
+void C_RayRenderer::Render(const RenderSettings& settings, I_TextureViewStorage& weightedImage, I_TextureViewStorage& storage, std::mutex* storageMutex)
 {
-	GLE_ASSERT(additional.CheckTargets(storage), "Wrong additional target passed");
+	GLE_ASSERT(settings.additional.CheckTargets(storage), "Wrong additional target passed");
 	const auto dim	  = storage.GetDimensions();
 	m_ProcessedPixels = 0;
 
-	C_PathIntegrator integrator(m_Scene);
 	C_STDSampler	 rnd(0.f, 1.f);
 
 	const auto GetRay = [&](const glm::vec2& screenCoord) {
 		const float x = (2.0f * screenCoord.x) / dim.x - 1.0f;
 		const float y = 1.0f - (2.0f * screenCoord.y) / dim.y;
-		return camera.GetRay({x, y});
+		return settings.camera.GetRay({x, y});
 	};
 
 	auto textureView  = C_TextureView(&storage);
 	auto weightedView = C_TextureView(&weightedImage);
-	auto heatMapView  = C_TextureView(additional.rowHeatMap);
+	auto heatMapView  = C_TextureView(settings.additional.rowHeatMap);
 
-	for (const auto& unit : generatorFactory(dim))
+	for (const auto& unit : settings.generatorFactory(dim))
 	{
 		for (unsigned int y = unit.renderMin.y; y < unit.renderMax.y; ++y)
 		{
@@ -58,32 +50,33 @@ void C_RayRenderer::Render(I_CameraComponent&									  camera,
 				const auto					 ray = GetRay(glm::vec2{x, y} + (2.f * rnd.GetV2() - glm::vec2(1.f, 1.f)) / 2.f);
 				{
 					GL_PROFILE_SCOPE_N("TraceRay");
-					AddSample({x, y}, textureView, integrator.TraceRay(ray, rnd));
+					AddSample({x, y}, textureView, settings.integrator->TraceRay(ray, rnd));
 				}
 				++m_ProcessedPixels;
-				if (additional.rowHeatMap) // should be before add sample :( but before TraceRay
+				if (settings.additional.rowHeatMap) // should be before add sample :( but before TraceRay
 				{
 					const auto previousValue = heatMapView.Get<glm::vec3>(glm::ivec2{0, y});
 					heatMapView.Set({0, y}, previousValue + glm::vec3{renderTime.getElapsedTimeFromLastQueryMilliseconds(), 0, 0});
 				}
-				if (numSamplesBefore == 0)
+				// todo move all this to separate functionality
+				if (settings.numSamplesBefore == 0)
 				{
 					C_RayIntersection intersection;
 					bool			  hit = false;
-					if (additional.normalsMap || additional.uvMap)
+					if (settings.additional.normalsMap || settings.additional.uvMap)
 					{
 						hit = m_Scene.Intersect(ray, intersection);
 					}
 					if (hit)
 					{
-						if (additional.normalsMap)
+						if (settings.additional.normalsMap)
 						{
-							auto normalView = C_TextureView(additional.normalsMap);
+							auto normalView = C_TextureView(settings.additional.normalsMap);
 							normalView.Set({x, y}, intersection.GetFrame().Normal());
 						}
-						if (additional.uvMap)
+						if (settings.additional.uvMap)
 						{
-							auto uvView = C_TextureView(additional.uvMap);
+							auto uvView = C_TextureView(settings.additional.uvMap);
 							uvView.Set({x, y}, glm::vec3{intersection.GetUV(), 0.f});
 						}
 					}
@@ -95,11 +88,11 @@ void C_RayRenderer::Render(I_CameraComponent&									  camera,
 		{
 			GL_PROFILE_SCOPE_N("Wait for mutex");
 			std::lock_guard<std::mutex> lock(*storageMutex);
-			UpdateView(unit, textureView, weightedView, numSamplesBefore);
+			UpdateView(unit, textureView, weightedView, settings.numSamplesBefore);
 		}
 		else
 		{
-			UpdateView(unit, textureView, weightedView, numSamplesBefore);
+			UpdateView(unit, textureView, weightedView, settings.numSamplesBefore);
 		}
 	}
 }

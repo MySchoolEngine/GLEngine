@@ -1,10 +1,11 @@
 ﻿#pragma once
 
+#include <Renderer/RendererApi.h>
+
 #include <Renderer/RayCasting/Integrator.h>
 
-
 namespace GLEngine::Renderer {
-class C_PathIntegrator : public I_Integrator {
+class RENDERER_API_EXPORT C_PathIntegrator : public I_Integrator {
 public:
 	C_PathIntegrator(const C_RayTraceScene& scene);
 	// main API of this class, allows to use of custom sampler
