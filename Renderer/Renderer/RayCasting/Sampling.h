@@ -5,10 +5,10 @@ namespace GLEngine::Renderer {
 //=================================================================================
 inline glm::vec3 UniformSampleHemisphere(const glm::vec2& randoms)
 {
-	const auto z   = randoms[0];
-	const auto r   = std::sqrt(std::max(0.0f, 1.0f - z * z));
+	const auto y   = randoms[0];
+	const auto r   = std::sqrt(std::max(0.0f, 1.0f - y * y));
 	const auto phi = 2 * glm::pi<float>() * randoms[1];
-	return glm::vec3(r * std::cos(phi), r * std::sin(phi), z);
+	return glm::vec3(r * std::cos(phi), y, r * std::sin(phi));
 }
 
 //=================================================================================
