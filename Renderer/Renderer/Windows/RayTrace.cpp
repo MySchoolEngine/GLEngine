@@ -59,6 +59,14 @@ RTTR_REGISTRATION
 			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::EnumSelect>(),
 			RegisterMetamember<UI::EnumSelect::Name>("Integrator type"))
+		.property("m_SampleLights", &C_RayTraceWindow::m_SampleLights)(
+			rttr::policy::prop::as_reference_wrapper,
+			RegisterMetaclass<MetaGUI::Checkbox>(),
+			RegisterMetamember<UI::Checkbox::Name>("Sample lights"))
+		.property("m_SampleBRDF", &C_RayTraceWindow::m_SampleBRDF)(
+			rttr::policy::prop::as_reference_wrapper,
+			RegisterMetaclass<MetaGUI::Checkbox>(),
+			RegisterMetamember<UI::Checkbox::Name>("Sample BRDF"))
 	;
 }
 // clang-format on
@@ -92,6 +100,8 @@ C_RayTraceWindow::C_RayTraceWindow(const GUID guid, const std::shared_ptr<I_Came
 	, m_FileMenu("File")
 	, m_DebugDraw(false)
 	, m_ProbePosition(1.f, 0.f, 0.f)
+	, m_SampleLights(false)
+	, m_SampleBRDF(false)
 {
 	m_GUIImage.SetSize(s_ImageResolution);
 	m_GUIHeatMapImage.SetSize({10, s_ImageResolution.y});
@@ -196,7 +206,8 @@ std::unique_ptr<I_Integrator> C_RayTraceWindow::CreateIntegrator() const
 	case IntegratorType::RandomWalkIntegrator:
 		return std::make_unique<RandomWalkIntegrator>(RandomWalkIntegrator::IntegratorSettings{.Scene = m_Scene, .MaxDepth = m_Depth});
 	case IntegratorType::SimplePathIntegrator:
-		return std::make_unique<SimplePathIntegrator>(SimplePathIntegrator::IntegratorSettings{.Scene = m_Scene, .MaxDepth = m_Depth});
+		return std::make_unique<SimplePathIntegrator>(
+			SimplePathIntegrator::IntegratorSettings{.Scene = m_Scene, .MaxDepth = m_Depth, .SampleLights = m_SampleLights, .SampleBRDF = m_SampleBRDF});
 	case IntegratorType::PathIntegrator:
 		return std::make_unique<C_PathIntegrator>(m_Scene);
 	}
@@ -372,6 +383,11 @@ void C_RayTraceWindow::DrawComponents() const
 		std::ignore = GUI::DrawPropertyGUI(*this, rttr::type::get<C_RayTraceWindow>().get_property("Depth"));
 		std::ignore = GUI::DrawPropertyGUI(*this, rttr::type::get<C_RayTraceWindow>().get_property("m_ProbePosition"));
 		std::ignore = GUI::DrawPropertyGUI(*this, rttr::type::get<C_RayTraceWindow>().get_property("m_UsedIntegrator"));
+		if (m_UsedIntegrator == IntegratorType::SimplePathIntegrator)
+		{
+			std::ignore = GUI::DrawPropertyGUI(*this, rttr::type::get<C_RayTraceWindow>().get_property("m_SampleLights"));
+			std::ignore = GUI::DrawPropertyGUI(*this, rttr::type::get<C_RayTraceWindow>().get_property("m_SampleBRDF"));
+		}
 	}
 	else
 	{

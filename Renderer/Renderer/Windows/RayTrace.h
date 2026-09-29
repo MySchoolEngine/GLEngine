@@ -88,6 +88,8 @@ private:
 		PathIntegrator
 	};
 	IntegratorType m_UsedIntegrator = IntegratorType::RandomWalkIntegrator;
+	bool		   m_SampleLights	= false;
+	bool		   m_SampleBRDF		= false;
 
 	std::mutex m_ImageLock;
 };
