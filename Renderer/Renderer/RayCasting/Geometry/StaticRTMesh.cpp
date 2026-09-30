@@ -25,15 +25,16 @@ bool C_StaticRTMesh::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInter
 	float								  tMaxCurrent  = tMax;
 	I_MaterialInterface*				  bestMaterial = nullptr;
 	Core::ResourceHandle<TextureResource> bestAlphaMap;
-	for (const auto [trimesh, material, alphaMap] : std::views::zip(trimeshes, m_Materials, m_AlphaMaps))
+	GLE_ASSERT((trimeshes.size() == m_Materials.size()) && (trimeshes.size() == m_AlphaMaps.size()), "The data for trimes must match.");
+	for (unsigned int i = 0; i < trimeshes.size();++i)
 	{
 		C_RayIntersection intersectionCandidate;
-		if (trimesh.Intersect(rayTransformed, intersectionCandidate, tMaxCurrent))
+		if (trimeshes[i].Intersect(rayTransformed, intersectionCandidate, tMaxCurrent))
 		{
 			bestIntersection = intersectionCandidate;
 			tMaxCurrent		 = std::min(tMax, bestIntersection.GetRayLength());
-			bestMaterial	 = material;
-			bestAlphaMap	 = alphaMap;
+			bestMaterial	 = m_Materials[i];
+			bestAlphaMap	 = m_AlphaMaps[i];
 		}
 	}
 	if (std::isinf(bestIntersection.GetRayLength()))
