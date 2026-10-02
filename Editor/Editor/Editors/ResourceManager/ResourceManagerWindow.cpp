@@ -13,6 +13,8 @@
 
 #include <GUI/ImGuiLayer.h>
 
+#include <Core/Resources/ResourceHandle.h>
+#include <Core/Resources/ResourceLoader.h>
 #include <Core/Resources/ResourceManager.h>
 
 #include <IconsFontAwesome6.h>
@@ -28,31 +30,40 @@
 #endif
 
 namespace {
+const char* GetIconForResourceType(std::size_t typeHash)
+{
+	if (typeHash == GLEngine::Renderer::MeshResource::GetResourceTypeHashStatic())
+		return ICON_FA_CUBE;
+	if (typeHash == GLEngine::Renderer::C_TrimeshModel::GetResourceTypeHashStatic())
+		return ICON_FA_BOXES_STACKED;
+	if (typeHash == GLEngine::Renderer::TextureResource::GetResourceTypeHashStatic())
+		return ICON_FA_FILE_IMAGE;
+	if (typeHash == GLEngine::Renderer::MaterialResource::GetResourceTypeHashStatic())
+		return ICON_FA_TROWEL_BRICKS;
+	return ICON_FA_FILE;
+}
+
+GLEngine::Colours::T_Colour GetColourForResourceType(std::size_t typeHash)
+{
+	if (typeHash == GLEngine::Renderer::MeshResource::GetResourceTypeHashStatic())
+		return GLEngine::Editor::Colours::Resources::Colour<GLEngine::Renderer::MeshResource>;
+	if (typeHash == GLEngine::Renderer::C_TrimeshModel::GetResourceTypeHashStatic())
+		return GLEngine::Editor::Colours::Resources::Colour<GLEngine::Renderer::C_TrimeshModel>;
+	if (typeHash == GLEngine::Renderer::TextureResource::GetResourceTypeHashStatic())
+		return GLEngine::Editor::Colours::Resources::Colour<GLEngine::Renderer::TextureResource>;
+	if (typeHash == GLEngine::Renderer::MaterialResource::GetResourceTypeHashStatic())
+		return GLEngine::Editor::Colours::Resources::Colour<GLEngine::Renderer::MaterialResource>;
+	return GLEngine::Colours::white;
+}
+
 const char* GetIconForPath(const std::filesystem::path& path)
 {
 	if (std::filesystem::is_directory(path))
 		return ICON_FA_FOLDER;
-	const auto ext = path.extension().string();
-
-	auto& resMgr = GLEngine::Core::C_ResourceManager::Instance();
-	if (resMgr.IsResourceType<GLEngine::Renderer::MeshResource>(path))
-	{
-		return ICON_FA_CUBE;
-	}
-	if (resMgr.IsResourceType<GLEngine::Renderer::C_TrimeshModel>(path))
-	{
-		return ICON_FA_BOXES_STACKED;
-	}
-	if (resMgr.IsResourceType<GLEngine::Renderer::TextureResource>(path))
-	{
-		return ICON_FA_FILE_IMAGE;
-	}
-	if (resMgr.IsResourceType<GLEngine::Renderer::MaterialResource>(path))
-	{
-		return ICON_FA_TROWEL_BRICKS;
-	}
-
-	return ICON_FA_FILE;
+	const auto loader = GLEngine::Core::C_ResourceManager::Instance().GetLoaderForExt(path.extension().string());
+	if (!loader)
+		return ICON_FA_FILE;
+	return GetIconForResourceType(loader->get().GetResourceTypeID());
 }
 
 const char* GetTypeNameForPath(const std::filesystem::path& path)
@@ -75,16 +86,10 @@ GLEngine::Colours::T_Colour GetColourForPath(const std::filesystem::path& path)
 {
 	if (std::filesystem::is_directory(path))
 		return GLEngine::Colours::white;
-	auto& resMgr = GLEngine::Core::C_ResourceManager::Instance();
-	if (resMgr.IsResourceType<GLEngine::Renderer::MeshResource>(path))
-		return GLEngine::Editor::Colours::Resources::Colour<GLEngine::Renderer::MeshResource>;
-	if (resMgr.IsResourceType<GLEngine::Renderer::C_TrimeshModel>(path))
-		return GLEngine::Editor::Colours::Resources::Colour<GLEngine::Renderer::C_TrimeshModel>;
-	if (resMgr.IsResourceType<GLEngine::Renderer::TextureResource>(path))
-		return GLEngine::Editor::Colours::Resources::Colour<GLEngine::Renderer::TextureResource>;
-	if (resMgr.IsResourceType<GLEngine::Renderer::MaterialResource>(path))
-		return GLEngine::Editor::Colours::Resources::Colour<GLEngine::Renderer::MaterialResource>;
-	return GLEngine::Colours::white;
+	const auto loader = GLEngine::Core::C_ResourceManager::Instance().GetLoaderForExt(path.extension().string());
+	if (!loader)
+		return GLEngine::Colours::white;
+	return GetColourForResourceType(loader->get().GetResourceTypeID());
 }
 
 std::string FormatFileSize(std::uintmax_t bytes)
@@ -104,6 +109,22 @@ void DrawIconCentered(ImDrawList* drawList, ImVec2 rectMin, float rectSize, cons
 	const ImVec2 textSize	= renderFont->CalcTextSizeA(fontSize, FLT_MAX, 0.f, iconStr);
 	const ImVec2 textPos(rectMin.x + (rectSize - textSize.x) * 0.5f, rectMin.y + (rectSize - textSize.y) * 0.5f);
 	drawList->AddText(renderFont, fontSize, textPos, colour, iconStr);
+}
+
+const char* RenameErrorMessage(GLEngine::Core::RenameError error)
+{
+	switch (error)
+	{
+	case GLEngine::Core::RenameError::DestinationExists:
+		return "A file with this name already exists.";
+	case GLEngine::Core::RenameError::DestinationAlreadyTracked:
+		return "A resource with this name is already open.";
+	case GLEngine::Core::RenameError::SourceNotFound:
+		return "The original file could not be found.";
+	case GLEngine::Core::RenameError::FilesystemRenameFailed:
+		return "The rename failed on disk.";
+	}
+	return "Rename failed.";
 }
 } // namespace
 
@@ -268,7 +289,7 @@ void C_ResourceManagerWindow::DrawContentPanel() const
 	static const char* s_TypeNames[] = {"All", "Folder", "Mesh", "Trimesh Model", "Texture", "Material", "File"};
 
 	const float toggleSize = ImGui::GetFrameHeight();
-	const float togglesW   = toggleSize * 2.0f + ImGui::GetStyle().ItemSpacing.x;
+	const float togglesW   = toggleSize * 3.0f + ImGui::GetStyle().ItemSpacing.x * 2.0f; // grid toggle + list toggle + "+" button, with spacing between each
 
 	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - 120.f - togglesW - ImGui::GetStyle().ItemSpacing.x);
 	ImGui::InputTextWithHint("##namefilter", ICON_FA_MAGNIFYING_GLASS " Search...", m_FilterName, sizeof(m_FilterName));
@@ -292,6 +313,15 @@ void C_ResourceManagerWindow::DrawContentPanel() const
 		m_ListView = true;
 	if (wasListView)
 		ImGui::PopStyleColor();
+
+	ImGui::SameLine();
+	if (ImGui::Button(ICON_FA_PLUS, ImVec2(toggleSize, toggleSize)))
+		ImGui::OpenPopup("##NewResourcePopup");
+	if (ImGui::BeginPopup("##NewResourcePopup"))
+	{
+		DrawNewResourceMenuContents();
+		ImGui::EndPopup();
+	}
 
 	const float filterBarH = ImGui::GetCursorPosY();
 
@@ -344,7 +374,14 @@ void C_ResourceManagerWindow::DrawContentPanel() const
 			for (const auto* path : filtered)
 				DrawListItem(*path);
 
+			DrawPendingCreateRow();
+
 			ImGui::EndTable();
+		}
+		if (ImGui::BeginPopupContextWindow("##NewResourceContextMenu", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems))
+		{
+			DrawNewResourceMenuContents();
+			ImGui::EndPopup();
 		}
 		return;
 	}
@@ -364,8 +401,24 @@ void C_ResourceManagerWindow::DrawContentPanel() const
 		DrawGridItem(*filtered[i], iconSize);
 	}
 
+	const bool hasPendingCreate = m_PendingEdit.has_value() && m_PendingEdit->m_IsCreate;
+	if (hasPendingCreate)
+	{
+		const int col = static_cast<int>(filtered.size()) % numCols;
+		const int row = static_cast<int>(filtered.size()) / numCols;
+		ImGui::SetCursorPos(ImVec2(col * cellW, filterBarH + row * cellH));
+		DrawPendingCreateRow();
+	}
+
+	if (ImGui::BeginPopupContextWindow("##NewResourceContextMenu", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems))
+	{
+		DrawNewResourceMenuContents();
+		ImGui::EndPopup();
+	}
+
 	// Advance cursor past all rows so the child window scrolls correctly
-	const int numRows = (static_cast<int>(filtered.size()) + numCols - 1) / numCols;
+	const int totalCells = static_cast<int>(filtered.size()) + (hasPendingCreate ? 1 : 0);
+	const int numRows	 = (totalCells + numCols - 1) / numCols;
 	ImGui::SetCursorPos(ImVec2(0.f, filterBarH + numRows * cellH));
 	ImGui::Dummy(ImVec2(0.f, 0.f));
 }
@@ -484,6 +537,171 @@ void C_ResourceManagerWindow::DrawListItem(const std::filesystem::path& path) co
 		std::error_code ec;
 		const auto		sz = std::filesystem::file_size(path, ec);
 		ImGui::TextUnformatted(ec ? "?" : FormatFileSize(sz).c_str());
+	}
+}
+
+//=================================================================================
+bool C_ResourceManagerWindow::IsEditingPath(const std::filesystem::path& path) const
+{
+	return m_PendingEdit.has_value() && !m_PendingEdit->m_IsCreate && m_PendingEdit->m_TargetPath == path;
+}
+
+//=================================================================================
+void C_ResourceManagerWindow::BeginCreate(const Core::I_ResourceLoader& loader) const
+{
+	const auto& extensions = loader.GetSupportedExtensions();
+	const auto	ext		   = extensions.empty() ? std::string{} : extensions.front();
+
+	const std::string baseName = "New" + loader.GetResourceTypeName();
+	std::string		  name	   = baseName;
+	for (int suffix = 1; std::filesystem::exists(m_SelectedFolder / (name + ext)); ++suffix)
+		name = baseName + "_" + std::to_string(suffix);
+
+	S_PendingEdit edit;
+	edit.m_IsCreate		= true;
+	edit.m_TargetPath	= m_SelectedFolder;
+	edit.m_CreateLoader = &loader;
+	edit.m_FocusPending = true;
+	std::snprintf(edit.m_NameBuffer, sizeof(edit.m_NameBuffer), "%s", name.c_str());
+	m_PendingEdit = edit;
+}
+
+//=================================================================================
+void C_ResourceManagerWindow::BeginRename(const std::filesystem::path& path) const
+{
+	S_PendingEdit edit;
+	edit.m_IsCreate		= false;
+	edit.m_TargetPath	= path;
+	edit.m_FocusPending = true;
+	std::snprintf(edit.m_NameBuffer, sizeof(edit.m_NameBuffer), "%s", path.stem().string().c_str());
+	m_PendingEdit = edit;
+}
+
+//=================================================================================
+void C_ResourceManagerWindow::CommitPendingEdit() const
+{
+	if (!m_PendingEdit)
+		return;
+
+	const std::string typedName = m_PendingEdit->m_NameBuffer;
+	if (typedName.empty() || typedName.find('/') != std::string::npos || typedName.find('\\') != std::string::npos)
+	{
+		m_PendingEdit->m_ErrorMessage = "Name must not be empty or contain path separators.";
+		return;
+	}
+
+	auto& resMgr = Core::C_ResourceManager::Instance();
+
+	if (m_PendingEdit->m_IsCreate)
+	{
+		const auto& extensions = m_PendingEdit->m_CreateLoader->GetSupportedExtensions();
+		const auto	ext		   = extensions.empty() ? std::string{} : extensions.front();
+		const auto	newPath	   = m_PendingEdit->m_TargetPath / (typedName + ext);
+
+		// CreateNewResourceByLoader returns a raw, type-erased shared_ptr with no handle wrapper
+		// of its own, so without wrapping it in a ResourceHandleBase it would stay tracked in
+		// m_Resources forever (a resource only becomes eligible for unloading via a handle's
+		// destructor). The nested block ensures the std::expected's own shared_ptr copy is
+		// dropped before `handle` is checked, leaving `handle` + the manager's map as the only
+		// two references, which is what makes it eligible once this function returns.
+		std::optional<Core::ResourceHandleBase> handle;
+		bool									saved = false;
+		{
+			auto created = resMgr.CreateNewResourceByLoader(*m_PendingEdit->m_CreateLoader, newPath);
+			if (!created.has_value())
+			{
+				m_PendingEdit->m_ErrorMessage = "A resource with this name already exists.";
+				return;
+			}
+			saved = created.value()->Save();
+			handle.emplace(created.value());
+		}
+		if (!saved)
+		{
+			m_PendingEdit->m_ErrorMessage = "Failed to save the new resource to disk.";
+			return;
+		}
+	}
+	else
+	{
+		const auto newPath = m_PendingEdit->m_TargetPath.parent_path() / (typedName + m_PendingEdit->m_TargetPath.extension().string());
+		if (const auto renamed = resMgr.RenameResource(m_PendingEdit->m_TargetPath, newPath); !renamed.has_value())
+		{
+			m_PendingEdit->m_ErrorMessage = RenameErrorMessage(renamed.error());
+			return;
+		}
+	}
+
+	m_PendingEdit.reset();
+	m_ContentDirty = true;
+}
+
+//=================================================================================
+void C_ResourceManagerWindow::DrawInlineNameEditor(float width) const
+{
+	if (m_PendingEdit->m_FocusPending)
+	{
+		ImGui::SetKeyboardFocusHere();
+		m_PendingEdit->m_FocusPending = false;
+	}
+
+	ImGui::SetNextItemWidth(width);
+	const bool committed = ImGui::InputText("##inlineEdit", m_PendingEdit->m_NameBuffer, sizeof(m_PendingEdit->m_NameBuffer), ImGuiInputTextFlags_EnterReturnsTrue);
+	if (committed)
+		CommitPendingEdit();
+	else if (ImGui::IsItemDeactivated() && ImGui::IsKeyPressed(ImGuiKey_Escape))
+		m_PendingEdit.reset();
+
+	if (m_PendingEdit && !m_PendingEdit->m_ErrorMessage.empty())
+	{
+		ImGui::SameLine();
+		ImGui::TextColored(ImVec4(1.f, 0.4f, 0.4f, 1.f), "%s", m_PendingEdit->m_ErrorMessage.c_str());
+	}
+}
+
+//=================================================================================
+void C_ResourceManagerWindow::DrawNewResourceMenuContents() const
+{
+	for (const auto& loader : Core::C_ResourceManager::Instance().GetCreatableLoaders())
+	{
+		if (ImGui::MenuItem(loader.get().GetResourceTypeName().c_str()))
+			BeginCreate(loader.get());
+	}
+}
+
+//=================================================================================
+void C_ResourceManagerWindow::DrawPendingCreateRow() const
+{
+	if (!m_PendingEdit || !m_PendingEdit->m_IsCreate)
+		return;
+
+	const auto	col		   = GetColourForResourceType(m_PendingEdit->m_CreateLoader->GetResourceTypeID());
+	const ImU32 iconColour = IM_COL32(static_cast<int>(col.r * 255), static_cast<int>(col.g * 255), static_cast<int>(col.b * 255), 255);
+	const char* icon	   = GetIconForResourceType(m_PendingEdit->m_CreateLoader->GetResourceTypeID());
+
+	if (m_ListView)
+	{
+		ImGui::TableNextRow();
+		ImGui::TableNextColumn();
+		ImGui::PushStyleColor(ImGuiCol_Text, iconColour);
+		ImGui::TextUnformatted(icon);
+		ImGui::PopStyleColor();
+		ImGui::SameLine();
+		DrawInlineNameEditor(-1.0f); // stretch to the Name column's right edge, like the other rows' text
+		ImGui::TableNextColumn();
+		ImGui::TableNextColumn();
+	}
+	else
+	{
+		constexpr float kIconSize = 64.0f;
+		const ImVec2	posLocal  = ImGui::GetCursorPos(); // Dummy's implicit newline resets X to the line start - save it to restore after
+		const ImVec2	rMin	  = ImGui::GetCursorScreenPos();
+		const ImVec2	rMax	  = rMin + ImVec2(kIconSize, kIconSize);
+		ImGui::GetWindowDrawList()->AddRect(rMin, rMax, IM_COL32(200, 200, 200, 255), 4.0f, 0, 1.5f);
+		DrawIconCentered(ImGui::GetWindowDrawList(), rMin, kIconSize, icon, iconColour);
+		ImGui::Dummy(ImVec2(kIconSize, kIconSize));
+		ImGui::SetCursorPos(ImVec2(posLocal.x, ImGui::GetCursorPosY()));
+		DrawInlineNameEditor(kIconSize); // match the icon box width so it doesn't overlap the next cell
 	}
 }
 
