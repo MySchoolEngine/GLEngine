@@ -321,7 +321,9 @@ void C_ResourceManagerWindow::DrawContentPanel() const
 	filtered.reserve(m_FolderContents.size());
 	for (const auto& path : m_FolderContents)
 	{
-		if (requiredType && std::strcmp(GetTypeNameForPath(path), requiredType) != 0)
+		// Folders stay visible under a resource-type filter (e.g. "Mesh") so the tree can still be browsed; "Folder" and "All" are unaffected.
+		const bool isDir = std::filesystem::is_directory(path);
+		if (requiredType && !isDir && std::strcmp(GetTypeNameForPath(path), requiredType) != 0)
 			continue;
 		if (hasNameFilter && !containsCI(path.filename().string(), m_FilterName))
 			continue;
