@@ -107,6 +107,47 @@ std::expected<std::shared_ptr<Resource>, CreateError> C_ResourceManager::CreateN
 }
 
 //=================================================================================
+std::expected<void, RenameError> C_ResourceManager::RenameResource(const std::filesystem::path& oldPath, const std::filesystem::path& newPath)
+{
+	const auto oldPathNormalized = oldPath.lexically_normal();
+	const auto newPathNormalized = newPath.lexically_normal();
+
+	if (std::filesystem::exists(newPathNormalized))
+		return std::unexpected(RenameError::DestinationExists);
+
+	std::unique_lock lock(m_Mutex);
+	if (m_Resources.contains(newPathNormalized))
+		return std::unexpected(RenameError::DestinationAlreadyTracked);
+
+	const auto it = m_Resources.find(oldPathNormalized);
+	if (it != m_Resources.end())
+	{
+		const auto resource = it->second;
+		if (std::filesystem::exists(oldPathNormalized))
+		{
+			std::error_code ec;
+			std::filesystem::rename(oldPathNormalized, newPathNormalized, ec);
+			if (ec)
+				return std::unexpected(RenameError::FilesystemRenameFailed);
+		}
+		resource->m_Filepath = newPathNormalized;
+		m_Resources.erase(it);
+		m_Resources[newPathNormalized] = resource;
+		return {};
+	}
+	lock.unlock();
+
+	if (!std::filesystem::exists(oldPathNormalized))
+		return std::unexpected(RenameError::SourceNotFound);
+
+	std::error_code ec;
+	std::filesystem::rename(oldPathNormalized, newPathNormalized, ec);
+	if (ec)
+		return std::unexpected(RenameError::FilesystemRenameFailed);
+	return {};
+}
+
+//=================================================================================
 std::shared_ptr<Resource> C_ResourceManager::GetResourcePtr(const std::filesystem::path& filepath)
 {
 	if (const auto resource = m_Resources.find(filepath); resource != m_Resources.end())
