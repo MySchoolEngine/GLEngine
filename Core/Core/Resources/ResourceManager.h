@@ -14,9 +14,8 @@
 
 namespace GLEngine::Core {
 
-enum class CreateError
-{
-	AlreadyExists,  //< file already exists on disk
+enum class CreateError {
+	AlreadyExists,	//< file already exists on disk
 	AlreadyTracked, //< resource is already tracked by the manager (but not yet on disk)
 	NoLoader,		//< no loader registered for the file extension — programming error
 	NullResource,	//< loader returned a null resource
@@ -25,9 +24,9 @@ enum class CreateError
 
 class CORE_API_EXPORT C_ResourceManager final : public C_Layer {
 public:
-	C_ResourceManager(const C_ResourceManager& other)	  = delete;
-	C_ResourceManager(C_ResourceManager&& other) noexcept = delete;
-	C_ResourceManager&						operator=(const C_ResourceManager& other) = delete;
+	C_ResourceManager(const C_ResourceManager& other)									  = delete;
+	C_ResourceManager(C_ResourceManager&& other) noexcept								  = delete;
+	C_ResourceManager&						operator=(const C_ResourceManager& other)	  = delete;
 	C_ResourceManager&						operator=(C_ResourceManager&& other) noexcept = delete;
 	[[nodiscard]] static C_ResourceManager& Instance();
 
@@ -52,6 +51,11 @@ public:
 	 * @return valid handle if resource with the filepath does not exist
 	 */
 	template <IsResource ResourceType> [[nodiscard]] std::expected<ResourceHandle<ResourceType>, CreateError> CreateNewResource(const std::filesystem::path& filepath);
+	/**
+	 * @brief Type-erased counterpart to CreateNewResource<T>, for callers that only have a
+	 * runtime-selected loader (e.g. a "New Resource" menu built from GetCreatableLoaders()).
+	 */
+	[[nodiscard]] std::expected<std::shared_ptr<Resource>, CreateError> CreateNewResourceByLoader(const I_ResourceLoader& loader, const std::filesystem::path& filepath);
 	/**
 	 * @brief This function will not try to load anything. Only returns handle if the resource is already loaded.
 	 * @tparam ResourceType
@@ -85,6 +89,12 @@ public:
 	 *         The reference is valid only as long as the manager has not been destroyed.
 	 */
 	template <IsResource ResourceType> [[nodiscard]] std::optional<std::reference_wrapper<const I_ResourceLoader>> GetLoaderForType() const;
+
+	/**
+	 * @brief Every registered loader whose resource type can be created blank
+	 * (I_ResourceLoader::SupportsEmptyCreation() == true), e.g. for a "New Resource" menu.
+	 */
+	[[nodiscard]] std::vector<std::reference_wrapper<const I_ResourceLoader>> GetCreatableLoaders() const;
 
 	template <IsResource ResourceType> [[nodiscard]] bool IsResourceType(const std::filesystem::path& path) const;
 
