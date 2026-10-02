@@ -185,7 +185,9 @@ std::unique_ptr<Core::I_ResourceLoader> MaterialResource::GetLoader()
 //=================================================================================
 std::shared_ptr<Core::Resource> MaterialResourceLoader::CreateResource() const
 {
-	return std::make_shared<MaterialResource>();
+	auto material = std::make_shared<MaterialResource>();
+	material->SetMaterialData(std::make_shared<C_PBRMaterialData>());
+	return material;
 }
 
 //=================================================================================
