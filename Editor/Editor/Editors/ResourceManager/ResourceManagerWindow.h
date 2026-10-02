@@ -35,6 +35,7 @@ private:
 	void DrawContentPanel() const;
 
 	void DrawGridItem(const std::filesystem::path& path, float iconSize) const;
+	void DrawListItem(const std::filesystem::path& path) const;
 
 	void OnFolderSelected(const std::filesystem::path& path) const;
 	void OnResourceDoubleClicked(const std::filesystem::path& path) const;
@@ -52,7 +53,8 @@ private:
 	mutable bool							   m_ContentDirty = true;
 
 	mutable char m_FilterName[128] = {};
-	mutable int  m_FilterTypeIndex = 0; // 0 = All
+	mutable int	 m_FilterTypeIndex = 0; // 0 = All
+	mutable bool m_ListView		   = false;
 
 	mutable std::thread		  m_WatcherThread;
 	mutable std::atomic<bool> m_WatcherRunning{false};

@@ -267,11 +267,31 @@ void C_ResourceManagerWindow::DrawContentPanel() const
 	// --- Filter bar ---
 	static const char* s_TypeNames[] = {"All", "Folder", "Mesh", "Trimesh Model", "Texture", "Material", "File"};
 
-	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - 120.f);
+	const float toggleSize = ImGui::GetFrameHeight();
+	const float togglesW   = toggleSize * 2.0f + ImGui::GetStyle().ItemSpacing.x;
+
+	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - 120.f - togglesW - ImGui::GetStyle().ItemSpacing.x);
 	ImGui::InputTextWithHint("##namefilter", ICON_FA_MAGNIFYING_GLASS " Search...", m_FilterName, sizeof(m_FilterName));
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(110.f);
 	ImGui::Combo("##typefilter", &m_FilterTypeIndex, s_TypeNames, IM_ARRAYSIZE(s_TypeNames));
+	ImGui::SameLine();
+
+	// --- View mode toggle ---
+	const bool wasListView = m_ListView;
+	if (!wasListView)
+		ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+	if (ImGui::Button(ICON_FA_TABLE_CELLS_LARGE, ImVec2(toggleSize, toggleSize)))
+		m_ListView = false;
+	if (!wasListView)
+		ImGui::PopStyleColor();
+	ImGui::SameLine();
+	if (wasListView)
+		ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+	if (ImGui::Button(ICON_FA_LIST, ImVec2(toggleSize, toggleSize)))
+		m_ListView = true;
+	if (wasListView)
+		ImGui::PopStyleColor();
 
 	const float filterBarH = ImGui::GetCursorPosY();
 
@@ -290,11 +310,10 @@ void C_ResourceManagerWindow::DrawContentPanel() const
 	}
 
 	// --- Build filtered view (no alloc on the hot path: just index pointers) ---
-	const bool		hasNameFilter  = m_FilterName[0] != '\0';
-	const char*		requiredType   = m_FilterTypeIndex > 0 ? s_TypeNames[m_FilterTypeIndex] : nullptr;
-	const auto		containsCI	   = [](std::string_view hay, std::string_view needle) {
-		return std::search(hay.begin(), hay.end(), needle.begin(), needle.end(),
-						   [](char a, char b) { return std::tolower((unsigned char)a) == std::tolower((unsigned char)b); })
+	const bool	hasNameFilter = m_FilterName[0] != '\0';
+	const char* requiredType  = m_FilterTypeIndex > 0 ? s_TypeNames[m_FilterTypeIndex] : nullptr;
+	const auto	containsCI	  = [](std::string_view hay, std::string_view needle) {
+		return std::search(hay.begin(), hay.end(), needle.begin(), needle.end(), [](char a, char b) { return std::tolower((unsigned char)a) == std::tolower((unsigned char)b); })
 			   != hay.end();
 	};
 
@@ -307,6 +326,25 @@ void C_ResourceManagerWindow::DrawContentPanel() const
 		if (hasNameFilter && !containsCI(path.filename().string(), m_FilterName))
 			continue;
 		filtered.push_back(&path);
+	}
+
+	if (m_ListView)
+	{
+		// --- List ---
+		ImGui::SetCursorPosY(filterBarH);
+		if (ImGui::BeginTable("##ResourceList", 3, ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_Resizable))
+		{
+			ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch);
+			ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed, 110.f);
+			ImGui::TableSetupColumn("Size", ImGuiTableColumnFlags_WidthFixed, 80.f);
+			ImGui::TableHeadersRow();
+
+			for (const auto* path : filtered)
+				DrawListItem(*path);
+
+			ImGui::EndTable();
+		}
+		return;
 	}
 
 	// --- Grid ---
@@ -345,7 +383,7 @@ void C_ResourceManagerWindow::DrawGridItem(const std::filesystem::path& path, fl
 	ImGui::GetWindowDrawList()->AddRect(rMin, rMax, borderColor, 4.0f, 0, 1.5f);
 
 	// Draw FA icon centered in the cell via draw list - no new ImGui item, InvisibleButton stays as drag source
-	const auto& col = GetColourForPath(path);
+	const auto& col		   = GetColourForPath(path);
 	const ImU32 iconColour = IM_COL32(static_cast<int>(col.r * 255), static_cast<int>(col.g * 255), static_cast<int>(col.b * 255), 210);
 	DrawIconCentered(ImGui::GetWindowDrawList(), rMin, iconSize, GetIconForPath(path), iconColour);
 
@@ -380,6 +418,71 @@ void C_ResourceManagerWindow::DrawGridItem(const std::filesystem::path& path, fl
 	const float	  textW	   = ImGui::CalcTextSize(label.c_str()).x;
 	ImGui::SetCursorPos(ImVec2(iconPos.x + std::max(0.f, (iconSize - textW) * 0.5f), ImGui::GetCursorPosY()));
 	ImGui::TextUnformatted(label.c_str());
+}
+
+//=================================================================================
+void C_ResourceManagerWindow::DrawListItem(const std::filesystem::path& path) const
+{
+	const std::string name	= path.filename().string();
+	const bool		  isDir = std::filesystem::is_directory(path);
+
+	ImGui::TableNextRow();
+	ImGui::TableNextColumn();
+
+	// Invisible row-spanning selectable acts as the drag/hover/click anchor; icon + name are drawn on top of it below.
+	const ImVec2 cellStart = ImGui::GetCursorPos();
+	ImGui::Selectable(("##" + name).c_str(), false, ImGuiSelectableFlags_SpanAllColumns);
+
+	if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
+	{
+		ImGui::BeginTooltip();
+		ImGui::TextUnformatted(name.c_str());
+		ImGui::TextDisabled("%s", GetTypeNameForPath(path));
+		if (!isDir)
+		{
+			std::error_code ec;
+			const auto		sz = std::filesystem::file_size(path, ec);
+			if (!ec)
+				ImGui::TextDisabled("%s", FormatFileSize(sz).c_str());
+		}
+		ImGui::EndTooltip();
+	}
+
+	constexpr float dragIconSize = 32.0f;
+	HandleResourceDragDrop(path, dragIconSize);
+	HandleContextMenu(path);
+
+	if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+	{
+		if (isDir)
+			OnFolderSelected(path);
+		else
+			OnResourceDoubleClicked(path);
+	}
+
+	ImGui::SetCursorPos(cellStart);
+	const auto& col		   = GetColourForPath(path);
+	const ImU32 iconColour = IM_COL32(static_cast<int>(col.r * 255), static_cast<int>(col.g * 255), static_cast<int>(col.b * 255), 255);
+	ImGui::PushStyleColor(ImGuiCol_Text, iconColour);
+	ImGui::TextUnformatted(GetIconForPath(path));
+	ImGui::PopStyleColor();
+	ImGui::SameLine();
+	ImGui::TextUnformatted(name.c_str());
+
+	ImGui::TableNextColumn();
+	ImGui::TextUnformatted(GetTypeNameForPath(path));
+
+	ImGui::TableNextColumn();
+	if (isDir)
+	{
+		ImGui::TextDisabled("--");
+	}
+	else
+	{
+		std::error_code ec;
+		const auto		sz = std::filesystem::file_size(path, ec);
+		ImGui::TextUnformatted(ec ? "?" : FormatFileSize(sz).c_str());
+	}
 }
 
 //=================================================================================
@@ -485,7 +588,7 @@ void C_ResourceManagerWindow::HandleResourceDragDrop(const std::filesystem::path
 		ImGui::Dummy(ImVec2(iconSize, iconSize));
 		ImGui::GetWindowDrawList()->AddRect(iconScreenPos, iconScreenPos + ImVec2(iconSize, iconSize), IM_COL32(200, 200, 200, 255), 4.0f, 0, 1.5f);
 
-		const auto& dragCol = GetColourForPath(path);
+		const auto& dragCol		   = GetColourForPath(path);
 		const ImU32 dragIconColour = IM_COL32(static_cast<int>(dragCol.r * 255), static_cast<int>(dragCol.g * 255), static_cast<int>(dragCol.b * 255), 210);
 		DrawIconCentered(ImGui::GetWindowDrawList(), iconScreenPos, iconSize, GetIconForPath(path), dragIconColour);
 
@@ -506,7 +609,7 @@ void C_ResourceManagerWindow::HandleContextMenu(const std::filesystem::path& pat
 
 	const bool hasEditor = resMgr.IsResourceType<Renderer::TextureResource>(path) || resMgr.IsResourceType<Renderer::C_TrimeshModel>(path)
 						   || resMgr.IsResourceType<Renderer::MaterialResource>(path);
-	const bool isMesh = resMgr.IsResourceType<Renderer::MeshResource>(path);
+	const bool isMesh	 = resMgr.IsResourceType<Renderer::MeshResource>(path);
 
 	if (!hasEditor && !isMesh)
 		return;
