@@ -468,11 +468,19 @@ void C_ResourceManagerWindow::DrawGridItem(const std::filesystem::path& path, fl
 			OnResourceDoubleClicked(path);
 	}
 
-	constexpr int maxChars = 10;
-	std::string	  label	   = name.size() > maxChars ? name.substr(0, maxChars - 2) + ".." : name;
-	const float	  textW	   = ImGui::CalcTextSize(label.c_str()).x;
-	ImGui::SetCursorPos(ImVec2(iconPos.x + std::max(0.f, (iconSize - textW) * 0.5f), ImGui::GetCursorPosY()));
-	ImGui::TextUnformatted(label.c_str());
+	if (IsEditingPath(path))
+	{
+		ImGui::SetCursorPos(ImVec2(iconPos.x, ImGui::GetCursorPosY()));
+		DrawInlineNameEditor(iconSize); // match the icon box width so it doesn't overlap the next cell
+	}
+	else
+	{
+		constexpr int maxChars = 10;
+		std::string	  label	   = name.size() > maxChars ? name.substr(0, maxChars - 2) + ".." : name;
+		const float	  textW	   = ImGui::CalcTextSize(label.c_str()).x;
+		ImGui::SetCursorPos(ImVec2(iconPos.x + std::max(0.f, (iconSize - textW) * 0.5f), ImGui::GetCursorPosY()));
+		ImGui::TextUnformatted(label.c_str());
+	}
 }
 
 //=================================================================================
@@ -486,7 +494,9 @@ void C_ResourceManagerWindow::DrawListItem(const std::filesystem::path& path) co
 
 	// Invisible row-spanning selectable acts as the drag/hover/click anchor; icon + name are drawn on top of it below.
 	const ImVec2 cellStart = ImGui::GetCursorPos();
-	ImGui::Selectable(("##" + name).c_str(), false, ImGuiSelectableFlags_SpanAllColumns);
+	// AllowOverlap: without it, this row-spanning selectable blocks mouse clicks from reaching the
+	// inline rename InputText drawn on top of it once that InputText has lost focus once already.
+	ImGui::Selectable(("##" + name).c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap);
 
 	if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
 	{
@@ -522,7 +532,10 @@ void C_ResourceManagerWindow::DrawListItem(const std::filesystem::path& path) co
 	ImGui::TextUnformatted(GetIconForPath(path));
 	ImGui::PopStyleColor();
 	ImGui::SameLine();
-	ImGui::TextUnformatted(name.c_str());
+	if (IsEditingPath(path))
+		DrawInlineNameEditor(-1.0f); // stretch to the Name column's right edge, like the other rows' text
+	else
+		ImGui::TextUnformatted(name.c_str());
 
 	ImGui::TableNextColumn();
 	ImGui::TextUnformatted(GetTypeNameForPath(path));
@@ -646,7 +659,9 @@ void C_ResourceManagerWindow::DrawInlineNameEditor(float width) const
 	}
 
 	ImGui::SetNextItemWidth(width);
-	const bool committed = ImGui::InputText("##inlineEdit", m_PendingEdit->m_NameBuffer, sizeof(m_PendingEdit->m_NameBuffer), ImGuiInputTextFlags_EnterReturnsTrue);
+	const bool	 committed = ImGui::InputText("##inlineEdit", m_PendingEdit->m_NameBuffer, sizeof(m_PendingEdit->m_NameBuffer), ImGuiInputTextFlags_EnterReturnsTrue);
+	const ImVec2 inputMin  = ImGui::GetItemRectMin(); // exact drawn rect of the input field - ground truth for aligning the error box, no guessing about frame height/padding
+	const ImVec2 inputMax  = ImGui::GetItemRectMax();
 	if (committed)
 		CommitPendingEdit();
 	else if (ImGui::IsItemDeactivated() && ImGui::IsKeyPressed(ImGuiKey_Escape))
@@ -654,8 +669,28 @@ void C_ResourceManagerWindow::DrawInlineNameEditor(float width) const
 
 	if (m_PendingEdit && !m_PendingEdit->m_ErrorMessage.empty())
 	{
-		ImGui::SameLine();
-		ImGui::TextColored(ImVec4(1.f, 0.4f, 0.4f, 1.f), "%s", m_PendingEdit->m_ErrorMessage.c_str());
+		if (m_ListView)
+		{
+			// SameLine()-ing a box here doesn't work reliably: the input already fills the whole table
+			// column (width -1), so anything placed beside it lands past the column's edge, and the
+			// table clips that away regardless of clip-rect overrides. Showing the message on the line
+			// below instead, wrapped to the column's width, never needs to extend past the column at all.
+			ImGui::PushTextWrapPos(0.0f);
+			ImGui::TextColored(ImVec4(1.f, 0.45f, 0.45f, 1.f), "%s", m_PendingEdit->m_ErrorMessage.c_str());
+			ImGui::PopTextWrapPos();
+		}
+		else
+		{
+			ImGui::SameLine();
+			constexpr float horizontalPadding = 6.0f;
+			const ImVec2	textSize		  = ImGui::CalcTextSize(m_PendingEdit->m_ErrorMessage.c_str());
+			const ImVec2	rectMin(ImGui::GetCursorScreenPos().x, inputMin.y);
+			const ImVec2	rectMax(rectMin.x + textSize.x + horizontalPadding * 2.0f, inputMax.y);
+			ImGui::GetWindowDrawList()->AddRectFilled(rectMin, rectMax, IM_COL32(90, 30, 30, 230), 3.0f);
+			ImGui::SetCursorScreenPos(ImVec2(rectMin.x + horizontalPadding, inputMin.y));
+			ImGui::TextColored(ImVec4(1.f, 0.65f, 0.65f, 1.f), "%s", m_PendingEdit->m_ErrorMessage.c_str());
+			ImGui::SetCursorScreenPos(ImVec2(rectMin.x, rectMax.y));
+		}
 	}
 }
 
@@ -708,6 +743,7 @@ void C_ResourceManagerWindow::DrawPendingCreateRow() const
 //=================================================================================
 void C_ResourceManagerWindow::OnFolderSelected(const std::filesystem::path& path) const
 {
+	m_PendingEdit.reset(); // a pending create/rename belongs to the folder being left - don't carry it into the new one
 	m_SelectedFolder = path;
 	m_ContentDirty	 = true;
 	StartWatcher(path);
@@ -822,17 +858,13 @@ void C_ResourceManagerWindow::HandleResourceDragDrop(const std::filesystem::path
 //=================================================================================
 void C_ResourceManagerWindow::HandleContextMenu(const std::filesystem::path& path) const
 {
-	if (std::filesystem::is_directory(path))
-		return;
+	auto&	   resMgr = Core::C_ResourceManager::Instance();
+	const bool isDir  = std::filesystem::is_directory(path);
 
-	auto& resMgr = Core::C_ResourceManager::Instance();
-
-	const bool hasEditor = resMgr.IsResourceType<Renderer::TextureResource>(path) || resMgr.IsResourceType<Renderer::C_TrimeshModel>(path)
-						   || resMgr.IsResourceType<Renderer::MaterialResource>(path);
-	const bool isMesh	 = resMgr.IsResourceType<Renderer::MeshResource>(path);
-
-	if (!hasEditor && !isMesh)
-		return;
+	const bool hasEditor = !isDir
+						   && (resMgr.IsResourceType<Renderer::TextureResource>(path) || resMgr.IsResourceType<Renderer::C_TrimeshModel>(path)
+							   || resMgr.IsResourceType<Renderer::MaterialResource>(path));
+	const bool isMesh	 = !isDir && resMgr.IsResourceType<Renderer::MeshResource>(path);
 
 	if (ImGui::BeginPopupContextItem())
 	{
@@ -847,6 +879,9 @@ void C_ResourceManagerWindow::HandleContextMenu(const std::filesystem::path& pat
 
 		if (isMesh && ImGui::MenuItem("Force export Materials"))
 			ExportMaterials(path, true);
+
+		if (ImGui::MenuItem("Rename"))
+			BeginRename(path);
 
 		ImGui::EndPopup();
 	}
