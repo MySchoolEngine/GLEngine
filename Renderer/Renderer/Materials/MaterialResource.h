@@ -75,6 +75,7 @@ class RENDERER_API_EXPORT MaterialResourceLoader : public Core::ResourceLoader<M
 public:
 	std::shared_ptr<Core::Resource> CreateResource() const override;
 	std::vector<std::string>		GetSupportedExtensions() const override;
+	bool							SupportsEmptyCreation() const override { return true; }
 };
 
 } // namespace GLEngine::Renderer
@@ -84,8 +85,7 @@ template <> struct UIMetaclassToType<MetaGUI::MaterialResource> {
 	using type = GLEngine::Core::ResourceHandle<GLEngine::Renderer::MaterialResource>;
 };
 
-enum class MaterialResource : std::uint8_t
-{
+enum class MaterialResource : std::uint8_t {
 	Name,
 };
 } // namespace Utils::Reflection::UI

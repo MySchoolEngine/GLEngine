@@ -252,17 +252,16 @@ void C_MaterialPreviewWindow::NewMaterial()
 {
 	const auto dialogGUID = NextGUID();
 	auto*	   dialog	  = new GUI::C_FileDialogWindow(
-		 ".glmat", "Save material as...",
-		 [this, dialogGUID](const std::filesystem::path& savePath, GUI::C_GUIManager& guiMgr) {
-			 auto& rm		   = Core::C_ResourceManager::Instance();
-			 auto  newMaterial = rm.CreateNewResource<Renderer::MaterialResource>(savePath).transform([&](auto handle) {
-				  handle.GetResource().SetMaterialData(std::make_shared<Renderer::C_PBRMaterialData>());
-				  OpenMaterial(std::move(handle));
-				  guiMgr.DestroyWindow(dialogGUID);
-				  return handle;
-			  });
-		 },
-		 dialogGUID, Renderer::TextureResource::GetResourceDataPath());
+		".glmat", "Save material as...",
+		[this, dialogGUID](const std::filesystem::path& savePath, GUI::C_GUIManager& guiMgr) {
+			auto& rm		  = Core::C_ResourceManager::Instance();
+			auto  newMaterial = rm.CreateNewResource<Renderer::MaterialResource>(savePath).transform([&](auto handle) {
+				OpenMaterial(std::move(handle));
+				guiMgr.DestroyWindow(dialogGUID);
+				return handle;
+			});
+		},
+		dialogGUID, Renderer::TextureResource::GetResourceDataPath());
 	m_GUIManager.AddCustomWindow(dialog);
 	dialog->SetVisible();
 }
@@ -286,12 +285,12 @@ void C_MaterialPreviewWindow::SaveMaterialAs(S_MaterialTabData& data)
 
 	const auto dialogGUID = NextGUID();
 	auto*	   dialog	  = new GUI::C_FileDialogWindow(
-		 ".glmat", "Save material as...",
-		 [&data, dialogGUID](const std::filesystem::path& /*savePath*/, GUI::C_GUIManager& guiMgr) {
-			 // TODO: implement copy-to-new-path
-			 guiMgr.DestroyWindow(dialogGUID);
-		 },
-		 dialogGUID, Renderer::TextureResource::GetResourceDataPath());
+		".glmat", "Save material as...",
+		[&data, dialogGUID](const std::filesystem::path& /*savePath*/, GUI::C_GUIManager& guiMgr) {
+			// TODO: implement copy-to-new-path
+			guiMgr.DestroyWindow(dialogGUID);
+		},
+		dialogGUID, Renderer::TextureResource::GetResourceDataPath());
 	m_GUIManager.AddCustomWindow(dialog);
 	dialog->SetVisible();
 }

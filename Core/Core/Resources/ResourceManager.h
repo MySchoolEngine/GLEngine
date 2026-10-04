@@ -14,20 +14,26 @@
 
 namespace GLEngine::Core {
 
-enum class CreateError
-{
-	AlreadyExists,  //< file already exists on disk
+enum class CreateError {
+	AlreadyExists,	//< file already exists on disk
 	AlreadyTracked, //< resource is already tracked by the manager (but not yet on disk)
 	NoLoader,		//< no loader registered for the file extension — programming error
 	NullResource,	//< loader returned a null resource
 	TypeMismatch,	//< loader created a resource of a different type than requested
 };
 
+enum class RenameError {
+	DestinationExists,		   //< newPath already exists on disk
+	DestinationAlreadyTracked, //< newPath is already tracked by the manager (but not yet on disk)
+	SourceNotFound,			   //< oldPath doesn't exist on disk and isn't tracked by the manager
+	FilesystemRenameFailed,	   //< std::filesystem::rename failed (permissions, cross-device, etc.)
+};
+
 class CORE_API_EXPORT C_ResourceManager final : public C_Layer {
 public:
-	C_ResourceManager(const C_ResourceManager& other)	  = delete;
-	C_ResourceManager(C_ResourceManager&& other) noexcept = delete;
-	C_ResourceManager&						operator=(const C_ResourceManager& other) = delete;
+	C_ResourceManager(const C_ResourceManager& other)									  = delete;
+	C_ResourceManager(C_ResourceManager&& other) noexcept								  = delete;
+	C_ResourceManager&						operator=(const C_ResourceManager& other)	  = delete;
 	C_ResourceManager&						operator=(C_ResourceManager&& other) noexcept = delete;
 	[[nodiscard]] static C_ResourceManager& Instance();
 
@@ -52,6 +58,20 @@ public:
 	 * @return valid handle if resource with the filepath does not exist
 	 */
 	template <IsResource ResourceType> [[nodiscard]] std::expected<ResourceHandle<ResourceType>, CreateError> CreateNewResource(const std::filesystem::path& filepath);
+	/**
+	 * @brief Type-erased counterpart to CreateNewResource<T>, for callers that only have a
+	 * runtime-selected loader (e.g. a "New Resource" menu built from GetCreatableLoaders()).
+	 */
+	[[nodiscard]] std::expected<std::shared_ptr<Resource>, CreateError> CreateNewResourceByLoader(const I_ResourceLoader& loader, const std::filesystem::path& filepath);
+	/**
+	 * @brief Renames/moves a resource, plain file, or folder on disk, keeping the manager's
+	 * internal tracking consistent if oldPath is currently tracked.
+	 *
+	 * Known limitation: does not update a derived resource's owning .meta
+	 * (m_DerivedResources) if the resource was extracted from another resource (e.g. a
+	 * material extracted from a mesh) - that metafile reference will go stale.
+	 */
+	[[nodiscard]] std::expected<void, RenameError> RenameResource(const std::filesystem::path& oldPath, const std::filesystem::path& newPath);
 	/**
 	 * @brief This function will not try to load anything. Only returns handle if the resource is already loaded.
 	 * @tparam ResourceType
@@ -85,6 +105,12 @@ public:
 	 *         The reference is valid only as long as the manager has not been destroyed.
 	 */
 	template <IsResource ResourceType> [[nodiscard]] std::optional<std::reference_wrapper<const I_ResourceLoader>> GetLoaderForType() const;
+
+	/**
+	 * @brief Every registered loader whose resource type can be created blank
+	 * (I_ResourceLoader::SupportsEmptyCreation() == true), e.g. for a "New Resource" menu.
+	 */
+	[[nodiscard]] std::vector<std::reference_wrapper<const I_ResourceLoader>> GetCreatableLoaders() const;
 
 	template <IsResource ResourceType> [[nodiscard]] bool IsResourceType(const std::filesystem::path& path) const;
 

@@ -199,50 +199,27 @@ template <IsResource ResourceType> ResourceHandle<ResourceType> C_ResourceManage
 }
 
 //=================================================================================
-template <IsResource ResourceType>
-std::expected<ResourceHandle<ResourceType>, CreateError> C_ResourceManager::CreateNewResource(const std::filesystem::path& filepath)
+template <IsResource ResourceType> std::expected<ResourceHandle<ResourceType>, CreateError> C_ResourceManager::CreateNewResource(const std::filesystem::path& filepath)
 {
 	const auto filepathNormalized = filepath.lexically_normal();
-	if (std::filesystem::exists(filepathNormalized))
-		return std::unexpected(CreateError::AlreadyExists);
-	else
+	const auto loaderOpt		  = GetLoaderForExt(filepathNormalized.extension().string());
+	if (!loaderOpt)
 	{
-		std::unique_lock lock(m_Mutex);
-		// check if we already have the resource loaded, it could be created, but not exist as a file
-		// in the filesystem
-		if (const auto resource = GetResource<ResourceType>(filepathNormalized))
-		{
-			return std::unexpected(CreateError::AlreadyTracked);
-		}
+		CORE_LOG(E_Level::Error, E_Context::Core, "No loader specified for {}", filepathNormalized.extension());
+		return std::unexpected(CreateError::NoLoader);
+	}
 
-		const auto loaderOpt = GetLoaderForExt(filepathNormalized.extension().string());
-		if (!loaderOpt)
-		{
-			CORE_LOG(E_Level::Error, E_Context::Core, "No loader specified for {}", filepathNormalized.extension());
-			return std::unexpected(CreateError::NoLoader);
-		}
-		const auto loader	= loaderOpt.value();
-		auto	   resource = loader.get().CreateResource();
-		if (resource)
-		{
-			resource->m_Dirty	 = true;
-			resource->m_State	 = ResourceState::Ready;
-			resource->m_Filepath = filepathNormalized;
-
+	return CreateNewResourceByLoader(loaderOpt.value(), filepathNormalized)
+		.and_then([](const std::shared_ptr<Resource>& resource) -> std::expected<ResourceHandle<ResourceType>, CreateError> {
 			std::shared_ptr<ResourceType> concreteResource = std::dynamic_pointer_cast<ResourceType>(resource);
 			if (!concreteResource)
 			{
-				GLE_ASSERT(concreteResource, "Resource {} is of different type than requested. Given we have loader for that type this should not happen.", filepathNormalized);
+				GLE_ASSERT(concreteResource, "Resource {} is of different type than requested. Given we have loader for that type this should not happen.",
+						   resource->GetFilePath());
 				return std::unexpected(CreateError::TypeMismatch);
 			}
-			m_Resources[filepathNormalized] = resource;
 			return ResourceHandle<ResourceType>(concreteResource);
-		}
-		else
-		{
-			return std::unexpected(CreateError::NullResource);
-		}
-	}
+		});
 }
 
 //=================================================================================

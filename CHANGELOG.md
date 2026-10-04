@@ -2,6 +2,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - 04-10-2026
+### Added
+- Create new resource (materials for now)
+- Rename resource
+
 ## [Unreleased] - 01-08-2026
 ### Added
 - `BuildSceneFromEntityManager`

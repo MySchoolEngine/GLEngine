@@ -13,6 +13,8 @@
 
 #include <GUI/ImGuiLayer.h>
 
+#include <Core/Resources/ResourceHandle.h>
+#include <Core/Resources/ResourceLoader.h>
 #include <Core/Resources/ResourceManager.h>
 
 #include <IconsFontAwesome6.h>
@@ -28,31 +30,40 @@
 #endif
 
 namespace {
+const char* GetIconForResourceType(std::size_t typeHash)
+{
+	if (typeHash == GLEngine::Renderer::MeshResource::GetResourceTypeHashStatic())
+		return ICON_FA_CUBE;
+	if (typeHash == GLEngine::Renderer::C_TrimeshModel::GetResourceTypeHashStatic())
+		return ICON_FA_BOXES_STACKED;
+	if (typeHash == GLEngine::Renderer::TextureResource::GetResourceTypeHashStatic())
+		return ICON_FA_FILE_IMAGE;
+	if (typeHash == GLEngine::Renderer::MaterialResource::GetResourceTypeHashStatic())
+		return ICON_FA_TROWEL_BRICKS;
+	return ICON_FA_FILE;
+}
+
+GLEngine::Colours::T_Colour GetColourForResourceType(std::size_t typeHash)
+{
+	if (typeHash == GLEngine::Renderer::MeshResource::GetResourceTypeHashStatic())
+		return GLEngine::Editor::Colours::Resources::Colour<GLEngine::Renderer::MeshResource>;
+	if (typeHash == GLEngine::Renderer::C_TrimeshModel::GetResourceTypeHashStatic())
+		return GLEngine::Editor::Colours::Resources::Colour<GLEngine::Renderer::C_TrimeshModel>;
+	if (typeHash == GLEngine::Renderer::TextureResource::GetResourceTypeHashStatic())
+		return GLEngine::Editor::Colours::Resources::Colour<GLEngine::Renderer::TextureResource>;
+	if (typeHash == GLEngine::Renderer::MaterialResource::GetResourceTypeHashStatic())
+		return GLEngine::Editor::Colours::Resources::Colour<GLEngine::Renderer::MaterialResource>;
+	return GLEngine::Colours::white;
+}
+
 const char* GetIconForPath(const std::filesystem::path& path)
 {
 	if (std::filesystem::is_directory(path))
 		return ICON_FA_FOLDER;
-	const auto ext = path.extension().string();
-
-	auto& resMgr = GLEngine::Core::C_ResourceManager::Instance();
-	if (resMgr.IsResourceType<GLEngine::Renderer::MeshResource>(path))
-	{
-		return ICON_FA_CUBE;
-	}
-	if (resMgr.IsResourceType<GLEngine::Renderer::C_TrimeshModel>(path))
-	{
-		return ICON_FA_BOXES_STACKED;
-	}
-	if (resMgr.IsResourceType<GLEngine::Renderer::TextureResource>(path))
-	{
-		return ICON_FA_FILE_IMAGE;
-	}
-	if (resMgr.IsResourceType<GLEngine::Renderer::MaterialResource>(path))
-	{
-		return ICON_FA_TROWEL_BRICKS;
-	}
-
-	return ICON_FA_FILE;
+	const auto loader = GLEngine::Core::C_ResourceManager::Instance().GetLoaderForExt(path.extension().string());
+	if (!loader)
+		return ICON_FA_FILE;
+	return GetIconForResourceType(loader->get().GetResourceTypeID());
 }
 
 const char* GetTypeNameForPath(const std::filesystem::path& path)
@@ -75,16 +86,10 @@ GLEngine::Colours::T_Colour GetColourForPath(const std::filesystem::path& path)
 {
 	if (std::filesystem::is_directory(path))
 		return GLEngine::Colours::white;
-	auto& resMgr = GLEngine::Core::C_ResourceManager::Instance();
-	if (resMgr.IsResourceType<GLEngine::Renderer::MeshResource>(path))
-		return GLEngine::Editor::Colours::Resources::Colour<GLEngine::Renderer::MeshResource>;
-	if (resMgr.IsResourceType<GLEngine::Renderer::C_TrimeshModel>(path))
-		return GLEngine::Editor::Colours::Resources::Colour<GLEngine::Renderer::C_TrimeshModel>;
-	if (resMgr.IsResourceType<GLEngine::Renderer::TextureResource>(path))
-		return GLEngine::Editor::Colours::Resources::Colour<GLEngine::Renderer::TextureResource>;
-	if (resMgr.IsResourceType<GLEngine::Renderer::MaterialResource>(path))
-		return GLEngine::Editor::Colours::Resources::Colour<GLEngine::Renderer::MaterialResource>;
-	return GLEngine::Colours::white;
+	const auto loader = GLEngine::Core::C_ResourceManager::Instance().GetLoaderForExt(path.extension().string());
+	if (!loader)
+		return GLEngine::Colours::white;
+	return GetColourForResourceType(loader->get().GetResourceTypeID());
 }
 
 std::string FormatFileSize(std::uintmax_t bytes)
@@ -104,6 +109,40 @@ void DrawIconCentered(ImDrawList* drawList, ImVec2 rectMin, float rectSize, cons
 	const ImVec2 textSize	= renderFont->CalcTextSizeA(fontSize, FLT_MAX, 0.f, iconStr);
 	const ImVec2 textPos(rectMin.x + (rectSize - textSize.x) * 0.5f, rectMin.y + (rectSize - textSize.y) * 0.5f);
 	drawList->AddText(renderFont, fontSize, textPos, colour, iconStr);
+}
+
+const char* RenameErrorMessage(GLEngine::Core::RenameError error)
+{
+	switch (error)
+	{
+	case GLEngine::Core::RenameError::DestinationExists:
+		return "A file with this name already exists.";
+	case GLEngine::Core::RenameError::DestinationAlreadyTracked:
+		return "A resource with this name is already open.";
+	case GLEngine::Core::RenameError::SourceNotFound:
+		return "The original file could not be found.";
+	case GLEngine::Core::RenameError::FilesystemRenameFailed:
+		return "The rename failed on disk.";
+	}
+	return "Rename failed.";
+}
+
+const char* CreateErrorMessage(GLEngine::Core::CreateError error)
+{
+	switch (error)
+	{
+	case GLEngine::Core::CreateError::AlreadyExists:
+		return "A file with this name already exists.";
+	case GLEngine::Core::CreateError::AlreadyTracked:
+		return "A resource with this name is already open.";
+	case GLEngine::Core::CreateError::NoLoader:
+		return "No loader is registered for this resource type.";
+	case GLEngine::Core::CreateError::NullResource:
+		return "The loader failed to create the resource.";
+	case GLEngine::Core::CreateError::TypeMismatch:
+		return "The loader created a resource of an unexpected type.";
+	}
+	return "Failed to create the resource.";
 }
 } // namespace
 
@@ -267,11 +306,40 @@ void C_ResourceManagerWindow::DrawContentPanel() const
 	// --- Filter bar ---
 	static const char* s_TypeNames[] = {"All", "Folder", "Mesh", "Trimesh Model", "Texture", "Material", "File"};
 
-	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - 120.f);
+	const float toggleSize = ImGui::GetFrameHeight();
+	const float togglesW   = toggleSize * 3.0f + ImGui::GetStyle().ItemSpacing.x * 2.0f; // grid toggle + list toggle + "+" button, with spacing between each
+
+	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - 120.f - togglesW - ImGui::GetStyle().ItemSpacing.x);
 	ImGui::InputTextWithHint("##namefilter", ICON_FA_MAGNIFYING_GLASS " Search...", m_FilterName, sizeof(m_FilterName));
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(110.f);
 	ImGui::Combo("##typefilter", &m_FilterTypeIndex, s_TypeNames, IM_ARRAYSIZE(s_TypeNames));
+	ImGui::SameLine();
+
+	// --- View mode toggle ---
+	const bool wasListView = m_ListView;
+	if (!wasListView)
+		ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+	if (ImGui::Button(ICON_FA_TABLE_CELLS_LARGE, ImVec2(toggleSize, toggleSize)))
+		m_ListView = false;
+	if (!wasListView)
+		ImGui::PopStyleColor();
+	ImGui::SameLine();
+	if (wasListView)
+		ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+	if (ImGui::Button(ICON_FA_LIST, ImVec2(toggleSize, toggleSize)))
+		m_ListView = true;
+	if (wasListView)
+		ImGui::PopStyleColor();
+
+	ImGui::SameLine();
+	if (ImGui::Button(ICON_FA_PLUS, ImVec2(toggleSize, toggleSize)))
+		ImGui::OpenPopup("##NewResourcePopup");
+	if (ImGui::BeginPopup("##NewResourcePopup"))
+	{
+		DrawNewResourceMenuContents();
+		ImGui::EndPopup();
+	}
 
 	const float filterBarH = ImGui::GetCursorPosY();
 
@@ -290,11 +358,10 @@ void C_ResourceManagerWindow::DrawContentPanel() const
 	}
 
 	// --- Build filtered view (no alloc on the hot path: just index pointers) ---
-	const bool		hasNameFilter  = m_FilterName[0] != '\0';
-	const char*		requiredType   = m_FilterTypeIndex > 0 ? s_TypeNames[m_FilterTypeIndex] : nullptr;
-	const auto		containsCI	   = [](std::string_view hay, std::string_view needle) {
-		return std::search(hay.begin(), hay.end(), needle.begin(), needle.end(),
-						   [](char a, char b) { return std::tolower((unsigned char)a) == std::tolower((unsigned char)b); })
+	const bool	hasNameFilter = m_FilterName[0] != '\0';
+	const char* requiredType  = m_FilterTypeIndex > 0 ? s_TypeNames[m_FilterTypeIndex] : nullptr;
+	const auto	containsCI	  = [](std::string_view hay, std::string_view needle) {
+		return std::search(hay.begin(), hay.end(), needle.begin(), needle.end(), [](char a, char b) { return std::tolower((unsigned char)a) == std::tolower((unsigned char)b); })
 			   != hay.end();
 	};
 
@@ -302,11 +369,39 @@ void C_ResourceManagerWindow::DrawContentPanel() const
 	filtered.reserve(m_FolderContents.size());
 	for (const auto& path : m_FolderContents)
 	{
-		if (requiredType && std::strcmp(GetTypeNameForPath(path), requiredType) != 0)
+		// Folders stay visible under a resource-type filter (e.g. "Mesh") so the tree can still be browsed; "Folder" and "All" are unaffected.
+		const bool isDir = std::filesystem::is_directory(path);
+		if (requiredType && !isDir && std::strcmp(GetTypeNameForPath(path), requiredType) != 0)
 			continue;
 		if (hasNameFilter && !containsCI(path.filename().string(), m_FilterName))
 			continue;
 		filtered.push_back(&path);
+	}
+
+	if (m_ListView)
+	{
+		// --- List ---
+		ImGui::SetCursorPosY(filterBarH);
+		if (ImGui::BeginTable("##ResourceList", 3, ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_Resizable))
+		{
+			ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch);
+			ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed, 110.f);
+			ImGui::TableSetupColumn("Size", ImGuiTableColumnFlags_WidthFixed, 80.f);
+			ImGui::TableHeadersRow();
+
+			for (const auto* path : filtered)
+				DrawListItem(*path);
+
+			DrawPendingCreateRow();
+
+			ImGui::EndTable();
+		}
+		if (ImGui::BeginPopupContextWindow("##NewResourceContextMenu", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems))
+		{
+			DrawNewResourceMenuContents();
+			ImGui::EndPopup();
+		}
+		return;
 	}
 
 	// --- Grid ---
@@ -324,8 +419,24 @@ void C_ResourceManagerWindow::DrawContentPanel() const
 		DrawGridItem(*filtered[i], iconSize);
 	}
 
+	const bool hasPendingCreate = m_PendingEdit.has_value() && m_PendingEdit->m_IsCreate;
+	if (hasPendingCreate)
+	{
+		const int col = static_cast<int>(filtered.size()) % numCols;
+		const int row = static_cast<int>(filtered.size()) / numCols;
+		ImGui::SetCursorPos(ImVec2(col * cellW, filterBarH + row * cellH));
+		DrawPendingCreateRow();
+	}
+
+	if (ImGui::BeginPopupContextWindow("##NewResourceContextMenu", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems))
+	{
+		DrawNewResourceMenuContents();
+		ImGui::EndPopup();
+	}
+
 	// Advance cursor past all rows so the child window scrolls correctly
-	const int numRows = (static_cast<int>(filtered.size()) + numCols - 1) / numCols;
+	const int totalCells = static_cast<int>(filtered.size()) + (hasPendingCreate ? 1 : 0);
+	const int numRows	 = (totalCells + numCols - 1) / numCols;
 	ImGui::SetCursorPos(ImVec2(0.f, filterBarH + numRows * cellH));
 	ImGui::Dummy(ImVec2(0.f, 0.f));
 }
@@ -345,7 +456,7 @@ void C_ResourceManagerWindow::DrawGridItem(const std::filesystem::path& path, fl
 	ImGui::GetWindowDrawList()->AddRect(rMin, rMax, borderColor, 4.0f, 0, 1.5f);
 
 	// Draw FA icon centered in the cell via draw list - no new ImGui item, InvisibleButton stays as drag source
-	const auto& col = GetColourForPath(path);
+	const auto& col		   = GetColourForPath(path);
 	const ImU32 iconColour = IM_COL32(static_cast<int>(col.r * 255), static_cast<int>(col.g * 255), static_cast<int>(col.b * 255), 210);
 	DrawIconCentered(ImGui::GetWindowDrawList(), rMin, iconSize, GetIconForPath(path), iconColour);
 
@@ -375,16 +486,282 @@ void C_ResourceManagerWindow::DrawGridItem(const std::filesystem::path& path, fl
 			OnResourceDoubleClicked(path);
 	}
 
-	constexpr int maxChars = 10;
-	std::string	  label	   = name.size() > maxChars ? name.substr(0, maxChars - 2) + ".." : name;
-	const float	  textW	   = ImGui::CalcTextSize(label.c_str()).x;
-	ImGui::SetCursorPos(ImVec2(iconPos.x + std::max(0.f, (iconSize - textW) * 0.5f), ImGui::GetCursorPosY()));
-	ImGui::TextUnformatted(label.c_str());
+	if (IsEditingPath(path))
+	{
+		ImGui::SetCursorPos(ImVec2(iconPos.x, ImGui::GetCursorPosY()));
+		DrawInlineNameEditor(iconSize); // match the icon box width so it doesn't overlap the next cell
+	}
+	else
+	{
+		constexpr int maxChars = 10;
+		std::string	  label	   = name.size() > maxChars ? name.substr(0, maxChars - 2) + ".." : name;
+		const float	  textW	   = ImGui::CalcTextSize(label.c_str()).x;
+		ImGui::SetCursorPos(ImVec2(iconPos.x + std::max(0.f, (iconSize - textW) * 0.5f), ImGui::GetCursorPosY()));
+		ImGui::TextUnformatted(label.c_str());
+	}
+}
+
+//=================================================================================
+void C_ResourceManagerWindow::DrawListItem(const std::filesystem::path& path) const
+{
+	const std::string name	= path.filename().string();
+	const bool		  isDir = std::filesystem::is_directory(path);
+
+	ImGui::TableNextRow();
+	ImGui::TableNextColumn();
+
+	// Invisible row-spanning selectable acts as the drag/hover/click anchor; icon + name are drawn on top of it below.
+	const ImVec2 cellStart = ImGui::GetCursorPos();
+	// AllowOverlap: without it, this row-spanning selectable blocks mouse clicks from reaching the
+	// inline rename InputText drawn on top of it once that InputText has lost focus once already.
+	ImGui::Selectable(("##" + name).c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap);
+
+	if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
+	{
+		ImGui::BeginTooltip();
+		ImGui::TextUnformatted(name.c_str());
+		ImGui::TextDisabled("%s", GetTypeNameForPath(path));
+		if (!isDir)
+		{
+			std::error_code ec;
+			const auto		sz = std::filesystem::file_size(path, ec);
+			if (!ec)
+				ImGui::TextDisabled("%s", FormatFileSize(sz).c_str());
+		}
+		ImGui::EndTooltip();
+	}
+
+	constexpr float dragIconSize = 32.0f;
+	HandleResourceDragDrop(path, dragIconSize);
+	HandleContextMenu(path);
+
+	if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+	{
+		if (isDir)
+			OnFolderSelected(path);
+		else
+			OnResourceDoubleClicked(path);
+	}
+
+	ImGui::SetCursorPos(cellStart);
+	const auto& col		   = GetColourForPath(path);
+	const ImU32 iconColour = IM_COL32(static_cast<int>(col.r * 255), static_cast<int>(col.g * 255), static_cast<int>(col.b * 255), 255);
+	ImGui::PushStyleColor(ImGuiCol_Text, iconColour);
+	ImGui::TextUnformatted(GetIconForPath(path));
+	ImGui::PopStyleColor();
+	ImGui::SameLine();
+	if (IsEditingPath(path))
+		DrawInlineNameEditor(-1.0f); // stretch to the Name column's right edge, like the other rows' text
+	else
+		ImGui::TextUnformatted(name.c_str());
+
+	ImGui::TableNextColumn();
+	ImGui::TextUnformatted(GetTypeNameForPath(path));
+
+	ImGui::TableNextColumn();
+	if (isDir)
+	{
+		ImGui::TextDisabled("--");
+	}
+	else
+	{
+		std::error_code ec;
+		const auto		sz = std::filesystem::file_size(path, ec);
+		ImGui::TextUnformatted(ec ? "?" : FormatFileSize(sz).c_str());
+	}
+}
+
+//=================================================================================
+bool C_ResourceManagerWindow::IsEditingPath(const std::filesystem::path& path) const
+{
+	return m_PendingEdit.has_value() && !m_PendingEdit->m_IsCreate && m_PendingEdit->m_TargetPath == path;
+}
+
+//=================================================================================
+void C_ResourceManagerWindow::BeginCreate(const Core::I_ResourceLoader& loader) const
+{
+	const auto& extensions = loader.GetSupportedExtensions();
+	const auto	ext		   = extensions.empty() ? std::string{} : extensions.front();
+
+	const std::string baseName = "New" + loader.GetResourceTypeName();
+	std::string		  name	   = baseName;
+	for (int suffix = 1; std::filesystem::exists(m_SelectedFolder / (name + ext)); ++suffix)
+		name = baseName + "_" + std::to_string(suffix);
+
+	S_PendingEdit edit;
+	edit.m_IsCreate		= true;
+	edit.m_TargetPath	= m_SelectedFolder;
+	edit.m_CreateLoader = &loader;
+	edit.m_FocusPending = true;
+	std::snprintf(edit.m_NameBuffer, sizeof(edit.m_NameBuffer), "%s", name.c_str());
+	m_PendingEdit = edit;
+}
+
+//=================================================================================
+void C_ResourceManagerWindow::BeginRename(const std::filesystem::path& path) const
+{
+	S_PendingEdit edit;
+	edit.m_IsCreate		= false;
+	edit.m_TargetPath	= path;
+	edit.m_FocusPending = true;
+	std::snprintf(edit.m_NameBuffer, sizeof(edit.m_NameBuffer), "%s", path.stem().string().c_str());
+	m_PendingEdit = edit;
+}
+
+//=================================================================================
+void C_ResourceManagerWindow::CommitPendingEdit() const
+{
+	if (!m_PendingEdit)
+		return;
+
+	const std::string typedName = m_PendingEdit->m_NameBuffer;
+	if (typedName.empty() || typedName.find('/') != std::string::npos || typedName.find('\\') != std::string::npos)
+	{
+		m_PendingEdit->m_ErrorMessage = "Name must not be empty or contain path separators.";
+		return;
+	}
+
+	auto& resMgr = Core::C_ResourceManager::Instance();
+
+	if (m_PendingEdit->m_IsCreate)
+	{
+		const auto& extensions = m_PendingEdit->m_CreateLoader->GetSupportedExtensions();
+		const auto	ext		   = extensions.empty() ? std::string{} : extensions.front();
+		const auto	newPath	   = m_PendingEdit->m_TargetPath / (typedName + ext);
+
+		// CreateNewResourceByLoader returns a raw, type-erased shared_ptr with no handle wrapper
+		// of its own, so without wrapping it in a ResourceHandleBase it would stay tracked in
+		// m_Resources forever (a resource only becomes eligible for unloading via a handle's
+		// destructor). The nested block ensures the std::expected's own shared_ptr copy is
+		// dropped before `handle` is checked, leaving `handle` + the manager's map as the only
+		// two references, which is what makes it eligible once this function returns.
+		std::optional<Core::ResourceHandleBase> handle;
+		bool									saved = false;
+		{
+			auto created = resMgr.CreateNewResourceByLoader(*m_PendingEdit->m_CreateLoader, newPath);
+			if (!created.has_value())
+			{
+				m_PendingEdit->m_ErrorMessage = CreateErrorMessage(created.error());
+				return;
+			}
+			saved = created.value()->Save();
+			handle.emplace(created.value());
+		}
+		if (!saved)
+		{
+			m_PendingEdit->m_ErrorMessage = "Failed to save the new resource to disk.";
+			return;
+		}
+	}
+	else
+	{
+		const auto newPath = m_PendingEdit->m_TargetPath.parent_path() / (typedName + m_PendingEdit->m_TargetPath.extension().string());
+		if (const auto renamed = resMgr.RenameResource(m_PendingEdit->m_TargetPath, newPath); !renamed.has_value())
+		{
+			m_PendingEdit->m_ErrorMessage = RenameErrorMessage(renamed.error());
+			return;
+		}
+	}
+
+	m_PendingEdit.reset();
+	m_ContentDirty = true;
+}
+
+//=================================================================================
+void C_ResourceManagerWindow::DrawInlineNameEditor(float width) const
+{
+	if (m_PendingEdit->m_FocusPending)
+	{
+		ImGui::SetKeyboardFocusHere();
+		m_PendingEdit->m_FocusPending = false;
+	}
+
+	ImGui::SetNextItemWidth(width);
+	const bool	 committed = ImGui::InputText("##inlineEdit", m_PendingEdit->m_NameBuffer, sizeof(m_PendingEdit->m_NameBuffer), ImGuiInputTextFlags_EnterReturnsTrue);
+	const ImVec2 inputMin  = ImGui::GetItemRectMin(); // exact drawn rect of the input field - ground truth for aligning the error box, no guessing about frame height/padding
+	const ImVec2 inputMax  = ImGui::GetItemRectMax();
+	if (committed)
+		CommitPendingEdit();
+	else if (ImGui::IsItemDeactivated() && ImGui::IsKeyPressed(ImGuiKey_Escape))
+		m_PendingEdit.reset();
+
+	if (m_PendingEdit && !m_PendingEdit->m_ErrorMessage.empty())
+	{
+		if (m_ListView)
+		{
+			// SameLine()-ing a box here doesn't work reliably: the input already fills the whole table
+			// column (width -1), so anything placed beside it lands past the column's edge, and the
+			// table clips that away regardless of clip-rect overrides. Showing the message on the line
+			// below instead, wrapped to the column's width, never needs to extend past the column at all.
+			ImGui::PushTextWrapPos(0.0f);
+			ImGui::TextColored(ImVec4(1.f, 0.45f, 0.45f, 1.f), "%s", m_PendingEdit->m_ErrorMessage.c_str());
+			ImGui::PopTextWrapPos();
+		}
+		else
+		{
+			ImGui::SameLine();
+			constexpr float horizontalPadding = 6.0f;
+			const ImVec2	textSize		  = ImGui::CalcTextSize(m_PendingEdit->m_ErrorMessage.c_str());
+			const ImVec2	rectMin(ImGui::GetCursorScreenPos().x, inputMin.y);
+			const ImVec2	rectMax(rectMin.x + textSize.x + horizontalPadding * 2.0f, inputMax.y);
+			ImGui::GetWindowDrawList()->AddRectFilled(rectMin, rectMax, IM_COL32(90, 30, 30, 230), 3.0f);
+			ImGui::SetCursorScreenPos(ImVec2(rectMin.x + horizontalPadding, inputMin.y));
+			ImGui::TextColored(ImVec4(1.f, 0.65f, 0.65f, 1.f), "%s", m_PendingEdit->m_ErrorMessage.c_str());
+			ImGui::SetCursorScreenPos(ImVec2(rectMin.x, rectMax.y));
+		}
+	}
+}
+
+//=================================================================================
+void C_ResourceManagerWindow::DrawNewResourceMenuContents() const
+{
+	for (const auto& loader : Core::C_ResourceManager::Instance().GetCreatableLoaders())
+	{
+		if (ImGui::MenuItem(loader.get().GetResourceTypeName().c_str()))
+			BeginCreate(loader.get());
+	}
+}
+
+//=================================================================================
+void C_ResourceManagerWindow::DrawPendingCreateRow() const
+{
+	if (!m_PendingEdit || !m_PendingEdit->m_IsCreate)
+		return;
+
+	const auto	col		   = GetColourForResourceType(m_PendingEdit->m_CreateLoader->GetResourceTypeID());
+	const ImU32 iconColour = IM_COL32(static_cast<int>(col.r * 255), static_cast<int>(col.g * 255), static_cast<int>(col.b * 255), 255);
+	const char* icon	   = GetIconForResourceType(m_PendingEdit->m_CreateLoader->GetResourceTypeID());
+
+	if (m_ListView)
+	{
+		ImGui::TableNextRow();
+		ImGui::TableNextColumn();
+		ImGui::PushStyleColor(ImGuiCol_Text, iconColour);
+		ImGui::TextUnformatted(icon);
+		ImGui::PopStyleColor();
+		ImGui::SameLine();
+		DrawInlineNameEditor(-1.0f); // stretch to the Name column's right edge, like the other rows' text
+		ImGui::TableNextColumn();
+		ImGui::TableNextColumn();
+	}
+	else
+	{
+		constexpr float kIconSize = 64.0f;
+		const ImVec2	posLocal  = ImGui::GetCursorPos(); // Dummy's implicit newline resets X to the line start - save it to restore after
+		const ImVec2	rMin	  = ImGui::GetCursorScreenPos();
+		const ImVec2	rMax	  = rMin + ImVec2(kIconSize, kIconSize);
+		ImGui::GetWindowDrawList()->AddRect(rMin, rMax, IM_COL32(200, 200, 200, 255), 4.0f, 0, 1.5f);
+		DrawIconCentered(ImGui::GetWindowDrawList(), rMin, kIconSize, icon, iconColour);
+		ImGui::Dummy(ImVec2(kIconSize, kIconSize));
+		ImGui::SetCursorPos(ImVec2(posLocal.x, ImGui::GetCursorPosY()));
+		DrawInlineNameEditor(kIconSize); // match the icon box width so it doesn't overlap the next cell
+	}
 }
 
 //=================================================================================
 void C_ResourceManagerWindow::OnFolderSelected(const std::filesystem::path& path) const
 {
+	m_PendingEdit.reset(); // a pending create/rename belongs to the folder being left - don't carry it into the new one
 	m_SelectedFolder = path;
 	m_ContentDirty	 = true;
 	StartWatcher(path);
@@ -485,7 +862,7 @@ void C_ResourceManagerWindow::HandleResourceDragDrop(const std::filesystem::path
 		ImGui::Dummy(ImVec2(iconSize, iconSize));
 		ImGui::GetWindowDrawList()->AddRect(iconScreenPos, iconScreenPos + ImVec2(iconSize, iconSize), IM_COL32(200, 200, 200, 255), 4.0f, 0, 1.5f);
 
-		const auto& dragCol = GetColourForPath(path);
+		const auto& dragCol		   = GetColourForPath(path);
 		const ImU32 dragIconColour = IM_COL32(static_cast<int>(dragCol.r * 255), static_cast<int>(dragCol.g * 255), static_cast<int>(dragCol.b * 255), 210);
 		DrawIconCentered(ImGui::GetWindowDrawList(), iconScreenPos, iconSize, GetIconForPath(path), dragIconColour);
 
@@ -499,17 +876,13 @@ void C_ResourceManagerWindow::HandleResourceDragDrop(const std::filesystem::path
 //=================================================================================
 void C_ResourceManagerWindow::HandleContextMenu(const std::filesystem::path& path) const
 {
-	if (std::filesystem::is_directory(path))
-		return;
+	auto&	   resMgr = Core::C_ResourceManager::Instance();
+	const bool isDir  = std::filesystem::is_directory(path);
 
-	auto& resMgr = Core::C_ResourceManager::Instance();
-
-	const bool hasEditor = resMgr.IsResourceType<Renderer::TextureResource>(path) || resMgr.IsResourceType<Renderer::C_TrimeshModel>(path)
-						   || resMgr.IsResourceType<Renderer::MaterialResource>(path);
-	const bool isMesh = resMgr.IsResourceType<Renderer::MeshResource>(path);
-
-	if (!hasEditor && !isMesh)
-		return;
+	const bool hasEditor = !isDir
+						   && (resMgr.IsResourceType<Renderer::TextureResource>(path) || resMgr.IsResourceType<Renderer::C_TrimeshModel>(path)
+							   || resMgr.IsResourceType<Renderer::MaterialResource>(path));
+	const bool isMesh	 = !isDir && resMgr.IsResourceType<Renderer::MeshResource>(path);
 
 	if (ImGui::BeginPopupContextItem())
 	{
@@ -524,6 +897,9 @@ void C_ResourceManagerWindow::HandleContextMenu(const std::filesystem::path& pat
 
 		if (isMesh && ImGui::MenuItem("Force export Materials"))
 			ExportMaterials(path, true);
+
+		if (ImGui::MenuItem("Rename"))
+			BeginRename(path);
 
 		ImGui::EndPopup();
 	}

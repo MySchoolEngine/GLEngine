@@ -15,10 +15,10 @@ public:
 		bool			   m_isBlocking;
 	};
 
-	I_ResourceLoader()									= default;
-	I_ResourceLoader(const I_ResourceLoader& other)		= default;
-	I_ResourceLoader(I_ResourceLoader&& other) noexcept = default;
-	I_ResourceLoader& operator=(const I_ResourceLoader& other) = default;
+	I_ResourceLoader()													   = default;
+	I_ResourceLoader(const I_ResourceLoader& other)						   = default;
+	I_ResourceLoader(I_ResourceLoader&& other) noexcept					   = default;
+	I_ResourceLoader& operator=(const I_ResourceLoader& other)			   = default;
 	I_ResourceLoader& operator=(I_ResourceLoader&& other) noexcept		   = default;
 	virtual ~I_ResourceLoader()											   = default;
 	[[nodiscard]] virtual std::shared_ptr<Resource> CreateResource() const = 0;
@@ -29,6 +29,16 @@ public:
 	virtual std::vector<std::string> GetSupportedExtensions() const = 0;
 	virtual std::size_t				 GetResourceTypeID() const		= 0;
 	virtual std::string				 DragAndDropLabel() const		= 0;
+	/**
+	 * @brief Whether CreateResource() produces a resource that is meaningfully usable without
+	 * being loaded from, or built from, an existing source file (e.g. a blank Material).
+	 * Defaults to false - most resource types only make sense when loaded/built from a source file.
+	 */
+	virtual bool SupportsEmptyCreation() const { return false; }
+	/**
+	 * @brief Human readable resource type name, e.g. "MaterialResource".
+	 */
+	virtual std::string GetResourceTypeName() const = 0;
 };
 
 // To create loader, please inherit from this loader and register with manager
@@ -36,6 +46,7 @@ template <IsResource ResourceType> class ResourceLoader : public I_ResourceLoade
 public:
 	std::size_t GetResourceTypeID() const final { return ResourceType::GetResourceTypeHashStatic(); }
 	std::string DragAndDropLabel() const final { return "RESOURCE_" + ResourceType::GetResourceTypeName(); }
+	std::string GetResourceTypeName() const final { return ResourceType::GetResourceTypeName(); }
 };
 
 } // namespace GLEngine::Core

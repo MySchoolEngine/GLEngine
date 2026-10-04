@@ -73,6 +73,84 @@ std::optional<std::reference_wrapper<const I_ResourceLoader>> C_ResourceManager:
 }
 
 //=================================================================================
+std::vector<std::reference_wrapper<const I_ResourceLoader>> C_ResourceManager::GetCreatableLoaders() const
+{
+	std::vector<std::reference_wrapper<const I_ResourceLoader>> result;
+	for (const auto& loader : m_TypeIdToLoader | std::views::values)
+	{
+		if (loader->SupportsEmptyCreation())
+			result.emplace_back(*loader);
+	}
+	return result;
+}
+
+//=================================================================================
+std::expected<std::shared_ptr<Resource>, CreateError> C_ResourceManager::CreateNewResourceByLoader(const I_ResourceLoader& loader, const std::filesystem::path& filepath)
+{
+	const auto filepathNormalized = filepath.lexically_normal();
+	if (std::filesystem::exists(filepathNormalized))
+		return std::unexpected(CreateError::AlreadyExists);
+
+	std::unique_lock lock(m_Mutex);
+	if (m_Resources.contains(filepathNormalized))
+		return std::unexpected(CreateError::AlreadyTracked);
+
+	auto resource = loader.CreateResource();
+	if (!resource)
+		return std::unexpected(CreateError::NullResource);
+
+	resource->m_Dirty				= true;
+	resource->m_State				= ResourceState::Ready;
+	resource->m_Filepath			= filepathNormalized;
+	m_Resources[filepathNormalized] = resource;
+	return resource;
+}
+
+//=================================================================================
+std::expected<void, RenameError> C_ResourceManager::RenameResource(const std::filesystem::path& oldPath, const std::filesystem::path& newPath)
+{
+	const auto oldPathNormalized = oldPath.lexically_normal();
+	const auto newPathNormalized = newPath.lexically_normal();
+
+	if (oldPathNormalized == newPathNormalized)
+		return {}; // renaming a path to itself is a no-op success, not a collision with "itself"
+
+	if (std::filesystem::exists(newPathNormalized))
+		return std::unexpected(RenameError::DestinationExists);
+
+	std::unique_lock lock(m_Mutex);
+	if (m_Resources.contains(newPathNormalized))
+		return std::unexpected(RenameError::DestinationAlreadyTracked);
+
+	const auto it = m_Resources.find(oldPathNormalized);
+	if (it != m_Resources.end())
+	{
+		const auto resource = it->second;
+		if (std::filesystem::exists(oldPathNormalized))
+		{
+			std::error_code ec;
+			std::filesystem::rename(oldPathNormalized, newPathNormalized, ec);
+			if (ec)
+				return std::unexpected(RenameError::FilesystemRenameFailed);
+		}
+		resource->m_Filepath = newPathNormalized;
+		m_Resources.erase(it);
+		m_Resources[newPathNormalized] = resource;
+		return {};
+	}
+	lock.unlock();
+
+	if (!std::filesystem::exists(oldPathNormalized))
+		return std::unexpected(RenameError::SourceNotFound);
+
+	std::error_code ec;
+	std::filesystem::rename(oldPathNormalized, newPathNormalized, ec);
+	if (ec)
+		return std::unexpected(RenameError::FilesystemRenameFailed);
+	return {};
+}
+
+//=================================================================================
 std::shared_ptr<Resource> C_ResourceManager::GetResourcePtr(const std::filesystem::path& filepath)
 {
 	if (const auto resource = m_Resources.find(filepath); resource != m_Resources.end())
