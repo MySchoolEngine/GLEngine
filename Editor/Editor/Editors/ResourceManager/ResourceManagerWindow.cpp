@@ -126,6 +126,24 @@ const char* RenameErrorMessage(GLEngine::Core::RenameError error)
 	}
 	return "Rename failed.";
 }
+
+const char* CreateErrorMessage(GLEngine::Core::CreateError error)
+{
+	switch (error)
+	{
+	case GLEngine::Core::CreateError::AlreadyExists:
+		return "A file with this name already exists.";
+	case GLEngine::Core::CreateError::AlreadyTracked:
+		return "A resource with this name is already open.";
+	case GLEngine::Core::CreateError::NoLoader:
+		return "No loader is registered for this resource type.";
+	case GLEngine::Core::CreateError::NullResource:
+		return "The loader failed to create the resource.";
+	case GLEngine::Core::CreateError::TypeMismatch:
+		return "The loader created a resource of an unexpected type.";
+	}
+	return "Failed to create the resource.";
+}
 } // namespace
 
 // TODO First of all, for the drag and drop, I will need to define the IDs for draggable things inside of the editor.
@@ -623,7 +641,7 @@ void C_ResourceManagerWindow::CommitPendingEdit() const
 			auto created = resMgr.CreateNewResourceByLoader(*m_PendingEdit->m_CreateLoader, newPath);
 			if (!created.has_value())
 			{
-				m_PendingEdit->m_ErrorMessage = "A resource with this name already exists.";
+				m_PendingEdit->m_ErrorMessage = CreateErrorMessage(created.error());
 				return;
 			}
 			saved = created.value()->Save();
