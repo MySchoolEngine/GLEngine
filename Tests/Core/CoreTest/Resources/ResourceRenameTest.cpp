@@ -91,6 +91,27 @@ TEST_F(ResourceRenameFixture, RenameFailsIfDestinationAlreadyExists)
 	DeleteOnTearDown(newPath);
 }
 
+TEST_F(ResourceRenameFixture, RenameFailsIfDestinationAlreadyTracked)
+{
+	auto& manager = C_ResourceManager::Instance();
+	manager.RegisterResourceType(new TestCreatableResourceLoader);
+
+	const auto oldPath	  = s_TestFilepath / "old2.testcreate";
+	const auto newPath	  = s_TestFilepath / "new2.testcreate";
+	const auto createdOld = manager.CreateNewResource<TestCreatableResource>(oldPath);
+	ASSERT_TRUE(createdOld.has_value());
+	// newPath is already tracked in memory (never saved - no file on disk) by a second resource.
+	const auto createdNew = manager.CreateNewResource<TestCreatableResource>(newPath);
+	ASSERT_TRUE(createdNew.has_value());
+
+	const auto result = manager.RenameResource(oldPath, newPath);
+	ASSERT_FALSE(result.has_value());
+	EXPECT_EQ(result.error(), RenameError::DestinationAlreadyTracked);
+
+	DeleteOnTearDown(oldPath);
+	DeleteOnTearDown(newPath);
+}
+
 TEST_F(ResourceRenameFixture, RenameFailsIfSourceDoesNotExist)
 {
 	auto&	   manager = C_ResourceManager::Instance();
