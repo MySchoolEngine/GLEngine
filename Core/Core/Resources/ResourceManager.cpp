@@ -112,6 +112,9 @@ std::expected<void, RenameError> C_ResourceManager::RenameResource(const std::fi
 	const auto oldPathNormalized = oldPath.lexically_normal();
 	const auto newPathNormalized = newPath.lexically_normal();
 
+	if (oldPathNormalized == newPathNormalized)
+		return {}; // renaming a path to itself is a no-op success, not a collision with "itself"
+
 	if (std::filesystem::exists(newPathNormalized))
 		return std::unexpected(RenameError::DestinationExists);
 

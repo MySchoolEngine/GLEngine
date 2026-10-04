@@ -98,4 +98,17 @@ TEST_F(ResourceRenameFixture, RenameFailsIfSourceDoesNotExist)
 	ASSERT_FALSE(result.has_value());
 	EXPECT_EQ(result.error(), RenameError::SourceNotFound);
 }
+
+TEST_F(ResourceRenameFixture, RenameToSamePathIsANoOpSuccess)
+{
+	std::filesystem::create_directories(s_TestFilepath);
+	const auto path = s_TestFilepath / "unchanged.txt";
+	std::ofstream(path).close();
+
+	auto& manager = C_ResourceManager::Instance();
+	EXPECT_TRUE(manager.RenameResource(path, path).has_value());
+	EXPECT_TRUE(std::filesystem::exists(path));
+
+	DeleteOnTearDown(path);
+}
 } // namespace GLEngine::Core
