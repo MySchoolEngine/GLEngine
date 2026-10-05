@@ -6,6 +6,7 @@
 #include <Renderer/RayCasting/ReflectionModels/IReflectionModel.h>
 #include <Renderer/RayCasting/Sampling.h>
 #include <Renderer/RayCasting/SimplePathIntegrator.h>
+#include <Renderer/RayCasting/VisibilityTester.h>
 
 
 namespace GLEngine::Renderer::RayTracing {
@@ -15,7 +16,10 @@ SimplePathIntegrator::SimplePathIntegrator(const IntegratorSettings& settings)
 	, m_MaxDepth(settings.MaxDepth)
 	, m_SampleLights(settings.SampleLights)
 	, m_SampleBRDF(settings.SampleBRDF)
+	, m_LightSampler(nullptr)
 {
+	auto lights	   = m_Scene.GetLights();
+	m_LightSampler = std::make_unique<UniformLightSample>(lights);
 }
 
 //=================================================================================
@@ -59,8 +63,21 @@ Colours::T_Colour SimplePathIntegrator::TraceRay(Physics::Primitives::S_Ray ray,
 		if (m_SampleLights)
 		{
 			// uniform light sampling
-			// todo better lights heuristic
-			// const int lightIndex = std::min<int>(rnd.GetD() * m_Scene.GetNumLights(), m_Scene.GetNumLights() - 1);
+			auto sampledLight = m_LightSampler->SampleLight(rnd);
+			if (sampledLight)
+			{
+				auto	   vis = S_VisibilityTester(glm::vec3(), glm::vec3());
+				float	   lightPdf;
+				const auto illum = sampledLight->m_Light.SampleLi(intersect, rnd, vis, &lightPdf);
+				if (illum != Colours::black && lightPdf > 0.f)
+				{
+					const Colours::T_Colour f = brdf->f(wol, frame.ToLocal(vis.GetRay().direction)) * S_Frame::AbsCosTheta(frame.ToLocal(vis.GetRay().direction));
+					if (f != Colours::black && vis.IsVisible(m_Scene))
+					{
+						Li += beta * f * illum / (sampledLight->pdf * lightPdf);
+					}
+				}
+			}
 		}
 
 		if (m_SampleBRDF)
