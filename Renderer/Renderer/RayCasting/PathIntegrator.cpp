@@ -210,11 +210,12 @@ C_PathIntegrator::EstimateDirect(const C_RayIntersection& intersection, const Ra
 	const auto* material = intersection.GetMaterial();
 	const auto& frame	 = intersection.GetFrame();
 	const auto	model	 = material->GetScatteringFunction(intersection, *alloc); // this should be way before to avoid allocation
+	const auto	wol		 = frame.ToLocal(-intersection.GetRay().direction);
 
 	const Colours::T_Colour illum = light.SampleLi(intersection, rnd, vis, &lightPdf);
 	if (illum != Colours::black && lightPdf > 0.f)
 	{
-		const Colours::T_Colour f = model->SampleF(frame.ToLocal(intersection.GetRay().direction), wi, frame, rnd.GetV2(), &scatteringPdf) * wi.y;
+		const Colours::T_Colour f = model->SampleF(wol, wi, frame, rnd.GetV2(), &scatteringPdf) * wi.y;
 
 		if (f != Colours::black)
 		{
@@ -235,7 +236,7 @@ C_PathIntegrator::EstimateDirect(const C_RayIntersection& intersection, const Ra
 				{
 					// delta light is point lights
 					float weight = PowerHeuristic(1, lightPdf, 1, scatteringPdf);
-					LoDirect += f * illum * model->f(frame.ToLocal(intersection.GetRay().direction), frame.ToLocal(vis.GetRay().direction)) * weight / lightPdf;
+					LoDirect += f * illum * model->f(wol, frame.ToLocal(vis.GetRay().direction)) * weight / lightPdf;
 				}
 			}
 		}
@@ -244,7 +245,7 @@ C_PathIntegrator::EstimateDirect(const C_RayIntersection& intersection, const Ra
 	// BRDF sampling here
 	if (!light.IsDeltaLight())
 	{ // we cant hit delta lights
-		Colours::T_Colour f = model->SampleF(frame.ToLocal(intersection.GetRay().direction), wi, frame, rnd.GetV2(), &scatteringPdf);
+		Colours::T_Colour f = model->SampleF(wol, wi, frame, rnd.GetV2(), &scatteringPdf);
 		f *= wi.y;
 		if (f != Colours::black && scatteringPdf > 0.f)
 		{
@@ -256,7 +257,7 @@ C_PathIntegrator::EstimateDirect(const C_RayIntersection& intersection, const Ra
 
 			Colours::T_Colour		   Li = Colours::black;
 			C_RayIntersection		   lightIntersect;
-			Physics::Primitives::S_Ray lightLight(intersection.GetIntersectionPoint(), wi);
+			Physics::Primitives::S_Ray lightLight(intersection.GetIntersectionPoint(), frame.ToWorld(wi));
 			if (m_Scene.Intersect(lightLight, lightIntersect))
 			{
 				// check if we hit given light

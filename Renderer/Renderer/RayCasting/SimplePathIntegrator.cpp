@@ -1,4 +1,4 @@
-#include <RendererStdafx.h>
+﻿#include <RendererStdafx.h>
 
 #include <Renderer/RayCasting/Generator/Sampler.h>
 #include <Renderer/RayCasting/Geometry/RayTraceScene.h>
@@ -86,7 +86,7 @@ Colours::T_Colour SimplePathIntegrator::TraceRay(Physics::Primitives::S_Ray ray,
 			glm::vec3  wi;
 			float	   pdf;
 			const auto f = brdf->SampleF(wol, wi, frame, rnd.GetV2(), &pdf);
-			beta *= f * std::abs(glm::dot(wi, frame.Normal())) / pdf;
+			beta *= f * S_Frame::AbsCosTheta(wi) / pdf;
 			// something with specular bounce
 			ray = intersect.SpawnRay(wi);
 		}
