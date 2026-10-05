@@ -434,7 +434,7 @@ I_MaterialInterface* C_RayTraceScene::AddMaterial(const MeshData::Material& mate
 		{
 			texture = m_Textures[material.textureIndex];
 		}
-		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(material.diffuse, texture)).get();
+		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(material.diffuse, 1.f, texture)).get();
 	}
 	else
 	{
@@ -456,13 +456,13 @@ I_MaterialInterface* C_RayTraceScene::AddMaterial(const Core::ResourceHandle<Mat
 	if (matPBR->GetRoughness() > .5f)
 	{
 		const Core::ResourceHandle<TextureResource> texture = matPBR->GetColorMapRes();
-		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(matPBR->GetColour(), texture)).get();
+		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(matPBR->GetColour(), matPBR->GetRoughness(), texture, matPBR->GetRoughnessMapRes())).get();
 	}
 	else
 	{
 		// todo glossy mat
 		const Core::ResourceHandle<TextureResource> texture = matPBR->GetColorMapRes();
-		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(matPBR->GetColour(), texture)).get();
+		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(matPBR->GetColour(), matPBR->GetRoughness(), texture, matPBR->GetRoughnessMapRes())).get();
 	}
 }
 
