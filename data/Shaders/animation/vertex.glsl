@@ -6,8 +6,8 @@
 layout(location = 0) in vec4 vertex;
 layout(location = 1) in vec3 normal;
 layout(location = 2) in vec2 texCoord;
-attribute ivec3 jointIndices; // contains ids of joints affecting current vertex
-attribute vec3	weights;	  // weights should add to 1 togather
+in ivec3 jointIndices; // contains ids of joints affecting current vertex
+in vec3	weights;	  // weights should add to 1 togather
 
 // per frame
 #include "../include/frameConstants.glsl"
@@ -41,7 +41,9 @@ void main()
 		vec4 worldNormal = jointTransform * vec4(normal, 0.0);
 		totalNormal += worldNormal * weights[i];
 	}
-	normalOUT	= totalNormal.xyz;
+	normalOUT	= normalize((modelMatrix * totalNormal).xyz);
+	normalOUT = normalOUT.xzy;
+	normalOUT.z = -normalOUT.z;
 	texCoordOUT = texCoord;
 
 	worldCoord = modelMatrix * totalLocalPos;

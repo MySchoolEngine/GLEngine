@@ -14,7 +14,7 @@ public:
 
 	[[nodiscard]] const glm::mat4		 GetLocalSpaceTransform(int boneID) const override;
 	void								 SetLocalSpaceTransform(const glm::mat4& transform, int boneID) override;
-	[[nodiscard]] std::vector<glm::mat4> GetLocalSpaceTransofrms() const override;
+	[[nodiscard]] std::vector<glm::mat4> GetMSTransofrms() const override;
 
 	void Blend(const C_Pose& other, float weight);
 

@@ -47,6 +47,32 @@
     </Expand>
   </Type>
 
+  <Type Name="GLEngine::Renderer::JointID">
+    <DisplayString>{{{m_Name}}}</DisplayString>
+  </Type>
+
+  <Type Name="GLEngine::Renderer::S_Joint">
+    <DisplayString>{{[{m_Id}]:LS Off{m_InverseLocalBindTransform.value[3]}}}</DisplayString>
+    <Expand>
+      <Item Name="[ID]">m_Id</Item>
+      <Item Name="[MS Inv]">m_InverseBindTransform</Item>
+      <Item Name="[MS Offset]">m_InverseBindTransform.value[3]</Item>
+      <Item Name="[LS Inv]">m_InverseLocalBindTransform</Item>
+      <Item Name="[LS Offset]">m_InverseLocalBindTransform.value[3]</Item>
+      <Item Name="[Parent]" Condition="m_Parent == s_BoneBadIndex">"root"</Item>
+      <Item Name="[Parent]" Condition="m_Parent != s_BoneBadIndex">m_Parent</Item>
+      <Item Name="[Children]">m_Children</Item>
+    </Expand>
+  </Type>
+  
+  <Type Name="GLEngine::Renderer::C_Skeleton">
+    <DisplayString>{{[Bones: {m_Bones.size()}]}}</DisplayString>
+    <Expand>
+      <Item Name="[Bones]">m_Bones</Item>
+      <Item Name="[Root]">m_Bones[m_Root]</Item>
+    </Expand>
+  </Type>
+
   <Type Name="GLEngine::Renderer::MeshData::Material">
     <DisplayString>{m_Name}</DisplayString>
   </Type>
