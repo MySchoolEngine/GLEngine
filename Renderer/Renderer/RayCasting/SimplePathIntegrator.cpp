@@ -93,9 +93,19 @@ Colours::T_Colour SimplePathIntegrator::TraceRay(Physics::Primitives::S_Ray ray,
 		else
 		{
 			// Uniform sphere sample
-			// todo for reflective surfaces use only hemisphere
-			glm::vec3 wi = UniformSampleSphere(rnd.GetV2());
-			const auto fcos = brdf->f(wol, wi) * std::abs(glm::dot(wi, frame.Normal())) / UniformSpherePDF();
+			glm::vec3 wi;
+			float	  pdf;
+			if (brdf->GetType().CheckFlag(I_ReflectionModel::Type::Transmission))
+			{
+				wi	= UniformSampleSphere(rnd.GetV2());
+				pdf = UniformSpherePDF();
+			}
+			else
+			{
+				wi	= UniformSampleHemisphere(rnd.GetV2());
+				pdf = UniformHemispherePDF();
+			}
+			const auto fcos = brdf->f(wol, wi) * S_Frame::AbsCosTheta(wi) / pdf;
 			beta *= fcos;
 			// something with specular bounce
 			ray = intersect.SpawnRay(wi);
