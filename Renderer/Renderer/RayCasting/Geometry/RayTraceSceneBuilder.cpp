@@ -4,6 +4,8 @@
 #include <Renderer/Components/StaticMeshHandles.h>
 #include <Renderer/Lights/AreaLight.h>
 #include <Renderer/Lights/PointLight.h>
+#include <Renderer/Materials/MeshMaterialExtractor.h>
+#include <Renderer/Mesh/Loading/MeshResource.h>
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/RayCasting/Geometry/PrimitiveObject.h>
 #include <Renderer/RayCasting/Geometry/RayTraceScene.h>
@@ -42,7 +44,7 @@ void ConvertMesh(const C_StaticMeshHandles& mesh, C_RayTraceScene& outScene)
 		return;
 	}
 
-	outScene.AddMesh(trimeshHandle, mesh.GetComponentModelMatrix());
+	outScene.AddMesh(trimeshHandle, mesh.GetComponentModelMatrix(), mesh.GetMaterials());
 }
 
 //=================================================================================

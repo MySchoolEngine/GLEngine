@@ -298,7 +298,7 @@ void C_MaterialPreviewWindow::SaveMaterialAs(S_MaterialTabData& data)
 //=================================================================================
 void C_MaterialPreviewWindow::StartRender(S_MaterialTabData& data)
 {
-	StartPreviewRender(data.m_Render, m_Camera, s_TargetSamples);
+	StartPreviewRender(data.m_Render, m_Camera, s_TargetSamples, data.m_Scene);
 }
 
 //=================================================================================

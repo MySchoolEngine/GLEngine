@@ -104,7 +104,8 @@ EDITOR_API_EXPORT bool DrawRenderProgress(const S_RayPreviewState& state, int ta
 // Spawns a detached render thread that loops until targetSamples is reached or m_StopRequested.
 // Centralises thread-lifetime management for all preview windows.
 // No-op if a render is already running.
-EDITOR_API_EXPORT void StartPreviewRender(S_RayPreviewState& state, Renderer::I_CameraComponent& camera, int targetSamples);
+EDITOR_API_EXPORT void
+StartPreviewRender(S_RayPreviewState& state, Renderer::I_CameraComponent& camera, int targetSamples, const Renderer::C_RayTraceScene& scene);
 
 // Allocates GPU texture + CPU storage (and optionally a C_ImageViewer) for one debug slot.
 // Safe to call multiple times with different targets.

@@ -4,6 +4,8 @@
 
 #include <CoreTest/Resources/TestClasses/TestResource2.h>
 
+#include <Utils/Serialization/XMLDeserialize.h>
+
 DECLARE_RESOURCE_HANDLE_AFTER_DESERIALIZE(TestResource2)
 
 namespace GLEngine::Core {

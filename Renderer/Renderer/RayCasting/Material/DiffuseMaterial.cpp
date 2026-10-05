@@ -11,9 +11,14 @@
 
 namespace GLEngine::Renderer {
 //=================================================================================
-C_DiffuseMaterial::C_DiffuseMaterial(Colours::T_Colour colour, Core::ResourceHandle<TextureResource> diffuseTexture)
+C_DiffuseMaterial::C_DiffuseMaterial(Colours::T_Colour					   colour,
+									 float								   roughness,
+									 Core::ResourceHandle<TextureResource> diffuseTexture,
+									 Core::ResourceHandle<TextureResource> roughnessTexture)
 	: m_DiffuseColour(colour)
 	, m_DiffuseTexture(diffuseTexture)
+	, m_RoughnessTexture(roughnessTexture)
+	, m_Roughness(roughness)
 {
 }
 
@@ -25,12 +30,18 @@ RayTracingSettings::T_ReflPtr C_DiffuseMaterial::GetScatteringFunction(const C_R
 {
 	const auto		  uv			= intersect.GetUV();
 	Colours::T_Colour diffuseColour = m_DiffuseColour;
+	float			  roughness		= m_Roughness;
 	if (m_DiffuseTexture.IsReady())
 	{
 		// mutable because I don't have purely read only texture view
 		diffuseColour = C_TextureView(const_cast<I_TextureViewStorage*>(&m_DiffuseTexture.GetResource().GetStorage())).Sample<Colours::T_Colour, T_Bilinear>(uv);
 	}
-	return std::unique_ptr<C_OrenNayarModel, RayTracingSettings::T_ReflAlloc::delete_policy<>>(new (alloc.allocate(sizeof(C_OrenNayarModel))) C_OrenNayarModel(diffuseColour, 8.f),
+	if (m_RoughnessTexture.IsReady())
+	{
+		roughness = C_TextureView(const_cast<I_TextureViewStorage*>(&m_RoughnessTexture.GetResource().GetStorage())).Sample<float, T_Bilinear>(uv, E_TextureChannel::Red);
+	}
+	return std::unique_ptr<C_OrenNayarModel, RayTracingSettings::T_ReflAlloc::delete_policy<>>(
+		new (alloc.allocate(sizeof(C_OrenNayarModel))) C_OrenNayarModel(diffuseColour, 90.f * roughness),
 																							   RayTracingSettings::T_ReflAlloc::delete_policy{});
 }
 

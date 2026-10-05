@@ -9,7 +9,10 @@
 namespace GLEngine::Renderer {
 class C_DiffuseMaterial : public I_MaterialInterface {
 public:
-	C_DiffuseMaterial(Colours::T_Colour colour, Core::ResourceHandle<TextureResource> diffuseTexture = {});
+	C_DiffuseMaterial(Colours::T_Colour						colour,
+					  float									roughness	   = 1.f,
+					  Core::ResourceHandle<TextureResource> diffuseTexture = {},
+					  Core::ResourceHandle<TextureResource> roughnessTexture = {});
 	virtual ~C_DiffuseMaterial();
 
 	[[nodiscard]] virtual RayTracingSettings::T_ReflPtr GetScatteringFunction(const C_RayIntersection& intersect, RayTracingSettings::T_ReflAlloc& alloc) const override;
@@ -17,6 +20,8 @@ public:
 private:
 	Colours::T_Colour					  m_DiffuseColour;
 	Core::ResourceHandle<TextureResource> m_DiffuseTexture;
+	Core::ResourceHandle<TextureResource> m_RoughnessTexture;
+	float								  m_Roughness;
 };
 
 } // namespace GLEngine::Renderer

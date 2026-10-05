@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Renderer/IRenderableComponent.h>
+#include <Renderer/Materials/MaterialResource.h>
 #include <Renderer/Mesh/Loading/MeshResource.h>
 #include <Renderer/Renderer3D.h>
 #include <Renderer/RendererApi.h>
@@ -31,13 +32,18 @@ public:
 	[[nodiscard]] bool			 IsMeshReady() const;
 	void						 DebugDrawGUI() override;
 
-	void AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx);
+	const std::vector<Core::ResourceHandle<MaterialResource>>& GetMaterials() const;
 
 	RTTR_ENABLE(Renderer::I_RenderableComponent);
 
 
 private:
 	void CleanRenderData();
+	void CopyMaterialsFromSourceFile();
+
+	// this will be removed once material manager uses handles
+	std::shared_ptr<C_Material> ConvertHandleToMaterial(const Core::ResourceHandle<MaterialResource>& handle) const;
+	void						ConvertHandlesToMaterials();
 
 	struct MeshContainer {
 		Handle<Buffer> m_PositionsHandle;
@@ -47,11 +53,12 @@ private:
 		Handle<Buffer> m_BitangentHandle;
 		uint32_t	   m_NumPrimitives;
 	};
-	Core::ResourceHandle<MeshResource>		 m_MeshResource;
-	Core::ResourceHandle<MeshResource>		 m_MeshResourceLive;
-	std::vector<MeshContainer>				 m_Meshes;
-	Handle<Pipeline>						 m_Pipeline;
-	std::vector<std::shared_ptr<C_Material>> m_Materials;
+	Core::ResourceHandle<MeshResource>					m_MeshResource;
+	Core::ResourceHandle<MeshResource>					m_MeshResourceLive;
+	std::vector<Core::ResourceHandle<MaterialResource>> m_MaterialHandles;
+	std::vector<MeshContainer>							m_Meshes;
+	Handle<Pipeline>									m_Pipeline;
+	std::vector<std::shared_ptr<C_Material>>			m_Materials;
 
 	RTTR_REGISTRATION_FRIEND;
 };

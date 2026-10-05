@@ -90,3 +90,48 @@ struct MapStruct {
 struct DefaultValueStruct {
 	bool WrongBool = false; // REGISTER_DEFAULT_VALUE(true)
 };
+
+struct MoveCopyCounters {
+	int copyConstructions = 0;
+	int moveConstructions = 0;
+	int copyAssignments   = 0;
+	int moveAssignments   = 0;
+
+	void Reset() { *this = MoveCopyCounters{}; }
+};
+
+// Instrumented value type used to assert that deserialized values are moved
+// into place rather than copied.
+struct TrackedValue {
+	inline static MoveCopyCounters s_Counters;
+
+	std::string m_Payload;
+
+	TrackedValue()						   = default;
+	TrackedValue(const TrackedValue& other) : m_Payload(other.m_Payload) { ++s_Counters.copyConstructions; }
+	TrackedValue(TrackedValue&& other) noexcept : m_Payload(std::move(other.m_Payload)) { ++s_Counters.moveConstructions; }
+	TrackedValue& operator=(const TrackedValue& other)
+	{
+		m_Payload = other.m_Payload;
+		++s_Counters.copyAssignments;
+		return *this;
+	}
+	TrackedValue& operator=(TrackedValue&& other) noexcept
+	{
+		m_Payload = std::move(other.m_Payload);
+		++s_Counters.moveAssignments;
+		return *this;
+	}
+};
+
+struct TrackedStruct {
+	TrackedValue m_Tracked;
+};
+
+struct TrackedVectorStruct {
+	std::vector<TrackedValue> m_TrackedVector;
+};
+
+struct TrackedMapStruct {
+	std::map<std::string, TrackedValue> m_TrackedMap;
+};

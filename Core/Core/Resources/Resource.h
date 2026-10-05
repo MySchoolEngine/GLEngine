@@ -95,18 +95,18 @@ public:
 // Declares AfterDeserialize
 // needs #include <Core/Resources/ResourceManager.h> to be included
 #define DECLARE_RESOURCE_HANDLE_AFTER_DESERIALIZE(resourceType)                                                                                                                    \
-namespace GLEngine::Core {                                                                                                                                                         \
-	template <> void ResourceHandle<resourceType>::AfterDeserialize(Utils::C_XMLDeserializer::DeserializeCtx& ctx)                                                                 \
+	namespace GLEngine::Core {                                                                                                                                                     \
+	template <> void ResourceHandle<resourceType>::AfterDeserialize(Utils::DeserializeCtx& ctx)                                                                                    \
 	{                                                                                                                                                                              \
 		if (GetFilePath() != "")                                                                                                                                                   \
 		{                                                                                                                                                                          \
 			*this = ctx.m_ResMng.LoadResource<resourceType>(GetFilePath(), ctx.bLoadHandlesInstantly);                                                                             \
+			ctx.m_Query.AddHandle(*this);                                                                                                                                          \
 		}                                                                                                                                                                          \
 	}                                                                                                                                                                              \
-} // namespace GLEngine::Core
+	} // namespace GLEngine::Core
 
-enum class ResourceState : std::uint8_t
-{
+enum class ResourceState : std::uint8_t {
 	Empty,
 	Loading,
 	Ready,
@@ -124,16 +124,12 @@ template <typename T> concept IsBeDerivedResource = requires(T t)
 {
 	requires std::derived_from<T, Resource>;
 	requires std::derived_from<typename T::T_BaseResource, Resource>;
-	{
-		t.IsDerived()
-	} -> std::convertible_to<bool>; // defined as static function
+	{t.IsDerived()}->std::convertible_to<bool>; // defined as static function
 };
 
 template <class T, class TBaseRes> concept IsBuildableResource = requires(T t, TBaseRes b)
 {
-	{
-		t.Build(b)
-	} -> std::convertible_to<bool>;
+	{t.Build(b)}->std::convertible_to<bool>;
 };
 
 template <typename T> concept BuildableResource = requires(T t)
@@ -153,7 +149,7 @@ public:
 	};
 	Resource();
 	~Resource() override;
-	Resource(const Resource&) = delete; // we are pointing to the file and copy does not make sense, we should have some kind of Clone(path) function instead
+	Resource(const Resource&)			 = delete; // we are pointing to the file and copy does not make sense, we should have some kind of Clone(path) function instead
 	Resource& operator=(const Resource&) = delete;
 
 	[[nodiscard]] virtual std::unique_ptr<I_ResourceLoader> GetLoader()												  = 0;
@@ -167,7 +163,7 @@ public:
 			return true;
 		if (SupportSaving())
 		{
-			if ( SaveInternal())
+			if (SaveInternal())
 			{
 				m_Dirty = false;
 				m_State = ResourceState::Ready;
@@ -177,7 +173,7 @@ public:
 		return false;
 	}
 
-	bool IsModified() const {return m_Dirty;}
+	bool IsModified() const { return m_Dirty; }
 
 	[[nodiscard]] ResourceState GetState() const;
 	[[nodiscard]] bool			IsReady() const;

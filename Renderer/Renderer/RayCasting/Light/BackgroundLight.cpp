@@ -6,7 +6,8 @@ namespace GLEngine::Renderer::RayTracing {
 
 //=================================================================================
 C_BackgroundLight::C_BackgroundLight(const Colours::T_Colour& backgroundColor)
-	: m_BackgroundColor(backgroundColor)
+	: I_RayLight(LightType::Infinite)
+	, m_BackgroundColor(backgroundColor)
 {
 }
 
@@ -32,10 +33,17 @@ Colours::T_Colour C_BackgroundLight::Le() const
 	return m_BackgroundColor;
 }
 
+//=================================================================================
 float C_BackgroundLight::Pdf_Li(const glm::vec3& wi) const
 {
 	GLE_TODO("26.3.2024", "RohacekD", "Proper implementation.")
 	return 0.0f;
 }
 
+//=================================================================================
+Colours::T_Colour C_BackgroundLight::Lo(const glm::vec3& point, const glm::vec3& normal, const glm::vec2& uv, const glm::vec3& w) const
+{
+	return Colours::black;
 }
+
+} // namespace GLEngine::Renderer::RayTracing

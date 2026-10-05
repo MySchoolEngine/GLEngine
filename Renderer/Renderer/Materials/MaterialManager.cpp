@@ -15,6 +15,9 @@ namespace GLEngine::Renderer {
 //=================================================================================
 C_MaterialManager::C_MaterialManager()
 {
+	auto material = C_Material("Error material");
+	material.SetDiffuseColor(Colours::cyan);
+	m_ErrorMaterial = RegisterMaterial(std::move(material));
 }
 
 //=================================================================================
@@ -67,9 +70,12 @@ void C_MaterialManager::RegisterMaterial(const std::shared_ptr<C_Material>& mate
 //=================================================================================
 void C_MaterialManager::UnregisterMaterial(std::shared_ptr<C_Material>& material)
 {
+	if (!material)
+		return;
 	const int matIndex = material->GetMaterialIndex();
 	m_Materials.erase(m_Materials.begin() + matIndex);
-	for (int i = 0; i < m_Materials.size(); ++i) {
+	for (int i = 0; i < m_Materials.size(); ++i)
+	{
 		m_Materials[i]->m_Changed = true;
 		m_Materials[i]->SetMaterialIndex(i);
 	}

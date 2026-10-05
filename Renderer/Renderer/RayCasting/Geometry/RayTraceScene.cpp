@@ -94,6 +94,14 @@ bool C_RayTraceScene::Intersect(const Physics::Primitives::S_Ray& ray, C_RayInte
 }
 
 //=================================================================================
+bool C_RayTraceScene::IntersectExists(const Physics::Primitives::S_Ray& ray, float tmax) const
+{
+	GLE_TODO("15-08-2026", "RohacekD", "This should rather fast exit on first intersect");
+	C_RayIntersection Dummy;
+	return Intersect(ray, Dummy);
+}
+
+//=================================================================================
 void C_RayTraceScene::AddObject(std::shared_ptr<I_RayGeometryObject>&& object)
 {
 	m_Objects.emplace_back(std::move(object));
@@ -114,6 +122,12 @@ void C_RayTraceScene::AddLight(std::shared_ptr<RayTracing::C_PointLight>&& light
 }
 
 //=================================================================================
+void C_RayTraceScene::AddLight(std::shared_ptr<RayTracing::C_BackgroundLight>&& light)
+{
+	m_InfiniteLights.emplace_back(std::move(light));
+}
+
+//=================================================================================
 void C_RayTraceScene::ForEachLight(const std::function<void(const std::reference_wrapper<const RayTracing::I_RayLight>& light)>& fnc) const
 {
 	std::for_each(m_AreaLights.begin(), m_AreaLights.end(), [&](const std::shared_ptr<RayTracing::C_AreaLight>& light) { fnc(*(light.get())); });
@@ -121,11 +135,43 @@ void C_RayTraceScene::ForEachLight(const std::function<void(const std::reference
 }
 
 //=================================================================================
-void C_RayTraceScene::AddMesh(const Core::ResourceHandle<C_TrimeshModel>& trimesh, const glm::mat4& transform)
+void C_RayTraceScene::ForEachInfiniteLight(const std::function<void(const std::reference_wrapper<const RayTracing::I_RayLight>& light)>& fnc) const
+{
+	for (const auto& light : m_InfiniteLights)
+	{
+		fnc(*light.get());
+	}
+}
+
+//=================================================================================
+std::vector<RayTracing::I_RayLight*> C_RayTraceScene::GetLights() const
+{
+	std::vector<RayTracing::I_RayLight*> ret;
+	for (auto& infiniteLight : m_InfiniteLights)
+		ret.push_back(infiniteLight.get());
+	for (auto& areaLight : m_AreaLights)
+		ret.push_back(areaLight.get());
+	for (auto& pointLight : m_PointLights)
+		ret.push_back(pointLight.get());
+	return ret;
+}
+
+//=================================================================================
+void C_RayTraceScene::AddMesh(const Core::ResourceHandle<C_TrimeshModel>&			   trimesh,
+							  const glm::mat4&										   transform,
+							  const std::span<const Core::ResourceHandle<MaterialResource>>& materialOverrides)
 {
 	auto RTTrimeshModel = std::make_shared<C_StaticRTMesh>(trimesh);
 	RTTrimeshModel->SetTransformation(transform);
-	RTTrimeshModel->InitMaterials(*this);
+
+	const auto&											trimeshes = trimesh.GetResource().GetTrimeshes();
+	std::vector<Core::ResourceHandle<MaterialResource>> materials;
+	materials.reserve(trimeshes.size());
+	for (std::size_t i = 0; i < trimeshes.size(); ++i)
+	{
+		materials.push_back(i < materialOverrides.size() && materialOverrides[i] ? materialOverrides[i] : trimeshes[i].GetMaterialHandle());
+	}
+	RTTrimeshModel->InitMaterials(*this, materials);
 	AddObject(RTTrimeshModel);
 }
 
@@ -167,6 +213,8 @@ void C_RayTraceScene::BuildScene()
 			AddMesh(trimeshHandle, cornellTransform);
 		}
 	}
+
+	// TODO TLAS
 }
 
 //=================================================================================
@@ -175,6 +223,7 @@ void C_RayTraceScene::ClearScene()
 	m_Objects.clear();
 	m_AreaLights.clear();
 	m_PointLights.clear();
+	m_InfiniteLights.clear();
 	m_Textures.clear();
 	m_Meshes.clear();
 	m_Materials.clear();
@@ -398,7 +447,7 @@ I_MaterialInterface* C_RayTraceScene::AddMaterial(const MeshData::Material& mate
 		{
 			texture = m_Textures[material.textureIndex];
 		}
-		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(material.diffuse, texture)).get();
+		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(material.diffuse, 1.f, texture)).get();
 	}
 	else
 	{
@@ -420,12 +469,13 @@ I_MaterialInterface* C_RayTraceScene::AddMaterial(const Core::ResourceHandle<Mat
 	if (matPBR->GetRoughness() > .5f)
 	{
 		const Core::ResourceHandle<TextureResource> texture = matPBR->GetColorMapRes();
-		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(matPBR->GetColour(), texture)).get();
+		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(matPBR->GetColour(), matPBR->GetRoughness(), texture, matPBR->GetRoughnessMapRes())).get();
 	}
 	else
 	{
 		// todo glossy mat
-		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(matPBR->GetColour())).get();
+		const Core::ResourceHandle<TextureResource> texture = matPBR->GetColorMapRes();
+		return m_Materials.emplace_back(std::make_unique<C_DiffuseMaterial>(matPBR->GetColour(), matPBR->GetRoughness(), texture, matPBR->GetRoughnessMapRes())).get();
 	}
 }
 

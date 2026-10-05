@@ -56,10 +56,7 @@ TEST_F(SerializeResourceHandle, Empty)
 	ASSERT_TRUE(rootNode);
 
 	auto resourceNode = rootNode.child("Resource");
-	ASSERT_TRUE(resourceNode);
-
-	EXPECT_FALSE(resourceNode.attribute("derivedTypeCast"));
-	EXPECT_FALSE(resourceNode.attribute("FilePath"));
+	ASSERT_FALSE(resourceNode) << ToString(xmlDoc); // Resource == NULL so no reason to save it
 }
 
 TEST_F(SerializeResourceHandle, WithResource)

@@ -4,6 +4,8 @@
 
 #include <Renderer/ICameraComponent.h>
 #include <Renderer/IRenderer.h>
+#include <Renderer/RayCasting/PathIntegrator.h>
+#include <Renderer/RayCasting/RandomWalkIntegrator.h>
 #include <Renderer/RayCasting/RayGeneration/InterleavedLinesFactory.h>
 #include <Renderer/Resources/ResourceManager.h>
 #include <Renderer/Textures/TextureView.h>
@@ -41,13 +43,13 @@ void CreateRayPreviewState(S_RayPreviewState& state, glm::uvec2 resolution, std:
 	auto& renderer = Core::C_Application::Get().GetActiveRenderer();
 
 	state.m_GPUImageHandle	 = renderer.GetRM().createTexture(Renderer::TextureDescriptor{
-		  .name			 = std::string(name),
-		  .width		 = resolution.x,
-		  .height		 = resolution.y,
-		  .type			 = Renderer::E_TextureType::TEXTURE_2D,
-		  .format		 = format,
-		  .m_bStreamable = false,
-	  });
+		.name		   = std::string(name),
+		.width		   = resolution.x,
+		.height		   = resolution.y,
+		.type		   = Renderer::E_TextureType::TEXTURE_2D,
+		.format		   = format,
+		.m_bStreamable = false,
+	});
 	const auto samplerHandle = renderer.GetRM().createSampler(Renderer::SamplerDescriptor2D{
 		.m_FilterMin = Renderer::E_TextureFilter::Linear,
 		.m_FilterMag = Renderer::E_TextureFilter::Linear,
@@ -88,8 +90,8 @@ Renderer::C_RayRenderer::AdditionalTargets S_RayPreviewState::BuildAdditionalTar
 {
 	Renderer::C_RayRenderer::AdditionalTargets out{};
 	auto									   get = [&](E_DebugTarget t) -> Renderer::I_TextureViewStorage* {
-		  const auto it = m_DebugTargets.find(t);
-		  return (it != m_DebugTargets.end() && it->second.m_Storage) ? &(it->second.m_Storage.value()) : nullptr;
+		const auto it = m_DebugTargets.find(t);
+		return (it != m_DebugTargets.end() && it->second.m_Storage) ? &(it->second.m_Storage.value()) : nullptr;
 	};
 	out.rowHeatMap = get(E_DebugTarget::RowHeatMap);
 	out.normalsMap = get(E_DebugTarget::Normals);
@@ -145,7 +147,7 @@ void AddDebugTargets(S_RayPreviewState&				state,
 }
 
 //=================================================================================
-void StartPreviewRender(S_RayPreviewState& state, Renderer::I_CameraComponent& camera, int targetSamples)
+void StartPreviewRender(S_RayPreviewState& state, Renderer::I_CameraComponent& camera, int targetSamples, const Renderer::C_RayTraceScene& scene)
 {
 	if (state.m_Running.load())
 		return;
@@ -154,7 +156,7 @@ void StartPreviewRender(S_RayPreviewState& state, Renderer::I_CameraComponent& c
 	state.m_StopRequested.store(false);
 	state.m_Running.store(true);
 
-	std::thread([&state, &camera, targetSamples]() {
+	std::thread([&state, &camera, targetSamples, &scene]() {
 		GL_PROFILE_THREAD_NAME("RayRenderThread");
 		while (!state.m_StopRequested.load())
 		{
@@ -164,8 +166,12 @@ void StartPreviewRender(S_RayPreviewState& state, Renderer::I_CameraComponent& c
 
 			{
 				GL_PROFILE_SCOPE_N("RayRender::Render");
-				state.m_Renderer->Render(camera, *state.m_ImageStorage, *state.m_SamplesStorage, &state.m_ImageLock, samplesBefore,
-										 Renderer::C_InterleavedLinesFactory{4}, state.BuildAdditionalTargets());
+				state.m_Renderer->Render({.camera			= camera,
+										  .integrator		= std::make_unique<Renderer::C_PathIntegrator>(scene),
+										  .numSamplesBefore = samplesBefore,
+										  .generatorFactory = Renderer::C_InterleavedLinesFactory{4},
+										  .additional		= state.BuildAdditionalTargets()},
+										 *state.m_ImageStorage, *state.m_SamplesStorage, &state.m_ImageLock);
 			}
 			state.m_NumSamples.fetch_add(1);
 			GL_PROFILE_FRAME_N("RaySample");

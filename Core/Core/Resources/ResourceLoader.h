@@ -22,7 +22,7 @@ public:
 	I_ResourceLoader& operator=(I_ResourceLoader&& other) noexcept		   = default;
 	virtual ~I_ResourceLoader()											   = default;
 	[[nodiscard]] virtual std::shared_ptr<Resource> CreateResource() const = 0;
-	bool											LoadResource(const std::filesystem::path& filepath, std::shared_ptr<Resource>& resource, LoadCtx ctx) const;
+	bool											LoadResource(const std::filesystem::path& filepath, std::shared_ptr<Resource>& resource, LoadCtx& ctx) const;
 	/**
 	 * List of supported extensions accompanied by the dot.
 	 */

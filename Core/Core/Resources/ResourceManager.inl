@@ -122,11 +122,11 @@ template <IsResource ResourceType> ResourceHandle<ResourceType> C_ResourceManage
 					I_ResourceLoader::LoadCtx ctx{.m_ResMng = *this, .m_Query = {}, .m_isBlocking = false};
 					const bool				  result = loader->get().LoadResource(filepathNormalized, resource, ctx);
 
-					std::lock_guard lock(m_FinishedLoadsMutex);
 					if (result)
 					{
 						while (ctx.m_Query.IsDone() == false)
 							;
+						std::lock_guard lock(m_FinishedLoadsMutex);
 						m_FinishedLoads.push_back(resource);
 						// ResourceHandle<ResourceType> resourceHandle(resource);
 						// ResourceCreatedEvent event(resourceHandle);
@@ -134,6 +134,7 @@ template <IsResource ResourceType> ResourceHandle<ResourceType> C_ResourceManage
 					}
 					else
 					{
+						std::lock_guard lock(m_FinishedLoadsMutex);
 						if constexpr (IsBeDerivedResource<ResourceType> && BuildableResource<ResourceType>)
 						{
 							C_Metafile* metafile		   = GetOrLoadMetafile(filepathNormalized);

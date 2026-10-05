@@ -22,25 +22,28 @@ C_OrenNayarModel::~C_OrenNayarModel() = default;
 //=================================================================================
 Colours::T_Colour C_OrenNayarModel::f(const glm::vec3& wi, const glm::vec3& wo) const
 {
-	S_Frame		defaultFrame;
-	const float sinThetaI = defaultFrame.SinTheta(wi);
-	const float sinThetaO = defaultFrame.SinTheta(wo);
+	// Oren-Nayar model does not support transmission
+	if (!S_Frame::IsSameHemisphere(wo, wi))
+		return Colours::black;
+
+	const float sinThetaI = S_Frame::SinTheta(wi);
+	const float sinThetaO = S_Frame::SinTheta(wo);
 
 	float maxCos = 0.f;
 	if (sinThetaI > 1e-4 && sinThetaO > 1e-4)
 	{
-		const float sinPhiI = defaultFrame.SinPhi(wi);
-		const float cosPhiI = defaultFrame.CosPhi(wi);
-		const float sinPhiO = defaultFrame.SinPhi(wo);
-		const float cosPhiO = defaultFrame.CosPhi(wo);
+		const float sinPhiI = S_Frame::SinPhi(wi);
+		const float cosPhiI = S_Frame::CosPhi(wi);
+		const float sinPhiO = S_Frame::SinPhi(wo);
+		const float cosPhiO = S_Frame::CosPhi(wo);
 		const float dCos	= cosPhiI * cosPhiO + sinPhiI * sinPhiO;
 		maxCos				= std::max(0.0f, dCos);
 	}
 
 	float sinAlpha = 0.f;
 	float tanBeta  = 0.f;
-	const float absCosThetaI = defaultFrame.AbsCosTheta(wi);
-	const float absCosThetaO = defaultFrame.AbsCosTheta(wo);
+	const float absCosThetaI = S_Frame::AbsCosTheta(wi);
+	const float absCosThetaO = S_Frame::AbsCosTheta(wo);
 
 	if (absCosThetaI > absCosThetaO)
 	{

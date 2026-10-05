@@ -12,7 +12,7 @@ namespace GLEngine {
 class XMLDeserializeFixture : public ::testing::Test {
 public:
 	XMLDeserializeFixture()
-		: deserializer(Core::C_ResourceManager::Instance(), true)
+		: deserializer(Core::C_ResourceManager::Instance(), query, true)
 	{
 	}
 
@@ -27,6 +27,7 @@ public:
 	}
 
 protected:
+	Core::LoadingQuery		 query;
 	Utils::C_XMLDeserializer deserializer;
 };
 } // namespace GLEngine

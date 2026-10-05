@@ -116,7 +116,7 @@ void C_TrimeshPreviewWindow::SetupCamera(S_TrimeshTabData& data)
 //=================================================================================
 void C_TrimeshPreviewWindow::StartRender(S_TrimeshTabData& data)
 {
-	StartPreviewRender(data.m_Render, data.m_Camera, s_TargetSamples);
+	StartPreviewRender(data.m_Render, data.m_Camera, s_TargetSamples, data.m_Scene);
 }
 
 //=================================================================================

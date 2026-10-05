@@ -16,7 +16,7 @@ S_VisibilityTester::S_VisibilityTester(const glm::vec3& start, const glm::vec3& 
 }
 
 //=================================================================================
-bool S_VisibilityTester::IsVisible(const C_RayTraceScene& scene, float eps) const
+bool S_VisibilityTester::IsVisible(const C_RayTraceScene& scene) const
 {
 	const auto						 distance = glm::distance(m_Start, m_End);
 	const Physics::Primitives::S_Ray ray	  = GetRay();
@@ -26,7 +26,7 @@ bool S_VisibilityTester::IsVisible(const C_RayTraceScene& scene, float eps) cons
 	if (!scene.Intersect(ray, intersect))
 		return true;
 
-	return intersect.GetRayLength() > distance - eps;
+	return intersect.GetRayLength() > distance;
 }
 
 //=================================================================================

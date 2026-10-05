@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<EntityManager>
+	<Entities>
+		<C_BasicEntity name="Player">
+			<ID ID="fb8afc5d-4bb3-4ea1-851c-8b5b5f570f0e" />
+			<components>
+				<item>
+					<key value="Camera" />
+					<value>
+						<C_OrbitalCamera nearZ="0.100000001" farZ="1000" aspectZ="1.84615386" YAngle="0" XAngle="1.57079637" Zoom="5" />
+					</value>
+				</item>
+				<item>
+					<key value="Camera" />
+					<value>
+						<C_OrbitalCamera nearZ="0.100000001" farZ="1000" aspectZ="1.84615386" YAngle="0" XAngle="1.57079637" Zoom="5" />
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
+		<C_BasicEntity name="plane1" ModelMatrix="((1.0,0.0,0.0,0.0)(0.0,1.0,0.0,0.0)(0.0,0.0,1.0,0.0)(-4.073093,-0.9706304,0.0,1.0))">
+			<ID ID="001fdfaa-c70f-42b3-bcf0-6efaff2913a4" />
+			<components>
+				<item>
+					<key value="Graphical" />
+					<value>
+						<C_StaticMeshHandles>
+							<Transformation Translation="(2.0,0.0,0.0)" Scale="(0.5,1.0,1.0)" RotationDeg="(34.37747,-0.0,0.0)" />
+							<ModelRes>
+								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\plane.obj" />
+							</ModelRes>
+							<Materials>
+								<MaterialResourceHandle>
+									<Resource derivedTypeCast="MaterialResource" FilePath="Models\plane-NoneRough.glmat" />
+								</MaterialResourceHandle>
+							</Materials>
+						</C_StaticMeshHandles>
+					</value>
+				</item>
+				<item>
+					<key value="Graphical" />
+					<value>
+						<C_StaticMeshHandles>
+							<Transformation Translation="(6.0,0.0,0.0)" Scale="(0.5,1.0,1.0)" RotationDeg="(34.37747,-0.0,0.0)" />
+							<ModelRes>
+								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\plane.obj" />
+							</ModelRes>
+							<Materials>
+								<MaterialResourceHandle>
+									<Resource derivedTypeCast="MaterialResource" FilePath="Models\plane-NoneSmoother.glmat" />
+								</MaterialResourceHandle>
+							</Materials>
+						</C_StaticMeshHandles>
+					</value>
+				</item>
+				<item>
+					<key value="Graphical" />
+					<value>
+						<C_StaticMeshHandles>
+							<Transformation Translation="(10.0,0.0,0.0)" Scale="(0.5,1.0,1.0)" RotationDeg="(34.37747,-0.0,0.0)" />
+							<ModelRes>
+								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\plane.obj" />
+							</ModelRes>
+							<Materials>
+								<MaterialResourceHandle>
+									<Resource derivedTypeCast="MaterialResource" FilePath="Models\plane-NoneSmooth.glmat" />
+								</MaterialResourceHandle>
+							</Materials>
+						</C_StaticMeshHandles>
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
+		<C_BasicEntity name="light" ModelMatrix="((1.0,0.0,0.0,0.0)(0.0,1.0,0.0,0.0)(0.0,0.0,1.0,0.0)(0.0,2.396134,0.0,1.0))">
+			<ID ID="3560203c-5142-467a-9cf0-ff3f0fb23363" />
+			<components>
+				<item>
+					<key value="Light" />
+					<value>
+						<C_AreaLight Width="1" Height="1" DiffuseColour="(1.0,1.0,1.0)" SpecColour="(1.0,1.0,1.0)">
+							<Transformation RotationDeg="(-91.67325,-0.0,0.0)" />
+						</C_AreaLight>
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
+	</Entities>
+</EntityManager>

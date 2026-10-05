@@ -2,6 +2,19 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - 05-10-2026 - Ray tracing improvements
+### Added
+- Random Walk Integrator and SimplePathIntegrator
+- Move `C_StaticMeshHandles` materials to handles
+- `SliderUInt`
+- Roughness texture in RayTracing
+### Fixed
+- RTTR warnings
+- Resources are not serialized to the parent resource
+- Use runtime materials for the ray tracing
+- Reflection GUI reflects on size of the enum
+- `UniformSampleHemisphere` follows correct notion of normal
+
 ## [Unreleased] - 04-10-2026
 ### Added
 - Create new resource (materials for now)

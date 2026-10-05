@@ -49,6 +49,8 @@ IncludeIsMainRegex: ".h>$"
 IncludeCategories:
   - Regex:           '^<.*Stdafx.h>'
     Priority:    	   1
+  - Regex:           '^<.*Api.h>'
+    Priority:    	   1
   - Regex:           '^<Renderer/.*>'
     Priority:        2
   - Regex:           '^<Animation/.*>'
