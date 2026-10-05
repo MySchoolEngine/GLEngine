@@ -5,9 +5,9 @@
 #include <Core/Resources/ResourceLoader.h>
 #include <Core/Resources/ResourceManager.h>
 
+#include <Utils/Serialization/XMLDeserialize.h>
 #include <Utils/Serialization/XMLSerialize.h>
 
-#include "Utils/Serialization/XMLDeserialize.h"
 #include <CoreTest/Resources/TestClasses/DelayTestResource.h>
 #include <map>
 #include <vector>
@@ -55,14 +55,14 @@ public:
 	bool											SupportSaving() const override { return true; }
 
 	// Observable result after loading.
-	std::vector<ResourceHandle<DelayTestResource>>   m_HandleVector;
+	std::vector<ResourceHandle<DelayTestResource>>	 m_HandleVector;
 	std::map<int, ResourceHandle<DelayTestResource>> m_HandleMap;
 
 protected:
 	bool SaveInternal() const override
 	{
 		Utils::C_XMLSerializer s;
-		const auto				str = s.Serialize(*this);
+		const auto			   str = s.Serialize(*this);
 		return str.save_file(m_Filepath.c_str());
 	}
 };

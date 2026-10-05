@@ -2,9 +2,9 @@
 
 #include <Core/Resources/ResourceManager.h>
 
-#include "TestClasses/TestResourceWithDelayedProperty.h"
 #include <CoreTest/Resources/Fixtures/ResourceManagerBaseFixture.h>
 #include <CoreTest/Resources/TestClasses/TestResource2.h>
+#include <CoreTest/Resources/TestClasses/TestResourceWithDelayedProperty.h>
 #include <CoreTest/Resources/TestClasses/TestResourceWithProperty.h>
 #include <thread>
 
