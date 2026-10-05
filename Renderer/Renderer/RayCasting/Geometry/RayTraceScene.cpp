@@ -144,6 +144,19 @@ void C_RayTraceScene::ForEachInfiniteLight(const std::function<void(const std::r
 }
 
 //=================================================================================
+std::vector<RayTracing::I_RayLight*> C_RayTraceScene::GetLights() const
+{
+	std::vector<RayTracing::I_RayLight*> ret;
+	for (auto& infiniteLight : m_InfiniteLights)
+		ret.push_back(infiniteLight.get());
+	for (auto& areaLight : m_AreaLights)
+		ret.push_back(areaLight.get());
+	for (auto& pointLight : m_PointLights)
+		ret.push_back(pointLight.get());
+	return ret;
+}
+
+//=================================================================================
 void C_RayTraceScene::AddMesh(const Core::ResourceHandle<C_TrimeshModel>&			   trimesh,
 							  const glm::mat4&										   transform,
 							  const std::span<const Core::ResourceHandle<MaterialResource>>& materialOverrides)

@@ -58,6 +58,8 @@ public:
 	void ForEachLight(const std::function<void(const std::reference_wrapper<const RayTracing::I_RayLight>& light)>& fnc) const;
 	void ForEachInfiniteLight(const std::function<void(const std::reference_wrapper<const RayTracing::I_RayLight>& light)>& fnc) const;
 
+	std::vector<RayTracing::I_RayLight*> GetLights() const;
+
 	[[nodiscard]] C_TextureView GetTextureView(int textureID) const;
 
 	void DebugDraw(I_DebugDraw& dd) const;
