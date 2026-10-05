@@ -36,7 +36,7 @@ Colours::T_Colour SimplePathIntegrator::TraceRay(Physics::Primitives::S_Ray ray,
 		if (!m_Scene.Intersect(ray, intersect, 1e-3f))
 		{
 			if (!m_SampleLights)
-				m_Scene.ForEachInfiniteLight([&Li, &beta](const std::reference_wrapper<const RayTracing::I_RayLight>& light) { Li += beta * light.get().Le(); });
+				m_Scene.ForEachInfiniteLight([&Li, &beta](const std::reference_wrapper<const I_RayLight>& light) { Li += beta * light.get().Le(); });
 			break;
 		}
 
