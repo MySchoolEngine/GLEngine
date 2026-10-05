@@ -12,7 +12,7 @@ inline glm::vec3 UniformSampleHemisphere(const glm::vec2& randoms)
 }
 
 //=================================================================================
-inline float UniformHemispherePDF()
+consteval float UniformHemispherePDF()
 {
 	return 1.0f / glm::two_pi<float>();
 }
@@ -27,7 +27,7 @@ inline glm::vec3 UniformSampleSphere(const glm::vec2& randoms)
 }
 
 //=================================================================================
-inline float UniformSpherePDF()
+consteval float UniformSpherePDF()
 {
 	return 1.0f / (glm::two_pi<float>() * 2.0f);
 }
