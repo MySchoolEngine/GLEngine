@@ -98,7 +98,7 @@ bool C_RayTraceScene::IntersectExists(const Physics::Primitives::S_Ray& ray, flo
 {
 	GLE_TODO("15-08-2026", "RohacekD", "This should rather fast exit on first intersect");
 	C_RayIntersection Dummy;
-	return Intersect(ray, Dummy, offset);
+	return Intersect(ray, Dummy);
 }
 
 //=================================================================================
