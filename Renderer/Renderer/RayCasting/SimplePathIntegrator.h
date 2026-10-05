@@ -1,8 +1,8 @@
-﻿#pragma once
+#pragma once
 
 #include <Renderer/RayCasting/Integrator.h>
 
-namespace GLEngine::Renderer {
+namespace GLEngine::Renderer::RayTracing {
 
 class SimplePathIntegrator : public I_Integrator {
 public:
@@ -21,4 +21,4 @@ private:
 	bool		 m_SampleLights;
 	bool		 m_SampleBRDF;
 };
-} // namespace GLEngine::Renderer
+} // namespace GLEngine::Renderer::RayTracing

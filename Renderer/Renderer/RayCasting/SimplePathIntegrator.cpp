@@ -1,4 +1,4 @@
-﻿#include <RendererStdafx.h>
+#include <RendererStdafx.h>
 
 #include <Renderer/RayCasting/Generator/Sampler.h>
 #include <Renderer/RayCasting/Geometry/RayTraceScene.h>
@@ -8,7 +8,7 @@
 #include <Renderer/RayCasting/SimplePathIntegrator.h>
 
 
-namespace GLEngine::Renderer {
+namespace GLEngine::Renderer::RayTracing {
 //=================================================================================
 SimplePathIntegrator::SimplePathIntegrator(const IntegratorSettings& settings)
 	: I_Integrator(settings.Scene)
@@ -86,4 +86,4 @@ Colours::T_Colour SimplePathIntegrator::TraceRay(Physics::Primitives::S_Ray ray,
 	}
 	return Li;
 }
-} // namespace GLEngine::Renderer
+} // namespace GLEngine::Renderer::RayTracing

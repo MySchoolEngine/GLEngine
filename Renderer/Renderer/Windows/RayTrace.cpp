@@ -206,8 +206,8 @@ std::unique_ptr<I_Integrator> C_RayTraceWindow::CreateIntegrator() const
 	case IntegratorType::RandomWalkIntegrator:
 		return std::make_unique<RandomWalkIntegrator>(RandomWalkIntegrator::IntegratorSettings{.Scene = m_Scene, .MaxDepth = m_Depth});
 	case IntegratorType::SimplePathIntegrator:
-		return std::make_unique<SimplePathIntegrator>(
-			SimplePathIntegrator::IntegratorSettings{.Scene = m_Scene, .MaxDepth = m_Depth, .SampleLights = m_SampleLights, .SampleBRDF = m_SampleBRDF});
+		return std::make_unique<RayTracing::SimplePathIntegrator>(
+			RayTracing::SimplePathIntegrator::IntegratorSettings{.Scene = m_Scene, .MaxDepth = m_Depth, .SampleLights = m_SampleLights, .SampleBRDF = m_SampleBRDF});
 	case IntegratorType::PathIntegrator:
 		return std::make_unique<C_PathIntegrator>(m_Scene);
 	}
