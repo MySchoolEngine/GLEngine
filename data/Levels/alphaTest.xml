@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<EntityManager>
+	<Entities>
+		<C_BasicEntity name="Player">
+			<ID ID="7498db6e-8faa-4059-a94c-b4fd2ca60f20" />
+			<components>
+				<item>
+					<key value="Camera" />
+					<value>
+						<C_OrbitalCamera nearZ="0.100000001" farZ="100" aspectZ="1.85546875" YAngle="0" XAngle="1.57079637" Zoom="5" />
+					</value>
+				</item>
+				<item>
+					<key value="Camera" />
+					<value>
+						<C_OrbitalCamera nearZ="0.100000001" farZ="100" aspectZ="1.85546875" YAngle="0" XAngle="1.57079637" Zoom="5" />
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
+		<C_BasicEntity name="light">
+			<ID ID="d734b0f1-d660-4315-8e2f-33f8975f46b7" />
+			<components>
+				<item>
+					<key value="Light" />
+					<value>
+						<C_AreaLight Width="1" Height="1" DiffuseColour="(1.0,1.0,1.0)" SpecColour="(1.0,1.0,1.0)">
+							<Transformation Translation="(0.0,1.49,0.0)" RotationDeg="(-90.0,-0.0,0.0)" />
+						</C_AreaLight>
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
+		<C_BasicEntity name="WallExperiment">
+			<ID ID="d5d1c4f3-46a9-4997-9c61-7ee4d366c337" />
+			<components>
+				<item>
+					<key value="Graphical" />
+					<value>
+						<C_StaticMeshHandles>
+							<Transformation Scale="(0.5,0.5,0.5)" RotationDeg="(57.29578,-0.0,0.0)" />
+							<Materials>
+								<C_Material Name="None" Color="(1.0,1.0,1.0)" Roughness="0.5">
+									<ColorMapRes>
+										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Stylized Nature MegaKit[Standard]\Textures\Leaves_NormalTree_C.png" />
+									</ColorMapRes>
+								</C_Material>
+							</Materials>
+							<ModelRes>
+								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\plane-alpha.obj" />
+							</ModelRes>
+						</C_StaticMeshHandles>
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
+		<C_BasicEntity name="FullWall">
+			<ID ID="abcbfb91-dff3-4eb6-af4c-d42ff02907b2" />
+			<components>
+				<item>
+					<key value="Graphical" />
+					<value>
+						<C_StaticMeshHandles>
+							<Transformation Translation="(0.0,0.0,-1.0)" RotationDeg="(90.0,-0.0,0.0)" />
+							<Materials>
+								<C_Material Name="None" Color="(0.8,0.8,0.8)" Roughness="0.5" />
+							</Materials>
+							<ModelRes>
+								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\plane.obj" />
+							</ModelRes>
+						</C_StaticMeshHandles>
+					</value>
+				</item>
+			</components>
+		</C_BasicEntity>
+	</Entities>
+</EntityManager>
