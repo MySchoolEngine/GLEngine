@@ -27,7 +27,12 @@ project "EntityTest"
 	LinkDependency("RTTR")
 	LinkDependency("pugixml")
 
-	CopyDependencyLib("ImGui")
+	filter "system:windows"
+		CopyDependencyLib("Assimp")
+		CopyDependencyLib("zlib")
+		CopyDependencyLib("ImGui")
+		CopyDependencyLib("DevIL-IL")
+	filter {}
 
 	includedirs
 	{
