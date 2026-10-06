@@ -171,7 +171,7 @@ if not _OPTIONS["skiptests"] then
 		include "Tests/Renderer"
 		include "Tests/Utils"
 		include "Tests/Physics"
-	    -- include "Tests/Entity" -- for some reason GUI typeinfo does not work on GCC
+	    include "Tests/Entity"
 		if _TARGET_OS ~= "linux" then
 			include "Tests/CommonTestUtils"
 		end
