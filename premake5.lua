@@ -157,6 +157,7 @@ IncludeDir["slot_map"] = "vendor/slot_map"
 IncludeDir["IconFontCppHeaders"] = "vendor/IconFontCppHeaders"
 IncludeDir["Tracy"] = "vendor/tracy/public"
 IncludeDir["benchmark"] = "vendor/benchmark/include"
+IncludeDir["entt"] = "vendor/entt/single_include"
 
 -- could be header only or static lib
 NonDllLib = {}
