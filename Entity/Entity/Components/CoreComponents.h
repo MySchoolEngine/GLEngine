@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Physics/Primitives/AABB.h>
+
 #include <Core/GUID.h>
 
 #include <glm/glm.hpp>
@@ -39,5 +41,9 @@ struct S_RelationshipComponent {
 };
 
 struct S_DirtyTransformTag {};
+
+struct S_LocalBounds {
+	Physics::Primitives::S_AABB aabb;
+};
 
 } // namespace GLEngine::Entity

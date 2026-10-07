@@ -9,6 +9,11 @@
 #include <filesystem>
 #include <unordered_map>
 
+namespace GLEngine::Physics::Primitives {
+struct S_Ray;
+struct S_RayIntersection;
+} // namespace GLEngine::Physics::Primitives
+
 namespace GLEngine::Entity {
 
 class C_Entity;
@@ -32,6 +37,8 @@ public:
 	[[nodiscard]] entt::registry& Registry() { return m_Registry; }
 
 	void OnUpdate();
+
+	[[nodiscard]] Physics::Primitives::S_RayIntersection Select(const Physics::Primitives::S_Ray& ray);
 
 	void								SetFilename(const std::filesystem::path& filename);
 	[[nodiscard]] std::filesystem::path GetFilename() const;

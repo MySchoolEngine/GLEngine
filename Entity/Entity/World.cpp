@@ -4,6 +4,13 @@
 #include <Entity/Entity.h>
 #include <Entity/World.h>
 
+#include <Physics/Primitives/Intersection.h>
+#include <Physics/Primitives/Plane.h>
+#include <Physics/Primitives/Ray.h>
+
+#include <algorithm>
+#include <limits>
+
 namespace GLEngine::Entity {
 
 //=================================================================================
@@ -126,6 +133,43 @@ void C_World::OnUpdate()
 		m_Registry.destroy(entity);
 	}
 	m_PendingDestroy.clear();
+}
+
+//=================================================================================
+Physics::Primitives::S_RayIntersection C_World::Select(const Physics::Primitives::S_Ray& ray)
+{
+	using namespace Physics::Primitives;
+	GLE_TODO("7-10-2026", "RohacekD", "Add acceleration structure once finished");
+
+	std::vector<S_RayIntersection> intersects;
+	auto						   view = m_Registry.view<S_LocalBounds, S_WorldTransformComponent, S_IdentityComponent>();
+	for (auto [entity, bounds, worldTransform, identity] : view.each())
+	{
+		const auto distance = bounds.aabb.getTransformedAABB(worldTransform.world).IntersectImpl(ray);
+		if (distance > 0)
+		{
+			S_RayIntersection intersection;
+			intersection.entityId		   = identity.id;
+			intersection.distance		   = distance;
+			intersection.intersectionPoint = ray.origin + ray.direction * distance;
+			intersection.ray			   = ray;
+			intersects.emplace_back(std::move(intersection));
+		}
+	}
+
+	if (!intersects.empty())
+	{
+		const auto& nearest = std::min_element(intersects.begin(), intersects.end(), [](const auto& a, const auto& b) { return a.distance < b.distance; });
+		return *nearest;
+	}
+
+	constexpr S_Plane plane{glm::vec4(0.f, 1.f, 0.f, 1.f), -1};
+	S_RayIntersection intersection;
+	intersection.entityId		   = GUID::INVALID_GUID;
+	intersection.distance		   = plane.IntersectImpl(ray, std::numeric_limits<float>::max());
+	intersection.intersectionPoint = ray.origin + ray.direction * intersection.distance;
+	intersection.ray			   = ray;
+	return intersection;
 }
 
 //=================================================================================
