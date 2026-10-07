@@ -14,6 +14,7 @@ namespace GLEngine::Utils {
 class UTILS_API_EXPORT C_XMLSerializer {
 public:
 	[[nodiscard]] pugi::xml_document Serialize(const rttr::instance obj);
+	void							 SerializeInto(const rttr::instance obj, pugi::xml_node node);
 
 private:
 	pugi::xml_node SerializeObject(const rttr::instance& obj2, pugi::xml_node node);
