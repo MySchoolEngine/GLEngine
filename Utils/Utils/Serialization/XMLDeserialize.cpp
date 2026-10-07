@@ -39,6 +39,14 @@ rttr::variant C_XMLDeserializer::DeserializeDoc(const pugi::xml_document& docume
 }
 
 //=================================================================================
+void C_XMLDeserializer::DeserializeInto(const pugi::xml_node& node, rttr::variant& var)
+{
+	m_IsRootObject = true;
+	var			   = DeserializeNode(node, var);
+	FinishDeserialization(var.get_type(), var);
+}
+
+//=================================================================================
 rttr::variant C_XMLDeserializer::DeserializeNode(const pugi::xml_node& node, rttr::variant& var)
 {
 	using namespace ::Utils::Reflection;

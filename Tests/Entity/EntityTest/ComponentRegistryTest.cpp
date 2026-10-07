@@ -40,9 +40,15 @@ TEST(ComponentRegistry, EmplaceDefault_HasAndGet_RoundTrip)
 	entry->emplaceDefault(world.Registry(), entity.Handle());
 	EXPECT_TRUE(entry->has(world.Registry(), entity.Handle()));
 
+	// entry->get() returns a reference-wrapped rttr::variant (std::reference_wrapper<T>, aliasing
+	// the live component - see ComponentRegistry.h). An rttr::instance's own get_type() is a
+	// pointer-to-wrapper type, so get_raw_type() strips that pointer before is_wrapper() reports
+	// true; get_wrapped_instance() then drills through to the real component - same pattern as
+	// C_XMLSerializer::SerializeObject's is_wrapper()/get_wrapped_instance() handling.
 	rttr::instance instance = entry->get(world.Registry(), entity.Handle());
 	ASSERT_TRUE(instance.is_valid());
-	EXPECT_EQ(instance.get_type(), rttr::type::get<S_RegistryTestComponent>());
+	ASSERT_TRUE(instance.get_type().get_raw_type().is_wrapper());
+	EXPECT_EQ(instance.get_wrapped_instance().get_type().get_raw_type(), rttr::type::get<S_RegistryTestComponent>());
 }
 
 TEST(ComponentRegistry, Remove_ComponentNoLongerPresent)

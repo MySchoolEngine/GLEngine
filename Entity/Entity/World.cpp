@@ -9,8 +9,13 @@ namespace GLEngine::Entity {
 //=================================================================================
 C_Entity C_World::CreateEntity(std::string name)
 {
+	return CreateEntityWithGuid(NextGUID(), std::move(name));
+}
+
+//=================================================================================
+C_Entity C_World::CreateEntityWithGuid(const GUID& guid, std::string name)
+{
 	const auto handle = m_Registry.create();
-	const GUID guid	  = NextGUID();
 	m_Registry.emplace<S_IdentityComponent>(handle, guid, std::move(name));
 	m_Registry.emplace<S_TransformComponent>(handle);
 	m_Registry.emplace<S_WorldTransformComponent>(handle);

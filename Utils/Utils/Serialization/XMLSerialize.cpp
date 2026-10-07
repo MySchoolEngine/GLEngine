@@ -24,6 +24,13 @@ pugi::xml_document C_XMLSerializer::Serialize(const rttr::instance obj)
 }
 
 //=================================================================================
+void C_XMLSerializer::SerializeInto(const rttr::instance obj, pugi::xml_node node)
+{
+	m_IsRootObject = true;
+	SerializeObject(obj, node);
+}
+
+//=================================================================================
 pugi::xml_node C_XMLSerializer::SerializeObject(const rttr::instance& obj2, const pugi::xml_node node)
 {
 	using namespace ::Utils::Reflection;
@@ -148,7 +155,7 @@ void C_XMLSerializer::WriteProperty(const rttr::property& prop, const rttr::inst
 		// for raw pointers to store concrete type
 		if (type.is_pointer())
 		{
-			const auto innerType = type.get_raw_type();
+			const auto innerType	= type.get_raw_type();
 			const auto typeConcrete = rttr::instance(propValue).get_derived_type();
 			if (typeConcrete != innerType)
 			{

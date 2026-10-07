@@ -19,6 +19,7 @@ public:
 	~C_World() override = default;
 
 	C_Entity CreateEntity(std::string name);
+	C_Entity CreateEntityWithGuid(const GUID& guid, std::string name);
 	void	 DestroyEntity(entt::entity entity);
 	void	 ClearLevel();
 
