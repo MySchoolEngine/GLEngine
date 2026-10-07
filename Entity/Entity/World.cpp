@@ -12,8 +12,65 @@ C_Entity C_World::CreateEntity(std::string name)
 	const auto handle = m_Registry.create();
 	const GUID guid	  = NextGUID();
 	m_Registry.emplace<S_IdentityComponent>(handle, guid, std::move(name));
+	m_Registry.emplace<S_TransformComponent>(handle);
+	m_Registry.emplace<S_WorldTransformComponent>(handle);
+	m_Registry.emplace<S_RelationshipComponent>(handle);
+	m_Registry.emplace<S_DirtyTransformTag>(handle);
 	m_GuidLookup.emplace(guid, handle);
 	return C_Entity(*this, handle);
+}
+
+//=================================================================================
+bool C_World::SetParent(entt::entity child, entt::entity newParent)
+{
+	if (child == newParent)
+		return false;
+
+	// Reject a cycle: newParent must not be child itself or a descendant of child.
+	for (auto walk = newParent; walk != entt::null; walk = m_Registry.get<S_RelationshipComponent>(walk).parent)
+	{
+		if (walk == child)
+			return false;
+	}
+
+	Detach(child);
+
+	auto& childRel = m_Registry.get<S_RelationshipComponent>(child);
+	if (newParent != entt::null)
+	{
+		auto& parentRel = m_Registry.get<S_RelationshipComponent>(newParent);
+		childRel.next	= parentRel.firstChild;
+		if (parentRel.firstChild != entt::null)
+			m_Registry.get<S_RelationshipComponent>(parentRel.firstChild).prev = child;
+		parentRel.firstChild = child;
+		++parentRel.childCount;
+	}
+	childRel.parent = newParent;
+	m_Registry.emplace_or_replace<S_DirtyTransformTag>(child);
+	return true;
+}
+
+//=================================================================================
+void C_World::Detach(entt::entity child)
+{
+	auto& childRel = m_Registry.get<S_RelationshipComponent>(child);
+	if (childRel.parent == entt::null)
+		return;
+
+	auto& parentRel = m_Registry.get<S_RelationshipComponent>(childRel.parent);
+	if (childRel.prev != entt::null)
+		m_Registry.get<S_RelationshipComponent>(childRel.prev).next = childRel.next;
+	else
+		parentRel.firstChild = childRel.next;
+
+	if (childRel.next != entt::null)
+		m_Registry.get<S_RelationshipComponent>(childRel.next).prev = childRel.prev;
+
+	--parentRel.childCount;
+	childRel.parent = entt::null;
+	childRel.prev	= entt::null;
+	childRel.next	= entt::null;
+	m_Registry.emplace_or_replace<S_DirtyTransformTag>(child);
 }
 
 //=================================================================================

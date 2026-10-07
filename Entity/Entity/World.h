@@ -25,6 +25,9 @@ public:
 	[[nodiscard]] C_Entity FindByGuid(const GUID& id);
 	[[nodiscard]] C_Entity FindByName(const std::string& name);
 
+	[[nodiscard]] bool SetParent(entt::entity child, entt::entity newParent);
+	void			   Detach(entt::entity child);
+
 	[[nodiscard]] entt::registry& Registry() { return m_Registry; }
 
 	void OnUpdate();
