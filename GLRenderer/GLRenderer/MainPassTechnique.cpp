@@ -12,7 +12,7 @@
 
 #include <Renderer/Components/StaticMeshHandles.h>
 #include <Renderer/DebugDraw.h>
-#include <Renderer/ICameraComponent.h>
+#include <Renderer/ICamera.h>
 #include <Renderer/IRenderableComponent.h>
 #include <Renderer/IRenderer.h>
 #include <Renderer/Lights/AreaLight.h>
@@ -41,12 +41,12 @@ C_MainPassTechnique::C_MainPassTechnique(Renderer::ResourceManager& resourceMana
 }
 
 //=================================================================================
-void C_MainPassTechnique::Render(const Entity::C_EntityManager&				  world,
-								 std::shared_ptr<Renderer::I_CameraComponent> camera,
-								 unsigned int								  width,
-								 unsigned int								  height,
-								 Renderer::I_DebugDraw&						  dd,
-								 Renderer::I_RenderInterface3D&				  renderInterface3D)
+void C_MainPassTechnique::Render(const Entity::C_EntityManager&		 world,
+								 std::shared_ptr<Renderer::I_Camera> camera,
+								 unsigned int						 width,
+								 unsigned int						 height,
+								 Renderer::I_DebugDraw&				 dd,
+								 Renderer::I_RenderInterface3D&		 renderInterface3D)
 {
 	RenderDoc::C_DebugScope s("C_MainPassTechnique::Render");
 	const auto				camFrustum	   = camera->GetFrustum();

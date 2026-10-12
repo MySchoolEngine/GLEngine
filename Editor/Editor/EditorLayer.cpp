@@ -106,7 +106,7 @@ void C_EditorLayer::EditAABB(Physics::Primitives::S_AABB& aabb)
 }
 
 //=================================================================================
-void C_EditorLayer::SetCamera(const std::shared_ptr<Renderer::I_CameraComponent>& camera)
+void C_EditorLayer::SetCamera(const std::shared_ptr<Renderer::I_Camera>& camera)
 {
 	m_Camera = camera;
 }

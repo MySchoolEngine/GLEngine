@@ -17,13 +17,13 @@ class C_EntityManager;
 }
 
 namespace GLEngine::Renderer {
-class I_CameraComponent;
+class I_Camera;
 class I_DebugDraw;
 class I_Renderer;
 
 class RENDERER_API_EXPORT C_RayTraceWindow final : public GUI::C_Window {
 public:
-	C_RayTraceWindow(GUID guid, const std::shared_ptr<I_CameraComponent>& camera, GUI::C_GUIManager& guiMGR);
+	C_RayTraceWindow(GUID guid, const std::shared_ptr<I_Camera>& camera, GUI::C_GUIManager& guiMGR);
 	~C_RayTraceWindow() override;
 
 	void SetScene(const Entity::C_EntityManager& world);
@@ -56,10 +56,10 @@ private:
 
 	std::unique_ptr<I_Integrator> CreateIntegrator() const;
 
-	std::shared_ptr<I_CameraComponent> m_Camera; // TODO: Should be weak? What should I do when camera moves?
-	Handle<Texture>					   m_GPUImageHandle;
-	Handle<Texture>					   m_GPUHeatMapHandle;
-	Handle<Texture>					   m_GPUProbeHandle;
+	std::shared_ptr<I_Camera> m_Camera; // TODO: Should be weak? What should I do when camera moves?
+	Handle<Texture>			  m_GPUImageHandle;
+	Handle<Texture>			  m_GPUHeatMapHandle;
+	Handle<Texture>			  m_GPUProbeHandle;
 
 
 	C_TextureViewStorageCPU<float>	 m_ImageStorage;   // Intermediate data, could need some weighting

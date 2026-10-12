@@ -7,7 +7,7 @@ class C_EntityManager;
 }
 
 namespace GLEngine::Renderer {
-class I_CameraComponent;
+class I_Camera;
 class I_Light;
 } // namespace GLEngine::Renderer
 

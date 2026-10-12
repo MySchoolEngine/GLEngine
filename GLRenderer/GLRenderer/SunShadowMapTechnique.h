@@ -6,7 +6,7 @@ class C_EntityManager;
 
 namespace GLEngine::Renderer {
 class C_SunLight;
-class I_CameraComponent;
+class I_Camera;
 } // namespace GLEngine::Renderer
 
 namespace GLEngine::GLRenderer {
@@ -21,9 +21,9 @@ public:
 	explicit C_SunShadowMapTechnique(const std::shared_ptr<Renderer::C_SunLight>& light);
 	~C_SunShadowMapTechnique(); // = default
 
-	void								 Render(const Entity::C_EntityManager& world, Renderer::I_CameraComponent* camera);
-	Renderer::Handle<Renderer::Texture>	 GetZBuffer() const;
-	Renderer::Handle<Renderer::Texture>	 GetAlbedoTexture() const;
+	void								Render(const Entity::C_EntityManager& world, Renderer::I_Camera* camera);
+	Renderer::Handle<Renderer::Texture> GetZBuffer() const;
+	Renderer::Handle<Renderer::Texture> GetAlbedoTexture() const;
 
 	glm::mat4 GetLastViewProjection() const;
 

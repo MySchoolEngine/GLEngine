@@ -7,7 +7,7 @@
 #include <GLRenderer/Shaders/ShaderProgram.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 
-#include <Renderer/ICameraComponent.h>
+#include <Renderer/ICamera.h>
 #include <Renderer/IRenderer.h>
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/Textures/TextureLoader.h>
@@ -23,8 +23,8 @@ C_SkyBox::C_SkyBox(const std::shared_ptr<Entity::I_Entity>& owner)
 	: Renderer::I_RenderableComponent(owner)
 //, m_Textures("Skybox", GL_TEXTURE_CUBE_MAP)
 {
-	//m_Textures.SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
-	//m_Textures.SetWrap(Renderer::E_WrapFunction::ClampToEdge, Renderer::E_WrapFunction::ClampToEdge, Renderer::E_WrapFunction::ClampToEdge);
+	// m_Textures.SetFilter(Renderer::E_TextureFilter::Linear, Renderer::E_TextureFilter::Linear);
+	// m_Textures.SetWrap(Renderer::E_WrapFunction::ClampToEdge, Renderer::E_WrapFunction::ClampToEdge, Renderer::E_WrapFunction::ClampToEdge);
 
 	std::vector<glm::vec3> vertices;
 	// left
@@ -93,17 +93,17 @@ void C_SkyBox::AddTexture(E_Side side, const std::filesystem::path& filename)
 	if (!tex)
 		CORE_LOG(E_Level::Error, E_Context::Render, "Texture cannot be loaded");
 
-	//m_Textures.bind();
+	// m_Textures.bind();
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + static_cast<int>(side), 0, GL_RGBA, tex->GetDimensions().x, tex->GetDimensions().y, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex->GetData());
 
-	//m_Textures.unbind();
+	// m_Textures.unbind();
 }
 
 //=================================================================================
 void C_SkyBox::PerformDraw() const
 {
 	auto& tm = Textures::C_TextureUnitManger::Instance();
-	//tm.BindTextureToUnit(m_Textures, 0);
+	// tm.BindTextureToUnit(m_Textures, 0);
 
 	auto& shmgr	 = Shaders::C_ShaderManager::Instance();
 	auto  shader = shmgr.GetProgram("skybox");
@@ -114,7 +114,7 @@ void C_SkyBox::PerformDraw() const
 			glDepthFunc(GL_LEQUAL); // change depth function so depth test passes when values are equal to depth buffer's content
 
 			m_VAO.bind();
-			//m_Textures.bind();
+			// m_Textures.bind();
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 			glDepthFunc(GL_LESS); // set depth function back to default
 			m_VAO.unbind();

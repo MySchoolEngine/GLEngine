@@ -16,10 +16,15 @@ struct S_Ray;
 namespace GLEngine {
 namespace Renderer {
 
-class RENDERER_API_EXPORT I_CameraComponent : public Entity::I_Component {
+// Kept deriving from Entity::I_Component for now (not decoupled, despite the ECS migration plan's
+// original intent) - GLRenderer's ExperimentWindow and VulkanRenderer's VkWindow still attach
+// cameras to a player entity through the old Entity::I_Entity::AddComponent/GetComponents(Camera)
+// path, which requires this base. Decoupling is deferred to Phase 3/4 when those windows move to
+// C_World.
+class RENDERER_API_EXPORT I_Camera : public Entity::I_Component {
 public:
-	explicit I_CameraComponent(const std::shared_ptr<Entity::I_Entity>& owner);
-	~I_CameraComponent() override; // = default;
+	explicit I_Camera(const std::shared_ptr<Entity::I_Entity>& owner);
+	~I_Camera() override; // = default;
 	Entity::E_ComponentType GetType() const override;
 
 	[[nodiscard]] Physics::Primitives::S_AABB GetAABB() const override;
@@ -38,6 +43,12 @@ public:
 
 	[[nodiscard]] virtual Physics::Primitives::C_Frustum GetFrustum() const = 0;
 
+	// Called by GLEngine::Renderer::CameraSystem::Update for every entity with both
+	// S_CameraComponent and S_WorldTransformComponent, right before Update() - lets a concrete
+	// camera fold the owning entity's world transform into its own state. Default no-op preserves
+	// current behavior for cameras that don't go through C_World yet.
+	virtual void SetOwnerWorldTransform(const glm::mat4& worldTransform) {}
+
 	RTTR_ENABLE(Entity::I_Component);
 	RTTR_REGISTRATION_FRIEND;
 };
@@ -45,6 +56,6 @@ public:
 
 template <> class ComponenetBase<Entity::E_ComponentType::Camera> {
 public:
-	using type = Renderer::I_CameraComponent;
+	using type = Renderer::I_Camera;
 };
 } // namespace GLEngine

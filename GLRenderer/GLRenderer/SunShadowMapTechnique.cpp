@@ -14,7 +14,7 @@
 #include <GLRenderer/Commands/GLViewport.h>
 /// ~temporal
 
-#include <Renderer/ICameraComponent.h>
+#include <Renderer/ICamera.h>
 #include <Renderer/IDevice.h>
 #include <Renderer/IRenderableComponent.h>
 #include <Renderer/IRenderer.h>
@@ -52,12 +52,12 @@ C_SunShadowMapTechnique::C_SunShadowMapTechnique(const std::shared_ptr<Renderer:
 	{
 		using namespace Renderer;
 		const auto				gpuSamplerHandle = renderer.GetRM().createSampler(SamplerDescriptor2D{
-						 .m_FilterMin = E_TextureFilter::Linear,
-						 .m_FilterMag = E_TextureFilter::Linear,
-						 .m_WrapS	  = E_WrapFunction::Repeat,
-						 .m_WrapT	  = E_WrapFunction::Repeat,
-						 .m_WrapU	  = E_WrapFunction::Repeat,
-		 });
+			.m_FilterMin = E_TextureFilter::Linear,
+			.m_FilterMag = E_TextureFilter::Linear,
+			.m_WrapS	 = E_WrapFunction::Repeat,
+			.m_WrapT	 = E_WrapFunction::Repeat,
+			.m_WrapU	 = E_WrapFunction::Repeat,
+		});
 		const TextureDescriptor textureDescriptor{.name			 = "hdrTexture",
 												  .width		 = s_ShadowMapSize,
 												  .height		 = s_ShadowMapSize,
@@ -75,7 +75,8 @@ C_SunShadowMapTechnique::C_SunShadowMapTechnique(const std::shared_ptr<Renderer:
 		renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
 			[glTexture]() {
 				std::ignore = glTexture->CreateHandle(); // side effect: caches the bindless handle, retrieved later via GetHandle()
-			}, "Create identity handle"));
+			},
+			"Create identity handle"));
 		glTexture->MakeHandleResident(true);
 	}
 	else
@@ -91,12 +92,12 @@ C_SunShadowMapTechnique::C_SunShadowMapTechnique(const std::shared_ptr<Renderer:
 	{
 		using namespace Renderer;
 		const auto		  gpuSamplerHandle = renderer.GetRM().createSampler(SamplerDescriptor2D{
-				   .m_FilterMin = E_TextureFilter::Nearest,
-				   .m_FilterMag = E_TextureFilter::Nearest,
-				   .m_WrapS		= E_WrapFunction::ClampToBorder,
-				   .m_WrapT		= E_WrapFunction::ClampToBorder,
-				   .m_WrapU		= E_WrapFunction::ClampToBorder,
-		   });
+			.m_FilterMin = E_TextureFilter::Nearest,
+			.m_FilterMag = E_TextureFilter::Nearest,
+			.m_WrapS	 = E_WrapFunction::ClampToBorder,
+			.m_WrapT	 = E_WrapFunction::ClampToBorder,
+			.m_WrapU	 = E_WrapFunction::ClampToBorder,
+		});
 		TextureDescriptor shadowMapDesc{.name		   = "sunShadowMap",
 										.width		   = s_ShadowMapSize,
 										.height		   = s_ShadowMapSize,
@@ -124,7 +125,7 @@ C_SunShadowMapTechnique::C_SunShadowMapTechnique(const std::shared_ptr<Renderer:
 C_SunShadowMapTechnique::~C_SunShadowMapTechnique() = default;
 
 //=================================================================================
-void C_SunShadowMapTechnique::Render(const Entity::C_EntityManager& world, Renderer::I_CameraComponent* camera)
+void C_SunShadowMapTechnique::Render(const Entity::C_EntityManager& world, Renderer::I_Camera* camera)
 {
 	Physics::Primitives::S_AABB aabb;
 	for (const auto& entity : world.GetEntities())

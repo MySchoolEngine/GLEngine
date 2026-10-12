@@ -362,9 +362,9 @@ void C_ExperimentWindow::OnAppInit()
 
 	// {
 	// 	m_EntityEditorGUID = NextGUID();
-	// 
+	//
 	// 	auto* entities = new Editor::EntityEditor(m_EntityEditorGUID, guiMGR);
-	// 
+	//
 	// 	guiMGR.AddCustomWindow(entities);
 	// 	entities->SetVisible();
 	// }
@@ -424,12 +424,12 @@ void C_ExperimentWindow::OnAppInit()
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Open level", [&]() {
 		const auto levelSelectorGUID = NextGUID();
 		auto*	   levelSelectWindow = new GUI::C_FileDialogWindow(
-			 ".xml", "Select level",
-			 [&, levelSelectorGUID](const std::filesystem::path& level, GUI::C_GUIManager& guiMgr) {
-				 SetupWorld(level);
-				 guiMgr.DestroyWindow(levelSelectorGUID);
-			 },
-			 levelSelectorGUID, "./Levels");
+			".xml", "Select level",
+			[&, levelSelectorGUID](const std::filesystem::path& level, GUI::C_GUIManager& guiMgr) {
+				SetupWorld(level);
+				guiMgr.DestroyWindow(levelSelectorGUID);
+			},
+			levelSelectorGUID, "./Levels");
 		guiMGR.AddCustomWindow(levelSelectWindow);
 		levelSelectWindow->SetVisible();
 		return false;
@@ -489,8 +489,7 @@ void C_ExperimentWindow::OnAppInit()
 		}
 		m_ImageEditorGUID = NextGUID();
 
-		auto* imageEditorWindow = new Editor::C_ImageEditor(m_ImageEditorGUID, guiMGR,
-			[this](Core::I_Event& e) { OnEvent(e); });
+		auto* imageEditorWindow = new Editor::C_ImageEditor(m_ImageEditorGUID, guiMGR, [this](Core::I_Event& e) { OnEvent(e); });
 
 		guiMGR.AddCustomWindow(imageEditorWindow);
 		imageEditorWindow->SetVisible(true);
@@ -503,8 +502,7 @@ void C_ExperimentWindow::OnAppInit()
 		}
 		m_ResourceWindowGUID = NextGUID();
 
-		auto* resourceManagerWindow = new Editor::C_ResourceManagerWindow(m_ResourceWindowGUID, guiMGR, ".",
-			[this](Core::I_Event& e) { OnEvent(e); });
+		auto* resourceManagerWindow = new Editor::C_ResourceManagerWindow(m_ResourceWindowGUID, guiMGR, ".", [this](Core::I_Event& e) { OnEvent(e); });
 
 		guiMGR.AddCustomWindow(resourceManagerWindow);
 		resourceManagerWindow->SetVisible(true);
@@ -617,12 +615,12 @@ void C_ExperimentWindow::SetupWorld(const std::filesystem::path& level)
 		using namespace Renderer;
 		ResourceManager& rrm			  = m_renderer->GetRM();
 		const auto		 gpuSamplerHandle = rrm.createSampler(SamplerDescriptor2D{
-				  .m_FilterMin = E_TextureFilter::Linear,
-				  .m_FilterMag = E_TextureFilter::Linear,
-				  .m_WrapS	   = E_WrapFunction::Repeat,
-				  .m_WrapT	   = E_WrapFunction::Repeat,
-				  .m_WrapU	   = E_WrapFunction::Repeat,
-		  });
+			.m_FilterMin = E_TextureFilter::Linear,
+			.m_FilterMag = E_TextureFilter::Linear,
+			.m_WrapS	 = E_WrapFunction::Repeat,
+			.m_WrapT	 = E_WrapFunction::Repeat,
+			.m_WrapU	 = E_WrapFunction::Repeat,
+		});
 		m_HDRFBOAtmosphere				  = std::unique_ptr<C_Framebuffer>(m_Device->AllocateFramebuffer("Atmosphere"));
 		const TextureDescriptor HDRTextureDef{.name			 = "hdrTextureAtmosphere",
 											  .width		 = GetWidth(),
@@ -655,12 +653,12 @@ bool C_ExperimentWindow::SaveLevelAs()
 	auto&	   guiMGR			 = m_ImGUI->GetGUIMgr();
 	const auto levelSelectorGUID = NextGUID();
 	auto*	   levelPathSelect	 = new GUI::C_FileDialogWindow(
-		   ".xml", "Select level",
-		   [&, levelSelectorGUID](const std::filesystem::path& level, GUI::C_GUIManager& guiMgr) {
-			   SaveLevel(level);
-			   guiMgr.DestroyWindow(levelSelectorGUID);
-		   },
-		   levelSelectorGUID, "./Levels");
+		".xml", "Select level",
+		[&, levelSelectorGUID](const std::filesystem::path& level, GUI::C_GUIManager& guiMgr) {
+			SaveLevel(level);
+			guiMgr.DestroyWindow(levelSelectorGUID);
+		},
+		levelSelectorGUID, "./Levels");
 	guiMGR.AddCustomWindow(levelPathSelect);
 	levelPathSelect->SetVisible();
 	return false;
@@ -685,9 +683,9 @@ void C_ExperimentWindow::AddMandatoryWorldParts()
 			player->AddComponent(playerCamera);
 		}
 		auto camIt = player->GetComponents(Entity::E_ComponentType::Camera).begin();
-		m_CamManager.ActivateCamera(std::static_pointer_cast<Renderer::I_CameraComponent>(*camIt));
+		m_CamManager.ActivateCamera(std::static_pointer_cast<Renderer::I_Camera>(*camIt));
 		++camIt;
-		m_CamManager.SetDebugCamera(std::static_pointer_cast<Renderer::I_CameraComponent>(*camIt));
+		m_CamManager.SetDebugCamera(std::static_pointer_cast<Renderer::I_Camera>(*camIt));
 	}
 
 	{
