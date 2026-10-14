@@ -22,17 +22,19 @@ glm::quat GetWorldRotation(const Entity::S_WorldTransformComponent& worldTransfo
 	return glm::conjugate(rotation);
 }
 
-glm::vec3 GetNormal(const Entity::S_WorldTransformComponent& worldTransform)
+} // namespace
+
+//=================================================================================
+glm::vec3 GetWorldNormal(const Entity::S_WorldTransformComponent& worldTransform)
 {
 	return GetWorldRotation(worldTransform) * glm::vec3(0.f, 0.f, -1.f);
 }
 
-glm::vec3 GetUpVector(const Entity::S_WorldTransformComponent& worldTransform)
+//=================================================================================
+glm::vec3 GetWorldUpVector(const Entity::S_WorldTransformComponent& worldTransform)
 {
 	return GetWorldRotation(worldTransform) * glm::vec3(0.f, 1.f, 0.f);
 }
-
-} // namespace
 
 //=================================================================================
 Physics::Primitives::C_Frustum GetShadingFrustum(const S_PointLight&, const Entity::S_WorldTransformComponent& worldTransform)
@@ -45,7 +47,7 @@ Physics::Primitives::C_Frustum GetShadingFrustum(const S_PointLight&, const Enti
 Physics::Primitives::C_Frustum GetShadingFrustum(const S_AreaLight&, const Entity::S_WorldTransformComponent& worldTransform)
 {
 	const glm::vec3 position(worldTransform.world[3]);
-	return Physics::Primitives::C_Frustum(position, GetUpVector(worldTransform), GetNormal(worldTransform), 0.1f, 50.f, 1.0f, 0.f);
+	return Physics::Primitives::C_Frustum(position, GetWorldUpVector(worldTransform), GetWorldNormal(worldTransform), 0.1f, 50.f, 1.0f, 0.f);
 }
 
 //=================================================================================
@@ -67,8 +69,8 @@ Physics::Primitives::S_AABB GetAABB(const S_AreaLight& light, const Entity::S_Wo
 {
 	Physics::Primitives::S_AABB aabb;
 
-	const auto dirY = GetUpVector(worldTransform);
-	const auto dirX = glm::cross(GetNormal(worldTransform), dirY);
+	const auto dirY = GetWorldUpVector(worldTransform);
+	const auto dirX = glm::cross(GetWorldNormal(worldTransform), dirY);
 
 	const auto width  = std::sqrt(light.width / 2.0f);
 	const auto height = std::sqrt(light.height / 2.0f);
@@ -90,8 +92,8 @@ Physics::Primitives::S_AABB GetAABB(const S_SunLight&, const Entity::S_WorldTran
 //=================================================================================
 void DebugDraw(const S_AreaLight& light, const Entity::S_WorldTransformComponent& worldTransform, I_DebugDraw& dd)
 {
-	const auto upVector = GetUpVector(worldTransform);
-	const auto normal	= GetNormal(worldTransform);
+	const auto upVector = GetWorldUpVector(worldTransform);
+	const auto normal	= GetWorldNormal(worldTransform);
 	const auto dirX		= glm::cross(normal, upVector);
 	const auto width	= std::sqrt(light.width / 2.0f);
 	const auto height	= std::sqrt(light.height / 2.0f);
