@@ -8,7 +8,6 @@
 #include <GLRenderer/Commands/GLViewport.h>
 #include <GLRenderer/Commands/GlClearColor.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
-#include <GLRenderer/Components/SkeletalMesh.h>
 #include <GLRenderer/Debug.h>
 #include <GLRenderer/GLRenderInterface3D.h>
 #include <GLRenderer/GLRendererInterface2D.h>
