@@ -6,6 +6,7 @@
 #include <Renderer/Materials/MaterialManager.h>
 #include <Renderer/Mesh/Geometry.h>
 #include <Renderer/Mesh/Scene.h>
+#include <Renderer/Renderer3D.h>
 #include <Renderer/Resources/ResourceManager.h>
 #include <Renderer/Systems/GeomSystem.h>
 
@@ -99,6 +100,21 @@ void Update(Entity::C_World& world, I_Renderer& renderer)
 
 		registry.emplace_or_replace<Entity::S_LocalBounds>(e, Entity::S_LocalBounds{mesh.bbox});
 	}
+}
+
+//=================================================================================
+void Render(const S_GeomComponent& geom, const S_GeomGPU& gpu, const Entity::S_WorldTransformComponent& worldTransform, Renderer3D& renderer3D)
+{
+	if (!gpu.pipeline.IsValid() || !geom.material)
+		return;
+
+	renderer3D.Draw(RenderCall3D{
+		.ModelMatrix	= worldTransform.world,
+		.NumPrimities	= gpu.numPrimitives,
+		.MaterialIndex	= geom.material->GetMaterialIndex(),
+		.Buffers		= {gpu.positions, gpu.normals, gpu.texCoords, gpu.tangent, gpu.bitangent},
+		.PipelineHandle = gpu.pipeline,
+	});
 }
 
 } // namespace GLEngine::Renderer::GeomSystem

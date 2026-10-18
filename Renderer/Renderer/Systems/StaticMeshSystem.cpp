@@ -7,6 +7,7 @@
 #include <Renderer/Materials/MeshMaterialExtractor.h>
 #include <Renderer/Materials/PBRMaterialData.h>
 #include <Renderer/Mesh/Scene.h>
+#include <Renderer/Renderer3D.h>
 #include <Renderer/Resources/ResourceManager.h>
 #include <Renderer/Systems/StaticMeshSystem.h>
 
@@ -164,6 +165,23 @@ void Update(Entity::C_World& world, I_Renderer& renderer)
 		{
 			UpdateMaterials(mesh);
 		}
+	}
+}
+
+//=================================================================================
+void Render(const S_StaticMesh& mesh, const S_StaticMeshGPU& gpu, const Entity::S_WorldTransformComponent& worldTransform, Renderer3D& renderer3D)
+{
+	auto& materialManager = C_MaterialManager::Instance();
+
+	for (const auto&& [submesh, material] : std::ranges::zip_view(gpu.submeshes, mesh.convertedMaterials))
+	{
+		renderer3D.Draw(RenderCall3D{
+			.ModelMatrix	= worldTransform.world,
+			.NumPrimities	= submesh.numPrimitives,
+			.MaterialIndex	= material ? material->GetMaterialIndex() : materialManager.GetErrorMaterial()->GetMaterialIndex(),
+			.Buffers		= {submesh.positions, submesh.normals, submesh.texCoords, submesh.tangent, submesh.bitangent},
+			.PipelineHandle = gpu.pipeline,
+		});
 	}
 }
 

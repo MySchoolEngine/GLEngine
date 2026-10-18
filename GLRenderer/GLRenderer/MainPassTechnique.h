@@ -4,7 +4,7 @@
 #include <Renderer/Resources/RenderResourceHandle.h>
 
 namespace GLEngine::Entity {
-class C_EntityManager;
+class C_World;
 }
 
 namespace GLEngine::Renderer {
@@ -27,7 +27,7 @@ class C_MaterialsBuffer;
 class C_MainPassTechnique {
 public:
 	explicit C_MainPassTechnique(Renderer::ResourceManager& resourceManager);
-	void Render(const Entity::C_EntityManager&		world,
+	void Render(Entity::C_World&					world,
 				std::shared_ptr<Renderer::I_Camera> camera,
 				unsigned int						width,
 				unsigned int						height,

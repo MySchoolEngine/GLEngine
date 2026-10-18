@@ -10,21 +10,21 @@
 #include <GLRenderer/Materials/MaterialBuffer.h>
 #include <GLRenderer/OGLRenderer.h>
 
-#include <Renderer/Components/StaticMeshHandles.h>
+#include <Renderer/Components/Lights/LightComponents.h>
+#include <Renderer/Components/Lights/LightFunctions.h>
+#include <Renderer/Components/Mesh/GeomComponents.h>
+#include <Renderer/Components/Mesh/StaticMeshComponents.h>
 #include <Renderer/DebugDraw.h>
 #include <Renderer/ICamera.h>
-#include <Renderer/IRenderableComponent.h>
 #include <Renderer/IRenderer.h>
-#include <Renderer/Lights/AreaLight.h>
-#include <Renderer/Lights/PointLight.h>
-#include <Renderer/Lights/SunLight.h>
 #include <Renderer/Materials/MaterialManager.h>
-#include <Renderer/Mesh/GeomComponent.h>
+#include <Renderer/Systems/GeomSystem.h>
+#include <Renderer/Systems/StaticMeshSystem.h>
 
 #include <Physics/Primitives/Frustum.h>
 
-#include <Entity/EntityManager.h>
-#include <Entity/IEntity.h>
+#include <Entity/Components/CoreComponents.h>
+#include <Entity/World.h>
 
 #include <Core/Application.h>
 
@@ -41,7 +41,7 @@ C_MainPassTechnique::C_MainPassTechnique(Renderer::ResourceManager& resourceMana
 }
 
 //=================================================================================
-void C_MainPassTechnique::Render(const Entity::C_EntityManager&		 world,
+void C_MainPassTechnique::Render(Entity::C_World&					 world,
 								 std::shared_ptr<Renderer::I_Camera> camera,
 								 unsigned int						 width,
 								 unsigned int						 height,
@@ -49,9 +49,9 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager&		 world,
 								 Renderer::I_RenderInterface3D&		 renderInterface3D)
 {
 	RenderDoc::C_DebugScope s("C_MainPassTechnique::Render");
-	const auto				camFrustum	   = camera->GetFrustum();
-	const auto				camBox		   = camFrustum.GetAABB().GetSphere();
-	const auto				entitiesInView = world.GetEntities(camFrustum);
+	const auto				camFrustum = camera->GetFrustum();
+	const auto				camBox	   = camFrustum.GetAABB().GetSphere();
+	auto&					registry   = world.Registry();
 
 	auto& renderer = (Core::C_Application::Get()).GetActiveRenderer();
 	renderer.SetCurrentPassType(Renderer::E_PassType::FinalPass);
@@ -71,77 +71,75 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager&		 world,
 	std::size_t pointLightIndex = 0;
 	std::size_t areaLightIndex	= 0;
 	bool		sunLightFound	= false;
-	for (auto& entity : entitiesInView)
+
+	for (auto [e, pointLight, worldTransform] : registry.view<Renderer::S_PointLight, Entity::S_WorldTransformComponent>().each())
 	{
-		for (const auto& lightIt : entity->GetComponents(Entity::E_ComponentType::Light))
-		{
-			const auto pointLight = std::dynamic_pointer_cast<Renderer::C_PointLight>(lightIt);
-			if (pointLight && pointLightIndex < m_LightsUBO->PointLightsLimit())
-			{
-				const auto pos = pointLight->GetPosition();
+		if (pointLightIndex >= m_LightsUBO->PointLightsLimit())
+			break;
 
-				S_PointLight pl;
-				pl.m_Position  = pos;
-				pl.m_Color	   = pointLight->GetColor();
-				pl.m_Intensity = pointLight->GetIntensity();
+		const auto pos = glm::vec3(worldTransform.world[3]);
 
-				m_LightsUBO->SetPointLight(pl, pointLightIndex);
-				++pointLightIndex;
+		S_PointLight pl;
+		pl.m_Position  = pos;
+		pl.m_Color	   = pointLight.color;
+		pl.m_Intensity = pointLight.intensity;
 
-				dd.DrawPoint(glm::vec4(pos, 1.0), pointLight->GetColor());
-			}
+		m_LightsUBO->SetPointLight(pl, pointLightIndex);
+		++pointLightIndex;
 
-			const auto areaLight = std::dynamic_pointer_cast<Renderer::C_AreaLight>(lightIt);
-			if (areaLight && areaLightIndex < m_LightsUBO->AreaLightsLimit())
-			{
-				// auto& tm = Textures::C_TextureUnitManger::Instance();
-				// tm.BindTextureToUnit(*areaLight->GetShadowMap(), 5 + static_cast<unsigned int>(areaLightIndex));
-				const auto frustum = areaLight->GetShadingFrustum();
+		dd.DrawPoint(glm::vec4(pos, 1.0), pointLight.color);
+	}
 
+	for (auto [e, areaLight, worldTransform] : registry.view<Renderer::S_AreaLight, Entity::S_WorldTransformComponent>().each())
+	{
+		if (areaLightIndex >= m_LightsUBO->AreaLightsLimit())
+			break;
 
-				const auto pos	  = frustum.GetPosition();
-				const auto up	  = frustum.GetUpVector();
-				const auto width  = areaLight->GetWidth() / 2.0f;
-				const auto height = areaLight->GetHeight() / 2.0f;
+		// auto& tm = Textures::C_TextureUnitManger::Instance();
+		// tm.BindTextureToUnit(*areaLight->GetShadowMap(), 5 + static_cast<unsigned int>(areaLightIndex));
+		const auto frustum = Renderer::GetShadingFrustum(areaLight, worldTransform);
 
-				const auto dirX = glm::cross(frustum.GetForward(), up);
+		const auto pos	  = frustum.GetPosition();
+		const auto up	  = frustum.GetUpVector();
+		const auto width  = areaLight.width / 2.0f;
+		const auto height = areaLight.height / 2.0f;
 
-				S_AreaLight light;
-				light.m_LightMat	  = glm::ortho(-width, width, -height, height, frustum.GetNear(), frustum.GetFar()) * glm::lookAt(pos, pos + frustum.GetForward(), up);
-				light.m_Pos			  = pos;
-				light.m_ShadowMap	  = static_cast<int>(areaLightIndex);
-				light.m_Width		  = width;
-				light.m_Height		  = height;
-				light.m_Normal		  = frustum.GetForward();
-				light.m_DirY		  = up;
-				light.m_DirX		  = dirX;
-				light.m_Color		  = areaLight->DiffuseColour();
-				light.m_SpecularColor = areaLight->SpecularColour();
-				light.m_Intensity	  = 1.f;
+		const auto dirX = glm::cross(frustum.GetForward(), up);
 
-				areaLight->DebugDraw(&dd);
-				m_LightsUBO->SetAreaLight(light, areaLightIndex);
-				++areaLightIndex;
-			}
+		S_AreaLight light;
+		light.m_LightMat	  = glm::ortho(-width, width, -height, height, frustum.GetNear(), frustum.GetFar()) * glm::lookAt(pos, pos + frustum.GetForward(), up);
+		light.m_Pos			  = pos;
+		light.m_ShadowMap	  = static_cast<int>(areaLightIndex);
+		light.m_Width		  = width;
+		light.m_Height		  = height;
+		light.m_Normal		  = frustum.GetForward();
+		light.m_DirY		  = up;
+		light.m_DirX		  = dirX;
+		light.m_Color		  = areaLight.diffuseColor;
+		light.m_SpecularColor = areaLight.specularColor;
+		light.m_Intensity	  = 1.f;
 
-			const auto sunLight = std::dynamic_pointer_cast<Renderer::C_SunLight>(lightIt);
-			if (sunLight)
-			{
-				auto& glRM			 = dynamic_cast<C_OGLRenderer&>(renderer).GetRMGR();
-				auto* sunShadowMapGL = glRM.GetTexture(m_SunShadowMap);
-				m_LightsUBO->GetSunLight().SetSunPosition(sunLight->GetSunDirection());
-				m_LightsUBO->GetSunLight().m_SunColor			 = sunLight->GetSunColor();
-				m_LightsUBO->GetSunLight().m_AsymmetricFactor	 = sunLight->AtmosphereAsymetricFactor();
-				m_LightsUBO->GetSunLight().m_SunDiscMultiplier	 = sunLight->SunDiscMultiplier();
-				m_LightsUBO->GetSunLight().m_LightViewProjection = m_SunViewProjection;
-				m_LightsUBO->GetSunLight().m_SunShadowMap		 = sunShadowMapGL->GetHandle();
-				m_LightsUBO->GetSunLight().m_SunlightPresent	 = 1;
-				sunLightFound									 = true;
+		Renderer::DebugDraw(areaLight, worldTransform, dd);
+		m_LightsUBO->SetAreaLight(light, areaLightIndex);
+		++areaLightIndex;
+	}
 
-				dd.DrawPoint(sunLight->GetSunDirection(), Colours::yellow);
-				dd.DrawLine({0.f, 0.f, 0.f}, sunLight->GetSunDirection(), Colours::yellow);
-			}
-		}
+	for (auto [e, sunLight, worldTransform] : registry.view<Renderer::S_SunLight, Entity::S_WorldTransformComponent>().each())
+	{
+		auto&			glRM		   = dynamic_cast<C_OGLRenderer&>(renderer).GetRMGR();
+		auto*			sunShadowMapGL = glRM.GetTexture(m_SunShadowMap);
+		const glm::vec3 sunDirection(sunLight.sunX, sunLight.sunY, sunLight.sunZ);
+		m_LightsUBO->GetSunLight().SetSunPosition(sunDirection);
+		m_LightsUBO->GetSunLight().m_SunColor			 = sunLight.sunColor;
+		m_LightsUBO->GetSunLight().m_AsymmetricFactor	 = sunLight.asymmetricFactor;
+		m_LightsUBO->GetSunLight().m_SunDiscMultiplier	 = sunLight.sunDiscMultiplier;
+		m_LightsUBO->GetSunLight().m_LightViewProjection = m_SunViewProjection;
+		m_LightsUBO->GetSunLight().m_SunShadowMap		 = sunShadowMapGL->GetHandle();
+		m_LightsUBO->GetSunLight().m_SunlightPresent	 = 1;
+		sunLightFound									 = true;
+
+		dd.DrawPoint(sunDirection, Colours::yellow);
+		dd.DrawLine({0.f, 0.f, 0.f}, sunDirection, Colours::yellow);
 	}
 
 	if (sunLightFound == false)
@@ -186,26 +184,19 @@ void C_MainPassTechnique::Render(const Entity::C_EntityManager&		 world,
 
 	{
 		RenderDoc::C_DebugScope s("Commit geometry");
-		for (auto& entity : entitiesInView)
+		for (auto [e, bounds, worldTransform] : registry.view<Entity::S_LocalBounds, Entity::S_WorldTransformComponent>().each())
 		{
-			auto renderableComponentsRange = entity->GetComponents(Entity::E_ComponentType::Graphical);
-			for (const auto& it : renderableComponentsRange)
-			{
-				const auto renderableComp = component_cast<Entity::E_ComponentType::Graphical>(it);
-				const auto compSphere	  = renderableComp->GetAABB().GetSphere();
-				if (compSphere.IsColliding(camBox))
-					component_cast<Entity::E_ComponentType::Graphical>(it)->PerformDraw();
+			const auto compSphere = bounds.aabb.GetSphere();
+			if (!compSphere.IsColliding(camBox))
+				continue;
 
-				const auto staticMeshHandles = std::dynamic_pointer_cast<Renderer::C_StaticMeshHandles>(it);
-				if (staticMeshHandles)
-				{
-					staticMeshHandles->Render(m_3DRenderer);
-				}
-				const auto geomMeshHandles = std::dynamic_pointer_cast<Renderer::C_GeomComponent>(it);
-				if (geomMeshHandles)
-				{
-					geomMeshHandles->Render(m_3DRenderer);
-				}
+			if (registry.all_of<Renderer::S_StaticMesh, Renderer::S_StaticMeshGPU>(e))
+			{
+				Renderer::StaticMeshSystem::Render(registry.get<Renderer::S_StaticMesh>(e), registry.get<Renderer::S_StaticMeshGPU>(e), worldTransform, m_3DRenderer);
+			}
+			else if (registry.all_of<Renderer::S_GeomComponent, Renderer::S_GeomGPU>(e))
+			{
+				Renderer::GeomSystem::Render(registry.get<Renderer::S_GeomComponent>(e), registry.get<Renderer::S_GeomGPU>(e), worldTransform, m_3DRenderer);
 			}
 		}
 	}
