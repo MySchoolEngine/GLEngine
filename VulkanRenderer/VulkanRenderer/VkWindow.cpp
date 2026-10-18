@@ -10,14 +10,19 @@
 #include <VulkanRenderer/VkWindowInfo.h>
 
 #include <Renderer/Cameras/OrbitalCamera.h>
-#include <Renderer/Components/StaticMeshHandles.h>
+#include <Renderer/Components/CameraComponent.h>
+#include <Renderer/Components/Mesh/StaticMeshComponents.h>
 #include <Renderer/Materials/MaterialResource.h>
 #include <Renderer/Mesh/Scene.h>
+#include <Renderer/Systems/StaticMeshSystem.h>
 #include <Renderer/Textures/Storage/TextureLinearStorage.h>
 #include <Renderer/Viewport.h>
 #include <Renderer/Windows/RayTrace.h>
 
-#include <Entity/EntityManager.h>
+#include <Entity/Components/CoreComponents.h>
+#include <Entity/Entity.h>
+#include <Entity/Systems/TransformSystem.h>
+#include <Entity/World.h>
 
 #include <Core/EventSystem/Event/AppEvent.h>
 #include <Core/EventSystem/EventDispatcher.h>
@@ -86,14 +91,8 @@ C_VkWindow::C_VkWindow(const Core::S_WindowInfo& wndInfo)
 	m_ImGUI.OnAttach(); // manual call for now.
 
 	// WORLD RELATED STUFF
-	m_World = std::make_shared<Entity::C_EntityManager>();
-
-	auto staticMeshHandle = m_World->GetOrCreateEntity("handles");
-	{
-		m_HandlesMesh = std::make_shared<Renderer::C_StaticMeshHandles>();
-		m_HandlesMesh->SetParent(staticMeshHandle);
-		staticMeshHandle->AddComponent(m_HandlesMesh);
-	}
+	Renderer::StaticMeshSystem::RegisterDestroyHook(m_World, GetRenderer().GetRM());
+	m_World.CreateEntity("handles").Add<Renderer::S_StaticMesh>();
 
 
 	const SwapChainSupportDetails swapChainSupport = GetVkDevice().QuerySwapChainSupport(m_Surface);
@@ -150,8 +149,13 @@ void C_VkWindow::Update()
 	bool show = true;
 	ImGui::ShowDemoWindow(&show);
 	Core::C_ResourceManager::Instance().UpdatePendingLoads();
-	m_HandlesMesh->Update();
-	m_HandlesMesh->Render(m_3DRenderer);
+
+	Entity::TransformSystem::Update(m_World);
+	Renderer::StaticMeshSystem::Update(m_World, GetRenderer());
+	for (auto [e, mesh, gpu, worldTransform] : m_World.Registry().view<Renderer::S_StaticMesh, Renderer::S_StaticMeshGPU, Entity::S_WorldTransformComponent>().each())
+	{
+		Renderer::StaticMeshSystem::Render(mesh, gpu, worldTransform, m_3DRenderer);
+	}
 
 	vkWaitForFences(m_renderer->GetDeviceVK(), 1, &m_InFlightFence[currentFrame], VK_TRUE, UINT64_MAX);
 
@@ -627,11 +631,11 @@ void C_VkWindow::CreateDescriptorSets()
 	auto*							   pipeline = m_renderer->GetRMVK().GetPipeline(m_PipelineHandle);
 	std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, pipeline->GetDescriptorSetLayout());
 	const VkDescriptorSetAllocateInfo  allocInfo{
-		 .sType				 = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-		 .descriptorPool	 = m_DescriptorPool,
-		 .descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT),
-		 .pSetLayouts		 = layouts.data(),
-	 };
+		.sType				= VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+		.descriptorPool		= m_DescriptorPool,
+		.descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT),
+		.pSetLayouts		= layouts.data(),
+	};
 
 	m_DescriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
 	if (const auto result = vkAllocateDescriptorSets(m_renderer->GetDeviceVK(), &allocInfo, m_DescriptorSets.data()) != VK_SUCCESS)
@@ -729,16 +733,14 @@ void C_VkWindow::CreateTextureSampler()
 //=================================================================================
 void C_VkWindow::SetupGUI()
 {
-	auto player = m_World->GetOrCreateEntity("Player");
-	if (player)
+	auto player = m_World.GetOrCreateEntity("Player");
 	{
-		auto  cameras = player->GetComponents(Entity::E_ComponentType::Camera);
-		float zoom	  = 5.0f;
-		m_PlayerCamera  = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
+		constexpr float zoom = 5.0f;
+		m_PlayerCamera		 = std::make_shared<Renderer::Cameras::C_OrbitalCamera>();
 		m_PlayerCamera->SetupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
 		m_PlayerCamera->SetupCameraView(zoom, glm::vec3(0.0f), 90, 0);
 		m_PlayerCamera->Update();
-		player->AddComponent(m_PlayerCamera);
+		player.Add<Renderer::S_CameraComponent>().camera = m_PlayerCamera;
 	}
 
 	auto& guiMGR = m_ImGUI.GetGUIMgr();
@@ -767,8 +769,7 @@ void C_VkWindow::SetupGUI()
 	{
 		m_ImageEditorGUID = NextGUID();
 
-		auto* imageEditorWindow = new Editor::C_ImageEditor(m_ImageEditorGUID, guiMGR,
-			[this](Core::I_Event& e) { OnEvent(e); });
+		auto* imageEditorWindow = new Editor::C_ImageEditor(m_ImageEditorGUID, guiMGR, [this](Core::I_Event& e) { OnEvent(e); });
 
 		guiMGR.AddCustomWindow(imageEditorWindow);
 		imageEditorWindow->SetVisible();
