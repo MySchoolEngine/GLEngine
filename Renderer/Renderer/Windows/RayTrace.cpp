@@ -18,7 +18,7 @@
 #include <GUI/GUIManager.h>
 #include <GUI/ReflectionGUI.h>
 
-#include <Entity/EntityManager.h>
+#include <Entity/World.h>
 
 #include <Core/Application.h>
 
@@ -225,11 +225,11 @@ C_RayTraceWindow::~C_RayTraceWindow()
 }
 
 //=================================================================================
-void C_RayTraceWindow::SetScene(const Entity::C_EntityManager& world)
+void C_RayTraceWindow::SetScene(Entity::C_World& world)
 {
 	Clear();
 	m_Scene.ClearScene();
-	RayTracing::BuildSceneFromEntityManager(world, m_Scene);
+	RayTracing::BuildSceneFromWorld(world, m_Scene);
 }
 
 //=================================================================================

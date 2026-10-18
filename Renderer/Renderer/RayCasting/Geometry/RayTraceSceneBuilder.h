@@ -20,10 +20,10 @@ namespace GLEngine::Renderer::RayTracing {
  *
  * @todo Materials from static meshes are only extracted from the original files, not from the scene
  *
- * Still used by RayTrace.cpp's C_RayTraceWindow::SetScene, whose only production caller
- * (GLRenderer's ExperimentWindow) still owns an old Entity::C_EntityManager world - kept
- * unchanged, alongside BuildSceneFromWorld below, until that call site migrates to C_World
- * (Phase 3/4 of the ECS migration).
+ * No longer has a production caller as of Phase 3 Task 3 (RayTrace.cpp's SetScene now takes
+ * Entity::C_World& and calls BuildSceneFromWorld below) - kept compiling until Phase 5 deletes the
+ * rest of the old ECS, per this migration's convention of not deleting still-compiling old code
+ * ahead of that phase.
  **/
 RENDERER_API_EXPORT void BuildSceneFromEntityManager(const Entity::C_EntityManager& entityManager, C_RayTraceScene& outScene);
 

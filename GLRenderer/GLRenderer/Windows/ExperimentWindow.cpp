@@ -28,11 +28,18 @@
 #include <GLRenderer/Windows/WaterRendering.h>
 
 #include <Renderer/Cameras/OrbitalCamera.h>
-#include <Renderer/Lights/SunLight.h>
+#include <Renderer/Components/CameraComponent.h>
+#include <Renderer/Components/Lights/LightComponents.h>
+#include <Renderer/Components/Mesh/GeomComponents.h>
+#include <Renderer/Components/Mesh/StaticMeshComponents.h>
 #include <Renderer/Materials/MaterialManager.h>
 #include <Renderer/Materials/MaterialResource.h>
 #include <Renderer/Mesh/Loading/MeshResource.h>
 #include <Renderer/RayCasting/Geometry/TrimeshModel.h>
+#include <Renderer/Systems/CameraSystem.h>
+#include <Renderer/Systems/GeomSystem.h>
+#include <Renderer/Systems/LightSystem.h>
+#include <Renderer/Systems/StaticMeshSystem.h>
 #include <Renderer/Textures/TextureResource.h>
 #include <Renderer/Textures/TextureView.h>
 #include <Renderer/Windows/RayTrace.h>
@@ -40,7 +47,6 @@
 #include <Editor/Editors/ImageEditor.h>
 #include <Editor/Editors/ResourceManager/ResourceManagerWindow.h>
 #include <Editor/EntityEditor/EntitiesWindow.h>
-#include <Editor/EntityEditor/EntityEditor.h>
 
 #include <GUI/ConsoleWindow.h>
 #include <GUI/FileDialogWindow.h>
@@ -48,8 +54,9 @@
 #include <Physics/Primitives/Intersection.h>
 #include <Physics/Primitives/Ray.h>
 
-#include <Entity/BasicEntity.h>
-#include <Entity/ComponentManager.h>
+#include <Entity/Components/CoreComponents.h>
+#include <Entity/Serialization/WorldSerializer.h>
+#include <Entity/Systems/TransformSystem.h>
 
 #include <Core/EventSystem/Event/AppEvent.h>
 #include <Core/EventSystem/Event/KeyboardEvents.h>
@@ -57,8 +64,6 @@
 #include <Core/Resources/ResourceManager.h>
 
 #include <Utils/EnumUtils.h>
-#include <Utils/Serialization/XMLDeserialize.h>
-#include <Utils/Serialization/XMLSerialize.h>
 #include <Utils/StdVectorUtils.h>
 
 #include <glm/gtx/transform.hpp>
@@ -70,7 +75,6 @@ namespace GLEngine::GLRenderer::Windows {
 //=================================================================================
 C_ExperimentWindow::C_ExperimentWindow(const Core::S_WindowInfo& wndInfo)
 	: C_GLFWoGLWindow(wndInfo)
-	, m_World(std::make_shared<Entity::C_EntityManager>())
 	, m_LayerStack(std::string("ExperimentalWindowLayerStack"))
 	, m_Samples("Frame Times")
 	, m_GammaSlider(2.2f, 1.f, 5.f, "Gamma")
@@ -96,7 +100,6 @@ C_ExperimentWindow::C_ExperimentWindow(const Core::S_WindowInfo& wndInfo)
 
 	m_VSync.SetName("Lock FPS");
 
-	Entity::C_ComponentManager::Instance();
 	auto& rm = Core::C_ResourceManager::Instance();
 	rm.RegisterResourceType(new Renderer::TextureLoader());
 	rm.RegisterResourceType(new Renderer::MeshLoader());
@@ -138,7 +141,13 @@ void C_ExperimentWindow::Update()
 		dynamic_cast<Renderer::C_RayTraceWindow*>(rayTraceWindow)->DebugDraw(C_DebugDraw::Instance());
 	}
 
-	m_World->OnUpdate();
+	m_World.OnUpdate();
+
+	Entity::TransformSystem::Update(m_World);
+	Renderer::LightSystem::Update(m_World);
+	Renderer::StaticMeshSystem::Update(m_World, *m_renderer);
+	Renderer::GeomSystem::Update(m_World, *m_renderer);
+	Renderer::CameraSystem::Update(m_World);
 
 	glfwMakeContextCurrent(m_Window);
 
@@ -151,7 +160,7 @@ void C_ExperimentWindow::Update()
 	if (m_SunShadow)
 	{
 		// shadow pass
-		m_SunShadow->Render(*m_World.get(), camera.get());
+		m_SunShadow->Render(m_World, camera.get(), *m_RenderInterfaceHandles.get());
 		m_MainPass->SetSunShadowMap(m_SunShadow->GetZBuffer());
 		m_MainPass->SetSunViewProjection(m_SunShadow->GetLastViewProjection());
 	}
@@ -164,7 +173,7 @@ void C_ExperimentWindow::Update()
 	// World render
 	// ======
 	m_HDRFBO->Bind<E_FramebufferTarget::Draw>();
-	m_MainPass->Render(*m_World.get(), camera, GetWidth(), GetHeight(), C_DebugDraw::Instance(), *m_RenderInterfaceHandles.get());
+	m_MainPass->Render(m_World, camera, GetWidth(), GetHeight(), C_DebugDraw::Instance(), *m_RenderInterfaceHandles.get());
 	{
 		RenderDoc::C_DebugScope s("Handles draw");
 		m_3DRenderer.Commit(*m_RenderInterfaceHandles.get());
@@ -270,7 +279,7 @@ void C_ExperimentWindow::OnEvent(Core::I_Event& event)
 	d.Dispatch<Core::C_WindowResizedEvent>(std::bind(&C_ExperimentWindow::OnWindowResized, this, std::placeholders::_1));
 
 	m_LayerStack.OnEvent(event);
-	m_World->OnEvent(event);
+	m_World.OnEvent(event);
 }
 
 //=================================================================================
@@ -279,6 +288,8 @@ void C_ExperimentWindow::OnAppInit()
 	m_renderer->Commit(); // to upload default textures before anything else
 	m_FrameTimer.reset();
 	m_MainPass = std::make_unique<C_MainPassTechnique>(m_renderer->GetRM());
+	Renderer::StaticMeshSystem::RegisterDestroyHook(m_World, m_renderer->GetRM());
+	Renderer::GeomSystem::RegisterDestroyHook(m_World, m_renderer->GetRM());
 	{
 		using namespace Commands;
 		m_renderer->AddCommand(std::make_unique<C_GLEnable>(C_GLEnable::E_GLEnableValues::DEPTH_TEST));
@@ -359,15 +370,6 @@ void C_ExperimentWindow::OnAppInit()
 	}
 
 
-	// {
-	// 	m_EntityEditorGUID = NextGUID();
-	//
-	// 	auto* entities = new Editor::EntityEditor(m_EntityEditorGUID, guiMGR);
-	//
-	// 	guiMGR.AddCustomWindow(entities);
-	// 	entities->SetVisible();
-	// }
-
 	// Entity window
 	{
 		m_EntitiesWindowGUID = NextGUID();
@@ -395,7 +397,7 @@ void C_ExperimentWindow::OnAppInit()
 	hdrSettings->AddComponent(m_ExposureSlider);
 
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("New level", [&]() {
-		m_World->ClearLevel();
+		m_World.ClearLevel();
 		AddMandatoryWorldParts();
 		return true;
 	}));
@@ -416,7 +418,7 @@ void C_ExperimentWindow::OnAppInit()
 		}
 
 		rayTraceWindow->SetVisible(true);
-		rayTraceWindow->SetScene(*m_World.get());
+		rayTraceWindow->SetScene(m_World);
 		return true;
 	}));
 
@@ -438,7 +440,7 @@ void C_ExperimentWindow::OnAppInit()
 	tMGR.GetIdentityTexture()->MakeHandleResident(); // Hack, I need to have active renderer because of lack of dependency injection
 
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Save Level", [&]() {
-		const auto filename = m_World->GetFilename();
+		const auto filename = m_World.GetFilename();
 		if (filename.empty())
 		{
 			SaveLevelAs();
@@ -583,16 +585,11 @@ void C_ExperimentWindow::SetupWorld(const std::filesystem::path& level)
 		return;
 	}
 
-	Core::LoadingQuery		 query;
-	Utils::C_XMLDeserializer d(Core::C_ResourceManager::Instance(), query, false);
-	auto					 newWorld = d.Deserialize<std::shared_ptr<Entity::C_EntityManager>>(doc);
-	if (newWorld.has_value() == false)
-	{
-		CORE_LOG(E_Level::Error, E_Context::Core, "XML {} is not valid level.", level);
-		return;
-	}
-	m_World.swap(newWorld.value());
-	m_World->SetFilename(level);
+	Core::LoadingQuery		  query;
+	Entity::C_WorldSerializer serializer;
+	m_World.ClearLevel();
+	serializer.Load(doc, m_World, Core::C_ResourceManager::Instance(), query, /*loadHandlesInstantly=*/false);
+	m_World.SetFilename(level);
 
 	const auto& guiMGR		= m_ImGUI->GetGUIMgr();
 	auto*		entitiesWnd = guiMGR.GetWindow(m_EntitiesWindowGUID);
@@ -606,10 +603,10 @@ void C_ExperimentWindow::SetupWorld(const std::filesystem::path& level)
 
 	// Inform entities about the level loaded event
 	Core::C_EntityEvent levelEvent(GUID::INVALID_GUID, Core::C_EntityEvent::EntityEvent::LevelLoaded);
-	m_World->OnEvent(levelEvent);
+	m_World.OnEvent(levelEvent);
 
 	// FBO for atmosphere
-	if (m_World->GetEntity("atmosphere"))
+	if (m_World.FindByName("atmosphere").IsValid())
 	{
 		using namespace Renderer;
 		ResourceManager& rrm			  = m_renderer->GetRM();
@@ -640,10 +637,10 @@ void C_ExperimentWindow::SetupWorld(const std::filesystem::path& level)
 //=================================================================================
 void C_ExperimentWindow::SaveLevel(const std::filesystem::path& filename)
 {
-	Utils::C_XMLSerializer s;
-	const auto			   str = s.Serialize(m_World);
-	m_World->SetFilename(filename);
-	str.save_file(filename.c_str());
+	Entity::C_WorldSerializer serializer;
+	const auto				  doc = serializer.Save(m_World);
+	m_World.SetFilename(filename);
+	doc.save_file(filename.c_str());
 }
 
 //=================================================================================
@@ -666,40 +663,34 @@ bool C_ExperimentWindow::SaveLevelAs()
 //=================================================================================
 void C_ExperimentWindow::AddMandatoryWorldParts()
 {
-	m_Player = m_World->GetOrCreateEntity("Player");
+	m_Player = m_World.GetOrCreateEntity("Player");
 
-	auto player = m_Player.lock();
-	if (player)
+	if (!m_Player.Has<Renderer::S_CameraComponent>())
 	{
-		const auto cameras = player->GetComponents(Entity::E_ComponentType::Camera);
-		for (auto i = cameras.size(); i < 2; ++i)
-		{
-			constexpr float zoom		 = 5.0f;
-			auto			playerCamera = std::make_shared<Renderer::Cameras::C_OrbitalCamera>(player);
-			playerCamera->SetupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
-			playerCamera->SetupCameraView(zoom, glm::vec3(0.0f), 90, 0);
-			playerCamera->Update();
-			player->AddComponent(playerCamera);
-		}
-		auto camIt = player->GetComponents(Entity::E_ComponentType::Camera).begin();
-		m_CamManager.ActivateCamera(std::static_pointer_cast<Renderer::I_Camera>(*camIt));
-		++camIt;
-		m_CamManager.SetDebugCamera(std::static_pointer_cast<Renderer::I_Camera>(*camIt));
+		constexpr float zoom		 = 5.0f;
+		auto			playerCamera = std::make_shared<Renderer::Cameras::C_OrbitalCamera>();
+		playerCamera->SetupCameraProjection(0.1f, 2 * zoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
+		playerCamera->SetupCameraView(zoom, glm::vec3(0.0f), 90, 0);
+		playerCamera->Update();
+		m_Player.Add<Renderer::S_CameraComponent>().camera = playerCamera;
 	}
+	m_CamManager.ActivateCamera(m_Player.Get<Renderer::S_CameraComponent>().camera);
+
+	// The debug camera has no natural owning entity (it's a free-floating observer, not part of
+	// the level) - matches it never really being "the player" in the old system either, it just
+	// reused the Player entity's second Camera-typed component slot.
+	constexpr float debugZoom	= 5.0f;
+	auto			debugCamera = std::make_shared<Renderer::Cameras::C_OrbitalCamera>();
+	debugCamera->SetupCameraProjection(0.1f, 2 * debugZoom * 100, static_cast<float>(GetWidth()) / static_cast<float>(GetHeight()), 90.0f);
+	debugCamera->SetupCameraView(debugZoom, glm::vec3(0.0f), 90, 0);
+	debugCamera->Update();
+	m_CamManager.SetDebugCamera(debugCamera);
 
 	{
 		// create default atmosphere
-		const auto entity = m_World->GetEntity("atmosphere");
-		if (entity)
+		if (auto entity = m_World.FindByName("atmosphere"); entity.IsValid() && entity.TryGet<Renderer::S_SunLight>())
 		{
-			if (const auto sunLight = entity->GetComponent<Entity::E_ComponentType::Light>())
-			{
-				m_SunShadow = std::make_shared<C_SunShadowMapTechnique>(std::static_pointer_cast<Renderer::C_SunLight>(sunLight));
-			}
-			else
-			{
-				m_SunShadow.reset();
-			}
+			m_SunShadow = std::make_shared<C_SunShadowMapTechnique>(entity.Handle());
 		}
 		else
 		{
@@ -726,15 +717,16 @@ void C_ExperimentWindow::MouseSelect()
 	const auto ray = camera->GetRay(clipPosition);
 
 	C_PersistentDebug::Instance().DrawLine(ray.origin, ray.origin + ray.direction, Colours::green);
-	const S_RayIntersection inter = m_World->Select(ray);
+	const S_RayIntersection inter = m_World.Select(ray);
 	if (inter.distance > 0)
 	{
-		auto entity = m_World->GetEntity(inter.entityId);
-		if (entity)
+		if (auto entity = m_World.FindByGuid(inter.entityId); entity.IsValid())
 		{
-			// todo: entities window needs to know that as well
-			Core::C_EntityEvent event(entity->GetID(), Core::C_EntityEvent::EntityEvent::Selected);
-			entity->OnEvent(event);
+			// Fired through the app-wide event bus (not entity.OnEvent - C_Entity is a value
+			// handle, not an event receiver), same path EntitiesWindow::SelectEntity uses, so
+			// EditorLayer::OnEntityEvent picks it up and spawns the gizmo.
+			Core::C_EntityEvent event(entity.GetGuid(), Core::C_EntityEvent::EntityEvent::Selected);
+			Core::C_Application::Get().OnEvent(event);
 		}
 	}
 }
@@ -749,7 +741,7 @@ bool C_ExperimentWindow::OnAppEvent(Core::C_AppEvent& event)
 	}
 	if (event.GetEventType() == Core::C_AppEvent::E_Type::WindowCloseRequest)
 	{
-		m_World->ClearLevel();
+		m_World.ClearLevel();
 		auto& guiMGR = m_ImGUI->GetGUIMgr();
 		guiMGR.DestroyWindow(m_EntitiesWindowGUID);
 		guiMGR.DestroyWindow(m_RayTraceGUID);

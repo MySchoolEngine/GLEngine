@@ -8,23 +8,21 @@
 
 #include <Renderer/DebugDraw.h>
 
-#include <Entity/BasicEntity.h>
-#include <Entity/EntityManager.h>
+#include <Entity/Components/CoreComponents.h>
+#include <Entity/Entity.h>
+#include <Entity/World.h>
 
 #include <Core/EventSystem/EventDispatcher.h>
 
 namespace GLEngine::Editor {
 
 //=================================================================================
-C_EditorLayer::C_EditorLayer(Renderer::I_DebugDraw&							 dd,
-							 const Core::I_Input&							 directInput,
-							 const Renderer::C_Viewport&					 viewport,
-							 const std::shared_ptr<Entity::C_EntityManager>& world)
+C_EditorLayer::C_EditorLayer(Renderer::I_DebugDraw& dd, const Core::I_Input& directInput, const Renderer::C_Viewport& viewport, Entity::C_World& world)
 	: Core::C_Layer("Editor Layer")
 	, m_dd(dd)
 	, m_Input(directInput)
 	, m_Viewport(viewport)
-	, m_World(world)
+	, m_World(&world)
 	, m_CurveEditing(nullptr)
 	, m_AnimationEditing(nullptr)
 {
@@ -79,16 +77,9 @@ void C_EditorLayer::OnUpdate()
 			mousePicking.SelectInteraction();
 		}
 		m_EntityGizmo->Draw(m_dd);
-		auto world = m_World.lock();
-		if (world)
+		if (auto entity = m_World->FindByGuid(m_SelectedEntity); entity.IsValid())
 		{
-			auto entity = world->GetEntity(m_SelectedEntity);
-			if (auto basicEntity = std::dynamic_pointer_cast<Entity::C_BasicEntity>(entity))
-			{
-				const auto transform = basicEntity->GetModelMatrix();
-
-				basicEntity->SetModelMatrix(glm::translate(transform, m_EntityGizmo->GetPositionDiff()));
-			}
+			entity.Get<Entity::S_TransformComponent>().translation += m_EntityGizmo->GetPositionDiff();
 		}
 	}
 }
@@ -118,9 +109,9 @@ void C_EditorLayer::SetViewport(const Renderer::C_Viewport& viewport)
 }
 
 //=================================================================================
-void C_EditorLayer::SetWorld(std::shared_ptr<Entity::C_EntityManager> world)
+void C_EditorLayer::SetWorld(Entity::C_World& world)
 {
-	m_World = world;
+	m_World = &world;
 	// entity removed anyway
 	m_SelectedEntity = GUID::INVALID_GUID;
 }
@@ -142,11 +133,9 @@ bool C_EditorLayer::OnEntityEvent(Core::C_EntityEvent& event)
 		m_SelectedEntity = event.GetEntity();
 		if (m_SelectedEntity.isValid())
 		{
-			auto world = m_World.lock();
-			if (world)
+			if (auto entity = m_World->FindByGuid(m_SelectedEntity); entity.IsValid())
 			{
-				auto entity = world->GetEntity(m_SelectedEntity);
-				m_EntityGizmo.emplace(entity->GetPosition(), m_Input);
+				m_EntityGizmo.emplace(glm::vec3(entity.Get<Entity::S_WorldTransformComponent>().world[3]), m_Input);
 			}
 		}
 		else

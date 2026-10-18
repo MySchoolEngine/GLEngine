@@ -13,7 +13,7 @@
 #include <GUI/ImageViewer.h>
 
 namespace GLEngine::Entity {
-class C_EntityManager;
+class C_World;
 }
 
 namespace GLEngine::Renderer {
@@ -26,7 +26,7 @@ public:
 	C_RayTraceWindow(GUID guid, const std::shared_ptr<I_Camera>& camera, GUI::C_GUIManager& guiMGR);
 	~C_RayTraceWindow() override;
 
-	void SetScene(const Entity::C_EntityManager& world);
+	void SetScene(Entity::C_World& world);
 
 	void DebugDraw(I_DebugDraw& dd) const;
 

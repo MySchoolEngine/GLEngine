@@ -18,6 +18,7 @@ public:
 
 	[[nodiscard]] bool		   IsValid() const;
 	[[nodiscard]] entt::entity Handle() const { return m_Handle; }
+	[[nodiscard]] C_World*	   World() const { return m_World; }
 
 	template <class T, class... Args> T&	  Add(Args&&... args);
 	template <class T> [[nodiscard]] T&		  Get();

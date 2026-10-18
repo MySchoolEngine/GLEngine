@@ -18,7 +18,8 @@
 #include <GUI/PlotLine.h>
 #include <GUI/Text.h>
 
-#include <Entity/EntityManager.h>
+#include <Entity/Entity.h>
+#include <Entity/World.h>
 
 #include <Core/EventSystem/LayerStack.h>
 
@@ -70,12 +71,12 @@ private:
 
 	void SampleTime(double newSample);
 
-	std::shared_ptr<Entity::C_EntityManager> m_World;
-	std::weak_ptr<Entity::I_Entity>			 m_Player;
-	Core::C_LayerStack						 m_LayerStack;
-	Temporar::C_CameraManager				 m_CamManager;
-	C_GLImGUILayer*							 m_ImGUI;
-	::Utils::HighResolutionTimer			 m_FrameTimer;
+	Entity::C_World				 m_World;
+	Entity::C_Entity			 m_Player;
+	Core::C_LayerStack			 m_LayerStack;
+	Temporar::C_CameraManager	 m_CamManager;
+	C_GLImGUILayer*				 m_ImGUI;
+	::Utils::HighResolutionTimer m_FrameTimer;
 
 	//===========================
 	// GUI

@@ -122,6 +122,14 @@ C_Entity C_World::FindByName(const std::string& name)
 }
 
 //=================================================================================
+C_Entity C_World::GetOrCreateEntity(const std::string& name)
+{
+	if (auto existing = FindByName(name); existing.IsValid())
+		return existing;
+	return CreateEntity(name);
+}
+
+//=================================================================================
 void C_World::OnUpdate()
 {
 	for (const auto entity : m_PendingDestroy)

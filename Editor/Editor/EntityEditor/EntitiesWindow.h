@@ -4,28 +4,28 @@
 #include <Editor/EntityEditor/EntityComponentsEditor.h>
 
 #include <GUI/GUIWindow.h>
-#include <GUI/Input/TypeSelector.h>
+
+#include <Core/GUID.h>
 
 namespace GLEngine::Entity {
-class C_EntityManager;
+class C_World;
 }
 
 namespace GLEngine::Editor {
 class EDITOR_API_EXPORT C_EntitiesWindow : public GUI::C_Window {
 public:
-	C_EntitiesWindow(GUID guid, std::shared_ptr<Entity::C_EntityManager>& world);
+	C_EntitiesWindow(GUID guid, Entity::C_World& world);
 	virtual ~C_EntitiesWindow();
 
-	void SetWorld(std::shared_ptr<Entity::C_EntityManager> world);
+	void SetWorld(Entity::C_World& world);
 
 	bool Draw(GUI::C_GUIManager& guiMgr) const override;
 
 private:
 	void SelectEntity(GUID id) const;
 
-	std::weak_ptr<Entity::C_EntityManager> m_World;
-	mutable GUID						   m_SelectedEntity;
-	GUI::Input::C_TypeSelector			   m_EntityTypeSelector;
-	mutable C_EntityCompoenentEditor	   m_ComponentEditor;
+	Entity::C_World*				 m_World;
+	mutable GUID					 m_SelectedEntity;
+	mutable C_EntityCompoenentEditor m_ComponentEditor;
 };
 } // namespace GLEngine::Editor

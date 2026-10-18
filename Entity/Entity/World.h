@@ -30,6 +30,7 @@ public:
 
 	[[nodiscard]] C_Entity FindByGuid(const GUID& id);
 	[[nodiscard]] C_Entity FindByName(const std::string& name);
+	C_Entity			   GetOrCreateEntity(const std::string& name);
 
 	[[nodiscard]] bool SetParent(entt::entity child, entt::entity newParent);
 	void			   Detach(entt::entity child);
