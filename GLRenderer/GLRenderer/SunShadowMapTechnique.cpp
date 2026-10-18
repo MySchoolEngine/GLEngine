@@ -14,16 +14,20 @@
 #include <GLRenderer/Commands/GLViewport.h>
 /// ~temporal
 
+#include <Renderer/Components/Lights/LightComponents.h>
+#include <Renderer/Components/Mesh/GeomComponents.h>
+#include <Renderer/Components/Mesh/StaticMeshComponents.h>
 #include <Renderer/ICamera.h>
 #include <Renderer/IDevice.h>
-#include <Renderer/IRenderableComponent.h>
 #include <Renderer/IRenderer.h>
-#include <Renderer/Lights/SunLight.h>
+#include <Renderer/Renderer3D.h>
+#include <Renderer/Systems/GeomSystem.h>
+#include <Renderer/Systems/StaticMeshSystem.h>
 
 #include <Physics/Primitives/Frustum.h>
 
-#include <Entity/EntityManager.h>
-#include <Entity/IComponent.h>
+#include <Entity/Components/CoreComponents.h>
+#include <Entity/World.h>
 
 #include <Core/Application.h>
 
@@ -35,8 +39,8 @@ const float			C_SunShadowMapTechnique::s_ZOffset		 = 0.001f;
 
 
 //=================================================================================
-C_SunShadowMapTechnique::C_SunShadowMapTechnique(const std::shared_ptr<Renderer::C_SunLight>& light)
-	: m_Sun(light)
+C_SunShadowMapTechnique::C_SunShadowMapTechnique(entt::entity sun)
+	: m_Sun(sun)
 {
 	m_FrameConstUBO = std::dynamic_pointer_cast<Buffers::UBO::C_FrameConstantsBuffer>(Buffers::C_UniformBuffersManager::Instance().GetBufferByName("frameConst"));
 
@@ -125,26 +129,29 @@ C_SunShadowMapTechnique::C_SunShadowMapTechnique(const std::shared_ptr<Renderer:
 C_SunShadowMapTechnique::~C_SunShadowMapTechnique() = default;
 
 //=================================================================================
-void C_SunShadowMapTechnique::Render(const Entity::C_EntityManager& world, Renderer::I_Camera* camera)
+void C_SunShadowMapTechnique::Render(Entity::C_World& world, Renderer::I_Camera* camera, Renderer::I_RenderInterface3D& renderInterface3D)
 {
+	auto& registry = world.Registry();
+
 	Physics::Primitives::S_AABB aabb;
-	for (const auto& entity : world.GetEntities())
+	for (auto [e, bounds, worldTransform] : registry.view<Entity::S_LocalBounds, Entity::S_WorldTransformComponent>().each())
 	{
-		aabb.Add(entity->GetAABB());
+		aabb.Add(bounds.aabb.getTransformedAABB(worldTransform.world));
 	}
 
 	C_DebugDraw::Instance().DrawAABB(aabb, glm::vec3(1, 1, 1));
 
-	const auto	   sun		= m_Sun.lock();
-	constexpr auto left		= glm::vec3(1, 0, 0);
-	auto		   sunToTop = glm::normalize(glm::cross(left, sun->GetSunDirection()));
+	const auto&		sun = registry.get<Renderer::S_SunLight>(m_Sun);
+	const glm::vec3 sunDirectionRaw(sun.sunX, sun.sunY, sun.sunZ);
+	constexpr auto	left	 = glm::vec3(1, 0, 0);
+	auto			sunToTop = glm::normalize(glm::cross(left, sunDirectionRaw));
 	if (sunToTop == glm::vec3(0.f))
 	{
 		sunToTop = glm::vec3(0, 1, 0);
 	}
 
 	constexpr auto sunCenter	= glm::vec3(0.f);
-	const auto	   sunDirection = glm::normalize(sun->GetSunDirection());
+	const auto	   sunDirection = glm::normalize(sunDirectionRaw);
 
 	const auto toLightSpace = glm::lookAt(sunDirection, sunCenter, sunToTop);
 
@@ -198,17 +205,23 @@ void C_SunShadowMapTechnique::Render(const Entity::C_EntityManager& world, Rende
 			"MainPass - upload UBOs"));
 	}
 	{
-		const auto				entitiesInView = world.GetEntities(lightFrustum);
+		// No frustum culling here, matching the old GetEntities(C_Frustum) overload this replaces
+		// (confirmed a no-op - it unconditionally returned every entity regardless of frustum).
 		RenderDoc::C_DebugScope s("Commit geometry");
-		for (auto& entity : entitiesInView)
+		for (auto [e, mesh, gpu, worldTransform] : registry.view<Renderer::S_StaticMesh, Renderer::S_StaticMeshGPU, Entity::S_WorldTransformComponent>().each())
 		{
-			auto renderableComponentsRange = entity->GetComponents(Entity::E_ComponentType::Graphical);
-			for (const auto& it : renderableComponentsRange)
-			{
-				const auto renderableComp = component_cast<Entity::E_ComponentType::Graphical>(it);
-				component_cast<Entity::E_ComponentType::Graphical>(it)->PerformDraw();
-			}
+			Renderer::StaticMeshSystem::Render(mesh, gpu, worldTransform, m_3DRenderer);
 		}
+		for (auto [e, geom, gpu, worldTransform] : registry.view<Renderer::S_GeomComponent, Renderer::S_GeomGPU, Entity::S_WorldTransformComponent>().each())
+		{
+			Renderer::GeomSystem::Render(geom, gpu, worldTransform, m_3DRenderer);
+		}
+	}
+
+	{
+		RenderDoc::C_DebugScope s("3D Renderer");
+		m_3DRenderer.Commit(renderInterface3D);
+		m_3DRenderer.Clear();
 	}
 
 	m_Framebuffer->Unbind<E_FramebufferTarget::Draw>();
