@@ -16,6 +16,10 @@
 
 namespace GLEngine::Editor {
 
+namespace {
+constexpr const char* kReparentDragDropId = "ENTITIES_WINDOW_REPARENT";
+}
+
 //=================================================================================
 C_EntitiesWindow::C_EntitiesWindow(GUID guid, Entity::C_World& world)
 	: GUI::C_Window(guid, "Entities")
@@ -28,6 +32,63 @@ C_EntitiesWindow::C_EntitiesWindow(GUID guid, Entity::C_World& world)
 C_EntitiesWindow::~C_EntitiesWindow() = default;
 
 //=================================================================================
+void C_EntitiesWindow::DrawEntityNode(entt::entity e) const
+{
+	auto&		registry = m_World->Registry();
+	const auto& identity = registry.get<Entity::S_IdentityComponent>(e);
+	const auto& rel		 = registry.get<Entity::S_RelationshipComponent>(e);
+
+	const bool selected	   = identity.id == m_SelectedEntity;
+	const bool hasChildren = rel.firstChild != entt::null;
+
+	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+	if (selected)
+		flags |= ImGuiTreeNodeFlags_Selected;
+	if (!hasChildren)
+		flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+
+	ImGui::PushID(static_cast<int>(entt::to_integral(e)));
+	const bool open = ImGui::TreeNodeEx(identity.name.c_str(), flags);
+
+	if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+		SelectEntity(identity.id);
+
+	if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+	{
+		ImGui::SetDragDropPayload(kReparentDragDropId, &e, sizeof(entt::entity));
+		ImGui::Text("Reparent '%s'", identity.name.c_str());
+		ImGui::EndDragDropSource();
+	}
+	if (ImGui::BeginDragDropTarget())
+	{
+		if (const auto* payload = ImGui::AcceptDragDropPayload(kReparentDragDropId))
+		{
+			m_PendingReparentChild	= *static_cast<const entt::entity*>(payload->Data);
+			m_PendingReparentTarget = e;
+		}
+		ImGui::EndDragDropTarget();
+	}
+
+	if (ImGui::BeginPopupContextItem(nullptr, ImGuiPopupFlags_MouseButtonRight))
+	{
+		SelectEntity(identity.id);
+		if (ImGui::MenuItem("Create child"))
+			m_PendingCreateChildOf = e;
+		if (ImGui::MenuItem("Remove"))
+			m_PendingRemove = e;
+		ImGui::EndPopup();
+	}
+
+	if (hasChildren && open)
+	{
+		for (auto child = rel.firstChild; child != entt::null; child = registry.get<Entity::S_RelationshipComponent>(child).next)
+			DrawEntityNode(child);
+		ImGui::TreePop();
+	}
+	ImGui::PopID();
+}
+
+//=================================================================================
 bool C_EntitiesWindow::Draw(GUI::C_GUIManager& guiMgr) const
 {
 	ImGui::Begin(m_Name.c_str(), &m_IsVisible);
@@ -37,28 +98,56 @@ bool C_EntitiesWindow::Draw(GUI::C_GUIManager& guiMgr) const
 	ImGui::BeginChild("SceneTree", ImVec2(0, std::max(50.f, SceneTreeHeight)), true);
 
 	auto& registry = m_World->Registry();
-	for (auto [e, identity] : registry.view<Entity::S_IdentityComponent>().each())
+
+	m_PendingReparentChild	= entt::null;
+	m_PendingReparentTarget = entt::null;
+	m_PendingRemove			= entt::null;
+	m_PendingCreateChildOf	= entt::null;
+
+	// Snapshot roots before recursing: SetParent/DestroyEntity are only ever applied below, after
+	// the walk completes, but drag-drop target entities are discovered mid-walk, so the walk
+	// itself must never mutate the firstChild/next lists it's reading.
+	std::vector<entt::entity> roots;
+	for (auto [e, rel] : registry.view<Entity::S_RelationshipComponent>().each())
 	{
-		const auto entityGUID = identity.id;
-		const bool selected	  = entityGUID == m_SelectedEntity;
-		if (ImGui::Selectable((identity.name + "##" + entityGUID.toString()).c_str(), selected))
+		if (rel.parent == entt::null)
+			roots.push_back(e);
+	}
+	for (const auto root : roots)
+		DrawEntityNode(root);
+
+	ImGui::EndChild();
+
+	if (m_PendingRemove != entt::null)
+	{
+		// DestroyEntity defers to the next OnUpdate(), so the entity is still "valid" this frame -
+		// compare the GUID directly rather than re-checking validity.
+		if (registry.get<Entity::S_IdentityComponent>(m_PendingRemove).id == m_SelectedEntity)
+			SelectEntity(GUID::INVALID_GUID);
+		m_World->DestroyEntity(m_PendingRemove);
+	}
+	if (m_PendingCreateChildOf != entt::null)
+	{
+		auto child	= m_World->CreateEntity("New Entity");
+		std::ignore = m_World->SetParent(child.Handle(), m_PendingCreateChildOf);
+		SelectEntity(child.GetGuid());
+	}
+	if (m_PendingReparentChild != entt::null && m_PendingReparentTarget != entt::null && m_PendingReparentChild != m_PendingReparentTarget)
+	{
+		if (!m_World->SetParent(m_PendingReparentChild, m_PendingReparentTarget))
 		{
-			if (m_SelectedEntity == entityGUID)
-				SelectEntity(GUID::INVALID_GUID);
-			else
-				SelectEntity(entityGUID);
-		}
-		if (ImGui::BeginPopupContextItem(nullptr, ImGuiPopupFlags_MouseButtonRight))
-		{
-			SelectEntity(entityGUID);
-			if (ImGui::MenuItem("Remove"))
-			{
-				m_World->DestroyEntity(e);
-			}
-			ImGui::EndPopup();
+			m_StatusMessage			= "Can't reparent: would create a cycle";
+			m_StatusMessageTimeLeft = 2.f;
 		}
 	}
-	ImGui::EndChild();
+
+	if (m_StatusMessageTimeLeft > 0.f)
+	{
+		m_StatusMessageTimeLeft -= ImGui::GetIO().DeltaTime;
+		ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 96, 96, 255));
+		ImGui::TextUnformatted(m_StatusMessage.c_str());
+		ImGui::PopStyleColor();
+	}
 
 	SceneTreeHeight += GUI::Splitter();
 
