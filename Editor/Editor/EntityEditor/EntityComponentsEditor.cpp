@@ -34,7 +34,19 @@ bool C_EntityCompoenentEditor::Draw() const
 			continue;
 
 		ImGui::PushID(i);
-		if (ImGui::CollapsingHeader(entry.name.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+		const bool open = ImGui::CollapsingHeader(entry.name.c_str(), ImGuiTreeNodeFlags_DefaultOpen);
+		if (entry.userAddable)
+		{
+			ImGui::SameLine();
+			if (ImGui::SmallButton("Remove"))
+			{
+				entry.remove(registry, m_Entity.Handle());
+				ImGui::PopID();
+				++i;
+				continue;
+			}
+		}
+		if (open)
 		{
 			auto		   variant = entry.get(registry, m_Entity.Handle());
 			rttr::instance inst(variant);
