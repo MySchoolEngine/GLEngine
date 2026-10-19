@@ -220,10 +220,10 @@ bool DrawEnumSelectOptional(rttr::instance obj, const rttr::property& prop)
 
 	auto value = prop.get_value(obj);
 
-	const bool isWrapped	= value.get_type().is_wrapper();
+	const bool isWrapped			= value.get_type().is_wrapper();
 	const auto optionalPropertyType = isWrapped ? value.get_type().get_wrapped_type() : value.get_type();
 	const auto propertyType			= optionalPropertyType.get_wrapped_type().get_raw_type();
-	const auto enumeration	= propertyType.get_enumeration();
+	const auto enumeration			= propertyType.get_enumeration();
 	switch (enumeration.get_underlying_type().get_sizeof())
 	{
 	case 1:
@@ -537,9 +537,13 @@ std::vector<rttr::property> DrawAllPropertyGUI(rttr::instance& obj)
 		return {};
 	}
 
-	rttr::type type = obj.get_type().get_raw_type();
+	// instance::get_type() on a wrapper (e.g. std::reference_wrapper<T>) returns the wrapper's
+	// own type, not T's - get_wrapped_instance() is required to see T's properties. rttr::instance
+	// has no public operator=, so unwrap into a fresh copy-constructed local instead of reassigning obj.
+	rttr::instance unwrapped = obj.get_type().get_raw_type().is_wrapper() ? obj.get_wrapped_instance() : obj;
+	rttr::type	   type		 = unwrapped.get_type().get_raw_type();
 	if (type.get_derived_classes().empty() == false)
-		type = obj.get_derived_type();
+		type = unwrapped.get_derived_type();
 
 	std::map<std::string, std::vector<rttr::property>> collapsableHeaders;
 	for (auto& prop : type.get_properties())
@@ -550,7 +554,7 @@ std::vector<rttr::property> DrawAllPropertyGUI(rttr::instance& obj)
 		}
 		else
 		{
-			if (DrawPropertyGUI(obj, prop))
+			if (DrawPropertyGUI(unwrapped, prop))
 			{
 				changedVals.emplace_back(prop);
 			}
@@ -562,7 +566,7 @@ std::vector<rttr::property> DrawAllPropertyGUI(rttr::instance& obj)
 		{
 			for (auto& prop : collapsableHeader.second)
 			{
-				if (DrawPropertyGUI(obj, prop))
+				if (DrawPropertyGUI(unwrapped, prop))
 				{
 					changedVals.emplace_back(prop);
 				}

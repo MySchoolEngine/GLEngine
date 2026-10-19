@@ -36,6 +36,8 @@ bool C_EntityCompoenentEditor::Draw() const
 			continue;
 
 		ImGui::PushID(i);
+		if (entry.userAddable)
+			ImGui::SetNextItemAllowOverlap();
 		const bool open = ImGui::CollapsingHeader(entry.name.c_str(), ImGuiTreeNodeFlags_DefaultOpen);
 		if (entry.userAddable)
 		{
