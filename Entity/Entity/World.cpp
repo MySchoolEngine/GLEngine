@@ -13,6 +13,25 @@
 
 namespace GLEngine::Entity {
 
+namespace {
+// S_TransformComponent is only ever marked dirty automatically on entity creation and in
+// SetParent/Detach (hierarchy changes) - nothing else in this file touches S_DirtyTransformTag.
+// Any OTHER code that edits a S_TransformComponent in place (e.g. the Editor's gizmo) must mark it
+// dirty itself; connecting this signal lets it do so by calling registry.patch<S_TransformComponent>()
+// instead of poking S_DirtyTransformTag directly, so the two don't drift apart if the tag's name
+// or semantics ever change.
+void OnTransformComponentPatched(entt::registry& registry, entt::entity e)
+{
+	registry.emplace_or_replace<S_DirtyTransformTag>(e);
+}
+} // namespace
+
+//=================================================================================
+C_World::C_World()
+{
+	m_Registry.on_update<S_TransformComponent>().connect<&OnTransformComponentPatched>();
+}
+
 //=================================================================================
 C_Entity C_World::CreateEntity(std::string name)
 {

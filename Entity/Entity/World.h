@@ -20,7 +20,7 @@ class C_Entity;
 
 class ENTITY_API_EXPORT C_World : public Core::I_EventReceiver {
 public:
-	C_World()			= default;
+	C_World();
 	~C_World() override = default;
 
 	C_Entity CreateEntity(std::string name);
