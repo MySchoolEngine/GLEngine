@@ -2,9 +2,11 @@
 
 #include <Editor/EntityEditor/EntityComponentsEditor.h>
 
+#include <GUI/Input/DrawTransform.h>
 #include <GUI/ReflectionGUI.h>
 
 #include <Entity/ComponentRegistry.h>
+#include <Entity/Components/CoreComponents.h>
 #include <Entity/World.h>
 
 #include <imgui.h>
@@ -48,9 +50,18 @@ bool C_EntityCompoenentEditor::Draw() const
 		}
 		if (open)
 		{
-			auto		   variant = entry.get(registry, m_Entity.Handle());
-			rttr::instance inst(variant);
-			GUI::DrawAllPropertyGUI(inst);
+			if (entry.name == "Transform")
+			{
+				auto& transform = registry.get<Entity::S_TransformComponent>(m_Entity.Handle());
+				if (GUI::Input::DrawTransform(transform))
+					registry.patch<Entity::S_TransformComponent>(m_Entity.Handle());
+			}
+			else
+			{
+				auto		   variant = entry.get(registry, m_Entity.Handle());
+				rttr::instance inst(variant);
+				GUI::DrawAllPropertyGUI(inst);
+			}
 		}
 		ImGui::PopID();
 		++i;
