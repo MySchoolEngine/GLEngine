@@ -91,4 +91,42 @@ TEST(World, ClearLevel_RemovesAllEntities)
 	EXPECT_FALSE(world.FindByName("B").IsValid());
 }
 
+TEST(World, GetOrCreateEntity_CreatesNewEntity)
+{
+	C_World world;
+
+	C_Entity entity = world.GetOrCreateEntity("TestEntity");
+
+	ASSERT_TRUE(entity.IsValid());
+	EXPECT_EQ(entity.GetName(), "TestEntity");
+}
+
+TEST(World, GetOrCreateEntity_ReturnsExistingEntity)
+{
+	C_World world;
+
+	C_Entity first	= world.GetOrCreateEntity("TestEntity");
+	C_Entity second = world.GetOrCreateEntity("TestEntity");
+
+	EXPECT_EQ(first.GetGuid(), second.GetGuid());
+}
+
+TEST(World, DestroyEntity_StaleHandle_DoesNotCrashAndLeavesOthersUnaffected)
+{
+	C_World			   world;
+	C_Entity		   existing	   = world.CreateEntity("Existing");
+	C_Entity		   toRemove	   = world.CreateEntity("ToRemove");
+	const entt::entity staleHandle = toRemove.Handle();
+
+	world.DestroyEntity(staleHandle);
+	world.OnUpdate();
+
+	// staleHandle now refers to an already-destroyed entity - destroying it again (e.g. a double
+	// DestroyEntity call, or a dangling reference held past the first OnUpdate()) must not crash.
+	EXPECT_NO_FATAL_FAILURE(world.DestroyEntity(staleHandle));
+	EXPECT_NO_FATAL_FAILURE(world.OnUpdate());
+
+	EXPECT_TRUE(world.FindByGuid(existing.GetGuid()).IsValid());
+}
+
 } // namespace GLEngine::Entity
