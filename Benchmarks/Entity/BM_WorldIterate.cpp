@@ -108,4 +108,45 @@ static void BM_WorldIterate_New_RealLevel_LightsAndMeshes(benchmark::State& stat
 }
 BENCHMARK(BM_WorldIterate_New_RealLevel_LightsAndMeshes);
 
+// ---------------------------------------------------------------------------
+// New: synthetic, many-light steady state (addendum to Task 5 - every real
+// converted level tops out at 4 point lights, too small to say anything about
+// cache locality; this isolates pure light-view iteration cost at the same
+// 1k/10k scale as the bare-registry benchmark above, so the two are
+// comparable).
+// ---------------------------------------------------------------------------
+
+static void BM_WorldIterate_New_SyntheticManyLights(benchmark::State& state)
+{
+	using namespace GLEngine;
+	const auto count = static_cast<int>(state.range(0));
+
+	Entity::C_World world;
+	for (int i = 0; i < count; ++i)
+	{
+		auto  entity		  = world.CreateEntity("Light");
+		auto& transform		  = entity.Get<Entity::S_TransformComponent>();
+		transform.translation = glm::vec3(static_cast<float>(i), 0.f, 0.f);
+		transform.rotation	  = RotationForIndex(i);
+		entity.Add<Renderer::S_PointLight>();
+	}
+	// Flush creation-time dirty tags once, outside the timed loop - every iteration below then
+	// measures the steady state (nothing moved, nothing re-dirtied), matching what a real running
+	// frame actually costs once the scene has settled.
+	Entity::TransformSystem::Update(world);
+
+	for (auto _ : state)
+	{
+		Entity::TransformSystem::Update(world);
+
+		float sum = 0.f;
+		for (auto [e, light, transform] : world.Registry().view<Renderer::S_PointLight, Entity::S_WorldTransformComponent>().each())
+		{
+			sum += transform.world[3][0] + light.color.x * light.intensity;
+		}
+		benchmark::DoNotOptimize(sum);
+	}
+}
+BENCHMARK(BM_WorldIterate_New_SyntheticManyLights)->Arg(1'000)->Arg(10'000);
+
 } // namespace
