@@ -1,12 +1,20 @@
 #include <BenchmarksStdafx.h>
 
+#include <Renderer/Components/Lights/LightComponents.h>
+
 #include <Entity/Components/CoreComponents.h>
 #include <Entity/Entity.h>
+#include <Entity/Serialization/WorldSerializer.h>
 #include <Entity/Systems/TransformSystem.h>
 #include <Entity/World.h>
 
+#include <Core/Resources/LoadingQuery.h>
+#include <Core/Resources/ResourceManager.h>
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
+
+#include <pugixml.hpp>
 
 #include <benchmark/benchmark.h>
 
@@ -59,5 +67,45 @@ BENCHMARK(BM_WorldIterate_New_CreateAndPropagate)->Arg(1'000)->Arg(10'000);
 // The old C_EntityManager/C_BasicEntity comparison benchmark (Phase 1 Task 9's baseline) was
 // removed in Phase 5 along with the old ECS it measured; its recorded numbers live in that task's
 // writeup, not here.
+
+// ---------------------------------------------------------------------------
+// New: real, fully-migrated level (Phase 5 Task 5's second data point)
+// ---------------------------------------------------------------------------
+
+// The plan named data/Levels/lightsTest.xml for this, but despite its name it has zero
+// PointLight entities (it's a single Sponza static mesh with 393 inline materials, the known
+// unconverted-C_Material deserialization issue) - using it would benchmark an empty light view.
+// DeadTwistedHollow.xml has the most point lights (4) of any converted level and no inline
+// materials, so it's used instead.
+static void BM_WorldIterate_New_RealLevel_LightsAndMeshes(benchmark::State& state)
+{
+	using namespace GLEngine;
+
+	pugi::xml_document doc;
+	const auto		   result = doc.load_file("data/Levels/DeadTwistedHollow.xml");
+	if (!result)
+	{
+		state.SkipWithError("Could not load data/Levels/DeadTwistedHollow.xml - run from the repo root.");
+		return;
+	}
+
+	Entity::C_World			  world;
+	Core::LoadingQuery		  query;
+	Entity::C_WorldSerializer serializer;
+	serializer.Load(doc, world, Core::C_ResourceManager::Instance(), query, /*loadHandlesInstantly=*/true);
+
+	for (auto _ : state)
+	{
+		Entity::TransformSystem::Update(world);
+
+		float sum = 0.f;
+		for (auto [e, light, transform] : world.Registry().view<Renderer::S_PointLight, Entity::S_WorldTransformComponent>().each())
+		{
+			sum += transform.world[3][0] + light.color.x * light.intensity;
+		}
+		benchmark::DoNotOptimize(sum);
+	}
+}
+BENCHMARK(BM_WorldIterate_New_RealLevel_LightsAndMeshes);
 
 } // namespace
