@@ -31,7 +31,6 @@ class C_WindowResizedEvent;
 } // namespace GLEngine::Core
 namespace GLEngine::Renderer {
 class I_Camera;
-class C_StaticMeshHandles;
 class C_RayTraceWindow;
 } // namespace GLEngine::Renderer
 

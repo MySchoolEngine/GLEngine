@@ -9,13 +9,4 @@
       <Item Name="[Components]">m_Components</Item>
     </Expand>
   </Type>
-  <Type Name="GLEngine::Entity::C_BasicEntity">
-    <DisplayString>{m_Name}:{m_ID}</DisplayString>
-    <Expand>
-      <Item Name="[Name]">m_Name</Item>
-      <Item Name="[ID]">m_ID</Item>
-      <Item Name="[ModelMatrix]">m_ModelMatrix</Item>
-      <Item Name="[Components]">m_Components</Item>
-    </Expand>
-  </Type>
 </AutoVisualizer>

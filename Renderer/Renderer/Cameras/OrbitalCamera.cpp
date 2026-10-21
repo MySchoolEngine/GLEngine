@@ -8,8 +8,6 @@
 #include <Physics/Primitives/Plane.h>
 #include <Physics/Primitives/Ray.h>
 
-#include <Entity/BasicEntity.h>
-
 #include <Core/Application.h>
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/Event/MouseEvents.h>
