@@ -2,7 +2,7 @@
 
 #include <GLRenderer/CameraManager.h>
 
-#include <Renderer/ICameraComponent.h>
+#include <Renderer/ICamera.h>
 
 #include <GUI/GUIManager.h>
 #include <GUI/GUIWindow.h>
@@ -23,19 +23,19 @@ C_CameraManager::C_CameraManager()
 C_CameraManager::~C_CameraManager() = default;
 
 //=================================================================================
-void C_CameraManager::ActivateCamera(const std::shared_ptr<Renderer::I_CameraComponent>& camera)
+void C_CameraManager::ActivateCamera(const std::shared_ptr<Renderer::I_Camera>& camera)
 {
 	m_ActiveCamera = camera;
 }
 
 //=================================================================================
-void C_CameraManager::SetDebugCamera(const std::shared_ptr<Renderer::I_CameraComponent>& camera)
+void C_CameraManager::SetDebugCamera(const std::shared_ptr<Renderer::I_Camera>& camera)
 {
 	m_DebugCamera = camera;
 }
 
 //=================================================================================
-std::shared_ptr<Renderer::I_CameraComponent> C_CameraManager::GetActiveCamera() const
+std::shared_ptr<Renderer::I_Camera> C_CameraManager::GetActiveCamera() const
 {
 	if (!m_UseDebugCam)
 	{

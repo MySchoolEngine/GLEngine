@@ -9,7 +9,7 @@ namespace GUI {
 class C_GUIManager;
 }
 namespace Renderer {
-class I_CameraComponent;
+class I_Camera;
 }
 
 namespace GLRenderer::Temporar {
@@ -19,10 +19,10 @@ public:
 	C_CameraManager();
 	~C_CameraManager() override; // = default
 
-	void										 ActivateCamera(const std::shared_ptr<Renderer::I_CameraComponent>& camera);
-	void										 SetDebugCamera(const std::shared_ptr<Renderer::I_CameraComponent>& camera);
-	std::shared_ptr<Renderer::I_CameraComponent> GetActiveCamera() const;
-	std::shared_ptr<Renderer::I_CameraComponent> GetMainCamera() const { return m_ActiveCamera; }
+	void								ActivateCamera(const std::shared_ptr<Renderer::I_Camera>& camera);
+	void								SetDebugCamera(const std::shared_ptr<Renderer::I_Camera>& camera);
+	std::shared_ptr<Renderer::I_Camera> GetActiveCamera() const;
+	std::shared_ptr<Renderer::I_Camera> GetMainCamera() const { return m_ActiveCamera; }
 
 
 	//==================================================
@@ -34,9 +34,9 @@ public:
 	void DestroyControls(GUI::C_GUIManager& guiMGR);
 
 protected:
-	std::shared_ptr<Renderer::I_CameraComponent> m_ActiveCamera;
-	std::shared_ptr<Renderer::I_CameraComponent> m_DebugCamera;
-	GUID										 m_Window;
+	std::shared_ptr<Renderer::I_Camera> m_ActiveCamera;
+	std::shared_ptr<Renderer::I_Camera> m_DebugCamera;
+	GUID								m_Window;
 
 private:
 	GUI::Input::C_CheckBoxValue m_UseDebugCam;

@@ -23,13 +23,12 @@ class C_ImageViewer;
 
 namespace GLEngine::Renderer {
 enum class E_TextureFormat : std::uint8_t;
-class I_CameraComponent;
+class I_Camera;
 } // namespace GLEngine::Renderer
 
 namespace GLEngine::Editor {
 
-enum class E_DebugTarget
-{
+enum class E_DebugTarget {
 	RowHeatMap,
 	Normals,
 	UV,
@@ -40,10 +39,10 @@ struct S_DebugBuffer {
 	std::optional<Renderer::C_TextureViewStorageCPU<float>> m_Storage;
 	std::unique_ptr<GUI::C_ImageViewer>						m_Viewer;
 
-	S_DebugBuffer()							= default;
-	S_DebugBuffer(const S_DebugBuffer&)		= delete;
-	S_DebugBuffer(S_DebugBuffer&&) noexcept = default;
-	S_DebugBuffer& operator=(const S_DebugBuffer&) = delete;
+	S_DebugBuffer()									   = default;
+	S_DebugBuffer(const S_DebugBuffer&)				   = delete;
+	S_DebugBuffer(S_DebugBuffer&&) noexcept			   = default;
+	S_DebugBuffer& operator=(const S_DebugBuffer&)	   = delete;
 	S_DebugBuffer& operator=(S_DebugBuffer&&) noexcept = default;
 };
 
@@ -77,10 +76,10 @@ struct S_RayPreviewState {
 	// Builds a C_RayRenderer::AdditionalTargets from whatever slots are registered.
 	[[nodiscard]] Renderer::C_RayRenderer::AdditionalTargets BuildAdditionalTargets();
 
-	S_RayPreviewState()								= default;
-	S_RayPreviewState(const S_RayPreviewState&)		= delete;
-	S_RayPreviewState(S_RayPreviewState&&) noexcept = delete;
-	S_RayPreviewState& operator=(const S_RayPreviewState&) = delete;
+	S_RayPreviewState()										   = default;
+	S_RayPreviewState(const S_RayPreviewState&)				   = delete;
+	S_RayPreviewState(S_RayPreviewState&&) noexcept			   = delete;
+	S_RayPreviewState& operator=(const S_RayPreviewState&)	   = delete;
 	S_RayPreviewState& operator=(S_RayPreviewState&&) noexcept = delete;
 };
 
@@ -104,8 +103,7 @@ EDITOR_API_EXPORT bool DrawRenderProgress(const S_RayPreviewState& state, int ta
 // Spawns a detached render thread that loops until targetSamples is reached or m_StopRequested.
 // Centralises thread-lifetime management for all preview windows.
 // No-op if a render is already running.
-EDITOR_API_EXPORT void
-StartPreviewRender(S_RayPreviewState& state, Renderer::I_CameraComponent& camera, int targetSamples, const Renderer::C_RayTraceScene& scene);
+EDITOR_API_EXPORT void StartPreviewRender(S_RayPreviewState& state, Renderer::I_Camera& camera, int targetSamples, const Renderer::C_RayTraceScene& scene);
 
 // Allocates GPU texture + CPU storage (and optionally a C_ImageViewer) for one debug slot.
 // Safe to call multiple times with different targets.

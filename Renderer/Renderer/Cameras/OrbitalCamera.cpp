@@ -8,8 +8,6 @@
 #include <Physics/Primitives/Plane.h>
 #include <Physics/Primitives/Ray.h>
 
-#include <Entity/BasicEntity.h>
-
 #include <Core/Application.h>
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/Event/MouseEvents.h>
@@ -82,7 +80,7 @@ namespace GLEngine::Renderer::Cameras {
 
 //=================================================================================
 C_OrbitalCamera::C_OrbitalCamera(const std::shared_ptr<Entity::I_Entity>& owner)
-	: I_CameraComponent(owner)
+	: I_Camera(owner)
 	, _zoom()
 	, _angleXRad(0.0f)
 	, _angleYRad(0.0f)
@@ -94,7 +92,7 @@ C_OrbitalCamera::C_OrbitalCamera(const std::shared_ptr<Entity::I_Entity>& owner)
 
 //=================================================================================
 C_OrbitalCamera::C_OrbitalCamera()
-	: I_CameraComponent(nullptr)
+	: I_Camera(nullptr)
 	, _fovy(glm::radians(90.f))
 	, _nearZ(0.1f)
 	, _farZ(100.f)
@@ -155,7 +153,7 @@ void C_OrbitalCamera::Update()
 	const float y = _zoom * sin(_angleYRad);
 	const float z = _zoom * cos(_angleYRad) * sin(_angleXRad);
 
-	const auto centerOfView = m_Transformation.GetTranslation();
+	const auto centerOfView = m_Transformation.GetTranslation() + m_OwnerWorldTranslation;
 
 	_pos  = glm::vec3(x, y, z) + centerOfView;
 	_view = centerOfView - _pos;
@@ -383,6 +381,12 @@ glm::mat4 C_OrbitalCamera::GetScreenToWorldMatrix() const
 void C_OrbitalCamera::AfterDeserialize()
 {
 	Update();
+}
+
+//=================================================================================
+void C_OrbitalCamera::SetOwnerWorldTransform(const glm::mat4& worldTransform)
+{
+	m_OwnerWorldTranslation = glm::vec3(worldTransform[3]);
 }
 
 } // namespace GLEngine::Renderer::Cameras

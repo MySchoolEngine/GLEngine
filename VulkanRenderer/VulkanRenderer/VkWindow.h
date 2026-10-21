@@ -8,6 +8,8 @@
 #include <Renderer/Renderer3D.h>
 #include <Renderer/Textures/TextureResource.h>
 
+#include <Entity/World.h>
+
 #include <Core/Application.h>
 #include <Core/IWindow.h>
 #include <Core/Resources/ResourceHandle.h>
@@ -22,8 +24,7 @@ class C_WindowResizedEvent;
 } // namespace GLEngine::Core
 
 namespace GLEngine::Renderer {
-class I_CameraComponent;
-class C_StaticMeshHandles;
+class I_Camera;
 class C_RayTraceWindow;
 namespace Cameras {
 class C_OrbitalCamera;
@@ -31,7 +32,7 @@ class C_OrbitalCamera;
 } // namespace GLEngine::Renderer
 
 namespace GLEngine::Entity {
-class C_EntityManager;
+class C_World;
 }
 
 namespace GLEngine::VkRenderer {
@@ -132,8 +133,7 @@ private:
 
 	// SCENE RELATED STUFF
 	Renderer::Renderer3D								m_3DRenderer;
-	std::shared_ptr<Entity::C_EntityManager>			m_World;
-	std::shared_ptr<Renderer::C_StaticMeshHandles>		m_HandlesMesh;
+	Entity::C_World										m_World;
 	std::shared_ptr<Renderer::Cameras::C_OrbitalCamera> m_PlayerCamera;
 
 	C_VkRenderInterface m_RenderInterface;

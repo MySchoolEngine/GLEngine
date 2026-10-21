@@ -1,23 +1,23 @@
 #pragma once
 
 #include <GUI/GUIPart.h>
-#include <GUI/Input/TypeSelector.h>
 
-namespace GLEngine::Entity {
-class I_Entity;
-}
+#include <Entity/Entity.h>
 
 namespace GLEngine::Editor {
+// Draws every registered component the selected entity has (generically, via
+// C_ComponentRegistry's drawGUI/get entries - no per-type code needed) and lets the user add any
+// userAddable-registered component by name. Replaces the old RTTR-derived-class type selector,
+// which doesn't apply here: the new component structs aren't related by inheritance.
 class C_EntityCompoenentEditor : public GUI::I_GUIPart {
 public:
-	C_EntityCompoenentEditor();
+	C_EntityCompoenentEditor() = default;
 
 	virtual bool Draw() const override;
 
-	void SetEntity(std::shared_ptr<Entity::I_Entity>);
+	void SetEntity(Entity::C_Entity entity);
 
 private:
-	std::weak_ptr<Entity::I_Entity> m_Entity;
-	GUI::Input::C_TypeSelector		m_ComponentTypeSelector;
+	Entity::C_Entity m_Entity;
 };
 } // namespace GLEngine::Editor

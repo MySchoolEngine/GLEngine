@@ -27,7 +27,15 @@ bool MeshResource::Load(const std::filesystem::path& filepath, LoadCtx& ctx)
 	Mesh::ModelLoader ml;
 	std::lock_guard	  lock(ml.GetMutex());
 	ml.Reset();
-	return ml.addModelFromFileToScene(m_Filepath, m_Scene, m_TextureNames);
+	if (!ml.addModelFromFileToScene(m_Filepath, m_Scene, m_TextureNames))
+		return false;
+
+	// ModelLoader only fills each Mesh::bbox; nothing aggregates them into the scene-level
+	// bbox that S_LocalBounds (and MainPassTechnique's frustum cull) relies on.
+	for (const auto& mesh : m_Scene->meshes)
+		m_Scene->bbox.Add(mesh.bbox.getTransformedAABB(mesh.modelMatrix));
+
+	return true;
 }
 
 //=================================================================================
@@ -40,6 +48,9 @@ bool MeshResource::Reload()
 	std::vector<std::filesystem::path> newTextures;
 	if (ml.addModelFromFileToScene(m_Filepath, newScene, newTextures))
 	{
+		for (const auto& mesh : newScene->meshes)
+			newScene->bbox.Add(mesh.bbox.getTransformedAABB(mesh.modelMatrix));
+
 		m_Scene		   = newScene;
 		m_TextureNames = newTextures;
 		return true;

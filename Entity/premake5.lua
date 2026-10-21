@@ -46,3 +46,7 @@ project "Entity"
 		{
 			"DULib",
 		}
+		includedirs
+		{
+			"%{wks.location}/%{IncludeDir.entt}",
+		}
