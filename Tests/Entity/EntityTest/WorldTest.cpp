@@ -16,6 +16,29 @@ TEST(World, CreateEntity_AssignsNameAndValidGuid)
 	EXPECT_TRUE(entity.GetGuid().isValid());
 }
 
+TEST(World, CreateEntity_CreatesDuplicatelyNamedEntity)
+{
+	C_World world;
+
+	C_Entity entity = world.CreateEntity("TestEntity");
+
+	ASSERT_TRUE(entity.IsValid());
+	EXPECT_EQ(entity.GetName(), "TestEntity");
+
+	C_Entity duplicate = world.CreateEntity("TestEntity");
+
+	ASSERT_FALSE(duplicate.IsValid()) << "Should not create duplicate entity";
+}
+
+TEST(World, CreateEntity_EmptyName)
+{
+	C_World world;
+
+	C_Entity entity = world.CreateEntity("");
+
+	ASSERT_FALSE(entity.IsValid());
+}
+
 TEST(World, FindByGuid_ReturnsCreatedEntity)
 {
 	C_World	 world;
@@ -36,6 +59,15 @@ TEST(World, FindByName_ReturnsCreatedEntity)
 
 	ASSERT_TRUE(found.IsValid());
 	EXPECT_EQ(found.GetName(), "Target");
+}
+
+TEST(World, FindByName_EmptyName)
+{
+	C_World world;
+
+	C_Entity found = world.FindByName("");
+
+	ASSERT_FALSE(found.IsValid());
 }
 
 TEST(World, FindByGuid_UnknownGuid_ReturnsInvalid)
@@ -99,20 +131,6 @@ TEST(World, GetOrCreateEntity_CreatesNewEntity)
 
 	ASSERT_TRUE(entity.IsValid());
 	EXPECT_EQ(entity.GetName(), "TestEntity");
-}
-
-TEST(World, GetOrCreateEntity_CreatesDuplicatelyNamedEntity)
-{
-	C_World world;
-
-	C_Entity entity = world.GetOrCreateEntity("TestEntity");
-
-	ASSERT_TRUE(entity.IsValid());
-	EXPECT_EQ(entity.GetName(), "TestEntity");
-
-	C_Entity duplicate = world.CreateEntity("TestEntity");
-
-	ASSERT_FALSE(duplicate.IsValid()) << "Should not create duplicate entity";
 }
 
 TEST(World, GetOrCreateEntity_ReturnsExistingEntity)

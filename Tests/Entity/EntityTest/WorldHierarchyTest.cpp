@@ -132,7 +132,7 @@ TEST(WorldHierarchy, DestroyEntity_ParentDeletesChildren)
 	EXPECT_FALSE(world.FindByName("C").IsValid());
 	EXPECT_FALSE(world.FindByName("Grandchild").IsValid());
 
-	// F-026 regression: a, b, c, and grandchild were marked dirty by SetParent above and never
+	// a, b, c, and grandchild were marked dirty by SetParent above and never
 	// re-propagated before the destroy. Before the fix, OnUpdate() destroyed only `parent` and
 	// left them pointing at a dead/recycled parent handle, so this call dereferenced it.
 	TransformSystem::Update(world);
