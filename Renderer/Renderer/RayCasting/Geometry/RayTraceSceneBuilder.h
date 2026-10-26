@@ -20,6 +20,6 @@ namespace GLEngine::Renderer::RayTracing {
  *
  * @todo Materials from static meshes are only extracted from the original files, not from the scene
  **/
-RENDERER_API_EXPORT void BuildSceneFromWorld(Entity::C_World& world, C_RayTraceScene& outScene);
+RENDERER_API_EXPORT void BuildSceneFromWorld(const Entity::C_World& world, C_RayTraceScene& outScene);
 
 } // namespace GLEngine::Renderer::RayTracing

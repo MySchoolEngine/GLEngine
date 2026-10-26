@@ -80,9 +80,9 @@ void ConvertAreaLight(const S_AreaLight& light, const Entity::S_WorldTransformCo
 } // namespace
 
 //=================================================================================
-void BuildSceneFromWorld(Entity::C_World& world, C_RayTraceScene& outScene)
+void BuildSceneFromWorld(const Entity::C_World& world, C_RayTraceScene& outScene)
 {
-	auto& registry = world.Registry();
+	const auto& registry = world.Registry();
 
 	for (auto [e, mesh, worldTransform] : registry.view<S_StaticMesh, Entity::S_WorldTransformComponent>().each())
 	{
