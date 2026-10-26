@@ -72,7 +72,7 @@ void C_MainPassTechnique::Render(Entity::C_World&					 world,
 	std::size_t areaLightIndex	= 0;
 	bool		sunLightFound	= false;
 
-	for (auto [e, pointLight, worldTransform] : registry.view<Renderer::S_PointLight, Entity::S_WorldTransformComponent>().each())
+	for (auto&& [e, pointLight, worldTransform] : registry.view<Renderer::S_PointLight, Entity::S_WorldTransformComponent>().each())
 	{
 		if (pointLightIndex >= m_LightsUBO->PointLightsLimit())
 			break;
@@ -90,7 +90,7 @@ void C_MainPassTechnique::Render(Entity::C_World&					 world,
 		dd.DrawPoint(glm::vec4(pos, 1.0), pointLight.color);
 	}
 
-	for (auto [e, areaLight, worldTransform] : registry.view<Renderer::S_AreaLight, Entity::S_WorldTransformComponent>().each())
+	for (auto&& [e, areaLight, worldTransform] : registry.view<Renderer::S_AreaLight, Entity::S_WorldTransformComponent>().each())
 	{
 		if (areaLightIndex >= m_LightsUBO->AreaLightsLimit())
 			break;
@@ -124,7 +124,7 @@ void C_MainPassTechnique::Render(Entity::C_World&					 world,
 		++areaLightIndex;
 	}
 
-	for (auto [e, sunLight, worldTransform] : registry.view<Renderer::S_SunLight, Entity::S_WorldTransformComponent>().each())
+	for (auto&& [e, sunLight, worldTransform] : registry.view<Renderer::S_SunLight, Entity::S_WorldTransformComponent>().each())
 	{
 		auto&			glRM		   = dynamic_cast<C_OGLRenderer&>(renderer).GetRMGR();
 		auto*			sunShadowMapGL = glRM.GetTexture(m_SunShadowMap);
@@ -184,7 +184,7 @@ void C_MainPassTechnique::Render(Entity::C_World&					 world,
 
 	{
 		RenderDoc::C_DebugScope s("Commit geometry");
-		for (auto [e, bounds, worldTransform] : registry.view<Entity::S_LocalBounds, Entity::S_WorldTransformComponent>().each())
+		for (auto&& [e, bounds, worldTransform] : registry.view<Entity::S_LocalBounds, Entity::S_WorldTransformComponent>().each())
 		{
 			const auto compSphere = bounds.aabb.GetSphere();
 			if (!compSphere.IsColliding(camBox))
