@@ -1,6 +1,7 @@
 #include <Core/CoreMacros.h>
 
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 GL_PUSH_WARNINGS()
 #pragma warning(disable : 4996)
@@ -30,6 +31,12 @@ bool SerializeString(const glm::vec3& vec, std::string& ret)
 bool SerializeString(const glm::vec4& vec, std::string& ret)
 {
 	ret = "(" + fmt::format("{}", vec.x) + "," + fmt::format("{}", vec.y) + "," + fmt::format("{}", vec.z) + "," + fmt::format("{}", vec.w) + ")";
+	return true;
+}
+
+bool SerializeString(const glm::quat& q, std::string& ret)
+{
+	ret = "(" + fmt::format("{}", q.x) + "," + fmt::format("{}", q.y) + "," + fmt::format("{}", q.z) + "," + fmt::format("{}", q.w) + ")";
 	return true;
 }
 
@@ -101,6 +108,26 @@ bool DeserializeString(const std::string& str, glm::vec4& vec)
 	return DeserializeFloatList(ss, vec);
 }
 
+bool DeserializeString(const std::string& str, glm::quat& q)
+{
+	if (str[0] != '(' || str[str.length() - 1] != ')')
+		return false;
+	std::stringstream ss(str.substr(1, str.length() - 2));
+	std::string		  value;
+	float			  values[4];
+	for (int i = 0; i < 4; ++i)
+	{
+		if (!std::getline(ss, value, ','))
+			return false;
+		values[i] = std::stof(value);
+	}
+	q.x = values[0];
+	q.y = values[1];
+	q.z = values[2];
+	q.w = values[3];
+	return true;
+}
+
 bool DeserializeString(const std::string& str, glm::mat4& mat)
 {
 	if (str[0] != '(' || str[str.length() - 1] != ')')
@@ -162,10 +189,17 @@ RTTR_REGISTRATION
 	rttr::registration::class_<glm::mat4>("mat4")
 	  	.constructor<>()(rttr::policy::ctor::as_object)
 		.property_readonly("length", &glm::mat4::length);
+	rttr::registration::class_<glm::quat>("quat")
+		.constructor<>()(rttr::policy::ctor::as_object)
+		.property("x", &glm::quat::x)
+		.property("y", &glm::quat::y)
+		.property("z", &glm::quat::z)
+		.property("w", &glm::quat::w);
 
 	REGISTER_SERIALIZATION(glm::vec2);
 	REGISTER_SERIALIZATION(glm::vec3);
 	REGISTER_SERIALIZATION(glm::vec4);
+	REGISTER_SERIALIZATION(glm::quat);
 	REGISTER_SERIALIZATION(glm::mat4);
 	REGISTER_SERIALIZATION(std::vector<glm::vec2>);
 	REGISTER_SERIALIZATION(std::vector<glm::vec3>);

@@ -33,6 +33,7 @@ project "GLRenderer"
 		"../%{IncludeDir.GLI}",
 		"../%{IncludeDir.fmt}",
 		"%{wks.location}/%{IncludeDir.slot_map}",
+		"%{wks.location}/%{IncludeDir.entt}",
 	}
 
 	links 

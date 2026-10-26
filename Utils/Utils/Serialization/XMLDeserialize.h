@@ -55,6 +55,8 @@ public:
 		return {};
 	}
 
+	void DeserializeInto(const pugi::xml_node& node, rttr::variant& var);
+
 private:
 	rttr::variant DeserializeDoc(const pugi::xml_document& document);
 	rttr::variant DeserializeNode(const pugi::xml_node& node, rttr::variant& var);

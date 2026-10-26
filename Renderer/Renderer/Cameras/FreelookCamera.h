@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Renderer/ICameraComponent.h>
+#include <Renderer/ICamera.h>
 
 #include <Utils/HighResolutionTimer.h>
 
@@ -12,8 +12,7 @@
 // When "W" is released (user put off the finger from "W" key), call handleInputMessage(CAMERA_FORWARD_UP)
 // The UP and DOWN indicates whether the button was pressed or released
 // Camera update method will handle the message
-enum class CameraMessage : std::uint8_t
-{
+enum class CameraMessage : std::uint8_t {
 	CAMERA_FORWARD_UP = 0,
 	CAMERA_FORWARD_DOWN,
 	CAMERA_BACKWARD_UP,
@@ -46,13 +45,13 @@ struct S_AABB;
 } // namespace Physics::Primitives
 
 namespace Renderer::Cameras {
-class RENDERER_API_EXPORT FreelookCamera : public I_CameraComponent {
+class RENDERER_API_EXPORT FreelookCamera : public I_Camera {
 public:
 	explicit FreelookCamera(const std::shared_ptr<Entity::I_Entity>& owner);
 	~FreelookCamera() override; // = default;
 
 	//=============================================================
-	// Renderer::I_CameraComponent
+	// Renderer::I_Camera
 	//=============================================================
 	[[nodiscard]] glm::mat4 GetScreenToWorldMatrix() const override;
 	[[nodiscard]] glm::mat4 GetViewProjectionMatrix() const override;
@@ -107,8 +106,7 @@ private:
 	void  CreateProjection();
 	float _cameraMovementSpeed;
 
-	enum class CameraDirectionFlags : std::uint8_t
-	{
+	enum class CameraDirectionFlags : std::uint8_t {
 		CAMERA_FORWARD_BIT	= BIT(0),
 		CAMERA_BACKWARD_BIT = BIT(1),
 		CAMERA_LEFT_BIT		= BIT(2),

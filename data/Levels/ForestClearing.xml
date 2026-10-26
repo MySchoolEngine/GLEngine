@@ -1,542 +1,400 @@
 <?xml version="1.0"?>
-<EntityManager>
-	<Entities>
-		<C_BasicEntity name="Player">
-			<ID ID="164a5ef1-001e-491e-858f-8799048b5131" />
-			<components>
-				<item>
-					<key value="Camera" />
-					<value>
-						<C_OrbitalCamera nearZ="0.100000001" farZ="1000" aspectZ="1.87134504" YAngle="0.349065989" XAngle="-1.30026984" Zoom="24.2000008">
-							<Transformation Translation="(-2.0168211,0.0,7.1309004)" />
-						</C_OrbitalCamera>
-					</value>
-				</item>
-				<item>
-					<key value="Camera" />
-					<value>
-						<C_OrbitalCamera nearZ="0.100000001" farZ="1000" aspectZ="1.87134504" YAngle="0" XAngle="1.57079637" Zoom="22" />
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="ground">
-			<ID ID="f3b7290c-5cf4-492e-9ca1-be9e5460affa" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(0.0,-1.5,0.0)" Scale="(4.5,1.0,4.5)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\plane.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\plane-None.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="CommonTree_1">
-			<ID ID="f507e903-e644-4b51-8515-b899caf2434a" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(-7.0,-1.4838175,-4.0)" RotationDeg="(0.0,15.000001,0.0)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_1.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_1-Bark_NormalTree.glmat" />
-								</MaterialResourceHandle>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_1-Leaves_NormalTree.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="CommonTree_2">
-			<ID ID="b471dfdd-2d06-4146-a3ba-454edc39f67e" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(6.0,-1.4838175,-6.0)" Scale="(1.1,1.1,1.1)" RotationDeg="(0.0,200.0,0.0)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_2.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_2-Bark_NormalTree.glmat" />
-								</MaterialResourceHandle>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_2-Leaves_NormalTree.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="CommonTree_3">
-			<ID ID="fef5bdfd-4805-48f4-92a7-5db7771fe94f" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(-9.0,-1.4838175,5.0)" Scale="(0.9,0.9,0.9)" RotationDeg="(0.0,80.0,0.0)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_3.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_3-Bark_NormalTree.glmat" />
-								</MaterialResourceHandle>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_3-Leaves_NormalTree.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="Pine_1">
-			<ID ID="ade5938a-045a-482e-94bd-5c28241f0ad0" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(9.0,-1.4838175,3.0)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Pine_1.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Pine_1-Bark_NormalTree.glmat" />
-								</MaterialResourceHandle>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Pine_1-Leaves_Pine.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="Pine_3">
-			<ID ID="c45e3fb1-aed7-4205-aa8f-2a7a4836b67c" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(11.0,-1.4838175,-2.0)" Scale="(1.2,1.2,1.2)" RotationDeg="(0.0,40.0,0.0)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Pine_3.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Pine_3-Bark_NormalTree.glmat" />
-								</MaterialResourceHandle>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Pine_3-Leaves_Pine.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="DeadTree_1">
-			<ID ID="9274e727-3c6f-4c33-9c62-65605165bd10" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(-5.0,-1.4838175,8.0)" RotationDeg="(0.0,300.0,0.0)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\DeadTree_1.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\DeadTree_1-Bark_DeadTree.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="TwistedTree_1">
-			<ID ID="cfb9a2e9-d40e-4c8d-afac-b6e65724afbd" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(4.0,-1.4838175,8.0)" RotationDeg="(0.0,120.00001,0.0)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\TwistedTree_1.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\TwistedTree_1-Bark_TwistedTree.glmat" />
-								</MaterialResourceHandle>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\TwistedTree_1-Leaves_TwistedTree.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="Bush_Common">
-			<ID ID="5282031b-7698-47f3-8b81-353948b38595" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(-2.0,-1.5,-3.0)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Bush_Common.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Bush_Common-Leaves_TwistedTree.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="Bush_Common_Flowers">
-			<ID ID="0d536050-5ca8-4222-b564-10f1557ca9bf" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(2.0,-1.5,-4.0)" RotationDeg="(0.0,45.0,0.0)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Bush_Common_Flowers.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Bush_Common_Flowers-Leaves_NormalTree.glmat" />
-								</MaterialResourceHandle>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Bush_Common_Flowers-Flowers.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="Fern_1">
-			<ID ID="15d6494b-62eb-4e59-99d5-d23128d757e5" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(-1.0,-1.5,2.0)" Scale="(1.5,1.5,1.5)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Fern_1.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Fern_1-Leaves.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="Clover_1">
-			<ID ID="4dbc554c-11ac-4989-9938-6a0b642b7079" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(1.0,-1.5,3.0)" Scale="(1.2,1.2,1.2)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Clover_1.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Clover_1-Leaves.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="Clover_2">
-			<ID ID="49cca7a9-b1a5-49d7-88a7-40072b240f63" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(3.0,-1.5,1.0)" Scale="(1.2,1.2,1.2)" RotationDeg="(0.0,20.0,0.0)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Clover_2.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Clover_2-Leaves.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="Mushroom_Common">
-			<ID ID="920b84d6-ab08-4d55-8490-5174e38e855e" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(-3.0,-1.5,3.0)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Mushroom_Common.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Mushroom_Common-Mushrooms.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="Mushroom_Laetiporus">
-			<ID ID="c7fd8bd1-2b02-45ae-a9ef-848540cd18c0" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(-5.0,-1.5,7.5)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Mushroom_Laetiporus.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Mushroom_Laetiporus-Mushrooms.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="Flower_3_Group">
-			<ID ID="025b0b41-3bd6-44f7-b7cf-ab50235de88c" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(0.0,-1.5,-6.0)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Flower_3_Group.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Flower_3_Group-Leaves.glmat" />
-								</MaterialResourceHandle>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Flower_3_Group-Flowers.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="Flower_4_Single">
-			<ID ID="42edd224-d6fe-40ae-b4f5-5d6eccc20ec8" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(2.0,-1.5,-7.0)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Flower_4_Single.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Flower_4_Single-Leaves.glmat" />
-								</MaterialResourceHandle>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Flower_4_Single-Flowers.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="Grass_Common_Tall">
-			<ID ID="c556fb4d-b9c4-462d-b9c1-9e73959ca330" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(0.0,-1.5,0.0)" Scale="(2.0,2.0,2.0)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Grass_Common_Tall.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Grass_Common_Tall-Grass.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="Grass_Wispy_Short">
-			<ID ID="6ccff55b-fd0a-45cb-ae38-0ab35dc3e666" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(-2.0,-1.5,-1.0)" Scale="(1.5,1.5,1.5)" RotationDeg="(0.0,30.000002,0.0)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Grass_Wispy_Short.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Grass_Wispy_Short-Grass.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="Pebble_Round_1">
-			<ID ID="8ab2d15e-8a19-44b9-8668-ffd523463522" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(1.0,-1.5,-1.0)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Pebble_Round_1.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Pebble_Round_1-PathRocks.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="Pebble_Square_3">
-			<ID ID="13f8d73c-aa8d-4b81-a457-95c01dd0a4fd" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(-1.0,-1.5,1.0)" RotationDeg="(0.0,10.0,0.0)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Pebble_Square_3.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Pebble_Square_3-PathRocks.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="Rock_Medium_1">
-			<ID ID="2f8da3c9-7479-44c9-a4df-7ea0a3c3eee0" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(8.0,-1.5,-8.0)" Scale="(1.3,1.3,1.3)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Rock_Medium_1.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Rock_Medium_1-Rocks.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="lights" ModelMatrix="((1.0,0.0,0.0,0.0)(0.0,1.0,0.0,0.0)(0.0,0.0,1.0,0.0)(0.0,7.5977407,0.0,1.0))">
-			<ID ID="d1e6c6fd-eb51-449b-8984-5b8a0eb3a0b8" />
-			<components>
-				<item>
-					<key value="Light" />
-					<value>
-						<C_PointLight Intensity="26.8430004" Color="(1.0,1.0,1.0)">
-							<Transformation Translation="(5.0,0.0,0.0)" />
-						</C_PointLight>
-					</value>
-				</item>
-				<item>
-					<key value="Light" />
-					<value>
-						<C_PointLight Intensity="1" Color="(1.0,1.0,1.0)">
-							<Transformation Translation="(0.0,5.0,0.0)" />
-						</C_PointLight>
-					</value>
-				</item>
-				<item>
-					<key value="Light" />
-					<value>
-						<C_AreaLight Width="1" Height="1" DiffuseColour="(1.0,1.0,1.0)" SpecColour="(1.0,1.0,1.0)">
-							<Transformation Translation="(0.0,1.0,0.0)" RotationDeg="(91.67325,-0.0,0.0)" />
-						</C_AreaLight>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-	</Entities>
-</EntityManager>
+<World version="2">
+	<Entity guid="164a5ef1-001e-491e-858f-8799048b5131" name="Player">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="ee43d4ff-cb86-4cae-855c-6489474caae3" name="ground_StaticMesh" parent="f3b7290c-5cf4-492e-9ca1-be9e5460affa">
+		<Transform Translation="(0.0,-1.5,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(4.5,1.0,4.5)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\plane.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\plane-None.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="f3b7290c-5cf4-492e-9ca1-be9e5460affa" name="ground">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="9fec1ee1-1d28-4abb-ad49-7c39e9aa1ad3" name="CommonTree_1_StaticMesh" parent="f507e903-e644-4b51-8515-b899caf2434a">
+		<Transform Translation="(-7.0,-1.4838175,-4.0)" Rotation="(0.0,0.13052620087204017,0.0,0.9914448602347544)" Scale="(1.0,1.0,1.0)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_1.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_1-Bark_NormalTree.glmat" />
+				</MaterialResourceHandle>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_1-Leaves_NormalTree.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="f507e903-e644-4b51-8515-b899caf2434a" name="CommonTree_1">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="5fbe088e-5fd5-4b9f-b97b-f18a5f7bc27b" name="CommonTree_2_StaticMesh" parent="b471dfdd-2d06-4146-a3ba-454edc39f67e">
+		<Transform Translation="(6.0,-1.4838175,-6.0)" Rotation="(0.0,0.984807753012208,0.0,-0.1736481776669303)" Scale="(1.1,1.1,1.1)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_2.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_2-Bark_NormalTree.glmat" />
+				</MaterialResourceHandle>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_2-Leaves_NormalTree.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="b471dfdd-2d06-4146-a3ba-454edc39f67e" name="CommonTree_2">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="7710569d-18bb-45c8-b7df-bed22fabcb05" name="CommonTree_3_StaticMesh" parent="fef5bdfd-4805-48f4-92a7-5db7771fe94f">
+		<Transform Translation="(-9.0,-1.4838175,5.0)" Rotation="(0.0,0.6427876096865393,0.0,0.766044443118978)" Scale="(0.9,0.9,0.9)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_3.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_3-Bark_NormalTree.glmat" />
+				</MaterialResourceHandle>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_3-Leaves_NormalTree.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="fef5bdfd-4805-48f4-92a7-5db7771fe94f" name="CommonTree_3">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="882f481b-6cb5-40fb-a760-ed9b479191e8" name="Pine_1_StaticMesh" parent="ade5938a-045a-482e-94bd-5c28241f0ad0">
+		<Transform Translation="(9.0,-1.4838175,3.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Pine_1.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Pine_1-Bark_NormalTree.glmat" />
+				</MaterialResourceHandle>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Pine_1-Leaves_Pine.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="ade5938a-045a-482e-94bd-5c28241f0ad0" name="Pine_1">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="b85273b5-2127-4bc8-b7c8-f8c7b7b3cc5e" name="Pine_3_StaticMesh" parent="c45e3fb1-aed7-4205-aa8f-2a7a4836b67c">
+		<Transform Translation="(11.0,-1.4838175,-2.0)" Rotation="(0.0,0.3420201433256687,0.0,0.9396926207859084)" Scale="(1.2,1.2,1.2)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Pine_3.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Pine_3-Bark_NormalTree.glmat" />
+				</MaterialResourceHandle>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Pine_3-Leaves_Pine.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="c45e3fb1-aed7-4205-aa8f-2a7a4836b67c" name="Pine_3">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="f8fe6442-8699-4534-b8a4-ed9279315c79" name="DeadTree_1_StaticMesh" parent="9274e727-3c6f-4c33-9c62-65605165bd10">
+		<Transform Translation="(-5.0,-1.4838175,8.0)" Rotation="(0.0,0.49999999999999994,0.0,-0.8660254037844387)" Scale="(1.0,1.0,1.0)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\DeadTree_1.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\DeadTree_1-Bark_DeadTree.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="9274e727-3c6f-4c33-9c62-65605165bd10" name="DeadTree_1">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="a635a23b-5bd0-4883-9a0b-633aac10ddac" name="TwistedTree_1_StaticMesh" parent="cfb9a2e9-d40e-4c8d-afac-b6e65724afbd">
+		<Transform Translation="(4.0,-1.4838175,8.0)" Rotation="(0.0,0.8660254474176666,0.0,0.49999992442502456)" Scale="(1.0,1.0,1.0)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\TwistedTree_1.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\TwistedTree_1-Bark_TwistedTree.glmat" />
+				</MaterialResourceHandle>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\TwistedTree_1-Leaves_TwistedTree.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="cfb9a2e9-d40e-4c8d-afac-b6e65724afbd" name="TwistedTree_1">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="a3146817-4912-418a-9106-b0e56c7cea89" name="Bush_Common_StaticMesh" parent="5282031b-7698-47f3-8b81-353948b38595">
+		<Transform Translation="(-2.0,-1.5,-3.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Bush_Common.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Bush_Common-Leaves_TwistedTree.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="5282031b-7698-47f3-8b81-353948b38595" name="Bush_Common">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="fe6b1a6e-f86d-4919-b0cc-b75335ffe61a" name="Bush_Common_Flowers_StaticMesh" parent="0d536050-5ca8-4222-b564-10f1557ca9bf">
+		<Transform Translation="(2.0,-1.5,-4.0)" Rotation="(0.0,0.3826834323650898,0.0,0.9238795325112867)" Scale="(1.0,1.0,1.0)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Bush_Common_Flowers.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Bush_Common_Flowers-Leaves_NormalTree.glmat" />
+				</MaterialResourceHandle>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Bush_Common_Flowers-Flowers.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="0d536050-5ca8-4222-b564-10f1557ca9bf" name="Bush_Common_Flowers">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="b996c040-f674-4739-9c1c-d64c69e419b4" name="Fern_1_StaticMesh" parent="15d6494b-62eb-4e59-99d5-d23128d757e5">
+		<Transform Translation="(-1.0,-1.5,2.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.5,1.5,1.5)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Fern_1.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Fern_1-Leaves.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="15d6494b-62eb-4e59-99d5-d23128d757e5" name="Fern_1">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="c2ccbf9d-641f-418e-abd4-5e619cfe433b" name="Clover_1_StaticMesh" parent="4dbc554c-11ac-4989-9938-6a0b642b7079">
+		<Transform Translation="(1.0,-1.5,3.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.2,1.2,1.2)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Clover_1.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Clover_1-Leaves.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="4dbc554c-11ac-4989-9938-6a0b642b7079" name="Clover_1">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="a9e75ebf-cb78-4d5d-89ac-8ceebed8ca8d" name="Clover_2_StaticMesh" parent="49cca7a9-b1a5-49d7-88a7-40072b240f63">
+		<Transform Translation="(3.0,-1.5,1.0)" Rotation="(0.0,0.17364817766693033,0.0,0.984807753012208)" Scale="(1.2,1.2,1.2)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Clover_2.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Clover_2-Leaves.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="49cca7a9-b1a5-49d7-88a7-40072b240f63" name="Clover_2">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="0400c662-c898-401f-b020-8434a6a849be" name="Mushroom_Common_StaticMesh" parent="920b84d6-ab08-4d55-8490-5174e38e855e">
+		<Transform Translation="(-3.0,-1.5,3.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Mushroom_Common.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Mushroom_Common-Mushrooms.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="920b84d6-ab08-4d55-8490-5174e38e855e" name="Mushroom_Common">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="33eb2b93-8d33-459a-b3e0-47e0d44c670f" name="Mushroom_Laetiporus_StaticMesh" parent="c7fd8bd1-2b02-45ae-a9ef-848540cd18c0">
+		<Transform Translation="(-5.0,-1.5,7.5)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Mushroom_Laetiporus.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Mushroom_Laetiporus-Mushrooms.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="c7fd8bd1-2b02-45ae-a9ef-848540cd18c0" name="Mushroom_Laetiporus">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="bd01bac5-3ac0-4e30-bb46-6a41d8818c6f" name="Flower_3_Group_StaticMesh" parent="025b0b41-3bd6-44f7-b7cf-ab50235de88c">
+		<Transform Translation="(0.0,-1.5,-6.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Flower_3_Group.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Flower_3_Group-Leaves.glmat" />
+				</MaterialResourceHandle>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Flower_3_Group-Flowers.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="025b0b41-3bd6-44f7-b7cf-ab50235de88c" name="Flower_3_Group">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="c9a3b8ea-d393-4159-86d6-292ac9b99741" name="Flower_4_Single_StaticMesh" parent="42edd224-d6fe-40ae-b4f5-5d6eccc20ec8">
+		<Transform Translation="(2.0,-1.5,-7.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Flower_4_Single.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Flower_4_Single-Leaves.glmat" />
+				</MaterialResourceHandle>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Flower_4_Single-Flowers.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="42edd224-d6fe-40ae-b4f5-5d6eccc20ec8" name="Flower_4_Single">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="79d06596-8090-4fa7-aadb-ec173c0b7d61" name="Grass_Common_Tall_StaticMesh" parent="c556fb4d-b9c4-462d-b9c1-9e73959ca330">
+		<Transform Translation="(0.0,-1.5,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(2.0,2.0,2.0)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Grass_Common_Tall.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Grass_Common_Tall-Grass.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="c556fb4d-b9c4-462d-b9c1-9e73959ca330" name="Grass_Common_Tall">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="5957e3e3-b96d-4ff4-9691-57fc387f23a1" name="Grass_Wispy_Short_StaticMesh" parent="6ccff55b-fd0a-45cb-ae38-0ab35dc3e666">
+		<Transform Translation="(-2.0,-1.5,-1.0)" Rotation="(0.0,0.2588190619611067,0.0,0.9659258217718236)" Scale="(1.5,1.5,1.5)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Grass_Wispy_Short.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Grass_Wispy_Short-Grass.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="6ccff55b-fd0a-45cb-ae38-0ab35dc3e666" name="Grass_Wispy_Short">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="7af9ef3f-aaf1-434b-a2a1-37432217ee41" name="Pebble_Round_1_StaticMesh" parent="8ab2d15e-8a19-44b9-8668-ffd523463522">
+		<Transform Translation="(1.0,-1.5,-1.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Pebble_Round_1.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Pebble_Round_1-PathRocks.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="8ab2d15e-8a19-44b9-8668-ffd523463522" name="Pebble_Round_1">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="b283c635-da5e-4790-8c6c-35e246a01ee2" name="Pebble_Square_3_StaticMesh" parent="13f8d73c-aa8d-4b81-a457-95c01dd0a4fd">
+		<Transform Translation="(-1.0,-1.5,1.0)" Rotation="(0.0,0.08715574274765817,0.0,0.9961946980917455)" Scale="(1.0,1.0,1.0)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Pebble_Square_3.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Pebble_Square_3-PathRocks.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="13f8d73c-aa8d-4b81-a457-95c01dd0a4fd" name="Pebble_Square_3">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="dbe3e7b5-f568-45bd-bfa6-8cc19a8d31d2" name="Rock_Medium_1_StaticMesh" parent="2f8da3c9-7479-44c9-a4df-7ea0a3c3eee0">
+		<Transform Translation="(8.0,-1.5,-8.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.3,1.3,1.3)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Rock_Medium_1.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\Rock_Medium_1-Rocks.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="2f8da3c9-7479-44c9-a4df-7ea0a3c3eee0" name="Rock_Medium_1">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="f8024827-2e22-420e-85df-25b4711e7743" name="lights_PointLight" parent="d1e6c6fd-eb51-449b-8984-5b8a0eb3a0b8">
+		<Transform Translation="(5.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+		<PointLight Intensity="26.8430004" Color="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="014178ca-f592-4330-992e-48acbd9ee9ad" name="lights_PointLight" parent="d1e6c6fd-eb51-449b-8984-5b8a0eb3a0b8">
+		<Transform Translation="(0.0,5.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+		<PointLight Intensity="1" Color="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="96c944d3-8924-4854-8e78-f8b92a4ad7ce" name="lights_AreaLight" parent="d1e6c6fd-eb51-449b-8984-5b8a0eb3a0b8">
+		<Transform Translation="(0.0,1.0,0.0)" Rotation="(0.7173561077960159,0.0,0.0,0.6967066919498841)" Scale="(1.0,1.0,1.0)" />
+		<AreaLight Width="1" Height="1" DiffuseColour="(1.0,1.0,1.0)" SpecColour="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="d1e6c6fd-eb51-449b-8984-5b8a0eb3a0b8" name="lights">
+		<Transform Translation="(0.0,7.5977407,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+</World>

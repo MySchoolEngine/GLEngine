@@ -1,152 +1,100 @@
 <?xml version="1.0"?>
-<EntityManager>
-	<Entities>
-		<C_BasicEntity name="Player">
-			<ID ID="7498db6e-8faa-4059-a94c-b4fd2ca60f20" />
-			<components>
-				<item>
-					<key value="Camera" />
-					<value>
-						<C_OrbitalCamera nearZ="0.100000001" farZ="100" aspectZ="1.85546875" YAngle="0" XAngle="1.57079637" Zoom="5.5" />
-					</value>
-				</item>
-				<item>
-					<key value="Camera" />
-					<value>
-						<C_OrbitalCamera nearZ="0.100000001" farZ="100" aspectZ="1.85546875" YAngle="0" XAngle="1.57079637" Zoom="5" />
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="floor">
-			<ID ID="0f1102d5-de01-4062-a0ae-35ab6d93c561" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(0.0,-1.5,0.0)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\plane.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\brick.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="ceiling">
-			<ID ID="129663ae-4f69-436b-bab0-79b037ff218a" />
-		</C_BasicEntity>
-		<C_BasicEntity name="left">
-			<ID ID="7950f51a-8b62-47c1-969f-d768933ce9a1" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(3.0,0.0,0.0)" Scale="(0.5,1.0,1.0)" RotationDeg="(0.0,-0.0,90.0)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\plane.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\plane-None.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="right">
-			<ID ID="51841144-1820-40e5-9ea9-5aede6e8d59e" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(-3.0,0.0,0.0)" Scale="(0.5,1.0,1.0)" RotationDeg="(0.0,-0.0,-90.0)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\plane.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\plane-None.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="back">
-			<ID ID="72d107f4-c1b7-41b1-84ea-401692a25086" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Translation="(0.0,0.0,-3.0)" Scale="(1.0,1.0,0.5)" RotationDeg="(90.0,0.0,0.0)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\plane.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\plane-None.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="tree" ModelMatrix="((1.0,0.0,0.0,0.0)(0.0,1.0,0.0,0.0)(0.0,0.0,1.0,0.0)(0.0,-1.4838175,0.0,1.0))">
-			<ID ID="c2332ac4-6b42-43ca-87b5-715cc9f6f2df" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation Scale="(0.5,0.5,0.5)" />
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_1.obj" />
-							</ModelRes>
-							<Materials>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_1-Bark_NormalTree.glmat" />
-								</MaterialResourceHandle>
-								<MaterialResourceHandle>
-									<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_1-Leaves_NormalTree.glmat" />
-								</MaterialResourceHandle>
-							</Materials>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="light" ModelMatrix="((1.0,0.0,0.0,0.0)(0.0,1.0,0.0,0.0)(0.0,0.0,1.0,0.0)(-2.1546416,1.4692063,0.0,1.0))">
-			<ID ID="46cfbc8d-f370-4b1b-802b-c1e76b4b8952" />
-			<components>
-				<item>
-					<key value="Light" />
-					<value>
-						<C_PointLight Intensity="1" Color="(1.0,1.0,1.0)" />
-					</value>
-				</item>
-				<item>
-					<key value="Light" />
-					<value>
-						<C_AreaLight Width="1" Height="1" DiffuseColour="(1.0,1.0,1.0)" SpecColour="(1.0,1.0,1.0)">
-							<Transformation RotationDeg="(-91.67325,-0.0,0.0)" />
-						</C_AreaLight>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-	</Entities>
-</EntityManager>
+<World version="2">
+	<Entity guid="7498db6e-8faa-4059-a94c-b4fd2ca60f20" name="Player">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="57c06654-48e9-481c-9cb5-7ce72382cc86" name="floor_StaticMesh" parent="0f1102d5-de01-4062-a0ae-35ab6d93c561">
+		<Transform Translation="(0.0,-1.5,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\plane.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\brick.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="0f1102d5-de01-4062-a0ae-35ab6d93c561" name="floor">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="129663ae-4f69-436b-bab0-79b037ff218a" name="ceiling">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="d2b0a15a-365d-4cdb-8088-fabf8c39cf23" name="left_StaticMesh" parent="7950f51a-8b62-47c1-969f-d768933ce9a1">
+		<Transform Translation="(3.0,0.0,0.0)" Rotation="(0.0,0.0,0.7071067811865476,0.7071067811865476)" Scale="(0.5,1.0,1.0)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\plane.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\plane-None.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="7950f51a-8b62-47c1-969f-d768933ce9a1" name="left">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="c734fc0c-ff29-4915-be02-a3cc5fb19a39" name="right_StaticMesh" parent="51841144-1820-40e5-9ea9-5aede6e8d59e">
+		<Transform Translation="(-3.0,0.0,0.0)" Rotation="(0.0,0.0,-0.7071067811865476,0.7071067811865476)" Scale="(0.5,1.0,1.0)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\plane.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\plane-None.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="51841144-1820-40e5-9ea9-5aede6e8d59e" name="right">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="c83d0000-bfb5-4b75-a23d-6c5769c7db1a" name="back_StaticMesh" parent="72d107f4-c1b7-41b1-84ea-401692a25086">
+		<Transform Translation="(0.0,0.0,-3.0)" Rotation="(0.7071067811865476,0.0,0.0,0.7071067811865476)" Scale="(1.0,1.0,0.5)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\plane.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\plane-None.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="72d107f4-c1b7-41b1-84ea-401692a25086" name="back">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="142a6bbc-1986-4c12-9b59-538bae7e26d9" name="tree_StaticMesh" parent="c2332ac4-6b42-43ca-87b5-715cc9f6f2df">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(0.5,0.5,0.5)" />
+		<StaticMesh>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_1.obj" />
+			</ModelRes>
+			<Materials>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_1-Bark_NormalTree.glmat" />
+				</MaterialResourceHandle>
+				<MaterialResourceHandle>
+					<Resource derivedTypeCast="MaterialResource" FilePath="Models\Stylized Nature MegaKit[Standard]\OBJ\CommonTree_1-Leaves_NormalTree.glmat" />
+				</MaterialResourceHandle>
+			</Materials>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="c2332ac4-6b42-43ca-87b5-715cc9f6f2df" name="tree">
+		<Transform Translation="(0.0,-1.4838175,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="25ee4450-38e4-4b09-aa43-d53dd2f25274" name="light_AreaLight" parent="46cfbc8d-f370-4b1b-802b-c1e76b4b8952">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(-0.7173561077960159,0.0,0.0,0.6967066919498841)" Scale="(1.0,1.0,1.0)" />
+		<AreaLight Width="1" Height="1" DiffuseColour="(1.0,1.0,1.0)" SpecColour="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="46cfbc8d-f370-4b1b-802b-c1e76b4b8952" name="light">
+		<Transform Translation="(-2.1546416,1.4692063,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+		<PointLight Intensity="1" Color="(1.0,1.0,1.0)" />
+	</Entity>
+</World>

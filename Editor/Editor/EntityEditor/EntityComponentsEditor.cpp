@@ -2,8 +2,12 @@
 
 #include <Editor/EntityEditor/EntityComponentsEditor.h>
 
-#include <Entity/IComponent.h>
-#include <Entity/IEntity.h>
+#include <GUI/Input/DrawTransform.h>
+#include <GUI/ReflectionGUI.h>
+
+#include <Entity/ComponentRegistry.h>
+#include <Entity/Components/CoreComponents.h>
+#include <Entity/World.h>
 
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
@@ -11,14 +15,7 @@
 namespace GLEngine::Editor {
 
 //=================================================================================
-C_EntityCompoenentEditor::C_EntityCompoenentEditor()
-	: m_Entity()
-	, m_ComponentTypeSelector("Component class", rttr::type::get<Entity::I_Component>().get_name().data())
-{
-}
-
-//=================================================================================
-void C_EntityCompoenentEditor::SetEntity(std::shared_ptr<Entity::I_Entity> entity)
+void C_EntityCompoenentEditor::SetEntity(Entity::C_Entity entity)
 {
 	m_Entity = entity;
 }
@@ -26,33 +23,72 @@ void C_EntityCompoenentEditor::SetEntity(std::shared_ptr<Entity::I_Entity> entit
 //=================================================================================
 bool C_EntityCompoenentEditor::Draw() const
 {
-	if (auto entity = m_Entity.lock())
-	{
-		ImGui::Text("%s", entity->GetName().c_str());
-		int i = 0;
-		for (auto& component : *entity)
-		{
-			ImGui::PushID(i);
-			if (component.second->HasDebugDrawGUI())
-				component.second->DebugDrawComponentGUI();
-			ImGui::PopID();
-			++i;
-		}
+	if (!m_Entity.IsValid())
+		return false;
 
-		ImGui::BeginChild("AddComponent", ImVec2(0, 100), true);
-		m_ComponentTypeSelector.Draw();
-		if (ImGui::Button("Add component"))
+	ImGui::Text("%s", m_Entity.GetName().c_str());
+
+	auto& registry = m_Entity.World()->Registry();
+	int	  i		   = 0;
+	for (const auto& entry : Entity::C_ComponentRegistry::Instance().Entries())
+	{
+		if (!entry.drawGUI || !entry.has(registry, m_Entity.Handle()))
+			continue;
+
+		ImGui::PushID(i);
+		if (entry.userAddable)
+			ImGui::SetNextItemAllowOverlap();
+		const bool open = ImGui::CollapsingHeader(entry.name.c_str(), ImGuiTreeNodeFlags_DefaultOpen);
+		if (entry.userAddable)
 		{
-			const auto type = rttr::type::get_by_name(m_ComponentTypeSelector.GetSelectedTypeName());
-			GLE_ASSERT(type.is_valid(), "Type {} doesn't exists.", m_ComponentTypeSelector.GetSelectedTypeName());
-			auto component = type.create();
-			GLE_ASSERT(component, "Cannot instantiate component '{}'.", m_ComponentTypeSelector.GetSelectedTypeName());
-			auto componentPtr = component.convert<std::shared_ptr<Entity::I_Component>>();
-			componentPtr->SetParent(entity);
-			entity->AddComponent(componentPtr);
+			ImGui::SameLine();
+			if (ImGui::SmallButton("Remove"))
+			{
+				entry.remove(registry, m_Entity.Handle());
+				ImGui::PopID();
+				++i;
+				continue;
+			}
 		}
-		ImGui::EndChild();
+		if (open)
+		{
+			if (entry.name == "Transform")
+			{
+				auto& transform = registry.get<Entity::S_TransformComponent>(m_Entity.Handle());
+				if (GUI::Input::DrawTransform(transform))
+					registry.patch<Entity::S_TransformComponent>(m_Entity.Handle());
+			}
+			else
+			{
+				auto		   variant = entry.get(registry, m_Entity.Handle());
+				rttr::instance inst(variant);
+				GUI::DrawAllPropertyGUI(inst);
+			}
+		}
+		ImGui::PopID();
+		++i;
 	}
+
+	ImGui::BeginChild("AddComponent", ImVec2(0, 100), true);
+	const auto& entries		  = Entity::C_ComponentRegistry::Instance().Entries();
+	static int	selectedIndex = -1;
+	if (ImGui::BeginCombo("Component class", selectedIndex >= 0 && selectedIndex < static_cast<int>(entries.size()) ? entries[selectedIndex].name.c_str() : ""))
+	{
+		for (int entryIndex = 0; entryIndex < static_cast<int>(entries.size()); ++entryIndex)
+		{
+			if (!entries[entryIndex].userAddable)
+				continue;
+			if (ImGui::Selectable(entries[entryIndex].name.c_str(), entryIndex == selectedIndex))
+				selectedIndex = entryIndex;
+		}
+		ImGui::EndCombo();
+	}
+	if (ImGui::Button("Add component") && selectedIndex >= 0 && selectedIndex < static_cast<int>(entries.size()))
+	{
+		entries[selectedIndex].emplaceDefault(registry, m_Entity.Handle());
+	}
+	ImGui::EndChild();
+
 	return false;
 }
 

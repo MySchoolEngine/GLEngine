@@ -4,12 +4,12 @@
 #include <Renderer/Resources/RenderResourceHandle.h>
 
 namespace GLEngine::Entity {
-class C_EntityManager;
+class C_World;
 }
 
 namespace GLEngine::Renderer {
 class ResourceManager;
-class I_CameraComponent;
+class I_Camera;
 } // namespace GLEngine::Renderer
 
 namespace GLEngine::GLRenderer {
@@ -27,12 +27,12 @@ class C_MaterialsBuffer;
 class C_MainPassTechnique {
 public:
 	explicit C_MainPassTechnique(Renderer::ResourceManager& resourceManager);
-	void Render(const Entity::C_EntityManager&				 world,
-				std::shared_ptr<Renderer::I_CameraComponent> camera,
-				unsigned int								 width,
-				unsigned int								 height,
-				Renderer::I_DebugDraw&						 dd,
-				Renderer::I_RenderInterface3D&				 renderInterface3D);
+	void Render(Entity::C_World&					world,
+				std::shared_ptr<Renderer::I_Camera> camera,
+				unsigned int						width,
+				unsigned int						height,
+				Renderer::I_DebugDraw&				dd,
+				Renderer::I_RenderInterface3D&		renderInterface3D);
 	void SetSunShadowMap(Renderer::Handle<Renderer::Texture> sunShadowMapHandle);
 	void SetSunViewProjection(glm::mat4 viewProjection);
 

@@ -2,7 +2,7 @@
 
 #include <Editor/Editors/RayPreviewState.h>
 
-#include <Renderer/ICameraComponent.h>
+#include <Renderer/ICamera.h>
 #include <Renderer/IRenderer.h>
 #include <Renderer/RayCasting/PathIntegrator.h>
 #include <Renderer/RayCasting/RandomWalkIntegrator.h>
@@ -147,7 +147,7 @@ void AddDebugTargets(S_RayPreviewState&				state,
 }
 
 //=================================================================================
-void StartPreviewRender(S_RayPreviewState& state, Renderer::I_CameraComponent& camera, int targetSamples, const Renderer::C_RayTraceScene& scene)
+void StartPreviewRender(S_RayPreviewState& state, Renderer::I_Camera& camera, int targetSamples, const Renderer::C_RayTraceScene& scene)
 {
 	if (state.m_Running.load())
 		return;

@@ -6,7 +6,7 @@ namespace GLEngine::Core {
 class I_Input;
 }
 namespace GLEngine::Renderer {
-class I_CameraComponent;
+class I_Camera;
 } // namespace GLEngine::Renderer
 
 namespace GLEngine::Editor {
@@ -17,7 +17,7 @@ namespace GLEngine::Editor {
  */
 class C_MousePickingHelper {
 public:
-	C_MousePickingHelper(const Core::I_Input& input, const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewPort);
+	C_MousePickingHelper(const Core::I_Input& input, const Renderer::I_Camera& camera, const Renderer::C_Viewport& viewPort);
 
 	// will be called when the interaction will be selected
 	using T_Callback = std::function<void()>;
@@ -28,9 +28,9 @@ public:
 	bool SelectInteraction();
 
 private:
-	const Core::I_Input&			   m_Input;
-	const Renderer::I_CameraComponent& m_Camera;
-	const Renderer::C_Viewport		   m_Viewport;
+	const Core::I_Input&	   m_Input;
+	const Renderer::I_Camera&  m_Camera;
+	const Renderer::C_Viewport m_Viewport;
 
 	// some structure with distance, depth and interactionID
 	struct Interaction {
