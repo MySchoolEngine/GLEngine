@@ -41,6 +41,8 @@ C_Entity C_World::CreateEntity(std::string name)
 //=================================================================================
 C_Entity C_World::CreateEntityWithGuid(const GUID& guid, std::string name)
 {
+	if (FindByName(name).IsValid())
+		return {};
 	const auto handle = m_Registry.create();
 	m_Registry.emplace<S_IdentityComponent>(handle, guid, std::move(name));
 	m_Registry.emplace<S_TransformComponent>(handle);

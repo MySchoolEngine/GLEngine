@@ -101,6 +101,20 @@ TEST(World, GetOrCreateEntity_CreatesNewEntity)
 	EXPECT_EQ(entity.GetName(), "TestEntity");
 }
 
+TEST(World, GetOrCreateEntity_CreatesDuplicatelyNamedEntity)
+{
+	C_World world;
+
+	C_Entity entity = world.GetOrCreateEntity("TestEntity");
+
+	ASSERT_TRUE(entity.IsValid());
+	EXPECT_EQ(entity.GetName(), "TestEntity");
+
+	C_Entity duplicate = world.CreateEntity("TestEntity");
+
+	ASSERT_FALSE(duplicate.IsValid()) << "Should not create duplicate entity";
+}
+
 TEST(World, GetOrCreateEntity_ReturnsExistingEntity)
 {
 	C_World world;
