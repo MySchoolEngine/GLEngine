@@ -17,6 +17,12 @@ struct S_RegistryTestComponent {
 	C_ComponentRegistry::Instance().Register<S_RegistryTestComponent>("RegistryTestComponent");
 	return true;
 }();
+
+bool g_RegistryTestComponentPatched = false;
+void OnRegistryTestComponentPatched(entt::registry&, entt::entity)
+{
+	g_RegistryTestComponentPatched = true;
+}
 } // namespace
 
 TEST(ComponentRegistry, FindByName_FindsRegisteredEntry)
@@ -63,6 +69,24 @@ TEST(ComponentRegistry, Remove_ComponentNoLongerPresent)
 	entry->remove(world.Registry(), entity.Handle());
 
 	EXPECT_FALSE(entry->has(world.Registry(), entity.Handle()));
+}
+
+TEST(ComponentRegistry, Patch_FiresOnUpdateSignalForTheRegisteredType)
+{
+	C_World		world;
+	auto		entity = world.CreateEntity("Test");
+	const auto* entry	= C_ComponentRegistry::Instance().FindByName("RegistryTestComponent");
+	ASSERT_NE(entry, nullptr);
+
+	entry->emplaceDefault(world.Registry(), entity.Handle());
+
+	g_RegistryTestComponentPatched = false;
+	world.Registry().on_update<S_RegistryTestComponent>().connect<&OnRegistryTestComponentPatched>();
+
+	entry->patch(world.Registry(), entity.Handle());
+	EXPECT_TRUE(g_RegistryTestComponentPatched);
+
+	world.Registry().on_update<S_RegistryTestComponent>().disconnect<&OnRegistryTestComponentPatched>();
 }
 
 TEST(ComponentRegistry, TransformComponent_IsRegistered)

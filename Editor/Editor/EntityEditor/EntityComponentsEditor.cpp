@@ -52,7 +52,7 @@ bool C_EntityCompoenentEditor::Draw() const
 		}
 		if (open)
 		{
-			if (entry.name == "Transform")
+			if (entry.type == rttr::type::get<Entity::S_TransformComponent>())
 			{
 				auto& transform = registry.get<Entity::S_TransformComponent>(m_Entity.Handle());
 				if (GUI::Input::DrawTransform(transform))
@@ -62,7 +62,8 @@ bool C_EntityCompoenentEditor::Draw() const
 			{
 				auto		   variant = entry.get(registry, m_Entity.Handle());
 				rttr::instance inst(variant);
-				GUI::DrawAllPropertyGUI(inst);
+				if (!GUI::DrawAllPropertyGUI(inst).empty())
+					entry.patch(registry, m_Entity.Handle());
 			}
 		}
 		ImGui::PopID();

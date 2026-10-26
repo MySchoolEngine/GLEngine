@@ -17,6 +17,10 @@ struct S_ComponentRegistryEntry {
 	std::function<bool(entt::registry&, entt::entity)> has;
 	std::function<void(entt::registry&, entt::entity)> emplaceDefault;
 	std::function<void(entt::registry&, entt::entity)> remove;
+	// Fires the component's on_update<T> signal (entt's patch() with no mutator - the edit already
+	// happened in place through get()/DrawAllPropertyGUI). Lets generic, type-erased editors (e.g.
+	// EntityComponentsEditor) notify observers without knowing T at compile time.
+	std::function<void(entt::registry&, entt::entity)> patch;
 	// Returns a variant wrapping a std::reference_wrapper<T> (not a T by value) - RTTR's standard
 	// idiom for aliasing an existing, live object so property get/set mutates it in place, rather
 	// than a detached copy. rttr::variant cannot be constructed directly from an rttr::instance
@@ -47,6 +51,7 @@ public:
 			// that's already present.
 			.emplaceDefault = [](entt::registry& registry, entt::entity e) { registry.emplace_or_replace<T>(e); },
 			.remove			= [](entt::registry& registry, entt::entity e) { registry.remove<T>(e); },
+			.patch			= [](entt::registry& registry, entt::entity e) { registry.patch<T>(e); },
 			.get			= [](entt::registry& registry, entt::entity e) -> rttr::variant { return std::ref(registry.get<T>(e)); },
 			.serializable	= serializable,
 			.userAddable	= userAddable,
