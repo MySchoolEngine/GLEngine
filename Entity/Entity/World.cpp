@@ -24,6 +24,21 @@ void OnTransformComponentPatched(entt::registry& registry, entt::entity e)
 {
 	registry.emplace_or_replace<S_DirtyTransformTag>(e);
 }
+
+// Appends `entity` and every descendant (depth-first) to `out`. Grabs each child's `next`
+// sibling before recursing so the walk is unaffected by mutations the caller makes to
+// `entity`'s own links (e.g. detaching it from its parent) before calling this.
+void CollectSubtree(entt::registry& registry, entt::entity entity, std::vector<entt::entity>& out)
+{
+	out.push_back(entity);
+	const auto& rel = registry.get<S_RelationshipComponent>(entity);
+	for (auto child = rel.firstChild; child != entt::null;)
+	{
+		const auto next = registry.get<S_RelationshipComponent>(child).next;
+		CollectSubtree(registry, child, out);
+		child = next;
+	}
+}
 } // namespace
 
 //=================================================================================
@@ -153,15 +168,27 @@ C_Entity C_World::GetOrCreateEntity(const std::string& name)
 //=================================================================================
 void C_World::OnUpdate()
 {
+	// Destroying an entity must take its whole subtree with it - otherwise children are left
+	// with a parent/sibling handle that is about to be destroyed or recycled, and the next
+	// TransformSystem::Update or WorldSerializer::Save dereferences it.
+	std::vector<entt::entity> toDestroy;
 	for (const auto entity : m_PendingDestroy)
 	{
 		if (!m_Registry.valid(entity))
 			continue;
+		Detach(entity); // unlink from a surviving parent/siblings before the subtree is gone
+		CollectSubtree(m_Registry, entity, toDestroy);
+	}
+	m_PendingDestroy.clear();
+
+	for (const auto entity : toDestroy)
+	{
+		if (!m_Registry.valid(entity))
+			continue; // already destroyed via an ancestor (or a duplicate queue entry) above
 		const auto& identity = m_Registry.get<S_IdentityComponent>(entity);
 		m_GuidLookup.erase(identity.id);
 		m_Registry.destroy(entity);
 	}
-	m_PendingDestroy.clear();
 }
 
 //=================================================================================
