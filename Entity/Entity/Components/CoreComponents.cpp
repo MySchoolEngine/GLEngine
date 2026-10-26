@@ -18,7 +18,7 @@ RTTR_REGISTRATION
 }
 
 namespace {
-const bool g_RegisterTransformComponent = [] {
+[[maybe_unused]] const bool g_RegisterTransformComponent = [] {
 	GLEngine::Entity::C_ComponentRegistry::Instance().Register<GLEngine::Entity::S_TransformComponent>("Transform", /*serializable=*/true, /*userAddable=*/false, /*drawGUI=*/true);
 	return true;
 }();

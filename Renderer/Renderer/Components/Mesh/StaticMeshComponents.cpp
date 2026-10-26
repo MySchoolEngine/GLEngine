@@ -24,7 +24,7 @@ RTTR_REGISTRATION
 }
 
 namespace {
-const bool g_RegisterStaticMeshComponent = [] {
+[[maybe_unused]] const bool g_RegisterStaticMeshComponent = [] {
 	GLEngine::Entity::C_ComponentRegistry::Instance().Register<GLEngine::Renderer::S_StaticMesh>("StaticMesh");
 	return true;
 }();

@@ -13,7 +13,7 @@ struct S_RegistryTestComponent {
 	int value = 7;
 };
 
-const bool g_RegisterTestComponent = [] {
+[[maybe_unused]] const bool g_RegisterTestComponent = [] {
 	C_ComponentRegistry::Instance().Register<S_RegistryTestComponent>("RegistryTestComponent");
 	return true;
 }();

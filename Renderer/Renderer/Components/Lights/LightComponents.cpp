@@ -117,7 +117,7 @@ RTTR_REGISTRATION
 // clang-format on
 
 namespace {
-const bool g_RegisterLightComponents = [] {
+[[maybe_unused]] const bool g_RegisterLightComponents = [] {
 	using namespace GLEngine::Entity;
 	C_ComponentRegistry::Instance().Register<GLEngine::Renderer::S_PointLight>("PointLight");
 	C_ComponentRegistry::Instance().Register<GLEngine::Renderer::S_AreaLight>("AreaLight");

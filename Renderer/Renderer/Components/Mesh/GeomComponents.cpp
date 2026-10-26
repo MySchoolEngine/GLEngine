@@ -28,7 +28,7 @@ RTTR_REGISTRATION
 }
 
 namespace {
-const bool g_RegisterGeomComponent = [] {
+[[maybe_unused]] const bool g_RegisterGeomComponent = [] {
 	GLEngine::Entity::C_ComponentRegistry::Instance().Register<GLEngine::Renderer::S_GeomComponent>("Geometry");
 	return true;
 }();
