@@ -46,5 +46,12 @@ private:
 	// Brief on-screen feedback for a rejected (cycle-forming) reparent drop.
 	mutable std::string m_StatusMessage;
 	mutable float		m_StatusMessageTimeLeft = 0.f;
+
+	// Entity currently being renamed via the context menu's "Rename" item, and its edit buffer.
+	// m_RenameFocusPending is consumed (set back to false) the first frame the rename widget
+	// draws, so SetKeyboardFocusHere() runs once instead of stealing focus back every frame.
+	mutable entt::entity m_RenamingEntity = entt::null;
+	mutable std::string	 m_RenameBuffer;
+	mutable bool		 m_RenameFocusPending = false;
 };
 } // namespace GLEngine::Editor

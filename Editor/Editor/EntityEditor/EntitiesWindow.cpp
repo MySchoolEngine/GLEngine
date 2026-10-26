@@ -72,11 +72,44 @@ void C_EntitiesWindow::DrawEntityNode(entt::entity e) const
 	if (ImGui::BeginPopupContextItem(nullptr, ImGuiPopupFlags_MouseButtonRight))
 	{
 		SelectEntity(identity.id);
+		if (ImGui::MenuItem("Rename"))
+		{
+			m_RenamingEntity	 = e;
+			m_RenameBuffer		 = identity.name;
+			m_RenameFocusPending = true;
+		}
 		if (ImGui::MenuItem("Create child"))
 			m_PendingCreateChildOf = e;
 		if (ImGui::MenuItem("Remove"))
 			m_PendingRemove = e;
 		ImGui::EndPopup();
+	}
+
+	// Plain inline widget, not a popup: opening a second popup from inside the context menu's
+	// popup (and then calling BeginPopup for it outside that scope) doesn't reliably survive
+	// ImGui's popup-stack levels once the context menu closes on the MenuItem click.
+	if (e == m_RenamingEntity)
+	{
+		if (m_RenameFocusPending)
+		{
+			ImGui::SetKeyboardFocusHere();
+			m_RenameFocusPending = false;
+		}
+		const bool confirmed = ImGui::InputText("##RenameEntity", &m_RenameBuffer, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AutoSelectAll);
+		ImGui::SameLine();
+		const bool okClicked = ImGui::Button("OK");
+		ImGui::SameLine();
+		const bool cancelClicked = ImGui::Button("Cancel") || ImGui::IsKeyPressed(ImGuiKey_Escape);
+
+		if ((confirmed || okClicked) && !m_RenameBuffer.empty())
+		{
+			registry.get<Entity::S_IdentityComponent>(e).name = m_RenameBuffer;
+			m_RenamingEntity								  = entt::null;
+		}
+		else if (cancelClicked)
+		{
+			m_RenamingEntity = entt::null;
+		}
 	}
 
 	if (hasChildren && open)
