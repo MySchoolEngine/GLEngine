@@ -215,7 +215,7 @@ Physics::Primitives::S_RayIntersection C_World::Select(const Physics::Primitives
 
 	if (!intersects.empty())
 	{
-		const auto& nearest = std::min_element(intersects.begin(), intersects.end(), [](const auto& a, const auto& b) { return a.distance < b.distance; });
+		const auto nearest = std::min_element(intersects.begin(), intersects.end(), [](const auto& a, const auto& b) { return a.distance < b.distance; });
 		return *nearest;
 	}
 
