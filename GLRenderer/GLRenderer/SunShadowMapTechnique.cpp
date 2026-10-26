@@ -134,7 +134,7 @@ void C_SunShadowMapTechnique::Render(Entity::C_World& world, Renderer::I_Camera*
 	auto& registry = world.Registry();
 
 	Physics::Primitives::S_AABB aabb;
-	for (auto [e, bounds, worldTransform] : registry.view<Entity::S_LocalBounds, Entity::S_WorldTransformComponent>().each())
+	for (auto&& [e, bounds, worldTransform] : registry.view<Entity::S_LocalBounds, Entity::S_WorldTransformComponent>().each())
 	{
 		aabb.Add(bounds.aabb.getTransformedAABB(worldTransform.world));
 	}
@@ -208,11 +208,11 @@ void C_SunShadowMapTechnique::Render(Entity::C_World& world, Renderer::I_Camera*
 		// No frustum culling here, matching the old GetEntities(C_Frustum) overload this replaces
 		// (confirmed a no-op - it unconditionally returned every entity regardless of frustum).
 		RenderDoc::C_DebugScope s("Commit geometry");
-		for (auto [e, mesh, gpu, worldTransform] : registry.view<Renderer::S_StaticMesh, Renderer::S_StaticMeshGPU, Entity::S_WorldTransformComponent>().each())
+		for (auto&& [e, mesh, gpu, worldTransform] : registry.view<Renderer::S_StaticMesh, Renderer::S_StaticMeshGPU, Entity::S_WorldTransformComponent>().each())
 		{
 			Renderer::StaticMeshSystem::Render(mesh, gpu, worldTransform, m_3DRenderer);
 		}
-		for (auto [e, geom, gpu, worldTransform] : registry.view<Renderer::S_GeomComponent, Renderer::S_GeomGPU, Entity::S_WorldTransformComponent>().each())
+		for (auto&& [e, geom, gpu, worldTransform] : registry.view<Renderer::S_GeomComponent, Renderer::S_GeomGPU, Entity::S_WorldTransformComponent>().each())
 		{
 			Renderer::GeomSystem::Render(geom, gpu, worldTransform, m_3DRenderer);
 		}
