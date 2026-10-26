@@ -8,6 +8,7 @@
 #include <entt/entt.hpp>
 #include <filesystem>
 #include <unordered_map>
+#include <vector>
 
 namespace GLEngine::Physics::Primitives {
 struct S_Ray;
@@ -35,7 +36,7 @@ public:
 	[[nodiscard]] bool SetParent(entt::entity child, entt::entity newParent);
 	void			   Detach(entt::entity child);
 
-	[[nodiscard]] entt::registry& Registry() { return m_Registry; }
+	[[nodiscard]] entt::registry&		Registry() { return m_Registry; }
 	[[nodiscard]] const entt::registry& Registry() const { return m_Registry; }
 
 	void OnUpdate();
