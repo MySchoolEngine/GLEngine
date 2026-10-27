@@ -43,7 +43,15 @@ void C_XMLDeserializer::DeserializeInto(const pugi::xml_node& node, rttr::varian
 {
 	m_IsRootObject = true;
 	var			   = DeserializeNode(node, var);
-	FinishDeserialization(var.get_type(), var);
+
+	const rttr::instance inst = var.get_type().get_raw_type().is_wrapper() ? rttr::instance(var).get_wrapped_instance() : rttr::instance(var);
+	auto				  type = inst.get_type();
+	if (type.is_pointer())
+		type = type.get_raw_type();
+	if (type.is_wrapper())
+		type = type.get_wrapped_type();
+
+	FinishDeserialization(type, var);
 }
 
 //=================================================================================
