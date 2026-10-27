@@ -97,6 +97,15 @@ TEST(WorldHierarchy, SetParent_RejectsCycle)
 
 	// a -> b -> c already; making a a child of c would close the loop.
 	EXPECT_FALSE(world.SetParent(a.Handle(), c.Handle()));
+
+	// A rejected SetParent must leave the existing graph exactly as it was.
+	const auto& aRel = world.Registry().get<S_RelationshipComponent>(a.Handle());
+	const auto& cRel = world.Registry().get<S_RelationshipComponent>(c.Handle());
+	EXPECT_EQ(aRel.parent, entt::null);
+	EXPECT_EQ(cRel.parent, b.Handle());
+
+	// Self-parenting is a degenerate one-node cycle and must also be rejected.
+	EXPECT_FALSE(world.SetParent(a.Handle(), a.Handle()));
 }
 
 TEST(WorldHierarchy, Detach_RemovesFromParentAndResetsWorldTransform)
@@ -135,6 +144,54 @@ TEST(WorldHierarchy, Detach_MiddleChild_KeepsSiblingListConsistent)
 	// inserting a, b, c in that order the list is c -> b -> a; removing b leaves c -> a.
 	EXPECT_EQ(cRel.next, a.Handle());
 	EXPECT_EQ(aRel.prev, c.Handle());
+}
+
+TEST(WorldHierarchy, Detach_HeadChild_UpdatesParentFirstChild)
+{
+	C_World world;
+	auto	parent = world.CreateEntity("Parent");
+	auto	a	   = world.CreateEntity("A");
+	auto	b	   = world.CreateEntity("B");
+	auto	c	   = world.CreateEntity("C");
+	ASSERT_TRUE(world.SetParent(a.Handle(), parent.Handle()));
+	ASSERT_TRUE(world.SetParent(b.Handle(), parent.Handle()));
+	ASSERT_TRUE(world.SetParent(c.Handle(), parent.Handle()));
+
+	// Insertion order is head-first, so the list is c -> b -> a; c is parent.firstChild - the
+	// exact branch in World::Detach (parentRel.firstChild = childRel.next) this exercises.
+	ASSERT_EQ(world.Registry().get<S_RelationshipComponent>(parent.Handle()).firstChild, c.Handle());
+
+	world.Detach(c.Handle());
+
+	const auto& parentRel = world.Registry().get<S_RelationshipComponent>(parent.Handle());
+	const auto& bRel	   = world.Registry().get<S_RelationshipComponent>(b.Handle());
+	EXPECT_EQ(parentRel.childCount, 2u);
+	EXPECT_EQ(parentRel.firstChild, b.Handle()); // must move off the detached head
+	EXPECT_EQ(bRel.prev, entt::null);			  // new head has no prev
+}
+
+TEST(WorldHierarchy, Detach_TailChild_LeavesNewTailWithNullNext)
+{
+	C_World world;
+	auto	parent = world.CreateEntity("Parent");
+	auto	a	   = world.CreateEntity("A");
+	auto	b	   = world.CreateEntity("B");
+	auto	c	   = world.CreateEntity("C");
+	ASSERT_TRUE(world.SetParent(a.Handle(), parent.Handle()));
+	ASSERT_TRUE(world.SetParent(b.Handle(), parent.Handle()));
+	ASSERT_TRUE(world.SetParent(c.Handle(), parent.Handle()));
+
+	// List is c -> b -> a; a is the tail (next == entt::null, the branch that is skipped rather
+	// than updating a sibling's prev).
+	ASSERT_EQ(world.Registry().get<S_RelationshipComponent>(a.Handle()).next, entt::null);
+
+	world.Detach(a.Handle());
+
+	const auto& parentRel = world.Registry().get<S_RelationshipComponent>(parent.Handle());
+	const auto& bRel	   = world.Registry().get<S_RelationshipComponent>(b.Handle());
+	EXPECT_EQ(parentRel.childCount, 2u);
+	EXPECT_EQ(parentRel.firstChild, c.Handle()); // head unaffected by detaching the tail
+	EXPECT_EQ(bRel.next, entt::null);			  // new tail has no next
 }
 
 TEST(WorldHierarchy, DestroyEntity_ParentDeletesChildren)
