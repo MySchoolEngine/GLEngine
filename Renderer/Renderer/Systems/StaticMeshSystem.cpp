@@ -184,7 +184,7 @@ void Render(const S_StaticMesh& mesh, const S_StaticMeshGPU& gpu, const Entity::
 {
 	auto& materialManager = C_MaterialManager::Instance();
 
-	for (const auto&& [submesh, material] : std::ranges::zip_view(gpu.submeshes, mesh.convertedMaterials))
+	for (auto&& [submesh, material] : std::ranges::zip_view(gpu.submeshes, mesh.convertedMaterials))
 	{
 		renderer3D.Draw(RenderCall3D{
 			.ModelMatrix	= worldTransform.world,
