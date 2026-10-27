@@ -114,4 +114,32 @@ TEST_F(RayTraceSceneBuilderFromWorldFixture, SunLightComponentIsSkippedWithoutCr
 	EXPECT_EQ(lightCount, 0);
 }
 
+TEST_F(RayTraceSceneBuilderFromWorldFixture, PointLightWithNoTransformSystemRun_UsesTheDefaultIdentityWorldTransform)
+{
+	// Every entity gets a S_WorldTransformComponent at creation (default-constructed: identity),
+	// so a point light whose owner never had TransformSystem::Update run on it is not skipped -
+	// it is converted at the default world position (the origin), not wherever its
+	// S_TransformComponent's translation says. Documents that defaulted, not skipped, behaviour.
+	auto entity = world.CreateEntity("PointLight");
+	entity.Get<Entity::S_TransformComponent>().translation = glm::vec3(10.f, 20.f, 30.f); // never propagated
+	entity.Add<S_PointLight>();
+
+	RayTracing::BuildSceneFromWorld(world, scene);
+
+	int deltaLightCount = 0;
+	scene.ForEachLight([&](const auto&) { ++deltaLightCount; });
+	ASSERT_EQ(deltaLightCount, 1);
+
+	// Probe from directly above the origin: SampleLi only reports positive radiance there if the
+	// light sits at the identity transform's position (0,0,0), not at the un-propagated (10,20,30).
+	C_RayIntersection				hitAtOrigin(S_Frame(glm::vec3(0, -1, 0)), glm::vec3(0, 1, 0), Physics::Primitives::S_Ray(glm::vec3(0, 1, 0), glm::vec3(0, -1, 0)));
+	C_STDSampler					sampler(0.f, 1.f);
+	RayTracing::S_VisibilityTester vis(glm::vec3(0.f), glm::vec3(0.f));
+	float							pdf = 0.f;
+	scene.ForEachLight([&](const std::reference_wrapper<const RayTracing::I_RayLight>& l) {
+		const auto Li = l.get().SampleLi(hitAtOrigin, sampler, vis, &pdf);
+		EXPECT_GT(Li.x + Li.y + Li.z, 0.f);
+	});
+}
+
 } // namespace GLEngine::Renderer
