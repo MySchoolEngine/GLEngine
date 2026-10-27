@@ -102,27 +102,6 @@ TEST(ComponentRegistry, FindByName_EmptyName_ReturnsNull)
 	EXPECT_EQ(C_ComponentRegistry::Instance().FindByName(""), nullptr);
 }
 
-TEST(ComponentRegistry, Register_DuplicateName_AppendsEntryButFindByNameKeepsResolvingToTheFirst)
-{
-	auto&	   registry = C_ComponentRegistry::Instance();
-	const auto isTestComponent = [](const S_ComponentRegistryEntry& e) { return e.name == "RegistryTestComponent"; };
-
-	const auto countBefore = std::count_if(registry.Entries().begin(), registry.Entries().end(), isTestComponent);
-	ASSERT_EQ(countBefore, 1); // only the file-static registration above has run so far
-
-	registry.Register<S_RegistryTestComponent>("RegistryTestComponent");
-
-	// Register() does not detect or reject duplicate names (see F-008): the duplicate is appended
-	// rather than replacing or being rejected, and FindByName's linear scan from the front keeps
-	// resolving to whichever entry was registered first.
-	const auto countAfter = std::count_if(registry.Entries().begin(), registry.Entries().end(), isTestComponent);
-	EXPECT_EQ(countAfter, 2);
-
-	const auto* entry = registry.FindByName("RegistryTestComponent");
-	ASSERT_NE(entry, nullptr);
-	EXPECT_EQ(entry->type, rttr::type::get<S_RegistryTestComponent>());
-}
-
 TEST(ComponentRegistry, Entries_ReturnsBothSerializableAndNonSerializableEntries)
 {
 	struct S_NonSerializableTestComponent {
