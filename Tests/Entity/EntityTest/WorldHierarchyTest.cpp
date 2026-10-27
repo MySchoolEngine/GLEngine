@@ -108,6 +108,19 @@ TEST(WorldHierarchy, SetParent_RejectsCycle)
 	EXPECT_FALSE(world.SetParent(a.Handle(), a.Handle()));
 }
 
+TEST(WorldHierarchy, SetParent_StaleHandle_ReturnsFalseInsteadOfAsserting)
+{
+	C_World world;
+	auto	stale = world.CreateEntity("Stale");
+	world.DestroyEntity(stale.Handle());
+	world.OnUpdate(); // handle is now invalid
+
+	auto live = world.CreateEntity("Live");
+
+	EXPECT_FALSE(world.SetParent(stale.Handle(), live.Handle()));
+	EXPECT_FALSE(world.SetParent(live.Handle(), stale.Handle()));
+}
+
 TEST(WorldHierarchy, Detach_RemovesFromParentAndResetsWorldTransform)
 {
 	C_World world;
@@ -304,6 +317,33 @@ TEST(WorldHierarchy, RegistryPatch_MarksTransformDirtyAndPropagatesToChildren)
 	const auto expectedChildWorld	= glm::translate(glm::mat4(1.f), glm::vec3(11.f, 0.f, 0.f));
 	EXPECT_TRUE(MatrixNear(parent.Get<S_WorldTransformComponent>().world, expectedParentWorld));
 	EXPECT_TRUE(MatrixNear(child.Get<S_WorldTransformComponent>().world, expectedChildWorld));
+}
+
+TEST(WorldHierarchy, Update_DeepChain_DoesNotOverflowTheStackAndPropagatesCorrectly)
+{
+	// Don't raise this casually: CreateEntity's FindByName scan alone makes building the chain
+	// O(kDepth^2), and incremental Update() calls add another O(kDepth^2) on top - both pre-exist
+	// this fix (one is F-016, still open) and quadruple this test's runtime if kDepth doubles.
+	constexpr int kDepth = 500;
+
+	C_World world;
+	auto	root = world.CreateEntity("Node0");
+	root.Get<S_TransformComponent>().translation = glm::vec3(1.f, 0.f, 0.f);
+	TransformSystem::Update(world);
+
+	auto previous = root;
+	for (int i = 1; i < kDepth; ++i)
+	{
+		auto node = world.CreateEntity("Node" + std::to_string(i));
+		node.Get<S_TransformComponent>().translation = glm::vec3(1.f, 0.f, 0.f);
+		ASSERT_TRUE(world.SetParent(node.Handle(), previous.Handle()));
+		TransformSystem::Update(world);
+		previous = node;
+	}
+	const auto leaf = previous;
+
+	const auto expected = glm::translate(glm::mat4(1.f), glm::vec3(static_cast<float>(kDepth), 0.f, 0.f));
+	EXPECT_TRUE(MatrixNear(leaf.Get<S_WorldTransformComponent>().world, expected));
 }
 
 TEST(WorldHierarchy, DestroyEntity_ParentAndChildBothQueuedSameFrame_NoCrashNoDoubleDestroy)
