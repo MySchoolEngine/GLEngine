@@ -31,10 +31,6 @@ class C_OrbitalCamera;
 }
 } // namespace GLEngine::Renderer
 
-namespace GLEngine::Entity {
-class C_World;
-}
-
 namespace GLEngine::VkRenderer {
 
 class C_VkRenderer;
