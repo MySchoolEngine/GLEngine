@@ -276,6 +276,36 @@ TEST(WorldHierarchy, DestroyEntity_Child_ParentFirstChildAndSiblingsDoNotDangle)
 	TransformSystem::Update(world);
 }
 
+TEST(WorldHierarchy, RegistryPatch_MarksTransformDirtyAndPropagatesToChildren)
+{
+	C_World world;
+	auto	parent = world.CreateEntity("Parent");
+	auto	child  = world.CreateEntity("Child");
+	child.Get<S_TransformComponent>().translation = glm::vec3(1.f, 0.f, 0.f);
+	ASSERT_TRUE(world.SetParent(child.Handle(), parent.Handle()));
+
+	// Establish a baseline and consume the dirty tags SetParent/CreateEntity already set, so the
+	// propagation below can only be explained by the patch signal connected in C_World's
+	// constructor (World.cpp: on_update<S_TransformComponent> -> S_DirtyTransformTag), not by
+	// leftover dirty state from setup.
+	TransformSystem::Update(world);
+	ASSERT_TRUE(MatrixNear(child.Get<S_WorldTransformComponent>().world, glm::translate(glm::mat4(1.f), glm::vec3(1.f, 0.f, 0.f))));
+
+	// Mutate in place through the component reference, then patch() with no callback purely to
+	// fire the on_update signal - the exact pattern the Editor's gizmo path uses
+	// (EntityComponentsEditor.cpp).
+	auto& registry = world.Registry();
+	registry.get<S_TransformComponent>(parent.Handle()).translation = glm::vec3(10.f, 0.f, 0.f);
+	registry.patch<S_TransformComponent>(parent.Handle());
+
+	TransformSystem::Update(world);
+
+	const auto expectedParentWorld = glm::translate(glm::mat4(1.f), glm::vec3(10.f, 0.f, 0.f));
+	const auto expectedChildWorld	= glm::translate(glm::mat4(1.f), glm::vec3(11.f, 0.f, 0.f));
+	EXPECT_TRUE(MatrixNear(parent.Get<S_WorldTransformComponent>().world, expectedParentWorld));
+	EXPECT_TRUE(MatrixNear(child.Get<S_WorldTransformComponent>().world, expectedChildWorld));
+}
+
 TEST(WorldHierarchy, DestroyEntity_ParentAndChildBothQueuedSameFrame_NoCrashNoDoubleDestroy)
 {
 	C_World world;
