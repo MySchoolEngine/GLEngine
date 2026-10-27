@@ -20,12 +20,11 @@
 
 namespace {
 
-// Both benchmarks build each entity's matrix via the same translate*quat_cast*scale
-// composition (TransformSystem::ComputeLocal's formula), not just a plain translate - otherwise
-// "New" pays for quat-to-matrix conversion on every dirty entity while "Old" only ever stores a
-// precomputed matrix, and the comparison mostly measures that arithmetic rather than the actual
-// difference in storage/iteration. Rotation also varies per entity (not identity for all i) so a
-// compiler can't hoist the quat/scale composition out of the loop as a loop invariant.
+// Builds each entity's matrix via the same translate*quat_cast*scale composition
+// (TransformSystem::ComputeLocal's formula), not just a plain translate, so this measures the
+// same per-entity arithmetic TransformSystem::Update actually does. Rotation also varies per
+// entity (not identity for all i) so a compiler can't hoist the quat/scale composition out of
+// the loop as a loop invariant.
 glm::quat RotationForIndex(int i)
 {
 	return glm::angleAxis(glm::radians(static_cast<float>(i % 360)), glm::vec3(0.f, 1.f, 0.f));
