@@ -37,6 +37,16 @@ void FreeGPUBuffers(entt::registry& registry, entt::entity e)
 	g_ResourceManagerForDestroy->destoryPipeline(gpu.pipeline);
 }
 
+void UnregisterConvertedMaterials(entt::registry& registry, entt::entity e)
+{
+	auto& mesh			  = registry.get<S_StaticMesh>(e);
+	auto& materialManager = C_MaterialManager::Instance();
+	for (auto& material : mesh.convertedMaterials)
+	{
+		materialManager.UnregisterMaterial(material);
+	}
+}
+
 // Ported verbatim from the old C_StaticMeshHandles::ConvertHandleToMaterial.
 std::shared_ptr<C_Material> ConvertHandleToMaterial(const Core::ResourceHandle<MaterialResource>& handle)
 {
@@ -98,6 +108,7 @@ void RegisterDestroyHook(Entity::C_World& world, ResourceManager& resourceManage
 {
 	g_ResourceManagerForDestroy = &resourceManager;
 	world.Registry().on_destroy<S_StaticMeshGPU>().connect<&FreeGPUBuffers>();
+	world.Registry().on_destroy<S_StaticMesh>().connect<&UnregisterConvertedMaterials>();
 }
 
 //=================================================================================

@@ -1,6 +1,8 @@
 #include <RendererTestStdafx.h>
 
 #include <Renderer/Components/Mesh/StaticMeshComponents.h>
+#include <Renderer/Materials/Material.h>
+#include <Renderer/Materials/MaterialManager.h>
 #include <Renderer/Mesh/Scene.h>
 #include <Renderer/Systems/StaticMeshSystem.h>
 
@@ -91,6 +93,33 @@ TEST(StaticMeshSystem, DestroyingTheGpuComponent_FreesAllBuffersAndThePipeline)
 
 	EXPECT_EQ(fakeRM.destroyBufferCalls, 5);
 	EXPECT_EQ(fakeRM.destroyPipelineCalls, 1);
+}
+
+TEST(StaticMeshSystem, DestroyingTheEntity_UnregistersConvertedMaterials)
+{
+	Entity::C_World world;
+	auto			entity = world.CreateEntity("Mesh");
+	auto&			mesh   = entity.Add<S_StaticMesh>();
+
+	auto&	   materialManager = C_MaterialManager::Instance();
+	const auto material		   = materialManager.RegisterMaterial(C_Material("F-059 regression test material"));
+	mesh.convertedMaterials	   = {material};
+
+	C_FakeResourceManager fakeRM;
+	StaticMeshSystem::RegisterDestroyHook(world, fakeRM);
+
+	world.DestroyEntity(entity.Handle());
+	world.OnUpdate();
+
+	// UnregisterMaterial only erases the shared_ptr from the manager's internal list - `material`
+	// (ours) keeps the object alive, so check reachability via ForEachMaterial rather than relying
+	// on its (now-stale) index.
+	bool stillRegistered = false;
+	materialManager.ForEachMaterial([&](C_Material& m) {
+		if (&m == material.get())
+			stillRegistered = true;
+	});
+	EXPECT_FALSE(stillRegistered);
 }
 
 TEST(StaticMeshComponents, StaticMesh_IsRegisteredInComponentRegistry)
