@@ -153,6 +153,36 @@ TEST(World, ClearLevel_RemovesAllEntities)
 	EXPECT_FALSE(world.FindByName("B").IsValid());
 }
 
+TEST(World, ClearLevel_ThenOnUpdate_SurvivesAStaleQueuedDestroy)
+{
+	C_World world;
+	auto	a = world.CreateEntity("A");
+	world.DestroyEntity(a.Handle()); // queued, not yet flushed by OnUpdate()
+
+	world.ClearLevel();
+	auto b = world.CreateEntity("A"); // same name as the queued-for-destroy entity
+	world.OnUpdate();				   // flushes the stale queue entry alongside any real ones
+
+	// Note: this passes regardless of whether ClearLevel() clears m_PendingDestroy, since
+	// m_Registry.clear() already bumps entt's generation counters - OnUpdate()'s registry.valid()
+	// guard rejects the stale handle either way. Kept as coverage for the suggested sequence
+	// itself (queue a destroy, clear the level, reuse the name), not as a regression trap for
+	// that one line.
+	EXPECT_TRUE(world.FindByName("A").IsValid());
+	EXPECT_EQ(world.FindByName("A").GetGuid(), b.GetGuid());
+}
+
+TEST(World, ClearLevel_ResetsFilename)
+{
+	C_World world;
+	world.SetFilename("level.ent");
+	ASSERT_FALSE(world.GetFilename().empty());
+
+	world.ClearLevel();
+
+	EXPECT_TRUE(world.GetFilename().empty());
+}
+
 TEST(World, GetOrCreateEntity_CreatesNewEntity)
 {
 	C_World world;
