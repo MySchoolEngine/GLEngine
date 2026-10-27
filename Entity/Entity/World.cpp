@@ -74,6 +74,10 @@ bool C_World::SetParent(entt::entity child, entt::entity newParent)
 {
 	if (child == newParent)
 		return false;
+	// A stale or default-constructed handle must fail cleanly here, not assert in the cycle-walk
+	// or Detach() below (registry.get on an invalid handle is UB in release, an assert in debug).
+	if (!m_Registry.valid(child) || (newParent != entt::null && !m_Registry.valid(newParent)))
+		return false;
 
 	// Reject a cycle: newParent must not be child itself or a descendant of child.
 	for (auto walk = newParent; walk != entt::null; walk = m_Registry.get<S_RelationshipComponent>(walk).parent)
