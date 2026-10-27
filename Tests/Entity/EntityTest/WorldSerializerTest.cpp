@@ -52,6 +52,31 @@ TEST(WorldSerializer, SaveThenLoad_PreservesGuidNameAndTransform)
 	EXPECT_NEAR(loaded_transform.scale.z, transform.scale.z, 0.0001f);
 }
 
+// S_LocalBounds is deliberately not registered with C_ComponentRegistry (see the comment
+// on its definition in CoreComponents.h) - it's a derived cache the render systems rebuild every
+// frame, not authored data. Pins down that documented intent as a test rather than leaving it as
+// a comment nobody would notice breaking.
+TEST(WorldSerializer, SaveThenLoad_DoesNotPersistLocalBounds)
+{
+	C_World world;
+	auto	entity = world.CreateEntity("Bounded");
+	auto&	bounds = entity.Add<S_LocalBounds>();
+	bounds.aabb.Add(glm::vec3(-1.f));
+	bounds.aabb.Add(glm::vec3(1.f));
+	const GUID originalGuid = entity.GetGuid();
+
+	C_WorldSerializer  serializer;
+	pugi::xml_document doc = serializer.Save(world);
+
+	C_World			   loaded;
+	Core::LoadingQuery query;
+	serializer.Load(doc, loaded, Core::C_ResourceManager::Instance(), query, /*loadHandlesInstantly=*/true);
+
+	C_Entity found = loaded.FindByGuid(originalGuid);
+	ASSERT_TRUE(found.IsValid());
+	EXPECT_FALSE(found.Has<S_LocalBounds>());
+}
+
 TEST(WorldSerializer, SaveThenLoad_PreservesHierarchy)
 {
 	C_World world;
