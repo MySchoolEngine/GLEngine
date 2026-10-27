@@ -71,18 +71,27 @@ template <int numElements> bool DeserializeFloatList(std::stringstream& ss, glm:
 
 	for (int i = 0; i < numElements; ++i)
 	{
-		if (std::getline(ss, value, ','))
+		if (!std::getline(ss, value, ','))
+			return false;
+		try
 		{
 			vec[i] = std::stof(value);
 		}
-		else
+		catch (const std::exception&)
+		{
+			// Malformed or empty field (e.g. "(1,,3)" or "(abc,0,0,0)") - std::stof throws here
+			// rather than returning an error code, and letting it escape would abort the whole
+			// WorldSerializer::Load instead of just failing this one property.
 			return false;
+		}
 	}
 	return true;
 }
 
 bool DeserializeString(const std::string& str, glm::vec2& vec)
 {
+	if (str.empty())
+		return false;
 	if (str[0] != '(' || str[str.length() - 1] != ')')
 		return false;
 	std::stringstream ss(str.substr(1, str.length() - 2));
@@ -92,6 +101,8 @@ bool DeserializeString(const std::string& str, glm::vec2& vec)
 
 bool DeserializeString(const std::string& str, glm::vec3& vec)
 {
+	if (str.empty())
+		return false;
 	if (str[0] != '(' || str[str.length() - 1] != ')')
 		return false;
 	std::stringstream ss(str.substr(1, str.length() - 2));
@@ -101,6 +112,8 @@ bool DeserializeString(const std::string& str, glm::vec3& vec)
 
 bool DeserializeString(const std::string& str, glm::vec4& vec)
 {
+	if (str.empty())
+		return false;
 	if (str[0] != '(' || str[str.length() - 1] != ')')
 		return false;
 	std::stringstream ss(str.substr(1, str.length() - 2));
@@ -110,26 +123,20 @@ bool DeserializeString(const std::string& str, glm::vec4& vec)
 
 bool DeserializeString(const std::string& str, glm::quat& q)
 {
-	if (str[0] != '(' || str[str.length() - 1] != ')')
+	glm::vec4 v;
+	if (!DeserializeString(str, v))
 		return false;
-	std::stringstream ss(str.substr(1, str.length() - 2));
-	std::string		  value;
-	float			  values[4];
-	for (int i = 0; i < 4; ++i)
-	{
-		if (!std::getline(ss, value, ','))
-			return false;
-		values[i] = std::stof(value);
-	}
-	q.x = values[0];
-	q.y = values[1];
-	q.z = values[2];
-	q.w = values[3];
+	q.x = v.x;
+	q.y = v.y;
+	q.z = v.z;
+	q.w = v.w;
 	return true;
 }
 
 bool DeserializeString(const std::string& str, glm::mat4& mat)
 {
+	if (str.empty())
+		return false;
 	if (str[0] != '(' || str[str.length() - 1] != ')')
 		return false;
 	std::stringstream ss(str.substr(1, str.length() - 2));
@@ -148,6 +155,8 @@ bool DeserializeString(const std::string& str, glm::mat4& mat)
 
 template <class T> bool DeserializeString(const std::string& str, std::vector<T>& ret)
 {
+	if (str.empty())
+		return false;
 	if (str[0] != '(' || str[str.length() - 1] != ')')
 		return false; // wrong format
 
