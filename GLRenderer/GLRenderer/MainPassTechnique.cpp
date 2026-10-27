@@ -41,12 +41,12 @@ C_MainPassTechnique::C_MainPassTechnique(Renderer::ResourceManager& resourceMana
 }
 
 //=================================================================================
-void C_MainPassTechnique::Render(Entity::C_World&					 world,
-								 std::shared_ptr<Renderer::I_Camera> camera,
-								 unsigned int						 width,
-								 unsigned int						 height,
-								 Renderer::I_DebugDraw&				 dd,
-								 Renderer::I_RenderInterface3D&		 renderInterface3D)
+void C_MainPassTechnique::Render(Entity::C_World&							world,
+								 const std::shared_ptr<Renderer::I_Camera>& camera,
+								 unsigned int								width,
+								 unsigned int								height,
+								 Renderer::I_DebugDraw&						dd,
+								 Renderer::I_RenderInterface3D&				renderInterface3D)
 {
 	RenderDoc::C_DebugScope s("C_MainPassTechnique::Render");
 	const auto				camFrustum = camera->GetFrustum();
