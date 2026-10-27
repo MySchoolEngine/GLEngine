@@ -37,6 +37,54 @@ TEST(WorldHierarchy, SetParent_PropagatesWorldTransform)
 	EXPECT_TRUE(MatrixNear(child.Get<S_WorldTransformComponent>().world, expected));
 }
 
+TEST(WorldHierarchy, SetParent_ParentScaleAffectsChildTranslation)
+{
+	C_World world;
+	auto	parent = world.CreateEntity("Parent");
+	auto	child  = world.CreateEntity("Child");
+
+	parent.Get<S_TransformComponent>().scale	   = glm::vec3(2.f, 2.f, 2.f);
+	child.Get<S_TransformComponent>().translation = glm::vec3(1.f, 0.f, 0.f);
+
+	ASSERT_TRUE(world.SetParent(child.Handle(), parent.Handle()));
+
+	TransformSystem::Update(world);
+
+	// A commuting bug (e.g. applying translation before scale, or ignoring scale in ComputeLocal)
+	// would still land the child at (1,0,0) instead of (2,0,0) - scale and translation do not
+	// commute, unlike the translation-only case above.
+	const auto expected = glm::scale(glm::mat4(1.f), glm::vec3(2.f, 2.f, 2.f)) * glm::translate(glm::mat4(1.f), glm::vec3(1.f, 0.f, 0.f));
+	EXPECT_TRUE(MatrixNear(child.Get<S_WorldTransformComponent>().world, expected));
+	EXPECT_TRUE(MatrixNear(glm::translate(glm::mat4(1.f), glm::vec3(child.Get<S_WorldTransformComponent>().world[3])), glm::translate(glm::mat4(1.f), glm::vec3(2.f, 0.f, 0.f))));
+}
+
+TEST(WorldHierarchy, SetParent_PropagatesThroughThreeLevelChain)
+{
+	C_World world;
+	auto	grandparent = world.CreateEntity("Grandparent");
+	auto	parent		= world.CreateEntity("Parent");
+	auto	child		= world.CreateEntity("Child");
+
+	grandparent.Get<S_TransformComponent>().scale		 = glm::vec3(2.f, 2.f, 2.f);
+	parent.Get<S_TransformComponent>().translation		 = glm::vec3(1.f, 0.f, 0.f);
+	child.Get<S_TransformComponent>().translation		 = glm::vec3(0.f, 1.f, 0.f);
+
+	ASSERT_TRUE(world.SetParent(parent.Handle(), grandparent.Handle()));
+	ASSERT_TRUE(world.SetParent(child.Handle(), parent.Handle()));
+
+	TransformSystem::Update(world);
+
+	// Grandparent's scale must apply once, at the root, not re-applied at every level: parent's
+	// local translation (1,0,0) is scaled by the grandparent to world (2,0,0), and the child's
+	// local translation (0,1,0) is added in grandparent-scaled space on top of that, landing at
+	// (2,2,0) - not (3,1,0) (ignoring scale entirely) and not (2,3,0) (scaling only the child's
+	// own offset instead of the whole accumulated parent chain).
+	const auto parentExpected = glm::vec3(2.f, 0.f, 0.f);
+	const auto childExpected  = glm::vec3(2.f, 2.f, 0.f);
+	EXPECT_TRUE(MatrixNear(glm::translate(glm::mat4(1.f), glm::vec3(parent.Get<S_WorldTransformComponent>().world[3])), glm::translate(glm::mat4(1.f), parentExpected)));
+	EXPECT_TRUE(MatrixNear(glm::translate(glm::mat4(1.f), glm::vec3(child.Get<S_WorldTransformComponent>().world[3])), glm::translate(glm::mat4(1.f), childExpected)));
+}
+
 TEST(WorldHierarchy, SetParent_RejectsCycle)
 {
 	C_World world;
