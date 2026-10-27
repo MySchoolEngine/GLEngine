@@ -30,6 +30,35 @@ TEST(World, CreateEntity_CreatesDuplicatelyNamedEntity)
 	ASSERT_FALSE(duplicate.IsValid()) << "Should not create duplicate entity";
 }
 
+TEST(World, CreateEntityWithGuid_CreatesDuplicatelyNamedEntity)
+{
+	C_World world;
+
+	C_Entity entity = world.CreateEntityWithGuid(NextGUID(), "TestEntity");
+
+	ASSERT_TRUE(entity.IsValid());
+	EXPECT_EQ(entity.GetName(), "TestEntity");
+
+	C_Entity duplicate = world.CreateEntityWithGuid(NextGUID(), "TestEntity");
+
+	ASSERT_FALSE(duplicate.IsValid()) << "Should not create duplicate entity";
+}
+
+TEST(World, CreateEntityWithGuid_CreatesDuplicateGUIDEntity)
+{
+	C_World world;
+
+	const auto guid	  = NextGUID();
+	C_Entity   entity = world.CreateEntityWithGuid(guid, "TestEntity");
+
+	ASSERT_TRUE(entity.IsValid());
+	EXPECT_EQ(entity.GetName(), "TestEntity");
+
+	C_Entity duplicate = world.CreateEntityWithGuid(guid, "DifferentEntity");
+
+	ASSERT_FALSE(duplicate.IsValid()) << "Should not create duplicate entity";
+}
+
 TEST(World, CreateEntity_EmptyName)
 {
 	C_World world;
