@@ -55,7 +55,7 @@ bool C_EntityCompoenentEditor::Draw() const
 			if (entry.type == rttr::type::get<Entity::S_TransformComponent>())
 			{
 				auto& transform = registry.get<Entity::S_TransformComponent>(m_Entity.Handle());
-				if (GUI::Input::DrawTransform(transform))
+				if (GUI::Input::DrawTransform(transform.translation, transform.rotation, transform.scale))
 					registry.patch<Entity::S_TransformComponent>(m_Entity.Handle());
 			}
 			else

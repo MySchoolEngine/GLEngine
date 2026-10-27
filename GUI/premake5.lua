@@ -18,8 +18,6 @@ project "GUI"
 	{
 		"../Renderer",
 		"../Physics",
-		"../Entity",
-		"%{wks.location}/%{IncludeDir.entt}",
 		"../%{IncludeDir.GLFW}",
 		"../%{IncludeDir.GLM}",
 		"../%{IncludeDir.fmt}",
