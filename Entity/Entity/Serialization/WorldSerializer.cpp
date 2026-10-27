@@ -104,7 +104,18 @@ void C_WorldSerializer::Load(const pugi::xml_document& document, C_World& world,
 			continue;
 		const auto childGuid  = entityNode.attribute("guid").as_string();
 		const auto parentGuid = parentAttr.as_string();
-		if (!world.SetParent(guidToEntity.at(childGuid), guidToEntity.at(parentGuid)))
+
+		// guidToEntity.at(parentGuid) would throw std::out_of_range on a malformed or truncated
+		// file whose parent attribute doesn't match any entity in it; find() lets that case be
+		// logged and skipped like the cycle case below, instead of aborting the whole Load.
+		const auto parentIt = guidToEntity.find(parentGuid);
+		if (parentIt == guidToEntity.end())
+		{
+			CORE_LOG(E_Level::Warning, E_Context::Entity, "Entity '{}' references parent guid '{}' that is not in this file; left unparented.", childGuid, parentGuid);
+			continue;
+		}
+
+		if (!world.SetParent(guidToEntity.at(childGuid), parentIt->second))
 			CORE_LOG(E_Level::Warning, E_Context::Entity, "Entity '{}' has a parent reference that would form a cycle; left unparented.", childGuid);
 	}
 }
