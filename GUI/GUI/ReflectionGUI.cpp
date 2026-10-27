@@ -530,18 +530,21 @@ std::vector<rttr::property> DrawAllPropertyGUI(rttr::instance& obj)
 	using namespace ::Utils::Reflection;
 	std::vector<rttr::property> changedVals;
 
-	if (UI::IsTypeUIMetaClass<MetaGUI::CustomGUIWidget>(obj))
-	{
-		// custom widgets
-		GetMetadataMember<UI::CustomGUIWidget::DrawFunction>(obj)(obj);
-		return {};
-	}
-
 	// instance::get_type() on a wrapper (e.g. std::reference_wrapper<T>) returns the wrapper's
 	// own type, not T's - get_wrapped_instance() is required to see T's properties. rttr::instance
 	// has no public operator=, so unwrap into a fresh copy-constructed local instead of reassigning obj.
+	// Done before the custom-widget check below so a CustomGUIWidget registered on T is found even
+	// when obj is a wrapper - the metadata lookup only ever sees the wrapper's own type otherwise.
 	rttr::instance unwrapped = obj.get_type().get_raw_type().is_wrapper() ? obj.get_wrapped_instance() : obj;
-	rttr::type	   type		 = unwrapped.get_type().get_raw_type();
+
+	if (UI::IsTypeUIMetaClass<MetaGUI::CustomGUIWidget>(unwrapped))
+	{
+		// custom widgets
+		GetMetadataMember<UI::CustomGUIWidget::DrawFunction>(unwrapped)(unwrapped);
+		return {};
+	}
+
+	rttr::type type = unwrapped.get_type().get_raw_type();
 	if (type.get_derived_classes().empty() == false)
 		type = unwrapped.get_derived_type();
 
