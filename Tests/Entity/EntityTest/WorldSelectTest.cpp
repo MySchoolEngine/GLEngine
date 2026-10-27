@@ -33,6 +33,22 @@ TEST(WorldSelect, Select_HitsEntityWithBounds)
 	EXPECT_EQ(result.entityId, entity.GetGuid());
 }
 
+TEST(WorldSelect, Select_RayMissesBoundedEntity_ReturnsInvalid)
+{
+	C_World world;
+	auto	entity								   = world.CreateEntity("Target");
+	entity.Get<S_TransformComponent>().translation = glm::vec3(0.f, 0.f, 0.f);
+	entity.Add<S_LocalBounds>().aabb			   = MakeAABB(glm::vec3(-1.f), glm::vec3(1.f));
+	TransformSystem::Update(world);
+
+	// Starts well outside the entity's [-1,1]^3 bounds and travels further away on every axis -
+	// an "always hit" AABB intersection would still wrongly return this entity.
+	const Physics::Primitives::S_Ray ray{glm::vec3(10.f, 10.f, 10.f), glm::vec3(1.f, 0.f, 0.f)};
+	const auto						 result = world.Select(ray);
+
+	EXPECT_EQ(result.entityId, GUID::INVALID_GUID);
+}
+
 TEST(WorldSelect, Select_NoEntities_HitsGroundPlane)
 {
 	C_World world;

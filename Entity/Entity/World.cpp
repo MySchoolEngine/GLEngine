@@ -9,6 +9,7 @@
 #include <Physics/Primitives/Ray.h>
 
 #include <algorithm>
+#include <cmath>
 #include <limits>
 
 namespace GLEngine::Entity {
@@ -202,7 +203,9 @@ Physics::Primitives::S_RayIntersection C_World::Select(const Physics::Primitives
 	for (auto [entity, bounds, worldTransform, identity] : view.each())
 	{
 		const auto distance = bounds.aabb.getTransformedAABB(worldTransform.world).IntersectImpl(ray);
-		if (distance > 0)
+		// IntersectImpl returns +infinity for "no intersection" (see S_AABB::Intersects); infinity
+		// satisfies distance > 0, so every bounded entity was wrongly counted as a hit on a miss.
+		if (distance > 0 && std::isfinite(distance))
 		{
 			S_RayIntersection intersection;
 			intersection.entityId		   = identity.id;
