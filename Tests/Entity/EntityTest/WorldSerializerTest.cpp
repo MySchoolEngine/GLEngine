@@ -174,4 +174,35 @@ TEST(WorldSerializer, Load_CyclicParentReferences_RejectsTheSecondAndLeavesItUnp
 	EXPECT_EQ(loaded.Registry().get<S_RelationshipComponent>(b.Handle()).parent, entt::null);
 }
 
+TEST(WorldSerializer, Load_DuplicateGuid_KeepsTheFirstAndSkipsTheSecondWithoutCrashing)
+{
+	pugi::xml_document doc;
+	auto			   worldNode = doc.append_child("World");
+
+	const GUID sharedGuid = GUID("00000000-0000-0000-0000-00000000dupe");
+
+	auto firstNode					 = worldNode.append_child("Entity");
+	firstNode.append_attribute("guid") = sharedGuid.toString().c_str();
+	firstNode.append_attribute("name") = "First";
+
+	auto secondNode					  = worldNode.append_child("Entity");
+	secondNode.append_attribute("guid") = sharedGuid.toString().c_str();
+	secondNode.append_attribute("name") = "Second";
+	// A component child node is required to actually exercise the crash this fix prevents: without
+	// one, the duplicate's invalid entity handle is never passed to entry->emplaceDefault().
+	secondNode.append_child("Transform");
+
+	C_WorldSerializer  serializer;
+	C_World			   loaded;
+	Core::LoadingQuery query;
+	// Before this fix, CreateEntityWithGuid's invalid return for the duplicate was never checked,
+	// so the component-deserialization loop below would call entry->emplaceDefault on an
+	// entt::null handle.
+	EXPECT_NO_THROW(serializer.Load(doc, loaded, Core::C_ResourceManager::Instance(), query, true));
+
+	EXPECT_TRUE(loaded.FindByName("First").IsValid());
+	EXPECT_FALSE(loaded.FindByName("Second").IsValid());
+	EXPECT_EQ(loaded.FindByGuid(sharedGuid).GetName(), "First");
+}
+
 } // namespace GLEngine::Entity

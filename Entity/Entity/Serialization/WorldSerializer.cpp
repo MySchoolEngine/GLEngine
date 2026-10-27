@@ -80,6 +80,14 @@ void C_WorldSerializer::Load(const pugi::xml_document& document, C_World& world,
 		const std::string name	  = entityNode.attribute("name").as_string();
 
 		auto entity = world.CreateEntityWithGuid(GUID(guidStr), name);
+		if (!entity.IsValid())
+		{
+			// CreateEntityWithGuid rejects a duplicate guid (or name) by returning an invalid
+			// entity - without this check, the component-deserialization loop below would call
+			// entry->emplaceDefault(registry, entity.Handle()) on an entt::null handle.
+			CORE_LOG(E_Level::Warning, E_Context::Entity, "Entity '{}' has a duplicate guid '{}' (or an already-used name) in this file; keeping the first one and skipping this entry.", name, guidStr);
+			continue;
+		}
 		guidToEntity.emplace(guidStr, entity.Handle());
 
 		for (const auto& compNode : entityNode.children())
