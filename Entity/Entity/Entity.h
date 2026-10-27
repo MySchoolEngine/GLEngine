@@ -20,7 +20,9 @@ public:
 	[[nodiscard]] entt::entity Handle() const { return m_Handle; }
 	[[nodiscard]] C_World*	   World() const { return m_World; }
 
+	// Asserts if T is already present - use AddOrReplace to add-or-overwrite instead.
 	template <class T, class... Args> T&	  Add(Args&&... args);
+	template <class T, class... Args> T&	  AddOrReplace(Args&&... args);
 	template <class T> [[nodiscard]] T&		  Get();
 	template <class T> [[nodiscard]] const T& Get() const;
 	template <class T> [[nodiscard]] T*		  TryGet();

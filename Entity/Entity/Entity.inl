@@ -9,6 +9,11 @@ template <class T, class... Args> T& C_Entity::Add(Args&&... args)
 	return m_World->Registry().emplace<T>(m_Handle, std::forward<Args>(args)...);
 }
 
+template <class T, class... Args> T& C_Entity::AddOrReplace(Args&&... args)
+{
+	return m_World->Registry().emplace_or_replace<T>(m_Handle, std::forward<Args>(args)...);
+}
+
 template <class T> T& C_Entity::Get()
 {
 	return m_World->Registry().get<T>(m_Handle);

@@ -1,5 +1,6 @@
 #include <EntityTestStdafx.h>
 
+#include <Entity/Components/CoreComponents.h>
 #include <Entity/Entity.h>
 #include <Entity/World.h>
 
@@ -188,6 +189,22 @@ TEST(World, DestroyEntity_StaleHandle_DoesNotCrashAndLeavesOthersUnaffected)
 	EXPECT_NO_FATAL_FAILURE(world.OnUpdate());
 
 	EXPECT_TRUE(world.FindByGuid(existing.GetGuid()).IsValid());
+}
+
+TEST(C_Entity, AddOrReplace_OverwritesAnExistingComponent)
+{
+	C_World world;
+	auto	entity = world.CreateEntity("Test");
+
+	// Every entity already has an S_TransformComponent from creation, so Add<S_TransformComponent>
+	// here would assert (see F-005) - AddOrReplace is the explicit "overwrite if present" call.
+	entity.Get<S_TransformComponent>().translation = glm::vec3(1.f, 0.f, 0.f);
+	entity.AddOrReplace<S_TransformComponent>().translation = glm::vec3(2.f, 3.f, 4.f);
+
+	const auto& transform = entity.Get<S_TransformComponent>();
+	EXPECT_FLOAT_EQ(transform.translation.x, 2.f);
+	EXPECT_FLOAT_EQ(transform.translation.y, 3.f);
+	EXPECT_FLOAT_EQ(transform.translation.z, 4.f);
 }
 
 } // namespace GLEngine::Entity
