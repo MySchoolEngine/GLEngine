@@ -73,4 +73,61 @@ TEST(WorldSerializer, Load_UnknownComponentName_SkippedWithoutCrashing)
 	EXPECT_TRUE(loaded.FindByName("Weird").IsValid());
 }
 
+TEST(WorldSerializer, Load_ParentGuidMissingFromFile_LeavesEntityUnparentedWithoutThrowing)
+{
+	pugi::xml_document doc;
+	auto			   worldNode = doc.append_child("World");
+	auto			   entityNode = worldNode.append_child("Entity");
+
+	const GUID childGuid				   = GUID("00000000-0000-0000-0000-000000000001");
+	entityNode.append_attribute("guid")   = childGuid.toString().c_str();
+	entityNode.append_attribute("name")   = "Orphan";
+	// Not the guid of any <Entity> in this file - e.g. a truncated save or a hand-edited one.
+	entityNode.append_attribute("parent") = GUID("00000000-0000-0000-0000-00000000dead").toString().c_str();
+
+	C_WorldSerializer  serializer;
+	C_World			   loaded;
+	Core::LoadingQuery query;
+	EXPECT_NO_THROW(serializer.Load(doc, loaded, Core::C_ResourceManager::Instance(), query, true));
+
+	C_Entity child = loaded.FindByGuid(childGuid);
+	ASSERT_TRUE(child.IsValid());
+	EXPECT_EQ(loaded.Registry().get<S_RelationshipComponent>(child.Handle()).parent, entt::null);
+}
+
+TEST(WorldSerializer, Load_CyclicParentReferences_RejectsTheSecondAndLeavesItUnparented)
+{
+	pugi::xml_document doc;
+	auto			   worldNode = doc.append_child("World");
+
+	const GUID aGuid = GUID("00000000-0000-0000-0000-00000000000a");
+	const GUID bGuid = GUID("00000000-0000-0000-0000-00000000000b");
+
+	auto aNode							= worldNode.append_child("Entity");
+	aNode.append_attribute("guid")		= aGuid.toString().c_str();
+	aNode.append_attribute("name")		= "A";
+	aNode.append_attribute("parent")	= bGuid.toString().c_str();
+
+	auto bNode						 = worldNode.append_child("Entity");
+	bNode.append_attribute("guid")	 = bGuid.toString().c_str();
+	bNode.append_attribute("name")	 = "B";
+	bNode.append_attribute("parent") = aGuid.toString().c_str();
+
+	C_WorldSerializer  serializer;
+	C_World			   loaded;
+	Core::LoadingQuery query;
+	EXPECT_NO_THROW(serializer.Load(doc, loaded, Core::C_ResourceManager::Instance(), query, true));
+
+	C_Entity a = loaded.FindByGuid(aGuid);
+	C_Entity b = loaded.FindByGuid(bGuid);
+	ASSERT_TRUE(a.IsValid());
+	ASSERT_TRUE(b.IsValid());
+
+	// A is processed first and parents under B successfully (B has no parent yet, so it is not
+	// a cycle at that point). When B is then processed and asked to parent under A, SetParent
+	// must reject it as a cycle (A's parent chain now reaches B) and leave B unparented.
+	EXPECT_EQ(loaded.Registry().get<S_RelationshipComponent>(a.Handle()).parent, b.Handle());
+	EXPECT_EQ(loaded.Registry().get<S_RelationshipComponent>(b.Handle()).parent, entt::null);
+}
+
 } // namespace GLEngine::Entity
