@@ -31,7 +31,5 @@ namespace {
 } // namespace
 
 namespace GLEngine::Renderer {
-void EnsureStaticMeshComponentsRegistered()
-{
-}
+DEFINE_FORCE_LINK_COMPONENT_TU(EnsureStaticMeshComponentsRegistered);
 } // namespace GLEngine::Renderer

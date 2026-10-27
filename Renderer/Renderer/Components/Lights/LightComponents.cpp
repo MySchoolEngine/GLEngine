@@ -127,7 +127,5 @@ namespace {
 } // namespace
 
 namespace GLEngine::Renderer {
-void EnsureLightComponentsRegistered()
-{
-}
+DEFINE_FORCE_LINK_COMPONENT_TU(EnsureLightComponentsRegistered);
 } // namespace GLEngine::Renderer

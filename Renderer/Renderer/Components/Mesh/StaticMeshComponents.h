@@ -2,6 +2,7 @@
 
 #include <Renderer/RendererApi.h>
 
+#include <Renderer/Components/ForceLinkComponentTU.h>
 #include <Renderer/Materials/MaterialResource.h>
 #include <Renderer/Mesh/Loading/MeshResource.h>
 #include <Renderer/Resources/RenderResourceHandle.h>
@@ -38,9 +39,6 @@ struct S_StaticMeshGPU {
 	Handle<Pipeline>					pipeline;
 };
 
-// See LightComponents.h's EnsureLightComponentsRegistered for why this exists: this TU's only
-// content is RTTR_REGISTRATION + a C_ComponentRegistry static-init side effect, so a static-lib
-// test link (RendererTest on MSVC) would otherwise drop the whole object file as unused.
-RENDERER_API_EXPORT void EnsureStaticMeshComponentsRegistered();
+DECLARE_FORCE_LINK_COMPONENT_TU(EnsureStaticMeshComponentsRegistered);
 
 } // namespace GLEngine::Renderer

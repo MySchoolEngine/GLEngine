@@ -2,6 +2,7 @@
 
 #include <Renderer/RendererApi.h>
 
+#include <Renderer/Components/ForceLinkComponentTU.h>
 #include <Renderer/Resources/RenderResourceHandle.h>
 
 #include <cstdint>
@@ -31,8 +32,6 @@ struct S_GeomGPU {
 	Handle<Pipeline> pipeline;
 };
 
-// See LightComponents.h's EnsureLightComponentsRegistered for why this exists (force-link for
-// static-lib test builds).
-RENDERER_API_EXPORT void EnsureGeomComponentsRegistered();
+DECLARE_FORCE_LINK_COMPONENT_TU(EnsureGeomComponentsRegistered);
 
 } // namespace GLEngine::Renderer

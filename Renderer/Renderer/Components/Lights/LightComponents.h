@@ -3,6 +3,7 @@
 #include <Renderer/RendererApi.h>
 
 #include <Renderer/Colours.h>
+#include <Renderer/Components/ForceLinkComponentTU.h>
 
 namespace GLEngine::Renderer {
 
@@ -27,13 +28,6 @@ struct S_SunLight {
 	float			  sunDiscMultiplier = 1.f;
 };
 
-// These light structs are entirely header-defined, so nothing outside this translation unit
-// ever references an out-of-line symbol from LightComponents.cpp - in a static-library link
-// (e.g. RendererTest on MSVC links RendererStatic, not the Renderer DLL), the linker would then
-// drop that whole object file as unused, and its RTTR_REGISTRATION/C_ComponentRegistry static
-// initializers would never run. Calling this once forces the TU to be linked in, which is
-// sufficient for the rest of its static initializers to run too. Not needed in the real
-// Renderer.dll build, where every linked TU's static init runs unconditionally at load time.
-RENDERER_API_EXPORT void EnsureLightComponentsRegistered();
+DECLARE_FORCE_LINK_COMPONENT_TU(EnsureLightComponentsRegistered);
 
 } // namespace GLEngine::Renderer

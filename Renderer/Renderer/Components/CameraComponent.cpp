@@ -16,7 +16,5 @@ namespace {
 } // namespace
 
 namespace GLEngine::Renderer {
-void EnsureCameraComponentsRegistered()
-{
-}
+DEFINE_FORCE_LINK_COMPONENT_TU(EnsureCameraComponentsRegistered);
 } // namespace GLEngine::Renderer

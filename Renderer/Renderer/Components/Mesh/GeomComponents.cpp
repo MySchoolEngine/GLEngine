@@ -35,7 +35,5 @@ namespace {
 } // namespace
 
 namespace GLEngine::Renderer {
-void EnsureGeomComponentsRegistered()
-{
-}
+DEFINE_FORCE_LINK_COMPONENT_TU(EnsureGeomComponentsRegistered);
 } // namespace GLEngine::Renderer

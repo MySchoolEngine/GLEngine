@@ -2,6 +2,8 @@
 
 #include <Renderer/RendererApi.h>
 
+#include <Renderer/Components/ForceLinkComponentTU.h>
+
 #include <memory>
 
 namespace GLEngine::Renderer {
@@ -14,8 +16,6 @@ struct S_CameraComponent {
 	std::shared_ptr<I_Camera> camera;
 };
 
-// See LightComponents.h's EnsureLightComponentsRegistered for why this exists (force-link for
-// static-lib test builds).
-RENDERER_API_EXPORT void EnsureCameraComponentsRegistered();
+DECLARE_FORCE_LINK_COMPONENT_TU(EnsureCameraComponentsRegistered);
 
 } // namespace GLEngine::Renderer
