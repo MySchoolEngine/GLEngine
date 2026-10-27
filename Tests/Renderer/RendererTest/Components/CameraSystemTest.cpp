@@ -29,8 +29,13 @@ public:
 	{
 		lastWorldTransform = worldTransform;
 		++setOwnerWorldTransformCalls;
+		callLog.push_back("SetOwnerWorldTransform");
 	}
-	void Update() override { ++updateCalls; }
+	void Update() override
+	{
+		++updateCalls;
+		callLog.push_back("Update");
+	}
 
 	glm::mat4 GetViewProjectionMatrix() const override { return glm::mat4(1.f); }
 	glm::mat4 GetScreenToWorldMatrix() const override { return glm::mat4(1.f); }
@@ -50,9 +55,10 @@ public:
 	bool			 HasDebugDrawGUI() const override { return false; }
 	std::string_view GetDebugComponentName() const override { return "FakeCamera"; }
 
-	glm::mat4 lastWorldTransform		  = glm::mat4(1.f);
-	int		  setOwnerWorldTransformCalls = 0;
-	int		  updateCalls				  = 0;
+	glm::mat4				  lastWorldTransform		  = glm::mat4(1.f);
+	int						  setOwnerWorldTransformCalls = 0;
+	int						  updateCalls				  = 0;
+	std::vector<std::string> callLog;
 };
 
 } // namespace
@@ -72,6 +78,36 @@ TEST(CameraSystem, Update_FeedsOwnerWorldTransformBeforeUpdating)
 	ASSERT_EQ(fakeCamera->setOwnerWorldTransformCalls, 1);
 	EXPECT_EQ(fakeCamera->updateCalls, 1);
 	EXPECT_EQ(glm::vec3(fakeCamera->lastWorldTransform[3]), glm::vec3(3.f, 4.f, 5.f));
+	// The test's own name claims an order - actually check it instead of just counting calls,
+	// which would pass even if Update() ran before SetOwnerWorldTransform().
+	ASSERT_EQ(fakeCamera->callLog.size(), 2u);
+	EXPECT_EQ(fakeCamera->callLog[0], "SetOwnerWorldTransform");
+	EXPECT_EQ(fakeCamera->callLog[1], "Update");
+}
+
+TEST(CameraSystem, Update_NullCameraPointer_IsSkippedWithoutCrashing)
+{
+	Entity::C_World world;
+	auto			entity = world.CreateEntity("Camera");
+	entity.Add<S_CameraComponent>(); // .camera left null
+
+	EXPECT_NO_FATAL_FAILURE(CameraSystem::Update(world));
+}
+
+TEST(CameraSystem, Update_CameraEntityWithoutWorldTransform_IsSkipped)
+{
+	Entity::C_World world;
+	auto			entity	   = world.CreateEntity("Camera");
+	auto			fakeCamera = std::make_shared<C_FakeCamera>();
+	entity.Add<S_CameraComponent>().camera = fakeCamera;
+	// Every entity gets one unconditionally on creation - remove it to simulate the case the
+	// view's own type requirements silently exclude, rather than an explicit code branch.
+	entity.Remove<Entity::S_WorldTransformComponent>();
+
+	EXPECT_NO_FATAL_FAILURE(CameraSystem::Update(world));
+
+	EXPECT_EQ(fakeCamera->setOwnerWorldTransformCalls, 0);
+	EXPECT_EQ(fakeCamera->updateCalls, 0);
 }
 
 TEST(CameraSystem, OrbitalCamera_EffectivePositionIncludesParentTranslation)
