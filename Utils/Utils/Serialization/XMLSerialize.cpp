@@ -15,11 +15,9 @@ pugi::xml_document C_XMLSerializer::Serialize(const rttr::instance obj)
 	if (!obj.is_valid())
 		return {};
 
-	m_IsRootObject = true;
-
 	pugi::xml_document	 doc;
 	const pugi::xml_node node = doc.append_child(GetNodeName(obj.get_type()).to_string().c_str());
-	SerializeObject(obj, node);
+	SerializeInto(obj, node);
 	return doc;
 }
 
