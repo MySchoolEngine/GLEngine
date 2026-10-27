@@ -28,6 +28,10 @@ RENDERER_API_EXPORT void Update(Entity::C_World& world, I_Renderer& renderer);
 // registry lifetime, not per-frame (see StaticMeshSystem::RegisterDestroyHook for why).
 RENDERER_API_EXPORT void RegisterDestroyHook(Entity::C_World& world, ResourceManager& resourceManager);
 
+// Reverses RegisterDestroyHook: disconnects the sink and clears the resource manager pointer, so
+// a test's stack-local fake doesn't outlive its scope as a dangling global.
+RENDERER_API_EXPORT void UnregisterDestroyHook(Entity::C_World& world);
+
 // Submits a RenderCall3D for the one procedural mesh - ported from C_GeomComponent::Render.
 RENDERER_API_EXPORT void Render(const S_GeomComponent& geom, const S_GeomGPU& gpu, const Entity::S_WorldTransformComponent& worldTransform, Renderer3D& renderer3D);
 

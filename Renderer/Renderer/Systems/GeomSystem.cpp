@@ -41,6 +41,13 @@ void RegisterDestroyHook(Entity::C_World& world, ResourceManager& resourceManage
 }
 
 //=================================================================================
+void UnregisterDestroyHook(Entity::C_World& world)
+{
+	world.Registry().on_destroy<S_GeomGPU>().disconnect<&FreeGPUBuffers>();
+	g_ResourceManagerForDestroy = nullptr;
+}
+
+//=================================================================================
 void Update(Entity::C_World& world, I_Renderer& renderer)
 {
 	auto& registry = world.Registry();
