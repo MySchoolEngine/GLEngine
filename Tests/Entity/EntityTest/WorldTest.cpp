@@ -191,6 +191,30 @@ TEST(World, DestroyEntity_StaleHandle_DoesNotCrashAndLeavesOthersUnaffected)
 	EXPECT_TRUE(world.FindByGuid(existing.GetGuid()).IsValid());
 }
 
+TEST(World, OnUpdate_DestroyingSomeEntities_LeavesExactlyTheSurvivorsLive)
+{
+	C_World world;
+	auto	a = world.CreateEntity("A");
+	auto	b = world.CreateEntity("B");
+	auto	c = world.CreateEntity("C");
+	auto	d = world.CreateEntity("D");
+
+	// Every entity gets an S_IdentityComponent unconditionally on creation (see
+	// CreateEntityWithGuid), so this view's size is a reliable live-entity count - C_World has no
+	// dedicated count/enumeration API, so the test reaches through the public Registry() accessor.
+	ASSERT_EQ(world.Registry().view<S_IdentityComponent>().size(), 4u);
+
+	world.DestroyEntity(b.Handle());
+	world.DestroyEntity(d.Handle());
+	world.OnUpdate();
+
+	EXPECT_EQ(world.Registry().view<S_IdentityComponent>().size(), 2u);
+	EXPECT_TRUE(world.FindByGuid(a.GetGuid()).IsValid());
+	EXPECT_TRUE(world.FindByGuid(c.GetGuid()).IsValid());
+	EXPECT_FALSE(world.FindByGuid(b.GetGuid()).IsValid());
+	EXPECT_FALSE(world.FindByGuid(d.GetGuid()).IsValid());
+}
+
 TEST(C_Entity, AddOrReplace_OverwritesAnExistingComponent)
 {
 	C_World world;
