@@ -276,4 +276,25 @@ TEST(WorldHierarchy, DestroyEntity_Child_ParentFirstChildAndSiblingsDoNotDangle)
 	TransformSystem::Update(world);
 }
 
+TEST(WorldHierarchy, DestroyEntity_ParentAndChildBothQueuedSameFrame_NoCrashNoDoubleDestroy)
+{
+	C_World world;
+	auto	parent = world.CreateEntity("Parent");
+	auto	child  = world.CreateEntity("Child");
+	ASSERT_TRUE(world.SetParent(child.Handle(), parent.Handle()));
+
+	const GUID parentGuid = parent.GetGuid();
+	const GUID childGuid  = child.GetGuid();
+
+	// Both independently queued in the same frame, parent first - the exact ordering F-015
+	// worried about: child's own queue entry runs Detach()/CollectSubtree() again on a subtree
+	// already collected (and about to be destroyed) via parent's entry.
+	world.DestroyEntity(parent.Handle());
+	world.DestroyEntity(child.Handle());
+	world.OnUpdate();
+
+	EXPECT_FALSE(world.FindByGuid(parentGuid).IsValid());
+	EXPECT_FALSE(world.FindByGuid(childGuid).IsValid());
+}
+
 } // namespace GLEngine::Entity
