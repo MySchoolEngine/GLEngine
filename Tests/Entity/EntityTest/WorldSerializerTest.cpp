@@ -16,9 +16,17 @@ namespace GLEngine::Entity {
 TEST(WorldSerializer, SaveThenLoad_PreservesGuidNameAndTransform)
 {
 	C_World world;
-	auto	entity								   = world.CreateEntity("floor");
-	entity.Get<S_TransformComponent>().translation = glm::vec3(0.f, -1.5f, 0.f);
-	const GUID originalGuid						   = entity.GetGuid();
+	auto	entity = world.CreateEntity("floor");
+
+	// Non-trivial on every axis and every field (translation x/y/z, a non-identity rotation, and
+	// a non-uniform scale), so a serializer bug that drops or mis-orders a field moves a value
+	// to the wrong place instead of coincidentally passing (e.g. the old test's translation=(0,
+	// -1.5,0) couldn't tell an x/y swap from a correct round-trip).
+	auto& transform		= entity.Get<S_TransformComponent>();
+	transform.translation = glm::vec3(3.25f, -1.5f, 7.75f);
+	transform.rotation	   = glm::angleAxis(glm::radians(45.f), glm::vec3(0.f, 1.f, 0.f));
+	transform.scale		   = glm::vec3(2.f, 0.5f, 3.f);
+	const GUID originalGuid = entity.GetGuid();
 
 	C_WorldSerializer  serializer;
 	pugi::xml_document doc = serializer.Save(world);
@@ -30,7 +38,18 @@ TEST(WorldSerializer, SaveThenLoad_PreservesGuidNameAndTransform)
 	C_Entity found = loaded.FindByGuid(originalGuid);
 	ASSERT_TRUE(found.IsValid());
 	EXPECT_EQ(found.GetName(), "floor");
-	EXPECT_FLOAT_EQ(found.Get<S_TransformComponent>().translation.y, -1.5f);
+
+	const auto& loaded_transform = found.Get<S_TransformComponent>();
+	EXPECT_NEAR(loaded_transform.translation.x, transform.translation.x, 0.0001f);
+	EXPECT_NEAR(loaded_transform.translation.y, transform.translation.y, 0.0001f);
+	EXPECT_NEAR(loaded_transform.translation.z, transform.translation.z, 0.0001f);
+	EXPECT_NEAR(loaded_transform.rotation.x, transform.rotation.x, 0.0001f);
+	EXPECT_NEAR(loaded_transform.rotation.y, transform.rotation.y, 0.0001f);
+	EXPECT_NEAR(loaded_transform.rotation.z, transform.rotation.z, 0.0001f);
+	EXPECT_NEAR(loaded_transform.rotation.w, transform.rotation.w, 0.0001f);
+	EXPECT_NEAR(loaded_transform.scale.x, transform.scale.x, 0.0001f);
+	EXPECT_NEAR(loaded_transform.scale.y, transform.scale.y, 0.0001f);
+	EXPECT_NEAR(loaded_transform.scale.z, transform.scale.z, 0.0001f);
 }
 
 TEST(WorldSerializer, SaveThenLoad_PreservesHierarchy)
