@@ -67,7 +67,7 @@ If you want to avoid serialization of default values put `REGISTER_DEFAULT_VALUE
 
 ## Entity Component System
 
-Entities are `entt::entity` handles owned by a `GLEngine::Entity::C_World` (a thin wrapper around an `entt::registry`). Components are plain structs with no base class and no virtual functions; systems are free functions that operate on a `C_World` each frame. There is no scheduler that auto-runs systems - each window's `Update()` calls them manually, in an order it controls itself (see "Adding a system" below).
+Entities are `entt::entity` handles owned by a `GLEngine::Entity::C_World` (a thin wrapper around an `entt::registry`). Components are plain structs with no base class and no virtual functions; systems are free functions that operate on a `C_World` each frame. `Entity::SystemScheduler` exists (a small stage-ordered runner: PreUpdate/Update/PostUpdate) but no window uses it yet - each window's `Update()` still calls systems manually, in an order it controls itself (see "Adding a system" below).
 
 ### Adding a component
 
@@ -139,7 +139,7 @@ const bool g_RegisterLightComponents = [] {
 
 ### Adding a system
 
-A system is a free function (or, if it needs to track its own state across frames, a small namespace of free functions - see `Renderer/Renderer/Systems/StaticMeshSystem.h`'s `Update`/`Render`/`RegisterDestroyHook`) taking a `C_World&` and doing its work by iterating an `entt::view`. There is no central scheduler - each window that owns a `C_World` calls systems manually, once per frame, in an order *it* chooses and is responsible for getting right.
+A system is a free function (or, if it needs to track its own state across frames, a small namespace of free functions - see `Renderer/Renderer/Systems/StaticMeshSystem.h`'s `Update`/`Render`/`RegisterDestroyHook`) taking a `C_World&` and doing its work by iterating an `entt::view`. `Entity::SystemScheduler` exists but no window uses it yet - each window that owns a `C_World` still calls systems manually, once per frame, in an order *it* chooses and is responsible for getting right.
 
 1. **Write the system.** `TransformSystem::Update` (`Entity/Entity/Systems/TransformSystem.h`/`.cpp`) is the simplest real example - it only recomputes entities tagged dirty, not everything every frame:
    ```cpp
