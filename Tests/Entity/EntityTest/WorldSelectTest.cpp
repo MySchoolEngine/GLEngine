@@ -57,6 +57,11 @@ TEST(WorldSelect, Select_NoEntities_HitsGroundPlane)
 	const auto						 result = world.Select(ray);
 
 	EXPECT_EQ(result.entityId, GUID::INVALID_GUID);
+	// The fallback ground plane sits at y=-1 (constructed as normal (0,1,0), offset -1, so
+	// origin = normal*offset = (0,-1,0)); a ray starting at y=5 travelling straight down covers
+	// a distance of 6 to reach it.
+	EXPECT_NEAR(result.distance, 6.f, 0.0001f);
+	EXPECT_NEAR(result.intersectionPoint.y, -1.f, 0.0001f);
 }
 
 TEST(WorldSelect, Select_PicksNearestOfMultipleHits)
