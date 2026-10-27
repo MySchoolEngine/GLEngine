@@ -37,6 +37,7 @@ public:
 
 	template <class T> void Register(std::string name, bool serializable = true, bool userAddable = true, bool drawGUI = true)
 	{
+		GLE_ASSERT(!FindByName(name), "The entry named {} already exists", name);
 		// S_ComponentRegistryEntry is constructed as a single aggregate-init expression, not via
 		// a default-constructed local plus field assignment - rttr::type has no default
 		// constructor, so a plain `S_ComponentRegistryEntry entry;` would implicitly delete the
