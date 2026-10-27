@@ -14,6 +14,8 @@
 #include <Core/Resources/LoadingQuery.h>
 #include <Core/Resources/ResourceManager.h>
 
+#include <glm/gtc/quaternion.hpp>
+
 #include <pugixml.hpp>
 
 namespace GLEngine::Renderer {
@@ -44,19 +46,52 @@ TEST(LightComponents, PointLight_GetShadingFrustum_AtWorldPosition)
 	EXPECT_EQ(frustum.GetPosition(), glm::vec3(1.f, 2.f, 3.f));
 }
 
-TEST(LightComponents, AreaLight_GetAABB_IsSymmetricAroundOrigin)
+TEST(LightComponents, AreaLight_GetAABB_ExtentMatchesSqrtHalfWidthAndHeight)
 {
 	Entity::C_World world;
 	auto			entity	  = world.CreateEntity("Light");
 	auto&			areaLight = entity.Add<S_AreaLight>();
-	areaLight.width			  = 2.f;
-	areaLight.height		  = 2.f;
+	areaLight.width			  = 8.f;  // sqrt(8/2) = 2: a width != height catches a width/height swap too
+	areaLight.height		  = 18.f; // sqrt(18/2) = 3
 	Entity::TransformSystem::Update(world);
 
 	const auto aabb = GetAABB(entity.Get<S_AreaLight>(), entity.Get<Entity::S_WorldTransformComponent>());
 
-	EXPECT_NEAR(aabb.m_Min.x, -aabb.m_Max.x, 0.0001f);
-	EXPECT_NEAR(aabb.m_Min.y, -aabb.m_Max.y, 0.0001f);
+	// At the identity transform, GetWorldNormal/GetWorldUpVector put the quad in the XY plane
+	// (see the rotated-transform test below), so this also exercises dirX/dirY being orthogonal
+	// unit vectors, not just the width/height formula.
+	EXPECT_NEAR(aabb.m_Max.x, 2.f, 0.0001f);
+	EXPECT_NEAR(aabb.m_Min.x, -2.f, 0.0001f);
+	EXPECT_NEAR(aabb.m_Max.y, 3.f, 0.0001f);
+	EXPECT_NEAR(aabb.m_Min.y, -3.f, 0.0001f);
+	EXPECT_NEAR(aabb.m_Max.z, 0.f, 0.0001f);
+	EXPECT_NEAR(aabb.m_Min.z, 0.f, 0.0001f);
+}
+
+TEST(LightComponents, AreaLight_GetWorldNormalAndUpVector_RotateWithTheEntity)
+{
+	Entity::C_World world;
+	auto			entity								= world.CreateEntity("Light");
+	entity.Get<Entity::S_TransformComponent>().rotation = glm::angleAxis(glm::radians(90.f), glm::vec3(1.f, 0.f, 0.f));
+	Entity::TransformSystem::Update(world);
+
+	const auto& worldTransform = entity.Get<Entity::S_WorldTransformComponent>();
+	const auto	normal			= GetWorldNormal(worldTransform);
+	const auto	up				= GetWorldUpVector(worldTransform);
+
+	// At the identity transform, normal is (0,0,-1) and up is (0,1,0) (GetAABB's test above
+	// relies on this too). GetWorldRotation conjugates glm::decompose's quaternion (see its own
+	// comment), which inverts the angle's sign relative to the S_TransformComponent.rotation we
+	// set here - confirmed empirically, not re-derived, since no other test exercises rotation to
+	// cross-check against. The point of this test is only to pin that *some* rotation-dependent
+	// result comes out (catching the identity-only blind spot F-074 flagged), not to assert a
+	// particular handedness convention.
+	EXPECT_NEAR(normal.x, 0.f, 0.0001f);
+	EXPECT_NEAR(normal.y, -1.f, 0.0001f);
+	EXPECT_NEAR(normal.z, 0.f, 0.0001f);
+	EXPECT_NEAR(up.x, 0.f, 0.0001f);
+	EXPECT_NEAR(up.y, 0.f, 0.0001f);
+	EXPECT_NEAR(up.z, -1.f, 0.0001f);
 }
 
 TEST(LightComponents, SunLight_GetSunDirection_MatchesStoredFields)
