@@ -138,4 +138,37 @@ TEST(WorldHierarchy, DestroyEntity_ParentDeletesChildren)
 	TransformSystem::Update(world);
 }
 
+TEST(WorldHierarchy, DestroyEntity_Child_ParentFirstChildAndSiblingsDoNotDangle)
+{
+	C_World world;
+	auto	parent = world.CreateEntity("Parent");
+	auto	a	   = world.CreateEntity("A");
+	auto	b	   = world.CreateEntity("B");
+	ASSERT_TRUE(world.SetParent(a.Handle(), parent.Handle()));
+	ASSERT_TRUE(world.SetParent(b.Handle(), parent.Handle()));
+
+	// Insertion order is head-first (SetParent inserts at firstChild), so after a, b the list is
+	// b -> a: b is parent's firstChild, the exact link that would be left dangling if OnUpdate()
+	// destroyed a child without first Detach()ing it from its parent.
+	ASSERT_EQ(world.Registry().get<S_RelationshipComponent>(parent.Handle()).firstChild, b.Handle());
+
+	const GUID bGuid = b.GetGuid();
+	world.DestroyEntity(b.Handle());
+	world.OnUpdate();
+
+	EXPECT_FALSE(world.FindByGuid(bGuid).IsValid());
+
+	const auto& parentRel = world.Registry().get<S_RelationshipComponent>(parent.Handle());
+	EXPECT_EQ(parentRel.childCount, 1u);
+	EXPECT_EQ(parentRel.firstChild, a.Handle()); // must not still point at the destroyed b
+
+	const auto& aRel = world.Registry().get<S_RelationshipComponent>(a.Handle());
+	EXPECT_EQ(aRel.parent, parent.Handle());
+	EXPECT_EQ(aRel.prev, entt::null); // must not still point at the destroyed b
+
+	// Regression guard: if firstChild (or a's prev) still referenced the destroyed b, walking
+	// down from parent during the next propagation would dereference that dead handle.
+	TransformSystem::Update(world);
+}
+
 } // namespace GLEngine::Entity
