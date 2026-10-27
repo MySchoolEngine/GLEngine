@@ -24,8 +24,6 @@ struct S_TransformComponent {
 	glm::vec3 translation{0.f, 0.f, 0.f};
 	glm::quat rotation{1.f, 0.f, 0.f, 0.f};
 	glm::vec3 scale{1.f, 1.f, 1.f};
-
-	RTTR_REGISTRATION_FRIEND
 };
 
 struct S_WorldTransformComponent {
