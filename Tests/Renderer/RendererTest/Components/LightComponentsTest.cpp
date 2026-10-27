@@ -18,6 +18,8 @@
 
 #include <pugixml.hpp>
 
+#include <cmath>
+
 namespace GLEngine::Renderer {
 
 TEST(LightComponents, PointLight_GetAABB_ContainsWorldPosition)
@@ -66,6 +68,42 @@ TEST(LightComponents, AreaLight_GetAABB_ExtentMatchesSqrtHalfWidthAndHeight)
 	EXPECT_NEAR(aabb.m_Min.y, -3.f, 0.0001f);
 	EXPECT_NEAR(aabb.m_Max.z, 0.f, 0.0001f);
 	EXPECT_NEAR(aabb.m_Min.z, 0.f, 0.0001f);
+}
+
+TEST(LightComponents, AreaLight_GetAABB_ZeroWidthOrHeight_CollapsesThatAxisToAPoint)
+{
+	Entity::C_World world;
+	auto			entity	  = world.CreateEntity("Light");
+	auto&			areaLight = entity.Add<S_AreaLight>();
+	areaLight.width			  = 0.f;
+	areaLight.height		  = 18.f; // sqrt(18/2) = 3, unaffected by the zero width
+	Entity::TransformSystem::Update(world);
+
+	const auto aabb = GetAABB(entity.Get<S_AreaLight>(), entity.Get<Entity::S_WorldTransformComponent>());
+
+	EXPECT_NEAR(aabb.m_Max.x, 0.f, 0.0001f);
+	EXPECT_NEAR(aabb.m_Min.x, 0.f, 0.0001f);
+	EXPECT_NEAR(aabb.m_Max.y, 3.f, 0.0001f);
+	EXPECT_NEAR(aabb.m_Min.y, -3.f, 0.0001f);
+}
+
+TEST(LightComponents, AreaLight_GetAABB_NegativeWidthOrHeight_ProducesNaN)
+{
+	// Documents current behaviour rather than asserting a "fixed" one: GetAABB computes
+	// sqrt(width/2.0f) with no clamp, so a negative size yields NaN (sqrt of a negative) that
+	// then propagates into the AABB untouched - there's no validation anywhere upstream of this
+	// that would reject a negative width/height on S_AreaLight.
+	Entity::C_World world;
+	auto			entity	  = world.CreateEntity("Light");
+	auto&			areaLight = entity.Add<S_AreaLight>();
+	areaLight.width			  = -4.f;
+	areaLight.height		  = 18.f;
+	Entity::TransformSystem::Update(world);
+
+	const auto aabb = GetAABB(entity.Get<S_AreaLight>(), entity.Get<Entity::S_WorldTransformComponent>());
+
+	EXPECT_TRUE(std::isnan(aabb.m_Max.x));
+	EXPECT_TRUE(std::isnan(aabb.m_Min.x));
 }
 
 TEST(LightComponents, AreaLight_GetWorldNormalAndUpVector_RotateWithTheEntity)
