@@ -46,19 +46,25 @@ TEST(WorldSelect, Select_NoEntities_HitsGroundPlane)
 TEST(WorldSelect, Select_PicksNearestOfMultipleHits)
 {
 	C_World world;
+
+	// create far first if the result depended on iteration order
+	auto far_									  = world.CreateEntity("Far");
+	far_.Get<S_TransformComponent>().translation  = glm::vec3(0.f, 0.f, -2.f);
+	far_.Add<S_LocalBounds>().aabb				  = MakeAABB(glm::vec3(-0.5f), glm::vec3(0.5f));
+
 	auto	near_								  = world.CreateEntity("Near");
 	near_.Get<S_TransformComponent>().translation = glm::vec3(0.f, 0.f, 2.f);
 	near_.Add<S_LocalBounds>().aabb				  = MakeAABB(glm::vec3(-0.5f), glm::vec3(0.5f));
-
-	auto far_									 = world.CreateEntity("Far");
-	far_.Get<S_TransformComponent>().translation = glm::vec3(0.f, 0.f, -2.f);
-	far_.Add<S_LocalBounds>().aabb				 = MakeAABB(glm::vec3(-0.5f), glm::vec3(0.5f));
 	TransformSystem::Update(world);
 
 	const Physics::Primitives::S_Ray ray{glm::vec3(0.f, 0.f, 10.f), glm::vec3(0.f, 0.f, -1.f)};
 	const auto						 result = world.Select(ray);
 
 	EXPECT_EQ(result.entityId, near_.GetGuid());
+	// Near's bounds are centered at z=2 with a half-extent of 0.5, so its closest face to the ray
+	// origin (z=10) is at z=2.5 - a distance of 7.5. A broken min_element that returned Far's hit
+	// (centered at z=-2, distance 12.5) would fail this even if entityId happened to match.
+	EXPECT_NEAR(result.distance, 7.5f, 0.0001f);
 }
 
 } // namespace GLEngine::Entity
