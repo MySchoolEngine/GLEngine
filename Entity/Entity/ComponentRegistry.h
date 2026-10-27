@@ -44,7 +44,7 @@ public:
 		m_Entries.push_back(S_ComponentRegistryEntry{
 			.name = std::move(name),
 			.type = rttr::type::get<T>(),
-			.has  = [](entt::registry& registry, entt::entity e) { return registry.all_of<T>(e); },
+			.has  = [](const entt::registry& registry, entt::entity e) { return registry.all_of<T>(e); },
 			// emplace_or_replace, not emplace: entries like "Transform" describe components every
 			// entity already carries (added unconditionally by C_World::CreateEntity*), so
 			// WorldSerializer::Load re-applying a saved node for one must not assert on a component
