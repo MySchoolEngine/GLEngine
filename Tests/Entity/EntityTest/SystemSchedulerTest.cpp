@@ -11,9 +11,10 @@ TEST(SystemScheduler, RunsStagesInOrder_PreUpdateThenUpdateThenPostUpdate)
 	SystemScheduler			 scheduler;
 	std::vector<std::string> order;
 
-	scheduler.AddSystem(E_SchedulerStage::PreUpdate, [&order](C_World&) { order.push_back("Pre"); });
-	scheduler.AddSystem(E_SchedulerStage::Update, [&order](C_World&) { order.push_back("Update"); });
-	scheduler.AddSystem(E_SchedulerStage::PostUpdate, [&order](C_World&) { order.push_back("Post"); });
+	// The registration order is different from the run order intentionally
+	scheduler.AddSystem(E_SchedulerStage::PostUpdate, [&order](C_World&) { order.emplace_back("Post"); });
+	scheduler.AddSystem(E_SchedulerStage::Update, [&order](C_World&) { order.emplace_back("Update"); });
+	scheduler.AddSystem(E_SchedulerStage::PreUpdate, [&order](C_World&) { order.emplace_back("Pre"); });
 
 	scheduler.Run(world);
 
