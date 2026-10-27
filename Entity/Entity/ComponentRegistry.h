@@ -61,6 +61,7 @@ public:
 	}
 
 	[[nodiscard]] const std::vector<S_ComponentRegistryEntry>& Entries() const { return m_Entries; }
+	// Pointer is invalidated by a later Register() call, but every Register() call is a static-init side effect that runs at load time, before any caller could be holding this pointer across it.
 	[[nodiscard]] const S_ComponentRegistryEntry*			   FindByName(std::string_view name) const;
 
 private:
