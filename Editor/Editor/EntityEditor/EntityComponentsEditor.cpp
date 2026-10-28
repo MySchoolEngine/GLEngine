@@ -71,11 +71,12 @@ bool C_EntityCompoenentEditor::Draw() const
 	}
 
 	ImGui::BeginChild("AddComponent", ImVec2(0, 100), true);
-	const auto& entries		  = Entity::C_ComponentRegistry::Instance().Entries();
-	static int	selectedIndex = -1;
-	if (ImGui::BeginCombo("Component class", selectedIndex >= 0 && selectedIndex < static_cast<int>(entries.size()) ? entries[selectedIndex].name.c_str() : ""))
+	const auto&			  entries		 = Entity::C_ComponentRegistry::Instance().Entries();
+	constexpr static auto s_InvalidIndex = std::numeric_limits<std::size_t>::max();
+	static auto			  selectedIndex	 = s_InvalidIndex;
+	if (ImGui::BeginCombo("Component class", selectedIndex != s_InvalidIndex && selectedIndex < entries.size() ? entries[selectedIndex].name.c_str() : ""))
 	{
-		for (int entryIndex = 0; entryIndex < static_cast<int>(entries.size()); ++entryIndex)
+		for (std::size_t entryIndex = 0; entryIndex < entries.size(); ++entryIndex)
 		{
 			if (!entries[entryIndex].userAddable)
 				continue;
@@ -84,9 +85,12 @@ bool C_EntityCompoenentEditor::Draw() const
 		}
 		ImGui::EndCombo();
 	}
-	if (ImGui::Button("Add component") && selectedIndex >= 0 && selectedIndex < static_cast<int>(entries.size()))
+	if (selectedIndex != s_InvalidIndex && entries[selectedIndex].has(registry, m_Entity.Handle()) == false)
 	{
-		entries[selectedIndex].emplaceDefault(registry, m_Entity.Handle());
+		if (ImGui::Button("Add component") && selectedIndex < entries.size())
+		{
+			entries[selectedIndex].emplaceDefault(registry, m_Entity.Handle());
+		}
 	}
 	ImGui::EndChild();
 
