@@ -16,8 +16,8 @@ struct GlmVec3 {
 	glm::vec3 vecNoSerialize;
 };
 
-// One struct covering every type that shares GLMRTTI.cpp's DeserializeFloatList parsing path
-// (see F-136/F-137/F-138), so a single round-trip test exercises all of them together instead of
+// One struct covering every type that shares GLMRTTI.cpp's DeserializeFloatList parsing path,
+// so a single round-trip test exercises all of them together instead of
 // one bespoke test per type.
 struct GlmTypesStruct {
 	glm::vec2 m_Vec2;

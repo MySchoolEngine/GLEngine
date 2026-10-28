@@ -356,7 +356,7 @@ TEST(WorldHierarchy, DestroyEntity_ParentAndChildBothQueuedSameFrame_NoCrashNoDo
 	const GUID parentGuid = parent.GetGuid();
 	const GUID childGuid  = child.GetGuid();
 
-	// Both independently queued in the same frame, parent first - the exact ordering F-015
+	// Both independently queued in the same frame, parent first - the exact ordering
 	// worried about: child's own queue entry runs Detach()/CollectSubtree() again on a subtree
 	// already collected (and about to be destroyed) via parent's entry.
 	world.DestroyEntity(parent.Handle());

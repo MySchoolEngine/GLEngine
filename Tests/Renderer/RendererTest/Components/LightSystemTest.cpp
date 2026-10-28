@@ -41,7 +41,7 @@ TEST(LightSystem, Update_AreaLightBoundsMatchesWidthAndHeight)
 	const auto& aabb = entity.Get<Entity::S_LocalBounds>().aabb;
 	// At the identity transform, GetWorldNormal() is -Z and GetWorldUpVector() is +Y, so
 	// dirX = cross(normal, up) is +X. GetAABB's half-extents are sqrt(width/2) and
-	// sqrt(height/2) (see LightFunctions.cpp - F-019, not this finding's concern), so a 2x2
+	// sqrt(height/2) (see LightFunctions.cpp, not this finding's concern), so a 2x2
 	// light's extents are both sqrt(1) = 1, landing the corners at (+-1, +-1, 0).
 	EXPECT_NEAR(aabb.m_Min.x, -1.f, 0.0001f);
 	EXPECT_NEAR(aabb.m_Min.y, -1.f, 0.0001f);

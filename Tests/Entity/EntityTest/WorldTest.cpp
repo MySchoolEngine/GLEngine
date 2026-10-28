@@ -251,7 +251,7 @@ TEST(C_Entity, AddOrReplace_OverwritesAnExistingComponent)
 	auto	entity = world.CreateEntity("Test");
 
 	// Every entity already has an S_TransformComponent from creation, so Add<S_TransformComponent>
-	// here would assert (see F-005) - AddOrReplace is the explicit "overwrite if present" call.
+	// here would assert - AddOrReplace is the explicit "overwrite if present" call.
 	entity.Get<S_TransformComponent>().translation = glm::vec3(1.f, 0.f, 0.f);
 	entity.AddOrReplace<S_TransformComponent>().translation = glm::vec3(2.f, 3.f, 4.f);
 

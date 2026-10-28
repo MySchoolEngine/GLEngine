@@ -102,7 +102,7 @@ TEST(StaticMeshSystem, DestroyingTheEntity_UnregistersConvertedMaterials)
 	auto&			mesh   = entity.Add<S_StaticMesh>();
 
 	auto&	   materialManager = C_MaterialManager::Instance();
-	const auto material		   = materialManager.RegisterMaterial(C_Material("F-059 regression test material"));
+	const auto material		   = materialManager.RegisterMaterial(C_Material("regression test material"));
 	mesh.convertedMaterials	   = {material};
 
 	C_FakeResourceManager fakeRM;

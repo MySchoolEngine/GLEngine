@@ -122,7 +122,7 @@ TEST(LightComponents, AreaLight_GetWorldNormalAndUpVector_RotateWithTheEntity)
 	// comment), which inverts the angle's sign relative to the S_TransformComponent.rotation we
 	// set here - confirmed empirically, not re-derived, since no other test exercises rotation to
 	// cross-check against. The point of this test is only to pin that *some* rotation-dependent
-	// result comes out (catching the identity-only blind spot F-074 flagged), not to assert a
+	// result comes out (catching the identity-only blind spot), not to assert a
 	// particular handedness convention.
 	EXPECT_NEAR(normal.x, 0.f, 0.0001f);
 	EXPECT_NEAR(normal.y, -1.f, 0.0001f);

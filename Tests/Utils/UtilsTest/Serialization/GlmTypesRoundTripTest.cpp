@@ -10,7 +10,7 @@
 
 namespace GLEngine::Utils {
 
-// F-136: round-trips every type that shares GLMRTTI.cpp's vec2/vec3/vec4/quat parsing path in a
+// round-trips every type that shares GLMRTTI.cpp's vec2/vec3/vec4/quat parsing path in a
 // single test, with non-trivial (non-zero, non-identity) values so an axis swap or a w/x
 // ordering bug would move a value to the wrong field rather than passing by coincidence.
 TEST(GlmTypesRoundTrip, SerializeThenDeserialize_PreservesEveryComponent)
@@ -50,7 +50,7 @@ TEST(GlmTypesRoundTrip, SerializeThenDeserialize_PreservesEveryComponent)
 	EXPECT_FLOAT_EQ(loaded.m_Quat.w, original.m_Quat.w);
 }
 
-// F-137 regression: a malformed field (empty between commas, or non-numeric) used to let
+// regression: a malformed field (empty between commas, or non-numeric) used to let
 // std::stof's exception escape all the way out of Deserialize(). It must fail cleanly instead.
 TEST(GlmTypesRoundTrip, DeserializingAMalformedQuat_FailsCleanlyInsteadOfThrowing)
 {

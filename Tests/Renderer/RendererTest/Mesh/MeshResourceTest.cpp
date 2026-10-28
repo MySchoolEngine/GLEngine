@@ -18,11 +18,11 @@ namespace {
 // debugdir) is a single triangle with explicit uv/normal data. ModelLoader's
 // aiProcess_CalcTangentSpace leaves aiMesh::mTangents null without UVs, and
 // _getFacePosNormalTcoords indexes it unconditionally, so the fixture provides them rather than
-// tripping that separate, pre-existing hazard (out of scope for F-095).
+// tripping that separate, pre-existing hazard.
 const std::filesystem::path s_TrianglePath{"MeshResourceFixture/triangle.obj"};
 } // namespace
 
-// F-095: the bbox aggregation added to Load()/Reload() (summing every mesh's transformed bbox
+// the bbox aggregation added to Load()/Reload() (summing every mesh's transformed bbox
 // into the scene-level one) is only reachable by actually calling Load() - the test fixture used
 // everywhere else (MeshResourceTestFixture::SetScene) bypasses it with a prebuilt Scene.
 TEST(MeshResource, Load_AggregatesEveryMeshsTransformedBboxIntoSceneBbox)

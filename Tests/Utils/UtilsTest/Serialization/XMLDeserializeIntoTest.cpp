@@ -32,7 +32,7 @@ RTTR_REGISTRATION
 
 namespace GLEngine::Utils {
 
-// F-134 regression: DeserializeInto used to look AfterDeserialize up on the reference_wrapper<T>
+// regression: DeserializeInto used to look AfterDeserialize up on the reference_wrapper<T>
 // type itself (which has no registered methods), so this hook silently never ran.
 TEST_F(XMLDeserializeFixture, DeserializeInto_OnAnExistingRefWrappedInstance_RunsAfterDeserialize)
 {

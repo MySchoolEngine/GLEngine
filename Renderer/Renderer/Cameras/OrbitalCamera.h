@@ -71,7 +71,7 @@ public:
 	// Folds the owning entity's world translation and rotation into the orbit center - fixes the
 	// bug where this camera previously ignored its owner's transform entirely (Update() only ever
 	// used m_Transformation, which is driven by SetupCameraView/WASD/mouse, not by the owner's
-	// hierarchy). Scale is intentionally not folded in - see the .cpp.
+	// hierarchy). Scale is intentionally not folded in
 	void SetOwnerWorldTransform(const glm::mat4& worldTransform) override;
 
 	RTTR_ENABLE(I_Camera);
@@ -106,7 +106,7 @@ private:
 	float m_ControlSpeed;
 
 	glm::vec3 m_OwnerWorldTranslation = glm::vec3(0.f);
-	glm::quat m_OwnerWorldRotation	   = glm::quat(1.f, 0.f, 0.f, 0.f); // owner's scale is intentionally not tracked - see SetOwnerWorldTransform
+	glm::quat m_OwnerWorldRotation	   = glm::quat(1.f, 0.f, 0.f, 0.f);
 };
 } // namespace Renderer::Cameras
 } // namespace GLEngine
