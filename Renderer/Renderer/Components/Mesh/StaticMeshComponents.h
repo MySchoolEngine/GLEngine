@@ -21,6 +21,10 @@ struct S_StaticMesh {
 	Core::ResourceHandle<MeshResource>					live;
 	std::vector<Core::ResourceHandle<MaterialResource>> materials;
 	std::vector<std::shared_ptr<C_Material>>			convertedMaterials;
+	// Snapshot of `materials` as of the last successful conversion into convertedMaterials -
+	// lets StaticMeshSystem::UpdateMaterials notice a slot was swapped to a different resource
+	// (e.g. via the Editor) even though materials.size() and convertedMaterials didn't change.
+	std::vector<Core::ResourceHandle<MaterialResource>> convertedFromMaterials;
 };
 
 // GPU-resident per-submesh buffer handles - not RTTR-registered, not routed through

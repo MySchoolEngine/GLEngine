@@ -75,7 +75,12 @@ std::shared_ptr<C_Material> ConvertHandleToMaterial(const Core::ResourceHandle<M
 // Ported from C_StaticMeshHandles::CopyMaterialsFromSourceFile + ConvertHandlesToMaterials.
 void UpdateMaterials(S_StaticMesh& mesh)
 {
-	if (mesh.convertedMaterials.empty() == false && !::Utils::contains(mesh.convertedMaterials, nullptr))
+	// Re-convert whenever convertedMaterials is empty/invalid, OR mesh.materials no longer
+	// matches what convertedMaterials was last built from - e.g. the Editor swapped a slot to a
+	// different material resource without touching mesh.requested, which the old
+	// convertedMaterials.empty() check never noticed (F-056).
+	const bool convertedMaterialsValid = mesh.convertedMaterials.empty() == false && !::Utils::contains(mesh.convertedMaterials, nullptr);
+	if (convertedMaterialsValid && mesh.convertedFromMaterials == mesh.materials)
 		return;
 
 	if (mesh.materials.empty())
@@ -99,6 +104,7 @@ void UpdateMaterials(S_StaticMesh& mesh)
 	{
 		mesh.convertedMaterials[i] = ConvertHandleToMaterial(mesh.materials[i]);
 	}
+	mesh.convertedFromMaterials = mesh.materials;
 }
 
 } // namespace

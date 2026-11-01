@@ -47,6 +47,15 @@ Core::ResourceHandle<MeshResource> MakeReadyMeshResource()
 	return Core::ResourceManagerBaseFixture::CreateResourceHandle(resource);
 }
 
+// Builds a Ready MaterialResource with just a name (no PBR data needed - UpdateMaterials only
+// requires IsReady() to be true and GetMaterialData() may validly be null).
+Core::ResourceHandle<MaterialResource> MakeReadyMaterialResource(std::string name)
+{
+	auto resource = std::make_shared<MaterialResource>();
+	resource->SetMaterialName(std::move(name));
+	return Core::ResourceManagerBaseFixture::CreateResourceHandle(resource);
+}
+
 } // namespace
 
 TEST(StaticMeshSystem, Update_BuildsGpuBuffersExactlyOnceForAReadyResource)
@@ -120,6 +129,34 @@ TEST(StaticMeshSystem, DestroyingTheEntity_UnregistersConvertedMaterials)
 			stillRegistered = true;
 	});
 	EXPECT_FALSE(stillRegistered);
+}
+
+TEST(StaticMeshSystem, SwappingAMaterialSlot_RebuildsConvertedMaterials)
+{
+	// F-056: the Editor can swap mesh.materials[i] to a different resource without touching
+	// mesh.requested at all (e.g. drag-dropping a different material file onto the slot) -
+	// UpdateMaterials must notice and reconvert, not keep serving the stale conversion.
+	Entity::C_World world;
+	auto			entity = world.CreateEntity("Mesh");
+	auto&			mesh   = entity.Add<S_StaticMesh>();
+	mesh.requested		   = MakeReadyMeshResource();
+	mesh.materials		   = {MakeReadyMaterialResource("Original")};
+
+	C_FakeResourceManager fakeRM;
+	C_FakeRenderer		  fakeRenderer(fakeRM);
+	StaticMeshSystem::RegisterDestroyHook(world, fakeRM);
+
+	StaticMeshSystem::Update(world, fakeRenderer);
+	ASSERT_EQ(mesh.convertedMaterials.size(), 1u);
+	ASSERT_NE(mesh.convertedMaterials[0], nullptr);
+	EXPECT_EQ(mesh.convertedMaterials[0]->GetName(), "Original");
+
+	mesh.materials[0] = MakeReadyMaterialResource("Swapped");
+	StaticMeshSystem::Update(world, fakeRenderer);
+
+	ASSERT_EQ(mesh.convertedMaterials.size(), 1u);
+	ASSERT_NE(mesh.convertedMaterials[0], nullptr);
+	EXPECT_EQ(mesh.convertedMaterials[0]->GetName(), "Swapped");
 }
 
 TEST(StaticMeshComponents, StaticMesh_IsRegisteredInComponentRegistry)
