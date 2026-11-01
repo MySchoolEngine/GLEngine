@@ -39,4 +39,9 @@ template <class T> void C_Entity::Remove()
 	m_World->Registry().remove<T>(m_Handle);
 }
 
+template <class T, class... Func> decltype(auto) C_Entity::Patch(Func&&... func)
+{
+	return m_World->Registry().patch<T>(m_Handle, std::forward<Func>(func)...);
+}
+
 } // namespace GLEngine::Entity

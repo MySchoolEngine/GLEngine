@@ -93,10 +93,11 @@ TEST(LightSystem, Update_MovingALight_RefreshesItsBounds)
 	EXPECT_EQ(entity.Get<Entity::S_LocalBounds>().aabb.m_Min, glm::vec3(1.f, 0.f, 0.f));
 
 	// Mutating the component through Get() doesn't fire C_World's on_update<S_TransformComponent>
-	// signal, so a dirty tag must be set explicitly for TransformSystem::Update to see it as changed
-	// (the first move above only worked because entity creation unconditionally seeds one).
+	// signal, so Patch() (or a dirty tag) must be used explicitly for TransformSystem::Update to
+	// see it as changed (the first move above only worked because entity creation unconditionally
+	// seeds one).
 	entity.Get<Entity::S_TransformComponent>().translation = glm::vec3(5.f, 6.f, 7.f);
-	world.Registry().patch<Entity::S_TransformComponent>(entity.Handle());
+	entity.Patch<Entity::S_TransformComponent>();
 	Entity::TransformSystem::Update(world);
 	LightSystem::Update(world);
 

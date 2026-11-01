@@ -79,9 +79,7 @@ void C_EditorLayer::OnUpdate()
 		m_EntityGizmo->Draw(m_dd);
 		if (auto entity = m_World->FindByGuid(m_SelectedEntity); entity.IsValid())
 		{
-			auto& registry = m_World->Registry();
-			registry.patch<Entity::S_TransformComponent>(entity.Handle(),
-														 [diff = m_EntityGizmo->GetPositionDiff()](Entity::S_TransformComponent& transform) { transform.translation += diff; });
+			entity.Patch<Entity::S_TransformComponent>([diff = m_EntityGizmo->GetPositionDiff()](Entity::S_TransformComponent& transform) { transform.translation += diff; });
 		}
 	}
 }

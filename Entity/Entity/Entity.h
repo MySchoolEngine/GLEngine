@@ -29,6 +29,14 @@ public:
 	template <class T> [[nodiscard]] bool	  Has() const;
 	template <class T> void					  Remove();
 
+	// Mutates T in place via func(s) (zero or more, same as entt's own patch), then fires the
+	// registry's on_update<T> signal - e.g. the S_DirtyTransformTag machinery connected for
+	// S_TransformComponent in C_World's constructor. Get() returns a mutable T& with no way to
+	// fire that signal, which invites editing a component without the observers that depend on
+	// it ever finding out - prefer this over `World()->Registry().patch<T>(Handle(), ...)`
+	// when a C_Entity is already in hand.
+	template <class T, class... Func> decltype(auto) Patch(Func&&... func);
+
 	[[nodiscard]] GUID				 GetGuid() const;
 	[[nodiscard]] const std::string& GetName() const;
 

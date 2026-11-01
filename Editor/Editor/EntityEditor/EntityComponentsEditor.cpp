@@ -56,6 +56,8 @@ bool C_EntityCompoenentEditor::Draw() const
 			{
 				auto& transform = registry.get<Entity::S_TransformComponent>(m_Entity.Handle());
 				if (GUI::Input::DrawTransform(transform.translation, transform.rotation, transform.scale))
+					// Can't use m_Entity.Patch<>() here: Draw() is const (required by I_GUIPart) and
+					// m_Entity isn't mutable, so only the registry-level call is const-compatible.
 					registry.patch<Entity::S_TransformComponent>(m_Entity.Handle());
 			}
 			else

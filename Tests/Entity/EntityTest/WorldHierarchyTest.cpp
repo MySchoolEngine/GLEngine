@@ -304,12 +304,11 @@ TEST(WorldHierarchy, RegistryPatch_MarksTransformDirtyAndPropagatesToChildren)
 	TransformSystem::Update(world);
 	ASSERT_TRUE(MatrixNear(child.Get<S_WorldTransformComponent>().world, glm::translate(glm::mat4(1.f), glm::vec3(1.f, 0.f, 0.f))));
 
-	// Mutate in place through the component reference, then patch() with no callback purely to
+	// Mutate in place through the component reference, then Patch() with no callback purely to
 	// fire the on_update signal - the exact pattern the Editor's gizmo path uses
-	// (EntityComponentsEditor.cpp).
-	auto& registry													= world.Registry();
-	registry.get<S_TransformComponent>(parent.Handle()).translation = glm::vec3(10.f, 0.f, 0.f);
-	registry.patch<S_TransformComponent>(parent.Handle());
+	// (EditorLayer.cpp).
+	parent.Get<S_TransformComponent>().translation = glm::vec3(10.f, 0.f, 0.f);
+	parent.Patch<S_TransformComponent>();
 
 	TransformSystem::Update(world);
 

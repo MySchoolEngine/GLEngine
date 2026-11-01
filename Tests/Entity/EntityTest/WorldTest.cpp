@@ -161,7 +161,7 @@ TEST(World, ClearLevel_ThenOnUpdate_SurvivesAStaleQueuedDestroy)
 
 	world.ClearLevel();
 	auto b = world.CreateEntity("A"); // same name as the queued-for-destroy entity
-	world.OnUpdate();				   // flushes the stale queue entry alongside any real ones
+	world.OnUpdate();				  // flushes the stale queue entry alongside any real ones
 
 	// Note: this passes regardless of whether ClearLevel() clears m_PendingDestroy, since
 	// m_Registry.clear() already bumps entt's generation counters - OnUpdate()'s registry.valid()
@@ -252,13 +252,29 @@ TEST(C_Entity, AddOrReplace_OverwritesAnExistingComponent)
 
 	// Every entity already has an S_TransformComponent from creation, so Add<S_TransformComponent>
 	// here would assert - AddOrReplace is the explicit "overwrite if present" call.
-	entity.Get<S_TransformComponent>().translation = glm::vec3(1.f, 0.f, 0.f);
+	entity.Get<S_TransformComponent>().translation			= glm::vec3(1.f, 0.f, 0.f);
 	entity.AddOrReplace<S_TransformComponent>().translation = glm::vec3(2.f, 3.f, 4.f);
 
 	const auto& transform = entity.Get<S_TransformComponent>();
 	EXPECT_FLOAT_EQ(transform.translation.x, 2.f);
 	EXPECT_FLOAT_EQ(transform.translation.y, 3.f);
 	EXPECT_FLOAT_EQ(transform.translation.z, 4.f);
+}
+
+TEST(C_Entity, Patch_MutatesComponentAndFiresOnUpdateSignal)
+{
+	// F-004: Get() returns a mutable T& with no way to fire registry's on_update<T> signal -
+	// Patch() is the entity-level equivalent of World()->Registry().patch<T>(Handle(), ...) that
+	// does. Confirmed here via S_DirtyTransformTag, the exact signal C_World's constructor wires
+	// up for S_TransformComponent - mutating through Get() alone would not set it.
+	C_World world;
+	auto	entity = world.CreateEntity("Test");
+	entity.Remove<S_DirtyTransformTag>(); // creation unconditionally seeds one; start from a clean slate
+
+	entity.Patch<S_TransformComponent>([](S_TransformComponent& t) { t.translation = glm::vec3(3.f, 4.f, 5.f); });
+
+	EXPECT_EQ(entity.Get<S_TransformComponent>().translation, glm::vec3(3.f, 4.f, 5.f));
+	EXPECT_TRUE(entity.Has<S_DirtyTransformTag>());
 }
 
 } // namespace GLEngine::Entity
