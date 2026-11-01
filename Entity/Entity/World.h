@@ -13,6 +13,7 @@
 namespace GLEngine::Physics::Primitives {
 struct S_Ray;
 struct S_RayIntersection;
+struct S_Sphere;
 } // namespace GLEngine::Physics::Primitives
 
 namespace GLEngine::Entity {
@@ -43,6 +44,14 @@ public:
 
 	[[nodiscard]] Physics::Primitives::S_RayIntersection Select(const Physics::Primitives::S_Ray& ray);
 
+	// Calls func(C_Entity) for every entity whose world-space bounds overlap the given sphere
+	// (an approximate test: each entity's S_LocalBounds is converted to its own bounding sphere
+	// via S_AABB::GetSphere(), then tested sphere-vs-sphere - the same approximation
+	// MainPassTechnique's frustum cull already uses). No freshness check is done - the caller is
+	// responsible for having already run TransformSystem::Update (and whichever system populates
+	// S_LocalBounds) this frame, same precondition as Select() above.
+	template <class Func> void ForEachInSphere(const Physics::Primitives::S_Sphere& sphere, Func&& func);
+
 	void								SetFilename(const std::filesystem::path& filename);
 	[[nodiscard]] std::filesystem::path GetFilename() const;
 
@@ -56,3 +65,5 @@ private:
 };
 
 } // namespace GLEngine::Entity
+
+#include <Entity/World.inl>
