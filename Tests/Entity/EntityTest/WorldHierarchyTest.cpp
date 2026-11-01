@@ -43,7 +43,7 @@ TEST(WorldHierarchy, SetParent_ParentScaleAffectsChildTranslation)
 	auto	parent = world.CreateEntity("Parent");
 	auto	child  = world.CreateEntity("Child");
 
-	parent.Get<S_TransformComponent>().scale	   = glm::vec3(2.f, 2.f, 2.f);
+	parent.Get<S_TransformComponent>().scale	  = glm::vec3(2.f, 2.f, 2.f);
 	child.Get<S_TransformComponent>().translation = glm::vec3(1.f, 0.f, 0.f);
 
 	ASSERT_TRUE(world.SetParent(child.Handle(), parent.Handle()));
@@ -65,9 +65,9 @@ TEST(WorldHierarchy, SetParent_PropagatesThroughThreeLevelChain)
 	auto	parent		= world.CreateEntity("Parent");
 	auto	child		= world.CreateEntity("Child");
 
-	grandparent.Get<S_TransformComponent>().scale		 = glm::vec3(2.f, 2.f, 2.f);
-	parent.Get<S_TransformComponent>().translation		 = glm::vec3(1.f, 0.f, 0.f);
-	child.Get<S_TransformComponent>().translation		 = glm::vec3(0.f, 1.f, 0.f);
+	grandparent.Get<S_TransformComponent>().scale  = glm::vec3(2.f, 2.f, 2.f);
+	parent.Get<S_TransformComponent>().translation = glm::vec3(1.f, 0.f, 0.f);
+	child.Get<S_TransformComponent>().translation  = glm::vec3(0.f, 1.f, 0.f);
 
 	ASSERT_TRUE(world.SetParent(parent.Handle(), grandparent.Handle()));
 	ASSERT_TRUE(world.SetParent(child.Handle(), parent.Handle()));
@@ -177,10 +177,10 @@ TEST(WorldHierarchy, Detach_HeadChild_UpdatesParentFirstChild)
 	world.Detach(c.Handle());
 
 	const auto& parentRel = world.Registry().get<S_RelationshipComponent>(parent.Handle());
-	const auto& bRel	   = world.Registry().get<S_RelationshipComponent>(b.Handle());
+	const auto& bRel	  = world.Registry().get<S_RelationshipComponent>(b.Handle());
 	EXPECT_EQ(parentRel.childCount, 2u);
 	EXPECT_EQ(parentRel.firstChild, b.Handle()); // must move off the detached head
-	EXPECT_EQ(bRel.prev, entt::null);			  // new head has no prev
+	EXPECT_EQ(bRel.prev, entt::null);			 // new head has no prev
 }
 
 TEST(WorldHierarchy, Detach_TailChild_LeavesNewTailWithNullNext)
@@ -201,29 +201,29 @@ TEST(WorldHierarchy, Detach_TailChild_LeavesNewTailWithNullNext)
 	world.Detach(a.Handle());
 
 	const auto& parentRel = world.Registry().get<S_RelationshipComponent>(parent.Handle());
-	const auto& bRel	   = world.Registry().get<S_RelationshipComponent>(b.Handle());
+	const auto& bRel	  = world.Registry().get<S_RelationshipComponent>(b.Handle());
 	EXPECT_EQ(parentRel.childCount, 2u);
 	EXPECT_EQ(parentRel.firstChild, c.Handle()); // head unaffected by detaching the tail
-	EXPECT_EQ(bRel.next, entt::null);			  // new tail has no next
+	EXPECT_EQ(bRel.next, entt::null);			 // new tail has no next
 }
 
 TEST(WorldHierarchy, DestroyEntity_ParentDeletesChildren)
 {
-	C_World	   world;
-	auto	   parent	  = world.CreateEntity("Parent");
-	auto	   a		  = world.CreateEntity("A");
-	auto	   b		  = world.CreateEntity("B");
-	auto	   c		  = world.CreateEntity("C");
-	auto	   grandchild = world.CreateEntity("Grandchild");
+	C_World world;
+	auto	parent	   = world.CreateEntity("Parent");
+	auto	a		   = world.CreateEntity("A");
+	auto	b		   = world.CreateEntity("B");
+	auto	c		   = world.CreateEntity("C");
+	auto	grandchild = world.CreateEntity("Grandchild");
 	ASSERT_TRUE(world.SetParent(a.Handle(), parent.Handle()));
 	ASSERT_TRUE(world.SetParent(b.Handle(), parent.Handle()));
 	ASSERT_TRUE(world.SetParent(c.Handle(), parent.Handle()));
 	ASSERT_TRUE(world.SetParent(grandchild.Handle(), a.Handle())); // nested one level deeper than a, b, c
 
-	const GUID parentGuid	   = parent.GetGuid();
-	const GUID aGuid		   = a.GetGuid();
-	const GUID bGuid		   = b.GetGuid();
-	const GUID cGuid		   = c.GetGuid();
+	const GUID parentGuid	  = parent.GetGuid();
+	const GUID aGuid		  = a.GetGuid();
+	const GUID bGuid		  = b.GetGuid();
+	const GUID cGuid		  = c.GetGuid();
 	const GUID grandchildGuid = grandchild.GetGuid();
 
 	ASSERT_TRUE(parent.IsValid());
@@ -292,8 +292,8 @@ TEST(WorldHierarchy, DestroyEntity_Child_ParentFirstChildAndSiblingsDoNotDangle)
 TEST(WorldHierarchy, RegistryPatch_MarksTransformDirtyAndPropagatesToChildren)
 {
 	C_World world;
-	auto	parent = world.CreateEntity("Parent");
-	auto	child  = world.CreateEntity("Child");
+	auto	parent								  = world.CreateEntity("Parent");
+	auto	child								  = world.CreateEntity("Child");
 	child.Get<S_TransformComponent>().translation = glm::vec3(1.f, 0.f, 0.f);
 	ASSERT_TRUE(world.SetParent(child.Handle(), parent.Handle()));
 
@@ -307,34 +307,35 @@ TEST(WorldHierarchy, RegistryPatch_MarksTransformDirtyAndPropagatesToChildren)
 	// Mutate in place through the component reference, then patch() with no callback purely to
 	// fire the on_update signal - the exact pattern the Editor's gizmo path uses
 	// (EntityComponentsEditor.cpp).
-	auto& registry = world.Registry();
+	auto& registry													= world.Registry();
 	registry.get<S_TransformComponent>(parent.Handle()).translation = glm::vec3(10.f, 0.f, 0.f);
 	registry.patch<S_TransformComponent>(parent.Handle());
 
 	TransformSystem::Update(world);
 
 	const auto expectedParentWorld = glm::translate(glm::mat4(1.f), glm::vec3(10.f, 0.f, 0.f));
-	const auto expectedChildWorld	= glm::translate(glm::mat4(1.f), glm::vec3(11.f, 0.f, 0.f));
+	const auto expectedChildWorld  = glm::translate(glm::mat4(1.f), glm::vec3(11.f, 0.f, 0.f));
 	EXPECT_TRUE(MatrixNear(parent.Get<S_WorldTransformComponent>().world, expectedParentWorld));
 	EXPECT_TRUE(MatrixNear(child.Get<S_WorldTransformComponent>().world, expectedChildWorld));
 }
 
 TEST(WorldHierarchy, Update_DeepChain_DoesNotOverflowTheStackAndPropagatesCorrectly)
 {
-	// Don't raise this casually: CreateEntity's FindByName scan alone makes building the chain
-	// O(kDepth^2), and incremental Update() calls add another O(kDepth^2) on top - both pre-exist
-	// this fix (one is F-016, still open) and quadruple this test's runtime if kDepth doubles.
+	// F-016 fixed: each incremental Update() call here now does O(1) work (one dirty leaf, whose
+	// parent is never also dirty) instead of walking to the root - this loop used to be O(kDepth^2)
+	// on the Update() side alone, so don't casually re-introduce that without re-checking this
+	// comment still holds.
 	constexpr int kDepth = 500;
 
 	C_World world;
-	auto	root = world.CreateEntity("Node0");
+	auto	root								 = world.CreateEntity("Node0");
 	root.Get<S_TransformComponent>().translation = glm::vec3(1.f, 0.f, 0.f);
 	TransformSystem::Update(world);
 
 	auto previous = root;
 	for (int i = 1; i < kDepth; ++i)
 	{
-		auto node = world.CreateEntity("Node" + std::to_string(i));
+		auto node									 = world.CreateEntity("Node" + std::to_string(i));
 		node.Get<S_TransformComponent>().translation = glm::vec3(1.f, 0.f, 0.f);
 		ASSERT_TRUE(world.SetParent(node.Handle(), previous.Handle()));
 		TransformSystem::Update(world);
@@ -344,6 +345,39 @@ TEST(WorldHierarchy, Update_DeepChain_DoesNotOverflowTheStackAndPropagatesCorrec
 
 	const auto expected = glm::translate(glm::mat4(1.f), glm::vec3(static_cast<float>(kDepth), 0.f, 0.f));
 	EXPECT_TRUE(MatrixNear(leaf.Get<S_WorldTransformComponent>().world, expected));
+}
+
+TEST(WorldHierarchy, Update_WholeChainDirtyInOneCall_PropagatesCorrectlyRegardlessOfDirtyIterationOrder)
+{
+	// F-016 regression: simulates level load, where every entity is tagged dirty by CreateEntity
+	// itself and nothing calls Update() in between - registry.view<S_DirtyTransformTag>()'s
+	// iteration order is unspecified and does not respect hierarchy depth, so a fix that seeds
+	// its worklist from *every* dirty node (instead of just the roots of each dirty subtree)
+	// could process a child before its parent's new world is ready, silently using a stale
+	// parent world.
+	C_World world;
+	auto	grandparent = world.CreateEntity("Grandparent");
+	auto	parent		= world.CreateEntity("Parent");
+	auto	child		= world.CreateEntity("Child");
+
+	grandparent.Get<S_TransformComponent>().translation = glm::vec3(10.f, 0.f, 0.f);
+	parent.Get<S_TransformComponent>().translation		= glm::vec3(1.f, 0.f, 0.f);
+	child.Get<S_TransformComponent>().translation		= glm::vec3(0.f, 1.f, 0.f);
+
+	// SetParent itself re-tags the child dirty, but every entity is already dirty from
+	// CreateEntity above - no TransformSystem::Update() call happens until after the whole chain
+	// is built, so all three remain dirty simultaneously, same as a level load.
+	ASSERT_TRUE(world.SetParent(parent.Handle(), grandparent.Handle()));
+	ASSERT_TRUE(world.SetParent(child.Handle(), parent.Handle()));
+
+	TransformSystem::Update(world);
+
+	const auto expectedGrandparent = glm::translate(glm::mat4(1.f), glm::vec3(10.f, 0.f, 0.f));
+	const auto expectedParent	   = glm::translate(glm::mat4(1.f), glm::vec3(11.f, 0.f, 0.f));
+	const auto expectedChild	   = glm::translate(glm::mat4(1.f), glm::vec3(11.f, 1.f, 0.f));
+	EXPECT_TRUE(MatrixNear(grandparent.Get<S_WorldTransformComponent>().world, expectedGrandparent));
+	EXPECT_TRUE(MatrixNear(parent.Get<S_WorldTransformComponent>().world, expectedParent));
+	EXPECT_TRUE(MatrixNear(child.Get<S_WorldTransformComponent>().world, expectedChild));
 }
 
 TEST(WorldHierarchy, DestroyEntity_ParentAndChildBothQueuedSameFrame_NoCrashNoDoubleDestroy)
