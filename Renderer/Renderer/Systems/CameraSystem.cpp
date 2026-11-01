@@ -13,7 +13,7 @@ void Update(Entity::C_World& world)
 {
 	auto& registry = world.Registry();
 
-	for (auto [e, cameraComponent, worldTransform] : registry.view<S_CameraComponent, Entity::S_WorldTransformComponent>().each())
+	for (auto&& [e, cameraComponent, worldTransform] : registry.view<S_CameraComponent, Entity::S_WorldTransformComponent>().each())
 	{
 		if (!cameraComponent.camera)
 			continue;

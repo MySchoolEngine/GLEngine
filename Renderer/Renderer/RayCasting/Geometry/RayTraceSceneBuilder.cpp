@@ -84,15 +84,15 @@ void BuildSceneFromWorld(const Entity::C_World& world, C_RayTraceScene& outScene
 {
 	const auto& registry = world.Registry();
 
-	for (auto [e, mesh, worldTransform] : registry.view<S_StaticMesh, Entity::S_WorldTransformComponent>().each())
+	for (auto&& [e, mesh, worldTransform] : registry.view<S_StaticMesh, Entity::S_WorldTransformComponent>().each())
 	{
 		ConvertMesh(mesh, worldTransform, outScene);
 	}
-	for (auto [e, light, worldTransform] : registry.view<S_PointLight, Entity::S_WorldTransformComponent>().each())
+	for (auto&& [e, light, worldTransform] : registry.view<S_PointLight, Entity::S_WorldTransformComponent>().each())
 	{
 		ConvertPointLight(light, worldTransform, outScene);
 	}
-	for (auto [e, light, worldTransform] : registry.view<S_AreaLight, Entity::S_WorldTransformComponent>().each())
+	for (auto&& [e, light, worldTransform] : registry.view<S_AreaLight, Entity::S_WorldTransformComponent>().each())
 	{
 		ConvertAreaLight(light, worldTransform, outScene);
 	}

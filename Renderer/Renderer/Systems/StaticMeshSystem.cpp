@@ -123,7 +123,7 @@ void Update(Entity::C_World& world, I_Renderer& renderer)
 	auto& registry = world.Registry();
 	auto& rm	   = renderer.GetRM();
 
-	for (auto [e, mesh] : registry.view<S_StaticMesh>().each())
+	for (auto&& [e, mesh] : registry.view<S_StaticMesh>().each())
 	{
 		if (mesh.requested.IsReady() && mesh.live != mesh.requested)
 		{

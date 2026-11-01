@@ -152,7 +152,7 @@ void C_VkWindow::Update()
 
 	Entity::TransformSystem::Update(m_World);
 	Renderer::StaticMeshSystem::Update(m_World, GetRenderer());
-	for (auto [e, mesh, gpu, worldTransform] : m_World.Registry().view<Renderer::S_StaticMesh, Renderer::S_StaticMeshGPU, Entity::S_WorldTransformComponent>().each())
+	for (auto&& [e, mesh, gpu, worldTransform] : m_World.Registry().view<Renderer::S_StaticMesh, Renderer::S_StaticMeshGPU, Entity::S_WorldTransformComponent>().each())
 	{
 		Renderer::StaticMeshSystem::Render(mesh, gpu, worldTransform, m_3DRenderer);
 	}

@@ -141,7 +141,7 @@ bool C_EntitiesWindow::Draw(GUI::C_GUIManager& guiMgr) const
 	// the walk completes, but drag-drop target entities are discovered mid-walk, so the walk
 	// itself must never mutate the firstChild/next lists it's reading.
 	std::vector<entt::entity> roots;
-	for (auto [e, rel] : registry.view<Entity::S_RelationshipComponent>().each())
+	for (auto&& [e, rel] : registry.view<Entity::S_RelationshipComponent>().each())
 	{
 		if (rel.parent == entt::null)
 			roots.push_back(e);

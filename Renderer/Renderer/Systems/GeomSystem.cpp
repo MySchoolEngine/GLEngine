@@ -53,7 +53,7 @@ void Update(Entity::C_World& world, I_Renderer& renderer)
 	auto& registry = world.Registry();
 	auto& rm	   = renderer.GetRM();
 
-	for (auto [e, component] : registry.view<S_GeomComponent>().each())
+	for (auto&& [e, component] : registry.view<S_GeomComponent>().each())
 	{
 		if (!component.material)
 		{

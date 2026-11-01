@@ -54,7 +54,7 @@ static void BM_WorldIterate_New_CreateAndPropagate(benchmark::State& state)
 		GLEngine::Entity::TransformSystem::Update(world);
 
 		float sum = 0.f;
-		for (auto [e, transform, bounds] : world.Registry().view<GLEngine::Entity::S_WorldTransformComponent, GLEngine::Entity::S_LocalBounds>().each())
+		for (auto&& [e, transform, bounds] : world.Registry().view<GLEngine::Entity::S_WorldTransformComponent, GLEngine::Entity::S_LocalBounds>().each())
 		{
 			sum += transform.world[3][0];
 		}
@@ -98,7 +98,7 @@ static void BM_WorldIterate_New_RealLevel_LightsAndMeshes(benchmark::State& stat
 		Entity::TransformSystem::Update(world);
 
 		float sum = 0.f;
-		for (auto [e, light, transform] : world.Registry().view<Renderer::S_PointLight, Entity::S_WorldTransformComponent>().each())
+		for (auto&& [e, light, transform] : world.Registry().view<Renderer::S_PointLight, Entity::S_WorldTransformComponent>().each())
 		{
 			sum += transform.world[3][0] + light.color.x * light.intensity;
 		}
@@ -139,7 +139,7 @@ static void BM_WorldIterate_New_SyntheticManyLights(benchmark::State& state)
 		Entity::TransformSystem::Update(world);
 
 		float sum = 0.f;
-		for (auto [e, light, transform] : world.Registry().view<Renderer::S_PointLight, Entity::S_WorldTransformComponent>().each())
+		for (auto&& [e, light, transform] : world.Registry().view<Renderer::S_PointLight, Entity::S_WorldTransformComponent>().each())
 		{
 			sum += transform.world[3][0] + light.color.x * light.intensity;
 		}

@@ -154,7 +154,7 @@ C_Entity C_World::FindByGuid(const GUID& id)
 C_Entity C_World::FindByName(const std::string& name)
 {
 	auto view = m_Registry.view<S_IdentityComponent>();
-	for (auto [entity, identity] : view.each())
+	for (auto&& [entity, identity] : view.each())
 	{
 		if (identity.name == name)
 			return C_Entity(*this, entity);
@@ -204,7 +204,7 @@ Physics::Primitives::S_RayIntersection C_World::Select(const Physics::Primitives
 
 	std::vector<S_RayIntersection> intersects;
 	auto						   view = m_Registry.view<S_LocalBounds, S_WorldTransformComponent, S_IdentityComponent>();
-	for (auto [entity, bounds, worldTransform, identity] : view.each())
+	for (auto&& [entity, bounds, worldTransform, identity] : view.each())
 	{
 		const auto distance = bounds.aabb.getTransformedAABB(worldTransform.world).IntersectImpl(ray);
 		// IntersectImpl returns +infinity for "no intersection" (see S_AABB::Intersects); infinity
