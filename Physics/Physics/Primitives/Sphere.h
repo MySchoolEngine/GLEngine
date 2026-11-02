@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Physics/Primitives/Ray.h>
+
 #define GLM_GTX_intersect
 #include <glm/gtx/intersect.hpp>
 

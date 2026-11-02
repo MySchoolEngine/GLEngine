@@ -184,11 +184,9 @@ void C_MainPassTechnique::Render(Entity::C_World&							world,
 
 	{
 		RenderDoc::C_DebugScope s("Commit geometry");
-		for (auto&& [e, bounds, worldTransform] : registry.view<Entity::S_LocalBounds, Entity::S_WorldTransformComponent>().each())
-		{
-			const auto compSphere = bounds.aabb.GetSphere();
-			if (!compSphere.IsColliding(camBox))
-				continue;
+		world.ForEachInSphere(camBox, [&](Entity::C_Entity entity) {
+			const auto	e			   = entity.Handle();
+			const auto& worldTransform = entity.Get<Entity::S_WorldTransformComponent>();
 
 			if (registry.all_of<Renderer::S_StaticMesh, Renderer::S_StaticMeshGPU>(e))
 			{
@@ -198,7 +196,7 @@ void C_MainPassTechnique::Render(Entity::C_World&							world,
 			{
 				Renderer::GeomSystem::Render(registry.get<Renderer::S_GeomComponent>(e), registry.get<Renderer::S_GeomGPU>(e), worldTransform, m_3DRenderer);
 			}
-		}
+		});
 	}
 
 	{
