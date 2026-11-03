@@ -403,7 +403,7 @@ REGISTER_META_MEMBER_TYPE(UI::EnumSelectOptional::Name, std::string);
 REGISTER_META_MEMBER_TYPE(UI::EnumSelectOptional::OptionalName, std::string);
 
 REGISTER_META_CLASS(UI::CustomGUIWidget, MetaGUI); // for whole types
-REGISTER_META_MEMBER_TYPE(UI::CustomGUIWidget::DrawFunction, std::function<void(rttr::instance&)>);
+REGISTER_META_MEMBER_TYPE(UI::CustomGUIWidget::DrawFunction, std::function<bool(rttr::instance&)>);
 
 REGISTER_META_CLASS(UI::Array, MetaGUI);
 REGISTER_META_MEMBER_TYPE(UI::Array::Name, std::string);

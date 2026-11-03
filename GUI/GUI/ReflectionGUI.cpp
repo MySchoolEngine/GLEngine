@@ -539,8 +539,14 @@ std::vector<rttr::property> DrawAllPropertyGUI(rttr::instance& obj)
 
 	if (UI::IsTypeUIMetaClass<MetaGUI::CustomGUIWidget>(unwrapped))
 	{
-		// custom widgets
-		GetMetadataMember<UI::CustomGUIWidget::DrawFunction>(unwrapped)(unwrapped);
+		// custom widgets own the whole instance, not a specific property, so there's no single
+		// rttr::property to report back as "changed" - if the widget reports a change, report
+		// every property of the type instead, since any of them could be what it touched.
+		if (GetMetadataMember<UI::CustomGUIWidget::DrawFunction>(unwrapped)(unwrapped))
+		{
+			const auto properties = unwrapped.get_type().get_raw_type().get_properties();
+			return {properties.begin(), properties.end()};
+		}
 		return {};
 	}
 
