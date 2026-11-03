@@ -245,6 +245,30 @@ TEST(World, OnUpdate_DestroyingSomeEntities_LeavesExactlyTheSurvivorsLive)
 	EXPECT_FALSE(world.FindByGuid(d.GetGuid()).IsValid());
 }
 
+TEST(World, Registry_DestroyBypassingDestroyEntity_ThenRecreateWithSameGuid_FindByGuidSeesTheNewOne)
+{
+	// F-018: Registry().destroy() (bypassing DestroyEntity()+OnUpdate()) left a stale m_GuidLookup
+	// entry behind. IsValid() alone doesn't surface this - entt's own generation check already
+	// makes a stale handle report invalid - but unordered_map::emplace() is a no-op when the key
+	// already exists, so recreating an entity with the SAME guid afterwards silently kept the
+	// lookup pointed at the dead handle instead of the new one. The on_destroy<S_IdentityComponent>
+	// hook in C_World's constructor closes this by erasing the entry as soon as the old entity dies,
+	// regardless of which path destroyed it.
+	C_World	   world;
+	const GUID guid		= NextGUID();
+	C_Entity   original = world.CreateEntityWithGuid(guid, "Original");
+	ASSERT_TRUE(original.IsValid());
+
+	world.Registry().destroy(original.Handle());
+
+	C_Entity recreated = world.CreateEntityWithGuid(guid, "Recreated");
+	ASSERT_TRUE(recreated.IsValid());
+
+	C_Entity found = world.FindByGuid(guid);
+	ASSERT_TRUE(found.IsValid());
+	EXPECT_EQ(found.GetName(), "Recreated");
+}
+
 TEST(C_Entity, AddOrReplace_OverwritesAnExistingComponent)
 {
 	C_World world;

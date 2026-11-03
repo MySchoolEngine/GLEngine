@@ -46,6 +46,14 @@ void CollectSubtree(entt::registry& registry, entt::entity entity, std::vector<e
 C_World::C_World()
 {
 	m_Registry.on_update<S_TransformComponent>().connect<&OnTransformComponentPatched>();
+	m_Registry.on_destroy<S_IdentityComponent>().connect<&C_World::OnIdentityComponentDestroyed>(*this);
+}
+
+//=================================================================================
+// on_destroy fires before the component is actually removed, so identity.id is still valid here.
+void C_World::OnIdentityComponentDestroyed(entt::registry& registry, entt::entity e)
+{
+	m_GuidLookup.erase(registry.get<S_IdentityComponent>(e).id);
 }
 
 //=================================================================================
@@ -189,10 +197,8 @@ void C_World::OnUpdate()
 	for (const auto entity : toDestroy)
 	{
 		if (!m_Registry.valid(entity))
-			continue; // already destroyed via an ancestor (or a duplicate queue entry) above
-		const auto& identity = m_Registry.get<S_IdentityComponent>(entity);
-		m_GuidLookup.erase(identity.id);
-		m_Registry.destroy(entity);
+			continue;				// already destroyed via an ancestor (or a duplicate queue entry) above
+		m_Registry.destroy(entity); // also erases m_GuidLookup via the on_destroy<S_IdentityComponent> hook
 	}
 }
 

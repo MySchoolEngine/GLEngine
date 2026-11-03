@@ -58,6 +58,10 @@ public:
 	void OnEvent(Core::I_Event& event) override {}
 
 private:
+	// Keeps m_GuidLookup correct regardless of how an entity is destroyed - the proper
+	// DestroyEntity()+OnUpdate() path, or a direct Registry().destroy()/clear() bypass (F-018).
+	void OnIdentityComponentDestroyed(entt::registry& registry, entt::entity e);
+
 	entt::registry						   m_Registry;
 	std::unordered_map<GUID, entt::entity> m_GuidLookup;
 	std::vector<entt::entity>			   m_PendingDestroy;
