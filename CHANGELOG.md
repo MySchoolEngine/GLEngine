@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - 05-10-2026 - Ray tracing improvements
 ### Added
+- Branch review skill
+### Fixed
+- Migrated entities to EnTT [#170](/../../issues/170)
+- Decoupled GUI and Renderer (typeinfo in not present on gcc builds without linking)
+
+## [Unreleased] - 05-10-2026 - Ray tracing improvements
+### Added
 - Random Walk Integrator and SimplePathIntegrator
 - Move `C_StaticMeshHandles` materials to handles
 - `SliderUInt`
