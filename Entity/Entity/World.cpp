@@ -1,0 +1,256 @@
+#include <EntityStdafx.h>
+
+#include <Entity/Components/CoreComponents.h>
+#include <Entity/Entity.h>
+#include <Entity/World.h>
+
+#include <Physics/Primitives/Intersection.h>
+#include <Physics/Primitives/Plane.h>
+#include <Physics/Primitives/Ray.h>
+
+#include <algorithm>
+#include <cmath>
+#include <limits>
+
+namespace GLEngine::Entity {
+
+namespace {
+// S_TransformComponent is only ever marked dirty automatically on entity creation and in
+// SetParent/Detach (hierarchy changes) - nothing else in this file touches S_DirtyTransformTag.
+// Any OTHER code that edits a S_TransformComponent in place (e.g. the Editor's gizmo) must mark it
+// dirty itself; connecting this signal lets it do so by calling registry.patch<S_TransformComponent>()
+// instead of poking S_DirtyTransformTag directly, so the two don't drift apart if the tag's name
+// or semantics ever change.
+void OnTransformComponentPatched(entt::registry& registry, entt::entity e)
+{
+	registry.emplace_or_replace<S_DirtyTransformTag>(e);
+}
+
+// Appends `entity` and every descendant (depth-first) to `out`. Grabs each child's `next`
+// sibling before recursing so the walk is unaffected by mutations the caller makes to
+// `entity`'s own links (e.g. detaching it from its parent) before calling this.
+void CollectSubtree(entt::registry& registry, entt::entity entity, std::vector<entt::entity>& out)
+{
+	out.push_back(entity);
+	const auto& rel = registry.get<S_RelationshipComponent>(entity);
+	for (auto child = rel.firstChild; child != entt::null;)
+	{
+		const auto next = registry.get<S_RelationshipComponent>(child).next;
+		CollectSubtree(registry, child, out);
+		child = next;
+	}
+}
+} // namespace
+
+//=================================================================================
+C_World::C_World()
+{
+	m_Registry.on_update<S_TransformComponent>().connect<&OnTransformComponentPatched>();
+	m_Registry.on_destroy<S_IdentityComponent>().connect<&C_World::OnIdentityComponentDestroyed>(*this);
+}
+
+//=================================================================================
+// on_destroy fires before the component is actually removed, so identity.id is still valid here.
+void C_World::OnIdentityComponentDestroyed(entt::registry& registry, entt::entity e)
+{
+	m_GuidLookup.erase(registry.get<S_IdentityComponent>(e).id);
+}
+
+//=================================================================================
+C_Entity C_World::CreateEntity(std::string name)
+{
+	return CreateEntityWithGuid(NextGUID(), std::move(name));
+}
+
+//=================================================================================
+C_Entity C_World::CreateEntityWithGuid(const GUID& guid, std::string name)
+{
+	if (name.empty() || FindByName(name).IsValid() || FindByGuid(guid).IsValid())
+		return {};
+	const auto handle = m_Registry.create();
+	m_Registry.emplace<S_IdentityComponent>(handle, guid, std::move(name));
+	m_Registry.emplace<S_TransformComponent>(handle);
+	m_Registry.emplace<S_WorldTransformComponent>(handle);
+	m_Registry.emplace<S_RelationshipComponent>(handle);
+	m_Registry.emplace<S_DirtyTransformTag>(handle);
+	m_GuidLookup.emplace(guid, handle);
+	return C_Entity(*this, handle);
+}
+
+//=================================================================================
+bool C_World::SetParent(entt::entity child, entt::entity newParent)
+{
+	if (child == newParent)
+		return false;
+	// A stale or default-constructed handle must fail cleanly here, not assert in the cycle-walk
+	// or Detach() below (registry.get on an invalid handle is UB in release, an assert in debug).
+	if (!m_Registry.valid(child) || (newParent != entt::null && !m_Registry.valid(newParent)))
+		return false;
+
+	// Reject a cycle: newParent must not be child itself or a descendant of child.
+	for (auto walk = newParent; walk != entt::null; walk = m_Registry.get<S_RelationshipComponent>(walk).parent)
+	{
+		if (walk == child)
+			return false;
+	}
+
+	Detach(child);
+
+	auto& childRel = m_Registry.get<S_RelationshipComponent>(child);
+	if (newParent != entt::null)
+	{
+		auto& parentRel = m_Registry.get<S_RelationshipComponent>(newParent);
+		childRel.next	= parentRel.firstChild;
+		if (parentRel.firstChild != entt::null)
+			m_Registry.get<S_RelationshipComponent>(parentRel.firstChild).prev = child;
+		parentRel.firstChild = child;
+		++parentRel.childCount;
+	}
+	childRel.parent = newParent;
+	m_Registry.emplace_or_replace<S_DirtyTransformTag>(child);
+	return true;
+}
+
+//=================================================================================
+void C_World::Detach(entt::entity child)
+{
+	auto& childRel = m_Registry.get<S_RelationshipComponent>(child);
+	if (childRel.parent == entt::null)
+		return;
+
+	auto& parentRel = m_Registry.get<S_RelationshipComponent>(childRel.parent);
+	if (childRel.prev != entt::null)
+		m_Registry.get<S_RelationshipComponent>(childRel.prev).next = childRel.next;
+	else
+		parentRel.firstChild = childRel.next;
+
+	if (childRel.next != entt::null)
+		m_Registry.get<S_RelationshipComponent>(childRel.next).prev = childRel.prev;
+
+	--parentRel.childCount;
+	childRel.parent = entt::null;
+	childRel.prev	= entt::null;
+	childRel.next	= entt::null;
+	m_Registry.emplace_or_replace<S_DirtyTransformTag>(child);
+}
+
+//=================================================================================
+void C_World::DestroyEntity(entt::entity entity)
+{
+	m_PendingDestroy.push_back(entity);
+}
+
+//=================================================================================
+void C_World::ClearLevel()
+{
+	m_Registry.clear();
+	m_GuidLookup.clear();
+	m_PendingDestroy.clear();
+	m_Filename.clear();
+}
+
+//=================================================================================
+C_Entity C_World::FindByGuid(const GUID& id)
+{
+	const auto it = m_GuidLookup.find(id);
+	if (it == m_GuidLookup.end())
+		return C_Entity();
+	return C_Entity(*this, it->second);
+}
+
+//=================================================================================
+C_Entity C_World::FindByName(const std::string& name)
+{
+	auto view = m_Registry.view<S_IdentityComponent>();
+	for (auto&& [entity, identity] : view.each())
+	{
+		if (identity.name == name)
+			return C_Entity(*this, entity);
+	}
+	return C_Entity();
+}
+
+//=================================================================================
+C_Entity C_World::GetOrCreateEntity(const std::string& name)
+{
+	if (auto existing = FindByName(name); existing.IsValid())
+		return existing;
+	return CreateEntity(name);
+}
+
+//=================================================================================
+void C_World::OnUpdate()
+{
+	// Destroying an entity must take its whole subtree with it - otherwise children are left
+	// with a parent/sibling handle that is about to be destroyed or recycled, and the next
+	// TransformSystem::Update or WorldSerializer::Save dereferences it.
+	std::vector<entt::entity> toDestroy;
+	for (const auto entity : m_PendingDestroy)
+	{
+		if (!m_Registry.valid(entity))
+			continue;
+		Detach(entity); // unlink from a surviving parent/siblings before the subtree is gone
+		CollectSubtree(m_Registry, entity, toDestroy);
+	}
+	m_PendingDestroy.clear();
+
+	for (const auto entity : toDestroy)
+	{
+		if (!m_Registry.valid(entity))
+			continue;				// already destroyed via an ancestor (or a duplicate queue entry) above
+		m_Registry.destroy(entity); // also erases m_GuidLookup via the on_destroy<S_IdentityComponent> hook
+	}
+}
+
+//=================================================================================
+Physics::Primitives::S_RayIntersection C_World::Select(const Physics::Primitives::S_Ray& ray)
+{
+	using namespace Physics::Primitives;
+	GLE_TODO("7-10-2026", "RohacekD", "Add acceleration structure once finished");
+
+	std::vector<S_RayIntersection> intersects;
+	auto						   view = m_Registry.view<S_LocalBounds, S_WorldTransformComponent, S_IdentityComponent>();
+	for (auto&& [entity, bounds, worldTransform, identity] : view.each())
+	{
+		const auto distance = bounds.aabb.getTransformedAABB(worldTransform.world).IntersectImpl(ray);
+		// IntersectImpl returns +infinity for "no intersection" (see S_AABB::Intersects); infinity
+		// satisfies distance > 0, so every bounded entity was wrongly counted as a hit on a miss.
+		if (distance > 0 && std::isfinite(distance))
+		{
+			S_RayIntersection intersection;
+			intersection.entityId		   = identity.id;
+			intersection.distance		   = distance;
+			intersection.intersectionPoint = ray.origin + ray.direction * distance;
+			intersection.ray			   = ray;
+			intersects.emplace_back(std::move(intersection));
+		}
+	}
+
+	if (!intersects.empty())
+	{
+		const auto nearest = std::min_element(intersects.begin(), intersects.end(), [](const auto& a, const auto& b) { return a.distance < b.distance; });
+		return *nearest;
+	}
+
+	constexpr S_Plane plane{glm::vec4(0.f, 1.f, 0.f, 1.f), -1};
+	S_RayIntersection intersection;
+	intersection.entityId		   = GUID::INVALID_GUID;
+	intersection.distance		   = plane.IntersectImpl(ray, std::numeric_limits<float>::max());
+	intersection.intersectionPoint = ray.origin + ray.direction * intersection.distance;
+	intersection.ray			   = ray;
+	return intersection;
+}
+
+//=================================================================================
+void C_World::SetFilename(const std::filesystem::path& filename)
+{
+	m_Filename = filename;
+}
+
+//=================================================================================
+std::filesystem::path C_World::GetFilename() const
+{
+	return m_Filename;
+}
+
+} // namespace GLEngine::Entity

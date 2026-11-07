@@ -31,6 +31,20 @@ MSBuild GLEngine.sln /t:<ProjectName> /p:Configuration=Debug /p:Platform=x64
 MSBuild GLEngine.sln /p:Configuration=Debug /p:Platform=x64
 ```
 
+## LSP Index
+
+The LSP tool reads `compile_commands.json`, which is generated separately from the premake project
+files and does not update on its own. After adding, removing, or moving a source file, run:
+
+```bash
+premake5 export-compile-commands
+```
+
+Skipping this after a file add/remove/move means the LSP tool is working from a stale index -
+expect wrong "no references" results or missing symbols for anything touching the changed file
+list. It's slow to regenerate, so only run it after an actual file add/remove/move, not
+speculatively.
+
 ## Common Mistake
 
 Editing a header and only mentally verifying the one `.cpp` you were looking at. The compiler sees every translation unit that includes the header — they all must compile.

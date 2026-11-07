@@ -12,7 +12,7 @@ class C_KeyPressedEvent;
 
 namespace GLEngine::Renderer {
 class I_DebugDraw;
-class I_CameraComponent;
+class I_Camera;
 } // namespace GLEngine::Renderer
 
 namespace GLEngine::Editor {
@@ -33,24 +33,24 @@ public:
 
 	/**
 	 * Main update point for gizmo. Note, that Draw needs to be called separately.
-	 * 
+	 *
 	 * Usage example:
 	 * C_MousePickingHelper mousePicking(m_Input, *camera.get(), m_Viewport);
 	 * fill in other interactable objects...
 	 * OnUpdate(camera, mousePicking);
 	 * mousePicking.SelectInteraction();
-	 * 
-	 * @param camera 
+	 *
+	 * @param camera
 	 * @param mouseHelper This is being passed in to allow user to merge multiple interactions
 	 */
-	void OnUpdate(const Renderer::I_CameraComponent& camera, C_MousePickingHelper& mouseHelper);
+	void OnUpdate(const Renderer::I_Camera& camera, C_MousePickingHelper& mouseHelper);
 
 	/**
 	 * Draw the gizmo. Note, that this needs to be called outside the OnUpdate method.
 	 *
 	 * @todo Would not work on Release, the I_DebugDraw is optimised away
-	 * 
-	 * @param dd 
+	 *
+	 * @param dd
 	 */
 	void Draw(Renderer::I_DebugDraw& dd) const;
 
@@ -65,10 +65,10 @@ public:
 	void OnEvent(Core::I_Event& event) override;
 
 private:
-	[[nodiscard]] bool OnMouseKeyPressed(Core::C_MouseButtonPressed& event);
-	[[nodiscard]] bool OnMouseKeyReleased(Core::C_MouseButtonReleased& event);
-	[[nodiscard]] bool OnMouseMoved(Core::C_MouseMoved& event);
-	[[nodiscard]] bool OnKeyPressed(Core::C_KeyPressedEvent& event);
+	[[nodiscard]] bool		OnMouseKeyPressed(Core::C_MouseButtonPressed& event);
+	[[nodiscard]] bool		OnMouseKeyReleased(Core::C_MouseButtonReleased& event);
+	[[nodiscard]] bool		OnMouseMoved(Core::C_MouseMoved& event);
+	[[nodiscard]] bool		OnKeyPressed(Core::C_KeyPressedEvent& event);
 	[[nodiscard]] glm::vec3 GetAxe(const E_Direction dir) const;
 
 	glm::vec3				   m_Position;

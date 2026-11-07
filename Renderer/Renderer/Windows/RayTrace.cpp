@@ -1,6 +1,6 @@
 #include <RendererStdafx.h>
 
-#include <Renderer/ICameraComponent.h>
+#include <Renderer/ICamera.h>
 #include <Renderer/IDevice.h>
 #include <Renderer/IRenderer.h>
 #include <Renderer/RayCasting/Geometry/RayTraceSceneBuilder.h>
@@ -18,7 +18,7 @@
 #include <GUI/GUIManager.h>
 #include <GUI/ReflectionGUI.h>
 
-#include <Entity/EntityManager.h>
+#include <Entity/World.h>
 
 #include <Core/Application.h>
 
@@ -79,7 +79,7 @@ constexpr static unsigned int  s_Coef			 = 1; // 28 max
 constexpr static unsigned int  s_ProbeSize		 = 64;
 
 //=================================================================================
-C_RayTraceWindow::C_RayTraceWindow(const GUID guid, const std::shared_ptr<I_CameraComponent>& camera, GUI::C_GUIManager& guiMGR)
+C_RayTraceWindow::C_RayTraceWindow(const GUID guid, const std::shared_ptr<I_Camera>& camera, GUI::C_GUIManager& guiMGR)
 	: GUI::C_Window(guid, "Ray tracing")
 	, m_Camera(camera)
 	, m_ImageStorage(s_ImageResolution.x / s_Coef, s_ImageResolution.y / s_Coef, 3)
@@ -225,11 +225,11 @@ C_RayTraceWindow::~C_RayTraceWindow()
 }
 
 //=================================================================================
-void C_RayTraceWindow::SetScene(const Entity::C_EntityManager& world)
+void C_RayTraceWindow::SetScene(Entity::C_World& world)
 {
 	Clear();
 	m_Scene.ClearScene();
-	RayTracing::BuildSceneFromEntityManager(world, m_Scene);
+	RayTracing::BuildSceneFromWorld(world, m_Scene);
 }
 
 //=================================================================================

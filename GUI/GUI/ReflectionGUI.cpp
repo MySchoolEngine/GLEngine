@@ -6,28 +6,28 @@
 #include <GUI/ReflectionGUI.h>
 #include <GUI/ResourceDialogWindow.h>
 
-#include <Renderer/IRenderer.h>
-#include <Renderer/Materials/MaterialResource.h>
-#include <Renderer/Mesh/Loading/MeshResource.h>
-#include <Renderer/Textures/TextureManager.h>
-#include <Renderer/Textures/TextureResource.h>
-
-#include <Core/Application.h>
-#include <Core/Resources/ResourceHandle.h>
-#include <Core/Resources/ResourceManager.h>
-
 #include <Utils/Serialization/SerializationTraits.h>
 
 #include <cstdio>
 #include <filesystem>
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <map>
 #include <optional>
 
 namespace GLEngine::GUI {
 namespace {
 
 static C_GUIManager* s_GUIMgr = nullptr;
+
+std::map<rttr::type, CustomWidgetDrawFunc> s_CustomWidgetDrawers;
+
+//=================================================================================
+bool DrawRegisteredCustomWidget(rttr::instance& obj, const rttr::property* enclosingProperty)
+{
+	const auto it = s_CustomWidgetDrawers.find(obj.get_type().get_raw_type());
+	return it != s_CustomWidgetDrawers.end() ? it->second(obj, enclosingProperty) : false;
+}
 
 //=================================================================================
 // Edits a wrapped value in place, or copies out/edits/reassigns a plain one.
@@ -220,10 +220,10 @@ bool DrawEnumSelectOptional(rttr::instance obj, const rttr::property& prop)
 
 	auto value = prop.get_value(obj);
 
-	const bool isWrapped	= value.get_type().is_wrapper();
+	const bool isWrapped			= value.get_type().is_wrapper();
 	const auto optionalPropertyType = isWrapped ? value.get_type().get_wrapped_type() : value.get_type();
 	const auto propertyType			= optionalPropertyType.get_wrapped_type().get_raw_type();
-	const auto enumeration	= propertyType.get_enumeration();
+	const auto enumeration			= propertyType.get_enumeration();
 	switch (enumeration.get_underlying_type().get_sizeof())
 	{
 	case 1:
@@ -287,131 +287,6 @@ bool DrawColour(rttr::instance obj, const rttr::property& prop)
 }
 
 //=================================================================================
-template <Core::IsResource resourceType, class MetaClassEnum> bool DrawResource(rttr::instance obj, const rttr::property& prop)
-{
-	using namespace ::Utils::Reflection;
-
-	auto value = GetPropertyOrSelfValue<Core::ResourceHandle<resourceType>>(obj, prop);
-
-	static constexpr std::size_t s_MaxStringLen = 30; // found out by experiment
-
-	std::reference_wrapper resource = const_cast<Core::ResourceHandle<resourceType>&>(value.template get_wrapped_value<Core::ResourceHandle<resourceType>>());
-	bool				   ret		= false;
-	const ImVec2		   drawAreaSz(std::min(380.f, ImGui::GetWindowWidth()), 88);
-	const ImVec2		   canvasP0	 = ImGui::GetCursorPos();
-	const auto			   canvasPos = ImGui::GetCursorScreenPos();
-	const ImRect		   imageRect(canvasPos, canvasPos + drawAreaSz);
-	const bool			   isHovered = ImGui::IsItemHovered(); // Hovered
-	const bool			   isActive	 = ImGui::IsItemActive();  // Held
-	ImDrawList*			   drawList	 = ImGui::GetWindowDrawList();
-	const ImGuiIO&		   io		 = ImGui::GetIO();
-	ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{0, 0});
-
-	{
-		auto	filename = resource.get().GetFilePath().generic_string();
-		ImGuiID FrameID	 = ImGuiID{static_cast<unsigned int>(std::hash<std::string>{}(GetMetadataMember<MetaClassEnum::Name>(prop) + filename))};
-		ImGui::BeginChildFrame(FrameID, drawAreaSz);
-
-		auto&	   resMgr = Core::C_ResourceManager::Instance();
-		const auto loader = resMgr.GetLoaderForType<resourceType>();
-
-		if (loader.has_value() && ImGui::BeginDragDropTargetCustom(imageRect, FrameID))
-		{
-			const auto dragDropLabel = loader.transform([](const auto& l) { return l.get().DragAndDropLabel(); }).value();
-			if (ImGui::AcceptDragDropPayload(dragDropLabel.c_str(), ImGuiDragDropFlags_AcceptPeekOnly))
-			{
-				ImGui::GetForegroundDrawList()->AddRectFilled(imageRect.Min, imageRect.Max, IM_COL32(0, 255, 0, 40));
-				ImGui::GetForegroundDrawList()->AddRect(imageRect.Min, imageRect.Max, IM_COL32(0, 255, 0, 255), 0.0f, 0, 2.0f);
-			}
-			if (auto* p = ImGui::AcceptDragDropPayload(dragDropLabel.c_str()))
-			{
-				const std::filesystem::path droppedPath(static_cast<const char*>(p->Data));
-				resource.get() = resMgr.LoadResource<resourceType>(droppedPath);
-				ret			   = true;
-			}
-			ImGui::EndDragDropTarget();
-		}
-
-		ImGui::SetCursorPos(ImVec2{2, 2});
-		{
-			const ImVec2 previewSize{drawAreaSz.y - 4, drawAreaSz.y - 4};
-			ImGui::BeginChildFrame(ImGuiID{static_cast<unsigned int>(std::hash<std::string>{}(GetMetadataMember<MetaClassEnum::Name>(prop) + filename + "_preview"))}, previewSize);
-			if constexpr (std::is_same_v<resourceType, Renderer::TextureResource>)
-			{
-				if (resource.get())
-				{
-					auto& tMGR			 = Core::C_Application::Get().GetActiveRenderer().GetTextureManager();
-					auto  rendererHandle = tMGR.GetOrCreateTexture(resource);
-					auto* GUIHandle		 = Core::C_Application::Get().GetActiveRenderer().GetTextureGUIHandle(rendererHandle);
-					ImGui::Image((void*)(intptr_t)(GUIHandle), previewSize);
-				}
-			}
-			ImGui::EndChildFrame();
-		}
-		ImGui::SetCursorPos(ImVec2{drawAreaSz.y + 2, 6});
-		ImGui::TextUnformatted(GetMetadataMember<MetaClassEnum::Name>(prop).c_str());
-		if (filename.size() > s_MaxStringLen && filename.empty() == false)
-		{
-			filename.erase(0, filename.size() - s_MaxStringLen + 3);
-			filename = std::string("...") + filename;
-		}
-		else
-		{
-			ImGui::TextUnformatted("Empty");
-		}
-		ImGui::SetCursorPos(ImVec2{drawAreaSz.y + 2, 30});
-		ImGui::TextUnformatted(filename.c_str());
-		std::string loadImageText;
-		if constexpr (std::is_same_v<resourceType, Renderer::TextureResource>)
-		{
-			loadImageText = "Load image";
-		}
-		else if constexpr (std::is_same_v<resourceType, Renderer::MeshResource>)
-		{
-			loadImageText = "Load model";
-		}
-		else
-		{
-			// Fallback for any resource type not special-cased above
-			loadImageText = "Load";
-		}
-
-		const ImGuiStyle& style			 = GImGui->Style;
-		const auto		  buttonTextSize = ImGui::CalcTextSize(loadImageText.c_str(), nullptr, true);
-		const auto		  buttonSize	 = ImVec2(buttonTextSize.x + style.FramePadding.x * 2.0f, buttonTextSize.y + style.FramePadding.y * 2.0f);
-		ImGui::SetCursorPos(drawAreaSz - (buttonSize + ImVec2(14, 14)));
-		ImGui::PopStyleVar(2);
-		if (ImGui::Button(loadImageText.c_str()))
-		{
-			// TODO:
-			//	[ ] Create generic file gui window
-			const auto imageLoaderGUID	  = NextGUID();
-			auto*	   resourcePathSelect = new C_ResourceDialogWindow(resource, "Select image", imageLoaderGUID);
-
-			s_GUIMgr->AddCustomWindow(resourcePathSelect);
-			resourcePathSelect->SetVisible();
-		}
-
-		if (resource.get().IsReady())
-		{
-			if (DrawSquareButton(drawList, canvasPos + ImVec2(drawAreaSz.x, 0) - ImVec2(20, -4), E_ButtonType::Cross) && io.MouseReleased[0] && resource.get().IsReady())
-			{
-				ret			   = true;
-				resource.get() = {};
-			}
-		}
-
-
-		ImGui::EndChildFrame();
-	}
-
-	ImGui::SetCursorPos(canvasP0);
-	ImGui::ItemSize(imageRect);
-	return ret;
-}
-
-//=================================================================================
 // Element-level twin of DrawPropertyGUI: tag lives on the container property, but edits the element directly.
 bool DrawArrayElementGUI(const rttr::property& prop, rttr::variant& elementVar)
 {
@@ -458,17 +333,13 @@ bool DrawArrayElementGUI(const rttr::property& prop, rttr::variant& elementVar)
 	{
 		return DrawEnumSelectValue(elementVar, prop);
 	}
-	else if (UI::IsUIMetaclassForElement<MetaGUI::Texture>(prop, elementVar))
+
+	// No explicit tag matched - fall back to a CustomGUIWidget registered on the element's own type
+	rttr::instance elementInst(elementVar);
+	rttr::instance unwrapped = elementInst.get_type().get_raw_type().is_wrapper() ? elementInst.get_wrapped_instance() : elementInst;
+	if (UI::IsTypeUIMetaClass<MetaGUI::CustomGUIWidget>(unwrapped))
 	{
-		return DrawResource<Renderer::TextureResource, UI::Texture>(elementVar, prop);
-	}
-	else if (UI::IsUIMetaclassForElement<MetaGUI::MeshResource>(prop, elementVar))
-	{
-		return DrawResource<Renderer::MeshResource, UI::MeshResource>(elementVar, prop);
-	}
-	else if (UI::IsUIMetaclassForElement<MetaGUI::MaterialResource>(prop, elementVar))
-	{
-		return DrawResource<Renderer::MaterialResource, UI::MaterialResource>(elementVar, prop);
+		return DrawRegisteredCustomWidget(unwrapped, &prop);
 	}
 	return false;
 }
@@ -525,21 +396,31 @@ bool DrawSequentialContainer(rttr::instance obj, const rttr::property& prop)
 } // namespace
 
 //=================================================================================
-std::vector<rttr::property> DrawAllPropertyGUI(rttr::instance& obj)
+std::vector<rttr::property> DrawAllPropertyGUI(rttr::instance& obj, const rttr::property* enclosingProperty)
 {
 	using namespace ::Utils::Reflection;
 	std::vector<rttr::property> changedVals;
 
-	if (UI::IsTypeUIMetaClass<MetaGUI::CustomGUIWidget>(obj))
+	// instance::get_type() on a wrapper (e.g. std::reference_wrapper<T>) returns the wrapper's
+	// own type, not T's - get_wrapped_instance() is required to see T's properties. rttr::instance
+	// has no public operator=, so unwrap into a fresh copy-constructed local instead of reassigning obj.
+	// Done before the custom-widget check below so a CustomGUIWidget registered on T is found even
+	// when obj is a wrapper - the metadata lookup only ever sees the wrapper's own type otherwise.
+	rttr::instance unwrapped = obj.get_type().get_raw_type().is_wrapper() ? obj.get_wrapped_instance() : obj;
+
+	if (UI::IsTypeUIMetaClass<MetaGUI::CustomGUIWidget>(unwrapped))
 	{
-		// custom widgets
-		GetMetadataMember<UI::CustomGUIWidget::DrawFunction>(obj)(obj);
+		if (DrawRegisteredCustomWidget(unwrapped, enclosingProperty))
+		{
+			const auto properties = unwrapped.get_type().get_raw_type().get_properties();
+			return {properties.begin(), properties.end()};
+		}
 		return {};
 	}
 
-	rttr::type type = obj.get_type().get_raw_type();
+	rttr::type type = unwrapped.get_type().get_raw_type();
 	if (type.get_derived_classes().empty() == false)
-		type = obj.get_derived_type();
+		type = unwrapped.get_derived_type();
 
 	std::map<std::string, std::vector<rttr::property>> collapsableHeaders;
 	for (auto& prop : type.get_properties())
@@ -550,7 +431,7 @@ std::vector<rttr::property> DrawAllPropertyGUI(rttr::instance& obj)
 		}
 		else
 		{
-			if (DrawPropertyGUI(obj, prop))
+			if (DrawPropertyGUI(unwrapped, prop))
 			{
 				changedVals.emplace_back(prop);
 			}
@@ -562,7 +443,7 @@ std::vector<rttr::property> DrawAllPropertyGUI(rttr::instance& obj)
 		{
 			for (auto& prop : collapsableHeader.second)
 			{
-				if (DrawPropertyGUI(obj, prop))
+				if (DrawPropertyGUI(unwrapped, prop))
 				{
 					changedVals.emplace_back(prop);
 				}
@@ -620,18 +501,6 @@ bool DrawPropertyGUI(rttr::instance obj, const rttr::property& prop)
 		DrawText(obj, prop);
 		return false;
 	}
-	else if (UI::IsUIMetaclass<MetaGUI::Texture>(prop))
-	{
-		return DrawResource<Renderer::TextureResource, UI::Texture>(obj, prop);
-	}
-	else if (UI::IsUIMetaclass<MetaGUI::MeshResource>(prop))
-	{
-		return DrawResource<Renderer::MeshResource, UI::MeshResource>(obj, prop);
-	}
-	else if (UI::IsUIMetaclass<MetaGUI::MaterialResource>(prop))
-	{
-		return DrawResource<Renderer::MaterialResource, UI::MaterialResource>(obj, prop);
-	}
 	else if (UI::IsUIMetaclass<MetaGUI::EnumSelectOptional>(prop))
 	{
 		return DrawEnumSelectOptional(obj, prop);
@@ -642,14 +511,26 @@ bool DrawPropertyGUI(rttr::instance obj, const rttr::property& prop)
 	}
 	else
 	{
+		// No explicit tag matched - recurse generically, which also catches a CustomGUIWidget
+		// registered on the property's own type
 		rttr::instance ins{prop.get_value(obj)};
-		return GUI::DrawAllPropertyGUI(ins).empty() == false; // this will not return changed properties
+		return DrawAllPropertyGUI(ins, &prop).empty() == false; // this will not return changed properties
 	}
 }
 
 void SetGUIManager(C_GUIManager& mgr)
 {
 	s_GUIMgr = &mgr;
+}
+
+C_GUIManager* GetGUIManager()
+{
+	return s_GUIMgr;
+}
+
+void RegisterCustomWidgetDrawer(rttr::type type, CustomWidgetDrawFunc drawFunc)
+{
+	s_CustomWidgetDrawers[type] = std::move(drawFunc);
 }
 
 } // namespace GLEngine::GUI

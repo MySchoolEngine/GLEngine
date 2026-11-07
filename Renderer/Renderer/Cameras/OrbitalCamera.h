@@ -1,6 +1,8 @@
 #pragma once
 
-#include <Renderer/ICameraComponent.h>
+#include <Renderer/ICamera.h>
+
+#include <glm/gtc/quaternion.hpp>
 
 namespace GLEngine {
 
@@ -20,7 +22,7 @@ namespace Renderer::Cameras {
 
 // Orbital camera
 // Using Euclidean angles (= has gimbal lock)
-class RENDERER_API_EXPORT C_OrbitalCamera : public I_CameraComponent {
+class RENDERER_API_EXPORT C_OrbitalCamera : public I_Camera {
 public:
 	C_OrbitalCamera(const std::shared_ptr<Entity::I_Entity>& owner);
 	C_OrbitalCamera();
@@ -66,7 +68,13 @@ public:
 	// Deserializer special method
 	void AfterDeserialize();
 
-	RTTR_ENABLE(I_CameraComponent);
+	// Folds the owning entity's world translation and rotation into the orbit center - fixes the
+	// bug where this camera previously ignored its owner's transform entirely (Update() only ever
+	// used m_Transformation, which is driven by SetupCameraView/WASD/mouse, not by the owner's
+	// hierarchy). Scale is intentionally not folded in
+	void SetOwnerWorldTransform(const glm::mat4& worldTransform) override;
+
+	RTTR_ENABLE(I_Camera);
 	RTTR_REGISTRATION_FRIEND;
 
 protected:
@@ -96,6 +104,9 @@ private:
 	glm::mat4 _ScreenToWorld;
 
 	float m_ControlSpeed;
+
+	glm::vec3 m_OwnerWorldTranslation = glm::vec3(0.f);
+	glm::quat m_OwnerWorldRotation	   = glm::quat(1.f, 0.f, 0.f, 0.f);
 };
 } // namespace Renderer::Cameras
 } // namespace GLEngine

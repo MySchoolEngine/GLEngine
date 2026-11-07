@@ -16,6 +16,13 @@ RTTR_REGISTRATION
 		)
 		.property("vec", &GlmVec3::vec);
 
+	rttr::registration::class_<GlmTypesStruct>("GlmTypesStruct")
+		.constructor<>()
+		.property("vec2", &GlmTypesStruct::m_Vec2)
+		.property("vec3", &GlmTypesStruct::m_Vec3)
+		.property("vec4", &GlmTypesStruct::m_Vec4)
+		.property("quat", &GlmTypesStruct::m_Quat);
+
 	rttr::registration::enumeration<TestEnum>("TestEnum")
 		(
 			rttr::value("Value1", TestEnum::Value1),

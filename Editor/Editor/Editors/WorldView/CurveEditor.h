@@ -18,7 +18,7 @@ class C_KeyPressedEvent;
 namespace GLEngine::Renderer {
 class C_Curve;
 class I_DebugDraw;
-class I_CameraComponent;
+class I_Camera;
 class C_Viewport;
 } // namespace GLEngine::Renderer
 
@@ -29,7 +29,7 @@ public:
 	C_CurveEditor(Renderer::C_Curve& curve, const Core::I_Input& input);
 
 	void OnEvent(Core::I_Event& event) override;
-	void OnUpdate(const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewport);
+	void OnUpdate(const Renderer::I_Camera& camera, const Renderer::C_Viewport& viewport);
 
 	void Draw(Renderer::I_DebugDraw& dd) const;
 

@@ -62,7 +62,7 @@ template <auto Class, class Type> [[nodiscard]] rttr::variant GetMetadata(Type&&
 	}
 	else if constexpr (std::is_same_v<std::remove_cvref_t<Type>, rttr::instance>)
 	{
-		return arg.get_type().get_metadata(Class);
+		return arg.get_type().get_raw_type().get_metadata(Class);
 	}
 	else
 	{
@@ -351,11 +351,6 @@ enum class EnumSelectOptional : std::uint8_t
 	OptionalName,
 };
 
-enum class CustomGUIWidget : std::uint8_t
-{
-	DrawFunction,
-};
-
 // Optional tag for std::vector<T> properties (rendered automatically either way); customizes label/Add button.
 enum class Array : std::uint8_t
 {
@@ -401,9 +396,6 @@ REGISTER_META_MEMBER_TYPE(UI::EnumSelect::Name, std::string);
 REGISTER_META_CLASS(UI::EnumSelectOptional, MetaGUI);
 REGISTER_META_MEMBER_TYPE(UI::EnumSelectOptional::Name, std::string);
 REGISTER_META_MEMBER_TYPE(UI::EnumSelectOptional::OptionalName, std::string);
-
-REGISTER_META_CLASS(UI::CustomGUIWidget, MetaGUI); // for whole types
-REGISTER_META_MEMBER_TYPE(UI::CustomGUIWidget::DrawFunction, std::function<void(rttr::instance&)>);
 
 REGISTER_META_CLASS(UI::Array, MetaGUI);
 REGISTER_META_MEMBER_TYPE(UI::Array::Name, std::string);

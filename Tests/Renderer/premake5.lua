@@ -6,6 +6,7 @@ project "RendererTest"
 	staticruntime "off"
 
 	SetupProject("RendererTest")
+	debugdir ("TestData/")
 
 	PrecompiledHeaders("RendererTest")
 

@@ -3,15 +3,15 @@
 #include <GLRenderer/Buffers/UBO/FrameConstantsBuffer.h>
 #include <GLRenderer/Buffers/UniformBuffersManager.h>
 #include <GLRenderer/Commands/HACK/LambdaCommand.h>
-#include <GLRenderer/ShadowMapPass.h>
 #include <GLRenderer/OGLDevice.h>
+#include <GLRenderer/ShadowMapPass.h>
 
 #include <Renderer/ILight.h>
 #include <Renderer/IRenderer.h>
 
 #include <Physics/Primitives/Frustum.h>
 
-#include <Entity/EntityManager.h>
+#include <Entity/World.h>
 
 #include <Core/Application.h>
 
@@ -19,7 +19,7 @@ namespace GLEngine::GLRenderer {
 
 // TODO: broken as hell
 //=================================================================================
-C_ShadowMapTechnique::C_ShadowMapTechnique(const std::shared_ptr<Entity::C_EntityManager>& world, const std::shared_ptr<Renderer::I_Light>& light, Renderer::I_Device& device)
+C_ShadowMapTechnique::C_ShadowMapTechnique(Entity::C_World& world, const std::shared_ptr<Renderer::I_Light>& light, Renderer::I_Device& device)
 	: m_WorldToRender(world)
 	, m_Light(light)
 	, m_ShadowPassFBO(static_cast<C_GLDevice&>(device).AllocateFramebuffer("ShadowPassFBO"))
@@ -77,14 +77,14 @@ void C_ShadowMapTechnique::Render()
 	// const auto up	  = frustum.GetUpVector();
 	// const auto width  = areaLight->GetWidth() / 2.0f;
 	// const auto height = areaLight->GetHeight() / 2.0f;
-	// 
+	//
 	// m_FrameConstUBO->SetView(glm::lookAt(pos, pos + frustum.GetForward(), up));
 	// m_FrameConstUBO->SetProjection(glm::ortho(-width, width, -height, height, frustum.GetNear(), frustum.GetFar()));
 	// m_FrameConstUBO->SetCameraPosition(glm::vec4(frustum.GetPosition(), 1.0f));
-	// 
+	//
 	// m_ShadowPassFBO->AttachTexture(GL_DEPTH_ATTACHMENT, areaLight->GetShadowMap());
 	// m_ShadowPassFBO->Bind<E_FramebufferTarget::Draw>();
-	// 
+	//
 	// if (m_ShadowPassFBO->NeedCheck())
 	// {
 	// 	// terribly ineffective
@@ -95,14 +95,14 @@ void C_ShadowMapTechnique::Render()
 	// 			  CORE_LOG(E_Level::Error, E_Context::Render, "Shadow map fbo is uncompleted");
 	// 		  }
 	// 	};
-	// 
+	//
 	// 	m_ShadowPassFBO->SetChecked();
-	// 
+	//
 	// 	std::thread completenessCheck(lambda, std::move(completeness));
 	// 	completenessCheck.detach();
 	// }
-	// 
-	// 
+	//
+	//
 	// {
 	// 	RenderDoc::C_DebugScope s("Shadow map prepare");
 	// 	using namespace Commands;
@@ -111,7 +111,7 @@ void C_ShadowMapTechnique::Render()
 	// 	renderer.AddCommand(std::make_unique<C_GLViewport>(shadowMapViewPort));
 	// 	renderer.AddCommand(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Back));
 	// }
-	// 
+	//
 	// {
 	// 	RenderDoc::C_DebugScope s("UBO Upload");
 	// 	renderer.AddCommand(std::make_unique<Commands::HACK::C_LambdaCommand>(
@@ -121,9 +121,9 @@ void C_ShadowMapTechnique::Render()
 	// 		},
 	// 		"ShadowPass UBO upload"));
 	// }
-	// 
+	//
 	// const auto entitiesInView = m_WorldToRender->GetEntities(frustum);
-	// 
+	//
 	// {
 	// 	RenderDoc::C_DebugScope s("Commit geometry");
 	// 	for (auto& entity : entitiesInView)
@@ -135,7 +135,7 @@ void C_ShadowMapTechnique::Render()
 	// 	}
 	// }
 	// m_ShadowPassFBO->Unbind<E_FramebufferTarget::Draw>();
-	// 
+	//
 	// {
 	// 	using namespace Commands;
 	// 	renderer.AddCommand(std::make_unique<C_GLCullFace>(C_GLCullFace::E_FaceMode::Front));

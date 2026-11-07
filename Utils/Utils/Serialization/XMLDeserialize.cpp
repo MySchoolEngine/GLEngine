@@ -39,6 +39,22 @@ rttr::variant C_XMLDeserializer::DeserializeDoc(const pugi::xml_document& docume
 }
 
 //=================================================================================
+void C_XMLDeserializer::DeserializeInto(const pugi::xml_node& node, rttr::variant& var)
+{
+	m_IsRootObject = true;
+	var			   = DeserializeNode(node, var);
+
+	const rttr::instance inst = var.get_type().get_raw_type().is_wrapper() ? rttr::instance(var).get_wrapped_instance() : rttr::instance(var);
+	auto				  type = inst.get_type();
+	if (type.is_pointer())
+		type = type.get_raw_type();
+	if (type.is_wrapper())
+		type = type.get_wrapped_type();
+
+	FinishDeserialization(type, var);
+}
+
+//=================================================================================
 rttr::variant C_XMLDeserializer::DeserializeNode(const pugi::xml_node& node, rttr::variant& var)
 {
 	using namespace ::Utils::Reflection;

@@ -157,6 +157,7 @@ IncludeDir["slot_map"] = "vendor/slot_map"
 IncludeDir["IconFontCppHeaders"] = "vendor/IconFontCppHeaders"
 IncludeDir["Tracy"] = "vendor/tracy/public"
 IncludeDir["benchmark"] = "vendor/benchmark/include"
+IncludeDir["entt"] = "vendor/entt/single_include"
 
 -- could be header only or static lib
 NonDllLib = {}
@@ -170,7 +171,7 @@ if not _OPTIONS["skiptests"] then
 		include "Tests/Renderer"
 		include "Tests/Utils"
 		include "Tests/Physics"
-	    -- include "Tests/Entity" -- for some reason GUI typeinfo does not work on GCC
+	    include "Tests/Entity"
 		if _TARGET_OS ~= "linux" then
 			include "Tests/CommonTestUtils"
 		end

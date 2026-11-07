@@ -6,7 +6,7 @@
 
 #include <Renderer/Colours.h>
 #include <Renderer/DebugDraw.h>
-#include <Renderer/ICameraComponent.h>
+#include <Renderer/ICamera.h>
 #include <Renderer/Mesh/Curve.h>
 #include <Renderer/Render/CurveRenderer.h>
 #include <Renderer/Viewport.h>
@@ -148,7 +148,7 @@ void C_CurveEditor::Draw(Renderer::I_DebugDraw& dd) const
 }
 
 //=================================================================================
-void C_CurveEditor::OnUpdate(const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewport)
+void C_CurveEditor::OnUpdate(const Renderer::I_Camera& camera, const Renderer::C_Viewport& viewport)
 {
 	C_MousePickingHelper mousePicking(m_Input, camera, viewport);
 

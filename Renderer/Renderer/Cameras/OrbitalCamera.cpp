@@ -8,8 +8,6 @@
 #include <Physics/Primitives/Plane.h>
 #include <Physics/Primitives/Ray.h>
 
-#include <Entity/BasicEntity.h>
-
 #include <Core/Application.h>
 #include <Core/EventSystem/Event/KeyboardEvents.h>
 #include <Core/EventSystem/Event/MouseEvents.h>
@@ -20,7 +18,9 @@
 
 #include <Utils/Reflection/Metadata.h>
 
+#include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/projection.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/transform.hpp>
@@ -82,7 +82,7 @@ namespace GLEngine::Renderer::Cameras {
 
 //=================================================================================
 C_OrbitalCamera::C_OrbitalCamera(const std::shared_ptr<Entity::I_Entity>& owner)
-	: I_CameraComponent(owner)
+	: I_Camera(owner)
 	, _zoom()
 	, _angleXRad(0.0f)
 	, _angleYRad(0.0f)
@@ -94,7 +94,7 @@ C_OrbitalCamera::C_OrbitalCamera(const std::shared_ptr<Entity::I_Entity>& owner)
 
 //=================================================================================
 C_OrbitalCamera::C_OrbitalCamera()
-	: I_CameraComponent(nullptr)
+	: I_Camera(nullptr)
 	, _fovy(glm::radians(90.f))
 	, _nearZ(0.1f)
 	, _farZ(100.f)
@@ -155,7 +155,7 @@ void C_OrbitalCamera::Update()
 	const float y = _zoom * sin(_angleYRad);
 	const float z = _zoom * cos(_angleYRad) * sin(_angleXRad);
 
-	const auto centerOfView = m_Transformation.GetTranslation();
+	const auto centerOfView = m_OwnerWorldRotation * m_Transformation.GetTranslation() + m_OwnerWorldTranslation;
 
 	_pos  = glm::vec3(x, y, z) + centerOfView;
 	_view = centerOfView - _pos;
@@ -383,6 +383,25 @@ glm::mat4 C_OrbitalCamera::GetScreenToWorldMatrix() const
 void C_OrbitalCamera::AfterDeserialize()
 {
 	Update();
+}
+
+//=================================================================================
+void C_OrbitalCamera::SetOwnerWorldTransform(const glm::mat4& worldTransform)
+{
+	m_OwnerWorldTranslation = glm::vec3(worldTransform[3]);
+
+	// Scale is intentionally discarded - scaling the orbit offset would distort the camera's own
+	// distance-from-target controls (zoom/angles), which isn't a meaningful thing to inherit from
+	// an owner's scale.
+	glm::vec3 scale, translation, skew;
+	glm::vec4 perspective;
+	glm::quat rotation;
+	if (glm::decompose(worldTransform, scale, rotation, translation, skew, perspective))
+		// Conjugate to match this codebase's "rotate a local axis into world space" convention
+		// (see LightFunctions.cpp's GetWorldRotation for the same decompose+conjugate pattern).
+		m_OwnerWorldRotation = glm::conjugate(rotation);
+	else
+		m_OwnerWorldRotation = glm::quat(1.f, 0.f, 0.f, 0.f); // degenerate matrix (e.g. zero scale): fall back to identity
 }
 
 } // namespace GLEngine::Renderer::Cameras

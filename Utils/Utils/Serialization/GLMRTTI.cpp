@@ -1,6 +1,7 @@
 #include <Core/CoreMacros.h>
 
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 GL_PUSH_WARNINGS()
 #pragma warning(disable : 4996)
@@ -30,6 +31,12 @@ bool SerializeString(const glm::vec3& vec, std::string& ret)
 bool SerializeString(const glm::vec4& vec, std::string& ret)
 {
 	ret = "(" + fmt::format("{}", vec.x) + "," + fmt::format("{}", vec.y) + "," + fmt::format("{}", vec.z) + "," + fmt::format("{}", vec.w) + ")";
+	return true;
+}
+
+bool SerializeString(const glm::quat& q, std::string& ret)
+{
+	ret = "(" + fmt::format("{}", q.x) + "," + fmt::format("{}", q.y) + "," + fmt::format("{}", q.z) + "," + fmt::format("{}", q.w) + ")";
 	return true;
 }
 
@@ -64,18 +71,27 @@ template <int numElements> bool DeserializeFloatList(std::stringstream& ss, glm:
 
 	for (int i = 0; i < numElements; ++i)
 	{
-		if (std::getline(ss, value, ','))
+		if (!std::getline(ss, value, ','))
+			return false;
+		try
 		{
 			vec[i] = std::stof(value);
 		}
-		else
+		catch (const std::exception&)
+		{
+			// Malformed or empty field (e.g. "(1,,3)" or "(abc,0,0,0)") - std::stof throws here
+			// rather than returning an error code, and letting it escape would abort the whole
+			// WorldSerializer::Load instead of just failing this one property.
 			return false;
+		}
 	}
 	return true;
 }
 
 bool DeserializeString(const std::string& str, glm::vec2& vec)
 {
+	if (str.empty())
+		return false;
 	if (str[0] != '(' || str[str.length() - 1] != ')')
 		return false;
 	std::stringstream ss(str.substr(1, str.length() - 2));
@@ -85,6 +101,8 @@ bool DeserializeString(const std::string& str, glm::vec2& vec)
 
 bool DeserializeString(const std::string& str, glm::vec3& vec)
 {
+	if (str.empty())
+		return false;
 	if (str[0] != '(' || str[str.length() - 1] != ')')
 		return false;
 	std::stringstream ss(str.substr(1, str.length() - 2));
@@ -94,6 +112,8 @@ bool DeserializeString(const std::string& str, glm::vec3& vec)
 
 bool DeserializeString(const std::string& str, glm::vec4& vec)
 {
+	if (str.empty())
+		return false;
 	if (str[0] != '(' || str[str.length() - 1] != ')')
 		return false;
 	std::stringstream ss(str.substr(1, str.length() - 2));
@@ -101,8 +121,22 @@ bool DeserializeString(const std::string& str, glm::vec4& vec)
 	return DeserializeFloatList(ss, vec);
 }
 
+bool DeserializeString(const std::string& str, glm::quat& q)
+{
+	glm::vec4 v;
+	if (!DeserializeString(str, v))
+		return false;
+	q.x = v.x;
+	q.y = v.y;
+	q.z = v.z;
+	q.w = v.w;
+	return true;
+}
+
 bool DeserializeString(const std::string& str, glm::mat4& mat)
 {
+	if (str.empty())
+		return false;
 	if (str[0] != '(' || str[str.length() - 1] != ')')
 		return false;
 	std::stringstream ss(str.substr(1, str.length() - 2));
@@ -121,6 +155,8 @@ bool DeserializeString(const std::string& str, glm::mat4& mat)
 
 template <class T> bool DeserializeString(const std::string& str, std::vector<T>& ret)
 {
+	if (str.empty())
+		return false;
 	if (str[0] != '(' || str[str.length() - 1] != ')')
 		return false; // wrong format
 
@@ -162,10 +198,17 @@ RTTR_REGISTRATION
 	rttr::registration::class_<glm::mat4>("mat4")
 	  	.constructor<>()(rttr::policy::ctor::as_object)
 		.property_readonly("length", &glm::mat4::length);
+	rttr::registration::class_<glm::quat>("quat")
+		.constructor<>()(rttr::policy::ctor::as_object)
+		.property("x", &glm::quat::x)
+		.property("y", &glm::quat::y)
+		.property("z", &glm::quat::z)
+		.property("w", &glm::quat::w);
 
 	REGISTER_SERIALIZATION(glm::vec2);
 	REGISTER_SERIALIZATION(glm::vec3);
 	REGISTER_SERIALIZATION(glm::vec4);
+	REGISTER_SERIALIZATION(glm::quat);
 	REGISTER_SERIALIZATION(glm::mat4);
 	REGISTER_SERIALIZATION(std::vector<glm::vec2>);
 	REGISTER_SERIALIZATION(std::vector<glm::vec3>);

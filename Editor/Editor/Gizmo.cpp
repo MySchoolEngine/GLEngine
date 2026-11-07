@@ -6,7 +6,7 @@
 
 #include <Renderer/Colours.h>
 #include <Renderer/DebugDraw.h>
-#include <Renderer/ICameraComponent.h>
+#include <Renderer/ICamera.h>
 
 #include <Physics/Primitives/Plane.h>
 
@@ -42,7 +42,7 @@ void C_Gizmo::SetPosition(const glm::vec3& position)
 }
 
 //=================================================================================
-void C_Gizmo::OnUpdate(const Renderer::I_CameraComponent& camera, C_MousePickingHelper& mouseHelper)
+void C_Gizmo::OnUpdate(const Renderer::I_Camera& camera, C_MousePickingHelper& mouseHelper)
 {
 	// do not change mouse over when dragging gizmo
 	if (m_ControllingGizmo)
@@ -83,17 +83,17 @@ void C_Gizmo::OnUpdate(const Renderer::I_CameraComponent& camera, C_MousePicking
 //=================================================================================
 void C_Gizmo::Draw(Renderer::I_DebugDraw& dd) const
 {
-	const static auto drawDir					 = [&](const E_Direction dir) {
-		   Colours::T_Colour colour = GetAxe(dir);
-		   if (m_MouseOverDirection.has_value() && dir == m_MouseOverDirection.value())
-		   {
-			   colour = Colours::Editing::mouseOver;
-		   }
-		   if (DirDisabled(dir))
-		   {
-			   colour = Colours::Editing::disabled;
-		   }
-		   dd.DrawLine(m_Position, m_Position + GetAxe(dir), colour);
+	const static auto drawDir = [&](const E_Direction dir) {
+		Colours::T_Colour colour = GetAxe(dir);
+		if (m_MouseOverDirection.has_value() && dir == m_MouseOverDirection.value())
+		{
+			colour = Colours::Editing::mouseOver;
+		}
+		if (DirDisabled(dir))
+		{
+			colour = Colours::Editing::disabled;
+		}
+		dd.DrawLine(m_Position, m_Position + GetAxe(dir), colour);
 	};
 	drawDir(E_Direction::Forward);
 	drawDir(E_Direction::Up);

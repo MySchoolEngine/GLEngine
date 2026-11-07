@@ -2,7 +2,7 @@
 
 #include <Editor/Utils/MousePicking.h>
 
-#include <Renderer/ICameraComponent.h>
+#include <Renderer/ICamera.h>
 #include <Renderer/Viewport.h>
 
 #include <Core/Input.h>
@@ -17,9 +17,9 @@ namespace GLEngine::Editor {
 // Qualifier:
 // Parameter: const glm::vec3 & point
 // Parameter: const glm::vec2 & mousePosition
-// Parameter: const Renderer::I_CameraComponent & camera
+// Parameter: const Renderer::I_Camera & camera
 //************************************
-float ScreenSpaceDistance(const glm::vec3& point, const glm::vec2& mousePosition, const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewPort, float& depth)
+float ScreenSpaceDistance(const glm::vec3& point, const glm::vec2& mousePosition, const Renderer::I_Camera& camera, const Renderer::C_Viewport& viewPort, float& depth)
 {
 	const auto resolution			 = viewPort.GetResolution();
 	const auto pointOnScreen		 = camera.GetViewProjectionMatrix() * glm::vec4(point, 1.f);
@@ -32,12 +32,12 @@ float ScreenSpaceDistance(const glm::vec3& point, const glm::vec2& mousePosition
 }
 
 //=================================================================================
-float ScreenSpaceDistanceToLine(const glm::vec3&				   a,
-								const glm::vec3&				   b,
-								const glm::vec2&				   mousePosition,
-								const Renderer::I_CameraComponent& camera,
-								const Renderer::C_Viewport&		   viewPort,
-								float&							   depth)
+float ScreenSpaceDistanceToLine(const glm::vec3&			a,
+								const glm::vec3&			b,
+								const glm::vec2&			mousePosition,
+								const Renderer::I_Camera&	camera,
+								const Renderer::C_Viewport& viewPort,
+								float&						depth)
 {
 	const auto resolution			 = viewPort.GetResolution();
 	const auto AinFrustum			 = camera.GetViewProjectionMatrix() * glm::vec4(a, 1.f);
@@ -56,7 +56,7 @@ float ScreenSpaceDistanceToLine(const glm::vec3&				   a,
 //=================================================================================
 // C_MousePickingHelper
 //=================================================================================
-C_MousePickingHelper::C_MousePickingHelper(const Core::I_Input& input, const Renderer::I_CameraComponent& camera, const Renderer::C_Viewport& viewPort)
+C_MousePickingHelper::C_MousePickingHelper(const Core::I_Input& input, const Renderer::I_Camera& camera, const Renderer::C_Viewport& viewPort)
 	: m_Input(input)
 	, m_Camera(camera)
 	, m_Viewport(viewPort)

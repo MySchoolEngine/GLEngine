@@ -1,141 +1,79 @@
 <?xml version="1.0"?>
-<EntityManager>
-	<Entities>
-		<C_BasicEntity name="Player">
-			<ID ID="ebf7b098-0037-4ad1-b2b3-f66fa1db833d" />
-			<components>
-				<item>
-					<key value="Camera" />
-					<value>
-						<C_OrbitalCamera nearZ="0.100000001" farZ="100" aspectZ="1.85546875" YAngle="0.366519243" XAngle="91.265564" Zoom="5" />
-					</value>
-				</item>
-				<item>
-					<key value="Camera" />
-					<value>
-						<C_OrbitalCamera nearZ="0.100000001" farZ="100" aspectZ="1.85546875" YAngle="0" XAngle="90" Zoom="5" />
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="floor">
-			<ID ID="bcd772ee-241b-47bd-b1f7-08f40490067f" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Materials>
-								<C_Material Name="floor_Material" Color="(0.0,1.0,0.019801855)" Roughness="1" />
-							</Materials>
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/tree/Tree.obj" />
-							</ModelRes>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Materials>
-								<C_Material Name="floor_Material" Color="(1.0,1.0,1.0)" Roughness="1">
-									<ColorMapRes>
-										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.jpg" />
-									</ColorMapRes>
-									<NormalMapRes>
-										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Bricks01\REGULAR\1K\Bricks01_NRM_1K.jpg" />
-									</NormalMapRes>
-									<RoughnessMapRes>
-										<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Bricks01\REGULAR\1K\Bricks01_ROUGHNESS_1K.jpg" />
-									</RoughnessMapRes>
-								</C_Material>
-							</Materials>
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/plane.obj" />
-							</ModelRes>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="sphere">
-			<ID ID="1c3adf91-93ee-490b-a195-86fbe626cc20" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Materials>
-								<C_Material Name="floor_Material" Color="(0.0,0.0,1.0)" Roughness="0.829999983" />
-							</Materials>
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/sphere.obj" />
-							</ModelRes>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-				<item>
-					<key value="Light" />
-					<value>
-						<C_AreaLight Width="5" Height="2" DiffuseColour="(1.0,0.0,0.0)" SpecColour="(1.0,1.0,0.0)">
-							<Transformation Translation="(0.0,0.0,2.5)" />
-						</C_AreaLight>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="wall" ModelMatrix="((1.0,0.0,0.0,0.0)(0.0,1.0,0.0,0.0)(0.0,0.0,1.0,0.0)(2.0857952,0.0,-0.02143085,1.0))">
-			<ID ID="2c395df2-5594-4fd5-8a2f-e3776d9aae3b" />
-			<components>
-				<item>
-					<key value="Graphical" />
-					<value>
-						<C_StaticMeshHandles>
-							<Transformation RotationDeg="(0.0,-0.0,89.09493)" />
-							<Materials>
-								<C_Material Name="wall_Material" Color="(0.14,0.14,0.14)" Roughness="0" />
-							</Materials>
-							<ModelRes>
-								<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/plane.obj" />
-							</ModelRes>
-						</C_StaticMeshHandles>
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="pl1">
-			<ID ID="f9466b68-3af0-48aa-ae5e-2e012aacfa8f" />
-			<components>
-				<item>
-					<key value="Light" />
-					<value>
-						<C_PointLight Intensity="11.9689999" Color="(0.4,0.3,0.1)" />
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="pl2">
-			<ID ID="6cab611b-d7f7-4ed5-88b5-25735da38deb" />
-			<components>
-				<item>
-					<key value="Light" />
-					<value>
-						<C_PointLight Intensity="4.63399982" Color="(0.0,0.6,0.1)" />
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-		<C_BasicEntity name="pl3">
-			<ID ID="b5705ad7-284d-452f-b535-0655bb121d75" />
-			<components>
-				<item>
-					<key value="Light" />
-					<value>
-						<C_PointLight Intensity="5.40600014" Color="(1.0,1.0,1.0)" />
-					</value>
-				</item>
-			</components>
-		</C_BasicEntity>
-	</Entities>
-</EntityManager>
+<World version="2">
+	<Entity guid="ebf7b098-0037-4ad1-b2b3-f66fa1db833d" name="Player">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="8a24c9d7-f8f7-4bc2-b542-a9cac51c2436" name="floor_StaticMesh" parent="bcd772ee-241b-47bd-b1f7-08f40490067f">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+		<StaticMesh>
+			<Materials>
+				<C_Material Name="floor_Material" Color="(1.0,1.0,1.0)" Roughness="1">
+					<ColorMapRes>
+						<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Bricks01\REGULAR\1K\Bricks01_COL_VAR2_1K.jpg" />
+					</ColorMapRes>
+					<NormalMapRes>
+						<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Bricks01\REGULAR\1K\Bricks01_NRM_1K.jpg" />
+					</NormalMapRes>
+					<RoughnessMapRes>
+						<Resource derivedTypeCast="GLEngine::Renderer::TextureResource" FilePath="Models\Bricks01\REGULAR\1K\Bricks01_ROUGHNESS_1K.jpg" />
+					</RoughnessMapRes>
+				</C_Material>
+			</Materials>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/plane.obj" />
+			</ModelRes>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="bcd772ee-241b-47bd-b1f7-08f40490067f" name="floor">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+		<StaticMesh>
+			<Materials>
+				<C_Material Name="floor_Material" Color="(0.0,1.0,0.019801855)" Roughness="1" />
+			</Materials>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/tree/Tree.obj" />
+			</ModelRes>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="d9f616d8-bd5e-4c07-bdc7-b39e3aa49f12" name="sphere_AreaLight" parent="1c3adf91-93ee-490b-a195-86fbe626cc20">
+		<Transform Translation="(0.0,0.0,2.5)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+		<AreaLight Width="5" Height="2" DiffuseColour="(1.0,0.0,0.0)" SpecColour="(1.0,1.0,0.0)" />
+	</Entity>
+	<Entity guid="1c3adf91-93ee-490b-a195-86fbe626cc20" name="sphere">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+		<StaticMesh>
+			<Materials>
+				<C_Material Name="floor_Material" Color="(0.0,0.0,1.0)" Roughness="0.829999983" />
+			</Materials>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/sphere.obj" />
+			</ModelRes>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="86eed9b9-8f30-4122-aab0-bb49b758ab16" name="wall_StaticMesh" parent="2c395df2-5594-4fd5-8a2f-e3776d9aae3b">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.7014998950368,0.7126695568518123)" Scale="(1.0,1.0,1.0)" />
+		<StaticMesh>
+			<Materials>
+				<C_Material Name="wall_Material" Color="(0.14,0.14,0.14)" Roughness="0" />
+			</Materials>
+			<ModelRes>
+				<Resource derivedTypeCast="GLEngine::Renderer::MeshResource" FilePath="Models/plane.obj" />
+			</ModelRes>
+		</StaticMesh>
+	</Entity>
+	<Entity guid="2c395df2-5594-4fd5-8a2f-e3776d9aae3b" name="wall">
+		<Transform Translation="(2.0857952,0.0,-0.02143085)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+	</Entity>
+	<Entity guid="f9466b68-3af0-48aa-ae5e-2e012aacfa8f" name="pl1">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+		<PointLight Intensity="11.9689999" Color="(0.4,0.3,0.1)" />
+	</Entity>
+	<Entity guid="6cab611b-d7f7-4ed5-88b5-25735da38deb" name="pl2">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+		<PointLight Intensity="4.63399982" Color="(0.0,0.6,0.1)" />
+	</Entity>
+	<Entity guid="b5705ad7-284d-452f-b535-0655bb121d75" name="pl3">
+		<Transform Translation="(0.0,0.0,0.0)" Rotation="(0.0,0.0,0.0,1.0)" Scale="(1.0,1.0,1.0)" />
+		<PointLight Intensity="5.40600014" Color="(1.0,1.0,1.0)" />
+	</Entity>
+</World>

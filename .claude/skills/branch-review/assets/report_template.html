@@ -1,0 +1,498 @@
+<title>Branch Review</title>
+<style>
+/*
+  Layout: sticky filter bar over a summary table + "fix before merge" rail, then one
+  collapsible <details> section per reviewed module, each holding severity-striped finding
+  cards. Data is fetched at runtime from review-data.json published alongside this page -
+  nothing here is project-specific. Engineering/schematic register: mono for code facts
+  (paths, symbols, refs), sans for prose.
+*/
+:root{
+  --bg:#f9f9f7; --surface:#fcfcfb; --surface-2:#f2f1ed; --fg:#0b0b0b;
+  --fg-muted:#52514e; --fg-faint:#898781; --border:rgba(11,11,11,0.12);
+  --accent:#2a78d6; --accent-ink:#184f95;
+  --cat-correctness:#2a78d6; --cat-quality:#1baf7a; --cat-test:#4a3aa7;
+  --sev-high-bg:rgba(208,59,59,0.14); --sev-high-fg:#a62f2f; --sev-high-line:#d03b3b;
+  --sev-medium-bg:rgba(236,131,90,0.16); --sev-medium-fg:#8a3f1f; --sev-medium-line:#ec835a;
+  --sev-low-bg:rgba(137,135,129,0.16); --sev-low-fg:#5c5a54; --sev-low-line:#898781;
+  --good-bg:rgba(12,163,12,0.14); --good-fg:#0b7a0b; --good-line:#0ca30c;
+  --rejected-bg:rgba(137,135,129,0.16); --rejected-fg:#5c5a54; --rejected-line:#898781;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0d0d0d; --surface:#1a1a19; --surface-2:#202020; --fg:#ffffff;
+    --fg-muted:#c3c2b7; --fg-faint:#898781; --border:rgba(255,255,255,0.12);
+    --accent:#3987e5; --accent-ink:#9ec5f4;
+    --cat-correctness:#3987e5; --cat-quality:#199e70; --cat-test:#9085e9;
+    --sev-high-bg:rgba(230,103,103,0.2); --sev-high-fg:#ff9a9a; --sev-high-line:#e66767;
+    --sev-medium-bg:rgba(236,131,90,0.22); --sev-medium-fg:#ffb089; --sev-medium-line:#ec835a;
+    --sev-low-bg:rgba(137,135,129,0.22); --sev-low-fg:#c3c2b7; --sev-low-line:#898781;
+    --good-bg:rgba(12,163,12,0.22); --good-fg:#6fd36f; --good-line:#0ca30c;
+    --rejected-bg:rgba(137,135,129,0.22); --rejected-fg:#c3c2b7; --rejected-line:#898781;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0d0d0d; --surface:#1a1a19; --surface-2:#202020; --fg:#ffffff;
+  --fg-muted:#c3c2b7; --fg-faint:#898781; --border:rgba(255,255,255,0.12);
+  --accent:#3987e5; --accent-ink:#9ec5f4;
+  --cat-correctness:#3987e5; --cat-quality:#199e70; --cat-test:#9085e9;
+  --sev-high-bg:rgba(230,103,103,0.2); --sev-high-fg:#ff9a9a; --sev-high-line:#e66767;
+  --sev-medium-bg:rgba(236,131,90,0.22); --sev-medium-fg:#ffb089; --sev-medium-line:#ec835a;
+  --sev-low-bg:rgba(137,135,129,0.22); --sev-low-fg:#c3c2b7; --sev-low-line:#898781;
+  --good-bg:rgba(12,163,12,0.22); --good-fg:#6fd36f; --good-line:#0ca30c;
+  --rejected-bg:rgba(137,135,129,0.22); --rejected-fg:#c3c2b7; --rejected-line:#898781;
+  color-scheme: dark;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  padding-inline:16px; padding-block:24px 64px;
+  font-size:14px; line-height:1.5;
+}
+code,.mono{font-family:"IBM Plex Mono","SFMono-Regular",Consolas,monospace;}
+.wrap{max-width:1040px; margin:0 auto;}
+h1{font-size:1.5rem; margin:0 0 4px; text-wrap:balance;}
+.subtitle{color:var(--fg-muted); font-size:0.9rem; margin:0 0 20px;}
+
+.stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin-bottom:20px;}
+.stat-tile{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 16px;}
+.stat-tile .n{font-size:1.9rem; font-weight:700; font-variant-numeric:tabular-nums; line-height:1;}
+.stat-tile .l{font-size:0.72rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--fg-faint); margin-top:6px;}
+.stat-tile .sub{font-size:0.74rem; color:var(--fg-muted); margin-top:6px; font-variant-numeric:tabular-nums;}
+.stat-tile.high .n{color:var(--sev-high-fg);}
+.stat-tile.medium .n{color:var(--sev-medium-fg);}
+.stat-tile.low .n{color:var(--sev-low-fg);}
+.stat-tile.good .n{color:var(--good-fg);}
+.stat-tile.rejected .n{color:var(--rejected-fg);}
+
+.callout{background:var(--surface); border:1px solid var(--sev-high-line); border-radius:12px; padding:18px 20px; margin-bottom:28px;}
+.callout h2{font-size:0.95rem; margin:0 0 12px; display:flex; align-items:center; gap:8px;}
+.callout h2 .tri{color:var(--sev-high-fg);}
+.callout ol{margin:0; padding-left:0; list-style:none; display:flex; flex-direction:column; gap:10px;}
+.callout li{display:flex; gap:10px; align-items:flex-start;}
+.callout .idx{font-family:"IBM Plex Mono",monospace; color:var(--fg-faint); font-size:0.78rem; padding-top:2px; width:1.4em; flex:none;}
+.callout button.link{background:none; border:none; padding:0; text-align:left; cursor:pointer; color:var(--fg); font:inherit; display:flex; flex-wrap:wrap; align-items:baseline; gap:2px;}
+.callout button.link:hover .t{text-decoration:underline; text-decoration-color:var(--accent);}
+.callout .where{color:var(--fg-faint); font-size:0.78rem; font-family:"IBM Plex Mono",monospace; margin-left:6px;}
+.callout .ref{font-family:"IBM Plex Mono",monospace; color:var(--fg-faint); font-size:0.78rem; font-weight:600; margin-left:6px;}
+.callout li.resolved, .callout li.rejected{opacity:0.55;}
+.callout li.resolved .t, .callout li.rejected .t{text-decoration:line-through;}
+
+.section-table{width:100%; border-collapse:collapse; font-size:0.86rem; margin-bottom:24px; background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden;}
+.section-table caption{text-align:left; font-size:0.78rem; color:var(--fg-faint); padding:10px 14px; caption-side:top;}
+.section-table th,.section-table td{padding:8px 14px; border-top:1px solid var(--border); text-align:left;}
+.section-table thead th{border-top:none; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--fg-faint);}
+.section-table td.num,.section-table th.num{text-align:right; font-variant-numeric:tabular-nums;}
+.section-table td.num.high{color:var(--sev-high-fg); font-weight:600;}
+.section-table td.num.medium{color:var(--sev-medium-fg); font-weight:600;}
+.section-table td.num.low{color:var(--sev-low-fg);}
+.section-table td.name strong{font-size:0.92rem;}
+.section-table .module-sub{color:var(--fg-faint); font-size:0.78rem;}
+.section-table tbody tr{cursor:pointer;}
+.section-table tbody tr:hover{background:var(--surface-2);}
+
+.filterbar{position:sticky; top:0; z-index:5; display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+  background:var(--bg); padding-block:10px; margin-bottom:16px; border-bottom:1px solid var(--border);}
+.filterbar select,.filterbar input{font:inherit; font-size:0.82rem; padding:6px 10px; border-radius:7px;
+  border:1px solid var(--border); background:var(--surface); color:var(--fg); min-width:0;}
+.filterbar input[type=search]{flex:1 1 200px;}
+.filterbar button{font:inherit; font-size:0.82rem; padding:6px 12px; border-radius:7px; border:1px solid var(--border);
+  background:var(--surface); color:var(--fg-muted); cursor:pointer;}
+.filterbar button:hover{color:var(--fg); border-color:var(--fg-faint);}
+.filterbar .count{font-size:0.78rem; color:var(--fg-faint); margin-left:auto; white-space:nowrap;}
+
+details.module{background:var(--surface); border:1px solid var(--border); border-radius:12px; margin-bottom:10px; overflow:hidden;}
+details.module summary{list-style:none; cursor:pointer; padding:12px 18px; display:flex; flex-wrap:wrap; gap:10px; align-items:center;}
+details.module summary::-webkit-details-marker{display:none;}
+details.module summary .chevron{transition:transform 0.15s; color:var(--fg-faint); flex:none;}
+details.module[open] summary .chevron{transform:rotate(90deg);}
+details.module summary .mtitle{font-weight:600; font-size:0.92rem;}
+details.module summary .msub{color:var(--fg-faint); font-size:0.8rem; min-width:0;}
+details.module summary .mcount{margin-left:auto; font-size:0.78rem; color:var(--fg-faint); font-variant-numeric:tabular-nums; white-space:nowrap;}
+details.module summary .agentline{flex-basis:100%; color:var(--fg-muted); font-size:0.82rem; line-height:1.5; margin-top:2px;}
+
+.cards{padding:0 18px 14px; display:flex; flex-direction:column; gap:10px;}
+.card{border:1px solid var(--border); border-left-width:4px; border-radius:8px; padding:12px 14px; background:var(--surface-2);}
+.card.sev-high{border-left-color:var(--sev-high-line);}
+.card.sev-medium{border-left-color:var(--sev-medium-line);}
+.card.sev-low{border-left-color:var(--sev-low-line);}
+.card.resolved{border-left-color:var(--good-line); opacity:0.78;}
+.card.rejected{border-left-color:var(--rejected-line); opacity:0.6;}
+.card.flash{animation:flash 1.4s ease;}
+@keyframes flash{0%{box-shadow:0 0 0 3px var(--accent);}100%{box-shadow:0 0 0 0 transparent;}}
+.card-head{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:6px;}
+.badge{font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.03em; padding:2px 7px; border-radius:5px; display:inline-flex; align-items:center; gap:4px;}
+.badge.sev-high{background:var(--sev-high-bg); color:var(--sev-high-fg);}
+.badge.sev-medium{background:var(--sev-medium-bg); color:var(--sev-medium-fg);}
+.badge.sev-low{background:var(--sev-low-bg); color:var(--sev-low-fg);}
+.badge.cat{background:transparent; border:1px solid var(--border); color:var(--fg-muted);}
+.badge.cat.correctness{color:var(--cat-correctness); border-color:var(--cat-correctness);}
+.badge.cat.quality{color:var(--cat-quality); border-color:var(--cat-quality);}
+.badge.cat.test-coverage{color:var(--cat-test); border-color:var(--cat-test);}
+.badge.ref{background:transparent; border:1px solid var(--border); color:var(--fg-muted); font-family:"IBM Plex Mono",monospace; font-weight:600; letter-spacing:0; font-variant-numeric:tabular-nums;}
+.badge.resolved{background:var(--good-bg); color:var(--good-fg);}
+.badge.resolved.partial{background:var(--sev-medium-bg); color:var(--sev-medium-fg);}
+.badge.rejected{background:var(--rejected-bg); color:var(--rejected-fg);}
+.loc{font-family:"IBM Plex Mono",monospace; font-size:0.76rem; color:var(--fg-faint); word-break:break-all;}
+.card h3{font-size:0.92rem; margin:2px 0 6px; line-height:1.4;}
+.card p.detail{margin:0 0 6px; font-size:0.86rem; color:var(--fg-muted); line-height:1.55;}
+.suggestion{margin-top:6px; padding:8px 10px; background:var(--surface); border:1px solid var(--border); border-radius:6px; font-size:0.8rem;}
+.suggestion .lbl{font-size:0.68rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--fg-faint); display:block; margin-bottom:4px;}
+.suggestion code,.suggestion pre{white-space:pre-wrap; font-family:"IBM Plex Mono",monospace; font-size:0.78rem; color:var(--fg);}
+.resolved-note,.rejected-note{margin-top:6px; padding:6px 10px; border-radius:6px; font-size:0.78rem;}
+.resolved-note{background:var(--good-bg); color:var(--good-fg);}
+.resolved-note.partial{background:var(--sev-medium-bg); color:var(--sev-medium-fg);}
+.rejected-note{background:var(--rejected-bg); color:var(--rejected-fg);}
+.resolved-note .lbl,.rejected-note .lbl{font-weight:700; text-transform:uppercase; letter-spacing:0.04em; font-size:0.68rem; margin-right:6px;}
+.resolved-note code{font-family:"IBM Plex Mono",monospace;}
+.empty-note{padding:14px 18px; color:var(--fg-faint); font-size:0.85rem;}
+
+.methodology{margin-top:32px; padding-top:16px; border-top:1px solid var(--border); color:var(--fg-muted); font-size:0.82rem; line-height:1.6;}
+.methodology h2{font-size:0.9rem; color:var(--fg); margin:0 0 8px;}
+.load-error{color:var(--sev-high-fg); padding:40px 0; text-align:center;}
+
+@media (max-width:480px){
+  .filterbar{flex-direction:column; align-items:stretch;}
+  .filterbar .count{margin-left:0;}
+}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<div class="wrap">
+  <h1 id="pageTitle">Branch Review</h1>
+  <p class="subtitle" id="pageSubtitle"></p>
+
+  <div class="stats" id="statTiles"></div>
+
+  <div class="callout" id="calloutBlock" hidden>
+    <h2><span class="tri">▲</span> Fix before merge</h2>
+    <ol id="calloutList"></ol>
+  </div>
+
+  <table class="section-table" id="summaryTable">
+    <caption>Findings by module (click a row to jump there)</caption>
+    <thead>
+      <tr><th>Module</th><th class="num">Files</th><th class="num">High</th><th class="num">Med</th><th class="num">Low</th><th class="num">Total</th></tr>
+    </thead>
+    <tbody id="summaryBody"></tbody>
+  </table>
+
+  <div class="filterbar">
+    <select id="fSeverity">
+      <option value="">All severities</option>
+      <option value="high">High</option>
+      <option value="medium">Medium</option>
+      <option value="low">Low</option>
+    </select>
+    <select id="fCategory">
+      <option value="">All categories</option>
+      <option value="correctness">Correctness</option>
+      <option value="quality">Quality</option>
+      <option value="test-coverage">Test coverage</option>
+    </select>
+    <select id="fModule">
+      <option value="">All modules</option>
+    </select>
+    <select id="fStatus">
+      <option value="">All statuses</option>
+      <option value="open">Open only</option>
+      <option value="resolved">Resolved only</option>
+      <option value="rejected">Rejected only</option>
+    </select>
+    <input type="search" id="fSearch" placeholder="Search by ref (F-023), title, detail, or file…">
+    <button id="fReset" type="button">Reset</button>
+    <span class="count" id="fCount"></span>
+  </div>
+
+  <div id="sections"></div>
+
+  <div class="methodology" id="methodology"></div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var MODULES = [];
+var FINDINGS = [];
+var CALLOUT = [];
+var META = {};
+var byId = {};
+
+function el(tag, cls, text){
+  var e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+
+function sevLabel(s){ return s === "high" ? "High" : s === "medium" ? "Medium" : "Low"; }
+function catLabel(c){ return c === "correctness" ? "Correctness" : c === "quality" ? "Quality" : "Test coverage"; }
+function statusOf(f){ return f.resolved ? "resolved" : f.rejected ? "rejected" : "open"; }
+
+function render(){
+  document.getElementById("pageTitle").textContent = "Branch Review" + (META.branch ? ": " + META.branch : "");
+  var subtitleBits = [];
+  if (META.baseBranch && META.branch) subtitleBits.push(META.branch + " vs " + META.baseBranch);
+  if (META.generatedAt) subtitleBits.push("generated " + META.generatedAt);
+  subtitleBits.push(FINDINGS.length + " findings across " + MODULES.length + " modules");
+  document.getElementById("pageSubtitle").textContent = subtitleBits.join(" · ");
+
+  FINDINGS.forEach(function(f){ byId[f.id] = f; });
+
+  // --- stat tiles: total + per-severity, each with its own resolved/rejected breakdown ---
+  (function(){
+    var host = document.getElementById("statTiles");
+    var bySev = {high:{total:0,resolved:0,rejected:0}, medium:{total:0,resolved:0,rejected:0}, low:{total:0,resolved:0,rejected:0}};
+    FINDINGS.forEach(function(f){
+      var b = bySev[f.severity];
+      if (!b) return;
+      b.total++;
+      if (f.resolved) b.resolved++;
+      if (f.rejected) b.rejected++;
+    });
+    var totalResolved = FINDINGS.filter(function(f){ return f.resolved; }).length;
+    var totalRejected = FINDINGS.filter(function(f){ return f.rejected; }).length;
+
+    var tiles = [
+      {cls:"", n:FINDINGS.length, l:"Total findings", sub:totalResolved + " resolved · " + totalRejected + " rejected"}
+    ];
+    ["high","medium","low"].forEach(function(sev){
+      var b = bySev[sev];
+      var subParts = [];
+      if (b.resolved) subParts.push(b.resolved + " resolved");
+      if (b.rejected) subParts.push(b.rejected + " rejected");
+      tiles.push({cls:sev, n:b.total, l:sevLabel(sev) + " severity", sub: subParts.length ? subParts.join(" · ") : "none closed yet"});
+    });
+    tiles.forEach(function(t){
+      var tile = el("div", "stat-tile " + t.cls);
+      tile.appendChild(el("div", "n", String(t.n)));
+      tile.appendChild(el("div", "l", t.l));
+      if (t.sub) tile.appendChild(el("div", "sub", t.sub));
+      host.appendChild(tile);
+    });
+  })();
+
+  // --- callout ---
+  (function(){
+    if (!CALLOUT.length) return;
+    document.getElementById("calloutBlock").hidden = false;
+    var host = document.getElementById("calloutList");
+    CALLOUT.forEach(function(c, i){
+      var f = byId[c.findingId];
+      var li = el("li");
+      if (f && f.resolved) li.className = "resolved";
+      else if (f && f.rejected) li.className = "rejected";
+      li.appendChild(el("span", "idx", String(i + 1) + "."));
+      var btn = document.createElement("button");
+      btn.className = "link";
+      btn.type = "button";
+      btn.appendChild(el("span", "t", c.text));
+      btn.appendChild(el("span", "where", c.where || ""));
+      btn.appendChild(el("span", "ref", f ? f.id : ""));
+      if (f && f.resolved) btn.appendChild(el("span", "badge resolved" + (f.resolved.partial ? " partial" : ""), f.resolved.partial ? "Partial" : "Resolved"));
+      if (f && f.rejected) btn.appendChild(el("span", "badge rejected", "Rejected"));
+      btn.addEventListener("click", function(){ jumpTo(f); });
+      li.appendChild(btn);
+      host.appendChild(li);
+    });
+  })();
+
+  // --- summary table ---
+  (function(){
+    var body = document.getElementById("summaryBody");
+    MODULES.forEach(function(m){
+      var rows = FINDINGS.filter(function(f){ return f.module === m.key; });
+      var c = {high:0, medium:0, low:0};
+      rows.forEach(function(f){ c[f.severity]++; });
+      var tr = document.createElement("tr");
+      var tdName = el("td", "name");
+      tdName.appendChild(el("strong", null, m.title));
+      tdName.appendChild(document.createElement("br"));
+      tdName.appendChild(el("span", "module-sub", m.subtitle || ""));
+      tr.appendChild(tdName);
+      tr.appendChild(el("td", "num", String(m.files != null ? m.files : rows.length)));
+      tr.appendChild(el("td", "num high", String(c.high)));
+      tr.appendChild(el("td", "num medium", String(c.medium)));
+      tr.appendChild(el("td", "num low", String(c.low)));
+      tr.appendChild(el("td", "num", String(rows.length)));
+      tr.addEventListener("click", function(){
+        document.getElementById("fModule").value = m.key;
+        applyFilters();
+        var details = document.getElementById("mod-" + m.key);
+        if (details) { details.open = true; details.scrollIntoView({behavior:"smooth", block:"start"}); }
+      });
+      body.appendChild(tr);
+    });
+  })();
+
+  // --- module filter options ---
+  (function(){
+    var sel = document.getElementById("fModule");
+    MODULES.forEach(function(m){
+      var opt = document.createElement("option");
+      opt.value = m.key;
+      opt.textContent = m.title;
+      sel.appendChild(opt);
+    });
+  })();
+
+  // --- methodology ---
+  if (META.methodology) {
+    var host = document.getElementById("methodology");
+    host.appendChild(el("h2", null, "Methodology"));
+    String(META.methodology).split("\n\n").forEach(function(p){
+      host.appendChild(el("p", null, p));
+    });
+  }
+
+  applyFilters();
+}
+
+function buildCard(f){
+  var statusCls = f.resolved ? " resolved" : f.rejected ? " rejected" : "";
+  var card = el("div", "card sev-" + f.severity + statusCls);
+  card.id = f.id;
+  var head = el("div", "card-head");
+  head.appendChild(el("span", "badge ref", f.id));
+  head.appendChild(el("span", "badge sev-" + f.severity, sevLabel(f.severity)));
+  head.appendChild(el("span", "badge cat " + f.category, catLabel(f.category)));
+  if (f.resolved) head.appendChild(el("span", "badge resolved" + (f.resolved.partial ? " partial" : ""), f.resolved.partial ? "◐ Partially resolved" : "✓ Resolved"));
+  if (f.rejected) head.appendChild(el("span", "badge rejected", "✕ Rejected"));
+  var loc = f.file + (f.line != null ? (":" + f.line) : "");
+  head.appendChild(el("span", "loc", loc));
+  card.appendChild(head);
+  card.appendChild(el("h3", null, f.title));
+  card.appendChild(el("p", "detail", f.detail));
+  if (f.suggestion) {
+    var sug = el("div", "suggestion");
+    sug.appendChild(el("span", "lbl", "Suggested fix"));
+    sug.appendChild(el("code", null, f.suggestion));
+    card.appendChild(sug);
+  }
+  if (f.resolved) {
+    var note = el("div", "resolved-note" + (f.resolved.partial ? " partial" : ""));
+    note.appendChild(el("span", "lbl", f.resolved.partial ? "Partially fixed" : "Fixed"));
+    var noteText = el("span", null, f.resolved.note + (f.resolved.commit ? " — commit " : " — uncommitted (working tree)"));
+    if (f.resolved.commit) noteText.appendChild(el("code", null, f.resolved.commit));
+    note.appendChild(noteText);
+    card.appendChild(note);
+  }
+  if (f.rejected) {
+    var rnote = el("div", "rejected-note");
+    rnote.appendChild(el("span", "lbl", "Rejected"));
+    rnote.appendChild(el("span", null, f.rejected.reason));
+    card.appendChild(rnote);
+  }
+  return card;
+}
+
+function applyFilters(){
+  var sev = document.getElementById("fSeverity").value;
+  var cat = document.getElementById("fCategory").value;
+  var mod = document.getElementById("fModule").value;
+  var status = document.getElementById("fStatus").value;
+  var q = document.getElementById("fSearch").value.trim().toLowerCase();
+
+  var shown = 0;
+  var sectionsHost = document.getElementById("sections");
+  sectionsHost.innerHTML = "";
+
+  MODULES.forEach(function(m){
+    if (mod && mod !== m.key) return;
+    var rows = FINDINGS.filter(function(f){
+      if (f.module !== m.key) return false;
+      if (sev && f.severity !== sev) return false;
+      if (cat && f.category !== cat) return false;
+      if (status && statusOf(f) !== status) return false;
+      if (q) {
+        var hay = (f.id + " " + f.title + " " + f.detail + " " + f.file).toLowerCase();
+        if (hay.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+    if (rows.length === 0 && (sev || cat || status || q)) return;
+
+    var details = document.createElement("details");
+    details.className = "module";
+    details.id = "mod-" + m.key;
+    var summary = document.createElement("summary");
+    summary.appendChild(el("span", "chevron", "▸"));
+    summary.appendChild(el("span", "mtitle", m.title));
+    summary.appendChild(el("span", "msub", (m.subtitle || "") + (m.files != null ? " · " + m.files + " files" : "")));
+    summary.appendChild(el("span", "mcount", rows.length + " / " + FINDINGS.filter(function(f){return f.module===m.key;}).length + " shown"));
+    if (m.agent) summary.appendChild(el("span", "agentline", m.agent));
+    details.appendChild(summary);
+
+    var cards = el("div", "cards");
+    if (rows.length === 0) {
+      cards.appendChild(el("div", "empty-note", "No findings in this module for the current filters."));
+    } else {
+      rows.forEach(function(f){ cards.appendChild(buildCard(f)); });
+    }
+    details.appendChild(cards);
+    sectionsHost.appendChild(details);
+    shown += rows.length;
+  });
+
+  document.getElementById("fCount").textContent = "Showing " + shown + " of " + FINDINGS.length + " findings";
+}
+
+function jumpTo(f){
+  if (!f) return;
+  document.getElementById("fSeverity").value = "";
+  document.getElementById("fCategory").value = "";
+  document.getElementById("fModule").value = f.module;
+  document.getElementById("fStatus").value = "";
+  document.getElementById("fSearch").value = "";
+  applyFilters();
+  requestAnimationFrame(function(){
+    var details = document.getElementById("mod-" + f.module);
+    if (details) details.open = true;
+    requestAnimationFrame(function(){
+      var card = document.getElementById(f.id);
+      if (card) {
+        card.scrollIntoView({behavior:"smooth", block:"center"});
+        card.classList.add("flash");
+        setTimeout(function(){ card.classList.remove("flash"); }, 1500);
+      }
+    });
+  });
+}
+
+document.getElementById("fSeverity").addEventListener("change", applyFilters);
+document.getElementById("fCategory").addEventListener("change", applyFilters);
+document.getElementById("fModule").addEventListener("change", applyFilters);
+document.getElementById("fStatus").addEventListener("change", applyFilters);
+document.getElementById("fSearch").addEventListener("input", applyFilters);
+document.getElementById("fReset").addEventListener("click", function(){
+  document.getElementById("fSeverity").value = "";
+  document.getElementById("fCategory").value = "";
+  document.getElementById("fModule").value = "";
+  document.getElementById("fStatus").value = "";
+  document.getElementById("fSearch").value = "";
+  applyFilters();
+});
+
+fetch("review-data.json")
+  .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+  .then(function(data){
+    MODULES = data.modules || [];
+    FINDINGS = data.findings || [];
+    CALLOUT = data.callouts || [];
+    META = {branch:data.branch, baseBranch:data.baseBranch, generatedAt:data.generatedAt, methodology:data.methodology};
+    render();
+  })
+  .catch(function(err){
+    document.getElementById("statTiles").hidden = true;
+    var wrap = document.querySelector(".wrap");
+    var msg = el("div", "load-error", "Could not load review-data.json (" + err.message + "). It must be published alongside this page.");
+    wrap.insertBefore(msg, document.getElementById("summaryTable"));
+  });
+
+})();
+</script>

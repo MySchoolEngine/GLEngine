@@ -19,7 +19,7 @@
 namespace GLEngine::Renderer::Cameras {
 //=================================================================================
 FreelookCamera::FreelookCamera(const std::shared_ptr<Entity::I_Entity>& owner)
-	: I_CameraComponent(owner)
+	: I_Camera(owner)
 	, _cameraMovementSpeed(1)
 	, m_Flags()
 	, _yaw(0)

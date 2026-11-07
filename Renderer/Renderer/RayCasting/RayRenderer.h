@@ -1,15 +1,16 @@
 #pragma once
 
+#include <Renderer/RendererApi.h>
+
 #include <Renderer/RayCasting/Geometry/RayTraceScene.h>
 #include <Renderer/RayCasting/RayGeneration/Generator.h>
 #include <Renderer/RayCasting/RayGeneration/RenderWorkUnit.h>
-#include <Renderer/RendererApi.h>
 #include <Renderer/Textures/TextureView.h>
 
 #include <functional>
 
 namespace GLEngine::Renderer {
-class I_CameraComponent;
+class I_Camera;
 class I_TextureViewStorage;
 class I_Integrator;
 
@@ -31,7 +32,7 @@ public:
 	static AdditionalTargets DefaultAdditionalTargets() { return {}; }
 
 	struct RenderSettings {
-		I_CameraComponent&									   camera;
+		I_Camera&											   camera;
 		std::unique_ptr<I_Integrator>						   integrator;
 		int													   numSamplesBefore;
 		std::function<Generator<S_RenderWorkUnit>(glm::uvec2)> generatorFactory;

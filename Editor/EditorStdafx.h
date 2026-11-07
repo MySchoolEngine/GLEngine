@@ -3,6 +3,7 @@
 #include <Renderer/RendererApi.h>
 
 #include <Core/CoreMacros.h>
+#include <Core/GUID.h>
 #include <Core/Profiling/Profiler.h>
 
 #include <Utils/Logging/LoggingMacros.h>

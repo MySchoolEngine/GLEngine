@@ -8,7 +8,7 @@
 #include <Core/EventSystem/Layer.h>
 
 namespace GLEngine::Entity {
-class C_EntityManager;
+class C_World;
 }
 
 namespace GLEngine::Physics::Primitives {
@@ -19,7 +19,7 @@ namespace GLEngine::Renderer {
 class I_Renderer;
 class I_DebugDraw;
 class C_Curve;
-class I_CameraComponent;
+class I_Camera;
 } // namespace GLEngine::Renderer
 
 namespace GLEngine::Core {
@@ -40,12 +40,12 @@ class C_AnimationEditor;
 
 class EDITOR_API_EXPORT C_EditorLayer : public Core::C_Layer {
 public:
-	C_EditorLayer(Renderer::I_DebugDraw& dd, const Core::I_Input& directInput, const Renderer::C_Viewport& viewport, const std::shared_ptr<Entity::C_EntityManager>& world);
+	C_EditorLayer(Renderer::I_DebugDraw& dd, const Core::I_Input& directInput, const Renderer::C_Viewport& viewport, Entity::C_World& world);
 	~C_EditorLayer() override;
-	void SetCamera(const std::shared_ptr<Renderer::I_CameraComponent>& camera);
+	void SetCamera(const std::shared_ptr<Renderer::I_Camera>& camera);
 	void OnUpdate() override;
 	void SetViewport(const Renderer::C_Viewport& viewport);
-	void SetWorld(std::shared_ptr<Entity::C_EntityManager> world);
+	void SetWorld(Entity::C_World& world);
 
 	void EditCurve(Renderer::C_Curve& curve);
 	void EditAABB(Physics::Primitives::S_AABB& aabb);
@@ -56,14 +56,14 @@ public:
 	bool OnEntityEvent(Core::C_EntityEvent& event);
 
 private:
-	Renderer::I_DebugDraw&					   m_dd;
-	const Core::I_Input&					   m_Input;
-	std::weak_ptr<Renderer::I_CameraComponent> m_Camera;
-	Renderer::C_Viewport					   m_Viewport;
+	Renderer::I_DebugDraw&			  m_dd;
+	const Core::I_Input&			  m_Input;
+	std::weak_ptr<Renderer::I_Camera> m_Camera;
+	Renderer::C_Viewport			  m_Viewport;
 
-	std::weak_ptr<Entity::C_EntityManager>	   m_World;
-	GUID									   m_SelectedEntity;
-	std::optional<C_Gizmo>					   m_EntityGizmo;
+	Entity::C_World*	   m_World;
+	GUID				   m_SelectedEntity;
+	std::optional<C_Gizmo> m_EntityGizmo;
 
 	std::unique_ptr<C_CurveEditor>	   m_CurveEditing;
 	std::unique_ptr<C_AABBEditor>	   m_AABBEditing;

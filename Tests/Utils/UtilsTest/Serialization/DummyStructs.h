@@ -2,6 +2,8 @@
 
 #include "../../../../Renderer/Renderer/Colours.h"
 
+#include <glm/gtc/quaternion.hpp>
+
 enum class TestEnum
 {
 	Value1,
@@ -12,6 +14,16 @@ enum class TestEnum
 struct GlmVec3 {
 	glm::vec3 vec;
 	glm::vec3 vecNoSerialize;
+};
+
+// One struct covering every type that shares GLMRTTI.cpp's DeserializeFloatList parsing path,
+// so a single round-trip test exercises all of them together instead of
+// one bespoke test per type.
+struct GlmTypesStruct {
+	glm::vec2 m_Vec2;
+	glm::vec3 m_Vec3;
+	glm::vec4 m_Vec4;
+	glm::quat m_Quat;
 };
 
 struct AtomicTypesArrayStruct {

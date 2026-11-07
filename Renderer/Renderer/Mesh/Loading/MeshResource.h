@@ -15,6 +15,11 @@ namespace MeshData {
 struct Scene;
 }
 
+// Grants tests direct access to m_Scene, so an in-memory Scene can be built and attached without
+// going through real file I/O - mirrors Core::ResourceManagerBaseFixture's friend-based access to
+// Resource::m_State for the same reason (Tests/CommonTestUtils/CommonTestUtils/ResourceTestFixture.h).
+class MeshResourceTestFixture;
+
 class RENDERER_API_EXPORT MeshResource : public Core::Resource {
 public:
 	DEFINE_RESOURCE_WITH_PATH_TYPE(MeshResource, Core::Filesystem::modelFolder)
@@ -36,6 +41,7 @@ private:
 	std::vector<std::filesystem::path> m_TextureNames; // question is whether this is needed here as it already lives in the scene
 
 	RTTR_REGISTRATION_FRIEND;
+	friend class MeshResourceTestFixture;
 };
 
 class RENDERER_API_EXPORT MeshLoader : public Core::ResourceLoader<MeshResource> {
@@ -53,8 +59,7 @@ template <> struct UIMetaclassToType<MetaGUI::MeshResource> {
 	using type = GLEngine::Core::ResourceHandle<GLEngine::Renderer::MeshResource>;
 };
 
-enum class MeshResource : std::uint8_t
-{
+enum class MeshResource : std::uint8_t {
 	Name,
 };
 } // namespace Utils::Reflection::UI

@@ -1,6 +1,6 @@
 #include <RendererStdafx.h>
 
-#include <Renderer/ICameraComponent.h>
+#include <Renderer/ICamera.h>
 #include <Renderer/RayCasting/Generator/Sampler.h>
 #include <Renderer/RayCasting/Integrator.h>
 #include <Renderer/RayCasting/RayRenderer.h>
@@ -28,7 +28,7 @@ void C_RayRenderer::Render(const RenderSettings& settings, I_TextureViewStorage&
 	const auto dim	  = storage.GetDimensions();
 	m_ProcessedPixels = 0;
 
-	C_STDSampler	 rnd(0.f, 1.f);
+	C_STDSampler rnd(0.f, 1.f);
 
 	const auto GetRay = [&](const glm::vec2& screenCoord) {
 		const float x = (2.0f * screenCoord.x) / dim.x - 1.0f;

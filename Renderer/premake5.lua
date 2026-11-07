@@ -73,6 +73,7 @@ function CreateRendererProject(projectName, isStatic)
 			"%{wks.location}/%{IncludeDir.fmt}",
 			"%{wks.location}/%{IncludeDir.DevIL}",
 			"%{wks.location}/%{IncludeDir.slot_map}",
+			"%{wks.location}/%{IncludeDir.entt}",
 
 			"%{wks.location}/vendor/projects/Assimp"
 		}
