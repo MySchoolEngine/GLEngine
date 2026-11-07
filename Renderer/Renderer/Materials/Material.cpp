@@ -48,17 +48,14 @@ RTTR_REGISTRATION
 		)
 		.property("ColorMapRes", &C_Material::m_ColorMapRes)(
 			rttr::policy::prop::as_reference_wrapper,
-			RegisterMetaclass<MetaGUI::Texture>(),
 			RegisterMetamember<UI::Texture::Name>("Colour map"),
 			REGISTER_DEFAULT_VALUE(GLEngine::Core::ResourceHandle<TextureResource>()))
 		.property("NormalMapRes", &C_Material::m_NormalMapRes)(
 			rttr::policy::prop::as_reference_wrapper,
-			RegisterMetaclass<MetaGUI::Texture>(),
 			RegisterMetamember<UI::Texture::Name>("Normal map"),
 			REGISTER_DEFAULT_VALUE(GLEngine::Core::ResourceHandle<TextureResource>()))
 		.property("RoughnessMapRes", &C_Material::m_RoughnessRes)(
 			rttr::policy::prop::as_reference_wrapper,
-			RegisterMetaclass<MetaGUI::Texture>(),
 			RegisterMetamember<UI::Texture::Name>("Roughness map"),
 			REGISTER_DEFAULT_VALUE(GLEngine::Core::ResourceHandle<TextureResource>()))
 		.property("NormalMap", &C_Material::GetNormalMapPath, &C_Material::SetNormalMapPath)

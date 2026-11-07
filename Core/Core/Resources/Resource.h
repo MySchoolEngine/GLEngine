@@ -3,6 +3,8 @@
 #include <Core/CoreApi.h>
 #include <Core/EventSystem/EventReciever.h>
 
+#include <Utils/Reflection/Metadata.h>
+
 #include <concepts>
 #include <cstdint>
 #include <filesystem>
@@ -14,7 +16,8 @@
 	RTTR_REGISTRATION                                                                                                                                                              \
 	{                                                                                                                                                                              \
 		using namespace GLEngine::Core;                                                                                                                                            \
-		rttr::registration::class_<ResourceHandle<resourceType>>((resourceType::GetResourceTypeName() + "Handle").c_str())                                                         \
+		rttr::registration::class_<ResourceHandle<resourceType>>((resourceType::GetResourceTypeName() + "Handle").c_str())(                                                        \
+			::Utils::Reflection::RegisterMetaclass<::Utils::Reflection::MetaGUI::CustomGUIWidget>())                                                                               \
 			.constructor<>()(rttr::policy::ctor::as_object)                                                                                                                        \
 			.method("AfterDeserialize", &ResourceHandle<resourceType>::AfterDeserialize)();                                                                                        \
                                                                                                                                                                                    \

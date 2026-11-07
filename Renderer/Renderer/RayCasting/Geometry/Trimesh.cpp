@@ -27,7 +27,6 @@ RTTR_REGISTRATION
 		.property("Material", &C_Trimesh::m_Material)(
 			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetamember<SerializationCls::MandatoryProperty>(true),
-			RegisterMetaclass<MetaGUI::MaterialResource>(),
 			RegisterMetamember<UI::MaterialResource::Name>("Model"),
 			REGISTER_DEFAULT_VALUE(GLEngine::Core::ResourceHandle<MaterialResource>()))
 		.property("Transform", &C_Trimesh::m_Transform)(rttr::policy::prop::as_reference_wrapper, REGISTER_DEFAULT_VALUE(glm::mat4(1.f)))

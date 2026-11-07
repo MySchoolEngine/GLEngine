@@ -9,6 +9,7 @@
 
 #include <rttr/registration>
 
+// clang-format off
 RTTR_REGISTRATION
 {
 	using namespace GLEngine::Renderer;
@@ -16,12 +17,21 @@ RTTR_REGISTRATION
 
 	rttr::registration::class_<S_StaticMesh>("StaticMesh")
 		.constructor<>()(rttr::policy::ctor::as_object)
-		.property("ModelRes", &S_StaticMesh::requested)(rttr::policy::prop::as_reference_wrapper, RegisterMetamember<SerializationCls::MandatoryProperty>(true),
-														RegisterMetaclass<MetaGUI::MeshResource>(), RegisterMetamember<UI::MeshResource::Name>("Model"),
-														REGISTER_DEFAULT_VALUE(GLEngine::Core::ResourceHandle<MeshResource>()))
-		.property("Materials", &S_StaticMesh::materials)(rttr::policy::prop::as_reference_wrapper, RegisterMetamember<SerializationCls::MandatoryProperty>(true),
-														 RegisterMetaclass<MetaGUI::MaterialResource>(), RegisterMetamember<UI::MaterialResource::Name>("Material"));
+		.property("ModelRes", &S_StaticMesh::requested)
+		(
+			rttr::policy::prop::as_reference_wrapper,
+			RegisterMetamember<SerializationCls::MandatoryProperty>(true),
+			RegisterMetamember<UI::MeshResource::Name>("Model"),
+			REGISTER_DEFAULT_VALUE(GLEngine::Core::ResourceHandle<MeshResource>())
+		)
+		.property("Materials", &S_StaticMesh::materials)
+		(
+			rttr::policy::prop::as_reference_wrapper,
+			RegisterMetamember<SerializationCls::MandatoryProperty>(true),
+			RegisterMetamember<UI::MaterialResource::Name>("Material")
+		);
 }
+// clang-format on
 
 namespace {
 [[maybe_unused]] const bool g_RegisterStaticMeshComponent = [] {

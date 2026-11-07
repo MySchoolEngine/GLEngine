@@ -25,6 +25,7 @@ RTTR_REGISTRATION
 	using namespace Utils::Reflection;
 
 	rttr::registration::class_<ResourceHandle<MaterialResource>>((MaterialResource::GetResourceTypeName() + "Handle").c_str())
+		(RegisterMetaclass<MetaGUI::CustomGUIWidget>())
 		.constructor<>()(rttr::policy::ctor::as_object)
 		.method("AfterDeserialize", &ResourceHandle<MaterialResource>::AfterDeserialize)();
 
