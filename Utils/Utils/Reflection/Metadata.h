@@ -237,6 +237,18 @@ template <> struct UIMetaclassToType<MetaGUI::Text> {
 
 
 //=================================================================================
+// Drills through every layer of wrapping (e.g. std::reference_wrapper<StrongType<float, Tag>>)
+// down to the innermost non-wrapper type. RTTR's own unwrap helpers (get_wrapped_value<T>, etc.)
+// only ever peel one layer, so composed wrappers need this explicit loop. Pure type-level lookup,
+// no instance/address involved, so it's safe to call regardless of how many layers are stacked.
+inline rttr::type FullyUnwrapType(rttr::type valueType)
+{
+	while (valueType.is_wrapper())
+		valueType = valueType.get_wrapped_type();
+	return valueType;
+}
+
+//=================================================================================
 // Checks a value's type against what Class expects, regardless of where it came from.
 template <MetaGUI Class> void AssertUIMetaclassValueType(const rttr::type& valueType)
 {
@@ -254,8 +266,12 @@ template <MetaGUI Class> void AssertUIMetaclassValueType(const rttr::type& value
 	}
 	else
 	{
-		GLE_ASSERT(rttr::type::get<UIMetaclassToType_t<Class>>() == valueType, "Property has wrong type expected '{}' passed '{}'",
-				   rttr::type::get<UIMetaclassToType_t<Class>>(), valueType);
+		// valueType may still be wrapped further (e.g. a StrongType sitting under the
+		// as_reference_wrapper layer already peeled off by the caller) - drill the rest of the
+		// way down before comparing against the plain leaf type the widget expects.
+		const auto fullyUnwrapped = FullyUnwrapType(valueType);
+		GLE_ASSERT(rttr::type::get<UIMetaclassToType_t<Class>>() == fullyUnwrapped, "Property has wrong type expected '{}' passed '{}'",
+				   rttr::type::get<UIMetaclassToType_t<Class>>(), fullyUnwrapped);
 	}
 }
 

@@ -13,6 +13,7 @@ project "Physics"
 	}
 	
 	usage "PUBLIC"
+		uses{"DULib"}
 		includedirs
 		{
 			"%{wks.location}/%{IncludeDir.GLM}",
