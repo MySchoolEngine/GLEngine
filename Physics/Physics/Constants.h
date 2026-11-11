@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+#include <Physics/Quantities.h>
+
 namespace GLEngine::Physics::Constants {
-constexpr float g = 9.8067f;
+constexpr auto g = Scalars::acceleration{9.8067f};
+namespace Phys2D {
+constexpr auto g = Physics::Phys2D::acceleration{0, -9.8067f};
+}
 }
