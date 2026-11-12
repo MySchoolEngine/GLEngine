@@ -277,7 +277,8 @@ void C_WaterRendering::Simulate()
 		for (auto& particle : m_Particles)
 		{
 			if (m_bGravitation)
-				particle.Velocity += Physics::Constants::Phys2D::g * t;
+				// g is in m/s^2; scale to mm
+				particle.Velocity += Physics::Phys2D::velocity{Physics::Constants::Phys2D::g.get() * 1000.f * t.get()};
 
 			particle.LocalDensity		  = GetLocalDensity(particle.Position);
 			const Physics::Phys2D::force pressureForce = CalculatePressureForce(particle.Position);
@@ -457,7 +458,7 @@ float C_WaterRendering::SmoothingKernelDerivative(const float radius, const Phys
 		return 0;
 	const float val	  = std::max(0.f, radius * radius - distance.get() * distance.get());
 	const float scale = -24.f / (glm::pi<float>() * pow(radius, 8.f));
-	return -scale * distance.get() * val * val; // minus to keep derivation positive
+	return scale * distance.get() * val * val; // minus to keep derivation positive
 }
 
 //=================================================================================
