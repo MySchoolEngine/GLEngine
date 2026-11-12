@@ -260,7 +260,7 @@ void C_WaterRendering::Simulate()
 				program->SetUniform("deltaTime", t);
 				program->SetUniform("numParticles", m_NumParticles);
 				program->SetUniform("particleRadius", m_ParticleRadius);
-				program->SetUniform("DensityRadius", m_DensityRadius);
+				program->SetUniform("DensityRadius", m_DensityRadius.get() * 1000); // shader expects it in mm
 				program->SetUniform("PressureMultiplier", m_PressureMultiplier);
 
 				auto*	   buffer			= glRM.GetBuffer(m_ParticlesHandle);
@@ -355,10 +355,10 @@ Physics::Scalars::density C_WaterRendering::GetLocalDensity(const Physics::Phys2
 	Physics::Scalars::density density{0.f};
 	for (int i = 0; i < m_NumParticles; ++i)
 	{
-		const auto distance = Physics::Phys2D::getDistance(m_Particles[i].Position, position);
+		const auto distance = Physics::Phys2D::getDistance(m_Particles[i].Position, position); // kept in pixels/mm scale to match the kernel's normalization
 		if (distance == 0.0_m)
 			continue;
-		density = Physics::Scalars::density{density.get() + m_ParticleMass.get() * SmoothingKernel(m_DensityRadius.get(), distance)};
+		density = Physics::Scalars::density{density.get() + m_ParticleMass.get() * SmoothingKernel(GetDensityRadius_mm(), distance)};
 	}
 	return density;
 }
@@ -436,8 +436,8 @@ Physics::Scalars::density C_WaterRendering::GetLocalDensity(const Particle& samp
 	Scalars::density density{0.f};
 	for (const auto& particle : m_Particles)
 	{
-		const auto distance = Phys2D::getDistance(particle.Position, samplingParticle.Position);
-		density += Scalars::density{m_ParticleMass.get() * SmoothingKernel(m_DensityRadius.get(), distance)};
+		const auto distance = Phys2D::getDistance(particle.Position, samplingParticle.Position); // kept in pixels/mm scale to match the kernel's normalization
+		density += Scalars::density{m_ParticleMass.get() * SmoothingKernel(GetDensityRadius_mm(), distance)};
 	}
 	return density;
 }
@@ -486,17 +486,29 @@ float C_WaterRendering::ConvertDensityToPressure(const Physics::Scalars::density
 }
 
 //=================================================================================
+void C_WaterRendering::SetDensityRadius_mm(float mm)
+{
+	m_DensityRadius = Physics::Scalars::distance(mm / 1000.f);
+}
+
+//=================================================================================
+float C_WaterRendering::GetDensityRadius_mm() const
+{
+	return m_DensityRadius.get() * 1000.f;
+}
+
+//=================================================================================
 Physics::Phys2D::force C_WaterRendering::CalculatePressureForce(const Physics::Phys2D::position& pos) const
 {
 	using Physics::Scalars::distanceLiterals::operator""_m;
 	Physics::Phys2D::force pressureForce{0, 0};
 	for (int i = 0; i < m_NumParticles; ++i)
 	{
-		const auto distance = Physics::Phys2D::getDistance(m_Particles[i].Position, pos);
+		const auto distance = Physics::Phys2D::getDistance(m_Particles[i].Position, pos); // kept in pixels/mm scale to match the kernel's normalization
 		if (distance == 0.0_m)
 			continue;
 		const glm::vec2 dir			 = (m_Particles[i].Position.get() - pos.get()) / distance.get();
-		const float		slope		 = SmoothingKernelDerivative(m_DensityRadius.get(), distance);
+		const float		slope		 = SmoothingKernelDerivative(GetDensityRadius_mm(), distance);
 		const auto		localDensity = m_Particles[i].LocalDensity;
 		if (localDensity < Physics::Scalars::density{1e-4f})
 		{
@@ -579,7 +591,7 @@ void C_WaterRendering::Update()
 				auto* buffer = glRM.GetBuffer(m_ParticlesHandle);
 				buffer->BindBase(5);
 				shader.SetUniform("numParticles", m_NumParticles);
-				shader.SetUniform("DensityRadius", m_DensityRadius.get());
+				shader.SetUniform("DensityRadius", m_DensityRadius.get() * 1000.f); // shader expects it in mm
 				shader.SetUniform("Dimensions", s_Dimensions);
 				shader.SetUniform("PressureMultiplier", m_PressureMultiplier);
 				shader.SetUniform("ParticleMass", m_ParticleMass.get());

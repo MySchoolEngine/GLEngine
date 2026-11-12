@@ -58,6 +58,9 @@ private:
 	[[nodiscard]] Physics::Phys2D::force CalculatePressureForce(const Physics::Phys2D::position& pos) const;
 	float								 ConvertDensityToPressure(const Physics::Scalars::density density) const;
 
+	void SetDensityRadius_mm(float mm);
+	float GetDensityRadius_mm() const;
+
 	std::unique_ptr<C_RenderInterface>		 m_RenderInterface;
 	GUI::C_ImageViewer						 m_Image;
 	std::unique_ptr<C_Framebuffer>			 m_FBO;
