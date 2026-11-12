@@ -1,7 +1,5 @@
 #define PI 3.14159265359
 
-const float mass = 10.f;
-
 float SmoothingKernel(in float radius, in float distance)
 {
 	const float volume = (PI * pow(radius, 8)) / 4.f; // integral of the kernel
@@ -14,39 +12,38 @@ float SmoothingKernelDerivative(in float radius, in float distance)
 	if(distance >= radius) return 0;
 	const float val    = max(0.f, radius*radius - distance*distance);
 	float scale = -24 / (PI * pow(radius, 8));
-	return -scale * distance * val * val; // minus to keep derivation possitive
+	return scale * distance * val * val; // minus to keep derivation possitive
 }
 
 // Eqn (3)
 float GetLocalDensity(in vec2 pos)
 {
 	float density = 0.f;
-	for(int i = 0; i < numParticles; ++i)
+	for(int i = 0; i < 100; ++i)
 	{
 		const float distance = distance(particles[i].Position, pos);
 		if(distance == 0.0)
 			continue;
-		density += mass * SmoothingKernel(DensityRadius, distance);
+		density += ParticleMass * SmoothingKernel(DensityRadius, distance);
 	}
 	return density;
 }
 
 float ConvertDensityToPressure(in float density)
 {
-	const float desiredDensity = 1.f;
-	const float delta = density - desiredDensity;
+	const float delta = density - TargetDensity;
 	return delta * PressureMultiplier;
 }
 
 float GetLocalPropertyValue(in vec2 pos)
 {
 	float property = 0.f;
-	for(int i = 0; i < numParticles; ++i)
+	for(int i = 0; i < 100; ++i)
 	{
 		const float distance = distance(particles[i].Position, pos);
 		if(distance == 0.0)
 			continue;
-		property += mass * SmoothingKernel(DensityRadius, distance) / particles[i].LocalDensity;
+		property += ParticleMass * SmoothingKernel(DensityRadius, distance) / particles[i].LocalDensity;
 	}
 	return property;
 }
@@ -54,7 +51,8 @@ float GetLocalPropertyValue(in vec2 pos)
 vec2 CalculatePressureForce(in vec2 pos)
 {
 	vec2 pressureForce = vec2(0,0);
-	for(int i = 0; i < numParticles; ++i)
+	return pressureForce;
+	for(int i = 0; i < 100; ++i)
 	{
 		const float distance = distance(particles[i].Position, pos);
 		if(distance == 0.0)
@@ -66,7 +64,7 @@ vec2 CalculatePressureForce(in vec2 pos)
 		{
 			continue;
 		}
-		pressureForce += ConvertDensityToPressure(localDensity) * dir * slope * mass / localDensity;
+		pressureForce += ConvertDensityToPressure(localDensity) * dir * slope * ParticleMass / localDensity;
 	}
 	return pressureForce;
 }

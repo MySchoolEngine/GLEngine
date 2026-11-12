@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Renderer/Render/IndirectDraw.h>
 #include <Renderer/Renderer2D.h>
@@ -76,7 +76,7 @@ private:
 
 	std::vector<Particle>				 m_Particles;
 	int									 m_NumParticles;
-	float								 m_DensityRadius;
+	Physics::Scalars::distance			 m_DensityRadius;
 	float								 m_PressureMultiplier;
 	float								 m_DensityDivisor;
 	float								 m_ParticleRadius;

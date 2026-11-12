@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 
 #include <DULib/StrongType.h>
@@ -26,7 +26,11 @@ namespace distanceLiterals {
 }
 [[nodiscard]] constexpr distance operator""_cm(long double centimeters)
 {
-	return distance{static_cast<float>(centimeters)/100.f};
+	return distance{static_cast<float>(centimeters) / 100.f};
+}
+[[nodiscard]] constexpr distance operator""_mm(long double millimeters)
+{
+	return distance{static_cast<float>(millimeters) / 1000.f};
 }
 } // namespace distanceLiterals
 #pragma endregion
