@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Physics/SpatialTypes.h>
 
@@ -41,6 +41,7 @@ std::strong_ordering order(mass, mass);
 #pragma region -- density
 // closures
 auto divide(density, float) -> density;
+auto add(density, density) -> density;
 // D = m/V
 auto multiply(density, volume) -> mass;
 auto divide(mass, volume) -> density;
@@ -50,7 +51,7 @@ auto divide(mass, density) -> volume;
 //=================================================================================
 // time_type
 //=================================================================================
-#pragma region -- density
+#pragma region-- time_type
 
 
 // arithmetics
@@ -149,9 +150,20 @@ auto divide(velocity, Scalars::time_type) -> acceleration;
 #pragma endregion
 
 //=================================================================================
+// acceleration
+//=================================================================================
+#pragma region-- acceleration
+auto multiply(acceleration, float) -> acceleration; // scaling acceleration
+#pragma endregion
+
+//=================================================================================
 // force
 //=================================================================================
 #pragma region-- force
+// closures
+force add(force, force);
+force subtract(force, force);
+force negate(force);
 // F = m * a
 auto multiply(Scalars::mass, acceleration) -> force;
 auto divide(force, acceleration) -> Scalars::mass;
