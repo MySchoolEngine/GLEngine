@@ -324,8 +324,8 @@ void C_WaterRendering::Collision(Particle& particle, const Physics::Scalars::tim
 		for (const auto& plane : Planes)
 		{
 			// Real-time rendering 4th edition - 25.9 Collision Response
-			const float Sc = plane.DistanceToLine(previousPos.get());
-			const float Se = plane.DistanceToLine(particle.Position.get());
+			const float Sc = plane.DistanceToLineSigned(previousPos.get());
+			const float Se = plane.DistanceToLineSigned(particle.Position.get());
 			if (Sc * Se <= 0 || Sc <= m_ParticleRadius || Se <= m_ParticleRadius)
 			{
 				if (Sc < closest.Sc)
