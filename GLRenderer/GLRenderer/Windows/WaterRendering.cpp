@@ -278,7 +278,7 @@ void C_WaterRendering::Simulate()
 		{
 			if (m_bGravitation)
 				// g is in m/s^2; scale to mm
-				particle.Velocity += Physics::Phys2D::velocity{Physics::Constants::Phys2D::g.get() * 1000.f * t.get()};
+				particle.Velocity += Physics::Constants::Phys2D::g * t;
 
 			particle.LocalDensity		  = GetLocalDensity(particle.Position);
 			const Physics::Phys2D::force pressureForce = CalculatePressureForce(particle.Position);
