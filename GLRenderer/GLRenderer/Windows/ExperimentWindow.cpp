@@ -25,6 +25,7 @@
 #include <GLRenderer/Textures/TextureManager.h>
 #include <GLRenderer/Textures/TextureUnitManager.h>
 #include <GLRenderer/Windows/ExperimentWindow.h>
+#include <GLRenderer/Windows/RopeSimulation.h>
 #include <GLRenderer/Windows/WaterRendering.h>
 
 #include <Renderer/Cameras/OrbitalCamera.h>
@@ -483,6 +484,20 @@ void C_ExperimentWindow::OnAppInit()
 		return false;
 	}));
 
+	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Rope simulation", [&]() {
+		if (guiMGR.GetWindow(m_RopeSimulationGUID) != nullptr)
+		{
+			return false;
+		}
+		m_RopeSimulationGUID = NextGUID();
+
+		auto* ropeSimulation = new C_RopeSimulation(m_RopeSimulationGUID, guiMGR, *m_Device.get());
+
+		guiMGR.AddCustomWindow(ropeSimulation);
+		ropeSimulation->SetVisible(true);
+		return false;
+	}));
+
 	m_Windows.AddMenuItem(guiMGR.CreateMenuItem<GUI::Menu::C_MenuItem>("Image editor", [&]() {
 		if (guiMGR.GetWindow(m_ImageEditorGUID) != nullptr)
 		{
@@ -746,6 +761,7 @@ bool C_ExperimentWindow::OnAppEvent(Core::C_AppEvent& event)
 		guiMGR.DestroyWindow(m_EntitiesWindowGUID);
 		guiMGR.DestroyWindow(m_RayTraceGUID);
 		guiMGR.DestroyWindow(m_WaterRenderingGUID);
+		guiMGR.DestroyWindow(m_RopeSimulationGUID);
 		guiMGR.DestroyWindow(m_ConsoleWindowGUID);
 		guiMGR.DestroyWindow(m_FrameStatsGUID);
 		guiMGR.DestroyWindow(m_HDRSettingsGUID);

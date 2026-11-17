@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 
 #include <DULib/StrongType.h>
@@ -50,6 +50,7 @@ using d_position = DULib::StrongType<glm::vec2, struct d_position_2d_tag>;
 #pragma region-- force
 auto add(position, d_position) -> position;
 auto subtract(position, d_position) -> position;
+auto multiply(position, float) -> position;
 
 inline Scalars::distance getDistance(const position& p1, const position& p2)
 {
