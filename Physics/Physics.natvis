@@ -52,6 +52,12 @@
   </Type>
 
   <!-- Quantities -->
+  <!-- squared length; fine for comparing against squared thresholds -->
+  <Intrinsic Name="vec2LenSq" Expression="value-&gt;x*value-&gt;x + value-&gt;y*value-&gt;y">
+    <Parameter Name="value" Type="glm::vec&lt;2,float,0&gt; *" />
+  </Intrinsic>
+  
+  
   <Type Name="DULib::StrongType&lt;float, GLEngine::Physics::Scalars::distance_tag&gt;">
     <DisplayString Condition="m_Value > 1">{m_Value}m</DisplayString>
     <DisplayString Condition="m_Value &lt; 1 &amp;&amp; m_Value &gt; 0.1">{(m_Value * 100),g}cm</DisplayString>
@@ -60,6 +66,14 @@
       <Item Name="[m]">m_Value</Item>
       <Item Name="[cm]">m_Value * 100</Item>
       <Item Name="[mm]">m_Value * 1000</Item>
+    </Expand>
+  </Type>
+  <Type Name="DULib::StrongType&lt;glm::vec&lt;2,float,*&gt;, GLEngine::Physics::Phys2D::velocity_2d_tag&gt;">
+    <DisplayString Condition="vec2LenSq(&amp;m_Value) > 1">{m_Value}m/s</DisplayString>
+    <DisplayString Condition="vec2LenSq(&amp;m_Value) &lt; 1 &amp;&amp; vec2LenSq(&amp;m_Value) &gt; 0">{m_Value}mm/s</DisplayString>
+    <DisplayString Condition="vec2LenSq(&amp;m_Value) == 0.0">0m/s</DisplayString>
+    <Expand>
+      <Item Name="[m]">m_Value</Item>
     </Expand>
   </Type>
 </AutoVisualizer>
