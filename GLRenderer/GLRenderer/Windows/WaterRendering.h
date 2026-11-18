@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Renderer/Render/IndirectDraw.h>
 #include <Renderer/Renderer2D.h>
@@ -7,6 +7,9 @@
 
 #include <GUI/GUIWindow.h>
 #include <GUI/ImageViewer.h>
+#include <GUI/StrongTypeReflection.h>
+
+#include <Physics/Quantities.h>
 
 #include <Utils/HighResolutionTimer.h>
 #include <Utils/Padding.h>
@@ -34,26 +37,29 @@ protected:
 
 private:
 	struct Particle {
-		glm::vec2				   Position;
-		glm::vec2				   Velocity{0.f, 0.f};
-		float					   LocalDensity = 0.f;
+		Physics::Phys2D::position  Position;
+		Physics::Phys2D::velocity  Velocity{0.f, 0.f};
+		Physics::Scalars::density  LocalDensity{0.f};
 		::Utils::Padding<float, 3> gap;
 
-		void Move(const float t) { Position += Velocity * t; }
+		void Move(const Physics::Scalars::time_type t) { Position += Velocity * t; }
 	};
 
-	void  Simulate();
-	void  Collision(Particle& particle, const float t);
-	void  Setup();
-	float GetLocalDensity(const Particle& samplingParticle) const;
-	float GetLocalDensity(const glm::vec2& position) const;
+	void					  Simulate();
+	void					  Collision(Particle& particle, const Physics::Scalars::time_type t);
+	void					  Setup();
+	Physics::Scalars::density GetLocalDensity(const Particle& samplingParticle) const;
+	Physics::Scalars::density GetLocalDensity(const Physics::Phys2D::position& position) const;
 
-	[[nodiscard]] static float SmoothingKernel(const float radius, const float distance);
-	[[nodiscard]] static float SmoothingKernelDerivative(const float radius, const float distance);
-	[[nodiscard]] static float SharpSmoothingKernel(const float radius, const float distance);
-	[[nodiscard]] static float SharpSmoothingKernelDerivative(const float radius, const float distance);
-	[[nodiscard]] glm::vec2	   CalculatePressureForce(const glm::vec2& pos) const;
-	float					   ConvertDensityToPressure(const float density) const;
+	[[nodiscard]] static float			 SmoothingKernel(const float radius, Physics::Scalars::distance distance);
+	[[nodiscard]] static float			 SmoothingKernelDerivative(const float radius, const Physics::Scalars::distance distance);
+	[[nodiscard]] static float			 SharpSmoothingKernel(const float radius, const Physics::Scalars::distance distance);
+	[[nodiscard]] static float			 SharpSmoothingKernelDerivative(const float radius, const Physics::Scalars::distance distance);
+	[[nodiscard]] Physics::Phys2D::force CalculatePressureForce(const Physics::Phys2D::position& pos) const;
+	float								 ConvertDensityToPressure(const Physics::Scalars::density density) const;
+
+	void SetDensityRadius_mm(float mm);
+	float GetDensityRadius_mm() const;
 
 	std::unique_ptr<C_RenderInterface>		 m_RenderInterface;
 	GUI::C_ImageViewer						 m_Image;
@@ -73,12 +79,12 @@ private:
 
 	std::vector<Particle>				 m_Particles;
 	int									 m_NumParticles;
-	float								 m_DensityRadius;
+	Physics::Scalars::distance			 m_DensityRadius;
 	float								 m_PressureMultiplier;
 	float								 m_DensityDivisor;
 	float								 m_ParticleRadius;
 	float								 m_DesiredPressure;
-	float								 m_ParticleMass;
+	Physics::Scalars::mass				 m_ParticleMass;
 	bool								 m_bRunSimulation;
 	bool								 m_bGravitation;
 	mutable bool						 m_bScheduledSetup;

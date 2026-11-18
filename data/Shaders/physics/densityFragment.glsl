@@ -11,9 +11,11 @@ in vec2	 TexCoords;
 #include "Particle.glsl"
 
 uniform int numParticles;
-uniform float DensityRadius;
+uniform float DensityRadius; // [mm]
 uniform uvec2 Dimensions;
 uniform float PressureMultiplier;
+uniform float ParticleMass;
+uniform float TargetDensity;
 
 layout(std140, binding = 5) buffer particlesUBO
 {
@@ -22,7 +24,7 @@ layout(std140, binding = 5) buffer particlesUBO
 
 bool isInEps(float x)
 {
-	return x > 0 && x < 100.f;
+	return x > -0.1f && x < 0.1f;
 }
 
 #include "ParticleCalculations.glsl"

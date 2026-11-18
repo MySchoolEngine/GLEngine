@@ -44,9 +44,9 @@ RTTR_REGISTRATION
 		.property("SmoothingDistance", &C_WaterRendering::m_DensityRadius)(
 			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::Slider>(),
-			RegisterMetamember<UI::Slider::Name>("Smoothing distance:"),
-			RegisterMetamember<UI::Slider::Min>(1.f),
-			RegisterMetamember<UI::Slider::Max>(100.f))
+			RegisterMetamember<UI::Slider::Name>("Smoothing distance[m]:"),
+			RegisterMetamember<UI::Slider::Min>(.1f),
+			RegisterMetamember<UI::Slider::Max>(10.f))
 		.property("PressureMultiplier", &C_WaterRendering::m_PressureMultiplier)(
 			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::Slider>(),
@@ -75,8 +75,8 @@ RTTR_REGISTRATION
 			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::Slider>(),
 			RegisterMetamember<UI::Slider::Name>("Desired pressure:"),
-			RegisterMetamember<UI::Slider::Min>(1.f),
-			RegisterMetamember<UI::Slider::Max>(500.f))
+			RegisterMetamember<UI::Slider::Min>(0.001f),
+			RegisterMetamember<UI::Slider::Max>(0.01f))
 		.property("RunSimulation", &C_WaterRendering::m_bRunSimulation)(
 			rttr::policy::prop::as_reference_wrapper,
 			RegisterMetaclass<MetaGUI::Checkbox>(),
@@ -89,6 +89,7 @@ RTTR_REGISTRATION
 // clang-format on
 
 namespace GLEngine::GLRenderer {
+using Physics::Scalars::distanceLiterals::operator""_mm;
 
 static constexpr bool		s_SimulateOnGPU = false;
 static constexpr glm::uvec2 s_Dimensions{800, 600};
@@ -107,11 +108,11 @@ C_WaterRendering::C_WaterRendering(const GUID guid, GUI::C_GUIManager& guiMGR, C
 	, m_DrawCmd()
 	, m_OverlayStorage(s_Dimensions.x, s_Dimensions.y, 4)
 	, m_NumParticles(100)
-	, m_DensityRadius(100.f)
+	, m_DensityRadius(100.0_mm)
 	, m_PressureMultiplier(500.f)
 	, m_DensityDivisor(6.25f)
 	, m_ParticleRadius(5.f)
-	, m_DesiredPressure(100.f)
+	, m_DesiredPressure(0.01f)
 	, m_ParticleMass(1.f)
 	, m_bRunSimulation(false)
 	, m_bGravitation(false)
@@ -217,6 +218,7 @@ C_WaterRendering::C_WaterRendering(const GUID guid, GUI::C_GUIManager& guiMGR, C
 void C_WaterRendering::DrawComponents() const
 {
 	m_Image.Draw();
+	ImGui::Text("For the need of this simulation 10px == 1cm");
 	rttr::instance obj(*this);
 	auto		   changed = GUI::DrawAllPropertyGUI(obj);
 	if (changed.empty() == false)
@@ -236,9 +238,10 @@ void C_WaterRendering::DrawComponents() const
 //=================================================================================
 void C_WaterRendering::Simulate()
 {
-	const float t = static_cast<float>(m_Timer.getElapsedTimeFromLastQueryMilliseconds()) / 1000.f;
+	using Physics::Scalars::time_typeLiterals::operator""_s;
+	const auto t = Physics::Scalars::time_type{static_cast<float>(m_Timer.getElapsedTimeFromLastQueryMilliseconds()) / 1000.f};
 
-	if (t > 0.5f)
+	if (t > 0.5_s)
 	{
 		return; // ignore long frames
 	}
@@ -257,7 +260,7 @@ void C_WaterRendering::Simulate()
 				program->SetUniform("deltaTime", t);
 				program->SetUniform("numParticles", m_NumParticles);
 				program->SetUniform("particleRadius", m_ParticleRadius);
-				program->SetUniform("DensityRadius", m_DensityRadius);
+				program->SetUniform("DensityRadius", m_DensityRadius.get() * 1000); // shader expects it in mm
 				program->SetUniform("PressureMultiplier", m_PressureMultiplier);
 
 				auto*	   buffer			= glRM.GetBuffer(m_ParticlesHandle);
@@ -274,11 +277,12 @@ void C_WaterRendering::Simulate()
 		for (auto& particle : m_Particles)
 		{
 			if (m_bGravitation)
-				particle.Velocity += glm::vec2{0.f, -Physics::Constants::g * t};
+				// g is in m/s^2; scale to mm
+				particle.Velocity += Physics::Constants::Phys2D::g * t;
 
 			particle.LocalDensity		  = GetLocalDensity(particle.Position);
-			const glm::vec2 pressureForce = CalculatePressureForce(particle.Position);
-			particle.Velocity += pressureForce * particle.LocalDensity;
+			const Physics::Phys2D::force pressureForce = CalculatePressureForce(particle.Position);
+			particle.Velocity += Physics::Phys2D::velocity{pressureForce.get() * particle.LocalDensity.get()};
 			particle.Move(t);
 		}
 
@@ -292,7 +296,7 @@ void C_WaterRendering::Simulate()
 }
 
 //=================================================================================
-void C_WaterRendering::Collision(Particle& particle, const float t)
+void C_WaterRendering::Collision(Particle& particle, const Physics::Scalars::time_type t)
 {
 	constexpr static float dampingFactor = .9f;
 
@@ -320,8 +324,8 @@ void C_WaterRendering::Collision(Particle& particle, const float t)
 		for (const auto& plane : Planes)
 		{
 			// Real-time rendering 4th edition - 25.9 Collision Response
-			const float Sc = plane.DistanceToLine(previousPos);
-			const float Se = plane.DistanceToLine(particle.Position);
+			const float Sc = plane.DistanceToLineSigned(previousPos.get());
+			const float Se = plane.DistanceToLineSigned(particle.Position.get());
 			if (Sc * Se <= 0 || Sc <= m_ParticleRadius || Se <= m_ParticleRadius)
 			{
 				if (Sc < closest.Sc)
@@ -337,7 +341,7 @@ void C_WaterRendering::Collision(Particle& particle, const float t)
 			const float tFreeMove = (closest.Sc - m_ParticleRadius) / (closest.Sc - closest.Se);
 			particle.Position	  = previousPos;
 			particle.Move(t * tFreeMove);
-			particle.Velocity = glm::reflect(particle.Velocity, closest.plane->Normal) * dampingFactor;
+			particle.Velocity = Physics::Phys2D::velocity{glm::reflect(particle.Velocity.get(), closest.plane->Normal) * dampingFactor};
 
 			particle.Move(t * (1.f - tFreeMove));
 		}
@@ -345,15 +349,17 @@ void C_WaterRendering::Collision(Particle& particle, const float t)
 }
 
 //=================================================================================
-float C_WaterRendering::GetLocalDensity(const glm::vec2& position) const
+Physics::Scalars::density C_WaterRendering::GetLocalDensity(const Physics::Phys2D::position& position) const
 {
-	float density = 0.f;
+	using Physics::Scalars::distanceLiterals::operator""_m;
+
+	Physics::Scalars::density density{0.f};
 	for (int i = 0; i < m_NumParticles; ++i)
 	{
-		const float distance = glm::distance(m_Particles[i].Position, position);
-		if (distance == 0.f)
+		const auto distance = Physics::Phys2D::getDistance(m_Particles[i].Position, position); // kept in pixels/mm scale to match the kernel's normalization
+		if (distance == 0.0_m)
 			continue;
-		density += m_ParticleMass * SmoothingKernel(m_DensityRadius, distance);
+		density = Physics::Scalars::density{density.get() + m_ParticleMass.get() * SmoothingKernel(GetDensityRadius_mm(), distance)};
 	}
 	return density;
 }
@@ -376,7 +382,7 @@ void C_WaterRendering::Setup()
 		const int line	 = i / 10;
 		const int column = i % 10;
 
-		m_Particles.emplace_back(glm::vec2{topLeft} + glm::vec2{ParticleSize.x * column, ParticleSize.y * line});
+		m_Particles.emplace_back(Physics::Phys2D::position{topLeft} + Physics::Phys2D::d_position{ParticleSize.x * column, ParticleSize.y * line});
 	}
 
 	for (int i = 0; i < m_NumParticles; ++i)
@@ -425,77 +431,92 @@ void C_WaterRendering::Setup()
 }
 
 //=================================================================================
-float C_WaterRendering::GetLocalDensity(const Particle& samplingParticle) const
+Physics::Scalars::density C_WaterRendering::GetLocalDensity(const Particle& samplingParticle) const
 {
-	float density = 0.f;
+	using namespace Physics;
+	Scalars::density density{0.f};
 	for (const auto& particle : m_Particles)
 	{
-		const float distance = glm::distance(particle.Position, samplingParticle.Position);
-		density += m_ParticleMass * SmoothingKernel(m_DensityRadius, distance);
+		const auto distance = Phys2D::getDistance(particle.Position, samplingParticle.Position); // kept in pixels/mm scale to match the kernel's normalization
+		density += Scalars::density{m_ParticleMass.get() * SmoothingKernel(GetDensityRadius_mm(), distance)};
 	}
 	return density;
 }
 
 //=================================================================================
-float C_WaterRendering::SmoothingKernel(const float radius, const float distance)
+float C_WaterRendering::SmoothingKernel(const float radius, const Physics::Scalars::distance distance)
 {
 	const auto	volume = (glm::pi<float>() * std::pow(radius, 8.f)) / 4.f;
-	const float val	   = std::max(0.f, radius * radius - distance * distance);
+	const float val	   = std::max(0.f, radius * radius - distance.get() * distance.get());
 	return val * val * val / volume;
 }
 
 //=================================================================================
-float C_WaterRendering::SmoothingKernelDerivative(const float radius, const float distance)
+float C_WaterRendering::SmoothingKernelDerivative(const float radius, const Physics::Scalars::distance distance)
 {
-	if (distance >= radius)
+	if (distance.get() >= radius)
 		return 0;
-	const float val	  = std::max(0.f, radius * radius - distance * distance);
+	const float val	  = std::max(0.f, radius * radius - distance.get() * distance.get());
 	const float scale = -24.f / (glm::pi<float>() * pow(radius, 8.f));
-	return -scale * distance * val * val; // minus to keep derivation positive
+	return scale * distance.get() * val * val; // minus to keep derivation positive
 }
 
 //=================================================================================
-float C_WaterRendering::SharpSmoothingKernel(const float radius, const float distance)
+float C_WaterRendering::SharpSmoothingKernel(const float radius, const Physics::Scalars::distance distance)
 {
 	const float volume = (glm::pi<float>() * std::pow(radius, 4.f)) / 6.f;
-	const float value  = std::max(0.f, radius - distance);
+	const float value  = std::max(0.f, radius - distance.get());
 	return value * value / volume;
 }
 
 //=================================================================================
-float C_WaterRendering::SharpSmoothingKernelDerivative(const float radius, const float distance)
+float C_WaterRendering::SharpSmoothingKernelDerivative(const float radius, const Physics::Scalars::distance distance)
 {
-	if (distance >= radius)
+	if (distance.get() >= radius)
 		return 0;
 
 	const float scale = -12.f / (std::pow(radius, 4.f) * glm::pi<float>());
-	return (distance - radius) * scale;
+	return (distance.get() - radius) * scale;
 }
 
 //=================================================================================
-float C_WaterRendering::ConvertDensityToPressure(const float density) const
+float C_WaterRendering::ConvertDensityToPressure(const Physics::Scalars::density density) const
 {
-	const float delta = density - m_DesiredPressure;
+	const float delta = density.get() - m_DesiredPressure;
 	return delta * m_PressureMultiplier;
 }
 
 //=================================================================================
-glm::vec2 C_WaterRendering::CalculatePressureForce(const glm::vec2& pos) const
+void C_WaterRendering::SetDensityRadius_mm(float mm)
 {
-	glm::vec2 pressureForce = glm::vec2(0, 0);
+	m_DensityRadius = Physics::Scalars::distance(mm / 1000.f);
+}
+
+//=================================================================================
+float C_WaterRendering::GetDensityRadius_mm() const
+{
+	return m_DensityRadius.get() * 1000.f;
+}
+
+//=================================================================================
+Physics::Phys2D::force C_WaterRendering::CalculatePressureForce(const Physics::Phys2D::position& pos) const
+{
+	using Physics::Scalars::distanceLiterals::operator""_m;
+	Physics::Phys2D::force pressureForce{0, 0};
 	for (int i = 0; i < m_NumParticles; ++i)
 	{
-		const float distance = glm::distance(m_Particles[i].Position, pos);
-		if (distance == 0.0)
+		const auto distance = Physics::Phys2D::getDistance(m_Particles[i].Position, pos); // kept in pixels/mm scale to match the kernel's normalization
+		if (distance == 0.0_m)
 			continue;
-		const glm::vec2 dir			 = (m_Particles[i].Position - pos) / distance;
-		const float		slope		 = SharpSmoothingKernelDerivative(m_DensityRadius, distance);
-		const float		localDensity = m_Particles[i].LocalDensity;
-		if (localDensity < 1e-4f)
+		const glm::vec2 dir			 = (m_Particles[i].Position.get() - pos.get()) / distance.get();
+		const float		slope		 = SmoothingKernelDerivative(GetDensityRadius_mm(), distance);
+		const auto		localDensity = m_Particles[i].LocalDensity;
+		if (localDensity < Physics::Scalars::density{1e-4f})
 		{
 			continue;
 		}
-		pressureForce += ConvertDensityToPressure(localDensity) * dir * slope * m_ParticleMass / localDensity;
+		pressureForce += Physics::Phys2D::force{
+			ConvertDensityToPressure(localDensity) * dir * slope * m_ParticleMass.get() / localDensity.get()};
 	}
 	return pressureForce;
 }
@@ -531,7 +552,7 @@ void C_WaterRendering::Update()
 		{
 			const auto density = GetLocalDensity(particle) / m_DensityDivisor;
 			m_2DRenderer.Draw(Renderer::RenderCall2D{
-				.Position		= {particle.Position},
+				.Position		= {particle.Position.get()},
 				.Size			= {m_ParticleRadius * 2.f, m_ParticleRadius * 2.f},
 				.Rotation		= 0.f,
 				.PipelineHandle = m_Pipeline,
@@ -571,9 +592,11 @@ void C_WaterRendering::Update()
 				auto* buffer = glRM.GetBuffer(m_ParticlesHandle);
 				buffer->BindBase(5);
 				shader.SetUniform("numParticles", m_NumParticles);
-				shader.SetUniform("DensityRadius", m_DensityRadius);
+				shader.SetUniform("DensityRadius", m_DensityRadius.get() * 1000.f); // shader expects it in mm
 				shader.SetUniform("Dimensions", s_Dimensions);
 				shader.SetUniform("PressureMultiplier", m_PressureMultiplier);
+				shader.SetUniform("ParticleMass", m_ParticleMass.get());
+				shader.SetUniform("TargetDensity", m_DesiredPressure);
 			},
 		.inputTextures = {},
 		.renderTarget  = *m_FBO,
